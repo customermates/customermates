@@ -2,11 +2,13 @@ import type { MovedToTrash } from "@/features/trash/moved-to-trash";
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 import type { DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
 import type { DataViewChipDto } from "@/core/data-view/data-view-state.schema";
+import type { SharedView } from "@/core/data-view/shared-view-link";
 
 import { toJS } from "mobx";
 
 import { deleteDataViewAction, upsertDataViewAction } from "@/app/actions";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
+import { SHARED_VIEW_PARAM, encodeSharedView } from "@/core/data-view/shared-view-link";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 import { sortViewsByPosition } from "./view-rail-model";
@@ -22,8 +24,23 @@ export function viewHref(pathname: string, viewKey: string, surfaceKey?: DataVie
   return viewKey === ALL_VIEW_KEY ? pathname : `${pathname}?view=${encodeURIComponent(viewKey)}`;
 }
 
-export function viewLink(pathname: string, viewKey: string, surfaceKey?: DataViewSurfaceKey): string {
-  return new URL(viewHref(pathname, viewKey, surfaceKey), window.location.origin).toString();
+export function viewLink(
+  pathname: string,
+  viewKey: string,
+  surfaceKey?: DataViewSurfaceKey,
+  shared?: SharedView,
+): string {
+  const link = new URL(viewHref(pathname, viewKey, surfaceKey), window.location.origin);
+  if (shared) link.searchParams.set(SHARED_VIEW_PARAM, encodeSharedView(shared));
+  return link.toString();
+}
+
+export function sharedViewOf<E extends HasId>(
+  store: BaseDataViewStore<E>,
+  view: DataViewChipDto,
+): SharedView | undefined {
+  if (!store.sharesViewState || !store.p13nId || view.id === ALL_VIEW_KEY) return undefined;
+  return { name: view.name, surfaceKey: surfaceKeyOf(store), state: toJS(view.state) };
 }
 
 export function selectView<E extends HasId>(store: BaseDataViewStore<E>, viewKey: string, pathname: string): void {

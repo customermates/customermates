@@ -8,6 +8,7 @@ import type { Grouping } from "@/core/base/grouping/grouping.schema";
 import { connectDataViewUrlSync } from "../data-view-url-sync";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
+import { encodeSharedView } from "@/core/data-view/shared-view-link";
 
 const A_VIEW_ID = "7c1f2b3a-4d5e-4f60-8a71-9b2c3d4e5f60";
 const A_GROUPING_COLUMN_ID = "1a2b3c4d-5e6f-4071-8293-a4b5c6d7e8f9";
@@ -388,5 +389,62 @@ describe("data-view URL synchronization", () => {
 
     expect(replaceState).toHaveBeenCalledOnce();
     secondCleanup();
+  });
+});
+
+describe("shared view links", () => {
+  const shared = {
+    name: "Largest deals",
+    surfaceKey: "records:82034465-6534-478c-8de8-775b9fdb0d3e" as const,
+    state: { searchTerm: "acme", pageSize: 10 as const, hiddenColumns: ["value"] },
+  };
+
+  function sharedStore(viewIds: string[]) {
+    const { state, store } = createStore();
+    const applySharedView = vi.fn(() => true);
+    Object.assign(state, { applySharedView, views: viewIds.map((id) => ({ id })) });
+    return { applySharedView, store };
+  }
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.useRealTimers();
+  });
+
+  it("opens a colleague's setup as unsaved changes and drops the foreign view from the URL", () => {
+    const { applySharedView, store } = sharedStore([]);
+    window.history.replaceState(null, "", `/en/contacts?view=${A_VIEW_ID}&viewShare=${encodeSharedView(shared)}&tab=1`);
+
+    const cleanup = connectDataViewUrlSync(store);
+
+    expect(applySharedView).toHaveBeenCalledExactlyOnceWith(shared);
+    expect(window.location.search).toBe("?tab=1");
+    cleanup();
+  });
+
+  it("opens the owner's own view unchanged", () => {
+    const { applySharedView, store } = sharedStore([A_VIEW_ID]);
+    window.history.replaceState(null, "", `/en/contacts?view=${A_VIEW_ID}&viewShare=${encodeSharedView(shared)}`);
+
+    const cleanup = connectDataViewUrlSync(store);
+
+    expect(applySharedView).not.toHaveBeenCalled();
+    expect(window.location.search).toBe(`?view=${A_VIEW_ID}`);
+    cleanup();
+  });
+
+  it("ignores a damaged link", () => {
+    const { applySharedView, store } = sharedStore([]);
+    window.history.replaceState(null, "", "/en/contacts?viewShare=broken!");
+
+    const cleanup = connectDataViewUrlSync(store);
+
+    expect(applySharedView).not.toHaveBeenCalled();
+    expect(window.location.search).toBe("");
+    cleanup();
   });
 });

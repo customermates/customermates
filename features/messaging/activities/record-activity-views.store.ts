@@ -63,6 +63,9 @@ export class RecordActivityViewsStore extends BaseDataViewStore<ActivityEntryDto
   get columnsDefinition() {
     return [];
   }
+  override get sharesViewState() {
+    return false;
+  }
   protected override get viewStateWriteOwner() {
     return this.owner ? JSON.stringify([this.owner.userId, this.owner.companyId]) : undefined;
   }

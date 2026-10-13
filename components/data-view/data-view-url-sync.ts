@@ -4,6 +4,7 @@ import { reaction, toJS } from "mobx";
 
 import { GET_PARAM_KEYS, decodeGetParams, encodeGetParams } from "@/core/utils/get-params";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
+import { SHARED_VIEW_PARAM, decodeSharedView } from "@/core/data-view/shared-view-link";
 
 const OWNED_KEYS = new Set<string>(GET_PARAM_KEYS);
 
@@ -46,6 +47,19 @@ function needsUrlUpdate<E extends HasId>(store: BaseDataViewStore<E>, currentSea
     normalizedSearch = raw;
   }
   return normalizedSearch !== getQueryString(store, raw);
+}
+
+function openSharedView<E extends HasId>(store: BaseDataViewStore<E>, browser: DataViewUrlSyncWindow): void {
+  const params = new URLSearchParams(browser.location.search);
+  const token = params.get(SHARED_VIEW_PARAM);
+  if (token === null) return;
+
+  params.delete(SHARED_VIEW_PARAM);
+  const shared = decodeSharedView(token);
+  const ownsView = store.views.some((view) => view.id === params.get("view"));
+  if (shared && !ownsView && store.applySharedView(shared)) params.delete("view");
+  const query = params.toString();
+  browser.history.replaceState(null, "", query ? `${browser.location.pathname}?${query}` : browser.location.pathname);
 }
 
 export function connectDataViewUrlSync<E extends HasId>(
@@ -123,6 +137,7 @@ export function connectDataViewUrlSync<E extends HasId>(
     },
   );
 
+  openSharedView(store, browser);
   browser.addEventListener("click", pauseForNavigation);
   browser.addEventListener("popstate", restoreFromHistory);
 

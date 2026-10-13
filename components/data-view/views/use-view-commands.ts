@@ -22,6 +22,7 @@ import {
   duplicateView,
   moveView,
   selectView,
+  sharedViewOf,
   surfaceKeyOf,
   updateViewMeta,
   viewLink,
@@ -66,7 +67,12 @@ export function useViewCommands<E extends HasId>(args: {
       runUserAction(async () => {
         if (
           await copyToClipboard(
-            viewLink(store.viewPathname ?? pathname, view.id, store.viewPathname ? surfaceKeyOf(store) : undefined),
+            viewLink(
+              store.viewPathname ?? pathname,
+              view.id,
+              store.viewPathname ? surfaceKeyOf(store) : undefined,
+              sharedViewOf(store, view),
+            ),
           )
         )
           toast.success(t("DataView.views.linkCopied"));

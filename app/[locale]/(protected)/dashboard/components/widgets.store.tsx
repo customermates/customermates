@@ -66,6 +66,10 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
     return [];
   }
 
+  override get sharesViewState() {
+    return false;
+  }
+
   setItems(args: GetResult<WidgetDto>) {
     const current = new Map(this.items.map((widget) => [widget.id, widget]));
     if (this.collectionActor !== this.layoutActor) this.layoutReceipts.clear();

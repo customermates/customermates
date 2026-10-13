@@ -36,6 +36,8 @@ import {
 } from "@/core/base/grouping/grouping.schema";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import type { DataViewProposal } from "@/core/data-view/data-view-proposal.schema";
+import type { SharedView } from "@/core/data-view/shared-view-link";
+import { scopeSharedViewState } from "@/core/data-view/shared-view-link";
 import {
   type ViewDraft,
   draftStorageKey,
@@ -185,6 +187,9 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   get supportsBoard(): boolean {
     return false;
   }
+  get sharesViewState(): boolean {
+    return true;
+  }
   get supportsManualOrder(): boolean {
     return false;
   }
@@ -328,6 +333,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       applyView: action,
       saveViewChanges: action,
       applyViewProposal: action,
+      applySharedView: action,
       resetViewChanges: action,
       restoreQueryDraft: action,
       refresh: action,
@@ -1096,6 +1102,30 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.applyView(viewKey);
   };
 
+  applySharedView = (shared: SharedView): boolean => {
+    if (!this.sharesViewState || shared.surfaceKey !== this.p13nId || !this.canSaveQuery) return false;
+    const columnIds = new Set(
+      this.columnsDefinition.map((column) => column.uid).filter((uid) => uid !== this.primaryColumnId),
+    );
+    const state = scopeSharedViewState(shared.state, {
+      columnIds,
+      filterFields: this.filterableFields.length
+        ? new Set(this.filterableFields.map((field) => field.field))
+        : undefined,
+      groupings: this.groupableFields.map((field) => field.grouping),
+      sortableColumnIds: this.sortableColumnIds,
+      supportsBoard: this.supportsBoard,
+    });
+
+    this.writeQueryDraft(ALL_VIEW_KEY, {
+      filters: state.filters ?? [],
+      searchTerm: state.searchTerm || undefined,
+      proposal: { state, name: shared.name, isNew: true },
+    });
+    this.applyView(ALL_VIEW_KEY);
+    return true;
+  };
+
   private saveProposedRename = async (viewKey: string, name: string): Promise<void> => {
     if (!this.p13nId) return;
     const renamed = await upsertDataViewAction({
@@ -1118,9 +1148,13 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   private saveProposedView = async (name: string | undefined): Promise<void> => {
     if (!name || !this.p13nId) return;
+    const proposedSearch = this.readQueryDraft(this.activeViewKey)?.proposal?.state.searchTerm !== undefined;
     const created = await upsertDataViewAction({
       name,
-      state: this.viewStateSnapshot({ includeQuery: true }),
+      state: {
+        ...this.viewStateSnapshot({ includeQuery: true }),
+        ...(proposedSearch ? { searchTerm: this.searchTerm ?? "" } : {}),
+      },
       surfaceKey: this.p13nId as DataViewSurfaceKey,
     });
     if (!created.ok) {
