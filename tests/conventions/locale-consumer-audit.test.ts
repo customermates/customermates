@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import ts from "typescript";
 
 import { REPO_ROOT, REPO_SCAN_TIMEOUT_MS, parseSource, readSourceText, walkFiles } from "./walk";
+import { unreviewedExceptionAdditions } from "./exception-membership";
 
 import { REGISTERED_LOCALES } from "@/i18n/locale-registry";
 
@@ -722,5 +723,11 @@ describe("locale consumer audit", () => {
     }
 
     expect(problems, `locale consumers bound to the wrong domain:\n${problems.join("\n")}`).toEqual([]);
+  });
+});
+
+describe("exception membership against the review base", () => {
+  it("adds no exception members beyond the review base and the reviewed additions", () => {
+    expect(unreviewedExceptionAdditions("locale-consumer-audit.test.ts")).toEqual([]);
   });
 });

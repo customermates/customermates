@@ -4,6 +4,7 @@ import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { REPO_ROOT, walkFiles } from "./walk";
+import { unreviewedExceptionAdditions } from "./exception-membership";
 
 import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 
@@ -174,5 +175,11 @@ describe("rules 30, 33, 43, 50 and 51: retired UI names leave messages and docs"
       "b#my-company",
       "b#save-changes",
     ]);
+  });
+});
+
+describe("exception membership against the review base", () => {
+  it("adds no exception members beyond the review base and the reviewed additions", () => {
+    expect(unreviewedExceptionAdditions("ui-wording.test.ts")).toEqual([]);
   });
 });

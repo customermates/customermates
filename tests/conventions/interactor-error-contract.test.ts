@@ -5,6 +5,7 @@ import ts from "typescript";
 import { describe, expect, it } from "vitest";
 
 import { REPO_ROOT, REPO_SCAN_TIMEOUT_MS, walkFiles } from "./walk";
+import { unreviewedExceptionAdditions } from "./exception-membership";
 
 const SOURCE_ROOTS = ["core", "features", "ee"];
 const ACCESS_ERROR_CONSTRUCTORS = new Set([
@@ -248,5 +249,11 @@ describe("interactor error contract", () => {
       visit(file);
     }
     expect(violations).toEqual([]);
+  });
+});
+
+describe("exception membership against the review base", () => {
+  it("adds no exception members beyond the review base and the reviewed additions", () => {
+    expect(unreviewedExceptionAdditions("interactor-error-contract.test.ts")).toEqual([]);
   });
 });

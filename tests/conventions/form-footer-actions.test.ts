@@ -4,6 +4,7 @@ import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { REPO_ROOT, walkFiles } from "./walk";
+import { unreviewedExceptionAdditions } from "./exception-membership";
 
 type Rule =
   | "save-label"
@@ -250,5 +251,11 @@ describe("footer actions follow one shared component (design rules 30, 31, 35)",
       (key) => !messages.some(([candidate, value]) => candidate === key && SAVE_LIKE_LABEL.test(value)),
     );
     expect(stale).toEqual([]);
+  });
+});
+
+describe("exception membership against the review base", () => {
+  it("adds no exception members beyond the review base and the reviewed additions", () => {
+    expect(unreviewedExceptionAdditions("form-footer-actions.test.ts")).toEqual([]);
   });
 });

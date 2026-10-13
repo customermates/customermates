@@ -14,6 +14,7 @@ import {
   visit,
 } from "./design-system-scan";
 import { REPO_ROOT, walkFiles } from "./walk";
+import { unreviewedExceptionAdditions } from "./exception-membership";
 
 type Allowlist = Readonly<Record<string, string>>;
 
@@ -181,5 +182,11 @@ describe("rule 53: email, phone and web address values open or copy through one 
       'const a = `mailto:${email}`;\nconst b = "tel:+4930123";\nconst c = ["mailto:", "tel:"];',
     );
     expect(handBuiltContactLinkFindings([source]).map(({ line }) => line)).toEqual([1, 2]);
+  });
+});
+
+describe("exception membership against the review base", () => {
+  it("adds no exception members beyond the review base and the reviewed additions", () => {
+    expect(unreviewedExceptionAdditions("settings-area-and-contact-values.test.ts")).toEqual([]);
   });
 });

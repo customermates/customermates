@@ -5,6 +5,7 @@ import ts from "typescript";
 import { describe, expect, it } from "vitest";
 
 import { REPO_ROOT, REPO_SCAN_TIMEOUT_MS, parseSource, readSourceText, walkFiles } from "./walk";
+import { unreviewedExceptionAdditions } from "./exception-membership";
 
 const SCANNED = ["app", "core", "ee", "features", "prisma", "workflows"];
 const EXCLUDED = [join("prisma", "migrations"), join("prisma", "seeds")];
@@ -206,5 +207,11 @@ describe("Prisma model ownership", () => {
     expect(sites.length).toBeGreaterThan(200);
     expect(sites.some((site) => site.operation.startsWith("raw "))).toBe(true);
     expect(sites.some((site) => site.model === "Widget" && site.file === OWNERS.Widget)).toBe(true);
+  });
+});
+
+describe("exception membership against the review base", () => {
+  it("adds no exception members beyond the review base and the reviewed additions", () => {
+    expect(unreviewedExceptionAdditions("prisma-model-ownership.test.ts")).toEqual([]);
   });
 });

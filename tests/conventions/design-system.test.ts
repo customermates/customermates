@@ -16,6 +16,7 @@ import {
   tagNameOf,
   visit,
 } from "./design-system-scan";
+import { unreviewedExceptionAdditions } from "./exception-membership";
 
 type Allowlist = Readonly<Record<string, string>>;
 
@@ -490,5 +491,11 @@ describe("rule 66: chips inside sentences use the inline chip", () => {
 
     expect(scopeCount).toBeGreaterThan(0);
     expect(formatFindings(findings)).toEqual([]);
+  });
+});
+
+describe("exception membership against the review base", () => {
+  it("adds no exception members beyond the review base and the reviewed additions", () => {
+    expect(unreviewedExceptionAdditions("design-system.test.ts")).toEqual([]);
   });
 });

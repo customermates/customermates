@@ -5,6 +5,7 @@ import { IntlMessageFormat } from "intl-messageformat";
 import { describe, expect, it } from "vitest";
 
 import { REPO_ROOT, walkFiles } from "./walk";
+import { unreviewedExceptionAdditions } from "./exception-membership";
 
 import { APP_LOCALES, CONTENT_LOCALES, DEFAULT_LOCALE, ROUTING_LOCALES } from "@/i18n/locale-registry";
 
@@ -504,5 +505,11 @@ describe("i18n parity", () => {
     }
 
     expect(problems, `content tree locale mismatches:\n${problems.join("\n")}`).toEqual([]);
+  });
+});
+
+describe("exception membership against the review base", () => {
+  it("adds no exception members beyond the review base and the reviewed additions", () => {
+    expect(unreviewedExceptionAdditions("i18n-parity.test.ts")).toEqual([]);
   });
 });

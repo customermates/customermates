@@ -13,6 +13,7 @@ import {
   tagNameOf,
   visit,
 } from "./design-system-scan";
+import { unreviewedExceptionAdditions } from "./exception-membership";
 
 type Allowlist = Readonly<Record<string, string>>;
 
@@ -404,5 +405,11 @@ describe("rule 19: one reveal-on-hover utility", () => {
       'const a = "opacity-0 transition-opacity group-hover/row:opacity-100";\nconst b = cn(ITEM_REVEAL_CLASS, "size-7");',
     );
     expect(handBuiltRevealFindings([source]).map(({ line }) => line)).toEqual([1]);
+  });
+});
+
+describe("exception membership against the review base", () => {
+  it("adds no exception members beyond the review base and the reviewed additions", () => {
+    expect(unreviewedExceptionAdditions("design-unification.test.ts")).toEqual([]);
   });
 });
