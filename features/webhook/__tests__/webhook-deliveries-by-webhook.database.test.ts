@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 
 import { Client } from "pg";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { getGetWebhookDeliveriesByWebhookInteractor } from "@/core/di";
 import { runWithTenant } from "@/core/decorators/tenant-context";
@@ -9,6 +9,11 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { interactorFailureCodes, interactorFailureKind } from "@/core/validation/validation.utils";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
+
+vi.mock("next-intl/server", () => ({
+  getLocale: () => Promise.resolve("en"),
+  getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
+}));
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;

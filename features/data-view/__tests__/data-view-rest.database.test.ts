@@ -130,7 +130,7 @@ describeDatabase("saved view REST routes on PostgreSQL", () => {
           const repo = createTestRecordRepo();
           const model = await repo.getModel();
           const types = model.types.map((type) => (type.id === archivedTypeId ? { ...type, archived: true } : type));
-          await repo.saveModel({ ...model, types }, w.admin.id);
+          await repo.saveModel({ ...model, revision: model.revision + 1, types }, w.admin.id);
         },
         { timeout: 30000 },
       ),
