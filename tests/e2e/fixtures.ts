@@ -20,7 +20,11 @@ export const test = base.extend<Fixtures>({
   page: async ({ page, failOnPageErrors }, use) => {
     const errors = failOnPageErrors ? collectPageErrors(page) : [];
     await use(page);
-    expect(errors, "page and console errors").toEqual([]);
+    // The signedIn fixture aborts every external request, which Chromium logs as ERR_BLOCKED_BY_CLIENT.
+    expect(
+      errors.filter((error) => !error.includes("net::ERR_BLOCKED_BY_CLIENT")),
+      "page and console errors",
+    ).toEqual([]);
   },
   database: async ({}, use) => {
     const { databaseUrl } = localE2eEnvironment();

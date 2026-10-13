@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { Page, Route } from "@playwright/test";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
-import { test, expect } from "./fixtures";
+import { collectPageErrors, test, expect } from "./fixtures";
 import { invokesServerAction, serverActionIds } from "./server-actions";
 
 test.use({ failOnPageErrors: true });
@@ -196,60 +196,76 @@ async function answerResolver(route: Route, resolution: unknown) {
   await route.fulfill({ response, body: lines.join("\n") });
 }
 
-test("resolves a request with conditions to a filtered list and falls back to Ask Mate", async ({ page, companyId }) => {
-  test.setTimeout(180000);
-  const id = (key: string) => presetId(companyId, key);
-  const model = RecordModelSchema.parse(await api(page, "/api/v1/model/read", {}));
-  const suffix = randomUUID().slice(0, 6);
-  for (const [name, stage] of [
-    [`Won resolver deal ${suffix}`, "won"],
-    [`Open resolver deal ${suffix}`, "qualified"],
-  ])
-    await api(page, "/api/v1/records/mutate", {
-      expectedRevision: model.revision,
-      idempotencyKey: randomUUID(),
-      mutation: {
-        action: "create",
-        typeId: id("deal"),
-        fields: [
-          { fieldId: id("deal.name"), value: { kind: "text", value: name } },
-          { fieldId: id("deal.stage"), value: { kind: "select", value: id(`deal.stage.${stage}`) } },
-        ],
-      },
+test.describe("Ask Mate fallback", () => {
+  test.use({ failOnPageErrors: false });
+
+  test("resolves a request with conditions to a filtered list and falls back to Ask Mate", async ({ page, companyId }) => {
+    test.setTimeout(180000);
+    const id = (key: string) => presetId(companyId, key);
+    const model = RecordModelSchema.parse(await api(page, "/api/v1/model/read", {}));
+    const suffix = randomUUID().slice(0, 6);
+    for (const [name, stage] of [
+      [`Won resolver deal ${suffix}`, "won"],
+      [`Open resolver deal ${suffix}`, "qualified"],
+    ])
+      await api(page, "/api/v1/records/mutate", {
+        expectedRevision: model.revision,
+        idempotencyKey: randomUUID(),
+        mutation: {
+          action: "create",
+          typeId: id("deal"),
+          fields: [
+            { fieldId: id("deal.name"), value: { kind: "text", value: name } },
+            { fieldId: id("deal.stage"), value: { kind: "select", value: id(`deal.stage.${stage}`) } },
+          ],
+        },
+      });
+    const resolverIds = serverActionIds("app/[locale]/(protected)/search/actions.ts", "resolveCommandAction");
+    const answers: unknown[] = [
+      { kind: "list", typeId: id("deal"), viewId: null, filters: [{ field: id("deal.stage"), operator: "in", value: [id("deal.stage.won")] }] },
+      { kind: "none" },
+    ];
+    await page.route("**/*", async (route) => {
+      if (!invokesServerAction(route.request(), resolverIds)) return route.fallback();
+      await answerResolver(route, answers.shift());
     });
-  const resolverIds = serverActionIds("app/[locale]/(protected)/search/actions.ts", "resolveCommandAction");
-  const answers: unknown[] = [
-    { kind: "list", typeId: id("deal"), viewId: null, filters: [{ field: id("deal.stage"), operator: "in", value: [id("deal.stage.won")] }] },
-    { kind: "none" },
-  ];
-  await page.route("**/*", async (route) => {
-    if (!invokesServerAction(route.request(), resolverIds)) return route.fallback();
-    await answerResolver(route, answers.shift());
+
+    const errors = collectPageErrors(page);
+    await page.goto("/en/dashboard");
+    const dialog = page.getByRole("dialog");
+    const input = await openPalette(page);
+    await input.fill(`won deals ${suffix}`);
+    const resolve = dialog.getByRole("option").filter({ hasText: `Go to “won deals ${suffix}”` });
+    await expect(resolve).toBeVisible();
+    await expect(resolve).toHaveAttribute("aria-selected", "false");
+    await resolve.click();
+    await expect(page).toHaveURL(new RegExp(`/en/records/${id("deal")}\\?.*filters=`));
+    await expect(page.getByText(`Won resolver deal ${suffix}`).first()).toBeVisible({ timeout: 30000 });
+    await expect(page.getByText(`Open resolver deal ${suffix}`)).toHaveCount(0);
+    await expect(page.locator("#global-data-views-all")).toHaveAttribute("data-view-modified", "");
+    await page.locator("#records-filter").click();
+    await expect(page.locator("#records-filter-save")).toBeVisible();
+    await expect(page.locator("#records-filter-reset")).toBeVisible();
+    await page.keyboard.press("Escape");
+
+    const again = await openPalette(page);
+    await again.fill("something nobody configured here");
+    await expect(dialog.getByRole("option").first()).toContainText("Go to");
+    const mateRequest = page.waitForResponse(
+      (response) => new URL(response.url()).pathname === "/api/agent/messages" && response.request().method() === "POST",
+    );
+    await page.keyboard.press("Enter");
+    await expect(page.locator("#global-search-input")).toHaveCount(0);
+    await expect(page.getByText("something nobody configured here").first()).toBeVisible();
+    const mateResponse = await mateRequest;
+    expect(mateResponse.request().postDataJSON()).toMatchObject({ text: "something nobody configured here" });
+    // The offline e2e server has no hosted AI, so Mate answers the handed-over question with a 422.
+    const offlineMate = "Failed to load resource: the server responded with a status of 422 (Unprocessable Entity)";
+    const unexpected = [...errors];
+    const offlineIndex = mateResponse.status() === 422 ? unexpected.indexOf(offlineMate) : -1;
+    if (offlineIndex >= 0) unexpected.splice(offlineIndex, 1);
+    expect(unexpected.filter((error) => !error.includes("net::ERR_BLOCKED_BY_CLIENT"))).toEqual([]);
   });
-
-  await page.goto("/en/dashboard");
-  const dialog = page.getByRole("dialog");
-  const input = await openPalette(page);
-  await input.fill(`won deals ${suffix}`);
-  const resolve = dialog.getByRole("option").filter({ hasText: `Go to “won deals ${suffix}”` });
-  await expect(resolve).toBeVisible();
-  await expect(resolve).toHaveAttribute("aria-selected", "false");
-  await resolve.click();
-  await expect(page).toHaveURL(new RegExp(`/en/records/${id("deal")}\\?.*filters=`));
-  await expect(page.getByText(`Won resolver deal ${suffix}`).first()).toBeVisible({ timeout: 30000 });
-  await expect(page.getByText(`Open resolver deal ${suffix}`)).toHaveCount(0);
-  await expect(page.locator("#global-data-views-all")).toHaveAttribute("data-view-modified", "");
-  await page.locator("#records-filter").click();
-  await expect(page.locator("#records-filter-save")).toBeVisible();
-  await expect(page.locator("#records-filter-reset")).toBeVisible();
-  await page.keyboard.press("Escape");
-
-  const again = await openPalette(page);
-  await again.fill("something nobody configured here");
-  await expect(dialog.getByRole("option").first()).toContainText("Go to");
-  await page.keyboard.press("Enter");
-  await expect(page.locator("#global-search-input")).toHaveCount(0);
-  await expect(page.getByText("something nobody configured here").first()).toBeVisible();
 });
 
 test("opens a record on Enter for a two-word partial name without calling the resolver", async ({ page, companyId }) => {
