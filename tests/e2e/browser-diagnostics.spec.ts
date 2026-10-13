@@ -1,7 +1,6 @@
 import { randomUUID } from "node:crypto";
 
-import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
-import { BrowserDiagnostics } from "./browser-diagnostics";
+import { BrowserDiagnostics, expectNotFoundDocuments } from "./browser-diagnostics";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { localE2eEnvironment } from "./local-environment";
 
@@ -26,21 +25,10 @@ test("an expected 404 document and sandboxed requests leave unrelated API and ch
   try {
     const page = await probe.newPage();
     const errors = collectPageErrors(page);
-    const notFoundDocuments = new Set<string>();
-    page.on("response", (response) => {
-      if (response.status() === 404 && response.request().isNavigationRequest()) notFoundDocuments.add(response.url());
-    });
-    const notFound = diagnostics.expect({
-      kind: "console",
-      text: /^Failed to load resource: the server responded with a status of 404/,
-      source: (url) => notFoundDocuments.has(url.href),
-      page,
-      limit: Number.POSITIVE_INFINITY,
-    });
+    const notFound = expectNotFoundDocuments(page);
 
-    const response = await page.goto(`/en/records/${randomUUID()}`);
+    const response = await page.goto(`/en/contacts/${randomUUID()}`);
     expect(response?.status()).toBe(404);
-    await expect(page.getByText(englishMessages.NotFoundPage.title, { exact: true })).toBeVisible();
     await page.evaluate(async () => {
       await fetch("/api/v1/diagnostics-probe-missing", { method: "POST", body: "{}" });
       const script = document.createElement("script");

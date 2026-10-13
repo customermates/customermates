@@ -2,6 +2,7 @@ import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { openConfigure, openConfigureRow, saveDrawer } from "./configure";
+import { expectNotFoundDocuments } from "./browser-diagnostics";
 import { expect, test, collectPageErrors } from "./fixtures";
 
 async function fieldCurrency(database: Client, companyId: string, fieldId: string) {
@@ -31,8 +32,10 @@ test("gives each money field its own currency, with no company settings page", a
   const dialog = page.getByRole("dialog");
 
   await test.step("the company settings page is gone", async () => {
+    const notFound = expectNotFoundDocuments(page);
     const response = await page.goto("/en/company/settings");
     expect(response?.status()).toBe(404);
+    if (test.info().project.name === "chromium") await expect.poll(() => notFound.events.length).toBe(1);
   });
 
   await page.goto(`/en/records/${id("deal")}`);

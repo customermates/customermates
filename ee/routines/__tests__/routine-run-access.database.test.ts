@@ -72,7 +72,7 @@ describeDatabase("routine run access on PostgreSQL", () => {
   });
 
   async function runsFor(viewer: TenantUser) {
-    return runWithTenant(viewer, () => createTestRoutineRepo().getRoutineRuns(routineId, 10));
+    return runWithTenant(viewer, () => createTestRoutineRepo().getRoutineRuns(routineId, 10, null));
   }
 
   it("lets the owner read their own run history", async () => {
