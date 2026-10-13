@@ -29,6 +29,7 @@ export enum CustomErrorCode {
   recordOperationFailed = "recordOperationFailed",
   recordOperationNotFound = "recordOperationNotFound",
   recordOperationSettled = "recordOperationSettled",
+  recordTransactionEnded = "recordTransactionEnded",
   recordProtected = "recordProtected",
   recordMeasureDateIntervalInvalid = "recordMeasureDateIntervalInvalid",
   trashItemNotFound = "trashItemNotFound",

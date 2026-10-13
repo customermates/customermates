@@ -57,7 +57,7 @@ describe("handleError", () => {
     ["P2002", 409, "conflict", "That value conflicts with an existing record"],
     ["P2023", 400, "validation", "Invalid identifier"],
     ["P2024", 429, "rate_limit", "The service is busy. Retry the request shortly."],
-    ["P2028", 429, "rate_limit", "The service is busy. Retry the request shortly."],
+    ["P2028", 422, "unavailable", "The transaction ended before the operation could finish. No changes were saved."],
   ])("maps Prisma %s to a structured HTTP %s", (code, status, kind, message) => {
     const result = structured(handleError(Object.assign(new Error("prisma"), { code })));
     expect(result).toEqual({ status, error: { kind, issues: [{ code: "custom", path: [], message }] } });
@@ -88,6 +88,12 @@ describe("handleError", () => {
     ["a lock timeout", Object.assign(new Error("lock timeout"), { code: "55P03" })],
   ])("tells the client when to retry %s", (_source, error) => {
     expect((handleError(error) as unknown as Result).headers).toEqual({ "retry-after": "2" });
+  });
+
+  it("does not advise retrying an expired interactive transaction", () => {
+    expect((handleError(Object.assign(new Error("expired"), { code: "P2028" })) as unknown as Result).headers).toEqual(
+      {},
+    );
   });
 
   it("sends no retry hint on a failure that is not rate limited", () => {

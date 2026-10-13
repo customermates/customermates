@@ -1158,6 +1158,7 @@
       "recordSavedViewIncompatible": "La vista guardada \"{viewName}\" ({viewId}) todavía usa \"{columnLabel}\" ({columnId}). Actualiza o elimina esa vista y vuelve a intentarlo.",
       "recordSchemaChanged": "El modelo de datos ha cambiado. Actualiza la página e inténtalo de nuevo.",
       "recordSublistNested": "Una sublista no puede tener sublistas propias. Vincula la lista con la lista principal de la sublista.",
+      "recordTransactionEnded": "El cambio tardó demasiado y no se guardó. Prueba con un cambio más pequeño o contacta con soporte.",
       "recordTypeNotFound": "Este tipo de registro no está disponible.",
       "recordValueInvalid": "Revisa los valores resaltados del registro.",
       "recordValueRequired": "{field} necesita un valor.",
