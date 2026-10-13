@@ -52,6 +52,16 @@ async function moveByDrag(page: Page, option: string, target: string) {
   await page.mouse.up();
 }
 
+async function openAddAttribute(page: Page) {
+  const name = page.locator('[data-slot="popover-content"]').getByRole("textbox", { name: "Attribute name", exact: true });
+  await expect(name).toHaveCount(0);
+  await expect(async () => {
+    if (!(await name.isVisible()))
+      await configureDrawer(page).getByRole("button", { name: "Add attribute", exact: true }).click();
+    await expect(name).toBeVisible({ timeout: 2000 });
+  }).toPass({ timeout: 30000 });
+}
+
 test("reorders choice options by drag and keyboard and edits attribute columns", async ({
   page,
   database,
@@ -78,10 +88,10 @@ test("reorders choice options by drag and keyboard and edits attribute columns",
   await moveByDrag(page, "Silver", "Bronze");
   await expect.poll(() => optionNames(page)).toEqual(["Silver", "Bronze", "Gold"]);
 
-  await drawer.getByRole("button", { name: "Add attribute", exact: true }).click();
+  await openAddAttribute(page);
   await popover.getByRole("textbox", { name: "Attribute name", exact: true }).fill("Discount");
   await popover.getByRole("button", { name: "Save", exact: true }).click();
-  await drawer.getByRole("button", { name: "Add attribute", exact: true }).click();
+  await openAddAttribute(page);
   await popover.getByRole("textbox", { name: "Attribute name", exact: true }).fill("discount");
   await popover.getByRole("button", { name: "Save", exact: true }).click();
   await expect(popover.getByRole("textbox", { name: "Attribute name", exact: true })).toHaveAttribute(
@@ -90,7 +100,7 @@ test("reorders choice options by drag and keyboard and edits attribute columns",
   );
   await expect(page.getByText("Another attribute already has this name")).toBeVisible();
   await popover.getByRole("button", { name: "Cancel", exact: true }).click();
-  await drawer.getByRole("button", { name: "Add attribute", exact: true }).click();
+  await openAddAttribute(page);
   await popover.getByRole("textbox", { name: "Attribute name", exact: true }).fill("Code");
   await popover.getByRole("combobox", { name: "Value type", exact: true }).click();
   await page.getByRole("option", { name: "Text", exact: true }).click();
@@ -115,7 +125,7 @@ test("reorders choice options by drag and keyboard and edits attribute columns",
   await page.getByRole("menuitem", { name: "Delete", exact: true }).click();
   await expect(drawer.locator("[data-option-column]")).toHaveText(["Short code"]);
   await drawer.getByRole("textbox", { name: "Option", exact: true }).first().focus();
-  await drawer.getByRole("button", { name: "Add attribute", exact: true }).click();
+  await openAddAttribute(page);
   await popover.getByRole("textbox", { name: "Attribute name", exact: true }).fill("PROBABILITY");
   await popover.getByRole("combobox", { name: "Value type", exact: true }).click();
   await page.getByRole("option", { name: "Text", exact: true }).click();

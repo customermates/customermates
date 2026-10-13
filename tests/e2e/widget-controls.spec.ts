@@ -129,7 +129,8 @@ test("persists every chart style, appearance, a copied template, resizing and de
             ? "sm"
             : "xs";
     const beforeMove = (await read("Complete chart controls"))[0];
-    const step = (gridBounds.width + 16) / GRID_COLS[breakpoint];
+    const gridWidth = await grid.evaluate((node) => (node as HTMLElement).offsetWidth);
+    const step = (gridWidth + 16) / GRID_COLS[breakpoint];
     const initialBounds = await gridItem.boundingBox();
     if (!initialBounds) throw new Error("The widget has no rendered geometry");
     const position = beforeMove.layout?.[breakpoint] ?? {
@@ -154,8 +155,8 @@ test("persists every chart style, appearance, a copied template, resizing and de
     expect(moved.layout[breakpoint]).toMatchObject({ y: position.y, w: position.w, h: position.h });
     expect(moved.version).toBeGreaterThan(beforeMove.version);
     await expect
-      .poll(async () => (await gridItem.boundingBox())?.x)
-      .toBeCloseTo(gridBounds.x + (position.x + direction) * step, 0);
+      .poll(async () => ((await gridItem.boundingBox())?.x ?? Number.NaN) - gridBounds.x)
+      .toBeCloseTo(Math.round((position.x + direction) * step), 0);
     const movedBounds = await gridItem.boundingBox();
     if (!movedBounds) throw new Error("The moved widget is not visible");
     await page.reload();
