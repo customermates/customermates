@@ -5,77 +5,40 @@ import type { DiscoveredRecordTypes } from "@/features/records/discover-record-t
 import { RecordActivityWidgetInputSchema } from "@/features/widget/record-activity-widget.schema";
 import { RecordWidgetInputSchema } from "@/features/widget/record-widget.schema";
 import type { CompanyWidget, WidgetDto } from "@/features/widget/widget.schema";
-import {
-  isRecordActivityWidget,
-  isRecordWidget,
-} from "@/features/widget/widget.schema";
+import { isRecordActivityWidget, isRecordWidget } from "@/features/widget/widget.schema";
 import type { FormEvent } from "react";
 import { z } from "zod";
-import {
-  previewRecordWidgetAction,
-  upsertRecordActivityWidgetAction,
-  upsertRecordWidgetAction,
-} from "../actions";
+import { previewRecordWidgetAction, upsertRecordActivityWidgetAction, upsertRecordWidgetAction } from "../actions";
 import { getRecordModelAction } from "../../records/actions";
 import { resolveSearchReferencesAction } from "../../search/actions";
 import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { RecordSearchHit } from "@/features/records/record-search.schema";
 import type { RecordWidgetPreview } from "@/features/widget/record-widget-reader";
 import { RecordMeasureSchema } from "@/features/records/record-measure.schema";
-import type {
-  RecordActivityWidgetForm,
-  RecordWidgetForm,
-} from "./record-widget-form";
-import {
-  isRecordActivityWidgetForm,
-  isRecordWidgetForm,
-} from "./record-widget-form";
+import type { RecordActivityWidgetForm, RecordWidgetForm } from "./record-widget-form";
+import { isRecordActivityWidgetForm, isRecordWidgetForm } from "./record-widget-form";
 
 import { Resource, WidgetKind } from "@/generated/prisma";
 import { cloneDeep, omit } from "lodash";
-import {
-  action,
-  comparer,
-  computed,
-  makeObservable,
-  observable,
-  reaction,
-  runInAction,
-  toJS,
-} from "mobx";
+import { action, comparer, computed, makeObservable, observable, reaction, runInAction, toJS } from "mobx";
 
-import {
-  deleteWidgetAction,
-  getCompanyWidgetsAction,
-  getWidgetByIdAction,
-} from "../actions";
+import { deleteWidgetAction, getCompanyWidgetsAction, getWidgetByIdAction } from "../actions";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { GRID_COLS } from "./grid.constants";
-import {
-  type WidgetLayoutGeometry,
-  widgetDefaultSize,
-  widgetLayoutGeometry,
-} from "@/features/widget/widget-grid";
+import { type WidgetLayoutGeometry, widgetDefaultSize, widgetLayoutGeometry } from "@/features/widget/widget-grid";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
 
-type WidgetModalSection =
-  | "config"
-  | "filters"
-  | "dealFilters"
-  | "activityFilters"
-  | "display";
+type WidgetModalSection = "config" | "filters" | "dealFilters" | "activityFilters" | "display";
 type WidgetCreationStep = "choose" | "configure";
 export type WidgetModalForm = RecordWidgetForm | RecordActivityWidgetForm;
 
 type WidgetFormCommon = { id?: string; name: string; isTemplate: boolean };
 
-function chartDisplayDefaults(): NonNullable<
-  RecordWidgetForm["displayOptions"]
-> {
+function chartDisplayDefaults(): NonNullable<RecordWidgetForm["displayOptions"]> {
   return {
     barColors: [ChartColor.primary1],
     displayType: DisplayType.verticalBarChart,
@@ -159,19 +122,9 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     });
 
     reaction(
-      () =>
-        isRecordWidgetForm(this.form)
-          ? this.form.measure.source.typeId
-          : undefined,
+      () => (isRecordWidgetForm(this.form) ? this.form.measure.source.typeId : undefined),
       (typeId, previous) => {
-        if (
-          this.skipReactions ||
-          !previous ||
-          !typeId ||
-          typeId === previous ||
-          !isRecordWidgetForm(this.form)
-        )
-          return;
+        if (this.skipReactions || !previous || !typeId || typeId === previous || !isRecordWidgetForm(this.form)) return;
         runInAction(() => {
           if (!isRecordWidgetForm(this.form)) return;
           this.form.measure = {
@@ -191,10 +144,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       },
     );
     reaction(
-      () =>
-        this.isOpen && isRecordWidgetForm(this.form)
-          ? this.form.measure.source.typeId
-          : null,
+      () => (this.isOpen && isRecordWidgetForm(this.form) ? this.form.measure.source.typeId : null),
       (typeId) => {
         if (typeId) void this.loadRecordModel();
         else {
@@ -206,12 +156,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       },
     );
     reaction(
-      () => [
-        this.form,
-        this.recordMeasureKey,
-        this.recordModel?.revision,
-        this.isOpen,
-      ],
+      () => [this.form, this.recordMeasureKey, this.recordModel?.revision, this.isOpen],
       () =>
         runInAction(() => {
           this.recordPreviewRequest += 1;
@@ -233,9 +178,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
   }
 
   get recordMeasureKey() {
-    return isRecordWidgetForm(this.form)
-      ? JSON.stringify(this.form.measure)
-      : null;
+    return isRecordWidgetForm(this.form) ? JSON.stringify(this.form.measure) : null;
   }
 
   loadRecordModel = async () => {
@@ -271,9 +214,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
         });
         return;
       }
-      const result = await this.runPreview(() =>
-        previewRecordWidgetAction(parsed.data),
-      );
+      const result = await this.runPreview(() => previewRecordWidgetAction(parsed.data));
       if (!result || !isCurrent()) return;
       if (!result.ok) {
         runInAction(() => {
@@ -281,18 +222,14 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
         });
         return;
       }
-      if (
-        this.recordModel &&
-        result.data.result.schemaRevision !== this.recordModel.revision
-      ) {
+      if (this.recordModel && result.data.result.schemaRevision !== this.recordModel.revision) {
         void this.loadRecordModel();
         return;
       }
       runInAction(() => {
         this.recordPreview = { key: previewed, ...result.data };
       });
-      if (this.hasUnsavedChanges)
-        this.onChange("expectedRevision", result.data.result.schemaRevision);
+      if (this.hasUnsavedChanges) this.onChange("expectedRevision", result.data.result.schemaRevision);
     } catch (error) {
       if (!isCurrent()) return;
       reportApplicationError(error);
@@ -306,9 +243,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     }
   };
 
-  loadScopeRecords = async (
-    refs: RecordActivityWidgetForm["activityQuery"]["scope"]["records"],
-  ) => {
+  loadScopeRecords = async (refs: RecordActivityWidgetForm["activityQuery"]["scope"]["records"]) => {
     const request = ++this.scopeRecordsRequest;
     if (refs.length === 0) {
       this.scopeRecordHits = [];
@@ -317,32 +252,20 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     try {
       const result = await resolveSearchReferencesAction({ refs: toJS(refs) });
       runInAction(() => {
-        if (request === this.scopeRecordsRequest && result.ok)
-          this.scopeRecordHits = result.data.results;
+        if (request === this.scopeRecordsRequest && result.ok) this.scopeRecordHits = result.data.results;
       });
     } catch (error) {
       if (request === this.scopeRecordsRequest) reportApplicationError(error);
     }
   };
   get activeTimelineFiltersCount() {
-    return isRecordActivityWidgetForm(this.form)
-      ? recordActivityFilterCount(this.form.activityQuery)
-      : 0;
+    return isRecordActivityWidgetForm(this.form) ? recordActivityFilterCount(this.form.activityQuery) : 0;
   }
   get previewGeometry(): WidgetLayoutGeometry {
-    const displayType = isRecordWidgetForm(this.form)
-      ? this.form.displayOptions.displayType
-      : undefined;
+    const displayType = isRecordWidgetForm(this.form) ? this.form.displayOptions.displayType : undefined;
     if (this.form.id) {
-      const saved = this.rootStore.widgetsStore.layouts.lg?.find(
-        (item) => item.i === this.form.id,
-      );
-      return widgetLayoutGeometry(
-        this.form.kind,
-        GRID_COLS.lg,
-        saved,
-        displayType,
-      );
+      const saved = this.rootStore.widgetsStore.layouts.lg?.find((item) => item.i === this.form.id);
+      return widgetLayoutGeometry(this.form.kind, GRID_COLS.lg, saved, displayType);
     }
     return widgetLayoutGeometry(
       this.form.kind,
@@ -356,9 +279,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     const kinds: WidgetKind[] = [];
     if (
       this.recordTypes?.types.some((type) =>
-        type.permittedActions.some(
-          (action) => action === "readAll" || action === "readOwn",
-        ),
+        type.permittedActions.some((action) => action === "readAll" || action === "readOwn"),
       )
     )
       kinds.push(WidgetKind.chart);
@@ -371,10 +292,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     return kinds;
   }
 
-  startFromKind = (
-    kind: WidgetKind,
-    options: { activityName?: string; displayType?: DisplayType } = {},
-  ) => {
+  startFromKind = (kind: WidgetKind, options: { activityName?: string; displayType?: DisplayType } = {}) => {
     if (this.form.id || !this.availableKinds.includes(kind)) return;
 
     this.invalidateLoads();
@@ -383,13 +301,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       const form = this.buildNewForm(kind, options.activityName);
       this.replaceForm(
         isRecordWidgetForm(form) && options.displayType
-          ? {
-              ...form,
-              displayOptions: {
-                ...form.displayOptions,
-                displayType: options.displayType,
-              },
-            }
+          ? { ...form, displayOptions: { ...form.displayOptions, displayType: options.displayType } }
           : form,
       );
     });
@@ -441,9 +353,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       !this.form.id
     ) {
       runInAction(() => {
-        this.companyWideWidgets = result.data.widgets.filter((widget) =>
-          this.availableKinds.includes(widget.kind),
-        );
+        this.companyWideWidgets = result.data.widgets.filter((widget) => this.availableKinds.includes(widget.kind));
       });
     }
   };
@@ -458,8 +368,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     try {
       const res = await deleteWidgetAction({ id });
       if (!res.ok) {
-        if (session === this.sessionGeneration && this.isOpen)
-          toastZodErrorTree(res.error);
+        if (session === this.sessionGeneration && this.isOpen) toastZodErrorTree(res.error);
         return false;
       }
 
@@ -475,9 +384,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     this.advanceSession();
     const generation = ++this.loadGeneration;
     this.setIsLoading(true);
-    const cached = this.rootStore.widgetsStore.items.find(
-      (widget) => widget.id === id,
-    );
+    const cached = this.rootStore.widgetsStore.items.find((widget) => widget.id === id);
     if (cached) this.hydrateWidget(cached, false);
     runInAction(() => {
       this.isHydrating = true;
@@ -541,8 +448,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
 
   private submissionKey(input: object) {
     const payload = JSON.stringify(input);
-    if (this.recordSubmission?.payload !== payload)
-      this.recordSubmission = { payload, key: crypto.randomUUID() };
+    if (this.recordSubmission?.payload !== payload) this.recordSubmission = { payload, key: crypto.randomUUID() };
     return this.recordSubmission.key;
   }
 
@@ -561,10 +467,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     const form = toJS(this.form);
     if (isRecordActivityWidgetForm(form)) {
       try {
-        const input = {
-          ...omit(form, ["kind", "idempotencyKey"]),
-          ...this.targetView(form.id),
-        };
+        const input = { ...omit(form, ["kind", "idempotencyKey"]), ...this.targetView(form.id) };
         const parsed = RecordActivityWidgetInputSchema.safeParse({
           ...input,
           idempotencyKey: this.submissionKey(input),
@@ -575,12 +478,10 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
         }
         const result = await upsertRecordActivityWidgetAction(parsed.data);
         if (!result.ok) {
-          if (session === this.sessionGeneration && this.isOpen)
-            this.setError(result.error);
+          if (session === this.sessionGeneration && this.isOpen) this.setError(result.error);
           return;
         }
-        if (session === this.sessionGeneration && this.isOpen)
-          this.hydrateWidget(result.data, false);
+        if (session === this.sessionGeneration && this.isOpen) this.hydrateWidget(result.data, false);
         await this.rootStore.widgetsStore.refresh();
         if (session === this.sessionGeneration && this.isOpen) this.close();
       } finally {
@@ -590,26 +491,18 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     }
     if (isRecordWidgetForm(form)) {
       try {
-        const input = {
-          ...omit(form, ["kind", "idempotencyKey"]),
-          ...this.targetView(form.id),
-        };
-        const parsed = RecordWidgetInputSchema.safeParse({
-          ...input,
-          idempotencyKey: this.submissionKey(input),
-        });
+        const input = { ...omit(form, ["kind", "idempotencyKey"]), ...this.targetView(form.id) };
+        const parsed = RecordWidgetInputSchema.safeParse({ ...input, idempotencyKey: this.submissionKey(input) });
         if (!parsed.success) {
           this.setError(z.treeifyError(parsed.error));
           return;
         }
         const result = await upsertRecordWidgetAction(parsed.data);
         if (!result.ok) {
-          if (session === this.sessionGeneration && this.isOpen)
-            this.setError(result.error);
+          if (session === this.sessionGeneration && this.isOpen) this.setError(result.error);
           return;
         }
-        if (session === this.sessionGeneration && this.isOpen)
-          this.hydrateWidget(result.data, false);
+        if (session === this.sessionGeneration && this.isOpen) this.hydrateWidget(result.data, false);
         await this.rootStore.widgetsStore.refresh();
         if (session === this.sessionGeneration && this.isOpen) this.close();
       } finally {
@@ -648,10 +541,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
           : null,
     );
 
-  private buildNewForm = (
-    kind: WidgetKind,
-    defaultActivityName?: string,
-  ): WidgetModalForm => {
+  private buildNewForm = (kind: WidgetKind, defaultActivityName?: string): WidgetModalForm => {
     const common = {
       name: "",
       isTemplate: false,
@@ -664,17 +554,11 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
         kind,
         name: defaultActivityName ?? "",
         displayOptions: { showFilters: true },
-        activityQuery: {
-          scope: { typeIds: [], records: [] },
-          kinds: [...ACTIVITY_KINDS],
-          filters: [],
-        },
+        activityQuery: { scope: { typeIds: [], records: [] }, kinds: [...ACTIVITY_KINDS], filters: [] },
       };
     }
     const type = this.recordTypes?.types.find((type) =>
-      type.permittedActions.some(
-        (action) => action === "readAll" || action === "readOwn",
-      ),
+      type.permittedActions.some((action) => action === "readAll" || action === "readOwn"),
     );
     return {
       ...common,
@@ -690,10 +574,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     };
   };
 
-  private buildFormFromWidget = (
-    widget: WidgetDto,
-    asTemplate: boolean,
-  ): { form: WidgetModalForm } => {
+  private buildFormFromWidget = (widget: WidgetDto, asTemplate: boolean): { form: WidgetModalForm } => {
     const common: Partial<WidgetFormCommon> = {
       id: asTemplate ? undefined : widget.id,
       name: widget.name,
@@ -723,10 +604,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
           name: widget.name,
           isTemplate: common.isTemplate ?? false,
           expectedVersion: asTemplate ? undefined : widget.version,
-          expectedRevision:
-            widget.data?.schemaRevision ??
-            this.recordTypes?.schemaRevision ??
-            0,
+          expectedRevision: widget.data?.schemaRevision ?? this.recordTypes?.schemaRevision ?? 0,
           idempotencyKey: crypto.randomUUID(),
           measure: cloneDeep(widget.measure),
           displayOptions: cloneDeep(widget.displayOptions),
@@ -753,12 +631,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
   };
 
   protected override afterChange(id: string): void {
-    if (
-      id === "measure" ||
-      id.startsWith("measure.") ||
-      id === "activityQuery" ||
-      id.startsWith("activityQuery.")
-    )
+    if (id === "measure" || id.startsWith("measure.") || id === "activityQuery" || id.startsWith("activityQuery."))
       this.previewGeneration += 1;
     if (id === "measure.groupBy") this.initializeGroupFilter(this.form);
   }
