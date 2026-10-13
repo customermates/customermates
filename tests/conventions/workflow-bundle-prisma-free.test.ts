@@ -5,8 +5,6 @@ import { describe, expect, it } from "vitest";
 
 const ROOT = path.resolve(__dirname, "../..");
 
-// Helpers called from the agent-turn workflow body (outside "use step") run in the workflow sandbox, which cannot
-// load the generated Prisma client. Their runtime import graph must stay free of it.
 const WORKFLOW_BODY_MODULES = [
   "ee/agent-chat/agent-tool-navigation.ts",
   "ee/agent-chat/agent-durable-stream.ts",

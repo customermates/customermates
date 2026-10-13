@@ -34,8 +34,6 @@ export function agentToolViewProposal(toolName: string | undefined, output: unkn
 }
 
 export function agentToolProposalHref(toolName: string | undefined, output: unknown): string | null {
-  // Runs inside the agent-turn workflow bundle: keep this free of the full proposal schema, whose state schema
-  // pulls in the Prisma client that the workflow sandbox cannot load.
   const proposal = agentToolViewProposal(toolName, output);
   const surfaceKey = AiManageableDataViewSurfaceKeySchema.safeParse(proposal?.surfaceKey);
   if (!surfaceKey.success) return null;
