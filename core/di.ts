@@ -611,13 +611,18 @@ const entityTrashHandlers = (companyId?: string) => {
   const trash = getTrashRepo(companyId);
   const widgets = new PrismaWidgetRepo(companyId);
   const wikiPages = getWikiPageRepo(companyId);
+  const viewBlockers = new ViewTrashBlockers(
+    createPrismaRecordRepo(companyId, getBackgroundTaskService()),
+    createPrismaDataViewRepo(companyId),
+  );
   return [
     new EntityTrashHandler(
       {
         kind: "view",
         restoreOrder: 2,
         visibility: visibility.owned("view"),
-        blockers: new ViewTrashBlockers(createPrismaRecordRepo(companyId, getBackgroundTaskService())),
+        blockers: viewBlockers,
+        restoreReferences: (ids) => viewBlockers.restoreReferences(ids),
       },
       createPrismaDataViewRepo(companyId),
       trash,

@@ -111,6 +111,14 @@ describeDatabase("manage_routines against a real database", { timeout: 120_000 }
 
     const listed = await run({ action: "list" });
     expect(listed.text).toContain("MCP probe routine");
+    expect((listed.structured.items as Array<Record<string, unknown>>)[0]).not.toHaveProperty("prompt");
+    const mine = await run({ action: "list", owner: "mine" });
+    expect(mine.text).toContain("MCP probe routine");
+    const full = await run({ action: "list", includePrompts: true });
+    expect((full.structured.items as Array<Record<string, unknown>>)[0]).toHaveProperty(
+      "prompt",
+      "Summarise the open pipeline. Change nothing.",
+    );
 
     const renamed = await run({ action: "update", id, name: "MCP probe renamed" });
     expect(renamed.structured).toMatchObject({ name: "MCP probe renamed" });

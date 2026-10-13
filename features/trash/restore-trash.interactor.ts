@@ -44,7 +44,10 @@ export class RestoreTrashInteractor extends AuthenticatedInteractor<RestoreTrash
           else operationId = (await group.handler.restore(group.items)).operationId ?? operationId;
         }
         if (!operationId) return result;
-        return { ok: true as const, data: { status: "pending" as const, operationId } };
+        return {
+          ok: true as const,
+          data: { status: "pending" as const, operationId },
+        };
       },
       { timeout: RESTORE_TIMEOUT_MS },
     ).catch(unwoundFailure);
@@ -69,11 +72,19 @@ export class RestoreTrashInteractor extends AuthenticatedInteractor<RestoreTrash
         for (const group of itemsByHandler(this.handlers, items)) {
           const restored = await group.handler.restore(group.items);
           if (restored.operationId)
-            return { ok: true as const, data: { status: "pending" as const, operationId: restored.operationId } };
+            return {
+              ok: true as const,
+              data: {
+                status: "pending" as const,
+                operationId: restored.operationId,
+              },
+            };
           result.restoredItemIds.push(...restored.restoredItemIds);
           result.blocked.push(...restored.blocked);
           result.restoredRecords += restored.restoredRecords;
           result.droppedLinks += restored.droppedLinks;
+          if (restored.droppedViewReferences?.length)
+            result.droppedViewReferences = [...(result.droppedViewReferences ?? []), ...restored.droppedViewReferences];
         }
         return { ok: true as const, data: result };
       },

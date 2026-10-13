@@ -332,7 +332,8 @@
                                           },
                                           "documentJson": {
                                             "type": "string",
-                                            "maxLength": 1000000
+                                            "maxLength": 1000000,
+                                            "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                           }
                                         },
                                         "required": [
@@ -3815,7 +3816,8 @@
                                                                     },
                                                                     "documentJson": {
                                                                       "type": "string",
-                                                                      "maxLength": 1000000
+                                                                      "maxLength": 1000000,
+                                                                      "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                                     }
                                                                   },
                                                                   "required": [
@@ -4098,7 +4100,8 @@
                                                                 },
                                                                 "documentJson": {
                                                                   "type": "string",
-                                                                  "maxLength": 1000000
+                                                                  "maxLength": 1000000,
+                                                                  "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                                 }
                                                               },
                                                               "required": [
@@ -4569,7 +4572,8 @@
                                                                     },
                                                                     "documentJson": {
                                                                       "type": "string",
-                                                                      "maxLength": 1000000
+                                                                      "maxLength": 1000000,
+                                                                      "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                                     }
                                                                   },
                                                                   "required": [
@@ -4852,7 +4856,8 @@
                                                                 },
                                                                 "documentJson": {
                                                                   "type": "string",
-                                                                  "maxLength": 1000000
+                                                                  "maxLength": 1000000,
+                                                                  "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                                 }
                                                               },
                                                               "required": [
@@ -7677,7 +7682,8 @@
                                           },
                                           "documentJson": {
                                             "type": "string",
-                                            "maxLength": 1000000
+                                            "maxLength": 1000000,
+                                            "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                           }
                                         },
                                         "required": [
@@ -8089,7 +8095,7 @@
                                 "kind"
                               ],
                               "additionalProperties": false,
-                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                             },
                             {
                               "type": "null"
@@ -8178,7 +8184,7 @@
                               "kind"
                             ],
                             "additionalProperties": false,
-                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                           }
                         }
                       },
@@ -8356,7 +8362,7 @@
                                       "kind"
                                     ],
                                     "additionalProperties": false,
-                                    "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                    "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                   },
                                   {
                                     "type": "null"
@@ -8445,7 +8451,7 @@
                                     "kind"
                                   ],
                                   "additionalProperties": false,
-                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                 }
                               }
                             },
@@ -9021,7 +9027,8 @@
                                                 },
                                                 "documentJson": {
                                                   "type": "string",
-                                                  "maxLength": 1000000
+                                                  "maxLength": 1000000,
+                                                  "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                 }
                                               },
                                               "required": [
@@ -9480,7 +9487,8 @@
                                                       },
                                                       "documentJson": {
                                                         "type": "string",
-                                                        "maxLength": 1000000
+                                                        "maxLength": 1000000,
+                                                        "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                       }
                                                     },
                                                     "required": [
@@ -9863,7 +9871,8 @@
                                                       },
                                                       "documentJson": {
                                                         "type": "string",
-                                                        "maxLength": 1000000
+                                                        "maxLength": 1000000,
+                                                        "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                       }
                                                     },
                                                     "required": [
@@ -10434,7 +10443,7 @@
                                               "kind"
                                             ],
                                             "additionalProperties": false,
-                                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                           }
                                         },
                                         "required": [
@@ -10718,7 +10727,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                 }
                                               },
                                               "required": [
@@ -10926,7 +10935,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                 }
                                               },
                                               "required": [
@@ -11900,7 +11909,7 @@
                                             "kind"
                                           ],
                                           "additionalProperties": false,
-                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                         },
                                         {
                                           "type": "null"
@@ -11989,7 +11998,7 @@
                                           "kind"
                                         ],
                                         "additionalProperties": false,
-                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                       }
                                     }
                                   },
@@ -12167,7 +12176,7 @@
                                                   "kind"
                                                 ],
                                                 "additionalProperties": false,
-                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                               },
                                               {
                                                 "type": "null"
@@ -12256,7 +12265,7 @@
                                                 "kind"
                                               ],
                                               "additionalProperties": false,
-                                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                             }
                                           }
                                         },
@@ -12631,7 +12640,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                 },
                                                 {
                                                   "type": "null"
@@ -12720,7 +12729,7 @@
                                                   "kind"
                                                 ],
                                                 "additionalProperties": false,
-                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                               }
                                             }
                                           },
@@ -12950,7 +12959,7 @@
                                                           "kind"
                                                         ],
                                                         "additionalProperties": false,
-                                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                       },
                                                       {
                                                         "type": "null"
@@ -13039,7 +13048,7 @@
                                                         "kind"
                                                       ],
                                                       "additionalProperties": false,
-                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                     }
                                                   }
                                                 },
@@ -14044,7 +14053,8 @@
                                                   },
                                                   "documentJson": {
                                                     "type": "string",
-                                                    "maxLength": 1000000
+                                                    "maxLength": 1000000,
+                                                    "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                   }
                                                 },
                                                 "required": [
@@ -14308,7 +14318,8 @@
                                                 },
                                                 "documentJson": {
                                                   "type": "string",
-                                                  "maxLength": 1000000
+                                                  "maxLength": 1000000,
+                                                  "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                 }
                                               },
                                               "required": [
@@ -14661,7 +14672,8 @@
                                                         },
                                                         "documentJson": {
                                                           "type": "string",
-                                                          "maxLength": 1000000
+                                                          "maxLength": 1000000,
+                                                          "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                         }
                                                       },
                                                       "required": [
@@ -14925,7 +14937,8 @@
                                                       },
                                                       "documentJson": {
                                                         "type": "string",
-                                                        "maxLength": 1000000
+                                                        "maxLength": 1000000,
+                                                        "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                       }
                                                     },
                                                     "required": [
@@ -15478,7 +15491,8 @@
                                                           },
                                                           "documentJson": {
                                                             "type": "string",
-                                                            "maxLength": 1000000
+                                                            "maxLength": 1000000,
+                                                            "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                           }
                                                         },
                                                         "required": [
@@ -15742,7 +15756,8 @@
                                                         },
                                                         "documentJson": {
                                                           "type": "string",
-                                                          "maxLength": 1000000
+                                                          "maxLength": 1000000,
+                                                          "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                         }
                                                       },
                                                       "required": [
@@ -16147,7 +16162,8 @@
                                                                 },
                                                                 "documentJson": {
                                                                   "type": "string",
-                                                                  "maxLength": 1000000
+                                                                  "maxLength": 1000000,
+                                                                  "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                                 }
                                                               },
                                                               "required": [
@@ -16411,7 +16427,8 @@
                                                               },
                                                               "documentJson": {
                                                                 "type": "string",
-                                                                "maxLength": 1000000
+                                                                "maxLength": 1000000,
+                                                                "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                               }
                                                             },
                                                             "required": [
@@ -17104,7 +17121,8 @@
                                                     },
                                                     "documentJson": {
                                                       "type": "string",
-                                                      "maxLength": 1000000
+                                                      "maxLength": 1000000,
+                                                      "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                     }
                                                   },
                                                   "required": [
@@ -17493,7 +17511,8 @@
                                                       },
                                                       "documentJson": {
                                                         "type": "string",
-                                                        "maxLength": 1000000
+                                                        "maxLength": 1000000,
+                                                        "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                       }
                                                     },
                                                     "required": [
@@ -17831,7 +17850,8 @@
                                                       },
                                                       "documentJson": {
                                                         "type": "string",
-                                                        "maxLength": 1000000
+                                                        "maxLength": 1000000,
+                                                        "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                       }
                                                     },
                                                     "required": [
@@ -19426,7 +19446,8 @@
                                                                                 },
                                                                                 "documentJson": {
                                                                                   "type": "string",
-                                                                                  "maxLength": 1000000
+                                                                                  "maxLength": 1000000,
+                                                                                  "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                                                 }
                                                                               },
                                                                               "required": [
@@ -19709,7 +19730,8 @@
                                                                             },
                                                                             "documentJson": {
                                                                               "type": "string",
-                                                                              "maxLength": 1000000
+                                                                              "maxLength": 1000000,
+                                                                              "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                                             }
                                                                           },
                                                                           "required": [
@@ -20180,7 +20202,8 @@
                                                                                 },
                                                                                 "documentJson": {
                                                                                   "type": "string",
-                                                                                  "maxLength": 1000000
+                                                                                  "maxLength": 1000000,
+                                                                                  "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                                                 }
                                                                               },
                                                                               "required": [
@@ -20463,7 +20486,8 @@
                                                                             },
                                                                             "documentJson": {
                                                                               "type": "string",
-                                                                              "maxLength": 1000000
+                                                                              "maxLength": 1000000,
+                                                                              "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                                             }
                                                                           },
                                                                           "required": [
@@ -23323,7 +23347,8 @@
                                                   },
                                                   "documentJson": {
                                                     "type": "string",
-                                                    "maxLength": 1000000
+                                                    "maxLength": 1000000,
+                                                    "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                   }
                                                 },
                                                 "required": [
@@ -23587,7 +23612,8 @@
                                                 },
                                                 "documentJson": {
                                                   "type": "string",
-                                                  "maxLength": 1000000
+                                                  "maxLength": 1000000,
+                                                  "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                 }
                                               },
                                               "required": [
@@ -23940,7 +23966,8 @@
                                                         },
                                                         "documentJson": {
                                                           "type": "string",
-                                                          "maxLength": 1000000
+                                                          "maxLength": 1000000,
+                                                          "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                         }
                                                       },
                                                       "required": [
@@ -24204,7 +24231,8 @@
                                                       },
                                                       "documentJson": {
                                                         "type": "string",
-                                                        "maxLength": 1000000
+                                                        "maxLength": 1000000,
+                                                        "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                       }
                                                     },
                                                     "required": [
@@ -24757,7 +24785,8 @@
                                                           },
                                                           "documentJson": {
                                                             "type": "string",
-                                                            "maxLength": 1000000
+                                                            "maxLength": 1000000,
+                                                            "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                           }
                                                         },
                                                         "required": [
@@ -25021,7 +25050,8 @@
                                                         },
                                                         "documentJson": {
                                                           "type": "string",
-                                                          "maxLength": 1000000
+                                                          "maxLength": 1000000,
+                                                          "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                         }
                                                       },
                                                       "required": [
@@ -25426,7 +25456,8 @@
                                                                 },
                                                                 "documentJson": {
                                                                   "type": "string",
-                                                                  "maxLength": 1000000
+                                                                  "maxLength": 1000000,
+                                                                  "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                                 }
                                                               },
                                                               "required": [
@@ -25690,7 +25721,8 @@
                                                               },
                                                               "documentJson": {
                                                                 "type": "string",
-                                                                "maxLength": 1000000
+                                                                "maxLength": 1000000,
+                                                                "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                               }
                                                             },
                                                             "required": [
@@ -26383,7 +26415,8 @@
                                                     },
                                                     "documentJson": {
                                                       "type": "string",
-                                                      "maxLength": 1000000
+                                                      "maxLength": 1000000,
+                                                      "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                     }
                                                   },
                                                   "required": [
@@ -26772,7 +26805,8 @@
                                                       },
                                                       "documentJson": {
                                                         "type": "string",
-                                                        "maxLength": 1000000
+                                                        "maxLength": 1000000,
+                                                        "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                       }
                                                     },
                                                     "required": [
@@ -27110,7 +27144,8 @@
                                                       },
                                                       "documentJson": {
                                                         "type": "string",
-                                                        "maxLength": 1000000
+                                                        "maxLength": 1000000,
+                                                        "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                       }
                                                     },
                                                     "required": [
@@ -28705,7 +28740,8 @@
                                                                                 },
                                                                                 "documentJson": {
                                                                                   "type": "string",
-                                                                                  "maxLength": 1000000
+                                                                                  "maxLength": 1000000,
+                                                                                  "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                                                 }
                                                                               },
                                                                               "required": [
@@ -28988,7 +29024,8 @@
                                                                             },
                                                                             "documentJson": {
                                                                               "type": "string",
-                                                                              "maxLength": 1000000
+                                                                              "maxLength": 1000000,
+                                                                              "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                                             }
                                                                           },
                                                                           "required": [
@@ -29459,7 +29496,8 @@
                                                                                 },
                                                                                 "documentJson": {
                                                                                   "type": "string",
-                                                                                  "maxLength": 1000000
+                                                                                  "maxLength": 1000000,
+                                                                                  "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                                                 }
                                                                               },
                                                                               "required": [
@@ -29742,7 +29780,8 @@
                                                                             },
                                                                             "documentJson": {
                                                                               "type": "string",
-                                                                              "maxLength": 1000000
+                                                                              "maxLength": 1000000,
+                                                                              "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                                             }
                                                                           },
                                                                           "required": [
@@ -32685,7 +32724,7 @@
                                             "kind"
                                           ],
                                           "additionalProperties": false,
-                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                         },
                                         {
                                           "type": "null"
@@ -32798,7 +32837,7 @@
                                         "kind"
                                       ],
                                       "additionalProperties": false,
-                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                     }
                                   },
                                   "required": [
@@ -33002,7 +33041,7 @@
                                                 "kind"
                                               ],
                                               "additionalProperties": false,
-                                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                             }
                                           },
                                           "required": [
@@ -34567,7 +34606,7 @@
                                             "kind"
                                           ],
                                           "additionalProperties": false,
-                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                         },
                                         {
                                           "type": "null"
@@ -34680,7 +34719,7 @@
                                         "kind"
                                       ],
                                       "additionalProperties": false,
-                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                     }
                                   },
                                   "required": [
@@ -34884,7 +34923,7 @@
                                                 "kind"
                                               ],
                                               "additionalProperties": false,
-                                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                             }
                                           },
                                           "required": [
@@ -36079,7 +36118,8 @@
                                           },
                                           "documentJson": {
                                             "type": "string",
-                                            "maxLength": 1000000
+                                            "maxLength": 1000000,
+                                            "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                           }
                                         },
                                         "required": [
@@ -36538,7 +36578,8 @@
                                                 },
                                                 "documentJson": {
                                                   "type": "string",
-                                                  "maxLength": 1000000
+                                                  "maxLength": 1000000,
+                                                  "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                 }
                                               },
                                               "required": [
@@ -36921,7 +36962,8 @@
                                                 },
                                                 "documentJson": {
                                                   "type": "string",
-                                                  "maxLength": 1000000
+                                                  "maxLength": 1000000,
+                                                  "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                 }
                                               },
                                               "required": [
@@ -37454,7 +37496,7 @@
                                 "kind"
                               ],
                               "additionalProperties": false,
-                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                             },
                             {
                               "type": "null"
@@ -37543,7 +37585,7 @@
                               "kind"
                             ],
                             "additionalProperties": false,
-                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                           }
                         }
                       },
@@ -37721,7 +37763,7 @@
                                       "kind"
                                     ],
                                     "additionalProperties": false,
-                                    "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                    "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                   },
                                   {
                                     "type": "null"
@@ -37810,7 +37852,7 @@
                                     "kind"
                                   ],
                                   "additionalProperties": false,
-                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                 }
                               }
                             },
@@ -38467,7 +38509,8 @@
                                                 },
                                                 "documentJson": {
                                                   "type": "string",
-                                                  "maxLength": 1000000
+                                                  "maxLength": 1000000,
+                                                  "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                 }
                                               },
                                               "required": [
@@ -38926,7 +38969,8 @@
                                                       },
                                                       "documentJson": {
                                                         "type": "string",
-                                                        "maxLength": 1000000
+                                                        "maxLength": 1000000,
+                                                        "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                       }
                                                     },
                                                     "required": [
@@ -39309,7 +39353,8 @@
                                                       },
                                                       "documentJson": {
                                                         "type": "string",
-                                                        "maxLength": 1000000
+                                                        "maxLength": 1000000,
+                                                        "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                       }
                                                     },
                                                     "required": [
@@ -40009,7 +40054,8 @@
                                                     },
                                                     "documentJson": {
                                                       "type": "string",
-                                                      "maxLength": 1000000
+                                                      "maxLength": 1000000,
+                                                      "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                     }
                                                   },
                                                   "required": [
@@ -40351,7 +40397,7 @@
                                         "kind"
                                       ],
                                       "additionalProperties": false,
-                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                     },
                                     {
                                       "type": "null"
@@ -40623,7 +40669,7 @@
                                             "kind"
                                           ],
                                           "additionalProperties": false,
-                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                         },
                                         {
                                           "type": "null"
@@ -41140,7 +41186,7 @@
                                         "kind"
                                       ],
                                       "additionalProperties": false,
-                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                     },
                                     {
                                       "type": "null"
@@ -42019,7 +42065,7 @@
     "/v1/trash/restore": {
       "post": {
         "operationId": "restoreTrash",
-        "summary": "Restore Trash items, or every item of one delete by batchId",
+        "summary": "Restore Trash items, or every item of one delete by batchId. For restored saved views, droppedViewReferences lists filters, columns, sort and grouping removed because a referenced field remains in Trash; restore the field first to preserve them.",
         "tags": [
           "trash"
         ],
@@ -42173,6 +42219,43 @@
                           "type": "integer",
                           "minimum": -9007199254740991,
                           "maximum": 9007199254740991
+                        },
+                        "droppedViewReferences": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "viewId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "filters": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              },
+                              "columns": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              },
+                              "sort": {
+                                "type": "boolean"
+                              },
+                              "grouping": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "viewId",
+                              "filters",
+                              "columns",
+                              "sort",
+                              "grouping"
+                            ],
+                            "additionalProperties": false
+                          }
                         }
                       },
                       "required": [
@@ -43044,7 +43127,7 @@
                                     "kind"
                                   ],
                                   "additionalProperties": false,
-                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                 },
                                 {
                                   "type": "null"
@@ -43133,7 +43216,7 @@
                                   "kind"
                                 ],
                                 "additionalProperties": false,
-                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                               }
                             }
                           },
@@ -43311,7 +43394,7 @@
                                           "kind"
                                         ],
                                         "additionalProperties": false,
-                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                       },
                                       {
                                         "type": "null"
@@ -43400,7 +43483,7 @@
                                         "kind"
                                       ],
                                       "additionalProperties": false,
-                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                     }
                                   }
                                 },
@@ -43775,7 +43858,7 @@
                                             "kind"
                                           ],
                                           "additionalProperties": false,
-                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                         },
                                         {
                                           "type": "null"
@@ -43864,7 +43947,7 @@
                                           "kind"
                                         ],
                                         "additionalProperties": false,
-                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                       }
                                     }
                                   },
@@ -44094,7 +44177,7 @@
                                                   "kind"
                                                 ],
                                                 "additionalProperties": false,
-                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                               },
                                               {
                                                 "type": "null"
@@ -44183,7 +44266,7 @@
                                                 "kind"
                                               ],
                                               "additionalProperties": false,
-                                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                             }
                                           }
                                         },
@@ -44582,7 +44665,8 @@
                                         },
                                         "documentJson": {
                                           "type": "string",
-                                          "maxLength": 1000000
+                                          "maxLength": 1000000,
+                                          "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                         }
                                       },
                                       "required": [
@@ -44971,7 +45055,8 @@
                                           },
                                           "documentJson": {
                                             "type": "string",
-                                            "maxLength": 1000000
+                                            "maxLength": 1000000,
+                                            "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                           }
                                         },
                                         "required": [
@@ -45309,7 +45394,8 @@
                                           },
                                           "documentJson": {
                                             "type": "string",
-                                            "maxLength": 1000000
+                                            "maxLength": 1000000,
+                                            "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                           }
                                         },
                                         "required": [
@@ -49314,7 +49400,8 @@
                                               },
                                               "documentJson": {
                                                 "type": "string",
-                                                "maxLength": 1000000
+                                                "maxLength": 1000000,
+                                                "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                               }
                                             },
                                             "required": [
@@ -49655,7 +49742,8 @@
                                           },
                                           "documentJson": {
                                             "type": "string",
-                                            "maxLength": 1000000
+                                            "maxLength": 1000000,
+                                            "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                           }
                                         },
                                         "required": [
@@ -50041,7 +50129,8 @@
                                               },
                                               "documentJson": {
                                                 "type": "string",
-                                                "maxLength": 1000000
+                                                "maxLength": 1000000,
+                                                "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                               }
                                             },
                                             "required": [
@@ -65474,7 +65563,8 @@
                                                         },
                                                         "documentJson": {
                                                           "type": "string",
-                                                          "maxLength": 1000000
+                                                          "maxLength": 1000000,
+                                                          "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                         }
                                                       },
                                                       "required": [
@@ -65738,7 +65828,8 @@
                                                       },
                                                       "documentJson": {
                                                         "type": "string",
-                                                        "maxLength": 1000000
+                                                        "maxLength": 1000000,
+                                                        "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                       }
                                                     },
                                                     "required": [
@@ -66091,7 +66182,8 @@
                                                               },
                                                               "documentJson": {
                                                                 "type": "string",
-                                                                "maxLength": 1000000
+                                                                "maxLength": 1000000,
+                                                                "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                               }
                                                             },
                                                             "required": [
@@ -66355,7 +66447,8 @@
                                                             },
                                                             "documentJson": {
                                                               "type": "string",
-                                                              "maxLength": 1000000
+                                                              "maxLength": 1000000,
+                                                              "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                             }
                                                           },
                                                           "required": [
@@ -66908,7 +67001,8 @@
                                                                 },
                                                                 "documentJson": {
                                                                   "type": "string",
-                                                                  "maxLength": 1000000
+                                                                  "maxLength": 1000000,
+                                                                  "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                                 }
                                                               },
                                                               "required": [
@@ -67172,7 +67266,8 @@
                                                               },
                                                               "documentJson": {
                                                                 "type": "string",
-                                                                "maxLength": 1000000
+                                                                "maxLength": 1000000,
+                                                                "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                               }
                                                             },
                                                             "required": [
@@ -67577,7 +67672,8 @@
                                                                       },
                                                                       "documentJson": {
                                                                         "type": "string",
-                                                                        "maxLength": 1000000
+                                                                        "maxLength": 1000000,
+                                                                        "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                                       }
                                                                     },
                                                                     "required": [
@@ -67841,7 +67937,8 @@
                                                                     },
                                                                     "documentJson": {
                                                                       "type": "string",
-                                                                      "maxLength": 1000000
+                                                                      "maxLength": 1000000,
+                                                                      "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                                     }
                                                                   },
                                                                   "required": [
@@ -68534,7 +68631,8 @@
                                                           },
                                                           "documentJson": {
                                                             "type": "string",
-                                                            "maxLength": 1000000
+                                                            "maxLength": 1000000,
+                                                            "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                           }
                                                         },
                                                         "required": [
@@ -68923,7 +69021,8 @@
                                                             },
                                                             "documentJson": {
                                                               "type": "string",
-                                                              "maxLength": 1000000
+                                                              "maxLength": 1000000,
+                                                              "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                             }
                                                           },
                                                           "required": [
@@ -69261,7 +69360,8 @@
                                                             },
                                                             "documentJson": {
                                                               "type": "string",
-                                                              "maxLength": 1000000
+                                                              "maxLength": 1000000,
+                                                              "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                             }
                                                           },
                                                           "required": [
@@ -70856,7 +70956,8 @@
                                                                                       },
                                                                                       "documentJson": {
                                                                                         "type": "string",
-                                                                                        "maxLength": 1000000
+                                                                                        "maxLength": 1000000,
+                                                                                        "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                                                       }
                                                                                     },
                                                                                     "required": [
@@ -71139,7 +71240,8 @@
                                                                                   },
                                                                                   "documentJson": {
                                                                                     "type": "string",
-                                                                                    "maxLength": 1000000
+                                                                                    "maxLength": 1000000,
+                                                                                    "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                                                   }
                                                                                 },
                                                                                 "required": [
@@ -71610,7 +71712,8 @@
                                                                                       },
                                                                                       "documentJson": {
                                                                                         "type": "string",
-                                                                                        "maxLength": 1000000
+                                                                                        "maxLength": 1000000,
+                                                                                        "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                                                       }
                                                                                     },
                                                                                     "required": [
@@ -71893,7 +71996,8 @@
                                                                                   },
                                                                                   "documentJson": {
                                                                                     "type": "string",
-                                                                                    "maxLength": 1000000
+                                                                                    "maxLength": 1000000,
+                                                                                    "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                                                   }
                                                                                 },
                                                                                 "required": [
@@ -75514,7 +75618,8 @@
                                                   },
                                                   "documentJson": {
                                                     "type": "string",
-                                                    "maxLength": 1000000
+                                                    "maxLength": 1000000,
+                                                    "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                   }
                                                 },
                                                 "required": [
@@ -75973,7 +76078,8 @@
                                                         },
                                                         "documentJson": {
                                                           "type": "string",
-                                                          "maxLength": 1000000
+                                                          "maxLength": 1000000,
+                                                          "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                         }
                                                       },
                                                       "required": [
@@ -76356,7 +76462,8 @@
                                                         },
                                                         "documentJson": {
                                                           "type": "string",
-                                                          "maxLength": 1000000
+                                                          "maxLength": 1000000,
+                                                          "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                         }
                                                       },
                                                       "required": [
@@ -77107,7 +77214,8 @@
                                                   },
                                                   "documentJson": {
                                                     "type": "string",
-                                                    "maxLength": 1000000
+                                                    "maxLength": 1000000,
+                                                    "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                   }
                                                 },
                                                 "required": [
@@ -77448,7 +77556,8 @@
                                               },
                                               "documentJson": {
                                                 "type": "string",
-                                                "maxLength": 1000000
+                                                "maxLength": 1000000,
+                                                "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                               }
                                             },
                                             "required": [
@@ -77834,7 +77943,8 @@
                                                   },
                                                   "documentJson": {
                                                     "type": "string",
-                                                    "maxLength": 1000000
+                                                    "maxLength": 1000000,
+                                                    "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                   }
                                                 },
                                                 "required": [
@@ -83440,7 +83550,7 @@
                                             "kind"
                                           ],
                                           "additionalProperties": false,
-                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                         },
                                         {
                                           "type": "null"
@@ -83529,7 +83639,7 @@
                                           "kind"
                                         ],
                                         "additionalProperties": false,
-                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                       }
                                     }
                                   },
@@ -83759,7 +83869,7 @@
                                                   "kind"
                                                 ],
                                                 "additionalProperties": false,
-                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                               },
                                               {
                                                 "type": "null"
@@ -83848,7 +83958,7 @@
                                                 "kind"
                                               ],
                                               "additionalProperties": false,
-                                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                             }
                                           }
                                         },
@@ -84110,7 +84220,7 @@
                                               "kind"
                                             ],
                                             "additionalProperties": false,
-                                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                           },
                                           {
                                             "type": "null"
@@ -84199,7 +84309,7 @@
                                             "kind"
                                           ],
                                           "additionalProperties": false,
-                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                         }
                                       }
                                     },
@@ -84429,7 +84539,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                 },
                                                 {
                                                   "type": "null"
@@ -84518,7 +84628,7 @@
                                                   "kind"
                                                 ],
                                                 "additionalProperties": false,
-                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                               }
                                             }
                                           },
@@ -85046,7 +85156,7 @@
                                             "kind"
                                           ],
                                           "additionalProperties": false,
-                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                         },
                                         {
                                           "type": "null"
@@ -85135,7 +85245,7 @@
                                           "kind"
                                         ],
                                         "additionalProperties": false,
-                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                       }
                                     }
                                   },
@@ -85365,7 +85475,7 @@
                                                   "kind"
                                                 ],
                                                 "additionalProperties": false,
-                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                               },
                                               {
                                                 "type": "null"
@@ -85454,7 +85564,7 @@
                                                 "kind"
                                               ],
                                               "additionalProperties": false,
-                                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                             }
                                           }
                                         },
@@ -85716,7 +85826,7 @@
                                               "kind"
                                             ],
                                             "additionalProperties": false,
-                                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                           },
                                           {
                                             "type": "null"
@@ -85805,7 +85915,7 @@
                                             "kind"
                                           ],
                                           "additionalProperties": false,
-                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                         }
                                       }
                                     },
@@ -86035,7 +86145,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                 },
                                                 {
                                                   "type": "null"
@@ -86124,7 +86234,7 @@
                                                   "kind"
                                                 ],
                                                 "additionalProperties": false,
-                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                               }
                                             }
                                           },
@@ -87612,7 +87722,7 @@
                                             "kind"
                                           ],
                                           "additionalProperties": false,
-                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                         },
                                         {
                                           "type": "null"
@@ -87701,7 +87811,7 @@
                                           "kind"
                                         ],
                                         "additionalProperties": false,
-                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                       }
                                     }
                                   },
@@ -87931,7 +88041,7 @@
                                                   "kind"
                                                 ],
                                                 "additionalProperties": false,
-                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                               },
                                               {
                                                 "type": "null"
@@ -88020,7 +88130,7 @@
                                                 "kind"
                                               ],
                                               "additionalProperties": false,
-                                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                             }
                                           }
                                         },
@@ -88283,7 +88393,7 @@
                                               "kind"
                                             ],
                                             "additionalProperties": false,
-                                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                           },
                                           {
                                             "type": "null"
@@ -88372,7 +88482,7 @@
                                             "kind"
                                           ],
                                           "additionalProperties": false,
-                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                         }
                                       }
                                     },
@@ -88602,7 +88712,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                 },
                                                 {
                                                   "type": "null"
@@ -88691,7 +88801,7 @@
                                                   "kind"
                                                 ],
                                                 "additionalProperties": false,
-                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                               }
                                             }
                                           },
@@ -89282,7 +89392,7 @@
                                             "kind"
                                           ],
                                           "additionalProperties": false,
-                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                         },
                                         {
                                           "type": "null"
@@ -89371,7 +89481,7 @@
                                           "kind"
                                         ],
                                         "additionalProperties": false,
-                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                       }
                                     }
                                   },
@@ -89601,7 +89711,7 @@
                                                   "kind"
                                                 ],
                                                 "additionalProperties": false,
-                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                               },
                                               {
                                                 "type": "null"
@@ -89690,7 +89800,7 @@
                                                 "kind"
                                               ],
                                               "additionalProperties": false,
-                                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                             }
                                           }
                                         },
@@ -89953,7 +90063,7 @@
                                               "kind"
                                             ],
                                             "additionalProperties": false,
-                                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                           },
                                           {
                                             "type": "null"
@@ -90042,7 +90152,7 @@
                                             "kind"
                                           ],
                                           "additionalProperties": false,
-                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                         }
                                       }
                                     },
@@ -90272,7 +90382,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                 },
                                                 {
                                                   "type": "null"
@@ -90361,7 +90471,7 @@
                                                   "kind"
                                                 ],
                                                 "additionalProperties": false,
-                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                               }
                                             }
                                           },
@@ -105743,7 +105853,7 @@
                                                         "kind"
                                                       ],
                                                       "additionalProperties": false,
-                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                     }
                                                   },
                                                   "required": [
@@ -105851,7 +105961,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                 }
                                               },
                                               "required": [
@@ -106146,7 +106256,7 @@
                                                         "kind"
                                                       ],
                                                       "additionalProperties": false,
-                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                     }
                                                   },
                                                   "required": [
@@ -106254,7 +106364,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                 }
                                               },
                                               "required": [
@@ -107090,7 +107200,7 @@
                                                         "kind"
                                                       ],
                                                       "additionalProperties": false,
-                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                     }
                                                   },
                                                   "required": [
@@ -107198,7 +107308,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                 }
                                               },
                                               "required": [
@@ -107493,7 +107603,7 @@
                                                         "kind"
                                                       ],
                                                       "additionalProperties": false,
-                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                     }
                                                   },
                                                   "required": [
@@ -107601,7 +107711,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                 }
                                               },
                                               "required": [
@@ -108437,7 +108547,7 @@
                                                         "kind"
                                                       ],
                                                       "additionalProperties": false,
-                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                     }
                                                   },
                                                   "required": [
@@ -108545,7 +108655,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                 }
                                               },
                                               "required": [
@@ -108840,7 +108950,7 @@
                                                         "kind"
                                                       ],
                                                       "additionalProperties": false,
-                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                     }
                                                   },
                                                   "required": [
@@ -108948,7 +109058,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                 }
                                               },
                                               "required": [
@@ -109784,7 +109894,7 @@
                                                         "kind"
                                                       ],
                                                       "additionalProperties": false,
-                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                     }
                                                   },
                                                   "required": [
@@ -109892,7 +110002,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                 }
                                               },
                                               "required": [
@@ -110187,7 +110297,7 @@
                                                         "kind"
                                                       ],
                                                       "additionalProperties": false,
-                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                     }
                                                   },
                                                   "required": [
@@ -110295,7 +110405,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                 }
                                               },
                                               "required": [
@@ -111131,7 +111241,7 @@
                                                         "kind"
                                                       ],
                                                       "additionalProperties": false,
-                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                     }
                                                   },
                                                   "required": [
@@ -111239,7 +111349,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                 }
                                               },
                                               "required": [
@@ -111534,7 +111644,7 @@
                                                         "kind"
                                                       ],
                                                       "additionalProperties": false,
-                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                     }
                                                   },
                                                   "required": [
@@ -111642,7 +111752,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                                                 }
                                               },
                                               "required": [
@@ -112126,7 +112236,7 @@
                       "kind"
                     ],
                     "additionalProperties": false,
-                    "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                    "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                   },
                   {
                     "type": "null"
@@ -112364,7 +112474,7 @@
                       "kind"
                     ],
                     "additionalProperties": false,
-                    "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
+                    "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read."
                   },
                   {
                     "type": "null"
@@ -115054,7 +115164,8 @@
                                         },
                                         "documentJson": {
                                           "type": "string",
-                                          "maxLength": 1000000
+                                          "maxLength": 1000000,
+                                          "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                         }
                                       },
                                       "required": [
@@ -115318,7 +115429,8 @@
                                       },
                                       "documentJson": {
                                         "type": "string",
-                                        "maxLength": 1000000
+                                        "maxLength": 1000000,
+                                        "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                       }
                                     },
                                     "required": [
@@ -115723,7 +115835,8 @@
                                               },
                                               "documentJson": {
                                                 "type": "string",
-                                                "maxLength": 1000000
+                                                "maxLength": 1000000,
+                                                "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                               }
                                             },
                                             "required": [
@@ -115987,7 +116100,8 @@
                                             },
                                             "documentJson": {
                                               "type": "string",
-                                              "maxLength": 1000000
+                                              "maxLength": 1000000,
+                                              "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                             }
                                           },
                                           "required": [
@@ -116425,7 +116539,8 @@
                                           },
                                           "documentJson": {
                                             "type": "string",
-                                            "maxLength": 1000000
+                                            "maxLength": 1000000,
+                                            "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                           }
                                         },
                                         "required": [
@@ -116689,7 +116804,8 @@
                                         },
                                         "documentJson": {
                                           "type": "string",
-                                          "maxLength": 1000000
+                                          "maxLength": 1000000,
+                                          "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                         }
                                       },
                                       "required": [
@@ -117094,7 +117210,8 @@
                                                 },
                                                 "documentJson": {
                                                   "type": "string",
-                                                  "maxLength": 1000000
+                                                  "maxLength": 1000000,
+                                                  "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                 }
                                               },
                                               "required": [
@@ -117358,7 +117475,8 @@
                                               },
                                               "documentJson": {
                                                 "type": "string",
-                                                "maxLength": 1000000
+                                                "maxLength": 1000000,
+                                                "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                               }
                                             },
                                             "required": [
@@ -117967,7 +118085,8 @@
                                         },
                                         "documentJson": {
                                           "type": "string",
-                                          "maxLength": 1000000
+                                          "maxLength": 1000000,
+                                          "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                         }
                                       },
                                       "required": [
@@ -118231,7 +118350,8 @@
                                       },
                                       "documentJson": {
                                         "type": "string",
-                                        "maxLength": 1000000
+                                        "maxLength": 1000000,
+                                        "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                       }
                                     },
                                     "required": [
@@ -118636,7 +118756,8 @@
                                               },
                                               "documentJson": {
                                                 "type": "string",
-                                                "maxLength": 1000000
+                                                "maxLength": 1000000,
+                                                "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                               }
                                             },
                                             "required": [
@@ -118900,7 +119021,8 @@
                                             },
                                             "documentJson": {
                                               "type": "string",
-                                              "maxLength": 1000000
+                                              "maxLength": 1000000,
+                                              "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                             }
                                           },
                                           "required": [
@@ -119338,7 +119460,8 @@
                                           },
                                           "documentJson": {
                                             "type": "string",
-                                            "maxLength": 1000000
+                                            "maxLength": 1000000,
+                                            "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                           }
                                         },
                                         "required": [
@@ -119602,7 +119725,8 @@
                                         },
                                         "documentJson": {
                                           "type": "string",
-                                          "maxLength": 1000000
+                                          "maxLength": 1000000,
+                                          "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                         }
                                       },
                                       "required": [
@@ -120007,7 +120131,8 @@
                                                 },
                                                 "documentJson": {
                                                   "type": "string",
-                                                  "maxLength": 1000000
+                                                  "maxLength": 1000000,
+                                                  "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                                 }
                                               },
                                               "required": [
@@ -120271,7 +120396,8 @@
                                               },
                                               "documentJson": {
                                                 "type": "string",
-                                                "maxLength": 1000000
+                                                "maxLength": 1000000,
+                                                "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                                               }
                                             },
                                             "required": [
@@ -121961,7 +122087,8 @@
                           },
                           "documentJson": {
                             "type": "string",
-                            "maxLength": 1000000
+                            "maxLength": 1000000,
+                            "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                           }
                         },
                         "required": [
@@ -122374,7 +122501,8 @@
                           },
                           "documentJson": {
                             "type": "string",
-                            "maxLength": 1000000
+                            "maxLength": 1000000,
+                            "description": "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions."
                           }
                         },
                         "required": [

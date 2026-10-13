@@ -3,6 +3,7 @@ import type { TrashItem, TrashRepo } from "./trash.repo";
 import type { TrashKindHandler, TrashKindImpact, TrashKindRestore } from "./trash-kind-handler";
 import type { TrashKind } from "./trash.schema";
 import type { TrashRestoreBlockerSource } from "./trash-restore-blocker-source";
+import type { DroppedViewReferences } from "./trash.schema";
 
 import type { DomainEvent } from "@/features/event/domain-events";
 import type { EventService } from "@/features/event/event.service";
@@ -29,6 +30,7 @@ type EntityTrashKind = {
   restoreOrder: number;
   visibility: (alias: Prisma.Sql) => Promise<Prisma.Sql>;
   blockers?: TrashRestoreBlockerSource;
+  restoreReferences?: (ids: string[]) => Promise<DroppedViewReferences[]>;
   audit?: EntityTrashAudit;
 };
 
@@ -56,6 +58,7 @@ export class EntityTrashHandler implements TrashKindHandler {
     const blockedIds = new Set(blocked.map((blocker) => blocker.itemId));
     const candidates = items.filter((item) => !blockedIds.has(item.id));
     const restored = new Set(await this.repo.restoreTrashed(candidates.map((item) => item.targetId)));
+    const droppedViewReferences = await this.definition.restoreReferences?.([...restored]);
     const missing = candidates.filter((item) => !restored.has(item.targetId));
     const restoredItemIds = candidates.filter((item) => restored.has(item.targetId)).map((item) => item.id);
     await this.trash.remove([...restoredItemIds, ...missing.map((item) => item.id)]);
@@ -68,10 +71,15 @@ export class EntityTrashHandler implements TrashKindHandler {
       restoredItemIds,
       blocked: [
         ...blocked,
-        ...missing.map((item) => ({ itemId: item.id, reason: "notFound" as const, typeId: item.typeId })),
+        ...missing.map((item) => ({
+          itemId: item.id,
+          reason: "notFound" as const,
+          typeId: item.typeId,
+        })),
       ],
       restoredRecords: 0,
       droppedLinks: 0,
+      ...(droppedViewReferences?.length ? { droppedViewReferences } : {}),
     };
   }
 
@@ -92,7 +100,10 @@ export class EntityTrashHandler implements TrashKindHandler {
     for (const item of items) {
       await this.events.publish(
         audit[change],
-        { entityId: item.targetId, payload: { id: item.targetId, [audit.label]: item.label } } as never,
+        {
+          entityId: item.targetId,
+          payload: { id: item.targetId, [audit.label]: item.label },
+        } as never,
         change === "deletedPermanently" && actorId === null ? system : undefined,
       );
     }

@@ -18,7 +18,10 @@ import type { RecordViewConfigurationRepo } from "./record-view-configuration.re
 import type { ViewWidgetPurgeRepo } from "@/features/widget/view-widget-purge.repo";
 import type { SurfaceStateResetRepo } from "@/features/p13n/surface-state-reset.repo";
 
-type DataViewRepoOwners = { widgets: ViewWidgetPurgeRepo; personalizations: SurfaceStateResetRepo };
+type DataViewRepoOwners = {
+  widgets: ViewWidgetPurgeRepo;
+  personalizations: SurfaceStateResetRepo;
+};
 
 type CreateDataViewArgs = {
   surfaceKey: string;
@@ -119,21 +122,38 @@ export class PrismaDataViewRepo
     return runAsViewOwner(async () => {
       const { companyId, id: userId } = this.user;
       const rows = await this.prisma.dataView.findMany({
-        where: { companyId, userId, deletedAt: null, surfaceKey: { startsWith: "records:" } },
+        where: {
+          companyId,
+          userId,
+          deletedAt: null,
+          surfaceKey: { startsWith: "records:" },
+        },
         orderBy: [{ surfaceKey: "asc" }, { position: "asc" }, { name: "asc" }],
         select: { id: true, surfaceKey: true, name: true },
       });
-      return rows.map((row) => ({ typeId: row.surfaceKey.slice("records:".length), id: row.id, name: row.name }));
+      return rows.map((row) => ({
+        typeId: row.surfaceKey.slice("records:".length),
+        id: row.id,
+        name: row.name,
+      }));
     });
   }
 
   async listWorkspaceRecordViewNames(): Promise<RecordViewName[]> {
     const rows = await this.prisma.dataView.findMany({
-      where: { companyId: this.companyId, surfaceKey: { startsWith: "records:" }, deletedAt: null },
+      where: {
+        companyId: this.companyId,
+        surfaceKey: { startsWith: "records:" },
+        deletedAt: null,
+      },
       orderBy: [{ surfaceKey: "asc" }, { position: "asc" }, { id: "asc" }],
       select: { id: true, surfaceKey: true, name: true },
     });
-    return rows.map((row) => ({ typeId: row.surfaceKey.slice("records:".length), id: row.id, name: row.name }));
+    return rows.map((row) => ({
+      typeId: row.surfaceKey.slice("records:".length),
+      id: row.id,
+      name: row.name,
+    }));
   }
 
   async resetOwnedViewState({ surfaceKey, viewKey, fields }: ResetDataViewStateInput): Promise<boolean> {
@@ -288,7 +308,11 @@ export class PrismaDataViewRepo
 
   async restoreTrashed(ids: string[]): Promise<string[]> {
     const rows = await this.prisma.dataView.findMany({
-      where: { id: { in: ids }, companyId: this.companyId, deletedAt: { not: null } },
+      where: {
+        id: { in: ids },
+        companyId: this.companyId,
+        deletedAt: { not: null },
+      },
       select: { id: true },
     });
     const restored = rows.map((row) => row.id);
@@ -302,27 +326,58 @@ export class PrismaDataViewRepo
   async purgeTrashed(ids: string[]): Promise<void> {
     await this.owners.widgets.purgeOnTrashedViewsCompanyWide(this.companyId, ids);
     await this.prisma.dataView.deleteMany({
-      where: { id: { in: ids }, companyId: this.companyId, deletedAt: { not: null } },
+      where: {
+        id: { in: ids },
+        companyId: this.companyId,
+        deletedAt: { not: null },
+      },
     });
   }
 
   async getViewsCompanyWide(companyId: string, surfaceKeys: string[], afterId: string, take: number) {
     return this.prisma.dataView.findMany({
-      where: { companyId, surfaceKey: { in: surfaceKeys }, ...(afterId ? { id: { gt: afterId } } : {}) },
+      where: {
+        companyId,
+        surfaceKey: { in: surfaceKeys },
+        ...(afterId ? { id: { gt: afterId } } : {}),
+      },
       orderBy: { id: "asc" },
       take,
     });
   }
 
   async countViewsCompanyWide(companyId: string, surfaceKeys: string[]) {
-    return this.prisma.dataView.count({ where: { companyId, surfaceKey: { in: surfaceKeys } } });
+    return this.prisma.dataView.count({
+      where: { companyId, surfaceKey: { in: surfaceKeys } },
+    });
   }
 
   async deleteViewsCompanyWide(companyId: string, surfaceKeys: string[]): Promise<void> {
-    await this.prisma.dataView.deleteMany({ where: { companyId, surfaceKey: { in: surfaceKeys } } });
+    await this.prisma.dataView.deleteMany({
+      where: { companyId, surfaceKey: { in: surfaceKeys } },
+    });
   }
 
   async rewriteViewStateCompanyWide(companyId: string, id: string, state: DataViewState): Promise<void> {
-    await this.prisma.dataView.updateMany({ where: { companyId, id }, data: writePartialStoredState(state) });
+    await this.prisma.dataView.updateMany({
+      where: { companyId, id },
+      data: writePartialStoredState(state),
+    });
+  }
+
+  async getRecordViewStatesByIds(ids: string[]) {
+    const rows = await this.prisma.dataView.findMany({
+      where: {
+        companyId: this.companyId,
+        id: { in: ids },
+        surfaceKey: { startsWith: "records:" },
+      },
+      select: VIEW_SELECT,
+    });
+    return rows.map((row) => ({
+      id: row.id,
+      typeId: row.surfaceKey.slice("records:".length),
+      state: readStoredState(row),
+    }));
   }
 }

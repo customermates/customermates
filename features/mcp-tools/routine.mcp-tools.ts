@@ -16,6 +16,9 @@ import {
   RoutineRecordTriggerSchema,
 } from "@/ee/routines/routine.schema";
 import { RecordTriggerSourceSchema } from "@/features/records/record-event-subscription.schema";
+import { getTenantUser } from "@/core/decorators/tenant-context";
+import { FilterFieldKey } from "@/core/types/filter-field-key";
+import { FilterOperatorKey } from "@/core/base/base-query-builder";
 
 import {
   fetchMcpPage,
@@ -31,13 +34,18 @@ const ManageRoutinesSchema = z.object({
   action: z
     .enum(["list", "runs", "create", "update", "pause", "run_now", "delete"])
     .describe(
-      "list = every routine with its full configuration (optional page, pageSize, searchTerm); runs = one routine's run history (id, optional cursor); create = name, prompt, triggerKind, enabled, plus cronExpression and timezone for a schedule or triggerEvents for an event (record events also need recordTrigger or recordSources; optional debounceSeconds); update = id plus the fields to change; pause, run_now and delete = id.",
+      "list = compact routine summaries by default (optional page, pageSize, searchTerm, owner, includePrompts); runs = one routine's run history (id, optional cursor); create = name, prompt, triggerKind, enabled, plus cronExpression and timezone for a schedule or triggerEvents for an event (record events also need recordTrigger or recordSources; optional debounceSeconds); update = id plus the fields to change; pause, run_now and delete = id.",
     ),
   id: z.uuid().optional().describe("Routine id. Required for update, pause, run_now and delete."),
   cursor: z.string().max(500).nullable().optional().describe("runs only. Page cursor from a previous runs call."),
   page: mcpPage(),
   pageSize: mcpPageSize(25, `list only. ${MCP_PAGE_SIZE_DESCRIPTION} Default 25.`),
   searchTerm: z.string().optional().describe("list only. Free-text match against the routine name."),
+  owner: z.enum(["all", "mine"]).default("all").describe("list only. mine returns routines owned by the caller."),
+  includePrompts: z
+    .boolean()
+    .default(false)
+    .describe("list only. Include the full routine configurations and prompts; false returns compact summaries."),
   name: z.string().min(1).max(ROUTINE_NAME_MAX_CHARS).optional().describe("Required on create."),
   prompt: z
     .string()
@@ -99,7 +107,7 @@ const ManageRoutinesOutputSchema = z
     started: z.boolean().optional(),
   })
   .describe(
-    "list returns items, total, page and pageSize; runs returns items and nextCursor; create, update and pause return the routine's id, name and enabled (false after pause); run_now returns started; delete returns deleted and id.",
+    "list returns items, total, page and pageSize; each item is a compact id, name, owner, trigger and enabled summary unless includePrompts is true. owner: mine limits the list to the caller. runs returns items and nextCursor; create, update and pause return the routine's id, name and enabled (false after pause); run_now returns started; delete returns deleted and id.",
   );
 
 const IdSchema = z.object({ id: z.uuid() });
@@ -109,7 +117,7 @@ export const manageRoutinesTool = {
   title: "Manage routines",
   description:
     "Use this to read, create, change or remove routines: saved instructions the assistant runs on a schedule or when a CRM event fires. " +
-    "action list returns every routine with its prompt and trigger, and takes page, pageSize and searchTerm for pagination. " +
+    "action list returns compact summaries (id, name, owner, trigger, enabled) by default; pass includePrompts: true for full configurations including prompts. Pass owner: 'mine' to limit results to routines you own; page, pageSize and searchTerm paginate and search. " +
     "action runs returns one routine's run history newest first, paginated by cursor, each with its status, summary and trigger. " +
     "action create needs name, prompt and triggerKind, plus cronExpression for a schedule, or triggerEvents for an event. Record events (record.created, record.updated, record.deleted) also need recordTrigger for one list or recordSources for several lists; the query filters decide which records fire the routine, and record events can be combined with messaging events in one routine. " +
     "Omitting enabled on create produces a routine that is immediately LIVE and will start running, so pass enabled false to draft one. " +
@@ -130,14 +138,47 @@ export const manageRoutinesTool = {
     if (params.action === "list") {
       return runInteractor(
         fetchMcpPage({ page: params.page, pageSize: params.pageSize }, ({ page, pageSize }) =>
-          getGetRoutinesApiInteractor().invoke({ page, pageSize, searchTerm: params.searchTerm }),
+          getGetRoutinesApiInteractor().invoke({
+            page,
+            pageSize,
+            searchTerm: params.searchTerm,
+            ...(params.owner === "mine"
+              ? {
+                  filters: [
+                    {
+                      field: FilterFieldKey.ownerUserId,
+                      operator: FilterOperatorKey.equals,
+                      value: getTenantUser().id,
+                    },
+                  ],
+                }
+              : {}),
+          }),
         ),
         (data) =>
           toonResult({
             total: data.pagination?.total ?? data.items.length,
             page: params.page,
             pageSize: params.pageSize,
-            items: data.items,
+            items: params.includePrompts
+              ? data.items
+              : data.items.map((routine) => ({
+                  id: routine.id,
+                  name: routine.name,
+                  owner: routine.owner
+                    ? {
+                        id: routine.owner.id,
+                        name: `${routine.owner.firstName} ${routine.owner.lastName}`.trim(),
+                      }
+                    : null,
+                  trigger: {
+                    kind: routine.triggerKind,
+                    cronExpression: routine.cronExpression,
+                    timezone: routine.timezone,
+                    events: routine.triggerEvents,
+                  },
+                  enabled: routine.enabled,
+                })),
           }),
       );
     }
@@ -147,7 +188,10 @@ export const manageRoutinesTool = {
       if (!parsed.success) return mcpValidationFailure(parsed.error);
 
       return runInteractor(
-        getGetRoutineRunsInteractor().invoke({ id: parsed.data.id, cursor: params.cursor }),
+        getGetRoutineRunsInteractor().invoke({
+          id: parsed.data.id,
+          cursor: params.cursor,
+        }),
         (data) => toonResult({ nextCursor: data.nextCursor, items: data.runs }),
       );
     }
@@ -173,7 +217,12 @@ export const manageRoutinesTool = {
           expectedSchemaRevision: params.expectedSchemaRevision,
           debounceSeconds: params.debounceSeconds,
         }),
-        (routine) => toonResult({ id: routine.id, name: routine.name, enabled: routine.enabled }),
+        (routine) =>
+          toonResult({
+            id: routine.id,
+            name: routine.name,
+            enabled: routine.enabled,
+          }),
       );
     }
 
@@ -182,7 +231,11 @@ export const manageRoutinesTool = {
 
     if (params.action === "pause") {
       return runInteractor(getPauseRoutineInteractor().invoke({ id: parsed.data.id }), (routine) =>
-        toonResult({ id: routine.id, name: routine.name, enabled: routine.enabled }),
+        toonResult({
+          id: routine.id,
+          name: routine.name,
+          enabled: routine.enabled,
+        }),
       );
     }
 
@@ -193,7 +246,11 @@ export const manageRoutinesTool = {
     }
 
     return runInteractor(getDeleteRoutineInteractor().invoke({ id: parsed.data.id }), (deleted) =>
-      toonResult({ deleted: true, id: deleted.id, trashBatchId: deleted.trashBatchId }),
+      toonResult({
+        deleted: true,
+        id: deleted.id,
+        trashBatchId: deleted.trashBatchId,
+      }),
     );
   },
 };

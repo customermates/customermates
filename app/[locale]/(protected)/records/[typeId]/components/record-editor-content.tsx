@@ -124,9 +124,12 @@ const RecordEditorBody = observer(function RecordEditorBody({
     store.setWithUnsavedChangesGuard(false);
     root.navigationGuard.tryNavigate(() => {
       if (!root.recordWorkspaceStore.handOffDraft(store, true)) return;
-      store.resetForm();
-      store.close();
-      root.recordWorkspaceStore.close();
+      const pendingDraft = root.recordWorkspaceStore.peekDraftHandoff(ref).draft;
+      if (!pendingDraft || pathname === href) {
+        store.resetForm();
+        store.close();
+        root.recordWorkspaceStore.close();
+      }
       if (pathname !== href) router.push(href);
     });
     store.setWithUnsavedChangesGuard(true);

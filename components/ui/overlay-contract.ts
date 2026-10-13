@@ -12,7 +12,7 @@ export const OVERLAY_SAFE_CLOSE_POSITION_CLASS =
   "top-[calc(1.375rem+var(--safe-top))] right-[calc(0.5rem+var(--safe-right))]";
 
 export const OVERLAY_DRAWER_HANDLE_CLOSE_CLASS =
-  "group-data-[vaul-drawer-direction=bottom]/drawer-content:top-[2.875rem] group-data-[overlay-actions]/drawer-content:top-[1.375rem]! group-has-[[data-slot=drawer-header][data-header-actions]]/drawer-content:top-2!";
+  "group-data-[vaul-drawer-direction=bottom]/drawer-content:top-[2.875rem] group-data-[overlay-actions]/drawer-content:top-[1.375rem]! group-has-[[data-slot=drawer-header][data-header-actions]]/drawer-content:top-2! group-data-[vaul-drawer-direction=left]/drawer-content:top-2!";
 
 export const OVERLAY_DRAWER_HEADER_ACTIONS_CLASS = "flex-row items-center gap-2 py-2 pr-12";
 

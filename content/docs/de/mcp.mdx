@@ -46,17 +46,16 @@ Den Client nach seinen Tools fragen. Alle [[derived.mcp.tools.total]] sollten er
 </Step>
 </Steps>
 
-
-| Client | Methode | Guide |
-| --- | --- | --- |
-| Claude Web & Mobile | Custom Connector (OAuth) | [Mit einem Custom Connector verbinden](/docs/connect-custom-connector) |
-| Claude Desktop | Connector (OAuth) oder Config-Key | [Claude Desktop verbinden](/docs/connect-custom-connector#claude) |
-| ChatGPT | Connector (OAuth) oder Key-Header | [ChatGPT verbinden](/docs/connect-custom-connector#chatgpt) |
-| Claude Code | API-Key | [Claude Code verbinden](/docs/connect-cli#claude-code) |
-| Codex | API-Key | [Codex verbinden](/docs/connect-cli#codex) |
-| Cursor | API-Key | [Cursor verbinden](/docs/connect-cli#cursor) |
-| Gemini CLI | API-Key | [Gemini verbinden](/docs/connect-cli#gemini-cli) |
-| Beliebiger MCP-Client | Key-Header | Endpoint und Header aus [Wie lautet die URL des MCP-Server-Endpoints?](#the-endpoint) nutzen |
+| Client                | Methode                           | Guide                                                                                        |
+| --------------------- | --------------------------------- | -------------------------------------------------------------------------------------------- |
+| Claude Web & Mobile   | Custom Connector (OAuth)          | [Mit einem Custom Connector verbinden](/docs/connect-custom-connector)                       |
+| Claude Desktop        | Connector (OAuth) oder Config-Key | [Claude Desktop verbinden](/docs/connect-custom-connector#claude)                            |
+| ChatGPT               | Connector (OAuth) oder Key-Header | [ChatGPT verbinden](/docs/connect-custom-connector#chatgpt)                                  |
+| Claude Code           | API-Key                           | [Claude Code verbinden](/docs/connect-cli#claude-code)                                       |
+| Codex                 | API-Key                           | [Codex verbinden](/docs/connect-cli#codex)                                                   |
+| Cursor                | API-Key                           | [Cursor verbinden](/docs/connect-cli#cursor)                                                 |
+| Gemini CLI            | API-Key                           | [Gemini verbinden](/docs/connect-cli#gemini-cli)                                             |
+| Beliebiger MCP-Client | Key-Header                        | Endpoint und Header aus [Wie lautet die URL des MCP-Server-Endpoints?](#the-endpoint) nutzen |
 
 ## Server-Instructions, Prompts und Toolsets [#server-instructions-prompts-and-toolsets]
 
@@ -167,6 +166,7 @@ Jede Datensatzreferenz enthält `typeId` und `recordId`. `query_crm_records` lie
 `read_crm_record` liefert die aktuelle Datensatzversion und Schemarevision. Eingabefelder über typisierte Zuweisungen in `mutate_crm_record` ändern, Beziehungen über dessen link- und unlink-Aktionen. Um einem Feld vom Typ Formatierter Text oder Text etwas hinzuzufügen, ohne es neu zu schreiben, in einer Änderung `{ fieldId, append }` senden: Der Text kommt mit einer Leerzeile nach dem aktuellen Wert, und eine Änderung, die nur anhängt, kollidiert nie mit einer neueren Änderung anderer. Jede Liste kann ein Feld Kanäle haben; seine E-Mails, Telefonnummern und Profile sind indexierte Identitätsverknüpfungen, während ein normales E-Mail-Feld nie zum Zuordnungsschlüssel wird. Ein übergebenes `identities`-Array behält nur die darin enthaltenen Kanäle; ohne dieses Feld bleiben sie unverändert.
 
 {/* mcp-catalog:records */}
+
 #### `discover_record_types`
 
 Zugängliche Datensatztypen anhand von Namen oder stabilen Typ-IDs finden. Das Ergebnis enthält schemaRevision, erlaubte Aktionen und ob Sie das Datenmodell bearbeiten dürfen. Mit page und pageSize weiterblättern; includeEmbedded zeigt auch eingebettete Typen wie Positionen.
@@ -181,7 +181,7 @@ Felder, stabile Options-IDs, Beziehungen, Systembindungen und Konfigurationsrevi
 
 #### `query_crm_records`
 
-Datensätze eines konfigurierten Typs in PostgreSQL filtern, sortieren und seitenweise lesen. Zuerst das Schema lesen. Ergebnisse unterscheiden Werte, fehlende Eingaben, gesperrte Berechnungen und Fehler; Dezimalwerte sind Strings. query_crm_measure liefert Summen über alle Treffer.
+Datensätze eines konfigurierten Typs in PostgreSQL filtern, sortieren und seitenweise lesen. Zuerst das Schema lesen. Ergebnisse unterscheiden Werte, fehlende Eingaben, gesperrte Berechnungen und Fehler; Dezimalwerte sind Strings. query_crm_measure liefert Summen über alle Treffer. Ein Filter nennt fieldId und operator. Operatoren mit einem Wert nutzen value mit einem typisierten Skalar; in, notIn, all und between nutzen values mit typisierten Skalaren und value: null. Mehrfachauswahlfilter nutzen je Option einen Skalar `{kind: "select", value: optionId}`, nicht selectList. Bei ungültigen Filtern nennt die Fehlermeldung Index und Feld.
 
 **Nur lesend.** Pflicht: `typeId`. Optional: `locale`, `fields`, `includeRelationships`, `includePaths`, `includeIdentities`, `search`, `filters`, `relatedFilters`, `relationships`, `sort`, `page`, `pageSize`, `grouping`, `groupPage`, `groupSummaries`.
 
@@ -205,7 +205,7 @@ Einen Datensatz über typeId und recordId lesen, einschließlich typisierter Wer
 
 #### `mutate_crm_record`
 
-Datensätze erstellen, ändern, löschen, verknüpfen oder entknüpfen. expectedRevision und idempotencyKey sind erforderlich; Änderungen und Löschungen benötigen auch die aktuelle Datensatzversion. Feldwerte als typisierte Zuweisungen übergeben; `{ fieldId, append }` hängt Markdown nach einer Leerzeile an ein Feld vom Typ Formatierter Text oder Text an, und eine Änderung, die nur anhängt, kollidiert nie mit einer neueren Datensatzversion. Weggelassene Eingaben bleiben erhalten; null leert ein optionales Eingabefeld. Berechnete Felder sind schreibgeschützt. Eine Löschung vorher prüfen und expectedImpactHash übergeben. Ausstehende Vorgänge liefern eine Vorgangs-ID. Löschen verschiebt Datensätze, ihre Unterlisten-Zeilen und kaskadierende Datensätze für 30 Tage in den Papierkorb und gibt eine trashBatchId zum Wiederherstellen zurück; permanent: true löscht sie sofort endgültig.
+Datensätze erstellen, ändern, löschen, verknüpfen oder entknüpfen. expectedRevision und idempotencyKey sind erforderlich; Änderungen und Löschungen benötigen auch die aktuelle Datensatzversion. Feldwerte als typisierte Zuweisungen übergeben; `{ fieldId, append }` hängt Markdown nach einer Leerzeile an ein Feld vom Typ Formatierter Text oder Text an, und eine Änderung, die nur anhängt, kollidiert nie mit einer neueren Datensatzversion. Weggelassene Eingaben bleiben erhalten; null leert ein optionales Eingabefeld. Berechnete Felder sind schreibgeschützt. Eine Löschung vorher prüfen und expectedImpactHash übergeben. Ausstehende Vorgänge liefern eine Vorgangs-ID. Löschen verschiebt Datensätze, ihre Unterlisten-Zeilen und kaskadierende Datensätze für 30 Tage in den Papierkorb und gibt eine trashBatchId zum Wiederherstellen zurück; permanent: true löscht sie sofort endgültig. Zum vollständigen Ersetzen von Formatiertem Text senden Sie `{kind: "richText", documentJson: "<ProseMirror-Dokument als JSON-String>"}`; Markdown kommt beim Lesen zurück, ist aber kein Eingabeformat für vollständigen Ersatz. Lesen Sie bei einem Versionskonflikt erneut und wiederholen Sie den Versuch mit dem aktuellen expectedVersion; die MCP-Fehlermeldung nennt lesbare aktuelle Versionen.
 
 **Kann Daten löschen.** Pflicht: `expectedRevision`, `idempotencyKey`, `mutation`.
 
@@ -247,7 +247,7 @@ Gelöschte Elemente im Papierkorb auflisten, neueste zuerst, mit Angabe, wer sie
 
 #### `manage_trash`
 
-Elemente aus dem Papierkorb wiederherstellen (oder alle Elemente eines Löschvorgangs über seine batchId), genau ansehen, was eine endgültige Löschung entfernt, Elemente endgültig löschen oder als Administrator den Papierkorb leeren. Endgültiges Löschen braucht Löschrechte für jedes Element. Endgültiges Löschen lässt sich nicht rückgängig machen und entfernt die Werte der gelöschten Datensätze aus dem Verlauf.
+Elemente aus dem Papierkorb wiederherstellen (oder alle Elemente eines Löschvorgangs über seine batchId), genau ansehen, was eine endgültige Löschung entfernt, Elemente endgültig löschen oder als Administrator den Papierkorb leeren. Endgültiges Löschen braucht Löschrechte für jedes Element. Endgültiges Löschen lässt sich nicht rückgängig machen und entfernt die Werte der gelöschten Datensätze aus dem Verlauf. Wenn beim Wiederherstellen einer gespeicherten Ansicht ein verwendetes Feld noch im Papierkorb liegt, werden ungültige Filter, Spalten, Sortierung und Gruppierung entfernt; droppedViewReferences nennt die Änderungen je Ansicht. Stellen Sie zuerst das Feld wieder her, um die Einstellungen zu behalten.
 
 **Kann Daten löschen.** Pflicht: `action`. Optional: `itemIds`, `batchId`, `all`, `expectedImpactHash`.
 
@@ -291,7 +291,10 @@ Zwei Aufrufe aktualisieren Datensätze, die Sie nur über E-Mail-Adressen oder P
          "value": "ada@example.com",
          "records": [
            {
-             "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" },
+             "ref": {
+               "typeId": "<contact typeId>",
+               "recordId": "<ada recordId>"
+             },
              "identityId": "<identityId>",
              "typeLabel": "Contact",
              "typePluralLabel": "Contacts",
@@ -302,8 +305,25 @@ Zwei Aufrufe aktualisieren Datensätze, die Sie nur über E-Mail-Adressen oder P
            }
          ]
        },
-       { "provider": "linkedin", "value": "ada-lovelace", "records": [{ "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" }, "version": 4, "...": "..." }] },
-       { "provider": "mail", "value": "team@example.com", "records": [{ "...": "record A" }, { "...": "record B" }] }
+       {
+         "provider": "linkedin",
+         "value": "ada-lovelace",
+         "records": [
+           {
+             "ref": {
+               "typeId": "<contact typeId>",
+               "recordId": "<ada recordId>"
+             },
+             "version": 4,
+             "...": "..."
+           }
+         ]
+       },
+       {
+         "provider": "mail",
+         "value": "team@example.com",
+         "records": [{ "...": "record A" }, { "...": "record B" }]
+       }
      ]
    }
    ```
@@ -317,8 +337,21 @@ Zwei Aufrufe aktualisieren Datensätze, die Sie nur über E-Mail-Adressen oder P
      "idempotencyKey": "segment-update-2026-10-06",
      "mutation": {
        "action": "updateMany",
-       "targets": [{ "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" }, "expectedVersion": 4 }],
-       "fields": [{ "fieldId": "<field id>", "value": { "kind": "text", "value": "Webinar 2026" } }]
+       "targets": [
+         {
+           "ref": {
+             "typeId": "<contact typeId>",
+             "recordId": "<ada recordId>"
+           },
+           "expectedVersion": 4
+         }
+       ],
+       "fields": [
+         {
+           "fieldId": "<field id>",
+           "value": { "kind": "text", "value": "Webinar 2026" }
+         }
+       ]
      }
    }
    ```
@@ -328,6 +361,7 @@ Die Änderung gilt atomar für alle Ziele; eine große Neuberechnung kann `statu
 ### Workspace [#workspace]
 
 {/* mcp-catalog:workspace */}
+
 #### `get_workspace_context`
 
 Aktuellen Nutzer, Unternehmen, Rollenkatalog mit Berechtigungen, zugängliche verbundene Nachrichtenkonten sowie den Betriebsleitfaden der Wissensdatenbank, ihr Verzeichnis der Abläufe mit ihrem Einsatzfall und eine zugriffsgefilterte Liste der Wissensseiten (`wikiPage` blättert weiter; fehlt ohne Wissensdatenbank-Leserechte) in einem Call lesen. Der natürliche erste Call einer Session. Typnamen separat mit discover_record_types ermitteln und die benötigte Konfiguration mit get_record_model abrufen.
@@ -344,6 +378,7 @@ Teammitglieder mit ID, Name, E-Mail, roleId und Status. Hat die Rolle des Aufruf
 ### Gespeicherte Ansichten [#saved-views]
 
 {/* mcp-catalog:views */}
+
 #### `manage_data_views`
 
 Persönliche gespeicherte Ansichten entdecken, prüfen, erstellen, ändern, auswählen, zurücksetzen und löschen. Zuerst surfaceKey ermitteln; generische Datensatzansichten verwenden stabile Typ-IDs. Änderungen ersetzen nur übergebene Einstellungen; eine Gruppierung kann bis zu 8 Übersichten tragen (Summe, Durchschnitt, Minimum oder Maximum eines Zahlen- oder Währungsfelds). Reset entfernt Ihre Anpassungen, sodass die Liste alle Felder in ihrer konfigurierten Reihenfolge als ungruppierte Tabelle zeigt. Löschen verschiebt die Ansicht in den Papierkorb (eine Dashboard-Ansicht samt ihren Widgets), nie ihre Datensätze. Konfiguration und Ansichtslisten sind durchsuchbar und paginiert.
@@ -360,6 +395,7 @@ Pflicht: `typeId`, `action`. Optional: `expectedRevision`, `idempotencyKey`, `la
 ### Wissensdatenbank [#workspace-wiki]
 
 {/* mcp-catalog:wiki */}
+
 #### `manage_wiki_pages`
 
 Wissensdatenbank-Seiten auflisten, suchen, lesen, anlegen, aktualisieren, umsortieren (vor oder nach eine andere Seite verschieben) oder löschen (in den Papierkorb verschieben), jeweils eine Wissensseite, ein Ablauf mit Einsatzfall oder der eine Betriebsleitfaden. Updates und Löschungen benötigen den neuesten updatedAt-Wert; Create kann atomar eine leere Wissensdatenbank voraussetzen.
@@ -374,6 +410,7 @@ Messaging-basierte Tools brauchen einen Tarif mit Messaging: ab Pro, nur Cloud; 
 `connect_messaging_account` braucht außerdem **Erstellen** bei **Inbox-Nachrichten** und einen freien Kontoplatz: Pro erlaubt [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer, Business [[commercial.entitlement.business.includedAccountsPerUser]] und Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]].
 
 {/* mcp-catalog:messaging */}
+
 #### `get_messaging_threads`
 
 Ohne threadId zugängliche Inbox-Threads filtern und seitenweise lesen; mit threadId einen Thread samt Nachrichtenseite lesen. Teilnehmerreferenzen enthalten nach aktueller Zugriffsprüfung typeId, recordId, title, avatarUrl und canEdit. Neue participantContactId-Filterwerte verwenden typeId:recordId; alte Kontakt-UUIDs bleiben lesbar. Nachrichten- und Kontorechte gelten unabhängig davon.
@@ -452,6 +489,7 @@ Listet Ihre verbundenen Konten mit Ordnern und E-Mail-Einstellungen und ändert 
 Wie Messaging brauchen diese Tools einen Tarif mit Messaging (ab Pro, nur Cloud) und ein verbundenes LinkedIn- oder Instagram-Konto. Die `linkedin_*`-Tools brauchen zusätzlich das Sales-Navigator-Abo dieses LinkedIn-Kontos.
 
 {/* mcp-catalog:social */}
+
 #### `get_social_posts`
 
 Posts auf LinkedIn oder Instagram, gelesen über ein verbundenes Konto. Für den Kontoinhaber `authorIdentifier=me` verwenden. Für eine andere Person `get_social_profile.id`, `get_social_posts.items[].author.id` (Listenmodus), `get_social_posts.author.id` (Einzel-Post-Modus), `get_social_post_engagement.items[].author.id` (Kommentare), `get_social_post_engagement.items[].sender.id` (Reaktionen) oder `manage_social_relations.items[].user.id` verwenden. `get_messaging_threads.items[].participants[].identifier` (Listenmodus) oder `get_messaging_threads.thread.participants[].identifier` (Detailmodus) zuerst mit `get_social_profile` auflösen; eine Thread-Teilnehmer-Kennung nicht direkt übergeben. `get_social_posts.items[].id` als `postId` übergeben, um einen einzelnen Post abzurufen. Bei einer Fortsetzung dasselbe Konto, denselben Autor und dasselbe Limit zusammen mit next_cursor verwenden.
@@ -539,6 +577,7 @@ Für ein Unternehmen rufen Sie `get_social_profile` mit `profileType=company` un
 ### Dokumentation und Deep Research [#documentation-and-deep-research]
 
 {/* mcp-catalog:docs */}
+
 #### `search_docs`
 
 Suche über die Docs; standardmäßig nur die Produkt-Guides (source=docs); mit source=api oder all auch die REST-API-Referenz. Findet die Wörter der Anfrage im Volltext und mit KI-Credits auch nach Bedeutung. Liefert bis zu 5 Seiten, jeweils mit Slug, Source, Titel, URL, dem passendsten Abschnitt samt Anker und einem Snippet, dazu die Gesamtzahl. Links in die App sind vollständige URLs dieser Instanz (ihre konfigurierte `BASE_URL`) und öffnen den eigenen Workspace des Lesers.
@@ -573,6 +612,7 @@ Das relevante Modell lesen, das Paket prüfen, Abhängigkeiten und Rechtefolgen 
 Ein ausstehendes Ergebnis liefert eine Vorgangs-ID. Den Fortschritt bis zum Abschluss abfragen; während CRM-Schreibzugriffe pausieren, bleibt der letzte vollständige Stand lesbar, und fehlgeschlagene oder abgebrochene Vorgänge veröffentlichen keine Teilwerte. Bei veralteter Revision die Konfiguration neu lesen und erneut prüfen.
 
 {/* mcp-catalog:record-model */}
+
 #### `configure_record_model`
 
 Ein typisiertes Konfigurationspaket mit Typen, Feldern, Beziehungen, Berechnungen und Zugriffsvorlagen prüfen oder anwenden. expectedRevision, idempotencyKey und Operationen zwischen Vorschau und Anwendung beibehalten. Temporäre $client-Referenzen verbinden neue Definitionen atomar. Berechnungen verwenden ein begrenztes Knotenprogramm, keinen ausführbaren Code. Schema-Verwaltung, Datensatzzugriff, Rollenfreigaben und veröffentlichte Zusammenfassungen haben getrennte Berechtigungen. Mit delete verschieben Sie eine Liste, ein Feld oder eine Beziehung in den Papierkorb; wiederherstellen oder endgültig löschen Sie sie mit manage_trash.
@@ -587,6 +627,7 @@ Eine Diagrammkennzahl wählt Quelltyp, Filter, Aggregation, Wertefeld und Gruppi
 Die Quelle legt fest, was einmal gezählt wird. Deal-Berichte zählen jeden passenden Deal einmal in der Gesamtsumme; ein Deal mit zwei Organisationen zählt in beiden Organisationsgruppen voll, deren Summe kann daher die eindeutige Gesamtsumme übersteigen. Service-Beiträge und Mengen verwenden Positionen als Quelle. Gleiche Beträge verschiedener Datensätze zählen jeweils. Gesperrte Eingaben bleiben in Widgets gesperrt, und verschiedene Währungen werden nie stillschweigend addiert.
 
 {/* mcp-catalog:widgets */}
+
 #### `manage_widgets`
 
 Widgets auflisten und lesen sowie Diagramm- und Aktivitätskonfigurationen erstellen, ändern oder löschen. Diagramme verwenden measure und displayOptions; Timelines activityQuery und showFilters. Beide benötigen expectedRevision und idempotencyKey beim Schreiben sowie expectedVersion beim Ändern. Übergebene measure, activityQuery oder displayOptions ersetzen den jeweiligen Wert vollständig. Timeline-Umfang und typisierte Filter verwenden stabile Datensatz- und Typreferenzen sowie Ein-, Ausschluss-, Kanal- und Unterhaltungsfilter. Geteilte Vorlagen prüfen die Datenrechte jedes Lesers. Schreibvorgänge akzeptieren optional ein layout `{x, y, w, h}` im 12-Spalten-Raster, das im selben Aufruf gespeichert wird; ohne layout erhält ein neues Widget den ersten freien Platz und ein geändertes bleibt, wo es ist; überlappende Positionen werden abgelehnt. list liefert das aktuelle Layout jedes Widgets. viewId legt ein Widget auf einer Dashboard-Ansicht ab (gespeicherte Ansicht der manage_data_views-Oberfläche dashboard); ohne viewId landet ein neues Widget in der aktuellen Dashboard-Ansicht. Löschen verschiebt die Widget-Konfiguration in den Papierkorb, nie ihre Quelldatensätze.
@@ -597,16 +638,18 @@ Widgets auflisten und lesen sowie Diagramm- und Aktivitätskonfigurationen erste
 ### Routinen [#routines]
 
 {/* mcp-catalog:routines */}
+
 #### `manage_routines`
 
-Ein Tool mit einem `action`-Schalter: list, runs, create, update, pause, run_now, delete. Eine Routine sind gespeicherte Anweisungen, die der Assistent nach Zeitplan oder bei einem CRM-Ereignis ausführt. Ohne `enabled` erzeugt create eine LIVE-Routine; für einen Entwurf `enabled: false` übergeben; der gehostete Assistent muss `enabled` ausdrücklich angeben und speichert einen Entwurf, sofern der Nutzer nicht die Aktivierung verlangt hat. Ein Wechsel von `triggerKind` muss den Zeitplan oder die Ereignisse der neuen Art mitbringen. pause deaktiviert die Routine und setzt wartende Läufe auf übersprungen, was ein erneutes Aktivieren nicht rückgängig macht; nur aktive Systemadministratoren dürfen eine Routine pausieren oder löschen. run_now gilt nur für geplante Routinen und nur für eine aktivierte Routine, die der Aufrufer besitzt. Läufe werden über `cursor` paginiert und enthalten Status, Zusammenfassung und Auslöser. delete verschiebt die Routine in den Papierkorb, wo sie nicht läuft, bis manage_trash sie wiederherstellt.
+Ein Tool mit einem `action`-Schalter: list, runs, create, update, pause, run_now, delete. Eine Routine sind gespeicherte Anweisungen, die der Assistent nach Zeitplan oder bei einem CRM-Ereignis ausführt. Ohne `enabled` erzeugt create eine LIVE-Routine; für einen Entwurf `enabled: false` übergeben; der gehostete Assistent muss `enabled` ausdrücklich angeben und speichert einen Entwurf, sofern der Nutzer nicht die Aktivierung verlangt hat. Ein Wechsel von `triggerKind` muss den Zeitplan oder die Ereignisse der neuen Art mitbringen. pause deaktiviert die Routine und setzt wartende Läufe auf übersprungen, was ein erneutes Aktivieren nicht rückgängig macht; nur aktive Systemadministratoren dürfen eine Routine pausieren oder löschen. run_now gilt nur für geplante Routinen und nur für eine aktivierte Routine, die der Aufrufer besitzt. Läufe werden über `cursor` paginiert und enthalten Status, Zusammenfassung und Auslöser. delete verschiebt die Routine in den Papierkorb, wo sie nicht läuft, bis manage_trash sie wiederherstellt. list liefert standardmäßig knappe Angaben zu Name, Eigentümer, Auslöser und Aktivierung. Mit includePrompts: true erhalten Sie die vollständige Konfiguration samt Anweisungen; owner: "mine" beschränkt die Liste auf Ihre Routinen.
 
-**Kann Daten löschen.** Pflicht: `action`. Optional: `id`, `cursor`, `page`, `pageSize`, `searchTerm`, `name`, `prompt`, `enabled`, `triggerKind`, `cronExpression`, `timezone`, `triggerEvents`, `recordTrigger`, `recordSources`, `expectedSchemaRevision`, `debounceSeconds`.
+**Kann Daten löschen.** Pflicht: `action`. Optional: `id`, `cursor`, `page`, `pageSize`, `searchTerm`, `owner`, `includePrompts`, `name`, `prompt`, `enabled`, `triggerKind`, `cronExpression`, `timezone`, `triggerEvents`, `recordTrigger`, `recordSources`, `expectedSchemaRevision`, `debounceSeconds`.
 {/* /mcp-catalog */}
 
 ### Webhooks [#webhooks]
 
 {/* mcp-catalog:webhooks */}
+
 #### `manage_webhooks`
 
 Ein Tool mit `action`-Schalter: list, get, create, update, delete, dazu das Delivery-Log (Action list_deliveries, auf die aktuelle url eines Webhooks beschränkt, wenn Sie dessen `id` übergeben) und die erneute Zustellung (Action resend_delivery). Lesen braucht bei API & Webhooks die Leseberechtigung Alle; create und resend_delivery brauchen Erstellen, update braucht Bearbeiten und delete braucht Löschen auf API & Webhooks.
@@ -617,6 +660,7 @@ Ein Tool mit `action`-Schalter: list, get, create, update, delete, dazu das Deli
 ### Admin und Team [#admin-and-team]
 
 {/* mcp-catalog:admin */}
+
 #### `update_my_profile`
 
 Ändert den eigenen Namen, das Land, den Avatar, das Farbschema, die Anzeigesprache und das regionale Format.
@@ -641,6 +685,7 @@ Kein Tool liest das Abonnement, den Tarif, die Nutzerplätze oder die Abrechnung
 ### Support [#support]
 
 {/* mcp-catalog:support */}
+
 #### `request_support`
 
 Sendet eine Support-Anfrage an das Customermates-Team (Betreff plus Beschreibung). Das Team antwortet per E-Mail. Gibt nur zurück, dass die Anfrage zum Versand angenommen wurde.
@@ -671,7 +716,14 @@ Eine Ablehnung ist Datum, kein Absturz. Das Ergebnis trägt `isError: true`, ein
   "_meta": {
     "failure": {
       "kind": "not_found",
-      "issues": [{ "code": "custom", "path": [], "message": "Webhook ID not found or not accessible.", "customCode": "webhookNotFound" }]
+      "issues": [
+        {
+          "code": "custom",
+          "path": [],
+          "message": "Webhook ID not found or not accessible.",
+          "customCode": "webhookNotFound"
+        }
+      ]
     }
   }
 }

@@ -39,6 +39,12 @@ export class QueryRecordsInteractor extends AuthenticatedInteractor<RecordQuery,
         const access = policy.access(model.types.filter((type) => !type.archived).map((type) => type.id));
         if (access.get(query.typeId)?.access === "none") return failNotFound(CustomErrorCode.recordTypeNotFound);
         const invalid = invalidRecordQueryPart(query, model);
+        if (invalid === "filters") {
+          const index = query.filters.findIndex(
+            (filter) => invalidRecordQueryPart({ ...query, filters: [filter] }, model) === "filters",
+          );
+          return fail(CustomErrorCode.recordValueInvalid, index < 0 ? [invalid] : [invalid, index]);
+        }
         if (invalid) return fail(CustomErrorCode.recordValueInvalid, [invalid]);
         const result = await this.records.query(query, model, access, policy.memberScope);
         const identities =

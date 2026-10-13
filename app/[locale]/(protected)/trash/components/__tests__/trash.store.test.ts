@@ -105,6 +105,26 @@ describe("TrashStore", () => {
     );
   });
 
+  it("reports filters, columns, sort and grouping removed from a restored view", async () => {
+    const { store } = makeStore();
+    trashActions.restoreTrashAction.mockResolvedValueOnce({
+      ok: true,
+      data: {
+        status: "completed",
+        restoredItemIds: [ITEM_ID],
+        blocked: [],
+        restoredRecords: 0,
+        droppedLinks: 0,
+        droppedViewReferences: [{ viewId: ITEM_ID, filters: 2, columns: 1, sort: true, grouping: false }],
+      },
+    });
+    expect(await store.restoreItems([ITEM_ID])).toBe(true);
+    expect(sonner.toast.success).toHaveBeenLastCalledWith(
+      'Trash.restoredWithDroppedViewReferences:{"filters":2,"columns":1,"sorts":1,"groupings":0}',
+      expect.anything(),
+    );
+  });
+
   it("shows an error toast when a restore fails without a message or the request throws", async () => {
     const { store } = makeStore();
     trashActions.restoreTrashAction.mockResolvedValueOnce({ ok: false, error: {} });

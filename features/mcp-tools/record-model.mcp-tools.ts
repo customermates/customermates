@@ -1,4 +1,5 @@
 import { RecordSearchSchema } from "@/features/records/record-search.schema";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import { z } from "zod";
 
 import {
@@ -155,12 +156,28 @@ export const queryRecordsV2Tool = {
   name: "query_crm_records",
   title: "Query records",
   description:
-    "Query an accessible type with typed filters, relationships, locale-aware sorting and database pagination. Multiple choice fields filter with in (any of), all and notIn (none of) and cannot be sorted or grouped here. Optional grouping supports single choices, booleans, members, relationships and date buckets, with per-group pages. Read its schema first; reuse returned group keys for further pages. Calculated, restricted, missing and failed values are distinct. Decimal values use strings. Formatted text arrives as Markdown between untrusted-content markers.",
+    "Query an accessible type with typed filters, relationships, locale-aware sorting and database pagination. A filter is {fieldId, operator, value}; single-value operators use a typed scalar value, while in, notIn, all and between use values (an array of typed scalars) and value: null. For a multiple choice field use individual {kind: 'select', value: optionId} scalars in values, not one selectList value. Multiple choice fields filter with in (any of), all and notIn (none of) and cannot be sorted or grouped here. Optional grouping supports single choices, booleans, members, relationships and date buckets, with per-group pages. Read its schema first; reuse returned group keys for further pages. Calculated, restricted, missing and failed values are distinct. Decimal values use strings. Formatted text arrives as Markdown between untrusted-content markers.",
   inputSchema: RecordQuerySchema,
   outputSchema: MarkedRecordQueryOutputSchema,
   annotations: read,
-  execute: (input: z.infer<typeof RecordQuerySchema>) =>
-    runInteractor(getQueryRecordsInteractor().invoke(input), recordToonResult),
+  execute: async (input: z.infer<typeof RecordQuerySchema>) => {
+    const result = await runInteractor(getQueryRecordsInteractor().invoke(input), recordToonResult);
+    if (typeof result === "string" || !("failure" in result)) return result;
+    const issue = result.failure.issues.find((candidate) => candidate.path[0] === "filters");
+    const index = issue?.path[1];
+    if (typeof index !== "number" || !input.filters[index]) return result;
+    const filter = input.filters[index];
+    const multiple = ["in", "notIn", "all", "between"].includes(filter.operator);
+    const shape = multiple
+      ? "values: an array of typed scalars (for a multiple choice field, {kind: 'select', value: optionId} for each option), with value: null"
+      : ["empty", "notEmpty"].includes(filter.operator)
+        ? "value: null"
+        : "value: one typed scalar matching the field (for a choice, {kind: 'select', value: optionId})";
+    return {
+      ...result,
+      text: `Validation error: filters[${index}] on ${filter.fieldId} with ${filter.operator} is invalid. Expected ${shape}.`,
+    };
+  },
 };
 export const readRecordV2Tool = {
   name: "read_crm_record",
@@ -177,12 +194,33 @@ export const mutateRecordV2Tool = {
   name: "mutate_crm_record",
   title: "Change a record or relationship",
   description:
-    "Create, update, delete, link or unlink records. updateMany applies one shared patch atomically to a typed target array; deleteMany previews and deletes the whole selection atomically. Each target supplies its latest version. Use field-assignment arrays and stable references. Omitted fields remain unchanged; null explicitly clears an optional input. To add to a Formatted text or single Text field without rewriting it, send { fieldId, append } in an update: the text is added after the current value with a blank line, and an update that only appends never conflicts with a newer record version. Calculated fields cannot be written. Preserve the idempotency key on retries of the exact payload. Read the latest record version before update/delete; resolve_record_identifiers returns versions for identifier-matched updateMany targets. delete and deleteMany move the records, their sub-list rows and cascading records to Trash, where read_trash lists them and manage_trash restores them for 30 days; the result carries trashBatchId to restore the whole delete. permanent: true deletes permanently right away (erasure requests) and cannot be undone. Preview deletion and pass its impactHash as expectedImpactHash to reject changed cascading effects. Pending operations pause workspace CRM writes and preserve the previous complete state for reads.",
+    "Create, update, delete, link or unlink records. updateMany applies one shared patch atomically to a typed target array; deleteMany previews and deletes the whole selection atomically. Each target supplies its latest version. Use field-assignment arrays and stable references. Omitted fields remain unchanged; null explicitly clears an optional input. A full Formatted text replacement writes {kind: 'richText', documentJson: '<ProseMirror document JSON string>'}; Markdown is returned on read but is not accepted for full replacement. To add Markdown to a Formatted text or single Text field without rewriting it, send { fieldId, append } in an update: the text is added after the current value with a blank line, and an update that only appends never conflicts with a newer record version. Calculated fields cannot be written. Preserve the idempotency key on retries of the exact payload. Read the latest record version before update/delete; on a version conflict, read the record again and retry with the current expectedVersion. resolve_record_identifiers returns versions for identifier-matched updateMany targets. delete and deleteMany move the records, their sub-list rows and cascading records to Trash, where read_trash lists them and manage_trash restores them for 30 days; the result carries trashBatchId to restore the whole delete. permanent: true deletes permanently right away (erasure requests) and cannot be undone. Preview deletion and pass its impactHash as expectedImpactHash to reject changed cascading effects. Pending operations pause workspace CRM writes and preserve the previous complete state for reads.",
   inputSchema: MutateRecordSchema,
   outputSchema: z.object({ result: RecordOperationResultSchema }).strict(),
   annotations: destructive,
-  execute: (input: z.infer<typeof MutateRecordSchema>) =>
-    runInteractor(getMutateRecordInteractor().invoke(input), (result) => toonResult({ result })),
+  execute: async (input: z.infer<typeof MutateRecordSchema>) => {
+    const result = await runInteractor(getMutateRecordInteractor().invoke(input), (data) =>
+      toonResult({ result: data }),
+    );
+    if (typeof result === "string" || !("failure" in result)) return result;
+    const conflict = result.failure.issues.find((issue) => issue.customCode === CustomErrorCode.recordVersionChanged);
+    if (!conflict) return result;
+    const refs =
+      input.mutation.action === "update" || input.mutation.action === "delete"
+        ? [input.mutation.ref]
+        : input.mutation.action === "updateMany" || input.mutation.action === "deleteMany"
+          ? input.mutation.targets.map((target) => target.ref)
+          : [];
+    const records = await Promise.all(refs.map((ref) => getGetRecordInteractor().invoke(ref)));
+    const current = records.flatMap((record, index) =>
+      record.ok ? [{ ref: refs[index], expectedVersion: record.data.version }] : [],
+    );
+    const version = current.length ? ` Current versions: ${JSON.stringify(current)}.` : "";
+    return {
+      ...result,
+      text: `This record changed. Read the record again and retry with the current expectedVersion.${version}`,
+    };
+  },
 };
 export const previewRecordDeletionV2Tool = {
   name: "preview_crm_deletion",

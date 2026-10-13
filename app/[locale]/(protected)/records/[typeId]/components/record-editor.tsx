@@ -7,10 +7,12 @@ import { AppModal } from "@/components/modal/app-modal";
 import { DiscardChangesDialog } from "@/components/modal/confirm-dialog";
 import { RecordEditorContent } from "./record-editor-content";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useNavigationGuard } from "@/components/modal/use-navigation-guard";
 
 export const RecordEditor = observer(function RecordEditorDrawer({ store }: { store: RecordEditorStore }) {
   const t = useTranslations();
   const root = useRootStore();
+  useNavigationGuard(store, store.isOpen);
   const type = store.presentation.model.types.find((type) => type.id === store.presentation.typeId);
   function requestClose() {
     const compose = root.threadComposeStore;
