@@ -47,7 +47,6 @@ export const REGISTRY_FILES: Readonly<Record<string, readonly Registry[]>> = {
     "SAVE_LIKE_KEY_EXEMPT",
     "SAVE_LIKE_KEY_NOT_YET_MIGRATED",
   ),
-  "interactor-error-contract.test.ts": [{ name: "FEATURE_ERROR_SUBCLASS_ALLOWLIST", valueIsMember: true }],
   "prisma-model-ownership.test.ts": registries("ALLOWLIST"),
   "raw-sql-tenancy.test.ts": registries("ALLOWLIST"),
   "settings-area-and-contact-values.test.ts": registries(
@@ -140,10 +139,6 @@ export const REVIEWED_EXCEPTION_ALLOWLIST: Readonly<Record<string, string>> = {
     "unresolved C03: labels a different action than Save",
   "form-footer-actions.test.ts#SAVE_LIKE_KEY_EXEMPT: Inbox.compose.updateDraft":
     "unresolved C03: labels a different action than Save",
-  "interactor-error-contract.test.ts#FEATURE_ERROR_SUBCLASS_ALLOWLIST: ee/messaging/unipile-request-error.ts -> UnipileRequestError":
-    "I146 (C04)",
-  "interactor-error-contract.test.ts#FEATURE_ERROR_SUBCLASS_ALLOWLIST: ee/routines/routine-run-limits.ts -> RoutineLimitExceededError":
-    "I146 (C04)",
   "raw-sql-tenancy.test.ts#ALLOWLIST: core/decorators/transaction-runner.ts:runInSavepoint": "I148 (C06)",
   "raw-sql-tenancy.test.ts#ALLOWLIST: core/decorators/transaction-runner.ts:runInTransaction": "I148 (C06)",
   "raw-sql-tenancy.test.ts#ALLOWLIST: ee/agent-chat/prisma-agent-chat.repository.ts:PrismaAgentChatRepo.admitsHostedAiGlobalSpend":
