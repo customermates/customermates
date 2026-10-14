@@ -61,6 +61,7 @@ import { CalculatedValueSchema, RecordModelSchema } from "./record-model.schema"
 import { compileRecordQuery, fieldReadPredicate, recordReadPredicate } from "./record-query";
 import { compileRecordMeasure } from "./record-measure";
 import { encodeRecordValue, recordJson } from "./record-storage";
+import { canonicalRecordJson } from "./record-json";
 import type { RecordIdentity, RecordIdentityInput } from "./record-identity.schema";
 import { RecordIdentitySchema } from "./record-identity.schema";
 import { identityKeys, identityAssociations } from "./record-identity";
@@ -787,7 +788,10 @@ export class PrismaRecordRepo
 
   async saveModel(model: RecordModel, actorId: string, change?: RecordRevisionChange): Promise<void> {
     const companyId = this.companyId;
-    for (const type of model.types) {
+    const current = await this.getModel();
+    const differs = <T extends { id: string }>(item: T, previous: T[]) =>
+      canonicalRecordJson(item) !== canonicalRecordJson(previous.find((candidate) => candidate.id === item.id));
+    for (const type of model.types.filter((item) => differs(item, current.types))) {
       const data = {
         companyId,
         label: type.label,
@@ -803,7 +807,7 @@ export class PrismaRecordRepo
         update: data,
       });
     }
-    for (const field of model.fields) {
+    for (const field of model.fields.filter((item) => differs(item, current.fields))) {
       const data = {
         companyId,
         typeId: field.typeId,
@@ -818,7 +822,7 @@ export class PrismaRecordRepo
         update: data,
       });
     }
-    for (const relation of model.relationships) {
+    for (const relation of model.relationships.filter((item) => differs(item, current.relationships))) {
       const data = {
         companyId,
         sourceTypeId: relation.sourceTypeId,

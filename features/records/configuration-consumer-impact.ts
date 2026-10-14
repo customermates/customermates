@@ -60,6 +60,7 @@ export function configurationTypeChanges(
   const changedTypes = new Set<string>();
   const channelTypes = new Set<string>(removedChannelTypeIds);
   const archivedOnlyTypes = new Set<string>();
+  const schemaOnlyTypes = new Set<string>();
   const referenced = (fieldId: string) =>
     model.fields.some(
       (candidate) =>
@@ -69,6 +70,10 @@ export function configurationTypeChanges(
     );
   for (const field of model.fields) {
     const before = current.fields.find((candidate) => candidate.id === field.id);
+    if (!before && field.behavior.kind === "input" && !field.required && field.behavior.defaultValue === undefined) {
+      schemaOnlyTypes.add(field.typeId);
+      continue;
+    }
     if (before && (before.valueType === "channels") !== (field.valueType === "channels")) {
       issues.push({
         code: "channels_type_change",
@@ -108,7 +113,7 @@ export function configurationTypeChanges(
       }
     }
   }
-  const viewTypes = new Set([...changedTypes, ...channelTypes, ...archivedOnlyTypes]);
+  const viewTypes = new Set([...changedTypes, ...channelTypes, ...archivedOnlyTypes, ...schemaOnlyTypes]);
   const changedRelations = new Set(
     [...current.relationships, ...model.relationships]
       .filter(

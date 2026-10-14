@@ -215,20 +215,34 @@ describe("agent tools", () => {
         result: { status: "pending", operationId, schemaRevision: 1 },
       },
     });
-    operationHarness.read.mockResolvedValueOnce({
-      ok: true,
-      data: {
-        state: "completed",
-        result: {
-          status: "completed",
-          refs: [],
-          references: {},
-          schemaRevision: 2,
+    let receiptTransactionOpen = false;
+    operationHarness.read.mockImplementationOnce(() => {
+      expect(receiptTransactionOpen).toBe(false);
+      return Promise.resolve({
+        ok: true,
+        data: {
+          state: "completed",
+          result: {
+            status: "completed",
+            refs: [],
+            references: {},
+            schemaRevision: 2,
+          },
         },
-      },
+      });
     });
     try {
-      const result = (await execute(getAgentAiTools(deps()).configure_record_model, TOOL_CREATE_TYPE)) as {
+      const dependencies = deps({
+        runExactlyOnce: async <T>(_toolCallId: string, _toolName: string, run: () => Promise<T>) => {
+          receiptTransactionOpen = true;
+          try {
+            return await run();
+          } finally {
+            receiptTransactionOpen = false;
+          }
+        },
+      });
+      const result = (await execute(getAgentAiTools(dependencies).configure_record_model, TOOL_CREATE_TYPE)) as {
         ok: boolean;
         result: string;
       };

@@ -603,13 +603,14 @@ function crmTool(
     description: mcp.description,
     inputSchema: providerSafeSchema(mcp.inputSchema),
     execute: async (input: unknown, { toolCallId }) => {
+      const configurationApply =
+        mcp.name === "configure_record_model" && (input as { action?: unknown }).action === "apply";
       const execute = async () => {
         const proposes = mcp.name === "manage_data_views" && surface !== undefined && !isUnattendedSurface(surface);
-        let outcome = await executeMcpTool(hostedMcpTool(proposes ? proposingManageDataViewsTool : mcp, rankers), [
+        const outcome = await executeMcpTool(hostedMcpTool(proposes ? proposingManageDataViewsTool : mcp, rankers), [
           input,
         ]);
-        if (mcp.name === "configure_record_model" && outcome.ok && (input as { action?: unknown }).action === "apply")
-          outcome = await completedConfigurationOutcome(outcome);
+        if (configurationApply) return outcome;
         if (mcp.name === "mutate_crm_record" && outcome.ok) {
           const failure = await verifyAgentRecordUpdate(input, outcome.structuredContent, (ref) =>
             getGetRecordInteractor().invoke(ref),
@@ -631,13 +632,23 @@ function crmTool(
       const enrollable =
         !isReadOnlyTool(mcp) && recordToolRisk(mcp.name, input) !== "read" && !hasNonTransactionalEffect(mcp.name);
       const run = enrollable ? () => deps.runExactlyOnce(toolCallId, mcp.name, execute) : execute;
+      const complete = async () => {
+        const result = await run();
+        return configurationApply
+          ? agentToolResult(await completedConfigurationOutcome(result as McpToolExecutionResult), resultMaxChars, {
+              toolName: mcp.name,
+              pageRoute: deps.pageRoute,
+              input,
+            })
+          : result;
+      };
       return runSafely(async () => {
         const mismatch = agentViewToolMismatch(deps.pageRoute, mcp.name, input);
         if (mismatch) return { ok: false, result: mismatch };
         const approvalContext = await deps.resolveApprovalContext(mcp.name, input);
         if (!approvalContext.ok) return { ok: false, result: approvalContext.result };
-        if (!requiresApproval(internalToolIdentity(mcp.name), mcp, approvalContext.input)) return run();
-        return runGated(deps, surface, toolCallId, mcp.name, approvalContext.input, run);
+        if (!requiresApproval(internalToolIdentity(mcp.name), mcp, approvalContext.input)) return complete();
+        return runGated(deps, surface, toolCallId, mcp.name, approvalContext.input, complete);
       }, resultMaxChars);
     },
   });

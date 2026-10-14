@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { shouldRetryAgentStreamFailure } from "../agent-stream-retry";
+import { shouldResumeAgentStreamFailure, shouldRetryAgentStreamFailure } from "../agent-stream-retry";
 
 describe("agent stream retry", () => {
   const transient = new Error('Step "doStreamStep" exceeded max retries (0 retries)');
@@ -30,5 +30,13 @@ describe("agent stream retry", () => {
         approvedCalls: 0,
       }),
     ).toBe(false);
+  });
+
+  it("resumes from completed steps after an interrupted provider round without an approval", () => {
+    expect(shouldResumeAgentStreamFailure(transient, 0, 2, 20, 0)).toBe(true);
+    expect(shouldResumeAgentStreamFailure(transient, 2, 2, 20, 0)).toBe(false);
+    expect(shouldResumeAgentStreamFailure(transient, 0, 2, 0, 0)).toBe(false);
+    expect(shouldResumeAgentStreamFailure(transient, 0, 2, 20, 1)).toBe(false);
+    expect(shouldResumeAgentStreamFailure(new Error("tool failed"), 0, 2, 20, 0)).toBe(false);
   });
 });

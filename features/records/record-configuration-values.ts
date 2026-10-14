@@ -38,6 +38,9 @@ export function configurationInputFields(previous: RecordModel, next: RecordMode
     (field) =>
       !field.archived &&
       field.valueType !== "channels" &&
+      (previous.fields.some((before) => before.id === field.id) ||
+        field.required ||
+        (field.behavior.kind === "input" && field.behavior.defaultValue !== undefined)) &&
       (field.behavior.kind === "input" ||
         (field.behavior.kind === "snapshot" && previous.fields.some((before) => before.id === field.id))) &&
       fieldValueDefinition(previous.fields.find((before) => before.id === field.id)) !== fieldValueDefinition(field),

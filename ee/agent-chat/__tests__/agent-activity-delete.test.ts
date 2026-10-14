@@ -127,6 +127,7 @@ describe("agentActivityCopy deletes", () => {
       expect(purge.approval).toContain("Q1 pipeline (old)");
       expect(purge.approval).not.toBe(t("AgentChat.activity.approval.generic"));
       expect(purge.detail).toBe(t("AgentChat.activity.consequence.recordsDeletePermanent"));
+      expect(purge.approval).not.toContain(purge.detail);
     }
   });
 
