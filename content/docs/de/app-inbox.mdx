@@ -16,6 +16,8 @@ Alle vier Bedingungen müssen erfüllt sein:
 - **Ein nutzbares Abonnement:** der Status **Aktiv** oder eine noch nicht abgelaufene Testphase. Solange der Status **Überfällig** oder **Gekündigt** ist, ist der Posteingang ebenso gesperrt.
 - **Ihre Rolle:** **Inbox-Nachrichten** mit **Lesen** auf **Alle**. Bei **Keine** ist der Seitenleisten-Eintrag ausgeblendet, und wer den Posteingang öffnet, landet auf dem Dashboard. Die Rolle **Admin** hat immer Zugriff.
 
+Solange Tarif oder Abonnement den Posteingang sperren, bleibt der Upgrade-Hinweis sichtbar und die Aktualisierung von Unterhaltungen und Ungelesen-Zähler im Hintergrund hält an. Sobald der Zugriff zurückkehrt, lädt ein erneutes Öffnen des Posteingangs die Unterhaltungen wieder. Private Unterhaltungen behalten ihre Sichtbarkeitseinstellungen.
+
 ## Brauche ich einen verbundenen Kanal? [#do-i-need-a-connected-channel]
 
 Nicht zum Öffnen des Posteingangs: Ohne eigenen Kanal sehen Sie trotzdem, was Teammitglieder teilen. Um über Ihre eigenen Konten zu senden und zu empfangen, brauchen Sie einen. Ein leerer Posteingang zeigt **Noch nichts vorhanden**; Mitglieder mit **Erstellen** bei **Inbox-Nachrichten** erhalten darunter einen Button **Kanäle** (ist Mate verfügbar, erscheinen dort stattdessen Startvorschläge). Ein E-Mail-, LinkedIn-, WhatsApp-, Instagram- oder Telegram-Konto fügen Sie mit [Kanal verbinden](app:settings/channels?focus=connect) hinzu, siehe [Wie verbinde ich einen Kanal?](/docs/app-profile#how-do-i-connect-a-channel). Kanäle pro Mitglied: Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]; eine Testphase zählt als Pro.
@@ -30,15 +32,15 @@ Bei E-Mail-Konten erscheinen nur Ordner, die auf dem Tab **Ordner** des Kontos u
 
 Rollen bearbeiten Sie unter [Rollen](app:settings/roles). Der Posteingang nutzt die Zeile **Inbox-Nachrichten**: **Erstellen**, **Bearbeiten**, **Löschen** sowie **Lesen** mit **Keine** oder **Alle**.
 
-| Um das zu tun | braucht die Rolle |
-| --- | --- |
-| Den Posteingang sehen und Konversationen lesen | **Inbox-Nachrichten**: **Lesen** **Alle** |
-| Antworten, Entwürfe speichern oder senden, eine Konversation von einem Kontakt aus starten | **Inbox-Nachrichten**: **Erstellen** |
-| Einen Entwurf verwerfen | **Inbox-Nachrichten**: **Löschen** |
-| Den Status ändern, eine E-Mail verschieben, **Aktualisieren**, **Konversation neu synchronisieren**, ältere Nachrichten laden, eine Konversation teilen | **Inbox-Nachrichten**: **Bearbeiten** |
-| Die Adresse eines Teilnehmers einem Datensatz zuordnen oder daraus einen Datensatz erstellen | Lese- und Änderungsrecht für diesen Datensatz; Erstellrecht für einen neuen Datensatz |
-| Einen Datensatz nur mit dieser Konversation verknüpfen | **Inbox-Nachrichten**: **Bearbeiten**, sowie Lese- und Änderungsrecht am Datensatz |
-| Einer Liste ein Feld Kanäle hinzufügen | **Datenmodell** |
+| Um das zu tun                                                                                                                                           | braucht die Rolle                                                                     |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Den Posteingang sehen und Konversationen lesen                                                                                                          | **Inbox-Nachrichten**: **Lesen** **Alle**                                             |
+| Antworten, Entwürfe speichern oder senden, eine Konversation von einem Kontakt aus starten                                                              | **Inbox-Nachrichten**: **Erstellen**                                                  |
+| Einen Entwurf verwerfen                                                                                                                                 | **Inbox-Nachrichten**: **Löschen**                                                    |
+| Den Status ändern, eine E-Mail verschieben, **Aktualisieren**, **Konversation neu synchronisieren**, ältere Nachrichten laden, eine Konversation teilen | **Inbox-Nachrichten**: **Bearbeiten**                                                 |
+| Die Adresse eines Teilnehmers einem Datensatz zuordnen oder daraus einen Datensatz erstellen                                                            | Lese- und Änderungsrecht für diesen Datensatz; Erstellrecht für einen neuen Datensatz |
+| Einen Datensatz nur mit dieser Konversation verknüpfen                                                                                                  | **Inbox-Nachrichten**: **Bearbeiten**, sowie Lese- und Änderungsrecht am Datensatz    |
+| Einer Liste ein Feld Kanäle hinzufügen                                                                                                                  | **Datenmodell**                                                                       |
 
 Ohne **Erstellen** ist das Antwortfeld ausgeblendet. Ohne **Bearbeiten** ist das Verschieben ausgeblendet, der Status ist ein schreibgeschützter Chip, und eine ungelesene Konversation bleibt beim Öffnen **Ungelesen**. Eine einzelne Konversation zu teilen setzt außerdem voraus, dass Ihnen ihr Kanal gehört.
 
@@ -64,13 +66,13 @@ Mit **Bearbeiten** bei **Inbox-Nachrichten** lädt Scrollen bis zum Anfang einer
 
 Neben dem Namen der Konversation, von links nach rechts:
 
-| Steuerelement | Was es tut |
-| --- | --- |
-| **Unterhaltung in Ordner verschieben…** (IMAP und Outlook) | Legt die Konversation in einem anderen Ordner ab; braucht **Bearbeiten** |
-| **Konversation neu synchronisieren** | Lädt die Konversation erneut; braucht **Bearbeiten** |
-| Chip **Private Konversation** oder **Geteilte Konversation** | Öffnet **Konversationseinstellungen** |
+| Steuerelement                                                                 | Was es tut                                                                                                                         |
+| ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| **Unterhaltung in Ordner verschieben…** (IMAP und Outlook)                    | Legt die Konversation in einem anderen Ordner ab; braucht **Bearbeiten**                                                           |
+| **Konversation neu synchronisieren**                                          | Lädt die Konversation erneut; braucht **Bearbeiten**                                                                               |
+| Chip **Private Konversation** oder **Geteilte Konversation**                  | Öffnet **Konversationseinstellungen**                                                                                              |
 | **Einige Teilnehmer haben keinen verknüpften Datensatz, den du lesen darfst** | Öffnet **Konversationseinstellungen**; sichtbar, wenn Sie Datensätze in einer Liste mit Feld Kanäle anlegen oder bearbeiten dürfen |
-| Status-Chip | **Ungelesen**, **Offen**, **Geschlossen** oder **Spam** |
+| Status-Chip                                                                   | **Ungelesen**, **Offen**, **Geschlossen** oder **Spam**                                                                            |
 
 Auf schmalen Bildschirmen zeigen die Chips nur Symbole.
 
@@ -78,12 +80,12 @@ Eingehende Nachrichten stehen links, ausgehende rechts. Der kompakte Kopf einer 
 
 ## Was bedeuten die Thread-Status? [#what-do-the-thread-states-mean]
 
-| Status | Bedeutung |
-| --- | --- |
-| **Ungelesen** | Neu, oder eine neue Nachricht ist eingegangen |
-| **Offen** | Gelesen, braucht noch Aufmerksamkeit |
-| **Geschlossen** | Erledigt |
-| **Spam** | Als Spam markiert |
+| Status          | Bedeutung                                     |
+| --------------- | --------------------------------------------- |
+| **Ungelesen**   | Neu, oder eine neue Nachricht ist eingegangen |
+| **Offen**       | Gelesen, braucht noch Aufmerksamkeit          |
+| **Geschlossen** | Erledigt                                      |
+| **Spam**        | Als Spam markiert                             |
 
 Das Öffnen einer ungelesenen Konversation setzt sie auf **Offen** (nur mit **Bearbeiten**). Der Status gilt gemeinsam für alle, die die Konversation sehen. Eine neue eingehende Nachricht setzt sie wieder auf **Ungelesen**, auch aus **Geschlossen** oder **Spam**. **Spam** ist nur eine Markierung: Es blendet die Konversation nicht aus, blockiert den Absender nicht und meldet nichts an den Anbieter; mit dem Filter **Status** halten Sie sie aus dem Blick. Einen Status zu setzen sendet nie etwas.
 

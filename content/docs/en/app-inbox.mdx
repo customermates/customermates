@@ -16,6 +16,8 @@ All four conditions must hold:
 - **A usable subscription:** status **Active** or a trial that has not ended. While the status is **Past Due** or **Cancelled**, the Inbox is locked the same way.
 - **Your role:** **Inbox messages** with **Read access** set to **All**. With **None** the sidebar entry is hidden and opening the Inbox leads to the Dashboard. The **Admin** role always has access.
 
+While the plan or subscription locks the Inbox, the upgrade notice stays visible and background thread and unread-count refreshes stop. When access returns, reopening the Inbox loads the conversations again. Private conversations keep their visibility settings throughout.
+
 ## Do I need a connected channel? [#do-i-need-a-connected-channel]
 
 Not to open the Inbox: without a channel of your own you still see what teammates share. To send and receive on your own accounts you need one. An empty Inbox reads **Nothing here yet**; members with **Create** on **Inbox messages** get a **Channels** button below it (when Mate is available, starter prompts appear there instead). Add an email, LinkedIn, WhatsApp, Instagram or Telegram account with [Connect channel](app:settings/channels?focus=connect), see [How do I connect a channel?](/docs/app-profile#how-do-i-connect-a-channel). Channels per member: Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]; a trial counts as Pro.
@@ -30,15 +32,15 @@ For email accounts, only folders switched on in the account's **Folders** tab on
 
 Roles are edited on [Roles](app:settings/roles). The Inbox uses the **Inbox messages** row: **Create**, **Edit**, **Delete**, and **Read access** **None** or **All**.
 
-| To do this | The role needs |
-| --- | --- |
-| See the Inbox and read conversations | **Inbox messages**: **Read access** **All** |
-| Reply, save or send drafts, start a conversation from a contact | **Inbox messages**: **Create** |
-| Discard a draft | **Inbox messages**: **Delete** |
-| Change the state, move an email, **Refresh**, **Resync thread**, load older messages, share a conversation | **Inbox messages**: **Edit** |
-| Match a participant's address to a record, or create a record from it | Read and edit access to that record; create access for a new record |
-| Link a record to this one conversation | **Inbox messages**: **Edit**, plus read and edit access to the record |
-| Add a Channels field to a list | **Data model** |
+| To do this                                                                                                 | The role needs                                                        |
+| ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| See the Inbox and read conversations                                                                       | **Inbox messages**: **Read access** **All**                           |
+| Reply, save or send drafts, start a conversation from a contact                                            | **Inbox messages**: **Create**                                        |
+| Discard a draft                                                                                            | **Inbox messages**: **Delete**                                        |
+| Change the state, move an email, **Refresh**, **Resync thread**, load older messages, share a conversation | **Inbox messages**: **Edit**                                          |
+| Match a participant's address to a record, or create a record from it                                      | Read and edit access to that record; create access for a new record   |
+| Link a record to this one conversation                                                                     | **Inbox messages**: **Edit**, plus read and edit access to the record |
+| Add a Channels field to a list                                                                             | **Data model**                                                        |
 
 Without **Create** the reply box is hidden. Without **Edit** the move action is hidden, the state is a read-only chip, and opening an unread conversation leaves it **Unread**. Sharing a single conversation also requires that you own its channel.
 
@@ -64,13 +66,13 @@ With **Edit** on **Inbox messages**, scrolling to the top of a conversation fetc
 
 Next to the conversation's name, left to right:
 
-| Control | What it does |
-| --- | --- |
-| **Move conversation to folder…** (IMAP and Outlook) | Files the conversation in another folder; needs **Edit** |
-| **Resync thread** | Fetches the conversation again; needs **Edit** |
-| **Private Thread** or **Shared Thread** chip | Opens **Thread settings** |
+| Control                                                  | What it does                                                                                         |
+| -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **Move conversation to folder…** (IMAP and Outlook)      | Files the conversation in another folder; needs **Edit**                                             |
+| **Resync thread**                                        | Fetches the conversation again; needs **Edit**                                                       |
+| **Private Thread** or **Shared Thread** chip             | Opens **Thread settings**                                                                            |
 | **Some participants have no linked record you can read** | Opens **Thread settings**; shown when you can create or edit records in a list with a Channels field |
-| State chip | **Unread**, **Open**, **Closed** or **Spam** |
+| State chip                                               | **Unread**, **Open**, **Closed** or **Spam**                                                         |
 
 On narrow screens the chips show icons only.
 
@@ -78,12 +80,12 @@ Incoming messages sit on the left, outgoing on the right. An email's compact hea
 
 ## What do the thread states mean? [#what-do-the-thread-states-mean]
 
-| State | Meaning |
-| --- | --- |
+| State      | Meaning                       |
+| ---------- | ----------------------------- |
 | **Unread** | New, or a new message came in |
-| **Open** | Read, still needs attention |
-| **Closed** | Done |
-| **Spam** | Marked as spam |
+| **Open**   | Read, still needs attention   |
+| **Closed** | Done                          |
+| **Spam**   | Marked as spam                |
 
 Opening an unread conversation sets it to **Open** (only with **Edit**). The state is shared by everyone who sees the conversation. A new incoming message sets it back to **Unread**, even from **Closed** or **Spam**. **Spam** is only a label: it does not hide the conversation, block the sender or report anything to the provider; use the **State** filter to keep it out of view. Setting a state never sends anything.
 

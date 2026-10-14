@@ -21,7 +21,11 @@ export type EntitlementDenialCode =
   | "sharedAccountsRequiresBusiness"
   | "paidSubscriptionRequired";
 
-export type EntitlementDenial = { ok: false; error: z.ZodError; code: EntitlementDenialCode };
+export type EntitlementDenial = {
+  ok: false;
+  error: z.ZodError;
+  code: EntitlementDenialCode;
+};
 type Translator = Awaited<ReturnType<typeof getTranslations>>;
 
 async function resolveEntitlementTranslator(locale?: AppLocale): Promise<Translator> {
@@ -37,7 +41,10 @@ async function resolveEntitlementTranslator(locale?: AppLocale): Promise<Transla
 const FEATURE_DENIALS: Record<EntitlementFeature, { cloud: EntitlementDenialCode; plan: EntitlementDenialCode }> = {
   agentChat: { cloud: "agentChatRequiresCloud", plan: "agentChatRequiresPlan" },
   messaging: { cloud: "messagingRequiresCloud", plan: "messagingRequiresPro" },
-  sharedAccounts: { cloud: "sharedAccountsRequiresCloud", plan: "sharedAccountsRequiresBusiness" },
+  sharedAccounts: {
+    cloud: "sharedAccountsRequiresCloud",
+    plan: "sharedAccountsRequiresBusiness",
+  },
 };
 
 export class EntitlementService {
@@ -58,6 +65,12 @@ export class EntitlementService {
   }
 
   private denial(t: Translator, code: EntitlementDenialCode): EntitlementDenial {
-    return { ok: false, error: createZodError(t(`ConnectedAccountsCard.${code}`)), code };
+    return {
+      ok: false,
+      error: createZodError(t(`ConnectedAccountsCard.${code}`), [], {
+        entitlement: code,
+      }),
+      code,
+    };
   }
 }

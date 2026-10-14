@@ -11,6 +11,7 @@ import {
   RecordGrantSchema,
   ExpressionBudgetSchema,
   RecordNameSchema,
+  StoredModelStringSchema,
 } from "./record-model.schema";
 
 const CONFIGURATION_TARGET_KINDS = ["type", "field", "relationship"] as const;
@@ -203,7 +204,12 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
     .transform((value, context) => {
       const parsed = ValidatedBehaviorSchema.safeParse(value);
       if (!parsed.success) {
-        context.issues.push(...parsed.error.issues.map((issue) => ({ ...issue, input: undefined })));
+        context.issues.push(
+          ...parsed.error.issues.map((issue) => ({
+            ...issue,
+            input: undefined,
+          })),
+        );
         return z.NEVER;
       }
       return parsed.data;
@@ -211,7 +217,7 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
   return z
     .object({
       expectedRevision: z.number().int().nonnegative(),
-      idempotencyKey: z.string().min(8).max(200),
+      idempotencyKey: StoredModelStringSchema.min(8).max(200),
       operations: z
         .array(
           z.discriminatedUnion("operation", [
@@ -221,8 +227,8 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
                 reference: ConfigurationReferenceSchema,
                 label: RecordNameSchema,
                 pluralLabel: RecordNameSchema,
-                description: z.string().max(4000),
-                icon: z.string().max(64),
+                description: StoredModelStringSchema.max(4000),
+                icon: StoredModelStringSchema.max(64),
                 embedded: z.boolean(),
                 navigationVisible: z.boolean().optional(),
                 accessPresetId: ConfigurationReferenceSchema.nullable(),
@@ -242,7 +248,11 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
                         archived: LiveDefinitionSchema,
                         id: ConfigurationReferenceSchema,
                         path: z
-                          .array(RecordPathStepSchema.extend({ relationId: ConfigurationReferenceSchema }))
+                          .array(
+                            RecordPathStepSchema.extend({
+                              relationId: ConfigurationReferenceSchema,
+                            }),
+                          )
                           .min(1)
                           .max(6),
                       }),
@@ -308,19 +318,32 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
                 operation: z.literal("publishSummary"),
                 fieldId: ConfigurationReferenceSchema,
                 published: z.boolean(),
-                dependencyHash: z.string().length(64),
+                dependencyHash: StoredModelStringSchema.length(64),
               })
               .strict(),
             z
-              .object({ operation: z.literal("delete"), target: ConfigurationTargetSchema })
+              .object({
+                operation: z.literal("delete"),
+                target: ConfigurationTargetSchema,
+              })
               .strict()
               .describe(
                 "Move a list, field (including a Channels field) or relationship to Trash, where it can be restored for 30 days. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion.",
               ),
             ...(trashOperations
               ? ([
-                  z.object({ operation: z.literal("restore"), target: ConfigurationTargetSchema }).strict(),
-                  z.object({ operation: z.literal("deletePermanently"), target: ConfigurationTargetSchema }).strict(),
+                  z
+                    .object({
+                      operation: z.literal("restore"),
+                      target: ConfigurationTargetSchema,
+                    })
+                    .strict(),
+                  z
+                    .object({
+                      operation: z.literal("deletePermanently"),
+                      target: ConfigurationTargetSchema,
+                    })
+                    .strict(),
                 ] as const)
               : ([] as const)),
             z
