@@ -17,9 +17,9 @@ vi.mock("next-intl/server", () => ({
 
 const { createRestRouteWorkspace, postAs, restRoute } = await import("@/tests/helpers/rest-route-workspace");
 const { TrashedRecordSchema } = await import("../trash.schema");
+const read = await restRoute("/v1/trash/read");
 const { readTrashTool } = await import("@/features/mcp-tools/trash.mcp-tools");
 const { executeMcpTool } = await import("@/features/mcp-tools/mcp-tool");
-const read = await restRoute("/v1/trash/read");
 
 type Workspace = Awaited<ReturnType<typeof createRestRouteWorkspace>>;
 

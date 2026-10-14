@@ -45,7 +45,7 @@ async function inboxWorkspace() {
       data: {
         companyId: w.companyId,
         userId: w.admin.id,
-        provider: "google",
+        provider: "mail",
         unipileAccountId: `triage-${randomUUID()}`,
         status: "ok",
       },
@@ -54,7 +54,7 @@ async function inboxWorkspace() {
       data: {
         companyId: w.companyId,
         connectedAccountId: account.id,
-        provider: "google",
+        provider: "mail",
         unipileThreadId: `triage-${randomUUID()}`,
       },
     });
