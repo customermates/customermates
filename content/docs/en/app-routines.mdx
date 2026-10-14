@@ -73,6 +73,8 @@ Open a routine to see its **Runs**, newest first: next to the configuration on a
 | **Skipped** | Queued but not started: the routine was paused, the hourly cap was reached, the record no longer matched the filters or the owner's access, the trigger changed, the run was stopped, or the assistant was busy with another run |
 | **Blocked** | Mate could not start because Customermates paused AI work, the owner was out of credits or inactive, or another admission check failed. The run includes an `error` reason such as `platformPaused` or `agentLimitReached`. Workspace administrators cannot resume a Customermates pause. A workspace administrator can separately pause a routine; that reason is `adminPaused`. |
 
+A run that stops at its 10-credit limit says so in its summary and **Run details**; that limit is separate from the owner's monthly credits. The run stops before a model round when the credits already used plus the most that round can cost, reserved as described under [how a request is charged](/docs/app-assistant#credits), would pass 10.
+
 **Test trigger** starts a real run immediately. It is available to the owner of an active scheduled routine without unsaved changes, uses AI credits and may change data. Manual test runs have `triggerKind: schedule`, the kind of the routine they test. A test is refused before a run is queued when AI work is paused, the owner is inactive, or the owner has no credits left. Event routines need a real matching event, so it is disabled for them.
 
 ## What a routine may do without approval [#what-a-routine-may-do-without-approval]

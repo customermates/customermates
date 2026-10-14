@@ -474,6 +474,8 @@
       "interruptedTurn": "Ce tour s'est arrêté avant que je puisse confirmer son résultat. Vérifiez l'activité ci-dessus et les données actuelles avant de réessayer.",
       "policyBreach": "Le fournisseur d’IA a dépassé le budget de crédits réservé ; l’exécution a donc été arrêtée. Aucun autre traitement du fournisseur n’a été lancé.",
       "providerError": "Le fournisseur d'IA a renvoyé une erreur avant que je puisse terminer. Rien d'autre n'a été modifié. Veuillez réessayer.",
+      "runCreditLimit": "J'ai traité une partie de cette exécution de la routine, puis je me suis arrêté à sa limite de {credits, number} crédits par exécution. Le travail effectué est conservé.",
+      "runCreditLimitNoWrite": "Je me suis arrêté avant toute modification car cette exécution de la routine a atteint sa limite de {credits, number} crédits par exécution. Rien n'a été créé, mis à jour ni envoyé.",
       "sourcesHeading": "Sources",
       "streamInterrupted": "J'ai dû m'arrêter car la réponse du modèle a été interrompue. Aucune autre action n'a été effectuée ; vérifiez l'activité ci-dessus avant de réessayer.",
       "turnError": "Je n'ai pas pu traiter cette demande. Veuillez réessayer.",
@@ -4060,6 +4062,7 @@
     "hostedAiUnavailable": "L’IA hébergée est devenue indisponible avant la fin de l’exécution.",
     "policyBreach": "Le fournisseur d’IA a dépassé le budget de crédits réservé ; l’exécution a donc été arrêtée.",
     "providerError": "Le fournisseur d’IA a renvoyé une erreur avant la fin de l’exécution.",
+    "runCreditLimit": "L’exécution s’est arrêtée à sa limite de {credits, number} crédits par exécution.",
     "turnError": "L’assistant n’a pas pu terminer cette exécution."
   },
   "RoutinesCard": {
