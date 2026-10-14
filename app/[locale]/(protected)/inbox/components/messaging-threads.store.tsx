@@ -87,10 +87,11 @@ export class MessagingThreadsStore extends BaseDataViewStore<MessagingThread> {
           },
         });
       }
-      if (failedAccounts > 0)
+      if (failedAccounts > 0) {
         this.toastError("Inbox.refreshPartial", {
           values: { count: failedAccounts },
         });
+      }
 
       await this.refresh();
       if (!result.data.rateLimited && reconnectAccounts === 0 && failedAccounts === 0)
