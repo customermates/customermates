@@ -8,10 +8,7 @@ import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { populateLegacyWorkspace } from "@/tests/helpers/legacy-crm-fixture";
 import {
   applyConfigurableRecordsMigration,
-  CONFIGURABLE_RECORDS_MIGRATION,
   createLegacyMigrationDatabase,
-  migrationNames,
-  readMigration,
 } from "@/tests/helpers/legacy-migration-database";
 
 const databaseUrl = getLocalDatabaseTestUrl();
@@ -56,28 +53,16 @@ describeDatabase("field currency migration", { timeout: 240000 }, () => {
     for (const database of databases) await database.close();
   });
 
-  it("copies each workspace currency into its money fields without one, then drops the workspace currency", async () => {
+  it("creates final money fields from each workspace currency and preserves explicit field currency", async () => {
     const database = await createLegacyMigrationDatabase(databaseUrl);
     databases.push(database);
     const { client } = database;
     const swiss = await populateLegacyWorkspace(client, { currency: "chf" });
     const euro = await populateLegacyWorkspace(client);
-    await applyConfigurableRecordsMigration(client, { later: false });
+    await applyConfigurableRecordsMigration(client);
     const starter = ["service.amount", "lineItem.savedPrice", "lineItem.effectivePrice", "lineItem.amount"]
       .concat(["deal.totalValue", "deal.weightedValue"])
       .map((key) => presetId(swiss.companyId, key));
-
-    const before = await currencyFields(client, swiss.companyId);
-    expect(
-      before.definitions
-        .filter((field) => field.currency === null)
-        .map((field) => field.id)
-        .sort(),
-    ).toEqual([...starter].sort());
-    expect(before.definitions.find((field) => field.id === swiss.columns.budget)?.currency).toBe("USD");
-
-    for (const migration of await migrationNames((name) => name > CONFIGURABLE_RECORDS_MIGRATION))
-      await client.query(await readMigration(migration));
 
     const after = await currencyFields(client, swiss.companyId);
     expect(after.definitions).toEqual(after.snapshot);

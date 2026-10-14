@@ -5,11 +5,7 @@ import { resolve } from "node:path";
 import { Client, type ClientBase } from "pg";
 import { getLocalDatabaseTestUrl } from "./database-test";
 
-/** The one migration of the dynamic record model release: every former migration of the release as one section each. */
 export const DYNAMIC_RECORD_MODEL_MIGRATION = "20261010000000_dynamic_record_model";
-
-/** The section of the release migration that converts the legacy CRM tables into configurable records. */
-export const CONFIGURABLE_RECORDS_MIGRATION = "20261004000000_configurable_records";
 
 /** Legacy CRM tables removed by the configurable records migration. */
 export const LEGACY_CRM_TABLES = [
@@ -42,31 +38,7 @@ export async function migrationDirectories(filter: (name: string) => boolean = (
   return (await readdir(resolve("prisma/migrations"))).filter((entry) => /^\d+_/.test(entry) && filter(entry)).sort();
 }
 
-/** The sections of the release migration by former migration name, in file order, each with its SQL. */
-async function releaseSections() {
-  const sql = await readFile(resolve("prisma/migrations", DYNAMIC_RECORD_MODEL_MIGRATION, "migration.sql"), "utf8");
-  const markers = [...sql.matchAll(/^-- @section (\S+)$/gm)];
-  return markers.map((marker, index) => ({
-    name: marker[1],
-    sql: sql.slice(marker.index, markers[index + 1]?.index ?? sql.length),
-  }));
-}
-
-/**
- * Migration steps in order: each released migration, then each section of the release migration under its former
- * migration name, so a test can apply the steps before, at or after one section as plain SQL.
- */
-export async function migrationNames(filter: (name: string) => boolean = () => true) {
-  const steps: string[] = [];
-  for (const entry of await migrationDirectories())
-    if (entry === DYNAMIC_RECORD_MODEL_MIGRATION) steps.push(...(await releaseSections()).map((section) => section.name));
-    else steps.push(entry);
-  return steps.filter(filter);
-}
-
 export async function readMigration(name: string) {
-  const section = (await releaseSections()).find((candidate) => candidate.name === name);
-  if (section) return section.sql;
   return readFile(resolve("prisma/migrations", name, "migration.sql"), "utf8");
 }
 
@@ -93,7 +65,7 @@ export async function createLegacyMigrationDatabase(sourceUrl = getLocalDatabase
     await client.connect();
     await client.query("SET TIME ZONE 'UTC'");
     if (applyMigrations)
-      for (const migration of await migrationNames((entry) => entry < CONFIGURABLE_RECORDS_MIGRATION))
+      for (const migration of await migrationDirectories((entry) => entry < DYNAMIC_RECORD_MODEL_MIGRATION))
         await client.query(await readMigration(migration));
     return { client, url: url.toString(), name, close };
   } catch (error) {
@@ -103,10 +75,8 @@ export async function createLegacyMigrationDatabase(sourceUrl = getLocalDatabase
 }
 
 /** Applies the configurable records migration (and any later migration) as plain SQL, without the Prisma ledger. */
-export async function applyConfigurableRecordsMigration(client: ClientBase, { later = true } = {}) {
-  for (const migration of await migrationNames((entry) =>
-    later ? entry >= CONFIGURABLE_RECORDS_MIGRATION : entry === CONFIGURABLE_RECORDS_MIGRATION,
-  ))
+export async function applyConfigurableRecordsMigration(client: ClientBase) {
+  for (const migration of await migrationDirectories((entry) => entry >= DYNAMIC_RECORD_MODEL_MIGRATION))
     await client.query(await readMigration(migration));
 }
 
