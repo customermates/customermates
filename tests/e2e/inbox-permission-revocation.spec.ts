@@ -36,6 +36,7 @@ test("losing Inbox permission leaves the thread private without generic backgrou
     "app/[locale]/(protected)/settings/(account)/channels/actions.ts",
     "refreshConnectedAccountsAction",
   );
+  const detailActionIds = serverActionIds("app/[locale]/(protected)/inbox/actions.ts", "getMessagingThreadAction");
   let releaseAccountLoad!: () => void;
   const accountLoadHeld = new Promise<void>((resolve) => (releaseAccountLoad = resolve));
   let signalAccountLoad!: () => void;
@@ -72,6 +73,9 @@ test("losing Inbox permission leaves the thread private without generic backgrou
   await expect(shared).toBeVisible();
   await page.evaluate(() => ((window as Window & { inboxToasts?: string[] }).inboxToasts = []));
   await database.query('UPDATE "User" SET "roleId"=$1 WHERE id=$2', [roleId, workspace.userId]);
+  const detailPoll = page.waitForResponse((response) => invokesServerAction(response.request(), detailActionIds), {
+    timeout: 25000,
+  });
   releaseAccountLoad();
   await shared.click();
   await expect
@@ -79,6 +83,7 @@ test("losing Inbox permission leaves the thread private without generic backgrou
     .toContain(
       "Deine Posteingang-Berechtigung hat sich geändert. Du kannst die Sichtbarkeit dieser Konversation nicht mehr ändern.",
     );
+  await detailPoll;
   await page.waitForLoadState("networkidle");
   const toasts = await page.evaluate(() => (window as Window & { inboxToasts?: string[] }).inboxToasts ?? []);
   expect(toasts.some((message) => /unerwarteter Fehler|Etwas ist schiefgelaufen/i.test(message))).toBe(false);
