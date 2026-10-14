@@ -11,7 +11,7 @@ import type { WikiSynthesisSkipReason } from "@/features/wiki/wiki-crawl-progres
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { classifyMetered } from "@/ee/agent-chat/classifier/metered";
 import { classifierReservationMicrocents } from "@/ee/agent-chat/classifier/classifier-reservation";
-import { JEV_MODEL_ID } from "@/ee/agent-chat/classifier/jev-runner";
+import { JEV_MODEL_ID, type ClassifierFailure } from "@/ee/agent-chat/classifier/jev-runner";
 import { INITIAL_WIKI_SYNTHESIS_MODEL, SHIPPED_AGENT_MODEL } from "@/ee/agent-chat/model-catalog";
 import { wikiLanguageConflicts } from "@/features/wiki/wiki-language";
 import { wikiPageMarkdownLink } from "@/features/wiki/wiki-links";
@@ -21,6 +21,7 @@ import { getTranslator } from "@/i18n/get-translator";
 import { appLocaleOrDefault } from "@/i18n/locale-registry";
 import { env } from "@/env";
 
+import { crawlDedupeKey } from "./website-discovery";
 import { wikiSourceHeadings } from "./wiki-source-inventory";
 import { wikiSourcePlanningPassages } from "./wiki-source-planning-passages";
 import { wikiSynthesisSectionMarkdown } from "./wiki-synthesis-markdown";
@@ -63,11 +64,20 @@ const TOPIC_TAKEN = new Error("Knowledge Base synthesis topic was settled by ano
 const TOPIC_CLAIM_STALE_MS = 20 * 60 * 1_000;
 const TOPIC_WAIT_MS = 12 * 60 * 1_000;
 const TOPIC_POLL_MS = 2_000;
+const REVIEW_RETRY_DELAYS_MS = [2_000, 6_000] as const;
+const TRANSIENT_REVIEW_FAILURES = new Set<ClassifierFailure | "unanswered">([
+  "rateLimited",
+  "unavailable",
+  "timeout",
+  "network",
+]);
 
 type Sources = { list: WikiSourceRecord[]; byId: Map<string, WikiSourceRecord>; keys: Map<string, string> };
 type Metered<T> = { value: T; charge: AgentRetrievalCharge | null };
 type SynthesizedPage = { title: string; kind: WikiSynthesisCandidate["kind"]; whenToUse?: string; markdown: string };
 type TopicOutcome = { kind: "skipped"; reason: WikiSynthesisSkipReason } | { kind: "page"; page: SynthesizedPage };
+type Refusal = Extract<WikiSynthesisSkipReason, "credits" | "aiUnavailable">;
+type ReviewOutcome = WikiSynthesisReviewDecision | { kind: "refused"; reason: Refusal };
 
 function languageName(locale: AppLocale) {
   return new Intl.DisplayNames(["en"], { type: "language" }).of(locale) ?? locale;
@@ -87,7 +97,10 @@ export class WikiWebsiteSynthesisService {
 
   constructor(
     private repo: WikiWebsiteCrawlRepo,
-    private usage: Pick<AgentUsageService, "prepareRetrieval" | "reserveRetrieval" | "settleRetrieval">,
+    private usage: Pick<
+      AgentUsageService,
+      "prepareRetrieval" | "reserveRetrieval" | "settleRetrieval" | "retrievalRefusal"
+    >,
     private createPages: Pick<CreateWikiPagesInteractor, "invoke">,
   ) {}
 
@@ -115,10 +128,13 @@ export class WikiWebsiteSynthesisService {
     worstCaseMicrocents: number,
     model: string,
     run: () => Promise<Metered<T>>,
-  ): Promise<{ ok: true; value: T } | { ok: false }> {
+  ): Promise<{ ok: true; value: T } | { ok: false; reason: Refusal }> {
     const grant = await this.usage.prepareRetrieval(crawl.userId, new Date(), "wikiSynthesis");
     const reservation = grant ? await this.usage.reserveRetrieval({ grant, worstCaseMicrocents, model }) : null;
-    if (!reservation) return { ok: false };
+    if (!reservation) {
+      const refusal = await this.usage.retrievalRefusal(crawl.userId, worstCaseMicrocents);
+      return { ok: false, reason: refusal === "credits" ? "credits" : "aiUnavailable" };
+    }
     let charge: AgentRetrievalCharge | null = {
       model,
       inputTokens: 0,
@@ -200,7 +216,7 @@ export class WikiWebsiteSynthesisService {
     await this.repo.storePlannedTopics(
       crawlId,
       topics,
-      topics.length === 0 ? (plan.ok ? "synthesis" : "credits") : null,
+      topics.length === 0 ? (plan.ok ? "synthesis" : plan.reason) : null,
     );
     return (await this.load(crawlId)).topics?.length ?? 0;
   }
@@ -213,7 +229,9 @@ export class WikiWebsiteSynthesisService {
   ): Promise<StoredWikiSynthesisTopic[]> {
     const initial = crawl.mode === "initial";
     const singular = new Set<WikiSynthesisRole>(REQUIRED_ROLES);
-    const homepage = sources.list.find((source) => source.url === crawl.homepageUrl) ?? sources.list[0];
+    const homeKey = crawlDedupeKey(crawl.homepageUrl);
+    const homepage =
+      sources.list.find((source) => homeKey !== null && crawlDedupeKey(source.url) === homeKey) ?? sources.list[0];
     const taken = new Set(existingTitles.map((title) => title.trim().toLocaleLowerCase()));
     const roles = new Set<WikiSynthesisRole>();
     const topics: StoredWikiSynthesisTopic[] = [];
@@ -373,16 +391,16 @@ export class WikiWebsiteSynthesisService {
     };
 
     const first = await draft(null);
-    if (!first.ok) return { kind: "skipped", reason: "credits" };
+    if (!first.ok) return { kind: "skipped", reason: first.reason };
     if (!first.value) return { kind: "skipped", reason: "generation" };
     let candidate = candidateOf(first.value);
     let repairs = WIKI_SYNTHESIS_MAX_REPAIRS;
-    const repair = async (feedback: string[]) => {
+    const repair = async (feedback: string[]): Promise<Refusal | null> => {
       repairs -= 1;
       const repaired = await draft(feedback.join("\n"));
-      if (!repaired.ok) return false;
+      if (!repaired.ok) return repaired.reason;
       if (repaired.value) candidate = candidateOf(repaired.value);
-      return true;
+      return null;
     };
 
     for (;;) {
@@ -392,14 +410,15 @@ export class WikiWebsiteSynthesisService {
           (index) =>
             `- Section "${candidate.sections[index].heading}": copy every evidence quote exactly from its cited source text and write the content in ${languageName(locale)}.`,
         );
-        if (!(await repair(feedback))) return { kind: "skipped", reason: "credits" };
+        const refused = await repair(feedback);
+        if (refused) return { kind: "skipped", reason: refused };
         continue;
       }
       candidate = { ...candidate, sections: candidate.sections.filter((_, index) => !invalid.includes(index)) };
       if (candidate.sections.length === 0) return { kind: "skipped", reason: "evidence" };
 
       const decision = await this.review(crawl, candidate, reviewSources, locale);
-      if (decision === null) return { kind: "skipped", reason: "credits" };
+      if (decision.kind === "refused") return { kind: "skipped", reason: decision.reason };
       if (decision.kind === "supported") break;
       if (decision.kind === "unavailable") return { kind: "skipped", reason: "reviewUnavailable" };
       if (repairs > 0) {
@@ -412,7 +431,8 @@ export class WikiWebsiteSynthesisService {
                   : "remove every claim its own evidence does not support."
               }`,
         );
-        if (!(await repair(feedback))) return { kind: "skipped", reason: "credits" };
+        const refused = await repair(feedback);
+        if (refused) return { kind: "skipped", reason: refused };
         continue;
       }
       if (decision.issues.some(({ section }) => section === null)) return { kind: "skipped", reason: "review" };
@@ -459,24 +479,28 @@ export class WikiWebsiteSynthesisService {
     candidate: WikiSynthesisCandidate,
     sources: ReadonlyMap<string, { text: string }>,
     locale: AppLocale,
-  ): Promise<WikiSynthesisReviewDecision | null> {
+  ): Promise<ReviewOutcome> {
     const request = wikiSynthesisReviewRequest(candidate, sources, locale);
-    if (!request) return { kind: "unavailable" };
-    for (let attempt = 0; attempt < 2; attempt += 1) {
+    if (!request) {
+      this.warnings.push(`Website import review for ${JEV_MODEL_ID} does not fit its context, even as cited passages.`);
+      return { kind: "unavailable" };
+    }
+    const failures: Array<ClassifierFailure | "unanswered"> = [];
+    for (let attempt = 0; attempt <= REVIEW_RETRY_DELAYS_MS.length; attempt += 1) {
       const result = await this.metered(
         crawl,
         classifierReservationMicrocents(request.spec, request.state),
         JEV_MODEL_ID,
         async () => {
-          const { result: answer, charge } = await classifyMetered(
-            "wiki_synthesis_review",
-            request.spec,
-            request.state,
-            "jev",
-            { timeoutMs: WIKI_SYNTHESIS_REVIEW_TIMEOUT_MS },
-          );
+          const {
+            result: answer,
+            charge,
+            failure,
+          } = await classifyMetered("wiki_synthesis_review", request.spec, request.state, "jev", {
+            timeoutMs: WIKI_SYNTHESIS_REVIEW_TIMEOUT_MS,
+          });
           return {
-            value: wikiSynthesisReviewDecision(request, answer),
+            value: { decision: wikiSynthesisReviewDecision(request, answer), failure },
             charge: charge && {
               model: JEV_MODEL_ID,
               inputTokens: 0,
@@ -486,10 +510,18 @@ export class WikiWebsiteSynthesisService {
           };
         },
       );
-      if (!result.ok) return null;
-      if (result.value.kind !== "unavailable") return result.value;
+      if (!result.ok) return { kind: "refused", reason: result.reason };
+      if (result.value.decision.kind !== "unavailable") return result.value.decision;
+      const failure = result.value.failure ?? "unanswered";
+      failures.push(failure);
+      const delay = REVIEW_RETRY_DELAYS_MS[attempt];
+      if (delay === undefined) break;
+      if (TRANSIENT_REVIEW_FAILURES.has(failure)) await new Promise((resolve) => setTimeout(resolve, delay));
+      else if (failures.length >= 2) break;
     }
-    this.warnings.push(`Website import review by ${JEV_MODEL_ID} was unanswered twice.`);
+    this.warnings.push(
+      `Website import review by ${JEV_MODEL_ID} was unanswered after ${failures.length} attempts (${failures.join(", ")}).`,
+    );
     return { kind: "unavailable" };
   }
 
@@ -502,11 +534,13 @@ export class WikiWebsiteSynthesisService {
         : topic,
     );
     const usable = topics.some(({ status }) => status === "created") || crawl.importedPages > 0;
-    const credits = topics.length > 0 && topics.every(({ skipReason }) => skipReason === "credits");
+    const refused =
+      topics.length > 0 && topics.every(({ skipReason }) => skipReason === "credits" || skipReason === "aiUnavailable");
+    const refusal = topics.some(({ skipReason }) => skipReason === "aiUnavailable") ? "aiUnavailable" : "credits";
     await this.repo.claimCrawl(crawlId, ["synthesizing"], {
       status: usable ? "completed" : "failed",
       topics,
-      failureReason: usable ? null : (crawl.failureReason ?? (credits ? "credits" : "synthesis")),
+      failureReason: usable ? null : (crawl.failureReason ?? (refused ? refusal : "synthesis")),
       finishedAt: new Date(),
     });
   }

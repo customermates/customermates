@@ -100,6 +100,7 @@ function harness(mode: WikiCrawlRecord["mode"] = "initial") {
   const usage = {
     prepareRetrieval: vi.fn(() => Promise.resolve({ purpose: "wikiSynthesis" })),
     reserveRetrieval: vi.fn(() => Promise.resolve({ id: "reservation", reservedMicrocents: 1_000 })),
+    retrievalRefusal: vi.fn(() => Promise.resolve("credits" as "credits" | "unavailable")),
     settleRetrieval: vi.fn(({ charge }: { charge: unknown }) => {
       settled.push(charge);
       return Promise.resolve();
@@ -323,6 +324,62 @@ describe("website Knowledge Base synthesis", () => {
     expect(crawl().status).toBe("completed");
   });
 
+  it("waits and retries a rate-limited review, and names the failures when it stays unanswered", async () => {
+    vi.useFakeTimers();
+    try {
+      const { run, crawl, service } = harness("extend");
+      model.generate
+        .mockResolvedValueOnce(
+          plan([
+            { title: "Scheduling", role: "offering", sources: ["s2"] },
+            { title: "Dispatch", role: "offering", sources: ["s2"] },
+          ]),
+        )
+        .mockResolvedValue(draft());
+      let reviews = 0;
+      model.review.mockImplementation((use: unknown, spec: { questions: Array<{ id: string }> }) =>
+        ++reviews <= 3
+          ? Promise.resolve({ result: null, charge: null, failure: "rateLimited" })
+          : verdict("supported")(use, spec),
+      );
+      const done = run();
+      await vi.runAllTimersAsync();
+      await done;
+      expect(reviews).toBe(4);
+      expect(crawl().topics?.map(({ status, skipReason }) => [status, skipReason])).toEqual([
+        ["skipped", "reviewUnavailable"],
+        ["created", undefined],
+      ]);
+      expect(service.drainWarnings()).toContain(
+        "Website import review by typesafe-ai/jev was unanswered after 3 attempts (rateLimited, rateLimited, rateLimited).",
+      );
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("recovers a review after one transient failure", async () => {
+    vi.useFakeTimers();
+    try {
+      const { run, crawl } = harness("extend");
+      model.generate
+        .mockResolvedValueOnce(plan([{ title: "Scheduling", role: "offering", sources: ["s2"] }]))
+        .mockResolvedValue(draft());
+      let reviews = 0;
+      model.review.mockImplementation((use: unknown, spec: { questions: Array<{ id: string }> }) =>
+        ++reviews === 1
+          ? Promise.resolve({ result: null, charge: null, failure: "timeout" })
+          : verdict("supported")(use, spec),
+      );
+      const done = run();
+      await vi.runAllTimersAsync();
+      await done;
+      expect(crawl().topics?.[0]).toMatchObject({ status: "created" });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("ignores a closed crawl and never re-plans or re-writes it", async () => {
     const { service, crawl } = harness("refresh");
     await service.settle("crawl-1");
@@ -400,6 +457,28 @@ describe("website Knowledge Base synthesis", () => {
     expect(model.generate).toHaveBeenCalledTimes(1);
     expect(crawl().topics?.[0]).toMatchObject({ status: "skipped", skipReason: "credits" });
     expect(crawl()).toMatchObject({ status: "failed", failureReason: "credits" });
+  });
+
+  it("reports hosted AI as unavailable, not as missing credits, when the refusal is not about credits", async () => {
+    const { run, usage, crawl } = harness("extend");
+    model.generate.mockResolvedValueOnce(plan([{ title: "Scheduling", role: "offering", sources: ["s2"] }]));
+    usage.reserveRetrieval
+      .mockResolvedValueOnce({ id: "plan", reservedMicrocents: 1_000 })
+      .mockResolvedValue(null as never);
+    usage.retrievalRefusal.mockResolvedValue("unavailable");
+    await run();
+    expect(model.generate).toHaveBeenCalledTimes(1);
+    expect(crawl().topics?.[0]).toMatchObject({ status: "skipped", skipReason: "aiUnavailable" });
+    expect(crawl()).toMatchObject({ status: "failed", failureReason: "aiUnavailable" });
+  });
+
+  it("reports the real refusal when no plan can be reserved", async () => {
+    const { run, usage, crawl } = harness("extend");
+    usage.prepareRetrieval.mockResolvedValue(null as never);
+    usage.retrievalRefusal.mockResolvedValue("unavailable");
+    await run();
+    expect(model.generate).not.toHaveBeenCalled();
+    expect(crawl()).toMatchObject({ status: "failed", failureReason: "aiUnavailable", topics: [] });
   });
 
   it("settles every reserved model and review call with a charge, never as free usage", async () => {

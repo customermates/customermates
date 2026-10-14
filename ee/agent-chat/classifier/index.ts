@@ -1,16 +1,16 @@
 import type { ClassifierResult, ClassifierSpec, ClassifierState } from "./spec";
-import type { JevRunnerOptions } from "./jev-runner";
+import type { ClassifierFailure, JevRunnerOptions } from "./jev-runner";
 
 import { getVercelOidcToken } from "@vercel/oidc";
 
 import { env } from "@/env";
 
-import { runJev } from "./jev-runner";
+import { classifierFailureOf, runJev } from "./jev-runner";
 import { classifierSpecProblems } from "./spec";
 
 export type ClassifyOptions = Partial<JevRunnerOptions>;
 
-type ClassifierAttempt = { result: ClassifierResult | null; requested: boolean };
+type ClassifierAttempt = { result: ClassifierResult | null; requested: boolean; failure?: ClassifierFailure };
 
 async function gatewayCredential(apiKey: string | undefined) {
   const key = apiKey ?? env.AI_GATEWAY_API_KEY?.trim();
@@ -33,8 +33,8 @@ export async function classifyAttempt(
   if (!credential) return { result: null, requested: false };
   try {
     return { result: await runJev(spec, state, { ...options, ...credential }), requested: true };
-  } catch {
-    return { result: null, requested: true };
+  } catch (error) {
+    return { result: null, requested: true, failure: classifierFailureOf(error) };
   }
 }
 

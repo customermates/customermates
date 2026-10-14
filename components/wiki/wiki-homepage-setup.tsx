@@ -49,19 +49,40 @@ export function useWikiSetupFailureBody(state: WikiHomepageSetupState) {
     blocked: t("WikiSetup.status.failedBodyBlocked", { domain }),
     unavailable: t("WikiSetup.status.failedBodyUnavailable", { domain }),
     credits: t("Common.errors.agentLimitReached"),
+    aiUnavailable: t("Common.errors.agentServiceUnavailable"),
     synthesis: t("WikiSetup.status.failedBodySynthesis"),
   };
   return state.failureReason ? failedBodies[state.failureReason] : t("WikiSetup.status.failedBody");
 }
 
-export function useRefreshWhileWikiSetupWorks(state: WikiHomepageSetupState) {
+export function wikiSetupRouteSignature(state: WikiHomepageSetupState) {
+  return JSON.stringify([state.status, state.pageCount ?? state.pages.length, state.pages.map(({ id }) => id)]);
+}
+
+export function useLiveWikiSetupState(serverState: WikiHomepageSetupState): WikiHomepageSetupState {
   const router = useRouter();
   const { navigationGuard } = useRootStore();
-  const signature = JSON.stringify(state);
-  const lastSignature = useRef(signature);
+  const serverSignature = JSON.stringify(serverState);
+  const serverRouteSignature = wikiSetupRouteSignature(serverState);
+  const [polled, setPolled] = useState<{ base: string; state: WikiHomepageSetupState } | null>(null);
+  const state = polled?.base === serverSignature ? polled.state : serverState;
+  const latest = useRef({ base: serverSignature, signature: serverSignature });
+  const serverRoute = useRef(serverRouteSignature);
+  const knownRoute = useRef(serverRouteSignature);
+  const mounted = useRef(false);
   useEffect(() => {
-    lastSignature.current = signature;
-  }, [signature]);
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+  useEffect(() => {
+    latest.current = { base: serverSignature, signature: serverSignature };
+  }, [serverSignature]);
+  useEffect(() => {
+    serverRoute.current = serverRouteSignature;
+    knownRoute.current = serverRouteSignature;
+  }, [serverRouteSignature]);
   useEffect(() => {
     if (state.status !== "working") return;
     let active = true;
@@ -75,10 +96,15 @@ export function useRefreshWhileWikiSetupWorks(state: WikiHomepageSetupState) {
         reportedFailure = false;
         if (!active || !result.ok) return;
         const nextSignature = JSON.stringify(result.data);
-        if (nextSignature === lastSignature.current) return;
-        lastSignature.current = nextSignature;
+        if (nextSignature === latest.current.signature) return;
+        latest.current = { ...latest.current, signature: nextSignature };
+        setPolled({ base: latest.current.base, state: result.data });
+        const nextRouteSignature = wikiSetupRouteSignature(result.data);
+        if (nextRouteSignature === knownRoute.current) return;
+        knownRoute.current = nextRouteSignature;
+        const requestedFrom = serverRoute.current;
         navigationGuard.requestRouteRefreshWhenSafe(() => {
-          if (active) router.refresh();
+          if (mounted.current && serverRoute.current === requestedFrom) router.refresh();
         });
       } finally {
         pending = false;
@@ -96,6 +122,7 @@ export function useRefreshWhileWikiSetupWorks(state: WikiHomepageSetupState) {
       globalThis.clearInterval(interval);
     };
   }, [navigationGuard, router, state.status]);
+  return state;
 }
 
 export const WikiHomepageSetup = observer(function WikiHomepageSetup({
@@ -108,7 +135,7 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
   const t = useTranslations();
   const router = useRouter();
   const rootStore = useRootStore();
-  const [state, setState] = useState(initialState);
+  const [localState, setLocalState] = useState(initialState);
   const [store] = useState(() => new WikiHomepageSetupStore(rootStore, initialState.homepage ?? ""));
   const [retrying, setRetrying] = useState(false);
   const submitting = useRef(false);
@@ -124,12 +151,12 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
   }, [store]);
 
   useEffect(() => {
-    setState(initialState);
+    setLocalState(initialState);
     if (initialState.homepage) store.onInitOrRefresh({ ...store.form, homepage: initialState.homepage });
     if (initialState.status === "completed") setRetrying(false);
   }, [initialState, store]);
 
-  useRefreshWhileWikiSetupWorks(state);
+  const state = useLiveWikiSetupState(localState);
   const failedBody = useWikiSetupFailureBody(state);
 
   useEffect(() => {
@@ -172,7 +199,7 @@ export const WikiHomepageSetup = observer(function WikiHomepageSetup({
         crawlPhase: "queued",
         progress: { fetched: 0, total: 0 },
       };
-      setState(workingState);
+      setLocalState(workingState);
       store.onInitOrRefresh({ ...store.form, homepage: canonicalHomepage });
       setRetrying(false);
       router.refresh();

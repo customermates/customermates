@@ -6,7 +6,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { discoverWikiWebsite, fetchWikiSource } from "../website-crawler";
 import {
+  alignCrawlUrlHost,
   canonicalCrawlUrl,
+  crawlDedupeKey,
   parseLlmsTxt,
   parseRobots,
   parseSitemap,
@@ -279,6 +281,53 @@ describe("sitemaps, llms.txt and categories", () => {
   });
 });
 
+describe("apex and www host variants", () => {
+  it("keys a page by its host without exactly one leading www label, and keeps other subdomains distinct", () => {
+    expect(crawlDedupeKey("https://www.Example.com/Help/#top")).toBe("https://example.com/Help");
+    expect(crawlDedupeKey("https://example.com/help?x=1")).toBe("https://example.com/help");
+    expect(crawlDedupeKey("https://www.example.com/")).toBe(crawlDedupeKey("https://example.com"));
+    expect(crawlDedupeKey("https://blog.example.com/a")).toBe("https://blog.example.com/a");
+    expect(crawlDedupeKey("https://www.blog.example.com/a")).toBe("https://blog.example.com/a");
+    expect(crawlDedupeKey("https://www.www.example.com/a")).toBe("https://www.example.com/a");
+    expect(crawlDedupeKey("https://www.co.uk/a")).toBe("https://www.co.uk/a");
+    expect(crawlDedupeKey("https://wwwexample.com/a")).toBe("https://wwwexample.com/a");
+  });
+
+  it("moves only the apex or www form of the homepage host onto the homepage host", () => {
+    expect(alignCrawlUrlHost("https://example.com/a?b=1", "https://www.example.com/")).toBe(
+      "https://www.example.com/a?b=1",
+    );
+    expect(alignCrawlUrlHost("https://www.example.com/a", "https://example.com/")).toBe("https://example.com/a");
+    expect(alignCrawlUrlHost("https://blog.example.com/a", "https://www.example.com/")).toBe(
+      "https://blog.example.com/a",
+    );
+    expect(alignCrawlUrlHost("https://www.other.com/a", "https://other.com/")).toBe("https://other.com/a");
+    expect(alignCrawlUrlHost("https://www.example.org/a", "https://example.com/")).toBe("https://www.example.org/a");
+  });
+
+  it("collapses apex and www homepage and link forms into one target on the homepage host", () => {
+    const targets = rankWikiCrawlTargets({
+      homepage: "https://ainovi.de/",
+      candidates: [
+        { url: "https://www.ainovi.de/", source: "sitemap" },
+        { url: "https://www.ainovi.de/help", source: "link" },
+        { url: "https://ainovi.de/help/", source: "sitemap" },
+        { url: "https://www.ainovi.de/pricing", source: "sitemap" },
+        { url: "https://ainovi.de/pricing#plans", source: "sitemap" },
+        { url: "https://blog.ainovi.de/help", source: "sitemap" },
+      ],
+      locale: "de",
+      allows: () => true,
+    });
+    expect(targets.map(({ url }) => url).sort()).toEqual([
+      "https://ainovi.de/",
+      "https://ainovi.de/help",
+      "https://ainovi.de/pricing",
+      "https://blog.ainovi.de/help",
+    ]);
+  });
+});
+
 describe("source extraction", () => {
   it("keeps main content headings as Markdown and extracts FAQ pairs from JSON-LD, details and question headings", () => {
     const html = `<html><head><title>Help | Acme</title>
@@ -464,6 +513,34 @@ describe("website discovery and fetching", () => {
     expect(discovery.targets.map(({ url }) => url)).toEqual(["https://example.com/", "https://example.com/pricing"]);
     const robots = new WikiCrawlRobots(scope);
     expect(await robots.allows("https://example.com/help?lang=de")).toBe(false);
+  });
+});
+
+describe("website discovery across apex and www", () => {
+  const scope = { registrableDomain: "example.com", extraHosts: [] };
+
+  it("reads each page once on the host the homepage is served from, under that host's robots rules", async () => {
+    routes.set("https://example.com/robots.txt", { type: "text/plain", body: "User-agent: *\nAllow: /" });
+    routes.set("https://www.example.com/robots.txt", { type: "text/plain", body: "User-agent: *\nDisallow: /private" });
+    routes.set("https://example.com/", { status: 301, location: "https://www.example.com/" });
+    routes.set("https://www.example.com/", {
+      body: '<main><h1>Acme</h1><a href="/pricing">Pricing</a><a href="https://example.com/pricing">Pricing</a><a href="https://example.com/private/plan">Plan</a><a href="https://www.other.com/help">Other</a></main>',
+    });
+    routes.set("https://example.com/sitemap.xml", {
+      type: "application/xml",
+      body: "<urlset><url><loc>https://example.com/</loc></url><url><loc>https://www.example.com/</loc></url><url><loc>https://example.com/terms</loc></url><url><loc>https://www.example.com/terms/</loc></url><url><loc>https://blog.example.com/terms</loc></url></urlset>",
+    });
+
+    const discovery = await discoverWikiWebsite({ homepage: "https://example.com", locale: "en", scope });
+    if (discovery.status !== "ready") throw new Error("discovery failed");
+    expect(discovery.targets.map(({ url }) => url).sort()).toEqual([
+      "https://blog.example.com/terms",
+      "https://www.example.com/",
+      "https://www.example.com/pricing",
+      "https://www.example.com/terms",
+    ]);
+    expect(mocks.requested.some((line) => line.includes("/private"))).toBe(false);
+    expect(mocks.requested.some((line) => line.includes("other.com"))).toBe(false);
   });
 });
 

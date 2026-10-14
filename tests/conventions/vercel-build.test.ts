@@ -96,4 +96,13 @@ describe("Vercel build safety", () => {
     expect(vercelJson.buildCommand).toBe("yarn vercel-build");
     expect(vercelJson.git?.deploymentEnabled).toBe(true);
   });
+
+  it("pins functions to the region that holds workflow run state", () => {
+    const vercelJson = JSON.parse(readFileSync(join(REPO_ROOT, "vercel.json"), "utf8"));
+    const backgroundTasks = readFileSync(join(REPO_ROOT, "core/utils/background-task.service.ts"), "utf8");
+    const workflowRegion = /VERCEL_WORKFLOW_REGION = "([a-z0-9]+)"/.exec(backgroundTasks)?.[1];
+
+    expect(workflowRegion).toBe("fra1");
+    expect(vercelJson.regions).toEqual([workflowRegion]);
+  });
 });

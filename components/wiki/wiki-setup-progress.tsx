@@ -49,7 +49,12 @@ function StatusIcon({ status }: { status: ProgressStatus }) {
   );
 }
 
-export function WikiSetupProgress({ state }: { state: WikiHomepageSetupState }) {
+type Props = {
+  state: WikiHomepageSetupState;
+  hideReadCount?: boolean;
+};
+
+export function WikiSetupProgress({ state, hideReadCount = false }: Props) {
   const t = useTranslations();
   const progress = state.progress;
   const pages = progress?.pages ?? [];
@@ -105,13 +110,17 @@ export function WikiSetupProgress({ state }: { state: WikiHomepageSetupState }) 
     review: t("WikiSetup.crawlProgress.skipped.review"),
     reviewUnavailable: t("WikiSetup.crawlProgress.skipped.reviewUnavailable"),
     credits: t("WikiSetup.crawlProgress.skipped.credits"),
+    aiUnavailable: t("WikiSetup.crawlProgress.skipped.aiUnavailable"),
     persistence: t("WikiSetup.crawlProgress.skipped.persistence"),
     error: t("WikiSetup.crawlProgress.skipped.error"),
   };
+  const readingLabel = hideReadCount
+    ? t("WikiSetup.crawlProgress.readingStep")
+    : t("WikiSetup.crawlProgress.readingCount", { fetched: progress?.fetched ?? 0, total: progress?.total ?? 0 });
   const summary = discovering
     ? t("WikiSetup.crawlProgress.discovering")
     : reading
-      ? t("WikiSetup.crawlProgress.readingCount", { fetched: progress?.fetched ?? 0, total: progress?.total ?? 0 })
+      ? readingLabel
       : writing
         ? writingSummary
         : t("WikiSetup.crawlProgress.steps");
@@ -182,15 +191,10 @@ export function WikiSetupProgress({ state }: { state: WikiHomepageSetupState }) 
             <div className="flex items-start gap-2 text-foreground [&>svg]:mt-0.5">
               <StatusIcon status={readingStatus} />
 
-              <span>
-                {t("WikiSetup.crawlProgress.readingCount", {
-                  fetched: progress?.fetched ?? 0,
-                  total: progress?.total ?? 0,
-                })}
-              </span>
+              <span>{readingLabel}</span>
             </div>
 
-            {reading && progress?.currentUrl ? (
+            {!hideReadCount && reading && progress?.currentUrl ? (
               <p className="pl-[1.375rem] text-foreground [overflow-wrap:anywhere]">{progress.currentUrl}</p>
             ) : null}
 

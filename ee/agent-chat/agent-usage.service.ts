@@ -30,6 +30,8 @@ export type AgentWorkspaceCreditPool = {
   usable: boolean;
 };
 
+export type AgentRetrievalRefusal = "credits" | "unavailable";
+
 export type AgentRetrievalReservation = {
   id: string;
   grant: AgentRetrievalGrant;
@@ -293,6 +295,18 @@ export class AgentUsageService {
       periodStart: state.summary.periodStart,
       periodEnd: state.summary.resetAt,
     };
+  }
+
+  async retrievalRefusal(
+    userId: string,
+    worstCaseMicrocents: number,
+    now = new Date(),
+  ): Promise<AgentRetrievalRefusal> {
+    const state = await this.resolveUsageState(userId, now);
+    if (state.summary.blockedReason === "credits_exhausted") return "credits";
+    if (state.summary.blockedReason || !state.user.subscription || !state.summary.plan) return "unavailable";
+    if (!(await this.repo.admitsHostedAiRetrievalUnscoped(now))) return "unavailable";
+    return state.remainingMicrocents < Math.max(1, worstCaseMicrocents) ? "credits" : "unavailable";
   }
 
   async prepareWorkspaceIndexing(companyId: string, now = new Date()): Promise<AgentRetrievalGrant | null> {

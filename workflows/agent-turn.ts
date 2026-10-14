@@ -82,7 +82,11 @@ import { agentAuxiliaryCharge, buildAgentTurnClassifierTrace } from "@/ee/agent-
 import { getAgentChatRepo, getBackgroundTaskService } from "@/core/di";
 import { internalToolIdentity, WIKI_WEBSITE_IMPORT_TOOL_NAME } from "@/ee/agent-chat/tool-identity";
 import { readAgentProviderCharge, readGatewayCostMicrocents } from "@/ee/agent-chat/gateway-cost";
-import { readAgentProviderErrorCharge, readAgentProviderRoundCharge } from "@/ee/agent-chat/agent-provider-error";
+import {
+  readAgentProviderErrorCharge,
+  readAgentProviderRateLimit,
+  readAgentProviderRoundCharge,
+} from "@/ee/agent-chat/agent-provider-error";
 import { isReadOnlyAgentToolCall, requiresApproval } from "@/ee/agent-chat/gated-tools";
 import { isAgentToolCancellation } from "@/ee/agent-chat/agent-tool-cancellation";
 import { createAgentToolInputResolver, type AgentToolInputResult } from "@/ee/agent-chat/agent-tool-input";
@@ -719,6 +723,13 @@ async function readCancellation(payload: AgentTurnWorkflowPayload): Promise<bool
 }
 
 export const AGENT_RESOLVED_PROVIDER_ERROR_RETRIES = 2;
+export const AGENT_RATE_LIMIT_RETRIES = 2;
+const AGENT_RATE_LIMIT_BACKOFF_MS = 2_000;
+export const AGENT_RATE_LIMIT_MAX_WAIT_MS = 10_000;
+
+export function agentRateLimitRetryDelayMs(retry: number, retryAfterMs: number | null): number {
+  return Math.min(AGENT_RATE_LIMIT_MAX_WAIT_MS, retryAfterMs ?? AGENT_RATE_LIMIT_BACKOFF_MS * 2 ** (retry - 1));
+}
 
 async function reportResolvedProviderError(
   payload: AgentTurnWorkflowPayload,
@@ -1065,6 +1076,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     let providerStop: Extract<AgentTurnStopReason, "provider_error" | "content_filter" | "turn_error"> | null = null;
     let resolvedProviderErrorRetries = 0;
     let streamFailureRetries = 0;
+    let rateLimitRetries = 0;
+    let toolExecutedThisCall = false;
     let providerFailure: WorkflowFailure | null = null;
     let budgetStop = null as Extract<AgentTurnStopReason, "credit_limit" | "run_credit_limit"> | null;
     let runCreditCeilingMicrocents = 0;
@@ -1300,6 +1313,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
     const applyRound = async (step: AgentRoundResult) => {
       appliedThisCall += 1;
+      rateLimitRetries = 0;
       try {
         settleApprovedCalls([], true);
         for (const source of collectAgentWebSources([{ content: step.content }])) webSources.add(source);
@@ -1665,6 +1679,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                           },
                         ) => {
                           const { toolCallId } = options;
+                          toolExecutedThisCall = true;
                           try {
                             const output = await runShellTool(shell, input, toolCallId, options.messages);
                             if (approvedCalls.has(toolCallId)) {
@@ -1775,6 +1790,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       });
 
       appliedThisCall = 0;
+      toolExecutedThisCall = false;
       let result;
       try {
         result = await agent.stream({
@@ -1837,6 +1853,28 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             unreadableReason: failureCharge.unreadableReason,
           });
           unreportedProviderRounds -= 1;
+        }
+        const rateLimit = readAgentProviderRateLimit(error);
+        if (
+          rateLimit &&
+          failureCharge &&
+          unreportedProviderRounds === 0 &&
+          rateLimitRetries < Math.min(AGENT_RATE_LIMIT_RETRIES, fundedRetryCount()) &&
+          (appliedThisCall === 0 && !toolExecutedThisCall
+            ? true
+            : continuationSteps.length > 0 &&
+              compactForNextSegment(continuationSteps.at(-1)?.finishReason === "length"))
+        ) {
+          rateLimitRetries += 1;
+          const delayMs = agentRateLimitRetryDelayMs(rateLimitRetries, rateLimit.retryAfterMs);
+          await reportWarning(
+            WORKFLOW_NAME,
+            `The provider rate-limited a round with HTTP 429 (retry ${rateLimitRetries} of ${AGENT_RATE_LIMIT_RETRIES}, after ${delayMs} ms).`,
+            payload.tenant,
+          );
+          await sleep(delayMs);
+          cancelled = await readCancellation(payload);
+          continue;
         }
         const failure = toWorkflowFailure(error);
         if (failureCharge?.providerFailure !== false && (failureCharge || isAgentProviderFailure(error))) {
