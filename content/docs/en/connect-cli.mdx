@@ -25,7 +25,7 @@ There is no restart or config-file edit. Claude Code connects automatically. Run
 
 ## Codex [#codex]
 
-OpenAI's Codex CLI uses a TOML config file. The `codex mcp add` subcommand only handles stdio servers, so for an HTTP MCP server like Customermates you add the block manually. Open `~/.codex/config.toml` (create it if missing) and append, replacing `YOUR_KEY`:
+Codex connects directly to Customermates over Streamable HTTP. `codex mcp add customermates --url <BASE_URL>/api/v1/mcp` adds the server URL, but the CLI command has no option for a custom `x-api-key` header. For API-key access, open `~/.codex/config.toml` (create it if missing) and add the complete block below, replacing `YOUR_KEY`:
 
 <McpInstallSnippet tool="codex" />
 
@@ -36,6 +36,8 @@ env_http_headers = { "x-api-key" = "CUSTOMERMATES_API_KEY" }
 ```
 
 Then export `CUSTOMERMATES_API_KEY` in your shell profile. New sessions pick the server up, so end the current one and start fresh.
+
+The same HTTP endpoint also accepts OAuth. If you prefer to sign in, add the URL with `codex mcp add customermates --url <BASE_URL>/api/v1/mcp`, then run `codex mcp login customermates`. The stdio bridge described below is for Claude Desktop clients that need one.
 
 ## Cursor [#cursor]
 
@@ -74,22 +76,22 @@ Then restart: fully quit (⌘Q on macOS, not just close the window) and reopen. 
 
 The server provides connection instructions describing its tool surface, safety rules, and how to retrieve relevant Knowledge Base pages. Clients decide whether to pass those instructions to their agent. If yours does not, add the Knowledge Base retrieval rule to that client's persistent instructions. In clients that support MCP prompts (like Claude Code), you can run the built-in `get-started` prompt for a guided kickoff: it reads your workspace and relevant Knowledge Base pages first, then asks only for missing information.
 
-- *"Set the Acme deal's Status field to 'Won' and add a note that the contract was signed today."*
-- *"Pull the last ten contacts I created. Any without an email address?"*
-- *"Create a contact for Jane Doe at Initech, link it to the Initech organization, and start a deal for 12 hours of consulting."*
+- _"Set the Acme deal's Status field to 'Won' and add a note that the contract was signed today."_
+- _"Pull the last ten contacts I created. Any without an email address?"_
+- _"Create a contact for Jane Doe at Initech, link it to the Initech organization, and start a deal for 12 hours of consulting."_
 
 Contacts, organizations, deals, services, and tasks are the starting record types; your workspace can add more. Attributes such as a deal's stage or a task's priority depend on the workspace configuration. Call `discover_record_types` and then `get_record_model` for the relevant type IDs before writing.
 
 ## Troubleshooting [#troubleshooting]
 
-| Client | Symptom | Cause | Fix |
-|---|---|---|---|
-| Claude Desktop | `npx: command not found` | No Node on `PATH` | Install Node 18+ from [nodejs.org](https://nodejs.org/en) |
-| Claude Desktop | Tools panel empty after a config edit | Claude Desktop does not hot-reload MCP configs | Fully quit (⌘Q) and reopen |
-| Codex | TOML parse error | Inline-table values use `=`, not `:` | Check the `env_http_headers = { ... }` line |
-| All | The client cannot connect or lists no tools; the server answers HTTP `401` | The key is wrong or truncated, or a key that worked has expired (keys from **Quick connections** expire after 365 days) or was deleted. The server checks the `x-api-key` header on every request and answers `401` with a `WWW-Authenticate` header before it lists any tool, documentation lookups included | Create a new key under [API keys](app:settings/api-keys), paste the full 64 characters, and update the client |
-| All | A connection that worked now fails with "Your user account is inactive. Contact a workspace administrator." | The key's owner was set to **Inactive** | A member with **Edit** on **Users & Roles** sets them back to **Active** under [Members](app:settings/members), and the existing key works again |
-| All | Relationship update rejected | A relationship ID or endpoint is missing or inaccessible | Ask the agent to read `get_record_model`, then use `mutate_crm_record` with `link` or `unlink` and stable record references |
+| Client         | Symptom                                                                                                     | Cause                                                                                                                                                                                                                                                                                                         | Fix                                                                                                                                              |
+| -------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Claude Desktop | `npx: command not found`                                                                                    | No Node on `PATH`                                                                                                                                                                                                                                                                                             | Install Node 18+ from [nodejs.org](https://nodejs.org/en)                                                                                        |
+| Claude Desktop | Tools panel empty after a config edit                                                                       | Claude Desktop does not hot-reload MCP configs                                                                                                                                                                                                                                                                | Fully quit (⌘Q) and reopen                                                                                                                       |
+| Codex          | TOML parse error                                                                                            | Inline-table values use `=`, not `:`                                                                                                                                                                                                                                                                          | Check the `env_http_headers = { ... }` line                                                                                                      |
+| All            | The client cannot connect or lists no tools; the server answers HTTP `401`                                  | The key is wrong or truncated, or a key that worked has expired (keys from **Quick connections** expire after 365 days) or was deleted. The server checks the `x-api-key` header on every request and answers `401` with a `WWW-Authenticate` header before it lists any tool, documentation lookups included | Create a new key under [API keys](app:settings/api-keys), paste the full 64 characters, and update the client                                    |
+| All            | A connection that worked now fails with "Your user account is inactive. Contact a workspace administrator." | The key's owner was set to **Inactive**                                                                                                                                                                                                                                                                       | A member with **Edit** on **Users & Roles** sets them back to **Active** under [Members](app:settings/members), and the existing key works again |
+| All            | Relationship update rejected                                                                                | A relationship ID or endpoint is missing or inaccessible                                                                                                                                                                                                                                                      | Ask the agent to read `get_record_model`, then use `mutate_crm_record` with `link` or `unlink` and stable record references                      |
 
 ## Next [#next]
 

@@ -25,7 +25,7 @@ Kein Neustart, keine Konfigurationsdatei. Claude Code verbindet sich automatisch
 
 ## Codex [#codex]
 
-Das Codex CLI von OpenAI nutzt eine TOML-Konfigurationsdatei. Der `codex mcp add`-Befehl unterstützt nur stdio-Server. Für einen HTTP-MCP-Server wie Customermates fügen Sie den Block manuell ein. `~/.codex/config.toml` öffnen (anlegen falls nötig) und anhängen, `YOUR_KEY` ersetzen:
+Codex verbindet sich direkt per Streamable HTTP mit Customermates. `codex mcp add customermates --url <BASE_URL>/api/v1/mcp` fügt die Serveradresse hinzu, aber der CLI-Befehl bietet keine Option für einen eigenen `x-api-key`-Header. Für den Zugriff per API-Key öffnen Sie `~/.codex/config.toml` (bei Bedarf anlegen) und fügen den vollständigen Block unten ein. Ersetzen Sie `YOUR_KEY`:
 
 <McpInstallSnippet tool="codex" />
 
@@ -36,6 +36,8 @@ env_http_headers = { "x-api-key" = "CUSTOMERMATES_API_KEY" }
 ```
 
 Dann `CUSTOMERMATES_API_KEY` im Shell-Profil exportieren. Neue Sessions erkennen den Server, also die aktuelle beenden und eine neue starten.
+
+Derselbe HTTP-Endpunkt akzeptiert auch OAuth. Wenn Sie sich lieber anmelden möchten, fügen Sie die Adresse mit `codex mcp add customermates --url <BASE_URL>/api/v1/mcp` hinzu und führen anschließend `codex mcp login customermates` aus. Die weiter unten beschriebene stdio-Brücke ist für Claude Desktop-Clients gedacht, die sie benötigen.
 
 ## Cursor [#cursor]
 
@@ -74,22 +76,22 @@ Danach neu starten: vollständig beenden (⌘Q auf macOS, nicht nur das Fenster 
 
 Der Server stellt beim Verbinden Anweisungen zur Tool-Oberfläche, zu Sicherheitsregeln und zum Abruf relevanter Wissensdatenbank-Seiten bereit. Der jeweilige Client entscheidet, ob er diese Anweisungen an seinen Agent weitergibt. Tut er das nicht, ergänzen Sie die Wissensdatenbank-Abrufregel in den dauerhaften Anweisungen dieses Clients. In Clients, die MCP-Prompts unterstützen (etwa Claude Code), können Sie den eingebauten `get-started`-Prompt für einen geführten Start nutzen: Er liest zuerst Ihren Workspace und relevante Wissensdatenbank-Seiten und fragt nur nach fehlenden Informationen.
 
-- *"Setz das Status-Feld des Acme-Deals auf 'Won' und füge eine Notiz hinzu, dass der Vertrag heute unterschrieben wurde."*
-- *"Hol die letzten zehn Contacts, die ich angelegt habe. Welche haben keine E-Mail-Adresse?"*
-- *"Leg einen Contact für Jane Doe bei Initech an, verknüpf ihn mit der Initech-Organisation und starte einen Deal über 12 Stunden Beratung."*
+- _"Setz das Status-Feld des Acme-Deals auf 'Won' und füge eine Notiz hinzu, dass der Vertrag heute unterschrieben wurde."_
+- _"Hol die letzten zehn Contacts, die ich angelegt habe. Welche haben keine E-Mail-Adresse?"_
+- _"Leg einen Contact für Jane Doe bei Initech an, verknüpf ihn mit der Initech-Organisation und starte einen Deal über 12 Stunden Beratung."_
 
 Contacts, Organizations, Deals, Services und Tasks sind die anfänglichen Datensatztypen; Ihr Workspace kann weitere hinzufügen. Attribute wie die Phase eines Deals oder die Priorität einer Task hängen von der Workspace-Konfiguration ab. Rufen Sie vor dem Schreiben `discover_record_types` und danach `get_record_model` für die relevanten Typ-IDs auf.
 
 ## Troubleshooting [#troubleshooting]
 
-| Client | Symptom | Ursache | Lösung |
-|---|---|---|---|
-| Claude Desktop | `npx: command not found` | Kein Node im `PATH` | Node 18+ von [nodejs.org](https://nodejs.org/en) installieren |
-| Claude Desktop | Tools-Panel nach Config-Änderung leer | Claude Desktop lädt MCP-Configs nicht hot | Vollständig beenden (⌘Q) und neu öffnen |
-| Codex | TOML-Parse-Fehler | Inline-Tabellen nutzen `=`, nicht `:` | Die `env_http_headers = { ... }`-Zeile prüfen |
-| Alle | Der Client verbindet sich nicht oder listet keine Tools; der Server antwortet mit HTTP `401` | Der Key ist falsch oder abgeschnitten, oder ein Key, der funktioniert hat, ist abgelaufen (Keys aus den **Schnellverbindungen** laufen nach 365 Tagen ab) oder wurde gelöscht. Der Server prüft den `x-api-key`-Header bei jeder Anfrage und antwortet mit `401` und einem `WWW-Authenticate`-Header, bevor er ein Tool listet, Doku-Abfragen eingeschlossen | Unter [API-Schlüssel](app:settings/api-keys) einen neuen Key anlegen, die vollständigen 64 Zeichen einfügen und den Client aktualisieren |
-| Alle | Eine Verbindung, die funktioniert hat, scheitert jetzt mit „Your user account is inactive. Contact a workspace administrator.“ | Der Besitzer des Keys steht auf **Inaktiv** | Ein Mitglied mit **Bearbeiten** auf **Benutzer & Rollen** setzt ihn unter [Mitglieder](app:settings/members) wieder auf **Aktiv**; danach funktioniert der vorhandene Key wieder |
-| Alle | Verknüpfung wird abgelehnt | Eine Beziehungs-ID oder ein Endpunkt fehlt oder ist nicht zugänglich | Den Agenten bitten, `get_record_model` zu lesen und dann `mutate_crm_record` mit `link` oder `unlink` und stabilen Datensatzreferenzen zu verwenden |
+| Client         | Symptom                                                                                                                        | Ursache                                                                                                                                                                                                                                                                                                                                                      | Lösung                                                                                                                                                                           |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Claude Desktop | `npx: command not found`                                                                                                       | Kein Node im `PATH`                                                                                                                                                                                                                                                                                                                                          | Node 18+ von [nodejs.org](https://nodejs.org/en) installieren                                                                                                                    |
+| Claude Desktop | Tools-Panel nach Config-Änderung leer                                                                                          | Claude Desktop lädt MCP-Configs nicht hot                                                                                                                                                                                                                                                                                                                    | Vollständig beenden (⌘Q) und neu öffnen                                                                                                                                          |
+| Codex          | TOML-Parse-Fehler                                                                                                              | Inline-Tabellen nutzen `=`, nicht `:`                                                                                                                                                                                                                                                                                                                        | Die `env_http_headers = { ... }`-Zeile prüfen                                                                                                                                    |
+| Alle           | Der Client verbindet sich nicht oder listet keine Tools; der Server antwortet mit HTTP `401`                                   | Der Key ist falsch oder abgeschnitten, oder ein Key, der funktioniert hat, ist abgelaufen (Keys aus den **Schnellverbindungen** laufen nach 365 Tagen ab) oder wurde gelöscht. Der Server prüft den `x-api-key`-Header bei jeder Anfrage und antwortet mit `401` und einem `WWW-Authenticate`-Header, bevor er ein Tool listet, Doku-Abfragen eingeschlossen | Unter [API-Schlüssel](app:settings/api-keys) einen neuen Key anlegen, die vollständigen 64 Zeichen einfügen und den Client aktualisieren                                         |
+| Alle           | Eine Verbindung, die funktioniert hat, scheitert jetzt mit „Your user account is inactive. Contact a workspace administrator.“ | Der Besitzer des Keys steht auf **Inaktiv**                                                                                                                                                                                                                                                                                                                  | Ein Mitglied mit **Bearbeiten** auf **Benutzer & Rollen** setzt ihn unter [Mitglieder](app:settings/members) wieder auf **Aktiv**; danach funktioniert der vorhandene Key wieder |
+| Alle           | Verknüpfung wird abgelehnt                                                                                                     | Eine Beziehungs-ID oder ein Endpunkt fehlt oder ist nicht zugänglich                                                                                                                                                                                                                                                                                         | Den Agenten bitten, `get_record_model` zu lesen und dann `mutate_crm_record` mit `link` oder `unlink` und stabilen Datensatzreferenzen zu verwenden                              |
 
 ## Weiter [#next]
 
