@@ -474,6 +474,8 @@
       "interruptedTurn": "Dieser Durchlauf wurde beendet, bevor ich das Ergebnis bestätigen konnte. Prüfe die Aktivitäten oben und die aktuellen Datensätze, bevor du es erneut versuchst.",
       "policyBreach": "Der KI-Anbieter hat das reservierte Credit-Budget überschritten, daher wurde der Lauf gestoppt. Es wurde keine weitere Anbieterarbeit gestartet.",
       "providerError": "Der KI-Anbieter hat einen Fehler zurückgegeben, bevor ich fertig war. Es wurde nichts weiter geändert. Bitte versuche es erneut.",
+      "runCreditLimit": "Ich habe einen Teil dieses Routinenlaufs erledigt, dann aber an seiner Obergrenze von {credits, number} Credits pro Lauf gestoppt. Erledigte Arbeit bleibt bestehen.",
+      "runCreditLimitNoWrite": "Ich habe gestoppt, bevor etwas geändert wurde, weil dieser Routinenlauf seine Obergrenze von {credits, number} Credits pro Lauf erreicht hat. Es wurde nichts erstellt, geändert oder gesendet.",
       "sourcesHeading": "Quellen",
       "streamInterrupted": "Ich musste stoppen, weil die Modellantwort unterbrochen wurde. Es wurde nichts Weiteres geändert; prüfe die Aktivitäten oben, bevor du es erneut versuchst.",
       "turnError": "Ich konnte diese Anfrage nicht abschließen. Bitte versuche es erneut.",
@@ -4064,6 +4066,7 @@
     "hostedAiUnavailable": "Die gehostete KI war nicht mehr verfügbar, bevor der Lauf abgeschlossen werden konnte.",
     "policyBreach": "Der KI-Anbieter hat das reservierte Guthabenbudget überschritten; deshalb wurde der Lauf beendet.",
     "providerError": "Der KI-Anbieter hat vor Abschluss des Laufs einen Fehler zurückgegeben.",
+    "runCreditLimit": "Der Lauf wurde an seiner Obergrenze von {credits, number} Credits pro Lauf beendet.",
     "turnError": "Der Assistent konnte diesen Lauf nicht abschließen."
   },
   "RoutinesCard": {

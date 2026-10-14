@@ -2382,7 +2382,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         userId: user.id,
         requiredMicrocents: 3_000_000,
       }),
-    ).resolves.toEqual({ disposition: "credit_limit" });
+    ).resolves.toEqual({ disposition: "run_credit_limit", ceilingMicrocents: 2_000_000 });
 
     expect(prismaMock.user.findUnique).not.toHaveBeenCalled();
     expect(prismaMock.agentUsageEvent.findMany).not.toHaveBeenCalled();
@@ -2450,6 +2450,57 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       },
       data: expect.objectContaining({ reservedMicrocents: 2_000_000 }),
     });
+  });
+
+  it("reports the owner's period credits, not the run ceiling, when a routine run fits its ceiling only", async () => {
+    const now = new Date("2026-08-06T10:00:00.000Z");
+    vi.useFakeTimers();
+    vi.setSystemTime(now);
+    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
+      id: "reservation-routine",
+      reservedMicrocents: 1_000_000n,
+      periodStart: new Date("2026-07-15T10:30:00.000Z"),
+      periodEnd: new Date("2026-08-15T10:30:00.000Z"),
+      allowanceMicrocentsSnapshot: 500_000_000n,
+      turnRequest: {
+        conversation: { creditCeilingMicrocents: 10_000_000n, routineRuns: [{ id: "routine-run-1" }] },
+      },
+    });
+    prismaMock.user.findUnique.mockResolvedValue({
+      id: user.id,
+      companyId: user.companyId,
+      status: Status.active,
+      createdAt: new Date("2026-01-15T10:30:00.000Z"),
+      agentCreditActivatedAt: new Date("2026-01-15T10:30:00.000Z"),
+      company: {
+        subscription: {
+          status: "active",
+          plan: "pro",
+          trialEndDate: null,
+          agentCreditAnchorAt: new Date("2026-01-15T10:30:00.000Z"),
+          enterpriseAgentCreditsPerUser: null,
+          createdAt: new Date("2026-01-15T10:30:00.000Z"),
+        },
+      },
+    });
+    prismaMock.agentUsageEvent.findMany.mockResolvedValue([
+      { state: "settled", reservedMicrocents: 0n, chargedMicrocents: 499_000_000n },
+    ]);
+
+    try {
+      await expect(
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).extendUsageReservationUnscoped({
+          turnRequestId: "turn-routine",
+          companyId: user.companyId,
+          userId: user.id,
+          requiredMicrocents: 3_000_000,
+        }),
+      ).resolves.toEqual({ disposition: "credit_limit" });
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(prismaMock.agentUsageEvent.updateMany).not.toHaveBeenCalled();
   });
 
   it("does not apply a routine conversation ceiling to an interactive follow-up turn", async () => {

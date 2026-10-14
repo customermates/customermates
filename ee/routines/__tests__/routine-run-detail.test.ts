@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { IntlMessageFormat } from "intl-messageformat";
+
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RoutineRunStatus } from "@/generated/prisma";
 import { AGENT_TURN_STOP_REASONS } from "@/ee/agent-chat/agent-turn-request";
@@ -9,6 +11,9 @@ import {
   routineRunDetail,
   routineRunStopReason,
 } from "@/ee/routines/routine-run-outcome";
+import { DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN } from "@/ee/routines/routine-run-limits";
+import en from "@/i18n/locales/en.json";
+import de from "@/i18n/locales/de.json";
 
 const t = (key: string) => key;
 
@@ -102,6 +107,7 @@ describe("routineRunDetail", () => {
   it("translates every typed terminal stop reason without exposing its stored token", () => {
     const expectedKeys = [
       "RoutineRunStopReason.creditLimit",
+      "RoutineRunStopReason.runCreditLimit",
       "RoutineRunStopReason.providerError",
       "RoutineRunStopReason.contentFilter",
       "RoutineRunStopReason.hostedAiUnavailable",
@@ -113,5 +119,25 @@ describe("routineRunDetail", () => {
 
     expect(AGENT_TURN_STOP_REASONS.map((stopReason) => routineRunStopReason({ stopReason }, t))).toEqual(expectedKeys);
     expect(routineRunStopReason({ stopReason: null }, t)).toBe("");
+  });
+
+  it("names the routine's per-run limit, not the owner's period credits, in English and German", () => {
+    const render = (catalog: { RoutineRunStopReason: Record<string, string> }, locale: string) =>
+      routineRunStopReason({ stopReason: "run_credit_limit" }, (key, values) =>
+        String(
+          new IntlMessageFormat(catalog.RoutineRunStopReason[key.replace("RoutineRunStopReason.", "")], locale).format(
+            values,
+          ),
+        ),
+      );
+
+    expect(render(en, "en")).toBe(
+      `The run stopped at its limit of ${DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN} credits per run.`,
+    );
+    expect(render(de, "de")).toBe(
+      `Der Lauf wurde an seiner Obergrenze von ${DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN} Credits pro Lauf beendet.`,
+    );
+    expect(render(en, "en")).not.toBe(en.RoutineRunStopReason.creditLimit);
+    expect(`${render(en, "en")} ${render(de, "de")}`).not.toMatch(/Assistant|Assistenten|period|Periode|Guthaben/i);
   });
 });

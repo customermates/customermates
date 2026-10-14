@@ -155,6 +155,7 @@ describe("agent turn terminal classification", () => {
   it("accepts exactly the public terminal stop-reason contract", () => {
     expect(AGENT_TURN_STOP_REASONS).toEqual([
       "credit_limit",
+      "run_credit_limit",
       "provider_error",
       "content_filter",
       "hosted_ai_unavailable",
