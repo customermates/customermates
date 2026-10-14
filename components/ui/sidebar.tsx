@@ -22,11 +22,10 @@ import {
   SIDEBAR_MIN_WIDTH,
   clampSidebarWidth,
   keyboardSidebarWidth,
+  sidebarOpenCookie,
   sidebarWidthCookie,
 } from "@/components/layout/sidebar-width";
 
-const SIDEBAR_COOKIE_NAME = "sidebar_state";
-const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 const SIDEBAR_WIDTH = "16rem";
 const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
@@ -101,7 +100,7 @@ function SidebarProvider({
       if (setOpenProp) setOpenProp(openState);
       else _setOpen(openState);
 
-      document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+      document.cookie = sidebarOpenCookie(openState);
     },
     [setOpenProp, open],
   );
@@ -373,7 +372,12 @@ function SidebarResizeHandle({ className, ...props }: React.ComponentProps<"div"
     >
       <span
         aria-hidden="true"
-        className="h-full w-0.5 rounded-full bg-transparent transition-colors group-hover/sidebar-resize:bg-ring/50 group-focus-visible/sidebar-resize:bg-ring group-data-[state=resizing]/sidebar-resize:bg-ring"
+        className="pointer-events-none absolute top-1/2 left-1/2 h-8 w-1 -translate-1/2 rounded-full bg-transparent transition-colors duration-150 group-hover/sidebar-resize:bg-muted-foreground/50 group-focus-visible/sidebar-resize:bg-muted-foreground group-data-[state=resizing]/sidebar-resize:bg-transparent"
+      />
+
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 left-full w-0.5 -translate-x-1/2 bg-linear-to-b from-transparent via-foreground/60 to-transparent opacity-0 transition-opacity duration-150 group-data-[state=resizing]/sidebar-resize:opacity-100"
       />
     </div>
   );
