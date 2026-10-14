@@ -85491,7 +85491,6 @@
                                 "type": "string",
                                 "enum": [
                                   "credit_limit",
-                                  "run_credit_limit",
                                   "provider_error",
                                   "content_filter",
                                   "hosted_ai_unavailable",
