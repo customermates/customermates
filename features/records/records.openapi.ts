@@ -5,6 +5,8 @@ import {
   RoleApiEditorContextSchema,
   RoleApiMutationResultSchema,
 } from "@/features/role/role-management.schema";
+import { RoleWithAssignmentsDtoSchema } from "@/features/role/role.schema";
+import { GetQueryParamsApiSchema, createGetResultSchema } from "@/core/base/base-get.schema";
 import { RecordSearchSchema, RecordSearchResultSchema } from "./record-search.schema";
 import {
   ReadThreadRecordsSchema,
@@ -314,6 +316,25 @@ export const recordApiPaths = {
       {
         read: true,
         requires: "read access to the lists; records the caller cannot read are omitted.",
+      },
+    ),
+  },
+  "/v1/roles/list": {
+    post: operation(
+      "listRoles",
+      "List roles",
+      GetQueryParamsApiSchema,
+      createGetResultSchema(RoleWithAssignmentsDtoSchema),
+      {
+        tag: "roles",
+        read: true,
+        description:
+          "Lists the workspace's roles with their system permissions, record type grants and whether any member holds them, as the Roles settings page and the roles of the MCP get_workspace_context tool show them. Supports searchTerm on the name, sortDescriptor with field type (system roles first, then by name) and pagination. Read one role with its record type catalog through /v1/roles/read, and assign a role to a member through /v1/members/update.",
+        requires:
+          "read access to users; without role management (edit access to users) only the caller's own role is listed.",
+        examples: {
+          default: { summary: "First page of roles", value: { pagination: { page: 1, pageSize: 25 } } },
+        },
       },
     ),
   },

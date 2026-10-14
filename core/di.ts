@@ -298,6 +298,7 @@ import { LinkedinSearchSalesCompaniesInteractor } from "@/ee/messaging/sales-nav
 import { LinkedinSearchSalesNavigatorInteractor } from "@/ee/messaging/sales-navigator/linkedin-search-sales-navigator.interactor";
 import { LinkedinSearchSalesPeopleInteractor } from "@/ee/messaging/sales-navigator/linkedin-search-sales-people.interactor";
 import { UpdateThreadInteractor } from "@/ee/messaging/thread-state/update-thread.interactor";
+import { UpdateThreadStateInteractor } from "@/ee/messaging/thread-state/update-thread-state.interactor";
 import { ProcessAccountAddWebhookInteractor } from "@/ee/messaging/webhooks/account/process-account-add-webhook.interactor";
 import { ProcessAccountReadyWebhookInteractor } from "@/ee/messaging/webhooks/account/process-account-ready-webhook.interactor";
 import { ProcessAccountReconnectWebhookInteractor } from "@/ee/messaging/webhooks/account/process-account-reconnect-webhook.interactor";
@@ -1509,6 +1510,8 @@ export const getGetUnreadThreadCountInteractor = () =>
 
 export const getUpdateThreadInteractor = () =>
   new UpdateThreadInteractor(getMessagingRepo(), getThreadIdsValidator(), getEntitlementService());
+
+export const getUpdateThreadStateInteractor = () => new UpdateThreadStateInteractor(getUpdateThreadInteractor());
 
 export const getListSocialPostsInteractor = () =>
   new ListSocialPostsInteractor(getConnectedAccountRepo(), getMessagingService(), getEntitlementService());

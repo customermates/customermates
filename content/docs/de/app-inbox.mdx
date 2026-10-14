@@ -129,7 +129,7 @@ Die Signatur gehört zu jedem E-Mail-Konto, das Ihnen gehört: Öffnen Sie unter
 
 ## Für Agents [#tips-for-agents]
 
-Bevorzugen Sie [MCP](/docs/mcp)-Tools gegenüber Klicks: `get_messaging_threads` liest Konversationen, `update_messaging_thread` setzt den Status, `move_email_thread` legt eine E-Mail ab (für eine aus dem privaten Kanal einer anderen Person geteilte Konversation schlägt es fehl), `send_email` und `send_chat_message` starten Konversationen, und `save_message_draft` (REST `POST /api/v1/messaging/drafts`) bereitet eine zur Prüfung vor; einen Entwurf senden oder verwerfen Sie mit seiner Nachrichten-Id und der aktuellen `draftRevision`. `resolve_record_identifiers` findet die Datensätze zu einer Adresse, `manage_conversation_records` liest und ändert die Datensätze einer einzelnen Konversation, und `mutate_crm_record` ändert die Kanäle eines Datensatzes.
+Bevorzugen Sie [MCP](/docs/mcp)-Tools gegenüber Klicks: `get_messaging_threads` liest Konversationen, `update_messaging_thread` setzt den Status (REST `POST /api/v1/messaging/threads/{id}/state`), `move_email_thread` legt eine E-Mail ab (REST `POST /api/v1/messaging/threads/{id}/move`; für eine aus dem privaten Kanal einer anderen Person geteilte Konversation schlägt es fehl), `send_email` und `send_chat_message` starten Konversationen, und `save_message_draft` (REST `POST /api/v1/messaging/drafts`) bereitet eine zur Prüfung vor; einen Entwurf senden oder verwerfen Sie mit seiner Nachrichten-Id und der aktuellen `draftRevision`. `resolve_record_identifiers` findet die Datensätze zu einer Adresse, `manage_conversation_records` liest und ändert die Datensätze einer einzelnen Konversation, und `mutate_crm_record` ändert die Kanäle eines Datensatzes.
 
 ## Verwandte Seiten [#related]
 

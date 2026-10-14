@@ -10,7 +10,7 @@ import { localE2eEnvironment } from "./local-environment";
 import { expect, test } from "./fixtures";
 import { createOpenApiValidator, type OpenApiDocument } from "../helpers/openapi-validator";
 
-test("serves saved views, widgets, model discovery and Trash reads over an API key as the OpenAPI document declares", async ({
+test("serves saved views, widgets, model discovery, Trash reads and roles over an API key as the OpenAPI document declares", async ({
   context,
   companyId,
 }) => {
@@ -244,6 +244,10 @@ test("serves saved views, widgets, model discovery and Trash reads over an API k
     expect(trashed.record.ref).toEqual(ref);
     expect(trashed.trash.canRestore).toBe(true);
 
+    const roles = await call("/v1/roles/list", { pagination: { page: 1, pageSize: 25 } });
+    expect(roles.items.length).toBeGreaterThan(0);
+    expect(roles.items.some((role: { isSystemRole: boolean }) => role.isSystemRole)).toBe(true);
+
     expect([...checked].sort()).toEqual(
       [
         "/v1/model/discover 200",
@@ -266,6 +270,7 @@ test("serves saved views, widgets, model discovery and Trash reads over an API k
         "/v1/widgets/delete 404",
         "/v1/trash/read 200",
         "/v1/trash/read 404",
+        "/v1/roles/list 200",
       ].sort(),
     );
   } finally {

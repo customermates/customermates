@@ -10,9 +10,12 @@ import { getCalendarEventsOperation } from "@/ee/calendar/get-calendar-events.op
 import { getCalendarsOperation } from "@/ee/calendar/get-calendars.openapi";
 import { getConnectedAccountsOperation } from "@/ee/messaging/connect/get-my-connected-accounts.openapi";
 import { connectedAccountSettingsApiPaths } from "@/ee/messaging/connect/connected-account-settings.openapi";
+import { createConnectLinkOperation } from "@/ee/messaging/connect/create-auth-link.openapi";
 import { GetMessagingThreadResultSchema } from "@/ee/messaging/inbox/get-messaging-thread.interactor";
 import { getMessagingThreadOperation } from "@/ee/messaging/inbox/get-messaging-thread.openapi";
 import { getMessagingThreadsOperation } from "@/ee/messaging/inbox/get-messaging-threads.openapi";
+import { moveEmailThreadOperation } from "@/ee/messaging/inbox/move-email-thread.openapi";
+import { updateMessagingThreadStateOperation } from "@/ee/messaging/thread-state/update-thread.openapi";
 import { ConnectedAccountDtoSchema, MessagingThreadSchema } from "@/ee/messaging/messaging.schema";
 import { discardDraftOperation } from "@/ee/messaging/outbound/discard-draft.openapi";
 import { saveDraftOperation, saveNewThreadDraftOperation } from "@/ee/messaging/outbound/save-draft.openapi";
@@ -93,6 +96,7 @@ import { getWebhookOperation } from "@/features/webhook/get-webhook.openapi";
 import {
   listWebhookDeliveriesOperation,
   listWebhooksOperation,
+  listWorkspaceWebhookDeliveriesOperation,
   resendWebhookDeliveryOperation,
   updateWebhookOperation,
 } from "@/features/webhook/webhook-rest.openapi";
@@ -140,6 +144,9 @@ export function generateOpenApiSpec() {
         get: listWebhooksOperation,
         post: createWebhookOperation,
       },
+      "/v1/webhooks/deliveries": {
+        get: listWorkspaceWebhookDeliveriesOperation,
+      },
       "/v1/webhooks/{id}": {
         get: getWebhookOperation,
         patch: updateWebhookOperation,
@@ -154,6 +161,9 @@ export function generateOpenApiSpec() {
       "/v1/messaging/connected-accounts": {
         get: getConnectedAccountsOperation,
       },
+      "/v1/messaging/connected-accounts/connect-link": {
+        post: createConnectLinkOperation,
+      },
       "/v1/messaging/threads/search": {
         post: getMessagingThreadsOperation,
       },
@@ -162,6 +172,12 @@ export function generateOpenApiSpec() {
       },
       "/v1/messaging/threads/{id}/messages": {
         post: sendChatMessageOperation,
+      },
+      "/v1/messaging/threads/{id}/state": {
+        post: updateMessagingThreadStateOperation,
+      },
+      "/v1/messaging/threads/{id}/move": {
+        post: moveEmailThreadOperation,
       },
       "/v1/messaging/calendars/search": {
         post: getCalendarsOperation,

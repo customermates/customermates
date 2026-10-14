@@ -137,6 +137,28 @@ export const listWebhookDeliveriesOperation: ZodOpenApiOperationObject = {
   },
 };
 
+export const listWorkspaceWebhookDeliveriesOperation: ZodOpenApiOperationObject = {
+  operationId: "listWorkspaceWebhookDeliveries",
+  summary: "List deliveries across all webhooks",
+  description:
+    "Lists the deliveries of every webhook in the workspace newest first, as the Deliveries page shows them, with status, response code and the delivered body. searchTerm matches url and event name. The deliveries of a single webhook come from `GET /v1/webhooks/{id}/deliveries`. Requires: read all permission on the API.",
+  tags: ["webhooks"],
+  security: [{ apiKeyAuth: [] }],
+  requestParams: { query: ListQueryParamsSchema },
+  responses: {
+    "200": {
+      description: "One page of deliveries.",
+      content: {
+        "application/json": {
+          schema: createGetResultSchema(WebhookDeliveryDtoSchema),
+          example: { items: [exampleDelivery], pagination: { page: 1, pageSize: 25, totalPages: 1, total: 1 } },
+        },
+      },
+    },
+    ...StructuredApiResponses,
+  },
+};
+
 export const resendWebhookDeliveryOperation: ZodOpenApiOperationObject = {
   operationId: "resendWebhookDelivery",
   summary: "Resend a webhook delivery",

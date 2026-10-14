@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { ForbiddenError } from "@/core/errors/app-errors";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { createZodError } from "@/core/validation/validation.utils";
 
@@ -12,6 +13,7 @@ const interactors = vi.hoisted(() => ({
   getRecordModel: vi.fn(),
   discoverRecordTypes: vi.fn(),
   getTrashedRecord: vi.fn(),
+  listRoles: vi.fn(),
 }));
 
 vi.mock("@/core/di", () => ({
@@ -22,6 +24,7 @@ vi.mock("@/core/di", () => ({
   getGetRecordModelInteractor: () => ({ invoke: interactors.getRecordModel }),
   getDiscoverRecordTypesInteractor: () => ({ invoke: interactors.discoverRecordTypes }),
   getGetTrashedRecordInteractor: () => ({ invoke: interactors.getTrashedRecord }),
+  getGetRolesApiInteractor: () => ({ invoke: interactors.listRoles }),
 }));
 
 import { POST as surfaces } from "../data-views/surfaces/route";
@@ -39,6 +42,7 @@ import { POST as layoutWidgets } from "../widgets/layout/route";
 import { POST as readModel } from "../model/read/route";
 import { POST as discoverModel } from "../model/discover/route";
 import { POST as readTrashed } from "../trash/read/route";
+import { POST as listRoles } from "../roles/list/route";
 
 const ID = "00000000-0000-4000-8000-000000000001";
 
@@ -164,5 +168,31 @@ describe("model and Trash REST routes", () => {
       record: null,
     });
     expect((await readTrashed(request({ typeId: ID, recordId: ID }))).status).toBe(404);
+  });
+});
+
+describe("role REST routes", () => {
+  it("lists roles through the API roles interactor with the query body unchanged", async () => {
+    const page = {
+      items: [{ id: ID, name: "Sales", isSystemRole: false, permissions: [], hasUsersAssigned: true }],
+      pagination: { page: 1, pageSize: 25, totalPages: 1, total: 1 },
+    };
+    interactors.listRoles.mockResolvedValue({ ok: true, data: page });
+    const query = { searchTerm: "Sales", pagination: { page: 1, pageSize: 25 } };
+
+    const response = await listRoles(request(query));
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual(page);
+    expect(interactors.listRoles).toHaveBeenCalledExactlyOnceWith(query);
+  });
+
+  it("answers 403 without read access to users", async () => {
+    interactors.listRoles.mockRejectedValue(new ForbiddenError());
+
+    const response = await listRoles(request({}));
+
+    expect(response.status).toBe(403);
+    expect(await response.json()).toMatchObject({ error: { kind: "authorization" } });
   });
 });

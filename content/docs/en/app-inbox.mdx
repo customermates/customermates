@@ -129,7 +129,7 @@ The signature belongs to each email account you own: on [Channels](app:settings/
 
 ## For agents [#tips-for-agents]
 
-Prefer [MCP](/docs/mcp) tools over clicking: `get_messaging_threads` reads conversations, `update_messaging_thread` sets the state, `move_email_thread` files an email (it fails for a conversation shared from someone else's private channel), `send_email` and `send_chat_message` start conversations, and `save_message_draft` (REST `POST /api/v1/messaging/drafts`) prepares one for review; send or discard a draft with its message id and current `draftRevision`. `resolve_record_identifiers` finds the records that match an address, `manage_conversation_records` reads and changes the records linked to one conversation, and `mutate_crm_record` changes a record's Channels.
+Prefer [MCP](/docs/mcp) tools over clicking: `get_messaging_threads` reads conversations, `update_messaging_thread` sets the state (REST `POST /api/v1/messaging/threads/{id}/state`), `move_email_thread` files an email (REST `POST /api/v1/messaging/threads/{id}/move`; it fails for a conversation shared from someone else's private channel), `send_email` and `send_chat_message` start conversations, and `save_message_draft` (REST `POST /api/v1/messaging/drafts`) prepares one for review; send or discard a draft with its message id and current `draftRevision`. `resolve_record_identifiers` finds the records that match an address, `manage_conversation_records` reads and changes the records linked to one conversation, and `mutate_crm_record` changes a record's Channels.
 
 ## Related [#related]
 

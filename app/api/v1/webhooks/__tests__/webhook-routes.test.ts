@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { StructuredErrorResponseSchema } from "@/core/api/structured-interactor-handler";
+import { ForbiddenError } from "@/core/errors/app-errors";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { createZodError } from "@/core/validation/validation.utils";
 
@@ -9,6 +10,7 @@ const interactors = vi.hoisted(() => ({
   list: vi.fn(),
   upsert: vi.fn(),
   deliveries: vi.fn(),
+  workspaceDeliveries: vi.fn(),
   resend: vi.fn(),
 }));
 
@@ -18,12 +20,14 @@ vi.mock("@/core/di", () => ({
   getGetWebhookByIdInteractor: () => ({ invoke: vi.fn() }),
   getDeleteWebhookInteractor: () => ({ invoke: vi.fn() }),
   getGetWebhookDeliveriesByWebhookInteractor: () => ({ invoke: interactors.deliveries }),
+  getGetWebhookDeliveriesApiInteractor: () => ({ invoke: interactors.workspaceDeliveries }),
   getResendWebhookDeliveryInteractor: () => ({ invoke: interactors.resend }),
 }));
 
 import { GET as listWebhooks } from "../route";
 import { PATCH as updateWebhook } from "../[id]/route";
 import { GET as listDeliveries } from "../[id]/deliveries/route";
+import { GET as listWorkspaceDeliveries } from "../deliveries/route";
 import { POST as resendDelivery } from "../[id]/deliveries/[deliveryId]/resend/route";
 
 const ID = "00000000-0000-4000-8000-000000000001";
@@ -140,6 +144,36 @@ describe("webhook REST routes", () => {
 
     expect(response.status).toBe(404);
     expect(StructuredErrorResponseSchema.parse(await response.json()).error.kind).toBe("not_found");
+  });
+
+  it("lists deliveries across all webhooks from query parameters without a webhook filter", async () => {
+    const delivery = { id: DELIVERY_ID, url: "https://hooks.example.com/a", event: "record.created" };
+    interactors.workspaceDeliveries.mockResolvedValue({
+      ok: true,
+      data: { items: [delivery], pagination: { page: 1, pageSize: 5, totalPages: 1, total: 1 } },
+    });
+
+    const response = await listWorkspaceDeliveries(
+      request("/deliveries?pageSize=5&searchTerm=record&sortField=createdAt&sortDirection=desc", "GET"),
+    );
+
+    expect(interactors.workspaceDeliveries).toHaveBeenCalledExactlyOnceWith({
+      searchTerm: "record",
+      pagination: { page: 1, pageSize: 5 },
+      sortDescriptor: { field: "createdAt", direction: "desc" },
+    });
+    expect(interactors.deliveries).not.toHaveBeenCalled();
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ items: [delivery] });
+  });
+
+  it("answers 403 on the workspace deliveries without read all permission on the API", async () => {
+    interactors.workspaceDeliveries.mockRejectedValue(new ForbiddenError());
+
+    const response = await listWorkspaceDeliveries(request("/deliveries", "GET"));
+
+    expect(response.status).toBe(403);
+    expect(StructuredErrorResponseSchema.parse(await response.json()).error.kind).toBe("authorization");
   });
 
   it("resends a delivery scoped to its webhook and reports the new delivery", async () => {

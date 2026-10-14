@@ -28,7 +28,7 @@ Wenn eine andere Änderung im Workspace die Schreibsperre hält, antwortet die W
 
 Wenn Sie in [Konfigurieren](app:configure) ein Feld löschen, entfernt Customermates Filter, Spalten, Sortierung und Gruppierung gespeicherter Ansichten, die es verwenden. Vorschau und Ergebnis der Löschung nennen betroffene Ansichten und Widgets. Das Wiederherstellen des Felds bringt diese Einstellungen nicht zurück. Wenn Sie danach eine gespeicherte Ansicht wiederherstellen, nennt `droppedViewReferences` die entfernten Einstellungen; die Papierkorbmeldung zeigt ihre Anzahl. Legen Sie die Einstellungen nach dem Wiederherstellen des Felds erneut an.
 
-Ein gelöschter Datensatz, den Sie aus dem Papierkorb öffnen, wird schreibgeschützt mit dem Hinweis **Im Papierkorb** und der Schaltfläche **Wiederherstellen** angezeigt; auch seine **Aktivitäten** lassen sich dort lesen, aber nicht ändern. Über REST listet `POST /api/v1/trash/query` die Elemente im Papierkorb, und `POST /api/v1/trash/read` liefert dieselbe schreibgeschützte Ansicht eines gelöschten Datensatzes.
+Ein gelöschter Datensatz, den Sie aus dem Papierkorb öffnen, wird schreibgeschützt mit dem Hinweis **Im Papierkorb** und der Schaltfläche **Wiederherstellen** angezeigt; auch seine **Aktivitäten** lassen sich dort lesen, aber nicht ändern. Über REST listet `POST /api/v1/trash/query` die Elemente im Papierkorb, und `POST /api/v1/trash/read` liefert dieselbe schreibgeschützte Ansicht eines gelöschten Datensatzes; über MCP listet `read_trash` sie und öffnet mit `action: "read"` sowie `typeId` und `recordId` des Datensatzes einen davon auf dieselbe Weise.
 
 ## Was passiert, wenn ich einen Link zu einer gelöschten Liste oder Ansicht öffne? [#links-to-deleted-items]
 

@@ -243,9 +243,9 @@ Pflicht: `operationId`.
 
 #### `read_trash`
 
-Gelöschte Elemente im Papierkorb auflisten, neueste zuerst, mit Angabe, wer sie wann gelöscht hat und wie viele Tage bleiben, bis sie endgültig gelöscht werden. Nach Art, Liste und Name filtern. Aufgelistet wird nur, was Sie sehen und löschen könnten; Administratoren sehen alles außer den gespeicherten Ansichten und Widgets anderer Mitglieder, die persönlich bleiben.
+Gelöschte Elemente im Papierkorb auflisten, neueste zuerst, mit Angabe, wer sie wann gelöscht hat und wie viele Tage bleiben, bis sie endgültig gelöscht werden. Nach Art, Liste und Name filtern. Aufgelistet wird nur, was Sie sehen und löschen könnten; Administratoren sehen alles außer den gespeicherten Ansichten und Widgets anderer Mitglieder, die persönlich bleiben. Mit action read und typeId und recordId eines Datensatzes einen gelöschten Datensatz schreibgeschützt öffnen, wie ihn die Papierkorb-Vorschau zeigt: seine Werte und verknüpften Datensätze zum Zeitpunkt der Löschung, die Felder seiner Liste und sein Papierkorb-Element.
 
-**Nur lesend.** Optional: `kinds`, `itemIds`, `typeIds`, `search`, `sortDescriptor`, `page`, `pageSize`.
+**Nur lesend.** Optional: `kinds`, `itemIds`, `typeIds`, `search`, `sortDescriptor`, `page`, `pageSize`, `action`, `typeId`, `recordId`.
 
 #### `manage_trash`
 

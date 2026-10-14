@@ -37,7 +37,7 @@ import { SaveDraftSchema } from "@/ee/messaging/outbound/save-draft.interactor";
 import { DiscardDraftSchema } from "@/ee/messaging/outbound/discard-draft.interactor";
 import { MessagingAttendeeSchema } from "@/ee/messaging/messaging.schema";
 
-import { UpdateThreadSchema } from "@/ee/messaging/thread-state/update-thread.interactor";
+import { UpdateThreadStateSchema } from "@/ee/messaging/thread-state/update-thread.interactor";
 import {
   getGetMessagingThreadsApiInteractor,
   getGetMessagingThreadInteractor,
@@ -635,11 +635,6 @@ export const discardMessageDraftTool = {
     ),
 };
 
-const UpdateMessagingThreadSchema = UpdateThreadSchema.pick({
-  threadId: true,
-  state: true,
-}).required({ state: true });
-
 export const updateMessagingThreadTool = {
   name: "update_messaging_thread",
   title: "Update messaging thread",
@@ -655,9 +650,9 @@ export const updateMessagingThreadTool = {
     destructiveHint: false,
     openWorldHint: false,
   },
-  inputSchema: UpdateMessagingThreadSchema,
+  inputSchema: UpdateThreadStateSchema,
   outputSchema: UpdateMessagingThreadOutputSchema,
-  execute: (params: z.infer<typeof UpdateMessagingThreadSchema>) =>
+  execute: (params: z.infer<typeof UpdateThreadStateSchema>) =>
     runInteractor(
       getUpdateThreadInteractor().invoke(params),
       () => `Thread ${params.threadId} set to ${params.state}`,
