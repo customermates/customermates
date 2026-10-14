@@ -107,6 +107,7 @@ export const domTestFiles = [
   "components/scroll/__tests__/messages-scroll-container.test.ts",
   "components/shared/__tests__/overflow-rail.test.ts",
   "components/layout/__tests__/resizable-panels.test.ts",
+  "components/ui/__tests__/sidebar-resize.dom.test.ts",
   "components/shared/__tests__/use-p13n-column-widths.test.ts",
   "components/shared/__tests__/unexpected-error-toaster.test.ts",
   "core/stores/__tests__/root-store-provider.test.ts",

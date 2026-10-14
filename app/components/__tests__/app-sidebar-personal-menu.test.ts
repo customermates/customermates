@@ -37,6 +37,7 @@ vi.mock("@/components/ui/sidebar", () => ({
   Sidebar: ({ children }: { children: unknown }) => children,
   SidebarContent: ({ children }: { children: unknown }) => children,
   SidebarFooter: ({ children }: { children: unknown }) => children,
+  SidebarResizeHandle: () => null,
   useSidebar: () => ({ isMobile: false, setOpenMobile: vi.fn() }),
 }));
 vi.mock("@/components/modal", () => ({ AppModal: () => null }));

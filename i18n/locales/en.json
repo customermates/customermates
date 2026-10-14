@@ -1554,6 +1554,7 @@
     },
     "sidebar": {
       "description": "Displays the mobile sidebar.",
+      "resize": "Resize sidebar. Drag or use arrow keys to resize; double-click or press Enter to reset.",
       "title": "Sidebar",
       "toggle": "Toggle sidebar"
     },
