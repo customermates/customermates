@@ -19,7 +19,7 @@ import {
 import { untrustedText, withUntrustedRecordText } from "./untrusted-record-content";
 
 import { threadFolder } from "./thread-folder";
-import { MoveEmailThreadSchema } from "@/ee/messaging/inbox/move-email-thread.interactor";
+import { MoveEmailThreadResultSchema, MoveEmailThreadSchema } from "@/ee/messaging/inbox/move-email-thread.interactor";
 
 import { FilterableFieldSchema, GetQueryParamsSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
 import { filterFieldAgentNote, filterFieldsHint } from "@/core/types/filter-field-value-kind";
@@ -222,17 +222,6 @@ const SendEmailOutputSchema = z.object({ sent: z.literal(true), threadId: z.stri
 const SaveDraftOutputSchema = z.object({ draftMessageId: z.string(), draftRevision: z.string(), threadId: z.string() });
 const DiscardDraftOutputSchema = z.object({ discarded: z.boolean(), threadId: z.string().nullable() });
 const UpdateMessagingThreadOutputSchema = z.object({ threadId: z.string(), state: z.string() });
-const MoveEmailThreadOutputSchema = z.object({
-  threadId: z.string(),
-  folderId: z.string(),
-  folderName: z.string(),
-  movedCount: z.number(),
-  skippedCount: z.number(),
-  failedCount: z.number(),
-  hiddenFromInbox: z.boolean(),
-  rateLimited: z.boolean(),
-  retryAfter: z.string().optional(),
-});
 const ConnectMessagingAccountOutputSchema = z.object({
   url: z.string().describe("Single-use hosted auth link, expires in 30 minutes"),
 });
@@ -702,7 +691,7 @@ export const moveEmailThreadTool = {
     "Emails moved outside watched folders disappear from the inbox; other visible emails keep the conversation available.",
   annotations: { readOnlyHint: false, idempotentHint: true, destructiveHint: false, openWorldHint: true },
   inputSchema: MoveEmailThreadSchema,
-  outputSchema: MoveEmailThreadOutputSchema,
+  outputSchema: MoveEmailThreadResultSchema,
   execute: (params: z.infer<typeof MoveEmailThreadSchema>) =>
     runInteractor(
       getMoveEmailThreadInteractor().invoke(params),

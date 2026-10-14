@@ -48,7 +48,7 @@ export type ViewDeleteNotice = { message: string; details: string[] };
 
 export function useViewCommands<E extends HasId>(args: {
   closeMeta: () => void;
-  deleteNotice?: (view: DataViewChipDto) => ViewDeleteNotice;
+  deleteNotice?: (view: DataViewChipDto) => Promise<ViewDeleteNotice>;
   openMeta: (draft: ViewMetaDraft) => void;
   pathname: string;
   store: BaseDataViewStore<E>;
@@ -89,27 +89,28 @@ export function useViewCommands<E extends HasId>(args: {
 
     move: (view, offset) => runUserAction(() => moveView(store, view, offset)),
 
-    remove: (view) => {
-      const rail = owningRail();
-      const focusAfterConfirm = () => {
-        if (!rail || owningRail() !== rail) return false;
-        const target = usableOverlayFocusTarget(rail.querySelector("#global-data-views-all"));
-        if (!target || !rail.contains(target)) return false;
-        return focusOverlayTarget(captureOverlayFocusTarget(target));
-      };
-      const onConfirm = () => deleteView(store, view);
-      const onRestored = () => store.refresh();
-      const notice = deleteNotice?.(view);
-      if (notice) {
-        showConfirmation({
-          title: t("Common.deleteConfirmation.title"),
-          ...notice,
-          focusAfterConfirm,
-          onConfirm,
-          onRestored,
-        });
-      } else showTrashConfirmation(onConfirm, view.name, focusAfterConfirm, onRestored);
-    },
+    remove: (view) =>
+      runUserAction(async () => {
+        const rail = owningRail();
+        const focusAfterConfirm = () => {
+          if (!rail || owningRail() !== rail) return false;
+          const target = usableOverlayFocusTarget(rail.querySelector("#global-data-views-all"));
+          if (!target || !rail.contains(target)) return false;
+          return focusOverlayTarget(captureOverlayFocusTarget(target));
+        };
+        const onConfirm = () => deleteView(store, view);
+        const onRestored = () => store.refresh();
+        const notice = await deleteNotice?.(view);
+        if (notice) {
+          showConfirmation({
+            title: t("Common.deleteConfirmation.title"),
+            ...notice,
+            focusAfterConfirm,
+            onConfirm,
+            onRestored,
+          });
+        } else showTrashConfirmation(onConfirm, view.name, focusAfterConfirm, onRestored);
+      }),
 
     select: (viewKey) => runUserAction(() => selectView(store, viewKey, pathname)),
 

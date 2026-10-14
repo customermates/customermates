@@ -21,7 +21,7 @@ export type ViewMetaMode = "create" | "duplicate" | "edit";
 
 const FORM_ID = "view-editor-form";
 
-export const VIEW_META_NAME_INPUT_ID = "view-editor-name";
+const VIEW_META_NAME_INPUT_ID = "view-editor-name";
 
 type Props = {
   mode: ViewMetaMode;

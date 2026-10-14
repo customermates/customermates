@@ -305,6 +305,12 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
     return refreshWidgetsAction(params?.viewId);
   }
 
+  async widgetNamesOfView(viewId: string): Promise<string[]> {
+    if (this.activeViewKey === viewId) return this.items.map((widget) => widget.name);
+    const dashboard = await refreshWidgetsAction(viewId);
+    return dashboard.activeViewKey === viewId ? dashboard.items.map((widget) => widget.name) : [];
+  }
+
   private normalizeLayouts(layouts: ResponsiveLayouts): UpdateWidgetLayoutsData["layouts"] {
     const payload: UpdateWidgetLayoutsData["layouts"] = { xs: [], sm: [], md: [], lg: [] };
 

@@ -18,8 +18,16 @@ test("configures a role for a new type, preserves granular rights after rename a
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
   expect(typeId).toBeTruthy();
   await page.goto("/en/settings/roles");
-  await page.locator("#settings-roles-add").click();
   const role = page.getByRole("dialog", { name: "Role", exact: true });
+  await page.getByRole("button", { name: "Admin", exact: true }).click();
+  await expect(role.getByText("This is a system role and cannot be edited or deleted.", { exact: true })).toBeVisible();
+  const locked = role.locator('[role="checkbox"], [role="radio"]');
+  await expect(role.locator(`[data-record-permission="${typeId}"]`).getByRole("radio").first()).toBeVisible();
+  for (const control of await locked.all()) await expect(control).toBeDisabled();
+  await expect(role.getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
+  await page.keyboard.press("Escape");
+  await expect(role).not.toBeVisible();
+  await page.locator("#settings-roles-add").click();
   await role.getByRole("textbox", { name: "Name", exact: false }).fill("Project coordinators");
   await role.getByRole("textbox", { name: "Description", exact: false }).fill("Create and read assigned projects");
   const projectGrant = role.locator(`[data-record-permission="${typeId}"]`);

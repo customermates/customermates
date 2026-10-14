@@ -6,6 +6,7 @@ import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { expect, test, collectPageErrors } from "./fixtures";
+import { openItemContextMenu } from "./item-actions";
 
 async function revision(page: Page) {
   const response = await page.request.post("/api/v1/model/read", {
@@ -174,5 +175,102 @@ test("keeps separate widget sets per dashboard view and targets a view through t
   await expect(
     page.getByRole("heading", { name: "Berlin starter", exact: true }),
   ).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("names the widgets of a view that is not shown and renames it from its chip context menu", async ({
+  page,
+  database,
+  companyId,
+}) => {
+  test.setTimeout(240000);
+  const errors = collectPageErrors(page);
+  const dialog = page.getByRole("dialog");
+  const rail = page.locator("[data-joins-top-bar]");
+  await page.goto("/en/dashboard");
+  await expect(rail).toBeVisible();
+  await rail
+    .getByRole("button", {
+      name: englishMessages.DataView.views.createTitle,
+      exact: true,
+    })
+    .click();
+  await page
+    .getByPlaceholder(englishMessages.DataView.views.namePlaceholder)
+    .fill("Site Hamburg");
+  await page
+    .getByRole("button", {
+      name: englishMessages.Common.actions.save,
+      exact: true,
+    })
+    .click();
+  await expect(page).toHaveURL(/[?&]view=[0-9a-f-]{36}/);
+  const viewId = new URL(page.url()).searchParams.get("view");
+  await page.locator("#dashboard-add-widget").click();
+  await dialog.locator("#widget-starter-number").click();
+  await dialog
+    .getByRole("textbox", { name: "Name", exact: false })
+    .fill("Hamburg starter");
+  await dialog.locator("#widget-modal-save").click();
+  await expect(dialog).toHaveCount(0);
+  await rail
+    .getByText(englishMessages.Dashboard.mainView, { exact: true })
+    .click();
+  await expect(page).not.toHaveURL(/[?&]view=/);
+  const chip = rail.getByRole("link", { name: "Site Hamburg", exact: true });
+
+  const deleteMenu = await openItemContextMenu(page, chip);
+  await deleteMenu
+    .getByRole("menuitem", {
+      name: englishMessages.DataView.views.delete,
+      exact: true,
+    })
+    .click();
+  const confirm = page.getByRole("alertdialog");
+  await expect(confirm).toContainText(
+    'Delete "Site Hamburg"? Its widget moves to Trash with it:',
+  );
+  await expect(
+    confirm.locator("[data-delete-confirmation-details] li"),
+  ).toHaveText(["Hamburg starter"]);
+  await confirm
+    .getByRole("button", {
+      name: englishMessages.Common.actions.cancel,
+      exact: true,
+    })
+    .click();
+  await expect(confirm).toHaveCount(0);
+
+  const editMenu = await openItemContextMenu(page, chip);
+  await editMenu
+    .getByRole("menuitem", {
+      name: englishMessages.DataView.views.editTitle,
+      exact: true,
+    })
+    .click();
+  const name = page.locator("#view-editor-name");
+  await expect(name).toBeVisible();
+  await expect(name).toHaveValue("Site Hamburg");
+  await name.fill("Site Bremen");
+  await page
+    .getByRole("button", {
+      name: englishMessages.Common.actions.save,
+      exact: true,
+    })
+    .click();
+  await expect(name).toHaveCount(0);
+  await expect(
+    rail.getByRole("link", { name: "Site Bremen", exact: true }),
+  ).toBeVisible();
+  await expect
+    .poll(async () =>
+      (
+        await database.query(
+          'SELECT name FROM "DataView" WHERE "companyId"=$1 AND id=$2',
+          [companyId, viewId],
+        )
+      ).rows,
+    )
+    .toEqual([{ name: "Site Bremen" }]);
   expect(errors).toEqual([]);
 });

@@ -59,8 +59,11 @@ export const MoveEmailThreadResultSchema = z.object({
   hiddenFromInbox: z.boolean(),
   rateLimited: z.boolean(),
   retryAfter: z.string().optional(),
-  stoppedReason: z.string().optional(),
-  stoppedMessage: z.string().optional(),
+  stoppedReason: z
+    .string()
+    .optional()
+    .describe("Error code when the provider stopped the move part way for a reason other than a rate limit"),
+  stoppedMessage: z.string().optional().describe("Readable explanation of stoppedReason"),
 });
 type MoveEmailThreadResult = Data<typeof MoveEmailThreadResultSchema>;
 

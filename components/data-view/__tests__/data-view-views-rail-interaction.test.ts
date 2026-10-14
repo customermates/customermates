@@ -28,6 +28,7 @@ const harness = vi.hoisted(() => ({
   appMode: { current: "cloud" as "cloud" | "demo" | "self-hosted" },
   calls: [] as string[],
   confirmations: [] as { entityName?: string; onConfirm: () => Promise<boolean>; focusAfterConfirm?: () => boolean }[],
+  notices: [] as { message: string; details: string[] }[],
   deleteDataViewAction: vi.fn(),
   menuOpen: false,
   menuCloseAutoFocus: { current: undefined as ((event: Event) => void) | undefined },
@@ -66,6 +67,7 @@ vi.mock("@/app/actions", () => ({
 }));
 vi.mock("@/components/modal/hooks/use-delete-confirmation", () => ({
   useDeleteConfirmation: () => ({
+    showConfirmation: (notice: { message: string; details: string[] }) => harness.notices.push(notice),
     showTrashConfirmation: (
       onConfirm: () => Promise<boolean>,
       entityName?: string,
@@ -240,6 +242,13 @@ function byText(host: HTMLElement, text: string): HTMLButtonElement {
   return found;
 }
 
+function chooseFromMenu(host: HTMLElement, text: string): Event {
+  act(() => byText(host, text).click());
+  const closed = new Event("closeAutoFocus", { cancelable: true });
+  act(() => harness.menuCloseAutoFocus.current?.(closed));
+  return closed;
+}
+
 // eslint-disable-next-line @typescript-eslint/unbound-method -- the prototype setter must bypass React's value tracker so the controlled input sees the change
 const setNativeInputValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set as
   | ((this: HTMLInputElement, value: string) => void)
@@ -293,6 +302,7 @@ beforeEach(() => {
   harness.appMode.current = "cloud";
   harness.calls.length = 0;
   harness.confirmations.length = 0;
+  harness.notices.length = 0;
   harness.deleteDataViewAction
     .mockReset()
     .mockResolvedValue({ data: { id: "v-a", trashBatchId: TRASH_BATCH_ID }, ok: true });
@@ -440,6 +450,10 @@ describe("data view rail interaction", () => {
   it.each(["DataView.views.editTitle", "DataView.views.duplicate"])("keeps %s on its existing manual flow", (label) => {
     const host = render(store({ activeViewKey: OPEN.id }));
     act(() => byText(host, label).click());
+    expect(host.querySelector("#view-editor-name")).toBeNull();
+    const closed = new Event("closeAutoFocus", { cancelable: true });
+    act(() => harness.menuCloseAutoFocus.current?.(closed));
+    expect(closed.defaultPrevented).toBe(true);
     expect(host.querySelector("#view-editor-name")).not.toBeNull();
     expect(host.querySelector("#view-editor-ai")).toBeNull();
   });
@@ -447,7 +461,7 @@ describe("data view rail interaction", () => {
   it("asks about the saved view while editing without applying an unfinished rename", () => {
     const value = store({ activeViewKey: OPEN.id });
     const host = render(value);
-    act(() => byText(host, "DataView.views.editTitle").click());
+    chooseFromMenu(host, "DataView.views.editTitle");
     typeInto(host.querySelector<HTMLInputElement>("#view-editor-name"), "Unfinished name");
     act(() => host.querySelector<HTMLButtonElement>("#view-editor-ask-ai")?.click());
     expect(host.querySelector("#view-editor-name")).toBeNull();
@@ -697,7 +711,7 @@ describe("data view rail interaction", () => {
     >);
     const host = render(value);
 
-    act(() => byText(host, "DataView.views.duplicate").click());
+    chooseFromMenu(host, "DataView.views.duplicate");
 
     const input = host.querySelector<HTMLInputElement>("#view-editor-name");
     expect(input?.value).toBe("DataView.views.duplicateName(DataView.views.all)");
@@ -727,24 +741,24 @@ describe("data view rail interaction", () => {
     expect(host.querySelector("[data-view-draft]")).toBeNull();
   });
 
-  it("keeps the closing menu from dismissing the overlay it just opened, and lands focus in the name field", () => {
+  it("opens the overlay only once the menu has closed, so the closing menu cannot dismiss it, and focuses the name", () => {
     const host = render(store());
 
     act(() => byText(host, "DataView.views.duplicate").click());
 
-    const input = host.querySelector<HTMLInputElement>("#view-editor-name");
-    expect(input).not.toBeNull();
-
+    expect(host.querySelector("#view-editor-name"), "the editor waits until the menu has closed").toBeNull();
     const close = harness.menuCloseAutoFocus.current;
     expect(
       close,
-      "the menu must handle its own close focus, or Radix returns focus to the trigger and dismisses the overlay",
+      "the menu must hand off its close focus, or Radix returns focus to the trigger and dismisses the overlay",
     ).toBeTypeOf("function");
 
     const event = new Event("closeAutoFocus", { cancelable: true });
     act(() => close?.(event));
 
     expect(event.defaultPrevented).toBe(true);
+    const input = host.querySelector<HTMLInputElement>("#view-editor-name");
+    expect(input).not.toBeNull();
     expect(document.activeElement).toBe(input);
   });
 
@@ -765,7 +779,7 @@ describe("data view rail interaction", () => {
     const value = store({ activeViewKey: "v-c" });
     const host = render(value);
 
-    act(() => byText(host, "DataView.views.editTitle").click());
+    chooseFromMenu(host, "DataView.views.editTitle");
 
     const input = host.querySelector<HTMLInputElement>("#view-editor-name");
     expect(input?.value).toBe("Closing");
@@ -814,7 +828,7 @@ describe("data view rail interaction", () => {
     } as unknown as Partial<BaseDataViewStore<Item>>);
     const host = render(value);
 
-    act(() => byText(host, "DataView.views.editTitle").click());
+    chooseFromMenu(host, "DataView.views.editTitle");
     typeInto(host.querySelector<HTMLInputElement>("#view-editor-name"), "Won deals");
     await submitMetaForm(host);
 
@@ -828,7 +842,10 @@ describe("data view rail interaction", () => {
     const value = store({ activeViewKey: "v-a" });
     const host = render(value);
 
-    act(() => byText(host, "DataView.views.delete").click());
+    await act(async () => {
+      byText(host, "DataView.views.delete").click();
+      await Promise.resolve();
+    });
 
     expect(harness.deleteDataViewAction).not.toHaveBeenCalled();
     expect(harness.confirmations).toHaveLength(1);
@@ -868,7 +885,10 @@ describe("data view rail interaction", () => {
     });
     const owningRail = host.querySelector<HTMLElement>("[data-child-rail]");
     if (!owningRail) throw new Error("Expected mounted child rail");
-    act(() => byText(owningRail, "DataView.views.delete").click());
+    await act(async () => {
+      byText(owningRail, "DataView.views.delete").click();
+      await Promise.resolve();
+    });
     await act(async () => {
       expect(await harness.confirmations[0].onConfirm()).toEqual({ trashBatchId: TRASH_BATCH_ID });
     });
@@ -895,7 +915,10 @@ describe("data view rail interaction", () => {
           finish = resolve;
         }),
     );
-    act(() => byText(host, "DataView.views.delete").click());
+    await act(async () => {
+      byText(host, "DataView.views.delete").click();
+      await Promise.resolve();
+    });
     const pending = harness.confirmations[0].onConfirm();
     const replacement = store({ p13nId: SURFACE.entityTimeline, viewSyncToUrl: false });
     act(() => root?.render(createElement(DataViewViewsRail<Item>, { store: replacement })));
@@ -909,6 +932,36 @@ describe("data view rail interaction", () => {
     expect(harness.confirmations[0].focusAfterConfirm?.()).toBe(false);
     expect(document.activeElement).not.toBe(all);
     expect(replacement.applyView).not.toHaveBeenCalled();
+  });
+
+  it("waits for the delete notice of the chosen view before asking to confirm", async () => {
+    let answer!: (notice: { message: string; details: string[] }) => void;
+    const deleteNotice = vi.fn(
+      () =>
+        new Promise<{ message: string; details: string[] }>((resolve) => {
+          answer = resolve;
+        }),
+    );
+    const host = render(store({ activeViewKey: "v-a" }));
+    act(() => {
+      root?.render(createElement(DataViewViewsRail<Item>, { deleteNotice, store: store({ activeViewKey: "v-a" }) }));
+    });
+
+    await act(async () => {
+      byText(host, "DataView.views.delete").click();
+      await Promise.resolve();
+    });
+
+    expect(deleteNotice).toHaveBeenCalledExactlyOnceWith(ADA);
+    expect(harness.notices).toEqual([]);
+    await act(async () => {
+      answer({ message: "Its widget moves to Trash with it:", details: ["Berlin starter"] });
+      await Promise.resolve();
+    });
+    expect(harness.notices).toEqual([
+      expect.objectContaining({ message: "Its widget moves to Trash with it:", details: ["Berlin starter"] }),
+    ]);
+    expect(harness.confirmations).toEqual([]);
   });
 
   it("swaps positions with the neighbouring view when reordering", async () => {

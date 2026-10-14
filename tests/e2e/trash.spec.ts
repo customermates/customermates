@@ -137,6 +137,34 @@ test("deletes a record permanently after confirming what disappears", async ({ p
   expect(errors).toEqual([]);
 });
 
+test("mentions dashboard widgets only when a dashboard view is deleted permanently", async ({ page, companyId }) => {
+  const errors = collectPageErrors(page);
+  const trashView = async (surfaceKey: string, name: string) => {
+    const created = await page.request.post("/api/v1/data-views/create", { data: { surfaceKey, name, state: {} } });
+    expect(created.status(), await created.text()).toBe(200);
+    const { viewKey } = (await created.json()) as { viewKey: string };
+    const deleted = await page.request.post("/api/v1/data-views/delete", { data: { surfaceKey, viewKey } });
+    expect(deleted.status(), await deleted.text()).toBe(200);
+  };
+  await trashView(`records:${presetId(companyId, "contact")}`, "Trashed contacts view");
+  await trashView("dashboard", "Trashed board");
+  await page.goto("/en/trash");
+  const confirmation = page.getByRole("alertdialog");
+  const widgets = "For a dashboard view, its widgets are also deleted permanently.";
+
+  await runRowAction(page, trashRow(page, "Trashed contacts view"), "Trashed contacts view", "Delete permanently");
+  await expect(confirmation).toContainText("This cannot be undone.");
+  await expect(confirmation).not.toContainText(widgets);
+  await confirmation.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(confirmation).not.toBeVisible();
+
+  await runRowAction(page, trashRow(page, "Trashed board"), "Trashed board", "Delete permanently");
+  await expect(confirmation).toContainText(widgets);
+  await confirmation.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(confirmation).not.toBeVisible();
+  expect(errors).toEqual([]);
+});
+
 test("restores and deletes permanently in bulk and empties the trash", async ({ page, companyId }, testInfo) => {
   const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "service");

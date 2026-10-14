@@ -29,6 +29,8 @@ import {
   restoreTrashAction,
 } from "../actions";
 
+import { trashKindLabelKey } from "./trash-page-model";
+
 const RESTORE_BLOCKED_KEYS: Record<TrashRestoreBlocker["reason"], string> = {
   listDeleted: "Trash.restoreBlocked.listDeleted",
   parentDeleted: "Trash.restoreBlocked.parentDeleted",
@@ -266,7 +268,9 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
           count: list.count,
         }),
       ),
-      ...(preview.items.some((item) => item.kind === "view") ? [this.t("Trash.permanentViewWidgets")] : []),
+      ...(preview.items.some((item) => trashKindLabelKey(item) === "dashboardView")
+        ? [this.t("Trash.permanentViewWidgets")]
+        : []),
       ...(preview.removedLinks === null
         ? [this.t("RecordModel.deletionRestrictedLinks")]
         : preview.removedLinks > 0

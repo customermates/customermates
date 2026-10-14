@@ -96,6 +96,7 @@ export const RoleModal = observer(({ store }: Props) => {
             row.access.manage.includes(action) ? (
               <FormCheckbox
                 key={action}
+                disabled={isSystemRole}
                 id={`${row.path}.${action}`}
                 label={<span className="sm:sr-only">{manageLabels[action]}</span>}
               />
@@ -118,6 +119,7 @@ export const RoleModal = observer(({ store }: Props) => {
             <FormRadioGroup
               ariaLabel={`${row.label} — ${t("RoleModal.readAccess")}`}
               className="gap-3"
+              disabled={isSystemRole}
               id={`${row.path}.readAccess`}
               options={row.access.read.map((value) => ({
                 value,
