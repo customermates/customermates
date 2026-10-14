@@ -43,7 +43,9 @@ export async function runInTransaction<T>(
       : undefined;
 
   const lockTimeout = String(options?.timeout ?? DEFAULT_TRANSACTION_TIMEOUT_MS);
-  const companyLockWait = String(Math.min(Number(lockTimeout), options?.companyLockWait ?? Number(lockTimeout)));
+  const companyLockWait = String(
+    Math.min(Number(lockTimeout), options?.companyLockWait ?? INTERACTIVE_COMPANY_LOCK_WAIT_MS),
+  );
   let result: T;
   try {
     result = await client.$transaction(async (tx: any) => {

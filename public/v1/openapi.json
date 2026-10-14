@@ -32329,11 +32329,13 @@
                             },
                             "description": {
                               "type": "string",
-                              "maxLength": 4000
+                              "maxLength": 4000,
+                              "pattern": "^[^\\u0000]*$"
                             },
                             "icon": {
                               "type": "string",
-                              "maxLength": 64
+                              "maxLength": 64,
+                              "pattern": "^[^\\u0000]*$"
                             },
                             "embedded": {
                               "type": "boolean"
@@ -32411,11 +32413,13 @@
                                 },
                                 "description": {
                                   "type": "string",
-                                  "maxLength": 4000
+                                  "maxLength": 4000,
+                                  "pattern": "^[^\\u0000]*$"
                                 },
                                 "icon": {
                                   "type": "string",
-                                  "maxLength": 64
+                                  "maxLength": 64,
+                                  "pattern": "^[^\\u0000]*$"
                                 },
                                 "color": {
                                   "description": "Chip color for links to records of this list; neutral when unset.",
@@ -34220,11 +34224,13 @@
                             },
                             "description": {
                               "type": "string",
-                              "maxLength": 4000
+                              "maxLength": 4000,
+                              "pattern": "^[^\\u0000]*$"
                             },
                             "icon": {
                               "type": "string",
-                              "maxLength": 64
+                              "maxLength": 64,
+                              "pattern": "^[^\\u0000]*$"
                             },
                             "embedded": {
                               "type": "boolean"
@@ -34302,11 +34308,13 @@
                                 },
                                 "description": {
                                   "type": "string",
-                                  "maxLength": 4000
+                                  "maxLength": 4000,
+                                  "pattern": "^[^\\u0000]*$"
                                 },
                                 "icon": {
                                   "type": "string",
-                                  "maxLength": 64
+                                  "maxLength": 64,
+                                  "pattern": "^[^\\u0000]*$"
                                 },
                                 "color": {
                                   "description": "Chip color for links to records of this list; neutral when unset.",
@@ -49902,11 +49910,13 @@
                           },
                           "description": {
                             "type": "string",
-                            "maxLength": 4000
+                            "maxLength": 4000,
+                            "pattern": "^[^\\u0000]*$"
                           },
                           "icon": {
                             "type": "string",
-                            "maxLength": 64
+                            "maxLength": 64,
+                            "pattern": "^[^\\u0000]*$"
                           },
                           "color": {
                             "description": "Chip color for links to records of this list; neutral when unset.",
@@ -77730,11 +77740,13 @@
                               },
                               "description": {
                                 "type": "string",
-                                "maxLength": 4000
+                                "maxLength": 4000,
+                                "pattern": "^[^\\u0000]*$"
                               },
                               "icon": {
                                 "type": "string",
-                                "maxLength": 64
+                                "maxLength": 64,
+                                "pattern": "^[^\\u0000]*$"
                               },
                               "color": {
                                 "description": "Chip color for links to records of this list; neutral when unset.",
@@ -115177,6 +115189,9 @@
                         "operatorTrialEndRequired",
                         "generic"
                       ]
+                    },
+                    "entitlement": {
+                      "type": "string"
                     }
                   },
                   "required": [

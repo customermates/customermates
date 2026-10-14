@@ -5,7 +5,7 @@ import type { TrashKindHandler } from "./trash-kind-handler";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
-import { runInTransaction } from "@/core/decorators/transaction-runner";
+import { INTERACTIVE_COMPANY_LOCK_WAIT_MS, runInTransaction } from "@/core/decorators/transaction-runner";
 import { failNotFound, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RestoreTrashSchema, type RestoreTrashData, type TrashRestoreResult } from "./trash.schema";
@@ -58,7 +58,10 @@ export class RestoreTrashInteractor extends AuthenticatedInteractor<RestoreTrash
           },
         };
       },
-      { timeout: RESTORE_TIMEOUT_MS },
+      {
+        timeout: RESTORE_TIMEOUT_MS,
+        companyLockWait: INTERACTIVE_COMPANY_LOCK_WAIT_MS,
+      },
     ).catch(unwoundFailure);
   }
 
@@ -101,7 +104,10 @@ export class RestoreTrashInteractor extends AuthenticatedInteractor<RestoreTrash
         }
         return { ok: true as const, data: result };
       },
-      { timeout: RESTORE_TIMEOUT_MS },
+      {
+        timeout: RESTORE_TIMEOUT_MS,
+        companyLockWait: INTERACTIVE_COMPANY_LOCK_WAIT_MS,
+      },
     ).catch(unwoundFailure);
   }
 }

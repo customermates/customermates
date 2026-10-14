@@ -10,6 +10,7 @@ vi.mock("next-intl/server", () => ({
 }));
 
 import { EntitlementService } from "../entitlement.service";
+import { serializeInteractorFailure } from "@/core/validation/validation.utils";
 
 const ACTIVE_TRIAL = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 const EXPIRED_TRIAL = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -40,6 +41,8 @@ describe('EntitlementService.require("messaging")', () => {
     expect(denied?.ok).toBe(false);
     expect(denied?.error.issues[0].message).toBe("ConnectedAccountsCard.messagingRequiresPro");
     expect(denialCode(denied)).toBe("messagingRequiresPro");
+    if (!denied) throw new Error("expected a denial");
+    expect(serializeInteractorFailure(denied.error).issues[0].entitlement).toBe("messagingRequiresPro");
   });
 
   it("allows pro, business and enterprise", async () => {

@@ -6,17 +6,9 @@ import { RecordIdentitySchema } from "./record-identity.schema";
 import { RecordRelationshipPathSchema } from "./record-relationship-path.schema";
 import { GroupSummaryDefinitionSchema } from "@/core/base/grouping/grouping.schema";
 
-export const RecordNameSchema = z
-  .string()
-  .trim()
-  .min(1)
-  .max(200)
-  .regex(/^[^\u0000]*$/);
-const RecordOptionNameSchema = z
-  .string()
-  .min(1)
-  .max(200)
-  .regex(/^[^\u0000]*$/);
+export const StoredModelStringSchema = z.string().regex(/^[^\u0000]*$/);
+export const RecordNameSchema = StoredModelStringSchema.trim().min(1).max(200);
+const RecordOptionNameSchema = StoredModelStringSchema.min(1).max(200);
 
 export const RecordRefSchema = z.object({ typeId: z.uuid(), recordId: z.uuid() }).strict();
 export type RecordRef = z.infer<typeof RecordRefSchema>;
@@ -390,8 +382,8 @@ export const RecordTypeSchema = z
     id: z.uuid(),
     label: RecordNameSchema,
     pluralLabel: RecordNameSchema,
-    description: z.string().max(4000),
-    icon: z.string().max(64),
+    description: StoredModelStringSchema.max(4000),
+    icon: StoredModelStringSchema.max(64),
     color: z.enum(CHIP_COLORS).optional().describe("Chip color for links to records of this list; neutral when unset."),
     primaryFieldId: z.uuid().nullable(),
     parentRelationshipId: z.uuid().nullable().default(null),

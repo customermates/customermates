@@ -22,9 +22,10 @@ const INBOX_REFRESH_INTERVAL_MS = 10000;
 type Props = {
   children: ReactNode;
   threads: GetResult<MessagingThread>;
+  locked: boolean;
 };
 
-const InboxSurfaceContent = observer(function InboxSurface({ children, threads }: Props) {
+const InboxSurfaceContent = observer(function InboxSurface({ children, threads, locked }: Props) {
   const t = useTranslations();
   const { messagingThreadsStore, messagingThreadDetailStore } = useRootStore();
   const router = useRouter();
@@ -32,17 +33,16 @@ const InboxSurfaceContent = observer(function InboxSurface({ children, threads }
 
   useDataViewSync(messagingThreadsStore, threads);
 
-  useEffect(
-    () =>
-      startBackgroundPoll({
-        refresh: () => Promise.all([messagingThreadsStore.refresh(), messagingThreadDetailStore.refresh(true)]),
-        onError: (error) => {
-          if (!(error instanceof ForbiddenError)) reportApplicationError(error);
-        },
-        intervalMs: INBOX_REFRESH_INTERVAL_MS,
-      }),
-    [messagingThreadsStore, messagingThreadDetailStore],
-  );
+  useEffect(() => {
+    if (locked) return;
+    return startBackgroundPoll({
+      refresh: () => Promise.all([messagingThreadsStore.refresh(), messagingThreadDetailStore.refresh(true)]),
+      onError: (error) => {
+        if (!(error instanceof ForbiddenError)) reportApplicationError(error);
+      },
+      intervalMs: INBOX_REFRESH_INTERVAL_MS,
+    });
+  }, [locked, messagingThreadsStore, messagingThreadDetailStore]);
 
   const unavailableThreadId = messagingThreadDetailStore.unavailableThreadId;
   useEffect(() => {

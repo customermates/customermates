@@ -57,6 +57,7 @@ import { LegalUpdateAlert } from "./navigation/legal-update-alert";
 import { sidebarUserCanAccess } from "./navigation/sidebar-user";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { startBackgroundPoll } from "@/core/utils/background-poll";
+import { getEntitlements, isSubscriptionUsable } from "@/ee/subscription/entitlements";
 
 const UNREAD_REFRESH_INTERVAL_MS = 10000;
 
@@ -140,7 +141,14 @@ const FullAppSidebar = observer(
       !isDocsRoute &&
       rootStore.appMode !== "self-hosted" &&
       sidebarUserCanAccess(user, Resource.inboxMessages);
-    const currentUnreadThreadCount = inboxVisible ? (messagingThreadsStore.unreadThreadCount ?? unreadThreadCount) : 0;
+    const inboxAvailable =
+      inboxVisible &&
+      subscription !== null &&
+      getEntitlements(subscription.plan).messaging &&
+      isSubscriptionUsable(subscription);
+    const currentUnreadThreadCount = inboxAvailable
+      ? (messagingThreadsStore.unreadThreadCount ?? unreadThreadCount)
+      : 0;
     const onInbox = intlPathname === "/inbox";
 
     const { isMobile, setOpenMobile } = useSidebar();
@@ -163,7 +171,7 @@ const FullAppSidebar = observer(
     useEffect(() => setSelectedKey(recordNavigationKey(intlPathname)), [intlPathname]);
 
     useEffect(() => {
-      if (!inboxVisible) return;
+      if (!inboxAvailable) return;
       return startBackgroundPoll({
         refresh: () => messagingThreadsStore.refreshUnreadCount(),
         onError: reportApplicationError,
@@ -171,7 +179,7 @@ const FullAppSidebar = observer(
         immediate: true,
         repeat: !onInbox,
       });
-    }, [inboxVisible, onInbox, messagingThreadsStore]);
+    }, [inboxAvailable, onInbox, messagingThreadsStore]);
 
     function closeMobileSidebar(cb?: () => void) {
       if (isMobile) setOpenMobile(false);
@@ -322,7 +330,11 @@ const FullAppSidebar = observer(
         typeId: type.id,
       }));
     if (recordWorkspaceStore.navigation?.canManageSchema)
-      addItems.push({ key: "create-list", label: t("RecordModel.createList"), typeId: null });
+      addItems.push({
+        key: "create-list",
+        label: t("RecordModel.createList"),
+        typeId: null,
+      });
 
     if (isDocsRoute && !restricted) return null;
 
