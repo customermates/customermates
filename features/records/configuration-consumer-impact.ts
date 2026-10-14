@@ -89,7 +89,7 @@ export function configurationTypeChanges(
     }
     if (
       before &&
-      (field.behavior.kind === "input" || (field.archived && !before.archived)) &&
+      (field.behavior.kind === "input" || field.behavior.kind === "snapshot" || (field.archived && !before.archived)) &&
       fieldValueDefinition({ ...before, archived: field.archived }) === fieldValueDefinition(field) &&
       !referenced(field.id)
     ) {
