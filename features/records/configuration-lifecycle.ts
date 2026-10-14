@@ -6,17 +6,20 @@ import type {
   DeletionCleanup,
   DeletionReference,
 } from "./configuration.schema";
-import type { RecordModel, RecordType } from "./record-model.schema";
+import type { RecordField, RecordModel, RecordType } from "./record-model.schema";
+import type { RecordRelationshipPath } from "./record-relationship-path.schema";
 import type { RecordDefinitionDeletion } from "./record.repo";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { expressionFieldDependencies, expressionRelationshipDependencies } from "./record-model-validation";
+import { resolveRecordPath } from "./record-relationship-path";
 
 type ConfigurationDeletion = {
   target: ConfigurationTarget;
   cascade: ConfigurationTarget[];
   nameField?: { typeId: string; replacementId: string | null };
   bindings?: DroppedBinding[];
+  paths?: DroppedPath[];
 };
 export type ConfigurationDeletionRecord = ConfigurationDeletion & { actorId: string; deletedAt: Date };
 
@@ -132,6 +135,24 @@ function deleteWithCascade(model: RecordModel, target: ConfigurationTarget): Con
   return cascade.filter((item) => targetKey(item) !== targetKey(target));
 }
 
+function missingDependency(model: RecordModel, field: RecordField): ConfigurationTarget | null {
+  if (field.behavior.kind === "input") return null;
+  const fieldIds = [...expressionFieldDependencies(field.behavior.expression)];
+  if (field.behavior.kind === "snapshot" && field.behavior.triggerFieldId) fieldIds.push(field.behavior.triggerFieldId);
+  for (const id of fieldIds) {
+    const source = model.fields.find((candidate) => candidate.id === id);
+    if (source && !activeType(model, source.typeId)) return { kind: "type", id: source.typeId };
+    if (source?.archived) return { kind: "field", id };
+  }
+  for (const id of expressionRelationshipDependencies(field.behavior.expression)) {
+    const relation = model.relationships.find((candidate) => candidate.id === id);
+    if (!relation?.archived) continue;
+    const typeId = [relation.sourceTypeId, relation.targetTypeId].find((end) => !activeType(model, end));
+    return typeId ? { kind: "type", id: typeId } : { kind: "relationship", id };
+  }
+  return null;
+}
+
 function canRestore(model: RecordModel, target: ConfigurationTarget): boolean {
   if (target.kind === "type") {
     const type = model.types.find((candidate) => candidate.id === target.id);
@@ -140,7 +161,7 @@ function canRestore(model: RecordModel, target: ConfigurationTarget): boolean {
   }
   if (target.kind === "field") {
     const field = model.fields.find((candidate) => candidate.id === target.id);
-    return Boolean(field && activeType(model, field.typeId));
+    return Boolean(field && activeType(model, field.typeId) && !missingDependency(model, field));
   }
   const relation = model.relationships.find((candidate) => candidate.id === target.id);
   return Boolean(relation && activeType(model, relation.sourceTypeId) && activeType(model, relation.targetTypeId));
@@ -155,12 +176,15 @@ function restoreBlocker(model: RecordModel, target: ConfigurationTarget): Deleti
   const missingType = [field?.typeId, relation?.sourceTypeId, relation?.targetTypeId, parent?.targetTypeId].find(
     (id): id is string => Boolean(id) && !activeType(model, id as string),
   );
+  const dependency = field && !missingType ? missingDependency(model, field) : null;
   return {
     reason: "requiresRestore",
     source: deletionReference(model, target),
     target: missingType
       ? deletionReference(model, { kind: "type", id: missingType })
-      : deletionReference(model, { kind: "relationship", id: target.id }),
+      : dependency
+        ? deletionReference(model, dependency)
+        : deletionReference(model, { kind: "relationship", id: target.id }),
   };
 }
 
@@ -266,25 +290,41 @@ function restoreBindingFields(model: RecordModel, dropped: DroppedBinding[]) {
   });
 }
 
+type DroppedPath = { typeId: string; path: RecordRelationshipPath };
+
 function cleanRelationshipPaths(
   model: RecordModel,
   removed: { relationIds: Set<string> },
   reference: (target: ConfigurationTarget) => DeletionReference,
   cause: DeletionReference,
-): DeletionCleanup[] {
+): { cleaned: DeletionCleanup[]; dropped: DroppedPath[] } {
   const cleaned: DeletionCleanup[] = [];
+  const dropped: DroppedPath[] = [];
   model.types = model.types.map((type): RecordType => {
     if (type.archived) return type;
-    const pathIds = new Set(
-      (type.relationshipPaths ?? [])
-        .filter((path) => path.path.some((step) => removed.relationIds.has(step.relationId)))
-        .map((path) => path.id),
+    const paths = (type.relationshipPaths ?? []).filter((path) =>
+      path.path.some((step) => removed.relationIds.has(step.relationId)),
     );
-    if (!pathIds.size) return type;
+    if (!paths.length) return type;
     cleaned.push({ consumer: reference({ kind: "type", id: type.id }), target: cause });
-    return { ...type, relationshipPaths: type.relationshipPaths?.filter((path) => !pathIds.has(path.id)) };
+    dropped.push(...paths.map((path) => ({ typeId: type.id, path })));
+    return { ...type, relationshipPaths: type.relationshipPaths?.filter((path) => !paths.includes(path)) };
   });
-  return cleaned;
+  return { cleaned, dropped };
+}
+
+function restoreRelationshipPaths(model: RecordModel, dropped: DroppedPath[]) {
+  model.types = model.types.map((type): RecordType => {
+    const paths = dropped
+      .filter(
+        (entry) =>
+          entry.typeId === type.id &&
+          !type.relationshipPaths?.some((path) => path.id === entry.path.id) &&
+          resolveRecordPath(type.id, entry.path.path, model)?.every((step) => activeType(model, step.typeId)),
+      )
+      .map((entry) => entry.path);
+    return paths.length ? { ...type, relationshipPaths: [...(type.relationshipPaths ?? []), ...paths] } : type;
+  });
 }
 
 function removePermanently(
@@ -331,6 +371,7 @@ export function applyConfigurationLifecycle(
   model: RecordModel,
   operations: ConfigurationChange["operations"],
   records: Map<string, ConfigurationDeletionRecord>,
+  trashedTargetIds: ReadonlySet<string> = new Set(),
 ): ConfigurationLifecycle {
   if (!operations.every(isLifecycleOperation)) invalid();
   const before = structuredClone(model);
@@ -339,6 +380,33 @@ export function applyConfigurationLifecycle(
   const blockers: DeletionBlocker[] = [];
   const cleaned: DeletionCleanup[] = [];
   const permanent: ConfigurationTarget[] = [];
+  const waiting: ConfigurationTarget[] = [];
+  const restore = (target: ConfigurationTarget) => {
+    setDeleted(model, target, false);
+    const record = records.get(targetKey(target));
+    const named = record?.nameField && model.types.find((type) => type.id === record.nameField?.typeId);
+    if (named && named.primaryFieldId === record?.nameField?.replacementId) setNameField(model, named.id, target.id);
+    if (record?.bindings?.length) restoreBindingFields(model, record.bindings);
+    const cascade = record?.cascade ?? [];
+    for (const kind of ["type", "relationship", "field"] as const) {
+      for (const item of cascade.filter((entry) => entry.kind === kind))
+        if (isDeleted(model, item) && canRestore(model, item)) setDeleted(model, item, false);
+    }
+    const typeIds = new Set(
+      [target, ...cascade].filter((item) => item.kind === "type" && !isDeleted(model, item)).map((item) => item.id),
+    );
+    for (const relation of model.relationships) {
+      const orphan = { kind: "relationship" as const, id: relation.id };
+      if (
+        relation.archived &&
+        !trashedTargetIds.has(relation.id) &&
+        (typeIds.has(relation.sourceTypeId) || typeIds.has(relation.targetTypeId)) &&
+        canRestore(model, orphan)
+      )
+        setDeleted(model, orphan, false);
+    }
+    if (record?.paths?.length) restoreRelationshipPaths(model, record.paths);
+  };
   for (const operation of operations) {
     const target = operation.target;
     const deleted = isDeleted(model, target);
@@ -361,20 +429,8 @@ export function applyConfigurationLifecycle(
       deletions.push(deletion);
     } else if (operation.operation === "restore") {
       if (!deleted) invalid();
-      if (!canRestore(model, target)) {
-        blockers.push(restoreBlocker(model, target));
-        continue;
-      }
-      setDeleted(model, target, false);
-      const record = records.get(targetKey(target));
-      const named = record?.nameField && model.types.find((type) => type.id === record.nameField?.typeId);
-      if (named && named.primaryFieldId === record?.nameField?.replacementId) setNameField(model, named.id, target.id);
-      if (record?.bindings?.length) restoreBindingFields(model, record.bindings);
-      const cascade = record?.cascade ?? [];
-      for (const kind of ["type", "relationship", "field"] as const) {
-        for (const item of cascade.filter((entry) => entry.kind === kind))
-          if (isDeleted(model, item) && canRestore(model, item)) setDeleted(model, item, false);
-      }
+      if (canRestore(model, target)) restore(target);
+      else waiting.push(target);
     } else {
       if (!deleted) invalid();
       permanent.push(
@@ -383,6 +439,16 @@ export function applyConfigurationLifecycle(
       );
     }
   }
+  for (let progressed = true; waiting.length && progressed; ) {
+    progressed = false;
+    for (const target of [...waiting]) {
+      if (!canRestore(model, target)) continue;
+      restore(target);
+      waiting.splice(waiting.indexOf(target), 1);
+      progressed = true;
+    }
+  }
+  blockers.push(...waiting.map((target) => restoreBlocker(model, target)));
   if (operations.some((operation) => operation.operation === "restore")) {
     cleanRelationshipPaths(
       model,
@@ -406,11 +472,17 @@ export function applyConfigurationLifecycle(
     blockers.push(...dependencyBlockers(before, sets, reference, false));
     const bindings = dropBindingFields(model, sets, reference);
     cleaned.push(...bindings.cleaned);
+    const paths = cleanRelationshipPaths(model, sets, reference, reference(deletions[0].target));
+    cleaned.push(...paths.cleaned);
     for (const deletion of deletions) {
       const own = bindings.dropped.filter((entry) => entry.fieldId === deletion.target.id);
       if (own.length) deletion.bindings = own;
+      const relationIds = new Set(
+        [deletion.target, ...deletion.cascade].filter((item) => item.kind === "relationship").map((item) => item.id),
+      );
+      const dropped = paths.dropped.filter((entry) => entry.path.path.some((step) => relationIds.has(step.relationId)));
+      if (dropped.length) deletion.paths = dropped;
     }
-    cleaned.push(...cleanRelationshipPaths(model, sets, reference, reference(deletions[0].target)));
   }
   let removed: RecordDefinitionDeletion | null = null;
   if (permanent.length) {

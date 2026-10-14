@@ -500,6 +500,13 @@ export class PrismaRecordRepo
     }
   }
 
+  async getConfigurationTrashTargetIds(): Promise<Set<string>> {
+    const items = await this.owners.trash.findItemsCompanyWide(this.companyId, {
+      kinds: ["list", "field", "relationship"],
+    });
+    return new Set(items.map((item) => item.targetId));
+  }
+
   async applyConsumerCleanups(cleanups: ConfigurationConsumerCleanup[]): Promise<{ pausedWebhookIds: string[] }> {
     const companyId = this.companyId;
     const pausedWebhookIds: string[] = [];

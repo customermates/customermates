@@ -154,6 +154,7 @@ export interface RecordRepo {
     afterId?: string,
   ): Promise<Array<{ id: string; name: string; measure: RecordMeasure; trashed: boolean }>>;
   getConfigurationDeletions(targets?: ConfigurationTarget[]): Promise<Map<string, ConfigurationDeletionRecord>>;
+  getConfigurationTrashTargetIds(): Promise<Set<string>>;
   applyConsumerCleanups(cleanups: ConfigurationConsumerCleanup[]): Promise<{ pausedWebhookIds: string[] }>;
   getState(): Promise<RecordSchemaState | null>;
   getGrants(): Promise<RecordTypeGrant[]>;
