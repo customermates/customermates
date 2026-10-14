@@ -626,6 +626,7 @@ const entityTrashHandlers = (companyId?: string) => {
         visibility: visibility.owned("view"),
         blockers: viewBlockers,
         restoreReferences: (ids) => viewBlockers.restoreReferences(ids),
+        dependents: (ids) => trash.widgetItemIdsOnTrashedViews(ids),
       },
       createPrismaDataViewRepo(companyId),
       trash,
