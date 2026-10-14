@@ -311,7 +311,7 @@ function SidebarResizeHandle({ className, ...props }: React.ComponentProps<"div"
       aria-valuemin={SIDEBAR_MIN_WIDTH}
       aria-valuenow={current}
       className={cn(
-        "group/sidebar-resize absolute inset-y-0 right-0 z-20 flex w-3 translate-x-1/2 cursor-col-resize touch-none justify-center outline-none select-none group-data-[side=right]:hidden group-data-[variant=inset]:inset-y-2",
+        "group/sidebar-resize absolute inset-y-0 right-0 z-20 flex w-2 cursor-col-resize touch-none justify-center outline-none select-none group-data-[side=right]:hidden group-data-[variant=inset]:inset-y-2",
         className,
       )}
       data-sidebar="resize-handle"
