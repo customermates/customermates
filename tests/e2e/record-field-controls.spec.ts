@@ -305,7 +305,8 @@ test("configures and persists all fourteen field types, multiple values and cale
     if (!bounds) throw new Error(`Clear is missing for ${label}`);
     await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
     await page.mouse.down();
-    await expect(clear).toHaveCSS("transform", "none");
+    await expect(clear).toHaveCSS("scale", "none");
+    await expect(clear.locator("xpath=..")).toHaveCSS("scale", "1");
     await page.mouse.up();
     await expect(clear).toHaveCount(0);
     await expect(page.locator('[data-slot="popover-content"][data-state="open"]')).toHaveCount(0);
