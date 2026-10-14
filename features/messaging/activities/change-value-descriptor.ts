@@ -1,5 +1,5 @@
 import type { ChipColor } from "@/constants/chip-colors";
-import type { ActivityMemberDto } from "@/ee/messaging/activities/activities.schema";
+import type { ActivityMemberDto, ActivitySubjectDto } from "@/ee/messaging/activities/activities.schema";
 import type { z } from "zod";
 import type { RecordHistoryDisplayValueSchema } from "@/features/records/record-event.schema";
 import type {
@@ -202,6 +202,22 @@ export function recordValueDescriptor(
     options: side.options,
   } as RecordField;
   return { kind: "field", field, result: side.value };
+}
+
+function namedMember(member: ActivityMemberDto, formerMember: string): ActivityMemberDto {
+  return `${member.firstName}${member.lastName}`.trim() ? member : { ...member, firstName: formerMember, lastName: "" };
+}
+
+export function subjectDescriptor(subject: ActivitySubjectDto, formerMember: string): ChangeValueDescriptor {
+  return subject.kind === "user"
+    ? { kind: "members", members: [namedMember(subject.member, formerMember)] }
+    : { kind: "choices", choices: [{ id: subject.id, label: subject.label }] };
+}
+
+export function subjectLabel(subject: ActivitySubjectDto, formerMember: string): string {
+  if (subject.kind !== "user") return subject.label;
+  const member = namedMember(subject.member, formerMember);
+  return `${member.firstName} ${member.lastName}`.trim();
 }
 
 export function membersDescriptor(

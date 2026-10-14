@@ -153,6 +153,13 @@ const setNativeInputValue = Object.getOwnPropertyDescriptor(HTMLInputElement.pro
   | ((this: HTMLInputElement, value: string) => void)
   | undefined;
 
+function clickWithMouse(target: HTMLElement) {
+  act(() => {
+    target.closest<HTMLElement>("button, input, [tabindex]")?.focus();
+    target.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+  });
+}
+
 function type(input: HTMLInputElement, value: string) {
   act(() => {
     setNativeInputValue?.call(input, value);
@@ -366,6 +373,43 @@ describe("filter palette focus when a value page replaces the search", () => {
     press(searchInput(container), "Enter");
     type(draftValue() as HTMLInputElement, "acme");
     press(draftValue() as HTMLInputElement, "Enter");
+
+    expect(palette.page.kind).toBe("root");
+    expect(document.activeElement).toBe(searchInput(container));
+  });
+
+  it("moves focus to the value search when a select field is picked with the mouse", () => {
+    const table = tableStore();
+    const palette = openPalette(table);
+    const container = mount(
+      createElement(FilterPalette, {
+        palette: harness.palette.current as FilterPaletteStore,
+        store: table as unknown as BaseDataViewStore<HasId>,
+      }),
+    );
+
+    clickWithMouse(container.querySelector("[data-palette-field='status']") as HTMLElement);
+
+    expect(palette.page).toEqual({ kind: "value", field: "status" });
+    expect(document.activeElement).toBe(searchInput(container));
+
+    type(searchInput(container), "won");
+
+    expect(valueRows(container).map((row) => row.getAttribute("data-palette-value"))).toEqual(["won"]);
+  });
+
+  it("returns focus to the field search when the back button is clicked on a select page", () => {
+    const table = tableStore();
+    const palette = openPalette(table);
+    const container = mount(
+      createElement(FilterPalette, {
+        palette: harness.palette.current as FilterPaletteStore,
+        store: table as unknown as BaseDataViewStore<HasId>,
+      }),
+    );
+
+    act(() => palette.pickField("status"));
+    clickWithMouse(container.querySelector("#filter-palette-back") as HTMLElement);
 
     expect(palette.page.kind).toBe("root");
     expect(document.activeElement).toBe(searchInput(container));

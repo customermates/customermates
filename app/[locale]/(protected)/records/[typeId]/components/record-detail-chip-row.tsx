@@ -30,7 +30,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { recordColumns } from "@/features/records/record-columns";
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
 import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
-import { getUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
+import { getActiveUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import { type RecordChipColumn, type RecordChipEntry, recordChipRowModel } from "./record-chip-row-model";
 import {
   AddChip,
@@ -272,7 +272,7 @@ const AssigneeEditor = observer(function AssigneeEditor({ store, label }: { stor
   return (
     <FormAutocompleteAvatar
       ariaLabel={label}
-      getItems={getUsersAction}
+      getItems={getActiveUsersAction}
       id="assignedUserIds"
       inputId={inputId}
       items={store.record?.assignedUsers ?? (store.rootStore.userStore.user ? [store.rootStore.userStore.user] : [])}

@@ -1,6 +1,6 @@
 import type { SerializedInteractorFailure } from "@/core/validation/validation.utils";
 
-export type RecordFieldErrors = { errors: string[]; fields: Record<string, string[]> };
+export type RecordFieldErrors = { errors: string[]; fields: Record<string, string[]>; assignees?: string[] };
 
 export function recordFieldErrors(
   failure: SerializedInteractorFailure,
@@ -11,12 +11,13 @@ export function recordFieldErrors(
     const [scope, key, index] = issue.path;
     const fieldId = scope === "mutation" && key === "fields" && typeof index === "number" ? fieldIds[index] : undefined;
     if (fieldId) (result.fields[fieldId] ??= []).push(issue.message);
+    else if (scope === "mutation" && key === "assignedUserIds") (result.assignees ??= []).push(issue.message);
     else result.errors.push(issue.message);
   }
   return result;
 }
 
-export function recordValuesErrorTree({ errors, fields }: RecordFieldErrors) {
+export function recordValuesErrorTree({ errors, fields, assignees }: RecordFieldErrors) {
   return {
     errors,
     properties: {
@@ -26,6 +27,7 @@ export function recordValuesErrorTree({ errors, fields }: RecordFieldErrors) {
           Object.entries(fields).map(([fieldId, messages]) => [fieldId, { errors: messages }]),
         ),
       },
+      ...(assignees ? { assignedUserIds: { errors: assignees } } : {}),
     },
   };
 }

@@ -13,7 +13,7 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { useCanonicalColumnLabel } from "@/components/data-view/use-column-label";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { auditCategory, DetailHeader, IdentityAvatar, TypeBadge } from "./activities-row";
-import { auditValueDescriptor } from "./change-value-descriptor";
+import { auditValueDescriptor, subjectDescriptor } from "./change-value-descriptor";
 import {
   auditChangeKind,
   ChangeRow,
@@ -111,6 +111,11 @@ export const AuditDetail = observer(({ entry }: Props) => {
           />
         }
         records={entry.records}
+        subject={
+          entry.kind === "audit" && entry.subject ? (
+            <ChangeValue value={subjectDescriptor(entry.subject, labels.formerMember)} />
+          ) : null
+        }
         subtitle={`${eventLabel(t, entry.event)} · ${intlStore.formatNumericalShortDateTime(entry.at)}`}
         title={authorName}
       />

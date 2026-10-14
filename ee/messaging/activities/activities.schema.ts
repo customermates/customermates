@@ -52,6 +52,14 @@ const ActivityMemberSchema = z.object({
 });
 export type ActivityMemberDto = z.infer<typeof ActivityMemberSchema>;
 
+export const NAMED_ACTIVITY_SUBJECT_KINDS = ["role", "webhook", "routine", "connected_account", "wiki_page"] as const;
+
+const ActivitySubjectSchema = z.union([
+  z.object({ kind: z.literal("user"), member: ActivityMemberSchema }),
+  z.object({ kind: z.enum(NAMED_ACTIVITY_SUBJECT_KINDS), id: z.string(), label: z.string() }),
+]);
+export type ActivitySubjectDto = z.infer<typeof ActivitySubjectSchema>;
+
 const ActivityListAppearanceSchema = z.object({
   icon: z.string(),
   color: z.enum(CHIP_COLORS).nullable(),
@@ -106,6 +114,7 @@ export const ActivityEntryDtoSchema = z.union([
     actor: ActorSchema,
     event: z.string(),
     changes: z.array(AuditChangeSchema),
+    subject: ActivitySubjectSchema.nullable(),
     records: ActivityRecordContextSchema,
   }),
   z.object({

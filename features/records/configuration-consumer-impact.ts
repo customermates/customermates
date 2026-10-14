@@ -10,6 +10,7 @@ import { cleanRecordMeasure, recordMeasureIsValid } from "./record-measure-valid
 import { expressionFieldDependencies } from "./record-model-validation";
 import { fieldValueDefinition } from "./record-configuration-values";
 import {
+  changedFilterCount,
   cleanRecordViewState,
   invalidRecordViewReference,
   pruneStaleRecordViewColumns,
@@ -209,7 +210,7 @@ export async function collectConsumerImpact(
           ]);
           droppedViewReferences.push({
             viewId: id,
-            filters: Math.max(0, (consumer.state.filters?.length ?? 0) - (restored.filters?.length ?? 0)),
+            filters: changedFilterCount(consumer.state.filters, restored.filters),
             columns: [...columns].filter((column) => !kept.has(column)).length,
             sort: Boolean(consumer.state.sortDescriptor && !restored.sortDescriptor),
             grouping: Boolean(

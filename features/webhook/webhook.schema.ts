@@ -14,6 +14,8 @@ export const WebhookEventSchema = z.enum(WEBHOOK_EVENTS);
 
 export const WEBHOOK_MASKED_VALUE = "********";
 
+export const WEBHOOK_URL_MAX_CHARS = 2048;
+
 export function isWebhookEndpointUrl(value: string): boolean {
   try {
     const url = new URL(value);
@@ -29,9 +31,16 @@ export const WebhookEndpointSchema = zx
   .secureUrl()
   .superRefine((value, ctx) => {
     if (!z.url({ protocol: /^(https?|mailto|tel)$/ }).safeParse(value).success) return;
+    if (value.length > WEBHOOK_URL_MAX_CHARS) {
+      ctx.addIssue({
+        code: "custom",
+        params: { error: CustomErrorCode.webhookUrlTooLong, maximum: WEBHOOK_URL_MAX_CHARS },
+      });
+    }
     if (!isWebhookEndpointUrl(value))
       ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.webhookEndpointInvalid } });
   })
+  .meta({ maxLength: WEBHOOK_URL_MAX_CHARS })
   .describe("HTTP or HTTPS endpoint with a valid host and no username or password");
 
 const WEBHOOK_PAUSE_REASONS = ["triggerFieldDeleted"] as const;

@@ -556,7 +556,7 @@ const FullAppSidebar = observer(
               profileHref={settingsHref("profile")}
               restricted={restricted}
               theme={theme === "light" || theme === "dark" ? theme : "system"}
-              user={user}
+              user={userStore.user ?? user}
               onCustomizeSidebar={() => closeMobileSidebar(() => setCustomizeOpen(true))}
               onFeedback={openFeedback}
               onKeyboardShortcuts={

@@ -7,7 +7,7 @@ import type { DroppedViewReferences } from "@/features/trash/trash.schema";
 import type { TrashRepo } from "@/features/trash/trash.repo";
 
 import { getTenantUser } from "@/core/decorators/tenant-context";
-import { cleanRecordViewState } from "@/features/records/record-view-state";
+import { changedFilterCount, cleanRecordViewState } from "@/features/records/record-view-state";
 
 export class ViewTrashBlockers implements TrashRestoreBlockerSource {
   constructor(
@@ -36,7 +36,7 @@ export class ViewTrashBlockers implements TrashRestoreBlockerSource {
       await this.views.rewriteViewStateCompanyWide(getTenantUser().companyId, view.id, cleaned);
       dropped.push({
         viewId: view.id,
-        filters: Math.max(0, (view.state.filters?.length ?? 0) - (restored.filters?.length ?? 0)),
+        filters: changedFilterCount(view.state.filters, restored.filters),
         columns: [...columns].filter((id) => !kept.has(id)).length,
         sort: Boolean(view.state.sortDescriptor && !restored.sortDescriptor),
         grouping: Boolean(

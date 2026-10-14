@@ -44,6 +44,7 @@ function renderDetail(changes: AuditChange[], event: DomainEvent = DomainEvent.W
     actor: { firstName: "Max", lastName: "Example", avatarUrl: null, email: "max@example.test" },
     event,
     changes,
+    subject: null,
     records: { primary: null, related: [], relatedOverflow: 0 },
   };
   return renderToStaticMarkup(createElement(AuditDetail, { entry }));

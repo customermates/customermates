@@ -35,6 +35,8 @@ const { ImportRecordsInteractor } = await import("@/features/data-transfer/impor
 const { ExportRecordsInteractor, ExportRecordsSchema } = await import(
   "@/features/data-transfer/export/export-records.interactor"
 );
+const { EventService } = await import("@/features/event/event.service");
+const { PrismaEventLogRepo } = await import("@/features/event/prisma-event-log.repository");
 const { createCrmPreset, presetId } = await import("@/features/records/crm-preset");
 const { withUntrustedRecordText, UNTRUSTED_RECORD_TEXT_HANDLING } = await import(
   "@/features/mcp-tools/untrusted-record-content"
@@ -95,7 +97,11 @@ describeDatabase("import of exported records with marked Formatted text", () => 
     const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
     const writer = new RecordWriteService(repo, policy, new RecordCalculationService(repo));
     importer = new ImportRecordsInteractor(repo, policy, writer);
-    exporter = new ExportRecordsInteractor(repo, policy);
+    exporter = new ExportRecordsInteractor(
+      repo,
+      policy,
+      new EventService([], new PrismaEventLogRepo({ dispatch: () => Promise.resolve() })),
+    );
     const mutate = new MutateRecordInteractor(
       repo,
       policy,

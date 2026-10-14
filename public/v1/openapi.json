@@ -5959,6 +5959,91 @@
                                   ]
                                 }
                               },
+                              "subject": {
+                                "anyOf": [
+                                  {
+                                    "anyOf": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "kind": {
+                                            "type": "string",
+                                            "const": "user"
+                                          },
+                                          "member": {
+                                            "type": "object",
+                                            "properties": {
+                                              "id": {
+                                                "type": "string",
+                                                "format": "uuid",
+                                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                              },
+                                              "firstName": {
+                                                "type": "string"
+                                              },
+                                              "lastName": {
+                                                "type": "string"
+                                              },
+                                              "avatarUrl": {
+                                                "anyOf": [
+                                                  {
+                                                    "type": "string"
+                                                  },
+                                                  {
+                                                    "type": "null"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            "required": [
+                                              "id",
+                                              "firstName",
+                                              "lastName",
+                                              "avatarUrl"
+                                            ],
+                                            "additionalProperties": false
+                                          }
+                                        },
+                                        "required": [
+                                          "kind",
+                                          "member"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "kind": {
+                                            "type": "string",
+                                            "enum": [
+                                              "role",
+                                              "webhook",
+                                              "routine",
+                                              "connected_account",
+                                              "wiki_page"
+                                            ]
+                                          },
+                                          "id": {
+                                            "type": "string"
+                                          },
+                                          "label": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "kind",
+                                          "id",
+                                          "label"
+                                        ],
+                                        "additionalProperties": false
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
                               "records": {
                                 "type": "object",
                                 "properties": {
@@ -6090,6 +6175,7 @@
                               "actor",
                               "event",
                               "changes",
+                              "subject",
                               "records"
                             ],
                             "additionalProperties": false
@@ -21809,6 +21895,91 @@
                                               ]
                                             }
                                           },
+                                          "subject": {
+                                            "anyOf": [
+                                              {
+                                                "anyOf": [
+                                                  {
+                                                    "type": "object",
+                                                    "properties": {
+                                                      "kind": {
+                                                        "type": "string",
+                                                        "const": "user"
+                                                      },
+                                                      "member": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                          "id": {
+                                                            "type": "string",
+                                                            "format": "uuid",
+                                                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                                          },
+                                                          "firstName": {
+                                                            "type": "string"
+                                                          },
+                                                          "lastName": {
+                                                            "type": "string"
+                                                          },
+                                                          "avatarUrl": {
+                                                            "anyOf": [
+                                                              {
+                                                                "type": "string"
+                                                              },
+                                                              {
+                                                                "type": "null"
+                                                              }
+                                                            ]
+                                                          }
+                                                        },
+                                                        "required": [
+                                                          "id",
+                                                          "firstName",
+                                                          "lastName",
+                                                          "avatarUrl"
+                                                        ],
+                                                        "additionalProperties": false
+                                                      }
+                                                    },
+                                                    "required": [
+                                                      "kind",
+                                                      "member"
+                                                    ],
+                                                    "additionalProperties": false
+                                                  },
+                                                  {
+                                                    "type": "object",
+                                                    "properties": {
+                                                      "kind": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                          "role",
+                                                          "webhook",
+                                                          "routine",
+                                                          "connected_account",
+                                                          "wiki_page"
+                                                        ]
+                                                      },
+                                                      "id": {
+                                                        "type": "string"
+                                                      },
+                                                      "label": {
+                                                        "type": "string"
+                                                      }
+                                                    },
+                                                    "required": [
+                                                      "kind",
+                                                      "id",
+                                                      "label"
+                                                    ],
+                                                    "additionalProperties": false
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "type": "null"
+                                              }
+                                            ]
+                                          },
                                           "records": {
                                             "type": "object",
                                             "properties": {
@@ -21940,6 +22111,7 @@
                                           "actor",
                                           "event",
                                           "changes",
+                                          "subject",
                                           "records"
                                         ],
                                         "additionalProperties": false
@@ -31220,6 +31392,91 @@
                                               ]
                                             }
                                           },
+                                          "subject": {
+                                            "anyOf": [
+                                              {
+                                                "anyOf": [
+                                                  {
+                                                    "type": "object",
+                                                    "properties": {
+                                                      "kind": {
+                                                        "type": "string",
+                                                        "const": "user"
+                                                      },
+                                                      "member": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                          "id": {
+                                                            "type": "string",
+                                                            "format": "uuid",
+                                                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                                          },
+                                                          "firstName": {
+                                                            "type": "string"
+                                                          },
+                                                          "lastName": {
+                                                            "type": "string"
+                                                          },
+                                                          "avatarUrl": {
+                                                            "anyOf": [
+                                                              {
+                                                                "type": "string"
+                                                              },
+                                                              {
+                                                                "type": "null"
+                                                              }
+                                                            ]
+                                                          }
+                                                        },
+                                                        "required": [
+                                                          "id",
+                                                          "firstName",
+                                                          "lastName",
+                                                          "avatarUrl"
+                                                        ],
+                                                        "additionalProperties": false
+                                                      }
+                                                    },
+                                                    "required": [
+                                                      "kind",
+                                                      "member"
+                                                    ],
+                                                    "additionalProperties": false
+                                                  },
+                                                  {
+                                                    "type": "object",
+                                                    "properties": {
+                                                      "kind": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                          "role",
+                                                          "webhook",
+                                                          "routine",
+                                                          "connected_account",
+                                                          "wiki_page"
+                                                        ]
+                                                      },
+                                                      "id": {
+                                                        "type": "string"
+                                                      },
+                                                      "label": {
+                                                        "type": "string"
+                                                      }
+                                                    },
+                                                    "required": [
+                                                      "kind",
+                                                      "id",
+                                                      "label"
+                                                    ],
+                                                    "additionalProperties": false
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "type": "null"
+                                              }
+                                            ]
+                                          },
                                           "records": {
                                             "type": "object",
                                             "properties": {
@@ -31351,6 +31608,7 @@
                                           "actor",
                                           "event",
                                           "changes",
+                                          "subject",
                                           "records"
                                         ],
                                         "additionalProperties": false
@@ -74712,6 +74970,91 @@
                                                     ]
                                                   }
                                                 },
+                                                "subject": {
+                                                  "anyOf": [
+                                                    {
+                                                      "anyOf": [
+                                                        {
+                                                          "type": "object",
+                                                          "properties": {
+                                                            "kind": {
+                                                              "type": "string",
+                                                              "const": "user"
+                                                            },
+                                                            "member": {
+                                                              "type": "object",
+                                                              "properties": {
+                                                                "id": {
+                                                                  "type": "string",
+                                                                  "format": "uuid",
+                                                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                                                },
+                                                                "firstName": {
+                                                                  "type": "string"
+                                                                },
+                                                                "lastName": {
+                                                                  "type": "string"
+                                                                },
+                                                                "avatarUrl": {
+                                                                  "anyOf": [
+                                                                    {
+                                                                      "type": "string"
+                                                                    },
+                                                                    {
+                                                                      "type": "null"
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              },
+                                                              "required": [
+                                                                "id",
+                                                                "firstName",
+                                                                "lastName",
+                                                                "avatarUrl"
+                                                              ],
+                                                              "additionalProperties": false
+                                                            }
+                                                          },
+                                                          "required": [
+                                                            "kind",
+                                                            "member"
+                                                          ],
+                                                          "additionalProperties": false
+                                                        },
+                                                        {
+                                                          "type": "object",
+                                                          "properties": {
+                                                            "kind": {
+                                                              "type": "string",
+                                                              "enum": [
+                                                                "role",
+                                                                "webhook",
+                                                                "routine",
+                                                                "connected_account",
+                                                                "wiki_page"
+                                                              ]
+                                                            },
+                                                            "id": {
+                                                              "type": "string"
+                                                            },
+                                                            "label": {
+                                                              "type": "string"
+                                                            }
+                                                          },
+                                                          "required": [
+                                                            "kind",
+                                                            "id",
+                                                            "label"
+                                                          ],
+                                                          "additionalProperties": false
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "type": "null"
+                                                    }
+                                                  ]
+                                                },
                                                 "records": {
                                                   "type": "object",
                                                   "properties": {
@@ -74843,6 +75186,7 @@
                                                 "actor",
                                                 "event",
                                                 "changes",
+                                                "subject",
                                                 "records"
                                               ],
                                               "additionalProperties": false
@@ -89935,6 +90279,7 @@
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                   },
                   "url": {
+                    "maxLength": 2048,
                     "description": "HTTP or HTTPS endpoint with a valid host and no username or password",
                     "type": "string",
                     "format": "uri"
@@ -92034,6 +92379,7 @@
                 "type": "object",
                 "properties": {
                   "url": {
+                    "maxLength": 2048,
                     "description": "HTTP or HTTPS endpoint with a valid host and no username or password",
                     "type": "string",
                     "format": "uri"
@@ -117656,6 +118002,7 @@
                         "recordDateInvalid",
                         "recordDateRangeInvalid",
                         "recordOptionInvalid",
+                        "recordMemberInactive",
                         "recordSchemaChanged",
                         "recordVersionChanged",
                         "recordWritePaused",
@@ -117792,6 +118139,7 @@
                         "webhookBodyTemplateInvalid",
                         "webhookHeadersRequireHttps",
                         "webhookEndpointInvalid",
+                        "webhookUrlTooLong",
                         "messageContentRequired",
                         "sendEmailTargetRequired",
                         "emailRecipientsRequired",

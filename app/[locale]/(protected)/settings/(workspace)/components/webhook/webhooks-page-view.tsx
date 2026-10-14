@@ -107,11 +107,8 @@ const WebhooksPageViewContent = observer(function WebhooksPageView({ initialWebh
         }}
         name={item.url}
         onDelete={
-          canDeleteWebhooks
-            ? () => {
-                openWebhook(item);
-                if (webhookModalStore.ownsRecordAccess) showDeleteConfirmation(() => webhookModalStore.delete());
-              }
+          canDeleteWebhooks && webhookModalStore.ownsRecordAccessOf(item)
+            ? () => showDeleteConfirmation(() => webhookModalStore.deleteById(item.id))
             : undefined
         }
         onOpen={() => openWebhook(item)}

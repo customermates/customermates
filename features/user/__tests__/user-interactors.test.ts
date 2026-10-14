@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CountryCode } from "@/generated/prisma";
-import { createMockUser } from "@/tests/helpers/mock-user";
+import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import {
   MOCK_ENV_MODULE,
   createMockDiModule,
@@ -18,9 +18,12 @@ vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 import { RegisterUserInteractor } from "../register/register-user.interactor";
 import { UpdateUserDetailsInteractor, UpdateUserDetailsSchema } from "../upsert/update-user-details.interactor";
 import { AdminUpdateUserDetailsSchema } from "../upsert/admin-update-user-details.interactor";
+import { GetUserDetailsInteractor } from "../get/get-user-details.interactor";
+import { GetUserByIdInteractor } from "../get/get-user-by-id.interactor";
 import { LEGAL_DOCUMENT_VERSIONS } from "@/constants/legal-documents";
 import { DomainEvent } from "@/features/event/domain-events";
-import { DemoModeError } from "@/core/errors/app-errors";
+import { DemoModeError, ForbiddenError } from "@/core/errors/app-errors";
+import { runWithTenant } from "@/core/decorators/tenant-context";
 import { ACCOUNT_STATES, accountStateRedirect } from "@/features/auth/account-state";
 
 const USER_ID = "test-user-id";
@@ -767,6 +770,30 @@ describe("UpdateUserDetailsInteractor", () => {
     expect(result.ok).toBe(true);
     expect(result.data.displayLanguage).toBe("system");
     expect(result.data.formattingLocale).toBe("system");
+  });
+});
+
+describe("own profile for a member whose role has no Users & Roles access", () => {
+  const member = { ...createMockUserWithPermissions([]), firstName: "Mia" };
+
+  it("returns the member's own profile details", async () => {
+    const result = await runWithTenant(member, () => new GetUserDetailsInteractor().invoke());
+
+    expect(result).toMatchObject({
+      ok: true,
+      data: { id: member.id, firstName: "Mia", roleName: "Custom", roleIsSystemRole: false },
+    });
+  });
+
+  it("still refuses the member another member's details", async () => {
+    const repo = { getUserById: vi.fn() };
+
+    await expect(
+      runWithTenant(member, () =>
+        new GetUserByIdInteractor(repo).invoke({ id: "00000000-0000-4000-8000-000000000002" }),
+      ),
+    ).rejects.toThrow(ForbiddenError);
+    expect(repo.getUserById).not.toHaveBeenCalled();
   });
 });
 

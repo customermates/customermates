@@ -4,7 +4,7 @@ import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
 import type { DataViewConfigurationRepo } from "./data-view-configuration.repo";
 import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
-import { isPersistedColumnWidthKey } from "@/core/data-view/data-view-state.schema";
+import { isPersistedColumnWidthKey, type DataViewState } from "@/core/data-view/data-view-state.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { DeleteDataViewInteractor } from "./delete-data-view.interactor";
@@ -240,7 +240,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
                 id: ALL_VIEW_KEY,
                 name: "All",
                 position: -1,
-                state: surfaceState.allState,
+                state: await this.liveState(data.surfaceKey, surfaceState.allState),
               },
             ],
             activeViewKey: surfaceState.activeViewKey,
@@ -259,7 +259,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
             page: 1,
             pageSize: 1,
             totalPages: 1,
-            items: [view],
+            items: [{ ...view, state: await this.liveState(data.surfaceKey, view.state) }],
             activeViewKey: surfaceState.activeViewKey,
           },
         };
@@ -592,6 +592,12 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
       supportsSearch: source.getSearchableFields().length > 0,
       viewModes: groupableFields.length > 0 ? [ViewMode.table, ViewMode.card] : [ViewMode.table],
     };
+  }
+
+  private liveState(surfaceKey: AiManageableDataViewSurfaceKey, state: DataViewState): Promise<DataViewState> {
+    return isRecordDataViewSurface(surfaceKey) && this.recordViews
+      ? this.recordViews.liveState(surfaceKey, state)
+      : Promise.resolve(state);
   }
 
   private async validateState(surfaceKey: AiManageableDataViewSurfaceKey, state: AgentDataViewState) {

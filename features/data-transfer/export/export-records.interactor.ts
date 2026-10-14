@@ -6,6 +6,7 @@ import type { RecordAccessPolicy } from "@/features/records/record-access";
 import type { RecordDto, RecordModel, RecordRef } from "@/features/records/record-model.schema";
 import type { RecordExport, RecordExportLink } from "@/features/data-transfer/record-transfer.schema";
 import type { Validated } from "@/core/validation/validation.utils";
+import type { EventService } from "@/features/event/event.service";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -18,6 +19,7 @@ import { recordDto } from "@/features/records/record-dto";
 import { RECORD_EXPORT_LIMIT, RECORD_EXPORT_LINK_LIMIT } from "@/features/data-transfer/record-transfer.schema";
 import { RecordQuerySchema } from "@/features/records/record-query.schema";
 import { invalidRecordQueryPart } from "@/features/records/record-query-validation";
+import { DomainEvent } from "@/features/event/domain-events";
 
 const PAGE_SIZE = 250;
 
@@ -46,20 +48,32 @@ export class ExportRecordsInteractor extends AuthenticatedInteractor<ExportRecor
   constructor(
     private records: RecordRepo,
     private policy: RecordAccessPolicy,
+    private events: EventService,
   ) {
     super();
   }
 
   @Validate(ExportRecordsSchema)
   async invoke(input: ExportRecordsInput): Validated<RecordExport> {
-    return runInTransaction(
+    const exported = await runInTransaction(
       async () => {
         const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
         return collectRecordExport(this.records, policy, model, input);
       },
       { readOnly: true, timeout: 120_000 },
     ).catch(unwoundFailure);
+    if (exported.ok) {
+      await this.events.publish(
+        DomainEvent.RECORDS_EXPORTED,
+        recordsExportedEvent(exported.data.typeId, exported.data.records.length),
+      );
+    }
+    return exported;
   }
+}
+
+export function recordsExportedEvent(typeId: string, rowCount: number) {
+  return { entityId: typeId, payload: { typeId, rowCount, truncated: false, scope: "view" as const } };
 }
 
 export async function collectRecordExport(

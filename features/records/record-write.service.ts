@@ -97,6 +97,11 @@ function isAppend(update: RecordFieldUpdate): update is Extract<RecordFieldUpdat
   return "append" in update;
 }
 
+function storedMemberIds(row: StoredRecord | null, fieldId: string): string[] {
+  const stored = row?.values.find((value) => value.fieldId === fieldId);
+  return stored?.state === "value" && stored.textValue ? [stored.textValue] : [];
+}
+
 function isAppendOnlyUpdate(mutation: Extract<RecordMutation, { action: "update" }>) {
   return (
     mutation.fields.length > 0 &&
@@ -280,17 +285,17 @@ export class RecordWriteService {
       )
     )
       reject(CustomErrorCode.permissionDenied, "authorization");
+    const current = ref ? await this.records.getRecordCompanyWide(ref) : null;
     if (ref) {
-      const row = await this.records.getRecordCompanyWide(ref);
-      if (!row || !(await policy.canRead(row))) reject(CustomErrorCode.recordNotFound, "not_found");
-      if (row.protectedKind) reject(CustomErrorCode.recordProtected, "authorization");
+      if (!current || !(await policy.canRead(current))) reject(CustomErrorCode.recordNotFound, "not_found");
+      if (current.protectedKind) reject(CustomErrorCode.recordProtected, "authorization");
       if (
         (mutation.action === "delete" ||
           (mutation.action === "update" && !isAppendOnlyUpdate(mutation) && !isOrderOnlyUpdate(mutation))) &&
-        row.version !== mutation.expectedVersion
+        current.version !== mutation.expectedVersion
       ) {
         reject(CustomErrorCode.recordVersionChanged, "conflict", [], {
-          currentVersion: row.version,
+          currentVersion: current.version,
         });
       }
     }
@@ -300,18 +305,38 @@ export class RecordWriteService {
       if (row.protectedKind) reject(CustomErrorCode.recordProtected, "authorization");
     }
     if (mutation.action === "create" || mutation.action === "update") {
-      const assignees = mutation.assignedUserIds;
-      if (assignees && !(await this.policy.validAssignees(policy.actor, assignees, policy.canAssignOthers)))
-        reject(CustomErrorCode.permissionDenied, "authorization");
-      for (const field of mutation.fields) {
-        if (
-          "value" in field &&
-          field.value?.kind === "member" &&
-          !(await this.policy.validAssignees(policy.actor, [field.value.value], policy.canAssignOthers))
-        )
-          reject(CustomErrorCode.permissionDenied, "authorization");
+      const existing = mutation.action === "update" ? current : null;
+      if (mutation.assignedUserIds) {
+        await this.requireAssignable(
+          policy,
+          mutation.assignedUserIds,
+          ["mutation", "assignedUserIds"],
+          existing?.assignments.map((assignment) => assignment.userId),
+        );
+      }
+      for (const [index, field] of mutation.fields.entries()) {
+        if ("value" in field && field.value?.kind === "member") {
+          await this.requireAssignable(
+            policy,
+            [field.value.value],
+            ["mutation", "fields", index, "value"],
+            storedMemberIds(existing, field.fieldId),
+          );
+        }
       }
     }
+  }
+
+  private async requireAssignable(
+    policy: Policy,
+    ids: string[],
+    path: Array<string | number>,
+    kept: string[] = [],
+  ): Promise<void> {
+    if (!this.policy.canAssign(policy.actor, ids, policy.canAssignOthers))
+      reject(CustomErrorCode.permissionDenied, "authorization");
+    if (!(await this.policy.activeMembers(ids.filter((id) => !kept.includes(id)))))
+      reject(CustomErrorCode.recordMemberInactive, "validation", path);
   }
 
   async apply(
@@ -507,6 +532,7 @@ export class RecordWriteService {
           continue;
         if (!create && !supplied.has(field.id)) continue;
         const index = assignments.findIndex((assignment) => assignment.fieldId === field.id);
+        const path = index < 0 ? ["mutation", "fields"] : ["mutation", "fields", index, "value"];
         const value = normalizeRecordScalar(
           supplied.has(field.id)
             ? (supplied.get(field.id) ?? null)
@@ -514,13 +540,8 @@ export class RecordWriteService {
               ? (field.behavior.defaultValue ?? null)
               : null,
           field,
-          index < 0 ? ["mutation", "fields"] : ["mutation", "fields", index, "value"],
+          path,
         );
-        if (
-          value?.kind === "member" &&
-          !(await this.policy.validAssignees(policy.actor, [value.value], policy.canAssignOthers))
-        )
-          reject(CustomErrorCode.permissionDenied, "authorization");
         const next = valueResult(value);
         if (
           existing &&
@@ -533,6 +554,7 @@ export class RecordWriteService {
           )
         )
           continue;
+        if (value?.kind === "member") await this.requireAssignable(policy, [value.value], path);
         await this.records.setValue(ref, field.id, next, model.revision);
         await this.records.setValueDependencies(ref, field.id, []);
         changedFields.add(field.id);
@@ -578,8 +600,7 @@ export class RecordWriteService {
 
       if (!policy.allowed(mutation.typeId, "create")) reject(CustomErrorCode.permissionDenied, "authorization");
       const assignees = definition.parentRelationshipId ? [] : (mutation.assignedUserIds ?? [policy.actor.id]);
-      if (!(await this.policy.validAssignees(policy.actor, assignees, policy.canAssignOthers)))
-        reject(CustomErrorCode.permissionDenied, "authorization");
+      await this.requireAssignable(policy, assignees, ["mutation", "assignedUserIds"]);
       const ref = {
         typeId: mutation.typeId,
         recordId: options.createRecordId ?? randomUUID(),
@@ -607,8 +628,12 @@ export class RecordWriteService {
         if (mutation.assignedUserIds.length)
           reject(CustomErrorCode.recordValueInvalid, "validation", ["assignedUserIds"]);
       } else if (mutation.assignedUserIds) {
-        if (!(await this.policy.validAssignees(policy.actor, mutation.assignedUserIds, policy.canAssignOthers)))
-          reject(CustomErrorCode.permissionDenied, "authorization");
+        await this.requireAssignable(
+          policy,
+          mutation.assignedUserIds,
+          ["mutation", "assignedUserIds"],
+          row.assignments.map((assignment) => assignment.userId),
+        );
         await this.records.setAssignments(mutation.ref, mutation.assignedUserIds);
       }
       await assignFields(

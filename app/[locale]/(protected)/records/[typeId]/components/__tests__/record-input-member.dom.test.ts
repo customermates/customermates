@@ -10,23 +10,33 @@ const OWNER: RecordMember = {
   lastName: "Owner",
   avatarUrl: "https://example.test/otto.png",
 };
+const picker = vi.hoisted(() => ({ value: undefined as unknown, getItems: undefined as unknown }));
 
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
-vi.mock("@/components/forms/form-context", () => ({ useAppForm: () => null }));
+vi.mock("@/components/forms/form-context", () => ({ useAppForm: () => ({ getValue: () => picker.value }) }));
 vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => ({ userStore: { user: VIEWER } }) }));
-vi.mock("@/app/[locale]/(protected)/settings/(workspace)/actions", () => ({ getUsersAction: vi.fn() }));
+vi.mock("@/app/[locale]/(protected)/settings/(workspace)/actions", () => ({ getActiveUsersAction: vi.fn() }));
 vi.mock("@/components/forms/form-autocomplete-avatar", async () => {
   const React = await import("react");
   return {
-    FormAutocompleteAvatar: ({ items }: { items: Array<{ id: string; firstName: string; lastName: string }> }) =>
-      React.createElement(
+    FormAutocompleteAvatar: ({
+      items,
+      getItems,
+    }: {
+      items: Array<{ id: string; firstName: string; lastName: string }>;
+      getItems: unknown;
+    }) => {
+      picker.getItems = getItems;
+      return React.createElement(
         "ul",
         null,
         items.map((item) => React.createElement("li", { key: item.id }, `${item.firstName} ${item.lastName}`)),
-      ),
+      );
+    },
   };
 });
 
+import { getActiveUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import { knownMembers, RecordInputField } from "../record-input-field";
 
 const field = { id: "field", typeId: "type", label: "Owner", valueType: "member", required: false } as RecordFieldView;
@@ -34,6 +44,8 @@ const roots = new Set<Root>();
 
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+  picker.value = undefined;
+  picker.getItems = undefined;
 });
 afterEach(() => {
   for (const root of roots) act(() => root.unmount());
@@ -51,13 +63,23 @@ function render(members?: RecordMember[]) {
 }
 
 describe("RecordInputField member values", () => {
-  it("knows the members the record references before the picker loads, not only the viewer", () => {
+  it("knows the field's current member before the picker loads, not only the viewer", () => {
+    picker.value = OWNER.id;
     expect(render([OWNER])).toEqual(["Otto Owner", "Viola Viewer"]);
     expect(render()).toEqual(["Viola Viewer"]);
   });
 
+  it("loads new choices from active members only and does not offer members of other fields", () => {
+    expect(render([OWNER])).toEqual(["Viola Viewer"]);
+    expect(picker.getItems).toBe(getActiveUsersAction);
+  });
+
   it("lists a member once when the record references the viewer", () => {
-    expect(knownMembers([OWNER, { ...VIEWER }], VIEWER).map((member) => member.id)).toEqual([OWNER.id, VIEWER.id]);
-    expect(knownMembers([], null)).toEqual([]);
+    expect(knownMembers([OWNER, { ...VIEWER }], VIEWER, VIEWER.id).map((member) => member.id)).toEqual([VIEWER.id]);
+    expect(knownMembers([OWNER, { ...VIEWER }], VIEWER, OWNER.id).map((member) => member.id)).toEqual([
+      OWNER.id,
+      VIEWER.id,
+    ]);
+    expect(knownMembers([], null, undefined)).toEqual([]);
   });
 });

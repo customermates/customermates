@@ -32,6 +32,8 @@ const { RecordWriteService } = await import("@/features/records/record-write.ser
 const { RecordTrashService } = await import("@/features/records/record-trash.service");
 const { MutateRecordInteractor } = await import("@/features/records/mutate-record.interactor");
 const { ExportRecordsInteractor } = await import("@/features/data-transfer/export/export-records.interactor");
+const { EventService } = await import("@/features/event/event.service");
+const { PrismaEventLogRepo } = await import("@/features/event/prisma-event-log.repository");
 const { ImportRecordsInteractor } = await import("@/features/data-transfer/import/import-records.interactor");
 const { createCrmPreset, presetId } = await import("@/features/records/crm-preset");
 
@@ -159,7 +161,11 @@ async function fixture(withRollup: boolean) {
   ]);
   await create(id("organization"), [{ fieldId: id("organization.name"), value: { kind: "text", value: "Template" } }]);
   const exported = await run(() =>
-    new ExportRecordsInteractor(repo, policy).invoke({
+    new ExportRecordsInteractor(
+      repo,
+      policy,
+      new EventService([], new PrismaEventLogRepo({ dispatch: () => Promise.resolve() })),
+    ).invoke({
       typeId: id("organization"),
       filters: [],
       relationships: [],

@@ -115,4 +115,17 @@ describe("record value validation", () => {
       properties: { values: { errors: [], properties: { second: { errors: ["Enter a valid email address."] } } } },
     });
   });
+
+  it("maps a refused assignee to the Assigned to field", () => {
+    const message = "This member is inactive or not part of this workspace. Choose an active member.";
+    const errors = recordFieldErrors(
+      { kind: "validation", issues: [{ code: "custom", path: ["mutation", "assignedUserIds"], message }] },
+      ["first"],
+    );
+    expect(errors).toEqual({ errors: [], fields: {}, assignees: [message] });
+    expect(recordValuesErrorTree(errors)).toEqual({
+      errors: [],
+      properties: { values: { errors: [], properties: {} }, assignedUserIds: { errors: [message] } },
+    });
+  });
 });

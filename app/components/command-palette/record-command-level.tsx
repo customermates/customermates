@@ -17,7 +17,7 @@ import { recordDisplayName } from "@/features/records/record-display-name";
 import { toChipColor } from "@/constants/chip-colors";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { runUserAction } from "@/core/errors/report-application-error";
-import { getUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
+import { getActiveUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import { useRecordChoices } from "@/components/records/use-record-choices";
 import { foldText } from "./command-palette-search";
 
@@ -40,7 +40,7 @@ function useMembers(query: string, enabled: boolean) {
   useEffect(() => {
     if (key === null) return;
     let active = true;
-    void getUsersAction({ searchTerm: key || undefined })
+    void getActiveUsersAction({ searchTerm: key || undefined })
       .then((result) => {
         if (active) setState({ key, members: result.items ?? [] });
       })

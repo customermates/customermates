@@ -116,7 +116,13 @@ try {
   const read = new GetRecordInteractor(repo, policy);
   const measure = new measures.QueryRecordMeasureInteractor(repo, policy);
   const search = new searches.SearchRecordsInteractor(repo, policy);
-  const exporter = new exports.ExportRecordsInteractor(repo, policy);
+  const { EventService } = await import("../features/event/event.service");
+  const { PrismaEventLogRepo } = await import("../features/event/prisma-event-log.repository");
+  const exporter = new exports.ExportRecordsInteractor(
+    repo,
+    policy,
+    new EventService([], new PrismaEventLogRepo({ dispatch: () => Promise.resolve() })),
+  );
   const importer = new imports.ImportRecordsInteractor(repo, policy, writer);
   const model = await run(() => repo.getModel());
   const { presetId } = await import("../features/records/crm-preset");

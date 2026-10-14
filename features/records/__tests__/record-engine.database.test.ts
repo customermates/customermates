@@ -857,7 +857,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     };
     const visible = await createContact("Visible", "Contact", true);
     await createContact("Other", "Contact");
-    const exporter = new ExportRecordsInteractor(f.repo, f.policy);
+    const exporter = new ExportRecordsInteractor(f.repo, f.policy, getEventService());
     const input = {
       typeId: f.id("contact"),
       search: "Visible Contact",
@@ -899,7 +899,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
   it("returns export budget failures without hiding unexpected errors and remains retryable", async () => {
     const f = await fixture();
     const source = await f.create("service", "Retryable export", [["service.amount", decimal("12.125")]]);
-    const exporter = new ExportRecordsInteractor(f.repo, f.policy);
+    const exporter = new ExportRecordsInteractor(f.repo, f.policy, getEventService());
     const input = { typeId: source.typeId, filters: [], relationships: [], sort: [] };
     const query = vi.spyOn(f.repo, "query");
     try {
@@ -954,7 +954,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         fields: [{ fieldId: channelsId, value: textValue("roundtrip@example.test") }],
       }),
     ).toMatchObject({ ok: false });
-    const exporter = new ExportRecordsInteractor(f.repo, f.policy);
+    const exporter = new ExportRecordsInteractor(f.repo, f.policy, getEventService());
     const importer = new ImportRecordsInteractor(
       f.repo,
       f.policy,
@@ -981,7 +981,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
   it("imports a generic export atomically with stable IDs and idempotent retries", async () => {
     const f = await fixture();
     const original = await f.create("service", "Transfer source", [["service.amount", decimal("123.45")]]);
-    const exporter = new ExportRecordsInteractor(f.repo, f.policy);
+    const exporter = new ExportRecordsInteractor(f.repo, f.policy, getEventService());
     const imported = new ImportRecordsInteractor(
       f.repo,
       f.policy,
@@ -1082,7 +1082,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         },
       ],
     );
-    const exporter = new ExportRecordsInteractor(f.repo, f.policy);
+    const exporter = new ExportRecordsInteractor(f.repo, f.policy, getEventService());
     const imported = new ImportRecordsInteractor(
       f.repo,
       f.policy,
@@ -1243,7 +1243,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         record: target,
       },
     ]);
-    const exporter = new ExportRecordsInteractor(f.repo, f.policy);
+    const exporter = new ExportRecordsInteractor(f.repo, f.policy, getEventService());
     const importer = new ImportRecordsInteractor(
       f.repo,
       f.policy,
@@ -1349,7 +1349,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       value: decimal("3200"),
     });
 
-    const exporter = new ExportRecordsInteractor(f.repo, f.policy);
+    const exporter = new ExportRecordsInteractor(f.repo, f.policy, getEventService());
     const importer = new ImportRecordsInteractor(
       f.repo,
       f.policy,
@@ -1442,7 +1442,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       });
     });
     const exported = await f.run(() =>
-      new ExportRecordsInteractor(f.repo, f.policy).invoke({
+      new ExportRecordsInteractor(f.repo, f.policy, getEventService()).invoke({
         typeId: deal.typeId,
         search: "Paged transfer",
         filters: [],
@@ -1476,7 +1476,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const results = async (as: typeof f.admin, fieldId: string) => {
       const exported = await f.run(
         () =>
-          new ExportRecordsInteractor(f.repo, f.policy).invoke({
+          new ExportRecordsInteractor(f.repo, f.policy, getEventService()).invoke({
             typeId: deal.typeId,
             filters: [],
             relationships: [],
@@ -1534,7 +1534,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     const exported = await f.run(
       () =>
-        new ExportRecordsInteractor(f.repo, f.policy).invoke({
+        new ExportRecordsInteractor(f.repo, f.policy, getEventService()).invoke({
           typeId: visible.typeId,
           filters: [],
           relationships: [],
@@ -8911,6 +8911,77 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     expect(cleaned.columnOrder).toEqual([type.primaryFieldId]);
     expect((await f.run(() => f.repo.getModel())).fields.find((item) => item.id === field.id)?.archived).toBe(true);
+  });
+
+  it("leaves out filter values of deleted options in list links, saved views and agent view reads", async () => {
+    const f = await fixture();
+    const typeId = f.id("deal");
+    const stage = f.id("deal.stage");
+    const won = f.id("deal.stage.won");
+    const unknown = "00000000-0000-4000-8000-000000000000";
+    const surfaceKey = `records:${typeId}`;
+    const call = (input: unknown) => f.run(() => executeMcpTool(manageDataViewsTool, [input]));
+    await f.create("deal", "Open deal", [["deal.stage", { kind: "select", value: f.id("deal.stage.new") }]]);
+    await f.create("deal", "Won deal", [["deal.stage", { kind: "select", value: won }]]);
+    const linked = await f.run(() =>
+      getGetRecordPresentationInteractor().invoke({
+        typeId,
+        params: { filters: [{ field: stage, operator: FilterOperator.in, value: [unknown, won] }] },
+      }),
+    );
+    expect(linked, JSON.stringify(linked)).toMatchObject({
+      ok: true,
+      data: { result: { filters: [{ field: stage, operator: "in", value: [won] }], pagination: { total: 1 } } },
+    });
+    const created = await call({
+      action: "create",
+      surfaceKey,
+      name: "Won deals",
+      state: { filters: [{ field: stage, operator: "in", value: [won] }] },
+    });
+    if (!created.ok) throw new Error(created.result);
+    const viewId = String(created.structuredContent?.viewKey);
+    const { publishedSummary, ...field } = recordInvariant(f.model.fields.find((item) => item.id === stage));
+    expect(publishedSummary).toBe(false);
+    expect(
+      await f.run(() =>
+        f.preview.invoke({
+          expectedRevision: 1,
+          idempotencyKey: randomUUID(),
+          operations: [
+            {
+              operation: "putField",
+              field: { ...field, options: field.options.filter((option) => option.id !== won) },
+            },
+          ],
+        }),
+      ),
+    ).toMatchObject({
+      ok: true,
+      data: {
+        issues: expect.arrayContaining([
+          expect.objectContaining({ code: "saved_view_incompatible", viewId, columnId: stage, columnLabel: "Won" }),
+        ]),
+      },
+    });
+    await f.run(() =>
+      prisma.dataView.updateMany({
+        where: { companyId: f.company.id, id: viewId },
+        data: { filters: [{ field: stage, operator: "in", value: [unknown] }] },
+      }),
+    );
+    const opened = await f.run(() => getGetRecordPresentationInteractor().invoke({ typeId, params: { viewId } }));
+    expect(opened, JSON.stringify(opened)).toMatchObject({
+      ok: true,
+      data: { result: { activeViewKey: viewId, filters: [], pagination: { total: 2 } } },
+    });
+    expect(opened.ok && opened.data.result.views?.find((view) => view.id === viewId)?.state.filters).toEqual([]);
+    expect(await call({ action: "read", surfaceKey, viewKey: viewId })).toMatchObject({
+      ok: true,
+      structuredContent: {
+        items: [expect.objectContaining({ id: viewId, state: expect.objectContaining({ filters: [] }) })],
+      },
+    });
   });
 
   it("falls back to the list layout for untouched settings, keeps summaries in the grouping and resets overrides through the AI tool", async () => {
@@ -16532,7 +16603,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       f.policy,
       new RecordWriteService(f.repo, f.policy, new RecordCalculationService(f.repo)),
     );
-    const exporter = new ExportRecordsInteractor(f.repo, f.policy);
+    const exporter = new ExportRecordsInteractor(f.repo, f.policy, getEventService());
     const exportAll = async (type: string) => {
       const exported = await f.run(() =>
         exporter.invoke({ typeId: f.id(type), filters: [], relationships: [], sort: [] }),
@@ -16680,7 +16751,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       f.policy,
       new RecordWriteService(f.repo, f.policy, new RecordCalculationService(f.repo)),
     );
-    const exporter = new ExportRecordsInteractor(f.repo, f.policy);
+    const exporter = new ExportRecordsInteractor(f.repo, f.policy, getEventService());
     const exportAll = async (type: string) => {
       const exported = await f.run(() =>
         exporter.invoke({ typeId: f.id(type), filters: [], relationships: [], sort: [] }),
@@ -16749,7 +16820,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(await f.value(retained, "deal.name", f.member)).toEqual({ state: "restricted" });
     expect(await f.value(line, "lineItem.savedPrice", f.member)).toEqual({ state: "restricted" });
     const exported = await f.run(() =>
-      new ExportRecordsInteractor(f.repo, f.policy).invoke({
+      new ExportRecordsInteractor(f.repo, f.policy, getEventService()).invoke({
         typeId: f.id("deal"),
         filters: [],
         relationships: [],
@@ -16781,7 +16852,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const original = await f.create("service", "Deleted history source", [["service.amount", decimal("9")]]);
     await f.update(original, [["service.amount", decimal("11")]]);
     const exported = await f.run(() =>
-      new ExportRecordsInteractor(f.repo, f.policy).invoke({
+      new ExportRecordsInteractor(f.repo, f.policy, getEventService()).invoke({
         typeId: f.id("service"),
         filters: [],
         relationships: [],

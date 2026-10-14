@@ -21,6 +21,7 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { ValidateWebhookIdsInteractor } from "@/core/validation/validators/validate-webhook-ids.interactor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { getWebhookRepo } from "@/core/di";
+import { WEBHOOK_URL_MAX_CHARS } from "../webhook.schema";
 
 const WEBHOOK_ID = "00000000-0000-4000-8000-000000000001";
 
@@ -67,6 +68,23 @@ describe("UpsertWebhookSchema", () => {
         events: ["messaging.message.received"],
       }).success,
     ).toBe(true);
+  });
+
+  it.each(["create", "update"])("enforces the webhook URL length boundary on %s", (mode) => {
+    const prefix = "https://example.test/";
+    const url = prefix + "a".repeat(WEBHOOK_URL_MAX_CHARS - prefix.length);
+    const input = mode === "create" ? { events: ["messaging.message.received"] } : { id: WEBHOOK_ID };
+    expect(UpsertWebhookSchema.safeParse({ ...input, url }).success).toBe(true);
+    const result = UpsertWebhookSchema.safeParse({ ...input, url: url + "a" });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues).toContainEqual(
+        expect.objectContaining({
+          path: ["url"],
+          params: { error: CustomErrorCode.webhookUrlTooLong, maximum: WEBHOOK_URL_MAX_CHARS },
+        }),
+      );
+    }
   });
 
   it.each([

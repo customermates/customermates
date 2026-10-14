@@ -97,10 +97,11 @@ test("renders change values with the shared value renderers on every activity su
   await page.goto("/en/settings/activity");
   const feed = page.locator('[data-slot="feed-container"]');
 
-  const { detail: userEntry, ...userEntryOpened } = await openEntry(page, feed, /User Updated/);
+  const { detail: userEntry, ...userEntryOpened } = await openEntry(page, feed, /User Updated .*Invited Member/);
   await expect(chip(userEntry, "Waiting for approval")).toHaveAttribute("data-variant", "warning");
   await expect(chip(userEntry, "Active")).toHaveAttribute("data-variant", "success");
   await expect(userEntry.locator("svg.lucide-arrow-right")).not.toHaveCount(0);
+  await expect(userEntry.getByRole("button", { name: "Invited Member", exact: true })).toBeVisible();
   await userEntry.screenshot({ path: testInfo.outputPath("user-updated.png"), animations: "disabled" });
   await closeEntry(page, userEntryOpened);
 
@@ -115,6 +116,10 @@ test("renders change values with the shared value renderers on every activity su
   await expect(createdWebhook.locator("[data-empty-value]")).toHaveCount(0);
   await expect(createdWebhook.getByText("—", { exact: true })).toHaveCount(0);
   await closeEntry(page, createdWebhookOpened);
+
+  const { detail: roleEntry, ...roleEntryOpened } = await openEntry(page, feed, /Role Created .*Value readers/);
+  await expect(chip(roleEntry, "Value readers")).toBeVisible();
+  await closeEntry(page, roleEntryOpened);
 
   const { detail: accessEntry, ...accessEntryOpened } = await openEntry(
     page,

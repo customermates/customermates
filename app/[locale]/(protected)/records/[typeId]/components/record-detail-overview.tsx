@@ -13,7 +13,7 @@ import { RecordRelationshipEditor } from "./record-relationship-editor";
 import { RecordPathRecords } from "./record-path-records";
 import { RecordEmbeddedRecords } from "./record-embedded-records";
 import { RecordCell } from "./record-cell";
-import { getUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
+import { getActiveUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import { useEntityDetailPersonalization } from "@/components/entity-detail/entity-detail-personalization";
 import type { EntityDetailPreviewItem } from "@/components/entity-detail/entity-detail-personalization";
 
@@ -51,7 +51,7 @@ export const RecordDetailOverview = observer(function RecordDetailOverview({
           >
             <FormAutocompleteAvatar
               ariaLabel={label}
-              getItems={getUsersAction}
+              getItems={getActiveUsersAction}
               id="assignedUserIds"
               inputId={assignedInputId}
               items={
