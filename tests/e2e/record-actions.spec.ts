@@ -211,7 +211,6 @@ test("record tables edit cells in place, open linked chips and offer row actions
   });
   await expect(related.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Example organization");
   await related.getByRole("button", { name: "Close", exact: true }).click();
-  await drawer.getByRole("button", { name: "Close", exact: true }).click();
   await expect(drawer).not.toBeVisible();
   await openItemMenu(page, more);
   const remove = page.getByRole("menuitem", { name: "Delete", exact: true });
