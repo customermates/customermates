@@ -75,12 +75,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Main dashboard with open pipeline, forecast, won revenue and revenue per rep",
     sha256: {
       de: {
-        dark: "f0372d68ee828db19b0d200d440d2c43d3baf2f7ccb0143369a1e4b9ac651f86",
-        light: "12287a4aae49e28b9f7814557df997636e2c7ba845946fe7161de695648f0796",
+        dark: "1ff319644167447f0f10a9de7faab56278304f86b445d5b74395289d16459711",
+        light: "e1e54b8eb11cfbaa6effdf7156daca3a6485549b9d7138eb66e166722ec89db1",
       },
       en: {
-        dark: "a884c9004124503afd98d9fd7fdd5ecfc27a2c0d8295f2d1e6ca888331ed5e37",
-        light: "8a728fc149f5518640dbdf3799c6e99d6645efede676b28800f977d8aa31f6bc",
+        dark: "7bbf8182523d358c18fd6ee388cbee0fb40c74f4c739a0b6d9f64db78df73b24",
+        light: "ed47d6dd0199ef63b7fbd56de89a0211525da41400b01793725f82d3fe0c2c24",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -203,12 +203,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Dashboard widgets on a phone-width viewport",
     sha256: {
       de: {
-        dark: "d701a2bd077f76b9e11703c66273afb79853d3cd05e0a984f1da96adf8b69774",
-        light: "bda9c13e00ccb925f6a7c147b746f01f740b9dc27db4ee0ed79cb2154b87f841",
+        dark: "1e6d76cac106a0afb909682dea1ab5059f235f4ff0cea5331af6054a59e7d3a9",
+        light: "f745c06402653e1d9c1587b029637375350a76ce05437f31578df950a864997a",
       },
       en: {
-        dark: "29706f43790837ff6b774ed5e4c5c9f176dd25b9d03b9dab9a431e536df84d2f",
-        light: "65cbdff9e3adc72f4eb89a30eb467d3e00397ac6d2cc9094a39fe5c43786a7bc",
+        dark: "d5e5816afd6d01533f25cc0d460d1c624cef49acfcc4c409b93fd9528188df48",
+        light: "a9dca45daca75023a81d329827e0a7e34d9964034c1e28508235ec3502797c2b",
       },
     },
     viewport: { height: 844, width: 390 },

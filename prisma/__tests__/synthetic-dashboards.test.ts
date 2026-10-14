@@ -54,7 +54,16 @@ describe("synthetic dashboards", () => {
         .sort((left, right) => left.lg.x - right.lg.x)
         .map(({ name }) => name);
     expect(row(2)).toEqual(["Won revenue by month", "Won vs lost, last 12 months", "Won revenue per rep"]);
-    expect(row(9)).toEqual(["Open pipeline by stage", "Weighted forecast by close month"]);
+    expect(row(7)).toEqual(["Open pipeline by stage", "Weighted forecast by close month"]);
+  });
+
+  it("keeps the number cards at two rows and every widget below them compact", () => {
+    for (const { widgets } of dashboards) {
+      for (const widget of widgets) {
+        const expected = widget.kind === "activityTimeline" ? 8 : widget.displayType === DisplayType.number ? 2 : 5;
+        expect(widget.lg.h).toBe(expected);
+      }
+    }
   });
 
   it("seeds six named dashboard views and lands on Sales", () => {

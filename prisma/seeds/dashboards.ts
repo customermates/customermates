@@ -53,6 +53,28 @@ export const SYNTHETIC_MAIN_DASHBOARD = "sales" satisfies DashboardKey;
 
 const BREAKPOINTS = { md: 8, sm: 4, xs: 2 } as const;
 const KPI_HEIGHT = 2;
+const CHART_HEIGHT = 5;
+const ACTIVITY_HEIGHT = 8;
+
+function compactWidgets(widgets: WidgetDefinition[]): WidgetDefinition[] {
+  const height = (widget: WidgetDefinition) =>
+    widget.kind === "activityTimeline"
+      ? ACTIVITY_HEIGHT
+      : widget.displayType === DisplayType.number
+        ? widget.lg.h
+        : CHART_HEIGHT;
+  const rows = [...new Set(widgets.map((widget) => widget.lg.y))].sort((a, b) => a - b);
+  const rowTop = new Map<number, number>();
+  let top = 0;
+  for (const y of rows) {
+    rowTop.set(y, top);
+    top += Math.max(...widgets.filter((widget) => widget.lg.y === y).map(height));
+  }
+  return widgets.map((widget) => ({
+    ...widget,
+    lg: { ...widget.lg, y: rowTop.get(widget.lg.y) ?? 0, h: height(widget) },
+  }));
+}
 
 /**
  * Layouts for every breakpoint: the desktop grid as authored, and narrower grids derived the way the dashboard derives
@@ -679,6 +701,6 @@ export function buildSyntheticDashboards(
     key,
     viewId: key === "sales" ? null : SYNTHETIC_DASHBOARD_VIEW_IDS[key],
     name,
-    widgets,
+    widgets: compactWidgets(widgets),
   }));
 }
