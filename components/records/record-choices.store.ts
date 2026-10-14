@@ -27,7 +27,7 @@ export class RecordChoicesStore {
   load = async (key: string, input: RecordChoicesInput) => {
     this.requestKey = key;
     try {
-      const result = await getRecordChoicesAction(input);
+      const result = await getRecordChoicesAction(JSON.parse(JSON.stringify(input)) as RecordChoicesInput);
       runInAction(() => {
         if (this.requestKey === key) this.response = { key, data: result.ok ? result.data : null, failed: !result.ok };
       });
