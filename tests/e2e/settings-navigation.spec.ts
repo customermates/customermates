@@ -186,22 +186,21 @@ test("profile settings show the unsaved-changes bar only while edits are pending
 });
 
 test("long profile email stays inside the phone viewport", async ({ page, database, workspace }) => {
-  const errors = collectPageErrors(page);
   const email = `${"long-profile-address-".repeat(5)}@example.test`;
   await database.query('UPDATE "AuthUser" SET email=$1 WHERE id=$2', [email, workspace.authUserId]);
   await database.query('UPDATE "User" SET email=$1 WHERE id=$2', [email, workspace.userId]);
-  await page.setViewportSize({ width: 390, height: 1000 });
-  await page.goto("/de/settings/profile");
-  await expect(page.locator("#settings-profile-first-name")).toBeVisible();
   for (const theme of ["light", "dark"] as const) {
     await database.query('UPDATE "User" SET theme=$1 WHERE id=$2', [theme, workspace.userId]);
-    await page.evaluate((value) => localStorage.setItem("theme", value), theme);
-    await page.emulateMedia({ colorScheme: theme });
-    await page.goto("/de/settings/profile", { waitUntil: "load" });
-    await expect(page.locator("#settings-profile-first-name")).toBeVisible();
-    const address = page
+    const themed = await page.context().newPage();
+    const errors = collectPageErrors(themed);
+    await themed.addInitScript((value) => localStorage.setItem("theme", value), theme);
+    await themed.emulateMedia({ colorScheme: theme });
+    await themed.setViewportSize({ width: 390, height: 1000 });
+    await themed.goto("/de/settings/profile");
+    await themed.waitForLoadState("networkidle");
+    const address = themed
       .locator("form")
-      .filter({ has: page.locator("#settings-profile-first-name") })
+      .filter({ has: themed.locator("#settings-profile-first-name") })
       .getByText(email, { exact: true });
     await expect(address).toBeVisible();
     const box = await address.boundingBox();
@@ -209,6 +208,7 @@ test("long profile email stays inside the phone viewport", async ({ page, databa
     expect(box.x).toBeGreaterThanOrEqual(0);
     expect(box.x + box.width).toBeLessThanOrEqual(391);
     await expect(address).toHaveCSS("text-overflow", "ellipsis");
+    expect(errors).toEqual([]);
+    await themed.close();
   }
-  expect(errors).toEqual([]);
 });
