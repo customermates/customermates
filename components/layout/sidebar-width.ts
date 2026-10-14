@@ -1,7 +1,8 @@
 import { resizeKeyboardStep } from "@/components/shared/resize-interaction";
 
+export const SIDEBAR_OPEN_COOKIE_NAME = "sidebar_state";
 export const SIDEBAR_WIDTH_COOKIE_NAME = "sidebar_width";
-const SIDEBAR_WIDTH_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
+const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 export const SIDEBAR_DEFAULT_WIDTH = 256;
 export const SIDEBAR_MIN_WIDTH = 208;
 export const SIDEBAR_MAX_WIDTH = 384;
@@ -18,7 +19,7 @@ export function parseSidebarWidth(value: string | undefined): number | undefined
 
 export function sidebarWidthCookie(width: number | null): string {
   if (width === null) return `${SIDEBAR_WIDTH_COOKIE_NAME}=; path=/; max-age=0`;
-  return `${SIDEBAR_WIDTH_COOKIE_NAME}=${clampSidebarWidth(width)}; path=/; max-age=${SIDEBAR_WIDTH_COOKIE_MAX_AGE}`;
+  return `${SIDEBAR_WIDTH_COOKIE_NAME}=${clampSidebarWidth(width)}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
 }
 
 export function keyboardSidebarWidth(key: string, shiftKey: boolean, width: number): number | undefined {
@@ -27,4 +28,14 @@ export function keyboardSidebarWidth(key: string, shiftKey: boolean, width: numb
   if (key === "Home") return SIDEBAR_MIN_WIDTH;
   if (key === "End") return SIDEBAR_MAX_WIDTH;
   return undefined;
+}
+
+export function parseSidebarOpen(value: string | undefined): boolean | undefined {
+  if (value === "true") return true;
+  if (value === "false") return false;
+  return undefined;
+}
+
+export function sidebarOpenCookie(open: boolean): string {
+  return `${SIDEBAR_OPEN_COOKIE_NAME}=${open}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
 }

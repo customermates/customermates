@@ -5,7 +5,9 @@ import {
   SIDEBAR_MIN_WIDTH,
   clampSidebarWidth,
   keyboardSidebarWidth,
+  parseSidebarOpen,
   parseSidebarWidth,
+  sidebarOpenCookie,
   sidebarWidthCookie,
 } from "../sidebar-width";
 
@@ -40,5 +42,13 @@ describe("sidebar width", () => {
     expect(keyboardSidebarWidth("Home", false, 300)).toBe(SIDEBAR_MIN_WIDTH);
     expect(keyboardSidebarWidth("End", false, 300)).toBe(SIDEBAR_MAX_WIDTH);
     expect(keyboardSidebarWidth("a", false, 300)).toBeUndefined();
+  });
+
+  it("round-trips the collapsed state through the cookie the server reads", () => {
+    expect(sidebarOpenCookie(false)).toMatch(/^sidebar_state=false; path=\/; max-age=\d+$/);
+    expect(parseSidebarOpen(sidebarOpenCookie(false).split(";")[0].split("=")[1])).toBe(false);
+    expect(parseSidebarOpen("true")).toBe(true);
+    expect(parseSidebarOpen(undefined)).toBeUndefined();
+    expect(parseSidebarOpen("yes")).toBeUndefined();
   });
 });
