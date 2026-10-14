@@ -1,15 +1,22 @@
 -- =============================================================================================
 -- Dynamic record model: the one unreleased migration of PR #203 (refactor/dynamic-record-model).
 --
--- Owner decision: every unreleased migration of this release ships as this one file, so a refusal, an error or an
--- interruption anywhere rolls the whole release back atomically and the database stays exactly at the previous
--- release. prisma migrate deploy sends this file to PostgreSQL as one batch, which PostgreSQL runs as a single
--- implicit transaction. There is deliberately no BEGIN/COMMIT anywhere in this file (see section 1 for why). To run
--- it by hand, use psql --single-transaction --set ON_ERROR_STOP=1 -f migration.sql.
+-- Owner decision: the release ships as this one file, so a refusal, an error or an interruption anywhere rolls the
+-- whole release back atomically and the database stays exactly at the previous release. prisma migrate deploy
+-- sends this file to PostgreSQL as one batch, which PostgreSQL runs as a single implicit transaction. There is
+-- deliberately no BEGIN/COMMIT: an explicit block would leave Prisma's connection aborted after a refusal and hide
+-- the refusal message. To run it by hand, use psql --single-transaction --set ON_ERROR_STOP=1 -f migration.sql.
 --
--- The 17 sections below are the former migrations, unchanged and in their original order. Each starts with an
--- '@section <former migration name>' marker line, which tests/helpers/legacy-migration-database.ts uses to apply a
--- single section. Section 1 sets the transaction time zone to UTC for every later section.
+-- The file upgrades the previous release (the legacy CRM tables) directly to the final record model:
+--   1. LOCK every workspace and the tables the upgrade reads or changes,
+--   2. VALIDATE the legacy data and build each workspace's record model, refusing with grouped counts,
+--   3. create the FINAL SCHEMA,
+--   4. write the DATA once, in its final form,
+--   5. write the CONFIGURATION and make the removals decided in README.md ("What is not carried over"),
+--   6. materialise the CALCULATIONS,
+--   7. RECONCILE the result with the legacy source, refusing on any mismatch,
+--   8. REMOVE the legacy tables, columns and enums and the temporary helpers.
+-- An empty database (a new installation) has nothing to convert and ends in the schema of prisma/schema.prisma.
 --
 -- Recovery after a refusal: fix the reported rows, run
 --   prisma migrate resolve --rolled-back 20261010000000_dynamic_record_model
@@ -17,32 +24,8 @@
 -- =============================================================================================
 
 -- =============================================================================================
--- @section 20261004000000_configurable_records
--- Section 1 of 17: Configurable records: convert the legacy CRM tables into generic records (validation, expansion, data, configuration, calculations, reconciliation, removal)
--- =============================================================================================
-
--- =============================================================================================
--- Configurable records: the one-step upgrade from the legacy CRM tables.
---
--- prisma migrate deploy sends this file to PostgreSQL as one batch of statements, which PostgreSQL runs as a
--- single implicit transaction (there is deliberately no BEGIN/COMMIT: an explicit block would leave the
--- connection aborted after a refusal and hide the refusal message from Prisma). To run it by hand, use
--- psql --single-transaction --set ON_ERROR_STOP=1 -f migration.sql. The file
---   0. locks every workspace and the legacy tables,
---   1. VALIDATES the legacy CRM data and builds each workspace's record model (refusing with grouped counts),
---   2. EXPANDS the schema with the generic record storage,
---   3. converts RECORDS, values, links, assignments, identities and participant lookups,
---   4. writes the CONFIGURATION (record model revision, grants) and removes what is not carried over:
---      legacy saved views, personalisation, dashboard widgets, legacy history (the audit log, except the legal-consent
---      evidence and the connected account history moved into the event log) and legacy automation triggers,
---   5. materialises CALCULATED values and their provenance with exact decimals,
---   6. RECONCILES the CRM data against the legacy source and refuses on any mismatch,
---   7. REMOVES the legacy tables, columns and enums.
--- A refusal or interruption rolls everything back: the legacy data stays exactly as it was.
--- Recovery: fix the reported rows, run `prisma migrate resolve --rolled-back 20261010000000_dynamic_record_model`,
--- then `prisma migrate deploy` again. See README.md next to this file.
---
--- An empty database passes sections 1 and 3-6 without work and ends in the schema of prisma/schema.prisma.
+-- 1. LOCK. Transaction settings, the guard against generic storage that already exists, the locks, fresh planner
+-- statistics of the legacy source and the transaction-scoped working state.
 -- =============================================================================================
 
 SET LOCAL TIME ZONE 'UTC';
@@ -63,10 +46,8 @@ BEGIN
 END
 $$;
 
--- ---------------------------------------------------------------------------------------------
--- Section 0: locks. Every workspace advisory lock (the record engine's per-workspace lock, taken in id
--- order), then the legacy CRM tables exclusively and the other tables this upgrade reads or changes against writes.
--- ---------------------------------------------------------------------------------------------
+-- Every workspace advisory lock (the record engine's per-workspace lock, taken in id order), then the legacy CRM
+-- tables exclusively and the other tables this upgrade reads or changes against writes.
 DO $$
 DECLARE
   v_workspace record;
@@ -88,13 +69,13 @@ ANALYZE "Company", "User", "UserRole", "RolePermission", "Contact", "Organizatio
   "OrganizationUser", "TaskUser", "TaskContact", "TaskOrganization", "TaskDeal", "TaskService", "ContactOrganization",
   "MessagingThreadParticipant";
 
--- Transaction-scoped working state: the helper schema (dropped in section 7) and staging tables.
+-- Transaction-scoped working state: the helper schema (dropped in step 8) and staging tables.
 CREATE SCHEMA crm_upgrade;
 CREATE TEMP TABLE crm_upgrade_issue (company_id text, source_table text NOT NULL, field text NOT NULL, code text NOT NULL) ON COMMIT DROP;
 
 -- ---------------------------------------------------------------------------------------------
 -- Helper functions. They live in the transaction-scoped schema "crm_upgrade" and are dropped in
--- section 7. The validation helpers reproduce the JavaScript/zod semantics of the record engine, so that
+-- step 8. The validation helpers reproduce the JavaScript/zod semantics of the record engine, so that
 -- acceptance, rejection and every converted value match what the application would store.
 -- ---------------------------------------------------------------------------------------------
 
@@ -1145,8 +1126,7 @@ LANGUAGE sql IMMUTABLE AS $$
   SELECT COALESCE((raw IS NOT NULL AND crm_upgrade.is_http_url(crm_upgrade.js_trim(raw)) AND crm_upgrade.js_len(crm_upgrade.js_trim(raw)) <= 2000), false)
 $$;
 
-
--- Records one refused row. Section 1 reports these grouped by table, field and code.
+-- Records one refused row. Step 2 reports these grouped by table, field and code.
 CREATE FUNCTION crm_upgrade.issue(company_id text, source_table text, field text, code text) RETURNS void
 LANGUAGE sql AS $$
   INSERT INTO crm_upgrade_issue (company_id, source_table, field, code) VALUES (company_id, source_table, field, code)
@@ -1188,7 +1168,9 @@ LANGUAGE sql IMMUTABLE AS $$
     'archived', false, 'embedded', p_key = 'lineItem', 'navigationVisible', p_key <> 'lineItem', 'position', p_position)
 $$;
 
--- createCrmPreset(companyId, currency) (features/records/crm-preset.ts): the starter model of a new workspace.
+-- createCrmPreset(companyId, currency) (features/records/crm-preset.ts): the starter model of a new workspace, with
+-- the message switches of its relationships (deals and organizations show the messages of their linked contacts).
+-- Step 4 adds the Channels field of Contacts after the legacy custom columns.
 CREATE FUNCTION crm_upgrade.crm_preset(p_company_id text, p_currency text) RETURNS jsonb
 LANGUAGE plpgsql IMMUTABLE AS $$
 DECLARE
@@ -1266,7 +1248,8 @@ BEGIN
   v_relationships := (SELECT jsonb_agg(jsonb_build_object('id', crm_upgrade.preset_id(c, r.key),
       'sourceTypeId', crm_upgrade.preset_id(c, r.source), 'targetTypeId', crm_upgrade.preset_id(c, r.target),
       'sourceLabel', r.source_label, 'targetLabel', r.target_label, 'sourceCardinality', r.source_cardinality,
-      'targetCardinality', 'many', 'onSourceDelete', 'unlink', 'onTargetDelete', r.on_target_delete, 'archived', false) ORDER BY r.position)
+      'targetCardinality', 'many', 'onSourceDelete', 'unlink', 'onTargetDelete', r.on_target_delete, 'archived', false,
+      'messagesOnSource', r.key = 'deal.contacts', 'messagesOnTarget', r.key = 'contact.organizations') ORDER BY r.position)
     FROM (VALUES
       (0, 'contact.organizations', 'contact', 'organization', 'Organizations', 'Contacts', 'many', 'unlink'),
       (1, 'deal.contacts', 'deal', 'contact', 'Contacts', 'Deals', 'many', 'unlink'),
@@ -1285,29 +1268,10 @@ BEGIN
     'relationships', v_relationships,
     'accessPresets', '[]'::jsonb,
     'capabilities', jsonb_build_array(
-      jsonb_build_object('id', crm_upgrade.preset_id(c, 'capability.identity'), 'kind', 'channels', 'providerAvatar', true, 'typeId', crm_upgrade.preset_id(c, 'contact'),
-        'fields', jsonb_build_array(jsonb_build_object('role', 'firstName', 'fieldId', crm_upgrade.preset_id(c, 'contact.firstName')),
-          jsonb_build_object('role', 'lastName', 'fieldId', crm_upgrade.preset_id(c, 'contact.lastName')))),
       jsonb_build_object('id', crm_upgrade.preset_id(c, 'capability.avatar'), 'kind', 'avatar', 'typeId', crm_upgrade.preset_id(c, 'contact'),
         'fields', jsonb_build_array(jsonb_build_object('role', 'image', 'fieldId', crm_upgrade.preset_id(c, 'contact.avatarUrl')))),
       jsonb_build_object('id', crm_upgrade.preset_id(c, 'capability.membership'), 'kind', 'membershipAuthorization', 'typeId', crm_upgrade.preset_id(c, 'task'),
-        'fields', '[]'::jsonb)),
-    'activityPaths', (SELECT jsonb_agg(jsonb_build_object('id', crm_upgrade.preset_id(c, 'activities:' || (type.value ->> 'id') || ':self'),
-        'typeId', type.value -> 'id', 'label', type.value -> 'pluralLabel', 'path', '[]'::jsonb,
-        'includeMessages', type.value ->> 'id' = crm_upgrade.preset_id(c, 'contact'), 'includeAudit', true, 'archived', false) ORDER BY type.ordinality)
-      FROM jsonb_array_elements(v_types) WITH ORDINALITY AS type(value, ordinality))
-    || (SELECT jsonb_agg(jsonb_build_object('id', crm_upgrade.preset_id(c, 'activities:' || crm_upgrade.preset_id(c, p.key) || ':people'),
-        'typeId', crm_upgrade.preset_id(c, p.key), 'label', 'Contacts', 'path', p.path,
-        'includeMessages', true, 'includeAudit', false, 'archived', false) ORDER BY p.position)
-      FROM (VALUES
-        (0, 'organization', jsonb_build_array(jsonb_build_object('relationId', crm_upgrade.preset_id(c, 'contact.organizations'), 'direction', 'incoming'))),
-        (1, 'deal', jsonb_build_array(jsonb_build_object('relationId', crm_upgrade.preset_id(c, 'deal.contacts'), 'direction', 'outgoing'))),
-        (2, 'service', jsonb_build_array(
-          jsonb_build_object('relationId', crm_upgrade.preset_id(c, 'lineItem.service'), 'direction', 'incoming'),
-          jsonb_build_object('relationId', crm_upgrade.preset_id(c, 'lineItem.deal'), 'direction', 'outgoing'),
-          jsonb_build_object('relationId', crm_upgrade.preset_id(c, 'deal.contacts'), 'direction', 'outgoing'))),
-        (3, 'task', jsonb_build_array(jsonb_build_object('relationId', crm_upgrade.preset_id(c, 'task.contacts'), 'direction', 'outgoing'))))
-        AS p(position, key, path)));
+        'fields', '[]'::jsonb)));
 END
 $$;
 
@@ -1555,9 +1519,8 @@ END
 $$;
 
 -- =============================================================================================
--- Section 1: VALIDATION and staging. Nothing is written to persistent tables here. Every check runs for
--- every workspace; all refusals are collected and reported together as "table.field code xCOUNT".
--- Converted custom values are staged for sections 3-5.
+-- 2. VALIDATE. Nothing is written to persistent tables here. Every check runs for every workspace; all refusals are
+-- collected and reported together as "table.field code xCOUNT". Converted custom values are staged for step 4.
 -- =============================================================================================
 
 CREATE TEMP TABLE crm_upgrade_workspace (
@@ -1804,14 +1767,12 @@ END
 $refuse$;
 
 -- =============================================================================================
--- Section 2: EXPANSION. The end state of the generic record storage, created directly (no intermediate
--- shapes). Legacy tables stay in place until section 7 because sections 3-6 read them.
+-- 3. FINAL SCHEMA. Every new table, column, enum and constraint is created directly in its final shape. The legacy
+-- tables stay until step 8 because steps 4-7 read them. The secondary indexes and foreign keys of the record
+-- storage are added once its rows are written, at the end of step 5.
 -- =============================================================================================
 
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
-
--- A new permission resource for the record model configuration (not used by this transaction).
-ALTER TYPE "Resource" ADD VALUE IF NOT EXISTS 'dataModel';
 
 -- Locale-aware deterministic ordering of record values.
 CREATE COLLATION "crm_en" (provider = icu, locale = 'en', deterministic = true);
@@ -1831,7 +1792,6 @@ CREATE TABLE "RecordSchemaState" (
     "companyId" TEXT NOT NULL,
     "revision" INTEGER NOT NULL DEFAULT 0,
     "activeOperationId" TEXT,
-    "storageMode" TEXT NOT NULL DEFAULT 'legacy',
 
     CONSTRAINT "RecordSchemaState_pkey" PRIMARY KEY ("companyId")
 );
@@ -1839,7 +1799,6 @@ CREATE TABLE "RecordSchemaState" (
 CREATE TABLE "RecordTypeDefinition" (
     "companyId" TEXT NOT NULL,
     "id" TEXT NOT NULL,
-    "presetKey" TEXT,
     "label" TEXT NOT NULL,
     "pluralLabel" TEXT NOT NULL,
     "archived" BOOLEAN NOT NULL DEFAULT false,
@@ -1890,6 +1849,9 @@ CREATE TABLE "CrmRecord" (
     "systemData" JSONB,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
+    "trashItemId" TEXT,
+    "rank" TEXT,
 
     CONSTRAINT "CrmRecord_pkey" PRIMARY KEY ("companyId","typeId","id"),
     CONSTRAINT "CrmRecord_version_check" CHECK ("version" > 0)
@@ -1949,6 +1911,7 @@ CREATE TABLE "RecordLink" (
     "targetId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "RecordLink_pkey" PRIMARY KEY ("companyId", "relationId", "id")
 );
@@ -2048,8 +2011,6 @@ CREATE TABLE "EventLog" (
     CONSTRAINT "EventLog_pkey" PRIMARY KEY ("companyId","id")
 );
 
-
-
 -- Canonical channel identities (shared by any number of records) and their lookup aliases.
 CREATE TABLE "RecordIdentity" (
   "companyId" TEXT NOT NULL,
@@ -2094,17 +2055,21 @@ CREATE TABLE "MessagingThreadRecordLink" (
 ALTER TABLE "MessagingThreadParticipant" ADD COLUMN "identityLookupValue" TEXT;
 CREATE INDEX "MessagingThreadParticipant_identity_lookup_idx" ON "MessagingThreadParticipant" ("companyId", provider, "identityLookupValue");
 
--- Explicitly personalised list state keys.
-ALTER TABLE "P13n" ADD COLUMN "viewStateKeys" JSONB;
+-- Explicitly personalised list state keys and personal settings (such as the sidebar layout).
+ALTER TABLE "P13n" ADD COLUMN "viewStateKeys" JSONB, ADD COLUMN "settings" JSONB;
 ALTER TABLE "P13n" ADD CONSTRAINT "P13n_viewStateKeys_array" CHECK ("viewStateKeys" IS NULL OR jsonb_typeof("viewStateKeys") = 'array');
 
--- Generic chart measures and activity queries on widgets.
-ALTER TABLE "Widget" ADD COLUMN "measure" JSONB;
-ALTER TABLE "Widget" ADD COLUMN "version" INTEGER NOT NULL DEFAULT 1;
+-- Generic chart measures and activity queries on widgets, the dashboard view of a widget, and Trash.
+ALTER TABLE "Widget" ADD COLUMN "measure" JSONB, ADD COLUMN "version" INTEGER NOT NULL DEFAULT 1, ADD COLUMN "activityQuery" JSONB,
+  ADD COLUMN "viewId" TEXT, ADD COLUMN "deletedAt" TIMESTAMP(3);
 ALTER TABLE "Widget" ADD CONSTRAINT "Widget_measure_shape_check" CHECK ("measure" IS NULL OR (kind = 'chart' AND jsonb_typeof("measure") = 'object'));
 ALTER TABLE "Widget" ADD CONSTRAINT "Widget_version_positive_check" CHECK (version > 0);
+ALTER TABLE "Widget" ADD CONSTRAINT "Widget_viewId_fkey" FOREIGN KEY ("viewId") REFERENCES "DataView"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 CREATE INDEX "Widget_companyId_measure_typeId_idx" ON "Widget" ("companyId", ("measure"->'source'->>'typeId')) WHERE "measure" IS NOT NULL;
-ALTER TABLE "Widget" ADD COLUMN "activityQuery" JSONB;
+CREATE INDEX "Widget_viewId_idx" ON "Widget"("viewId");
+
+-- Why a webhook was paused, shown when its only trigger field is deleted.
+ALTER TABLE "Webhook" ADD COLUMN "pausedReason" TEXT;
 
 -- Record event subscriptions: one per routine or webhook, several typed sources each.
 CREATE TABLE "RecordEventSubscription" (
@@ -2154,26 +2119,256 @@ ALTER TABLE "WebhookDelivery" ADD CONSTRAINT "WebhookDelivery_subscription_revis
 ALTER TABLE "WebhookDelivery" ADD CONSTRAINT "WebhookDelivery_attempts_check" CHECK (attempts >= 0);
 ALTER TABLE "WebhookDelivery" ADD CONSTRAINT "WebhookDelivery_lease_check" CHECK (("leaseToken" IS NULL) = ("leaseExpiresAt" IS NULL));
 
+-- Trash: deleted records, lists, fields, relationships, views, widgets, routines and Knowledge Base pages stay
+-- restorable until their Trash item expires.
+CREATE TYPE "TrashKind" AS ENUM ('record', 'list', 'field', 'relationship', 'view', 'widget', 'routine', 'wikiPage');
+ALTER TABLE "DataView" ADD COLUMN "deletedAt" TIMESTAMP(3);
+ALTER TABLE "Routine" ADD COLUMN "deletedAt" TIMESTAMP(3);
+ALTER TABLE "WikiPage" ADD COLUMN "deletedAt" TIMESTAMP(3);
+
+CREATE TABLE "TrashItem" (
+    "companyId" TEXT NOT NULL,
+    "id" TEXT NOT NULL,
+    "kind" "TrashKind" NOT NULL,
+    "targetId" TEXT NOT NULL,
+    "typeId" TEXT,
+    "surfaceKey" TEXT,
+    "ownerUserId" TEXT,
+    "label" TEXT NOT NULL,
+    "deletedById" TEXT,
+    "deletedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "batchId" TEXT NOT NULL,
+    "payload" JSONB,
+    CONSTRAINT "TrashItem_pkey" PRIMARY KEY ("companyId","id"),
+    CONSTRAINT "TrashItem_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE INDEX "TrashItem_companyId_deletedAt_idx" ON "TrashItem"("companyId", "deletedAt");
+CREATE INDEX "TrashItem_companyId_batchId_idx" ON "TrashItem"("companyId", "batchId");
+CREATE INDEX "TrashItem_expiresAt_idx" ON "TrashItem"("expiresAt");
+CREATE UNIQUE INDEX "TrashItem_companyId_kind_targetId_key" ON "TrashItem"("companyId", "kind", "targetId");
+
+CREATE INDEX "CrmRecord_companyId_trashItemId_idx" ON "CrmRecord"("companyId", "trashItemId") WHERE "trashItemId" IS NOT NULL;
+CREATE INDEX "DataView_companyId_deletedAt_idx" ON "DataView"("companyId", "deletedAt") WHERE "deletedAt" IS NOT NULL;
+CREATE INDEX "Widget_companyId_deletedAt_idx" ON "Widget"("companyId", "deletedAt") WHERE "deletedAt" IS NOT NULL;
+CREATE INDEX "Routine_companyId_deletedAt_idx" ON "Routine"("companyId", "deletedAt") WHERE "deletedAt" IS NOT NULL;
+CREATE INDEX "WikiPage_companyId_deletedAt_idx" ON "WikiPage"("companyId", "deletedAt") WHERE "deletedAt" IS NOT NULL;
+
+-- One guide page per workspace; a guide in Trash does not count.
+DROP INDEX "WikiPage_companyId_guide_key";
+CREATE UNIQUE INDEX "WikiPage_companyId_guide_key" ON "WikiPage"("companyId") WHERE "kind" = 'guide' AND "deletedAt" IS NULL;
+
+-- Search catalog for the command palette: the navigable targets (pages, settings, actions) per locale for every
+-- workspace (companyId NULL, one row per buildHash, locale and target) and each workspace's list, view and field
+-- names (companyId set, buildHash and locale NULL). Only names are stored and embedded, never record content.
+CREATE TABLE "SearchCatalogEntry" (
+  "id" TEXT NOT NULL,
+  "companyId" TEXT,
+  "buildHash" TEXT,
+  "locale" TEXT,
+  "targetId" TEXT NOT NULL,
+  "text" TEXT NOT NULL,
+  "contentHash" TEXT NOT NULL,
+  "model" TEXT,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT "SearchCatalogEntry_pkey" PRIMARY KEY ("id"),
+  CONSTRAINT "SearchCatalogEntry_scope_check" CHECK (
+    ("companyId" IS NULL AND "buildHash" IS NOT NULL AND "locale" IS NOT NULL)
+    OR ("companyId" IS NOT NULL AND "buildHash" IS NULL AND "locale" IS NULL)
+  )
+);
+
+CREATE UNIQUE INDEX "SearchCatalogEntry_buildHash_locale_targetId_key"
+  ON "SearchCatalogEntry"("buildHash", "locale", "targetId");
+CREATE UNIQUE INDEX "SearchCatalogEntry_companyId_targetId_key" ON "SearchCatalogEntry"("companyId", "targetId");
+CREATE INDEX "SearchCatalogEntry_contentHash_idx" ON "SearchCatalogEntry"("contentHash");
+
+ALTER TABLE "SearchCatalogEntry" ADD CONSTRAINT "SearchCatalogEntry_companyId_fkey"
+  FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- The embedding column needs pgvector; without it, command search stays keyword only.
+DO $$
+BEGIN
+  CREATE EXTENSION IF NOT EXISTS vector;
+  ALTER TABLE "SearchCatalogEntry" ADD COLUMN "embedding" vector(768);
+EXCEPTION
+  WHEN undefined_file OR insufficient_privilege OR feature_not_supported THEN
+    RAISE NOTICE 'pgvector is unavailable, so command search stays keyword only on this database.';
+END
+$$;
+
+-- Indexing claims: a worker marks the rows it is embedding in one short statement and clears the mark when it stores
+-- the vectors or gives up, so no connection is held while embedding; a claim older than five minutes is abandoned.
+ALTER TABLE "SearchCatalogEntry" ADD COLUMN "claimedAt" TIMESTAMP(3);
+
+-- Agent usage purposes for calculation drafts and command resolution. Nothing in this file uses them, so adding them
+-- inside the transaction is safe.
+ALTER TYPE "AgentUsagePurpose" ADD VALUE IF NOT EXISTS 'calculationDraft';
+ALTER TYPE "AgentUsagePurpose" ADD VALUE IF NOT EXISTS 'commandResolve';
 
 -- =============================================================================================
--- Section 3: DATA CONVERSION. Record IDs and createdAt/updatedAt are copied unchanged. Collisions of
--- legacy IDs across types are preserved (records are keyed by type). No record events are written, so
--- no routine or webhook delivery is emitted.
+-- 4. DATA, written once in its final form. Record IDs and createdAt/updatedAt are copied unchanged. Collisions of
+-- legacy IDs across types are preserved (records are keyed by type). No record events are written, so no routine
+-- or webhook delivery is emitted.
 -- =============================================================================================
+
+-- Each workspace's record model is completed in staging before any definition is written. Money fields without a
+-- currency (the starter ones) take the workspace currency.
+UPDATE crm_upgrade_workspace workspace
+SET model = jsonb_set(workspace.model, '{fields}', (
+  SELECT jsonb_agg(CASE
+    WHEN field.value ->> 'valueType' = 'currency' AND field.value #>> '{format,currency}' IS NULL
+    THEN jsonb_set(field.value, '{format}', COALESCE(NULLIF(field.value -> 'format', 'null'::jsonb), '{}'::jsonb)
+      || jsonb_build_object('currency', workspace.currency))
+    ELSE field.value END ORDER BY field.ordinality)
+  FROM jsonb_array_elements(workspace.model -> 'fields') WITH ORDINALITY AS field(value, ordinality)
+));
+
+-- Unique names (design rule 40). The starter lists and relationships have unique names, so only field names (per
+-- list) and option labels (per field) can collide. The oldest field keeps its name: built-in fields date from their
+-- workspace, custom columns from their creation, then by id; options keep their stored order. A later duplicate
+-- gets the first free " (n)" suffix from 2 on after its own name with whitespace collapsed, truncated so the result
+-- stays within the 200 UTF-16 code unit label limit. Names compare after Unicode NFD, removing combining accents
+-- U+0300-U+036F, collapsing whitespace (the JavaScript \s set), trimming and lowercasing, matching recordNameKey in
+-- features/records/record-names.ts.
+-- Then the channel identities of Contacts become its Channels field (id "capability.identity", with the provider
+-- avatar), appended after the contact fields and named "Channels", or the first free "Channels (n)" from 2 on.
+CREATE FUNCTION pg_temp.config_name_key(value text) RETURNS text
+LANGUAGE sql IMMUTABLE AS $fn$
+  SELECT lower(btrim(regexp_replace(
+    regexp_replace(normalize(coalesce(value, ''), NFD), '[\u0300-\u036f]', '', 'g'),
+    '[\t\n\v\f\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+', ' ', 'g'
+  )))
+$fn$;
+
+CREATE FUNCTION pg_temp.config_name_suffixed(base text, n integer) RETURNS text
+LANGUAGE sql IMMUTABLE AS $fn$
+  SELECT rtrim(coalesce(string_agg(kept.ch, '' ORDER BY kept.i), '')) || ' (' || n || ')'
+  FROM (
+    SELECT c.ch, c.i, sum(CASE WHEN ascii(c.ch) > 65535 THEN 2 ELSE 1 END) OVER (ORDER BY c.i) AS units
+    FROM regexp_split_to_table(
+      btrim(regexp_replace(base, '[\t\n\v\f\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+', ' ', 'g')),
+      ''
+    ) WITH ORDINALITY AS c(ch, i)
+  ) AS kept
+  WHERE kept.units <= 200 - length(' (' || n || ')')
+$fn$;
+
+CREATE FUNCTION pg_temp.config_name_free(base text, taken text[]) RETURNS text
+LANGUAGE sql IMMUTABLE AS $fn$
+  WITH RECURSIVE attempt(n, name) AS (
+    SELECT 2, pg_temp.config_name_suffixed(base, 2)
+    UNION ALL
+    SELECT attempt.n + 1, pg_temp.config_name_suffixed(base, attempt.n + 1)
+    FROM attempt
+    WHERE pg_temp.config_name_key(attempt.name) = ANY (taken)
+  )
+  SELECT name FROM attempt ORDER BY n DESC LIMIT 1
+$fn$;
+
+DO $$
+DECLARE
+  v_workspace record;
+  v_item record;
+  v_choice record;
+  v_model jsonb;
+  v_taken text[];
+  v_claimed jsonb;
+  v_scope text;
+  v_label text;
+  v_key text;
+  v_renamed text;
+  v_contact text;
+  v_position integer;
+BEGIN
+  FOR v_workspace IN
+    SELECT w.company_id, w.model, company."createdAt" AS created_at
+    FROM crm_upgrade_workspace w JOIN "Company" company ON company.id = w.company_id
+    ORDER BY w.company_id
+  LOOP
+    v_model := v_workspace.model;
+
+    v_scope := NULL;
+    FOR v_item IN
+      SELECT (f.ordinality - 1)::integer AS position, f.value ->> 'typeId' AS list
+      FROM jsonb_array_elements(v_model -> 'fields') WITH ORDINALITY AS f(value, ordinality)
+      LEFT JOIN "CustomColumn" c ON c."companyId" = v_workspace.company_id AND c.id = f.value ->> 'id'
+      ORDER BY f.value ->> 'typeId', COALESCE(c."createdAt", v_workspace.created_at), f.value ->> 'id'
+    LOOP
+      IF v_item.list IS DISTINCT FROM v_scope THEN
+        v_scope := v_item.list;
+        v_claimed := '{}'::jsonb;
+        SELECT coalesce(array_agg(pg_temp.config_name_key(f.value ->> 'label')), '{}') INTO v_taken
+        FROM jsonb_array_elements(v_model -> 'fields') AS f(value)
+        WHERE f.value ->> 'typeId' = v_scope;
+      END IF;
+      v_label := v_model -> 'fields' -> v_item.position ->> 'label';
+      v_key := pg_temp.config_name_key(v_label);
+      IF v_claimed ? v_key THEN
+        v_renamed := pg_temp.config_name_free(v_label, v_taken);
+        v_model := jsonb_set(v_model, ARRAY['fields', v_item.position::text, 'label'], to_jsonb(v_renamed));
+        v_key := pg_temp.config_name_key(v_renamed);
+        v_taken := v_taken || v_key;
+      END IF;
+      v_claimed := v_claimed || jsonb_build_object(v_key, true);
+    END LOOP;
+
+    FOR v_item IN
+      SELECT (f.ordinality - 1)::integer AS position, f.value -> 'options' AS options
+      FROM jsonb_array_elements(v_model -> 'fields') WITH ORDINALITY AS f(value, ordinality)
+      WHERE jsonb_typeof(f.value -> 'options') = 'array' AND jsonb_array_length(f.value -> 'options') > 1
+    LOOP
+      v_claimed := '{}'::jsonb;
+      SELECT coalesce(array_agg(pg_temp.config_name_key(o.value ->> 'label')), '{}') INTO v_taken
+      FROM jsonb_array_elements(v_item.options) AS o(value);
+      FOR v_choice IN
+        SELECT (o.ordinality - 1)::integer AS position, o.value ->> 'label' AS label
+        FROM jsonb_array_elements(v_item.options) WITH ORDINALITY AS o(value, ordinality)
+        ORDER BY o.ordinality
+      LOOP
+        v_key := pg_temp.config_name_key(v_choice.label);
+        IF v_claimed ? v_key THEN
+          v_renamed := pg_temp.config_name_free(v_choice.label, v_taken);
+          v_model := jsonb_set(v_model, ARRAY['fields', v_item.position::text, 'options', v_choice.position::text, 'label'],
+            to_jsonb(v_renamed));
+          v_key := pg_temp.config_name_key(v_renamed);
+          v_taken := v_taken || v_key;
+        END IF;
+        v_claimed := v_claimed || jsonb_build_object(v_key, true);
+      END LOOP;
+    END LOOP;
+
+    v_contact := crm_upgrade.preset_id(v_workspace.company_id, 'contact');
+    SELECT coalesce(array_agg(pg_temp.config_name_key(f.value ->> 'label')), '{}'), coalesce(max((f.value ->> 'position')::integer) + 1, 0)
+      INTO v_taken, v_position
+    FROM jsonb_array_elements(v_model -> 'fields') AS f(value)
+    WHERE f.value ->> 'typeId' = v_contact;
+    v_model := jsonb_set(v_model, '{fields}', (v_model -> 'fields') || jsonb_build_array(jsonb_build_object(
+      'id', crm_upgrade.preset_id(v_workspace.company_id, 'capability.identity'), 'typeId', v_contact,
+      'label', CASE WHEN pg_temp.config_name_key('Channels') = ANY (v_taken) THEN pg_temp.config_name_free('Channels', v_taken) ELSE 'Channels' END,
+      'valueType', 'channels', 'behavior', '{"kind":"input"}'::jsonb, 'required', false, 'format', '{"providerAvatar":true}'::jsonb,
+      'archived', false, 'publishedSummary', false, 'options', '[]'::jsonb, 'position', v_position)));
+
+    UPDATE crm_upgrade_workspace SET model = v_model WHERE company_id = v_workspace.company_id;
+  END LOOP;
+END $$;
+
+DROP FUNCTION pg_temp.config_name_free(text, text[]);
+DROP FUNCTION pg_temp.config_name_suffixed(text, integer);
+DROP FUNCTION pg_temp.config_name_key(text);
 
 -- The record model rows come first because records, values and links reference them.
-INSERT INTO "RecordTypeDefinition" ("companyId", id, "presetKey", label, "pluralLabel", archived, embedded, position, definition, "createdAt", "updatedAt")
+INSERT INTO "RecordTypeDefinition" ("companyId", id, label, "pluralLabel", archived, embedded, position, definition, "createdAt", "updatedAt")
 SELECT w.company_id, t.value ->> 'id',
-  (SELECT k FROM unnest(ARRAY['contact', 'organization', 'deal', 'service', 'task', 'lineItem']) AS k WHERE crm_upgrade.preset_id(w.company_id, k) = t.value ->> 'id'),
   t.value ->> 'label', t.value ->> 'pluralLabel', (t.value ->> 'archived')::boolean, (t.value ->> 'embedded')::boolean, (t.value ->> 'position')::integer,
   t.value, now(), now()
 FROM crm_upgrade_workspace w, jsonb_array_elements(w.model -> 'types') AS t(value);
 
--- Built-in fields date from their workspace, so they are older than every custom column and keep their
--- name when section 6 renames a custom column with the same name.
+-- Built-in fields date from their workspace; Channels fields date from the upgrade.
 INSERT INTO "RecordFieldDefinition" ("companyId", "typeId", id, "valueType", behavior, archived, definition, "createdAt", "updatedAt")
 SELECT w.company_id, f.value ->> 'typeId', f.value ->> 'id', f.value ->> 'valueType', f.value #>> '{behavior,kind}', (f.value ->> 'archived')::boolean, f.value,
-  COALESCE(c."createdAt", company."createdAt"), COALESCE(c."updatedAt", now())
+  CASE WHEN f.value ->> 'valueType' = 'channels' THEN now() ELSE COALESCE(c."createdAt", company."createdAt") END, COALESCE(c."updatedAt", now())
 FROM crm_upgrade_workspace w
 JOIN "Company" company ON company.id = w.company_id
 CROSS JOIN jsonb_array_elements(w.model -> 'fields') AS f(value)
@@ -2182,7 +2377,6 @@ LEFT JOIN "CustomColumn" c ON c."companyId" = w.company_id AND c.id = f.value ->
 INSERT INTO "RecordRelationshipDefinition" ("companyId", id, "sourceTypeId", "targetTypeId", definition, archived, "createdAt", "updatedAt")
 SELECT w.company_id, r.value ->> 'id', r.value ->> 'sourceTypeId', r.value ->> 'targetTypeId', r.value, (r.value ->> 'archived')::boolean, now(), now()
 FROM crm_upgrade_workspace w, jsonb_array_elements(w.model -> 'relationships') AS r(value);
-
 
 -- Records of the five legacy types; pending membership authorisations stay protected system tasks.
 INSERT INTO "CrmRecord" ("companyId", "typeId", id, "protectedKind", "systemData", "createdAt", "updatedAt")
@@ -2200,7 +2394,6 @@ SELECT r."companyId", crm_upgrade.preset_id(r."companyId", 'task'), r.id,
 UNION ALL
 -- Line items: every legacy service-on-deal row becomes an embedded record with the same ID.
 SELECT r."companyId", crm_upgrade.preset_id(r."companyId", 'lineItem'), r.id, NULL, NULL, r."createdAt", r."updatedAt" FROM "ServiceDeal" r;
-
 
 -- Member assignments keep their creation time.
 INSERT INTO "RecordAssignment" ("companyId", "typeId", "recordId", "userId", "createdAt")
@@ -2272,7 +2465,7 @@ DO $insert$ BEGIN PERFORM crm_upgrade.insert_values($staged$
     ('pricingMode', '{"kind":"select","value":"live"}'::jsonb)) AS f(key, scalar)
 $staged$); END $insert$;
 
--- Custom column values validated and staged in section 1 (including the documented link repair).
+-- Custom column values validated and staged in step 2 (including the documented link repair).
 DO $insert$ BEGIN PERFORM crm_upgrade.insert_values($staged$
   SELECT company_id, type_id, record_id, field_id, scalar, created_at, updated_at FROM crm_upgrade_value
 $staged$); END $insert$;
@@ -2288,7 +2481,6 @@ UNION ALL SELECT l."companyId", l.id, crm_upgrade.preset_id(l."companyId", 'task
 UNION ALL SELECT l."companyId", l.id, crm_upgrade.preset_id(l."companyId", 'task.services'), crm_upgrade.preset_id(l."companyId", 'task'), l."taskId", crm_upgrade.preset_id(l."companyId", 'service'), l."serviceId", l."createdAt", l."updatedAt" FROM "TaskService" l
 UNION ALL SELECT l."companyId", l.id, crm_upgrade.preset_id(l."companyId", 'lineItem.service'), crm_upgrade.preset_id(l."companyId", 'lineItem'), l.id, crm_upgrade.preset_id(l."companyId", 'service'), l."serviceId", l."createdAt", l."updatedAt" FROM "ServiceDeal" l
 UNION ALL SELECT l."companyId", l.id, crm_upgrade.preset_id(l."companyId", 'lineItem.deal'), crm_upgrade.preset_id(l."companyId", 'lineItem'), l.id, crm_upgrade.preset_id(l."companyId", 'deal'), l."dealId", l."createdAt", l."updatedAt" FROM "ServiceDeal" l;
-
 
 -- Contact identifiers become canonical channel identities (same IDs) with their lookup aliases (value and
 -- provider messaging ID) and one record association each.
@@ -2306,18 +2498,17 @@ UPDATE "MessagingThreadParticipant" participant
 SET "identityLookupValue" = crm_upgrade.participant_lookup_value(participant.provider::text, participant.identifier)
 WHERE crm_upgrade.participant_lookup_value(participant.provider::text, participant.identifier) IS NOT NULL;
 
-
 -- =============================================================================================
--- Section 4: CONFIGURATION. Every workspace gets its record model as configuration revision 1, is set to
--- storageMode = generic and keeps its role permissions as per-type grants. Legacy presentation state,
--- history and automation triggers are not converted: history starts at the upgrade.
+-- 5. CONFIGURATION AND REMOVALS. Every workspace gets its record model as configuration revision 1 and keeps its
+-- role permissions as per-type grants. Legacy presentation state, history and automation triggers are removed or
+-- disabled as decided (README.md, "What is not carried over"): history starts at the upgrade.
 -- =============================================================================================
 
 INSERT INTO "RecordSchemaRevision" ("companyId", revision, "actorId", snapshot, "createdAt")
 SELECT company_id, 1, 'system:configurable-records-upgrade', model, now() FROM crm_upgrade_workspace;
 
-INSERT INTO "RecordSchemaState" ("companyId", revision, "activeOperationId", "storageMode")
-SELECT company_id, 1, NULL, 'generic' FROM crm_upgrade_workspace;
+INSERT INTO "RecordSchemaState" ("companyId", revision, "activeOperationId")
+SELECT company_id, 1, NULL FROM crm_upgrade_workspace;
 
 -- Role permissions on the legacy resources become per-type grants (action order normalised).
 INSERT INTO "RecordTypeGrant" ("companyId", "typeId", "roleId", actions)
@@ -2332,7 +2523,7 @@ DELETE FROM "DataView" WHERE "surfaceKey" ~ '^((contact|organization|deal|servic
 DELETE FROM "P13n" WHERE "p13nId" ~ '^((contact|organization|deal|service|task|audit-log)s-card-store|(contact|organization|deal|service|task)-detail|entity-timeline)$';
 DELETE FROM "Widget";
 
--- The audit log is not carried over (section 7 drops it), except the legal-consent evidence (accepted legal
+-- The audit log is not carried over (step 8 drops it), except the legal-consent evidence (accepted legal
 -- documents and sent legal notices) and the connected account history (connected_account.*), which the
 -- operator console's channel usage reads. Those rows move into the event log with their id, actor, entity, time
 -- and payload; the subject kind is the event prefix. They are history only, so they are written as already
@@ -2343,7 +2534,7 @@ FROM "AuditLog" WHERE event IN ('legal.documents_accepted', 'legal.notice_sent')
 
 -- Automations: every webhook and every event-triggered routine is disabled; scheduled routines keep their
 -- schedule and enabled state. Legacy record events are removed from every webhook and routine, together with
--- the filters of those events, and from the trigger of past routine runs. Section 7 drops the watched fields of
+-- the filters of those events, and from the trigger of past routine runs. Step 8 drops the watched fields of
 -- every routine. Nothing subscribes to generic record events.
 UPDATE "Webhook" SET enabled = false,
   events = ARRAY(SELECT e.event FROM unnest(events) WITH ORDINALITY AS e(event, ordinality)
@@ -2358,13 +2549,104 @@ WHERE legacy.id = "Routine".id;
 UPDATE "RoutineRun" SET "triggerEvent" = NULL, "triggerEntityId" = NULL, "triggerPayload" = NULL
 WHERE "triggerEvent" ~ '^(contact|organization|deal|service|task)\.';
 
--- =============================================================================================
--- Section 4b: secondary indexes of the generic storage, built once after the bulk conversion (as a
--- restore does) and before the calculations and reconciliation that read through them.
--- =============================================================================================
+-- Remove legacy grants after copying them to record type grants.
+DELETE FROM "RolePermission" WHERE resource::text IN ('contacts', 'deals', 'organizations', 'services', 'tasks');
 
+ALTER TYPE "Resource" RENAME TO "Resource_old";
+CREATE TYPE "Resource" AS ENUM ('dataModel', 'users', 'company', 'api', 'auditLog', 'inboxMessages', 'wiki', 'routines');
+ALTER TABLE "RolePermission" ALTER COLUMN "resource" TYPE "Resource" USING ("resource"::text::"Resource");
+DROP TYPE "Resource_old";
+
+-- System resources share the record-type vocabulary: create / update / delete plus readAll / readOwn where they
+-- apply (features/role/resource-access.ts). Rows for actions that never applied are removed: company and data model
+-- only update, the audit log is read-only, and only users and routines have an own read scope.
+DELETE FROM "RolePermission"
+WHERE (resource IN ('company', 'dataModel') AND action IN ('create', 'delete'))
+   OR (resource = 'auditLog' AND action IN ('create', 'update', 'delete'))
+   OR (resource IN ('api', 'wiki', 'auditLog') AND action = 'readOwn');
+
+-- Inbox reads always accepted either scope, so an own-scope row becomes the single all-scope row.
+INSERT INTO "RolePermission" (id, "roleId", "companyId", resource, action)
+SELECT gen_random_uuid()::text, p."roleId", p."companyId", p.resource, 'readAll'
+FROM "RolePermission" p
+WHERE p.resource = 'inboxMessages' AND p.action = 'readOwn'
+ON CONFLICT ("roleId", resource, action) DO NOTHING;
+DELETE FROM "RolePermission" WHERE resource = 'inboxMessages' AND action = 'readOwn';
+
+-- Company settings visibility was checked as readOwn; a lone readAll row never granted it.
+DELETE FROM "RolePermission" p
+WHERE p.resource = 'company' AND p.action = 'readAll'
+  AND NOT EXISTS (
+    SELECT 1 FROM "RolePermission" o WHERE o."roleId" = p."roleId" AND o.resource = 'company' AND o.action = 'readOwn'
+  );
+
+-- A kept saved view or personal layout that contains the column key "system:channels" (the legacy application never
+-- wrote it) gets the Channels field id of its list instead, or loses the key where the list has no live Channels
+-- field. View names stay as they are.
+CREATE FUNCTION crm_upgrade.channels_rekey(value jsonb, field_id text) RETURNS jsonb
+LANGUAGE sql IMMUTABLE AS $$
+  SELECT CASE jsonb_typeof(value)
+    WHEN 'string' THEN CASE WHEN value #>> '{}' = 'system:channels' THEN coalesce(to_jsonb(field_id), 'null'::jsonb)
+      ELSE value END
+    WHEN 'array' THEN coalesce((
+      SELECT jsonb_agg(crm_upgrade.channels_rekey(item.value, field_id) ORDER BY item.ordinality)
+      FROM jsonb_array_elements(value) WITH ORDINALITY AS item(value, ordinality)
+      WHERE field_id IS NOT NULL OR item.value IS DISTINCT FROM '"system:channels"'::jsonb), '[]'::jsonb)
+    WHEN 'object' THEN coalesce((
+      SELECT jsonb_object_agg(CASE WHEN entry.key = 'system:channels' THEN field_id ELSE entry.key END,
+        crm_upgrade.channels_rekey(entry.value, field_id))
+      FROM jsonb_each(value) AS entry
+      WHERE field_id IS NOT NULL OR entry.key <> 'system:channels'), '{}'::jsonb)
+    ELSE value END
+$$;
+
+CREATE FUNCTION crm_upgrade.channels_rekey_list(value text[], field_id text) RETURNS text[]
+LANGUAGE sql IMMUTABLE AS $$
+  SELECT CASE WHEN field_id IS NULL THEN array_remove(value, 'system:channels')
+    ELSE array_replace(value, 'system:channels', field_id) END
+$$;
+
+CREATE FUNCTION crm_upgrade.channels_field_id(p_company_id text, p_surface text) RETURNS text
+LANGUAGE sql STABLE AS $$
+  SELECT id FROM "RecordFieldDefinition"
+  WHERE "companyId" = p_company_id AND "valueType" = 'channels' AND NOT archived
+    AND "typeId" = regexp_replace(p_surface, '^(records|record-detail):', '')
+  LIMIT 1
+$$;
+
+UPDATE "DataView" view
+SET "columnOrder" = crm_upgrade.channels_rekey(view."columnOrder", target.field_id),
+  "hiddenColumns" = crm_upgrade.channels_rekey(view."hiddenColumns", target.field_id),
+  "columnWidths" = crm_upgrade.channels_rekey(view."columnWidths", target.field_id),
+  "sortDescriptor" = crm_upgrade.channels_rekey(view."sortDescriptor", target.field_id),
+  grouping = crm_upgrade.channels_rekey(view.grouping, target.field_id),
+  filters = crm_upgrade.channels_rekey(view.filters, target.field_id),
+  "groupingColumnId" = CASE WHEN view."groupingColumnId" = 'system:channels' THEN target.field_id
+    ELSE view."groupingColumnId" END
+FROM (SELECT id, crm_upgrade.channels_field_id("companyId", "surfaceKey") AS field_id FROM "DataView") AS target
+WHERE target.id = view.id
+  AND (to_jsonb(view) - 'name')::text LIKE '%system:channels%';
+
+UPDATE "P13n" personalization
+SET "columnOrder" = crm_upgrade.channels_rekey_list(personalization."columnOrder", target.field_id),
+  "hiddenColumns" = crm_upgrade.channels_rekey_list(personalization."hiddenColumns", target.field_id),
+  "columnWidths" = crm_upgrade.channels_rekey(personalization."columnWidths", target.field_id),
+  "sortDescriptor" = crm_upgrade.channels_rekey(personalization."sortDescriptor", target.field_id),
+  grouping = crm_upgrade.channels_rekey(personalization.grouping, target.field_id),
+  filters = crm_upgrade.channels_rekey(personalization.filters, target.field_id),
+  "detailOptions" = crm_upgrade.channels_rekey(personalization."detailOptions", target.field_id),
+  settings = crm_upgrade.channels_rekey(personalization.settings, target.field_id),
+  "viewStateKeys" = crm_upgrade.channels_rekey(personalization."viewStateKeys", target.field_id),
+  "groupingColumnId" = CASE WHEN personalization."groupingColumnId" = 'system:channels' THEN target.field_id
+    ELSE personalization."groupingColumnId" END
+FROM (SELECT id, crm_upgrade.channels_field_id("companyId", "p13nId") AS field_id FROM "P13n") AS target
+WHERE target.id = personalization.id
+  AND to_jsonb(personalization)::text LIKE '%system:channels%';
+
+-- The secondary indexes and foreign keys of the record storage, built once after its rows are written (as a restore
+-- does) and before the calculations and reconciliation that read through them. Adding a foreign key validates every
+-- converted row. Then fresh planner statistics.
 CREATE INDEX "RecordTypeDefinition_companyId_archived_position_idx" ON "RecordTypeDefinition"("companyId", "archived", "position");
-CREATE UNIQUE INDEX "RecordTypeDefinition_companyId_presetKey_key" ON "RecordTypeDefinition"("companyId", "presetKey");
 CREATE INDEX "RecordFieldDefinition_companyId_typeId_archived_idx" ON "RecordFieldDefinition"("companyId", "typeId", "archived");
 CREATE UNIQUE INDEX "RecordFieldDefinition_companyId_typeId_id_key" ON "RecordFieldDefinition"("companyId", "typeId", "id");
 CREATE INDEX "RecordRelationshipDefinition_companyId_sourceTypeId_idx" ON "RecordRelationshipDefinition"("companyId", "sourceTypeId");
@@ -2400,13 +2682,55 @@ CREATE INDEX "RecordEventSubscription_companyId_enabled_typeId_idx" ON "RecordEv
 CREATE INDEX "RecordEventSubscription_companyId_ownerUserId_idx" ON "RecordEventSubscription"("companyId", "ownerUserId");
 CREATE INDEX "RecordEventMatch_companyId_subscriptionId_idx" ON "RecordEventMatch"("companyId", "subscriptionId");
 
+ALTER TABLE "RecordSchemaState" ADD CONSTRAINT "RecordSchemaState_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordTypeDefinition" ADD CONSTRAINT "RecordTypeDefinition_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordFieldDefinition" ADD CONSTRAINT "RecordFieldDefinition_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordFieldDefinition" ADD CONSTRAINT "RecordFieldDefinition_companyId_typeId_fkey" FOREIGN KEY ("companyId", "typeId") REFERENCES "RecordTypeDefinition"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordRelationshipDefinition" ADD CONSTRAINT "RecordRelationshipDefinition_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordRelationshipDefinition" ADD CONSTRAINT "RecordRelationshipDefinition_companyId_sourceTypeId_fkey" FOREIGN KEY ("companyId", "sourceTypeId") REFERENCES "RecordTypeDefinition"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordRelationshipDefinition" ADD CONSTRAINT "RecordRelationshipDefinition_companyId_targetTypeId_fkey" FOREIGN KEY ("companyId", "targetTypeId") REFERENCES "RecordTypeDefinition"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "CrmRecord" ADD CONSTRAINT "CrmRecord_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "CrmRecord" ADD CONSTRAINT "CrmRecord_companyId_typeId_fkey" FOREIGN KEY ("companyId", "typeId") REFERENCES "RecordTypeDefinition"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordValue" ADD CONSTRAINT "RecordValue_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordValue" ADD CONSTRAINT "RecordValue_companyId_typeId_recordId_fkey" FOREIGN KEY ("companyId", "typeId", "recordId") REFERENCES "CrmRecord"("companyId", "typeId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordValue" ADD CONSTRAINT "RecordValue_companyId_typeId_fieldId_fkey" FOREIGN KEY ("companyId", "typeId", "fieldId") REFERENCES "RecordFieldDefinition"("companyId", "typeId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordValueDependency" ADD CONSTRAINT "RecordValueDependency_companyId_typeId_recordId_fieldId_fkey" FOREIGN KEY ("companyId", "typeId", "recordId", "fieldId") REFERENCES "RecordValue"("companyId", "typeId", "recordId", "fieldId") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordLink" ADD CONSTRAINT "RecordLink_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordLink" ADD CONSTRAINT "RecordLink_companyId_relationId_sourceTypeId_targetTypeId_fkey" FOREIGN KEY ("companyId", "relationId", "sourceTypeId", "targetTypeId") REFERENCES "RecordRelationshipDefinition"("companyId", "id", "sourceTypeId", "targetTypeId") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordLink" ADD CONSTRAINT "RecordLink_companyId_sourceTypeId_sourceId_fkey" FOREIGN KEY ("companyId", "sourceTypeId", "sourceId") REFERENCES "CrmRecord"("companyId", "typeId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordLink" ADD CONSTRAINT "RecordLink_companyId_targetTypeId_targetId_fkey" FOREIGN KEY ("companyId", "targetTypeId", "targetId") REFERENCES "CrmRecord"("companyId", "typeId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordAssignment" ADD CONSTRAINT "RecordAssignment_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordAssignment" ADD CONSTRAINT "RecordAssignment_companyId_typeId_recordId_fkey" FOREIGN KEY ("companyId", "typeId", "recordId") REFERENCES "CrmRecord"("companyId", "typeId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordAssignment" ADD CONSTRAINT "RecordAssignment_companyId_userId_fkey" FOREIGN KEY ("companyId", "userId") REFERENCES "User"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordTypeGrant" ADD CONSTRAINT "RecordTypeGrant_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordTypeGrant" ADD CONSTRAINT "RecordTypeGrant_companyId_typeId_fkey" FOREIGN KEY ("companyId", "typeId") REFERENCES "RecordTypeDefinition"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordTypeGrant" ADD CONSTRAINT "RecordTypeGrant_companyId_roleId_fkey" FOREIGN KEY ("companyId", "roleId") REFERENCES "UserRole"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordSchemaRevision" ADD CONSTRAINT "RecordSchemaRevision_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordOperation" ADD CONSTRAINT "RecordOperation_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordStageRow" ADD CONSTRAINT "RecordStageRow_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordStageRow" ADD CONSTRAINT "RecordStageRow_companyId_operationId_fkey" FOREIGN KEY ("companyId", "operationId") REFERENCES "RecordOperation"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordMutationReceipt" ADD CONSTRAINT "RecordMutationReceipt_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "EventLog" ADD CONSTRAINT "EventLog_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordIdentity" ADD CONSTRAINT "RecordIdentity_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordIdentityKey" ADD CONSTRAINT "RecordIdentityKey_companyId_identityId_channelClass_fkey" FOREIGN KEY ("companyId", "identityId", "channelClass") REFERENCES "RecordIdentity"("companyId", "id", "channelClass") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordIdentityLink" ADD CONSTRAINT "RecordIdentityLink_companyId_identityId_fkey" FOREIGN KEY ("companyId", "identityId") REFERENCES "RecordIdentity"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordIdentityLink" ADD CONSTRAINT "RecordIdentityLink_companyId_typeId_recordId_fkey" FOREIGN KEY ("companyId", "typeId", "recordId") REFERENCES "CrmRecord"("companyId", "typeId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "MessagingThreadRecordLink" ADD CONSTRAINT "MessagingThreadRecordLink_companyId_threadId_fkey" FOREIGN KEY ("companyId", "threadId") REFERENCES "MessagingThread"("companyId", id) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "MessagingThreadRecordLink" ADD CONSTRAINT "MessagingThreadRecordLink_companyId_typeId_recordId_fkey" FOREIGN KEY ("companyId", "typeId", "recordId") REFERENCES "CrmRecord"("companyId", "typeId", id) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordEventSubscription" ADD CONSTRAINT "RecordEventSubscription_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordEventSubscription" ADD CONSTRAINT "RecordEventSubscription_companyId_ownerUserId_fkey" FOREIGN KEY ("companyId", "ownerUserId") REFERENCES "User"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordEventSubscription" ADD CONSTRAINT "RecordEventSubscription_companyId_typeId_fkey" FOREIGN KEY ("companyId", "typeId") REFERENCES "RecordTypeDefinition"("companyId", "id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "RecordEventMatch" ADD CONSTRAINT "RecordEventMatch_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordEventMatch" ADD CONSTRAINT "RecordEventMatch_companyId_eventId_fkey" FOREIGN KEY ("companyId", "eventId") REFERENCES "EventLog"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RecordEventMatch" ADD CONSTRAINT "RecordEventMatch_companyId_subscriptionId_fkey" FOREIGN KEY ("companyId", "subscriptionId") REFERENCES "RecordEventSubscription"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
+
 ANALYZE "RecordTypeDefinition", "RecordFieldDefinition", "RecordRelationshipDefinition", "CrmRecord", "RecordValue", "RecordValueDependency",
   "RecordLink", "RecordAssignment", "RecordTypeGrant", "RecordSchemaRevision", "RecordIdentity", "RecordIdentityKey", "RecordIdentityLink",
   "RecordEventSubscription";
 
 -- =============================================================================================
--- Section 5: CALCULATIONS. The preset's calculated fields are materialised with exact decimals, exactly
--- as the record engine evaluates them:
+-- 6. CALCULATIONS. The preset's calculated fields are materialised with exact decimals, exactly as the record engine
+-- evaluates them:
 --   contact.name          trim(firstName + " " + lastName)         (JavaScript whitespace trimming)
 --   lineItem.effectivePrice  live price = the linked service's amount (every migrated line item is live)
 --   lineItem.amount       quantity x unit price
@@ -2450,7 +2774,6 @@ LEFT JOIN "RecordValue" price ON price."companyId" = r."companyId" AND price."ty
 LEFT JOIN "RecordValue" quantity ON quantity."companyId" = r."companyId" AND quantity."typeId" = r."typeId" AND quantity."recordId" = r.id
   AND quantity."fieldId" = crm_upgrade.preset_id(r."companyId", 'lineItem.quantity') AND quantity.state = 'value'
 WHERE r."typeId" = crm_upgrade.preset_id(r."companyId", 'lineItem');
-
 
 INSERT INTO crm_upgrade_calculated (company_id, type_id, record_id, field_id, scalar, created_at, updated_at, failed)
 SELECT l.company_id, crm_upgrade.preset_id(l.company_id, 'lineItem'), l.line_id, crm_upgrade.preset_id(l.company_id, 'lineItem.effectivePrice'),
@@ -2526,7 +2849,6 @@ DO $insert$ BEGIN PERFORM crm_upgrade.insert_values($staged$
   SELECT company_id, type_id, record_id, field_id, scalar, created_at, updated_at FROM crm_upgrade_calculated
 $staged$); END $insert$;
 
-
 -- Provenance: unit price and amount depend on the line's service; value rollups on each line and its
 -- service; quantity rollups on each line.
 INSERT INTO "RecordValueDependency" ("companyId", "typeId", "recordId", "fieldId", "sourceTypeId", "sourceId")
@@ -2544,58 +2866,10 @@ SELECT DISTINCT dependency.* FROM (
     FROM crm_upgrade_line l WHERE l.deal_id IS NOT NULL
 ) AS dependency;
 
-
 -- =============================================================================================
--- Section 5b: foreign keys of the generic storage, added after the bulk conversion. Adding a foreign
--- key validates every converted row, so integrity is checked exactly as if it had existed throughout.
--- =============================================================================================
-
-ALTER TABLE "RecordSchemaState" ADD CONSTRAINT "RecordSchemaState_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordTypeDefinition" ADD CONSTRAINT "RecordTypeDefinition_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordFieldDefinition" ADD CONSTRAINT "RecordFieldDefinition_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordFieldDefinition" ADD CONSTRAINT "RecordFieldDefinition_companyId_typeId_fkey" FOREIGN KEY ("companyId", "typeId") REFERENCES "RecordTypeDefinition"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordRelationshipDefinition" ADD CONSTRAINT "RecordRelationshipDefinition_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordRelationshipDefinition" ADD CONSTRAINT "RecordRelationshipDefinition_companyId_sourceTypeId_fkey" FOREIGN KEY ("companyId", "sourceTypeId") REFERENCES "RecordTypeDefinition"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordRelationshipDefinition" ADD CONSTRAINT "RecordRelationshipDefinition_companyId_targetTypeId_fkey" FOREIGN KEY ("companyId", "targetTypeId") REFERENCES "RecordTypeDefinition"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "CrmRecord" ADD CONSTRAINT "CrmRecord_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "CrmRecord" ADD CONSTRAINT "CrmRecord_companyId_typeId_fkey" FOREIGN KEY ("companyId", "typeId") REFERENCES "RecordTypeDefinition"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordValue" ADD CONSTRAINT "RecordValue_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordValue" ADD CONSTRAINT "RecordValue_companyId_typeId_recordId_fkey" FOREIGN KEY ("companyId", "typeId", "recordId") REFERENCES "CrmRecord"("companyId", "typeId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordValue" ADD CONSTRAINT "RecordValue_companyId_typeId_fieldId_fkey" FOREIGN KEY ("companyId", "typeId", "fieldId") REFERENCES "RecordFieldDefinition"("companyId", "typeId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordValueDependency" ADD CONSTRAINT "RecordValueDependency_companyId_typeId_recordId_fieldId_fkey" FOREIGN KEY ("companyId", "typeId", "recordId", "fieldId") REFERENCES "RecordValue"("companyId", "typeId", "recordId", "fieldId") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordLink" ADD CONSTRAINT "RecordLink_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordLink" ADD CONSTRAINT "RecordLink_companyId_relationId_sourceTypeId_targetTypeId_fkey" FOREIGN KEY ("companyId", "relationId", "sourceTypeId", "targetTypeId") REFERENCES "RecordRelationshipDefinition"("companyId", "id", "sourceTypeId", "targetTypeId") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordLink" ADD CONSTRAINT "RecordLink_companyId_sourceTypeId_sourceId_fkey" FOREIGN KEY ("companyId", "sourceTypeId", "sourceId") REFERENCES "CrmRecord"("companyId", "typeId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordLink" ADD CONSTRAINT "RecordLink_companyId_targetTypeId_targetId_fkey" FOREIGN KEY ("companyId", "targetTypeId", "targetId") REFERENCES "CrmRecord"("companyId", "typeId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordAssignment" ADD CONSTRAINT "RecordAssignment_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordAssignment" ADD CONSTRAINT "RecordAssignment_companyId_typeId_recordId_fkey" FOREIGN KEY ("companyId", "typeId", "recordId") REFERENCES "CrmRecord"("companyId", "typeId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordAssignment" ADD CONSTRAINT "RecordAssignment_companyId_userId_fkey" FOREIGN KEY ("companyId", "userId") REFERENCES "User"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordTypeGrant" ADD CONSTRAINT "RecordTypeGrant_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordTypeGrant" ADD CONSTRAINT "RecordTypeGrant_companyId_typeId_fkey" FOREIGN KEY ("companyId", "typeId") REFERENCES "RecordTypeDefinition"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordTypeGrant" ADD CONSTRAINT "RecordTypeGrant_companyId_roleId_fkey" FOREIGN KEY ("companyId", "roleId") REFERENCES "UserRole"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordSchemaRevision" ADD CONSTRAINT "RecordSchemaRevision_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordOperation" ADD CONSTRAINT "RecordOperation_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordStageRow" ADD CONSTRAINT "RecordStageRow_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordStageRow" ADD CONSTRAINT "RecordStageRow_companyId_operationId_fkey" FOREIGN KEY ("companyId", "operationId") REFERENCES "RecordOperation"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordMutationReceipt" ADD CONSTRAINT "RecordMutationReceipt_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "EventLog" ADD CONSTRAINT "EventLog_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordIdentity" ADD CONSTRAINT "RecordIdentity_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordIdentityKey" ADD CONSTRAINT "RecordIdentityKey_companyId_identityId_channelClass_fkey" FOREIGN KEY ("companyId", "identityId", "channelClass") REFERENCES "RecordIdentity"("companyId", "id", "channelClass") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordIdentityLink" ADD CONSTRAINT "RecordIdentityLink_companyId_identityId_fkey" FOREIGN KEY ("companyId", "identityId") REFERENCES "RecordIdentity"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordIdentityLink" ADD CONSTRAINT "RecordIdentityLink_companyId_typeId_recordId_fkey" FOREIGN KEY ("companyId", "typeId", "recordId") REFERENCES "CrmRecord"("companyId", "typeId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "MessagingThreadRecordLink" ADD CONSTRAINT "MessagingThreadRecordLink_companyId_threadId_fkey" FOREIGN KEY ("companyId", "threadId") REFERENCES "MessagingThread"("companyId", id) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "MessagingThreadRecordLink" ADD CONSTRAINT "MessagingThreadRecordLink_companyId_typeId_recordId_fkey" FOREIGN KEY ("companyId", "typeId", "recordId") REFERENCES "CrmRecord"("companyId", "typeId", id) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordEventSubscription" ADD CONSTRAINT "RecordEventSubscription_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordEventSubscription" ADD CONSTRAINT "RecordEventSubscription_companyId_ownerUserId_fkey" FOREIGN KEY ("companyId", "ownerUserId") REFERENCES "User"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordEventSubscription" ADD CONSTRAINT "RecordEventSubscription_companyId_typeId_fkey" FOREIGN KEY ("companyId", "typeId") REFERENCES "RecordTypeDefinition"("companyId", "id") ON DELETE RESTRICT ON UPDATE CASCADE;
-ALTER TABLE "RecordEventMatch" ADD CONSTRAINT "RecordEventMatch_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordEventMatch" ADD CONSTRAINT "RecordEventMatch_companyId_eventId_fkey" FOREIGN KEY ("companyId", "eventId") REFERENCES "EventLog"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "RecordEventMatch" ADD CONSTRAINT "RecordEventMatch_companyId_subscriptionId_fkey" FOREIGN KEY ("companyId", "subscriptionId") REFERENCES "RecordEventSubscription"("companyId", "id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- =============================================================================================
--- Section 6: RECONCILIATION. Independent comparisons of the generic data with the legacy source (records,
--- assignments, values, links, totals, identities, provenance, configuration, the link repair and the carried-over
--- audit events). Any mismatch aborts the transaction; the legacy data is then untouched.
+-- 7. RECONCILIATION. Independent comparisons of the generic data with the legacy source (records, assignments,
+-- values, links, totals, identities, provenance, configuration, the link repair and the carried-over audit events),
+-- then checks of the final model. Any mismatch aborts the transaction; the legacy data is then untouched.
 -- =============================================================================================
 
 CREATE TEMP TABLE crm_upgrade_mismatch (check_name text NOT NULL, total bigint NOT NULL) ON COMMIT DROP;
@@ -2794,14 +3068,13 @@ SELECT 'provenance', count(*) FROM (
 ) AS mismatched
 HAVING count(*) > 0;
 
-
--- Configuration: every workspace is generic, idle, at revision 1 with exactly one revision, and has the six
+-- Configuration: every workspace is idle, at revision 1 with exactly one revision, and has the six
 -- record types, the fields of its model and the nine relationships.
 INSERT INTO crm_upgrade_mismatch
 SELECT 'workspaces', count(*) FROM "Company" company
 LEFT JOIN "RecordSchemaState" state ON state."companyId" = company.id
 LEFT JOIN crm_upgrade_workspace w ON w.company_id = company.id
-WHERE state."companyId" IS NULL OR state."storageMode" <> 'generic' OR state."activeOperationId" IS NOT NULL OR state.revision <> 1
+WHERE state."companyId" IS NULL OR state."activeOperationId" IS NOT NULL OR state.revision <> 1
   OR (SELECT count(*) FROM "RecordSchemaRevision" r WHERE r."companyId" = company.id) <> 1
   OR (SELECT count(*) FROM "RecordTypeDefinition" t WHERE t."companyId" = company.id) <> 6
   OR (SELECT count(*) FROM "RecordFieldDefinition" f WHERE f."companyId" = company.id) <> jsonb_array_length(w.model -> 'fields')
@@ -2844,11 +3117,53 @@ BEGIN
 END
 $$;
 
+-- The final model: every money field carries its currency, no activity path is stored, and no Channels capability or
+-- "system:channels" key is left in the configuration, the saved views or the personal layouts.
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM "RecordFieldDefinition"
+    WHERE definition ->> 'valueType' = 'currency' AND definition #>> '{format,currency}' IS NULL
+  ) OR EXISTS (
+    SELECT 1
+    FROM "RecordSchemaState" state
+    JOIN "RecordSchemaRevision" revision ON revision."companyId" = state."companyId" AND revision.revision = state.revision
+    CROSS JOIN LATERAL jsonb_array_elements(revision.snapshot -> 'fields') AS f(value)
+    WHERE f.value ->> 'valueType' = 'currency' AND f.value #>> '{format,currency}' IS NULL
+  ) THEN
+    RAISE EXCEPTION 'A currency field is still without a currency';
+  END IF;
+  IF EXISTS (SELECT 1 FROM "RecordSchemaRevision" WHERE snapshot ? 'activityPaths')
+    OR EXISTS (
+      SELECT 1 FROM "RecordSchemaRevision"
+      WHERE change #> '{configuration,operations}' @> '[{"operation": "putActivityPath"}]'
+        OR change #> '{configuration,operations}' @> '[{"target": {"kind": "activityPath"}}]'
+        OR jsonb_path_exists(change -> 'deletions', '$[*] ? (@.target.kind == "activityPath" || exists(@.cascade[*] ? (@.kind == "activityPath")))')
+    ) THEN
+    RAISE EXCEPTION 'An activity path is still stored';
+  END IF;
+  IF EXISTS (
+    SELECT 1 FROM "RecordSchemaRevision"
+    WHERE jsonb_path_exists(snapshot, '$.capabilities[*] ? (@.kind == "channels" || @.kind == "personIdentity")')
+      OR snapshot::text LIKE '%system:channels%'
+      OR change::text LIKE '%system:channels%'
+      OR jsonb_path_exists(change, '$.configuration.operations[*] ? (@.operation == "putCapability"
+        && (@.capability.kind == "channels" || @.capability.kind == "personIdentity"))')
+      OR jsonb_path_exists(change, '$.configuration.operations[*] ? (@.target.kind == "channels")')
+      OR jsonb_path_exists(change, '$.deletions[*] ? (@.target.kind == "channels" || exists(@.cascade[*] ? (@.kind == "channels")))')
+  ) OR EXISTS (SELECT 1 FROM "RecordTypeDefinition" WHERE definition::text LIKE '%system:channels%')
+    OR EXISTS (SELECT 1 FROM "DataView" view WHERE (to_jsonb(view) - 'name')::text LIKE '%system:channels%')
+    OR EXISTS (SELECT 1 FROM "P13n" personalization WHERE to_jsonb(personalization)::text LIKE '%system:channels%')
+  THEN
+    RAISE EXCEPTION 'A channels capability or the system:channels column is still stored';
+  END IF;
+END $$;
+
 -- =============================================================================================
--- Section 7: LEGACY REMOVAL. Nothing is removed with CASCADE: an unexpected dependency fails the upgrade.
+-- 8. REMOVAL of the legacy objects. Nothing is removed with CASCADE: an unexpected dependency fails the upgrade.
 -- =============================================================================================
 
-ALTER TABLE "Company" DROP COLUMN "dealWeightingColumnId";
+ALTER TABLE "Company" DROP COLUMN "dealWeightingColumnId", DROP COLUMN "currency";
 ALTER TABLE "Routine" DROP COLUMN "changedFields";
 DROP TABLE "Contact", "Organization", "Deal", "Service", "Task", "CustomColumn", "CustomFieldValue", "ContactIdentifier", "ServiceDeal",
   "ServiceUser", "DealOrganization", "DealUser", "DealContact", "ContactUser", "OrganizationUser", "TaskUser", "TaskContact",
@@ -2859,6 +3174,7 @@ ALTER TABLE "Widget" DROP COLUMN "entityType", DROP COLUMN "entityFilters", DROP
 DROP FUNCTION custom_field_range_start(text);
 DROP FUNCTION custom_field_range_end(text);
 DROP TYPE "AggregationType";
+DROP TYPE "Currency";
 DROP TYPE "CustomColumnType";
 DROP TYPE "EntityType";
 DROP TYPE "TaskType";
@@ -2875,1072 +3191,3 @@ BEGIN
 END
 $$;
 DROP SCHEMA crm_upgrade;
-
--- =============================================================================================
--- @section 20261006130000_remove_legacy_record_permissions
--- Section 2 of 17: Remove the legacy per-entity role permissions and normalise the remaining grants
--- =============================================================================================
-
--- The configurable records upgrade converted role permissions on the legacy record resources into per-type
--- grants. The converted rows, their enum values, the never-read storage mode and the preset key (starter types
--- are identified by their deterministic preset ids) are removed.
-DELETE FROM "RolePermission" WHERE resource::text IN ('contacts', 'deals', 'organizations', 'services', 'tasks');
-
-ALTER TYPE "Resource" RENAME TO "Resource_old";
-CREATE TYPE "Resource" AS ENUM ('dataModel', 'users', 'company', 'api', 'auditLog', 'inboxMessages', 'wiki', 'routines');
-ALTER TABLE "RolePermission" ALTER COLUMN "resource" TYPE "Resource" USING ("resource"::text::"Resource");
-DROP TYPE "Resource_old";
-
-ALTER TABLE "RecordSchemaState" DROP COLUMN "storageMode";
-
-DROP INDEX "RecordTypeDefinition_companyId_presetKey_key";
-ALTER TABLE "RecordTypeDefinition" DROP COLUMN "presetKey";
-
--- System resources share the record-type vocabulary: create / update / delete plus readAll / readOwn where they
--- apply (features/role/resource-access.ts). Rows for actions that never applied are removed: company and data model
--- only update, the audit log is read-only, and only users and routines have an own read scope.
-DELETE FROM "RolePermission"
-WHERE (resource IN ('company', 'dataModel') AND action IN ('create', 'delete'))
-   OR (resource = 'auditLog' AND action IN ('create', 'update', 'delete'))
-   OR (resource IN ('api', 'wiki', 'auditLog') AND action = 'readOwn');
-
--- Inbox reads always accepted either scope, so an own-scope row becomes the single all-scope row.
-INSERT INTO "RolePermission" (id, "roleId", "companyId", resource, action)
-SELECT gen_random_uuid()::text, p."roleId", p."companyId", p.resource, 'readAll'
-FROM "RolePermission" p
-WHERE p.resource = 'inboxMessages' AND p.action = 'readOwn'
-ON CONFLICT ("roleId", resource, action) DO NOTHING;
-DELETE FROM "RolePermission" WHERE resource = 'inboxMessages' AND action = 'readOwn';
-
--- Company settings visibility was checked as readOwn; a lone readAll row never granted it.
-DELETE FROM "RolePermission" p
-WHERE p.resource = 'company' AND p.action = 'readAll'
-  AND NOT EXISTS (
-    SELECT 1 FROM "RolePermission" o WHERE o."roleId" = p."roleId" AND o.resource = 'company' AND o.action = 'readOwn'
-  );
-
--- =============================================================================================
--- @section 20261006200000_p13n_settings
--- Section 3 of 17: Personalisation settings column
--- =============================================================================================
-
--- AlterTable
-ALTER TABLE "P13n" ADD COLUMN     "settings" JSONB;
-
--- =============================================================================================
--- @section 20261007000000_field_currency
--- Section 4 of 17: Field currency: store the currency on every money field definition
--- =============================================================================================
-
--- Money fields carry their own currency. Copy each workspace currency into every currency field
--- that has none, in the field definitions and in the current schema revision, then drop it.
-
-UPDATE "RecordFieldDefinition" AS field
-SET definition = jsonb_set(
-  field.definition,
-  '{format}',
-  COALESCE(NULLIF(field.definition -> 'format', 'null'::jsonb), '{}'::jsonb)
-    || jsonb_build_object('currency', upper(company.currency::text))
-)
-FROM "Company" AS company
-WHERE company.id = field."companyId"
-  AND field.definition ->> 'valueType' = 'currency'
-  AND field.definition #>> '{format,currency}' IS NULL;
-
-UPDATE "RecordSchemaRevision" AS revision
-SET snapshot = jsonb_set(revision.snapshot, '{fields}', (
-  SELECT jsonb_agg(
-    CASE
-      WHEN f.value ->> 'valueType' = 'currency' AND f.value #>> '{format,currency}' IS NULL THEN jsonb_set(
-        f.value,
-        '{format}',
-        COALESCE(NULLIF(f.value -> 'format', 'null'::jsonb), '{}'::jsonb)
-          || jsonb_build_object('currency', upper(company.currency::text))
-      )
-      ELSE f.value
-    END
-    ORDER BY f.ordinality
-  )
-  FROM jsonb_array_elements(revision.snapshot -> 'fields') WITH ORDINALITY AS f(value, ordinality)
-))
-FROM "RecordSchemaState" AS state, "Company" AS company
-WHERE state."companyId" = revision."companyId"
-  AND state.revision = revision.revision
-  AND company.id = revision."companyId"
-  AND EXISTS (
-    SELECT 1 FROM jsonb_array_elements(revision.snapshot -> 'fields') AS f(value)
-    WHERE f.value ->> 'valueType' = 'currency' AND f.value #>> '{format,currency}' IS NULL
-  );
-
-DO $$
-BEGIN
-  IF EXISTS (
-    SELECT 1 FROM "RecordFieldDefinition"
-    WHERE definition ->> 'valueType' = 'currency' AND definition #>> '{format,currency}' IS NULL
-  ) OR EXISTS (
-    SELECT 1
-    FROM "RecordSchemaState" state
-    JOIN "RecordSchemaRevision" revision ON revision."companyId" = state."companyId" AND revision.revision = state.revision
-    CROSS JOIN LATERAL jsonb_array_elements(revision.snapshot -> 'fields') AS f(value)
-    WHERE f.value ->> 'valueType' = 'currency' AND f.value #>> '{format,currency}' IS NULL
-  ) THEN
-    RAISE EXCEPTION 'A currency field is still without a currency';
-  END IF;
-END $$;
-
--- The company currency setting and its audit event are gone. AuditLog is guarded because the event log
--- change (I7) replaces that table on another branch.
-DO $$
-BEGIN
-  IF to_regclass('"AuditLog"') IS NOT NULL THEN
-    DELETE FROM "AuditLog" WHERE event = 'company.updated';
-  END IF;
-END $$;
-
--- AlterTable
-ALTER TABLE "Company" DROP COLUMN "currency";
-
--- DropEnum
-DROP TYPE "Currency";
-
--- =============================================================================================
--- @section 20261007010000_widget_dashboard_views
--- Section 5 of 17: Widget dashboard views
--- =============================================================================================
-
-ALTER TABLE "Widget" ADD COLUMN "viewId" TEXT;
-
-CREATE INDEX "Widget_viewId_idx" ON "Widget"("viewId");
-
-ALTER TABLE "Widget" ADD CONSTRAINT "Widget_viewId_fkey" FOREIGN KEY ("viewId") REFERENCES "DataView"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- =============================================================================================
--- @section 20261007020000_unique_config_names
--- Section 6 of 17: Unique configuration names: make list, field and relationship names unique per workspace
--- =============================================================================================
-
--- Configuration names are unique (design rule 40). Existing duplicates are renamed in the current schema
--- revision and the definition tables: the oldest definition keeps its name, later ones get the first free
--- " (n)" suffix from 2 on after their own name with whitespace collapsed, truncated so the result stays
--- within the 200 UTF-16 code unit label limit. Names compare after Unicode NFD, removing combining accents
--- U+0300-U+036F, collapsing whitespace (the JavaScript \s set), trimming and lowercasing, matching
--- recordNameKey in features/records/record-names.ts. Scopes:
---   lists         singular and plural names across active lists; a list's own singular may equal its plural
---   fields        names per list, deleted fields included
---   relationships end labels per list side across active relationships; a self-relationship may repeat
---   options       labels per field
--- Oldest means the definition row's createdAt, then id; options keep their stored order. A second run
--- changes nothing.
-
-CREATE FUNCTION pg_temp.config_name_key(value text) RETURNS text
-LANGUAGE sql IMMUTABLE AS $fn$
-  SELECT lower(btrim(regexp_replace(
-    regexp_replace(normalize(coalesce(value, ''), NFD), '[\u0300-\u036f]', '', 'g'),
-    '[\t\n\v\f\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+', ' ', 'g'
-  )))
-$fn$;
-
-CREATE FUNCTION pg_temp.config_name_suffixed(base text, n integer) RETURNS text
-LANGUAGE sql IMMUTABLE AS $fn$
-  SELECT rtrim(coalesce(string_agg(kept.ch, '' ORDER BY kept.i), '')) || ' (' || n || ')'
-  FROM (
-    SELECT c.ch, c.i, sum(CASE WHEN ascii(c.ch) > 65535 THEN 2 ELSE 1 END) OVER (ORDER BY c.i) AS units
-    FROM regexp_split_to_table(
-      btrim(regexp_replace(base, '[\t\n\v\f\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+', ' ', 'g')),
-      ''
-    ) WITH ORDINALITY AS c(ch, i)
-  ) AS kept
-  WHERE kept.units <= 200 - length(' (' || n || ')')
-$fn$;
-
-CREATE FUNCTION pg_temp.config_name_free(base text, taken text[]) RETURNS text
-LANGUAGE sql IMMUTABLE AS $fn$
-  WITH RECURSIVE attempt(n, name) AS (
-    SELECT 2, pg_temp.config_name_suffixed(base, 2)
-    UNION ALL
-    SELECT attempt.n + 1, pg_temp.config_name_suffixed(base, attempt.n + 1)
-    FROM attempt
-    WHERE pg_temp.config_name_key(attempt.name) = ANY (taken)
-  )
-  SELECT name FROM attempt ORDER BY n DESC LIMIT 1
-$fn$;
-
-DO $$
-DECLARE
-  company record;
-  item record;
-  choice record;
-  attribute text;
-  model jsonb;
-  changed boolean;
-  taken text[];
-  claimed jsonb;
-  scope text;
-  current_label text;
-  current_key text;
-  renamed text;
-BEGIN
-  FOR company IN
-    SELECT state."companyId" AS id, state.revision
-    FROM "RecordSchemaState" state
-    WHERE state.revision > 0
-    ORDER BY state."companyId"
-  LOOP
-    SELECT revision.snapshot INTO model
-    FROM "RecordSchemaRevision" revision
-    WHERE revision."companyId" = company.id AND revision.revision = company.revision;
-    CONTINUE WHEN model IS NULL;
-    changed := false;
-
-    SELECT coalesce(array_agg(names.key), '{}') INTO taken
-    FROM (
-      SELECT pg_temp.config_name_key(t.value ->> 'label') AS key
-      FROM jsonb_array_elements(model -> 'types') AS t(value)
-      WHERE NOT coalesce((t.value ->> 'archived')::boolean, false)
-      UNION
-      SELECT pg_temp.config_name_key(t.value ->> 'pluralLabel')
-      FROM jsonb_array_elements(model -> 'types') AS t(value)
-      WHERE NOT coalesce((t.value ->> 'archived')::boolean, false)
-    ) names;
-    claimed := '{}'::jsonb;
-    FOR item IN
-      SELECT (t.ordinality - 1)::integer AS position, t.value ->> 'id' AS owner
-      FROM jsonb_array_elements(model -> 'types') WITH ORDINALITY AS t(value, ordinality)
-      LEFT JOIN "RecordTypeDefinition" definition
-        ON definition."companyId" = company.id AND definition.id = t.value ->> 'id'
-      WHERE NOT coalesce((t.value ->> 'archived')::boolean, false)
-      ORDER BY definition."createdAt" NULLS LAST, t.value ->> 'id'
-    LOOP
-      FOREACH attribute IN ARRAY ARRAY['label', 'pluralLabel'] LOOP
-        current_label := model -> 'types' -> item.position ->> attribute;
-        current_key := pg_temp.config_name_key(current_label);
-        IF claimed ? current_key AND claimed ->> current_key <> item.owner THEN
-          renamed := pg_temp.config_name_free(current_label, taken);
-          model := jsonb_set(model, ARRAY['types', item.position::text, attribute], to_jsonb(renamed));
-          current_key := pg_temp.config_name_key(renamed);
-          taken := taken || current_key;
-          changed := true;
-        END IF;
-        claimed := claimed || jsonb_build_object(current_key, item.owner);
-      END LOOP;
-    END LOOP;
-
-    scope := NULL;
-    FOR item IN
-      SELECT (f.ordinality - 1)::integer AS position, f.value ->> 'typeId' AS list
-      FROM jsonb_array_elements(model -> 'fields') WITH ORDINALITY AS f(value, ordinality)
-      LEFT JOIN "RecordFieldDefinition" definition
-        ON definition."companyId" = company.id AND definition.id = f.value ->> 'id'
-      ORDER BY f.value ->> 'typeId', definition."createdAt" NULLS LAST, f.value ->> 'id'
-    LOOP
-      IF item.list IS DISTINCT FROM scope THEN
-        scope := item.list;
-        claimed := '{}'::jsonb;
-        SELECT coalesce(array_agg(pg_temp.config_name_key(f.value ->> 'label')), '{}') INTO taken
-        FROM jsonb_array_elements(model -> 'fields') AS f(value)
-        WHERE f.value ->> 'typeId' = scope;
-      END IF;
-      current_label := model -> 'fields' -> item.position ->> 'label';
-      current_key := pg_temp.config_name_key(current_label);
-      IF claimed ? current_key THEN
-        renamed := pg_temp.config_name_free(current_label, taken);
-        model := jsonb_set(model, ARRAY['fields', item.position::text, 'label'], to_jsonb(renamed));
-        current_key := pg_temp.config_name_key(renamed);
-        taken := taken || current_key;
-        changed := true;
-      END IF;
-      claimed := claimed || jsonb_build_object(current_key, true);
-    END LOOP;
-
-    FOR item IN
-      SELECT (f.ordinality - 1)::integer AS position, f.value -> 'options' AS options
-      FROM jsonb_array_elements(model -> 'fields') WITH ORDINALITY AS f(value, ordinality)
-      WHERE jsonb_typeof(f.value -> 'options') = 'array' AND jsonb_array_length(f.value -> 'options') > 1
-    LOOP
-      claimed := '{}'::jsonb;
-      SELECT coalesce(array_agg(pg_temp.config_name_key(o.value ->> 'label')), '{}') INTO taken
-      FROM jsonb_array_elements(item.options) AS o(value);
-      FOR choice IN
-        SELECT (o.ordinality - 1)::integer AS position, o.value ->> 'label' AS label
-        FROM jsonb_array_elements(item.options) WITH ORDINALITY AS o(value, ordinality)
-        ORDER BY o.ordinality
-      LOOP
-        current_key := pg_temp.config_name_key(choice.label);
-        IF claimed ? current_key THEN
-          renamed := pg_temp.config_name_free(choice.label, taken);
-          model := jsonb_set(
-            model,
-            ARRAY['fields', item.position::text, 'options', choice.position::text, 'label'],
-            to_jsonb(renamed)
-          );
-          current_key := pg_temp.config_name_key(renamed);
-          taken := taken || current_key;
-          changed := true;
-        END IF;
-        claimed := claimed || jsonb_build_object(current_key, true);
-      END LOOP;
-    END LOOP;
-
-    scope := NULL;
-    FOR item IN
-      SELECT ends.position, ends.attribute, ends.list, ends.owner
-      FROM (
-        SELECT (r.ordinality - 1)::integer AS position, 'sourceLabel' AS attribute, r.value ->> 'sourceTypeId' AS list,
-          r.value ->> 'id' AS owner, 0 AS side
-        FROM jsonb_array_elements(model -> 'relationships') WITH ORDINALITY AS r(value, ordinality)
-        WHERE NOT coalesce((r.value ->> 'archived')::boolean, false)
-        UNION ALL
-        SELECT (r.ordinality - 1)::integer, 'targetLabel', r.value ->> 'targetTypeId', r.value ->> 'id', 1
-        FROM jsonb_array_elements(model -> 'relationships') WITH ORDINALITY AS r(value, ordinality)
-        WHERE NOT coalesce((r.value ->> 'archived')::boolean, false)
-      ) ends
-      LEFT JOIN "RecordRelationshipDefinition" definition
-        ON definition."companyId" = company.id AND definition.id = ends.owner
-      ORDER BY ends.list, definition."createdAt" NULLS LAST, ends.owner, ends.side
-    LOOP
-      IF item.list IS DISTINCT FROM scope THEN
-        scope := item.list;
-        claimed := '{}'::jsonb;
-        SELECT coalesce(array_agg(labels.key), '{}') INTO taken
-        FROM (
-          SELECT pg_temp.config_name_key(r.value ->> 'sourceLabel') AS key
-          FROM jsonb_array_elements(model -> 'relationships') AS r(value)
-          WHERE r.value ->> 'sourceTypeId' = scope AND NOT coalesce((r.value ->> 'archived')::boolean, false)
-          UNION
-          SELECT pg_temp.config_name_key(r.value ->> 'targetLabel')
-          FROM jsonb_array_elements(model -> 'relationships') AS r(value)
-          WHERE r.value ->> 'targetTypeId' = scope AND NOT coalesce((r.value ->> 'archived')::boolean, false)
-        ) labels;
-      END IF;
-      current_label := model -> 'relationships' -> item.position ->> item.attribute;
-      current_key := pg_temp.config_name_key(current_label);
-      IF claimed ? current_key AND claimed ->> current_key <> item.owner THEN
-        renamed := pg_temp.config_name_free(current_label, taken);
-        model := jsonb_set(model, ARRAY['relationships', item.position::text, item.attribute], to_jsonb(renamed));
-        current_key := pg_temp.config_name_key(renamed);
-        taken := taken || current_key;
-        changed := true;
-      END IF;
-      claimed := claimed || jsonb_build_object(current_key, item.owner);
-    END LOOP;
-
-    CONTINUE WHEN NOT changed;
-
-    UPDATE "RecordSchemaRevision"
-    SET snapshot = model
-    WHERE "companyId" = company.id AND revision = company.revision;
-
-    UPDATE "RecordTypeDefinition" AS definition
-    SET label = t.value ->> 'label',
-      "pluralLabel" = t.value ->> 'pluralLabel',
-      definition = definition.definition
-        || jsonb_build_object('label', t.value -> 'label', 'pluralLabel', t.value -> 'pluralLabel')
-    FROM jsonb_array_elements(model -> 'types') AS t(value)
-    WHERE definition."companyId" = company.id
-      AND definition.id = t.value ->> 'id'
-      AND (definition.label IS DISTINCT FROM t.value ->> 'label'
-        OR definition."pluralLabel" IS DISTINCT FROM t.value ->> 'pluralLabel'
-        OR definition.definition -> 'label' IS DISTINCT FROM t.value -> 'label'
-        OR definition.definition -> 'pluralLabel' IS DISTINCT FROM t.value -> 'pluralLabel');
-
-    UPDATE "RecordFieldDefinition" AS definition
-    SET definition = definition.definition
-      || jsonb_build_object('label', f.value -> 'label')
-      || CASE WHEN f.value ? 'options' THEN jsonb_build_object('options', f.value -> 'options') ELSE '{}'::jsonb END
-    FROM jsonb_array_elements(model -> 'fields') AS f(value)
-    WHERE definition."companyId" = company.id
-      AND definition.id = f.value ->> 'id'
-      AND (definition.definition -> 'label' IS DISTINCT FROM f.value -> 'label'
-        OR definition.definition -> 'options' IS DISTINCT FROM f.value -> 'options');
-
-    UPDATE "RecordRelationshipDefinition" AS definition
-    SET definition = definition.definition
-      || jsonb_build_object('sourceLabel', r.value -> 'sourceLabel', 'targetLabel', r.value -> 'targetLabel')
-    FROM jsonb_array_elements(model -> 'relationships') AS r(value)
-    WHERE definition."companyId" = company.id
-      AND definition.id = r.value ->> 'id'
-      AND (definition.definition -> 'sourceLabel' IS DISTINCT FROM r.value -> 'sourceLabel'
-        OR definition.definition -> 'targetLabel' IS DISTINCT FROM r.value -> 'targetLabel');
-  END LOOP;
-END $$;
-
-DROP FUNCTION pg_temp.config_name_free(text, text[]);
-DROP FUNCTION pg_temp.config_name_suffixed(text, integer);
-DROP FUNCTION pg_temp.config_name_key(text);
-
--- =============================================================================================
--- @section 20261007040000_activity_sources
--- Section 7 of 17: Activity sources: per-relationship switches for messages on the source and target record
--- =============================================================================================
-
--- Activity sources replace activity paths. A list's timeline always shows its own changes and the messages
--- matched to its records; a relationship can show the messages of directly linked records on either side.
--- Every stored model (all schema revisions and the relationship definitions) is converted:
---   * a non-archived one-hop path with includeMessages on a relationship becomes messagesOnSource (outgoing
---     step from the source list) or messagesOnTarget (incoming step from the target list);
---   * the starter Tasks -> Contacts path is dropped (Tasks do not show contact messages);
---   * self paths become implicit, multi-hop paths and includeAudit on linked paths are dropped;
---   * stored configuration changes lose their putActivityPath operations and delete/restore operations and
---     deletion records that target an activity path (a change left without operations
---     keeps its revision entry without a configuration), and their putRelationship operations carry the
---     switches of the relationship in that revision.
--- Re-running the migration changes nothing.
-
-CREATE SCHEMA activity_sources_upgrade;
-
-CREATE FUNCTION activity_sources_upgrade.preset_id(company_id text, key text) RETURNS text
-LANGUAGE sql IMMUTABLE STRICT AS $$
-  SELECT substr(h, 1, 8) || '-' || substr(h, 9, 4) || '-8' || substr(h, 14, 3) || '-8' || substr(h, 18, 3) || '-' || substr(h, 21, 12)
-  FROM (SELECT encode(sha256(convert_to('customermates:records:v2:' || company_id || ':' || key, 'UTF8')), 'hex') AS h) digest
-$$;
-
-CREATE FUNCTION activity_sources_upgrade.shows_messages(company_id text, paths jsonb, relationship jsonb, direction text)
-RETURNS boolean
-LANGUAGE sql IMMUTABLE AS $$
-  SELECT EXISTS (
-    SELECT 1 FROM jsonb_array_elements(COALESCE(paths, '[]'::jsonb)) AS path(value)
-    WHERE path.value ->> 'archived' = 'false'
-      AND path.value ->> 'includeMessages' = 'true'
-      AND jsonb_array_length(path.value -> 'path') = 1
-      AND path.value #>> '{path,0,relationId}' = relationship ->> 'id'
-      AND path.value #>> '{path,0,direction}' = direction
-      AND path.value ->> 'typeId' = relationship ->> CASE direction WHEN 'outgoing' THEN 'sourceTypeId' ELSE 'targetTypeId' END
-      AND path.value ->> 'id' IS DISTINCT FROM activity_sources_upgrade.preset_id(
-        company_id, 'activities:' || activity_sources_upgrade.preset_id(company_id, 'task') || ':people'))
-$$;
-
-CREATE FUNCTION activity_sources_upgrade.convert_model(company_id text, snapshot jsonb) RETURNS jsonb
-LANGUAGE sql IMMUTABLE AS $$
-  SELECT (snapshot - 'activityPaths') || jsonb_build_object('relationships', COALESCE((
-    SELECT jsonb_agg(relationship.value || jsonb_build_object(
-        'messagesOnSource', COALESCE((relationship.value ->> 'messagesOnSource')::boolean,
-          activity_sources_upgrade.shows_messages(company_id, snapshot -> 'activityPaths', relationship.value, 'outgoing')),
-        'messagesOnTarget', COALESCE((relationship.value ->> 'messagesOnTarget')::boolean,
-          activity_sources_upgrade.shows_messages(company_id, snapshot -> 'activityPaths', relationship.value, 'incoming')))
-      ORDER BY relationship.ordinality)
-    FROM jsonb_array_elements(snapshot -> 'relationships') WITH ORDINALITY AS relationship(value, ordinality)
-  ), '[]'::jsonb))
-$$;
-
-CREATE FUNCTION activity_sources_upgrade.convert_change(change jsonb, snapshot jsonb) RETURNS jsonb
-LANGUAGE sql IMMUTABLE AS $$
-  SELECT CASE WHEN operations = '[]'::jsonb THEN change - 'configuration'
-    ELSE jsonb_set(change, '{configuration,operations}', operations) END
-  FROM (SELECT COALESCE((
-    SELECT jsonb_agg(
-      CASE WHEN operation.value ->> 'operation' = 'putRelationship' THEN jsonb_set(operation.value, '{relationship}',
-        operation.value -> 'relationship' || jsonb_build_object(
-          'messagesOnSource', COALESCE((operation.value #>> '{relationship,messagesOnSource}')::boolean,
-            (stored.value ->> 'messagesOnSource')::boolean, false),
-          'messagesOnTarget', COALESCE((operation.value #>> '{relationship,messagesOnTarget}')::boolean,
-            (stored.value ->> 'messagesOnTarget')::boolean, false)))
-      ELSE operation.value END
-      ORDER BY operation.ordinality)
-    FROM jsonb_array_elements(change #> '{configuration,operations}') WITH ORDINALITY AS operation(value, ordinality)
-    LEFT JOIN LATERAL (
-      SELECT relationship.value FROM jsonb_array_elements(snapshot -> 'relationships') AS relationship(value)
-      WHERE relationship.value ->> 'id' = COALESCE((
-        SELECT reference.value ->> 'id' FROM jsonb_array_elements(COALESCE(change -> 'references', '[]'::jsonb)) AS reference(value)
-        WHERE reference.value ->> 'reference' = operation.value #>> '{relationship,id}' LIMIT 1),
-        operation.value #>> '{relationship,id}')
-      LIMIT 1) stored ON TRUE
-    WHERE operation.value ->> 'operation' IS DISTINCT FROM 'putActivityPath'
-      AND operation.value #>> '{target,kind}' IS DISTINCT FROM 'activityPath'
-  ), '[]'::jsonb) AS operations) converted
-$$;
-
-CREATE FUNCTION activity_sources_upgrade.convert_deletions(deletions jsonb) RETURNS jsonb
-LANGUAGE sql IMMUTABLE AS $$
-  SELECT COALESCE(jsonb_agg(
-      deletion.value || jsonb_build_object('cascade', COALESCE((
-        SELECT jsonb_agg(item.value ORDER BY item.ordinality)
-        FROM jsonb_array_elements(deletion.value -> 'cascade') WITH ORDINALITY AS item(value, ordinality)
-        WHERE item.value ->> 'kind' IS DISTINCT FROM 'activityPath'), '[]'::jsonb))
-      ORDER BY deletion.ordinality), '[]'::jsonb)
-  FROM jsonb_array_elements(deletions) WITH ORDINALITY AS deletion(value, ordinality)
-  WHERE deletion.value #>> '{target,kind}' IS DISTINCT FROM 'activityPath'
-$$;
-
-UPDATE "RecordSchemaRevision"
-SET snapshot = activity_sources_upgrade.convert_model("companyId", snapshot)
-WHERE snapshot ? 'activityPaths'
-  OR EXISTS (
-    SELECT 1 FROM jsonb_array_elements(snapshot -> 'relationships') AS relationship(value)
-    WHERE NOT (relationship.value ? 'messagesOnSource' AND relationship.value ? 'messagesOnTarget')
-  );
-
-UPDATE "RecordSchemaRevision"
-SET change = activity_sources_upgrade.convert_change(change, snapshot)
-WHERE jsonb_typeof(change #> '{configuration,operations}') = 'array'
-  AND EXISTS (
-    SELECT 1 FROM jsonb_array_elements(change #> '{configuration,operations}') AS operation(value)
-    WHERE operation.value ->> 'operation' = 'putActivityPath'
-      OR operation.value #>> '{target,kind}' = 'activityPath'
-      OR (operation.value ->> 'operation' = 'putRelationship'
-        AND NOT (operation.value -> 'relationship' ? 'messagesOnSource' AND operation.value -> 'relationship' ? 'messagesOnTarget'))
-  );
-
-UPDATE "RecordSchemaRevision"
-SET change = jsonb_set(change, '{deletions}', activity_sources_upgrade.convert_deletions(change -> 'deletions'))
-WHERE jsonb_typeof(change -> 'deletions') = 'array'
-  AND jsonb_path_exists(change -> 'deletions', '$[*] ? (@.target.kind == "activityPath" || exists(@.cascade[*] ? (@.kind == "activityPath")))');
-
-CREATE FUNCTION activity_sources_upgrade.current_switch(company_id text, relationship_id text, switch text) RETURNS boolean
-LANGUAGE sql STABLE AS $$
-  SELECT COALESCE((
-    SELECT (relationship.value ->> switch)::boolean
-    FROM "RecordSchemaState" state
-    JOIN "RecordSchemaRevision" revision ON revision."companyId" = state."companyId" AND revision.revision = state.revision
-    CROSS JOIN LATERAL jsonb_array_elements(revision.snapshot -> 'relationships') AS relationship(value)
-    WHERE state."companyId" = company_id AND relationship.value ->> 'id' = relationship_id
-    LIMIT 1), false)
-$$;
-
-UPDATE "RecordRelationshipDefinition"
-SET definition = definition || jsonb_build_object(
-  'messagesOnSource', activity_sources_upgrade.current_switch("companyId", id, 'messagesOnSource'),
-  'messagesOnTarget', activity_sources_upgrade.current_switch("companyId", id, 'messagesOnTarget'))
-WHERE NOT (definition ? 'messagesOnSource' AND definition ? 'messagesOnTarget');
-
-DO $$
-BEGIN
-  IF EXISTS (SELECT 1 FROM "RecordSchemaRevision" WHERE snapshot ? 'activityPaths')
-    OR EXISTS (
-      SELECT 1 FROM "RecordSchemaRevision"
-      WHERE change #> '{configuration,operations}' @> '[{"operation": "putActivityPath"}]'
-        OR change #> '{configuration,operations}' @> '[{"target": {"kind": "activityPath"}}]'
-        OR jsonb_path_exists(change -> 'deletions', '$[*] ? (@.target.kind == "activityPath" || exists(@.cascade[*] ? (@.kind == "activityPath")))')
-    ) THEN
-    RAISE EXCEPTION 'An activity path is still stored';
-  END IF;
-END $$;
-
-DROP SCHEMA activity_sources_upgrade CASCADE;
-
--- =============================================================================================
--- @section 20261009000000_trash
--- Section 8 of 17: Trash: TrashItem table, deletedAt columns and partial indexes (schema only)
--- =============================================================================================
-
-DO $$ BEGIN
-  CREATE TYPE "TrashKind" AS ENUM ('record', 'list', 'field', 'relationship', 'channels', 'view', 'widget', 'routine', 'wikiPage');
-EXCEPTION WHEN duplicate_object THEN NULL;
-END $$;
-
-ALTER TABLE "CrmRecord" ADD COLUMN IF NOT EXISTS "deletedAt" TIMESTAMP(3), ADD COLUMN IF NOT EXISTS "trashItemId" TEXT;
-ALTER TABLE "RecordLink" ADD COLUMN IF NOT EXISTS "deletedAt" TIMESTAMP(3);
-ALTER TABLE "DataView" ADD COLUMN IF NOT EXISTS "deletedAt" TIMESTAMP(3);
-ALTER TABLE "Widget" ADD COLUMN IF NOT EXISTS "deletedAt" TIMESTAMP(3);
-ALTER TABLE "Routine" ADD COLUMN IF NOT EXISTS "deletedAt" TIMESTAMP(3);
-ALTER TABLE "WikiPage" ADD COLUMN IF NOT EXISTS "deletedAt" TIMESTAMP(3);
-
-CREATE TABLE IF NOT EXISTS "TrashItem" (
-    "companyId" TEXT NOT NULL,
-    "id" TEXT NOT NULL,
-    "kind" "TrashKind" NOT NULL,
-    "targetId" TEXT NOT NULL,
-    "typeId" TEXT,
-    "surfaceKey" TEXT,
-    "ownerUserId" TEXT,
-    "label" TEXT NOT NULL,
-    "deletedById" TEXT,
-    "deletedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "expiresAt" TIMESTAMP(3) NOT NULL,
-    "batchId" TEXT NOT NULL,
-    "payload" JSONB,
-    CONSTRAINT "TrashItem_pkey" PRIMARY KEY ("companyId","id"),
-    CONSTRAINT "TrashItem_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-CREATE INDEX IF NOT EXISTS "TrashItem_companyId_deletedAt_idx" ON "TrashItem"("companyId", "deletedAt");
-CREATE INDEX IF NOT EXISTS "TrashItem_companyId_batchId_idx" ON "TrashItem"("companyId", "batchId");
-CREATE INDEX IF NOT EXISTS "TrashItem_expiresAt_idx" ON "TrashItem"("expiresAt");
-CREATE UNIQUE INDEX IF NOT EXISTS "TrashItem_companyId_kind_targetId_key" ON "TrashItem"("companyId", "kind", "targetId");
-
-CREATE INDEX IF NOT EXISTS "CrmRecord_companyId_trashItemId_idx" ON "CrmRecord"("companyId", "trashItemId") WHERE "trashItemId" IS NOT NULL;
-CREATE INDEX IF NOT EXISTS "DataView_companyId_deletedAt_idx" ON "DataView"("companyId", "deletedAt") WHERE "deletedAt" IS NOT NULL;
-CREATE INDEX IF NOT EXISTS "Widget_companyId_deletedAt_idx" ON "Widget"("companyId", "deletedAt") WHERE "deletedAt" IS NOT NULL;
-CREATE INDEX IF NOT EXISTS "Routine_companyId_deletedAt_idx" ON "Routine"("companyId", "deletedAt") WHERE "deletedAt" IS NOT NULL;
-CREATE INDEX IF NOT EXISTS "WikiPage_companyId_deletedAt_idx" ON "WikiPage"("companyId", "deletedAt") WHERE "deletedAt" IS NOT NULL;
-
-DROP INDEX IF EXISTS "WikiPage_companyId_guide_key";
-CREATE UNIQUE INDEX "WikiPage_companyId_guide_key" ON "WikiPage"("companyId") WHERE "kind" = 'guide' AND "deletedAt" IS NULL;
-
--- =============================================================================================
--- @section 20261009010000_search_catalog
--- Section 9 of 17: Search catalog for the command palette (names only, optional pgvector embedding)
--- =============================================================================================
-
--- Search catalog for the command palette: the navigable targets (pages, settings, actions) per locale for every
--- workspace (companyId NULL, one row per buildHash, locale and target) and each workspace's list, view and field
--- names (companyId set, buildHash and locale NULL). Only names are stored and embedded, never record content.
--- Additive: a new table, nothing existing changes.
-
-CREATE TABLE "SearchCatalogEntry" (
-  "id" TEXT NOT NULL,
-  "companyId" TEXT,
-  "buildHash" TEXT,
-  "locale" TEXT,
-  "targetId" TEXT NOT NULL,
-  "text" TEXT NOT NULL,
-  "contentHash" TEXT NOT NULL,
-  "model" TEXT,
-  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT "SearchCatalogEntry_pkey" PRIMARY KEY ("id"),
-  CONSTRAINT "SearchCatalogEntry_scope_check" CHECK (
-    ("companyId" IS NULL AND "buildHash" IS NOT NULL AND "locale" IS NOT NULL)
-    OR ("companyId" IS NOT NULL AND "buildHash" IS NULL AND "locale" IS NULL)
-  )
-);
-
-CREATE UNIQUE INDEX "SearchCatalogEntry_buildHash_locale_targetId_key"
-  ON "SearchCatalogEntry"("buildHash", "locale", "targetId");
-CREATE UNIQUE INDEX "SearchCatalogEntry_companyId_targetId_key" ON "SearchCatalogEntry"("companyId", "targetId");
-CREATE INDEX "SearchCatalogEntry_contentHash_idx" ON "SearchCatalogEntry"("contentHash");
-
-ALTER TABLE "SearchCatalogEntry" ADD CONSTRAINT "SearchCatalogEntry_companyId_fkey"
-  FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
-DO $$
-BEGIN
-  CREATE EXTENSION IF NOT EXISTS vector;
-  ALTER TABLE "SearchCatalogEntry" ADD COLUMN "embedding" vector(768);
-EXCEPTION
-  WHEN undefined_file OR insufficient_privilege OR feature_not_supported THEN
-    RAISE NOTICE 'pgvector is unavailable, so command search stays keyword only on this database.';
-END
-$$;
-
--- =============================================================================================
--- @section 20261009020000_search_catalog_claims
--- Section 10 of 17: Search catalog indexing claims
--- =============================================================================================
-
--- Indexing claims for the search catalog: a worker marks the rows it is embedding in one short statement and
--- clears the mark when it stores the vectors or gives up, so no database connection is held while embedding.
--- A claim older than five minutes is abandoned and may be taken again. Additive: one nullable column.
-
-ALTER TABLE "SearchCatalogEntry" ADD COLUMN "claimedAt" TIMESTAMP(3);
-
--- =============================================================================================
--- @section 20261009030000_trash_configuration_backfill
--- Section 11 of 17: Trash configuration backfill: one Trash item for every list, field, relationship and Channels field already deleted (data only)
--- =============================================================================================
-
-WITH latest AS (
-  SELECT revision."companyId", revision.snapshot
-  FROM "RecordSchemaState" state
-  JOIN "RecordSchemaRevision" revision ON revision."companyId" = state."companyId" AND revision.revision = state.revision
-), types AS (
-  SELECT latest."companyId", item FROM latest CROSS JOIN LATERAL jsonb_array_elements(latest.snapshot->'types') item
-), fields AS (
-  SELECT latest."companyId", item FROM latest CROSS JOIN LATERAL jsonb_array_elements(latest.snapshot->'fields') item
-), relationships AS (
-  SELECT latest."companyId", item FROM latest CROSS JOIN LATERAL jsonb_array_elements(latest.snapshot->'relationships') item
-), capabilities AS (
-  SELECT latest."companyId", item FROM latest
-  CROSS JOIN LATERAL jsonb_array_elements(COALESCE(latest.snapshot->'capabilities', '[]'::jsonb)) item
-), deleted_now AS (
-  SELECT "companyId", 'type' AS kind, item->>'id' AS id FROM types WHERE (item->>'archived')::boolean
-  UNION ALL SELECT "companyId", 'field', item->>'id' FROM fields WHERE (item->>'archived')::boolean
-  UNION ALL SELECT "companyId", 'relationship', item->>'id' FROM relationships WHERE (item->>'archived')::boolean
-  UNION ALL SELECT "companyId", 'channels', item->>'id' FROM capabilities
-    WHERE item->>'kind' = 'channels' AND (item->>'enabled')::boolean IS FALSE
-), deletions AS (
-  SELECT revision."companyId", revision."actorId", revision."createdAt",
-    deletion->'target'->>'kind' AS kind, deletion->'target'->>'id' AS id, deletion->'cascade' AS cascade,
-    row_number() OVER (
-      PARTITION BY revision."companyId", deletion->'target'->>'kind', deletion->'target'->>'id'
-      ORDER BY revision.revision DESC
-    ) AS position
-  FROM "RecordSchemaRevision" revision
-  CROSS JOIN LATERAL jsonb_array_elements(revision.change->'deletions') deletion
-  WHERE jsonb_typeof(revision.change->'deletions') = 'array'
-), last_deletion AS (
-  SELECT * FROM deletions WHERE position = 1
-), hidden AS (
-  SELECT last_deletion."companyId", member->>'kind' AS kind, member->>'id' AS id, MAX(last_deletion."createdAt") AS since
-  FROM last_deletion
-  JOIN deleted_now ON deleted_now."companyId" = last_deletion."companyId"
-    AND deleted_now.kind = last_deletion.kind AND deleted_now.id = last_deletion.id
-  CROSS JOIN LATERAL jsonb_array_elements(last_deletion.cascade) member
-  GROUP BY last_deletion."companyId", member->>'kind', member->>'id'
-), cascaded AS (
-  SELECT hidden."companyId", hidden.kind, hidden.id FROM hidden
-  LEFT JOIN last_deletion own ON own."companyId" = hidden."companyId" AND own.kind = hidden.kind AND own.id = hidden.id
-  WHERE COALESCE(own."createdAt", 'epoch'::timestamp) <= hidden.since
-), candidates AS (
-  SELECT "companyId", 'type' AS kind, item->>'id' AS id, item->>'id' AS type_id, item->>'pluralLabel' AS label
-  FROM types WHERE (item->>'archived')::boolean
-  UNION ALL
-  SELECT fields."companyId", 'field', fields.item->>'id', fields.item->>'typeId', fields.item->>'label' FROM fields
-  WHERE (fields.item->>'archived')::boolean
-  UNION ALL
-  SELECT relationships."companyId", 'relationship', relationships.item->>'id', relationships.item->>'sourceTypeId',
-    COALESCE(source.item->>'pluralLabel', '') || ' → ' || COALESCE(target.item->>'pluralLabel', '')
-  FROM relationships
-  LEFT JOIN types source ON source."companyId" = relationships."companyId" AND source.item->>'id' = relationships.item->>'sourceTypeId'
-  LEFT JOIN types target ON target."companyId" = relationships."companyId" AND target.item->>'id' = relationships.item->>'targetTypeId'
-  WHERE (relationships.item->>'archived')::boolean
-  UNION ALL
-  SELECT capabilities."companyId", 'channels', capabilities.item->>'id', capabilities.item->>'typeId', 'Channels' FROM capabilities
-  WHERE capabilities.item->>'kind' = 'channels' AND (capabilities.item->>'enabled')::boolean IS FALSE
-)
-INSERT INTO "TrashItem" ("companyId", id, kind, "targetId", "typeId", label, "deletedById", "deletedAt", "expiresAt", "batchId")
-SELECT candidates."companyId", gen_random_uuid()::text,
-  (CASE candidates.kind WHEN 'type' THEN 'list' ELSE candidates.kind END)::"TrashKind",
-  candidates.id, candidates.type_id, candidates.label, own."actorId", COALESCE(own."createdAt", NOW()),
-  NOW() + INTERVAL '30 days', gen_random_uuid()::text
-FROM candidates
-LEFT JOIN last_deletion own ON own."companyId" = candidates."companyId" AND own.kind = candidates.kind AND own.id = candidates.id
-WHERE NOT EXISTS (
-  SELECT 1 FROM cascaded WHERE cascaded."companyId" = candidates."companyId" AND cascaded.kind = candidates.kind AND cascaded.id = candidates.id)
-ON CONFLICT ("companyId", kind, "targetId") DO NOTHING;
-
--- =============================================================================================
--- @section 20261009120000_channels_field
--- Section 12 of 17: Channels field: turn every Channels capability into a field of its list and re-key layouts, views and Trash entries (data, plus the TrashKind enum)
--- =============================================================================================
-
--- Channels becomes a field of its list. Every channels capability (and the earlier personIdentity kind) turns
--- into a field with valueType "channels" that keeps the capability id as its field id:
---   * appended after the last field of its list (position = highest position + 1), named "Channels" or the
---     first free "Channels (n)" from 2 on when the list already has a field with that name (design rule 40);
---   * a disabled capability (enabled = false, in Recently deleted) becomes an archived field;
---   * providerAvatar moves to format.providerAvatar (personIdentity always used the provider avatar);
---   * the first and last name roles are dropped: the inbox derives them from the list's name formula.
--- The column key "system:channels" becomes the field id wherever a saved view, personal layout or record detail
--- layout stores it, and is removed where the list has no live Channels field. Stored
--- configuration changes are converted too: putCapability for channels becomes putField, and delete, restore,
--- deletePermanently and deletion records that target channels now target the field. Identifiers and their
--- links to records ("RecordIdentity", "RecordIdentityKey", "RecordIdentityLink") are not touched. Trash entries of
--- the retired kind channels become field entries for the same id, and the TrashKind enum loses channels.
--- Re-running the migration changes nothing.
-
-CREATE SCHEMA channels_field_upgrade;
-
-CREATE FUNCTION channels_field_upgrade.name_key(value text) RETURNS text
-LANGUAGE sql IMMUTABLE AS $$
-  SELECT lower(btrim(regexp_replace(
-    regexp_replace(normalize(coalesce(value, ''), NFD), '[̀-ͯ]', '', 'g'),
-    '[\t\n\v\f\r    -     　﻿]+', ' ', 'g'
-  )))
-$$;
-
-CREATE FUNCTION channels_field_upgrade.free_label(fields jsonb, type_id text) RETURNS text
-LANGUAGE sql IMMUTABLE AS $$
-  WITH RECURSIVE taken AS (
-    SELECT coalesce(array_agg(channels_field_upgrade.name_key(field.value ->> 'label')), '{}') AS keys
-    FROM jsonb_array_elements(fields) AS field(value)
-    WHERE field.value ->> 'typeId' = type_id
-  ), attempt(n, name) AS (
-    SELECT 1, 'Channels'
-    UNION ALL
-    SELECT attempt.n + 1, 'Channels (' || (attempt.n + 1) || ')'
-    FROM attempt, taken
-    WHERE channels_field_upgrade.name_key(attempt.name) = ANY (taken.keys)
-  )
-  SELECT name FROM attempt ORDER BY n DESC LIMIT 1
-$$;
-
-CREATE FUNCTION channels_field_upgrade.live_field_id(fields jsonb, type_id text) RETURNS text
-LANGUAGE sql IMMUTABLE AS $$
-  SELECT field.value ->> 'id' FROM jsonb_array_elements(coalesce(fields, '[]'::jsonb)) AS field(value)
-  WHERE field.value ->> 'valueType' = 'channels' AND field.value ->> 'typeId' = type_id
-    AND field.value ->> 'archived' = 'false'
-  LIMIT 1
-$$;
-
-CREATE FUNCTION channels_field_upgrade.rekey(value jsonb, field_id text) RETURNS jsonb
-LANGUAGE sql IMMUTABLE AS $$
-  SELECT CASE jsonb_typeof(value)
-    WHEN 'string' THEN CASE WHEN value #>> '{}' = 'system:channels' THEN coalesce(to_jsonb(field_id), 'null'::jsonb)
-      ELSE value END
-    WHEN 'array' THEN coalesce((
-      SELECT jsonb_agg(channels_field_upgrade.rekey(item.value, field_id) ORDER BY item.ordinality)
-      FROM jsonb_array_elements(value) WITH ORDINALITY AS item(value, ordinality)
-      WHERE field_id IS NOT NULL OR item.value IS DISTINCT FROM '"system:channels"'::jsonb), '[]'::jsonb)
-    WHEN 'object' THEN coalesce((
-      SELECT jsonb_object_agg(CASE WHEN entry.key = 'system:channels' THEN field_id ELSE entry.key END,
-        channels_field_upgrade.rekey(entry.value, field_id))
-      FROM jsonb_each(value) AS entry
-      WHERE field_id IS NOT NULL OR entry.key <> 'system:channels'), '{}'::jsonb)
-    ELSE value END
-$$;
-
-CREATE FUNCTION channels_field_upgrade.rekey_list(value text[], field_id text) RETURNS text[]
-LANGUAGE sql IMMUTABLE AS $$
-  SELECT CASE WHEN field_id IS NULL THEN array_remove(value, 'system:channels')
-    ELSE array_replace(value, 'system:channels', field_id) END
-$$;
-
-CREATE FUNCTION channels_field_upgrade.is_channels(capability jsonb) RETURNS boolean
-LANGUAGE sql IMMUTABLE AS $$
-  SELECT capability ->> 'kind' IN ('channels', 'personIdentity')
-$$;
-
-CREATE FUNCTION channels_field_upgrade.channels_field(capability jsonb, label text, field_position integer, archived boolean)
-RETURNS jsonb
-LANGUAGE sql IMMUTABLE AS $$
-  SELECT jsonb_build_object(
-    'id', capability ->> 'id',
-    'typeId', capability ->> 'typeId',
-    'label', label,
-    'valueType', 'channels',
-    'behavior', jsonb_build_object('kind', 'input'),
-    'required', false,
-    'format', jsonb_build_object('providerAvatar',
-      capability ->> 'kind' = 'personIdentity' OR coalesce((capability ->> 'providerAvatar')::boolean, false)),
-    'archived', archived,
-    'publishedSummary', false,
-    'options', '[]'::jsonb,
-    'position', field_position)
-$$;
-
-CREATE FUNCTION channels_field_upgrade.convert_model(snapshot jsonb) RETURNS jsonb
-LANGUAGE sql IMMUTABLE AS $$
-  WITH model AS (
-    SELECT coalesce(snapshot -> 'fields', '[]'::jsonb) AS fields,
-      coalesce(snapshot -> 'types', '[]'::jsonb) AS types,
-      coalesce(snapshot -> 'capabilities', '[]'::jsonb) AS capabilities
-  ), added AS (
-    SELECT coalesce(jsonb_agg(channels_field_upgrade.channels_field(
-        capability.value,
-        channels_field_upgrade.free_label(model.fields, capability.value ->> 'typeId'),
-        coalesce((
-          SELECT max((field.value ->> 'position')::integer) + 1 FROM jsonb_array_elements(model.fields) AS field(value)
-          WHERE field.value ->> 'typeId' = capability.value ->> 'typeId'), 0),
-        capability.value ->> 'kind' = 'channels' AND coalesce(capability.value ->> 'enabled', 'true') = 'false')
-      ORDER BY capability.ordinality), '[]'::jsonb) AS fields
-    FROM model
-    CROSS JOIN LATERAL jsonb_array_elements(model.capabilities) WITH ORDINALITY AS capability(value, ordinality)
-    WHERE channels_field_upgrade.is_channels(capability.value)
-      AND EXISTS (
-        SELECT 1 FROM jsonb_array_elements(model.types) AS type(value)
-        WHERE type.value ->> 'id' = capability.value ->> 'typeId')
-      AND NOT EXISTS (
-        SELECT 1 FROM jsonb_array_elements(model.fields) AS field(value)
-        WHERE field.value ->> 'id' = capability.value ->> 'id'
-          OR (field.value ->> 'valueType' = 'channels' AND field.value ->> 'typeId' = capability.value ->> 'typeId'))
-      AND NOT EXISTS (
-        SELECT 1 FROM jsonb_array_elements(model.capabilities) WITH ORDINALITY AS earlier(value, ordinality)
-        WHERE earlier.ordinality < capability.ordinality AND channels_field_upgrade.is_channels(earlier.value)
-          AND earlier.value ->> 'typeId' = capability.value ->> 'typeId')
-  ), merged AS (
-    SELECT model.fields || added.fields AS fields, model.types, model.capabilities FROM model, added
-  )
-  SELECT snapshot || jsonb_build_object(
-    'fields', merged.fields,
-    'capabilities', coalesce((
-      SELECT jsonb_agg(item.value ORDER BY item.ordinality)
-      FROM jsonb_array_elements(merged.capabilities) WITH ORDINALITY AS item(value, ordinality)
-      WHERE NOT channels_field_upgrade.is_channels(item.value)
-    ), '[]'::jsonb))
-  FROM merged
-$$;
-
-CREATE FUNCTION channels_field_upgrade.resolve(change jsonb, reference text) RETURNS text
-LANGUAGE sql IMMUTABLE AS $$
-  SELECT coalesce((
-    SELECT item.value ->> 'id' FROM jsonb_array_elements(coalesce(change -> 'references', '[]'::jsonb)) AS item(value)
-    WHERE item.value ->> 'reference' = reference LIMIT 1), reference)
-$$;
-
-CREATE FUNCTION channels_field_upgrade.retarget(target jsonb) RETURNS jsonb
-LANGUAGE sql IMMUTABLE AS $$
-  SELECT CASE WHEN target ->> 'kind' = 'channels' THEN target || '{"kind": "field"}'::jsonb ELSE target END
-$$;
-
-CREATE FUNCTION channels_field_upgrade.convert_operation(operation jsonb, change jsonb, snapshot jsonb) RETURNS jsonb
-LANGUAGE sql IMMUTABLE AS $$
-  SELECT CASE
-    WHEN operation ->> 'operation' = 'putCapability' AND channels_field_upgrade.is_channels(operation -> 'capability') THEN
-      jsonb_build_object('operation', 'putField', 'field', channels_field_upgrade.channels_field(
-        operation -> 'capability',
-        coalesce(stored.value ->> 'label', 'Channels'),
-        coalesce((stored.value ->> 'position')::integer, 0),
-        false) - 'archived' - 'publishedSummary')
-    WHEN operation ? 'target' THEN operation || jsonb_build_object('target',
-      channels_field_upgrade.retarget(operation -> 'target'))
-    ELSE operation END
-  FROM (SELECT NULL) AS unused
-  LEFT JOIN LATERAL (
-    SELECT field.value FROM jsonb_array_elements(coalesce(snapshot -> 'fields', '[]'::jsonb)) AS field(value)
-    WHERE field.value ->> 'id' = channels_field_upgrade.resolve(change, operation #>> '{capability,id}')
-    LIMIT 1) AS stored ON TRUE
-$$;
-
-CREATE FUNCTION channels_field_upgrade.convert_change(change jsonb, snapshot jsonb) RETURNS jsonb
-LANGUAGE sql IMMUTABLE AS $$
-  SELECT change
-    || CASE WHEN jsonb_typeof(change #> '{configuration,operations}') = 'array' THEN jsonb_build_object('configuration',
-      (change -> 'configuration') || jsonb_build_object('operations', coalesce((
-        SELECT jsonb_agg(channels_field_upgrade.convert_operation(operation.value, change, snapshot)
-          ORDER BY operation.ordinality)
-        FROM jsonb_array_elements(change #> '{configuration,operations}') WITH ORDINALITY AS operation(value, ordinality)
-      ), '[]'::jsonb))) ELSE '{}'::jsonb END
-    || CASE WHEN jsonb_typeof(change -> 'deletions') = 'array' THEN jsonb_build_object('deletions', coalesce((
-      SELECT jsonb_agg(jsonb_build_object(
-          'target', channels_field_upgrade.retarget(deletion.value -> 'target'),
-          'cascade', coalesce((
-            SELECT jsonb_agg(channels_field_upgrade.retarget(item.value) ORDER BY item.ordinality)
-            FROM jsonb_array_elements(deletion.value -> 'cascade') WITH ORDINALITY AS item(value, ordinality)
-          ), '[]'::jsonb))
-        ORDER BY deletion.ordinality)
-      FROM jsonb_array_elements(change -> 'deletions') WITH ORDINALITY AS deletion(value, ordinality)
-    ), '[]'::jsonb)) ELSE '{}'::jsonb END
-$$;
-
-CREATE FUNCTION channels_field_upgrade.needs_change(change jsonb) RETURNS boolean
-LANGUAGE sql IMMUTABLE AS $$
-  SELECT change::text LIKE '%system:channels%'
-    OR jsonb_path_exists(change, '$.configuration.operations[*] ? (@.operation == "putCapability"
-      && (@.capability.kind == "channels" || @.capability.kind == "personIdentity"))')
-    OR jsonb_path_exists(change, '$.configuration.operations[*] ? (@.target.kind == "channels")')
-    OR jsonb_path_exists(change, '$.deletions[*] ? (@.target.kind == "channels" || exists(@.cascade[*] ? (@.kind == "channels")))')
-$$;
-
-UPDATE "RecordSchemaRevision"
-SET snapshot = channels_field_upgrade.convert_model(snapshot)
-WHERE jsonb_path_exists(snapshot, '$.capabilities[*] ? (@.kind == "channels" || @.kind == "personIdentity")')
-  OR snapshot::text LIKE '%system:channels%';
-
-UPDATE "RecordSchemaRevision"
-SET change = channels_field_upgrade.convert_change(change, snapshot)
-WHERE change IS NOT NULL AND channels_field_upgrade.needs_change(change);
-
-CREATE TABLE channels_field_upgrade.current_field AS
-SELECT revision."companyId" AS company_id, field.value AS field
-FROM "RecordSchemaState" state
-JOIN "RecordSchemaRevision" revision ON revision."companyId" = state."companyId" AND revision.revision = state.revision
-CROSS JOIN LATERAL jsonb_array_elements(coalesce(revision.snapshot -> 'fields', '[]'::jsonb)) AS field(value)
-WHERE field.value ->> 'valueType' = 'channels';
-
-INSERT INTO "RecordFieldDefinition" ("companyId", "typeId", id, "valueType", behavior, archived, definition, "updatedAt")
-SELECT current.company_id, current.field ->> 'typeId', current.field ->> 'id', 'channels', 'input',
-  (current.field ->> 'archived')::boolean, current.field, now()
-FROM channels_field_upgrade.current_field AS current
-WHERE EXISTS (SELECT 1 FROM "RecordTypeDefinition" type
-  WHERE type."companyId" = current.company_id AND type.id = current.field ->> 'typeId')
-ON CONFLICT ("companyId", id) DO NOTHING;
-
-CREATE FUNCTION channels_field_upgrade.surface_field_id(target_company text, surface text) RETURNS text
-LANGUAGE sql STABLE AS $$
-  SELECT current.field ->> 'id' FROM channels_field_upgrade.current_field AS current
-  WHERE current.company_id = target_company AND current.field ->> 'archived' = 'false'
-    AND current.field ->> 'typeId' = regexp_replace(surface, '^(records|record-detail):', '')
-  LIMIT 1
-$$;
-
-UPDATE "DataView" view
-SET "columnOrder" = channels_field_upgrade.rekey(view."columnOrder", target.field_id),
-  "hiddenColumns" = channels_field_upgrade.rekey(view."hiddenColumns", target.field_id),
-  "columnWidths" = channels_field_upgrade.rekey(view."columnWidths", target.field_id),
-  "sortDescriptor" = channels_field_upgrade.rekey(view."sortDescriptor", target.field_id),
-  grouping = channels_field_upgrade.rekey(view.grouping, target.field_id),
-  filters = channels_field_upgrade.rekey(view.filters, target.field_id),
-  "groupingColumnId" = CASE WHEN view."groupingColumnId" = 'system:channels' THEN target.field_id
-    ELSE view."groupingColumnId" END
-FROM (SELECT id, channels_field_upgrade.surface_field_id("companyId", "surfaceKey") AS field_id FROM "DataView") AS target
-WHERE target.id = view.id
-  AND (to_jsonb(view) - 'name')::text LIKE '%system:channels%';
-
-UPDATE "P13n" personalization
-SET "columnOrder" = channels_field_upgrade.rekey_list(personalization."columnOrder", target.field_id),
-  "hiddenColumns" = channels_field_upgrade.rekey_list(personalization."hiddenColumns", target.field_id),
-  "columnWidths" = channels_field_upgrade.rekey(personalization."columnWidths", target.field_id),
-  "sortDescriptor" = channels_field_upgrade.rekey(personalization."sortDescriptor", target.field_id),
-  grouping = channels_field_upgrade.rekey(personalization.grouping, target.field_id),
-  filters = channels_field_upgrade.rekey(personalization.filters, target.field_id),
-  "detailOptions" = channels_field_upgrade.rekey(personalization."detailOptions", target.field_id),
-  settings = channels_field_upgrade.rekey(personalization.settings, target.field_id),
-  "viewStateKeys" = channels_field_upgrade.rekey(personalization."viewStateKeys", target.field_id),
-  "groupingColumnId" = CASE WHEN personalization."groupingColumnId" = 'system:channels' THEN target.field_id
-    ELSE personalization."groupingColumnId" END
-FROM (SELECT id, channels_field_upgrade.surface_field_id("companyId", "p13nId") AS field_id FROM "P13n") AS target
-WHERE target.id = personalization.id
-  AND to_jsonb(personalization)::text LIKE '%system:channels%';
-
-UPDATE "TrashItem" item
-SET kind = 'field',
-  label = coalesce((
-    SELECT current.field ->> 'label' FROM channels_field_upgrade.current_field AS current
-    WHERE current.company_id = item."companyId" AND current.field ->> 'id' = item."targetId"), item.label)
-WHERE item.kind::text = 'channels'
-  AND NOT EXISTS (
-    SELECT 1 FROM "TrashItem" other
-    WHERE other."companyId" = item."companyId" AND other.kind::text = 'field' AND other."targetId" = item."targetId");
-
-DELETE FROM "TrashItem" WHERE kind::text = 'channels';
-
-ALTER TYPE "TrashKind" RENAME TO "TrashKind_channels_upgrade";
-CREATE TYPE "TrashKind" AS ENUM ('record', 'list', 'field', 'relationship', 'view', 'widget', 'routine', 'wikiPage');
-ALTER TABLE "TrashItem" ALTER COLUMN kind TYPE "TrashKind" USING kind::text::"TrashKind";
-DROP TYPE "TrashKind_channels_upgrade";
-
-DO $$
-BEGIN
-  IF EXISTS (
-    SELECT 1 FROM "RecordSchemaRevision"
-    WHERE jsonb_path_exists(snapshot, '$.capabilities[*] ? (@.kind == "channels" || @.kind == "personIdentity")')
-      OR snapshot::text LIKE '%system:channels%'
-      OR (change IS NOT NULL AND channels_field_upgrade.needs_change(change))
-  ) OR EXISTS (SELECT 1 FROM "RecordTypeDefinition" WHERE definition::text LIKE '%system:channels%')
-    OR EXISTS (SELECT 1 FROM "DataView" view WHERE (to_jsonb(view) - 'name')::text LIKE '%system:channels%')
-    OR EXISTS (SELECT 1 FROM "P13n" personalization WHERE to_jsonb(personalization)::text LIKE '%system:channels%')
-  THEN
-    RAISE EXCEPTION 'A channels capability or the system:channels column is still stored';
-  END IF;
-END $$;
-
-DROP SCHEMA channels_field_upgrade CASCADE;
-
--- =============================================================================================
--- @section 20261009150000_record_rank
--- Section 13 of 17: Manual record order (CrmRecord.rank)
--- =============================================================================================
-
--- AlterTable
-ALTER TABLE "CrmRecord" ADD COLUMN "rank" TEXT;
-
--- =============================================================================================
--- @section 20261009180000_calculation_draft_usage
--- Section 14 of 17: Agent usage purpose: calculation drafts
--- =============================================================================================
-
-ALTER TYPE "AgentUsagePurpose" ADD VALUE IF NOT EXISTS 'calculationDraft';
-
--- =============================================================================================
--- @section 20261009200000_command_resolve_usage
--- Section 15 of 17: Agent usage purpose: command resolution
--- =============================================================================================
-
-ALTER TYPE "AgentUsagePurpose" ADD VALUE IF NOT EXISTS 'commandResolve';
-
--- =============================================================================================
--- @section 20261010000000_sidebar_entries
--- Section 16 of 17: Sidebar entries: convert each saved sidebar layout from sections to one entry list (data only)
--- =============================================================================================
-
-UPDATE "P13n"
-SET "settings" = jsonb_build_object(
-  'entries',
-  COALESCE(
-    (
-      SELECT jsonb_agg(section.value ORDER BY section.ordinality)
-      FROM jsonb_array_elements("settings" -> 'sections') WITH ORDINALITY AS section(value, ordinality)
-      WHERE section.value ->> 'id' NOT IN ('workspace', 'admin')
-    ),
-    '[]'::jsonb
-  ),
-  'hidden',
-  COALESCE("settings" -> 'hidden', '[]'::jsonb)
-)
-WHERE "p13nId" = 'sidebar' AND jsonb_typeof("settings" -> 'sections') = 'array';
-
--- =============================================================================================
--- @section 20261010000000_webhook_paused_reason
--- Section 17 of 17: Webhook paused reason: why a webhook was paused, shown when its only trigger field is deleted
--- =============================================================================================
-
-ALTER TABLE "Webhook" ADD COLUMN "pausedReason" TEXT;

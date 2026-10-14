@@ -17,7 +17,6 @@ import {
 } from "@/tests/helpers/legacy-crm-fixture";
 import {
   applyConfigurableRecordsMigration,
-  CONFIGURABLE_RECORDS_MIGRATION,
   createLegacyMigrationDatabase,
   deployMigrations,
   DYNAMIC_RECORD_MODEL_MIGRATION,
@@ -30,7 +29,7 @@ import {
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 const databases: Awaited<ReturnType<typeof createLegacyMigrationDatabase>>[] = [];
-const legacyOnly = (name: string) => name < CONFIGURABLE_RECORDS_MIGRATION;
+const legacyOnly = (name: string) => name < DYNAMIC_RECORD_MODEL_MIGRATION;
 
 async function legacyDatabase(applyMigrations = true) {
   const database = await createLegacyMigrationDatabase(databaseUrl, applyMigrations);
@@ -872,7 +871,7 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     // Simulated defect: the identity validation can no longer read a column it checks.
     await client.query('ALTER TABLE "ContactIdentifier" RENAME COLUMN "displayName" TO "label"');
     const before = await legacySnapshot(client);
-    const failure = await client.query(await readMigration(CONFIGURABLE_RECORDS_MIGRATION)).then(
+    const failure = await client.query(await readMigration(DYNAMIC_RECORD_MODEL_MIGRATION)).then(
       () => null,
       (error: Error & { code?: string; detail?: string }) => error,
     );
@@ -1117,10 +1116,10 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
       await rows(
         production.client,
         "SELECT migration_name FROM \"_prisma_migrations\" WHERE started_at > NOW() - interval '10 minutes' AND migration_name >= $1 ORDER BY migration_name",
-        [CONFIGURABLE_RECORDS_MIGRATION],
+        [DYNAMIC_RECORD_MODEL_MIGRATION],
       ),
     ).toEqual(
-      (await migrationDirectories((name) => name >= CONFIGURABLE_RECORDS_MIGRATION)).map((name) => ({
+      (await migrationDirectories((name) => name >= DYNAMIC_RECORD_MODEL_MIGRATION)).map((name) => ({
         migration_name: name,
       })),
     );
@@ -1133,8 +1132,8 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
   it("refuses to run on a database that already has generic record storage", async () => {
     const { client } = await legacyDatabase();
     await populateLegacyWorkspace(client);
-    await applyConfigurableRecordsMigration(client, { later: false });
-    await expect(client.query(await readMigration(CONFIGURABLE_RECORDS_MIGRATION))).rejects.toThrow(
+    await applyConfigurableRecordsMigration(client);
+    await expect(client.query(await readMigration(DYNAMIC_RECORD_MODEL_MIGRATION))).rejects.toThrow(
       "Configurable record storage already exists",
     );
     await client.query("ROLLBACK");

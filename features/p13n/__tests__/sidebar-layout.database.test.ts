@@ -7,7 +7,6 @@ import { createTranslator } from "next-intl";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
-import { readMigration } from "@/tests/helpers/legacy-migration-database";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import messages from "@/i18n/locales/en.json";
 
@@ -102,43 +101,6 @@ describeDatabase("personal sidebar layout in P13n settings", () => {
     ];
     for (const data of invalid) await expect(upsert(secondUserId, data)).resolves.toMatchObject({ ok: false });
     expect(await read(secondUserId)).toBeUndefined();
-  });
-
-  it("converts a stored layout from the section-only format and drops the retired built-in sections", async () => {
-    await client.query(
-      'INSERT INTO "P13n" ("id", "userId", "companyId", "p13nId", "settings", "updatedAt") VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)',
-      [
-        randomUUID(),
-        secondUserId,
-        companyId,
-        "sidebar",
-        JSON.stringify({
-          sections: [
-            { id: "data", items: ["records:a"] },
-            { id: "workspace", items: ["profile"] },
-            { id: "custom:pinned", name: "Pinned", items: ["inbox"], collapsed: true },
-            { id: "admin", items: ["operator"] },
-            { id: "overview", items: ["dashboard"] },
-          ],
-          hidden: ["wiki"],
-        }),
-      ],
-    );
-    await client.query(
-      (await readMigration("20261010000000_sidebar_entries")).replace(
-        `WHERE "p13nId" = 'sidebar'`,
-        `WHERE "companyId" = '${companyId}' AND "p13nId" = 'sidebar'`,
-      ),
-    );
-    expect((await read(secondUserId))?.settings).toEqual({
-      entries: [
-        { id: "data", items: ["records:a"] },
-        { id: "custom:pinned", name: "Pinned", items: ["inbox"], collapsed: true },
-        { id: "overview", items: ["dashboard"] },
-      ],
-      hidden: ["wiki"],
-    });
-    await client.query('DELETE FROM "P13n" WHERE "companyId" = $1 AND "userId" = $2', [companyId, secondUserId]);
   });
 
   it("stores the keyboard preference per person and only in its own settings shape", async () => {

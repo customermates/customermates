@@ -10,7 +10,6 @@ import { afterAll, describe, expect, it, vi } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
-import { readMigration } from "@/tests/helpers/legacy-migration-database";
 
 vi.mock("@/env", () => ({
   env: {
@@ -1240,33 +1239,5 @@ describeDatabase("configuration trash", () => {
       failedItemIds: [],
     });
     expect(await f.items()).toHaveLength(1);
-  }, 180_000);
-
-  it("backfills Trash items for configuration that was deleted before the migration", async () => {
-    const f = await fixture();
-    await f.as(async () =>
-      f.apply.invoke(await f.change([{ operation: "delete", target: { kind: "field", id: f.id("deal.notes") } }])),
-    );
-    await f.as(async () =>
-      f.apply.invoke(
-        await f.change([{ operation: "delete", target: { kind: "field", id: f.id("organization.notes") } }]),
-      ),
-    );
-    await f.as(async () =>
-      f.apply.invoke(await f.change([{ operation: "delete", target: { kind: "type", id: f.id("organization") } }])),
-    );
-    const before = (await f.items()).map((item) => [item.kind, item.targetId, item.label, item.deletedById]);
-    expect(before.map(([kind, targetId]) => [kind, targetId])).toEqual([
-      ["field", f.id("deal.notes")],
-      ["field", f.id("organization.notes")],
-      ["list", f.id("organization")],
-    ]);
-    await runWithoutTenant(() => prisma.trashItem.deleteMany({ where: { companyId: f.seed.company.id } }));
-    const sql = await readMigration("20261009030000_trash_configuration_backfill");
-    await runWithoutTenant(() => prisma.$executeRawUnsafe(sql));
-    await runWithoutTenant(() => prisma.$executeRawUnsafe(sql));
-    const after = await f.items();
-    expect(after.map((item) => [item.kind, item.targetId, item.label, item.deletedById])).toEqual(before);
-    expect(after.every((item) => item.expiresAt.getTime() > Date.now() + 29 * 24 * 60 * 60 * 1000)).toBe(true);
   }, 180_000);
 });
