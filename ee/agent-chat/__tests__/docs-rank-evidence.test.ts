@@ -583,7 +583,7 @@ describe("bounded classifier evidence", () => {
       "app-onboarding",
       "what-are-the-three-steps",
       "link to the onboarding wizard",
-      "has four steps, shown as You, Knowledge, Team and AI tools.",
+      "has four steps, shown as You, Workspace, Team and AI tools.",
     ],
     [
       "webhooks",

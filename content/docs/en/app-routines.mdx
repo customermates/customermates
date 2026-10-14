@@ -1,9 +1,9 @@
 ---
 title: "Routines: Scheduled and Event-Driven Assistant Runs"
-description: "Routines run Mate on a schedule or when a record changes, using the owner's AI credits, with limits, run statuses and approvals."
+description: "Routines run Mate on a schedule or when a record changes, using the owner's Mate allowance, with limits, run statuses and approvals."
 ---
 
-A routine is a saved instruction plus a trigger. When the trigger fires, Customermates opens a new assistant conversation, sends your instruction and lets Mate work on its own. Routines exist on Customermates Cloud only, because they spend hosted AI credits from the owner's monthly allowance.
+A routine is a saved instruction plus a trigger. When the trigger fires, Customermates opens a new assistant conversation, sends your instruction and lets Mate work on its own. Routines exist on Customermates Cloud only, because they use the owner's monthly Mate allowance.
 
 Who sees routines follows the **Routines** row of their role in [Roles](app:settings/roles): **Read access** **All** shows every routine in the workspace, **Assigned** only their own, and **None** hides [Routines](app:routines). Creating needs **Create**, editing your own needs **Edit**. Everyone who can see a routine sees its run summaries; the full transcript stays with the person the run executed as.
 
@@ -17,20 +17,20 @@ Open [Routines](app:routines) and click [Add](app:routines?focus=add). Enter a *
 - **Instructions**: what Mate receives on every run, up to 5,000 characters. Write it as you would ask in chat.
 - **Trigger**: **On a schedule**, or **When something changes** for one or more events, such as a deal being updated.
 
-The creator becomes the owner. Only the owner can change the instructions or trigger, switch the routine between **Active** and **Paused**, or use **Test trigger**, because every run uses the owner's identity, access and AI credits. Others see the routine read-only.
+The creator becomes the owner. Only the owner can change the instructions or trigger, switch the routine between **Active** and **Paused**, or use **Test trigger**, because every run uses the owner's identity, access and Mate allowance. Others see the routine read-only.
 
 Members with the **Admin** role can pause (**Pause routine**) or delete anyone's routine, but cannot edit, test or run someone else's. Deleting needs **Admin** even for your own routine, moves the routine to [Trash](/docs/app-trash), where it stops running until it is restored, and is refused while a run is running (**Wait for the active run to finish before deleting this routine.**). Deleting it permanently from Trash also removes its run history. When an owner is set to **Inactive** in [Members](app:settings/members), their routines pause at once, queued or running runs end as **Blocked**, and the routines stay paused and read-only until an admin deletes them or the owner is active again and switches them back on.
 
 ## How many routines does my plan include? [#how-many-routines-does-my-plan-include]
 
-Each user has their own allowance: Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]] and Business and Enterprise [[commercial.entitlement.business.includedRoutinesPerUser]]. Pausing a routine does not free a slot; moving it to [Trash](/docs/app-trash) frees its slot at once. At the limit, a new routine is refused with a prompt to upgrade under [Billing](app:settings/billing), and restoring a routine from Trash leaves it there with the note that its owner already has all the routines their plan includes; move another of the owner's routines to Trash first. Over REST and MCP, the restore result lists it under `blocked` with the reason `routineLimitReached` and the plan's `limit`. The limit is checked only when a routine is created or restored, so routines above a lower plan's limit are kept after a downgrade. The credits runs draw on are described under [Plans and credits](/docs/app-assistant#plans-and-credits).
+Each user has their own allowance: Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]] and Business, Max and Enterprise [[commercial.entitlement.business.includedRoutinesPerUser]]. Pausing a routine does not free a slot; moving it to [Trash](/docs/app-trash) frees its slot at once. At the limit, a new routine is refused with a prompt to upgrade under [Billing](app:settings/billing), and restoring a routine from Trash leaves it there with the note that its owner already has all the routines their plan includes; move another of the owner's routines to Trash first. Over REST and MCP, the restore result lists it under `blocked` with the reason `routineLimitReached` and the plan's `limit`. The limit is checked only when a routine is created or restored, so routines above a lower plan's limit are kept after a downgrade. The allowance runs draw on is described under [Plans and Mate usage](/docs/app-assistant#plans-and-credits).
 
-## What are the limits, such as runs per hour and credits per run? [#what-are-the-limits]
+## What are the limits, such as runs per hour and usage per run? [#what-are-the-limits]
 
 | Limit | Value | At the limit |
 | --- | --- | --- |
 | Runs per routine and hour | 4 | A matching event is dropped without a run entry; a due scheduled run or **Test trigger** run is recorded as **Skipped** |
-| Credits per run | 10 | The run stops and is recorded as **Partial** |
+| Usage per run | 10% of a Starter allowance, on every plan | The run stops and is recorded as **Partial** |
 | Consecutive failed runs | 3 | The routine pauses itself and shows the reason; the owner switches it back on after fixing the cause |
 | Shortest schedule interval | 15 minutes | A more frequent schedule is rejected on save |
 | Run history | 90 days | Older runs are removed |
@@ -50,7 +50,7 @@ A schedule that fits no preset, for example weekdays only, and a different time 
 
 Under **Events**, pick one or more events: every record and messaging event a [webhook](/docs/webhooks#which-events-exist) can subscribe to, except Record deleted permanently, Email Deleted and Chat Deleted. Changes made in the app, in a Mate chat, over the API or over MCP trigger routines; changes a routine run makes never do, so routines cannot chain or loop.
 
-Two optional controls keep a routine from spending credits on cases you do not care about:
+Two optional controls keep a routine from using the allowance on cases you do not care about:
 
 - **Changed fields** (update events only): the routine runs only when one of these fields actually changed. It is hidden when no update event is selected.
 - **Record filters**: only matching records count. Creations and updates are matched against the saved result, deletions against the full record just before removal, including its relationships.
@@ -61,31 +61,35 @@ Mate is told what happened before your instructions: the event, the kind of reco
 
 ## What do the runs and their statuses mean? [#what-do-the-runs-and-their-statuses-mean]
 
-Open a routine to see its **Runs**, newest first: next to the configuration on a wide screen, or behind the **Details** and **Runs** switch on a narrow one. Click a run for **Run details**: **Ran as** with the owner's name, the credits used (exact provider cost to one decimal), the trigger (**Record**, **Changed fields**, **Conversation**) and, when it stopped early, the reason. Only the person it ran as can open the full transcript, and once the run has finished they can reply below it to continue the conversation with Mate, which spends their credits.
+Open a routine to see its **Runs**, newest first: next to the configuration on a wide screen, or behind the **Details** and **Runs** switch on a narrow one. Click a run for **Run details**: **Ran as** with the owner's name, the share of the owner's monthly Mate allowance used (exact provider cost, shown as a percentage), the trigger (**Record**, **Changed fields**, **Conversation**) and, when it stopped early, the reason. When the run proposed Knowledge Base changes, it says how many and offers **Review**. Only the person it ran as can open the full transcript, and once the run has finished they can reply below it to continue the conversation with Mate, which uses their allowance.
 
 | Status | Meaning |
 | --- | --- |
 | **Queued** | Waiting for the scheduler |
 | **Running** | Mate is working |
 | **Succeeded** | The run completed its instruction |
-| **Partial** | Stopped early, for example at the 10-credit cap or when a policy declined an action |
+| **Partial** | Stopped early, for example at the per-run cap or when a policy declined an action |
 | **Failed** | Ended with an error or without a usable result |
 | **Skipped** | Queued but not started: the routine was paused, the hourly cap was reached, the record no longer matched the filters or the owner's access, the trigger changed, the run was stopped, or the assistant was busy with another run |
-| **Blocked** | Mate could not start because Customermates paused AI work, the owner was out of credits or inactive, or another admission check failed. The run includes an `error` reason such as `platformPaused` or `agentLimitReached`. Workspace administrators cannot resume a Customermates pause. A workspace administrator can separately pause a routine; that reason is `adminPaused`. |
+| **Blocked** | Mate could not start because Customermates paused AI work, the owner's allowance was used up or the owner was inactive, or another admission check failed. The run includes an `error` reason such as `platformPaused` or `agentLimitReached`. Workspace administrators cannot resume a Customermates pause. A workspace administrator can separately pause a routine; that reason is `adminPaused`. |
 
-A run that stops at its 10-credit limit says so in its summary and **Run details**; that limit is separate from the owner's monthly credits. The run stops before a model round when the credits already used plus the most that round can cost, reserved as described under [how a request is charged](/docs/app-assistant#credits), would pass 10.
+A run that stops at its per-run limit of 10% of a Starter allowance says so in its summary and **Run details**; that limit is separate from the owner's monthly allowance. The run stops before a model round when the usage already counted plus the most that round can cost, reserved as described under [how a request is charged](/docs/app-assistant#credits), would pass that limit.
 
-**Test trigger** starts a real run immediately. It is available to the owner of an active scheduled routine without unsaved changes, uses AI credits and may change data. Manual test runs have `triggerKind: schedule`, the kind of the routine they test. A test is refused before a run is queued when AI work is paused, the owner is inactive, or the owner has no credits left. Event routines need a real matching event, so it is disabled for them.
+**Test trigger** starts a real run immediately. It is available to the owner of an active scheduled routine without unsaved changes, uses Mate allowance and may change data. Manual test runs have `triggerKind: schedule`, the kind of the routine they test. A test is refused before a run is queued when AI work is paused, the owner is inactive, or the owner's allowance is used up. Event routines need a real matching event, so it is disabled for them.
 
 ## What a routine may do without approval [#what-a-routine-may-do-without-approval]
 
-An unattended run may do everything Mate does without approval in a chat: read the workspace; create or update contacts, organizations, deals, services, tasks, record links and Knowledge Base pages; save and discard drafts; send emails and chat messages; triage the inbox; change fields, widgets, webhooks and workspace settings other than list names; generate channel connection links; create, update, pause and run routines; and, on a connected account, send connection requests and change Sales Navigator lists.
+An unattended run may do everything Mate does without approval in a chat, except that Knowledge Base changes become [proposals](#knowledge-base-proposals): read the workspace; create or update contacts, organizations, deals, services, tasks and record links; save and discard drafts; send emails and chat messages; triage the inbox; change fields, widgets, webhooks and workspace settings other than list names; generate channel connection links; create, update, pause and run routines; and, on a connected account, send connection requests and change Sales Navigator lists.
 
-Every action that asks for approval in a chat is declined, because nobody is there to answer: deleting records, Knowledge Base pages, fields, widgets, webhooks or routines, renaming lists, inviting members, changing a member's role or status, resending webhook deliveries and sending support requests. The run records the refusal; the full list is on the [assistant page](/docs/app-assistant#what-runs-immediately-and-what-asks-first). Interface actions such as highlighting are unavailable, because no browser is attached.
+Every action that asks for approval in a chat is declined, because nobody is there to answer: deleting records, fields, widgets, webhooks or routines, renaming lists, inviting members, changing a member's role or status, resending webhook deliveries and sending support requests. The run records the refusal; the full list is on the [assistant page](/docs/app-assistant#what-runs-immediately-and-what-asks-first). Interface actions such as highlighting are unavailable, because no browser is attached.
 
-When the owner can read the [Knowledge Base](/docs/mcp#shared-workspace-wiki) and it has pages, each run starts with a short catalog of its pages; the routine searches and reads relevant pages and applies their facts, but an instruction inside a page cannot start other work or widen the routine's permissions. Keep shared facts, voice and processes there instead of repeating them in every routine. Writing pages needs the owner's Knowledge Base **Create** or **Edit**.
+When the owner can read the [Knowledge Base](/docs/mcp#shared-workspace-wiki) and it has pages, each run starts with a short catalog of its pages; the routine searches and reads relevant pages and applies their facts, but an instruction inside a page cannot start other work or widen the routine's permissions. Keep shared facts, voice and processes there instead of repeating them in every routine. Proposing a page change needs the owner's Knowledge Base **Create** or **Edit**.
 
-A run may search the public web, at most 2 paid searches per run, as described under [Can Mate search the web?](/docs/app-assistant#web-search). A run can browse or change data, never both: after a search returns results every write is refused, and after a write succeeds web search is withdrawn. Reading the Knowledge Base and CRM data stays available. Searches count toward the 10-credit cap.
+A run may search the public web, at most 2 paid searches per run, as described under [Can Mate search the web?](/docs/app-assistant#web-search). A run can browse or change data, never both: after a search returns results every write is refused, and after a write succeeds web search is withdrawn. Reading the Knowledge Base and CRM data stays available. Searches count toward the per-run cap.
+
+### Knowledge Base proposals [#knowledge-base-proposals]
+
+When a run creates, edits or deletes a Knowledge Base page, nothing changes yet: the run saves a proposal, and Mate reports it as awaiting review rather than done. A manager reviews it under **Proposals** in the Knowledge Base, compares it with the current page, and approves or rejects it; see [Review Mate's proposals](/docs/mcp#review-proposals). The run's entry in the runs list and its **Run details** show how many changes it proposed, and **Run details** links to the review.
 
 ## How does Mate manage routines? [#how-does-mate-manage-routines]
 

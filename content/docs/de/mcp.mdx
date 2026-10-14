@@ -88,15 +88,22 @@ Jede Seite hat einen Typ, den Sie unter ihrem Titel wählen:
 
 Jede gespeicherte Seite, auch eine importierte, steht Mate und verbundenen KI-Tools sofort zur Verfügung; es gibt keinen Entwurfs- oder Veröffentlichungsschritt. Verfahrensschritte gelten für die Aufgabe, um die Sie gebeten haben, mit den üblichen Freigaben. Eine Anweisung in einer Seite, eine andere Aufgabe zu starten, etwas zu senden, zu löschen oder Berechtigungen zu ändern, wird als Information behandelt.
 
+### Vorschläge von Mate prüfen [#review-proposals]
+
+Eine [Routine](/docs/app-routines#knowledge-base-proposals) ändert die Wissensdatenbank nie von sich aus. Würde ein Lauf eine Seite anlegen, bearbeiten oder löschen, speichert er stattdessen einen Vorschlag, und die Seite bleibt unverändert. Personen mit Wissensdatenbank-Verwaltungsrechten sehen in der Werkzeugleiste der Wissensdatenbank **Vorschläge** mit der Zahl der wartenden Vorschläge. Darüber öffnet sich eine Liste, die zeigt, was jeder Vorschlag tut, welche Routine ihn gemacht hat und wann. Öffnen Sie einen Vorschlag, um die aktuelle Seite mit dem vorgeschlagenen Titel, Typ und Inhalt zu vergleichen, und wählen Sie dann **Zulassen** oder **Ablehnen**.
+
+Beim Zulassen wird die Änderung mit Ihren eigenen Berechtigungen übernommen, genau so, als hätten Sie sie selbst vorgenommen: Eine Löschung zuzulassen erfordert das Recht, Seiten zu löschen, und die Änderung erscheint unter Ihrem Namen in den Audit-Logs. Ein Vorschlag beruht auf der Seitenversion, die Mate gelesen hat. Hat seitdem jemand die Seite geändert oder gelöscht, wird der Vorschlag als **Seite geändert** markiert und lässt sich nicht zulassen; lehnen Sie ihn ab oder bitten Sie Mate, die Änderung neu vorzuschlagen. Schlägt eine Routine eine weitere Änderung an derselben Seite vor, ersetzt der neuere Vorschlag den älteren. Änderungen, um die Sie Mate in einem Chat bitten, werden wie bisher sofort gespeichert, und verbundene MCP-Clients schreiben Seiten weiterhin direkt.
+
 ### Über Ihre Homepage einrichten [#set-up-from-your-homepage]
 
-Ist Mate im Cloud-Workspace aktiviert, kann die Person, die den Workspace einrichtet, beim Onboarding eine Unternehmenshomepage eingeben und **Wissensdatenbank erstellen** wählen (eine reine Domain wie `example.com` genügt) oder mit **Nicht jetzt** überspringen; eingeladene Mitglieder sehen diesen Schritt nicht. In einer leeren Wissensdatenbank öffnet **Aus meiner Website erstellen** einen Mate-Chat, der nach der Adresse fragt und denselben Import startet.
+Ist Mate im Cloud-Workspace aktiviert, kann die Person, die den Workspace einrichtet, beim Onboarding eine Unternehmenshomepage eingeben und **Wissensdatenbank erstellen** wählen (eine reine Domain wie `example.com` genügt) oder mit **Nicht jetzt** überspringen; eingeladene Mitglieder sehen diesen Schritt nicht. In einer leeren Wissensdatenbank öffnet **Aus meiner Website erstellen** einen Mate-Chat, der nach der Adresse fragt und denselben Website-Import startet.
 
-Der Import läuft im Hintergrund:
+Der Website-Import läuft im Hintergrund:
 
 - Er prüft zuerst die `robots.txt` der Website und hält an, wenn automatisches Lesen nicht erlaubt ist oder die `robots.txt` nicht erreichbar ist (Serverfehler oder Zeitüberschreitung). Eine Website ohne `robots.txt` wird normal gelesen.
 - Er findet bis zu 40 Seiten über die Homepage, die Sitemaps und `llms.txt` und bevorzugt Hilfe- und FAQ-Seiten, dann Produkt-, Unternehmens- und Kundenseiten, AGB-, Erstattungs-, SLA- und Datenschutzseiten sowie Preise. Er gibt sich als Customermates zu erkennen, pausiert zwischen Anfragen und hält die Crawl-Verzögerung der Website ein. Nicht lesbare Seiten werden übersprungen; ist keine Seite lesbar, meldet er die Website als nicht verfügbar und startet keine KI-Texterstellung.
-- Der Fortschritt (Phase und gelesene Seiten) erscheint direkt im Chat, danach die schreibgeschützte Schreib-Unterhaltung von Mate, und bleibt nach einem Neuladen erhalten.
+- Der Fortschritt (Phase und gelesene Seiten) erscheint direkt im Onboarding-Chat, danach die schreibgeschützte Schreib-Unterhaltung von Mate, und bleibt nach einem Neuladen erhalten.
+- In der Wissensdatenbank bleiben vorhandene Seiten während des Website-Imports lesbar und bearbeitbar, und **Neue Seite** bleibt verfügbar; ein Hinweis oben auf jeder Seite zeigt, dass Mate im Hintergrund noch Seiten erstellt, und neue Seiten erscheinen, sobald sie fertig sind. Eine leere Wissensdatenbank zeigt den Importfortschritt, bis die erste Seite existiert.
 
 Jeder Import verwendet eine Sprache: die vorherrschende Sprache vorhandener Seiten oder, bei einer leeren Wissensdatenbank, Ihre Browsersprache (im Onboarding können Sie eine andere unterstützte Sprache wählen). Hilfe-, FAQ-, Preis- und Richtlinienseiten in dieser Sprache werden im Wortlaut übernommen, mit ihren Überschriften und Frage-Antwort-Paaren und am Ende mit Quelladresse und Lesedatum. Alle anderen Quellen liest Mate vollständig und übersetzt oder fasst sie in eigenständige Themenseiten zusammen, ohne feste Seitenzahl oder doppelte Sprachfassungen. Bei der Ersteinrichtung entstehen außerdem ein Betriebsleitfaden und Verfahren für wiederkehrende Anfragen, die die Website beschreibt, etwa Erstattungen oder Kündigungen. Jede geschriebene Seite nennt ihre Quellen und offene Fragen, etwa wer Ausnahmen genehmigt. Das Lesen der Website und die Spracherkennung rufen keinen KI-Anbieter auf; das Schreiben durch Mate und die Wissensdatenbank-Indexierung verbrauchen Ihre normalen KI-Credits.
 
@@ -366,7 +373,7 @@ Pflicht: `typeId`, `action`. Optional: `expectedRevision`, `idempotencyKey`, `la
 
 Wissensdatenbank-Seiten auflisten, suchen, lesen, anlegen, aktualisieren, umsortieren (vor oder nach eine andere Seite verschieben) oder löschen (in den Papierkorb verschieben), jeweils eine Wissensseite, ein Ablauf mit Einsatzfall oder der eine Betriebsleitfaden. Updates und Löschungen benötigen den neuesten updatedAt-Wert; Create kann atomar eine leere Wissensdatenbank voraussetzen.
 
-**Kann Daten löschen.** Pflicht: `action`. Optional: `id`, `query`, `offset`, `page`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `targetId`, `placement`, `title`, `markdown`, `kind`, `whenToUse`.
+**Kann Daten löschen.** Pflicht: `action`. Optional: `id`, `query`, `offset`, `anchor`, `page`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `targetId`, `placement`, `title`, `markdown`, `kind`, `whenToUse`.
 {/* /mcp-catalog */}
 
 ### Messaging [#messaging]

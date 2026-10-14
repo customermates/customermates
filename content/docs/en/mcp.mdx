@@ -88,15 +88,22 @@ Each page has a type, chosen under its title:
 
 Every saved page, including imported ones, is available to Mate and connected AI tools immediately; there is no draft or publishing step. Procedure steps apply to the task you asked for, with the normal approvals. An instruction in any page to start a different task, send, delete or change permissions is treated as information.
 
+### Review Mate's proposals [#review-proposals]
+
+A [routine](/docs/app-routines#knowledge-base-proposals) never changes the Knowledge Base on its own. When a run would create, edit, or delete a page, it saves a proposal instead and the page stays as it is. People with Knowledge Base Manage see **Proposals** with the number waiting in the Knowledge Base toolbar. It opens a list showing what each proposal does, which routine made it, and when. Open one to compare the current page with the proposed title, type, and content, then choose **Approve** or **Reject**.
+
+Approving applies the change with your own permissions, exactly as if you had made the edit: approving a delete needs permission to delete pages, and the change appears in the Audit Logs under your name. A proposal is based on the page version Mate read. If someone has changed or deleted the page since, the proposal is marked **Page changed** and cannot be approved; reject it, or ask Mate to propose the change again. When a routine proposes another change to the same page, the newer proposal replaces the older one. Edits you ask Mate for in a chat are saved at once, and connected MCP clients write pages directly, as before.
+
 ### Set up from your homepage
 
-When Mate is enabled in a cloud workspace, the owner can enter a company homepage during onboarding and choose **Build my Knowledge Base** (a bare domain such as `example.com` works), or **Not now** to skip; invited members do not see this step. In an empty Knowledge Base, **Build from my website** opens a Mate chat that asks for the address and starts the same import.
+When Mate is enabled in a cloud workspace, the owner can enter a company homepage during onboarding and choose **Build my Knowledge Base** (a bare domain such as `example.com` works), or **Not now** to skip; invited members do not see this step. In an empty Knowledge Base, **Build from my website** opens a Mate chat that asks for the address and starts the same website import.
 
-The import runs in the background:
+The website import runs in the background:
 
 - It checks the site's `robots.txt` first and stops if automated reading is not allowed or `robots.txt` cannot be reached (server error or timeout). A site without `robots.txt` is read normally.
 - It finds up to 40 pages from the homepage, the sitemaps and `llms.txt`, preferring help and FAQ pages, then product, company and customer pages, terms, refund, SLA and privacy pages, and pricing. It identifies itself as Customermates, pauses between requests and follows the site's crawl delay. Unreadable pages are skipped; if no page can be read, it reports the website as unavailable and starts no AI writing.
-- Progress (stage and pages read) shows inline in the chat, followed by Mate's read-only writing conversation, and survives a reload.
+- Progress (stage and pages read) shows inline in the onboarding chat, followed by Mate's read-only writing conversation, and survives a reload.
+- In the Knowledge Base, existing pages stay readable and editable and **New page** stays available while the website import runs; a banner at the top of every page says Mate is still creating pages in the background, and new pages appear as they are ready. An empty Knowledge Base shows the import progress until the first page exists.
 
 Each import uses one language: the dominant language of existing pages or, for an empty Knowledge Base, your browser language (you can pick another supported one in onboarding). Help, FAQ, pricing and policy pages in that language are imported word for word, keeping headings and question-and-answer pairs and ending with their source address and read date. Mate reads every other source in full, then translates or summarizes it into separate topic pages, without a fixed page count or duplicate language versions. Initial setup also creates an Operating Guide and procedures for recurring requests the website supports, such as refunds or cancellations. Each written page lists its sources and open questions, such as who approves exceptions. Reading the website and detecting its language call no AI provider; Mate's writing and Knowledge Base indexing use your normal hosted AI credits.
 
@@ -366,7 +373,7 @@ Required: `typeId`, `action`. Optional: `expectedRevision`, `idempotencyKey`, `l
 
 List, search, read, create, update, reorder (move before or after another page) or delete (move to Trash) Knowledge Base pages, each a knowledge page, a procedure with a when-to-use trigger, or the one Operating Guide. Updates and deletes require the latest updatedAt value; create can atomically require an empty Knowledge Base.
 
-**Can delete data.** Required: `action`. Optional: `id`, `query`, `offset`, `page`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `targetId`, `placement`, `title`, `markdown`, `kind`, `whenToUse`.
+**Can delete data.** Required: `action`. Optional: `id`, `query`, `offset`, `anchor`, `page`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `targetId`, `placement`, `title`, `markdown`, `kind`, `whenToUse`.
 {/* /mcp-catalog */}
 
 ### Messaging

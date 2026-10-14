@@ -89,7 +89,7 @@ Every workspace starts with one built-in role, **Admin**, given to the person wh
 
 | Field | What it shows |
 |---|---|
-| **Plan** | **Starter**, **Pro**, **Business** or **Enterprise** with a status chip, synced from billing |
+| **Plan** | **Starter**, **Pro**, **Business**, **Max** or **Enterprise** with a status chip, synced from billing |
 | **Trial ends** | The end of the free trial, only while the status is **Trial** |
 | **Current period ends** | The renewal date, or after a cancellation the date the subscription ends |
 | **Active seats** | Billed seats; before the first checkout the number of **Active** members |
@@ -108,7 +108,7 @@ The app sets **Trial** when a Cloud workspace is created; every other status com
 |---|---|
 | **Trial** | [[commercial.trial.days]] days with Pro features; everything works until **Trial ends** |
 | **Active** | Paid; everything the plan includes works |
-| **Past Due**, **Cancelled** | Pages stay open, but the Inbox and messaging, connecting channels, shared accounts and the hosted assistant are refused, and hosted AI credits drop to 0 |
+| **Past Due**, **Cancelled** | Pages stay open, but the Inbox and messaging, connecting channels, shared accounts and the hosted assistant are refused, and the Mate allowance drops to 0 |
 | **Unpaid**, **Expired** | Every page shows **Subscription Required** |
 
 A trial past its end date without a checkout counts as expired. Refused channel actions show "Connecting channels requires an active subscription or a trial that hasn't expired."
@@ -120,13 +120,14 @@ A trial past its end date without a checkout counts as expired. Refused channel 
 | Starter | [[commercial.price.starter.monthly]] | [[commercial.entitlement.starter.includedAccountsPerUser]] | [[commercial.entitlement.starter.includedRoutinesPerUser]] | No | No |
 | Pro | [[commercial.price.pro.monthly]] | [[commercial.entitlement.pro.includedAccountsPerUser]] | [[commercial.entitlement.pro.includedRoutinesPerUser]] | Yes | No |
 | Business | [[commercial.price.business.monthly]] | [[commercial.entitlement.business.includedAccountsPerUser]] | [[commercial.entitlement.business.includedRoutinesPerUser]] | Yes | Yes |
+| Max | [[commercial.price.max.monthly]] | [[commercial.entitlement.max.includedAccountsPerUser]] | [[commercial.entitlement.max.includedRoutinesPerUser]] | Yes | Yes |
 | Enterprise | On request | [[commercial.entitlement.enterprise.includedAccountsPerUser]] | [[commercial.entitlement.enterprise.includedRoutinesPerUser]] | Yes | Yes |
 
-Every plan includes the full CRM, the activity log, the API, the MCP server and the hosted assistant. Starter, Pro and Business are billed monthly per seat in euros; there is no other interval. Hosted AI credits per active user and month: Starter 200, Pro 500, Business 1,200, Enterprise as contracted, 500 during the trial; see [Plans and credits](/docs/app-assistant#plans-and-credits).
+Every plan includes the full CRM, the activity log, the API, the MCP server and the hosted assistant. Starter, Pro, Business and Max are billed monthly per seat in euros; there is no other interval. Hosted AI credits per active user and month, shown as Mate usage and as a multiple of the Starter allowance: Starter 1x, Pro 3x, Business 10x, Max 20x, Enterprise as contracted, 3x during the trial. Business gives the most usage per euro. The app shows usage as a percentage of your monthly allowance; see [Plans and Mate usage](/docs/app-assistant#plans-and-credits).
 
 ### How do I choose or change a plan? [#how-do-i-choose-or-change-a-plan]
 
-Before the first checkout (in practice during the trial), the [plan picker](app:settings/billing?focus=plan-picker) shows cards for **Starter**, **Pro** and **Business** (**Most popular**) with price, features, connected accounts, routines and AI credits per user. Clicking a card opens the Lemon Squeezy checkout for as many seats as there are **Active** members. Billing starts at checkout, even with trial days left; after payment you return to Billing, which updates once Lemon Squeezy confirms.
+Before the first checkout (in practice during the trial), the [plan picker](app:settings/billing?focus=plan-picker) shows cards for **Starter**, **Pro**, **Business** (**Recommended**) and **Max** with price, features, connected accounts, routines and Mate usage per user as a multiple of Starter. A plan whose checkout is not yet available is greyed out and marked **Not yet available**. Clicking a card opens the Lemon Squeezy checkout for as many seats as there are **Active** members. Billing starts at checkout, even with trial days left; after payment you return to Billing, which updates once Lemon Squeezy confirms.
 
 After the first checkout the picker does not come back: change the plan with [Manage with Lemon Squeezy](app:settings/billing?focus=manage). Enterprise workspaces never see the picker.
 
@@ -163,7 +164,7 @@ Enterprise is set up with Customermates and billed by invoice. Billing shows onl
 
 ### Where do upgrade buttons lead? [#where-do-upgrade-buttons-lead]
 
-On Starter, the [Inbox](app:inbox) and [Channels](app:settings/channels) show **Upgrade to unlock messaging** with **Upgrade your plan**. At the connected-account limit, Pro users see **Upgrade to connect more accounts** with **View plans**, as does the hosted assistant's credit notice. All open [Billing](app:settings/billing), where only roles with **Company** **Edit** can act.
+On Starter, the [Inbox](app:inbox) and [Channels](app:settings/channels) show **Upgrade to unlock messaging** with **Upgrade your plan**. At the connected-account limit, Pro users see **Upgrade to connect more accounts** with **View plans**, as does the hosted assistant's usage notice. All open [Billing](app:settings/billing), where only roles with **Company** **Edit** can act.
 
 ## Activity: where do I find the audit log and change history? [#activity-tab]
 
@@ -205,4 +206,4 @@ Prefer [MCP](/docs/mcp) tools: `manage_team` invites by email or returns the inv
 
 - [Webhooks](/docs/webhooks)
 - [App guide, Profile](/docs/app-profile)
-- [Plans and credits](/docs/app-assistant#plans-and-credits)
+- [Plans and Mate usage](/docs/app-assistant#plans-and-credits)
