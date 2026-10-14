@@ -1,17 +1,17 @@
-import type { DocsChunkRepo } from "@/features/mcp-tools/docs-chunk.repo";
+import type { DocsSectionRepo } from "@/features/mcp-tools/docs-section.repo";
 import type { AgentUsageService } from "@/ee/agent-chat/agent-usage.service";
 
 import { docsPendingEmbeddingTexts } from "@/features/mcp-tools/docs-embedding-input";
 import { docsCorpus } from "@/features/mcp-tools/docs-corpus";
 
 import { embedPlatformTexts, isWikiSemanticSearchAvailable } from "./wiki-embedding.service";
-import { embeddingVectorLiteral, WIKI_EMBEDDING_BATCH_SIZE, WIKI_EMBEDDING_MODEL } from "./wiki-embedding-model";
+import { embeddingVectorLiteral, WIKI_EMBEDDING_BATCH_SIZE, WIKI_EMBEDDING_VERSION } from "./wiki-embedding-model";
 
 const DOCS_INDEX_BATCHES_PER_STEP = 8;
 
 export class DocsSemanticIndexService {
   constructor(
-    private repo: DocsChunkRepo,
+    private repo: DocsSectionRepo,
     private usage: AgentUsageService,
   ) {}
 
@@ -28,7 +28,7 @@ export class DocsSemanticIndexService {
     for (let batch = 0; batch < DOCS_INDEX_BATCHES_PER_STEP; batch += 1) {
       const pending = await this.repo.pendingEmbeddings(
         corpus.buildHash,
-        WIKI_EMBEDDING_MODEL,
+        WIKI_EMBEDDING_VERSION,
         WIKI_EMBEDDING_BATCH_SIZE,
       );
       if (pending.length === 0) return { indexed, remaining: false };
@@ -36,9 +36,9 @@ export class DocsSemanticIndexService {
       const vectors = await embedPlatformTexts(this.usage, "docsIndexing", texts);
       if (!vectors) return { indexed, remaining: false };
       await this.repo.storeEmbeddings(
-        WIKI_EMBEDDING_MODEL,
-        pending.map((chunk, index) => ({
-          contentHash: chunk.contentHash,
+        WIKI_EMBEDDING_VERSION,
+        pending.map((part, index) => ({
+          contentHash: part.contentHash,
           embedding: embeddingVectorLiteral(vectors[index]),
         })),
       );

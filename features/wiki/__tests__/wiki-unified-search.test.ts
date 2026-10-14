@@ -13,7 +13,9 @@ import {
 } from "@/tests/helpers/interactor-test-setup";
 import { createMockUser } from "@/tests/helpers/mock-user";
 
-const envState = vi.hoisted(() => ({ APP_MODE: "cloud" as "cloud" | "demo" | "self-hosted" }));
+const envState = vi.hoisted(() => ({
+  APP_MODE: "cloud" as "cloud" | "demo" | "self-hosted",
+}));
 const mockUser = createMockUser();
 
 vi.mock("@/env", () => ({
@@ -28,6 +30,7 @@ vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 import { SearchWikiPagesInteractor } from "../search-wiki-pages.interactor";
 import { WikiSearchOrders } from "@/features/wiki/wiki-search-orders";
 import { WikiMarkdownSchema } from "../wiki.schema";
+import { wikiSectionRows } from "../wiki-sections";
 
 const id = (n: number) => `00000000-0000-4000-8000-00000000000${n}`;
 const created = new Date("2026-01-01T00:00:00Z");
@@ -47,38 +50,104 @@ const pages = [
   page(3, "Intro.\n\n## Annual plans\n\nProrated within 30 days."),
 ];
 
+const sectionRows = pages.flatMap((entry) =>
+  wikiSectionRows(entry, null).map((row) => ({
+    id: `${entry.id}#${row.offset}`,
+    pageId: entry.id,
+    offset: row.offset,
+    headingPath: row.headingPath,
+    anchor: row.anchor,
+    text: row.text,
+  })),
+);
+const headedSection = (pageId: string) =>
+  (
+    sectionRows.find((row) => row.pageId === pageId && row.headingPath.length > 0) ??
+    sectionRows.find((row) => row.pageId === pageId)
+  )?.id ?? `${pageId}#0`;
+
 function repo(
   fullText: string[],
   semantic: { id: string; offset: number }[] | null,
   stale: string[] = [],
   corrected?: string,
-  evidence: { coverage: number; similarity: number } = { coverage: 1, similarity: 0.8 },
+  evidence: { coverage: number; similarity: number } = {
+    coverage: 1,
+    similarity: 0.8,
+  },
 ) {
   return {
-    semanticPageCandidates: vi.fn(() =>
+    syncStaleSections: vi.fn(() => Promise.resolve({ synced: 0, remaining: false })),
+    semanticSections: vi.fn(() =>
       Promise.resolve(
         semantic
           ? {
-              candidates: semantic.map((entry) => ({ ...entry, similarity: evidence.similarity })),
-              stalePageIds: new Set(stale),
+              hits: semantic.map((entry) => ({
+                pageId: entry.id,
+                sectionId: `${entry.id}#${entry.offset}`,
+                similarity: evidence.similarity,
+              })),
+              complete: stale.length === 0,
+              stale: stale.length > 0,
             }
           : null,
       ),
     ),
     getPagesByIds: vi.fn((ids: string[]) => Promise.resolve(pages.filter((entry) => ids.includes(entry.id)))),
-    fullTextPageCandidates: vi.fn(() =>
-      Promise.resolve({ keys: fullText, pinned: [], coverage: evidence.coverage, ...(corrected ? { corrected } : {}) }),
+    getSectionsByIds: vi.fn((ids: string[]) =>
+      Promise.resolve(
+        ids.map(
+          (sectionId) =>
+            sectionRows.find((row) => row.id === sectionId) ?? {
+              id: sectionId,
+              pageId: sectionId.split("#")[0],
+              offset: 0,
+              headingPath: [],
+              anchor: "",
+              text: "Refund policy.",
+            },
+        ),
+      ),
     ),
-    rankPageSections: vi.fn((_query: string, sections: Array<{ key: number; heading: string }>) =>
-      Promise.resolve(new Map(sections.filter((section) => section.heading).map((section) => [section.key, 1]))),
+    fullTextSections: vi.fn(() =>
+      Promise.resolve({
+        hits: fullText.map((pageId) => ({
+          pageId,
+          sectionId: headedSection(pageId),
+          coverage: evidence.coverage,
+        })),
+        pinned: [],
+        coverage: evidence.coverage,
+        ...(corrected ? { corrected } : {}),
+      }),
     ),
-    sectionHeadlines: vi.fn((_query: string, bodies: string[]) => Promise.resolve(bodies.map((body) => `**${body}**`))),
   } satisfies SearchWikiPagesRepo;
 }
 
+const fullTextHits = (pageIds: string[], coverage = 1) => ({
+  hits: pageIds.map((pageId) => ({
+    pageId,
+    sectionId: `${pageId}#0`,
+    coverage,
+  })),
+  pinned: [],
+  coverage: pageIds.length > 0 ? coverage : 0,
+});
+const semanticHits = (pageIds: string[]) => ({
+  hits: pageIds.map((pageId) => ({
+    pageId,
+    sectionId: `${pageId}#0`,
+    similarity: 0.8,
+  })),
+  complete: true,
+  stale: false,
+});
+
 function semanticRetrieval(vector: number[] | null) {
   return {
-    embedder: { embedQuery: vi.fn(() => Promise.resolve(vector ? { vector, model: "m" } : null)) },
+    embedder: {
+      embedQuery: vi.fn(() => Promise.resolve(vector ? { vector, version: "m" } : null)),
+    },
     scheduler: { schedule: vi.fn(() => Promise.resolve()) },
   };
 }
@@ -102,7 +171,10 @@ describe("unified Wiki search", () => {
     if (!result.ok) throw new Error("expected a search result");
 
     expect(result.data.items.map((item) => item.id)).toEqual([id(1), id(3), id(2)]);
-    expect(result.data.items[1]).toMatchObject({ offset: annual, section: "Annual plans" });
+    expect(result.data.items[1]).toMatchObject({
+      offset: annual,
+      section: "Annual plans",
+    });
     expect(result.data.items[0]).toMatchObject({ section: "Refunds" });
     expect(result.data).toMatchObject({ total: 3, retrieval: "semantic" });
     expect(semantic.scheduler.schedule).toHaveBeenCalledTimes(1);
@@ -148,12 +220,13 @@ describe("unified Wiki search", () => {
     const chunks = {
       ...repo([], null),
       getPagesByIds: vi.fn((ids: string[]) => Promise.resolve(many.filter((entry) => ids.includes(entry.id)))),
-      fullTextPageCandidates: vi.fn(() =>
-        Promise.resolve({ keys: many.map((entry) => entry.id), pinned: [], coverage: 1 }),
-      ),
+      fullTextSections: vi.fn(() => Promise.resolve(fullTextHits(many.map((entry) => entry.id)))),
     } satisfies SearchWikiPagesRepo;
     const ranker = vi.fn((_query: string, candidates: readonly RankableSection[]) =>
-      Promise.resolve({ order: candidates.map((_, index) => candidates.length - 1 - index), abstained: false }),
+      Promise.resolve({
+        order: candidates.map((_, index) => candidates.length - 1 - index),
+        abstained: false,
+      }),
     );
     const interactor = new SearchWikiPagesInteractor(chunks, "stored", semanticRetrieval(null));
     const pageIds = async (pageNumber: number) => {
@@ -171,7 +244,7 @@ describe("unified Wiki search", () => {
     expect(pagesSeen).toEqual([reranked.slice(0, 5), reranked.slice(5, 10), reranked.slice(10, 13), []]);
     expect(new Set(pagesSeen.flat()).size).toBe(13);
     expect(ranker).toHaveBeenCalledTimes(1);
-    expect(chunks.fullTextPageCandidates).toHaveBeenCalledTimes(1);
+    expect(chunks.fullTextSections).toHaveBeenCalledTimes(1);
   });
 
   it("keeps page 1's re-ranked and semantic order on page 2 when the re-rank and the embedding change in between", async () => {
@@ -184,24 +257,35 @@ describe("unified Wiki search", () => {
     const chunks = {
       ...repo([], null),
       getPagesByIds: vi.fn((ids: string[]) => Promise.resolve(many.filter((entry) => ids.includes(entry.id)))),
-      fullTextPageCandidates: vi.fn(() =>
-        Promise.resolve({ keys: many.map((entry) => entry.id), pinned: [], coverage: 1 }),
-      ),
+      fullTextSections: vi.fn(() => Promise.resolve(fullTextHits(many.map((entry) => entry.id)))),
     } satisfies SearchWikiPagesRepo;
     let rerankerAvailable = true;
     const ranker = vi.fn((_query: string, candidates: readonly RankableSection[]) =>
       rerankerAvailable
-        ? Promise.resolve({ order: candidates.map((_, index) => candidates.length - 1 - index), abstained: false })
+        ? Promise.resolve({
+            order: candidates.map((_, index) => candidates.length - 1 - index),
+            abstained: false,
+          })
         : Promise.reject(new Error("classifier timed out")),
     );
     const semantic = semanticRetrieval(null);
     const orders = new WikiSearchOrders();
     const interactor = new SearchWikiPagesInteractor(chunks, "stored", semantic, orders);
-    const colleague = createMockUser({ id: crypto.randomUUID(), companyId: mockUser.companyId });
+    const colleague = createMockUser({
+      id: crypto.randomUUID(),
+      companyId: mockUser.companyId,
+    });
     const pageIds = async (pageNumber: number, user = mockUser) => {
       const result = await runWithSectionRanking(
         () => ranker,
-        () => runWithTenant(user, () => interactor.invoke({ query: "refund plans", page: pageNumber, pageSize: 5 })),
+        () =>
+          runWithTenant(user, () =>
+            interactor.invoke({
+              query: "refund plans",
+              page: pageNumber,
+              pageSize: 5,
+            }),
+          ),
       );
       if (!result.ok) throw new Error("expected search results");
       return result.data.items.map((item) => item.id);
@@ -209,7 +293,10 @@ describe("unified Wiki search", () => {
 
     const first = await pageIds(1);
     rerankerAvailable = false;
-    semantic.embedder.embedQuery.mockResolvedValue({ vector: [0.3], model: "m" });
+    semantic.embedder.embedQuery.mockResolvedValue({
+      vector: [0.3],
+      version: "m",
+    });
     const second = await pageIds(2);
     const third = await pageIds(3);
 
@@ -224,7 +311,7 @@ describe("unified Wiki search", () => {
 
     const refreshed = await pageIds(1);
     expect(refreshed).toEqual(many.slice(0, 5).map((entry) => entry.id));
-    expect(chunks.fullTextPageCandidates).toHaveBeenCalledTimes(3);
+    expect(chunks.fullTextSections).toHaveBeenCalledTimes(3);
   });
 
   it("extends a remembered order past its full-text window without reordering what earlier pages showed", async () => {
@@ -237,12 +324,15 @@ describe("unified Wiki search", () => {
     const chunks = {
       ...repo([], null),
       getPagesByIds: vi.fn((ids: string[]) => Promise.resolve(many.filter((entry) => ids.includes(entry.id)))),
-      fullTextPageCandidates: vi.fn((_query: string, limit: number) =>
-        Promise.resolve({ keys: many.slice(0, limit).map((entry) => entry.id), pinned: [], coverage: 1 }),
+      fullTextSections: vi.fn((_query: string, limit: number) =>
+        Promise.resolve(fullTextHits(many.slice(0, limit).map((entry) => entry.id))),
       ),
     } satisfies SearchWikiPagesRepo;
     const ranker = vi.fn((_query: string, candidates: readonly RankableSection[]) =>
-      Promise.resolve({ order: candidates.map((_, index) => candidates.length - 1 - index), abstained: false }),
+      Promise.resolve({
+        order: candidates.map((_, index) => candidates.length - 1 - index),
+        abstained: false,
+      }),
     );
     const interactor = new SearchWikiPagesInteractor(chunks, "stored", semanticRetrieval(null), new WikiSearchOrders());
     const pageOf = async (pageNumber: number) => {
@@ -257,7 +347,6 @@ describe("unified Wiki search", () => {
     const first = await pageOf(1);
     const sixth = await pageOf(6);
     chunks.getPagesByIds.mockClear();
-    chunks.rankPageSections.mockClear();
     const seventh = await pageOf(7);
 
     const ids = many.map((entry) => entry.id);
@@ -265,11 +354,10 @@ describe("unified Wiki search", () => {
     expect(ids.slice(30, 35).map((pageId) => fetched.filter((entry) => entry === pageId).length)).toEqual([
       1, 1, 1, 1, 1,
     ]);
-    expect(chunks.rankPageSections.mock.calls.filter(([, sections]) => sections.length > 0)).toHaveLength(1);
     expect(first.items.map((item) => item.id)).toEqual(ids.slice(0, 10).reverse().slice(0, 5));
     expect(sixth.items.map((item) => item.id)).toEqual(ids.slice(25, 30));
     expect(seventh.items.map((item) => item.id)).toEqual(ids.slice(30, 35));
-    expect(chunks.fullTextPageCandidates.mock.calls.map(([, limit]) => limit)).toEqual([30, 31, 36]);
+    expect(chunks.fullTextSections.mock.calls.map(([, limit]) => limit)).toEqual([30, 31, 36]);
     expect(seventh.total).toBe(36);
     expect(seventh).toMatchObject({ hasMore: true, totalIsExact: false });
     expect(ranker).toHaveBeenCalledTimes(1);
@@ -285,12 +373,8 @@ describe("unified Wiki search", () => {
       const chunks = {
         ...repo([], null),
         getPagesByIds: vi.fn((ids: string[]) => Promise.resolve(many.filter((entry) => ids.includes(entry.id)))),
-        fullTextPageCandidates: vi.fn((_query: string, limit: number) =>
-          Promise.resolve({
-            keys: many.slice(0, limit).map((entry) => entry.id),
-            pinned: [],
-            coverage: 1,
-          }),
+        fullTextSections: vi.fn((_query: string, limit: number) =>
+          Promise.resolve(fullTextHits(many.slice(0, limit).map((entry) => entry.id))),
         ),
       };
       const interactor = new SearchWikiPagesInteractor(chunks, "stored", null, new WikiSearchOrders());
@@ -320,18 +404,18 @@ describe("unified Wiki search", () => {
       }));
       const chunks = {
         ...repo([], null),
-        fullTextPageCandidates: vi.fn(() => Promise.resolve({ keys: [], pinned: [], coverage: 0 })),
+        fullTextSections: vi.fn(() => Promise.resolve(fullTextHits([]))),
         getPagesByIds: vi.fn((ids: string[]) => Promise.resolve(many.filter((entry) => ids.includes(entry.id)))),
-        semanticPageCandidates: vi.fn((_vector: number[], _model: string, limit: number) =>
-          Promise.resolve({
-            candidates: many.slice(0, limit).map((entry) => ({ id: entry.id, offset: 0, similarity: 0.8 })),
-            stalePageIds: new Set<string>(),
-          }),
+        semanticSections: vi.fn((_vector: number[], _version: string, limit: number) =>
+          Promise.resolve(semanticHits(many.slice(0, limit).map((entry) => entry.id))),
         ),
       };
       const semantic = semanticRetrieval([1]);
       const ranker = vi.fn((_query: string, candidates: readonly RankableSection[]) =>
-        Promise.resolve({ order: candidates.map((_, index) => candidates.length - 1 - index), abstained: false }),
+        Promise.resolve({
+          order: candidates.map((_, index) => candidates.length - 1 - index),
+          abstained: false,
+        }),
       );
       const interactor = new SearchWikiPagesInteractor(chunks, "stored", semantic, new WikiSearchOrders());
       const all: string[] = [];
@@ -343,7 +427,11 @@ describe("unified Wiki search", () => {
         if (!result.ok) throw new Error("Expected search results");
         all.push(...result.data.items.map((item) => item.id));
         if (!result.data.hasMore) {
-          expect(result.data).toMatchObject({ total: 60, totalIsExact: true, retrieval: "semantic" });
+          expect(result.data).toMatchObject({
+            total: 60,
+            totalIsExact: true,
+            retrieval: "semantic",
+          });
           break;
         }
         expect(result.data.total).toBeGreaterThan(number * pageSize);
@@ -353,7 +441,7 @@ describe("unified Wiki search", () => {
       expect(all).toEqual([...ids.slice(0, 10).reverse(), ...ids.slice(10)]);
       expect(semantic.embedder.embedQuery).toHaveBeenCalledOnce();
       expect(ranker).toHaveBeenCalledOnce();
-      expect(chunks.semanticPageCandidates.mock.calls.at(-1)?.[2]).toBeGreaterThan(60);
+      expect(chunks.semanticSections.mock.calls.at(-1)?.[2]).toBeGreaterThan(60);
     },
   );
 
@@ -366,8 +454,8 @@ describe("unified Wiki search", () => {
       }));
       const chunks = {
         ...repo([], null),
-        fullTextPageCandidates: vi.fn((_query: string, limit: number) =>
-          Promise.resolve({ keys: many.slice(0, limit).map((entry) => entry.id), pinned: [], coverage: 1 }),
+        fullTextSections: vi.fn((_query: string, limit: number) =>
+          Promise.resolve(fullTextHits(many.slice(0, limit).map((entry) => entry.id))),
         ),
         getPagesByIds: vi.fn((ids: string[]) => Promise.resolve(many.filter((entry) => ids.includes(entry.id)))),
       };
@@ -376,10 +464,22 @@ describe("unified Wiki search", () => {
       const interactor = new SearchWikiPagesInteractor(chunks, "stored", semantic, new WikiSearchOrders());
       const pageOf = (number: number) =>
         runWithTenant(mockUser, () => interactor.invoke({ query: "refund", page: number, pageSize: 25 }));
-      expect(await pageOf(1)).toMatchObject({ ok: true, data: { retrieval: "keyword", hasMore: true } });
-      semantic.embedder.embedQuery.mockResolvedValue({ vector: [1], model: "m" });
-      expect(await pageOf(2)).toMatchObject({ ok: true, data: { retrieval: "keyword", hasMore: true } });
-      expect(await pageOf(3)).toMatchObject({ ok: true, data: { retrieval: "keyword", hasMore: false, total: 60 } });
+      expect(await pageOf(1)).toMatchObject({
+        ok: true,
+        data: { retrieval: "keyword", hasMore: true },
+      });
+      semantic.embedder.embedQuery.mockResolvedValue({
+        vector: [1],
+        version: "m",
+      });
+      expect(await pageOf(2)).toMatchObject({
+        ok: true,
+        data: { retrieval: "keyword", hasMore: true },
+      });
+      expect(await pageOf(3)).toMatchObject({
+        ok: true,
+        data: { retrieval: "keyword", hasMore: false, total: 60 },
+      });
       expect(semantic.embedder.embedQuery).toHaveBeenCalledOnce();
       await pageOf(1);
       expect(semantic.embedder.embedQuery).toHaveBeenCalledTimes(2);
@@ -389,7 +489,10 @@ describe("unified Wiki search", () => {
   it("returns nothing below the relevance floor or when the re-rank rejects a loose match", async () => {
     const annual = pages[2].markdown.indexOf("## Annual plans");
     const loose = (similarity: number, stale: string[] = []) =>
-      repo([id(1), id(2)], [{ id: id(3), offset: annual }], stale, undefined, { coverage: 0.3, similarity });
+      repo([id(1), id(2)], [{ id: id(3), offset: annual }], stale, undefined, {
+        coverage: 0.3,
+        similarity,
+      });
     const abstaining = vi.fn(() => Promise.resolve({ order: [0], abstained: true }));
     const run = (chunks: ReturnType<typeof repo>, vector: number[] | null) =>
       runWithSectionRanking(
@@ -411,7 +514,10 @@ describe("unified Wiki search", () => {
   });
 
   it("lets the re-rank reject a single loose semantic match", async () => {
-    const chunks = repo([id(1)], [{ id: id(1), offset: 0 }], [], undefined, { coverage: 0.3, similarity: 0.7 });
+    const chunks = repo([id(1)], [{ id: id(1), offset: 0 }], [], undefined, {
+      coverage: 0.3,
+      similarity: 0.7,
+    });
     const abstaining = vi.fn(() => Promise.resolve({ order: [0], abstained: true }));
     const result = await runWithSectionRanking(
       () => abstaining,
@@ -442,14 +548,20 @@ describe("unified Wiki search", () => {
     const chunks = repo([id(1)], null, [], "refund plans");
 
     const result = await runWithTenant(mockUser, () =>
-      new SearchWikiPagesInteractor(chunks, "stored").invoke({ query: "refnud plans", page: 1, pageSize: 5 }),
+      new SearchWikiPagesInteractor(chunks, "stored").invoke({
+        query: "refnud plans",
+        page: 1,
+        pageSize: 5,
+      }),
     );
     if (!result.ok) throw new Error("expected a search result");
 
-    expect(result.data).toMatchObject({ didYouMean: ["refund plans"], items: [{ id: id(1), section: "Refunds" }] });
-    expect(chunks.fullTextPageCandidates).toHaveBeenCalledWith("refnud plans", expect.any(Number));
-    expect(chunks.rankPageSections).toHaveBeenCalledWith("refund plans", expect.any(Array));
-    expect(chunks.sectionHeadlines).toHaveBeenCalledWith("refund plans", expect.any(Array));
+    expect(result.data).toMatchObject({
+      didYouMean: ["refund plans"],
+      items: [{ id: id(1), section: "Refunds" }],
+    });
+    expect(chunks.fullTextSections).toHaveBeenCalledWith("refnud plans", expect.any(Number));
+    expect(result.data.items[0].snippet).toBe("Refunds take five days.");
   });
 
   it("returns no didYouMean when every query word matched", async () => {

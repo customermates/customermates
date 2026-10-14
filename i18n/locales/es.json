@@ -225,6 +225,23 @@
             "running": "Actualizando el perfil"
           }
         },
+        "proposals": {
+          "create": {
+            "done": "{count, plural, one {Página nueva propuesta} other {# páginas nuevas propuestas}}",
+            "error": "{count, plural, one {Error al proponer una página nueva} other {Error al proponer # páginas nuevas}}",
+            "running": "{count, plural, one {Proponiendo una página nueva} other {Proponiendo # páginas nuevas}}"
+          },
+          "delete": {
+            "done": "Eliminación de página propuesta",
+            "error": "Error al proponer la eliminación de la página",
+            "running": "Proponiendo la eliminación de la página"
+          },
+          "update": {
+            "done": "Edición de página propuesta",
+            "error": "Error al proponer la edición de la página",
+            "running": "Proponiendo la edición de la página"
+          }
+        },
         "records": {
           "analyze": {
             "done": "Análisis de {resource} completado",
@@ -1250,6 +1267,9 @@
       "wikiPagePinned": "La guía operativa permanece en primer lugar. Mueva otra página.",
       "wikiPageUpdateEmpty": "Indica al menos un campo para actualizar la página.",
       "wikiProcedureNeedsSteps": "Un procedimiento necesita pasos numerados.",
+      "wikiProposalNotFound": "Esta propuesta ya no existe.",
+      "wikiProposalReviewed": "Alguien ya revisó esta propuesta.",
+      "wikiProposalStale": "La página cambió después de que Mate hiciera esta propuesta. Recházala o pide a Mate que vuelva a proponer el cambio.",
       "wikiWhenToUseRequired": "Un procedimiento necesita una breve descripción de cuándo usarlo."
     },
     "events": {
@@ -3995,6 +4015,7 @@
     "ownerUnavailableReadOnly": "Esta rutina ya no tiene un propietario disponible, por lo que permanece en pausa y en modo de solo lectura. Un administrador de la empresa puede eliminarla.",
     "ranAs": "Ejecutada como {owner}",
     "readOnlyTitle": "Acceso de solo lectura",
+    "reviewWikiProposals": "Revisar",
     "runDetails": "Detalles de la ejecución",
     "runNoTranscript": "No hay ninguna transcripción disponible para esta ejecución.",
     "runQueued": "Esta ejecución está en cola. La transcripción aparecerá cuando se inicie el asistente.",
@@ -4014,7 +4035,8 @@
     "triggerChangedFieldsMore": "y más",
     "triggerRecord": "Registro",
     "triggerThread": "Conversación",
-    "usageShare": "{used} del uso mensual de Mate"
+    "usageShare": "{used} del uso mensual de Mate",
+    "wikiProposals": "{count, plural, one {Propuso # cambio en la base de conocimientos para revisión} other {Propuso # cambios en la base de conocimientos para revisión}}"
   },
   "RoutineModal": {
     "at": "a las",
@@ -4467,6 +4489,33 @@
     "pagesLabel": "Páginas de la base de conocimientos",
     "pageTitle": "Título de la página",
     "previous": "Anterior",
+    "proposals": {
+      "action": {
+        "create": "Página nueva",
+        "delete": "Eliminación",
+        "update": "Edición"
+      },
+      "approve": "Aprobar",
+      "approved": "Propuesta aprobada",
+      "back": "Todas las propuestas",
+      "current": "Actual",
+      "deleteNotice": "Si la apruebas, esta página se eliminará de forma permanente.",
+      "description": "Cambios que Mate sugirió al ejecutar rutinas. La base de conocimientos solo cambia cuando apruebas uno.",
+      "empty": "No hay propuestas pendientes de revisión.",
+      "entry": "Propuestas",
+      "fromRoutine": "De {routine}",
+      "fromRoutineDeleted": "De una rutina eliminada",
+      "loadFailed": "No se pudieron cargar las propuestas.",
+      "needsPermission": "Tu rol no puede aplicar este cambio.",
+      "notYetCreated": "Esta página aún no existe.",
+      "pageMissing": "Esta página ya no existe.",
+      "proposed": "Propuesta",
+      "reject": "Rechazar",
+      "rejected": "Propuesta rechazada",
+      "stale": "Esta página cambió después de que Mate hiciera la propuesta. Recházala o pide a Mate que vuelva a proponer el cambio.",
+      "staleShort": "Página cambiada",
+      "title": "Propuestas"
+    },
     "reload": "Recargar página",
     "search": "Buscar páginas…",
     "unavailableBody": "Esta página se eliminó o no tienes acceso. Elige otra página.",

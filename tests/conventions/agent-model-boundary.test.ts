@@ -71,7 +71,8 @@ describe("agent model budget boundary", () => {
     expect(options).toContain('caching: "auto"');
     expect(options).toContain("parallelToolCalls: false");
     expect(options).toContain("store: false");
-    expect(workflow).toContain("...googleThinkingProviderOptions(payload.turnBudget)");
+    expect(workflow).toContain("reasoning: payload.turnBudget.reasoningEffort");
+    expect(workflow).not.toContain("thinkingConfig");
   });
 
   it("meters every Wiki embedding call and pins it to one zero-retention serving provider", () => {

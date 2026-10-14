@@ -9,8 +9,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { RoutineRunStatus, RoutineTriggerKind } from "@/generated/prisma";
 
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string, values?: { owner?: string; used?: string }) =>
-    values?.used !== undefined ? `${key}:${values.used}` : values?.owner === undefined ? key : `${key}:${values.owner}`,
+  useTranslations: () => (key: string, values?: { owner?: string; used?: string; count?: number }) =>
+    values?.count !== undefined
+      ? `${key}:${values.count}`
+      : values?.used !== undefined
+        ? `${key}:${values.used}`
+        : values?.owner === undefined
+          ? key
+          : `${key}:${values.owner}`,
 }));
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   useHydratedIntlStore: () => ({
@@ -59,6 +65,7 @@ function makeRun(overrides: Partial<RoutineRunDto> = {}): RoutineRunDto {
     stopReason: null,
     chargedCredits: 0.75,
     chargedPct: 0.38,
+    wikiProposalCount: 0,
     summary: "Done",
     error: null,
     createdAt: new Date("2026-09-08T09:00:00Z"),
@@ -134,6 +141,16 @@ describe("RoutineRunsPane rendered states", () => {
     expect(new Set(ids).size).toBe(ids.length);
     expect(container.textContent).toContain("RoutineDetail.usageShare:0.38%");
     expect(container.textContent).not.toContain("0.75");
+  });
+
+  it("tells the reviewer when a run proposed Knowledge Base changes", () => {
+    const proposing = makeRun({ wikiProposalCount: 2 });
+    const quiet = makeRun({ id: "run-2" });
+    render(makeStore({ runs: [proposing, quiet] }));
+
+    const notes = container.querySelectorAll("[data-routine-run-wiki-proposals]");
+    expect(notes).toHaveLength(1);
+    expect(notes[0]?.textContent).toBe("RoutineDetail.wikiProposals:2");
   });
 
   it("opens an active run without a conversation and leaves restricted transcripts disabled", () => {

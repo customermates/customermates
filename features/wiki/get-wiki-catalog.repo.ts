@@ -1,10 +1,12 @@
 import type { WikiCatalogInput, WikiPageDto } from "./wiki.schema";
 
+export type WikiCatalogPage = WikiPageDto & { summary?: string | null };
+
 export abstract class GetWikiCatalogRepo {
-  abstract listCatalogPages(data: WikiCatalogInput): Promise<{ items: WikiPageDto[]; total: number }>;
+  abstract listCatalogPages(data: WikiCatalogInput): Promise<{ items: WikiCatalogPage[]; total: number }>;
   abstract loadOperatingPages(procedureLimit: number): Promise<{
     guide: WikiPageDto | null;
-    procedures: WikiPageDto[];
+    procedures: WikiCatalogPage[];
     proceduresTotal: number;
   }>;
 }

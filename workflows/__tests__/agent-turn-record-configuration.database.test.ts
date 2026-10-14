@@ -1,5 +1,6 @@
 import { prismaAgentChatRepoDependencies } from "@/tests/helpers/prisma-agent-chat-repo";
 import { AGENT_CREDIT_MICROCENTS } from "@/core/commercial/agent-credits";
+import { AGENT_MODELS } from "@/ee/agent-chat/model-catalog";
 import { randomUUID } from "node:crypto";
 
 import { decode } from "@toon-format/toon";
@@ -374,7 +375,7 @@ async function fixture(): Promise<AgentTurnWorkflowPayload> {
         userId,
         turnRequestId,
         state: "reserved",
-        model: "google/gemini-3.5-flash-lite",
+        model: AGENT_MODELS.chat.modelId,
         reservedMicrocents: 100_000_000,
         planSnapshot: "business",
         subscriptionStatusSnapshot: "active",
@@ -403,9 +404,9 @@ async function fixture(): Promise<AgentTurnWorkflowPayload> {
     surface: "chat",
     toolsets: ["record-model"],
     turnBudget: {
-      modelSpec: "google/gemini-3.5-flash-lite",
-      servingProvider: "vertex",
-      inferenceRegion: "eu",
+      modelSpec: AGENT_MODELS.chat.modelId,
+      servingProvider: AGENT_MODELS.chat.servingProvider,
+      inferenceRegion: AGENT_MODELS.chat.inferenceRegion,
       reservedMicrocents: 100 * AGENT_CREDIT_MICROCENTS,
       roundReserveMicrocents: 2 * AGENT_CREDIT_MICROCENTS,
       maxOutputTokens: 100,

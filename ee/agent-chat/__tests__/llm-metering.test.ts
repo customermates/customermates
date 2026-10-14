@@ -9,7 +9,7 @@ vi.mock("@/env", () => ({
 }));
 
 import { usageToTokenCounts } from "../agent-usage-settlement";
-import { SHIPPED_AGENT_MODEL } from "../model-catalog";
+import { AGENT_MODELS } from "../model-catalog";
 import { resolveModelPricing } from "../model-pricing";
 
 describe("usageToTokenCounts", () => {
@@ -35,7 +35,10 @@ describe("usageToTokenCounts", () => {
               incomplete_details: null,
               usage: {
                 input_tokens: 27_000,
-                input_tokens_details: { cached_tokens: 0, cache_write_tokens: 26_973 },
+                input_tokens_details: {
+                  cached_tokens: 0,
+                  cache_write_tokens: 26_973,
+                },
                 output_tokens: 150,
                 output_tokens_details: { reasoning_tokens: 0 },
               },
@@ -46,10 +49,17 @@ describe("usageToTokenCounts", () => {
       ) as never,
     });
 
-    const result = await generateText({ model: provider("gpt-5.6-luna"), prompt: "Hello" });
+    const result = await generateText({
+      model: provider("gpt-5.6-luna"),
+      prompt: "Hello",
+    });
 
     expect(result.usage.inputTokenDetails).toEqual(
-      expect.objectContaining({ noCacheTokens: 27, cacheReadTokens: 0, cacheWriteTokens: 26_973 }),
+      expect.objectContaining({
+        noCacheTokens: 27,
+        cacheReadTokens: 0,
+        cacheWriteTokens: 26_973,
+      }),
     );
     expect(usageToTokenCounts(result.usage)).toEqual({
       inputTokens: 27,
@@ -62,7 +72,11 @@ describe("usageToTokenCounts", () => {
   it("maps the AI SDK v6 inputTokenDetails onto the 4-class TokenCounts (cacheWrite is first-class, not lost)", () => {
     const usage = {
       inputTokens: 27000,
-      inputTokenDetails: { noCacheTokens: 27, cacheReadTokens: 0, cacheWriteTokens: 26973 },
+      inputTokenDetails: {
+        noCacheTokens: 27,
+        cacheReadTokens: 0,
+        cacheWriteTokens: 26973,
+      },
       outputTokens: 150,
       outputTokenDetails: { textTokens: 150, reasoningTokens: 0 },
       totalTokens: 27150,
@@ -79,11 +93,19 @@ describe("usageToTokenCounts", () => {
   it("reads a warm cache-read turn", () => {
     const usage = {
       inputTokens: 23346,
-      inputTokenDetails: { noCacheTokens: 17, cacheReadTokens: 23329, cacheWriteTokens: 0 },
+      inputTokenDetails: {
+        noCacheTokens: 17,
+        cacheReadTokens: 23329,
+        cacheWriteTokens: 0,
+      },
       outputTokens: 144,
     } as never;
 
-    expect(usageToTokenCounts(usage)).toMatchObject({ inputTokens: 17, cacheReadTokens: 23329, cacheWriteTokens: 0 });
+    expect(usageToTokenCounts(usage)).toMatchObject({
+      inputTokens: 17,
+      cacheReadTokens: 23329,
+      cacheWriteTokens: 0,
+    });
   });
 
   it("derives uncached input by subtraction when a provider omits noCacheTokens", () => {
@@ -120,7 +142,12 @@ describe("usageToTokenCounts", () => {
 
 describe("model catalog + pricing coverage", () => {
   it("addresses every catalog model by its gateway-namespaced id", () => {
-    expect([SHIPPED_AGENT_MODEL].map((entry) => entry.modelId)).toEqual(["google/gemini-3.5-flash-lite"]);
+    expect(Object.values(AGENT_MODELS).map((entry) => entry.modelId)).toEqual([
+      "anthropic/claude-haiku-5.5",
+      "anthropic/claude-haiku-5.5",
+      "anthropic/claude-haiku-5.5",
+      "anthropic/claude-haiku-5.5",
+    ]);
   });
 
   it("refuses to price an unpinned model instead of falling back to a spend cap", () => {
@@ -130,16 +157,16 @@ describe("model catalog + pricing coverage", () => {
   it("prices the configured agent model from the pinned snapshot", () => {
     expect(
       resolveModelPricing(
-        SHIPPED_AGENT_MODEL.modelId,
+        AGENT_MODELS.chat.modelId,
         0,
-        SHIPPED_AGENT_MODEL.servingProvider,
-        SHIPPED_AGENT_MODEL.inferenceRegion,
+        AGENT_MODELS.chat.servingProvider,
+        AGENT_MODELS.chat.inferenceRegion,
       ),
     ).toEqual({
-      inputPerMTok: 0.33,
-      outputPerMTok: 2.75,
-      cacheReadPerMTok: 0.033,
-      cacheWritePerMTok: 0,
+      inputPerMTok: 0.11,
+      outputPerMTok: 0.55,
+      cacheReadPerMTok: 0.011,
+      cacheWritePerMTok: 0.1375,
     });
   });
 });

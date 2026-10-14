@@ -9,7 +9,6 @@ import {
   AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS,
 } from "@/ee/agent-chat/agent-model";
 import { getAgentProviderOptions } from "@/ee/agent-chat/agent-provider-options";
-import { googleThinkingProviderOptions } from "@/ee/agent-chat/agent-thinking-options";
 import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
 import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
 
@@ -52,6 +51,28 @@ function rejectedBeforeGeneration(error: unknown): boolean {
   return typeof status === "number" && status >= 400 && status < 500 && status !== 408;
 }
 
+const PROVIDER_WIDE_REJECTIONS = new Set([
+  "GatewayAuthenticationError",
+  "GatewayForbiddenError",
+  "GatewayModelNotFoundError",
+  "GatewayNotFoundError",
+  "GatewayRateLimitError",
+]);
+const PROVIDER_WIDE_STATUSES = new Set([401, 403, 404, 429]);
+
+export type WikiSynthesisFailureScope = "request" | "provider";
+
+function failureScope(error: unknown): WikiSynthesisFailureScope {
+  if (NoObjectGeneratedError.isInstance(error)) return "request";
+  if (!(error instanceof Error)) return "provider";
+  if (error.name === "TimeoutError" || error.name === "GatewayInvalidRequestError") return "request";
+  if (PROVIDER_WIDE_REJECTIONS.has(error.name)) return "provider";
+  const status = "statusCode" in error ? error.statusCode : null;
+  return typeof status === "number" && status >= 400 && status < 500 && !PROVIDER_WIDE_STATUSES.has(status)
+    ? "request"
+    : "provider";
+}
+
 function callFailure(label: string, model: string, error: unknown): string {
   const name = error instanceof Error ? error.name : typeof error;
   const status =
@@ -72,7 +93,12 @@ export async function generateStructuredObject<T>(args: {
   system: string;
   prompt: string;
   timeoutMs?: number;
-}): Promise<{ output: T | null; charge: AgentRetrievalCharge | null; failure?: string }> {
+}): Promise<{
+  output: T | null;
+  charge: AgentRetrievalCharge | null;
+  failure?: string;
+  failureScope?: WikiSynthesisFailureScope;
+}> {
   const inputTokens = promptTokens(args.system, args.prompt);
   try {
     const result = await generateText({
@@ -81,12 +107,10 @@ export async function generateStructuredObject<T>(args: {
       prompt: args.prompt,
       output: Output.object({ schema: args.schema }),
       maxOutputTokens: args.model.maxOutputTokens,
+      ...(args.model.reasoningEffort ? { reasoning: args.model.reasoningEffort } : {}),
       maxRetries: 0,
       abortSignal: AbortSignal.timeout(args.timeoutMs ?? TIMEOUT_MS),
-      providerOptions: {
-        ...getAgentProviderOptions(args.model.servingProvider, args.model.inferenceRegion),
-        ...googleThinkingProviderOptions(args.model),
-      },
+      providerOptions: getAgentProviderOptions(args.model.servingProvider, args.model.inferenceRegion),
     });
     const usage = result.usage;
     const reading = readAgentProviderCharge(result.providerMetadata, args.model.servingProvider);
@@ -106,11 +130,13 @@ export async function generateStructuredObject<T>(args: {
     return { output: result.output, charge };
   } catch (error) {
     const failure = callFailure(args.label, args.model.modelId, error);
-    if (rejectedBeforeGeneration(error)) return { output: null, charge: null, failure };
+    const scope = failureScope(error);
+    if (rejectedBeforeGeneration(error)) return { output: null, charge: null, failure, failureScope: scope };
     const usage = NoObjectGeneratedError.isInstance(error) ? error.usage : undefined;
     return {
       output: null,
       failure,
+      failureScope: scope,
       charge: estimatedCharge(
         args.model,
         usage?.inputTokens ?? inputTokens,

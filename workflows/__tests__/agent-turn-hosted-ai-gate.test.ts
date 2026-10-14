@@ -26,6 +26,7 @@ const CREDIT = 1_000_000;
 const state = vi.hoisted(() => ({
   latestCrawl: null as { pendingHosts: string[] } | null,
   gateResults: [] as boolean[],
+  gateCalls: 0,
   gateFailure: null as Error | null,
   serializationFailure: null as Error | null,
   contextFits: vi.fn(),
@@ -284,6 +285,7 @@ vi.mock("@/core/decorators/tenant-context", () => ({
 vi.mock("@/core/di", () => ({
   getAgentChatRepo: () => ({
     canStartNextHostedAiProviderRoundUnscoped: vi.fn(() => {
+      state.gateCalls += 1;
       if (state.gateFailure) return Promise.reject(state.gateFailure);
       return Promise.resolve(state.gateResults.shift() ?? true);
     }),
@@ -436,7 +438,7 @@ import {
   serializedAgentContextBytes,
 } from "@/ee/agent-chat/agent-budget-policy";
 import { agentWebSearchCallLimit } from "@/ee/agent-chat/agent-web-search";
-import { SHIPPED_AGENT_MODEL } from "@/ee/agent-chat/model-catalog";
+import { AGENT_MODELS } from "@/ee/agent-chat/model-catalog";
 import { agentCreditsToMicrocents } from "@/core/commercial/agent-credits";
 import { DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN } from "@/ee/routines/routine-run-limits";
 
@@ -454,12 +456,12 @@ const payload: AgentTurnWorkflowPayload = {
   pageRoute: "/en/contacts",
   messages: [{ role: "user", text: "Hello" }],
   turnBudget: {
-    modelSpec: "google/gemini-3.5-flash-lite",
-    servingProvider: "vertex",
+    modelSpec: "anthropic/claude-haiku-5.5",
+    servingProvider: "vertexAnthropic",
     inferenceRegion: "eu",
     reservedMicrocents: 10 * CREDIT,
     roundReserveMicrocents: 2 * CREDIT,
-    maxOutputTokens: 8_192,
+    maxOutputTokens: 40_000,
     maxContextTokens: 8_000,
     maxContextBytes: 32_000,
     maxToolResultChars: 1_000,
@@ -469,6 +471,7 @@ const payload: AgentTurnWorkflowPayload = {
 
 beforeEach(() => {
   state.gateResults = [];
+  state.gateCalls = 0;
   state.gateFailure = null;
   state.serializationFailure = null;
   state.providerCalls = 0;
@@ -549,7 +552,7 @@ function unbilledStopStep() {
       gateway: {
         gatewayCost: "0",
         cost: "0",
-        routing: { finalProvider: "vertex", modelAttempts: [] },
+        routing: { finalProvider: "vertexAnthropic", modelAttempts: [] },
       },
     },
   };
@@ -860,9 +863,9 @@ describe("agent-turn hosted-AI provider gates", () => {
               gatewayCost: "0.01",
               cost: "0.01",
               routing: {
-                finalProvider: "vertex",
+                finalProvider: "vertexAnthropic",
                 modelAttempts: [
-                  { providerAttempts: [{ provider: "vertex", credentialType: "system", success: true }] },
+                  { providerAttempts: [{ provider: "vertexAnthropic", credentialType: "system", success: true }] },
                 ],
               },
             },
@@ -941,7 +944,7 @@ describe("agent-turn hosted-AI provider gates", () => {
   });
 
   it("does not invoke the provider again when a later round gate is rejected", async () => {
-    state.gateResults = [true, false];
+    state.gateResults = [false];
 
     await runAgentTurn(payload);
 
@@ -1067,14 +1070,14 @@ describe("agent-turn credit-bounded continuation", () => {
     });
 
     expect(state.providerCalls).toBe(1);
-    expect(state.extendReservation).toHaveBeenCalledWith(expect.objectContaining({ requiredMicrocents: 2_000_308 }));
+    expect(state.extendReservation).toHaveBeenCalledWith(expect.objectContaining({ requiredMicrocents: 2_000_066 }));
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({
         terminalCode: "partial",
         stopReason: "credit_limit",
         usageSettlement: expect.objectContaining({
           reservedMicrocents: 2 * CREDIT,
-          chargedMicrocents: 308,
+          chargedMicrocents: 66,
         }),
       }),
     );
@@ -1151,7 +1154,7 @@ describe("agent-turn credit-bounded continuation", () => {
     });
 
     expect(state.providerCalls).toBe(1);
-    expect(state.extendReservation).toHaveBeenCalledWith(expect.objectContaining({ requiredMicrocents: 2_000_308 }));
+    expect(state.extendReservation).toHaveBeenCalledWith(expect.objectContaining({ requiredMicrocents: 2_000_066 }));
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({
         terminalCode: "partial",
@@ -1512,53 +1515,6 @@ describe("agent-turn credit-bounded continuation", () => {
     );
   });
 
-  describe("benchmark tool output recording", () => {
-    const runOneToolRound = async (recordToolOutputs: boolean | undefined) => {
-      state.definitions.push({
-        name: "query_crm_records",
-        description: "query_crm_records",
-        inputSchema: { type: "object" },
-      });
-      state.normalize.mockResolvedValue({ ok: true, input: { typeId: DEAL_TYPE_ID } });
-      state.execute.mockResolvedValue({ ok: true, result: "total: 42" });
-      state.runTools = async ({ messages, executeAndCompleteTool }) => {
-        await executeAndCompleteTool("query_crm_records", { typeId: DEAL_TYPE_ID }, "call-recorded");
-        return {
-          finishReason: "stop",
-          messages,
-          steps: [
-            streamedToolCallStep("query_crm_records", "call-recorded", { typeId: DEAL_TYPE_ID }),
-            streamedStep("Done.", "stop"),
-          ],
-        };
-      };
-      await runAgentTurn(recordToolOutputs === undefined ? payload : { ...payload, recordToolOutputs });
-      return state.recordRound.mock.calls.flatMap(([args]) => (args as { parts: unknown[] }).parts);
-    };
-
-    it("stores the output text next to the tool call when the benchmark asks for it", async () => {
-      const parts = await runOneToolRound(true);
-
-      expect(parts).toContainEqual(
-        expect.objectContaining({
-          type: "benchmark-tool-output",
-          toolCallId: "call-recorded",
-          toolName: "query_crm_records",
-          ok: true,
-          text: "total: 42",
-        }),
-      );
-      expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
-    });
-
-    it("stores no output for an ordinary turn", async () => {
-      const parts = await runOneToolRound(undefined);
-
-      expect(parts).toContainEqual(expect.objectContaining({ type: "tool-call", toolCallId: "call-recorded" }));
-      expect(parts).not.toContainEqual(expect.objectContaining({ type: "benchmark-tool-output" }));
-    });
-  });
-
   it("adaptively retains only the current partial output when two large length steps do not fit", async () => {
     state.contextFits.mockImplementation((context: unknown, stepMessages: unknown, maxBytes: unknown) => {
       if (typeof maxBytes !== "number") return false;
@@ -1868,7 +1824,7 @@ describe("agent-turn credit-bounded continuation", () => {
 
 describe("routine per-run credit limit", () => {
   const ceilingMicrocents = agentCreditsToMicrocents(DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN);
-  const evidenceRoundMicrocents = [1_054_846, 286_515, 255_554, 473_555, 1_403_689, 355_987, 351_527, 382_896];
+  const evidenceRoundMicrocents = [1_900_000, 550_000, 500_000, 850_000, 2_550_000, 600_000, 600_000, 700_000];
   const roundTextBytes = (round: number) => 122_000 + 8_500 * Math.min(round, 8) + 1_000 * Math.max(0, round - 8);
   const roundPromptTokens = (round: number) => Math.round(roundTextBytes(round) / 4.27);
   const routineMessages = [{ role: "user" as const, text: "r".repeat(roundTextBytes(0)) }];
@@ -1915,13 +1871,17 @@ describe("routine per-run credit limit", () => {
   };
   const routinePayload = (): AgentTurnWorkflowPayload => {
     const turnBudget = resolveAgentTurnBudget({
-      model: SHIPPED_AGENT_MODEL,
+      model: AGENT_MODELS.routine,
       availableMicrocents: ceilingMicrocents,
       requiredContextBytes: 131_000,
       webSearchReserveMicrocents: agentWebSearchReserveMicrocents(agentWebSearchCallLimit("routine")),
     });
     if (!turnBudget) throw new Error("Expected the default routine model to be admitted within the per-run limit.");
     return { ...payload, surface: "routine", webSearchEnabled: false, messages: routineMessages, turnBudget };
+  };
+  const fullyReservedPayload = (): AgentTurnWorkflowPayload => {
+    const routine = routinePayload();
+    return { ...routine, turnBudget: { ...routine.turnBudget, reservedMicrocents: ceilingMicrocents } };
   };
   const roundReserve = (round: number) =>
     agentRoundReserveMicrocents(
@@ -1948,30 +1908,30 @@ describe("routine per-run credit limit", () => {
     };
   };
 
-  it("lets a routine whose context grows from 120 KB pass 4.4 credits and finish under its limit", async () => {
+  it("lets a routine whose context grows from 120 KB pass 8.2 credits and finish under its limit", async () => {
     enforceCeiling();
-    runRounds(evidenceRoundMicrocents, 300_000);
+    runRounds(evidenceRoundMicrocents, 600_000);
 
-    await runAgentTurn(routinePayload());
+    await runAgentTurn(fullyReservedPayload());
 
     const beforeLastRound = accruedBefore(evidenceRoundMicrocents, 8);
-    expect(beforeLastRound).toBe(4_564_569);
-    expect(beforeLastRound + agentRoundWorstCaseMicrocents(SHIPPED_AGENT_MODEL)).toBeGreaterThan(ceilingMicrocents);
+    expect(beforeLastRound).toBe(8_250_000);
+    expect(beforeLastRound + agentRoundWorstCaseMicrocents(AGENT_MODELS.routine)).toBeGreaterThan(ceilingMicrocents);
     expect(
-      beforeLastRound + agentRoundWorstCaseMicrocentsForContextBytes(SHIPPED_AGENT_MODEL, contextBytesOf(8)),
+      beforeLastRound + agentRoundWorstCaseMicrocentsForContextBytes(AGENT_MODELS.routine, contextBytesOf(8)),
     ).toBeGreaterThan(ceilingMicrocents);
     expect(contextBytesOf(0)).toBeGreaterThan(120_000);
     expect(contextBytesOf(8)).toBeGreaterThan(189_000);
     expect(state.providerCalls).toBe(9);
     expect(state.extendReservation).not.toHaveBeenCalled();
-    expect(beforeLastRound + roundReserve(8)).toBeLessThanOrEqual(routinePayload().turnBudget.reservedMicrocents);
+    expect(beforeLastRound + roundReserve(8)).toBeLessThanOrEqual(ceilingMicrocents);
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({
         terminalCode: "completed",
         stopReason: null,
         usageSettlement: expect.objectContaining({
-          chargedMicrocents: beforeLastRound + 300_000,
-          reservedMicrocents: routinePayload().turnBudget.reservedMicrocents,
+          chargedMicrocents: beforeLastRound + 600_000,
+          reservedMicrocents: ceilingMicrocents,
           policyBreach: false,
         }),
       }),
@@ -1986,14 +1946,14 @@ describe("routine per-run credit limit", () => {
 
   it("stops before a round whose worst case could pass the 10-credit limit and names that limit", async () => {
     enforceCeiling();
-    const costs = [...evidenceRoundMicrocents, 1_500_000, 1_000_000, 1_000_000];
+    const costs = [...evidenceRoundMicrocents, 600_000, 600_000, 600_000];
     runRounds(costs, null);
 
-    await runAgentTurn(routinePayload());
+    await runAgentTurn(fullyReservedPayload());
 
     const accrued = accruedBefore(costs, 10);
     expect(state.providerCalls).toBe(10);
-    expect(accrued).toBe(7_064_569);
+    expect(accrued).toBe(9_450_000);
     for (let round = 0; round < 10; round += 1)
       expect(accruedBefore(costs, round) + roundReserve(round)).toBeLessThanOrEqual(ceilingMicrocents);
     expect(
@@ -2026,19 +1986,19 @@ describe("routine per-run credit limit", () => {
   it("prices the first round after a stream restart from its context size alone", async () => {
     enforceCeiling();
     state.runTools = ({ messages }) =>
-      Promise.resolve({ finishReason: "tool-calls", messages, steps: [billedRound(0, 6_000_000, "tool-calls")] });
+      Promise.resolve({ finishReason: "tool-calls", messages, steps: [billedRound(0, 8_800_000, "tool-calls")] });
 
-    await runAgentTurn(routinePayload());
+    await runAgentTurn(fullyReservedPayload());
 
     const budget = routinePayload().turnBudget;
     const measured = { contextBytes: contextBytesOf(0), promptTokens: roundPromptTokens(0) };
-    expect(6_000_000 + agentRoundReserveMicrocents(budget, contextBytesOf(0), measured)).toBeLessThanOrEqual(
+    expect(8_800_000 + agentRoundReserveMicrocents(budget, contextBytesOf(0), measured)).toBeLessThanOrEqual(
       ceilingMicrocents,
     );
     expect(state.providerCalls).toBe(1);
     expect(state.extendReservation).toHaveBeenLastCalledWith(
       expect.objectContaining({
-        requiredMicrocents: 6_000_000 + agentRoundReserveMicrocents(budget, contextBytesOf(0), null),
+        requiredMicrocents: 8_800_000 + agentRoundReserveMicrocents(budget, contextBytesOf(0), null),
       }),
     );
     expect(state.finalize).toHaveBeenCalledWith(
@@ -2104,13 +2064,13 @@ describe("agent-turn terminal reasons", () => {
     expect(JSON.stringify(state.writes)).toContain("localized:AgentChat.runner.providerError");
   });
 
-  it("classifies a provider-round gate failure as a turn error", async () => {
+  it("classifies a later provider-round gate failure as a turn error", async () => {
     const gateFailure = new Error("round gate unavailable");
     state.gateFailure = gateFailure;
 
     await runAgentTurn(payload);
 
-    expect(state.providerCalls).toBe(0);
+    expect(state.providerCalls).toBe(1);
     expect(state.reportFailure).toHaveBeenCalledWith("agent-turn", gateFailure, payload.tenant);
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -2259,8 +2219,8 @@ describe("agent-turn provider charge evidence", () => {
       gatewayCost,
       cost: gatewayCost,
       routing: {
-        finalProvider: "vertex",
-        modelAttempts: [{ providerAttempts: [{ provider: "vertex", credentialType: "system", success }] }],
+        finalProvider: "vertexAnthropic",
+        modelAttempts: [{ providerAttempts: [{ provider: "vertexAnthropic", credentialType: "system", success }] }],
       },
     },
   });
@@ -2544,22 +2504,18 @@ describe("agent-turn provider charge evidence", () => {
     },
   );
 
-  it("does not charge a gate failure before any provider invocation", async () => {
+  it("admits the first provider round through turn start without consulting the round gate", async () => {
     state.gateFailure = new Error("gate storage unavailable");
+    state.runTools = ({ messages }) =>
+      Promise.resolve({ finishReason: "stop", messages, steps: [streamedStep("A reply.", "stop")] });
 
     await runAgentTurn(payload);
 
-    expect(state.providerCalls).toBe(0);
-    expect(state.recordRound).not.toHaveBeenCalled();
+    expect(state.markProviderStarted).toHaveBeenCalledTimes(1);
+    expect(state.gateCalls).toBe(0);
+    expect(state.providerCalls).toBe(1);
     expect(state.finalize).toHaveBeenCalledWith(
-      expect.objectContaining({
-        stopReason: "turn_error",
-        usageSettlement: expect.objectContaining({
-          costMicrocents: 0,
-          chargedMicrocents: 0,
-          costSource: "measured",
-        }),
-      }),
+      expect.objectContaining({ terminalCode: "completed", stopReason: null }),
     );
   });
 
@@ -2652,7 +2608,7 @@ describe("agent-turn provider charge evidence", () => {
   it("settles the aggregate Gateway receipt without treating opaque provider retries as unreported rounds", async () => {
     const receipt = metadata("0.0005");
     receipt.gateway.routing.modelAttempts[0].providerAttempts.unshift({
-      provider: "vertex",
+      provider: "vertexAnthropic",
       credentialType: "system",
       success: false,
     });
@@ -2832,12 +2788,12 @@ describe("agent-turn provider charge evidence", () => {
       await runAgentTurn({ ...payload, surface });
 
       expect(state.providerCalls).toBe(1);
-      expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ costMicrocents: 308 }));
+      expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ costMicrocents: 66 }));
       expect(state.finalize).toHaveBeenCalledWith(
         expect.objectContaining({
           usageSettlement: expect.objectContaining({
-            costMicrocents: 308,
-            chargedMicrocents: 308,
+            costMicrocents: 66,
+            chargedMicrocents: 66,
             costSource: "estimated",
             policyBreach: false,
           }),
@@ -3958,10 +3914,10 @@ describe("routine browse-or-mutate batch safety", () => {
     providerMetadata: {
       gateway: {
         routing: {
-          finalProvider: "vertex",
+          finalProvider: "vertexAnthropic",
           modelAttempts: [
             {
-              providerAttempts: [{ provider: "vertex", credentialType: "system", success: true }],
+              providerAttempts: [{ provider: "vertexAnthropic", credentialType: "system", success: true }],
             },
           ],
         },
@@ -4211,8 +4167,10 @@ describe("routine browse-or-mutate batch safety", () => {
       gateway: {
         gatewayCost: "0.0005",
         routing: {
-          finalProvider: "vertex",
-          modelAttempts: [{ providerAttempts: [{ provider: "vertex", credentialType: "system", success: true }] }],
+          finalProvider: "vertexAnthropic",
+          modelAttempts: [
+            { providerAttempts: [{ provider: "vertexAnthropic", credentialType: "system", success: true }] },
+          ],
         },
       },
     };
@@ -4565,8 +4523,10 @@ describe("agent-turn rate-limited provider requests", () => {
       gatewayCost: "0",
       cost: "0",
       routing: {
-        finalProvider: "vertex",
-        modelAttempts: [{ providerAttempts: [{ provider: "vertex", credentialType: "system", success: false }] }],
+        finalProvider: "vertexAnthropic",
+        modelAttempts: [
+          { providerAttempts: [{ provider: "vertexAnthropic", credentialType: "system", success: false }] },
+        ],
       },
     },
   };
@@ -4575,8 +4535,10 @@ describe("agent-turn rate-limited provider requests", () => {
       gatewayCost: "0.0005",
       cost: "0.0005",
       routing: {
-        finalProvider: "vertex",
-        modelAttempts: [{ providerAttempts: [{ provider: "vertex", credentialType: "system", success: true }] }],
+        finalProvider: "vertexAnthropic",
+        modelAttempts: [
+          { providerAttempts: [{ provider: "vertexAnthropic", credentialType: "system", success: true }] },
+        ],
       },
     },
   };

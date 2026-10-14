@@ -49037,6 +49037,12 @@
                         "semantic",
                         "keyword"
                       ]
+                    },
+                    "abstained": {
+                      "type": "boolean"
+                    },
+                    "incomplete": {
+                      "type": "boolean"
                     }
                   },
                   "required": [
@@ -85865,6 +85871,11 @@
                               }
                             ]
                           },
+                          "wikiProposalCount": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
                           "summary": {
                             "anyOf": [
                               {
@@ -85911,6 +85922,7 @@
                           "stopReason",
                           "chargedCredits",
                           "chargedPct",
+                          "wikiProposalCount",
                           "summary",
                           "error",
                           "createdAt",
@@ -118114,6 +118126,9 @@
                         "wikiWhenToUseRequired",
                         "wikiPageUpdateEmpty",
                         "wikiProcedureNeedsSteps",
+                        "wikiProposalNotFound",
+                        "wikiProposalReviewed",
+                        "wikiProposalStale",
                         "threadNotFound",
                         "messageNotFound",
                         "emailFolderNotFound",

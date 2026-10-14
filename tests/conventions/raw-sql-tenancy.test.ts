@@ -34,10 +34,12 @@ const ALLOWLIST: Record<string, string> = {
     "The record operation sweep leases due operations across workspaces with one FOR UPDATE SKIP LOCKED claim",
   "features/user/prisma-user.repository.ts:PrismaUserRepo.findAuthUserCompanyIdForUpdateUnscoped on AuthUser":
     "Pre-tenant registration locks the signed-in AuthUser row by id to learn which workspace it is bound to",
+  "features/wiki/prisma-wiki-section.repository.ts:PrismaWikiSectionRepo.findCompaniesWithStaleSectionsUnscoped on WikiPage":
+    "The daily Knowledge Base section sync finds the workspaces whose pages have stale sections across all companies",
   "prisma/seeds/run.ts:runSyntheticSeed on AgentMessage":
     "Seed fix-up resets the global AgentMessage sequence to the highest seeded value",
 };
-const ALLOWLIST_CEILING = 8;
+const ALLOWLIST_CEILING = 9;
 
 type RawCall = { site: string; line: number; evidence: string };
 

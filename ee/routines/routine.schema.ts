@@ -100,6 +100,7 @@ export const RoutineRunDtoSchema = z.object({
   stopReason: z.enum(AgentTurnStopReason).nullable(),
   chargedCredits: z.number().nonnegative(),
   chargedPct: z.number().nonnegative().nullable(),
+  wikiProposalCount: z.number().int().nonnegative(),
   summary: z.string().nullable(),
   error: z.string().nullable(),
   createdAt: z.date(),

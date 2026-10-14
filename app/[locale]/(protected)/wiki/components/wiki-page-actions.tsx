@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import type { WikiPageStore } from "./wiki-page.store";
 
 import { observer } from "mobx-react-lite";
@@ -24,16 +25,19 @@ type Props = {
   onCancelCreate: () => void;
   onCreate: () => void;
   onReload: () => void;
+  proposals?: ReactNode;
 };
 
 export const WikiPageActions = observer((props: Props) => {
-  const { canManage, canCreate, store, formId, hasDocument, onCancelCreate, onCreate, onReload } = props;
+  const { canManage, canCreate, store, formId, hasDocument, onCancelCreate, onCreate, onReload, proposals } = props;
   const t = useTranslations();
   const copyToClipboard = useCopyToClipboard();
   const { showTrashConfirmation } = useDeleteConfirmation();
 
   return (
     <div className="flex items-center gap-1">
+      {proposals}
+
       {hasDocument && store.form.id && !store.hasUnsavedChanges && (
         <TopBarMenuButton busy={store.isLoading} icon={MoreHorizontal} label={t("Wiki.pageActions")}>
           <DropdownMenuItem

@@ -225,6 +225,23 @@
             "running": "Mise à jour du profil"
           }
         },
+        "proposals": {
+          "create": {
+            "done": "{count, plural, one {Nouvelle page proposée} other {# nouvelles pages proposées}}",
+            "error": "{count, plural, one {Impossible de proposer une nouvelle page} other {Impossible de proposer # nouvelles pages}}",
+            "running": "{count, plural, one {Proposition d’une nouvelle page} other {Proposition de # nouvelles pages}}"
+          },
+          "delete": {
+            "done": "Suppression de page proposée",
+            "error": "Impossible de proposer la suppression de la page",
+            "running": "Proposition de suppression de la page"
+          },
+          "update": {
+            "done": "Modification de page proposée",
+            "error": "Impossible de proposer la modification de la page",
+            "running": "Proposition de modification de la page"
+          }
+        },
         "records": {
           "analyze": {
             "done": "Analyse de {resource} terminée",
@@ -1250,6 +1267,9 @@
       "wikiPagePinned": "Le guide opérationnel reste en première position. Déplacez une autre page.",
       "wikiPageUpdateEmpty": "Renseignez au moins un champ pour modifier la page.",
       "wikiProcedureNeedsSteps": "Une procédure doit contenir des étapes numérotées.",
+      "wikiProposalNotFound": "Cette proposition n’existe plus.",
+      "wikiProposalReviewed": "Cette proposition a déjà été examinée.",
+      "wikiProposalStale": "La page a changé après la proposition de Mate. Rejetez la proposition ou demandez à Mate de proposer à nouveau la modification.",
       "wikiWhenToUseRequired": "Une procédure doit indiquer brièvement quand l'utiliser."
     },
     "events": {
@@ -3995,6 +4015,7 @@
     "ownerUnavailableReadOnly": "Cette routine n’a plus de propriétaire disponible ; elle reste donc suspendue et en lecture seule. Un administrateur de l’entreprise peut la supprimer.",
     "ranAs": "Exécutée en tant que {owner}",
     "readOnlyTitle": "Accès en lecture seule",
+    "reviewWikiProposals": "Examiner",
     "runDetails": "Détails de l’exécution",
     "runNoTranscript": "Aucune transcription n’est disponible pour cette exécution.",
     "runQueued": "Cette exécution est en attente. Sa transcription apparaîtra au démarrage de l’assistant.",
@@ -4014,7 +4035,8 @@
     "triggerChangedFieldsMore": "et plus",
     "triggerRecord": "Enregistrement",
     "triggerThread": "Conversation",
-    "usageShare": "{used} de l'usage Mate mensuel"
+    "usageShare": "{used} de l'usage Mate mensuel",
+    "wikiProposals": "{count, plural, one {# modification de la base de connaissances proposée pour validation} other {# modifications de la base de connaissances proposées pour validation}}"
   },
   "RoutineModal": {
     "at": "à",
@@ -4467,6 +4489,33 @@
     "pagesLabel": "Pages de la base de connaissances",
     "pageTitle": "Titre de la page",
     "previous": "Précédent",
+    "proposals": {
+      "action": {
+        "create": "Nouvelle page",
+        "delete": "Suppression",
+        "update": "Modification"
+      },
+      "approve": "Approuver",
+      "approved": "Proposition approuvée",
+      "back": "Toutes les propositions",
+      "current": "Actuelle",
+      "deleteNotice": "En l’approuvant, vous supprimez définitivement cette page.",
+      "description": "Modifications suggérées par Mate pendant l’exécution des routines. La base de connaissances ne change que lorsque vous en approuvez une.",
+      "empty": "Aucune proposition n’attend de validation.",
+      "entry": "Propositions",
+      "fromRoutine": "Depuis {routine}",
+      "fromRoutineDeleted": "Depuis une routine supprimée",
+      "loadFailed": "Impossible de charger les propositions.",
+      "needsPermission": "Votre rôle ne permet pas d’appliquer cette modification.",
+      "notYetCreated": "Cette page n’existe pas encore.",
+      "pageMissing": "Cette page n’existe plus.",
+      "proposed": "Proposée",
+      "reject": "Rejeter",
+      "rejected": "Proposition rejetée",
+      "stale": "Cette page a changé après la proposition de Mate. Rejetez-la ou demandez à Mate de proposer à nouveau la modification.",
+      "staleShort": "Page modifiée",
+      "title": "Propositions"
+    },
     "reload": "Recharger la page",
     "search": "Rechercher des pages…",
     "unavailableBody": "Cette page a été supprimée ou vous n’y avez pas accès. Choisissez une autre page.",

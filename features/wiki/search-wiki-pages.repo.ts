@@ -1,17 +1,31 @@
 import type { WikiPageDto } from "./wiki.schema";
-import type { WikiSemanticCandidate, WikiFullTextCandidates } from "./search-wiki-pages.interactor";
+
+export type WikiSectionMatch = { pageId: string; sectionId: string };
+export type WikiFullTextSections = {
+  hits: Array<WikiSectionMatch & { coverage: number }>;
+  pinned: WikiSectionMatch[];
+  coverage: number;
+  corrected?: string;
+};
+export type WikiSemanticSections = {
+  hits: Array<WikiSectionMatch & { similarity: number }>;
+  complete: boolean;
+  stale: boolean;
+};
+export type WikiSectionSync = { synced: number; remaining: boolean };
+export type WikiSectionHit = {
+  id: string;
+  pageId: string;
+  offset: number;
+  headingPath: string[];
+  anchor: string;
+  text: string;
+};
 
 export abstract class SearchWikiPagesRepo {
-  abstract semanticPageCandidates(
-    vector: number[],
-    model: string,
-    limit: number,
-  ): Promise<{ candidates: WikiSemanticCandidate[]; stalePageIds: Set<string> } | null>;
+  abstract syncStaleSections(limit?: number): Promise<WikiSectionSync>;
+  abstract fullTextSections(query: string, limit: number): Promise<WikiFullTextSections>;
+  abstract semanticSections(vector: number[], version: string, limit: number): Promise<WikiSemanticSections | null>;
+  abstract getSectionsByIds(ids: string[]): Promise<WikiSectionHit[]>;
   abstract getPagesByIds(ids: string[]): Promise<WikiPageDto[]>;
-  abstract fullTextPageCandidates(query: string, limit: number): Promise<WikiFullTextCandidates>;
-  abstract rankPageSections(
-    query: string,
-    sections: Array<{ key: number; heading: string; body: string }>,
-  ): Promise<Map<number, number>>;
-  abstract sectionHeadlines(query: string, bodies: string[]): Promise<string[]>;
 }

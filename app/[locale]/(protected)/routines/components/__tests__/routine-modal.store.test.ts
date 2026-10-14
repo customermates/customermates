@@ -80,6 +80,7 @@ function makeRun(overrides: Partial<RoutineRunDto> = {}): RoutineRunDto {
     stopReason: null,
     chargedCredits: 1,
     chargedPct: 0.5,
+    wikiProposalCount: 0,
     summary: "Done",
     error: null,
     createdAt: new Date("2026-09-08T09:00:00Z"),

@@ -5,7 +5,7 @@ import type { AppLocale } from "@/i18n/locale-registry";
 
 import { COUNTRY_CODES } from "@/constants/countries";
 import { agentCreditPeriodForAnchor } from "@/ee/agent-chat/agent-credit-policy";
-import { SHIPPED_AGENT_MODEL } from "@/ee/agent-chat/model-catalog";
+import { AGENT_MODELS } from "@/ee/agent-chat/model-catalog";
 import { APP_LOCALES } from "@/i18n/locale-registry";
 
 import type { SeedContext } from "./context";
@@ -256,7 +256,7 @@ export async function seedHostedAiOperatorFixtures(context: SeedContext, now = n
   const commonUsage = {
     allowanceMicrocentsSnapshot: 500_000_000n,
     companyId: ids.hostedAiFixtureCompany,
-    model: SHIPPED_AGENT_MODEL.modelId,
+    model: AGENT_MODELS.chat.modelId,
     periodEnd,
     periodStart,
     planSnapshot: "enterprise" as const,

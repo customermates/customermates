@@ -155,6 +155,10 @@ export const REVIEWED_EXCEPTION_ALLOWLIST: Readonly<Record<string, string>> = {
     "unresolved C06: pre-tenant registration locks the signed-in AuthUser row by id to learn which workspace it is bound to",
   "raw-sql-tenancy.test.ts#ALLOWLIST: prisma/seeds/run.ts:runSyntheticSeed on AgentMessage":
     "unresolved C06: seed fix-up resets the global AgentMessage sequence to the highest seeded value",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: features/wiki/prisma-wiki-section.repository.ts:PrismaWikiSectionRepo.findCompaniesWithStaleSectionsUnscoped on WikiPage":
+    "unresolved C06: the daily Knowledge Base section sync finds the workspaces with stale sections across all companies",
+  "prisma-tenant-fk.test.ts#TENANT_FK_ALLOWLIST: DocsSection":
+    "unresolved C06: DocsSection replaces the reviewed DocsChunk table, the platform-wide docs corpus without companyId",
   "ui-wording.test.ts#SHARED_ACTION_WORD_EXEMPTIONS: AgentChat.approval.rejectAction":
     "unresolved C08: the cancel-label footer rule reserves Common.actions.cancel for the shared footer",
   "ui-wording.test.ts#GERMAN_TERM_EXEMPTIONS: Cancelled":
@@ -187,7 +191,7 @@ function verifiedMoves(): [string, string][] {
   const base = reviewBaseSha();
   const cached = movesByBase.get(base);
   if (cached) return cached;
-  const moves = git("diff", "-M", "--name-status", base)
+  const moves = git("diff", "-M", "-l0", "--name-status", base)
     .split("\n")
     .filter((line) => line.startsWith("R"))
     .map((line): [string, string] => {

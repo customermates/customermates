@@ -161,6 +161,9 @@ import { PrismaWebhookDeliveryRepo } from "@/features/webhook/prisma-webhook-del
 import { PrismaWebhookRepo } from "@/features/webhook/prisma-webhook.repository";
 import { PrismaWidgetRepo } from "@/features/widget/prisma-widget.repository";
 import { PrismaWikiPageRepo } from "@/features/wiki/prisma-wiki-page.repository";
+import { PrismaWikiPageProposalRepo } from "@/features/wiki/prisma-wiki-page-proposal.repository";
+import { PrismaWikiSectionRepo } from "@/features/wiki/prisma-wiki-section.repository";
+import { PrismaWikiKnowledgeGapRepo } from "@/features/wiki/prisma-wiki-knowledge-gap.repository";
 // Services
 import { BackgroundTaskService } from "@/core/utils/background-task.service";
 import { MessagingService } from "@/ee/messaging/messaging.service";
@@ -335,6 +338,13 @@ import { CreateWikiPagesInteractor } from "@/features/wiki/create-wiki-pages.int
 import { MoveWikiPageInteractor } from "@/features/wiki/move-wiki-page.interactor";
 import { UpdateWikiPageInteractor } from "@/features/wiki/update-wiki-page.interactor";
 import { DeleteWikiPageInteractor } from "@/features/wiki/delete-wiki-page.interactor";
+import { ProposeWikiPageChangesInteractor } from "@/features/wiki/propose-wiki-page-changes.interactor";
+import { GetWikiPageProposalsInteractor } from "@/features/wiki/get-wiki-page-proposals.interactor";
+import { ApproveWikiPageProposalInteractor } from "@/features/wiki/approve-wiki-page-proposal.interactor";
+import { RejectWikiPageProposalInteractor } from "@/features/wiki/reject-wiki-page-proposal.interactor";
+import { GetWikiKnowledgeGapsInteractor } from "@/features/wiki/get-wiki-knowledge-gaps.interactor";
+import { PruneWikiKnowledgeGapsInteractor } from "@/features/wiki/prune-wiki-knowledge-gaps.interactor";
+import { SyncStaleWikiSectionsInteractor } from "@/features/wiki/sync-stale-wiki-sections.interactor";
 import { StartWikiHomepageSetupInteractor } from "@/features/wiki/start-wiki-homepage-setup.interactor";
 import { GetWikiHomepageSetupStateInteractor } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 import { FailWikiWebsiteCrawlInteractor } from "@/ee/wiki-crawl/fail-wiki-website-crawl.interactor";
@@ -427,7 +437,7 @@ import { CreateSupportTicketInteractor } from "@/features/support/create-support
 import { WikiEmbeddingService } from "@/ee/wiki-retrieval/wiki-embedding.service";
 import { DocsSemanticIndexDispatcher } from "@/ee/wiki-retrieval/docs-semantic-index-dispatcher";
 import { DocsSemanticIndexService } from "@/ee/wiki-retrieval/docs-semantic-index.service";
-import { PrismaDocsChunkRepo } from "@/features/mcp-tools/prisma-docs-chunk.repository";
+import { PrismaDocsSectionRepo } from "@/features/mcp-tools/prisma-docs-section.repository";
 import { tenantStorage } from "@/core/decorators/tenant-context";
 import type { QueryEmbedding } from "@/core/retrieval/retrieval-pipeline";
 import { PrismaWikiWebsiteCrawlRepo } from "@/ee/wiki-crawl/prisma-wiki-website-crawl.repository";
@@ -435,6 +445,7 @@ import { WikiWebsiteCrawlService } from "@/ee/wiki-crawl/wiki-website-crawl.serv
 import { WikiWebsiteSynthesisService } from "@/ee/wiki-crawl/wiki-website-synthesis.service";
 import { WikiSemanticQueryEmbedder } from "@/ee/wiki-retrieval/wiki-query-embedder";
 import { WikiSemanticIndexService } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
+import { WikiSummaryService } from "@/ee/wiki-retrieval/wiki-summary.service";
 import { WikiSemanticIndexDispatcher } from "@/ee/wiki-retrieval/wiki-semantic-index-scheduler";
 import { WikiSemanticIndexListener } from "@/ee/wiki-retrieval/wiki-semantic-index-listener";
 export const getProviderAvatarService = (companyId: string) => {
@@ -807,6 +818,8 @@ export const getRoutineEventAccess = () => new PrismaRoutineEventAccess(getRecor
 export const getWebhookDeliveryRepo = () => new PrismaWebhookDeliveryRepo(getRecordRecipientReader());
 export const getEventLogRepo = () => new PrismaEventLogRepo(getBackgroundTaskService());
 export const getWikiPageRepo = (companyId?: string) => new PrismaWikiPageRepo(getPermissionService(), companyId);
+export const getWikiSectionRepo = () => new PrismaWikiSectionRepo(getWikiPageRepo());
+export const getWikiKnowledgeGapRepo = () => new PrismaWikiKnowledgeGapRepo();
 export const getMessagingRepo = () =>
   new PrismaMessagingRepo(
     getRecordRepo(),
@@ -855,17 +868,18 @@ export const getCountSystemTasksInteractor = () => new CountSystemTasksInteracto
 export const getUserPendingAuthorizationTaskListener = () =>
   new UserPendingAuthorizationTaskListener(getMembershipTaskService());
 export const getWikiEmbeddingService = () => new WikiEmbeddingService(getAgentUsageService());
+export const getWikiSummaryService = () => new WikiSummaryService(getAgentUsageService());
 export const getWikiSemanticIndexService = () =>
-  new WikiSemanticIndexService(getWikiPageRepo(), getWikiEmbeddingService());
+  new WikiSemanticIndexService(getWikiSectionRepo(), getWikiEmbeddingService(), getWikiSummaryService());
 const getWikiSemanticIndexDispatcher = (trigger: "write" | "search") =>
-  new WikiSemanticIndexDispatcher(getWikiPageRepo(), getWikiEmbeddingService(), getBackgroundTaskService(), trigger);
+  new WikiSemanticIndexDispatcher(getWikiSectionRepo(), getWikiEmbeddingService(), getBackgroundTaskService(), trigger);
 export const getWikiSemanticIndexListener = () =>
   new WikiSemanticIndexListener(getWikiSemanticIndexDispatcher("write"));
-export const getDocsChunkRepo = () => new PrismaDocsChunkRepo();
+export const getDocsSectionRepo = () => new PrismaDocsSectionRepo();
 export const getDocsSemanticIndexService = () =>
-  new DocsSemanticIndexService(getDocsChunkRepo(), getAgentUsageService());
+  new DocsSemanticIndexService(getDocsSectionRepo(), getAgentUsageService());
 export const getDocsSemanticIndexDispatcher = () =>
-  new DocsSemanticIndexDispatcher(getDocsChunkRepo(), getBackgroundTaskService());
+  new DocsSemanticIndexDispatcher(getDocsSectionRepo(), getBackgroundTaskService());
 export const getRetrievalQueryEmbedder = (): QueryEmbedding | null => {
   const tenant = tenantStorage.getStore();
   if (!tenant?.user || tenant.bypass) return null;
@@ -887,13 +901,14 @@ export const getSearchCommandCatalogInteractor = () =>
     getRecordAccessPolicy(),
     getDataViewRepo(),
     getSearchCatalogRepo(),
-    getDocsChunkRepo(),
+    getDocsSectionRepo(),
     getRetrievalQueryEmbedder(),
     new SearchCatalogIndexDispatcher(getBackgroundTaskService()),
   );
 const getWikiSemanticRetrieval = () => ({
   embedder: new WikiSemanticQueryEmbedder(getWikiEmbeddingService()),
   scheduler: getWikiSemanticIndexDispatcher("search"),
+  gaps: getWikiKnowledgeGapRepo(),
 });
 
 const EXPECTED_EVENT_LISTENERS = [
@@ -1105,17 +1120,39 @@ export const getGetWidgetByIdInteractor = () => new GetWidgetByIdInteractor(getW
 export const getGetWikiPagesInteractor = () => new GetWikiPagesInteractor(getWikiPageRepo());
 export const getGetWikiCatalogInteractor = () => new GetWikiCatalogInteractor(getWikiPageRepo());
 export const getSearchWikiPagesInteractor = () =>
-  new SearchWikiPagesInteractor(getWikiPageRepo(), "stored", null, sharedWikiSearchOrders);
+  new SearchWikiPagesInteractor(getWikiSectionRepo(), "stored", null, sharedWikiSearchOrders);
 export const getSearchWikiKnowledgeInteractor = () =>
-  new SearchWikiPagesInteractor(getWikiPageRepo(), "stored", getWikiSemanticRetrieval(), sharedWikiSearchOrders);
+  new SearchWikiPagesInteractor(getWikiSectionRepo(), "stored", getWikiSemanticRetrieval(), sharedWikiSearchOrders);
 export const getSearchExternalizedWikiPagesInteractor = () =>
-  new SearchWikiPagesInteractor(getWikiPageRepo(), "externalized", getWikiSemanticRetrieval(), sharedWikiSearchOrders);
+  new SearchWikiPagesInteractor(
+    getWikiSectionRepo(),
+    "externalized",
+    getWikiSemanticRetrieval(),
+    sharedWikiSearchOrders,
+  );
+export const getGetWikiKnowledgeGapsInteractor = () => new GetWikiKnowledgeGapsInteractor(getWikiKnowledgeGapRepo());
+export const getPruneWikiKnowledgeGapsInteractor = () =>
+  new PruneWikiKnowledgeGapsInteractor(getWikiKnowledgeGapRepo());
+export const getSyncStaleWikiSectionsInteractor = () => new SyncStaleWikiSectionsInteractor(getWikiSectionRepo());
 export const getGetWikiPageInteractor = () => new GetWikiPageInteractor(getWikiPageRepo());
 export const getCreateWikiPagesInteractor = () => new CreateWikiPagesInteractor(getWikiPageRepo(), getEventService());
 export const getMoveWikiPageInteractor = () => new MoveWikiPageInteractor(getWikiPageRepo());
 export const getUpdateWikiPageInteractor = () => new UpdateWikiPageInteractor(getWikiPageRepo(), getEventService());
 export const getDeleteWikiPageInteractor = () =>
   new DeleteWikiPageInteractor(getWikiPageRepo(), getEventService(), getTrashRepo());
+const getWikiPageProposalRepo = () => new PrismaWikiPageProposalRepo();
+export const getProposeWikiPageChangesInteractor = () =>
+  new ProposeWikiPageChangesInteractor(getWikiPageProposalRepo());
+export const getGetWikiPageProposalsInteractor = () => new GetWikiPageProposalsInteractor(getWikiPageProposalRepo());
+export const getApproveWikiPageProposalInteractor = () =>
+  new ApproveWikiPageProposalInteractor(
+    getWikiPageProposalRepo(),
+    getCreateWikiPagesInteractor(),
+    getUpdateWikiPageInteractor(),
+    getDeleteWikiPageInteractor(),
+  );
+export const getRejectWikiPageProposalInteractor = () =>
+  new RejectWikiPageProposalInteractor(getWikiPageProposalRepo());
 export const getWikiWebsiteCrawlRepo = (): PrismaWikiWebsiteCrawlRepo =>
   new PrismaWikiWebsiteCrawlRepo(getWikiPageRepo());
 export const getFailWikiWebsiteCrawlInteractor = () => new FailWikiWebsiteCrawlInteractor(getWikiWebsiteCrawlRepo());

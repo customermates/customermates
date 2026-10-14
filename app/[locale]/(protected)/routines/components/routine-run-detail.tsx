@@ -23,6 +23,7 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { ROUTINE_RUN_STATUS_CHIP_COLOR } from "@/ee/routines/routine-run-chip-colors";
+import { IntlLink } from "@/i18n/navigation";
 import { routineRunDetail, routineRunStopReason } from "@/ee/routines/routine-run-outcome";
 
 import { RoutineRunTriggerCard } from "./routine-run-trigger-card";
@@ -81,6 +82,18 @@ export const RoutineRunDetail = observer(({ run, scrollContainerRef, store }: Pr
       </div>
 
       {stopReason && <Alert color="warning" description={stopReason} />}
+
+      {run.wikiProposalCount > 0 && (
+        <Alert
+          color="primary"
+          data-routine-run-wiki-proposals=""
+          description={t("RoutineDetail.wikiProposals", { count: run.wikiProposalCount })}
+        >
+          <Button asChild className="mt-2" size="sm" variant="secondary">
+            <IntlLink href="/wiki?proposals=open">{t("RoutineDetail.reviewWikiProposals")}</IntlLink>
+          </Button>
+        </Alert>
+      )}
 
       <RoutineRunTriggerCard recordFields={store.recordModel?.fields} run={run} />
 

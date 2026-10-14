@@ -1,9 +1,7 @@
-import type { DocsChunk } from "@/features/mcp-tools/docs-corpus";
-import type { DocsCorpus } from "@/features/mcp-tools/docs-corpus";
+import type { DocsCorpus, DocsSectionPart } from "@/features/mcp-tools/docs-corpus";
 import type { AgentUsageService } from "@/ee/agent-chat/agent-usage.service";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
-import type { DocsChunkRepo } from "@/features/mcp-tools/docs-chunk.repo";
-import type { DocsPendingChunk } from "@/features/mcp-tools/prisma-docs-chunk.repository";
+import type { DocsSectionRepo } from "@/features/mcp-tools/docs-section.repo";
 import type * as WikiEmbeddingServiceModule from "../wiki-embedding.service";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -11,14 +9,15 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const state = vi.hoisted(() => ({
   available: true,
   embedded: [] as string[][],
-  corpusChunks: [] as DocsChunk[],
+  corpusParts: [] as DocsSectionPart[],
 }));
 
 vi.mock("@/features/mcp-tools/docs-corpus", () => ({
   docsCorpus: () => ({
     buildHash: "fixture-build",
-    chunks: state.corpusChunks,
+    parts: state.corpusParts,
     sections: new Map(),
+    sectionParts: new Map(),
   }),
 }));
 
@@ -29,6 +28,7 @@ vi.mock("../wiki-embedding.service", async (importOriginal) => ({
 }));
 vi.mock("../wiki-embedding-model", () => ({
   WIKI_EMBEDDING_MODEL: "google/gemini-embedding-001",
+  WIKI_EMBEDDING_VERSION: "embedding-version",
   WIKI_EMBEDDING_BATCH_SIZE: 2,
   embeddingVectorLiteral: (vector: number[]) => `[${vector.join(",")}]`,
   wikiEmbeddingWorstCaseMicrocents: (texts: string[]) => texts.reduce((total, text) => total + text.length, 0) * 15,
@@ -53,24 +53,24 @@ import { docsEmbeddingBody } from "@/features/mcp-tools/docs-embedding-input";
 import { DocsSemanticIndexDispatcher } from "@/ee/wiki-retrieval/docs-semantic-index-dispatcher";
 import { DocsSemanticIndexService } from "../docs-semantic-index.service";
 
-function repo(pending: DocsPendingChunk[]) {
-  state.corpusChunks = pending.map((chunk, index) => ({
-    ...chunk,
+type PendingFixture = { contentHash: string; label: string; body: string };
+
+function repo(pending: PendingFixture[]) {
+  state.corpusParts = pending.map((part, index) => ({
+    contentHash: part.contentHash,
+    label: part.label,
+    text: part.body,
     locale: "en",
     source: "docs",
     slug: "fixture",
     sectionOrder: index,
-    chunkOrdinal: 0,
-    charOffset: 0,
+    partOrdinal: 0,
     anchor: "fixture",
-    pageTitle: chunk.label,
+    pageTitle: part.label,
     headingPath: [],
-    embeddingBody: docsEmbeddingBody(chunk.body, {
-      offset: 0,
-      text: chunk.body,
-    }),
+    embeddingBody: docsEmbeddingBody(part.body),
   }));
-  const queue = [...pending];
+  const queue = pending.map(({ contentHash }) => ({ contentHash }));
   return {
     ensureCorpus: vi.fn(() => Promise.resolve()),
     storedBuild: vi.fn((corpus: DocsCorpus) => Promise.resolve({ buildHash: corpus.buildHash, current: true })),
@@ -82,13 +82,13 @@ function repo(pending: DocsPendingChunk[]) {
     storeEmbeddings: vi.fn((_model: string, rows: Array<{ contentHash: string }>) => {
       for (const row of rows) {
         queue.splice(
-          queue.findIndex((chunk) => chunk.contentHash === row.contentHash),
+          queue.findIndex((part) => part.contentHash === row.contentHash),
           1,
         );
       }
       return Promise.resolve();
     }),
-  } satisfies DocsChunkRepo;
+  } satisfies DocsSectionRepo;
 }
 
 const accrued: unknown[] = [];
@@ -104,7 +104,7 @@ const usage = (admits: boolean) => ({
 beforeEach(() => {
   state.available = true;
   state.embedded = [];
-  state.corpusChunks = [];
+  state.corpusParts = [];
   accrued.length = 0;
 });
 
@@ -124,7 +124,7 @@ describe("documentation embedding index", () => {
     expect(chunks.ensureCorpus).toHaveBeenCalledWith(docsCorpus());
     expect(result).toEqual({ indexed: 3, remaining: false });
     expect(state.embedded).toEqual([["Webhooks > Signature\n\nHMAC", "Webhooks"], ["API keys\n\nx-api-key"]]);
-    expect(chunks.storeEmbeddings).toHaveBeenCalledWith("google/gemini-embedding-001", [
+    expect(chunks.storeEmbeddings).toHaveBeenCalledWith("embedding-version", [
       { contentHash: "a", embedding: "[0.5,0.25]" },
       { contentHash: "b", embedding: "[0.5,0.25]" },
     ]);
@@ -147,17 +147,17 @@ describe("documentation embedding index", () => {
     });
     expect(chunks.ensureCorpus).toHaveBeenCalledWith(
       expect.objectContaining({
-        chunks: expect.arrayContaining([expect.objectContaining({ body })]),
+        parts: expect.arrayContaining([expect.objectContaining({ text: body })]),
       }),
     );
-    expect(chunks.storeEmbeddings).toHaveBeenCalledExactlyOnceWith("google/gemini-embedding-001", [
+    expect(chunks.storeEmbeddings).toHaveBeenCalledExactlyOnceWith("embedding-version", [
       { contentHash: "a", embedding: "[0.5,0.25]" },
     ]);
   });
 
   it("rejects a pending hash outside the current corpus before reserving or calling a provider", async () => {
     const chunks = repo([{ contentHash: "a", label: "A", body: "a" }]);
-    chunks.pendingEmbeddings.mockResolvedValueOnce([{ contentHash: "foreign", label: "Other", body: "not canonical" }]);
+    chunks.pendingEmbeddings.mockResolvedValueOnce([{ contentHash: "foreign" }]);
     const budget = usage(true);
     await expect(
       new DocsSemanticIndexService(chunks, budget as unknown as AgentUsageService).indexPending(),

@@ -13,7 +13,7 @@ import {
 import { mockEntitlementService } from "@/tests/helpers/mock-entitlement-service";
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 
-import { SHIPPED_AGENT_MODEL } from "../model-catalog";
+import { AGENT_MODELS } from "../model-catalog";
 
 const mockUser = createMockUserWithPermissions([]);
 const request = vi.hoisted(() => ({ origin: "http://127.0.0.1:4016" }));
@@ -282,7 +282,7 @@ describe("agent access", () => {
     );
     expect(repo.claimAgentRunLease).toHaveBeenCalledBefore(usage.reserveUsage);
     expect(usage.reserveUsage).toHaveBeenCalledBefore(repo.admitAgentTurnOrThrow);
-    expect(MOCK_PRISMA_DB_MODULE.prisma.$transaction).toHaveBeenCalledOnce();
+    expect(MOCK_PRISMA_DB_MODULE.prisma.$transaction).toHaveBeenCalledTimes(2);
     expect(background.dispatchTracked).toHaveBeenCalledWith(
       "agent-turn",
       expect.objectContaining({ appBaseUrl: "http://127.0.0.1:4016" }),
@@ -510,11 +510,12 @@ describe("agent access", () => {
       expect(result.ok && result.data.disposition).toBe("run");
       expect(repo.findConversation).toHaveBeenCalledWith(CONVERSATION_ID);
       expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), {
-        model: SHIPPED_AGENT_MODEL,
+        model: AGENT_MODELS.routine,
         requiredContextBytes: expect.any(Number),
         creditCeilingMicrocents: expected,
         webSearchReserveMicrocents: 2_400_000,
       });
+      expect(usage.prepareTurn.mock.calls[0][2].model.reasoningEffort).toBe("medium");
       expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
         expect.objectContaining({
           conversationId: CONVERSATION_ID,
@@ -528,68 +529,6 @@ describe("agent access", () => {
           conversationId: CONVERSATION_ID,
         }),
       );
-    },
-  );
-
-  it.each([
-    { benchmark: "true", recorded: true },
-    { benchmark: undefined, recorded: false },
-  ])(
-    "asks the turn to record tool outputs only on a local benchmark server ($benchmark)",
-    async ({ benchmark, recorded }) => {
-      vi.stubEnv("LOCAL_AGENT_BENCHMARK", benchmark);
-      try {
-        const background = backgroundTasks();
-        const repo = {
-          normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
-          findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
-          claimAgentRunLease: vi.fn().mockResolvedValue("claimed"),
-          isAtAgentRunLimit: vi.fn().mockResolvedValue(false),
-          createAgentConversationForRun: vi.fn(),
-          deleteUnusedAgentConversation: vi.fn(),
-          recordAgentTurnExternalRun: vi.fn().mockResolvedValue(undefined),
-          findConversation: vi.fn().mockResolvedValue({
-            id: CONVERSATION_ID,
-            origin: "routine",
-            modelKey: null,
-            creditCeilingMicrocents: 2_000_000n,
-          }),
-          admitAgentTurnOrThrow: vi.fn().mockImplementation((args) =>
-            Promise.resolve({
-              conversationId: CONVERSATION_ID,
-              userMessageId: args.turn.userMessageId,
-              recentMessages: [
-                {
-                  id: args.turn.userMessageId,
-                  role: "user",
-                  parts: [{ type: "text", text: "Inspect the deal" }],
-                },
-              ],
-            }),
-          ),
-        };
-
-        await runWithTenant(mockUser, () =>
-          new SendAgentMessageInteractor(
-            repo as never,
-            usageService() as never,
-            mockEntitlementService(),
-            background as never,
-            mockRecordDiscovery(),
-            emptyWikiCatalog(),
-          ).invokeRoutine({
-            clientRequestId: CLIENT_REQUEST_ID,
-            conversationId: CONVERSATION_ID,
-            text: "Inspect the deal",
-            retry: false,
-          }),
-        );
-
-        const dispatched = background.dispatchTracked.mock.calls[0]?.[1] as Record<string, unknown>;
-        expect(dispatched.recordToolOutputs === true).toBe(recorded);
-      } finally {
-        vi.unstubAllEnvs();
-      }
     },
   );
 
@@ -685,11 +624,12 @@ describe("agent access", () => {
     expect(result.ok && result.data.disposition).toBe("run");
     expect(repo.findInteractiveConversation).toHaveBeenCalledWith(CONVERSATION_ID, undefined);
     expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), {
-      model: SHIPPED_AGENT_MODEL,
+      model: AGENT_MODELS.chat,
       requiredContextBytes: expect.any(Number),
       creditCeilingMicrocents: null,
       webSearchReserveMicrocents: 3_600_000,
     });
+    expect(usage.prepareTurn.mock.calls[0][2].model.reasoningEffort).toBe("low");
     expect(repo.admitAgentTurnOrThrow).toHaveBeenCalledWith(
       expect.not.objectContaining({ routineRunId: expect.anything() }),
     );
@@ -703,12 +643,9 @@ describe("agent access", () => {
     );
   });
 
-  it.each([
-    ["fast", true],
-    ["bench:retired-arm", false],
-  ] as const)(
-    "continues a conversation stored with the model key %s on the shipped model only when it is a retired catalog key",
-    async (storedKey, continues) => {
+  it.each(["balanced", "fast", "bench:retired-arm"])(
+    "continues a conversation stored with the model key %s on the shipped model",
+    async (storedKey) => {
       const background = backgroundTasks();
       const usage = usageService();
       const repo = {
@@ -754,20 +691,49 @@ describe("agent access", () => {
         retry: false,
       });
 
-      if (!continues) {
-        expect(result).toMatchObject({ ok: false });
-        expect(usage.prepareTurn).not.toHaveBeenCalled();
-        return;
-      }
       expect(result.ok && result.data.disposition).toBe("run");
       expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), {
-        model: SHIPPED_AGENT_MODEL,
+        model: AGENT_MODELS.chat,
         requiredContextBytes: expect.any(Number),
         creditCeilingMicrocents: null,
         webSearchReserveMicrocents: 3_600_000,
       });
     },
   );
+
+  it("refuses a requested model key outside the catalog before reserving credits", async () => {
+    const usage = usageService();
+    const repo = {
+      normalizeExpiredAgentRunLease: vi.fn().mockResolvedValue(undefined),
+      findAgentTurnRequestForAdmission: vi.fn().mockResolvedValue(null),
+      findInteractiveConversation: vi.fn().mockResolvedValue({
+        id: CONVERSATION_ID,
+        origin: "chat",
+        modelKey: null,
+        creditCeilingMicrocents: null,
+      }),
+      admitAgentTurnOrThrow: vi.fn(),
+    };
+
+    const result = await new SendAgentMessageInteractor(
+      repo as never,
+      usage as never,
+      mockEntitlementService(),
+      backgroundTasks() as never,
+      mockRecordDiscovery(),
+      emptyWikiCatalog(),
+    ).invoke({
+      clientRequestId: CLIENT_REQUEST_ID,
+      conversationId: CONVERSATION_ID,
+      modelKey: "bench:nano",
+      text: "Continue the investigation",
+      retry: false,
+    });
+
+    expect(result).toMatchObject({ ok: false });
+    expect(usage.prepareTurn).not.toHaveBeenCalled();
+    expect(repo.admitAgentTurnOrThrow).not.toHaveBeenCalled();
+  });
 
   it("does not query prior messages to decide which capabilities are available", async () => {
     const repo = {
@@ -816,7 +782,7 @@ describe("agent access", () => {
     expect(result.data).not.toHaveProperty("toolNames");
     expect(repo.listRecentMessages).not.toHaveBeenCalled();
     expect(usage.prepareTurn).toHaveBeenCalledWith(mockUser.id, expect.any(Date), {
-      model: SHIPPED_AGENT_MODEL,
+      model: AGENT_MODELS.chat,
       requiredContextBytes: expect.any(Number),
       creditCeilingMicrocents: null,
       webSearchReserveMicrocents: 3_600_000,
@@ -879,7 +845,7 @@ describe("agent access", () => {
     expect(usage.prepareTurn).not.toHaveBeenCalled();
     expect(usage.reserveUsage).not.toHaveBeenCalled();
     expect(repo.claimAgentRunLease).not.toHaveBeenCalled();
-    expect(MOCK_PRISMA_DB_MODULE.prisma.$transaction).not.toHaveBeenCalled();
+    expect(MOCK_PRISMA_DB_MODULE.prisma.$transaction).toHaveBeenCalledOnce();
   });
 
   it("fails closed when a completed replay has no client-renderable canonical content", async () => {

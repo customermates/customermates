@@ -17,10 +17,11 @@ import { type AgentUsageRepo } from "@/ee/agent-chat/agent-usage.repo";
 import { agentRoundWorstCaseMicrocents } from "../agent-budget-policy";
 import { buildAgentUsageSettlement } from "../agent-usage-settlement";
 import { computeCostMicrocents, promptTokensOf } from "../model-pricing";
-import { SHIPPED_AGENT_MODEL } from "../model-catalog";
+import { AGENT_MODELS } from "../model-catalog";
 
-const MODEL = SHIPPED_AGENT_MODEL;
+const MODEL = AGENT_MODELS.chat;
 const CREDIT = 1_000_000;
+const HAIKU = MODEL.modelId;
 
 const NOW = new Date("2026-08-06T12:00:00.000Z");
 const ANCHOR = new Date("2026-01-15T10:30:00.000Z");
@@ -373,7 +374,7 @@ describe("AgentUsageService admission and ledger", () => {
 
   it("never charges beyond the bounded reservation when reported usage exceeds the model budget", () => {
     const settlement = buildAgentUsageSettlement({
-      model: "gpt-5.6-luna",
+      model: HAIKU,
       tokens: {
         inputTokens: 1_000_000,
         outputTokens: 1_000_000,
@@ -396,7 +397,7 @@ describe("AgentUsageService admission and ledger", () => {
 
   it("releases the reservation when the gateway proves the provider never billed", () => {
     const settlement = buildAgentUsageSettlement({
-      model: "openai/gpt-5-nano",
+      model: HAIKU,
       tokens: {
         inputTokens: 0,
         outputTokens: 0,
@@ -423,8 +424,9 @@ describe("AgentUsageService admission and ledger", () => {
 
   it("charges the gateway's measured cost rather than the pinned estimate", () => {
     const settlement = buildAgentUsageSettlement({
-      model: "openai/gpt-5-nano",
-      provider: "azure",
+      model: HAIKU,
+      provider: "vertexAnthropic",
+      inferenceRegion: "eu",
       tokens: {
         inputTokens: 35_329,
         outputTokens: 2_945,
@@ -450,8 +452,9 @@ describe("AgentUsageService admission and ledger", () => {
 
   it("adds classifier charges to the measured turn cost as one auxiliary amount", () => {
     const settlement = buildAgentUsageSettlement({
-      model: "openai/gpt-5-nano",
-      provider: "azure",
+      model: HAIKU,
+      provider: "vertexAnthropic",
+      inferenceRegion: "eu",
       tokens: {
         inputTokens: 10,
         outputTokens: 10,
@@ -477,8 +480,9 @@ describe("AgentUsageService admission and ledger", () => {
 
   it("marks the turn cost estimated when a classifier charge was estimated", () => {
     const settlement = buildAgentUsageSettlement({
-      model: "openai/gpt-5-nano",
-      provider: "azure",
+      model: HAIKU,
+      provider: "vertexAnthropic",
+      inferenceRegion: "eu",
       tokens: {
         inputTokens: 10,
         outputTokens: 10,
@@ -503,7 +507,7 @@ describe("AgentUsageService admission and ledger", () => {
 
   it("charges a classifier call even when no provider round was billed", () => {
     const settlement = buildAgentUsageSettlement({
-      model: "openai/gpt-5-nano",
+      model: HAIKU,
       tokens: {
         inputTokens: 0,
         outputTokens: 0,
@@ -531,7 +535,7 @@ describe("AgentUsageService admission and ledger", () => {
     for (const costMicrocents of [-1, 1.5]) {
       expect(() =>
         buildAgentUsageSettlement({
-          model: "openai/gpt-5-nano",
+          model: HAIKU,
           tokens: {
             inputTokens: 0,
             outputTokens: 0,
@@ -553,8 +557,9 @@ describe("AgentUsageService admission and ledger", () => {
 
   it("quarantines an unreadable cost against the pinned estimate instead of throwing", () => {
     const settlement = buildAgentUsageSettlement({
-      model: "openai/gpt-5-nano",
-      provider: "azure",
+      model: HAIKU,
+      provider: "vertexAnthropic",
+      inferenceRegion: "eu",
       tokens: {
         inputTokens: 35_329,
         outputTokens: 2_945,
@@ -571,7 +576,7 @@ describe("AgentUsageService admission and ledger", () => {
     });
 
     expect(settlement).toMatchObject({
-      costMicrocents: 368_173,
+      costMicrocents: 3_158_474,
       costSource: "estimated",
       state: "settled",
     });
@@ -581,7 +586,7 @@ describe("AgentUsageService admission and ledger", () => {
     "preserves known charges in a mixed estimate, preferring measured total %s",
     (measured) => {
       const settlement = buildAgentUsageSettlement({
-        model: "openai/gpt-5-nano",
+        model: HAIKU,
         tokens: {
           inputTokens: 1,
           outputTokens: 1,
@@ -612,7 +617,7 @@ describe("AgentUsageService admission and ledger", () => {
     (estimatedCostMicrocents) => {
       expect(() =>
         buildAgentUsageSettlement({
-          model: "openai/gpt-5-nano",
+          model: HAIKU,
           tokens: {
             inputTokens: 1,
             outputTokens: 1,
@@ -637,29 +642,30 @@ describe("AgentUsageService admission and ledger", () => {
       {
         inputTokens: 27,
         outputTokens: 251,
-        cacheReadTokens: 143_000,
+        cacheReadTokens: 50_000,
         cacheWriteTokens: 37_210,
       },
       {
         inputTokens: 0,
         outputTokens: 276,
-        cacheReadTokens: 144_247,
+        cacheReadTokens: 87_484,
         cacheWriteTokens: 0,
       },
     ];
     const aggregate = {
       inputTokens: 27,
       outputTokens: 527,
-      cacheReadTokens: 287_247,
+      cacheReadTokens: 137_484,
       cacheWriteTokens: 37_210,
     };
 
-    expect(promptTokensOf(aggregate)).toBeGreaterThan(272_000);
-    for (const step of steps) expect(promptTokensOf(step)).toBeLessThan(272_000);
+    expect(promptTokensOf(aggregate)).toBeGreaterThan(100_001);
+    for (const step of steps) expect(promptTokensOf(step)).toBeLessThan(100_001);
 
     const settlement = buildAgentUsageSettlement({
-      model: "openai/gpt-5.6-luna",
-      provider: "azure",
+      model: HAIKU,
+      provider: "vertexAnthropic",
+      inferenceRegion: "eu",
       tokens: aggregate,
       reservedMicrocents: 40 * CREDIT,
       providerCharge: {
@@ -670,19 +676,19 @@ describe("AgentUsageService admission and ledger", () => {
       },
     });
 
-    expect(settlement.costMicrocents).toBe(1_568_524);
-    expect(computeCostMicrocents("openai/gpt-5.6-luna", aggregate, "azure")).toBe(3_105_428);
-    expect(settlement.chargedMicrocents).toBe(1_568_524);
+    expect(settlement.costMicrocents).toBe(692_152);
+    expect(computeCostMicrocents(HAIKU, aggregate, "vertexAnthropic", "eu")).toBe(3_460_760);
+    expect(settlement.chargedMicrocents).toBe(692_152);
   });
 
   it("charges the exact cache-write cost, not a rounded-up second credit", () => {
     const settlement = buildAgentUsageSettlement({
-      model: "gpt-5.6-luna",
+      model: HAIKU,
       tokens: {
         inputTokens: 0,
         outputTokens: 0,
         cacheReadTokens: 0,
-        cacheWriteTokens: 40_001,
+        cacheWriteTokens: 72_728,
       },
       reservedMicrocents: 44 * CREDIT,
       providerCharge: {
@@ -693,8 +699,8 @@ describe("AgentUsageService admission and ledger", () => {
       },
     });
 
-    expect(settlement.costMicrocents).toBe(1_000_025);
-    expect(settlement.chargedMicrocents).toBe(1_000_025);
+    expect(settlement.costMicrocents).toBe(1_000_010);
+    expect(settlement.chargedMicrocents).toBe(1_000_010);
     expect(settlement.policyBreach).toBe(false);
   });
 

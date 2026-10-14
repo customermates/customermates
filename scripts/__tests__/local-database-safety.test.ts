@@ -8,6 +8,7 @@ import {
   isStrictlyLocalDatabaseEnvironment,
   LIBPQ_ROUTING_VARIABLES,
   LOCAL_OPERATOR_SEED_OPT_IN,
+  requireSingleLocalDatabase,
   shouldIncludeLocalOperatorAccess,  shouldIncludeOperatorSeedAccess,
 } from "../local-database-safety";
 
@@ -152,4 +153,28 @@ describe("operator seed access", () => {
     expect(shouldIncludeOperatorSeedAccess({ DATABASE_URL: localUrl })).toBe(false);
   });
 });
+
+});
+
+describe("single local database", () => {
+  const local = { DATABASE_URL: LOCAL_DATABASE_URL, DIRECT_URL: LOCAL_DATABASE_URL };
+
+  it("returns the selected loopback database when both URLs address it", () => {
+    expect(requireSingleLocalDatabase(local)).toBe(new URL(LOCAL_DATABASE_URL).href);
+  });
+
+  it("rejects remote hosts, routing overrides, libpq routing and deployment markers", () => {
+    expect(() => requireSingleLocalDatabase({ ...local, DATABASE_URL: "postgresql://user:pw@db.example.com:5432/app" })).toThrow(/loopback/);
+    for (const field of ["DATABASE_URL", "DIRECT_URL"])
+      expect(() => requireSingleLocalDatabase({ ...local, [field]: `${LOCAL_DATABASE_URL}?host=remote` })).toThrow(/query parameters/);
+    expect(() => requireSingleLocalDatabase({ ...local, PGHOST: "remote" })).toThrow(/PGHOST/);
+    expect(() => requireSingleLocalDatabase({ ...local, VERCEL_ENV: "production" })).toThrow(/deployment environment/);
+  });
+
+  it("rejects two different databases and a missing pooled URL", () => {
+    expect(() =>
+      requireSingleLocalDatabase({ ...local, DIRECT_URL: LOCAL_DATABASE_URL.replace("customermates", "other") }),
+    ).toThrow(/same local database/);
+    expect(() => requireSingleLocalDatabase({ DIRECT_URL: LOCAL_DATABASE_URL })).toThrow(/valid URL/);
+  });
 });

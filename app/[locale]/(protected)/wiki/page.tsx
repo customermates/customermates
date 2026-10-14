@@ -48,6 +48,7 @@ export default async function WikiPage({ searchParams }: Props) {
         initialSetupState={setupState}
         layoutInitial={layout?.columnWidths}
         listPage={pages}
+        openProposals={firstString(raw.proposals) === "open"}
         pinnedPage={pinnedPage}
         requestedPageId={requestedId}
         unavailable={Boolean(requestedId && !selectedPage)}

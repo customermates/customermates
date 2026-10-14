@@ -17,7 +17,7 @@ import {
   failUnavailable,
 } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { SHIPPED_AGENT_MODEL } from "@/ee/agent-chat/model-catalog";
+import { AGENT_MODELS } from "@/ee/agent-chat/model-catalog";
 import { liveRecordModel } from "@/features/records/record-model-snapshot";
 import { generateStructuredObject, structuredCallWorstCaseMicrocents } from "@/ee/agent-chat/structured-model-call";
 import {
@@ -67,7 +67,7 @@ export class DraftCalculationInteractor extends AuthenticatedInteractor<
       return failNotFound(CustomErrorCode.recordTypeNotFound);
     const request = calculationDraftRequest({ model, ...input });
     const now = new Date();
-    const engine = SHIPPED_AGENT_MODEL;
+    const engine = AGENT_MODELS.chat;
     const grant = await this.usage.prepareRetrieval(this.user.id, now, "calculationDraft");
     const reservation = grant
       ? await this.usage.reserveRetrieval({

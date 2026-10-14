@@ -45,7 +45,7 @@ import { onDemandToolsetOfTool, toolNamesOfToolset } from "./agent-toolsets";
 
 import { AgentTourSchema } from "./agent-tours";
 import { AGENT_UI_TOOL_NAMES, toAgentUiCommandInput } from "./agent-ui-command";
-import { isReadOnlyTool, requiresApproval } from "./gated-tools";
+import { isReadOnlyTool, requiresApprovalOnSurface } from "./gated-tools";
 import { importWebsiteTool } from "@/ee/wiki-crawl/wiki-import-tool";
 import { providerWireInputSchema } from "./provider-safe-json-schema";
 import { recordToolRisk } from "./record-tool-risk";
@@ -71,6 +71,7 @@ import { hostedSectionRankers } from "./docs-rerank";
 import { DataViewProposalSchema } from "@/core/data-view/data-view-proposal.schema";
 import { proposingManageDataViewsTool } from "@/features/mcp-tools/data-view.mcp-tools";
 import { verifyAgentRecordUpdate } from "./agent-write-verification";
+import { routineManageWikiPagesTool } from "./agent-wiki-proposals";
 
 export type AgentToolOptions = {
   locale?: string;
@@ -108,6 +109,7 @@ export type AgentToolDeps = {
   resultMaxChars: number;
   pageRoute?: string | null;
   latestUserMessage?: string | null;
+  conversationId?: string;
 };
 
 function withCallerContext(tools: ToolSet, deps: AgentToolDeps): ToolSet {
@@ -647,7 +649,8 @@ function crmTool(
         if (mismatch) return { ok: false, result: mismatch };
         const approvalContext = await deps.resolveApprovalContext(mcp.name, input);
         if (!approvalContext.ok) return { ok: false, result: approvalContext.result };
-        if (!requiresApproval(internalToolIdentity(mcp.name), mcp, approvalContext.input)) return complete();
+        if (!requiresApprovalOnSurface(internalToolIdentity(mcp.name), mcp, approvalContext.input, surface))
+          return complete();
         return runGated(deps, surface, toolCallId, mcp.name, approvalContext.input, complete);
       }, resultMaxChars);
     },
@@ -795,7 +798,12 @@ function wikiWebsiteSetupTools(
 
 export function getAgentAiTools(deps: AgentToolDeps, options: AgentToolOptions = {}): ToolSet {
   const rankers = hostedSectionRankers(deps.latestUserMessage ?? null);
-  const crm = hostedMcpTools().map((mcp) => [mcp.name, crmTool(mcp, deps, options.surface, rankers)] as const);
+  const unattended = options.surface !== undefined && isUnattendedSurface(options.surface);
+  const crm = hostedMcpTools()
+    .map((mcp) =>
+      unattended && mcp.name === manageWikiPagesTool.name ? routineManageWikiPagesTool(deps.conversationId) : mcp,
+    )
+    .map((mcp) => [mcp.name, crmTool(mcp, deps, options.surface, rankers)] as const);
   return withCallerContext(
     {
       ...Object.fromEntries(crm),

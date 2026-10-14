@@ -1,8 +1,10 @@
 import type { AgentToolIdentity } from "./tool-identity";
+import type { AgentSurface } from "./agent-surface-policy";
 
 import { LOAD_TOOLSET_TOOL_NAME } from "./agent-toolset-routing";
 import { agentToolIdentityKey, internalToolIdentity, isInternalToolIdentity } from "./tool-identity";
 import { recordToolRisk } from "./record-tool-risk";
+import { isWikiProposalWrite } from "./agent-wiki-proposal-policy";
 
 export function isReadOnlyTool(tool: { annotations?: Record<string, boolean> }) {
   return tool.annotations?.readOnlyHint === true;
@@ -58,8 +60,8 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
     readOnlyActions: ["list", "runs"],
   },
   manage_wiki_pages: {
-    approvalFreeActions: ["list", "search", "get", "create", "update"],
-    readOnlyActions: ["list", "search", "get"],
+    approvalFreeActions: ["list", "search", "get", "gaps", "create", "update"],
+    readOnlyActions: ["list", "search", "get", "gaps"],
   },
   move_email_thread: { approvalFree: true },
   linkedin_manage_sales_lists: {
@@ -136,4 +138,14 @@ export function requiresApproval(
   if ("inputRisk" in policy) return !["read", "write"].includes(policy.inputRisk(input) ?? "sensitive");
 
   return !isApprovalFreeActionCall(identity, input);
+}
+
+export function requiresApprovalOnSurface(
+  identity: AgentToolIdentity,
+  tool: { annotations?: Record<string, boolean> },
+  input: unknown,
+  surface: AgentSurface | undefined,
+) {
+  if (isWikiProposalWrite(identity, input, surface)) return false;
+  return requiresApproval(identity, tool, input);
 }

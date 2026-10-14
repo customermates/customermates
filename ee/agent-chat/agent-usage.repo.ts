@@ -5,6 +5,7 @@ import type {
   AgentWorkspaceCreditPool,
   AgentRetrievalGrant,
   AgentRetrievalCharge,
+  AgentTurnCreditState,
 } from "./agent-usage.service";
 
 export abstract class AgentUsageRepo {
@@ -35,18 +36,21 @@ export abstract class AgentUsageRepo {
       createdAt: Date;
     } | null;
   } | null>;
-  abstract reserveUsageEventUnscoped(event: {
-    id: string;
-    companyId: string;
-    userId: string;
-    sessionId: string;
-    reservedMicrocents: number;
-    planSnapshot: SubscriptionPlan;
-    subscriptionStatusSnapshot: SubscriptionStatus;
-    allowanceMicrocentsSnapshot: number;
-    periodStart: Date;
-    periodEnd: Date;
-  }): Promise<boolean>;
+  abstract reserveUsageEventUnscoped(
+    event: {
+      id: string;
+      companyId: string;
+      userId: string;
+      sessionId: string;
+      reservedMicrocents: number;
+      planSnapshot: SubscriptionPlan;
+      subscriptionStatusSnapshot: SubscriptionStatus;
+      allowanceMicrocentsSnapshot: number;
+      periodStart: Date;
+      periodEnd: Date;
+    },
+    creditState?: AgentTurnCreditState,
+  ): Promise<boolean>;
   abstract releaseUsageReservationUnscoped(args: {
     id: string;
     companyId: string;

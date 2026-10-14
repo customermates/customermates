@@ -225,6 +225,23 @@
             "running": "Updating your profile"
           }
         },
+        "proposals": {
+          "create": {
+            "done": "{count, plural, one {Proposed a new page} other {Proposed # new pages}}",
+            "error": "{count, plural, one {Couldn’t propose a new page} other {Couldn’t propose # new pages}}",
+            "running": "{count, plural, one {Proposing a new page} other {Proposing # new pages}}"
+          },
+          "delete": {
+            "done": "Proposed a page deletion",
+            "error": "Couldn’t propose a page deletion",
+            "running": "Proposing a page deletion"
+          },
+          "update": {
+            "done": "Proposed a page edit",
+            "error": "Couldn’t propose a page edit",
+            "running": "Proposing a page edit"
+          }
+        },
         "records": {
           "analyze": {
             "done": "Analyzed {resource}",
@@ -1250,6 +1267,9 @@
       "wikiPagePinned": "The Operating Guide stays first. Move another page instead.",
       "wikiPageUpdateEmpty": "Provide at least one field to update the page.",
       "wikiProcedureNeedsSteps": "A procedure needs numbered steps.",
+      "wikiProposalNotFound": "This proposal no longer exists.",
+      "wikiProposalReviewed": "Someone already reviewed this proposal.",
+      "wikiProposalStale": "The page changed after Mate made this proposal. Reject the proposal, or ask Mate to propose the change again.",
       "wikiWhenToUseRequired": "A procedure needs a short description of when to use it."
     },
     "events": {
@@ -3995,6 +4015,7 @@
     "ownerUnavailableReadOnly": "This routine has no available owner, so it stays paused and read-only. A company administrator can delete it.",
     "ranAs": "Ran as {owner}",
     "readOnlyTitle": "Read-only access",
+    "reviewWikiProposals": "Review",
     "runDetails": "Run details",
     "runNoTranscript": "No transcript is available for this run.",
     "runQueued": "This run is queued. Its transcript will appear when the assistant starts.",
@@ -4014,7 +4035,8 @@
     "triggerChangedFieldsMore": "and more",
     "triggerRecord": "Record",
     "triggerThread": "Conversation",
-    "usageShare": "{used} of monthly Mate usage"
+    "usageShare": "{used} of monthly Mate usage",
+    "wikiProposals": "{count, plural, one {Proposed # Knowledge Base change for review} other {Proposed # Knowledge Base changes for review}}"
   },
   "RoutineModal": {
     "at": "at",
@@ -4467,6 +4489,33 @@
     "pagesLabel": "Knowledge Base pages",
     "pageTitle": "Page title",
     "previous": "Previous",
+    "proposals": {
+      "action": {
+        "create": "New page",
+        "delete": "Page deletion",
+        "update": "Page edit"
+      },
+      "approve": "Approve",
+      "approved": "Proposal approved",
+      "back": "All proposals",
+      "current": "Current",
+      "deleteNotice": "Approving permanently deletes this page.",
+      "description": "Changes Mate suggested while running routines. The Knowledge Base changes only when you approve one.",
+      "empty": "No proposals are waiting for review.",
+      "entry": "Proposals",
+      "fromRoutine": "From {routine}",
+      "fromRoutineDeleted": "From a deleted routine",
+      "loadFailed": "Proposals could not be loaded.",
+      "needsPermission": "Your role cannot apply this change.",
+      "notYetCreated": "This page does not exist yet.",
+      "pageMissing": "This page no longer exists.",
+      "proposed": "Proposed",
+      "reject": "Reject",
+      "rejected": "Proposal rejected",
+      "stale": "This page changed after Mate proposed this. Reject it, or ask Mate to propose the change again.",
+      "staleShort": "Page changed",
+      "title": "Proposals"
+    },
     "reload": "Reload page",
     "search": "Search pages…",
     "unavailableBody": "This page was deleted or you do not have access to it. Choose another page.",

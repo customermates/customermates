@@ -1,15 +1,29 @@
-import type { WikiSemanticChunk } from "@/features/wiki/wiki-chunks";
-import type { WikiSemanticIndexPage } from "./wiki-semantic-index.service";
+import type { WikiSectionRow } from "@/features/wiki/wiki-sections";
+import type { WikiSectionSync } from "@/features/wiki/search-wiki-pages.repo";
+import type { WikiIndexPage } from "./wiki-semantic-index.service";
 
 export abstract class WikiSemanticIndexRepo {
   abstract semanticIndexAvailable(): Promise<boolean>;
-  abstract claimStaleSemanticPages(model: string, limit: number): Promise<WikiSemanticIndexPage[]>;
-  abstract semanticEmbeddingsByHash(pageId: string, model: string): Promise<Map<string, string>>;
-  abstract replaceSemanticChunks(args: {
+  abstract syncStaleSections(limit?: number): Promise<WikiSectionSync>;
+  abstract claimStaleIndexPages(version: string, limit: number): Promise<WikiIndexPage[]>;
+  abstract sectionEmbeddingsByHash(pageId: string, version: string): Promise<Map<string, string>>;
+  abstract storeSummary(args: {
     pageId: string;
     pageUpdatedAt: Date;
-    model: string;
-    chunks: Array<WikiSemanticChunk & { embedding: string }>;
+    summary: string | null;
+    contentHash: string;
   }): Promise<boolean>;
-  abstract releaseSemanticClaims(pageIds: string[]): Promise<void>;
+  abstract replaceSections(args: {
+    pageId: string;
+    pageUpdatedAt: Date;
+    pageTitle: string;
+    summary: string | null;
+    rows: WikiSectionRow[];
+    embeddings: ReadonlyMap<string, string>;
+    version: string | null;
+    onlyIfStale: boolean;
+  }): Promise<boolean>;
+  abstract releaseIndexClaims(pageIds: string[]): Promise<void>;
+  abstract hasStaleIndexPages(version: string): Promise<boolean>;
+  abstract claimIndexSchedule(intervalSeconds: number): Promise<boolean>;
 }

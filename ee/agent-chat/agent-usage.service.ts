@@ -5,9 +5,11 @@ import { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma
 
 import { env } from "@/env";
 import type { Data } from "@/core/validation/validation.utils";
+import { getTransactionClient } from "@/core/decorators/transaction-context";
 
 import {
   AGENT_RETRIEVAL_RESERVATION_TTL_MS,
+  type AgentCreditEntitlement,
   agentMicrocentsToCredits,
   agentUsageMultiplier,
   memberCreditHeadroomMicrocents,
@@ -126,11 +128,22 @@ export type AgentTurnCreditReservation = {
   budget: AgentTurnBudget;
 };
 
+type AgentUsageUser = NonNullable<Awaited<ReturnType<AgentUsageRepo["findUserForUsageUnscoped"]>>>;
+
+export type AgentTurnCreditState = {
+  readIn: unknown;
+  user: AgentUsageUser;
+  entitlement: AgentCreditEntitlement;
+  ownCommittedMicrocents: number;
+  pool: AgentWorkspaceCreditPool | null;
+};
+
 type ResolvedUsageState = {
-  user: NonNullable<Awaited<ReturnType<AgentUsageRepo["findUserForUsageUnscoped"]>>>;
+  user: AgentUsageUser;
   summary: AgentUsageSummary;
   remainingMicrocents: number;
   limitMicrocents: number;
+  creditState: AgentTurnCreditState | null;
 };
 
 function usagePct(used: number, limit: number) {
@@ -165,6 +178,7 @@ export class AgentUsageService {
         user,
         remainingMicrocents: 0,
         limitMicrocents: 0,
+        creditState: null,
         summary: {
           creditsUsed: 0,
           creditsRemaining: 0,
@@ -234,6 +248,13 @@ export class AgentUsageService {
       user,
       remainingMicrocents,
       limitMicrocents,
+      creditState: {
+        readIn: getTransactionClient() ?? null,
+        user,
+        entitlement,
+        ownCommittedMicrocents: usage.usedMicrocents,
+        pool,
+      },
       summary: {
         creditsUsed: agentMicrocentsToCredits(usedMicrocents),
         creditsRemaining: agentMicrocentsToCredits(remainingMicrocents),
@@ -266,6 +287,7 @@ export class AgentUsageService {
   ): Promise<{
     summary: AgentUsageSummary;
     reservation: AgentTurnCreditReservation | null;
+    creditState?: AgentTurnCreditState;
   }> {
     const state = await this.resolveUsageState(userId, now);
     if (state.summary.blockedReason) return { summary: state.summary, reservation: null };
@@ -312,6 +334,7 @@ export class AgentUsageService {
         periodEnd: state.summary.resetAt,
         budget,
       },
+      ...(state.creditState ? { creditState: state.creditState } : {}),
     };
   }
 
@@ -474,8 +497,9 @@ export class AgentUsageService {
     companyId: string;
     userId: string;
     reservation: AgentTurnCreditReservation;
+    creditState?: AgentTurnCreditState;
   }): Promise<boolean> {
-    return this.repo.reserveUsageEventUnscoped({
+    const event = {
       id: args.reservationId,
       companyId: args.companyId,
       userId: args.userId,
@@ -486,7 +510,10 @@ export class AgentUsageService {
       allowanceMicrocentsSnapshot: args.reservation.allowanceMicrocentsSnapshot,
       periodStart: args.reservation.periodStart,
       periodEnd: args.reservation.periodEnd,
-    });
+    };
+    return args.creditState
+      ? this.repo.reserveUsageEventUnscoped(event, args.creditState)
+      : this.repo.reserveUsageEventUnscoped(event);
   }
 
   async releaseReservation(args: { reservationId: string; companyId: string; userId: string; now?: Date }) {

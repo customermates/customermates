@@ -1,5 +1,5 @@
 import type { QueryEmbedding, QueryVector } from "@/core/retrieval/retrieval-pipeline";
-import type { DocsChunkRepo } from "@/features/mcp-tools/docs-chunk.repo";
+import type { DocsSectionRepo } from "@/features/mcp-tools/docs-section.repo";
 import type { RecordRepo } from "@/features/records/record.repo";
 import type { RecordAccessPolicy } from "@/features/records/record-access";
 import type { Validated } from "@/core/validation/validation.utils";
@@ -18,6 +18,7 @@ import { createHash } from "node:crypto";
 import * as Sentry from "@sentry/nextjs";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { WIKI_EMBEDDING_MODEL } from "@/ee/wiki-retrieval/wiki-embedding-model";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
@@ -77,7 +78,7 @@ export class SearchCommandCatalogInteractor extends AuthenticatedInteractor<
     private policy: RecordAccessPolicy,
     private catalog: CommandCatalogRepo,
     private searchCatalog: SearchCatalogRepo,
-    private docs: DocsChunkRepo,
+    private docs: DocsSectionRepo,
     private embedQuery: QueryEmbedding | null,
     private scheduler: SearchCatalogIndexScheduler,
   ) {
@@ -167,7 +168,7 @@ export class SearchCommandCatalogInteractor extends AuthenticatedInteractor<
       locale,
       targetIds,
       vector: vector.vector,
-      model: vector.model,
+      model: WIKI_EMBEDDING_MODEL,
       minSimilarity: SEMANTIC_MATCH_MIN_SIMILARITY,
       limit: CATALOG_MATCH_LIMIT,
     });
@@ -180,7 +181,7 @@ export class SearchCommandCatalogInteractor extends AuthenticatedInteractor<
     const rows = await this.docs.semanticSections(
       { buildHash: build.buildHash, locale: docsLocale, sources: ["docs"] },
       vector.vector,
-      vector.model,
+      vector.version,
       limit,
     );
     return (rows ?? []).flatMap((row) => {

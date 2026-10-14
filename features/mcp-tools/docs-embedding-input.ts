@@ -1,29 +1,29 @@
-import { retrievalChunkText, type RetrievalWindow } from "@/core/retrieval/retrieval-chunks";
+import { retrievalEmbeddingText } from "@/core/retrieval/retrieval-sections";
 
-export const DOCS_EMBEDDING_FORMAT = "docs-embedding-v2";
+export const DOCS_EMBEDDING_FORMAT = "docs-embedding-v3";
 
-type EmbeddingChunk = {
+type EmbeddingPart = {
   contentHash: string;
   label: string;
   embeddingBody: string;
 };
 
-export function docsEmbeddingBody(body: string, window: RetrievalWindow): string {
-  return body.slice(window.offset, window.offset + window.text.length).trim();
+export function docsEmbeddingBody(text: string): string {
+  return text.trim();
 }
 
-export function docsEmbeddingText(chunk: Pick<EmbeddingChunk, "label" | "embeddingBody">): string {
-  return retrievalChunkText(chunk.label, chunk.embeddingBody);
+export function docsEmbeddingText(part: Pick<EmbeddingPart, "label" | "embeddingBody">): string {
+  return retrievalEmbeddingText(part.label, part.embeddingBody);
 }
 
 export function docsPendingEmbeddingTexts(
-  corpus: { chunks: readonly EmbeddingChunk[] },
+  corpus: { parts: readonly EmbeddingPart[] },
   pending: readonly { contentHash: string }[],
 ): string[] {
-  const byHash = new Map(corpus.chunks.map((chunk) => [chunk.contentHash, chunk]));
+  const byHash = new Map(corpus.parts.map((part) => [part.contentHash, part]));
   return pending.map(({ contentHash }) => {
-    const chunk = byHash.get(contentHash);
-    if (!chunk) throw new Error("Pending documentation embedding is absent from the current corpus.");
-    return docsEmbeddingText(chunk);
+    const part = byHash.get(contentHash);
+    if (!part) throw new Error("Pending documentation embedding is absent from the current corpus.");
+    return docsEmbeddingText(part);
   });
 }

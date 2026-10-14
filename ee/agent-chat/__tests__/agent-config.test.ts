@@ -111,7 +111,7 @@ describe("GetAgentConfigInteractor", () => {
     ).invoke();
     await vi.waitFor(() => expect(repo.normalizeExpiredAgentRunLease).toHaveBeenCalledTimes(1));
 
-    expect(repo.normalizeExpiredAgentRunLease).toHaveBeenCalledWith(expect.any(Date), "google/gemini-3.5-flash-lite");
+    expect(repo.normalizeExpiredAgentRunLease).toHaveBeenCalledWith(expect.any(Date), "anthropic/claude-haiku-5.5");
     expect(usageService.getUsageSummary).not.toHaveBeenCalled();
     expect(repo.getSuggestionSignals).not.toHaveBeenCalled();
     expect(recordSignals.read).not.toHaveBeenCalled();

@@ -18,9 +18,16 @@ import { createTestRoutineRepo } from "@/tests/helpers/record-delivery";
 const user = createMockUserWithPermissions([{ resource: Resource.routines, action: Action.readAll }]);
 const createdAt = new Date("2026-09-08T16:00:00.000Z");
 
-function storedRun(args: { id: string; conversationId: string | null; turnRequestId: string | null }) {
+function storedRun(args: {
+  id: string;
+  conversationId: string | null;
+  turnRequestId: string | null;
+  wikiProposals?: number;
+}) {
+  const { wikiProposals = 0, ...run } = args;
   return {
-    ...args,
+    ...run,
+    _count: { wikiProposals },
     routineId: "routine-1",
     executedByUserId: user.id,
     executedByName: "Routine Owner",
@@ -54,7 +61,7 @@ describe("PrismaRoutineRepo run projection", () => {
         conversationId: "conversation-1",
         turnRequestId: "turn-original",
       }),
-      storedRun({ id: "run-2", conversationId: null, turnRequestId: null }),
+      storedRun({ id: "run-2", conversationId: null, turnRequestId: null, wikiProposals: 2 }),
       storedRun({
         id: "run-lookahead",
         conversationId: "conversation-2",
@@ -88,6 +95,11 @@ describe("PrismaRoutineRepo run projection", () => {
       { id: "run-2", stopReason: null },
     ]);
     expect(result.nextCursor).toEqual(expect.any(String));
+    expect(routineRunQuery?.select).toMatchObject({ _count: { select: { wikiProposals: true } } });
+    expect(result.runs.map(({ id, wikiProposalCount }) => ({ id, wikiProposalCount }))).toEqual([
+      { id: "run-1", wikiProposalCount: 0 },
+      { id: "run-2", wikiProposalCount: 2 },
+    ]);
   });
 
   it("ignores a linked turn whose owner or conversation does not match the run", async () => {

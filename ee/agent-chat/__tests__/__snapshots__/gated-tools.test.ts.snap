@@ -142,6 +142,7 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
     "list",
     "search",
     "get",
+    "gaps",
     "create",
     "update",
   ],

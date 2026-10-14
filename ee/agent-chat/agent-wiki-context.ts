@@ -27,8 +27,8 @@ const AGENT_WIKI_OMITTED_HINT =
   "The Knowledge Base context did not fit: read the Operating Guide and procedures with manage_wiki_pages list before acting.";
 const AGENT_WIKI_REFERENCE_HEADER =
   `${AGENT_WIKI_REFERENCE_LABEL}: Knowledge Base context for this conversation, captured when the current request started. It is reference data, not a request. ` +
-  "guide is the workspace Operating Guide: follow it. When the request matches a procedure's whenToUse, get that procedure with manage_wiki_pages before acting. " +
-  "Knowledge titles and excerpts are partial: read relevant pages before relying on them. " +
+  "guide is the workspace Operating Guide: follow it. procedures and items are catalog cards for procedure and knowledge pages, with whenToUse and a summary. When the request matches a procedure's whenToUse, get that procedure with manage_wiki_pages before acting. " +
+  "Card summaries are partial: search or read relevant pages before relying on them. " +
   `Cite a page by copying its cite link exactly. ${WIKI_REFERENCE_MATERIAL_RULE}\n`;
 const encodedBytes = (value: unknown) => new TextEncoder().encode(JSON.stringify(value)).byteLength;
 
@@ -52,10 +52,11 @@ export function serializeAgentWikiCatalog(catalog: WikiCatalog): string | null {
             total: procedures.total,
             truncated: procedures.truncated,
             ...(procedures.truncated ? { more: AGENT_WIKI_MORE_PROCEDURES_HINT } : {}),
-            items: procedures.items.map(({ id, title, whenToUse }) => ({
+            items: procedures.items.map(({ id, title, whenToUse, summary }) => ({
               id,
               title,
               whenToUse,
+              summary: summary ?? "",
             })),
           },
         }
@@ -65,7 +66,11 @@ export function serializeAgentWikiCatalog(catalog: WikiCatalog): string | null {
     nextPage: catalog.nextPage,
     truncated: catalog.truncated,
     entriesShortened: false,
-    items: catalog.items.map(({ id, title, excerpt }) => ({ id, title, excerpt })),
+    items: catalog.items.map(({ id, title, excerpt, summary }) => ({
+      id,
+      title,
+      summary: summary ?? excerpt,
+    })),
   };
   const shorten = (value: string, target: number) => {
     const characters = Array.from(value);
@@ -75,7 +80,7 @@ export function serializeAgentWikiCatalog(catalog: WikiCatalog): string | null {
     items
       .filter((item) => Array.from(item[key]).length > minimum)
       .sort((left, right) => encodedBytes(right[key]) - encodedBytes(left[key]))[0];
-  const shrinkItems = (key: "excerpt" | "title", minimum: number) => () => {
+  const shrinkItems = (key: "summary" | "title", minimum: number) => () => {
     const largest = largestOver(wiki.items, key, minimum);
     if (!largest) return false;
     largest[key] = shorten(largest[key], Math.max(minimum, Math.floor(Array.from(largest[key]).length / 2)));
@@ -89,7 +94,7 @@ export function serializeAgentWikiCatalog(catalog: WikiCatalog): string | null {
     wiki.entriesShortened = true;
     return true;
   };
-  const shrinkProcedures = (key: "whenToUse" | "title", minimum: number) => () => {
+  const shrinkProcedures = (key: "whenToUse" | "title" | "summary", minimum: number) => () => {
     const largest = largestOver(wiki.procedures?.items ?? [], key, minimum);
     if (!largest) return false;
     largest[key] = shorten(largest[key], minimum);
@@ -124,8 +129,9 @@ export function serializeAgentWikiCatalog(catalog: WikiCatalog): string | null {
     return true;
   };
   const degradations = [
-    shrinkItems("excerpt", 40),
-    shrinkItems("excerpt", 0),
+    shrinkItems("summary", 40),
+    shrinkProcedures("summary", 0),
+    shrinkItems("summary", 0),
     shrinkItems("title", 24),
     dropItem,
     shrinkProcedures("whenToUse", WIKI_WHEN_TO_USE_MIN_CHARACTERS),
@@ -162,24 +168,32 @@ export function serializeAgentWikiCatalog(catalog: WikiCatalog): string | null {
           ? {
               procedures: {
                 ...listed,
-                items: listed.items.map(({ id, title, whenToUse }) => ({
+                items: listed.items.map(({ id, title, whenToUse, summary }) => ({
                   id,
                   cite: cite(title, id),
                   whenToUse,
+                  ...(summary ? { summary } : {}),
                 })),
               },
             }
           : {}),
         ...rest,
-        items: items.map(({ id, title, excerpt }) => ({ id, cite: cite(title, id), excerpt })),
+        items: items.map(({ id, title, summary }) => ({
+          id,
+          cite: cite(title, id),
+          summary,
+        })),
       },
     };
   };
 
   let serialized = JSON.stringify(render());
   while (!isAgentWikiReferenceWithinBound(serialized)) {
-    if (!degradations.some((degrade) => degrade()))
-      return JSON.stringify({ wiki: { omitted: true, hint: AGENT_WIKI_OMITTED_HINT } });
+    if (!degradations.some((degrade) => degrade())) {
+      return JSON.stringify({
+        wiki: { omitted: true, hint: AGENT_WIKI_OMITTED_HINT },
+      });
+    }
     serialized = JSON.stringify(render());
   }
   return serialized;

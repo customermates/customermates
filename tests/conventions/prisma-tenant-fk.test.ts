@@ -17,7 +17,7 @@ const TENANT_FK_ALLOWLIST = new Set([
   "OauthAccessToken",
   "OauthConsent",
   "OperatorAuditEvent",
-  "DocsChunk",
+  "DocsSection",
   "HostedAiPlatformUsage",
   "HostedAiPlatformReservation",
 ]);

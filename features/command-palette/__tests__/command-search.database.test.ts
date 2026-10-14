@@ -59,7 +59,7 @@ function conceptVector(text: string): number[] {
 const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
-const { WIKI_EMBEDDING_MODEL } = await import("@/ee/wiki-retrieval/wiki-embedding-model");
+const { WIKI_EMBEDDING_MODEL, WIKI_EMBEDDING_VERSION } = await import("@/ee/wiki-retrieval/wiki-embedding-model");
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
 const { RecordAccessPolicy } = await import("@/features/records/record-access");
 const { RecordCalculationService } = await import("@/features/records/record-calculation.service");
@@ -69,7 +69,7 @@ const { RecordTrashService } = await import("@/features/records/record-trash.ser
 const { SearchRecordsInteractor } = await import("@/features/records/search-records.interactor");
 const { createCrmPreset, presetId } = await import("@/features/records/crm-preset");
 const { createTestRecordRepo, createTestDataViewRepo } = await import("@/tests/helpers/record-repository");
-const { PrismaDocsChunkRepo } = await import("@/features/mcp-tools/prisma-docs-chunk.repository");
+const { PrismaDocsSectionRepo } = await import("@/features/mcp-tools/prisma-docs-section.repository");
 const { PrismaSearchCatalogRepo } = await import("../prisma-search-catalog.repository");
 const { SearchCommandCatalogInteractor, COMMAND_SEARCH_EMBEDDING_WAIT_MS } = await import(
   "../search-command-catalog.interactor"
@@ -185,8 +185,8 @@ function indexer(embeddings: WikiEmbeddingService) {
 
 function searcher(
   policy: InstanceType<typeof RecordAccessPolicy>,
-  embed: (query: string) => Promise<{ vector: number[]; model: string } | null> = (query) =>
-    Promise.resolve({ vector: conceptVector(query), model: WIKI_EMBEDDING_MODEL }),
+  embed: (query: string) => Promise<{ vector: number[]; version: string } | null> = (query) =>
+    Promise.resolve({ vector: conceptVector(query), version: WIKI_EMBEDDING_VERSION }),
 ) {
   const schedule = vi.fn(() => Promise.resolve());
   const interactor = new SearchCommandCatalogInteractor(
@@ -194,7 +194,7 @@ function searcher(
     policy,
     views,
     catalogRepo,
-    new PrismaDocsChunkRepo(),
+    new PrismaDocsSectionRepo(),
     embed,
     { schedule },
   );

@@ -35,6 +35,7 @@ export const domTestFiles = [
   "app/**/wiki/components/__tests__/wiki-page-outline.test.ts",
   "app/**/wiki/components/__tests__/wiki-page-editor.test.ts",
   "app/**/wiki/components/__tests__/use-wiki-pages.test.ts",
+  "app/**/wiki/components/__tests__/wiki-proposals.test.ts",
   "app/**/dashboard/components/__tests__/widget-chart.test.ts",
   "app/**/dashboard/components/__tests__/record-widget-preview.dom.test.ts",
   "app/**/dashboard/components/__tests__/record-widget-chart-types.dom.test.ts",

@@ -115,6 +115,13 @@ describe("system prompt", () => {
     );
   });
 
+  it("raises the deletion approval through the delete call instead of asking after a preview", () => {
+    const prompt = buildAgentSystemPrompt({ ...base });
+    expect(prompt).toContain(
+      "A deletion preview is not that approval: after preview_crm_deletion, call mutate_crm_record with the delete",
+    );
+  });
+
   it("keeps Ask AI view targeting and navigation policy on the chat surface", () => {
     const chat = buildAgentSystemPrompt({ ...base });
     const routine = buildAgentSystemPrompt({ ...base, surface: "routine" });

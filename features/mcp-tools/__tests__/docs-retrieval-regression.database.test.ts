@@ -9,7 +9,7 @@ import {
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { docsCorpus } from "../docs-corpus";
 import { unifiedDocsPageResult, unifiedDocsSearchResult, type DocsSearchHit, searchDocsTool } from "../docs.mcp-tools";
-import { PrismaDocsChunkRepo } from "../prisma-docs-chunk.repository";
+import { PrismaDocsSectionRepo } from "../prisma-docs-section.repository";
 import { mcpToolResultText, type McpToolResult } from "../mcp-tool";
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
@@ -283,7 +283,7 @@ it("keeps the hosted route and section expectations aligned with the current doc
 });
 
 describeDatabase("documentation retrieval exact regression contracts", () => {
-  const repo = new PrismaDocsChunkRepo();
+  const repo = new PrismaDocsSectionRepo();
   const fallback: UnifiedDocsDeps = { repo, embed: null, ranker: undefined };
   const scope = new AsyncLocalStorage<UnifiedDocsDeps>();
   const live = liveDocsRetrievalContractsEnabled() ? createLiveDocsRetrievalContracts(repo) : null;
@@ -308,18 +308,40 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
   };
 
   const searchResult = (args: { query: string; locale?: ContentLocale; source?: "docs" | "api" | "all" }) => {
-    const input: Parameters<typeof unifiedDocsSearchResult>[0] = { locale: "en", source: "docs", ...args };
+    const input: Parameters<typeof unifiedDocsSearchResult>[0] = {
+      locale: "en",
+      source: "docs",
+      ...args,
+    };
     const invoke = () => unifiedDocsSearchResult(input, deps());
     return live && scope.getStore() === live.deps
-      ? live.admit({ kind: "search", query: input.query, locale: input.locale, source: input.source }, invoke)
+      ? live.admit(
+          {
+            kind: "search",
+            query: input.query,
+            locale: input.locale,
+            source: input.source,
+          },
+          invoke,
+        )
       : invoke();
   };
   const getResult = (args: { slug: string; query?: string; locale?: ContentLocale; source?: "docs" | "api" }) => {
-    const input: Parameters<typeof unifiedDocsPageResult>[0] = { locale: "en", source: "docs", ...args };
+    const input: Parameters<typeof unifiedDocsPageResult>[0] = {
+      locale: "en",
+      source: "docs",
+      ...args,
+    };
     const invoke = () => unifiedDocsPageResult(input, deps());
     return live && scope.getStore() === live.deps
       ? live.admit(
-          { kind: "excerpt", query: input.query ?? "", locale: input.locale, source: input.source, slug: input.slug },
+          {
+            kind: "excerpt",
+            query: input.query ?? "",
+            locale: input.locale,
+            source: input.source,
+            slug: input.slug,
+          },
           invoke,
         )
       : invoke();
@@ -338,43 +360,64 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
 
   it("ranks the webhooks page first for a webhook signature query", async () => {
     const result = await search({ query: "webhook signature" });
-    const raw = await searchResult({ query: "webhook signature", locale: "en", source: "docs" });
+    const raw = await searchResult({
+      query: "webhook signature",
+      locale: "en",
+      source: "docs",
+    });
     expect(result).toContain("webhooks");
     expect(result.indexOf("webhooks")).toBeLessThan(result.indexOf("total"));
     expect(raw).toMatchObject({
       structuredContent: {
         results: expect.arrayContaining([
-          expect.objectContaining({ url: expect.stringContaining("/en/docs/webhooks") }),
+          expect.objectContaining({
+            url: expect.stringContaining("/en/docs/webhooks"),
+          }),
         ]),
       },
     });
   });
 
   it("searches the German corpus when locale is de", async () => {
-    const result = await searchResult({ query: "Webhook", locale: "de", source: "docs" });
+    const result = await searchResult({
+      query: "Webhook",
+      locale: "de",
+      source: "docs",
+    });
     expect(result).toMatchObject({
       structuredContent: {
-        results: expect.arrayContaining([expect.objectContaining({ url: expect.stringContaining("/de/docs/") })]),
+        results: expect.arrayContaining([
+          expect.objectContaining({
+            url: expect.stringContaining("/de/docs/"),
+          }),
+        ]),
       },
     });
   });
 
   it("finds REST operations when source is api", async () => {
-    const result = await searchResult({ query: "contact", locale: "en", source: "api" });
+    const result = await searchResult({
+      query: "contact",
+      locale: "en",
+      source: "api",
+    });
     expect(result).toMatchObject({
       structuredContent: {
         results: expect.arrayContaining([
-          expect.objectContaining({ url: expect.stringContaining("/en/docs/openapi/") }),
+          expect.objectContaining({
+            url: expect.stringContaining("/en/docs/openapi/"),
+          }),
         ]),
       },
     });
   });
 
   it("keeps every leading page candidate visible for a natural walkthrough query", async () => {
-    const result = (await search({ query: "Walk me through connecting WhatsApp to the Customermates inbox." })).slice(
-      0,
-      512,
-    );
+    const result = (
+      await search({
+        query: "Walk me through connecting WhatsApp to the Customermates inbox.",
+      })
+    ).slice(0, 512);
     expect(result).toContain("app-inbox");
     expect(result).toContain("app-profile");
   });
@@ -736,9 +779,15 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
   });
 
   it("keeps full ranked hits in structured content while bounding model-facing text", async () => {
-    const result = await searchResult({ query: "webhook", locale: "en", source: "docs" });
+    const result = await searchResult({
+      query: "webhook",
+      locale: "en",
+      source: "docs",
+    });
     expect(mcpToolResultText(result).length).toBeLessThanOrEqual(500);
-    expect(result).toMatchObject({ structuredContent: { total: expect.any(Number) } });
+    expect(result).toMatchObject({
+      structuredContent: { total: expect.any(Number) },
+    });
     const hits = (
       result as {
         structuredContent: {
@@ -747,7 +796,11 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
       }
     ).structuredContent.results;
     expect(hits.slice(0, 2)).toEqual(
-      expect.arrayContaining([expect.objectContaining({ url: expect.stringContaining("/en/docs/webhooks") })]),
+      expect.arrayContaining([
+        expect.objectContaining({
+          url: expect.stringContaining("/en/docs/webhooks"),
+        }),
+      ]),
     );
   });
 

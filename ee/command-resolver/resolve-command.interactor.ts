@@ -20,7 +20,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { failAuthorization, failRateLimit, failUnavailable } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { env } from "@/env";
-import { SHIPPED_AGENT_MODEL } from "@/ee/agent-chat/model-catalog";
+import { AGENT_MODELS } from "@/ee/agent-chat/model-catalog";
 import { generateStructuredObject, structuredCallWorstCaseMicrocents } from "@/ee/agent-chat/structured-model-call";
 import { commandAvailable, STATIC_COMMANDS, staticCommand } from "@/components/keyboard/command-registry";
 import { commandCatalogScope } from "@/features/command-palette/command-catalog-scope";
@@ -129,7 +129,7 @@ export class ResolveCommandInteractor extends AuthenticatedInteractor<ResolveCom
       }),
       commands,
     });
-    const engine = SHIPPED_AGENT_MODEL;
+    const engine = AGENT_MODELS.chat;
     const grant = await this.usage.prepareRetrieval(this.user.id, now, "commandResolve");
     const reservation = grant
       ? await this.usage.reserveRetrieval({

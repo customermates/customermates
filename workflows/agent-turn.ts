@@ -34,7 +34,6 @@ import {
 } from "@/ee/agent-chat/agent-approval-resume";
 import { agentUiCommandHookToken, isAgentPanelTool, toAgentUiCommandInput } from "@/ee/agent-chat/agent-ui-command";
 import { activeAgentToolNames } from "@/ee/agent-chat/agent-toolset-routing";
-import { googleThinkingProviderOptions } from "@/ee/agent-chat/agent-thinking-options";
 import { buildAgentProviderContext } from "@/ee/agent-chat/agent-provider-context";
 import { agentSystemPromptParts, routineTriggerEventOf } from "@/ee/agent-chat/system-prompt";
 import type { AgentAiToolDefinition, AgentToolOptions } from "@/ee/agent-chat/agent-tools";
@@ -78,7 +77,6 @@ import {
   type AgentContinuationStep,
 } from "@/ee/agent-chat/agent-continuation";
 import { isAgentStepContextWithinBudget } from "@/ee/agent-chat/agent-provider-context";
-import { benchmarkToolOutputPart } from "@/ee/agent-chat/benchmark-tool-output";
 import { agentAuxiliaryCharge, buildAgentTurnClassifierTrace } from "@/ee/agent-chat/agent-classifier-trace";
 import { getAgentChatRepo, getBackgroundTaskService } from "@/core/di";
 import { internalToolIdentity, WIKI_WEBSITE_IMPORT_TOOL_NAME } from "@/ee/agent-chat/tool-identity";
@@ -88,7 +86,7 @@ import {
   readAgentProviderRateLimit,
   readAgentProviderRoundCharge,
 } from "@/ee/agent-chat/agent-provider-error";
-import { isReadOnlyAgentToolCall, requiresApproval } from "@/ee/agent-chat/gated-tools";
+import { isReadOnlyAgentToolCall, requiresApprovalOnSurface } from "@/ee/agent-chat/gated-tools";
 import { isAgentToolCancellation } from "@/ee/agent-chat/agent-tool-cancellation";
 import { createAgentToolInputResolver, type AgentToolInputResult } from "@/ee/agent-chat/agent-tool-input";
 import { resolveAgentApprovalContext } from "@/ee/agent-chat/agent-external-approval-context";
@@ -143,7 +141,6 @@ export type AgentTurnWorkflowPayload = {
   tenant: WorkflowTenant;
   surface?: AgentTurnSurface;
   toolsets?: string[];
-  recordToolOutputs?: boolean;
   wikiWebsiteSetup?: { userHomepages: string[] };
   wikiCatalog?: string | null;
   webSearchEnabled?: boolean;
@@ -324,6 +321,7 @@ function backgroundToolDeps(payload: AgentTurnWorkflowPayload, grant: ToolApprov
   return {
     resultMaxChars: resolveAgentToolResultMaxChars(payload.turnBudget.maxToolResultChars),
     pageRoute: payload.pageRoute,
+    conversationId: payload.conversationId,
     latestUserMessage: payload.messages.findLast((message) => message.role === "user")?.text ?? null,
     runInCallerContext: (run) =>
       runAsBackgroundTenant(payload.userId, () => {
@@ -363,9 +361,17 @@ function backgroundToolDeps(payload: AgentTurnWorkflowPayload, grant: ToolApprov
   };
 }
 
-async function openTurn(payload: AgentTurnWorkflowPayload): Promise<boolean> {
+type AgentTurnStart =
+  | { providerStarted: false }
+  | { providerStarted: true; shells: AgentToolShell[]; wikiCatalog: string | null; cancelled: boolean };
+
+async function startAgentTurn(
+  payload: AgentTurnWorkflowPayload,
+  surface: AgentTurnSurface,
+  options: AgentToolOptions,
+): Promise<AgentTurnStart> {
   "use step";
-  return runAsBackgroundTenant(payload.userId, () => {
+  const providerStarted = await runAsBackgroundTenant(payload.userId, () => {
     if (getTenantUser().companyId !== payload.companyId) return false;
     return getAgentChatRepo().markAgentTurnProviderStartedUnscoped({
       turnRequestId: payload.turnRequestId,
@@ -375,8 +381,15 @@ async function openTurn(payload: AgentTurnWorkflowPayload): Promise<boolean> {
       runId: payload.runId,
     });
   });
+  if (!providerStarted) return { providerStarted: false };
+  const [shells, wikiCatalog, cancelled] = await Promise.all([
+    agentToolShells(surface, payload.turnBudget.servingProvider, options),
+    authorizeWikiCatalog(payload),
+    isTurnCancellationRequested(payload),
+  ]);
+  return { providerStarted: true, shells, wikiCatalog, cancelled };
 }
-openTurn.maxRetries = 0;
+startAgentTurn.maxRetries = 0;
 
 async function canStartNextHostedAiProviderRound(payload: AgentTurnWorkflowPayload): Promise<boolean> {
   "use step";
@@ -390,12 +403,11 @@ async function canStartNextHostedAiProviderRound(payload: AgentTurnWorkflowPaylo
 }
 canStartNextHostedAiProviderRound.maxRetries = 0;
 
-async function loadAgentToolShells(
+async function agentToolShells(
   surface: AgentTurnSurface,
   servingProvider: string,
   options: AgentToolOptions,
 ): Promise<AgentToolShell[]> {
-  "use step";
   const { AGENT_HOSTED_TOOL_ANNOTATIONS, agentToolDefinitionsForTurn } = await import("@/ee/agent-chat/agent-tools");
   const { ALL_MCP_TOOLS } = await import("@/features/mcp-tools/tool-registry");
   const gatedByName = new Map(ALL_MCP_TOOLS.map((mcp) => [mcp.name, mcp.annotations]));
@@ -482,8 +494,7 @@ async function authorizedWikiSetup(payload: AgentTurnWorkflowPayload): Promise<b
 }
 authorizedWikiSetup.maxRetries = 0;
 
-async function authorizedWikiCatalog(payload: AgentTurnWorkflowPayload): Promise<string | null> {
-  "use step";
+async function authorizeWikiCatalog(payload: AgentTurnWorkflowPayload): Promise<string | null> {
   if (!payload.wikiCatalog) return null;
   const { getGetWikiPagesInteractor } = await import("@/core/di");
   const { AppErrorCode, appErrorDetails } = await import("@/core/errors/app-errors");
@@ -500,7 +511,6 @@ async function authorizedWikiCatalog(payload: AgentTurnWorkflowPayload): Promise
     }
   });
 }
-authorizedWikiCatalog.maxRetries = 0;
 
 async function normalizeAgentToolInput(
   payload: AgentTurnWorkflowPayload,
@@ -714,14 +724,18 @@ async function resolveFailedToolRunnerMessage(locale: string, reason: string): P
   return t("AgentChat.runner.turnErrorWithTool", { reason });
 }
 
-async function readCancellation(payload: AgentTurnWorkflowPayload): Promise<boolean> {
-  "use step";
+function isTurnCancellationRequested(payload: AgentTurnWorkflowPayload): Promise<boolean> {
   return runAsBackgroundTenant(payload.userId, () =>
     getAgentChatRepo().isAgentTurnCancellationRequestedUnscoped({
       turnRequestId: payload.turnRequestId,
       companyId: payload.companyId,
     }),
   );
+}
+
+async function readCancellation(payload: AgentTurnWorkflowPayload): Promise<boolean> {
+  "use step";
+  return isTurnCancellationRequested(payload);
 }
 
 export const AGENT_RESOLVED_PROVIDER_ERROR_RETRIES = 2;
@@ -987,8 +1001,13 @@ finalizeTurn.maxRetries = 0;
 export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<void> {
   "use workflow";
   try {
-    const providerStarted = await openTurn(payload);
-    if (!providerStarted) {
+    const surface: AgentTurnSurface = payload.surface ?? "chat";
+    const started = await startAgentTurn(payload, surface, {
+      locale: payload.locale,
+      wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
+      webSearchEnabled: payload.webSearchEnabled,
+    });
+    if (!started.providerStarted) {
       const message = await resolveRunnerMessage(payload.locale, "hostedAiUnavailable");
       const transcript = new AgentTurnTranscript(() => undefined, payload.appBaseUrl);
       transcript.appendText(message);
@@ -1007,13 +1026,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       await closeTurnStream();
       return;
     }
-    const surface: AgentTurnSurface = payload.surface ?? "chat";
     const approvalWindowMs = approvalWindowMsForSurface(surface);
-    const shells = await loadAgentToolShells(surface, payload.turnBudget.servingProvider, {
-      locale: payload.locale,
-      wikiWebsiteSetup: Boolean(payload.wikiWebsiteSetup),
-      webSearchEnabled: payload.webSearchEnabled,
-    });
+    const { shells } = started;
     const writable = getWritable();
 
     const queued: AgentTranscriptEvent[] = [];
@@ -1045,13 +1059,14 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       systemPrompt,
       payload.messages,
       toolDefinitions.filter((definition) => activeToolNamesFor([])?.includes(definition.name)),
-      await authorizedWikiCatalog(payload),
+      started.wikiCatalog,
     );
     const auxiliaryCharges: ClassifierCharge[] = [];
     const retrievalTimings: RetrievalTiming[] = [];
 
     let tokens = emptyTokens();
-    let cancelled = await readCancellation(payload);
+    let cancelled = started.cancelled;
+    let admittedByTurnStart = true;
     let roundIndex = 0;
     let appliedThisCall = 0;
     let finishReason = "unknown";
@@ -1113,21 +1128,12 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       if (deferredRound) deferredRound.outcomes.push(...outcomes);
     };
 
-    const benchmarkToolOutputs: AgentToolOutcome[] = [];
     let verifiedMissingView: { query: string; surfaceKey: string } | null = null;
     const missingViewFallback: { text: string | null } = { text: null };
-    const recordBenchmarkToolOutput = (outcome: AgentToolOutcome) => {
-      if (payload.recordToolOutputs) benchmarkToolOutputs.push(outcome);
-    };
 
     const settleToolOutcome = (toolCallId: string, toolName: string | undefined, output: unknown) => {
       if (settledToolCallIds.has(toolCallId)) return;
       settledToolCallIds.add(toolCallId);
-      recordBenchmarkToolOutput({
-        toolCallId,
-        toolName: toolName ?? "",
-        output,
-      });
 
       const outcome = agentToolOutcomeStatus(output);
       const data = unwrapToolOutput(output);
@@ -1207,7 +1213,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         if (!("threw" in outcome)) settleToolOutcome(outcome.toolCallId, outcome.toolName, outcome.output);
         else if (!settledToolCallIds.has(outcome.toolCallId)) {
           settledToolCallIds.add(outcome.toolCallId);
-          recordBenchmarkToolOutput(outcome);
           transcript.failToolCall(outcome.toolCallId);
         }
       }
@@ -1345,7 +1350,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             transcript.beginToolCall({
               toolCallId: part.toolCallId,
               toolName: part.toolName,
-              activity: describeAgentTool(internalToolIdentity(part.toolName), part.input),
+              activity: describeAgentTool(internalToolIdentity(part.toolName), part.input, surface),
             });
           }
         }
@@ -1383,7 +1388,6 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           if ("threw" in completed) {
             if (settledToolCallIds.has(completed.toolCallId)) continue;
             settledToolCallIds.add(completed.toolCallId);
-            recordBenchmarkToolOutput(completed);
             transcript.failToolCall(completed.toolCallId);
             continue;
           }
@@ -1472,9 +1476,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
 
         const roundOutcome = await persistRound(payload, {
           roundIndex: roundIndex++,
-          parts: payload.recordToolOutputs
-            ? [...step.content, ...benchmarkToolOutputs.splice(0).map(benchmarkToolOutputPart)]
-            : step.content,
+          parts: step.content,
           finishReason: step.finishReason,
           tokens: roundTokens,
           reasoningTokens: step.usage?.outputTokenDetails?.reasoningTokens ?? 0,
@@ -1662,10 +1664,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                     return (
                       prepared.ok &&
                       shell.gated &&
-                      requiresApproval(
+                      requiresApprovalOnSurface(
                         internalToolIdentity(shell.name),
                         { annotations: shell.annotations },
                         prepared.input,
+                        surface,
                       )
                     );
                   },
@@ -1708,10 +1711,10 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         ),
         maxOutputTokens: payload.turnBudget.maxOutputTokens,
         ...(payload.turnBudget.reasoningEffort ? { reasoning: payload.turnBudget.reasoningEffort } : {}),
-        providerOptions: {
-          ...getAgentProviderOptions(payload.turnBudget.servingProvider, payload.turnBudget.inferenceRegion),
-          ...googleThinkingProviderOptions(payload.turnBudget),
-        },
+        providerOptions: getAgentProviderOptions(
+          payload.turnBudget.servingProvider,
+          payload.turnBudget.inferenceRegion,
+        ),
         prepareStep: async ({ messages: stepMessages }) => {
           settleApprovedCalls(stepMessages, false);
           if (abandoned || cancelled || budgetStop || hostedAiStop || providerStop !== null || roundFailure !== null)
@@ -1727,7 +1730,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           });
           if (!isAgentContextWithinBudget(stepContext, payload.turnBudget.maxContextBytes))
             throw AGENT_CONTEXT_COMPACTION_REQUIRED;
-          if (!(await canStartNextHostedAiProviderRound(payload))) throw hostedAiPaused;
+          if (admittedByTurnStart) admittedByTurnStart = false;
+          else if (!(await canStartNextHostedAiProviderRound(payload))) throw hostedAiPaused;
           stepContextBytes = serializedAgentContextBytes(stepContext) ?? payload.turnBudget.maxContextBytes;
           roundReserveMicrocents = agentRoundReserveMicrocents(
             payload.turnBudget,
@@ -2082,7 +2086,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       for (const [index, request] of requests.entries()) {
         transcript.beginApproval(
           request.requestId,
-          approvalActivities[index] ?? describeAgentTool(internalToolIdentity(request.toolName), request.input),
+          approvalActivities[index] ??
+            describeAgentTool(internalToolIdentity(request.toolName), request.input, surface),
         );
       }
       await publishTranscriptEvents(queued.splice(0));

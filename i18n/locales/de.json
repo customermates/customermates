@@ -225,6 +225,23 @@
             "running": "Profil wird aktualisiert"
           }
         },
+        "proposals": {
+          "create": {
+            "done": "{count, plural, one {Neue Seite vorgeschlagen} other {# neue Seiten vorgeschlagen}}",
+            "error": "{count, plural, one {Neue Seite konnte nicht vorgeschlagen werden} other {# neue Seiten konnten nicht vorgeschlagen werden}}",
+            "running": "{count, plural, one {Neue Seite wird vorgeschlagen} other {# neue Seiten werden vorgeschlagen}}"
+          },
+          "delete": {
+            "done": "Seitenlöschung vorgeschlagen",
+            "error": "Seitenlöschung konnte nicht vorgeschlagen werden",
+            "running": "Seitenlöschung wird vorgeschlagen"
+          },
+          "update": {
+            "done": "Seitenbearbeitung vorgeschlagen",
+            "error": "Seitenbearbeitung konnte nicht vorgeschlagen werden",
+            "running": "Seitenbearbeitung wird vorgeschlagen"
+          }
+        },
         "records": {
           "analyze": {
             "done": "{resource} wurden ausgewertet",
@@ -1250,6 +1267,9 @@
       "wikiPagePinned": "Der Betriebsleitfaden bleibt an erster Stelle. Verschiebe eine andere Seite.",
       "wikiPageUpdateEmpty": "Gib mindestens ein Feld an, um die Seite zu aktualisieren.",
       "wikiProcedureNeedsSteps": "Ein Verfahren braucht nummerierte Schritte.",
+      "wikiProposalNotFound": "Diesen Vorschlag gibt es nicht mehr.",
+      "wikiProposalReviewed": "Dieser Vorschlag wurde bereits geprüft.",
+      "wikiProposalStale": "Die Seite wurde geändert, nachdem Mate diesen Vorschlag gemacht hat. Lehne ihn ab oder bitte Mate, die Änderung neu vorzuschlagen.",
       "wikiWhenToUseRequired": "Ein Verfahren braucht eine kurze Beschreibung, wann es gilt."
     },
     "events": {
@@ -3995,6 +4015,7 @@
     "ownerUnavailableReadOnly": "Für diese Routine ist keine Eigentümerin und kein Eigentümer mehr verfügbar. Sie bleibt pausiert und schreibgeschützt; ein Unternehmensadmin kann sie löschen.",
     "ranAs": "Ausgeführt als {owner}",
     "readOnlyTitle": "Schreibgeschützter Zugriff",
+    "reviewWikiProposals": "Prüfen",
     "runDetails": "Details zum Lauf",
     "runNoTranscript": "Für diesen Lauf ist kein Protokoll verfügbar.",
     "runQueued": "Dieser Lauf wartet in der Warteschlange. Das Protokoll erscheint, sobald der Assistent beginnt.",
@@ -4014,7 +4035,8 @@
     "triggerChangedFieldsMore": "und weitere",
     "triggerRecord": "Datensatz",
     "triggerThread": "Unterhaltung",
-    "usageShare": "{used} der monatlichen Mate-Nutzung"
+    "usageShare": "{used} der monatlichen Mate-Nutzung",
+    "wikiProposals": "{count, plural, one {# Änderung an der Wissensdatenbank zur Prüfung vorgeschlagen} other {# Änderungen an der Wissensdatenbank zur Prüfung vorgeschlagen}}"
   },
   "RoutineModal": {
     "at": "um",
@@ -4467,6 +4489,33 @@
     "pagesLabel": "Wissensdatenbank-Seiten",
     "pageTitle": "Seitentitel",
     "previous": "Zurück",
+    "proposals": {
+      "action": {
+        "create": "Neue Seite",
+        "delete": "Löschung",
+        "update": "Bearbeitung"
+      },
+      "approve": "Zulassen",
+      "approved": "Vorschlag angenommen",
+      "back": "Alle Vorschläge",
+      "current": "Aktuell",
+      "deleteNotice": "Wenn du annimmst, wird diese Seite endgültig gelöscht.",
+      "description": "Änderungen, die Mate in Routinen vorgeschlagen hat. Die Wissensdatenbank ändert sich erst, wenn du einen Vorschlag annimmst.",
+      "empty": "Keine Vorschläge warten auf Prüfung.",
+      "entry": "Vorschläge",
+      "fromRoutine": "Aus {routine}",
+      "fromRoutineDeleted": "Aus einer gelöschten Routine",
+      "loadFailed": "Die Vorschläge konnten nicht geladen werden.",
+      "needsPermission": "Deine Rolle kann diese Änderung nicht übernehmen.",
+      "notYetCreated": "Diese Seite gibt es noch nicht.",
+      "pageMissing": "Diese Seite gibt es nicht mehr.",
+      "proposed": "Vorgeschlagen",
+      "reject": "Ablehnen",
+      "rejected": "Vorschlag abgelehnt",
+      "stale": "Diese Seite wurde geändert, nachdem Mate den Vorschlag gemacht hat. Lehne ihn ab oder bitte Mate, die Änderung neu vorzuschlagen.",
+      "staleShort": "Seite geändert",
+      "title": "Vorschläge"
+    },
     "reload": "Seite neu laden",
     "search": "Seiten suchen…",
     "unavailableBody": "Diese Seite wurde gelöscht oder du hast keinen Zugriff. Wähle eine andere Seite.",

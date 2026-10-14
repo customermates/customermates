@@ -12,7 +12,7 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { classifyMetered } from "@/ee/agent-chat/classifier/metered";
 import { classifierReservationMicrocents } from "@/ee/agent-chat/classifier/classifier-reservation";
 import { JEV_MODEL_ID, type ClassifierFailure } from "@/ee/agent-chat/classifier/jev-runner";
-import { INITIAL_WIKI_SYNTHESIS_MODEL, SHIPPED_AGENT_MODEL } from "@/ee/agent-chat/model-catalog";
+import { AGENT_MODELS } from "@/ee/agent-chat/model-catalog";
 import { wikiLanguageConflicts } from "@/features/wiki/wiki-language";
 import { wikiPageMarkdownLink } from "@/features/wiki/wiki-links";
 import { hasInvalidWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
@@ -151,7 +151,7 @@ export class WikiWebsiteSynthesisService {
   }
 
   private async generate<T>(crawl: WikiCrawlRecord, schema: z.ZodType<T>, system: string, prompt: string) {
-    const model = crawl.mode === "initial" ? INITIAL_WIKI_SYNTHESIS_MODEL : SHIPPED_AGENT_MODEL;
+    const model = AGENT_MODELS.wikiSynthesis;
     for (let attempt = 0; attempt < 2; attempt += 1) {
       const result = await this.metered(
         crawl,
