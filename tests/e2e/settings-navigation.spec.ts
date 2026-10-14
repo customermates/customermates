@@ -197,7 +197,10 @@ test("long profile email stays inside the phone viewport", async ({ page, databa
     await page.evaluate((value) => localStorage.setItem("theme", value), theme);
     await page.emulateMedia({ colorScheme: theme });
     await page.reload();
-    const address = page.getByText(email, { exact: true });
+    const address = page
+      .locator("form")
+      .filter({ has: page.locator("#settings-profile-first-name") })
+      .getByText(email, { exact: true });
     await expect(address).toBeVisible();
     const box = await address.boundingBox();
     if (!box) throw new Error("Profile email is missing");
