@@ -16,7 +16,7 @@ Open [Webhooks](app:settings/webhooks), click [Add](app:settings/webhooks?focus=
 
 | Field | What it does |
 | --- | --- |
-| **URL** | Required. An HTTP or HTTPS endpoint with a valid host and no username or password receives a `POST` for every subscribed event. A URL without a scheme is saved with `https://` in front. Other URL schemes, such as `mailto:` and `tel:`, are refused. |
+| **URL** | Required. An HTTP or HTTPS endpoint with a valid host and no username or password receives a `POST` for every subscribed event. A URL without a scheme is saved with `https://` in front. International hostnames and paths are saved in their ASCII URL form. Other URL schemes, such as `mailto:` and `tel:`, are refused. |
 | **Description** | Optional, up to 500 characters. Shown in the list. |
 | **Events** | Required. One or more events from the [catalog](#which-events-exist). |
 | **Secret** | Optional, 1 to 256 characters. Signs every delivery (see [How do I verify the signature?](#how-do-i-verify-the-signature)). |

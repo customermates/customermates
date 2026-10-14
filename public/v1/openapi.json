@@ -3550,7 +3550,8 @@
                                                       "label": {
                                                         "type": "string",
                                                         "minLength": 1,
-                                                        "maxLength": 200
+                                                        "maxLength": 200,
+                                                        "pattern": "^[^\\u0000]*$"
                                                       },
                                                       "color": {
                                                         "anyOf": [
@@ -4306,7 +4307,8 @@
                                                       "label": {
                                                         "type": "string",
                                                         "minLength": 1,
-                                                        "maxLength": 200
+                                                        "maxLength": 200,
+                                                        "pattern": "^[^\\u0000]*$"
                                                       },
                                                       "color": {
                                                         "anyOf": [
@@ -19180,7 +19182,8 @@
                                                                   "label": {
                                                                     "type": "string",
                                                                     "minLength": 1,
-                                                                    "maxLength": 200
+                                                                    "maxLength": 200,
+                                                                    "pattern": "^[^\\u0000]*$"
                                                                   },
                                                                   "color": {
                                                                     "anyOf": [
@@ -19936,7 +19939,8 @@
                                                                   "label": {
                                                                     "type": "string",
                                                                     "minLength": 1,
-                                                                    "maxLength": 200
+                                                                    "maxLength": 200,
+                                                                    "pattern": "^[^\\u0000]*$"
                                                                   },
                                                                   "color": {
                                                                     "anyOf": [
@@ -28474,7 +28478,8 @@
                                                                   "label": {
                                                                     "type": "string",
                                                                     "minLength": 1,
-                                                                    "maxLength": 200
+                                                                    "maxLength": 200,
+                                                                    "pattern": "^[^\\u0000]*$"
                                                                   },
                                                                   "color": {
                                                                     "anyOf": [
@@ -29230,7 +29235,8 @@
                                                                   "label": {
                                                                     "type": "string",
                                                                     "minLength": 1,
-                                                                    "maxLength": 200
+                                                                    "maxLength": 200,
+                                                                    "pattern": "^[^\\u0000]*$"
                                                                   },
                                                                   "color": {
                                                                     "anyOf": [
@@ -32312,12 +32318,14 @@
                             "label": {
                               "type": "string",
                               "minLength": 1,
-                              "maxLength": 200
+                              "maxLength": 200,
+                              "pattern": "^[^\\u0000]*$"
                             },
                             "pluralLabel": {
                               "type": "string",
                               "minLength": 1,
-                              "maxLength": 200
+                              "maxLength": 200,
+                              "pattern": "^[^\\u0000]*$"
                             },
                             "description": {
                               "type": "string",
@@ -32392,12 +32400,14 @@
                                 "label": {
                                   "type": "string",
                                   "minLength": 1,
-                                  "maxLength": 200
+                                  "maxLength": 200,
+                                  "pattern": "^[^\\u0000]*$"
                                 },
                                 "pluralLabel": {
                                   "type": "string",
                                   "minLength": 1,
-                                  "maxLength": 200
+                                  "maxLength": 200,
+                                  "pattern": "^[^\\u0000]*$"
                                 },
                                 "description": {
                                   "type": "string",
@@ -32607,7 +32617,8 @@
                                 "label": {
                                   "type": "string",
                                   "minLength": 1,
-                                  "maxLength": 200
+                                  "maxLength": 200,
+                                  "pattern": "^[^\\u0000]*$"
                                 },
                                 "valueType": {
                                   "type": "string",
@@ -32940,7 +32951,8 @@
                                       "label": {
                                         "type": "string",
                                         "minLength": 1,
-                                        "maxLength": 200
+                                        "maxLength": 200,
+                                        "pattern": "^[^\\u0000]*$"
                                       },
                                       "color": {
                                         "anyOf": [
@@ -33138,12 +33150,14 @@
                                 "sourceLabel": {
                                   "type": "string",
                                   "minLength": 1,
-                                  "maxLength": 200
+                                  "maxLength": 200,
+                                  "pattern": "^[^\\u0000]*$"
                                 },
                                 "targetLabel": {
                                   "type": "string",
                                   "minLength": 1,
-                                  "maxLength": 200
+                                  "maxLength": 200,
+                                  "pattern": "^[^\\u0000]*$"
                                 },
                                 "sourceCardinality": {
                                   "type": "string",
@@ -33236,7 +33250,8 @@
                                 "label": {
                                   "type": "string",
                                   "minLength": 1,
-                                  "maxLength": 200
+                                  "maxLength": 200,
+                                  "pattern": "^[^\\u0000]*$"
                                 },
                                 "grants": {
                                   "type": "array",
@@ -34194,12 +34209,14 @@
                             "label": {
                               "type": "string",
                               "minLength": 1,
-                              "maxLength": 200
+                              "maxLength": 200,
+                              "pattern": "^[^\\u0000]*$"
                             },
                             "pluralLabel": {
                               "type": "string",
                               "minLength": 1,
-                              "maxLength": 200
+                              "maxLength": 200,
+                              "pattern": "^[^\\u0000]*$"
                             },
                             "description": {
                               "type": "string",
@@ -34274,12 +34291,14 @@
                                 "label": {
                                   "type": "string",
                                   "minLength": 1,
-                                  "maxLength": 200
+                                  "maxLength": 200,
+                                  "pattern": "^[^\\u0000]*$"
                                 },
                                 "pluralLabel": {
                                   "type": "string",
                                   "minLength": 1,
-                                  "maxLength": 200
+                                  "maxLength": 200,
+                                  "pattern": "^[^\\u0000]*$"
                                 },
                                 "description": {
                                   "type": "string",
@@ -34489,7 +34508,8 @@
                                 "label": {
                                   "type": "string",
                                   "minLength": 1,
-                                  "maxLength": 200
+                                  "maxLength": 200,
+                                  "pattern": "^[^\\u0000]*$"
                                 },
                                 "valueType": {
                                   "type": "string",
@@ -34822,7 +34842,8 @@
                                       "label": {
                                         "type": "string",
                                         "minLength": 1,
-                                        "maxLength": 200
+                                        "maxLength": 200,
+                                        "pattern": "^[^\\u0000]*$"
                                       },
                                       "color": {
                                         "anyOf": [
@@ -35020,12 +35041,14 @@
                                 "sourceLabel": {
                                   "type": "string",
                                   "minLength": 1,
-                                  "maxLength": 200
+                                  "maxLength": 200,
+                                  "pattern": "^[^\\u0000]*$"
                                 },
                                 "targetLabel": {
                                   "type": "string",
                                   "minLength": 1,
-                                  "maxLength": 200
+                                  "maxLength": 200,
+                                  "pattern": "^[^\\u0000]*$"
                                 },
                                 "sourceCardinality": {
                                   "type": "string",
@@ -35118,7 +35141,8 @@
                                 "label": {
                                   "type": "string",
                                   "minLength": 1,
-                                  "maxLength": 200
+                                  "maxLength": 200,
+                                  "pattern": "^[^\\u0000]*$"
                                 },
                                 "grants": {
                                   "type": "array",
@@ -49867,12 +49891,14 @@
                           "label": {
                             "type": "string",
                             "minLength": 1,
-                            "maxLength": 200
+                            "maxLength": 200,
+                            "pattern": "^[^\\u0000]*$"
                           },
                           "pluralLabel": {
                             "type": "string",
                             "minLength": 1,
-                            "maxLength": 200
+                            "maxLength": 200,
+                            "pattern": "^[^\\u0000]*$"
                           },
                           "description": {
                             "type": "string",
@@ -50026,7 +50052,8 @@
                           "label": {
                             "type": "string",
                             "minLength": 1,
-                            "maxLength": 200
+                            "maxLength": 200,
+                            "pattern": "^[^\\u0000]*$"
                           },
                           "valueType": {
                             "type": "string",
@@ -50767,7 +50794,8 @@
                                 "label": {
                                   "type": "string",
                                   "minLength": 1,
-                                  "maxLength": 200
+                                  "maxLength": 200,
+                                  "pattern": "^[^\\u0000]*$"
                                 },
                                 "color": {
                                   "anyOf": [
@@ -51108,12 +51136,14 @@
                           "sourceLabel": {
                             "type": "string",
                             "minLength": 1,
-                            "maxLength": 200
+                            "maxLength": 200,
+                            "pattern": "^[^\\u0000]*$"
                           },
                           "targetLabel": {
                             "type": "string",
                             "minLength": 1,
-                            "maxLength": 200
+                            "maxLength": 200,
+                            "pattern": "^[^\\u0000]*$"
                           },
                           "sourceCardinality": {
                             "type": "string",
@@ -51189,7 +51219,8 @@
                           "label": {
                             "type": "string",
                             "minLength": 1,
-                            "maxLength": 200
+                            "maxLength": 200,
+                            "pattern": "^[^\\u0000]*$"
                           },
                           "grants": {
                             "type": "array",
@@ -71599,7 +71630,8 @@
                                                                         "label": {
                                                                           "type": "string",
                                                                           "minLength": 1,
-                                                                          "maxLength": 200
+                                                                          "maxLength": 200,
+                                                                          "pattern": "^[^\\u0000]*$"
                                                                         },
                                                                         "color": {
                                                                           "anyOf": [
@@ -72355,7 +72387,8 @@
                                                                         "label": {
                                                                           "type": "string",
                                                                           "minLength": 1,
-                                                                          "maxLength": 200
+                                                                          "maxLength": 200,
+                                                                          "pattern": "^[^\\u0000]*$"
                                                                         },
                                                                         "color": {
                                                                           "anyOf": [
@@ -77686,12 +77719,14 @@
                               "label": {
                                 "type": "string",
                                 "minLength": 1,
-                                "maxLength": 200
+                                "maxLength": 200,
+                                "pattern": "^[^\\u0000]*$"
                               },
                               "pluralLabel": {
                                 "type": "string",
                                 "minLength": 1,
-                                "maxLength": 200
+                                "maxLength": 200,
+                                "pattern": "^[^\\u0000]*$"
                               },
                               "description": {
                                 "type": "string",
@@ -77845,7 +77880,8 @@
                               "label": {
                                 "type": "string",
                                 "minLength": 1,
-                                "maxLength": 200
+                                "maxLength": 200,
+                                "pattern": "^[^\\u0000]*$"
                               },
                               "valueType": {
                                 "type": "string",
@@ -78586,7 +78622,8 @@
                                     "label": {
                                       "type": "string",
                                       "minLength": 1,
-                                      "maxLength": 200
+                                      "maxLength": 200,
+                                      "pattern": "^[^\\u0000]*$"
                                     },
                                     "color": {
                                       "anyOf": [
@@ -78927,12 +78964,14 @@
                               "sourceLabel": {
                                 "type": "string",
                                 "minLength": 1,
-                                "maxLength": 200
+                                "maxLength": 200,
+                                "pattern": "^[^\\u0000]*$"
                               },
                               "targetLabel": {
                                 "type": "string",
                                 "minLength": 1,
-                                "maxLength": 200
+                                "maxLength": 200,
+                                "pattern": "^[^\\u0000]*$"
                               },
                               "sourceCardinality": {
                                 "type": "string",
@@ -79008,7 +79047,8 @@
                               "label": {
                                 "type": "string",
                                 "minLength": 1,
-                                "maxLength": 200
+                                "maxLength": 200,
+                                "pattern": "^[^\\u0000]*$"
                               },
                               "grants": {
                                 "type": "array",
@@ -79459,12 +79499,14 @@
                               "sourceLabel": {
                                 "type": "string",
                                 "minLength": 1,
-                                "maxLength": 200
+                                "maxLength": 200,
+                                "pattern": "^[^\\u0000]*$"
                               },
                               "targetLabel": {
                                 "type": "string",
                                 "minLength": 1,
-                                "maxLength": 200
+                                "maxLength": 200,
+                                "pattern": "^[^\\u0000]*$"
                               },
                               "sourceCardinality": {
                                 "type": "string",
@@ -106663,7 +106705,8 @@
                                               "label": {
                                                 "type": "string",
                                                 "minLength": 1,
-                                                "maxLength": 200
+                                                "maxLength": 200,
+                                                "pattern": "^[^\\u0000]*$"
                                               },
                                               "color": {
                                                 "anyOf": [
@@ -107066,7 +107109,8 @@
                                               "label": {
                                                 "type": "string",
                                                 "minLength": 1,
-                                                "maxLength": 200
+                                                "maxLength": 200,
+                                                "pattern": "^[^\\u0000]*$"
                                               },
                                               "color": {
                                                 "anyOf": [
@@ -108010,7 +108054,8 @@
                                               "label": {
                                                 "type": "string",
                                                 "minLength": 1,
-                                                "maxLength": 200
+                                                "maxLength": 200,
+                                                "pattern": "^[^\\u0000]*$"
                                               },
                                               "color": {
                                                 "anyOf": [
@@ -108413,7 +108458,8 @@
                                               "label": {
                                                 "type": "string",
                                                 "minLength": 1,
-                                                "maxLength": 200
+                                                "maxLength": 200,
+                                                "pattern": "^[^\\u0000]*$"
                                               },
                                               "color": {
                                                 "anyOf": [
@@ -109357,7 +109403,8 @@
                                               "label": {
                                                 "type": "string",
                                                 "minLength": 1,
-                                                "maxLength": 200
+                                                "maxLength": 200,
+                                                "pattern": "^[^\\u0000]*$"
                                               },
                                               "color": {
                                                 "anyOf": [
@@ -109760,7 +109807,8 @@
                                               "label": {
                                                 "type": "string",
                                                 "minLength": 1,
-                                                "maxLength": 200
+                                                "maxLength": 200,
+                                                "pattern": "^[^\\u0000]*$"
                                               },
                                               "color": {
                                                 "anyOf": [
@@ -110704,7 +110752,8 @@
                                               "label": {
                                                 "type": "string",
                                                 "minLength": 1,
-                                                "maxLength": 200
+                                                "maxLength": 200,
+                                                "pattern": "^[^\\u0000]*$"
                                               },
                                               "color": {
                                                 "anyOf": [
@@ -111107,7 +111156,8 @@
                                               "label": {
                                                 "type": "string",
                                                 "minLength": 1,
-                                                "maxLength": 200
+                                                "maxLength": 200,
+                                                "pattern": "^[^\\u0000]*$"
                                               },
                                               "color": {
                                                 "anyOf": [
@@ -112051,7 +112101,8 @@
                                               "label": {
                                                 "type": "string",
                                                 "minLength": 1,
-                                                "maxLength": 200
+                                                "maxLength": 200,
+                                                "pattern": "^[^\\u0000]*$"
                                               },
                                               "color": {
                                                 "anyOf": [
@@ -112454,7 +112505,8 @@
                                               "label": {
                                                 "type": "string",
                                                 "minLength": 1,
-                                                "maxLength": 200
+                                                "maxLength": 200,
+                                                "pattern": "^[^\\u0000]*$"
                                               },
                                               "color": {
                                                 "anyOf": [
