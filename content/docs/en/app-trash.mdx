@@ -24,6 +24,8 @@ Everyone finds **Trash** in the sidebar. You see the items you could see and del
 
 Open [Trash](app:trash), hover the row and click **Restore**, or select several rows and click **Restore** in the selection bar. Restoring needs the same access as deleting did. A restored record comes back with its values, links and sub-list rows. A link to a record that was deleted permanently in the meantime cannot come back; the message after restoring says how many links were dropped. A large restore runs in the background: the record shows **Restoring…** until it is done. A record whose list is itself in Trash can be restored only after its list, and a routine stays in Trash while its owner already has all the routines their plan includes.
 
+If another workspace change holds the write lock, restore returns a busy response after about five seconds without changing the Trash item. Try again after that change finishes.
+
 Deleting a field in [Configure](app:configure) removes saved-view filters, columns, sorts and grouping that use it. The delete preview and result name the affected views and widgets. Restoring the field does not recreate those settings. If you restore a saved view after its field was deleted, `droppedViewReferences` reports what was removed; the Trash message shows the counts. Recreate the settings after restoring the field.
 
 Opening a deleted record from Trash shows it read only with the banner **In Trash** and a **Restore** button; its **Activities** can be read there too, but not changed. Over REST, `POST /api/v1/trash/query` lists Trash items and `POST /api/v1/trash/read` returns the same read-only view of a deleted record.

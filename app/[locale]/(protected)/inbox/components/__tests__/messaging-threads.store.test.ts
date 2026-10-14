@@ -73,6 +73,48 @@ describe("MessagingThreadsStore refresh command", () => {
     expect(harness.toastError).not.toHaveBeenCalled();
   });
 
+  it("silences subscription and plan refusals and recovers unread count when access returns", async () => {
+    const store = new MessagingThreadsStore(rootStore());
+    store.setItems({
+      items: [],
+      pagination: { page: 1, pageSize: 25, total: 0, totalPages: 1 },
+    });
+    for (const entitlement of ["paidSubscriptionRequired", "messagingRequiresPro"]) {
+      harness.getMessagingThreadsAction.mockResolvedValueOnce({
+        ok: false,
+        failure: {
+          kind: "validation",
+          issues: [{ code: "custom", path: [], message: entitlement, entitlement }],
+        },
+      });
+      harness.getUnreadThreadCountAction.mockResolvedValueOnce({
+        ok: false,
+        failure: {
+          kind: "validation",
+          issues: [{ code: "custom", path: [], message: entitlement, entitlement }],
+        },
+      });
+      store.refreshInBackground();
+      await vi.waitFor(() =>
+        expect(harness.getMessagingThreadsAction).toHaveBeenCalledTimes(
+          entitlement === "paidSubscriptionRequired" ? 1 : 2,
+        ),
+      );
+      await vi.waitFor(() => expect(store.dataRequest.status).toBe("refresh-error"));
+      expect(store.unreadThreadCount).toBeNull();
+      expect(harness.toastError).not.toHaveBeenCalled();
+    }
+    harness.getMessagingThreadsAction.mockResolvedValueOnce({
+      items: [],
+      pagination: { page: 1, pageSize: 25, total: 0, totalPages: 0 },
+    });
+    harness.getUnreadThreadCountAction.mockResolvedValueOnce(3);
+    await store.refresh();
+    expect(store.unreadThreadCount).toBe(3);
+    expect(store.dataRequest.status).toBe("ready");
+    expect(harness.toastError).not.toHaveBeenCalled();
+  });
+
   it("gives a single permission message when explicit Inbox refresh is refused", async () => {
     const store = new MessagingThreadsStore(rootStore());
     harness.refreshInboxAction.mockResolvedValueOnce({

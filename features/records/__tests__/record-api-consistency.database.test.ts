@@ -18,7 +18,13 @@ vi.mock("@/env", () => ({
 vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
   getTranslations: (namespace?: string) =>
-    Promise.resolve(createTranslator({ locale: "en", messages, namespace: namespace as never })),
+    Promise.resolve(
+      createTranslator({
+        locale: "en",
+        messages,
+        namespace: namespace as never,
+      }),
+    ),
 }));
 
 await import("@/core/di");
@@ -37,6 +43,7 @@ const readModelRoute = await restRoute("/v1/model/read");
 const exportRoute = await restRoute("/v1/records/export");
 const importRoute = await restRoute("/v1/records/import");
 const readRoute = await restRoute("/v1/records/read");
+const restoreRoute = await restRoute("/v1/trash/restore");
 const queryRoute = await restRoute("/v1/records/query");
 const searchRoute = await restRoute("/v1/records/search");
 const activitiesRoute = await restRoute("/v1/records/activities");
@@ -285,19 +292,135 @@ describeDatabase("record API consistency against PostgreSQL", () => {
     expect(await w.revision()).toBe(change.expectedRevision);
   }, 120_000);
 
+  it("rejects NUL in every create-type text in preview and apply", async () => {
+    const w = await workspace();
+    const revision = await w.revision();
+    for (const field of ["label", "pluralLabel", "description", "icon"] as const) {
+      const operation = {
+        operation: "createType",
+        reference: "$invalid",
+        label: "Invalid",
+        pluralLabel: "Invalids",
+        description: "A list",
+        icon: "list",
+        embedded: false,
+        accessPresetId: null,
+        [field]: "Before\u0000after",
+      };
+      const change = {
+        expectedRevision: revision,
+        idempotencyKey: randomUUID(),
+        operations: [operation],
+      };
+      const responses = await Promise.all([previewRoute, applyRoute].map((route) => postAs(w, w.admin, route, change)));
+      for (const response of responses) {
+        expect(response).toMatchObject({
+          status: 400,
+          body: {
+            error: {
+              kind: "validation",
+              issues: [expect.objectContaining({ path: ["operations", 0, field] })],
+            },
+          },
+        });
+      }
+      expect(responses[0].body).toEqual(responses[1].body);
+      expect(await w.revision()).toBe(revision);
+    }
+  }, 120_000);
+
+  it("rejects NUL in put-type and put-field metadata through preview and apply", async () => {
+    const w = await workspace();
+    const revision = await w.revision();
+    const model = (await postAs(w, w.admin, readModelRoute, {})).body;
+    const type = (model.types as Array<Record<string, unknown>>)[0];
+    const field = (model.fields as Array<Record<string, unknown>>).find(
+      (candidate) => Array.isArray(candidate.options) && candidate.options.length > 0,
+    );
+    if (!type || !field) throw new Error("Expected configurable model metadata");
+    const editableField = { ...field };
+    delete editableField.publishedSummary;
+    const option = (field.options as Array<Record<string, unknown>>)[0];
+    const cases = [
+      {
+        operation: { operation: "putType", type: { ...type, description: "Before\u0000after" } },
+        path: ["type", "description"],
+      },
+      { operation: { operation: "putType", type: { ...type, icon: "Before\u0000after" } }, path: ["type", "icon"] },
+      {
+        operation: { operation: "putField", field: { ...editableField, label: "Before\u0000after" } },
+        path: ["field", "label"],
+      },
+      {
+        operation: {
+          operation: "putField",
+          field: { ...editableField, options: [{ ...option, label: "Before\u0000after" }] },
+        },
+        path: ["field", "options", 0, "label"],
+      },
+    ];
+    for (const item of cases) {
+      const change = { expectedRevision: revision, idempotencyKey: randomUUID(), operations: [item.operation] };
+      const responses = await Promise.all([previewRoute, applyRoute].map((route) => postAs(w, w.admin, route, change)));
+      for (const response of responses) {
+        expect(response).toMatchObject({
+          status: 400,
+          body: {
+            error: { kind: "validation", issues: [expect.objectContaining({ path: ["operations", 0, ...item.path] })] },
+          },
+        });
+      }
+      expect(responses[0].body).toEqual(responses[1].body);
+      expect(await w.revision()).toBe(revision);
+    }
+  }, 120_000);
+
+  it("refuses Trash restore quickly while another connection holds the company lock", async () => {
+    const w = await workspace();
+    const record = await w.create("deal", "deal.name", "Restore lock test");
+    const deletion = await w.remove(record);
+    const input = { batchId: deletion.trashBatchId };
+    const before = await postAs(w, w.admin, readRoute, record);
+    expect(before.status).toBe(404);
+    await holdingCompanyLock(w.companyId, async () => {
+      const startedAt = Date.now();
+      const blocked = await postAs(w, w.admin, restoreRoute, input);
+      expect(blocked).toMatchObject({
+        status: 429,
+        body: { error: { kind: "rate_limit" } },
+      });
+      expect(Date.now() - startedAt).toBeLessThan(15_000);
+    });
+    expect((await postAs(w, w.admin, readRoute, record)).status).toBe(404);
+    expect(await postAs(w, w.admin, restoreRoute, input)).toMatchObject({
+      status: 200,
+      body: { status: "completed" },
+    });
+    expect((await postAs(w, w.admin, readRoute, record)).status).toBe(200);
+  }, 120_000);
+
   it("answers a write that waits on a busy workspace with a structured rate limit on every channel", async () => {
     const w = await workspace();
     const create = () => createDeal(w, [{ fieldId: w.id("deal.name"), value: { kind: "text", value: "Busy" } }]);
-    const busy = { kind: "rate_limit", issues: [{ code: "custom", path: [], message: expect.any(String) }] };
+    const busy = {
+      kind: "rate_limit",
+      issues: [{ code: "custom", path: [], message: expect.any(String) }],
+    };
 
     await holdingCompanyLock(w.companyId, async () => {
       const startedAt = Date.now();
-      expect(await postAs(w, w.admin, mutateRoute, await create())).toEqual({ status: 429, body: { error: busy } });
+      expect(await postAs(w, w.admin, mutateRoute, await create())).toEqual({
+        status: 429,
+        body: { error: busy },
+      });
       expect(Date.now() - startedAt).toBeLessThan(15_000);
 
       const input = mutateRecordV2Tool.inputSchema.parse(await create());
       const tool = await w.as(w.admin, () => executeMcpTool(mutateRecordV2Tool as never, [input]));
-      expect(tool).toMatchObject({ ok: false, failure: { kind: "rate_limit" } });
+      expect(tool).toMatchObject({
+        ok: false,
+        failure: { kind: "rate_limit" },
+      });
 
       const action = await w.as(w.admin, async () => recordActions.mutateRecordAction((await create()) as never));
       expect(action).toMatchObject({
@@ -305,7 +428,13 @@ describeDatabase("record API consistency against PostgreSQL", () => {
         failure: {
           kind: "rate_limit",
           retryable: true,
-          issues: [{ path: [], customCode: "serviceBusy", message: messages.Common.errors.serviceBusy }],
+          issues: [
+            {
+              path: [],
+              customCode: "serviceBusy",
+              message: messages.Common.errors.serviceBusy,
+            },
+          ],
         },
       });
     });
@@ -320,7 +449,10 @@ describeDatabase("record API consistency against PostgreSQL", () => {
         { fieldId: w.id("deal.name"), value: { kind: "text", value: "Notes" } },
         {
           fieldId: w.id("deal.notes"),
-          value: { kind: "richText", documentJson: JSON.stringify({ type: "script", content: [] }) },
+          value: {
+            kind: "richText",
+            documentJson: JSON.stringify({ type: "script", content: [] }),
+          },
         },
       ]);
     const invalid = {
@@ -335,7 +467,10 @@ describeDatabase("record API consistency against PostgreSQL", () => {
       ],
     };
 
-    expect(await postAs(w, w.admin, mutateRoute, await create())).toEqual({ status: 400, body: { error: invalid } });
+    expect(await postAs(w, w.admin, mutateRoute, await create())).toEqual({
+      status: 400,
+      body: { error: invalid },
+    });
     const input = mutateRecordV2Tool.inputSchema.parse(await create());
     expect(await w.as(w.admin, () => executeMcpTool(mutateRecordV2Tool as never, [input]))).toMatchObject({
       ok: false,
@@ -395,12 +530,20 @@ describeDatabase("record API consistency against PostgreSQL", () => {
     const nest = async () => ({
       expectedRevision: await w.revision(),
       idempotencyKey: randomUUID(),
-      operations: [{ operation: "putType", type: { ...parts, parentRelationshipId: relationId } }],
+      operations: [
+        {
+          operation: "putType",
+          type: { ...parts, parentRelationshipId: relationId },
+        },
+      ],
     });
     const nested = await postAs(w, w.admin, previewRoute, await nest());
     expect(nested.status).toBe(200);
     expect(nested.body.valid).toBe(false);
-    expect(nested.body.issues).toContainEqual({ code: "nested_sublist", typeId: partsId });
+    expect(nested.body.issues).toContainEqual({
+      code: "nested_sublist",
+      typeId: partsId,
+    });
 
     const refused = {
       kind: "validation",
@@ -413,8 +556,14 @@ describeDatabase("record API consistency against PostgreSQL", () => {
         },
       ],
     };
-    expect(await postAs(w, w.admin, applyRoute, await nest())).toEqual({ status: 400, body: { error: refused } });
-    const input = configureRecordModelV2Tool.inputSchema.parse({ action: "apply", change: await nest() });
+    expect(await postAs(w, w.admin, applyRoute, await nest())).toEqual({
+      status: 400,
+      body: { error: refused },
+    });
+    const input = configureRecordModelV2Tool.inputSchema.parse({
+      action: "apply",
+      change: await nest(),
+    });
     expect(await w.as(w.admin, () => executeMcpTool(configureRecordModelV2Tool as never, [input]))).toMatchObject({
       ok: false,
       failure: refused,

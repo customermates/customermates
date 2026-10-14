@@ -41,6 +41,7 @@ const SerializedInteractorIssueSchema = z.object({
   path: z.array(z.union([z.string(), z.number()])),
   message: z.string(),
   customCode: z.enum(CustomErrorCode).optional(),
+  entitlement: z.string().optional(),
 });
 
 export const SerializedInteractorFailureSchema = z.object({
@@ -53,7 +54,13 @@ export type SerializedInteractorFailure = z.infer<typeof SerializedInteractorFai
 
 export function serializedFailureErrorTree(failure: SerializedInteractorFailure) {
   return z.treeifyError(
-    new z.ZodError(failure.issues.map(({ path, message }) => ({ code: "custom" as const, path, message }))),
+    new z.ZodError(
+      failure.issues.map(({ path, message }) => ({
+        code: "custom" as const,
+        path,
+        message,
+      })),
+    ),
   );
 }
 
@@ -178,12 +185,14 @@ export function serializeInteractorFailure(
     ...(isRetryableFailure(error) ? { retryable: true } : {}),
     issues: error.issues.map((issue) => {
       const customCode = issueCustomCode(issue) ?? undefined;
+      const entitlement = issue.code === "custom" ? issue.params?.entitlement : undefined;
 
       return {
         code: issue.code,
         path: serializableIssuePath(issue.path),
         message: issue.message,
         ...(customCode ? { customCode } : {}),
+        ...(typeof entitlement === "string" ? { entitlement } : {}),
       };
     }),
   };
@@ -252,17 +261,29 @@ function nonBlankText(max: number) {
     .string()
     .max(max)
     .superRefine((value, ctx) => {
-      if (value.trim().length === 0)
-        ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.mustNotBeBlank } });
-      if (/\u0000/.test(value))
-        ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.mustNotContainNullChars } });
+      if (value.trim().length === 0) {
+        ctx.addIssue({
+          code: "custom",
+          params: { error: CustomErrorCode.mustNotBeBlank },
+        });
+      }
+      if (/\u0000/.test(value)) {
+        ctx.addIssue({
+          code: "custom",
+          params: { error: CustomErrorCode.mustNotContainNullChars },
+        });
+      }
     });
 }
 
 function nulFreeText() {
   return z.string().superRefine((value, ctx) => {
-    if (/\u0000/.test(value))
-      ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.mustNotContainNullChars } });
+    if (/\u0000/.test(value)) {
+      ctx.addIssue({
+        code: "custom",
+        params: { error: CustomErrorCode.mustNotContainNullChars },
+      });
+    }
   });
 }
 

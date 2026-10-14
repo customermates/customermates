@@ -47,7 +47,7 @@ export default async function InboxPage({ searchParams }: Props) {
   const threadDetail = threadResult?.ok ? threadResult.data : null;
 
   const content = (
-    <InboxSurface threads={threads}>
+    <InboxSurface locked={locked} threads={threads}>
       <div className="flex min-h-0 flex-1 lg:grid lg:grid-cols-[380px_1fr]">
         <div className={cn("min-h-0 min-w-0 flex-1 lg:border-r lg:border-border", threadId && "hidden lg:block")}>
           <InboxList canConnect={canConnect} locked={locked} selectedThreadId={threadId} threads={threads} />
