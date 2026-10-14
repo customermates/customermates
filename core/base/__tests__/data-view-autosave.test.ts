@@ -1380,6 +1380,15 @@ describe("assistant view proposals", () => {
     expect(store.sortDescriptor).toEqual(sort("stage"));
   });
 
+  it("applies a proposed search when the person has no active search", async () => {
+    const store = hydrated();
+    store.applyViewProposal(proposal({ viewKey: undefined, name: "Search", state: { searchTerm: "mate" } }));
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(store.searchTerm).toBe("mate");
+    expect(store.proposal).toEqual({ name: "Search", isNew: true });
+  });
+
   it("starts a proposed new view from All even when another view is open", async () => {
     const store = hydrated();
     store.applyView(VIEW_ID);

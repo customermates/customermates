@@ -22,6 +22,7 @@ import { agentMessageComponents, agentMessageRehypePlugins } from "./agent-messa
 import { cn } from "@/core/utils/cn";
 import { ITEM_REVEAL_CLASS, ITEM_REVEAL_GROUP_CLASS } from "@/components/ui/item-actions";
 import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
+import { DataViewProposalSchema, type DataViewProposal } from "@/core/data-view/data-view-proposal.schema";
 import { ActionTooltip, ItemTime, TypingDots, chatUiCopy, focusAgentComposer } from "./chat-ui";
 import { AgentComposerContexts } from "./agent-composer-contexts";
 
@@ -222,10 +223,12 @@ export const AgentActivity = observer(function AgentActivity({
   isWorking,
   isTrailing,
   items,
+  onReviewProposal,
 }: {
   isWorking: boolean;
   isTrailing: boolean;
   items: Extract<AgentChatItem, { kind: "activity" }>[];
+  onReviewProposal?: (proposal: DataViewProposal) => void;
 }) {
   const t = useTranslations();
   const rows = compactActivityItems(items);
@@ -324,7 +327,14 @@ export const AgentActivity = observer(function AgentActivity({
 
         {viewHref && (
           <Button asChild size="xs" variant="ghost">
-            <AppLink appearance="unstyled" href={viewHref}>
+            <AppLink
+              appearance="unstyled"
+              href={viewHref}
+              onClick={() => {
+                const proposal = DataViewProposalSchema.safeParse(viewActivity?.viewProposal);
+                if (proposal.success) runUserAction(() => onReviewProposal?.(proposal.data));
+              }}
+            >
               {viewActivity?.viewProposed ? t("AgentChat.reviewProposal") : t("AgentChat.openSavedView")}
             </AppLink>
           </Button>

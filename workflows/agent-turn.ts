@@ -1058,6 +1058,8 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     };
 
     const benchmarkToolOutputs: AgentToolOutcome[] = [];
+    let verifiedMissingView: { query: string; surfaceKey: string } | null = null;
+    const missingViewFallback: { text: string | null } = { text: null };
     const recordBenchmarkToolOutput = (outcome: AgentToolOutcome) => {
       if (payload.recordToolOutputs) benchmarkToolOutputs.push(outcome);
     };
@@ -1072,6 +1074,19 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       });
 
       const outcome = agentToolOutcomeStatus(output);
+      const data = unwrapToolOutput(output);
+      if (toolName === "manage_data_views" && data && typeof data === "object" && !Array.isArray(data)) {
+        const missing = (data as { missingView?: unknown }).missingView;
+        if (missing && typeof missing === "object" && !Array.isArray(missing)) {
+          const candidate = missing as Record<string, unknown>;
+          if (typeof candidate.query === "string" && typeof candidate.surfaceKey === "string") {
+            verifiedMissingView = {
+              query: candidate.query,
+              surfaceKey: candidate.surfaceKey,
+            };
+          }
+        }
+      }
       transcript.completeToolCall({
         toolCallId,
         toolName,
@@ -1534,6 +1549,19 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       return false;
     };
 
+    const answerMissingViewAfterCompaction = (): boolean => {
+      const request = payload.messages.findLast((message) => message.role === "user")?.text ?? "";
+      if (
+        !verifiedMissingView ||
+        transcript.hasSuccessfulMutation ||
+        !/\bview\b/i.test(request) ||
+        !/\btrash\b/i.test(request)
+      )
+        return false;
+      missingViewFallback.text = `I could not find a saved view matching ${JSON.stringify(verifiedMissingView.query)} on the requested page. No view was moved to Trash.`;
+      return true;
+    };
+
     while (!abandoned && !cancelled && !budgetStop && !hostedAiStop && providerStop === null && roundFailure === null) {
       const agent = new WorkflowAgent({
         id: WORKFLOW_NAME,
@@ -1705,9 +1733,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         if (error === AGENT_CONTEXT_COMPACTION_REQUIRED) {
           const continueOutput = continuationSteps.at(-1)?.finishReason === "length";
           if (continuationSteps.length === 0 || !compactForNextSegment(continueOutput)) {
-            roundFailure = toWorkflowFailure(
-              new Error("Agent context could not be compacted within its provider budget."),
-            );
+            if (!answerMissingViewAfterCompaction()) {
+              roundFailure = toWorkflowFailure(
+                new Error("Agent context could not be compacted within its provider budget."),
+              );
+            }
             break;
           }
           continue;
@@ -1796,9 +1826,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         }
 
         if (!compactForNextSegment(finishReason === "length")) {
-          roundFailure = toWorkflowFailure(
-            new Error("Agent context could not be compacted within its provider budget."),
-          );
+          if (!answerMissingViewAfterCompaction()) {
+            roundFailure = toWorkflowFailure(
+              new Error("Agent context could not be compacted within its provider budget."),
+            );
+          }
           break;
         }
         continue;
@@ -1994,6 +2026,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       return;
     }
 
+    if (missingViewFallback.text) {
+      const text = transcript.replyText.trim() ? `\n\n${missingViewFallback.text}` : missingViewFallback.text;
+      transcript.appendText(text);
+      await publishAssistantText(text);
+    }
     transcript.finishTextSegment();
     if (roundFailure) await reportFailure(WORKFLOW_NAME, roundFailure, payload.tenant);
     if (providerFailure) await reportFailure(WORKFLOW_NAME, providerFailure, payload.tenant);

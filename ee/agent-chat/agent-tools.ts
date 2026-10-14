@@ -1,4 +1,4 @@
-import { getGetRecordInteractor, getGetRecordNavigationInteractor } from "@/core/di";
+import { getGetRecordInteractor, getGetRecordNavigationInteractor, getGetRecordOperationInteractor } from "@/core/di";
 import { asSchema, jsonSchema, tool, type ToolSet } from "ai";
 import { agentToolOutputContext } from "./agent-activity-context";
 import { boundedAgentToolFailure } from "./agent-tool-failure";
@@ -220,16 +220,43 @@ export function agentToolResult(
     operation && typeof operation === "object" && !Array.isArray(operation)
       ? (operation as Record<string, unknown>)
       : null;
+  if (
+    outcome.ok &&
+    context.toolName === "configure_record_model" &&
+    (operationResult?.status === "failed" || operationResult?.status === "cancelled")
+  ) {
+    return {
+      ok: false as const,
+      applied: false,
+      result: agentToolResultText(outcome.result, maxChars),
+    };
+  }
   if (outcome.ok && content?.proposed === true) {
     const viewProposal = agentToolViewProposal(context.toolName, outcome);
     return {
       ok: true as const,
       applied: false,
       result: agentToolResultText(
-        `PROPOSAL ONLY. Nothing was saved or changed. The user must review and save this view in the app. ${outcome.result}`,
+        `PROPOSAL ONLY. Nothing was saved or changed. The user must click Review and save view in Mate, then Save on the list page. No permanent view link exists until then. ${encodeToToon(Object.fromEntries(Object.entries(content).filter(([key]) => key !== "link")))}`,
         maxChars,
       ),
       ...(viewProposal ? { viewProposal } : {}),
+    };
+  }
+  if (
+    outcome.ok &&
+    context.toolName === "manage_data_views" &&
+    content?.action === "list" &&
+    content.total === 0 &&
+    typeof input.query === "string"
+  ) {
+    return {
+      ok: true as const,
+      missingView: { query: input.query, surfaceKey: content.surfaceKey },
+      result: agentToolResultText(
+        `No saved view matches ${JSON.stringify(input.query)} on ${String(content.surfaceKey)}. The search covers every saved view on this page, so do not substitute another view or repeat this search. Tell the user the named view was not found; no view was changed.`,
+        maxChars,
+      ),
     };
   }
   if (
@@ -378,10 +405,57 @@ function providerSafeSchema<TSchema extends z.ZodType>(inputSchema: TSchema) {
     {
       validate: async (value) => {
         const result = await inputSchema.safeParseAsync(value);
-        return result.success ? { success: true, value: result.data } : { success: false, error: result.error };
+        if (result.success) return { success: true, value: result.data };
+        const keys = inputSchema instanceof z.ZodObject ? Object.keys(inputSchema.shape) : [];
+        if (!keys.length || !result.error.issues.some((issue) => issue.code === "unrecognized_keys"))
+          return { success: false, error: result.error };
+        const issues = result.error.issues.map((issue) =>
+          issue.code === "unrecognized_keys" && issue.path.length === 0
+            ? {
+                ...issue,
+                message: `${issue.message}. Valid top-level keys: ${keys.join(", ")}.`,
+              }
+            : issue,
+        );
+        return { success: false, error: new z.ZodError(issues) };
       },
     },
   );
+}
+
+async function completedConfigurationOutcome(outcome: McpToolExecutionResult): Promise<McpToolExecutionResult> {
+  const result = outcome.ok ? outcome.structuredContent?.result : null;
+  if (!result || typeof result !== "object" || Array.isArray(result)) return outcome;
+  const operation = result as Record<string, unknown>;
+  if (operation.status !== "pending" || typeof operation.operationId !== "string") return outcome;
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const read = await getGetRecordOperationInteractor().invoke({
+      operationId: operation.operationId,
+    });
+    if (!read.ok) return outcome;
+    if (read.data.state === "completed" && read.data.result) {
+      return {
+        ok: true,
+        result: encodeToToon({ action: "apply", result: read.data.result }),
+        structuredContent: { action: "apply", result: read.data.result },
+      };
+    }
+    if (read.data.state === "failed" || read.data.state === "cancelled") {
+      return {
+        ok: true,
+        result: `Configuration operation ${read.data.state}; no change was published. Read operation ${operation.operationId} for its error code.`,
+        structuredContent: {
+          action: "apply",
+          result: {
+            status: read.data.state,
+            operationId: operation.operationId,
+          },
+        },
+      };
+    }
+    if (attempt < 4) await new Promise((resolve) => setTimeout(resolve, read.data.retryAfterMs ?? 5000));
+  }
+  return outcome;
 }
 
 const HighlightElementSchema = z.object({
@@ -531,9 +605,11 @@ function crmTool(
     execute: async (input: unknown, { toolCallId }) => {
       const execute = async () => {
         const proposes = mcp.name === "manage_data_views" && surface !== undefined && !isUnattendedSurface(surface);
-        const outcome = await executeMcpTool(hostedMcpTool(proposes ? proposingManageDataViewsTool : mcp, rankers), [
+        let outcome = await executeMcpTool(hostedMcpTool(proposes ? proposingManageDataViewsTool : mcp, rankers), [
           input,
         ]);
+        if (mcp.name === "configure_record_model" && outcome.ok && (input as { action?: unknown }).action === "apply")
+          outcome = await completedConfigurationOutcome(outcome);
         if (mcp.name === "mutate_crm_record" && outcome.ok) {
           const failure = await verifyAgentRecordUpdate(input, outcome.structuredContent, (ref) =>
             getGetRecordInteractor().invoke(ref),

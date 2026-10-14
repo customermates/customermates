@@ -111,6 +111,20 @@ function boundedAnalysisSummary(serialized: string, rowsRead: number, maxChars: 
   return best;
 }
 
+function missingMapInput(code: string, input: string): string | null {
+  const data: unknown = JSON.parse(input);
+  if (!Array.isArray(data)) return null;
+  const references = [...code.matchAll(/data\s*\[\s*(\d+)\s*\]\s*\.\s*([A-Za-z_$][\w$]*)\s*\.\s*map\s*\(/g)];
+  for (const match of references) {
+    const index = Number(match[1]);
+    const key = match[2];
+    const record = data[index];
+    if (key && record && typeof record === "object" && !Array.isArray(record) && !(key in record))
+      return `data[${index}].${key}`;
+  }
+  return null;
+}
+
 function withinDataCap(usage: DataUsage, value: unknown): boolean {
   usage.bytes += Buffer.byteLength(JSON.stringify(value), "utf8");
   return usage.bytes <= ANALYSIS_MAX_BYTES;
@@ -447,9 +461,20 @@ export async function analyzeRecords(
     deps.limits,
   );
   if (!analysis.ok) {
-    if ("error" in analysis) return { ok: false, result: analysis.error };
-    if (analysis.resultChars <= 64_000) {
-      const expanded = await runAnalysisCode(input.code, collected.input, 64_000, deps.limits);
+    if ("error" in analysis) {
+      const missing =
+        /\bundefined\b/i.test(analysis.error) && /\bmap\b/i.test(analysis.error)
+          ? missingMapInput(input.code, collected.input)
+          : null;
+      return {
+        ok: false,
+        result: missing
+          ? `${analysis.error} ${missing} is undefined; inspect that read's returned keys before calling map.`
+          : analysis.error,
+      };
+    }
+    if (analysis.resultChars <= 1_000_000) {
+      const expanded = await runAnalysisCode(input.code, collected.input, 1_000_000, deps.limits);
       if (expanded.ok && expanded.serialized) {
         const summary = boundedAnalysisSummary(expanded.serialized, collected.rows, deps.resultMaxChars);
         if (summary) return { ok: true, result: summary };
