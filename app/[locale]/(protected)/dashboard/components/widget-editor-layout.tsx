@@ -101,5 +101,5 @@ export function initialWidgetEditorSegment(section: string): WidgetEditorSegment
 }
 
 export function opensWidgetFilters(section: string) {
-  return ["filters", "dealFilters", "activityFilters"].includes(section);
+  return ["filters", "activityFilters"].includes(section);
 }

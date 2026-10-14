@@ -13,7 +13,7 @@ import { canUseApiKeys } from "@/core/auth/api-key-route-guard";
 import { ApiKeyAccessDeniedError } from "@/core/auth/api-key-access-denied-error";
 
 export type { TenantUser } from "./user.schema";
-export type { AuthUserAccountState, FindUserRepo } from "./find-user.repo";
+export type { FindUserRepo } from "./find-user.repo";
 
 export class UserService {
   constructor(

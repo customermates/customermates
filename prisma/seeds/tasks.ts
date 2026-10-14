@@ -2,8 +2,6 @@ import type { SeedContext } from "./context";
 import { northwindAt, northwindDataset } from "./northwind-data";
 import { northwindUpdatedAt } from "./northwind-history";
 
-export const SYNTHETIC_TASK_NAMES = northwindDataset().tasks.map(({ name }) => name);
-
 const TASK_STATUSES = ["open", "inProgress", "blocked", "onHold", "done", "archived"] as const;
 const TASK_PRIORITIES = ["low", "medium", "high"] as const;
 
@@ -16,11 +14,6 @@ export const SYNTHETIC_TASK_STATUS_INDEXES = northwindDataset().tasks.map(({ sta
 export const SYNTHETIC_TASK_PRIORITY_INDEXES = northwindDataset().tasks.map(({ priority }) =>
   TASK_PRIORITIES.indexOf(priority),
 );
-
-/** Tasks that have an assignee. */
-export const SYNTHETIC_ASSIGNED_TASK_INDEXES = northwindDataset()
-  .tasks.filter(({ assigneeKey }) => assigneeKey !== null)
-  .map(({ index }) => index);
 
 export type TaskDefinition = readonly [
   name: string,

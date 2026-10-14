@@ -9,8 +9,6 @@ export const SYNTHETIC_ORGANIZATION_DEFINITIONS = northwindDataset().organizatio
   website,
 }));
 
-export const SYNTHETIC_ORGANIZATION_NAMES = SYNTHETIC_ORGANIZATION_DEFINITIONS.map(({ name }) => name);
-
 export type OrganizationFixture = {
   companyId: string;
   createdAt: Date;

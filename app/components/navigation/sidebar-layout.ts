@@ -159,19 +159,6 @@ export function moveSidebarItem(
   return { ...resolved, entries };
 }
 
-export function moveSidebarItemBefore(resolved: ResolvedSidebar, item: string, before: string): ResolvedSidebar {
-  if (item === before) return resolved;
-  const entries = withoutItem(resolved.entries, item);
-  const container = containerOf({ ...resolved, entries }, before);
-  if (container === undefined) return resolved;
-  if (container === null) {
-    const index = entries.findIndex((entry) => entry.kind === "item" && entry.id === before);
-    return moveSidebarItem(resolved, item, null, index);
-  }
-  const section = entries.find((entry): entry is SidebarSection => entry.kind === "section" && entry.id === container);
-  return moveSidebarItem(resolved, item, container, section?.items.indexOf(before));
-}
-
 export function shiftSidebarItem(
   resolved: ResolvedSidebar,
   item: string,

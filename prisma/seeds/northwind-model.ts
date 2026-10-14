@@ -16,7 +16,6 @@ import { fixtureId } from "./helpers";
  */
 
 export const NORTHWIND_COMPANY_NAME = "Northwind Labs";
-export const NORTHWIND_PRODUCT_NAME = "Northwind Field";
 
 /** Starter list keys (preset) and the custom list keys the demo adds, as `presetId` keys. */
 export const NORTHWIND_STARTER_TYPE_KEYS = ["contact", "organization", "deal", "lineItem", "service", "task"] as const;
@@ -292,8 +291,6 @@ export function northwindModelIds(companyId: string) {
     },
   };
 }
-
-export type NorthwindModelIds = ReturnType<typeof northwindModelIds>;
 
 /** Ids of the seeded demo workspace (`SEED_IDS.company`). */
 export const NORTHWIND_MODEL_IDS = northwindModelIds(SEED_IDS.company);
