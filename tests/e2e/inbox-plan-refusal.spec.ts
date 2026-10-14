@@ -39,7 +39,7 @@ test("a locked German phone Inbox stays quiet and recovers when the subscription
     });
   });
   await page.goto("/de/inbox");
-  await expect(page.getByText("Private subscription thread")).toBeVisible();
+  await expect(page.getByText("Private subscription thread").first()).toBeVisible();
   const actionIds = serverActionIds("app/[locale]/(protected)/inbox/actions.ts", "getMessagingThreadsAction");
   await database.query('UPDATE "Subscription" SET status=$1 WHERE "companyId"=$2', ["pastDue", workspace.companyId]);
   await page.waitForResponse((response) => invokesServerAction(response.request(), actionIds), { timeout: 25_000 });
@@ -65,6 +65,6 @@ test("a locked German phone Inbox stays quiet and recovers when the subscription
   expect(privateState.rows[0]?.sharedToCrm).toBe(false);
   await database.query('UPDATE "Subscription" SET status=$1 WHERE "companyId"=$2', ["active", workspace.companyId]);
   await page.reload();
-  await expect(page.getByText("Private subscription thread")).toBeVisible();
+  await expect(page.getByText("Private subscription thread").first()).toBeVisible();
   expect(errors).toEqual([]);
 });
