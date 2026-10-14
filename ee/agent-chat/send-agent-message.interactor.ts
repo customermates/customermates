@@ -464,6 +464,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
             text: partsToText(message.parts),
             pageRoute: null,
             contexts: agentContextsFromMessageParts(message.parts),
+            surface,
           }),
         ]);
       const toolsets = [...new Set([...requestedToolsets, ...priorToolsets, ...earlierRequestToolsets])];

@@ -138,6 +138,15 @@ export function serializedAgentContextBytes(value: unknown): number | null {
   }
 }
 
+function withoutSystem<T extends { system: string }>({ system: _system, ...sent }: T) {
+  return sent;
+}
+
+export function agentStepContext<T extends { system: string; messages: readonly unknown[] }>(context: T) {
+  const [first] = context.messages as readonly { role?: unknown; content?: unknown }[];
+  return first?.role === "system" && first.content === context.system ? withoutSystem(context) : context;
+}
+
 export function isAgentContextWithinBudget(value: unknown, maxContextBytes: number) {
   if (!Number.isSafeInteger(maxContextBytes) || maxContextBytes < 1) return false;
   const bytes = serializedAgentContextBytes(value);

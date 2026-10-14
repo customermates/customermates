@@ -38,6 +38,8 @@ Each user has their own allowance: Starter includes [[commercial.entitlement.sta
 
 Skipped runs do not count against the hourly cap.
 
+Every routine run starts with core CRM tools and loads other tool sets when needed. This keeps unrelated tool descriptions out of the model context. If the context still exceeds the provider budget after compaction, the run stops and its history states the context-limit reason.
+
 ## Schedules: how do I run a routine every morning or every Monday? [#how-do-schedules-work]
 
 In [Routines](app:routines), open a routine or click [Add](app:routines?focus=add), then under **Repeats** choose **Every 15 minutes**, **Every 30 minutes**, **Every hour**, **Every day**, **Every week** or **Every month**, plus the weekday, day of the month (1 to 28) or time in five-minute steps where needed. The default is every day at 09:00. For hourly and longer presets the schedule is spelled out underneath, followed by **Times are shown in** and the time zone, which comes from the browser the routine was created in (UTC if unknown).
@@ -56,8 +58,6 @@ Two optional controls keep a routine from spending credits on cases you do not c
 Leave both empty to run on every matching event. An event starts a run only for a record or conversation the owner can see, so with **Assigned** read access other people's records never trigger it. An event is also skipped, without a run entry, when a run of that routine is already queued or running, within the debounce window, or over the hourly cap. When the run starts, the owner's access and the filters are checked again.
 
 Mate is told what happened before your instructions: the event, the kind of record and its ID, the changed fields on an update, and for an inbox event the thread. It can read the record from there but does not get the previous values.
-
-An event run starts with core CRM tools and loads other tool sets when needed. This keeps unrelated tool descriptions out of the model context. If the context still exceeds the provider budget after compaction, the run stops and its history states the context-limit reason.
 
 ## What do the runs and their statuses mean? [#what-do-the-runs-and-their-statuses-mean]
 
