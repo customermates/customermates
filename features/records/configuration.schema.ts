@@ -217,7 +217,7 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
   return z
     .object({
       expectedRevision: z.number().int().nonnegative(),
-      idempotencyKey: z.string().min(8).max(200),
+      idempotencyKey: StoredModelStringSchema.min(8).max(200),
       operations: z
         .array(
           z.discriminatedUnion("operation", [
@@ -318,7 +318,7 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
                 operation: z.literal("publishSummary"),
                 fieldId: ConfigurationReferenceSchema,
                 published: z.boolean(),
-                dependencyHash: z.string().length(64),
+                dependencyHash: StoredModelStringSchema.length(64),
               })
               .strict(),
             z

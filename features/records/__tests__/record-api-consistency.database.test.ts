@@ -328,6 +328,51 @@ describeDatabase("record API consistency against PostgreSQL", () => {
     }
   }, 120_000);
 
+  it("rejects NUL in put-type and put-field metadata through preview and apply", async () => {
+    const w = await workspace();
+    const revision = await w.revision();
+    const model = (await postAs(w, w.admin, readModelRoute, {})).body;
+    const type = (model.types as Array<Record<string, unknown>>)[0];
+    const field = (model.fields as Array<Record<string, unknown>>).find(
+      (candidate) => Array.isArray(candidate.options) && candidate.options.length > 0,
+    );
+    if (!type || !field) throw new Error("Expected configurable model metadata");
+    const editableField = { ...field };
+    delete editableField.publishedSummary;
+    const option = (field.options as Array<Record<string, unknown>>)[0];
+    const cases = [
+      {
+        operation: { operation: "putType", type: { ...type, description: "Before\u0000after" } },
+        path: ["type", "description"],
+      },
+      { operation: { operation: "putType", type: { ...type, icon: "Before\u0000after" } }, path: ["type", "icon"] },
+      {
+        operation: { operation: "putField", field: { ...editableField, label: "Before\u0000after" } },
+        path: ["field", "label"],
+      },
+      {
+        operation: {
+          operation: "putField",
+          field: { ...editableField, options: [{ ...option, label: "Before\u0000after" }] },
+        },
+        path: ["field", "options", 0, "label"],
+      },
+    ];
+    for (const item of cases) {
+      const change = { expectedRevision: revision, idempotencyKey: randomUUID(), operations: [item.operation] };
+      const responses = await Promise.all([previewRoute, applyRoute].map((route) => postAs(w, w.admin, route, change)));
+      for (const response of responses)
+        expect(response).toMatchObject({
+          status: 400,
+          body: {
+            error: { kind: "validation", issues: [expect.objectContaining({ path: ["operations", 0, ...item.path] })] },
+          },
+        });
+      expect(responses[0].body).toEqual(responses[1].body);
+      expect(await w.revision()).toBe(revision);
+    }
+  }, 120_000);
+
   it("refuses Trash restore quickly while another connection holds the company lock", async () => {
     const w = await workspace();
     const record = await w.create("deal", "deal.name", "Restore lock test");

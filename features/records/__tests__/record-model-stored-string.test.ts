@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { ConfigurationChangeSchema } from "../configuration.schema";
 import { createCrmPreset } from "../crm-preset";
-import { RecordFieldSchema, RecordModelSchema, RecordTypeSchema } from "../record-model.schema";
+import { RecordFieldSchema, RecordModelSchema, RecordScalarSchema, RecordTypeSchema } from "../record-model.schema";
 
 const nul = "Before\u0000after";
 
@@ -45,6 +45,25 @@ describe("stored record model strings", () => {
     expect(RecordFieldSchema.safeParse(field).success).toBe(true);
   });
 
+  it("rejects NUL in option metadata, field formatting and default values", () => {
+    const model = createCrmPreset(randomUUID());
+    const field = model.fields.find((candidate) => candidate.options.length > 0);
+    if (!field) throw new Error("Expected a selectable field");
+    const option = field.options[0];
+    const candidates = [
+      { ...field, format: { color: nul } },
+      { ...field, format: { dateFormat: nul } },
+      { ...field, options: [{ ...option, id: nul }] },
+      { ...field, options: [{ ...option, color: nul }] },
+      { ...field, options: [{ ...option, attributes: [{ key: nul, value: { kind: "text", value: "normal" } }] }] },
+      { ...field, behavior: { kind: "input", defaultValue: { kind: "text", value: nul } } },
+    ];
+    for (const candidate of candidates) expect(RecordFieldSchema.safeParse(candidate).success).toBe(false);
+    expect(RecordScalarSchema.safeParse({ kind: "text", value: nul }).success).toBe(false);
+    expect(RecordScalarSchema.safeParse({ kind: "textList", value: [nul] }).success).toBe(false);
+    expect(RecordScalarSchema.safeParse({ kind: "richText", documentJson: nul }).success).toBe(false);
+  });
+
   it("rejects NUL through every configuration write shape", () => {
     const model = createCrmPreset(randomUUID());
     const type = model.types[0];
@@ -67,6 +86,7 @@ describe("stored record model strings", () => {
     };
     for (const property of ["label", "pluralLabel", "description", "icon"] as const)
       expect(ConfigurationChangeSchema.safeParse(change({ ...createType, [property]: nul })).success).toBe(false);
+    expect(ConfigurationChangeSchema.safeParse({ ...change(createType), idempotencyKey: nul }).success).toBe(false);
     expect(
       ConfigurationChangeSchema.safeParse(change({ operation: "putType", type: { ...type, description: nul } }))
         .success,

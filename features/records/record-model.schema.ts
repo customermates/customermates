@@ -40,11 +40,11 @@ export const RecordDateTimeSchema = z.iso
   .datetime({ offset: true })
   .refine((value) => !/\.\d{7}/.test(value), "Timestamp precision cannot exceed six decimal places");
 const ValidatedRecordScalarSchema = z.discriminatedUnion("kind", [
-  z.object({ kind: z.literal("text"), value: z.string().max(100000) }).strict(),
+  z.object({ kind: z.literal("text"), value: StoredModelStringSchema.max(100000) }).strict(),
   z
     .object({
       kind: z.literal("textList"),
-      value: z.array(z.string().max(100000)).min(1).max(100),
+      value: z.array(StoredModelStringSchema.max(100000)).min(1).max(100),
     })
     .strict(),
   z
@@ -68,16 +68,16 @@ const ValidatedRecordScalarSchema = z.discriminatedUnion("kind", [
   z
     .object({
       kind: z.literal("range"),
-      start: z.string().nullable(),
-      end: z.string().nullable(),
+      start: StoredModelStringSchema.nullable(),
+      end: StoredModelStringSchema.nullable(),
     })
     .strict(),
-  z.object({ kind: z.literal("select"), value: z.string().min(1).max(200) }).strict(),
+  z.object({ kind: z.literal("select"), value: StoredModelStringSchema.min(1).max(200) }).strict(),
   z
     .object({
       kind: z.literal("selectList"),
       value: z
-        .array(z.string().min(1).max(200))
+        .array(StoredModelStringSchema.min(1).max(200))
         .min(1)
         .max(100)
         .refine((ids) => new Set(ids).size === ids.length, "Each option can be selected once"),
@@ -87,12 +87,9 @@ const ValidatedRecordScalarSchema = z.discriminatedUnion("kind", [
   z
     .object({
       kind: z.literal("richText"),
-      documentJson: z
-        .string()
-        .max(1000000)
-        .describe(
-          "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions.",
-        ),
+      documentJson: StoredModelStringSchema.max(1000000).describe(
+        "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions.",
+      ),
     })
     .strict(),
 ]);
@@ -111,15 +108,21 @@ export const RecordScalarSchema = z
       "member",
       "richText",
     ]),
-    value: z.union([z.string().max(100000), z.boolean(), z.array(z.string().max(100000)).min(1).max(100)]).optional(),
+    value: z
+      .union([
+        StoredModelStringSchema.max(100000),
+        z.boolean(),
+        z.array(StoredModelStringSchema.max(100000)).min(1).max(100),
+      ])
+      .optional(),
     currency: z
       .string()
       .regex(/^[A-Z]{3}$/)
       .nullable()
       .optional(),
-    start: z.string().nullable().optional(),
-    end: z.string().nullable().optional(),
-    documentJson: z.string().max(1000000).optional(),
+    start: StoredModelStringSchema.nullable().optional(),
+    end: StoredModelStringSchema.nullable().optional(),
+    documentJson: StoredModelStringSchema.max(1000000).optional(),
   })
   .strict()
   .describe(
@@ -311,8 +314,8 @@ export const RecordFieldSchema = z
       ),
     format: z
       .object({
-        color: z.string().max(64).nullable().optional(),
-        dateFormat: z.string().max(64).nullable().optional(),
+        color: StoredModelStringSchema.max(64).nullable().optional(),
+        dateFormat: StoredModelStringSchema.max(64).nullable().optional(),
         currency: z
           .string()
           .regex(/^[A-Z]{3}$/)
@@ -340,10 +343,10 @@ export const RecordFieldSchema = z
     options: z.array(
       z
         .object({
-          id: z.string().min(1).max(200),
+          id: StoredModelStringSchema.min(1).max(200),
           label: RecordOptionNameSchema,
-          color: z.string().max(64).nullable(),
-          attributes: z.array(z.object({ key: z.string().max(64), value: RecordScalarSchema }).strict()),
+          color: StoredModelStringSchema.max(64).nullable(),
+          attributes: z.array(z.object({ key: StoredModelStringSchema.max(64), value: RecordScalarSchema }).strict()),
         })
         .strict(),
     ),
