@@ -33,7 +33,14 @@ describe("shared account actions", () => {
     mocks.resolveAccountState.mockResolvedValue({
       state: "allowed",
       sessionUser: { email: "session@example.com", name: "Session Name", image: null },
-      user: { id: "user-1", firstName: "Anna", lastName: "Müller", email: "anna@example.com", avatarUrl: "/a.png", companyId: "c-1" },
+      user: {
+        id: "user-1",
+        firstName: "Anna",
+        lastName: "Müller",
+        email: "anna@example.com",
+        avatarUrl: "/a.png",
+        companyId: "c-1",
+      },
       legalStatus: { accepted: true },
       subscription: { status: "active" },
     });

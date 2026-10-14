@@ -1,4 +1,3 @@
-import type { ComponentProps } from "react";
 import type { MDXComponents } from "mdx/types";
 import type { ComponentProps, ReactNode } from "react";
 

@@ -77,10 +77,6 @@ const ALLOWED_VISIBLE_COPY_SITES = new Map<string, VisibleCopyException>([
     'components/emails/base/email-layout.tsx :: jsx-text :: "Customermates ·"',
     'components/marketing/founder-contact-card.tsx :: jsx-text :: "Benjamin Wagner"',
     'components/marketing/comparison-table.tsx :: jsx-alt :: "Customermates"',
-    'app/[locale]/(static)/components/homepage-mcp-snippet.tsx :: jsx-text :: "Cursor"',
-  ]),
-  ...reviewedVisibleCopy("Terminal and keyboard tokens have invariant external meaning.", [
-    'app/[locale]/(static)/components/homepage-mcp-snippet.tsx :: jsx-text :: "mcp.json"',
   ]),
   ...reviewedVisibleCopy("Reciprocal directory labels are externally defined and locale-invariant.", [
     'app/components/footer-content.tsx :: jsx-text :: "Viesearch - The Human-curated Search Engine"',

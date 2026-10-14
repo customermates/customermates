@@ -89,7 +89,7 @@ describe("InboxPage subscription lock", () => {
   });
 
   it("redirects a request for the latest thread to the newest thread and keeps other parameters", async () => {
-    mocks.getSubscription.mockResolvedValue(subscription(SubscriptionPlan.pro, SubscriptionStatus.active));
+    mocks.getAccountsState.mockResolvedValue(state({ state: "available", canConnect: true, accounts: [] }));
     mocks.getThreads.mockResolvedValue({ ok: true, data: { items: [{ id: threadId }] } });
 
     await expect(
@@ -99,7 +99,7 @@ describe("InboxPage subscription lock", () => {
   });
 
   it("redirects to the plain list when the latest thread is requested but none exist", async () => {
-    mocks.getSubscription.mockResolvedValue(subscription(SubscriptionPlan.pro, SubscriptionStatus.active));
+    mocks.getAccountsState.mockResolvedValue(state({ state: "available", canConnect: true, accounts: [] }));
     mocks.getThreads.mockResolvedValue({ ok: true, data: { items: [] } });
 
     await expect(InboxPage({ searchParams: Promise.resolve({ threadId: "latest" }) })).rejects.toThrow(
