@@ -313,7 +313,7 @@ describeDatabase("record API consistency against PostgreSQL", () => {
         operations: [operation],
       };
       const responses = await Promise.all([previewRoute, applyRoute].map((route) => postAs(w, w.admin, route, change)));
-      for (const response of responses)
+      for (const response of responses) {
         expect(response).toMatchObject({
           status: 400,
           body: {
@@ -323,6 +323,7 @@ describeDatabase("record API consistency against PostgreSQL", () => {
             },
           },
         });
+      }
       expect(responses[0].body).toEqual(responses[1].body);
       expect(await w.revision()).toBe(revision);
     }
@@ -361,13 +362,14 @@ describeDatabase("record API consistency against PostgreSQL", () => {
     for (const item of cases) {
       const change = { expectedRevision: revision, idempotencyKey: randomUUID(), operations: [item.operation] };
       const responses = await Promise.all([previewRoute, applyRoute].map((route) => postAs(w, w.admin, route, change)));
-      for (const response of responses)
+      for (const response of responses) {
         expect(response).toMatchObject({
           status: 400,
           body: {
             error: { kind: "validation", issues: [expect.objectContaining({ path: ["operations", 0, ...item.path] })] },
           },
         });
+      }
       expect(responses[0].body).toEqual(responses[1].body);
       expect(await w.revision()).toBe(revision);
     }

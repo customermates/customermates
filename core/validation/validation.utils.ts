@@ -261,26 +261,29 @@ function nonBlankText(max: number) {
     .string()
     .max(max)
     .superRefine((value, ctx) => {
-      if (value.trim().length === 0)
+      if (value.trim().length === 0) {
         ctx.addIssue({
           code: "custom",
           params: { error: CustomErrorCode.mustNotBeBlank },
         });
-      if (/\u0000/.test(value))
+      }
+      if (/\u0000/.test(value)) {
         ctx.addIssue({
           code: "custom",
           params: { error: CustomErrorCode.mustNotContainNullChars },
         });
+      }
     });
 }
 
 function nulFreeText() {
   return z.string().superRefine((value, ctx) => {
-    if (/\u0000/.test(value))
+    if (/\u0000/.test(value)) {
       ctx.addIssue({
         code: "custom",
         params: { error: CustomErrorCode.mustNotContainNullChars },
       });
+    }
   });
 }
 

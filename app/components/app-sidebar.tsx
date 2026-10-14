@@ -329,12 +329,13 @@ const FullAppSidebar = observer(
         label: t("NavigationBar.addEntity", { entity: type.label }),
         typeId: type.id,
       }));
-    if (recordWorkspaceStore.navigation?.canManageSchema)
+    if (recordWorkspaceStore.navigation?.canManageSchema) {
       addItems.push({
         key: "create-list",
         label: t("RecordModel.createList"),
         typeId: null,
       });
+    }
 
     if (isDocsRoute && !restricted) return null;
 
