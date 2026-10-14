@@ -37,16 +37,15 @@ function quotedTargetName(text: string | null): string | null {
 export function approvalTargetRefusal(
   request: ApprovalTargetRequest,
   activity: AgentActivityDescriptor | undefined,
+  resolvedNames: readonly string[],
   seen: Set<string>,
   latestUserText: string | null,
 ): string | null {
   if (!requiresResolvedApprovalTarget(request)) return null;
-  if (!activity?.context)
+  if (!activity?.context || resolvedNames.length === 0)
     return "The exact deletion target could not be found in the current records or Trash. Nothing was changed. Read the target again and use its exact name and ID.";
   const expectedName = quotedTargetName(latestUserText);
-  const labels = activity.context.labels;
-  const resolvedName = labels[0].includes(": ") ? labels[0].split(": ").slice(1).join(": ") : labels[0];
-  if (expectedName && labels.length === 1 && resolvedName !== expectedName)
+  if (expectedName && resolvedNames.length === 1 && resolvedNames[0] !== expectedName)
     return `The exact deletion target named "${expectedName}" was not found. Nothing was changed. Read the target again and use its current name and ID.`;
   const key = destructiveApprovalTargetKey(request);
   if (key && seen.has(key))
