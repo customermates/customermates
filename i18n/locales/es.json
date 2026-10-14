@@ -40,7 +40,7 @@
     "activity": {
       "approval": {
         "generic": "Listo para hacer un cambio que necesita tu aprobación",
-        "genericPermanent": "Listo para eliminar permanentemente {target}. Esta acción no se puede deshacer.",
+        "genericPermanent": "Listo para eliminar permanentemente {target}",
         "messages": {
           "discard": "Listo para descartar el borrador",
           "draft": "Listo para guardar un borrador",

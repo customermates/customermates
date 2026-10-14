@@ -69,6 +69,8 @@ export function configurationTypeChanges(
     );
   for (const field of model.fields) {
     const before = current.fields.find((candidate) => candidate.id === field.id);
+    if (!before && field.behavior.kind === "input" && !field.required && field.behavior.defaultValue === undefined)
+      continue;
     if (before && (before.valueType === "channels") !== (field.valueType === "channels")) {
       issues.push({
         code: "channels_type_change",

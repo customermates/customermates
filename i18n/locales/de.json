@@ -40,7 +40,7 @@
     "activity": {
       "approval": {
         "generic": "Bereit für eine Änderung, die deine Freigabe braucht",
-        "genericPermanent": "Bereit, {target} endgültig zu löschen. Das kann nicht rückgängig gemacht werden.",
+        "genericPermanent": "Bereit, {target} endgültig zu löschen",
         "messages": {
           "discard": "Bereit, den Entwurf zu verwerfen",
           "draft": "Bereit, einen Entwurf zu speichern",

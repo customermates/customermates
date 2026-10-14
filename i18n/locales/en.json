@@ -40,7 +40,7 @@
     "activity": {
       "approval": {
         "generic": "Ready to make a change that needs your approval",
-        "genericPermanent": "Ready to permanently delete {target}. This cannot be undone.",
+        "genericPermanent": "Ready to permanently delete {target}",
         "messages": {
           "discard": "Ready to discard the draft",
           "draft": "Ready to save a draft",

@@ -63,7 +63,7 @@ import { resolvedAgentApprovalActivity } from "@/ee/agent-chat/agent-approval-ta
 import { approvalTargetRefusal } from "@/ee/agent-chat/agent-approval-guard";
 import { retryAgentFinalization } from "@/ee/agent-chat/agent-finalize-retry";
 import { agentTurnFailureMessageKind } from "@/ee/agent-chat/agent-failure-message";
-import { shouldRetryAgentStreamFailure } from "@/ee/agent-chat/agent-stream-retry";
+import { shouldResumeAgentStreamFailure, shouldRetryAgentStreamFailure } from "@/ee/agent-chat/agent-stream-retry";
 import {
   agentToolOutcomeStatus,
   unwrapToolOutput,
@@ -1720,6 +1720,19 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             completedTools: completedTools.length,
             approvedCalls: approvedCalls.size,
           })
+        ) {
+          streamFailureRetries += 1;
+          continue;
+        }
+        if (
+          shouldResumeAgentStreamFailure(
+            error,
+            streamFailureRetries,
+            Math.min(2, fundedRetryCount()),
+            continuationSteps.length,
+            approvedCalls.size,
+          ) &&
+          compactForNextSegment(false)
         ) {
           streamFailureRetries += 1;
           continue;
