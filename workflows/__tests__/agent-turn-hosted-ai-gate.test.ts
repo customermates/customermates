@@ -952,6 +952,50 @@ describe("agent-turn hosted-AI provider gates", () => {
 });
 
 describe("agent-turn credit-bounded continuation", () => {
+  it("measures the first round with the system prompt the step already carries counted once", async () => {
+    const wikiCatalog = JSON.stringify({
+      wiki: { total: 1, items: [{ title: "Voice", excerpt: "x".repeat(20_000) }] },
+    });
+    const systemBytes = new TextEncoder().encode(
+      agentWikiSystemPrompt({ stable: "system", volatile: "volatile" }, wikiCatalog),
+    ).byteLength;
+    state.runTools = ({ messages }) =>
+      Promise.resolve({ finishReason: "stop", messages, steps: [streamedStep("Done.", "stop")] });
+
+    await runAgentTurn({
+      ...payload,
+      wikiCatalog,
+      turnBudget: { ...payload.turnBudget, maxContextBytes: systemBytes + 5_000 },
+    });
+
+    expect(state.providerCalls).toBe(1);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "completed", stopReason: null }),
+    );
+  });
+
+  it("stops before the first round when the system prompt alone exceeds the provider context", async () => {
+    const wikiCatalog = JSON.stringify({
+      wiki: { total: 1, items: [{ title: "Voice", excerpt: "x".repeat(20_000) }] },
+    });
+    const systemBytes = new TextEncoder().encode(
+      agentWikiSystemPrompt({ stable: "system", volatile: "volatile" }, wikiCatalog),
+    ).byteLength;
+    state.runTools = ({ messages }) =>
+      Promise.resolve({ finishReason: "stop", messages, steps: [streamedStep("Done.", "stop")] });
+
+    await runAgentTurn({
+      ...payload,
+      wikiCatalog,
+      turnBudget: { ...payload.turnBudget, maxContextBytes: systemBytes - 1_000 },
+    });
+
+    expect(state.providerCalls).toBe(0);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "partial", stopReason: "context_limit" }),
+    );
+  });
+
   it("continues a length-truncated response from captured partial output without replaying the original prompt", async () => {
     let segment = 0;
     const seenMessages: unknown[][] = [];

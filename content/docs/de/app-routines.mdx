@@ -38,6 +38,8 @@ Jeder Nutzer hat ein eigenes Kontingent: Starter enthält [[commercial.entitleme
 
 Übersprungene Läufe zählen nicht gegen die Stundenobergrenze.
 
+Jeder Routinelauf beginnt mit den grundlegenden CRM-Werkzeugen und lädt weitere Werkzeuggruppen bei Bedarf. So belegen ungenutzte Werkzeugbeschreibungen keinen Modellkontext. Überschreitet der Kontext auch nach der Komprimierung das Anbieterbudget, endet der Lauf; im Verlauf steht der konkrete Grund zur Kontextgrenze.
+
 ## Zeitpläne: Wie plane ich eine Routine für jeden Morgen oder jeden Montag? [#how-do-schedules-work]
 
 Öffnen Sie in [Routinen](app:routines) eine Routine oder klicken Sie auf [Hinzufügen](app:routines?focus=add), und wählen Sie unter **Wiederholung** **Alle 15 Minuten**, **Alle 30 Minuten**, **Stündlich**, **Täglich**, **Wöchentlich** oder **Monatlich**, dazu wo nötig den Wochentag, den Tag im Monat (1 bis 28) oder die Uhrzeit in Fünf-Minuten-Schritten. Standard ist täglich um 09:00. Ab **Stündlich** steht der Zeitplan darunter ausgeschrieben, gefolgt von **Zeiten werden in … angezeigt** mit der Zeitzone, die aus dem Browser stammt, in dem die Routine erstellt wurde (UTC, wenn unbekannt).
@@ -56,8 +58,6 @@ Zwei optionale Controls verhindern, dass eine Routine Credits für Fälle ausgib
 Lassen Sie beide leer, um bei jedem passenden Ereignis zu laufen. Ein Ereignis startet nur für einen Datensatz oder eine Unterhaltung, die der Eigentümer sehen kann, einen Lauf; mit Lesezugriff **Zugewiesen** lösen die Datensätze anderer die Routine also nie aus. Ein Ereignis wird außerdem ohne Eintrag übersprungen, wenn bereits ein Lauf der Routine wartet oder läuft, innerhalb des Debounce-Fensters oder über der Stundenobergrenze. Beim Start des Laufs werden Zugriff des Eigentümers und Filter erneut geprüft.
 
 Mate erfährt vor Ihren Anweisungen, was passiert ist: das Ereignis, die Art des Datensatzes und seine ID, bei einer Aktualisierung die geänderten Felder und bei einem Posteingangs-Ereignis den Thread. Den Datensatz kann Mate von dort aus lesen, die vorherigen Werte erhält es nicht.
-
-Ein Ereignislauf beginnt mit den grundlegenden CRM-Werkzeugen und lädt weitere Werkzeuggruppen bei Bedarf. So belegen ungenutzte Werkzeugbeschreibungen keinen Modellkontext. Überschreitet der Kontext auch nach der Komprimierung das Anbieterbudget, endet der Lauf; im Verlauf steht der konkrete Grund zur Kontextgrenze.
 
 ## Was bedeuten die Läufe und ihre Status? [#what-do-the-runs-and-their-statuses-mean]
 
