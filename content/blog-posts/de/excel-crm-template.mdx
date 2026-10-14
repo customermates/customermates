@@ -183,31 +183,31 @@ Treffen zwei Punkte zu, würde ich wechseln. Ein einzelner Punkt lässt sich mei
 
 ## Von der Excel-Vorlage zu Customermates
 
-Customermates importiert Excel-Arbeitsmappen (.xlsx), einen Datensatztyp nach dem anderen. CSV-Dateien nimmt der Import nicht an, speichern Sie diese vorher als .xlsx. Die vollständigen Regeln stehen in der [Dokumentation zu Import und Export](/docs/app-records#how-do-i-import-or-export-records). So landen die Spalten der Vorlage:
+Customermates importiert Excel-Arbeitsmappen (.xlsx), eine Liste nach der anderen. CSV-Dateien nimmt der Import nicht an, speichern Sie diese vorher als .xlsx. Die vollständigen Regeln stehen in der [Dokumentation zu Import und Export](/docs/app-records#how-do-i-import-or-export-records). So landen die Spalten der Vorlage:
 
 | Spalte der Vorlage | Feld in Customermates |
 | --- | --- |
 | Firma | Name der Organisation |
-| Vorname, Nachname | Vorname und Nachname, beide Pflicht für einen neuen Kontakt |
+| Vorname, Nachname | Vorname und Nachname |
 | Firma eines Kontakts oder Deals | Organisationen, über den Namen zugeordnet |
 | Kontakt eines Deals | Kontakte, über den vollen Namen zugeordnet |
 | E-Mail, LinkedIn | Kanäle des Kontakts |
 | Telefon | Eigenes Feld vom Typ Telefon, oder der WhatsApp-Kanal, wenn es die WhatsApp-Nummer ist |
 | Branche, Kontaktart, Quelle, Verlustgrund | Eigene Felder vom Typ Einzelauswahl |
-| Website; PLZ, Ort, Nächster Schritt | Eigenes Feld vom Typ Link; eigene Felder vom Typ Text |
+| Website; PLZ, Ort, Nächster Schritt | Eigenes Feld vom Typ Webadresse; eigene Felder vom Typ Text |
 | Letzter Kontakt, Abschluss geplant, Nächster Schritt am, Abgeschlossen am | Eigene Felder vom Typ Datum |
 | Phase | Das Feld Phase der Deals |
-| Wert | Services, siehe Schritt 2 |
+| Wert | Positionen, siehe Schritt 2 |
 | Wahrscheinlichkeit, Gewichtet | Entfallen: Die Wahrscheinlichkeit der Phase ergibt den gewichteten Wert |
 | Zuständig | Zugewiesen, über den vollen Namen des Teammitglieds zugeordnet |
 | Notizen | Notizen |
 | Offene nächste Schritte aus Aktivitäten | Aufgaben |
 
 <Steps>
-  <Step title="Zuerst die eigenen Felder anlegen">Öffnen Sie einen beliebigen Datensatz, klicken Sie auf **Anpassen** und dann auf **Feld hinzufügen**. Legen Sie für jede Dropdown-Spalte ein Feld vom Typ **Einzelauswahl** an, dessen Optionen genau so heißen wie im Blatt Listen; der Import markiert jede Zelle, die keine Option ist. Das Feld Phase mit den Phasen von oben gibt es bereits. Haben Sie die Phasen geändert, benennen Sie die Optionen um und tragen die Prozentwerte unter **Mein Unternehmen › Einstellungen** ein.</Step>
-  <Step title="Klären, wie die Deal-Werte hineinkommen">In Customermates ergibt sich der Wert eines Deals aus den verknüpften Services, Preis mal Menge. Importieren Sie zuerst Ihre Preisliste als **Services** (Name und **Betrag** sind Pflicht) und geben Sie dem Blatt Deals eine Spalte Services, die nennt, was der Deal verkauft, mehrere durch Kommas getrennt. Jede Verknüpfung kommt mit der Menge 1 an, die Sie danach am Deal anpassen. Hat jeder Deal einen eigenen Preis, hält ein eigenes Feld vom Typ Währung die Zahl fest, fließt dann aber nicht in den Deal-Wert und die gewichtete Pipeline ein.</Step>
+  <Step title="Zuerst die eigenen Felder anlegen">Öffnen Sie in **Konfigurieren** die Liste und wählen Sie **Hinzufügen**, dann **Feld**. Legen Sie für jede Dropdown-Spalte ein Feld vom Typ **Einzelauswahl** an, dessen Optionen genau so heißen wie im Blatt Listen; der Import markiert jede Zelle, die keine Option ist. Das Feld Phase mit den Phasen von oben gibt es bereits. Haben Sie die Phasen geändert, benennen Sie die Optionen um und tragen die Prozentwerte in Konfigurieren für Deals als **Wahrscheinlichkeit %** ein.</Step>
+  <Step title="Klären, wie die Deal-Werte hineinkommen">In Customermates ist der Wert eines Deals die Summe seiner Positionen, jeweils Service-Preis mal Menge. Importieren Sie zuerst Ihre Preisliste als **Services** (Name und Preis sind Pflicht) und legen Sie danach an jedem Deal die Positionen mit ihren Mengen an. Hat jeder Deal einen eigenen Preis, hält ein eigenes Feld vom Typ Geldbetrag die Zahl fest, fließt dann aber nicht in den Deal-Wert und die gewichtete Pipeline ein.</Step>
   <Step title="In der richtigen Reihenfolge importieren">Erst Services, dann die Firmen als Organisationen, dann Kontakte, dann Deals. Verknüpfungen ordnet der Import über den Namen zu, ohne Groß- und Kleinschreibung zu beachten. Die Firma muss also existieren, bevor ein Kontakt auf sie zeigen kann, und ein Name, der keinen oder mehrere Datensätze trifft, wird markiert. Ein Komma trennt mehrere Namen in einer Zelle, eine Kanzlei namens „Hahn, Brück & Partner" braucht deshalb vor dem Import einen anderen Namen oder hinterher eine Verknüpfung von Hand.</Step>
-  <Step title="Den Assistenten durchlaufen">Öffnen Sie in jeder Liste **Import und Export**, wählen Sie **Aus Datei hinzufügen** und die Datei. Der Assistent liest nur das erste Blatt, das nicht „Schema" heißt, und in der Vorlage ist das Listen. Kopieren Sie das Blatt, das Sie importieren, deshalb vorher in eine eigene Mappe (Rechtsklick auf den Blattreiter › Verschieben oder kopieren › (neue Arbeitsmappe)) und speichern Sie diese als .xlsx. Eine Datei darf derzeit bis zu 10 MB groß sein und 10.000 Zeilen haben. Ordnen Sie jede Spalte einem Feld, einem eigenen Feld oder einem Kanal zu; Kanäle kommen nur bei neuen Kontakten hinzu.</Step>
+  <Step title="Den Assistenten durchlaufen">Öffnen Sie in jeder Liste **Weitere Aktionen**, wählen Sie **Aus Datei hinzufügen** und die Datei. Der Assistent fragt, welches Blatt importiert werden soll, die übrigen Blätter können also in der Mappe bleiben; speichern Sie sie als .xlsx. Eine Datei darf derzeit bis zu 10 MB groß sein und 5.000 Zeilen haben. Ordnen Sie jede Spalte einem Feld zu; E-Mail-Adressen und LinkedIn-Profile kommen in das Feld Kanäle des Kontakts.</Step>
   <Step title="Problemzeilen korrigieren oder überspringen">Die Prüfung listet jedes Problem mit Zeilennummer auf, bevor etwas angelegt wird. Korrigieren Sie die Zellen in Excel und prüfen Sie erneut, oder importieren Sie den Rest und überspringen diese Zeilen. Rückgängig machen lässt sich ein Import nicht, testen Sie also zuerst mit zehn Zeilen.</Step>
   <Step title="Offene nächste Schritte als Aufgaben übernehmen">Aus dem Blatt Aktivitäten übernehmen Sie nur die offenen nächsten Schritte, als Aufgaben, verknüpft mit Deal und Kontakt und der zuständigen Person zugewiesen. Aufgaben haben kein Fälligkeitsfeld, legen Sie für das Datum ein eigenes Feld vom Typ Datum an. Den älteren Verlauf schreiben Sie in die Notizen des Deals oder lassen ihn in der archivierten Mappe.</Step>
 </Steps>
@@ -252,11 +252,11 @@ Sobald zwei Punkte der Checkliste oben zutreffen, meist mit der zweiten Person, 
 </FaqItem>
 
 <FaqItem question="Wie viele Kontakte verträgt eine Excel-Kundenliste?">
-Ein Blatt fasst laut Microsofts [Spezifikationen](https://support.microsoft.com/de-de/office/spezifikationen-und-beschr%C3%A4nkungen-in-excel-1672b34d-7043-467e-8e27-269d656771c3) 1.048.576 Zeilen, eine Google-Tabelle laut [Googles Dateilimits](https://support.google.com/drive/answer/37603) bis zu 20 Millionen Zellen. Die eigentliche Grenze sind die Menschen, nicht die Zeilen: Die Checkliste oben greift lange, bevor die Datei voll ist. Customermates liest derzeit bis zu 10.000 Zeilen pro Importdatei, größere Blätter teilen Sie auf.
+Ein Blatt fasst laut Microsofts [Spezifikationen](https://support.microsoft.com/de-de/office/spezifikationen-und-beschr%C3%A4nkungen-in-excel-1672b34d-7043-467e-8e27-269d656771c3) 1.048.576 Zeilen, eine Google-Tabelle laut [Googles Dateilimits](https://support.google.com/drive/answer/37603) bis zu 20 Millionen Zellen. Die eigentliche Grenze sind die Menschen, nicht die Zeilen: Die Checkliste oben greift lange, bevor die Datei voll ist. Customermates liest derzeit bis zu 5.000 Zeilen pro Importdatei, größere Blätter teilen Sie auf.
 </FaqItem>
 
 <FaqItem question="Bleibt ein CRM mit meiner Excel-Datei synchron?">
-Customermates nicht. Import und Export sind Dateiübertragungen, ein Datensatztyp nach dem anderen, ohne laufende Synchronisation und ohne CSV. Der Weg hin und zurück funktioniert: Liste als .xlsx exportieren (höchstens die ersten 50.000 Datensätze), in Excel bearbeiten, wieder importieren, und die Spalte **Datensatz-ID** aktualisiert diese Datensätze, statt Dubletten anzulegen.
+Customermates nicht. Import und Export sind Dateiübertragungen, eine Liste nach der anderen, ohne laufende Synchronisation und ohne CSV. Der Weg hin und zurück funktioniert: Liste als .xlsx exportieren (höchstens 5.000 Datensätze), in Excel bearbeiten, als **Vorhandene Datensätze** wieder importieren, und die Spalte **Datensatz-ID** aktualisiert diese Datensätze, statt Dubletten anzulegen.
 </FaqItem>
 
 <FaqItem question="Was gehört in eine Vertriebs-Tabelle pro Person?">

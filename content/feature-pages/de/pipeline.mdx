@@ -36,12 +36,12 @@ Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit d
   <SummaryItem label="Was Sie bekommen">Ein Deal-Board nach Phasen, Abschlusswahrscheinlichkeiten je Phase, Gesamt- und gewichtete Pipeline, persönliche gespeicherte Ansichten und Dashboard-Diagramme.</SummaryItem>
   <SummaryItem label="Tarife">Alles auf dieser Seite außer Mate, Routinen und dem einheitlichen Posteingang ist im Starter-Tarif für [[commercial.price.starter.monthly]] pro Nutzer und Monat enthalten, ebenso in der selbst gehosteten Version.</SummaryItem>
   <SummaryItem label="KI">In Customermates Cloud prüft und aktualisiert Mate die Pipeline und verbraucht dabei gehostete KI-Credits. Ihr eigener KI-Client erledigt das in jedem Tarif über MCP.</SummaryItem>
-  <SummaryItem label="Nicht enthalten">Keine KI-gestützte Umsatzvorhersage, keine Auswertung von Verweildauer oder Konversion je Phase, keine automatische Markierung inaktiver Deals und keine native App fürs Smartphone.</SummaryItem>
+  <SummaryItem label="Nicht enthalten">Keine KI-gestützte Umsatzvorhersage, keine Auswertung von Verweildauer oder Konversion je Phase im Zeitverlauf, keine automatische Markierung inaktiver Deals und keine native App fürs Smartphone.</SummaryItem>
 </ArticleSummary>
 
 ## Was das Pipeline-Board kann
 
-**Die Phasen gehören Ihnen.** Die Phase eines Deals ist eine Spalte vom Typ Einzelauswahl namens „Phase“. Ein neuer Arbeitsbereich startet mit sieben Optionen und bereits hinterlegten Abschlusswahrscheinlichkeiten:
+**Die Phasen gehören Ihnen.** Die Phase eines Deals ist ein Feld vom Typ Einzelauswahl namens „Phase“. Ein neuer Arbeitsbereich startet mit sieben Optionen und bereits hinterlegten Abschlusswahrscheinlichkeiten:
 
 | Phase | Wahrscheinlichkeit |
 |---|---|
@@ -55,9 +55,9 @@ Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit d
 
 Sie können Phasen umbenennen, umsortieren, ergänzen oder löschen. Eine Unternehmensberatung arbeitet vielleicht mit Anfrage, Erstgespräch, Angebot verschickt, Mündliche Zusage, Gewonnen und Verloren.
 
-**Das Board.** Öffnen Sie **Deals**, wählen Sie **Darstellung** und stellen Sie die **Ansicht** auf **Board**, gruppiert nach Phase. Ziehen Sie eine Karte in eine andere Spalte, ändert sich die Phase; auf **Kein Wert** abgelegt, wird sie geleert. Jede Karte zeigt die Felder, die Sie unter **Darstellung** einblenden, zum Beispiel Wert, zugewiesene Nutzer, Organisation und ein Datumsfeld „Voraussichtlicher Abschluss“.
+**Das Board.** Öffnen Sie **Deals**, wählen Sie unter **Darstellung** **Board**, gruppiert nach Phase. Ziehen Sie eine Karte in eine andere Spalte, ändert sich die Phase; auf **Kein Wert** abgelegt, wird sie geleert. Jede Karte zeigt die Felder, die Sie unter **Darstellung** einblenden, zum Beispiel Wert, zugewiesene Nutzer, Organisation und ein Datumsfeld „Voraussichtlicher Abschluss“.
 
-**Die Spaltenköpfe rechnen mit.** Jeder Spaltenkopf zeigt die Anzahl der Deals, die Wahrscheinlichkeit der Phase, den Gesamtwert und den gewichteten Wert. Der gewichtete Wert eines Deals ist sein Wert mal die Wahrscheinlichkeit seiner Phase. Ein Beispiel mit drei offenen Deals:
+**Die Spaltenköpfe rechnen mit.** Jeder Spaltenkopf zeigt die Anzahl der Deals und die Summen, die Sie für die Gruppierung wählen, etwa **Wert** und **Gewichteter Wert**. Der gewichtete Wert eines Deals ist sein Wert mal die Wahrscheinlichkeit seiner Phase. Ein Beispiel mit drei offenen Deals:
 
 | Deal | Phase | Wert | Gewichtet |
 |---|---|---|---|
@@ -66,11 +66,11 @@ Sie können Phasen umbenennen, umsortieren, ergänzen oder löschen. Eine Untern
 | Jahresbetreuung | Verhandlung | 12.000 | 9.600 |
 | **Pipeline** | | **25.000** | **14.900** |
 
-Dieselben Summen stehen als **Gesamtpipeline** und **Gewichtete Pipeline** unter **Mein Unternehmen › Einstellungen**, direkt neben den Wahrscheinlichkeiten.
+Für dieselben Summen auf dem Dashboard legen Sie ein Diagramm-Widget an, das **Wert** oder **Gewichteter Wert** summiert, nach Phase gruppiert.
 
-**Der Deal-Wert ergibt sich aus Leistungen.** Den Wert eines Deals tippen Sie nicht ein. Er ist die Summe aus Preis mal Menge aller verknüpften Leistungen. Zwei Workshoptage zu 1.500 und zehn Coachingstunden zu 150 ergeben einen Deal-Wert von 4.500 in der Währung Ihres Arbeitsbereichs.
+**Der Deal-Wert ergibt sich aus Positionen.** Den Wert eines Deals tippen Sie nicht ein. Er ist die Summe seiner Positionen, jeweils Service mal Menge. Zwei Workshoptage zu 1.500 und zehn Coachingstunden zu 150 ergeben einen Deal-Wert von 4.500.
 
-**Dieselbe Liste als Tabelle.** Stellen Sie die **Ansicht** wieder auf **Tabelle** und behalten Sie die Gruppierung: Die Phasen werden zu einklappbaren Zeilengruppen mit eigenen Anzahlen und Summen. Tabellen sortieren nach **Deal-Wert** und **Gewichteter Wert** sowie nach jeder eigenen Spalte.
+**Dieselbe Liste als Tabelle.** Wechseln Sie wieder zu **Tabelle** und behalten Sie die Gruppierung: Die Phasen werden zu einklappbaren Zeilengruppen mit eigenen Anzahlen und Summen. Tabellen sortieren nach **Wert** und **Gewichteter Wert** sowie nach jedem eigenen Feld.
 
 ## Welchen Tarif Sie brauchen
 
@@ -79,9 +79,9 @@ Board, Phasen, Wahrscheinlichkeiten, gespeicherte Ansichten, Dashboard-Diagramme
 ## So richten Sie Ihre Pipeline ein
 
 <Steps>
-  <Step title="Phasen umbenennen">Öffnen Sie einen beliebigen Deal, klicken Sie auf **Anpassen** und bearbeiten Sie die Spalte „Phase“ über **Spalte bearbeiten**. Auf einem nach Phase gruppierten Board öffnet ein Klick auf einen Spaltenkopf denselben Dialog.</Step>
-  <Step title="Wahrscheinlichkeiten prüfen">Unter **Mein Unternehmen › Einstellungen** steht im **Deal-Phasenfeld** die Spalte „Phase“. Tragen Sie für jede Option eine Wahrscheinlichkeit von 0 bis 100 ein und speichern Sie. Customermates berechnet daraufhin den gewichteten Wert jedes Deals neu.</Step>
-  <Step title="Leistungen anlegen">Legen Sie unter **Services** an, was Sie verkaufen, jeweils mit Preis (**Betrag**). Daraus entstehen die Deal-Werte.</Step>
+  <Step title="Phasen umbenennen">Öffnen Sie unter **Konfigurieren** die Deals und das Feld **Phase** und benennen Sie die Optionen um, ergänzen oder sortieren Sie sie.</Step>
+  <Step title="Wahrscheinlichkeiten prüfen">Setzen Sie im selben Feld **Phase** für jede Option die **Wahrscheinlichkeit %** von 0 bis 100 und speichern Sie. Eine Vorschau zeigt die Auswirkung, und Customermates berechnet den gewichteten Wert jedes Deals neu.</Step>
+  <Step title="Leistungen anlegen">Legen Sie unter **Services** an, was Sie verkaufen, jeweils mit Preis. Daraus entstehen die Positionen und damit die Deal-Werte.</Step>
   <Step title="Zwei eigene Felder ergänzen">Ein Datumsfeld „Voraussichtlicher Abschluss“ und eine Einzelauswahl „Verlustgrund“ mit Preis, Zeitpunkt, Wettbewerber gewählt und Keine Entscheidung.</Step>
   <Step title="Offene Deals importieren">Nutzen Sie **Aus Datei hinzufügen** mit einer Excel-Datei: erst Organisationen, dann Kontakte, dann Deals, damit die Deals auf bereits vorhandene Datensätze verweisen können. CSV-Dateien werden nicht angenommen, speichern Sie diese vorher als XLSX.</Step>
   <Step title="Pipeline-Ansicht speichern">Gruppieren Sie das Board nach Phase, filtern Sie Gewonnen und Verloren heraus, klicken Sie auf **Neue Ansicht** und nennen Sie sie „Offene Pipeline“. Die Ansicht merkt sich Filter, Gruppierung, Layout und eingeblendete Felder.</Step>
@@ -91,9 +91,9 @@ Die [Anleitung zu Datensätzen](/docs/app-records) beschreibt Board, Ansichten u
 
 ## Mehrere Pipelines
 
-Customermates kennt kein eigenes Pipeline-Objekt. Eine zweite Pipeline ist deshalb eine zweite Einzelauswahl-Spalte auf Deals. Ein Team, das neue Projekte verkauft und Rahmenverträge verlängert, legt etwa die Spalte „Verlängerungsphase“ mit Anstehend, In Abstimmung, Angebot verschickt und Verlängert an und speichert dazu eine Board-Ansicht, gruppiert nach dieser Spalte und gefiltert auf Verlängerungen.
+Customermates kennt kein eigenes Pipeline-Objekt. Eine zweite Pipeline ist deshalb ein zweites Einzelauswahl-Feld auf Deals. Ein Team, das neue Projekte verkauft und Rahmenverträge verlängert, legt etwa das Feld „Verlängerungsphase“ mit Anstehend, In Abstimmung, Angebot verschickt und Verlängert an und speichert dazu eine Board-Ansicht, gruppiert nach diesem Feld und gefiltert auf Verlängerungen.
 
-Zwei Grenzen gelten. Nur eine Spalte, die im **Deal-Phasenfeld** gewählte, trägt Wahrscheinlichkeiten und gewichtete Werte; das zweite Board zeigt Anzahlen und Gesamtwerte, aber keine gewichteten Zahlen. Und ein Board zeigt höchstens 50 Spalten.
+Zwei Grenzen gelten. **Gewichteter Wert** wird aus dem Feld Phase berechnet; das zweite Board zeigt Anzahlen und Gesamtwerte, aber keine gewichteten Zahlen. Und ein Board zeigt höchstens 50 Spalten.
 
 Wer lieber bei einer Phasenliste bleibt, ergänzt eine Einzelauswahl „Pipeline“ mit Neugeschäft und Verlängerung und speichert je Wert eine gefilterte Ansicht.
 
@@ -111,12 +111,12 @@ Suche Deals in den Phasen Angebot oder Verhandlung, die in den letzten 14 Tagen 
 
 Die Routine läuft als ihr Eigentümer und sieht nur die Deals, die diese Person sehen darf. Aufgaben anlegen braucht keine Freigabe; Löschungen bräuchten eine, deshalb lehnt ein unbeaufsichtigter Lauf sie ab. Weitere Beispiele finden Sie bei der [Workflow-Automatisierung](/features/workflow-automation).
 
-**Ihr eigener KI-Client über MCP.** Claude, ChatGPT und andere MCP-Clients verschieben Deals zwischen Phasen und ändern Felder mit den [[derived.mcp.tools.total]] Werkzeugen aus der [MCP-Dokumentation](/docs/mcp), in jedem Tarif und auch in der selbst gehosteten Version. Jeder Phasenwechsel löst unabhängig von der Quelle einen `deal.updated`-Webhook mit den geänderten Feldern aus, den ein separat betriebener n8n-Workflow aufgreifen kann.
+**Ihr eigener KI-Client über MCP.** Claude, ChatGPT und andere MCP-Clients verschieben Deals zwischen Phasen und ändern Felder mit den [[derived.mcp.tools.total]] Werkzeugen aus der [MCP-Dokumentation](/docs/mcp), in jedem Tarif und auch in der selbst gehosteten Version. Jeder Phasenwechsel löst unabhängig von der Quelle einen `record.updated`-Webhook für die Liste Deals mit den geänderten Feldern aus, den ein separat betriebener n8n-Workflow aufgreifen kann.
 
 ## Grenzen
 
 <AcquisitionCallout title="Was die Pipeline nicht kann" variant="boundary">
-  Die gewichtete Pipeline ist Ihr Wert mal Ihre Wahrscheinlichkeiten. Es gibt kein Modell, das Umsatz oder Abschlusstermine vorhersagt, und keine Auswertung von Verweildauer, Konversion je Phase oder Vertriebsgeschwindigkeit. Inaktive Deals werden nicht automatisch markiert; dafür ist die Ansicht oben da. Gespeicherte Ansichten und Dashboards sind persönlich und lassen sich nicht teilen, deshalb speichert jede Person ihre eigene; ein als Vorlage geteiltes Diagramm lässt sich übernehmen. Deals haben keine Dateianhänge, und eine native App fürs Smartphone gibt es nicht.
+  Die gewichtete Pipeline ist Ihr Wert mal Ihre Wahrscheinlichkeiten. Es gibt kein Modell, das Umsatz oder Abschlusstermine vorhersagt, und keine Auswertung von Verweildauer, Konversion je Phase im Zeitverlauf oder Vertriebsgeschwindigkeit. Inaktive Deals werden nicht automatisch markiert; dafür ist die Ansicht oben da. Gespeicherte Ansichten und Dashboards sind persönlich und lassen sich nicht teilen, deshalb speichert jede Person ihre eigene; ein als Vorlage geteiltes Diagramm lässt sich übernehmen. Deals haben keine Dateianhänge, und eine native App fürs Smartphone gibt es nicht.
 </AcquisitionCallout>
 
 Kennzahlen wie die Gewinnrate pro Person ermittelt Mate in Customermates Cloud aus Ihren Datensätzen, mit einem Analysewerkzeug, das nur liest. Alternativ exportieren Sie die Deals als XLSX. Die Diagrammoptionen beschreibt die Seite [Reporting](/features/reporting).
@@ -130,7 +130,7 @@ Diese Seite wird von Customermates veröffentlicht. Die Angaben zu anderen Anbie
 | Pipedrive | Sie ein auf den Vertrieb ausgerichtetes CRM mit mehreren Pipelines wollen und inaktive Deals auf dem Board markiert sehen möchten | Mehrere Pipelines; eine Rotting-Funktion, die Deals nach einer festgelegten Zeit ohne Aktualisierung rot zeigt; Forecast-Ansicht ab dem Growth-Tarif |
 | HubSpot | Sie kostenlos starten und später Marketing- und Service-Werkzeuge dazunehmen wollen | Vertriebspipeline mit bearbeitbaren Phasen in den kostenlosen Tools; eigene Pipelines ab Starter (15) und Professional (100) bei sitzplatzbasierten Tarifen, geteilt über alle Objekte |
 | Pipeline CRM | Sie als kleines oder mittleres B2B-Team ein Werkzeug suchen, das von der Pipeline her gedacht ist | Start-Tarif mit 1 Pipeline und bis zu 250 aktiven Deals je Konto; Develop 2, Grow 5, Enterprise 20 Pipelines |
-| Customermates | Ihre Deals an Kundengesprächen hängen und KI das Board pflegen soll | Phasen-Board mit gewichteten Werten in jedem Tarif; weitere Pipelines als zusätzliche Phasenspalten; Gesprächsverläufe ab Pro |
+| Customermates | Ihre Deals an Kundengesprächen hängen und KI das Board pflegen soll | Phasen-Board mit gewichteten Werten in jedem Tarif; weitere Pipelines als zusätzliche Phasenfelder; Gesprächsverläufe ab Pro |
 
 ## Was es kostet
 
@@ -153,7 +153,7 @@ Ja. Pipedrive bezeichnet sich selbst als CRM für kleine Unternehmen und wachsen
 </FaqItem>
 
 <FaqItem question="Kann ich in Customermates mehrere Pipelines führen?">
-Ja, als getrennte Einzelauswahl-Spalten auf Deals, jeweils mit eigener gespeicherter Board-Ansicht. Wahrscheinlichkeiten und gewichtete Werte hat nur die Spalte, die als Deal-Phasenfeld eingestellt ist.
+Ja, als getrennte Einzelauswahl-Felder auf Deals, jeweils mit eigener gespeicherter Board-Ansicht. In den gewichteten Wert fließt nur das Feld Phase ein.
 </FaqItem>
 
 <FaqItem question="Macht Customermates eine Umsatzprognose?">

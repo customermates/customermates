@@ -122,7 +122,7 @@ Das ist die kleinste sinnvolle Verbindung zwischen einem CRM und einer Rechnungs
     Legen Sie an Organisationen ein benutzerdefiniertes Text-Feld „Kundennr. Buchhaltung" an. An Deals kommen ein Text-Feld „Rechnungsnr." und ein Einzelauswahl-Feld „Zahlungsstatus" mit den Optionen Offen, Teilweise bezahlt und Bezahlt hinzu. Vereinbaren Sie, dass nur die Integration diese Felder schreibt.
   </Step>
   <Step title="Den Auslöser wählen">
-    Abonnieren Sie per [Webhook](/docs/webhooks) das Ereignis `deal.updated`. Update-Ereignisse enthalten ein `changes`-Objekt mit dem alten und neuen Wert jedes geänderten Felds. So reagiert Ihre Integration nur, wenn die Phase auf Gewonnen springt, und ignoriert jede andere Änderung.
+    Abonnieren Sie per [Webhook](/docs/webhooks) das Ereignis `record.updated` für die Liste Deals. Update-Ereignisse enthalten jedes geänderte Feld mit altem und neuem Wert. So reagiert Ihre Integration nur, wenn die Phase auf Gewonnen springt, und ignoriert jede andere Änderung.
   </Step>
   <Step title="Kunden anlegen oder zuordnen">
     Hat die Organisation noch keine Kundennummer aus der Buchhaltung, legen Sie den Kunden über die API der Buchhaltungssoftware an und schreiben die zurückgegebene Nummer über die REST-API von Customermates an die Organisation. Gibt es die Nummer schon, verwenden Sie sie. Gleichen Sie nie über den Firmennamen ab.
@@ -134,11 +134,11 @@ Das ist die kleinste sinnvolle Verbindung zwischen einem CRM und einer Rechnungs
     Ändert sich die Zahlung in der Buchhaltung (über deren Event-Abonnement oder einen nächtlichen Abruf), aktualisiert die Integration „Zahlungsstatus" am Deal. Ein Schreibvorgang ohne tatsächliche Änderung löst in Customermates kein neues Ereignis aus, die Integration läuft also nicht in eine Schleife.
   </Step>
   <Step title="Wöchentlich prüfen">
-    Filtern Sie Deals in der Phase Gewonnen mit leerem Feld „Rechnungsnr." und speichern Sie das als persönliche Ansicht. Alles, was dort steht, ist eine gescheiterte Übergabe. Fehlgeschlagene Webhook-Zustellungen stehen unter „Letzte Zustellungen" und lassen sich dort erneut senden.
+    Filtern Sie Deals in der Phase Gewonnen mit leerem Feld „Rechnungsnr." und speichern Sie das als persönliche Ansicht. Alles, was dort steht, ist eine gescheiterte Übergabe. Fehlgeschlagene Webhook-Zustellungen stehen unter Einstellungen › Zustellungen und lassen sich dort erneut senden.
   </Step>
 </Steps>
 
-Die Integration selbst läuft außerhalb beider Systeme: als kleiner eigener Dienst oder als n8n-Workflow mit dem [n8n-Node von Customermates](/docs/n8n). n8n ist ein eigenständiges Produkt, das Sie selbst betreiben oder abonnieren. Feldzuordnung, Authentifizierung, Idempotenz und Überwachung behandelt der [Leitfaden zur CRM-ERP-Integration](/blog/crm-erp-integration) ausführlicher.
+Die Integration selbst läuft außerhalb beider Systeme: als kleiner eigener Dienst oder als n8n-Workflow, der die [Customermates-API](/docs/n8n) aufruft. n8n ist ein eigenständiges Produkt, das Sie selbst betreiben oder abonnieren. Feldzuordnung, Authentifizierung, Idempotenz und Überwachung behandelt der [Leitfaden zur CRM-ERP-Integration](/blog/crm-erp-integration) ausführlicher.
 
 ## Wo Customermates passt und wo nicht
 
@@ -150,7 +150,7 @@ Was Customermates nicht macht:
 
 - Es erstellt keine Angebote oder Rechnungen, verbucht keine Zahlungen, führt keine Buchhaltung, kein Lager und keine Fertigungsplanung. Das bleibt in Ihrem ERP oder Ihrer Rechnungssoftware.
 - Es gibt keine fertige Anbindung an Lexware Office, sevDesk, DATEV oder ein ERP. Die Übergabe oben bauen Sie mit API, Webhooks oder n8n.
-- Datensätze werden als XLSX-Arbeitsmappe importiert und exportiert, jeweils ein Datensatztyp. Wer Kontakte aus einer Rechnungssoftware übernimmt, speichert deren Export als XLSX und importiert zuerst die Organisationen, dann die Kontakte.
+- Datensätze werden je Liste als XLSX-Arbeitsmappe oder JSON importiert und exportiert. Wer Kontakte aus einer Rechnungssoftware übernimmt, speichert deren Export als XLSX und importiert zuerst die Organisationen, dann die Kontakte.
 - Den einheitlichen Posteingang und Mate, den Assistenten, gibt es nur in Customermates Cloud. Eine selbst gehostete Installation ist der Open-Source-Kern mit REST, Webhooks und MCP.
 
 Wenn Sie CRM und Buchhaltung unter einem Login und bei einem Anbieter wollen, passt eine Komplettlösung besser als Customermates.

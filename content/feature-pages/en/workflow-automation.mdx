@@ -45,7 +45,7 @@ Customermates gives you two ways to build that. **Routines** in Customermates Cl
 |---|---|---|
 | Monday list of deals nobody touched for 14 days | Routine on a schedule | Any Cloud plan |
 | Reply draft when a client emails | Routine on **Email Received** | Cloud, Pro and higher |
-| Onboarding tasks when a deal is won | Routine on **Deal Updated**, or a webhook into n8n | Routine: Cloud. Webhook: every plan |
+| Onboarding tasks when a deal is won | Routine on **Record updated** for Deals, or a webhook into n8n | Routine: Cloud. Webhook: every plan |
 | Message in a team chat when a deal is created | Webhook with a body template, no n8n needed | Every plan |
 | Flow with branches, waits and other apps | n8n on webhooks and REST | Every plan, plus n8n |
 | Update a deal from pasted call notes | Mate chat, or your own AI client over MCP | Mate: Cloud. MCP: every plan |
@@ -57,7 +57,7 @@ Our rule of thumb: if a step must behave identically every time, such as creatin
 Routines exist in Customermates Cloud only. A routine is a name, an instruction of up to 5,000 characters and a trigger. When the trigger fires, Mate starts a new conversation with that instruction and works on its own, as the routine's owner: it sees what the owner sees and spends the owner's credits. Changes a routine makes never trigger other routines, so they cannot loop. The [routines guide](/docs/app-routines) covers every option.
 
 - **On a schedule:** every 15 or 30 minutes, hourly, daily, weekly or monthly. Mate can also set a custom cron schedule, for example weekdays at 09:00.
-- **When something changes:** any record event on contacts, organizations, deals, services and tasks, plus inbox events except deleted emails and chats. **Changed fields** narrows an update trigger to fields such as your stage column, and **Record filters** to records such as deals assigned to you.
+- **When something changes:** any record event on any list, from contacts, organizations, deals, services and tasks to your own lists, plus inbox events except deleted emails and chats and permanent deletions. **Changed fields** narrows an update trigger to fields such as the deal **Stage**, and **Record filters** to records such as deals assigned to you.
 
 | Limit | Current value |
 |---|---|
@@ -68,7 +68,7 @@ Routines exist in Customermates Cloud only. A routine is a name, an instruction 
 | Debounce after a run starts | 300 seconds by default; Mate or MCP can set 0 to 86,400 |
 | Run history kept | 90 days |
 
-An unattended run may create and update records, append notes, create tasks and save drafts without asking. It may also send emails and chat messages. Everything that asks for approval in a chat is refused, because nobody is there to approve it: deletions, renaming record types, team invitations, webhook resends and support requests. If you want drafts and nothing else, write it into the instruction.
+An unattended run may create and update records, append notes, create tasks and save drafts without asking. It may also send emails and chat messages. Everything that asks for approval in a chat is refused, because nobody is there to approve it: deletions, renaming lists, team invitations, webhook resends and support requests. If you want drafts and nothing else, write it into the instruction.
 
 ### Setup 1: Monday pipeline check (any Cloud plan)
 
@@ -90,7 +90,7 @@ Credit use: a weekly schedule runs four or five times a month and each run stops
 This needs the [unified inbox](/features/unified-inbox), which starts on Pro.
 
 <Steps>
-  <Step title="Connect a mailbox">Connect Gmail, Outlook or IMAP under **My Profile › Channels**.</Step>
+  <Step title="Connect a mailbox">Connect Gmail, Outlook or IMAP under **Settings › Channels**.</Step>
   <Step title="Add the routine">Choose **When something changes** and the event **Email Received**. For WhatsApp or LinkedIn, pick **Message Received**.</Step>
   <Step title="Paste the instruction">Use the text below and save.</Step>
   <Step title="Review the drafts">In the inbox, set the **Draft** filter to **has some**. Edit a draft and click **Send draft**, or discard it.</Step>
@@ -104,26 +104,26 @@ Credit use: every run that starts uses credits, including runs where Mate decide
 
 ### Stage changes: routine or n8n
 
-A routine on **Deal Updated**, with **Changed fields** set to your stage column and a record filter for Won, can create onboarding tasks, assign them to the same people as the deal and link them to the deal. In n8n the same job costs no credits and never varies: the webhook delivers the deal with a `changes` object, an IF node checks the new stage, and an HTTP Request node creates the tasks. Choose the routine when the tasks depend on what was agreed in the emails, and n8n when they are always the same.
+A routine on **Record updated** for Deals, with **Changed fields** set to **Stage** and a record filter for Won, can create onboarding tasks, assign them to the same people as the deal and link them to the deal. In n8n the same job costs no credits and never varies: the webhook delivers a `record.updated` event with the `before` and `after` value of each changed field, an IF node checks the new stage, and an HTTP Request node creates the tasks. Choose the routine when the tasks depend on what was agreed in the emails, and n8n when they are always the same.
 
 ## Webhooks, REST and n8n: rules on every plan
 
-Customermates sends a JSON POST for each of [[derived.webhooks.events.total]] event types: [[derived.webhooks.events.records]] record events and [[derived.webhooks.events.messaging]] inbox events. Deal stage is a custom single-select column, so a stage change arrives as `deal.updated` with previous and current values in `changes`. Deliveries are signed with HMAC-SHA256 when you set a secret, retried up to five times on timeouts and server errors, and logged under **Recent Deliveries**. The [webhook reference](/docs/webhooks) lists every payload.
+Customermates sends a JSON POST for each of [[derived.webhooks.events.total]] event types: [[derived.webhooks.events.records]] record events and [[derived.webhooks.events.messaging]] inbox events. Record events cover every list, your own included. Deal **Stage** is a configurable single choice field, so a stage change arrives as `record.updated` for the Deals list, with the field's `before` and `after` values. Deliveries are signed with HMAC-SHA256 when you set a secret, retried automatically on timeouts and server errors, up to 10 attempts in total, and logged under **Deliveries**. The [webhook reference](/docs/webhooks) lists every payload.
 
 There is no native Slack integration, but a webhook can post to a Slack or Discord channel without n8n, using the channel's incoming webhook URL and a body template.
 
-The [REST API](/features/api) under `/api/v1` covers the five record types, with batch endpoints for up to 100 records per request. The MCP server gives AI clients such as Claude or ChatGPT [[derived.mcp.tools.total]] tools on the same data.
+The [REST API](/features/api) under `/api/v1` covers every list, the five starter lists and your own, and `updateMany`, `deleteMany` and import take up to 100 records per request. The MCP server gives AI clients such as Claude or ChatGPT [[derived.mcp.tools.total]] tools on the same data.
 
 [n8n](https://n8n.io/) has a visual builder and lets you write JavaScript or Python in any step. You can self-host its Community Edition under the [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md), which permits use only for your own internal business purposes or for non-commercial or personal use, or subscribe to n8n Cloud, [priced by monthly workflow executions](https://n8n.io/pricing/).
 
 <Steps>
   <Step title="Create the trigger in n8n">Add a Webhook node and copy its URL.</Step>
-  <Step title="Subscribe in Customermates">Under **My Company › Webhooks**, click **Add**, paste the URL, pick the events and set a **Secret**.</Step>
-  <Step title="Write back through REST">Create an API key under **My Profile › API & Connectors** and store it in n8n as a Header Auth credential with the header name `x-api-key`.</Step>
+  <Step title="Subscribe in Customermates">Under **Settings › Webhooks**, click **Add**, paste the URL, pick the events, choose the list under **Records from** and set a **Secret**.</Step>
+  <Step title="Write back through REST">Create an API key under **Settings › API keys** and store it in n8n as a Header Auth credential with the header name `x-api-key`.</Step>
   <Step title="Activate the workflow in n8n">Scheduling, waits, logs and execution limits belong to n8n. Customermates keeps the records.</Step>
 </Steps>
 
-The community node [customermates/n8n-nodes-crm](https://github.com/customermates/n8n-nodes-crm) offers dedicated CRM nodes if you prefer them to HTTP Request nodes. The [n8n guide](/docs/n8n) has the endpoints and common mistakes.
+The community node [customermates/n8n-nodes-crm](https://github.com/customermates/n8n-nodes-crm) offers dedicated CRM nodes if you prefer them to HTTP Request nodes; it has its own release schedule, so check that it supports the current record API first. The [n8n guide](/docs/n8n) has the endpoints and common mistakes.
 
 ## What updates itself, and what still needs a person
 

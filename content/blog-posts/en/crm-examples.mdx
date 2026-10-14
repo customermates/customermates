@@ -35,7 +35,7 @@ This guide gives you all three kinds of example: the software, the use cases by 
   <SummaryItem label="Software examples">Salesforce, HubSpot, Microsoft Dynamics 365, Zoho CRM and Pipedrive are the names that recur in almost every list. SuiteCRM and Customermates are open-source examples.</SummaryItem>
   <SummaryItem label="Use-case examples">B2B sales pipelines, client work at agencies and consultancies, recruiting, property deals, support history and memberships. Each needs a different record model.</SummaryItem>
   <SummaryItem label="Free starting points">HubSpot and Zoho CRM have free plans, Salesforce lists a Free Suite. Pipedrive and Dynamics 365 Sales offer free trials.</SummaryItem>
-  <SummaryItem label="Worked setup">A four-person consultancy in Customermates: record types, stages, custom columns, a saved view and a weekly routine.</SummaryItem>
+  <SummaryItem label="Worked setup">A four-person consultancy in Customermates: lists, stages, custom fields, a saved view and a weekly routine.</SummaryItem>
 </ArticleSummary>
 
 ## Examples of CRM software
@@ -93,14 +93,14 @@ Two rules hold across all rows. Model the thing you sell as the deal, even when 
 
 ## A worked setup: a four-person consultancy in Customermates
 
-Here is one example taken all the way down to the columns. It uses the real record types and labels of Customermates; you can rebuild it in any CRM that has custom fields and saved filters.
+Here is one example taken all the way down to the columns. It uses the real lists and labels of Customermates; you can rebuild it in any CRM that has custom fields and saved filters.
 
 <Steps>
-  <Step title="Set up the record types">Clients go in **Organizations**, people in **Contacts**, and each engagement you are trying to win in **Deals**. Your standard offers go in **Services** with a price each (for example "Strategy workshop" and "Monthly retainer"), and a deal's value follows from the services and quantities linked to it.</Step>
-  <Step title="Rename the deal stages">The deal **Stage** is a single-select column. Replace the defaults with Inquiry, Discovery call, Proposal sent, Won and Lost. Each option carries a weight, so the pipeline shows a weighted value next to the total.</Step>
-  <Step title="Add three custom columns">On deals: "Engagement type" (single select: Project, Retainer, Workshop), "Lead source" (single select: Referral, LinkedIn, Website, Event) and "Expected start" (date). Customermates has no tags; single-select columns do that job and can be filtered and grouped.</Step>
+  <Step title="Set up the lists">Clients go in **Organizations**, people in **Contacts**, and each engagement you are trying to win in **Deals**. Your standard offers go in **Services** with a price each (for example "Strategy workshop" and "Monthly retainer"), and a deal's value follows from its line items, each a service and a quantity.</Step>
+  <Step title="Rename the deal stages">The deal **Stage** is a Single choice field. Replace the defaults with Inquiry, Discovery call, Proposal sent, Won and Lost. Each option carries a probability, so every deal gets a weighted value next to its value.</Step>
+  <Step title="Add three custom fields">On deals: "Engagement type" (Single choice: Project, Retainer, Workshop), "Lead source" (Single choice: Referral, LinkedIn, Website, Event) and "Expected start" (Date). Customermates has no tags; Single choice fields do that job and can be filtered and grouped.</Step>
   <Step title="Save a personal view">On **Deals**, filter Stage = Proposal sent and assigned users = you, sort by updated date and save it with **New view** as "My open proposals". Saved views are personal, so each colleague sets the same filters and saves their own view.</Step>
-  <Step title="Import existing clients">Export your client list to an Excel workbook (.xlsx) and import organizations first, then contacts, one record type at a time. See [records, import and views](/docs/app-records) for the column matching.</Step>
+  <Step title="Import existing clients">Export your client list to an Excel workbook (.xlsx) and import organizations first, then contacts, one list at a time. See [records, import and views](/docs/app-records) for the column matching.</Step>
   <Step title="Connect the inbox (Pro or higher)">Each consultant connects their mailbox or LinkedIn account in the [unified inbox](/features/unified-inbox). Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user and Business [[commercial.entitlement.business.includedAccountsPerUser]], so a consultant who wants email, LinkedIn and WhatsApp side by side needs Business. Starter has no inbox.</Step>
 </Steps>
 
@@ -123,7 +123,7 @@ Some CRM examples above need things Customermates does not do. Be clear about th
 - **No email campaigns or automated sequences.** Messages go out one at a time, drafted or sent from the inbox. For newsletters or multi-step outreach, use an email-marketing tool next to the CRM.
 - **No support for phone-heavy sales.** There is no telephony or call logging integration, and no mobile app.
 - **No ticket queues.** There is no help-desk module with SLAs.
-- **No built-in task due dates.** Tasks have relations, assignees and notes; add a date custom column if you need one, and filter on it.
+- **No built-in task due dates.** Tasks have relations, assignees and notes; add a custom date field if you need one, and filter on it.
 - **No quotes, invoices or client portal.** Keep those in your accounting or proposal tool.
 
 If most of your work sits in those areas, look for a CRM suite whose edition includes a help desk, calling or quoting, and check on the vendor's pricing page which edition contains the module you need.

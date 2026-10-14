@@ -39,7 +39,7 @@ comparison:
         source: Kontakte, Organisationen, Deals, Services, Aufgaben
         competitor: Adressen und Kontakte, dazu eigene Objekte
       - name: Eigene Objekte
-        source: false
+        source: Eigene Listen mit Feldern und Beziehungen
         competitor: "Cloud: 1 Objekttyp (bis 10.000 Datensätze) in Essential, 3 in Grow, 50 in Max"
       - name: Gespeicherte Ansichten
         source: Persönliche Ansichten in jedem Tarif
@@ -114,7 +114,7 @@ cta:
 |---|---|---|
 | Sie versenden Newsletter, planen Veranstaltungen oder nutzen Webformulare aus dem CRM | cobra | Newsletter ab Grow, Event-Portale und Formulare in jedem Cloud-Tarif |
 | Ihr Team telefoniert aus dem CRM heraus | cobra | NFON-Telefonie in jedem Cloud-Tarif, Teams-Telefonie ab Grow. Customermates hat keine Telefonie |
-| Sie brauchen eigene Datensatztypen, etwa Mitglieder, Förderfälle oder Seminare | cobra Grow oder Max | 3 eigene Objekttypen in Grow, 50 in Max. Customermates hat fünf feste Datensatztypen |
+| Sie brauchen eigene Datensatztypen, etwa Mitglieder, Förderfälle oder Seminare | cobra Grow oder Max, oder Customermates | 3 eigene Objekttypen in Grow, 50 in Max. Customermates startet mit fünf Listen, und Sie können eigene anlegen |
 | Der Außendienst braucht native Apps, oder die IT verlangt Single Sign-on | cobra | Native Apps für iOS und Android; Single Sign-on in Cloud Max |
 | Kunden schreiben über WhatsApp, LinkedIn, Instagram oder Telegram, nicht nur per E-Mail | Customermates Pro oder Business | Alle diese Kanäle laufen in einem Posteingang, direkt beim Deal |
 | Sie wollen REST-API und Webhooks schon im Einstiegstarif | Customermates | REST-API und Webhooks in jedem Tarif. Bei cobra CRM Cloud volle API und Webhooks erst in Max; cobra One Essential hat eine REST-API mit 3 Endpunkten |
@@ -162,7 +162,7 @@ Customermates ist ein Open-Source-KI-CRM aus Deutschland für Beratungen, Agentu
 
 **KI-Unterstützung bei der CRM-Pflege, in der Customermates Cloud.** In der Customermates Cloud fasst Mate Unterhaltungen zusammen, entwirft Antworten, aktualisiert Datensätze und baut Ansichten. Mate nutzt gehostete KI-Credits mit einem monatlichen Kontingent pro aktivem Nutzer, siehe [Preisseite](/pricing). Routinen führen eine gespeicherte Anweisung nach Zeitplan oder bei einer Datensatzänderung aus. Arbeiten Sie lieber mit Claude, ChatGPT oder einem anderen Client, verbinden Sie ihn mit dem [MCP-Server](/docs/mcp): [[derived.mcp.tools.total]] Tools in jedem Tarif und auf selbst gehosteten Installationen.
 
-**Ein kleines, festes Datenmodell.** Kontakte, Organisationen, Deals, Services und Aufgaben, dazu eigene Felder in zehn Typen, Tabellen- und Board-Ansicht, Dashboards, Rollen und ein Audit-Log in jedem Tarif. Die Oberfläche gibt es auf Deutsch, Englisch, Französisch, Italienisch und Spanisch.
+**Ein konfigurierbares Datenmodell.** Es startet mit Kontakten, Organisationen, Deals, Services und Aufgaben, und Sie ergänzen eigene Listen, Felder, Beziehungen und berechnete Felder, dazu Tabellen- und Board-Ansicht, Dashboards, Rollen und ein Audit-Log in jedem Tarif. Die Oberfläche gibt es auf Deutsch, Englisch, Französisch, Italienisch und Spanisch.
 
 **Open Source mit freier Wahl beim Betrieb.** Der AGPL-3.0-Kern läuft mit Docker Compose und PostgreSQL auf Ihrem eigenen Server, inklusive REST, Webhooks und MCP. Eine [selbst gehostete Installation](/features/self-hosted) hat keinen Posteingang, kein Mate und keine gehosteten Credits. In der Customermates Cloud ist die primäre Datenbank in der AWS-Region Frankfurt konfiguriert (eine gewählte Einstellung, keine vertragliche Garantie), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor, und die Unterauftragsverarbeiter, auch aus den USA, stehen in den Rechtstexten.
 
@@ -172,7 +172,7 @@ Customermates ist ein Open-Source-KI-CRM aus Deutschland für Beratungen, Agentu
 - **Keine Events, keine Webformulare, keine Word-Vorlagen.** Serienbriefe und Veranstaltungsanmeldungen bleiben in einem anderen Werkzeug.
 - **Keine Telefonie und keine SMS.** Telefonnummern stehen in einem Feld vom Typ Telefon; telefoniert wird über Ihre eigene Anlage.
 - **Keine nativen Apps und kein Single Sign-on.** Customermates läuft im Browser des Smartphones.
-- **Keine eigenen Objekte und keine Feldberechtigungen.** Rechte gelten je Datensatztyp und Aktion. Gespeicherte Ansichten sind persönlich und lassen sich nicht teilen.
+- **Keine Feldberechtigungen.** Rechte gelten je Liste und Aktion. Gespeicherte Ansichten sind persönlich und lassen sich nicht teilen.
 - **Keine fertigen ERP- oder DATEV-Schnittstellen.** Andere Systeme binden Sie über die REST-API, Webhooks oder Ihre eigene n8n-Instanz an.
 - **Keine Zertifizierung.** Customermates hat keine Compliance-Zertifizierung.
 
@@ -182,21 +182,21 @@ Ein Beispiel: eine Beratung mit fünf Personen auf cobra CRM Cloud Essential, di
 
 | In cobra | In Customermates |
 |---|---|
-| Firmenadressen | Organisationen, im Datenmodell umbenannt in „Unternehmen“ |
+| Firmenadressen | Organisationen, in Konfigurieren umbenannt in „Unternehmen“ |
 | Ansprechpartner | Kontakte, verknüpft mit ihrem Unternehmen |
 | Verkaufschancen | Deals, umbenannt in „Chancen“ |
 | Stichwörter und Verteiler | Ein Einzelauswahl-Feld je Stichwortgruppe, dazu eine gespeicherte Ansicht mit Filter |
 | Kommunikationshistorie (Touchpoints) | Die Notizen des Datensatzes; neue Änderungen erscheinen im Aktivitätsverlauf |
 | Newsletter, Events, Word-Vorlagen | Keine Entsprechung; behalten Sie dafür ein eigenes Werkzeug |
 
-Die Phasen der Verkaufschancen werden zu einem Phasenfeld mit Wahrscheinlichkeiten, zum Beispiel Anfrage 10 %, Erstgespräch 25 %, Angebot gesendet 50 %, Verhandlung 75 %, Gewonnen 100 % und Verloren 0 %. Customermates multipliziert jeden Deal-Wert mit der Wahrscheinlichkeit seiner Phase und zeigt die gewichtete Pipeline als Summe. Das ist eine Rechnung mit Ihren eigenen Werten, keine Prognose.
+Die Phasen der Verkaufschancen werden zu einem Phasenfeld mit Wahrscheinlichkeiten, zum Beispiel Anfrage 10 %, Erstgespräch 25 %, Angebot gesendet 50 %, Verhandlung 75 %, Gewonnen 100 % und Verloren 0 %. Customermates multipliziert jeden Deal-Wert mit der Wahrscheinlichkeit seiner Phase, und ein Diagramm-Widget auf dem Dashboard summiert die gewichteten Werte. Das ist eine Rechnung mit Ihren eigenen Werten, keine Prognose.
 
 <Steps>
   <Step title="Aus cobra exportieren">Laut Preisseite können Sie in allen Cloud-Tarifen beliebige Daten als Excel exportieren. Exportieren Sie Firmen, Ansprechpartner und Verkaufschancen als getrennte Arbeitsmappen und speichern Sie sie als .xlsx-Dateien. Bei cobra One fragen Sie Ihren cobra-Partner, welchen Export Ihre Version bietet.</Step>
-  <Step title="Arbeitsbereich vorbereiten">Benennen Sie die Datensatztypen unter Mein Unternehmen › Einstellungen › Datenmodell um. Legen Sie je Stichwortgruppe ein Einzelauswahl-Feld an und richten Sie das Phasenfeld mit seinen Wahrscheinlichkeiten ein.</Step>
-  <Step title="Einen Datensatztyp nach dem anderen importieren">Zuerst Organisationen, dann Kontakte, dann Deals. Eine Verknüpfungsspalte findet das zuvor importierte Unternehmen über den Namen. Eine Arbeitsmappe fasst derzeit bis zu 10.000 Zeilen, teilen Sie größere Adressbestände also auf. Neue Kontakte brauchen Vor- und Nachnamen, und eine Spalte „Notizen“ landet in den Notizen des Datensatzes. Details stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
+  <Step title="Arbeitsbereich vorbereiten">Öffnen Sie in Konfigurieren jede Liste, die Sie umbenennen möchten, und ändern Sie Name und Pluralname unter Allgemein. Legen Sie je Stichwortgruppe ein Einzelauswahl-Feld an und richten Sie das Phasenfeld mit seinen Wahrscheinlichkeiten ein.</Step>
+  <Step title="Eine Liste nach der anderen importieren">Zuerst Organisationen, dann Kontakte, dann Deals. Eine Verknüpfungsspalte findet das zuvor importierte Unternehmen über den Namen. Eine Arbeitsmappe fasst derzeit bis zu 10.000 Zeilen, teilen Sie größere Adressbestände also auf. Neue Kontakte brauchen Vor- und Nachnamen, und eine Spalte „Notizen“ landet in den Notizen des Datensatzes. Details stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
   <Step title="Listen als Ansichten anlegen">Machen Sie aus jeder cobra-Liste eine gespeicherte Ansicht mit Filter. Ansichten sind persönlich, jede Person speichert ihre eigenen.</Step>
-  <Step title="Kanäle und KI verbinden">Ab Pro oder während der Testphase verbinden Sie unter Mein Profil › Kanäle ein Postfach, LinkedIn oder WhatsApp. Danach richten Sie eine Routine für Mate ein oder verbinden Ihren eigenen KI-Client über MCP.</Step>
+  <Step title="Kanäle und KI verbinden">Ab Pro oder während der Testphase verbinden Sie unter Einstellungen › Kanäle ein Postfach, LinkedIn oder WhatsApp. Danach richten Sie eine Routine für Mate ein oder verbinden Ihren eigenen KI-Client über MCP.</Step>
 </Steps>
 
 Danach kann jede Person im Team eine eigene Routine für das wöchentliche Nachfassen anlegen. Eine Routine läuft im Namen der Person, der sie gehört, und mit deren Kanälen. Sie läuft in der Customermates Cloud und nutzt gehostete KI-Credits:
@@ -237,7 +237,7 @@ HubSpot bietet ein kostenloses CRM für bis zu zwei Nutzer und 1.000 Kontakte. C
 </FaqItem>
 
 <FaqItem question="Wie übernehme ich meine Adressen aus cobra?">
-Als Excel-Arbeitsmappen, ein Datensatztyp nach dem anderen: zuerst Firmen, dann Ansprechpartner, dann Verkaufschancen. Stichwörter werden zu Einzelauswahl-Feldern. Newsletter-Verteiler, Eventdaten und Word-Vorlagen haben in Customermates keinen Platz.
+Als Excel-Arbeitsmappen, eine Liste nach der anderen: zuerst Firmen, dann Ansprechpartner, dann Verkaufschancen. Stichwörter werden zu Einzelauswahl-Feldern. Newsletter-Verteiler, Eventdaten und Word-Vorlagen haben in Customermates keinen Platz.
 </FaqItem>
 </Faq>
 

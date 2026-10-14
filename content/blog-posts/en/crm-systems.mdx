@@ -142,15 +142,15 @@ For a weighted scorecard, read [how to choose a CRM](/blog/how-to-choose-crm).
 
 A typical setup for a small consultancy:
 
-- **Records:** contacts, organizations, deals, services and tasks. A deal's value follows from the services linked to it and their quantities.
-- **Stages:** the deal Stage column ships with Prospecting, Qualification, Demo, Proposal, Negotiation, Won and Lost. Each option can carry a weight, which gives deterministic weighted deal values and a weighted [pipeline](/features/pipeline) total. It is a stage weighting, not a prediction.
-- **Custom fields:** a single-select column such as "Lead source" or "Service line", which you can also group the board by.
+- **Records:** contacts, organizations, deals, services and tasks. A deal's value follows from its line items: the services sold and their quantities.
+- **Stages:** the deal Stage field ships with Prospecting, Qualification, Demo, Proposal, Negotiation, Won and Lost. Each option can carry a weight, which gives deterministic weighted deal values and a weighted [pipeline](/features/pipeline) total. It is a stage weighting, not a prediction.
+- **Custom fields:** a Single choice field such as "Lead source" or "Service line", which you can also group the board by.
 - **Saved views:** "My open proposals" filtered to your assigned deals in Proposal and Negotiation. Views are personal to whoever creates them.
 - **Conversations:** on Pro and higher, the [unified inbox](/features/unified-inbox) brings email (Gmail, Outlook, IMAP), LinkedIn, WhatsApp, Instagram and Telegram threads next to the records. Starter has no inbox.
 - **AI, in Customermates Cloud:** Mate, the in-app assistant, uses hosted AI credits. A Routine can run a saved instruction every Monday morning, for example: "List my deals in Proposal, summarize the latest conversation with each contact, and draft a follow-up where none was sent. Do not send anything." The routine runs as its owner, so the "do not send" line matters. See [Routines](/docs/app-routines). If you prefer your own AI client, Claude, ChatGPT and others can work with the CRM through MCP.
 - **Self-hosting:** the AGPL core runs on your own server with REST, webhooks and MCP. It has no inbox, no Mate and no hosted credits.
 
-Records move in and out as XLSX workbooks, one record type at a time. Self-service plans run from [[commercial.price.starter.monthly]] (Starter) to [[commercial.price.business.monthly]] (Business) per user per month, billed monthly, with a [[commercial.trial.days]]-day trial.
+Records move in and out as XLSX workbooks or JSON, one list at a time. Self-service plans run from [[commercial.price.starter.monthly]] (Starter) to [[commercial.price.business.monthly]] (Business) per user per month, billed monthly, with a [[commercial.trial.days]]-day trial.
 
 <AcquisitionCallout title="Where Customermates is not the right system" variant="boundary">
   It has no marketing automation, newsletters or email campaigns, no support ticket queue, no telephony, no mobile app, and no quotes or invoices. If marketing automation is your main job, look at a suite such as HubSpot or Zoho CRM. If service tickets are, look for a help desk or a CRM with service automation. If you run SAP ERP, SAP Sales Cloud is built to connect to it.

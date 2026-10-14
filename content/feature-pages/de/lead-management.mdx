@@ -47,7 +47,7 @@ Genauso wichtig ist, was fehlt. Customermates vergibt keine Lead-Scores, reicher
 | Qualifizieren | Ihre Kriterien als eigene Felder, gepflegt vom Team, von Mate oder Ihrem KI-Client | Automatische Scores und Firmendaten |
 | Zuweisen | Zugewiesene Nutzer an jedem Kontakt und Deal, von Hand oder per Anweisung | Verteilung nach Rotation oder Gebiet |
 | Nachfassen | Antwort über den Kanal des Kontakts, Entwürfe von Mate in Customermates Cloud | Mehrstufige E-Mail-Sequenzen |
-| Auswerten | Dashboard-Diagramme mit Anzahl und Deal-Wert je Einzelauswahlfeld | Konversionsraten im Trichter, Multi-Touch-Attribution |
+| Auswerten | Dashboard-Diagramme mit Anzahl und Deal-Wert je Einzelauswahlfeld | Konversion im Zeitverlauf, Multi-Touch-Attribution |
 
 Für eine Beratung, eine Agentur oder ein gründergeführtes Unternehmen mit 10 bis 50 neuen Anfragen im Monat ist die mittlere Spalte meist schon alles. Die rechte Spalte betrifft Marketingteams mit hohem Anfragevolumen.
 
@@ -55,7 +55,7 @@ Für eine Beratung, eine Agentur oder ein gründergeführtes Unternehmen mit 10 
 
 - **Von Hand.** In der Kontaktliste auf **Hinzufügen**, ein paar Felder ausfüllen, fertig.
 - **Aus einem Gespräch (ab Pro).** Schreibt eine unbekannte Adresse an Ihr verbundenes Postfach, öffnen Sie die **Konversationseinstellungen**, klicken bei der Person auf **Verknüpfen** und wählen **„…“ erstellen**. Jede weitere Nachricht dieser Adresse erscheint am neuen Kontakt. Mehr dazu beim [einheitlichen Posteingang](/features/unified-inbox).
-- **Aus einer Tabelle.** Speichern Sie Ihre Liste als .xlsx-Datei und nutzen Sie **Import und Export › Aus Datei hinzufügen**, erst die Organisationen, dann die Kontakte. Leads, die Ihnen ein externer Dienstleister für Leadgenerierung liefert, übernehmen Sie auf demselben Weg.
+- **Aus einer Tabelle.** Speichern Sie Ihre Liste als .xlsx-Datei und nutzen Sie **Weitere Aktionen › Aus Datei hinzufügen**, erst die Organisationen, dann die Kontakte. Leads, die Ihnen ein externer Dienstleister für Leadgenerierung liefert, übernehmen Sie auf demselben Weg.
 - **Aus einem Formular auf Ihrer Website.** Ihr Formular-Tool oder ein separater [n8n-Workflow](/features/workflow-automation) ruft die REST-API auf und legt den Kontakt mit seiner Quelle an. Einen eigenen Formular-Baukasten hat Customermates nicht.
 - **Über Ihren KI-Client.** Claude, ChatGPT oder ein anderer MCP-Client legt Kontakte aus einer E-Mail-Signatur oder einer Teilnehmerliste an, mit [[derived.mcp.tools.total]] verfügbaren Tools.
 
@@ -64,11 +64,11 @@ Für eine Beratung, eine Agentur oder ein gründergeführtes Unternehmen mit 10 
 Ein neuer Workspace hat am Kontakt bereits das Einzelauswahlfeld **Vertriebsphase** mit den Optionen Neu, Kontaktiert, Qualifiziert, In Bearbeitung, Gewonnen und Verloren, am Deal das Feld **Phase**. Beide können Sie umbenennen und die Optionen anpassen.
 
 <Steps>
-  <Step title="Leads auch Leads nennen">Stellen Sie unter **Mein Unternehmen › Einstellungen › Datenmodell** die Kontakte auf **Leads** um, wenn Ihr Team so spricht. Das gilt für den ganzen Workspace.</Step>
+  <Step title="Leads auch Leads nennen">Öffnen Sie unter **Konfigurieren** die Kontakte und benennen Sie sie unter **Allgemein** in **Leads** um, wenn Ihr Team so spricht. Das gilt für den ganzen Workspace.</Step>
   <Step title="Zwei Felder am Kontakt anlegen">**Quelle** (Einzelauswahl: Empfehlung, Website, LinkedIn, Messe, Partner) und **Eignung** (Einzelauswahl: Passt gut, Unklar, Passt nicht). Wenige Optionen halten die Filter brauchbar.</Step>
   <Step title="Zwei persönliche Ansichten speichern">„Neu und ohne Zuständigkeit“: **Vertriebsphase** ist Neu und **Zugewiesen** hat keine. „Meine offenen Leads“: **Zugewiesen** sind Sie, **Vertriebsphase** ist Kontaktiert, Qualifiziert oder In Bearbeitung, sortiert nach **Aktualisiert am**, älteste zuerst.</Step>
   <Step title="Mit dem Board arbeiten">Stellen Sie „Meine offenen Leads“ auf das Board, gruppiert nach **Vertriebsphase**, und ziehen Sie eine Karte weiter, wenn das Gespräch vorankommt.</Step>
-  <Step title="Einen Deal anlegen, wenn es ernst wird">Fragt ein Lead nach einem Angebot, legen Sie einen Deal an, verknüpfen Kontakt und Organisation und fügen die Leistungen hinzu, die Sie verkaufen würden. Der Deal-Wert ergibt sich aus diesen Leistungen und ihren Mengen.</Step>
+  <Step title="Einen Deal anlegen, wenn es ernst wird">Fragt ein Lead nach einem Angebot, legen Sie einen Deal an, verknüpfen Kontakt und Organisation und fügen für jede Leistung, die Sie verkaufen würden, eine Position hinzu. Der Deal-Wert ist die Summe seiner Positionen, jeweils Service mal Menge.</Step>
 </Steps>
 
 Gespeicherte Ansichten gehören der Person, die sie angelegt hat, deshalb legt jede Kollegin ihre eigene an. Filter, Gruppierung und Import beschreibt die [Anleitung zu Datensätzen](/docs/app-records).
@@ -77,17 +77,17 @@ Gespeicherte Ansichten gehören der Person, die sie angelegt hat, deshalb legt j
 
 Lead und Deal sind getrennte Datensätze. Einen Umwandeln-Knopf gibt es nicht: Der Kontakt bleibt mit seinem ganzen Verlauf in der Liste, der Deal trägt den Betrag.
 
-Die vorgegebenen Deal-Phasen haben Gewichtungen von 10, 20, 40, 60 und 80 Prozent für Akquise bis Verhandlung, 100 für Gewonnen und 0 für Verloren. Damit bekommt jeder Deal einen gewichteten Wert, und der Workspace zeigt neben der **Gesamtpipeline** die **Gewichtete Pipeline**. Das sind feste Gewichte, die Sie selbst festlegen, keine Vorhersage.
+Die vorgegebenen Deal-Phasen haben Gewichtungen von 10, 20, 40, 60 und 80 Prozent für Akquise bis Verhandlung, 100 für Gewonnen und 0 für Verloren. Damit bekommt jeder Deal einen gewichteten Wert, und ein Dashboard-Diagramm, das **Wert** oder **Gewichteter Wert** nach Phase summiert, zeigt die Pipeline. Das sind feste Gewichte, die Sie selbst festlegen, keine Vorhersage.
 
-Auf dem Dashboard zeigt ein Diagramm-Widget über Kontakte, gruppiert nach **Quelle**, wie viele Leads jeder Kanal gebracht hat. Dasselbe Diagramm über Deals, mit einem Feld Quelle am Deal und der Metrik Deal-Wert, zeigt, welche Kanäle Umsatz bringen. Konversionsraten zwischen den Phasen berechnet Customermates nicht; dafür exportieren Sie die Liste nach Excel.
+Auf dem Dashboard zeigt ein Diagramm-Widget über Kontakte, gruppiert nach **Quelle**, wie viele Leads jeder Kanal gebracht hat. Dasselbe Diagramm über Deals, mit einem Feld Quelle am Deal und summiertem **Wert**, zeigt, welche Kanäle Umsatz bringen. Ein **Trichter**-Diagramm zeigt die aktuellen Datensätze je Phase mit der Umwandlung von Schritt zu Schritt; Konversion im Zeitverlauf erfasst Customermates nicht, dafür exportieren Sie die Liste nach Excel.
 
-Damit andere Systeme Leads mitverfolgen, sobald sich etwas ändert, senden Webhooks unter anderem `contact.created`, `contact.updated` und `deal.updated`, insgesamt gibt es [[derived.webhooks.events.total]] Ereignisse. Eine Slack-Nachricht zu einem neuen Lead läuft über n8n oder Ihren eigenen Endpunkt; eine native Slack-Integration gibt es nicht. Jede Änderung an einem Lead landet in seinem Verlauf, sichtbar für Rollen mit Lesezugriff auf das **Audit-Log**.
+Damit andere Systeme Leads mitverfolgen, sobald sich etwas ändert, senden Webhooks unter anderem `record.created` und `record.updated` für die Listen Kontakte und Deals, insgesamt gibt es [[derived.webhooks.events.total]] Ereignisse. Eine Slack-Nachricht zu einem neuen Lead läuft über n8n oder Ihren eigenen Endpunkt; eine native Slack-Integration gibt es nicht. Jede Änderung an einem Lead landet in seinem Verlauf, sichtbar für Rollen mit Lesezugriff auf das **Audit-Log**.
 
 ## Mate und Routinen für neue Leads (Customermates Cloud)
 
 In Customermates Cloud arbeitet Mate, der gehostete Assistent, auf Zuruf mit Ihren Leads und verbraucht dabei gehostete KI-Credits: „Alle Leads mit Quelle LinkedIn und Vertriebsphase Kontaktiert anzeigen, die seit mehr als zwei Wochen nicht aktualisiert wurden, und für jeden im zugehörigen Gespräch eine kurze Nachfass-Nachricht entwerfen. Nichts versenden.“
 
-Eine [Routine](/docs/app-routines) führt eine gespeicherte Anweisung selbstständig aus. Wählen Sie als Auslöser **Wenn sich etwas ändert** mit dem Ereignis **Kontakt erstellt** und hinterlegen Sie zum Beispiel diese Anweisung:
+Eine [Routine](/docs/app-routines) führt eine gespeicherte Anweisung selbstständig aus. Wählen Sie als Auslöser **Wenn sich etwas ändert** mit dem Ereignis **Datensatz erstellt** für Kontakte und hinterlegen Sie zum Beispiel diese Anweisung:
 
 ```text
 Ein neuer Lead wurde angelegt. Den Kontakt und ein verknüpftes Gespräch lesen. Ist Quelle leer und zeigt das Gespräch, woher der Lead kommt, Quelle setzen. Ist Eignung leer, Unklar setzen. Im Gespräch eine Antwort entwerfen, aber nicht senden. Zugewiesen nicht ändern.

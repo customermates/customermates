@@ -74,12 +74,12 @@ Ask these in a demo or look them up in the documentation. The third column shows
 | Question | A good answer | Customermates |
 |---|---|---|
 | 1. Can the AI change records, or only suggest? | It updates records, notes and links itself and reports what changed | Yes. Mate changes records directly and reports each change |
-| 2. What does it do without asking? | A written list of the actions that need approval | Deletions, renaming record types, team invitations, webhook resends and support requests ask every time. Sending messages does not, so ask for a draft when you want to review first |
+| 2. What does it do without asking? | A written list of the actions that need approval | Deletions, renaming lists, team invitations, webhook resends and support requests ask every time. Sending messages does not, so ask for a draft when you want to review first |
 | 3. Does it see the conversations? | Email and chat threads sit next to the deal they belong to | On Pro and higher, the [unified inbox](/features/unified-inbox) holds email, LinkedIn, WhatsApp, Instagram and Telegram threads. Starter has no inbox |
 | 4. Can it run without you? | Schedules and record events, with caps on runs and spending | Routines run a saved instruction on a schedule or when a record changes, capped per run and per hour |
 | 5. Can your own AI client connect? | An MCP server or a complete API, under the user's permissions | An MCP server with [[derived.mcp.tools.total]] tools, on every plan and self-hosted |
 | 6. Who pays for the model? | A unit you can check in advance: credits, an add-on or your own AI provider | Mate uses monthly hosted AI credits per active user, see [pricing](/pricing). With an MCP client, the model runs at your own AI provider |
-| 7. Where does the data go, and can you take it out? | Named model providers and subprocessors, a data processing agreement, a documented export | Primary database configured in the AWS Frankfurt region; the [subprocessors](/subprocessors) page names Google Cloud Vertex AI and Microsoft Azure as the providers behind Mate's models. Export as XLSX, one record type at a time |
+| 7. Where does the data go, and can you take it out? | Named model providers and subprocessors, a data processing agreement, a documented export | Primary database configured in the AWS Frankfurt region; the [subprocessors](/subprocessors) page names Google Cloud Vertex AI and Microsoft Azure as the providers behind Mate's models. Export as XLSX or JSON, one list at a time |
 | 8. Does it score deals? | If you need scores, ask which data the model learns from | No. Weighted pipeline values come from the stage probabilities you set |
 
 MCP, the [Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro), is an open-source standard for connecting AI applications such as Claude or ChatGPT to external systems. With an MCP server, the AI client you already pay for works in the CRM directly.
@@ -89,7 +89,7 @@ MCP, the [Model Context Protocol](https://modelcontextprotocol.io/docs/getting-s
 Run the same test in every trial, with your own data instead of demo records. The Customermates trial runs [[commercial.trial.days]] days with Pro features, so the inbox is part of it.
 
 <Steps>
-  <Step title="Load a few real records">Import 20 contacts and five open deals. In Customermates, import runs from an XLSX workbook, one record type at a time.</Step>
+  <Step title="Load a few real records">Import 20 contacts and five open deals. In Customermates, import runs from an XLSX workbook, one list at a time.</Step>
   <Step title="Give one compound instruction">Paste a real client email and write: "Find the deal for this client, move it to the next stage, add the three main points of this email to the deal's notes and save a reply as a draft. Do not send it."</Step>
   <Step title="Check what actually changed">Open the deal and look at the stage, the notes, the activity history and the draft. Count what the AI did, not what it said it did.</Step>
   <Step title="Ask a question that needs arithmetic">"Which open deals have the highest value and no message from us in 14 days?" A good answer covers every open deal, not the first page of a list.</Step>
@@ -129,7 +129,7 @@ Your own AI client connects to the [MCP server](/docs/mcp): Claude and ChatGPT t
 ### A worked setup for a five-person consultancy
 
 - **Deal stages:** Lead (10%), Qualified (30%), Proposal sent (60%), Won (100%), Lost (0%). The percentages are stage probabilities and drive the weighted pipeline.
-- **Custom field on deals:** Source, a single-select field with Referral, LinkedIn, Website and Event.
+- **Custom field on deals:** Source, a single choice field with Referral, LinkedIn, Website and Event.
 - **Saved view:** "My open proposals", filtered to the stage Proposal sent and to deals assigned to me, sorted by value. Saved views are personal, so each consultant saves their own.
 - **Inbox:** each consultant connects [[commercial.entitlement.pro.includedAccountsPerUser]] account on Pro, usually the work email or LinkedIn.
 
@@ -146,7 +146,7 @@ of the conversation. Do not send anything.
 End with a list of the drafts you saved.
 ```
 
-The second, "Won handover", runs **When something changes**, on the event Deal Updated, with **Changed fields** set to the stage:
+The second, "Won handover", runs **When something changes**, on the event **Record updated** for the Deals list, with **Changed fields** set to the stage:
 
 ```text
 If this deal is now in the stage "Won", create a task

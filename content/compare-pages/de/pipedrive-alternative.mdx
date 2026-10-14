@@ -45,7 +45,7 @@ comparison:
         source: Keine planabhängige Grenze
         competitor: 2.500 bis 20.000 pro Nutzer je nach Plan, höchstens 300.000
       - name: Eigene Felder
-        source: Zehn Feldtypen, keine planabhängige Grenze
+        source: Fünfzehn Feldtypen und berechnete Felder, keine planabhängige Grenze
         competitor: 30 (Lite) bis 500 (Ultimate) pro Unternehmen
       - name: Pipelines
         source: Ein Phasenfeld mit Phasenwahrscheinlichkeiten, als Tabelle oder Board
@@ -54,7 +54,7 @@ comparison:
         source: Gewichtete Pipeline aus Phasenwahrscheinlichkeiten
         competitor: Prognoseberichte ab Growth
       - name: Import und Export
-        source: XLSX, ein Datensatztyp nach dem anderen
+        source: XLSX oder JSON, eine Liste nach der anderen
         competitor: Excel oder CSV
   - title: Kommunikation und KI
     features:
@@ -190,10 +190,10 @@ Auch Pipedrive hat einen MCP-Server. Der Unterschied liegt in der Reichweite: De
 
 Prüfen Sie diese Punkte, bevor Sie die Testphase starten:
 
-- **Kein Aktivitätenkalender.** Aufgaben haben zugewiesene Nutzer, Verknüpfungen, Notizen und eigene Felder, aber kein Fälligkeitsdatum, keinen Status und keine Erinnerung, und Customermates benachrichtigt Sie nicht dazu. Wer mit der Aktivitätenliste von Pipedrive arbeitet, spürt diese Umstellung am stärksten.
+- **Kein Aktivitätenkalender.** Aufgaben haben zugewiesene Nutzer, Verknüpfungen, Notizen, einen Status und eigene Felder, aber kein Fälligkeitsdatum und keine Erinnerung, und Customermates benachrichtigt Sie nicht dazu. Wer mit der Aktivitätenliste von Pipedrive arbeitet, spürt diese Umstellung am stärksten.
 - **Keine Sequenzen, Massenmails, Webformulare, Angebote, eSignatur, Telefonie, Anrufaufzeichnung, Datenanreicherung oder Lead-Scoring.** Nachrichten gehen einzeln hinaus, von Ihnen geschrieben oder von Mate entworfen. Rechnungen schreibt Customermates ebenfalls nicht; dafür bleibt Ihr Buchhaltungsprogramm, etwa Lexware Office oder sevDesk. Gewonnene Deals können Sie per Webhook an ein separat betriebenes n8n übergeben und von dort weiterverarbeiten.
 - **Kein Regel-Baukasten.** Routinen sind KI-Anweisungen, keine Wenn-dann-Regeln. Für feste Abläufe nutzen Sie Webhooks, die REST-API oder ein separat betriebenes n8n.
-- **Keine nativen Apps und kein SSO.** Gespeicherte Ansichten sind persönlich und lassen sich nicht teilen, und Berechtigungen gelten pro Datensatztyp und Aktion, nicht pro Feld.
+- **Keine nativen Apps und kein SSO.** Gespeicherte Ansichten sind persönlich und lassen sich nicht teilen, und Berechtigungen gelten pro Liste und Aktion, nicht pro Feld.
 - **Eine Phasenliste für alle Deals.** Haben Sie in Pipedrive mehrere Pipelines, legen Sie ein Einzelauswahl-Feld für die Pipeline an und speichern pro Pipeline eine Board-Ansicht. Die Phasen bleiben dieselben.
 
 ## Beispiel: Eine Beratung mit fünf Personen zieht von Pipedrive um
@@ -212,7 +212,7 @@ Nehmen wir eine Beratung mit drei Partnern und zwei Mitarbeitenden. Die Partner 
 | Notizen | Das Notizfeld des Datensatzes |
 | Dateien | Werden nicht übernommen; E-Mail-Anhänge bleiben in der Konversation im Posteingang |
 
-Die Optionen des Felds „Phase“ benennen sie in Lead, Qualifiziert, Angebot gesendet, Verhandlung, Gewonnen und Verloren um und geben ihnen unter Mein Unternehmen › Einstellungen Wahrscheinlichkeiten von 10, 25, 50, 75, 100 und 0 Prozent. Customermates multipliziert den Wert jedes Deals mit der Wahrscheinlichkeit seiner Phase und zeigt eine gewichtete Pipeline. Das ist Rechnen mit den eigenen Zahlen und keine Prognose.
+Die Optionen des Felds „Phase“ benennen sie in Lead, Qualifiziert, Angebot gesendet, Verhandlung, Gewonnen und Verloren um und geben ihnen in Konfigurieren für Deals Wahrscheinlichkeiten von 10, 25, 50, 75, 100 und 0 Prozent. Customermates multipliziert den Wert jedes Deals mit der Wahrscheinlichkeit seiner Phase, und ein Diagramm-Widget auf dem Dashboard summiert die gewichteten Werte. Das ist Rechnen mit den eigenen Zahlen und keine Prognose.
 
 Die Partner brauchen jeweils LinkedIn und E-Mail, also läuft der Workspace auf Business: [[commercial.price.business.monthly.seats.5]] im Monat für fünf Personen. Reicht ein Kanal pro Person, genügt Pro für [[commercial.price.pro.monthly.seats.5]].
 
@@ -224,10 +224,10 @@ Jeder Partner besitzt eine Routine. Sie läuft als dieser Partner, sieht also se
 
 <Steps>
   <Step title="Aus Pipedrive exportieren">Öffnen Sie in Pipedrive „Tools und Apps“ › „Daten exportieren“ und laden Sie Organisationen, Personen, Deals und Produkte jeweils als Excel-Datei herunter. Notizen und Aktivitäten exportieren Sie getrennt. Exportieren dürfen nur globale Admins und Nutzer mit der passenden Berechtigung.</Step>
-  <Step title="Workspace vorbereiten">Richten Sie das Feld „Phase“ wie im Beispiel oben ein, legen Sie Einzelauswahl-Felder für Ihre Labels an und eigene Felder für alles, was Sie behalten wollen. Zehn Feldtypen stehen bereit, darunter Währung, Datum, Link und Telefon.</Step>
-  <Step title="Einen Datensatztyp nach dem anderen importieren">Unter Import und Export › Aus Datei hinzufügen importieren Sie zuerst Organisationen, dann Kontakte, dann Leistungen und Deals. Eine Arbeitsmappe darf bis zu 10.000 Zeilen und 10 MB groß sein, und CSV-Dateien werden nicht angenommen; nutzen Sie also den Excel-Export von Pipedrive und teilen Sie große Dateien auf. Verknüpfungsspalten finden Datensätze über den Namen, die Organisationsspalte eines Deals also die zuvor importierte Organisation. Neue Kontakte brauchen Vor- und Nachnamen. Ordnen Sie E-Mail-Spalten den Kanälen des Kontakts zu; Kanäle werden nur bei neuen Kontakten ergänzt.</Step>
+  <Step title="Workspace vorbereiten">Richten Sie das Feld „Phase“ wie im Beispiel oben ein, legen Sie Einzelauswahl-Felder für Ihre Labels an und eigene Felder für alles, was Sie behalten wollen. Fünfzehn Feldtypen stehen bereit, darunter Geldbetrag, Datum, Webadresse und Telefon.</Step>
+  <Step title="Eine Liste nach der anderen importieren">Unter Weitere Aktionen › Aus Datei hinzufügen importieren Sie zuerst Organisationen, dann Kontakte, dann Leistungen und Deals. Eine Arbeitsmappe darf bis zu 10.000 Zeilen und 10 MB groß sein, und CSV-Dateien werden nicht angenommen; nutzen Sie also den Excel-Export von Pipedrive und teilen Sie große Dateien auf. Verknüpfungsspalten finden Datensätze über den Namen, die Organisationsspalte eines Deals also die zuvor importierte Organisation. Neue Kontakte brauchen Vor- und Nachnamen. Ordnen Sie E-Mail-Spalten den Kanälen des Kontakts zu; Kanäle werden nur bei neuen Kontakten ergänzt.</Step>
   <Step title="Notizen und offene Aktivitäten übernehmen">Jeder Datensatz hat ein Notizfeld. Ordnen Sie beim Import eine Notizspalte zu, oder lassen Sie einen KI-Client über MCP die exportierten Notizen an die passenden Datensätze anhängen. Offene Aktivitäten können Sie als Aufgaben importieren, mit einem eigenen Datumsfeld für das Datum.</Step>
-  <Step title="Kanäle verbinden, dann Pipedrive kündigen">Ab Pro oder während der Testphase verbinden Sie unter Mein Profil › Kanäle ein Postfach, LinkedIn oder WhatsApp. Kündigen Sie Pipedrive erst, wenn Ihr Team die importierten Daten geprüft hat. Die [Dokumentation zu Datensätzen](/docs/app-records) erklärt jeden Schritt des Import-Assistenten.</Step>
+  <Step title="Kanäle verbinden, dann Pipedrive kündigen">Ab Pro oder während der Testphase verbinden Sie unter Einstellungen › Kanäle ein Postfach, LinkedIn oder WhatsApp. Kündigen Sie Pipedrive erst, wenn Ihr Team die importierten Daten geprüft hat. Die [Dokumentation zu Datensätzen](/docs/app-records) erklärt jeden Schritt des Import-Assistenten.</Step>
 </Steps>
 
 ## Weitere Pipedrive-Alternativen
@@ -258,7 +258,7 @@ Für dieselbe Aufgabe oft Customermates. Starter liegt mit [[commercial.price.st
 </FaqItem>
 
 <FaqItem question="Kann ich meine Pipedrive-Daten übernehmen?">
-Ja. Exportieren Sie jeden Datentyp aus Pipedrive als Excel-Datei und importieren Sie ihn in Customermates, einen Datensatztyp nach dem anderen: Organisationen, Kontakte, Deals. Dateien und der E-Mail-Verlauf bleiben zurück. Sobald Sie ein Postfach verbinden, erscheinen Konversationen beim Kontakt, wenn die Adresse zu einem seiner Kanäle passt.
+Ja. Exportieren Sie jeden Datentyp aus Pipedrive als Excel-Datei und importieren Sie ihn in Customermates, eine Liste nach der anderen: Organisationen, Kontakte, Deals. Dateien und der E-Mail-Verlauf bleiben zurück. Sobald Sie ein Postfach verbinden, erscheinen Konversationen beim Kontakt, wenn die Adresse zu einem seiner Kanäle passt.
 </FaqItem>
 
 <FaqItem question="Hat Customermates Automationen wie Pipedrive?">

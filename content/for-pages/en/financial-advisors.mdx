@@ -64,21 +64,21 @@ On the relationship side, advisory work has a few habits a generic sales CRM han
 
 ## A setup for advisors in Customermates
 
-Customermates has five record types. The mapping below is one sensible way to use them; every field name is an example you create yourself.
+Customermates starts with five lists, and you can add your own. The mapping below is one sensible way to use the five; every field name is an example you create yourself.
 
 | Record type | Used for | Example custom fields |
 |---|---|---|
-| Contacts | Each client or prospect | Client status (single select: Prospect, Client, Former client), Next review (date), Preferred channel (single select), Referred by |
-| Organizations | Households, client businesses and referral partners | Type (single select: Household, Business, Referral partner), Partner profession |
-| Deals | Each prospective engagement or mortgage enquiry | Stage, Engagement type (single select: Planning, Investment advice, Mortgage, Insurance), Decision expected (date), External reference |
+| Contacts | Each client or prospect | Client status (single choice: Prospect, Client, Former client), Next review (date), Preferred channel (single choice), Referred by |
+| Organizations | Households, client businesses and referral partners | Type (single choice: Household, Business, Referral partner), Partner profession |
+| Deals | Each prospective engagement or mortgage enquiry | Stage, Engagement type (single choice: Planning, Investment advice, Mortgage, Insurance), Decision expected (date), External reference |
 | Services | What you offer, with a price | Financial plan, Annual retainer, Mortgage advice fee |
 | Tasks | Next steps assigned to a person | A "Due on" date field you add, since tasks have no built-in due date |
 
-A contact can belong to several organizations, so one client can sit in a household and be linked to the accountant who introduced them. Under **My Company › Settings** you can rename record types from a preset list, for example Contacts to Clients, Deals to Opportunities and Tasks to Follow-ups.
+A contact can belong to several organizations, so one client can sit in a household and be linked to the accountant who introduced them. In **Configure** you can rename any list under **General**, for example Contacts to Clients, Deals to Opportunities and Tasks to Follow-ups.
 
 ### Stages for new business
 
-The deal stage is a single-select field you define, and each option carries a win probability. A starting point: Introduction 10%, Discovery meeting 25%, Proposal discussed 50%, Paperwork in specialist system 80%, Won 100%, Not proceeding 0%. The deal's value comes from linked services, so a pipeline total is arithmetic from your own fee and probabilities, not a prediction. The [pipeline board](/features/pipeline) shows each deal as a card you drag between stages.
+The deal stage is a single choice field you define, and each option carries a win probability. A starting point: Introduction 10%, Discovery meeting 25%, Proposal discussed 50%, Paperwork in specialist system 80%, Won 100%, Not proceeding 0%. The deal's value is the sum of its line items, so a pipeline total is arithmetic from your own fee and probabilities, not a prediction. The [pipeline board](/features/pipeline) shows each deal as a card you drag between stages.
 
 Keep the stages commercial. "Paperwork in specialist system" means the advice, application or onboarding now runs elsewhere, and the CRM only records that it happened.
 
@@ -169,17 +169,17 @@ Each cloud plan adds monthly hosted AI credits per active user for Mate; see the
   </Step>
   <Step title="Import organizations first">
     Households and referral partners, with the Type field filled in. On the
-    Organizations list, open **Import and export** and choose **Add from file**.
+    Organizations list, open **More actions** and choose **Add from file**.
   </Step>
   <Step title="Import contacts">
     Include a column with the household or company name so each contact links
     to its organization, plus Client status and Next review.
   </Step>
   <Step title="Import open opportunities as deals">
-    Include stage and dates, then link services so each deal has a value.
+    Include stage and dates, then add line items so each deal has a value.
   </Step>
   <Step title="Connect approved channels">
-    On Pro or higher, connect your mailbox under **My Profile › Channels** once
+    On Pro or higher, connect your mailbox under **Settings › Channels** once
     compliance has approved it.
   </Step>
 </Steps>
@@ -205,7 +205,7 @@ It depends on how much of the regulated process you want in one tool. If applica
 </FaqItem>
 
 <FaqItem question="Can I track households and assets under management?">
-Model a household as an organization and link each member as a contact. An AUM figure can sit in a currency field, but Customermates does not calculate, sync or verify it, so the authoritative value stays in the portfolio or custody system.
+Model a household as an organization and link each member as a contact. An AUM figure can sit in a money field, but Customermates does not calculate, sync or verify it, so the authoritative value stays in the portfolio or custody system.
 </FaqItem>
 
 <FaqItem question="Can I message clients on WhatsApp through Customermates?">

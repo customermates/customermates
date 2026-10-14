@@ -141,39 +141,46 @@ The useful version of the first workflow stores the inquiry where your team work
 
 <Steps>
   <Step title="Create an API key">
-    In Customermates, open **My Profile → API & Connectors**, click **Add** and choose **Standard API key**. The key acts with the permissions of the user who created it, so create it as a user who may create contacts. Details are in [API keys](/docs/api-keys).
+    In Customermates, open **Settings → API keys**, click **Add** and choose **Standard API key**. The key acts with the permissions of the user who created it, so create it as a user who may create contacts. Details are in [API keys](/docs/api-keys).
   </Step>
   <Step title="Store it as an n8n credential">
     In n8n, create a **Header Auth** credential with the header name `x-api-key` and the key as its value. Every node that talks to the CRM reuses it, so a rotated key is changed in one place.
   </Step>
   <Step title="Replace the email node with an HTTP Request node">
-    On the If node's true branch, add an **HTTP Request** node: method `POST`, URL `<your Customermates address>/api/v1/contacts`, authentication through the Header Auth credential, and a JSON body:
+    First look up the IDs once: `POST <your Customermates address>/api/v1/model/discover` with `{}` returns the Contacts type ID, and `POST /api/v1/model/read` with that ID in `typeIds` returns the field IDs and the current schema revision. Then, on the If node's true branch, add an **HTTP Request** node: method `POST`, URL `<your Customermates address>/api/v1/records/mutate`, authentication through the Header Auth credential, and a JSON body:
 
     ```json
     {
-      "firstName": "{{ $json.body.firstName }}",
-      "lastName": "{{ $json.body.lastName }}",
-      "identifiers": [{ "provider": "mail", "value": "{{ $json.body.email }}" }],
-      "notes": "Website inquiry: {{ $json.body.message }}"
+      "expectedRevision": 12,
+      "idempotencyKey": "inquiry-{{ $execution.id }}",
+      "mutation": {
+        "action": "create",
+        "typeId": "<Contacts type ID>",
+        "fields": [
+          { "fieldId": "<First name field ID>", "value": { "kind": "text", "value": "{{ $json.body.firstName }}" } },
+          { "fieldId": "<Last name field ID>", "value": { "kind": "text", "value": "{{ $json.body.lastName }}" } }
+        ],
+        "identities": [{ "provider": "mail", "value": "{{ $json.body.email }}" }]
+      }
     }
     ```
 
-    First and last name are required. The email address goes into `identifiers` with the provider `mail`, which is how Customermates links a contact to its email conversations.
+    Replace `12` and the IDs in angle brackets with the values from `model/read`. The email address goes into `identities` with the provider `mail`, which is how Customermates links a contact to its email conversations. The idempotency key makes a retried run return the first result instead of creating a second contact. To keep the message, append it to the contact's notes afterwards with an `update` mutation.
   </Step>
   <Step title="Keep the notification">
     After the HTTP Request node, keep the email node so someone sees the new contact. Then test with the pinned data, check the contact in the CRM, and publish.
   </Step>
 </Steps>
 
-The reverse direction works too. Under **My Company → Webhooks → Add**, Customermates sends a POST to an n8n Webhook node when a subscribed event happens, for example `contact.created` or `deal.updated`. Set a secret so n8n can verify the signature. The [webhooks reference](/docs/webhooks) shows the payload. One practical catch: Customermates Cloud cannot reach an n8n instance on `localhost`, so this direction needs n8n Cloud or a self-hosted n8n with a public HTTPS address.
+The reverse direction works too. Under **Settings → Webhooks → Add**, Customermates sends a POST to an n8n Webhook node when a subscribed event happens, for example `record.created` for the Contacts list or `record.updated` for the Deals list. Set a secret so n8n can verify the signature. The [webhooks reference](/docs/webhooks) shows the payload. One practical catch: Customermates Cloud cannot reach an n8n instance on `localhost`, so this direction needs n8n Cloud or a self-hosted n8n with a public HTTPS address.
 
 A few details from the [n8n integration docs](/docs/n8n) save debugging time:
 
-- Sending `null` or `[]` for a relation field such as `organizationIds` removes every existing link of that kind. Leave the field out to keep the links.
-- The `/many` endpoints take at most 100 records per request, so split larger batches.
-- Webhook deliveries are not strictly ordered. Use the payload `timestamp` to order them.
+- Links change only through `link` and `unlink` mutations. Legacy relation arrays such as `organizationIds` are not accepted.
+- `updateMany` and `deleteMany` take at most 100 records per request, so split larger batches.
+- Webhook deliveries are not strictly ordered. Use the payload `timestamp` to order them and the event ID to drop duplicates.
 
-There is also a Customermates community node, `@customermates/n8n-nodes-crm`, with an action node for contacts, organizations, deals, services and tasks, and a trigger node for webhook events. Because n8n Cloud only installs verified community nodes, plan on the HTTP Request route there and use the community node on a self-hosted n8n.
+There is also a Customermates community node, `@customermates/n8n-nodes-crm`, with an action node for CRM records and a trigger node for webhook events. It has its own release schedule, so check that it supports the current record API before you use its CRM actions. Because n8n Cloud only installs verified community nodes, plan on the HTTP Request route there and use the community node on a self-hosted n8n.
 
 ## Where Customermates fits, and where it does not
 

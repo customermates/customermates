@@ -45,11 +45,11 @@ comparison:
         competitor: 2,500 to 20,000 per seat by plan, counting active leads and unarchived deals
         competitor2: "Records by edition: 5,000 on Free, 100,000 on Standard"
       - name: Custom fields
-        source: Ten field types, same on every plan
+        source: Fifteen field types and calculated fields, same on every plan
         competitor: 30 to 500 per company, by plan
         competitor2: 10 per module on Standard, up to 500 on Ultimate
       - name: Pipelines
-        source: One weighted stage field; processes split by a single-select field and saved views
+        source: One weighted stage field; processes split by a single choice field and saved views
         competitor: Pipeline management on every plan
         competitor2: Multiple pipelines from Standard
       - name: Quotes and contracts
@@ -174,16 +174,16 @@ In Pipedrive, global admins and users with the right permission export leads, de
 
 ## A third option: Customermates
 
-Customermates publishes this page, so read this section as a vendor describing its own product. It is an open-source, AI-native CRM for small client-facing teams such as consultants, agencies, other service businesses and founders, built in Germany. Contacts, organizations, deals, services and tasks sit in one record model with custom fields of ten types. It differs from Pipedrive and Zoho CRM in four ways:
+Customermates publishes this page, so read this section as a vendor describing its own product. It is an open-source, AI-native CRM for small client-facing teams such as consultants, agencies, other service businesses and founders, built in Germany. It starts with contacts, organizations, deals, services and tasks, and you can add your own lists, fields, relationships and calculated fields. It differs from Pipedrive and Zoho CRM in four ways:
 
 - **Conversations next to the deal.** From Pro, the [unified inbox](/features/unified-inbox) puts Gmail, Outlook and IMAP mailboxes, LinkedIn, WhatsApp, Instagram and Telegram in one list linked to your contacts, and you reply on the original channel. Starter has no inbox.
 - **AI for the routine CRM work.** In Customermates Cloud, Mate summarizes threads, drafts replies and updates records, using hosted AI credits. [Routines](/docs/app-routines) run a saved instruction on a schedule or when a record changes. Claude, ChatGPT or another client can work with the CRM through the [MCP server](/docs/mcp), with [[derived.mcp.tools.total]] tools on every plan.
 - **Open source.** The AGPL-3.0 core runs on your own server with Docker Compose, including REST, webhooks and MCP. A [self-hosted install](/features/self-hosted) has no inbox and no Mate. In Customermates Cloud the database is configured in the AWS Frankfurt region; other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available.
 - **Monthly prices per user, no plan-based record caps.** Five people pay [[commercial.price.starter.monthly.seats.5]] a month on Starter or [[commercial.price.pro.monthly.seats.5]] on Pro, with no yearly contract. The [pricing page](/pricing) lists the monthly hosted AI credits per active user.
 
-A five-person consultancy would set it up like this. Under My Company › Settings, the deal stage field gets win probabilities, for example Discovery 10%, Proposal sent 50%, Negotiation 75% and Won 100%. Every deal then shows a weighted value, the Settings page shows the weighted pipeline total, and a dashboard chart can sum weighted deal values by stage. A deal's value comes from the services linked to it and their quantities, so a "Workshop day" service at your day rate prices deals the same way every time. A single-select field "Engagement type" with Retainer, Project and Workshop separates the kinds of work on one board, and each person saves a board view filtered to the deals they are assigned to; saved views are personal. On Pro, each person connects [[commercial.entitlement.pro.includedAccountsPerUser]] account, for example their mailbox. A weekly routine in Customermates Cloud could read: "Every Monday at 8:00, find my deals in Proposal sent with no message in the last ten days, summarize each thread and save a reply draft. Do not send anything." Keep that last sentence: a routine can send messages unless its instruction says otherwise.
+A five-person consultancy would set it up like this. In Configure for Deals, the Stage field gets win probabilities, for example Discovery 10%, Proposal sent 50%, Negotiation 75% and Won 100%. Every deal then shows a weighted value, and a dashboard chart can sum weighted deal values by stage. A deal's value is the sum of its line items, each a service times its quantity, so a "Workshop day" service at your day rate prices deals the same way every time. A single choice field "Engagement type" with Retainer, Project and Workshop separates the kinds of work on one board, and each person saves a board view filtered to the deals they are assigned to; saved views are personal. On Pro, each person connects [[commercial.entitlement.pro.includedAccountsPerUser]] account, for example their mailbox. A weekly routine in Customermates Cloud could read: "Every Monday at 8:00, find my deals in Proposal sent with no message in the last ten days, summarize each thread and save a reply draft. Do not send anything." Keep that last sentence: a routine can send messages unless its instruction says otherwise.
 
-Customermates has no free plan, no native mobile apps and no built-in calling. It also lacks email sequences, lead scoring, quotes, invoices and inventory, and its weighted pipeline uses fixed stage probabilities rather than predictions. If your process needs one of these, Zoho CRM or Pipedrive is the better fit. Moving in works through XLSX import, one record type at a time: organizations, then contacts, then deals, as described in the [records documentation](/docs/app-records).
+Customermates has no free plan, no native mobile apps and no built-in calling. It also lacks email sequences, lead scoring, quotes, invoices and inventory, and its weighted pipeline uses fixed stage probabilities rather than predictions. If your process needs one of these, Zoho CRM or Pipedrive is the better fit. Moving in works through XLSX import, one list at a time: organizations, then contacts, then deals, as described in the [records documentation](/docs/app-records).
 
 ## Frequently asked questions
 

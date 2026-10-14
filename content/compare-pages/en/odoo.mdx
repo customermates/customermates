@@ -65,7 +65,7 @@ comparison:
         source: true
         competitor: true
       - name: Deal probability
-        source: Weight per stage, weighted pipeline totals
+        source: Probability per stage, weighted value per deal
         competitor: Predictive probability per opportunity
       - name: Predictive lead scoring and assignment rules
         source: false
@@ -80,7 +80,7 @@ comparison:
         source: false
         competitor: Apps in the same database
       - name: Customization
-        source: Custom fields of ten types on every plan
+        source: Your own lists, fields and calculated fields on every plan
         competitor: Odoo Studio (Enterprise), part of the Custom plan
   - title: Communication
     features:
@@ -199,11 +199,11 @@ Customermates is an open-source, AI-native CRM for small client-facing teams, bu
 - **No mass email, campaigns or sequences.** Messages go out one at a time, written by you or drafted by Mate.
 - **No telephony, no SMS, no native mobile apps and no single sign-on.**
 - **Tasks have no built-in due date or reminders.** Add a custom date field if you need one.
-- **No custom objects.** You get five record types (contacts, organizations, deals, services, tasks) and custom fields of ten types. Saved views are personal, and permissions apply per record type and action, not per field.
+- **Saved views are personal, and permissions apply per list and action, not per field.** Lists are not the limit: a workspace starts with five (contacts, organizations, deals, services, tasks) and you can add your own, with typed fields, relationships and calculated fields.
 
 ## Switching from Odoo CRM
 
-Most Odoo CRM data has a direct home. Under **My Company › Settings**, in the **Data model** section, you can call deals "Opportunities" and organizations "Companies", so your team keeps its vocabulary.
+Most Odoo CRM data has a direct home. In **Configure**, open a list and change its **Name** and **Plural name** under **General** to call deals "Opportunities" and organizations "Companies", so your team keeps its vocabulary.
 
 | In Odoo | In Customermates |
 |---|---|
@@ -211,17 +211,17 @@ Most Odoo CRM data has a direct home. Under **My Company › Settings**, in the 
 | Contacts that are individuals | Contacts, linked to their organization |
 | Opportunities in the pipeline | Deals, renamed "Opportunities" |
 | Leads, if you use them | Contacts, with the default "Sales Pipeline" field: New, Contact, Qualified, In Progress, Won, Lost |
-| Products on opportunities | Services, renamed "Products", linked to deals with a quantity |
+| Products on opportunities | Services, renamed "Products", added to a deal as line items with a quantity |
 | Scheduled activities | Tasks with assigned users, plus a custom date field for the deadline |
-| Odoo tags | A single-select custom field per tag group, one value per field; Customermates has no record tags |
+| Odoo tags | A multiple choice field per tag group; Customermates has no record tags |
 | Quotations and invoices | No equivalent; keep Odoo or your accounting tool for them |
 
-A new workspace starts with the stages Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100% and Lost 0%. Rename them to your Odoo stages and set your own weights. Odoo's per-opportunity probability does not carry over: every deal in a stage gets that stage's weight.
+A new workspace starts with the stages Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100% and Lost 0%. Rename them to your Odoo stages and set your own **Probability %** on each option of the **Stage** field in **Configure**. Odoo's per-opportunity probability does not carry over: every deal in a stage gets that stage's weight.
 
 <Steps>
-  <Step title="Export from Odoo">In each list view, select the records, open Action and choose Export, in the Excel format and not CSV. Customermates imports .xlsx workbooks only, so save an .xls file as .xlsx in Excel or LibreOffice first.</Step>
-  <Step title="Prepare the workspace">Choose your record names under Data model, create custom fields for the Odoo columns you keep, and set the stage options and weights.</Step>
-  <Step title="Import one record type at a time">Organizations first, then contacts, then deals. Link columns match records by name, so a contact's company column finds the organization you imported before. The [records documentation](/docs/app-records) lists the import limits.</Step>
+  <Step title="Export from Odoo">In each list view, select the records, open Action and choose Export, in the Excel format and not CSV. The Customermates import wizard reads .xlsx workbooks, so save an .xls file as .xlsx in Excel or LibreOffice first.</Step>
+  <Step title="Prepare the workspace">In **Configure**, rename your lists, add fields for the Odoo columns you keep, and set the stage options and their probabilities.</Step>
+  <Step title="Import one list at a time">Organizations first, then contacts, then deals. Link columns match records by name, so a contact's company column finds the organization you imported before. The [records documentation](/docs/app-records) lists the import limits.</Step>
   <Step title="Rebuild your pipeline view">Create a board of deals grouped by Stage, filtered to the deals where you are in Assigned, and save it as a view. Views are personal, so each person saves their own.</Step>
   <Step title="Connect channels and add a routine">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp, then set up a routine in Customermates Cloud like the one below.</Step>
 </Steps>

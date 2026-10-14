@@ -76,21 +76,21 @@ A workable split is two systems: practice management for the matter, Customermat
 
 ## A law firm setup in Customermates
 
-Customermates has five record types. Here is one mapping for a firm; every field name is an example.
+Customermates starts with five lists, and you can add your own. Here is one mapping of the five for a firm; every field name is an example.
 
 | Record type | Used for | Example custom fields |
 |---|---|---|
-| Contacts | Clients, adverse parties, opposing counsel, referrers, experts | Relationship (single select: Client, Former client, Adverse party, Opposing counsel, Referral source, Expert), Last thanked (date) |
+| Contacts | Clients, adverse parties, opposing counsel, referrers, experts | Relationship (single choice: Client, Former client, Adverse party, Opposing counsel, Referral source, Expert), Last thanked (date) |
 | Organizations | Client companies, adverse companies, referring firms | Relationship (same options), Related entities (text) |
-| Deals | Each inquiry, and the matter once engaged | Stage, Practice area (single select), Source (single select: Referral lawyer, Referral accountant, Former client, Website, Event), Referred by (text), Conflict search done on (date), Matter number (text), Fee model (single select) |
+| Deals | Each inquiry, and the matter once engaged | Stage, Practice area (single choice), Source (single choice: Referral lawyer, Referral accountant, Former client, Website, Event), Referred by (text), Conflict search done on (date), Matter number (text), Fee model (single choice) |
 | Services | Your fee items, each with a price | Initial consultation, Flat fee contract review, Block of hours |
 | Tasks | Next steps, assigned to a person | A "Due on" date field you add, because tasks have no built-in due date |
 
-Under **My Company › Settings** you can rename Contacts to Clients and Deals to Projects or Jobs. "Matters" is not one of the preset names, so most firms keep Deals and read it as "inquiry or matter". Link every party to the deal: the client, the adverse party and the referrer each become a linked contact or organization. Deals have assigned users, so the responsible lawyer and the associate can both be on the matter.
+In **Configure** you can rename any list under **General**, for example Contacts to Clients and Deals to Matters, or keep Deals and read it as "inquiry or matter". Link every party to the deal: the client, the adverse party and the referrer each become a linked contact or organization. Deals have assigned users, so the responsible lawyer and the associate can both be on the matter.
 
 ### Intake stages
 
-The deal stage is a single-select field you define, and each option can carry a probability for the weighted pipeline. A starting point:
+The deal stage is a single choice field you define, and each option can carry a probability for the weighted pipeline. A starting point:
 
 1. New inquiry (10%)
 2. Consultation scheduled (20%)
@@ -194,7 +194,7 @@ Each cloud plan adds monthly hosted AI credits per active user for Mate; see [pr
     can follow later, so the conflict search covers them too.
   </Step>
   <Step title="Connect the inbox and save the views">
-    On Pro or higher, connect your mailbox under My Profile › Channels, then
+    On Pro or higher, connect your mailbox under Settings › Channels, then
     save the five views above and the daily routine.
   </Step>
 </Steps>

@@ -39,7 +39,7 @@ comparison:
   - title: Sales & CRM
     features:
       - name: Record types
-        source: Contacts, organizations, deals, services, tasks
+        source: Contacts, organizations, deals, services, tasks, plus your own lists
         competitor: Contacts, prospects, customers, opportunities, campaigns, plus ERP records
       - name: Custom fields
         source: 10 field types, every plan
@@ -174,7 +174,7 @@ The rows do not buy the same things. weclapp's price includes quotes, invoicing,
 
 Customermates is an open-source, AI-native CRM built in Germany for consultants, agencies, other relationship-driven service businesses and founders. It covers everything up to the signed deal and does not write invoices.
 
-**A small sales model.** Contacts, organizations, deals, services and tasks, with custom fields of ten types. The deal stage is a field with a probability per stage, shown as a board, and Customermates adds up a weighted pipeline total from those probabilities. Saved views are personal. Dashboards, roles and an audit log are on every plan.
+**A small sales model.** It starts with contacts, organizations, deals, services and tasks, and you can add your own lists, fields and calculated fields. The deal stage is a field with a probability per stage, shown as a board, and a chart widget on the Dashboard can sum the weighted deal values. Saved views are personal. Dashboards, roles and an audit log are on every plan.
 
 **Conversations next to the deal.** From Pro, Gmail, Outlook and IMAP mailboxes, LinkedIn, WhatsApp, Instagram and Telegram arrive in one list. You reply on the original channel, and threads with a linked contact show on that contact's timeline.
 
@@ -187,7 +187,7 @@ Customermates is an open-source, AI-native CRM built in Germany for consultants,
 - **No quotes, invoices, e-invoicing or accounting.** There is no DATEV export either.
 - **No inventory, purchasing, shop or marketplace connections.**
 - **No project management or time tracking.**
-- **No task due dates, reminders or notifications.** Tasks have assignees, links and notes. For follow-up dates, add a custom date field to deals and filter a saved view on it.
+- **No task due dates, reminders or notifications.** Tasks have assignees, a status, links and notes. For follow-up dates, add a custom date field to deals and filter a saved view on it.
 - **No web forms, newsletters or bulk email.** Messages go out one at a time, written by you or drafted by Mate.
 - **No certification and no native mobile apps.** Customermates runs in the phone's browser.
 
@@ -195,7 +195,7 @@ Customermates is an open-source, AI-native CRM built in Germany for consultants,
 
 The usual setup after leaving an ERP: Customermates up to the won deal, your accounting tool for everything after it. There are two ways to hand over.
 
-**With webhooks, on any plan.** Customermates sends a `deal.updated` event when a deal changes, including its stage. A workflow in your own n8n instance, which runs separately, checks for the Won stage and calls your accounting tool. Lexware Office, for example, has a public REST API with endpoints for contacts and invoices. The [webhook documentation](/docs/webhooks) lists every event.
+**With webhooks, on any plan.** Customermates sends a `record.updated` event for the Deals list when a deal changes, including its stage. A workflow in your own n8n instance, which runs separately, checks for the Won stage and calls your accounting tool. Lexware Office, for example, has a public REST API with endpoints for contacts and invoices. The [webhook documentation](/docs/webhooks) lists every event.
 
 **With a routine, in Customermates Cloud.** A routine runs a saved instruction when a record changes, uses hosted AI credits and runs as its owner. Under Events pick Deal Updated, add the stage field under Changed fields, set a record filter on Won and save an instruction like this:
 
@@ -211,15 +211,15 @@ Mate can send messages without asking again, so the last sentence matters if the
 | Contact persons | Contacts, linked to their organization |
 | Opportunities | Deals, with the stage in the stage field |
 | Service articles | Services, with name and price |
-| Sales regions, qualification status | Single-select custom fields |
+| Sales regions, qualification status | Single choice custom fields |
 | Campaigns, quotes, orders, invoices | No equivalent; keep them in weclapp's export or your accounting tool |
 
 <Steps>
   <Step title="Export before the contract ends">weclapp deletes your data after cancellation, so export first. Each overview table exports with its visible columns and filters as an XLS file; admins can also use the Import/Export wizard under Global settings. Open each file and save it as .xlsx.</Step>
-  <Step title="Prepare the workspace">Set up the stage field with your opportunity stages and a probability for each. Create single-select fields for region and qualification status.</Step>
-  <Step title="Import one record type at a time">Import organizations first, then contacts, then deals, so link columns can find the organization by name. The [records documentation](/docs/app-records) lists the required columns and limits.</Step>
+  <Step title="Prepare the workspace">Set up the stage field with your opportunity stages and a probability for each. Create single choice fields for region and qualification status.</Step>
+  <Step title="Import one list at a time">Import organizations first, then contacts, then deals, so link columns can find the organization by name. The [records documentation](/docs/app-records) lists the required columns and limits.</Step>
   <Step title="Rebuild lists as saved views">Turn each weclapp list into a saved view with a filter. Views are personal, so each person saves their own.</Step>
-  <Step title="Connect channels and AI">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp under My Profile, Channels. Then set up the hand-over to your accounting tool.</Step>
+  <Step title="Connect channels and AI">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp under Settings, Channels. Then set up the hand-over to your accounting tool.</Step>
 </Steps>
 
 ## Other weclapp alternatives worth a look

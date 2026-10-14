@@ -129,7 +129,7 @@ A self-hosted CRM runs on servers you control instead of the vendor's cloud: you
 <ProofRail label="Verified self-hosted CRM facts">
   <ProofItem label="Deployment">Docker Compose</ProofItem>
   <ProofItem label="Database">PostgreSQL 16</ProofItem>
-  <ProofItem label="CRM core">Five record families</ProofItem>
+  <ProofItem label="CRM core">Five starter lists, plus your own</ProofItem>
   <ProofItem label="Interfaces">REST, webhooks and MCP</ProofItem>
   <ProofItem label="Entitlements">Starter baseline</ProofItem>
 </ProofRail>
@@ -140,7 +140,7 @@ The tracked deployment contains:
 
 - the Customermates application image;
 - a PostgreSQL 16 database;
-- the core records for contacts, organizations, deals, services and tasks; and
+- the core records for contacts, organizations, deals, services and tasks, plus any lists you add; and
 - REST, webhooks and [MCP access for external AI clients](/docs/mcp).
 
 The Compose file does not bundle n8n, an AI model, an email-delivery provider or a separate worker. Authentication emails still require the configured external delivery service. If you connect any provider, you operate that integration separately and should review the data it receives.

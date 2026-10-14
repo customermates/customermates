@@ -36,7 +36,7 @@ Das hat eine Kehrseite, die Sie vorher kennen sollten. Es gibt keinen Katalog mi
 
 | Anbindung | Richtung | Wofür | Tarif |
 |---|---|---|---|
-| Webhooks | CRM an Ihr System | Ein Ereignis senden, wenn ein Kontakt, eine Organisation, ein Deal, eine Leistung oder eine Aufgabe angelegt, geändert oder gelöscht wird oder eine Nachricht im Posteingang eingeht | Jeder Tarif, auch selbst gehostet |
+| Webhooks | CRM an Ihr System | Ein Ereignis senden, wenn ein Datensatz einer beliebigen Liste angelegt, geändert, in den Papierkorb verschoben, wiederhergestellt oder endgültig gelöscht wird oder eine Nachricht im Posteingang eingeht | Jeder Tarif, auch selbst gehostet |
 | REST-API | Ihr System an CRM | Datensätze aus Code oder einem Automatisierungstool anlegen, lesen, suchen, ändern und löschen | Jeder Tarif, auch selbst gehostet |
 | MCP | KI-Client an CRM | Claude, ChatGPT, Cursor, Codex oder Gemini CLI lesen und schreiben Datensätze im Gespräch | Jeder Tarif, auch selbst gehostet |
 | n8n-Community-Node | Beide | Eigene Customermates-Nodes in einer separat betriebenen n8n-Instanz | Jeder Tarif; Kosten für n8n separat |
@@ -49,29 +49,29 @@ Webhooks, REST und MCP sind ab Starter für [[commercial.price.starter.monthly]]
 | Wenn Sie … | nutzen Sie | weil |
 |---|---|---|
 | bei jedem neuen Deal eine Nachricht in einen Slack-Channel schicken wollen | einen Webhook mit Body-Vorlage an einen Slack-Incoming-Webhook | kein Automatisierungstool nötig ist |
-| gewonnene Deals an Ihre Buchhaltungssoftware übergeben wollen | n8n, Make oder Zapier auf das Ereignis `deal.updated` | diese Tools den Phasenwert prüfen und die API der Buchhaltung aufrufen |
-| Kontakte aus Ihrem Website-Formular anlegen wollen | das Formular-Tool oder n8n mit `POST /api/v1/contacts` | Customermates kein eigenes einbettbares Formular hat |
-| Datensätze in ein Data Warehouse spiegeln wollen | Webhooks, idempotent über `entityId` | Daten nahezu in Echtzeit ankommen, ohne Polling |
+| gewonnene Deals an Ihre Buchhaltungssoftware übergeben wollen | n8n, Make oder Zapier auf das Ereignis `record.updated` für die Liste Deals | diese Tools den Phasenwert prüfen und die API der Buchhaltung aufrufen |
+| Kontakte aus Ihrem Website-Formular anlegen wollen | das Formular-Tool oder n8n mit `POST /api/v1/records/mutate` | Customermates kein eigenes einbettbares Formular hat |
+| Datensätze in ein Data Warehouse spiegeln wollen | Webhooks, dedupliziert über die Event-`id` | Daten nahezu in Echtzeit ankommen, ohne Polling |
 | nach einem Kundengespräch fünf Deals per KI aktualisieren wollen | MCP aus Claude, ChatGPT oder einem anderen Client | der Client die Tools selbst findet und aufruft |
-| eine bestehende Kundenliste übernehmen wollen | den XLSX-Import, ein Datensatztyp nach dem anderen | das für einen einmaligen Umzug schneller ist als ein API-Skript |
+| eine bestehende Kundenliste übernehmen wollen | den XLSX-Import, eine Liste nach der anderen | das für einen einmaligen Umzug schneller ist als ein API-Skript |
 
 ## Webhooks
 
-Einen Webhook legen Sie unter **Mein Unternehmen → Webhooks → Hinzufügen** an: Ziel-URL einfügen, Ereignisse wählen, speichern. Zur Auswahl stehen [[derived.webhooks.events.total]] Ereignisse: [[derived.webhooks.events.records]] Datensatz-Ereignisse (angelegt, geändert und gelöscht für Kontakte, Organisationen, Deals, Leistungen und Aufgaben) und [[derived.webhooks.events.messaging]] Messaging-Ereignisse, etwa eine eingegangene Nachricht oder E-Mail und eine Änderung in einem verbundenen Kalender.
+Einen Webhook legen Sie unter **Einstellungen → Webhooks → Hinzufügen** an: Ziel-URL einfügen, Ereignisse wählen, unter **Datensätze aus** die Liste wählen, speichern. Zur Auswahl stehen [[derived.webhooks.events.total]] Ereignisse: [[derived.webhooks.events.records]] Datensatz-Ereignisse (angelegt, geändert, in den Papierkorb verschoben, wiederhergestellt und endgültig gelöscht, für jede gewählte Liste, auch Ihre eigenen) und [[derived.webhooks.events.messaging]] Messaging-Ereignisse, etwa eine eingegangene Nachricht oder E-Mail und eine Änderung in einem verbundenen Kalender.
 
 Worauf es beim Aufbau ankommt:
 
 - **Signaturen.** Mit einem **Secret** trägt jede Zustellung eine HMAC-SHA256-Signatur über den Request-Body. Der Empfänger kann gefälschte Aufrufe so abweisen.
-- **Wiederholungen.** Timeouts, Netzwerkfehler, 5xx-Antworten sowie 408, 425 und 429 werden automatisch bis zu 5-mal wiederholt. Andere 4xx-Antworten nicht.
-- **Zustellprotokoll.** **Mein Unternehmen → Letzte Zustellungen** zeigt jede Zustellung mit Statuscode und Payload. Von dort lässt sie sich erneut senden.
-- **Eigene Header und Body-Vorlagen.** Header authentifizieren Sie beim Empfänger. Eine **Body-Vorlage** ersetzt den Standard-JSON-Umschlag durch das Format, das der Empfänger erwartet, mit Platzhaltern wie `{{event}}` und `{{data.payload.name}}`.
-- **Nur echte Änderungen.** Ein `*.updated`-Ereignis enthält ein `changes`-Objekt mit altem und neuem Wert jedes geänderten Felds. Ein Speichervorgang ohne Änderung löst kein Ereignis aus.
+- **Wiederholungen.** Timeouts, Netzwerkfehler, 5xx-Antworten sowie 408, 425 und 429 werden automatisch wiederholt, mit bis zu 10 Versuchen insgesamt. Andere 4xx-Antworten nicht.
+- **Zustellprotokoll.** **Einstellungen → Zustellungen** zeigt jede Zustellung mit Statuscode und Payload. Von dort lässt sie sich erneut senden.
+- **Eigene Header und Body-Vorlagen.** Header authentifizieren Sie beim Empfänger. Eine **Body-Vorlage** ersetzt den Standard-JSON-Umschlag durch das Format, das der Empfänger erwartet, mit Platzhaltern wie `{{event}}` und `{{data.record.ref.recordId}}`.
+- **Nur echte Änderungen.** Ein `record.updated`-Ereignis enthält jedes geänderte Feld mit seinem Wert `before` und `after`. Ein Speichervorgang ohne Änderung löst kein Ereignis aus.
 
-Zustellungen kommen nicht streng geordnet an. Behandeln Sie sie als idempotente Nachrichten mit dem Schlüssel `entityId` und ordnen Sie sie über den `timestamp` der Payload. Den vollständigen Katalog finden Sie in der [Webhook-Dokumentation](/docs/webhooks).
+Zustellungen kommen nicht streng geordnet an. Behandeln Sie sie als idempotente Nachrichten mit der Event-`id` als Schlüssel und ordnen Sie sie über den `timestamp` der Payload und die Datensatzversion. Den vollständigen Katalog finden Sie in der [Webhook-Dokumentation](/docs/webhooks).
 
 ## REST-API
 
-Die API ist unter `/api/v1` versioniert, wird per Header `x-api-key` authentifiziert und durch ein OpenAPI-Dokument beschrieben. Kontakte, Organisationen, Deals, Leistungen und Aufgaben lassen sich jeweils anlegen, lesen, suchen, ändern und löschen. Für Stapel gibt es `/many`-Endpunkte mit bis zu 100 Datensätzen pro Anfrage. `GET /api/v1/<typ>/configuration` liefert die eigenen Spalten und Optionen Ihres Arbeitsbereichs. Das brauchen Sie, weil die Deal-Phase eine konfigurierbare Spalte vom Typ Einzelauswahl ist und kein festes Feld.
+Die API ist unter `/api/v1` versioniert, wird per Header `x-api-key` authentifiziert und durch ein OpenAPI-Dokument beschrieben. Dieselben Aktions-Endpunkte bedienen jede Liste, die fünf Startlisten wie die Listen, die Ihr Arbeitsbereich hinzufügt, und adressieren einen Datensatz über `typeId` und `recordId`: `POST /api/v1/records/query` und `/records/search` lesen, `POST /api/v1/records/mutate` legt an, ändert, löscht, verknüpft und löst Verknüpfungen, und seine Aktionen `updateMany` und `deleteMany` ändern bis zu 100 Datensätze pro Anfrage. `POST /api/v1/model/read` liefert Ihre Felder und deren Options-IDs. Das brauchen Sie, weil die Deal-**Phase** ein konfigurierbares Einzelauswahl-Feld ist und kein fester Wert.
 
 Ein API-Key erbt die Rechte des Nutzers, der ihn angelegt hat. Eine Einschränkung pro Key gibt es nicht. Legen Sie Keys deshalb mit einem Nutzer an, dessen Rolle zur Integration passt. Mehr dazu auf der [Seite zur API](/features/api).
 
@@ -105,17 +105,17 @@ Customermates hat keine Slack-App, keinen Slack-Kanal im Posteingang und keine S
 
 <Steps>
   <Step title="Slack-Incoming-Webhook anlegen">Legen Sie in Slack eine App an, aktivieren Sie Incoming Webhooks, fügen Sie einen Webhook zum Workspace hinzu und wählen Sie den Channel. Kopieren Sie die URL und behandeln Sie sie wie ein Passwort.</Step>
-  <Step title="Webhook in Customermates anlegen">Fügen Sie unter **Mein Unternehmen → Webhooks → Hinzufügen** die Slack-URL ein und wählen Sie `deal.created`.</Step>
-  <Step title="Body-Vorlage schreiben">Tragen Sie `{"text": "Neuer Deal: {{data.payload.name}}"}` ein. Bei `deal.updated` liegt der Datensatz eine Ebene tiefer, dort lautet der Platzhalter `{{data.payload.deal.name}}`.</Step>
-  <Step title="Testen und Protokoll prüfen">Legen Sie einen Test-Deal an und öffnen Sie **Letzte Zustellungen**. Ein 2xx-Statuscode heißt, dass Slack die Nachricht angenommen hat.</Step>
+  <Step title="Webhook in Customermates anlegen">Fügen Sie unter **Einstellungen → Webhooks → Hinzufügen** die Slack-URL ein, wählen Sie **Datensatz erstellt** und unter **Datensätze aus** die Liste Deals.</Step>
+  <Step title="Body-Vorlage schreiben">Tragen Sie `{"text": "Neuer Deal: {{data.record.ref.recordId}}"}` ein. Jeder Pfad unter `{{data}}` funktioniert als Platzhalter.</Step>
+  <Step title="Testen und Protokoll prüfen">Legen Sie einen Test-Deal an und öffnen Sie **Zustellungen**. Ein 2xx-Statuscode heißt, dass Slack die Nachricht angenommen hat.</Step>
 </Steps>
 
-**Weg 2, mit n8n.** n8n brauchen Sie, sobald Logik ins Spiel kommt: nur melden, wenn die Phasen-Spalte einen bestimmten Wert erreicht, einmal pro Woche eine Pipeline-Übersicht aus einem geplanten `POST /api/v1/deals/search` posten, oder aus einem Slack-Shortcut per API einen neuen Kontakt anlegen. Slack-Gespräche erscheinen in beiden Fällen nicht im Customermates-Posteingang.
+**Weg 2, mit n8n.** n8n brauchen Sie, sobald Logik ins Spiel kommt: nur melden, wenn die Deal-**Phase** einen bestimmten Wert erreicht, einmal pro Woche eine Pipeline-Übersicht aus einem geplanten `POST /api/v1/records/query` posten, oder aus einem Slack-Shortcut per API einen neuen Kontakt anlegen. Slack-Gespräche erscheinen in beiden Fällen nicht im Customermates-Posteingang.
 
 ## Was nicht enthalten ist
 
 <AcquisitionCallout title="Grenzen, die Sie vor der Planung kennen sollten" variant="boundary">
-  Kein App-Marktplatz und keine Ein-Klick-Konnektoren. Keine native Integration für Slack, Microsoft Teams, Buchhaltung oder Terminbuchung. Kalender sind nur lesbar. Keine einbettbaren Webformulare. Dateiaustausch nur als XLSX, ein Datensatztyp nach dem anderen, ohne Export des gesamten Kontos. n8n, Make und Zapier sind eigene Produkte mit eigenen Kosten.
+  Kein App-Marktplatz und keine Ein-Klick-Konnektoren. Keine native Integration für Slack, Microsoft Teams, Buchhaltung oder Terminbuchung. Kalender sind nur lesbar. Keine einbettbaren Webformulare. Dateiaustausch nur als XLSX oder JSON, eine Liste nach der anderen, ohne Export des gesamten Kontos. n8n, Make und Zapier sind eigene Produkte mit eigenen Kosten.
 </AcquisitionCallout>
 
 Braucht Ihr Team Hunderte fertige, vom Anbieter gepflegte Konnektoren, die jemand ohne Technikkenntnisse in einer Einstellungsseite einschaltet, passt ein CRM mit eigenem App-Marktplatz besser. Customermates passt zu Teams, die einen Webhook selbst einrichten oder die Aufrufe einem KI-Client überlassen, und die in der Cloud wie im eigenen Rechenzentrum dieselben Schnittstellen haben wollen. Die Anbindung an ein ERP folgt demselben Muster; der [Leitfaden zur CRM-ERP-Integration](/blog/crm-erp-integration) zeigt den Ablauf.

@@ -45,7 +45,7 @@ Customermates bietet dafür zwei Wege. **Routinen** in Customermates Cloud lasse
 |---|---|---|
 | Montags eine Liste der Deals, die 14 Tage niemand angefasst hat | Routine nach Zeitplan | Jeder Cloud-Tarif |
 | Antwortentwurf, wenn ein Kunde per E-Mail schreibt | Routine auf **E-Mail empfangen** | Cloud, ab Pro |
-| Onboarding-Aufgaben bei gewonnenem Deal | Routine auf **Deal aktualisiert** oder Webhook an n8n | Routine: Cloud. Webhook: jeder Tarif |
+| Onboarding-Aufgaben bei gewonnenem Deal | Routine auf **Datensatz aktualisiert** für Deals oder Webhook an n8n | Routine: Cloud. Webhook: jeder Tarif |
 | Nachricht im Team-Chat bei neuem Deal | Webhook mit Body-Vorlage, ohne n8n | Jeder Tarif |
 | Ablauf mit Verzweigungen, Wartezeiten und anderen Apps | n8n auf Webhooks und REST | Jeder Tarif, plus n8n |
 | Deal aus eingefügten Gesprächsnotizen aktualisieren | Mate-Chat oder Ihr eigener KI-Client über MCP | Mate: Cloud. MCP: jeder Tarif |
@@ -57,7 +57,7 @@ Unsere Faustregel: Muss ein Schritt jedes Mal exakt gleich ablaufen, etwa diesel
 Routinen gibt es nur in Customermates Cloud. Eine Routine besteht aus einem Namen, einer Anweisung mit bis zu 5.000 Zeichen und einem Auslöser. Greift der Auslöser, startet Mate eine neue Unterhaltung mit dieser Anweisung und arbeitet selbstständig, und zwar im Namen des Eigentümers: Der Lauf sieht, was der Eigentümer sieht, und verbraucht dessen Credits. Änderungen durch eine Routine lösen keine weiteren Routinen aus, Endlosschleifen sind also ausgeschlossen. Alle Optionen beschreibt die [Anleitung zu Routinen](/docs/app-routines).
 
 - **Nach Zeitplan:** alle 15 oder 30 Minuten, stündlich, täglich, wöchentlich oder monatlich. Mate kann zusätzlich einen eigenen Cron-Zeitplan setzen, etwa werktags um 9:00 Uhr.
-- **Wenn sich etwas ändert:** jedes Datensatzereignis bei Kontakten, Organisationen, Deals, Services und Aufgaben sowie Posteingangsereignisse außer gelöschten E-Mails und Chats. **Geänderte Felder** beschränkt Aktualisierungsereignisse auf bestimmte Felder, etwa Ihre Phasenspalte, **Datensatzfilter** auf bestimmte Datensätze, etwa die Ihnen zugewiesenen Deals.
+- **Wenn sich etwas ändert:** jedes Datensatzereignis in jeder Liste, von Kontakten, Organisationen, Deals, Services und Aufgaben bis zu Ihren eigenen Listen, sowie Posteingangsereignisse außer gelöschten E-Mails und Chats und endgültigen Löschungen. **Geänderte Felder** beschränkt Aktualisierungsereignisse auf bestimmte Felder, etwa die Deal-**Phase**, **Datensatzfilter** auf bestimmte Datensätze, etwa die Ihnen zugewiesenen Deals.
 
 | Grenze | Aktueller Wert |
 |---|---|
@@ -68,7 +68,7 @@ Routinen gibt es nur in Customermates Cloud. Eine Routine besteht aus einem Name
 | Wartefenster (Debounce) nach einem Laufstart | standardmäßig 300 Sekunden; über Mate oder MCP 0 bis 86.400 |
 | Aufbewahrung des Laufverlaufs | 90 Tage |
 
-Ein unbeaufsichtigter Lauf darf ohne Rückfrage Datensätze anlegen und ändern, Notizen ergänzen, Aufgaben erstellen und Entwürfe speichern. Er darf auch E-Mails und Chatnachrichten senden. Alles, was im Chat eine Freigabe verlangt, wird abgelehnt, weil niemand da ist, der zustimmen könnte: Löschungen, das Umbenennen von Datensatztypen, Einladungen ins Team, das erneute Senden von Webhook-Zustellungen und Supportanfragen. Wenn Sie ausschließlich Entwürfe wollen, schreiben Sie das in die Anweisung.
+Ein unbeaufsichtigter Lauf darf ohne Rückfrage Datensätze anlegen und ändern, Notizen ergänzen, Aufgaben erstellen und Entwürfe speichern. Er darf auch E-Mails und Chatnachrichten senden. Alles, was im Chat eine Freigabe verlangt, wird abgelehnt, weil niemand da ist, der zustimmen könnte: Löschungen, das Umbenennen von Listen, Einladungen ins Team, das erneute Senden von Webhook-Zustellungen und Supportanfragen. Wenn Sie ausschließlich Entwürfe wollen, schreiben Sie das in die Anweisung.
 
 ### Beispiel 1: Pipeline-Check am Montag (jeder Cloud-Tarif)
 
@@ -90,7 +90,7 @@ Credit-Verbrauch: Ein wöchentlicher Zeitplan läuft vier- oder fünfmal im Mona
 Dafür brauchen Sie den [einheitlichen Posteingang](/features/unified-inbox), der ab Pro verfügbar ist.
 
 <Steps>
-  <Step title="Postfach verbinden">Verbinden Sie Gmail, Outlook oder IMAP unter **Mein Profil › Kanäle**.</Step>
+  <Step title="Postfach verbinden">Verbinden Sie Gmail, Outlook oder IMAP unter **Einstellungen › Kanäle**.</Step>
   <Step title="Routine anlegen">Wählen Sie **Wenn sich etwas ändert** und das Ereignis **E-Mail empfangen**. Für WhatsApp oder LinkedIn nehmen Sie **Nachricht empfangen**.</Step>
   <Step title="Anweisung einfügen">Übernehmen Sie den Text unten und speichern Sie.</Step>
   <Step title="Entwürfe prüfen">Setzen Sie im Posteingang den Filter **Entwurf** auf **hat welche**. Bearbeiten Sie einen Entwurf und klicken Sie auf **Entwurf senden**, oder verwerfen Sie ihn.</Step>
@@ -104,26 +104,26 @@ Credit-Verbrauch: Jeder gestartete Lauf verbraucht Credits, auch wenn Mate entsc
 
 ### Phasenwechsel: Routine oder n8n
 
-Eine Routine auf **Deal aktualisiert**, mit **Geänderte Felder** auf Ihrer Phasenspalte und einem Datensatzfilter für „Gewonnen“, kann Onboarding-Aufgaben anlegen, sie denselben Personen zuweisen wie den Deal und mit dem Deal verknüpfen. In n8n kostet dieselbe Aufgabe keine Credits und läuft immer gleich: Der Webhook liefert den Deal mit einem `changes`-Objekt, ein IF-Node prüft die neue Phase, und ein HTTP-Request-Node legt die Aufgaben an. Die Routine passt, wenn die Aufgaben davon abhängen, was in den E-Mails vereinbart wurde, n8n, wenn sie immer dieselben sind.
+Eine Routine auf **Datensatz aktualisiert** für Deals, mit **Geänderte Felder** auf **Phase** und einem Datensatzfilter für „Gewonnen“, kann Onboarding-Aufgaben anlegen, sie denselben Personen zuweisen wie den Deal und mit dem Deal verknüpfen. In n8n kostet dieselbe Aufgabe keine Credits und läuft immer gleich: Der Webhook liefert ein `record.updated`-Ereignis mit Wert `before` und `after` jedes geänderten Felds, ein IF-Node prüft die neue Phase, und ein HTTP-Request-Node legt die Aufgaben an. Die Routine passt, wenn die Aufgaben davon abhängen, was in den E-Mails vereinbart wurde, n8n, wenn sie immer dieselben sind.
 
 ## Webhooks, REST und n8n: feste Regeln in jedem Tarif
 
-Customermates sendet für jeden von [[derived.webhooks.events.total]] Ereignistypen einen JSON-POST: [[derived.webhooks.events.records]] Datensatzereignisse und [[derived.webhooks.events.messaging]] Posteingangsereignisse. Die Deal-Phase ist eine eigene Einzelauswahl-Spalte; ein Phasenwechsel kommt deshalb als `deal.updated` mit altem und neuem Wert in `changes` an. Mit gesetztem Secret werden Zustellungen per HMAC-SHA256 signiert, bei Zeitüberschreitungen und Serverfehlern bis zu fünfmal wiederholt und unter **Letzte Zustellungen** protokolliert. Die [Webhook-Referenz](/docs/webhooks) zeigt jeden Payload.
+Customermates sendet für jeden von [[derived.webhooks.events.total]] Ereignistypen einen JSON-POST: [[derived.webhooks.events.records]] Datensatzereignisse und [[derived.webhooks.events.messaging]] Posteingangsereignisse. Datensatzereignisse gibt es für jede Liste, auch Ihre eigenen. Die Deal-**Phase** ist ein konfigurierbares Einzelauswahl-Feld; ein Phasenwechsel kommt deshalb als `record.updated` für die Liste Deals an, mit den Werten `before` und `after` des Felds. Mit gesetztem Secret werden Zustellungen per HMAC-SHA256 signiert, bei Zeitüberschreitungen und Serverfehlern automatisch wiederholt, mit bis zu 10 Versuchen insgesamt, und unter **Zustellungen** protokolliert. Die [Webhook-Referenz](/docs/webhooks) zeigt jeden Payload.
 
 Eine native Slack-Integration gibt es nicht, ein Webhook kann aber ohne n8n in einen Slack- oder Discord-Kanal posten, über die Incoming-Webhook-URL des Kanals und eine Body-Vorlage.
 
-Die [REST-API](/features/api) unter `/api/v1` deckt die fünf Datensatztypen ab, mit Batch-Endpunkten für bis zu 100 Datensätze pro Anfrage. Der MCP-Server stellt KI-Clients wie Claude oder ChatGPT [[derived.mcp.tools.total]] Tools für dieselben Daten bereit.
+Die [REST-API](/features/api) unter `/api/v1` deckt jede Liste ab, die fünf Startlisten wie Ihre eigenen, und `updateMany`, `deleteMany` und der Import nehmen bis zu 100 Datensätze pro Anfrage. Der MCP-Server stellt KI-Clients wie Claude oder ChatGPT [[derived.mcp.tools.total]] Tools für dieselben Daten bereit.
 
 [n8n](https://n8n.io/) hat einen visuellen Editor, und in jedem Schritt können Sie JavaScript oder Python schreiben. Die Community Edition können Sie selbst hosten, unter der [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md), die die Nutzung nur für eigene interne Geschäftszwecke oder für nicht kommerzielle und private Zwecke erlaubt. Alternativ abonnieren Sie n8n Cloud, das [nach monatlichen Workflow-Ausführungen abgerechnet wird](https://n8n.io/pricing/).
 
 <Steps>
   <Step title="Auslöser in n8n anlegen">Fügen Sie einen Webhook-Node hinzu und kopieren Sie seine URL.</Step>
-  <Step title="In Customermates abonnieren">Klicken Sie unter **Mein Unternehmen › Webhooks** auf **Hinzufügen**, fügen Sie die URL ein, wählen Sie die Ereignisse und setzen Sie ein **Secret**.</Step>
-  <Step title="Per REST zurückschreiben">Legen Sie unter **Mein Profil › API & Konnektoren** einen API-Key an und hinterlegen Sie ihn in n8n als Header-Auth-Credential mit dem Header-Namen `x-api-key`.</Step>
+  <Step title="In Customermates abonnieren">Klicken Sie unter **Einstellungen › Webhooks** auf **Hinzufügen**, fügen Sie die URL ein, wählen Sie die Ereignisse, unter **Datensätze aus** die Liste und setzen Sie ein **Secret**.</Step>
+  <Step title="Per REST zurückschreiben">Legen Sie unter **Einstellungen › API-Schlüssel** einen API-Key an und hinterlegen Sie ihn in n8n als Header-Auth-Credential mit dem Header-Namen `x-api-key`.</Step>
   <Step title="Workflow in n8n aktivieren">Zeitsteuerung, Wartezeiten, Logs und Ausführungslimits liegen bei n8n. Customermates speichert die Datensätze.</Step>
 </Steps>
 
-Der Community-Node [customermates/n8n-nodes-crm](https://github.com/customermates/n8n-nodes-crm) bietet eigene CRM-Nodes, falls Sie diese den HTTP-Request-Nodes vorziehen. Der [n8n-Leitfaden](/docs/n8n) enthält die Endpunkte und typische Fehler.
+Der Community-Node [customermates/n8n-nodes-crm](https://github.com/customermates/n8n-nodes-crm) bietet eigene CRM-Nodes, falls Sie diese den HTTP-Request-Nodes vorziehen. Er hat einen eigenen Release-Zyklus; prüfen Sie daher vorab, ob er die aktuelle Datensatz-API unterstützt. Der [n8n-Leitfaden](/docs/n8n) enthält die Endpunkte und typische Fehler.
 
 ## Was sich von selbst aktualisiert und wo es einen Menschen braucht
 

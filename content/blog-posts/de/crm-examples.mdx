@@ -35,7 +35,7 @@ Dieser Ratgeber zeigt alle drei Arten von Beispielen: die Software, die Anwendun
   <SummaryItem label="Software-Beispiele">Salesforce, HubSpot, Microsoft Dynamics 365, Zoho CRM und Pipedrive tauchen in fast jedem Vergleich auf. SuiteCRM und Customermates sind Open-Source-Beispiele.</SummaryItem>
   <SummaryItem label="Anwendungsfälle">B2B-Vertrieb, Mandate in Agenturen und Beratungen, Recruiting, Immobilien, Support-Historie und Mitgliederverwaltung. Jeder Fall braucht ein anderes Datenmodell.</SummaryItem>
   <SummaryItem label="Kostenlos starten">HubSpot und Zoho CRM haben kostenlose Pläne, Salesforce führt eine Free Suite. Pipedrive und Dynamics 365 Sales bieten kostenlose Testphasen.</SummaryItem>
-  <SummaryItem label="Praxis-Setup">Eine Beratung mit vier Personen in Customermates: Datensatztypen, Phasen, eigene Spalten, eine gespeicherte Ansicht und eine wöchentliche Routine.</SummaryItem>
+  <SummaryItem label="Praxis-Setup">Eine Beratung mit vier Personen in Customermates: Listen, Phasen, eigene Felder, eine gespeicherte Ansicht und eine wöchentliche Routine.</SummaryItem>
 </ArticleSummary>
 
 ## Beispiele für CRM-Software
@@ -93,14 +93,14 @@ Zwei Regeln gelten in jeder Zeile. Bilden Sie das, was Sie verkaufen, als Deal a
 
 ## Ein ausgearbeitetes Setup: Beratung mit vier Personen in Customermates
 
-Hier ein Beispiel bis auf die Spaltenebene. Es nutzt die echten Datensatztypen und Bezeichnungen von Customermates; nachbauen lässt es sich in jedem CRM mit eigenen Feldern und gespeicherten Filtern.
+Hier ein Beispiel bis auf die Spaltenebene. Es nutzt die echten Listen und Bezeichnungen von Customermates; nachbauen lässt es sich in jedem CRM mit eigenen Feldern und gespeicherten Filtern.
 
 <Steps>
-  <Step title="Datensatztypen festlegen">Kundenfirmen kommen in **Organisationen**, Personen in **Kontakte** und jedes Mandat, das Sie gewinnen wollen, in **Deals**. Ihre Standardleistungen legen Sie unter **Leistungen** mit Preis an (etwa „Strategie-Workshop“ und „Monatliche Betreuungspauschale“); der Deal-Wert ergibt sich aus den verknüpften Leistungen und Mengen.</Step>
-  <Step title="Deal-Phasen umbenennen">Die **Phase** eines Deals ist eine Spalte vom Typ **Einzelauswahl**. Ersetzen Sie die Vorgaben durch Anfrage, Erstgespräch, Angebot verschickt, Gewonnen und Verloren. Jede Option hat eine Gewichtung, daher zeigt die Pipeline neben der Summe auch einen gewichteten Wert.</Step>
-  <Step title="Drei eigene Spalten anlegen">Auf Deals: „Mandatsart“ (Einzelauswahl: Projekt, Pauschale, Workshop), „Lead-Quelle“ (Einzelauswahl: Empfehlung, LinkedIn, Website, Veranstaltung) und „Geplanter Start“ (Datum). Schlagwörter gibt es in Customermates nicht; Einzelauswahl-Spalten übernehmen diese Aufgabe und lassen sich filtern und gruppieren.</Step>
+  <Step title="Listen festlegen">Kundenfirmen kommen in **Organisationen**, Personen in **Kontakte** und jedes Mandat, das Sie gewinnen wollen, in **Deals**. Ihre Standardleistungen legen Sie unter **Services** mit Preis an (etwa „Strategie-Workshop“ und „Monatliche Betreuungspauschale“); der Deal-Wert ergibt sich aus seinen Positionen, jeweils Service und Menge.</Step>
+  <Step title="Deal-Phasen umbenennen">Die **Phase** eines Deals ist ein Feld vom Typ **Einzelauswahl**. Ersetzen Sie die Vorgaben durch Anfrage, Erstgespräch, Angebot verschickt, Gewonnen und Verloren. Jede Option hat eine Wahrscheinlichkeit, daher erhält jeder Deal neben seinem Wert auch einen gewichteten Wert.</Step>
+  <Step title="Drei eigene Felder anlegen">Auf Deals: „Mandatsart“ (Einzelauswahl: Projekt, Pauschale, Workshop), „Lead-Quelle“ (Einzelauswahl: Empfehlung, LinkedIn, Website, Veranstaltung) und „Geplanter Start“ (Datum). Schlagwörter gibt es in Customermates nicht; Einzelauswahl-Felder übernehmen diese Aufgabe und lassen sich filtern und gruppieren.</Step>
   <Step title="Persönliche Ansicht speichern">Unter **Deals** filtern Sie auf Phase = Angebot verschickt und **Zugewiesen** = Sie, sortieren nach Änderungsdatum und speichern das mit **Neue Ansicht** als „Meine offenen Angebote“. Gespeicherte Ansichten sind persönlich, deshalb legt jede Person mit denselben Filtern ihre eigene Ansicht an.</Step>
-  <Step title="Bestehende Kunden importieren">Exportieren Sie Ihre Kundenliste als Excel-Arbeitsmappe (.xlsx) und importieren Sie zuerst Organisationen, dann Kontakte, jeweils einen Datensatztyp pro Durchgang. Die Spaltenzuordnung erklärt die Dokumentation zu [Datensätzen, Import und Ansichten](/docs/app-records).</Step>
+  <Step title="Bestehende Kunden importieren">Exportieren Sie Ihre Kundenliste als Excel-Arbeitsmappe (.xlsx) und importieren Sie zuerst Organisationen, dann Kontakte, jeweils eine Liste pro Durchgang. Die Spaltenzuordnung erklärt die Dokumentation zu [Datensätzen, Import und Ansichten](/docs/app-records).</Step>
   <Step title="Posteingang verbinden (ab Pro)">Jede Beraterin verbindet ihr Postfach oder ihr LinkedIn-Konto im [zentralen Posteingang](/features/unified-inbox). Pro enthält [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer, Business [[commercial.entitlement.business.includedAccountsPerUser]]. Wer E-Mail, LinkedIn und WhatsApp nebeneinander nutzen will, braucht also Business. Starter hat keinen Posteingang.</Step>
 </Steps>
 
@@ -123,7 +123,7 @@ Einige der Beispiele oben brauchen Funktionen, die Customermates nicht hat. Das 
 - **Keine E-Mail-Kampagnen und keine automatisierten Serien.** Nachrichten werden einzeln verschickt, als Entwurf vorbereitet oder direkt aus dem Posteingang. Für Newsletter oder mehrstufige Ansprache nutzen Sie ein E-Mail-Marketing-Tool neben dem CRM.
 - **Nicht für telefonlastigen Vertrieb.** Es gibt keine Telefonie-Anbindung und keine native App fürs Smartphone.
 - **Keine Ticket-Warteschlangen.** Ein Helpdesk-Modul mit SLAs fehlt.
-- **Keine eingebauten Fristen für Aufgaben.** Aufgaben haben Verknüpfungen, Zuständige und Notizen; brauchen Sie ein Datum, legen Sie eine eigene Datumsspalte an und filtern darauf.
+- **Keine eingebauten Fristen für Aufgaben.** Aufgaben haben Verknüpfungen, Zuständige und Notizen; brauchen Sie ein Datum, legen Sie ein eigenes Datumsfeld an und filtern darauf.
 - **Keine Angebote, keine Rechnungen, kein Kundenportal.** Das bleibt in Ihrer Buchhaltungs- oder Angebotssoftware.
 
 Liegt der Großteil Ihrer Arbeit in diesen Bereichen, suchen Sie eine CRM-Suite, deren Edition Helpdesk, Telefonie oder Angebotserstellung enthält, und prüfen Sie auf der Preisseite des Anbieters, welche Edition das gewünschte Modul umfasst.

@@ -64,17 +64,17 @@ Die meisten CRM-Systeme gehen von einem Käufer und einem kurzen Verkaufszyklus 
 
 ## So richten Sie Customermates für ein Architekturbüro ein
 
-Customermates hat fünf Datensatztypen. Unter **Mein Unternehmen › Einstellungen** können Sie im Datenmodell Deals in **Projekte** und Services in **Leistungen** umbenennen, damit die App Ihre Begriffe verwendet. Alle Feldnamen unten sind Beispiele.
+Customermates startet mit fünf Listen, und Sie können eigene anlegen. In **Konfigurieren** können Sie unter **Allgemein** Deals in **Projekte** und Services in **Leistungen** umbenennen, damit die App Ihre Begriffe verwendet. Alle Feldnamen unten sind Beispiele.
 
 | Datensatztyp | Wofür | Beispielfelder |
 |---|---|---|
 | Organisationen | Bauherren, Projektentwickler, öffentliche Auftraggeber, Fachplanerbüros | Organisationstyp (Einzelauswahl: Privater Bauherr, Projektentwickler, Öffentlicher Auftraggeber, Fachplaner, Bauunternehmen) |
 | Kontakte | Personen in diesen Organisationen | Rolle (Einzelauswahl: Bauherrenvertretung, Projektsteuerung, Tragwerksplanung, TGA-Planung, Landschaftsarchitektur), Empfohlen von |
-| Projekte (Deals) | Jede Akquise, von der ersten Anfrage bis zum Vertrag | Phase, Vergabeart (Direktauftrag, Einladungswettbewerb, Offener Wettbewerb, VgV-Verfahren), Abgabefrist (Datum & Uhrzeit), Präsentationstermin (Datum), Baukosten (Währung), Gebäudetyp, HOAI-Leistungsphase, Projektordner (Link) |
+| Projekte (Deals) | Jede Akquise, von der ersten Anfrage bis zum Vertrag | Phase, Vergabeart (Direktauftrag, Einladungswettbewerb, Offener Wettbewerb, VgV-Verfahren), Abgabefrist (Datum und Uhrzeit), Präsentationstermin (Datum), Baukosten (Geldbetrag), Gebäudetyp, HOAI-Leistungsphase, Projektordner (Webadresse) |
 | Leistungen (Services) | Honorarpakete mit Preis | Machbarkeitsstudie, Bauantragspaket, Honorarschätzung je 1.000 € |
 | Aufgaben | Nächste Schritte, einer Person zugewiesen | Ein Datumsfeld „Bis“, das Sie selbst anlegen, weil Aufgaben kein eingebautes Fälligkeitsdatum haben |
 
-Der Wert eines Projekts ergibt sich aus den verknüpften Leistungen, Preis mal Menge. Für ein frei kalkuliertes Honorar ergibt die Leistung „Honorarschätzung je 1.000 €“ mit einem Preis von 1.000 € und der Menge 85 einen Projektwert von 85.000 €.
+Der Wert eines Projekts ist die Summe seiner Positionen, jeweils Leistung mal Menge. Für ein frei kalkuliertes Honorar ergibt die Leistung „Honorarschätzung je 1.000 €“ mit einem Preis von 1.000 € und der Menge 85 einen Projektwert von 85.000 €.
 
 ### Akquisephasen und gewichtete Werte
 
@@ -174,7 +174,7 @@ Jeder Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer für Mat
   </Step>
   <Step title="Zuerst Organisationen importieren">
     Bauherren, Projektentwickler und Fachplanerbüros. Öffnen Sie in der Liste
-    der Organisationen Import und Export, wählen Sie Aus Datei hinzufügen und
+    der Organisationen Weitere Aktionen, wählen Sie Aus Datei hinzufügen und
     ordnen Sie Ihre Spalten zu.
   </Step>
   <Step title="Kontakte importieren">
@@ -182,8 +182,8 @@ Jeder Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer für Mat
     gleichnamigen Organisation.
   </Step>
   <Step title="Laufende Akquisen als Projekte importieren">
-    Mit Phase, Vergabeart und Abgabefrist. Danach verknüpfen Sie Leistungen und
-    Mengen, damit jedes Projekt seinen Wert bekommt.
+    Mit Phase, Vergabeart und Abgabefrist. Danach legen Sie Positionen mit Leistungen
+    und Mengen an, damit jedes Projekt seinen Wert bekommt.
   </Step>
   <Step title="Ansichten und Routine speichern">
     Speichern Sie die Ansichten von oben und richten Sie in Customermates Cloud

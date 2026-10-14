@@ -45,10 +45,10 @@ comparison:
   - title: Vertrieb & Datenmodell
     features:
       - name: Datensatztypen
-        source: Kontakte, Organisationen, Deals, Services, Aufgaben
+        source: Kontakte, Organisationen, Deals, Services, Aufgaben, dazu eigene Listen
         competitor: Kontakte, Unternehmen, Deals, Aktivitäten; Produkte ab Pro; eigene Module ab Business
       - name: Eigene Felder
-        source: Zehn Feldtypen in jedem Tarif
+        source: Fünfzehn Feldtypen und berechnete Felder in jedem Tarif
         competitor: Eigene Felder in Basic; Formelfelder ab Pro; berechnete Felder ab Business
       - name: Sequenzen und Kampagnen
         source: false
@@ -195,7 +195,7 @@ Customermates ist ein in Deutschland entwickeltes Open-Source-KI-CRM für kleine
 - **Kein Helpdesk.** Es gibt keine Tickets, kein Live-Chat-Widget, keine Chatbots und keine Umfragen.
 - **Keine Webformulare und kein Terminplaner.** Anfragen von Ihrer Website kommen über die REST-API oder eine [selbst betriebene n8n-Instanz](/features/workflow-automation) ins CRM. Pro liest Ihren Kalender, bucht aber keine Termine.
 - **Kein Lead-Scoring, keine Datenanreicherung, keine KI-Prognosen.** Die gewichtete Pipeline multipliziert den Wert jedes Deals mit der Wahrscheinlichkeit seiner Phase. Das ist Arithmetik mit Ihren eigenen Zahlen, keine Vorhersage.
-- **Keine eigenen Module, keine Berechtigungen auf Feldebene und kein SSO.** Sie arbeiten mit fünf Datensatztypen, die Sie umbenennen können, Berechtigungen gelten pro Datensatztyp und Aktion, und gespeicherte Ansichten sind persönlich.
+- **Keine Berechtigungen auf Feldebene und kein SSO.** Berechtigungen gelten pro Liste und Aktion, und gespeicherte Ansichten sind persönlich.
 - **Keine nativen Smartphone-Apps, kein kostenloser Tarif, keine Zertifizierung.** Auf dem Smartphone läuft Customermates im Browser. Salesmate nennt auf seiner Sicherheitsseite ISO 27001:2013 und SOC 2; Customermates besitzt keine Zertifizierung.
 
 ## Beispiel: Eine Agentur wechselt von Salesmate Pro
@@ -205,14 +205,14 @@ Nehmen wir eine Agentur für Marke und Web mit fünf Personen. Die beiden Kunden
 | In Salesmate | In Customermates |
 |---|---|
 | Kontakte | Kontakte; E-Mail-Adresse, WhatsApp-Nummer und LinkedIn-Profil werden als Kanäle gespeichert, eine Festnetznummer kommt in ein Feld vom Typ Telefon |
-| Unternehmen | Organisationen, im Datenmodell unter Mein Unternehmen › Einstellungen in „Unternehmen“ umbenannt |
+| Unternehmen | Organisationen, in Konfigurieren in „Unternehmen“ umbenannt |
 | Deals in der Pipeline | Deals mit dem Feld „Phase“ und Gewinnwahrscheinlichkeiten |
-| Produkte | Services, umbenannt in „Produkte“, mit Menge am Deal verknüpft |
+| Produkte | Services, umbenannt in „Produkte“, als Positionen mit Menge im Deal |
 | Aktivitäten | Aufgaben mit einem eigenen Datumsfeld „Fällig am“, da Aufgaben kein eingebautes Fälligkeitsdatum haben |
 | Sequenzen | Kein Gegenstück; stattdessen bereitet eine Routine Entwürfe vor |
 | Tickets und Anrufprotokolle | Bleiben im Helpdesk und in der Telefonanlage |
 
-Die Agentur benennt die Optionen des Felds „Phase“ in Lead, Briefing, Angebot gesendet, Verhandlung, Gewonnen und Verloren um und trägt unter Mein Unternehmen › Einstellungen Gewinnwahrscheinlichkeiten von 10 %, 30 %, 50 %, 75 %, 100 % und 0 % ein. Jede Kundenberaterin speichert ein Board mit ihren eigenen Deals, gruppiert nach Phase. Der Gründer führt eine Tabelle aller offenen Deals, gruppiert nach „Zugewiesen“.
+In Konfigurieren für Deals benennt die Agentur die Optionen des Felds „Phase“ in Lead, Briefing, Angebot gesendet, Verhandlung, Gewonnen und Verloren um und setzt ihre Wahrscheinlichkeit % auf 10 %, 30 %, 50 %, 75 %, 100 % und 0 %. Jede Kundenberaterin speichert ein Board mit ihren eigenen Deals, gruppiert nach Phase. Der Gründer führt eine Tabelle aller offenen Deals, gruppiert nach „Zugewiesen“.
 
 Jede Person verbindet einen Kanal. Damit passt Pro, für das Team [[commercial.price.pro.monthly.seats.5]] im Monat. Möchte der Gründer LinkedIn und E-Mail nebeneinander nutzen, wechselt der Workspace zu Business für [[commercial.price.business.monthly.seats.5]].
 
@@ -224,10 +224,10 @@ Jede Kundenberaterin richtet außerdem eine Routine für ihre eigenen Deals ein.
 
 <Steps>
   <Step title="Vor der Kündigung aus Salesmate exportieren">In Salesmate wählen Sie die gewünschten Spalten aus, starten den Export und erhalten einen Download-Link, sobald er fertig ist. Laut Sicherheitsseite löscht Salesmate die Daten 30 Tage nach Ende der Testphase oder nach der Kündigung. Exportieren Sie deshalb zuerst.</Step>
-  <Step title="Jede Datei als Excel-Arbeitsmappe speichern">Customermates importiert ausschließlich .xlsx-Arbeitsmappen. Öffnen Sie jede exportierte Datei in Excel oder LibreOffice und speichern Sie sie als .xlsx, einen Datensatztyp pro Arbeitsmappe.</Step>
-  <Step title="Workspace vorbereiten">Benennen Sie Datensatztypen im Datenmodell um, legen Sie eigene Felder für die Salesmate-Felder an, die Sie behalten, etwa eine Lead-Quelle, und richten Sie das Feld „Phase“ mit seinen Wahrscheinlichkeiten ein.</Step>
-  <Step title="Einen Datensatztyp nach dem anderen importieren">Öffnen Sie in jeder Liste Import und Export, dann Aus Datei hinzufügen: zuerst Organisationen, dann Kontakte, dann Deals. Verknüpfungsspalten werden über den Namen zugeordnet, sodass die Unternehmensspalte eines Kontakts die zuvor importierte Organisation findet. E-Mail-Adressen und WhatsApp-Nummern ordnen Sie den Kanälen des Kontakts zu. Größenlimits stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
-  <Step title="Kanäle und KI verbinden">Im Pro-Tarif oder während der Testphase verbinden Sie unter Mein Profil › Kanäle ein Postfach, LinkedIn oder WhatsApp. Der Nachrichtenverlauf aus Salesmate wird nicht übernommen; der Posteingang zeigt die Gespräche der Konten, die Sie verbinden. Danach richten Sie Routinen ein oder verbinden Ihren eigenen KI-Client per MCP.</Step>
+  <Step title="Jede Datei als Excel-Arbeitsmappe speichern">Customermates importiert ausschließlich .xlsx-Arbeitsmappen. Öffnen Sie jede exportierte Datei in Excel oder LibreOffice und speichern Sie sie als .xlsx, eine Liste pro Arbeitsmappe.</Step>
+  <Step title="Workspace vorbereiten">Benennen Sie Listen in Konfigurieren um, legen Sie eigene Felder für die Salesmate-Felder an, die Sie behalten, etwa eine Lead-Quelle, und richten Sie das Feld „Phase“ mit seinen Wahrscheinlichkeiten ein.</Step>
+  <Step title="Eine Liste nach der anderen importieren">Öffnen Sie in jeder Liste Weitere Aktionen, dann Aus Datei hinzufügen: zuerst Organisationen, dann Kontakte, dann Deals. Verknüpfungsspalten werden über den Namen zugeordnet, sodass die Unternehmensspalte eines Kontakts die zuvor importierte Organisation findet. E-Mail-Adressen und WhatsApp-Nummern ordnen Sie den Kanälen des Kontakts zu. Größenlimits stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
+  <Step title="Kanäle und KI verbinden">Im Pro-Tarif oder während der Testphase verbinden Sie unter Einstellungen › Kanäle ein Postfach, LinkedIn oder WhatsApp. Der Nachrichtenverlauf aus Salesmate wird nicht übernommen; der Posteingang zeigt die Gespräche der Konten, die Sie verbinden. Danach richten Sie Routinen ein oder verbinden Ihren eigenen KI-Client per MCP.</Step>
 </Steps>
 
 ## Weitere Salesmate-Alternativen, die einen Blick wert sind

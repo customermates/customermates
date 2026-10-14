@@ -11,7 +11,7 @@ relatedHrefs:
 
 hero:
   title: A CRM with a REST API, webhooks and MCP on every plan
-  description: Read and write contacts, organizations, deals, services and tasks over a documented REST API, react to changes with webhooks, and let your own AI client work in the CRM through MCP. All three are on every Cloud plan and in the self-hosted open-source edition.
+  description: Read and write contacts, organizations, deals, services, tasks and your own lists over a documented REST API, react to changes with webhooks, and let your own AI client work in the CRM through MCP. All three are on every Cloud plan and in the self-hosted open-source edition.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
@@ -36,54 +36,56 @@ Customermates is an open-source, AI-native CRM built in Germany for small client
   <SummaryItem label="Surfaces">REST under `/api/v1`, an OpenAPI 3.1 spec, [[derived.webhooks.events.total]] webhook events and [[derived.mcp.tools.total]] MCP tools.</SummaryItem>
   <SummaryItem label="Plans">REST, webhooks and MCP on Starter, Pro, Business and Enterprise, and when you self-host. Inbox endpoints need a connected account, which starts at Pro in Customermates Cloud.</SummaryItem>
   <SummaryItem label="Auth">One API key per client, sent as `x-api-key`. A key has exactly its owner's role permissions.</SummaryItem>
-  <SummaryItem label="Limits">Bulk endpoints take up to 100 records per request. No PATCH, no cursor pagination, no OR filters, no per-key scopes.</SummaryItem>
+  <SummaryItem label="Limits">Bulk writes take up to 100 records per request. No OR across filter rules, no per-key scopes.</SummaryItem>
 </ArticleSummary>
 
 ## What the REST API covers
 
-The REST API works on the five record types of the CRM: contacts, organizations, deals, services and tasks. Each one has the same set of routes, so code written for contacts works for deals with a different path segment.
+The REST API works on every list of the CRM. A workspace starts with five lists, contacts, organizations, deals, services and tasks, and you can add your own. Every record route is a `POST` to a named action with a JSON body, so the same code works for deals, contacts or a list you added last week.
 
 | Goal | Method and path |
 |---|---|
-| Create one record | `POST /api/v1/<type>` |
-| Create up to 100 records | `POST /api/v1/<type>/many` |
-| Read one record | `GET /api/v1/<type>/{id}` |
-| Search, filter, sort and page | `POST /api/v1/<type>/search` |
-| Update one record | `PUT /api/v1/<type>/{id}` |
-| Update up to 100 records | `PUT /api/v1/<type>/many` |
-| Delete one or up to 100 records | `DELETE /api/v1/<type>/{id}` or `DELETE /api/v1/<type>/many` with `ids` |
-| Read the custom columns, options and filterable fields | `GET /api/v1/<type>/configuration` |
+| Find your lists and their `typeId` | `POST /api/v1/model/discover` |
+| Read fields, relationships, option IDs and the schema revision | `POST /api/v1/model/read` |
+| Filter, sort and page one list | `POST /api/v1/records/query` |
+| Search by text across lists | `POST /api/v1/records/search` |
+| Read one record | `POST /api/v1/records/read` |
+| Create, update, delete, link or unlink | `POST /api/v1/records/mutate` |
+| Update or delete up to 100 records | `POST /api/v1/records/mutate` with `updateMany` or `deleteMany` |
+| Export a list, or import up to 100 records | `POST /api/v1/records/export` or `POST /api/v1/records/import` |
+| Sum or count a field, such as pipeline value | `POST /api/v1/reports/query` |
 
-`<type>` is `contacts`, `organizations`, `deals`, `services` or `tasks`. The base URL is the address you open Customermates at, in the cloud and on your own server. Further routes cover users (`/api/v1/users/me`, `/api/v1/users/search`), webhooks, and the inbox: threads, drafts, sending email and chat messages, activities and read-only calendars.
+A record is addressed by a reference, `{ "typeId": "...", "recordId": "..." }`, not by its URL. The base URL is the address you open Customermates at, in the cloud and on your own server. Further routes cover users (`/api/v1/users/me`, `/api/v1/users/search`), webhooks, and the inbox: threads, drafts, sending email and chat messages, activities and read-only calendars.
 
 A few details save time on the first day:
 
-- **Custom fields are part of the record.** Custom columns come back under `customFieldValues` as `columnId` and `value` pairs. Call `/configuration` once to map column ids to names and to see the options of a single-select column such as your deal stage.
-- **Search uses a JSON body.** `POST /search` takes `searchTerm`, `filters`, `sortDescriptor` and `pagination`. `pageSize` is 5, 10, 25 or 100. Filters use the [filter syntax](/docs/filter-syntax) shared with the app and MCP.
-- **Relations are arrays of ids.** Sending `[]` or `null` for `organizationIds` on a contact removes every link of that kind. Leave the field out to keep the links.
-- **Bulk writes run in one transaction.** A `/many` request writes its batch together, so you split a migration of 2,000 contacts into 20 requests.
+- **Fields have stable IDs.** `/model/read` returns each field's `fieldId`, the option IDs of a single choice field such as the deal **Stage**, and the schema `revision`. IDs stay the same when someone renames a list or field. Values are typed, for example `{ "kind": "text", "value": "Acme" }`.
+- **Queries use a JSON body.** `/records/query` takes `typeId`, `filters`, `sort`, `page` and `pageSize` (up to 500). Filters use the [filter syntax](/docs/filter-syntax) shared with the app and MCP.
+- **Writes are guarded.** A mutation carries `expectedRevision` (the schema revision), an `idempotencyKey` and the `mutation` itself; updates and deletes also carry the record's `expectedVersion`. Sending the same request again with the same key does not apply it twice.
+- **Links are their own action.** `link` and `unlink` take a `relationId`, a `source` and a `target` record reference. An update never removes links you did not mention.
+- **Bulk writes take up to 100 records.** `updateMany` applies one change to up to 100 records atomically and `deleteMany` moves up to 100 to Trash, so you split a cleanup of 2,000 contacts into 20 requests.
 
 ## Webhooks: let the CRM call you
 
-A webhook sends a JSON `POST` to your URL when a subscribed event happens. Admins, and members whose role has **Manage** on **API & Webhooks**, add one under **My Company → Webhooks**: URL, events, an optional secret, optional custom headers and an optional body template. The [webhooks reference](/docs/webhooks) lists every event and payload.
+A webhook sends a JSON `POST` to your URL when a subscribed event happens. Admins, and members whose role has **Read access** **All** and **Create** on **API & Webhooks**, add one under **Settings → Webhooks**: URL, events, the list under **Records from** with optional filters, an optional secret, optional custom headers and an optional body template. The [webhooks reference](/docs/webhooks) lists every event and payload.
 
-- **Events:** [[derived.webhooks.events.records]] record events (created, updated and deleted for each of the five record types) plus [[derived.webhooks.events.messaging]] inbox and calendar events.
-- **Changes included:** an `*.updated` payload carries the full record plus a `changes` object with the previous and current value of each field that moved. A write that changes nothing sends no event.
+- **Events:** [[derived.webhooks.events.records]] record events (`record.created`, `record.updated`, `record.deleted` when a record moves to Trash, `record.restored` and `record.deletedPermanently`) for any list you choose, your own included, plus [[derived.webhooks.events.messaging]] inbox and calendar events.
+- **Changes included:** a `record.updated` payload carries the record reference and lists each field that changed with its `before` and `after` value. A write that changes nothing sends no event.
 - **Signatures:** with a secret set, every delivery is signed with HMAC-SHA256 over the raw body.
-- **Retries:** a timeout, network error, 5xx, 408, 425 or 429 is retried up to 5 times. Other 4xx answers are not retried, because a repeat would fail the same way. Each delivery has a 5 second timeout.
-- **Delivery log:** **My Company → Recent Deliveries** shows status code and response message for every delivery, with a resend button.
+- **Retries:** a timeout, network error, 5xx, 408, 425 or 429 is retried automatically, up to 10 attempts in total. Other 4xx answers are not retried, because a repeat would fail the same way. Each delivery has a 5 second timeout.
+- **Delivery log:** **Settings → Deliveries** shows status code and response message for every delivery, with a resend button.
 - **Body templates:** a template replaces the standard envelope, so a chat tool or automation endpoint that expects its own JSON shape can take deliveries without middleware.
 
-Deliveries are not strictly ordered. Two updates to the same contact a few milliseconds apart can arrive in reverse order, so key your handler on `entityId` and use the payload `timestamp`.
+Deliveries are not strictly ordered. Two updates to the same contact a few milliseconds apart can arrive in reverse order, so deduplicate by the event `id`, key your handler on `typeId` and `recordId`, and use the payload `timestamp` and record version.
 
 ## How to make your first API call
 
 <Steps>
-  <Step title="Create a key">Open **My Profile → API & Connectors**, press **Add**, choose **Standard API key**, give it a name such as `ERP sync, production`, and copy the key. It is shown once. The [API keys guide](/docs/api-keys) covers expiry and rotation.</Step>
-  <Step title="Read the schema">Fetch `/api/v1/openapi` from your workspace address and import it into Postman, Insomnia or a client generator. Then call `GET /api/v1/deals/configuration` to see your deal stage options and custom columns.</Step>
-  <Step title="Search">Send `POST /api/v1/deals/search` with the header `x-api-key` and a body such as `{"filters":[{"field":"updatedAt","operator":"inLastDays","value":7}],"pagination":{"page":1,"pageSize":25}}` to list deals changed in the last week.</Step>
-  <Step title="Write">Update one deal with `PUT /api/v1/deals/{id}`. If your user can do it in the app, the key can do it over the API.</Step>
-  <Step title="Subscribe">Add a webhook for `deal.updated` with a secret, point it at your endpoint, and check the first delivery under **Recent Deliveries**.</Step>
+  <Step title="Create a key">Open **Settings → API keys**, press **Add**, choose **Standard API key**, give it a name such as `ERP sync, production`, and copy the key. It is shown once. The [API keys guide](/docs/api-keys) covers expiry and rotation.</Step>
+  <Step title="Read the schema">Fetch `/api/v1/openapi` from your workspace address and import it into Postman, Insomnia or a client generator. Then send `POST /api/v1/model/discover` with `{"search":"deal"}` to get the `typeId` of your deals, and `POST /api/v1/model/read` with `{"typeIds":["<deal-type-id>"]}` to see its fields, stage options and schema `revision`.</Step>
+  <Step title="Query">Send `POST /api/v1/records/query` with the header `x-api-key` and a body such as `{"typeId":"<deal-type-id>","filters":[{"fieldId":"system:updatedAt","operator":"inLastDays","value":{"kind":"decimal","value":"7","currency":null}}],"page":1,"pageSize":25}` to list deals changed in the last week.</Step>
+  <Step title="Write">Move one deal to another stage with `POST /api/v1/records/mutate` and `{"expectedRevision":<revision>,"idempotencyKey":"move-acme-to-demo","mutation":{"action":"update","ref":{"typeId":"<deal-type-id>","recordId":"<deal-id>"},"expectedVersion":<version>,"fields":[{"fieldId":"<stage-field-id>","value":{"kind":"select","value":"<option-id>"}}]}}`. If your user can do it in the app, the key can do it over the API.</Step>
+  <Step title="Subscribe">Add a webhook for **Record updated** on the Deals list with a secret, point it at your endpoint, and check the first delivery under **Deliveries**.</Step>
 </Steps>
 
 A wrong, expired or deleted key gets HTTP `401`. A key whose owner was set to **Inactive** gets `403`.
@@ -92,7 +94,7 @@ A wrong, expired or deleted key gets HTTP `401`. A key whose owner was set to **
 
 Keys belong to the user who created them and act with that user's current role. There are no separate API users and no per-key scopes, so a key cannot be limited to read-only. If an integration should only read deals, create its key under a member whose role allows only that. In Customermates Cloud that member is a paid seat like any other.
 
-Creating keys needs **Manage** on the **API & Webhooks** row of a role. A new custom role starts without it, so out of the box only admins create keys. The same permission also opens every webhook in the workspace, which is worth knowing before you hand it out. To stop all keys of someone who leaves, set the member to **Inactive**; taking the permission away hides the page but does not stop keys that already exist.
+Creating keys needs **Read access** **All** and **Create** on the **API & Webhooks** row of a role. A new custom role starts without it, so out of the box only admins create keys. The same permission also opens every webhook in the workspace, which is worth knowing before you hand it out. To stop all keys of someone who leaves, set the member to **Inactive**. Taking **Read access** **All** on **API & Webhooks** away from their role stops their keys as well.
 
 ## MCP: the API for AI clients
 
@@ -102,11 +104,11 @@ Mate, the assistant inside Customermates Cloud, is a separate feature. It runs o
 
 ## What the API does not do
 
-- **No PATCH.** Updates use `PUT` on one record or on `/many`.
-- **No cursor pagination and no OR across filter rules.** Page with `page` and `pageSize`. For OR, run two searches or use the `in` operator on one field.
+- **No PUT or PATCH on records.** Every record change is a `POST` to `/api/v1/records/mutate`.
+- **No OR across filter rules.** Filter rules combine with AND. For OR, run two queries or use the `in` operator on one field.
 - **No file uploads to records.** Records have no file attachments; notes hold rich text.
-- **No published request quota and no rate-limit headers.** Split bulk jobs into batches of 100.
-- **No CSV export endpoint and no whole-account export.** The app imports and exports XLSX, one record type at a time. Anything larger runs through your own API script.
+- **No published request quota.** A busy workspace answers `429` with a `Retry-After` header. Split bulk jobs into batches of 100.
+- **No CSV export endpoint and no whole-account export.** The app imports and exports XLSX and JSON, one list at a time. Anything larger runs through your own API script.
 - **No inbox and no Mate when self-hosted.** The REST record routes, webhooks and MCP work there; the messaging routes need Customermates Cloud on Pro or higher.
 
 No backward-compatibility period is promised beyond the `/api/v1` path, so treat the current OpenAPI document as the contract and test against it.

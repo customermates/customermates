@@ -64,7 +64,7 @@ Before you connect anything, write down one owner per record and field. Unclear 
 | Deal, stage, deal value, next step | CRM | Optional: deal ID on the order |
 | Products, prices, stock | ERP | Product or service names for deal line items |
 | Order, invoice, invoice number | ERP or invoicing tool | Invoice number on the deal |
-| Payment status | ERP or invoicing tool | Single-select field on the deal, written by the integration |
+| Payment status | ERP or invoicing tool | Single choice field on the deal, written by the integration |
 | Conversations and meeting notes | CRM | Nothing; finance rarely needs them |
 
 Two rules keep this stable. First, only one side may change a field; the other side reads it. Second, both systems store each other's ID (CRM organization ID in the ERP, ERP customer number in the CRM), so you never match records by company name. Names change, get abbreviated and get typed twice.
@@ -119,10 +119,10 @@ This is the smallest useful connection between a CRM and an invoicing tool or ER
 
 <Steps>
   <Step title="Add the fields the handover needs">
-    On organizations, add a Text custom field "Accounting customer no.". On deals, add a Text field "Invoice no." and a single-select field "Payment status" with the options Open, Partly paid and Paid. Agree that only the integration writes these fields.
+    On organizations, add a Text custom field "Accounting customer no.". On deals, add a Text field "Invoice no." and a single choice field "Payment status" with the options Open, Partly paid and Paid. Agree that only the integration writes these fields.
   </Step>
   <Step title="Pick the trigger">
-    Subscribe a [webhook](/docs/webhooks) to `deal.updated`. Update events carry a `changes` object with the previous and current value of every field that moved, so your integration can act only when the stage changes to Won and ignore every other edit.
+    Subscribe a [webhook](/docs/webhooks) to `record.updated` for the Deals list. Update events list every field that moved with its previous and current value, so your integration can act only when the stage changes to Won and ignore every other edit.
   </Step>
   <Step title="Create or match the customer">
     If the organization has no accounting customer number yet, create the customer through the accounting tool's API and write the returned number back to the organization through the Customermates REST API. If it has one, reuse it. Never match on company name.
@@ -134,11 +134,11 @@ This is the smallest useful connection between a CRM and an invoicing tool or ER
     When the payment changes in the accounting tool (by its event subscription or a nightly poll), update "Payment status" on the deal. A write that changes nothing produces no new Customermates event, so the integration does not loop on its own updates.
   </Step>
   <Step title="Check it weekly">
-    Filter deals in stage Won with an empty "Invoice no." and save that as a personal view. Anything in it is a failed handover. Failed webhook deliveries are listed under Recent Deliveries and can be re-sent from there.
+    Filter deals in stage Won with an empty "Invoice no." and save that as a personal view. Anything in it is a failed handover. Failed webhook deliveries are listed under Settings › Deliveries and can be re-sent from there.
   </Step>
 </Steps>
 
-The integration itself runs outside both systems: a small service of your own, or an n8n workflow using the [Customermates n8n node](/docs/n8n). n8n is a separate product you host or subscribe to. For mapping, authentication, idempotency and monitoring in more depth, read the [CRM ERP integration guide](/blog/crm-erp-integration).
+The integration itself runs outside both systems: a small service of your own, or an n8n workflow that calls the [Customermates API](/docs/n8n). n8n is a separate product you host or subscribe to. For mapping, authentication, idempotency and monitoring in more depth, read the [CRM ERP integration guide](/blog/crm-erp-integration).
 
 ## Where Customermates fits, and where it does not
 
@@ -150,7 +150,7 @@ What it does not do:
 
 - It does not create quotes or invoices, record payments, keep a ledger, manage stock or plan production. Those stay in your ERP or invoicing tool.
 - It has no ready-made connector for Lexware Office, sevDesk, DATEV or any ERP. You build the handover above with the API, webhooks or n8n.
-- Records import and export as XLSX workbooks, one record type at a time. Moving contacts out of an invoicing tool means saving its export as XLSX and importing organizations first, then contacts.
+- Records import and export one list at a time, as XLSX workbooks or JSON. Moving contacts out of an invoicing tool means saving its export as XLSX and importing organizations first, then contacts.
 - The unified inbox and Mate, the assistant, exist only on Customermates Cloud. A self-hosted installation is the open-source core with REST, webhooks and MCP.
 
 If you want CRM and accounting under one login and one vendor, an all-in-one suite fits better than Customermates.

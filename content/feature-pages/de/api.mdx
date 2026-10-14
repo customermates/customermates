@@ -11,7 +11,7 @@ relatedHrefs:
 
 hero:
   title: Ein CRM mit REST-API, Webhooks und MCP in jedem Tarif
-  description: Lesen und schreiben Sie Kontakte, Organisationen, Deals, Services und Aufgaben über eine dokumentierte REST-API, reagieren Sie per Webhook auf Änderungen und lassen Sie Ihren eigenen KI-Client über MCP im CRM arbeiten. Alle drei Schnittstellen gibt es in jedem Cloud-Tarif und in der selbst gehosteten Open-Source-Version.
+  description: Lesen und schreiben Sie Kontakte, Organisationen, Deals, Services, Aufgaben und eigene Listen über eine dokumentierte REST-API, reagieren Sie per Webhook auf Änderungen und lassen Sie Ihren eigenen KI-Client über MCP im CRM arbeiten. Alle drei Schnittstellen gibt es in jedem Cloud-Tarif und in der selbst gehosteten Open-Source-Version.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -36,54 +36,56 @@ Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit v
   <SummaryItem label="Schnittstellen">REST unter `/api/v1`, OpenAPI-3.1-Spezifikation, [[derived.webhooks.events.total]] Webhook-Events und [[derived.mcp.tools.total]] MCP-Tools.</SummaryItem>
   <SummaryItem label="Tarife">REST, Webhooks und MCP in Starter, Pro, Business und Enterprise sowie beim Self-Hosting. Inbox-Endpunkte brauchen ein verbundenes Konto, das in Customermates Cloud ab Pro verfügbar ist.</SummaryItem>
   <SummaryItem label="Authentifizierung">Ein API-Key pro Client im Header `x-api-key`. Ein Key hat genau die Rechte der Rolle seines Besitzers.</SummaryItem>
-  <SummaryItem label="Grenzen">Bulk-Endpunkte nehmen bis zu 100 Datensätze pro Anfrage. Kein PATCH, keine Cursor-Paginierung, keine ODER-Filter, keine Scopes pro Key.</SummaryItem>
+  <SummaryItem label="Grenzen">Bulk-Schreibvorgänge nehmen bis zu 100 Datensätze pro Anfrage. Kein ODER zwischen Filterregeln, keine Scopes pro Key.</SummaryItem>
 </ArticleSummary>
 
 ## Was die REST-API abdeckt
 
-Die REST-API arbeitet mit den fünf Datensatztypen des CRM: Kontakte, Organisationen, Deals, Services und Aufgaben. Jeder Typ hat dieselben Routen. Code, der für Kontakte funktioniert, funktioniert für Deals mit einem anderen Pfadsegment.
+Die REST-API arbeitet mit jeder Liste des CRM. Ein Workspace startet mit fünf Listen, Kontakte, Organisationen, Deals, Services und Aufgaben, und Sie können eigene anlegen. Jede Datensatz-Route ist ein `POST` an eine benannte Aktion mit JSON-Body. Derselbe Code funktioniert also für Deals, Kontakte oder eine Liste, die Sie letzte Woche angelegt haben.
 
 | Ziel | Methode und Pfad |
 |---|---|
-| Einen Datensatz anlegen | `POST /api/v1/<typ>` |
-| Bis zu 100 Datensätze anlegen | `POST /api/v1/<typ>/many` |
-| Einen Datensatz lesen | `GET /api/v1/<typ>/{id}` |
-| Suchen, filtern, sortieren, blättern | `POST /api/v1/<typ>/search` |
-| Einen Datensatz aktualisieren | `PUT /api/v1/<typ>/{id}` |
-| Bis zu 100 Datensätze aktualisieren | `PUT /api/v1/<typ>/many` |
-| Einen oder bis zu 100 Datensätze löschen | `DELETE /api/v1/<typ>/{id}` oder `DELETE /api/v1/<typ>/many` mit `ids` |
-| Eigene Spalten, Optionen und filterbare Felder lesen | `GET /api/v1/<typ>/configuration` |
+| Listen und ihre `typeId` finden | `POST /api/v1/model/discover` |
+| Felder, Beziehungen, Options-IDs und Schema-Revision lesen | `POST /api/v1/model/read` |
+| Eine Liste filtern, sortieren und blättern | `POST /api/v1/records/query` |
+| Listenübergreifend nach Text suchen | `POST /api/v1/records/search` |
+| Einen Datensatz lesen | `POST /api/v1/records/read` |
+| Anlegen, ändern, löschen, verknüpfen oder Verknüpfung lösen | `POST /api/v1/records/mutate` |
+| Bis zu 100 Datensätze ändern oder löschen | `POST /api/v1/records/mutate` mit `updateMany` oder `deleteMany` |
+| Eine Liste exportieren oder bis zu 100 Datensätze importieren | `POST /api/v1/records/export` oder `POST /api/v1/records/import` |
+| Ein Feld summieren oder zählen, etwa den Pipeline-Wert | `POST /api/v1/reports/query` |
 
-`<typ>` steht für `contacts`, `organizations`, `deals`, `services` oder `tasks`. Die Basis-URL ist die Adresse, unter der Sie Customermates öffnen, in der Cloud wie auf dem eigenen Server. Weitere Routen gibt es für Nutzer (`/api/v1/users/me`, `/api/v1/users/search`), für Webhooks und für die Inbox: Threads, Entwürfe, Versand von E-Mails und Chatnachrichten, Aktivitäten und lesender Kalenderzugriff.
+Ein Datensatz wird über eine Referenz adressiert, `{ "typeId": "...", "recordId": "..." }`, nicht über seine URL. Die Basis-URL ist die Adresse, unter der Sie Customermates öffnen, in der Cloud wie auf dem eigenen Server. Weitere Routen gibt es für Nutzer (`/api/v1/users/me`, `/api/v1/users/search`), für Webhooks und für die Inbox: Threads, Entwürfe, Versand von E-Mails und Chatnachrichten, Aktivitäten und lesender Kalenderzugriff.
 
-Vier Details sparen beim Einstieg Zeit:
+Fünf Details sparen beim Einstieg Zeit:
 
-- **Eigene Felder gehören zum Datensatz.** Eigene Spalten kommen unter `customFieldValues` als Paare aus `columnId` und `value` zurück. Rufen Sie einmal `/configuration` auf, um Spalten-IDs Namen zuzuordnen und die Optionen einer Einzelauswahl wie Ihrer Deal-Phase zu sehen.
-- **Die Suche erwartet einen JSON-Body.** `POST /search` nimmt `searchTerm`, `filters`, `sortDescriptor` und `pagination`. `pageSize` ist 5, 10, 25 oder 100. Filter folgen der [Filtersyntax](/docs/filter-syntax), die auch App und MCP verwenden.
-- **Verknüpfungen sind ID-Arrays.** Wer bei einem Kontakt `[]` oder `null` für `organizationIds` sendet, entfernt alle Verknüpfungen dieser Art. Lassen Sie das Feld weg, bleiben sie bestehen.
-- **Bulk-Schreibvorgänge laufen in einer Transaktion.** Eine `/many`-Anfrage schreibt ihren Stapel gemeinsam. Eine Migration von 2.000 Kontakten teilen Sie also in 20 Anfragen auf.
+- **Felder haben stabile IDs.** `/model/read` liefert die `fieldId` jedes Felds, die Options-IDs eines Einzelauswahl-Felds wie der Deal-**Phase** und die Schema-`revision`. Die IDs bleiben gleich, wenn jemand eine Liste oder ein Feld umbenennt. Werte sind typisiert, zum Beispiel `{ "kind": "text", "value": "Acme" }`.
+- **Abfragen erwarten einen JSON-Body.** `/records/query` nimmt `typeId`, `filters`, `sort`, `page` und `pageSize` (bis 500). Filter folgen der [Filtersyntax](/docs/filter-syntax), die auch App und MCP verwenden.
+- **Schreibvorgänge sind abgesichert.** Eine Mutation enthält `expectedRevision` (die Schema-Revision), einen `idempotencyKey` und die eigentliche `mutation`; Änderungen und Löschungen enthalten zusätzlich die `expectedVersion` des Datensatzes. Wer dieselbe Anfrage mit demselben Key erneut sendet, führt sie nicht doppelt aus.
+- **Verknüpfungen sind eine eigene Aktion.** `link` und `unlink` nehmen eine `relationId`, eine `source` und ein `target` als Datensatzreferenz. Eine Änderung entfernt nie Verknüpfungen, die Sie nicht genannt haben.
+- **Bulk-Schreibvorgänge nehmen bis zu 100 Datensätze.** `updateMany` wendet eine Änderung atomar auf bis zu 100 Datensätze an, `deleteMany` verschiebt bis zu 100 in den Papierkorb. Eine Bereinigung von 2.000 Kontakten teilen Sie also in 20 Anfragen auf.
 
 ## Webhooks: Das CRM meldet sich bei Ihnen
 
-Ein Webhook schickt einen JSON-`POST` an Ihre URL, sobald ein abonniertes Ereignis eintritt. Admins und Mitglieder, deren Rolle **Verwalten** in der Zeile **API & Webhooks** hat, legen ihn unter **Mein Unternehmen → Webhooks** an: URL, Events, optional ein Secret, eigene Header und eine Body-Vorlage. Die [Webhook-Referenz](/docs/webhooks) listet jedes Event mit Payload.
+Ein Webhook schickt einen JSON-`POST` an Ihre URL, sobald ein abonniertes Ereignis eintritt. Admins und Mitglieder, deren Rolle in der Zeile **API & Webhooks** **Lesen** **Alle** und **Erstellen** hat, legen ihn unter **Einstellungen → Webhooks** an: URL, Events, die Liste unter **Datensätze aus** mit optionalen Filtern, optional ein Secret, eigene Header und eine Body-Vorlage. Die [Webhook-Referenz](/docs/webhooks) listet jedes Event mit Payload.
 
-- **Events:** [[derived.webhooks.events.records]] Datensatz-Events (angelegt, geändert und gelöscht für jeden der fünf Typen) und [[derived.webhooks.events.messaging]] Inbox- und Kalender-Events.
-- **Änderungen inklusive:** Ein `*.updated`-Payload enthält den vollständigen Datensatz und ein `changes`-Objekt mit altem und neuem Wert jedes geänderten Felds. Ein Schreibvorgang ohne Änderung löst kein Event aus.
+- **Events:** [[derived.webhooks.events.records]] Datensatz-Events (`record.created`, `record.updated`, `record.deleted` beim Verschieben in den Papierkorb, `record.restored` und `record.deletedPermanently`) für jede gewählte Liste, auch Ihre eigenen, und [[derived.webhooks.events.messaging]] Inbox- und Kalender-Events.
+- **Änderungen inklusive:** Ein `record.updated`-Payload enthält die Datensatzreferenz und jedes geänderte Feld mit seinem Wert `before` und `after`. Ein Schreibvorgang ohne Änderung löst kein Event aus.
 - **Signatur:** Mit gesetztem Secret wird jede Zustellung per HMAC-SHA256 über den Roh-Body signiert.
-- **Wiederholungen:** Bei Timeout, Netzwerkfehler, 5xx, 408, 425 oder 429 folgen bis zu 5 weitere Versuche. Andere 4xx-Antworten werden nicht wiederholt, weil ein zweiter Versuch genauso scheitern würde. Jede Zustellung hat 5 Sekunden Timeout.
-- **Zustellprotokoll:** Unter **Mein Unternehmen → Letzte Zustellungen** sehen Sie Statuscode und Antworttext jeder Zustellung und können sie erneut senden.
+- **Wiederholungen:** Bei Timeout, Netzwerkfehler, 5xx, 408, 425 oder 429 wird automatisch wiederholt, mit bis zu 10 Versuchen insgesamt. Andere 4xx-Antworten werden nicht wiederholt, weil ein zweiter Versuch genauso scheitern würde. Jede Zustellung hat 5 Sekunden Timeout.
+- **Zustellprotokoll:** Unter **Einstellungen → Zustellungen** sehen Sie Statuscode und Antworttext jeder Zustellung und können sie erneut senden.
 - **Body-Vorlagen:** Eine Vorlage ersetzt das Standardformat der Zustellung. So nimmt ein Chat-Tool oder Automatisierungsendpunkt mit eigenem JSON-Format die Daten direkt an, ohne Middleware dazwischen.
 
-Zustellungen kommen nicht garantiert in Reihenfolge an. Zwei Änderungen am selben Kontakt im Abstand weniger Millisekunden können vertauscht eintreffen. Verarbeiten Sie sie deshalb anhand von `entityId` und dem `timestamp` im Payload.
+Zustellungen kommen nicht garantiert in Reihenfolge an. Zwei Änderungen am selben Kontakt im Abstand weniger Millisekunden können vertauscht eintreffen. Deduplizieren Sie deshalb anhand der Event-`id`, ordnen Sie über `typeId` und `recordId` zu und nutzen Sie `timestamp` und Datensatzversion im Payload.
 
 ## So senden Sie den ersten API-Aufruf
 
 <Steps>
-  <Step title="Key anlegen">Öffnen Sie **Mein Profil → API & Konnektoren**, klicken Sie auf **Hinzufügen**, wählen Sie **Standard-API-Key**, vergeben Sie einen Namen wie `ERP-Sync, Produktion` und kopieren Sie den Key. Er wird nur einmal angezeigt. Ablauf und Rotation erklärt die [Anleitung zu API-Keys](/docs/api-keys).</Step>
-  <Step title="Schema laden">Rufen Sie `/api/v1/openapi` unter Ihrer Workspace-Adresse ab und importieren Sie das Dokument in Postman, Insomnia oder einen Client-Generator. Mit `GET /api/v1/deals/configuration` sehen Sie danach Ihre Deal-Phasen und eigenen Spalten.</Step>
-  <Step title="Suchen">Senden Sie `POST /api/v1/deals/search` mit dem Header `x-api-key` und einem Body wie `{"filters":[{"field":"updatedAt","operator":"inLastDays","value":7}],"pagination":{"page":1,"pageSize":25}}`. Die Antwort enthält alle Deals, die in den letzten sieben Tagen geändert wurden.</Step>
-  <Step title="Schreiben">Aktualisieren Sie einen Deal mit `PUT /api/v1/deals/{id}`. Was Ihr Nutzer in der App darf, darf der Key auch über die API.</Step>
-  <Step title="Abonnieren">Legen Sie einen Webhook für `deal.updated` mit Secret an, richten Sie ihn auf Ihren Endpunkt und prüfen Sie die erste Zustellung unter **Letzte Zustellungen**.</Step>
+  <Step title="Key anlegen">Öffnen Sie **Einstellungen → API-Schlüssel**, klicken Sie auf **Hinzufügen**, wählen Sie **Standard-API-Key**, vergeben Sie einen Namen wie `ERP-Sync, Produktion` und kopieren Sie den Key. Er wird nur einmal angezeigt. Ablauf und Rotation erklärt die [Anleitung zu API-Keys](/docs/api-keys).</Step>
+  <Step title="Schema laden">Rufen Sie `/api/v1/openapi` unter Ihrer Workspace-Adresse ab und importieren Sie das Dokument in Postman, Insomnia oder einen Client-Generator. Senden Sie danach `POST /api/v1/model/discover` mit `{"search":"deal"}`, um die `typeId` Ihrer Deals zu erhalten, und `POST /api/v1/model/read` mit `{"typeIds":["<deal-type-id>"]}`, um Felder, Phasen-Optionen und Schema-`revision` zu sehen.</Step>
+  <Step title="Abfragen">Senden Sie `POST /api/v1/records/query` mit dem Header `x-api-key` und einem Body wie `{"typeId":"<deal-type-id>","filters":[{"fieldId":"system:updatedAt","operator":"inLastDays","value":{"kind":"decimal","value":"7","currency":null}}],"page":1,"pageSize":25}`. Die Antwort enthält alle Deals, die in den letzten sieben Tagen geändert wurden.</Step>
+  <Step title="Schreiben">Setzen Sie einen Deal mit `POST /api/v1/records/mutate` in eine andere Phase: `{"expectedRevision":<revision>,"idempotencyKey":"move-acme-to-demo","mutation":{"action":"update","ref":{"typeId":"<deal-type-id>","recordId":"<deal-id>"},"expectedVersion":<version>,"fields":[{"fieldId":"<stage-field-id>","value":{"kind":"select","value":"<option-id>"}}]}}`. Was Ihr Nutzer in der App darf, darf der Key auch über die API.</Step>
+  <Step title="Abonnieren">Legen Sie einen Webhook für **Datensatz aktualisiert** auf der Liste Deals mit Secret an, richten Sie ihn auf Ihren Endpunkt und prüfen Sie die erste Zustellung unter **Zustellungen**.</Step>
 </Steps>
 
 Ein falscher, abgelaufener oder gelöschter Key erhält HTTP `401`. Ein Key, dessen Besitzer auf **Inaktiv** steht, erhält `403`.
@@ -92,7 +94,7 @@ Ein falscher, abgelaufener oder gelöschter Key erhält HTTP `401`. Ein Key, des
 
 Keys gehören dem Nutzer, der sie angelegt hat, und handeln mit dessen aktueller Rolle. Eigene API-Nutzer oder Scopes pro Key gibt es nicht, ein Key lässt sich also nicht auf Lesezugriff beschränken. Soll eine Integration nur Deals lesen, legen Sie ihren Key unter einem Mitglied an, dessen Rolle genau das erlaubt. In Customermates Cloud wird dieses Mitglied wie jeder andere Nutzer abgerechnet.
 
-Zum Anlegen von Keys braucht eine Rolle **Verwalten** in der Zeile **API & Webhooks**. Eine neue eigene Rolle hat das nicht, standardmäßig legen also nur Admins Keys an. Dieselbe Berechtigung öffnet auch alle Webhooks des Workspace, was Sie vor der Vergabe wissen sollten. Verlässt jemand das Team, setzen Sie das Mitglied auf **Inaktiv**. Das Entziehen der Berechtigung allein blendet nur die Seite aus, bestehende Keys funktionieren weiter.
+Zum Anlegen von Keys braucht eine Rolle in der Zeile **API & Webhooks** **Lesen** **Alle** und **Erstellen**. Eine neue eigene Rolle hat das nicht, standardmäßig legen also nur Admins Keys an. Dieselbe Berechtigung öffnet auch alle Webhooks des Workspace, was Sie vor der Vergabe wissen sollten. Verlässt jemand das Team, setzen Sie das Mitglied auf **Inaktiv**. Auch der Entzug von **Lesen** **Alle** auf **API & Webhooks** stoppt seine Keys.
 
 ## MCP: die Schnittstelle für KI-Clients
 
@@ -102,11 +104,11 @@ Mate, der Assistent in Customermates Cloud, ist eine eigene Funktion. Er nutzt g
 
 ## Was die API nicht kann
 
-- **Kein PATCH.** Änderungen laufen über `PUT` auf einen Datensatz oder auf `/many`.
-- **Keine Cursor-Paginierung und kein ODER zwischen Filterregeln.** Blättern Sie mit `page` und `pageSize`. Für ODER führen Sie zwei Suchen aus oder nutzen den Operator `in` auf einem Feld.
+- **Kein PUT oder PATCH auf Datensätzen.** Jede Änderung ist ein `POST` an `/api/v1/records/mutate`.
+- **Kein ODER zwischen Filterregeln.** Filterregeln werden mit UND verknüpft. Für ODER führen Sie zwei Abfragen aus oder nutzen den Operator `in` auf einem Feld.
 - **Kein Datei-Upload an Datensätze.** Datensätze haben keine Dateianhänge, Notizen enthalten Rich Text.
-- **Keine veröffentlichte Anfragequote und keine Rate-Limit-Header.** Teilen Sie Bulk-Jobs in Stapel zu 100 auf.
-- **Kein CSV-Export-Endpunkt und kein Export des gesamten Kontos.** Die App importiert und exportiert XLSX, jeweils einen Datensatztyp. Größere Mengen laufen über Ihr eigenes API-Skript.
+- **Keine veröffentlichte Anfragequote.** Ein ausgelasteter Workspace antwortet mit `429` und einem `Retry-After`-Header. Teilen Sie Bulk-Jobs in Stapel zu 100 auf.
+- **Kein CSV-Export-Endpunkt und kein Export des gesamten Kontos.** Die App importiert und exportiert XLSX und JSON, jeweils eine Liste. Größere Mengen laufen über Ihr eigenes API-Skript.
 - **Keine Inbox und kein Mate beim Self-Hosting.** REST-Routen für Datensätze, Webhooks und MCP funktionieren dort, die Messaging-Routen brauchen Customermates Cloud ab Pro.
 
 Über den Pfad `/api/v1` hinaus wird keine feste Kompatibilitätsfrist zugesagt. Behandeln Sie das aktuelle OpenAPI-Dokument als Vertrag und testen Sie dagegen.

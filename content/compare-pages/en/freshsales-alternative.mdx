@@ -42,13 +42,13 @@ comparison:
   - title: Sales & Data Model
     features:
       - name: Record types
-        source: Contacts, organizations, deals, services, tasks
+        source: Contacts, organizations, deals, services, tasks, plus your own lists
         competitor: Contacts, accounts, deals; up to 10 custom modules on Enterprise
       - name: Custom fields
-        source: Ten field types on every plan
+        source: Fifteen field types and calculated fields on every plan
         competitor: Basic fields on every plan; formula and lookup fields from Pro
       - name: Pipelines
-        source: Board grouped by any single-select field; one stage field with win probabilities
+        source: Board grouped by any single choice field; one stage field with win probabilities
         competitor: One on Free and Growth, 10 on Pro, 25 on Enterprise
       - name: Bulk email and sales sequences
         source: false
@@ -130,7 +130,7 @@ cta:
 | Up to three people who want a free CRM with email sync and a phone | Freshsales Free | The free plan covers 3 users and includes two-way email sync and the built-in phone |
 | You call prospects every day | Freshsales Growth or Pro | Call recording from Growth, power dialer from Pro; Customermates has no telephony |
 | You send multi-step email sequences or bulk email | Freshsales Pro | Sequences start on Pro; Customermates sends one message at a time |
-| You need custom modules or field-level permissions | Freshsales Enterprise | Customermates has neither |
+| You need field-level permissions | Freshsales Enterprise | Customermates sets permissions per list, not per field |
 | Clients reach you on LinkedIn, WhatsApp, Instagram or Telegram as well as email | Customermates Pro or Business | All of these channels sit in one inbox, linked to the contact and the deal |
 | You want AI to keep the CRM current, in the app or from Claude or ChatGPT | Customermates | Mate in Customermates Cloud, or your own AI client through MCP on every plan |
 | You need an open-source licence, self-hosting or an audit log on a small plan | Customermates | AGPL-3.0 core you can host yourself; the audit log is on every plan, while Freshsales lists it on Enterprise |
@@ -195,7 +195,7 @@ Check these before you start a trial:
 - **No sequences and no bulk email.** Outreach goes one message at a time, written by you or drafted by Mate.
 - **No chat widget and no web forms.** Leads from your website reach Customermates through the REST API or a workflow in an n8n instance you run yourself.
 - **No scoring, enrichment or AI forecasting.** The weighted pipeline multiplies each deal's value by its stage probability. That is arithmetic on your own numbers, and it does not predict anything.
-- **No custom modules or field-level permissions.** You work with five record types that you can rename, and permissions apply per record type and action. Saved views are personal and cannot be shared.
+- **No field-level permissions.** Permissions apply per list and action. Saved views are personal and cannot be shared.
 - **No native mobile apps and no free plan.** Customermates runs in the phone's browser, and after a [[commercial.trial.days]]-day trial you choose a paid plan.
 
 ## A worked setup: a consultancy moving from Freshsales Growth
@@ -205,15 +205,15 @@ Take a four-person consultancy that sells advisory projects. Two consultants hea
 | In Freshsales | In Customermates |
 |---|---|
 | Contacts | Contacts |
-| Accounts | Organizations, renamed "Accounts" from the presets |
+| Accounts | Organizations, renamed "Accounts" in Configure |
 | Deals in the sales pipeline | Deals with a Stage field and win probabilities |
-| Product catalog | Services, renamed "Products", linked to deals with a quantity |
-| Contact lifecycle stage | A single-select field "Lifecycle stage" and a saved view for each stage you work |
-| Record tags | A single-select field, because Customermates has no tags |
+| Product catalog | Services, renamed "Products", added to deals as line items with a quantity |
+| Contact lifecycle stage | A single choice field "Lifecycle stage" and a saved view for each stage you work |
+| Record tags | A single choice field, because Customermates has no tags |
 | Tasks | Tasks, with a custom date field "Due" because tasks have no built-in due date |
 | Phone numbers and call logs | A Phone custom field; calls are not logged |
 
-The team renames the Stage options to Lead, Qualified, Proposal sent, Negotiation, Won and Lost, and enters win probabilities of 10%, 25%, 50%, 75%, 100% and 0% under My Company › Settings. Each consultant saves a board of their own deals grouped by stage. The partner keeps a table of all open deals grouped by assigned user.
+In Configure for Deals, the team renames the Stage options to Lead, Qualified, Proposal sent, Negotiation, Won and Lost, and sets their Probability % to 10%, 25%, 50%, 75%, 100% and 0%. Each consultant saves a board of their own deals grouped by stage. The partner keeps a table of all open deals grouped by assigned user.
 
 Each person connects one channel, two LinkedIn accounts and two Gmail mailboxes, so Pro fits, at [[commercial.price.pro.monthly.seats.4]] a month for the team. If one consultant wants LinkedIn and email side by side, the workspace moves to Business at [[commercial.price.business.monthly.seats.4]].
 
@@ -225,10 +225,10 @@ Freshsales sequences have no counterpart, so each consultant owns one routine th
 
 <Steps>
   <Step title="Export from Freshsales">According to Freshworks' help center, an admin opens Admin Settings › Account, clicks Export data and picks the record types to include. Freshworks emails the export as a ZIP file. You can export up to five times a day, and the full time range only once.</Step>
-  <Step title="Save each file as an Excel workbook">Customermates imports .xlsx workbooks only; CSV files are not accepted. Open each record type's file in Excel or LibreOffice and save it as .xlsx, one record type per workbook.</Step>
-  <Step title="Prepare the workspace">Rename record types if your words differ, create custom fields for the Freshsales fields you keep, such as lifecycle stage, phone and lead source, and set the stage field with its probabilities.</Step>
-  <Step title="Import one record type at a time">On each list, open Import and export, then Add from file: organizations first, then contacts, then deals. If your export has no accounts file, build the organizations workbook from the account column of the contacts file. Link columns match records by name, so a contact's account column finds the organization imported before. Map email addresses and WhatsApp numbers to the contact's channels. Size limits are in the [records documentation](/docs/app-records).</Step>
-  <Step title="Connect channels and AI">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp under My Profile › Channels. Email history from the export does not import; the inbox shows conversations from the accounts you connect. Then set up routines, or connect your own AI client through MCP.</Step>
+  <Step title="Save each file as an Excel workbook">Customermates imports .xlsx workbooks only; CSV files are not accepted. Open each file in Excel or LibreOffice and save it as .xlsx, one list per workbook.</Step>
+  <Step title="Prepare the workspace">Rename lists in Configure if your words differ, create custom fields for the Freshsales fields you keep, such as lifecycle stage, phone and lead source, and set the stage field with its probabilities.</Step>
+  <Step title="Import one list at a time">On each list, open More actions, then Add from file: organizations first, then contacts, then deals. If your export has no accounts file, build the organizations workbook from the account column of the contacts file. Link columns match records by name, so a contact's account column finds the organization imported before. Map email addresses and WhatsApp numbers to the contact's channels. Size limits are in the [records documentation](/docs/app-records).</Step>
+  <Step title="Connect channels and AI">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp under Settings › Channels. Email history from the export does not import; the inbox shows conversations from the accounts you connect. Then set up routines, or connect your own AI client through MCP.</Step>
 </Steps>
 
 ## Other Freshsales alternatives worth a look

@@ -28,36 +28,28 @@ cta:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
-CRM-Reporting heißt: Sie zählen und summieren, was ohnehin im CRM steht, damit Fragen wie „Was liegt in der Pipeline?“ oder „Welche Kunden bringen den meisten Umsatz?“ ohne Excel-Liste beantwortet sind. In Customermates gibt es dafür drei Stellen: Diagramme auf dem Dashboard, nach einem Feld gruppierte Listen und die gewichtete Pipeline in den Unternehmenseinstellungen. Auswertungen, die echte Rechenarbeit über viele Datensätze brauchen, etwa einen Median oder eine Rangliste, übernimmt Mate in Customermates Cloud, Ihr eigener KI-Client über MCP oder Excel nach einem Export.
+CRM-Reporting heißt: Sie zählen und summieren, was ohnehin im CRM steht, damit Fragen wie „Was liegt in der Pipeline?“ oder „Welche Kunden bringen den meisten Umsatz?“ ohne Excel-Liste beantwortet sind. In Customermates gibt es dafür drei Stellen: Diagramme auf dem Dashboard, nach einem Feld gruppierte Listen und den gewichteten Wert an jedem Deal. Auswertungen, die echte Rechenarbeit über viele Datensätze brauchen, etwa einen Median oder eine Rangliste, übernimmt Mate in Customermates Cloud, Ihr eigener KI-Client über MCP oder Excel nach einem Export.
 
-Der Umfang ist bewusst klein. Wenn Sie Vertriebstrichter mit Konversionsraten, Verweildauer pro Phase, Vertriebsziele oder Umsatzprognosen brauchen, nennt der Abschnitt zu den Grenzen passende Werkzeuge.
+Der Umfang ist bewusst klein. Wenn Sie Konversionsraten im Zeitverlauf, Verweildauer pro Phase, Vertriebsziele oder Umsatzprognosen brauchen, nennt der Abschnitt zu den Grenzen passende Werkzeuge.
 
 <ArticleSummary title="Auf einen Blick">
-  <SummaryItem label="Was Sie bekommen">Diagramm-Widgets, die Datensätze zählen oder Deal-Wert und gewichteten Deal-Wert summieren, gruppiert nach einem Einzelauswahl-Feld oder pro Datensatz, dazu ein Aktivitätsverlauf als Widget.</SummaryItem>
+  <SummaryItem label="Was Sie bekommen">Diagramm-Widgets, die Datensätze zählen oder Felder wie Deal-Wert und gewichteten Wert summieren, gruppiert nach einem Feld, pro Datensatz oder im Zeitverlauf, dazu ein Aktivitätsverlauf als Widget.</SummaryItem>
   <SummaryItem label="Tarife">Dashboards und gewichtete Pipeline gehören zu jedem Tarif, ab Starter für [[commercial.price.starter.monthly]] pro Nutzer und Monat, und zur Self-Hosted-Version.</SummaryItem>
   <SummaryItem label="KI">In Customermates Cloud beantwortet Mate Fragen, die Berechnungen über viele Datensätze brauchen, und nutzt dafür gehostete KI-Credits. Ihr eigener KI-Client liest dieselben Daten über MCP.</SummaryItem>
-  <SummaryItem label="Nicht enthalten">Keine Zeitreihen-Diagramme, keine Konversionsraten, keine Verweildauer, keine Ziele, keine vorausschauende Umsatzprognose, kein geplanter Berichtsversand und kein gemeinsames Team-Dashboard.</SummaryItem>
+  <SummaryItem label="Nicht enthalten">Keine Konversionsraten im Zeitverlauf, keine Verweildauer, keine Ziele, keine vorausschauende Umsatzprognose, kein geplanter Berichtsversand und kein gemeinsames Team-Dashboard.</SummaryItem>
 </ArticleSummary>
 
 ## Was ein Diagramm-Widget auswertet
 
-Jedes Diagramm nimmt einen Datensatztyp (im Editor **Element**), eine **Metrik** und eine **Gruppierung**. Welche Metriken es gibt, hängt vom Typ ab:
+Jedes Diagramm nimmt eine Liste als Quelle, eine Aggregation und eine Gruppierung. Die Aggregation ist die Anzahl der Datensätze oder Summe, Durchschnitt, Minimum oder Maximum eines Zahlen- oder Geldfelds, etwa **Wert** oder **Gewichteter Wert** bei Deals.
 
-| Element | Anzahl | Deal-Wert | Gewichteter Deal-Wert | Anzahl Leistungen in Deals |
-|---|---|---|---|---|
-| Kontakte | Ja | Ja, aus ihren Deals | Ja, aus ihren Deals | Nein |
-| Organisationen | Ja | Ja, aus ihren Deals | Ja, aus ihren Deals | Nein |
-| Deals | Ja | Ja | Ja | Nein |
-| Leistungen | Ja | Ja | Nein | Ja |
-| Aufgaben | Ja | Nein | Nein | Nein |
+Als **Gruppierung** wählen Sie **Keine Gruppierung** (eine Summe), ein Feld wie Phase oder Lead-Quelle, jeden Datensatz einzeln, **Zugewiesen an** oder ein Feld über eine Beziehung. Das liefert zum Beispiel „Deal-Wert nach Phase“, „Deal-Wert pro Organisation“ oder „Positionsbeträge nach Service“. Gruppieren Sie nach einem Datumsfeld, nach **Erstellt am** oder **Aktualisiert am** und wählen ein **Zeitintervall**, erhalten Sie einen Wert pro Tag, Woche, Monat, Quartal oder Jahr.
 
-Als **Gruppierung** wählen Sie **Keine Gruppierung** (eine Summe), ein eigenes Einzelauswahl-Feld dieses Typs wie Phase oder Lead-Quelle oder, bei einer anderen Metrik als der Anzahl, jeden Datensatz einzeln. Die letzte Variante liefert zum Beispiel „Deal-Wert pro Organisation“ oder „Deal-Wert pro Leistung“. Aufgaben lassen sich nur zählen und nur nach einem Einzelauswahl-Feld gruppieren oder gar nicht.
+**Gewichteter Wert** ist ein berechnetes Feld bei Deals: der Wert des Deals mal die **Wahrscheinlichkeit %** seiner Phase, die Sie unter **Konfigurieren** an jeder Option des Felds Phase festlegen. Ein neuer Arbeitsbereich hat die Wahrscheinlichkeiten bereits vorbelegt, das funktioniert also ab dem ersten Deal.
 
-Der gewichtete Deal-Wert steht zur Verfügung, sobald unter **Mein Unternehmen › Einstellungen** ein Deal-Phasenfeld mit Abschlusswahrscheinlichkeiten hinterlegt ist. Ein neuer Arbeitsbereich hat bereits ein Feld „Phase“ mit vorbelegten Wahrscheinlichkeiten, das funktioniert also ab dem ersten Deal.
+**Filter** grenzen ein, was ein Diagramm zählt, über jedes Feld, auch über Datumsangaben; verknüpfte Felder erscheinen als **Liste › Feld**. So werten Sie „gewonnener Deal-Wert pro Organisation“ aus: Deals als Quelle, Filter Phase ist Gewonnen, gruppiert nach Organisation.
 
-**Filter** grenzen ein, was ein Diagramm zählt, über jedes Standard- oder eigene Feld, auch mit Zeiträumen auf Erstell- und Änderungsdatum oder auf Ihren eigenen Datumsfeldern. Ein Diagramm über Kontakte, Organisationen oder Leistungen mit einer Deal-Metrik bekommt einen zweiten Filter für die verknüpften Deals. So werten Sie „gewonnener Deal-Wert pro Organisation“ aus, ohne offene Deals mitzuzählen.
-
-Als **Darstellung** stehen vertikale oder horizontale Balkendiagramme, jeweils mit oder ohne Wertbeschriftung, ein Ringdiagramm und ein Radardiagramm zur Wahl. Eine Live-Vorschau zeigt das Ergebnis vor dem Speichern.
+Als **Darstellung** stehen Kennzahl, Balkendiagramm, Horizontale Balken, Fläche im Zeitverlauf, Rangliste, Ring, Trichter und Netz zur Wahl. Eine Live-Vorschau zeigt das Ergebnis vor dem Speichern.
 
 Die zweite Widget-Art, der **Aktivitätsverlauf**, zeigt Änderungen an Datensätzen, die neuesten zuerst, ab Pro auch Nachrichten und Kalendertermine aus verbundenen Konten. Sie filtern ihn nach Kategorie, Konto oder verknüpften Datensätzen, zum Beispiel „alles, was bei den Deals meiner drei größten Kunden passiert ist“.
 
@@ -65,17 +57,17 @@ Die zweite Widget-Art, der **Aktivitätsverlauf**, zeigt Änderungen an Datensä
 
 Die Beispiele setzen das Standardfeld „Phase“ voraus und zwei Einzelauswahl-Felder, die Sie bei Deals ergänzen: „Lead-Quelle“ und „Verlustgrund“.
 
-| Frage | Element | Metrik | Gruppierung | Filter |
+| Frage | Quelle | Kennzahl | Gruppierung | Filter |
 |---|---|---|---|---|
-| Was liegt in der Pipeline, nach Phase? | Deals | Deal-Wert | Phase | Phase ist nicht Gewonnen oder Verloren |
-| Was ist sie wert, wenn die Wahrscheinlichkeiten stimmen? | Deals | Gewichteter Deal-Wert | Phase | Phase ist nicht Gewonnen oder Verloren |
-| Woher kommt gewonnenes Geschäft? | Deals | Deal-Wert | Lead-Quelle | Phase ist Gewonnen, eigenes Datumsfeld „Abgeschlossen am“ zwischen erstem und letztem Tag des Quartals |
-| Welche Kunden bringen den meisten Umsatz? | Organisationen | Deal-Wert | Jede Organisation | Verknüpfte Deals: Phase ist Gewonnen |
-| Welche Leistungen verkaufen sich? | Leistungen | Deal-Wert | Jede Leistung | Verknüpfte Deals: Phase ist Gewonnen |
+| Was liegt in der Pipeline, nach Phase? | Deals | Summe von Wert | Phase | Phase ist nicht Gewonnen oder Verloren |
+| Was ist sie wert, wenn die Wahrscheinlichkeiten stimmen? | Deals | Summe von Gewichteter Wert | Phase | Phase ist nicht Gewonnen oder Verloren |
+| Woher kommt gewonnenes Geschäft? | Deals | Summe von Wert | Lead-Quelle | Phase ist Gewonnen, eigenes Datumsfeld „Abgeschlossen am“ zwischen erstem und letztem Tag des Quartals |
+| Welche Kunden bringen den meisten Umsatz? | Deals | Summe von Wert | Organisation | Phase ist Gewonnen |
+| Welche Leistungen verkaufen sich? | Positionen | Summe von Betrag | Service | Deals › Phase ist Gewonnen |
 | Warum verlieren wir? | Deals | Anzahl | Verlustgrund | Phase ist Verloren |
 | Wie viel offene Arbeit gibt es? | Aufgaben | Anzahl | Status | Status ist nicht Erledigt oder Archiviert |
 
-Aufgaben haben keinen eingebauten Status und kein Fälligkeitsdatum. Das Feld „Status“ in der letzten Zeile ist ein eigenes Einzelauswahl-Feld, mit dem ein neuer Arbeitsbereich startet; Sie können es wie jedes andere Feld umbenennen, ändern oder löschen.
+Aufgaben haben kein eingebautes Fälligkeitsdatum. Das Feld „Status“ in der letzten Zeile ist ein Einzelauswahl-Feld, mit dem ein neuer Arbeitsbereich startet; Sie können es wie jedes andere Feld umbenennen, ändern oder löschen.
 
 Zwei Fragen beantwortet eine Liste besser als ein Diagramm. **Wer arbeitet an welchen Deals?** Stellen Sie die Deal-Liste auf das Board um und gruppieren Sie nach **Zugewiesen**: Jede Person bekommt eine Spalte mit Anzahl und Summen ihrer Deals. **Wie viele Deals haben wir pro Monat angelegt?** Gruppieren Sie die Deal-Tabelle nach Erstelldatum, zusammengefasst nach Monat. Als Ansicht gespeichert, sind beide Auswertungen einen Klick entfernt. Ansichten gehören der Person, die sie speichert.
 
@@ -93,9 +85,9 @@ Mate nutzt gehostete KI-Credits, die jeder Cloud-Tarif pro aktivem Nutzer und Mo
 ## Ein Dashboard für das wöchentliche Pipeline-Meeting einrichten
 
 <Steps>
-  <Step title="Phasenwahrscheinlichkeiten prüfen">Öffnen Sie **Mein Unternehmen › Einstellungen**, prüfen Sie, dass das Deal-Phasenfeld auf „Phase“ steht, und passen Sie die Abschlusswahrscheinlichkeit jeder Phase an. **Gesamtpipeline** und **Gewichtete Pipeline** zeigen das Ergebnis direkt darunter.</Step>
-  <Step title="Die Felder anlegen, die Ihre Fragen brauchen">Öffnen Sie einen Deal, klicken Sie auf **Anpassen** und legen Sie ein Einzelauswahl-Feld „Lead-Quelle“ (Empfehlung, LinkedIn, Website, Veranstaltung), ein Einzelauswahl-Feld „Verlustgrund“ und ein Datumsfeld „Abgeschlossen am“ an. Ein Diagramm kann nur nach dem gruppieren, was Sie erfassen.</Step>
-  <Step title="Das erste Diagramm erstellen">Klicken Sie auf dem **Dashboard** auf **Widget hinzufügen**, wählen Sie **Diagramm**, als Element Deals, als Metrik den gewichteten Deal-Wert und als Gruppierung Phase. Schließen Sie im Reiter **Filter** Gewonnen und Verloren aus und klicken Sie auf **Widget erstellen**.</Step>
+  <Step title="Phasenwahrscheinlichkeiten prüfen">Öffnen Sie unter **Konfigurieren** die Deals und das Feld **Phase** und passen Sie die **Wahrscheinlichkeit %** jeder Option an. Eine Vorschau zeigt die Auswirkung auf Deals und Widgets.</Step>
+  <Step title="Die Felder anlegen, die Ihre Fragen brauchen">Öffnen Sie unter **Konfigurieren** die Deals und legen Sie über **Hinzufügen › Feld** ein Einzelauswahl-Feld „Lead-Quelle“ (Empfehlung, LinkedIn, Website, Veranstaltung), ein Einzelauswahl-Feld „Verlustgrund“ und ein Datumsfeld „Abgeschlossen am“ an. Ein Diagramm kann nur nach dem gruppieren, was Sie erfassen.</Step>
+  <Step title="Das erste Diagramm erstellen">Klicken Sie auf dem **Dashboard** auf **Widget hinzufügen** und wählen Sie **Balkendiagramm**. Wählen Sie unter **Daten** Deals als Quelle, summieren Sie **Gewichteter Wert** und gruppieren Sie nach Phase. Schließen Sie in den Filtern Gewonnen und Verloren aus und klicken Sie auf **Speichern**.</Step>
   <Step title="Drei weitere hinzufügen">Gewonnener Deal-Wert nach Lead-Quelle, gewonnener Deal-Wert pro Organisation und die Anzahl verlorener Deals nach Verlustgrund. Verschieben und vergrößern Sie die Widgets nach Bedarf; die Anordnung wird für Sie gespeichert.</Step>
   <Step title="Die Vorlage teilen, nicht das Dashboard">Aktivieren Sie bei jedem Diagramm **Als Vorlage freigeben**. Kolleginnen und Kollegen wählen es unter **Mit einer Vorlage starten** und erhalten eine eigene Kopie, die nur die Datensätze zählt, die ihre Rolle lesen darf.</Step>
 </Steps>
@@ -109,13 +101,12 @@ Customermates veröffentlicht diese Seite. Die Angaben zu anderen Anbietern wurd
 | Sie brauchen | In Customermates | Wo Sie suchen sollten |
 |---|---|---|
 | Umsatzprognosen über Phasengewichte hinaus | Nicht vorhanden. Die gewichtete Pipeline multipliziert den Wert jedes Deals mit der Wahrscheinlichkeit, die Sie für seine Phase festlegen, sonst nichts. | [HubSpot Sales Hub](https://www.hubspot.com/pricing/sales) Professional und Enterprise enthalten Umsatzprognosen (Forecasting); [Pipedrive](https://www.pipedrive.com/en/features/insights-and-reports) bietet eine Forecast-Ansicht |
-| Einen Berichtsbaukasten mit Konversionsraten, Zielen und vielen Berichtstypen | Nicht vorhanden. Diagramme zählen und summieren, sie teilen keine Phase durch eine andere. | HubSpot Sales Hub Professional (eigene Berichte); Pipedrive Insights (eigene Berichte, Dashboards und Ziele) |
-| Verläufe über die Zeit, etwa Umsatz pro Monat | Nicht als Diagramm. Gruppieren Sie eine Liste nach Monat oder exportieren Sie. | Excel oder eine andere Tabellenkalkulation |
+| Einen Berichtsbaukasten mit Konversionsraten, Zielen und vielen Berichtstypen | Nicht vorhanden. Diagramme zählen und aggregieren; ein Trichter-Diagramm zeigt die Umwandlung von Schritt zu Schritt für die aktuellen Datensätze, aber es gibt keine Ziele und keine Konversion im Zeitverlauf. | HubSpot Sales Hub Professional (eigene Berichte); Pipedrive Insights (eigene Berichte, Dashboards und Ziele) |
 | Eigene BI-Auswertungen auf den Rohdaten | Kein eingebauter Anschluss an ein BI-Tool | Self-Hosted: Ihre Daten liegen in Ihrer eigenen PostgreSQL-Datenbank, die [Metabase](https://www.metabase.com/docs/latest/databases/connecting) unterstützt; die Open-Source-Edition ist kostenlos und selbst gehostet. Nutzen Sie einen Datenbanknutzer mit reinem Lesezugriff und rechnen Sie damit, Abfragen nach einem Update anzupassen, weil die Tabellen das interne Schema des Produkts sind. |
 | Ein Dashboard, das das ganze Team bearbeitet | Nicht vorhanden. Jedes Dashboard ist persönlich; Vorlagen geben jeder Person eine Kopie. | |
 | Berichte per E-Mail nach Zeitplan | Nicht eingebaut | Eine Routine in Customermates Cloud oder n8n, beides weiter unten beschrieben |
 
-Für eine einmalige Auswertung exportieren Sie die Liste über das Menü **Import und Export** der Deal-Liste als Excel-Arbeitsmappe. Der Export übernimmt sichtbare Spalten, Filter und Sortierung, den Rest erledigt eine [PivotTable](https://support.microsoft.com/de-de/office/erstellen-einer-pivottable-zum-analysieren-von-arbeitsblattdaten-a9a84538-bfe9-40a9-a8e9-f99134456576). Exportiert wird ein Datensatztyp nach dem anderen; die Grenzen stehen in der [Anleitung zu Datensätzen](/docs/app-records).
+Für eine einmalige Auswertung exportieren Sie die Liste über das Menü **Weitere Aktionen** der Deal-Liste als Excel-Arbeitsmappe. Der Export übernimmt sichtbare Spalten, Filter und Sortierung, den Rest erledigt eine [PivotTable](https://support.microsoft.com/de-de/office/erstellen-einer-pivottable-zum-analysieren-von-arbeitsblattdaten-a9a84538-bfe9-40a9-a8e9-f99134456576). Exportiert wird ein Datensatztyp nach dem anderen; die Grenzen stehen in der [Anleitung zu Datensätzen](/docs/app-records).
 
 ## Wie das Reporting mit Mate, MCP und der API zusammenspielt
 
@@ -129,7 +120,7 @@ Die Antwort ist eine Chat-Nachricht, kein gespeichertes Diagramm. Mate kann aber
 
 **Routinen (Customermates Cloud).** Eine Routine führt eine gespeicherte Anweisung nach Zeitplan aus, etwa „Fasse jeden Montag um 8 Uhr die offene Pipeline nach Phase zusammen und liste Deals auf, die seit 30 Tagen nicht geändert wurden.“ Sie läuft unter Ihrem Konto als Eigentümer, mit Ihren Rechten und Credits, und die Zusammenfassung des Laufs bleibt bei der Routine. Ab Pro kann sie Ihnen die Zusammenfassung auch über Ihr verbundenes Postfach per E-Mail senden. Mate sendet dabei ohne erneute Rückfrage; schreiben Sie „Entwurf“ in die Anweisung, wenn Sie den Text vorher lesen möchten. Auslöser und Grenzen erklärt die Seite zur [Workflow-Automatisierung](/features/workflow-automation).
 
-**Ihr eigener KI-Client über MCP.** Claude, ChatGPT und andere MCP-Clients nutzen [[derived.mcp.tools.total]] Werkzeuge, in jedem Tarif und auch beim Self-Hosting. Wenn ein Client Deals auflistet, enthält die Antwort die Summe aus Deal-Wert und gewichtetem Wert über alle passenden Deals. „Wie hoch ist unsere gewichtete Pipeline bei Organisationen in Bayern?“ hat damit eine exakte Antwort. Die Einrichtung steht in der [MCP-Dokumentation](/docs/mcp).
+**Ihr eigener KI-Client über MCP.** Claude, ChatGPT und andere MCP-Clients nutzen [[derived.mcp.tools.total]] Werkzeuge, in jedem Tarif und auch beim Self-Hosting. Mit `query_crm_measure` berechnet ein Client Summen über alle passenden Datensätze. „Wie hoch ist unsere gewichtete Pipeline bei Organisationen in Bayern?“ hat damit eine exakte Antwort. Die Einrichtung steht in der [MCP-Dokumentation](/docs/mcp).
 
 **REST und Webhooks.** Wenn Berichte in ein anderes System gehören, lesen Sie Datensätze über die [REST-API](/features/api) oder empfangen bei jeder Änderung einen Webhook und pflegen damit Ihre eigene Reporting-Tabelle. [n8n](/docs/n8n) kann beides nach Zeitplan erledigen; es läuft separat und gehört nicht zu Customermates.
 
@@ -137,7 +128,7 @@ Die Antwort ist eine Chat-Nachricht, kein gespeichertes Diagramm. Mate kann aber
 
 <Faq>
 <FaqItem question="Welche CRM-Auswertungen sind typisch?">
-Für ein kleines Team decken fünf die meisten Entscheidungen ab: Pipeline-Wert nach Phase, gewichtete Pipeline, gewonnener Umsatz nach Lead-Quelle, Umsatz pro Kunde und verlorene Deals nach Verlustgrund. Alle fünf sind in Customermates Diagramm-Widgets. Aktivitätsberichte, Vertriebstrichter und Umsatzprognosen sind in größeren CRM-Systemen üblich; Customermates hat einen Aktivitätsverlauf, aber weder Trichter noch Prognose.
+Für ein kleines Team decken fünf die meisten Entscheidungen ab: Pipeline-Wert nach Phase, gewichtete Pipeline, gewonnener Umsatz nach Lead-Quelle, Umsatz pro Kunde und verlorene Deals nach Verlustgrund. Alle fünf sind in Customermates Diagramm-Widgets. Aktivitätsberichte, Vertriebstrichter und Umsatzprognosen sind in größeren CRM-Systemen üblich; Customermates hat einen Aktivitätsverlauf und ein Trichter-Diagramm der aktuellen Phasen, aber keine Prognose.
 </FaqItem>
 
 <FaqItem question="Kann Customermates Umsatz prognostizieren?">
@@ -157,6 +148,6 @@ Alle Diagramm-Widgets, die gewichtete Pipeline, gruppierte Listen, der Aktivitä
 </FaqItem>
 
 <FaqItem question="Kann ich Auswertungen stattdessen mit ChatGPT oder Claude erstellen?">
-Ja. Verbinden Sie den Client über MCP. Er kann dann Datensätze auflisten und filtern, die Wertsummen passender Deals lesen und Dashboard-Widgets anlegen. Für das Modell, das Abonnement und den Umgang mit Ihren Daten ist Ihr KI-Anbieter zuständig, nicht Customermates.
+Ja. Verbinden Sie den Client über MCP. Er kann dann Datensätze auflisten und filtern, Summen über passende Deals berechnen und Dashboard-Widgets anlegen. Für das Modell, das Abonnement und den Umgang mit Ihren Daten ist Ihr KI-Anbieter zuständig, nicht Customermates.
 </FaqItem>
 </Faq>

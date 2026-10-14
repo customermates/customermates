@@ -36,7 +36,7 @@ Customermates veröffentlicht diesen Artikel und ist eines der beschriebenen Pro
 <ArticleSummary title="Auf einen Blick">
   <SummaryItem label="Anpassbar oder individuell entwickelt">Anpassbar heißt: Sie konfigurieren ein fertiges Produkt. Individuell entwickelt heißt: Sie bauen und pflegen das System selbst, mit Code oder einer No-Code-Plattform.</SummaryItem>
   <SummaryItem label="Wo die Grenze liegt">Eigene Felder sind Standard. Eigene Objekte, also neue Datensatztypen, trennen die Tarife: HubSpot verlangt ein Enterprise-Abo, Zoho CRM bietet benutzerdefinierte Module ab Enterprise.</SummaryItem>
-  <SummaryItem label="Customermates">Fünf Datensatztypen mit umbenennbaren Bezeichnungen aus Vorgaben, zehn Feldtypen, eigene Phasen mit Gewichtung, persönliche Ansichten, REST, Webhooks und MCP. Keine eigenen Objekte.</SummaryItem>
+  <SummaryItem label="Customermates">Startet mit fünf Listen, und Sie können eigene anlegen, mit freier Umbenennung, 15 Feldtypen, Beziehungen, berechneten Feldern, eigenen Phasen mit Gewichtung, persönlichen Ansichten, REST, Webhooks und MCP.</SummaryItem>
   <SummaryItem label="Selbst bauen">Sinnvoll, wenn Ihre Daten nicht in Kontakte, Unternehmen und Deals passen. Sonst übernehmen Sie Anmeldung, Rechte, E-Mail-Anbindung und Import ohne echten Gewinn.</SummaryItem>
 </ArticleSummary>
 
@@ -67,11 +67,11 @@ Eigene Objekte sind die deutlichste Trennlinie zwischen Tarifen. Die Angaben sta
 | Twenty | Unbegrenzt in Pro, Organization und Enterprise, der Open-Source-Kern lässt sich selbst hosten | [Twenty Preise](https://twenty.com/pricing) |
 | EspoCRM | Der Entity Manager legt eigene Entitäten, Felder und Beziehungen an, Open Source | [EspoCRM Funktionen](https://www.espocrm.com/features/) |
 | Pipedrive | Die verlinkte Hilfeseite beschreibt eigene Felder an Leads, Deals, Personen, Organisationen, Produkten und Projekten, die Anzahl hängt vom Tarif ab | [Pipedrive Support](https://support.pipedrive.com/en/article/custom-fields) |
-| Customermates | Keine. Fünf feste Datensatztypen, jeweils mit eigenen Feldern | [Datenmodell von Customermates](/docs/concepts) |
+| Customermates | Eigene Listen mit Feldern, Beziehungen und berechneten Feldern; ein Workspace startet mit fünf | [Datenmodell von Customermates](/docs/concepts) |
 
 Angaben der Anbieter am 8. Oktober 2026 auf den verlinkten offiziellen Seiten geprüft. Tarife ändern sich, prüfen Sie den benötigten Tarif deshalb vor dem Kauf auf der Website des Anbieters.
 
-Brauchen Sie einen Datensatz „Immobilie", der mehrere Eigentümer und Mieter verknüpft, oder einen „Vertrag" mit eigenem Lebenszyklus, wählen Sie ein Produkt aus den oberen Zeilen. Besteht Ihr Geschäft aus Personen, Firmen, Verkaufschancen und den Leistungen, die Sie verkaufen, ist ein höherer Tarif für eigene Objekte meist überflüssig.
+Brauchen Sie einen Datensatz „Immobilie", der mehrere Eigentümer und Mieter verknüpft, oder einen „Vertrag" mit eigenem Lebenszyklus, wählen Sie ein Produkt, das eigene Objekte in einem bezahlbaren Tarif enthält. Besteht Ihr Geschäft aus Personen, Firmen, Verkaufschancen und den Leistungen, die Sie verkaufen, ist ein höherer Tarif für eigene Objekte meist überflüssig.
 
 ## Anpassen, No-Code oder selbst entwickeln
 
@@ -91,23 +91,23 @@ Inzwischen gibt es einen Mittelweg: ein CRM mit vollständiger API als Basis, un
 So würde eine Beratung mit fünf Personen Customermates an ihren Ablauf anpassen. Jeder Schritt ist Konfiguration, kein Code.
 
 <Steps>
-  <Step title="Datensatztypen umbenennen">
-    Unter **Datenmodell** in den Unternehmenseinstellungen wählen Sie Bezeichnungen aus Vorgaben: Kontakte werden zu **Kunden**, Deals zu **Projekte**, Services zu **Pakete**. Freier Text ist nicht möglich, die Vorgaben stehen in der [Dokumentation der Unternehmenseinstellungen](/docs/app-company#how-do-i-rename-record-types-in-the-data-model). API und MCP behalten die ursprünglichen Namen.
+  <Step title="Listen umbenennen">
+    Öffnen Sie in **Konfigurieren** eine Liste und ändern Sie **Name** und **Pluralname** unter **Allgemein**: Kontakte werden zu **Kunden**, Deals zu **Projekte**, Services zu **Pakete**. Jeder Name ist möglich, Datensätze, Verknüpfungen, Ansichten und API-Verweise bleiben verbunden, siehe [Anleitung zu den Workspace-Einstellungen](/docs/app-company#how-do-i-rename-record-types-in-the-data-model).
   </Step>
   <Step title="Das Phasenfeld festlegen">
-    Ein neuer Workspace startet mit einer Spalte **Phase** an Deals. Passen Sie die Optionen an Ihre Schritte an, etwa Anfrage, Klärungsgespräch, Angebot verschickt, Beauftragt, Verloren. Geben Sie jeder Option eine Gewichtung, dann erhält jeder Deal einen gewichteten Wert aus diesen festen Prozentsätzen, summiert zur gewichteten Pipeline.
+    Ein neuer Workspace startet mit einem Feld **Phase** an Deals. Öffnen Sie es in Konfigurieren für Deals und passen Sie die Optionen an Ihre Schritte an, etwa Anfrage, Klärungsgespräch, Angebot verschickt, Beauftragt, Verloren. Setzen Sie an jeder Option **Wahrscheinlichkeit %**, dann erhält jeder Deal einen gewichteten Wert aus diesen festen Prozentsätzen; ein Diagramm-Widget auf dem Dashboard, das **Gewichteter Wert** nach Phase summiert, zeigt die gewichtete Pipeline.
   </Step>
   <Step title="Eigene Felder dort anlegen, wo sie eine Entscheidung tragen">
-    An Projekten: **Auftragsart** (Einzelauswahl: Retainer, Festpreis, Workshop), **Tagessatz** (Währung), **Vertragsverlängerung** (Datum). An Kunden: **Quelle** (Einzelauswahl) und **Durchwahl** (Telefon). Zehn Feldtypen stehen zur Wahl, aufgelistet in der [Dokumentation zum Datenmodell](/docs/concepts#what-are-custom-columns).
+    An Projekten: **Auftragsart** (Einzelauswahl: Retainer, Festpreis, Workshop), **Tagessatz** (Geldbetrag), **Vertragsverlängerung** (Datum). An Kunden: **Quelle** (Einzelauswahl) und **Durchwahl** (Telefon). Fünfzehn Feldtypen und berechnete Felder stehen zur Wahl, aufgelistet in der [Dokumentation zum Datenmodell](/docs/concepts#what-are-custom-columns).
   </Step>
   <Step title="Ansichten für jede Person speichern">
     Ein Board der Projekte nach Phase gruppiert, eine Tabelle der Retainer nach **Vertragsverlängerung** sortiert, eine Kundenliste nach **Quelle** gruppiert. Gespeicherte Ansichten sind persönlich, deshalb legt jede Person ihre eigene an.
   </Step>
   <Step title="Bestehende Daten übernehmen">
-    Exportieren Sie jede Tabelle aus Ihrem alten Werkzeug als Excel-Arbeitsmappe und importieren Sie einen Datensatztyp nach dem anderen, erst Kunden, dann Projekte. Dabei ordnen Sie die Spalten Ihren neuen Feldern zu. Die Dateigrenzen stehen in der [Dokumentation zu Datensätzen](/docs/app-records#how-do-i-import-or-export-records).
+    Exportieren Sie jede Tabelle aus Ihrem alten Werkzeug als Excel-Arbeitsmappe und importieren Sie eine Liste nach der anderen, erst Kunden, dann Projekte. Dabei ordnen Sie die Spalten Ihren neuen Feldern zu. Die Dateigrenzen stehen in der [Dokumentation zu Datensätzen](/docs/app-records#how-do-i-import-or-export-records).
   </Step>
   <Step title="Einen Schritt automatisieren (Customermates Cloud)">
-    Eine Routine mit dem Auslöser „Deal aktualisiert", die nur das Feld **Phase** beobachtet und auf „Angebot verschickt" filtert: „Kurze Nachfass-Mail an den Hauptansprechpartner mit Bezug auf das Angebot verfassen. Als Entwurf speichern, nicht senden." Routinen laufen über Mate, verbrauchen gehostete KI-Credits und arbeiten mit den Rechten und Kanälen ihres Eigentümers. Ohne den Satz „nicht senden" darf eine Routine die Nachricht selbst verschicken. Mehr unter [Routinen](/docs/app-routines).
+    Eine Routine auf das Ereignis „Datensatz aktualisiert" für Projekte, die nur das Feld **Phase** beobachtet und auf „Angebot verschickt" filtert: „Kurze Nachfass-Mail an den Hauptansprechpartner mit Bezug auf das Angebot verfassen. Als Entwurf speichern, nicht senden." Routinen laufen über Mate, verbrauchen gehostete KI-Credits und arbeiten mit den Rechten und Kanälen ihres Eigentümers. Ohne den Satz „nicht senden" darf eine Routine die Nachricht selbst verschicken. Mehr unter [Routinen](/docs/app-routines).
   </Step>
 </Steps>
 
@@ -117,14 +117,11 @@ Verbundene E-Mail-, LinkedIn- und WhatsApp-Unterhaltungen erscheinen ab Pro im [
 
 Diese Grenzen sollten Sie beim Vergleich kennen:
 
-- **Keine eigenen Objekte.** Es gibt Kontakte, Organisationen, Deals, Services und Aufgaben. Ein Datensatztyp „Immobilie" oder „Vertrag" ist nicht möglich. Brauchen Sie einen, sehen Sie sich Twenty, Attio, EspoCRM oder einen Enterprise-Tarif anderer Anbieter an.
-- **Zehn Feldtypen, kein Zahlenfeld.** Text, Datum, Datumsbereich, Datum & Uhrzeit, Datums- und Uhrzeitbereich, Währung, Einzelauswahl, Link, E-Mail und Telefon. Ein reines Zahlenfeld, Mehrfachauswahl, Kontrollkästchen oder Formelfelder gibt es nicht.
-- **Umbenennen nur aus Vorgaben.** Deals können Chancen, Projekte oder Aufträge heißen, aber kein frei gewähltes Wort.
-- **Rechte enden beim Datensatztyp.** Rollen regeln Lesen und Verwalten pro Datensatztyp, auch „nur mir zugewiesene Datensätze". Feldbezogene Rechte gibt es nicht.
+- **Rechte enden bei der Liste.** Rollen regeln Erstellen, Lesen, Bearbeiten und Löschen pro Liste, auch „nur mir zugewiesene Datensätze". Feldbezogene Rechte gibt es nicht.
 - **Gespeicherte Ansichten sind persönlich.** Geteilte Team-Ansichten gibt es nicht.
 - **Keine Schlagworte.** Nutzen Sie stattdessen ein Einzelauswahl-Feld, das hält die Werte auch einheitlich.
 - **Aufgaben haben kein eingebautes Fälligkeitsdatum.** Legen Sie ein Datumsfeld an und sortieren Sie danach; eine Benachrichtigung bei Ablauf gibt es nicht.
-- **Import und Export laufen über Excel-Arbeitsmappen**, ein Datensatztyp nach dem anderen. Einen Export des gesamten Kontos gibt es nicht.
+- **Import und Export laufen pro Liste**, als Excel-Arbeitsmappe oder JSON, bis zu 5.000 Datensätze pro Export. Einen Export des gesamten Kontos gibt es nicht.
 
 Selbst gehostet enthält der Open-Source-Kern Datensätze, eigene Felder, Ansichten, Rollen, REST, [Webhooks](/docs/webhooks) und MCP. Posteingang, Mate und Routinen gibt es nur in der Cloud. Details auf der [Seite zum Self-Hosting](/features/self-hosted).
 
@@ -145,7 +142,7 @@ Anpassungen scheitern häufiger an zu vielen Feldern als an zu wenigen. Drei Reg
 
 1. Legen Sie ein Feld nur an, wenn jemand danach filtert, sortiert oder entscheidet. Felder für „vielleicht später" bleiben leer.
 2. Nehmen Sie Einzelauswahl statt Freitext für alles, wonach Sie später gruppieren wollen.
-3. Löschen Sie einmal im Quartal Felder, die niemand befüllt. In Customermates entfernt das Löschen eines Felds alle seine Werte endgültig, exportieren Sie im Zweifel vorher.
+3. Löschen Sie einmal im Quartal Felder, die niemand befüllt. In Customermates liegt ein gelöschtes Feld 30 Tage im Papierkorb, danach sind seine Werte endgültig weg. Exportieren Sie im Zweifel vorher.
 
 ## Häufige Fragen
 
@@ -163,11 +160,11 @@ Das hängt vom Pflichtenheft ab, misstrauen Sie deshalb pauschalen Zahlen. Rechn
 </FaqItem>
 
 <FaqItem question="Kann ich ein CRM in Excel erstellen?">
-Für eine Person und einige hundert Kontakte ja. Es stößt an Grenzen, sobald mehrere Personen gleichzeitig bearbeiten, Kunden mit Projekten verknüpft werden sollen oder Unterhaltungen neben dem Datensatz liegen sollen. Unsere [Anleitung zur Excel-CRM-Vorlage](/blog/excel-crm-template) zeigt einen brauchbaren Aufbau und wann der Wechsel ansteht. Customermates importiert Excel-Arbeitsmappen, einen Datensatztyp nach dem anderen.
+Für eine Person und einige hundert Kontakte ja. Es stößt an Grenzen, sobald mehrere Personen gleichzeitig bearbeiten, Kunden mit Projekten verknüpft werden sollen oder Unterhaltungen neben dem Datensatz liegen sollen. Unsere [Anleitung zur Excel-CRM-Vorlage](/blog/excel-crm-template) zeigt einen brauchbaren Aufbau und wann der Wechsel ansteht. Customermates importiert Excel-Arbeitsmappen, eine Liste nach der anderen.
 </FaqItem>
 
 <FaqItem question="Welche CRM-Lösungen bieten die flexibelsten Anpassungsmöglichkeiten?">
-Bei eigenen Objekten bietet Twenty laut Preisseite unbegrenzt viele in Pro, Organization und Enterprise, Attio bis zu 12 in Pro und unbegrenzt in Enterprise, EspoCRM legt eigene Entitäten im Entity Manager an, HubSpot und Zoho CRM reservieren sie für Enterprise-Tarife. Customermates hat keine eigenen Objekte, dafür eigene Felder an allen fünf Datensatztypen.
+Bei eigenen Objekten bietet Twenty laut Preisseite unbegrenzt viele in Pro, Organization und Enterprise, Attio bis zu 12 in Pro und unbegrenzt in Enterprise, EspoCRM legt eigene Entitäten im Entity Manager an, HubSpot und Zoho CRM reservieren sie für Enterprise-Tarife. In Customermates legen Sie in Konfigurieren eigene Listen mit Feldern und Beziehungen an.
 </FaqItem>
 
 <FaqItem question="Kann ich CRM-Daten auf dem eigenen Server speichern?">

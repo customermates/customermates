@@ -78,12 +78,12 @@ Stellen Sie diese Fragen in der Demo, oder schlagen Sie sie in der Dokumentation
 | Frage | Eine gute Antwort | Customermates |
 |---|---|---|
 | 1. Ändert die KI Datensätze selbst, oder schlägt sie nur vor? | Sie pflegt Datensätze, Notizen und Verknüpfungen selbst und meldet, was sich geändert hat | Ja. Mate ändert Datensätze direkt und meldet jede Änderung |
-| 2. Was tut sie, ohne zu fragen? | Eine schriftliche Liste der Aktionen, die eine Freigabe brauchen | Löschungen, das Umbenennen von Datensatztypen, Einladungen ins Team, erneute Webhook-Zustellungen und Supportanfragen brauchen jedes Mal Ihre Freigabe. Nachrichten versendet Mate ohne Rückfrage; bitten Sie um einen Entwurf, wenn Sie vorher prüfen möchten |
+| 2. Was tut sie, ohne zu fragen? | Eine schriftliche Liste der Aktionen, die eine Freigabe brauchen | Löschungen, das Umbenennen von Listen, Einladungen ins Team, erneute Webhook-Zustellungen und Supportanfragen brauchen jedes Mal Ihre Freigabe. Nachrichten versendet Mate ohne Rückfrage; bitten Sie um einen Entwurf, wenn Sie vorher prüfen möchten |
 | 3. Sieht sie die Gespräche? | E-Mail- und Chatverläufe liegen beim passenden Deal | Ab Pro bündelt der [einheitliche Posteingang](/features/unified-inbox) E-Mail, LinkedIn, WhatsApp, Instagram und Telegram. Starter hat keinen Posteingang |
 | 4. Arbeitet sie ohne Sie? | Zeitpläne und Datensatzereignisse, mit Obergrenzen für Läufe und Kosten | Routinen führen eine gespeicherte Anweisung nach Zeitplan oder bei einer Änderung aus, begrenzt pro Lauf und pro Stunde |
 | 5. Kann Ihr eigener KI-Client andocken? | Ein MCP-Server oder eine vollständige API, mit den Rechten des jeweiligen Nutzers | Ein MCP-Server mit [[derived.mcp.tools.total]] Werkzeugen, in jedem Tarif und selbst gehostet |
 | 6. Wer bezahlt das Modell? | Eine Einheit, die Sie vorab prüfen können: Credits, ein Add-on oder Ihr eigener KI-Anbieter | Mate nutzt monatliche gehostete KI-Credits pro aktivem Nutzer, siehe [Preise](/pricing). Mit einem MCP-Client läuft das Modell bei Ihrem eigenen KI-Anbieter |
-| 7. Wohin gehen die Daten, und kommen Sie wieder heraus? | Benannte Modellanbieter und Unterauftragsverarbeiter, ein AVV, ein dokumentierter Export | Primäre Datenbank in der AWS-Region Frankfurt konfiguriert; die Liste der [Unterauftragsverarbeiter](/subprocessors) nennt Google Cloud Vertex AI und Microsoft Azure als Anbieter der Modelle hinter Mate. Export als XLSX, ein Datensatztyp nach dem anderen |
+| 7. Wohin gehen die Daten, und kommen Sie wieder heraus? | Benannte Modellanbieter und Unterauftragsverarbeiter, ein AVV, ein dokumentierter Export | Primäre Datenbank in der AWS-Region Frankfurt konfiguriert; die Liste der [Unterauftragsverarbeiter](/subprocessors) nennt Google Cloud Vertex AI und Microsoft Azure als Anbieter der Modelle hinter Mate. Export als XLSX oder JSON, eine Liste nach der anderen |
 | 8. Bewertet sie Deals? | Wenn Sie Scores brauchen: Fragen Sie, aus welchen Daten das Modell lernt | Nein. Gewichtete Pipeline-Werte ergeben sich aus den Phasenwahrscheinlichkeiten, die Sie festlegen |
 
 MCP, das [Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro), ist ein Open-Source-Standard, mit dem KI-Anwendungen wie Claude oder ChatGPT auf externe Systeme zugreifen. Mit einem MCP-Server arbeitet der KI-Client, für den Sie schon bezahlen, direkt im CRM.
@@ -93,7 +93,7 @@ MCP, das [Model Context Protocol](https://modelcontextprotocol.io/docs/getting-s
 Machen Sie in jeder Testphase denselben Test, mit eigenen Daten statt Demodatensätzen. Die Testphase von Customermates läuft [[commercial.trial.days]] Tage mit den Funktionen von Pro, der Posteingang ist also enthalten.
 
 <Steps>
-  <Step title="Einige echte Datensätze laden">Importieren Sie 20 Kontakte und fünf offene Deals. In Customermates läuft der Import über eine XLSX-Arbeitsmappe, ein Datensatztyp nach dem anderen.</Step>
+  <Step title="Einige echte Datensätze laden">Importieren Sie 20 Kontakte und fünf offene Deals. In Customermates läuft der Import über eine XLSX-Arbeitsmappe, eine Liste nach der anderen.</Step>
   <Step title="Eine zusammengesetzte Anweisung geben">Fügen Sie eine echte Kunden-E-Mail ein und schreiben Sie: „Den Deal zu diesem Kunden finden, in die nächste Phase schieben, die drei wichtigsten Punkte dieser E-Mail in die Notizen des Deals übernehmen und eine Antwort als Entwurf speichern. Nicht senden.“</Step>
   <Step title="Prüfen, was sich wirklich geändert hat">Öffnen Sie den Deal und sehen Sie sich Phase, Notizen, Aktivitätsverlauf und Entwurf an. Zählen Sie, was die KI getan hat, nicht, was sie angekündigt hat.</Step>
   <Step title="Eine Frage stellen, die Rechenarbeit braucht">„Welche offenen Deals haben den höchsten Wert und seit 14 Tagen keine Nachricht von uns?“ Eine gute Antwort berücksichtigt alle offenen Deals, nicht nur die erste Seite einer Liste.</Step>
@@ -150,7 +150,7 @@ Entwurf in diesem Verlauf speichern, in der Sprache des Gesprächs.
 Nichts senden. Zum Schluss die gespeicherten Entwürfe auflisten.
 ```
 
-Die zweite, „Übergabe nach Auftrag“, läuft **Wenn sich etwas ändert**, beim Ereignis „Deal aktualisiert“, mit der Phase unter **Geänderte Felder**:
+Die zweite, „Übergabe nach Auftrag“, läuft **Wenn sich etwas ändert**, beim Ereignis **Datensatz aktualisiert** für die Liste Deals, mit der Phase unter **Geänderte Felder**:
 
 ```text
 Wenn dieser Deal jetzt in der Phase „Gewonnen“ ist: eine Aufgabe

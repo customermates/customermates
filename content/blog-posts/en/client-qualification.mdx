@@ -34,7 +34,7 @@ Customermates publishes this guide and is the CRM in the setup example further d
   <SummaryItem label="What you check">Fit with your ideal client, then need, authority, budget and timing.</SummaryItem>
   <SummaryItem label="Order of stages">Lead, marketing qualified lead (only where marketing hands leads over), sales qualified lead, then deal or opportunity.</SummaryItem>
   <SummaryItem label="Which framework">BANT or ANUM for short sales with one decider, CHAMP for service sales, MEDDIC or SPICED when a committee buys over months.</SummaryItem>
-  <SummaryItem label="Where answers go">Four single-select fields on the deal, a disqualification reason and a date to look again.</SummaryItem>
+  <SummaryItem label="Where answers go">Four Single choice fields on the deal, a disqualification reason and a date to look again.</SummaryItem>
   <SummaryItem label="Role of AI">A language model can fill those fields from an inquiry. A person makes the call.</SummaryItem>
 </ArticleSummary>
 
@@ -152,21 +152,21 @@ Let the model fill the fields and let a person decide. Never let it reject a lea
 
 ## Setting up lead qualification in Customermates
 
-Customermates has no separate lead record. A new inquiry is a contact, linked to an organization, plus a deal that carries the qualification fields. Contacts come with a Sales Pipeline field (New, Contact, Qualified, In Progress, Won, Lost) for a quick status before a deal exists. If your team says "opportunities", rename Deals in the Data model section of the company settings under **My Company**; records and links stay as they are. The [lead management page](/features/lead-management) shows the same model from the contact side.
+Customermates has no separate lead record. A new inquiry is a contact, linked to an organization, plus a deal that carries the qualification fields. Contacts come with a Sales Pipeline field (New, Contact, Qualified, In Progress, Won, Lost) for a quick status before a deal exists. If your team says "opportunities", rename Deals in **Configure**: open the list and change **Name** and **Plural name** under **General**; records and links stay as they are. The [lead management page](/features/lead-management) shows the same model from the contact side.
 
-Create the fields with **Customize** › **Add Field** on any deal:
+Create the fields in **Configure** for Deals with **Add** › **Field**:
 
 | Field | Type | Options |
 | --- | --- | --- |
-| Stage | Single Select, present in every new workspace | Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100%, Lost 0%; add Parked at 0% |
-| Need | Single Select | Confirmed, Vague, None, Unknown |
-| Decision maker | Single Select | Talking to the decider, Can reach the decider, No access, Unknown |
-| Budget | Single Select | In our range, Below our range, Unknown |
-| Timing | Single Select | This quarter, Later, Unknown |
-| Disqualification reason | Single Select | Wrong fit, No need, No access, Budget, Timing, Duplicate |
+| Stage | Single choice, present in every new workspace | Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100%, Lost 0%; add Parked at 0% |
+| Need | Single choice | Confirmed, Vague, None, Unknown |
+| Decision maker | Single choice | Talking to the decider, Can reach the decider, No access, Unknown |
+| Budget | Single choice | In our range, Below our range, Unknown |
+| Timing | Single choice | This quarter, Later, Unknown |
+| Disqualification reason | Single choice | Wrong fit, No need, No access, Budget, Timing, Duplicate |
 | Look again on | Date | Set for parked deals |
 
-Add a Source field (Single Select: Referral, Website, LinkedIn, Event, Outbound) on contacts, so the monthly review can count by source. The percentages are stage probabilities, also managed under **My Company**. They drive the weighted [pipeline](/features/pipeline) value, and Parked at 0% keeps parked deals out of that total.
+Add a Source field (Single choice: Referral, Website, LinkedIn, Event, Outbound) on contacts, so the monthly review can count by source. The percentages are stage probabilities, set as **Probability %** on each option of the **Stage** field in Configure for Deals. They drive the weighted [pipeline](/features/pipeline) value, and Parked at 0% keeps parked deals out of that total.
 
 Then save three views on the Deals list. Saved views are personal, so each person saves their own:
 
@@ -182,7 +182,7 @@ On Pro and higher, the [unified inbox](/features/unified-inbox) puts email, Link
 
 On Starter, which has no inbox, Mate can only work from what is already on the deal and its contacts, such as notes you pasted in.
 
-To do that for every new deal, create a routine with the trigger **When something changes** and the event **Deal Created**:
+To do that for every new deal, create a routine with the trigger **When something changes** and the event **Record created** for Deals:
 
 > A new deal was created. Read it, its contacts and their most recent inbox conversation. Set Need, Decision maker, Budget and Timing, using Unknown for anything the conversation doesn't state. Append a three-line summary and the two questions to ask next to the deal's notes. Do not change the stage and do not send or draft any message.
 

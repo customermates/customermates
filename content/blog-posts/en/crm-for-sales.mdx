@@ -118,13 +118,13 @@ The tier you actually need changes these numbers most. If sequences are a must, 
 
 Customermates is an open-source, AI-native CRM built in Germany for small client-facing teams: consultants, agencies, service businesses and founders who sell. Its case is a team whose deals move in conversations rather than in a call queue. Here is how a sales pipeline is set up in it, verified against the product.
 
-**Deals and stages.** A new workspace starts with a **Stage** field on deals, with the options Prospecting, Qualification, Demo, Proposal, Negotiation, Won and Lost. It is a single-select field, so you rename, add or remove stages yourself. On the **Deals** board grouped by **Stage**, you drag a card to change its stage.
+**Deals and stages.** A new workspace starts with a **Stage** field on deals, with the options Prospecting, Qualification, Demo, Proposal, Negotiation, Won and Lost. It is a Single choice field, so you rename, add or remove stages yourself. On the **Deals** board grouped by **Stage**, you drag a card to change its stage.
 
-**Deal value from services.** You keep your offers as services with a price, then link them to a deal with a quantity. The deal value is the sum, so "3 workshop days plus a monthly retainer" gives the amount you will charge, not a guess.
+**Deal value from services.** You keep your offers as services with a price, then add them to a deal as line items with a quantity. The deal value is the sum, so "3 workshop days plus a monthly retainer" gives the amount you will charge, not a guess.
 
-**Weighted pipeline.** Under **My Company › Settings**, the **Deal stage field** names the stage field, with a win probability from 0 to 100 percent per stage. A new workspace starts with Stage selected and probabilities filled in, so you adjust them to your own win rates. Every deal then gets a **Weighted Value**, and the settings page shows the **Total pipeline** and **Weighted pipeline**. Details are in the [core concepts docs](/docs/concepts).
+**Weighted pipeline.** In Configure for Deals, each option of the **Stage** field carries a **Probability %** from 0 to 100. A new workspace starts with probabilities filled in, so you adjust them to your own win rates. Every deal then gets a **Weighted value**, and a chart widget on the Dashboard that sums **Value** or **Weighted value**, grouped by stage, shows the totals. Details are in the [core concepts docs](/docs/concepts).
 
-**Assignment and segments.** Deals have **Assigned** users, so two people can share a deal. Add a single-select field such as "Lead source" with Referral, LinkedIn, Website and Event to segment deals.
+**Assignment and segments.** Deals have **Assigned** users, so two people can share a deal. Add a Single choice field such as "Lead source" with Referral, LinkedIn, Website and Event to segment deals.
 
 **Views for the weekly review.** A saved view stores filters, sort, layout and grouping. Example: "My open deals", filtered to deals assigned to you and Stage not Won or Lost, shown as a board grouped by Stage. Saved views are personal, so each teammate sets the same filters and saves their own view. On the dashboard, a chart of deals with the metric weighted deal value, grouped by Stage, gives the review its one number.
 
@@ -147,7 +147,7 @@ Self-hosting is possible: the AGPL core with REST, webhooks and MCP runs on your
 <Steps>
   <Step title="Write down your stages">Five to seven stages, each with an exit rule, for example "Proposal: a written offer has been sent". If you cannot name the rule, merge the stage with its neighbour.</Step>
   <Step title="Decide the minimum fields">Deal name, value, stage, assigned rep and the main contact. Everything else is optional until the team asks for it.</Step>
-  <Step title="Import one record type at a time">Organizations first, then contacts, then deals, so the links resolve. In Customermates, import and export use XLSX workbooks, one record type per file; the [Excel CRM template guide](/blog/excel-crm-template) shows how to clean a sheet first.</Step>
+  <Step title="Import one list at a time">Organizations first, then contacts, then deals, so the links resolve. In Customermates, import and export use XLSX workbooks or JSON, one list per file; the [Excel CRM template guide](/blog/excel-crm-template) shows how to clean a sheet first.</Step>
   <Step title="Connect conversations">On Pro or Business, each rep connects the channel where most deals are discussed, for example the mailbox or LinkedIn, so new messages land on the right contact without retyping. Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, Business [[commercial.entitlement.business.includedAccountsPerUser]].</Step>
   <Step title="Run the weekly review in the CRM">Open the pipeline board in the meeting instead of a slide or a spreadsheet. Deals without a next step get one before the meeting ends. The [sales pipeline guide](/blog/sales-pipeline) covers stage design in more depth.</Step>
 </Steps>

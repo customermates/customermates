@@ -1,6 +1,6 @@
 ---
 title: "Simple CRM for Small Client-Facing Teams"
-description: "A simple CRM that starts with a working deal pipeline, five record types and XLSX import. From [[commercial.price.starter.monthly]] per user per month, open-source core."
+description: "A simple CRM that starts with a working deal pipeline, five starter lists and XLSX import. From [[commercial.price.starter.monthly]] per user per month, open-source core."
 featureName: Simple CRM
 
 relatedHrefs:
@@ -28,27 +28,27 @@ cta:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-A simple CRM is one your team keeps updating because there is little to learn and nothing to configure before the first deal. Customermates gets there with a small data model: contacts, organizations, deals, services and tasks, plus a deal pipeline that exists the moment you create the workspace. It suits small client-facing teams such as consultants, agencies and founders, and it costs [[commercial.price.starter.monthly]] per user per month on Starter.
+A simple CRM is one your team keeps updating because there is little to learn and nothing to configure before the first deal. Customermates gets there with a small data model that starts with contacts, organizations, deals, services and tasks, plus a deal pipeline that exists the moment you create the workspace. It suits small client-facing teams such as consultants, agencies and founders, and it costs [[commercial.price.starter.monthly]] per user per month on Starter.
 
 Simple also means some things are missing on purpose. The limits are listed further down, so you can rule Customermates out quickly if you need them.
 
 ## What a new workspace already contains
 
-Most "simple CRM" pages promise a short setup. Here is what you actually find after sign-up, before you change anything. Each item is a Single Select custom column, so you can rename options, add new ones or delete the column. None of them is a built-in field: tasks, for example, have no fixed status of their own, only this preset column.
+Most "simple CRM" pages promise a short setup. Here is what you actually find after sign-up, before you change anything. Each item is a Single choice field, so you can rename options, add new ones or delete the field. None of them is fixed: tasks, for example, have no status of their own beyond this starting field.
 
-| Record type | Column | Preset options |
+| List | Field | Starting options |
 |---|---|---|
 | Deals | Stage | Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100%, Lost 0% |
 | Contacts | Sales Pipeline | New, Contact, Qualified, In Progress, Won, Lost |
 | Tasks | Status | Open, In Progress, Blocked, On Hold, Done, Archived |
 
-The percentages are win probabilities. They drive a deterministic weighted value per deal and a weighted pipeline total; they are stage weights you set, not a prediction. You adjust them under **My Company › Settings**, which needs the Admin role or **Manage** on the Company row.
+The percentages are win probabilities. They drive a deterministic weighted value per deal and a weighted pipeline total; they are stage weights you set, not a prediction. You adjust them as **Probability %** on the Stage field in **Configure**, which needs the Admin role or **Edit** on the **Data model** row.
 
 What else keeps the setup short:
 
-- **Your own words for records.** Under **Data model** you pick preset names, for example Clients instead of Contacts, Projects or Jobs instead of Deals, Follow-ups instead of Tasks. The relationships stay the same.
-- **One list surface for everything.** Every record type opens as a table or a board, with search, filters, grouping and sorting under the same toolbar. See [records in the app](/docs/app-records).
-- **Views save themselves.** Filters, sort, layout, grouping and columns save together as a named view that appears as a tab. Every change autosaves. Views are personal to their creator, so each person keeps their own.
+- **Your own words for records.** In **Configure** you rename any list freely, for example Clients instead of Contacts, Projects or Jobs instead of Deals, Follow-ups instead of Tasks, and you can add lists of your own. Records and relationships stay connected.
+- **One list surface for everything.** Every list opens as a table or a board, with search, filters, grouping and sorting under the same toolbar. See [records in the app](/docs/app-records).
+- **Views remember your setup.** Filters, sort, layout, grouping and columns save together as a named view that appears as a chip. Changes stay temporary until you save them to the view. Views are personal to their creator, so each person keeps their own.
 
 ## Which plan you need
 
@@ -68,16 +68,16 @@ A three-person team on Starter pays [[commercial.price.starter.monthly.seats.3]]
 Sign up and enter your name and country in the profile step, the only required step of the onboarding wizard. The Knowledge Base, team invite and AI client steps can be skipped and done later.
 </Step>
 <Step title="Rename to match your business">
-Open **My Company › Settings**, choose the names your team uses under **Data model**, and edit the Stage options and probabilities if your sales steps differ. A consultancy might use Projects with the stages Enquiry, Scoping, Proposal sent, Won and Lost.
+Open **Configure**, rename the lists your team calls differently under **General**, and edit the Stage options and probabilities on Deals if your sales steps differ. A consultancy might use Projects with the stages Enquiry, Scoping, Proposal sent, Won and Lost.
 </Step>
 <Step title="Import one record type">
-Use **Import and export › Add from file** on the contacts list and map the spreadsheet columns to fields. The wizard reads `.xlsx` workbooks only, so save other spreadsheet formats as `.xlsx` first. Import organizations before contacts and deals, so the links can match by name. Our [Excel CRM template guide](/blog/excel-crm-template) shows a sheet layout that maps cleanly.
+Use **More actions › Add from file** on the contacts list and map the spreadsheet columns to fields. The wizard reads `.xlsx` workbooks, not CSV, so save other spreadsheet formats as `.xlsx` first. Import organizations before contacts and deals, so the links can match by name. Our [Excel CRM template guide](/blog/excel-crm-template) shows a sheet layout that maps cleanly.
 </Step>
-<Step title="Add the one column you will miss">
-Tasks have no built-in due date. If you work with follow-up dates, add a Date custom column such as "Next step" to deals or tasks with **Customize › Add Field**, then save a view sorted by it.
+<Step title="Add the one field you will miss">
+Tasks have no built-in due date. If you work with follow-up dates, add a Date field such as "Next step" to deals or tasks in **Configure** with **Add › Field**, then save a view sorted by it.
 </Step>
 <Step title="Invite the team">
-Send invitations from **My Company › Members**. New members wait for approval until an Admin, or a member whose role can manage users, assigns a role and sets them to active.
+Send invitations from **Settings › Members**. New members wait for approval until an Admin, or a member whose role can manage users, assigns a role and sets them to active.
 </Step>
 </Steps>
 
@@ -111,7 +111,7 @@ The simple start does not lock anything away. The REST API and webhooks are on e
 
 <Faq>
 <FaqItem question="What is the easiest CRM to use?">
-The easiest one is the one whose structure already matches your work. Look for a ready pipeline, few required fields and import from the spreadsheet you have. Customermates starts with deal stages plus default single-select status fields for contacts and tasks, which you can edit like any custom field, and lets you rename record types to your own terms. Test any CRM with your real data during the trial rather than judging the demo.
+The easiest one is the one whose structure already matches your work. Look for a ready pipeline, few required fields and import from the spreadsheet you have. Customermates starts with deal stages plus single choice status fields for contacts and tasks, which you can edit like any custom field, and lets you rename lists to your own terms. Test any CRM with your real data during the trial rather than judging the demo.
 </FaqItem>
 
 <FaqItem question="Is there a free version of Customermates?">
@@ -119,7 +119,7 @@ There is no free cloud plan. The cloud has a [[commercial.trial.days]]-day trial
 </FaqItem>
 
 <FaqItem question="Can I switch from Excel to Customermates?">
-Yes. Import each record type from an `.xlsx` workbook, matching your spreadsheet columns to fields and custom fields in the import wizard. Exported workbooks carry a Record ID column, so you can edit them and import them back as updates. CSV files and Google Sheets need to be saved as `.xlsx` first, and attachments do not transfer.
+Yes. Import each record type from an `.xlsx` workbook, matching your spreadsheet columns to fields and custom fields in the import wizard. You can edit an exported workbook and import it back as **Existing records** to update them. CSV files and Google Sheets need to be saved as `.xlsx` first, and attachments do not transfer.
 </FaqItem>
 
 <FaqItem question="How much does a simple CRM cost per month?">

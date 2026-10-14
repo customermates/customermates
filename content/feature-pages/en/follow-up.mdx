@@ -33,7 +33,7 @@ Customer follow-up software has one job: make sure the next contact with a clien
 In Customermates Cloud, Mate can also write the follow-up for you and a routine can run that check every Monday, using hosted AI credits. What Customermates does not have: reminder notifications, task due dates, overdue alerts or automated email sequences. If your team depends on those, a CRM with built-in activities and sequences fits better, and the table further down names two.
 
 <ArticleSummary title="At a glance">
-  <SummaryItem label="How it works">A custom Date column such as "Next contact", saved views sorted by it, and an inbox filter for threads you are waiting on.</SummaryItem>
+  <SummaryItem label="How it works">A custom Date field such as "Next contact", saved views sorted by it, and an inbox filter for threads you are waiting on.</SummaryItem>
   <SummaryItem label="Plans">Date columns and saved views on every plan, self-hosted included. The inbox needs Pro or higher. Mate and routines run in Customermates Cloud only.</SummaryItem>
   <SummaryItem label="AI help">Mate drafts follow-ups from the record and the conversation history. A routine can do it on a schedule or when a deal changes.</SummaryItem>
   <SummaryItem label="Not included">No notifications, no due dates on tasks, no sequences or bulk email. You open the list; nothing pings you.</SummaryItem>
@@ -54,9 +54,9 @@ The inbox row covers the follow-up you owe after writing last. **Last message** 
 ## Set up a follow-up system
 
 <Steps>
-  <Step title="Add a Next contact date">On **Contacts** or **Deals**, add a custom column of type **Date** and call it "Next contact". If you want to know why you are following up, add a **Single Select** column "Follow-up reason" with options such as Proposal sent, Check-in, Renewal (a new workspace's deal **Stage** column starts with Proposal, Won and Lost among its options). Tasks have no built-in due date, so the same Date column works there too.</Step>
+  <Step title="Add a Next contact date">In **Configure**, add a field of type **Date** to **Contacts** or **Deals** and call it "Next contact". If you want to know why you are following up, add a **Single choice** field "Follow-up reason" with options such as Proposal sent, Check-in, Renewal (a new workspace's deal **Stage** field starts with Proposal, Won and Lost among its options). Tasks have no built-in due date, so the same Date field works there too.</Step>
   <Step title="Save the weekly list">Open **Appearance**, set **Sort by** to Next contact, **Ascending**, then click **New view** and name it "Follow-ups". The oldest dates sit at the top. Custom date filters take fixed dates (**Before…**, **On or before…**), so sorting is what keeps this list current without editing the filter each week.</Step>
-  <Step title="Save a stale-deals view">On **Deals**, filter **Updated at** with **Older than…** 14 days and exclude Won and Lost in the **Stage** column. This catches deals nobody touched, whether or not someone set a date.</Step>
+  <Step title="Save a stale-deals view">On **Deals**, filter **Updated at** with **Older than…** 14 days and exclude Won and Lost in the **Stage** field. This catches deals nobody touched, whether or not someone set a date.</Step>
   <Step title="Save a waiting-for-reply view (Pro and higher)">In the [unified inbox](/features/unified-inbox), filter **Last message** = **Sent** and **Last message date** **Older than…** 3 days. Save it as "Waiting for reply". The day window moves with the calendar, so the view stays correct.</Step>
   <Step title="Log the outcome">After each contact, write what happened in the record's notes and move the Next contact date. The record's history keeps the linked messages and changes.</Step>
 </Steps>
@@ -111,7 +111,7 @@ It depends on how you follow up. If you send the same series of emails to many l
 Customermates does not send reminders. In Customermates Cloud, a routine triggered by incoming email can ask Mate to check whether the conversation belongs to an existing deal, update that deal and set its Next contact date, within the routine limits in the [routines guide](/docs/app-routines#what-are-the-limits). The deal then appears in your follow-up view. The inbox filter for threads you sent last covers the rest.
 </FaqItem>
 <FaqItem question="Does Customermates have follow-up reminders or due dates?">
-No. There are no notifications, and tasks have no built-in due date. Add a custom Date column and sort a saved view by it. If you need a push notification, n8n or another scheduler can read that date through the API and notify you.
+No. There are no notifications, and tasks have no built-in due date. Add a custom Date field and sort a saved view by it. If you need a push notification, n8n or another scheduler can read that date through the API and notify you.
 </FaqItem>
 <FaqItem question="Can I automate follow-up emails?">
 Not as a sequence. A routine in Customermates Cloud can write individual drafts on a schedule, and you send them after a read. It can also send if the instruction says so, one message per conversation. Bulk or multi-step cadences need a dedicated sequencing tool.

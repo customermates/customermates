@@ -63,25 +63,25 @@ Ein Startup braucht ein CRM, sobald eine zweite Person mit Kunden oder Investore
 
 ## So richten Sie Customermates für ein Startup ein
 
-Customermates kennt fünf Datensatztypen. So lassen sie sich auf ein Startup abbilden; alle Feldnamen sind Beispiele.
+Customermates startet mit fünf Listen, und Sie können eigene anlegen. So lassen sich die fünf auf ein Startup abbilden; alle Feldnamen sind Beispiele.
 
 | Datensatztyp | Wofür | Beispiele für eigene Felder |
 |---|---|---|
 | Organisationen | Kundenunternehmen, Fonds, Partner | Art (Einzelauswahl: Interessent, Kunde, Fonds, Partner) |
 | Kontakte | Champions, Entscheider, Business Angels, Partner bei Fonds | Rolle (Einzelauswahl: Champion, Entscheider, Investor), Quelle (Einzelauswahl: Inbound, Outbound, Empfehlung, Produkt-Anmeldung) |
-| Deals | Jede Verkaufschance und jeder Fonds pro Runde | Deal-Typ (Einzelauswahl: Kunde, Investor), Nächster Kontakt (Datum), Ticketgröße (Währung) |
+| Deals | Jede Verkaufschance und jeder Fonds pro Runde | Deal-Typ (Einzelauswahl: Kunde, Investor), Nächster Kontakt (Datum), Ticketgröße (Geldbetrag) |
 | Services | Was Sie verkaufen, jeweils mit Preis | Pilotprojekt, Jahreslizenz, Onboarding-Paket |
 | Aufgaben | Zusagen wie „Sicherheitsfragebogen schicken“ | Ein Datumsfeld, das Sie ergänzen, denn Aufgaben haben kein eingebautes Fälligkeitsdatum |
 
-Unter **Mein Unternehmen › Einstellungen** benennen Sie im **Datenmodell** Datensatztypen aus einer Vorschlagsliste um, etwa Services in Produkte oder Deals in Chancen.
+In **Konfigurieren** benennen Sie jede Liste unter **Allgemein** frei um, etwa Services in Produkte oder Deals in Chancen.
 
 ### Phasen und eine Pipeline-Zahl für das Investoren-Update
 
-Ein neuer Workspace hat bereits ein Feld **Phase** an Deals, jede Option mit einer Abschlusswahrscheinlichkeit: Akquise 10 %, Qualifizierung 20 %, Demo 40 %, Angebot 60 %, Verhandlung 80 %, Gewonnen 100 % und Verloren 0 %. Das passt zu einem demo-getriebenen B2B-Vertrieb, und nach einem Pivot ändern Sie Optionen und Wahrscheinlichkeiten in denselben Einstellungen.
+Ein neuer Workspace hat bereits ein Feld **Phase** an Deals, jede Option mit einer Abschlusswahrscheinlichkeit: Akquise 10 %, Qualifizierung 20 %, Demo 40 %, Angebot 60 %, Verhandlung 80 %, Gewonnen 100 % und Verloren 0 %. Das passt zu einem demo-getriebenen B2B-Vertrieb, und nach einem Pivot ändern Sie Optionen und Wahrscheinlichkeiten am Feld Phase in **Konfigurieren**.
 
-Der Wert eines Deals ist die Summe seiner verknüpften Services, Preis mal Menge. Angenommen, eine Jahreslizenz kostet 12.000 €. Ein Deal über zwei Lizenzen in der Phase Angebot ist 24.000 € wert und trägt 14.400 € zur gewichteten Pipeline bei; ein Deal über eine Lizenz in der Phase Demo trägt 4.800 € bei. Zusammen sind das 36.000 € gesamt und 19.200 € gewichtet. Das ist Arithmetik aus Ihren eigenen Wahrscheinlichkeiten, keine Prognose, und eine Zahl, die ein Investoren-Update samt Methode nennen kann.
+Der Wert eines Deals ist die Summe seiner Positionen, jeweils Service mal Menge. Angenommen, eine Jahreslizenz kostet 12.000 €. Ein Deal über zwei Lizenzen in der Phase Angebot ist 24.000 € wert und trägt 14.400 € zur gewichteten Pipeline bei; ein Deal über eine Lizenz in der Phase Demo trägt 4.800 € bei. Zusammen sind das 36.000 € gesamt und 19.200 € gewichtet. Das ist Arithmetik aus Ihren eigenen Wahrscheinlichkeiten, keine Prognose, und eine Zahl, die ein Investoren-Update samt Methode nennen kann.
 
-Investoren-Deals zählen dabei nicht mit. Geben Sie dem Deal jedes Fonds den Deal-Typ Investor, verknüpfen Sie keine Services und tragen Sie den Betrag in Ticketgröße ein. Dann bleibt sein Deal-Wert bei null, und er trägt nichts zur gewichteten Pipeline bei. Ein Board, gefiltert auf Investor und gruppiert nach einem eigenen Feld für den Stand der Runde, wird zur Fundraising-Ansicht; unser [Leitfaden zum CRM für Startups](/blog/best-crm-startups) baut sie Schritt für Schritt auf.
+Investoren-Deals zählen dabei nicht mit. Geben Sie dem Deal jedes Fonds den Deal-Typ Investor, legen Sie keine Positionen an und tragen Sie den Betrag in Ticketgröße ein. Dann bleibt sein Deal-Wert bei null, und er trägt nichts zur gewichteten Pipeline bei. Ein Board, gefiltert auf Investor und gruppiert nach einem eigenen Feld für den Stand der Runde, wird zur Fundraising-Ansicht; unser [Leitfaden zum CRM für Startups](/blog/best-crm-startups) baut sie Schritt für Schritt auf.
 
 ### Vier gespeicherte Ansichten für die Montagsrunde
 
@@ -100,17 +100,26 @@ Gespeicherte Ansichten sind persönlich, deshalb legt jede Person mit denselben 
 
 ### Produkt-Anmeldungen über die API
 
-Jeder Tarif, auch die selbst gehostete Version, hat eine [REST-API](/features/api) unter `/api/v1` mit OpenAPI-Beschreibung. Ihr Code für die Registrierung schickt einen `POST` an `/api/v1/contacts`, mit einem API-Schlüssel im Header `x-api-key`:
+Jeder Tarif, auch die selbst gehostete Version, hat eine [REST-API](/features/api) unter `/api/v1` mit OpenAPI-Beschreibung. Die Typ-ID der Liste Kontakte ermitteln Sie einmal über `POST /api/v1/model/discover`, Feld-IDs, die Options-ID der Quelle und die Schema-Revision über `POST /api/v1/model/read`. Ihr Code für die Registrierung schickt dann einen `POST` an `/api/v1/records/mutate`, mit einem API-Schlüssel im Header `x-api-key`:
 
 ```json
 {
-  "firstName": "Ada",
-  "lastName": "Beispiel",
-  "identifiers": [{ "provider": "mail", "value": "ada@example.com" }]
+  "expectedRevision": {{schemaRevision}},
+  "idempotencyKey": "signup-{{userId}}",
+  "mutation": {
+    "action": "create",
+    "typeId": "{{contactTypeId}}",
+    "fields": [
+      { "fieldId": "{{firstNameFieldId}}", "value": { "kind": "text", "value": "Ada" } },
+      { "fieldId": "{{lastNameFieldId}}", "value": { "kind": "text", "value": "Beispiel" } },
+      { "fieldId": "{{sourceFieldId}}", "value": { "kind": "select", "value": "{{productSignupOptionId}}" } }
+    ],
+    "identities": [{ "provider": "mail", "value": "ada@example.com" }]
+  }
 }
 ```
 
-Die E-Mail-Adresse wird zum Kanal des Kontakts, sodass spätere Konversationen im Posteingang mit dieser Adresse beim selben Datensatz landen. Mit `customFieldValues` und Ihrer Spalte Quelle markieren Sie die Anmeldung. In die andere Richtung gibt es keine native Slack-App, aber ein Webhook auf `deal.updated` mit Body-Vorlage kann an einen Slack Incoming Webhook posten, und eine separat betriebene n8n-Instanz übernimmt längere Abläufe.
+Die E-Mail-Adresse wird zum Kanal des Kontakts, sodass spätere Konversationen im Posteingang mit dieser Adresse beim selben Datensatz landen. Das Feld Quelle markiert die Anmeldung. In die andere Richtung gibt es keine native Slack-App, aber ein Webhook auf `record.updated` für die Liste Deals mit Body-Vorlage kann an einen Slack Incoming Webhook posten, und eine separat betriebene n8n-Instanz übernimmt längere Abläufe.
 
 ### Gespräche in einem Posteingang (ab Pro)
 
@@ -182,17 +191,17 @@ Jeder Cloud-Tarif enthält zusätzlich monatliche gehostete KI-Credits pro aktiv
     vorher in einer Tabellenkalkulation als .xlsx.
   </Step>
   <Step title="Erst Organisationen, dann Kontakte importieren">
-    Öffnen Sie in der jeweiligen Liste **Import und Export** und wählen Sie
+    Öffnen Sie in der jeweiligen Liste **Weitere Aktionen** und wählen Sie
     **Aus Datei hinzufügen**. Geben Sie Kontakten eine Spalte mit dem
     Firmennamen, dann verknüpft der Import sie mit der Organisation dieses
     Namens. Neue Kontakte brauchen Vor- und Nachnamen.
   </Step>
   <Step title="Offene Deals importieren">
-    Mit Phase, Deal-Typ und Nächster Kontakt. Danach verknüpfen Sie Services
-    und Mengen, damit jeder Deal seinen Wert bekommt.
+    Mit Phase, Deal-Typ und Nächster Kontakt. Danach legen Sie Positionen mit
+    Services und Mengen an, damit jeder Deal seinen Wert bekommt.
   </Step>
   <Step title="Posteingang verbinden">
-    Ab Pro verbinden Sie Ihre Konten unter **Mein Profil › Kanäle** und
+    Ab Pro verbinden Sie Ihre Konten unter **Einstellungen › Kanäle** und
     verknüpfen die Personen, mit denen Sie schreiben, mit ihren Kontakten.
   </Step>
 </Steps>
@@ -219,7 +228,7 @@ Nein. Es gibt eine Testphase von [[commercial.trial.days]] Tagen ohne Kreditkart
 </FaqItem>
 
 <FaqItem question="Kann ich Fundraising und Investoren im selben CRM wie den Vertrieb führen?">
-Ja. Jeder Fonds ist eine Organisation, jeder Partner ein Kontakt und jeder Fonds pro Runde ein Deal mit Deal-Typ Investor und ohne verknüpfte Services, damit er nicht in der Vertriebspipeline zählt. Ein Board, gruppiert nach Ihrem eigenen Feld für den Stand der Runde, zeigt, wo jedes Gespräch steht. Cap Table, Datenraum und Auswertungen zum Pitch Deck brauchen eigene Tools.
+Ja. Jeder Fonds ist eine Organisation, jeder Partner ein Kontakt und jeder Fonds pro Runde ein Deal mit Deal-Typ Investor und ohne Positionen, damit er nicht in der Vertriebspipeline zählt. Ein Board, gruppiert nach Ihrem eigenen Feld für den Stand der Runde, zeigt, wo jedes Gespräch steht. Cap Table, Datenraum und Auswertungen zum Pitch Deck brauchen eigene Tools.
 </FaqItem>
 
 <FaqItem question="Welche drei Arten von CRM gibt es, und welche braucht ein Startup?">

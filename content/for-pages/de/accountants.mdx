@@ -61,13 +61,13 @@ In vielen Steuerkanzleien ist die fachliche Arbeit längst organisiert: DATEV od
 
 ## So richten Sie Customermates für eine Steuerkanzlei ein
 
-Customermates hat fünf Datensatztypen. Unter **Mein Unternehmen › Einstellungen** benennen Sie sie aus einer Vorschlagsliste um, zum Beispiel Deals in „Aufträge“, Services in „Leistungen“ und Organisationen in „Unternehmen“. Alle Feldnamen unten sind Beispiele.
+Customermates startet mit fünf Listen, und Sie können eigene anlegen. In **Konfigurieren** benennen Sie jede Liste unter **Allgemein** frei um, zum Beispiel Deals in „Aufträge“, Services in „Leistungen“ und Organisationen in „Unternehmen“. Alle Feldnamen unten sind Beispiele.
 
 | Datensatztyp | Verwendet für | Beispielfelder |
 |---|---|---|
 | Organisationen | Mandantenunternehmen und Privatmandanten | Rechtsform (Einzelauswahl: Privatperson, Einzelunternehmen, GbR, GmbH, UG, Verein), Wirtschaftsjahr-Ende (Datum), DATEV-Mandantennummer (Text) |
 | Kontakte | Personen beim Mandanten | Rolle (Einzelauswahl: Geschäftsführung, Buchhaltung, Ehepartner, Empfehlungsgeber), Empfohlen von |
-| Deals bzw. Aufträge | Jeder Auftrag je Periode, etwa „Müller GmbH: Jahresabschluss 2026“ | Phase, Auftragsart, Unterlagen (Einzelauswahl: Vollständig, Teilweise, Ausstehend), Unterlagen angefordert am, Abgabe bis (Datum), Auftragsbestätigung (Link) |
+| Deals bzw. Aufträge | Jeder Auftrag je Periode, etwa „Müller GmbH: Jahresabschluss 2026“ | Phase, Auftragsart, Unterlagen (Einzelauswahl: Vollständig, Teilweise, Ausstehend), Unterlagen angefordert am, Abgabe bis (Datum), Auftragsbestätigung (Webadresse) |
 | Leistungen | Ihr Leistungsangebot mit Preis | Laufende Fibu, Lohnabrechnung, Jahresabschluss, Einkommensteuererklärung, Beratungsstunde |
 | Aufgaben | Nächste Schritte für eine Person | Ein selbst angelegtes Datumsfeld „Erledigen bis“, weil Aufgaben kein eingebautes Fälligkeitsdatum haben |
 
@@ -79,7 +79,7 @@ Die Phase ist ein Einzelauswahlfeld, das Sie selbst definieren, und jede Option 
 
 Anfrage · Angebot versendet · Auftragsbestätigung unterzeichnet · Unterlagen angefordert · Unterlagen eingegangen · In Bearbeitung · In Prüfung · Übermittelt · Abgeschlossen
 
-Der Wert eines Auftrags ergibt sich aus den verknüpften Leistungen, Preis mal Menge. Gewichtete Summen ergeben sich fest aus Ihren eigenen Wahrscheinlichkeiten, eine Prognose ist das nicht. Auf dem [Pipeline-Board](/features/pipeline) ziehen Sie jeden Auftrag als Karte in die nächste Phase. Gruppiert nach „Zugewiesen“ sehen Sie, wie viel bei welchem Mitarbeiter liegt.
+Der Wert eines Auftrags ist die Summe seiner Positionen, jeweils Leistung mal Menge. Gewichtete Summen ergeben sich fest aus Ihren eigenen Wahrscheinlichkeiten, eine Prognose ist das nicht. Auf dem [Pipeline-Board](/features/pipeline) ziehen Sie jeden Auftrag als Karte in die nächste Phase. Gruppiert nach „Zugewiesen“ sehen Sie, wie viel bei welchem Mitarbeiter liegt.
 
 ### Gespeicherte Ansichten für die Woche
 
@@ -156,22 +156,22 @@ Jeder Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer für Mat
 
 <Steps>
   <Step title="Liste als Excel speichern">
-    Der Import liest Excel-Dateien (.xlsx), jeweils einen Datensatztyp.
+    Der Import liest Excel-Dateien (.xlsx), jeweils eine Liste.
     CSV-Dateien liest der Import nicht, speichern Sie einen Export aus
     DATEV oder einem anderen System vorher als .xlsx.
   </Step>
   <Step title="Erst Organisationen, dann Kontakte importieren">
-    Öffnen Sie in der Liste Import und Export, wählen Sie Aus Datei
+    Öffnen Sie in der Liste Weitere Aktionen, wählen Sie Aus Datei
     hinzufügen und ordnen Sie die Spalten zu. Eine Spalte mit dem
     Unternehmensnamen verknüpft Kontakte mit ihrer Organisation.
   </Step>
   <Step title="Laufende Aufträge als Deals importieren">
-    Übernehmen Sie Phase, Auftragsart und Datumsfelder und verknüpfen Sie
-    danach die Leistungen, damit jeder Auftrag seinen Wert erhält.
+    Übernehmen Sie Phase, Auftragsart und Datumsfelder und legen Sie
+    danach die Positionen an, damit jeder Auftrag seinen Wert erhält.
   </Step>
   <Step title="Ansichten und Routine anlegen">
     Speichern Sie die vier Ansichten. Ab Pro verbinden Sie Ihr Postfach unter
-    Mein Profil › Kanäle und richten danach die wöchentliche Routine ein.
+    Einstellungen › Kanäle und richten danach die wöchentliche Routine ein.
   </Step>
 </Steps>
 

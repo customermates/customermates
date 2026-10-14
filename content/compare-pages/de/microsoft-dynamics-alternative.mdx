@@ -39,10 +39,10 @@ comparison:
   - title: Datenmodell & Vertrieb
     features:
       - name: Datensatztypen
-        source: Kontakte, Organisationen, Deals, Services, Aufgaben; keine eigenen Typen
+        source: Kontakte, Organisationen, Deals, Services, Aufgaben, dazu eigene Listen
         competitor: Leads, Verkaufschancen, Firmen, Kontakte, Produkte; eigene Apps ab Enterprise
       - name: Anpassung
-        source: Eigene Felder in zehn Typen in jedem Tarif
+        source: Eigene Felder in fünfzehn Typen und berechnete Felder in jedem Tarif
         competitor: Eingeschränkt in Professional, voll ab Enterprise
       - name: Angebote, Aufträge und Rechnungen
         source: false
@@ -169,9 +169,8 @@ Sie nutzen lieber Claude, ChatGPT oder einen anderen Client, den Sie ohnehin bez
 ## Wann Customermates die falsche Wahl ist
 
 - **CRM und ERP von einem Anbieter.** Customermates hat keine Buchhaltung, keine Angebote und keine Rechnungen. Läuft auch Ihre Finanzbuchhaltung in Dynamics, lesen Sie vor einer Trennung, [wie CRM und ERP zusammenspielen](/blog/crm-and-erp).
-- **Eigene Datensatztypen.** Es gibt fünf: Kontakte, Organisationen, Deals, Services und Aufgaben. Sie können sie über vorgegebene Bezeichnungen wie Accounts oder Chancen umbenennen und eigene Felder anlegen, aber keinen sechsten Typ hinzufügen.
-- **Mehrere Währungen.** Ein Workspace hat eine Währung für Deal-Werte und Pipeline-Summen.
-- **Feine Sicherheitsregeln.** Rollen regeln Rechte pro Datensatztyp und Aktion. Es gibt keine Sicherheit auf Feldebene und kein SSO.
+- **Währungsumrechnung.** Jedes Geldfeld hat seine eigene Währung, und nichts wird umgerechnet: Summen über verschiedene Währungen zeigen einen Währungskonflikt statt einer Summe.
+- **Feine Sicherheitsregeln.** Rollen regeln Rechte pro Liste und Aktion. Es gibt keine Sicherheit auf Feldebene und kein SSO.
 - **Contact Center oder Customer Service.** Microsoft verkauft beide als eigene Dynamics-365-Apps. Customermates hat keine Telefonie, keine Fälle und keine Tickets.
 - **Die Vertriebswerkzeuge, die Dynamics mitbringt.** Keine Smartphone-App, keine Gesprächsaufzeichnung, keine Datenanreicherung, kein Lead-Scoring, weder E-Mail-Sequenzen noch Massenversand. Die gewichtete Pipeline ist Rechnen mit Phasenwahrscheinlichkeiten, keine Prognose.
 - **Ein kostenloser Tarif.** Es gibt eine Testphase von [[commercial.trial.days]] Tagen, danach einen bezahlten Tarif. Gespeicherte Ansichten sind persönlich und lassen sich nicht teilen.
@@ -182,7 +181,7 @@ Nehmen wir eine Unternehmensberatung mit fünf Personen auf Sales Professional. 
 
 | In Dynamics 365 Sales | In Customermates |
 |---|---|
-| Firmen | Organisationen, im Datenmodell umbenannt in „Accounts“ |
+| Firmen | Organisationen, in Konfigurieren umbenannt in „Accounts“ |
 | Kontakte | Kontakte |
 | Leads | Kontakte mit einem Einzelauswahl-Feld „Lead-Status“: Neu, Kontaktiert, Qualifiziert, Abgelehnt |
 | Verkaufschancen | Deals, umbenannt in „Chancen“ |
@@ -190,7 +189,7 @@ Nehmen wir eine Unternehmensberatung mit fünf Personen auf Sales Professional. 
 | Aufgaben | Aufgaben mit Zugewiesenen; legen Sie ein Datumsfeld „Fällig am“ an, denn ab Werk haben Aufgaben keins |
 | E-Mails in Outlook | Das verbundene Outlook-Postfach im einheitlichen Posteingang |
 
-Ein neuer Workspace startet mit den Phasen Akquise 10 %, Qualifizierung 20 %, Demo 40 %, Angebot 60 %, Verhandlung 80 %, Gewonnen 100 % und Verloren 0 %. Benennen Sie sie nach Ihrem Dynamics-Prozess um. Customermates multipliziert den Wert jeder Chance mit der Wahrscheinlichkeit ihrer Phase und zeigt eine gewichtete Pipeline-Summe.
+Ein neuer Workspace startet mit den Phasen Akquise 10 %, Qualifizierung 20 %, Demo 40 %, Angebot 60 %, Verhandlung 80 %, Gewonnen 100 % und Verloren 0 %. Benennen Sie sie nach Ihrem Dynamics-Prozess um. Customermates multipliziert den Wert jeder Chance mit der Wahrscheinlichkeit ihrer Phase, und ein Diagramm-Widget auf dem Dashboard summiert die gewichteten Werte.
 
 Mit einem Konto pro Person arbeitet das Team in Pro, für [[commercial.price.pro.monthly.seats.5]] im Monat. Braucht ein Berater Outlook und LinkedIn nebeneinander, wechselt der Workspace zu Business für [[commercial.price.business.monthly.seats.5]]. Jede Person speichert ein Board mit offenen Chancen, gruppiert nach Phase; der geschäftsführende Partner behält eine Tabelle, gruppiert nach „Zugewiesen“.
 
@@ -202,9 +201,9 @@ Jeder Partner hat eine eigene Routine in der Customermates Cloud. Sie läuft als
 
 <Steps>
   <Step title="Ansichten nach Excel exportieren">Öffnen Sie in Dynamics eine Tabelle wie Firmen, wählen Sie eine Ansicht mit allen Spalten, die Sie behalten wollen, und klicken Sie in der Befehlsleiste auf „Nach Excel exportieren“. Sie erhalten eine .xlsx-Datei. Bricht ein Export ab, empfiehlt Microsoft kleinere Teilmengen mit engeren Filtern oder weniger Spalten.</Step>
-  <Step title="Workspace vorbereiten">Benennen Sie unter Mein Unternehmen, Einstellungen, Datenmodell die Datensatztypen um (Accounts, Chancen, Produkte), legen Sie die Phasen mit ihren Wahrscheinlichkeiten fest und erstellen Sie eigene Felder für die Spalten, die Sie übernehmen.</Step>
-  <Step title="Einen Datensatztyp nach dem anderen importieren">Öffnen Sie in jeder Liste Import und Export, dann Aus Datei hinzufügen: zuerst die Accounts, dann die Kontakte, dann die Chancen, denn Verknüpfungsspalten finden Datensätze über den Namen. Neue Kontakte brauchen Vor- und Nachnamen. Stellen Sie Dynamics-ID-Spalten auf Nicht hinzufügen. Die Dateigrenzen stehen in der [Anleitung zu Datensätzen](/docs/app-records).</Step>
-  <Step title="Outlook verbinden">Verbinden Sie in Pro oder während der Testphase Ihr Postfach unter Mein Profil, Kanäle, und verknüpfen Sie Teilnehmer mit Kontakten, sobald Gespräche eingehen.</Step>
+  <Step title="Workspace vorbereiten">Benennen Sie in Konfigurieren unter Allgemein die Listen um (Accounts, Chancen, Produkte), legen Sie die Phasen mit ihren Wahrscheinlichkeiten fest und erstellen Sie eigene Felder für die Spalten, die Sie übernehmen.</Step>
+  <Step title="Eine Liste nach der anderen importieren">Öffnen Sie in jeder Liste Weitere Aktionen, dann Aus Datei hinzufügen: zuerst die Accounts, dann die Kontakte, dann die Chancen, denn Verknüpfungsspalten finden Datensätze über den Namen. Neue Kontakte brauchen Vor- und Nachnamen. Stellen Sie Dynamics-ID-Spalten auf Nicht hinzufügen. Die Dateigrenzen stehen in der [Anleitung zu Datensätzen](/docs/app-records).</Step>
+  <Step title="Outlook verbinden">Verbinden Sie in Pro oder während der Testphase Ihr Postfach unter Einstellungen, Kanäle, und verknüpfen Sie Teilnehmer mit Kontakten, sobald Gespräche eingehen.</Step>
   <Step title="Ansichten und KI einrichten">Speichern Sie Ihre Boards und Tabellen, richten Sie eine Routine für Mate ein oder verbinden Sie Ihren eigenen KI-Client per MCP. Der Aktivitätsverlauf wird nicht übernommen; lassen Sie Dynamics deshalb bis zum Ende der Lizenzlaufzeit lesend weiterlaufen.</Step>
 </Steps>
 

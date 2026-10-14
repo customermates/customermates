@@ -144,8 +144,8 @@ In Customermates Cloud, the assistant Mate prepares summaries and reply drafts a
 
 ### The lowest-cost ways to run it
 
-- **Starter with your own AI client.** Create a key under **My Profile › API & Connectors › Add** and pick Claude or ChatGPT under **Quick connections**. The client then reads and updates records through [MCP](/docs/mcp), and its model calls run on your own AI provider.
-- **Pay only for active people.** A seat is a member with status **Active**. Set someone who no longer needs access to **Inactive** under **My Company › Members**, and the seat count drops, prorated on your next bill. That also pauses the routines they own.
+- **Starter with your own AI client.** Create a key under **Settings › API keys › Add** and pick Claude or ChatGPT under **Quick connections**. The client then reads and updates records through [MCP](/docs/mcp), and its model calls run on your own AI provider.
+- **Pay only for active people.** A seat is a member with status **Active**. Set someone who no longer needs access to **Inactive** under **Settings › Members**, and the seat count drops, prorated on your next bill. That also pauses the routines they own.
 - **Self-host the open-source core.** It runs with Docker Compose and PostgreSQL, counts no seats and bills nothing. You pay for the server and an email delivery account, and you run updates and backups yourself. Self-hosted, there is no inbox, no Mate, no routines and no hosted credits; REST, webhooks and MCP stay. The [self-hosting guide](/docs/self-hosting) has the setup.
 
 <AcquisitionCallout title="When Customermates is the wrong choice" variant="boundary">
@@ -176,7 +176,7 @@ The free edition covers up to 3 users and Zoho calls it free forever. The paid e
 </FaqItem>
 
 <FaqItem question="Can I start with Excel instead of a CRM?">
-For one or two people with a short client list, yes. Keep one workbook per record type, so you can import it later without retyping: Customermates imports `.xlsx` files one record type at a time. Import organizations first, then contacts, then deals, because link columns are matched by record name. CSV files are not accepted and need to be saved as `.xlsx` first. A [ready-made Excel CRM template](/blog/excel-crm-template) has the layout.
+For one or two people with a short client list, yes. Keep one workbook per record type, so you can import it later without retyping: Customermates imports `.xlsx` files one list at a time. Import organizations first, then contacts, then deals, because link columns are matched by record name. CSV files are not accepted and need to be saved as `.xlsx` first. A [ready-made Excel CRM template](/blog/excel-crm-template) has the layout.
 </FaqItem>
 </Faq>
 

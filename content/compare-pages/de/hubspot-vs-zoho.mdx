@@ -55,7 +55,7 @@ comparison:
       competitor: KI-gestützte Angebote ab Professional
       competitor2: CPQ ab Professional
     - name: Eigene Datensatztypen
-      source: Nein; fünf Datensatztypen mit benutzerdefinierten Feldern
+      source: Ja; eigene Listen mit benutzerdefinierten Feldern
       competitor: Benutzerdefinierte Objekte ab Professional
       competitor2: Benutzerdefinierte Module, Anzahl je nach Edition
     - name: E-Mail-Kampagnen oder Taktungen
@@ -79,7 +79,7 @@ comparison:
   - title: Daten und Hosting
     features:
     - name: Exportformat
-      source: XLSX, je Datensatztyp
+      source: XLSX oder JSON, je Liste
       competitor: CSV, XLS oder XLSX
       competitor2: CSV oder XLSX
     - name: Hosting in der EU
@@ -192,13 +192,13 @@ HubSpot exportiert Datensätze in jedem Tarif als CSV, XLS oder XLSX, bis zu 300
   <Step title="Stichprobe prüfen, dann umstellen">Öffnen Sie zwanzig Datensätze je Typ und vergleichen Sie sie mit der Quelle, bevor das Team wechselt.</Step>
 </Steps>
 
-Ist Customermates das Ziel, exportieren Sie als XLSX und importieren je Datensatztyp. Verknüpfungsspalten finden bestehende Datensätze über den Namen, und neue Kontakte brauchen Vor- und Nachnamen; Details stehen im [Leitfaden zu Datensätzen](/docs/app-records).
+Ist Customermates das Ziel, exportieren Sie als XLSX und importieren je Liste. Verknüpfungsspalten finden bestehende Datensätze über den Namen, und neue Kontakte brauchen Vor- und Nachnamen; Details stehen im [Leitfaden zu Datensätzen](/docs/app-records).
 
 ## Eine dritte Option: Customermates
 
 Customermates veröffentlicht diese Seite. Lesen Sie diesen Abschnitt deshalb als Beschreibung des Anbieters.
 
-Customermates ist ein Open-Source-KI-CRM für kleine Teams mit viel Kundenkontakt, entwickelt in Deutschland: Beratungen, Agenturen, andere Dienstleister und Gründer. Es ist schmaler als HubSpot oder Zoho. Sie arbeiten mit Kontakten, Organisationen, Deals, Services und Aufgaben, mit benutzerdefinierten Feldern, persönlichen gespeicherten Ansichten und einer Deal-Pipeline, deren Phasenwahrscheinlichkeiten eine gewichtete Pipeline ergeben.
+Customermates ist ein Open-Source-KI-CRM für kleine Teams mit viel Kundenkontakt, entwickelt in Deutschland: Beratungen, Agenturen, andere Dienstleister und Gründer. Es ist schmaler als HubSpot oder Zoho. Sie starten mit Kontakten, Organisationen, Deals, Services und Aufgaben und können eigene Listen und Felder anlegen, dazu persönliche gespeicherte Ansichten und eine Deal-Pipeline, deren Phasenwahrscheinlichkeiten jedem Deal einen gewichteten Wert geben.
 
 - **Gespräche neben den Datensätzen.** Ab Pro bündelt der [einheitliche Posteingang](/features/unified-inbox) Gmail-, Outlook- und IMAP-Postfächer, LinkedIn, WhatsApp, Instagram und Telegram in einer Liste, und Sie antworten im ursprünglichen Kanal. WhatsApp verbinden Sie per QR-Code, der Verlauf wird im Hintergrund importiert. Jeder Pro-Nutzer verbindet [[commercial.entitlement.pro.includedAccountsPerUser]] Konto, jeder Business-Nutzer [[commercial.entitlement.business.includedAccountsPerUser]]. Starter hat keinen Posteingang.
 - **KI für die CRM-Arbeit.** In der Customermates Cloud fasst Mate Gespräche zusammen, entwirft Antworten und aktualisiert Datensätze. Mate nutzt gehostete KI-Credits, ein monatliches Kontingent pro aktivem Nutzer laut [Preisseite](/pricing). Routinen führen gespeicherte Anweisungen nach Zeitplan oder bei Änderungen an Datensätzen aus. Ihr eigener KI-Client, etwa Claude oder ChatGPT, verbindet sich über den [MCP-Server](/docs/mcp) mit [[derived.mcp.tools.total]] Tools in jedem Tarif.
@@ -209,7 +209,7 @@ Fünf Nutzer zahlen im Starter-Tarif [[commercial.price.starter.monthly.seats.5]
 Die falsche Wahl ist Customermates in diesen Fällen:
 
 - Sie versenden E-Mail-Kampagnen oder Serien: Customermates hat keinen Massenversand und sendet eine Nachricht nach der anderen.
-- Sie brauchen Prognosen über eine gewichtete Pipeline hinaus, Angebote oder eigene Datensatztypen: Das bietet Customermates nicht.
+- Sie brauchen Prognosen über eine gewichtete Pipeline hinaus oder Angebote: Das bietet Customermates nicht.
 - Sie wollen einen kostenlosen Tarif oder eine native App fürs Smartphone: Customermates hat weder das eine noch das andere, HubSpot und Zoho bieten beides.
 
 ## Häufige Fragen
@@ -228,7 +228,7 @@ Bei HubSpot ist es vor allem der Schritt von Starter zu Professional: ein deutli
 </FaqItem>
 
 <FaqItem question="Welches CRM eignet sich besser für Umsatzprognosen, HubSpot oder Zoho?">
-Zoho CRM enthält Umsatzprognosen ab der Edition Standard. HubSpot bietet pipeline-übergreifende Umsatzprognosen ab Professional. Customermates erstellt keine Prognosen: Es multipliziert jeden Deal-Wert mit der Wahrscheinlichkeit seiner Phase und zeigt die Summe als gewichtete Pipeline.
+Zoho CRM enthält Umsatzprognosen ab der Edition Standard. HubSpot bietet pipeline-übergreifende Umsatzprognosen ab Professional. Customermates erstellt keine Prognosen: Es multipliziert jeden Deal-Wert mit der Wahrscheinlichkeit seiner Phase, und ein Diagramm-Widget auf dem Dashboard summiert diese gewichteten Werte.
 </FaqItem>
 
 <FaqItem question="Funktionieren HubSpot und Zoho mit ChatGPT oder Claude?">

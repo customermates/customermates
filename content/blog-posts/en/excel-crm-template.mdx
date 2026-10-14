@@ -173,31 +173,31 @@ If two of these are true, I would move. One alone is usually fixable inside the 
 
 ## Moving the template into Customermates
 
-Customermates imports Excel workbooks (.xlsx), one record type at a time. CSV files are not accepted, so save them as .xlsx first. The [import documentation](/docs/app-records#how-do-i-import-or-export-records) has the full rules. Here is where the template's columns land:
+Customermates imports Excel workbooks (.xlsx), one list at a time. CSV files are not accepted, so save them as .xlsx first. The [import documentation](/docs/app-records#how-do-i-import-or-export-records) has the full rules. Here is where the template's columns land:
 
 | Template column | Customermates field |
 | --- | --- |
 | Company | Organization name |
-| First name, Last name | First Name and Last Name, both required for a new contact |
+| First name, Last name | First name and Last name |
 | A contact's or deal's Company | Organizations, matched by name |
 | A deal's Contact | Contacts, matched by full name |
 | Email, LinkedIn | Channels on the contact |
 | Phone | Phone custom field, or the WhatsApp channel if it is a WhatsApp number |
-| Industry, Contact type, Source, Loss reason | Single Select custom fields |
-| Website; City, Country, Next step | Link custom field; Text custom fields |
+| Industry, Contact type, Source, Loss reason | Single choice custom fields |
+| Website; City, Country, Next step | Web address custom field; Text custom fields |
 | Last contact, Expected close, Next step date, Closed on | Date custom fields |
 | Stage | The deal's Stage field |
-| Value | Services, see step 2 |
+| Value | Line items, see step 2 |
 | Probability, Weighted | Left out: the stage's probability sets the weighted value |
 | Owner | Assigned, matched by the team member's full name |
 | Notes | Notes |
 | Open next steps from Activities | Tasks |
 
 <Steps>
-  <Step title="Create the custom fields first">Open any record, click **Customize**, then **Add Field**. For each dropdown column, create a Single Select field whose option labels match your Lists sheet exactly; the import flags any cell that is not an option. The deal Stage field already exists with the stages above. If you changed them, rename the options and set the percentages under **My Company › Settings**.</Step>
-  <Step title="Decide how deal values come in">A deal's value in Customermates is the sum of its linked services, price times quantity. Import your price list into **Services** first (Name and Amount are required), then give the Deals sheet a Services column naming what each deal sells, several separated by commas. Each link comes in with quantity 1, which you adjust on the deal. If every deal has its own price, a Currency custom field keeps the number, but it does not feed the deal value or the weighted pipeline.</Step>
+  <Step title="Create the custom fields first">In **Configure**, open the list and choose **Add**, then **Field**. For each dropdown column, create a Single choice field whose option labels match your Lists sheet exactly; the import flags any cell that is not an option. The deal Stage field already exists with the stages above. If you changed them, rename the options and set **Probability %** on each one in Configure for Deals.</Step>
+  <Step title="Decide how deal values come in">A deal's value in Customermates is the sum of its line items, each a service price times quantity. Import your price list into **Services** first (Name and Price are required), then add line items with their quantities on each deal. If every deal has its own price, a Money custom field keeps the number, but it does not feed the deal value or the weighted pipeline.</Step>
   <Step title="Import in dependency order">Services, then companies into Organizations, then contacts, then deals. Links are matched by name, ignoring case, so a company must exist before a contact can point to it, and a name that matches no record or several is flagged. A comma separates names within a cell, so a firm called "Hale, Brook and Partners" needs a rename before the import or a link set by hand afterwards.</Step>
-  <Step title="Run the wizard">On each list, open **Import and export**, choose **Add from file** and pick the file. The wizard reads only the first sheet not named "Schema", and in the template that is Lists, so first copy the sheet you import into a workbook of its own (right-click the sheet tab › Move or Copy › (new book)) and save it as .xlsx. A file can currently hold up to 10 MB and 10,000 rows. Match each column to a field, a custom field or a channel; channels are added to new contacts only.</Step>
+  <Step title="Run the wizard">On each list, open **More actions**, choose **Add from file** and pick the file. The wizard asks which sheet to import, so the workbook can keep its other sheets; save it as .xlsx. A file can currently hold up to 10 MB and 5,000 rows. Match each column to a field; email addresses and LinkedIn profiles go into the contact's Channels field.</Step>
   <Step title="Fix or skip problem rows">The check lists every problem by row before anything is added. Fix the cells in Excel and check again, or import the rest and skip those rows. An import has no undo, so run ten rows first.</Step>
   <Step title="Turn open next steps into tasks">From Activities, bring over only open next steps, as tasks linked to the deal and contact and assigned to the owner. Tasks have no due date field, so add a Date custom field for the date. Older history can go into the deal's Notes or stay in the archived workbook.</Step>
 </Steps>
@@ -238,11 +238,11 @@ The layout on this page is free and needs nothing beyond Excel. If you download 
 </FaqItem>
 
 <FaqItem question="How many contacts can an Excel CRM handle?">
-A worksheet holds 1,048,576 rows according to Microsoft's [Excel specifications](https://support.microsoft.com/en-us/office/excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3), and a Google Sheets file up to 20 million cells according to [Google's file limits](https://support.google.com/drive/answer/37603). The practical limit is people, not rows: the checklist above applies long before the file fills up. Customermates currently reads up to 10,000 rows per import file, so split larger sheets.
+A worksheet holds 1,048,576 rows according to Microsoft's [Excel specifications](https://support.microsoft.com/en-us/office/excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3), and a Google Sheets file up to 20 million cells according to [Google's file limits](https://support.google.com/drive/answer/37603). The practical limit is people, not rows: the checklist above applies long before the file fills up. Customermates currently reads up to 5,000 rows per import file, so split larger sheets.
 </FaqItem>
 
 <FaqItem question="Can a CRM stay in sync with my Excel file?">
-Not Customermates. Import and export are file transfers, one record type at a time, with no live sync and no CSV. A round trip works: export a list to .xlsx (up to the first 50,000 records), edit it in Excel and import it again, and its Record ID column updates those records instead of creating duplicates.
+Not Customermates. Import and export are file transfers, one list at a time, with no live sync and no CSV. A round trip works: export a list to .xlsx (up to 5,000 records), edit it in Excel and import it again as **Existing records**, and its Record ID column updates those records instead of creating duplicates.
 </FaqItem>
 
 <FaqItem question="What should a sales tracking spreadsheet for reps include?">

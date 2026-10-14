@@ -37,7 +37,7 @@ Customermates, an AI-native CRM, publishes this guide. Customermates is a CRM on
   <SummaryItem label="Methods">Native connector, automation platform (iPaaS or n8n), direct API integration, or middleware. Or one suite whose ERP includes a CRM app.</SummaryItem>
   <SummaryItem label="Decide first">One owning system per field, a stable ID strategy, and what happens when an event arrives twice or fails.</SummaryItem>
   <SummaryItem label="Check your ERP">Whether its API is in your plan, whether it sends webhooks, and its rate limits. They differ a lot between vendors.</SummaryItem>
-  <SummaryItem label="Customermates">REST API and webhooks on every Cloud plan and when self-hosted. ERP references live in custom Text columns.</SummaryItem>
+  <SummaryItem label="Customermates">REST API and webhooks on every Cloud plan and when self-hosted. ERP references live in custom Text fields.</SummaryItem>
 </ArticleSummary>
 
 ## Which system owns which data
@@ -131,26 +131,26 @@ An integration that only handles the happy path will create duplicates within we
 
 This is the setup in Customermates for the first flow above. It uses the [REST API](/features/api) and [webhooks](/docs/webhooks), which work on every Customermates Cloud plan and in a self-hosted installation. The receiver in the middle is yours: an n8n workflow or a small service.
 
-**Columns.** Add custom columns of type Text: "ERP customer no." on organizations, "ERP order no." on deals, and "ERP item no." on services. Deals carry linked services with per-deal quantities, so the services and their item numbers become the order lines. If account managers need delivery or payment state, add a Single Select column such as "ERP status" on deals and let only the integration write it.
+**Fields.** In **Configure**, add custom fields of type Text: "ERP customer no." on organizations, "ERP order no." on deals, and "ERP item no." on services. A deal's line items each hold a service and a quantity, so the line items and their services' item numbers become the order lines. If account managers need delivery or payment state, add a Single choice field such as "ERP status" on deals and let only the integration write it.
 
-**Trigger.** The default deal Stage column has a "Won" option. Under **My Company → Webhooks**, subscribe a URL to `deal.updated` and set a secret. Each delivery is signed with HMAC-SHA256 in the `X-Webhook-Signature` header, and for update events the payload carries a `changes` object with the previous and current value of each changed field. Your receiver acts only when the stage changed to "Won".
+**Trigger.** The default deal Stage field has a "Won" option. Under **Settings → Webhooks**, subscribe a URL to `record.updated` for the Deals list, optionally with Stage under **Changed fields**, and set a secret. Each delivery is signed with HMAC-SHA256 in the `X-Webhook-Signature` header, and for update events `data.record.fields` lists each changed field with its `before` and `after` value. Your receiver acts only when the stage changed to "Won".
 
-**Idempotency.** The standard webhook envelope has no unique event ID, so use the cross-reference: if the deal's "ERP order no." is already filled, stop.
+**Idempotency.** Every event carries an `id` that stays the same on retries and resends, so deduplicate by it. As a second check, use the cross-reference: if the deal's "ERP order no." is already filled, stop.
 
-**Customer match.** Look up the organization's "ERP customer no.". If it is empty, search the ERP by VAT ID or create the customer, then write the number back. To find a CRM organization by ERP number later, call `POST /api/v1/organizations/search` with an `equals` filter on that column's ID ([filter syntax](/docs/filter-syntax)).
+**Customer match.** Look up the organization's "ERP customer no.". If it is empty, search the ERP by VAT ID or create the customer, then write the number back. To find a CRM organization by ERP number later, call `POST /api/v1/records/query` for Organizations with an `eq` filter on that field's ID ([filter syntax](/docs/filter-syntax)).
 
-**Write-back.** After the ERP accepts the order, call `PUT /api/v1/deals/{id}` with the new "ERP order no.". The update changes only the fields you send.
+**Write-back.** After the ERP accepts the order, send an `update` mutation for the deal to `POST /api/v1/records/mutate` with the new "ERP order no." and the deal's current version. Fields you leave out stay unchanged.
 
-**Failures.** Customermates retries a failed delivery automatically for timeouts, network errors, 5xx responses and 408, 425 and 429. Other 4xx responses are not retried, because they would fail the same way. Every delivery appears under **Recent Deliveries**, where you can resend it after fixing the cause.
+**Failures.** Customermates retries a failed delivery automatically for timeouts, network errors, 5xx responses and 408, 425 and 429. Other 4xx responses are not retried, because they would fail the same way. Every delivery appears under **Settings → Deliveries**, where you can resend it after fixing the cause.
 
 **Reconciliation.** Save a deal view filtered to Stage "Won" and "ERP order no." empty. Saved views are personal, so the person who handles integration failures keeps it. Anything that shows up there was missed by the event flow.
 
 **The reverse direction.** If your ERP sends webhooks, point them at the same receiver, look up the deal by "ERP order no." and set "ERP status". If it does not, poll the ERP on a schedule. The [n8n guide](/docs/n8n) lists the REST calls an n8n workflow needs; a community node also exists.
 
-In Customermates Cloud, Mate can work with these columns too, for example "list won deals from this month without an ERP order number". Mate uses hosted AI credits. An AI client of your own can do the same through [MCP](/docs/mcp).
+In Customermates Cloud, Mate can work with these fields too, for example "list won deals from this month without an ERP order number". Mate uses hosted AI credits. An AI client of your own can do the same through [MCP](/docs/mcp).
 
 <AcquisitionCallout title="What Customermates does not do here" variant="boundary">
-  Customermates has no ERP functions: no quotes, invoices, orders, payments, stock or purchasing. It has no native ERP connector and no built-in n8n; n8n runs separately. Record import and export use XLSX files, one record type at a time, with no scheduled sync. If you want CRM and ERP in one database, look at a suite that includes both instead.
+  Customermates has no ERP functions: no quotes, invoices, orders, payments, stock or purchasing. It has no native ERP connector and no built-in n8n; n8n runs separately. Records import and export one list at a time, as XLSX or JSON files, with no scheduled sync. If you want CRM and ERP in one database, look at a suite that includes both instead.
 </AcquisitionCallout>
 
 ## What drives cost and effort
@@ -201,7 +201,7 @@ Often yes, with a native connector or an automation platform such as n8n, Make o
 </FaqItem>
 
 <FaqItem question="Does Customermates integrate with ERP systems?">
-Through its REST API and webhooks, yes, using an automation platform or service you run. There is no native ERP connector, and Customermates itself holds no ERP data such as orders or payments. ERP references go into custom columns on organizations, deals and services.
+Through its REST API and webhooks, yes, using an automation platform or service you run. There is no native ERP connector, and Customermates itself holds no ERP data such as orders or payments. ERP references go into custom fields on organizations, deals and services.
 </FaqItem>
 </Faq>
 

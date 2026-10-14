@@ -110,7 +110,7 @@ Before you sign with a vendor, ask five questions: which steps it performs itsel
 
 This section describes Customermates, the CRM that publishes this guide. Mate, its assistant, runs in Customermates Cloud and uses hosted AI credits. Routines are saved instructions that Mate runs on a schedule or when a record changes.
 
-Take a three-person consultancy on the Pro plan. Each consultant connects [[commercial.entitlement.pro.includedAccountsPerUser]] account in the [unified inbox](/features/unified-inbox), usually the work mailbox in Gmail or Outlook; LinkedIn, WhatsApp, Instagram and Telegram are the other channels. Business includes [[commercial.entitlement.business.includedAccountsPerUser]] accounts per user, enough for mailbox plus LinkedIn. Deals have a single-select stage field: First call, Scoping, Proposal sent, Won, Lost. The firm's services and writing rules sit in one Knowledge Base page that Mate can read in chats and routine runs.
+Take a three-person consultancy on the Pro plan. Each consultant connects [[commercial.entitlement.pro.includedAccountsPerUser]] account in the [unified inbox](/features/unified-inbox), usually the work mailbox in Gmail or Outlook; LinkedIn, WhatsApp, Instagram and Telegram are the other channels. Business includes [[commercial.entitlement.business.includedAccountsPerUser]] accounts per user, enough for mailbox plus LinkedIn. Deals have a Single choice stage field: First call, Scoping, Proposal sent, Won, Lost. The firm's services and writing rules sit in one Knowledge Base page that Mate can read in chats and routine runs.
 
 **Inbound triage, every morning.** A [routine](/docs/app-routines) set to **On a schedule**, **Every day** at 08:00:
 
@@ -123,7 +123,7 @@ and save a reply draft in the thread that suggests a short call. List what you d
 were unsure about. Do not send anything.
 ```
 
-**Proposal follow-up, on a record change.** A second routine set to **When something changes**, event **Deal Updated**, changed field "Stage", filtered to deals assigned to the owner: when a deal moves to "Proposal sent", Mate creates a task linked to the deal and its contact, and saves a short follow-up draft in the latest thread.
+**Proposal follow-up, on a record change.** A second routine set to **When something changes**, event **Record updated** for Deals, changed field "Stage", filtered to deals assigned to the owner: when a deal moves to "Proposal sent", Mate creates a task linked to the deal and its contact, and saves a short follow-up draft in the latest thread.
 
 Both instructions end with "Do not send anything" on purpose. When asked to send an email or chat message, Mate sends it without a second confirmation. It asks for approval before deletions and a few admin actions, and a routine refuses those because nobody is there to approve. A routine runs as its owner, with the owner's channels and permissions. Event triggers ignore further events for a short window after a run starts, so a daily sweep is the safer design for inbound mail. Each run also has a credit cap, so on a busy inbox a run can stop part-way and is then marked Partial; the limits are listed in the [routines documentation](/docs/app-routines).
 

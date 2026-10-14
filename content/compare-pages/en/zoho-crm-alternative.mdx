@@ -39,13 +39,13 @@ comparison:
   - title: Sales & Data Model
     features:
       - name: Record types
-        source: Contacts, organizations, deals, services, tasks; renamable from presets
+        source: Contacts, organizations, deals, services, tasks, plus your own lists; every list can be renamed
         competitor: Leads, contacts, deals and activities; custom modules from Standard
       - name: Custom field types
-        source: Ten, including currency, date range and single select; no formula or lookup fields
+        source: Fifteen, including money, date range and single choice, plus calculated fields
         competitor: Extended field types on Enterprise
       - name: Pipelines
-        source: One stage field with win probabilities; boards grouped by any single-select field
+        source: One stage field with win probabilities; boards grouped by any single choice field
         competitor: Multiple pipelines from Standard
       - name: Sales forecasting
         source: Weighted pipeline from stage probabilities, no predictions
@@ -99,7 +99,7 @@ comparison:
         source: Cloud database configured in the AWS Frankfurt region; your own server when self-hosted
         competitor: Zoho data centre picked by sign-up country; in Europe Amsterdam and Dublin
       - name: Data export
-        source: XLSX, one record type at a time
+        source: XLSX or JSON, one list at a time
         competitor: CSV or XLSX per module; ZIP backups with attachments, two free a month on paid editions
       - name: Native mobile apps
         source: Responsive web app
@@ -196,7 +196,7 @@ Check these before you start a trial:
 - **No rule builder.** There are no workflow rules, approval processes or process steps. Routines in Customermates Cloud follow written instructions, and webhooks with the REST API feed an n8n instance that you run yourself.
 - **No telephony, no mass email and no sequences.** Calls happen on your own phone system, and messages go out one at a time, written by you or drafted by Mate.
 - **No web forms, scoring, enrichment or AI forecasting.** The weighted pipeline multiplies each deal's value by its stage probability. That is arithmetic on your own numbers, and it does not predict anything.
-- **A fixed data model.** You get five record types that you can rename and ten field types, with no formula, lookup or multi-select fields and no custom modules. Permissions apply per record type and action, not per field, and saved views are personal.
+- **No field-level permissions.** Permissions apply per list and action, not per field, and saved views are personal.
 - **No native mobile apps and no free plan.** Customermates runs in the phone's browser, and after a [[commercial.trial.days]]-day trial you choose a paid plan.
 
 ## A worked setup: a web agency leaving Zoho CRM Standard
@@ -205,18 +205,18 @@ Take a three-person web agency. The founder finds new clients on LinkedIn, and t
 
 | In Zoho CRM | In Customermates |
 |---|---|
-| Leads | Contacts, with a single-select field "Lifecycle" set to Lead |
+| Leads | Contacts, with a single choice field "Lifecycle" set to Lead |
 | Contacts | Contacts, with "Lifecycle" set to Client |
-| Accounts | Organizations, renamed "Accounts" in the Data model |
+| Accounts | Organizations, renamed "Accounts" in Configure |
 | Deals and stages | Deals with the Stage field and a win probability per stage |
-| Products | Services, renamed "Products", linked to deals with a quantity |
+| Products | Services, renamed "Products", added to deals as line items with a quantity |
 | Tasks, meetings and calls | Tasks, plus a custom date field if you want a date, because tasks have no built-in due date |
 | Notes | The notes field, one rich-text field per record |
 | Attachments | Not imported, since records have no file attachments; keep them in the Zoho backup |
-| Tags | A single-select field, since records have no tags |
+| Tags | A single choice field, since records have no tags |
 | Workflow rules | Routines in Customermates Cloud, or webhooks to your own n8n |
 
-The founder edits the Stage field's options to Brief received, Proposal sent, Negotiation, Won and Lost, and under My Company › Settings gives them win probabilities of 20%, 50%, 75%, 100% and 0%. She saves a board of all open deals grouped by Stage. Each account manager saves a table of their own deals grouped by organization; saved views are personal, so each person builds their own.
+The founder edits the Stage field's options to Brief received, Proposal sent, Negotiation, Won and Lost, and in Configure for Deals gives them win probabilities of 20%, 50%, 75%, 100% and 0%. She saves a board of all open deals grouped by Stage. Each account manager saves a table of their own deals grouped by organization; saved views are personal, so each person builds their own.
 
 Each person connects one account, LinkedIn for the founder and Gmail for the other two, so Pro fits at [[commercial.price.pro.monthly.seats.3]] a month for the team. If the founder also wants WhatsApp next to LinkedIn, the workspace moves to Business at [[commercial.price.business.monthly.seats.3]].
 
@@ -228,9 +228,9 @@ The Zoho workflow rule becomes a routine owned by the founder. Its trigger is Wh
 
 <Steps>
   <Step title="Export each module as an Excel file">In Zoho CRM, open Setup › Data Administration › Export, pick a module and choose XLSX. Zoho's help pages put the limit at 50,000 records per XLSX export and keep the download link for seven days. Export Accounts, Contacts, Leads, Products and Deals; notes are a separate choice in the module list. A full data backup under Setup › Data Administration › Data Backup is a ZIP of CSV files with attachments. Customermates cannot import that ZIP, so keep it as your archive.</Step>
-  <Step title="Prepare the workspace">Invite your teammates first, so deal owners can be matched to users. Under My Company › Settings, rename record types in the Data model and set the stage probabilities. Create custom fields for the Zoho fields you keep, such as lead source, industry and Lifecycle.</Step>
-  <Step title="Import one record type at a time">On each list, open Import and export, then Add from file: organizations first, then contacts and leads, then services, then deals. Link columns match records by name, so a contact's Account Name finds the organization you imported before, and an owner column maps to assigned users. Map email addresses and phone numbers to the contact's channels. Size limits are in the [records documentation](/docs/app-records).</Step>
-  <Step title="Connect channels and AI">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp under My Profile › Channels. Zoho's email history does not transfer; the inbox shows the conversations of the accounts you connect. Then set up routines, or connect your own AI client through MCP.</Step>
+  <Step title="Prepare the workspace">Invite your teammates first, so deal owners can be matched to users. In Configure, rename lists and set the stage probabilities on the Stage field of Deals. Create custom fields for the Zoho fields you keep, such as lead source, industry and Lifecycle.</Step>
+  <Step title="Import one list at a time">On each list, open More actions, then Add from file: organizations first, then contacts and leads, then services, then deals. Link columns match records by name, so a contact's Account Name finds the organization you imported before, and an owner column maps to assigned users. Map email addresses and phone numbers to the contact's channels. Size limits are in the [records documentation](/docs/app-records).</Step>
+  <Step title="Connect channels and AI">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp under Settings › Channels. Zoho's email history does not transfer; the inbox shows the conversations of the accounts you connect. Then set up routines, or connect your own AI client through MCP.</Step>
   <Step title="Replace each workflow rule">List your Zoho workflow rules and decide for each one: a routine, a webhook into your own n8n, or nothing. Rules that only create tasks or update a field often collapse into one routine.</Step>
 </Steps>
 

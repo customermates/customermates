@@ -41,17 +41,17 @@ It is not an outbound machine. If your team books meetings by volume, the table 
 
 ## What the sales side of Customermates does
 
-**Deals and their value.** A deal links to contacts, organizations, assigned users, tasks and the services you sell. Its value is calculated rather than typed: the price of each linked service times its quantity on that deal. Two workshop days at 1,500 plus ten coaching hours at 150 give a deal value of 4,500 in your workspace currency.
+**Deals and their value.** A deal links to contacts, organizations, assigned users, tasks and, through its line items, the services you sell. Its value is calculated rather than typed: the sum of its line items, each a service times its quantity. Two workshop days at 1,500 plus ten coaching hours at 150 give a deal value of 4,500.
 
-**Stages with win probabilities.** The stage is a single-select column called Stage. A new workspace starts with seven options and probabilities already filled in: Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100% and Lost 0%. You can rename, add and reorder stages, and change the probabilities under **My Company › Settings**. Each deal's weighted value is its value times the probability of its current stage.
+**Stages with win probabilities.** The stage is a single choice field called Stage. A new workspace starts with seven options and probabilities already filled in: Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100% and Lost 0%. You can rename, add and reorder stages, and change the probabilities as **Probability %** on each option of the Stage field in **Configure**. Each deal's weighted value is its value times the probability of its current stage.
 
-**The board.** Switch the deals list to the board, grouped by Stage, and drag a card to move a deal. Each column header shows the number of deals, the stage probability and the total value next to the weighted value. Group the same board by **Assigned** and every person gets a column with their own count and totals; that board is read-only. The [pipeline page](/features/pipeline) shows the board in more detail.
+**The board.** Switch the deals list to the board, grouped by Stage, and drag a card to move a deal. Each column header shows the number of deals and the sums you choose for the grouping, such as **Value** and **Weighted value**. Group the same board by **Assigned** and every person gets a column with their own count and totals; that board is read-only. The [pipeline page](/features/pipeline) shows the board in more detail.
 
 **Saved views.** Filters, sort, grouping and layout save together as a named view, such as "My open deals by value". Views are personal, so each colleague sets the same filters and saves their own view.
 
-**Dashboard charts.** A chart counts deals or sums deal value or weighted deal value, grouped by a single-select field such as Stage or Lead source. Charts belong to the person who made them, and **Share as a template** lets teammates start their own copy.
+**Dashboard charts.** A chart counts deals or sums **Value** or **Weighted value**, grouped by a field such as Stage or Lead source. Charts belong to the person who made them, and **Share as a template** lets teammates start their own copy.
 
-**Conversations on the contact (Pro and higher).** Connect Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram or Telegram in the [unified inbox](/features/unified-inbox). Once a contact carries the email address or handle, every conversation with it shows on that contact's timeline. Messages link to contacts rather than directly to deals, so from a deal the latest conversation is one click away, on the linked contact.
+**Conversations on the contact (Pro and higher).** Connect Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram or Telegram in the [unified inbox](/features/unified-inbox). Once a contact carries the email address or handle, every conversation with it shows on that contact's timeline. Messages link to contacts, and a single conversation can also be linked to a deal; from a deal the latest conversation is one click away, on the linked contact.
 
 **AI help.** In Customermates Cloud, Mate reads a deal, its notes and the conversations with its contacts, then writes a summary, a reply draft or the update you ask for, using hosted AI credits. Your own AI client, such as Claude or ChatGPT, does the same through MCP with [[derived.mcp.tools.total]] tools, on every plan and when self-hosting.
 
@@ -69,13 +69,13 @@ Billing is monthly. Each Cloud plan includes monthly hosted AI credits per activ
 ## Set up a sales pipeline in Customermates
 
 <Steps>
-  <Step title="Adjust the stages">Open any deal, press **Customize** and edit the Stage column. Rename the options to match how you sell, for example "Discovery call" and "Proposal sent". Then check each stage's win probability under **My Company › Settings**.</Step>
-  <Step title="Create your services">Add what you sell under **Services**, each with a price (**Amount**): a retainer, a workshop day, a licence. Deal values are built from these.</Step>
-  <Step title="Add three custom fields to deals">A Date field "Expected close", a Single Select "Lead source" with Referral, LinkedIn, Website and Event, and a Single Select "Lost reason" with Price, Timing, Chose a competitor and No decision.</Step>
+  <Step title="Adjust the stages">In **Configure**, open Deals and the **Stage** field. Rename the options to match how you sell, for example "Discovery call" and "Proposal sent", and check each option's **Probability %**.</Step>
+  <Step title="Create your services">Add what you sell under **Services**, each with a price: a retainer, a workshop day, a licence. Deal line items, and so deal values, are built from these.</Step>
+  <Step title="Add three custom fields to deals">A Date field "Expected close", a Single choice "Lead source" with Referral, LinkedIn, Website and Event, and a Single choice "Lost reason" with Price, Timing, Chose a competitor and No decision.</Step>
   <Step title="Import what you already have">Use **Add from file** with an Excel workbook, one record type at a time: organizations first, then contacts, then deals. Link columns are matched by record name, so an organization must exist before a deal can point to it. CSV files are not accepted, so save them as XLSX first.</Step>
   <Step title="Save two views">"My open deals": Assigned is you, Stage is not Won or Lost, sorted by value, shown as a board. "Closing soon": a filter on Expected close, shown as a table.</Step>
-  <Step title="Add two dashboard charts">Weighted deal value grouped by Stage, and deal value grouped by Lead source with a filter on Stage set to Won.</Step>
-  <Step title="Connect your inbox (Pro and higher)">Under **My Profile › Channels**, connect the mailbox or LinkedIn account you sell from.</Step>
+  <Step title="Add two dashboard charts">The sum of Weighted value grouped by Stage, and the sum of Value grouped by Lead source with a filter on Stage set to Won.</Step>
+  <Step title="Connect your inbox (Pro and higher)">Under **Settings › Channels**, connect the mailbox or LinkedIn account you sell from.</Step>
 </Steps>
 
 The [records guide](/docs/app-records) covers import, views and the board step by step.
@@ -86,14 +86,14 @@ The questions a weekly sales meeting asks, and where the answers sit after the s
 
 | Question | Where you find the answer |
 |---|---|
-| What is in the pipeline, and what is it worth weighted? | The column totals on the stage board, or **Total pipeline** and **Weighted pipeline** under **My Company › Settings** |
+| What is in the pipeline, and what is it worth weighted? | The column totals on the stage board, or a dashboard chart that sums **Value** or **Weighted value** by stage |
 | Who is working on which deals? | The deals board grouped by **Assigned**. A deal with two assigned users appears under both. |
 | Which deals should close soon? | The "Closing soon" view |
 | Where do won deals come from? | The chart of won deal value by Lead source |
 | Why do we lose? | A chart counting lost deals by Lost reason |
 | What happened on this deal? | Its notes, its change history and, on Pro and higher, the conversations on its contacts |
 
-Customermates does not calculate conversion rates, sales velocity or time in stage. In Customermates Cloud, Mate can work out a figure such as each person's win rate from your records with a read-only analysis tool, using hosted AI credits. Otherwise, export the deals as XLSX or read them through the REST API. [Reporting](/features/reporting) covers the chart options.
+Customermates does not track conversion rates over time, sales velocity or time in stage. In Customermates Cloud, Mate can work out a figure such as each person's win rate from your records with a read-only analysis tool, using hosted AI credits. Otherwise, export the deals as XLSX or read them through the REST API. [Reporting](/features/reporting) covers the chart options.
 
 ## Updating deals with Mate (Customermates Cloud)
 

@@ -73,13 +73,13 @@ Die meisten Produkte, die als Recruiting CRM verkauft werden, sind ein Bewerberm
 
 ## So richten Sie Customermates als Recruiting CRM ein
 
-Customermates hat fünf Datensatztypen. Unter **Mein Unternehmen › Einstellungen** benennen Sie einige davon aus einer festen Liste um, etwa Deals in Aufträge und Organisationen in Unternehmen. Alle Feldnamen unten sind Beispiele; benutzerdefinierte Felder können Text, Einzelauswahl, Datum, Währung, E-Mail, Telefon oder Link sein.
+Customermates startet mit fünf Listen, und Sie können eigene anlegen. In **Konfigurieren** benennen Sie jede Liste unter **Allgemein** frei um, etwa Deals in Aufträge und Organisationen in Unternehmen. Alle Feldnamen unten sind Beispiele; benutzerdefinierte Felder können Text, Einzel- oder Mehrfachauswahl, Datum, Geldbetrag, E-Mail, Telefon, Webadresse und mehr sein.
 
 | Datensatztyp | Wofür | Beispielfelder |
 |---|---|---|
 | Organisationen | Kundenunternehmen und Arbeitgeber der Kandidaten | Beziehung (Einzelauswahl: Interessent, Aktiver Kunde, Ehemaliger Kunde), Abwerbeschutz (Ja, Nein), Branche |
-| Kontakte | Hiring Manager und Kandidaten | Kontaktart (Einzelauswahl: Kandidat, Hiring Manager, Referenz), Wechselbereitschaft (Offen, Passiv, Nicht suchend, Platziert), Fachbereich, Kündigungsfrist, Gehaltsvorstellung (Währung), Löschfrist (Datum) |
-| Deals, umbenannt in Aufträge | Jeder Suchauftrag | Phase, Auftragsart (Retained, Contingent, Interim), Mandat unterschrieben am, Shortlist fällig am, Zielgehalt (Währung) |
+| Kontakte | Hiring Manager und Kandidaten | Kontaktart (Einzelauswahl: Kandidat, Hiring Manager, Referenz), Wechselbereitschaft (Offen, Passiv, Nicht suchend, Platziert), Fachbereich, Kündigungsfrist, Gehaltsvorstellung (Geldbetrag), Löschfrist (Datum) |
+| Deals, umbenannt in Aufträge | Jeder Suchauftrag | Phase, Auftragsart (Retained, Contingent, Interim), Mandat unterschrieben am, Shortlist fällig am, Zielgehalt (Geldbetrag) |
 | Services | Ihre Honorararten | Retainer-Honorar, Erfolgshonorar, Interim-Tagessatz |
 | Aufgaben | Nächste Schritte, zugewiesen an einen Berater | Ein Datumsfeld „Fällig am“, das Sie anlegen, denn Aufgaben haben kein eingebautes Fälligkeitsdatum |
 
@@ -89,7 +89,7 @@ Ein Kandidat wird mit seinem aktuellen Arbeitgeber als Organisation verknüpft u
 
 Die Phase ist ein Einzelauswahl-Feld, das Sie selbst festlegen, und jede Option bekommt eine Abschlusswahrscheinlichkeit. Ein Vorschlag: Erstgespräch 10 %, Briefing 25 %, Mandat unterschrieben 50 %, Shortlist versendet 65 %, Finale Interviews 80 %, Besetzt 100 %, Verloren 0 %.
 
-Der Wert eines Deals ergibt sich aus Preis mal Menge der verknüpften Services. Weil Honorare je Suche schwanken, eignet sich dieses Muster: ein Service „Vermittlungshonorar“ zu 1.000 € je Einheit, und die Menge ist das erwartete Honorar in Tausend. Ein Honorar von 27.000 € ist Menge 27, und in der Phase Shortlist versendet beträgt der gewichtete Wert 17.550 €. Das ist reine Rechnung mit Ihren eigenen Wahrscheinlichkeiten, keine Prognose.
+Der Wert eines Deals ist die Summe seiner Positionen, jeweils Service mal Menge. Weil Honorare je Suche schwanken, eignet sich dieses Muster: ein Service „Vermittlungshonorar“ zu 1.000 € je Einheit, und die Menge ist das erwartete Honorar in Tausend. Ein Honorar von 27.000 € ist Menge 27, und in der Phase Shortlist versendet beträgt der gewichtete Wert 17.550 €. Das ist reine Rechnung mit Ihren eigenen Wahrscheinlichkeiten, keine Prognose.
 
 ### Gespeicherte Ansichten für Shortlists und die Montagsliste
 
@@ -139,7 +139,7 @@ Sie arbeiten lieber mit Ihrem eigenen KI-Client? Verbinden Sie Claude, ChatGPT o
 ## Was Customermates im Recruiting nicht leistet
 
 - Keine Stellenanzeigen, kein Multiposting, keine Karriereseite und keine Bewerbungsformulare.
-- Kein CV-Parsing. Ein Lebenslauf, der per E-Mail kommt, bleibt als Anhang in der Konversation im Posteingang; Datensätze haben keine Dateianhänge. Legen Sie Lebensläufe in Ihrer Dateiablage ab und speichern Sie den Link in einem Link-Feld am Kontakt.
+- Kein CV-Parsing. Ein Lebenslauf, der per E-Mail kommt, bleibt als Anhang in der Konversation im Posteingang; Datensätze haben keine Dateianhänge. Legen Sie Lebensläufe in Ihrer Dateiablage ab und speichern Sie den Link in einem Feld vom Typ Webadresse am Kontakt.
 - Keine Phase pro Kandidat innerhalb eines Auftrags. Ein Auftrag hat eine Phase; ob ein Kandidat vorgestellt, im Interview oder abgesagt ist, lässt sich nicht an der Verknüpfung speichern. Halten Sie es in den Notizen des Auftrags fest, oder nutzen Sie ein ATS, wenn Sie viele Kandidaten pro Position führen.
 - Keine Terminbuchung für Interviews. Pro bietet einen lesenden Kalenderzugriff.
 - Keine E-Mail-Sequenzen oder Massenmails, kein Kandidaten-Scoring, keine Datenanreicherung und keine mobile App.
@@ -181,7 +181,7 @@ Jeder Cloud-Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer f�
     .xlsx.
   </Step>
   <Step title="Zuerst die Unternehmen importieren">
-    Öffnen Sie in der Liste der Organisationen „Import und Export“, wählen Sie
+    Öffnen Sie in der Liste der Organisationen „Weitere Aktionen“, wählen Sie
     „Aus Datei hinzufügen“ und ordnen Sie Ihre Spalten zu, auch Beziehung und
     Abwerbeschutz.
   </Step>
@@ -194,7 +194,7 @@ Jeder Cloud-Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer f�
     Manager und Kandidaten der Shortlist und setzen Sie die Phase.
   </Step>
   <Step title="Posteingang verbinden und Ansichten speichern">
-    Verbinden Sie ab Pro Ihr Postfach oder LinkedIn unter Mein Profil ›
+    Verbinden Sie ab Pro Ihr Postfach oder LinkedIn unter Einstellungen ›
     Kanäle und speichern Sie danach die Ansichten von oben.
   </Step>
 </Steps>

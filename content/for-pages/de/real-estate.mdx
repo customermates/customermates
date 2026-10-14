@@ -63,14 +63,14 @@ Für das Interessentenmanagement muss ein CRM fünf Dinge leisten:
 
 ## So richten Makler Customermates ein
 
-Customermates kennt fünf Datensatztypen. So lassen sie sich der Maklerarbeit zuordnen; alle Feldnamen sind Beispiele, die Sie selbst anlegen. Unter **Mein Unternehmen › Einstellungen** können Sie Kontakte in Kunden umbenennen.
+Customermates startet mit fünf Listen, und Sie können eigene anlegen. So lassen sich die fünf der Maklerarbeit zuordnen; alle Feldnamen sind Beispiele, die Sie selbst anlegen. In **Konfigurieren** können Sie Kontakte unter **Allgemein** in Kunden umbenennen.
 
 | Datensatztyp | Wofür | Beispiele für eigene Felder |
 |---|---|---|
-| Kontakte | Suchkunden, Eigentümer, Vermieter, Mieter, Tippgeber | Rolle (Einzelauswahl: Suchkunde, Eigentümer, Vermieter, Mieter, Tippgeber, Bestandskunde), Suchgebiet (Einzelauswahl), Objektart (Einzelauswahl), Zimmer (Einzelauswahl: 1, 2, 3, 4, 5+), Budget bis (Währung), Finanzierung (Einzelauswahl: Offen, Zusage liegt vor, Eigenkapital), Quelle (Einzelauswahl), Nächster Kontakt (Datum) |
+| Kontakte | Suchkunden, Eigentümer, Vermieter, Mieter, Tippgeber | Rolle (Einzelauswahl: Suchkunde, Eigentümer, Vermieter, Mieter, Tippgeber, Bestandskunde), Suchgebiet (Einzelauswahl), Objektart (Einzelauswahl), Zimmer (Einzelauswahl: 1, 2, 3, 4, 5+), Budget bis (Geldbetrag), Finanzierung (Einzelauswahl: Offen, Zusage liegt vor, Eigenkapital), Quelle (Einzelauswahl), Nächster Kontakt (Datum) |
 | Organisationen | Banken und Finanzierungsvermittler, Notariate, Bauträger, Partnerbüros | Partnerart (Einzelauswahl), Empfehlungen (Text) |
-| Deals | Jeder Verkaufs-, Vermietungs- und Suchauftrag | Phase, Art (Einzelauswahl: Verkauf, Vermietung, Suchauftrag), Adresse (Text), Angebotspreis (Währung), Erwartete Provision (Währung), Exposé-Link (Link), Auftrag endet (Datum) |
-| Aufgaben | Besichtigungen und nächste Schritte, einem Makler zugewiesen | Besichtigung am (Datum & Uhrzeit), Rückmeldung (Einzelauswahl: Gefällt, Zweittermin, Passt nicht) |
+| Deals | Jeder Verkaufs-, Vermietungs- und Suchauftrag | Phase, Art (Einzelauswahl: Verkauf, Vermietung, Suchauftrag), Adresse (Text), Angebotspreis (Geldbetrag), Erwartete Provision (Geldbetrag), Exposé-Link (Webadresse), Auftrag endet (Datum) |
+| Aufgaben | Besichtigungen und nächste Schritte, einem Makler zugewiesen | Besichtigung am (Datum und Uhrzeit), Rückmeldung (Einzelauswahl: Gefällt, Zweittermin, Passt nicht) |
 | Services | Für Makler selten nötig | Leer lassen oder für Festpreisleistungen wie eine Wertermittlung nutzen |
 
 Kontakte lassen sich mit Deals verknüpfen. So hängen die Interessenten direkt am Objekt, nach dem sie gefragt haben, und Verkauf und spätere Suche eines Eigentümers liegen beim selben Kontakt. Aufgaben haben kein eingebautes Fälligkeitsdatum, deshalb bekommt die Besichtigung ein eigenes Datumsfeld.
@@ -90,7 +90,7 @@ Die Phase eines Deals ist ein Feld mit Einzelauswahl, und jede Option kann eine 
 | Abgeschlossen | Übergabe erfolgt | Übergabe erfolgt | 100 % |
 | Verloren | Verloren | Verloren | 0 % |
 
-Auf dem [Pipeline-Board](/features/pipeline) ist jeder Deal eine Karte, die Sie zwischen den Phasen verschieben. Gewichtete Werte ergeben sich aus Ihren Wahrscheinlichkeiten mal dem Deal-Wert, und der Deal-Wert kommt aus verknüpften Services. Für die Provision ist das Feld „Erwartete Provision" meist einfacher. In beiden Fällen ist das Rechnung, keine Vorhersage.
+Auf dem [Pipeline-Board](/features/pipeline) ist jeder Deal eine Karte, die Sie zwischen den Phasen verschieben. Gewichtete Werte ergeben sich aus Ihren Wahrscheinlichkeiten mal dem Deal-Wert, und der Deal-Wert ist die Summe seiner Positionen. Für die Provision ist das Feld „Erwartete Provision" meist einfacher. In beiden Fällen ist das Rechnung, keine Vorhersage.
 
 ### Gespeicherte Ansichten für den Morgen
 
@@ -104,7 +104,7 @@ Gespeicherte Ansichten sind persönlich, deshalb legt jede Person mit denselben 
 
 ### Suchkunden zu einem neuen Objekt finden
 
-Customermates gleicht Suchprofile nicht automatisch mit Objekten ab, und es gibt keine Objektdatenbank, gegen die es abgleichen könnte. Was funktioniert, ist ein Filter. Kommt eine 3-Zimmer-Wohnung im Nordend für 480.000 € herein, filtern Sie Kontakte nach Rolle Suchkunde, Suchgebiet Nordend, Zimmer 3 oder 4 und Budget bis mindestens 480.000. Währungsfelder lassen sich mit größer und kleiner filtern, Einzelauswahl-Felder mit „ist eines von" ([Filterreferenz](/docs/filter-syntax)). Verknüpfen Sie die Suchkunden, die Sie anrufen, mit dem Objekt-Deal, dann sehen Sie später, wer das Angebot schon kennt.
+Customermates gleicht Suchprofile nicht automatisch mit Objekten ab, und es gibt keine Objektdatenbank, gegen die es abgleichen könnte. Was funktioniert, ist ein Filter. Kommt eine 3-Zimmer-Wohnung im Nordend für 480.000 € herein, filtern Sie Kontakte nach Rolle Suchkunde, Suchgebiet Nordend, Zimmer 3 oder 4 und Budget bis mindestens 480.000. Felder vom Typ Geldbetrag lassen sich mit größer und kleiner filtern, Einzelauswahl-Felder mit „ist eines von" ([Filterreferenz](/docs/filter-syntax)). Verknüpfen Sie die Suchkunden, die Sie anrufen, mit dem Objekt-Deal, dann sehen Sie später, wer das Angebot schon kennt.
 
 In Customermates Cloud übernimmt eine [Routine](/docs/app-routines) diese Suche. Wählen Sie **Wenn sich etwas ändert**, das Ereignis **Deal aktualisiert**, unter **Geänderte Felder** die Phase und als **Datensatzfilter** Art = Verkauf und Phase = Vermarktung. Die **Anweisungen** könnten so lauten:
 
@@ -201,11 +201,11 @@ Jeder Cloud-Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer f�
     der Import Ihre Spalten zuordnen kann.
   </Step>
   <Step title="Kontakte, dann Deals importieren">
-    Öffnen Sie in der jeweiligen Liste Import und Export und wählen Sie Aus
+    Öffnen Sie in der jeweiligen Liste Weitere Aktionen und wählen Sie Aus
     Datei hinzufügen. Erst die Personen, dann laufende Aufträge.
   </Step>
   <Step title="Kanäle verbinden">
-    Ab Pro verbinden Sie Ihr Postfach oder WhatsApp unter Mein Profil › Kanäle
+    Ab Pro verbinden Sie Ihr Postfach oder WhatsApp unter Einstellungen › Kanäle
     und verknüpfen die Gesprächspartner mit ihren Kontakten.
   </Step>
   <Step title="Ansichten und Routinen speichern">

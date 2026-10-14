@@ -62,25 +62,25 @@ Most CRMs assume one buyer and a short sales cycle. Architecture works different
 
 ## An architect setup in Customermates
 
-Customermates has five record types. Under **My Company › Settings** you can rename Deals to **Projects** and Services to **Offerings**, so the app speaks your language. Every field name below is an example.
+Customermates starts with five lists, and you can add your own. In **Configure** you can rename Deals to **Projects** and Services to **Offerings** under **General**, so the app speaks your language. Every field name below is an example.
 
 | Record type | Used for | Example custom fields |
 |---|---|---|
-| Organizations | Clients, developers, public authorities and consultant firms | Organization type (Single Select: Private client, Developer, Public authority, Consultant, Contractor) |
-| Contacts | People at those organizations | Role (Single Select: Client representative, Project manager, Structural engineer, MEP engineer, Landscape architect), Referred by |
-| Projects (Deals) | Each pursuit, from first inquiry to contract | Stage, Procurement route (Direct commission, Invited competition, Open competition, Public RFQ), Submission deadline (Date & Time), Interview date (Date), Construction value (Currency), Building type, Design phase, Project folder (Link) |
+| Organizations | Clients, developers, public authorities and consultant firms | Organization type (Single choice: Private client, Developer, Public authority, Consultant, Contractor) |
+| Contacts | People at those organizations | Role (Single choice: Client representative, Project manager, Structural engineer, MEP engineer, Landscape architect), Referred by |
+| Projects (Deals) | Each pursuit, from first inquiry to contract | Stage, Procurement route (Direct commission, Invited competition, Open competition, Public RFQ), Submission deadline (Date and time), Interview date (Date), Construction value (Money), Building type, Design phase, Project folder (Web address) |
 | Offerings (Services) | Fee packages with a price | Feasibility study, Planning application package, Fee estimate per €1,000 |
 | Tasks | Next steps, assigned to a person | A "Due on" date field you add, because tasks have no built-in due date |
 
-A project's value comes from its linked offerings, price times quantity. For a bespoke fee, an offering "Fee estimate per €1,000" priced at €1,000 with a quantity of 85 gives a project worth €85,000.
+A project's value is the sum of its line items, each an offering times quantity. For a bespoke fee, an offering "Fee estimate per €1,000" priced at €1,000 with a quantity of 85 gives a project worth €85,000.
 
 ### Pursuit stages and weighted values
 
-The stage is a Single Select field you define, and each option gets a win probability. A starting point: Lead 10%, Go or no-go 20%, Preparing submission 30%, Submitted 40%, Shortlisted 60%, Negotiating fee 80%, Won 100%, Lost 0%.
+The stage is a Single choice field you define, and each option gets a win probability. A starting point: Lead 10%, Go or no-go 20%, Preparing submission 30%, Submitted 40%, Shortlisted 60%, Negotiating fee 80%, Won 100%, Lost 0%.
 
 A project worth €85,000 in Shortlisted has a weighted value of €51,000. That is arithmetic from your own probabilities, not a forecast. On the [pipeline board](/features/pipeline) each project is a card you drag between stages.
 
-Track the design phase in its own Single Select field (Schematic design, Design development, Construction documents, Bidding, Construction administration) rather than in the stage. A board grouped by Design phase and filtered to won projects shows where every active job stands, and dragging a card there changes its phase.
+Track the design phase in its own Single choice field (Schematic design, Design development, Construction documents, Bidding, Construction administration) rather than in the stage. A board grouped by Design phase and filtered to won projects shows where every active job stands, and dragging a card there changes its phase.
 
 ### Saved views for the week
 
@@ -170,15 +170,15 @@ Each plan adds monthly hosted AI credits per active user for Mate; the amounts a
   </Step>
   <Step title="Import organizations first">
     Clients, developers and consultant firms. On the Organizations list, open
-    Import and export, choose Add from file and map your columns.
+    More actions, choose Add from file and map your columns.
   </Step>
   <Step title="Import contacts">
     Add a column with each person's organization name; the import links them
     to the organization of that name.
   </Step>
   <Step title="Import open pursuits as projects">
-    Include the stage, procurement route and submission deadline, then link
-    offerings and quantities so each project gets its value.
+    Include the stage, procurement route and submission deadline, then add
+    line items with offerings and quantities so each project gets its value.
   </Step>
   <Step title="Save the views and the routine">
     Save the views above, then set up the weekly review if you use
@@ -206,7 +206,7 @@ If hours, fees and staffing are your problem, practice management software such 
 </FaqItem>
 
 <FaqItem question="Can I track design phases in Customermates?">
-Yes, with a Single Select field for the phase and date fields for milestones such as a client sign-off or permit submission. A board grouped by that field shows which projects are in which phase. There are no automatic milestone reminders.
+Yes, with a Single choice field for the phase and date fields for milestones such as a client sign-off or permit submission. A board grouped by that field shows which projects are in which phase. There are no automatic milestone reminders.
 </FaqItem>
 
 <FaqItem question="Does a small studio need a CRM?">

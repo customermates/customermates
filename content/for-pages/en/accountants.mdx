@@ -59,23 +59,23 @@ Accounting firms looking for a CRM often need two different things. Practice man
 
 ## An accounting setup in Customermates
 
-Customermates has five record types. Here is one way to map them; every field name is an example. You can rename record types under **My Company › Settings** from a preset list, for example Deals to Jobs or Projects.
+Customermates starts with five lists, and you can add your own. Here is one way to map the five; every field name is an example. You can rename any list in **Configure** under **General**, for example Deals to Jobs or Projects.
 
 | Record type | Used for | Example custom fields |
 |---|---|---|
-| Organizations | Client businesses and households | Entity type (Single Select: Individual, Sole proprietor, Partnership, S corp, C corp, Nonprofit), Fiscal year end (Date) |
-| Contacts | People at the client | Role (Single Select: Owner, Bookkeeper, Spouse, Referral source), Referred by |
-| Deals | Each engagement and each cycle, for example "Miller LLC: 2026 return" | Stage, Engagement type, Documents (Single Select: Complete, Partial, Missing), Documents requested on, Filing due (Date), Engagement letter (Link) |
+| Organizations | Client businesses and households | Entity type (Single choice: Individual, Sole proprietor, Partnership, S corp, C corp, Nonprofit), Fiscal year end (Date) |
+| Contacts | People at the client | Role (Single choice: Owner, Bookkeeper, Spouse, Referral source), Referred by |
+| Deals | Each engagement and each cycle, for example "Miller LLC: 2026 return" | Stage, Engagement type, Documents (Single choice: Complete, Partial, Missing), Documents requested on, Filing due (Date), Engagement letter (Web address) |
 | Services | What you sell, each with a price | Monthly bookkeeping, Payroll, Individual return, Business return, Advisory hour |
 | Tasks | Next steps for a person | A "Due on" date field you add, because tasks have no built-in due date |
 
 ### Stages for engagements
 
-The deal stage is one Single Select field you define, and each option can carry a probability. Because there is one stage field, use the Engagement type field to tell onboarding from recurring work. One stage list that works for both:
+The deal stage is one Single choice field you define, and each option can carry a probability. Because there is one stage field, use the Engagement type field to tell onboarding from recurring work. One stage list that works for both:
 
 Inquiry · Proposal sent · Engagement letter signed · Documents requested · Documents received · In preparation · In review · Filed · Closed
 
-A deal's value comes from the services linked to it, price times quantity. Weighted totals are plain arithmetic from your own probabilities. On the [pipeline board](/features/pipeline) each engagement is a card you drag between stages, and you can group the board or table by assigned person to see each preparer's load.
+A deal's value is the sum of its line items, each a service times quantity. Weighted totals are plain arithmetic from your own probabilities. On the [pipeline board](/features/pipeline) each engagement is a card you drag between stages, and you can group the board or table by assigned person to see each preparer's load.
 
 ### Saved views for the week
 
@@ -150,20 +150,20 @@ Each plan adds monthly hosted AI credits per active user for Mate; the amounts a
 
 <Steps>
   <Step title="Save your list as Excel">
-    The import reads Excel workbooks (.xlsx), one record type at a time.
+    The import reads Excel workbooks (.xlsx), one list at a time.
     CSV files are not accepted, so save an export from your old tool as .xlsx first.
   </Step>
   <Step title="Import organizations, then contacts">
-    On each list, open Import and export, choose Add from file and map your
+    On each list, open More actions, choose Add from file and map your
     columns. Give contacts a column with their organization's name to link them.
   </Step>
   <Step title="Import open engagements as deals">
-    Include stage, engagement type and your date fields, then link services
+    Include stage, engagement type and your date fields, then add line items
     so each deal gets its value.
   </Step>
   <Step title="Save the views and the routine">
     Save the four views above. On Pro, connect your mailbox under
-    My Profile › Channels, then set up the weekly chaser.
+    Settings › Channels, then set up the weekly chaser.
   </Step>
 </Steps>
 
@@ -192,7 +192,7 @@ Usually in practice management or tax software that keeps the deadline list. A C
 </FaqItem>
 
 <FaqItem question="Can Customermates handle engagement letters?">
-It tracks them. Use a stage for Engagement letter signed, a date field for when you sent it and a link field to the signed file. Writing, sending and signing the letter happens in a tool such as Ignition or your practice software.
+It tracks them. Use a stage for Engagement letter signed, a date field for when you sent it and a web address field for the signed file. Writing, sending and signing the letter happens in a tool such as Ignition or your practice software.
 </FaqItem>
 
 <FaqItem question="Does a small accounting firm need a CRM?">

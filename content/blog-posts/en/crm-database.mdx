@@ -35,7 +35,7 @@ You rarely build that database from scratch. You pick a CRM, decide which record
   <SummaryItem label="What it is">Linked records for people, companies, deals and tasks, with typed fields and an activity history. A spreadsheet holds rows; a CRM database holds relationships.</SummaryItem>
   <SummaryItem label="How to build one">Fix the record types first, then the fields you filter on, then one unique key per person. Clean before you import, and import companies before people.</SummaryItem>
   <SummaryItem label="What breaks it">Duplicates, free-text fields that should be choices, and nobody owning the cleanup.</SummaryItem>
-  <SummaryItem label="Customermates">Five record types (contacts, organizations, deals, services, tasks) with typed custom columns, from [[commercial.price.starter.monthly]] per user per month in the cloud, or self-hosted under AGPL.</SummaryItem>
+  <SummaryItem label="Customermates">Starts with five lists (contacts, organizations, deals, services, tasks), lets you add your own, with typed fields and relationships, from [[commercial.price.starter.monthly]] per user per month in the cloud, or self-hosted under AGPL.</SummaryItem>
 </ArticleSummary>
 
 ## What a CRM database holds
@@ -63,9 +63,9 @@ The record types tell you what a CRM was built for. This table compares the data
 | [HubSpot](https://knowledge.hubspot.com/records/understand-objects) | Contacts and companies as the foundation, plus deals, leads, tickets, products, projects, tasks and more | Custom objects, which need an Enterprise subscription |
 | [Salesforce](https://trailhead.salesforce.com/content/learn/modules/data_modeling/objects_intro) | Standard objects such as Account, Contact, Lead and Opportunity | Custom objects "to store information that's specific to your company or industry" |
 | [Pipedrive](https://support.pipedrive.com/en/article/how-is-pipedrive-data-organized) | Leads, deals, people, organizations, activities, products, projects and mail | The linked article names no custom object type; Projects is an add-on on Growth and lower plans and standard on Premium and Ultimate |
-| Customermates | Contacts, organizations, deals, services and tasks, renamable from presets | None: five fixed types with typed custom columns |
+| Customermates | Contacts, organizations, deals, services and tasks, each freely renamable | Your own lists with typed fields, relationships and calculated fields |
 
-The pattern: HubSpot and Salesforce let you add your own object types and configure them, on HubSpot with an Enterprise subscription. Pipedrive's data items stay close to the sales process. Customermates keeps five types and lets you rename them, so Contacts can read Clients and Deals can read Projects across the whole workspace.
+The pattern: HubSpot and Salesforce let you add your own object types and configure them, on HubSpot with an Enterprise subscription. Pipedrive's data items stay close to the sales process. Customermates starts with five lists, lets you rename any of them, so Contacts can read Clients and Deals can read Projects across the whole workspace, and lets you add your own.
 
 ## CRM database, spreadsheet or plain database?
 
@@ -101,32 +101,32 @@ This is the most common design problem, and there are four honest answers.
 1. **It describes an existing record.** A contract end date, a client segment, a LinkedIn URL. Add a typed custom field to that record type.
 2. **It is something you sell.** Put it in the product or service catalogue and link it to deals, so the deal value follows from what is in it.
 3. **It is text you read but never filter.** Meeting notes, background, preferences. Use the notes field.
-4. **It has its own lifecycle and relations.** Properties, vehicles, candidates, events. That is a custom object. HubSpot offers them on Enterprise, Salesforce on its platform, and no-code databases such as Airtable are built around them. Customermates does not have custom record types, so data like this belongs elsewhere.
+4. **It has its own lifecycle and relations.** Properties, vehicles, candidates, events. That is a custom object. HubSpot offers them on Enterprise, Salesforce on its platform, and no-code databases such as Airtable are built around them. In Customermates you add it as your own list in Configure, with its own fields and relationships.
 
 ## Worked example: a CRM database for a four-person consultancy
 
 Here is the same design in Customermates, set up the way the product works today. Customermates is an open-source, AI-native CRM built in Germany for small client-facing teams such as consultants, agencies and founders.
 
-**Record types.** Under My Company › Settings › Data model, rename Contacts to Clients and Deals to Projects. Names are chosen from presets, not typed freely. Organizations, Services and Tasks keep their names.
+**Lists.** In Configure, open Contacts and change **Name** and **Plural name** under **General** to Client and Clients, then rename Deals to Projects the same way. Any name works. Organizations, Services and Tasks keep their names.
 
-**Custom columns.** Each column has a type: Text, Email, Phone, Link, Date, Date & Time, Date Range, Date & Time Range, Currency or Single Select.
+**Fields.** Each field has a type: Text, Formatted text, Number, Money, Yes or no, Date, Date and time, Date range, Date and time range, Single choice, Multiple choice, Email, Phone, Web address or Member.
 
-| Record type | Column | Type |
+| List | Field | Type |
 |---|---|---|
-| Organizations | Segment (Retainer, Project, Former) | Single Select |
+| Organizations | Segment (Retainer, Project, Former) | Single choice |
 | Organizations | Client since | Date |
 | Clients | Role | Text |
-| Clients | LinkedIn profile | Link |
-| Projects | Engagement period | Date Range |
-| Projects | Source (Referral, Inbound, Event) | Single Select |
+| Clients | LinkedIn profile | Web address |
+| Projects | Engagement period | Date range |
+| Projects | Source (Referral, Inbound, Event) | Single choice |
 
-**Relations.** A client can link to several organizations, and a project to several clients, organizations, services and assigned users. A project's value is the sum of its linked services, each price multiplied by its quantity, so "Strategy workshop" at one price and "Monthly retainer" times six add up on their own.
+**Relations.** A client can link to several organizations, and a project to several clients, organizations and assigned users. A project's value is the sum of its line items, each a service price multiplied by its quantity, so "Strategy workshop" at one price and "Monthly retainer" times six add up on their own.
 
-**Stages.** A new workspace starts with a Stage field (Prospecting, Qualification, Demo, Proposal, Negotiation, Won, Lost) whose win probabilities you set per stage. The weighted pipeline is the plain arithmetic of those percentages, not a prediction.
+**Stages.** A new workspace starts with a Stage field (Prospecting, Qualification, Demo, Proposal, Negotiation, Won, Lost) whose win probabilities you set per stage in Configure. The weighted pipeline is the plain arithmetic of those percentages, not a prediction.
 
-**Unique key.** Customermates refuses to link one email address to a second contact and shows "This channel is already linked to another contact." Global search (Cmd/Ctrl+K) finds a client by first name, last name, email address or company name.
+**Unique key.** Email addresses go into the client's Channels field, which matches incoming messages to the record. One address can belong to several records, so remove duplicates before you import. Global search (Cmd/Ctrl+K) finds a client by name or by any email address or phone number in their Channels.
 
-**Import.** Use Import and export › Add from file with an .xlsx workbook, one record type at a time, in the order organizations, clients, projects. Link columns are matched by record name. CSV files are not accepted, so save them as .xlsx first. The [records documentation](/docs/app-records) has the full import rules.
+**Import.** Use More actions › Add from file with an .xlsx workbook, one list at a time, in the order organizations, clients, projects. Link columns are matched by record name. CSV files are not accepted, so save them as .xlsx first. The [records documentation](/docs/app-records) has the full import rules.
 
 **Views.** Save "Not touched in 90 days" by filtering Updated at with Older than… 90 days, and "Clients without an organization". Saved views are personal, so each colleague sets the same filters and saves their own view.
 
@@ -146,11 +146,11 @@ Contact data goes stale as people change jobs and companies merge. A short routi
 |---|---|---|
 | Weekly | New people without a company, new deals without a stage | Saved views, or the routine above |
 | Monthly | Records not updated in 90 days: still relevant? | Filter Updated at, Older than… 90 days |
-| Monthly | Free-text values that should be choices | Add a Single Select column, then set it on up to 100 selected records at once with Update |
-| Quarterly | People you no longer have a reason to keep | Delete them from the list or the record page |
-| Before any big change | A copy of what you have | Export each record type to .xlsx; there is no single whole-account export |
+| Monthly | Free-text values that should be choices | Add a Single choice field, then set it on up to 100 selected records at once with Edit |
+| Quarterly | People you no longer have a reason to keep | Delete them from the list or the record page, then from Trash |
+| Before any big change | A copy of what you have | Export each list as Excel or JSON; there is no single whole-account export |
 
-An exported workbook can be edited and read back in: its Record ID column updates the existing records instead of creating duplicates. That makes bulk corrections practical without an API.
+An exported workbook can be edited and imported again as **Existing records**, which updates them instead of creating duplicates. That makes bulk corrections practical without an API.
 
 ## Personal data in a CRM database
 
@@ -160,10 +160,9 @@ For Customermates Cloud, the [data processing agreement](/dpa) is public, the ap
 
 ## When Customermates is the wrong database
 
-- **You need your own record types** such as properties, candidates or events. Use a CRM with custom objects or a no-code database.
 - **You want documents stored on the record.** Records have no file attachments; notes can embed images and tables.
-- **You need field-level permissions.** Permissions apply per record type and action, not per field.
-- **You need one-click export of everything.** Export runs one record type at a time as .xlsx.
+- **You need field-level permissions.** Permissions apply per list and action, not per field.
+- **You need one-click export of everything.** Export runs one list at a time, as Excel or JSON.
 - **You send newsletters from your customer list.** There is no mass email; use an email marketing tool.
 
 ## Frequently asked questions
@@ -186,7 +185,7 @@ The usual split is operational (running sales, service and marketing work), anal
 </FaqItem>
 
 <FaqItem question="How do I store data that doesn't fit contacts, companies or deals?">
-If it describes an existing record, add a typed custom field. If it is something you sell, use the product or service catalogue. If it is only read, use notes. If it has its own lifecycle and relations, you need custom objects, which HubSpot offers on Enterprise and Salesforce on its platform; Customermates has five fixed record types.
+If it describes an existing record, add a typed custom field. If it is something you sell, use the product or service catalogue. If it is only read, use notes. If it has its own lifecycle and relations, you need custom objects, which HubSpot offers on Enterprise and Salesforce on its platform; in Customermates you add your own list for it.
 </FaqItem>
 
 <FaqItem question="How much does a CRM database cost?">

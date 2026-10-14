@@ -94,7 +94,7 @@ Kontakte im CRM sind personenbezogene Daten, und der Anbieter verarbeitet sie in
 3. Gibt es einen Auftragsverarbeitungsvertrag (AVV), den Sie abschließen können?
 4. In welchem Format und auf welchem Weg bekommen Sie Ihre Daten wieder heraus?
 
-Für Customermates lauten die Antworten so: Die primäre Produktionsdatenbank der Cloud ist in der AWS-Region Frankfurt konfiguriert. Das ist eine gewählte Einstellung, keine vertragliche Zusage zum Datenstandort, und die Webanwendung wird bei Vercel in den USA gehostet. Die Unterauftragsverarbeiter, auch aus den USA, sind öffentlich aufgeführt, und ein [AVV](/dpa) liegt vor. Datensätze exportieren Sie pro Datensatztyp als Excel-Arbeitsmappe; einen Export des ganzen Kontos gibt es nicht, dafür eine REST-API. Eine Zertifizierung hält Customermates nicht.
+Für Customermates lauten die Antworten so: Die primäre Produktionsdatenbank der Cloud ist in der AWS-Region Frankfurt konfiguriert. Das ist eine gewählte Einstellung, keine vertragliche Zusage zum Datenstandort, und die Webanwendung wird bei Vercel in den USA gehostet. Die Unterauftragsverarbeiter, auch aus den USA, sind öffentlich aufgeführt, und ein [AVV](/dpa) liegt vor. Datensätze exportieren Sie pro Liste als Excel-Arbeitsmappe oder JSON; einen Export des ganzen Kontos gibt es nicht, dafür eine REST-API. Eine Zertifizierung hält Customermates nicht.
 
 ## Wo Customermates passt
 
@@ -106,32 +106,32 @@ In Customermates Cloud erstellt Mate Zusammenfassungen und Antwortentwürfe und 
 
 <Steps>
   <Step title="Leistungen mit Preis anlegen">
-    Legen Sie unter **Services** jedes Angebot mit **Betrag** an, etwa einen Workshoptag und eine monatliche Betreuungspauschale. Der Wert eines Deals ist die Summe der verknüpften Services, jeweils Betrag mal Anzahl; ein Deal mit einem Workshoptag und sechs Monaten Betreuungspauschale ist also genau so viel wert. Passt „Deals“ nicht zu Ihrem Geschäft, benennen Sie den Datensatztyp unter **Mein Unternehmen › Einstellungen › Datenmodell** in Aufträge oder Projekte um und die Services in Leistungen.
+    Legen Sie unter **Services** jedes Angebot mit einem Preis an, etwa einen Workshoptag und eine monatliche Betreuungspauschale. Der Wert eines Deals ist die Summe seiner Positionen, jeweils Preis eines Services mal Anzahl; ein Deal mit einem Workshoptag und sechs Monaten Betreuungspauschale ist also genau so viel wert. Passt „Deals“ nicht zu Ihrem Geschäft, benennen Sie die Liste in Aufträge oder Projekte um und die Services in Leistungen: in **Konfigurieren** öffnen und **Name** und **Pluralname** unter **Allgemein** ändern.
   </Step>
   <Step title="Phasenwahrscheinlichkeiten festlegen">
-    Ein neuer Workspace startet mit der Spalte **Phase** bei Deals: Akquise 10 %, Qualifizierung 20 %, Demo 40 %, Angebot 60 %, Verhandlung 80 %, Gewonnen 100 %, Verloren 0 %. Die Prozentwerte ändern Sie unter **Mein Unternehmen › Einstellungen**. Die gewichtete Pipeline ist der Deal-Wert mal der Wahrscheinlichkeit seiner Phase, ein fester Faktor, den Sie selbst setzen, und keine Prognose.
+    Ein neuer Workspace startet mit dem Feld **Phase** bei Deals: Akquise 10 %, Qualifizierung 20 %, Demo 40 %, Angebot 60 %, Verhandlung 80 %, Gewonnen 100 %, Verloren 0 %. Die Prozentwerte ändern Sie in Konfigurieren für Deals: Feld **Phase** öffnen und an jeder Option **Wahrscheinlichkeit %** setzen. Die gewichtete Pipeline ist der Deal-Wert mal der Wahrscheinlichkeit seiner Phase, ein fester Faktor, den Sie selbst setzen, und keine Prognose.
   </Step>
-  <Step title="Tabelle importieren, ein Datensatztyp nach dem anderen">
-    Speichern Sie die Tabelle als Excel-Arbeitsmappe (`.xlsx`); CSV-Dateien werden nicht akzeptiert. In jeder Liste ordnet **Import und Export › Aus Datei hinzufügen** die Tabellenspalten den Feldern zu. Importieren Sie zuerst Organisationen, dann Kontakte, dann Deals, weil Verknüpfungsspalten bestehende Datensätze über den Namen finden. Neue Kontakte brauchen Vor- und Nachnamen. Zeilen- und Größengrenzen stehen in der [Anleitung zu Datensätzen](/docs/app-records).
+  <Step title="Tabelle importieren, eine Liste nach der anderen">
+    Speichern Sie die Tabelle als Excel-Arbeitsmappe (`.xlsx`); CSV-Dateien werden nicht akzeptiert. In jeder Liste ordnet **Weitere Aktionen › Aus Datei hinzufügen** die Tabellenspalten den Feldern zu. Importieren Sie zuerst Organisationen, dann Kontakte, dann Deals, weil Verknüpfungsspalten bestehende Datensätze über den Namen finden. Zeilen- und Größengrenzen stehen in der [Anleitung zu Datensätzen](/docs/app-records).
   </Step>
   <Step title="Die Kanäle verbinden, auf denen Kunden schreiben">
-    Jede Person verbindet ihre Konten unter **Mein Profil › Kanäle**: [[commercial.entitlement.pro.includedAccountsPerUser]] pro Nutzer in Pro, [[commercial.entitlement.business.includedAccountsPerUser]] in Business. Öffnen Sie in einer Konversation die **Konversationseinstellungen** über den Chip in der Kopfleiste und klicken Sie bei einem Teilnehmer auf **Verknüpfen**, um die Adresse einem Kontakt zuzuordnen. Danach erscheint jede Konversation mit dieser Adresse auf der Timeline des Kontakts.
+    Jede Person verbindet ihre Konten unter **Einstellungen › Kanäle**: [[commercial.entitlement.pro.includedAccountsPerUser]] pro Nutzer in Pro, [[commercial.entitlement.business.includedAccountsPerUser]] in Business. Öffnen Sie in einer Konversation die **Konversationseinstellungen** über den Chip in der Kopfleiste und klicken Sie bei einem Teilnehmer auf **Verknüpfen**, um die Adresse einem Kontakt zuzuordnen. Danach erscheint jede Konversation mit dieser Adresse auf der Timeline des Kontakts.
   </Step>
   <Step title="Sichtbarkeit für freie Mitarbeiter begrenzen">
-    Stellen Sie unter **Mein Unternehmen › Rollen** für eine Rolle für freie Mitarbeiter **Lesen** auf **Zugewiesen**. Wer diese Rolle hat, sieht nur die Datensätze, denen er zugewiesen ist. Deals haben zugewiesene Nutzer statt eines einzelnen Verantwortlichen, ein erfahrener Berater und eine freie Mitarbeiterin können sich also einen Deal teilen.
+    Stellen Sie unter **Einstellungen › Rollen** für eine Rolle für freie Mitarbeiter **Lesen** auf **Zugewiesen**. Wer diese Rolle hat, sieht nur die Datensätze, denen er zugewiesen ist. Deals haben zugewiesene Nutzer statt eines einzelnen Verantwortlichen, ein erfahrener Berater und eine freie Mitarbeiterin können sich also einen Deal teilen.
   </Step>
   <Step title="Eine Ansicht pro Person speichern">
     Klicken Sie bei **Deals** auf **Neue Ansicht**, filtern Sie **Zugewiesen** auf Ihren Namen und wählen Sie unter **Darstellung** das **Board**, gruppiert nach Phase. Ansichten sind persönlich, deshalb speichert jedes Teammitglied eine eigene.
   </Step>
 </Steps>
 
-**Nur in Customermates Cloud:** Eine ereignisgesteuerte [Routine](/docs/app-routines) kann die Übergabe nach einem Abschluss übernehmen. Klicken Sie unter **Routinen** auf **Hinzufügen**, wählen Sie **Wenn sich etwas ändert** und das Ereignis **Deal aktualisiert**, setzen Sie **Geänderte Felder** auf Phase und als **Datensatzfilter** Phase ist Gewonnen. Beispielanweisung:
+**Nur in Customermates Cloud:** Eine ereignisgesteuerte [Routine](/docs/app-routines) kann die Übergabe nach einem Abschluss übernehmen. Klicken Sie unter **Routinen** auf **Hinzufügen**, wählen Sie **Wenn sich etwas ändert** und das Ereignis **Datensatz aktualisiert** für Deals, setzen Sie **Geänderte Felder** auf Phase und als **Datensatzfilter** Phase ist Gewonnen. Beispielanweisung:
 
 > Dieser Deal steht jetzt auf Gewonnen. Eine Aufgabe „Kickoff: Deal-Name“ anlegen, mit dem Deal, seiner Organisation und seinen Kontakten verknüpfen und den zugewiesenen Nutzern des Deals zuweisen. Danach die letzte Konversation mit dem Hauptkontakt lesen und in den Notizen des Deals in drei Zeilen festhalten, was vereinbart wurde. Keine Nachrichten senden.
 
 Der Lauf verbraucht gehostete KI-Credits aus dem Kontingent der Person, der die Routine gehört, und arbeitet mit deren Zugriffsrechten und Kanälen. Mate kann E-Mails und Chatnachrichten ohne Rückfrage senden. Lassen Sie den letzten Satz deshalb stehen: Er beschränkt die Routine auf Aufgabe und Notiz. Zum Lesen von Konversationen braucht es einen Tarif mit Posteingang. Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
-Aufgaben haben in Customermates kein eingebautes Fälligkeitsdatum und keine Wiedervorlage. Wenn Sie Kickoffs nach Datum sortieren möchten, legen Sie bei Aufgaben eine eigene Spalte vom Typ **Datum** an.
+Aufgaben haben in Customermates kein eingebautes Fälligkeitsdatum und keine Wiedervorlage. Wenn Sie Kickoffs nach Datum sortieren möchten, legen Sie bei Aufgaben ein eigenes Feld vom Typ **Datum** an.
 
 <AcquisitionCallout title="Wann Customermates nicht passt" variant="boundary">
   Customermates hat keine Telefonie, keine E-Mail-Sequenzen oder Massenmails, keine Webformulare zur Lead-Erfassung und keine native Mobile-App; die Webanwendung passt sich schmalen Bildschirmen an. Es erstellt keine Angebote oder Rechnungen, gespeicherte Ansichten lassen sich nicht teilen, und einen kostenlosen Cloud-Tarif gibt es nicht. Verkaufen Sie vor allem am Telefon, wählen Sie ein CRM mit eingebauter Telefonie. Brauchen Sie E-Mail-Sequenzen, bietet Pipedrive sie ab Growth, und LeadBooster mit Webformularen gehört bei Pipedrive zu Premium und Ultimate. Für Belege und Zahlungen bleibt Ihre Buchhaltungssoftware zuständig.

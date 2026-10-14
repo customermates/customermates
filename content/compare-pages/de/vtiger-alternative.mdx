@@ -53,7 +53,7 @@ comparison:
   - title: CRM & Service
     features:
       - name: Datensatztypen
-        source: Kontakte, Organisationen, Deals, Leistungen, Aufgaben
+        source: Kontakte, Organisationen, Deals, Leistungen, Aufgaben, dazu eigene Listen
         competitor: Leads, Kontakte, Organisationen, Deals und Module aus fünf Apps
       - name: Rechnungen und Lager
         source: false
@@ -175,15 +175,14 @@ Customermates ist ein KI-CRM auf Open-Source-Basis für kleine Teams mit Kundenk
 - **Keine E-Mail-Kampagnen, Sequenzen, Webformulare oder Landingpages.** Nachrichten gehen einzeln hinaus, von Ihnen geschrieben oder von Mate entworfen.
 - **Kein Projektmanagement.** Sie können Deals in „Projekte“ umbenennen, aber es gibt keine Gantt-Diagramme, und Aufgaben haben kein eingebautes Fälligkeitsdatum. Legen Sie bei Bedarf ein eigenes Datumsfeld an.
 - **Keine nativen Apps für Smartphones, keine Telefonie und keine SMS.**
-- **Keine eigenen Module.** Sie arbeiten mit fünf Datensatztypen und zehn Feldtypen.
 - **Kein Lead-Scoring und keine Umsatzprognose.** Die gewichtete Pipeline multipliziert jeden Deal-Wert mit der Wahrscheinlichkeit seiner Phase und sagt nichts voraus.
-- **Kein Single Sign-on.** Gespeicherte Ansichten sind persönlich, und Berechtigungen gelten pro Datensatztyp und Aktion, nicht pro Feld.
+- **Kein Single Sign-on.** Gespeicherte Ansichten sind persönlich, und Berechtigungen gelten pro Liste und Aktion, nicht pro Feld.
 
 Gehören zwei oder mehr dieser Punkte zum Alltag Ihres Teams, bleiben Sie bei Vtiger oder sehen sich SuiteCRM oder Odoo an.
 
 ## Umstieg von Vtiger
 
-Für die meisten Vertriebsdaten aus Vtiger gibt es ein direktes Gegenstück. In den Unternehmenseinstellungen unter **Datenmodell** können Sie Organisationen „Accounts“ und Deals „Chancen“ nennen, damit die gewohnten Begriffe bleiben.
+Für die meisten Vertriebsdaten aus Vtiger gibt es ein direktes Gegenstück. In **Konfigurieren** können Sie Organisationen in „Accounts“ und Deals in „Chancen“ umbenennen, damit die gewohnten Begriffe bleiben.
 
 | In Vtiger | In Customermates |
 |---|---|
@@ -191,17 +190,17 @@ Für die meisten Vertriebsdaten aus Vtiger gibt es ein direktes Gegenstück. In 
 | Contacts | Kontakte |
 | Leads | Kontakte, im vorhandenen Einzelauswahl-Feld „Vertriebsphase“ auf „Neu“ gesetzt |
 | Deals | Deals, auf Wunsch umbenannt in „Chancen“ |
-| Products und Services | Leistungen, auf Wunsch umbenannt in „Produkte“, mit Mengen an Deals verknüpft |
+| Products und Services | Leistungen, auf Wunsch umbenannt in „Produkte“, als Positionen mit Mengen in Deals |
 | Tasks | Aufgaben, mit eigenem Datumsfeld für Fälligkeiten |
 | Cases, Quotes, Invoices, Projects, Campaigns | Kein Gegenstück; behalten Sie dafür Vtiger oder ein eigenes Werkzeug |
 
-Ein neuer Customermates-Arbeitsbereich beginnt mit den Phasen Akquise 10 %, Qualifizierung 20 %, Demo 40 %, Angebot 60 %, Verhandlung 80 %, Gewonnen 100 % und Verloren 0 %. Benennen Sie die Phasen wie in Vtiger und passen Sie die Wahrscheinlichkeiten in den Unternehmenseinstellungen an.
+Ein neuer Customermates-Arbeitsbereich beginnt mit den Phasen Akquise 10 %, Qualifizierung 20 %, Demo 40 %, Angebot 60 %, Verhandlung 80 %, Gewonnen 100 % und Verloren 0 %. Benennen Sie die Phasen wie in Vtiger und passen Sie die Wahrscheinlichkeiten am Feld Phase in Konfigurieren für Deals an.
 
 <Steps>
   <Step title="Aus Vtiger exportieren">Wählen Sie in der Listenansicht jedes Moduls Export und exportieren Sie alle Daten. Vtiger exportiert CSV-Dateien, kein Excel.</Step>
   <Step title="Jede Datei als XLSX speichern">Customermates importiert nur XLSX-Arbeitsmappen. Öffnen Sie jeden Export in Excel oder LibreOffice und speichern Sie ihn als `.xlsx`-Datei.</Step>
-  <Step title="Arbeitsbereich vorbereiten">Wählen Sie die Bezeichnungen im Datenmodell, legen Sie eigene Felder für die Vtiger-Felder an, die Sie behalten, und tragen Sie Phasennamen und Wahrscheinlichkeiten ein.</Step>
-  <Step title="Einen Datensatztyp nach dem anderen importieren">Nutzen Sie **Aus Datei hinzufügen**: zuerst Organisationen, dann Kontakte, dann Deals. Verknüpfungsspalten werden über den Datensatznamen zugeordnet, die Organisationsspalte eines Kontakts findet also die zuvor importierte Organisation. Die Grenzen stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
+  <Step title="Arbeitsbereich vorbereiten">Benennen Sie Listen in Konfigurieren um, legen Sie eigene Felder für die Vtiger-Felder an, die Sie behalten, und tragen Sie Phasennamen und Wahrscheinlichkeiten ein.</Step>
+  <Step title="Eine Liste nach der anderen importieren">Nutzen Sie **Weitere Aktionen**, dann **Aus Datei hinzufügen**: zuerst Organisationen, dann Kontakte, dann Deals. Verknüpfungsspalten werden über den Datensatznamen zugeordnet, die Organisationsspalte eines Kontakts findet also die zuvor importierte Organisation. Die Grenzen stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
   <Step title="Kanäle und KI verbinden">Verbinden Sie ab Pro oder während der Testphase ein Postfach, LinkedIn oder WhatsApp, richten Sie dann eine Routine ein oder verbinden Sie Ihren eigenen KI-Client.</Step>
 </Steps>
 
@@ -234,7 +233,7 @@ Ja. Customermates wird in Deutschland entwickelt, der Kern steht unter AGPL-3.0,
 </FaqItem>
 
 <FaqItem question="Wie übernehme ich meine Daten aus Vtiger?">
-Einen Datensatztyp nach dem anderen. Exportieren Sie jede Vtiger-Listenansicht, speichern Sie die Datei als XLSX und importieren Sie Organisationen, Kontakte und Deals in dieser Reihenfolge, damit die Verknüpfungen über den Namen gefunden werden. Für Cases, Angebote, Rechnungen und Kampagnen gibt es kein Gegenstück.
+Eine Liste nach der anderen. Exportieren Sie jede Vtiger-Listenansicht, speichern Sie die Datei als XLSX und importieren Sie Organisationen, Kontakte und Deals in dieser Reihenfolge, damit die Verknüpfungen über den Namen gefunden werden. Für Cases, Angebote, Rechnungen und Kampagnen gibt es kein Gegenstück.
 </FaqItem>
 
 <FaqItem question="Kann Customermates den Helpdesk oder die Rechnungsstellung von Vtiger ersetzen?">

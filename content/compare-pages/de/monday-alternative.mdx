@@ -36,7 +36,7 @@ comparison:
   - title: Datensätze & Limits
     features:
       - name: Datenmodell
-        source: Kontakte, Organisationen, Deals, Services, Aufgaben, miteinander verknüpft
+        source: Kontakte, Organisationen, Deals, Services, Aufgaben, miteinander verknüpft, dazu eigene Listen
         competitor: Boards, die Sie Spalte für Spalte aufbauen
       - name: Kontakte und Deals
         source: Keine tarifabhängige Grenze
@@ -148,7 +148,7 @@ Die Tarife sind nicht gleichwertig. Am nächsten liegen monday CRM Standard und 
 
 Customermates ist ein Open-Source-KI-CRM für kleine Teams mit viel Kundenkontakt: Beratungen, Agenturen, andere Dienstleister und Gründer.
 
-**Ein CRM-Modell statt selbst gebauter Boards.** Kontakte, Organisationen, Deals, Services und Aufgaben sind miteinander verknüpft, und Sie können die Datensatztypen umbenennen, etwa Deals in Projekte. Die Deal-Phase ist ein Feld vom Typ Einzelauswahl mit einer Abschlusswahrscheinlichkeit pro Option. Die gewichtete Pipeline ist Wert mal Wahrscheinlichkeit, eine feste Berechnung. Jede Liste wechselt zwischen Tabelle und Board, ein Status-Board wie in monday ist also eine Ansichtseinstellung. Details stehen in der [Dokumentation zu Datensätzen](/docs/app-records).
+**Ein CRM-Modell statt selbst gebauter Boards.** Kontakte, Organisationen, Deals, Services und Aufgaben sind miteinander verknüpft. Sie können jede Liste umbenennen, etwa Deals in Projekte, und eigene Listen anlegen. Die Deal-Phase ist ein Feld vom Typ Einzelauswahl mit einer Abschlusswahrscheinlichkeit pro Option. Der gewichtete Wert ist Wert mal Wahrscheinlichkeit, eine feste Berechnung. Jede Liste wechselt zwischen Tabelle und Board, ein Status-Board wie in monday ist also eine Ansichtseinstellung. Details stehen in der [Dokumentation zu Datensätzen](/docs/app-records).
 
 **Gespräche direkt beim Deal.** Ab Pro bringt der [einheitliche Posteingang](/features/unified-inbox) Postfächer über Gmail, Outlook und IMAP sowie LinkedIn, WhatsApp, Instagram und Telegram in eine Liste, verknüpft mit Ihren Kontakten. Sie antworten auf dem ursprünglichen Kanal.
 
@@ -157,7 +157,7 @@ Customermates ist ein Open-Source-KI-CRM für kleine Teams mit viel Kundenkontak
 **Wahl beim Hosting.** In Customermates Cloud ist die Datenbank in der AWS-Region Frankfurt konfiguriert; [AVV](/dpa) und [Liste der Unterauftragsverarbeiter](/subprocessors), US-Anbieter eingeschlossen, sind öffentlich. Der AGPL-3.0-Kern läuft auch auf Ihrem eigenen Server mit Docker Compose. Eine [selbst gehostete Installation](/features/self-hosted) hat REST, Webhooks und MCP, aber keinen Posteingang und kein Mate.
 
 <AcquisitionCallout title="Wann Customermates die falsche Wahl ist" variant="boundary">
-Es ist kein Projektmanagement: keine Gantt-Diagramme oder Zeitleisten, und Aufgaben haben weder Fälligkeitsdatum noch Status, nur eigene Felder, die Sie anlegen. Es gibt keine Lead-Suche, keine Anreicherung oder Bewertung von Leads, keine Telefonie, keine Angebote oder Rechnungen, keine E-Mail-Sequenzen oder Massen-E-Mails. Es gibt keine nativen Apps fürs Smartphone und kein SSO. Gespeicherte Ansichten sind persönlich. Customermates Cloud hat keinen kostenlosen Tarif, nur eine Testphase von [[commercial.trial.days]] Tagen; für den selbst gehosteten Kern fallen keine Lizenzkosten an. Customermates hat keine Compliance-Zertifizierung.
+Es ist kein Projektmanagement: keine Gantt-Diagramme oder Zeitleisten, und Aufgaben haben einen Status, aber kein eingebautes Fälligkeitsdatum, nur eigene Felder, die Sie anlegen. Es gibt keine Lead-Suche, keine Anreicherung oder Bewertung von Leads, keine Telefonie, keine Angebote oder Rechnungen, keine E-Mail-Sequenzen oder Massen-E-Mails. Es gibt keine nativen Apps fürs Smartphone und kein SSO. Gespeicherte Ansichten sind persönlich. Customermates Cloud hat keinen kostenlosen Tarif, nur eine Testphase von [[commercial.trial.days]] Tagen; für den selbst gehosteten Kern fallen keine Lizenzkosten an. Customermates hat keine Compliance-Zertifizierung.
 </AcquisitionCallout>
 
 ## Ein monday-CRM-Board zu Customermates umziehen
@@ -173,9 +173,9 @@ Es ist kein Projektmanagement: keine Gantt-Diagramme oder Zeitleisten, und Aufga
 <Steps>
   <Step title="Jedes Board exportieren">Öffnen Sie in monday.com das Menü des Boards, dann „More actions“ und „Export board to Excel“. Exportiert werden nur Tabellenansichten. Unterelemente und Updates können Sie mitnehmen; die Updates landen auf einem eigenen Tabellenblatt.</Step>
   <Step title="Die Arbeitsmappe aufräumen">Der Import von Customermates liest das erste Tabellenblatt, und Sie ordnen dessen Spalten den Feldern zu. Löschen Sie Titelzeilen über den Spaltenköpfen und übernehmen Sie Updates, die Sie behalten wollen, in eine Spalte für Notizen.</Step>
-  <Step title="Den Arbeitsbereich vorbereiten">Legen Sie eigene Felder und Phasen an und setzen Sie die Wahrscheinlichkeiten unter Mein Unternehmen › Einstellungen. Laden Sie Kolleginnen und Kollegen vor dem Deal-Import ein, damit die Personen-Spalte ihnen zugeordnet werden kann.</Step>
-  <Step title="Einen Datensatztyp nach dem anderen importieren">Wählen Sie unter Import und Export „Aus Datei hinzufügen“: erst Organisationen, dann Kontakte, dann Deals. Verknüpfungsspalten werden über den Namen zugeordnet, so findet ein Deal die importierte Organisation. Die Dateigrenzen stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
-  <Step title="Kanäle verbinden, Automatisierungen neu aufbauen">Verbinden Sie ab Pro oder in der Testphase unter Mein Profil › Kanäle ein Postfach, LinkedIn oder WhatsApp. Die monday-Automatisierungen, auf die Sie angewiesen waren, bauen Sie als Routinen oder mit Webhooks und eigenen Werkzeugen nach.</Step>
+  <Step title="Den Arbeitsbereich vorbereiten">Legen Sie eigene Felder und Phasen an und setzen Sie die Wahrscheinlichkeiten am Feld Phase in Konfigurieren für Deals. Laden Sie Kolleginnen und Kollegen vor dem Deal-Import ein, damit die Personen-Spalte ihnen zugeordnet werden kann.</Step>
+  <Step title="Eine Liste nach der anderen importieren">Wählen Sie unter Weitere Aktionen „Aus Datei hinzufügen“: erst Organisationen, dann Kontakte, dann Deals. Verknüpfungsspalten werden über den Namen zugeordnet, so findet ein Deal die importierte Organisation. Die Dateigrenzen stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
+  <Step title="Kanäle verbinden, Automatisierungen neu aufbauen">Verbinden Sie ab Pro oder in der Testphase unter Einstellungen › Kanäle ein Postfach, LinkedIn oder WhatsApp. Die monday-Automatisierungen, auf die Sie angewiesen waren, bauen Sie als Routinen oder mit Webhooks und eigenen Werkzeugen nach.</Step>
 </Steps>
 
 Eine Phasenregel eignet sich als erste Routine (Customermates Cloud, nutzt gehostete KI-Credits; der E-Mail-Entwurf braucht ein verbundenes Postfach, also Pro oder höher). Wählen Sie „Wenn sich etwas ändert“, das Ereignis „Deal aktualisiert“, unter „Geänderte Felder“ die Phase und als Datensatzfilter „Phase ist Gewonnen“. Anweisung: „Aufgabe ‚Kick-off-Termin‘ anlegen, mit diesem Deal und seiner Organisation verknüpfen und mir zuweisen. Einen E-Mail-Entwurf an den Kontakt des Deals speichern, der einen Kick-off-Termin nächste Woche vorschlägt. Nicht senden.“ Behalten Sie den letzten Satz: Mate sendet Nachrichten, wenn eine Anweisung das verlangt, eine Routine, die nur entwerfen soll, muss das also ausdrücklich sagen. Eine Routine läuft als ihr Eigentümer, mit dessen Kanälen; die Grenzen stehen in der [Dokumentation zu Routinen](/docs/app-routines).
@@ -208,7 +208,7 @@ Für Projektmanagement ist OpenProject eine Open-Source-Option. Für Kundenverwa
 </FaqItem>
 
 <FaqItem question="Kann Customermates monday Work Management ersetzen?">
-Nein. Customermates ist ein CRM mit Tabellen- und Board-Ansicht, kein Projekt-Tool. Sie können Projekte in monday.com lassen und nur die Kundenseite umziehen: die Kunden-Boards nach Excel exportieren und einen Datensatztyp nach dem anderen importieren.
+Nein. Customermates ist ein CRM mit Tabellen- und Board-Ansicht, kein Projekt-Tool. Sie können Projekte in monday.com lassen und nur die Kundenseite umziehen: die Kunden-Boards nach Excel exportieren und eine Liste nach der anderen importieren.
 </FaqItem>
 </Faq>
 

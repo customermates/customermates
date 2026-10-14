@@ -49,7 +49,7 @@ comparison:
         competitor: "Leads und Deals: 2.500 bis 20.000 pro Platz, höchstens 300.000"
         competitor2: "Kontakte und Deals zusammen: 1.000 (Basic), 10.000 (Standard), 100.000 (Pro)"
       - name: Eigene Felder
-        source: Zehn Feldtypen, keine tarifabhängige Grenze
+        source: Fünfzehn Feldtypen und berechnete Felder, keine tarifabhängige Grenze
         competitor: 30 (Lite) bis 500 (Ultimate) pro Unternehmen
         competitor2: 5, 15 oder 75 Spalten pro Board
       - name: Pipelines
@@ -201,7 +201,7 @@ In den Tarifen, die kleine Teams kaufen, liegen die Hauptdaten eines EU-Kontos a
 
 ## Eine dritte Option: Customermates
 
-Customermates veröffentlicht diese Seite, lesen Sie diesen Abschnitt also als Beschreibung eines Anbieters über sein eigenes Produkt. Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit viel Kundenkontakt, etwa Beratungen, Agenturen, andere Dienstleister und Gründer. Wie Pipedrive ist es zuerst ein CRM: Kontakte, Organisationen, Deals, Services und Aufgaben sind eigene, verknüpfte Datensatztypen, mit eigenen Feldern in zehn Typen und ohne tarifabhängige Datensatzlimits. Der Unterschied zu beiden:
+Customermates veröffentlicht diese Seite, lesen Sie diesen Abschnitt also als Beschreibung eines Anbieters über sein eigenes Produkt. Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit viel Kundenkontakt, etwa Beratungen, Agenturen, andere Dienstleister und Gründer. Wie Pipedrive ist es zuerst ein CRM: Es startet mit Kontakten, Organisationen, Deals, Services und Aufgaben als eigenen, verknüpften Listen, Sie können eigene Listen und Felder anlegen, und es gibt keine tarifabhängigen Datensatzlimits. Der Unterschied zu beiden:
 
 - **Gespräche direkt am Deal.** Ab Pro bringt der [einheitliche Posteingang](/features/unified-inbox) Postfächer von Gmail, Outlook und IMAP, LinkedIn, WhatsApp, Instagram und Telegram in eine Liste, verknüpft mit Ihren Kontakten, und Sie antworten im ursprünglichen Kanal. Jeder Pro-Nutzer verbindet [[commercial.entitlement.pro.includedAccountsPerUser]] Konto, jeder Business-Nutzer [[commercial.entitlement.business.includedAccountsPerUser]]. Starter hat keinen Posteingang.
 - **KI, die die Datensätze aktuell hält.** In Customermates Cloud fasst Mate Verläufe zusammen, entwirft Antworten und aktualisiert Datensätze. Mate nutzt gehostete KI-Credits, ein monatliches Kontingent pro aktivem Nutzer, das auf der [Preisseite](/pricing) steht. Routinen führen eine gespeicherte Anweisung nach Zeitplan oder bei einer Änderung an einem Datensatz aus. Claude, ChatGPT oder ein anderer KI-Client arbeitet in jedem Tarif über MCP mit dem CRM.
@@ -211,8 +211,8 @@ Customermates veröffentlicht diese Seite, lesen Sie diesen Abschnitt also als B
 Eine Beratung mit vier Personen, die von einem der beiden Tools kommt, könnte so starten:
 
 <Steps>
-  <Step title="Einen Datensatztyp nach dem anderen importieren">Exportieren Sie Organisationen, Personen und Deals aus Pipedrive als Excel, nicht als CSV. Importieren Sie zuerst Organisationen, dann Kontakte, dann Deals, denn Verknüpfungsspalten werden über den Namen des Datensatzes zugeordnet. Die Dateigrenzen stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
-  <Step title="Phasen gewichten">Geben Sie dem Phasenfeld der Deals Wahrscheinlichkeiten, etwa Lead 10 %, Erstgespräch 25 %, Angebot verschickt 50 %, Verhandlung 75 % und Gewonnen 100 %. Der Wert eines Deals ergibt sich aus den verknüpften Services und Mengen, die gewichtete Pipeline aus Wert mal Phasenwahrscheinlichkeit. Das ist eine feste Rechnung, keine Vorhersage.</Step>
+  <Step title="Eine Liste nach der anderen importieren">Exportieren Sie Organisationen, Personen und Deals aus Pipedrive als Excel, nicht als CSV. Importieren Sie zuerst Organisationen, dann Kontakte, dann Deals, denn Verknüpfungsspalten werden über den Namen des Datensatzes zugeordnet. Die Dateigrenzen stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
+  <Step title="Phasen gewichten">Geben Sie dem Phasenfeld der Deals Wahrscheinlichkeiten, etwa Lead 10 %, Erstgespräch 25 %, Angebot verschickt 50 %, Verhandlung 75 % und Gewonnen 100 %. Der Wert eines Deals ist die Summe seiner Positionen, jeweils Service mal Menge, sein gewichteter Wert ist Wert mal Phasenwahrscheinlichkeit. Das ist eine feste Rechnung, keine Vorhersage.</Step>
   <Step title="Felder und Ansichten anlegen">Legen Sie ein Einzelauswahl-Feld „Quelle“ mit Empfehlung, LinkedIn, Website und Veranstaltung an. Jede Person speichert eine Board-Ansicht der Deals, bei denen sie unter „Zugewiesen“ steht, gruppiert nach Phase. Gespeicherte Ansichten sind persönlich, also speichert jede Person ihre eigene.</Step>
   <Step title="Eine wöchentliche Routine einrichten (Customermates Cloud)">Wöchentlich am Montag um 08:00 Uhr: „Meine Deals in der Phase Angebot verschickt auflisten. Zu jedem Deal das letzte Gespräch mit dem verknüpften Kontakt lesen und im Verlauf einen kurzen Entwurf für eine Nachfrage speichern. Nichts senden.“ Eine Routine läuft als ihr Inhaber, mit dessen Kanälen, und in Pro hat jeder Nutzer [[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen.</Step>
 </Steps>

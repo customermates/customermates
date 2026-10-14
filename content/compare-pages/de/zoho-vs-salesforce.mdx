@@ -61,7 +61,7 @@ comparison:
         competitor: Jede Edition; 5.000 Aufrufe pro Tag in Free
         competitor2: Pro Suite als Add-on für 25 € pro Nutzer; ab Core enthalten
       - name: Eigene Module oder Apps
-        source: Nein; fünf Datensatztypen mit vorgegebenen Namen
+        source: Eigene Listen; jede Liste lässt sich umbenennen
         competitor: Benutzerdefinierte Module ab Standard
         competitor2: Unbegrenzt eigene Apps und Lightning App Builder ab Pro Suite
   - title: Kommunikation
@@ -100,7 +100,7 @@ comparison:
         competitor2: Ab Starter Suite
 cta:
   action: Eine dritte Option für Ihre Auswahl?
-  description: "Starten Sie eine Testphase von Customermates und importieren Sie Organisationen, Kontakte und Deals als Excel-Datei (XLSX), einen Datensatztyp nach dem anderen. An Ihrer eigenen Pipeline sehen Sie schnell, ob das Modell passt."
+  description: "Starten Sie eine Testphase von Customermates und importieren Sie Organisationen, Kontakte und Deals als Excel-Datei (XLSX), eine Liste nach der anderen. An Ihrer eigenen Pipeline sehen Sie schnell, ob das Modell passt."
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -187,7 +187,7 @@ Rein vom Preis her ist Zoho CRM Standard für fünf Personen günstiger als Cust
 
 ### Beispiel: eine Beratung mit fünf Personen
 
-Das Team ist aus Zoho CRM Free herausgewachsen, das bei drei Nutzern endet. In Customermates wählt es für die Datensatztypen andere vorgegebene Namen: Aus Deals werden „Projekte“, aus Services „Pakete“, aus Kontakten „Kunden“. Jedes Paket wird mit einem Projekt verknüpft. Das Phasenfeld bekommt pro Option eine Wahrscheinlichkeit: Anfrage 10 %, Erstgespräch 25 %, Angebot verschickt 50 %, Mündliche Zusage 80 %, Gewonnen 100 %, Verloren 0 %. Customermates multipliziert den Wert jedes Projekts mit der Wahrscheinlichkeit seiner Phase und zeigt die gewichtete Pipeline als Summe. Das ist Rechnen mit Ihren eigenen Zahlen und keine Vorhersage. Ein Feld vom Typ Einzelauswahl „Fachbereich“ ordnet die Arbeit, und jede Person speichert ein Board der offenen Projekte, gruppiert nach Phase. Gespeicherte Ansichten sind persönlich, jeder legt also seine eigene an.
+Das Team ist aus Zoho CRM Free herausgewachsen, das bei drei Nutzern endet. In Customermates benennt es Listen in Konfigurieren um: Aus Deals werden „Projekte“, aus Services „Pakete“, aus Kontakten „Kunden“. Pakete kommen als Positionen in jedes Projekt. Das Phasenfeld bekommt pro Option eine Wahrscheinlichkeit: Anfrage 10 %, Erstgespräch 25 %, Angebot verschickt 50 %, Mündliche Zusage 80 %, Gewonnen 100 %, Verloren 0 %. Customermates multipliziert den Wert jedes Projekts mit der Wahrscheinlichkeit seiner Phase, und ein Diagramm-Widget auf dem Dashboard summiert die gewichteten Werte. Das ist Rechnen mit Ihren eigenen Zahlen und keine Vorhersage. Ein Feld vom Typ Einzelauswahl „Fachbereich“ ordnet die Arbeit, und jede Person speichert ein Board der offenen Projekte, gruppiert nach Phase. Gespeicherte Ansichten sind persönlich, jeder legt also seine eigene an.
 
 Jeder Partner hat eine eigene Routine. Eine Routine läuft in der Customermates Cloud im Namen ihres Eigentümers, mit dessen Datensätzen und Kanälen, und verbraucht gehostete KI-Credits. Mate versendet Nachrichten ohne erneute Freigabe, wenn eine Anweisung das verlangt; diese hier sagt deshalb ausdrücklich, dass nur Entwürfe entstehen sollen:
 
@@ -195,12 +195,12 @@ Jeder Partner hat eine eigene Routine. Eine Routine läuft in der Customermates 
 
 ### Was Customermates nicht kann
 
-Customermates hat keine Telefonie, keine Massen-E-Mails und keine Cadences, keine eigenen Module, keine Genehmigungsprozesse, kein CPQ und keine Bestandsverwaltung, kein Lead-Scoring, keine Prognosen über die gewichteten Phasen hinaus und keine nativen Smartphone-Apps. Aufgaben haben Zuständige, Verknüpfungen, Notizen und eigene Felder, aber kein Fälligkeitsdatum. Einen kostenlosen Cloud-Tarif gibt es nicht, nur eine Testphase von [[commercial.trial.days]] Tagen. Braucht Ihr Team diese Funktionen, passen Zoho CRM oder Salesforce besser.
+Customermates hat keine Telefonie, keine Massen-E-Mails und keine Cadences, keine Genehmigungsprozesse, kein CPQ und keine Bestandsverwaltung, kein Lead-Scoring, keine Prognosen über die gewichteten Phasen hinaus und keine nativen Smartphone-Apps. Aufgaben haben Zuständige, Verknüpfungen, Notizen und eigene Felder, aber kein Fälligkeitsdatum. Einen kostenlosen Cloud-Tarif gibt es nicht, nur eine Testphase von [[commercial.trial.days]] Tagen. Braucht Ihr Team diese Funktionen, passen Zoho CRM oder Salesforce besser.
 
 ### Daten umziehen
 
 <Steps>
-  <Step title="Einen Datensatztyp nach dem anderen exportieren">Exportieren Sie Accounts oder Organisationen, Kontakte und Deals oder Opportunities als getrennte Dateien. Customermates liest nur Excel-Dateien (XLSX) und keine CSV-Dateien, speichern Sie jeden Export also vorher als XLSX.</Step>
+  <Step title="Ein Objekt nach dem anderen exportieren">Exportieren Sie Accounts oder Organisationen, Kontakte und Deals oder Opportunities als getrennte Dateien. Customermates liest nur Excel-Dateien (XLSX) und keine CSV-Dateien, speichern Sie jeden Export also vorher als XLSX.</Step>
   <Step title="Felder und Phasen vorbereiten">Legen Sie eigene Felder für die Spalten an, die Sie behalten wollen, und richten Sie die Optionen des Phasenfelds mit denselben Namen ein wie im alten System. Der Import-Assistent prüft jede Zeile, bevor er etwas anlegt, und lässt Sie fehlerhafte Zeilen überspringen.</Step>
   <Step title="In der richtigen Reihenfolge importieren">Importieren Sie zuerst Organisationen, dann Kontakte, dann Deals, damit Verknüpfungsspalten die Datensätze über den Namen finden. Zuordnungsregeln und Größengrenzen stehen in der [Anleitung zu Datensätzen](/docs/app-records).</Step>
   <Step title="Kanäle verbinden">Verbinden Sie in Pro oder Business pro Person ein Postfach, LinkedIn oder WhatsApp und lassen Sie das alte CRM noch einige Wochen im Lesemodus laufen.</Step>

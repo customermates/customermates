@@ -53,7 +53,7 @@ comparison:
   - title: CRM & Service
     features:
       - name: Record types
-        source: Contacts, organizations, deals, services, tasks
+        source: Contacts, organizations, deals, services, tasks, plus your own lists
         competitor: Leads, contacts, organizations, deals and modules across five apps
       - name: Invoicing and inventory
         source: false
@@ -175,33 +175,32 @@ Customermates is an open-source, AI-native CRM for small client-facing teams: co
 - **No email campaigns, sequences, web forms or landing pages.** Messages go one at a time, written by you or drafted by Mate.
 - **No project management.** You can rename deals to "Projects", but there is no Gantt chart and tasks have no built-in due date. Add a custom date field if you need one.
 - **No native mobile apps, telephony or SMS.**
-- **No custom modules.** You get five record types and ten field types.
 - **No lead scoring or sales forecasting.** The weighted pipeline multiplies each deal value by its stage probability and predicts nothing.
-- **No single sign-on.** Saved views are personal, and permissions apply per record type and action, not per field.
+- **No single sign-on.** Saved views are personal, and permissions apply per list and action, not per field.
 
 If two or more of these are daily work for your team, stay with Vtiger or look at SuiteCRM or Odoo.
 
 ## Moving from Vtiger
 
-Most Vtiger sales data has a direct home. Under Data model in the company settings, you can rename organizations to "Accounts" and deals to "Opportunities", so your team keeps its vocabulary.
+Most Vtiger sales data has a direct home. In Configure, you can rename organizations to "Accounts" and deals to "Opportunities", so your team keeps its vocabulary.
 
 | In Vtiger | In Customermates |
 |---|---|
 | Organizations | Organizations, or renamed "Accounts" |
 | Contacts | Contacts |
-| Leads | Contacts, with the default "Sales Pipeline" single-select set to New |
+| Leads | Contacts, with the default "Sales Pipeline" single choice field set to New |
 | Deals | Deals, or renamed "Opportunities" |
-| Products and services | Services, or renamed "Products", linked to deals with quantities |
+| Products and services | Services, or renamed "Products", added to deals as line items with quantities |
 | Tasks | Tasks, plus a custom date field for due dates |
 | Cases, quotes, invoices, projects, campaigns | No equivalent; keep Vtiger or a dedicated tool for them |
 
-A new Customermates workspace starts with the stages Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100% and Lost 0%. Rename them to match your Vtiger stages and adjust the probabilities in the company settings.
+A new Customermates workspace starts with the stages Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100% and Lost 0%. Rename them to match your Vtiger stages and adjust the probabilities on the Stage field in Configure for Deals.
 
 <Steps>
   <Step title="Export from Vtiger">In each module's list view, choose Export and export all data. Vtiger exports CSV files, not Excel.</Step>
   <Step title="Save each file as XLSX">Customermates imports XLSX workbooks only. Open each export in Excel or LibreOffice and save it as an `.xlsx` file.</Step>
-  <Step title="Prepare the workspace">Choose your record names under Data model, create custom fields for the Vtiger fields you keep, and set the stage names and probabilities.</Step>
-  <Step title="Import one record type at a time">Use Add from file: organizations first, then contacts, then deals. Link columns are matched by record name, so a contact's organization column finds the organization you imported before. The [records documentation](/docs/app-records) lists the limits.</Step>
+  <Step title="Prepare the workspace">Rename lists in Configure, create custom fields for the Vtiger fields you keep, and set the stage names and probabilities.</Step>
+  <Step title="Import one list at a time">Use More actions, then Add from file: organizations first, then contacts, then deals. Link columns are matched by record name, so a contact's organization column finds the organization you imported before. The [records documentation](/docs/app-records) lists the limits.</Step>
   <Step title="Connect channels and AI">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp, then set up a routine or connect your own AI client.</Step>
 </Steps>
 
@@ -234,7 +233,7 @@ The app interface comes in English, German, French, Italian and Spanish, and the
 </FaqItem>
 
 <FaqItem question="Can I move my Vtiger data to Customermates?">
-Yes, one record type at a time. Export each Vtiger list view, save the file as XLSX, and import organizations, contacts and deals in that order so links resolve by name. Cases, quotes, invoices and campaigns have no equivalent.
+Yes, one list at a time. Export each Vtiger list view, save the file as XLSX, and import organizations, contacts and deals in that order so links resolve by name. Cases, quotes, invoices and campaigns have no equivalent.
 </FaqItem>
 
 <FaqItem question="Can Customermates replace Vtiger's help desk or invoicing?">

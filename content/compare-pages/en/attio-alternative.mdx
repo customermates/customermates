@@ -42,7 +42,7 @@ comparison:
         source: Contacts, organizations, deals, services, tasks
         competitor: Objects such as people, companies and deals
       - name: Custom objects
-        source: false
+        source: Your own lists, with fields, relationships and calculated fields
         competitor: Pro (up to 12 objects) and Enterprise
       - name: Data enrichment
         source: false
@@ -109,14 +109,14 @@ cta:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-> Look for an Attio alternative when your clients write on channels Attio does not sync itself, or when you need a CRM you can host yourself. Attio syncs Gmail and Microsoft 365 directly, brings in WhatsApp and LinkedIn through third-party apps and sells hosted plans only. Customermates puts Gmail, Outlook and IMAP mailboxes, LinkedIn, WhatsApp, Instagram and Telegram in one inbox from Pro, and its open-source core runs on your own server. If you depend on custom objects or built-in data enrichment, Attio is the stronger product, and Twenty or folk come closer to it than Customermates. Customermates publishes this comparison; every Attio detail comes from attio.com and was checked on 8 October 2026.
+> Look for an Attio alternative when your clients write on channels Attio does not sync itself, or when you need a CRM you can host yourself. Attio syncs Gmail and Microsoft 365 directly, brings in WhatsApp and LinkedIn through third-party apps and sells hosted plans only. Customermates puts Gmail, Outlook and IMAP mailboxes, LinkedIn, WhatsApp, Instagram and Telegram in one inbox from Pro, and its open-source core runs on your own server. If you depend on built-in data enrichment, Attio is the stronger product, and Twenty or folk come closer to it than Customermates. Customermates publishes this comparison; every Attio detail comes from attio.com and was checked on 8 October 2026.
 
 ## Which CRM fits which team
 
 | Your situation | Better fit | Why |
 |---|---|---|
 | Up to three people on Gmail or Microsoft 365, and you want enrichment at no cost | Attio Free | The free plan covers 3 seats and 50,000 records, with company and people enrichment |
-| Your process needs its own record types, such as investors, properties or funds | Attio Pro or Twenty | Both offer custom objects; Customermates has five fixed record types |
+| Your process needs its own record types, such as investors, properties or funds | Attio Pro, Twenty or Customermates | Attio and Twenty offer custom objects; Customermates starts with five lists, and you can add your own |
 | You record sales calls or send email sequences from the CRM | Attio Pro | Call Intelligence and sequences are Pro features; Customermates has neither |
 | Clients write on WhatsApp, LinkedIn, Instagram or Telegram as well as email | Customermates Pro or Business | All of these channels are native in one inbox |
 | Your mailbox runs on IMAP, outside Google and Microsoft 365 | Customermates Pro or Business | Attio syncs only Gmail and Microsoft 365 directly |
@@ -157,7 +157,7 @@ These rows do not buy the same things, so read them in pairs:
 
 - **Attio Plus and Customermates Pro are the closest pair.** Both sync one account per person, include an AI assistant that runs on credits and come with an MCP server. Attio Plus includes enrichment, which Customermates does not offer. Customermates Pro lets that one account be LinkedIn, WhatsApp, Instagram or Telegram instead of email.
 - **Several channels per person means Business.** Each Customermates Pro user connects [[commercial.entitlement.pro.includedAccountsPerUser]] account. If everyone needs email and WhatsApp side by side, the workspace needs Business, with [[commercial.entitlement.business.includedAccountsPerUser]] accounts per user and shared accounts.
-- **Attio Pro buys features Customermates does not have.** If you need custom objects, sequences or call recording, the lower price is beside the point.
+- **Attio Pro buys features Customermates does not have.** If you need sequences or call recording, the lower price is beside the point.
 - **Three people or fewer pay nothing on Attio Free.** No Customermates plan beats that.
 
 ## Where Customermates fits
@@ -176,10 +176,9 @@ Prefer Claude, ChatGPT or another client you already pay for? Connect it to the 
 
 Check these before you start a trial:
 
-- **No custom objects.** You work with contacts, organizations, deals, services and tasks. You can rename them from presets (deals as projects or jobs, services as products or packages) and add custom fields of ten types, but you cannot add a sixth record type.
 - **No enrichment, call recording or telephony.** Contact data is what your team or your AI client enters.
 - **No sequences and no bulk email.** Outreach goes one message at a time, written by you or drafted by Mate.
-- **No native mobile apps and no SSO.** Customermates runs in the phone's browser. Saved views are personal and cannot be shared, and permissions apply per record type and action, not per field.
+- **No native mobile apps and no SSO.** Customermates runs in the phone's browser. Saved views are personal and cannot be shared, and permissions apply per list and action, not per field.
 - **No free plan.** There is a [[commercial.trial.days]]-day trial, then a paid plan.
 
 ## A worked setup: an agency moving from Attio
@@ -191,11 +190,11 @@ Take a five-person agency that sells projects and retainers. Three account leads
 | People | Contacts |
 | Companies | Organizations |
 | Deals | Deals, renamed "Projects" |
-| A custom "Retainers" object | Services, renamed "Packages", linked to each project |
-| A list such as "Active clients" | A single-select field "Client status" plus a saved view filtered on it |
+| A custom "Retainers" object | Services, renamed "Packages", added to each project as line items |
+| A list such as "Active clients" | A single choice field "Client status" plus a saved view filtered on it |
 | Deal stages | A stage field with probabilities |
 
-The stages are Lead 10%, Qualified 30%, Proposal sent 50%, Negotiation 70%, Won 100% and Lost 0%. Customermates multiplies each project's value by its stage probability and shows a weighted pipeline total. That is arithmetic on your own numbers, and it does not predict anything.
+The stages are Lead 10%, Qualified 30%, Proposal sent 50%, Negotiation 70%, Won 100% and Lost 0%. Customermates multiplies each project's value by its stage probability, and a chart widget on the Dashboard sums the weighted values. That is arithmetic on your own numbers, and it does not predict anything.
 
 The three account leads connect Gmail; the other two connect WhatsApp. One account each fits Pro, at [[commercial.price.pro.monthly.seats.5]] a month for the team. When one person needs email and WhatsApp together, the workspace moves to Business at [[commercial.price.business.monthly.seats.5]]. Each person saves a board of open projects grouped by stage, and the founder keeps a table grouped by owner.
 
@@ -207,10 +206,10 @@ Each of the five owns one routine for the Monday follow-up check. A routine runs
 
 <Steps>
   <Step title="Export from Attio">Open each view in Attio and choose Import / Export, then Export view as Excel. The file holds the columns visible in the view, so show every attribute you want to keep first. Attio does not export enriched values; those cells come out blank.</Step>
-  <Step title="Prepare the workspace">Rename record types if your words differ, create custom fields for the attributes you keep, and set up the stage field with its probabilities.</Step>
-  <Step title="Import one record type at a time">Import organizations first, then contacts, then deals. A workbook can hold up to 10,000 rows and 10 MB. Link columns match records by name, so a contact's company column finds the organization you imported before. New contacts need a first and a last name. Map email addresses and WhatsApp numbers to the contact's channels; channels are added to new contacts only.</Step>
-  <Step title="Rebuild lists as views">Turn each Attio list into a single-select field and a saved view. Views are personal, so each person saves their own. A notes column in the workbook maps to the record's notes; notes you add later can be written in bulk by an AI client over MCP, up to 100 records per call.</Step>
-  <Step title="Connect channels and AI">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp under My Profile, Channels. Then set up routines for Mate, or connect your own AI client through MCP.</Step>
+  <Step title="Prepare the workspace">Rename lists in Configure if your words differ, create custom fields for the attributes you keep, and set up the stage field with its probabilities.</Step>
+  <Step title="Import one list at a time">Import organizations first, then contacts, then deals. A workbook can hold up to 10,000 rows and 10 MB. Link columns match records by name, so a contact's company column finds the organization you imported before. New contacts need a first and a last name. Map email addresses and WhatsApp numbers to the contact's channels; channels are added to new contacts only.</Step>
+  <Step title="Rebuild lists as views">Turn each Attio list into a single choice field and a saved view. Views are personal, so each person saves their own. A notes column in the workbook maps to the record's notes; notes you add later can be written in bulk by an AI client over MCP, up to 100 records per call.</Step>
+  <Step title="Connect channels and AI">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp under Settings, Channels. Then set up routines for Mate, or connect your own AI client through MCP.</Step>
 </Steps>
 
 ## Other Attio alternatives worth a look
@@ -244,7 +243,7 @@ As the controller, you assess that for your own use. Attio's data processing add
 </FaqItem>
 
 <FaqItem question="How do I move my data from Attio to Customermates?">
-Export each Attio view as an Excel file and import it one record type at a time: organizations, contacts, deals. Enriched values stay blank, because Attio does not export them. The five steps above have the details.
+Export each Attio view as an Excel file and import it one list at a time: organizations, contacts, deals. Enriched values stay blank, because Attio does not export them. The five steps above have the details.
 </FaqItem>
 </Faq>
 

@@ -49,7 +49,7 @@ comparison:
         competitor: "Leads and deals: 2,500 to 20,000 per seat, at most 300,000"
         competitor2: "Contacts and deals together: 1,000 (Basic), 10,000 (Standard), 100,000 (Pro)"
       - name: Custom fields
-        source: Ten field types, no plan-based cap
+        source: Fifteen field types and calculated fields, no plan-based cap
         competitor: 30 (Lite) to 500 (Ultimate) per company
         competitor2: 5, 15 or 75 columns per board
       - name: Pipelines
@@ -201,7 +201,7 @@ On the plans small teams buy, both normally host an EU account's main data in th
 
 ## A third option: Customermates
 
-Customermates publishes this page, so read this section as a vendor describing its own product. Customermates is an open-source, AI-native CRM for small client-facing teams such as consultants, agencies, other service businesses and founders, built in Germany. Like Pipedrive, it is a CRM first: contacts, organizations, deals, services and tasks are separate, linked record types with custom fields of ten types and no plan-based record caps. Where it differs from both:
+Customermates publishes this page, so read this section as a vendor describing its own product. Customermates is an open-source, AI-native CRM for small client-facing teams such as consultants, agencies, other service businesses and founders, built in Germany. Like Pipedrive, it is a CRM first: it starts with contacts, organizations, deals, services and tasks as separate, linked lists, you can add your own lists and fields, and there are no plan-based record caps. Where it differs from both:
 
 - **Conversations next to the deal.** From Pro, the [unified inbox](/features/unified-inbox) puts Gmail, Outlook and IMAP mailboxes, LinkedIn, WhatsApp, Instagram and Telegram in one list linked to your contacts, and you reply on the original channel. Each Pro user connects [[commercial.entitlement.pro.includedAccountsPerUser]] account, each Business user [[commercial.entitlement.business.includedAccountsPerUser]]. Starter has no inbox.
 - **AI that keeps the records current.** In Customermates Cloud, Mate summarizes threads, drafts replies and updates records. It uses hosted AI credits, a monthly allowance per active user listed on the [pricing page](/pricing). Routines run a saved instruction on a schedule or when a record changes. Claude, ChatGPT or another AI client can work with the CRM through MCP on every plan.
@@ -211,9 +211,9 @@ Customermates publishes this page, so read this section as a vendor describing i
 A four-person consultancy coming from either tool could set it up like this:
 
 <Steps>
-  <Step title="Import one record type at a time">Export organizations, people and deals from Pipedrive as Excel, not CSV. Import organizations first, then contacts, then deals, because link columns are matched by record name. The [records documentation](/docs/app-records) lists the file limits.</Step>
-  <Step title="Weight the stages">Give the deal stage field probabilities such as Lead 10%, Discovery call 25%, Proposal sent 50%, Negotiation 75% and Won 100%. A deal's value comes from its linked services and quantities, and the weighted pipeline is value times stage probability. That is a fixed calculation, not a prediction.</Step>
-  <Step title="Add fields and views">Add a single-select field "Source" with Referral, LinkedIn, Website and Event. Each person saves a board view of the deals assigned to them, grouped by stage. Saved views are personal, so everyone saves their own.</Step>
+  <Step title="Import one list at a time">Export organizations, people and deals from Pipedrive as Excel, not CSV. Import organizations first, then contacts, then deals, because link columns are matched by record name. The [records documentation](/docs/app-records) lists the file limits.</Step>
+  <Step title="Weight the stages">Give the deal stage field probabilities such as Lead 10%, Discovery call 25%, Proposal sent 50%, Negotiation 75% and Won 100%. A deal's value is the sum of its line items, each a service times quantity, and its weighted value is value times stage probability. That is a fixed calculation, not a prediction.</Step>
+  <Step title="Add fields and views">Add a single choice field "Source" with Referral, LinkedIn, Website and Event. Each person saves a board view of the deals assigned to them, grouped by stage. Saved views are personal, so everyone saves their own.</Step>
   <Step title="Set up a weekly routine (Customermates Cloud)">Every Monday at 08:00: "List my deals in Proposal sent. For each, read the latest conversation with the linked contact and save a short follow-up draft in that thread. Do not send anything." A routine runs as its owner, with that owner's channels, and on Pro each user gets [[commercial.entitlement.pro.includedRoutinesPerUser]] routines.</Step>
 </Steps>
 

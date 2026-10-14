@@ -61,23 +61,23 @@ Many tools sold as consultant CRMs bundle the pipeline with projects, timesheets
 
 ## A consultant setup in Customermates
 
-Customermates has five record types. Here is one way to map them to consulting work; every field name is an example.
+Customermates starts with five lists, and you can add your own. Here is one way to map the five to consulting work; every field name is an example.
 
 | Record type | Used for | Example custom fields |
 |---|---|---|
-| Organizations | Client companies | Relationship (single select: Prospect, Active client, Past client), Industry |
-| Contacts | People at the client | Role (single select: Sponsor, Decision maker, Day-to-day contact, Procurement), Referred by |
+| Organizations | Client companies | Relationship (single choice: Prospect, Active client, Past client), Industry |
+| Contacts | People at the client | Role (single choice: Sponsor, Decision maker, Day-to-day contact, Procurement), Referred by |
 | Deals | Each proposal or engagement | Stage, Engagement model (Fixed fee, Retainer, Time and materials), Proposal sent on, Decision expected, Proposal link, Renewal date |
 | Services | Your offerings, each with a price | Advisory day, Discovery workshop, Monthly retainer |
 | Tasks | Next steps, assigned to a person | A "Due on" date field you add, because tasks have no built-in due date |
 
-Under **My Company › Settings** you can also rename record types from a preset list, for example Deals to Opportunities, Services to Offerings and Tasks to Follow-ups.
+In **Configure** you can also rename any list under **General**, for example Deals to Opportunities, Services to Offerings and Tasks to Follow-ups.
 
 ### Stages and weighted values
 
-The deal stage is a single-select field you define, and each option gets a win probability in the same settings. A starting point for consulting: Conversation 10%, Scoping 25%, Proposal sent 50%, Negotiation 75%, Won 100%, Lost 0%.
+The deal stage is a single choice field you define, and each option gets a win probability in Configure. A starting point for consulting: Conversation 10%, Scoping 25%, Proposal sent 50%, Negotiation 75%, Won 100%, Lost 0%.
 
-A deal's value comes from the offerings linked to it, price times quantity. Say the offering "Advisory day" carries your day rate of €1,200 and a proposal includes 12 of them: the deal is worth €14,400, and in Proposal sent its weighted value is €7,200. That is arithmetic from your own probabilities, not a forecast. On the [pipeline board](/features/pipeline) each deal is a card you drag between stages.
+A deal's value is the sum of its line items, each an offering times quantity. Say the offering "Advisory day" carries your day rate of €1,200 and a proposal includes 12 of them: the deal is worth €14,400, and in Proposal sent its weighted value is €7,200. That is arithmetic from your own probabilities, not a forecast. On the [pipeline board](/features/pipeline) each deal is a card you drag between stages.
 
 ### Four saved views for Monday morning
 
@@ -160,11 +160,11 @@ Each plan adds monthly hosted AI credits per active user for Mate; the amounts a
 
 <Steps>
   <Step title="Save your list as Excel">
-    The import reads Excel workbooks (.xlsx) of up to 10,000 rows.
+    The import reads Excel workbooks (.xlsx) of up to 5,000 rows.
     CSV files are not accepted, so save them as .xlsx first.
   </Step>
   <Step title="Import organizations first">
-    On the Organizations list, open Import and export, choose Add from file
+    On the Organizations list, open More actions, choose Add from file
     and map your columns, custom fields included.
   </Step>
   <Step title="Import contacts">
@@ -172,11 +172,11 @@ Each plan adds monthly hosted AI credits per active user for Mate; the amounts a
     organization of that name.
   </Step>
   <Step title="Import open proposals as deals">
-    Include the stage and your date fields, then add offerings and quantities
-    so each deal gets its value.
+    Include the stage and your date fields, then add line items with offerings
+    and quantities so each deal gets its value.
   </Step>
   <Step title="Connect the inbox">
-    On Pro or higher, connect your mailbox under My Profile › Channels and link
+    On Pro or higher, connect your mailbox under Settings › Channels and link
     the people you write with to their contacts.
   </Step>
   <Step title="Save the views and the routine">

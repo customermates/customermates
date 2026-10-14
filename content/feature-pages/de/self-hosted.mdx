@@ -127,7 +127,7 @@ Customermates ist ein **selbst gehostetes CRM**, das aus zwei Docker-Compose-Die
 <ProofRail label="Fakten zum Self-Hosted CRM">
   <ProofItem label="Deployment">Docker Compose</ProofItem>
   <ProofItem label="Datenbank">PostgreSQL 16</ProofItem>
-  <ProofItem label="CRM-Kern">Fünf Datensatztypen</ProofItem>
+  <ProofItem label="CRM-Kern">Fünf Startlisten, dazu eigene</ProofItem>
   <ProofItem label="Schnittstellen">REST, Webhooks und MCP</ProofItem>
   <ProofItem label="Funktionsumfang">Wie Starter</ProofItem>
 </ProofRail>
@@ -138,7 +138,7 @@ Das offizielle Deployment umfasst:
 
 - das Customermates-Anwendungs-Image;
 - eine PostgreSQL-16-Datenbank;
-- die Kerndatensätze für Kontakte, Unternehmen, Deals, Services und Aufgaben; sowie
+- die Kerndatensätze für Kontakte, Unternehmen, Deals, Services und Aufgaben, dazu eigene Listen; sowie
 - REST, Webhooks und [MCP für externe KI-Clients](/docs/mcp).
 
 Die Compose-Datei enthält weder n8n noch ein KI-Modell, einen E-Mail-Versanddienst oder einen separaten Worker. Authentifizierungs-E-Mails benötigen weiterhin den konfigurierten externen Versanddienst. Wenn Sie einen Anbieter verbinden, betreiben Sie diese Integration separat und sollten prüfen, welche Daten sie erhält.

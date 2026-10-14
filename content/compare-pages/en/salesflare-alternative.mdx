@@ -95,7 +95,7 @@ comparison:
         source: Database configured in the AWS Frankfurt region
         competitor: Google Cloud in St. Ghislain, Belgium
       - name: Data export
-        source: Excel workbooks, one record type at a time
+        source: Excel or JSON, one list at a time
         competitor: Excel or CSV for accounts, contacts and opportunities
 
 cta:
@@ -172,7 +172,7 @@ Customermates is an open-source, AI-native CRM for small client-facing teams: co
 
 Prefer Claude, ChatGPT or another client you already pay for? Connect it to the [MCP server](/docs/mcp), which offers [[derived.mcp.tools.total]] tools on every plan and on self-hosted installs. Its model calls then run on your own AI provider.
 
-**Team basics from Starter.** Roles set permissions per record type and action. Dashboards, custom fields in ten types, the REST API and [[derived.webhooks.events.total]] webhook event types come with every plan.
+**Team basics from Starter.** Roles set permissions per list and action. Dashboards, your own lists and fields, calculated fields, the REST API and [[derived.webhooks.events.total]] webhook event types come with every plan.
 
 **Open source, with a hosting choice.** The core is AGPL-3.0 and runs on your own server with Docker Compose and PostgreSQL 16, including REST, webhooks and MCP. A [self-hosted install](/features/self-hosted) has no inbox, no Mate and no hosted credits, and it has no subscription or seat fees either: you pay for your own infrastructure. In Customermates Cloud the database is configured in the AWS Frankfurt region, a [DPA](/dpa) is available, and the [subprocessors](/subprocessors), including US providers, are listed. Customermates holds no compliance certification.
 
@@ -181,8 +181,8 @@ Prefer Claude, ChatGPT or another client you already pay for? Connect it to the 
 Besides the gaps in the table above (no automatic capture, no tracking, no campaigns and no native phone apps), check these before you start a trial:
 
 - **No enrichment and no sequences.** Contacts come from your team, an import, Mate or your own AI client, and outreach goes one message at a time, written by you or drafted by Mate.
-- **No task due dates and no reminders.** Tasks have assignees, links to records and notes. A follow-up date is a custom date field you sort by.
-- **Personal views, coarser permissions.** Saved views cannot be shared, and permissions apply per record type and action, not per field.
+- **No task due dates and no reminders.** Tasks have assignees, a status, links to records and notes. A follow-up date is a custom date field you sort by.
+- **Personal views, coarser permissions.** Saved views cannot be shared, and permissions apply per list and action, not per field.
 - **No free cloud plan.** There is a [[commercial.trial.days]]-day trial, then a paid plan.
 
 ## A worked setup: a consultancy moving from Salesflare
@@ -196,9 +196,9 @@ Take a five-person B2B consultancy. Two partners sell by email; three consultant
 | Opportunities | Deals |
 | Pipeline stages | A stage field with probabilities |
 | Tasks with a date | Tasks with a custom date field "Due on", sorted ascending |
-| Groupings you filter contacts by | A Single Select field such as "Segment", plus a saved view filtered on it |
+| Groupings you filter contacts by | A Single choice field such as "Segment", plus a saved view filtered on it |
 
-The stages are Lead 10%, Qualified 30%, Proposal sent 50%, Negotiation 70%, Won 100% and Lost 0%. Customermates multiplies each deal's value by its stage probability and shows a weighted pipeline total. That is arithmetic on your own numbers, not a prediction.
+The stages are Lead 10%, Qualified 30%, Proposal sent 50%, Negotiation 70%, Won 100% and Lost 0%. Customermates multiplies each deal's value by its stage probability, and a chart widget on the Dashboard sums the weighted values. That is arithmetic on your own numbers, not a prediction.
 
 The partners connect Gmail, and each consultant connects either LinkedIn or WhatsApp. One account per person fits Pro, at [[commercial.price.pro.monthly.seats.5]] a month for the team. When a consultant needs LinkedIn and WhatsApp side by side, the workspace moves to Business at [[commercial.price.business.monthly.seats.5]].
 
@@ -212,9 +212,9 @@ Runs are capped per hour and in credits per run; the [routines guide](/docs/app-
 
 <Steps>
   <Step title="Export from Salesflare">Open Accounts, Contacts and Opportunities in turn, use the three-dot menu and export each list. Choose Excel, not CSV, because Customermates reads .xlsx workbooks only.</Step>
-  <Step title="Prepare the workspace">Create custom fields for the columns you keep, Single Select fields for any groupings, and set up the stage field with its probabilities.</Step>
-  <Step title="Import one record type at a time">On each list, open Import and export, then Add from file. Import organizations first, then contacts, then deals. Link columns match records by name, so a contact's account column finds the organization you imported before. Map email addresses to the contact's channels, so conversations land on the right contact once the inbox is connected. Size limits are in the [records documentation](/docs/app-records).</Step>
-  <Step title="Connect channels">On Pro or during the trial, open My Profile, Channels and connect a mailbox, LinkedIn or WhatsApp. Conversations come from the accounts you connect, not from the Salesflare export.</Step>
+  <Step title="Prepare the workspace">Create custom fields for the columns you keep, Single choice fields for any groupings, and set up the stage field with its probabilities.</Step>
+  <Step title="Import one list at a time">On each list, open More actions, then Add from file. Import organizations first, then contacts, then deals. Link columns match records by name, so a contact's account column finds the organization you imported before. Map email addresses to the contact's channels, so conversations land on the right contact once the inbox is connected. Size limits are in the [records documentation](/docs/app-records).</Step>
+  <Step title="Connect channels">On Pro or during the trial, open Settings, Channels and connect a mailbox, LinkedIn or WhatsApp. Conversations come from the accounts you connect, not from the Salesflare export.</Step>
   <Step title="Hand the routine work to AI">Set up the capture routine above for Mate, or connect your own AI client through MCP and give it the same instruction when you need it.</Step>
 </Steps>
 
@@ -250,7 +250,7 @@ Salesflare stores customer data on Google Cloud servers in St. Ghislain, Belgium
 </FaqItem>
 
 <FaqItem question="How do I move my data from Salesflare to Customermates?">
-Export accounts, contacts and opportunities from Salesflare as Excel files, then import them one record type at a time: organizations, contacts, deals. Conversations are not imported; they come from the mailbox or messaging account you connect on Pro.
+Export accounts, contacts and opportunities from Salesflare as Excel files, then import them one list at a time: organizations, contacts, deals. Conversations are not imported; they come from the mailbox or messaging account you connect on Pro.
 </FaqItem>
 </Faq>
 

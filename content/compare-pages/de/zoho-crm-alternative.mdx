@@ -39,10 +39,10 @@ comparison:
   - title: Vertrieb & Datenmodell
     features:
       - name: Datensatztypen
-        source: Kontakte, Organisationen, Deals, Services, Aufgaben; über Vorgaben umbenennbar
+        source: Kontakte, Organisationen, Deals, Services, Aufgaben, dazu eigene Listen; jede Liste umbenennbar
         competitor: Leads, Kontakte, Deals und Aktivitäten; eigene Module ab Standard
       - name: Feldtypen für eigene Felder
-        source: Zehn, darunter Währung, Datumsbereich und Einzelauswahl; keine Formel- oder Nachschlagefelder
+        source: Fünfzehn, darunter Geldbetrag, Datumsbereich und Einzelauswahl, dazu berechnete Felder
         competitor: Erweiterte Feldtypen in Enterprise
       - name: Pipelines
         source: Ein Phasenfeld mit Abschlusswahrscheinlichkeiten; Boards nach jedem Einzelauswahl-Feld gruppierbar
@@ -99,7 +99,7 @@ comparison:
         source: Cloud-Datenbank in der AWS-Region Frankfurt konfiguriert; eigener Server bei Self-Hosting
         competitor: Zoho-Rechenzentrum nach Land bei der Anmeldung; in Europa Amsterdam und Dublin
       - name: Datenexport
-        source: XLSX, ein Datensatztyp nach dem anderen
+        source: XLSX oder JSON, eine Liste nach der anderen
         competitor: CSV oder XLSX pro Modul; ZIP-Backups mit Anhängen, zwei kostenlos pro Monat in den bezahlten Editionen
       - name: Native Apps für Smartphones
         source: Responsive Web-App
@@ -196,7 +196,7 @@ Prüfen Sie diese Punkte vor der Testphase:
 - **Kein Regel-Editor.** Es gibt keine Workflow-Regeln, Genehmigungsprozesse oder Prozessschritte. Routinen in der Customermates Cloud folgen schriftlichen Anweisungen, und Webhooks mit der REST-API speisen eine n8n-Instanz, die Sie selbst betreiben.
 - **Keine Telefonie, keine Massenmails, keine Sequenzen.** Telefonate führen Sie über Ihre eigene Telefonanlage, und Nachrichten gehen einzeln hinaus, von Ihnen geschrieben oder von Mate entworfen.
 - **Keine Webformulare, kein Scoring, keine Datenanreicherung, keine KI-Prognose.** Die gewichtete Pipeline multipliziert den Wert jedes Deals mit der Wahrscheinlichkeit seiner Phase. Das ist Rechnen mit Ihren eigenen Zahlen, keine Vorhersage.
-- **Ein festes Datenmodell.** Sie bekommen fünf umbenennbare Datensatztypen und zehn Feldtypen, ohne Formel-, Nachschlage- oder Mehrfachauswahlfelder und ohne eigene Module. Berechtigungen gelten pro Datensatztyp und Aktion, nicht pro Feld, und gespeicherte Ansichten sind persönlich.
+- **Keine Berechtigungen auf Feldebene.** Berechtigungen gelten pro Liste und Aktion, nicht pro Feld, und gespeicherte Ansichten sind persönlich.
 - **Keine nativen Smartphone-Apps und kein kostenloser Tarif.** Customermates läuft im Browser des Smartphones, und nach [[commercial.trial.days]] Tagen Testphase wählen Sie einen bezahlten Tarif.
 
 ## Ein Beispiel: eine Webagentur verlässt Zoho CRM Standard
@@ -207,16 +207,16 @@ Nehmen wir eine Webagentur mit drei Personen. Die Gründerin gewinnt neue Kunden
 |---|---|
 | Leads | Kontakte mit einem Einzelauswahl-Feld „Status" auf Lead |
 | Kontakte | Kontakte mit „Status" auf Kunde |
-| Accounts | Organisationen, im Datenmodell in „Accounts" umbenannt |
+| Accounts | Organisationen, in Konfigurieren in „Accounts" umbenannt |
 | Deals und Phasen | Deals mit dem Feld Phase und einer Wahrscheinlichkeit pro Phase |
-| Produkte | Services, in „Produkte" umbenannt und mit Menge an Deals verknüpft |
+| Produkte | Services, in „Produkte" umbenannt und als Positionen mit Menge in Deals |
 | Aufgaben, Meetings und Anrufe | Aufgaben, dazu ein eigenes Datumsfeld, wenn Sie ein Datum brauchen, denn Aufgaben haben kein eingebautes Fälligkeitsdatum |
 | Notizen | Das Notizfeld, ein Rich-Text-Feld pro Datensatz |
 | Anhänge | Nicht importiert, da Datensätze keine Dateianhänge haben; bewahren Sie sie im Zoho-Backup auf |
 | Tags | Ein Einzelauswahl-Feld, da Datensätze keine Tags haben |
 | Workflow-Regeln | Routinen in der Customermates Cloud oder Webhooks an Ihr eigenes n8n |
 
-Die Gründerin ändert die Optionen des Felds Phase in Briefing erhalten, Angebot gesendet, Verhandlung, Gewonnen und Verloren und vergibt unter Mein Unternehmen › Einstellungen die Wahrscheinlichkeiten 20 %, 50 %, 75 %, 100 % und 0 %. Sie speichert ein Board aller offenen Deals, gruppiert nach Phase. Jeder Kundenberater speichert eine Tabelle seiner eigenen Deals, gruppiert nach Organisation; gespeicherte Ansichten sind persönlich, also legt jede Person ihre eigenen an.
+Die Gründerin ändert die Optionen des Felds Phase in Briefing erhalten, Angebot gesendet, Verhandlung, Gewonnen und Verloren und vergibt in Konfigurieren für Deals die Wahrscheinlichkeiten 20 %, 50 %, 75 %, 100 % und 0 %. Sie speichert ein Board aller offenen Deals, gruppiert nach Phase. Jeder Kundenberater speichert eine Tabelle seiner eigenen Deals, gruppiert nach Organisation; gespeicherte Ansichten sind persönlich, also legt jede Person ihre eigenen an.
 
 Jede Person verbindet ein Konto, die Gründerin LinkedIn, die beiden anderen Gmail. Damit reicht Pro für [[commercial.price.pro.monthly.seats.3]] im Monat für das Team. Will die Gründerin zusätzlich WhatsApp neben LinkedIn, wechselt der Arbeitsbereich zu Business für [[commercial.price.business.monthly.seats.3]].
 
@@ -228,9 +228,9 @@ Aus der Zoho-Workflow-Regel wird eine Routine der Gründerin. Der Auslöser ist 
 
 <Steps>
   <Step title="Jedes Modul als Excel-Datei exportieren">Öffnen Sie in Zoho CRM den Export (in der englischen Oberfläche Setup › Data Administration › Export), wählen Sie ein Modul und das Format XLSX. Laut Zohos Hilfeseiten sind pro XLSX-Export bis zu 50.000 Datensätze möglich, und der Download-Link bleibt sieben Tage gültig. Exportieren Sie Accounts, Kontakte, Leads, Produkte und Deals; Notizen wählen Sie in der Modulliste separat aus. Eine vollständige Datensicherung (Data Backup im selben Bereich) ist ein ZIP mit CSV-Dateien und Anhängen. Customermates kann dieses ZIP nicht importieren, behalten Sie es als Archiv.</Step>
-  <Step title="Arbeitsbereich vorbereiten">Laden Sie zuerst Ihr Team ein, damit Deal-Verantwortliche Nutzern zugeordnet werden können. Benennen Sie unter Mein Unternehmen › Einstellungen die Datensatztypen im Datenmodell um und legen Sie die Phasenwahrscheinlichkeiten fest. Legen Sie eigene Felder für die Zoho-Felder an, die Sie behalten, etwa Lead-Quelle, Branche und Status.</Step>
-  <Step title="Einen Datensatztyp nach dem anderen importieren">Öffnen Sie in jeder Liste Import und Export, dann Aus Datei hinzufügen: zuerst Organisationen, dann Kontakte und Leads, dann Services, dann Deals. Verknüpfungsspalten finden Datensätze über den Namen, sodass der Account-Name eines Kontakts die zuvor importierte Organisation findet, und eine Spalte mit dem Verantwortlichen wird den zugewiesenen Nutzern zugeordnet. Ordnen Sie E-Mail-Adressen und Telefonnummern den Kanälen des Kontakts zu. Größengrenzen stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
-  <Step title="Kanäle und KI verbinden">Verbinden Sie in Pro oder während der Testphase ein Postfach, LinkedIn oder WhatsApp unter Mein Profil › Kanäle. Der E-Mail-Verlauf aus Zoho wird nicht übernommen; der Posteingang zeigt die Gespräche der Konten, die Sie verbinden. Richten Sie danach Routinen ein oder verbinden Sie Ihren eigenen KI-Client per MCP.</Step>
+  <Step title="Arbeitsbereich vorbereiten">Laden Sie zuerst Ihr Team ein, damit Deal-Verantwortliche Nutzern zugeordnet werden können. Benennen Sie in Konfigurieren Listen um und legen Sie die Phasenwahrscheinlichkeiten am Feld Phase der Deals fest. Legen Sie eigene Felder für die Zoho-Felder an, die Sie behalten, etwa Lead-Quelle, Branche und Status.</Step>
+  <Step title="Eine Liste nach der anderen importieren">Öffnen Sie in jeder Liste Weitere Aktionen, dann Aus Datei hinzufügen: zuerst Organisationen, dann Kontakte und Leads, dann Services, dann Deals. Verknüpfungsspalten finden Datensätze über den Namen, sodass der Account-Name eines Kontakts die zuvor importierte Organisation findet, und eine Spalte mit dem Verantwortlichen wird den zugewiesenen Nutzern zugeordnet. Ordnen Sie E-Mail-Adressen und Telefonnummern den Kanälen des Kontakts zu. Größengrenzen stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
+  <Step title="Kanäle und KI verbinden">Verbinden Sie in Pro oder während der Testphase ein Postfach, LinkedIn oder WhatsApp unter Einstellungen › Kanäle. Der E-Mail-Verlauf aus Zoho wird nicht übernommen; der Posteingang zeigt die Gespräche der Konten, die Sie verbinden. Richten Sie danach Routinen ein oder verbinden Sie Ihren eigenen KI-Client per MCP.</Step>
   <Step title="Jede Workflow-Regel ersetzen">Listen Sie Ihre Zoho-Workflow-Regeln auf und entscheiden Sie für jede: eine Routine, ein Webhook an Ihr eigenes n8n oder nichts. Regeln, die nur Aufgaben anlegen oder ein Feld setzen, lassen sich oft in einer Routine zusammenfassen.</Step>
 </Steps>
 

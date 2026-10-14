@@ -136,14 +136,14 @@ Die Preise von Customermates stehen im eigenen Abschnitt weiter unten.
 ### Die erste Woche mit Customermates
 
 <Steps>
-  <Step title="Einen Datensatztyp nach dem anderen importieren">
-    Speichern Sie Ihre Tabelle als Excel-Arbeitsmappe (CSV-Dateien werden nicht akzeptiert) und nutzen Sie auf der jeweiligen Liste **Import und Export › Aus Datei hinzufügen**. Importieren Sie zuerst Organisationen, dann Kontakte, dann Deals, damit Verknüpfungsspalten bestehende Datensätze über den Namen finden. Jede Arbeitsmappe hat eine Zeilenobergrenze; die [Import-Anleitung](/docs/app-records) nennt die Grenzen.
+  <Step title="Eine Liste nach der anderen importieren">
+    Speichern Sie Ihre Tabelle als Excel-Arbeitsmappe (CSV-Dateien werden nicht akzeptiert) und nutzen Sie auf der jeweiligen Liste **Weitere Aktionen › Aus Datei hinzufügen**. Importieren Sie zuerst Organisationen, dann Kontakte, dann Deals, damit Verknüpfungsspalten bestehende Datensätze über den Namen finden. Jede Arbeitsmappe hat eine Zeilenobergrenze; die [Import-Anleitung](/docs/app-records) nennt die Grenzen.
   </Step>
   <Step title="Phasen und Wahrscheinlichkeiten festlegen">
-    Ein neuer Workspace startet mit dem Feld **Phase** auf Deals: Akquise, Qualifizierung, Demo, Angebot, Verhandlung, Gewonnen und Verloren. Benennen Sie die Optionen so, wie Sie verkaufen, und hinterlegen Sie unter **Mein Unternehmen** für jede Phase eine Abschlusswahrscheinlichkeit. Der Wert eines Deals ergibt sich aus den verknüpften Services, Preis mal Menge, und der gewichtete Wert ist dieser Betrag mal die Phasenwahrscheinlichkeit. Das ist Rechnen mit Ihren eigenen Zahlen und keine Prognose.
+    Ein neuer Workspace startet mit dem Feld **Phase** auf Deals: Akquise, Qualifizierung, Demo, Angebot, Verhandlung, Gewonnen und Verloren. Benennen Sie die Optionen so, wie Sie verkaufen, und hinterlegen Sie für jede Phase eine Abschlusswahrscheinlichkeit: Feld **Phase** in Konfigurieren für Deals öffnen und **Wahrscheinlichkeit %** setzen. Der Wert eines Deals ist die Summe seiner Positionen, jeweils Service-Preis mal Menge, und der gewichtete Wert ist dieser Betrag mal die Phasenwahrscheinlichkeit. Das ist Rechnen mit Ihren eigenen Zahlen und keine Prognose.
   </Step>
   <Step title="Den Kanal verbinden, über den Deals laufen">
-    Jede Person verbindet ihre Konten unter **Mein Profil › Kanäle**. Pro enthält [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer, Business [[commercial.entitlement.business.includedAccountsPerUser]]; mit Business lässt sich zusätzlich ein ganzes Konto fürs Team freigeben. Customermates ordnet Gesprächsteilnehmer über E-Mail-Adresse, Telefonnummer oder Kanalkennung den Kontakten zu; pflegen Sie diese Angaben deshalb bei jedem Kontakt.
+    Jede Person verbindet ihre Konten unter **Einstellungen › Kanäle**. Pro enthält [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer, Business [[commercial.entitlement.business.includedAccountsPerUser]]; mit Business lässt sich zusätzlich ein ganzes Konto fürs Team freigeben. Customermates ordnet Gesprächsteilnehmer über die E-Mail-Adressen, Telefonnummern und Kanalkennungen im Feld Kanäle den Kontakten zu; pflegen Sie dieses Feld deshalb bei jedem Kontakt.
   </Step>
   <Step title="Die Ansicht speichern, die Sie jede Woche prüfen">
     Speichern Sie unter **Deals** mit **Neue Ansicht** zum Beispiel alle Deals in Angebot und Verhandlung, sortiert nach letzter Änderung, älteste zuerst. Ansichten sind persönlich und werden nicht geteilt; jede Kollegin und jeder Kollege speichert eine eigene.
@@ -193,7 +193,7 @@ Eine Demo zeigt den Weg, den der Anbieter vorbereitet hat. Ihre eigenen Daten ze
     Fragen Sie jeden Anbieter, wo Ihre Daten gespeichert werden, ob ein AVV vorliegt und welche Unterauftragsverarbeiter beteiligt sind. Die Antworten gehören vor die Unterschrift.
   </Step>
   <Step title="Den Ausstieg testen">
-    Exportieren Sie einen Datensatztyp und prüfen Sie das Dateiformat, ob der Export pro Objekt oder für das ganze Konto funktioniert und ob es eine API gibt. Customermates exportiert einen Datensatztyp nach dem anderen als Excel-Arbeitsmappe und hat eine REST-API; einen Export des gesamten Kontos gibt es nicht.
+    Exportieren Sie einen Datensatztyp und prüfen Sie das Dateiformat, ob der Export pro Objekt oder für das ganze Konto funktioniert und ob es eine API gibt. Customermates exportiert eine Liste nach der anderen als Excel-Arbeitsmappe oder JSON und hat eine REST-API; einen Export des gesamten Kontos gibt es nicht.
   </Step>
 </Steps>
 

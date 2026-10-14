@@ -99,11 +99,11 @@ The steps are the same for any CRM with a remote MCP server. Where Customermates
   </Step>
 </Steps>
 
-Customermates also has a shortcut: under **My Profile › API & Connectors**, click **Add** and choose **Claude** under **Quick connections**. **Add to Claude** then opens Claude's dialog with the address filled in (Claude web and Team only). The [connector guide](/docs/connect-custom-connector) has the details and a troubleshooting table.
+Customermates also has a shortcut: under **Settings › API keys**, click **Add**, choose **Claude** under **Quick connections**, then **Claude account**. **Add to Claude** then opens Claude's dialog with the address filled in (Claude web and Team only). The [connector guide](/docs/connect-custom-connector) has the details and a troubleshooting table.
 
 ### Claude Code, including Pipedrive
 
-Claude Code adds remote MCP servers from the terminal. For Customermates, create a key under **My Profile › API & Connectors** (**Add**, then **Standard API key**; the key is shown once) and run:
+Claude Code adds remote MCP servers from the terminal. For Customermates, create a key under **Settings › API keys** (**Add**, then **Standard API key**; the key is shown once) and run:
 
 ```bash
 claude mcp add --transport http customermates https://<your-customermates-address>/api/v1/mcp \
@@ -142,7 +142,7 @@ Customermates bills monthly per user, with no yearly contract. When Claude works
 
 ## Where Customermates fits
 
-*Disclosure: Customermates publishes this guide.* Customermates is an open-source, AI-native CRM built in Germany for small client-facing teams: consultants, agencies, other service businesses and founders. Its MCP endpoint is part of the AGPL core, so it works on every cloud plan and on self-hosted installations, with [[derived.mcp.tools.total]] tools. Through it, Claude works with contacts, organizations, deals, services and tasks, their notes and custom fields, and the workspace Knowledge Base. On Pro and higher in Customermates Cloud, the same connection reaches the [unified inbox](/features/unified-inbox) with email, LinkedIn, WhatsApp, Instagram and Telegram conversations.
+*Disclosure: Customermates publishes this guide.* Customermates is an open-source, AI-native CRM built in Germany for small client-facing teams: consultants, agencies, other service businesses and founders. Its MCP endpoint is part of the AGPL core, so it works on every cloud plan and on self-hosted installations, with [[derived.mcp.tools.total]] tools. Through it, Claude works with contacts, organizations, deals, services, tasks and any lists you add, their notes and fields, and the workspace Knowledge Base. On Pro and higher in Customermates Cloud, the same connection reaches the [unified inbox](/features/unified-inbox) with email, LinkedIn, WhatsApp, Instagram and Telegram conversations.
 
 Four prompts that test the setup on a workspace with the default deal stages:
 

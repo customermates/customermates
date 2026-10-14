@@ -39,13 +39,13 @@ comparison:
         source: Kontakte, Organisationen, Deals, Services, Aufgaben
         competitor: Datenbanken, die Sie selbst entwerfen; CRM-Vorlagen in der Galerie
       - name: Deal-Phasen mit Wahrscheinlichkeiten
-        source: Phasenfeld mit Wahrscheinlichkeiten ab der Registrierung, gewichtete Pipeline-Summen
+        source: Phasenfeld mit Wahrscheinlichkeiten ab der Registrierung, gewichteter Wert pro Deal
         competitor: Selbst gebaut aus Status- oder Auswahl-Eigenschaft und Formel
       - name: Feldtypen
-        source: 10 Feldtypen für eigene Felder
+        source: 15 Feldtypen, dazu berechnete Felder
         competitor: Mehr als 20 Eigenschaftstypen, darunter Formel, Rollup und Mehrfachauswahl
       - name: Eigene Datensatztypen
-        source: false
+        source: Eigene Listen mit Feldern und Beziehungen
         competitor: Jede Datenbank, die Sie anlegen
       - name: Dateien am Datensatz
         source: false
@@ -103,14 +103,14 @@ cta:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
-> Solange zwei, drei Personen eine überschaubare Kundenliste pflegen und die Deal-Seiten zugleich Projektnotizen sind, kann Ihr CRM in Notion bleiben. Ein eigenes CRM-System lohnt sich, sobald die Gespräche mit Kunden außerhalb von Notion laufen, Sie eine gewichtete Pipeline ohne selbst gepflegte Formeln wollen oder ein KI-Assistent die Datenpflege übernehmen soll. Notion liefert Datenbanken, Relationen, Formeln und Automatisierungen; das CRM entwerfen Sie selbst. Customermates startet mit Kontakten, Organisationen, Deals samt gewichtetem Phasenfeld, Services und Aufgaben und holt ab Pro Gespräche aus E-Mail, LinkedIn, WhatsApp, Instagram und Telegram an diese Datensätze. Brauchen Sie eigene Datensatztypen, kommen Attio oder Twenty der Flexibilität von Notion näher. Diesen Vergleich veröffentlicht Customermates; alle Angaben zu Notion stammen von notion.com und wurden am 8. Oktober 2026 geprüft.
+> Solange zwei, drei Personen eine überschaubare Kundenliste pflegen und die Deal-Seiten zugleich Projektnotizen sind, kann Ihr CRM in Notion bleiben. Ein eigenes CRM-System lohnt sich, sobald die Gespräche mit Kunden außerhalb von Notion laufen, Sie eine gewichtete Pipeline ohne selbst gepflegte Formeln wollen oder ein KI-Assistent die Datenpflege übernehmen soll. Notion liefert Datenbanken, Relationen, Formeln und Automatisierungen; das CRM entwerfen Sie selbst. Customermates startet mit Kontakten, Organisationen, Deals samt gewichtetem Phasenfeld, Services und Aufgaben und holt ab Pro Gespräche aus E-Mail, LinkedIn, WhatsApp, Instagram und Telegram an diese Datensätze. Eigene Listen können Sie auch hier anlegen, aber Attio oder Twenty kommen der Flexibilität von Notion näher. Diesen Vergleich veröffentlicht Customermates; alle Angaben zu Notion stammen von notion.com und wurden am 8. Oktober 2026 geprüft.
 
 ## Welches Tool zu welchem Team passt
 
 | Ihre Situation | Besser geeignet | Warum |
 |---|---|---|
 | Überschaubare Kundenliste, Deals und Besprechungsnotizen auf denselben Seiten wie Ihre Dokumentation | Notion Free oder Plus | Eine Datenbank mit Status-Eigenschaft reicht dafür, und Notion haben Sie schon |
-| Sie brauchen eigene Datensatztypen wie Investoren, Immobilien oder Bewerber, mit Formeln und Rollups | Attio, Twenty oder Airtable | Customermates hat fünf feste Datensatztypen und keine Formelfelder |
+| Sie brauchen eigene Datensatztypen wie Investoren, Immobilien oder Bewerber, mit Formeln und Rollups | Attio, Twenty, Airtable oder Customermates | Customermates startet mit fünf Listen, und Sie können eigene mit berechneten Feldern anlegen |
 | Kunden schreiben per E-Mail, LinkedIn und WhatsApp, und Sie wollen diese Verläufe am Kontakt sehen | Customermates Pro oder Business | Alle diese Kanäle laufen in einem Posteingang zusammen, verknüpft mit Kontakten |
 | Sie wollen Deal-Wert mal Phasenwahrscheinlichkeit, ohne es selbst zu bauen | Customermates, jeder Tarif | Das Phasenfeld mit Wahrscheinlichkeiten ist ab der Registrierung angelegt |
 | Sie brauchen den Datenspeicher in der EU ohne Enterprise-Vertrag oder wollen das CRM selbst betreiben | Customermates | Cloud-Datenbank in jedem Tarif in der AWS-Region Frankfurt konfiguriert; AGPL-Kern zum Selbsthosten, ohne Posteingang und Mate |
@@ -154,7 +154,7 @@ Für das Geld bekommen Sie nicht dasselbe:
 
 Customermates ist ein Open-Source-KI-CRM für kleine Teams mit Kundenkontakt: Beratungen, Agenturen, andere Dienstleister und Gründer. Entwickelt wird es in Deutschland.
 
-**Die Pipeline steht, bevor Sie etwas bauen.** Ein neuer Workspace startet mit dem Feld „Phase“ an Deals und hinterlegten Wahrscheinlichkeiten: Akquise 10 %, Qualifizierung 20 %, Demo 40 %, Angebot 60 %, Verhandlung 80 %, Gewonnen 100 %, Verloren 0 %. Der Wert eines Deals ist die Summe seiner verknüpften Services, Preis mal Menge. Customermates multipliziert ihn mit der Phasenwahrscheinlichkeit und zeigt einen gewichteten Wert pro Deal und eine gewichtete [Pipeline-Summe](/features/pipeline). Das ist eine Rechnung mit Ihren eigenen Zahlen, keine Prognose.
+**Die Pipeline steht, bevor Sie etwas bauen.** Ein neuer Workspace startet mit dem Feld „Phase“ an Deals und hinterlegten Wahrscheinlichkeiten: Akquise 10 %, Qualifizierung 20 %, Demo 40 %, Angebot 60 %, Verhandlung 80 %, Gewonnen 100 %, Verloren 0 %. Der Wert eines Deals ist die Summe seiner Positionen, jeweils Preis eines Service mal Menge. Customermates multipliziert ihn mit der Phasenwahrscheinlichkeit und zeigt einen gewichteten Wert pro Deal, den ein Dashboard-Diagramm zu einer [Pipeline-Summe](/features/pipeline) addieren kann. Das ist eine Rechnung mit Ihren eigenen Zahlen, keine Prognose.
 
 **Gespräche direkt am Deal.** Ab Pro holt der [einheitliche Posteingang](/features/unified-inbox) Postfächer von Gmail, Outlook und per IMAP sowie LinkedIn, WhatsApp, Instagram und Telegram in eine Liste, und Sie antworten im ursprünglichen Kanal. Verknüpfen Sie einen Gesprächspartner einmal mit einem Kontakt, erscheint jedes Gespräch mit dieser Adresse oder Kennung im Aktivitätsverlauf des Kontakts.
 
@@ -164,10 +164,8 @@ Customermates ist ein Open-Source-KI-CRM für kleine Teams mit Kundenkontakt: Be
 
 ## Wann Customermates nicht passt
 
-- **Keine eigenen Datensatztypen.** Kontakte, Organisationen, Deals, Services und Aufgaben lassen sich über Vorgaben umbenennen (Deals etwa in Projekte, Organisationen in Unternehmen), einen sechsten Typ gibt es nicht.
-- **Zehn Feldtypen, keine Formeln.** Zahl, Checkbox, Mehrfachauswahl, Formel und Rollup fehlen.
 - **Keine Dokumentation, kein Wiki.** Jeder Datensatz hat ein Notizfeld mit Formatierung, Bildern und Tabellen. Angebote und Handbücher bleiben in Notion.
-- **Keine Dateien am Datensatz.** Dateianhänge gibt es nur in Gesprächen im Posteingang; tragen Sie die Adresse einer Datei in ein Link-Feld ein.
+- **Keine Dateien am Datensatz.** Dateianhänge gibt es nur in Gesprächen im Posteingang; tragen Sie die Adresse einer Datei in ein Webadresse-Feld ein.
 - **Keine Fälligkeiten und keine automatischen Hinweise bei Aufgaben.** Legen Sie ein Datumsfeld an und sortieren Sie eine gespeicherte Ansicht danach, oder lassen Sie eine Routine prüfen.
 - **Keine nativen Apps, kein SSO, keine geteilten Ansichten, kein kostenloser Tarif.** Customermates läuft im Browser des Smartphones, gespeicherte Ansichten sind persönlich, und auf eine [[commercial.trial.days]]-tägige Testphase folgt ein bezahlter Tarif.
 
@@ -180,13 +178,13 @@ Das Notion-CRM der Beratung besteht aus drei Datenbanken, Kunden, Kontakte und D
 | Datenbank „Kunden“ | Organisationen, umbenannt in „Unternehmen“ |
 | Kontakte mit Relation zu „Kunden“ | Kontakte, beim Import per Name mit ihrer Organisation verknüpft |
 | Status-Eigenschaft (Lead, Angebot, Gewonnen, Verloren) | Das Feld „Phase“ mit Ihren Optionen und Wahrscheinlichkeiten |
-| Betrag (Zahl) | Services mit Preis, mit jedem Deal verknüpft; ein Währungsfeld geht auch, zählt aber nicht zur gewichteten Pipeline |
-| Leistungsbereich (Mehrfachauswahl) | Ein verknüpfter Service pro Bereich |
+| Betrag (Zahl) | Positionen in jedem Deal, jeweils ein Service mit Preis; ein Geldbetrag-Feld geht auch, zählt aber nicht zum gewichteten Wert |
+| Leistungsbereich (Mehrfachauswahl) | Ein Feld vom Typ Mehrfachauswahl |
 | Verantwortlich (Person) | Zugewiesen |
 | Nächster Schritt (Datum) | Ein Datumsfeld plus gespeicherte Ansicht, danach sortiert |
 | Gewichteter Wert (Formel) | Der eingebaute gewichtete Wert |
 | Pipeline pro Kunde (Rollup) | Ein Dashboard-Diagramm, das den Deal-Wert nach Organisation summiert |
-| Angebots-PDF (Dateien) | Ein Link-Feld, das auf die Datei zeigt |
+| Angebots-PDF (Dateien) | Ein Webadresse-Feld, das auf die Datei zeigt |
 | Seiteninhalt mit Besprechungsnotizen | Die Notizen des Datensatzes |
 
 Jede Beraterin und jeder Berater speichert ein Board der eigenen Deals nach Phase, die Geschäftsführung eine Tabelle, gruppiert nach „Zugewiesen“. Mit Pro verbindet jede Person das Postfach oder WhatsApp-Konto, über das Kunden schreiben, für [[commercial.price.pro.monthly.seats.4]] im Monat fürs Team. Eine Routine pro Person ersetzt den Montagsfilter aus Notion. Sie läuft im Namen der jeweiligen Person in Customermates Cloud und nutzt gehostete KI-Credits:
@@ -198,8 +196,8 @@ Jede Beraterin und jeder Berater speichert ein Board der eigenen Deals nach Phas
 <Steps>
   <Step title="Jede Datenbank exportieren">Öffnen Sie in Notion das •••-Menü der Datenbank, wählen Sie Exportieren und das Format Markdown & CSV. Eine ganzseitige Datenbank kommt als Tabellendatei heraus, dazu eine Markdown-Datei für jede Seite.</Step>
   <Step title="Als Arbeitsmappe speichern">Customermates liest kein CSV. Öffnen Sie die Datei deshalb in Excel, Numbers oder LibreOffice und speichern Sie sie als .xlsx. Trennen Sie Namen in Vor- und Nachname, denn neue Kontakte brauchen beides.</Step>
-  <Step title="Den Workspace vorbereiten">Wählen Sie unter Mein Unternehmen › Einstellungen › Datenmodell die Bezeichnungen der Datensatztypen, passen Sie Optionen und Wahrscheinlichkeiten der Phase an und legen Sie die Felder aus der Tabelle oben an.</Step>
-  <Step title="Einen Datensatztyp nach dem anderen importieren">Wählen Sie unter Import und Export „Aus Datei hinzufügen“: zuerst Organisationen, dann Kontakte, Services und Deals. Verknüpfungsspalten finden Datensätze über den Namen, ohne auf Groß- und Kleinschreibung zu achten. Ordnen Sie E-Mail-Adressen und WhatsApp-Nummern den Kanälen des Kontakts zu. Die Dateigrenzen stehen im [Leitfaden zu Datensätzen](/docs/app-records).</Step>
+  <Step title="Den Workspace vorbereiten">Benennen Sie in Konfigurieren die Listen um, passen Sie Optionen und Wahrscheinlichkeiten der Phase an und legen Sie die Felder aus der Tabelle oben an.</Step>
+  <Step title="Eine Liste nach der anderen importieren">Wählen Sie unter Weitere Aktionen „Aus Datei hinzufügen“: zuerst Organisationen, dann Kontakte, Services und Deals. Verknüpfungsspalten finden Datensätze über den Namen, ohne auf Groß- und Kleinschreibung zu achten. Ordnen Sie E-Mail-Adressen und WhatsApp-Nummern den Kanälen des Kontakts zu. Die Dateigrenzen stehen im [Leitfaden zu Datensätzen](/docs/app-records).</Step>
   <Step title="Notizen und Ansichten übernehmen">Die Besprechungsnotizen stecken in den Markdown-Dateien, nicht in der Tabelle. Übernehmen Sie die wichtigen in die Notizen des Datensatzes, oder lassen Sie sie von einem KI-Client per MCP eintragen. Danach legen Sie Ihre Ansichten neu an; jede Person speichert ihre eigenen.</Step>
 </Steps>
 
@@ -219,7 +217,7 @@ Ja, wenn Sie es selbst aufbauen. Sie legen Datenbanken für Kontakte, Firmen und
 </FaqItem>
 
 <FaqItem question="Hat Notion ein eigenes CRM-System?">
-Auf seiner Preisseite führt Notion kein eigenes CRM-Produkt. Ein CRM entsteht dort aus Datenbanken, und die Vorlagengalerie hat eine CRM-Kategorie mit kostenlosen und kostenpflichtigen Vorlagen, viele davon von unabhängigen Erstellern. Customermates dagegen startet mit festen Datensatztypen für Kontakte, Organisationen, Deals, Services und Aufgaben.
+Auf seiner Preisseite führt Notion kein eigenes CRM-Produkt. Ein CRM entsteht dort aus Datenbanken, und die Vorlagengalerie hat eine CRM-Kategorie mit kostenlosen und kostenpflichtigen Vorlagen, viele davon von unabhängigen Erstellern. Customermates dagegen startet mit fünf Listen für Kontakte, Organisationen, Deals, Services und Aufgaben, und Sie können eigene anlegen.
 </FaqItem>
 
 <FaqItem question="Was kostet Notion als CRM für ein kleines Team?">

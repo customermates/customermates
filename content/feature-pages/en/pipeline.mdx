@@ -36,12 +36,12 @@ Customermates is an open-source, AI-native CRM for small client-facing teams: co
   <SummaryItem label="What you get">A deal board grouped by stage, stage win probabilities, total and weighted pipeline values, personal saved views and dashboard charts.</SummaryItem>
   <SummaryItem label="Plans">Everything on this page except Mate, routines and the unified inbox is on Starter at [[commercial.price.starter.monthly]] per user per month, and on the self-hosted edition.</SummaryItem>
   <SummaryItem label="AI">In Customermates Cloud, Mate reviews and updates the pipeline using hosted AI credits. Your own AI client does the same through MCP on any plan.</SummaryItem>
-  <SummaryItem label="Not included">No predictive forecasting, no stage-duration or conversion reports, no automatic stale-deal highlighting and no mobile app.</SummaryItem>
+  <SummaryItem label="Not included">No predictive forecasting, no stage-duration reports or conversion over time, no automatic stale-deal highlighting and no mobile app.</SummaryItem>
 </ArticleSummary>
 
 ## What the pipeline board does
 
-**Stages are a column you own.** The stage of a deal is a single-select column called Stage. A new workspace starts with seven options and win probabilities already set:
+**Stages are a field you own.** The stage of a deal is a single choice field called Stage. A new workspace starts with seven options and win probabilities already set:
 
 | Stage | Probability |
 |---|---|
@@ -55,9 +55,9 @@ Customermates is an open-source, AI-native CRM for small client-facing teams: co
 
 Rename them, reorder them, add your own or delete the ones you never use. A consultancy might run Enquiry, Discovery call, Proposal sent, Verbal yes, Won and Lost.
 
-**The board.** Open **Deals**, choose **Appearance** and switch **Layout** to **Board**, grouped by Stage. Drag a card to another column and the stage changes; drop it on **No value** and the stage is cleared. Each card shows the fields you make visible in **Appearance**, for example value, assigned users, organization and an Expected close date.
+**The board.** Open **Deals**, choose **Appearance** and pick **Board**, grouped by Stage. Drag a card to another column and the stage changes; drop it on **No value** and the stage is cleared. Each card shows the fields you make visible in **Appearance**, for example value, assigned users, organization and an Expected close date.
 
-**Column headers do the arithmetic.** Each header shows the deal count, the stage probability, the total value and the weighted value. A deal's weighted value is its value times the probability of its stage. Three open deals make the idea concrete:
+**Column headers do the arithmetic.** Each header shows the deal count and the sums you choose for the grouping, such as **Value** and **Weighted value**. A deal's weighted value is its value times the probability of its stage. Three open deals make the idea concrete:
 
 | Deal | Stage | Value | Weighted |
 |---|---|---|---|
@@ -66,11 +66,11 @@ Rename them, reorder them, add your own or delete the ones you never use. A cons
 | Annual retainer | Negotiation | 12,000 | 9,600 |
 | **Pipeline** | | **25,000** | **14,900** |
 
-The same two totals, **Total pipeline** and **Weighted pipeline**, appear under **My Company › Settings**, next to the probabilities.
+For the same two totals on the Dashboard, add a chart widget that sums **Value** or **Weighted value**, grouped by stage.
 
-**Deal value comes from services.** You do not type a deal's value. It is the price of each linked service times its quantity on that deal, so a deal with two workshop days at 1,500 and ten coaching hours at 150 is worth 4,500 in your workspace currency.
+**Deal value comes from line items.** You do not type a deal's value. It is the sum of the deal's line items, each a service times its quantity, so a deal with two workshop days at 1,500 and ten coaching hours at 150 is worth 4,500.
 
-**The same list as a table.** Switch **Layout** back to **Table** and keep the grouping: stages become collapsible row groups with their own counts and sums. Tables sort by **Deal Value** and **Weighted Value** as well as by any custom column.
+**The same list as a table.** Switch back to **Table** and keep the grouping: stages become collapsible row groups with their own counts and sums. Tables sort by **Value** and **Weighted value** as well as by any custom field.
 
 ## Which plan you need
 
@@ -79,10 +79,10 @@ The board, stages, probabilities, saved views, dashboard charts, XLSX import and
 ## Set up your pipeline
 
 <Steps>
-  <Step title="Rename the stages">Open any deal, press **Customize** and edit the Stage column with the **Edit column** pencil. On a board grouped by Stage you can also click a column header to open the same dialog.</Step>
-  <Step title="Check the probabilities">Under **My Company › Settings**, **Deal stage field** shows Stage. Enter a win probability from 0 to 100 next to each option and save. Every deal's weighted value is recalculated.</Step>
-  <Step title="Add your services">Create what you sell under **Services**, each with a price (**Amount**). Deal values are built from these.</Step>
-  <Step title="Add two custom fields to deals">A Date field "Expected close" and a single-select "Lost reason" with Price, Timing, Chose a competitor and No decision.</Step>
+  <Step title="Rename the stages">In **Configure**, open Deals and the **Stage** field, and rename, add or reorder its options.</Step>
+  <Step title="Check the probabilities">In the same **Stage** field, set **Probability %** from 0 to 100 on each option and save. A preview shows the effect, and every deal's weighted value is recalculated.</Step>
+  <Step title="Add your services">Create what you sell under **Services**, each with a price. Deal line items, and so deal values, are built from these.</Step>
+  <Step title="Add two custom fields to deals">A Date field "Expected close" and a single choice field "Lost reason" with Price, Timing, Chose a competitor and No decision.</Step>
   <Step title="Import your open deals">Use **Add from file** with an Excel workbook, organizations first, then contacts, then deals, so the deal rows can link to records that already exist. CSV files are not accepted, so save them as XLSX first.</Step>
   <Step title="Save your pipeline view">With the board grouped by Stage and a filter on Stage that leaves out Won and Lost, press **New view** and name it "Open pipeline". The view keeps filters, grouping, layout and visible fields.</Step>
 </Steps>
@@ -91,11 +91,11 @@ The [records guide](/docs/app-records) covers boards, views and import in more d
 
 ## Running more than one pipeline
 
-Customermates has no separate pipeline object, so a second pipeline is a second single-select column on deals. A team that sells new projects and renews retainers adds a column "Renewal stage" with Upcoming, In discussion, Renewal sent and Renewed, then saves a board view grouped by it and filtered to renewal deals.
+Customermates has no separate pipeline object, so a second pipeline is a second single choice field on deals. A team that sells new projects and renews retainers adds a field "Renewal stage" with Upcoming, In discussion, Renewal sent and Renewed, then saves a board view grouped by it and filtered to renewal deals.
 
-Two limits apply. Only one column, set under **Deal stage field**, carries probabilities and weighted values, so the second board shows counts and total values but no weighted figures. And a board shows at most 50 columns, which no sensible pipeline reaches.
+Two limits apply. **Weighted value** is calculated from the Stage field, so the second board shows counts and total values but no weighted figures. And a board shows at most 50 columns, which no sensible pipeline reaches.
 
-If you would rather keep one stage list, add a single-select "Pipeline" field with New business and Renewal, and save one view per value of that filter.
+If you would rather keep one stage list, add a single choice field "Pipeline" with New business and Renewal, and save one view per value of that filter.
 
 ## Keeping the pipeline current
 
@@ -111,12 +111,12 @@ Find deals in Proposal or Negotiation that were not updated in the last 14 days.
 
 The routine runs as its owner and sees only the deals that person can see. Creating tasks needs no approval; deletions would, so an unattended run refuses them. More patterns are on the [workflow automation](/features/workflow-automation) page.
 
-**Your own AI client through MCP.** Claude, ChatGPT and other MCP clients can move deals between stages and update fields with the [[derived.mcp.tools.total]] tools described in the [MCP documentation](/docs/mcp), on every plan and when self-hosting. A stage change from any source fires a `deal.updated` webhook with the changed fields, which an n8n workflow you run separately can pick up.
+**Your own AI client through MCP.** Claude, ChatGPT and other MCP clients can move deals between stages and update fields with the [[derived.mcp.tools.total]] tools described in the [MCP documentation](/docs/mcp), on every plan and when self-hosting. A stage change from any source fires a `record.updated` webhook for the Deals list with the changed fields, which an n8n workflow you run separately can pick up.
 
 ## Limits
 
 <AcquisitionCallout title="What the pipeline does not do" variant="boundary">
-  The weighted pipeline is your value times your probabilities. There is no model that predicts revenue or close dates, and no report of time in stage, stage conversion or sales velocity. Cards are not highlighted when a deal goes idle; use the stale-deals view instead. Saved views and dashboards are personal and cannot be shared, so each teammate saves their own; a dashboard chart shared as a template can be copied. Deals have no file attachments, and there is no mobile app.
+  The weighted pipeline is your value times your probabilities. There is no model that predicts revenue or close dates, and no report of time in stage, stage conversion over time or sales velocity. Cards are not highlighted when a deal goes idle; use the stale-deals view instead. Saved views and dashboards are personal and cannot be shared, so each teammate saves their own; a dashboard chart shared as a template can be copied. Deals have no file attachments, and there is no mobile app.
 </AcquisitionCallout>
 
 For metrics like win rate per person, Mate in Customermates Cloud can calculate them from your records with a read-only analysis tool, or you export the deals as XLSX. Chart options are on the [reporting](/features/reporting) page.
@@ -130,7 +130,7 @@ Customermates publishes this page. Vendor details were checked on 8 October 2026
 | Pipedrive | You want a sales-focused CRM with several pipelines and idle deals flagged on the board | Multiple pipelines; a rotting feature that shows deals idle beyond a set time in red; Forecast view on the Growth plan |
 | HubSpot | You start free and expect to grow into marketing and service tools | Sales pipeline with editable stages in the free tools; custom pipelines start at Starter (15) and Professional (100) on seat-based plans, shared across all objects |
 | Pipeline CRM | You are a small or mid-size B2B team that wants a pipeline-first tool | Start plan with 1 pipeline and up to 250 active deals per account; Develop 2, Grow 5, Enterprise 20 pipelines |
-| Customermates | Deals depend on client conversations and you want AI to update the board | Stage board with weighted values on every plan; additional pipelines as extra stage columns; conversations from Pro |
+| Customermates | Deals depend on client conversations and you want AI to update the board | Stage board with weighted values on every plan; additional pipelines as extra stage fields; conversations from Pro |
 
 ## What it costs
 
@@ -153,7 +153,7 @@ Yes. Pipeline CRM, renamed from PipelineDeals in 2020, is sales pipeline softwar
 </FaqItem>
 
 <FaqItem question="Can I have several pipelines in Customermates?">
-Yes, as separate single-select columns on deals, each with its own saved board view. Only the column set as the deal stage field has probabilities and weighted values.
+Yes, as separate single choice fields on deals, each with its own saved board view. Only the Stage field feeds the weighted value.
 </FaqItem>
 
 <FaqItem question="Does Customermates forecast revenue?">

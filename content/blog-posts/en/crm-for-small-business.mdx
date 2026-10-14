@@ -97,32 +97,32 @@ In Customermates Cloud, Mate prepares summaries and reply drafts and updates rec
 
 <Steps>
   <Step title="Price what you sell">
-    On **Services**, add each offering with an **Amount**, for example a workshop day and a monthly retainer. A deal's value is the sum of each linked service's amount times its quantity, so a deal with one workshop day and six retainer months is worth exactly that. If "deals" is not your word, rename the record type to Projects or Jobs under **My Company › Settings › Data model**.
+    On **Services**, add each offering with a price, for example a workshop day and a monthly retainer. A deal's value is the sum of its line items, each a service's price times its quantity, so a deal with one workshop day and six retainer months is worth exactly that. If "deals" is not your word, rename the list to Projects or Jobs: open it in **Configure** and change **Name** and **Plural name** under **General**.
   </Step>
   <Step title="Set the stage probabilities">
-    A new workspace starts with a **Stage** column on deals: Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100%, Lost 0%. Adjust the percentages under **My Company › Settings**. The weighted pipeline is each deal's value times the probability of its stage, a fixed weight you chose and not a prediction.
+    A new workspace starts with a **Stage** field on deals: Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100%, Lost 0%. Adjust the percentages in Configure for Deals: open the **Stage** field and set **Probability %** on each option. The weighted pipeline is each deal's value times the probability of its stage, a fixed weight you chose and not a prediction.
   </Step>
-  <Step title="Import the spreadsheet, one record type at a time">
-    Save the sheet as an Excel workbook (`.xlsx`); CSV files are not accepted. On each list, **Import and export › Add from file** lets you match spreadsheet columns to fields. Import organizations first, then contacts, then deals, because link columns match existing records by name. New contacts need a first and a last name. Row and size limits are in the [records guide](/docs/app-records).
+  <Step title="Import the spreadsheet, one list at a time">
+    Save the sheet as an Excel workbook (`.xlsx`); CSV files are not accepted. On each list, **More actions › Add from file** lets you match spreadsheet columns to fields. Import organizations first, then contacts, then deals, because link columns match existing records by name. Row and size limits are in the [records guide](/docs/app-records).
   </Step>
   <Step title="Connect the channels where clients write">
-    Each person connects accounts under **My Profile › Channels**: [[commercial.entitlement.pro.includedAccountsPerUser]] per user on Pro, [[commercial.entitlement.business.includedAccountsPerUser]] on Business. In a conversation, open **Thread settings** from the header chip and click **Link** next to a participant to attach the address to a contact. Every conversation with that address then appears on the contact's timeline.
+    Each person connects accounts under **Settings › Channels**: [[commercial.entitlement.pro.includedAccountsPerUser]] per user on Pro, [[commercial.entitlement.business.includedAccountsPerUser]] on Business. In a conversation, open **Thread settings** from the header chip and click **Link** next to a participant to attach the address to a contact. Every conversation with that address then appears on the contact's timeline.
   </Step>
   <Step title="Limit what freelancers see">
-    Under **My Company › Roles**, set **Read access** to **Assigned** for a freelancer role. People with that role see only the records they are assigned to. Deals have assigned users rather than one owner, so a senior consultant and a freelancer can share a deal.
+    Under **Settings › Roles**, set **Read access** to **Assigned** for a freelancer role. People with that role see only the records they are assigned to. Deals have assigned users rather than one owner, so a senior consultant and a freelancer can share a deal.
   </Step>
   <Step title="Save one view per person">
     On **Deals**, click **New view**, filter **Assigned** to your name, and under **Appearance** choose **Board** grouped by Stage. Views are personal, so each teammate saves their own.
   </Step>
 </Steps>
 
-**Customermates Cloud only:** an event-driven [routine](/docs/app-routines) can take over the handoff after a win. Under **Routines**, click **Add**, choose **When something changes**, pick the event **Deal Updated**, set **Changed fields** to Stage and add a record filter for Stage is Won. Example instruction:
+**Customermates Cloud only:** an event-driven [routine](/docs/app-routines) can take over the handoff after a win. Under **Routines**, click **Add**, choose **When something changes**, pick the event **Record updated** for Deals, set **Changed fields** to Stage and add a record filter for Stage is Won. Example instruction:
 
 > This deal just moved to Won. Create a task "Kickoff: deal name" linked to the deal, its organization and its contacts, and assign it to the deal's assigned users. Then read the latest conversation with the main contact and add a three-line summary of what was agreed to the deal notes. Do not send any messages.
 
 The run uses hosted AI credits from the routine owner's allowance and works with that owner's access and channels. Mate can send emails and chat messages without asking first, so keep the last sentence: it limits the routine to a task and a note. Reading conversations needs a plan with the inbox. Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user and Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
-Tasks in Customermates have no built-in due date and no reminder. If you want to sort kickoffs by date, add a custom Date column to tasks.
+Tasks in Customermates have no built-in due date and no reminder. If you want to sort kickoffs by date, add a custom Date field to tasks.
 
 <AcquisitionCallout title="When Customermates is the wrong choice" variant="boundary">
   Customermates has no telephony, no email sequences or bulk email, no web forms for lead capture and no native mobile app; the web app adapts to narrow screens. It does not create quotes or invoices, saved views are not shared, and there is no free hosted plan. If you sell by phone, choose a CRM with calling built in. If you need email sequences, Pipedrive includes them from Growth, and its LeadBooster with web forms comes with Premium and Ultimate. Quotes and billing belong in your accounting software.

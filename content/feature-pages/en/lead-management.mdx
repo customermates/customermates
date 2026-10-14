@@ -47,7 +47,7 @@ What it leaves out matters just as much. Customermates scores no leads, enriches
 | Qualify | Your own criteria as custom fields, filled by people, Mate or your AI client | Automatic scores and firmographic data |
 | Assign | Assigned users on every contact and deal, set by hand or by an instruction | Round-robin or territory routing |
 | Follow up | Replies from the contact's own channel, drafts by Mate in Customermates Cloud | Multi-step email sequences |
-| Measure | Dashboard charts counting leads and deal value by any single-select field | Funnel conversion rates and multi-touch attribution |
+| Measure | Dashboard charts counting leads and summing deal value by any single choice field | Conversion tracking over time and multi-touch attribution |
 
 For a consultancy, an agency or a founder who gets 10 to 50 new enquiries a month, the left column is usually the whole job. The right column belongs to marketing teams with high inbound volume.
 
@@ -55,20 +55,20 @@ For a consultancy, an agency or a founder who gets 10 to 50 new enquiries a mont
 
 - **By hand.** **Add** on the contacts list, a few fields, done.
 - **From a conversation (Pro and higher).** When an unknown address writes to your connected inbox, open **Thread settings**, click **Link** next to the person and choose **Create "…"**. Every later message from that address shows on the new contact. See the [unified inbox](/features/unified-inbox).
-- **From a spreadsheet.** Save your list as an .xlsx workbook and use **Import and export › Add from file**. Import organizations first, then contacts. A lead list bought from or built by an outside lead generation agency comes in the same way.
+- **From a spreadsheet.** Save your list as an .xlsx workbook and use **More actions › Add from file**. Import organizations first, then contacts. A lead list bought from or built by an outside lead generation agency comes in the same way.
 - **From a website form you already run.** Your form tool or a separate [n8n workflow](/features/workflow-automation) calls the REST API and creates the contact with its source value. Customermates has no form builder of its own.
 - **From your AI client.** Claude, ChatGPT or another MCP client can create contacts from a pasted email signature or event list, with [[derived.mcp.tools.total]] tools available.
 
 ## Setting it up: a three-person consultancy
 
-A new workspace already has a single-select field **Sales Pipeline** on contacts with the options New, Contact, Qualified, In Progress, Won and Lost, and a **Stage** field on deals. You can rename both or edit the options in place.
+A new workspace already has a single choice field **Sales Pipeline** on contacts with the options New, Contact, Qualified, In Progress, Won and Lost, and a **Stage** field on deals. You can rename both or edit the options in place.
 
 <Steps>
-  <Step title="Name leads as leads">Under **My Company › Settings › Data model**, switch Contacts to **Leads** if your team talks that way. The change applies to the whole workspace.</Step>
-  <Step title="Add two fields on contacts">**Source** (Single Select: Referral, Website, LinkedIn, Event, Partner) and **Fit** (Single Select: Strong, Unclear, Poor). Keep the options few, so filters stay useful.</Step>
+  <Step title="Name leads as leads">In **Configure**, open Contacts and rename it to **Leads** under **General** if your team talks that way. The change applies to the whole workspace.</Step>
+  <Step title="Add two fields on contacts">**Source** (Single choice: Referral, Website, LinkedIn, Event, Partner) and **Fit** (Single choice: Strong, Unclear, Poor). Keep the options few, so filters stay useful.</Step>
   <Step title="Save two personal views">"New and unassigned": **Sales Pipeline** is New and **Assigned** has none. "My open leads": **Assigned** is you and **Sales Pipeline** is Contact, Qualified or In Progress, sorted by **Updated at**, oldest first.</Step>
   <Step title="Work the board">Switch "My open leads" to the board, grouped by **Sales Pipeline**, and drag a card when the conversation moves on.</Step>
-  <Step title="Open a deal when it gets serious">Once a lead asks for a proposal, create a deal, link the contact and its organization, and add the services you would sell. The deal's value comes from those services and their quantities.</Step>
+  <Step title="Open a deal when it gets serious">Once a lead asks for a proposal, create a deal, link the contact and its organization, and add a line item for each service you would sell. The deal's value is the sum of its line items, each a service times quantity.</Step>
 </Steps>
 
 Saved views belong to the person who made them, so each colleague saves their own. The [records guide](/docs/app-records) documents filters, grouping and import.
@@ -77,17 +77,17 @@ Saved views belong to the person who made them, so each colleague saves their ow
 
 A lead and its deal are separate records. There is no convert button: the contact stays in the list with its full history, and the deal carries the money.
 
-The default deal stages carry weights of 10, 20, 40, 60 and 80 percent for Prospecting through Negotiation, 100 for Won and 0 for Lost. With them, every deal gets a weighted value and the workspace shows a **Weighted pipeline** next to the **Total pipeline**. Those are fixed stage weights you set, not a prediction.
+The default deal stages carry weights of 10, 20, 40, 60 and 80 percent for Prospecting through Negotiation, 100 for Won and 0 for Lost. With them, every deal gets a weighted value, and a dashboard chart that sums **Value** or **Weighted value** by stage shows the pipeline. Those are fixed stage weights you set, not a prediction.
 
-On the dashboard, a chart widget over contacts grouped by **Source** shows how many leads each channel brought. The same chart over deals, with a Source field on deals and the metric set to deal value, shows which channels bring money. Conversion rates between stages are not calculated; export the list to Excel if you want them.
+On the dashboard, a chart widget over contacts grouped by **Source** shows how many leads each channel brought. The same chart over deals, with a Source field on deals and summing **Value**, shows which channels bring money. A **Funnel** chart shows the current records per stage with step-to-step conversion; conversion over time is not tracked, so export the list to Excel if you want it.
 
-To track leads in other systems as changes happen, webhooks fire on `contact.created`, `contact.updated` and `deal.updated`, among [[derived.webhooks.events.total]] events. A Slack message about a new lead runs through n8n or your own endpoint; there is no native Slack integration. Every change to a lead lands in its history, which roles with **Audit Log** read access can see.
+To track leads in other systems as changes happen, webhooks fire on `record.created` and `record.updated` for the Contacts and Deals lists, among [[derived.webhooks.events.total]] events. A Slack message about a new lead runs through n8n or your own endpoint; there is no native Slack integration. Every change to a lead lands in its history, which roles with **Audit Log** read access can see.
 
 ## Mate and routines on new leads (Customermates Cloud)
 
 In Customermates Cloud, Mate, the hosted assistant, uses hosted AI credits and works on leads in plain language: "Show me every lead with Source LinkedIn and Sales Pipeline Contact that was last updated more than two weeks ago, and draft a short follow-up in each lead's conversation. Do not send anything."
 
-A [routine](/docs/app-routines) runs a saved instruction on its own. Set the trigger to **When something changes** with the event **Contact Created**, and give it an instruction such as:
+A [routine](/docs/app-routines) runs a saved instruction on its own. Set the trigger to **When something changes** with the event **Record created** for Contacts, and give it an instruction such as:
 
 ```text
 A new lead was just created. Read the contact and any linked conversation. If Source is empty and the conversation shows where they came from, set Source. Set Fit to Unclear if it is empty. Draft a reply in the conversation but do not send it. Do not change Assigned.

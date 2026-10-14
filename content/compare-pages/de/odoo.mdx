@@ -65,7 +65,7 @@ comparison:
         source: true
         competitor: true
       - name: Abschlusswahrscheinlichkeit
-        source: Gewichtung pro Phase, gewichtete Pipeline-Summen
+        source: Wahrscheinlichkeit pro Phase, gewichteter Wert pro Deal
         competitor: Vorhergesagte Wahrscheinlichkeit pro Verkaufschance
       - name: Prädiktives Lead-Scoring und Zuweisungsregeln
         source: false
@@ -80,7 +80,7 @@ comparison:
         source: false
         competitor: Apps in derselben Datenbank
       - name: Anpassung
-        source: Eigene Felder mit zehn Feldtypen in jedem Tarif
+        source: Eigene Listen, Felder und berechnete Felder in jedem Tarif
         competitor: Odoo Studio (Enterprise), Teil des Tarifs Custom
   - title: Kommunikation
     features:
@@ -205,11 +205,11 @@ Customermates ist ein Open-Source-KI-CRM für kleine Teams mit Kundenkontakt: Be
 - **Keine Massen-E-Mails, Kampagnen oder Sequenzen.** Nachrichten gehen einzeln hinaus, von Ihnen geschrieben oder von Mate entworfen.
 - **Keine Telefonie, keine SMS, keine nativen Apps für Smartphones und kein Single Sign-on.**
 - **Aufgaben haben kein eingebautes Fälligkeitsdatum und keine Erinnerungen.** Legen Sie bei Bedarf ein eigenes Datumsfeld an.
-- **Keine eigenen Objekte.** Sie arbeiten mit fünf Datensatztypen (Kontakte, Organisationen, Deals, Services, Aufgaben) und eigenen Feldern aus zehn Feldtypen. Gespeicherte Ansichten sind persönlich, und Berechtigungen gelten pro Datensatztyp und Aktion, nicht pro Feld.
+- **Gespeicherte Ansichten sind persönlich, und Berechtigungen gelten pro Liste und Aktion, nicht pro Feld.** An Listen scheitert es nicht: Ein Workspace startet mit fünf (Kontakte, Organisationen, Deals, Services, Aufgaben), und Sie können eigene anlegen, mit typisierten Feldern, Beziehungen und berechneten Feldern.
 
 ## Umstieg von Odoo CRM
 
-Für die meisten Daten aus Odoo CRM gibt es ein direktes Gegenstück. Unter **Mein Unternehmen › Einstellungen** im Abschnitt **Datenmodell** können Sie Deals „Chancen“ und Organisationen „Unternehmen“ nennen, damit die gewohnten Begriffe bleiben.
+Für die meisten Daten aus Odoo CRM gibt es ein direktes Gegenstück. Öffnen Sie in **Konfigurieren** eine Liste und ändern Sie unter **Allgemein** **Name** und **Pluralname**, um Deals „Chancen“ und Organisationen „Unternehmen“ zu nennen, damit die gewohnten Begriffe bleiben.
 
 | In Odoo | In Customermates |
 |---|---|
@@ -217,17 +217,17 @@ Für die meisten Daten aus Odoo CRM gibt es ein direktes Gegenstück. Unter **Me
 | Kontakte, die Personen sind | Kontakte, verknüpft mit ihrer Organisation |
 | Verkaufschancen in der Pipeline | Deals, umbenannt in „Chancen“ |
 | Leads, falls Sie sie nutzen | Kontakte mit dem vorhandenen Feld „Vertriebsphase“: Neu, Kontaktiert, Qualifiziert, In Bearbeitung, Gewonnen, Verloren |
-| Produkte an Verkaufschancen | Services, umbenannt in „Produkte“, mit Menge an Deals verknüpft |
+| Produkte an Verkaufschancen | Services, umbenannt in „Produkte“, als Positionen mit Menge im Deal |
 | Geplante Aktivitäten | Aufgaben mit zugewiesenen Nutzern, dazu ein eigenes Datumsfeld für die Frist |
-| Tags in Odoo | Ein Einzelauswahl-Feld pro Gruppe von Tags, mit einem Wert pro Feld; Customermates hat keine Tags an Datensätzen |
+| Tags in Odoo | Ein Mehrfachauswahl-Feld pro Gruppe von Tags; Customermates hat keine Tags an Datensätzen |
 | Angebote und Rechnungen | Kein Gegenstück; behalten Sie dafür die Odoo-App für Rechnungen oder Ihre Buchhaltungssoftware |
 
-Ein neuer Workspace beginnt mit den Phasen Akquise 10 %, Qualifizierung 20 %, Demo 40 %, Angebot 60 %, Verhandlung 80 %, Gewonnen 100 % und Verloren 0 %. Benennen Sie sie nach Ihren Odoo-Phasen um und tragen Sie eigene Gewichtungen ein. Die Wahrscheinlichkeit pro Verkaufschance aus Odoo wird nicht übernommen: In Customermates bekommt jeder Deal einer Phase dieselbe Gewichtung.
+Ein neuer Workspace beginnt mit den Phasen Akquise 10 %, Qualifizierung 20 %, Demo 40 %, Angebot 60 %, Verhandlung 80 %, Gewonnen 100 % und Verloren 0 %. Benennen Sie sie nach Ihren Odoo-Phasen um und tragen Sie in **Konfigurieren** beim Feld **Phase** je Option eine eigene **Wahrscheinlichkeit %** ein. Die Wahrscheinlichkeit pro Verkaufschance aus Odoo wird nicht übernommen: In Customermates bekommt jeder Deal einer Phase dieselbe Gewichtung.
 
 <Steps>
-  <Step title="Aus Odoo exportieren">Markieren Sie in jeder Listenansicht die Datensätze, öffnen Sie Aktion und wählen Sie Exportieren. Nehmen Sie das Excel-Format, nicht CSV. Customermates importiert nur .xlsx-Arbeitsmappen; endet Ihre Datei auf .xls, speichern Sie sie vorher in Excel oder LibreOffice als .xlsx.</Step>
-  <Step title="Workspace vorbereiten">Wählen Sie im Datenmodell Ihre Bezeichnungen, legen Sie eigene Felder für die Odoo-Spalten an, die Sie behalten, und richten Sie Phasen und Gewichtungen ein.</Step>
-  <Step title="Einen Datensatztyp nach dem anderen importieren">Importieren Sie zuerst die Organisationen, dann die Kontakte, dann die Deals. Verknüpfungsspalten finden Datensätze über den Namen, die Unternehmensspalte eines Kontakts also die zuvor importierte Organisation. Die Grenzen des Imports stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
+  <Step title="Aus Odoo exportieren">Markieren Sie in jeder Listenansicht die Datensätze, öffnen Sie Aktion und wählen Sie Exportieren. Nehmen Sie das Excel-Format, nicht CSV. Der Import-Assistent von Customermates liest .xlsx-Arbeitsmappen; endet Ihre Datei auf .xls, speichern Sie sie vorher in Excel oder LibreOffice als .xlsx.</Step>
+  <Step title="Workspace vorbereiten">Benennen Sie in **Konfigurieren** Ihre Listen um, legen Sie Felder für die Odoo-Spalten an, die Sie behalten, und richten Sie Phasen und ihre Wahrscheinlichkeiten ein.</Step>
+  <Step title="Eine Liste nach der anderen importieren">Importieren Sie zuerst die Organisationen, dann die Kontakte, dann die Deals. Verknüpfungsspalten finden Datensätze über den Namen, die Unternehmensspalte eines Kontakts also die zuvor importierte Organisation. Die Grenzen des Imports stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
   <Step title="Pipeline-Ansicht anlegen">Legen Sie ein Board der Deals an, gruppiert nach Phase und gefiltert auf die Deals, bei denen Sie unter Zugewiesen stehen. Speichern Sie es als Ansicht. Ansichten sind persönlich, jede Person speichert also ihre eigenen.</Step>
   <Step title="Kanäle verbinden und eine Routine anlegen">Verbinden Sie ab Pro oder während der Testphase ein Postfach, LinkedIn oder WhatsApp. Richten Sie dann in Customermates Cloud eine Routine ein, etwa die folgende.</Step>
 </Steps>

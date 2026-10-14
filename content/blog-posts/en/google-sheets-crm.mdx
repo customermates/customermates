@@ -165,17 +165,17 @@ A simple rule of thumb: once two people edit the same deals every week and one f
 
 ## Moving a Google Sheets CRM into Customermates
 
-Customermates imports Excel workbooks (.xlsx), one record type at a time, so a Google Sheet goes through a download first. There is no live sync with Google Sheets and no CSV import. The [import documentation](/docs/app-records#how-do-i-import-or-export-records) has the full rules, and the [Excel template guide](/blog/excel-crm-template#moving-the-template-into-customermates) maps every column of this layout to a field.
+Customermates imports Excel workbooks (.xlsx), one list at a time, so a Google Sheet goes through a download first. There is no live sync with Google Sheets and no CSV import. The [import documentation](/docs/app-records#how-do-i-import-or-export-records) has the full rules, and the [Excel template guide](/blog/excel-crm-template#moving-the-template-into-customermates) maps every column of this layout to a field.
 
 <Steps>
   <Step title="Clean the tabs">Use Data › Data cleanup › Remove duplicates on Contacts and Deals, and fix any value that a dropdown flags. Every stage and type should be exactly one of the Lists values.</Step>
-  <Step title="Create the custom fields">In Customermates, open any record, click **Customize**, then **Add Field**. For each dropdown column (Contact type, Source, Industry), add a **Single Select** field with option labels that match your Lists tab exactly. Use Date fields for Next step date and Closed on. The deal Stage field already exists with the stages above.</Step>
-  <Step title="Download one tab at a time">The wizard reads the first tab of a workbook that is not named "Schema". Drag the tab you want to import to the front, then File › Download › Microsoft Excel (.xlsx). Repeat for each tab.</Step>
-  <Step title="Import in dependency order">Companies into **Organizations**, then Contacts, then Deals. On each list, open **Import and export**, choose **Add from file**, and match each column to a field, a custom field or a channel. Links are matched by name, ignoring case, so a company must exist before a contact can point to it. Owner goes into **Assigned**, matched by the team member's full name.</Step>
+  <Step title="Create the custom fields">In Customermates, open the list in **Configure** and choose **Add**, then **Field**. For each dropdown column (Contact type, Source, Industry), add a **Single choice** field with option labels that match your Lists tab exactly. Use Date fields for Next step date and Closed on. The deal Stage field already exists with the stages above.</Step>
+  <Step title="Download the workbook">Choose File › Download › Microsoft Excel (.xlsx). The wizard asks which tab to import, so the same file serves every import.</Step>
+  <Step title="Import in dependency order">Companies into **Organizations**, then Contacts, then Deals. On each list, open **More actions**, choose **Add from file**, and match each column to a field, for example email addresses to the contact's Channels field. Links are matched by name, ignoring case, so a company must exist before a contact can point to it. Owner goes into **Assigned**, matched by the team member's full name.</Step>
   <Step title="Test with ten rows">The check lists every problem row before anything is added, and you can skip those rows. An import has no undo, so try a small file first. Bring only open next steps from Activities over as tasks; older history can go into a deal's Notes or stay in the archived sheet.</Step>
 </Steps>
 
-Deal values work differently: in Customermates a deal's value is the sum of its linked services. The Excel guide's [import steps](/blog/excel-crm-template#moving-the-template-into-customermates) show how to bring your price list in first.
+Deal values work differently: in Customermates a deal's value is the sum of its line items, each a service times quantity. The Excel guide's [import steps](/blog/excel-crm-template#moving-the-template-into-customermates) show how to bring your price list in first.
 
 ### What replaces the Dashboard and the Apps Script
 
@@ -219,11 +219,11 @@ The layout on this page is free: copy the headers into a blank spreadsheet, add 
 </FaqItem>
 
 <FaqItem question="How many contacts can a Google Sheets CRM handle?">
-A spreadsheet holds up to 20 million cells, according to Google's [file limits](https://support.google.com/drive/answer/37603). The practical limit is people, not rows: shared access and slipped follow-ups become a problem long before the file fills up. Customermates currently reads up to 10,000 rows per import file, so split larger tabs.
+A spreadsheet holds up to 20 million cells, according to Google's [file limits](https://support.google.com/drive/answer/37603). The practical limit is people, not rows: shared access and slipped follow-ups become a problem long before the file fills up. Customermates currently reads up to 5,000 rows per import file, so split larger tabs.
 </FaqItem>
 
 <FaqItem question="Can I connect a Google Sheets list to a CRM?">
-Some CRMs ship a Sheets add-on; the Workspace Marketplace lists Copper CRM for Google Sheets, for example. Customermates does not: it imports and exports .xlsx files, one record type at a time, with no live sync. You can export a list, edit it in Sheets, download it as .xlsx and import it again; its Record ID column updates the existing records instead of creating duplicates.
+Some CRMs ship a Sheets add-on; the Workspace Marketplace lists Copper CRM for Google Sheets, for example. Customermates does not: it imports and exports .xlsx files, one list at a time, with no live sync. You can export a list, edit it in Sheets, download it as .xlsx and import it again as **Existing records**; its Record ID column updates the existing records instead of creating duplicates.
 </FaqItem>
 
 <FaqItem question="Can you create a CRM in Excel instead?">

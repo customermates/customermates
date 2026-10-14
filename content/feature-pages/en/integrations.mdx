@@ -36,7 +36,7 @@ That choice has a cost you should know up front. There is no catalog of one-clic
 
 | Connection | Direction | What it is for | Plan |
 |---|---|---|---|
-| Webhooks | CRM to your system | Push an event when a contact, organization, deal, service or task is created, updated or deleted, or when an inbox message arrives | Every plan, self-hosted included |
+| Webhooks | CRM to your system | Push an event when a record in any list is created, updated, moved to Trash, restored or deleted permanently, or when an inbox message arrives | Every plan, self-hosted included |
 | REST API | Your system to CRM | Create, read, search, update and delete records from code or an automation tool | Every plan, self-hosted included |
 | MCP | AI client to CRM | Let Claude, ChatGPT, Cursor, Codex or Gemini CLI read and write records in conversation | Every plan, self-hosted included |
 | n8n community node | Both | Dedicated Customermates nodes in a separately run n8n instance | Every plan; n8n is billed by n8n |
@@ -49,29 +49,29 @@ Webhooks, REST and MCP come with Starter at [[commercial.price.starter.monthly]]
 | If you want to… | Use | Why |
 |---|---|---|
 | Post a message to one Slack channel when a deal is created | A webhook with a body template, sent to a Slack incoming webhook | No automation tool needed |
-| Hand won deals to your accounting software | n8n, Make or Zapier on a `deal.updated` webhook | Those tools check the stage value and call the accounting tool's API |
-| Create contacts from your website form | The form tool or n8n calls `POST /api/v1/contacts` | Customermates has no embeddable form of its own |
-| Mirror records into a data warehouse | Webhooks, idempotent by `entityId` | Near real time, no polling |
+| Hand won deals to your accounting software | n8n, Make or Zapier on a `record.updated` webhook for the Deals list | Those tools check the stage value and call the accounting tool's API |
+| Create contacts from your website form | The form tool or n8n calls `POST /api/v1/records/mutate` | Customermates has no embeddable form of its own |
+| Mirror records into a data warehouse | Webhooks, deduplicated by event `id` | Near real time, no polling |
 | Ask an AI to update five deals after a call | MCP from Claude, ChatGPT or another client | The client discovers the tools and does the calls |
-| Move a spreadsheet of existing clients in | XLSX import, one record type at a time | Faster than an API script for a one-off move |
+| Move a spreadsheet of existing clients in | XLSX import, one list at a time | Faster than an API script for a one-off move |
 
 ## Webhooks
 
-Create a webhook under **My Company → Webhooks → Add**, paste the receiving URL, and pick events. You can choose from [[derived.webhooks.events.total]] events: [[derived.webhooks.events.records]] record events (created, updated and deleted for contacts, organizations, deals, services and tasks) and [[derived.webhooks.events.messaging]] messaging events, such as a received message or email and a changed calendar event.
+Create a webhook under **Settings → Webhooks → Add**, paste the receiving URL, pick events and choose the list under **Records from**. You can choose from [[derived.webhooks.events.total]] events: [[derived.webhooks.events.records]] record events (created, updated, moved to Trash, restored and deleted permanently, for any list you choose, your own included) and [[derived.webhooks.events.messaging]] messaging events, such as a received message or email and a changed calendar event.
 
 The details that matter when you build on them:
 
 - **Signatures.** Set a secret and every delivery carries an HMAC-SHA256 signature over the request body, so the receiver can reject forged calls.
-- **Retries.** Timeouts, network errors, 5xx responses and 408, 425 and 429 are retried automatically, up to 5 times. Other 4xx responses are not.
-- **Delivery log.** **My Company → Recent Deliveries** shows every delivery with status code and payload, and you can resend one from there.
-- **Custom headers and body templates.** Headers let you authenticate against the receiver. A body template replaces the standard JSON envelope with the shape the receiver expects, using placeholders such as `{{event}}` and `{{data.payload.name}}`.
-- **Changes only.** An `*.updated` event includes a `changes` object with the previous and current value of each field that moved, and a write that changes nothing sends no event.
+- **Retries.** Timeouts, network errors, 5xx responses and 408, 425 and 429 are retried automatically, up to 10 attempts in total. Other 4xx responses are not.
+- **Delivery log.** **Settings → Deliveries** shows every delivery with status code and payload, and you can resend one from there.
+- **Custom headers and body templates.** Headers let you authenticate against the receiver. A body template replaces the standard JSON envelope with the shape the receiver expects, using placeholders such as `{{event}}` and `{{data.record.ref.recordId}}`.
+- **Changes only.** A `record.updated` event lists each field that changed with its `before` and `after` value, and a write that changes nothing sends no event.
 
-Deliveries are not strictly ordered, so treat them as idempotent messages keyed by `entityId` and order by the payload `timestamp`. The full catalog and payload shapes are in the [webhooks documentation](/docs/webhooks).
+Deliveries are not strictly ordered, so treat them as idempotent messages keyed by the event `id` and order by the payload `timestamp` and record version. The full catalog and payload shapes are in the [webhooks documentation](/docs/webhooks).
 
 ## REST API
 
-The API is versioned under `/api/v1`, authenticated with an `x-api-key` header, and described by an OpenAPI document. Contacts, organizations, deals, services and tasks each support create, read, search, update and delete, plus `/many` endpoints for batches of up to 100 records per request. A `GET /api/v1/<type>/configuration` call returns your workspace's custom columns and options, which you need because deal stage is a configurable single-select column, not a fixed field.
+The API is versioned under `/api/v1`, authenticated with an `x-api-key` header, and described by an OpenAPI document. The same action endpoints serve every list, the five starter lists and the ones your workspace adds, and address a record by `typeId` and `recordId`: `POST /api/v1/records/query` and `/records/search` read, `POST /api/v1/records/mutate` creates, updates, deletes, links and unlinks, and its `updateMany` and `deleteMany` actions change up to 100 records per request. `POST /api/v1/model/read` returns your fields and their option IDs, which you need because the deal **Stage** is a configurable single choice field, not a fixed value.
 
 An API key inherits the permissions of the user who created it. There is no per-key scope, so create keys from a user whose role fits the integration. More detail on the [API feature page](/features/api).
 
@@ -105,17 +105,17 @@ Customermates has no Slack app, no Slack channel in the inbox and no Slack setti
 
 <Steps>
   <Step title="Create the Slack incoming webhook">In Slack, create an app, turn on incoming webhooks, add a webhook to your workspace and pick the channel. Copy the URL and keep it secret.</Step>
-  <Step title="Add the Customermates webhook">Under **My Company → Webhooks → Add**, paste the Slack URL and select `deal.created`.</Step>
-  <Step title="Write the body template">Enter `{"text": "New deal: {{data.payload.name}}"}`. For `deal.updated` events the record sits one level deeper, so use `{{data.payload.deal.name}}`.</Step>
-  <Step title="Test and check the log">Create a test deal and open **Recent Deliveries**. A 2xx status code means Slack accepted it.</Step>
+  <Step title="Add the Customermates webhook">Under **Settings → Webhooks → Add**, paste the Slack URL, select **Record created** and choose Deals under **Records from**.</Step>
+  <Step title="Write the body template">Enter `{"text": "New deal: {{data.record.ref.recordId}}"}`. Any path under `{{data}}` works as a placeholder.</Step>
+  <Step title="Test and check the log">Create a test deal and open **Deliveries**. A 2xx status code means Slack accepted it.</Step>
 </Steps>
 
-**Route 2, n8n.** Use n8n when the message needs logic: alert only when the stage column reaches a certain value, post a weekly pipeline digest from a scheduled `POST /api/v1/deals/search`, or turn a Slack shortcut into a new contact through the API. Slack conversations never appear in the Customermates inbox either way.
+**Route 2, n8n.** Use n8n when the message needs logic: alert only when the deal **Stage** reaches a certain value, post a weekly pipeline digest from a scheduled `POST /api/v1/records/query`, or turn a Slack shortcut into a new contact through the API. Slack conversations never appear in the Customermates inbox either way.
 
 ## What is not included
 
 <AcquisitionCallout title="Limits to know before you plan an integration" variant="boundary">
-  No app marketplace and no one-click connectors. No native Slack, Microsoft Teams, accounting or calendar-booking integration. Calendars are read-only. No embeddable web forms. Data transfer by file is XLSX only, one record type at a time, with no whole-account export. n8n, Make and Zapier are separate products with separate bills.
+  No app marketplace and no one-click connectors. No native Slack, Microsoft Teams, accounting or calendar-booking integration. Calendars are read-only. No embeddable web forms. Data transfer by file is XLSX or JSON, one list at a time, with no whole-account export. n8n, Make and Zapier are separate products with separate bills.
 </AcquisitionCallout>
 
 If your team needs hundreds of prebuilt, vendor-maintained connectors that a non-technical person switches on in a settings screen, a CRM with its own app marketplace fits better. Customermates fits teams that are happy to wire a webhook or let an AI client do the calls, and that want the same interfaces whether they use the cloud or self-host. ERP links follow the same pattern; the [CRM and ERP integration guide](/blog/crm-erp-integration) walks through it.

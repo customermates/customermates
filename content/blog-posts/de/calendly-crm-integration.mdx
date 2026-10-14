@@ -100,30 +100,30 @@ Das funktioniert in jedem Customermates-Tarif und auch bei Self-Hosting. Sie bra
 
 <Steps>
 <Step title="API-Key anlegen">
-Öffnen Sie in Customermates **Mein Profil › API & Konnektoren**, klicken Sie auf **Hinzufügen** und wählen Sie **Standard-API-Key**. Der Key arbeitet mit Ihren Berechtigungen. Hinterlegen Sie ihn in n8n als Header-Auth-Credential mit dem Header-Namen `x-api-key`. Details unter [API-Keys](/docs/api-keys).
+Öffnen Sie in Customermates **Einstellungen › API-Schlüssel**, klicken Sie auf **Hinzufügen** und wählen Sie **Standard-API-Key**. Der Key arbeitet mit Ihren Berechtigungen. Hinterlegen Sie ihn in n8n als Header-Auth-Credential mit dem Header-Namen `x-api-key`. Details unter [API-Keys](/docs/api-keys).
 </Step>
-<Step title="Deal-Spalten vorbereiten">
-Ergänzen Sie in der Phasen-Spalte Ihrer Deals, einer Spalte vom Typ **Einzelauswahl**, die Optionen „Termin gebucht“ und „Storniert“. Legen Sie eine Spalte vom Typ **Datum & Uhrzeit** namens „Termin“ an, eine **Einzelauswahl** „Lead-Quelle“ mit einer Option je Ereignistyp und eine **Text**-Spalte „Calendly-Buchung“. `GET /api/v1/deals/configuration` liefert die Spalten-IDs und Optionen, die die API erwartet.
+<Step title="Deal-Felder vorbereiten">
+Öffnen Sie Deals in **Konfigurieren** und ergänzen Sie im Feld **Phase**, einem Feld vom Typ **Einzelauswahl**, die Optionen „Termin gebucht“ und „Storniert“. Legen Sie ein Feld vom Typ **Datum und Uhrzeit** namens „Termin“ an, ein **Einzelauswahl**-Feld „Lead-Quelle“ mit einer Option je Ereignistyp und ein **Text**-Feld „Calendly-Buchung“. `POST /api/v1/model/discover` findet die Typ-IDs von Kontakten und Deals, und `POST /api/v1/model/read` liefert die Schema-Revision sowie die Feld-, Options- und Beziehungs-IDs, die die API erwartet. Diese IDs bleiben gültig, wenn jemand eine Liste oder ein Feld umbenennt.
 </Step>
 <Step title="Buchung empfangen">
 Fügen Sie in n8n den Calendly-Trigger mit „Event created“ und „Event canceled“ hinzu. Alternativ verwenden Sie einen Webhook-Node und abonnieren dessen URL über die Calendly-API.
 </Step>
 <Step title="Kontakt finden oder anlegen">
-Senden Sie `POST /api/v1/contacts/search` mit der E-Mail des Gastes als `searchTerm` und übernehmen Sie nur einen exakten Treffer. Gibt es keinen, senden Sie `POST /api/v1/contacts` mit `firstName`, `lastName` und `identifiers: [{ "provider": "mail", "value": "<email>" }]`.
+Senden Sie `POST /api/v1/records/identities/resolve` mit der E-Mail des Gastes als `mail`-Kennung; der Aufruf liefert nur exakte Treffer. Gibt es keinen, senden Sie `POST /api/v1/records/mutate` mit einer `create`-Mutation für Kontakte: Vor- und Nachname als typisierte Feldwerte und `identities: [{ "provider": "mail", "value": "<email>" }]`.
 </Step>
 <Step title="Deal anlegen">
-Senden Sie `POST /api/v1/deals` mit einem Namen wie „Anna Weber, Erstgespräch“, der Kontakt-ID in `contactIds`, der Customermates-Nutzer-ID des Gastgebers in `userIds` und `customFieldValues` für Phase, Termin, Lead-Quelle und Calendly-Link. Freitext-Antworten gehören in `notes`, das Markdown annimmt. Die Zuordnung von Gastgeber-E-Mail zu Nutzer-ID legen Sie einmal im Workflow fest.
+Senden Sie eine `create`-Mutation für Deals an `POST /api/v1/records/mutate`, mit einem Namen wie „Anna Weber, Erstgespräch“, der Customermates-Nutzer-ID des Gastgebers in `assignedUserIds` und typisierten Werten für Phase, Termin, Lead-Quelle und Calendly-Link. Verknüpfen Sie den Kontakt über die Beziehungs-ID aus `model/read`. Freitext-Antworten gehören in die Notizen des Deals, ein Feld vom Typ Formatierter Text: Ergänzen Sie sie mit einer `update`-Mutation, deren Feldeintrag `{ fieldId, append }` Markdown annimmt. Verwenden Sie die Calendly-Event-ID im `idempotencyKey`. Die Zuordnung von Gastgeber-E-Mail zu Nutzer-ID legen Sie einmal im Workflow fest.
 </Step>
 <Step title="Stornierung verarbeiten">
-Bei invitee.canceled suchen Sie den Deal über den Wert in „Calendly-Buchung“ mit einem `equals`-Filter (siehe [Filter-Syntax](/docs/filter-syntax)). Ist `rescheduled` wahr, aktualisieren Sie „Termin“ aus der neuen Buchung. Ist es falsch, setzen Sie die Phase mit `PUT /api/v1/deals/{id}` auf „Storniert“.
+Bei invitee.canceled suchen Sie den Deal über den Wert in „Calendly-Buchung“ mit `POST /api/v1/records/query` und einem `eq`-Filter (siehe [Filter-Syntax](/docs/filter-syntax)). Ist `rescheduled` wahr, aktualisieren Sie „Termin“ aus der neuen Buchung. Ist es falsch, senden Sie eine `update`-Mutation mit der Datensatzreferenz und der aktuellen Version des Deals, die die Phase auf „Storniert“ setzt.
 </Step>
 </Steps>
 
-Eine Absicherung ist eingebaut. Customermates speichert E-Mail-Adressen kleingeschrieben und lehnt einen zweiten Kontakt mit einer Adresse ab, die schon ein anderer Kontakt hat („Dieser Kanal ist bereits mit einem anderen Kontakt verknüpft.“). Eine verpasste Suche scheitert also sichtbar, statt eine Dublette anzulegen. Der [n8n-Leitfaden](/docs/n8n) listet alle Endpunkte und die Regeln für Relationen bei Updates.
+Customermates verhindert keinen zweiten Kontakt mit derselben Adresse, denn eine E-Mail-Adresse kann zu mehreren Datensätzen gehören. Lösen Sie die E-Mail deshalb vor jedem Anlegen auf und behalten Sie die Calendly-Event-ID als Idempotenzschlüssel, damit eine wiederholte Zustellung das erste Ergebnis liefert, statt einen zweiten Datensatz anzulegen. Der [n8n-Leitfaden](/docs/n8n) listet alle Endpunkte und die Regeln für Verknüpfungen und Wiederholungen.
 
 ### Weg 2: der Kalender, ab Pro in Customermates Cloud
 
-Ist Calendly so eingestellt, dass Einladungen als „Calendar Invitations“ verschickt werden, legt der Google- oder Outlook-Kalender des Gastgebers den Termin an und trägt den Gast als Teilnehmer ein. Verbinden Sie dasselbe Konto in Customermates unter **Mein Profil › Kanäle** mit **Kanal verbinden**, dann kommt der Termin ohne Workflow-Tool an. Kalendertermine erscheinen in der Kategorie **Konto & Kalender** einer [Aktivitäts-Zeitleiste](/docs/app-dashboard) und am Datensatz eines Kontakts, dessen E-Mail-Adresse zu einem Teilnehmer passt. Customermates liest den Kalender nur. Termine bucht oder ändert es nicht.
+Ist Calendly so eingestellt, dass Einladungen als „Calendar Invitations“ verschickt werden, legt der Google- oder Outlook-Kalender des Gastgebers den Termin an und trägt den Gast als Teilnehmer ein. Verbinden Sie dasselbe Konto in Customermates unter **Einstellungen › Kanäle** mit **Kanal verbinden**, dann kommt der Termin ohne Workflow-Tool an. Kalendertermine erscheinen in einer [Aktivitäts-Zeitleiste](/docs/app-dashboard) und am Datensatz eines Kontakts, dessen E-Mail-Adresse zu einem Teilnehmer passt. Customermates liest den Kalender nur. Termine bucht oder ändert es nicht.
 
 Damit aus Buchungen Datensätze werden, kann eine Routine den Kalender regelmäßig durchgehen. Routinen laufen nur in Customermates Cloud und verbrauchen gehostete KI-Credits aus dem monatlichen Kontingent ihres Eigentümers. Wählen Sie **Nach Zeitplan**, stellen Sie **Wiederholung** auf **Stündlich** und geben Sie Anweisungen wie diese:
 
@@ -141,7 +141,7 @@ Calendly betreibt einen MCP-Server unter `https://mcp.calendly.com/` mit Tools, 
 - **Kalender-Weg mit Pro:** [[commercial.price.pro.monthly.seats.3]] pro Monat. Darin enthalten sind die [Unified Inbox](/features/unified-inbox) und [[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen pro Nutzer. Routine-Läufe verbrauchen die monatlichen gehosteten KI-Credits pro aktivem Nutzer; Details unter [Preise](/pricing).
 
 <AcquisitionCallout title="Wo Customermates nicht passt" variant="boundary">
-Einen Calendly-Konnektor gibt es nicht. Jeder Weg braucht entweder einen Workflow, den Sie selbst betreiben, oder den Kalender plus eine Routine. In Pro ist das Gmail- oder Outlook-Postfach das [[commercial.entitlement.pro.includedAccountsPerUser]] enthaltene verbundene Konto pro Nutzer; Business enthält [[commercial.entitlement.business.includedAccountsPerUser]]. Aufgaben haben keine Fälligkeitsdaten, legen Sie das Folgedatum deshalb in eine Datumsspalte am Deal. Customermates bewertet Leads nicht automatisch; speichern Sie Antworten aus Routing-Formularen in Einzelauswahl-Spalten und filtern Sie danach. Eine selbst gehostete Installation hat REST, Webhooks und MCP, aber weder Kalender noch Inbox, Mate oder Routinen. Soll Calendly den Gastgeber schon bei der Buchung nach der Zuständigkeit im CRM wählen, ist das eine Calendly-Funktion für HubSpot und Salesforce.
+Einen Calendly-Konnektor gibt es nicht. Jeder Weg braucht entweder einen Workflow, den Sie selbst betreiben, oder den Kalender plus eine Routine. In Pro ist das Gmail- oder Outlook-Postfach das [[commercial.entitlement.pro.includedAccountsPerUser]] enthaltene verbundene Konto pro Nutzer; Business enthält [[commercial.entitlement.business.includedAccountsPerUser]]. Aufgaben haben keine Fälligkeitsdaten, legen Sie das Folgedatum deshalb in ein Datumsfeld am Deal. Customermates bewertet Leads nicht automatisch; speichern Sie Antworten aus Routing-Formularen in Einzelauswahl-Feldern und filtern Sie danach. Eine selbst gehostete Installation hat REST, Webhooks und MCP, aber weder Kalender noch Inbox, Mate oder Routinen. Soll Calendly den Gastgeber schon bei der Buchung nach der Zuständigkeit im CRM wählen, ist das eine Calendly-Funktion für HubSpot und Salesforce.
 </AcquisitionCallout>
 
 ## Testen, bevor Sie sich darauf verlassen

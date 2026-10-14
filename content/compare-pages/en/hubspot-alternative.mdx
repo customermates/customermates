@@ -42,7 +42,7 @@ comparison:
         source: true
         competitor: true
       - name: Custom objects
-        source: false
+        source: Your own lists, with fields and relationships
         competitor: Professional and Enterprise
       - name: Custom reports
         source: Dashboard widgets on every plan
@@ -120,7 +120,7 @@ cta:
 |---|---|---|
 | You only use the CRM, and Professional's price or required onboarding is the problem | Pipedrive or Zoho CRM | Both sell a sales CRM on its own, per seat; Zoho has a free edition for three users |
 | You want an open-source licence or your own server | Twenty or Customermates | HubSpot sells hosted plans only |
-| You need record types of your own, such as properties or funds | Twenty, or stay on HubSpot Professional | Customermates has five fixed record types |
+| You need record types of your own, such as properties or funds | Twenty, HubSpot Professional or Customermates | Customermates starts with five lists, and you can add your own |
 | Clients reach you on WhatsApp, LinkedIn, Instagram or Telegram | Customermates Pro or Business | All of them land in one inbox next to the deal |
 | You run email campaigns, forms, landing pages or a help desk | Stay on HubSpot | No alternative here replaces all of it |
 | Two people, and the free plan covers what you do | Stay on HubSpot Free | No paid plan beats free |
@@ -169,7 +169,7 @@ In euros, because Customermates bills monthly in euros.
 Read the rows in pairs:
 
 - **On Starter, HubSpot's €20 list price is above Customermates Starter, but HubSpot is cheaper while its time-limited offer lasts,** and it includes calling and the mobile app. Customermates Starter has no inbox. If price is your only reason to leave, check HubSpot Starter first.
-- **Customermates Pro and HubSpot Professional are different products.** Five seats on Customermates Pro cost [[commercial.price.pro.monthly.seats.5.months.12]] a year. HubSpot Professional billed yearly costs €5,400 plus onboarding and includes sequences, forecasting, custom objects, quotes and marketing tools that Customermates does not have. The gap only counts if your sales work is conversations, not campaigns.
+- **Customermates Pro and HubSpot Professional are different products.** Five seats on Customermates Pro cost [[commercial.price.pro.monthly.seats.5.months.12]] a year. HubSpot Professional billed yearly costs €5,400 plus onboarding and includes sequences, forecasting, quotes and marketing tools that Customermates does not have. The gap only counts if your sales work is conversations, not campaigns.
 - **Several channels per person means Business.** Each Pro user connects [[commercial.entitlement.pro.includedAccountsPerUser]] account; Business allows [[commercial.entitlement.business.includedAccountsPerUser]] per user and shared accounts.
 
 ## Where Customermates fits
@@ -185,10 +185,9 @@ Customermates is an open-source, AI-native CRM for small client-facing teams: co
 ## Where Customermates is the wrong choice
 
 - **No marketing or phone tools.** No email campaigns, sequences, bulk email, web forms, landing pages, website chat, calling or meeting recording.
-- **No custom objects.** You get contacts, organizations, deals, services and tasks, which you can rename, plus custom fields of ten types.
 - **No help desk, quotes or invoices.**
 - **Simple tasks.** Tasks have assignees, relations, notes and custom fields, but no due dates or reminders.
-- **No native mobile apps and no single sign-on.** Saved views are personal, and permissions apply per record type and action, not per field.
+- **No native mobile apps and no single sign-on.** Saved views are personal, and permissions apply per list and action, not per field.
 - **No free plan,** only a [[commercial.trial.days]]-day trial.
 
 ## A worked setup: a consultancy leaving HubSpot
@@ -199,12 +198,12 @@ A four-person consultancy on HubSpot Free needs a paid plan. Two partners win wo
 |---|---|
 | Companies | Organizations, renamed "Companies" |
 | Deals | Deals, renamed "Projects" |
-| Products | Services, renamed "Packages", linked to projects |
-| Lifecycle stage | A Single Select field "Client status" and a saved view filtered on it |
+| Products | Services, renamed "Packages", added to projects as line items |
+| Lifecycle stage | A Single choice field "Client status" and a saved view filtered on it |
 | Deal owner | Assigned users on the deal |
 | Deal stages | The Stage field with a probability per option |
 
-The stages are Inquiry 10%, Scoping call 25%, Proposal sent 50%, Verbal yes 80%, Won 100% and Lost 0%. Customermates multiplies each project's value by its stage probability and shows a weighted pipeline total: arithmetic on your own numbers, not a prediction.
+The stages are Inquiry 10%, Scoping call 25%, Proposal sent 50%, Verbal yes 80%, Won 100% and Lost 0%. Customermates multiplies each project's value by its stage probability, and a chart widget on the Dashboard sums the weighted values: arithmetic on your own numbers, not a prediction.
 
 Each person connects one account, so Pro fits at [[commercial.price.pro.monthly.seats.4]] a month for the team; a partner who needs LinkedIn and email side by side moves the workspace to Business. Everyone saves their own board of open projects grouped by stage. Each partner owns a routine scheduled for Fridays at 15:00. It runs as its owner in Customermates Cloud, uses hosted AI credits, and carries this instruction:
 
@@ -214,10 +213,10 @@ Each person connects one account, so Pro fits at [[commercial.price.pro.monthly.
 
 <Steps>
   <Step title="Export from HubSpot">Open companies, contacts and deals in turn, choose Export, pick XLSX and select all properties. HubSpot emails a download link that expires after 30 days.</Step>
-  <Step title="Prepare the workspace">Create custom fields for the properties you keep. Give the Stage field the same stage names as HubSpot; the import flags every row whose stage matches no option. Multiple-checkbox properties have no direct match: use a text field or several Single Select fields.</Step>
-  <Step title="Import one record type at a time">Open Import and export, then Add from file. Import organizations, then contacts, then deals, so link columns find records by name. If the file has a column named ID or Record ID, set it to Do not add; otherwise the wizard treats it as a Customermates record to update. Limits and mapping rules are in the [records guide](/docs/app-records).</Step>
+  <Step title="Prepare the workspace">Create custom fields for the properties you keep. Give the Stage field the same stage names as HubSpot; the import flags every row whose stage matches no option. Multiple-checkbox properties map to a Multiple choice field.</Step>
+  <Step title="Import one list at a time">Open More actions, then Add from file. Import organizations, then contacts, then deals, so link columns find records by name. If the file has a column named ID or Record ID, set it to Do not add; otherwise the wizard treats it as a Customermates record to update. Limits and mapping rules are in the [records guide](/docs/app-records).</Step>
   <Step title="Bring over what the import skips">The import takes records, fields, notes and contact channels, not HubSpot's activity timeline. Copy what you need into a notes column first.</Step>
-  <Step title="Connect channels, then run both in parallel">Connect a mailbox, LinkedIn or WhatsApp under My Profile, Channels, set up routines or your MCP client, and keep HubSpot for reference for a few weeks without entering new data there.</Step>
+  <Step title="Connect channels, then run both in parallel">Connect a mailbox, LinkedIn or WhatsApp under Settings, Channels, set up routines or your MCP client, and keep HubSpot for reference for a few weeks without entering new data there.</Step>
 </Steps>
 
 ## Other HubSpot alternatives worth a look

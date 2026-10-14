@@ -37,7 +37,7 @@ A recruiting CRM keeps the relationships a recruitment business lives on: the cl
   </SummaryItem>
   <SummaryItem label="Setup">
     Client companies as organizations, hiring managers and candidates as
-    contacts told apart by a single-select field, each mandate as a deal
+    contacts told apart by a single choice field, each mandate as a deal
     renamed to Job.
   </SummaryItem>
   <SummaryItem label="AI">
@@ -72,13 +72,13 @@ Most products sold as a "recruiting CRM" are an applicant tracking system with a
 
 ## A recruiting setup in Customermates
 
-Customermates has five record types. Under **My Company › Settings** you can rename some of them from a preset list, for example Deals to Jobs and Organizations to Companies. Every field name below is an example; custom fields can be text, single select, date, currency, email, phone or link.
+Customermates starts with five lists, and you can add your own. In **Configure** you can rename any list under **General**, for example Deals to Jobs and Organizations to Companies. Every field name below is an example; custom fields can be text, single or multiple choice, date, money, email, phone, web address and more.
 
 | Record type | Used for | Example custom fields |
 |---|---|---|
-| Organizations | Client companies and the companies candidates work at | Relationship (single select: Prospect, Active client, Past client), Off-limits (single select: Yes, No), Industry |
-| Contacts | Hiring managers and candidates | Contact type (single select: Candidate, Hiring manager, Referee), Availability (Open to move, Passive, Not looking, Placed), Practice area, Notice period, Salary expectation (currency), Retention until (date) |
-| Deals, renamed Jobs | Each search mandate | Stage, Search type (Retained, Contingent, Interim), Mandate signed on, Shortlist due, Target salary (currency) |
+| Organizations | Client companies and the companies candidates work at | Relationship (single choice: Prospect, Active client, Past client), Off-limits (single choice: Yes, No), Industry |
+| Contacts | Hiring managers and candidates | Contact type (single choice: Candidate, Hiring manager, Referee), Availability (Open to move, Passive, Not looking, Placed), Practice area, Notice period, Salary expectation (money), Retention until (date) |
+| Deals, renamed Jobs | Each search mandate | Stage, Search type (Retained, Contingent, Interim), Mandate signed on, Shortlist due, Target salary (money) |
 | Services | Your fee types | Retained search fee, Contingent fee, Interim day rate |
 | Tasks | Next steps, assigned to a recruiter | A "Due on" date field you add, because tasks have no built-in due date |
 
@@ -86,9 +86,9 @@ A candidate is linked to their current employer as an organization and to every 
 
 ### Mandate stages and fee value
 
-The stage is a single-select field you define, and each option gets a win probability. A starting point: Conversation 10%, Briefing 25%, Mandate signed 50%, Shortlist sent 65%, Final interviews 80%, Placed 100%, Lost 0%.
+The stage is a single choice field you define, and each option gets a win probability. A starting point: Conversation 10%, Briefing 25%, Mandate signed 50%, Shortlist sent 65%, Final interviews 80%, Placed 100%, Lost 0%.
 
-A deal's value is price times quantity of its linked services. Fees vary per search, so one workable pattern is a service "Placement fee" priced at €1,000 per unit, with the quantity set to the expected fee in thousands. A €27,000 fee is quantity 27, and at Shortlist sent the weighted value is €17,550. That is arithmetic from your own probabilities, not a prediction.
+A deal's value is the sum of its line items, each a service times quantity. Fees vary per search, so one workable pattern is a service "Placement fee" priced at €1,000 per unit, with the quantity set to the expected fee in thousands. A €27,000 fee is quantity 27, and at Shortlist sent the weighted value is €17,550. That is arithmetic from your own probabilities, not a prediction.
 
 ### Saved views for shortlists and the Monday call list
 
@@ -137,7 +137,7 @@ Prefer your own AI client? Connect Claude, ChatGPT or another client through [MC
 ## What Customermates does not do for recruiting
 
 - No job postings, job board distribution, career page or application forms.
-- No CV parsing. A CV that arrives by email stays as an attachment in the inbox thread; records have no file attachments. Store CVs in your file storage and put the link in a link field on the contact.
+- No CV parsing. A CV that arrives by email stays as an attachment in the inbox thread; records have no file attachments. Store CVs in your file storage and put the link in a web address field on the contact.
 - No per-candidate stage inside a job. A job has one stage; whether a candidate is submitted, interviewing or rejected for that job is not a field on the link. Note it in the job's notes, or use an ATS when you run many candidates per role.
 - No interview scheduling or calendar booking. Pro adds read-only calendar access.
 - No email sequences or bulk outreach, no candidate scoring or data enrichment, no mobile app.
@@ -178,7 +178,7 @@ Each cloud plan adds monthly hosted AI credits per active user for Mate; see [pr
     Save a CSV export from your old system as .xlsx first.
   </Step>
   <Step title="Import companies first">
-    On the Organizations list, open Import and export, choose Add from file
+    On the Organizations list, open More actions, choose Add from file
     and map your columns, including the Relationship and Off-limits fields.
   </Step>
   <Step title="Import hiring managers and candidates">
@@ -190,7 +190,7 @@ Each cloud plan adds monthly hosted AI credits per active user for Mate; see [pr
     shortlisted candidates, and set the stage.
   </Step>
   <Step title="Connect the inbox and save the views">
-    On Pro or higher, connect your mailbox or LinkedIn under My Profile ›
+    On Pro or higher, connect your mailbox or LinkedIn under Settings ›
     Channels, then save the views above.
   </Step>
 </Steps>
@@ -212,7 +212,7 @@ An ATS manages applicants for open roles: job posting, applications, CV parsing 
 </FaqItem>
 
 <FaqItem question="Can one CRM manage candidates and clients at the same time?">
-Yes. In Customermates both are contacts, told apart by a single-select field such as Contact type, and both link to companies and jobs. A person who moves from candidate to hiring manager keeps one record with their full history.
+Yes. In Customermates both are contacts, told apart by a single choice field such as Contact type, and both link to companies and jobs. A person who moves from candidate to hiring manager keeps one record with their full history.
 </FaqItem>
 
 <FaqItem question="Which CRM do recruitment agencies use?">

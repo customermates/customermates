@@ -95,7 +95,7 @@ comparison:
         source: Datenbank in der AWS-Region Frankfurt konfiguriert
         competitor: Google Cloud in St. Ghislain, Belgien
       - name: Datenexport
-        source: Excel-Arbeitsmappen, je Datensatztyp
+        source: Excel oder JSON, je Liste
         competitor: Excel oder CSV für Accounts, Kontakte und Opportunities
 
 cta:
@@ -172,7 +172,7 @@ Customermates ist ein KI-CRM für das Kunden- und Kontaktmanagement kleiner Team
 
 Sie nutzen lieber Claude, ChatGPT oder einen anderen Client, den Sie ohnehin bezahlen? Verbinden Sie ihn mit dem [MCP-Server](/docs/mcp), der in jedem Tarif und beim Self-Hosting [[derived.mcp.tools.total]] Tools bietet. Die Modellaufrufe laufen dann über Ihren eigenen KI-Anbieter.
 
-**Teamgrundlagen ab Starter.** Rollen regeln die Rechte je Datensatztyp und Aktion. Dashboards, eigene Felder in zehn Feldtypen, die REST-API und [[derived.webhooks.events.total]] Webhook-Ereignistypen gibt es in jedem Tarif.
+**Teamgrundlagen ab Starter.** Rollen regeln die Rechte je Liste und Aktion. Dashboards, eigene Listen und Felder, berechnete Felder, die REST-API und [[derived.webhooks.events.total]] Webhook-Ereignistypen gibt es in jedem Tarif.
 
 **Open Source, mit Wahl beim Hosting.** Der Kern steht unter AGPL-3.0 und läuft mit Docker Compose und PostgreSQL 16 auf Ihrem eigenen Server, einschließlich REST, Webhooks und MCP. Eine [selbst gehostete Installation](/features/self-hosted) hat keinen Posteingang, kein Mate und keine gehosteten Credits, aber auch kein Abo und keine Lizenzgebühren pro Nutzer: Sie zahlen Ihre eigene Infrastruktur. In Customermates Cloud ist die Datenbank in der AWS-Region Frankfurt konfiguriert, ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor, und die [Unterauftragsverarbeiter](/subprocessors), auch aus den USA, sind aufgeführt. Eine Zertifizierung hat Customermates nicht.
 
@@ -181,8 +181,8 @@ Sie nutzen lieber Claude, ChatGPT oder einen anderen Client, den Sie ohnehin bez
 Neben den Lücken aus der Tabelle oben (keine automatische Erfassung, kein Tracking, keine Kampagnen, keine nativen Smartphone-Apps) sollten Sie vor der Testphase Folgendes prüfen:
 
 - **Keine Datenanreicherung und keine Sequenzen.** Kontakte entstehen durch Ihr Team, einen Import, Mate oder Ihren KI-Client, und die Ansprache läuft Nachricht für Nachricht, von Ihnen geschrieben oder von Mate entworfen.
-- **Keine Fälligkeitsdaten und keine Erinnerungen bei Aufgaben.** Aufgaben haben zugewiesene Nutzer, Verknüpfungen zu Datensätzen und Notizen. Ein Nachfassdatum ist ein eigenes Datumsfeld, nach dem Sie sortieren.
-- **Persönliche Ansichten, gröbere Rechte.** Gespeicherte Ansichten lassen sich nicht teilen, und Rechte gelten je Datensatztyp und Aktion, nicht je Feld.
+- **Keine Fälligkeitsdaten und keine Erinnerungen bei Aufgaben.** Aufgaben haben zugewiesene Nutzer, einen Status, Verknüpfungen zu Datensätzen und Notizen. Ein Nachfassdatum ist ein eigenes Datumsfeld, nach dem Sie sortieren.
+- **Persönliche Ansichten, gröbere Rechte.** Gespeicherte Ansichten lassen sich nicht teilen, und Rechte gelten je Liste und Aktion, nicht je Feld.
 - **Kein kostenloser Cloud-Tarif.** Nach [[commercial.trial.days]] Tagen Testphase folgt ein bezahlter Tarif.
 
 ## Beispiel: Eine Beratung wechselt von Salesflare
@@ -198,7 +198,7 @@ Nehmen wir eine B2B-Beratung mit fünf Personen. Zwei Partner verkaufen per E-Ma
 | Aufgaben mit Datum | Aufgaben mit einem eigenen Datumsfeld „Fällig am“, aufsteigend sortiert |
 | Gruppierungen, nach denen Sie Kontakte filtern | Ein Feld vom Typ Einzelauswahl wie „Segment“ und eine darauf gefilterte gespeicherte Ansicht |
 
-Die Phasen heißen Lead 10 %, Qualifiziert 30 %, Angebot verschickt 50 %, Verhandlung 70 %, Gewonnen 100 % und Verloren 0 %. Customermates multipliziert den Wert jedes Deals mit der Wahrscheinlichkeit seiner Phase und zeigt eine gewichtete Pipeline-Summe. Das ist eine Rechnung mit Ihren eigenen Zahlen, keine Prognose.
+Die Phasen heißen Lead 10 %, Qualifiziert 30 %, Angebot verschickt 50 %, Verhandlung 70 %, Gewonnen 100 % und Verloren 0 %. Customermates multipliziert den Wert jedes Deals mit der Wahrscheinlichkeit seiner Phase, und ein Diagramm-Widget auf dem Dashboard summiert die gewichteten Werte. Das ist eine Rechnung mit Ihren eigenen Zahlen, keine Prognose.
 
 Die Partner verbinden Gmail, jeder Berater entweder LinkedIn oder WhatsApp. Ein Konto pro Person passt zu Pro, für das Team [[commercial.price.pro.monthly.seats.5]] im Monat. Braucht ein Berater LinkedIn und WhatsApp nebeneinander, wechselt der Arbeitsbereich zu Business für [[commercial.price.business.monthly.seats.5]].
 
@@ -213,8 +213,8 @@ Läufe sind pro Stunde und in den Credits pro Lauf begrenzt; die [Anleitung zu R
 <Steps>
   <Step title="Daten aus Salesflare exportieren">Öffnen Sie nacheinander Accounts, Kontakte und Opportunities und exportieren Sie jede Liste über das Drei-Punkte-Menü. Wählen Sie Excel statt CSV, denn Customermates liest nur .xlsx-Arbeitsmappen.</Step>
   <Step title="Arbeitsbereich vorbereiten">Legen Sie eigene Felder für die Spalten an, die Sie behalten, Felder vom Typ Einzelauswahl für Gruppierungen, und richten Sie das Phasenfeld mit seinen Wahrscheinlichkeiten ein.</Step>
-  <Step title="Einen Datensatztyp nach dem anderen importieren">Öffnen Sie in jeder Liste „Import und Export“ und dann „Aus Datei hinzufügen“. Importieren Sie zuerst Organisationen, dann Kontakte, dann Deals. Verknüpfungsspalten finden Datensätze über den Namen, die Account-Spalte eines Kontakts trifft also die zuvor importierte Organisation. Ordnen Sie E-Mail-Adressen den Kanälen des Kontakts zu, damit Unterhaltungen nach dem Verbinden des Posteingangs beim richtigen Kontakt landen. Größengrenzen nennt die [Dokumentation zu Datensätzen](/docs/app-records).</Step>
-  <Step title="Kanäle verbinden">Öffnen Sie mit Pro oder während der Testphase „Mein Profil“, „Kanäle“ und verbinden Sie ein Postfach, LinkedIn oder WhatsApp. Unterhaltungen kommen aus den verbundenen Konten, nicht aus dem Salesflare-Export.</Step>
+  <Step title="Eine Liste nach der anderen importieren">Öffnen Sie in jeder Liste „Weitere Aktionen“ und dann „Aus Datei hinzufügen“. Importieren Sie zuerst Organisationen, dann Kontakte, dann Deals. Verknüpfungsspalten finden Datensätze über den Namen, die Account-Spalte eines Kontakts trifft also die zuvor importierte Organisation. Ordnen Sie E-Mail-Adressen den Kanälen des Kontakts zu, damit Unterhaltungen nach dem Verbinden des Posteingangs beim richtigen Kontakt landen. Größengrenzen nennt die [Dokumentation zu Datensätzen](/docs/app-records).</Step>
+  <Step title="Kanäle verbinden">Öffnen Sie mit Pro oder während der Testphase „Einstellungen“, „Kanäle“ und verbinden Sie ein Postfach, LinkedIn oder WhatsApp. Unterhaltungen kommen aus den verbundenen Konten, nicht aus dem Salesflare-Export.</Step>
   <Step title="Routinearbeit an die KI abgeben">Richten Sie die Erfassungsroutine von oben für Mate ein, oder verbinden Sie Ihren eigenen KI-Client über MCP und geben Sie ihm dieselbe Anweisung, wenn Sie sie brauchen.</Step>
 </Steps>
 
@@ -250,7 +250,7 @@ Salesflare speichert Kundendaten auf Google-Cloud-Servern in St. Ghislain, Belgi
 </FaqItem>
 
 <FaqItem question="Wie übertrage ich meine Daten von Salesflare zu Customermates?">
-Exportieren Sie Accounts, Kontakte und Opportunities aus Salesflare als Excel-Dateien und importieren Sie sie einzeln nach Datensatztyp: Organisationen, Kontakte, Deals. Unterhaltungen werden nicht importiert; sie kommen aus dem Postfach oder Messaging-Konto, das Sie ab Pro verbinden.
+Exportieren Sie Accounts, Kontakte und Opportunities aus Salesflare als Excel-Dateien und importieren Sie sie Liste für Liste: Organisationen, Kontakte, Deals. Unterhaltungen werden nicht importiert; sie kommen aus dem Postfach oder Messaging-Konto, das Sie ab Pro verbinden.
 </FaqItem>
 </Faq>
 

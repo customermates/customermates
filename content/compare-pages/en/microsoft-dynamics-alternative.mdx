@@ -39,10 +39,10 @@ comparison:
   - title: Data Model & Sales Features
     features:
       - name: Record types
-        source: Contacts, organizations, deals, services, tasks; no custom record types
+        source: Contacts, organizations, deals, services, tasks, plus your own lists
         competitor: Leads, opportunities, accounts, contacts, products; custom apps from Enterprise
       - name: Customization
-        source: Custom fields of ten types on every plan
+        source: Custom fields of fifteen types and calculated fields on every plan
         competitor: Limited on Professional, full from Enterprise
       - name: Quotes, orders and invoices
         source: false
@@ -169,9 +169,8 @@ Prefer Claude, ChatGPT or another client you already pay for? Connect it to the 
 ## Where Customermates is the wrong choice
 
 - **One vendor for CRM and ERP.** Customermates has no accounting, quotes or invoices. If Dynamics also runs your finance, read [how CRM and ERP fit together](/blog/crm-and-erp) before you split them.
-- **Custom record types.** There are five: contacts, organizations, deals, services and tasks. You can rename them from a list of preset names, such as Accounts or Opportunities, and add custom fields, but not a sixth type.
-- **Several currencies.** A workspace has one currency for deal values and pipeline totals.
-- **Fine-grained security.** Roles set permissions per record type and action. There is no field-level security and no SSO.
+- **Currency conversion.** Each money field has its own currency, and nothing converts between currencies: totals that mix currencies show a mismatch instead of a sum.
+- **Fine-grained security.** Roles set permissions per list and action. There is no field-level security and no SSO.
 - **Contact Center or Customer Service.** Microsoft sells both as separate Dynamics 365 apps. Customermates has no telephony, cases or tickets.
 - **Bundled sales tooling.** No mobile app, call recording, data enrichment, lead scoring, email sequences or bulk email. The weighted pipeline is arithmetic on stage probabilities, not a forecast.
 - **A free plan.** There is a [[commercial.trial.days]]-day trial, then a paid plan. Saved views are personal and cannot be shared.
@@ -182,15 +181,15 @@ Take a five-person consulting firm on Sales Professional. Three partners work cl
 
 | In Dynamics 365 Sales | In Customermates |
 |---|---|
-| Accounts | Organizations, renamed "Accounts" under Data model |
+| Accounts | Organizations, renamed "Accounts" in Configure |
 | Contacts | Contacts |
-| Leads | Contacts with a Single Select field "Lead status": New, Contacted, Qualified, Disqualified |
+| Leads | Contacts with a Single choice field "Lead status": New, Contacted, Qualified, Disqualified |
 | Opportunities | Deals, renamed "Opportunities" |
 | Products and price lists | Services, renamed "Products", each with a name and a price |
 | Tasks | Tasks with assignees; add a date field "Due date", because tasks have none built in |
 | Email in Outlook | The connected Outlook mailbox in the unified inbox |
 
-A new workspace starts with the stages Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100% and Lost 0%. Rename them to match your Dynamics process. Customermates multiplies each opportunity's value by its stage probability and shows a weighted pipeline total.
+A new workspace starts with the stages Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100% and Lost 0%. Rename them to match your Dynamics process. Customermates multiplies each opportunity's value by its stage probability, and a chart widget on the Dashboard sums the weighted values.
 
 With one account each, the team runs on Pro at [[commercial.price.pro.monthly.seats.5]] a month. If an associate needs Outlook and LinkedIn side by side, the workspace moves to Business at [[commercial.price.business.monthly.seats.5]]. Each person saves a board of open opportunities grouped by stage; the managing partner keeps a table grouped by assigned user.
 
@@ -202,9 +201,9 @@ Each partner owns one routine in Customermates Cloud. It runs as its owner, sees
 
 <Steps>
   <Step title="Export your views to Excel">In Dynamics, open a table such as Accounts, pick a view with every column you want to keep, and choose Export to Excel on the command bar. You get an .xlsx workbook. If an export times out, Microsoft suggests smaller batches with tighter filters or fewer columns.</Step>
-  <Step title="Prepare the workspace">Under My Company, Settings, Data model, rename the record types (Accounts, Opportunities, Products), set the stages and their probabilities, and create custom fields for the columns you keep.</Step>
-  <Step title="Import one record type at a time">Open Import and export on each list, then Add from file: accounts first, then contacts, then opportunities, because link columns find records by name. New contacts need a first and a last name. Set any Dynamics ID column to Do not add. The [records guide](/docs/app-records) lists the file limits.</Step>
-  <Step title="Connect Outlook">On Pro or during the trial, connect your mailbox under My Profile, Channels, and link participants to contacts as conversations come in.</Step>
+  <Step title="Prepare the workspace">In Configure, rename the lists (Accounts, Opportunities, Products) under General, set the stages and their probabilities, and create custom fields for the columns you keep.</Step>
+  <Step title="Import one list at a time">Open More actions on each list, then Add from file: accounts first, then contacts, then opportunities, because link columns find records by name. New contacts need a first and a last name. Set any Dynamics ID column to Do not add. The [records guide](/docs/app-records) lists the file limits.</Step>
+  <Step title="Connect Outlook">On Pro or during the trial, connect your mailbox under Settings, Channels, and link participants to contacts as conversations come in.</Step>
   <Step title="Add views and AI">Save your boards and tables, then set up a routine for Mate or connect your own AI client through MCP. Activity history does not come across, so keep Dynamics read-only until the licence term ends.</Step>
 </Steps>
 

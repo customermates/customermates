@@ -143,39 +143,46 @@ Sinnvoll wird der erste Workflow, wenn die Anfrage dort landet, wo Ihr Team mit 
 
 <Steps>
   <Step title="API-Key anlegen">
-    Öffnen Sie in Customermates **Mein Profil → API & Konnektoren**, klicken Sie auf **Hinzufügen** und wählen Sie **Standard-API-Key**. Der Key hat dieselben Berechtigungen wie der Nutzer, der ihn angelegt hat. Legen Sie ihn also mit einem Nutzer an, der Kontakte erstellen darf. Details stehen unter [API-Keys](/docs/api-keys).
+    Öffnen Sie in Customermates **Einstellungen → API-Schlüssel**, klicken Sie auf **Hinzufügen** und wählen Sie **Standard-API-Key**. Der Key hat dieselben Berechtigungen wie der Nutzer, der ihn angelegt hat. Legen Sie ihn also mit einem Nutzer an, der Kontakte erstellen darf. Details stehen unter [API-Keys](/docs/api-keys).
   </Step>
   <Step title="Als n8n-Credential speichern">
     Legen Sie in n8n ein **Header Auth**-Credential mit dem Header-Namen `x-api-key` und dem Key als Wert an. Alle Nodes, die mit dem CRM kommunizieren, nutzen es, sodass Sie einen neuen Key nur an einer Stelle eintragen.
   </Step>
   <Step title="E-Mail-Node durch einen HTTP-Request-Node ersetzen">
-    Hängen Sie an den true-Zweig des If-Nodes einen **HTTP Request**-Node: Methode `POST`, URL `<ihre-customermates-adresse>/api/v1/contacts`, Authentifizierung über das Header-Auth-Credential und dieser JSON-Body:
+    Ermitteln Sie zuerst einmalig die IDs: `POST <ihre-customermates-adresse>/api/v1/model/discover` mit `{}` liefert die Typ-ID der Kontakte, und `POST /api/v1/model/read` mit dieser ID in `typeIds` liefert die Feld-IDs und die aktuelle Schema-Revision. Hängen Sie dann an den true-Zweig des If-Nodes einen **HTTP Request**-Node: Methode `POST`, URL `<ihre-customermates-adresse>/api/v1/records/mutate`, Authentifizierung über das Header-Auth-Credential und dieser JSON-Body:
 
     ```json
     {
-      "firstName": "{{ $json.body.firstName }}",
-      "lastName": "{{ $json.body.lastName }}",
-      "identifiers": [{ "provider": "mail", "value": "{{ $json.body.email }}" }],
-      "notes": "Website-Anfrage: {{ $json.body.message }}"
+      "expectedRevision": 12,
+      "idempotencyKey": "inquiry-{{ $execution.id }}",
+      "mutation": {
+        "action": "create",
+        "typeId": "<Typ-ID der Kontakte>",
+        "fields": [
+          { "fieldId": "<Feld-ID Vorname>", "value": { "kind": "text", "value": "{{ $json.body.firstName }}" } },
+          { "fieldId": "<Feld-ID Nachname>", "value": { "kind": "text", "value": "{{ $json.body.lastName }}" } }
+        ],
+        "identities": [{ "provider": "mail", "value": "{{ $json.body.email }}" }]
+      }
     }
     ```
 
-    Vor- und Nachname sind Pflicht. Die E-Mail-Adresse gehört in `identifiers` mit dem Provider `mail`. So verknüpft Customermates einen Kontakt mit seinen E-Mail-Konversationen.
+    Ersetzen Sie `12` und die IDs in spitzen Klammern durch die Werte aus `model/read`. Die E-Mail-Adresse gehört in `identities` mit dem Provider `mail`. So verknüpft Customermates einen Kontakt mit seinen E-Mail-Konversationen. Der Idempotenzschlüssel sorgt dafür, dass ein wiederholter Lauf das erste Ergebnis liefert, statt einen zweiten Kontakt anzulegen. Die Nachricht selbst ergänzen Sie danach mit einer `update`-Mutation in den Notizen des Kontakts.
   </Step>
   <Step title="Benachrichtigung behalten">
     Lassen Sie hinter dem HTTP-Request-Node den E-Mail-Node stehen, damit jemand den neuen Kontakt bemerkt. Testen Sie mit den gepinnten Daten, prüfen Sie den Kontakt im CRM und veröffentlichen Sie den Workflow.
   </Step>
 </Steps>
 
-Die Gegenrichtung funktioniert ebenfalls. Unter **Mein Unternehmen → Webhooks → Hinzufügen** schickt Customermates einen POST an einen n8n-Webhook-Node, sobald ein abonniertes Ereignis eintritt, etwa `contact.created` oder `deal.updated`. Setzen Sie ein Secret, damit n8n die Signatur prüfen kann. Den Aufbau der Daten zeigt die [Webhook-Referenz](/docs/webhooks). Ein praktischer Haken: Customermates Cloud erreicht keine n8n-Instanz auf `localhost`. Für diese Richtung brauchen Sie n8n Cloud oder ein selbst gehostetes n8n mit öffentlicher HTTPS-Adresse.
+Die Gegenrichtung funktioniert ebenfalls. Unter **Einstellungen → Webhooks → Hinzufügen** schickt Customermates einen POST an einen n8n-Webhook-Node, sobald ein abonniertes Ereignis eintritt, etwa `record.created` für die Liste Kontakte oder `record.updated` für die Liste Deals. Setzen Sie ein Secret, damit n8n die Signatur prüfen kann. Den Aufbau der Daten zeigt die [Webhook-Referenz](/docs/webhooks). Ein praktischer Haken: Customermates Cloud erreicht keine n8n-Instanz auf `localhost`. Für diese Richtung brauchen Sie n8n Cloud oder ein selbst gehostetes n8n mit öffentlicher HTTPS-Adresse.
 
 Einige Details aus der [n8n-Anleitung von Customermates](/docs/n8n) sparen Fehlersuche:
 
-- Wer `null` oder `[]` für ein Beziehungsfeld wie `organizationIds` sendet, entfernt alle bestehenden Verknüpfungen dieser Art. Lassen Sie das Feld weg, bleiben sie erhalten.
-- Die `/many`-Endpunkte nehmen höchstens 100 Datensätze pro Anfrage an. Teilen Sie größere Mengen auf.
-- Webhook-Zustellungen kommen nicht garantiert in Reihenfolge an. Sortieren Sie sie nach dem Feld `timestamp` in den gelieferten Daten.
+- Verknüpfungen ändern sich nur über `link`- und `unlink`-Mutationen. Alte Beziehungsfelder wie `organizationIds` werden nicht angenommen.
+- `updateMany` und `deleteMany` nehmen höchstens 100 Datensätze pro Anfrage an. Teilen Sie größere Mengen auf.
+- Webhook-Zustellungen kommen nicht garantiert in Reihenfolge an. Sortieren Sie sie nach dem Feld `timestamp` in den gelieferten Daten und verwerfen Sie Duplikate anhand der Ereignis-ID.
 
-Es gibt außerdem einen Community Node von Customermates, `@customermates/n8n-nodes-crm`, mit einem Aktions-Node für Kontakte, Organisationen, Deals, Leistungen und Aufgaben sowie einem Trigger-Node für Webhook-Ereignisse. Da n8n Cloud nur verifizierte Community Nodes installiert, planen Sie dort mit dem HTTP-Request-Weg und nutzen den Community Node auf einem selbst gehosteten n8n.
+Es gibt außerdem einen Community Node von Customermates, `@customermates/n8n-nodes-crm`, mit einem Aktions-Node für CRM-Datensätze und einem Trigger-Node für Webhook-Ereignisse. Er hat einen eigenen Release-Zyklus; prüfen Sie daher, ob er die aktuelle Datensatz-API unterstützt, bevor Sie seine CRM-Aktionen nutzen. Da n8n Cloud nur verifizierte Community Nodes installiert, planen Sie dort mit dem HTTP-Request-Weg und nutzen den Community Node auf einem selbst gehosteten n8n.
 
 ## Wo Customermates passt und wo nicht
 

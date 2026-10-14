@@ -28,54 +28,46 @@ cta:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-CRM reporting means counting and summing what is already in your CRM, so questions like "what is in the pipeline?" or "which clients brought the most revenue?" get an answer without a spreadsheet. In Customermates, that happens in three places: dashboard charts, lists grouped by a field, and the weighted pipeline under company settings. Anything that needs real arithmetic over many records, such as a median deal size or a ranking, goes to Mate in Customermates Cloud, to your own AI client through MCP, or to Excel after an export.
+CRM reporting means counting and summing what is already in your CRM, so questions like "what is in the pipeline?" or "which clients brought the most revenue?" get an answer without a spreadsheet. In Customermates, that happens in three places: dashboard charts, lists grouped by a field, and the weighted value on every deal. Anything that needs real arithmetic over many records, such as a median deal size or a ranking, goes to Mate in Customermates Cloud, to your own AI client through MCP, or to Excel after an export.
 
-It is deliberately small. If you need conversion funnels, time in stage, quotas or revenue forecasts, the section on limits names tools that do that.
+It is deliberately small. If you need conversion tracking over time, time in stage, quotas or revenue forecasts, the section on limits names tools that do that.
 
 <ArticleSummary title="At a glance">
-  <SummaryItem label="What you get">Chart widgets that count records or sum deal value and weighted deal value, grouped by a single-select field or by record, plus an activity timeline widget.</SummaryItem>
+  <SummaryItem label="What you get">Chart widgets that count records or sum fields such as deal value and weighted value, grouped by a field, by record or over time, plus an activity timeline widget.</SummaryItem>
   <SummaryItem label="Plans">Dashboards and the weighted pipeline are part of every plan, from Starter at [[commercial.price.starter.monthly]] per user per month, and of the self-hosted edition.</SummaryItem>
   <SummaryItem label="AI">In Customermates Cloud, Mate answers questions that need calculation across many records, using hosted AI credits. Your own AI client reads the same data through MCP.</SummaryItem>
-  <SummaryItem label="Not included">No time-series charts, conversion rates, time in stage, goals, predictive forecasting or scheduled report emails, and no team-wide shared dashboard.</SummaryItem>
+  <SummaryItem label="Not included">No conversion tracking over time, time in stage, goals, predictive forecasting or scheduled report emails, and no team-wide shared dashboard.</SummaryItem>
 </ArticleSummary>
 
 ## What a chart widget can calculate
 
-Every chart takes one record type (called **Element** in the editor), one **Metric** and one **Grouping**. Which metrics are available depends on the record type:
+Every chart takes one list as its source, an aggregation and a grouping. The aggregation is a count of records, or the sum, average, minimum or maximum of a number or money field, such as **Value** or **Weighted value** on deals.
 
-| Element | Count | Deal value | Weighted deal value | Number of services in deals |
-|---|---|---|---|---|
-| Contacts | Yes | Yes, from their deals | Yes, from their deals | No |
-| Organizations | Yes | Yes, from their deals | Yes, from their deals | No |
-| Deals | Yes | Yes | Yes | No |
-| Services | Yes | Yes | No | Yes |
-| Tasks | Yes | No | No | No |
+**Grouping** is **No grouping** (one total), a field such as Stage or Lead source, each record, **Assigned to**, or a field reached through a relationship. That gives you "deal value by stage", "deal value per organization" or "line item amounts by service". Group by a date field, **Created at** or **Updated at** and pick a **Time interval** to get one value per day, week, month, quarter or year.
 
-**Grouping** is either **No Grouping** (one total), a single-select custom field of that record type such as Stage or Lead source, or, with a metric other than count, each record itself. That last option gives you "deal value per organization" or "deal value per service". Tasks can only be counted, and grouped only by a single-select field or not at all.
+**Weighted value** is a calculated field on deals: the deal's value times the **Probability %** of its stage, which you set on each option of the Stage field in **Configure**. A new workspace already has probabilities filled in, so it works from the first deal.
 
-Weighted deal value appears once a deal stage field has win probabilities under **My Company › Settings**. A new workspace already has a Stage field with probabilities filled in, so it works from the first deal.
+**Filters** narrow what a chart counts, using any field, including dates; linked fields appear as **List › Field**. That is how you chart "won deal value per organization": deals as the source, a filter on Stage is Won, grouped by organization.
 
-**Filters** narrow what a chart counts, using any standard or custom field, including date ranges on created and updated dates or on your own Date fields. A chart over contacts, organizations or services with a deal-based metric gets a second filter for the related deals, which is how you chart "won deal value per organization" without counting open deals.
-
-**Chart styles** are vertical or horizontal bars, each with or without value labels, a doughnut or a radar chart. A live preview shows the result before you save.
+**Chart styles** are Number, Bar chart, Horizontal bars, Area over time, Ranked table, Doughnut, Funnel and Radar. A live preview shows the result before you save.
 
 The second widget kind, the **Activity timeline**, is a newest-first feed of record changes, and on Pro and higher also messages and calendar events from connected accounts. You filter it by category, account or related records, for example "everything that happened on deals of my three largest clients".
 
 ## Reports a small team uses, and how to build each
 
-These recipes assume the default Stage field plus two single-select fields you add to deals: "Lead source" and "Lost reason".
+These recipes assume the default Stage field plus two single choice fields you add to deals: "Lead source" and "Lost reason".
 
-| Question | Element | Metric | Grouping | Filters |
+| Question | Source | Measure | Grouping | Filters |
 |---|---|---|---|---|
-| What is in the pipeline, by stage? | Deals | Deal value | Stage | Stage is not Won or Lost |
-| What is it worth if stage probabilities hold? | Deals | Weighted deal value | Stage | Stage is not Won or Lost |
-| Where does won business come from? | Deals | Deal value | Lead source | Stage is Won, custom "Closed on" date between the first and last day of the quarter |
-| Which clients bring the most revenue? | Organizations | Deal value | Each organization | Related deals: Stage is Won |
-| Which services sell? | Services | Deal value | Each service | Related deals: Stage is Won |
+| What is in the pipeline, by stage? | Deals | Sum of Value | Stage | Stage is not Won or Lost |
+| What is it worth if stage probabilities hold? | Deals | Sum of Weighted value | Stage | Stage is not Won or Lost |
+| Where does won business come from? | Deals | Sum of Value | Lead source | Stage is Won, custom "Closed on" date between the first and last day of the quarter |
+| Which clients bring the most revenue? | Deals | Sum of Value | Organization | Stage is Won |
+| Which services sell? | Line items | Sum of Amount | Service | Deals › Stage is Won |
 | Why do we lose? | Deals | Count | Lost reason | Stage is Lost |
 | How much open work is there? | Tasks | Count | Status | Status is not Done or Archived |
 
-Tasks have no built-in status or due date. The Status field in the last row is a single-select custom field that a new workspace starts with, and you can rename, change or delete it like any other field.
+Tasks have no built-in due date. The Status field in the last row is a single choice field that a new workspace starts with, and you can rename, change or delete it like any other field.
 
 Two questions are better answered by a list than by a chart. **Who is working on which deals?** Switch the deals list to the board and group it by **Assigned**: each person gets a column with their deal count and totals. **How many deals did we open per month?** Group the deals table by created date, bucketed by month. Saved as views, both stay one click away; views are personal to the person who saves them.
 
@@ -93,9 +85,9 @@ Mate uses hosted AI credits, included per active user and month on every Cloud p
 ## Set up a weekly pipeline dashboard
 
 <Steps>
-  <Step title="Check the stage probabilities">Open **My Company › Settings**, confirm that **Deal stage field** points to Stage, and adjust the win probability of each stage. **Total pipeline** and **Weighted pipeline** show the result right there.</Step>
-  <Step title="Add the fields your questions need">On any deal, press **Customize** and add a Single Select "Lead source" (Referral, LinkedIn, Website, Event), a Single Select "Lost reason" and a Date field "Closed on". A chart can only group by what you record.</Step>
-  <Step title="Create the first chart">On the **Dashboard**, press **Add widget**, choose **Chart**, set Element to Deals, Metric to weighted deal value and Grouping to Stage. Exclude Won and Lost on the **Filters** tab, then press **Create widget**.</Step>
+  <Step title="Check the stage probabilities">In **Configure**, open Deals and the **Stage** field, and adjust the **Probability %** of each option. A preview shows the effect on deals and widgets.</Step>
+  <Step title="Add the fields your questions need">In **Configure**, open Deals and use **Add › Field** for a Single choice "Lead source" (Referral, LinkedIn, Website, Event), a Single choice "Lost reason" and a Date field "Closed on". A chart can only group by what you record.</Step>
+  <Step title="Create the first chart">On the **Dashboard**, press **Add widget** and pick **Bar chart**. Under **Data**, choose Deals as the source, sum **Weighted value** and group by Stage. Exclude Won and Lost in the filters, then press **Save**.</Step>
   <Step title="Add three more">Won deal value by Lead source, won deal value per organization, and a count of lost deals by Lost reason. Drag and resize them; the layout is saved for you.</Step>
   <Step title="Share the setup, not the dashboard">Switch on **Share as a template** for each chart. A teammate picks it under **Start from a template** and gets their own copy, which counts only the records their role can read.</Step>
 </Steps>
@@ -109,13 +101,12 @@ Customermates publishes this page. Vendor details were checked on 8 October 2026
 | You need | In Customermates | Where to look |
 |---|---|---|
 | Revenue forecasting beyond stage weights | Not available. The weighted pipeline multiplies each deal's value by the probability you set for its stage, nothing more. | [HubSpot Sales Hub](https://www.hubspot.com/pricing/sales) Professional and Enterprise include forecasting; [Pipedrive](https://www.pipedrive.com/en/features/insights-and-reports) offers a forecast view |
-| A custom report builder with conversion rates, goals and many report types | Not available. Charts count and sum; they do not divide one stage by another. | HubSpot Sales Hub Professional (custom reports); Pipedrive Insights (custom reports, dashboards and goals) |
-| Charts over time, such as revenue per month | Not available as a chart. Group a list by month, or export. | Excel or another spreadsheet |
+| A custom report builder with conversion rates, goals and many report types | Not available. Charts count and aggregate; a Funnel chart shows step-to-step conversion of the current records, but there are no goals or conversion over time. | HubSpot Sales Hub Professional (custom reports); Pipedrive Insights (custom reports, dashboards and goals) |
 | Your own BI on the raw data | No built-in connector to a BI tool | Self-hosted: your data sits in your own PostgreSQL, which [Metabase](https://www.metabase.com/docs/latest/databases/connecting) supports; its Open Source edition is free and self-hosted. Use a read-only database user, and expect to adjust queries after an upgrade, because the tables are the product's internal schema. |
 | A dashboard the whole team edits | Not available. Every dashboard is personal; templates give each person a copy. | |
 | Report emails on a schedule | Not built in | A routine in Customermates Cloud, or n8n, both described below |
 
-For a one-off analysis, export the list as an Excel workbook from the deals list's **Import and export** menu. The export takes the visible columns, filters and sort, and a [PivotTable](https://support.microsoft.com/en-us/office/create-a-pivottable-to-analyze-worksheet-data-a9a84538-bfe9-40a9-a8e9-f99134456576) does the rest. Export runs one record type at a time; the [records guide](/docs/app-records) lists the limits.
+For a one-off analysis, export the list as an Excel workbook from the deals list's **More actions** menu. The export takes the visible columns, filters and sort, and a [PivotTable](https://support.microsoft.com/en-us/office/create-a-pivottable-to-analyze-worksheet-data-a9a84538-bfe9-40a9-a8e9-f99134456576) does the rest. Export runs one record type at a time; the [records guide](/docs/app-records) lists the limits.
 
 ## How reporting connects to Mate, MCP and the API
 
@@ -129,7 +120,7 @@ The answer is a chat message, not a saved chart. Mate can also create or change 
 
 **Routines (Customermates Cloud).** A routine runs a saved instruction on a schedule, such as "Every Monday at 8:00, summarize the open pipeline by stage and list deals not updated in 30 days." It runs as you, its owner, with your access and credits, and the run summary stays on the routine. On Pro and higher it can also email that summary to you from your connected mailbox; Mate sends without asking again, so say "draft" in the instruction if you want to read it first. See [workflow automation](/features/workflow-automation) for triggers and limits.
 
-**Your own AI client through MCP.** Claude, ChatGPT and other MCP clients use [[derived.mcp.tools.total]] tools on every plan and when self-hosting. When a client lists deals, the response includes the sum of deal value and weighted value across all matching deals, so "what is our weighted pipeline for organizations in Bavaria?" has an exact answer. The [MCP documentation](/docs/mcp) has the setup.
+**Your own AI client through MCP.** Claude, ChatGPT and other MCP clients use [[derived.mcp.tools.total]] tools on every plan and when self-hosting. With `query_crm_measure` a client calculates totals across all matching records, so "what is our weighted pipeline for organizations in Bavaria?" has an exact answer. The [MCP documentation](/docs/mcp) has the setup.
 
 **REST and webhooks.** If reports belong in another system, read records through the [REST API](/features/api) or receive a webhook on every change and keep your own reporting table up to date. [n8n](/docs/n8n) can do either on a schedule; it runs separately and is not part of Customermates.
 
@@ -137,7 +128,7 @@ The answer is a chat message, not a saved chart. Mate can also create or change 
 
 <Faq>
 <FaqItem question="What are typical CRM reports?">
-For a small team, five cover most decisions: pipeline value by stage, weighted pipeline, won revenue by lead source, revenue per client and lost deals by reason. All five are chart widgets in Customermates. Activity reports, conversion funnels and sales forecasts are common in larger CRMs; Customermates has an activity timeline but no funnel or forecast.
+For a small team, five cover most decisions: pipeline value by stage, weighted pipeline, won revenue by lead source, revenue per client and lost deals by reason. All five are chart widgets in Customermates. Activity reports, conversion funnels and sales forecasts are common in larger CRMs; Customermates has an activity timeline and a funnel chart of current stages, but no forecast.
 </FaqItem>
 
 <FaqItem question="Can Customermates forecast revenue?">
@@ -157,6 +148,6 @@ All chart widgets, the weighted pipeline, grouped lists, the activity timeline o
 </FaqItem>
 
 <FaqItem question="Can I build reports with ChatGPT or Claude instead?">
-Yes. Connect the client through MCP, and it can list and filter records, read the value totals of matching deals and create dashboard widgets. The model, its subscription and what it does with your data are governed by your AI provider, not by Customermates.
+Yes. Connect the client through MCP, and it can list and filter records, calculate totals across matching deals and create dashboard widgets. The model, its subscription and what it does with your data are governed by your AI provider, not by Customermates.
 </FaqItem>
 </Faq>

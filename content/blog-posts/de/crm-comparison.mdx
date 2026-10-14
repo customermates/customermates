@@ -157,7 +157,7 @@ Drei Zeilen der Tabellen oben lohnen einen genaueren Blick:
 - **Automatisierung.** Eine Regel-Engine gibt es nicht. Webhooks und die REST-API verbinden das CRM mit einer n8n-Instanz, die Sie selbst betreiben.
 - **Hosting.** Der AGPL-Kern lässt sich mit Docker [selbst hosten](/features/self-hosted), mit REST, Webhooks und MCP. Selbst gehostet gibt es keinen Posteingang, kein Mate und keine gehosteten Credits.
 
-Der Wert eines Deals ergibt sich aus den verknüpften Services, und jede Phase, ein konfigurierbares Feld vom Typ Einzelauswahl, trägt eine Wahrscheinlichkeit. Die gewichtete Pipeline ist diese Rechnung und keine Vorhersage. Datensätze werden als Excel-Arbeitsmappe importiert und exportiert, ein Datensatztyp nach dem anderen.
+Der Wert eines Deals ergibt sich aus seinen Positionen, jeweils Service mal Menge, und jede Phase, ein konfigurierbares Feld vom Typ Einzelauswahl, trägt eine Wahrscheinlichkeit. Die gewichtete Pipeline ist diese Rechnung und keine Vorhersage. Datensätze werden als Excel-Arbeitsmappe oder JSON importiert und exportiert, eine Liste nach der anderen.
 
 <AcquisitionCallout title="Wann ein anderes System besser passt" variant="boundary">
   Customermates hat keine Telefonie, keine E-Mail-Sequenzen oder Massenversand, keine native App für Smartphones, keine Umsatzprognose über gewichtete Phasen hinaus und keinen kostenlosen gehosteten Tarif. Wenn Sie am Telefon verkaufen, vergleichen Sie Close. Brauchen Sie Sequenzen, enthalten Pipedrive Growth und HubSpot Sales Hub sie. Kostenlos starten können Sie mit HubSpot Free Tools oder der kostenlosen Edition von Zoho CRM. Große Organisationen mit eigener CRM-Administration sind bei Salesforce oder Dynamics 365 besser aufgehoben.
@@ -187,7 +187,7 @@ Pauschal beste gibt es nicht, aber drei Anbieter haben einen kostenlosen Tarif: 
 </FaqItem>
 
 <FaqItem question="Kann ich das CRM später wechseln?">
-Ja, wenn Sie den Ausstieg vor der Unterschrift testen. Exportieren Sie in der Testphase einen Datensatztyp und prüfen Sie das Format, ob der Export pro Objekt oder für das ganze Konto funktioniert und ob es eine API gibt. Customermates exportiert einen Datensatztyp nach dem anderen als Excel-Arbeitsmappe und hat eine REST-API; einen Export des gesamten Kontos gibt es nicht.
+Ja, wenn Sie den Ausstieg vor der Unterschrift testen. Exportieren Sie in der Testphase einen Datensatztyp und prüfen Sie das Format, ob der Export pro Objekt oder für das ganze Konto funktioniert und ob es eine API gibt. Customermates exportiert eine Liste nach der anderen als Excel-Arbeitsmappe oder JSON und hat eine REST-API; einen Export des gesamten Kontos gibt es nicht.
 </FaqItem>
 </Faq>
 

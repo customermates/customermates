@@ -59,7 +59,7 @@ Skip the feature wishlist. Write the questions you want answered on a Monday mor
 
 - Which open deals have no next step agreed? A "Next step" date field, and a view filtered on empty or past dates.
 - What is in the pipeline this quarter, and what is it worth if stages are weighted? A stage field with a probability per stage.
-- Where did our last 20 clients come from? A "Source" single-select field.
+- Where did our last 20 clients come from? A "Source" Single choice field.
 - Who talked to this client last, and on which channel? The activity timeline, or a connected inbox.
 
 Anything that answers none of your questions stays out of the first version. This one rule prevents most of the scope creep that sinks CRM projects. If you have not chosen a system yet, use the same list to compare candidates; the [guide to choosing a CRM](/blog/how-to-choose-crm) turns it into a scorecard.
@@ -77,7 +77,7 @@ Decide what a deal is in your business. For an agency it may be a project, for a
 | Won | Signed | 100% |
 | Lost | Declined, or no answer after the agreed last follow-up | 0% |
 
-Five to seven stages are enough. Probabilities are your own estimate per stage; they turn deal values into a weighted pipeline, not a prediction. Add a "Lost reason" single-select early, because it is the field people regret not having after six months.
+Five to seven stages are enough. Probabilities are your own estimate per stage; they turn deal values into a weighted pipeline, not a prediction. Add a "Lost reason" Single choice field early, because it is the field people regret not having after six months.
 
 ### Step 3: Clean and import data
 
@@ -176,19 +176,19 @@ Here is the plan applied to Customermates, an open-source, AI-native CRM built i
 
 <Steps>
   <Step title="Sign up and run the onboarding wizard">
-    The wizard has four steps: Your profile (the only required one), Knowledge Base, Invite your team and Connect your AI. Invited people join as "Waiting for approval" until an admin assigns a role and sets them active under My Company › Members.
+    The wizard has four steps: Your profile (the only required one), Knowledge Base, Invite your team and Connect your AI. Invited people join as "Waiting for approval" until an admin assigns a role and sets them active under Settings › Members.
   </Step>
-  <Step title="Name the record types and the pipeline">
-    Under My Company › Settings, the Data model lets you rename Deals to Projects, for example. A new workspace starts with a Stage single-select on deals (Prospecting, Qualification, Demo, Proposal, Negotiation, Won, Lost). Edit the options to match your stage table, pick it as the Deal stage field and enter a probability per stage to get a weighted pipeline.
+  <Step title="Name the lists and the pipeline">
+    In Configure, open a list and change its Name and Plural name under General to rename Deals to Projects, for example. A new workspace starts with a Stage Single choice field on deals (Prospecting, Qualification, Demo, Proposal, Negotiation, Won, Lost). Open it in Configure for Deals, edit the options to match your stage table and enter a Probability % per stage to get a weighted pipeline.
   </Step>
   <Step title="Add the fields from step 1">
-    Add custom columns: "Next step" as a date on deals, "Source" and "Lost reason" as single-select. Customermates has no tags on records; single-select fields cover that job and work for grouping on the board.
+    Add custom fields: "Next step" as a date on deals, "Source" and "Lost reason" as Single choice. Customermates has no tags on records; Single choice fields cover that job and work for grouping on the board.
   </Step>
-  <Step title="Import one record type at a time">
-    Use Import and export › Add from file on each list. It reads .xlsx workbooks, not CSV, and lets you map columns to fields; a Record ID column updates existing records instead of creating duplicates. Import services, then organizations, contacts and deals. Row and file size limits are in the records documentation.
+  <Step title="Import one list at a time">
+    Use More actions › Add from file on each list. It reads .xlsx workbooks, not CSV, and lets you map columns to fields; a Record ID column updates existing records instead of creating duplicates. Import services, then organizations, contacts and deals. Row and file size limits are in the records documentation.
   </Step>
   <Step title="Set roles">
-    Keep the built-in Admin role for the two partners. Create one custom role for consultants: Read access All on contacts and organizations, Manage Yes with Read access Assigned on deals, so each person sees and edits only the deals they are assigned to.
+    Keep the built-in Admin role for the two partners. Create one custom role for consultants: Read access All on contacts and organizations, Create, Edit and Delete with Read access Assigned on deals, so each person sees and edits only the deals they are assigned to.
   </Step>
   <Step title="Connect inboxes and save views">
     On Pro, each person connects one account in the unified inbox, usually their mailbox, so client conversations sit next to the contact. Connecting LinkedIn as well is a second account per person, which needs Business. Each person saves their own view, for example "My open deals, Next step empty or past". Saved views are personal, so this happens once per person during training.
@@ -200,7 +200,7 @@ On Customermates Cloud, a routine can take over the Monday question from step 1.
 **What this costs.** For six people on Pro, which includes the [unified inbox](/features/unified-inbox) with [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user and [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user, the subscription is [[commercial.price.pro.monthly.seats.6]] per month, billed monthly. If every consultant wants both their mailbox and LinkedIn in the inbox, Business includes [[commercial.entitlement.business.includedAccountsPerUser]] connected accounts per user and costs [[commercial.price.business.monthly.seats.6]] per month for six people. Starter costs [[commercial.price.starter.monthly.seats.6]] per month for six people but has no inbox. Starter, Pro and Business include monthly hosted AI credits per active user; amounts are on the [pricing page](/pricing). There is a [[commercial.trial.days]]-day trial, enough to run steps 1 to 3 on your real data.
 
 <AcquisitionCallout title="Where Customermates is the wrong fit" variant="boundary">
-  Customermates has no task due dates or reminders (a custom date field and a filtered view cover follow-ups), no email sequences, no mobile app, no shared team views and no field-level permissions. Import and export are XLSX only, one record type at a time. The self-hosted edition is the open-source core with REST, webhooks and MCP, but without the inbox, Mate or routines. If you need marketing automation, telephony or an ERP-grade suite, look at a larger platform and budget for a partner.
+  Customermates has no task due dates or reminders (a custom date field and a filtered view cover follow-ups), no email sequences, no mobile app, no shared team views and no field-level permissions. Import and export use XLSX workbooks or JSON, one list at a time. The self-hosted edition is the open-source core with REST, webhooks and MCP, but without the inbox, Mate or routines. If you need marketing automation, telephony or an ERP-grade suite, look at a larger platform and budget for a partner.
 </AcquisitionCallout>
 
 ## FAQ

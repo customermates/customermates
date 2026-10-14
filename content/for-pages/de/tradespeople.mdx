@@ -80,13 +80,13 @@ Manche Betriebe nutzen beides: Handwerkersoftware für die Abwicklung, Customerm
 
 ## So richten Sie Customermates im Handwerk ein
 
-Customermates hat fünf Datensatztypen. Unter **Mein Unternehmen › Einstellungen** benennen Sie sie im Datenmodell aus einer Vorschlagsliste um: Kontakte in Kunden und Deals in Aufträge passt für die meisten Gewerke. Alle Feldnamen unten sind Beispiele.
+Customermates startet mit fünf Listen, und Sie können eigene anlegen. In **Konfigurieren** benennen Sie jede Liste unter **Allgemein** frei um: Kontakte in Kunden und Deals in Aufträge passt für die meisten Gewerke. Alle Feldnamen unten sind Beispiele.
 
 | Datensatztyp | Wofür | Beispiele für eigene Felder |
 |---|---|---|
 | Kontakte (Kunden) | Eigentümer, Mieter, Ansprechpartner vor Ort | Kundenart (Einzelauswahl: Privat, Vermieter, Gewerbe), Objektadresse (Text), Nächste Wartung (Datum) |
 | Organisationen | Hausverwaltungen, Wohnungsgesellschaften, Generalunternehmer | Art (Einzelauswahl), Zahlungsziel (Text) |
-| Deals (Aufträge) | Jede Anfrage und jeder Auftrag | Phase, Auftragsart (Einzelauswahl), Objektadresse, Angebot versendet am (Datum), Geplant für (Datum), Fotos und Unterlagen (Link) |
+| Deals (Aufträge) | Jede Anfrage und jeder Auftrag | Phase, Auftragsart (Einzelauswahl), Objektadresse, Angebot versendet am (Datum), Geplant für (Datum), Fotos und Unterlagen (Webadresse) |
 | Services (umbenennbar in Leistungen) | Ihre Standardleistungen mit Preis | Heizungswartung, Steckdose setzen, Anfahrtspauschale |
 | Aufgaben | Nächste Schritte, einer Person zugewiesen | Ein Datumsfeld „Erledigen bis“, das Sie anlegen, denn Aufgaben haben kein eingebautes Fälligkeitsdatum |
 
@@ -94,7 +94,7 @@ Customermates hat fünf Datensatztypen. Unter **Mein Unternehmen › Einstellung
 
 Die Phase ist ein Einzelauswahl-Feld, das Sie selbst festlegen, und jede Option kann eine Abschlusswahrscheinlichkeit tragen. Ein Vorschlag: Neue Anfrage 10 %, Aufmaß 25 %, Angebot versendet 40 %, Beauftragt 90 %, Eingeplant 100 %, Erledigt 100 %, Verloren 0 %. Kleine Reparaturen springen von Neue Anfrage direkt auf Eingeplant, große Aufträge durchlaufen jede Phase. Filtern Sie das Board nach Auftragsart, wenn Sie nur eine Sorte sehen wollen.
 
-Der Auftragswert ergibt sich aus den verknüpften Services, Preis mal Menge. Eine Wärmepumpe für 14.000 € steht in der Phase Angebot versendet mit gewichteten 5.600 € in der Pipeline. Das ist eine einfache Rechnung mit Ihren eigenen Wahrscheinlichkeiten, keine Prognose. Auf dem [Pipeline-Board](/features/pipeline) ist jeder Auftrag eine Karte, die Sie zwischen den Phasen verschieben, und unter **Zugewiesen** tragen Sie einen oder mehrere Mitarbeiter ein.
+Der Auftragswert ist die Summe seiner Positionen, jeweils Service mal Menge. Eine Wärmepumpe für 14.000 € steht in der Phase Angebot versendet mit gewichteten 5.600 € in der Pipeline. Das ist eine einfache Rechnung mit Ihren eigenen Wahrscheinlichkeiten, keine Prognose. Auf dem [Pipeline-Board](/features/pipeline) ist jeder Auftrag eine Karte, die Sie zwischen den Phasen verschieben, und unter **Zugewiesen** tragen Sie einen oder mehrere Mitarbeiter ein.
 
 ### Vier gespeicherte Ansichten für den Morgen
 

@@ -65,21 +65,21 @@ Interessant wird ein CRM dort, wo mehrere Mitarbeiter im Vertrieb arbeiten oder 
 
 ## So richten Sie Customermates für ein Maklerbüro ein
 
-Customermates hat fünf Datensatztypen. Eine mögliche Zuordnung; alle Feldnamen sind Beispiele, die Sie selbst anlegen.
+Customermates startet mit fünf Listen, und Sie können eigene anlegen. Eine mögliche Zuordnung der fünf; alle Feldnamen sind Beispiele, die Sie selbst anlegen.
 
 | Datensatztyp | Wofür | Beispiele für eigene Felder |
 |---|---|---|
 | Kontakte | Interessenten, Kunden und Ansprechpartner bei Firmenkunden | Kundenstatus (Einzelauswahl: Interessent, Kunde, Ehemaliger Kunde), Herkunft, MVP-Kundennummer |
 | Organisationen | Firmenkunden und Tippgeber | Typ (Einzelauswahl: Firmenkunde, Tippgeber), Partnerart (Finanzierung, Immobilien, Steuerberatung) |
-| Deals | Jedes Neugeschäft, jedes Cross-Selling, jedes Jahresgespräch | Phase, Sparte (Kfz, Hausrat, Wohngebäude, Leben, Kranken, Gewerbe), Versicherer, Hauptfälligkeit (Datum), Geschätzter Jahresbeitrag (Währung), Angebotsreferenz |
-| Leistungen | Sparten, die Sie vermitteln | Optional; nur verknüpfte Leistungen (Preis mal Menge) ergeben den Deal-Wert |
+| Deals | Jedes Neugeschäft, jedes Cross-Selling, jedes Jahresgespräch | Phase, Sparte (Kfz, Hausrat, Wohngebäude, Leben, Kranken, Gewerbe), Versicherer, Hauptfälligkeit (Datum), Geschätzter Jahresbeitrag (Geldbetrag), Angebotsreferenz |
+| Leistungen | Sparten, die Sie vermitteln | Optional; nur Positionen (Leistung mal Menge) ergeben den Deal-Wert |
 | Aufgaben | Nächste Schritte, einer Person zugewiesen | Ein Datumsfeld „Fällig am“, denn Aufgaben haben kein eingebautes Fälligkeitsdatum |
 
 Ein Kontakt kann mit mehreren Deals verknüpft sein, etwa einem Kfz-Jahresgespräch und einer offenen Berufsunfähigkeitsanfrage zugleich. Eine Vertragsnummer können Sie als Referenzfeld führen, sofern Ihre Datenschutzregeln das erlauben. Der Vertrag selbst bleibt im MVP.
 
 ### Phasen und gewichtete Werte
 
-Die Phase ist ein Einzelauswahl-Feld, das Sie selbst definieren; jede Option erhält unter **Mein Unternehmen › Einstellungen** eine Abschlusswahrscheinlichkeit. Ein Vorschlag: Anfrage 10 %, Bedarfsanalyse 25 %, Angebot verschickt 50 %, Entscheidung offen 75 %, Abgeschlossen 100 %, Verloren 0 %. Für Bestandsgespräche ist ein zweites Einzelauswahl-Feld „Status Jahresgespräch“ mit Gespräch fällig, Kontaktiert, Marktvergleich läuft, Bleibt bestehen und Umgedeckt übersichtlicher; gruppiert nach diesem Feld erhalten Sie ein eigenes Board. Die gewichtete Pipeline ist Deal-Wert mal Phasenwahrscheinlichkeit, also eine Berechnung aus Ihren eigenen Zahlen. Der Deal-Wert stammt aus den verknüpften Leistungen; ein eigenes Feld „Geschätzter Jahresbeitrag“ fließt nicht ein. Eine Prognose ist das nicht, und mit Courtage hat es nichts zu tun.
+Die Phase ist ein Einzelauswahl-Feld, das Sie selbst definieren; jede Option erhält unter **Konfigurieren** für Deals eine Abschlusswahrscheinlichkeit. Ein Vorschlag: Anfrage 10 %, Bedarfsanalyse 25 %, Angebot verschickt 50 %, Entscheidung offen 75 %, Abgeschlossen 100 %, Verloren 0 %. Für Bestandsgespräche ist ein zweites Einzelauswahl-Feld „Status Jahresgespräch“ mit Gespräch fällig, Kontaktiert, Marktvergleich läuft, Bleibt bestehen und Umgedeckt übersichtlicher; gruppiert nach diesem Feld erhalten Sie ein eigenes Board. Die gewichtete Pipeline ist Deal-Wert mal Phasenwahrscheinlichkeit, also eine Berechnung aus Ihren eigenen Zahlen. Der Deal-Wert ist die Summe seiner Positionen; ein eigenes Feld „Geschätzter Jahresbeitrag“ fließt nicht ein. Eine Prognose ist das nicht, und mit Courtage hat es nichts zu tun.
 
 ### Gespeicherte Ansichten für die Woche
 

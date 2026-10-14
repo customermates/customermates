@@ -176,19 +176,19 @@ So sieht der Plan mit Customermates aus, einem quelloffenen KI-CRM aus Deutschla
 
 <Steps>
   <Step title="Registrieren und den Einrichtungsassistenten durchlaufen">
-    Der Assistent hat vier Schritte: Ihr Profil (als einziger Pflichtschritt), Wissensdatenbank, Team einladen und KI verbinden. Eingeladene Personen haben den Status „Wartet auf Genehmigung“, bis eine Person mit Admin-Rechten unter Mein Unternehmen › Mitglieder eine Rolle vergibt und sie aktiv setzt.
+    Der Assistent hat vier Schritte: Ihr Profil (als einziger Pflichtschritt), Wissensdatenbank, Team einladen und KI verbinden. Eingeladene Personen haben den Status „Wartet auf Genehmigung“, bis eine Person mit Admin-Rechten unter Einstellungen › Mitglieder eine Rolle vergibt und sie aktiv setzt.
   </Step>
-  <Step title="Datensatztypen und Pipeline benennen">
-    Unter Mein Unternehmen › Einstellungen können Sie im Datenmodell zum Beispiel Deals in Projekte umbenennen. Ein neuer Workspace startet mit einem Einzelauswahl-Feld „Phase“ auf Deals (Akquise, Qualifizierung, Demo, Angebot, Verhandlung, Gewonnen, Verloren). Passen Sie die Optionen an Ihre Phasentabelle an, wählen Sie das Feld als Deal-Phasenfeld und tragen Sie je Phase eine Wahrscheinlichkeit ein, dann zeigt Customermates die gewichtete Pipeline.
+  <Step title="Listen und Pipeline benennen">
+    In Konfigurieren öffnen Sie eine Liste und ändern Name und Pluralname unter Allgemein, um zum Beispiel Deals in Projekte umzubenennen. Ein neuer Workspace startet mit einem Einzelauswahl-Feld „Phase“ auf Deals (Akquise, Qualifizierung, Demo, Angebot, Verhandlung, Gewonnen, Verloren). Öffnen Sie es in Konfigurieren für Deals, passen Sie die Optionen an Ihre Phasentabelle an und tragen Sie je Phase eine Wahrscheinlichkeit % ein, dann zeigt Customermates die gewichtete Pipeline.
   </Step>
   <Step title="Die Felder aus Schritt 1 anlegen">
-    Legen Sie eigene Spalten an: „Nächster Schritt“ als Datum auf Deals, „Quelle“ und „Verlustgrund“ als Einzelauswahl. Schlagwörter auf Datensätzen gibt es in Customermates nicht; Einzelauswahl-Felder übernehmen diese Aufgabe und lassen sich im Board gruppieren.
+    Legen Sie eigene Felder an: „Nächster Schritt“ als Datum auf Deals, „Quelle“ und „Verlustgrund“ als Einzelauswahl. Schlagwörter auf Datensätzen gibt es in Customermates nicht; Einzelauswahl-Felder übernehmen diese Aufgabe und lassen sich im Board gruppieren.
   </Step>
-  <Step title="Einen Datensatztyp nach dem anderen importieren">
-    Nutzen Sie in jeder Liste Import und Export › Aus Datei hinzufügen. Der Import liest .xlsx-Arbeitsmappen, keine CSV-Dateien, und ordnet Spalten den Feldern zu; eine Spalte Datensatz-ID aktualisiert vorhandene Datensätze, statt Dubletten anzulegen. Importieren Sie Leistungen, dann Organisationen, Kontakte und Deals. Grenzen für Zeilen und Dateigröße stehen in der Dokumentation zu Datensätzen.
+  <Step title="Eine Liste nach der anderen importieren">
+    Nutzen Sie in jeder Liste Weitere Aktionen › Aus Datei hinzufügen. Der Import liest .xlsx-Arbeitsmappen, keine CSV-Dateien, und ordnet Spalten den Feldern zu; eine Spalte Datensatz-ID aktualisiert vorhandene Datensätze, statt Dubletten anzulegen. Importieren Sie Leistungen, dann Organisationen, Kontakte und Deals. Grenzen für Zeilen und Dateigröße stehen in der Dokumentation zu Datensätzen.
   </Step>
   <Step title="Rollen festlegen">
-    Die eingebaute Admin-Rolle behalten die zwei Partner. Für die Beraterinnen und Berater legen Sie eine eigene Rolle an: Lesen „Alle“ bei Kontakten und Organisationen, Verwalten „Ja“ mit Lesen „Zugewiesen“ bei Deals. So sieht und bearbeitet jede Person nur die Deals, denen sie zugewiesen ist.
+    Die eingebaute Admin-Rolle behalten die zwei Partner. Für die Beraterinnen und Berater legen Sie eine eigene Rolle an: Lesen „Alle“ bei Kontakten und Organisationen, Erstellen, Bearbeiten und Löschen mit Lesen „Zugewiesen“ bei Deals. So sieht und bearbeitet jede Person nur die Deals, denen sie zugewiesen ist.
   </Step>
   <Step title="Postfächer verbinden und Ansichten speichern">
     Im Pro-Tarif verbindet jede Person ein Konto im zentralen Posteingang, meist ihr Postfach, sodass Kundengespräche beim Kontakt liegen. LinkedIn zusätzlich anzubinden ist ein zweites Konto pro Person und setzt Business voraus. Jede Person speichert ihre eigene Ansicht, etwa „Meine offenen Deals, nächster Schritt leer oder überschritten“. Gespeicherte Ansichten sind persönlich, also gehört das in die Schulung.
@@ -200,7 +200,7 @@ In Customermates Cloud kann eine Routine die Montagsfrage aus Schritt 1 überneh
 **Was das kostet.** Für sechs Personen im Pro-Tarif, der den [zentralen Posteingang](/features/unified-inbox) mit [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenem Konto und [[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen pro Person enthält, kostet das Abonnement [[commercial.price.pro.monthly.seats.6]] pro Monat, monatlich abgerechnet. Sollen alle Beraterinnen und Berater Postfach und LinkedIn im Posteingang haben, enthält Business [[commercial.entitlement.business.includedAccountsPerUser]] verbundene Konten pro Person und kostet für sechs Personen [[commercial.price.business.monthly.seats.6]] pro Monat. Starter kostet für sechs Personen [[commercial.price.starter.monthly.seats.6]] pro Monat, hat aber keinen Posteingang. Starter, Pro und Business enthalten monatliche gehostete KI-Credits pro aktiver Person; die Mengen stehen auf der [Preisseite](/pricing). Die Testphase dauert [[commercial.trial.days]] Tage, genug für die Schritte 1 bis 3 mit Ihren echten Daten.
 
 <AcquisitionCallout title="Wann Customermates nicht passt" variant="boundary">
-  Customermates hat keine Fälligkeiten oder Erinnerungen an Aufgaben (ein eigenes Datumsfeld und eine gefilterte Ansicht decken das Nachfassen ab), keine E-Mail-Sequenzen, keine mobile App, keine geteilten Team-Ansichten und keine Rechte auf Feldebene. Import und Export laufen nur über XLSX, ein Datensatztyp nach dem anderen. Die selbst gehostete Version ist der quelloffene Kern mit REST, Webhooks und MCP, ohne Posteingang, Mate oder Routinen. Brauchen Sie Marketing-Automatisierung, Telefonie oder eine ERP-nahe Suite, wählen Sie eine größere Plattform und planen Sie Budget für einen Partner ein.
+  Customermates hat keine Fälligkeiten oder Erinnerungen an Aufgaben (ein eigenes Datumsfeld und eine gefilterte Ansicht decken das Nachfassen ab), keine E-Mail-Sequenzen, keine mobile App, keine geteilten Team-Ansichten und keine Rechte auf Feldebene. Import und Export laufen über XLSX-Arbeitsmappen oder JSON, eine Liste nach der anderen. Die selbst gehostete Version ist der quelloffene Kern mit REST, Webhooks und MCP, ohne Posteingang, Mate oder Routinen. Brauchen Sie Marketing-Automatisierung, Telefonie oder eine ERP-nahe Suite, wählen Sie eine größere Plattform und planen Sie Budget für einen Partner ein.
 </AcquisitionCallout>
 
 ## Häufige Fragen

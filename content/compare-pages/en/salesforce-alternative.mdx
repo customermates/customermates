@@ -39,7 +39,7 @@ comparison:
   - title: CRM
     features:
       - name: Accounts, contacts and opportunities
-        source: Organizations, contacts and deals; record types can be renamed
+        source: Organizations, contacts and deals; every list can be renamed
         competitor: Lead, account, contact and opportunity management
       - name: Approval processes
         source: false
@@ -48,7 +48,7 @@ comparison:
         source: No; weighted pipeline from stage probabilities only
         competitor: From Pro Suite
       - name: Custom fields
-        source: 10 field types on every plan
+        source: 15 field types and calculated fields on every plan
         competitor: true
       - name: Visual workflow builder
         source: No; routines (Customermates Cloud), webhooks, REST, n8n
@@ -176,11 +176,10 @@ Already pay for Claude or ChatGPT? Connect it to the [MCP server](/docs/mcp) ins
 ## Where Customermates is the wrong choice
 
 - **No forecasting, quotes or territories.** The weighted pipeline multiplies each deal's value by its stage probability. It predicts nothing.
-- **No custom objects.** You get contacts, organizations, deals, services and tasks. You can rename them and add custom fields of ten types, but not add a sixth record type.
 - **No workflow builder or approval processes.** Automation runs through routines, webhooks, the REST API and a separately operated n8n.
 - **No marketing or help desk.** There are no campaigns, sequences, web forms, cases or tickets.
 - **Simple tasks.** Tasks have assignees, relations, notes and custom fields. They have no due dates or reminders.
-- **No native mobile app, single sign-on or field-level permissions.** Roles decide per record type whether someone sees all records, only their own, or none. Saved views are personal.
+- **No native mobile app, single sign-on or field-level permissions.** Roles decide per list whether someone sees all records, only their own, or none. Saved views are personal.
 - **No free plan and no certification.** There is a [[commercial.trial.days]]-day trial, then a paid plan.
 
 ## A worked setup: a consultancy leaving Starter Suite
@@ -190,15 +189,15 @@ Take a five-person consultancy. Two partners win work by email and LinkedIn; thr
 | In Salesforce | In Customermates |
 |---|---|
 | Accounts | Organizations, renamed "Accounts" in the company settings |
-| Contacts and leads | Contacts, plus a single-select field "Lead status" and a saved view "Open leads" |
+| Contacts and leads | Contacts, plus a single choice field "Lead status" and a saved view "Open leads" |
 | Opportunities | Deals, renamed "Opportunities" |
-| Stage and probability | The stage field, a single-select with a probability per option |
+| Stage and probability | The stage field, a single choice with a probability per option |
 | Products and amount | Services linked to the deal with a quantity; their sum is the deal value |
 | Opportunity owner | Assigned users on the deal |
-| Picklists | Single-select custom fields |
+| Picklists | Single choice custom fields |
 | Close date | A custom date field |
 
-There is no lead conversion step: a lead becomes a client when you change its status. A deal's value comes from its linked services, so an opportunity that only has an amount needs a service such as "Consulting day" with the right quantity. Keep your stage names and probabilities, and you see each deal's weighted value and the weighted pipeline total.
+There is no lead conversion step: a lead becomes a client when you change its status. A deal's value is the sum of its line items, so an opportunity that only has an amount needs a line item with a service such as "Consulting day" and the right quantity. Keep your stage names and probabilities, and you see each deal's weighted value; a chart widget on the Dashboard sums them into a weighted pipeline total.
 
 The partners want email and LinkedIn side by side, so the firm picks Business at [[commercial.price.business.monthly.seats.5]] a month. With one account per person, Pro at [[commercial.price.pro.monthly.seats.5]] would do. Each partner owns a routine in Customermates Cloud, which uses hosted AI credits:
 
@@ -209,8 +208,8 @@ The partners want email and LinkedIn side by side, so the firm picks Business at
 <Steps>
   <Step title="Export from Salesforce">In Setup, type Data Export into Quick Find and choose Export Now. Salesforce emails a link to a zip archive and keeps it for 48 hours. On an annual contract, check your renewal date first.</Step>
   <Step title="Convert the files">Customermates imports Excel workbooks only. Save the account, contact, lead and opportunity files as .xlsx. A file currently holds up to 10,000 rows, so split larger ones.</Step>
-  <Step title="Prepare the workspace">Rename the record types, give the stage field one option per Salesforce stage with its probability, and create single-select fields for the picklists you keep.</Step>
-  <Step title="Import one record type at a time">Start with accounts, then contacts, then opportunities, so links to existing records resolve. The [records guide](/docs/app-records) explains column mapping.</Step>
+  <Step title="Prepare the workspace">Rename the lists in Configure, give the stage field one option per Salesforce stage with its probability, and create single choice fields for the picklists you keep.</Step>
+  <Step title="Import one list at a time">Start with accounts, then contacts, then opportunities, so links to existing records resolve. The [records guide](/docs/app-records) explains column mapping.</Step>
   <Step title="Connect channels and AI">Connect a mailbox, LinkedIn or WhatsApp, then set up a routine or your own AI client over MCP. Activity history does not come across, so keep Salesforce read-only until the team has moved.</Step>
 </Steps>
 
@@ -231,7 +230,7 @@ For two users, Salesforce's own Free Suite costs nothing as long as someone logs
 </FaqItem>
 
 <FaqItem question="What is a good open-source alternative to Salesforce?">
-SuiteCRM has the widest module set, including marketing, service and quotations. Twenty suits teams that want their own objects. Customermates has a fixed record model and focuses on client conversations and AI: the core runs with Docker Compose, and the cloud version adds the unified inbox and Mate. The [open-source CRM guide](/blog/open-source-crm) compares more options.
+SuiteCRM has the widest module set, including marketing, service and quotations. Twenty suits teams that want their own objects. Customermates starts with five lists you can extend with your own and focuses on client conversations and AI: the core runs with Docker Compose, and the cloud version adds the unified inbox and Mate. The [open-source CRM guide](/blog/open-source-crm) compares more options.
 </FaqItem>
 
 <FaqItem question="How much does Salesforce cost per month?">

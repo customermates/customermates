@@ -33,7 +33,7 @@ Contact management software keeps every person and company you deal with in one 
 These records and links work on every plan, self-hosted included. The conversations themselves need the [unified inbox](/features/unified-inbox), which starts on Pro in Customermates Cloud.
 
 <ArticleSummary title="At a glance">
-  <SummaryItem label="Every plan">Contacts and organizations, ten custom field types, filters, personal saved views, table or board, roles, Excel import and export, REST, webhooks and MCP.</SummaryItem>
+  <SummaryItem label="Every plan">Contacts and organizations, typed custom fields, filters, personal saved views, table or board, roles, Excel import and export, REST, webhooks and MCP.</SummaryItem>
   <SummaryItem label="Pro and higher">Email, LinkedIn, WhatsApp, Instagram and Telegram conversations on the contact. Cloud only.</SummaryItem>
   <SummaryItem label="Not included">No address-book sync, no merge function, no tags, no file attachments on records, no reminders.</SummaryItem>
 </ArticleSummary>
@@ -42,26 +42,26 @@ These records and links work on every plan, self-hosted included. The conversati
 
 | | Contact | Organization |
 |---|---|---|
-| Built-in fields | First name, last name, notes | Name, notes |
-| Channels | Email addresses, WhatsApp number, LinkedIn, Instagram and Telegram handles | None |
+| Built-in fields | Name, notes | Name, notes |
+| Channels | Email addresses, WhatsApp number, LinkedIn, Instagram and Telegram handles | None at first; a Channels field can be added |
 | Links | Organizations (several allowed), deals, tasks, assigned users | Contacts, deals, tasks, assigned users |
-| Your own fields | Custom fields of the ten types | Custom fields of the ten types |
+| Your own fields | Custom fields of any type | Custom fields of any type |
 
-The field types are Text, Single Select, Date, Date Range, Date & Time, Date & Time Range, Currency, Email, Phone and Link. A landline or a mobile number without WhatsApp goes into a Phone field. Notes are one rich-text field per record and can hold tables and images.
+The field types are Text, Formatted text, Number, Money, Yes or no, Date, Date and time, Date range, Date and time range, Single choice, Multiple choice, Email, Phone, Web address and Member. A landline or a mobile number without WhatsApp goes into a Phone field. Notes are a Formatted text field and can hold tables and images.
 
-An email address or handle belongs to exactly one contact in the workspace, so Customermates refuses a second contact with an address already in use. Global search (Cmd/Ctrl+K) finds contacts by name, channel value or linked organization; custom fields are reached through filters.
+One email address or handle can belong to several records, for example a contact and an organization. Global search (Cmd/Ctrl+K) finds contacts by name, channel value or linked organization; custom fields are reached through filters.
 
 ## Organizations as accounts
 
-If you manage accounts rather than single people, the organization is the account. Under **My Company › Settings › Data model** you can rename record types for the whole workspace from a list of presets: Organizations to Accounts or Companies, Contacts to Clients, People or Leads.
+If you manage accounts rather than single people, the organization is the account. In **Configure** you can rename any list for the whole workspace: open it, change **Name** and **Plural name** under **General** and save, for example Organizations to Accounts and Contacts to Clients.
 
-An account setup needs three pieces. A Single Select field **Role** on contacts says who decides, who handles the day-to-day work and who sits in accounting. A Date field **Contract end** on organizations holds the renewal date. And the deals board, grouped by organization, shows each account's number of deals and their total value. Customermates calculates no account health, churn risk or score; if your team rates accounts, keep the rating in a Single Select field.
+An account setup needs three pieces. A Single choice field **Role** on contacts says who decides, who handles the day-to-day work and who sits in accounting. A Date field **Contract end** on organizations holds the renewal date. And the deals board, grouped by organization, shows each account's number of deals and their total value. Customermates calculates no account health, churn risk or score; if your team rates accounts, keep the rating in a Single Select field.
 
 ## A worked setup for a five-person consultancy
 
 <Steps>
-  <Step title="Name the record types">In **Data model**, switch Contacts to Clients and Organizations to Accounts if that is how your team talks.</Step>
-  <Step title="Add four fields">On contacts: **Relationship** (Single Select: Prospect, Active client, Past client, Referral partner) and **Role** (Decision maker, Day-to-day, Accounting). On organizations: **Contract end** (Date) and **Source** (Single Select: Referral, Event, Website, Outbound).</Step>
+  <Step title="Name the lists">In **Configure**, rename Contacts to Clients and Organizations to Accounts if that is how your team talks.</Step>
+  <Step title="Add four fields">On contacts: **Relationship** (Single choice: Prospect, Active client, Past client, Referral partner) and **Role** (Decision maker, Day-to-day, Accounting). On organizations: **Contract end** (Date) and **Source** (Single choice: Referral, Event, Website, Outbound).</Step>
   <Step title="Save three personal views">"My active clients": **Assigned** set to yourself and **Relationship** is Active client. "No organization yet": **Organizations** has none, for cleaning up after an import. "Gone quiet": **Updated at** older than 90 days.</Step>
   <Step title="Switch one view to the board">Group contacts by **Relationship** and drag a card from Prospect to Active client when someone signs.</Step>
   <Step title="Decide who sees what">In the role editor, set **Contacts** read access to **Assigned** for people who should only see their own clients, or **All** for everyone.</Step>
@@ -72,11 +72,11 @@ An account setup needs three pieces. A Single Select field **Role** on contacts 
 ## Moving contacts in from Excel, Outlook or Google
 
 <Steps>
-  <Step title="Export and convert">Outlook and Google Contacts deliver their download as a comma-separated text file (Google also as vCard). Open it in Excel and save it as an .xlsx workbook, because Customermates imports XLSX workbooks only.</Step>
+  <Step title="Export and convert">Outlook and Google Contacts deliver their download as a comma-separated text file (Google also as vCard). Open it in Excel and save it as an .xlsx workbook, because Customermates does not import CSV files.</Step>
   <Step title="Clean up first">Remove duplicate rows and split the list into one workbook for organizations and one for contacts. An import cannot be undone.</Step>
-  <Step title="Import organizations">On **Organizations**, open **Import and export › Add from file**, map the columns and import.</Step>
-  <Step title="Import contacts">Map first and last name, which are required, the email column to the Email channel, the company column to **Organizations** (matched by name, ignoring case) and the rest to custom fields. Rows with problems can be skipped and fixed later.</Step>
-  <Step title="Correct in bulk">Export the list, edit it in Excel and import it again: the **Record ID** column updates existing records instead of adding new ones.</Step>
+  <Step title="Import organizations">On **Organizations**, open **More actions › Add from file**, choose the workbook, map the columns and import.</Step>
+  <Step title="Import contacts">Map the name, the email column to the **Channels** field, the company column to **Organizations** and the rest to your fields. Failed rows are listed with their reason.</Step>
+  <Step title="Correct in bulk">Export the list, edit it in Excel and import it again as **Existing records**, so it updates them instead of adding new ones.</Step>
 </Steps>
 
 One file currently takes up to 10,000 rows and 10 MB. The import adds channels to new contacts only. There is no ongoing sync, so after the import your Outlook or Google address book and Customermates are separate lists.
@@ -97,11 +97,11 @@ Create contacts for everyone in this email signature and link them to the organi
 
 Mate creates and updates records without asking for approval; deleting a contact asks every time. A [routine](/docs/app-routines), also Cloud only, can run an instruction every Monday, such as "List every account whose Contract end falls in the next 60 days. Do not change any records."
 
-On every plan, self-hosted included, your own AI client such as Claude or ChatGPT can search, create and update contacts through MCP, with [[derived.mcp.tools.total]] tools, billed by your AI provider. Webhooks fire on `contact.created`, `contact.updated` and `contact.deleted`.
+On every plan, self-hosted included, your own AI client such as Claude or ChatGPT can search, create and update contacts through MCP, with [[derived.mcp.tools.total]] tools, billed by your AI provider. Webhooks fire on `record.created`, `record.updated` and `record.deleted` for the Contacts list.
 
 ## Who sees which contacts, and where the data lives
 
-Each role sets read access per record type to **All**, **Assigned** or **None**, and **Manage** to Yes or No. Export needs read access, import needs **Manage**. A record's change history shows for roles with read access **All** on **Audit Log**, such as Admin. Permissions apply to whole record types, not to single fields.
+Each role sets read access per list to **All**, **Assigned** or **None**, plus **Create**, **Edit** and **Delete**. Export needs read access, import needs **Create**. A record's change history shows for roles with read access **All** on **Audit Log**, such as Admin. Permissions apply to whole lists, not to single fields.
 
 In Customermates Cloud, the production database is configured in the AWS Frankfurt region. Service providers, including US companies, are listed on the [subprocessors page](/subprocessors), and a [data processing agreement](/dpa) is available. Customermates holds no certification. If contact data must stay on your own servers, run the AGPL core [self-hosted](/features/self-hosted), without the inbox and without Mate.
 
@@ -109,7 +109,7 @@ In Customermates Cloud, the production database is configured in the AWS Frankfu
 
 - No sync with Outlook, Google or phone address books in either direction.
 - No merge function. Clean duplicates before importing.
-- No tags and no multi-select. Single Select fields hold one value each.
+- No tags. For several values per record, use a Multiple choice field.
 - No file attachments on records. Message attachments stay in their inbox thread, not on the contact.
 - No reminders, due dates or birthday alerts. Store dates in custom fields and let a Cloud routine list the ones that have passed.
 - No newsletters, mass email, sequences or data enrichment.
@@ -148,11 +148,11 @@ Yes. Outlook keeps contacts and contact lists under People, in Microsoft 365 and
 </FaqItem>
 
 <FaqItem question="Can I import contacts from Outlook, Google Contacts or Excel?">
-Yes, as an Excel workbook. Download your contacts from Outlook or Google Contacts, open the file in Excel and save it as .xlsx first, because Customermates imports XLSX workbooks only. Import organizations before contacts so the company column links up.
+Yes, as an Excel workbook. Download your contacts from Outlook or Google Contacts, open the file in Excel and save it as .xlsx first, because Customermates does not import CSV files. Import organizations before contacts so the company column links up.
 </FaqItem>
 
 <FaqItem question="How many contacts can I manage in Customermates?">
-The plans set no contact limit, so 300 or 30,000 contacts cost the same. One import file currently takes up to 10,000 rows, one export the first 50,000 records of the current view.
+The plans set no contact limit, so 300 or 30,000 contacts cost the same. One import file currently takes up to 10,000 rows, one export up to 5,000 records of the current view.
 </FaqItem>
 
 <FaqItem question="What is account management in a CRM?">

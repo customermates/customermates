@@ -142,15 +142,15 @@ Eine gewichtete Bewertungsmatrix finden Sie im Leitfaden [CRM auswählen](/blog/
 
 So sieht eine typische Einrichtung für eine kleine Beratung aus:
 
-- **Datensätze:** Kontakte, Organisationen, Deals, Leistungen und Aufgaben. Der Wert eines Deals ergibt sich aus den verknüpften Leistungen und ihren Mengen.
-- **Phasen:** Die Spalte „Phase“ an Deals ist mit Akquise, Qualifizierung, Demo, Angebot, Verhandlung, Gewonnen und Verloren vorbelegt. Jede Option kann eine Gewichtung tragen, daraus entstehen feste gewichtete Deal-Werte und eine gewichtete Summe der [Pipeline](/features/pipeline). Das ist eine Gewichtung nach Phase, keine Vorhersage.
-- **Eigene Felder:** eine Spalte vom Typ Einzelauswahl wie „Lead-Quelle“ oder „Leistungsbereich“, nach der Sie auch das Board gruppieren können.
+- **Datensätze:** Kontakte, Organisationen, Deals, Services und Aufgaben. Der Wert eines Deals ergibt sich aus seinen Positionen: den verkauften Services und ihren Mengen.
+- **Phasen:** Das Feld „Phase“ an Deals ist mit Akquise, Qualifizierung, Demo, Angebot, Verhandlung, Gewonnen und Verloren vorbelegt. Jede Option kann eine Gewichtung tragen, daraus entstehen feste gewichtete Deal-Werte und eine gewichtete Summe der [Pipeline](/features/pipeline). Das ist eine Gewichtung nach Phase, keine Vorhersage.
+- **Eigene Felder:** ein Feld vom Typ Einzelauswahl wie „Lead-Quelle“ oder „Leistungsbereich“, nach der Sie auch das Board gruppieren können.
 - **Gespeicherte Ansichten:** „Meine offenen Angebote“, gefiltert auf Ihre zugewiesenen Deals in Angebot und Verhandlung. Ansichten sind persönlich und nur für die Person sichtbar, die sie anlegt.
 - **Gespräche:** Ab Pro holt der [einheitliche Posteingang](/features/unified-inbox) E-Mails (Gmail, Outlook, IMAP) sowie Nachrichten aus LinkedIn, WhatsApp, Instagram und Telegram direkt zu den Datensätzen. Starter enthält keinen Posteingang.
 - **KI in Customermates Cloud:** Mate, der Assistent in der App, nutzt gehostete KI-Credits. Eine Routine kann jeden Montagmorgen eine gespeicherte Anweisung ausführen, etwa: „Meine Deals in der Phase Angebot auflisten, das letzte Gespräch mit jedem Kontakt zusammenfassen und eine Nachfass-Nachricht entwerfen, wo noch keine gesendet wurde. Nichts senden.“ Die Routine läuft mit den Rechten und Kanälen der Person, der sie gehört. Deshalb ist der Satz „Nichts senden“ wichtig. Mehr dazu unter [Routinen](/docs/app-routines). Wenn Sie lieber Ihren eigenen KI-Client nutzen, arbeiten Claude, ChatGPT und andere über MCP mit dem CRM.
 - **Eigenes Hosting:** Der AGPL-Kern läuft auf Ihrem eigenen Server mit REST, Webhooks und MCP. Er enthält keinen Posteingang, kein Mate und keine gehosteten Credits.
 
-Datensätze werden als XLSX-Arbeitsmappen importiert und exportiert, jeweils ein Datensatztyp. Die online buchbaren Tarife reichen von [[commercial.price.starter.monthly]] (Starter) bis [[commercial.price.business.monthly]] (Business) pro Nutzer und Monat, monatlich abgerechnet, mit [[commercial.trial.days]] Tagen Testphase.
+Datensätze werden als XLSX-Arbeitsmappen oder JSON importiert und exportiert, jeweils eine Liste. Die online buchbaren Tarife reichen von [[commercial.price.starter.monthly]] (Starter) bis [[commercial.price.business.monthly]] (Business) pro Nutzer und Monat, monatlich abgerechnet, mit [[commercial.trial.days]] Tagen Testphase.
 
 <AcquisitionCallout title="Wofür Customermates nicht das richtige System ist" variant="boundary">
   Es gibt keine Marketingautomatisierung, keine Newsletter oder E-Mail-Kampagnen, keine Ticket-Warteschlange für den Support, keine Telefonie, keine mobile App und keine Angebote oder Rechnungen. Wenn Marketingautomatisierung Ihre Hauptaufgabe ist, sehen Sie sich eine Suite wie HubSpot oder Zoho CRM an. Wenn Service-Tickets im Vordergrund stehen, suchen Sie ein Helpdesk oder ein CRM mit Serviceautomatisierung. Wenn Sie SAP-ERP einsetzen, ist SAP Sales Cloud auf diese Anbindung ausgelegt.

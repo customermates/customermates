@@ -59,10 +59,10 @@ comparison:
         source: Contacts, organizations, deals, services, tasks
         competitor: Accounts, contacts, leads, opportunities and more
       - name: Custom entity types
-        source: false
+        source: Your own lists, with fields and relationships
         competitor: Entity Manager
       - name: Custom fields
-        source: Ten field types
+        source: Fifteen field types, plus calculated fields
         competitor: true
       - name: Stage probabilities and weighted pipeline
         source: true
@@ -112,13 +112,13 @@ cta:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-> The right EspoCRM alternative depends on what you need that EspoCRM does not give you. For another established open-source CRM with quotations and marketing features, look at SuiteCRM. For unlimited custom objects with a free self-hosted core, look at Twenty. For CRM, accounting and inventory in one system, look at Odoo. Customermates fits small client-facing teams whose clients write on WhatsApp, LinkedIn, Instagram or Telegram as well as by email, and who want an AI assistant or their own AI client to keep the CRM current. If you depend on custom entities, campaigns or a customer portal, EspoCRM remains the better tool. Customermates publishes this comparison; every EspoCRM and third-party detail comes from the vendors' own sites, checked on 8 October 2026.
+> The right EspoCRM alternative depends on what you need that EspoCRM does not give you. For another established open-source CRM with quotations and marketing features, look at SuiteCRM. For unlimited custom objects with a free self-hosted core, look at Twenty. For CRM, accounting and inventory in one system, look at Odoo. Customermates fits small client-facing teams whose clients write on WhatsApp, LinkedIn, Instagram or Telegram as well as by email, and who want an AI assistant or their own AI client to keep the CRM current. If you depend on campaigns or a customer portal, EspoCRM remains the better tool. Customermates publishes this comparison; every EspoCRM and third-party detail comes from the vendors' own sites, checked on 8 October 2026.
 
 ## Which alternative fits which team
 
 | Your situation | Look at | Why |
 |---|---|---|
-| You model your own record types, such as properties, policies or cases | Stay with EspoCRM, or Twenty | EspoCRM's Entity Manager creates custom entities and relationships; Twenty has unlimited custom objects. Customermates has five fixed record types |
+| You model your own record types, such as properties, policies or cases | Stay with EspoCRM, or use Twenty or Customermates | EspoCRM's Entity Manager creates custom entities and relationships; Twenty has unlimited custom objects. Customermates starts with five lists, and you can add your own |
 | You send newsletters or campaigns from the CRM | Stay with EspoCRM | Mass email and campaigns are in EspoCRM's core; Customermates has no bulk sending |
 | You need quotations or inventory beside the CRM | EspoCRM with the Sales Pack, SuiteCRM or Odoo | Customermates has neither |
 | Clients reach you on WhatsApp, LinkedIn, Instagram or Telegram as well as email | Customermates Pro or Business | These channels share one inbox with your mailboxes; EspoCRM's extension catalogue lists none of them |
@@ -181,33 +181,32 @@ Customermates is an open-source, AI-native CRM for small client-facing teams: co
 
 ## Where Customermates is the wrong choice
 
-- **No custom entities.** You work with contacts, organizations, deals, services and tasks. You can rename them from presets and add custom fields of ten types, but you cannot add a sixth record type.
 - **No mass email, campaigns or sequences.** Messages go one at a time, written by you or drafted by Mate.
 - **No customer portal, quotations, inventory or telephony.**
 - **No BPM or visual workflow designer.** Automation runs through Routines in Customermates Cloud, webhooks and the separate n8n community node.
 - **Tasks have no built-in due date.** Add a custom date field if you need one.
-- **No native mobile apps and no single sign-on.** Saved views are personal, and permissions apply per record type and action, not per field.
+- **No native mobile apps and no single sign-on.** Saved views are personal, and permissions apply per list and action, not per field.
 
 ## Moving from EspoCRM
 
-Most EspoCRM sales data has a direct home. Under Data model in the company settings, you can call organizations "Accounts" and deals "Opportunities", so your team keeps its vocabulary.
+Most EspoCRM sales data has a direct home. In Configure, you can rename organizations "Accounts" and deals "Opportunities", so your team keeps its vocabulary.
 
 | In EspoCRM | In Customermates |
 |---|---|
 | Accounts | Organizations, renamed "Accounts" |
 | Contacts | Contacts |
-| Leads | Contacts with a single-select field such as "Lifecycle" (Lead, Customer) |
+| Leads | Contacts with a single choice field such as "Lifecycle" (Lead, Customer) |
 | Opportunities | Deals, renamed "Opportunities" |
-| Products from the Sales Pack | Services, renamed "Products", linked to deals with quantities |
-| Custom entities | Custom fields on the closest record type |
+| Products from the Sales Pack | Services, renamed "Products", added to deals as line items with quantities |
+| Custom entities | Your own lists, with fields and relationships |
 | Campaigns, mass email, portal | No equivalent; keep a dedicated tool |
 
-The stages line up almost one to one. A new Customermates workspace starts with Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100% and Lost 0%. Delete Demo if you never used it, and copy your EspoCRM probabilities into the stage weights. The weighted pipeline then multiplies each deal's value by its stage probability. It is arithmetic on your own numbers and does not predict anything.
+The stages line up almost one to one. A new Customermates workspace starts with Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100% and Lost 0%. Delete Demo if you never used it, and copy your EspoCRM probabilities into the stage weights. The weighted value then multiplies each deal's value by its stage probability. It is arithmetic on your own numbers and does not predict anything.
 
 <Steps>
   <Step title="Export from EspoCRM">Export each list you want to keep to an Excel file: accounts, contacts, leads and opportunities.</Step>
-  <Step title="Prepare the workspace">Choose your record names under Data model, create custom fields for the attributes you keep, and set the stage probabilities.</Step>
-  <Step title="Import one record type at a time">Import organizations first, then contacts, then deals. Link columns match records by name, so a contact's account column finds the organization you imported before. Customermates imports XLSX workbooks only; the [records documentation](/docs/app-records) lists the limits.</Step>
+  <Step title="Prepare the workspace">Rename lists in Configure, create custom fields for the attributes you keep, and set the stage probabilities.</Step>
+  <Step title="Import one list at a time">Import organizations first, then contacts, then deals. Link columns match records by name, so a contact's account column finds the organization you imported before. Customermates imports XLSX workbooks only; the [records documentation](/docs/app-records) lists the limits.</Step>
   <Step title="Rebuild lists as views">Turn each EspoCRM list filter into a saved view. Views are personal, so each person saves their own.</Step>
   <Step title="Connect channels and AI">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp, then set up routines for Mate or connect your own AI client over MCP.</Step>
 </Steps>

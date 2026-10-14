@@ -136,14 +136,14 @@ Customermates is priced in its own section below.
 ### A first week in Customermates
 
 <Steps>
-  <Step title="Import one record type at a time">
-    Save your spreadsheet as an Excel workbook (CSV files are not accepted) and use **Import and export › Add from file** on each list. Import organizations first, then contacts, then deals, so link columns can match existing records by name. Each workbook is row-capped; the [import guide](/docs/app-records) has the limits.
+  <Step title="Import one list at a time">
+    Save your spreadsheet as an Excel workbook (CSV files are not accepted) and use **More actions › Add from file** on each list. Import organizations first, then contacts, then deals, so link columns can match existing records by name. Each workbook is row-capped; the [import guide](/docs/app-records) has the limits.
   </Step>
   <Step title="Set your stages and probabilities">
-    A new workspace starts with a **Stage** field on deals: Prospecting, Qualification, Demo, Proposal, Negotiation, Won and Lost. Rename the options to match how you sell, then give each a win probability under **My Company**. A deal's value comes from its linked services, price times quantity, and its weighted value is that amount times the stage probability. That is arithmetic from your own numbers, not a prediction.
+    A new workspace starts with a **Stage** field on deals: Prospecting, Qualification, Demo, Proposal, Negotiation, Won and Lost. Rename the options to match how you sell, then give each a win probability: open the **Stage** field in Configure for Deals and set **Probability %**. A deal's value is the sum of its line items, each a service price times quantity, and its weighted value is that amount times the stage probability. That is arithmetic from your own numbers, not a prediction.
   </Step>
   <Step title="Connect the channel where deals happen">
-    Each user connects accounts under **My Profile › Channels**. Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user and Business [[commercial.entitlement.business.includedAccountsPerUser]]; Business also lets you share a whole account with the team. Customermates matches conversation participants to contacts by their email address, phone number or channel identifier, so keep those fields filled in on each contact.
+    Each user connects accounts under **Settings › Channels**. Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user and Business [[commercial.entitlement.business.includedAccountsPerUser]]; Business also lets you share a whole account with the team. Customermates matches conversation participants to contacts by the email addresses, phone numbers and channel identifiers in their Channels field, so keep it filled in on each contact.
   </Step>
   <Step title="Save the view you check every week">
     On **Deals**, use **New view** to save, for example, deals in Proposal and Negotiation sorted by last update, oldest first. Views are personal and not shared, so each colleague saves their own.
@@ -190,7 +190,7 @@ A demo shows the vendor's best path. Your own data shows yours.
     Add annual commitments, onboarding fees and seat minimums from the tables above. The first month is rarely the expensive one.
   </Step>
   <Step title="Test the exit">
-    Export one record type and check the file format, whether export works per object or for the whole account, and whether there is an API. Customermates exports one record type at a time as an Excel workbook and has a REST API; there is no whole-account export.
+    Export one record type and check the file format, whether export works per object or for the whole account, and whether there is an API. Customermates exports one list at a time as an Excel workbook or JSON and has a REST API; there is no whole-account export.
   </Step>
 </Steps>
 

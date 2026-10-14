@@ -39,7 +39,7 @@ comparison:
   - title: CRM
     features:
       - name: Accounts, Kontakte und Opportunities
-        source: Organisationen, Kontakte und Deals; Datensatztypen umbenennbar
+        source: Organisationen, Kontakte und Deals; jede Liste umbenennbar
         competitor: Lead-, Account-, Kontakt- und Opportunity-Management
       - name: Genehmigungsprozesse
         source: false
@@ -48,7 +48,7 @@ comparison:
         source: Nein; nur gewichtete Pipeline aus Phasen-Wahrscheinlichkeiten
         competitor: Ab Pro Suite
       - name: Eigene Felder
-        source: 10 Feldtypen in jedem Tarif
+        source: 15 Feldtypen und berechnete Felder in jedem Tarif
         competitor: true
       - name: Visueller Workflow-Builder
         source: Nein; Routinen (Customermates Cloud), Webhooks, REST, n8n
@@ -176,11 +176,10 @@ Sie zahlen schon für Claude oder ChatGPT? Dann verbinden Sie diesen Client mit 
 ## Wann Customermates nicht passt
 
 - **Keine Prognosen, keine Angebote, keine Gebiete.** Die gewichtete Pipeline multipliziert den Wert jedes Deals mit der Wahrscheinlichkeit seiner Phase. Vorhergesagt wird nichts.
-- **Keine eigenen Objekte.** Es gibt Kontakte, Organisationen, Deals, Leistungen und Aufgaben. Sie können sie umbenennen und eigene Felder in zehn Typen anlegen, aber keinen sechsten Datensatztyp.
 - **Kein Workflow-Builder und keine Genehmigungsprozesse.** Automatisierung läuft über Routinen, Webhooks, die REST-API und ein separat betriebenes n8n.
 - **Kein Marketing und kein Helpdesk.** Es gibt keine Kampagnen, keine Sequenzen, keine Webformulare und keine Tickets.
 - **Einfache Aufgaben.** Aufgaben haben Zugewiesene, Verknüpfungen, Notizen und eigene Felder, aber kein Fälligkeitsdatum und keine Erinnerung.
-- **Keine native Mobile-App, kein Single Sign-on, keine Rechte auf Feldebene.** Rollen legen pro Datensatztyp fest, ob jemand alle Einträge sieht, nur die eigenen oder keine. Gespeicherte Ansichten sind persönlich.
+- **Keine native Mobile-App, kein Single Sign-on, keine Rechte auf Feldebene.** Rollen legen pro Liste fest, ob jemand alle Einträge sieht, nur die eigenen oder keine. Gespeicherte Ansichten sind persönlich.
 - **Kein kostenloser Tarif, keine Zertifizierung.** Es gibt eine Testphase von [[commercial.trial.days]] Tagen, danach einen bezahlten Tarif.
 
 ## Beispiel: Eine Beratung wechselt von der Starter Suite
@@ -198,7 +197,7 @@ Nehmen wir eine Beratung mit fünf Personen. Zwei Partner gewinnen Mandate per E
 | Auswahllisten | Eigene Felder vom Typ Einzelauswahl |
 | Abschlussdatum | Ein eigenes Datumsfeld |
 
-Einen Lead-Umwandlungsschritt gibt es nicht: Aus einem Lead wird ein Kunde, wenn Sie den Status ändern. Der Wert eines Deals ergibt sich aus seinen Leistungen. Eine Opportunity, die nur einen Betrag hat, braucht deshalb eine Leistung wie „Beratertag“ mit passender Menge. Übernehmen Sie Ihre Phasennamen und Wahrscheinlichkeiten, sehen Sie den gewichteten Wert jedes Deals und die Summe der gewichteten Pipeline.
+Einen Lead-Umwandlungsschritt gibt es nicht: Aus einem Lead wird ein Kunde, wenn Sie den Status ändern. Der Wert eines Deals ist die Summe seiner Positionen. Eine Opportunity, die nur einen Betrag hat, braucht deshalb eine Position mit einer Leistung wie „Beratertag“ und passender Menge. Übernehmen Sie Ihre Phasennamen und Wahrscheinlichkeiten, sehen Sie den gewichteten Wert jedes Deals; ein Diagramm-Widget auf dem Dashboard summiert ihn zur gewichteten Pipeline.
 
 Die Partner wollen E-Mail und LinkedIn nebeneinander, also wählt die Firma Business für [[commercial.price.business.monthly.seats.5]] im Monat. Mit einem Konto pro Person würde Pro für [[commercial.price.pro.monthly.seats.5]] reichen. Jeder Partner hat eine Routine in Customermates Cloud, die gehostete KI-Credits nutzt:
 
@@ -209,8 +208,8 @@ Die Partner wollen E-Mail und LinkedIn nebeneinander, also wählt die Firma Busi
 <Steps>
   <Step title="Aus Salesforce exportieren">Geben Sie im Setup „Data Export“ in die Schnellsuche ein und wählen Sie „Export Now“. Salesforce schickt einen Link zu einem ZIP-Archiv per E-Mail und hält es 48 Stunden bereit. Prüfen Sie bei einem Jahresvertrag vorher das Verlängerungsdatum.</Step>
   <Step title="Dateien umwandeln">Customermates importiert ausschließlich Excel-Arbeitsmappen. Speichern Sie die Dateien für Accounts, Kontakte, Leads und Opportunities als .xlsx. Eine Datei fasst derzeit bis zu 10.000 Zeilen, größere teilen Sie auf.</Step>
-  <Step title="Arbeitsbereich vorbereiten">Benennen Sie die Datensatztypen um, geben Sie dem Phasenfeld eine Option pro Salesforce-Phase mit Wahrscheinlichkeit und legen Sie Einzelauswahl-Felder für die Auswahllisten an, die Sie behalten.</Step>
-  <Step title="Einen Datensatztyp nach dem anderen importieren">Erst Accounts, dann Kontakte, dann Opportunities, damit Verknüpfungen auf vorhandene Einträge zeigen. Die [Anleitung zu Datensätzen](/docs/app-records) erklärt die Spaltenzuordnung.</Step>
+  <Step title="Arbeitsbereich vorbereiten">Benennen Sie die Listen in Konfigurieren um, geben Sie dem Phasenfeld eine Option pro Salesforce-Phase mit Wahrscheinlichkeit und legen Sie Einzelauswahl-Felder für die Auswahllisten an, die Sie behalten.</Step>
+  <Step title="Eine Liste nach der anderen importieren">Erst Accounts, dann Kontakte, dann Opportunities, damit Verknüpfungen auf vorhandene Einträge zeigen. Die [Anleitung zu Datensätzen](/docs/app-records) erklärt die Spaltenzuordnung.</Step>
   <Step title="Kanäle und KI verbinden">Verbinden Sie ein Postfach, LinkedIn oder WhatsApp und richten Sie danach eine Routine oder Ihren eigenen KI-Client per MCP ein. Der Aktivitätsverlauf kommt nicht mit; lassen Sie Salesforce deshalb schreibgeschützt stehen, bis das Team umgezogen ist.</Step>
 </Steps>
 
@@ -235,7 +234,7 @@ Für zwei Nutzer ist die Free Suite von Salesforce selbst kostenlos, solange sic
 </FaqItem>
 
 <FaqItem question="Welche Open-Source-Alternative zu Salesforce gibt es?">
-SuiteCRM hat den größten Funktionsumfang, inklusive Marketing, Service und Angeboten. Twenty eignet sich für Teams, die eigene Objekte anlegen wollen. Customermates hat ein festes Datenmodell und konzentriert sich auf Kundengespräche und KI: Der Kern läuft mit Docker Compose, die Cloud-Version ergänzt den einheitlichen Posteingang und Mate. Weitere Optionen vergleicht der [Überblick zu Open-Source-CRMs](/blog/open-source-crm).
+SuiteCRM hat den größten Funktionsumfang, inklusive Marketing, Service und Angeboten. Twenty eignet sich für Teams, die eigene Objekte anlegen wollen. Customermates startet mit fünf Listen, die Sie um eigene ergänzen können, und konzentriert sich auf Kundengespräche und KI: Der Kern läuft mit Docker Compose, die Cloud-Version ergänzt den einheitlichen Posteingang und Mate. Weitere Optionen vergleicht der [Überblick zu Open-Source-CRMs](/blog/open-source-crm).
 </FaqItem>
 
 <FaqItem question="Ist Salesforce gut für kleine Unternehmen?">

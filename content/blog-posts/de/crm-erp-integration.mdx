@@ -37,7 +37,7 @@ Diesen Leitfaden veröffentlicht Customermates, ein KI-CRM. Customermates ist au
   <SummaryItem label="Wege">Fertiger Connector, Automatisierungsplattform (iPaaS oder n8n), direkte API-Anbindung oder Middleware. Oder eine Komplettlösung, deren ERP ein CRM-Modul mitbringt.</SummaryItem>
   <SummaryItem label="Vorab klären">Ein führendes System pro Feld, eine Strategie für stabile IDs und das Verhalten, wenn ein Ereignis doppelt kommt oder scheitert.</SummaryItem>
   <SummaryItem label="ERP prüfen">Ob die API in Ihrem Tarif enthalten ist, ob das ERP Webhooks sendet und welche Ratenlimits gelten. Hier unterscheiden sich die Anbieter stark.</SummaryItem>
-  <SummaryItem label="Customermates">REST-API und Webhooks in jedem Cloud-Tarif und beim Self-Hosting. ERP-Nummern liegen in eigenen Spalten vom Typ Text.</SummaryItem>
+  <SummaryItem label="Customermates">REST-API und Webhooks in jedem Cloud-Tarif und beim Self-Hosting. ERP-Nummern liegen in eigenen Feldern vom Typ Text.</SummaryItem>
 </ArticleSummary>
 
 ## Welches System welche Daten führt
@@ -131,26 +131,26 @@ Eine Integration, die nur den Normalfall abdeckt, erzeugt innerhalb weniger Woch
 
 So sieht der erste Datenfluss in Customermates aus. Er nutzt die [REST-API](/features/api) und die [Webhooks](/docs/webhooks), die in jedem Cloud-Tarif von Customermates und beim Self-Hosting funktionieren. Den Empfänger in der Mitte betreiben Sie selbst, als n8n-Workflow oder kleinen Dienst.
 
-**Spalten.** Legen Sie eigene Spalten vom Typ Text an: „ERP-Kundennummer“ an Organisationen, „ERP-Auftragsnummer“ an Deals und „ERP-Artikelnummer“ an Leistungen. Deals sind mit Leistungen samt Menge pro Deal verknüpft, Leistungen und Artikelnummern ergeben also die Auftragspositionen. Braucht der Vertrieb den Liefer- oder Zahlungsstand, ergänzen Sie eine Spalte vom Typ Einzelauswahl wie „ERP-Status“ an Deals, die nur die Integration beschreibt.
+**Felder.** Legen Sie in **Konfigurieren** eigene Felder vom Typ Text an: „ERP-Kundennummer“ an Organisationen, „ERP-Auftragsnummer“ an Deals und „ERP-Artikelnummer“ an Leistungen. Jede Position eines Deals enthält eine Leistung und eine Menge, Positionen und Artikelnummern ergeben also die Auftragspositionen. Braucht der Vertrieb den Liefer- oder Zahlungsstand, ergänzen Sie ein Feld vom Typ Einzelauswahl wie „ERP-Status“ an Deals, das nur die Integration beschreibt.
 
-**Auslöser.** Die Standardspalte Phase an Deals hat die Option „Gewonnen“. Unter **Mein Unternehmen → Webhooks** abonnieren Sie eine URL für `deal.updated` und setzen ein Secret. Jede Zustellung ist mit HMAC-SHA256 im Header `X-Webhook-Signature` signiert, und bei Update-Ereignissen enthält die Payload ein Objekt `changes` mit altem und neuem Wert jedes geänderten Felds. Ihr Empfänger handelt nur, wenn die Phase auf „Gewonnen“ gewechselt ist.
+**Auslöser.** Das Standardfeld Phase an Deals hat die Option „Gewonnen“. Unter **Einstellungen → Webhooks** abonnieren Sie eine URL für `record.updated` für die Liste Deals, bei Bedarf mit Phase unter **Geänderte Felder**, und setzen ein Secret. Jede Zustellung ist mit HMAC-SHA256 im Header `X-Webhook-Signature` signiert, und bei Update-Ereignissen listet `data.record.fields` jedes geänderte Feld mit seinem Wert in `before` und `after`. Ihr Empfänger handelt nur, wenn die Phase auf „Gewonnen“ gewechselt ist.
 
-**Idempotenz.** Der Standardumschlag der Webhooks enthält keine eindeutige Ereignis-ID. Nutzen Sie deshalb den Querverweis: Ist „ERP-Auftragsnummer“ am Deal schon gefüllt, bricht der Lauf ab.
+**Idempotenz.** Jedes Ereignis trägt eine `id`, die bei Wiederholungen und erneutem Senden gleich bleibt; deduplizieren Sie danach. Als zweite Prüfung dient der Querverweis: Ist „ERP-Auftragsnummer“ am Deal schon gefüllt, bricht der Lauf ab.
 
-**Kundenabgleich.** Lesen Sie die „ERP-Kundennummer“ der Organisation. Ist sie leer, suchen Sie den Kunden im ERP über die USt-IdNr. oder legen ihn an und schreiben die Nummer zurück. Um später eine Organisation anhand der ERP-Nummer zu finden, rufen Sie `POST /api/v1/organizations/search` mit einem `equals`-Filter auf die ID dieser Spalte auf ([Filtersyntax](/docs/filter-syntax)).
+**Kundenabgleich.** Lesen Sie die „ERP-Kundennummer“ der Organisation. Ist sie leer, suchen Sie den Kunden im ERP über die USt-IdNr. oder legen ihn an und schreiben die Nummer zurück. Um später eine Organisation anhand der ERP-Nummer zu finden, rufen Sie `POST /api/v1/records/query` für Organisationen mit einem `eq`-Filter auf die ID dieses Felds auf ([Filtersyntax](/docs/filter-syntax)).
 
-**Rückschreiben.** Hat das ERP den Auftrag angenommen, rufen Sie `PUT /api/v1/deals/{id}` mit der neuen „ERP-Auftragsnummer“ auf. Geändert werden nur die Felder, die Sie mitschicken.
+**Rückschreiben.** Hat das ERP den Auftrag angenommen, senden Sie eine `update`-Mutation für den Deal an `POST /api/v1/records/mutate`, mit der neuen „ERP-Auftragsnummer“ und der aktuellen Version des Deals. Felder, die Sie weglassen, bleiben unverändert.
 
-**Fehler.** Customermates wiederholt eine fehlgeschlagene Zustellung automatisch bei Timeouts, Netzwerkfehlern, 5xx-Antworten sowie 408, 425 und 429. Andere 4xx-Antworten werden nicht wiederholt, weil sie genauso scheitern würden. Jede Zustellung steht unter **Letzte Zustellungen**, wo Sie sie nach der Fehlerbehebung erneut senden.
+**Fehler.** Customermates wiederholt eine fehlgeschlagene Zustellung automatisch bei Timeouts, Netzwerkfehlern, 5xx-Antworten sowie 408, 425 und 429. Andere 4xx-Antworten werden nicht wiederholt, weil sie genauso scheitern würden. Jede Zustellung steht unter **Einstellungen → Zustellungen**, wo Sie sie nach der Fehlerbehebung erneut senden.
 
 **Abgleich.** Speichern Sie eine Deal-Ansicht mit Phase „Gewonnen“ und leerer „ERP-Auftragsnummer“. Gespeicherte Ansichten sind persönlich, also legt sie die Person an, die Integrationsfehler bearbeitet. Was dort auftaucht, hat der Ereignisfluss verpasst.
 
 **Die Gegenrichtung.** Sendet Ihr ERP Webhooks, richten Sie diese auf denselben Empfänger, suchen den Deal über die „ERP-Auftragsnummer“ und setzen „ERP-Status“. Sendet es keine, fragen Sie das ERP zeitgesteuert ab. Die [n8n-Anleitung](/docs/n8n) listet die REST-Aufrufe, die ein n8n-Workflow braucht; eine Community-Node gibt es ebenfalls.
 
-In Customermates Cloud kann auch Mate mit diesen Spalten arbeiten, etwa mit „Zeige alle in diesem Monat gewonnenen Deals ohne ERP-Auftragsnummer“. Mate nutzt gehostete KI-Credits. Ein eigener KI-Client kann dasselbe über [MCP](/docs/mcp).
+In Customermates Cloud kann auch Mate mit diesen Feldern arbeiten, etwa mit „Zeige alle in diesem Monat gewonnenen Deals ohne ERP-Auftragsnummer“. Mate nutzt gehostete KI-Credits. Ein eigener KI-Client kann dasselbe über [MCP](/docs/mcp).
 
 <AcquisitionCallout title="Was Customermates hier nicht übernimmt" variant="boundary">
-  Customermates hat keine ERP-Funktionen: keine Angebote, keine Rechnungen, keine Aufträge, Zahlungen, Bestände oder Einkauf. Es gibt keinen fertigen ERP-Connector und kein eingebautes n8n; n8n läuft separat. Import und Export von Datensätzen laufen über XLSX-Dateien, ein Datensatztyp pro Vorgang, ohne geplante Synchronisation. Wenn Sie CRM und ERP in einer Datenbank wollen, ist eine Suite mit beidem die bessere Wahl.
+  Customermates hat keine ERP-Funktionen: keine Angebote, keine Rechnungen, keine Aufträge, Zahlungen, Bestände oder Einkauf. Es gibt keinen fertigen ERP-Connector und kein eingebautes n8n; n8n läuft separat. Import und Export von Datensätzen laufen je Liste über XLSX- oder JSON-Dateien, ohne geplante Synchronisation. Wenn Sie CRM und ERP in einer Datenbank wollen, ist eine Suite mit beidem die bessere Wahl.
 </AcquisitionCallout>
 
 ## Was Kosten und Aufwand bestimmt
@@ -201,7 +201,7 @@ Oft ja, mit einem fertigen Connector oder einer Automatisierungsplattform wie n8
 </FaqItem>
 
 <FaqItem question="Lässt sich Customermates an ein ERP anbinden?">
-Ja, über REST-API und Webhooks, mit einer Automatisierungsplattform oder einem Dienst, den Sie selbst betreiben. Einen fertigen ERP-Connector gibt es nicht, und Customermates selbst speichert keine ERP-Daten wie Aufträge oder Zahlungen. ERP-Nummern stehen in eigenen Spalten an Organisationen, Deals und Leistungen.
+Ja, über REST-API und Webhooks, mit einer Automatisierungsplattform oder einem Dienst, den Sie selbst betreiben. Einen fertigen ERP-Connector gibt es nicht, und Customermates selbst speichert keine ERP-Daten wie Aufträge oder Zahlungen. ERP-Nummern stehen in eigenen Feldern an Organisationen, Deals und Leistungen.
 </FaqItem>
 </Faq>
 

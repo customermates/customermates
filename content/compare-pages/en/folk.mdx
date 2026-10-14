@@ -42,7 +42,7 @@ comparison:
         source: Every plan, with stage probabilities
         competitor: Deals object on Premium; pipeline views on every plan
       - name: Custom objects
-        source: Five fixed record types you can rename
+        source: Five starter lists, plus your own lists
         competitor: Premium
       - name: Email finder (enrichment)
         source: false
@@ -51,7 +51,7 @@ comparison:
         source: Every plan
         competitor: Workspace roles on Premium, group-level permissions on Enterprise
       - name: Export
-        source: XLSX, one record type at a time
+        source: XLSX or JSON, one list at a time
         competitor: CSV per group (contacts and notes)
   - title: Conversations
     features:
@@ -130,7 +130,7 @@ cta:
 | Clients write on LinkedIn, WhatsApp, Instagram or Telegram, and you want to reply from the CRM | Customermates Pro or Business | All five channels sit in one inbox, and replies go out on the original channel |
 | You track deals and need the API, but Premium is more than you want to pay | Customermates | Deals, REST, webhooks and MCP are on every plan, Starter included |
 | You need an open-source licence or your own server | Customermates | The AGPL core self-hosts with Docker Compose, without the inbox and Mate; folk sells hosted plans only |
-| You need your own record types, such as investors or funds | folk Premium, Attio or Twenty | Customermates has five fixed record types |
+| You need your own record types, such as investors or funds | Customermates, folk Premium, Attio or Twenty | Customermates starts with five lists, and you can add your own |
 
 ## Who folk is a good choice for
 
@@ -178,7 +178,7 @@ Customermates is an open-source, AI-native CRM for small client-facing teams: co
 
 **Conversations you can answer.** From Pro, the [unified inbox](/features/unified-inbox) brings Gmail, Outlook and IMAP mailboxes, LinkedIn, WhatsApp, Instagram and Telegram into one list, and you reply on the original channel. [LinkedIn in Customermates](/features/linkedin-integration) includes Sales Navigator and Recruiter InMail. Link a participant to a contact once, and every conversation with that address or handle shows on the contact's timeline.
 
-**Deals and the API on every plan.** Five record types, custom fields of ten types, table and board layouts, and a stage field with probabilities for a weighted pipeline total. Roles, REST, webhooks and MCP are part of Starter.
+**Deals and the API on every plan.** Five starter lists and your own lists, fields, relationships and calculated fields, table and board layouts, and a stage field with probabilities for a weighted pipeline total. Roles, REST, webhooks and MCP are part of Starter.
 
 **AI that does the CRM work.** In Customermates Cloud, Mate prepares thread summaries and reply drafts, updates records and builds views, using hosted AI credits: a monthly allowance per active user, listed on the [pricing page](/pricing). Routines run a saved instruction on a schedule or when a record changes. Mate sends a message without asking when you tell it to send, so ask for drafts when you want to review first. Your own Claude or ChatGPT can work through the [MCP server](/docs/mcp) instead, with [[derived.mcp.tools.total]] tools on every plan and on self-hosted installs.
 
@@ -190,7 +190,6 @@ Customermates is an open-source, AI-native CRM for small client-facing teams: co
 - **No campaigns, sequences or bulk email.** Messages go out one at a time, written by you or drafted by Mate.
 - **No native mobile app.** Customermates runs in the phone's browser.
 - **No reminders and no task due dates.** Add a date field such as "Next contact" and sort a saved view by it. Saved views are personal, so each person keeps their own.
-- **No custom objects.** You can rename the five record types from presets, for example deals as projects, but you cannot add a sixth.
 - **No free plan.** There is a [[commercial.trial.days]]-day trial, then a paid plan.
 
 ## A worked setup: a consultancy moving from folk
@@ -200,13 +199,13 @@ A four-person consultancy on folk Standard keeps two groups, "Prospects" and "Cl
 | In folk | In Customermates |
 |---|---|
 | People and companies | Contacts and organizations |
-| Groups "Prospects" and "Clients" | A single-select field "Relationship" on contacts, plus one saved view per value |
+| Groups "Prospects" and "Clients" | A single choice field "Relationship" on contacts, plus one saved view per value |
 | Pipeline view on a status field | Deals renamed "Projects", with a stage field: Lead 10%, Proposal 40%, Negotiation 70%, Won 100%, Lost 0% |
 | Notes | The notes field on each record |
 | Reminders | No reminders; a date field "Next contact" and a saved view sorted by it |
 | LinkedIn chats logged one by one | LinkedIn connected to the inbox |
 
-A project's value comes from the services linked to it, such as a "Strategy workshop" package, and the stage probability turns it into the weighted total.
+A project's value is the sum of its line items, each a service such as a "Strategy workshop" package times quantity, and the stage probability turns it into the weighted total.
 
 Each partner connects one channel, LinkedIn or Gmail. One account each fits Pro, at [[commercial.price.pro.monthly.seats.4]] a month for the team. When someone needs Gmail and WhatsApp side by side, the workspace moves to Business at [[commercial.price.business.monthly.seats.4]].
 
@@ -219,9 +218,9 @@ Each partner also owns a routine for the Friday follow-up. A routine runs as its
 <Steps>
   <Step title="Export each group from folk">In each group, open the menu at the top right and choose "Export view as CSV". The export holds the displayed columns, so show every field you want to keep first. You get a contacts file and a notes file; interactions, reminders and some fields, such as contact custom fields, are not included.</Step>
   <Step title="Save the files as XLSX">Customermates does not read CSV files, so open each one in a spreadsheet app and save it as an Excel workbook.</Step>
-  <Step title="Prepare the workspace">Rename deals to Projects if that fits, create the "Relationship" and "Next contact" fields, and set the stage probabilities.</Step>
-  <Step title="Import one record type at a time">Import organizations first, then contacts, then projects. Link columns match records by name, so a contact's company column finds the organization you imported before. New contacts need a first and a last name, and email addresses or WhatsApp numbers can map to the contact's channels. Copy folk's notes into a notes column before the import, or let your AI client append them over MCP afterwards. Row and size limits are in the [records guide](/docs/app-records).</Step>
-  <Step title="Connect channels and routines">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp under My Profile, Channels. Then set up the Friday routine, or connect your own AI client through MCP.</Step>
+  <Step title="Prepare the workspace">Rename Deals to Projects in Configure if that fits, create the "Relationship" and "Next contact" fields, and set the stage probabilities.</Step>
+  <Step title="Import one list at a time">Import organizations first, then contacts, then projects. Link columns match records by name, so a contact's company column finds the organization you imported before. New contacts need a first and a last name, and email addresses or WhatsApp numbers can map to the contact's channels. Copy folk's notes into a notes column before the import, or let your AI client append them over MCP afterwards. Row and size limits are in the [records guide](/docs/app-records).</Step>
+  <Step title="Connect channels and routines">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp under Settings, Channels. Then set up the Friday routine, or connect your own AI client through MCP.</Step>
 </Steps>
 
 ## Other folk alternatives worth a look

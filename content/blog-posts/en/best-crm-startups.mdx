@@ -110,22 +110,22 @@ This is how a two-founder team could run sales and a seed round in one workspace
 
 <Steps>
   <Step title="Connect the channels where deals happen">
-    Each user connects accounts under **My Profile › Channels**: [[commercial.entitlement.pro.includedAccountsPerUser]] per user on Pro, [[commercial.entitlement.business.includedAccountsPerUser]] on Business. On Pro, one founder might connect the Gmail or Outlook mailbox and the other LinkedIn.
+    Each user connects accounts under **Settings › Channels**: [[commercial.entitlement.pro.includedAccountsPerUser]] per user on Pro, [[commercial.entitlement.business.includedAccountsPerUser]] on Business. On Pro, one founder might connect the Gmail or Outlook mailbox and the other LinkedIn.
   </Step>
   <Step title="Turn conversation participants into contacts">
     In a thread, open **Thread settings** from the header chip. Under **People**, click **Link** next to each participant to attach an existing contact or create one. Every conversation with that address, not only this one, then appears on the contact's timeline. Model each fund as an organization and each partner as a contact.
   </Step>
-  <Step title="Add the investor columns on Deals">
-    A new workspace starts with a **Stage** column on deals (Prospecting, Qualification, Demo, Proposal, Negotiation, Won, Lost), which drives the weighted pipeline. Keep it for customers. Open any deal, press **Customize** and use **Add Field** for four custom columns: Deal type (Single Select: Customer, Investor), Round stage (Single Select: Researching, Intro requested, First meeting, Partner meeting, Due diligence, Committed, Passed), Ticket size (Currency) and Next touch (Date). The first option of a new Single Select column is marked as its default and is filled into every existing deal, so all deals start as Customer. On Round stage, click the dot next to Researching (**Clear default**) before you save, or every customer deal gets a round stage too.
+  <Step title="Add the investor fields on Deals">
+    A new workspace starts with a **Stage** field on deals (Prospecting, Qualification, Demo, Proposal, Negotiation, Won, Lost), which drives the weighted pipeline. Keep it for customers. In **Configure**, open Deals and use **Add**, then **Field**, for four custom fields: Deal type (Single choice: Customer, Investor), Round stage (Single choice: Researching, Intro requested, First meeting, Partner meeting, Due diligence, Committed, Passed), Ticket size (Money) and Next touch (Date).
   </Step>
   <Step title="Keep investors out of the sales numbers">
-    New deals start in the first stage, Prospecting. On investor deals, set Deal type to Investor, clear **Stage** so they do not count as Prospecting, and put the amount in Ticket size. A deal's value comes from linked services, so investor deals add nothing to the total or weighted sales pipeline, and a sales board filtered to Deal type Customer does not show them.
+    New deals start in the first stage, Prospecting. On investor deals, set Deal type to Investor, clear **Stage** so they do not count as Prospecting, and put the amount in Ticket size. A deal's value comes from its line items, so investor deals without line items add nothing to the total or weighted sales pipeline, and a sales board filtered to Deal type Customer does not show them.
   </Step>
   <Step title="Save two personal views">
     On **Deals**, create a view with **New view**, filter Deal type to Investor, open **Appearance**, choose **Board** and group by Round stage: dragging a card now moves an investor to the next stage. A second view sorts all deals by Next touch, ascending. Views are personal, so your co-founder saves their own with the same filters.
   </Step>
   <Step title="Track commitments as linked tasks">
-    For "send the updated deck to the partner", create a task linked to the deal and the contact, and assign it. Tasks have no built-in due date or reminder, so add a Date column on tasks if you want to sort them.
+    For "send the updated deck to the partner", create a task linked to the deal and the contact, and assign it. Tasks have no built-in due date or reminder, so add a Date field on tasks if you want to sort them.
   </Step>
 </Steps>
 
@@ -157,10 +157,10 @@ For a GDPR check: in the cloud, the primary production database is configured in
 1. **List the channels where deals actually move.** If half your pipeline lives in LinkedIn and WhatsApp, a CRM that only syncs email will stay half empty.
 2. **Price month 25, not month 1.** The program table above shows why.
 3. **Count seats after the next hire.** Free tiers stop at 2 or 3 users, and Attio's startup program covers workspaces of up to 10 seats.
-4. **Check how data comes out.** Ask which file format, whether export is per object or for the whole account, and whether there is an API. Customermates exports one record type at a time as an Excel workbook and has a REST API; there is no whole-account export.
+4. **Check how data comes out.** Ask which file format, whether export is per object or for the whole account, and whether there is an API. Customermates exports one list at a time as an Excel workbook or JSON and has a REST API; there is no whole-account export.
 5. **Run twenty real deals through the trial** before importing your whole spreadsheet.
 
-Moving from a spreadsheet into Customermates works one record type at a time. Save the sheet as an Excel workbook (CSV files are not accepted), import organizations first, then contacts, then deals, so the link columns can match existing records by name. New contacts need a first and a last name. Each workbook is row-capped; the [import guide](/docs/app-records) has the limits.
+Moving from a spreadsheet into Customermates works one list at a time. Save the sheet as an Excel workbook (CSV files are not accepted), import organizations first, then contacts, then deals, so the link columns can match existing records by name. Each workbook is row-capped; the [import guide](/docs/app-records) has the limits.
 
 ## FAQ
 
@@ -174,7 +174,7 @@ I know of no reliable public census, so be careful with any list that claims one
 </FaqItem>
 
 <FaqItem question="Can I manage fundraising and investors in a CRM?">
-Yes, as a pipeline: one organization per fund, one contact per partner and one deal per fund per round, with a separate stage column, a ticket-size field and a next-touch date. The worked setup above shows this in Customermates. A CRM does not replace a cap table, a data room or deck analytics; use dedicated tools for those.
+Yes, as a pipeline: one organization per fund, one contact per partner and one deal per fund per round, with a separate stage field, a ticket-size field and a next-touch date. The worked setup above shows this in Customermates. A CRM does not replace a cap table, a data room or deck analytics; use dedicated tools for those.
 </FaqItem>
 
 <FaqItem question="When should a startup start using a CRM?">

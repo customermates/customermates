@@ -59,10 +59,10 @@ comparison:
         source: Kontakte, Organisationen, Deals, Services, Aufgaben
         competitor: Accounts, Kontakte, Leads, Opportunities und weitere
       - name: Eigene Entitätstypen
-        source: false
+        source: Eigene Listen mit Feldern und Beziehungen
         competitor: Entity Manager
       - name: Eigene Felder
-        source: Zehn Feldtypen
+        source: Fünfzehn Feldtypen, dazu berechnete Felder
         competitor: true
       - name: Phasenwahrscheinlichkeiten und gewichtete Pipeline
         source: true
@@ -112,13 +112,13 @@ cta:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
-> Welche EspoCRM-Alternative passt, hängt davon ab, was Ihnen in EspoCRM fehlt. Suchen Sie ein weiteres etabliertes Open-Source-CRM mit Angeboten und Marketingfunktionen, sehen Sie sich SuiteCRM an. Brauchen Sie beliebig viele eigene Objekte und einen kostenlosen selbst gehosteten Kern, passt Twenty. Sollen CRM, Buchhaltung und Lager in einem System laufen, ist Odoo die naheliegende Wahl. Customermates passt zu kleinen Teams mit Kundenkontakt, deren Kunden nicht nur per E-Mail schreiben, sondern auch über WhatsApp, LinkedIn, Instagram oder Telegram, und die das CRM von einem KI-Assistenten oder dem eigenen KI-Client aktuell halten lassen wollen. Wenn Sie auf eigene Entitäten, Kampagnen oder ein Kundenportal angewiesen sind, bleibt EspoCRM das bessere Werkzeug. Customermates veröffentlicht diesen Vergleich; alle Angaben zu EspoCRM und den anderen Anbietern stammen von deren eigenen Websites, geprüft am 8. Oktober 2026.
+> Welche EspoCRM-Alternative passt, hängt davon ab, was Ihnen in EspoCRM fehlt. Suchen Sie ein weiteres etabliertes Open-Source-CRM mit Angeboten und Marketingfunktionen, sehen Sie sich SuiteCRM an. Brauchen Sie beliebig viele eigene Objekte und einen kostenlosen selbst gehosteten Kern, passt Twenty. Sollen CRM, Buchhaltung und Lager in einem System laufen, ist Odoo die naheliegende Wahl. Customermates passt zu kleinen Teams mit Kundenkontakt, deren Kunden nicht nur per E-Mail schreiben, sondern auch über WhatsApp, LinkedIn, Instagram oder Telegram, und die das CRM von einem KI-Assistenten oder dem eigenen KI-Client aktuell halten lassen wollen. Wenn Sie auf Kampagnen oder ein Kundenportal angewiesen sind, bleibt EspoCRM das bessere Werkzeug. Customermates veröffentlicht diesen Vergleich; alle Angaben zu EspoCRM und den anderen Anbietern stammen von deren eigenen Websites, geprüft am 8. Oktober 2026.
 
 ## Welche Alternative zu welchem Team passt
 
 | Ihre Ausgangslage | Ansehen | Warum |
 |---|---|---|
-| Sie bilden eigene Datensatztypen ab, etwa Immobilien, Verträge oder Fälle | Bei EspoCRM bleiben oder Twenty | Der Entity Manager von EspoCRM legt eigene Entitäten und Beziehungen an; Twenty bietet unbegrenzt eigene Objekte. Customermates hat fünf feste Datensatztypen |
+| Sie bilden eigene Datensatztypen ab, etwa Immobilien, Verträge oder Fälle | Bei EspoCRM bleiben, Twenty oder Customermates | Der Entity Manager von EspoCRM legt eigene Entitäten und Beziehungen an; Twenty bietet unbegrenzt eigene Objekte. Customermates startet mit fünf Listen, und Sie können eigene anlegen |
 | Sie versenden Newsletter oder Kampagnen aus dem CRM | Bei EspoCRM bleiben | Massen-E-Mails und Kampagnen gehören bei EspoCRM zum Kern; Customermates hat keinen Massenversand |
 | Sie brauchen Angebote oder Lagerbestand neben dem CRM | EspoCRM mit Sales Pack, SuiteCRM oder Odoo | Customermates bietet beides nicht |
 | Kunden erreichen Sie über WhatsApp, LinkedIn, Instagram oder Telegram und per E-Mail | Customermates Pro oder Business | Diese Kanäle liegen mit Ihren Postfächern in einem Posteingang; der Erweiterungskatalog von EspoCRM führt keinen davon |
@@ -181,16 +181,15 @@ Customermates ist ein Open-Source-KI-CRM für kleine Teams mit Kundenkontakt: Be
 
 ## Wann Customermates nicht passt
 
-- **Keine eigenen Entitäten.** Sie arbeiten mit Kontakten, Organisationen, Deals, Services und Aufgaben. Sie können diese Typen über Vorgaben umbenennen und eigene Felder aus zehn Feldtypen anlegen, aber keinen sechsten Datensatztyp hinzufügen.
 - **Keine Massen-E-Mails, Kampagnen oder Sequenzen.** Nachrichten werden einzeln versendet, von Ihnen geschrieben oder von Mate entworfen.
 - **Kein Kundenportal, keine Angebote, kein Lagerbestand und keine Telefonie.**
 - **Kein BPM und kein visueller Workflow-Designer.** Automatisierung läuft über Routinen in Customermates Cloud, über Webhooks und über den separaten n8n-Community-Node.
 - **Aufgaben haben kein eingebautes Fälligkeitsdatum.** Legen Sie bei Bedarf ein eigenes Datumsfeld an.
-- **Keine nativen Apps für Smartphones und kein Single Sign-on.** Gespeicherte Ansichten sind persönlich, und Berechtigungen gelten pro Datensatztyp und Aktion, nicht pro Feld.
+- **Keine nativen Apps für Smartphones und kein Single Sign-on.** Gespeicherte Ansichten sind persönlich, und Berechtigungen gelten pro Liste und Aktion, nicht pro Feld.
 
 ## Umstieg von EspoCRM
 
-Für die meisten Vertriebsdaten aus EspoCRM gibt es ein direktes Gegenstück. Unter **Mein Unternehmen › Einstellungen** im Abschnitt **Datenmodell** können Sie Organisationen „Accounts“ und Deals „Chancen“ nennen, damit die gewohnten Begriffe bleiben.
+Für die meisten Vertriebsdaten aus EspoCRM gibt es ein direktes Gegenstück. In **Konfigurieren** können Sie Organisationen in „Accounts“ und Deals in „Chancen“ umbenennen, damit die gewohnten Begriffe bleiben.
 
 | In EspoCRM | In Customermates |
 |---|---|
@@ -198,16 +197,16 @@ Für die meisten Vertriebsdaten aus EspoCRM gibt es ein direktes Gegenstück. Un
 | Contacts | Kontakte |
 | Leads | Kontakte mit einem Einzelauswahl-Feld wie „Lebenszyklus“ (Lead, Kunde) |
 | Opportunities | Deals, umbenannt in „Chancen“ |
-| Produkte aus dem Sales Pack | Services, umbenannt in „Produkte“, mit Mengen an Deals verknüpft |
-| Eigene Entitäten | Eigene Felder am passendsten Datensatztyp |
+| Produkte aus dem Sales Pack | Services, umbenannt in „Produkte“, als Positionen mit Mengen in Deals |
+| Eigene Entitäten | Eigene Listen mit Feldern und Beziehungen |
 | Kampagnen, Massen-E-Mails, Portal | Kein Gegenstück; behalten Sie dafür ein eigenes Werkzeug |
 
-Die Phasen passen fast eins zu eins. Ein neuer Customermates-Workspace beginnt mit Akquise 10 %, Qualifizierung 20 %, Demo 40 %, Angebot 60 %, Verhandlung 80 %, Gewonnen 100 % und Verloren 0 %. Löschen Sie Demo, wenn Sie diese Phase nie genutzt haben, und übernehmen Sie Ihre EspoCRM-Wahrscheinlichkeiten in die Phasenwahrscheinlichkeiten. Die gewichtete Pipeline multipliziert dann jeden Deal-Wert mit der Wahrscheinlichkeit seiner Phase. Das ist eine reine Rechnung mit Ihren eigenen Werten, keine Prognose.
+Die Phasen passen fast eins zu eins. Ein neuer Customermates-Workspace beginnt mit Akquise 10 %, Qualifizierung 20 %, Demo 40 %, Angebot 60 %, Verhandlung 80 %, Gewonnen 100 % und Verloren 0 %. Löschen Sie Demo, wenn Sie diese Phase nie genutzt haben, und übernehmen Sie Ihre EspoCRM-Wahrscheinlichkeiten in die Phasenwahrscheinlichkeiten. Der gewichtete Wert multipliziert dann jeden Deal-Wert mit der Wahrscheinlichkeit seiner Phase. Das ist eine reine Rechnung mit Ihren eigenen Werten, keine Prognose.
 
 <Steps>
   <Step title="Aus EspoCRM exportieren">Exportieren Sie jede Liste, die Sie behalten wollen, als Excel-Datei: Accounts, Kontakte, Leads und Opportunities.</Step>
-  <Step title="Workspace vorbereiten">Wählen Sie die Bezeichnungen im Datenmodell, legen Sie eigene Felder für die Attribute an, die Sie behalten, und tragen Sie die Phasenwahrscheinlichkeiten ein.</Step>
-  <Step title="Einen Datensatztyp nach dem anderen importieren">Importieren Sie zuerst die Organisationen, dann die Kontakte, dann die Deals. Verknüpfungsspalten finden Datensätze über den Namen, die Account-Spalte eines Kontakts also die zuvor importierte Organisation. Customermates importiert nur XLSX-Arbeitsmappen; die Grenzen stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
+  <Step title="Workspace vorbereiten">Benennen Sie Listen in Konfigurieren um, legen Sie eigene Felder für die Attribute an, die Sie behalten, und tragen Sie die Phasenwahrscheinlichkeiten ein.</Step>
+  <Step title="Eine Liste nach der anderen importieren">Importieren Sie zuerst die Organisationen, dann die Kontakte, dann die Deals. Verknüpfungsspalten finden Datensätze über den Namen, die Account-Spalte eines Kontakts also die zuvor importierte Organisation. Customermates importiert nur XLSX-Arbeitsmappen; die Grenzen stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
   <Step title="Listen als Ansichten anlegen">Machen Sie aus jedem Listenfilter in EspoCRM eine gespeicherte Ansicht. Ansichten sind persönlich, jede Person speichert also ihre eigenen.</Step>
   <Step title="Kanäle und KI verbinden">Verbinden Sie ab Pro oder während der Testphase ein Postfach, LinkedIn oder WhatsApp, richten Sie dann Routinen für Mate ein oder verbinden Sie Ihren eigenen KI-Client über MCP.</Step>
 </Steps>

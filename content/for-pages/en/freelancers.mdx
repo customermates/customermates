@@ -62,21 +62,21 @@ If you are a solopreneur who sells packages or retainers rather than projects, t
 
 ## A freelancer setup in Customermates
 
-Customermates has five record types. Here is one way to map them to freelance work; every field name is an example you can change.
+Customermates starts with five lists, and you can add your own. Here is one way to map the five to freelance work; every field name is an example you can change.
 
 | Record type | Used for | Example custom fields |
 |---|---|---|
-| Contacts | Clients and the people who refer them | Source (single select: Referral, Repeat client, LinkedIn, Website, Marketplace), Referred by |
-| Organizations | Client companies, if you work for businesses | Client status (single select: Prospect, Active, Past) |
+| Contacts | Clients and the people who refer them | Source (single choice: Referral, Repeat client, LinkedIn, Website, Marketplace), Referred by |
+| Organizations | Client companies, if you work for businesses | Client status (single choice: Prospect, Active, Past) |
 | Deals | Each inquiry, proposal or project | Stage, Proposal sent on, Project starts, Project ends, Proposal link |
 | Services | What you sell, each with a price | Day rate, Logo package, Monthly retainer |
 | Tasks | Next steps | A "Do by" date field you add, because tasks have no built-in due date |
 
 ### Five stages and the weighted value
 
-The deal stage is a single-select field you define, and each option can carry a win probability. A lean freelance pipeline: Inquiry 10%, Call held 30%, Proposal sent 50%, Won 100%, Lost 0%. On the [pipeline board](/features/pipeline) each deal is a card you drag to the next stage.
+The deal stage is a single choice field you define, and each option can carry a win probability. A lean freelance pipeline: Inquiry 10%, Call held 30%, Proposal sent 50%, Won 100%, Lost 0%. On the [pipeline board](/features/pipeline) each deal is a card you drag to the next stage.
 
-A deal's value comes from the services linked to it, price times quantity. With a day rate of €800 and a proposal for ten days, the deal is worth €8,000, and in Proposal sent its weighted value is €4,000. That is arithmetic from your own probabilities, not a forecast, but adding up the column tells you whether enough work is coming.
+A deal's value is the sum of its line items, each a service times quantity. With a day rate of €800 and a proposal for ten days, the deal is worth €8,000, and in Proposal sent its weighted value is €4,000. That is arithmetic from your own probabilities, not a forecast, but adding up the column tells you whether enough work is coming.
 
 ### Three saved views for Monday
 
@@ -154,13 +154,13 @@ Each cloud plan adds monthly hosted AI credits per active user for Mate; see the
     file as .xlsx first.
   </Step>
   <Step title="Import contacts, then deals">
-    Open Import and export on each list, choose Add from file and map your
+    Open More actions on each list, choose Add from file and map your
     columns, custom fields included. Bring in open proposals with their stage
     and dates.
   </Step>
   <Step title="Add your services">
-    Create your day rate or packages as services and link them to each deal
-    so it gets a value.
+    Create your day rate or packages as services and add them to each deal as
+    line items so it gets a value.
   </Step>
   <Step title="Save the three views">
     Save Next gap, Waiting proposals and Quiet past clients, then set up the

@@ -127,7 +127,7 @@ kurzes Gespräch vorschlägt. Listen Sie auf, was Sie getan haben und
 wo Sie unsicher waren. Senden Sie nichts.
 ```
 
-**Nachfassen bei Angeboten, bei einer Änderung.** Eine zweite Routine mit **Wenn sich etwas ändert**, Ereignis **Deal aktualisiert**, geändertes Feld „Phase“, gefiltert auf Deals, die der Person zugewiesen sind, der die Routine gehört: Wechselt ein Deal auf „Angebot versendet“, legt Mate eine mit Deal und Kontakt verknüpfte Aufgabe an und speichert einen kurzen Nachfass-Entwurf in der letzten Unterhaltung.
+**Nachfassen bei Angeboten, bei einer Änderung.** Eine zweite Routine mit **Wenn sich etwas ändert**, Ereignis **Datensatz aktualisiert** für Deals, geändertes Feld „Phase“, gefiltert auf Deals, die der Person zugewiesen sind, der die Routine gehört: Wechselt ein Deal auf „Angebot versendet“, legt Mate eine mit Deal und Kontakt verknüpfte Aufgabe an und speichert einen kurzen Nachfass-Entwurf in der letzten Unterhaltung.
 
 Beide Anweisungen enden bewusst mit „Senden Sie nichts“. Wenn Sie Mate bitten, eine E-Mail oder Chatnachricht zu senden, sendet Mate sie ohne zweite Bestätigung. Vor Löschungen und einigen Verwaltungsaktionen fragt Mate nach einer Freigabe, und eine Routine lehnt diese Aktionen ab, weil niemand da ist, der zustimmen könnte. Eine Routine läuft im Namen der Person, der sie gehört, mit deren Kanälen und Berechtigungen. Ereignis-Auslöser ignorieren nach dem Start eines Laufs für kurze Zeit weitere Ereignisse; für eingehende E-Mails ist die tägliche Sichtung deshalb die sicherere Wahl. Jeder Lauf hat außerdem eine Obergrenze an Credits; bei einem vollen Posteingang kann ein Lauf vorzeitig enden und wird dann als „Teilweise“ markiert. Die Grenzen stehen in der [Dokumentation zu Routinen](/docs/app-routines).
 

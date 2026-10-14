@@ -152,9 +152,9 @@ Lassen Sie das Modell die Felder befüllen und einen Menschen entscheiden. Lasse
 
 ## Leadqualifizierung in Customermates einrichten
 
-Customermates hat keinen eigenen Lead-Datensatz. Eine neue Anfrage ist ein Kontakt, verknüpft mit einer Organisation, dazu ein Deal, der die Qualifizierungsfelder trägt. Kontakte haben ab Werk das Feld Vertriebsphase (Neu, Kontaktiert, Qualifiziert, In Bearbeitung, Gewonnen, Verloren) für einen schnellen Status, bevor es einen Deal gibt. Wenn Ihr Team von „Opportunities" spricht, benennen Sie Deals im Abschnitt Datenmodell der Unternehmenseinstellungen unter **Mein Unternehmen** um; Datensätze und Verknüpfungen bleiben, wie sie sind. Die Seite zum [Leadmanagement](/features/lead-management) zeigt dasselbe Modell aus Sicht der Kontakte.
+Customermates hat keinen eigenen Lead-Datensatz. Eine neue Anfrage ist ein Kontakt, verknüpft mit einer Organisation, dazu ein Deal, der die Qualifizierungsfelder trägt. Kontakte haben ab Werk das Feld Vertriebsphase (Neu, Kontaktiert, Qualifiziert, In Bearbeitung, Gewonnen, Verloren) für einen schnellen Status, bevor es einen Deal gibt. Wenn Ihr Team von „Opportunities" spricht, benennen Sie Deals in **Konfigurieren** um: Liste öffnen und **Name** und **Pluralname** unter **Allgemein** ändern; Datensätze und Verknüpfungen bleiben, wie sie sind. Die Seite zum [Leadmanagement](/features/lead-management) zeigt dasselbe Modell aus Sicht der Kontakte.
 
-Legen Sie die Felder über **Anpassen** › **Feld hinzufügen** an einem beliebigen Deal an:
+Legen Sie die Felder in **Konfigurieren** für Deals über **Hinzufügen** › **Feld** an:
 
 | Feld | Typ | Optionen |
 | --- | --- | --- |
@@ -166,7 +166,7 @@ Legen Sie die Felder über **Anpassen** › **Feld hinzufügen** an einem belieb
 | Absagegrund | Einzelauswahl | Passt nicht, Kein Bedarf, Kein Zugang, Budget, Zeitpunkt, Dublette |
 | Erneut prüfen am | Datum | Für zurückgestellte Deals setzen |
 
-Ergänzen Sie an Kontakten ein Feld Quelle (Einzelauswahl: Empfehlung, Website, LinkedIn, Veranstaltung, Kaltakquise), damit die monatliche Auswertung nach Quelle zählen kann. Die Prozentwerte sind Phasenwahrscheinlichkeiten, die ebenfalls unter **Mein Unternehmen** gepflegt werden. Sie bestimmen den gewichteten Wert Ihrer [Pipeline](/features/pipeline), und Zurückgestellt mit 0 % hält zurückgestellte Deals aus dieser Summe heraus.
+Ergänzen Sie an Kontakten ein Feld Quelle (Einzelauswahl: Empfehlung, Website, LinkedIn, Veranstaltung, Kaltakquise), damit die monatliche Auswertung nach Quelle zählen kann. Die Prozentwerte sind Phasenwahrscheinlichkeiten, die Sie in Konfigurieren für Deals als **Wahrscheinlichkeit %** an jeder Option des Felds **Phase** setzen. Sie bestimmen den gewichteten Wert Ihrer [Pipeline](/features/pipeline), und Zurückgestellt mit 0 % hält zurückgestellte Deals aus dieser Summe heraus.
 
 Speichern Sie dann drei Ansichten in der Deal-Liste. Gespeicherte Ansichten sind persönlich, jede Person legt also ihre eigenen an:
 
@@ -182,7 +182,7 @@ Ab Pro bringt der [einheitliche Posteingang](/features/unified-inbox) Gespräche
 
 Im Tarif Starter gibt es keinen Posteingang. Mate arbeitet dort nur mit dem, was bereits am Deal und an seinen Kontakten steht, etwa mit Notizen, die Sie selbst eingefügt haben.
 
-Damit das bei jedem neuen Deal passiert, legen Sie eine Routine mit dem Auslöser **Wenn sich etwas ändert** und dem Ereignis **Deal erstellt** an:
+Damit das bei jedem neuen Deal passiert, legen Sie eine Routine mit dem Auslöser **Wenn sich etwas ändert** und dem Ereignis **Datensatz erstellt** für Deals an:
 
 > Ein neuer Deal wurde erstellt. Lesen Sie ihn, seine Kontakte und deren letzte Konversation im Posteingang. Setzen Sie Bedarf, Entscheider, Budget und Zeitpunkt und verwenden Sie Unbekannt für alles, was die Konversation nicht nennt. Hängen Sie eine Zusammenfassung in drei Zeilen und die zwei nächsten Fragen an die Notizen des Deals an. Ändern Sie die Phase nicht, und senden oder entwerfen Sie keine Nachricht.
 

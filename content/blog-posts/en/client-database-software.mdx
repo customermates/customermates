@@ -104,16 +104,16 @@ Airtable and Ninox are database builders, so that price buys the tables and you 
 Customermates is an open-source, AI-native CRM built in Germany for small client-facing teams such as consultants, agencies and founders. Here is a client database for a small consultancy, set up the way the product works today.
 
 <Steps>
-  <Step title="Name the records the way you talk">Under My Company › Settings, in Data model, rename Contacts to Clients and Organizations to Companies. Deals can become Projects, and Tasks can become Follow-ups. The names are presets rather than free text, and they apply to the whole workspace.</Step>
-  <Step title="Add the columns you will filter on">On Companies, add "Segment" as a Single Select column with Retainer, Project and Former, and "Client since" as a Date column. On Clients, add "Phone" as a Phone column and "Billing address" as a Text column. There is no built-in address field, so the address lives in that column.</Step>
-  <Step title="Import companies first, then people">Use Import and export › Add from file with an .xlsx workbook, one record type per import. Import the companies, then the people sheet with a column that holds each person's company name: the wizard matches link columns by record name, and an email column can be matched to the client's email channel. The importer does not accept CSV, so save those files as .xlsx first. One workbook currently takes up to 10,000 rows.</Step>
+  <Step title="Name the records the way you talk">In Configure, open a list and change its **Name** and **Plural name** under **General**: rename Contacts to Clients and Organizations to Companies. Deals can become Projects, and Tasks can become Follow-ups. Any name works, and it applies to the whole workspace.</Step>
+  <Step title="Add the fields you will filter on">On Companies, add "Segment" as a Single choice field with Retainer, Project and Former, and "Client since" as a Date field. On Clients, add "Phone" as a Phone field and "Billing address" as a Text field. There is no built-in address field, so the address lives in that field.</Step>
+  <Step title="Import companies first, then people">Use More actions › Add from file with an .xlsx workbook, one list per import. Import the companies, then the people sheet with a column that holds each person's company name: the wizard matches link columns by record name, and an email column can be matched to the client's email channel. The importer does not accept CSV, so save those files as .xlsx first. One workbook currently takes up to 5,000 rows.</Step>
   <Step title="Save three views">On Companies, "Retainer clients" filters Segment to Retainer. On Clients, "Untouched for 90 days" filters Updated at with Older than… 90 days. "Clients without a company" filters for clients with no linked company. Saved views are personal, so each colleague sets the same filters and saves their own view.</Step>
   <Step title="Connect conversations (Pro)">On Pro, each user connects [[commercial.entitlement.pro.includedAccountsPerUser]] account, such as Gmail, Outlook, LinkedIn or WhatsApp, and the [unified inbox](/features/unified-inbox) shows those threads next to the client. Starter has no inbox.</Step>
 </Steps>
 
-Two things the trial test above will show. Customermates refuses to link the same email address to a second contact and says "This channel is already linked to another contact." And search finds a client by first name, last name, email address or company name. The import rules are documented on the [records page of the docs](/docs/app-records).
+Two things the trial test above will show. Customermates lets one email address belong to several records, so it does not stop that duplicate: search for the address before you add a client. And search finds a client by name or by any email address or phone number in their Channels. The import rules are documented on the [records page of the docs](/docs/app-records).
 
-**In Customermates Cloud, a routine for new clients.** Mate, the assistant in Customermates Cloud, uses hosted AI credits. A routine runs saved instructions on a schedule or on a record event, as the person who owns it, and Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user. A routine triggered by Contact Created could carry this instruction:
+**In Customermates Cloud, a routine for new clients.** Mate, the assistant in Customermates Cloud, uses hosted AI credits. A routine runs saved instructions on a schedule or on a record event, as the person who owns it, and Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user. A routine triggered by **Record created** on Clients could carry this instruction:
 
 > When a new client is added, check whether they are linked to a company. If not, find the company whose name matches the domain of their email address and link it. Never create a company and never send a message. If nothing matches, add one line to the client's notes saying so.
 
@@ -126,14 +126,14 @@ The last two sentences matter. Mate can send messages when an instruction asks f
 - **You send newsletters.** There is no mass email in Customermates. Use an email marketing tool.
 - **You take bookings or appointments.** Customermates has no booking. Look at industry software for your trade.
 - **You mostly work from your phone.** There is no native mobile app.
-- **Your data model isn't people and companies.** Customermates has five record types with custom columns. Equipment, properties or events fit better in Airtable or Ninox.
+- **Your data model isn't people and companies.** Customermates starts with five lists and lets you add your own, but it is built around people, companies and deals. Equipment, properties or events with nothing to sell may fit better in Airtable or Ninox.
 - **You want to self-host and keep the inbox.** Self-hosting is the AGPL core with REST, webhooks and MCP. The unified inbox and Mate are not part of it.
 
 ## Where the client data lives
 
 A client database holds personal data. In the EU, a cloud provider that stores it for you is a processor, and [Article 28 GDPR](https://eur-lex.europa.eu/eli/reg/2016/679/oj) requires a contract with it, the data processing agreement. Before you import, check where the database runs, who the subprocessors are, and whether you can get all your data back out.
 
-Ninox lists Germany as the server region on its pricing page. Customermates Cloud has its primary database configured in the AWS Frankfurt region; that is a product setting, not a contractual residency guarantee, and the subprocessors, US providers included, are on the [subprocessors page](/subprocessors). The [data processing agreement](/dpa) is public. On the way out, Customermates exports each record type from its list to an Excel workbook; there is no single whole-account export. Self-hosting puts the database on your own server.
+Ninox lists Germany as the server region on its pricing page. Customermates Cloud has its primary database configured in the AWS Frankfurt region; that is a product setting, not a contractual residency guarantee, and the subprocessors, US providers included, are on the [subprocessors page](/subprocessors). The [data processing agreement](/dpa) is public. On the way out, Customermates exports each list to an Excel workbook or JSON; there is no single whole-account export. Self-hosting puts the database on your own server.
 
 ## Frequently asked questions
 
@@ -155,7 +155,7 @@ A client database stores who your clients are. A CRM adds what is happening with
 </FaqItem>
 
 <FaqItem question="What is the best software to record customers' names and addresses?">
-If names and addresses are all you need, the customer list in your invoicing software or a shared spreadsheet is enough. Choose a CRM when you also track conversations and work per client. In Customermates the address goes into a Text custom column, because there is no built-in address field.
+If names and addresses are all you need, the customer list in your invoicing software or a shared spreadsheet is enough. Choose a CRM when you also track conversations and work per client. In Customermates the address goes into a Text custom field, because there is no built-in address field.
 </FaqItem>
 
 <FaqItem question="Can I host a client database on my own server?">

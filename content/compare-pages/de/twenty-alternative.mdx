@@ -50,16 +50,16 @@ comparison:
         source: Kontakte, Organisationen, Deals, Services, Aufgaben
         competitor: People, Companies, Opportunities
       - name: Eigene Objekte
-        source: false
+        source: Eigene Listen mit Feldern und Beziehungen
         competitor: Unbegrenzt in jedem Tarif
       - name: Eigene Felder
-        source: Zehn Feldtypen, darunter Einzelauswahl
+        source: Fünfzehn Feldtypen, darunter Einzelauswahl, dazu berechnete Felder
         competitor: Unbegrenzt
       - name: Ansichten
         source: Tabelle und Board
         competitor: Tabelle, Kanban, Kalender
       - name: Import und Export per Tabelle
-        source: XLSX-Arbeitsmappen, je Datensatzart
+        source: XLSX oder JSON, je Liste
         competitor: CSV, bis 20.000 Datensätze pro Export
   - title: Kommunikation
     features:
@@ -87,7 +87,7 @@ comparison:
         source: REST (OpenAPI) und Webhooks
         competitor: REST, GraphQL und Webhooks
       - name: Berechtigungen
-        source: Rollen je Datensatzart (alle, zugewiesene oder keine Datensätze)
+        source: Rollen je Liste (alle, zugewiesene oder keine Datensätze)
         competitor: Feldebene in jedem Tarif; Zeilenebene ab Organization
       - name: Single Sign-On (SAML/OIDC)
         source: false
@@ -103,14 +103,14 @@ cta:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
-> Ob Customermates die bessere Twenty-Alternative für Sie ist, hängt vor allem davon ab, wo Ihre Kunden schreiben. Die Dokumentation von Twenty beschreibt die Synchronisierung von E-Mail und Kalender. Customermates holt ab Pro Gmail-, Outlook- und IMAP-Postfächer, LinkedIn, WhatsApp, Instagram und Telegram in einen Posteingang, direkt neben den Deal. Hängt Ihr Prozess an eigenen Objekten, Single Sign-On, Berechtigungen auf Zeilenebene oder GraphQL, ist Twenty das bessere Produkt, und es kostet pro Nutzer weniger. Customermates veröffentlicht diesen Vergleich. Alle Angaben zu Twenty stammen von twenty.com, aus der Twenty-Dokumentation und dem GitHub-Repository, Stand 8. Oktober 2026.
+> Ob Customermates die bessere Twenty-Alternative für Sie ist, hängt vor allem davon ab, wo Ihre Kunden schreiben. Die Dokumentation von Twenty beschreibt die Synchronisierung von E-Mail und Kalender. Customermates holt ab Pro Gmail-, Outlook- und IMAP-Postfächer, LinkedIn, WhatsApp, Instagram und Telegram in einen Posteingang, direkt neben den Deal. Hängt Ihr Prozess an Single Sign-On, Berechtigungen auf Zeilenebene oder GraphQL, ist Twenty das bessere Produkt, und es kostet pro Nutzer weniger. Customermates veröffentlicht diesen Vergleich. Alle Angaben zu Twenty stammen von twenty.com, aus der Twenty-Dokumentation und dem GitHub-Repository, Stand 8. Oktober 2026.
 
 ## Welches CRM zu welchem Team passt
 
 | Ihre Situation | Passt besser | Warum |
 |---|---|---|
-| Ihr Prozess braucht eigene Datensatztypen, etwa Immobilien, Beteiligungen oder Mandate | Twenty | Unbegrenzt eigene Objekte in jedem Tarif; Customermates hat fünf feste Datensatzarten |
-| Sie brauchen Single Sign-On per SAML/OIDC oder Berechtigungen auf Zeilenebene | Twenty Organization | Customermates bietet kein Single Sign-On, und seine Rollen greifen je Datensatzart |
+| Ihr Prozess braucht eigene Datensatztypen, etwa Immobilien, Beteiligungen oder Mandate | Twenty oder Customermates | Unbegrenzt eigene Objekte in jedem Twenty-Tarif; Customermates startet mit fünf Listen, und Sie können eigene anlegen |
+| Sie brauchen Single Sign-On per SAML/OIDC oder Berechtigungen auf Zeilenebene | Twenty Organization | Customermates bietet kein Single Sign-On, und seine Rollen greifen je Liste |
 | Entwickler sollen das CRM in TypeScript erweitern oder per GraphQL abfragen | Twenty | Dafür gibt es das Apps-Framework und die GraphQL-API; Customermates bietet REST, Webhooks und MCP |
 | Jede Person synchronisiert mehrere Postfächer und Kalender | Twenty | Unbegrenzt viele E-Mail- und Kalenderkonten pro Nutzer in jedem Tarif |
 | Sie suchen den niedrigsten Cloud-Preis pro Nutzer | Twenty Pro | 9 $ pro Nutzer und Monat, jährlich abgerechnet |
@@ -137,7 +137,7 @@ Wenn das meiste davon zu Ihrer Arbeitsweise passt, ist Twenty die stärkere Wahl
 
 **Kunden schreiben nicht nur per E-Mail.** Der E-Mail- und Kalender-Leitfaden von Twenty nennt Google-, Microsoft- und IMAP/SMTP/CalDAV-Konten, aber keinen Chat-Kanal. Ein Twenty-Partner, Next Page Technologies, hat eine quelloffene WhatsApp-Integration für Twenty-Workflows auf Basis der WhatsApp Cloud API von Meta veröffentlicht. Sie verschickt Nachrichten als Workflow-Schritt. Für LinkedIn, Instagram und Telegram nennt die Twenty-Dokumentation keinen Kanal. Für Beratungen und Agenturen, deren Kunden über WhatsApp oder LinkedIn antworten, entscheidet diese Lücke.
 
-**Jemand muss das Datenmodell pflegen.** Die Flexibilität von Twenty setzt voraus, dass eine Person im Team Objekte, Felder, Ansichten und Workflows entwirft und aktuell hält. Ein Dienstleister mit fünf Leuten ohne diese Person fährt mit einem festen Modell, das er nur um eigene Felder erweitert, womöglich besser.
+**Jemand muss das Datenmodell pflegen.** Die Flexibilität von Twenty setzt voraus, dass eine Person im Team Objekte, Felder, Ansichten und Workflows entwirft und aktuell hält. Ein Dienstleister mit fünf Leuten ohne diese Person fährt mit einem Modell, das fertig startet und nur dort erweitert wird, wo die eigene Arbeit abweicht, womöglich besser.
 
 ## Was fünf Personen pro Monat zahlen
 
@@ -172,8 +172,7 @@ Customermates ist ein Open-Source-KI-CRM für kleine Teams mit viel Kundenkontak
 
 ## Wann Customermates nicht die richtige Wahl ist
 
-- **Keine eigenen Objekte.** Sie arbeiten mit Kontakten, Organisationen, Deals, Services und Aufgaben. Sie können sie über Vorlagen umbenennen (Deals etwa in Chancen, Projekte oder Aufträge, Services in Produkte oder Pakete) und eigene Felder in zehn Typen ergänzen, aber keine sechste Datensatzart anlegen.
-- **Kein Single Sign-On und keine Berechtigungen auf Feldebene.** Rollen legen je Datensatzart fest, ob ein Mitglied alle Datensätze sieht, nur die ihm zugewiesenen oder keine. Gespeicherte Ansichten sind persönlich und lassen sich nicht teilen.
+- **Kein Single Sign-On und keine Berechtigungen auf Feldebene.** Rollen legen je Liste fest, ob ein Mitglied alle Datensätze sieht, nur die ihm zugewiesenen oder keine. Gespeicherte Ansichten sind persönlich und lassen sich nicht teilen.
 - **Kein GraphQL und kein App-Framework.** Integrationen laufen über REST, Webhooks, MCP oder n8n, das separat betrieben wird.
 - **Der Kalender ist nur lesend angebunden.** Customermates legt keine Kalendertermine an und bucht keine.
 - **Keine Zertifizierung.** Twenty gibt SOC-2-Konformität an; Customermates hat keine Zertifizierung.
@@ -187,14 +186,14 @@ Nehmen Sie eine Beratung mit fünf Personen, die in Twenty mit People, Companies
 |---|---|
 | People | Kontakte |
 | Companies | Organisationen |
-| Opportunities | Deals, über die Vorlage „Chance“ umbenannt, damit Ihr Team bei seinen Begriffen bleibt |
+| Opportunities | Deals, in Konfigurieren in „Chancen“ umbenannt, damit Ihr Team bei seinen Begriffen bleibt |
 | Pipeline-Phasen | Ein Phasenfeld (Einzelauswahl) mit einer Wahrscheinlichkeit je Phase |
-| Ein eigenes Objekt, etwa Mandate | Services, umbenannt in „Paket“ und mit jeder Chance verknüpft, oder ein Einzelauswahl-Feld |
-| Aufgaben | Aufgaben; wenn Sie einen Termin festhalten, ergänzen Sie ein eigenes Datumsfeld, denn Aufgaben haben kein eingebautes Fälligkeitsdatum und keinen Status |
-| Verbundene Postfächer | Unter Mein Profil, Kanäle neu verbinden (ab Pro); der Verlauf wird im Hintergrund importiert |
+| Ein eigenes Objekt, etwa Mandate | Eine eigene Liste „Mandate“, mit Chancen verknüpft |
+| Aufgaben | Aufgaben; wenn Sie einen Termin festhalten, ergänzen Sie ein eigenes Datumsfeld, denn Aufgaben haben kein eingebautes Fälligkeitsdatum |
+| Verbundene Postfächer | Unter Einstellungen, Kanäle neu verbinden (ab Pro); der Verlauf wird im Hintergrund importiert |
 | Workflows | Routinen in Customermates Cloud oder Webhooks an n8n |
 
-Mit den Phasen Erstkontakt 10 %, Qualifiziert 30 %, Angebot 50 %, Verhandlung 70 %, Gewonnen 100 % und Verloren 0 % zeigt Customermates für jede Chance einen gewichteten Wert und die gewichtete Pipeline: Wert mal Phasenwahrscheinlichkeit, ohne jede Vorhersage.
+Mit den Phasen Erstkontakt 10 %, Qualifiziert 30 %, Angebot 50 %, Verhandlung 70 %, Gewonnen 100 % und Verloren 0 % zeigt Customermates für jede Chance einen gewichteten Wert, und ein Diagramm-Widget auf dem Dashboard summiert sie: Wert mal Phasenwahrscheinlichkeit, ohne jede Vorhersage.
 
 Jede der fünf Personen hat eine eigene Routine für die Nachfass-Runde am Montag. Sie läuft in Customermates Cloud und nutzt gehostete KI-Credits:
 
@@ -203,9 +202,9 @@ Jede der fünf Personen hat eine eigene Routine für die Nachfass-Runde am Monta
 <Steps>
   <Step title="Jede Ansicht aus Twenty exportieren">Öffnen Sie People, Companies und Opportunities, blenden Sie alle Felder ein, die Sie behalten möchten, und wählen Sie im ⋮-Menü „Export view“. Twenty schreibt eine CSV-Datei mit den sichtbaren Spalten und gefilterten Datensätzen, bis zu 20.000 Datensätze pro Export, ohne Dateianhänge und Bilder. Ob Notizen oder Aufgaben mitkommen, sagt der Leitfaden nicht, prüfen Sie es also mit einem Testexport.</Step>
   <Step title="Dateien als Excel-Arbeitsmappe speichern">Customermates nimmt keine CSV-Dateien an. Öffnen Sie jeden Export in einer Tabellenkalkulation und speichern Sie ihn als .xlsx. Eine Arbeitsmappe fasst derzeit bis zu 10.000 Zeilen und 10 MB, größere Exporte teilen Sie also auf.</Step>
-  <Step title="Den Workspace vorbereiten">Benennen Sie Deals in Chancen um, legen Sie eigene Felder für die Eigenschaften an, die Sie behalten, und richten Sie das Phasenfeld mit seinen Wahrscheinlichkeiten ein.</Step>
-  <Step title="Je Datensatzart einzeln importieren">Wählen Sie „Import und Export“, dann „Aus Datei hinzufügen“. Importieren Sie zuerst Organisationen, dann Kontakte, dann Chancen. Verknüpfungsspalten finden Datensätze über den Namen, neue Kontakte brauchen Vor- und Nachnamen, und eine Notizspalte füllt die Notizen des Datensatzes. Die [Anleitung zu Datensätzen](/docs/app-records) nennt alle Regeln.</Step>
-  <Step title="Kanäle und KI verbinden">Verbinden Sie ab Pro oder in der Testphase unter Mein Profil, Kanäle ein Postfach, LinkedIn oder WhatsApp. Richten Sie danach Routinen für Mate ein oder verbinden Sie Ihren eigenen KI-Client über MCP.</Step>
+  <Step title="Den Workspace vorbereiten">Benennen Sie Deals in Konfigurieren in Chancen um, legen Sie eigene Felder für die Eigenschaften an, die Sie behalten, und richten Sie das Phasenfeld mit seinen Wahrscheinlichkeiten ein.</Step>
+  <Step title="Je Liste einzeln importieren">Wählen Sie „Weitere Aktionen“, dann „Aus Datei hinzufügen“. Importieren Sie zuerst Organisationen, dann Kontakte, dann Chancen. Verknüpfungsspalten finden Datensätze über den Namen, neue Kontakte brauchen Vor- und Nachnamen, und eine Notizspalte füllt die Notizen des Datensatzes. Die [Anleitung zu Datensätzen](/docs/app-records) nennt alle Regeln.</Step>
+  <Step title="Kanäle und KI verbinden">Verbinden Sie ab Pro oder in der Testphase unter Einstellungen, Kanäle ein Postfach, LinkedIn oder WhatsApp. Richten Sie danach Routinen für Mate ein oder verbinden Sie Ihren eigenen KI-Client über MCP.</Step>
 </Steps>
 
 ## Weitere Twenty-Alternativen
@@ -236,7 +235,7 @@ Ja. Laut Twenty hat jeder Cloud-Workspace einen eigenen MCP-Server, den Sie per 
 </FaqItem>
 
 <FaqItem question="Welches Open-Source-CRM ist die beste Alternative zu Twenty?">
-Das hängt davon ab, was Ihnen bei Twenty fehlt. EspoCRM ist ein selbst gehostetes Open-Source-CRM, das ebenfalls eigene Entitäten kennt. Customermates ist die Open-Source-Option, wenn Chat-Kanäle und ein KI-Assistent wichtiger sind als eigene Objekte; Posteingang und Mate laufen nur in Customermates Cloud.
+Das hängt davon ab, was Ihnen bei Twenty fehlt. EspoCRM ist ein selbst gehostetes Open-Source-CRM, das ebenfalls eigene Entitäten kennt. Customermates ist die Open-Source-Option, wenn Chat-Kanäle und ein KI-Assistent im Vordergrund stehen; Posteingang und Mate laufen nur in Customermates Cloud.
 </FaqItem>
 
 <FaqItem question="Wo speichern Twenty und Customermates die Daten?">

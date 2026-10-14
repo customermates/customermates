@@ -35,7 +35,7 @@ Von Grund auf programmieren müssen Sie so eine Datenbank fast nie. Sie wählen 
   <SummaryItem label="Was sie ist">Verknüpfte Datensätze zu Personen, Unternehmen, Deals und Aufgaben, mit typisierten Feldern und einer Aktivitätshistorie. Eine Tabelle enthält Zeilen, eine CRM-Datenbank enthält Beziehungen.</SummaryItem>
   <SummaryItem label="Aufbau">Erst die Datensatztypen festlegen, dann die Felder, nach denen Sie filtern, dann ein eindeutiges Merkmal pro Person. Vor dem Import bereinigen, Unternehmen vor Personen importieren.</SummaryItem>
   <SummaryItem label="Woran sie scheitert">Dubletten, Freitextfelder, die eigentlich Auswahllisten sein sollten, und niemand, der für die Datenpflege zuständig ist.</SummaryItem>
-  <SummaryItem label="Customermates">Fünf Datensatztypen (Kontakte, Organisationen, Deals, Services, Aufgaben) mit typisierten benutzerdefinierten Feldern, in der Cloud ab [[commercial.price.starter.monthly]] pro Nutzer und Monat oder selbst gehostet unter AGPL.</SummaryItem>
+  <SummaryItem label="Customermates">Startet mit fünf Listen (Kontakte, Organisationen, Deals, Services, Aufgaben), Sie können eigene anlegen, mit typisierten Feldern und Beziehungen, in der Cloud ab [[commercial.price.starter.monthly]] pro Nutzer und Monat oder selbst gehostet unter AGPL.</SummaryItem>
 </ArticleSummary>
 
 ## Was in einer CRM-Datenbank steht
@@ -63,9 +63,9 @@ An den Datensatztypen sieht man, wofür ein CRM gebaut wurde. Die Tabelle vergle
 | [HubSpot](https://knowledge.hubspot.com/records/understand-objects) | Kontakte und Unternehmen als Grundlage, dazu Deals, Leads, Tickets, Produkte, Projekte, Aufgaben und weitere | Benutzerdefinierte Objekte, die ein Enterprise-Abo voraussetzen |
 | [Salesforce](https://trailhead.salesforce.com/content/learn/modules/data_modeling/objects_intro) | Standardobjekte wie Account, Contact, Lead und Opportunity | Benutzerdefinierte Objekte für Informationen, die für Ihr Unternehmen oder Ihre Branche spezifisch sind |
 | [Pipedrive](https://support.pipedrive.com/en/article/how-is-pipedrive-data-organized) | Leads, Deals, Personen, Organisationen, Aktivitäten, Produkte, Projekte und E-Mails | Der verlinkte Artikel nennt keinen eigenen Objekttyp; Projekte sind bis einschließlich Growth als Add-on erhältlich und in Premium und Ultimate enthalten |
-| Customermates | Kontakte, Organisationen, Deals, Services und Aufgaben, mit vorgegebenen Bezeichnungen umbenennbar | Keine: fünf feste Typen mit typisierten benutzerdefinierten Feldern |
+| Customermates | Kontakte, Organisationen, Deals, Services und Aufgaben, jeweils frei umbenennbar | Eigene Listen mit typisierten Feldern, Beziehungen und berechneten Feldern |
 
-Kurz gesagt: HubSpot und Salesforce erlauben eigene Objekttypen, die Sie selbst konfigurieren, bei HubSpot mit einem Enterprise-Abo. Die Datenelemente von Pipedrive bleiben nah am Vertriebsprozess. Customermates bleibt bei fünf Typen und lässt Sie diese umbenennen, sodass im ganzen Workspace etwa „Kunden" statt „Kontakte" und „Projekte" statt „Deals" steht.
+Kurz gesagt: HubSpot und Salesforce erlauben eigene Objekttypen, die Sie selbst konfigurieren, bei HubSpot mit einem Enterprise-Abo. Die Datenelemente von Pipedrive bleiben nah am Vertriebsprozess. Customermates startet mit fünf Listen, lässt Sie jede umbenennen, sodass im ganzen Workspace etwa „Kunden" statt „Kontakte" und „Projekte" statt „Deals" steht, und eigene hinzufügen.
 
 ## CRM-Datenbank, Excel oder eigene Datenbank?
 
@@ -101,32 +101,32 @@ Das ist die häufigste Frage beim Datenmodell, und es gibt vier ehrliche Antwort
 1. **Die Angabe beschreibt einen vorhandenen Datensatz.** Ein Vertragsende, ein Kundensegment, ein LinkedIn-Profil. Legen Sie dafür ein typisiertes benutzerdefiniertes Feld beim passenden Datensatztyp an.
 2. **Es ist etwas, das Sie verkaufen.** Pflegen Sie es im Produkt- oder Leistungskatalog und verknüpfen Sie es mit Deals, damit sich der Deal-Wert aus dem Inhalt ergibt.
 3. **Es ist Text, den Sie lesen, aber nie filtern.** Gesprächsnotizen, Hintergrund, Vorlieben. Dafür sind die Notizen da.
-4. **Es hat einen eigenen Lebenszyklus und eigene Beziehungen.** Immobilien, Fahrzeuge, Bewerber, Veranstaltungen. Dafür brauchen Sie benutzerdefinierte Objekte. HubSpot bietet sie im Enterprise-Tarif, Salesforce auf seiner Plattform, und No-Code-Datenbanken wie Airtable sind darauf ausgelegt. Customermates hat keine eigenen Datensatztypen, solche Daten gehören also in ein anderes System.
+4. **Es hat einen eigenen Lebenszyklus und eigene Beziehungen.** Immobilien, Fahrzeuge, Bewerber, Veranstaltungen. Dafür brauchen Sie benutzerdefinierte Objekte. HubSpot bietet sie im Enterprise-Tarif, Salesforce auf seiner Plattform, und No-Code-Datenbanken wie Airtable sind darauf ausgelegt. In Customermates legen Sie dafür in Konfigurieren eine eigene Liste mit eigenen Feldern und Beziehungen an.
 
 ## Beispiel: Die CRM-Datenbank einer Beratung mit vier Personen
 
 So sieht dieselbe Planung in Customermates aus, eingerichtet nach dem heutigen Stand des Produkts. Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit Kundenkontakt, etwa Beratungen, Agenturen und Gründer.
 
-**Datensatztypen.** Unter Mein Unternehmen › Einstellungen › Datenmodell benennen Sie Kontakte in Kunden und Deals in Projekte um. Die Namen wählen Sie aus Vorgaben, freier Text ist nicht möglich. Organisationen, Services und Aufgaben behalten ihre Namen.
+**Listen.** Öffnen Sie in Konfigurieren die Liste Kontakte und ändern Sie unter **Allgemein** **Name** und **Pluralname** in Kunde und Kunden, dann benennen Sie Deals ebenso in Projekte um. Jeder Name ist möglich. Organisationen, Services und Aufgaben behalten ihre Namen.
 
-**Benutzerdefinierte Felder.** Jedes Feld hat einen Typ: Text, E-Mail, Telefon, Link, Datum, Datum & Uhrzeit, Datumsbereich, Datums- und Uhrzeitbereich, Währung oder Einzelauswahl.
+**Felder.** Jedes Feld hat einen Typ: Text, Formatierter Text, Zahl, Geldbetrag, Ja oder nein, Datum, Datum und Uhrzeit, Datumsbereich, Datums- und Zeitbereich, Einzelauswahl, Mehrfachauswahl, E-Mail, Telefon, Webadresse oder Mitglied.
 
-| Datensatztyp | Feld | Typ |
+| Liste | Feld | Typ |
 |---|---|---|
 | Organisationen | Segment (Retainer, Projekt, Ehemalig) | Einzelauswahl |
 | Organisationen | Kunde seit | Datum |
 | Kunden | Funktion | Text |
-| Kunden | LinkedIn-Profil | Link |
+| Kunden | LinkedIn-Profil | Webadresse |
 | Projekte | Laufzeit | Datumsbereich |
 | Projekte | Quelle (Empfehlung, Anfrage, Veranstaltung) | Einzelauswahl |
 
-**Verknüpfungen.** Ein Kunde kann mit mehreren Organisationen verknüpft sein, ein Projekt mit mehreren Kunden, Organisationen, Services und zugewiesenen Nutzern. Der Wert eines Projekts ist die Summe seiner verknüpften Services, jeweils Preis mal Menge. „Strategie-Workshop" einmal und „Monatlicher Retainer" sechsmal ergeben den Projektwert also von selbst.
+**Verknüpfungen.** Ein Kunde kann mit mehreren Organisationen verknüpft sein, ein Projekt mit mehreren Kunden, Organisationen und zugewiesenen Nutzern. Der Wert eines Projekts ist die Summe seiner Positionen, jeweils Service-Preis mal Menge. „Strategie-Workshop" einmal und „Monatlicher Retainer" sechsmal ergeben den Projektwert also von selbst.
 
-**Phasen.** Ein neuer Workspace startet mit einem Feld Phase (Akquise, Qualifizierung, Demo, Angebot, Verhandlung, Gewonnen, Verloren), für das Sie je Phase eine Abschlusswahrscheinlichkeit festlegen. Die gewichtete Pipeline ergibt sich rein rechnerisch aus diesen Prozentsätzen und ist keine Vorhersage.
+**Phasen.** Ein neuer Workspace startet mit einem Feld Phase (Akquise, Qualifizierung, Demo, Angebot, Verhandlung, Gewonnen, Verloren), für das Sie in Konfigurieren je Phase eine Abschlusswahrscheinlichkeit festlegen. Die gewichtete Pipeline ergibt sich rein rechnerisch aus diesen Prozentsätzen und ist keine Vorhersage.
 
-**Eindeutiges Merkmal.** Customermates verknüpft eine E-Mail-Adresse nicht mit einem zweiten Kontakt und meldet „Dieser Kanal ist bereits mit einem anderen Kontakt verknüpft." Die globale Suche (Cmd/Strg+K) findet einen Kunden über Vorname, Nachname, E-Mail-Adresse oder Firmenname.
+**Eindeutiges Merkmal.** E-Mail-Adressen gehören in das Feld Kanäle des Kunden, das eingehende Nachrichten dem Datensatz zuordnet. Eine Adresse kann zu mehreren Datensätzen gehören, entfernen Sie Dubletten deshalb vor dem Import. Die globale Suche (Cmd/Strg+K) findet einen Kunden über den Namen oder über jede E-Mail-Adresse und Telefonnummer in seinen Kanälen.
 
-**Import.** Über Import und Export › Aus Datei hinzufügen lesen Sie eine .xlsx-Arbeitsmappe ein, ein Datensatztyp pro Import, in der Reihenfolge Organisationen, Kunden, Projekte. Verknüpfungsspalten werden über den Datensatznamen zugeordnet. CSV-Dateien werden nicht akzeptiert, speichern Sie sie vorher als .xlsx. Alle Importregeln stehen in der [Dokumentation zu Datensätzen](/docs/app-records).
+**Import.** Über Weitere Aktionen › Aus Datei hinzufügen lesen Sie eine .xlsx-Arbeitsmappe ein, eine Liste pro Import, in der Reihenfolge Organisationen, Kunden, Projekte. Verknüpfungsspalten werden über den Datensatznamen zugeordnet. CSV-Dateien werden nicht akzeptiert, speichern Sie sie vorher als .xlsx. Alle Importregeln stehen in der [Dokumentation zu Datensätzen](/docs/app-records).
 
 **Ansichten.** Speichern Sie „Seit 90 Tagen unverändert" mit dem Filter Aktualisiert am, Älter als… 90 Tage, und „Kunden ohne Organisation". Gespeicherte Ansichten sind persönlich, deshalb legt jede Person mit denselben Filtern ihre eigene Ansicht an.
 
@@ -146,11 +146,11 @@ Kontaktdaten veralten, weil Menschen die Stelle wechseln und Firmen fusionieren.
 |---|---|---|
 | Wöchentlich | neue Personen ohne Unternehmen, neue Deals ohne Phase | gespeicherte Ansichten oder die Routine oben |
 | Monatlich | Datensätze, die seit 90 Tagen niemand geändert hat: noch relevant? | Filter Aktualisiert am, Älter als… 90 Tage |
-| Monatlich | Freitextwerte, die eine Auswahlliste sein sollten | ein Feld vom Typ Einzelauswahl anlegen und mit Aktualisieren für bis zu 100 markierte Datensätze auf einmal setzen |
-| Vierteljährlich | Personen, für die Sie keinen Speichergrund mehr haben | in der Liste oder auf der Detailseite löschen |
-| Vor jeder größeren Änderung | eine Kopie des Bestands | jeden Datensatztyp als .xlsx exportieren; einen Export des gesamten Kontos gibt es nicht |
+| Monatlich | Freitextwerte, die eine Auswahlliste sein sollten | ein Feld vom Typ Einzelauswahl anlegen und mit Bearbeiten für bis zu 100 markierte Datensätze auf einmal setzen |
+| Vierteljährlich | Personen, für die Sie keinen Speichergrund mehr haben | in der Liste oder auf der Detailseite löschen, danach im Papierkorb |
+| Vor jeder größeren Änderung | eine Kopie des Bestands | jede Liste als Excel oder JSON exportieren; einen Export des gesamten Kontos gibt es nicht |
 
-Eine exportierte Arbeitsmappe können Sie bearbeiten und wieder einlesen: Die Spalte Datensatz-ID aktualisiert dann die vorhandenen Datensätze, statt Dubletten anzulegen. So lassen sich Korrekturen in großer Zahl ohne API erledigen.
+Eine exportierte Arbeitsmappe können Sie bearbeiten und als **Vorhandene Datensätze** wieder einlesen: Dann werden die vorhandenen Datensätze aktualisiert, statt Dubletten anzulegen. So lassen sich Korrekturen in großer Zahl ohne API erledigen.
 
 ## CRM-Datenbank und DSGVO
 
@@ -160,10 +160,9 @@ Für Customermates Cloud ist der [Auftragsverarbeitungsvertrag](/dpa) öffentlic
 
 ## Wann Customermates nicht die richtige Datenbank ist
 
-- **Sie brauchen eigene Datensatztypen** wie Immobilien, Bewerber oder Veranstaltungen. Nehmen Sie ein CRM mit benutzerdefinierten Objekten oder eine No-Code-Datenbank.
 - **Sie möchten Dokumente am Datensatz ablegen.** Datensätze haben keine Dateianhänge; Notizen können Bilder und Tabellen enthalten.
-- **Sie brauchen Berechtigungen pro Feld.** Berechtigungen gelten pro Datensatztyp und Aktion, nicht pro Feld.
-- **Sie wollen alles mit einem Klick exportieren.** Der Export läuft je Datensatztyp als .xlsx.
+- **Sie brauchen Berechtigungen pro Feld.** Berechtigungen gelten pro Liste und Aktion, nicht pro Feld.
+- **Sie wollen alles mit einem Klick exportieren.** Der Export läuft je Liste, als Excel oder JSON.
 - **Sie verschicken Newsletter aus Ihrem Kundenstamm.** Massenversand gibt es nicht; dafür ist ein E-Mail-Marketing-Tool da.
 
 ## Häufige Fragen
@@ -186,7 +185,7 @@ Nein. Excel kann eine Kundenliste speichern, und für eine Person mit einer kurz
 </FaqItem>
 
 <FaqItem question="Wie speichere ich Daten, die nicht in Kontakte, Unternehmen oder Deals passen?">
-Beschreibt die Angabe einen vorhandenen Datensatz, legen Sie ein typisiertes benutzerdefiniertes Feld an. Ist es etwas, das Sie verkaufen, gehört es in den Produkt- oder Leistungskatalog. Lesen Sie es nur, reichen Notizen. Hat es einen eigenen Lebenszyklus und eigene Beziehungen, brauchen Sie benutzerdefinierte Objekte, die HubSpot im Enterprise-Tarif und Salesforce auf seiner Plattform anbieten; Customermates hat fünf feste Datensatztypen.
+Beschreibt die Angabe einen vorhandenen Datensatz, legen Sie ein typisiertes benutzerdefiniertes Feld an. Ist es etwas, das Sie verkaufen, gehört es in den Produkt- oder Leistungskatalog. Lesen Sie es nur, reichen Notizen. Hat es einen eigenen Lebenszyklus und eigene Beziehungen, brauchen Sie benutzerdefinierte Objekte, die HubSpot im Enterprise-Tarif und Salesforce auf seiner Plattform anbieten; in Customermates legen Sie dafür eine eigene Liste an.
 </FaqItem>
 
 <FaqItem question="Was kostet eine CRM-Datenbank?">

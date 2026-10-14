@@ -42,7 +42,7 @@ comparison:
         source: true
         competitor: true
       - name: Benutzerdefinierte Objekte
-        source: false
+        source: Eigene Listen mit Feldern und Beziehungen
         competitor: Professional und Enterprise
       - name: Benutzerdefinierte Berichte
         source: Dashboard-Widgets in jedem Tarif
@@ -120,7 +120,7 @@ cta:
 |---|---|---|
 | Sie nutzen nur das CRM, und Preis oder Onboarding-Pflicht von Professional sind das Problem | Pipedrive oder Zoho CRM | Beide verkaufen ein Vertriebs-CRM für sich, pro Nutzer; Zoho ist für drei Nutzer kostenlos |
 | Sie wollen eine Open-Source-Lizenz oder den eigenen Server | Twenty oder Customermates | HubSpot gibt es nur gehostet |
-| Sie brauchen eigene Datensatztypen, etwa Immobilien oder Mandate | Twenty, oder bei HubSpot Professional bleiben | Customermates hat fünf feste Datensatztypen |
+| Sie brauchen eigene Datensatztypen, etwa Immobilien oder Mandate | Twenty, HubSpot Professional oder Customermates | Customermates startet mit fünf Listen, und Sie können eigene anlegen |
 | Kunden erreichen Sie per WhatsApp, LinkedIn, Instagram oder Telegram | Customermates Pro oder Business | Alle Kanäle landen in einem Posteingang neben dem Deal |
 | Sie versenden E-Mail-Kampagnen, nutzen Formulare, Landingpages oder einen Helpdesk | Bei HubSpot bleiben | Keine Alternative hier ersetzt das alles |
 | Zwei Personen, und der kostenlose Tarif reicht | Bei HubSpot Free bleiben | Günstiger als kostenlos geht es nicht |
@@ -168,7 +168,7 @@ Customermates rechnet nur monatlich ab, in Euro und ohne Einrichtungsgebühr.
 Lesen Sie die Zeilen paarweise:
 
 - **Bei Starter liegt HubSpots Listenpreis von 20 € über Customermates Starter, während des zeitlich begrenzten Angebots ist HubSpot aber günstiger,** und enthält Telefonie und die HubSpot-App. Customermates Starter hat keinen Posteingang. Ist der Preis Ihr einziger Grund zu wechseln, prüfen Sie zuerst HubSpot Starter.
-- **Customermates Pro und HubSpot Professional sind verschiedene Produkte.** Fünf Lizenzen Customermates Pro kosten im Jahr [[commercial.price.pro.monthly.seats.5.months.12]]. HubSpot Professional kostet bei jährlicher Zahlung 5.400 € plus Onboarding und enthält Sequenzen, Umsatzprognosen, benutzerdefinierte Objekte, Angebote und Marketing-Werkzeuge, die Customermates nicht hat. Der Preisunterschied zählt nur, wenn Ihr Vertrieb aus Gesprächen besteht und nicht aus Kampagnen.
+- **Customermates Pro und HubSpot Professional sind verschiedene Produkte.** Fünf Lizenzen Customermates Pro kosten im Jahr [[commercial.price.pro.monthly.seats.5.months.12]]. HubSpot Professional kostet bei jährlicher Zahlung 5.400 € plus Onboarding und enthält Sequenzen, Umsatzprognosen, Angebote und Marketing-Werkzeuge, die Customermates nicht hat. Der Preisunterschied zählt nur, wenn Ihr Vertrieb aus Gesprächen besteht und nicht aus Kampagnen.
 - **Mehrere Kanäle pro Person heißt Business.** In Pro verbindet jeder Nutzer [[commercial.entitlement.pro.includedAccountsPerUser]] Konto; Business erlaubt [[commercial.entitlement.business.includedAccountsPerUser]] pro Nutzer und geteilte Konten.
 
 ## Wo Customermates passt
@@ -184,10 +184,9 @@ Customermates ist ein KI-CRM für kleine Teams mit viel Kundenkontakt: Beratunge
 ## Wo Customermates nicht passt
 
 - **Keine Marketing- und Telefoniefunktionen.** Keine E-Mail-Kampagnen, Sequenzen, Serienmails, Web-Formulare, Landingpages, kein Website-Chat, keine Telefonie und keine Meeting-Aufzeichnung.
-- **Keine benutzerdefinierten Objekte.** Es gibt Kontakte, Organisationen, Deals, Services und Aufgaben, die Sie umbenennen können, dazu eigene Felder in zehn Typen.
 - **Kein Helpdesk, keine Angebote und keine Rechnungen.**
 - **Schlichte Aufgaben.** Aufgaben haben Zuständige, Verknüpfungen, Notizen und eigene Felder, aber kein Fälligkeitsdatum.
-- **Keine nativen Smartphone-Apps und kein Single-Sign-On.** Gespeicherte Ansichten sind persönlich, und Berechtigungen gelten pro Datensatztyp und Aktion, nicht pro Feld.
+- **Keine nativen Smartphone-Apps und kein Single-Sign-On.** Gespeicherte Ansichten sind persönlich, und Berechtigungen gelten pro Liste und Aktion, nicht pro Feld.
 - **Kein kostenloser Tarif,** nur eine [[commercial.trial.days]]-tägige Testphase.
 
 ## Beispiel: eine Beratung zieht von HubSpot um
@@ -198,12 +197,12 @@ Eine Beratung mit vier Personen nutzt HubSpot Free und braucht einen bezahlten T
 |---|---|
 | Unternehmen | Organisationen, umbenannt in „Unternehmen“ |
 | Deals | Deals, umbenannt in „Projekte“ |
-| Produkte | Services, umbenannt in „Pakete“, mit Projekten verknüpft |
+| Produkte | Services, umbenannt in „Pakete“, als Positionen in Projekten |
 | Lebenszyklusphase | Ein Feld vom Typ Einzelauswahl „Kundenstatus“ und eine gespeicherte Ansicht mit diesem Filter |
 | Deal-Inhaber | Zugewiesene Nutzer am Deal |
 | Deal-Phasen | Das Feld Phase mit einer Wahrscheinlichkeit pro Option |
 
-Die Phasen heißen Anfrage 10 %, Erstgespräch 25 %, Angebot verschickt 50 %, Mündliche Zusage 80 %, Gewonnen 100 % und Verloren 0 %. Customermates multipliziert den Wert jedes Projekts mit der Wahrscheinlichkeit seiner Phase und zeigt eine gewichtete Pipeline-Summe: Rechnen mit Ihren eigenen Zahlen, keine Vorhersage.
+Die Phasen heißen Anfrage 10 %, Erstgespräch 25 %, Angebot verschickt 50 %, Mündliche Zusage 80 %, Gewonnen 100 % und Verloren 0 %. Customermates multipliziert den Wert jedes Projekts mit der Wahrscheinlichkeit seiner Phase, und ein Diagramm-Widget auf dem Dashboard summiert die gewichteten Werte: Rechnen mit Ihren eigenen Zahlen, keine Vorhersage.
 
 Jede Person verbindet ein Konto, also passt Pro mit [[commercial.price.pro.monthly.seats.4]] im Monat für das Team; braucht ein Partner LinkedIn und E-Mail nebeneinander, wechselt der Workspace zu Business. Jede Person speichert ihr eigenes Board der offenen Projekte, gruppiert nach Phase. Jeder Partner hat eine eigene Routine, die freitags um 15:00 Uhr läuft. Sie arbeitet im Namen ihres Besitzers in der Customermates Cloud, verbraucht gehostete KI-Credits und enthält diese Anweisung:
 
@@ -213,10 +212,10 @@ Jede Person verbindet ein Konto, also passt Pro mit [[commercial.price.pro.month
 
 <Steps>
   <Step title="Aus HubSpot exportieren">Öffnen Sie nacheinander Unternehmen, Kontakte und Deals, wählen Sie Exportieren, das Format XLSX und alle Eigenschaften. HubSpot schickt einen Download-Link per E-Mail, der nach 30 Tagen abläuft.</Step>
-  <Step title="Workspace vorbereiten">Legen Sie eigene Felder für die Eigenschaften an, die Sie behalten. Geben Sie dem Feld Phase dieselben Phasennamen wie in HubSpot; der Import markiert jede Zeile, deren Phase keiner Option entspricht. Eigenschaften mit Mehrfachauswahl haben keine direkte Entsprechung: Nehmen Sie ein Textfeld oder mehrere Felder vom Typ Einzelauswahl.</Step>
-  <Step title="Einen Datensatztyp nach dem anderen importieren">Öffnen Sie Import und Export, dann Aus Datei hinzufügen. Importieren Sie erst Organisationen, dann Kontakte, dann Deals, damit Verknüpfungsspalten die Datensätze über den Namen finden. Hat die Datei eine Spalte ID oder Record ID, stellen Sie sie auf Nicht hinzufügen; sonst behandelt der Assistent sie als Datensatz-ID eines Customermates-Datensatzes, der aktualisiert werden soll. Grenzen und Zuordnungsregeln stehen in der [Anleitung zu Datensätzen](/docs/app-records).</Step>
+  <Step title="Workspace vorbereiten">Legen Sie eigene Felder für die Eigenschaften an, die Sie behalten. Geben Sie dem Feld Phase dieselben Phasennamen wie in HubSpot; der Import markiert jede Zeile, deren Phase keiner Option entspricht. Eigenschaften mit Mehrfachauswahl werden zu einem Feld vom Typ Mehrfachauswahl.</Step>
+  <Step title="Eine Liste nach der anderen importieren">Öffnen Sie Weitere Aktionen, dann Aus Datei hinzufügen. Importieren Sie erst Organisationen, dann Kontakte, dann Deals, damit Verknüpfungsspalten die Datensätze über den Namen finden. Hat die Datei eine Spalte ID oder Record ID, stellen Sie sie auf Nicht hinzufügen; sonst behandelt der Assistent sie als Datensatz-ID eines Customermates-Datensatzes, der aktualisiert werden soll. Grenzen und Zuordnungsregeln stehen in der [Anleitung zu Datensätzen](/docs/app-records).</Step>
   <Step title="Übernehmen, was der Import auslässt">Der Import übernimmt Datensätze, Felder, Notizen und Kanäle von Kontakten, aber nicht die Aktivitätenchronik aus HubSpot. Kopieren Sie, was Sie davon brauchen, vorher in eine Notizspalte.</Step>
-  <Step title="Kanäle verbinden, dann parallel arbeiten">Verbinden Sie unter Mein Profil › Kanäle ein Postfach, LinkedIn oder WhatsApp, richten Sie Routinen oder Ihren MCP-Client ein und behalten Sie HubSpot noch einige Wochen zum Nachschlagen, ohne dort neue Daten zu erfassen.</Step>
+  <Step title="Kanäle verbinden, dann parallel arbeiten">Verbinden Sie unter Einstellungen › Kanäle ein Postfach, LinkedIn oder WhatsApp, richten Sie Routinen oder Ihren MCP-Client ein und behalten Sie HubSpot noch einige Wochen zum Nachschlagen, ohne dort neue Daten zu erfassen.</Step>
 </Steps>
 
 ## Weitere HubSpot-Alternativen

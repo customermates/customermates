@@ -33,7 +33,7 @@ Eine Kontaktmanagement-Software hält alle Personen und Firmen, mit denen Ihr Un
 Ob Sie es Kontaktverwaltung, Kundenverwaltung oder Kundendatenbank nennen: Diese Datensätze und Verknüpfungen gibt es in jedem Plan, auch selbst gehostet. Die Gespräche selbst brauchen den [einheitlichen Posteingang](/features/unified-inbox), den es in Customermates Cloud ab Pro gibt.
 
 <ArticleSummary title="Auf einen Blick">
-  <SummaryItem label="In jedem Plan">Kontakte und Organisationen, zehn Feldtypen, Filter, persönliche Ansichten, Tabelle oder Board, Rollen, Excel-Import und -Export, REST, Webhooks und MCP.</SummaryItem>
+  <SummaryItem label="In jedem Plan">Kontakte und Organisationen, typisierte eigene Felder, Filter, persönliche Ansichten, Tabelle oder Board, Rollen, Excel-Import und -Export, REST, Webhooks und MCP.</SummaryItem>
   <SummaryItem label="Ab Pro">E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Gespräche am Kontakt. Nur in der Cloud.</SummaryItem>
   <SummaryItem label="Nicht enthalten">Kein Adressbuch-Abgleich, kein Zusammenführen von Dubletten, keine Tags, keine Dateianhänge an Datensätzen, keine Erinnerungen.</SummaryItem>
 </ArticleSummary>
@@ -42,25 +42,25 @@ Ob Sie es Kontaktverwaltung, Kundenverwaltung oder Kundendatenbank nennen: Diese
 
 | | Kontakt | Organisation |
 |---|---|---|
-| Feste Felder | Vorname, Nachname, Notizen | Name, Notizen |
-| Kanäle | E-Mail-Adressen, WhatsApp-Nummer, LinkedIn-, Instagram- und Telegram-Konto | Keine |
+| Feste Felder | Name, Notizen | Name, Notizen |
+| Kanäle | E-Mail-Adressen, WhatsApp-Nummer, LinkedIn-, Instagram- und Telegram-Konto | Zunächst keine; ein Feld Kanäle lässt sich ergänzen |
 | Verknüpfungen | Organisationen (auch mehrere), Deals, Aufgaben, zugewiesene Nutzer | Kontakte, Deals, Aufgaben, zugewiesene Nutzer |
-| Eigene Felder | Felder der zehn Typen | Felder der zehn Typen |
+| Eigene Felder | Felder jedes Typs | Felder jedes Typs |
 
-Die Feldtypen heißen Text, Einzelauswahl, Datum, Datumsbereich, Datum & Uhrzeit, Datums- und Uhrzeitbereich, Währung, E-Mail, Telefon und Link. Eine Festnetz- oder Mobilnummer ohne WhatsApp kommt in ein Feld vom Typ Telefon. Notizen sind ein formatierbares Textfeld pro Datensatz, auch mit Tabellen und Bildern.
+Die Feldtypen heißen Text, Formatierter Text, Zahl, Geldbetrag, Ja oder nein, Datum, Datum und Uhrzeit, Datumsbereich, Datums- und Zeitbereich, Einzelauswahl, Mehrfachauswahl, E-Mail, Telefon, Webadresse und Mitglied. Eine Festnetz- oder Mobilnummer ohne WhatsApp kommt in ein Feld vom Typ Telefon. Notizen sind ein Feld vom Typ Formatierter Text, auch mit Tabellen und Bildern.
 
-Eine E-Mail-Adresse oder ein Konto gehört im Workspace zu genau einem Kontakt; einen zweiten Kontakt mit derselben Adresse speichert Customermates nicht. Die globale Suche (Cmd/Strg+K) findet Kontakte über den Namen, jede Kanaladresse und die verknüpfte Organisation, eigene Felder erreichen Sie über Filter.
+Eine E-Mail-Adresse oder ein Konto kann zu mehreren Datensätzen gehören, etwa zu einem Kontakt und einer Organisation. Die globale Suche (Cmd/Strg+K) findet Kontakte über den Namen, jede Kanaladresse und die verknüpfte Organisation, eigene Felder erreichen Sie über Filter.
 
 ## Firmenkontakte und Accounts zentral verwalten
 
-Wenn Sie Kundenfirmen betreuen statt einzelner Personen, ist die Organisation Ihr Account. Unter **Mein Unternehmen › Einstellungen › Datenmodell** benennen Sie die Datensatztypen für den ganzen Workspace um, aus festen Vorschlägen: Organisationen in Unternehmen oder Accounts, Kontakte in Kunden, Personen oder Leads. Die Bezeichnung „Klienten“ ist nicht darunter.
+Wenn Sie Kundenfirmen betreuen statt einzelner Personen, ist die Organisation Ihr Account. Unter **Konfigurieren** benennen Sie jede Liste für den ganzen Workspace um: Liste öffnen, **Name** und **Pluralname** unter **Allgemein** ändern und speichern, etwa Organisationen in Accounts und Kontakte in Kunden.
 
 Für die Betreuung von Kundenfirmen reichen drei Bausteine. Ein Einzelauswahlfeld **Rolle** am Kontakt hält fest, wer entscheidet, wer das Tagesgeschäft übernimmt und wer in der Buchhaltung sitzt. Ein Datumsfeld **Vertragsende** an der Organisation hält fest, wann der Vertrag ausläuft. Und das Deal-Board, gruppiert nach Organisation, zeigt je Account die Zahl der Deals und ihren Gesamtwert. Eine Bewertung der Kundenbeziehung (Health Score) oder ein Abwanderungsrisiko berechnet Customermates nicht; wenn Ihr Team Accounts einstuft, pflegen Sie das in einem Einzelauswahlfeld.
 
 ## Beispiel: ein Beratungsteam mit fünf Personen
 
 <Steps>
-  <Step title="Datensatztypen benennen">Stellen Sie im **Datenmodell** Kontakte auf Kunden und Organisationen auf Accounts um, wenn Ihr Team so spricht.</Step>
+  <Step title="Listen benennen">Benennen Sie unter **Konfigurieren** Kontakte in Kunden und Organisationen in Accounts um, wenn Ihr Team so spricht.</Step>
   <Step title="Vier Felder anlegen">Am Kontakt: **Beziehung** (Einzelauswahl: Interessent, Aktiver Kunde, Ehemaliger Kunde, Empfehlungsgeber) und **Rolle** (Entscheider, Tagesgeschäft, Buchhaltung). An der Organisation: **Vertragsende** (Datum) und **Quelle** (Einzelauswahl: Empfehlung, Messe, Website, Kaltakquise).</Step>
   <Step title="Drei persönliche Ansichten speichern">„Meine aktiven Kunden“: **Zugewiesen** sind Sie selbst, **Beziehung** ist Aktiver Kunde. „Ohne Organisation“: **Organisationen** hat keine, zum Aufräumen nach dem Import. „Lange nicht bearbeitet“: **Aktualisiert am** älter als 90 Tage.</Step>
   <Step title="Eine Ansicht als Board zeigen">Gruppieren Sie Kontakte nach **Beziehung** und ziehen Sie eine Karte von Interessent zu Aktiver Kunde, sobald jemand unterschreibt.</Step>
@@ -72,11 +72,11 @@ Für die Betreuung von Kundenfirmen reichen drei Bausteine. Ein Einzelauswahlfel
 ## Kontakte aus Excel, Outlook oder Google übernehmen
 
 <Steps>
-  <Step title="Exportieren und umwandeln">Outlook und Google Kontakte liefern ihre Exportdatei als kommagetrennte Textdatei (Google auch als vCard). Öffnen Sie sie in Excel und speichern Sie sie als .xlsx, denn Customermates importiert nur XLSX-Arbeitsmappen.</Step>
+  <Step title="Exportieren und umwandeln">Outlook und Google Kontakte liefern ihre Exportdatei als kommagetrennte Textdatei (Google auch als vCard). Öffnen Sie sie in Excel und speichern Sie sie als .xlsx, denn CSV-Dateien importiert Customermates nicht.</Step>
   <Step title="Vorher aufräumen">Entfernen Sie doppelte Zeilen und teilen Sie die Liste in eine Arbeitsmappe für Organisationen und eine für Kontakte. Ein Import lässt sich nicht rückgängig machen.</Step>
-  <Step title="Organisationen importieren">Öffnen Sie unter **Organisationen** das Menü **Import und Export › Aus Datei hinzufügen**, ordnen Sie die Spalten zu und importieren Sie.</Step>
-  <Step title="Kontakte importieren">Ordnen Sie Vor- und Nachname zu, beide sind Pflicht, die E-Mail-Spalte dem Kanal E-Mail, die Firmenspalte den **Organisationen** (Abgleich über den Namen, Groß- und Kleinschreibung egal) und den Rest eigenen Feldern. Fehlerhafte Zeilen können Sie überspringen und später nachtragen.</Step>
-  <Step title="In großen Mengen korrigieren">Exportieren Sie die Liste, bearbeiten Sie sie in Excel und importieren Sie sie erneut: Die Spalte **Datensatz-ID** aktualisiert bestehende Datensätze, statt neue anzulegen.</Step>
+  <Step title="Organisationen importieren">Öffnen Sie unter **Organisationen** das Menü **Weitere Aktionen › Aus Datei hinzufügen**, wählen Sie die Arbeitsmappe, ordnen Sie die Spalten zu und importieren Sie.</Step>
+  <Step title="Kontakte importieren">Ordnen Sie den Namen zu, die E-Mail-Spalte dem Feld **Kanäle**, die Firmenspalte den **Organisationen** und den Rest Ihren Feldern. Fehlgeschlagene Zeilen werden mit Grund aufgeführt.</Step>
+  <Step title="In großen Mengen korrigieren">Exportieren Sie die Liste, bearbeiten Sie sie in Excel und importieren Sie sie erneut als **Vorhandene Datensätze**: So werden bestehende Datensätze aktualisiert, statt neue anzulegen.</Step>
 </Steps>
 
 Eine Datei fasst derzeit bis zu 10.000 Zeilen und 10 MB. Kanäle übernimmt der Import nur bei neuen Kontakten. Einen laufenden Abgleich gibt es nicht, nach dem Import sind Ihr Outlook- oder Google-Adressbuch und Customermates getrennte Listen.
@@ -97,11 +97,11 @@ Kontakte für alle Personen in dieser E-Mail-Signatur anlegen und mit der Organi
 
 Anlegen und Ändern erledigt Mate ohne Rückfrage, das Löschen eines Kontakts bestätigen Sie jedes Mal. Eine [Routine](/docs/app-routines), ebenfalls nur in der Cloud, führt eine Anweisung zum Beispiel jeden Montag aus: „Alle Accounts auflisten, deren Vertragsende in den nächsten 60 Tagen liegt. Keine Datensätze ändern.“
 
-In jedem Plan, auch selbst gehostet, kann Ihr eigener KI-Client wie Claude oder ChatGPT Kontakte über MCP suchen, anlegen und ändern, mit [[derived.mcp.tools.total]] Tools und abgerechnet über Ihren KI-Anbieter. Webhooks melden `contact.created`, `contact.updated` und `contact.deleted`.
+In jedem Plan, auch selbst gehostet, kann Ihr eigener KI-Client wie Claude oder ChatGPT Kontakte über MCP suchen, anlegen und ändern, mit [[derived.mcp.tools.total]] Tools und abgerechnet über Ihren KI-Anbieter. Webhooks melden `record.created`, `record.updated` und `record.deleted` für die Liste Kontakte.
 
 ## Rechte, Speicherort und DSGVO
 
-Jede Rolle legt pro Datensatztyp fest, ob sie **Alle**, nur **Zugewiesen** oder **Keine** Datensätze lesen darf und ob sie **Verwalten** darf. Für den Export brauchen Sie Leserechte, für den Import **Verwalten**. Den Änderungsverlauf eines Datensatzes sehen Rollen mit Lesezugriff **Alle** auf das **Audit-Log**, etwa Admin. Rechte gelten für ganze Datensatztypen, nicht für einzelne Felder.
+Jede Rolle legt pro Liste fest, ob sie **Alle**, nur **Zugewiesen** oder **Keine** Datensätze lesen darf und ob sie **Erstellen**, **Bearbeiten** und **Löschen** darf. Für den Export brauchen Sie Leserechte, für den Import **Erstellen**. Den Änderungsverlauf eines Datensatzes sehen Rollen mit Lesezugriff **Alle** auf das **Audit-Log**, etwa Admin. Rechte gelten für ganze Listen, nicht für einzelne Felder.
 
 In Customermates Cloud ist die Produktivdatenbank in der AWS-Region Frankfurt konfiguriert. Die eingesetzten Dienstleister, auch aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), den [Auftragsverarbeitungsvertrag](/dpa) finden Sie online. Eine Zertifizierung hat Customermates nicht. Sollen Kontaktdaten Ihre eigenen Server nicht verlassen, betreiben Sie den AGPL-Kern [selbst](/features/self-hosted), ohne Posteingang und ohne Mate.
 
@@ -109,7 +109,7 @@ In Customermates Cloud ist die Produktivdatenbank in der AWS-Region Frankfurt ko
 
 - Kein Abgleich mit Outlook, Google oder dem Adressbuch im Smartphone, in keine Richtung.
 - Kein Zusammenführen von Dubletten. Bereinigen Sie die Liste vor dem Import.
-- Keine Tags und keine Mehrfachauswahl. Einzelauswahlfelder halten je einen Wert.
+- Keine Tags. Für mehrere Werte pro Datensatz nutzen Sie ein Feld vom Typ Mehrfachauswahl.
 - Keine Dateianhänge an Datensätzen. Anhänge von Nachrichten bleiben im Gespräch im Posteingang.
 - Keine Erinnerungen, Fälligkeitsdaten oder Wiedervorlagen. Daten speichern Sie in eigenen Feldern, eine Routine in der Cloud listet die verstrichenen auf.
 - Keine Newsletter, Massenmails, Sequenzen oder Anreicherung von Firmendaten.
@@ -152,7 +152,7 @@ Ja, über eine Excel-Arbeitsmappe. Exportieren Sie aus Outlook oder Google Konta
 </FaqItem>
 
 <FaqItem question="Wie viele Kontakte kann ich verwalten?">
-Die Pläne setzen keine Obergrenze für Kontakte, 300 und 30.000 Kontakte kosten gleich viel. Eine Importdatei fasst derzeit bis zu 10.000 Zeilen, ein Export die ersten 50.000 Datensätze der aktuellen Ansicht.
+Die Pläne setzen keine Obergrenze für Kontakte, 300 und 30.000 Kontakte kosten gleich viel. Eine Importdatei fasst derzeit bis zu 10.000 Zeilen, ein Export bis zu 5.000 Datensätze der aktuellen Ansicht.
 </FaqItem>
 
 <FaqItem question="Ist die Kontaktverwaltung in Customermates DSGVO-konform?">

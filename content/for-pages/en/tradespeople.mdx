@@ -78,21 +78,21 @@ Some firms run both: job software for the work itself and Customermates for the 
 
 ## A trade setup in Customermates
 
-Customermates has five record types. Under **My Company › Settings** you can rename them from a preset list: Contacts to Clients and Deals to Jobs fit most trades. Every field name below is an example.
+Customermates starts with five lists, and you can add your own. In **Configure** you can rename any list under **General**: Contacts to Clients and Deals to Jobs fit most trades. Every field name below is an example.
 
 | Record type | Used for | Example custom fields |
 |---|---|---|
-| Contacts (Clients) | Homeowners, tenants, site contacts | Customer type (single select: Private, Landlord, Commercial), Site address (text), Next service (date) |
-| Organizations | Landlords, property managers, general contractors | Account type (single select), Payment terms (text) |
-| Deals (Jobs) | Each enquiry and job | Stage, Job type (single select), Site address, Quote sent on (date), Planned for (date), Photos and documents (link) |
+| Contacts (Clients) | Homeowners, tenants, site contacts | Customer type (single choice: Private, Landlord, Commercial), Site address (text), Next service (date) |
+| Organizations | Landlords, property managers, general contractors | Account type (single choice), Payment terms (text) |
+| Deals (Jobs) | Each enquiry and job | Stage, Job type (single choice), Site address, Quote sent on (date), Planned for (date), Photos and documents (web address) |
 | Services | Your standard items, each with a price | Boiler service, Socket installation, Call-out fee |
 | Tasks | Next steps, assigned to a person | A "Due on" date field you add, because tasks have no built-in due date |
 
 ### Stages and the value of open quotes
 
-The stage is a single-select field you define, and each option can carry a win probability. A starting point: New enquiry 10%, Site visit 25%, Quote sent 40%, Accepted 90%, Booked 100%, Done 100%, Lost 0%. Same-day repair calls skip from New enquiry to Booked; large jobs walk through every stage. Filter the board by Job type when you want to see only one kind.
+The stage is a single choice field you define, and each option can carry a win probability. A starting point: New enquiry 10%, Site visit 25%, Quote sent 40%, Accepted 90%, Booked 100%, Done 100%, Lost 0%. Same-day repair calls skip from New enquiry to Booked; large jobs walk through every stage. Filter the board by Job type when you want to see only one kind.
 
-A job's value comes from the services linked to it, price times quantity. A heat pump installation quoted at €14,000 sits in Quote sent at a weighted €5,600. That is arithmetic from your own probabilities, not a forecast. On the [pipeline board](/features/pipeline) each job is a card you drag between stages, and you can assign several people to it.
+A job's value is the sum of its line items, each a service times quantity. A heat pump installation quoted at €14,000 sits in Quote sent at a weighted €5,600. That is arithmetic from your own probabilities, not a forecast. On the [pipeline board](/features/pipeline) each job is a card you drag between stages, and you can assign several people to it.
 
 ### Four saved views for the morning
 
@@ -141,10 +141,10 @@ Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] rout
 |---|---|
 | Electricians | Job type options for call-out, rewire, consumer unit, EV charger, inspection; Next inspection date on the client |
 | Plumbing and heating | Job type for repair, boiler swap, bathroom, annual service; Next service date; landlord clients as organizations |
-| HVAC | Separate Job type values for repair calls and replacement sales, so the replacement quotes have their own view; Maintenance contract (single select) |
-| Solar installers | Stages for Survey, Proposal sent, Financing, Grid application, Installed; a link field to the design file |
+| HVAC | Separate Job type values for repair calls and replacement sales, so the replacement quotes have their own view; Maintenance contract (single choice) |
+| Solar installers | Stages for Survey, Proposal sent, Financing, Grid application, Installed; a web address field for the design file |
 | Builders and contractors | Bid due (date) and Tender source on the job; subcontractors as contacts at their own organization |
-| Cleaning companies | Contract type (single select: one-off, weekly, monthly), Renewal date; one job per contract |
+| Cleaning companies | Contract type (single choice: one-off, weekly, monthly), Renewal date; one job per contract |
 | Garages | Vehicle registration and make as text fields on the job, Next MOT or inspection (date) on the client |
 
 ## What Customermates does not do for trades
@@ -204,10 +204,10 @@ Yes, in the browser. You can look up a client, add a note and move a job to the 
 </FaqItem>
 
 <FaqItem question="Can it handle WhatsApp enquiries?">
-Yes, on Pro and above in Customermates Cloud. Connect a WhatsApp account under My Profile › Channels and its conversations appear in the inbox, where you reply and link the sender to a client. Self-hosted installations have no inbox.
+Yes, on Pro and above in Customermates Cloud. Connect a WhatsApp account under Settings › Channels and its conversations appear in the inbox, where you reply and link the sender to a client. Self-hosted installations have no inbox.
 </FaqItem>
 
 <FaqItem question="Can I track maintenance contracts and annual services?">
-Yes, with fields you add. Put a Next service date and a Contract type single select on the client, and save a view sorted by Next service, soonest first. Customermates sends no reminders on its own; in Cloud a monthly routine can list due customers and save a draft message for each.
+Yes, with fields you add. Put a Next service date and a Contract type single choice on the client, and save a view sorted by Next service, soonest first. Customermates sends no reminders on its own; in Cloud a monthly routine can list due customers and save a draft message for each.
 </FaqItem>
 </Faq>

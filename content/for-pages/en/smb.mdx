@@ -64,13 +64,13 @@ Above that size, or when IT requires single sign-on and field-level permissions,
 
 ## A small-business setup in Customermates
 
-Customermates has five record types. This mapping fits a B2B service business; field names are examples you create yourself.
+Customermates starts with five lists, and you can add your own. This mapping of the five fits a B2B service business; field names are examples you create yourself.
 
 | Record type | Used for | Example custom fields |
 |---|---|---|
-| Organizations | Client companies and partners | Segment (Single Select: Prospect, Client, Partner) |
-| Contacts | Everyone you talk to at a client | Role in deal (Single Select: Decision maker, Champion, Buyer, Technical), Source (Single Select: Referral, Website, LinkedIn, Event) |
-| Deals | Each piece of work you could win | Next step (Date), Lost reason (Single Select) |
+| Organizations | Client companies and partners | Segment (Single choice: Prospect, Client, Partner) |
+| Contacts | Everyone you talk to at a client | Role in deal (Single choice: Decision maker, Champion, Buyer, Technical), Source (Single choice: Referral, Website, LinkedIn, Event) |
+| Deals | Each piece of work you could win | Next step (Date), Lost reason (Single choice) |
 | Services | What you sell, each with a price | Retainer, Project day, Workshop |
 | Tasks | Commitments like "send the case study" | A date field you add, because tasks have no built-in due date |
 
@@ -78,7 +78,7 @@ A deal can link several contacts, which covers B2B work where a buyer, a decisio
 
 ### Stages and a pipeline number you can explain
 
-A new workspace has a **Stage** field on deals with a win probability per option: Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100% and Lost 0%. Rename them to match how you sell, for example Discovery instead of Demo. A deal's value is the sum of its linked services, price times quantity, and the [pipeline](/features/pipeline) shows totals and weighted totals per stage. The weighted number is your value times your own probabilities, so you can explain it to a partner or a bank. It is not a prediction.
+A new workspace has a **Stage** field on deals with a win probability per option: Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100% and Lost 0%. Rename them to match how you sell, for example Discovery instead of Demo. A deal's value is the sum of its line items, each a service times quantity, and the [pipeline](/features/pipeline) shows totals and weighted totals per stage. The weighted number is your value times your own probabilities, so you can explain it to a partner or a bank. It is not a prediction.
 
 ### Saved views for the weekly review
 
@@ -159,15 +159,15 @@ Each cloud plan adds monthly hosted AI credits per active user for Mate; the amo
     The import reads .xlsx files only. Save any other export as .xlsx first.
   </Step>
   <Step title="Import organizations, then contacts">
-    On each list, open **Import and export** and choose **Add from file**.
+    On each list, open **More actions** and choose **Add from file**.
     A company-name column on contacts links them to their organization.
   </Step>
   <Step title="Import open deals">
-    Include Stage and Next step, then link services so each deal gets a value.
+    Include Stage and Next step, then add line items so each deal gets a value.
     Check for duplicates first: an import cannot be undone.
   </Step>
   <Step title="Connect the inbox and invite the team">
-    On Pro or higher, each person connects their accounts under **My Profile ›
+    On Pro or higher, each person connects their accounts under **Settings ›
     Channels**. Create roles before you invite people.
   </Step>
 </Steps>
@@ -198,7 +198,7 @@ For one person and a few dozen clients, yes. A spreadsheet stops working when tw
 </FaqItem>
 
 <FaqItem question="Does it work for B2B sales with several decision makers?">
-Yes. Link several contacts to one deal and record each person's part in a single-select field. All conversations with those contacts show on their timelines from Pro, so whoever picks up the deal sees what was said.
+Yes. Link several contacts to one deal and record each person's part in a single choice field. All conversations with those contacts show on their timelines from Pro, so whoever picks up the deal sees what was said.
 </FaqItem>
 
 <FaqItem question="Which CRM has a native WhatsApp integration for growing companies?">

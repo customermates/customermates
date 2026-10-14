@@ -112,15 +112,15 @@ For a team of five, a small VPS can cost less per month than five paid seats. Fo
 
 *Disclosure: Customermates publishes this guide.* Customermates is an open-source, AI-native CRM built in Germany for small client-facing teams such as consultants, agencies and founders. It is free in one form and paid in the other, and the two differ in what they include.
 
-**Self-hosted: free, with no seat count.** You run the AGPL core with Docker Compose: one app container and one PostgreSQL container. A self-hosted workspace has no subscription and no trial, and the app counts no seats. You get the Starter feature set: contacts, organizations, deals, services and tasks, custom columns, saved views, dashboards, roles, the audit log, REST, webhooks and MCP for your own AI client. You do not get the unified inbox, Mate or hosted AI credits. You need your own Resend API key for email delivery. The [self-hosting docs](/docs/self-hosting) walk through the install.
+**Self-hosted: free, with no seat count.** You run the AGPL core with Docker Compose: one app container and one PostgreSQL container. A self-hosted workspace has no subscription and no trial, and the app counts no seats. You get the Starter feature set: contacts, organizations, deals, services and tasks, custom fields, saved views, dashboards, roles, the audit log, REST, webhooks and MCP for your own AI client. You do not get the unified inbox, Mate or hosted AI credits. You need your own Resend API key for email delivery. The [self-hosting docs](/docs/self-hosting) walk through the install.
 
 **Cloud: paid, with a trial.** Customermates Cloud has no free plan. The trial runs [[commercial.trial.days]] days with no credit card. After it, a three-person team pays [[commercial.price.starter.monthly.seats.3]] a month on Starter, which has no inbox, or [[commercial.price.pro.monthly.seats.3]] on Pro, which adds the unified inbox for email, LinkedIn, WhatsApp, Instagram and Telegram conversations. Billing is monthly only. Every cloud plan includes monthly hosted AI credits per active user for Mate, the assistant in Customermates Cloud; see [pricing](/pricing) for the allowances.
 
 A concrete starting setup for a small consultancy, in either edition:
 
-1. Import organizations first from an Excel workbook (`.xlsx`), then contacts, then deals. Import runs one record type at a time, and link columns are matched by record name, so contacts find their organization. CSV is not accepted; save it as `.xlsx` first. The [records docs](/docs/app-records) list the current file limits.
-2. Keep the default deal **Stage** column (Prospecting, Qualification, Demo, Proposal, Negotiation, Won, Lost) or rename the options to your sales steps. Stage weights give a weighted pipeline value.
-3. Add one custom single-select column such as "Service line" to deals, and save a personal board view grouped by **Stage** and filtered to the deals assigned to you.
+1. Import organizations first from an Excel workbook (`.xlsx`), then contacts, then deals. Import runs one list at a time, and link columns are matched by record name, so contacts find their organization. CSV is not accepted; save it as `.xlsx` first. The [records docs](/docs/app-records) list the current file limits.
+2. Keep the default deal **Stage** field (Prospecting, Qualification, Demo, Proposal, Negotiation, Won, Lost) or rename the options to your sales steps. Stage weights give a weighted pipeline value.
+3. Add one custom Single choice field such as "Service line" to deals, and save a personal board view grouped by **Stage** and filtered to the deals assigned to you.
 
 <ProductDemo hostedBoundary path="/dashboard" />
 

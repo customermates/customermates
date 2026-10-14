@@ -64,13 +64,13 @@ Coaching sells differently from most small businesses, and the differences decid
 
 ## A coaching setup in Customermates
 
-Customermates has five record types. Here is one mapping for a coaching practice; every field name is an example you can change.
+Customermates starts with five lists, and you can add your own. Here is one mapping of the five for a coaching practice; every field name is an example you can change.
 
 | Record type | Used for | Example fields |
 |---|---|---|
-| Contacts | Clients, prospects, referrers, HR contacts | Role (single select: Coachee, Sponsor, Referrer), Referred by, Coaching focus (single select: Leadership, Career, Business, Health) |
-| Organizations | Companies that pay for coaching | Relationship (single select: Prospect, Active, Past) |
-| Deals | Each package or program | Stage, Format (single select: 1:1, Group, Team workshop), Package starts, Package ends |
+| Contacts | Clients, prospects, referrers, HR contacts | Role (single choice: Coachee, Sponsor, Referrer), Referred by, Coaching focus (single choice: Leadership, Career, Business, Health) |
+| Organizations | Companies that pay for coaching | Relationship (single choice: Prospect, Active, Past) |
+| Deals | Each package or program | Stage, Format (single choice: 1:1, Group, Team workshop), Package starts, Package ends |
 | Services | What you sell, each with a price | Coaching session, Discovery workshop, Team day |
 | Tasks | Next steps, assigned to a person | A "Follow up on" date field you add, because tasks have no built-in due date |
 
@@ -78,9 +78,9 @@ A contact can link to several organizations and deals, so the HR contact who boo
 
 ### Stages and package value
 
-The deal stage is a single-select field you define, and each option gets a win probability. A starting point: Inquiry 10%, Discovery call booked 25%, Discovery call done 50%, Offer sent 70%, Enrolled 100%, Not now 0%. Keep "Enrolled" as the won stage and track the active period with the two date fields, so the board shows the sales funnel and your views show the running packages.
+The deal stage is a single choice field you define, and each option gets a win probability. A starting point: Inquiry 10%, Discovery call booked 25%, Discovery call done 50%, Offer sent 70%, Enrolled 100%, Not now 0%. Keep "Enrolled" as the won stage and track the active period with the two date fields, so the board shows the sales funnel and your views show the running packages.
 
-A deal's value comes from the services linked to it, price times quantity. If the service "Coaching session" carries your rate of €180 and a package includes 10 sessions, the deal is worth €1,800, and in Offer sent its weighted value is €1,260. That is arithmetic from your own probabilities, not a prediction. On the [pipeline board](/features/pipeline) each package is a card you drag between stages.
+A deal's value is the sum of its line items, each a service times quantity. If the service "Coaching session" carries your rate of €180 and a package includes 10 sessions, the deal is worth €1,800, and in Offer sent its weighted value is €1,260. That is arithmetic from your own probabilities, not a prediction. On the [pipeline board](/features/pipeline) each package is a card you drag between stages.
 
 ### Saved views for Monday morning
 
@@ -170,11 +170,11 @@ Each plan adds monthly hosted AI credits per active user for Mate; the amounts a
     with each person's company name, and the import links them.
   </Step>
   <Step title="Import open and running packages as deals">
-    Include stage and the two package dates, then add the service and
-    quantity so each deal gets its value.
+    Include stage and the two package dates, then add a line item with the
+    service and quantity so each deal gets its value.
   </Step>
   <Step title="Connect your mailbox">
-    On Pro or higher, connect it under My Profile › Channels and link the
+    On Pro or higher, connect it under Settings › Channels and link the
     people you write with to their contacts.
   </Step>
   <Step title="Save the views and the routine">

@@ -100,30 +100,30 @@ This works on every Customermates plan and on a self-hosted installation. You ne
 
 <Steps>
 <Step title="Create an API key">
-In Customermates, open **My Profile › API & Connectors**, click **Add** and choose **Standard API key**. The key acts with your permissions. In n8n, store it as a Header Auth credential with the header name `x-api-key`. See [API keys](/docs/api-keys).
+In Customermates, open **Settings › API keys**, click **Add** and choose **Standard API key**. The key acts with your permissions. In n8n, store it as a Header Auth credential with the header name `x-api-key`. See [API keys](/docs/api-keys).
 </Step>
-<Step title="Prepare the deal columns">
-Add a "Call booked" and a "Cancelled" option to your deal stage column, which is a **Single Select** column. Add a **Date & Time** column "Meeting", a **Single Select** column "Lead source" with one option per event type, and a **Text** column "Calendly booking". `GET /api/v1/deals/configuration` returns the column ids and options the API expects.
+<Step title="Prepare the deal fields">
+Open Deals in **Configure** and add a "Call booked" and a "Cancelled" option to the **Stage** field, which is a **Single choice** field. Add a **Date and time** field "Meeting", a **Single choice** field "Lead source" with one option per event type, and a **Text** field "Calendly booking". `POST /api/v1/model/discover` finds the type IDs of Contacts and Deals, and `POST /api/v1/model/read` returns the schema revision and the field, option and relationship IDs the API expects. These IDs stay valid when someone renames a list or field.
 </Step>
 <Step title="Receive the booking">
 Add n8n's Calendly Trigger with "Event created" and "Event canceled". Alternatively, use a Webhook node and subscribe its URL through Calendly's API.
 </Step>
 <Step title="Find or create the contact">
-Send `POST /api/v1/contacts/search` with the invitee's email as `searchTerm` and keep only an exact match. If there is none, send `POST /api/v1/contacts` with `firstName`, `lastName` and `identifiers: [{ "provider": "mail", "value": "<email>" }]`.
+Send `POST /api/v1/records/identities/resolve` with the invitee's email as a `mail` identifier; it returns only exact matches. If there is none, send `POST /api/v1/records/mutate` with a `create` mutation for Contacts: first and last name as typed field values and `identities: [{ "provider": "mail", "value": "<email>" }]`.
 </Step>
 <Step title="Create the deal">
-Send `POST /api/v1/deals` with a name such as "Anna Weber, intro call", the contact id in `contactIds`, the host's Customermates user id in `userIds`, and `customFieldValues` for stage, meeting time, lead source and the Calendly link. Free-text answers go into `notes`, which accepts Markdown. Map host emails to user ids once, in the workflow.
+Send a `create` mutation for Deals to `POST /api/v1/records/mutate`, with a name such as "Anna Weber, intro call", the host's Customermates user ID in `assignedUserIds`, and typed values for stage, meeting time, lead source and the Calendly link. Link the contact through the relationship ID from `model/read`. Free-text answers go into the deal's notes, a Formatted text field: add them with an `update` mutation whose field entry `{ fieldId, append }` takes Markdown. Use the Calendly event ID in the `idempotencyKey`, and map host emails to user IDs once, in the workflow.
 </Step>
 <Step title="Handle the cancellation">
-On invitee.canceled, find the deal by its "Calendly booking" value with an `equals` filter (see [filter syntax](/docs/filter-syntax)). If `rescheduled` is true, update "Meeting" from the new booking. If it is false, set the stage to "Cancelled" with `PUT /api/v1/deals/{id}`.
+On invitee.canceled, find the deal by its "Calendly booking" value with `POST /api/v1/records/query` and an `eq` filter (see [filter syntax](/docs/filter-syntax)). If `rescheduled` is true, update "Meeting" from the new booking. If it is false, send an `update` mutation with the deal's record reference and current version that sets the stage to "Cancelled".
 </Step>
 </Steps>
 
-One safeguard is built in. Customermates stores email addresses in lowercase and refuses a second contact with an address that another contact already holds ("This channel is already linked to another contact."). A missed lookup therefore fails visibly instead of creating a duplicate. The [n8n guide](/docs/n8n) lists every endpoint and the relation rules for updates.
+Customermates does not block a second contact with the same address, because one email can belong to several records. Resolve the email before every create, and keep the Calendly event ID as the idempotency key, so a retried delivery returns the first result instead of creating a second record. The [n8n guide](/docs/n8n) lists every endpoint and the rules for links and retries.
 
 ### Route 2: the calendar, on Pro and higher in Customermates Cloud
 
-If Calendly is set to send **Calendar Invitations**, the host's Google or Outlook calendar creates the event and adds the invitee as a guest. Connect that same account in Customermates under **My Profile › Channels** with **Connect channel**, and the meeting arrives without any workflow tool. Calendar events appear in the **Account & calendar** category of an [activity timeline](/docs/app-dashboard), and on the record of a contact whose email matches a guest. Customermates only reads the calendar. It never books or changes meetings.
+If Calendly is set to send **Calendar Invitations**, the host's Google or Outlook calendar creates the event and adds the invitee as a guest. Connect that same account in Customermates under **Settings › Channels** with **Connect channel**, and the meeting arrives without any workflow tool. Calendar events appear in an [activity timeline](/docs/app-dashboard), and on the record of a contact whose email matches a guest. Customermates only reads the calendar. It never books or changes meetings.
 
 To turn bookings into records, a routine can sweep the calendar. Routines run in Customermates Cloud only and use hosted AI credits from the owner's monthly allowance. Choose **On a schedule**, set **Repeats** to **Every hour**, and give it instructions like these:
 
@@ -141,7 +141,7 @@ Calendly runs an MCP server at `https://mcp.calendly.com/` with tools that list 
 - **Calendar route on Pro:** [[commercial.price.pro.monthly.seats.3]] per month. That includes the [unified inbox](/features/unified-inbox) and [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user. Routine runs draw on the monthly hosted AI credits per active user; see [pricing](/pricing).
 
 <AcquisitionCallout title="Where Customermates is not the right fit" variant="boundary">
-There is no Calendly connector, so every route needs either a workflow you run or the calendar plus a routine. On Pro, the Gmail or Outlook mailbox is the user's [[commercial.entitlement.pro.includedAccountsPerUser]] included connected account; Business includes [[commercial.entitlement.business.includedAccountsPerUser]]. Tasks have no due dates or reminders, so put the follow-up date in a date column on the deal. Customermates does no lead scoring; store routing-form answers in single-select fields and filter by them. A self-hosted installation has REST, webhooks and MCP, but no calendar, inbox, Mate or routines. If you want Calendly to pick the host from the CRM owner at the moment of booking, that is a Calendly feature for HubSpot and Salesforce.
+There is no Calendly connector, so every route needs either a workflow you run or the calendar plus a routine. On Pro, the Gmail or Outlook mailbox is the user's [[commercial.entitlement.pro.includedAccountsPerUser]] included connected account; Business includes [[commercial.entitlement.business.includedAccountsPerUser]]. Tasks have no due dates or reminders, so put the follow-up date in a date field on the deal. Customermates does no lead scoring; store routing-form answers in single choice fields and filter by them. A self-hosted installation has REST, webhooks and MCP, but no calendar, inbox, Mate or routines. If you want Calendly to pick the host from the CRM owner at the moment of booking, that is a Calendly feature for HubSpot and Salesforce.
 </AcquisitionCallout>
 
 ## Test before you trust it

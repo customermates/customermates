@@ -63,21 +63,21 @@ Whether a CRM helps an agent comes down to five specific jobs:
 
 ## A real estate setup in Customermates
 
-Customermates has five record types. Here is one way to map them to an agent's work; every field name below is an example you create yourself. Under **My Company › Settings** you can rename Contacts to Clients.
+Customermates starts with five lists, and you can add your own. Here is one way to map the five to an agent's work; every field name below is an example you create yourself. In **Configure** you can rename Contacts to Clients under **General**.
 
 | Record type | Used for | Example custom fields |
 |---|---|---|
-| Contacts | Buyers, sellers, landlords, tenants, referral partners | Role (single select: Buyer, Seller, Landlord, Tenant, Partner, Past client), Search area (single select), Property type (single select), Bedrooms (single select: 1, 2, 3, 4, 5+), Max budget (currency), Financing (single select: Unclear, Pre-approved, Cash), Lead source (single select), Next check-in (date) |
-| Organizations | Lenders, law and title firms, developers, other brokerages | Partner type (single select), Referrals sent (text) |
-| Deals | Each listing and each buyer or rental mandate | Stage, Side (single select: Listing, Buyer, Rental), Address (text), Asking price (currency), Expected commission (currency), Listing link (link), Agreement ends (date) |
-| Tasks | Viewings and next steps, assigned to an agent | Viewing at (date and time), Feedback (single select: Liked it, Second viewing, Not a fit) |
+| Contacts | Buyers, sellers, landlords, tenants, referral partners | Role (single choice: Buyer, Seller, Landlord, Tenant, Partner, Past client), Search area (single choice), Property type (single choice), Bedrooms (single choice: 1, 2, 3, 4, 5+), Max budget (money), Financing (single choice: Unclear, Pre-approved, Cash), Lead source (single choice), Next check-in (date) |
+| Organizations | Lenders, law and title firms, developers, other brokerages | Partner type (single choice), Referrals sent (text) |
+| Deals | Each listing and each buyer or rental mandate | Stage, Side (single choice: Listing, Buyer, Rental), Address (text), Asking price (money), Expected commission (money), Listing link (web address), Agreement ends (date) |
+| Tasks | Viewings and next steps, assigned to an agent | Viewing at (date and time), Feedback (single choice: Liked it, Second viewing, Not a fit) |
 | Services | Rarely needed by agents | Leave empty, or use for fixed-fee services such as a valuation |
 
 People link to deals, so interested buyers can sit on the listing they asked about, and a seller's listing and later home search can sit on the same contact. Tasks have no built-in due date, which is why the viewing gets its own date field.
 
 ### Stages for listings and buyers
 
-The deal stage is a single-select field, and each option can carry a win probability. One stage list can serve both sides if you filter by Side:
+The deal stage is a single choice field, and each option can carry a win probability. One stage list can serve both sides if you filter by Side:
 
 | Stage | Listing side | Buyer side | Probability |
 |---|---|---|---|
@@ -90,7 +90,7 @@ The deal stage is a single-select field, and each option can carry a win probabi
 | Closed | Closed | Closed | 100% |
 | Lost | Lost | Lost | 0% |
 
-On the [pipeline board](/features/pipeline) each deal is a card you drag between stages. Weighted values come from your own probabilities times the deal value, and the deal value comes from linked services, so for commission tracking the Expected commission field is usually simpler. Either way it is arithmetic, not a forecast.
+On the [pipeline board](/features/pipeline) each deal is a card you drag between stages. Weighted values come from your own probabilities times the deal value, and the deal value is the sum of its line items, so for commission tracking the Expected commission field is usually simpler. Either way it is arithmetic, not a forecast.
 
 ### Saved views for the morning check
 
@@ -104,7 +104,7 @@ Saved views are personal, so each colleague sets the same filters and saves thei
 
 ### Matching buyers to a new listing
 
-Customermates does not match buyers to properties automatically, and there is no property database to match against. What works is a filter. When a three-bedroom home in Riverside comes in at $480,000, filter contacts by Role Buyer, Search area Riverside, Bedrooms 3 or 4, and Max budget at least 480,000. Currency fields support greater-than and less-than filters, and single-select fields support "is one of" ([filter reference](/docs/filter-syntax)). Link the buyers you call to the listing deal so you can see later who heard about it.
+Customermates does not match buyers to properties automatically, and there is no property database to match against. What works is a filter. When a three-bedroom home in Riverside comes in at $480,000, filter contacts by Role Buyer, Search area Riverside, Bedrooms 3 or 4, and Max budget at least 480,000. Money fields support greater-than and less-than filters, and single choice fields support "is one of" ([filter reference](/docs/filter-syntax)). Link the buyers you call to the listing deal so you can see later who heard about it.
 
 In Customermates Cloud, a [routine](/docs/app-routines) can do the lookup for you. Choose **When something changes**, the event **Deal Updated**, the changed field Stage, and record filters Side = Listing and Stage = Active. Instructions like these:
 
@@ -199,11 +199,11 @@ Each cloud plan adds monthly hosted AI credits per active user for Mate; the amo
     import can map your columns to them.
   </Step>
   <Step title="Import contacts, then deals">
-    On each list, open Import and export and choose Add from file. Import
+    On each list, open More actions and choose Add from file. Import
     people first, then your active listings and buyer mandates.
   </Step>
   <Step title="Connect your channels">
-    On Pro or higher, connect your mailbox or WhatsApp under My Profile ›
+    On Pro or higher, connect your mailbox or WhatsApp under Settings ›
     Channels and link the people you write with to their contacts.
   </Step>
   <Step title="Save the views and routines">

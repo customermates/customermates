@@ -45,7 +45,7 @@ comparison:
         source: No plan-based cap
         competitor: 2,500 to 20,000 per seat by plan, up to 300,000
       - name: Custom fields
-        source: Ten field types, no plan-based cap
+        source: Fifteen field types and calculated fields, no plan-based cap
         competitor: 30 (Lite) to 500 (Ultimate) per company
       - name: Pipelines
         source: One stage field with win probabilities, as table or board
@@ -54,7 +54,7 @@ comparison:
         source: Weighted pipeline from stage probabilities
         competitor: Forecast reports from Growth
       - name: Import and export
-        source: XLSX, one record type at a time
+        source: XLSX or JSON, one list at a time
         competitor: Excel or CSV
   - title: Conversations & AI
     features:
@@ -190,11 +190,11 @@ Pipedrive has an MCP server too. The difference is reach: the Customermates [MCP
 
 Check these before you start a trial:
 
-- **No activity calendar.** Tasks have assignees, relations, notes and custom fields, but no due dates, statuses or reminders, and Customermates sends no notifications about them. For a team that works from Pipedrive's activity list, this is the biggest change.
+- **No activity calendar.** Tasks have assignees, relations, notes, a status and custom fields, but no due dates or reminders, and Customermates sends no notifications about them. For a team that works from Pipedrive's activity list, this is the biggest change.
 - **No sequences, bulk email, web forms, quotes, e-signatures, telephony, call recording, enrichment or lead scoring.** Outreach goes one message at a time, written by you or drafted by Mate. Invoices stay in your accounting software; won deals can go by webhook to an n8n instance you run separately and on from there.
 - **No rule builder.** Routines are AI instructions, not if/then rules. For deterministic workflows, use webhooks, the REST API or an n8n instance you run separately.
-- **No native mobile apps and no SSO.** Saved views are personal and cannot be shared, and permissions apply per record type and action, not per field.
-- **One stage list for all deals.** If you run several Pipedrive pipelines, add a single-select field for the pipeline and save one board view per pipeline. The stages stay shared.
+- **No native mobile apps and no SSO.** Saved views are personal and cannot be shared, and permissions apply per list and action, not per field.
+- **One stage list for all deals.** If you run several Pipedrive pipelines, add a single choice field for the pipeline and save one board view per pipeline. The stages stay shared.
 
 ## A worked setup: a five-person consultancy leaving Pipedrive
 
@@ -207,12 +207,12 @@ Take a consultancy with three partners and two associates. The partners prospect
 | Deals and their owner | Deals and their assigned users |
 | Pipeline stages | The Stage field, one option per stage, each with a win probability |
 | Products | Services, renamed "Packages" if that fits |
-| Labels | A single-select custom field, such as "Source" |
+| Labels | A single choice custom field, such as "Source" |
 | Activities | Tasks, with a custom date field where the date matters |
 | Notes | The record's notes field |
 | Files | Not transferred; email attachments stay in inbox threads |
 
-They rename the options of the Stage field to Lead, Qualified, Proposal sent, Negotiation, Won and Lost, and under My Company › Settings give them probabilities of 10, 25, 50, 75, 100 and 0 percent. Customermates multiplies each deal's value by its stage probability and shows a weighted pipeline total. That is arithmetic on their own numbers and does not predict anything.
+They rename the options of the Stage field to Lead, Qualified, Proposal sent, Negotiation, Won and Lost, and in Configure for Deals give them probabilities of 10, 25, 50, 75, 100 and 0 percent. Customermates multiplies each deal's value by its stage probability, and a chart widget on the Dashboard sums the weighted values. That is arithmetic on their own numbers and does not predict anything.
 
 The partners need LinkedIn and email each, so the workspace runs Business: [[commercial.price.business.monthly.seats.5]] a month for five people. If one channel per person were enough, Pro at [[commercial.price.pro.monthly.seats.5]] would do.
 
@@ -224,10 +224,10 @@ Each partner owns one routine. It runs as that partner, so it sees their deals a
 
 <Steps>
   <Step title="Export from Pipedrive">Open Tools and apps › Export data and download organizations, people, deals and products as Excel files, one item type each. Notes and activities are separate exports. Only global admins and users with export permission can do this.</Step>
-  <Step title="Prepare the workspace">Set up the Stage field as in the example above, create single-select fields for your labels and add custom fields for everything else you keep. Ten field types are available, among them currency, date, link and phone.</Step>
-  <Step title="Import one record type at a time">Under Import and export › Add from file, import organizations first, then contacts, then services and deals. A workbook holds up to 10,000 rows and 10 MB, and CSV files are not accepted, so use Pipedrive's Excel export and split large files. Link columns match records by name, so a deal's organization column finds the organization you imported before. New contacts need a first and a last name. Map email columns to the contact's channels; channels are added to new contacts only.</Step>
+  <Step title="Prepare the workspace">Set up the Stage field as in the example above, create single choice fields for your labels and add custom fields for everything else you keep. Fifteen field types are available, among them money, date, web address and phone.</Step>
+  <Step title="Import one list at a time">Under More actions › Add from file, import organizations first, then contacts, then services and deals. A workbook holds up to 10,000 rows and 10 MB, and CSV files are not accepted, so use Pipedrive's Excel export and split large files. Link columns match records by name, so a deal's organization column finds the organization you imported before. New contacts need a first and a last name. Map email columns to the contact's channels; channels are added to new contacts only.</Step>
   <Step title="Carry over notes and open activities">Each record has one notes field. Map a notes column during import, or let an AI client over MCP append the exported notes to the matching records. Open activities can come in as tasks, with a custom date field for the date.</Step>
-  <Step title="Connect channels, then cancel Pipedrive">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp under My Profile › Channels. Cancel Pipedrive only after your team has checked the imported records. The [records documentation](/docs/app-records) explains every step of the import wizard.</Step>
+  <Step title="Connect channels, then cancel Pipedrive">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp under Settings › Channels. Cancel Pipedrive only after your team has checked the imported records. The [records documentation](/docs/app-records) explains every step of the import wizard.</Step>
 </Steps>
 
 ## Other Pipedrive alternatives worth a look
@@ -258,7 +258,7 @@ Pipedrive if you want a CRM built around the pipeline and the next activity, wit
 </FaqItem>
 
 <FaqItem question="Can I move my data from Pipedrive to Customermates?">
-Yes. Export each item type from Pipedrive as an Excel file and import it into Customermates one record type at a time: organizations, contacts, deals. Files and email history stay behind. Once you connect a mailbox, conversations show on a contact when the address matches one of the contact's channels.
+Yes. Export each item type from Pipedrive as an Excel file and import it into Customermates one list at a time: organizations, contacts, deals. Files and email history stay behind. Once you connect a mailbox, conversations show on a contact when the address matches one of the contact's channels.
 </FaqItem>
 
 <FaqItem question="Does Customermates have automations like Pipedrive?">

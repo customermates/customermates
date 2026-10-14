@@ -39,7 +39,7 @@ comparison:
         source: Contacts, organizations, deals, services, tasks
         competitor: Addresses and contacts, plus custom objects
       - name: Custom objects
-        source: false
+        source: Your own lists, with fields and relationships
         competitor: "Cloud: 1 type (up to 10,000 records) on Essential, 3 on Grow, 50 on Max"
       - name: Saved views
         source: Personal saved views on every plan
@@ -114,7 +114,7 @@ cta:
 |---|---|---|
 | You send newsletters, run events or publish web forms from the CRM | cobra | Newsletters are included from Grow; event portals and forms are on every cloud plan |
 | Your team phones from the CRM | cobra | NFON telephony on every cloud plan, Teams telephony from Grow. Customermates has no telephony |
-| You need your own record types, such as members, funding cases or seminars | cobra Grow or Max | 3 custom object types on Grow, 50 on Max. Customermates has five fixed record types |
+| You need your own record types, such as members, funding cases or seminars | cobra Grow or Max, or Customermates | 3 custom object types on Grow, 50 on Max. Customermates starts with five lists, and you can add your own |
 | Field staff need native phone apps, or IT requires single sign-on | cobra | Native iOS and Android apps; single sign-on on Cloud Max |
 | Clients write on WhatsApp, LinkedIn, Instagram or Telegram as well as email | Customermates Pro or Business | All of these channels share one inbox, next to the deal |
 | You want REST API and webhooks on the entry plan | Customermates | REST API and webhooks are on every plan. cobra CRM Cloud has the full API and webhooks on Max; cobra One Essential has a REST API with 3 endpoints |
@@ -162,7 +162,7 @@ Customermates is an open-source, AI-native CRM built in Germany for consultants,
 
 **AI help with CRM upkeep, in Customermates Cloud.** In Customermates Cloud, Mate summarizes threads, drafts replies, updates records and builds views. It uses hosted AI credits, with a monthly allowance per active user shown on the [pricing page](/pricing). Routines run a saved instruction on a schedule or when a record changes. If you prefer Claude, ChatGPT or another client, connect it to the [MCP server](/docs/mcp), which offers [[derived.mcp.tools.total]] tools on every plan and on self-hosted installs.
 
-**A small, fixed model.** Contacts, organizations, deals, services and tasks, with custom fields of ten types, table and board layouts, dashboards, roles and an audit log on every plan. The interface is available in English, German, French, Italian and Spanish.
+**A configurable model.** It starts with contacts, organizations, deals, services and tasks, and you add your own lists, fields, relationships and calculated fields, with table and board layouts, dashboards, roles and an audit log on every plan. The interface is available in English, German, French, Italian and Spanish.
 
 **Open source, with a hosting choice.** The AGPL-3.0 core runs on your own server with Docker Compose and PostgreSQL, including REST, webhooks and MCP. A [self-hosted install](/features/self-hosted) has no inbox, no Mate and no hosted credits. In Customermates Cloud, the primary database is configured in the AWS Frankfurt region (a selected setting, not a contractual guarantee), a [DPA](/dpa) is available and the subprocessors, including US providers, are listed in the legal pages.
 
@@ -172,7 +172,7 @@ Customermates is an open-source, AI-native CRM built in Germany for consultants,
 - **No events, web forms or Word templates.** Serial letters and event registration stay in another tool.
 - **No telephony or SMS.** Store phone numbers in a Phone field and call from your own phone system.
 - **No native mobile apps and no single sign-on.** Customermates runs in the phone's browser.
-- **No custom objects and no field permissions.** Permissions apply per record type and action. Saved views are personal and cannot be shared.
+- **No field permissions.** Permissions apply per list and action. Saved views are personal and cannot be shared.
 - **No ready-made ERP or DATEV connectors.** Connect other systems through the REST API, webhooks or your own n8n instance.
 - **No certification.** Customermates holds no compliance certification.
 
@@ -182,21 +182,21 @@ A worked example: a five-person consultancy on cobra CRM Cloud Essential, sellin
 
 | In cobra | In Customermates |
 |---|---|
-| Company addresses | Organizations, renamed "Companies" in the Data model |
+| Company addresses | Organizations, renamed "Companies" in Configure |
 | Contact persons | Contacts, linked to their company |
 | Sales opportunities | Deals, renamed "Opportunities" |
-| Keywords and distribution lists | One single-select field per keyword group, plus a saved view filtered on it |
+| Keywords and distribution lists | One single choice field per keyword group, plus a saved view filtered on it |
 | Communication history (touchpoints) | The record's notes; new changes appear in the activity history |
 | Newsletters, events, Word templates | No equivalent; keep a separate tool |
 
-The opportunity stages become a stage field with probabilities, for example Inquiry 10%, First meeting 25%, Proposal sent 50%, Negotiation 75%, Won 100% and Lost 0%. Customermates multiplies each deal value by its stage probability and shows a weighted pipeline total. That is arithmetic on your own numbers; it does not predict anything.
+The opportunity stages become a stage field with probabilities, for example Inquiry 10%, First meeting 25%, Proposal sent 50%, Negotiation 75%, Won 100% and Lost 0%. Customermates multiplies each deal value by its stage probability, and a chart widget on the Dashboard sums the weighted values. That is arithmetic on your own numbers; it does not predict anything.
 
 <Steps>
   <Step title="Export from cobra">cobra's pricing page lists export to Excel on every cloud plan. Export companies, contact persons and opportunities as separate workbooks and save them as .xlsx files. On cobra One, ask your cobra partner which export your version offers.</Step>
-  <Step title="Prepare the workspace">Rename record types under My Company, Settings, Data model. Create one single-select field per keyword group, and set up the stage field with its probabilities.</Step>
-  <Step title="Import one record type at a time">Import organizations first, then contacts, then deals. A link column finds the company you imported before by name. A workbook currently holds up to 10,000 rows, so split a larger address list. New contacts need a first and a last name, and a Notes column goes into the record's notes. The [records documentation](/docs/app-records) has the details.</Step>
+  <Step title="Prepare the workspace">In Configure, open each list you want to rename and change its Name and Plural name under General. Create one single choice field per keyword group, and set up the stage field with its probabilities.</Step>
+  <Step title="Import one list at a time">Import organizations first, then contacts, then deals. A link column finds the company you imported before by name. A workbook currently holds up to 10,000 rows, so split a larger address list. New contacts need a first and a last name, and a Notes column goes into the record's notes. The [records documentation](/docs/app-records) has the details.</Step>
   <Step title="Rebuild lists as views">Turn each cobra list into a saved view with a filter. Views are personal, so each person saves their own.</Step>
-  <Step title="Connect channels and AI">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp under My Profile, Channels. Then set up a routine for Mate, or connect your own AI client through MCP.</Step>
+  <Step title="Connect channels and AI">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp under Settings, Channels. Then set up a routine for Mate, or connect your own AI client through MCP.</Step>
 </Steps>
 
 Each consultant can then own one routine for the weekly follow-up. A routine runs as its owner, with that person's channels, in Customermates Cloud, and uses hosted AI credits:
@@ -233,7 +233,7 @@ Yes. The Customermates core is AGPL-3.0 and runs with Docker Compose and Postgre
 </FaqItem>
 
 <FaqItem question="Can I move my addresses from cobra to Customermates?">
-Yes, as Excel workbooks, one record type at a time: companies, then contact persons, then opportunities. Keywords become single-select fields. Newsletter lists, event data and Word templates have no place in Customermates.
+Yes, as Excel workbooks, one list at a time: companies, then contact persons, then opportunities. Keywords become single choice fields. Newsletter lists, event data and Word templates have no place in Customermates.
 </FaqItem>
 </Faq>
 

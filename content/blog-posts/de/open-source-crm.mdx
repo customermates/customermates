@@ -204,9 +204,9 @@ Das offizielle [Self-Hosted CRM](/features/self-hosted) besteht aus der Anwendun
 | Einheitlicher Posteingang und Messaging-Konten              | Nicht enthalten                                       |
 | Cloudbasierter Mate-Assistent und gehostete Credits         | Nicht enthalten                                       |
 | Verbundene schreibgeschützte Kalenderansicht                | Nicht enthalten                                       |
-| Import und Export von Datensätzen als XLSX-Arbeitsmappen    | Enthalten, jeweils ein Datensatztyp                   |
+| Import und Export von Datensätzen als XLSX-Arbeitsmappen    | Enthalten, jeweils eine Liste                         |
 
-Customermates passt, wenn Sie ein fokussiertes CRM, Docker/PostgreSQL und eine offene MCP-Schnittstelle suchen. Es passt nicht, wenn Sie beim Self-Hosting den Posteingang der Managed Cloud, eigene Objekttypen oder eine PSA-, Rechnungs- oder Zeiterfassungs-Suite benötigen.
+Customermates passt, wenn Sie ein fokussiertes CRM, Docker/PostgreSQL und eine offene MCP-Schnittstelle suchen. Es passt nicht, wenn Sie beim Self-Hosting den Posteingang der Managed Cloud oder eine PSA-, Rechnungs- oder Zeiterfassungs-Suite benötigen.
 
 <ProductDemo hostedBoundary path="/dashboard" />
 
@@ -289,6 +289,6 @@ Der CRM-Code wird unter einer Open-Source-Lizenz angeboten, die definierte Recht
 </FaqItem>
 
 <FaqItem question="Kann ich CRM-Datensätze in Self-Hosted Customermates importieren oder exportieren?">
-Ja. Datensätze kommen als XLSX-Arbeitsmappen hinein und hinaus: jeweils ein Datensatztyp, beschränkt auf die Leserechte des Nutzers und die aktuelle Ansicht, mit Zeilenlimits in beide Richtungen. CSV wird nicht akzeptiert; speichern Sie CSV-Dateien also zuerst als `.xlsx`. Für alles darüber hinaus, etwa Anhänge oder die Übertragung eines kompletten Kontos, entwerfen Sie eine Migration über die REST-API.
+Ja. Datensätze kommen als XLSX-Arbeitsmappen hinein und hinaus: jeweils eine Liste, beschränkt auf die Leserechte des Nutzers und die aktuelle Ansicht, mit Zeilenlimits in beide Richtungen. CSV wird nicht akzeptiert; speichern Sie CSV-Dateien also zuerst als `.xlsx`. Für alles darüber hinaus, etwa Anhänge oder die Übertragung eines kompletten Kontos, entwerfen Sie eine Migration über die REST-API.
 </FaqItem>
 </Faq>

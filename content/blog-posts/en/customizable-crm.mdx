@@ -36,7 +36,7 @@ Customermates publishes this article and is one of the products it describes.
 <ArticleSummary title="At a glance">
   <SummaryItem label="Customizable vs custom">Customizable means you configure a finished product. Custom means you build and maintain the system yourself, with code or a no-code platform.</SummaryItem>
   <SummaryItem label="Where the line sits">Custom fields are standard. Custom objects (new record types) are where vendors split by plan: HubSpot needs an Enterprise subscription, Zoho CRM offers custom modules from Enterprise.</SummaryItem>
-  <SummaryItem label="Customermates">Five record types you can rename from presets, ten custom field types, your own stages with weights, personal saved views, REST, webhooks and MCP. No custom objects.</SummaryItem>
+  <SummaryItem label="Customermates">Starts with five lists and lets you add your own, with free renaming, 15 field types, relationships, calculated fields, your own stages with weights, personal saved views, REST, webhooks and MCP.</SummaryItem>
   <SummaryItem label="Build your own">Worth it when your records do not map onto contacts, companies and deals. Otherwise you take on authentication, permissions, email sync and import for little gain.</SummaryItem>
 </ArticleSummary>
 
@@ -67,11 +67,11 @@ Custom objects are the clearest dividing line between plans. These are the vendo
 | Twenty | Unlimited on Pro, Organization and Enterprise; the open-source core can be self-hosted | [Twenty pricing](https://twenty.com/pricing) |
 | EspoCRM | Entity Manager creates custom entities, fields and relationships; open source | [EspoCRM features](https://www.espocrm.com/features/) |
 | Pipedrive | The cited help page covers custom fields on leads, deals, people, organizations, products and projects; the number of fields depends on the plan | [Pipedrive support](https://support.pipedrive.com/en/article/custom-fields) |
-| Customermates | None. Five fixed record types with custom fields on each | [Customermates data model](/docs/concepts) |
+| Customermates | Your own lists with fields, relationships and calculated fields; a workspace starts with five | [Customermates data model](/docs/concepts) |
 
 Vendor details checked on 8 October 2026 against the linked official pages. Plans change, so confirm the tier you need on the vendor's site before you buy.
 
-If you need a "Property" record that links to several owners and tenants, or a "Contract" record with its own lifecycle, choose a product from the upper rows. If your business is people, companies, opportunities and the services you sell, custom objects are usually a plan upgrade you don't need.
+If you need a "Property" record that links to several owners and tenants, or a "Contract" record with its own lifecycle, choose a product that includes custom objects on the plan you can afford. If your business is people, companies, opportunities and the services you sell, custom objects are usually a plan upgrade you don't need.
 
 ## Adapt a product, use a no-code builder, or build your own
 
@@ -91,23 +91,23 @@ A middle path has opened up: start from a CRM with a full API and let an AI clie
 Here is how a five-person consultancy would shape Customermates to its process. Every step is configuration, no code.
 
 <Steps>
-  <Step title="Rename the record types">
-    Under **Data model** in company settings, choose preset names: Contacts become **Clients**, Deals become **Projects**, Services become **Packages**. Free-text names are not possible; the presets are listed in the [company settings docs](/docs/app-company#how-do-i-rename-record-types-in-the-data-model). The API and MCP keep the original names.
+  <Step title="Rename the lists">
+    In **Configure**, open a list and change **Name** and **Plural name** under **General**: Contacts become **Clients**, Deals become **Projects**, Services become **Packages**. Any name works, and records, links, views and API references stay connected; see the [workspace settings docs](/docs/app-company#how-do-i-rename-record-types-in-the-data-model).
   </Step>
   <Step title="Define the stage field">
-    A new workspace starts with a **Stage** column on deals. Edit its options to match your sales steps, for example Enquiry, Scoping call, Proposal sent, Signed, Lost. Give each option a weight, and every deal gets a weighted value from those fixed percentages, summed into a weighted pipeline total.
+    A new workspace starts with a **Stage** field on deals. Open it in Configure for Deals and edit its options to match your sales steps, for example Enquiry, Scoping call, Proposal sent, Signed, Lost. Set **Probability %** on each option, and every deal gets a weighted value from those fixed percentages; a Dashboard chart widget that sums **Weighted value** by stage shows the weighted pipeline total.
   </Step>
   <Step title="Add custom fields where they drive a decision">
-    On Projects: **Engagement type** (Single Select: retainer, fixed scope, workshop), **Day rate** (Currency), **Contract renewal** (Date). On Clients: **Source** (Single Select) and **Direct line** (Phone). Ten field types are available, listed in the [data model docs](/docs/concepts#what-are-custom-columns).
+    On Projects: **Engagement type** (Single choice: retainer, fixed scope, workshop), **Day rate** (Money), **Contract renewal** (Date). On Clients: **Source** (Single choice) and **Direct line** (Phone). Fifteen field types and calculated fields are available, listed in the [data model docs](/docs/concepts#what-are-custom-columns).
   </Step>
   <Step title="Save the views each person works from">
     A board of Projects grouped by Stage, a table of retainers sorted by **Contract renewal**, and a list of Clients grouped by **Source**. Saved views are personal, so each colleague sets the same filters and saves their own view.
   </Step>
   <Step title="Bring existing data in">
-    Export each sheet from your old tool as an Excel workbook and import one record type at a time, Clients first, then Projects, mapping columns to your new custom fields. The [records docs](/docs/app-records#how-do-i-import-or-export-records) list the file limits.
+    Export each sheet from your old tool as an Excel workbook and import one list at a time, Clients first, then Projects, mapping columns to your new custom fields. The [records docs](/docs/app-records#how-do-i-import-or-export-records) list the file limits.
   </Step>
   <Step title="Automate one step (Customermates Cloud)">
-    A Routine with the trigger "deal updated", watching only the **Stage** field and filtered to Proposal sent: "Draft a short follow-up to the main client contact referencing the proposal. Save it as a draft, do not send." Routines run Mate, use hosted AI credits and run as their owner. Without the "do not send" line, a routine may send the message itself. See [Routines](/docs/app-routines).
+    A Routine on the event **Record updated** for Projects, watching only the **Stage** field and filtered to Proposal sent: "Draft a short follow-up to the main client contact referencing the proposal. Save it as a draft, do not send." Routines run Mate, use hosted AI credits and run as their owner. Without the "do not send" line, a routine may send the message itself. See [Routines](/docs/app-routines).
   </Step>
 </Steps>
 
@@ -117,14 +117,11 @@ Connected email, LinkedIn and WhatsApp conversations appear next to these record
 
 These limits matter if you are comparing customizable CRMs:
 
-- **No custom objects.** You get contacts, organizations, deals, services and tasks. A "Property" or "Contract" record type is not possible. Choose Twenty, Attio, EspoCRM or an Enterprise plan elsewhere if you need one.
-- **Ten field types, no number field.** Text, date, date range, date and time, date and time range, currency, single select, link, email and phone. There is no plain number, multi-select, checkbox or formula field.
-- **Renaming uses presets.** Deals can become Opportunities, Projects or Jobs, not any word you type.
-- **Permissions stop at the record type.** Roles control read and manage access per record type, including "only records assigned to me". There are no field-level permissions.
+- **Permissions stop at the list.** Roles control create, read, edit and delete per list, including "only records assigned to me". There are no field-level permissions.
 - **Saved views are personal.** There are no shared team views.
-- **No tagging.** Use a Single Select field instead, which also keeps values consistent.
+- **No tagging.** Use a Single choice field instead, which also keeps values consistent.
 - **Tasks have no built-in due date.** Add a Date field and sort by it; nothing alerts you when that date passes.
-- **Import and export are Excel workbooks**, one record type at a time. There is no whole-account export.
+- **Import and export run per list**, as Excel workbooks or JSON, up to 5,000 records per export. There is no whole-account export.
 
 For self-hosting, the open-source core includes records, custom fields, views, roles, REST, [webhooks](/docs/webhooks) and MCP. The inbox, Mate and Routines are cloud-only. Details are on the [self-hosted page](/features/self-hosted).
 
@@ -144,8 +141,8 @@ A year on Pro for five people comes to [[commercial.price.pro.monthly.seats.5.mo
 Customization fails more often through too many fields than too few. Three rules help:
 
 1. Add a field only when someone filters, sorts or decides on it. "Might be useful" fields stay empty.
-2. Prefer Single Select over free text for anything you will group by later.
-3. Every quarter, delete fields that nobody has filled in. In Customermates, deleting a field removes its values for good, so export first if in doubt.
+2. Prefer Single choice over free text for anything you will group by later.
+3. Every quarter, delete fields that nobody has filled in. In Customermates, a deleted field stays in Trash for 30 days and then loses its values for good, so export first if in doubt.
 
 ## Frequently asked questions
 
@@ -163,11 +160,11 @@ It depends on the specification, so be wary of any fixed figure. Count the maint
 </FaqItem>
 
 <FaqItem question="Can I build a CRM in Excel?">
-For one person and a few hundred contacts, yes. It breaks down when several people edit at once, when you need links between clients and projects, or when conversations should sit next to the record. Our [Excel CRM template guide](/blog/excel-crm-template) shows a workable layout and when to move on. Customermates imports Excel workbooks, one record type at a time.
+For one person and a few hundred contacts, yes. It breaks down when several people edit at once, when you need links between clients and projects, or when conversations should sit next to the record. Our [Excel CRM template guide](/blog/excel-crm-template) shows a workable layout and when to move on. Customermates imports Excel workbooks, one list at a time.
 </FaqItem>
 
 <FaqItem question="Which CRM offers the most flexible data model for custom objects?">
-Among the products checked here, Twenty includes unlimited custom objects on its Pro, Organization and Enterprise plans, Attio allows up to 12 on Pro and unlimited on Enterprise, EspoCRM creates custom entities in its Entity Manager, and HubSpot and Zoho CRM reserve custom objects for Enterprise tiers. Customermates has no custom objects.
+Among the products checked here, Twenty includes unlimited custom objects on its Pro, Organization and Enterprise plans, Attio allows up to 12 on Pro and unlimited on Enterprise, EspoCRM creates custom entities in its Entity Manager, and HubSpot and Zoho CRM reserve custom objects for Enterprise tiers. In Customermates you add your own lists with fields and relationships in Configure.
 </FaqItem>
 
 <FaqItem question="Can I keep my CRM data on my own server?">

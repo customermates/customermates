@@ -37,7 +37,7 @@ Diesen Leitfaden veröffentlicht Customermates, und das Praxisbeispiel unten ist
   <SummaryItem label="Definition">Ein Plan dafür, wie Ihr Team Kunden gewinnt, betreut und hält, und wie das CRM jeden Schritt abbildet. Erst die Strategie, dann die Konfiguration.</SummaryItem>
   <SummaryItem label="Die sieben Entscheidungen">Ziele mit Zahlen, Zielkunden, Phasen im Kundenlebenszyklus, Mindestdaten, Zuständigkeiten, Kommunikationskanäle, Review-Rhythmus.</SummaryItem>
   <SummaryItem label="Fehlt oft">Alles nach der Unterschrift: Onboarding, Verlängerungstermine, Kundenstatus und Kennzahlen zur Kundenbindung.</SummaryItem>
-  <SummaryItem label="Praxisbeispiel">Eine Beratung mit sechs Personen: Deal-Phasen mit Abschlusswahrscheinlichkeit, fünf eigene Spalten, drei gespeicherte Ansichten, zwei Routinen.</SummaryItem>
+  <SummaryItem label="Praxisbeispiel">Eine Beratung mit sechs Personen: Deal-Phasen mit Abschlusswahrscheinlichkeit, fünf eigene Felder, drei gespeicherte Ansichten, zwei Routinen.</SummaryItem>
   <SummaryItem label="Review">Quartalsweise, anhand von zwei Arten von Kennzahlen: Geschäftsergebnis und Datenqualität.</SummaryItem>
 </ArticleSummary>
 
@@ -86,19 +86,19 @@ Wöchentlich: offene Deals ohne künftigen nächsten Schritt und Kunden mit Stat
 
 Das folgende Setup ist ein Beispiel, kein Kundenfall. Eine Beratung mit vier Beraterinnen und Beratern und zwei Personen im Projektteam will zweierlei: weniger Angebote, auf die keine Antwort mehr kommt, und keine Vertragsverlängerung, die überraschend auf dem Tisch liegt.
 
-**Deal-Phasen.** Ein neuer Customermates-Workspace beginnt mit einer Spalte **Phase** auf Deals (Typ Einzelauswahl). Das Team ändert die Optionen in Akquise, Qualifizierung, Erstgespräch, Angebot, Verhandlung, Gewonnen und Verloren und trägt unter **Mein Unternehmen › Einstellungen** für jede Option eine Abschlusswahrscheinlichkeit ein. Jeder Deal zeigt dann einen gewichteten Wert: Deal-Wert mal Gewicht der Phase. Der Deal-Wert ergibt sich aus den verknüpften Services, deshalb legt das Team seine Standardangebote als Services an. Das ist eine feste Rechenregel aus den eingetragenen Prozentwerten, keine Prognose. Details stehen in der [Dokumentation zu Datensätzen](/docs/app-records).
+**Deal-Phasen.** Ein neuer Customermates-Workspace beginnt mit einem Feld **Phase** auf Deals (Typ Einzelauswahl). Das Team ändert die Optionen in Akquise, Qualifizierung, Erstgespräch, Angebot, Verhandlung, Gewonnen und Verloren und trägt in Konfigurieren für Deals für jede Option eine Abschlusswahrscheinlichkeit als **Wahrscheinlichkeit %** ein. Jeder Deal zeigt dann einen gewichteten Wert: Deal-Wert mal Gewicht der Phase. Der Deal-Wert ist die Summe seiner Positionen, jeweils Service mal Menge, deshalb legt das Team seine Standardangebote als Services an. Das ist eine feste Rechenregel aus den eingetragenen Prozentwerten, keine Prognose. Details stehen in der [Dokumentation zu Datensätzen](/docs/app-records).
 
-**Eigene Spalten.** Customermates kennt zehn Spaltentypen, darunter Datum, Währung und Einzelauswahl. Das Team legt an:
+**Eigene Felder.** Customermates kennt 15 Feldtypen, darunter Datum, Geldbetrag und Einzelauswahl. Das Team legt an:
 
-| Datensatztyp | Spalte | Typ | Wozu |
+| Liste | Feld | Typ | Wozu |
 | --- | --- | --- | --- |
 | Deals | Nächster Schritt am | Datum | Offene Deals im Wochen-Review danach sortieren |
 | Deals | Quelle | Einzelauswahl | Empfehlung, LinkedIn, Website, Veranstaltung: Abschlüsse pro Quelle zählen |
 | Organisationen | Verlängerung am | Datum | Das Verlängerungsgespräch 90 bis 120 Tage vorher beginnen |
-| Organisationen | Vertragswert | Währung | Umsatz, der an jeder Verlängerung hängt |
+| Organisationen | Vertragswert | Geldbetrag | Umsatz, der an jeder Verlängerung hängt |
 | Organisationen | Kundenstatus | Einzelauswahl | Grün, Gelb, Rot, mit einer schriftlichen Regel für jede Stufe |
 
-Aufgaben haben in Customermates kein eingebautes Fälligkeitsdatum. Wer eines braucht, legt eine Datumsspalte auf Aufgaben an und sortiert danach.
+Aufgaben haben in Customermates kein eingebautes Fälligkeitsdatum. Wer eines braucht, legt ein Datumsfeld auf Aufgaben an und sortiert danach.
 
 **Gespeicherte Ansichten.** Jede Beraterin und jeder Berater speichert die Ansichten, mit denen sie arbeiten. Gespeicherte Ansichten sind persönlich, also legt jede Person ihre eigenen an.
 
@@ -113,7 +113,7 @@ Ein Dashboard-Diagramm zeigt den gewichteten Deal-Wert nach Phase, ein zweites z
 **Zwei Routinen (Customermates Cloud).** Routinen lassen Mate, den gehosteten Assistenten, eine gespeicherte Anweisung nach Zeitplan oder bei einer Änderung an einem Datensatz ausführen. Sie verbrauchen gehostete KI-Credits aus dem Monatskontingent der Person, der die Routine gehört.
 
 - Wöchentlich, montags früh: *„Listen Sie meine offenen Deals auf, deren Datum ‚Nächster Schritt am‘ überschritten oder leer ist. Fassen Sie zu jedem das letzte Gespräch in einem Satz zusammen und erstellen Sie einen Antwortentwurf. Senden Sie nichts, legen Sie nur Entwürfe an.“* Der letzte Satz ist wichtig: Mate versendet Nachrichten, wenn die Anweisung es verlangt. Eine Routine, die nur entwerfen soll, muss das ausdrücklich sagen.
-- Bei einer Änderung: Auslöser **Wenn sich etwas ändert**, Ereignis **Deal aktualisiert**, geändertes Feld Phase, Datensatzfilter Phase ist Gewonnen. Anweisung: *„Legen Sie eine Aufgabe ‚Kick-off‘ an, verknüpft mit diesem Deal und seinen Kontakten, zugewiesen an die zugewiesenen Personen des Deals, und ergänzen Sie eine Übergabe-Zusammenfassung in den Notizen des Deals.“*
+- Bei einer Änderung: Auslöser **Wenn sich etwas ändert**, Ereignis **Datensatz aktualisiert** für Deals, geändertes Feld Phase, Datensatzfilter Phase ist Gewonnen. Anweisung: *„Legen Sie eine Aufgabe ‚Kick-off‘ an, verknüpft mit diesem Deal und seinen Kontakten, zugewiesen an die zugewiesenen Personen des Deals, und ergänzen Sie eine Übergabe-Zusammenfassung in den Notizen des Deals.“*
 
 Eine Routine läuft als ihre Eigentümerin oder ihr Eigentümer und sieht nur, was diese Person sehen darf. Grenzen und Auslöser sind unter [Routinen](/docs/app-routines) dokumentiert.
 
@@ -147,9 +147,9 @@ Die ersten fünf messen Ergebnisse. Die letzte misst, ob man den CRM-Daten traue
 ## Best Practices, die eine CRM-Strategie lebendig halten
 
 - **Mit der kleinsten funktionierenden Einrichtung beginnen.** Kontakte, Organisationen, eine Deal-Pipeline. Felder kommen dazu, wenn ein Review den Bedarf zeigt, nicht vorher.
-- **Felder auch wieder entfernen.** Löschen Sie im Quartals-Review die Spalten, die niemand ausfüllt.
+- **Felder auch wieder entfernen.** Löschen Sie im Quartals-Review die Felder, die niemand ausfüllt.
 - **Dubletten vor dem Import zusammenführen.** „Muster“, „MUSTER GmbH“ und „Muster Consulting“ sollten vor der Migration eine Organisation sein.
-- **Einen Datensatztyp nach dem anderen migrieren.** In Customermates werden Datensätze aus XLSX-Arbeitsmappen importiert, ein Datensatztyp pro Import: zuerst Organisationen, dann Kontakte, dann Deals.
+- **Eine Liste nach der anderen migrieren.** In Customermates werden Datensätze aus XLSX-Arbeitsmappen importiert, eine Liste pro Import: zuerst Organisationen, dann Kontakte, dann Deals.
 - **An der täglichen Arbeit schulen, nicht an jeder Funktion.** Eine Stunde mit der Ansicht für das Wochen-Review bringt mehr als eine Tour durch die Einstellungen. Der [Leitfaden zur CRM-Schulung](/blog/crm-training) enthält einen Ablaufplan.
 - **Keinen Prozess automatisieren, den Sie nie von Hand durchlaufen haben.** Führen Sie das Wochen-Review einen Monat lang manuell durch, dann lassen Sie es von einer Routine vorbereiten.
 
@@ -189,4 +189,4 @@ Wenige Pflichtfelder, Auswahllisten statt Freitext, Dubletten vor der Migration 
 </FaqItem>
 </Faq>
 
-Um das Praxisbeispiel auszuprobieren, starten Sie eine Testphase von [[commercial.trial.days]] Tagen, benennen die Optionen der Spalte Phase nach Ihren eigenen Phasen um und legen die fünf eigenen Spalten aus der Tabelle oben an.
+Um das Praxisbeispiel auszuprobieren, starten Sie eine Testphase von [[commercial.trial.days]] Tagen, benennen die Optionen des Felds Phase nach Ihren eigenen Phasen um und legen die fünf eigenen Felder aus der Tabelle oben an.

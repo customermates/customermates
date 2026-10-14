@@ -37,7 +37,7 @@ Customermates publishes this guide, and the worked example below is set up in Cu
   <SummaryItem label="Definition">A plan for how your team wins, serves and keeps customers, and how the CRM records each step. Strategy first, configuration second.</SummaryItem>
   <SummaryItem label="The seven decisions">Goals with numbers, target customers, lifecycle stages, minimum data, ownership rules, conversation channels, review rhythm.</SummaryItem>
   <SummaryItem label="Often missing">The part after the signature: onboarding, renewal dates, account health and retention metrics.</SummaryItem>
-  <SummaryItem label="Worked example">A six-person consultancy: deal phases with win probabilities, five custom columns, three saved views, two routines.</SummaryItem>
+  <SummaryItem label="Worked example">A six-person consultancy: deal phases with win probabilities, five custom fields, three saved views, two routines.</SummaryItem>
   <SummaryItem label="Review">Quarterly, against two kinds of metrics: business results and data health.</SummaryItem>
 </ArticleSummary>
 
@@ -86,19 +86,19 @@ Weekly: open deals without a future next step, and accounts rated red. Quarterly
 
 The following is an illustrative setup, not a customer case. A consultancy with four consultants and two people in delivery wants two things: fewer proposals that go quiet, and no renewal that arrives as a surprise.
 
-**Deal phases.** A new Customermates workspace starts with a **Stage** column on deals (a Single Select column). The team edits its options to Prospecting, Qualification, Discovery call, Proposal, Negotiation, Won and Lost, and enters a win probability per option under **My Company › Settings**. Each deal then shows a weighted value: deal value times the stage weight. A deal's value is the sum of the services linked to it, so the team adds its standard offers as services. That is a fixed calculation from the percentages you enter, not a prediction. Details are in [the records documentation](/docs/app-records).
+**Deal phases.** A new Customermates workspace starts with a **Stage** field on deals (a Single choice field). The team edits its options to Prospecting, Qualification, Discovery call, Proposal, Negotiation, Won and Lost, and enters a win probability per option as **Probability %** in Configure for Deals. Each deal then shows a weighted value: deal value times the stage weight. A deal's value is the sum of its line items, each a service times quantity, so the team adds its standard offers as services. That is a fixed calculation from the percentages you enter, not a prediction. Details are in [the records documentation](/docs/app-records).
 
-**Custom columns.** Customermates has ten column types, among them Date, Currency and Single Select. The team adds:
+**Custom fields.** Customermates has 15 field types, among them Date, Money and Single choice. The team adds:
 
-| Record type | Column | Type | Why |
+| List | Field | Type | Why |
 | --- | --- | --- | --- |
 | Deals | Next step on | Date | Sort open deals by it in the weekly review |
-| Deals | Source | Single Select | Referral, LinkedIn, Website, Event: count wins per source |
+| Deals | Source | Single choice | Referral, LinkedIn, Website, Event: count wins per source |
 | Organizations | Renewal date | Date | Start the renewal conversation 90 to 120 days ahead |
-| Organizations | Contract value | Currency | Revenue at stake per renewal |
-| Organizations | Account health | Single Select | Green, Yellow, Red, with a written rule for each |
+| Organizations | Contract value | Money | Revenue at stake per renewal |
+| Organizations | Account health | Single choice | Green, Yellow, Red, with a written rule for each |
 
-Tasks in Customermates have no built-in due date. If the team wants one, it adds a Date column to tasks and sorts by it.
+Tasks in Customermates have no built-in due date. If the team wants one, it adds a Date field to tasks and sorts by it.
 
 **Saved views.** Each consultant saves the views they work from. Saved views are personal, so everyone creates their own.
 
@@ -113,7 +113,7 @@ A dashboard chart shows weighted deal value grouped by Stage, and a second one c
 **Two routines (Customermates Cloud).** Routines run Mate, the hosted assistant, with a saved instruction on a schedule or when a record changes. They use hosted AI credits from the owner's monthly allowance.
 
 - Weekly, every Monday morning: *"List my open deals whose Next step on date has passed or is empty. For each, summarize the last conversation in one sentence and draft a follow-up reply. Do not send anything; leave drafts only."* The last sentence matters: Mate can send messages when asked, so a routine that should only draft has to say so.
-- On a change: trigger **When something changes**, event **Deal Updated**, changed field Stage, record filter Stage is Won. Instruction: *"Create a task 'Kickoff' linked to this deal and its contacts, assigned to the deal's assigned users, and add a handover summary to the deal notes."*
+- On a change: trigger **When something changes**, event **Record updated** for Deals, changed field Stage, record filter Stage is Won. Instruction: *"Create a task 'Kickoff' linked to this deal and its contacts, assigned to the deal's assigned users, and add a handover summary to the deal notes."*
 
 A routine runs as its owner and sees only what that person can see. Limits and triggers are documented under [Routines](/docs/app-routines).
 
@@ -147,9 +147,9 @@ The first five measure results. The last one measures whether the CRM data can b
 ## Practices that keep a CRM strategy alive
 
 - **Start with the smallest working setup.** Contacts, organizations, one deal pipeline. Add fields when a review shows you need them, not before.
-- **Remove fields as well as adding them.** In the quarterly review, delete columns that nobody filled in.
+- **Remove fields as well as adding them.** In the quarterly review, delete fields that nobody filled in.
 - **Merge duplicates on import.** "Acme", "ACME GmbH" and "Acme Consulting" should be one organization before you migrate.
-- **Migrate one record type at a time.** In Customermates, records import from XLSX workbooks, one record type per import: organizations first, then contacts, then deals.
+- **Migrate one list at a time.** In Customermates, records import from XLSX workbooks, one list per import: organizations first, then contacts, then deals.
 - **Train on daily work, not on every feature.** An hour on the weekly review view beats a tour of the settings. The [CRM training guide](/blog/crm-training) has a session plan.
 - **Do not automate a process you have not run by hand.** Run the weekly review manually for a month, then let a routine prepare it.
 
@@ -189,4 +189,4 @@ Keep required fields few, use option lists instead of free text, merge duplicate
 </FaqItem>
 </Faq>
 
-To try the worked example, start a Customermates trial ([[commercial.trial.days]] days), rename the Stage options to your own phases and add the five custom columns from the table above.
+To try the worked example, start a Customermates trial ([[commercial.trial.days]] days), rename the Stage options to your own phases and add the five custom fields from the table above.

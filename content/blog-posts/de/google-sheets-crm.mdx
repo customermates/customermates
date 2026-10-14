@@ -165,17 +165,17 @@ Eine einfache Faustregel: Sobald zwei Personen jede Woche dieselben Deals bearbe
 
 ## Von Google Sheets zu Customermates
 
-Customermates importiert Excel-Arbeitsmappen (.xlsx), einen Datensatztyp nach dem anderen. Eine Google-Tabelle laden Sie deshalb zuerst herunter. Eine Live-Synchronisation mit Google Sheets gibt es nicht, einen CSV-Import auch nicht. Die vollständigen Regeln stehen in der [Dokumentation zu Import und Export](/docs/app-records#how-do-i-import-or-export-records), und der Beitrag zur [Excel-Vorlage](/blog/excel-crm-template#von-der-excel-vorlage-zu-customermates) ordnet jede Spalte dieses Aufbaus einem Feld zu.
+Customermates importiert Excel-Arbeitsmappen (.xlsx), eine Liste nach der anderen. Eine Google-Tabelle laden Sie deshalb zuerst herunter. Eine Live-Synchronisation mit Google Sheets gibt es nicht, einen CSV-Import auch nicht. Die vollständigen Regeln stehen in der [Dokumentation zu Import und Export](/docs/app-records#how-do-i-import-or-export-records), und der Beitrag zur [Excel-Vorlage](/blog/excel-crm-template#von-der-excel-vorlage-zu-customermates) ordnet jede Spalte dieses Aufbaus einem Feld zu.
 
 <Steps>
   <Step title="Blätter bereinigen">Entfernen Sie in Kontakte und Deals doppelte Zeilen (Daten › Datenbereinigung › Duplikate entfernen) und korrigieren Sie jeden Wert, den ein Dropdown markiert. Jede Phase und jede Art muss exakt einem Wert aus dem Blatt Listen entsprechen.</Step>
-  <Step title="Eigene Felder anlegen">Öffnen Sie in Customermates einen beliebigen Datensatz, klicken Sie auf **Anpassen** und dann auf **Feld hinzufügen**. Legen Sie für jede Dropdown-Spalte (Kontaktart, Quelle, Branche) ein Feld vom Typ **Einzelauswahl** an, dessen Optionen genau so heißen wie im Blatt Listen. Für „Nächster Schritt am" und „Abgeschlossen am" nehmen Sie Felder vom Typ Datum. Das Feld Phase mit den Phasen von oben gibt es bereits.</Step>
-  <Step title="Blatt für Blatt herunterladen">Der Import-Assistent liest das erste Blatt einer Arbeitsmappe, das nicht „Schema" heißt. Ziehen Sie das Blatt, das Sie importieren wollen, nach vorn und wählen Sie Datei › Herunterladen › Microsoft Excel (.xlsx). Wiederholen Sie das für jedes Blatt.</Step>
-  <Step title="In der richtigen Reihenfolge importieren">Erst Firmen als **Organisationen**, dann Kontakte, dann Deals. Öffnen Sie in jeder Liste **Import und Export**, wählen Sie **Aus Datei hinzufügen** und ordnen Sie jede Spalte einem Feld, einem eigenen Feld oder einem Kanal zu. Verknüpfungen werden über den Namen zugeordnet, ohne Groß- und Kleinschreibung zu beachten; die Firma muss also existieren, bevor ein Kontakt auf sie zeigen kann. Die Spalte Zuständig landet in **Zugewiesen**, zugeordnet über den vollen Namen des Teammitglieds.</Step>
+  <Step title="Eigene Felder anlegen">Öffnen Sie in Customermates die Liste in **Konfigurieren** und wählen Sie **Hinzufügen**, dann **Feld**. Legen Sie für jede Dropdown-Spalte (Kontaktart, Quelle, Branche) ein Feld vom Typ **Einzelauswahl** an, dessen Optionen genau so heißen wie im Blatt Listen. Für „Nächster Schritt am" und „Abgeschlossen am" nehmen Sie Felder vom Typ Datum. Das Feld Phase mit den Phasen von oben gibt es bereits.</Step>
+  <Step title="Arbeitsmappe herunterladen">Wählen Sie Datei › Herunterladen › Microsoft Excel (.xlsx). Der Import-Assistent fragt, welches Blatt importiert werden soll, dieselbe Datei reicht also für jeden Import.</Step>
+  <Step title="In der richtigen Reihenfolge importieren">Erst Firmen als **Organisationen**, dann Kontakte, dann Deals. Öffnen Sie in jeder Liste **Weitere Aktionen**, wählen Sie **Aus Datei hinzufügen** und ordnen Sie jede Spalte einem Feld zu, etwa E-Mail-Adressen dem Feld Kanäle des Kontakts. Verknüpfungen werden über den Namen zugeordnet, ohne Groß- und Kleinschreibung zu beachten; die Firma muss also existieren, bevor ein Kontakt auf sie zeigen kann. Die Spalte Zuständig landet in **Zugewiesen**, zugeordnet über den vollen Namen des Teammitglieds.</Step>
   <Step title="Mit zehn Zeilen testen">Die Prüfung listet jede Problemzeile auf, bevor etwas angelegt wird, und Sie können diese Zeilen überspringen. Rückgängig machen lässt sich ein Import nicht, testen Sie also zuerst mit einer kleinen Datei. Aus dem Blatt Aktivitäten übernehmen Sie nur offene nächste Schritte als Aufgaben; den älteren Verlauf schreiben Sie in die Notizen des Deals oder lassen ihn in der archivierten Tabelle.</Step>
 </Steps>
 
-Deal-Werte funktionieren anders: In Customermates ergibt sich der Wert eines Deals aus den verknüpften Services. Wie Sie Ihre Preisliste vorher importieren, zeigen die [Importschritte der Excel-Vorlage](/blog/excel-crm-template#von-der-excel-vorlage-zu-customermates).
+Deal-Werte funktionieren anders: In Customermates ist der Wert eines Deals die Summe seiner Positionen, jeweils Service mal Menge. Wie Sie Ihre Preisliste vorher importieren, zeigen die [Importschritte der Excel-Vorlage](/blog/excel-crm-template#von-der-excel-vorlage-zu-customermates).
 
 ### Was Dashboard und Apps Script ersetzt
 
@@ -219,11 +219,11 @@ Der Aufbau in diesem Beitrag ist kostenlos: Spaltenköpfe in eine leere Tabelle 
 </FaqItem>
 
 <FaqItem question="Wie viele Kontakte verträgt ein CRM in Google Sheets?">
-Eine Tabelle fasst laut Googles [Dateilimits](https://support.google.com/drive/answer/37603?hl=de) bis zu 20 Millionen Zellen. Die eigentliche Grenze sind die Menschen, nicht die Zeilen: Gemeinsamer Zugriff und liegen gebliebene Nachfasstermine werden lange vorher zum Problem. Customermates liest derzeit bis zu 10.000 Zeilen pro Importdatei, größere Blätter teilen Sie auf.
+Eine Tabelle fasst laut Googles [Dateilimits](https://support.google.com/drive/answer/37603?hl=de) bis zu 20 Millionen Zellen. Die eigentliche Grenze sind die Menschen, nicht die Zeilen: Gemeinsamer Zugriff und liegen gebliebene Nachfasstermine werden lange vorher zum Problem. Customermates liest derzeit bis zu 5.000 Zeilen pro Importdatei, größere Blätter teilen Sie auf.
 </FaqItem>
 
 <FaqItem question="Lässt sich eine Google-Tabelle mit einem CRM verbinden?">
-Manche CRMs bieten ein Add-on für Sheets, im Workspace Marketplace etwa „Copper CRM for Google Sheets". Customermates nicht: Import und Export laufen über .xlsx-Dateien, ein Datensatztyp nach dem anderen, ohne Live-Synchronisation. Sie können eine Liste exportieren, in Google Tabellen bearbeiten, als .xlsx herunterladen und wieder importieren; die Spalte Record ID aktualisiert dann die vorhandenen Datensätze, statt Duplikate anzulegen.
+Manche CRMs bieten ein Add-on für Sheets, im Workspace Marketplace etwa „Copper CRM for Google Sheets". Customermates nicht: Import und Export laufen über .xlsx-Dateien, eine Liste nach der anderen, ohne Live-Synchronisation. Sie können eine Liste exportieren, in Google Tabellen bearbeiten, als .xlsx herunterladen und als **Vorhandene Datensätze** wieder importieren; die Spalte Record ID aktualisiert dann die vorhandenen Datensätze, statt Duplikate anzulegen.
 </FaqItem>
 
 <FaqItem question="Geht das auch mit Excel?">

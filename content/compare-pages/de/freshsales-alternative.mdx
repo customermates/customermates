@@ -42,10 +42,10 @@ comparison:
   - title: Vertrieb & Datenmodell
     features:
       - name: Datensatztypen
-        source: Kontakte, Organisationen, Deals, Services, Aufgaben
+        source: Kontakte, Organisationen, Deals, Services, Aufgaben, dazu eigene Listen
         competitor: Kontakte, Accounts, Deals; bis zu 10 eigene Module in Enterprise
       - name: Eigene Felder
-        source: Zehn Feldtypen in jedem Tarif
+        source: Fünfzehn Feldtypen und berechnete Felder in jedem Tarif
         competitor: Einfache Felder in jedem Tarif; Formel- und Lookup-Felder ab Pro
       - name: Pipelines
         source: Board nach jedem Einzelauswahl-Feld gruppierbar; ein Phasenfeld mit Gewinnwahrscheinlichkeiten
@@ -130,7 +130,7 @@ cta:
 | Bis zu drei Personen, die ein kostenloses CRM mit E-Mail-Synchronisierung und Telefon suchen | Freshsales Free | Der kostenlose Tarif umfasst 3 Nutzer, Zwei-Wege-E-Mail-Synchronisierung und das eingebaute Telefon |
 | Sie telefonieren täglich mit Interessenten | Freshsales Growth oder Pro | Gesprächsaufzeichnung ab Growth, Power Dialer ab Pro; Customermates hat keine Telefonie |
 | Sie verschicken mehrstufige E-Mail-Sequenzen oder Serien-E-Mails | Freshsales Pro | Sequenzen gibt es ab Pro; Customermates verschickt Nachrichten einzeln |
-| Sie brauchen eigene Module oder Berechtigungen auf Feldebene | Freshsales Enterprise | Customermates bietet beides nicht |
+| Sie brauchen Berechtigungen auf Feldebene | Freshsales Enterprise | Customermates vergibt Rechte pro Liste, nicht pro Feld |
 | Kunden schreiben per LinkedIn, WhatsApp, Instagram oder Telegram und per E-Mail | Customermates Pro oder Business | Alle diese Kanäle laufen in einem Posteingang, verknüpft mit Kontakt und Deal |
 | Die KI soll das CRM aktuell halten, in der App oder über Claude oder ChatGPT | Customermates | Mate in Customermates Cloud oder Ihr eigener KI-Client per MCP in jedem Tarif |
 | Sie brauchen eine Open-Source-Lizenz, Self-Hosting oder ein Audit-Log schon im kleinen Tarif | Customermates | AGPL-3.0-Kern zum Selbsthosten; das Audit-Log gibt es in jedem Tarif, bei Freshsales laut Preisseite in Enterprise |
@@ -195,7 +195,7 @@ Prüfen Sie diese Punkte vor der Testphase:
 - **Keine Sequenzen und keine Serien-E-Mails.** Nachrichten verschicken Sie einzeln, selbst geschrieben oder von Mate entworfen.
 - **Kein Chat-Widget und keine Webformulare.** Anfragen von Ihrer Website kommen über die REST-API oder einen Workflow in einer selbst betriebenen n8n-Instanz ins CRM.
 - **Keine Lead-Bewertung, keine Datenanreicherung, keine KI-Prognosen.** Die gewichtete Pipeline multipliziert den Wert jedes Deals mit der Wahrscheinlichkeit seiner Phase. Das ist Arithmetik mit Ihren eigenen Zahlen und keine Vorhersage.
-- **Keine eigenen Module und keine Berechtigungen auf Feldebene.** Sie arbeiten mit fünf Datensatztypen, die Sie umbenennen können, und Berechtigungen gelten pro Datensatztyp und Aktion. Gespeicherte Ansichten sind persönlich und lassen sich nicht teilen.
+- **Keine Berechtigungen auf Feldebene.** Berechtigungen gelten pro Liste und Aktion. Gespeicherte Ansichten sind persönlich und lassen sich nicht teilen.
 - **Keine nativen Smartphone-Apps und kein kostenloser Tarif.** Auf dem Smartphone läuft Customermates im Browser, und nach einer [[commercial.trial.days]]-tägigen Testphase wählen Sie einen bezahlten Tarif.
 
 ## Beispiel: Eine Beratung wechselt von Freshsales Growth
@@ -205,15 +205,15 @@ Nehmen wir eine Beratung mit vier Personen, die Beratungsprojekte verkauft. Zwei
 | In Freshsales | In Customermates |
 |---|---|
 | Kontakte | Kontakte |
-| Accounts | Organisationen, über die Vorgaben in „Accounts“ umbenannt |
+| Accounts | Organisationen, in Konfigurieren in „Accounts“ umbenannt |
 | Deals in der Vertriebspipeline | Deals mit dem Feld „Phase“ und Gewinnwahrscheinlichkeiten |
-| Produktkatalog | Services, umbenannt in „Produkte“, mit Menge am Deal verknüpft |
+| Produktkatalog | Services, umbenannt in „Produkte“, als Positionen mit Menge im Deal |
 | Lifecycle-Phase des Kontakts | Ein Einzelauswahl-Feld „Lifecycle-Phase“ und je eine gespeicherte Ansicht pro bearbeiteter Phase |
 | Tags | Ein Einzelauswahl-Feld, denn Customermates kennt keine Tags |
 | Aufgaben | Aufgaben mit einem eigenen Datumsfeld „Fällig am“, da Aufgaben kein eingebautes Fälligkeitsdatum haben |
 | Telefonnummern und Anrufprotokolle | Ein eigenes Feld „Telefon“; Anrufe werden nicht protokolliert |
 
-Das Team benennt die Optionen des Felds „Phase“ in Lead, Qualifiziert, Angebot gesendet, Verhandlung, Gewonnen und Verloren um und trägt unter Mein Unternehmen › Einstellungen Gewinnwahrscheinlichkeiten von 10 %, 25 %, 50 %, 75 %, 100 % und 0 % ein. Jeder Berater speichert ein Board mit seinen eigenen Deals, gruppiert nach Phase. Die Partnerin führt eine Tabelle aller offenen Deals, gruppiert nach „Zugewiesen“.
+In Konfigurieren für Deals benennt das Team die Optionen des Felds „Phase“ in Lead, Qualifiziert, Angebot gesendet, Verhandlung, Gewonnen und Verloren um und setzt ihre Wahrscheinlichkeit % auf 10 %, 25 %, 50 %, 75 %, 100 % und 0 %. Jeder Berater speichert ein Board mit seinen eigenen Deals, gruppiert nach Phase. Die Partnerin führt eine Tabelle aller offenen Deals, gruppiert nach „Zugewiesen“.
 
 Jede Person verbindet einen Kanal, zweimal LinkedIn und zweimal Gmail. Damit passt Pro, für das Team [[commercial.price.pro.monthly.seats.4]] im Monat. Möchte ein Berater LinkedIn und E-Mail nebeneinander nutzen, wechselt der Arbeitsbereich zu Business für [[commercial.price.business.monthly.seats.4]].
 
@@ -225,10 +225,10 @@ Für Freshsales-Sequenzen gibt es kein Gegenstück. Stattdessen richtet jeder Be
 
 <Steps>
   <Step title="Aus Freshsales exportieren">Laut Hilfe-Center von Freshworks öffnet ein Admin Admin Settings › Account, klickt auf Export data und wählt die gewünschten Datensatztypen. Freshworks schickt den Export als ZIP-Datei per E-Mail. Sie können bis zu fünfmal täglich exportieren, den gesamten Zeitraum aber nur einmal.</Step>
-  <Step title="Jede Datei als Excel-Arbeitsmappe speichern">Customermates importiert ausschließlich .xlsx-Arbeitsmappen; CSV-Dateien werden nicht angenommen. Öffnen Sie die Datei jedes Datensatztyps in Excel oder LibreOffice und speichern Sie sie als .xlsx, einen Datensatztyp pro Arbeitsmappe.</Step>
-  <Step title="Arbeitsbereich vorbereiten">Benennen Sie Datensatztypen bei Bedarf um, legen Sie eigene Felder für die Freshsales-Felder an, die Sie behalten, etwa Lifecycle-Phase, Telefon und Lead-Quelle, und richten Sie das Phasenfeld mit seinen Wahrscheinlichkeiten ein.</Step>
-  <Step title="Einen Datensatztyp nach dem anderen importieren">Öffnen Sie in jeder Liste Import und Export, dann Aus Datei hinzufügen: zuerst Organisationen, dann Kontakte, dann Deals. Enthält Ihr Export keine Datei mit Accounts, erstellen Sie die Arbeitsmappe für Organisationen aus der Account-Spalte der Kontaktdatei. Verknüpfungsspalten werden über den Namen zugeordnet, sodass die Account-Spalte eines Kontakts die zuvor importierte Organisation findet. E-Mail-Adressen und WhatsApp-Nummern ordnen Sie den Kanälen des Kontakts zu. Größenlimits stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
-  <Step title="Kanäle und KI verbinden">Im Pro-Tarif oder während der Testphase verbinden Sie unter Mein Profil › Kanäle ein Postfach, LinkedIn oder WhatsApp. Der E-Mail-Verlauf aus dem Export wird nicht importiert; der Posteingang zeigt die Gespräche der Konten, die Sie verbinden. Danach richten Sie Routinen ein oder verbinden Ihren eigenen KI-Client per MCP.</Step>
+  <Step title="Jede Datei als Excel-Arbeitsmappe speichern">Customermates importiert ausschließlich .xlsx-Arbeitsmappen; CSV-Dateien werden nicht angenommen. Öffnen Sie jede Datei in Excel oder LibreOffice und speichern Sie sie als .xlsx, eine Liste pro Arbeitsmappe.</Step>
+  <Step title="Arbeitsbereich vorbereiten">Benennen Sie Listen in Konfigurieren bei Bedarf um, legen Sie eigene Felder für die Freshsales-Felder an, die Sie behalten, etwa Lifecycle-Phase, Telefon und Lead-Quelle, und richten Sie das Phasenfeld mit seinen Wahrscheinlichkeiten ein.</Step>
+  <Step title="Eine Liste nach der anderen importieren">Öffnen Sie in jeder Liste Weitere Aktionen, dann Aus Datei hinzufügen: zuerst Organisationen, dann Kontakte, dann Deals. Enthält Ihr Export keine Datei mit Accounts, erstellen Sie die Arbeitsmappe für Organisationen aus der Account-Spalte der Kontaktdatei. Verknüpfungsspalten werden über den Namen zugeordnet, sodass die Account-Spalte eines Kontakts die zuvor importierte Organisation findet. E-Mail-Adressen und WhatsApp-Nummern ordnen Sie den Kanälen des Kontakts zu. Größenlimits stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
+  <Step title="Kanäle und KI verbinden">Im Pro-Tarif oder während der Testphase verbinden Sie unter Einstellungen › Kanäle ein Postfach, LinkedIn oder WhatsApp. Der E-Mail-Verlauf aus dem Export wird nicht importiert; der Posteingang zeigt die Gespräche der Konten, die Sie verbinden. Danach richten Sie Routinen ein oder verbinden Ihren eigenen KI-Client per MCP.</Step>
 </Steps>
 
 ## Weitere Freshsales-Alternativen, die einen Blick wert sind
