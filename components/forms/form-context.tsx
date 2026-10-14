@@ -20,17 +20,20 @@ type AppFormProps = Omit<FormHTMLAttributes<HTMLFormElement>, "onSubmit"> & {
 
 const FormContext = createContext<BaseFormStore | null>(null);
 
+export function AppFormProvider({ store, children }: { store: BaseFormStore; children?: ReactNode }) {
+  useNavigationGuard(store);
+  return <FormContext.Provider value={store}>{children}</FormContext.Provider>;
+}
+
 export function useAppForm<T extends object = object>(): BaseFormStore<T> | null {
   return useContext(FormContext) as BaseFormStore<T> | null;
 }
 
 export const AppForm = observer(({ store, onSubmit, className, children, ...props }: AppFormProps) => {
-  useNavigationGuard(store);
-
   const handleSubmit = onSubmit ?? store.onSubmit;
 
   return (
-    <FormContext.Provider value={store}>
+    <AppFormProvider store={store}>
       <form
         noValidate
         {...props}
@@ -48,6 +51,6 @@ export const AppForm = observer(({ store, onSubmit, className, children, ...prop
       >
         {children}
       </form>
-    </FormContext.Provider>
+    </AppFormProvider>
   );
 });

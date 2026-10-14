@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { RootStore } from "@/core/stores/root.store";
 import type { ConnectedAccountDto } from "@/ee/messaging/messaging.schema";
+import { ForbiddenError } from "@/core/errors/app-errors";
 
 const harness = vi.hoisted(() => ({
   refreshConnectedAccountsAction: vi.fn(),
@@ -19,7 +20,10 @@ vi.mock("sonner", () => ({
 
 vi.mock("../../channels/actions", () => ({
   disconnectConnectedAccountAction: vi.fn(),
-  refreshConnectedAccountsAction: harness.refreshConnectedAccountsAction,
+  refreshConnectedAccountsAction: async () => {
+    const result = await harness.refreshConnectedAccountsAction();
+    return Array.isArray(result) ? { ok: true, data: result } : result;
+  },
   resyncConnectedAccountAction: vi.fn(),
   setConnectedAccountVisibilityAction: harness.setConnectedAccountVisibilityAction,
   setSelectedFoldersAction: harness.setSelectedFoldersAction,
@@ -174,6 +178,16 @@ describe("ConnectedAccountsStore sync polling", () => {
 });
 
 describe("ConnectedAccountsStore loading", () => {
+  it("preserves authorization failures from background account loading", async () => {
+    harness.refreshConnectedAccountsAction.mockResolvedValueOnce({
+      ok: false,
+      failure: { kind: "authorization", issues: [{ code: "custom", path: [], message: "Denied" }] },
+    });
+    const store = new ConnectedAccountsStore(rootStore());
+
+    await expect(store.ensureLoaded()).rejects.toBeInstanceOf(ForbiddenError);
+  });
+
   it("recovers from a failed zero-account load when one account becomes available", async () => {
     harness.refreshConnectedAccountsAction.mockRejectedValueOnce(new Error("Synthetic failure"));
     const store = new ConnectedAccountsStore(rootStore());

@@ -184,3 +184,29 @@ test("profile settings show the unsaved-changes bar only while edits are pending
   await expect(bar).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test("long profile email stays inside the phone viewport", async ({ page, database, workspace }) => {
+  const errors = collectPageErrors(page);
+  const email = `${"long-profile-address-".repeat(5)}@example.test`;
+  await database.query('UPDATE "AuthUser" SET email=$1 WHERE id=$2', [email, workspace.authUserId]);
+  await database.query('UPDATE "User" SET email=$1 WHERE id=$2', [email, workspace.userId]);
+  await page.setViewportSize({ width: 390, height: 1000 });
+  await page.goto("/de/settings/profile");
+  for (const theme of ["light", "dark"] as const) {
+    await database.query('UPDATE "User" SET theme=$1 WHERE id=$2', [theme, workspace.userId]);
+    await page.evaluate((value) => localStorage.setItem("theme", value), theme);
+    await page.emulateMedia({ colorScheme: theme });
+    await page.reload();
+    const address = page
+      .locator("form")
+      .filter({ has: page.locator("#settings-profile-first-name") })
+      .getByText(email, { exact: true });
+    await expect(address).toBeVisible();
+    const box = await address.boundingBox();
+    if (!box) throw new Error("Profile email is missing");
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(391);
+    await expect(address).toHaveCSS("text-overflow", "ellipsis");
+  }
+  expect(errors).toEqual([]);
+});

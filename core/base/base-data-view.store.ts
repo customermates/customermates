@@ -22,6 +22,7 @@ import type { Resource } from "@/generated/prisma";
 import { Action } from "@/generated/prisma";
 
 import { reportApplicationError } from "../errors/report-application-error";
+import { ForbiddenError } from "../errors/app-errors";
 import { toastZodErrorTree } from "../utils/toast-zod-error-tree";
 
 import { ViewMode } from "./base-query-builder";
@@ -376,7 +377,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   get savedQuery(): ViewQuery {
     const saved = this.views.find((view) => view.id === this.activeViewKey)?.state ?? this.allViewState;
-    return { filters: this.withKnownFields(saved.filters), searchTerm: saved.searchTerm || undefined };
+    return {
+      filters: this.withKnownFields(saved.filters),
+      searchTerm: saved.searchTerm || undefined,
+    };
   }
 
   get canSaveQuery(): boolean {
@@ -769,12 +773,16 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   hideGroup = (groupKey: string): void => {
     if (this.isGroupHidden(groupKey)) return;
-    this.setGroupPresentation({ hidden: [...(this.grouping?.hidden ?? []), groupKey] });
+    this.setGroupPresentation({
+      hidden: [...(this.grouping?.hidden ?? []), groupKey],
+    });
   };
 
   showGroup = (groupKey: string): void => {
     if (!this.isGroupHidden(groupKey)) return;
-    this.setGroupPresentation({ hidden: this.grouping?.hidden?.filter((key) => key !== groupKey) });
+    this.setGroupPresentation({
+      hidden: this.grouping?.hidden?.filter((key) => key !== groupKey),
+    });
     this.pendingGroupOnly = groupKey;
     this.refreshInBackground();
   };
@@ -1027,7 +1035,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       if (this.isReady) this.requestState = { status: "refreshing" };
       this.activeViewKey = key;
       this.proposal = draft?.proposal
-        ? { ...(draft.proposal.name ? { name: draft.proposal.name } : {}), isNew: draft.proposal.isNew }
+        ? {
+            ...(draft.proposal.name ? { name: draft.proposal.name } : {}),
+            isNew: draft.proposal.isNew,
+          }
         : null;
       this.filters = this.withKnownFields(draft?.filters ?? state.filters);
       this.searchTerm = draft ? draft.searchTerm : state.searchTerm;
@@ -1088,7 +1099,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       return;
     }
     if (this.savedAppearance) this.applyAppearance(this.savedAppearance);
-    this.setQueryOptions({ filters: this.savedQuery.filters, forceRefresh: true });
+    this.setQueryOptions({
+      filters: this.savedQuery.filters,
+      forceRefresh: true,
+    });
     this.syncQueryDraft();
   };
 
@@ -1199,7 +1213,9 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     const baseline: DataViewState = {};
     for (const key of APPEARANCE_KEYS) {
       const urlCarried = URL_CARRIED_APPEARANCE_KEYS.has(key);
-      Object.assign(baseline, { [key]: urlCarried ? saved[key] : current[key] });
+      Object.assign(baseline, {
+        [key]: urlCarried ? saved[key] : current[key],
+      });
       if (!urlCarried || sameAppearanceValue(key, current, saved)) Object.assign(restore, { [key]: session[key] });
     }
     this.savedAppearance = baseline;
@@ -1214,11 +1230,20 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   private syncQueryDraft = (): void => {
     const pending = this.proposal ? this.readQueryDraft(this.activeViewKey)?.proposal : undefined;
-    const display: DataViewState = this.viewStateSnapshot({ includeQuery: true });
+    const display: DataViewState = this.viewStateSnapshot({
+      includeQuery: true,
+    });
     delete display.filters;
     delete display.searchTerm;
     const proposal = pending
-      ? { ...pending, state: { ...pending.state, ...display, filters: toJS(this.filters) ?? [] } }
+      ? {
+          ...pending,
+          state: {
+            ...pending.state,
+            ...display,
+            filters: toJS(this.filters) ?? [],
+          },
+        }
       : undefined;
     this.writeQueryDraft(
       this.activeViewKey,
@@ -1228,7 +1253,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
             searchTerm: this.searchTerm || undefined,
             ...(proposal ? { proposal } : {}),
             ...(!proposal && this.isAppearanceModified && this.savedAppearance
-              ? { appearance: this.currentAppearance(), savedAppearance: toJS(this.savedAppearance) }
+              ? {
+                  appearance: this.currentAppearance(),
+                  savedAppearance: toJS(this.savedAppearance),
+                }
               : {}),
           }
         : undefined,
@@ -1517,8 +1545,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
         this.backgroundRefreshQueued = false;
         try {
           await this.executeRefresh("background", () => !this.backgroundRefreshQueued);
-        } catch {
-          this.toastError("Common.notifications.unexpectedError");
+        } catch (error) {
+          if (!(error instanceof ForbiddenError)) this.toastError("Common.notifications.unexpectedError");
         }
       } while (this.backgroundRefreshQueued);
     } finally {

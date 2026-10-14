@@ -4,11 +4,16 @@ import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { expect, test, collectPageErrors } from "./fixtures";
 import { readModel } from "./api";
 
-test("Fit view includes all 74 lists on desktop and phone", async ({ page, database, companyId }, testInfo) => {
-  test.setTimeout(180000);
+test("Fit view includes all 128 lists on desktop and phone", async ({
+  page,
+  database,
+  companyId,
+  workspace,
+}, testInfo) => {
+  test.setTimeout(300000);
   const errors = collectPageErrors(page);
   const model = await readModel(database, companyId);
-  const additions = Array.from({ length: 74 - model.types.length }, (_, index) => {
+  const additions = Array.from({ length: 128 - model.types.length }, (_, index) => {
     const typeId = randomUUID();
     const fieldId = randomUUID();
     return {
@@ -51,32 +56,37 @@ test("Fit view includes all 74 lists on desktop and phone", async ({ page, datab
     model.revision,
   ]);
 
-  for (const width of [1440, 390]) {
-    await page.setViewportSize({ width, height: 1000 });
-    await page.goto("/en/configure");
-    const graph = page.locator("[data-configure-graph]");
-    await expect(graph.locator("[data-configure-node]")).toHaveCount(74);
-    await graph.getByRole("button", { name: "Fit view", exact: true }).click();
-    await expect
-      .poll(async () =>
-        graph.evaluate((canvas) => {
-          const bounds = canvas.getBoundingClientRect();
-          return [...canvas.querySelectorAll<HTMLElement>("[data-configure-node]")].filter((node) => {
-            const box = node.getBoundingClientRect();
-            return (
-              box.left < bounds.left - 1 ||
-              box.top < bounds.top - 1 ||
-              box.right > bounds.right + 1 ||
-              box.bottom > bounds.bottom + 1
-            );
-          }).length;
-        }),
-      )
-      .toBe(0);
-    await page.screenshot({
-      path: testInfo.outputPath(`large-fit-${width}.png`),
-      animations: "disabled",
-    });
-  }
+  await page.goto("/en/configure");
+  for (const width of [1440, 390])
+    for (const theme of ["light", "dark"] as const) {
+      await database.query('UPDATE "User" SET theme=$1 WHERE id=$2', [theme, workspace.userId]);
+      await page.evaluate((value) => localStorage.setItem("theme", value), theme);
+      await page.emulateMedia({ colorScheme: theme });
+      await page.setViewportSize({ width, height: 1000 });
+      await page.reload();
+      const graph = page.locator("[data-configure-graph]");
+      await expect(graph.locator("[data-configure-node]")).toHaveCount(128);
+      await graph.getByRole("button", { name: "Fit view", exact: true }).click();
+      await expect
+        .poll(async () =>
+          graph.evaluate((canvas) => {
+            const bounds = canvas.getBoundingClientRect();
+            return [...canvas.querySelectorAll<HTMLElement>("[data-configure-node]")].filter((node) => {
+              const box = node.getBoundingClientRect();
+              return (
+                box.left < bounds.left - 1 ||
+                box.top < bounds.top - 1 ||
+                box.right > bounds.right + 1 ||
+                box.bottom > bounds.bottom + 1
+              );
+            }).length;
+          }),
+        )
+        .toBe(0);
+      await page.screenshot({
+        path: testInfo.outputPath(`large-fit-${width}-${theme}.png`),
+        animations: "disabled",
+      });
+    }
   expect(errors).toEqual([]);
 });

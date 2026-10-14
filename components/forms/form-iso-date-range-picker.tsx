@@ -160,6 +160,7 @@ export const FormIsoDateRangePicker = observer(
               className={cn(
                 "w-full justify-start text-left font-normal",
                 !parsedRange && "text-muted-foreground",
+                parsedRange && "active:scale-100",
                 className,
               )}
               data-field-state={isReadOnly ? "read-only" : undefined}

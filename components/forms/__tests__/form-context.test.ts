@@ -14,7 +14,7 @@ vi.mock("@/components/modal/use-navigation-guard", () => ({
   useNavigationGuard: vi.fn(),
 }));
 
-import { AppForm } from "../form-context";
+import { AppForm, AppFormProvider, useAppForm } from "../form-context";
 import { registerApplicationErrorHandler } from "@/core/errors/report-application-error";
 
 type TestAppFormProps = Omit<ComponentProps<typeof AppForm>, "children"> & {
@@ -38,6 +38,26 @@ afterEach(() => {
 });
 
 describe("AppForm submission boundary", () => {
+  it("provides an inline editor store inside the parent form without nesting forms", () => {
+    const parent = {} as BaseFormStore;
+    const child = {} as BaseFormStore;
+    const InlineField = () => createElement("input", { "data-has-store": useAppForm() === child });
+    container = document.createElement("div");
+    document.body.append(container);
+    root = createRoot(container);
+    act(() => {
+      root?.render(
+        createElement(
+          TestAppForm,
+          { store: parent },
+          createElement(AppFormProvider, { store: child }, createElement(InlineField)),
+        ),
+      );
+    });
+    expect(container.querySelectorAll("form")).toHaveLength(1);
+    expect(container.querySelector("[data-has-store=true]")).not.toBeNull();
+  });
+
   it("submits a portaled child form without submitting its parent", () => {
     const parentSubmit = vi.fn();
     const childSubmit = vi.fn();

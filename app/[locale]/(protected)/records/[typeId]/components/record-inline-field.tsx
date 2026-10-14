@@ -34,7 +34,7 @@ import { ResponsiveOverlay } from "@/components/modal/responsive-overlay";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { AppForm } from "@/components/forms/form-context";
+import { AppFormProvider } from "@/components/forms/form-context";
 import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
 import { toChipColor } from "@/constants/chip-colors";
 import { isInteractiveClick } from "@/components/data-view/is-interactive-click";
@@ -266,13 +266,13 @@ const InPlaceFieldInput = observer(function InPlaceFieldInput({
         }
       }}
     >
-      <AppForm store={store}>
+      <AppFormProvider store={store}>
         <label className="sr-only" htmlFor={inputId}>
           {field.label}
         </label>
 
         <RecordInputField field={field} id="value" inputId={inputId} label={null} members={record.memberUsers} />
-      </AppForm>
+      </AppFormProvider>
     </div>
   );
 });
@@ -730,7 +730,12 @@ const InlineRelationshipPicker = observer(function InlineRelationshipPicker({
   const typeId = direction === "outgoing" ? relation.targetTypeId : relation.sourceTypeId;
   const singular = (direction === "outgoing" ? relation.sourceCardinality : relation.targetCardinality) === "one";
   const linked = useRecordChoices(
-    { typeId, page: 1, pageSize: 100, linkedTo: { ref: record.ref, relationId: relation.id, direction } },
+    {
+      typeId,
+      page: 1,
+      pageSize: 100,
+      linkedTo: { ref: record.ref, relationId: relation.id, direction },
+    },
     true,
     attempt,
   );
@@ -739,7 +744,14 @@ const InlineRelationshipPicker = observer(function InlineRelationshipPicker({
     runUserAction(async () => {
       if (busy) return;
       const changes = isLinked
-        ? [{ action: "unlink" as const, relationId: relation.id, direction, record: choice.ref }]
+        ? [
+            {
+              action: "unlink" as const,
+              relationId: relation.id,
+              direction,
+              record: choice.ref,
+            },
+          ]
         : [
             ...(singular
               ? linkedRecords.map((entry) => ({
@@ -749,7 +761,12 @@ const InlineRelationshipPicker = observer(function InlineRelationshipPicker({
                   record: entry.ref,
                 }))
               : []),
-            { action: "link" as const, relationId: relation.id, direction, record: choice.ref },
+            {
+              action: "link" as const,
+              relationId: relation.id,
+              direction,
+              record: choice.ref,
+            },
           ];
       setBusy(true);
       try {
@@ -814,7 +831,10 @@ export const RecordInlineRelationship = observer(function RecordInlineRelationsh
             const separator = chipId?.indexOf(":") ?? -1;
             if (!chipId || separator < 0) return;
             event.preventDefault();
-            onOpenRecord({ typeId: chipId.slice(0, separator), recordId: chipId.slice(separator + 1) });
+            onOpenRecord({
+              typeId: chipId.slice(0, separator),
+              recordId: chipId.slice(separator + 1),
+            });
           })}
         >
           {empty ? <EmptyValueTarget /> : children}

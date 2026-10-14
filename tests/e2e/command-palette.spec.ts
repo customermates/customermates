@@ -55,7 +55,9 @@ test("finds a list with its views, opens a view, and deep links a setting with a
   await expect(best.nth(1)).toHaveAttribute("aria-selected", "true");
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(new RegExp(`/en/records/${deals}\\?.*view=${views[0]}`));
-  await expect(page.getByRole("link", { name: "Open pipeline" }).or(page.getByText("Open pipeline")).first()).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Open pipeline" }).or(page.getByText("Open pipeline")).first(),
+  ).toBeVisible();
   await expect(page.locator("#global-search-input")).toHaveCount(0);
 
   const again = await openPalette(page);
@@ -91,7 +93,12 @@ test("changes a record field and links a record from a second palette level", as
       mutation: {
         action: "create",
         typeId: id(typeKey),
-        fields: [{ fieldId: id(`${typeKey}.name`), value: { kind: "text", value: name } }],
+        fields: [
+          {
+            fieldId: id(`${typeKey}.name`),
+            value: { kind: "text", value: name },
+          },
+        ],
       },
     });
     return result.refs.find((ref: { typeId: string }) => ref.typeId === id(typeKey)) as {
@@ -103,7 +110,9 @@ test("changes a record field and links a record from a second palette level", as
   await create("organization", `Palette organization ${suffix}`);
 
   await page.goto(`/en/records/${deal.typeId}/${deal.recordId}`);
-  await expect(page.getByText(`Palette deal ${suffix}`).first()).toBeVisible({ timeout: 60000 });
+  await expect(page.getByText(`Palette deal ${suffix}`).first()).toBeVisible({
+    timeout: 60000,
+  });
   const dialog = page.getByRole("dialog");
   const input = await openPalette(page);
   const suggestions = dialog.getByRole("option");
@@ -176,7 +185,9 @@ test("centres the close button inside the search row with the search icon inset"
     row.locator("svg").first().boundingBox(),
   ]);
   if (!rowBox || !closeBox || !iconBox) throw new Error("search row geometry is missing");
-  expect(Math.abs(closeBox.y + closeBox.height / 2 - (rowBox.y + rowBox.height / 2))).toBeLessThanOrEqual(1);
+  const borderBottom = await row.evaluate((element) => parseFloat(getComputedStyle(element).borderBottomWidth));
+  const contentCenter = rowBox.y + (rowBox.height - borderBottom) / 2;
+  expect(Math.abs(closeBox.y + closeBox.height / 2 - contentCenter)).toBeLessThanOrEqual(1);
   expect(closeBox.y).toBeGreaterThanOrEqual(rowBox.y);
   expect(closeBox.y + closeBox.height).toBeLessThanOrEqual(rowBox.y + rowBox.height);
   const glyphInset = rowBox.x + rowBox.width - (closeBox.x + closeBox.width / 2 + iconBox.width / 2);
@@ -190,7 +201,8 @@ async function answerResolver(route: Route, resolution: unknown) {
   const lines = (await response.text()).split("\n");
   const index = lines.findIndex((line) => /^[0-9a-f]+:\{"ok":/.test(line));
   expect(index, "resolver action result line").toBeGreaterThanOrEqual(0);
-  lines[index] = `${lines[index].slice(0, lines[index].indexOf(":") + 1)}${JSON.stringify({ ok: true, data: resolution })}`;
+  lines[index] =
+    `${lines[index].slice(0, lines[index].indexOf(":") + 1)}${JSON.stringify({ ok: true, data: resolution })}`;
   await route.fulfill({ response, body: lines.join("\n") });
 }
 
@@ -216,13 +228,27 @@ test.describe("Ask Mate fallback", () => {
           typeId: id("deal"),
           fields: [
             { fieldId: id("deal.name"), value: { kind: "text", value: name } },
-            { fieldId: id("deal.stage"), value: { kind: "select", value: id(`deal.stage.${stage}`) } },
+            {
+              fieldId: id("deal.stage"),
+              value: { kind: "select", value: id(`deal.stage.${stage}`) },
+            },
           ],
         },
       });
     const resolverIds = serverActionIds("app/[locale]/(protected)/search/actions.ts", "resolveCommandAction");
     const answers: unknown[] = [
-      { kind: "list", typeId: id("deal"), viewId: null, filters: [{ field: id("deal.stage"), operator: "in", value: [id("deal.stage.won")] }] },
+      {
+        kind: "list",
+        typeId: id("deal"),
+        viewId: null,
+        filters: [
+          {
+            field: id("deal.stage"),
+            operator: "in",
+            value: [id("deal.stage.won")],
+          },
+        ],
+      },
       { kind: "none" },
     ];
     await page.route("**/*", async (route) => {
@@ -258,13 +284,16 @@ test.describe("Ask Mate fallback", () => {
     await again.fill("something nobody configured here");
     await expect(dialog.getByRole("option").first()).toContainText("Go to");
     const mateRequest = page.waitForResponse(
-      (response) => new URL(response.url()).pathname === "/api/agent/messages" && response.request().method() === "POST",
+      (response) =>
+        new URL(response.url()).pathname === "/api/agent/messages" && response.request().method() === "POST",
     );
     await page.keyboard.press("Enter");
     await expect(page.locator("#global-search-input")).toHaveCount(0);
     await expect(page.getByText("something nobody configured here").first()).toBeVisible();
     const mateResponse = await mateRequest;
-    expect(mateResponse.request().postDataJSON()).toMatchObject({ text: "something nobody configured here" });
+    expect(mateResponse.request().postDataJSON()).toMatchObject({
+      text: "something nobody configured here",
+    });
     // The offline e2e server has no hosted AI, so Mate answers the handed-over question with a 422.
     expect(mateResponse.status()).toBe(422);
     await expect.poll(() => offlineMate.events.length).toBe(1);
@@ -272,7 +301,10 @@ test.describe("Ask Mate fallback", () => {
   });
 });
 
-test("opens a record on Enter for a two-word partial name without calling the resolver", async ({ page, companyId }) => {
+test("opens a record on Enter for a two-word partial name without calling the resolver", async ({
+  page,
+  companyId,
+}) => {
   test.setTimeout(120000);
   const id = (key: string) => presetId(companyId, key);
   const model = RecordModelSchema.parse(await api(page, "/api/v1/model/read", {}));
@@ -283,7 +315,12 @@ test("opens a record on Enter for a two-word partial name without calling the re
     mutation: {
       action: "create",
       typeId: id("deal"),
-      fields: [{ fieldId: id("deal.name"), value: { kind: "text", value: `Anna${suffix} Schmidt renewal` } }],
+      fields: [
+        {
+          fieldId: id("deal.name"),
+          value: { kind: "text", value: `Anna${suffix} Schmidt renewal` },
+        },
+      ],
     },
   });
   const resolverIds = serverActionIds("app/[locale]/(protected)/search/actions.ts", "resolveCommandAction");
@@ -296,7 +333,10 @@ test("opens a record on Enter for a two-word partial name without calling the re
   await page.goto("/en/dashboard");
   const input = await openPalette(page);
   await input.fill(`Anna${suffix} Schm`);
-  const record = page.getByRole("dialog").getByRole("option").filter({ hasText: `Anna${suffix} Schmidt renewal` });
+  const record = page
+    .getByRole("dialog")
+    .getByRole("option")
+    .filter({ hasText: `Anna${suffix} Schmidt renewal` });
   await expect(record).toHaveAttribute("aria-selected", "true");
   await page.keyboard.press("Enter");
   await expect(page.locator("#global-search-input")).toHaveCount(0);

@@ -54,7 +54,18 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
       typeId,
       page: linkedPage,
       pageSize: 25,
-      ...(store.record ? { linkedTo: { ref: store.record.ref, relationId: relationship.id, direction } } : {}),
+      ...(store.record
+        ? {
+            linkedTo: {
+              ref: {
+                typeId: store.record.ref.typeId,
+                recordId: store.record.ref.recordId,
+              },
+              relationId: relationship.id,
+              direction,
+            },
+          }
+        : {}),
     },
     store.isOpen && store.record !== null && !store.trash,
     attempt + store.relatedRevision,
@@ -150,7 +161,9 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
                   endContent={
                     editable ? (
                       <button
-                        aria-label={t("RecordModel.unlinkRecord", { name: title(record) })}
+                        aria-label={t("RecordModel.unlinkRecord", {
+                          name: title(record),
+                        })}
                         className="inline-flex size-5 items-center justify-center rounded-sm focus-visible:ring-2 focus-visible:ring-ring"
                         data-relationship-unlink=""
                         type="button"
@@ -172,12 +185,17 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
                   variant={recordLinkColor(store.presentation.linkColors, typeId)}
                 >
                   <button
-                    aria-label={t("RecordModel.openRecord", { name: title(record) })}
+                    aria-label={t("RecordModel.openRecord", {
+                      name: title(record),
+                    })}
                     className="max-w-full rounded-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     type="button"
                     onClick={(event) =>
                       store.rootStore.recordWorkspaceStore.open(
-                        record.ref,
+                        {
+                          typeId: record.ref.typeId,
+                          recordId: record.ref.recordId,
+                        },
                         event.currentTarget,
                         document.getElementById(id),
                       )

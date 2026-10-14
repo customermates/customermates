@@ -46,7 +46,16 @@ export const RecordDetailPersonalization = observer(function RecordDetailPersona
         column.kind === "field"
           ? [[column.id, focusHref({ kind: "field", id: column.field.id, typeId })] as const]
           : column.kind === "relationship"
-            ? [[column.id, focusHref({ kind: "relationship", id: column.relation.id, typeId })] as const]
+            ? [
+                [
+                  column.id,
+                  focusHref({
+                    kind: "relationship",
+                    id: column.relation.id,
+                    typeId,
+                  }),
+                ] as const,
+              ]
             : [],
       ),
     );
@@ -146,7 +155,7 @@ export const RecordDetailLayoutStatus = observer(function RecordDetailLayoutStat
   const isRecordBusy = editor.isTransactionBusy;
   const differsFromDefault = layout.state.hasPersonalization || layout.dirty;
   return (
-    <div className={cn("flex flex-wrap items-center gap-2", className)}>
+    <div className={cn("flex min-w-0 max-w-full flex-wrap items-center gap-2", className)}>
       {isPersonalizing && differsFromDefault && (
         <Button
           aria-label={t("RecordModel.resetDetailLayout")}
@@ -169,8 +178,10 @@ export const RecordDetailLayoutStatus = observer(function RecordDetailLayoutStat
       )}
 
       {layout.failed && !layout.isSaving && (
-        <span className="flex items-center gap-2 text-xs text-destructive" role="alert">
-          {layout.saveFailed ? t("RecordModel.detailLayoutSaveFailed") : t("RecordModel.detailLayoutReadFailed")}
+        <span className="flex min-w-0 max-w-full flex-wrap items-center gap-2 text-xs text-destructive" role="alert">
+          <span className="min-w-0 break-words">
+            {layout.saveFailed ? t("RecordModel.detailLayoutSaveFailed") : t("RecordModel.detailLayoutReadFailed")}
+          </span>
 
           <Button
             disabled={isRecordBusy}

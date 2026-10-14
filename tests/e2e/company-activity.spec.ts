@@ -1,4 +1,65 @@
+import { randomUUID } from "node:crypto";
+import { presetId } from "../../features/records/crm-preset";
+import { postOk } from "./api";
 import { test, expect, collectPageErrors } from "./fixtures";
+
+test("restored records keep older workspace activity reachable across an empty projected page", async ({
+  page,
+  companyId,
+}) => {
+  test.setTimeout(300000);
+  const errors = collectPageErrors(page);
+  const typeId = presetId(companyId, "organization");
+  const fieldId = presetId(companyId, "organization.name");
+  const model = await postOk(page, "/api/v1/model/read", {});
+  const refs = [];
+  for (let index = 0; index < 30; index++) {
+    const created = await postOk(page, "/api/v1/records/mutate", {
+      expectedRevision: model.revision,
+      idempotencyKey: randomUUID(),
+      mutation: {
+        action: "create",
+        typeId,
+        fields: [
+          {
+            fieldId,
+            value: { kind: "text", value: `Activity restore ${index}` },
+          },
+        ],
+      },
+    });
+    refs.push(created.refs[0]);
+  }
+  await postOk(page, "/api/v1/records/mutate", {
+    expectedRevision: model.revision,
+    idempotencyKey: randomUUID(),
+    mutation: {
+      action: "deleteMany",
+      targets: refs.map((ref) => ({ ref, expectedVersion: 1 })),
+    },
+  });
+  const trash = await postOk(page, "/api/v1/trash/query", {
+    kinds: ["record"],
+    typeIds: [typeId],
+    pageSize: 100,
+  });
+  await postOk(page, "/api/v1/trash/restore", {
+    itemIds: trash.items.map((item: { id: string }) => item.id),
+  });
+  const first = await postOk(page, "/api/v1/records/activities", {
+    scope: { typeIds: [typeId], records: [] },
+    kinds: ["record"],
+    limit: 25,
+  });
+  expect(first.items).toHaveLength(0);
+  expect(first.nextCursor).not.toBeNull();
+  await page.goto("/en/settings/activity");
+  const older = page.getByRole("button", { name: "Load older", exact: true });
+  await expect(older).toBeVisible();
+  await older.click();
+  await expect(page.getByRole("button", { name: /Activity restore/ }).first()).toBeVisible();
+  expect(errors).toEqual([]);
+});
 
 test("shows admin and configuration history on the workspace activity page and filters it by kind", async ({
   page,
@@ -45,7 +106,10 @@ test("shows admin and configuration history on the workspace activity page and f
   for (const name of ["Provider", "Channel", "Conversation"])
     await expect(filters.getByRole("option", { name, exact: true })).toHaveCount(0);
   await filters.getByRole("option", { name: "Type", exact: true }).click();
-  const configurationKind = page.getByRole("option", { name: "Configuration", exact: true });
+  const configurationKind = page.getByRole("option", {
+    name: "Configuration",
+    exact: true,
+  });
   await expect(configurationKind).toBeVisible();
   for (const name of ["Messages", "Activities"])
     await expect(page.getByRole("option", { name, exact: true })).toHaveCount(0);
@@ -80,12 +144,21 @@ test("shows admin and configuration history on the workspace activity page and f
       );
       return stored.rows;
     })
-    .toEqual([{ p13nId: "activity", filters: [{ field: "timelineKind", operator: "in", value: ["configuration"] }] }]);
+    .toEqual([
+      {
+        p13nId: "activity",
+        filters: [{ field: "timelineKind", operator: "in", value: ["configuration"] }],
+      },
+    ]);
 
   const audit = await database.query(
     'SELECT kind, "subjectKind", "deliveredAt" IS NOT NULL AS delivered FROM "EventLog" WHERE "companyId"=$1 AND kind=\'role.created\'',
     [companyId],
   );
-  expect(audit.rows).toContainEqual({ kind: "role.created", subjectKind: "role", delivered: true });
+  expect(audit.rows).toContainEqual({
+    kind: "role.created",
+    subjectKind: "role",
+    delivered: true,
+  });
   expect(errors).toEqual([]);
 });

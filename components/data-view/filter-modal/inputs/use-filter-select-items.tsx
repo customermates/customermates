@@ -194,8 +194,12 @@ export function filterOptionSources(
     [FilterFieldKey.timelineThreadId]: {
       getItems: async (params) => {
         const result = await getMessagingThreadsAction(params);
+        if (!result.ok) {
+          if (result.failure.kind === "authorization") return { items: [] };
+          throw new Error("Inbox thread choices could not be loaded");
+        }
         return {
-          items: result.items.map((thread) => ({
+          items: result.data.items.map((thread) => ({
             key: thread.id,
             value: thread.id,
             textValue: thread.subject?.trim() || thread.name?.trim() || t("Common.inputs.unavailableSelection"),

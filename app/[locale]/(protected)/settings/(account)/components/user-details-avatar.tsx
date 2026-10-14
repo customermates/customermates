@@ -35,11 +35,11 @@ export function UserDetailsAvatar({
     <div className="flex items-center gap-3 min-w-0">
       <Avatar name={[firstName, lastName]} size="xl" src={avatarUrl} />
 
-      <div className="flex flex-col min-w-0">
+      <div className="flex min-w-0 flex-1 flex-col">
         <span className="truncate font-medium">{displayName}</span>
 
-        <div className="mt-px flex w-full flex-col space-y-1 items-start">
-          <span className="text-sm text-subdued truncate">{email}</span>
+        <div className="mt-px flex min-w-0 w-full flex-col space-y-1 items-start">
+          <span className="block max-w-full truncate text-sm text-subdued">{email}</span>
 
           <div className="flex w-full gap-2 items-center justify-start flex-wrap">
             {emailVerified !== undefined && (

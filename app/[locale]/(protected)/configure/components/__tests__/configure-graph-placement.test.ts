@@ -17,8 +17,15 @@ describe("Configure graph placement", () => {
   });
 
   it("puts saved lists at their saved point and keeps their measured size", () => {
-    const placement = configureGraphPlacement(new Map([["deals", box(0, 0)]]), { deals: { x: 500, y: -80 } });
-    expect(placement.get("deals")).toEqual({ x: 500, y: -80, width: 300, height: 200 });
+    const placement = configureGraphPlacement(new Map([["deals", box(0, 0)]]), {
+      deals: { x: 500, y: -80 },
+    });
+    expect(placement.get("deals")).toEqual({
+      x: 500,
+      y: -80,
+      width: 300,
+      height: 200,
+    });
   });
 
   it("places a new list without overlapping saved lists", () => {
@@ -27,7 +34,10 @@ describe("Configure graph placement", () => {
       ["contacts", box(400, 0)],
       ["projects", box(0, 300)],
     ]);
-    const placement = configureGraphPlacement(layout, { deals: { x: 0, y: 300 }, contacts: { x: 0, y: 560 } });
+    const placement = configureGraphPlacement(layout, {
+      deals: { x: 0, y: 300 },
+      contacts: { x: 0, y: 560 },
+    });
     const projects = placement.get("projects");
     expect(projects?.x).toBe(0);
     for (const id of ["deals", "contacts"]) {
@@ -91,7 +101,10 @@ describe("Configure edge geometry", () => {
 describe("configureGraphViewport", () => {
   it("fits a 74-list model at desktop and phone widths while retaining the small-model minimum", () => {
     const data = {
-      lists: Array.from({ length: 74 }, (_, index) => ({ type: { id: `list-${index}` }, fields: [] })),
+      lists: Array.from({ length: 74 }, (_, index) => ({
+        type: { id: `list-${index}` },
+        fields: [],
+      })),
       sources: [],
       edges: [],
     };
@@ -108,6 +121,28 @@ describe("configureGraphViewport", () => {
         expect(x + (position.x + position.width) * zoom).toBeLessThanOrEqual(width + 1);
         expect(y + (position.y + position.height) * zoom).toBeLessThanOrEqual(height + 1);
       }
+    }
+  });
+
+  it("allows a 128-list phone overview below the ordinary graph zoom limit", () => {
+    const data = {
+      lists: Array.from({ length: 128 }, (_, index) => ({
+        type: { id: `list-${index}` },
+        fields: [],
+      })),
+      sources: [],
+      edges: [],
+    };
+    const { positions } = configureGraphLayout(data as never, true, false);
+    expect(configureGraphMinimumZoom(128)).toBe(0.001);
+    const width = 390;
+    const height = 820;
+    const { x, y, zoom } = configureGraphViewport(positions, width, height);
+    for (const position of positions.values()) {
+      expect(x + position.x * zoom).toBeGreaterThanOrEqual(-1);
+      expect(y + position.y * zoom).toBeGreaterThanOrEqual(-1);
+      expect(x + (position.x + position.width) * zoom).toBeLessThanOrEqual(width + 1);
+      expect(y + (position.y + position.height) * zoom).toBeLessThanOrEqual(height + 1);
     }
   });
 

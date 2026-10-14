@@ -2,6 +2,73 @@ import { randomUUID } from "node:crypto";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { openRecordDetails, editFormattedText } from "./record-rows";
 import { presetId } from "../../features/records/crm-preset";
+import { BrowserDiagnostics } from "./browser-diagnostics";
+import { invokesServerAction, serverActionIds } from "./server-actions";
+
+for (const theme of ["light", "dark"] as const) {
+  test(`German phone layout error stays inside the drawer in ${theme} mode`, async ({
+    page,
+    database,
+    companyId,
+    workspace,
+  }) => {
+    const errors = collectPageErrors(page);
+    const typeId = presetId(companyId, "organization");
+    const record = await database.query('SELECT id FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 LIMIT 1', [
+      companyId,
+      typeId,
+    ]);
+    const recordId = record.rows[0]?.id;
+    if (!recordId) throw new Error("Seed organization is missing");
+    await database.query('UPDATE "User" SET theme=$1,"displayLanguage"=$2 WHERE id=$3', [
+      theme,
+      "de",
+      workspace.userId,
+    ]);
+    await page.addInitScript((value) => localStorage.setItem("theme", value), theme);
+    await page.setViewportSize({ width: 390, height: 1000 });
+    await page.goto("/de/dashboard");
+    await page.waitForLoadState("networkidle");
+    await page.keyboard.press("Control+k");
+    await page.locator("#global-search-input input").fill("Example organization");
+    await page.locator(`[role="option"][data-value="${typeId}:${recordId}"]`).click();
+    const drawer = page.getByRole("dialog");
+    await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Example organization");
+    const ids = serverActionIds("app/[locale]/(protected)/records/actions.ts", "saveRecordDetailLayoutAction");
+    let fail = true;
+    await page.route("**/*", async (route) => {
+      if (fail && invokesServerAction(route.request(), ids)) {
+        const pathname = new URL(route.request().url()).pathname;
+        BrowserDiagnostics.ofPage(page).expect({
+          kind: "console",
+          text: /^Failed to load resource:.*ERR_FAILED/,
+          source: (url) => url.pathname === pathname,
+          page,
+        });
+        await route.abort("failed");
+      } else await route.fallback();
+    });
+    await drawer.getByRole("button", { name: "Anpassen", exact: true }).click();
+    await drawer
+      .getByRole("button", {
+        name: "Name an die Übersicht anheften",
+        exact: true,
+      })
+      .click();
+    const alert = drawer.getByRole("alert").filter({
+      hasText: "Layoutänderungen konnten nicht gespeichert werden.",
+    });
+    await expect(alert).toBeVisible();
+    const [alertBox, drawerBox] = await Promise.all([alert.boundingBox(), drawer.boundingBox()]);
+    if (!alertBox || !drawerBox) throw new Error("Layout error geometry is missing");
+    expect(alertBox.x).toBeGreaterThanOrEqual(drawerBox.x - 1);
+    expect(alertBox.x + alertBox.width).toBeLessThanOrEqual(drawerBox.x + drawerBox.width + 1);
+    fail = false;
+    await alert.getByRole("button", { name: "Erneut versuchen", exact: true }).click();
+    await expect(alert).toHaveCount(0);
+    expect(errors).toEqual([]);
+  });
+}
 
 test("persists personal detail pins, visibility and keyboard order without losing the record draft", async ({
   page,
@@ -14,13 +81,20 @@ test("persists personal detail pins, visibility and keyboard order without losin
   const nameId = presetId(companyId, "organization.name");
   await page.goto(`/en/records/${typeId}`);
   await page.locator("#records-add").click();
-  const drawer = page.getByRole("dialog", { name: "Organization", exact: true });
+  const drawer = page.getByRole("dialog", {
+    name: "Organization",
+    exact: true,
+  });
   await drawer.getByRole("textbox", { name: "Name", exact: false }).fill("Layout company");
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
   await openRecordDetails(page, "Layout company");
   await drawer.getByRole("textbox", { name: "Name", exact: false }).fill("Draft stays here");
-  await expect(drawer.getByRole("button", { name: /^(Pin|Unpin) .* (to|from) the overview$/ })).toHaveCount(0);
+  await expect(
+    drawer.getByRole("button", {
+      name: /^(Pin|Unpin) .* (to|from) the overview$/,
+    }),
+  ).toHaveCount(0);
   await drawer.getByRole("button", { name: "Customize", exact: true }).click();
   await drawer.getByRole("button", { name: "Pin Name to the overview", exact: true }).click();
   await expect(drawer.locator(`[data-chip-column="${nameId}"]`)).toContainText("Draft stays here");
@@ -30,7 +104,10 @@ test("persists personal detail pins, visibility and keyboard order without losin
   );
   await expect(drawer.getByRole("link", { name: "Edit field Updated at", exact: true })).toHaveCount(0);
   await drawer.getByRole("button", { name: "Hide Updated at from details", exact: true }).click();
-  const drag = drawer.getByRole("button", { name: "Drag to reorder: Created at", exact: true });
+  const drag = drawer.getByRole("button", {
+    name: "Drag to reorder: Created at",
+    exact: true,
+  });
   await drag.focus();
   await page.keyboard.press("Space");
   await expect(drag).toHaveAttribute("aria-pressed", "true");
@@ -49,9 +126,11 @@ test("persists personal detail pins, visibility and keyboard order without losin
     ]);
     return result.rows[0]?.detailOptions;
   };
-  await expect
-    .poll(readLayout)
-    .toMatchObject({ starredFieldIds: [nameId], hiddenFieldIds: ["system:updatedAt"], fieldOrder: expect.any(Array) });
+  await expect.poll(readLayout).toMatchObject({
+    starredFieldIds: [nameId],
+    hiddenFieldIds: ["system:updatedAt"],
+    fieldOrder: expect.any(Array),
+  });
   await expect
     .poll(async () => {
       const persisted = await readLayout();
@@ -103,9 +182,9 @@ test("persists personal detail pins, visibility and keyboard order without losin
   await editFormattedText(main, "Notes");
   await main.getByRole("textbox", { name: "Notes", exact: true }).fill("A note from the full-page editor");
   await expect(main.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Draft stays here");
-  await expect(page.locator("[data-record-page-actions]").getByRole("button", { name: "Save", exact: true })).toHaveCount(
-    0,
-  );
+  await expect(
+    page.locator("[data-record-page-actions]").getByRole("button", { name: "Save", exact: true }),
+  ).toHaveCount(0);
   const pageBar = main.locator("[data-slot='unsaved-changes-bar']");
   await expect(pageBar).toContainText("Unsaved changes");
   await pageBar.getByRole("button", { name: "Save", exact: true }).click();
@@ -134,7 +213,11 @@ test("persists personal detail pins, visibility and keyboard order without losin
       typeId,
       expectedRevision: 1,
       idempotencyKey: randomUUID(),
-      layout: { pinnedFields: ["system:createdAt"], hiddenFields: [nameId], fieldOrder: [] },
+      layout: {
+        pinnedFields: ["system:createdAt"],
+        hiddenFields: [nameId],
+        fieldOrder: [],
+      },
     },
   });
   expect(api.status()).toBe(200);
@@ -201,7 +284,12 @@ test("shows pinned fields as a chip row under the title that pins, edits the dra
   await expect(lastName).toContainText("Pinned");
   await lastName.getByRole("button", { name: "Edit Last name", exact: true }).click();
   await expect(editor).toContainText("Last name");
-  await expect(editor.getByRole("button", { name: "Unpin Last name from the overview", exact: true })).toHaveCount(0);
+  await expect(
+    editor.getByRole("button", {
+      name: "Unpin Last name from the overview",
+      exact: true,
+    }),
+  ).toHaveCount(0);
   await page.keyboard.press("Escape");
   await drawer.getByRole("button", { name: "Pin or unpin fields", exact: true }).click();
   await page.getByRole("menuitemcheckbox", { name: "Last name", exact: true }).click();
@@ -224,7 +312,10 @@ test("edits header links with the card picker, keeps contact values outside edit
   const firstName = `Picker ${suffix}`;
   await page.goto(`/en/records/${presetId(companyId, "organization")}`);
   await page.locator("#records-add").click();
-  const organizationDrawer = page.getByRole("dialog", { name: "Organization", exact: true });
+  const organizationDrawer = page.getByRole("dialog", {
+    name: "Organization",
+    exact: true,
+  });
   await organizationDrawer.getByRole("textbox", { name: "Name", exact: false }).fill(organization);
   await organizationDrawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(organizationDrawer).not.toBeVisible();
@@ -252,7 +343,10 @@ test("edits header links with the card picker, keeps contact values outside edit
   await expect(avatar.locator("button a, a button")).toHaveCount(0);
   await expect(avatar.getByRole("button", { name: "Edit Avatar", exact: true })).toHaveCount(0);
 
-  const organizations = chips.getByRole("group", { name: "Organizations", exact: true });
+  const organizations = chips.getByRole("group", {
+    name: "Organizations",
+    exact: true,
+  });
   await expect(organizations.locator("[data-placeholder-chip]")).toBeVisible();
   await organizations.getByRole("button", { name: "Edit Organizations", exact: true }).click();
   const picker = page.locator('[data-slot="popover-content"][data-state="open"]');
@@ -262,15 +356,23 @@ test("edits header links with the card picker, keeps contact values outside edit
   await expect(organizations).toContainText(organization);
   await organizations.getByRole("button", { name: "Edit Organizations", exact: true }).click();
   await expect(picker.getByRole("option", { name: `Open ${organization}`, exact: true })).toBeVisible();
-  await expect(picker.getByRole("option", { name: "Unpin Organizations from the overview", exact: true })).toHaveCount(
-    0,
-  );
+  await expect(
+    picker.getByRole("option", {
+      name: "Unpin Organizations from the overview",
+      exact: true,
+    }),
+  ).toHaveCount(0);
   await page.keyboard.press("Escape");
 
   const channels = chips.getByRole("group", { name: "Channels", exact: true });
   await expect(channels.locator("[data-placeholder-chip]")).toBeVisible();
   await channels.getByRole("button", { name: "Edit Channels", exact: true }).click();
-  await expect(picker.getByRole("button", { name: "Unpin Channels from the overview", exact: true })).toHaveCount(0);
+  await expect(
+    picker.getByRole("button", {
+      name: "Unpin Channels from the overview",
+      exact: true,
+    }),
+  ).toHaveCount(0);
   await page.keyboard.press("Escape");
 
   await drawer.getByRole("button", { name: "Save", exact: true }).click();

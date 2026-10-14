@@ -1,7 +1,14 @@
 import { randomUUID } from "node:crypto";
 import type { Page } from "@playwright/test";
 import { RecordModelSchema, type RecordModel } from "../../features/records/record-model.schema";
-import { openDrawerTab, addFromConfigure, followConfigureLink, openConfigure, openConfigureRow, saveDrawer } from "./configure";
+import {
+  openDrawerTab,
+  addFromConfigure,
+  followConfigureLink,
+  openConfigure,
+  openConfigureRow,
+  saveDrawer,
+} from "./configure";
 import { expect, test, collectPageErrors } from "./fixtures";
 import { openItemMenu } from "./item-actions";
 import { openRecordDetails, recordItem, runNamedRowAction, editFormattedText } from "./record-rows";
@@ -144,7 +151,13 @@ test("configures and persists all fourteen field types, multiple values and cale
         await dialog.getByRole("combobox", { name: "active", exact: true }).click();
         await page.getByRole("option", { name: "No", exact: true }).click();
         await addAttribute("removed");
-        await openItemMenu(page, dialog.getByRole("button", { name: "More actions for removed", exact: true }));
+        await openItemMenu(
+          page,
+          dialog.getByRole("button", {
+            name: "More actions for removed",
+            exact: true,
+          }),
+        );
         await page.getByRole("menuitem", { name: "Delete", exact: true }).click();
         await expect(dialog.locator('[data-option-column="removed"]')).toHaveCount(0);
       }
@@ -166,8 +179,14 @@ test("configures and persists all fourteen field types, multiple values and cale
       label: "Accepted",
       color: "success",
       attributes: [
-        { key: "probability", value: { kind: "decimal", value: "0", currency: null } },
-        { key: "priority", value: { kind: "decimal", value: "2.25", currency: null } },
+        {
+          key: "probability",
+          value: { kind: "decimal", value: "0", currency: null },
+        },
+        {
+          key: "priority",
+          value: { kind: "decimal", value: "2.25", currency: null },
+        },
         { key: "active", value: { kind: "boolean", value: false } },
       ],
     }),
@@ -277,6 +296,26 @@ test("configures and persists all fourteen field types, multiple values and cale
     path: testInfo.outputPath("all-field-controls.png"),
     animations: "disabled",
   });
+  await dialog.getByRole("link", { name: "Open page", exact: true }).click();
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  const main = page.getByRole("main");
+  for (const label of ["Calendar date", "Calendar time", "Calendar range", "Calendar time range"]) {
+    const clear = main.locator(`[data-entity-field="${field(label).id}"]`).getByRole("button", { name: "Clear" });
+    const bounds = await clear.boundingBox();
+    if (!bounds) throw new Error(`Clear is missing for ${label}`);
+    await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+    await page.mouse.down();
+    await expect(clear).toHaveCSS("scale", "none");
+    await expect(clear.locator("xpath=..")).toHaveCSS("scale", "1");
+    await page.mouse.up();
+    await expect(clear).toHaveCount(0);
+    await expect(page.locator('[data-slot="popover-content"][data-state="open"]')).toHaveCount(0);
+  }
+  await main.locator('[data-slot="unsaved-changes-bar"]').getByRole("button", { name: "Save" }).click();
+  for (const label of ["Calendar date", "Calendar time", "Calendar range", "Calendar time range"])
+    await expect(
+      main.locator(`[data-entity-field="${field(label).id}"]`).getByRole("button", { name: "Clear" }),
+    ).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 
@@ -357,7 +396,13 @@ test("builds every calculation operator with the linear editor and persists resu
       arguments: [b("No"), b("Yes")],
       result: true,
     },
-    { operator: "Not", id: "not", type: "Yes or no", arguments: [b("No")], result: true },
+    {
+      operator: "Not",
+      id: "not",
+      type: "Yes or no",
+      arguments: [b("No")],
+      result: true,
+    },
     {
       operator: "If, then, otherwise",
       id: "if",
@@ -639,7 +684,10 @@ test("preserves missing, false, zero and exact money defaults and captures a sna
     await addField(page, label, valueType);
     await dialog.getByRole("switch", { name: "Set a default value", exact: true }).check();
     if (typeof value === "boolean") {
-      const input = dialog.getByRole("switch", { name: "Default value", exact: true });
+      const input = dialog.getByRole("switch", {
+        name: "Default value",
+        exact: true,
+      });
       await expect(input).not.toBeChecked();
       if (value) await input.check();
     } else await dialog.getByRole("textbox", { name: "Default value", exact: true }).fill(value);
@@ -667,7 +715,10 @@ test("preserves missing, false, zero and exact money defaults and captures a sna
     return result;
   };
   expect(field("Missing amount").behavior).toEqual({ kind: "input" });
-  expect(field("False default").behavior).toEqual({ kind: "input", defaultValue: { kind: "boolean", value: false } });
+  expect(field("False default").behavior).toEqual({
+    kind: "input",
+    defaultValue: { kind: "boolean", value: false },
+  });
   expect(field("Zero default").behavior).toEqual({
     kind: "input",
     defaultValue: { kind: "decimal", value: "0", currency: null },
@@ -696,7 +747,10 @@ test("preserves missing, false, zero and exact money defaults and captures a sna
   await expect(dialog.getByRole("textbox", { name: "Zero default", exact: true })).toHaveValue("0");
   await expect(dialog.getByRole("textbox", { name: "Precise default", exact: true })).toHaveValue(preciseMoney);
   await expect(row("Capture flag").getByRole("switch")).toBeChecked();
-  await page.screenshot({ path: testInfo.outputPath("typed-input-defaults.png"), animations: "disabled" });
+  await page.screenshot({
+    path: testInfo.outputPath("typed-input-defaults.png"),
+    animations: "disabled",
+  });
   await save();
   const original = (
     await database.query(
@@ -715,9 +769,19 @@ test("preserves missing, false, zero and exact money defaults and captures a sna
   const valueFor = (values: Awaited<ReturnType<typeof readValues>>, label: string) =>
     values.find((value) => value.fieldId === field(label).id);
   const originalValues = await readValues(original.recordId);
-  expect(valueFor(originalValues, "Missing amount")).toMatchObject({ state: "missing", amount: null });
-  expect(valueFor(originalValues, "False default")).toMatchObject({ state: "value", booleanValue: false });
-  expect(valueFor(originalValues, "Zero default")).toMatchObject({ state: "value", amount: "0", currency: null });
+  expect(valueFor(originalValues, "Missing amount")).toMatchObject({
+    state: "missing",
+    amount: null,
+  });
+  expect(valueFor(originalValues, "False default")).toMatchObject({
+    state: "value",
+    booleanValue: false,
+  });
+  expect(valueFor(originalValues, "Zero default")).toMatchObject({
+    state: "value",
+    amount: "0",
+    currency: null,
+  });
   expect(valueFor(originalValues, "Precise default")).toMatchObject({
     state: "value",
     amount: preciseMoney,
@@ -764,7 +828,11 @@ test("preserves missing, false, zero and exact money defaults and captures a sna
   if (!newer) throw new Error("The cleared-default record is missing");
   const newerValues = await readValues(newer.recordId);
   for (const label of ["Missing amount", "False default", "Zero default", "Precise default"])
-    expect(valueFor(newerValues, label)).toMatchObject({ state: "missing", amount: null, booleanValue: null });
+    expect(valueFor(newerValues, label)).toMatchObject({
+      state: "missing",
+      amount: null,
+      booleanValue: null,
+    });
   const open = async () => openRecordDetails(page, "Original defaults record");
   const expectCapture = async (amount: string) => {
     expect(valueFor(await readValues(original.recordId), "Disabled snapshot")).toMatchObject({
@@ -797,7 +865,10 @@ test("preserves missing, false, zero and exact money defaults and captures a sna
   await open();
   await expect(row("Disabled snapshot")).toContainText("50");
   await expect(row("Capture flag").getByRole("switch")).not.toBeChecked();
-  await page.screenshot({ path: testInfo.outputPath("false-trigger-snapshot.png"), animations: "disabled" });
+  await page.screenshot({
+    path: testInfo.outputPath("false-trigger-snapshot.png"),
+    animations: "disabled",
+  });
   expect(valueFor(await readValues(newer.recordId), "Disabled snapshot")).toBeUndefined();
   expect(errors).toEqual([]);
 });
@@ -817,7 +888,10 @@ test("changes numeric display precision through the field editor without roundin
     ["Display price", "Money", "19.8765"],
   ]) {
     await addField(page, label, valueType);
-    const precision = dialog.getByRole("spinbutton", { name: "Decimal places", exact: true });
+    const precision = dialog.getByRole("spinbutton", {
+      name: "Decimal places",
+      exact: true,
+    });
     await expect(precision).toHaveValue("");
     if (valueType === "Number") {
       const before = (
@@ -910,7 +984,10 @@ test("changes numeric display precision through the field editor without roundin
   await openRecordDetails(page, "Precision record");
   await expect(dialog.getByRole("textbox", { name: "Display amount", exact: true })).toHaveValue("12.3456");
   await expect(dialog.getByRole("textbox", { name: "Display price", exact: true })).toHaveValue("19.8765");
-  await page.screenshot({ path: testInfo.outputPath("decimal-display-preserves-values.png"), animations: "disabled" });
+  await page.screenshot({
+    path: testInfo.outputPath("decimal-display-preserves-values.png"),
+    animations: "disabled",
+  });
   expect(await values()).toEqual(stored);
   expect(errors).toEqual([]);
 });
