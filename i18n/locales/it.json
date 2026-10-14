@@ -801,8 +801,6 @@
       "versions": "Versioni dei documenti",
       "visibility": "Visibilità"
     },
-    "relationsAdded": "Relazioni aggiunte nel campo «{field}»",
-    "relationsDeleted": "Relazioni rimosse dal campo «{field}»",
     "unchangedLines": "{count, plural, one {# riga invariata} other {# righe invariate}}"
   },
   "AuthSocialErrors": {

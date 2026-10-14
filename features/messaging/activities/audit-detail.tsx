@@ -4,10 +4,9 @@ import type { ActivityEntryDto } from "@/ee/messaging/activities/activities.sche
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Fragment, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import { hasNotesDiff, NotesDiff } from "./notes-diff";
-import { partitionRelationIds } from "@/features/event/audit-changes";
 
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -62,8 +61,7 @@ export const AuditDetail = observer(({ entry }: Props) => {
   function renderChangeRow(change: (typeof changes)[number]): ReactNode {
     if (change.snapshot) return <div className="min-w-0 break-words">{renderValue(change.key, change.value)}</div>;
 
-    if (change.key === "notes" || change.key === "markdown")
-      return <NotesDiff current={change.current} previous={change.previous} />;
+    if (change.key === "markdown") return <NotesDiff current={change.current} previous={change.previous} />;
 
     return (
       <InlineChange
@@ -90,33 +88,7 @@ export const AuditDetail = observer(({ entry }: Props) => {
       );
     }
 
-    if (
-      !change.snapshot &&
-      (change.key === "notes" || change.key === "markdown") &&
-      !hasNotesDiff(change.previous, change.current)
-    )
-      return null;
-
-    if (!change.snapshot && ["users", "identifiers"].includes(change.key)) {
-      const { added, removed } = partitionRelationIds(change.previous, change.current);
-      if (added.length === 0 && removed.length === 0) return null;
-
-      return (
-        <Fragment key={key}>
-          {removed.length > 0 && (
-            <ChangeRow label={t("AuditLogModal.relationsDeleted", { field: change.field })}>
-              {renderValue(change.key, removed)}
-            </ChangeRow>
-          )}
-
-          {added.length > 0 && (
-            <ChangeRow label={t("AuditLogModal.relationsAdded", { field: change.field })}>
-              {renderValue(change.key, added)}
-            </ChangeRow>
-          )}
-        </Fragment>
-      );
-    }
+    if (!change.snapshot && change.key === "markdown" && !hasNotesDiff(change.previous, change.current)) return null;
 
     return (
       <ChangeRow key={key} label={change.field}>

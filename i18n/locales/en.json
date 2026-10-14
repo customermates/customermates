@@ -801,8 +801,6 @@
       "versions": "Document versions",
       "visibility": "Visibility"
     },
-    "relationsAdded": "{field} Added",
-    "relationsDeleted": "{field} Removed",
     "unchangedLines": "{count, plural, one {# unchanged line} other {# unchanged lines}}"
   },
   "AuthSocialErrors": {

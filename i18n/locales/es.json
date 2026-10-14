@@ -801,8 +801,6 @@
       "versions": "Versiones de documentos",
       "visibility": "Visibilidad"
     },
-    "relationsAdded": "Elementos añadidos en {field}",
-    "relationsDeleted": "Elementos eliminados de {field}",
     "unchangedLines": "{count, plural, one {# línea sin cambios} other {# líneas sin cambios}}"
   },
   "AuthSocialErrors": {
