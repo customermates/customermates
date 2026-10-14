@@ -23,15 +23,36 @@ describe("locale preferences", () => {
   });
 
   it("navigates System through locale negotiation and explicit preferences through their locale", () => {
-    expect(displayLanguageNavigationTarget("system", "/profile/settings")).toBe("/profile/settings");
-    expect(displayLanguageNavigationTarget("it", "/profile/settings")).toBe("/it/profile/settings");
-    expect(displayLanguageNavigationTarget("system", "/de/profile/settings?tab=mine#open")).toBe(
-      "/profile/settings?tab=mine#open",
+    expect(displayLanguageNavigationTarget("system", "/settings/profile")).toBe("/settings/profile");
+    expect(displayLanguageNavigationTarget("it", "/settings/profile")).toBe("/it/settings/profile");
+    expect(displayLanguageNavigationTarget("system", "/de/settings/profile?tab=mine#open")).toBe(
+      "/settings/profile?tab=mine#open",
     );
-    expect(displayLanguageNavigationTarget("it", "/de/profile/settings?tab=mine#open")).toBe(
-      "/it/profile/settings?tab=mine#open",
+    expect(displayLanguageNavigationTarget("it", "/de/settings/profile?tab=mine#open")).toBe(
+      "/it/settings/profile?tab=mine#open",
     );
     expect(displayLanguageNavigationTarget("it", "/de?tab=mine#open")).toBe("/it?tab=mine#open");
+  });
+
+  it("only navigates to same-origin paths and falls back to the locale root otherwise", () => {
+    for (const unsafe of [
+      "//evil.com/x",
+      "/\\evil.com",
+      "/de//evil.com/x",
+      "/\t/evil.com",
+      "javascript:alert(1)",
+      "https://evil.com/x?tab=mine#open",
+    ]) {
+      expect(displayLanguageNavigationTarget("system", unsafe)).toBe("/");
+      expect(displayLanguageNavigationTarget("it", unsafe)).toBe("/it");
+      expect(appLocaleReconciliationTarget("fr", "de", unsafe, "en")).toBe("/fr");
+    }
+    expect(displayLanguageNavigationTarget("system", "/records/deals?view=open&page=2#row-7")).toBe(
+      "/records/deals?view=open&page=2#row-7",
+    );
+    expect(displayLanguageNavigationTarget("de", "/fr/records/deals?view=open&page=2#row-7")).toBe(
+      "/de/records/deals?view=open&page=2#row-7",
+    );
   });
 
   it("reconciles a newly synchronized preference with the rendered app locale", () => {

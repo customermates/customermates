@@ -2,7 +2,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { jsx } from "react/jsx-runtime";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => `translated:${key}` }));
+vi.mock("next-intl", () => ({
+  useTranslations: () => Object.assign((key: string) => `translated:${key}`, { has: () => true, raw: () => "" }),
+}));
 
 import en from "@/i18n/locales/en.json";
 
@@ -26,9 +28,9 @@ describe("operator audit action labels", () => {
 
   it("routes product rows through the shared domain-event catalog", () => {
     const html = renderToStaticMarkup(
-      jsx(AuditActionLabel, { action: "task.created", source: OPERATOR_AUDIT_SOURCE.product }),
+      jsx(AuditActionLabel, { action: "role.created", source: OPERATOR_AUDIT_SOURCE.product }),
     );
 
-    expect(html).toBe("translated:Common.events.task.created");
+    expect(html).toBe("translated:Common.events.role.created");
   });
 });

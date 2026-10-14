@@ -31,8 +31,6 @@ export const UnipileGroupParticipantSchema = z.looseObject({
   is_admin: z.boolean().nullish(),
   user: UnipileUserSchema,
 });
-export type UnipileGroupParticipant = z.infer<typeof UnipileGroupParticipantSchema>;
-
 export const UnipileAttachmentSchema = z.looseObject({
   object: z.literal("Attachment").nullish(),
   id: z.string().nullish(),
@@ -231,8 +229,6 @@ export const UnipileInboxSchema = z.looseObject({
   disabled: z.boolean().nullish(),
   description: z.string().nullish(),
 });
-export type UnipileInbox = z.infer<typeof UnipileInboxSchema>;
-
 export const UnipileFolderSchema = z.looseObject({
   id: z.string(),
   role: z.string().nullish(),
@@ -240,8 +236,6 @@ export const UnipileFolderSchema = z.looseObject({
   total_count: z.number().nullish(),
   unread_count: z.number().nullish(),
 });
-export type UnipileFolder = z.infer<typeof UnipileFolderSchema>;
-
 export const UnipileWebhookEnvelopeSchema = z.looseObject({
   type: z.string(),
   account_id: z.string().nullish(),

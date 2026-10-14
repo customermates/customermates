@@ -53,7 +53,7 @@ export function SlashMenu({ editor, anchorRect, onClose }: Props) {
   const trimmedUrl = url.trim();
 
   function applyUrlCommand() {
-    if (!trimmedUrl) return;
+    if (!trimmedUrl || !editor.isEditable) return;
 
     const chain = editor.chain().focus();
 
@@ -225,6 +225,7 @@ export function SlashMenu({ editor, anchorRect, onClose }: Props) {
                   key={command.key}
                   value={command.title}
                   onSelect={() => {
+                    if (!editor.isEditable) return;
                     command.run();
                     if (command.key !== "image" && command.key !== "link") onClose();
                   }}

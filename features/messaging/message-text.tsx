@@ -3,7 +3,7 @@ import { Fragment, type ReactNode } from "react";
 const URL_RE = /(https?:\/\/[^\s<]+)/g;
 const TRAILING_RE = /[.,!?;:]+$/;
 
-export function linkifyText(text: string): ReactNode[] {
+function linkifyText(text: string): ReactNode[] {
   return text.split(URL_RE).map((part, i) => {
     if (i % 2 === 0) return <Fragment key={i}>{part}</Fragment>;
 

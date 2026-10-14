@@ -25,6 +25,7 @@ type Props = {
   ariaLabel?: string;
   ariaLabelledBy?: string;
   required?: boolean;
+  disabled?: boolean;
   options?: FormRadioGroupOption[];
   orientation?: "horizontal" | "vertical";
   children?: ReactNode;
@@ -39,6 +40,7 @@ export const FormRadioGroup = observer(
     ariaLabel,
     ariaLabelledBy,
     required,
+    disabled,
     options,
     orientation = "horizontal",
     children,
@@ -49,8 +51,8 @@ export const FormRadioGroup = observer(
     const raw = store?.getValue(id);
     const value = raw == null ? "" : String(raw);
     const { hasError } = useFormFieldErrors(id);
-    const isLoading = store?.isLoading ?? false;
-    const isReadOnly = !isLoading && (store?.isReadOnly ?? false);
+    const isDisabled = Boolean(disabled || store?.isLoading);
+    const isReadOnly = !isDisabled && (store?.isReadOnly ?? false);
     const labelId = `${id}-label`;
 
     return (
@@ -69,7 +71,7 @@ export const FormRadioGroup = observer(
           aria-labelledby={ariaLabelledBy ?? (label ? labelId : undefined)}
           aria-readonly={isReadOnly || undefined}
           className={cn(orientation === "horizontal" ? "flex flex-wrap gap-4" : "grid gap-3", className)}
-          disabled={isLoading}
+          disabled={isDisabled}
           id={id}
           value={value}
           onValueChange={isReadOnly ? undefined : (next) => store?.onChange(id, next)}

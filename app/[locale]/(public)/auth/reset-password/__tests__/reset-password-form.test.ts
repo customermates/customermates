@@ -74,7 +74,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   harness.token = "reset-a";
   harness.resetPasswordAction.mockResolvedValue({ ok: true, data: null });
-  const rootStore = { terminologyStore: { overrides: [] } } as unknown as RootStore;
+  const rootStore = { recordWorkspaceStore: { navigation: null } } as unknown as RootStore;
   store = new ResetPasswordStore(rootStore);
   Object.assign(rootStore, { resetPasswordStore: store });
   harness.rootStore = rootStore;

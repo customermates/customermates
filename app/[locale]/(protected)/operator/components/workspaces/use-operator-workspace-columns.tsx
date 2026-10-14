@@ -11,7 +11,7 @@ import { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 import { AppChip } from "@/components/chip/app-chip";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { OperatorTagsCell } from "../tags/operator-tags-cell";
-import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/company/components/subscription/subscription-panel";
+import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/settings/(workspace)/components/subscription/subscription-panel";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
 import { adProviderDisplayName, isAdProvider } from "@/features/acquisition/ad-provider-registry";

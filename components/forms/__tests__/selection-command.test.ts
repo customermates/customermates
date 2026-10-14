@@ -6,10 +6,6 @@ import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const testContext = vi.hoisted(() => ({
-  filterItems: [] as Array<{ key: string; value: string; textValue: string }>,
-  filterLoadError: false,
-  filterLoading: false,
-  filterMaxSelectedValues: undefined as number | undefined,
   formIsLoading: false,
   formIsReadOnly: false,
   formValue: undefined as string | string[] | undefined,
@@ -55,11 +51,11 @@ vi.mock("@/components/forms/use-form-field", () => ({
   useResolvedFieldLabel: (_id: string, label?: string | null) => label,
 }));
 
-vi.mock("@/components/entity-detail/hooks/use-entity-drawer-stack", () => ({
+vi.mock("@/components/shared/use-navigate-to-href", () => ({
   useNavigateToHref: () => vi.fn(),
 }));
 
-vi.mock("@/components/entity-terminology/use-filter-field-label", () => ({
+vi.mock("@/components/data-view/use-filter-field-label", () => ({
   useFilterFieldLabel: () => () => "Contacts",
 }));
 
@@ -74,10 +70,10 @@ vi.mock("@/core/stores/root-store.provider", () => ({
 vi.mock("@/components/data-view/filter-modal/inputs/use-filter-select-items", () => ({
   useFilterSelectItems: () => ({
     getItems: undefined,
-    isLoading: testContext.filterLoading,
-    items: testContext.filterItems,
-    loadError: testContext.filterLoadError,
-    maxSelectedValues: testContext.filterMaxSelectedValues,
+    isLoading: false,
+    items: [],
+    loadError: false,
+    maxSelectedValues: undefined,
   }),
 }));
 
@@ -89,11 +85,8 @@ vi.mock("@/core/utils/toast-zod-error-tree", () => ({
   toastZodErrorTree: vi.fn(),
 }));
 
-import { FilterInputSelect } from "@/components/data-view/filter-modal/inputs/filter-input-select";
 import { FilterChipValue } from "@/components/data-view/filter-modal/filter-chip-display";
-import { FilterField } from "@/components/data-view/filter-modal/filter-field";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
-import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FormAutocomplete } from "../form-autocomplete";
 import { FormAutocompleteAvatar } from "../form-autocomplete-avatar";
 import { FormAutocompleteCountry } from "../form-autocomplete-country";
@@ -174,24 +167,7 @@ function autocomplete(props: Partial<React.ComponentProps<typeof FormAutocomplet
   return createElement(FormAutocomplete<{ id: string; name: string }>, componentProps);
 }
 
-function filterSelect(maxSelectedValues?: number) {
-  testContext.filterMaxSelectedValues = maxSelectedValues;
-  return createElement(FilterInputSelect, {
-    filter: {
-      field: FilterFieldKey.contactIds,
-      operator: FilterOperatorKey.in,
-      value: Array.isArray(testContext.formValue) ? testContext.formValue : [],
-    },
-    id: "filters[0].value",
-    isValidFilter: true,
-  });
-}
-
 beforeEach(() => {
-  testContext.filterItems = [];
-  testContext.filterLoadError = false;
-  testContext.filterMaxSelectedValues = undefined;
-  testContext.filterLoading = false;
   testContext.formIsLoading = false;
   testContext.formIsReadOnly = false;
   testContext.formValue = undefined;
@@ -374,6 +350,81 @@ describe("FormAutocomplete command behavior", () => {
   });
 });
 
+describe("Select editability transitions", () => {
+  for (const component of ["select", "chip"] as const) {
+    for (const blockedState of ["readOnly", "loading"] as const) {
+      it(`${component} closes across ${blockedState}, stays closed after recovery and rejects blocked interaction`, async () => {
+        testContext.formValue = "alpha";
+        const warnings = vi.spyOn(console, "warn");
+        const errors = vi.spyOn(console, "error");
+        const element = () =>
+          component === "select"
+            ? createElement(FormSelect, {
+                id: "transition-status",
+                items: [
+                  { value: "alpha", label: "Alpha" },
+                  { value: "beta", label: "Beta" },
+                ],
+                label: "Status",
+              })
+            : createElement(FormSelectChip, {
+                id: "transition-status",
+                items: [{ key: "alpha" }, { key: "beta" }],
+                label: "Status",
+                translateFn: (key) => key,
+              });
+        const container = mount(element());
+        const root = roots.at(-1);
+        if (!root) throw new Error("The mounted Select root must exist");
+        const trigger = requiredElement(container.querySelector<HTMLButtonElement>("#transition-status"));
+        const rerender = async (blocked: boolean) => {
+          testContext.formIsReadOnly = blocked && blockedState === "readOnly";
+          testContext.formIsLoading = blocked && blockedState === "loading";
+          await act(async () => {
+            root.render(element());
+            await Promise.resolve();
+          });
+        };
+
+        try {
+          await press(trigger, "ArrowDown");
+          expect(trigger.getAttribute("aria-expanded")).toBe("true");
+          expect(document.querySelector('[role="listbox"]')).not.toBeNull();
+          await rerender(true);
+          expect(trigger.getAttribute("aria-expanded")).toBe("false");
+          expect(trigger.disabled).toBe(blockedState === "loading");
+          expect(trigger.getAttribute("aria-readonly")).toBe(blockedState === "readOnly" ? "true" : null);
+          expect(document.querySelector('[role="listbox"]')).toBeNull();
+          await press(trigger, "ArrowDown");
+          expect(document.querySelector('[role="listbox"]')).toBeNull();
+          expect(testContext.onChange).not.toHaveBeenCalled();
+          await rerender(false);
+          expect(trigger.getAttribute("aria-expanded")).toBe("false");
+          expect(document.querySelector('[role="listbox"]')).toBeNull();
+          expect(
+            [...warnings.mock.calls, ...errors.mock.calls]
+              .map((args) => args.join(" "))
+              .filter((message) => message.includes("Select is changing")),
+          ).toEqual([]);
+          await press(trigger, "ArrowDown");
+          expect(document.querySelector('[role="listbox"]')).not.toBeNull();
+          const beta = requiredElement(
+            Array.from(document.querySelectorAll<HTMLElement>('[role="option"]')).find((item) =>
+              item.textContent?.includes(component === "select" ? "Beta" : "beta"),
+            ),
+          );
+          await press(beta, "Enter");
+          expect(testContext.onChange).toHaveBeenCalledOnce();
+          expect(testContext.onChange).toHaveBeenCalledWith("transition-status", "beta");
+        } finally {
+          warnings.mockRestore();
+          errors.mockRestore();
+        }
+      });
+    }
+  }
+});
+
 describe("selection field state semantics", () => {
   it("keeps contextual help beside the visible FormSelect label", () => {
     testContext.formValue = "plain";
@@ -446,7 +497,7 @@ describe("selection field state semantics", () => {
     expect(document.activeElement).toBe(trigger);
   });
 
-  it("renders interactive read-only chip inputs as labelled recessed groups without a nested wrapper tab stop", async () => {
+  it("renders interactive read-only chip inputs as labelled groups on the shared surface without a nested wrapper tab stop", async () => {
     testContext.formIsReadOnly = true;
     testContext.formValue = "alpha,beta";
     const onChipClick = vi.fn();
@@ -471,10 +522,10 @@ describe("selection field state semantics", () => {
     expect(field.getAttribute("aria-labelledby")).toBe("external-tags-label");
     expect(field.getAttribute("aria-readonly")).toBeNull();
     expect(field.getAttribute("aria-disabled")).toBeNull();
-    expect(field.className).toContain("border-border");
-    expect(field.className).toContain("bg-background");
-    expect(field.className).toContain("text-foreground");
-    expect(field.className).toContain("shadow-none");
+    expect(field.className).toContain("border-input");
+    expect(field.className).toContain("bg-input-background");
+    expect(field.className).toContain("cursor-[inherit]");
+    expect(field.className).toContain("shadow-xs");
     expect(field.className).not.toContain("opacity-50");
     expect(container.querySelector("input")).toBeNull();
     expect(container.querySelector('[aria-label="Remove"]')).toBeNull();
@@ -492,7 +543,7 @@ describe("selection field state semantics", () => {
     expect(testContext.onChange).not.toHaveBeenCalled();
   });
 
-  it("renders explicitly disabled chip inputs as muted native-disabled fields", () => {
+  it("renders explicitly disabled chip inputs as native-disabled fields on the shared surface", () => {
     testContext.formIsReadOnly = true;
     testContext.formValue = "alpha";
     const container = mount(
@@ -510,10 +561,10 @@ describe("selection field state semantics", () => {
     expect(field.getAttribute("aria-disabled")).toBe("true");
     expect(field.getAttribute("aria-readonly")).toBeNull();
     expect(field.className).toContain("cursor-not-allowed");
-    expect(field.className).toContain("border-border");
-    expect(field.className).toContain("bg-background");
-    expect(field.className).toContain("text-muted-foreground");
-    expect(field.className).toContain("shadow-none");
+    expect(field.className).toContain("border-input");
+    expect(field.className).toContain("bg-input-background");
+    expect(field.className).not.toContain("text-muted-foreground");
+    expect(field.className).toContain("shadow-xs");
     expect(field.className).not.toContain("opacity-50");
     expect(container.querySelector('[aria-label="Remove"]')).toBeNull();
     expect(container.querySelector('[role="button"]')).toBeNull();
@@ -549,43 +600,14 @@ describe("representative FormAutocomplete consumers", () => {
   });
 });
 
-describe("FilterInputSelect command behavior", () => {
-  it.each([FilterOperatorKey.hasSome, FilterOperatorKey.hasNone] as const)(
-    "does not render a value control for the value-less %s operator",
-    (operator) => {
-      const container = mount(
-        createElement(FilterField, {
-          baseId: "filters[0]",
-          customColumns: undefined,
-          filter: {
-            field: FilterFieldKey.contactIds,
-            operator,
-          },
-          filterableFields: [
-            {
-              field: FilterFieldKey.contactIds,
-              operators: [
-                FilterOperatorKey.in,
-                FilterOperatorKey.notIn,
-                FilterOperatorKey.hasSome,
-                FilterOperatorKey.hasNone,
-              ],
-            },
-          ],
-        }),
-      );
-
-      expect(container.querySelector('[id="filters\\[0\\]\\.value"]')).toBeNull();
-    },
-  );
-
-  it("never renders unresolved entity IDs when no option loader exists", () => {
+describe("FilterChipValue", () => {
+  it("never renders unresolved IDs when the field cannot be resolved", () => {
     const rawId = "8b2ce431-63b2-4671-8954-cdd93d05fe6d";
     const container = mount(
       createElement(FilterChipValue, {
         customColumns: undefined,
         filter: {
-          field: FilterFieldKey.contactIds,
+          field: "11111111-1111-4111-8111-111111111111",
           operator: FilterOperatorKey.in,
           value: [rawId],
         },
@@ -597,55 +619,5 @@ describe("FilterInputSelect command behavior", () => {
     expect(container.textContent).toContain("Filter not available");
     expect(container.textContent).not.toContain(rawId);
     expect(container.innerHTML).not.toContain(rawId);
-  });
-
-  it("masks unresolved entity IDs in visible and accessible labels", () => {
-    const rawId = "34ba55dd-d96d-4ef6-a027-c01085bb92e1";
-    testContext.formValue = [rawId];
-    const container = mount(filterSelect());
-
-    expect(container.textContent).toContain("Selection unavailable");
-    expect(container.textContent).not.toContain(rawId);
-    const accessibleLabels = Array.from(container.querySelectorAll<HTMLElement>("[aria-label]"), (element) =>
-      element.getAttribute("aria-label"),
-    );
-    expect(accessibleLabels).toContain("Remove Selection unavailable");
-    expect(accessibleLabels.some((label) => label?.includes(rawId))).toBe(false);
-  });
-
-  it("keeps selected values removable when the selection limit is reached", async () => {
-    testContext.formValue = ["alpha"];
-    testContext.filterItems = [
-      { key: "alpha", value: "alpha", textValue: "Alpha" },
-      { key: "beta", value: "beta", textValue: "Beta" },
-    ];
-    const container = mount(filterSelect(1));
-
-    await click(requiredElement(container.querySelector("#filters\\[0\\]\\.value")));
-    await flush();
-
-    const items = Array.from(document.querySelectorAll<HTMLElement>("[cmdk-item]"));
-    expect(items).toHaveLength(2);
-    expect(items[0]?.getAttribute("aria-disabled")).toBe("false");
-    expect(items[1]?.getAttribute("aria-disabled")).toBe("true");
-
-    await click(requiredElement(items[0]));
-    expect(testContext.onChange).toHaveBeenCalledWith("filters[0].value", undefined);
-  });
-
-  it("selects the active filtered option from the keyboard", async () => {
-    testContext.filterItems = [
-      { key: "alpha", value: "alpha", textValue: "Alpha" },
-      { key: "beta", value: "beta", textValue: "Beta" },
-    ];
-    const container = mount(filterSelect(1));
-
-    await click(requiredElement(container.querySelector("#filters\\[0\\]\\.value")));
-    await flush();
-    const input = document.querySelector<HTMLInputElement>("[cmdk-input]");
-
-    await press(requiredElement(input), "End");
-    await press(requiredElement(input), "Enter");
-    expect(testContext.onChange).toHaveBeenCalledWith("filters[0].value", ["beta"]);
   });
 });

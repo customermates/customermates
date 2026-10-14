@@ -4,7 +4,6 @@ import { useMemo } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
-import { ChevronDown } from "lucide-react";
 
 import { Avatar } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,22 +15,14 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { cn } from "@/core/utils/cn";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { IntlLink } from "@/i18n/navigation";
-import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 
 import { ShellHeader } from "./shell-header";
+import { stripLocalePrefix } from "@/i18n/locale-registry";
 import { useTopBarActions } from "./topbar-actions-context";
 import { buildAppTopbarCrumbs } from "./app-topbar-crumbs";
-
-import { EntityType } from "@/generated/prisma";
 
 export const AppTopBar = observer(({ operatorConsoleVisible }: { operatorConsoleVisible: boolean }) => {
   const t = useTranslations();
@@ -39,81 +30,29 @@ export const AppTopBar = observer(({ operatorConsoleVisible }: { operatorConsole
   const searchParams = useSearchParams();
   const inboxThreadId = searchParams.get("threadId");
   const rootStore = useRootStore();
-  const { layoutStore, userStore, terminologyStore } = rootStore;
+  const navigationDisabled = !rootStore.recordWorkspaceStore.routeReady(stripLocalePrefix(pathname));
+  const { layoutStore } = rootStore;
   const { actions, override } = useTopBarActions();
-  const { plural } = useEntityTerminology();
 
-  const entityLabels: Record<string, string> = {
-    contacts: plural(EntityType.contact),
-    organizations: plural(EntityType.organization),
-    deals: plural(EntityType.deal),
-    services: plural(EntityType.service),
-    tasks: plural(EntityType.task),
-  };
-
-  const { crumbs, section } = useMemo(
-    () =>
-      buildAppTopbarCrumbs(
-        pathname,
-        t,
-        entityLabels,
-        layoutStore.runtimeIdentity,
-        rootStore.appMode,
-        userStore.canAccess,
-        inboxThreadId,
-        operatorConsoleVisible,
-      ),
-    [
-      pathname,
-      t,
-      terminologyStore.overrides,
-      layoutStore.runtimeIdentity,
-      rootStore.appMode,
-      userStore.user,
-      inboxThreadId,
-      operatorConsoleVisible,
-    ],
+  const { crumbs } = useMemo(
+    () => buildAppTopbarCrumbs(pathname, t, layoutStore.runtimeIdentity, inboxThreadId, operatorConsoleVisible),
+    [pathname, t, layoutStore.runtimeIdentity, inboxThreadId, operatorConsoleVisible],
   );
 
-  if (crumbs.length === 0) return <ShellHeader actions={override ?? actions} />;
+  if (crumbs.length === 0) return <ShellHeader actions={override ?? actions} navigationDisabled={navigationDisabled} />;
 
   return (
-    <ShellHeader actions={override ?? actions}>
+    <ShellHeader actions={override ?? actions} navigationDisabled={navigationDisabled}>
       <Breadcrumb aria-label={t("Common.ariaLabels.breadcrumb")} className="min-w-0">
         <BreadcrumbList className="flex-nowrap">
           {crumbs.map((c, i) => {
             const isLeaf = i === crumbs.length - 1;
-            const hasSectionDropdown = Boolean(section) && crumbs.some((cr) => cr.siblings);
-            const hideOnMobile = !isLeaf && hasSectionDropdown;
             return (
-              <span
-                key={i}
-                className={cn(
-                  "flex items-center gap-1.5 shrink-0",
-                  isLeaf && "min-w-0 shrink",
-                  hideOnMobile && "hidden lg:flex",
-                )}
-              >
-                {i > 0 && <BreadcrumbSeparator className={cn("shrink-0", hasSectionDropdown && "hidden lg:flex")} />}
+              <span key={i} className={cn("flex items-center gap-1.5 shrink-0", isLeaf && "min-w-0 shrink")}>
+                {i > 0 && <BreadcrumbSeparator className="shrink-0" />}
 
                 <BreadcrumbItem className={cn(isLeaf ? "min-w-0" : "shrink-0")}>
-                  {isLeaf && c.siblings && section ? (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger className="flex min-w-0 items-center gap-1 rounded-md text-foreground outline-none hover:text-muted-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50">
-                        <span className="truncate">{c.label}</span>
-
-                        <ChevronDown className="size-3.5 shrink-0 opacity-60" />
-                      </DropdownMenuTrigger>
-
-                      <DropdownMenuContent align="start">
-                        {c.siblings.map((s) => (
-                          <DropdownMenuItem key={s.slug} asChild>
-                            <IntlLink href={`/${section}/${s.slug}`}>{s.label}</IntlLink>
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  ) : c.href && !isLeaf ? (
+                  {c.href && !isLeaf ? (
                     <BreadcrumbLink asChild>
                       <IntlLink href={c.href}>{c.label}</IntlLink>
                     </BreadcrumbLink>

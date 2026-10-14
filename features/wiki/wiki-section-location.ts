@@ -6,8 +6,8 @@ import { wikiMarkdownSections } from "./wiki-markdown-sections";
 
 const WIKI_SECTION_LABEL_MAX_LENGTH = 160;
 
-export type WikiSectionText = { offset: number; heading: string; body: string; markdown: string };
-export type WikiSectionLocation = { offset: number; section?: string; anchor?: string };
+type WikiSectionText = { offset: number; heading: string; body: string; markdown: string };
+type WikiSectionLocation = { offset: number; section?: string; anchor?: string };
 
 function boundedText(value: string, maxLength: number): string {
   if (value.length <= maxLength) return value;

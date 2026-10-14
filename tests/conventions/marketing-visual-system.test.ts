@@ -295,7 +295,7 @@ describe("marketing visual brief", () => {
     bespoke.factReferences = ["product:deal-status-field"];
     bespoke.focalLabel = { locale: "en", text: "Updated" };
     bespoke.focalSubject = {
-      fixtures: { record: "deal-crm-rollout", status: "deal-won" },
+      fixtures: { record: "deal-moorfield-property-management", status: "deal-won" },
       form: "record",
       id: "updated-record",
     };
@@ -303,7 +303,7 @@ describe("marketing visual brief", () => {
     bespoke.supportingSubjects = [
       { agentProvider: "claude", form: "agent-cue", id: "external-agent" },
       {
-        fixtures: { record: "deal-data-analytics", status: "deal-open" },
+        fixtures: { record: "deal-oakridge-climate-systems", status: "deal-open" },
         form: "context-card",
         id: "prior-state",
       },
@@ -445,22 +445,22 @@ describe("marketing visual brief", () => {
     expect(
       VISUAL_DEAL_BOARD_FIXTURES["professional-services-board"].records,
     ).toEqual([
-      "deal-data-analytics",
-      "deal-workplace-hardware",
-      "deal-crm-rollout",
-      "deal-enterprise-integration",
-      "deal-process-automation",
-      "deal-data-center-refresh",
+      "deal-oakridge-climate-systems",
+      "deal-mainbrueck-solar",
+      "deal-moorfield-property-management",
+      "deal-altmark-heating-cooling",
+      "deal-riverton-hvac-service",
+      "deal-ironvale-pump-service",
     ]);
     expect(
       VISUAL_DEAL_BOARD_FIXTURES["agency-new-business-board"].records,
     ).toEqual([
-      "deal-digital-customer-platform",
-      "deal-data-analytics",
-      "deal-cloud-infrastructure",
-      "deal-hr-systems",
-      "deal-data-center-refresh",
-      "deal-process-automation",
+      "deal-sonnenhof-fire-safety",
+      "deal-oakridge-climate-systems",
+      "deal-hansen-building-services",
+      "deal-lowell-property-care",
+      "deal-ironvale-pump-service",
+      "deal-riverton-hvac-service",
     ]);
 
     const providerSet = clone(getGoldenVisualBrief("converge", "en"));
@@ -523,7 +523,7 @@ describe("marketing visual brief", () => {
     const focal = brief.focalSubject as Record<string, unknown>;
     focal.fixtures = {
       person: "max-bergmann",
-      record: "deal-enterprise-integration",
+      record: "deal-altmark-heating-cooling",
       status: "deal-won",
     };
 
@@ -531,7 +531,7 @@ describe("marketing visual brief", () => {
       focalSubject: {
         fixtures: {
           person: "max-bergmann",
-          record: "deal-enterprise-integration",
+          record: "deal-altmark-heating-cooling",
           status: "deal-won",
         },
       },
@@ -544,7 +544,7 @@ describe("marketing visual brief", () => {
     >;
     wrongStatusFocal.fixtures = {
       person: "max-bergmann",
-      record: "deal-enterprise-integration",
+      record: "deal-altmark-heating-cooling",
       status: "deal-open",
     };
     expect(invalid(wrongStatus)).toThrow(/seeded status binding/u);
@@ -760,10 +760,10 @@ describe("GoldenStoryVisual benchmark renderer", () => {
     expect(handoff).toContain("Max Bergmann");
     expect(handoff).toContain("ChatGPT");
     expect(handoff).not.toContain("lucide-sparkles");
-    expect(focus).toContain('data-native-record="deal-crm-rollout"');
+    expect(focus).toContain('data-native-record="deal-moorfield-property-management"');
     expect(focus).toContain('data-native-status="deal-won"');
     expect(focus).toContain('data-variant="success"');
-    expect(focus).toContain("CRM Rollout &amp; Sales Enablement");
+    expect(focus).toContain("Moorfield Property Management - Enterprise 373 - New");
   });
 
   it("recomposes fixture detail from essential to context to full density", () => {
@@ -811,14 +811,14 @@ describe("GoldenStoryVisual benchmark renderer", () => {
     expect(focus.split).not.toContain(">Inspector<");
     expect(focus.wide).toContain(">Inspector<");
     expect(focus.narrow).not.toContain(
-      'data-native-record="deal-data-analytics"',
+      'data-native-record="deal-oakridge-climate-systems"',
     );
-    expect(focus.split).toContain('data-native-record="deal-data-analytics"');
+    expect(focus.split).toContain('data-native-record="deal-oakridge-climate-systems"');
     expect(focus.split).not.toContain(
-      'data-native-record="deal-process-automation"',
+      'data-native-record="deal-riverton-hvac-service"',
     );
     expect(focus.wide).toContain(
-      'data-native-record="deal-process-automation"',
+      'data-native-record="deal-riverton-hvac-service"',
     );
   });
 
@@ -1295,9 +1295,9 @@ describe("marketing visual boundaries", () => {
       "whatsapp",
     ]);
     expect(VISUAL_PERSON_FIXTURES["anna-mueller"].name).toBe("Anna Müller");
-    expect(VISUAL_RECORD_FIXTURES["deal-crm-rollout"]).toMatchObject({
+    expect(VISUAL_RECORD_FIXTURES["deal-moorfield-property-management"]).toMatchObject({
       kind: "deal",
-      name: "CRM Rollout & Sales Enablement",
+      name: "Moorfield Property Management - Enterprise 373 - New",
       status: "deal-won",
     });
     expect(

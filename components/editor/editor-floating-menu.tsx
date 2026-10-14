@@ -86,6 +86,7 @@ export function EditorFloatingMenu({
       <PopoverAnchor virtualRef={anchorRef} />
 
       <PopoverContent
+        data-editor-menu
         hideWhenDetached
         align={align}
         className={cn("w-auto p-1", className)}

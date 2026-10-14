@@ -1,6 +1,8 @@
 import { NextIntlClientProvider } from "next-intl";
 import { RootProvider } from "fumadocs-ui/provider/next";
 
+import { TooltipProvider } from "@/components/ui/tooltip";
+
 type DeepPartial<Type> = {
   [Key in keyof Type]?: Type[Key] extends object ? DeepPartial<Type[Key]> : Type[Key];
 };
@@ -19,7 +21,7 @@ export function Providers({ children, displayLanguage, messages }: Props) {
       }}
     >
       <NextIntlClientProvider locale={displayLanguage} messages={messages} timeZone="UTC">
-        {children}
+        <TooltipProvider>{children}</TooltipProvider>
       </NextIntlClientProvider>
     </RootProvider>
   );

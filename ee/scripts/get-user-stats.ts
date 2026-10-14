@@ -1,7 +1,7 @@
 import "dotenv/config";
 
-import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient, Status } from "@/generated/prisma";
+import { PrismaPg } from "@prisma/adapter-pg";
 
 function toHumanDate(date: Date | null): string {
   if (!date) return "—";
@@ -85,11 +85,8 @@ async function main(): Promise<void> {
           _count: {
             select: {
               users: true,
-              contacts: true,
-              organizations: true,
-              deals: true,
-              services: true,
-              tasks: true,
+              records: true,
+              recordTypes: true,
             },
           },
         },
@@ -115,11 +112,7 @@ async function main(): Promise<void> {
         console.log(`  Current period ends: ${toHumanDate(sub.currentPeriodEnd)}`);
 
       const c = company._count;
-      console.log(
-        `  Data: ${c.users} users · ${c.contacts} contacts · ` +
-          `${c.organizations} orgs · ${c.deals} deals · ` +
-          `${c.services} services · ${c.tasks} tasks`,
-      );
+      console.log(`  Data: ${c.users} users · ${c.records} CRM records · ${c.recordTypes} record types`);
 
       if (company.users.length > 0) {
         console.log();

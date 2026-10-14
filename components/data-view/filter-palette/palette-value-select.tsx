@@ -1,22 +1,23 @@
 "use client";
 
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
-import type { Filter } from "@/core/base/base-get.schema";
 import type { FilterSelectItem } from "@/components/data-view/filter-modal/inputs/use-filter-select-items";
+import type { Filter } from "@/core/base/base-get.schema";
+import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 
 import { CheckIcon } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useEffect, useMemo, useState } from "react";
 
 import { AppChip } from "@/components/chip/app-chip";
+import { filterSelectGroups } from "@/components/data-view/filter-modal/inputs/filter-select-groups";
+import { useFilterSelectItems } from "@/components/data-view/filter-modal/inputs/use-filter-select-items";
+import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
 import { Button } from "@/components/ui/button";
 import { CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
-import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
-import { useDebouncedValue } from "@/core/utils/use-debounced-value";
-import { useFilterSelectItems } from "@/components/data-view/filter-modal/inputs/use-filter-select-items";
-import { filterSelectGroups } from "@/components/data-view/filter-modal/inputs/filter-select-groups";
 import { cn } from "@/core/utils/cn";
+import { useDebouncedValue } from "@/core/utils/use-debounced-value";
+import { TruncatedText } from "@/components/shared/truncated-text";
 
 type OptionResult = {
   key: string;
@@ -27,7 +28,7 @@ type OptionResult = {
 
 type Props = {
   filter: Filter;
-  customColumns: CustomColumnDto[] | undefined;
+  customColumns: ColumnPresentation[] | undefined;
   selected: string[];
   query: string;
   onToggle: (key: string, maxSelectedValues: number | undefined) => void;
@@ -130,13 +131,7 @@ export const PaletteValueSelect = observer(function PaletteValueSelect({
             <CommandGroup
               key={group.key}
               data-filter-option-group={group.key || undefined}
-              heading={
-                group.label ? (
-                  <span className="block truncate" title={group.label}>
-                    {group.label}
-                  </span>
-                ) : undefined
-              }
+              heading={group.label ? <TruncatedText>{group.label}</TruncatedText> : undefined}
             >
               {group.items.map((item) => {
                 const isSelected = selected.includes(item.key);

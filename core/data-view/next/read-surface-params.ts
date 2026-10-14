@@ -9,5 +9,7 @@ export async function readSurfaceParams(
   surfaceKey: DataViewSurfaceKey,
   searchParams: Promise<SearchParams> | SearchParams,
 ): Promise<GetQueryParams> {
-  return { ...decodeGetParams(await searchParams), p13nId: surfaceKey };
+  const resolved = await searchParams;
+  if (resolved.viewSurface !== undefined && resolved.viewSurface !== surfaceKey) return { p13nId: surfaceKey };
+  return { ...decodeGetParams(resolved), p13nId: surfaceKey };
 }

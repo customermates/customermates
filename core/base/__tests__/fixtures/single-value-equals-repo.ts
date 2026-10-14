@@ -1,4 +1,4 @@
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { Filter, FilterableField, SortDescriptor } from "../../base-get.schema";
 import { BaseGetRepo } from "@/core/base/base-get.repo";
 
@@ -35,8 +35,5 @@ export class Repo extends BaseGetRepo<{ id: string }> {
   }
   validateSortDescriptor(): SortDescriptor | undefined {
     return undefined;
-  }
-  sumNumericFields() {
-    return Promise.resolve({});
   }
 }

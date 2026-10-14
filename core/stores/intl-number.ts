@@ -108,3 +108,19 @@ export function formatLocalizedNumber(
   if (value === undefined || Number.isNaN(value)) return "";
   return new Intl.NumberFormat(locale, options).format(value);
 }
+
+const CANONICAL_DECIMAL = /^-?\d+(?:\.\d+)?$/u;
+
+export function formatCanonicalDecimal(
+  value: string,
+  locale: string | undefined,
+  options: { useGrouping?: boolean } = {},
+): string {
+  if (!CANONICAL_DECIMAL.test(value)) return value;
+  const fractionDigits = Math.min(value.split(".")[1]?.length ?? 0, 100);
+  return new Intl.NumberFormat(locale, {
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
+    useGrouping: options.useGrouping ?? true,
+  }).format(value as Intl.StringNumericLiteral);
+}

@@ -27,12 +27,12 @@ import type { WikiCrawlScope } from "./website-crawl-scope";
 import { isWikiCrawlTargetInScope } from "./website-crawl-scope";
 import { WikiCrawlRobots } from "./wiki-crawl-robots";
 
-export type WikiCrawlDiscovery =
+type WikiCrawlDiscovery =
   | { status: "blocked" }
   | { status: "unavailable" }
   | { status: "ready"; targets: WikiCrawlTarget[]; pendingHosts: string[]; crawlDelayMs: number };
 
-export type WikiFetchedSource = {
+type WikiFetchedSource = {
   url: string;
   title: string;
   text: string;

@@ -8,13 +8,17 @@ import en from "timeago.js/lib/lang/en_US";
 import es from "timeago.js/lib/lang/es";
 import fr from "timeago.js/lib/lang/fr";
 import it from "timeago.js/lib/lang/it";
-import { Currency } from "@/generated/prisma";
 
 import type { AppLocale } from "@/i18n/locale-registry";
 
 import { appLocaleOrDefault, formattingTagFor, isFormattingLocale } from "@/i18n/locale-registry";
 import { resolveUserFormattingTag } from "@/i18n/user-locale";
-import { formatLocalizedNumber, parseLocalizedNumber, parseLocalizedNumberToCanonical } from "./intl-number";
+import {
+  formatCanonicalDecimal,
+  formatLocalizedNumber,
+  parseLocalizedNumber,
+  parseLocalizedNumberToCanonical,
+} from "./intl-number";
 import { agentCreditDisplay, type AgentCreditDisplay } from "@/core/commercial/agent-credits";
 
 const TIMEAGO_LOCALES = { de, en, es, fr, it } satisfies Record<AppLocale, Parameters<typeof register>[1]>;
@@ -34,10 +38,6 @@ export class IntlStore {
 
   get rendersZonedValues(): boolean {
     return this.clientHydrated;
-  }
-
-  get companyCurrency() {
-    return this.rootStore.companyStore.company?.currency;
   }
 
   get formattingLocale() {
@@ -80,21 +80,6 @@ export class IntlStore {
     };
   }
 
-  formatCurrency(
-    amount: number | undefined,
-    currency?: string,
-    options?: { minimumFractionDigits?: number; maximumFractionDigits?: number },
-  ): string {
-    if (amount === undefined) return "";
-
-    return new Intl.NumberFormat(this.formattingLocale, {
-      style: "currency",
-      currency: currency || this.companyCurrency || Currency.eur,
-      minimumFractionDigits: options?.minimumFractionDigits,
-      maximumFractionDigits: options?.maximumFractionDigits,
-    }).format(amount);
-  }
-
   formatNumber(value: number | undefined, options?: { useGrouping?: boolean; maximumFractionDigits?: number }): string {
     return formatLocalizedNumber(value, this.formattingLocale, {
       style: "decimal",
@@ -102,6 +87,13 @@ export class IntlStore {
       maximumFractionDigits: options?.maximumFractionDigits ?? 2,
       useGrouping: options?.useGrouping ?? true,
     });
+  }
+
+  formatList(items: readonly string[]): string {
+    return new Intl.ListFormat(appLocaleOrDefault(this.rootStore.localeStore.locale), {
+      style: "long",
+      type: "conjunction",
+    }).format(items);
   }
 
   formatAgentCredits(credits: number): AgentCreditDisplay {
@@ -125,6 +117,14 @@ export class IntlStore {
 
   parseNumberToCanonical(value: string, locale = this.formattingLocale): string | undefined {
     return parseLocalizedNumberToCanonical(value, locale);
+  }
+
+  formatDecimal(value: string, locale = this.formattingLocale): string {
+    return formatCanonicalDecimal(value, locale);
+  }
+
+  formatDecimalForEditing(value: string, locale = this.formattingLocale): string {
+    return formatCanonicalDecimal(value, locale, { useGrouping: false });
   }
 
   get collator(): Intl.Collator {
@@ -165,13 +165,14 @@ export class IntlStore {
     }).format(date);
   }
 
-  formatMonthYear(date: Date | undefined): string {
+  formatMonthYear(date: Date | undefined, options?: { timeZone?: string }): string {
     if (date === undefined) return "";
     if (!this.clientHydrated) return "";
 
     return new Intl.DateTimeFormat(this.formattingLocale, {
       year: "numeric" as const,
       month: "long" as const,
+      ...(options?.timeZone ? { timeZone: options.timeZone } : {}),
     }).format(date);
   }
 
@@ -184,7 +185,7 @@ export class IntlStore {
     }).format(date);
   }
 
-  formatDescriptiveLongDate(date: Date | undefined): string {
+  formatDescriptiveLongDate(date: Date | undefined, options?: { timeZone?: string }): string {
     if (date === undefined) return "";
     if (!this.clientHydrated) return "";
 
@@ -192,6 +193,7 @@ export class IntlStore {
       year: "numeric" as const,
       month: "long" as const,
       day: "numeric" as const,
+      ...(options?.timeZone ? { timeZone: options.timeZone } : {}),
     }).format(date);
   }
 
@@ -208,7 +210,7 @@ export class IntlStore {
     }).format(date);
   }
 
-  formatNumericalShortDateTime(date: Date | undefined): string {
+  formatNumericalShortDateTime(date: Date | undefined, options?: { timeZone?: string }): string {
     if (date === undefined) return "";
     if (!this.clientHydrated) return "";
 
@@ -218,6 +220,7 @@ export class IntlStore {
       day: "2-digit" as const,
       hour: "2-digit" as const,
       minute: "2-digit" as const,
+      ...(options?.timeZone ? { timeZone: options.timeZone } : {}),
     }).format(date);
   }
 

@@ -1,12 +1,10 @@
-import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/generated/prisma";
 
 import { getTenantUser, isTenantGuardBypassed } from "@/core/decorators/tenant-context";
 import { env } from "@/env";
+import { serializedPgAdapter } from "./serialized-pg-adapter";
 
-const adapter = new PrismaPg({
-  connectionString: env.DATABASE_URL,
-});
+const adapter = serializedPgAdapter(env.DATABASE_URL);
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
@@ -30,8 +28,10 @@ type WhereScope = "unchecked" | "companyIdColumn" | "companyIdColumnOrCompoundKe
 const WHERE_SCOPE_BY_OPERATION: Record<string, WhereScope> = {
   create: "unchecked",
   createMany: "unchecked",
+  createManyAndReturn: "unchecked",
   update: "companyIdColumn",
   updateMany: "companyIdColumn",
+  updateManyAndReturn: "companyIdColumn",
   upsert: "companyIdColumnOrCompoundKey",
 };
 
@@ -69,7 +69,7 @@ function assertTenantPayload(model: string, operation: string, args: unknown, co
 
   if (operation === "create") return assertPayloadOwned(model, operation, "data", input.data, companyId);
 
-  if (operation === "createMany") {
+  if (operation === "createMany" || operation === "createManyAndReturn") {
     const rows = Array.isArray(input.data) ? input.data : [input.data];
     for (const row of rows) assertPayloadOwned(model, operation, "data", row, companyId);
     return;
@@ -81,7 +81,7 @@ function assertTenantPayload(model: string, operation: string, args: unknown, co
     return;
   }
 
-  if (operation === "update" || operation === "updateMany")
+  if (operation === "update" || operation === "updateMany" || operation === "updateManyAndReturn")
     assertPayloadNotForeign(model, operation, "data", input.data, companyId);
 }
 

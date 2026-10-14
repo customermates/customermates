@@ -1,3 +1,4 @@
+import { PermissionService } from "@/core/base/permission.service";
 import type { Filter } from "@/core/base/base-get.schema";
 
 import { randomUUID } from "node:crypto";
@@ -12,6 +13,8 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { emailFolderFilterValue } from "../../inbox/messaging-filter-options.schema";
 import { PrismaConnectedAccountRepo } from "../prisma-connected-account.repository";
+import { PrismaUnipileWebhookRepo } from "../prisma-unipile-webhook.repository";
+import { getConnectedAccountRepo, getRecordAccessPolicy, getRecordIdentityReader, getRecordRepo } from "@/core/di";
 import { PrismaMessagingRepo } from "../prisma-messaging.repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
@@ -115,8 +118,13 @@ describeDatabase("inbox filters on PostgreSQL", () => {
 
   beforeAll(async () => {
     await client.connect();
-    for (const id of [companyId, foreignCompanyId])
+    for (const id of [companyId, foreignCompanyId]) {
       await client.query('INSERT INTO "Company" (id,"updatedAt") VALUES ($1,NOW())', [id]);
+      await client.query(
+        'INSERT INTO "UserRole" (id,name,"isSystemRole","companyId","updatedAt") VALUES ($1,\'Admin\',TRUE,$1,NOW())',
+        [id],
+      );
+    }
 
     for (const [id, company] of [
       [userId, companyId],
@@ -124,7 +132,7 @@ describeDatabase("inbox filters on PostgreSQL", () => {
       [foreignUserId, foreignCompanyId],
     ]) {
       await client.query(
-        'INSERT INTO "User" (id,email,"firstName","lastName","companyId","updatedAt") VALUES ($1,$2,\'Filter\',\'Fixture\',$3,NOW())',
+        'INSERT INTO "User" (id,email,"firstName","lastName","companyId","roleId",status,"updatedAt") VALUES ($1,$2,\'Filter\',\'Fixture\',$3,$3,\'active\',NOW())',
         [id, `${id}@example.invalid`, company],
       );
     }
@@ -239,7 +247,12 @@ describeDatabase("inbox filters on PostgreSQL", () => {
   const ids = (names: string[]) => names.map((name) => threads[name]).sort();
   const query = (filters: Filter[], user = tenant) =>
     runWithTenant(user, async () => {
-      const repo = new PrismaMessagingRepo();
+      const repo = new PrismaMessagingRepo(
+        getRecordRepo(),
+        getRecordAccessPolicy(),
+        getRecordIdentityReader(),
+        getConnectedAccountRepo(),
+      );
       const [items, total] = await Promise.all([repo.getItems({ filters }), repo.getCount({ filters })]);
       expect(total).toBe(items.length);
       return items.map((item) => item.id).sort();
@@ -312,7 +325,12 @@ describeDatabase("inbox filters on PostgreSQL", () => {
 
   it("keeps pagination and total aligned under the last-message predicate", async () => {
     await runWithTenant(tenant, async () => {
-      const repo = new PrismaMessagingRepo();
+      const repo = new PrismaMessagingRepo(
+        getRecordRepo(),
+        getRecordAccessPolicy(),
+        getRecordIdentityReader(),
+        getConnectedAccountRepo(),
+      );
       const filters = [filter(FilterFieldKey.lastMessageDirection, ["inbound"])];
       const first = await repo.getItems({ filters, take: 5, skip: 0 });
       const second = await repo.getItems({ filters, take: 5, skip: 5 });
@@ -324,7 +342,9 @@ describeDatabase("inbox filters on PostgreSQL", () => {
   });
 
   it("scopes options to caller access and only exposes placements of individually shared threads", async () => {
-    const options = await runWithTenant(tenant, () => new PrismaConnectedAccountRepo().listInboxFilterOptions());
+    const options = await runWithTenant(tenant, () =>
+      new PrismaConnectedAccountRepo(new PermissionService(), new PrismaUnipileWebhookRepo()).listInboxFilterOptions(),
+    );
     expect(options.accounts.map((option) => option.value).sort()).toEqual(
       [account.a, account.b, account.shared, account.individual, account.chat].sort(),
     );
@@ -349,7 +369,14 @@ describeDatabase("inbox filters on PostgreSQL", () => {
         [account["individual-hidden"], account["individual-unselected"]].some((id) => id === option.groupKey),
       ),
     ).toBe(false);
-    const fields = await runWithTenant(tenant, () => new PrismaMessagingRepo().getFilterableFields());
+    const fields = await runWithTenant(tenant, () =>
+      new PrismaMessagingRepo(
+        getRecordRepo(),
+        getRecordAccessPolicy(),
+        getRecordIdentityReader(),
+        getConnectedAccountRepo(),
+      ).getFilterableFields(),
+    );
     expect(fields.find((field) => field.field === FilterFieldKey.emailFolder)?.options).toEqual(options.folders);
     expect(fields.find((field) => field.field === FilterFieldKey.connectedAccountId)?.options).toEqual(
       options.accounts,
@@ -366,7 +393,9 @@ describeDatabase("inbox filters on PostgreSQL", () => {
       companyId: foreignCompanyId,
     });
     expect(await query([filter(FilterFieldKey.lastMessageDirection, ["outbound"])], foreign)).toEqual(ids(["foreign"]));
-    const options = await runWithTenant(foreign, () => new PrismaConnectedAccountRepo().listInboxFilterOptions());
+    const options = await runWithTenant(foreign, () =>
+      new PrismaConnectedAccountRepo(new PermissionService(), new PrismaUnipileWebhookRepo()).listInboxFilterOptions(),
+    );
     expect(options.accounts.map((option) => option.value)).toEqual([account.foreign]);
     expect(options.folders.map((option) => option.value)).toContain(folder("foreign"));
     expect(options.folders.some((option) => option.value.includes(account.a))).toBe(false);
@@ -374,7 +403,12 @@ describeDatabase("inbox filters on PostgreSQL", () => {
 
   it("preserves ascending activity order and its identifier tie-break under direction filtering", async () => {
     await runWithTenant(tenant, async () => {
-      const repo = new PrismaMessagingRepo();
+      const repo = new PrismaMessagingRepo(
+        getRecordRepo(),
+        getRecordAccessPolicy(),
+        getRecordIdentityReader(),
+        getConnectedAccountRepo(),
+      );
       const params = {
         filters: [filter(FilterFieldKey.lastMessageDirection, ["inbound"])],
         take: 100,
@@ -399,7 +433,12 @@ describeDatabase("inbox filters on PostgreSQL", () => {
     const range = [dateFilter(FilterOperatorKey.notInLastDays, 3), dateFilter(FilterOperatorKey.inLastDays, 7)];
     const dateQuery = (filters: Filter[], user = tenant) =>
       runWithTenant(user, async () => {
-        const repo = new PrismaMessagingRepo();
+        const repo = new PrismaMessagingRepo(
+          getRecordRepo(),
+          getRecordAccessPolicy(),
+          getRecordIdentityReader(),
+          getConnectedAccountRepo(),
+        );
         const params = { searchTerm: "last-date-", filters, take: 100 };
         const [items, total] = await Promise.all([repo.getItems(params), repo.getCount(params)]);
         expect(total).toBe(items.length);
@@ -548,7 +587,12 @@ describeDatabase("inbox filters on PostgreSQL", () => {
       );
       await client.query('ANALYZE "MessagingThread", "MessagingMessage"');
       await runWithTenant(tenant, async () => {
-        const repo = new PrismaMessagingRepo();
+        const repo = new PrismaMessagingRepo(
+          getRecordRepo(),
+          getRecordAccessPolicy(),
+          getRecordIdentityReader(),
+          getConnectedAccountRepo(),
+        );
         const params: { filters: Filter[] } = {
           filters: [
             filter(FilterFieldKey.lastMessageDirection, ["outbound"]),

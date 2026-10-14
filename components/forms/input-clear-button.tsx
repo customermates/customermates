@@ -13,7 +13,7 @@ export function InputClearButton({ onClear }: Props) {
   return (
     <span
       aria-label={t("Common.actions.clear")}
-      className="ml-2 inline-flex size-4 shrink-0 items-center justify-center rounded-sm text-muted-foreground transition-[color,transform] hover:bg-accent hover:text-accent-foreground focus:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer active:scale-[0.97] motion-reduce:transition-none"
+      className="ml-2 inline-flex size-4 shrink-0 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
       role="button"
       tabIndex={-1}
       onClick={(e) => {

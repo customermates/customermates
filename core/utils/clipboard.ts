@@ -1,4 +1,4 @@
-export type ClipboardPayload = string | Promise<string>;
+type ClipboardPayload = string | Promise<string>;
 
 function canWriteClipboardItems(): boolean {
   return typeof ClipboardItem !== "undefined" && typeof navigator.clipboard?.write === "function";

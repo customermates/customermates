@@ -7,27 +7,35 @@ import { WIKI_GUIDE_CONTEXT_MAX_BYTES, WikiPageInputSchema } from "@/features/wi
 import { SYNTHETIC_WIKI_PAGE_DEFINITIONS, SYNTHETIC_WIKI_PAGE_IDS } from "../seeds/wiki";
 
 describe("synthetic Knowledge Base fixtures", () => {
-  it("shows a complete consulting workspace with every page kind and the core foundations", () => {
+  it("shows the Northwind Labs workspace with every page kind and the procedures Mate selects by trigger", () => {
     expect(SYNTHETIC_WIKI_PAGE_DEFINITIONS.map(({ title }) => title)).toEqual([
       "Operating Guide",
-      "Company Overview",
-      "Services & Solutions",
-      "Ideal Customers",
-      "Voice & Tone",
-      "Sales Playbook",
-      "Pricing & Scope",
-      "Client Success",
-      "Discovery Call",
-      "Proposal Review",
-      "Client Handover",
-      "Support Escalation",
+      "Product Fact Sheet",
+      "Ideal Customer Profile",
+      "Objection Handling",
+      "Expansion and Upsell Plays",
+      "Campaigns and Lead Sources",
+      "Meeting Notes Template",
+      "Sales Process",
+      "Pricing and Discounts",
+      "Customer Onboarding",
+      "Renewal Playbook",
+      "Support SLA and Escalation",
+      "Email Tone and Templates",
+      "Partner Program",
+      "Hiring Process",
     ]);
     expect(SYNTHETIC_WIKI_PAGE_DEFINITIONS.filter(({ kind }) => kind === "guide")).toHaveLength(1);
-    expect(SYNTHETIC_WIKI_PAGE_DEFINITIONS.filter(({ kind }) => kind === "knowledge")).toHaveLength(7);
-    expect(SYNTHETIC_WIKI_PAGE_DEFINITIONS.filter(({ kind }) => kind === "procedure")).toHaveLength(4);
-    expect(new Set(SYNTHETIC_WIKI_PAGE_DEFINITIONS.map(({ id }) => id))).toHaveLength(12);
-    expect(new Set(SYNTHETIC_WIKI_PAGE_DEFINITIONS.map(({ sortOrder }) => sortOrder))).toHaveLength(12);
+    expect(SYNTHETIC_WIKI_PAGE_DEFINITIONS.filter(({ kind }) => kind === "knowledge")).toHaveLength(6);
+    expect(SYNTHETIC_WIKI_PAGE_DEFINITIONS.filter(({ kind }) => kind === "procedure")).toHaveLength(8);
+    expect(new Set(SYNTHETIC_WIKI_PAGE_DEFINITIONS.map(({ id }) => id))).toHaveLength(15);
+    expect(new Set(SYNTHETIC_WIKI_PAGE_DEFINITIONS.map(({ sortOrder }) => sortOrder))).toHaveLength(15);
     expect(SYNTHETIC_WIKI_PAGE_DEFINITIONS[0]).toMatchObject({ kind: "guide", sortOrder: -1 });
+    for (const { kind, title, whenToUse } of SYNTHETIC_WIKI_PAGE_DEFINITIONS) {
+      if (kind === "procedure") expect(whenToUse, title).toMatch(/^When .{40,}\.$/u);
+      else expect(whenToUse, title).toBeNull();
+    }
+    expect(JSON.stringify(SYNTHETIC_WIKI_PAGE_DEFINITIONS)).not.toMatch(/Customermates|consulting/iu);
   });
 
   it("passes the real editor and procedure validation with useful leading excerpts", () => {

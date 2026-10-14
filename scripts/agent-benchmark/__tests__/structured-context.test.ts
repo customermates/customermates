@@ -9,6 +9,7 @@ import { buildBenchmarkAgentMessageRequest, resolveBenchmarkTurnContext } from "
 import { BENCHMARK_CASES, type CaseId } from "../fixtures";
 
 const CLIENT_REQUEST_ID = "10000000-0000-4000-8000-000000000001";
+const CONTACT_TYPE = "30000000-0000-4000-8000-000000000001";
 const CONTACT_ID = "20000000-0000-4000-8000-000000000001";
 
 function benchmarkCase(caseId: CaseId) {
@@ -21,7 +22,7 @@ function requestFor(caseId: CaseId, fixtureIds: Readonly<Record<string, string>>
   const definition = benchmarkCase(caseId);
   const prompt = definition.prompts[0];
   if (!prompt) throw new Error(`Missing first prompt for ${caseId}.`);
-  const context = resolveBenchmarkTurnContext(definition, fixtureIds, 0);
+  const context = resolveBenchmarkTurnContext(definition, { contactType: CONTACT_TYPE, ...fixtureIds }, 0);
   return buildBenchmarkAgentMessageRequest({
     clientRequestId: CLIENT_REQUEST_ID,
     conversationId: null,
@@ -41,14 +42,14 @@ describe("benchmark structured context requests", () => {
       `${en.AgentChat.context.starter.appearance}Switch this current Contacts view to the table layout and sort by name descending. Keep every other setting.`,
     );
     expect(request.pageContext.route).toBe(
-      `/en/contacts?view=${ALL_VIEW_KEY}&viewSurface=${SURFACE.contacts}&viewAction=update`,
+      `/en/records/${CONTACT_TYPE}?view=${ALL_VIEW_KEY}&viewSurface=records:${CONTACT_TYPE}&viewAction=update`,
     );
     expect(request.contexts).toEqual([
       {
         label: "Contact view: All",
         reference: {
           kind: "dataView",
-          surfaceKey: SURFACE.contacts,
+          surfaceKey: `records:${CONTACT_TYPE}`,
           viewKey: ALL_VIEW_KEY,
           requestedAction: "update",
         },
@@ -64,14 +65,14 @@ describe("benchmark structured context requests", () => {
       `${en.AgentChat.context.starter.createNamed.replace("{name}", "Contacts with deals")}Show contacts linked to at least one deal, set the search text to View, group them by creation month, use the card layout, and sort by name ascending.`,
     );
     expect(request.pageContext.route).toBe(
-      `/en/contacts?view=${ALL_VIEW_KEY}&viewSurface=${SURFACE.contacts}&viewAction=create`,
+      `/en/records/${CONTACT_TYPE}?view=${ALL_VIEW_KEY}&viewSurface=records:${CONTACT_TYPE}&viewAction=create`,
     );
     expect(request.contexts).toEqual([
       {
         label: "New Contact view: Contacts with deals",
         reference: {
           kind: "dataView",
-          surfaceKey: SURFACE.contacts,
+          surfaceKey: `records:${CONTACT_TYPE}`,
           proposedName: "Contacts with deals",
           requestedAction: "create",
         },
@@ -88,7 +89,7 @@ describe("benchmark structured context requests", () => {
     );
     expect(request.locale).toBe("de");
     expect(request.pageContext.route).toBe(
-      `/de/contacts/${CONTACT_ID}?view=${ALL_VIEW_KEY}&viewSurface=${SURFACE.entityTimeline}&viewAction=update`,
+      `/de/records/${CONTACT_TYPE}/${CONTACT_ID}?view=${ALL_VIEW_KEY}&viewSurface=${SURFACE.entityTimeline}&viewAction=update`,
     );
     expect(request.contexts).toEqual([
       {
@@ -104,7 +105,7 @@ describe("benchmark structured context requests", () => {
         label: "Ada Lovelace",
         reference: {
           kind: "record",
-          entityType: "contact",
+          typeId: CONTACT_TYPE,
           recordId: CONTACT_ID,
         },
       },

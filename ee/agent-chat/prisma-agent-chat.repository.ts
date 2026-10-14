@@ -1,3 +1,5 @@
+import type { PermissionService } from "@/core/base/permission.service";
+import { routineAccessWhere } from "@/ee/routines/routine-access";
 import { randomUUID } from "node:crypto";
 
 import {
@@ -12,7 +14,7 @@ import {
   type SubscriptionStatus,
 } from "@/generated/prisma";
 
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { env } from "@/env";
@@ -25,6 +27,8 @@ import type {
 } from "./agent-usage.service";
 import type { AgentUsageRepo } from "@/ee/agent-chat/agent-usage.repo";
 import type { GetWikiSuggestionSignalRepo } from "@/features/wiki/get-wiki-suggestion-signal.repo";
+import type { RoutineConversationPurgeRepo } from "@/ee/routines/routine-conversation-purge.repo";
+import type { RoutineRunLinkRepo } from "./routine-run-link.repo";
 import { AGENT_CONVERSATION_PAGE_SIZE, AGENT_MESSAGE_PAGE_SIZE, type AgentConversationPage } from "./agent-history";
 import { AGENT_MAX_CONCURRENT_RUNS_PER_USER } from "./agent-run-limits";
 import { clientSafeAgentMessageParts, hasRenderableAgentMessageParts, partsToText } from "./agent-chat.schema";
@@ -34,12 +38,7 @@ import {
   parsePendingAgentApprovalToolName,
   pendingAgentApprovalToolName,
 } from "./agent-approval";
-import {
-  agentPlainTextPreview,
-  sanitizeAgentConversationTitle,
-  sanitizeAgentVisibleText,
-  stripLegacyUserPageContextPrefix,
-} from "./agent-output-safety";
+import { agentPlainTextPreview, sanitizeAgentConversationTitle, sanitizeAgentVisibleText } from "./agent-output-safety";
 import {
   areAgentTurnAffectedResources,
   AGENT_RUN_LEASE_MS,
@@ -60,6 +59,7 @@ import {
   workspaceIndexingShareMicrocents,
 } from "./agent-credit-policy";
 import { isAgentTurnClassifierTrace, type AgentTurnClassifierTrace } from "./agent-classifier-trace";
+import { LIVE_WIDGET } from "@/features/widget/live-widget";
 
 type StoredAgentTurnRow = {
   id: string;
@@ -221,11 +221,16 @@ function sumAdjustmentMicrocents(rows: Array<{ deltaMicrocents: bigint }>): numb
 export type AgentUsageReservationExtension =
   | { disposition: "extended"; reservedMicrocents: number }
   | { disposition: "credit_limit" }
+  | { disposition: "run_credit_limit"; ceilingMicrocents: number }
   | { disposition: "hosted_ai_unavailable" }
   | { disposition: "turn_error" };
 
-export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRepo {
-  constructor(private readonly wikiSuggestions: GetWikiSuggestionSignalRepo) {
+export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageRepo, RoutineConversationPurgeRepo {
+  constructor(
+    private readonly wikiSuggestions: GetWikiSuggestionSignalRepo,
+    private readonly permissions: PermissionService,
+    private readonly routineRuns: RoutineRunLinkRepo,
+  ) {
     super();
   }
 
@@ -475,9 +480,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         id: row.id,
         title: sanitizeAgentConversationTitle(row.title),
         preview: agentPlainTextPreview(
-          latest?.role === AgentMessageRole.user
-            ? stripLegacyUserPageContextPrefix(latestText)
-            : sanitizeAgentVisibleText(latestText, env.BASE_URL),
+          latest?.role === AgentMessageRole.user ? latestText : sanitizeAgentVisibleText(latestText, env.BASE_URL),
           140,
         ),
         updatedAt: row.updatedAt,
@@ -540,21 +543,15 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         if (args.turn.clientRequestId !== args.routineRunId)
           throw new Error("Routine run admission does not match its client request.");
 
-        const linkedRun = await this.prisma.routineRun.updateMany({
-          where: {
-            id: args.routineRunId,
-            companyId,
-            executedByUserId: userId,
-            status: RoutineRunStatus.running,
-            conversationId,
-            turnRequestId: null,
-          },
-          data: {
-            turnRequestId: args.turn.turnRequestId,
-            startedAt: admittedAt,
-          },
+        const linkedRun = await this.routineRuns.linkAdmittedTurnCompanyWide({
+          companyId,
+          routineRunId: args.routineRunId,
+          executedByUserId: userId,
+          conversationId,
+          turnRequestId: args.turn.turnRequestId,
+          startedAt: admittedAt,
         });
-        if (linkedRun.count !== 1) throw new Error("Routine run changed before agent admission.");
+        if (!linkedRun) throw new Error("Routine run changed before agent admission.");
       }
 
       if (args.turn.kind === "retry") {
@@ -725,58 +722,32 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
 
   async getSuggestionSignals() {
     const select = { id: true };
-    const [contact, organization, deal, service, task, routine, wikiPage, widget, connectedAccount] = await Promise.all(
-      [
-        this.prisma.contact.findFirst({
-          where: this.accessWhere("contact"),
-          select,
-        }),
-        this.prisma.organization.findFirst({
-          where: this.accessWhere("organization"),
-          select,
-        }),
-        this.prisma.deal.findFirst({
-          where: this.accessWhere("deal"),
-          select,
-        }),
-        this.prisma.service.findFirst({
-          where: this.accessWhere("service"),
-          select,
-        }),
-        this.prisma.task.findFirst({
-          where: this.accessWhere("task"),
-          select,
-        }),
-        this.prisma.routine.findFirst({
-          where: this.accessWhere("routine"),
-          select,
-        }),
-        this.wikiSuggestions.findSuggestionWikiPage(),
-        this.prisma.widget.findFirst({
-          where: {
-            companyId: this.companyId,
-            userId: this.userId,
-          },
-          select,
-        }),
-        this.prisma.connectedAccount.findFirst({
-          where: this.canAccess(Resource.inboxMessages)
-            ? {
-                companyId: this.companyId,
-                OR: [{ userId: this.userId }, { shared: true }],
-              }
-            : { companyId: this.companyId, id: { in: [] } },
-          select,
-        }),
-      ],
-    );
+    const [routine, wikiPage, widget, connectedAccount] = await Promise.all([
+      this.prisma.routine.findFirst({
+        where: routineAccessWhere(this.permissions),
+        select,
+      }),
+      this.wikiSuggestions.findSuggestionWikiPage(),
+      this.prisma.widget.findFirst({
+        where: {
+          companyId: this.companyId,
+          userId: this.userId,
+          ...LIVE_WIDGET,
+        },
+        select,
+      }),
+      this.prisma.connectedAccount.findFirst({
+        where: this.permissions.canRead(Resource.inboxMessages)
+          ? {
+              companyId: this.companyId,
+              OR: [{ userId: this.userId }, { shared: true }],
+            }
+          : { companyId: this.companyId, id: { in: [] } },
+        select,
+      }),
+    ]);
 
     return {
-      contacts: Boolean(contact),
-      organizations: Boolean(organization),
-      deals: Boolean(deal),
-      services: Boolean(service),
-      tasks: Boolean(task),
       routines: Boolean(routine),
       wiki: Boolean(wikiPage),
       widgets: Boolean(widget),
@@ -875,14 +846,17 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     });
     if (!conversation) throw new Error("Conversation not found for agent approval.");
 
-    await this.prisma.agentApproval.create({
-      data: {
-        conversationId: args.conversationId,
-        companyId: args.companyId,
-        requestId: args.requestId,
-        toolName: pendingAgentApprovalToolName(args.toolName, args.expiresAt),
-        decision: AgentApprovalDecision.reject,
-      },
+    await this.prisma.agentApproval.createMany({
+      data: [
+        {
+          conversationId: args.conversationId,
+          companyId: args.companyId,
+          requestId: args.requestId,
+          toolName: pendingAgentApprovalToolName(args.toolName, args.expiresAt),
+          decision: AgentApprovalDecision.reject,
+        },
+      ],
+      skipDuplicates: true,
     });
   }
 
@@ -1171,6 +1145,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     userId: string;
     runId: string;
     externalRunId?: string;
+    failureMessage?: string;
   }): Promise<{ reconciled: boolean }> {
     return this.withCompanyTransaction(args.companyId, async () => {
       const turn = await this.prisma.agentTurnRequest.findFirst({
@@ -1187,7 +1162,27 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
       });
       if (!turn) return { reconciled: false };
 
-      await this.settleInterruptedTurn(turn, new Date(), turn.modelSpec ?? "unknown", false, args);
+      const status = await this.settleInterruptedTurn(turn, new Date(), turn.modelSpec ?? "unknown", false, args);
+      if (args.failureMessage) {
+        const parts = clientSafeAgentMessageParts([{ type: "text", text: args.failureMessage }], {
+          sanitizeText: true,
+          wikiBaseUrl: env.BASE_URL,
+        });
+        const assistantMessage = await this.prisma.agentMessage.create({
+          data: {
+            id: randomUUID(),
+            conversationId: args.conversationId,
+            companyId: args.companyId,
+            turnRequestId: args.turnRequestId,
+            role: AgentMessageRole.assistant,
+            parts: parts as Prisma.InputJsonValue,
+          },
+        });
+        await this.prisma.agentTurnRequest.updateMany({
+          where: { id: args.turnRequestId, status, assistantMessageId: null },
+          data: { assistantMessageId: assistantMessage.id },
+        });
+      }
       return { reconciled: true };
     });
   }
@@ -1441,18 +1436,13 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         creditCeilingMicrocents: args.creditCeilingMicrocents,
       });
 
-      const linked = await this.prisma.routineRun.updateMany({
-        where: {
-          id: args.routineRunId,
-          companyId,
-          executedByUserId: userId,
-          status: RoutineRunStatus.running,
-          conversationId: null,
-          turnRequestId: null,
-        },
-        data: { conversationId: args.conversationId },
+      const linked = await this.routineRuns.linkConversationCompanyWide({
+        companyId,
+        routineRunId: args.routineRunId,
+        executedByUserId: userId,
+        conversationId: args.conversationId,
       });
-      if (linked.count !== 1) throw new Error("Routine run changed before its conversation could be linked.");
+      if (!linked) throw new Error("Routine run changed before its conversation could be linked.");
     });
   }
 
@@ -1460,22 +1450,13 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     const companyId = this.companyId;
     const userId = this.userId;
     await this.withCompanyTransaction(companyId, async () => {
-      const released = await this.prisma.routineRun.updateMany({
-        where: {
-          id: args.routineRunId,
-          companyId,
-          executedByUserId: userId,
-          status: RoutineRunStatus.running,
-          conversationId: args.conversationId,
-          turnRequestId: null,
-        },
-        data: {
-          status: RoutineRunStatus.queued,
-          conversationId: null,
-          startedAt: null,
-        },
+      const released = await this.routineRuns.releaseUnstartedConversationCompanyWide({
+        companyId,
+        routineRunId: args.routineRunId,
+        executedByUserId: userId,
+        conversationId: args.conversationId,
       });
-      if (released.count !== 1) throw new Error("Routine run changed before capacity retry could be scheduled.");
+      if (!released) throw new Error("Routine run changed before capacity retry could be scheduled.");
 
       const deleted = await this.prisma.agentConversation.deleteMany({
         where: {
@@ -1488,6 +1469,17 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         },
       });
       if (deleted.count !== 1) throw new Error("Unused Routine conversation could not be released for retry.");
+    });
+  }
+
+  async deleteUnlinkedRoutineConversationsCompanyWide(companyId: string, conversationIds: string[]) {
+    await this.prisma.agentConversation.deleteMany({
+      where: {
+        id: { in: conversationIds },
+        companyId,
+        origin: AgentConversationOrigin.routine,
+        routineRuns: { none: {} },
+      },
     });
   }
 
@@ -2523,14 +2515,24 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
   private async settleStalePlatformReservations(args: { reservedBefore: Date; now: Date }): Promise<number> {
     const reservations = await this.prisma.hostedAiPlatformReservation.findMany({
       where: { createdAt: { lt: args.reservedBefore } },
-      select: { id: true, purpose: true, model: true, reservedMicrocents: true, createdAt: true },
+      select: {
+        id: true,
+        purpose: true,
+        model: true,
+        reservedMicrocents: true,
+        createdAt: true,
+      },
     });
     if (reservations.length === 0) return 0;
     const released = await this.prisma.hostedAiPlatformReservation.deleteMany({
-      where: { id: { in: reservations.map(({ id }) => id) }, createdAt: { lt: args.reservedBefore } },
+      where: {
+        id: { in: reservations.map(({ id }) => id) },
+        createdAt: { lt: args.reservedBefore },
+      },
     });
     if (released.count !== reservations.length)
       throw new Error("Platform AI reservations changed before stale settlement.");
+
     for (const reservation of reservations) {
       await this.accruePlatformUsageUnscoped({
         purpose: reservation.purpose,
@@ -2734,11 +2736,16 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     await this.prisma
       .$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended('customermates:hosted-ai-global-admission', 0))`;
     const released = await this.prisma.$queryRaw<
-      Array<{ model: string | null; reservedMicrocents: bigint; providerStartedAt: Date | null; createdAt: Date }>
+      Array<{
+        model: string | null;
+        reservedMicrocents: bigint;
+        providerStartedAt: Date | null;
+        createdAt: Date;
+      }>
     >`
       UPDATE "AgentUsageEvent" SET "state" = 'released', "chargedMicrocents" = 0,
         "settledAt" = ${args.now}
-      WHERE "purpose" IN ('wikiRetrieval', 'wikiIndexing', 'wikiSynthesis') AND "state" = 'reserved'
+      WHERE "purpose" IN ('wikiRetrieval', 'wikiIndexing', 'wikiSynthesis', 'calculationDraft', 'commandResolve') AND "state" = 'reserved'
         AND "createdAt" < ${args.reservedBefore}
         AND (${args.companyId ?? null}::text IS NULL OR "companyId" = ${args.companyId ?? null}::text)
       RETURNING "model", "reservedMicrocents", "providerStartedAt", "createdAt"
@@ -2891,7 +2898,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         ceilingMicrocents !== null &&
         (reservedMicrocents > ceilingMicrocents || args.requiredMicrocents > ceilingMicrocents)
       )
-        return { disposition: "credit_limit" };
+        return { disposition: "run_credit_limit", ceilingMicrocents };
       if (reservedMicrocents >= args.requiredMicrocents) {
         return {
           disposition: "extended",

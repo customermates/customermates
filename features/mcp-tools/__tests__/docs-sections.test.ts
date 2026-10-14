@@ -114,7 +114,7 @@ describe("splitSections", () => {
           "</Step>",
           "</Steps>",
           "",
-          "**Link:** the **API & Connectors** page, `/profile/api-keys`.",
+          "**Link:** the **API & Connectors** page, `/settings/api-keys`.",
           "",
           "## Next",
           "Read the catalog.",
@@ -124,6 +124,6 @@ describe("splitSections", () => {
     });
     expect(all.map((section) => section.headingPath.join(">"))).toEqual(["Connect a client", "Next"]);
     expect(all[0].text).toContain("**Confirm the tools arrived**");
-    expect(all[0].text).toContain("**Link:** the **API & Connectors** page, `/profile/api-keys`.");
+    expect(all[0].text).toContain("**Link:** the **API & Connectors** page, `/settings/api-keys`.");
   });
 });

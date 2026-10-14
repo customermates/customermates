@@ -6,7 +6,7 @@ import { APP_LOCALES } from "@/i18n/locale-registry";
 import { createErrorHandler, serializeInteractorFailure } from "@/core/validation/validation.utils";
 import { UpdateWikiPageSchema } from "../update-wiki-page.interactor";
 
-import { MAX_NOTES_LENGTH } from "@/core/validation/validate-notes";
+import { MAX_RICH_TEXT_MARKDOWN_LENGTH } from "@/core/validation/rich-text-document";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { WIKI_TITLE_MAX_LENGTH, WikiPageInputSchema } from "../wiki.schema";
@@ -56,7 +56,7 @@ describe("WikiPageInputSchema", () => {
 
     const result = WikiPageInputSchema.safeParse({
       title: "Too long",
-      markdown: "x".repeat(MAX_NOTES_LENGTH + 1),
+      markdown: "x".repeat(MAX_RICH_TEXT_MARKDOWN_LENGTH + 1),
     });
 
     expect(result.success).toBe(false);
@@ -75,7 +75,7 @@ describe("WikiPageInputSchema", () => {
     expect(
       WikiPageInputSchema.safeParse({
         title: "Too much raw Markdown",
-        markdown: " ".repeat(MAX_NOTES_LENGTH + 1),
+        markdown: " ".repeat(MAX_RICH_TEXT_MARKDOWN_LENGTH + 1),
       }).success,
     ).toBe(false);
   });

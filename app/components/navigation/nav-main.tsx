@@ -3,14 +3,8 @@
 import type { SVGProps } from "react";
 
 import { ChevronRight } from "lucide-react";
-import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
 
 import {
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
@@ -19,13 +13,12 @@ import {
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { Icon } from "@/components/shared/icon";
-import { cn } from "@/core/utils/cn";
 import { AppLink } from "@/components/shared/app-link";
+import { ItemActions } from "@/components/ui/item-actions";
 
 import { NavLinkPendingIndicator } from "./nav-link-pending-indicator";
-import { NavLinkPendingIcon } from "./nav-link-pending-icon";
 
-type NavItem = {
+export type NavItem = {
   key: string;
   title: string;
   href: string;
@@ -39,13 +32,7 @@ export type NavGroup = {
   key: string;
   label: string;
   items: NavItem[];
-};
-
-type Props = {
-  groups: NavGroup[];
-  selectedKey: string | null;
-  pathname: string | null;
-  onNavigate: (next: string) => void;
+  topLevel?: boolean;
 };
 
 type NavMainParentProps = {
@@ -54,134 +41,98 @@ type NavMainParentProps = {
   onNavigate: (next: string) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  itemProps?: React.ComponentProps<"li">;
+  action?: React.ReactNode;
+  actionsLabel?: string;
+  menu?: React.ReactNode;
 };
 
-function NavBadge({ count }: { count: number }) {
+export const NAV_ITEM_ACTION_PADDING =
+  "fine-hover:group-focus-within/item-actions:pr-8 fine-hover:group-hover/item-actions:pr-8";
+
+export function NavBadge({ count }: { count: number }) {
   if (count <= 0) return null;
 
   return (
-    <span className="ml-auto inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md bg-warning/25 px-1.5 text-[11px] font-medium text-warning tabular-nums group-data-[collapsible=icon]:hidden">
+    <span className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md bg-warning/25 px-1.5 text-[11px] font-medium text-warning tabular-nums group-data-[collapsible=icon]:hidden">
       {count}
     </span>
   );
 }
 
-function NavMainParent({ item, pathname, onNavigate, open, onOpenChange }: NavMainParentProps) {
+export function NavMainParent({
+  item,
+  pathname,
+  onNavigate,
+  open,
+  onOpenChange,
+  itemProps,
+  action,
+  actionsLabel,
+  menu,
+}: NavMainParentProps) {
   const subBadgeCount = (item.items ?? []).reduce((sum, sub) => sum + (sub.badge ?? 0), 0);
 
   return (
     <Collapsible asChild className="group/collapsible" open={open} onOpenChange={onOpenChange}>
-      <SidebarMenuItem>
-        <SidebarMenuButton id={`nav-${item.key}`} tooltip={item.title} onClick={() => onOpenChange(!open)}>
-          <Icon icon={item.icon} />
-
-          <span className="min-w-0 truncate">{item.title}</span>
-
-          {!open && <NavBadge count={subBadgeCount} />}
-
-          <ChevronRight
-            className={cn(
-              "transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90",
-              (open || subBadgeCount <= 0) && "ml-auto",
-            )}
-          />
-        </SidebarMenuButton>
-
-        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
-          <SidebarMenuSub>
-            {(item.items ?? []).map((sub) => {
-              const subActive = pathname ? pathname === sub.href || pathname.startsWith(sub.href + "/") : false;
-              return (
-                <SidebarMenuSubItem key={sub.key}>
-                  {subActive && (
-                    <span aria-hidden className="absolute -left-[11px] top-1 bottom-1 w-0.5 rounded-full bg-primary" />
-                  )}
-
-                  <SidebarMenuSubButton asChild isActive={subActive}>
-                    <AppLink
-                      appearance="unstyled"
-                      href={sub.href}
-                      id={`nav-${sub.key}`}
-                      onClick={() => onNavigate(sub.key)}
-                    >
-                      <span>{sub.title}</span>
-
-                      <NavBadge count={sub.badge ?? 0} />
-
-                      <NavLinkPendingIndicator className={sub.badge ? "ml-0" : undefined} />
-                    </AppLink>
-                  </SidebarMenuSubButton>
-                </SidebarMenuSubItem>
-              );
-            })}
-          </SidebarMenuSub>
-        </CollapsibleContent>
-      </SidebarMenuItem>
-    </Collapsible>
-  );
-}
-
-export const NavMain = observer(({ groups, selectedKey, pathname, onNavigate }: Props) => {
-  const activeParentKey =
-    groups
-      .flatMap((group) => group.items)
-      .find((item) =>
-        (item.items ?? []).some(
-          (sub) => pathname !== null && (pathname === sub.href || pathname.startsWith(sub.href + "/")),
-        ),
-      )?.key ?? null;
-
-  const [openKey, setOpenKey] = useState<string | null>(activeParentKey);
-
-  useEffect(() => {
-    if (activeParentKey) setOpenKey(activeParentKey);
-  }, [activeParentKey]);
-
-  function renderItem(item: NavItem) {
-    const isActive = selectedKey === item.key;
-
-    if (item.items && item.items.length > 0) {
-      return (
-        <NavMainParent
-          key={item.key}
-          item={item}
-          open={openKey === item.key}
-          pathname={pathname}
-          onNavigate={onNavigate}
-          onOpenChange={(next) => setOpenKey(next ? item.key : null)}
-        />
-      );
-    }
-
-    return (
-      <SidebarMenuItem key={item.key}>
-        <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
-          <AppLink appearance="unstyled" href={item.href} id={`nav-${item.key}`} onClick={() => onNavigate(item.key)}>
-            <NavLinkPendingIcon icon={item.icon} />
+      <ItemActions label={actionsLabel} menu={menu}>
+        <SidebarMenuItem {...itemProps}>
+          <SidebarMenuButton
+            className={action ? NAV_ITEM_ACTION_PADDING : undefined}
+            id={`nav-${item.key}`}
+            tooltip={item.title}
+            onClick={() => onOpenChange(!open)}
+          >
+            <Icon icon={item.icon} />
 
             <span className="min-w-0 truncate">{item.title}</span>
 
-            <NavBadge count={item.badge ?? 0} />
-          </AppLink>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-    );
-  }
+            {!open && <NavBadge count={subBadgeCount} />}
 
-  return (
-    <>
-      {groups.map((group) => {
-        if (group.items.length === 0) return null;
-        return (
-          <SidebarGroup key={group.key}>
-            <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+            <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+          </SidebarMenuButton>
 
-            <SidebarGroupContent>
-              <SidebarMenu>{group.items.map(renderItem)}</SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        );
-      })}
-    </>
+          {action}
+
+          <CollapsibleContent
+            className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up"
+            onContextMenu={menu ? (event) => event.stopPropagation() : undefined}
+            onMouseDown={itemProps ? (event) => event.stopPropagation() : undefined}
+            onPointerDown={menu ? (event) => event.stopPropagation() : undefined}
+          >
+            <SidebarMenuSub>
+              {(item.items ?? []).map((sub) => {
+                const subActive = pathname ? pathname === sub.href || pathname.startsWith(sub.href + "/") : false;
+                return (
+                  <SidebarMenuSubItem key={sub.key}>
+                    {subActive && (
+                      <span
+                        aria-hidden
+                        className="absolute -left-[11px] top-1 bottom-1 w-0.5 rounded-full bg-primary"
+                      />
+                    )}
+
+                    <SidebarMenuSubButton asChild isActive={subActive}>
+                      <AppLink
+                        appearance="unstyled"
+                        href={sub.href}
+                        id={`nav-${sub.key}`}
+                        onClick={() => onNavigate(sub.key)}
+                      >
+                        <span className="min-w-0 truncate">{sub.title}</span>
+
+                        <NavBadge count={sub.badge ?? 0} />
+
+                        <NavLinkPendingIndicator />
+                      </AppLink>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                );
+              })}
+            </SidebarMenuSub>
+          </CollapsibleContent>
+        </SidebarMenuItem>
+      </ItemActions>
+    </Collapsible>
   );
-});
+}

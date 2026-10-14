@@ -19,6 +19,7 @@ describe("AI-manageable data-view surfaces", () => {
     );
     for (const surfaceKey of OPERATOR_DATA_VIEW_SURFACE_KEYS)
       expect(isAiManageableDataViewSurface(surfaceKey)).toBe(false);
-    expect(isAiManageableDataViewSurface(SURFACE.contacts)).toBe(true);
+    expect(isAiManageableDataViewSurface("records:10000000-0000-4000-8000-000000000001")).toBe(true);
+    expect(isAiManageableDataViewSurface(SURFACE.entityTimeline)).toBe(true);
   });
 });

@@ -4,7 +4,7 @@ import { interactorFailureStatus } from "@/core/validation/validation.utils";
 
 import { env } from "@/env";
 import { getSendAgentMessageInteractor } from "@/core/di";
-import { handleError } from "@/core/api/interactor-handler";
+import { handleError } from "@/core/api/structured-interactor-handler";
 import { agentTurnSseStream } from "@/ee/agent-chat/agent-turn-stream";
 import { sse } from "@/ee/agent-chat/agent-stream-utils";
 import type { SendAgentMessageResult } from "@/ee/agent-chat/send-agent-message.interactor";

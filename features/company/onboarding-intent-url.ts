@@ -12,10 +12,7 @@ export function onboardingIntentAuthRedirects(onboardingIntent: string) {
   } as const;
 }
 
-export type OnboardingIntentFromPath =
-  | { status: "absent" }
-  | { status: "invalid" }
-  | { intent: string; status: "valid" };
+type OnboardingIntentFromPath = { status: "absent" } | { status: "invalid" } | { intent: string; status: "valid" };
 
 export function onboardingIntentFromPath(path: string | undefined): OnboardingIntentFromPath {
   if (!path) return { status: "absent" };

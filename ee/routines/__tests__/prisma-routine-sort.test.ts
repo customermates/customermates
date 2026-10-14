@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { Action, Resource } from "@/generated/prisma";
+import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 
 const prismaMock = vi.hoisted(() => ({ routine: { findMany: vi.fn() } }));
@@ -9,9 +10,37 @@ vi.mock("@/prisma/db", () => ({ prisma: prismaMock }));
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
 
-import { PrismaRoutineRepo } from "../prisma-routine.repository";
+import { createTestRoutineRepo } from "@/tests/helpers/record-delivery";
 
 const reader = createMockUserWithPermissions([{ resource: Resource.routines, action: Action.readAll }]);
+
+describe("PrismaRoutineRepo owner filters", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    prismaMock.routine.findMany.mockResolvedValue([]);
+  });
+
+  const ownerReader = createMockUserWithPermissions([
+    { resource: Resource.routines, action: Action.readAll },
+    { resource: Resource.users, action: Action.readAll },
+  ]);
+  const whereFor = async (operator: FilterOperatorKey.in | FilterOperatorKey.notIn) => {
+    await runWithTenant(ownerReader, () =>
+      createTestRoutineRepo().getItems({ filters: [{ field: "ownerUserId", operator, value: ["user-1"] }] }),
+    );
+    return prismaMock.routine.findMany.mock.calls[0][0].where;
+  };
+
+  it("keeps ownerless routines when excluding owners", async () => {
+    expect((await whereFor(FilterOperatorKey.notIn)).AND).toContainEqual({
+      OR: [{ ownerUserId: { notIn: ["user-1"] } }, { ownerUserId: null }],
+    });
+  });
+
+  it("matches only the selected owners when including owners", async () => {
+    expect((await whereFor(FilterOperatorKey.in)).AND).toContainEqual({ ownerUserId: { in: ["user-1"] } });
+  });
+});
 
 describe("PrismaRoutineRepo sorting", () => {
   beforeEach(() => {
@@ -22,7 +51,7 @@ describe("PrismaRoutineRepo sorting", () => {
   it.each(["nextRunAt", "lastRunAt"])("lists routines without a %s last in both directions", async (field) => {
     for (const direction of ["asc", "desc"] as const) {
       prismaMock.routine.findMany.mockClear();
-      await runWithTenant(reader, () => new PrismaRoutineRepo().getItems({ sortDescriptor: { field, direction } }));
+      await runWithTenant(reader, () => createTestRoutineRepo().getItems({ sortDescriptor: { field, direction } }));
 
       expect(prismaMock.routine.findMany.mock.calls[0][0].orderBy).toEqual([
         { [field]: { sort: direction, nulls: "last" } },
@@ -33,7 +62,7 @@ describe("PrismaRoutineRepo sorting", () => {
 
   it("keeps required fields on a plain database sort", async () => {
     await runWithTenant(reader, () =>
-      new PrismaRoutineRepo().getItems({ sortDescriptor: { field: "createdAt", direction: "desc" } }),
+      createTestRoutineRepo().getItems({ sortDescriptor: { field: "createdAt", direction: "desc" } }),
     );
 
     expect(prismaMock.routine.findMany.mock.calls[0][0].orderBy).toEqual([{ createdAt: "desc" }, { id: "desc" }]);
@@ -46,7 +75,7 @@ describe("PrismaRoutineRepo sorting", () => {
     ]);
 
     await runWithTenant(reader, () =>
-      new PrismaRoutineRepo().getItems({ sortDescriptor: { field: "name", direction: "asc" } }),
+      createTestRoutineRepo().getItems({ sortDescriptor: { field: "name", direction: "asc" } }),
     );
 
     expect(prismaMock.routine.findMany.mock.calls[0][0]).toMatchObject({

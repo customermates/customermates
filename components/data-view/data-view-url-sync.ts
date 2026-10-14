@@ -4,6 +4,7 @@ import { reaction, toJS } from "mobx";
 
 import { GET_PARAM_KEYS, decodeGetParams, encodeGetParams } from "@/core/utils/get-params";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
+import { SHARED_VIEW_PARAM, decodeSharedView } from "@/core/data-view/shared-view-link";
 
 const OWNED_KEYS = new Set<string>(GET_PARAM_KEYS);
 
@@ -48,6 +49,19 @@ function needsUrlUpdate<E extends HasId>(store: BaseDataViewStore<E>, currentSea
   return normalizedSearch !== getQueryString(store, raw);
 }
 
+function openSharedView<E extends HasId>(store: BaseDataViewStore<E>, browser: DataViewUrlSyncWindow): void {
+  const params = new URLSearchParams(browser.location.search);
+  const token = params.get(SHARED_VIEW_PARAM);
+  if (token === null) return;
+
+  params.delete(SHARED_VIEW_PARAM);
+  const shared = decodeSharedView(token);
+  const ownsView = store.views.some((view) => view.id === params.get("view"));
+  if (shared && !ownsView && store.applySharedView(shared)) params.delete("view");
+  const query = params.toString();
+  browser.history.replaceState(null, "", query ? `${browser.location.pathname}?${query}` : browser.location.pathname);
+}
+
 export function connectDataViewUrlSync<E extends HasId>(
   store: BaseDataViewStore<E>,
   browser: DataViewUrlSyncWindow = window,
@@ -55,6 +69,7 @@ export function connectDataViewUrlSync<E extends HasId>(
   const boundPathname = browser.location.pathname;
   let updateTimer: number | undefined;
   let isRestoringFromHistory = false;
+  let isNavigatingAway = false;
 
   const clearPendingUpdate = () => {
     if (updateTimer === undefined) return;
@@ -68,7 +83,7 @@ export function connectDataViewUrlSync<E extends HasId>(
       isRestoringFromHistory = false;
       return;
     }
-    if (browser.location.pathname !== boundPathname) return;
+    if (isNavigatingAway || browser.location.pathname !== boundPathname) return;
 
     const currentSearch = browser.location.search.slice(1);
     if (!needsUrlUpdate(store, currentSearch)) return;
@@ -77,8 +92,20 @@ export function connectDataViewUrlSync<E extends HasId>(
     browser.history.replaceState(null, "", queryString ? `${boundPathname}?${queryString}` : boundPathname);
   };
 
+  const pauseForNavigation = (event: MouseEvent) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const anchor = event.target instanceof Element ? event.target.closest("a[href]") : null;
+    if (!(anchor instanceof HTMLAnchorElement) || anchor.hasAttribute("download")) return;
+    if (anchor.target && anchor.target !== "_self") return;
+    const destination = new URL(anchor.href, browser.location.href);
+    if (destination.origin !== browser.location.origin || destination.pathname === boundPathname) return;
+    isNavigatingAway = true;
+    clearPendingUpdate();
+  };
+
   const restoreFromHistory = () => {
     if (browser.location.pathname !== boundPathname) return;
+    isNavigatingAway = false;
 
     const restored = new URLSearchParams(browser.location.search).get("view") ?? ALL_VIEW_KEY;
     if (restored === store.activeViewKey) return;
@@ -104,18 +131,21 @@ export function connectDataViewUrlSync<E extends HasId>(
       viewMode: store.viewMode,
     }),
     () => {
-      if (store.isRefreshing) return;
+      if (isNavigatingAway || store.isRefreshing) return;
       clearPendingUpdate();
       updateTimer = browser.setTimeout(syncUrlToState, 100);
     },
   );
 
+  openSharedView(store, browser);
+  browser.addEventListener("click", pauseForNavigation);
   browser.addEventListener("popstate", restoreFromHistory);
 
   if ((store.filters?.length ?? 0) > 0 || Boolean(store.searchTerm) || store.activeViewKey !== ALL_VIEW_KEY)
     syncUrlToState();
 
   return () => {
+    browser.removeEventListener("click", pauseForNavigation);
     browser.removeEventListener("popstate", restoreFromHistory);
     disposeReaction();
     clearPendingUpdate();

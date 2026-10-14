@@ -23,7 +23,7 @@ export function OperatorTagsCell({ tags }: { tags: string[] }) {
       ))}
 
       {overflow.length > 0 ? (
-        <AppChip size="sm" tooltip={overflow.join(", ")} variant="outline">
+        <AppChip size="sm" tooltip={overflow.join(", ")}>
           {t("OperatorWorkspaces.tags.more", { count: overflow.length })}
         </AppChip>
       ) : null}

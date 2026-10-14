@@ -3,9 +3,14 @@ import { backfillConnectedAccount } from "./backfill-connected-account";
 import { crawlWikiWebsite } from "./crawl-wiki-website";
 import { deliverWebhook } from "./deliver-webhook";
 import { indexDocsChunks } from "./index-docs-chunks";
+import { indexSearchCatalog } from "./index-search-catalog";
 import { indexWikiPages } from "./index-wiki-pages";
 import { reconcileRoutineRuns } from "./reconcile-routine-runs";
 import { runRoutine } from "./run-routine";
+import { providerAvatarOperation } from "./provider-avatar-operation";
+import { recordOperation } from "./record-operation";
+import { processEvents } from "./process-events";
+import { purgeTrash } from "./purge-trash";
 import { triggerTestError } from "./trigger-test-error";
 
 export const WORKFLOW_REGISTRY = {
@@ -14,9 +19,14 @@ export const WORKFLOW_REGISTRY = {
   "crawl-wiki-website": crawlWikiWebsite,
   "deliver-webhook": deliverWebhook,
   "index-docs-chunks": indexDocsChunks,
+  "index-search-catalog": indexSearchCatalog,
   "index-wiki-pages": indexWikiPages,
   "reconcile-routine-runs": reconcileRoutineRuns,
   "run-routine": runRoutine,
+  "record-operation": recordOperation,
+  "provider-avatar-operation": providerAvatarOperation,
+  "process-events": processEvents,
+  "purge-trash": purgeTrash,
   "trigger-test-error": triggerTestError,
 } as const;
 

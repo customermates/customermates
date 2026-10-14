@@ -19,19 +19,19 @@ describe("sidebar user access", () => {
   it("gives a system role access to every sidebar destination", () => {
     const user = sidebarUser({ role: { isSystemRole: true, permissions: [] } });
 
-    expect(sidebarUserCanAccess(user, Resource.contacts)).toBe(true);
+    expect(sidebarUserCanAccess(user, Resource.routines)).toBe(true);
   });
 
   it.each([Action.readOwn, Action.readAll])("shows a resource with %s permission", (action) => {
     const user = sidebarUser({
       role: {
         isSystemRole: false,
-        permissions: [{ action, resource: Resource.contacts }],
+        permissions: [{ action, resource: Resource.routines }],
       },
     });
 
-    expect(sidebarUserCanAccess(user, Resource.contacts)).toBe(true);
-    expect(sidebarUserCanAccess(user, Resource.deals)).toBe(false);
+    expect(sidebarUserCanAccess(user, Resource.routines)).toBe(true);
+    expect(sidebarUserCanAccess(user, Resource.wiki)).toBe(false);
   });
 
   it("projects only account-menu identity and role permissions from the tenant user", () => {
@@ -59,7 +59,7 @@ describe("sidebar user access", () => {
           {
             action: Action.readOwn,
             id: "permission-1",
-            resource: Resource.contacts,
+            resource: Resource.routines,
           },
         ],
         updatedAt: new Date(),
@@ -78,7 +78,7 @@ describe("sidebar user access", () => {
       lastName: "Person",
       role: {
         isSystemRole: false,
-        permissions: [{ action: Action.readOwn, resource: Resource.contacts }],
+        permissions: [{ action: Action.readOwn, resource: Resource.routines }],
       },
     });
     expect(projected).not.toHaveProperty("companyId");

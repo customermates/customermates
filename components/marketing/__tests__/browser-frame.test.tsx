@@ -22,7 +22,7 @@ vi.mock("react-dom", async (importOriginal) => ({
 }));
 
 import { BrowserFrame } from "../browser-frame";
-import { ProductDemo } from "../product-demo";
+import { DEMO_RECORD_LIST_PATHS, ProductDemo } from "../product-demo";
 import { DocsDemo } from "@/core/fumadocs/docs-demo";
 import { localProductDemoSrc } from "../product-demo-src";
 
@@ -83,8 +83,8 @@ afterEach(() => {
 
 describe("BrowserFrame", () => {
   it.each([
-    ["article", <ProductDemo key="article" path="/contacts" />],
-    ["standalone", <ProductDemo key="standalone" path="/contacts" presentation="standalone" />],
+    ["article", <ProductDemo key="article" path={DEMO_RECORD_LIST_PATHS.contacts} />],
+    ["standalone", <ProductDemo key="standalone" path={DEMO_RECORD_LIST_PATHS.contacts} presentation="standalone" />],
     ["docs", <DocsDemo key="docs" src="https://demo.customermates.com/en/dashboard" title="Demo" />],
   ])("shows the live app in the shared product window with one width cap on %s", (_, component) => {
     const host = mount(component);

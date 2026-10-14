@@ -11,7 +11,7 @@ import { runWithTenant } from "@/core/decorators/tenant-context";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 
-import { PrismaMessagingRepo } from "../prisma-messaging.repository";
+import { createTestMessagingRepo } from "@/tests/helpers/messaging-repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -31,6 +31,7 @@ describeDatabase("outbound Bcc retention on PostgreSQL", () => {
     headline: null,
     occupation: null,
     isSelf,
+    records: [],
   });
   const message = (bcc: string[]): IngestMessage => ({
     unipileMessageId: `sent-${accountId}`,
@@ -73,7 +74,7 @@ describeDatabase("outbound Bcc retention on PostgreSQL", () => {
   });
 
   it("never writes the Bcc onto a received copy of a message I Bcc'd to myself", async () => {
-    const repo = new PrismaMessagingRepo();
+    const repo = createTestMessagingRepo();
     const providerMessageId = `<self-bcc-${accountId}@example.invalid>`;
     await runWithTenant(owner, () =>
       repo.persistOutboundMessageOrThrow({
@@ -109,7 +110,7 @@ describeDatabase("outbound Bcc retention on PostgreSQL", () => {
   });
 
   it("restores the owner's Bcc on a Sent copy that was ingested before the send was adopted", async () => {
-    const repo = new PrismaMessagingRepo();
+    const repo = createTestMessagingRepo();
     await runWithTenant(owner, () =>
       repo.persistOutboundMessageOrThrow({ connectedAccountId: accountId, message: message([]) }),
     );

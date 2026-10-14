@@ -2,7 +2,7 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { RoutineDto } from "./routine.schema";
 import type { EventService } from "@/features/event/event.service";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { z } from "zod";
 
@@ -15,18 +15,13 @@ import { failAuthorization } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { RoutineDtoSchema } from "./routine.schema";
+import type { PauseRoutineRepo } from "./pause-routine.repo";
 
-const Schema = z.object({ routineId: z.uuid() });
+export const PauseRoutineSchema = z.object({ id: z.uuid() });
 
-export type PauseRoutineData = Data<typeof Schema>;
+export type PauseRoutineData = Data<typeof PauseRoutineSchema>;
 
-export abstract class PauseRoutineRepo {
-  abstract isActiveSystemAdministrator(userId: string): Promise<boolean>;
-  abstract getRoutineByIdOrThrow(id: string): Promise<RoutineDto>;
-  abstract pauseRoutineOrThrow(routineId: string, now: Date): Promise<RoutineDto>;
-}
-
-@TenantInteractor({ resource: Resource.routines, action: Action.delete })
+@TenantInteractor({ resource: Resource.routines, manage: "delete" })
 export class PauseRoutineInteractor extends AuthenticatedInteractor<PauseRoutineData, RoutineDto> {
   constructor(
     private repo: PauseRoutineRepo,
@@ -35,13 +30,13 @@ export class PauseRoutineInteractor extends AuthenticatedInteractor<PauseRoutine
     super();
   }
 
-  @Write({ input: Schema, output: RoutineDtoSchema })
+  @Write({ input: PauseRoutineSchema, output: RoutineDtoSchema })
   async invoke(data: PauseRoutineData): Validated<RoutineDto> {
     if (!this.user.role?.isSystemRole || !(await this.repo.isActiveSystemAdministrator(this.user.id)))
       return failAuthorization(CustomErrorCode.routineAdminRequired);
 
-    const previous = await this.repo.getRoutineByIdOrThrow(data.routineId);
-    const routine = await this.repo.pauseRoutineOrThrow(data.routineId, new Date());
+    const previous = await this.repo.getRoutineByIdOrThrow(data.id);
+    const routine = await this.repo.pauseRoutineOrThrow(data.id, new Date());
 
     await this.eventService.publish(DomainEvent.ROUTINE_UPDATED, {
       entityId: routine.id,

@@ -14,7 +14,7 @@ export type ResyncThread = {
 };
 
 export abstract class ResyncThreadRepo {
-  abstract findThreadForResyncOrThrow(threadId: string): Promise<ResyncThread>;
+  abstract findThreadForResync(threadId: string): Promise<ResyncThread | null>;
   abstract upsertThreadParticipantsUnscoped(args: {
     messagingThreadId: string;
     companyId: string;
@@ -27,10 +27,4 @@ export abstract class ResyncThreadRepo {
     message: IngestMessage;
     backfill?: boolean;
   }): Promise<unknown>;
-  abstract recordUnusableItemUnscoped(args: {
-    companyId: string;
-    connectedAccountId: string;
-    payload: unknown;
-    unipileMessageId?: string | null;
-  }): Promise<void>;
 }

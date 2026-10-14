@@ -7,7 +7,6 @@ import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { DataViewStateWireSchema } from "@/core/data-view/data-view-state.schema";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { interactorFailureStatus } from "@/core/validation/validation.utils";
-import { ExportRequestSchema } from "@/features/data-transfer/data-transfer.schema";
 import { AgentDataViewStateSchema } from "@/features/data-view/manage-data-views.schema";
 
 const NUL = "\u0000";
@@ -53,7 +52,6 @@ describe("search input that Postgres cannot store", () => {
   });
 
   it.each([
-    ["an export request", ExportRequestSchema, { columns: [{ key: "name", header: "Name" }], searchTerm: NUL }],
     ["a saved view state", DataViewStateWireSchema, { searchTerm: NUL }],
     ["a view state written by the assistant", AgentDataViewStateSchema, { searchTerm: NUL }],
   ] as const)("rejects the same NUL character in the search term of %s", (_label, schema, input) => {

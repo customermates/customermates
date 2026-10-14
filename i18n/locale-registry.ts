@@ -5,7 +5,6 @@ type LocaleCapabilities = {
   formattingTag: string;
   flagCode: string;
   validationTag: string;
-  lowercaseEntityLabelsInSentences: boolean;
   textSearchConfig: TextSearchConfig;
   iso6393: string;
 };
@@ -20,7 +19,6 @@ export const LOCALE_REGISTRY = {
     formattingTag: "en-US",
     flagCode: "us",
     validationTag: "en",
-    lowercaseEntityLabelsInSentences: true,
     textSearchConfig: "english",
     iso6393: "eng",
   },
@@ -31,7 +29,6 @@ export const LOCALE_REGISTRY = {
     formattingTag: "de-DE",
     flagCode: "de",
     validationTag: "de",
-    lowercaseEntityLabelsInSentences: false,
     textSearchConfig: "german",
     iso6393: "deu",
   },
@@ -42,7 +39,6 @@ export const LOCALE_REGISTRY = {
     formattingTag: "fr-FR",
     flagCode: "fr",
     validationTag: "fr",
-    lowercaseEntityLabelsInSentences: true,
     textSearchConfig: "french",
     iso6393: "fra",
   },
@@ -53,7 +49,6 @@ export const LOCALE_REGISTRY = {
     formattingTag: "it-IT",
     flagCode: "it",
     validationTag: "it",
-    lowercaseEntityLabelsInSentences: true,
     textSearchConfig: "italian",
     iso6393: "ita",
   },
@@ -64,7 +59,6 @@ export const LOCALE_REGISTRY = {
     formattingTag: "es-ES",
     flagCode: "es",
     validationTag: "es",
-    lowercaseEntityLabelsInSentences: true,
     textSearchConfig: "spanish",
     iso6393: "spa",
   },
@@ -132,10 +126,6 @@ export function formattingTagFor(locale: LocaleCode): string {
 
 export function validationTagFor(locale: AppLocale): string {
   return LOCALE_REGISTRY[locale].validationTag;
-}
-
-export function lowercaseEntityLabelsInSentences(locale: AppLocale): boolean {
-  return LOCALE_REGISTRY[locale].lowercaseEntityLabelsInSentences;
 }
 
 export function flagCodeFor(locale: LocaleCode): string {

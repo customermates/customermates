@@ -20,7 +20,7 @@ export const LoadingOverlay = observer(() => {
   if (!loadingOverlayStore.isLoading) return null;
 
   return (
-    <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50">
+    <div className="fixed inset-0 z-9999 flex items-center justify-center bg-scrim/50">
       <Spinner aria-label={t("Loading.text")} className="text-primary opacity-80" size="lg" />
     </div>
   );

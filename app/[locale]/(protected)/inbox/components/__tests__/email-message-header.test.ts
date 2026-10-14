@@ -102,9 +102,9 @@ describe("Email message metadata and location controls", () => {
     const html = render(["inbox"], {
       bodyHtml: null,
       recipients: {
-        to: [{ attendeeId: "a", identifier: "reader@example.test", displayName: "Reader", isSelf: false }],
-        cc: [{ attendeeId: "cc", identifier: "team@example.test", displayName: "Team" }],
-        bcc: [{ attendeeId: "bcc", identifier: "archive@example.test", displayName: "Archive" }],
+        to: [{ attendeeId: "a", identifier: "reader@example.test", displayName: "Reader", isSelf: false, records: [] }],
+        cc: [{ attendeeId: "cc", identifier: "team@example.test", displayName: "Team", records: [] }],
+        bcc: [{ attendeeId: "bcc", identifier: "archive@example.test", displayName: "Archive", records: [] }],
       },
     });
 
@@ -121,8 +121,8 @@ describe("Email message metadata and location controls", () => {
   it("handles Cc-only mail and nameless pending recipients without inventing To addresses", () => {
     const html = render([], {
       recipients: {
-        to: [{ attendeeId: "empty", identifier: "", displayName: null }],
-        cc: [{ attendeeId: "cc", identifier: "team@example.test", displayName: null }],
+        to: [{ attendeeId: "empty", identifier: "", displayName: null, records: [] }],
+        cc: [{ attendeeId: "cc", identifier: "team@example.test", displayName: null, records: [] }],
         bcc: [],
       },
     });
@@ -136,9 +136,9 @@ describe("Email message metadata and location controls", () => {
     const html = render([], {
       direction: "inbound",
       recipients: {
-        to: [{ attendeeId: "to", identifier: "reader@example.test", displayName: null }],
+        to: [{ attendeeId: "to", identifier: "reader@example.test", displayName: null, records: [] }],
         cc: [],
-        bcc: [{ attendeeId: "bcc", identifier: "private@example.test", displayName: null }],
+        bcc: [{ attendeeId: "bcc", identifier: "private@example.test", displayName: null, records: [] }],
       },
     });
     expect(html).not.toContain("private@example.test");
@@ -150,7 +150,7 @@ describe("Email message metadata and location controls", () => {
       recipients: {
         to: [],
         cc: [],
-        bcc: [{ attendeeId: "bcc", identifier: "private@example.test", displayName: null }],
+        bcc: [{ attendeeId: "bcc", identifier: "private@example.test", displayName: null, records: [] }],
       },
     });
     expect(html).toContain("Inbox.compose.bccLabel:");
@@ -210,7 +210,7 @@ describe("Email message metadata and location controls", () => {
     const html = render(["inbox"], {
       isDeleted: true,
       recipients: {
-        to: [{ attendeeId: "to", identifier: "hidden@example.test", displayName: null }],
+        to: [{ attendeeId: "to", identifier: "hidden@example.test", displayName: null, records: [] }],
         cc: [],
         bcc: [],
       },

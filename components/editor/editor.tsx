@@ -15,9 +15,12 @@ import { findPastedImageUrl } from "./image-extension";
 import { hasMarkdownBlockStructure, parseMarkdownToJSON } from "./editor.utils";
 
 import { BubbleMenu } from "./bubble-menu";
+import { FormattingToolbar } from "./formatting-toolbar";
 import { type EditorAnchorRect } from "./use-editor-anchor";
 import { SlashMenu } from "./slash-menu";
 import { TableMenu } from "./table-menu";
+
+import { cn } from "@/core/utils/cn";
 
 import "./editor.scss";
 
@@ -25,6 +28,13 @@ type Props = {
   data?: object;
   onChange?: (data: object) => void;
   readOnly?: boolean;
+  label?: string;
+  inline?: boolean;
+  autoFocus?: boolean;
+  toolbar?: boolean;
+  toolbarClassName?: string;
+  contentClassName?: string;
+  onToolbarActivate?: () => void;
 };
 
 function findEnclosingTableStart($pos: ResolvedPos): number | null {
@@ -34,7 +44,18 @@ function findEnclosingTableStart($pos: ResolvedPos): number | null {
   return null;
 }
 
-export function Editor({ data, onChange, readOnly = false }: Props) {
+export function Editor({
+  data,
+  onChange,
+  readOnly = false,
+  label,
+  inline = false,
+  autoFocus = false,
+  toolbar = false,
+  toolbarClassName,
+  contentClassName,
+  onToolbarActivate,
+}: Props) {
   const t = useTranslations();
   const [showSlashMenu, setShowSlashMenu] = useState(false);
   const [slashAnchorRect, setSlashAnchorRect] = useState<EditorAnchorRect | null>(null);
@@ -84,6 +105,9 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
     },
     editorProps: {
       attributes: {
+        ...(label
+          ? { role: "textbox", "aria-label": label, "aria-multiline": "true", "aria-readonly": String(readOnly) }
+          : {}),
         class:
           "tiptap prose prose-base md:prose-sm max-w-none focus:outline-none prose-headings:text-foreground prose-p:text-foreground prose-li:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-code:text-foreground prose-code:bg-muted prose-code:px-1 prose-code:rounded prose-code:before:content-none prose-code:after:content-none prose-blockquote:text-foreground prose-blockquote:border-border prose-ul:text-foreground prose-ol:text-foreground",
       },
@@ -163,21 +187,26 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
   });
 
   useEffect(() => {
-    if (!editor || data === undefined) return;
+    if (!editor) return;
 
+    const content = data ?? { type: "doc", content: [{ type: "paragraph" }] };
     const currentContent = editor.getJSON();
-    if (JSON.stringify(currentContent) !== JSON.stringify(data)) {
+    if (JSON.stringify(currentContent) !== JSON.stringify(content)) {
       isSettingContentRef.current = true;
-      editor.commands.setContent(data);
+      editor.commands.setContent(content);
       isSettingContentRef.current = false;
     }
   }, [editor, data]);
 
   useEffect(() => {
     if (!editor) return;
-    if (editor.isEditable === !readOnly) return;
-    editor.setEditable(!readOnly, false);
-  }, [editor, readOnly]);
+    if (editor.isEditable !== !readOnly) editor.setEditable(!readOnly, false);
+    if (readOnly) {
+      setShowBubbleMenu(false);
+      setShowSlashMenu(false);
+      setShowTableMenu(false);
+    } else if (autoFocus) editor.commands.focus("end");
+  }, [autoFocus, editor, readOnly]);
 
   useEffect(() => {
     function handleGlobalMouseUp() {
@@ -250,8 +279,8 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
   if (!editor) return null;
 
   return (
-    <div className="relative min-h-52">
-      {showBubbleMenu && !showTableMenu && (
+    <div className={cn("relative", !inline && "min-h-52")}>
+      {showBubbleMenu && !showTableMenu && !readOnly && (
         <BubbleMenu anchorRect={bubbleAnchorRect} editor={editor} onClose={() => setShowBubbleMenu(false)} />
       )}
 
@@ -259,11 +288,27 @@ export function Editor({ data, onChange, readOnly = false }: Props) {
         <TableMenu anchorRect={tableAnchorRect} editor={editor} onClose={() => setShowTableMenu(false)} />
       )}
 
-      {showSlashMenu && (
+      {showSlashMenu && !readOnly && (
         <SlashMenu anchorRect={slashAnchorRect} editor={editor} onClose={() => setShowSlashMenu(false)} />
       )}
 
-      <EditorContent editor={editor} />
+      {toolbar && (!readOnly || onToolbarActivate) && (
+        <div
+          role="presentation"
+          onKeyDownCapture={(event) => {
+            if (readOnly && (event.key === "Enter" || event.key === " ")) onToolbarActivate?.();
+          }}
+          onPointerDownCapture={() => {
+            if (readOnly) onToolbarActivate?.();
+          }}
+        >
+          <FormattingToolbar className={toolbarClassName} editor={editor} />
+        </div>
+      )}
+
+      <div className={contentClassName} data-editor-content="">
+        <EditorContent editor={editor} />
+      </div>
     </div>
   );
 }

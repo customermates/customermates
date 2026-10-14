@@ -8,14 +8,10 @@ import { Inbox } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
-import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
-import { ENTITY_ICON } from "@/components/entity-detail/entity-relations";
 import { Button } from "@/components/ui/button";
 import { PageState } from "@/components/page-state/page-state";
 
-import { DataViewEmptyState } from "./data-view-empty-state";
-
-export type EmptyStateDescriptor = {
+type EmptyStateDescriptor = {
   title: string;
   body?: string;
   icon?: LucideIcon;
@@ -49,47 +45,48 @@ export const DataViewEmpty = observer(function DataViewEmpty<E extends HasId>({
   action,
 }: Props<E>) {
   const t = useTranslations();
-  const { singular, plural } = useEntityTerminology();
 
-  const entityType = store.entityType;
-  const Icon = descriptor?.icon ?? (entityType ? ENTITY_ICON[entityType] : Inbox);
-  const singularLabel = entityType ? singular(entityType) : "";
-  const pluralLabel = entityType ? plural(entityType) : "";
+  const labels = store.recordLabels;
+  const Icon = descriptor?.icon ?? Inbox;
+  const singularLabel = labels?.singular ?? "";
+  const pluralLabel = labels?.plural ?? "";
   const canCreate = Boolean(onAdd) && store.canManage;
 
   if (reason === "filtered") {
     return (
-      <DataViewEmptyState
-        body={
-          entityType
+      <PageState
+        action={
+          <Button size="sm" variant="secondary" onClick={() => store.setQueryOptions({ filters: [], searchTerm: "" })}>
+            {t("Common.emptyState.clearFilters")}
+          </Button>
+        }
+        description={
+          labels
             ? t("Common.emptyState.filteredBody", { plural: pluralLabel })
             : t("Common.emptyState.genericFilteredBody")
         }
         icon={Icon}
-        secondaryAction={{
-          label: t("Common.emptyState.clearFilters"),
-          onClick: () => store.setQueryOptions({ filters: [], searchTerm: "" }),
-        }}
+        state="empty"
         title={t("Common.emptyState.filteredTitle")}
       />
     );
   }
 
   const title = !store.canManage
-    ? entityType
+    ? labels
       ? t("Common.emptyState.readOnlyTitle", { plural: pluralLabel })
       : (descriptor?.title ?? t("Common.emptyState.genericTitle"))
     : (descriptor?.title ??
-      (entityType ? t("Common.emptyState.title", { plural: pluralLabel }) : t("Common.emptyState.genericTitle")));
+      (labels ? t("Common.emptyState.title", { plural: pluralLabel }) : t("Common.emptyState.genericTitle")));
   const description = !store.canManage
-    ? entityType
+    ? labels
       ? t("Common.emptyState.readOnlyBody", { plural: pluralLabel })
       : descriptor?.body
-    : (descriptor?.body ?? (entityType ? t("Common.emptyState.body", { singular: singularLabel }) : undefined));
+    : (descriptor?.body ?? (labels ? t("Common.emptyState.body", { singular: singularLabel }) : undefined));
   const resolvedActionLabel =
     actionLabel ??
     descriptor?.ctaLabel ??
-    (entityType ? t("Common.emptyState.cta", { singular: singularLabel }) : t("Common.actions.add"));
+    (labels ? t("Common.emptyState.cta", { singular: singularLabel }) : t("Common.actions.add"));
 
   return (
     <PageState

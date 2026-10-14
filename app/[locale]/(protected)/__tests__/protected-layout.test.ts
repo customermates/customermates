@@ -3,16 +3,14 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const state = vi.hoisted(() => ({
+  pathname: "/legal-update",
   protectedEnhancementsAllowed: false,
   agentChatEnabled: false,
   agentConfigEnabled: null as boolean | null,
   agentOpen: false,
-  pathname: "/legal-update",
   closeAllModals: vi.fn(),
   getGlobalSearchStore: vi.fn(),
   getAgentChatStore: vi.fn(),
-  openGlobalSearch: vi.fn(),
-  toggleAgentChat: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({ usePathname: () => state.pathname }));
@@ -20,17 +18,14 @@ vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     agentChatEnabled: state.agentChatEnabled,
     closeAllModals: state.closeAllModals,
+    recordWorkspaceStore: { routeReady: () => true },
     get globalSearchModalStore() {
       state.getGlobalSearchStore();
-      return { open: state.openGlobalSearch };
+      return {};
     },
     get agentChatStore() {
       state.getAgentChatStore();
-      return {
-        enabled: state.agentConfigEnabled,
-        isOpen: state.agentOpen,
-        toggle: state.toggleAgentChat,
-      };
+      return { enabled: state.agentConfigEnabled, isOpen: state.agentOpen };
     },
   }),
 }));
@@ -38,45 +33,39 @@ vi.mock("@/app/components/navigation/protected-enhancements-context", () => ({
   useProtectedEnhancementsAllowed: () => state.protectedEnhancementsAllowed,
 }));
 
-vi.mock("@/components/data-transfer/import-wizard", () => ({
-  ImportWizard: () => "import-wizard",
-}));
-vi.mock("../company/components/feedback/feedback-modal", () => ({
+vi.mock("../settings/(workspace)/components/feedback/feedback-modal", () => ({
   FeedbackModal: () => "feedback-modal",
 }));
-vi.mock("../company/components/user/user-modal", () => ({
+vi.mock("../settings/(workspace)/components/user/user-modal", () => ({
   CompanyUserModal: () => "company-user-modal",
 }));
-vi.mock("../company/components/company-invite/company-invite-modal", () => ({
+vi.mock("../settings/(workspace)/components/company-invite/company-invite-modal", () => ({
   CompanyInviteModal: () => "company-invite-modal",
 }));
-vi.mock("../company/components/audit-log/audit-log-modal", () => ({
-  AuditLogModal: () => "audit-log-modal",
-}));
-vi.mock("../company/components/webhook/webhook-delivery-modal", () => ({
+vi.mock("../settings/(workspace)/components/webhook/webhook-delivery-modal", () => ({
   WebhookDeliveryModal: () => "webhook-delivery-modal",
 }));
 vi.mock("../routines/components/routine-modal", () => ({
   RoutineModal: () => "routine-modal",
 }));
-vi.mock("../company/components/webhook/webhook-modal", () => ({
+vi.mock("../settings/(workspace)/components/webhook/webhook-modal", () => ({
   WebhookModal: () => "webhook-modal",
 }));
-vi.mock("../profile/components/api-key-modal", () => ({
+vi.mock("../settings/(account)/components/api-key-modal", () => ({
   ApiKeyModal: () => "api-key-modal",
 }));
-vi.mock("../profile/components/connected-account-modal", () => ({
+vi.mock("../settings/(account)/components/connected-account-modal", () => ({
   ConnectedAccountModal: () => "connected-account-modal",
 }));
-vi.mock("../profile/components/connect-upsell-modal", () => ({
+vi.mock("../settings/(account)/components/connect-upsell-modal", () => ({
   ConnectUpsellModal: () => "upsell-modal",
 }));
 vi.mock("@/components/ui/sonner", () => ({ Toaster: () => "toaster" }));
 vi.mock("@/app/components/global-search-modal", () => ({
   GlobalSearchModal: () => "global-search-modal",
 }));
-vi.mock("@/components/entity-detail/entity-drawer", () => ({
-  EntityDrawer: () => "entity-drawer",
+vi.mock("@/components/records/workspace-record-editor", () => ({
+  WorkspaceRecordEditor: () => "workspace-record-editor",
 }));
 vi.mock("@/components/shared/loading-overlay", () => ({
   LoadingOverlay: () => "loading-overlay",
@@ -93,11 +82,17 @@ vi.mock("@/components/shared/unexpected-error-toaster", () => ({
 vi.mock("@/components/shared/translation-sync", () => ({
   TranslationSync: () => "translation-sync",
 }));
+vi.mock("@/app/components/keyboard-shortcuts/global-keyboard-shortcuts", () => ({
+  GlobalKeyboardShortcuts: () => "global-keyboard-shortcuts",
+}));
+vi.mock("@/app/components/keyboard-shortcuts/keyboard-shortcuts-dialog", () => ({
+  KeyboardShortcutsDialog: () => "keyboard-shortcuts-dialog",
+}));
+vi.mock("@/components/data-view/views/view-picker", () => ({
+  ViewPicker: () => "view-picker",
+}));
 vi.mock("@/app/components/agent-chat/agent-chat", () => ({
   AgentChat: () => "agent-chat",
-}));
-vi.mock("@/components/data-view/custom-columns/custom-column-modal", () => ({
-  CustomColumnModal: () => "custom-column-modal",
 }));
 vi.mock("@/features/messaging/activities/activities-detail-modal", () => ({
   TimelineDetailModal: () => "timeline-detail-modal",
@@ -109,6 +104,7 @@ let container: HTMLDivElement;
 let root: Root;
 
 beforeEach(() => {
+  state.pathname = "/legal-update";
   state.protectedEnhancementsAllowed = false;
   state.agentChatEnabled = false;
   state.agentConfigEnabled = null;
@@ -117,8 +113,6 @@ beforeEach(() => {
   state.closeAllModals.mockClear();
   state.getGlobalSearchStore.mockClear();
   state.getAgentChatStore.mockClear();
-  state.openGlobalSearch.mockClear();
-  state.toggleAgentChat.mockClear();
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
@@ -138,68 +132,58 @@ async function renderLayout() {
 }
 
 describe("ProtectedLayout account-state boundary", () => {
+  it("retains a modal opened during hydration and closes it when the route or access changes", async () => {
+    state.protectedEnhancementsAllowed = true;
+    state.pathname = "/records/projects";
+    await renderLayout();
+    expect(state.closeAllModals).not.toHaveBeenCalled();
+    state.pathname = "/configure";
+    await renderLayout();
+    expect(state.closeAllModals).toHaveBeenCalledOnce();
+    state.protectedEnhancementsAllowed = false;
+    await renderLayout();
+    expect(state.closeAllModals).toHaveBeenCalledTimes(2);
+  });
   it("mounts only recovery-safe infrastructure without assistant store access when restricted", async () => {
     state.agentChatEnabled = true;
     state.agentConfigEnabled = true;
     await renderLayout();
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }));
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "j", metaKey: true, bubbles: true }));
 
     expect(container.textContent).toContain("recovery-card");
     expect(container.textContent).toContain("toaster");
     expect(container.textContent).toContain("loading-overlay");
     expect(container.textContent).toContain("unexpected-error-toaster");
     expect(container.textContent).toContain("translation-sync");
+    expect(container.textContent).not.toContain("global-keyboard-shortcuts");
+    expect(container.textContent).not.toContain("keyboard-shortcuts-dialog");
     expect(container.textContent).not.toContain("global-search-modal");
     expect(container.textContent).not.toContain("company-user-modal");
-    expect(container.textContent).not.toContain("entity-drawer");
     expect(container.textContent).not.toContain("routine-modal");
     expect(container.textContent).not.toContain("import-wizard");
     expect(container.textContent).not.toContain("agent-chat");
     expect(state.getGlobalSearchStore).not.toHaveBeenCalled();
     expect(state.getAgentChatStore).not.toHaveBeenCalled();
-    expect(state.openGlobalSearch).not.toHaveBeenCalled();
-    expect(state.toggleAgentChat).not.toHaveBeenCalled();
   });
 
-  it("mounts tenant enhancements but not the assistant when its process gate is off", async () => {
+  it("mounts tenant enhancements and the keyboard shortcuts but not the assistant when its process gate is off", async () => {
     state.protectedEnhancementsAllowed = true;
     await renderLayout();
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }));
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "j", metaKey: true, bubbles: true }));
 
+    expect(container.textContent).toContain("global-keyboard-shortcuts");
+    expect(container.textContent).toContain("keyboard-shortcuts-dialog");
     expect(container.textContent).toContain("global-search-modal");
     expect(container.textContent).toContain("company-user-modal");
-    expect(container.textContent).toContain("entity-drawer");
     expect(container.textContent).toContain("routine-modal");
-    expect(container.textContent).toContain("import-wizard");
+    expect(container.textContent).not.toContain("import-wizard");
     expect(container.textContent).not.toContain("agent-chat");
-    expect(state.getGlobalSearchStore).toHaveBeenCalledOnce();
     expect(state.getAgentChatStore).not.toHaveBeenCalled();
-    expect(state.openGlobalSearch).toHaveBeenCalledOnce();
-    expect(state.toggleAgentChat).not.toHaveBeenCalled();
   });
 
-  it("mounts the assistant but ignores Cmd+J while its config is unresolved", async () => {
+  it("mounts the assistant when its process gate is on", async () => {
     state.protectedEnhancementsAllowed = true;
     state.agentChatEnabled = true;
     await renderLayout();
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "j", ctrlKey: true, bubbles: true }));
 
     expect(container.textContent).toContain("agent-chat");
-    expect(state.getAgentChatStore).toHaveBeenCalledOnce();
-    expect(state.toggleAgentChat).not.toHaveBeenCalled();
-  });
-
-  it("toggles the available assistant with Cmd+J", async () => {
-    state.protectedEnhancementsAllowed = true;
-    state.agentChatEnabled = true;
-    state.agentConfigEnabled = true;
-    await renderLayout();
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "j", metaKey: true, bubbles: true }));
-
-    expect(container.textContent).toContain("agent-chat");
-    expect(state.getAgentChatStore).toHaveBeenCalledOnce();
-    expect(state.toggleAgentChat).toHaveBeenCalledOnce();
   });
 });

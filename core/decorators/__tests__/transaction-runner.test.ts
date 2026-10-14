@@ -5,8 +5,6 @@ import { createZodError } from "@/core/validation/validation.utils";
 const db = vi.hoisted(() => {
   const tx = {
     $executeRaw: vi.fn(),
-    auditLog: { createMany: vi.fn() },
-    webhookDelivery: { createMany: vi.fn() },
   };
   const transaction = vi.fn((fn: (client: typeof tx) => Promise<unknown>) => fn(tx));
   return { tx, transaction };
@@ -23,24 +21,16 @@ describe("runInTransaction", () => {
     db.transaction.mockImplementation((fn) => fn(db.tx));
   });
 
-  it("flushes queued writes and after-commit callbacks only after a successful result", async () => {
+  it("runs after-commit callbacks only after a successful result", async () => {
     const afterCommit = vi.fn().mockResolvedValue(undefined);
 
     const result = await runInTransaction(() => {
       const store = transactionStorage.getStore();
-      store?.auditLogBatch.push({ id: "audit-1" } as never);
-      store?.webhookDeliveryBatch.push({ id: "delivery-1" } as never);
       store?.afterCommit.push(afterCommit);
       return Promise.resolve({ ok: true as const, data: "done" });
     });
 
     expect(result).toEqual({ ok: true, data: "done" });
-    expect(db.tx.auditLog.createMany).toHaveBeenCalledWith({
-      data: [{ id: "audit-1" }],
-    });
-    expect(db.tx.webhookDelivery.createMany).toHaveBeenCalledWith({
-      data: [{ id: "delivery-1" }],
-    });
     expect(afterCommit).toHaveBeenCalledOnce();
   });
 
@@ -53,15 +43,11 @@ describe("runInTransaction", () => {
 
     const result = await runInTransaction(() => {
       const store = transactionStorage.getStore();
-      store?.auditLogBatch.push({ id: "audit-1" } as never);
-      store?.webhookDeliveryBatch.push({ id: "delivery-1" } as never);
       store?.afterCommit.push(afterCommit);
       return Promise.resolve(failure);
     });
 
     expect(result).toBe(failure);
-    expect(db.tx.auditLog.createMany).not.toHaveBeenCalled();
-    expect(db.tx.webhookDelivery.createMany).not.toHaveBeenCalled();
     expect(afterCommit).not.toHaveBeenCalled();
   });
 

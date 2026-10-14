@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const AttachmentKindSchema = z.enum([
+const AttachmentKindSchema = z.enum([
   "image",
   "gif",
   "video",

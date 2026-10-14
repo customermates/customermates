@@ -11,6 +11,7 @@ import { Inbox, KanbanSquare, LayoutDashboard, Repeat, UserRound } from "lucide-
 import { cn } from "@/core/utils/cn";
 
 import { HomepageCaptureImage } from "./homepage-capture-image";
+import { DEMO_RECORD_LIST_PATHS } from "@/components/marketing/product-demo";
 import { ProductWindow } from "@/components/marketing/product-window";
 import { useHomepageMotion } from "./homepage-motion";
 import {
@@ -40,10 +41,10 @@ const MOBILE_CAPTURES = {
 } as const;
 
 const STAGE_DEMO_PATHS = {
-  customers: "/contacts",
+  customers: DEMO_RECORD_LIST_PATHS.contacts,
   dashboard: "/dashboard",
   inbox: "/inbox?threadId=latest",
-  pipeline: "/deals",
+  pipeline: DEMO_RECORD_LIST_PATHS.deals,
   routines: "/routines",
 } as const satisfies Record<HomepageStageArea, string>;
 

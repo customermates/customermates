@@ -5,7 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
-import { PrismaMessagingRepo } from "../prisma-messaging.repository";
+import { createTestMessagingRepo } from "@/tests/helpers/messaging-repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -95,13 +95,13 @@ describeDatabase("unread inbox count on PostgreSQL", () => {
     return id;
   }
 
-  const count = () => runWithTenant(tenant, () => new PrismaMessagingRepo().countUnreadThreadsForCurrentUser());
+  const count = () => runWithTenant(tenant, () => createTestMessagingRepo().countUnreadThreadsForCurrentUser());
 
   it("counts visible unread conversations once, respecting private and individually shared accounts", async () => {
     expect(await count()).toBe(5);
     expect(
       await runWithTenant(createMockUser({ companyId: randomUUID() }), () =>
-        new PrismaMessagingRepo().countUnreadThreadsForCurrentUser(),
+        createTestMessagingRepo().countUnreadThreadsForCurrentUser(),
       ),
     ).toBe(0);
   });

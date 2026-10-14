@@ -1,95 +1,68 @@
+import type { PermissionService } from "@/core/base/permission.service";
+import type { RecordMemberRepo } from "./record-member.repo";
 import type { RepoArgs } from "@/core/utils/types";
-import type { FindUserRepo } from "./user.service";
-import type { GetUsersRepo } from "@/features/user/get/get-users.repo";
-import type { FindUsersByIdsRepo } from "@/features/user/find-users-by-ids.repo";
-import type { ModifyRelationUserRepo } from "@/features/relations/modify-relation-user.repo";
-import type { RegisterUserRepo } from "@/features/user/register/register-user.interactor";
-import type { UpdateUserDetailsRepo } from "@/features/user/upsert/update-user-details.interactor";
-import type { AdminUpdateUserDetailsRepo } from "@/features/user/upsert/admin-update-user-details.interactor";
-import type { GetUserByIdRepo } from "@/features/user/get/get-user-by-id.interactor";
-import type { CompleteOnboardingWizardRepo } from "@/features/onboarding-wizard/complete-onboarding-wizard.interactor";
 import type { GetOnboardingWizardProgressRepo } from "@/features/onboarding-wizard/get-onboarding-wizard-progress.repo";
 import type { SaveOnboardingWizardProgressRepo } from "@/features/onboarding-wizard/save-onboarding-wizard-progress.repo";
 import type { CompleteOnboardingWikiStepRepo } from "@/features/onboarding-wizard/complete-onboarding-wiki-step.repo";
-import type { SendWelcomeAndDemoActionRepo } from "@/ee/lifecycle/send-welcome-and-demo.interactor";
-import type { DeleteAccountsForPlanUserRepo } from "@/ee/messaging/connect/delete-accounts-for-plan.interactor";
-import type { CountActiveUsersRepo } from "./count-active-users.repo";
+import type { DeactivateTrialUsersAndSendNoticeRepo } from "@/ee/lifecycle/deactivate-trial-users-and-send-notice.interactor";
+import type { DeactivateUsersAfterSubscriptionGracePeriodRepo } from "@/ee/lifecycle/deactivate-users-after-subscription-grace-period.interactor";
+import type { ExpireAdAttributionRepo } from "@/ee/lifecycle/expire-ad-attribution.interactor";
+import type { SendLegalDocumentNoticesRepo } from "@/ee/lifecycle/send-legal-document-notices.interactor";
 import type { SendTrialExtensionOfferActionRepo } from "@/ee/lifecycle/send-trial-extension-offer.interactor";
 import type { SendTrialInactivationReminderActionRepo } from "@/ee/lifecycle/send-trial-inactivation-reminder.interactor";
-import type { DeactivateTrialUsersAndSendNoticeRepo } from "@/ee/lifecycle/deactivate-trial-users-and-send-notice.interactor";
-import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
-import type { DeactivateUsersAfterSubscriptionGracePeriodRepo } from "@/ee/lifecycle/deactivate-users-after-subscription-grace-period.interactor";
+import type { SendWelcomeAndDemoActionRepo } from "@/ee/lifecycle/send-welcome-and-demo.interactor";
+import type { DeleteAccountsForPlanUserRepo } from "@/ee/messaging/connect/delete-accounts-for-plan-user.repo";
 import type { WebhookUserRepo } from "@/ee/messaging/webhooks/account/account-webhook.repo";
-import type { SendLegalDocumentNoticesRepo } from "@/ee/lifecycle/send-legal-document-notices.interactor";
-import type { ExpireAdAttributionRepo } from "@/ee/lifecycle/expire-ad-attribution.interactor";
 import type { WithdrawAdAttributionRepo } from "@/features/acquisition/withdraw-ad-attribution.interactor";
+import type { CompleteOnboardingWizardRepo } from "@/features/onboarding-wizard/complete-onboarding-wizard.interactor";
+import type { FindUsersByIdsRepo } from "@/features/user/find-users-by-ids.repo";
+import type { FindUserSummariesRepo } from "@/features/user/find-user-summaries.repo";
+import type { GetUserByIdRepo } from "@/features/user/get/get-user-by-id.repo";
+import type { GetUsersRepo } from "@/features/user/get/get-users.repo";
+import type { RegisterUserRepo } from "@/features/user/register/register-user.repo";
+import type { AdminUpdateUserDetailsRepo } from "@/features/user/upsert/admin-update-user-details.repo";
+import type { UpdateUserDetailsRepo } from "@/features/user/upsert/update-user-details.repo";
 import type { Prisma } from "@/generated/prisma";
+import type { CountActiveUsersRepo } from "./count-active-users.repo";
+import type { ResolveUserOptionsRepo } from "./get/resolve-user-options.repo";
+import type { FindUserRepo } from "./find-user.repo";
 
-import { randomUUID } from "node:crypto";
-
-import { getTranslations } from "next-intl/server";
-import { ConversionEventType, CustomColumnType, EntityType, Status, SubscriptionStatus } from "@/generated/prisma";
+import { Status, SubscriptionStatus } from "@/generated/prisma";
 
 import { type UserDto } from "./user.schema";
 
-import { BaseRepository } from "@/core/base/base-repository";
-import { Transaction } from "@/core/decorators/transaction.decorator";
-import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
+import { QueryRepository } from "@/core/base/query-repository";
+import { userAccessWhere } from "./user-access";
+import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
+import { Transaction } from "@/core/decorators/transaction.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
-import { env } from "@/env";
 
-type DefaultSelectColumn = {
-  entityType: EntityType;
-  options: { key: string; color: string; weight?: number }[];
-};
-
-const DEFAULT_SELECT_COLUMNS: DefaultSelectColumn[] = [
-  {
-    entityType: EntityType.contact,
-    options: [
-      { key: "new", color: "secondary" },
-      { key: "contact", color: "info" },
-      { key: "qualified", color: "info" },
-      { key: "inProgress", color: "warning" },
-      { key: "won", color: "success" },
-      { key: "lost", color: "destructive" },
-    ],
-  },
-  {
-    entityType: EntityType.deal,
-    options: [
-      { key: "prospecting", color: "secondary", weight: 10 },
-      { key: "qualification", color: "info", weight: 20 },
-      { key: "demo", color: "info", weight: 40 },
-      { key: "proposal", color: "warning", weight: 60 },
-      { key: "negotiation", color: "warning", weight: 80 },
-      { key: "won", color: "success", weight: 100 },
-      { key: "lost", color: "destructive", weight: 0 },
-    ],
-  },
-  {
-    entityType: EntityType.task,
-    options: [
-      { key: "open", color: "secondary" },
-      { key: "inProgress", color: "warning" },
-      { key: "blocked", color: "destructive" },
-      { key: "onHold", color: "secondary" },
-      { key: "done", color: "success" },
-      { key: "archived", color: "secondary" },
-    ],
-  },
-] as const;
+function recordActorSelect(companyId: string) {
+  return {
+    id: true,
+    status: true,
+    role: {
+      select: {
+        id: true,
+        companyId: true,
+        isSystemRole: true,
+        permissions: { where: { companyId }, select: { resource: true, action: true } },
+      },
+    },
+  } as const;
+}
 
 export class PrismaUserRepo
-  extends BaseRepository
+  extends QueryRepository
   implements
     FindUserRepo,
     GetUsersRepo,
     FindUsersByIdsRepo,
-    ModifyRelationUserRepo,
+    FindUserSummariesRepo,
     GetUserByIdRepo,
+    ResolveUserOptionsRepo,
     RegisterUserRepo,
     UpdateUserDetailsRepo,
     AdminUpdateUserDetailsRepo,
@@ -107,8 +80,45 @@ export class PrismaUserRepo
     WebhookUserRepo,
     SendLegalDocumentNoticesRepo,
     ExpireAdAttributionRepo,
-    WithdrawAdAttributionRepo
+    WithdrawAdAttributionRepo,
+    RecordMemberRepo
 {
+  constructor(private readonly permissions: PermissionService) {
+    super();
+  }
+
+  async setOperatorStatusCompanyWide(
+    companyId: string,
+    userId: string,
+    status: Status,
+    agentCreditActivatedAt?: Date | null,
+  ): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId, companyId },
+      data: { status, ...(agentCreditActivatedAt === undefined ? {} : { agentCreditActivatedAt }) },
+    });
+  }
+
+  async setPlatformOperatorCompanyWide(companyId: string, userId: string, isPlatformOperator: boolean): Promise<void> {
+    await this.prisma.user.update({ where: { id: userId, companyId }, data: { isPlatformOperator } });
+  }
+
+  @BypassTenantGuard
+  async deleteAuthIdentitiesUnscoped(identityIds: string[]): Promise<void> {
+    await this.prisma.authUser.deleteMany({ where: { id: { in: identityIds } } });
+  }
+
+  @BypassTenantGuard
+  async detachAuthIdentitiesFromCompanyUnscoped(companyId: string): Promise<number> {
+    const cleared = await this.prisma.authUser.updateMany({ where: { companyId }, data: { companyId: null } });
+    return cleared.count;
+  }
+
+  @BypassTenantGuard
+  async markActiveByEmailUnscoped(email: string): Promise<void> {
+    await this.prisma.user.updateMany({ where: { email }, data: { lastActiveAt: new Date() } });
+  }
+
   @BypassTenantGuard
   async findUserByIdOrThrowUnscoped(userId: string) {
     return this.prisma.user.findUniqueOrThrow({
@@ -204,7 +214,7 @@ export class PrismaUserRepo
   async getItems(params: GetQueryParams) {
     return this.list({
       model: "user",
-      baseWhere: this.accessWhere("user"),
+      baseWhere: userAccessWhere(this.permissions),
       select: this.userSelect,
       params,
       map: (user: Prisma.UserGetPayload<{ select: PrismaUserRepo["userSelect"] }>) => user,
@@ -212,7 +222,7 @@ export class PrismaUserRepo
   }
 
   async getCount(params: GetQueryParams) {
-    const { where } = await this.buildQueryArgs(params, this.accessWhere("user"));
+    const { where } = await this.buildQueryArgs(params, userAccessWhere(this.permissions));
 
     return await this.prisma.user.count({ where });
   }
@@ -222,7 +232,7 @@ export class PrismaUserRepo
 
     const users = await this.prisma.user.findMany({
       where: {
-        ...this.accessWhere("user"),
+        ...userAccessWhere(this.permissions),
         AND: [{ id: { in: Array.from(ids) } }],
       },
       select: { id: true },
@@ -231,10 +241,19 @@ export class PrismaUserRepo
     return new Set(users.map((user) => user.id));
   }
 
+  resolveUserOptions(ids: string[]) {
+    return this.prisma.user.findMany({
+      where: { ...userAccessWhere(this.permissions), AND: [{ id: { in: ids } }] },
+      select: { id: true, firstName: true, lastName: true, avatarUrl: true },
+      orderBy: [{ firstName: "asc" }, { lastName: "asc" }, { id: "asc" }],
+      take: 100,
+    });
+  }
+
   async getUserById(id: string) {
     const user = await this.prisma.user.findFirst({
       where: {
-        ...this.accessWhere("user"),
+        ...userAccessWhere(this.permissions),
         AND: [{ id }],
       },
       select: this.userSelect,
@@ -340,76 +359,8 @@ export class PrismaUserRepo
     });
   }
 
-  private async createDefaultCustomColumns(companyId: string) {
-    const t = await getTranslations();
-    let dealColumnId: string | undefined;
-
-    for (const column of DEFAULT_SELECT_COLUMNS) {
-      const created = await this.prisma.customColumn.create({
-        data: {
-          label: t(`Common.defaultData.${column.entityType}.columnLabel`),
-          type: CustomColumnType.singleSelect,
-          entityType: column.entityType,
-          companyId,
-          options: {
-            options: column.options.map((option, index) => ({
-              value: randomUUID(),
-              label: t(`Common.defaultData.${column.entityType}.options.${option.key}`),
-              color: option.color,
-              isDefault: index === 0,
-              index,
-              ...(option.weight === undefined ? {} : { weight: option.weight }),
-            })),
-          },
-        },
-      });
-
-      if (column.entityType === EntityType.deal) dealColumnId = created.id;
-    }
-
-    return dealColumnId;
-  }
-
-  @Transaction
-  async createCompanyAndUser(args: RepoArgs<RegisterUserRepo, "createCompanyAndUser">) {
+  async createCompanyOwnerOrThrow(args: RepoArgs<RegisterUserRepo, "createCompanyOwnerOrThrow">) {
     if (await this.prisma.user.findFirst({ where: { email: args.email } })) throw new Error("User already exists.");
-
-    const company = await this.prisma.company.create({ data: {} });
-
-    const dealWeightingColumnId = await this.createDefaultCustomColumns(company.id);
-
-    if (dealWeightingColumnId)
-      await this.prisma.company.update({ where: { id: company.id }, data: { dealWeightingColumnId } });
-
-    const adminRole = await this.prisma.userRole.create({
-      data: {
-        name: "Admin",
-        description: "Full access to all features and settings",
-        isSystemRole: true,
-        companyId: company.id,
-      },
-    });
-
-    const trialEndDate = new Date();
-    trialEndDate.setDate(trialEndDate.getDate() + CLOUD_TRIAL.days);
-
-    await this.prisma.subscription.create({
-      data:
-        env.APP_MODE !== "self-hosted"
-          ? {
-              companyId: company.id,
-              status: SubscriptionStatus.trial,
-              plan: CLOUD_TRIAL.plan,
-              trialEndDate,
-              agentCreditAnchorAt: new Date(),
-            }
-          : {
-              companyId: company.id,
-              status: SubscriptionStatus.active,
-              trialEndDate: null,
-              agentCreditAnchorAt: new Date(),
-            },
-    });
 
     const user = await this.prisma.user.create({
       data: {
@@ -420,19 +371,17 @@ export class PrismaUserRepo
         avatarUrl: args.avatarUrl,
         country: args.country,
         status: Status.active,
-        companyId: company.id,
-        roleId: adminRole.id,
+        companyId: args.companyId,
+        roleId: args.roleId,
         lastActiveAt: new Date(),
         agentCreditActivatedAt: new Date(),
       },
     });
 
-    const attributions = args.adAttribution ?? [];
-
-    for (const attribution of attributions) {
+    for (const attribution of args.adAttribution ?? []) {
       await this.prisma.adAttribution.create({
         data: {
-          companyId: company.id,
+          companyId: args.companyId,
           userId: user.id,
           provider: attribution.provider,
           identifierKind: attribution.identifierKind,
@@ -446,18 +395,12 @@ export class PrismaUserRepo
       });
     }
 
-    if (attributions.length > 0) {
-      await this.prisma.conversionEvent.create({
-        data: { companyId: company.id, type: ConversionEventType.signup, occurredAt: user.createdAt },
-      });
-    }
-
     const tenantUser = await this.prisma.user.findUniqueOrThrow({
       where: { id: user.id },
       select: this.tenantUserSelect,
     });
 
-    return tenantUser;
+    return { user: tenantUser, createdAt: user.createdAt };
   }
 
   async clearAdAttributionForUser(args: { userId: string }) {
@@ -515,28 +458,21 @@ export class PrismaUserRepo
     return user?.isPlatformOperator ?? false;
   }
 
-  async findOrThrowCompanyWide(email: string) {
-    const { companyId } = this.user;
-
-    const user = await this.prisma.user.findUniqueOrThrow({
-      where: { email, companyId },
-      select: this.tenantUserSelect,
+  async findUserSummaries(userIds: string[]) {
+    const ids = [...new Set(userIds)];
+    if (!ids.length) return new Map();
+    const users = await this.prisma.user.findMany({
+      where: { companyId: this.user.companyId, id: { in: ids } },
+      select: { id: true, firstName: true, lastName: true, avatarUrl: true },
     });
-
-    return user;
+    return new Map(users.map((user) => [user.id, user]));
   }
 
-  async findExistingEmailsCompanyWide(emails: Set<string>) {
-    if (emails.size === 0) return new Set<string>();
-
-    const { companyId } = this.user;
-
-    const users = await this.prisma.user.findMany({
-      where: { email: { in: Array.from(emails) }, companyId },
-      select: { email: true },
+  async findMemberCompanyWide(reference: { id: string } | { email: string }) {
+    return this.prisma.user.findFirst({
+      where: { ...reference, companyId: this.user.companyId },
+      select: this.tenantUserSelect,
     });
-
-    return new Set(users.map((user) => user.email));
   }
 
   @BypassTenantGuard
@@ -788,5 +724,42 @@ export class PrismaUserRepo
       select: { companyId: true, emailVerified: true },
     });
     return authUser ?? undefined;
+  }
+
+  async getCurrentRecordActorCompanyWide() {
+    return this.prisma.user.findFirst({
+      where: { companyId: this.companyId, id: this.user.id },
+      select: recordActorSelect(this.companyId),
+    });
+  }
+
+  @BypassTenantGuard
+  async findRecordActorUnscoped(companyId: string, userId: string) {
+    return this.prisma.user.findFirst({
+      where: { companyId, id: userId, status: Status.active, role: { companyId } },
+      select: recordActorSelect(companyId),
+    });
+  }
+
+  async getRecordMemberCompanyWide(userId: string) {
+    return this.prisma.user.findFirst({
+      where: { companyId: this.companyId, id: userId },
+      select: { id: true, email: true, status: true },
+    });
+  }
+
+  async findRecordAssigneesCompanyWide(ids: string[]) {
+    const users = await this.prisma.user.findMany({
+      where: { companyId: this.companyId, id: { in: ids }, status: Status.active },
+      select: { id: true },
+    });
+    return users.map((user) => user.id);
+  }
+
+  async getRecordMembersCompanyWide(companyId: string, userIds: string[]) {
+    return this.prisma.user.findMany({
+      where: { companyId, id: { in: [...new Set(userIds)] } },
+      select: { id: true, firstName: true, lastName: true, avatarUrl: true },
+    });
   }
 }

@@ -4,9 +4,11 @@ import {
   DEFAULT_ROUTINE_SCHEDULE,
   cronForSchedule,
   describeRoutineSchedule,
+  routineDisplayTimeZone,
   scheduleFromCron,
   scheduleHasClockTime,
 } from "@/ee/routines/routine-schedule-preset";
+import { nextCronOccurrence, parseCronExpression } from "@/ee/routines/routine-schedule";
 
 const t = (key: string, values?: Record<string, string | number>) =>
   values
@@ -68,8 +70,26 @@ describe("schedule descriptions", () => {
     expect(describeRoutineSchedule("*/15 * * * *", t, () => "")).toBe("RoutineSchedulePreset.every15Minutes");
   });
 
-  it("shows the raw expression when no preset can describe it", () => {
+  it.each([
+    ["0 8 * * 1-5", "RoutineSchedule.weekdays(time=08:00)"],
+    ["30 7 * * 1,2,3,4,5", "RoutineSchedule.weekdays(time=07:30)"],
+    ["0 10 * * 6,0", "RoutineSchedule.weekends(time=10:00)"],
+    ["0 10 * * 0,6", "RoutineSchedule.weekends(time=10:00)"],
+    [
+      "0 9 * * 1,3,5",
+      "RoutineSchedule.days(weekdays=RoutineWeekday.monday, RoutineWeekday.wednesday, RoutineWeekday.friday,time=09:00)",
+    ],
+    ["0 9 * * 7", "RoutineSchedule.weekly(weekday=RoutineWeekday.sunday,time=09:00)"],
+    ["*/20 * * * *", "RoutineSchedule.everyMinutes(count=20)"],
+    ["15 */4 * * *", "RoutineSchedule.everyHours(count=4,minute=15)"],
+  ])("describes the custom expression %s in words", (expression, expected) => {
+    expect(describeRoutineSchedule(expression, t, formatTime)).toBe(expected);
+  });
+
+  it("shows the raw expression when no description fits", () => {
     expect(describeRoutineSchedule("0 9 * 3 1", t, formatTime)).toBe("0 9 * 3 1");
+    expect(describeRoutineSchedule("0 9 1-7 * 1", t, formatTime)).toBe("0 9 1-7 * 1");
+    expect(describeRoutineSchedule("0 9-17 * * 1-5", t, formatTime)).toBe("0 9-17 * * 1-5");
   });
 });
 
@@ -81,5 +101,43 @@ describe("clock time relevance", () => {
     ["30 * * * *", true],
   ])("decides whether %s has a clock time to spell out", (expression, expected) => {
     expect(scheduleHasClockTime(expression)).toBe(expected);
+  });
+});
+
+describe("next run time zone", () => {
+  const cron = (() => {
+    const parsed = parseCronExpression("0 7 * * 1-5");
+    if (!parsed.ok) throw new Error(parsed.reason);
+    return parsed.cron;
+  })();
+  const zone = "Europe/Berlin";
+  const wallClock = (date: Date | null, timeZone: string) =>
+    date
+      ? new Intl.DateTimeFormat("en-GB", {
+          weekday: "short",
+          hour: "2-digit",
+          minute: "2-digit",
+          timeZone: routineDisplayTimeZone(timeZone),
+        }).format(date)
+      : "";
+
+  it.each([
+    ["before the spring change", "2026-03-26T12:00:00Z", "2026-03-27T06:00:00.000Z", "Fri 07:00"],
+    ["across the spring change", "2026-03-27T12:00:00Z", "2026-03-30T05:00:00.000Z", "Mon 07:00"],
+    ["before the autumn change", "2026-10-22T12:00:00Z", "2026-10-23T05:00:00.000Z", "Fri 07:00"],
+    ["across the autumn change", "2026-10-23T12:00:00Z", "2026-10-26T06:00:00.000Z", "Mon 07:00"],
+  ])("shows the scheduled wall-clock time for the next run %s", (_label, after, instant, shown) => {
+    const next = nextCronOccurrence(cron, new Date(after), zone);
+
+    expect(next?.toISOString()).toBe(instant);
+    expect(wallClock(next, zone)).toBe(shown);
+    expect(describeRoutineSchedule("0 7 * * 1-5", t, formatTime)).toBe("RoutineSchedule.weekdays(time=07:00)");
+  });
+
+  it("formats in the routine time zone and falls back to UTC for a missing or unknown zone", () => {
+    expect(routineDisplayTimeZone(zone)).toBe(zone);
+    expect(routineDisplayTimeZone(null)).toBe("UTC");
+    expect(routineDisplayTimeZone("Mars/Olympus")).toBe("UTC");
+    expect(wallClock(new Date("2026-07-01T05:00:00Z"), zone)).toBe("Wed 07:00");
   });
 });

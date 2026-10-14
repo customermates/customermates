@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import type { ChipColor } from "@/constants/chip-colors";
 
+import { useEffect, useId, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
@@ -13,12 +14,14 @@ import { FormControlRow } from "./form-control-row";
 import { cn } from "@/core/utils/cn";
 
 import { useAppForm } from "./form-context";
+import { FormFieldError } from "./form-field-error";
 import { useFormFieldErrors, useResolvedFieldLabel } from "./use-form-field";
 import { SelectionOptionsSkeleton, SelectionValueSkeleton } from "./selection-loading";
 
-export type FormSelectItem = {
+type FormSelectItem = {
   value: string;
   label: string;
+  chipLabel?: string;
   disabled?: boolean;
   color?: ChipColor;
   startContent?: ReactNode;
@@ -32,6 +35,7 @@ type Props = {
   description?: ReactNode;
   placeholder?: string;
   required?: boolean;
+  showErrorMessage?: boolean;
   disabled?: boolean;
   readOnly?: boolean;
   items?: FormSelectItem[];
@@ -54,6 +58,7 @@ export const FormSelect = observer(
     description,
     placeholder,
     required,
+    showErrorMessage = false,
     disabled,
     readOnly,
     items,
@@ -69,15 +74,24 @@ export const FormSelect = observer(
   }: Props) => {
     const t = useTranslations();
     const store = useAppForm();
+    const [open, setOpen] = useState(false);
+    const descriptionIdPrefix = useId();
     const resolvedLabel = useResolvedFieldLabel(id, label);
     const raw = controlledValue ?? store?.getValue(id);
     const value = raw == null ? "" : String(raw);
-    const { hasError } = useFormFieldErrors(id);
+    const { hasError, message } = useFormFieldErrors(id);
     const selectedItem = items?.find((it) => it.value === value);
     const isDisabled = Boolean(disabled) || Boolean(store?.isLoading);
     const isReadOnly = !isDisabled && ((store?.isReadOnly ?? false) || Boolean(readOnly));
     const hasUnresolvedValue = value !== "" && selectedItem === undefined;
+    const canEdit = !isDisabled && !isReadOnly;
     const domId = inputId ?? id;
+    const errorId = `${domId}-error`;
+    const errorShown = showErrorMessage && hasError && Boolean(message);
+
+    useEffect(() => {
+      if (!canEdit) setOpen(false);
+    }, [canEdit]);
 
     return (
       <div className={cn("flex flex-col gap-1.5", containerClassName)}>
@@ -95,15 +109,17 @@ export const FormSelect = observer(
 
         <Select
           disabled={isDisabled}
-          open={isReadOnly ? false : undefined}
+          open={canEdit && open}
           value={value}
+          onOpenChange={(next) => setOpen(canEdit && next)}
           onValueChange={
-            isReadOnly ? undefined : (next) => (onValueChange ? onValueChange(next) : store?.onChange(id, next))
+            !canEdit ? undefined : (next) => (onValueChange ? onValueChange(next) : store?.onChange(id, next))
           }
         >
           <FormControlRow>
             <SelectTrigger
               aria-busy={optionsLoading || undefined}
+              aria-describedby={errorShown ? errorId : undefined}
               aria-invalid={hasError}
               aria-label={resolvedLabel ? undefined : ariaLabel}
               aria-readonly={isReadOnly || undefined}
@@ -120,7 +136,7 @@ export const FormSelect = observer(
                   <SelectionValueSkeleton />
                 ) : selectedItem ? (
                   selectedItem.color ? (
-                    <AppChip variant={selectedItem.color}>{selectedItem.label}</AppChip>
+                    <AppChip variant={selectedItem.color}>{selectedItem.chipLabel ?? selectedItem.label}</AppChip>
                   ) : (
                     <>
                       {selectedItem.startContent}
@@ -145,9 +161,31 @@ export const FormSelect = observer(
             ) : (
               <>
                 {items?.map((item) => (
-                  <SelectItem key={item.value} disabled={item.disabled} textValue={item.label} value={item.value}>
+                  <SelectItem
+                    key={item.value}
+                    aria-describedby={item.description ? `${descriptionIdPrefix}-${item.value}` : undefined}
+                    disabled={item.disabled}
+                    textValue={item.label}
+                    value={item.value}
+                  >
                     {item.color ? (
-                      <AppChip variant={item.color}>{item.label}</AppChip>
+                      <span className="flex items-center gap-2">
+                        <AppChip aria-hidden={item.chipLabel ? true : undefined} variant={item.color}>
+                          {item.chipLabel ?? item.label}
+                        </AppChip>
+
+                        {item.chipLabel && <span className="text-xs text-muted-foreground">{item.label}</span>}
+
+                        {item.description && (
+                          <span
+                            aria-hidden
+                            className="text-xs text-muted-foreground"
+                            id={`${descriptionIdPrefix}-${item.value}`}
+                          >
+                            {item.description}
+                          </span>
+                        )}
+                      </span>
                     ) : (
                       <span className={cn("flex items-center gap-2", item.description && "items-start")}>
                         {item.startContent}
@@ -156,7 +194,11 @@ export const FormSelect = observer(
                           <span>{item.label}</span>
 
                           {item.description && (
-                            <span className="max-w-64 whitespace-normal text-xs text-muted-foreground">
+                            <span
+                              aria-hidden
+                              className="max-w-64 whitespace-normal text-xs text-muted-foreground"
+                              id={`${descriptionIdPrefix}-${item.value}`}
+                            >
                               {item.description}
                             </span>
                           )}
@@ -171,6 +213,8 @@ export const FormSelect = observer(
             )}
           </SelectContent>
         </Select>
+
+        {errorShown && <FormFieldError id={errorId}>{message}</FormFieldError>}
 
         {description && !hasError && <p className="text-xs text-muted-foreground">{description}</p>}
       </div>

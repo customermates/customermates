@@ -80,40 +80,34 @@ export const PUBLIC_ROUTES = [
 
 export const PROTECTED_ROUTES = [
   "/auth/mcp-consent",
-  "/company/audit-logs",
-  "/company/members",
-  "/company/roles",
-  "/company/settings",
-  "/company/subscription",
-  "/company/webhook-deliveries",
-  "/company/webhooks",
-  "/contacts",
-  "/contacts/:id",
+  "/configure",
   "/dashboard",
-  "/deals",
-  "/deals/:id",
   "/inbox",
   "/legal-update",
   "/onboarding",
   "/onboarding/join",
   "/onboarding/wizard",
+  "/open/:area/:preset",
   "/operator/audit",
   "/operator/overview",
   "/operator/users",
   "/operator/workspaces",
-  "/organizations",
-  "/organizations/:id",
-  "/profile/api-keys",
-  "/profile/connected-accounts",
-  "/profile/settings",
+  "/records/:typeId",
+  "/records/:typeId/:recordId",
   "/routines",
-  "/services",
-  "/services/:id",
+  "/settings/activity",
+  "/settings/api-keys",
+  "/settings/channels",
+  "/settings/members",
+  "/settings/billing",
+  "/settings/profile",
+  "/settings/roles",
+  "/settings/webhooks",
+  "/settings/webhook-deliveries",
   "/subscription-expired",
-  "/tasks",
-  "/tasks/:id",
   "/test/error",
   "/test/overlays",
+  "/trash",
   "/wiki",
 ] as const;
 
@@ -195,7 +189,7 @@ function decodePathname(pathname: string): string | null {
   }
 }
 
-function escapeRegExp(value: string): string {
+export function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 

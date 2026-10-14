@@ -69,13 +69,13 @@ export const heroSchema = z.object({
 });
 export type Hero = z.infer<typeof heroSchema>;
 
-export const howItWorksStepSchema = z.object({
+const howItWorksStepSchema = z.object({
   n: z.string(),
   title: z.string(),
   description: z.string(),
 });
 
-export const howItWorksSchema = z.object({
+const howItWorksSchema = z.object({
   eyebrow: z.string(),
   handoff: z.object({
     alt: z.string(),
@@ -87,12 +87,12 @@ export const howItWorksSchema = z.object({
   steps: z.array(howItWorksStepSchema),
 });
 
-export const walkthroughBulletSchema = z.object({
+const walkthroughBulletSchema = z.object({
   title: z.string(),
   description: z.string(),
 });
 
-export const walkthroughSchema = z.object({
+const walkthroughSchema = z.object({
   badge: z.string(),
   bullets: z.array(walkthroughBulletSchema),
   desktopAlt: z.string(),
@@ -102,14 +102,14 @@ export const walkthroughSchema = z.object({
 });
 export type Walkthrough = z.infer<typeof walkthroughSchema>;
 
-export const homepageFlowSchema = z.object({
+const homepageFlowSchema = z.object({
   eyebrow: z.string(),
   steps: z.array(z.object({ description: z.string(), title: z.string() })).length(3),
   title: z.string(),
 });
 export type HomepageFlow = z.infer<typeof homepageFlowSchema>;
 
-export const homepageStorySchema = z.object({
+const homepageStorySchema = z.object({
   captures: z
     .array(
       z.object({
@@ -127,7 +127,7 @@ export const homepageStorySchema = z.object({
 });
 export type HomepageStory = z.infer<typeof homepageStorySchema>;
 
-export const homepageRoutinesSchema = z.object({
+const homepageRoutinesSchema = z.object({
   alt: z.string(),
   description: z.string(),
   eyebrow: z.string(),
@@ -136,7 +136,7 @@ export const homepageRoutinesSchema = z.object({
 });
 export type HomepageRoutines = z.infer<typeof homepageRoutinesSchema>;
 
-export const homepageProductProofSchema = z.object({
+const homepageProductProofSchema = z.object({
   videoDescription: z.string(),
   videoHeading: z.string(),
   videoLabel: z.string(),
@@ -145,12 +145,10 @@ export const homepageProductProofSchema = z.object({
 });
 export type HomepageProductProof = z.infer<typeof homepageProductProofSchema>;
 
-export const pricingTitleSchema = z.object({
+const pricingTitleSchema = z.object({
   subtitle: z.string(),
   title: z.string(),
 });
-export type PricingTitle = z.infer<typeof pricingTitleSchema>;
-
 const rootMetadataSchema = z.object({
   defaultDescription: z.string(),
   defaultTitle: z.string(),

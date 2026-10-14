@@ -9,7 +9,7 @@ import type { RelationRequestResult } from "./social-posts.schema";
 
 import { z } from "zod";
 
-import { Resource, Action } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
@@ -25,7 +25,7 @@ export const CreateRelationRequestSchema = z.object({
 });
 type CreateRelationRequestData = Data<typeof CreateRelationRequestSchema>;
 
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.create })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "create" })
 export class CreateRelationRequestInteractor extends AuthenticatedInteractor<
   CreateRelationRequestData,
   RelationRequestResult

@@ -10,7 +10,7 @@ const MODEL_CALL_PATTERN =
 const PROVIDER_FACTORY_PATTERN =
   /\b(?:createOpenAI|createAnthropic|createGoogleGenerativeAI|createGateway|createProviderRegistry|customProvider|wrapProvider)\s*\(/;
 const APPROVED_MODEL_CALL_FILES = [
-  "ee/wiki-crawl/wiki-synthesis-model.ts",
+  "ee/agent-chat/structured-model-call.ts",
   "ee/wiki-retrieval/wiki-embedding-model.ts",
   "workflows/agent-turn.ts",
 ];

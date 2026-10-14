@@ -20,7 +20,6 @@ export const DOCS_RERANK_NONE = "none";
 
 export function docsRerankPlainText(value: string): string {
   return value
-    .replace(/\*\*Link:\*\*.*$/gm, "")
     .replace(/[`*_>#|]/g, " ")
     .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
     .replace(/\s+/g, " ")
@@ -34,7 +33,7 @@ export function docsRerankChoice(result: ClassifierResult | null): number | null
 }
 
 const RANK_INSTRUCTIONS: Record<RetrievalCorpus, string> = {
-  docs: "The user wrote `latest_user_message`; `agent_query` names the searched detail. First identify the requested question kind: meaning or governing facts, a procedure, navigation, or recovery. A question defining a status needs its meaning; a user reporting their own failure or problematic status needs remediation, even without an explicit how-to question. Do not invent the failure cause. Select the section whose own heading and Content directly establish the requested fact or operation, including its scope and prerequisites. A shared feature name is not enough. A reported status can be answered by the section explaining that exact status AND what to do; prefer that specific guidance over a generic recovery procedure. An error during initial setup is not an error on an already configured resource. A named client or operation needs its own applicable instructions before general troubleshooting. A request mentioning a limit needs the applicable operation's limits, rather than only what happens after any limit is reached. For permissions or record relationships, prefer their direct governing explanation over UI identifiers or a downstream consequence. Questions about seeing only one's own records are access-control questions, even without the words role or permission. For an existing record attribute, prefer its built-in location over adding a custom attribute. Distinguish changing records, workflow or settings from calculating derived quantities about them. Changing the state of an existing resource is not creating its configurable field. For an action, prefer the primary feature's procedure over an incidental mention or a client-specific setup recipe with unrequested prerequisites. For navigation, prefer that feature's dedicated destination or identifiers section and its own Link over a page overview, parent directory, secondary tab description or cross-reference. Prefer the section explaining the main page's actual controls when no dedicated navigation section exists. A feature's own creation procedure is a useful destination; a parent settings tab that merely lists it is secondary. Page context identifies scope; its title cannot make unrelated Content answer the question. If several sections repeat a fact, use the section whose own purpose most directly addresses the question kind. If none answers fully, pick the closest; choose none only if no section answers it at all.",
+  docs: "The user wrote `latest_user_message`; `agent_query` names the searched detail. First identify the requested question kind: meaning or governing facts, a procedure, navigation, or recovery. A question defining a status needs its meaning; a user reporting their own failure or problematic status needs remediation, even without an explicit how-to question. Do not invent the failure cause. Select the section whose own heading and Content directly establish the requested fact or operation, including its scope and prerequisites. A shared feature name is not enough. A reported status can be answered by the section explaining that exact status AND what to do; prefer that specific guidance over a generic recovery procedure. An error during initial setup is not an error on an already configured resource. A named client or operation needs its own applicable instructions before general troubleshooting. A request mentioning a limit needs the applicable operation's limits, rather than only what happens after any limit is reached. For permissions or record relationships, prefer their direct governing explanation over UI identifiers or a downstream consequence. Questions about seeing only one's own records are access-control questions, even without the words role or permission. For an existing record attribute, prefer its built-in location over adding a custom attribute. Distinguish changing records, workflow or settings from calculating derived quantities about them. Changing the state of an existing resource is not creating its configurable field. For an action, prefer the primary feature's procedure over an incidental mention or a client-specific setup recipe with unrequested prerequisites. For navigation, prefer that feature's dedicated destination section and its own app links over a page overview, parent directory, secondary tab description or cross-reference. Prefer the section explaining the main page's actual controls when no dedicated navigation section exists. A feature's own creation procedure is a useful destination; a parent settings tab that merely lists it is secondary. Page context identifies scope; its title cannot make unrelated Content answer the question. If several sections repeat a fact, use the section whose own purpose most directly addresses the question kind. If none answers fully, pick the closest; choose none only if no section answers it at all.",
   wiki: "The user wrote `latest_user_message` (in any language) and the assistant searched the Knowledge Base with `agent_query`. Which Knowledge Base section best answers what the user needs? If none answers it fully, pick the closest one; choose none only if no section answers it at all.",
 };
 
@@ -45,37 +44,12 @@ export function docsRankExcerpt(
   ownHeading?: string,
   context: DocsRankEvidenceContext = {},
 ): string {
-  const link = markdown.match(/^\*\*Link:\*\*([^\n]*)$/m)?.[1].split("**Mate:**")[0] ?? "";
-  const routes = link.match(/`\/[^`]+`/gu) ?? [];
-  const routeBudget = Math.min(128, Math.floor(maxChars / 3));
-  let navigation = "";
-  for (const route of routes) {
-    const proposed = navigation ? `${navigation}, ${route}` : `Link: ${route}`;
-    if (proposed.length <= routeBudget) navigation = proposed;
-  }
   const leading = markdown.match(/^#{1,6} ([^\n]*)(?:\n|$)/u);
   const body =
     leading && ownHeading && docsRerankPlainText(leading[1]) === docsRerankPlainText(ownHeading)
       ? markdown.slice(leading[0].length)
       : markdown;
-  const plainNavigation = navigation.replace(/`/gu, "");
-  const destination = docsRerankPlainText(link.replace(/`\/[^`]+`/gu, "")).replace(/^[\s,.;:]+|[\s,.;:]+$/gu, "");
-  const destinationBudget = Math.max(0, routeBudget - plainNavigation.length - " Destination: ".length);
-  const destinationLabel =
-    destination.length <= destinationBudget
-      ? destination
-      : destinationBudget > 1
-        ? `${destination.slice(0, destinationBudget - 1)}…`
-        : "";
-  const navigationEvidence =
-    plainNavigation && destinationLabel ? `${plainNavigation} Destination: ${destinationLabel}` : plainNavigation;
-  const focused = docsRankEvidence(
-    body.replace(/^\*\*Link:\*\*.*$/gm, ""),
-    query,
-    Math.max(0, maxChars - navigationEvidence.length - (navigationEvidence ? 1 : 0)),
-    context,
-  );
-  return [focused, navigationEvidence].filter(Boolean).join(" ");
+  return docsRankEvidence(body, query, maxChars, context);
 }
 
 export function docsRankSpec(

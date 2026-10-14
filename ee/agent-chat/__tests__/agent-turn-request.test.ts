@@ -147,19 +147,21 @@ describe("agent turn terminal classification", () => {
   it("accepts only renderable terminal codes and known resource names", () => {
     expect(isAgentTurnTerminalCode("completed")).toBe(true);
     expect(isAgentTurnTerminalCode("arbitrary-provider-code")).toBe(false);
-    expect(areAgentTurnAffectedResources(["contacts", "widgets"])).toBe(true);
-    expect(areAgentTurnAffectedResources(["contacts", "contacts"])).toBe(false);
-    expect(areAgentTurnAffectedResources(["contacts", "private-table"])).toBe(false);
+    expect(areAgentTurnAffectedResources(["wiki", "widgets"])).toBe(true);
+    expect(areAgentTurnAffectedResources(["wiki", "wiki"])).toBe(false);
+    expect(areAgentTurnAffectedResources(["wiki", "private-table"])).toBe(false);
   });
 
   it("accepts exactly the public terminal stop-reason contract", () => {
     expect(AGENT_TURN_STOP_REASONS).toEqual([
       "credit_limit",
+      "run_credit_limit",
       "provider_error",
       "content_filter",
       "hosted_ai_unavailable",
       "cancelled",
       "turn_error",
+      "context_limit",
       "policy_breach",
     ]);
     expect(AGENT_TURN_STOP_REASONS.every(isAgentTurnStopReason)).toBe(true);

@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import type { AgentChatStore } from "./agent-chat.store";
 
 import { observer } from "mobx-react-lite";
@@ -14,20 +15,50 @@ import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
-import { AppCard } from "@/components/card/app-card";
-import { AppCardBody } from "@/components/card/app-card-body";
-import { AppCardFooter } from "@/components/card/app-card-footer";
-import { AppCardHeader } from "@/components/card/app-card-header";
-import { AppModal } from "@/components/modal/app-modal";
+import { ConfirmDialog } from "@/components/modal/confirm-dialog";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { ItemActions, ItemActionsTrigger } from "@/components/ui/item-actions";
 import { OVERLAY_SCROLL_REGION, OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
 import { cn } from "@/core/utils/cn";
 
-import { ActionTooltip, chatUiCopy } from "./chat-ui";
+import { chatUiCopy } from "./chat-ui";
 
 function historyLocked(
   store: Pick<AgentChatStore, "isWorking" | "conversationLoadPendingId" | "historyMutationPending">,
 ) {
   return store.isWorking || Boolean(store.conversationLoadPendingId) || Boolean(store.historyMutationPending);
+}
+
+function ConversationRow({
+  label,
+  disabled,
+  triggerId,
+  menu,
+  className,
+  children,
+}: {
+  label: string;
+  disabled: boolean;
+  triggerId?: string;
+  menu: ReactNode;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <ItemActions contentClassName={OVERLAY_TOPMOST_LAYER_CLASS} label={label} menu={disabled ? undefined : menu}>
+      <div className={className} role="listitem">
+        {children}
+
+        <ItemActionsTrigger
+          contentLabelledBy={triggerId}
+          disabled={disabled}
+          id={triggerId}
+          modal={false}
+          trigger={<Button className="mr-1 size-8 shrink-0" size="icon" variant="ghost" />}
+        />
+      </div>
+    </ItemActions>
+  );
 }
 
 export const ConversationHistory = observer(function ConversationHistory() {
@@ -106,13 +137,21 @@ export const ConversationHistory = observer(function ConversationHistory() {
         {store.conversations.map((conversation) => {
           const index = store.conversations.findIndex((candidate) => candidate.id === conversation.id);
           return (
-            <div
+            <ConversationRow
               key={conversation.id}
               className={cn(
-                "group flex items-center gap-1 overflow-hidden rounded-lg border",
+                "flex items-center gap-1 overflow-hidden rounded-lg border",
                 conversation.id === store.conversationId && "bg-muted",
               )}
-              role="listitem"
+              disabled={historyActionsDisabled}
+              label={copy.moreActions(conversation.title || copy.untitled)}
+              menu={
+                <DropdownMenuItem onSelect={() => runUserAction(() => archive(conversation.id, index))}>
+                  <Archive aria-hidden className="size-4" />
+
+                  {copy.archive}
+                </DropdownMenuItem>
+              }
             >
               <Button
                 aria-current={conversation.id === store.conversationId ? "true" : undefined}
@@ -141,20 +180,7 @@ export const ConversationHistory = observer(function ConversationHistory() {
                   )}
                 </span>
               </Button>
-
-              <ActionTooltip label={copy.archive}>
-                <Button
-                  aria-label={`${copy.archive}: ${conversation.title || copy.untitled}`}
-                  className="mr-1 size-8 shrink-0 opacity-70 transition-opacity hover:opacity-100 focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
-                  disabled={historyActionsDisabled}
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => runUserAction(() => archive(conversation.id, index))}
-                >
-                  <Archive className="size-4" />
-                </Button>
-              </ActionTooltip>
-            </div>
+            </ConversationRow>
           );
         })}
       </div>
@@ -179,7 +205,7 @@ export const ConversationHistory = observer(function ConversationHistory() {
   );
 });
 
-export const ConversationHistoryStatus = observer(function ConversationHistoryStatus() {
+const ConversationHistoryStatus = observer(function ConversationHistoryStatus() {
   const { agentChatStore: store } = useRootStore();
   const copy = chatUiCopy(useTranslations());
   if (store.conversationLoadPendingId) {
@@ -229,7 +255,7 @@ export const ArchiveUndo = observer(function ArchiveUndo() {
   );
 });
 
-export const ArchivedConversationList = observer(function ArchivedConversationList() {
+const ArchivedConversationList = observer(function ArchivedConversationList() {
   const { agentChatStore: store } = useRootStore();
   const copy = chatUiCopy(useTranslations());
   const [deleteCandidate, setDeleteCandidate] = useState<AgentConversationSummary | null>(null);
@@ -282,7 +308,30 @@ export const ArchivedConversationList = observer(function ArchivedConversationLi
 
       <div className="mt-1 space-y-1" role="list">
         {conversations.map((conversation) => (
-          <div key={conversation.id} className="flex items-center gap-2 rounded-md px-2 py-1.5" role="listitem">
+          <ConversationRow
+            key={conversation.id}
+            className="flex items-center gap-2 rounded-md px-2 py-1.5"
+            disabled={historyActionsDisabled}
+            label={copy.moreActions(conversation.title || copy.untitled)}
+            menu={
+              <>
+                <DropdownMenuItem
+                  onSelect={() => runUserAction(() => store.restoreArchivedConversation(conversation.id))}
+                >
+                  <RotateCcw aria-hidden className="size-4" />
+
+                  {copy.restore}
+                </DropdownMenuItem>
+
+                <DropdownMenuItem variant="destructive" onSelect={() => setDeleteCandidate(conversation)}>
+                  <Trash2 aria-hidden className="size-4" />
+
+                  {copy.deleteChat}
+                </DropdownMenuItem>
+              </>
+            }
+            triggerId={`agent-archived-${conversation.id}`}
+          >
             <span className="min-w-0 flex-1">
               <span className="block truncate font-medium">{conversation.title || copy.untitled}</span>
 
@@ -290,34 +339,7 @@ export const ArchivedConversationList = observer(function ArchivedConversationLi
                 <span className="block truncate text-muted-foreground">{conversation.preview}</span>
               )}
             </span>
-
-            <ActionTooltip label={copy.restore}>
-              <Button
-                aria-label={`${copy.restore}: ${conversation.title || copy.untitled}`}
-                className="size-7 shrink-0"
-                disabled={historyActionsDisabled}
-                id={`agent-archived-${conversation.id}`}
-                size="icon"
-                variant="ghost"
-                onClick={() => runUserAction(() => store.restoreArchivedConversation(conversation.id))}
-              >
-                <RotateCcw className="size-3.5" />
-              </Button>
-            </ActionTooltip>
-
-            <ActionTooltip label={copy.deleteChat}>
-              <Button
-                aria-label={`${copy.deleteChat}: ${conversation.title || copy.untitled}`}
-                className="size-7 shrink-0 text-destructive hover:text-destructive"
-                disabled={historyActionsDisabled}
-                size="icon"
-                variant="ghost"
-                onClick={() => setDeleteCandidate(conversation)}
-              >
-                <Trash2 className="size-3.5" />
-              </Button>
-            </ActionTooltip>
-          </div>
+          </ConversationRow>
         ))}
 
         {store.archivedConversationNextCursor && (
@@ -336,35 +358,15 @@ export const ArchivedConversationList = observer(function ArchivedConversationLi
         )}
       </div>
 
-      <AppModal
-        layerClassName={OVERLAY_TOPMOST_LAYER_CLASS}
+      <ConfirmDialog
+        busy={deletePending}
+        confirmLabel={copy.deletePermanently}
+        description={copy.deleteChatBody}
         open={Boolean(deleteCandidate)}
-        size="sm"
         title={copy.deleteChatTitle}
-        onClose={() => !deletePending && setDeleteCandidate(null)}
-      >
-        <AppCard>
-          <AppCardHeader>
-            <h2 className="text-base font-semibold">{copy.deleteChatTitle}</h2>
-          </AppCardHeader>
-
-          <AppCardBody>
-            <p className="text-sm">{copy.deleteChatBody}</p>
-          </AppCardBody>
-
-          <AppCardFooter>
-            <Button disabled={deletePending} variant="secondary" onClick={() => setDeleteCandidate(null)}>
-              {copy.cancel}
-            </Button>
-
-            <Button disabled={deletePending} variant="destructive" onClick={() => runUserAction(deletePermanently)}>
-              {deletePending && <Loader2 className="size-3.5 animate-spin" />}
-
-              {copy.deletePermanently}
-            </Button>
-          </AppCardFooter>
-        </AppCard>
-      </AppModal>
+        onCancel={() => !deletePending && setDeleteCandidate(null)}
+        onConfirm={deletePermanently}
+      />
     </details>
   );
 });

@@ -1,5 +1,6 @@
 import type { Data } from "@/core/validation/validation.utils";
 import type { EventService } from "@/features/event/event.service";
+import type { UpdateUserDetailsRepo } from "./update-user-details.repo";
 
 import { z } from "zod";
 import type { Locale } from "@/generated/prisma";
@@ -11,6 +12,7 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { DomainEvent } from "@/features/event/domain-events";
+import { calculateChanges } from "@/core/utils/calculate-changes";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import {
   StoredDisplayLanguageSchema,
@@ -30,7 +32,7 @@ export const UpdateUserDetailsSchema = z.object({
 });
 export type UpdateUserDetailsData = Data<typeof UpdateUserDetailsSchema>;
 
-const OutputSchema = z.object({
+export const UserProfileSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
   country: z.enum(CountryCode),
@@ -39,16 +41,12 @@ const OutputSchema = z.object({
   displayLanguage: StoredDisplayLanguageSchema,
   formattingLocale: StoredFormattingLocaleSchema,
 });
-export type UserProfileData = Data<typeof OutputSchema>;
+export type UserProfileData = Data<typeof UserProfileSchema>;
 
-type StoredUserProfileData = Omit<UserProfileData, "displayLanguage" | "formattingLocale"> & {
+export type StoredUserProfileData = Omit<UserProfileData, "displayLanguage" | "formattingLocale"> & {
   displayLanguage: Locale;
   formattingLocale: Locale;
 };
-
-export abstract class UpdateUserDetailsRepo {
-  abstract updateDetails(args: UpdateUserDetailsData): Promise<StoredUserProfileData>;
-}
 
 @TenantInteractor()
 export class UpdateUserDetailsInteractor extends AuthenticatedInteractor<UpdateUserDetailsData, UserProfileData> {
@@ -61,8 +59,9 @@ export class UpdateUserDetailsInteractor extends AuthenticatedInteractor<UpdateU
 
   @Validate(UpdateUserDetailsSchema)
   @Transaction
-  @ValidateOutput(OutputSchema)
+  @ValidateOutput(UserProfileSchema)
   async invoke(data: UpdateUserDetailsData): Validated<UserProfileData> {
+    const previous = { firstName: this.user.firstName, lastName: this.user.lastName, country: this.user.country };
     const storedProfile = await this.repo.updateDetails(data);
     const profile = {
       ...storedProfile,
@@ -70,15 +69,13 @@ export class UpdateUserDetailsInteractor extends AuthenticatedInteractor<UpdateU
       formattingLocale: normalizeStoredFormattingLocale(storedProfile.formattingLocale),
     };
 
-    await this.eventService.publish(DomainEvent.USER_UPDATED, {
-      entityId: this.userId,
-      payload: {
-        firstName: profile.firstName,
-        lastName: profile.lastName,
-        country: profile.country,
-        avatarUrl: profile.avatarUrl,
-      },
+    const changes = calculateChanges(previous, {
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      country: profile.country,
     });
+    if (Object.keys(changes).length)
+      await this.eventService.publish(DomainEvent.USER_UPDATED, { entityId: this.userId, payload: { changes } });
 
     return { ok: true as const, data: profile };
   }

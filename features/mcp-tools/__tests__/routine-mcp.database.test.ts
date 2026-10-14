@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 
 import { createTranslator } from "next-intl";
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
@@ -9,7 +9,14 @@ import messages from "@/i18n/locales/en.json";
 
 vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
-  getTranslations: () => Promise.resolve(createTranslator({ locale: "en", messages })),
+  getTranslations: (namespace?: string) =>
+    Promise.resolve(
+      createTranslator({
+        locale: "en",
+        messages,
+        namespace: namespace as never,
+      }),
+    ),
 }));
 vi.mock("@/env", () => ({
   env: {
@@ -43,7 +50,9 @@ await import("@/core/di");
 const { manageRoutinesTool } = await import("../routine.mcp-tools");
 const { mcpToolResultText } = await import("../mcp-tool");
 const { prisma } = await import("@/prisma/db");
-const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
+const { runWithoutTenant, runWithTenant } = await import("@/core/decorators/tenant-context");
+const { getStartRoutineRunInteractor } = await import("@/core/di");
+const { env } = await import("@/env");
 
 const company = randomUUID();
 const user = randomUUID();
@@ -56,10 +65,20 @@ type ToolResult = { structuredContent?: Record<string, unknown> };
 
 async function run(params: Record<string, unknown>) {
   const result = await manageRoutinesTool.execute(manageRoutinesTool.inputSchema.parse(params));
-  return { text: mcpToolResultText(result), structured: (result as ToolResult).structuredContent ?? {} };
+  return {
+    text: mcpToolResultText(result),
+    structured: (result as ToolResult).structuredContent ?? {},
+  };
 }
 
 describeDatabase("manage_routines against a real database", { timeout: 120_000 }, () => {
+  afterEach(() => {
+    Object.assign(env, {
+      HOSTED_AI_OPERATOR_CONTROLS_ENABLED: false,
+      HOSTED_AI_PROVIDER_WORK_PAUSED: false,
+    });
+  });
+
   beforeAll(async () => {
     await runWithoutTenant(async () => {
       await prisma.company.create({ data: { id: company } });
@@ -67,7 +86,13 @@ describeDatabase("manage_routines against a real database", { timeout: 120_000 }
         data: { companyId: company, status: "active", plan: "enterprise" },
       });
       await prisma.userRole.create({
-        data: { id: role, companyId: company, name: "Admin", description: "Full access", isSystemRole: true },
+        data: {
+          id: role,
+          companyId: company,
+          name: "Admin",
+          description: "Full access",
+          isSystemRole: true,
+        },
       });
       await prisma.user.create({
         data: {
@@ -107,26 +132,148 @@ describeDatabase("manage_routines against a real database", { timeout: 120_000 }
     const id = created.structured.id as string;
 
     expect(id).toEqual(expect.any(String));
-    expect(created.structured).toMatchObject({ name: "MCP probe routine", enabled: false });
+    expect(created.structured).toMatchObject({
+      name: "MCP probe routine",
+      enabled: false,
+    });
 
     const listed = await run({ action: "list" });
     expect(listed.text).toContain("MCP probe routine");
+    expect((listed.structured.items as Array<Record<string, unknown>>)[0]).not.toHaveProperty("prompt");
+    const mine = await run({ action: "list", owner: "mine" });
+    expect(mine.text).toContain("MCP probe routine");
+    const full = await run({ action: "list", includePrompts: true });
+    expect((full.structured.items as Array<Record<string, unknown>>)[0]).toHaveProperty(
+      "prompt",
+      "Summarise the open pipeline. Change nothing.",
+    );
 
-    const renamed = await run({ action: "update", id, name: "MCP probe renamed" });
+    const renamed = await run({
+      action: "update",
+      id,
+      name: "MCP probe renamed",
+    });
     expect(renamed.structured).toMatchObject({ name: "MCP probe renamed" });
 
     const runs = await run({ action: "runs", id });
     expect(runs.structured).toMatchObject({ nextCursor: null });
 
     const deleted = await run({ action: "delete", id });
-    expect(deleted.structured).toMatchObject({ deleted: true, id });
+    expect(deleted.structured).toMatchObject({
+      deleted: true,
+      id,
+      trashBatchId: expect.any(String),
+    });
 
-    const gone = await runWithoutTenant(() => prisma.routine.findUnique({ where: { id }, select: { id: true } }));
-    expect(gone).toBeNull();
+    const trashed = await runWithoutTenant(() =>
+      prisma.routine.findUnique({
+        where: { id },
+        select: { deletedAt: true },
+      }),
+    );
+    expect(trashed?.deletedAt).toBeInstanceOf(Date);
+    expect((await run({ action: "list" })).text).not.toContain("MCP probe renamed");
+  });
+
+  it("lists the caller's routines with mine without Users read access", async () => {
+    const created = await run({
+      action: "create",
+      name: "Own private routine",
+      prompt: "Summarise the pipeline.",
+      triggerKind: "schedule",
+      cronExpression: "0 9 * * 1",
+      timezone: "Europe/Berlin",
+      enabled: false,
+    });
+    const id = created.structured.id as string;
+    const role = tenantUser.role;
+    if (!role) throw new Error("Routine owner has no role");
+    const restricted = createMockUser({
+      ...tenantUser,
+      role: {
+        ...role,
+        isSystemRole: false,
+        permissions: [
+          { id: randomUUID(), resource: "api", action: "readAll" },
+          { id: randomUUID(), resource: "routines", action: "readOwn" },
+        ],
+      },
+    });
+    const ordinary = await runWithTenant(restricted, () => run({ action: "list" }));
+    const mine = await runWithTenant(restricted, () => run({ action: "list", owner: "mine" }));
+    expect(ordinary.structured.items).toEqual(expect.arrayContaining([expect.objectContaining({ id })]));
+    expect(mine.structured.items).toEqual(expect.arrayContaining([expect.objectContaining({ id })]));
+  });
+
+  it("returns the paused reason on run_now and stores it on a queued run blocked at start", async () => {
+    const created = await run({
+      action: "create",
+      name: "Paused AI routine",
+      prompt: "Summarise the open pipeline. Change nothing.",
+      triggerKind: "schedule",
+      cronExpression: "0 9 * * 1",
+      timezone: "Europe/Berlin",
+      enabled: true,
+    });
+    const id = created.structured.id as string;
+    Object.assign(env, {
+      HOSTED_AI_OPERATOR_CONTROLS_ENABLED: true,
+      HOSTED_AI_PROVIDER_WORK_PAUSED: true,
+    });
+
+    const refused = await run({ action: "run_now", id });
+    expect(refused.structured).not.toMatchObject({ started: true });
+    expect(refused.text).toContain(messages.Common.errors.routineAiWorkPaused);
+    expect(
+      await runWithoutTenant(() =>
+        prisma.routineRun.count({
+          where: { companyId: company, routineId: id },
+        }),
+      ),
+    ).toBe(0);
+
+    const queuedId = randomUUID();
+    await runWithoutTenant(() =>
+      prisma.routineRun.create({
+        data: {
+          id: queuedId,
+          companyId: company,
+          routineId: id,
+          executedByUserId: user,
+          executedByName: "Routine Tester",
+          status: "queued",
+          triggerKind: "schedule",
+          scheduledFor: new Date(),
+        },
+      }),
+    );
+
+    expect(await getStartRoutineRunInteractor().invoke({ routineRunId: queuedId })).toEqual({
+      ok: true,
+      data: { started: false, reason: "platformPaused" },
+    });
+    expect(
+      await runWithoutTenant(() =>
+        prisma.routineRun.findUnique({
+          where: { id: queuedId },
+          select: { status: true, error: true },
+        }),
+      ),
+    ).toMatchObject({ status: "blocked", error: "platformPaused" });
+    const runs = await run({ action: "runs", id });
+    expect(runs.structured.items).toEqual(
+      expect.arrayContaining([expect.objectContaining({ id: queuedId, error: "platformPaused" })]),
+    );
+
+    Object.assign(env, {
+      HOSTED_AI_OPERATOR_CONTROLS_ENABLED: false,
+      HOSTED_AI_PROVIDER_WORK_PAUSED: false,
+    });
+    await run({ action: "delete", id });
   });
 
   it("leaves an audit row for every routine change made through the tool", async () => {
-    await runWithoutTenant(() => prisma.auditLog.deleteMany({ where: { companyId: company } }));
+    await runWithoutTenant(() => prisma.eventLog.deleteMany({ where: { companyId: company } }));
 
     const created = await run({
       action: "create",
@@ -142,14 +289,19 @@ describeDatabase("manage_routines against a real database", { timeout: 120_000 }
     await run({ action: "update", id, name: "MCP audit probe renamed" });
     await run({ action: "delete", id });
 
-    const rows = await runWithoutTenant(() => prisma.auditLog.findMany({ where: { companyId: company } }));
-    const events = rows.map((row) => row.event);
+    const rows = await runWithoutTenant(() => prisma.eventLog.findMany({ where: { companyId: company } }));
+    const events = rows.map((row) => row.kind);
 
     expect(events).toHaveLength(3);
     expect(new Set(events)).toEqual(new Set(["routine.created", "routine.updated", "routine.deleted"]));
-    expect(rows.every((row) => row.userId === user && row.entityId === id)).toBe(true);
-    expect(rows.find((row) => row.event === "routine.updated")?.eventData).toMatchObject({
-      payload: { changes: { name: { previous: "MCP audit probe", current: "MCP audit probe renamed" } } },
+    expect(rows.every((row) => row.actorId === user && row.subjectId === id)).toBe(true);
+    expect(rows.find((row) => row.kind === "routine.updated")?.payload).toMatchObject({
+      changes: {
+        name: {
+          previous: "MCP audit probe",
+          current: "MCP audit probe renamed",
+        },
+      },
     });
   });
 
@@ -168,7 +320,11 @@ describeDatabase("manage_routines against a real database", { timeout: 120_000 }
   });
 
   it("rejects an update without an id instead of creating a new routine", async () => {
-    const before = await runWithoutTenant(() => prisma.routine.count({ where: { companyId: company } }));
+    const before = await runWithoutTenant(() =>
+      prisma.routine.count({
+        where: { companyId: company, name: "MCP too frequent" },
+      }),
+    );
     const result = await run({
       action: "update",
       name: "Must not be created",
@@ -180,7 +336,13 @@ describeDatabase("manage_routines against a real database", { timeout: 120_000 }
     });
 
     expect(result.structured).not.toHaveProperty("id");
-    expect(await runWithoutTenant(() => prisma.routine.count({ where: { companyId: company } }))).toBe(before);
+    expect(
+      await runWithoutTenant(() =>
+        prisma.routine.count({
+          where: { companyId: company, name: "MCP too frequent" },
+        }),
+      ),
+    ).toBe(before);
   });
 
   it("refuses a schedule tighter than the interval floor", async () => {
@@ -195,7 +357,13 @@ describeDatabase("manage_routines against a real database", { timeout: 120_000 }
     });
 
     expect(result.text.toLowerCase()).toContain("minute");
-    expect(await runWithoutTenant(() => prisma.routine.count({ where: { companyId: company } }))).toBe(0);
+    expect(
+      await runWithoutTenant(() =>
+        prisma.routine.count({
+          where: { companyId: company, name: "MCP too frequent" },
+        }),
+      ),
+    ).toBe(0);
   });
 
   it("refuses to delete for a caller who is not an active system administrator", async () => {
@@ -210,9 +378,19 @@ describeDatabase("manage_routines against a real database", { timeout: 120_000 }
     });
     const id = created.structured.id as string;
 
-    await runWithoutTenant(() => prisma.userRole.update({ where: { id: role }, data: { isSystemRole: false } }));
+    await runWithoutTenant(() =>
+      prisma.userRole.update({
+        where: { id: role },
+        data: { isSystemRole: false },
+      }),
+    );
     const refused = await run({ action: "delete", id });
-    await runWithoutTenant(() => prisma.userRole.update({ where: { id: role }, data: { isSystemRole: true } }));
+    await runWithoutTenant(() =>
+      prisma.userRole.update({
+        where: { id: role },
+        data: { isSystemRole: true },
+      }),
+    );
 
     expect(refused.structured).not.toMatchObject({ deleted: true });
     expect(await runWithoutTenant(() => prisma.routine.count({ where: { id } }))).toBe(1);

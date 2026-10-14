@@ -1,7 +1,7 @@
 import type { AuthService } from "@/features/auth/auth.service";
 
 import { z } from "zod";
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -19,7 +19,7 @@ export const ApiKeyDtoSchema = z.object({
 export type ApiKey = z.infer<typeof ApiKeyDtoSchema>;
 
 @AllowInDemoMode
-@TenantInteractor({ resource: Resource.api, action: Action.readAll })
+@TenantInteractor({ resource: Resource.api, read: "all" })
 export class GetApiKeysInteractor extends AuthenticatedInteractor<void, ApiKey[]> {
   constructor(private readonly authService: AuthService) {
     super();

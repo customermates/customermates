@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useIsTruncated } from "@/core/utils/use-is-truncated";
 import { cn } from "@/core/utils/cn";
 
@@ -26,12 +26,10 @@ export function TruncatedText({ children, className, suppressHydrationWarning }:
   );
 
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>{content}</TooltipTrigger>
+    <Tooltip>
+      <TooltipTrigger asChild>{content}</TooltipTrigger>
 
-        {isTruncated ? <TooltipContent className="max-w-xs">{children}</TooltipContent> : null}
-      </Tooltip>
-    </TooltipProvider>
+      {isTruncated ? <TooltipContent className="max-w-xs">{children}</TooltipContent> : null}
+    </Tooltip>
   );
 }

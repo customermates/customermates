@@ -3,8 +3,6 @@ import { describe, expect, it, vi } from "vitest";
 import type { GetResult } from "../base-get.interactor";
 import type { RootStore } from "@/core/stores/root.store";
 
-import { EntityType } from "@/generated/prisma";
-
 import { BaseDataViewStore } from "../base-data-view.store";
 
 vi.mock("@/app/actions", () => ({
@@ -31,14 +29,18 @@ function makeStore(ids: string[], total: number) {
   const pageSize = 25;
   const rootStore = {
     localeStore: { getTranslation: (key: string) => key },
-    activityTimelines: { refreshForMany: vi.fn() },
     userStore: { user: {}, can: () => true, canManage: () => true },
   } as unknown as RootStore;
-  const store = new TestStore(rootStore, undefined, EntityType.contact);
+  const store = new TestStore(rootStore);
 
   store.setItems({
     items: ids.map((id) => ({ id })),
-    pagination: { page: 1, pageSize, total, totalPages: Math.max(1, Math.ceil(total / pageSize)) },
+    pagination: {
+      page: 1,
+      pageSize,
+      total,
+      totalPages: Math.max(1, Math.ceil(total / pageSize)),
+    },
   });
 
   return store;

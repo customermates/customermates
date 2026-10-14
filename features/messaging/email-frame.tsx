@@ -1,11 +1,16 @@
 "use client";
 
+import type { EmailFramePalette } from "./email-frame-theme";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 
 import DOMPurify from "dompurify";
 
+import { sanitizeEmailFrameResources } from "./email-frame-resources";
+import { emailFrameThemeCss, emailFrameTone, readEmailFramePalette } from "./email-frame-theme";
+import { cn } from "@/core/utils/cn";
 import { HTML_QUOTE_HIDE_CSS, htmlContainsQuote } from "@/ee/messaging/email-quote";
 
 type Props = {
@@ -31,7 +36,9 @@ const FRAME_CSS = `
 `;
 
 const MIN_FRAME_HEIGHT = 96;
+const MIN_THEMED_FRAME_HEIGHT = 32;
 const MAX_FRAME_HEIGHT = 640;
+const ADAPTIVE_SCHEME_META = '<meta name="color-scheme" content="light dark">';
 
 function frameDocumentHeight(iframe: HTMLIFrameElement, minimumHeight: number): number {
   const document = iframe.contentDocument;
@@ -44,41 +51,45 @@ export function EmailFrame({ html, showRemoteImages = false, presentation = "ema
   const frameRef = useRef<HTMLIFrameElement>(null);
   const [mounted, setMounted] = useState(false);
   const [showQuoted, setShowQuoted] = useState(false);
-  const [foreground, setForeground] = useState("#1a1a1a");
+  const [palette, setPalette] = useState<EmailFramePalette | null>(null);
   const { resolvedTheme } = useTheme();
   const t = useTranslations();
   const isComposer = presentation === "composer";
-  const minimumHeight = isComposer ? 24 : MIN_FRAME_HEIGHT;
+  const scheme = resolvedTheme === "dark" ? "dark" : "light";
+  const foreground = palette?.foreground ?? "#1a1a1a";
 
   useEffect(() => setMounted(true), []);
 
   useEffect(() => {
-    if (!isComposer) return;
-    const updateForeground = () => {
-      const color = getComputedStyle(document.documentElement).getPropertyValue("--foreground").trim();
-      if (color) setForeground(color);
-    };
-    updateForeground();
-    const observer = new MutationObserver(updateForeground);
+    const updatePalette = () => setPalette(readEmailFramePalette());
+    updatePalette();
+    const observer = new MutationObserver(updatePalette);
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class", "style"],
     });
     return () => observer.disconnect();
-  }, [isComposer, resolvedTheme]);
+  }, [resolvedTheme]);
+
+  const tone = useMemo(() => (mounted && !isComposer ? emailFrameTone(html) : "own"), [html, mounted, isComposer]);
+  const onPaper = tone === "paper" && !isComposer;
+  const minimumHeight = isComposer ? 24 : onPaper ? MIN_FRAME_HEIGHT : MIN_THEMED_FRAME_HEIGHT;
 
   const { srcDoc, hasQuote } = useMemo(() => {
     const sanitized = mounted
       ? DOMPurify.sanitize(html, { WHOLE_DOCUMENT: true, RETURN_DOM: true, ADD_ATTR: ["text"] })
       : undefined;
     const sanitizedRoot = sanitized && sanitized instanceof HTMLElement ? sanitized : undefined;
+    if (sanitizedRoot) sanitizeEmailFrameResources(sanitizedRoot, showRemoteImages, document.baseURI);
     const containsQuote = mounted && htmlContainsQuote(sanitizedRoot?.outerHTML ?? "");
     const csp = `default-src 'none'; style-src 'unsafe-inline'; font-src data:; img-src data:${showRemoteImages ? " https:" : ""};`;
     const quoteCss = containsQuote && !showQuoted ? `<style>${HTML_QUOTE_HIDE_CSS}</style>` : "";
     const composerCss = isComposer
-      ? `<style>html { color-scheme: ${resolvedTheme === "dark" ? "dark" : "light"}; background: transparent; } body { padding: 0; background: transparent; } body, table, td, [data-customermates-email-markdown] { color: ${foreground} !important; } body > :last-child { margin-bottom: 0 !important; }</style>`
+      ? `<style>html { color-scheme: ${scheme}; background: transparent; } body { padding: 0; background: transparent; } body, table, td, [data-customermates-email-markdown] { color: ${foreground} !important; } body > :last-child { margin-bottom: 0 !important; }</style>`
       : "";
-    const headContent = `<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${csp}"><base target="_blank"><style>${FRAME_CSS}</style>${composerCss}${quoteCss}`;
+    const themeCss = !isComposer && palette ? emailFrameThemeCss(tone, scheme, palette) : "";
+    const toneHead = themeCss ? `${tone === "adaptive" ? ADAPTIVE_SCHEME_META : ""}<style>${themeCss}</style>` : "";
+    const headContent = `<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${csp}"><base target="_blank"><style>${FRAME_CSS}</style>${toneHead}${composerCss}${quoteCss}`;
     const head = sanitizedRoot?.querySelector("head");
     let frameHtml = `<html><head>${headContent}</head><body></body></html>`;
     if (sanitizedRoot && head) {
@@ -89,7 +100,7 @@ export function EmailFrame({ html, showRemoteImages = false, presentation = "ema
       srcDoc: `<!doctype html>${frameHtml}`,
       hasQuote: containsQuote,
     };
-  }, [html, showRemoteImages, mounted, showQuoted, isComposer, foreground, resolvedTheme]);
+  }, [html, showRemoteImages, mounted, showQuoted, isComposer, foreground, scheme, tone, palette]);
 
   useEffect(() => {
     const frame = frameRef.current;
@@ -114,20 +125,30 @@ export function EmailFrame({ html, showRemoteImages = false, presentation = "ema
     };
   }, [srcDoc, minimumHeight]);
 
+  const frame = (
+    <iframe
+      key={srcDoc}
+      ref={frameRef}
+      className={cn("block w-full", onPaper ? "bg-white" : "text-foreground bg-transparent")}
+      data-email-tone={isComposer ? undefined : tone}
+      sandbox="allow-same-origin"
+      srcDoc={srcDoc}
+      style={{
+        colorScheme: isComposer ? undefined : onPaper ? "light" : scheme,
+        height: `${minimumHeight}px`,
+        minHeight: `${minimumHeight}px`,
+      }}
+      title={t("Inbox.compose.emailContent")}
+    />
+  );
+
   return (
     <>
-      <iframe
-        key={srcDoc}
-        ref={frameRef}
-        className={isComposer ? "text-foreground block w-full bg-transparent" : "block w-full bg-white"}
-        sandbox="allow-same-origin"
-        srcDoc={srcDoc}
-        style={{
-          height: `${minimumHeight}px`,
-          minHeight: `${minimumHeight}px`,
-        }}
-        title={t("Inbox.compose.emailContent")}
-      />
+      {onPaper ? (
+        <div className="border-border mx-2.5 mt-2 mb-2.5 overflow-hidden rounded-lg border bg-white">{frame}</div>
+      ) : (
+        frame
+      )}
 
       {hasQuote && (
         <button

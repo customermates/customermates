@@ -11,7 +11,7 @@ vi.mock("mobx-react-lite", () => ({
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
-vi.mock("@/components/entity-detail/hooks/use-entity-drawer-stack", () => ({
+vi.mock("@/components/shared/use-navigate-to-href", () => ({
   useNavigateToHref: () => vi.fn(),
 }));
 vi.mock("../header/display-options", () => ({
@@ -22,7 +22,7 @@ vi.mock("../group-label", () => ({
   visibleGroups: () => [],
 }));
 vi.mock("../header/filter-popover", () => ({ FilterPopover: () => null }));
-vi.mock("../header/search", () => ({ DataViewSearch: () => null }));
+vi.mock("../views/use-view-ai", () => ({ useViewAi: () => ({ available: false, openCurrent: vi.fn() }) }));
 
 import { DataTable } from "../data-table";
 import { DataViewToolbar } from "../data-view-toolbar";
@@ -79,7 +79,6 @@ describe("data-view action accessibility", () => {
     const html = renderToStaticMarkup(
       createElement(DataViewToolbar<Item>, {
         addLabel: "Add routine",
-        isSearchable: false,
         onAdd: vi.fn(),
         showDisplayOptions: false,
         store: store(),

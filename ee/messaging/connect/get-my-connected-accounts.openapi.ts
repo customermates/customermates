@@ -2,7 +2,7 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 
 import { z } from "zod";
 
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses } from "@/core/api/structured-interactor-handler";
 import { ConnectedAccountDtoSchema } from "@/ee/messaging/messaging.schema";
 
 export const getConnectedAccountsOperation: ZodOpenApiOperationObject = {

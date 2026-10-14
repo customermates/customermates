@@ -3,7 +3,11 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 import { z } from "zod";
 
 import { StartChatInputSchema } from "@/ee/messaging/outbound/start-chat.interactor";
-import { CommonApiResponses, MessagingProviderApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
+import {
+  CommonApiResponses,
+  MessagingProviderApiResponses,
+  NotFoundApiResponse,
+} from "@/core/api/structured-interactor-handler";
 
 export const startChatOperation: ZodOpenApiOperationObject = {
   operationId: "startChat",

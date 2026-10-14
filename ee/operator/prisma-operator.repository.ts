@@ -1,11 +1,13 @@
+import { presetId } from "@/features/records/crm-preset";
+import type { OperatorWriteOwners } from "./operator-write-owners";
 import type { Prisma } from "@/generated/prisma";
-import { ConnectedAccountStatus, Status, SubscriptionPlan, SubscriptionStatus, TaskType } from "@/generated/prisma";
+import { ConnectedAccountStatus, Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { getOperatorActor } from "@/core/decorators/operator-context";
-import { BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
+import { BULK_WRITE_TRANSACTION } from "@/core/decorators/transaction.decorator";
 import {
   agentCreditsToMicrocents,
   agentMicrocentsFromStorage,
@@ -24,23 +26,23 @@ import {
   type CorrectOperatorSubscriptionSnapshotData,
   type CreateAgentCreditAdjustmentData,
   type DeleteOperatorWorkspaceData,
-  type UpdateOperatorSubscriptionTermsData,
-  type GetOperatorWorkspaceStatsData,
-  type OperatorWorkspaceStatsDto,
   type DeleteOperatorWorkspaceResultDto,
+  type GetOperatorWorkspaceStatsData,
   type HostedAiOperatorCompanyDto,
   type HostedAiOperatorOverviewDto,
   type HostedAiUsageTotalsDto,
   type OperatorUserCreditPeriodDto,
   type OperatorUserDetailDto,
   type OperatorUserSummaryDto,
+  type OperatorWorkspaceStatsDto,
+  type OperatorWorkspaceTagsDto,
   type ResetOperatorUserCreditsData,
   type ResetOperatorUserCreditsResultDto,
   type UpdateHostedAiEnterpriseAllowanceData,
+  type UpdateOperatorSubscriptionTermsData,
   type UpdateOperatorUserPlatformAccessData,
   type UpdateOperatorUserStatusData,
   type UpdateOperatorWorkspaceTagsData,
-  type OperatorWorkspaceTagsDto,
 } from "./operator.schema";
 
 function workspaceLabelFor(companyId: string, members: { email: string }[]): string {
@@ -212,8 +214,11 @@ function toUsageTotals(input: {
 
 const PLATFORM_OPERATOR_INVARIANT_LOCK = "customermates:platform-operator-invariant";
 
-export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
-  constructor(private readonly agentRepo: AgentUsageRepo) {
+export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo {
+  constructor(
+    private readonly agentRepo: AgentUsageRepo,
+    private readonly owners: OperatorWriteOwners,
+  ) {
     super();
   }
 
@@ -692,24 +697,45 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           if (otherActiveSystemUsers === 0) return "conflict";
         }
 
-        const enteringActive = target.status !== Status.active && data.status === Status.active;
-        await this.prisma.user.update({
-          where: { id: data.userId, companyId },
-          data: {
-            status: data.status,
-            ...(enteringActive ? { agentCreditActivatedAt: now } : {}),
-            ...(leavingActive ? { agentCreditActivatedAt: null } : {}),
-          },
-        });
-        if (target.status === Status.pendingAuthorization && data.status !== Status.pendingAuthorization) {
-          await this.prisma.task.deleteMany({
-            where: {
-              companyId,
-              relatedUserId: data.userId,
-              type: TaskType.userPendingAuthorization,
-            },
-          });
+        const leavingPending =
+          target.status === Status.pendingAuthorization && data.status !== Status.pendingAuthorization;
+        const protectedTasks = leavingPending
+          ? await this.prisma.crmRecord.findMany({
+              where: {
+                companyId,
+                protectedKind: "membershipAuthorization",
+                systemData: { path: ["relatedUserId"], equals: data.userId },
+              },
+              select: { id: true, typeId: true },
+            })
+          : [];
+        if (protectedTasks.length) {
+          const [state, linked] = await Promise.all([
+            this.prisma.recordSchemaState.findUnique({ where: { companyId }, select: { activeOperationId: true } }),
+            this.prisma.recordLink.findFirst({
+              where: {
+                companyId,
+                deletedAt: null,
+                OR: protectedTasks.flatMap((task) => [
+                  { sourceTypeId: task.typeId, sourceId: task.id },
+                  { targetTypeId: task.typeId, targetId: task.id },
+                ]),
+              },
+              select: { id: true },
+            }),
+          ]);
+          if (state?.activeOperationId || linked) return "conflict";
         }
+
+        const enteringActive = target.status !== Status.active && data.status === Status.active;
+        await this.owners.users.setOperatorStatusCompanyWide(
+          companyId,
+          data.userId,
+          data.status,
+          enteringActive ? now : leavingActive ? null : undefined,
+        );
+        if (leavingPending && protectedTasks.length)
+          await this.owners.records.deleteMembershipAuthorizationTasksCompanyWide(companyId, data.userId);
         await this.createAudit({
           action: OPERATOR_AUDIT_ACTION.userStatusUpdate,
           targetCompanyId: companyId,
@@ -771,10 +797,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           if ((await this.otherActiveOperatorCount(data.userId)) === 0) return "conflict";
         }
 
-        await this.prisma.user.update({
-          where: { id: data.userId, companyId },
-          data: { isPlatformOperator: data.isPlatformOperator },
-        });
+        await this.owners.users.setPlatformOperatorCompanyWide(companyId, data.userId, data.isPlatformOperator);
         await this.createAudit({
           action: OPERATOR_AUDIT_ACTION.userPlatformAccessUpdate,
           targetCompanyId: companyId,
@@ -824,10 +847,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         };
         const billingProviderManaged = subscription.lemonSqueezyId !== null;
 
-        await this.prisma.subscription.update({
-          where: { companyId },
-          data: next,
-        });
+        await this.owners.companies.correctSubscriptionSnapshotUnscoped(companyId, next);
         await this.createAudit({
           action: OPERATOR_AUDIT_ACTION.subscriptionSnapshotCorrect,
           targetCompanyId: companyId,
@@ -860,10 +880,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         if (!subscription) return "notFound";
         if (subscription.plan !== SubscriptionPlan.enterprise) return "conflict";
 
-        await this.prisma.subscription.update({
-          where: { companyId: data.companyId },
-          data: { enterpriseAgentCreditsPerUser: data.creditsPerUser },
-        });
+        await this.owners.companies.setEnterpriseAgentCreditsUnscoped(data.companyId, data.creditsPerUser);
         await this.createAudit({
           action: OPERATOR_AUDIT_ACTION.enterpriseAllowanceUpdate,
           targetCompanyId: data.companyId,
@@ -1138,27 +1155,17 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         const memberIds = company.users.map((member) => member.id);
         const memberEmails = company.users.map((member) => member.email);
 
-        await this.prisma.inviteToken.deleteMany({
-          where: { createdById: { in: memberIds } },
-        });
+        await this.owners.companies.deleteInviteTokensByCreatorsUnscoped(memberIds);
 
         const identities = await this.prisma.authUser.findMany({
           where: { email: { in: memberEmails, mode: "insensitive" } },
           select: { id: true },
         });
         const identityIds = identities.map((identity) => identity.id);
-        await this.prisma.apikey.deleteMany({
-          where: { referenceId: { in: identityIds } },
-        });
-        await this.prisma.authVerification.deleteMany({
-          where: { identifier: { in: memberEmails, mode: "insensitive" } },
-        });
-        await this.prisma.authUser.deleteMany({
-          where: { id: { in: identityIds } },
-        });
-        await this.prisma.messagingInboundEvent.deleteMany({
-          where: { companyId: data.companyId },
-        });
+        await this.owners.identities.deleteApiKeysForIdentities(identityIds);
+        await this.owners.identities.deleteVerificationsForEmails(memberEmails);
+        await this.owners.users.deleteAuthIdentitiesUnscoped(identityIds);
+        await this.owners.inboundEvents.deleteCompanyInboundEventsUnscoped(data.companyId);
 
         const [workflowSchema] = await this.prisma.$queryRaw<Array<{ installed: boolean }>>`
           SELECT to_regclass('workflow.workflow_runs') IS NOT NULL AS installed
@@ -1186,11 +1193,10 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           }
         }
 
-        await this.prisma.company.delete({ where: { id: data.companyId } });
-        const clearedAuthIdentityCompanies = await this.prisma.authUser.updateMany({
-          where: { companyId: data.companyId },
-          data: { companyId: null },
-        });
+        await this.owners.companies.deleteCompanyUnscoped(data.companyId);
+        const clearedAuthIdentityCompanies = await this.owners.users.detachAuthIdentitiesFromCompanyUnscoped(
+          data.companyId,
+        );
 
         await this.createAudit({
           action: OPERATOR_AUDIT_ACTION.workspaceDelete,
@@ -1200,7 +1206,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
             workspaceLabel,
             deletedMemberCount: memberIds.length,
             deletedAuthIdentityCount: identityIds.length,
-            clearedAuthIdentityCompanyCount: clearedAuthIdentityCompanies.count,
+            clearedAuthIdentityCompanyCount: clearedAuthIdentityCompanies,
             deletedWorkflowRunCount: workflowRunIds.length,
             plan: company.subscription?.plan ?? null,
             subscriptionStatus: company.subscription?.status ?? null,
@@ -1245,13 +1251,9 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
           lemonSqueezyId: data.lemonSqueezyId,
         };
 
-        await this.prisma.subscription.update({
-          where: { companyId: data.companyId },
-          data: {
-            trialEndDate,
-            lemonSqueezyId: data.lemonSqueezyId,
-            ...(data.lemonSqueezyId === null ? { lemonSqueezyVariantId: null } : {}),
-          },
+        await this.owners.companies.setSubscriptionTermsUnscoped(data.companyId, {
+          trialEndDate,
+          lemonSqueezyId: data.lemonSqueezyId,
         });
         await this.createAudit({
           action: OPERATOR_AUDIT_ACTION.subscriptionTermsUpdate,
@@ -1298,17 +1300,17 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
       }>
     >`
       SELECT
-        (SELECT COUNT(*) FROM "Contact" WHERE "companyId" = ${data.companyId})::int AS "contacts",
-        (SELECT COUNT(*) FROM "Organization" WHERE "companyId" = ${data.companyId})::int AS "organizations",
-        (SELECT COUNT(*) FROM "Deal" WHERE "companyId" = ${data.companyId})::int AS "deals",
-        (SELECT COUNT(*) FROM "Service" WHERE "companyId" = ${data.companyId})::int AS "services",
-        (SELECT COUNT(*) FROM "Task" WHERE "companyId" = ${data.companyId})::int AS "tasks",
+        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "deletedAt" IS NULL AND "typeId" = ${presetId(data.companyId, "contact")})::int AS "contacts",
+        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "deletedAt" IS NULL AND "typeId" = ${presetId(data.companyId, "organization")})::int AS "organizations",
+        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "deletedAt" IS NULL AND "typeId" = ${presetId(data.companyId, "deal")})::int AS "deals",
+        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "deletedAt" IS NULL AND "typeId" = ${presetId(data.companyId, "service")})::int AS "services",
+        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "deletedAt" IS NULL AND "typeId" = ${presetId(data.companyId, "task")})::int AS "tasks",
         (SELECT COUNT(*) FROM "MessagingThread" WHERE "companyId" = ${data.companyId})::int AS "messagingThreads",
         (SELECT COUNT(*) FROM "MessagingMessage" WHERE "companyId" = ${data.companyId})::int AS "messagingMessages",
         (SELECT COUNT(*) FROM "AgentConversation" WHERE "companyId" = ${data.companyId})::int AS "agentConversations",
         (SELECT COUNT(*) FROM "ConnectedAccount" WHERE "companyId" = ${data.companyId})::int AS "connectedAccounts",
         (SELECT MAX("lastActiveAt") FROM "User" WHERE "companyId" = ${data.companyId}) AS "lastActiveAt",
-        (SELECT MAX("createdAt") FROM "AuditLog" WHERE "companyId" = ${data.companyId}) AS "lastActivityAt"
+        (SELECT MAX("createdAt") FROM "EventLog" WHERE "companyId" = ${data.companyId}) AS "lastActivityAt"
     `;
 
     const row = rows[0];
@@ -1334,10 +1336,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
         const previous = normalizeWorkspaceTags(company.tags);
         const next = normalizeWorkspaceTags(data.tags);
 
-        await this.prisma.company.update({
-          where: { id: data.companyId },
-          data: { tags: next },
-        });
+        await this.owners.companies.setWorkspaceTagsUnscoped(data.companyId, next);
         await this.createAudit({
           action: OPERATOR_AUDIT_ACTION.workspaceTagsUpdate,
           targetCompanyId: data.companyId,
@@ -1385,13 +1384,13 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
       }>
     >`
       WITH ev AS (
-        SELECT "eventData"->>'entityId' AS acct,
-               "eventData"->'payload'->>'provider' AS provider,
-               COALESCE("eventData"->'payload'->>'emailAddress', "eventData"->'payload'->>'displayName') AS ident,
-               "event" AS name,
+        SELECT "subjectId" AS acct,
+               payload->>'provider' AS provider,
+               COALESCE(payload->>'emailAddress', payload->>'displayName') AS ident,
+               kind AS name,
                "createdAt"
-        FROM "AuditLog"
-        WHERE "companyId" = ${companyId} AND "event" LIKE 'connected_account%'
+        FROM "EventLog"
+        WHERE "companyId" = ${companyId} AND "subjectKind" = 'connected_account'
       ),
       iv AS (
         SELECT e.acct,
@@ -1405,7 +1404,7 @@ export class PrismaOperatorRepo extends BaseRepository implements OperatorRepo {
                ) AS ended,
                (MAX(e."createdAt") FILTER (WHERE e.name = 'connected_account.deleted')) IS NULL
                  AND (c."id" IS NULL OR c."status" = 'deleted') AS approx
-        FROM ev e LEFT JOIN "ConnectedAccount" c ON c."id" = e.acct
+        FROM ev e LEFT JOIN "ConnectedAccount" c ON c."id" = e.acct AND c."companyId" = ${companyId}
         GROUP BY e.acct, c."id", c."status", c."updatedAt"
       ),
       bounded AS (SELECT * FROM iv WHERE started IS NOT NULL),

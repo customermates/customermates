@@ -24,11 +24,11 @@ vi.mock("@/env", () => ({ env: operatorEnv }));
 import type { OperatorRefusal } from "../operator.repo";
 import { OPERATOR_AUDIT_ACTION } from "../operator.schema";
 import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
-import { PrismaOperatorRepo } from "../prisma-operator.repository";
 import { PrismaOperatorUsersRepo } from "../prisma-operator-users.repository";
 import { PrismaOperatorWorkspacesRepo } from "../prisma-operator-workspaces.repository";
 
 const { prisma } = await import("@/prisma/db");
+const { createTestOperatorRepo } = await import("@/tests/helpers/prisma-operator-repo");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 
@@ -103,7 +103,7 @@ afterAll(async () => {
 
 describeDatabase("operator workspace tags", { timeout: 120_000 }, () => {
   it("normalizes the tags it stores and records the previous and next values in the audit trail", async () => {
-    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
+    const repo = createTestOperatorRepo();
     const { companyId } = await seedWorkspace({ domain: `tags-${randomUUID()}.invalid`, tags: ["Legacy"] });
     const actor = operatorActor();
 
@@ -139,7 +139,7 @@ describeDatabase("operator workspace tags", { timeout: 120_000 }, () => {
   });
 
   it("records the removed tags when tags are cleared", async () => {
-    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
+    const repo = createTestOperatorRepo();
     const { companyId } = await seedWorkspace({ domain: `clear-${randomUUID()}.invalid`, tags: ["Acme", "Zeta"] });
     const actor = operatorActor();
 
@@ -161,7 +161,7 @@ describeDatabase("operator workspace tags", { timeout: 120_000 }, () => {
   });
 
   it("refuses to tag a workspace that does not exist", async () => {
-    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
+    const repo = createTestOperatorRepo();
 
     const result = await runWithOperator(operatorActor(), () =>
       repo.updateWorkspaceTagsUnscoped({ companyId: randomUUID(), tags: ["Acme"] }),
@@ -171,7 +171,7 @@ describeDatabase("operator workspace tags", { timeout: 120_000 }, () => {
   });
 
   it("lists the distinct tags in use for the filter picker", async () => {
-    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
+    const repo = createTestOperatorRepo();
     const marker = randomUUID().slice(0, 8);
     await seedWorkspace({ domain: `one-${marker}.invalid`, tags: [`Zeta ${marker}`, `Acme ${marker}`] });
     await seedWorkspace({ domain: `two-${marker}.invalid`, tags: [`Acme ${marker}`] });
@@ -183,7 +183,7 @@ describeDatabase("operator workspace tags", { timeout: 120_000 }, () => {
   });
 
   it("orders tags case-insensitively so lowercase names are not pushed to the end", async () => {
-    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
+    const repo = createTestOperatorRepo();
     const { companyId } = await seedWorkspace({ domain: `order-${randomUUID()}.invalid` });
 
     const result = await runWithOperator(operatorActor(), () =>

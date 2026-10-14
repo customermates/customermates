@@ -22,9 +22,6 @@ vi.mock("@/core/stores/root-store.provider", () => ({
 vi.mock("@/core/utils/use-copy-to-clipboard", () => ({
   useCopyToClipboard: () => vi.fn(),
 }));
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ plural: (entity: string) => entity }),
-}));
 vi.mock("@/components/ai-elements/message", () => ({
   MessageResponse: () => null,
   messageHardenRehypePlugins: [],

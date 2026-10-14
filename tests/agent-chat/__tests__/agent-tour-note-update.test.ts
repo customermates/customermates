@@ -7,6 +7,10 @@ import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("@/app/[locale]/(protected)/records/actions", () => ({
+  getRecordAction: vi.fn(),
+  getRecordNavigationAction: vi.fn(),
+}));
 vi.mock("@/core/utils/clipboard", () => ({ copyToClipboard: vi.fn() }));
 vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: vi.fn() }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));

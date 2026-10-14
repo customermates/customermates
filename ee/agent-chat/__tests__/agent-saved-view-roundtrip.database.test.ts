@@ -1,3 +1,4 @@
+import { mockRecordDiscovery } from "@/tests/helpers/record-tools";
 import { randomUUID } from "node:crypto";
 
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
@@ -66,12 +67,12 @@ const tenantUser = createMockUser({
   companyId,
   email: `saved-view-roundtrip-${userId}@example.com`,
 });
-const VIEW_ROUTE = `/en/contacts?view=__all__&viewSurface=${SURFACE.contacts}&viewAction=update`;
-const VIEW_HREF = "/contacts?view=__all__";
+const VIEW_ROUTE = `/en/settings/members?view=__all__&viewSurface=${SURFACE.users}&viewAction=update`;
+const VIEW_HREF = "/settings/members?view=__all__";
 const VIEW_CONTEXT = {
   reference: {
     kind: "dataView" as const,
-    surfaceKey: SURFACE.contacts,
+    surfaceKey: SURFACE.users,
     viewKey: "__all__" as const,
     requestedAction: "update" as const,
   },
@@ -79,7 +80,7 @@ const VIEW_CONTEXT = {
 };
 const TOOL_INPUT = {
   action: "update" as const,
-  surfaceKey: SURFACE.contacts,
+  surfaceKey: SURFACE.users,
   viewKey: "__all__" as const,
   state: { viewMode: "card" as const },
 };
@@ -102,8 +103,8 @@ describeDatabase("saved-view Assistant persistence round trip", { timeout: 120_0
       ok: true,
       data: {
         action: "update",
-        surfaceKey: SURFACE.contacts,
-        path: "/contacts",
+        surfaceKey: SURFACE.users,
+        path: "/settings/members",
         viewKey: "__all__",
         state: { viewMode: "card" },
         link: VIEW_HREF,
@@ -155,7 +156,7 @@ describeDatabase("saved-view Assistant persistence round trip", { timeout: 120_0
       new AgentUsageService(repo),
       entitlements,
       backgroundTasks as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
       {
         invoke: () =>
           Promise.resolve({
@@ -252,7 +253,7 @@ describeDatabase("saved-view Assistant persistence round trip", { timeout: 120_0
           activity: {
             kind: "views.configure",
             risk: "write",
-            viewSurfaceKey: SURFACE.contacts,
+            viewSurfaceKey: SURFACE.users,
             viewAction: "update",
             viewKey: "__all__",
             viewHref: VIEW_HREF,

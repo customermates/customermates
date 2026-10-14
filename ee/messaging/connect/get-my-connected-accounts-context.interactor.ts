@@ -1,5 +1,5 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
-import type { GetMyConnectedAccountsRepo } from "./get-my-connected-accounts.interactor";
+import type { GetMyConnectedAccountsRepo } from "./get-my-connected-accounts.repo";
 
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";

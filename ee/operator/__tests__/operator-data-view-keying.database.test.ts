@@ -22,11 +22,11 @@ import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
 import { NO_VALUE_GROUP_KEY } from "@/core/base/grouping/grouping.schema";
 import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
-import { PrismaDataViewRepo } from "@/features/data-view/prisma-data-view.repository";
 import { PrismaP13nRepo } from "@/features/p13n/prisma-p13n.repository";
 import { SaveDataViewStateInteractor } from "@/features/data-view/save-data-view-state.interactor";
 import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
 import { PrismaOperatorUsersRepo } from "../prisma-operator-users.repository";
+import { createTestDataViewRepo } from "@/tests/helpers/record-repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -51,7 +51,7 @@ describeDatabase("operator data view keying on PostgreSQL", () => {
   const actorA = actor(operatorIdA, companyIdA);
   const actorB = actor(operatorIdB, companyIdB);
 
-  const views = () => new PrismaDataViewRepo();
+  const views = () => createTestDataViewRepo();
   const saveAllTab = (userId: string, companyId: string, state: DataViewState) =>
     runWithTenant(createMockUser({ id: userId, companyId }), () =>
       new SaveDataViewStateInteractor(views(), new PrismaP13nRepo()).invoke({
@@ -67,7 +67,6 @@ describeDatabase("operator data view keying on PostgreSQL", () => {
         new PrismaOperatorUsersRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies())),
         views(),
         "interactive",
-        undefined,
         {
           sortDescriptor: { field: "createdAt", direction: "desc" },
           pagination: { pageSize: 25, page: 1 },
@@ -151,7 +150,7 @@ describeDatabase("operator data view keying on PostgreSQL", () => {
         views().updateOwnedState({ id: ownA.id, surfaceKey: OPERATOR_SURFACE, state: { pageSize: 100 } }),
       ),
     ).toBe(false);
-    expect(await runWithOperator(actorB, () => views().deleteOwned(ownA.id))).toBe(false);
+    expect(await runWithOperator(actorB, () => views().trashOwned(ownA.id))).toBe(false);
   });
 
   it("keys the personal All tab state by the acting operator's own workspace", async () => {

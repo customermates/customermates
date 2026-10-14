@@ -2,12 +2,13 @@ import type { Prisma } from "@/generated/prisma";
 
 import type { RepoArgs } from "@/core/utils/types";
 import type { WebhookEventRepo } from "../webhooks/webhook-event.repo";
+import type { UnusableProviderItemRepo } from "../ingest/unusable-provider-item.repo";
 
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { WEBHOOK_INBOUND_SOURCE } from "../webhooks/webhook-event.repo";
 
-export class PrismaUnipileWebhookRepo extends BaseRepository implements WebhookEventRepo {
+export class PrismaUnipileWebhookRepo extends TenantRepository implements WebhookEventRepo, UnusableProviderItemRepo {
   @BypassTenantGuard
   async createWebhookEventUnscoped(args: RepoArgs<WebhookEventRepo, "createWebhookEventUnscoped">) {
     const row = await this.prisma.messagingInboundEvent.create({
@@ -85,5 +86,24 @@ export class PrismaUnipileWebhookRepo extends BaseRepository implements WebhookE
     });
 
     return rows.map((row) => row.id);
+  }
+
+  @BypassTenantGuard
+  async deleteCompanyInboundEventsUnscoped(companyId: string): Promise<void> {
+    await this.prisma.messagingInboundEvent.deleteMany({ where: { companyId } });
+  }
+
+  @BypassTenantGuard
+  async recordUnusableItemUnscoped(args: RepoArgs<UnusableProviderItemRepo, "recordUnusableItemUnscoped">) {
+    await this.prisma.messagingInboundEvent.create({
+      data: {
+        source: "backfill",
+        companyId: args.companyId,
+        connectedAccountId: args.connectedAccountId,
+        payload: args.payload as Prisma.InputJsonValue,
+        unipileMessageId: args.unipileMessageId ?? null,
+        processed: false,
+      },
+    });
   }
 }

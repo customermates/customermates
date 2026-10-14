@@ -40,7 +40,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetBody, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ResponsiveOverlay } from "@/components/modal/responsive-overlay";
 
 import { GalleryActions, GalleryBody, GalleryFormBody } from "./gallery-body";
@@ -366,15 +366,13 @@ export function OverlayGallery() {
       )}
 
       {caseId === "tooltip" && (
-        <TooltipProvider>
-          <Tooltip open={open} onOpenChange={setOpen}>
-            <TooltipTrigger asChild>{trigger}</TooltipTrigger>
+        <Tooltip open={open} onOpenChange={setOpen}>
+          <TooltipTrigger asChild>{trigger}</TooltipTrigger>
 
-            <TooltipContent>
-              {content === "identifier" ? UNBREAKABLE_IDENTIFIER : content === "de" ? GERMAN_PARAGRAPH : LONG_PARAGRAPH}
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+          <TooltipContent>
+            {content === "identifier" ? UNBREAKABLE_IDENTIFIER : content === "de" ? GERMAN_PARAGRAPH : LONG_PARAGRAPH}
+          </TooltipContent>
+        </Tooltip>
       )}
 
       <script

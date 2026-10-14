@@ -38,7 +38,7 @@ export type AgentRetrievalReservation = {
 };
 
 export type AgentRetrievalGrant = {
-  purpose: "wikiRetrieval" | "wikiIndexing" | "wikiSynthesis";
+  purpose: "wikiRetrieval" | "wikiIndexing" | "wikiSynthesis" | "calculationDraft" | "commandResolve";
   companyId: string;
   userId: string | null;
   planSnapshot: SubscriptionPlan;
@@ -47,6 +47,8 @@ export type AgentRetrievalGrant = {
   periodStart: Date;
   periodEnd: Date;
 };
+
+export type PlatformRetrievalPurpose = "docsIndexing" | "commandCatalogIndexing";
 
 export type AgentRetrievalCharge = {
   model: string;
@@ -276,7 +278,7 @@ export class AgentUsageService {
   async prepareRetrieval(
     userId: string,
     now = new Date(),
-    purpose: "wikiRetrieval" | "wikiSynthesis" = "wikiRetrieval",
+    purpose: "wikiRetrieval" | "wikiSynthesis" | "calculationDraft" | "commandResolve" = "wikiRetrieval",
   ): Promise<AgentRetrievalGrant | null> {
     const state = await this.resolveUsageState(userId, now);
     if (state.summary.blockedReason || !state.user.subscription || !state.summary.plan) return null;
@@ -318,7 +320,7 @@ export class AgentUsageService {
     return this.repo.admitsHostedAiRetrievalUnscoped(now);
   }
 
-  async accruePlatformUsage(args: { purpose: "docsIndexing"; charge: AgentRetrievalCharge; now?: Date }) {
+  async accruePlatformUsage(args: { purpose: PlatformRetrievalPurpose; charge: AgentRetrievalCharge; now?: Date }) {
     assertMicrocentCount(args.charge.costMicrocents, "Platform AI cost");
     assertMicrocentCount(args.charge.inputTokens, "Platform AI input tokens");
     if (args.charge.costMicrocents === 0 && args.charge.inputTokens === 0) return;
@@ -330,7 +332,7 @@ export class AgentUsageService {
   }
 
   async reservePlatformRetrieval(args: {
-    purpose: "docsIndexing";
+    purpose: PlatformRetrievalPurpose;
     model: string;
     worstCaseMicrocents: number;
     now?: Date;

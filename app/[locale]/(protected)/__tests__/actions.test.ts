@@ -14,17 +14,10 @@ vi.mock("@/core/di", () => ({
   getGetMyConnectedAccountsInteractor: () => ({ invoke: invokes.connectedAccounts }),
 }));
 
-import { getActivityThreadOptionsAction, getConnectedAccountsAction } from "../actions";
+import { getConnectedAccountsAction } from "../actions";
 
 describe("protected filter option actions", () => {
   beforeEach(() => vi.clearAllMocks());
-
-  it("propagates activity-thread option failures to the retry state", async () => {
-    const error = createZodError("activity options unavailable");
-    invokes.activityThreadOptions.mockResolvedValueOnce({ error, ok: false });
-
-    await expect(getActivityThreadOptionsAction({})).rejects.toBe(error);
-  });
 
   it("propagates connected-account failures to the retry state", async () => {
     const error = createZodError("connected accounts unavailable");

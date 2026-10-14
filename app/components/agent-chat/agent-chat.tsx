@@ -10,7 +10,6 @@ import { AgentTourOverlay } from "./agent-tour-overlay";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { Button } from "@/components/ui/button";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { IconContainer } from "@/components/shared/icon-container";
 import { assistantSurfaceProps, claimEscapeForAssistant } from "@/components/modal/assistant-surface";
 import { OVERLAY_RAISED_PANEL_LAYER_CLASS, OVERLAY_SCROLL_REGION } from "@/components/ui/overlay-contract";
@@ -129,11 +128,7 @@ export const AgentChat = observer(function AgentChat() {
     <>
       <AgentRouteReloadBridge />
 
-      {store.isOpen && (
-        <TooltipProvider>
-          <AgentChatPanel onFocusEnter={rememberPageOverlayFocus} />
-        </TooltipProvider>
-      )}
+      {store.isOpen && <AgentChatPanel onFocusEnter={rememberPageOverlayFocus} />}
 
       <AgentStatusAnnouncer />
 
@@ -182,7 +177,7 @@ const AgentChatPanel = observer(function AgentChatPanel({
       className={cn(
         "fixed flex flex-col overflow-hidden rounded-2xl border bg-card",
         OVERLAY_RAISED_PANEL_LAYER_CLASS,
-        "shadow-2xl shadow-black/25 dark:shadow-black/80 dark:ring-1 dark:ring-white/10",
+        "shadow-2xl shadow-scrim/25 dark:shadow-scrim/80 dark:ring-1 dark:ring-border",
         store.isExpanded
           ? "h-[85dvh] w-[720px] max-w-[calc(100dvw-2rem)]"
           : "h-[560px] max-h-[calc(100dvh-2rem)] w-[400px] max-w-[calc(100dvw-2rem)]",

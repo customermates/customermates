@@ -1,19 +1,19 @@
 import { fail } from "@/core/validation/interactor-failure-server";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { MessagingService } from "../messaging.service";
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
-import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 
-import { MessagingProvider, Resource, Action } from "@/generated/prisma";
+import { MessagingProvider, Resource } from "@/generated/prisma";
 
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
-import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { normalizeChannelValue } from "@/features/contacts/channel-value";
+import { normalizeChannelValue } from "@/features/records/channel-value";
 import { getProviderProfileUrl, isHandleProvider } from "../provider";
 import { retryAfterPhrase } from "../retry-after.server";
 
@@ -32,7 +32,7 @@ const OutputSchema = z.object({
 });
 type ResolvedProviderProfile = Data<typeof OutputSchema>;
 
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.create })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "create" })
 export class ResolveProviderProfileInteractor extends AuthenticatedInteractor<
   ResolveProviderProfileData,
   ResolvedProviderProfile

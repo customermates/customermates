@@ -47,15 +47,15 @@ function fullResult(): GetResult<Item> {
     supportsDragWriteBack: true,
     columnId: GROUPING.field,
     groups: [
-      group({ key: "new", count: 2, label: "New", itemIds: ["a"], hasMore: true, valueSums: { totalValue: 10 } }),
-      group({ key: "won", count: 1, label: "Won", itemIds: ["b"], valueSums: { totalValue: 20 } }),
+      group({ key: "new", count: 2, label: "New", itemIds: ["a"], hasMore: true }),
+      group({ key: "won", count: 1, label: "Won", itemIds: ["b"] }),
     ],
     total: 3,
   };
 
   return {
     items: [{ id: "a" }, { id: "b" }],
-    p13nId: SURFACE.deals,
+    p13nId: SURFACE.routines,
     pagination: { page: 1, pageSize: 25, total: 3, totalPages: 1 },
     views: [],
     activeViewKey: ALL_VIEW_KEY,
@@ -63,7 +63,6 @@ function fullResult(): GetResult<Item> {
     viewMode: ViewMode.card,
     grouping,
     groupCounts: { new: 2, won: 1 },
-    groupValueSums: { new: { totalValue: 10 }, won: { totalValue: 20 } },
   };
 }
 
@@ -133,7 +132,6 @@ describe("a focused group page merges into the axis it belongs to", () => {
     expect(store.groupingResult?.groups[1]).toEqual(fullResult().grouping?.groups[1]);
     expect(store.items.map((item) => item.id)).toEqual(["a", "b", "a2"]);
     expect(store.groupCounts).toEqual({ new: 2, won: 1 });
-    expect(store.groupValueSums).toEqual({ new: { totalValue: 10 }, won: { totalValue: 20 } });
     expect(store.pagination?.total).toBe(3);
   });
 
@@ -185,7 +183,6 @@ describe("a focused group page merges into the axis it belongs to", () => {
     expect(store.groupedTakeOverrides).toEqual({});
     expect(store.requestedParams[0]?.groupPage).toEqual({
       perGroup: 10,
-      includeValueSums: true,
     });
   });
 });

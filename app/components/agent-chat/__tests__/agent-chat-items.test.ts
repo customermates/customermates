@@ -10,9 +10,6 @@ vi.mock("next-intl", () => ({
         ? `${key}:${values.target}`
         : key,
 }));
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ plural: () => "Contacts" }),
-}));
 vi.mock("@/components/shared/app-link", async () => {
   const { createElement } = await import("react");
   return {
@@ -30,8 +27,8 @@ const failedRead = {
   providerCallId: "call-1",
   activity: {
     kind: "records.read" as const,
-    resource: "contacts" as const,
-    affectedResources: ["contacts" as const],
+    resource: "wiki" as const,
+    affectedResources: ["wiki" as const],
     risk: "read" as const,
   },
   status: "error" as const,
@@ -51,7 +48,7 @@ describe("AgentActivity", () => {
               kind: "views.configure" as const,
               affectedResources: [],
               risk: "write" as const,
-              viewHref: "/contacts?view=__all__",
+              viewHref: "/settings/webhooks?view=__all__",
             },
             status: "done" as const,
           },
@@ -59,12 +56,36 @@ describe("AgentActivity", () => {
       }),
     );
 
-    expect(html).toContain('href="/contacts?view=__all__"');
+    expect(html).toContain('href="/settings/webhooks?view=__all__"');
     expect(html).toContain("AgentChat.openSavedView");
     expect(html.match(/AgentChat\.activity\.state\.views\.configure\.done/g)).toHaveLength(1);
     expect(html).not.toContain('data-slot="collapsible-trigger"');
     expect(html).not.toContain('data-slot="collapsible-content"');
     expect(html).not.toMatch(/<button[^>]*>[^<]*<a/);
+  });
+
+  it("shows the review and save action for a proposed view instead of a saved-view link", () => {
+    const html = renderToStaticMarkup(
+      createElement(AgentActivity, {
+        isTrailing: true,
+        isWorking: false,
+        items: [
+          {
+            ...failedRead,
+            activity: {
+              kind: "views.configure",
+              affectedResources: [],
+              risk: "write",
+              viewHref: "/settings/webhooks?view=__all__",
+              viewProposed: true,
+            },
+            status: "done",
+          },
+        ],
+      }),
+    );
+    expect(html).toContain("AgentChat.reviewProposal");
+    expect(html).not.toContain("AgentChat.openSavedView");
   });
 
   it("keeps an intermediate tool failure visually working while the agent can recover", () => {
@@ -112,7 +133,11 @@ describe("AgentActivity", () => {
 
   it("renders a single failed step once without an empty disclosure", () => {
     const html = renderToStaticMarkup(
-      createElement(AgentActivity, { isTrailing: true, isWorking: false, items: [failedRead] }),
+      createElement(AgentActivity, {
+        isTrailing: true,
+        isWorking: false,
+        items: [failedRead],
+      }),
     );
 
     expect(html.split("AgentChat.activity.state.records.read.error")).toHaveLength(2);
@@ -198,15 +223,28 @@ describe("repeated read activity compaction", () => {
   it("compacts identical legacy read-only rows without guessing what an unknown tool did", () => {
     const items = Array.from({ length: 30 }, (_, index) => ({
       ...read(String(index)),
-      activity: { kind: "generic" as const, risk: "read" as const, affectedResources: [] },
+      activity: {
+        kind: "generic" as const,
+        risk: "read" as const,
+        affectedResources: [],
+      },
     }));
-    const html = renderToStaticMarkup(createElement(AgentActivity, { items, isWorking: false, isTrailing: true }));
+    const html = renderToStaticMarkup(
+      createElement(AgentActivity, {
+        items,
+        isWorking: false,
+        isTrailing: true,
+      }),
+    );
     expect(compactActivityItems(items)).toHaveLength(1);
     expect(html).toContain("AgentChat.ui.activityComplete");
     expect(html).not.toContain("AgentChat.activity.state.generic.done");
     expect(
       compactActivityItems(
-        items.map((item) => ({ ...item, activity: { ...item.activity, risk: "sensitive" as const } })),
+        items.map((item) => ({
+          ...item,
+          activity: { ...item.activity, risk: "sensitive" as const },
+        })),
       ),
     ).toHaveLength(30);
   });

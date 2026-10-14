@@ -17,7 +17,7 @@ export function latestP13nSnapshot<T extends UpsertP13nData>(channelKey: string)
   return persistenceChannels.get(channelKey)?.latest as T | undefined;
 }
 
-export function flushP13nPersistence(channelKey: string) {
+function flushP13nPersistence(channelKey: string) {
   const channel = persistenceChannels.get(channelKey);
   if (!channel) return;
 

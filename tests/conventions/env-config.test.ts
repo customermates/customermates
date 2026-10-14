@@ -143,6 +143,12 @@ describe("environment configuration", () => {
       useLiveData.indexOf("dropdb --if-exists --force"),
     );
     expect(useLiveData).toContain("--exit-on-error");
+    expect(useLiveData).toContain("FROM pg_extension e");
+    expect(useLiveData).toContain("CREATE EXTENSION IF NOT EXISTS");
+    expect(useLiveData).toContain('--use-list "$restore_list"');
+    expect(useLiveData.indexOf("FROM pg_extension e")).toBeLessThan(
+      useLiveData.indexOf("PGOPTIONS='-c default_transaction_read_only=on' pg_dump"),
+    );
     expect(useLiveData).toContain('SET "enabled" = false');
     expect(useLiveData).not.toContain("dumps/");
   });
@@ -323,6 +329,12 @@ describe("self-hosted configuration", () => {
         new RegExp(`\\$\\{${name}(?::-[^}]*)?\\}|^\\s+${name}:`, "mu"),
       );
     }
+  });
+
+  it("hands the cron secret to the app so a self-hosted instance can run its scheduled jobs", () => {
+    expect(templateVariables).toContain("CRON_SECRET");
+    expect(activeTemplateVariables).not.toContain("CRON_SECRET");
+    expect(compose).toMatch(/^\s+CRON_SECRET: \$\{CRON_SECRET:-\}$/mu);
   });
 
   it("requires only variables the template sets during setup", () => {

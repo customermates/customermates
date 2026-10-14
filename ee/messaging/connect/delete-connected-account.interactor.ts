@@ -1,27 +1,29 @@
-import type { ConnectedAccount } from "@/generated/prisma";
 import type { MessagingService } from "../messaging.service";
 import type { EventService } from "@/features/event/event.service";
-import type { Data } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
+import * as Sentry from "@sentry/node";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Enforce } from "@/core/decorators/enforce.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { DomainEvent } from "@/features/event/domain-events";
+import type { DeleteConnectedAccountRepo } from "./delete-connected-account.repo";
 
-const Schema = z.object({ id: z.uuid() });
+const Schema = z.object({ id: z.uuid() }).strict();
 type DeleteConnectedAccountData = Data<typeof Schema>;
+export const ConnectedAccountDisconnectedSchema = z.object({ id: z.uuid(), disconnected: z.literal(true) });
+type ConnectedAccountDisconnected = z.infer<typeof ConnectedAccountDisconnectedSchema>;
 
-export abstract class DeleteConnectedAccountRepo {
-  abstract findAccountByIdOrThrow(id: string): Promise<ConnectedAccount>;
-  abstract deleteAccount(id: string): Promise<void>;
-}
-
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.delete })
-export class DeleteConnectedAccountInteractor extends AuthenticatedInteractor<DeleteConnectedAccountData, null> {
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "delete" })
+export class DeleteConnectedAccountInteractor extends AuthenticatedInteractor<
+  DeleteConnectedAccountData,
+  ConnectedAccountDisconnected
+> {
   constructor(
     private repo: DeleteConnectedAccountRepo,
     private messagingService: MessagingService,
@@ -30,8 +32,9 @@ export class DeleteConnectedAccountInteractor extends AuthenticatedInteractor<De
     super();
   }
 
-  @Enforce(Schema)
-  async invoke(data: DeleteConnectedAccountData): Promise<{ ok: true; data: null }> {
+  @Validate(Schema)
+  @ValidateOutput(ConnectedAccountDisconnectedSchema)
+  async invoke(data: DeleteConnectedAccountData): Validated<ConnectedAccountDisconnected> {
     const existing = await this.repo.findAccountByIdOrThrow(data.id);
 
     await this.repo.deleteAccount(data.id);
@@ -45,8 +48,10 @@ export class DeleteConnectedAccountInteractor extends AuthenticatedInteractor<De
       },
     });
 
-    await this.messagingService.deleteAccount({ accountId: existing.unipileAccountId });
+    await this.messagingService.deleteAccount({ accountId: existing.unipileAccountId }).catch((error: unknown) => {
+      Sentry.captureException(error, { tags: { kind: "unipile-account-removal-deferred" } });
+    });
 
-    return { ok: true as const, data: null };
+    return { ok: true as const, data: { id: existing.id, disconnected: true as const } };
   }
 }

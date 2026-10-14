@@ -1,4 +1,6 @@
+import { rolePermits } from "@/core/base/permission.service";
 import type { TenantUser } from "./user.schema";
+import type { FindUserRepo } from "./find-user.repo";
 import type { AuthService } from "@/features/auth/auth.service";
 
 import { Status } from "@/generated/prisma";
@@ -7,37 +9,17 @@ import type { Action, Resource } from "@/generated/prisma";
 
 import { AppErrorCode, AuthError, ForbiddenError } from "@/core/errors/app-errors";
 import { tenantStorage } from "@/core/decorators/tenant-context";
+import { canUseApiKeys } from "@/core/auth/api-key-route-guard";
+import { ApiKeyAccessDeniedError } from "@/core/auth/api-key-access-denied-error";
 
 export type { TenantUser } from "./user.schema";
-
-export type AuthUserAccountState = {
-  companyId: string | null;
-  emailVerified: boolean;
-};
-
-export abstract class FindUserRepo {
-  abstract findAuthUserCompanyIdUnscoped(userId: string): Promise<string | null | undefined>;
-  abstract findAuthUserAccountStateUnscoped(userId: string): Promise<AuthUserAccountState | undefined>;
-  abstract findCurrentUserUnscoped(email: string): Promise<TenantUser | null>;
-  abstract findCurrentUserOrThrowUnscoped(email: string): Promise<TenantUser>;
-  abstract findUserByIdOrThrowUnscoped(userId: string): Promise<TenantUser>;
-}
+export type { FindUserRepo } from "./find-user.repo";
 
 export class UserService {
   constructor(
     private authService: AuthService,
     private repo: FindUserRepo,
   ) {}
-
-  async getUser() {
-    const session = await this.authService.getSession();
-
-    const email = session?.user?.email;
-
-    if (!email) return null;
-
-    return await this.repo.findCurrentUserUnscoped(email);
-  }
 
   async getUserOrThrow() {
     const session = await this.authService.getSession();
@@ -54,6 +36,9 @@ export class UserService {
 
     if (user.status !== Status.active) throw new ForbiddenError("User is not active", AppErrorCode.inactiveUser);
 
+    if (!canUseApiKeys(user.role) && (await this.authService.isIntegrationCredentialRequest()))
+      throw new ApiKeyAccessDeniedError();
+
     return user;
   }
 
@@ -66,40 +51,18 @@ export class UserService {
     return ambient;
   }
 
-  hasPermissionForUser(user: TenantUser, resource: Resource, action: Action): boolean {
-    if (!user.role) return false;
-    if (user.role.isSystemRole) return true;
-
-    return user.role.permissions.some((p) => p.resource === resource && p.action === action);
-  }
-
-  async getActiveUserByIdOrThrow(userId: string) {
+  async getActiveUserByIdOrThrow(userId: string, options: { allowInactive?: boolean } = {}) {
     const user = await this.repo.findUserByIdOrThrowUnscoped(userId);
 
-    if (user.status !== Status.active) throw new ForbiddenError("User is not active", AppErrorCode.inactiveUser);
+    if (user.status !== Status.active && !options.allowInactive)
+      throw new ForbiddenError("User is not active", AppErrorCode.inactiveUser);
 
     return user;
-  }
-
-  async isRegistered() {
-    const session = await this.authService.getSession();
-
-    const email = session?.user?.email;
-
-    if (!email) return false;
-
-    return (await this.repo.findCurrentUserUnscoped(email)) !== null;
   }
 
   async hasPermission(resource: Resource, action: Action): Promise<boolean> {
     const user = await this.getActiveTenantUserOrThrow();
 
-    return this.hasPermissionForUser(user, resource, action);
-  }
-
-  async hasPermissionOrThrow(resource: Resource, action: Action): Promise<void> {
-    const hasPermission = await this.hasPermission(resource, action);
-
-    if (!hasPermission) throw new ForbiddenError("User has insufficient permissions", AppErrorCode.permissionDenied);
+    return rolePermits(user.role, resource, action);
   }
 }

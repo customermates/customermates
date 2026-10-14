@@ -7,9 +7,12 @@ import { useTranslations } from "next-intl";
 import { XIcon } from "lucide-react";
 
 import { cn } from "@/core/utils/cn";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 import {
   OVERLAY_CLOSE_CLASS,
   OVERLAY_CLOSE_POSITION_CLASS,
+  OVERLAY_DRAWER_HANDLE_CLOSE_CLASS,
+  OVERLAY_DRAWER_HEADER_ACTIONS_CLASS,
   OVERLAY_HEADER_ALIGNMENT_CLASS,
   OVERLAY_SCROLL_REGION,
 } from "./overlay-contract";
@@ -34,7 +37,7 @@ function DrawerOverlay({ className, ...props }: React.ComponentProps<typeof Draw
   return (
     <DrawerPrimitive.Overlay
       className={cn(
-        "fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0",
+        "fixed inset-0 z-50 bg-scrim/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0",
         className,
       )}
       data-slot="drawer-overlay"
@@ -61,7 +64,7 @@ function DrawerContent({
 
       <DrawerPrimitive.Content
         className={cn(
-          "group/drawer-content fixed z-50 flex h-auto flex-col overflow-hidden bg-background",
+          "group/drawer-content fixed z-50 flex h-auto flex-col overflow-hidden bg-background outline-none",
           "data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-(--sheet-block-budget) data-[vaul-drawer-direction=top]:rounded-b-lg data-[vaul-drawer-direction=top]:border-b",
           "data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:max-h-(--sheet-block-budget) data-[vaul-drawer-direction=bottom]:rounded-t-lg data-[vaul-drawer-direction=bottom]:border-t",
           "data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=right]:border-l data-[vaul-drawer-direction=right]:sm:max-w-sm",
@@ -78,27 +81,53 @@ function DrawerContent({
         {children}
 
         {showCloseButton && (
-          <DrawerPrimitive.Close
-            className={cn(OVERLAY_CLOSE_CLASS, OVERLAY_CLOSE_POSITION_CLASS, "z-10")}
-            data-slot="drawer-close"
-          >
-            <XIcon />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DrawerPrimitive.Close
+                className={cn(
+                  OVERLAY_CLOSE_CLASS,
+                  OVERLAY_CLOSE_POSITION_CLASS,
+                  OVERLAY_DRAWER_HANDLE_CLOSE_CLASS,
+                  "z-10",
+                )}
+                data-slot="drawer-close"
+              >
+                <XIcon />
 
-            <span className="sr-only">{t("Common.actions.close")}</span>
-          </DrawerPrimitive.Close>
+                <span className="sr-only">{t("Common.actions.close")}</span>
+              </DrawerPrimitive.Close>
+            </TooltipTrigger>
+
+            <TooltipContent>{t("Common.actions.close")}</TooltipContent>
+          </Tooltip>
         )}
       </DrawerPrimitive.Content>
     </DrawerPortal>
   );
 }
 
-function DrawerHeader({ className, ...props }: React.ComponentProps<"div">) {
+function DrawerHeader({
+  className,
+  actions,
+  children,
+  ...props
+}: React.ComponentProps<"div"> & { actions?: React.ReactNode }) {
   return (
     <div
-      className={cn("flex shrink-0 flex-col gap-0.5 p-4 md:gap-1.5", OVERLAY_HEADER_ALIGNMENT_CLASS, className)}
+      className={cn(
+        "flex shrink-0 flex-col gap-0.5 p-4 md:gap-1.5",
+        OVERLAY_HEADER_ALIGNMENT_CLASS,
+        actions && OVERLAY_DRAWER_HEADER_ACTIONS_CLASS,
+        className,
+      )}
+      data-header-actions={actions ? "" : undefined}
       data-slot="drawer-header"
       {...props}
-    />
+    >
+      {children}
+
+      {actions}
+    </div>
   );
 }
 

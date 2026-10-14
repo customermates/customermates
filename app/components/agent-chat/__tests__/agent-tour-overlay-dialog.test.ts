@@ -87,7 +87,7 @@ describe.each([
       agentChatStore: { enabled: true, isOpen: false },
       agentUiControlStore: observable(
         {
-          active: { note: "Click **Add**.", stepIndex: 0, targetId: "company-webhooks-add", totalSteps: 2 },
+          active: { note: "Click **Add**.", stepIndex: 0, targetId: "settings-webhooks-add", totalSteps: 2 },
           end: vi.fn(),
           nextStep,
           previousStep: vi.fn(),
@@ -109,7 +109,7 @@ describe.each([
         createElement(
           "div",
           null,
-          createElement("button", { id: "company-webhooks-add", type: "button" }, "Add"),
+          createElement("button", { id: "settings-webhooks-add", type: "button" }, "Add"),
           createElement(AgentTourOverlay),
           createElement(WebhookDialog),
         ),

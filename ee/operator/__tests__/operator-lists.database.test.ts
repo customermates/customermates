@@ -5,7 +5,7 @@ import { afterAll, describe, expect, it, vi } from "vitest";
 
 import type { Filter, GetQueryParams } from "@/core/base/base-get.schema";
 import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
-import type { GroupCountRow } from "@/core/base/grouping/group-count";
+import type { GroupCountRow } from "@/core/base/grouping/group-axis";
 
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
@@ -145,6 +145,7 @@ afterAll(async () => {
   await runWithoutTenant(async () => {
     for (const companyId of companyIds) {
       await prisma.user.deleteMany({ where: { companyId } });
+      await prisma.userRole.deleteMany({ where: { companyId } });
       await prisma.subscription.deleteMany({ where: { companyId } });
       await prisma.company.deleteMany({ where: { id: companyId } });
     }
@@ -543,6 +544,56 @@ describeDatabase("operator workspace list against a real database", { timeout: 1
     expect(searched).toHaveLength(1);
     expect(searched[0]?.id).toBe(beta.companyId);
   });
+
+  it("ranks the workspace owner by its own system role, never by another workspace's role", async () => {
+    const marker = randomUUID().slice(0, 8);
+    const home = await seedWorkspace({
+      domain: `ws-home-${marker}.invalid`,
+      plan: "pro",
+      status: "active",
+      members: [],
+    });
+    const foreign = await seedWorkspace({
+      domain: `ws-foreign-${marker}.invalid`,
+      plan: "pro",
+      status: "active",
+      members: [],
+    });
+    const [first, second] = [`first-${marker}@ws-home-${marker}.invalid`, `second-${marker}@ws-home-${marker}.invalid`];
+    await runWithoutTenant(async () => {
+      const foreignRole = await prisma.userRole.create({
+        data: { companyId: foreign.companyId, name: "Admin", isSystemRole: true },
+      });
+      await prisma.user.create({
+        data: {
+          companyId: home.companyId,
+          email: first,
+          firstName: "First",
+          lastName: "Member",
+          status: "active",
+          createdAt: new Date("2026-01-01T00:00:00.000Z"),
+        },
+      });
+      await prisma.user.create({
+        data: {
+          companyId: home.companyId,
+          email: second,
+          firstName: "Second",
+          lastName: "Member",
+          status: "active",
+          roleId: foreignRole.id,
+          createdAt: new Date("2026-02-01T00:00:00.000Z"),
+        },
+      });
+    });
+
+    const rows = await runWithoutTenant(() =>
+      new PrismaOperatorWorkspacesRepo().getItems({
+        filters: [inFilter(FilterFieldKey.workspaceId, [home.companyId])],
+      }),
+    );
+    expect(rows[0]?.ownerEmail).toBe(first);
+  });
 });
 
 describeDatabase("merged operator audit log against a real database", { timeout: 120_000 }, () => {
@@ -573,13 +624,14 @@ describeDatabase("merged operator audit log against a real database", { timeout:
 
     await runWithoutTenant(async () => {
       for (let index = 0; index < 3; index += 1) {
-        await prisma.auditLog.create({
+        await prisma.eventLog.create({
           data: {
             companyId: workspace.companyId,
-            userId: actorId,
-            event: `contact.created.${marker}`,
-            eventData: {},
-            entityId: randomUUID(),
+            actorId,
+            subjectKind: "contact",
+            kind: `contact.created.${marker}`,
+            payload: {},
+            subjectId: randomUUID(),
             createdAt: new Date(`2026-08-0${index + 1}T10:00:00.000Z`),
           },
         });
@@ -647,7 +699,7 @@ describeDatabase("merged operator audit log against a real database", { timeout:
 
     await runWithoutTenant(async () => {
       await prisma.operatorAuditEvent.deleteMany({ where: { targetCompanyId: workspace.companyId } });
-      await prisma.auditLog.deleteMany({ where: { companyId: workspace.companyId } });
+      await prisma.eventLog.deleteMany({ where: { companyId: workspace.companyId } });
     });
   });
 
@@ -663,13 +715,14 @@ describeDatabase("merged operator audit log against a real database", { timeout:
 
     await runWithoutTenant(async () => {
       for (let index = 0; index < 3; index += 1) {
-        await prisma.auditLog.create({
+        await prisma.eventLog.create({
           data: {
             companyId: workspace.companyId,
-            userId: actorId,
-            event: `deal.created.${marker}`,
-            eventData: {},
-            entityId: randomUUID(),
+            actorId,
+            subjectKind: "deal",
+            kind: `deal.created.${marker}`,
+            payload: {},
+            subjectId: randomUUID(),
             createdAt: new Date(`2026-0${index === 2 ? 7 : 8}-1${index}T10:00:00.000Z`),
           },
         });
@@ -768,7 +821,7 @@ describeDatabase("merged operator audit log against a real database", { timeout:
 
     await runWithoutTenant(async () => {
       await prisma.operatorAuditEvent.deleteMany({ where: { targetCompanyId: workspace.companyId } });
-      await prisma.auditLog.deleteMany({ where: { companyId: workspace.companyId } });
+      await prisma.eventLog.deleteMany({ where: { companyId: workspace.companyId } });
     });
   });
 

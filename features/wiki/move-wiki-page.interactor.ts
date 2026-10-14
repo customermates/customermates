@@ -2,7 +2,7 @@ import type { MoveWikiPageRepo } from "./move-wiki-page.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
@@ -16,7 +16,7 @@ export const MoveWikiPageSchema = z.object({
 });
 export type MoveWikiPageData = Data<typeof MoveWikiPageSchema>;
 
-@TenantInteractor({ resource: Resource.wiki, action: Action.update })
+@TenantInteractor({ resource: Resource.wiki, manage: "update" })
 export class MoveWikiPageInteractor extends AuthenticatedInteractor<MoveWikiPageData, boolean> {
   constructor(private repo: MoveWikiPageRepo) {
     super();

@@ -4,7 +4,8 @@ import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 import ts from "typescript";
 
-import { REPO_ROOT, walkFiles } from "./walk";
+import { REPO_ROOT, REPO_SCAN_TIMEOUT_MS, parseSource, readSourceText, walkFiles } from "./walk";
+import { unreviewedExceptionAdditions } from "./exception-membership";
 
 import { REGISTERED_LOCALES } from "@/i18n/locale-registry";
 
@@ -33,9 +34,9 @@ const DOMAIN_EXPECTATIONS: Array<{ file: string; imports: string }> = [
   { file: "core/fumadocs/metadata.ts", imports: "CONTENT_LOCALES" },
   { file: "components/shared/locale-menu.tsx", imports: "CONTENT_LOCALES" },
   { file: "scripts/generate-raw-docs-manifest.ts", imports: "CONTENT_LOCALES" },
-  { file: "app/[locale]/(protected)/profile/components/profile-settings-form.tsx", imports: "DISPLAY_LANGUAGE_VALUES" },
+  { file: "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx", imports: "DISPLAY_LANGUAGE_VALUES" },
   {
-    file: "app/[locale]/(protected)/profile/components/profile-settings-form.tsx",
+    file: "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx",
     imports: "FORMATTING_LOCALE_VALUES",
   },
   { file: "features/user/upsert/update-user-details.interactor.ts", imports: "StoredDisplayLanguageSchema" },
@@ -47,7 +48,7 @@ const DOMAIN_EXPECTATIONS: Array<{ file: string; imports: string }> = [
 
 const ALLOWED_AMBIENT_FORMATTING_SITES = new Map([
   [
-    "app/[locale]/(protected)/profile/components/profile-settings-form.tsx :: new Intl.DateTimeFormat :: <missing>",
+    "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx :: new Intl.DateTimeFormat :: <missing>",
     "Browser-language detection intentionally asks the browser for its resolved locale.",
   ],
   [
@@ -66,7 +67,7 @@ const ALLOWED_VISIBLE_COPY_SITES = new Map<string, VisibleCopyException>([
     'components/ai-connection/ai-client-logo.tsx :: jsx-alt :: "Google Gemini"',
     'app/components/navigation/public-navbar-menu.tsx :: jsx-alt :: "n8n"',
     'components/marketing/founder-contact-card.tsx :: jsx-alt :: "Benjamin Wagner"',
-    'app/[locale]/(protected)/company/components/subscription/subscribe-manage-button.tsx :: jsx-alt :: "Lemon Squeezy"',
+    'app/[locale]/(protected)/settings/(workspace)/components/subscription/subscribe-manage-button.tsx :: jsx-alt :: "Lemon Squeezy"',
     'app/[locale]/(static)/blog/[slug]/page.tsx :: jsx-alt :: "Benjamin Wagner"',
     'app/[locale]/(static)/docs/components/docs-sidebar.tsx :: jsx-text :: "Customermates"',
     'app/components/footer-content.tsx :: jsx-text :: "GitHub"',
@@ -79,7 +80,6 @@ const ALLOWED_VISIBLE_COPY_SITES = new Map<string, VisibleCopyException>([
     'app/[locale]/(static)/components/homepage-mcp-snippet.tsx :: jsx-text :: "Cursor"',
   ]),
   ...reviewedVisibleCopy("Terminal and keyboard tokens have invariant external meaning.", [
-    'app/components/navigation/nav-header.tsx :: jsx-text :: "&#8984;K"',
     'app/[locale]/(static)/components/homepage-mcp-snippet.tsx :: jsx-text :: "mcp.json"',
   ]),
   ...reviewedVisibleCopy("Reciprocal directory labels are externally defined and locale-invariant.", [
@@ -141,7 +141,7 @@ function isAmbientOrLiteralLocale(node: ts.Expression | undefined): boolean {
 
 function formattingSitesInSource(source: string, repoPath: string): string[] {
   const sites: string[] = [];
-  const sourceFile = ts.createSourceFile(repoPath, source, ts.ScriptTarget.Latest, true);
+  const sourceFile = parseSource(repoPath, source);
   const argumentLabel = (node: ts.Expression | undefined) => (node ? node.getText(sourceFile) : "<missing>");
 
   const visit = (node: ts.Node): void => {
@@ -175,7 +175,7 @@ function ambientFormattingSites(): string[] {
   for (const path of scannedFiles()) {
     const repoPath = relative(REPO_ROOT, path);
     if (!isProductionSource(repoPath)) continue;
-    found.push(...formattingSitesInSource(readFileSync(path, "utf8"), repoPath));
+    found.push(...formattingSitesInSource(readSourceText(path), repoPath));
   }
   return found;
 }
@@ -191,7 +191,7 @@ function violations(pattern: RegExp): string[] {
     const repoPath = relative(REPO_ROOT, path);
     if (ALLOWED.has(repoPath)) continue;
 
-    const source = readFileSync(path, "utf8");
+    const source = readSourceText(path);
     source.split("\n").forEach((line, index) => {
       if (pattern.test(line)) found.push(`${repoPath}:${index + 1}: ${line.trim()}`);
     });
@@ -242,7 +242,7 @@ function isStaticallyAriaHidden(node: ts.Node, sourceFile: ts.SourceFile): boole
 
 function visibleCopySitesInSource(source: string, repoPath: string): string[] {
   const sites: string[] = [];
-  const sourceFile = ts.createSourceFile(repoPath, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const sourceFile = parseSource(repoPath, source, ts.ScriptKind.TSX);
   const record = (kind: string, value: string): void => {
     const normalized = normalizedVisibleCopy(value);
     if (normalized) sites.push(`${repoPath} :: ${kind} :: ${JSON.stringify(normalized)}`);
@@ -333,7 +333,7 @@ function visibleCopySites(): string[] {
   for (const path of scannedFiles()) {
     const repoPath = relative(REPO_ROOT, path);
     if (!path.endsWith(".tsx") || !isProductionSource(repoPath)) continue;
-    sites.push(...visibleCopySitesInSource(readFileSync(path, "utf8"), repoPath));
+    sites.push(...visibleCopySitesInSource(readSourceText(path), repoPath));
   }
   return sites;
 }
@@ -347,7 +347,7 @@ function occurrenceCounts(values: readonly string[]): Map<string, number> {
 function hardCodedLocaleComparisonsInSource(source: string, repoPath: string): string[] {
   const localeValues = new Set<string>(REGISTERED_LOCALES);
   const found: string[] = [];
-  const sourceFile = ts.createSourceFile(repoPath, source, ts.ScriptTarget.Latest, true);
+  const sourceFile = parseSource(repoPath, source);
 
   const record = (node: ts.Node): void => {
     const line = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1;
@@ -399,7 +399,7 @@ const LOCALE_PREFIX_METHODS = new Set(["startsWith", "endsWith"]);
 function localeBranchingInSource(source: string, repoPath: string): string[] {
   const localeValues = new Set<string>(REGISTERED_LOCALES);
   const found: string[] = [];
-  const sourceFile = ts.createSourceFile(repoPath, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const sourceFile = parseSource(repoPath, source, ts.ScriptKind.TSX);
 
   const record = (node: ts.Node): void => {
     const line = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1;
@@ -431,7 +431,7 @@ function localeBranchingInSource(source: string, repoPath: string): string[] {
 function localeKeyedCopyTablesInSource(source: string, repoPath: string): string[] {
   const localeValues = new Set<string>(REGISTERED_LOCALES);
   const found: string[] = [];
-  const sourceFile = ts.createSourceFile(repoPath, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const sourceFile = parseSource(repoPath, source, ts.ScriptKind.TSX);
 
   const visit = (node: ts.Node): void => {
     if (ts.isObjectLiteralExpression(node)) {
@@ -467,7 +467,7 @@ function scanProductionSources(scan: (source: string, repoPath: string) => strin
     const repoPath = relative(REPO_ROOT, path);
     if (ALLOWED.has(repoPath) || !isProductionSource(repoPath)) continue;
 
-    found.push(...scan(readFileSync(path, "utf8"), repoPath));
+    found.push(...scan(readSourceText(path), repoPath));
   }
 
   return found;
@@ -480,7 +480,7 @@ function hardCodedLocaleComparisons(): string[] {
     const repoPath = relative(REPO_ROOT, path);
     if (ALLOWED.has(repoPath) || !isProductionSource(repoPath)) continue;
 
-    found.push(...hardCodedLocaleComparisonsInSource(readFileSync(path, "utf8"), repoPath));
+    found.push(...hardCodedLocaleComparisonsInSource(readSourceText(path), repoPath));
   }
 
   return found;
@@ -488,7 +488,7 @@ function hardCodedLocaleComparisons(): string[] {
 
 function literalCreateZodErrorSitesInSource(source: string, repoPath: string): string[] {
   const found: string[] = [];
-  const sourceFile = ts.createSourceFile(repoPath, source, ts.ScriptTarget.Latest, true);
+  const sourceFile = parseSource(repoPath, source);
   const visit = (node: ts.Node): void => {
     if (
       ts.isCallExpression(node) &&
@@ -510,7 +510,7 @@ function literalCreateZodErrorSites(): string[] {
   return scannedFiles().flatMap((path) => {
     const repoPath = relative(REPO_ROOT, path);
     if (!isProductionSource(repoPath)) return [];
-    return literalCreateZodErrorSitesInSource(readFileSync(path, "utf8"), repoPath);
+    return literalCreateZodErrorSitesInSource(readSourceText(path), repoPath);
   });
 }
 
@@ -520,7 +520,7 @@ describe("locale consumer audit", () => {
     expect(found, `hard-coded locale lists (import from @/i18n/locale-registry instead):\n${found.join("\n")}`).toEqual(
       [],
     );
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it.skipIf(!ENFORCED)("declares no locale union type outside the registry", () => {
     const found = violations(LOCALE_UNION_TYPE);
@@ -528,12 +528,12 @@ describe("locale consumer audit", () => {
       found,
       `hard-coded locale union types (use AppLocale, ContentLocale or RoutingLocale):\n${found.join("\n")}`,
     ).toEqual([]);
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it.skipIf(!ENFORCED)("re-declares no locale alias from a registry array", () => {
     const found = violations(REDECLARED_LOCALE_ALIAS);
     expect(found, `re-declared locale aliases (import the exported type instead):\n${found.join("\n")}`).toEqual([]);
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it.skipIf(!ENFORCED)("contains no direct language-code comparison outside the registry", () => {
     const found = hardCodedLocaleComparisons();
@@ -541,7 +541,7 @@ describe("locale consumer audit", () => {
       found,
       `hard-coded locale comparisons (model the behavior in the locale registry):\n${found.join("\n")}`,
     ).toEqual([]);
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it("detects aliased equality and switch comparisons", () => {
     const found = hardCodedLocaleComparisonsInSource(
@@ -566,7 +566,7 @@ describe("locale consumer audit", () => {
       found,
       `language-prefix branching (resolve the locale through the registry and keep every app locale reachable):\n${found.join("\n")}`,
     ).toEqual([]);
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it("detects prefix checks and two-locale narrowing ternaries", () => {
     const found = localeBranchingInSource(
@@ -593,7 +593,7 @@ describe("locale consumer audit", () => {
       found,
       `locale-keyed copy tables (move the strings into i18n/locales and take a translator):\n${found.join("\n")}`,
     ).toEqual([]);
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it("detects sibling language keys carrying copy, and spares locale-keyed module maps", () => {
     const found = localeKeyedCopyTablesInSource(
@@ -617,7 +617,7 @@ describe("locale consumer audit", () => {
       `ambient or hard-coded locale formatting sites (use a registry formatting tag):\n${unexpected.join("\n")}`,
     ).toEqual([]);
     expect(stale, `stale ambient-formatting exceptions:\n${stale.join("\n")}`).toEqual([]);
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it("detects ambient Intl, aliased toLocale calls, and localeCompare", () => {
     const found = formattingSitesInSource(
@@ -653,7 +653,7 @@ describe("locale consumer audit", () => {
         .map(([site, exception]) => `${site} (${exception.count}): ${exception.reason}`)
         .join("\n")}`,
     ).toEqual([]);
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it("detects visible JSX, text-bearing props, conditional copy, object labels, and prop defaults", () => {
     const found = visibleCopySitesInSource(
@@ -685,7 +685,7 @@ describe("locale consumer audit", () => {
     const found = scannedFiles().flatMap((path) => {
       const repoPath = relative(REPO_ROOT, path);
       if (!isProductionSource(repoPath)) return [];
-      const source = readFileSync(path, "utf8");
+      const source = readSourceText(path);
       return source.includes("z.config(") ? [repoPath] : [];
     });
 
@@ -693,7 +693,7 @@ describe("locale consumer audit", () => {
       found,
       `request-localized validation must pass a parse context, not call z.config():\n${found.join("\n")}`,
     ).toEqual([]);
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it.skipIf(!ENFORCED)("does not create customer-facing Zod errors from raw source literals", () => {
     const found = literalCreateZodErrorSites();
@@ -701,7 +701,7 @@ describe("locale consumer audit", () => {
       found,
       `raw createZodError messages (translate them and retain a CustomErrorCode):\n${found.join("\n")}`,
     ).toEqual([]);
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it("detects string and template literals passed directly to createZodError", () => {
     expect(
@@ -721,5 +721,11 @@ describe("locale consumer audit", () => {
     }
 
     expect(problems, `locale consumers bound to the wrong domain:\n${problems.join("\n")}`).toEqual([]);
+  });
+});
+
+describe("exception membership against the review base", () => {
+  it("adds no exception members beyond the review base and the reviewed additions", () => {
+    expect(unreviewedExceptionAdditions("locale-consumer-audit.test.ts")).toEqual([]);
   });
 });

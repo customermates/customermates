@@ -34,7 +34,9 @@ describe("BackgroundTaskService.dispatch", () => {
     await service.dispatch("some-task" as never, { foo: "bar" } as never);
 
     expect(startMock).toHaveBeenCalledTimes(1);
-    expect(startMock).toHaveBeenCalledWith(workflowFn, [{ foo: "bar" }], { region: "fra1" });
+    expect(startMock).toHaveBeenCalledWith(workflowFn, [{ foo: "bar" }], {
+      region: "fra1",
+    });
   });
 
   it("defers start to afterCommit when inside a transaction", async () => {
@@ -44,10 +46,8 @@ describe("BackgroundTaskService.dispatch", () => {
     await transactionStorage.run(
       {
         client: {} as never,
-        auditLogBatch: [],
-        webhookDeliveryBatch: [],
         afterCommit: [],
-        enabledWebhooks: null,
+        eventWakeups: new Set(),
       },
       async () => {
         const result = await service.dispatch("some-task" as never, { foo: "bar" } as never);
@@ -70,10 +70,8 @@ describe("BackgroundTaskService.dispatch", () => {
     await transactionStorage.run(
       {
         client: {} as never,
-        auditLogBatch: [],
-        webhookDeliveryBatch: [],
         afterCommit: captured,
-        enabledWebhooks: null,
+        eventWakeups: new Set(),
       },
       async () => {
         await service.dispatch("some-task" as never, { foo: "bar" } as never);
@@ -85,7 +83,9 @@ describe("BackgroundTaskService.dispatch", () => {
     for (const fn of captured) await fn();
 
     expect(startMock).toHaveBeenCalledTimes(1);
-    expect(startMock).toHaveBeenCalledWith(workflowFn, [{ foo: "bar" }], { region: "fra1" });
+    expect(startMock).toHaveBeenCalledWith(workflowFn, [{ foo: "bar" }], {
+      region: "fra1",
+    });
   });
 });
 

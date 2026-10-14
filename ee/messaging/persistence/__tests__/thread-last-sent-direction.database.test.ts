@@ -11,6 +11,7 @@ import { MessagingProvider } from "@/generated/prisma";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
+import { getConnectedAccountRepo, getRecordAccessPolicy, getRecordIdentityReader, getRecordRepo } from "@/core/di";
 import { PrismaMessagingRepo } from "../prisma-messaging.repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
@@ -26,7 +27,7 @@ function attendee(identifier: string, isSelf = false): MessagingAttendee {
     headline: null,
     occupation: null,
     isSelf,
-    contact: null,
+    records: [],
   };
 }
 
@@ -35,17 +36,27 @@ describeDatabase("the latest sent message of a thread on PostgreSQL", () => {
   const companyId = randomUUID();
   const ownerId = randomUUID();
   const accountId = randomUUID();
+  const roleId = randomUUID();
   const ownerEmail = `last-sent-owner-${ownerId}@example.invalid`;
   const customerEmail = `last-sent-customer-${ownerId}@example.invalid`;
   const tenant = createMockUser({ id: ownerId, companyId, email: ownerEmail }) satisfies TenantUser;
-  const repo = new PrismaMessagingRepo();
+  const repo = new PrismaMessagingRepo(
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getRecordIdentityReader(),
+    getConnectedAccountRepo(),
+  );
 
   beforeAll(async () => {
     await client.connect();
     await client.query('INSERT INTO "Company" ("id", "updatedAt") VALUES ($1, CURRENT_TIMESTAMP)', [companyId]);
     await client.query(
-      'INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "updatedAt") VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)',
-      [ownerId, ownerEmail, "Last", "Sent", companyId],
+      'INSERT INTO "UserRole" ("id", "name", "isSystemRole", "companyId", "updatedAt") VALUES ($1, $2, TRUE, $3, CURRENT_TIMESTAMP)',
+      [roleId, "Admin", companyId],
+    );
+    await client.query(
+      'INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "roleId", "status", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, \'active\', CURRENT_TIMESTAMP)',
+      [ownerId, ownerEmail, "Last", "Sent", companyId, roleId],
     );
     await client.query(
       'INSERT INTO "ConnectedAccount" ("id", "companyId", "userId", "provider", "unipileAccountId", "status", "emailAddress", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP)',

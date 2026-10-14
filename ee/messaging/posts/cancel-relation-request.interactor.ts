@@ -9,7 +9,7 @@ import type { RelationRequestResult } from "./social-posts.schema";
 
 import { z } from "zod";
 
-import { Resource, Action } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
@@ -24,7 +24,7 @@ export const CancelRelationRequestSchema = z.object({
 });
 type CancelRelationRequestData = Data<typeof CancelRelationRequestSchema>;
 
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "update" })
 export class CancelRelationRequestInteractor extends AuthenticatedInteractor<
   CancelRelationRequestData,
   RelationRequestResult

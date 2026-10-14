@@ -3,17 +3,18 @@ import { z } from "zod";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 export const WEBHOOK_HEADER_MAX_COUNT = 20;
-export const WEBHOOK_HEADER_NAME_MAX_CHARS = 128;
+const WEBHOOK_HEADER_NAME_MAX_CHARS = 128;
 export const WEBHOOK_HEADER_VALUE_MAX_CHARS = 2048;
-export const WEBHOOK_HEADER_TOTAL_MAX_CHARS = 8192;
+const WEBHOOK_HEADER_TOTAL_MAX_CHARS = 8192;
 
-export const WEBHOOK_RESERVED_HEADERS = [
+const WEBHOOK_RESERVED_HEADERS = [
   "connection",
   "content-length",
   "content-type",
   "host",
   "transfer-encoding",
   "x-webhook-signature",
+  "x-customermates-delivery-id",
 ] as const;
 
 const RESERVED = new Set<string>(WEBHOOK_RESERVED_HEADERS);

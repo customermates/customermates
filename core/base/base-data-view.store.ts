@@ -1,36 +1,53 @@
+import type { GetQueryParams } from "@/core/base/base-get.schema";
+import type { GroupableFieldDto } from "@/core/base/grouping/groupable-field";
+import type {
+  GroupPageRequest,
+  GroupSummaryDefinition,
+  Grouping,
+  GroupingResult,
+} from "@/core/base/grouping/grouping.schema";
+import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
+import type { DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
+import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-state.schema";
+import { isPersistedColumnWidthKey } from "@/core/data-view/data-view-state.schema";
 import type { ObservableSet } from "mobx";
 import type { RootStore } from "../stores/root.store";
-import type { Filter, FilterableField, GroupValueSums, PaginationRequest, SortDescriptor } from "./base-get.schema";
 import type { GetResult } from "./base-get.interactor";
-import type { GetQueryParams } from "@/core/base/base-get.schema";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
-import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-state.schema";
-import type { DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
-import type { GroupPageRequest, Grouping, GroupingResult } from "@/core/base/grouping/grouping.schema";
-import type { GroupableFieldDto } from "@/core/base/grouping/groupable-field";
+import type { Filter, FilterableField, PaginationRequest, SortDescriptor } from "./base-get.schema";
 
-import { makeObservable, observable, computed, action, toJS, runInAction } from "mobx";
 import deepEqual from "fast-deep-equal/es6";
-import { Action, CustomColumnType } from "@/generated/prisma";
+import { action, computed, makeObservable, observable, runInAction, toJS } from "mobx";
 
-import type { Resource, EntityType } from "@/generated/prisma";
+import type { Resource } from "@/generated/prisma";
+import { Action } from "@/generated/prisma";
 
-import { toastZodErrorTree } from "../utils/toast-zod-error-tree";
 import { reportApplicationError } from "../errors/report-application-error";
+import { ForbiddenError } from "../errors/app-errors";
+import { toastZodErrorTree } from "../utils/toast-zod-error-tree";
 
 import { ViewMode } from "./base-query-builder";
 import { BaseStore } from "./base.store";
 
-import { GROUP_PAGE_SIZE_DEFAULT, encodeGroupingToken, sameGrouping } from "@/core/base/grouping/grouping.schema";
+import { saveDataViewStateAction, selectDataViewAction, upsertDataViewAction } from "@/app/actions";
 import {
-  saveDataViewStateAction,
-  selectDataViewAction,
-  getCustomColumnsByEntityTypeAction,
-  bulkDeleteEntitiesAction,
-  bulkUpdateCustomFieldValuesAction,
-  updateEntityCustomFieldValueAction,
-} from "@/app/actions";
+  GROUP_PAGE_SIZE_DEFAULT,
+  MAX_AXIS_GROUPS,
+  encodeGroupingToken,
+  sameGrouping,
+} from "@/core/base/grouping/grouping.schema";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
+import type { DataViewProposal } from "@/core/data-view/data-view-proposal.schema";
+import type { SharedView } from "@/core/data-view/shared-view-link";
+import { scopeSharedViewState } from "@/core/data-view/shared-view-link";
+import {
+  type ViewDraft,
+  draftStorageKey,
+  mergeProposalDraft,
+  parseViewDraft,
+  proposalViewKey,
+  viewQueryDraftOwner,
+} from "@/core/data-view/view-query-drafts";
+import { reserveViewStateWrite, type ViewStateWriteIntent } from "@/core/data-view/view-state-persistence";
 
 export const MAX_SELECTION_SIZE = 100;
 
@@ -51,30 +68,72 @@ export type DataViewRequestState =
   | { readonly status: "refreshing" }
   | { readonly status: "refresh-error"; readonly error: unknown };
 
-export type DataViewRefreshMode = "background" | "visible";
+type DataViewRefreshMode = "background" | "visible";
 
 type SelectionScope = { filters: Filter[]; searchTerm: string | null };
 
-function readItemValueSums(item: unknown, fields: readonly string[]): GroupValueSums | undefined {
-  const values = item as Record<string, unknown>;
-  const summed = fields.flatMap((field) =>
-    typeof values[field] === "number" ? [[field, values[field]] as const] : [],
-  );
+type ViewQuery = { filters: Filter[]; searchTerm: string | undefined };
 
-  return summed.length > 0 ? Object.fromEntries(summed) : undefined;
+type ViewProposalStatus = { name?: string; isNew: boolean };
+
+function canonicalJson(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.keys(value)
+      .sort()
+      .map((key) => `${JSON.stringify(key)}:${canonicalJson((value as Record<string, unknown>)[key])}`)
+      .join(",")}}`;
+  }
+  return JSON.stringify(value) ?? "null";
 }
 
-function shiftValueSums(group: GroupValueSums, item: GroupValueSums, sign: 1 | -1): GroupValueSums {
-  const fields = new Set([...Object.keys(group), ...Object.keys(item)]);
+function filterSignature(filters: Filter[]): string[] {
+  return filters.map(canonicalJson).sort();
+}
 
-  return Object.fromEntries(
-    [...fields].map((field) => [field, Math.max(0, (group[field] ?? 0) + sign * (item[field] ?? 0))]),
-  );
+const APPEARANCE_KEYS = ["sortDescriptor", "pageSize", "viewMode", "grouping", "columnOrder", "hiddenColumns"] as const;
+
+type AppearanceKey = (typeof APPEARANCE_KEYS)[number];
+
+const URL_CARRIED_APPEARANCE_KEYS = new Set<AppearanceKey>(["sortDescriptor", "pageSize", "viewMode", "grouping"]);
+
+function appearanceSignature(key: AppearanceKey, state: DataViewState | undefined): string {
+  switch (key) {
+    case "sortDescriptor": {
+      const sort = state?.sortDescriptor;
+      return canonicalJson(sort ? { field: sort.field, direction: sort.direction } : null);
+    }
+    case "pageSize":
+      return canonicalJson(state?.pageSize ?? null);
+    case "viewMode":
+      return canonicalJson(state?.viewMode ?? ViewMode.table);
+    case "grouping": {
+      const grouping = state?.grouping;
+      return canonicalJson(
+        grouping
+          ? {
+              field: grouping.field,
+              bucket: grouping.bucket ?? null,
+              hidden: [...(grouping.hidden ?? [])].sort(),
+              hideEmpty: Boolean(grouping.hideEmpty),
+              summaries: (grouping.summaries ?? []).map(canonicalJson),
+            }
+          : null,
+      );
+    }
+    case "columnOrder":
+      return canonicalJson(state?.columnOrder ?? []);
+    case "hiddenColumns":
+      return canonicalJson([...(state?.hiddenColumns ?? [])].sort());
+  }
+}
+
+function sameAppearanceValue(key: AppearanceKey, left: DataViewState | undefined, right: DataViewState | undefined) {
+  return appearanceSignature(key, left) === appearanceSignature(key, right);
 }
 
 export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore {
   items: Entity[] = [];
-  customColumns: CustomColumnDto[] = [];
 
   searchTerm: string | undefined;
   pagination: (PaginationRequest & { totalPages?: number; total?: number }) | undefined;
@@ -83,6 +142,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   filterableFields: FilterableField[] = [];
 
   p13nId?: string;
+  resetLayout?: () => Promise<void>;
   columnOrder: string[] = [];
   columnWidths: Record<string, number> = {};
   hiddenColumns: string[] = [];
@@ -95,18 +155,21 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   groupingResult?: GroupingResult;
   groupableFields: GroupableFieldDto[] = [];
   collapsedGroupKeys: ObservableSet<string> = observable.set();
+  expandedEmptyGroupKeys: ObservableSet<string> = observable.set();
   selectedIds: ObservableSet<string> = observable.set();
   selectedScope: SelectionScope | undefined = undefined;
 
   groupCounts: Record<string, number> = {};
-  groupValueSums: Record<string, GroupValueSums> = {};
   groupedTakeOverrides: Record<string, number> = {};
-  isBulkMutating = false;
 
   public readonly resource?: Resource;
-  public readonly entityType?: EntityType;
 
   private persistViewStateTimer?: number;
+  private queryDraftRestored = false;
+  proposal: ViewProposalStatus | null = null;
+  savedAppearance: DataViewState | undefined = undefined;
+  private resolvingSavedView = false;
+  private pendingViewStateIntent?: ViewStateWriteIntent;
   private pendingGroupOnly?: string;
   private requestGeneration = 0;
   private viewStateWrites = new Map<string, number>();
@@ -116,12 +179,92 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   private requestState: DataViewRequestState = { status: "uninitialized" };
   private onChangesCallbacks: (() => void | Promise<void>)[] = [];
 
+  schemaSettingsHref?: string;
+  viewPathname?: string;
+  viewSyncToUrl = true;
+  get supportsSelection(): boolean {
+    return false;
+  }
+  get supportsBoard(): boolean {
+    return false;
+  }
+  get sharesViewState(): boolean {
+    return true;
+  }
+  get supportsManualOrder(): boolean {
+    return false;
+  }
+  get recordLabels(): { singular: string; plural: string } | undefined {
+    return undefined;
+  }
+  get viewTypeLabel(): string | undefined {
+    return undefined;
+  }
+
+  get manualOrderActive(): boolean {
+    return false;
+  }
+
+  async moveItemBetweenGroups(_params: {
+    item: Entity;
+    optimisticItem: Entity;
+    fromGroupKey: string;
+    toGroupKey: string;
+    value: string | null;
+    afterId?: string | null;
+    beforeId?: string | null;
+  }): Promise<void> {}
+
+  moveInGrouping = (
+    itemId: string,
+    fromGroupKey: string,
+    toGroupKey: string,
+    beforeId: string | null,
+  ): GroupingResult | undefined => {
+    const current = this.groupingResult;
+    if (!current) return undefined;
+    const crossing = fromGroupKey !== toGroupKey;
+    this.groupingResult = {
+      ...current,
+      groups: current.groups.map((group) => {
+        const ids = group.itemIds.filter((id) => id !== itemId);
+        if (group.key !== toGroupKey) {
+          return group.key === fromGroupKey && crossing
+            ? { ...group, itemIds: ids, count: Math.max(0, group.count - 1) }
+            : group;
+        }
+        const at = beforeId ? ids.indexOf(beforeId) : -1;
+        return {
+          ...group,
+          itemIds: at < 0 ? [...ids, itemId] : [...ids.slice(0, at), itemId, ...ids.slice(at)],
+          count: group.count + (crossing ? 1 : 0),
+        };
+      }),
+    };
+    return current;
+  };
+
+  restoreGrouping = (snapshot: GroupingResult): void => {
+    this.groupingResult = snapshot;
+  };
+
   abstract get columnsDefinition(): TableColumn[];
 
-  constructor(rootStore: RootStore, resource?: Resource, entityType?: EntityType) {
+  get primaryColumnId(): string {
+    return "name";
+  }
+
+  get differsFromDefaultLayout(): boolean {
+    return false;
+  }
+
+  get summaryFields(): { id: string; label: string }[] {
+    return [];
+  }
+
+  constructor(rootStore: RootStore, resource?: Resource) {
     super(rootStore);
     this.resource = resource;
-    this.entityType = entityType;
 
     makeObservable<this, "requestState">(this, {
       requestState: observable.ref,
@@ -130,7 +273,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       isReady: computed,
 
       items: observable,
-      customColumns: observable,
 
       searchTerm: observable,
       filters: observable,
@@ -151,21 +293,26 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       groupingResult: observable.ref,
       groupableFields: observable,
       collapsedGroupKeys: observable,
+      expandedEmptyGroupKeys: observable,
       selectedIds: observable,
       selectedScope: observable.ref,
 
       groupCounts: observable,
-      groupValueSums: observable,
       groupedTakeOverrides: observable,
-      isBulkMutating: observable,
 
+      proposal: observable.ref,
+      savedAppearance: observable.ref,
+      savedQuery: computed,
+      canSaveQuery: computed,
+      isFilterModified: computed,
+      isAppearanceModified: computed,
+      isViewModified: computed,
+      filterColumns: computed,
       orderedColumns: computed,
       visibleColumns: computed,
       sortableColumnIds: computed,
       canManage: computed,
       canExport: computed,
-      canUpdateSelection: computed,
-      canDeleteSelection: computed,
       isDisabled: computed,
       hasSelection: computed,
       selectedCount: computed,
@@ -174,10 +321,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       isSelectionAtLimit: computed,
       currentSelectionScope: computed,
       isSelectionScopeStale: computed,
-      massEditableCustomColumns: computed,
       canBoard: computed,
       isGrouped: computed,
-      isGroupedByDealWeightingColumn: computed,
       groupingKey: computed,
       currentGroupableFieldId: computed,
 
@@ -187,13 +332,16 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       replaceFilterAt: action,
       removeFilterAt: action,
       applyView: action,
+      saveViewChanges: action,
+      applyViewProposal: action,
+      applySharedView: action,
+      resetViewChanges: action,
+      restoreQueryDraft: action,
       refresh: action,
-      refreshCustomColumns: action,
       upsertItem: action,
       upsertItemLocal: action,
       removeItem: action,
       registerOnChange: action,
-      setCustomColumns: action,
       executeOnChanges: action,
       setItems: action,
       setSelectedIds: action,
@@ -203,17 +351,15 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       clearSelection: action,
       loadMoreInGroup: action,
       toggleGroupCollapsed: action,
+      moveInGrouping: action,
+      restoreGrouping: action,
+      toggleBoardStrip: action,
+      hideGroup: action,
+      showGroup: action,
+      setHideEmptyGroups: action,
+      setGroupSummaries: action,
       setGroupSelection: action,
       resetGroupedTakeOverrides: action,
-      transferItemBetweenGroups: action,
-      transferItemBetweenResultGroups: action,
-      restoreGroupValueSums: action,
-      restoreResultGroups: action,
-      setBulkMutating: action,
-      bulkDelete: action,
-      bulkUpdateCustomField: action,
-      updateCustomFieldValue: action,
-      moveItemBetweenGroups: action,
     });
   }
 
@@ -229,159 +375,140 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return this.requestState.status === "refreshing";
   }
 
-  setBulkMutating = (next: boolean) => {
-    this.isBulkMutating = next;
-  };
-
-  bulkDelete = async (): Promise<boolean> => {
-    const ids = Array.from(this.selectedIds);
-    if (ids.length === 0 || !this.entityType) return false;
-    if (ids.length > MAX_SELECTION_SIZE) {
-      this.toastError("MassActions.limitReached", { values: { limit: MAX_SELECTION_SIZE } });
-      return false;
-    }
-
-    this.setBulkMutating(true);
-    try {
-      const res = await bulkDeleteEntitiesAction({ entityType: this.entityType, ids });
-      if (res && !res.ok) {
-        toastZodErrorTree(res.error);
-        await this.refresh();
-        return false;
-      }
-      this.rootStore.activityTimelines.refreshForMany(this.entityType, ids);
-      this.clearSelection();
-      await this.refresh();
-      return true;
-    } finally {
-      this.setBulkMutating(false);
-    }
-  };
-
-  bulkUpdateCustomField = async (columnId: string, value: string): Promise<boolean> => {
-    const entityIds = Array.from(this.selectedIds);
-    if (entityIds.length === 0 || !this.entityType) return false;
-    if (entityIds.length > MAX_SELECTION_SIZE) {
-      this.toastError("MassActions.limitReached", { values: { limit: MAX_SELECTION_SIZE } });
-      return false;
-    }
-
-    this.setBulkMutating(true);
-    try {
-      const res = await bulkUpdateCustomFieldValuesAction({
-        entityType: this.entityType,
-        entityIds,
-        customFieldValues: [{ columnId, value }],
-      });
-      if (res && !res.ok) {
-        if (!toastZodErrorTree(res.error)) this.toastError("Common.notifications.unexpectedError");
-        await this.refresh();
-        return false;
-      }
-      this.rootStore.activityTimelines.refreshForMany(this.entityType, entityIds);
-      this.clearSelection();
-      await this.refresh();
-      this.toastSuccess("Common.notifications.updated");
-      return true;
-    } finally {
-      this.setBulkMutating(false);
-    }
-  };
-
-  updateCustomFieldValue = async (entityId: string, columnId: string, value: string | null): Promise<boolean> => {
-    const entityType = this.entityType;
-    if (!entityType) return false;
-
-    const res = await updateEntityCustomFieldValueAction({
-      entityType,
-      entityId,
-      customFieldValues: [{ columnId, value }],
-    });
-    if (res?.ok) {
-      await this.upsertItem(res.data as unknown as Entity);
-      return true;
-    }
-    toastZodErrorTree(res?.error);
-    return false;
-  };
-
-  moveItemBetweenGroups = async (params: {
-    item: Entity;
-    optimisticItem: Entity;
-    fromGroupKey: string;
-    toGroupKey: string;
-    value: string | null;
-    destinationValueSums?: GroupValueSums;
-  }): Promise<void> => {
-    const entityType = this.entityType;
-    if (!entityType) return;
-
-    const columnId = this.groupingResult?.columnId;
-
-    if (!columnId || !this.groupingResult?.supportsDragWriteBack) {
-      this.toastError("Common.notifications.unexpectedError");
-      return;
-    }
-
-    const summedFields = [
-      ...new Set([
-        ...Object.values(this.groupValueSums).flatMap((sums) => Object.keys(sums)),
-        ...(this.groupingResult?.groups ?? []).flatMap((group) => Object.keys(group.valueSums ?? {})),
-      ]),
-    ];
-    const itemValueSums = readItemValueSums(params.item, summedFields);
-    const valueSumsBeforeMove = this.groupValueSums;
-    const resultGroupsBeforeMove = this.groupingResult;
-
-    this.upsertItemLocal(params.optimisticItem);
-    this.transferItemBetweenGroups(params.fromGroupKey, params.toGroupKey, itemValueSums, params.destinationValueSums);
-    this.transferItemBetweenResultGroups({
-      itemId: params.item.id,
-      fromGroupKey: params.fromGroupKey,
-      toGroupKey: params.toGroupKey,
-      itemValueSums,
-      destinationValueSums: params.destinationValueSums,
-    });
-
-    const valueSumsAfterMove = this.groupValueSums;
-    const resultGroupsAfterMove = this.groupingResult;
-
-    const revert = () => {
-      this.upsertItemLocal(params.item);
-      this.transferItemBetweenGroups(params.toGroupKey, params.fromGroupKey);
-      this.restoreGroupValueSums(valueSumsBeforeMove, valueSumsAfterMove);
-      this.restoreResultGroups(resultGroupsBeforeMove, resultGroupsAfterMove);
+  get savedQuery(): ViewQuery {
+    const saved = this.views.find((view) => view.id === this.activeViewKey)?.state ?? this.allViewState;
+    return {
+      filters: this.withKnownFields(saved.filters),
+      searchTerm: saved.searchTerm || undefined,
     };
+  }
 
-    try {
-      const res = await updateEntityCustomFieldValueAction({
-        entityType,
-        entityId: params.item.id,
-        customFieldValues: [{ columnId, value: params.value }],
-      });
-      if (res?.ok) await this.upsertItem(res.data as unknown as Entity);
-      else {
-        revert();
-        toastZodErrorTree(res?.error);
-      }
-    } catch (err) {
-      revert();
-      throw err;
+  get canSaveQuery(): boolean {
+    return Boolean(this.p13nId) && this.viewPersistable && this.canPersistViewState();
+  }
+
+  get isFilterModified(): boolean {
+    if (!this.isReady || !this.canSaveQuery) return false;
+
+    return !deepEqual(filterSignature(toJS(this.filters) ?? []), filterSignature(this.savedQuery.filters));
+  }
+
+  get isAppearanceModified(): boolean {
+    if (!this.isReady || !this.canSaveQuery || !this.savedAppearance) return false;
+    const current = this.currentAppearance();
+
+    return APPEARANCE_KEYS.some((key) => !sameAppearanceValue(key, current, this.savedAppearance));
+  }
+
+  get isViewModified(): boolean {
+    if (!this.isReady || !this.canSaveQuery) return false;
+    if (this.proposal) return true;
+
+    return this.isFilterModified || this.isAppearanceModified;
+  }
+
+  private get hasSessionQuery(): boolean {
+    if (!this.isReady || !this.canSaveQuery) return false;
+
+    return this.isViewModified || this.hasSessionSearch;
+  }
+
+  private get hasSessionSearch(): boolean {
+    return (this.searchTerm || undefined) !== this.savedQuery.searchTerm;
+  }
+
+  private get savedViewState(): DataViewState {
+    return this.views.find((view) => view.id === this.activeViewKey)?.state ?? this.allViewState;
+  }
+
+  currentAppearance = (): DataViewState => ({
+    sortDescriptor: toJS(this.sortDescriptor) ?? null,
+    ...(this.pagination ? { pageSize: this.pagination.pageSize as DataViewState["pageSize"] } : {}),
+    viewMode: toJS(this.viewMode),
+    grouping: toJS(this.grouping) ?? null,
+    columnOrder: toJS(this.columnOrder),
+    hiddenColumns: toJS(this.hiddenColumns),
+  });
+
+  viewStateSnapshot = ({ includeQuery }: { includeQuery: boolean }): DataViewState => {
+    const saved = this.savedQuery;
+    if (!includeQuery) {
+      return {
+        ...toJS(this.savedViewState),
+        filters: saved.filters,
+        searchTerm: saved.searchTerm ?? "",
+        columnWidths: toJS(this.columnWidths),
+      };
     }
+
+    return {
+      filters: toJS(this.filters) ?? [],
+      searchTerm: saved.searchTerm ?? "",
+      sortDescriptor: toJS(this.sortDescriptor) ?? null,
+      pageSize: this.pagination?.pageSize,
+      viewMode: toJS(this.viewMode),
+      grouping: toJS(this.grouping) ?? null,
+      columnOrder: toJS(this.columnOrder),
+      columnWidths: toJS(this.columnWidths),
+      hiddenColumns: toJS(this.hiddenColumns),
+    };
   };
+
+  private applyAppearance(appearance: DataViewState): void {
+    const groupingBefore = this.groupingKey;
+    if ("sortDescriptor" in appearance) this.sortDescriptor = appearance.sortDescriptor ?? undefined;
+    if (appearance.pageSize && this.pagination) this.pagination = { ...this.pagination, pageSize: appearance.pageSize };
+    if ("viewMode" in appearance) this.viewMode = appearance.viewMode ?? ViewMode.table;
+    if ("grouping" in appearance) this.grouping = appearance.grouping ?? null;
+    if (appearance.columnOrder) this.columnOrder = appearance.columnOrder.filter((uid) => uid !== this.primaryColumnId);
+    if (appearance.hiddenColumns)
+      this.hiddenColumns = appearance.hiddenColumns.filter((uid) => uid !== this.primaryColumnId);
+    if (groupingBefore === this.groupingKey) return;
+    this.resetGroupedTakeOverrides();
+    this.collapsedGroupKeys.clear();
+    this.expandedEmptyGroupKeys.clear();
+    this.resetPaginationPage();
+  }
+
+  private mergeSessionAppearance(local: DataViewState, saved: DataViewState): void {
+    const incoming = this.currentAppearance();
+    const kept: DataViewState = {};
+    const nextSaved: DataViewState = {};
+    for (const key of APPEARANCE_KEYS) {
+      const session = !sameAppearanceValue(key, local, saved);
+      Object.assign(kept, session ? { [key]: local[key] } : {});
+      Object.assign(nextSaved, { [key]: session ? saved[key] : incoming[key] });
+    }
+    const groupingResult = this.groupingResult;
+    this.applyAppearance(kept);
+    this.groupingResult = groupingResult;
+    this.savedAppearance = nextSaved;
+  }
+
+  canMoveItemBetweenGroups(item: Entity): boolean {
+    return Boolean(item.id);
+  }
+
+  canCreateInGroup(_groupKey: string): boolean {
+    return false;
+  }
+
+  createInGroup(_groupKey: string, _returnFocusTo?: HTMLElement | null): void {}
+
+  groupEditHref(_groupKey: string): string | undefined {
+    return undefined;
+  }
+
+  get filterColumns(): ColumnPresentation[] {
+    return [];
+  }
 
   get canBoard(): boolean {
-    return this.groupableFields.length > 0 || Boolean(this.entityType);
+    return this.supportsBoard && this.groupableFields.length > 0;
   }
 
   get isGrouped(): boolean {
     return Boolean(this.grouping && this.groupingResult);
-  }
-
-  get isGroupedByDealWeightingColumn(): boolean {
-    const columnId = this.groupingResult?.columnId;
-
-    return columnId !== undefined && columnId === this.rootStore.companyStore.company?.dealWeightingColumnId;
   }
 
   get groupingKey(): string {
@@ -402,7 +529,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   get canManage(): boolean {
     if (!this.resource) return true;
 
-    return this.rootStore.userStore.canManage(this.resource);
+    return this.rootStore.userStore.can(this.resource, Action.create);
   }
 
   get canExport(): boolean {
@@ -411,22 +538,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return this.rootStore.userStore.canAccess(this.resource);
   }
 
-  get canUpdateSelection(): boolean {
-    if (!this.resource) return true;
-
-    return this.rootStore.userStore.can(this.resource, Action.update);
-  }
-
-  get canDeleteSelection(): boolean {
-    if (!this.resource) return true;
-
-    return this.rootStore.userStore.can(this.resource, Action.delete);
-  }
-
   get isDisabled(): boolean {
     if (!this.resource) return false;
 
-    return !this.rootStore.userStore.canManage(this.resource);
+    return !this.canManage;
   }
 
   get hasSelection(): boolean {
@@ -450,7 +565,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   }
 
   get currentSelectionScope(): SelectionScope {
-    return { filters: toJS(this.filters) ?? [], searchTerm: this.searchTerm || null };
+    return {
+      filters: toJS(this.filters) ?? [],
+      searchTerm: this.searchTerm || null,
+    };
   }
 
   get isSelectionScopeStale(): boolean {
@@ -459,18 +577,13 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return !deepEqual(this.selectedScope, this.currentSelectionScope);
   }
 
-  get massEditableCustomColumns(): CustomColumnDto[] {
-    return this.customColumns.filter((col) =>
-      col.type === CustomColumnType.singleSelect ? col.options.options.length > 0 : true,
-    );
-  }
-
   isItemSelectable(_item: Entity): boolean {
     return true;
   }
 
   setSelectedIds = (keys: Set<string>) => {
     this.selectedIds.clear();
+    this.onSelectionChanged();
     this.selectedScope = undefined;
     [...keys].slice(0, MAX_SELECTION_SIZE).forEach((id) => this.selectedIds.add(id));
     this.rememberSelectionScope();
@@ -484,7 +597,9 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     }
 
     if (this.isSelectionAtLimit) {
-      this.toastError("MassActions.limitReached", { values: { limit: MAX_SELECTION_SIZE } });
+      this.toastError("MassActions.limitReached", {
+        values: { limit: MAX_SELECTION_SIZE },
+      });
       return;
     }
 
@@ -506,21 +621,30 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     missing.slice(0, room).forEach((id) => this.selectedIds.add(id));
     this.rememberSelectionScope();
 
-    if (missing.length > room) this.toastError("MassActions.limitReached", { values: { limit: MAX_SELECTION_SIZE } });
+    if (missing.length > room) {
+      this.toastError("MassActions.limitReached", {
+        values: { limit: MAX_SELECTION_SIZE },
+      });
+    }
   };
 
   keepSelectionInView = (): void => {
     const visible = new Set(this.items.map((item) => item.id));
     for (const id of [...this.selectedIds]) if (!visible.has(id)) this.selectedIds.delete(id);
     this.selectedScope = this.selectedIds.size > 0 ? this.currentSelectionScope : undefined;
+    this.onSelectionChanged();
   };
 
   clearSelection = () => {
     this.selectedIds.clear();
     this.selectedScope = undefined;
+    this.onSelectionChanged();
   };
 
+  protected onSelectionChanged(): void {}
+
   private rememberSelectionScope(): void {
+    this.onSelectionChanged();
     if (this.selectedIds.size === 0) {
       this.selectedScope = undefined;
       return;
@@ -532,14 +656,16 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   get orderedColumns() {
     const columnMap = new Map(this.columnsDefinition.map((col) => [col.uid, col]));
     const orderedUids = new Set(this.columnOrder);
-    const nameColumn = this.columnsDefinition.find((col) => col.uid === "name");
+    const nameColumn = this.columnsDefinition.find((col) => col.uid === this.primaryColumnId);
 
     if (this.columnOrder.length > 0) {
       const columnsFromOrder = this.columnOrder
         .map((uid) => columnMap.get(uid))
-        .filter((column): column is TableColumn => column !== undefined && column.uid !== "name");
+        .filter((column): column is TableColumn => column !== undefined && column.uid !== this.primaryColumnId);
 
-      const columnsNotInOrder = this.columnsDefinition.filter((col) => !orderedUids.has(col.uid) && col.uid !== "name");
+      const columnsNotInOrder = this.columnsDefinition.filter(
+        (col) => !orderedUids.has(col.uid) && col.uid !== this.primaryColumnId,
+      );
 
       const res: TableColumn[] = [];
       if (nameColumn) res.push(nameColumn);
@@ -548,7 +674,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       return res;
     }
 
-    const remainingColumns = this.columnsDefinition.filter((col) => col.uid !== "name");
+    const remainingColumns = this.columnsDefinition.filter((col) => col.uid !== this.primaryColumnId);
 
     const res: TableColumn[] = [];
     if (nameColumn) res.push(nameColumn);
@@ -568,9 +694,16 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       return;
     }
 
+    const sessionScope =
+      this.isReady &&
+      !this.resolvingSavedView &&
+      args.p13nId === this.p13nId &&
+      (args.activeViewKey ?? ALL_VIEW_KEY) === this.activeViewKey;
+    const localAppearance = sessionScope ? this.currentAppearance() : undefined;
+    const savedAppearance = sessionScope ? this.savedAppearance : undefined;
+
     this.requestGeneration += 1;
     this.items = args.items;
-    this.customColumns = args.customColumns ?? [];
     this.p13nId = args.p13nId;
     this.filterableFields = args.filterableFields || [];
     this.searchTerm = args.searchTerm;
@@ -578,8 +711,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.pagination = args.pagination;
     this.filters = this.withKnownFields(args.filters);
     this.columnWidths = args.columnWidths || {};
-    this.hiddenColumns = (args.hiddenColumns ?? []).filter((uid) => uid !== "name");
-    this.columnOrder = (args.columnOrder ?? []).filter((uid) => uid !== "name");
+    this.hiddenColumns = (args.hiddenColumns ?? []).filter((uid) => uid !== this.primaryColumnId);
+    this.columnOrder = (args.columnOrder ?? []).filter((uid) => uid !== this.primaryColumnId);
     this.viewMode = args.viewMode ?? ViewMode.table;
     this.grouping = args.grouping?.grouping ?? null;
     this.groupingResult = args.grouping;
@@ -589,7 +722,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.activeViewKey = args.activeViewKey ?? ALL_VIEW_KEY;
     this.viewPersistable = args.viewPersistable ?? true;
     this.groupCounts = args.groupCounts ?? {};
-    this.groupValueSums = args.groupValueSums ?? {};
+    if (localAppearance && savedAppearance) this.mergeSessionAppearance(localAppearance, savedAppearance);
+    else this.savedAppearance = this.currentAppearance();
     this.requestState = { status: "ready" };
   }
 
@@ -607,7 +741,14 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.groupingResult = {
       ...current,
       groups: current.groups.map((group) =>
-        group.key === page.key ? { ...group, itemIds: page.itemIds, hasMore: page.hasMore, materialised: true } : group,
+        group.key === page.key
+          ? {
+              ...group,
+              itemIds: page.itemIds,
+              hasMore: page.hasMore,
+              materialised: true,
+            }
+          : group,
       ),
     };
     this.requestState = { status: "ready" };
@@ -624,6 +765,58 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   };
 
   isGroupCollapsed = (groupKey: string): boolean => this.collapsedGroupKeys.has(groupKey);
+
+  isBoardStrip = (groupKey: string, count: number): boolean =>
+    count === 0 ? !this.expandedEmptyGroupKeys.has(groupKey) : this.collapsedGroupKeys.has(groupKey);
+
+  isGroupHidden = (groupKey: string): boolean => this.grouping?.hidden?.includes(groupKey) ?? false;
+
+  hideGroup = (groupKey: string): void => {
+    if (this.isGroupHidden(groupKey)) return;
+    this.setGroupPresentation({
+      hidden: [...(this.grouping?.hidden ?? []), groupKey],
+    });
+  };
+
+  showGroup = (groupKey: string): void => {
+    if (!this.isGroupHidden(groupKey)) return;
+    this.setGroupPresentation({
+      hidden: this.grouping?.hidden?.filter((key) => key !== groupKey),
+    });
+    this.pendingGroupOnly = groupKey;
+    this.refreshInBackground();
+  };
+
+  setHideEmptyGroups = (hideEmpty: boolean): void => {
+    this.setGroupPresentation({ hideEmpty });
+  };
+
+  setGroupSummaries = (summaries: GroupSummaryDefinition[]): void => {
+    if (!this.grouping) return;
+    this.grouping = { ...this.grouping, summaries };
+    this.appearanceChanged();
+    this.refreshInBackground();
+  };
+
+  private setGroupPresentation(patch: Pick<Grouping, "hidden" | "hideEmpty">): void {
+    if (!this.grouping) return;
+    const { hidden, hideEmpty, ...grouping } = { ...this.grouping, ...patch };
+    this.grouping = {
+      ...grouping,
+      ...(hidden?.length ? { hidden } : {}),
+      ...(hideEmpty ? { hideEmpty: true } : {}),
+    };
+    this.appearanceChanged();
+  }
+
+  toggleBoardStrip = (groupKey: string, count: number): void => {
+    if (count > 0) {
+      this.toggleGroupCollapsed(groupKey);
+      return;
+    }
+    if (this.expandedEmptyGroupKeys.has(groupKey)) this.expandedEmptyGroupKeys.delete(groupKey);
+    else this.expandedEmptyGroupKeys.add(groupKey);
+  };
 
   toggleGroupCollapsed = (groupKey: string): void => {
     if (!this.collapsedGroupKeys.has(groupKey)) {
@@ -657,91 +850,16 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     missing.slice(0, room).forEach((id) => this.selectedIds.add(id));
     this.rememberSelectionScope();
 
-    if (missing.length > room) this.toastError("MassActions.limitReached", { values: { limit: MAX_SELECTION_SIZE } });
+    if (missing.length > room) {
+      this.toastError("MassActions.limitReached", {
+        values: { limit: MAX_SELECTION_SIZE },
+      });
+    }
   };
 
   resetGroupedTakeOverrides = (): void => {
     if (Object.keys(this.groupedTakeOverrides).length === 0) return;
     this.groupedTakeOverrides = {};
-  };
-
-  transferItemBetweenGroups = (
-    fromGroupKey: string,
-    toGroupKey: string,
-    itemValueSums?: GroupValueSums,
-    destinationValueSums?: GroupValueSums,
-  ): void => {
-    if (fromGroupKey === toGroupKey) return;
-    const fromCount = this.groupCounts[fromGroupKey] ?? 0;
-    const toCount = this.groupCounts[toGroupKey] ?? 0;
-    this.groupCounts = {
-      ...this.groupCounts,
-      [fromGroupKey]: Math.max(0, fromCount - 1),
-      [toGroupKey]: toCount + 1,
-    };
-
-    const fromValueSums = this.groupValueSums[fromGroupKey];
-    const toValueSums = this.groupValueSums[toGroupKey];
-    if (!itemValueSums || !fromValueSums || !toValueSums) return;
-
-    this.groupValueSums = {
-      ...this.groupValueSums,
-      [fromGroupKey]: shiftValueSums(fromValueSums, itemValueSums, -1),
-      [toGroupKey]: shiftValueSums(toValueSums, destinationValueSums ?? itemValueSums, 1),
-    };
-  };
-
-  transferItemBetweenResultGroups = (args: {
-    itemId: string;
-    fromGroupKey: string;
-    toGroupKey: string;
-    itemValueSums?: GroupValueSums;
-    destinationValueSums?: GroupValueSums;
-  }): void => {
-    const current = this.groupingResult;
-    if (!current || args.fromGroupKey === args.toGroupKey) return;
-
-    const creditedSums = args.destinationValueSums ?? args.itemValueSums;
-
-    this.groupingResult = {
-      ...current,
-      groups: current.groups.map((group) => {
-        if (group.key === args.fromGroupKey) {
-          return {
-            ...group,
-            count: Math.max(0, group.count - 1),
-            itemIds: group.itemIds.filter((id) => id !== args.itemId),
-            ...(group.valueSums && args.itemValueSums
-              ? { valueSums: shiftValueSums(group.valueSums, args.itemValueSums, -1) }
-              : {}),
-          };
-        }
-
-        if (group.key === args.toGroupKey) {
-          return {
-            ...group,
-            count: group.count + 1,
-            itemIds: group.itemIds.includes(args.itemId) ? group.itemIds : [args.itemId, ...group.itemIds],
-            ...(group.valueSums && creditedSums ? { valueSums: shiftValueSums(group.valueSums, creditedSums, 1) } : {}),
-          };
-        }
-
-        return group;
-      }),
-    };
-  };
-
-  restoreResultGroups = (snapshot: GroupingResult | undefined, expected: GroupingResult | undefined): void => {
-    if (this.groupingResult !== expected) return;
-    this.groupingResult = snapshot;
-  };
-
-  restoreGroupValueSums = (
-    snapshot: Record<string, GroupValueSums>,
-    expected: Record<string, GroupValueSums>,
-  ): void => {
-    if (this.groupValueSums !== expected) return;
-    this.groupValueSums = snapshot;
   };
 
   setViewOptions = (updates: {
@@ -753,10 +871,11 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     grouping?: Grouping | null;
   }) => {
     let hasChanges = false;
+    let widthsChanged = false;
     const groupingBefore = this.groupingKey;
 
     if (updates.columnOrder) {
-      const newColumnOrder = updates.columnOrder.filter((uid) => uid !== "name");
+      const newColumnOrder = updates.columnOrder.filter((uid) => uid !== this.primaryColumnId);
 
       const orderChanged =
         this.columnOrder.length !== newColumnOrder.length ||
@@ -774,19 +893,19 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
       if (!deepEqual(this.columnWidths, newWidths)) {
         this.columnWidths = newWidths;
-        hasChanges = true;
+        widthsChanged = true;
       }
     }
 
     if (updates.columnWidths) {
       if (!deepEqual(this.columnWidths, updates.columnWidths)) {
         this.columnWidths = updates.columnWidths;
-        hasChanges = true;
+        widthsChanged = true;
       }
     }
 
     if (updates.hiddenColumns) {
-      const filteredHiddenColumns = updates.hiddenColumns.filter((uid) => uid !== "name");
+      const filteredHiddenColumns = updates.hiddenColumns.filter((uid) => uid !== this.primaryColumnId);
       if (!deepEqual(this.hiddenColumns, filteredHiddenColumns)) {
         this.hiddenColumns = filteredHiddenColumns;
         hasChanges = true;
@@ -808,10 +927,12 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     if (groupingChanged) {
       this.resetGroupedTakeOverrides();
       this.collapsedGroupKeys.clear();
+      this.expandedEmptyGroupKeys.clear();
       this.resetPaginationPage();
     }
 
-    if (hasChanges) this.persistViewState();
+    if (hasChanges) this.appearanceChanged();
+    if (widthsChanged) this.persistViewState();
     if (groupingChanged) this.refreshQueryInBackground();
     else if (viewModeChanged && this.viewMode === ViewMode.card && this.grouping) this.refreshInBackground();
   };
@@ -832,7 +953,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       this.filters = updates.filters;
       hasChanges = true;
       queryShapeChanged = true;
-      durableChanged = true;
     }
 
     if (updates.pagination) {
@@ -862,15 +982,15 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       this.searchTerm = updates.searchTerm;
       hasChanges = true;
       queryShapeChanged = true;
-      durableChanged = true;
     }
 
     if (queryShapeChanged) {
       this.resetPaginationPage();
       this.resetGroupedTakeOverrides();
+      this.syncQueryDraft();
     }
 
-    if (durableChanged) this.persistViewState();
+    if (durableChanged) this.appearanceChanged();
 
     if (!hasChanges && !updates.forceRefresh) return;
 
@@ -886,14 +1006,18 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     const current = this.filters ?? [];
     if (index < 0 || index >= current.length) return;
 
-    this.setQueryOptions({ filters: current.map((entry, position) => (position === index ? filter : entry)) });
+    this.setQueryOptions({
+      filters: current.map((entry, position) => (position === index ? filter : entry)),
+    });
   };
 
   removeFilterAt = (index: number) => {
     const current = this.filters ?? [];
     if (index < 0 || index >= current.length) return;
 
-    this.setQueryOptions({ filters: current.filter((_, position) => position !== index) });
+    this.setQueryOptions({
+      filters: current.filter((_, position) => position !== index),
+    });
   };
 
   applyView = (viewKey: string): void => {
@@ -901,36 +1025,271 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     const flushed = this.flushPendingViewState();
     const chip = this.views.find((view) => view.id === viewKey);
     const key = chip ? chip.id : ALL_VIEW_KEY;
-    const state: DataViewState = chip?.state ?? this.allViewState;
+    const saved: DataViewState = chip?.state ?? this.allViewState;
+    const draft = this.readQueryDraft(key);
+    const state: DataViewState = draft?.proposal ? { ...saved, ...draft.proposal.state } : saved;
+    const sessionAppearance = draft?.proposal ? undefined : draft?.appearance;
 
     runInAction(() => {
       this.requestGeneration += 1;
       if (this.isReady) this.requestState = { status: "refreshing" };
       this.activeViewKey = key;
-      this.filters = this.withKnownFields(state.filters);
-      this.searchTerm = state.searchTerm;
+      this.proposal = draft?.proposal
+        ? {
+            ...(draft.proposal.name ? { name: draft.proposal.name } : {}),
+            isNew: draft.proposal.isNew,
+          }
+        : null;
+      this.filters = this.withKnownFields(draft?.filters ?? state.filters);
+      this.searchTerm = draft ? draft.searchTerm : state.searchTerm;
       this.sortDescriptor = state.sortDescriptor ?? undefined;
       this.viewMode = state.viewMode ?? ViewMode.table;
       this.grouping = state.grouping ?? null;
-      this.columnOrder = (state.columnOrder ?? []).filter((uid) => uid !== "name");
+      this.columnOrder = (state.columnOrder ?? []).filter((uid) => uid !== this.primaryColumnId);
       this.columnWidths = state.columnWidths ?? {};
-      this.hiddenColumns = (state.hiddenColumns ?? []).filter((uid) => uid !== "name");
+      this.hiddenColumns = (state.hiddenColumns ?? []).filter((uid) => uid !== this.primaryColumnId);
       this.pagination = this.pagination
-        ? { ...this.pagination, page: 1, pageSize: state.pageSize ?? this.pagination.pageSize }
+        ? {
+            ...this.pagination,
+            page: 1,
+            pageSize: state.pageSize ?? this.pagination.pageSize,
+          }
         : this.pagination;
       this.groupedTakeOverrides = {};
       this.collapsedGroupKeys.clear();
+      this.expandedEmptyGroupKeys.clear();
+      this.savedAppearance = sessionAppearance ? draft?.savedAppearance : this.currentAppearance();
+      if (sessionAppearance) this.applyAppearance(sessionAppearance);
     });
 
     if (this.p13nId && this.viewPersistable) {
-      void selectDataViewAction({ surfaceKey: this.p13nId as DataViewSurfaceKey, viewKey: key }).catch(
-        reportApplicationError,
-      );
+      void selectDataViewAction({
+        surfaceKey: this.p13nId as DataViewSurfaceKey,
+        viewKey: key,
+      }).catch(reportApplicationError);
     }
 
-    if (flushed && key === previousKey) void flushed.then(this.refreshResolvedInBackground);
-    else this.refreshResolvedInBackground();
+    const reload = draft ? this.refreshQueryInBackground : this.refreshResolvedInBackground;
+    if (flushed && key === previousKey) void flushed.then(reload);
+    else reload();
   };
+
+  saveViewChanges = async (): Promise<void> => {
+    if (!this.isViewModified) return;
+
+    this.cancelPendingPersist();
+    if (this.proposal?.isNew) {
+      await this.saveProposedView(this.proposal.name);
+      return;
+    }
+    const viewKey = this.activeViewKey;
+    if (this.proposal?.name && viewKey !== ALL_VIEW_KEY) {
+      await this.saveProposedRename(viewKey, this.proposal.name);
+      return;
+    }
+    await this.writeViewState({ includeQuery: true });
+    if (!this.failedViewStateWrites.has(viewKey)) runInAction(() => (this.proposal = null));
+    this.syncQueryDraft();
+  };
+
+  resetViewChanges = (): void => {
+    if (this.proposal) {
+      this.forgetQueryDraft(this.activeViewKey);
+      this.applyView(this.activeViewKey);
+      return;
+    }
+    if (this.savedAppearance) this.applyAppearance(this.savedAppearance);
+    this.setQueryOptions({
+      filters: this.savedQuery.filters,
+      forceRefresh: true,
+    });
+    this.syncQueryDraft();
+  };
+
+  applyViewProposal = (proposal: DataViewProposal): void => {
+    if (proposal.surfaceKey !== this.p13nId || !this.canSaveQuery) return;
+    const viewKey = proposalViewKey(proposal);
+    if (viewKey !== ALL_VIEW_KEY && !this.views.some((view) => view.id === viewKey)) return;
+
+    if (viewKey === this.activeViewKey) this.syncQueryDraft();
+    this.writeQueryDraft(viewKey, mergeProposalDraft(this.readQueryDraft(viewKey), proposal));
+    this.applyView(viewKey);
+  };
+
+  applySharedView = (shared: SharedView): boolean => {
+    if (!this.sharesViewState || shared.surfaceKey !== this.p13nId || !this.canSaveQuery) return false;
+    const columnIds = new Set(
+      this.columnsDefinition.map((column) => column.uid).filter((uid) => uid !== this.primaryColumnId),
+    );
+    const state = scopeSharedViewState(shared.state, {
+      columnIds,
+      filterFields: this.filterableFields.length
+        ? new Set(this.filterableFields.map((field) => field.field))
+        : undefined,
+      groupings: this.groupableFields.map((field) => field.grouping),
+      sortableColumnIds: this.sortableColumnIds,
+      supportsBoard: this.supportsBoard,
+    });
+
+    this.writeQueryDraft(ALL_VIEW_KEY, {
+      filters: state.filters ?? [],
+      searchTerm: state.searchTerm || undefined,
+      proposal: { state, name: shared.name, isNew: true },
+    });
+    this.applyView(ALL_VIEW_KEY);
+    return true;
+  };
+
+  private saveProposedRename = async (viewKey: string, name: string): Promise<void> => {
+    if (!this.p13nId) return;
+    const renamed = await upsertDataViewAction({
+      id: viewKey,
+      name,
+      state: this.viewStateSnapshot({ includeQuery: true }),
+      surfaceKey: this.p13nId as DataViewSurfaceKey,
+    });
+    if (!renamed.ok) {
+      toastZodErrorTree(renamed.error);
+      return;
+    }
+    this.forgetQueryDraft(viewKey);
+    runInAction(() => {
+      this.proposal = null;
+      this.savedAppearance = this.currentAppearance();
+    });
+    await this.refresh();
+  };
+
+  private saveProposedView = async (name: string | undefined): Promise<void> => {
+    if (!name || !this.p13nId) return;
+    const proposedSearch = this.readQueryDraft(this.activeViewKey)?.proposal?.state.searchTerm !== undefined;
+    const created = await upsertDataViewAction({
+      name,
+      state: {
+        ...this.viewStateSnapshot({ includeQuery: true }),
+        ...(proposedSearch ? { searchTerm: this.searchTerm ?? "" } : {}),
+      },
+      surfaceKey: this.p13nId as DataViewSurfaceKey,
+    });
+    if (!created.ok) {
+      toastZodErrorTree(created.error);
+      return;
+    }
+    this.forgetQueryDraft(this.activeViewKey);
+    runInAction(() => (this.proposal = null));
+    await this.refresh();
+    this.applyView(created.data.id);
+  };
+
+  restoreQueryDraft = (): void => {
+    if (this.queryDraftRestored || !this.isReady) return;
+    this.queryDraftRestored = true;
+
+    const draft = this.readQueryDraft(this.activeViewKey);
+    if (draft?.proposal) {
+      this.applyView(this.activeViewKey);
+      return;
+    }
+    const appearanceRestored = draft ? this.restoreDraftAppearance(draft) : false;
+    if (!draft || this.isFilterModified || this.hasSessionSearch) {
+      this.syncQueryDraft();
+      if (appearanceRestored) this.refreshQueryInBackground();
+      return;
+    }
+
+    this.setQueryOptions({
+      filters: this.withKnownFields(draft.filters ?? this.savedQuery.filters),
+      searchTerm: draft.searchTerm ?? "",
+      forceRefresh: appearanceRestored,
+    });
+  };
+
+  private restoreDraftAppearance(draft: ViewDraft): boolean {
+    const session = draft.appearance;
+    const saved = draft.savedAppearance;
+    if (!session || !saved) return false;
+    const current = this.currentAppearance();
+    const restore: DataViewState = {};
+    const baseline: DataViewState = {};
+    for (const key of APPEARANCE_KEYS) {
+      const urlCarried = URL_CARRIED_APPEARANCE_KEYS.has(key);
+      Object.assign(baseline, {
+        [key]: urlCarried ? saved[key] : current[key],
+      });
+      if (!urlCarried || sameAppearanceValue(key, current, saved)) Object.assign(restore, { [key]: session[key] });
+    }
+    this.savedAppearance = baseline;
+    this.applyAppearance(restore);
+
+    return APPEARANCE_KEYS.some((key) => !sameAppearanceValue(key, current, this.currentAppearance()));
+  }
+
+  forgetQueryDraft = (viewKey: string): void => {
+    this.writeQueryDraft(viewKey, undefined);
+  };
+
+  private syncQueryDraft = (): void => {
+    const pending = this.proposal ? this.readQueryDraft(this.activeViewKey)?.proposal : undefined;
+    const display: DataViewState = this.viewStateSnapshot({
+      includeQuery: true,
+    });
+    delete display.filters;
+    delete display.searchTerm;
+    const proposal = pending
+      ? {
+          ...pending,
+          state: {
+            ...pending.state,
+            ...display,
+            filters: toJS(this.filters) ?? [],
+          },
+        }
+      : undefined;
+    this.writeQueryDraft(
+      this.activeViewKey,
+      proposal || this.hasSessionQuery
+        ? {
+            filters: toJS(this.filters) ?? [],
+            searchTerm: this.searchTerm || undefined,
+            ...(proposal ? { proposal } : {}),
+            ...(!proposal && this.isAppearanceModified && this.savedAppearance
+              ? {
+                  appearance: this.currentAppearance(),
+                  savedAppearance: toJS(this.savedAppearance),
+                }
+              : {}),
+          }
+        : undefined,
+    );
+  };
+
+  private queryDraftKey(viewKey: string): string | undefined {
+    const owner = viewQueryDraftOwner(this.rootStore.userStore?.user);
+    return this.p13nId && owner ? draftStorageKey(owner, this.p13nId, viewKey) : undefined;
+  }
+
+  private readQueryDraft(viewKey: string): ViewDraft | undefined {
+    const key = this.queryDraftKey(viewKey);
+    if (!key || !this.canSaveQuery || typeof window === "undefined") return undefined;
+
+    try {
+      return parseViewDraft(window.sessionStorage.getItem(key));
+    } catch {
+      return undefined;
+    }
+  }
+
+  private writeQueryDraft(viewKey: string, draft: ViewDraft | undefined): void {
+    const key = this.queryDraftKey(viewKey);
+    if (!key || typeof window === "undefined") return;
+
+    try {
+      if (draft) window.sessionStorage.setItem(key, JSON.stringify(draft));
+      else window.sessionStorage.removeItem(key);
+    } catch {
+      return;
+    }
+  }
 
   private withKnownFields(filters: Filter[] | undefined): Filter[] {
     const list = filters ?? [];
@@ -938,16 +1297,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     const known = new Set(this.filterableFields.map((f) => f.field));
     return list.filter((f) => known.has(f.field));
   }
-
-  refreshCustomColumns = async (): Promise<void> => {
-    if (!this.entityType) return;
-
-    const customColumns = await getCustomColumnsByEntityTypeAction({
-      entityType: this.entityType,
-    });
-
-    this.setCustomColumns(customColumns);
-  };
 
   refresh = (): Promise<void> => this.executeRefresh("background");
 
@@ -962,6 +1311,19 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     const generation = ++this.requestGeneration;
     const wasInitialized = this.isReady;
     const writeSeqBeforeRequest = this.viewStateWriteSeq;
+    const projectionBeforeRequest = {
+      surfaceKey: this.p13nId,
+      viewKey: this.activeViewKey,
+      columnOrder: toJS(this.columnOrder),
+      columnWidths: toJS(this.columnWidths),
+      hiddenColumns: toJS(this.hiddenColumns),
+    };
+    const pendingProjectionAtStart =
+      !resolveFromServer &&
+      (this.persistViewStateTimer !== undefined ||
+        this.proposal !== null ||
+        this.queuedViewStateWrites.has(JSON.stringify([this.p13nId, this.activeViewKey])) ||
+        this.failedViewStateWrites.has(this.activeViewKey));
     const groupPage = this.buildGroupPageRequest();
     const params: GetQueryParams = resolveFromServer
       ? {
@@ -978,7 +1340,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
             ? { groupPage, pageSize: this.pagination?.pageSize }
             : {
                 pagination: this.pagination
-                  ? { page: this.pagination.page, pageSize: this.pagination.pageSize }
+                  ? {
+                      page: this.pagination.page,
+                      pageSize: this.pagination.pageSize,
+                    }
                   : undefined,
               }),
           viewMode: this.viewMode,
@@ -1020,11 +1385,56 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     runInAction(() => {
       const localAllState = this.allViewState;
       const localViews = this.views;
+      const localProjection = {
+        columnOrder: toJS(this.columnOrder),
+        columnWidths: toJS(this.columnWidths),
+        hiddenColumns: toJS(this.hiddenColumns),
+      };
+      const sameProjectionScope =
+        wasInitialized &&
+        projectionBeforeRequest.surfaceKey !== undefined &&
+        projectionBeforeRequest.surfaceKey === this.p13nId &&
+        projectionBeforeRequest.viewKey === this.activeViewKey &&
+        projectionBeforeRequest.surfaceKey === result.p13nId &&
+        projectionBeforeRequest.viewKey === (result.activeViewKey ?? ALL_VIEW_KEY);
+      const keepOrder =
+        sameProjectionScope &&
+        (pendingProjectionAtStart || !deepEqual(localProjection.columnOrder, projectionBeforeRequest.columnOrder));
+      const keepWidths =
+        sameProjectionScope &&
+        (pendingProjectionAtStart || !deepEqual(localProjection.columnWidths, projectionBeforeRequest.columnWidths));
+      const keepHidden =
+        sameProjectionScope &&
+        (pendingProjectionAtStart || !deepEqual(localProjection.hiddenColumns, projectionBeforeRequest.hiddenColumns));
 
-      this.setItems(result);
+      this.onRefreshAccepted(result);
+      this.resolvingSavedView = resolveFromServer;
+      try {
+        this.setItems(result);
+      } finally {
+        this.resolvingSavedView = false;
+      }
+      const available = new Set(this.columnsDefinition.map((column) => column.uid));
+      if (keepOrder)
+        this.columnOrder = localProjection.columnOrder.filter((id) => available.has(id) && id !== this.primaryColumnId);
+      if (keepWidths) {
+        this.columnWidths = Object.fromEntries(
+          Object.entries(localProjection.columnWidths).filter(([id]) => isPersistedColumnWidthKey(id, available)),
+        );
+      }
+      if (keepHidden) {
+        this.hiddenColumns = localProjection.hiddenColumns.filter(
+          (id) => available.has(id) && id !== this.primaryColumnId,
+        );
+      }
       this.restoreViewStateWrittenDuringRequest(writeSeqBeforeRequest, localAllState, localViews);
+      if (resolveFromServer) this.syncQueryDraft();
     });
   };
+
+  private get requestCollapsedGroupKeys(): string[] {
+    return [...new Set([...this.collapsedGroupKeys, ...(this.grouping?.hidden ?? [])])].slice(0, MAX_AXIS_GROUPS);
+  }
 
   private buildGroupPageRequest(): GroupPageRequest | undefined {
     const only = this.pendingGroupOnly;
@@ -1035,9 +1445,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return {
       perGroup: GROUP_PAGE_SIZE_DEFAULT,
       ...(Object.keys(this.groupedTakeOverrides).length > 0 ? { overrides: toJS(this.groupedTakeOverrides) } : {}),
-      ...(this.collapsedGroupKeys.size > 0 ? { collapsed: [...this.collapsedGroupKeys] } : {}),
+      ...(this.requestCollapsedGroupKeys.length > 0 ? { collapsed: this.requestCollapsedGroupKeys } : {}),
       ...(only === undefined ? {} : { only }),
-      includeValueSums: this.viewMode === ViewMode.card,
     };
   }
 
@@ -1047,7 +1456,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     if (options.created && !isLoaded) this.adjustPaginationTotal(1);
     this.requestGeneration += 1;
     if (this.requestState.status !== "uninitialized") this.requestState = { status: "ready" };
-    if (this.entityType) this.rootStore.activityTimelines.refreshForMany(this.entityType, [target.id]);
     await this.executeOnChanges();
   };
 
@@ -1068,7 +1476,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.items = items;
     this.requestGeneration += 1;
     if (this.requestState.status !== "uninitialized") this.requestState = { status: "ready" };
-    if (this.entityType) this.rootStore.activityTimelines.refreshForMany(this.entityType, [targetId]);
     await this.executeOnChanges();
   };
 
@@ -1092,10 +1499,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     };
   };
 
-  setCustomColumns = (customColumns: CustomColumnDto[]) => {
-    this.customColumns = customColumns;
-  };
-
   executeOnChanges = async () => {
     const promises = this.onChangesCallbacks.map((callback) => callback());
 
@@ -1116,6 +1519,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   private refreshQueryInBackground = (): void => {
     void this.refreshQuery().catch(() => undefined);
   };
+
+  reloadSavedView = (): Promise<void> => this.executeRefresh(this.isReady ? "visible" : "background", undefined, true);
 
   private refreshResolvedInBackground = (): void => {
     void this.executeRefresh(this.isReady ? "visible" : "background", undefined, true).catch(() => undefined);
@@ -1140,8 +1545,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
         this.backgroundRefreshQueued = false;
         try {
           await this.executeRefresh("background", () => !this.backgroundRefreshQueued);
-        } catch {
-          this.toastError("Common.notifications.unexpectedError");
+        } catch (error) {
+          if (!(error instanceof ForbiddenError)) this.toastError("Common.notifications.unexpectedError");
         }
       } while (this.backgroundRefreshQueued);
     } finally {
@@ -1149,15 +1554,28 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     }
   };
 
+  protected onRefreshAccepted(_result: GetResult<Entity>): void {}
+
+  protected get viewStateWriteOwner(): string | undefined {
+    return undefined;
+  }
+
+  protected canPersistViewState(): boolean {
+    return true;
+  }
+
   protected refreshAction(_params?: GetQueryParams): Promise<GetResult<Entity>> {
     return Promise.reject(new Error("refreshAction must be implemented by entity stores"));
   }
 
   discardPendingViewState = (): void => {
     this.cancelPendingPersist();
+    this.pendingViewStateIntent?.discard();
+    this.pendingViewStateIntent = undefined;
   };
 
   private viewStateWrite: Promise<void> | undefined;
+  private queuedViewStateWrites = new Map<string, number>();
   private failedViewStateWrites = new Set<string>();
 
   settleViewState = async (): Promise<void> => {
@@ -1176,16 +1594,26 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return true;
   };
 
-  private flushPendingViewState = (): Promise<void> | undefined => {
+  protected flushPendingViewState = (): Promise<void> | undefined => {
     if (!this.cancelPendingPersist()) return undefined;
 
     return this.writeViewState();
   };
 
-  private persistViewState = () => {
-    if (!this.p13nId || !this.viewPersistable) return;
+  private appearanceChanged = () => {
+    if (this.canSaveQuery) this.syncQueryDraft();
+    else this.persistViewState();
+  };
 
-    this.cancelPendingPersist();
+  private persistViewState = () => {
+    if (!this.p13nId || !this.viewPersistable || !this.canPersistViewState()) return;
+    if (this.proposal) {
+      this.syncQueryDraft();
+      return;
+    }
+
+    this.discardPendingViewState();
+    this.pendingViewStateIntent = this.reserveViewStateIntent();
 
     this.persistViewStateTimer = window.setTimeout(() => {
       this.persistViewStateTimer = undefined;
@@ -1193,24 +1621,31 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     }, 1000);
   };
 
-  private writeViewState = (): Promise<void> => {
+  private reserveViewStateIntent = (): ViewStateWriteIntent | undefined => {
+    const owner = this.viewStateWriteOwner;
+    return owner === undefined
+      ? undefined
+      : reserveViewStateWrite(this.rootStore, JSON.stringify([owner, this.p13nId, this.activeViewKey]));
+  };
+
+  private writeViewState = ({ includeQuery = false }: { includeQuery?: boolean } = {}): Promise<void> => {
+    if (!this.canPersistViewState()) {
+      this.discardPendingViewState();
+      return Promise.resolve();
+    }
+    const intent = this.pendingViewStateIntent ?? this.reserveViewStateIntent();
+    this.pendingViewStateIntent = undefined;
     const viewKey = this.activeViewKey;
-    const state: DataViewState = {
-      filters: toJS(this.filters) ?? [],
-      searchTerm: this.searchTerm ?? "",
-      sortDescriptor: toJS(this.sortDescriptor) ?? null,
-      pageSize: this.pagination?.pageSize,
-      viewMode: toJS(this.viewMode),
-      grouping: toJS(this.grouping) ?? null,
-      columnOrder: toJS(this.columnOrder),
-      columnWidths: toJS(this.columnWidths),
-      hiddenColumns: toJS(this.hiddenColumns),
-    };
+    const state = this.viewStateSnapshot({ includeQuery });
+    const appearance = includeQuery ? this.currentAppearance() : undefined;
 
     const surfaceKey = this.p13nId as DataViewSurfaceKey;
-    const persist = () =>
-      saveDataViewStateAction({ surfaceKey, viewKey, state })
+    const ownsWrite = () => this.canPersistViewState() && (!intent || intent.isCurrent());
+    const persist = () => {
+      if (!ownsWrite()) return Promise.resolve();
+      return saveDataViewStateAction({ surfaceKey, viewKey, state })
         .then((res) => {
+          if (!ownsWrite()) return;
           if (!res.ok) {
             this.failedViewStateWrites.add(viewKey);
             toastZodErrorTree(res.error);
@@ -1219,15 +1654,24 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
           this.failedViewStateWrites.delete(viewKey);
           this.rememberViewState(viewKey, state);
+          if (appearance && viewKey === this.activeViewKey) runInAction(() => (this.savedAppearance = appearance));
         })
         .catch((error) => {
+          if (!ownsWrite()) return;
           this.failedViewStateWrites.add(viewKey);
           reportApplicationError(error);
         });
-    const write = this.viewStateWrite ? this.viewStateWrite.then(persist) : persist();
+    };
+    const pendingKey = JSON.stringify([surfaceKey, viewKey]);
+    this.queuedViewStateWrites.set(pendingKey, (this.queuedViewStateWrites.get(pendingKey) ?? 0) + 1);
+    const enqueue = () => (intent ? intent.enqueue(persist) : persist());
+    const write = this.viewStateWrite ? this.viewStateWrite.then(enqueue) : enqueue();
     this.viewStateWrite = write;
     void write.then(() => {
       if (this.viewStateWrite === write) this.viewStateWrite = undefined;
+      const remaining = (this.queuedViewStateWrites.get(pendingKey) ?? 1) - 1;
+      if (remaining > 0) this.queuedViewStateWrites.set(pendingKey, remaining);
+      else this.queuedViewStateWrites.delete(pendingKey);
     });
     return write;
   };

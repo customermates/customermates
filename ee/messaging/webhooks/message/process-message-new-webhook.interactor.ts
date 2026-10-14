@@ -7,9 +7,11 @@ import { Enforce } from "@/core/decorators/enforce.decorator";
 
 import type { FindAccountByUnipileIdUnscopedRepo } from "../../persistence/find-account-by-unipile-id-unscoped.repo";
 import type { MessagingIngestRepo } from "../../ingest/messaging-ingest.repo";
+import type { ProviderAvatars } from "../../ingest/inbound-avatar";
 import type { EventService } from "@/features/event/event.service";
 
 import { DomainEvent } from "@/features/event/domain-events";
+import { synchronizeInboundAvatar } from "../../ingest/inbound-avatar";
 import { isExcludedChatId, normalizeChatMessage } from "../../chat-normalize";
 import { UnipileMessageSchema } from "../../unipile.schema";
 import { UnmappableWebhookPayloadError } from "@/core/errors/app-errors";
@@ -27,6 +29,7 @@ export class ProcessMessageNewWebhookInteractor {
     private ingest: MessagingIngestRepo,
     private accountRepo: FindAccountByUnipileIdUnscopedRepo,
     private eventService: EventService,
+    private avatars: ProviderAvatars,
   ) {}
 
   @Enforce(Schema)
@@ -47,6 +50,7 @@ export class ProcessMessageNewWebhookInteractor {
       message,
       backfill: false,
     });
+    await synchronizeInboundAvatar(this.avatars, account.companyId, result);
     if (result.isEcho || result.isDuplicate) return;
 
     await this.eventService.publish(

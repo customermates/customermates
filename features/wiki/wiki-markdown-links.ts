@@ -13,7 +13,7 @@ type MarkdownNode = {
   content?: MarkdownNode[];
 };
 
-export type WikiPageLink = { id: string; label: string; path: string; url: string; fetchId: string };
+type WikiPageLink = { id: string; label: string; path: string; url: string; fetchId: string };
 
 function visit(node: MarkdownNode, callback: (node: MarkdownNode) => void) {
   callback(node);

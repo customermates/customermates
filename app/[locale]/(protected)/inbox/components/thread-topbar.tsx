@@ -8,12 +8,10 @@ import { Action, Resource } from "@/generated/prisma";
 
 import type { MessagingThread } from "@/ee/messaging/messaging.schema";
 
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { TopBarActionButtons } from "@/components/shared/top-bar-action-buttons";
 import { deriveThreadDisplay } from "@/ee/messaging/thread-display";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActionsOverride } from "@/app/components/topbar-actions-context";
-import { runUserAction } from "@/core/errors/report-application-error";
 
 import { ThreadFolderMenu } from "./thread-folder-menu";
 import { ThreadSettings } from "./thread-settings";
@@ -46,40 +44,33 @@ export const ThreadTopBar = observer(({ thread }: Props) => {
 
   const actions = useMemo(
     () => (
-      <TooltipProvider>
-        <div className="flex items-center gap-1">
-          <ThreadFolderMenu />
+      <div className="flex items-center gap-1">
+        <ThreadFolderMenu />
 
-          {canUpdate && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  aria-label={t("Inbox.resyncThread")}
-                  size="icon-sm"
-                  type="button"
-                  variant="secondary"
-                  onClick={() => runUserAction(() => store.resyncThread())}
-                >
-                  <RefreshCw className="size-3.5" />
-                </Button>
-              </TooltipTrigger>
-
-              <TooltipContent>{t("Inbox.resyncThread")}</TooltipContent>
-            </Tooltip>
-          )}
-
-          <ThreadSettings
-            accountShared={thread.accountShared}
-            isOwner={thread.isOwner}
-            participants={thread.participants}
-            provider={thread.provider}
-            sharedToCrm={thread.sharedToCrm}
-            threadId={thread.id}
+        {canUpdate && (
+          <TopBarActionButtons
+            actions={[
+              {
+                id: "resync",
+                icon: RefreshCw,
+                label: t("Inbox.resyncThread"),
+                onClick: () => store.resyncThread(),
+              },
+            ]}
           />
+        )}
 
-          <ThreadStatePicker state={thread.state} />
-        </div>
-      </TooltipProvider>
+        <ThreadSettings
+          accountShared={thread.accountShared}
+          isOwner={thread.isOwner}
+          participants={thread.participants}
+          provider={thread.provider}
+          sharedToCrm={thread.sharedToCrm}
+          threadId={thread.id}
+        />
+
+        <ThreadStatePicker state={thread.state} />
+      </div>
     ),
     [
       canUpdate,

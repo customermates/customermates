@@ -87,7 +87,7 @@ describe("analyze_records on the hosted surface", () => {
       { execute: (input: unknown, options: { toolCallId: string }) => Promise<unknown> }
     >;
     const input = {
-      reads: [{ tool: "list_records", input: JSON.stringify({ entity: "deal" }) }],
+      reads: [{ tool: "query_crm_records", input: JSON.stringify({ typeId: "deal-type" }) }],
       code: "(data) => data",
     };
 
@@ -104,34 +104,16 @@ describe("analyze_records on the hosted surface", () => {
     expect(requiresApproval(internalToolIdentity("analyze_records"), { annotations }, {})).toBe(false);
   });
 
-  it("shows as analyzing the entity of its first read, with copy in every locale", () => {
+  it("shows as analyzing records, with copy in every locale", () => {
     const activity = describeAgentTool(internalToolIdentity("analyze_records"), {
-      reads: [{ tool: "list_records", input: JSON.stringify({ entity: "deal" }) }],
+      reads: [{ tool: "query_crm_records", input: JSON.stringify({ typeId: "deal-type" }) }],
       code: "(data) => data",
     });
-    expect(activity).toMatchObject({ kind: "records.analyze", resource: "deals", risk: "read" });
+    expect(activity).toMatchObject({ kind: "records.analyze", resource: undefined, risk: "read" });
     for (const locale of ROUTING_LOCALES) {
       const copy = agentActivityCopy(activity, translatorFor(locale));
       for (const text of [copy.running, copy.done, copy.error]) expect(text).toContain("{resource}");
     }
-    expect(
-      describeAgentTool(internalToolIdentity("analyze_records"), { reads: [{ tool: "x", input: "{nope" }] }),
-    ).toMatchObject({
-      kind: "records.analyze",
-      resource: undefined,
-    });
-  });
-
-  it("shows the entity of a first read whose input is an object", () => {
-    expect(
-      describeAgentTool(internalToolIdentity("analyze_records"), {
-        reads: [{ tool: "list_records", input: { entity: "deal" } }],
-        code: "(data) => data",
-      }),
-    ).toMatchObject({ kind: "records.analyze", resource: "deals", risk: "read" });
-    expect(
-      describeAgentTool(internalToolIdentity("analyze_records"), { reads: [{ tool: "get_activities" }] }),
-    ).toMatchObject({ kind: "records.analyze", resource: undefined });
   });
 
   it("declares a read's input as an object or a string on every wire, and each wire accepts both", () => {
@@ -159,7 +141,7 @@ describe("analyze_records on the hosted surface", () => {
       const validate = new Ajv().compile(schemaFor(provider) as never);
       const accepts = (input: unknown) =>
         validate({
-          reads: [{ tool: "list_records", ...(input === undefined ? {} : { input }) }],
+          reads: [{ tool: "query_crm_records", ...(input === undefined ? {} : { input }) }],
           code: "(data) => data",
         });
       expect(

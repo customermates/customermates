@@ -17,6 +17,7 @@ describe("agent runner stop copy", () => {
   it("branches the stop message on whether the turn actually wrote", () => {
     const workflow = read("workflows/agent-turn.ts");
     expect(workflow).toMatch(/performedWrite\s*\?\s*"creditLimit"\s*:\s*"creditLimitNoWrite"/);
+    expect(workflow).toMatch(/performedWrite\s*\?\s*"runCreditLimit"\s*:\s*"runCreditLimitNoWrite"/);
   });
 
   it("sets performedWrite only for a successful action classified as a mutation", () => {
@@ -30,6 +31,7 @@ describe("agent runner stop copy", () => {
     for (const locale of APP_LOCALES) {
       const copy = runnerCopy(locale);
       expect(Object.keys(copy), locale).toContain("creditLimitNoWrite");
+      expect(Object.keys(copy), locale).toContain("runCreditLimitNoWrite");
     }
   });
 
@@ -38,6 +40,18 @@ describe("agent runner stop copy", () => {
     for (const locale of APP_LOCALES) {
       const copy = runnerCopy(locale);
       expect(copy.creditLimitNoWrite, `${locale} creditLimitNoWrite`).not.toMatch(claims);
+      expect(copy.runCreditLimitNoWrite, `${locale} runCreditLimitNoWrite`).not.toMatch(claims);
+    }
+  });
+
+  it("names the routine's per-run limit without blaming the owner's period credits", () => {
+    const periodCredits = /period|Periode|periodo|période/i;
+    for (const locale of APP_LOCALES) {
+      const copy = runnerCopy(locale);
+      for (const key of ["runCreditLimit", "runCreditLimitNoWrite"]) {
+        expect(copy[key], `${locale}.${key}`).toContain("{credits, number}");
+        expect(copy[key], `${locale}.${key}`).not.toMatch(periodCredits);
+      }
     }
   });
 

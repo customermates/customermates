@@ -16,15 +16,10 @@ function setup() {
     validator as never,
     validator as never,
     validator as never,
-    validator as never,
-    validator as never,
-    validator as never,
-    validator as never,
-    { findByEntityType: vi.fn().mockResolvedValue([]) } as never,
   );
   const issues: unknown[] = [];
   const run = async (fields: FilterableField[], filters: Filter[]) => {
-    await precheck.invoke({ filterableFields: fields, customColumns: [], sortableFields: [] }, undefined, { filters }, {
+    await precheck.invoke({ filterableFields: fields, sortableFields: [] }, { filters }, {
       addIssue: (issue: unknown) => issues.push(issue),
     } as never);
     return issues;

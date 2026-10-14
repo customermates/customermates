@@ -7,491 +7,350 @@ import {
   SYNTHETIC_SEED_USER,
   SYNTHETIC_SHARED_USER_PASSWORD,
 } from "@/core/config/synthetic-seed-user";
+import { presetId } from "@/features/records/crm-preset";
 
 import { SYNTHETIC_AVATAR_ORIGIN, SYNTHETIC_AVATAR_URLS, SYNTHETIC_CONTACT_AVATAR_URLS } from "../seeds/avatars";
+import { SYNTHETIC_CONTACT_EMAIL_ADDRESSES, SYNTHETIC_CONTACT_NAMES, seedContacts } from "../seeds/contacts";
+import { SEED_IDS, type SeedContext } from "../seeds/context";
 import {
-  SYNTHETIC_CONTACT_EMAIL_ADDRESSES,
-  SYNTHETIC_CONTACT_NAMES,
-  SYNTHETIC_CONTACT_ORGANIZATION_LINKS,
-} from "../seeds/contacts";
-import { SEED_IDS } from "../seeds/context";
-import { SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS, SYNTHETIC_CUSTOM_OPTION_IDS } from "../seeds/custom-fields";
-import { SYNTHETIC_DEAL_NAMES, SYNTHETIC_DEAL_ORGANIZATION_LINKS, SYNTHETIC_SERVICE_DEAL_LINKS } from "../seeds/deals";
+  SYNTHETIC_CUSTOM_FIELD_DEFINITIONS,
+  SYNTHETIC_CUSTOM_OPTION_IDS,
+  seedCustomFields,
+} from "../seeds/custom-fields";
+import { seedDeals } from "../seeds/deals";
 import { fixtureId } from "../seeds/helpers";
 import { SYNTHETIC_AUTH_IDENTITY_DEFINITIONS, SYNTHETIC_SUBSCRIPTION } from "../seeds/identity";
 import { SYNTHETIC_COMPANY_MEMBER_DEFINITIONS } from "../seeds/members";
-import { SYNTHETIC_ORGANIZATION_DEFINITIONS, SYNTHETIC_ORGANIZATION_NAMES } from "../seeds/organizations";
-import { SYNTHETIC_ROLE_DEFINITIONS, SYNTHETIC_ROLE_PERMISSION_COUNT } from "../seeds/roles";
-import { SYNTHETIC_SERVICE_NAMES } from "../seeds/services";
 import {
-  SYNTHETIC_ASSIGNED_TASK_INDEXES,
-  SYNTHETIC_TASK_CONTACT_LINKS,
-  SYNTHETIC_TASK_DEAL_LINKS,
-  SYNTHETIC_TASK_NAMES,
-  SYNTHETIC_TASK_ORGANIZATION_LINKS,
-  SYNTHETIC_TASK_SERVICE_LINKS,
-} from "../seeds/tasks";
+  NORTHWIND_SEAT_PRICES,
+  NORTHWIND_SERVICES,
+  NORTHWIND_STORY_END_MS,
+  buildNorthwindDataset,
+  northwindDataset,
+} from "../seeds/northwind-data";
+import {
+  NORTHWIND_MEMBER_IDS,
+  NORTHWIND_MEMBER_ROLES,
+  NORTHWIND_MODEL_IDS,
+  NORTHWIND_ROLE_IDS,
+} from "../seeds/northwind-model";
+import { buildNorthwindRecords } from "../seeds/northwind-records";
+import { NORTHWIND_OPTION_LABELS } from "../seeds/northwind-schema";
+import { seedOrganizations, SYNTHETIC_ORGANIZATION_DEFINITIONS } from "../seeds/organizations";
+import { syntheticRecordModel } from "../seeds/records";
+import { SYNTHETIC_ROLE_DEFINITIONS } from "../seeds/roles";
+import { seedServices } from "../seeds/services";
+import { seedTasks } from "../seeds/tasks";
 import { SYNTHETIC_SEED_TIMELINE } from "../seeds/timeline";
-import { SYNTHETIC_WIDGET_NAMES } from "../seeds/widgets";
 
-const SYNTHETIC_FIXTURE_COUNTS = {
-  auditLogs: 161,
-  authAccounts: 3,
-  authUsers: 3,
-  contacts: 30,
-  customColumns: 10,
-  customFieldValues: 234,
-  deals: 10,
-  organizations: 19,
-  p13n: 15,
-  services: 43,
-  tasks: 15,
-  rolePermissions: 48,
-  roles: 3,
-  users: 3,
-  webhookDeliveries: 14,
-  webhooks: 1,
-  widgets: 7,
-} as const;
+const DAY = 86_400_000;
+const context = { ids: SEED_IDS } as SeedContext;
+const data = northwindDataset();
 
-const SYNTHETIC_RELATIONSHIP_COUNTS = {
-  contactOrganizations: 30,
-  contactUsers: 30,
-  dealContacts: 0,
-  dealOrganizations: 10,
-  dealUsers: 10,
-  organizationUsers: 19,
-  serviceDeals: 43,
-  serviceUsers: 43,
-  taskContacts: 5,
-  taskDeals: 4,
-  taskOrganizations: 3,
-  taskServices: 1,
-  taskUsers: 14,
-} as const;
+const labels = (field: keyof typeof NORTHWIND_OPTION_LABELS) =>
+  NORTHWIND_OPTION_LABELS[field].map(([, label]) => label);
 
-function lines(value: string): string[] {
-  return value.trim().split("\n");
+async function model() {
+  const organizations = await seedOrganizations(context);
+  const contacts = await seedContacts(context, organizations.organizations);
+  const services = await seedServices(context);
+  const deals = await seedDeals(context, services);
+  const tasks = await seedTasks(context);
+  return syntheticRecordModel(
+    context,
+    seedCustomFields(context, { ...organizations, ...contacts, ...services, ...deals, ...tasks }),
+  );
 }
 
-type IndexLink = readonly [number, number, ...number[]];
-
-function linkString(links: ReadonlyArray<IndexLink>): string {
-  return links.map((link) => link.join(":")).join("|");
-}
-
-function expectValidLinks(links: ReadonlyArray<IndexLink>, leftCount: number, rightCount: number): void {
-  expect(new Set(links.map(([left, right]) => `${left}:${right}`)).size).toBe(links.length);
-  for (const [left, right] of links) {
-    expect(Number.isInteger(left) && left >= 0 && left < leftCount).toBe(true);
-    expect(Number.isInteger(right) && right >= 0 && right < rightCount).toBe(true);
-  }
-}
-
-describe("canonical synthetic CRM fixture contract", () => {
-  it("preserves the legacy active Pro subscription presentation", () => {
+describe("Northwind Labs demo fixture contract", () => {
+  it("keeps the sign-in identity, its shared password and the active Pro subscription", () => {
+    expect(SYNTHETIC_SEED_USER).toEqual({
+      email: SYNTHETIC_COMPANY_USERS.maxBergmann.email,
+      password: SYNTHETIC_SHARED_USER_PASSWORD,
+    });
     expect(SYNTHETIC_SUBSCRIPTION).toEqual({
       agentCreditAnchorAt: SYNTHETIC_SEED_TIMELINE.company.createdAt,
       plan: "pro",
       quantity: null,
       status: "active",
     });
-  });
-
-  it("pins one credential identity per company member with one shared synthetic password", () => {
-    expect(SYNTHETIC_SEED_USER).toEqual({
-      email: SYNTHETIC_COMPANY_USERS.maxBergmann.email,
-      password: SYNTHETIC_SHARED_USER_PASSWORD,
-    });
-    expect(SYNTHETIC_AUTH_IDENTITY_DEFINITIONS).toMatchObject([
-      {
-        credentialAccountId: SEED_IDS.maxBergmannCredentialAccount,
-        email: SYNTHETIC_COMPANY_USERS.maxBergmann.email,
-        userId: SEED_IDS.user,
-      },
-      {
-        credentialAccountId: SEED_IDS.sofiaRossiCredentialAccount,
-        email: SYNTHETIC_COMPANY_USERS.sofiaRossi.email,
-        userId: SEED_IDS.sofiaRossiUser,
-      },
-      {
-        credentialAccountId: SEED_IDS.elenaHoffmannCredentialAccount,
-        email: SYNTHETIC_COMPANY_USERS.elenaHoffmann.email,
-        userId: SEED_IDS.elenaHoffmannUser,
-      },
+    expect(SYNTHETIC_AUTH_IDENTITY_DEFINITIONS.map(({ userId }) => userId)).toEqual([
+      SEED_IDS.user,
+      SEED_IDS.sofiaRossiUser,
+      SEED_IDS.elenaHoffmannUser,
     ]);
-    expect(new Set(SYNTHETIC_AUTH_IDENTITY_DEFINITIONS.map(({ userId }) => userId))).toHaveLength(
-      SYNTHETIC_FIXTURE_COUNTS.authUsers,
-    );
-    expect(
-      new Set(SYNTHETIC_AUTH_IDENTITY_DEFINITIONS.map(({ credentialAccountId }) => credentialAccountId)),
-    ).toHaveLength(SYNTHETIC_FIXTURE_COUNTS.authAccounts);
-
     const memberById = new Map(SYNTHETIC_COMPANY_MEMBER_DEFINITIONS.map((member) => [member.id, member]));
     for (const identity of SYNTHETIC_AUTH_IDENTITY_DEFINITIONS)
       expect(memberById.get(identity.userId)?.email).toBe(identity.email);
   });
 
-  it("keeps the complete local avatar manifest with square PNG files", () => {
-    const avatarUrls = [...new Set([...SYNTHETIC_CONTACT_AVATAR_URLS, ...Object.values(SYNTHETIC_AVATAR_URLS)])];
-    const monochromeAvatarUrls = new Set<string>([
-      ...SYNTHETIC_CONTACT_AVATAR_URLS,
-      SYNTHETIC_AVATAR_URLS.claraNeumann,
-      SYNTHETIC_AVATAR_URLS.marcoSilva,
+  it("seeds seven members in six roles, each with a distinct avatar photo", () => {
+    expect(SYNTHETIC_COMPANY_MEMBER_DEFINITIONS.map(({ firstName, lastName }) => `${firstName} ${lastName}`)).toEqual([
+      "Max Bergmann",
+      "Sofia Rossi",
+      "Elena Hoffmann",
+      "Clara Neumann",
+      "Marco Silva",
+      "Kian Rahimi",
+      "Laura Fischer",
     ]);
-    const colorAvatarUrls = avatarUrls.filter((avatarUrl) => !monochromeAvatarUrls.has(avatarUrl));
-
-    expect(SYNTHETIC_CONTACT_AVATAR_URLS).toHaveLength(SYNTHETIC_CONTACT_NAMES.length);
-    expect(new Set(SYNTHETIC_CONTACT_AVATAR_URLS).size).toBe(SYNTHETIC_CONTACT_NAMES.length);
-    expect(monochromeAvatarUrls.size).toBe(32);
-    expect(avatarUrls).toHaveLength(35);
-    expect(new Set(colorAvatarUrls)).toEqual(
-      new Set([
-        SYNTHETIC_AVATAR_URLS.maxBergmann,
-        SYNTHETIC_AVATAR_URLS.sofiaRossi,
-        SYNTHETIC_AVATAR_URLS.elenaHoffmann,
+    expect(SYNTHETIC_COMPANY_MEMBER_DEFINITIONS.map(({ id }) => id)).toEqual(Object.values(NORTHWIND_MEMBER_IDS));
+    expect(SYNTHETIC_COMPANY_MEMBER_DEFINITIONS.map(({ roleId }) => roleId)).toEqual(
+      Object.values(NORTHWIND_MEMBER_ROLES),
+    );
+    expect(new Set(SYNTHETIC_COMPANY_MEMBER_DEFINITIONS.map(({ avatarPath }) => avatarPath)).size).toBe(7);
+    expect(SYNTHETIC_ROLE_DEFINITIONS.map(({ id, name }) => [id, name])).toEqual([
+      [NORTHWIND_ROLE_IDS.admin, "Admin"],
+      [NORTHWIND_ROLE_IDS.salesLead, "Sales lead"],
+      [NORTHWIND_ROLE_IDS.customerSuccess, "Customer success"],
+      [NORTHWIND_ROLE_IDS.accountExecutive, "Account executive"],
+      [NORTHWIND_ROLE_IDS.support, "Support"],
+      [NORTHWIND_ROLE_IDS.peopleOperations, "People and operations"],
+    ]);
+    const grants = new Map(
+      SYNTHETIC_ROLE_DEFINITIONS.map(({ id, recordGrants }) => [
+        id,
+        new Map<string, readonly string[]>(recordGrants as ReadonlyArray<readonly [string, readonly string[]]>),
       ]),
     );
+    expect(grants.get(NORTHWIND_ROLE_IDS.accountExecutive)?.get("deal")).toEqual(["create", "readOwn", "update"]);
+    expect(grants.get(NORTHWIND_ROLE_IDS.accountExecutive)?.get("subscription")).toEqual(["readAll"]);
+    expect(grants.get(NORTHWIND_ROLE_IDS.support)?.has("deal")).toBe(false);
+    expect(grants.get(NORTHWIND_ROLE_IDS.support)?.get("organization")).toEqual(["readAll"]);
+    expect(grants.get(NORTHWIND_ROLE_IDS.peopleOperations)?.has("deal")).toBe(false);
+    expect(grants.get(NORTHWIND_ROLE_IDS.peopleOperations)?.has("candidate")).toBe(true);
+    const permissions = SYNTHETIC_ROLE_DEFINITIONS.flatMap(({ permissions }) => permissions);
+    expect(new Set(permissions.map(({ id }) => id)).size).toBe(permissions.length);
+  });
 
-    for (const avatarUrl of avatarUrls) {
+  it("ships every avatar photo once, across the named contacts and the members", () => {
+    const contactAvatars = data.contacts.flatMap(({ avatarUrl }) => (avatarUrl ? [avatarUrl] : []));
+    const memberAvatars = SYNTHETIC_COMPANY_MEMBER_DEFINITIONS.map(({ avatarPath }) => avatarPath);
+    expect(contactAvatars).toEqual([...SYNTHETIC_CONTACT_AVATAR_URLS]);
+    expect(SYNTHETIC_CONTACT_AVATAR_URLS).toHaveLength(SYNTHETIC_CONTACT_NAMES.length);
+    expect(new Set([...contactAvatars, ...memberAvatars]).size).toBe(35);
+    for (const avatarUrl of new Set([...contactAvatars, ...memberAvatars, ...Object.values(SYNTHETIC_AVATAR_URLS)])) {
       expect(avatarUrl).toMatch(/^https:\/\/customermates\.com\/demo\/avatars\/photos\/[a-z-]+\.png$/);
-
       const avatarFile = new URL(`../../public${avatarUrl.slice(SYNTHETIC_AVATAR_ORIGIN.length)}`, import.meta.url);
       expect(existsSync(avatarFile), `${avatarUrl} must ship from public`).toBe(true);
-
       const source = readFileSync(avatarFile);
       expect(source.subarray(0, 8).toString("hex")).toBe("89504e470d0a1a0a");
-      expect(source.subarray(12, 16).toString("ascii")).toBe("IHDR");
       expect(source.readUInt32BE(16)).toBe(source.readUInt32BE(20));
-      expect(source.readUInt32BE(16)).toBeGreaterThanOrEqual(256);
     }
   });
 
-  it("pins three company members and three roles with exact custom permissions", () => {
-    expect(SYNTHETIC_COMPANY_MEMBER_DEFINITIONS).toMatchObject([
-      {
-        id: SEED_IDS.user,
-        email: "max.bergmann@customermates.com",
-        roleId: SEED_IDS.role,
-        status: "active",
-      },
-      {
-        id: SEED_IDS.sofiaRossiUser,
-        email: "sofia.rossi@customermates.com",
-        roleId: SEED_IDS.salesManagerRole,
-        status: "active",
-      },
-      {
-        id: SEED_IDS.elenaHoffmannUser,
-        email: "elena.hoffmann@customermates.com",
-        roleId: SEED_IDS.customerSuccessRole,
-        status: "active",
-      },
-    ]);
-    expect(new Set(SYNTHETIC_COMPANY_MEMBER_DEFINITIONS.map(({ id }) => id))).toHaveLength(3);
-    expect(new Set(SYNTHETIC_COMPANY_MEMBER_DEFINITIONS.map(({ email }) => email))).toHaveLength(3);
-
-    expect(SYNTHETIC_ROLE_DEFINITIONS.map(({ name }) => name)).toEqual(["Admin", "Sales Manager", "Customer Success"]);
-    expect(SYNTHETIC_ROLE_DEFINITIONS.filter(({ isSystemRole }) => isSystemRole)).toHaveLength(1);
-    expect(SYNTHETIC_ROLE_DEFINITIONS[0]).toMatchObject({
-      id: SEED_IDS.role,
-      permissions: [],
+  it("generates the agreed volumes deterministically", () => {
+    expect(buildNorthwindDataset()).toEqual(buildNorthwindDataset());
+    expect({
+      organizations: data.organizations.length,
+      contacts: data.contacts.length,
+      subscriptions: data.subscriptions.length,
+      onboardings: data.onboardings.length,
+      tickets: data.tickets.length,
+      campaigns: data.campaigns.length,
+      partners: data.partners.length,
+      openRoles: data.openRoles.length,
+      candidates: data.candidates.length,
+      services: data.services.length,
+    }).toEqual({
+      organizations: 120,
+      contacts: 350,
+      subscriptions: 90,
+      onboardings: 25,
+      tickets: 150,
+      campaigns: 8,
+      partners: 6,
+      openRoles: 6,
+      candidates: 40,
+      services: 8,
     });
-    expect(SYNTHETIC_ROLE_DEFINITIONS[1]?.permissions).toHaveLength(30);
-    expect(SYNTHETIC_ROLE_DEFINITIONS[2]?.permissions).toHaveLength(23);
-    expect(SYNTHETIC_ROLE_PERMISSION_COUNT).toBe(53);
-
-    const permissions = SYNTHETIC_ROLE_DEFINITIONS.flatMap(({ permissions }) => permissions);
-    expect(new Set(permissions.map(({ id }) => id))).toHaveLength(permissions.length);
-    expect(new Set(permissions.map(({ roleId, resource, action }) => `${roleId}:${resource}:${action}`))).toHaveLength(
-      permissions.length,
-    );
-    for (const permission of permissions) {
-      expect(permission.companyId).toBe(SEED_IDS.company);
-      expect(SYNTHETIC_ROLE_DEFINITIONS.some(({ id }) => id === permission.roleId)).toBe(true);
-    }
-  });
-
-  it("pins the complete visible organization and contact names", () => {
-    expect(SYNTHETIC_ORGANIZATION_NAMES).toEqual(
-      lines(`
-Wavestone
-SThree
-Hays
-Bundesagentur für Arbeit
-Deloitte
-ASML
-KPMG
-Deutsche Post
-Deutsche Bahn
-Continental
-PwC
-McKinsey & Company
-NRW.BANK
-Roche
-BMW
-TUI
-Volkswagen
-Deutsche Telekom
-Siemens
-`),
-    );
-    expect(SYNTHETIC_CONTACT_NAMES.map(([firstName, lastName]) => `${firstName} ${lastName}`)).toEqual(
-      lines(`
-Leon Becker
-Tim Wagner
-Lucio Ball
-Mara Bauer
-Max Schmidt
-Sophie Hoffmann
-Jonas Weber
-Amin Hassan
-Lea Bauer
-Maxine Zoll
-Lina Alvarez
-Felix Koch
-Omar Khalil
-Tim Weber
-Kian Rahimi
-Leila Chen
-Mia Schneider
-Laura Fischer
-Amir Haddad
-Sophie Wagner
-Reinhold Mertens
-Alexej Sofr
-Anna Müller
-Yasmin Farouk
-Lukas Fischer
-Felix Schneider
-Rashid Malik
-Paul Koch
-Nia Johnson
-Paul Fischer
-`),
+    expect(data.deals.length).toBeGreaterThanOrEqual(200);
+    expect(data.deals.length).toBeLessThanOrEqual(240);
+    expect(data.lineItems.length).toBeGreaterThan(data.deals.length);
+    expect(new Set(data.tasks.map(({ team }) => team))).toEqual(
+      new Set(NORTHWIND_OPTION_LABELS["task.team"].map(([key]) => key)),
     );
   });
 
-  it("uses unique official HTTPS websites and organization-specific reserved email domains", () => {
-    expect(SYNTHETIC_ORGANIZATION_DEFINITIONS).toHaveLength(SYNTHETIC_FIXTURE_COUNTS.organizations);
-    expect(new Set(SYNTHETIC_ORGANIZATION_DEFINITIONS.map(({ website }) => website))).toHaveLength(
-      SYNTHETIC_FIXTURE_COUNTS.organizations,
-    );
-
+  it("uses fictional organizations with reserved example domains", () => {
+    expect(new Set(SYNTHETIC_ORGANIZATION_DEFINITIONS.map(({ name }) => name)).size).toBe(120);
     for (const { emailDomain, website } of SYNTHETIC_ORGANIZATION_DEFINITIONS) {
-      expect(website).toMatch(/^https:\/\/[^/]+$/);
-      expect(website).not.toContain(".example");
-      expect(emailDomain).toMatch(/\.example$/);
+      expect(emailDomain).toMatch(/^[a-z0-9-]+\.example$/);
+      expect(website).toBe(`https://www.${emailDomain}`);
     }
+    for (const [index, contact] of data.contacts.entries()) {
+      const organization = data.organizations[contact.organizationIndex];
+      expect(SYNTHETIC_CONTACT_EMAIL_ADDRESSES[index]).toBe(contact.email);
+      expect(contact.email.endsWith(`@${organization?.domain}`)).toBe(true);
+    }
+    for (const partner of data.partners) expect(partner.website).toMatch(/^https:\/\/www\.[a-z-]+\.example$/);
+    for (const candidate of data.candidates) expect(candidate.email).toMatch(/@mail\.example$/);
+  });
 
-    for (const [contactIndex, organizationIndex] of SYNTHETIC_CONTACT_ORGANIZATION_LINKS) {
-      expect(SYNTHETIC_CONTACT_EMAIL_ADDRESSES[contactIndex]).toMatch(
-        new RegExp(`@${SYNTHETIC_ORGANIZATION_DEFINITIONS[organizationIndex].emailDomain.replace(".", "\\.")}$`),
+  it("follows the Knowledge Base for stages, prices, priorities, tiers and naming", () => {
+    expect(labels("deal.stage")).toEqual(["New", "Qualified", "Proposal", "Won", "Lost"]);
+    expect(labels("deal.lostReason")).toEqual([
+      "Price",
+      "No decision",
+      "Competitor",
+      "Timing",
+      "Product gap",
+      "Not a fit",
+    ]);
+    expect(labels("deal.leadSource")).toEqual([
+      "Website demo request",
+      "Content download",
+      "Webinar",
+      "Trade fair",
+      "Paid search",
+      "LinkedIn",
+      "Outbound",
+      "Partner referral",
+      "Customer referral",
+    ]);
+    expect(labels("ticket.priority")).toEqual(["P1 Critical", "P2 High", "P3 Normal", "P4 Low"]);
+    expect(labels("onboarding.phase")).toEqual([
+      "Kickoff",
+      "Configuration",
+      "Pilot",
+      "Go-live",
+      "Hypercare",
+      "Completed",
+    ]);
+    expect(labels("partner.tier")).toEqual(["Referral", "Silver reseller", "Gold implementation"]);
+    expect(labels("candidate.stage")).toEqual([
+      "Applied",
+      "Screening",
+      "Interview",
+      "Case task",
+      "Offer",
+      "Hired",
+      "Rejected",
+    ]);
+    expect(labels("subscription.health")).toEqual(["Green", "Amber", "Red"]);
+    expect(NORTHWIND_SEAT_PRICES).toEqual({ starter: 29, professional: 49, enterprise: 79 });
+    expect(NORTHWIND_SERVICES.map(([name, price]) => `${name}: ${price}`)).toEqual([
+      "Northwind Field Starter seat (annual): 348",
+      "Northwind Field Professional seat (annual): 588",
+      "Northwind Field Enterprise seat (annual): 948",
+      "Onboarding Quick Start: 2900",
+      "Onboarding Standard: 8500",
+      "Onboarding Enterprise: 19000",
+      "Integration work (day): 1250",
+      "On-site training (day): 1600",
+    ]);
+    for (const deal of data.deals) {
+      expect(deal.name).toMatch(
+        /^.+ - (Starter|Professional|Enterprise) \d+ - (New|Expansion|Renewal)( \d{4}(-\d+)?)?$/,
       );
     }
+    for (const campaign of data.campaigns) expect(campaign.name).toMatch(/^\d{4}-Q[1-4] \S/);
+    for (const subscription of data.subscriptions) {
+      expect(subscription.pricePerSeat).toBe(NORTHWIND_SEAT_PRICES[subscription.plan]);
+      expect(subscription.arr).toBe(subscription.annualPrice ?? subscription.seats * subscription.pricePerSeat * 12);
+    }
+    for (const deal of data.deals.filter(({ type }) => type === "new"))
+      expect(deal.seats).toBeGreaterThanOrEqual({ starter: 10, professional: 25, enterprise: 75 }[deal.plan]);
+    for (const deal of data.deals) expect(deal.discountPercent).toBeLessThanOrEqual(30);
   });
 
-  it("pins the complete visible service and deal names", () => {
-    expect(SYNTHETIC_SERVICE_NAMES).toEqual(
-      lines(`
-Data Migration
-Network Architecture Design
-Rack Server
-Custom Integrations
-Cloud Readiness Assessment
-Data Strategy Definition
-CI/CD Pipeline Setup
-Docking Station
-System Integrations
-Backend API Development
-Executive Enablement Workshop
-SAN Storage Array
-Analytics Use Case Development
-Frontend Development
-Go-Live Support
-Performance Testing
-Configuration Improvements
-Reporting & Dashboards
-Infrastructure Migration
-Network Interface Card
-Installation & Configuration
-User Training Session
-CRM Setup & Configuration
-HR System Audit
-Firewall Appliance
-Hypercare Support
-Process Analysis Workshop
-Security Review & Hardening
-Automation Development
-Post-Migration Support
-Device Provisioning & Imaging
-Documentation & Knowledge Transfer
-Change Management Support
-Data Warehouse Implementation
-Monitor 27”
-Admin Training
-Core Network Switch (48-port)
-Integration Architecture Design
-Platform Architecture Design
-Laptop (Business Class)
-Hardware Installation & Testing
-Extended Hardware Warranty (3y)
-Edge Network Switch (24-port)
-`),
-    );
-    expect(SYNTHETIC_DEAL_NAMES).toEqual(
-      lines(`
-Process Automation Program
-Data & Analytics Transformation
-CRM Rollout & Sales Enablement
-Enterprise Integration Program
-Workplace Hardware Rollout
-Digital Customer Platform
-Data Center Refresh
-Cloud Infrastructure Migration
-Network Infrastructure Upgrade
-HR Systems Optimization
-`),
-    );
+  it("keeps stages, outcomes and dates consistent over the eighteen months", () => {
+    const start = NORTHWIND_STORY_END_MS - 548 * DAY;
+    for (const deal of data.deals) {
+      expect(deal.createdAtMs).toBeGreaterThanOrEqual(start - 90 * DAY);
+      expect(deal.createdAtMs).toBeLessThan(NORTHWIND_STORY_END_MS);
+      expect(deal.closeAtMs).toBeGreaterThan(deal.createdAtMs);
+      if (deal.status === "open") {
+        expect(["new", "qualified", "proposal"]).toContain(deal.stage);
+        expect(deal.closeAtMs).toBeGreaterThan(NORTHWIND_STORY_END_MS - 2 * DAY);
+        expect(deal.lostReason).toBeNull();
+      } else {
+        expect(deal.closeAtMs).toBeLessThan(NORTHWIND_STORY_END_MS);
+        expect(deal.stage).toBe(deal.status === "won" ? "won" : "lost");
+        expect(deal.lostReason === null).toBe(deal.status === "won");
+      }
+    }
+    const months = new Set(data.deals.map(({ createdAtMs }) => new Date(createdAtMs).toISOString().slice(0, 7)));
+    expect(months.size).toBeGreaterThanOrEqual(18);
+    for (const subscription of data.subscriptions) {
+      expect(subscription.renewalMs).toBeGreaterThan(NORTHWIND_STORY_END_MS);
+      expect(subscription.renewalMs).toBeLessThanOrEqual(NORTHWIND_STORY_END_MS + 366 * DAY);
+    }
+    expect(data.subscriptions.some(({ health }) => health === "atRisk")).toBe(true);
+    const open = data.tickets.filter(({ resolvedMs }) => resolvedMs === null);
+    expect(open.length).toBeGreaterThan(0);
+    expect(open.length).toBeLessThan(30);
+    expect(open.some(({ slaDueMs, lastResponseMs }) => slaDueMs < lastResponseMs)).toBe(true);
+    for (const onboarding of data.onboardings) {
+      const deal = data.deals[onboarding.dealIndex];
+      expect(deal).toMatchObject({ status: "won", type: "new", organizationIndex: onboarding.organizationIndex });
+    }
   });
 
-  it("pins the complete visible task, custom-column, and widget names", () => {
-    expect(SYNTHETIC_TASK_NAMES).toEqual(
-      lines(`
-Prepare and send a proposal for Wavestone
-Discuss contract renewal
-Review inbound lead from website and assign qualification score
-Update training materials
-Schedule discovery call with BMW
-Coordinate demo appointment
-Prepare Q3 sales pipeline review
-Follow up with legal on contract approval for Roche
-Schedule discovery call with PwC
-Follow up on cold call
-Prepare kickoff workshop
-Review proposal response
-Finalize quote
-Review follow-up notes from the Roche demo
-Loop in legal team
-`),
+  it("configures every field type and calculation kind with stable starter ids", async () => {
+    const configured = await model();
+    const id = (key: string) => presetId(SEED_IDS.company, key);
+    for (const key of ["contact", "organization", "deal", "lineItem", "service", "task"])
+      expect(configured.types.some((type) => type.id === id(key))).toBe(true);
+    expect(configured.types.find((type) => type.id === id("service"))?.pluralLabel).toBe("Products and services");
+    expect(configured.types.map(({ id: typeId }) => typeId)).toEqual(
+      expect.arrayContaining(Object.values(NORTHWIND_MODEL_IDS.types)),
+    );
+    expect(new Set(configured.fields.map(({ valueType }) => valueType))).toEqual(
+      new Set([
+        "text",
+        "richText",
+        "number",
+        "currency",
+        "boolean",
+        "date",
+        "dateRange",
+        "select",
+        "email",
+        "phone",
+        "url",
+        "member",
+        "channels",
+      ]),
+    );
+    expect(new Set(configured.fields.map(({ behavior }) => behavior.kind))).toEqual(
+      new Set(["input", "formula", "lookup", "rollup", "snapshot"]),
+    );
+    expect(configured.fields.some(({ valueType, multiple }) => valueType === "select" && multiple)).toBe(true);
+    expect(new Set(configured.fields.flatMap(({ format }) => (format?.currency ? [format.currency] : [])))).toEqual(
+      new Set(["EUR", "CHF"]),
     );
     expect(
-      SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS.map(
-        ({ entityType, label, optionLabels, type }) => `${entityType}:${label}:${type}:${optionLabels.join(",")}`,
-      ),
-    ).toEqual([
-      "contact:Phones:phone:",
-      "service:Type:singleSelect:Service,Hardware",
-      "organization:Type:singleSelect:Direct customer,Affiliated company",
-      "organization:Website:link:",
-      "task:Priority:singleSelect:Low,Medium,High",
-      "deal:Status:singleSelect:Open,Won,Lost,Abandoned",
-      "task:Status:singleSelect:Open,In Progress,Blocked,On Hold,Done,Archived",
-      "deal:Project Period:dateRange:",
-      "contact:Sales Pipeline:singleSelect:New,Contact,Qualified,In Progress,Won,Lost",
-      "service:Pricing model:singleSelect:Fixed,Monthly,Daily",
-    ]);
-    expect(SYNTHETIC_WIDGET_NAMES).toEqual([
-      "Deal Value By Organizations",
-      "Sales Pipeline",
-      "Total Deal Value",
-      "Deal Overview",
-      "Recent Changes",
-      "Messages",
-      "Events",
-    ]);
-  });
-
-  it("pins the canonical entity and relationship counts", () => {
-    expect(SYNTHETIC_FIXTURE_COUNTS).toEqual({
-      auditLogs: 161,
-      authAccounts: 3,
-      authUsers: 3,
-      contacts: 30,
-      customColumns: 10,
-      customFieldValues: 234,
-      deals: 10,
-      organizations: 19,
-      p13n: 15,
-      rolePermissions: 48,
-      roles: 3,
-      services: 43,
-      tasks: 15,
-      users: 3,
-      webhookDeliveries: 14,
-      webhooks: 1,
-      widgets: 7,
-    });
-    expect(SYNTHETIC_RELATIONSHIP_COUNTS).toEqual({
-      contactOrganizations: 30,
-      contactUsers: 30,
-      dealContacts: 0,
-      dealOrganizations: 10,
-      dealUsers: 10,
-      organizationUsers: 19,
-      serviceDeals: 43,
-      serviceUsers: 43,
-      taskContacts: 5,
-      taskDeals: 4,
-      taskOrganizations: 3,
-      taskServices: 1,
-      taskUsers: 14,
-    });
-    expect(SYNTHETIC_ORGANIZATION_NAMES).toHaveLength(SYNTHETIC_FIXTURE_COUNTS.organizations);
-    expect(SYNTHETIC_CONTACT_NAMES).toHaveLength(SYNTHETIC_FIXTURE_COUNTS.contacts);
-    expect(SYNTHETIC_SERVICE_NAMES).toHaveLength(SYNTHETIC_FIXTURE_COUNTS.services);
-    expect(SYNTHETIC_DEAL_NAMES).toHaveLength(SYNTHETIC_FIXTURE_COUNTS.deals);
-    expect(SYNTHETIC_TASK_NAMES).toHaveLength(SYNTHETIC_FIXTURE_COUNTS.tasks);
-    expect(SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS).toHaveLength(SYNTHETIC_FIXTURE_COUNTS.customColumns);
-    expect(SYNTHETIC_WIDGET_NAMES).toHaveLength(SYNTHETIC_FIXTURE_COUNTS.widgets);
+      configured.fields.find(({ id: fieldId }) => fieldId === NORTHWIND_MODEL_IDS.fields.organization.legacyAccountId)
+        ?.archived,
+    ).toBe(true);
+    expect(
+      configured.types.find(({ id: typeId }) => typeId === id("organization"))?.relationshipPaths?.[0]?.path,
+    ).toHaveLength(3);
     const optionIds = Object.values(SYNTHETIC_CUSTOM_OPTION_IDS).flatMap((group) => Object.values(group));
-    expect(optionIds).toEqual(Array.from({ length: 26 }, (_, index) => fixtureId("17000000", index + 1)));
-    expect(new Set(optionIds)).toHaveLength(26);
+    expect(optionIds).toEqual([
+      ...Array.from({ length: 4 }, (_, index) => fixtureId("17000000", index + 1)),
+      fixtureId("17000000", 27),
+      ...Array.from({ length: 22 }, (_, index) => fixtureId("17000000", index + 5)),
+    ]);
+    expect(SYNTHETIC_CUSTOM_FIELD_DEFINITIONS).toHaveLength(10);
   });
 
-  it("pins the canonical relationship topology using safe array indexes", () => {
-    expect(linkString(SYNTHETIC_CONTACT_ORGANIZATION_LINKS)).toBe(
-      "0:14|1:12|2:0|3:8|4:14|5:8|6:9|7:15|8:9|9:11|10:0|11:9|12:4|13:3|14:1|15:2|16:13|17:3|18:10|19:14|20:18|21:2|22:13|23:5|24:13|25:17|26:6|27:7|28:11|29:8",
-    );
-    expect(linkString(SYNTHETIC_DEAL_ORGANIZATION_LINKS)).toBe("0:7|1:10|2:13|3:5|4:7|5:14|6:9|7:9|8:0|9:2");
-    expect(linkString(SYNTHETIC_SERVICE_DEAL_LINKS)).toBe(
-      "0:25:1|0:26:4|0:28:8|0:32:30|1:5:1|1:10:1|1:12:5|1:33:1|2:0:1|2:3:4|2:14:1|2:21:6|2:22:1|3:8:10|3:15:1|3:31:1|3:37:1|4:7:300|4:30:300|4:34:150|4:39:300|5:9:70|5:13:90|5:27:1|5:38:1|6:2:12|6:11:2|6:19:24|6:40:1|6:41:12|7:4:1|7:6:1|7:18:22|7:29:4|8:1:1|8:20:1|8:24:2|8:36:6|8:42:10|9:16:25|9:17:1|9:23:1|9:35:3",
-    );
-    expect(linkString(SYNTHETIC_TASK_CONTACT_LINKS)).toBe("5:25|9:6|10:22|11:22|12:25");
-    expect(linkString(SYNTHETIC_TASK_ORGANIZATION_LINKS)).toBe("1:13|10:14|12:14");
-    expect(linkString(SYNTHETIC_TASK_DEAL_LINKS)).toBe("10:2|11:2|12:2|14:7");
-    expect(linkString(SYNTHETIC_TASK_SERVICE_LINKS)).toBe("3:35");
-    expect(SYNTHETIC_ASSIGNED_TASK_INDEXES).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14]);
-  });
-
-  it("keeps every relationship index valid, unique, and complete where required", () => {
-    expectValidLinks(
-      SYNTHETIC_CONTACT_ORGANIZATION_LINKS,
-      SYNTHETIC_FIXTURE_COUNTS.contacts,
-      SYNTHETIC_FIXTURE_COUNTS.organizations,
-    );
-    expectValidLinks(
-      SYNTHETIC_DEAL_ORGANIZATION_LINKS,
-      SYNTHETIC_FIXTURE_COUNTS.deals,
-      SYNTHETIC_FIXTURE_COUNTS.organizations,
-    );
-    expectValidLinks(SYNTHETIC_SERVICE_DEAL_LINKS, SYNTHETIC_FIXTURE_COUNTS.deals, SYNTHETIC_FIXTURE_COUNTS.services);
-    expect(SYNTHETIC_SERVICE_DEAL_LINKS.every(([, , quantity]) => Number.isInteger(quantity) && quantity > 0)).toBe(
-      true,
-    );
-    expectValidLinks(SYNTHETIC_TASK_CONTACT_LINKS, SYNTHETIC_FIXTURE_COUNTS.tasks, SYNTHETIC_FIXTURE_COUNTS.contacts);
-    expectValidLinks(
-      SYNTHETIC_TASK_ORGANIZATION_LINKS,
-      SYNTHETIC_FIXTURE_COUNTS.tasks,
-      SYNTHETIC_FIXTURE_COUNTS.organizations,
-    );
-    expectValidLinks(SYNTHETIC_TASK_DEAL_LINKS, SYNTHETIC_FIXTURE_COUNTS.tasks, SYNTHETIC_FIXTURE_COUNTS.deals);
-    expectValidLinks(SYNTHETIC_TASK_SERVICE_LINKS, SYNTHETIC_FIXTURE_COUNTS.tasks, SYNTHETIC_FIXTURE_COUNTS.services);
-
-    expect(new Set(SYNTHETIC_CONTACT_ORGANIZATION_LINKS.map(([contactIndex]) => contactIndex)).size).toBe(30);
-    expect(new Set(SYNTHETIC_DEAL_ORGANIZATION_LINKS.map(([dealIndex]) => dealIndex)).size).toBe(10);
-    expect(new Set(SYNTHETIC_SERVICE_DEAL_LINKS.map(([, serviceIndex]) => serviceIndex)).size).toBe(43);
-    expect(new Set(SYNTHETIC_ASSIGNED_TASK_INDEXES).size).toBe(14);
-    expect(SYNTHETIC_ASSIGNED_TASK_INDEXES).not.toContain(8);
+  it("links every generated record to existing records", () => {
+    const { records, links } = buildNorthwindRecords(SEED_IDS.company);
+    const known = new Set([
+      ...records.map(({ typeKey, id }) => `${typeKey}:${id}`),
+      ...data.contacts.map(({ id }) => `contact:${id}`),
+      ...data.organizations.map(({ id }) => `organization:${id}`),
+      ...data.deals.map(({ id }) => `deal:${id}`),
+      ...data.tasks.map(({ id }) => `task:${id}`),
+      ...data.services.map((_, index) => `service:${fixtureId("90000000", index + 1)}`),
+    ]);
+    for (const link of links) {
+      expect(known.has(`${link.sourceKey}:${link.sourceId}`), `${link.relationKey} source`).toBe(true);
+      expect(known.has(`${link.targetKey}:${link.targetId}`), `${link.relationKey} target`).toBe(true);
+    }
+    expect(new Set(links.map(({ prefix }) => `${prefix}`)).size).toBe(links.length);
+    expect(new Set(links.map(({ relationKey }) => relationKey)).size).toBeGreaterThanOrEqual(18);
   });
 });

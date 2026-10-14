@@ -13,9 +13,7 @@ const SCOPE_SUFFIX = /Unscoped|CompanyWide/;
 const OR_THROW_NAME = /OrThrow(Unscoped|CompanyWide)?$/;
 const NOT_FOUND_MESSAGE = /not found/i;
 const OR_THROW_ALLOWLIST = new Set([
-  "features/company/prisma-company.repository.ts#getDetails",
   "features/user/prisma-user.repository.ts#updateDetails",
-  "features/user/prisma-user.repository.ts#createCompanyAndUser",
   "features/user/prisma-user.repository.ts#registerExistingCompany",
 ]);
 
@@ -81,6 +79,30 @@ function collectRepoMethods() {
 
 const methods = collectRepoMethods();
 
+function bypassOutsideRepositories() {
+  const violations: string[] = [];
+  for (const path of ["app", "features", "ee", "core", "workflows"].flatMap((dir) =>
+    walkFiles(
+      join(REPO_ROOT, dir),
+      (candidate) => /\.tsx?$/.test(candidate) && !/(__tests__|\.test\.tsx?$)/.test(candidate),
+    ),
+  )) {
+    if (/(\.repository\.ts|-repository\.ts)$/.test(path)) continue;
+    const text = readFileSync(path, "utf8");
+    if (!text.includes(`@${BYPASS_DECORATOR}`)) continue;
+    const source = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true);
+    const visit = (node: ts.Node) => {
+      if (ts.isMethodDeclaration(node) && hasBypassDecorator(node))
+        violations.push(
+          `${relative(REPO_ROOT, path)}:${ts.getLineAndCharacterOfPosition(source, node.getStart(source)).line + 1} ${node.name.getText(source)}`,
+        );
+      ts.forEachChild(node, visit);
+    };
+    visit(source);
+  }
+  return violations;
+}
+
 describe("repository naming conventions", () => {
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
     "every method named *Unscoped* carries @BypassTenantGuard",
@@ -122,6 +144,15 @@ describe("repository naming conventions", () => {
           (method) =>
             `${method.file}:${method.line} ${method.name} throws on missing rows but is not named *OrThrow`,
         );
+
+      expect(violations, violations.join("\n")).toEqual([]);
+    },
+  );
+
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
+    "@BypassTenantGuard is used only inside *.repository.ts files",
+    () => {
+      const violations = bypassOutsideRepositories();
 
       expect(violations, violations.join("\n")).toEqual([]);
     },

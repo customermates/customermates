@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/drawer";
 import {
   Popover,
+  PopoverAnchor,
   PopoverContent,
   PopoverFooter,
   PopoverHeader,
@@ -26,6 +27,7 @@ import { cn } from "@/core/utils/cn";
 import { useIsWiderThan } from "@/hooks/use-media-query";
 
 import { keepOpenForAssistantSurface, releaseFocusToAssistantSurface } from "./assistant-surface";
+import { OverlayDismissGuardContext, useOwnOverlayDismissGuard } from "./overlay-dismiss-guard";
 
 function focusOverlayContent(event: Event) {
   if (event.currentTarget instanceof HTMLElement) event.currentTarget.focus({ preventScroll: true });
@@ -33,6 +35,7 @@ function focusOverlayContent(event: Event) {
 
 type Props = {
   trigger: ReactNode;
+  anchor?: (trigger: ReactNode) => ReactNode;
   title: ReactNode;
   headerAction?: ReactNode;
   children: ReactNode;
@@ -40,13 +43,16 @@ type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   align?: "start" | "center" | "end";
+  drawerDirection?: "bottom" | "left";
   popoverClassName?: string;
   onEscapeKeyDown?: (event: KeyboardEvent) => void;
+  onOpenAutoFocus?: (event: Event) => void;
   onCloseAutoFocus?: (event: Event) => void;
 };
 
 export function ResponsiveOverlay({
   trigger,
+  anchor,
   title,
   headerAction,
   children,
@@ -54,23 +60,40 @@ export function ResponsiveOverlay({
   open,
   onOpenChange,
   align = "start",
+  drawerDirection = "bottom",
   popoverClassName,
   onEscapeKeyDown,
+  onOpenAutoFocus = focusOverlayContent,
   onCloseAutoFocus,
 }: Props) {
   const isWide = useIsWiderThan("md");
   const titleId = useId();
+  const dismissGuard = useOwnOverlayDismissGuard();
+
+  function handleOpenChange(next: boolean) {
+    if (!next && dismissGuard.shouldKeepOpen()) return;
+    onOpenChange(next);
+  }
 
   function handleEscapeKeyDown(event: KeyboardEvent) {
     keepOpenForAssistantSurface(event);
     if (!event.defaultPrevented) onEscapeKeyDown?.(event);
   }
 
+  const popoverTrigger = (
+    <PopoverTrigger asChild aria-expanded={open}>
+      {trigger}
+    </PopoverTrigger>
+  );
+  const drawerTrigger = (
+    <DrawerTrigger asChild aria-expanded={open}>
+      {trigger}
+    </DrawerTrigger>
+  );
+
   return isWide ? (
-    <Popover open={open} onOpenChange={onOpenChange}>
-      <PopoverTrigger asChild aria-expanded={open}>
-        {trigger}
-      </PopoverTrigger>
+    <Popover open={open} onOpenChange={handleOpenChange}>
+      {anchor ? <PopoverAnchor asChild>{anchor(popoverTrigger)}</PopoverAnchor> : popoverTrigger}
 
       <PopoverContent
         align={align}
@@ -82,7 +105,7 @@ export function ResponsiveOverlay({
         onCloseAutoFocus={onCloseAutoFocus}
         onEscapeKeyDown={handleEscapeKeyDown}
         onInteractOutside={keepOpenForAssistantSurface}
-        onOpenAutoFocus={focusOverlayContent}
+        onOpenAutoFocus={onOpenAutoFocus}
       >
         <PopoverHeader className={cn("shrink-0 p-3", headerAction && "flex-row items-center gap-2 py-1.5 pr-1.5")}>
           <PopoverTitle className={cn(headerAction && "min-w-0 flex-1 truncate")} id={titleId}>
@@ -92,16 +115,16 @@ export function ResponsiveOverlay({
           {headerAction}
         </PopoverHeader>
 
-        <div className={cn(OVERLAY_SCROLL_REGION)}>{children}</div>
+        <OverlayDismissGuardContext.Provider value={dismissGuard.guard}>
+          <div className={cn(OVERLAY_SCROLL_REGION)}>{children}</div>
 
-        {footer && <PopoverFooter className="p-3">{footer}</PopoverFooter>}
+          {footer && <PopoverFooter className="p-3">{footer}</PopoverFooter>}
+        </OverlayDismissGuardContext.Provider>
       </PopoverContent>
     </Popover>
   ) : (
-    <Drawer open={open} repositionInputs={false} onOpenChange={onOpenChange}>
-      <DrawerTrigger asChild aria-expanded={open}>
-        {trigger}
-      </DrawerTrigger>
+    <Drawer direction={drawerDirection} open={open} repositionInputs={false} onOpenChange={handleOpenChange}>
+      {anchor ? anchor(drawerTrigger) : drawerTrigger}
 
       <DrawerContent
         aria-describedby={undefined}
@@ -110,17 +133,20 @@ export function ResponsiveOverlay({
         onCloseAutoFocus={onCloseAutoFocus}
         onEscapeKeyDown={handleEscapeKeyDown}
         onInteractOutside={keepOpenForAssistantSurface}
-        onOpenAutoFocus={focusOverlayContent}
+        onOpenAutoFocus={onOpenAutoFocus}
       >
-        <DrawerHeader className={cn(headerAction && "flex-row items-center gap-2 py-1.5 pr-[3.125rem]")}>
+        <DrawerHeader
+          actions={headerAction}
+          className="group-data-[vaul-drawer-direction=left]/drawer-content:flex-row group-data-[vaul-drawer-direction=left]/drawer-content:items-center group-data-[vaul-drawer-direction=left]/drawer-content:py-3 group-data-[vaul-drawer-direction=left]/drawer-content:pr-12"
+        >
           <DrawerTitle className={cn("min-w-0 truncate", headerAction && "flex-1")}>{title}</DrawerTitle>
-
-          {headerAction}
         </DrawerHeader>
 
-        <DrawerBody className="px-0 pb-4">{children}</DrawerBody>
+        <OverlayDismissGuardContext.Provider value={dismissGuard.guard}>
+          <DrawerBody className="px-0 pb-4">{children}</DrawerBody>
 
-        {footer && <DrawerFooter className="flex-col-reverse">{footer}</DrawerFooter>}
+          {footer && <DrawerFooter className="flex-col-reverse">{footer}</DrawerFooter>}
+        </OverlayDismissGuardContext.Provider>
       </DrawerContent>
     </Drawer>
   );

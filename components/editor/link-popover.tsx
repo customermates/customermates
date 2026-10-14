@@ -39,7 +39,7 @@ export function LinkPopover({ editor, open, onOpenChange, normalizeUrl, disabled
   }, [open, editor]);
 
   function setLink() {
-    if (disabled || normalizedUrl === null) return;
+    if (disabled || normalizedUrl === null || !editor.isEditable) return;
     if (normalizedUrl === "") editor.chain().focus().extendMarkRange("link").unsetLink().run();
     else editor.chain().focus().extendMarkRange("link").setLink({ href: normalizedUrl }).run();
 
@@ -47,6 +47,7 @@ export function LinkPopover({ editor, open, onOpenChange, normalizeUrl, disabled
   }
 
   function removeLink() {
+    if (disabled || !editor.isEditable) return;
     editor.chain().focus().extendMarkRange("link").unsetLink().run();
     onOpenChange(false);
   }
@@ -73,7 +74,12 @@ export function LinkPopover({ editor, open, onOpenChange, normalizeUrl, disabled
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent align="start" className="w-80 p-2" onOpenAutoFocus={() => urlInputRef.current?.focus()}>
+      <PopoverContent
+        data-editor-menu
+        align="start"
+        className="w-80 p-2"
+        onOpenAutoFocus={() => urlInputRef.current?.focus()}
+      >
         <div className="flex w-full items-center gap-1">
           <Input
             ref={urlInputRef}

@@ -1,3 +1,4 @@
+import { PermissionService } from "@/core/base/permission.service";
 import type { TenantUser } from "@/features/user/user.schema";
 
 import { randomUUID } from "node:crypto";
@@ -51,26 +52,45 @@ describeDatabase("user lookup access scoping on PostgreSQL", () => {
   });
 
   it("returns null when a readOwn viewer asks for a colleague", async () => {
-    const user = await runWithTenant(viewer(Action.readOwn), () => new PrismaUserRepo().getUserById(colleagueId));
+    const user = await runWithTenant(viewer(Action.readOwn), () =>
+      new PrismaUserRepo(new PermissionService()).getUserById(colleagueId),
+    );
 
     expect(user).toBeNull();
   });
 
   it("returns the viewer's own record to a readOwn viewer", async () => {
-    const user = await runWithTenant(viewer(Action.readOwn), () => new PrismaUserRepo().getUserById(viewerId));
+    const user = await runWithTenant(viewer(Action.readOwn), () =>
+      new PrismaUserRepo(new PermissionService()).getUserById(viewerId),
+    );
 
     expect(user?.id).toBe(viewerId);
   });
 
   it("returns the colleague to a readAll viewer", async () => {
-    const user = await runWithTenant(viewer(Action.readAll), () => new PrismaUserRepo().getUserById(colleagueId));
+    const user = await runWithTenant(viewer(Action.readAll), () =>
+      new PrismaUserRepo(new PermissionService()).getUserById(colleagueId),
+    );
 
     expect(user?.id).toBe(colleagueId);
   });
 
+  it("resolves selected member labels in one bounded, access-scoped query", async () => {
+    const ids = [viewerId, colleagueId, randomUUID()];
+    const own = await runWithTenant(viewer(Action.readOwn), () =>
+      new PrismaUserRepo(new PermissionService()).resolveUserOptions(ids),
+    );
+    expect(own.map((user) => user.id)).toEqual([viewerId]);
+    const all = await runWithTenant(viewer(Action.readAll), () =>
+      new PrismaUserRepo(new PermissionService()).resolveUserOptions(ids),
+    );
+    expect(all.map((user) => user.id).sort()).toEqual([viewerId, colleagueId].sort());
+    expect(Object.keys(all[0]).sort()).toEqual(["avatarUrl", "firstName", "id", "lastName"]);
+  });
+
   it("resolves only the requested ids for a readOwn viewer", async () => {
     const found = await runWithTenant(viewer(Action.readOwn), () =>
-      new PrismaUserRepo().findIds(new Set([colleagueId])),
+      new PrismaUserRepo(new PermissionService()).findIds(new Set([colleagueId])),
     );
 
     expect(found).toEqual(new Set());

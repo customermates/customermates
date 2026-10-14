@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CountryCode } from "@/generated/prisma";
-import { createMockUser } from "@/tests/helpers/mock-user";
+import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import {
   MOCK_ENV_MODULE,
   createMockDiModule,
@@ -18,9 +18,12 @@ vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 import { RegisterUserInteractor } from "../register/register-user.interactor";
 import { UpdateUserDetailsInteractor, UpdateUserDetailsSchema } from "../upsert/update-user-details.interactor";
 import { AdminUpdateUserDetailsSchema } from "../upsert/admin-update-user-details.interactor";
+import { GetUserDetailsInteractor } from "../get/get-user-details.interactor";
+import { GetUserByIdInteractor } from "../get/get-user-by-id.interactor";
 import { LEGAL_DOCUMENT_VERSIONS } from "@/constants/legal-documents";
 import { DomainEvent } from "@/features/event/domain-events";
-import { DemoModeError } from "@/core/errors/app-errors";
+import { DemoModeError, ForbiddenError } from "@/core/errors/app-errors";
+import { runWithTenant } from "@/core/decorators/tenant-context";
 import { ACCOUNT_STATES, accountStateRedirect } from "@/features/auth/account-state";
 
 const USER_ID = "test-user-id";
@@ -41,6 +44,8 @@ describe("RegisterUserInteractor", () => {
   let mockEventService: any;
   let mockRouteGuardService: any;
   let mockCompanyRepo: any;
+  let mockRegistration: any;
+  let mockRecordModel: { initialize: ReturnType<typeof vi.fn<() => Promise<void>>> };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -54,7 +59,6 @@ describe("RegisterUserInteractor", () => {
       findCurrentUserUnscoped: vi.fn().mockResolvedValue(null),
       findAuthUserCompanyIdForUpdateUnscoped: vi.fn().mockResolvedValue(null),
       findAuthUserCompanyIdUnscoped: vi.fn().mockResolvedValue(null),
-      createCompanyAndUser: vi.fn().mockResolvedValue(mockTenantUser),
       registerExistingCompany: vi.fn().mockResolvedValue(mockTenantUser),
     };
     mockEventService = {
@@ -75,7 +79,9 @@ describe("RegisterUserInteractor", () => {
         subscription: null,
       }),
     };
+    mockRecordModel = { initialize: vi.fn<() => Promise<void>>().mockResolvedValue(undefined) };
     mockCompanyRepo = { existsUnscoped: vi.fn().mockResolvedValue(true) };
+    mockRegistration = { createCompanyAndUser: vi.fn().mockResolvedValue(mockTenantUser) };
   });
 
   function createInteractor() {
@@ -85,6 +91,8 @@ describe("RegisterUserInteractor", () => {
       mockEventService,
       mockRouteGuardService,
       mockCompanyRepo,
+      mockRecordModel,
+      mockRegistration,
     );
   }
 
@@ -117,6 +125,7 @@ describe("RegisterUserInteractor", () => {
       authUserId: USER_ID,
       companyId: mockTenantUser.companyId,
     });
+    expect(mockRecordModel.initialize).toHaveBeenCalledOnce();
   });
 
   it("records current company-wide legal acceptance for a new cloud company", async () => {
@@ -134,7 +143,7 @@ describe("RegisterUserInteractor", () => {
       { target: { type: "createCompany" } },
     );
 
-    expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ agreeToTerms: true }));
+    expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ agreeToTerms: true }));
     expect(mockEventService.publish).toHaveBeenNthCalledWith(
       1,
       DomainEvent.LEGAL_DOCUMENTS_ACCEPTED,
@@ -183,7 +192,7 @@ describe("RegisterUserInteractor", () => {
     };
 
     await createInteractor().invoke(data, { adAttribution, target: { type: "createCompany" } });
-    expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ adAttribution }));
+    expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ adAttribution }));
 
     vi.clearAllMocks();
     mockRepo.findAuthUserCompanyIdForUpdateUnscoped.mockResolvedValue("existing-company-id");
@@ -226,7 +235,7 @@ describe("RegisterUserInteractor", () => {
       },
     );
 
-    expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ adAttribution: [] }));
+    expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ adAttribution: [] }));
   });
 
   it("rejects an unchecked new cloud company before creating records", async () => {
@@ -245,7 +254,8 @@ describe("RegisterUserInteractor", () => {
     );
 
     expect("ok" in result && result.ok).toBe(false);
-    expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(mockRecordModel.initialize).not.toHaveBeenCalled();
     expect(mockEventService.publish).not.toHaveBeenCalled();
   });
 
@@ -344,7 +354,9 @@ describe("RegisterUserInteractor", () => {
       { target: { type: "createCompany" } },
     );
 
-    expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ agreeToTerms: false }));
+    expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(
+      expect.objectContaining({ agreeToTerms: false }),
+    );
     expect(mockEventService.publish).not.toHaveBeenCalledWith(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, expect.anything());
   });
 
@@ -361,7 +373,7 @@ describe("RegisterUserInteractor", () => {
       { target: { type: "createCompany" } },
     );
 
-    expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ agreeToTerms: true }));
+    expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ agreeToTerms: true }));
     expect(mockEventService.publish).not.toHaveBeenCalledWith(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, expect.anything());
   });
 
@@ -382,7 +394,7 @@ describe("RegisterUserInteractor", () => {
       ),
     ).toThrow(DemoModeError);
 
-    expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
     expect(mockEventService.publish).not.toHaveBeenCalledWith(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, expect.anything());
   });
 
@@ -438,8 +450,12 @@ describe("RegisterUserInteractor", () => {
     );
 
     expect(result).toMatchObject({ ok: true });
-    expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ email: "jane@example.com" }));
-    expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalledWith(expect.objectContaining({ email: "not-an-email" }));
+    expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(
+      expect.objectContaining({ email: "jane@example.com" }),
+    );
+    expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalledWith(
+      expect.objectContaining({ email: "not-an-email" }),
+    );
   });
 
   it("returns the pending destination for an invited user", async () => {
@@ -479,7 +495,7 @@ describe("RegisterUserInteractor", () => {
         { target: { type: "existingAuthUserCompanyBinding" } },
       ),
     ).resolves.toEqual({ redirect: "/onboarding" });
-    expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
     expect(mockRepo.registerExistingCompany).not.toHaveBeenCalled();
     expect(mockEventService.publish).not.toHaveBeenCalled();
     expect(mockAuthService.sendNewUserNotificationEmail).not.toHaveBeenCalled();
@@ -501,7 +517,7 @@ describe("RegisterUserInteractor", () => {
         { target: { type: "invitation", companyId: "invited-company-id" } },
       ),
     ).resolves.toEqual({ redirect: "/auth/signup" });
-    expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
     expect(mockRepo.registerExistingCompany).not.toHaveBeenCalled();
     expect(mockEventService.publish).not.toHaveBeenCalled();
     expect(mockAuthService.sendNewUserNotificationEmail).not.toHaveBeenCalled();
@@ -527,7 +543,7 @@ describe("RegisterUserInteractor", () => {
         { target: { type: "invitation", companyId: "invited-company-id" } },
       ),
     ).resolves.toEqual({ redirect });
-    expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
     expect(mockRepo.registerExistingCompany).not.toHaveBeenCalled();
     expect(mockRepo.bindAuthUserToCompanyOrThrowUnscoped).not.toHaveBeenCalled();
     expect(mockEventService.publish).not.toHaveBeenCalled();
@@ -555,7 +571,7 @@ describe("RegisterUserInteractor", () => {
     expect(mockRepo.registerExistingCompany).toHaveBeenCalledWith(
       expect.objectContaining({ companyId: "current-invited-company-id" }),
     );
-    expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
     expect(mockRepo.bindAuthUserToCompanyOrThrowUnscoped).toHaveBeenCalledWith({
       authUserId: USER_ID,
       companyId: mockTenantUser.companyId,
@@ -607,7 +623,7 @@ describe("RegisterUserInteractor", () => {
       ),
     ).resolves.toEqual({ redirect: "/auth/signin" });
     expect(mockRepo.findAuthUserCompanyIdForUpdateUnscoped).not.toHaveBeenCalled();
-    expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
     expect(mockRepo.registerExistingCompany).not.toHaveBeenCalled();
     expect(mockEventService.publish).not.toHaveBeenCalled();
     expect(mockAuthService.sendNewUserNotificationEmail).not.toHaveBeenCalled();
@@ -644,7 +660,7 @@ describe("RegisterUserInteractor", () => {
         ),
       ).resolves.toEqual({ redirect: accountStateRedirect(state) ?? "/" });
       expect(mockRepo.findAuthUserCompanyIdForUpdateUnscoped).not.toHaveBeenCalled();
-      expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
+      expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
       expect(mockRepo.registerExistingCompany).not.toHaveBeenCalled();
       expect(mockEventService.publish).not.toHaveBeenCalled();
       expect(mockAuthService.sendNewUserNotificationEmail).not.toHaveBeenCalled();
@@ -693,11 +709,12 @@ describe("UpdateUserDetailsInteractor", () => {
       DomainEvent.USER_UPDATED,
       expect.objectContaining({
         entityId: USER_ID,
-        payload: expect.objectContaining({
-          firstName: "Janet",
-          lastName: "Doe",
-          country: "de",
-        }),
+        payload: {
+          changes: {
+            firstName: { previous: "Test", current: "Janet" },
+            lastName: { previous: "User", current: "Doe" },
+          },
+        },
       }),
     );
   });
@@ -718,9 +735,17 @@ describe("UpdateUserDetailsInteractor", () => {
     expect(mockEventService.publish).toHaveBeenCalledWith(
       DomainEvent.USER_UPDATED,
       expect.objectContaining({
-        payload: expect.objectContaining({ firstName: "Janet" }),
+        payload: { changes: expect.objectContaining({ firstName: { previous: "Test", current: "Janet" } }) },
       }),
     );
+  });
+
+  it("publishes nothing when the saved profile keeps its name and country", async () => {
+    mockRepo.updateDetails.mockResolvedValue({ ...profileResult, firstName: "Test", lastName: "User", country: "de" });
+    const result: any = await createInteractor().invoke({ theme: "dark" } as never);
+
+    expect(result.ok).toBe(true);
+    expect(mockEventService.publish).not.toHaveBeenCalled();
   });
 
   it("returns { ok: true, data: details }", async () => {
@@ -745,6 +770,30 @@ describe("UpdateUserDetailsInteractor", () => {
     expect(result.ok).toBe(true);
     expect(result.data.displayLanguage).toBe("system");
     expect(result.data.formattingLocale).toBe("system");
+  });
+});
+
+describe("own profile for a member whose role has no Users & Roles access", () => {
+  const member = { ...createMockUserWithPermissions([]), firstName: "Mia" };
+
+  it("returns the member's own profile details", async () => {
+    const result = await runWithTenant(member, () => new GetUserDetailsInteractor().invoke());
+
+    expect(result).toMatchObject({
+      ok: true,
+      data: { id: member.id, firstName: "Mia", roleName: "Custom", roleIsSystemRole: false },
+    });
+  });
+
+  it("still refuses the member another member's details", async () => {
+    const repo = { getUserById: vi.fn() };
+
+    await expect(
+      runWithTenant(member, () =>
+        new GetUserByIdInteractor(repo).invoke({ id: "00000000-0000-4000-8000-000000000002" }),
+      ),
+    ).rejects.toThrow(ForbiddenError);
+    expect(repo.getUserById).not.toHaveBeenCalled();
   });
 });
 

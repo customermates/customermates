@@ -1,5 +1,6 @@
 import type { ComponentProps } from "react";
 import type { MDXComponents } from "mdx/types";
+import type { ComponentProps, ReactNode } from "react";
 
 import defaultMdxComponents from "fumadocs-ui/mdx";
 
@@ -19,6 +20,7 @@ function ProgressSteps(props: ComponentProps<typeof Steps>) {
 }
 import { markdownBaseComponents } from "./markdown-base-components";
 import { McpInstallSnippet } from "./mcp-install-snippet";
+import { APP_LINK_SCHEME, publicAppLinkHref } from "@/features/docs/app-links";
 import { StatusAvailable, StatusPartial, StatusUnavailable } from "./status-icon";
 
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
@@ -42,6 +44,11 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
   };
 }
 
+function DocsLink({ href, ...props }: ComponentProps<"a">) {
+  const Link = markdownBaseComponents.a as (props: ComponentProps<"a">) => ReactNode;
+  return <Link href={href?.startsWith(APP_LINK_SCHEME) ? publicAppLinkHref(href) : href} {...props} />;
+}
+
 export function getDocsMDXComponents(components?: MDXComponents): MDXComponents {
-  return getMDXComponents({ McpInstallSnippet, ...components });
+  return getMDXComponents({ McpInstallSnippet, a: DocsLink, ...components });
 }

@@ -1,0 +1,61 @@
+import { TenantRepository } from "@/core/base/tenant-repository";
+import type { RecordRef } from "@/features/records/record-model.schema";
+import { threadAccessWhere } from "../messaging-access";
+import type { ThreadRecordsRepo } from "./thread-records.repo";
+
+export class PrismaThreadRecordsRepo extends TenantRepository implements ThreadRecordsRepo {
+  async canAccessThread(threadId: string) {
+    return Boolean(
+      await this.prisma.messagingThread.findFirst({
+        where: {
+          companyId: this.companyId,
+          id: threadId,
+          AND: [threadAccessWhere(this.companyId, this.userId)],
+        },
+        select: { id: true },
+      }),
+    );
+  }
+
+  async listLinks(threadId: string, take: number) {
+    const rows = await this.prisma.messagingThreadRecordLink.findMany({
+      where: { companyId: this.companyId, threadId, record: { is: { deletedAt: null } } },
+      orderBy: [{ typeId: "asc" }, { recordId: "asc" }],
+      take,
+      select: { typeId: true, recordId: true, record: { select: { protectedKind: true } } },
+    });
+    return rows.map((row) => ({
+      typeId: row.typeId,
+      recordId: row.recordId,
+      protected: row.record.protectedKind !== null,
+    }));
+  }
+
+  async has(threadId: string, ref: RecordRef) {
+    return Boolean(
+      await this.prisma.messagingThreadRecordLink.findFirst({
+        where: {
+          companyId: this.companyId,
+          threadId,
+          typeId: ref.typeId,
+          recordId: ref.recordId,
+          record: { is: { deletedAt: null } },
+        },
+        select: { recordId: true },
+      }),
+    );
+  }
+
+  async link(threadId: string, ref: RecordRef) {
+    await this.prisma.messagingThreadRecordLink.createMany({
+      data: { companyId: this.companyId, threadId, typeId: ref.typeId, recordId: ref.recordId },
+      skipDuplicates: true,
+    });
+  }
+
+  async unlink(threadId: string, ref: RecordRef) {
+    await this.prisma.messagingThreadRecordLink.deleteMany({
+      where: { companyId: this.companyId, threadId, typeId: ref.typeId, recordId: ref.recordId },
+    });
+  }
+}

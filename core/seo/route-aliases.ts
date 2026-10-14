@@ -86,7 +86,6 @@ const RETIRED_ROUTE_ALIASES = {
   "/compare/zoho-crm": "/compare/zoho-crm-alternative",
 
   "/docs/account-settings": "/docs/app-profile",
-  "/docs/company-settings": "/docs/app-company",
   "/docs/comparison": "/compare",
   "/docs/feature-guide-custom-columns": "/docs/app-records",
   "/docs/feature-guide-dashboard-widgets": "/docs/app-dashboard",
@@ -126,11 +125,11 @@ export const PERMANENT_ROUTE_ALIASES = {
   ...DUPLICATE_ROUTE_ALIASES,
 } as const satisfies Record<string, string>;
 
-export type DeletedRoutePath = keyof typeof RETIRED_ROUTE_ALIASES;
+type DeletedRoutePath = keyof typeof RETIRED_ROUTE_ALIASES;
 
-export type DuplicateRoutePath = keyof typeof DUPLICATE_ROUTE_ALIASES;
+type DuplicateRoutePath = keyof typeof DUPLICATE_ROUTE_ALIASES;
 
-export type RetiredRoutePath = keyof typeof PERMANENT_ROUTE_ALIASES;
+type RetiredRoutePath = keyof typeof PERMANENT_ROUTE_ALIASES;
 
 export const DELETED_ROUTE_PATHS = Object.keys(RETIRED_ROUTE_ALIASES) as DeletedRoutePath[];
 
@@ -142,7 +141,7 @@ export function isRetiredRoutePath(routePath: string): routePath is RetiredRoute
   return routePath in PERMANENT_ROUTE_ALIASES;
 }
 
-export type PermanentRedirect = {
+type PermanentRedirect = {
   source: string;
   destination: string;
   permanent: true;

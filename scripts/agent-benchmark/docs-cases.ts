@@ -24,7 +24,7 @@ export const DOCS_CASES: readonly DocsCase[] = [
     title: "Docs: where to create an API key",
     actor: "driver",
     prompts: ["Where in Customermates do I create an API key for the REST API? Just tell me where to click."],
-    judgeFacts: ["API keys are created under My Profile > API & Connectors (/profile/api-keys) with Add"],
+    judgeFacts: ["API keys are created under My Profile > API & Connectors (/settings/api-keys) with Add"],
   },
   {
     id: "D2",
@@ -62,7 +62,7 @@ export const DOCS_CASES: readonly DocsCase[] = [
     actor: "driver",
     prompts: ["Wo stelle ich die Währung für unseren Workspace ein?"],
     contexts: GERMAN,
-    judgeFacts: ["Die Workspace-Währung steht unter Mein Unternehmen > Einstellungen (/company/settings), Feld Währung"],
+    judgeFacts: ["Es gibt keine Workspace-Währung; jedes Geldfeld hat seine eigene Währung unter Konfigurieren (/configure)"],
   },
   {
     id: "D7",
@@ -120,11 +120,8 @@ export const DOCS_CASE_ORACLES: Readonly<Record<DocsCaseId, DocsOracle>> = {
     passes: (text) => /\b30[\s-]*min/i.test(text),
   },
   D6: {
-    gold: "company-settings-currency",
-    passes: (text) =>
-      /\/company\/settings/i.test(text) ||
-      (/Mein Unternehmen/i.test(text) && /Einstellungen/i.test(text)) ||
-      linksDocsPage(text, "app-company"),
+    gold: "field-currency-in-configure",
+    passes: (text) => /\/configure/i.test(text) || /Konfigurieren/i.test(text) || linksDocsPage(text, "app-company"),
   },
   D7: {
     gold: "expiry-not-extendable-new-key",

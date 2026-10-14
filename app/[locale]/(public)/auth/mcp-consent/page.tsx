@@ -6,6 +6,7 @@ import { McpConsentCard } from "./mcp-consent-card";
 import { getAuthService, getRouteGuardService } from "@/core/di";
 import { requireAccountState } from "@/features/auth/next/require";
 import { accountStateRedirect } from "@/features/auth/account-state";
+import { canConnectMcp } from "@/features/auth/mcp-access";
 import { buildLocalePath } from "@/i18n/locale-registry";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 import { NOINDEX_METADATA } from "@/core/seo/noindex-metadata";
@@ -38,6 +39,7 @@ export default async function McpConsentPage({ searchParams }: Props) {
       <McpConsentCard
         clientName={prompt.clientName}
         consentCode={consentCode}
+        permitted={canConnectMcp(resolution.user?.role)}
         redirectHost={prompt.redirectHost}
         scopes={prompt.scopes}
       />
