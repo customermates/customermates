@@ -704,6 +704,22 @@ describe("StartRoutineRunInteractor", () => {
     expect(conversations.createAndLinkRoutineConversationForRun).toHaveBeenCalledBefore(sendAgentMessage.invokeRoutine);
   });
 
+  it("caps every routine run at the fixed ten-credit ceiling", async () => {
+    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
+    const interactor = new StartRoutineRunInteractor(
+      repo as never,
+      conversations as never,
+      sendAgentMessage as never,
+      filterMatcher as never,
+    );
+
+    await interactor.invoke({ routineRunId: RUN_ID });
+
+    expect(conversations.createAndLinkRoutineConversationForRun).toHaveBeenCalledWith(
+      expect.objectContaining({ creditCeilingMicrocents: 10_000_000 }),
+    );
+  });
+
   it("lets a read-own routine owner start an admitted background run", async () => {
     const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
     const interactor = new StartRoutineRunInteractor(

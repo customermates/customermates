@@ -245,6 +245,7 @@ export const OperatorUserSummaryDtoSchema = z.object({
     starter: z.number(),
     pro: z.number(),
     business: z.number(),
+    max: z.number(),
     enterprise: z.number(),
     missing: z.number(),
   }),

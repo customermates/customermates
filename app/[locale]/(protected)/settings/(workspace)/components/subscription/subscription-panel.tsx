@@ -108,6 +108,7 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
           {!hasActiveSubscription && canManageCompany && (
             <PlanPicker
               isLoading={loadingOverlayStore.isLoading}
+              unavailablePlans={subscription?.checkoutUnavailablePlans ?? []}
               onSelect={(plan) => runUserAction(() => subscriptionStore.handleSubscribe(plan))}
             />
           )}

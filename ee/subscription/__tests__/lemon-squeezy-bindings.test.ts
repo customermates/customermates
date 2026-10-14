@@ -1,8 +1,17 @@
 import { describe, expect, it } from "vitest";
 
 import { getCommercialOfferOrThrow } from "@/core/commercial/plan-catalog";
-import { parseLemonSqueezyBindings, type LemonSqueezyBindingEnvironment } from "../lemon-squeezy-binding-contract";
-import { offerToVariant, variantToOffer } from "../lemon-squeezy-bindings";
+import {
+  parseLemonSqueezyBindings,
+  unboundOptionalCheckoutOffers,
+  type LemonSqueezyBindingEnvironment,
+} from "../lemon-squeezy-binding-contract";
+import {
+  checkoutUnavailablePlans,
+  isOfferCheckoutAvailable,
+  offerToVariant,
+  variantToOffer,
+} from "../lemon-squeezy-bindings";
 
 const VALID_ENV: LemonSqueezyBindingEnvironment = {
   LEMONSQUEEZY_VARIANT_ID_STARTER: "2001",
@@ -23,6 +32,7 @@ describe("Lemon Squeezy offer bindings", () => {
       "business:monthly": {
         checkoutVariantId: "2003",
       },
+      "max:monthly": null,
     });
     expect(offerToVariant(getCommercialOfferOrThrow("pro", "monthly"), VALID_ENV)).toBe("2002");
     expect(variantToOffer("2003", VALID_ENV)?.id).toBe("business:monthly");
@@ -54,6 +64,33 @@ describe("Lemon Squeezy offer bindings", () => {
         LEMONSQUEEZY_VARIANT_ID_ENTERPRISE: "2004",
       } as LemonSqueezyBindingEnvironment),
     ).toThrow("Enterprise and excess variants are not allowed");
+  });
+
+  it("binds Max both ways once its optional variant is configured", () => {
+    const withMax = { ...VALID_ENV, LEMONSQUEEZY_VARIANT_ID_MAX: "2004" };
+
+    expect(parseLemonSqueezyBindings(withMax).byOffer["max:monthly"]).toEqual({ checkoutVariantId: "2004" });
+    expect(offerToVariant(getCommercialOfferOrThrow("max", "monthly"), withMax)).toBe("2004");
+    expect(variantToOffer("2004", withMax)?.plan).toBe("max");
+    expect(isOfferCheckoutAvailable(getCommercialOfferOrThrow("max", "monthly"), withMax)).toBe(true);
+    expect(checkoutUnavailablePlans(withMax)).toEqual([]);
+    expect(() => parseLemonSqueezyBindings({ ...withMax, LEMONSQUEEZY_VARIANT_ID_MAX: "2003" })).toThrow(
+      "globally unique",
+    );
+  });
+
+  it("shows Max without a checkout while its optional variant is missing, keeping the other three required", () => {
+    const max = getCommercialOfferOrThrow("max", "monthly");
+
+    for (const input of [VALID_ENV, { ...VALID_ENV, LEMONSQUEEZY_VARIANT_ID_MAX: " " }]) {
+      expect(unboundOptionalCheckoutOffers(input).map((offer) => offer.id)).toEqual(["max:monthly"]);
+      expect(checkoutUnavailablePlans(input)).toEqual(["max"]);
+      expect(isOfferCheckoutAvailable(max, input)).toBe(false);
+      expect(isOfferCheckoutAvailable(getCommercialOfferOrThrow("business", "monthly"), input)).toBe(true);
+      expect(() => offerToVariant(max, input)).toThrow("no Lemon Squeezy checkout variant");
+    }
+    expect(checkoutUnavailablePlans({})).toEqual(["max"]);
+    expect(() => parseLemonSqueezyBindings({ ...VALID_ENV, LEMONSQUEEZY_VARIANT_ID_MAX: "max" })).toThrow();
   });
 
   it("returns no catalog offer for an unknown variant", () => {

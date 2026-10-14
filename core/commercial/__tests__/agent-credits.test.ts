@@ -13,6 +13,7 @@ import {
   agentCreditDisplay,
   agentCreditsToMicrocents,
   agentExactCreditsToMicrocents,
+  formatAllowanceSharePct,
   isWholeTenthOfCredit,
 } from "../agent-credits";
 
@@ -72,55 +73,35 @@ describe("credit display", () => {
   });
 
   it.each([
-    [
-      "en",
-      en.AgentChat.credits.recentTurn,
-      [
-        [1_000_000, "Last turn used 1 credit"],
-        [750_000, "Last turn used 0.8 credits"],
-        [1_500_000, "Last turn used 1.5 credits"],
-        [20_000, "Last turn used <0.1 credits"],
-      ],
-    ],
-    [
-      "de",
-      de.AgentChat.credits.recentTurn,
-      [
-        [1_000_000, "Letzte Anfrage: 1 Credit"],
-        [750_000, "Letzte Anfrage: 0,8 Credits"],
-        [1_500_000, "Letzte Anfrage: 1,5 Credits"],
-      ],
-    ],
-    [
-      "es",
-      es.AgentChat.credits.recentTurn,
-      [
-        [1_000_000, "Última consulta: 1 crédito"],
-        [750_000, "Última consulta: 0,8 créditos"],
-        [1_500_000, "Última consulta: 1,5 créditos"],
-      ],
-    ],
-    [
-      "fr",
-      fr.AgentChat.credits.recentTurn,
-      [
-        [1_000_000, "Dernière demande : 1 crédit"],
-        [750_000, "Dernière demande : 0,8 crédit"],
-        [1_500_000, "Dernière demande : 1,5 crédit"],
-        [2_000_000, "Dernière demande : 2 crédits"],
-      ],
-    ],
-    [
-      "it",
-      it_.AgentChat.credits.recentTurn,
-      [
-        [1_000_000, "Ultima richiesta: 1 credito"],
-        [750_000, "Ultima richiesta: 0,8 crediti"],
-        [1_500_000, "Ultima richiesta: 1,5 crediti"],
-      ],
-    ],
-  ] as const)("chooses the %s plural for fractional credits", (locale, message, cases) => {
+    ["en", en.AgentChat.credits.recentTurn, "Last request used 0.4%"],
+    ["de", de.AgentChat.credits.recentTurn, "Letzte Anfrage: 0,4 %"],
+    ["es", es.AgentChat.credits.recentTurn, "Última consulta: 0,4 %"],
+    ["fr", fr.AgentChat.credits.recentTurn, "Dernière demande : 0,4 %"],
+    ["it", it_.AgentChat.credits.recentTurn, "Ultima richiesta: 0,4%"],
+  ] as const)("phrases the last request in %s as a share of the allowance", (locale, message, expected) => {
     const format = new IntlMessageFormat(message, locale);
-    for (const [microcents, expected] of cases) expect(format.format(display(microcents, locale))).toBe(expected);
+    const text = String(format.format({ used: formatAllowanceSharePct(0.375, locale) }));
+    expect(text.replace(/[\u00a0\u202f]/g, " ")).toBe(expected);
+  });
+});
+
+describe("allowance share display", () => {
+  const plain = (value: string) => value.replace(/[\u00a0\u202f]/g, " ");
+
+  it("never shows a non-zero share as zero", () => {
+    expect(formatAllowanceSharePct(0, "en")).toBe("0%");
+    expect(formatAllowanceSharePct(0.01, "en")).toBe("<0.1%");
+    expect(formatAllowanceSharePct(0.099, "en")).toBe("<0.1%");
+    expect(plain(formatAllowanceSharePct(0.05, "de"))).toBe("<0,1 %");
+  });
+
+  it("uses one decimal for small shares and whole percents from ten", () => {
+    expect(formatAllowanceSharePct(0.1, "en")).toBe("0.1%");
+    expect(formatAllowanceSharePct(0.375, "en")).toBe("0.4%");
+    expect(formatAllowanceSharePct(2.8, "en")).toBe("2.8%");
+    expect(formatAllowanceSharePct(12.34, "en")).toBe("12%");
+    expect(formatAllowanceSharePct(100, "en")).toBe("100%");
+    expect(formatAllowanceSharePct(140, "en")).toBe("100%");
+    expect(plain(formatAllowanceSharePct(2.8, "de"))).toBe("2,8 %");
   });
 });

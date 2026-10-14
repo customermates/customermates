@@ -11,7 +11,7 @@ import {
   routineRunDetail,
   routineRunStopReason,
 } from "@/ee/routines/routine-run-outcome";
-import { DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN } from "@/ee/routines/routine-run-limits";
+import { ROUTINE_RUN_STARTER_ALLOWANCE_SHARE } from "@/ee/routines/routine-run-limits";
 import en from "@/i18n/locales/en.json";
 import de from "@/i18n/locales/de.json";
 
@@ -131,11 +131,11 @@ describe("routineRunDetail", () => {
         ),
       );
 
-    expect(render(en, "en")).toBe(
-      `The run stopped at its limit of ${DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN} credits per run.`,
-    );
+    const share = (locale: string) =>
+      new Intl.NumberFormat(locale, { style: "percent" }).format(ROUTINE_RUN_STARTER_ALLOWANCE_SHARE);
+    expect(render(en, "en")).toBe(`The run stopped at its per-run limit of ${share("en")} of a Starter allowance.`);
     expect(render(de, "de")).toBe(
-      `Der Lauf wurde an seiner Obergrenze von ${DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN} Credits pro Lauf beendet.`,
+      `Der Lauf wurde an seiner Obergrenze von ${share("de")} eines Starter-Kontingents pro Lauf beendet.`,
     );
     expect(render(en, "en")).not.toBe(en.RoutineRunStopReason.creditLimit);
     expect(`${render(en, "en")} ${render(de, "de")}`).not.toMatch(/Assistant|Assistenten|period|Periode|Guthaben/i);

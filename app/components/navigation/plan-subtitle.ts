@@ -9,7 +9,13 @@ type PlanChipModel = {
 
 const URGENT_TRIAL_DAYS = 3;
 
-const LOCALIZED_PLANS = ["starter", "pro", "business", "enterprise"] as const satisfies readonly SubscriptionPlan[];
+const LOCALIZED_PLANS = [
+  "starter",
+  "pro",
+  "business",
+  "max",
+  "enterprise",
+] as const satisfies readonly SubscriptionPlan[];
 const localizedPlans = new Set<string>(LOCALIZED_PLANS);
 
 type Translate = (key: string, values?: Record<string, string | number>) => string;

@@ -280,7 +280,7 @@ export const DOCS_HELDOUT: readonly DocsHeldoutItem[] = [
     slug: "app-routines",
     anchors: ["app-routines#what-do-the-runs-and-their-statuses-mean"],
     alternatives: [],
-    fact: "Queued, Running, Succeeded, Partial (stopped early, e.g. at the 10-credit cap), Failed, Skipped (queued but never started) and Blocked (e.g. the owner is out of credits).",
+    fact: "Queued, Running, Succeeded, Partial (stopped early, e.g. at the per-run cap), Failed, Skipped (queued but never started) and Blocked (e.g. the owner's allowance is used up).",
   },
   {
     id: "dh-fr-02",

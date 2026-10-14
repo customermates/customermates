@@ -45,3 +45,15 @@ export function agentCreditDisplay(
   const credits = (microcents < 0 && tenths > 0 ? -tenths : tenths) / 10;
   return { credits, amount: format.format(credits) };
 }
+
+export function formatAllowanceSharePct(pct: number, locale: string): string {
+  const fractionDigits = pct > 0 && pct < 10 ? 1 : 0;
+  const format = new Intl.NumberFormat(locale, {
+    style: "percent",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: fractionDigits,
+  });
+  if (!Number.isFinite(pct) || pct <= 0) return format.format(0);
+  if (pct < 0.1) return `<${format.format(0.001)}`;
+  return format.format(Math.min(100, pct) / 100);
+}

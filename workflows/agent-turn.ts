@@ -57,6 +57,7 @@ import { userWebsiteHomepage } from "@/ee/agent-chat/user-website-homepages";
 import { buildAgentUsageSettlement, usageToTokenCounts } from "@/ee/agent-chat/agent-usage-settlement";
 import { computeCostMicrocents, promptTokensOf } from "@/ee/agent-chat/model-pricing";
 import { agentMicrocentsToCredits } from "@/core/commercial/agent-credits";
+import { HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER } from "@/core/commercial/plan-catalog";
 import { createAgentSupportTicket } from "@/ee/agent-chat/agent-support-ticket";
 import { describeAgentTool } from "@/ee/agent-chat/agent-activity";
 import { resolvedAgentApprovalActivity } from "@/ee/agent-chat/agent-approval-targets";
@@ -687,8 +688,9 @@ async function resolveRunnerMessage(locale: string, kind: AgentRunnerMessageKind
 
   if (kind === "creditLimit") return t("AgentChat.runner.creditLimit");
   if (kind === "creditLimitNoWrite") return t("AgentChat.runner.creditLimitNoWrite");
-  if (kind === "runCreditLimit") return t("AgentChat.runner.runCreditLimit", { credits });
-  if (kind === "runCreditLimitNoWrite") return t("AgentChat.runner.runCreditLimitNoWrite", { credits });
+  const share = credits / HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER;
+  if (kind === "runCreditLimit") return t("AgentChat.runner.runCreditLimit", { share });
+  if (kind === "runCreditLimitNoWrite") return t("AgentChat.runner.runCreditLimitNoWrite", { share });
   if (kind === "hostedAiUnavailable") return t("AgentChat.runner.hostedAiUnavailable");
   if (kind === "turnError") return t("AgentChat.runner.turnError");
   if (kind === "contextLimit") return t("AgentChat.runner.contextLimit");
@@ -971,7 +973,6 @@ async function finalizeTurn(payload: AgentTurnWorkflowPayload, outcome: AgentTur
         assistantMessageId: committed.assistantMessage.id,
         affectedResources: committed.affectedResources,
         hasSuccessfulMutation: outcome.hasSuccessfulMutation,
-        creditsUsed: agentMicrocentsToCredits(committed.chargedMicrocents),
         numTurns: outcome.ledger.length,
         errorMessage: committed.terminalCode === "policyBreach" ? "policy_breach" : null,
         replayed: false,

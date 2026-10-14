@@ -6,6 +6,7 @@ import type { Data } from "@/core/validation/validation.utils";
 import { assertValidDate } from "@/core/utils/date";
 
 import { agentCreditsToMicrocents } from "@/core/commercial/agent-credits";
+import { CLOUD_TRIAL_HOSTED_AI_USAGE_MULTIPLIER } from "@/core/commercial/plan-catalog";
 import { getEntitlements, TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER } from "@/ee/subscription/entitlements";
 
 export {
@@ -177,6 +178,24 @@ export function workspaceAgentCreditRate(input: {
   if (input.status !== SubscriptionStatus.active) return null;
 
   return paidPlanAllowance(input.plan, input.enterpriseCreditsPerUser);
+}
+
+export function agentUsageMultiplier(input: {
+  appMode: AppMode;
+  plan: SubscriptionPlan;
+  status: SubscriptionStatus;
+  trialEndDate: Date | null;
+  now: Date;
+}): number | null {
+  if (input.appMode === "self-hosted") return null;
+  const usableTrial =
+    input.status === SubscriptionStatus.trial &&
+    (input.trialEndDate === null || input.trialEndDate.getTime() >= input.now.getTime());
+  if (usableTrial) return CLOUD_TRIAL_HOSTED_AI_USAGE_MULTIPLIER;
+  if (input.status !== SubscriptionStatus.active) return null;
+
+  const multiplier = getEntitlements(input.plan).hostedAiUsageMultiplier;
+  return typeof multiplier === "number" ? multiplier : null;
 }
 
 export function resolveAgentCreditEntitlement(input: AgentCreditEntitlementInput): AgentCreditEntitlement {

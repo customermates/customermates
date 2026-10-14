@@ -35,7 +35,7 @@ describe("groupScopeToFilters", () => {
 
   it("turns the no-value key of a nullable enum into notIn over every value, which the partition reads as no subscription", () => {
     expect(groupScopeToFilters(scope(plan, NO_VALUE_GROUP_KEY))).toEqual([
-      { field: "plan", operator: FilterOperatorKey.notIn, value: ["starter", "pro", "business", "enterprise"] },
+      { field: "plan", operator: FilterOperatorKey.notIn, value: ["starter", "pro", "business", "max", "enterprise"] },
     ]);
   });
 
@@ -94,11 +94,12 @@ describe("countOperatorGroups", () => {
       { key: "starter", count: 7 },
       { key: "pro", count: 3 },
       { key: "business", count: 8 },
+      { key: "max", count: 3 },
       { key: "enterprise", count: 10 },
       { key: NO_VALUE_GROUP_KEY, count: NO_VALUE_GROUP_KEY.length },
     ]);
     expect(count.mock.calls.map(([groupScope]) => groupScope)).toEqual(
-      ["starter", "pro", "business", "enterprise", NO_VALUE_GROUP_KEY].map((key) => ({
+      ["starter", "pro", "business", "max", "enterprise", NO_VALUE_GROUP_KEY].map((key) => ({
         spec: plan,
         key,
         bucket: undefined,
@@ -116,7 +117,7 @@ describe("countOperatorGroups", () => {
   });
 });
 
-const ALL_PLANS = ["starter", "pro", "business", "enterprise"];
+const ALL_PLANS = ["starter", "pro", "business", "max", "enterprise"];
 const notStarter: Filter = { field: "plan", operator: FilterOperatorKey.notIn, value: ["starter"] };
 const onlyPro: Filter = { field: "plan", operator: FilterOperatorKey.in, value: ["pro"] };
 const notTrial: Filter = { field: "subscriptionStatus", operator: FilterOperatorKey.notIn, value: ["trial"] };

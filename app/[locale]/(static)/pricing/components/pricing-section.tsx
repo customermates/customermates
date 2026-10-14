@@ -87,7 +87,7 @@ export function PricingSection({
         </div>
       </div>
 
-      <div className="mt-10 grid grid-cols-1 overflow-hidden rounded-card border-l border-t border-border md:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-10 grid grid-cols-1 overflow-hidden rounded-card border-l border-t border-border md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {mdxPricingCards.map((card) => {
           const { displayPrice, priceSubtext } = pricingCardPresentation({
             plan: card.plan,

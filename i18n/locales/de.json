@@ -436,16 +436,16 @@
     "credits": {
       "blocked": {
         "configuration_unavailable": "Der gehostete Assistent ist vorübergehend nicht verfügbar. Dein Verlauf bleibt zugänglich.",
-        "credits_exhausted": "Du hast die gehosteten KI-Credits dieses Monats verbraucht. Neue Anfragen sind ab {resetAt} wieder möglich; dein Verlauf bleibt zugänglich.",
+        "credits_exhausted": "Du hast die Mate-Nutzung dieses Monats aufgebraucht. Neue Anfragen sind ab {resetAt} wieder möglich; dein Verlauf bleibt zugänglich.",
         "self_hosted": "Der gehostete Assistent ist nur in der Cloud verfügbar. Self-Hosted-Workspaces können externe MCP-Clients mit dem eigenen KI-Anbieter verwenden.",
         "subscription_unavailable": "Für neue Anfragen an den gehosteten Assistenten ist ein aktives Cloud-Abonnement erforderlich. Dein Verlauf bleibt zugänglich."
       },
       "contact": "Kontakt aufnehmen",
-      "planAndReset": "{plan}-Tarif · Zurücksetzung am {resetAt}",
-      "recentTurn": "{credits, plural, one {Letzte Anfrage: {amount} Credit} other {Letzte Anfrage: {amount} Credits}}",
-      "remaining": "{credits, plural, one {{remaining} von {limit} Credits verbleibend} other {{remaining} von {limit} Credits verbleibend}}",
-      "resetShort": "Zurücksetzung am {resetAt}",
-      "usage": "{pct} % der monatlichen gehosteten KI-Credits verbraucht",
+      "plan": "{plan}-Tarif",
+      "planWithMultiplier": "{plan}-Tarif · {multiplier}x Mate-Nutzung",
+      "recentTurn": "Letzte Anfrage: {used}",
+      "usage": "{used} der monatlichen Mate-Nutzung verbraucht",
+      "usedOfMonthly": "{used} der monatlichen Mate-Nutzung verbraucht · Zurücksetzung am {resetAt}",
       "viewPlans": "Tarife ansehen"
     },
     "errors": {
@@ -474,8 +474,8 @@
       "interruptedTurn": "Dieser Durchlauf wurde beendet, bevor ich das Ergebnis bestätigen konnte. Prüfe die Aktivitäten oben und die aktuellen Datensätze, bevor du es erneut versuchst.",
       "policyBreach": "Der KI-Anbieter hat das reservierte Credit-Budget überschritten, daher wurde der Lauf gestoppt. Es wurde keine weitere Anbieterarbeit gestartet.",
       "providerError": "Der KI-Anbieter hat einen Fehler zurückgegeben, bevor ich fertig war. Es wurde nichts weiter geändert. Bitte versuche es erneut.",
-      "runCreditLimit": "Ich habe einen Teil dieses Routinenlaufs erledigt, dann aber an seiner Obergrenze von {credits, number} Credits pro Lauf gestoppt. Erledigte Arbeit bleibt bestehen.",
-      "runCreditLimitNoWrite": "Ich habe gestoppt, bevor etwas geändert wurde, weil dieser Routinenlauf seine Obergrenze von {credits, number} Credits pro Lauf erreicht hat. Es wurde nichts erstellt, geändert oder gesendet.",
+      "runCreditLimit": "Ich habe einen Teil dieses Routinenlaufs erledigt, dann aber an seiner Obergrenze von {share, number, percent} eines Starter-Kontingents pro Lauf gestoppt. Erledigte Arbeit bleibt bestehen.",
+      "runCreditLimitNoWrite": "Ich habe gestoppt, bevor etwas geändert wurde, weil dieser Routinenlauf seine Obergrenze von {share, number, percent} eines Starter-Kontingents pro Lauf erreicht hat. Es wurde nichts erstellt, geändert oder gesendet.",
       "sourcesHeading": "Quellen",
       "streamInterrupted": "Ich musste stoppen, weil die Modellantwort unterbrochen wurde. Es wurde nichts Weiteres geändert; prüfe die Aktivitäten oben, bevor du es erneut versuchst.",
       "turnError": "Ich konnte diese Anfrage nicht abschließen. Bitte versuche es erneut.",
@@ -1137,6 +1137,7 @@
       "passwordInvalid": "Das Passwort muss zwischen 8 und 128 Zeichen lang sein und mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Zahl und ein Sonderzeichen enthalten.",
       "passwordMismatch": "Passwörter müssen übereinstimmen.",
       "permissionDenied": "Diese Aktion ist mit deinen aktuellen Berechtigungen nicht verfügbar.",
+      "planCheckoutUnavailable": "Der Checkout für diesen Tarif ist noch nicht verfügbar. Kontaktiere uns, um zu wechseln.",
       "privacyAcknowledgementRequired": "Bitte bestätigen Sie, dass Sie die Datenschutzerklärung gelesen haben.",
       "recordCalculationBudget": "Diese Änderung erfordert eine Neuberechnung im Hintergrund.",
       "recordConfigurationInvalid": "Prüfe die Felder und Verknüpfungen dieser Konfiguration.",
@@ -3948,8 +3949,6 @@
     "title": "Admin-Steuerung"
   },
   "RoutineDetail": {
-    "credits": "Guthaben",
-    "creditsAmount": "Guthaben: {amount}",
     "empty": {
       "event": {
         "actions": {
@@ -4014,7 +4013,8 @@
     "triggerChangedFields": "Geänderte Felder",
     "triggerChangedFieldsMore": "und weitere",
     "triggerRecord": "Datensatz",
-    "triggerThread": "Unterhaltung"
+    "triggerThread": "Unterhaltung",
+    "usageShare": "{used} der monatlichen Mate-Nutzung"
   },
   "RoutineModal": {
     "at": "um",
@@ -4069,7 +4069,7 @@
     "hostedAiUnavailable": "Die gehostete KI war nicht mehr verfügbar, bevor der Lauf abgeschlossen werden konnte.",
     "policyBreach": "Der KI-Anbieter hat das reservierte Guthabenbudget überschritten; deshalb wurde der Lauf beendet.",
     "providerError": "Der KI-Anbieter hat vor Abschluss des Laufs einen Fehler zurückgegeben.",
-    "runCreditLimit": "Der Lauf wurde an seiner Obergrenze von {credits, number} Credits pro Lauf beendet.",
+    "runCreditLimit": "Der Lauf wurde an seiner Obergrenze von {share, number, percent} eines Starter-Kontingents pro Lauf beendet.",
     "turnError": "Der Assistent konnte diesen Lauf nicht abschließen."
   },
   "RoutinesCard": {
@@ -4199,10 +4199,17 @@
     "managedExternallyNote": "Dieser Workspace nutzt einen Enterprise-Tarif mit Rechnungsstellung. Wende dich an deinen Ansprechpartner, um Änderungen vorzunehmen.",
     "manageWithLemonSqueezy": "Verwalten mit Lemon Squeezy",
     "picker": {
+      "checkoutUnavailable": "Noch nicht verfügbar",
       "connectedAccountsPerUser": "{accounts, plural, one {# verbundenes Konto pro Nutzer} other {# verbundene Konten pro Nutzer}}",
-      "creditNote": "Credits für den gehosteten KI-Assistenten werden monatlich erneuert; nicht genutzte Credits werden nicht übertragen. Jede Anfrage wird mit ihren genauen Anbieterkosten berechnet und auf eine Nachkommastelle angezeigt. Externe MCP-Clients rechnen die Modellnutzung über deinen eigenen KI-Anbieter ab. Serverseitige semantische Suchen können gehostete KI-Credits verbrauchen.",
+      "creditNote": "Die Mate-Nutzung wird als Vielfaches des Starter-Kontingents angegeben (Starter 1x, Pro 3x, Business 10x, Max 20x) und monatlich erneuert; nicht genutzte Nutzung wird nicht übertragen. Jede Anfrage zählt mit ihren genauen Anbieterkosten. Externe MCP-Clients rechnen die Modellnutzung über deinen eigenen KI-Anbieter ab. Serverseitige semantische Suchen können zur Mate-Nutzung zählen.",
       "features": {
         "business": ["Alles aus Pro", "Geteilte Konten und priorisierter Support"],
+        "max": [
+          "Alles aus Business",
+          "Priorisierter Support",
+          "Früher Zugang zu Beta-Funktionen",
+          "Doppeltes Limit pro Routinenlauf"
+        ],
         "pro": ["Alles aus Starter", "Einheitlicher Posteingang"],
         "starter": [
           "Vollständiges CRM: Kontakte, Deals, Organisationen, Aufgaben",
@@ -4211,9 +4218,9 @@
           "MCP-Server-Zugriff"
         ]
       },
-      "hostedAiCredits": "{credits, number} Credits für den gehosteten KI-Assistenten pro aktivem Nutzer / Monat",
-      "mostPopular": "Am beliebtesten",
+      "hostedAiUsage": "{multiplier}x Mate-Nutzung pro aktivem Nutzer / Monat",
       "perUserMonth": "pro Nutzer / Monat",
+      "recommended": "Empfohlen",
       "routinesPerUser": "{routines, plural, one {# Routine pro Nutzer} other {# Routinen pro Nutzer}}",
       "unlimitedRoutinesPerUser": "Unbegrenzte Routinen pro Nutzer"
     },
@@ -4221,6 +4228,7 @@
     "planNames": {
       "business": "Business",
       "enterprise": "Enterprise",
+      "max": "Max",
       "pro": "Pro",
       "starter": "Starter"
     },

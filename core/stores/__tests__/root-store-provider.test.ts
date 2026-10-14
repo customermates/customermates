@@ -95,6 +95,7 @@ const initialState: RootStoreInitialState = {
     currentPeriodEnd: null,
     hasBillingPortal: false,
     hasActiveSubscription: true,
+    checkoutUnavailablePlans: [],
   },
   sidebarLayout: { sections: [] } as unknown as NonNullable<RootStoreInitialState["sidebarLayout"]>,
 };

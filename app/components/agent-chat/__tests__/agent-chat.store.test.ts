@@ -39,14 +39,12 @@ import { AgentUiControlStore } from "../ui-control.store";
 const CONFIG = {
   enabled: true as const,
   usage: {
-    creditsUsed: 10,
-    creditsRemaining: 490,
-    creditsLimit: 500,
+    hasAllowance: true,
     usedPct: 2,
+    multiplier: 3,
     plan: "pro" as const,
-    periodStart: new Date("2026-08-01T00:00:00Z"),
     resetAt: new Date("2026-09-01T00:00:00Z"),
-    recentTurnCredits: 1,
+    recentTurnPct: 0.2,
     blockedReason: null,
   },
   counts: {

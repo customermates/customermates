@@ -436,16 +436,16 @@
     "credits": {
       "blocked": {
         "configuration_unavailable": "L’Assistente ospitato non è al momento disponibile. La cronologia resta accessibile.",
-        "credits_exhausted": "I crediti AI in hosting di questo mese sono esauriti. Le nuove richieste riprenderanno il {resetAt}; la cronologia resta accessibile.",
+        "credits_exhausted": "L'utilizzo di Mate di questo mese è esaurito. Le nuove richieste riprenderanno il {resetAt}; la cronologia resta accessibile.",
         "self_hosted": "L’Assistente ospitato è disponibile solo nel cloud. Le aree di lavoro self-hosted possono continuare a usare client MCP esterni con il proprio provider di IA.",
         "subscription_unavailable": "Per nuove richieste all’Assistente in hosting è necessario un abbonamento cloud attivo. La cronologia resta accessibile."
       },
       "contact": "Contattaci",
-      "planAndReset": "Piano {plan} · azzeramento {resetAt}",
-      "recentTurn": "{credits, plural, one {Ultima richiesta: {amount} credito} other {Ultima richiesta: {amount} crediti}}",
-      "remaining": "{credits, plural, one {{remaining} di {limit} crediti rimanenti} other {{remaining} di {limit} crediti rimanenti}}",
-      "resetShort": "Azzeramento {resetAt}",
-      "usage": "Utilizzato il {pct}% dei crediti AI mensili in hosting",
+      "plan": "Piano {plan}",
+      "planWithMultiplier": "Piano {plan} · utilizzo di Mate {multiplier}x",
+      "recentTurn": "Ultima richiesta: {used}",
+      "usage": "Utilizzato il {used} dell'utilizzo mensile di Mate",
+      "usedOfMonthly": "Utilizzato il {used} dell'utilizzo mensile di Mate · azzeramento {resetAt}",
       "viewPlans": "Vedi i piani"
     },
     "errors": {
@@ -474,8 +474,8 @@
       "interruptedTurn": "Il turno si è fermato prima che potessi confermarne l'esito. Controlla le attività qui sopra e i dati attuali prima di riprovare.",
       "policyBreach": "Il fornitore di IA ha superato il budget di crediti riservato, quindi l’esecuzione è stata interrotta. Non è stato avviato altro lavoro del provider.",
       "providerError": "Il fornitore di IA ha restituito un errore prima che potessi finire. Non è stato modificato altro. Riprova.",
-      "runCreditLimit": "Ho completato una parte di questa esecuzione della routine, ma mi sono fermato al suo limite di {credits, number} crediti per esecuzione. Il lavoro completato resta valido.",
-      "runCreditLimitNoWrite": "Mi sono fermato prima di apportare modifiche perché questa esecuzione della routine ha raggiunto il suo limite di {credits, number} crediti per esecuzione. Non è stato creato, aggiornato o inviato nulla.",
+      "runCreditLimit": "Ho completato una parte di questa esecuzione della routine, ma mi sono fermato al suo limite di {share, number, percent} di una dotazione Starter per esecuzione. Il lavoro completato resta valido.",
+      "runCreditLimitNoWrite": "Mi sono fermato prima di apportare modifiche perché questa esecuzione della routine ha raggiunto il suo limite di {share, number, percent} di una dotazione Starter per esecuzione. Non è stato creato, aggiornato o inviato nulla.",
       "sourcesHeading": "Fonti",
       "streamInterrupted": "Ho dovuto fermarmi perché la risposta del modello si è interrotta. Non sono state eseguite altre azioni; controlla le attività qui sopra prima di riprovare.",
       "turnError": "Non sono riuscito a completare la richiesta. Riprova.",
@@ -1137,6 +1137,7 @@
       "passwordInvalid": "La password deve contenere tra 8 e 128 caratteri e includere almeno una lettera maiuscola, una minuscola, un numero e un carattere speciale.",
       "passwordMismatch": "Le password devono coincidere.",
       "permissionDenied": "Questa azione non è disponibile con le tue autorizzazioni attuali.",
+      "planCheckoutUnavailable": "Il pagamento per questo piano non è ancora disponibile. Contattaci per passare a questo piano.",
       "privacyAcknowledgementRequired": "Conferma di aver letto l’Informativa sulla privacy.",
       "recordCalculationBudget": "Questa modifica richiede un ricalcolo in background.",
       "recordConfigurationInvalid": "Controlla i campi e le relazioni di questa configurazione.",
@@ -3948,8 +3949,6 @@
     "title": "Controlli di amministrazione"
   },
   "RoutineDetail": {
-    "credits": "Crediti",
-    "creditsAmount": "Crediti: {amount}",
     "empty": {
       "event": {
         "actions": {
@@ -4014,7 +4013,8 @@
     "triggerChangedFields": "Campi modificati",
     "triggerChangedFieldsMore": "e altri",
     "triggerRecord": "Record",
-    "triggerThread": "Conversazione"
+    "triggerThread": "Conversazione",
+    "usageShare": "{used} dell'utilizzo mensile di Mate"
   },
   "RoutineModal": {
     "at": "alle",
@@ -4069,7 +4069,7 @@
     "hostedAiUnavailable": "L'IA ospitata non era più disponibile prima che l'esecuzione potesse terminare.",
     "policyBreach": "Il provider IA ha superato il budget di crediti riservato, quindi l'esecuzione è stata interrotta.",
     "providerError": "Il provider IA ha restituito un errore prima che l'esecuzione potesse terminare.",
-    "runCreditLimit": "L'esecuzione si è fermata al suo limite di {credits, number} crediti per esecuzione.",
+    "runCreditLimit": "L'esecuzione si è fermata al suo limite di {share, number, percent} di una dotazione Starter per esecuzione.",
     "turnError": "L'assistente non è riuscito a completare questa esecuzione."
   },
   "RoutinesCard": {
@@ -4199,10 +4199,17 @@
     "managedExternallyNote": "Questa area di lavoro usa un piano Enterprise con pagamento tramite fattura. Contatta il tuo account manager per apportare modifiche.",
     "manageWithLemonSqueezy": "Gestisci con Lemon Squeezy",
     "picker": {
+      "checkoutUnavailable": "Non ancora disponibile",
       "connectedAccountsPerUser": "{accounts, plural, one {# account collegato per utente} other {# account collegati per utente}}",
-      "creditNote": "I crediti IA in hosting si rinnovano ogni mese; i crediti non utilizzati non vengono trasferiti al mese successivo. Ogni richiesta viene addebitata al suo costo esatto presso il provider e mostrata con un decimale. I client MCP esterni fatturano i modelli tramite il tuo provider di IA. Le ricerche semantiche lato server possono consumare crediti IA in hosting.",
+      "creditNote": "L'utilizzo di Mate è espresso come multiplo della dotazione Starter (Starter 1x, Pro 3x, Business 10x, Max 20x) e si rinnova ogni mese; l'utilizzo non consumato non viene trasferito al mese successivo. Ogni richiesta conta il suo costo esatto presso il provider. I client MCP esterni fatturano i modelli tramite il tuo provider di IA. Le ricerche semantiche lato server possono contare nell'utilizzo di Mate.",
       "features": {
         "business": ["Tutto ciò che c'è in Pro", "Account condivisi e assistenza prioritaria"],
+        "max": [
+          "Tutto ciò che c'è in Business",
+          "Assistenza prioritaria",
+          "Accesso anticipato alle funzionalità beta",
+          "Limite per esecuzione di routine raddoppiato"
+        ],
         "pro": ["Tutto ciò che c'è in Starter", "Posta in arrivo unificata"],
         "starter": [
           "CRM completo: contatti, trattative, organizzazioni, attività",
@@ -4211,9 +4218,9 @@
           "Accesso al server MCP"
         ]
       },
-      "hostedAiCredits": "{credits, number} crediti IA in hosting per utente attivo / mese",
-      "mostPopular": "Il più scelto",
+      "hostedAiUsage": "Utilizzo di Mate {multiplier}x per utente attivo / mese",
       "perUserMonth": "per utente / mese",
+      "recommended": "Consigliato",
       "routinesPerUser": "{routines, plural, one {# routine per utente} other {# routine per utente}}",
       "unlimitedRoutinesPerUser": "Routine illimitate per utente"
     },
@@ -4221,6 +4228,7 @@
     "planNames": {
       "business": "Business",
       "enterprise": "Enterprise",
+      "max": "Max",
       "pro": "Pro",
       "starter": "Starter"
     },

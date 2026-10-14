@@ -3,13 +3,13 @@ import type { SubscriptionPlan } from "@/generated/prisma";
 import type { AppMode } from "@/core/config/environment";
 
 import { SubscriptionStatus } from "@/generated/prisma";
-import { PLAN_CATALOG } from "@/core/commercial/plan-catalog";
+import { CLOUD_TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER, PLAN_CATALOG } from "@/core/commercial/plan-catalog";
 
 export type { PlanEntitlements } from "@/core/commercial/plan-catalog";
 
 export type EntitlementFeature = "agentChat" | "messaging" | "sharedAccounts";
 
-export const TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER = 500;
+export const TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER = CLOUD_TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER;
 
 export function getEntitlements(plan: SubscriptionPlan): PlanEntitlements {
   return PLAN_CATALOG[plan].entitlements;
@@ -17,7 +17,7 @@ export function getEntitlements(plan: SubscriptionPlan): PlanEntitlements {
 
 export function getEffectiveEntitlements(input: { appMode: AppMode; plan: SubscriptionPlan }): PlanEntitlements {
   if (input.appMode === "self-hosted")
-    return { ...PLAN_CATALOG.starter.entitlements, hostedAiCreditsPerActiveUser: null };
+    return { ...PLAN_CATALOG.starter.entitlements, hostedAiUsageMultiplier: null, hostedAiCreditsPerActiveUser: null };
 
   return getEntitlements(input.plan);
 }

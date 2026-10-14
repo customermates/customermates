@@ -85854,6 +85854,17 @@
                             "type": "number",
                             "minimum": 0
                           },
+                          "chargedPct": {
+                            "anyOf": [
+                              {
+                                "type": "number",
+                                "minimum": 0
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
                           "summary": {
                             "anyOf": [
                               {
@@ -85899,6 +85910,7 @@
                           "terminalCode",
                           "stopReason",
                           "chargedCredits",
+                          "chargedPct",
                           "summary",
                           "error",
                           "createdAt",
@@ -118050,6 +118062,7 @@
                         "apiKeyNameLength",
                         "emailMismatch",
                         "enterpriseCheckoutUnavailable",
+                        "planCheckoutUnavailable",
                         "billingPortalUnavailable",
                         "passwordMismatch",
                         "passwordInvalid",

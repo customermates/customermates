@@ -46,7 +46,7 @@ vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   useHydratedIntlStore: () => ({
     formatDayMonth: () => "1 Oct",
     formatTime: () => "09:00",
-    formatAgentCredits: (credits: number) => ({ credits, amount: String(credits) }),
+    formatAllowanceShare: (pct: number) => `${pct}%`,
   }),
 }));
 
@@ -98,10 +98,10 @@ const mateStore = {
     ],
   },
   usage: {
-    creditsLimit: 100,
-    creditsRemaining: 40,
+    hasAllowance: true,
+    multiplier: null,
     plan: null,
-    recentTurnCredits: null,
+    recentTurnPct: null,
     resetAt: "2026-10-01T00:00:00.000Z",
     usedPct: 60,
   },

@@ -54,6 +54,7 @@ export enum CustomErrorCode {
   apiKeyNameLength = "apiKeyNameLength",
   emailMismatch = "emailMismatch",
   enterpriseCheckoutUnavailable = "enterpriseCheckoutUnavailable",
+  planCheckoutUnavailable = "planCheckoutUnavailable",
   billingPortalUnavailable = "billingPortalUnavailable",
   passwordMismatch = "passwordMismatch",
   passwordInvalid = "passwordInvalid",

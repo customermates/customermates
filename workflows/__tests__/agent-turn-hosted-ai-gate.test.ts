@@ -2012,7 +2012,7 @@ describe("routine per-run credit limit", () => {
     );
     expect(state.finalize.mock.calls[0]?.[0].parts).toContainEqual({
       type: "text",
-      text: 'localized:AgentChat.runner.runCreditLimitNoWrite:{"credits":10}',
+      text: 'localized:AgentChat.runner.runCreditLimitNoWrite:{"share":0.1}',
     });
     expect(JSON.stringify(state.finalize.mock.calls[0]?.[0].parts)).not.toContain("AgentChat.runner.creditLimit");
     expect(state.writes).toContainEqual(
