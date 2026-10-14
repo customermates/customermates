@@ -23,6 +23,7 @@ export const InviteUsersByEmailSchema = z.object({
 
 export const InviteUsersByEmailResultSchema = z.object({
   sent: z.number(),
+  failed: z.number(),
 });
 
 export type InviteUsersByEmailData = Data<typeof InviteUsersByEmailSchema>;
@@ -60,7 +61,7 @@ export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
 
     const uniqueEmails = Array.from(new Set(data.emails.map((e) => e.toLowerCase())));
 
-    await Promise.all(
+    const accepted = await Promise.all(
       uniqueEmails.map((email) =>
         this.emailService.send({
           to: email,
@@ -79,6 +80,8 @@ export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
       ),
     );
 
-    return { ok: true as const, data: { sent: uniqueEmails.length } };
+    const sent = accepted.filter(Boolean).length;
+
+    return { ok: true as const, data: { sent, failed: uniqueEmails.length - sent } };
   }
 }

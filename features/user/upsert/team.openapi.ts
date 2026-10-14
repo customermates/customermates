@@ -43,7 +43,7 @@ export const memberApiPaths = {
       operationId: "inviteMembers",
       summary: "Invite members by email",
       description:
-        "Sends a workspace invitation email with the workspace's invitation link to each address, 1 to 20 per call; duplicate addresses receive one email. An invited person joins with no role until an administrator assigns one through POST /v1/members/update. Returns how many emails were sent. Requires: Users & Roles Create.",
+        "Sends a workspace invitation email with the workspace's invitation link to each address, 1 to 20 per call; duplicate addresses receive one email. An invited person joins with no role until an administrator assigns one through POST /v1/members/update. Returns how many emails were sent and how many the email service did not accept (failed); share the link from POST /v1/members/invite-link with those people instead. Requires: Users & Roles Create.",
       tags: ["members"],
       security: [{ apiKeyAuth: [] }],
       requestBody: {
@@ -57,7 +57,7 @@ export const memberApiPaths = {
       },
       responses: {
         "200": {
-          description: "The invitations were sent.",
+          description: "The invitations were handed to the email service; failed counts the ones it did not accept.",
           content: { "application/json": { schema: InviteUsersByEmailResultSchema } },
         },
         ...StructuredApiResponses,

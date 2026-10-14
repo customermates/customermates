@@ -46,10 +46,16 @@ export class InviteByEmailStore extends BaseFormStore<InviteUsersByEmailData> {
     try {
       const res = await inviteUsersByEmailAction(toJS(this.form));
 
-      if (res.ok) {
+      if (!res.ok) this.setError(res.error);
+      else if (res.data.failed === 0) {
         this.onInitOrRefresh({ emails: [] });
         this.toastSuccess("OnboardingWizard.invite.sentSuccess", { values: { count: res.data.sent } });
-      } else this.setError(res.error);
+      } else {
+        this.toastError(
+          res.data.sent === 0 ? "OnboardingWizard.invite.sendFailed" : "OnboardingWizard.invite.sendPartlyFailed",
+          { values: res.data, descriptionKey: "OnboardingWizard.invite.sendFailedDescription" },
+        );
+      }
     } finally {
       this.setIsLoading(false);
     }

@@ -32,7 +32,7 @@ vi.mock("next-intl/server", () => ({
 import { InviteUsersByEmailInteractor } from "../invite-users-by-email.interactor";
 
 function makeInteractor() {
-  const emailService = { send: vi.fn().mockResolvedValue(undefined) };
+  const emailService = { send: vi.fn().mockResolvedValue(true) };
   const tokenInteractor = { invoke: vi.fn().mockResolvedValue({ ok: true, data: { token: "invite-token" } }) };
 
   return {
@@ -75,11 +75,20 @@ describe("InviteUsersByEmailInteractor", () => {
       emails: ["NEW.MEMBER@example.com", "new.member@example.com", "second.member@example.com"],
     });
 
-    expect(result).toEqual({ ok: true, data: { sent: 2 } });
+    expect(result).toEqual({ ok: true, data: { sent: 2, failed: 0 } });
     expect(emailService.send).toHaveBeenCalledTimes(2);
     expect(emailService.send.mock.calls.map(([message]) => message.to)).toEqual([
       "new.member@example.com",
       "second.member@example.com",
     ]);
+  });
+
+  it("counts the invitations the email service did not accept instead of reporting them as sent", async () => {
+    const { emailService, interactor } = makeInteractor();
+    emailService.send.mockImplementation(({ to }: { to: string }) => Promise.resolve(to !== "rejected@example.com"));
+
+    const result = await interactor.invoke({ emails: ["accepted@example.com", "rejected@example.com"] });
+
+    expect(result).toEqual({ ok: true, data: { sent: 1, failed: 1 } });
   });
 });

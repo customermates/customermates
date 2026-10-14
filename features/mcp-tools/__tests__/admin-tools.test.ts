@@ -5,6 +5,7 @@ import { createMockDiModule, MOCK_ENV_MODULE, MOCK_ZOD_MODULE } from "@/tests/he
 
 const mockUser = createMockUser();
 const spies = vi.hoisted(() => ({
+  inviteUsers: vi.fn(),
   updateTeamMember: vi.fn(),
   updateUserDetails: vi.fn(),
 }));
@@ -18,7 +19,7 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/core/di", () => ({
   ...createMockDiModule(() => mockUser),
   getAdminUpdateUserDetailsInteractor: () => ({ invoke: spies.updateTeamMember }),
-  getInviteUsersByEmailInteractor: vi.fn(),
+  getInviteUsersByEmailInteractor: () => ({ invoke: spies.inviteUsers }),
   getUpdateUserDetailsInteractor: () => ({ invoke: spies.updateUserDetails }),
 }));
 
@@ -143,6 +144,34 @@ describe("update_my_profile", () => {
 
     expect(mcpToolResultText(result)).toContain("Validation error:");
     expect(spies.updateUserDetails).not.toHaveBeenCalled();
+  });
+});
+
+describe("manage_team invite", () => {
+  it("reports sent invitations", async () => {
+    spies.inviteUsers.mockResolvedValue({ ok: true, data: { sent: 2, failed: 0 } });
+
+    const outcome = await executeMcpTool(manageTeamTool, [
+      manageTeamTool.inputSchema.parse({ action: "invite", emails: ["a@example.com", "b@example.com"] }),
+    ]);
+
+    expect(outcome).toMatchObject({
+      ok: true,
+      structuredContent: { sent: 2, failed: 0, message: "Invitation emails sent" },
+    });
+  });
+
+  it("tells the agent which share of the invitations the email service did not accept", async () => {
+    spies.inviteUsers.mockResolvedValue({ ok: true, data: { sent: 0, failed: 2 } });
+
+    const outcome = await executeMcpTool(manageTeamTool, [
+      manageTeamTool.inputSchema.parse({ action: "invite", emails: ["a@example.com", "b@example.com"] }),
+    ]);
+
+    expect(outcome).toMatchObject({ ok: true, structuredContent: { sent: 0, failed: 2 } });
+    expect(outcome.ok && outcome.structuredContent?.message).toContain(
+      "2 of 2 invitation emails were not sent because the email service did not accept them",
+    );
   });
 });
 

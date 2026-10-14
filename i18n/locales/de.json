@@ -2935,6 +2935,9 @@
       "linkFailed": "Einladungslink konnte nicht erstellt werden.",
       "loadingLink": "Link wird generiert…",
       "send": "Einladungen senden",
+      "sendFailed": "{failed, plural, one {Die Einladung konnte nicht gesendet werden.} other {Die # Einladungen konnten nicht gesendet werden.}}",
+      "sendFailedDescription": "Der E-Mail-Dienst hat sie nicht angenommen. Teile stattdessen den Einladungslink.",
+      "sendPartlyFailed": "{sent, plural, one {# Einladung gesendet} other {# Einladungen gesendet}}, {failed, plural, one {# konnte nicht gesendet werden.} other {# konnten nicht gesendet werden.}}",
       "sentSuccess": "{count, plural, one {# Einladung gesendet.} other {# Einladungen gesendet.}}",
       "tabs": {
         "email": "E-Mails senden",

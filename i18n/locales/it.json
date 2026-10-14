@@ -2935,6 +2935,9 @@
       "linkFailed": "Impossibile creare il link di invito.",
       "loadingLink": "Generazione del link…",
       "send": "Invia gli inviti",
+      "sendFailed": "{failed, plural, one {Non è stato possibile inviare l'invito.} other {Non è stato possibile inviare i # inviti.}}",
+      "sendFailedDescription": "Il servizio e-mail non li ha accettati. Condividi invece il link di invito.",
+      "sendPartlyFailed": "{sent, plural, one {# invito inviato} other {# inviti inviati}}, {failed, plural, one {# non è stato inviato.} other {# non sono stati inviati.}}",
       "sentSuccess": "{count, plural, one {# invito inviato.} other {# inviti inviati.}}",
       "tabs": {
         "email": "Invia e-mail",

@@ -2935,6 +2935,9 @@
       "linkFailed": "Could not create the invite link.",
       "loadingLink": "Generating link…",
       "send": "Send invitations",
+      "sendFailed": "{failed, plural, one {The invitation could not be sent.} other {The # invitations could not be sent.}}",
+      "sendFailedDescription": "The email service did not accept them. Share the invitation link instead.",
+      "sendPartlyFailed": "{sent, plural, one {Sent # invitation} other {Sent # invitations}}, {failed, plural, one {# could not be sent.} other {# could not be sent.}}",
       "sentSuccess": "{count, plural, one {Sent # invitation.} other {Sent # invitations.}}",
       "tabs": {
         "email": "Send emails",
