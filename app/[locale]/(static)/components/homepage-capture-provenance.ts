@@ -4,10 +4,10 @@ import type { HomepageCaptureName } from "./homepage-captures";
 
 export const HOMEPAGE_CAPTURE_PROVENANCE = {
   authenticity: "real",
-  capturedOn: "2026-10-07",
+  capturedOn: "2026-10-14",
   claim: "Real Customermates interface with synthetic demo data. Not a customer workspace and not a measured result.",
   environment: "Isolated local instance, APP_MODE=demo, fresh PostgreSQL migrated and seeded with prisma db seed",
-  productRef: "89f336f19",
+  productRef: "1f30b0030",
   renderer:
     "Chromium via Playwright in the page locale, Europe/Berlin, device scale factor 2, theme set through next-themes",
 } as const;
@@ -27,44 +27,44 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "WhatsApp thread with Sophie Wagner selected in the unified inbox",
     sha256: {
       de: {
-        dark: "8ca0b7fa0d6ab4dbf7790a7d67d54570cd5f782a1650d629fd9bf26d5ebe07ec",
-        light: "c26a672eb1f3a3927037e9036346f6fc5dede7a4569138cb4759affe1e606259",
+        dark: "17243295bb4dff72c7c9ac746817f06084d0f58bc706d91326ebbadfe4669aa3",
+        light: "52bfdeeceae8b12ea8d6479b32302268d2ae4ef14d45924404047c3de512d3d6",
       },
       en: {
-        dark: "828e03da5df8164fe5dfdf79db0ac2fcc919b66844d5038b4f66c6344d74be97",
-        light: "436ee1a288c58f4c2ec69de324557950006d9cb155e8b35e65ec3180f02dc1e5",
+        dark: "05f7e0d062040cb38e425b4f31aa42716ce22b5c54208d1a706b21f2cd0fe197",
+        light: "983d232b9d828682dd10fc3a4a78fecb0a0b16fbf27ed1c9f78f699ae301fefd",
       },
     },
     viewport: { height: 900, width: 1440 },
   },
   "homepage-record": {
     clipped: false,
-    route: "/[locale]/contacts/[id]",
+    route: "/[locale]/records/[contacts]/[id]",
     scenario: "Contact record of Anna Müller with fields and cross-channel history",
     sha256: {
       de: {
-        dark: "538aca5f48764413ed3b1d97ffb29d4f750e6ee8bbba9c708a56c8b9356a0ec8",
-        light: "6cbf090096d3f8b39b3717e3102ee86be17a08f6c2231d55377bc6417dbe5d49",
+        dark: "32f427009558d6376471cd43d56a5ed3a5e13647cf50fbaaccb1c8eeb7fb69f0",
+        light: "78c48430949947806a0792d326dbb88f4333affec2795519fe0f165345211df8",
       },
       en: {
-        dark: "328746d01ae2e72e8215ef1d76b31b61acf0e38f3c9b1cd3afcaadafe012f18e",
-        light: "337569a18ec4ec93b3c66d2c8ad3014c5c39a8f66e3b8b2bbae3537d8d99bc53",
+        dark: "0e92e7e97790ccb7bb6fbf268cbd9f9ea2f8743fdc336073c358d1cc017560e3",
+        light: "c32f8bfe1d122db140c9973067528aca2f925c88e0a3131a70d540eba2141471",
       },
     },
     viewport: { height: 900, width: 1440 },
   },
   "homepage-pipeline": {
     clipped: false,
-    route: "/[locale]/deals",
-    scenario: "Deals in the Kanban view grouped by status",
+    route: "/[locale]/records/[deals]",
+    scenario: "Deals list in the board view grouped by stage",
     sha256: {
       de: {
-        dark: "1902610c98fc53a2e5921d495c666c960a0cef3ee6153414057723949997cb82",
-        light: "0cc18e14147ee17dda5a93be98af182a7e6c7930e00ff10d3a8736958d0cbddf",
+        dark: "fd53799dcd41300de95cd5357c1910c0db95df066c2648ffa49a9057aaa7ea71",
+        light: "2beb378ef15a6f5930bb41717cba914ac87977db35a0d81b776c694501a70159",
       },
       en: {
-        dark: "c10940d1b5aee830ae40ea9a6bb1206ed9ca3933be0a1e0f6bd799074c3d8230",
-        light: "69e2087b742a074eb1f42b96b07a6a5d91c0d03d08444eb08144526538c95525",
+        dark: "643b01bd7ab7c3f64e02f8bf232002713013791db0a4ed2bb5d1d5d8fd235ae7",
+        light: "7d4acc4ae356e3ffad9c8da82dfef74c5ecb86da150dff4e6463bce3e3a72487",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -72,15 +72,15 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
   "homepage-dashboard": {
     clipped: false,
     route: "/[locale]/dashboard",
-    scenario: "Dashboard widgets for deal value, pipeline, recent changes, messages and events",
+    scenario: "Main dashboard with open pipeline, forecast, won revenue and revenue per rep",
     sha256: {
       de: {
-        dark: "5f81322a82f7457094e847369fbcd55cb9dfe2585c1b0af4bf2ea7af7f3bdfdf",
-        light: "6b11155056883d85b681012c62c08a5eed65326626bbb3b7bd255b09a58f61a4",
+        dark: "f0372d68ee828db19b0d200d440d2c43d3baf2f7ccb0143369a1e4b9ac651f86",
+        light: "12287a4aae49e28b9f7814557df997636e2c7ba845946fe7161de695648f0796",
       },
       en: {
-        dark: "54257b994b8ec6fca7bd7dd2b95ee7b93b4fc24c5b64739a973b955fd5441c2a",
-        light: "765fd8183a35e60edb2be0e27fb86ccebca2842946459e9791fa84b004ad247e",
+        dark: "a884c9004124503afd98d9fd7fdd5ecfc27a2c0d8295f2d1e6ca888331ed5e37",
+        light: "8a728fc149f5518640dbdf3799c6e99d6645efede676b28800f977d8aa31f6bc",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -91,12 +91,28 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Routines list grouped by owner with schedules, triggers and last runs",
     sha256: {
       de: {
-        dark: "03b4dd2d0633ad7aa3a6594bb8fdaa0a508f837ae33f94dbccc0617bc393d077",
-        light: "95e371edde62b22394af3b3549393c7b47e6fe597ed1e61bedaae72e26fd41bc",
+        dark: "e9861d92a50b630c2bcebf3d4e79ab9db2141929730115807c09002271f88deb",
+        light: "8e53207ffb2b646ebb68ec33d3aabb7307be444ae637694cebeb3dec94d5cbc1",
       },
       en: {
-        dark: "20ffafee8127d6240d13a44f10653c2d5b40a60a08d765a6dba1166fa38edb09",
-        light: "8cc4f8292e35b54a44244cfd9cdfb16621468d4bbab9f1d51c94602940340f1b",
+        dark: "af889fd6569de9bad0e2dab7b2d65dbe6994ee12e7654c0a3ed8a89b09a322ab",
+        light: "09b016673f2476fb650dd8b9ad62df4d5c067b7336a76acc17bf9dd27a52e6dd",
+      },
+    },
+    viewport: { height: 900, width: 1440 },
+  },
+  "homepage-configure": {
+    clipped: false,
+    route: "/[locale]/configure",
+    scenario: "Data model graph zoomed to the Deals list and its line items with calculated fields",
+    sha256: {
+      de: {
+        dark: "1166317c95eaddb60188ece46eeb7739f12172402bbac42154e2f3844c8250be",
+        light: "046ee7ff65fa662a260eedd0572547b1801d460062bbde157c20262f52072db2",
+      },
+      en: {
+        dark: "8f77970ed928fb1b8f01f13836de4bcb525fd2c64d918247da0d6648ffcb7305",
+        light: "e09bc558f00e787dec7f05427e52e4562bb071fc9c0649ebbbe3af344a84aa51",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -107,12 +123,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "LinkedIn conversation with Leon Becker, conversation pane only",
     sha256: {
       de: {
-        dark: "e8b1dc2a77fd34ea397ac1d78250102ab28ab0b3f47f76cd842bf93872fc819e",
-        light: "7d2856d0630caee79a913bd18cb87b554b50df13918e077ef35c6666d8ec2fad",
+        dark: "16596bcb45b1e92e4baca059a66ec00ef892b58848a311efcc9764cf655d2eeb",
+        light: "0a30917da73376f795254391668b96b7425f298e0c07533e85f1715adbdef4d4",
       },
       en: {
-        dark: "c6bbcff2f1e01b40bbd0741a72ee84483fd4cf7a720921bb0d2aadc1b8d1f867",
-        light: "e960ec517a58b95d5bd0267d61d1634ed1d3e467031125be1de28ac666886e14",
+        dark: "acf857e020ed7398595ba4908cc8afb799597ba1ef21dd1dcd491ad8484a1705",
+        light: "670379107996ec2fe54060cfa0f3e4d6fae36fd2df875b173b4b68413fb4e4ab",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -123,12 +139,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Email thread with Anna Müller ending in a saved reply draft with Send draft",
     sha256: {
       de: {
-        dark: "5dab5b348241d95b158ebb79523445c1c2862bd712e20e282947bd07fa87ed39",
-        light: "0be0ed452ee74d0566a613ce964f541c5b543cad7936ff745cea8b86ed5d24b9",
+        dark: "8d3fc6c8eb4f4e2bc33f60f36e8b46d60e7c466a8b573e281d5b47c3a76c3455",
+        light: "d0f97c500fd383d1ba9836b49d5c6ec71a46aae57aa437b9ce6dd9b69ec17dce",
       },
       en: {
-        dark: "54ab92f94462565a446bb30fc0289e335d976eb609d22d771e03741bf1eab62b",
-        light: "28f0545914b57244380a2548364b36fee81699128deb31e53e7e939c38664a0f",
+        dark: "cc75db6db2861b4061f04df5f193a77eb103b44d36f1709caa42079845ea1fe0",
+        light: "ab488f6b4d09288bea426806bccf19a028813d13ddea8b279ae98e9ef2e5f8c2",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -139,44 +155,44 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "WhatsApp thread with Sophie Wagner on a phone-width viewport",
     sha256: {
       de: {
-        dark: "7d662de42a79d8223d2767aaf4c455422da93071804a76e6585e3440da3aa6b0",
-        light: "66edcc3f3c1ab16c96f641668d43bac580dc4a845c193b4c8dc48564cc6f01e5",
+        dark: "36b0087a08d0c460c3aa1872e269820ac64316a429e10976b05c73892975a0a6",
+        light: "2bb78e7bda4ed1d69af3427212e79758d53a2b79c08d31f4f81c2b30c3725c25",
       },
       en: {
-        dark: "40506804fba65236261e5b88f277446d8b32c79c5b115ea865e0baa830475faf",
-        light: "c8af9ade091813961818b426fef7002bdc02ad969fc59a90210584aaacca5aec",
+        dark: "9034371479e1fdca3104fc0c3dcb690112b23356eecc20218bbf0c58d54bb17a",
+        light: "69bd8beeecdeed5b8c9f14ab80443e4a9b7da172b41686e73e22def1776e69a5",
       },
     },
     viewport: { height: 844, width: 390 },
   },
   "homepage-record-mobile": {
     clipped: false,
-    route: "/[locale]/contacts/[id]",
+    route: "/[locale]/records/[contacts]/[id]",
     scenario: "Contact record of Anna Müller on a phone-width viewport",
     sha256: {
       de: {
-        dark: "d15d1e1aa3f3f888ab4bba83b80d1a5ff92aeae3a12fe9102d0b38fcbe4a1e6b",
-        light: "a1aa2792f24e76aa5be30a8e4624822af4aa3bfe49e7a5d1f6df40269e494b5f",
+        dark: "8338fbbd7d35cc3b350096ac0c2cb0df2f333f52fac830fdcf122c7cdc5a7676",
+        light: "20b1feb58a1839933c2881ec1997642686acacdc4137671b10640e956f54c93a",
       },
       en: {
-        dark: "e5bd636ef109a9c4512f320ce03ec333c3a5be6bb2f6ad9e2ddeefd52b091fc0",
-        light: "cddebb3ae4f8b2db7335b9f108cf3db6be83ba804ce134eb7431f0fb767e0e9c",
+        dark: "6f2c4087788e5a0ce3ec3126d2e8004ff41ba4b49bfb9cb83e7bd8ca683e5236",
+        light: "57b71dfe9051e8c20931016e6200e3c299fd0e0ae32038ac02b6314b4e71e52b",
       },
     },
     viewport: { height: 844, width: 390 },
   },
   "homepage-pipeline-mobile": {
     clipped: false,
-    route: "/[locale]/deals",
-    scenario: "Deals Kanban on a phone-width viewport",
+    route: "/[locale]/records/[deals]",
+    scenario: "Deals board on a phone-width viewport",
     sha256: {
       de: {
-        dark: "f0b589a5f8da9726972cf7012684070f98e249d568d984b06401d60d24fd6a4b",
-        light: "187eab125420135011d4011107299d1539350c671b9858ba65db2d077ac3e698",
+        dark: "c7f2b58278f764dac2e15dc0cc18b8da35321a7ef597682bd4b0d46b02fe816d",
+        light: "d1b75e87877b57ddfe80335d0e7bbf12611881a2608c14785cee9bc6ad81eca9",
       },
       en: {
-        dark: "b81c5cefe4c39b9c00a0596215427023c89bfd5a5445a02a51341bf3ee51b956",
-        light: "270f6f07a290b105263e1666418cc747955130f25eba221657ca2fa1e90d991a",
+        dark: "896cbb9522157ed1c2642ba12f14407725a6ed35a7253ccca337f403cf89ec31",
+        light: "fdb5373d7c2b19fb481066830fbe2c12f7675479c7792e16679877c873f31123",
       },
     },
     viewport: { height: 844, width: 390 },
@@ -187,12 +203,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Dashboard widgets on a phone-width viewport",
     sha256: {
       de: {
-        dark: "28b453d6ed1d9651a711957a86c82b8b07c35ac2ea950fdcfe52e7743fcc57fd",
-        light: "6cc41e2d8e033cf6c3186051c1ff60e4fae2453055ed08c3aa7d415a166ca46e",
+        dark: "d701a2bd077f76b9e11703c66273afb79853d3cd05e0a984f1da96adf8b69774",
+        light: "bda9c13e00ccb925f6a7c147b746f01f740b9dc27db4ee0ed79cb2154b87f841",
       },
       en: {
-        dark: "0cf569b35f2ce7a42907895302a7778f9353b2fb7268340355c00e80fd1c3871",
-        light: "ad8529d18ac1ec9e293ff45d2ea0402362e3749c755b2b686fd8d07611fba807",
+        dark: "29706f43790837ff6b774ed5e4c5c9f176dd25b9d03b9dab9a431e536df84d2f",
+        light: "65cbdff9e3adc72f4eb89a30eb467d3e00397ac6d2cc9094a39fe5c43786a7bc",
       },
     },
     viewport: { height: 844, width: 390 },
@@ -203,12 +219,28 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Routines list on a phone-width viewport",
     sha256: {
       de: {
-        dark: "2c77a031c91846dc68e9c80051e72cdbaf75da8b5103478da515da160d6e255e",
-        light: "f58471175175d4f244c52a7d45a97500a4474036141e68e4cb0733d1dbd1dc50",
+        dark: "f55db6f658f121ef73e9b2b7f98b2ee092538175adae423a2db8c8ae9098338e",
+        light: "3d9404b863ec9cd759598030faa7472cea26629fafb90fddf9320b7e8fee054c",
       },
       en: {
-        dark: "c82dd833a8b147a9d482d3bdb8f2935efcd2a05731afc8651d68914dfd1ef320",
-        light: "75d4e688f7597c26ceecd10dd6e75b91492f5951dbec833f03a2390e64e7e04a",
+        dark: "665a3e7226b3ec1a97ee702c448cfead8ae893083af875a2080f3078866c57fd",
+        light: "c9cae1d7ecea8ee4b2d9be5b54523719493936336f86557af17ce78d3e3e436e",
+      },
+    },
+    viewport: { height: 844, width: 390 },
+  },
+  "homepage-configure-mobile": {
+    clipped: false,
+    route: "/[locale]/configure",
+    scenario: "Data model graph zoomed to the Deals list on a phone-width viewport",
+    sha256: {
+      de: {
+        dark: "fff190c2e18f76a5f3af3c9bac3073e7c96c66a9cb76ce94a23850e368d2eb59",
+        light: "f3765834061d3697cef2317decbf4087dcc40c4e23cf3aa41705f4e691bfc941",
+      },
+      en: {
+        dark: "94368b5dcd9fd9a417f8bf968c36089b2e024cfd84a1f8abf0135610c85b2d7f",
+        light: "a6ae0ab7d9ea37e2d14d9a04bb134c8fd47888eec61828174cd53972884bce58",
       },
     },
     viewport: { height: 844, width: 390 },

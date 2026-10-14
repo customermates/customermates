@@ -38,6 +38,7 @@ export const HOMEPAGE_STAGE_CAPTURES = [
   "homepage-pipeline",
   "homepage-dashboard",
   "homepage-routines",
+  "homepage-configure",
 ] as const;
 
 const homepageStageTabSchema = z.object({
@@ -58,7 +59,11 @@ export const heroSchema = z.object({
     live: z.object({
       prompt: z.string(),
     }),
-    tabs: z.array(homepageStageTabSchema).length(HOMEPAGE_STAGE_CAPTURES.length),
+    tabs: z
+      .array(homepageStageTabSchema)
+      .min(2)
+      .max(HOMEPAGE_STAGE_CAPTURES.length)
+      .refine((tabs) => new Set(tabs.map((tab) => tab.capture)).size === tabs.length),
   }),
   startFree: z.string(),
   subtitle: z.string(),

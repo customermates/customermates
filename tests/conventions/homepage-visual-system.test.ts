@@ -249,10 +249,10 @@ describe("homepage visual-system adoption", () => {
 
   it("localizes the stage and alt texts in both locales", () => {
     const expected = [
-      "homepage-inbox",
-      "homepage-record",
-      "homepage-pipeline",
       "homepage-dashboard",
+      "homepage-inbox",
+      "homepage-pipeline",
+      "homepage-configure",
       "homepage-routines",
     ];
 
@@ -330,7 +330,7 @@ describe("homepage visual-system adoption", () => {
     expect(stage).toContain("<ProductWindow");
     expect(stage).toContain("LIVE_REVEAL_DELAY_MS = 500");
     expect(stage).toContain("onLoad={() => revealLive(index)}");
-    expect(stage).toContain("live && liveMounted.has(index)");
+    expect(stage).toContain("live && src && liveMounted.has(index)");
     expect(productWindow).not.toContain("data-homepage-window-chrome");
     expect(stage).toContain("LIVE_VIEWPORT = { height: 900, width: 1440 }");
     expect(stage).toContain('inbox: "/inbox?threadId=latest"');

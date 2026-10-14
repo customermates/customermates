@@ -31,6 +31,7 @@ import {
   PRODUCT_STAGE_INTERVAL_MS,
 } from "@/app/[locale]/(static)/components/homepage-product-stage";
 import { HomepageStageLink } from "@/app/[locale]/(static)/components/homepage-stage-link";
+import { DEMO_RECORD_LIST_PATHS } from "@/components/marketing/product-demo";
 
 const tabs: HomepageStageTab[] = [
   { alt: "Inbox, using demo data", capture: "homepage-inbox", caption: "Inbox caption", label: "Inbox" },
@@ -58,7 +59,7 @@ afterEach(() => {
   motionState.shouldReduceMotion = false;
 });
 
-function render() {
+function render(stageTabs: HomepageStageTab[] = tabs) {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   const host = document.createElement("div");
   document.body.append(host);
@@ -70,7 +71,7 @@ function render() {
         label: "Product areas",
         live: { prompt: "Try it live" },
         locale: "en",
-        tabs,
+        tabs: stageTabs,
       }),
     ),
   );
@@ -311,12 +312,14 @@ it("shows every tab as its own live iframe, keeps rotating and preloads the next
   expect(progress(host)).toBe("running");
   expect(host.querySelectorAll("iframe")).toHaveLength(2);
   expect(host.querySelector('iframe[data-homepage-stage-iframe="standby"]')?.getAttribute("src")).toBe(
-    "https://demo.example/en/contacts?agentChat=closed",
+    `https://demo.example/en${DEMO_RECORD_LIST_PATHS.contacts}?agentChat=closed`,
   );
 
   advance(PRODUCT_STAGE_INTERVAL_MS - LIVE_REVEAL_DELAY_MS);
   expect(selectedLabel(host)).toContain("Customers");
-  expect(activeIframe(host)?.getAttribute("src")).toBe("https://demo.example/en/contacts?agentChat=closed");
+  expect(activeIframe(host)?.getAttribute("src")).toBe(
+    `https://demo.example/en${DEMO_RECORD_LIST_PATHS.contacts}?agentChat=closed`,
+  );
   expect(activeIframe(host)?.hasAttribute("inert")).toBe(false);
   expect(host.querySelector('iframe[data-homepage-stage-iframe="standby"]')?.hasAttribute("inert")).toBe(true);
 });
@@ -356,7 +359,9 @@ it("stops rotating on the live area a visitor picks", () => {
 
   loadAndReveal(activeIframe(host));
   act(() => tabButtons(host)[2].click());
-  expect(activeIframe(host)?.getAttribute("src")).toBe("https://demo.example/en/deals?agentChat=closed");
+  expect(activeIframe(host)?.getAttribute("src")).toBe(
+    `https://demo.example/en${DEMO_RECORD_LIST_PATHS.deals}?agentChat=closed`,
+  );
   expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("loading");
   expect(progress(host)).toBe("static");
   loadAndReveal(activeIframe(host));
@@ -468,7 +473,9 @@ it("opens from a product-demo hash on load and ignores unrelated hashes", () => 
   const host = render();
 
   expect(selectedLabel(host)).toContain("Customers");
-  expect(activeIframe(host)?.getAttribute("src")).toBe("https://demo.example/en/contacts?agentChat=closed");
+  expect(activeIframe(host)?.getAttribute("src")).toBe(
+    `https://demo.example/en${DEMO_RECORD_LIST_PATHS.contacts}?agentChat=closed`,
+  );
 
   act(() => root?.unmount());
   document.body.replaceChildren();
@@ -480,4 +487,28 @@ it("opens from a product-demo hash on load and ignores unrelated hashes", () => 
     "https://demo.example/en/inbox?threadId=latest&agentChat=closed",
   );
   window.history.replaceState(null, "", "#");
+});
+
+it("shows the data model as a still and keeps preloading the next live area", () => {
+  vi.useFakeTimers();
+  stubWideViewport(true);
+  const host = render([
+    ...tabs,
+    {
+      alt: "Data model, using demo data",
+      capture: "homepage-configure",
+      caption: "Data model caption",
+      label: "Data model",
+    },
+  ]);
+
+  act(() => tabButtons(host)[5]?.click());
+
+  expect(selectedLabel(host)).toContain("Data model");
+  expect(activeIframe(host)).toBeNull();
+  expect(host.querySelector('iframe[src*="/configure"]')).toBeNull();
+  expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("ready");
+  expect(host.querySelector('iframe[data-homepage-stage-iframe="standby"]')?.getAttribute("src")).toBe(
+    "https://demo.example/en/inbox?threadId=latest&agentChat=closed",
+  );
 });

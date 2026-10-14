@@ -8,6 +8,7 @@ export const STAGE_AREAS = {
   "homepage-pipeline": "pipeline",
   "homepage-record": "customers",
   "homepage-routines": "routines",
+  "homepage-configure": "data-model",
 } as const;
 
 export type HomepageStageArea = (typeof STAGE_AREAS)[keyof typeof STAGE_AREAS];

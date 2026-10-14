@@ -23,6 +23,10 @@ export const HOMEPAGE_CAPTURES = {
     de: { height: 1800, width: 2880 },
     en: { height: 1800, width: 2880 },
   },
+  "homepage-configure": {
+    de: { height: 1800, width: 2880 },
+    en: { height: 1800, width: 2880 },
+  },
   "homepage-thread-linkedin": {
     de: { height: 1800, width: 1606 },
     en: { height: 1800, width: 1606 },
@@ -48,6 +52,10 @@ export const HOMEPAGE_CAPTURES = {
     en: { height: 1688, width: 780 },
   },
   "homepage-routines-mobile": {
+    de: { height: 1688, width: 780 },
+    en: { height: 1688, width: 780 },
+  },
+  "homepage-configure-mobile": {
     de: { height: 1688, width: 780 },
     en: { height: 1688, width: 780 },
   },
