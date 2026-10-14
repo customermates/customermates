@@ -462,6 +462,7 @@ describe("required configuration names", () => {
     store.onChange("mode", "path");
     await store.onSubmit();
     expect(store.getError("sourceLabel")).toEqual(["RecordModel.nameRequired"]);
+    expect(store.getError("path")).toEqual(["RecordModel.relationshipEditor.pathRequired"]);
     expect(store.getError("targetLabel")).toBeUndefined();
     expect(store.getError("targetTypeId")).toBeUndefined();
     sentNothing();

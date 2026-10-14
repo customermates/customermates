@@ -1,11 +1,13 @@
 "use client";
 
+import { useId } from "react";
 import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 
 import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { RecordPathStep } from "@/features/records/record-relationship-path.schema";
 
+import { FormFieldError } from "@/components/forms/form-field-error";
 import { Button } from "@/components/ui/button";
 import { RecordTypeGlyph } from "@/components/records/record-type-glyph";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
@@ -17,14 +19,18 @@ export function RelationshipPathInput({
   value,
   onChange,
   disabled = false,
+  error,
 }: {
   model: RecordModelView;
   typeId: string;
   value: RecordPathStep[];
   onChange: (value: RecordPathStep[]) => void;
   disabled?: boolean;
+  error?: string | string[];
 }) {
   const t = useTranslations();
+  const errorId = useId();
+  const message = Array.isArray(error) ? error.join(" ") : error;
   const resolved = resolveRecordPath(typeId, value, model);
   const currentTypeId = resolved?.at(-1)?.typeId ?? typeId;
   const iconOf = (listId: string) => model.types.find((type) => type.id === listId)?.icon;
@@ -85,7 +91,11 @@ export function RelationshipPathInput({
           if (direction === "incoming" || direction === "outgoing") onChange([...value, { relationId, direction }]);
         }}
       >
-        <SelectTrigger aria-label={t("RecordModel.addPathStep")}>
+        <SelectTrigger
+          aria-describedby={message ? errorId : undefined}
+          aria-invalid={Boolean(message)}
+          aria-label={t("RecordModel.addPathStep")}
+        >
           <SelectValue placeholder={t("RecordModel.addPathStep")} />
         </SelectTrigger>
 
@@ -101,6 +111,8 @@ export function RelationshipPathInput({
           ))}
         </SelectContent>
       </Select>
+
+      {message && <FormFieldError id={errorId}>{message}</FormFieldError>}
     </div>
   );
 }

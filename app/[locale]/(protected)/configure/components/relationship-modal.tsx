@@ -77,6 +77,13 @@ export class RelationshipModalStore extends ModelChangeStore<ReturnType<typeof e
     });
     this.open();
   };
+  protected override validateDraft() {
+    if (this.form.mode !== "path" || this.form.path.length) return undefined;
+    return {
+      errors: [],
+      properties: { path: { errors: [this.t("RecordModel.relationshipEditor.pathRequired")] } },
+    } as RelationshipModalStore["error"];
+  }
   protected override requiredFields() {
     if (this.form.mode === "path") return [{ id: "sourceLabel" as const, message: this.t("RecordModel.nameRequired") }];
     const label = this.t("RecordModel.relationshipEditor.labelRequired");
@@ -314,6 +321,7 @@ export const RelationshipModal = observer(function RelationshipModal({
 
               <RelationshipPathInput
                 disabled={store.isLoading || Boolean(store.pendingOperationId)}
+                error={store.getError("path")}
                 model={store.model}
                 typeId={store.sourceTypeId}
                 value={store.form.path}

@@ -3720,6 +3720,7 @@
       "messagesHelp": "Messages come from linked records with Channels or linked conversations. Record and message permissions still apply.",
       "onDelete": "When deleted",
       "otherList": "the linked list",
+      "pathRequired": "Add at least one relationship step.",
       "showMessagesOn": "Show their messages on {list}",
       "showMessagesOnSide": "Show their messages on {list} ({side})",
       "shownOn": "Shown on records in {list}",

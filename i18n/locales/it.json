@@ -3720,6 +3720,7 @@
       "messagesHelp": "I messaggi provengono da record collegati con canali o da conversazioni collegate. I permessi su record e messaggi restano validi.",
       "onDelete": "All'eliminazione",
       "otherList": "la lista collegata",
+      "pathRequired": "Aggiungi almeno un passaggio di relazione.",
       "showMessagesOn": "Mostra i loro messaggi in {list}",
       "showMessagesOnSide": "Mostra i loro messaggi in {list} ({side})",
       "shownOn": "Mostrato nei record di {list}",
