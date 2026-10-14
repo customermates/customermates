@@ -434,7 +434,10 @@ async function authorizedWikiSetup(payload: AgentTurnWorkflowPayload): Promise<b
     try {
       if (getTenantUser().companyId !== payload.companyId) return false;
       if (!(await getUserService().hasPermission(Resource.wiki, Action.create))) return false;
-      const result = await getGetWikiPagesInteractor().invoke({ page: 1, pageSize: 5 });
+      const result = await getGetWikiPagesInteractor().invoke({
+        page: 1,
+        pageSize: 5,
+      });
       if (result.ok && result.data.total === 0) return true;
       const { getWikiWebsiteCrawlRepo } = await import("@/core/di");
       return ((await getWikiWebsiteCrawlRepo().findLatestCrawl())?.pendingHosts.length ?? 0) > 0;
@@ -455,7 +458,10 @@ async function authorizedWikiCatalog(payload: AgentTurnWorkflowPayload): Promise
   return runAsBackgroundTenant(payload.userId, async () => {
     try {
       if (getTenantUser().companyId !== payload.companyId) return null;
-      const result = await getGetWikiPagesInteractor().invoke({ page: 1, pageSize: 5 });
+      const result = await getGetWikiPagesInteractor().invoke({
+        page: 1,
+        pageSize: 5,
+      });
       if (!result.ok) throw new Error("Knowledge Base catalog could not be authorized.");
       return payload.wikiCatalog ?? null;
     } catch (error) {
@@ -584,9 +590,10 @@ async function readApprovalActivities(payload: AgentTurnWorkflowPayload, request
   return runAsBackgroundTenant(payload.userId, () =>
     Promise.all(
       requests.map((request) =>
-        resolvedAgentApprovalActivity(request.toolName, request.input).catch(() =>
-          describeAgentTool(internalToolIdentity(request.toolName), request.input),
-        ),
+        resolvedAgentApprovalActivity(request.toolName, request.input).catch(() => ({
+          activity: describeAgentTool(internalToolIdentity(request.toolName), request.input),
+          names: [],
+        })),
       ),
     ),
   );
@@ -1924,11 +1931,13 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         input: call.input,
       }));
 
-      let approvalActivities: AgentActivityDescriptor[] = await readApprovalActivities(payload, requests);
+      let resolvedApprovalTargets = await readApprovalActivities(payload, requests);
+      let approvalActivities: AgentActivityDescriptor[] = resolvedApprovalTargets.map((target) => target.activity);
       const unverified = requests.flatMap((request, index) => {
         const reason = approvalTargetRefusal(
           request,
           approvalActivities[index],
+          resolvedApprovalTargets[index]?.names ?? [],
           seenDestructiveApprovals,
           payload.messages.findLast((message) => message.role === "user")?.text ?? null,
         );
@@ -1948,6 +1957,9 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         appendDeferredOutcomes(unverified);
         resumableMessages = withToolResults(resumableMessages, unverified);
         const rejected = new Set(unverified.map((outcome) => outcome.toolCallId));
+        resolvedApprovalTargets = resolvedApprovalTargets.filter(
+          (_, index) => !rejected.has(requests[index].toolCallId),
+        );
         approvalActivities = approvalActivities.filter((_, index) => !rejected.has(requests[index].toolCallId));
         requests = requests.filter((request) => !rejected.has(request.toolCallId));
         if (requests.length === 0) {
