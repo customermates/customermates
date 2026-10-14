@@ -1805,7 +1805,6 @@ CREATE TABLE "RecordTypeDefinition" (
     "embedded" BOOLEAN NOT NULL DEFAULT false,
     "position" INTEGER NOT NULL DEFAULT 0,
     "definition" JSONB NOT NULL,
-    "capabilities" JSONB NOT NULL DEFAULT '{}',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 

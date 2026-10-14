@@ -1679,7 +1679,6 @@ model RecordTypeDefinition {
   embedded           Boolean                        @default(false)
   position           Int                            @default(0)
   definition         Json
-  capabilities       Json                           @default("{}")
   createdAt          DateTime                       @default(now())
   updatedAt          DateTime                       @updatedAt
   company            Company                        @relation(fields: [companyId], references: [id], onDelete: Cascade)
