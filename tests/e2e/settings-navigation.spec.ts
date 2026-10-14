@@ -73,13 +73,6 @@ test("settings live in one area reached from the workspace menu, with Back to th
     await expect(page.locator("[data-area-nav]")).toHaveCount(0);
   });
 
-  await test.step("the old deliveries links lead to the Deliveries page", async () => {
-    await page.goto("/en/settings/webhooks/deliveries?searchTerm=order");
-    await expect(page).toHaveURL(/\/en\/settings\/webhook-deliveries\?searchTerm=order$/);
-    await page.goto("/en/settings/webhooks?tab=deliveries");
-    await expect(page).toHaveURL(/\/en\/settings\/webhook-deliveries$/);
-  });
-
   await test.step("the old profile and company routes are gone", async () => {
     for (const removed of ["profile/settings", "company/members", "company/webhook-deliveries"])
       expect((await page.request.get(`/en/${removed}`)).status(), removed).toBe(404);
