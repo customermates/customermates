@@ -7,7 +7,6 @@ import { DataViewStateSchema, DataViewStateWireSchema, ViewKeySchema } from "@/c
 import { DATA_VIEW_NAME_MAX_LENGTH } from "@/core/data-view/data-view-limits";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-export { SurfaceKeySchema as SurfaceKeyInputSchema } from "@/core/data-view/data-view-identity.schema";
 import { SurfaceKeySchema as SurfaceKeyInputSchema } from "@/core/data-view/data-view-identity.schema";
 
 const DataViewNameSchema = z.string().min(1).max(DATA_VIEW_NAME_MAX_LENGTH);

@@ -20,8 +20,7 @@ const ORDER: Record<string, number> = { list: 0, relationship: 1, field: 2 };
 function targetExists(model: RecordModel, item: TrashItem) {
   if (item.kind === "list") return model.types.some((type) => type.id === item.targetId);
   if (item.kind === "field") return model.fields.some((field) => field.id === item.targetId);
-  if (item.kind === "relationship") return model.relationships.some((relation) => relation.id === item.targetId);
-  return model.capabilities.some((capability) => capability.id === item.targetId);
+  return model.relationships.some((relation) => relation.id === item.targetId);
 }
 
 function target(item: TrashItem): ConfigurationTarget {

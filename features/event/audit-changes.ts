@@ -2,16 +2,6 @@ import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 
-export function partitionRelationIds(previous: unknown, current: unknown) {
-  const prevArr = Array.isArray(previous) ? previous : [];
-  const currArr = Array.isArray(current) ? current : [];
-  const prevIds = new Set(prevArr.map((x: { id: string }) => x.id));
-  const currIds = new Set(currArr.map((x: { id: string }) => x.id));
-  const added = currArr.filter((x: { id: string }) => !prevIds.has(x.id));
-  const removed = prevArr.filter((x: { id: string }) => !currIds.has(x.id));
-  return { added, removed };
-}
-
 export function isEmpty(value: unknown): boolean {
   return value == null || value === "" || (Array.isArray(value) && value.length === 0);
 }

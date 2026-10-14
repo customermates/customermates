@@ -23,6 +23,7 @@ const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { getGetRolesApiInteractor } = await import("@/core/di");
 const { manageRolesTool } = await import("@/features/mcp-tools/role.mcp-tools");
 const read = await restRoute("/v1/roles/read");
+const list = await restRoute("/v1/roles/list");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const cleanups: Array<() => Promise<unknown>> = [];
@@ -72,6 +73,9 @@ describeDatabase("role metadata visibility on PostgreSQL", () => {
 
     const roles = await w.as(w.member, () => getGetRolesApiInteractor().invoke({}));
     expect(roles.ok && roles.data.items.map(({ id }) => id)).toEqual([w.memberRoleId]);
+    const listed = await postAs(w, w.member, list, {});
+    expect(listed.status).toBe(200);
+    expect((listed.body as { items: Array<{ id: string }> }).items.map(({ id }) => id)).toEqual([w.memberRoleId]);
 
     const mcp = await w.as(w.member, () => mcpRead({ action: "read" }));
     const mcpContext = mcp.structuredContent?.result;
@@ -99,8 +103,25 @@ describeDatabase("role metadata visibility on PostgreSQL", () => {
 
     const roles = await w.as(w.admin, () => getGetRolesApiInteractor().invoke({}));
     expect(roles.ok && roles.data.items.map(({ id }) => id).sort()).toEqual([w.adminRoleId, w.memberRoleId].sort());
+    const other = await workspace();
+    const listed = await postAs(w, w.admin, list, { pagination: { page: 1, pageSize: 25 } });
+    expect(listed.status).toBe(200);
+    const listedRoles = (listed.body as { items: Array<{ id: string; permissions: unknown[] }> }).items;
+    expect(listedRoles.map(({ id }) => id).sort()).toEqual([w.adminRoleId, w.memberRoleId].sort());
+    expect(listedRoles.find(({ id }) => id === w.memberRoleId)?.permissions).toHaveLength(1);
+    expect(JSON.stringify(listed.body)).not.toContain(other.adminRoleId);
+    expect(JSON.stringify(listed.body)).not.toContain(other.memberRoleId);
 
     const mcp = await w.as(w.admin, () => mcpRead({ action: "read" }));
     expect(mcp.structuredContent?.result.types.map(({ id }) => id)).toContain(w.id("contact"));
+  }, 180_000);
+
+  it("refuses the role list to a member without read access to users", async () => {
+    const w = await createRestRouteWorkspace();
+    cleanups.push(w.cleanup);
+
+    const refused = await postAs(w, w.member, list, {});
+    expect(refused.status).toBe(403);
+    expect(refused.body).toMatchObject({ error: { kind: "authorization" } });
   }, 180_000);
 });

@@ -17,7 +17,6 @@ vi.mock("@/i18n/locale-registry", () => {
     formattingTag: string;
     flagCode: string;
     validationTag: string;
-    lowercaseEntityLabelsInSentences: boolean;
   };
 
   const registry: Record<string, Capabilities> = {
@@ -28,7 +27,6 @@ vi.mock("@/i18n/locale-registry", () => {
       formattingTag: "en-US",
       flagCode: "us",
       validationTag: "en",
-      lowercaseEntityLabelsInSentences: true,
     },
     de: {
       offeredAsDisplayLanguage: true,
@@ -37,7 +35,6 @@ vi.mock("@/i18n/locale-registry", () => {
       formattingTag: "de-DE",
       flagCode: "de",
       validationTag: "de",
-      lowercaseEntityLabelsInSentences: false,
     },
     fr: {
       offeredAsDisplayLanguage: true,
@@ -46,7 +43,6 @@ vi.mock("@/i18n/locale-registry", () => {
       formattingTag: "fr-FR",
       flagCode: "fr",
       validationTag: "fr",
-      lowercaseEntityLabelsInSentences: true,
     },
     nl: {
       offeredAsDisplayLanguage: false,
@@ -55,7 +51,6 @@ vi.mock("@/i18n/locale-registry", () => {
       formattingTag: "nl-NL",
       flagCode: "nl",
       validationTag: "nl",
-      lowercaseEntityLabelsInSentences: true,
     },
   };
 

@@ -238,7 +238,7 @@ Retries run inside the same delivery, so they add no records: each record shows 
 
 ## Where do I see past deliveries? [#where-do-i-see-past-deliveries]
 
-Every delivery is recorded on the [Deliveries](app:settings/webhook-deliveries) page, newest first, with **URL**, **Event**, **Element** (the affected record), **Status**, **Status Code** and **Created at**. In [Filter](app:settings/webhook-deliveries?focus=filter), searching matches the event and the URL, and filters cover the event, the URL and the creation date. Through MCP, use `manage_webhooks` with `action: "list_deliveries"`; over REST, `GET /api/v1/webhooks/{id}/deliveries` lists one webhook's deliveries, newest first. Delivery records are kept as long as the workspace exists.
+Every delivery is recorded on the [Deliveries](app:settings/webhook-deliveries) page, newest first, with **URL**, **Event**, **Element** (the affected record), **Status**, **Status Code** and **Created at**. In [Filter](app:settings/webhook-deliveries?focus=filter), searching matches the event and the URL, and filters cover the event, the URL and the creation date. Through MCP, use `manage_webhooks` with `action: "list_deliveries"`; over REST, `GET /api/v1/webhooks/deliveries` lists the deliveries of every webhook and `GET /api/v1/webhooks/{id}/deliveries` those of one webhook, newest first. Delivery records are kept as long as the workspace exists.
 
 Click a row to open **Event Details**: the status (**Pending**, **Sending**, **Delivered** or **Failed**), **URL**, **Event**, **Element**, **Created At**, **Status Code**, **Response Message** and the **Event payload**. A messaging event's payload is shown as it was sent. A record event's payload is read again with your current access: values you cannot read appear as restricted, and the payload stays empty when you cannot read the record.
 
@@ -264,7 +264,7 @@ The value of a Formatted text field in payloads is a `richText` value whose `doc
 
 - Find the delivery under [Deliveries](app:settings/webhook-deliveries) and open it to see **Event Details**.
 - Use [webhook.site](https://webhook.site) as a throwaway receiver while testing.
-- `manage_webhooks` with `action: "list_deliveries"` and `GET /api/v1/webhooks/{id}/deliveries` support `searchTerm` on URL and event name.
+- `manage_webhooks` with `action: "list_deliveries"`, `GET /api/v1/webhooks/deliveries` and `GET /api/v1/webhooks/{id}/deliveries` support `searchTerm` on URL and event name.
 - Customermates stores only the HTTP status code and status text your receiver returned (for example `404` and `Not Found`), shown as **Status Code** and **Response Message** in **Event Details**. The response body is not stored, so log it on the receiving side. Without a response, **Status Code** shows a dash (the list column stays empty) and **Response Message** names the cause, such as the timeout.
 
 ## Which events exist? [#which-events-exist]

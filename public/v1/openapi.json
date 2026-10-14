@@ -1044,6 +1044,641 @@
         }
       }
     },
+    "/v1/roles/list": {
+      "post": {
+        "operationId": "listRoles",
+        "summary": "List roles",
+        "tags": [
+          "roles"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "description": "Lists the workspace's roles with their system permissions, record type grants and whether any member holds them, as the Roles settings page and the roles of the MCP get_workspace_context tool show them. Supports searchTerm on the name, sortDescriptor with field type (system roles first, then by name) and pagination. Read one role with its record type catalog through /v1/roles/read, and assign a role to a member through /v1/members/update.\n\nRequires: read access to users; without role management (edit access to users) only the caller's own role is listed.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "filters": {
+                    "maxItems": 50,
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "equals",
+                                  "title": "equals"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "notEquals",
+                                  "title": "notEquals"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "contains",
+                                  "title": "contains"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "startsWith",
+                                  "title": "startsWith"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "gt",
+                                  "title": "gt"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "gte",
+                                  "title": "gte"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "lt",
+                                  "title": "lt"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "lte",
+                                  "title": "lte"
+                                }
+                              ]
+                            },
+                            "value": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "title": "Single value filter"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "in",
+                                  "title": "in"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "notIn",
+                                  "title": "notIn"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "between",
+                                  "title": "between"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "hasAnyOf",
+                                  "title": "hasAnyOf"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "hasAllOf",
+                                  "title": "hasAllOf"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "hasNoneOf",
+                                  "title": "hasNoneOf"
+                                }
+                              ]
+                            },
+                            "value": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "title": "Multi value filter"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "isNull",
+                                  "title": "isNull"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "isNotNull",
+                                  "title": "isNotNull"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "hasUnset",
+                                  "title": "hasUnset"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "allSet",
+                                  "title": "allSet"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator"
+                          ],
+                          "title": "Standalone filter"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "hasNone",
+                                  "title": "hasNone"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "hasSome",
+                                  "title": "hasSome"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator"
+                          ],
+                          "additionalProperties": false,
+                          "title": "Relationship existence filter"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "operator": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "const": "inLastDays",
+                                  "title": "inLastDays"
+                                },
+                                {
+                                  "type": "string",
+                                  "const": "notInLastDays",
+                                  "title": "notInLastDays"
+                                }
+                              ]
+                            },
+                            "value": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "operator",
+                            "value"
+                          ],
+                          "title": "Relative window filter"
+                        }
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "searchTerm": {
+                    "type": "string",
+                    "maxLength": 200
+                  },
+                  "sortDescriptor": {
+                    "type": "object",
+                    "properties": {
+                      "field": {
+                        "type": "string"
+                      },
+                      "direction": {
+                        "type": "string",
+                        "enum": [
+                          "asc",
+                          "desc"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "field",
+                      "direction"
+                    ]
+                  },
+                  "pagination": {
+                    "type": "object",
+                    "properties": {
+                      "page": {
+                        "type": "number",
+                        "minimum": 1
+                      },
+                      "pageSize": {
+                        "anyOf": [
+                          {
+                            "type": "number",
+                            "const": 5,
+                            "title": "5"
+                          },
+                          {
+                            "type": "number",
+                            "const": 10,
+                            "title": "10"
+                          },
+                          {
+                            "type": "number",
+                            "const": 25,
+                            "title": "25"
+                          },
+                          {
+                            "type": "number",
+                            "const": 100,
+                            "title": "100"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "page",
+                      "pageSize"
+                    ]
+                  }
+                }
+              },
+              "examples": {
+                "default": {
+                  "summary": "First page of roles",
+                  "value": {
+                    "pagination": {
+                      "page": 1,
+                      "pageSize": 25
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The requested data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "p13nId": {
+                      "type": "string"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "isSystemRole": {
+                            "type": "boolean"
+                          },
+                          "createdAt": {
+                            "type": "string"
+                          },
+                          "updatedAt": {
+                            "type": "string"
+                          },
+                          "permissions": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "resource": {
+                                  "type": "string",
+                                  "enum": [
+                                    "dataModel",
+                                    "users",
+                                    "company",
+                                    "api",
+                                    "auditLog",
+                                    "inboxMessages",
+                                    "wiki",
+                                    "routines"
+                                  ]
+                                },
+                                "action": {
+                                  "type": "string",
+                                  "enum": [
+                                    "create",
+                                    "readOwn",
+                                    "readAll",
+                                    "update",
+                                    "delete"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "resource",
+                                "action"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "recordGrants": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "typeId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "actions": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "enum": [
+                                      "create",
+                                      "readOwn",
+                                      "readAll",
+                                      "update",
+                                      "delete"
+                                    ]
+                                  }
+                                }
+                              },
+                              "required": [
+                                "typeId",
+                                "actions"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "hasUsersAssigned": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "description",
+                          "isSystemRole",
+                          "createdAt",
+                          "updatedAt",
+                          "permissions",
+                          "hasUsersAssigned"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "filters": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "searchTerm": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "sortDescriptor": {},
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "number"
+                        },
+                        "pageSize": {
+                          "type": "number"
+                        },
+                        "totalPages": {
+                          "type": "number"
+                        },
+                        "total": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "page",
+                        "pageSize",
+                        "totalPages",
+                        "total"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "filterableFields": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "columnOrder": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "columnWidths": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "type": "number"
+                      }
+                    },
+                    "hiddenColumns": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "viewMode": {
+                      "type": "string"
+                    },
+                    "groupCounts": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "type": "number"
+                      }
+                    },
+                    "views": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "activeViewKey": {
+                      "type": "string"
+                    },
+                    "allState": {},
+                    "viewPersistable": {
+                      "type": "boolean"
+                    },
+                    "grouping": {},
+                    "groupableFields": {
+                      "type": "array",
+                      "items": {}
+                    }
+                  },
+                  "required": [
+                    "items"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
     "/v1/roles/read": {
       "post": {
         "operationId": "readRoleConfiguration",
@@ -90890,6 +91525,394 @@
         }
       }
     },
+    "/v1/webhooks/deliveries": {
+      "get": {
+        "operationId": "listWorkspaceWebhookDeliveries",
+        "summary": "List deliveries across all webhooks",
+        "description": "Lists the deliveries of every webhook in the workspace newest first, as the Deliveries page shows them, with status, response code and the delivered body. searchTerm matches url and event name. The deliveries of a single webhook come from `GET /v1/webhooks/{id}/deliveries`. Requires: read all permission on the API.",
+        "tags": [
+          "webhooks"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "description": "Page number, starting at 1.",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "description": "Page number, starting at 1."
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "schema": {
+              "description": "Items per page: 5, 10, 25 or 100. Default 25.",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": "5"
+                },
+                {
+                  "type": "string",
+                  "const": "10"
+                },
+                {
+                  "type": "string",
+                  "const": "25"
+                },
+                {
+                  "type": "string",
+                  "const": "100"
+                }
+              ]
+            },
+            "description": "Items per page: 5, 10, 25 or 100. Default 25."
+          },
+          {
+            "in": "query",
+            "name": "searchTerm",
+            "schema": {
+              "description": "Free-text search.",
+              "type": "string",
+              "maxLength": 200
+            },
+            "description": "Free-text search."
+          },
+          {
+            "in": "query",
+            "name": "sortField",
+            "schema": {
+              "description": "Field to sort by.",
+              "type": "string"
+            },
+            "description": "Field to sort by."
+          },
+          {
+            "in": "query",
+            "name": "sortDirection",
+            "schema": {
+              "description": "Sort direction; requires sortField.",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            "description": "Sort direction; requires sortField."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "One page of deliveries.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "items": [
+                    {
+                      "id": "8e7d6c5b-4a39-4281-8f0e-d9c8b7a69584",
+                      "url": "https://hooks.example.com/customermates",
+                      "event": "record.created",
+                      "requestBody": {
+                        "event": "record.created",
+                        "data": {}
+                      },
+                      "nextAttemptAt": null,
+                      "statusCode": 200,
+                      "responseMessage": "OK",
+                      "success": true,
+                      "status": "success",
+                      "deliveredAt": "2026-10-12T08:00:02.000Z",
+                      "createdAt": "2026-10-12T08:00:00.000Z"
+                    }
+                  ],
+                  "pagination": {
+                    "page": 1,
+                    "pageSize": 25,
+                    "totalPages": 1,
+                    "total": 1
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "p13nId": {
+                      "type": "string"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          },
+                          "event": {
+                            "type": "string"
+                          },
+                          "requestBody": {},
+                          "nextAttemptAt": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "statusCode": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "responseMessage": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "success": {
+                            "type": "boolean"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "deliveredAt": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "createdAt": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "url",
+                          "event",
+                          "requestBody",
+                          "nextAttemptAt",
+                          "statusCode",
+                          "responseMessage",
+                          "success",
+                          "status",
+                          "deliveredAt",
+                          "createdAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "filters": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "searchTerm": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "sortDescriptor": {},
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "number"
+                        },
+                        "pageSize": {
+                          "type": "number"
+                        },
+                        "totalPages": {
+                          "type": "number"
+                        },
+                        "total": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "page",
+                        "pageSize",
+                        "totalPages",
+                        "total"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "filterableFields": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "columnOrder": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "columnWidths": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "type": "number"
+                      }
+                    },
+                    "hiddenColumns": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "viewMode": {
+                      "type": "string"
+                    },
+                    "groupCounts": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "type": "number"
+                      }
+                    },
+                    "views": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "activeViewKey": {
+                      "type": "string"
+                    },
+                    "allState": {},
+                    "viewPersistable": {
+                      "type": "boolean"
+                    },
+                    "grouping": {},
+                    "groupableFields": {
+                      "type": "array",
+                      "items": {}
+                    }
+                  },
+                  "required": [
+                    "items"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
     "/v1/webhooks/{id}": {
       "get": {
         "operationId": "getWebhook",
@@ -93375,6 +94398,161 @@
         }
       }
     },
+    "/v1/messaging/connected-accounts/connect-link": {
+      "post": {
+        "operationId": "createConnectLink",
+        "summary": "Create a link to connect a messaging channel",
+        "description": "Creates a secure link that connects a messaging channel to the inbox of the key's owner, as Connect on the Channels settings page and the MCP connect_messaging_account tool do. The connection cannot be completed over the API: open the url in a browser and finish there, by scanning the QR code for WhatsApp or signing in for email and LinkedIn; the new account then appears in GET /v1/messaging/connected-accounts. The link works once and expires after 30 minutes. Each member gets a number of connected accounts from the plan: Pro 1, Business 3, Enterprise unlimited, Starter none. Without a free slot or without a plan that includes messaging the request answers 400. Requires: Inbox messages Create and a plan that includes messaging.",
+        "tags": [
+          "messaging"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "channel": "google"
+              },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "channel": {
+                    "type": "string",
+                    "enum": [
+                      "google",
+                      "outlook",
+                      "imap",
+                      "whatsapp",
+                      "linkedin",
+                      "linkedin_sales_navigator",
+                      "linkedin_recruiter",
+                      "instagram",
+                      "telegram"
+                    ],
+                    "description": "The channel to connect: google (Gmail), outlook, imap (any other email via IMAP and SMTP), whatsapp, linkedin (Classic), linkedin_sales_navigator, linkedin_recruiter, instagram or telegram."
+                  }
+                },
+                "required": [
+                  "channel"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The connect link.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "url": "https://account.example.com/connect/2f6c1b7e"
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "description": "Single-use link to open in a browser; it expires after 30 minutes."
+                    }
+                  },
+                  "required": [
+                    "url"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
     "/v1/messaging/threads/search": {
       "post": {
         "operationId": "getMessagingThreads",
@@ -94908,6 +96086,390 @@
           },
           "409": {
             "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
+    "/v1/messaging/threads/{id}/state": {
+      "post": {
+        "operationId": "updateMessagingThreadState",
+        "summary": "Set a conversation's state",
+        "description": "Sets the state of one conversation in the Customermates inbox, as the Inbox and the MCP update_messaging_thread tool do: unread, open (read), closed or spam. The state shows as a badge and is filterable in the inbox; it never hides or deletes anything, and the provider mailbox, the messages and linked records stay untouched. Setting the state a conversation already has changes nothing. Only state can be set here; any other field answers 400. A conversation you cannot see answers 404. Requires: Inbox messages Edit and a plan that includes messaging.",
+        "tags": [
+          "messaging"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "The conversation id from POST /v1/messaging/threads/search."
+            },
+            "required": true,
+            "description": "The conversation id from POST /v1/messaging/threads/search."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "state": "closed"
+              },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "unread",
+                      "open",
+                      "closed",
+                      "spam"
+                    ]
+                  }
+                },
+                "required": [
+                  "state"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The conversation and its state.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "threadId": "6f1e2d3c-4b5a-4968-8776-5a4b3c2d1e0f",
+                  "state": "closed"
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "threadId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "state": {
+                      "type": "string",
+                      "enum": [
+                        "unread",
+                        "open",
+                        "closed",
+                        "spam"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "threadId",
+                    "state"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
+    "/v1/messaging/threads/{id}/move": {
+      "post": {
+        "operationId": "moveEmailThread",
+        "summary": "Move an email conversation to a folder",
+        "description": "Moves the eligible emails of one email conversation to a folder of its mailbox at the provider, as the Inbox and the MCP move_email_thread tool do. Take folderId from folderContext.folders of `GET /v1/messaging/threads/{id}`, which can move when folderContext.canMove is true; Sent and Drafts are never targets and their emails stay in place. Pass messageId to move a single email of the conversation. Emails moved outside the synced folders leave the inbox (hiddenFromInbox). movedCount, skippedCount and failedCount report each email; when the provider rate-limits a move part way, rateLimited and retryAfter say when to move the rest. A conversation you cannot see answers 404, an unknown folder or message 404, and a conversation that is not email 400. Requires: Inbox messages Edit and a plan that includes messaging.",
+        "tags": [
+          "messaging"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "The email conversation id."
+            },
+            "required": true,
+            "description": "The email conversation id."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "folderId": "archive"
+              },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "messageId": {
+                    "description": "Email message id in this thread. Omit to move all eligible emails",
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "folderId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Target folder id from folderContext.folders of the conversation; never a folder name."
+                  }
+                },
+                "required": [
+                  "folderId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "How many emails were moved.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "threadId": "6f1e2d3c-4b5a-4968-8776-5a4b3c2d1e0f",
+                  "folderId": "archive",
+                  "folderName": "Archive",
+                  "movedCount": 2,
+                  "skippedCount": 0,
+                  "failedCount": 0,
+                  "hiddenFromInbox": true,
+                  "rateLimited": false
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "threadId": {
+                      "type": "string"
+                    },
+                    "folderId": {
+                      "type": "string"
+                    },
+                    "folderName": {
+                      "type": "string"
+                    },
+                    "movedCount": {
+                      "type": "number"
+                    },
+                    "skippedCount": {
+                      "type": "number"
+                    },
+                    "failedCount": {
+                      "type": "number"
+                    },
+                    "hiddenFromInbox": {
+                      "type": "boolean"
+                    },
+                    "rateLimited": {
+                      "type": "boolean"
+                    },
+                    "retryAfter": {
+                      "type": "string"
+                    },
+                    "stoppedReason": {
+                      "type": "string"
+                    },
+                    "stoppedMessage": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "threadId",
+                    "folderId",
+                    "folderName",
+                    "movedCount",
+                    "skippedCount",
+                    "failedCount",
+                    "hiddenFromInbox",
+                    "rateLimited"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
             "content": {
               "application/json": {
                 "schema": {

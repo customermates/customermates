@@ -49,7 +49,7 @@ function moveStopMessage(t: Awaited<ReturnType<typeof getTranslations>>, code: C
   }
 }
 
-const MoveEmailThreadResultSchema = z.object({
+export const MoveEmailThreadResultSchema = z.object({
   threadId: z.string(),
   folderId: z.string(),
   folderName: z.string(),

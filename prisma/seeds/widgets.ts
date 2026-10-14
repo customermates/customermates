@@ -19,8 +19,6 @@ import { SYNTHETIC_DASHBOARD_VIEW_ID_PREFIX } from "./data-view-ids";
 import { persistSyntheticDataViewFixtures, type SyntheticDataViewFixture } from "./data-views";
 import { upsertFixturesById } from "./helpers";
 
-export { SYNTHETIC_MAIN_DASHBOARD } from "./dashboards";
-
 /** Widget names in seed order, dashboard by dashboard. */
 export const SYNTHETIC_WIDGET_NAMES = buildSyntheticDashboards(SEED_IDS.company, {
   customFieldIds: SYNTHETIC_CUSTOM_FIELD_IDS,

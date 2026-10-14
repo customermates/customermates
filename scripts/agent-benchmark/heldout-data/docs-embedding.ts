@@ -546,7 +546,7 @@ export const DOCS_EMBEDDING_HELDOUT: readonly DocsHeldoutItem[] = [
     slug: "app-company",
     anchors: ["app-company#deliveries-tab"],
     alternatives: ["webhooks#how-do-i-debug-a-delivery", "webhooks#how-do-retries-and-failed-deliveries-work"],
-    fact: "On My Company > Recent Deliveries (/settings/webhooks/deliveries), the webhook delivery log, where each delivery shows its status (Delivered or Failed) and status code.",
+    fact: "On My Company > Recent Deliveries (/settings/webhook-deliveries), the webhook delivery log, where each delivery shows its status (Delivered or Failed) and status code.",
   },
   {
     id: "de-it-07",

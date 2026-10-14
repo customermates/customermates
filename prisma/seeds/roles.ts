@@ -195,11 +195,6 @@ export const SYNTHETIC_ROLE_DEFINITIONS = [
 ] satisfies readonly SyntheticRoleDefinition[];
 
 export const SYNTHETIC_CUSTOM_ROLES = SYNTHETIC_ROLE_DEFINITIONS.filter(({ isSystemRole }) => !isSystemRole);
-export const SYNTHETIC_ROLE_PERMISSION_COUNT = SYNTHETIC_ROLE_DEFINITIONS.reduce(
-  (count, role) => count + role.permissions.length,
-  0,
-);
-
 async function reconcileRoleId(
   prisma: Prisma.TransactionClient,
   role: Omit<SyntheticRoleDefinition, "permissions" | "recordGrants"> & { createdAt: Date; updatedAt: Date },
