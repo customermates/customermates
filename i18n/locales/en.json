@@ -4301,9 +4301,11 @@
     "permanentViewWidgets": "For a dashboard view, its widgets are also deleted permanently.",
     "restore": "Restore",
     "restoreBlocked": {
+      "incompatible": "{count, plural, one {# item stays} other {# items stay}} in Trash because they no longer fit the current setup or data.",
       "listDeleted": "{count, plural, one {# item stays} other {# items stay}} in Trash because their list is in Trash. Restore the list first.",
       "nameTaken": "{count, plural, one {# item stays} other {# items stay}} in Trash because another item now uses their name or place.",
       "notFound": "{count, plural, one {# item} other {# items}} no longer exist and left Trash.",
+      "operationPending": "{count, plural, one {# item stays} other {# items stay}} in Trash while the restore finishes in the background. Restore them again when it is done.",
       "parentDeleted": "{count, plural, one {# item stays} other {# items stay}} in Trash because what they belong to is in Trash. Restore that first.",
       "requiresRestore": "{count, plural, one {# item stays} other {# items stay}} in Trash because something they need is in Trash. Restore that first.",
       "routineLimitReached": "{count, plural, one {# routine stays} other {# routines stay}} in Trash because the owner already has all the routines their plan includes."

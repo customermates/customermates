@@ -4301,9 +4301,11 @@
     "permanentViewWidgets": "Pour une vue de tableau de bord, ses widgets sont aussi supprimés définitivement.",
     "restore": "Restaurer",
     "restoreBlocked": {
+      "incompatible": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car ils ne correspondent plus à la configuration ou aux données actuelles.",
       "listDeleted": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car leur liste est dans la corbeille. Restaurez d'abord la liste.",
       "nameTaken": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car un autre élément utilise désormais leur nom ou leur place.",
       "notFound": "{count, plural, one {# élément n'existe plus et a quitté} other {# éléments n'existent plus et ont quitté}} la corbeille.",
+      "operationPending": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille jusqu'à la fin de la restauration en arrière-plan. Restaurez-les ensuite à nouveau.",
       "parentDeleted": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car ce à quoi ils appartiennent est dans la corbeille. Restaurez-le d'abord.",
       "requiresRestore": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car un élément dont ils ont besoin est dans la corbeille. Restaurez-le d'abord.",
       "routineLimitReached": "{count, plural, one {# routine reste} other {# routines restent}} dans la corbeille car son propriétaire a déjà toutes les routines incluses dans son forfait."

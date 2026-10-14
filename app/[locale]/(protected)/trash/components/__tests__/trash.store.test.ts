@@ -316,6 +316,27 @@ describe("TrashStore", () => {
     }
   });
 
+  it("says which items a background restore leaves in Trash and shows only the others restoring", async () => {
+    const { store } = makeStore();
+    trashActions.restoreTrashAction.mockResolvedValue({
+      ok: true,
+      data: {
+        status: "pending",
+        operationId: BATCH_ID,
+        blocked: [{ itemId: SECOND_ITEM_ID, reason: "operationPending", typeId: TYPE_ID }],
+      },
+    });
+    recordActions.getRecordOperationAction.mockReturnValueOnce(new Promise(() => undefined));
+
+    expect(await store.restore({ itemIds: [ITEM_ID, SECOND_ITEM_ID] })).toBe("pending");
+    expect(store.isRestoring(ITEM_ID)).toBe(true);
+    expect(store.isRestoring(SECOND_ITEM_ID)).toBe(false);
+    expect(sonner.toast.error).toHaveBeenCalledWith(
+      'Trash.restoreBlocked.operationPending:{"count":1}',
+      expect.anything(),
+    );
+  });
+
   it("reports saved view references after a background field restore completes", async () => {
     vi.useFakeTimers();
     try {

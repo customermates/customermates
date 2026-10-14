@@ -4301,9 +4301,11 @@
     "permanentViewWidgets": "Per una vista dashboard, anche i suoi widget vengono eliminati definitivamente.",
     "restore": "Ripristina",
     "restoreBlocked": {
+      "incompatible": "{count, plural, one {# elemento resta} other {# elementi restano}} nel cestino perché non corrispondono più alla configurazione o ai dati attuali.",
       "listDeleted": "{count, plural, one {# elemento resta} other {# elementi restano}} nel cestino perché la loro lista è nel cestino. Ripristina prima la lista.",
       "nameTaken": "{count, plural, one {# elemento resta} other {# elementi restano}} nel cestino perché un altro elemento usa ora il loro nome o posto.",
       "notFound": "{count, plural, one {# elemento non esiste più ed è uscito} other {# elementi non esistono più e sono usciti}} dal cestino.",
+      "operationPending": "{count, plural, one {# elemento resta} other {# elementi restano}} nel cestino finché il ripristino in background non è terminato. Poi ripristinali di nuovo.",
       "parentDeleted": "{count, plural, one {# elemento resta} other {# elementi restano}} nel cestino perché ciò a cui appartengono è nel cestino. Ripristinalo prima.",
       "requiresRestore": "{count, plural, one {# elemento resta} other {# elementi restano}} nel cestino perché qualcosa di cui hanno bisogno è nel cestino. Ripristinalo prima.",
       "routineLimitReached": "{count, plural, one {# routine resta} other {# routine restano}} nel cestino perché il proprietario ha già tutte le routine incluse nel suo piano."

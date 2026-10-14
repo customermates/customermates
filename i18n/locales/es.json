@@ -4301,9 +4301,11 @@
     "permanentViewWidgets": "Para una vista del panel, sus widgets también se eliminan permanentemente.",
     "restore": "Restaurar",
     "restoreBlocked": {
+      "incompatible": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque ya no encajan con la configuración o los datos actuales.",
       "listDeleted": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque su lista está en la papelera. Restaura primero la lista.",
       "nameTaken": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque otro elemento usa ahora su nombre o lugar.",
       "notFound": "{count, plural, one {# elemento ya no existe y salió} other {# elementos ya no existen y salieron}} de la papelera.",
+      "operationPending": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera hasta que termine la restauración en segundo plano. Después, restáuralos de nuevo.",
       "parentDeleted": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque aquello a lo que pertenecen está en la papelera. Restáuralo primero.",
       "requiresRestore": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque algo que necesitan está en la papelera. Restáuralo primero.",
       "routineLimitReached": "{count, plural, one {# rutina sigue} other {# rutinas siguen}} en la papelera porque su propietario ya tiene todas las rutinas que incluye su plan."

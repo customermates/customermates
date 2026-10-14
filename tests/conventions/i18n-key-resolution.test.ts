@@ -973,6 +973,8 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
       "Trash.restoreBlocked.requiresRestore",
       "Trash.restoreBlocked.nameTaken",
       "Trash.restoreBlocked.routineLimitReached",
+      "Trash.restoreBlocked.incompatible",
+      "Trash.restoreBlocked.operationPending",
     ],
   },
   {

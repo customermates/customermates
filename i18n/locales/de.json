@@ -4301,9 +4301,11 @@
     "permanentViewWidgets": "Bei einer Dashboard-Ansicht werden auch ihre Widgets endgültig gelöscht.",
     "restore": "Wiederherstellen",
     "restoreBlocked": {
+      "incompatible": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil sie nicht mehr zur aktuellen Einrichtung oder zu den Daten passen.",
       "listDeleted": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil ihre Liste im Papierkorb liegt. Stelle zuerst die Liste wieder her.",
       "nameTaken": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil ein anderes Element jetzt ihren Namen oder Platz hat.",
       "notFound": "{count, plural, one {# Element existiert} other {# Elemente existieren}} nicht mehr und wurden aus dem Papierkorb entfernt.",
+      "operationPending": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, bis die Wiederherstellung im Hintergrund fertig ist. Stelle sie danach erneut wieder her.",
       "parentDeleted": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil das, wozu sie gehören, im Papierkorb liegt. Stelle das zuerst wieder her.",
       "requiresRestore": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil etwas, das sie brauchen, im Papierkorb liegt. Stelle das zuerst wieder her.",
       "routineLimitReached": "{count, plural, one {# Routine bleibt} other {# Routinen bleiben}} im Papierkorb, weil die Person bereits alle Routinen ihres Tarifs nutzt."
