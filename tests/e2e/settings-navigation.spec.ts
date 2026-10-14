@@ -192,11 +192,13 @@ test("long profile email stays inside the phone viewport", async ({ page, databa
   await database.query('UPDATE "User" SET email=$1 WHERE id=$2', [email, workspace.userId]);
   await page.setViewportSize({ width: 390, height: 1000 });
   await page.goto("/de/settings/profile");
+  await expect(page.locator("#settings-profile-first-name")).toBeVisible();
   for (const theme of ["light", "dark"] as const) {
     await database.query('UPDATE "User" SET theme=$1 WHERE id=$2', [theme, workspace.userId]);
     await page.evaluate((value) => localStorage.setItem("theme", value), theme);
     await page.emulateMedia({ colorScheme: theme });
-    await page.reload();
+    await page.goto("/de/settings/profile", { waitUntil: "load" });
+    await expect(page.locator("#settings-profile-first-name")).toBeVisible();
     const address = page
       .locator("form")
       .filter({ has: page.locator("#settings-profile-first-name") })
