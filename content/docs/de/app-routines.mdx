@@ -30,7 +30,7 @@ Jeder Nutzer hat ein eigenes Kontingent: Starter enthält [[commercial.entitleme
 | Limit | Wert | Am Limit |
 | --- | --- | --- |
 | Läufe pro Routine und Stunde | 4 | Ein passendes Ereignis wird ohne Eintrag verworfen; ein fälliger geplanter Lauf oder ein Lauf über **Auslöser testen** wird als **Übersprungen** erfasst |
-| Credits pro Lauf | 10 | Der Lauf stoppt vor einer Runde, die es überschreiten könnte, wird als **Teilweise** erfasst und nennt dieses Limit als Grund |
+| Credits pro Lauf | 10 | Der Lauf stoppt und wird als **Teilweise** erfasst |
 | Aufeinanderfolgende fehlgeschlagene Läufe | 3 | Die Routine pausiert sich selbst und zeigt den Grund; der Eigentümer schaltet sie wieder ein, sobald die Ursache behoben ist |
 | Kürzestes Zeitplan-Intervall | 15 Minuten | Ein häufigerer Zeitplan wird beim Speichern abgelehnt |
 | Laufverlauf | 90 Tage | Ältere Läufe werden entfernt |
@@ -39,8 +39,6 @@ Jeder Nutzer hat ein eigenes Kontingent: Starter enthält [[commercial.entitleme
 Übersprungene Läufe zählen nicht gegen die Stundenobergrenze.
 
 Jeder Routinelauf beginnt mit den grundlegenden CRM-Werkzeugen und lädt weitere Werkzeuggruppen bei Bedarf. So belegen ungenutzte Werkzeugbeschreibungen keinen Modellkontext. Überschreitet der Kontext auch nach der Komprimierung das Anbieterbudget, endet der Lauf; im Verlauf steht der konkrete Grund zur Kontextgrenze.
-
-Vor jeder Modellrunde reserviert ein Lauf, was diese Runde höchstens kosten kann: seinen Kontext zum vollen Eingabepreis, bemessen an dem, was der Anbieter für die vorige Runde gemessen hat, plus einem Höchstwert für alles seither Hinzugekommene, und die längste Antwort, die das Modell schreiben darf, mit dem Standardmodell bis zu 5,6 Credits. Würden die bereits verbrauchten Credits plus diese Reservierung 10 überschreiten, stoppt der Lauf vor der Runde. Seine Zusammenfassung und **Details zum Lauf** nennen das Limit pro Lauf, das von den monatlichen Credits des Eigentümers getrennt ist.
 
 ## Zeitpläne: Wie plane ich eine Routine für jeden Morgen oder jeden Montag? [#how-do-schedules-work]
 
@@ -74,6 +72,8 @@ Mate erfährt vor Ihren Anweisungen, was passiert ist: das Ereignis, die Art des
 | **Fehlgeschlagen** | Endete mit einem Fehler oder ohne verwertbares Ergebnis |
 | **Übersprungen** | Wartete, ist aber nicht gestartet: Die Routine war pausiert, die Stundenobergrenze war erreicht, der Datensatz passte nicht mehr zu den Filtern oder zum Zugriff des Eigentümers, der Auslöser wurde geändert, der Lauf wurde gestoppt oder der Assistent war mit einem anderen Lauf beschäftigt |
 | **Blockiert** | Mate konnte nicht starten, weil Customermates die KI-Arbeit pausiert hat, der Eigentümer keine Credits mehr hat oder inaktiv ist oder eine andere Startprüfung fehlschlug. Der Lauf enthält einen `error`-Grund wie `platformPaused` oder `agentLimitReached`. Workspace-Administratoren können eine Customermates-Pause nicht aufheben. Sie können eine einzelne Routine pausieren; dafür steht `adminPaused`. |
+
+Ein Lauf, der an seiner Obergrenze von 10 Credits stoppt, nennt das in seiner Zusammenfassung und in **Details zum Lauf**; diese Obergrenze ist von den monatlichen Credits des Eigentümers getrennt. Der Lauf stoppt vor einer Modellrunde, wenn die bereits verbrauchten Credits plus das, was diese Runde höchstens kosten kann, reserviert wie unter [Abrechnung einer Anfrage](/docs/app-assistant#credits) beschrieben, 10 überschreiten würden.
 
 **Auslöser testen** startet sofort einen echten Lauf. Er steht dem Eigentümer einer aktiven geplanten Routine ohne ungespeicherte Änderungen zur Verfügung, verbraucht KI-Credits und kann Daten ändern. Manuelle Testläufe haben `triggerKind: schedule`, die Art der getesteten Routine. Der Test wird vor dem Einreihen abgelehnt, wenn KI-Arbeit pausiert ist, der Eigentümer inaktiv ist oder keine Credits mehr hat. Ereignis-Routinen brauchen ein echtes passendes Ereignis, deshalb ist er für sie deaktiviert.
 

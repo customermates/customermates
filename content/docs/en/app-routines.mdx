@@ -30,7 +30,7 @@ Each user has their own allowance: Starter includes [[commercial.entitlement.sta
 | Limit | Value | At the limit |
 | --- | --- | --- |
 | Runs per routine and hour | 4 | A matching event is dropped without a run entry; a due scheduled run or **Test trigger** run is recorded as **Skipped** |
-| Credits per run | 10 | The run stops before a round that could go past it, is recorded as **Partial** and names this limit as the reason |
+| Credits per run | 10 | The run stops and is recorded as **Partial** |
 | Consecutive failed runs | 3 | The routine pauses itself and shows the reason; the owner switches it back on after fixing the cause |
 | Shortest schedule interval | 15 minutes | A more frequent schedule is rejected on save |
 | Run history | 90 days | Older runs are removed |
@@ -39,8 +39,6 @@ Each user has their own allowance: Starter includes [[commercial.entitlement.sta
 Skipped runs do not count against the hourly cap.
 
 Every routine run starts with core CRM tools and loads other tool sets when needed. This keeps unrelated tool descriptions out of the model context. If the context still exceeds the provider budget after compaction, the run stops and its history states the context-limit reason.
-
-Before each model round, a run reserves the most that round can cost: its context at the full input price, sized from what the provider measured for the previous round plus a worst-case allowance for everything added since, and the longest reply the model may write, up to 5.6 credits with the default model. When the credits already used plus that reservation would pass 10, the run stops before the round. Its summary and **Run details** name the per-run limit, which is separate from the owner's monthly credits.
 
 ## Schedules: how do I run a routine every morning or every Monday? [#how-do-schedules-work]
 
@@ -74,6 +72,8 @@ Open a routine to see its **Runs**, newest first: next to the configuration on a
 | **Failed** | Ended with an error or without a usable result |
 | **Skipped** | Queued but not started: the routine was paused, the hourly cap was reached, the record no longer matched the filters or the owner's access, the trigger changed, the run was stopped, or the assistant was busy with another run |
 | **Blocked** | Mate could not start because Customermates paused AI work, the owner was out of credits or inactive, or another admission check failed. The run includes an `error` reason such as `platformPaused` or `agentLimitReached`. Workspace administrators cannot resume a Customermates pause. A workspace administrator can separately pause a routine; that reason is `adminPaused`. |
+
+A run that stops at its 10-credit limit says so in its summary and **Run details**; that limit is separate from the owner's monthly credits. The run stops before a model round when the credits already used plus the most that round can cost, reserved as described under [how a request is charged](/docs/app-assistant#credits), would pass 10.
 
 **Test trigger** starts a real run immediately. It is available to the owner of an active scheduled routine without unsaved changes, uses AI credits and may change data. Manual test runs have `triggerKind: schedule`, the kind of the routine they test. A test is refused before a run is queued when AI work is paused, the owner is inactive, or the owner has no credits left. Event routines need a real matching event, so it is disabled for them.
 
