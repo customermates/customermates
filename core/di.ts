@@ -197,6 +197,7 @@ import { ValidateWidgetIdsInteractor } from "@/core/validation/validators/valida
 import { ExportRecordsInteractor } from "@/features/data-transfer/export/export-records.interactor";
 import { ExportRecordWorkbookInteractor } from "@/features/data-transfer/export/export-record-workbook.interactor";
 import { ImportRecordsInteractor } from "@/features/data-transfer/import/import-records.interactor";
+import { ImportSpreadsheetInteractor } from "@/features/data-transfer/spreadsheet/import-spreadsheet.interactor";
 // Organizations interactors
 // Deals interactors
 // Services interactors
@@ -551,6 +552,8 @@ export const getExportRecordWorkbookInteractor = () =>
   new ExportRecordWorkbookInteractor(getRecordRepo(), getRecordAccessPolicy(), getEventService());
 export const getImportRecordsInteractor = () =>
   new ImportRecordsInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordWriteService());
+export const getImportSpreadsheetInteractor = () =>
+  new ImportSpreadsheetInteractor(getRecordRepo(), getQueryRecordsInteractor(), getImportRecordsInteractor());
 export const getGetRecordInteractor = () => new GetRecordInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getEmbeddedSublistReader = () => new EmbeddedSublistReader(getQueryRecordsInteractor(), getP13nRepo());
 export const getGetRecordEditorInteractor = () =>
