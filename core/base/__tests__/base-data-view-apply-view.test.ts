@@ -124,7 +124,7 @@ function hydrated(view: DataViewChipDto = chip(), allState?: DataViewState): Tes
   const store = new TestStore(rootStore());
   store.setItems({
     items: [{ id: "prior" }],
-    p13nId: SURFACE.deals,
+    p13nId: SURFACE.routines,
     filterableFields: FILTERABLE_FIELDS,
     pagination: { page: 3, pageSize: 25, total: 90, totalPages: 4 },
     views: [view],
@@ -152,11 +152,11 @@ describe("BaseDataViewStore.applyView", () => {
     await Promise.resolve();
 
     expect(store.requestedParams).toHaveLength(1);
-    expect(store.requestedParams[0]).toEqual({ p13nId: SURFACE.deals, viewId: VIEW_ID });
+    expect(store.requestedParams[0]).toEqual({ p13nId: SURFACE.routines, viewId: VIEW_ID });
     expect(Object.keys(store.requestedParams[0] ?? {}).sort()).toEqual(["p13nId", "viewId"]);
     expect(saveDataViewStateAction).not.toHaveBeenCalled();
     expect(selectDataViewAction).toHaveBeenCalledExactlyOnceWith({
-      surfaceKey: SURFACE.deals,
+      surfaceKey: SURFACE.routines,
       viewKey: VIEW_ID,
     });
   });
@@ -239,7 +239,7 @@ describe("BaseDataViewStore.applyView", () => {
 
     await settle();
 
-    expect(store.requestedParams[0]).toEqual({ p13nId: SURFACE.deals, viewId: ALL_VIEW_KEY });
+    expect(store.requestedParams[0]).toEqual({ p13nId: SURFACE.routines, viewId: ALL_VIEW_KEY });
   });
 
   it("reports the loading page state for the whole switch instead of leaving the previous rows on screen", async () => {

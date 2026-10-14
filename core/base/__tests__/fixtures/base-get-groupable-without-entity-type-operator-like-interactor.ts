@@ -10,11 +10,6 @@ export class OperatorLikeInteractor extends BaseGetInteractor<Item> {
       repo,
       { loadSurfaceState: vi.fn().mockResolvedValue({ activeViewKey: null, views: [], allState: {} }) },
       "interactive",
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      ["amount"],
     );
   }
 }

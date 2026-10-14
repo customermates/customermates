@@ -2,7 +2,11 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 
 import { LinkedinSearchSalesNavigatorSchema } from "@/ee/messaging/sales-navigator/linkedin-search-sales-navigator.interactor";
 import { SalesListItemPageSchema } from "@/ee/messaging/sales-navigator/sales-navigator.schema";
-import { CommonApiResponses, MessagingProviderApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
+import {
+  CommonApiResponses,
+  MessagingProviderApiResponses,
+  NotFoundApiResponse,
+} from "@/core/api/structured-interactor-handler";
 
 export const linkedinSearchSalesNavigatorOperation: ZodOpenApiOperationObject = {
   operationId: "searchSalesNavigator",

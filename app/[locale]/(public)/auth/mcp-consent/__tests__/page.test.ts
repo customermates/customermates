@@ -44,11 +44,23 @@ describe("McpConsentPage", () => {
 
     const result = await McpConsentPage({ searchParams: Promise.resolve(params) });
 
-    expect(result.props.children.props).toEqual({ ...prompt, consentCode: params.consent_code });
+    expect(result.props.children.props).toEqual({ ...prompt, consentCode: params.consent_code, permitted: false });
     expect(mocks.getMcpConsentPrompt).toHaveBeenCalledWith({
       consentCode: params.consent_code,
       clientId: params.client_id,
     });
+  });
+
+  it.each([
+    [{ isSystemRole: true, permissions: [] }, true],
+    [{ isSystemRole: false, permissions: [{ resource: "api", action: "readAll" }] }, true],
+    [{ isSystemRole: false, permissions: [{ resource: "wiki", action: "readAll" }] }, false],
+  ])("offers approval only to roles with Read access All on API & Webhooks", async (role, permitted) => {
+    mocks.resolveAccountState.mockResolvedValue({ state: "allowed", user: { role } });
+
+    const result = await McpConsentPage({ searchParams: Promise.resolve(params) });
+
+    expect(result.props.children.props.permitted).toBe(permitted);
   });
 
   it.each(ACCOUNT_STATES.filter((state) => state !== "allowed" && state !== "onboarding"))(

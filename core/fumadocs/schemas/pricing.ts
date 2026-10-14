@@ -25,12 +25,12 @@ const catalogPricingRowSchema = z.object({
 
 const pricingRowSchema = z.union([manualPricingRowSchema, catalogPricingRowSchema]);
 
-export const pricingTableRowSchema = z.object({
+const pricingTableRowSchema = z.object({
   title: z.string(),
   rows: z.array(pricingRowSchema),
 });
 
-export const pricingCardSchema = z.object({
+const pricingCardSchema = z.object({
   plan: z.enum(PLAN_IDS),
   title: z.string(),
   description: z.string(),
@@ -77,7 +77,7 @@ const comparisonTablePlanSchema = z.object({
   featured: z.boolean().optional(),
 });
 
-export const comparisonTablePlansSchema = z.object({
+const comparisonTablePlansSchema = z.object({
   starter: comparisonTablePlanSchema,
   pro: comparisonTablePlanSchema,
   business: comparisonTablePlanSchema,

@@ -9,6 +9,7 @@ import { FormLabel } from "./form-label";
 import { cn } from "@/core/utils/cn";
 
 import { useAppForm } from "./form-context";
+import { FormFieldError } from "./form-field-error";
 import { useFormFieldErrors } from "./use-form-field";
 
 type Props = {
@@ -17,20 +18,21 @@ type Props = {
   label?: ReactNode;
   errorMessage?: ReactNode;
   required?: boolean;
+  disabled?: boolean;
   className?: string;
   containerClassName?: string;
 };
 
 export const FormCheckbox = observer(
-  ({ id, inputId, label, errorMessage, required, className, containerClassName }: Props) => {
+  ({ id, inputId, label, errorMessage, required, disabled, className, containerClassName }: Props) => {
     const store = useAppForm();
     const checked = Boolean(store?.getValue(id));
-    const { errors, hasError } = useFormFieldErrors(id);
-    const isLoading = store?.isLoading ?? false;
-    const isReadOnly = !isLoading && (store?.isReadOnly ?? false);
+    const { message, hasError } = useFormFieldErrors(id);
+    const isDisabled = Boolean(disabled || store?.isLoading);
+    const isReadOnly = !isDisabled && (store?.isReadOnly ?? false);
     const errorId = `${id}-error`;
     const domId = inputId ?? id;
-    const resolvedErrorMessage = errorMessage ?? (Array.isArray(errors) ? errors.join(" ") : errors);
+    const resolvedErrorMessage = errorMessage ?? message;
 
     return (
       <div className={cn("space-y-1.5", containerClassName)}>
@@ -42,7 +44,7 @@ export const FormCheckbox = observer(
             aria-required={required}
             checked={checked}
             className={className}
-            disabled={isLoading}
+            disabled={isDisabled}
             id={domId}
             onCheckedChange={isReadOnly ? undefined : (next) => store?.onChange(id, next === true)}
           />
@@ -58,11 +60,7 @@ export const FormCheckbox = observer(
           )}
         </div>
 
-        {hasError && resolvedErrorMessage ? (
-          <p className="text-xs text-destructive" id={errorId} role="alert">
-            {resolvedErrorMessage}
-          </p>
-        ) : null}
+        {hasError && resolvedErrorMessage ? <FormFieldError id={errorId}>{resolvedErrorMessage}</FormFieldError> : null}
       </div>
     );
   },

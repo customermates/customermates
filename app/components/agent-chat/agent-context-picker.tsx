@@ -1,24 +1,24 @@
 "use client";
 
 import type { AgentContextAttachment } from "@/ee/agent-chat/agent-context";
-import type { GlobalSearchResultItem } from "@/features/search/global-search.interactor";
+import { type RecordSearchHit, type RecordSearchResult } from "@/features/records/record-search.schema";
+import { recordDisplayName } from "@/features/records/record-display-name";
 
-import { Check, LayoutPanelTop, Loader2, Plus } from "lucide-react";
+import { Check, LayoutPanelTop, Loader2, Plus, List, Settings2, ChartColumn } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
 import { globalSearchAction } from "@/app/[locale]/(protected)/search/actions";
-import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
-import { ENTITY_ICON } from "@/components/entity-detail/entity-relations";
-import { entitySearchResultLabel } from "@/components/entity-detail/entity-search-result-label";
 import { assistantSurfaceProps } from "@/components/modal/assistant-surface";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { reportApplicationError } from "@/core/errors/report-application-error";
+import { useRootStore } from "@/core/stores/root-store.provider";
+import { recordSearchKey } from "@/features/records/record-search.schema";
+import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { cn } from "@/core/utils/cn";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { AGENT_CONTEXT_ATTACHMENT_LIMIT, agentContextAttachmentKey } from "@/ee/agent-chat/agent-context";
@@ -31,16 +31,18 @@ import { dedupeRecordSearchResults } from "./agent-context-picker-results";
 
 type SearchState = {
   query: string;
+  scope: string | null;
   status: "success" | "error";
-  results: GlobalSearchResultItem[];
+  results: RecordSearchHit[];
+  nextCursor: RecordSearchResult["nextCursor"];
 };
 
-function recordAttachment(item: GlobalSearchResultItem, label: string): AgentContextAttachment {
+function recordAttachment(item: RecordSearchHit, label: string): AgentContextAttachment {
   return {
     reference: {
       kind: "record",
-      entityType: item.type,
-      recordId: item.id,
+      typeId: item.ref.typeId,
+      recordId: item.ref.recordId,
     },
     label,
   };
@@ -48,8 +50,9 @@ function recordAttachment(item: GlobalSearchResultItem, label: string): AgentCon
 
 function CandidateIcon({ context }: { context: AgentContextAttachment }) {
   if (context.reference.kind === "dataView") return <LayoutPanelTop aria-hidden className="size-4" />;
-  const Icon = ENTITY_ICON[context.reference.entityType];
-  return <Icon aria-hidden className="size-4" />;
+  if (context.reference.kind === "widget") return <ChartColumn aria-hidden className="size-4" />;
+  if (context.reference.kind !== "record") return <Settings2 aria-hidden className="size-4" />;
+  return <List aria-hidden className="size-4" />;
 }
 
 export const AgentContextPicker = observer(function AgentContextPicker({
@@ -62,10 +65,13 @@ export const AgentContextPicker = observer(function AgentContextPicker({
   restoreComposerFocusOnEscape: boolean;
 }) {
   const store = useAgentChatStore();
+  const user = useRootStore().userStore.user;
+  const scope = user ? `${user.companyId}:${user.id}` : null;
+  const request = useRef(0);
+  const [loadingMore, setLoadingMore] = useState(false);
   const uiTargets = useAgentChatUiTargets();
   const pathname = usePathname();
   const t = useTranslations();
-  const { singular } = useEntityTerminology();
   const [query, setQuery] = useState("");
   const [searchState, setSearchState] = useState<SearchState | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -80,7 +86,10 @@ export const AgentContextPicker = observer(function AgentContextPicker({
       )
     : onPageCandidates;
   const selectedKeys = new Set(store.composerContexts.map(agentContextAttachmentKey));
-  const matchingSearch = trimmedQuery === debouncedQuery && searchState?.query === debouncedQuery ? searchState : null;
+  const matchingSearch =
+    trimmedQuery === debouncedQuery && searchState?.query === debouncedQuery && searchState.scope === scope
+      ? searchState
+      : null;
   const searchPending =
     open && trimmedQuery.length >= 1 && (trimmedQuery !== debouncedQuery || matchingSearch === null);
   const remoteResults = matchingSearch?.results ?? [];
@@ -88,14 +97,17 @@ export const AgentContextPicker = observer(function AgentContextPicker({
   useEffect(() => {
     if (!open || debouncedQuery.length < 1 || trimmedQuery !== debouncedQuery) return;
     let active = true;
+    const generation = ++request.current;
 
-    void globalSearchAction({ searchTerm: debouncedQuery, limitPerEntity: 8 })
+    void globalSearchAction({ searchTerm: debouncedQuery, limit: 40, cursor: null })
       .then((result) => {
         if (!active) return;
         setSearchState({
           query: debouncedQuery,
+          scope,
           status: result.ok ? "success" : "error",
           results: result.ok ? result.data.results : [],
+          nextCursor: result.ok ? result.data.nextCursor : null,
         });
       })
       .catch((error: unknown) => {
@@ -103,18 +115,52 @@ export const AgentContextPicker = observer(function AgentContextPicker({
         if (active) {
           setSearchState({
             query: debouncedQuery,
+            scope,
             status: "error",
             results: [],
+            nextCursor: null,
           });
         }
       });
 
     return () => {
       active = false;
+      if (request.current === generation) request.current += 1;
     };
-  }, [debouncedQuery, open, trimmedQuery]);
+  }, [debouncedQuery, open, trimmedQuery, scope]);
+
+  const loadMore = async () => {
+    if (loadingMore || !matchingSearch?.nextCursor) return;
+    const generation = request.current;
+    setLoadingMore(true);
+    try {
+      const result = await globalSearchAction({
+        searchTerm: debouncedQuery,
+        limit: 40,
+        cursor: matchingSearch.nextCursor,
+      });
+      if (generation !== request.current) return;
+      if (!result.ok) {
+        setSearchState({ ...matchingSearch, status: "error" });
+        return;
+      }
+      const seen = new Set(matchingSearch.results.map(recordSearchKey));
+      setSearchState({
+        ...matchingSearch,
+        status: "success",
+        nextCursor: result.data.nextCursor,
+        results: [...matchingSearch.results, ...result.data.results.filter((item) => !seen.has(recordSearchKey(item)))],
+      });
+    } catch (error) {
+      reportApplicationError(error);
+      if (generation === request.current) setSearchState({ ...matchingSearch, status: "error" });
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   const close = () => {
+    request.current += 1;
     onOpenChange(false);
     setQuery("");
     setSearchState(null);
@@ -129,8 +175,8 @@ export const AgentContextPicker = observer(function AgentContextPicker({
   };
 
   const recordCandidates = dedupeRecordSearchResults(remoteResults, visiblePageCandidates).map(
-    (item): AgentContextCandidate & { displayLabel: string; item: GlobalSearchResultItem } => {
-      const displayLabel = entitySearchResultLabel(item, t);
+    (item): AgentContextCandidate & { displayLabel: string; item: RecordSearchHit } => {
+      const displayLabel = recordDisplayName(item.title, item.typeLabel, t);
       return {
         context: recordAttachment(item, displayLabel),
         displayLabel,
@@ -239,11 +285,23 @@ export const AgentContextPicker = observer(function AgentContextPicker({
                       disabled={candidateDisabled(candidate, selected)}
                       displayLabel={candidate.displayLabel}
                       selected={selected}
-                      typeLabel={singular(candidate.item.type)}
+                      typeLabel={candidate.item.typeLabel}
                       onSelect={() => choose(candidate)}
                     />
                   );
                 })}
+              </CommandGroup>
+            )}
+
+            {matchingSearch?.nextCursor && !searchPending && (
+              <CommandGroup>
+                <CommandItem
+                  disabled={loadingMore}
+                  value="context-search-more"
+                  onSelect={() => runUserAction(() => loadMore())}
+                >
+                  {loadingMore ? t("GlobalSearch.loading") : t("Common.actions.loadMore")}
+                </CommandItem>
               </CommandGroup>
             )}
 

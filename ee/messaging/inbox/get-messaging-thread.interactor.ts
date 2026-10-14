@@ -1,3 +1,6 @@
+import type { ThreadAccountOwnersRepo } from "./thread-account-owners.repo";
+import type { GetMessagingThreadRepo } from "./get-messaging-thread.repo";
+import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { failNotFound } from "@/core/validation/interactor-failure-server";
 import type { MessagingThread } from "../messaging.schema";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
@@ -7,7 +10,7 @@ import { z } from "zod";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-import { Resource, Action } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { MessagingThreadSchema } from "../messaging.schema";
 import { MessagingMessageDtoSchema, toMessagingMessageDto } from "./inbox.schema";
@@ -19,8 +22,6 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import type { GetMessagingThreadRepo } from "./get-messaging-thread.repo";
-import type { ThreadAccountOwnersRepo } from "./thread-account-owners.repo";
 
 const AccountOwnerDtoSchema = z.object({
   displayName: z.string().nullable(),
@@ -54,13 +55,7 @@ export const GetMessagingThreadResultSchema = z.object({
 type GetMessagingThreadResult = z.infer<typeof GetMessagingThreadResultSchema>;
 
 @AllowInDemoMode
-@TenantInteractor({
-  permissions: [
-    { resource: Resource.inboxMessages, action: Action.readAll },
-    { resource: Resource.inboxMessages, action: Action.readOwn },
-  ],
-  condition: "OR",
-})
+@TenantInteractor({ resource: Resource.inboxMessages, read: true })
 export class GetMessagingThreadInteractor extends AuthenticatedInteractor<
   GetMessagingThreadData,
   GetMessagingThreadResult
@@ -79,22 +74,27 @@ export class GetMessagingThreadInteractor extends AuthenticatedInteractor<
     const denied = await this.entitlements.require("messaging");
     if (denied) return denied;
 
-    const thread = await this.repo.findThreadById(data.threadId);
-    if (!thread) return failNotFound(CustomErrorCode.threadNotFound, ["threadId"]);
+    return runInTransaction(
+      async () => {
+        const thread = await this.repo.findThreadById(data.threadId);
+        if (!thread) return failNotFound(CustomErrorCode.threadNotFound, ["threadId"]);
 
-    const { messages: rawMessages, total } = await this.repo.listMessagesForThread(thread.id, {
-      page: data.page,
-      pageSize: data.pageSize,
-    });
+        const { messages: rawMessages, total } = await this.repo.listMessagesForThread(thread.id, {
+          page: data.page,
+          pageSize: data.pageSize,
+        });
 
-    const messages = rawMessages.map(toMessagingMessageDto);
-    const accountOwners = await this.accountRepo.listAccountOwnersByIds([thread.connectedAccountId]);
-    const folderContext = await this.resolveFolderContext(thread);
+        const messages = rawMessages.map(toMessagingMessageDto);
+        const accountOwners = await this.accountRepo.listAccountOwnersByIds([thread.connectedAccountId]);
+        const folderContext = await this.resolveFolderContext(thread);
 
-    return {
-      ok: true as const,
-      data: { thread, messages, total, accountOwners, folderContext },
-    };
+        return {
+          ok: true as const,
+          data: { thread, messages, total, accountOwners, folderContext },
+        };
+      },
+      { readOnly: true },
+    );
   }
 
   private async resolveFolderContext(thread: MessagingThread): Promise<ThreadFolderContext | null> {

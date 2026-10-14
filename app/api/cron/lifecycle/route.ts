@@ -10,6 +10,7 @@ import {
   getExpireAdAttributionInteractor,
   getSendLegalDocumentNoticesInteractor,
   getPruneRoutineRunsInteractor,
+  getPurgeExpiredTrashInteractor,
 } from "@/core/di";
 import { env } from "@/env";
 
@@ -35,6 +36,7 @@ export async function GET(req: Request) {
     getExpireAdAttributionInteractor().invoke(),
     getSendLegalDocumentNoticesInteractor().invoke(),
     getPruneRoutineRunsInteractor().invoke(),
+    getPurgeExpiredTrashInteractor().invoke(),
   ]);
 
   await getDeleteOrphanedUnipileAccountsInteractor().invoke();

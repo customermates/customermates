@@ -15,7 +15,7 @@ vi.mock("@/env", () => ({
 vi.mock("@/core/di", () => ({
   getSendAgentMessageInteractor: () => ({ invoke }),
 }));
-vi.mock("@/core/api/interactor-handler", () => ({
+vi.mock("@/core/api/structured-interactor-handler", () => ({
   handleError: () => new Response(null, { status: 500 }),
 }));
 vi.mock("@/ee/agent-chat/agent-turn-stream", () => ({ agentTurnSseStream }));
@@ -180,7 +180,7 @@ describe("agent message admission route", () => {
         },
         terminalCode: "partial",
         stopReason: "provider_error",
-        affectedResources: ["contacts"],
+        affectedResources: ["wiki"],
       },
     });
 

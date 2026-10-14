@@ -11,7 +11,7 @@ import type { WikiWebsiteCrawlMode } from "@/features/wiki/wiki-crawl-mode.schem
 
 import { UserAccessor } from "@/core/base/user-accessor";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { MAX_NOTES_LENGTH } from "@/core/validation/validate-notes";
+import { MAX_RICH_TEXT_MARKDOWN_LENGTH } from "@/core/validation/rich-text-document";
 import { getTranslator } from "@/i18n/get-translator";
 import { appLocaleOrDefault } from "@/i18n/locale-registry";
 
@@ -20,11 +20,11 @@ import { wikiWebsiteNetwork } from "./wiki-website-network";
 import { canonicalCrawlUrl } from "./website-discovery";
 import { parseStoredWikiCrawlTargets } from "./wiki-crawl-target.schema";
 
-export const WIKI_CRAWL_FETCH_BATCH = 5;
+const WIKI_CRAWL_FETCH_BATCH = 5;
 const WIKI_CRAWL_MIN_DELAY_MS = 1_000;
 const WIKI_IMPORT_MAX_PAGES = 30;
-export const WIKI_IMPORTED_CATEGORIES: ReadonlySet<WikiCrawlCategory> = new Set(["help", "policy", "pricing"]);
-const WIKI_IMPORT_PAGE_CHARACTERS = Math.floor(MAX_NOTES_LENGTH * 0.9);
+const WIKI_IMPORTED_CATEGORIES: ReadonlySet<WikiCrawlCategory> = new Set(["help", "policy", "pricing"]);
+const WIKI_IMPORT_PAGE_CHARACTERS = Math.floor(MAX_RICH_TEXT_MARKDOWN_LENGTH * 0.9);
 
 export const WIKI_CRAWL_ACTIVE_STATUSES = ["queued", "discovering", "fetching", "importing", "synthesizing"] as const;
 export type WikiCrawlStatus = (typeof WIKI_CRAWL_ACTIVE_STATUSES)[number] | "completed" | "failed" | "blocked";
@@ -77,7 +77,7 @@ function fetchDate(date: Date) {
   return date.toISOString().slice(0, 10);
 }
 
-export type WikiImportCopy = {
+type WikiImportCopy = {
   source: (values: { url: string; date: string }) => string;
   faqHeading: string;
 };

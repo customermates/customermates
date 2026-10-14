@@ -1,12 +1,13 @@
 "use client";
 
 import type { TenantUser } from "@/features/user/user.schema";
-import type { Company } from "@/generated/prisma";
-import type { EntityTerminologyOverride } from "@/features/entity-terminology/entity-terminology.types";
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
 import type { LegalUpdateStatus } from "@/features/legal/get-legal-status.interactor";
 import type { AccountState } from "@/features/auth/account-state";
 import type { SidebarUser } from "./sidebar-user";
+import type { RecordNavigation } from "@/features/records/record-navigation.schema";
+import type { SidebarLayout } from "@/features/p13n/sidebar-layout.schema";
+import type { KeyboardPreferences } from "@/features/p13n/keyboard-preferences.schema";
 
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
@@ -26,18 +27,20 @@ import { ProtectedEnhancementsProvider } from "./protected-enhancements-context"
 import { accountStateForPath } from "./account-state-for-path";
 import { resolveNavigationShell } from "./navigation-shell";
 import { PublicScrollport } from "./public-scrollport";
+import { ControlFocus } from "@/components/focus/control-focus";
 
 const AppSidebar = dynamic(() => import("../app-sidebar").then((mod) => ({ default: mod.AppSidebar })));
 const AppTopBar = dynamic(() => import("../app-topbar").then((mod) => ({ default: mod.AppTopBar })));
 const ShellHeader = dynamic(() => import("../shell-header").then((mod) => ({ default: mod.ShellHeader })));
 
 type NavigationSwitchProps = {
+  recordNavigation?: RecordNavigation | null;
+  sidebarLayout?: SidebarLayout | null;
+  keyboardPreferences?: KeyboardPreferences | null;
   accountState: AccountState;
   sidebarUser: SidebarUser | null;
   appUser: TenantUser | null;
   userDisplayLanguage: unknown;
-  company: Company | null;
-  terminology: EntityTerminologyOverride[];
   subscription: SubscriptionDto | null;
   trialDaysLeft: number | null;
   systemTaskCount: number;
@@ -51,12 +54,13 @@ type NavigationSwitchProps = {
 };
 
 export function NavigationSwitch({
+  recordNavigation = null,
+  sidebarLayout = null,
+  keyboardPreferences = null,
   accountState,
   sidebarUser,
   appUser,
   userDisplayLanguage,
-  company,
-  terminology,
   subscription,
   trialDaysLeft,
   systemTaskCount,
@@ -88,7 +92,7 @@ export function NavigationSwitch({
     isRegistered,
   });
   const rootStore = useRootStore();
-  const { userStore, companyStore, subscriptionStore, terminologyStore, navigationGuard } = rootStore;
+  const { userStore, subscriptionStore, navigationGuard } = rootStore;
   const accountAllowed = currentAccountState === "allowed";
   const protectedEnhancementsAllowed = accountAllowed && shellMode === "app";
   const identifiedUser = accountAllowed ? appUser : null;
@@ -118,12 +122,22 @@ export function NavigationSwitch({
     Sentry.setTag("companyId", identifiedUser?.companyId);
 
     userStore.setUser(identifiedUser);
-    companyStore.setCompany(accountAllowed ? company : null);
-    terminologyStore.setOverrides(accountAllowed ? terminology : []);
+    rootStore.recordWorkspaceStore.setNavigation(accountAllowed ? recordNavigation : null);
+    rootStore.sidebarLayoutStore.setLayout(accountAllowed ? sidebarLayout : null);
+    rootStore.keyboardShortcutsStore.setPreferences(accountAllowed ? keyboardPreferences : null);
     subscriptionStore.setSubscription(accountAllowed ? subscription : null);
 
     if (!protectedEnhancementsAllowed) rootStore.closeAllModals();
-  }, [accountAllowed, company, identifiedUser, protectedEnhancementsAllowed, rootStore, subscription, terminology]);
+  }, [
+    accountAllowed,
+    identifiedUser,
+    protectedEnhancementsAllowed,
+    rootStore,
+    subscription,
+    recordNavigation,
+    sidebarLayout,
+    keyboardPreferences,
+  ]);
 
   let shell: React.ReactNode;
   if (shellMode === "public") {
@@ -170,6 +184,8 @@ export function NavigationSwitch({
           <TopBarActionsProvider>
             <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-clip overflow-y-auto [--table-sticky-top:4rem] [&:has([data-joins-top-bar])>header]:border-b-0">
               <AppTopBar operatorConsoleVisible={operatorConsoleVisible} />
+
+              <ControlFocus />
 
               <div className="flex min-h-0 min-w-0 flex-1 flex-col">{children}</div>
             </div>

@@ -4,7 +4,7 @@ import type { Data } from "@/core/validation/validation.utils";
 import type { AuthService } from "@/features/auth/auth.service";
 
 import { z } from "zod";
-import { Resource, Action } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { ApiKeyDtoSchema } from "./get-api-keys.interactor";
 
@@ -48,7 +48,7 @@ export type CreateApiKeyData = Data<typeof CreateApiKeySchema>;
 
 type CreateApiKeyResult = ApiKey & { key: string };
 
-@TenantInteractor({ resource: Resource.api, action: Action.create })
+@TenantInteractor({ resource: Resource.api, manage: "create" })
 export class CreateApiKeyInteractor extends AuthenticatedInteractor<CreateApiKeyData, CreateApiKeyResult> {
   constructor(private readonly authService: AuthService) {
     super();

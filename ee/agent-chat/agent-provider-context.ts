@@ -2,7 +2,7 @@ import type { ModelMessage } from "ai";
 
 import { toModelMessages, type ReplayMessage } from "./agent-stream-utils";
 import type { AgentAiToolDefinition } from "./agent-tools";
-import { isAgentContextWithinBudget, serializedAgentContextBytes } from "./agent-budget-policy";
+import { agentStepContext, isAgentContextWithinBudget, serializedAgentContextBytes } from "./agent-budget-policy";
 import { AGENT_REPLAY_COUNT, agentReplayWorstCaseMessageChars } from "./agent-replay-budget";
 import { agentWikiSystemPrompt, type AgentSystemPromptParts } from "./agent-wiki-context";
 import { agentPageContextPrefix } from "./agent-page-context";
@@ -32,7 +32,7 @@ export function isAgentStepContextWithinBudget(
   messages: ModelMessage[],
   maxContextBytes: number,
 ) {
-  return isAgentContextWithinBudget({ ...providerContext, messages }, maxContextBytes);
+  return isAgentContextWithinBudget(agentStepContext({ ...providerContext, messages }), maxContextBytes);
 }
 
 export function conservativeAgentInitialContextBytes(args: {

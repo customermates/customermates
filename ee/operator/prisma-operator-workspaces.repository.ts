@@ -1,13 +1,13 @@
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { DateBucket } from "@/core/base/grouping/grouping.schema";
-import type { GroupCountRow } from "@/core/base/grouping/group-count";
+import type { GroupCountRow } from "@/core/base/grouping/group-axis";
 import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
 import type { OperatorWorkspaceRowDto } from "./operator-lists.schema";
 import type { GetOperatorWorkspacesRepo } from "@/ee/operator/get/get-operator-workspaces.repo";
 
 import type { Prisma } from "@/generated/prisma";
 
-import { BaseRepository } from "@/core/base/base-repository";
+import { QueryRepository } from "@/core/base/query-repository";
 import { dateGroupables, enumGroupables } from "@/core/base/grouping/groupable-field";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
@@ -32,7 +32,7 @@ type WorkspaceAggregate = {
 };
 
 export class PrismaOperatorWorkspacesRepo
-  extends BaseRepository<Prisma.CompanyWhereInput>
+  extends QueryRepository<Prisma.CompanyWhereInput>
   implements GetOperatorWorkspacesRepo
 {
   getSearchableFields() {
@@ -100,7 +100,8 @@ export class PrismaOperatorWorkspacesRepo
         (
           SELECT owner_user."email"
           FROM "User" AS owner_user
-          LEFT JOIN "UserRole" AS owner_role ON owner_role."id" = owner_user."roleId"
+          LEFT JOIN "UserRole" AS owner_role
+            ON owner_role."id" = owner_user."roleId" AND owner_role."companyId" = owner_user."companyId"
           WHERE owner_user."companyId" = c."id"
           ORDER BY
             (owner_user."status"::text = 'active') DESC,
@@ -111,7 +112,8 @@ export class PrismaOperatorWorkspacesRepo
         (
           SELECT owner_user."id"::text
           FROM "User" AS owner_user
-          LEFT JOIN "UserRole" AS owner_role ON owner_role."id" = owner_user."roleId"
+          LEFT JOIN "UserRole" AS owner_role
+            ON owner_role."id" = owner_user."roleId" AND owner_role."companyId" = owner_user."companyId"
           WHERE owner_user."companyId" = c."id"
           ORDER BY
             (owner_user."status"::text = 'active') DESC,

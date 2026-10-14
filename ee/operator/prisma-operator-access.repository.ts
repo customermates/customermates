@@ -2,13 +2,13 @@ import type { InteractiveSession } from "@/features/auth/auth.service";
 import type { OperatorActor } from "@/core/decorators/operator-context";
 import type { OperatorAccessRepo } from "./operator-access.service";
 
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Status } from "@/generated/prisma";
 
 import { normalizeOperatorEmail } from "./operator-access.service";
 
-export class PrismaOperatorAccessRepo extends BaseRepository implements OperatorAccessRepo {
+export class PrismaOperatorAccessRepo extends TenantRepository implements OperatorAccessRepo {
   @BypassTenantGuard
   async findAuthorizedActorUnscoped(session: InteractiveSession): Promise<OperatorActor | null> {
     const [freshSession, authUser] = await Promise.all([

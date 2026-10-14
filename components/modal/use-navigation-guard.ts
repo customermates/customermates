@@ -8,16 +8,18 @@ import { stripLocalePrefix } from "@/i18n/locale-registry";
 import { useRouter } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
-export function useNavigationGuard(store: BaseFormStore): void {
+export function useNavigationGuard(store: BaseFormStore, enabled = true): void {
   const { navigationGuard } = useRootStore();
   const router = useRouter();
 
   useEffect(() => {
+    if (!enabled) return;
     navigationGuard.register(store);
     return () => navigationGuard.unregister(store);
-  }, [store, navigationGuard]);
+  }, [store, navigationGuard, enabled]);
 
   useEffect(() => {
+    if (!enabled) return;
     function handleBeforeUnload(event: BeforeUnloadEvent) {
       if (!navigationGuard.isGuarding) return;
       event.preventDefault();
@@ -32,7 +34,7 @@ export function useNavigationGuard(store: BaseFormStore): void {
 
       const target = event.target as HTMLElement | null;
       const anchor = target?.closest("a");
-      if (!anchor) return;
+      if (!anchor || anchor.hasAttribute("data-navigation-guard-handled")) return;
       const innerInteractive = target?.closest('button, [role="button"]');
       if (innerInteractive && innerInteractive !== anchor && anchor.contains(innerInteractive)) return;
       const href = anchor.getAttribute("href");
@@ -60,5 +62,5 @@ export function useNavigationGuard(store: BaseFormStore): void {
       window.removeEventListener("beforeunload", handleBeforeUnload);
       document.removeEventListener("click", handleClick, true);
     };
-  }, [navigationGuard, router]);
+  }, [navigationGuard, router, enabled]);
 }

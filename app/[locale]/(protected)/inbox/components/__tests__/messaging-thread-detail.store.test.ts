@@ -2,6 +2,7 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { ThreadDetail } from "../messaging-thread-detail.store";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MessagingProvider } from "@/generated/prisma";
+import { toast } from "sonner";
 
 const actions = vi.hoisted(() => ({
   moveEmailThreadAction: vi.fn(),
@@ -13,6 +14,7 @@ vi.mock("../../actions", () => actions);
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({
   toastZodErrorTree: vi.fn(),
 }));
+vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 import { MessagingThreadDetailStore } from "../messaging-thread-detail.store";
 
 function detail(id = "thread", messages = [{ id: "message" }]): ThreadDetail {
@@ -361,30 +363,45 @@ describe("inbox reconciliation", () => {
     await store.refresh(true);
     expect(actions.getMessagingThreadAction).toHaveBeenCalledOnce();
   });
-  it("invalidates older reads when a participant contact is linked", async () => {
+  it("rolls back sharing and explains a revoked Inbox permission", async () => {
+    const { store } = setup();
+    store.hydrate({ ...detail(), thread: { ...detail().thread, sharedToCrm: false } });
+    actions.updateThreadAction.mockResolvedValue({
+      ok: false,
+      failure: { kind: "authorization", issues: [{ code: "custom", path: [], message: "Permission denied" }] },
+    });
+
+    await store.toggleSharing(true);
+
+    expect(store.thread?.sharedToCrm).toBe(false);
+    expect(toast.error).toHaveBeenCalledWith("Inbox.shareToCrmPermissionDenied", expect.any(Object));
+  });
+  it("invalidates older reads when a participant record is linked", async () => {
     const { store } = setup();
     const before = {
       ...detail(),
       messages: [],
       thread: {
         ...detail().thread,
-        participants: [{ identifier: "sender", contact: null }],
+        participants: [{ identifier: "sender", records: [] }],
       },
     } as unknown as ThreadDetail;
     store.hydrate(before);
     const pending = deferred<ThreadDetail>();
     actions.getMessagingThreadAction.mockReturnValue(pending.promise);
     const refresh = store.refresh(true);
-    const contact = {
-      id: "contact",
-      firstName: "Test",
-      lastName: "Contact",
+    const record = {
+      ref: { typeId: "contact-type", recordId: "contact" },
+      title: "Test Contact",
+      typeLabel: "Contact",
+      typePluralLabel: "Contacts",
       avatarUrl: null,
+      canEdit: true,
     };
-    await store.applyParticipantContact("thread", "sender", contact);
+    await store.applyParticipantRecord("thread", "sender", [record]);
     pending.resolve(before);
     await refresh;
-    expect(store.thread?.participants[0].contact).toEqual(contact);
+    expect(store.thread?.participants[0].records).toEqual([record]);
   });
   it("uses the authoritative list mutation when marking a thread read", async () => {
     const { store } = setup();

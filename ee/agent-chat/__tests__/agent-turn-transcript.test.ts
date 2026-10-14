@@ -8,7 +8,7 @@ function activity(overrides: Partial<AgentActivityDescriptor> = {}): AgentActivi
   return {
     kind: "records.create",
     risk: "write",
-    affectedResources: ["contacts"],
+    affectedResources: ["wiki"],
     ...overrides,
   } as AgentActivityDescriptor;
 }
@@ -22,6 +22,18 @@ function transcriptWithLog() {
 }
 
 describe("agent turn transcript", () => {
+  it("keeps the last actionable tool failure for a turn that ends early", () => {
+    const { transcript } = transcriptWithLog();
+    transcript.beginToolCall({ toolCallId: "failed", toolName: "mutate_crm_record", activity: activity() });
+    transcript.completeToolCall({
+      toolCallId: "failed",
+      toolName: "mutate_crm_record",
+      status: "error",
+      failed: true,
+      output: { ok: false, result: "The record was not found. Nothing changed." },
+    });
+    expect(transcript.lastFailedToolMessage).toBe("The record was not found. Nothing changed.");
+  });
   it("persists and emits only the validated destination from a successful saved-view result", () => {
     const { events, transcript } = transcriptWithLog();
     transcript.beginToolCall({
@@ -38,7 +50,7 @@ describe("agent turn transcript", () => {
         type: "json",
         value: {
           ok: true,
-          navigation: { kind: "saved-view", href: "/contacts?view=__all__" },
+          navigation: { kind: "saved-view", href: "/records/10000000-0000-4000-8000-000000000101?view=__all__" },
         },
       },
     });
@@ -47,7 +59,7 @@ describe("agent turn transcript", () => {
       expect.objectContaining({
         type: "activity",
         status: "done",
-        activity: expect.objectContaining({ viewHref: "/contacts?view=__all__" }),
+        activity: expect.objectContaining({ viewHref: "/records/10000000-0000-4000-8000-000000000101?view=__all__" }),
       }),
     );
     expect(events.at(-1)).toEqual({
@@ -56,14 +68,28 @@ describe("agent turn transcript", () => {
         id: "view-call",
         isError: false,
         status: "done",
-        viewHref: "/contacts?view=__all__",
+        viewHref: "/records/10000000-0000-4000-8000-000000000101?view=__all__",
       },
     });
   });
 
   it.each([
-    ["a failed result", "error", { ok: true, navigation: { kind: "saved-view", href: "/contacts?view=__all__" } }],
-    ["another tool", "done", { ok: true, navigation: { kind: "saved-view", href: "/contacts?view=__all__" } }],
+    [
+      "a failed result",
+      "error",
+      {
+        ok: true,
+        navigation: { kind: "saved-view", href: "/records/10000000-0000-4000-8000-000000000101?view=__all__" },
+      },
+    ],
+    [
+      "another tool",
+      "done",
+      {
+        ok: true,
+        navigation: { kind: "saved-view", href: "/records/10000000-0000-4000-8000-000000000101?view=__all__" },
+      },
+    ],
     ["an external destination", "done", { ok: true, navigation: { kind: "saved-view", href: "https://example.com" } }],
   ] as const)("does not persist navigation from %s", (_case, status, output) => {
     const { events, transcript } = transcriptWithLog();
@@ -88,7 +114,7 @@ describe("agent turn transcript", () => {
     const events: AgentTranscriptEvent[] = [];
     const transcript = new AgentTurnTranscript((event) => events.push(event), "http://localhost:4016");
     const relative =
-      "/contacts/00000000-0000-4000-8000-000000000001?view=00000000-0000-4000-8000-000000000002&viewSurface=entity-timeline";
+      "/records/10000000-0000-4000-8000-000000000101/00000000-0000-4000-8000-000000000001?view=00000000-0000-4000-8000-000000000002&viewSurface=entity-timeline";
 
     transcript.pushTextDelta(`[Timeline](http://localhost:4016/en${relative})`);
     transcript.finishTextSegment();
@@ -141,7 +167,7 @@ describe("agent turn transcript", () => {
     transcript.beginToolCall({
       toolCallId: "failed",
       toolName: "create_deals",
-      activity: activity({ affectedResources: ["deals"] }),
+      activity: activity({ affectedResources: ["widgets"] }),
     });
     transcript.completeToolCall({
       toolCallId: "failed",
@@ -153,7 +179,7 @@ describe("agent turn transcript", () => {
     transcript.beginToolCall({
       toolCallId: "read",
       toolName: "list_records",
-      activity: activity({ risk: "read", affectedResources: ["services"] }),
+      activity: activity({ risk: "read", affectedResources: ["messages"] }),
     });
     transcript.completeToolCall({
       toolCallId: "read",
@@ -162,7 +188,7 @@ describe("agent turn transcript", () => {
       failed: false,
     });
 
-    expect(transcript.affectedResources).toEqual(["contacts"]);
+    expect(transcript.affectedResources).toEqual(["wiki"]);
     expect(transcript.hasSuccessfulMutation).toBe(true);
   });
 

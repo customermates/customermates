@@ -1,6 +1,7 @@
 import { AgentActivityContextSchema } from "@/ee/agent-chat/agent-activity-context";
 import { makeObservable, observable, action, computed, reaction, runInAction } from "mobx";
 
+import type { DataViewProposal } from "@/core/data-view/data-view-proposal.schema";
 import type { RootStore } from "@/core/stores/root.store";
 import type { AgentUsageSummary } from "@/ee/agent-chat/agent-usage.service";
 import type { AgentMessageTurn } from "@/ee/agent-chat/agent-history";
@@ -48,6 +49,8 @@ import {
 } from "@/ee/agent-chat/agent-context";
 import { AgentViewContext, type AgentViewChange } from "./agent-view-context";
 import { AgentContextRegistry } from "./agent-context-registry";
+import { DataViewProposalSchema } from "@/core/data-view/data-view-proposal.schema";
+import { rememberViewProposal } from "@/core/data-view/view-query-drafts";
 
 export type AgentChatItem =
   | {
@@ -105,7 +108,7 @@ type AgentStreamStepCheckpoint = {
   viewChanges: AgentViewChange[];
 };
 
-export type AgentStreamStatus =
+type AgentStreamStatus =
   | "idle"
   | "working"
   | "awaitingApproval"
@@ -114,7 +117,7 @@ export type AgentStreamStatus =
   | "stopping"
   | "finalizing";
 
-export type AgentRouteSyncStatus = "idle" | "queued" | "waiting" | "refreshing";
+type AgentRouteSyncStatus = "idle" | "queued" | "waiting" | "refreshing";
 
 export type AgentProgressPhase = "starting" | "working" | "preparing_action";
 
@@ -136,7 +139,7 @@ const AGENT_CANCEL_RETRY_DELAYS_MS = [0, 500, 1500, 4000] as const;
 const AGENT_UI_COMMAND_RETRY_DELAYS_MS = [0, 500, 1500, 3000] as const;
 const AGENT_CHAT_OPEN_STORAGE_PREFIX = "customermates:agentChat:open:v2";
 type UiCommandName = (typeof UI_COMMAND_NAMES)[number];
-export type AgentConfigLoadStatus = "ready" | "disabled" | "retry";
+type AgentConfigLoadStatus = "ready" | "disabled" | "retry";
 
 function agentChatOpenStorageKey(rootStore: RootStore): string | null {
   const user = rootStore.userStore.user;
@@ -2491,7 +2494,16 @@ export class AgentChatStore extends BaseStore {
             }
             const viewHref = activity.status === "done" ? dataViewNavigationHref(event.viewHref) : null;
             if (viewHref) activity.activity = { ...activity.activity, viewHref };
-            if (activity.status === "done" && activity.activity.risk !== "read") {
+            if (event.viewProposed === true) activity.activity = { ...activity.activity, viewProposed: true };
+            const proposal = DataViewProposalSchema.safeParse(event.viewProposal);
+            if (activity.status === "done" && proposal.success) {
+              activity.activity = {
+                ...activity.activity,
+                viewProposed: true,
+                viewProposal: proposal.data,
+              };
+              this.reviewViewProposal(proposal.data);
+            } else if (activity.status === "done" && activity.activity.risk !== "read") {
               this.activeTurnHasSuccessfulMutation = true;
               this.recordViewChange(activity.activity);
             }
@@ -2590,6 +2602,7 @@ export class AgentChatStore extends BaseStore {
           );
           if (assistantMessageId && !this.replayedAssistantMessageIds.has(assistantMessageId))
             this.reconcileTerminalAssistant(assistantMessageId, event.terminalCode);
+
           if (event.isError && event.errorMessage && event.terminalCode !== "partial")
             this.toastError("AgentChat.errors.turnFailed");
           this.activeTurnStepCheckpoint = null;
@@ -2669,6 +2682,12 @@ export class AgentChatStore extends BaseStore {
     this.pendingViewChanges = [...checkpoint.viewChanges];
     this.progressPhase = this.items.at(-1)?.kind === "user" ? "working" : null;
     if (!this.activeTurnStopRequested) this.streamStatus = "working";
+  }
+
+  reviewViewProposal(proposal: DataViewProposal) {
+    if (typeof window === "undefined") return;
+    if (this.viewContext.propose(window.location.pathname, proposal)) return;
+    rememberViewProposal(this.rootStore.userStore.user, proposal);
   }
 
   private recordViewChange(activity: AgentActivityDescriptor) {

@@ -1,14 +1,13 @@
 import { nanoid } from "nanoid";
 import { z } from "zod";
-import { Resource, Action } from "@/generated/prisma";
-
-import type { InviteToken } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import type { GetOrCreateInviteTokenRepo } from "./get-or-create-invite-token.repo";
 
 const OutputSchema = z.object({
   token: z.string(),
@@ -17,13 +16,8 @@ const OutputSchema = z.object({
 
 const INVITE_TOKEN_EXPIRY_DAYS = 7;
 
-export abstract class GetOrCreateInviteTokenRepo {
-  abstract findUnexpiredToken(): Promise<InviteToken | null>;
-  abstract createInviteToken(data: { token: string; expiresAt: Date }): Promise<InviteToken>;
-}
-
 @AllowInDemoMode
-@TenantInteractor({ resource: Resource.users, action: Action.create })
+@TenantInteractor({ resource: Resource.users, manage: "create" })
 export class GetOrCreateInviteTokenInteractor extends AuthenticatedInteractor<
   void,
   { token: string; expiresAt: Date }

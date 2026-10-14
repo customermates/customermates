@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const SalesListSchema = z.looseObject({
+const SalesListSchema = z.looseObject({
   id: z.string(),
   name: z.string(),
   type: z.string().nullish(),
@@ -18,7 +18,7 @@ export const SalesListPageSchema = z.looseObject({
 });
 export type SalesListPage = z.infer<typeof SalesListPageSchema>;
 
-export const SalesListItemSchema = z.looseObject({
+const SalesListItemSchema = z.looseObject({
   id: z.string(),
   object: z.string().nullish(),
   member_id: z.string().nullish(),
@@ -128,12 +128,10 @@ export const SalesSearchParameterTypeSchema = z.enum([
 ]);
 export type SalesSearchParameterType = z.infer<typeof SalesSearchParameterTypeSchema>;
 
-export const SalesSearchParameterSchema = z.looseObject({
+const SalesSearchParameterSchema = z.looseObject({
   id: z.string(),
   name: z.string(),
 });
-export type SalesSearchParameter = z.infer<typeof SalesSearchParameterSchema>;
-
 export const SalesSearchParameterPageSchema = z.looseObject({
   data: z.array(SalesSearchParameterSchema),
   total_count: z.number().nullish(),
@@ -141,7 +139,7 @@ export const SalesSearchParameterPageSchema = z.looseObject({
 });
 export type SalesSearchParameterPage = z.infer<typeof SalesSearchParameterPageSchema>;
 
-export const SalesParamIdsFilterSchema = z.object({
+const SalesParamIdsFilterSchema = z.object({
   include: z.array(z.string()).optional(),
   exclude: z.array(z.string()).optional(),
 });

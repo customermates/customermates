@@ -2,7 +2,7 @@ import deepEqual from "fast-deep-equal/es6";
 
 export type ChangeRecord = Record<string, { previous: unknown; current: unknown }>;
 
-export const IGNORED_CHANGE_KEYS = new Set(["updatedAt", "createdAt"]);
+const IGNORED_CHANGE_KEYS = new Set(["updatedAt", "createdAt"]);
 
 export function hasRelationChanged(
   changes: ChangeRecord,
@@ -27,21 +27,6 @@ export function hasRelationChanged(
   }
 
   return false;
-}
-
-export function buildRelationChangePublishes<T extends Record<string, unknown>>(
-  previousEntities: T[],
-  currentEntities: T[],
-  relationField: string,
-  publish: (currentEntity: T, changes: ChangeRecord) => Promise<unknown>,
-  additionalFields?: string[],
-): Promise<unknown>[] {
-  return currentEntities.flatMap((currentEntity, index) => {
-    const changes = calculateChanges(previousEntities[index], currentEntity);
-    if (!hasRelationChanged(changes, relationField, additionalFields)) return [];
-
-    return [publish(currentEntity, changes)];
-  });
 }
 
 function findKeyProperty(arr: unknown[]): string | null {

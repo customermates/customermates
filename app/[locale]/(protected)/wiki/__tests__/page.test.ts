@@ -1,3 +1,5 @@
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { createZodError } from "@/core/validation/validation.utils";
 import { Children, isValidElement, type ComponentProps } from "react";
 import { WikiPageView } from "../components/wiki-page-view";
 
@@ -116,7 +118,15 @@ describe("WikiPage", () => {
       ok: true,
       data: { items: [summary], total: 1, page: 1, pageSize: 25 },
     });
-    mocks.getPage.mockResolvedValueOnce({ ok: true, data: null }).mockResolvedValueOnce({ ok: true, data: page });
+    mocks.getPage
+      .mockResolvedValueOnce({
+        ok: false,
+        error: createZodError(CustomErrorCode.wikiPageNotFound, ["id"], {
+          error: CustomErrorCode.wikiPageNotFound,
+          kind: "not_found",
+        }),
+      })
+      .mockResolvedValueOnce({ ok: true, data: page });
 
     const result = await WikiPage({
       searchParams: Promise.resolve({ page: "missing" }),

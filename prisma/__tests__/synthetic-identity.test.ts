@@ -10,6 +10,7 @@ import {
 
 import { SEED_IDS, type SeedContext } from "../seeds/context";
 import { seedIdentity, SYNTHETIC_AUTH_IDENTITY_DEFINITIONS, SYNTHETIC_SUBSCRIPTION } from "../seeds/identity";
+import { SYNTHETIC_COMPANY_MEMBER_DEFINITIONS } from "../seeds/members";
 import { SYNTHETIC_ROLE_DEFINITIONS } from "../seeds/roles";
 import { SYNTHETIC_SEED_TIMELINE } from "../seeds/timeline";
 
@@ -179,30 +180,26 @@ describe("synthetic Better Auth identities", () => {
     );
 
     const companyMembers = calls.userUpsert.mock.calls.map(([input]) => input.create);
-    expect(companyMembers).toMatchObject([
-      {
-        email: SYNTHETIC_COMPANY_USERS.maxBergmann.email,
+    expect(companyMembers).toMatchObject(
+      SYNTHETIC_COMPANY_MEMBER_DEFINITIONS.map(({ email, id, roleId }) => ({
+        email,
+        id,
         isPlatformOperator: false,
-        roleId: SEED_IDS.role,
+        roleId,
         status: "active",
-      },
-      {
-        email: SYNTHETIC_COMPANY_USERS.sofiaRossi.email,
-        roleId: SEED_IDS.salesManagerRole,
-        status: "active",
-      },
-      {
-        email: SYNTHETIC_COMPANY_USERS.elenaHoffmann.email,
-        roleId: SEED_IDS.customerSuccessRole,
-        status: "active",
-      },
+      })),
+    );
+    expect(companyMembers.slice(0, 3).map(({ email }) => email)).toEqual([
+      SYNTHETIC_COMPANY_USERS.maxBergmann.email,
+      SYNTHETIC_COMPANY_USERS.sofiaRossi.email,
+      SYNTHETIC_COMPANY_USERS.elenaHoffmann.email,
     ]);
-    for (const [index, member] of companyMembers.entries()) {
-      expect(member).toMatchObject(SYNTHETIC_SEED_TIMELINE.user(index));
-      const timeline = SYNTHETIC_SEED_TIMELINE.user(index);
-      expect(member.agentCreditActivatedAt).toEqual(timeline.createdAt);
-      expect(member.onboardingWizardCompletedAt).toEqual(new Date(timeline.updatedAt.getTime() + 5 * 60_000));
-      expect((member.onboardingWizardCompletedAt as Date).getTime()).toBeGreaterThan(timeline.createdAt.getTime());
+    for (const member of companyMembers) {
+      const createdAt = member.createdAt as Date;
+      expect(member.agentCreditActivatedAt).toEqual(createdAt);
+      expect((member.updatedAt as Date).getTime()).toBeGreaterThan(createdAt.getTime());
+      expect(member.onboardingWizardCompletedAt).toEqual(new Date((member.updatedAt as Date).getTime() + 5 * 60_000));
+      expect(createdAt.getTime()).toBeGreaterThan(SYNTHETIC_SEED_TIMELINE.company.createdAt.getTime());
     }
 
     expect(calls.companyUpsert.mock.calls[0]?.[0].create).toMatchObject(SYNTHETIC_SEED_TIMELINE.company);

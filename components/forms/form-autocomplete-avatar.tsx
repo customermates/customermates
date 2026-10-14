@@ -1,6 +1,7 @@
 "use client";
 
 import type { ComponentProps } from "react";
+import { useTranslations } from "next-intl";
 
 import { Avatar } from "@/components/ui/avatar";
 import { AppChip } from "@/components/chip/app-chip";
@@ -24,6 +25,7 @@ function fullName(first?: string | null, last?: string | null): string {
 }
 
 export function FormAutocompleteAvatar({ items = [], onChipClick, ...props }: Props) {
+  const t = useTranslations();
   return (
     <FormAutocomplete<MultiSelectAvatarItem>
       items={items}
@@ -35,7 +37,7 @@ export function FormAutocompleteAvatar({ items = [], onChipClick, ...props }: Pr
               <Avatar name={[item.data?.firstName, item.data?.lastName]} size="sm" src={item.data?.avatarUrl} />
             }
           >
-            {fullName(item.data?.firstName, item.data?.lastName)}
+            {fullName(item.data?.firstName, item.data?.lastName) || t("Common.inputs.unavailableSelection")}
           </AppChip>
         ))
       }

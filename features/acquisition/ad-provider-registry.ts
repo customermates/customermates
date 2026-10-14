@@ -3,7 +3,7 @@ const DAY_SECONDS = 60 * 60 * 24;
 export const AD_PROVIDER_ORDER = ["google_ads", "openai_ads", "reddit_ads", "linkedin_ads"] as const;
 export type AdProvider = (typeof AD_PROVIDER_ORDER)[number];
 
-export type AdProviderDefinition = {
+type AdProviderDefinition = {
   displayName: string;
   identifierKinds: readonly [string, ...string[]];
   clickRetentionSeconds: number;

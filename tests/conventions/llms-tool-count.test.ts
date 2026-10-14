@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import { REPO_ROOT, walkFiles } from "./walk";
 
 import {
+  ALL_MCP_TOOLS,
   countMcpTools,
   MCP_TOOL_COUNT,
 } from "@/features/mcp-tools/tool-registry";
@@ -42,7 +43,10 @@ describe("published MCP tool count", () => {
       "utf8",
     );
 
-    expect(MCP_TOOL_COUNT).toBe(declaredToolNames().length);
+    const declared = new Set(declaredToolNames());
+    const published = ALL_MCP_TOOLS.map((tool) => tool.name);
+    expect(published.filter((name) => !declared.has(name))).toEqual([]);
+    expect(MCP_TOOL_COUNT).toBe(published.length);
     expect(() =>
       countMcpTools([{ name: "duplicate" }, { name: "duplicate" }]),
     ).toThrow("Duplicate MCP tool names: duplicate");

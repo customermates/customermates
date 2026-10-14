@@ -2,7 +2,7 @@ import type { GetWikiCatalogRepo } from "./get-wiki-catalog.repo";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { WikiCatalog, WikiCatalogInput, WikiPageDto } from "./wiki.schema";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
@@ -22,7 +22,7 @@ import {
 } from "./wiki.schema";
 
 @AllowInDemoMode
-@TenantInteractor({ resource: Resource.wiki, action: Action.readAll })
+@TenantInteractor({ resource: Resource.wiki, read: "all" })
 export class GetWikiCatalogInteractor extends AuthenticatedInteractor<WikiCatalogInput, WikiCatalog> {
   constructor(private repo: GetWikiCatalogRepo) {
     super();

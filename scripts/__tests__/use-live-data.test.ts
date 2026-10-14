@@ -29,6 +29,7 @@ function executable(path: string, contents: string) {
 
 function runLiveData({
   arguments: arguments_ = [],
+  destinationHasVector = true,
   destinationMajor = "17",
   destinationUrl = "postgresql://postgres:postgres@127.0.0.1:5432/destination",
   dumpMajor = "17",
@@ -38,6 +39,7 @@ function runLiveData({
   withBrew = true,
 }: {
   arguments?: string[];
+  destinationHasVector?: boolean;
   destinationMajor?: string;
   destinationUrl?: string;
   dumpMajor?: string;
@@ -59,6 +61,16 @@ function runLiveData({
     join(bin, "psql"),
     `#!/usr/bin/env bash
 set -euo pipefail
+case "$*" in
+  *pg_available_extensions*)
+    printf 'psql-extension-availability\n' >> "$MOCK_COMMAND_LOG"
+    case "$*" in *"'vector'"*) printf '%s\n' "$MOCK_DESTINATION_HAS_VECTOR" ;; *) printf '1\n' ;; esac
+    exit 0 ;;
+  *pg_extension*)
+    printf 'psql-extension-query\n' >> "$MOCK_COMMAND_LOG"
+    printf 'pg_trgm public\nvector public\n'
+    exit 0 ;;
+esac
 printf 'psql-version-query\n' >> "$MOCK_COMMAND_LOG"
 case "$1" in
   *production*) printf '%s\n' "$MOCK_PRODUCTION_MAJOR"'0011' ;;
@@ -123,6 +135,7 @@ exit 1
       DATABASE_URL: destinationUrl,
       DIRECT_URL: "",
       MOCK_COMMAND_LOG: log,
+      MOCK_DESTINATION_HAS_VECTOR: destinationHasVector ? "1" : "0",
       MOCK_DESTINATION_MAJOR: destinationMajor,
       MOCK_DUMP_MAJOR: dumpMajor,
       MOCK_PRODUCTION_MAJOR: productionMajor,
@@ -249,7 +262,20 @@ describe("live-data PostgreSQL preflight", () => {
       "psql-version-query",
       "pg_dump-version",
       "pg_restore-version",
+      "psql-extension-query",
+      "psql-extension-availability",
+      "psql-extension-availability",
       "pg_dump-export",
     ]);
+  });
+
+  it("rejects a destination that cannot install a Production extension before export or destruction", () => {
+    const result = runLiveData({ destinationHasVector: false });
+
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain("cannot install the Production extension vector");
+    expect(result.stderr).toContain("yarn db:provision --recreate");
+    expect(result.commands).not.toContain("pg_dump-export");
+    expect(result.commands).not.toContain("dropdb");
   });
 });

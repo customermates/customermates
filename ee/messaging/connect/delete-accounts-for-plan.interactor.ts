@@ -1,6 +1,11 @@
 import type { DeleteAccountForBillingService } from "./delete-account-for-billing.service";
+import type {
+  ActiveAccount,
+  DeleteAccountsForPlanConnectedAccountRepo,
+} from "./delete-accounts-for-plan-connected-account.repo";
+import type { DeleteAccountsForPlanUserRepo } from "./delete-accounts-for-plan-user.repo";
 import type { EmailService } from "@/features/email/email.service";
-import type { Locale, MessagingProvider, SubscriptionPlan } from "@/generated/prisma";
+import type { SubscriptionPlan } from "@/generated/prisma";
 
 import AccountsRemovedNotice from "@/components/emails/accounts-removed-notice";
 import { getEmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
@@ -9,32 +14,9 @@ import { getEntitlements } from "@/ee/subscription/entitlements";
 import { getTranslator } from "@/i18n/get-translator";
 import { resolveUserLocale } from "@/i18n/user-locale";
 import { env } from "@/env";
+import { settingsHref } from "@/app/components/navigation/settings-routes";
 
-type ActiveAccount = {
-  id: string;
-  userId: string;
-  createdAt: Date;
-  provider: MessagingProvider;
-  displayName: string | null;
-  emailAddress: string | null;
-};
-
-type CompanyAdmin = {
-  id: string;
-  email: string;
-  firstName: string;
-  displayLanguage: Locale | null;
-};
-
-export abstract class DeleteAccountsForPlanConnectedAccountRepo {
-  abstract listActiveAccountsForCompanyUnscoped(companyId: string): Promise<ActiveAccount[]>;
-}
-
-export abstract class DeleteAccountsForPlanUserRepo {
-  abstract findCompanyAdminsUnscoped(companyId: string): Promise<CompanyAdmin[]>;
-}
-
-export type DeleteAccountsForPlanPayload = { companyId: string; plan: SubscriptionPlan };
+type DeleteAccountsForPlanPayload = { companyId: string; plan: SubscriptionPlan };
 
 @SystemInteractor
 export class DeleteAccountsForPlanInteractor {
@@ -76,7 +58,7 @@ export class DeleteAccountsForPlanInteractor {
 
     for (const admin of admins) {
       const locale = resolveUserLocale(admin);
-      const href = `${env.BASE_URL}/profile/connected-accounts`;
+      const href = `${env.BASE_URL}${settingsHref("channels")}`;
       const t = await getTranslator(locale);
       const layoutCopy = await getEmailLayoutCopy(locale);
       const accountsLabel = removedAccounts

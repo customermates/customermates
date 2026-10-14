@@ -190,6 +190,10 @@ const ActivityGroup = observer(function ActivityGroup({ index }: { index: number
       isTrailing={index + items.length === store.items.length}
       isWorking={isWorkingActivityGroup(store.items, index, store.isWorking)}
       items={items}
+      onReviewProposal={(proposal) => {
+        store.reviewViewProposal(proposal);
+        store.close();
+      }}
     />
   );
 });

@@ -4,10 +4,13 @@ import type { AgentTurnStopReason } from "@/ee/agent-chat/agent-turn-request";
 import { RoutineRunStatus } from "@/generated/prisma";
 import { agentPlainTextPreview, sanitizeAgentPlainText } from "@/ee/agent-chat/agent-output-safety";
 
+import { DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN } from "./routine-run-limits";
+
 export const ROUTINE_SUMMARY_MAX_CHARS = 280;
 
 export const ROUTINE_RUN_REASONS = [
   "adminPaused",
+  "platformPaused",
   "routineDisabled",
   "ownerPaused",
   "ownerUnavailable",
@@ -26,6 +29,7 @@ export const ROUTINE_RUN_REASONS = [
 export const ROUTINE_RUN_ERROR_CODES = [
   "agentConversationNotFound",
   "agentModelUnavailable",
+  "agentServiceUnavailable",
   "agentLimitReached",
   "agentTurnAlreadyRunning",
 ] as const;
@@ -42,9 +46,11 @@ export function routineRunDetail(
     status: RoutineRunStatus;
     summary: string | null;
     error: string | null;
+    stopReason?: AgentTurnStopReason | null;
   },
   t: (key: string) => string,
 ): string {
+  if (run.stopReason === "context_limit") return t("RoutineRunStopReason.contextLimit");
   const summary = run.summary ? plainRoutineSummary(run.summary) : "";
   if (summary) return summary;
 
@@ -58,15 +64,19 @@ export function routineRunDetail(
 
 export function routineRunStopReason(
   run: { stopReason?: AgentTurnStopReason | null },
-  t: (key: string) => string,
+  t: (key: string, values?: Record<string, number>) => string,
 ): string {
   switch (run.stopReason) {
     case "credit_limit":
       return t("RoutineRunStopReason.creditLimit");
+    case "run_credit_limit":
+      return t("RoutineRunStopReason.runCreditLimit", { credits: DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN });
     case "provider_error":
       return t("RoutineRunStopReason.providerError");
     case "content_filter":
       return t("RoutineRunStopReason.contentFilter");
+    case "context_limit":
+      return t("RoutineRunStopReason.contextLimit");
     case "hosted_ai_unavailable":
       return t("RoutineRunStopReason.hostedAiUnavailable");
     case "cancelled":
@@ -85,7 +95,7 @@ export function routineRunStopReason(
   }
 }
 
-export function isTerminalTurnStatus(status: AgentTurnStatus): boolean {
+function isTerminalTurnStatus(status: AgentTurnStatus): boolean {
   return status !== "running" && status !== "waitingBudget";
 }
 

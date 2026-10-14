@@ -8,9 +8,6 @@ import { DataViewEmpty } from "../data-view-empty";
 
 vi.mock("mobx-react-lite", () => ({ observer: <T>(component: T) => component }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ plural: () => "records", singular: () => "record" }),
-}));
 
 type Item = HasId;
 

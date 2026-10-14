@@ -3,7 +3,7 @@
 import { Avatar } from "@/components/ui/avatar";
 import { OverlappingStack } from "@/components/shared/overlapping-stack";
 import { StackDropdownItem } from "@/components/shared/stack-dropdown-item";
-import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
+import { useNavigateToHref } from "@/components/shared/use-navigate-to-href";
 
 type AvatarStackItem = {
   id: string;

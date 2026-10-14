@@ -9,7 +9,7 @@ import type { SocialProfile } from "./social-posts.schema";
 
 import { z } from "zod";
 
-import { MessagingProvider, Resource, Action } from "@/generated/prisma";
+import { MessagingProvider, Resource } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
@@ -36,13 +36,7 @@ export const GetSocialProfileSchema = z
   .strict();
 type GetSocialProfileData = Data<typeof GetSocialProfileSchema>;
 
-@TenantInteractor({
-  permissions: [
-    { resource: Resource.inboxMessages, action: Action.readAll },
-    { resource: Resource.inboxMessages, action: Action.readOwn },
-  ],
-  condition: "OR",
-})
+@TenantInteractor({ resource: Resource.inboxMessages, read: true })
 export class GetSocialProfileInteractor extends AuthenticatedInteractor<GetSocialProfileData, SocialProfile> {
   constructor(
     private accountRepo: FindUsableAccountRepo,

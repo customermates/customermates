@@ -1,99 +1,43 @@
-import type { PrismaClient } from "@/generated/prisma";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
-import type { z } from "zod";
+import { describe, expect, it } from "vitest";
 
-import { describe, expect, it, vi } from "vitest";
-
-import { validateCustomFieldValues } from "@/core/validation/validate-custom-field-values";
-
+import { presetId } from "@/features/records/crm-preset";
+import { normalizeRecordScalar } from "@/features/records/record-write.service";
+import { seedContacts } from "../seeds/contacts";
+import { SEED_IDS, type SeedContext } from "../seeds/context";
 import { seedCustomFields } from "../seeds/custom-fields";
-import { SEED_IDS } from "../seeds/context";
+import { seedDeals } from "../seeds/deals";
+import { buildNorthwindRecords } from "../seeds/northwind-records";
+import { seedOrganizations } from "../seeds/organizations";
+import { syntheticRecordModel } from "../seeds/records";
+import { seedServices } from "../seeds/services";
+import { seedTasks } from "../seeds/tasks";
 
-// The synthetic seed writes custom-field values that the application re-validates on every
-// write (`ContactWritePrecheckInteractor` and siblings run `validateCustomFieldValues`). If a
-// seeded value does not pass its own column-type validator, every save of that record is
-// rejected server-side — e.g. a "Phones" value like "+1 202-555-0100" fails `z.e164()` and
-// blocks even an unrelated first-name edit. This test drives the real seed generator and the
-// real validators so that class of drift fails in CI instead of silently in the product.
-
-function context(prisma: PrismaClient) {
-  return {
-    prisma,
-    ids: SEED_IDS,
-    seedUserEmail: "max.bergmann@customermates.com",
-    sharedUserPassword: "local-demo-password",
-  };
-}
-
-function entities() {
-  const organizations = Array.from({ length: 19 }, (_, index) => ({
-    id: `organization-${index}`,
-    website: `https://company-${index}.example`,
-  }));
-  const contacts = Array.from({ length: 30 }, (_, index) => ({ id: `contact-${index}` }));
-  const deals = Array.from({ length: 10 }, (_, index) => ({ id: `deal-${index}` }));
-  const services = Array.from({ length: 43 }, (_, index) => ({ id: `service-${index}`, amount: index + 1 }));
-  const tasks = Array.from({ length: 15 }, (_, index) => ({ id: `task-${index}` }));
-
-  return {
-    organizations,
-    contacts,
-    deals,
-    services,
-    tasks,
-    // Only the singleSelect option index (deal[3] / task[5]) is read for custom-field seeding.
-    dealDefinitions: deals.map(() => ["Deal", 0, [], 0]),
-    taskDefinitions: tasks.map(() => ["Task", [], [], [], [], 0]),
-  };
-}
-
-function captureUpsert<T>() {
-  const created: T[] = [];
-  const delegate = {
-    deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
-    upsert: vi.fn(({ create }: { create: T }) => {
-      created.push(create);
-      return Promise.resolve(create);
-    }),
-  };
-  return { created, delegate };
-}
+const context = { ids: SEED_IDS } as SeedContext;
 
 describe("synthetic seed custom-field values", () => {
-  it("every seeded value passes its column-type validator", async () => {
-    const columns = captureUpsert<CustomColumnDto>();
-    const values = captureUpsert<{ columnId: string; value: string | null }>();
-
-    const companyUpdate = vi.fn().mockResolvedValue({});
-    const prisma = {
-      company: { update: companyUpdate },
-      customColumn: columns.delegate,
-      customFieldValue: values.delegate,
-    } as unknown as PrismaClient;
-
-    await seedCustomFields(context(prisma), entities() as never);
-
-    expect(columns.created.length).toBeGreaterThan(0);
-    expect(values.created.length).toBeGreaterThan(0);
-    expect(companyUpdate).toHaveBeenCalledWith(
-      expect.objectContaining({ data: { dealWeightingColumnId: expect.any(String) } }),
-    );
-
-    const failures: string[] = [];
-    for (const row of values.created) {
-      const issues: unknown[] = [];
-      const ctx = { addIssue: (issue: unknown) => issues.push(issue) } as unknown as z.RefinementCtx;
-
-      validateCustomFieldValues([{ columnId: row.columnId, value: row.value }], columns.created, ctx, ["value"]);
-
-      if (issues.length > 0) {
-        const column = columns.created.find((candidate) => candidate.id === row.columnId);
-        failures.push(`${column?.label ?? row.columnId} (${column?.type ?? "unknown"}) = ${JSON.stringify(row.value)}`);
-      }
+  it("every seeded value passes its field-type validator", async () => {
+    const organizations = await seedOrganizations(context);
+    const contacts = await seedContacts(context, organizations.organizations);
+    const services = await seedServices(context);
+    const deals = await seedDeals(context, services);
+    const tasks = await seedTasks(context);
+    const fields = seedCustomFields(context, { ...organizations, ...contacts, ...services, ...deals, ...tasks });
+    const model = syntheticRecordModel(context, fields);
+    const values = [
+      ...fields.customFieldValues.map((row) => ({ fieldId: row.fieldId, value: row.value })),
+      ...buildNorthwindRecords(SEED_IDS.company).values.map((row) => ({
+        fieldId: presetId(SEED_IDS.company, row.fieldKey),
+        value: row.value,
+      })),
+    ];
+    expect(fields.customFieldValues.length).toBeGreaterThan(0);
+    expect(values.length).toBeGreaterThan(fields.customFieldValues.length);
+    for (const row of values) {
+      const field = model.fields.find((candidate) => candidate.id === row.fieldId);
+      expect(field, row.fieldId).toBeDefined();
+      if (!field) throw new Error("Seed field is missing");
+      expect(["input", "snapshot"], field.label).toContain(field.behavior.kind);
+      expect(() => normalizeRecordScalar(row.value, field), field.label).not.toThrow();
     }
-
-    expect(failures, `Seeded custom-field values rejected by their own validators:\n${failures.join("\n")}`).toEqual(
-      [],
-    );
   });
 });

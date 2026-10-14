@@ -8,7 +8,12 @@ const prismaMock = vi.hoisted(() => ({
   $transaction: vi.fn(),
   $executeRaw: vi.fn(),
   $queryRaw: vi.fn(),
-  hostedAiPlatformReservation: { create: vi.fn(), findUnique: vi.fn(), findMany: vi.fn(), deleteMany: vi.fn() },
+  hostedAiPlatformReservation: {
+    create: vi.fn(),
+    findUnique: vi.fn(),
+    findMany: vi.fn(),
+    deleteMany: vi.fn(),
+  },
   hostedAiPlatformUsage: { upsert: vi.fn() },
   agentConversation: {
     create: vi.fn(),
@@ -33,6 +38,7 @@ const prismaMock = vi.hoisted(() => ({
   agentApproval: {
     findFirst: vi.fn(),
     create: vi.fn(),
+    createMany: vi.fn(),
     updateMany: vi.fn(),
     deleteMany: vi.fn(),
   },
@@ -69,6 +75,7 @@ vi.mock("@/prisma/db", () => ({ prisma: prismaMock }));
 vi.mock("@/env", () => ({
   env: {
     APP_MODE: "cloud",
+    BASE_URL: "http://localhost:4000",
     HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS: null,
     HOSTED_AI_OPERATOR_CONTROLS_ENABLED: false,
     HOSTED_AI_PROVIDER_WORK_PAUSED: false,
@@ -78,9 +85,10 @@ vi.mock("@/env", () => ({
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { env } from "@/env";
 
-import { PrismaAgentChatRepo } from "../prisma-agent-chat.repository";
-import { AGENT_MAX_CONCURRENT_RUNS_PER_USER } from "../agent-run-limits";
 import { pendingAgentApprovalToolName } from "../agent-approval";
+import { AGENT_MAX_CONCURRENT_RUNS_PER_USER } from "../agent-run-limits";
+import { PrismaAgentChatRepo } from "../prisma-agent-chat.repository";
+import { LIVE_WIDGET } from "@/features/widget/live-widget";
 
 const user = createMockUserWithPermissions([]);
 
@@ -106,12 +114,18 @@ function storedTurn(overrides: Record<string, unknown> = {}) {
 
 const rawSql = (call: readonly unknown[]) => (call[0] as TemplateStringsArray).join("?");
 
-function mockRawQueries(globalCommitment: { settledCostMicrocents: bigint; activeReservedMicrocents: bigint } | null) {
+function mockRawQueries(
+  globalCommitment: {
+    settledCostMicrocents: bigint;
+    activeReservedMicrocents: bigint;
+  } | null,
+) {
   prismaMock.$queryRaw.mockImplementation((strings: TemplateStringsArray) => {
     const sql = strings.join("?");
     if (sql.includes('FROM "AgentCreditAdjustment"')) return Promise.resolve([]);
     if (sql.includes('AS "memberMicrocents"'))
       return Promise.resolve([{ memberMicrocents: 0n, workspaceMicrocents: 0n }]);
+
     return Promise.resolve(globalCommitment ? [globalCommitment] : []);
   });
 }
@@ -122,7 +136,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     prismaMock.wikiWebsiteCrawl.findFirst.mockResolvedValue(null);
     prismaMock.hostedAiPlatformReservation.findMany.mockResolvedValue([]);
     prismaMock.hostedAiPlatformReservation.findUnique.mockResolvedValue(null);
-    prismaMock.hostedAiPlatformReservation.deleteMany.mockResolvedValue({ count: 0 });
+    prismaMock.hostedAiPlatformReservation.deleteMany.mockResolvedValue({
+      count: 0,
+    });
     mockRawQueries(null);
     env.HOSTED_AI_OPERATOR_CONTROLS_ENABLED = false;
     env.HOSTED_AI_PROVIDER_WORK_PAUSED = false;
@@ -145,7 +161,14 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       return {
         subscription: seat.company.subscription,
         users:
-          seat.status === Status.active ? [{ id: seat.id, agentCreditActivatedAt: seat.agentCreditActivatedAt }] : [],
+          seat.status === Status.active
+            ? [
+                {
+                  id: seat.id,
+                  agentCreditActivatedAt: seat.agentCreditActivatedAt,
+                },
+              ]
+            : [],
       };
     });
   });
@@ -386,7 +409,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
             {
               reference: {
                 kind: "dataView",
-                surfaceKey: "contacts-card-store",
+                surfaceKey: "records:10000000-0000-4000-8000-000000000011",
                 viewKey: "11111111-1111-4111-8111-111111111111",
                 requestedAction: "update",
               },
@@ -443,7 +466,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
             context: {
               reference: {
                 kind: "dataView",
-                surfaceKey: "contacts-card-store",
+                surfaceKey: "records:10000000-0000-4000-8000-000000000011",
                 viewKey: "11111111-1111-4111-8111-111111111111",
                 requestedAction: "update",
               },
@@ -818,41 +841,6 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     expect(result[0]?.preview).toBe("Opened [internal reference].");
   });
 
-  it("removes the legacy route envelope from user conversation previews", async () => {
-    prismaMock.agentConversation.findMany.mockResolvedValue([
-      {
-        id: "conversation-1",
-        title: '\uFEFF <page_context route="/en/deals"/>\nLegacy context',
-        updatedAt: new Date("2026-08-06T10:00:00.000Z"),
-        userLastReadAt: null,
-        messages: [
-          {
-            role: "user",
-            parts: [
-              {
-                type: "text",
-                text: '<page_context route="/en/deals"/>\nShow open deals',
-              },
-            ],
-            createdAt: new Date("2026-08-06T10:00:00.000Z"),
-          },
-        ],
-      },
-    ]);
-    prismaMock.agentMessage.findMany.mockResolvedValue([]);
-
-    const result = await runWithTenant(user, () =>
-      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies())
-        .listConversationPage({ archived: false })
-        .then((page) => page.conversations),
-    );
-
-    expect(result[0]).toMatchObject({
-      title: "Legacy context",
-      preview: "Show open deals",
-    });
-  });
-
   it("keeps routine runs out of the chat list", async () => {
     prismaMock.agentConversation.findMany.mockResolvedValue([]);
     prismaMock.agentMessage.findMany.mockResolvedValue([]);
@@ -1016,7 +1004,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     });
   });
 
-  it("permission-scopes entity signals and reads only the current user's dashboard widgets", async () => {
+  it("reads routine, widget and connected-account signals without consulting retired CRM tables", async () => {
     prismaMock.widget.findFirst.mockResolvedValue({ id: "widget-1" });
     prismaMock.routine.findFirst.mockResolvedValue({ id: "routine-1" });
 
@@ -1024,16 +1012,13 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).getSuggestionSignals(),
     );
 
-    expect(prismaMock.contact.findFirst).toHaveBeenCalledWith({
-      where: { id: { in: [] }, companyId: user.companyId },
-      select: { id: true },
-    });
+    expect(prismaMock.contact.findFirst).not.toHaveBeenCalled();
     expect(prismaMock.connectedAccount.findFirst).toHaveBeenCalledWith({
       where: { companyId: user.companyId, id: { in: [] } },
       select: { id: true },
     });
     expect(prismaMock.routine.findFirst).toHaveBeenCalledWith({
-      where: { id: { in: [] }, companyId: user.companyId },
+      where: { id: { in: [] }, companyId: user.companyId, deletedAt: null },
       select: { id: true },
     });
     expect(prismaMock.wikiPage.findFirst).toHaveBeenCalledWith({
@@ -1041,7 +1026,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       select: { id: true },
     });
     expect(prismaMock.widget.findFirst).toHaveBeenCalledWith({
-      where: { companyId: user.companyId, userId: user.id },
+      where: { companyId: user.companyId, userId: user.id, ...LIVE_WIDGET },
       select: { id: true },
     });
     expect(signals.widgets).toBe(true);
@@ -1135,14 +1120,60 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       expiresAt,
     });
 
-    expect(prismaMock.agentApproval.create).toHaveBeenCalledWith({
-      data: {
-        conversationId: "conversation-1",
-        companyId: user.companyId,
-        requestId: "request-1",
-        toolName: pendingAgentApprovalToolName("create_contacts", expiresAt),
-        decision: "reject",
-      },
+    expect(prismaMock.agentApproval.createMany).toHaveBeenCalledWith({
+      data: [
+        {
+          conversationId: "conversation-1",
+          companyId: user.companyId,
+          requestId: "request-1",
+          toolName: pendingAgentApprovalToolName("create_contacts", expiresAt),
+          decision: "reject",
+        },
+      ],
+      skipDuplicates: true,
+    });
+  });
+
+  it("persists a clear reply when reconciling an interrupted turn", async () => {
+    prismaMock.agentTurnRequest.findFirst.mockResolvedValue(
+      storedTurn({
+        providerStartedAt: new Date("2026-10-13T19:40:00.000Z"),
+      }),
+    );
+    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
+      id: "reservation-1",
+      reservedMicrocents: 1_000_000n,
+    });
+    prismaMock.agentUsageEvent.updateMany.mockResolvedValue({ count: 1 });
+    prismaMock.agentTurnRequest.updateMany.mockResolvedValue({ count: 1 });
+    prismaMock.agentRunLease.deleteMany.mockResolvedValue({ count: 1 });
+    prismaMock.agentMessage.create.mockResolvedValue({
+      id: "fallback-message-1",
+    });
+
+    await new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).reconcileInterruptedAgentTurnUnscoped({
+      turnRequestId: "turn-1",
+      conversationId: "conversation-1",
+      companyId: user.companyId,
+      userId: user.id,
+      runId: "run-1",
+      failureMessage: "The turn stopped before I could confirm the outcome.",
+    });
+
+    expect(prismaMock.agentMessage.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        role: "assistant",
+        parts: [
+          {
+            type: "text",
+            text: "The turn stopped before I could confirm the outcome.",
+          },
+        ],
+      }),
+    });
+    expect(prismaMock.agentTurnRequest.updateMany).toHaveBeenCalledWith({
+      where: { id: "turn-1", status: "uncertain", assistantMessageId: null },
+      data: { assistantMessageId: "fallback-message-1" },
     });
   });
 
@@ -1720,7 +1751,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           parts: [{ type: "text", text: "Done" }],
           terminalCode: "completed",
           stopReason: null,
-          affectedResources: ["contacts"],
+          affectedResources: ["wiki"],
           usageSettlement: {
             model: "claude-test",
             inputTokens: 100,
@@ -1744,7 +1775,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       assistantMessage: { id: "assistant-message-1" },
       terminalCode: "completed",
       stopReason: null,
-      affectedResources: ["contacts"],
+      affectedResources: ["wiki"],
       costMicrocents: 123,
     });
     expect(prismaMock.agentUsageEvent.updateMany).toHaveBeenCalledWith({
@@ -1792,7 +1823,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         assistantMessageId: "assistant-message-1",
         terminalCode: "completed",
         stopReason: null,
-        affectedResources: ["contacts"],
+        affectedResources: ["wiki"],
         terminalAt: completedAt,
       },
     });
@@ -2237,7 +2268,11 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       },
     });
     prismaMock.agentUsageEvent.findMany.mockResolvedValue([
-      { state: "settled", reservedMicrocents: 0n, chargedMicrocents: 495_000_000n },
+      {
+        state: "settled",
+        reservedMicrocents: 0n,
+        chargedMicrocents: 495_000_000n,
+      },
     ]);
 
     try {
@@ -2295,7 +2330,10 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       },
     });
     prismaMock.agentUsageEvent.findMany.mockResolvedValue([]);
-    mockRawQueries({ settledCostMicrocents: 0n, activeReservedMicrocents: 1_000_000n });
+    mockRawQueries({
+      settledCostMicrocents: 0n,
+      activeReservedMicrocents: 1_000_000n,
+    });
 
     try {
       await expect(
@@ -2344,7 +2382,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         userId: user.id,
         requiredMicrocents: 3_000_000,
       }),
-    ).resolves.toEqual({ disposition: "credit_limit" });
+    ).resolves.toEqual({ disposition: "run_credit_limit", ceilingMicrocents: 2_000_000 });
 
     expect(prismaMock.user.findUnique).not.toHaveBeenCalled();
     expect(prismaMock.agentUsageEvent.findMany).not.toHaveBeenCalled();
@@ -2396,7 +2434,10 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           userId: user.id,
           requiredMicrocents: 2_000_000,
         }),
-      ).resolves.toEqual({ disposition: "extended", reservedMicrocents: 2_000_000 });
+      ).resolves.toEqual({
+        disposition: "extended",
+        reservedMicrocents: 2_000_000,
+      });
     } finally {
       vi.useRealTimers();
     }
@@ -2411,6 +2452,57 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     });
   });
 
+  it("reports the owner's period credits, not the run ceiling, when a routine run fits its ceiling only", async () => {
+    const now = new Date("2026-08-06T10:00:00.000Z");
+    vi.useFakeTimers();
+    vi.setSystemTime(now);
+    prismaMock.agentUsageEvent.findFirst.mockResolvedValue({
+      id: "reservation-routine",
+      reservedMicrocents: 1_000_000n,
+      periodStart: new Date("2026-07-15T10:30:00.000Z"),
+      periodEnd: new Date("2026-08-15T10:30:00.000Z"),
+      allowanceMicrocentsSnapshot: 500_000_000n,
+      turnRequest: {
+        conversation: { creditCeilingMicrocents: 10_000_000n, routineRuns: [{ id: "routine-run-1" }] },
+      },
+    });
+    prismaMock.user.findUnique.mockResolvedValue({
+      id: user.id,
+      companyId: user.companyId,
+      status: Status.active,
+      createdAt: new Date("2026-01-15T10:30:00.000Z"),
+      agentCreditActivatedAt: new Date("2026-01-15T10:30:00.000Z"),
+      company: {
+        subscription: {
+          status: "active",
+          plan: "pro",
+          trialEndDate: null,
+          agentCreditAnchorAt: new Date("2026-01-15T10:30:00.000Z"),
+          enterpriseAgentCreditsPerUser: null,
+          createdAt: new Date("2026-01-15T10:30:00.000Z"),
+        },
+      },
+    });
+    prismaMock.agentUsageEvent.findMany.mockResolvedValue([
+      { state: "settled", reservedMicrocents: 0n, chargedMicrocents: 499_000_000n },
+    ]);
+
+    try {
+      await expect(
+        new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).extendUsageReservationUnscoped({
+          turnRequestId: "turn-routine",
+          companyId: user.companyId,
+          userId: user.id,
+          requiredMicrocents: 3_000_000,
+        }),
+      ).resolves.toEqual({ disposition: "credit_limit" });
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(prismaMock.agentUsageEvent.updateMany).not.toHaveBeenCalled();
+  });
+
   it("does not apply a routine conversation ceiling to an interactive follow-up turn", async () => {
     const now = new Date("2026-08-06T10:00:00.000Z");
     vi.useFakeTimers();
@@ -2421,7 +2513,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       periodStart: new Date("2026-07-15T10:30:00.000Z"),
       periodEnd: new Date("2026-08-15T10:30:00.000Z"),
       allowanceMicrocentsSnapshot: 500_000_000n,
-      turnRequest: { conversation: { creditCeilingMicrocents: 2_000_000n, routineRuns: [] } },
+      turnRequest: {
+        conversation: { creditCeilingMicrocents: 2_000_000n, routineRuns: [] },
+      },
     });
     prismaMock.user.findUnique.mockResolvedValue({
       id: user.id,
@@ -2451,7 +2545,10 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           userId: user.id,
           requiredMicrocents: 3_000_000,
         }),
-      ).resolves.toEqual({ disposition: "extended", reservedMicrocents: 3_000_000 });
+      ).resolves.toEqual({
+        disposition: "extended",
+        reservedMicrocents: 3_000_000,
+      });
     } finally {
       vi.useRealTimers();
     }
@@ -2478,7 +2575,9 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       periodStart: new Date("2026-07-15T10:30:00.000Z"),
       periodEnd: new Date("2026-08-15T10:30:00.000Z"),
       allowanceMicrocentsSnapshot: 500_000_000n,
-      turnRequest: { conversation: { creditCeilingMicrocents: null, routineRuns: [] } },
+      turnRequest: {
+        conversation: { creditCeilingMicrocents: null, routineRuns: [] },
+      },
     });
     prismaMock.user.findUnique.mockResolvedValue({
       id: user.id,

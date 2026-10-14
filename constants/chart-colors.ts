@@ -1,67 +1,43 @@
 import type { ChartColor } from "@/features/widget/widget.schema";
 
-import { colorPalettes } from "@/styles/color-palettes";
-
-type ColorShades = { [key: number]: string };
-type ThemeColors = {
-  default: ColorShades;
-  primary: ColorShades;
-  secondary: ColorShades;
-  success: ColorShades;
-  warning: ColorShades;
-  danger: ColorShades;
-};
-type Hue = keyof ThemeColors;
-
-type ChartColorSet = { fill: string; text: string; stroke: string };
-type ChartColorTheme = { light: ChartColorSet; dark: ChartColorSet };
-
-const darkColors = colorPalettes.dark as unknown as ThemeColors;
+type Hue = "default" | "primary" | "secondary" | "success" | "warning" | "danger";
 
 const HUES: Hue[] = ["default", "primary", "secondary", "success", "warning", "danger"];
-const FILL_SHADES = [400, 500, 600] as const;
-const HIGH_CONTRAST_TEXT_SHADE = 900;
+const STEPS = [1, 2, 3];
 
-function buildColorSet(hue: Hue, fillShade: number): ChartColorTheme {
-  const textShade = HIGH_CONTRAST_TEXT_SHADE;
-  const set = {
-    fill: darkColors[hue][fillShade],
-    text: darkColors[hue][textShade],
-    stroke: darkColors[hue][fillShade],
-  };
-  return { light: set, dark: set };
+function byColor(token: (hue: Hue, step: number) => string) {
+  return Object.fromEntries(HUES.flatMap((hue) => STEPS.map((step) => [`${hue}${step}`, token(hue, step)]))) as Record<
+    ChartColor,
+    string
+  >;
 }
 
-const CHART_COLORS = HUES.reduce(
-  (acc, hue) => {
-    FILL_SHADES.forEach((shade, i) => {
-      const key = `${hue}${i + 1}` as ChartColor;
-      acc[key] = buildColorSet(hue, shade);
-    });
-    return acc;
-  },
-  {} as Record<ChartColor, ChartColorTheme>,
-);
+const FILL_COLORS = byColor((hue, step) => `var(--chart-${hue}-${step})`);
+const TEXT_COLORS = byColor((hue) => `var(--chart-${hue}-text)`);
 
-function pick(theme: string | undefined, field: keyof ChartColorSet): Record<ChartColor, string> {
-  const selected = theme === "dark" ? "dark" : "light";
-  return Object.entries(CHART_COLORS).reduce(
-    (acc, [key, value]) => {
-      acc[key as ChartColor] = value[selected][field];
-      return acc;
-    },
-    {} as Record<ChartColor, string>,
-  );
+export function getChartColors() {
+  return FILL_COLORS;
 }
 
-export function getChartColors(theme: string | undefined) {
-  return pick(theme, "fill");
+export function getChartTextColors() {
+  return TEXT_COLORS;
 }
 
-export function getChartTextColors(theme: string | undefined) {
-  return pick(theme, "text");
+export function getChartStrokeColors() {
+  return FILL_COLORS;
 }
 
-export function getChartStrokeColors(theme: string | undefined) {
-  return pick(theme, "stroke");
+const SHADE_STEPS = 7;
+
+export function getChartRankShades(color: ChartColor, values: number[]): string[] {
+  const named = color.replace(/\d$/, "") as Hue;
+  const hue = HUES.includes(named) ? named : "primary";
+  const order = values.map((value, index) => ({ value, index })).sort((left, right) => right.value - left.value);
+  const ranks = new Map(order.map(({ index }, rank) => [index, rank]));
+  const span = Math.min(SHADE_STEPS - 1, (values.length - 1) * 2);
+  return values.map((_, index) => {
+    const rank = ranks.get(index) ?? 0;
+    const step = values.length > 1 ? Math.round((rank / (values.length - 1)) * span) : 0;
+    return `var(--chart-${hue}-rank-${step})`;
+  });
 }

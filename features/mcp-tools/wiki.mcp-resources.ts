@@ -35,7 +35,7 @@ async function wikiCatalogText(page: number | null) {
 async function wikiPageText(id: string | null) {
   if (id === null) return null;
   const result = await getGetWikiPageInteractor().invoke({ id });
-  if (!result.ok || !result.data) return null;
+  if (!result.ok) return null;
   return externalizeWikiPageLinks(result.data.markdown, env.BASE_URL);
 }
 

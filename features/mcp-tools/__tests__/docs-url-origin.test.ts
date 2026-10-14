@@ -14,9 +14,9 @@ const URL_TOOLS = [searchDocsTool, getDocsPageTool, deepResearchTool("search"), 
 
 describe("the origin of a docs url", () => {
   it.each(URL_TOOLS.map((tool) => [tool.name, tool.description]))(
-    "is named as the configured BASE_URL in the %s description",
+    "is described as a full URL on this instance in the %s description",
     (_name, description) => {
-      expect(description).toContain("that origin is the instance's configured BASE_URL");
+      expect(description).toContain("full URLs on this instance");
     },
   );
 

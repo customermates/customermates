@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
-export type GroupLabelResolver = (group: DataViewGroup) => string;
+type GroupLabelResolver = (group: DataViewGroup) => string;
 
 export function useDateBucketLabel(): (bucket: DateBucket) => string {
   const t = useTranslations();
@@ -25,8 +25,8 @@ export function useGroupLabel(grouping: GroupingResult | undefined): GroupLabelR
     if (group.bucketRole === "earlier") return t("Common.dateBuckets.earlier");
     if (group.bucketStart) {
       return bucket === "month"
-        ? intlStore.formatMonthYear(new Date(group.bucketStart))
-        : intlStore.formatDescriptiveShortDate(new Date(group.bucketStart));
+        ? intlStore.formatMonthYear(new Date(group.bucketStart), { timeZone: grouping?.timeZone })
+        : intlStore.formatDescriptiveShortDate(new Date(group.bucketStart), { timeZone: grouping?.timeZone });
     }
     if (group.labelKind === "unavailable") return t("Common.inputs.unavailableSelection");
     if (group.labelKey) return t(group.labelKey);

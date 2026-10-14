@@ -64,11 +64,11 @@ Build integrations visually by connecting nodes on a canvas. No code required. E
 
 ### REST API
 
-For developers and teams that need programmatic access, Customermates provides a REST API documented with an OpenAPI 3.1 schema at `/api/v1/openapi`. Access supported operations for contacts, organizations, deals, services, and tasks through standard HTTP requests. Availability differs by resource; generic lists use `page` and `pageSize`, and there is no generic batch endpoint or published application rate-limit-header contract.
+For developers and teams that need programmatic access, Customermates provides a REST API documented with an OpenAPI 3.1 schema at `/api/v1/openapi`. It covers every configurable list, the starter lists and the ones your workspace adds, through action endpoints such as `POST /api/v1/records/query` and `POST /api/v1/records/mutate` that address records by `typeId` and `recordId`. The `updateMany` and `deleteMany` mutations change or delete up to 100 records in one atomic request; record queries use `page` and `pageSize`, and there is no published application rate-limit-header contract.
 
 ### Webhooks
 
-Receive real-time push notifications when records change. Customermates emits [[derived.webhooks.events.total]] webhook events: [[derived.webhooks.events.records]] record events (created, updated, and deleted for each of the five record types: contacts, organizations, deals, services, tasks) plus [[derived.webhooks.events.messaging]] messaging and calendar events. Webhooks push data to your systems instantly, enabling event-driven architectures without polling.
+Receive real-time push notifications when records change. Customermates emits [[derived.webhooks.events.total]] webhook events: [[derived.webhooks.events.records]] record events (created, updated, deleted, restored and deletedPermanently for any record type you choose, including contacts, organizations, deals, services, tasks, and your own types) plus [[derived.webhooks.events.messaging]] messaging and calendar events. Webhooks push data to your systems instantly, enabling event-driven architectures without polling.
 
 ## Popular CRM Integration Scenarios
 

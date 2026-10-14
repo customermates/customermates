@@ -1,3 +1,5 @@
+import { DEFAULT_ROUTINE_TIMEZONE, isSupportedTimeZone } from "./routine-schedule";
+
 export const ROUTINE_SCHEDULE_PRESETS = [
   "every15Minutes",
   "every30Minutes",
@@ -19,7 +21,7 @@ export const ROUTINE_WEEKDAY_KEYS = [
   "saturday",
 ] as const;
 
-export type RoutineScheduleForm = {
+type RoutineScheduleForm = {
   preset: RoutineSchedulePreset;
   minute: number;
   hour: number;
@@ -87,6 +89,10 @@ export function scheduleFromCron(expression: string | null): RoutineScheduleForm
 
 type ScheduleTranslator = (key: string, values?: Record<string, string | number>) => string;
 
+function weekdayLabel(t: ScheduleTranslator, day: number): string {
+  return t(`RoutineWeekday.${ROUTINE_WEEKDAY_KEYS[day]}`);
+}
+
 export function scheduleHasClockTime(expression: string | null): boolean {
   const preset = scheduleFromCron(expression).preset;
 
@@ -99,7 +105,7 @@ export function describeRoutineSchedule(
   formatTime: (date: Date) => string,
 ): string {
   const schedule = scheduleFromCron(expression);
-  if (schedule.preset === "custom") return schedule.expression;
+  if (schedule.preset === "custom") return describeCustomSchedule(schedule.expression, t, formatTime);
 
   if (schedule.preset === "every15Minutes" || schedule.preset === "every30Minutes")
     return t(`RoutineSchedulePreset.${schedule.preset}`);
@@ -111,12 +117,71 @@ export function describeRoutineSchedule(
   if (schedule.preset === "daily") return t("RoutineSchedule.daily", { time });
   if (schedule.preset === "weekly") {
     return t("RoutineSchedule.weekly", {
-      weekday: t(`RoutineWeekday.${ROUTINE_WEEKDAY_KEYS[schedule.weekday]}`),
+      weekday: weekdayLabel(t, schedule.weekday),
       time,
     });
   }
 
   return t("RoutineSchedule.monthly", { day: schedule.dayOfMonth, time });
+}
+
+const WEEKDAY_SET = "1,2,3,4,5";
+const WEEKEND_SET = "0,6";
+
+function expandWeekdays(field: string): number[] | null {
+  const days = new Set<number>();
+  for (const part of field.split(",")) {
+    const range = /^(\d)(?:-(\d))?$/.exec(part);
+    if (!range) return null;
+    const start = Number(range[1]);
+    const end = range[2] === undefined ? start : Number(range[2]);
+    if (start > 7 || end > 7 || end < start) return null;
+    for (let day = start; day <= end; day += 1) days.add(day % 7);
+  }
+  return [...days].sort((left, right) => left - right);
+}
+
+function describeCustomSchedule(expression: string, t: ScheduleTranslator, formatTime: (date: Date) => string): string {
+  const fields = expression.split(/\s+/);
+  if (fields.length !== 5) return expression;
+  const [minuteField, hourField, dayOfMonthField, monthField, weekdayField] = fields;
+  if (monthField !== "*" || dayOfMonthField !== "*") return expression;
+
+  const minuteStep = /^\*\/(\d+)$/.exec(minuteField);
+  if (minuteStep && hourField === "*" && weekdayField === "*") {
+    const count = Number(minuteStep[1]);
+    return count > 0 && count < 60 ? t("RoutineSchedule.everyMinutes", { count }) : expression;
+  }
+
+  const minute = /^\d+$/.test(minuteField) ? Number(minuteField) : Number.NaN;
+  if (!Number.isInteger(minute) || minute > 59) return expression;
+
+  const hourStep = /^\*\/(\d+)$/.exec(hourField);
+  if (hourStep && weekdayField === "*") {
+    const count = Number(hourStep[1]);
+    return count > 0 && count < 24
+      ? t("RoutineSchedule.everyHours", { count, minute: String(minute).padStart(2, "0") })
+      : expression;
+  }
+
+  const hour = /^\d+$/.test(hourField) ? Number(hourField) : Number.NaN;
+  const weekdays = expandWeekdays(weekdayField);
+  if (!Number.isInteger(hour) || hour > 23 || !weekdays?.length) return expression;
+  const time = formatTime(new Date(2026, 0, 1, hour, minute));
+  if (!time) return "";
+
+  const set = weekdays.join(",");
+  if (set === WEEKDAY_SET) return t("RoutineSchedule.weekdays", { time });
+  if (set === WEEKEND_SET) return t("RoutineSchedule.weekends", { time });
+  if (weekdays.length === 1) return t("RoutineSchedule.weekly", { weekday: weekdayLabel(t, weekdays[0]), time });
+  return t("RoutineSchedule.days", {
+    weekdays: weekdays.map((day) => weekdayLabel(t, day)).join(", "),
+    time,
+  });
+}
+
+export function routineDisplayTimeZone(timezone: string | null | undefined): string {
+  return timezone && isSupportedTimeZone(timezone) ? timezone : DEFAULT_ROUTINE_TIMEZONE;
 }
 
 export function localTimeZone(): string {

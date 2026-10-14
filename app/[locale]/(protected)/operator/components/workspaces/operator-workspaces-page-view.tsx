@@ -22,10 +22,11 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { OperatorWorkspaceModal } from "./operator-workspace-modal";
 import { OperatorWorkspacesPageSkeleton } from "./operator-workspaces-page-skeleton";
 import { useOperatorWorkspaceColumns } from "./use-operator-workspace-columns";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = { initialWorkspaces: GetResult<OperatorWorkspaceRowDto> };
 
-export const OperatorWorkspacesPageView = observer(function OperatorWorkspacesPageView({ initialWorkspaces }: Props) {
+const OperatorWorkspacesPageViewContent = observer(function OperatorWorkspacesPageView({ initialWorkspaces }: Props) {
   const { operatorWorkspacesStore } = useRootStore();
   const [selected, setSelected] = useState<OperatorWorkspaceRowDto | null>(null);
 
@@ -47,7 +48,7 @@ export const OperatorWorkspacesPageView = observer(function OperatorWorkspacesPa
     () => (
       <DataViewToolbar
         anchorScope="operator-workspaces"
-        searchPlaceholder={t("OperatorWorkspaces.searchPlaceholder")}
+        searchLabel={t("Common.filters.searchFields.operatorWorkspaces")}
         store={operatorWorkspacesStore}
       />
     ),
@@ -124,3 +125,5 @@ export const OperatorWorkspacesPageView = observer(function OperatorWorkspacesPa
     </DataViewLayout>
   );
 });
+
+export const OperatorWorkspacesPageView = serverRenderedClient(OperatorWorkspacesPageViewContent);

@@ -9,11 +9,10 @@ import { REPO_ROOT, walkFiles } from "./walk";
 import {
   GROUPABLE_DATE_FIELDS,
   GROUPING_ENUM,
-  GROUPING_JOIN,
+  GROUPING_RELATIONS,
   OPERATOR_GROUPABLE_MODELS,
   type GroupableModel,
 } from "@/core/base/grouping/groupable-field";
-import { FILTER_FIELD_TERMINOLOGY } from "@/features/entity-terminology/entity-terminology.constants";
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
 
 const DECLARATION_METHOD = "getGroupableFields";
@@ -143,7 +142,7 @@ const declarations = sourceFiles().flatMap((path) => {
 
 describe("groupable field declarations", () => {
   it("declares grouping on exactly the wired models: the five entity surfaces and the three operator lists", () => {
-    expect(declarations.map(({ model }) => model).sort()).toEqual(Object.keys(GROUPING_JOIN).sort());
+    expect(declarations.map(({ model }) => model).sort()).toEqual(Object.keys(GROUPING_RELATIONS).sort());
   });
 
   it("declares the operator models only from operator repositories, through the enum and date factories", () => {
@@ -154,7 +153,7 @@ describe("groupable field declarations", () => {
     for (const { file, model, claims } of operatorDeclarations) {
       expect([file, file.startsWith("ee/operator/")]).toEqual([file, true]);
       expect([file, Object.keys(claims).sort()]).toEqual([file, [DATE_FACTORY, ENUM_FACTORY].sort()]);
-      expect([file, Object.keys(GROUPING_JOIN[model as GroupableModel])]).toEqual([file, []]);
+      expect([file, Object.keys(GROUPING_RELATIONS[model as GroupableModel])]).toEqual([file, []]);
     }
   });
 
@@ -167,7 +166,7 @@ describe("groupable field declarations", () => {
 
   it("claims every wired relation, every wired enum and both date columns for its model", () => {
     for (const { file, model, claims } of declarations) {
-      const wiredRelations = Object.keys(GROUPING_JOIN[model as GroupableModel]).sort();
+      const wiredRelations = Object.keys(GROUPING_RELATIONS[model as GroupableModel]).sort();
       const wiredEnums = Object.keys(GROUPING_ENUM[model as GroupableModel]).sort();
 
       expect([file, claimNames(claims[RELATION_FACTORY])]).toEqual([file, wiredRelations]);
@@ -182,13 +181,13 @@ describe("groupable field declarations", () => {
         expect([file, field, filterableFields.includes(field)]).toEqual([file, field, true]);
   });
 
-  it("labels every relation and date groupable through terminology or a leaf that exists in all bundles", () => {
+  it("labels every relation and date groupable through a leaf that exists in all bundles", () => {
     const fields = [
-      ...new Set([...Object.values(GROUPING_JOIN).flatMap((wiring) => Object.keys(wiring)), ...GROUPABLE_DATE_FIELDS]),
+      ...new Set([...Object.values(GROUPING_RELATIONS).flatMap((wiring) => Object.keys(wiring)), ...GROUPABLE_DATE_FIELDS]),
     ];
 
     for (const field of fields)
-      expect([field, Boolean(FILTER_FIELD_TERMINOLOGY[field]) || resolvesInEveryBundle(`Common.filters.fields.${field}`)]).toEqual(
+      expect([field, resolvesInEveryBundle(`Common.filters.fields.${field}`)]).toEqual(
         [field, true],
       );
   });

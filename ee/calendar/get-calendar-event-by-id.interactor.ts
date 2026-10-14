@@ -5,33 +5,26 @@ import type { CalendarEventDto } from "./calendar.schema";
 
 import { z } from "zod";
 
-import { Resource, Action } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { failNotFound } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import { CalendarEventDtoSchema } from "./calendar.schema";
+import type { GetCalendarEventByIdRepo } from "./get-calendar-event-by-id.repo";
 
-export const GetCalendarEventByIdSchema = z.object({ id: z.uuid() });
+const GetCalendarEventByIdSchema = z.object({ id: z.uuid() });
 type GetCalendarEventByIdData = Data<typeof GetCalendarEventByIdSchema>;
 
-export abstract class GetCalendarEventByIdRepo {
-  abstract getCalendarEventById(id: string): Promise<CalendarEventDto | null>;
-}
-
 @AllowInDemoMode
-@TenantInteractor({
-  permissions: [
-    { resource: Resource.inboxMessages, action: Action.readAll },
-    { resource: Resource.inboxMessages, action: Action.readOwn },
-  ],
-  condition: "OR",
-})
+@TenantInteractor({ resource: Resource.inboxMessages, read: true })
 export class GetCalendarEventByIdInteractor extends AuthenticatedInteractor<
   GetCalendarEventByIdData,
-  CalendarEventDto | null
+  CalendarEventDto
 > {
   constructor(
     private repo: GetCalendarEventByIdRepo,
@@ -41,12 +34,13 @@ export class GetCalendarEventByIdInteractor extends AuthenticatedInteractor<
   }
 
   @Validate(GetCalendarEventByIdSchema)
-  @ValidateOutput(CalendarEventDtoSchema.nullable())
-  async invoke(data: GetCalendarEventByIdData): Validated<CalendarEventDto | null> {
+  @ValidateOutput(CalendarEventDtoSchema)
+  async invoke(data: GetCalendarEventByIdData): Validated<CalendarEventDto> {
     const denied = await this.entitlements.require("messaging");
     if (denied) return denied;
 
     const event = await this.repo.getCalendarEventById(data.id);
+    if (!event) return failNotFound(CustomErrorCode.calendarEventNotFound, ["id"]);
     return { ok: true as const, data: event };
   }
 }

@@ -9,8 +9,9 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { Action, Resource } from "@/generated/prisma";
 
 import { NO_VALUE_GROUP_KEY } from "@/core/base/grouping/grouping.schema";
-import { PrismaRoutineRepo } from "../prisma-routine.repository";
-import { relationGroupable } from "@/core/base/grouping/groupable-field";
+import { createTestRoutineRepo } from "@/tests/helpers/record-delivery";
+import { dateGroupable, relationGroupable } from "@/core/base/grouping/groupable-field";
+import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import { runWithTenant } from "@/core/decorators/tenant-context";
@@ -55,7 +56,7 @@ describeDatabase("grouped routine reads on PostgreSQL", () => {
 
   async function axis(user: TenantUser) {
     return runWithTenant(user, async () => {
-      const repo = new PrismaRoutineRepo();
+      const repo = createTestRoutineRepo();
       const spec = ownerSpec();
       const rows = await repo.countByGroup({ spec, params: {}, now: new Date().toISOString() });
 
@@ -144,8 +145,62 @@ describeDatabase("grouped routine reads on PostgreSQL", () => {
     expect(pages[0]?.ids.sort()).toEqual([routines.viewerFirst, routines.viewerSecond].sort());
   });
 
+  it("labels owners by name and hides an owner the reader cannot see as a member", async () => {
+    const labels = await runWithTenant(readAll, () =>
+      createTestRoutineRepo().resolveGroupLabels(ownerSpec(), [viewerId, colleagueId]),
+    );
+    expect(labels).toEqual(
+      new Map([
+        [viewerId, { label: "Viewer Person", avatarUrl: null }],
+        [colleagueId, { label: "Colleague Person", avatarUrl: null }],
+      ]),
+    );
+
+    const selfOnly = userWith([
+      { resource: Resource.routines, action: Action.readAll },
+      { resource: Resource.users, action: Action.readOwn },
+    ]);
+    const { rows, pages } = await axis(selfOnly);
+    expect(new Map(rows.map((row) => [row.key, row.count]))).toEqual(
+      new Map([
+        [viewerId, 2],
+        [NO_VALUE_GROUP_KEY, 2],
+      ]),
+    );
+    expect(pages.find((page) => page.key === NO_VALUE_GROUP_KEY)?.ids.sort()).toEqual(
+      [routines.colleagueOnly, routines.ownerless].sort(),
+    );
+    expect(
+      await runWithTenant(selfOnly, () =>
+        createTestRoutineRepo().resolveGroupLabels(ownerSpec(), [viewerId, colleagueId]),
+      ),
+    ).toEqual(new Map([[viewerId, { label: "Viewer Person", avatarUrl: null }]]));
+  });
+
+  it("buckets routines by creation month and scopes each bucket's rows", async () => {
+    const spec = dateGroupable({ model: "routine", field: FilterFieldKey.createdAt });
+    const now = new Date().toISOString();
+    const { rows, current } = await runWithTenant(readAll, async () => {
+      const repo = createTestRoutineRepo();
+      const counted = await repo.countByGroup({ spec, params: {}, bucket: "month", now });
+      const key = counted.find((row) => row.count > 0)?.key ?? "";
+      const items = await repo.getItems({ groupScope: { spec, key, bucket: "month", now }, take: 100, skip: 0 });
+      return { rows: counted, current: { key, ids: items.map((item) => item.id).sort() } };
+    });
+
+    expect(rows.filter((row) => row.count > 0)).toEqual([{ key: current.key, count: 4 }]);
+    expect(current.ids).toEqual(
+      [routines.viewerFirst, routines.viewerSecond, routines.colleagueOnly, routines.ownerless].sort(),
+    );
+    expect(
+      await runWithTenant(readAll, () =>
+        createTestRoutineRepo().getItems({ groupScope: { spec, key: "unexpected", bucket: "month", now } }),
+      ),
+    ).toEqual([]);
+  });
+
   it("declares no owner grouping to a reader who cannot read users", async () => {
-    const declared = await runWithTenant(withoutUsers, () => new PrismaRoutineRepo().getGroupableFields());
+    const declared = await runWithTenant(withoutUsers, () => createTestRoutineRepo().getGroupableFields());
 
     expect(declared.map((spec) => spec.field)).toEqual(["createdAt", "updatedAt"]);
   });

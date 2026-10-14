@@ -32,7 +32,7 @@ type ContextDraftInput = {
 
 const harness = vi.hoisted(() => ({
   locale: null as AppLocale | null,
-  pathname: "/en/contacts",
+  pathname: "/en/records/10000000-0000-4000-8000-000000000101",
   agent: {
     enabled: true,
     composerContexts: [] as AgentContextAttachment[],
@@ -58,6 +58,7 @@ const harness = vi.hoisted(() => ({
 }));
 
 vi.mock("next/navigation", () => ({ usePathname: () => harness.pathname }));
+vi.mock("@/i18n/navigation", () => ({ IntlLink: () => null }));
 vi.mock("next-intl", async (importOriginal) => {
   const actual = await importOriginal<typeof NextIntl>();
   return {
@@ -72,22 +73,21 @@ vi.mock("next-intl", async (importOriginal) => {
             values ? `${key}(${Object.values(values).join(",")})` : key,
   };
 });
+vi.mock("@/components/data-view/filter-palette/use-filter-palette", () => ({
+  useFilterPalette: () => harness.palette,
+}));
+
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     agentChatStore: harness.agent,
     filterPaletteStore: harness.palette,
+    keyboardShortcutsStore: { registerFilterOpener: () => undefined, unregisterFilterOpener: () => undefined },
   }),
 }));
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({
-    singular: (entity: string) =>
-      harness.locale ? catalogs[harness.locale].EntityTerminology.presets.contact.contact.singular : entity,
-  }),
-}));
-vi.mock("@/components/entity-terminology/use-column-label", () => ({
+vi.mock("@/components/data-view/use-column-label", () => ({
   useColumnLabel: () => (uid: string) => uid,
 }));
-vi.mock("@/components/entity-terminology/use-filter-field-label", () => ({
+vi.mock("@/components/data-view/use-filter-field-label", () => ({
   useFilterFieldLabel: () => (field: string) => field,
 }));
 vi.mock("@/components/data-view/filter-palette/filter-palette", () => ({
@@ -140,7 +140,7 @@ import { FilterPopover } from "@/components/data-view/header/filter-popover";
 
 const VIEW_ID = "b6319ec8-d1b5-4844-bba4-c8c0ca819214";
 const RECORD_ID = "00000000-0000-4000-8000-000000000001";
-const PATHNAME = "/en/contacts";
+const PATHNAME = "/en/records/10000000-0000-4000-8000-000000000101";
 type Item = { id: string };
 
 function dataViewStore(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewStore<Item> {
@@ -157,7 +157,8 @@ function dataViewStore(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDa
     hiddenColumns: [],
     isReady: true,
     orderedColumns: [],
-    p13nId: SURFACE.contacts,
+    p13nId: "records:10000000-0000-4000-8000-000000000101",
+    viewTypeLabel: "Contacts",
     setQueryOptions: vi.fn((options: { filters?: Filter[] }) => {
       if (options.filters) store.filters = options.filters;
     }),
@@ -262,21 +263,21 @@ describe("view menu AI context handoff", () => {
     expect(closeEvent.defaultPrevented).toBe(true);
     expect(harness.agent.openWithContextDraft).toHaveBeenCalledExactlyOnceWith({
       context: {
-        label: "Contact view: All",
+        label: "Contacts view: All",
         reference: {
           kind: "dataView",
           requestedAction: "update",
-          surfaceKey: SURFACE.contacts,
+          surfaceKey: "records:10000000-0000-4000-8000-000000000101",
           viewKey: ALL_VIEW_KEY,
         },
       },
       draft: "Change the layout, grouping, or sorting for this view as follows: ",
-      pageRoute: `${PATHNAME}?view=${ALL_VIEW_KEY}&viewSurface=${SURFACE.contacts}&viewAction=update`,
+      pageRoute: `${PATHNAME}?view=${ALL_VIEW_KEY}&viewSurface=${encodeURIComponent("records:10000000-0000-4000-8000-000000000101")}&viewAction=update`,
     });
     expect(harness.agent.sendMessage).not.toHaveBeenCalled();
     expect(harness.agent.composerContexts).toEqual([
       expect.objectContaining({
-        reference: expect.objectContaining({ surfaceKey: SURFACE.contacts }),
+        reference: expect.objectContaining({ surfaceKey: "records:10000000-0000-4000-8000-000000000101" }),
       }),
     ]);
     expectComposerFocus();
@@ -286,13 +287,13 @@ describe("view menu AI context handoff", () => {
     "opens the %s timeline composer with localized view context and the current record attached",
     (locale) => {
       harness.locale = locale;
-      harness.pathname = `/${locale}/contacts/${RECORD_ID}`;
+      harness.pathname = `/${locale}/records/10000000-0000-4000-8000-000000000101/${RECORD_ID}`;
       const copy = catalogs[locale];
       const record: AgentContextCandidate = {
         context: {
           label: "Julian Wagner",
           reference: {
-            entityType: "contact",
+            typeId: "10000000-0000-4000-8000-000000000101",
             kind: "record",
             recordId: RECORD_ID,
           },
@@ -345,6 +346,41 @@ describe("view menu AI context handoff", () => {
     },
   );
 
+  it("uses the bound nested record and canonical timeline route while preparing its mounted context", async () => {
+    const typeId = "10000000-0000-4000-8000-000000000101";
+    const canonical = `/en/records/${typeId}/${RECORD_ID}`;
+    const parent: AgentContextCandidate = {
+      context: {
+        label: "Parent",
+        reference: { kind: "record", typeId, recordId: "10000000-0000-4000-8000-000000000999" },
+      },
+      pageRoute: harness.pathname,
+    };
+    const child: AgentContextCandidate = {
+      context: { label: "Child", reference: { kind: "record", typeId, recordId: RECORD_ID } },
+      pageRoute: canonical,
+    };
+    harness.agent.contextRegistry.candidates.mockReturnValue([parent, child]);
+    const store = dataViewStore({ p13nId: SURFACE.entityTimeline, viewPathname: canonical });
+    render(createElement(FilterPopover, { id: "filters", store }));
+    openAi("filters");
+    expect(harness.agent.openWithContextDraft).toHaveBeenCalledWith(
+      expect.objectContaining({
+        pageRoute: `${canonical}?view=${VIEW_ID}&viewSurface=entity-timeline&viewAction=update`,
+      }),
+    );
+    expect(harness.agent.addComposerContext).toHaveBeenCalledExactlyOnceWith(child.context, canonical, undefined, {
+      replaceOldestAtLimit: true,
+    });
+    expect(harness.agent.viewContext.route(harness.pathname)).toBe(
+      `${canonical}?view=${VIEW_ID}&viewSurface=entity-timeline`,
+    );
+    await harness.agent.viewContext.prepare(
+      `${canonical}?view=${VIEW_ID}&viewSurface=entity-timeline&viewAction=update`,
+    );
+    expect(store.settleViewState).toHaveBeenCalledOnce();
+  });
+
   it("flushes a pending filter draft before handing the exact filter context to the composer", async () => {
     const store = dataViewStore();
     render(createElement(FilterPopover, { id: "filters", store }));
@@ -365,15 +401,15 @@ describe("view menu AI context handoff", () => {
     expect(harness.agent.openWithContextDraft).not.toHaveBeenCalled();
 
     const closeEvent = finishClose("filters");
-    const pageRoute = `${PATHNAME}?view=${VIEW_ID}&viewSurface=${SURFACE.contacts}&viewAction=update`;
+    const pageRoute = `${PATHNAME}?view=${VIEW_ID}&viewSurface=${encodeURIComponent("records:10000000-0000-4000-8000-000000000101")}&viewAction=update`;
     expect(closeEvent.defaultPrevented).toBe(true);
     expect(harness.agent.openWithContextDraft).toHaveBeenCalledExactlyOnceWith({
       context: {
-        label: "AgentChat.context.viewLabel(Qualified contacts,AgentChat.context.surfaceViewTypeStandalone(contact))",
+        label: "AgentChat.context.viewLabel(Qualified contacts,AgentChat.context.surfaceViewTypeStandalone(Contacts))",
         reference: {
           kind: "dataView",
           requestedAction: "update",
-          surfaceKey: SURFACE.contacts,
+          surfaceKey: "records:10000000-0000-4000-8000-000000000101",
           viewKey: VIEW_ID,
         },
       },
@@ -382,7 +418,7 @@ describe("view menu AI context handoff", () => {
     });
     expect(harness.agent.sendMessage).not.toHaveBeenCalled();
     expect(harness.agent.viewContext.route(PATHNAME)).toBe(
-      `${PATHNAME}?view=${VIEW_ID}&viewSurface=${SURFACE.contacts}`,
+      `${PATHNAME}?view=${VIEW_ID}&viewSurface=${encodeURIComponent("records:10000000-0000-4000-8000-000000000101")}`,
     );
     await harness.agent.viewContext.prepare(pageRoute);
     expect(store.settleViewState).toHaveBeenCalledOnce();
@@ -406,7 +442,7 @@ describe("view menu AI context handoff", () => {
         context: expect.objectContaining({
           reference: expect.objectContaining({
             kind: "dataView",
-            surfaceKey: SURFACE.contacts,
+            surfaceKey: "records:10000000-0000-4000-8000-000000000101",
             viewKey: VIEW_ID,
           }),
         }),
@@ -445,7 +481,7 @@ describe("view menu AI context handoff", () => {
     harness.agent.enabled = reason !== "disabled chat";
     const store = dataViewStore({
       isReady: reason !== "unready view",
-      p13nId: reason === "no saved-view surface" ? undefined : SURFACE.contacts,
+      p13nId: reason === "no saved-view surface" ? undefined : "records:10000000-0000-4000-8000-000000000101",
     });
     render(
       createElement(
@@ -474,7 +510,7 @@ describe("view menu AI context handoff", () => {
     const context = harness.agent.viewContext;
     const releasePage = context.register(
       PATHNAME,
-      () => ({ surfaceKey: SURFACE.contacts, viewKey: VIEW_ID }),
+      () => ({ surfaceKey: "records:10000000-0000-4000-8000-000000000101", viewKey: VIEW_ID }),
       () => page.settleViewState(),
     );
     const pageRoute = context.route(PATHNAME);

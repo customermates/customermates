@@ -21,6 +21,7 @@ function createStore({ isReady = false }: { isReady?: boolean } = {}) {
     isReady,
     setItems,
     refresh: vi.fn(),
+    restoreQueryDraft: vi.fn(),
     registerOnChange: vi.fn(() => () => {}),
   } as unknown as BaseDataViewStore<HasId>;
   return { setItems, store };
@@ -97,6 +98,23 @@ describe("useDataViewSync", () => {
     act(() => root.render(createElement(Harness, { initial, store })));
 
     expect(setItems).toHaveBeenCalledExactlyOnceWith(initial);
+  });
+
+  it("restores the session's temporary query once after mount, never during render", () => {
+    const { store } = createStore();
+    const initial = createResult("a");
+
+    function RenderProbe() {
+      useDataViewSync(store, initial);
+      return null;
+    }
+    renderToStaticMarkup(createElement(RenderProbe));
+    expect(store.restoreQueryDraft).not.toHaveBeenCalled();
+
+    const root = mount(createElement(Harness, { initial, store }));
+    act(() => root.render(createElement(Harness, { initial, store })));
+
+    expect(store.restoreQueryDraft).toHaveBeenCalledOnce();
   });
 
   it("applies a new server result when its identity changes", () => {

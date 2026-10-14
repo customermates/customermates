@@ -10,6 +10,9 @@ const WEEK = 7 * DAY;
 const AUTHORED_END_ISO = "2026-08-04T14:00:00.000Z";
 const AUTHORED_END = Date.parse(AUTHORED_END_ISO);
 
+/** The authored end of the story, before the timeline shift. */
+export const SYNTHETIC_AUTHORED_END_MS = AUTHORED_END;
+
 function timelineShift(): number {
   const elapsed = Date.now() - AUTHORED_END;
   return elapsed < WEEK ? 0 : Math.floor(elapsed / WEEK) * WEEK;
@@ -33,26 +36,24 @@ export const SYNTHETIC_ORGANIZATION_UPDATE_INDEXES = [5, 10, 12, 13] as const;
 export const SYNTHETIC_CONTACT_UPDATE_INDEXES = [0, 6, 7, 19, 22, 23, 26] as const;
 export const SYNTHETIC_DEAL_UPDATE_INDEXES = [0, 1, 2] as const;
 export const SYNTHETIC_TASK_UPDATE_INDEXES = [0, 4, 7, 8, 13] as const;
-export const SYNTHETIC_CUSTOM_COLUMN_UPDATE_INDEXES = [2, 5, 6] as const;
 
 const organizationUpdates = new Set<number>(SYNTHETIC_ORGANIZATION_UPDATE_INDEXES);
 const contactUpdates = new Set<number>(SYNTHETIC_CONTACT_UPDATE_INDEXES);
 const dealUpdates = new Set<number>(SYNTHETIC_DEAL_UPDATE_INDEXES);
 const taskUpdates = new Set<number>(SYNTHETIC_TASK_UPDATE_INDEXES);
-const customColumnUpdates = new Set<number>(SYNTHETIC_CUSTOM_COLUMN_UPDATE_INDEXES);
 
 export const SYNTHETIC_SEED_TIMELINE = {
   company: {
-    createdAt: moment("2025-08-06T08:00:00.000Z"),
-    updatedAt: moment("2025-08-06T08:00:00.000Z"),
+    createdAt: moment("2025-01-02T08:00:00.000Z"),
+    updatedAt: moment("2025-01-02T08:00:00.000Z"),
   },
   systemRole: {
-    createdAt: moment("2025-08-06T08:05:00.000Z"),
-    updatedAt: moment("2025-08-06T08:05:00.000Z"),
+    createdAt: moment("2025-01-02T08:05:00.000Z"),
+    updatedAt: moment("2025-01-02T08:05:00.000Z"),
   },
   customRole: (index: number) => ({
-    createdAt: timestamp("2025-08-06T09:30:00.000Z", index),
-    updatedAt: timestamp("2025-08-06T09:30:00.000Z", index),
+    createdAt: timestamp("2025-01-02T09:30:00.000Z", index),
+    updatedAt: timestamp("2025-01-02T09:30:00.000Z", index),
   }),
   user: (index: number) => ({
     createdAt: timestamp("2025-08-07T09:00:00.000Z", index, 8 * 60 * MINUTE),
@@ -63,13 +64,6 @@ export const SYNTHETIC_SEED_TIMELINE = {
           ? moment("2025-08-08T17:00:00.000Z")
           : timestamp("2025-08-07T09:00:00.000Z", index, 8 * 60 * MINUTE),
   }),
-  customColumn: (index: number) => {
-    const createdAt = timestamp("2025-08-10T12:00:00.000Z", index, 2 * DAY);
-    return {
-      createdAt,
-      updatedAt: customColumnUpdates.has(index) ? nextDay(createdAt) : createdAt,
-    };
-  },
   organization: (index: number) => {
     const createdAt = timestamp("2025-09-03T15:00:00.000Z", index, 2 * DAY);
     return {

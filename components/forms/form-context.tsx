@@ -10,6 +10,8 @@ import { useNavigationGuard } from "@/components/modal/use-navigation-guard";
 import { cn } from "@/core/utils/cn";
 import { runUserAction } from "@/core/errors/report-application-error";
 
+import { focusFirstInvalidField } from "./focus-first-invalid-field";
+
 type AppFormProps = Omit<FormHTMLAttributes<HTMLFormElement>, "onSubmit"> & {
   store: BaseFormStore;
   children: ReactNode;
@@ -18,28 +20,37 @@ type AppFormProps = Omit<FormHTMLAttributes<HTMLFormElement>, "onSubmit"> & {
 
 const FormContext = createContext<BaseFormStore | null>(null);
 
+export function AppFormProvider({ store, children }: { store: BaseFormStore; children?: ReactNode }) {
+  useNavigationGuard(store);
+  return <FormContext.Provider value={store}>{children}</FormContext.Provider>;
+}
+
 export function useAppForm<T extends object = object>(): BaseFormStore<T> | null {
   return useContext(FormContext) as BaseFormStore<T> | null;
 }
 
 export const AppForm = observer(({ store, onSubmit, className, children, ...props }: AppFormProps) => {
-  useNavigationGuard(store);
-
   const handleSubmit = onSubmit ?? store.onSubmit;
 
   return (
-    <FormContext.Provider value={store}>
+    <AppFormProvider store={store}>
       <form
         noValidate
         {...props}
         className={cn("contents", className)}
         onSubmit={(event) => {
+          if (event.target !== event.currentTarget) return;
           event.preventDefault();
-          if (handleSubmit) runUserAction(() => handleSubmit(event));
+          if (!handleSubmit) return;
+          const formElement = event.currentTarget;
+          runUserAction(async () => {
+            await handleSubmit(event);
+            if (store.error) focusFirstInvalidField(formElement);
+          });
         }}
       >
         {children}
       </form>
-    </FormContext.Provider>
+    </AppFormProvider>
   );
 });

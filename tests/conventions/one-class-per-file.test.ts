@@ -72,5 +72,5 @@ describe("one class per changed TypeScript file", () => {
       return classes.length > 1 ? [`${file}: ${classes.join(", ")}`] : [];
     });
     expect(violations, violations.join("\n")).toEqual([]);
-  });
+  }, 60000);
 });

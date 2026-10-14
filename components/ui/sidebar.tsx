@@ -13,14 +13,15 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { detectKeyboardPlatform } from "@/components/keyboard/key-matching";
+import { matchesShortcut } from "@/components/keyboard/shortcut-registry";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 const SIDEBAR_WIDTH = "16rem";
 const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
-const SIDEBAR_KEYBOARD_SHORTCUT = "b";
 
 type SidebarContextProps = {
   state: "expanded" | "collapsed";
@@ -75,11 +76,12 @@ function SidebarProvider({
   }, [isMobile, setOpen, setOpenMobile]);
 
   React.useEffect(() => {
+    const platform = detectKeyboardPlatform(navigator);
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === SIDEBAR_KEYBOARD_SHORTCUT && (event.metaKey || event.ctrlKey)) {
-        event.preventDefault();
-        toggleSidebar();
-      }
+      if (event.defaultPrevented) return;
+      if (!matchesShortcut(event, "toggleSidebar", platform)) return;
+      event.preventDefault();
+      toggleSidebar();
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -103,22 +105,20 @@ function SidebarProvider({
 
   return (
     <SidebarContext.Provider value={contextValue}>
-      <TooltipProvider delayDuration={0}>
-        <div
-          className={cn("group/sidebar-wrapper flex h-svh w-full has-data-[variant=inset]:bg-sidebar", className)}
-          data-slot="sidebar-wrapper"
-          style={
-            {
-              "--sidebar-width": SIDEBAR_WIDTH,
-              "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
-              ...style,
-            } as React.CSSProperties
-          }
-          {...props}
-        >
-          {children}
-        </div>
-      </TooltipProvider>
+      <div
+        className={cn("group/sidebar-wrapper flex h-svh w-full has-data-[variant=inset]:bg-sidebar", className)}
+        data-slot="sidebar-wrapper"
+        style={
+          {
+            "--sidebar-width": SIDEBAR_WIDTH,
+            "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
+            ...style,
+          } as React.CSSProperties
+        }
+        {...props}
+      >
+        {children}
+      </div>
     </SidebarContext.Provider>
   );
 }
@@ -236,8 +236,9 @@ function SidebarTrigger({ className, onClick, ...props }: React.ComponentProps<t
       size="icon"
       variant="ghost"
       onClick={(event) => {
+        if (props["aria-disabled"] === true || props["aria-disabled"] === "true") return;
         onClick?.(event);
-        toggleSidebar();
+        if (!event.defaultPrevented) toggleSidebar();
       }}
       {...props}
     >
@@ -476,11 +477,9 @@ function SidebarMenuButton({
 function SidebarMenuAction({
   className,
   asChild = false,
-  showOnHover = false,
   ...props
 }: React.ComponentProps<"button"> & {
   asChild?: boolean;
-  showOnHover?: boolean;
 }) {
   const Comp = asChild ? Slot.Root : "button";
 
@@ -492,9 +491,7 @@ function SidebarMenuAction({
         "peer-data-[size=sm]/menu-button:top-1",
         "peer-data-[size=default]/menu-button:top-1.5",
         "peer-data-[size=lg]/menu-button:top-2.5",
-        "group-data-[collapsible=icon]:hidden",
-        showOnHover &&
-          "group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground data-[state=open]:opacity-100 md:opacity-0",
+        "group-data-[collapsible=icon]:hidden peer-data-[active=true]/menu-button:text-sidebar-accent-foreground",
         className,
       )}
       data-sidebar="menu-action"

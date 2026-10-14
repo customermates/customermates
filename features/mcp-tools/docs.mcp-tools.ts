@@ -60,9 +60,9 @@ function compactDocsSearchText(results: DocsSearchHit[], total: number): string 
 
 export const DOCS_RERANK_EXCERPT_CHARS = 1_400;
 
-export type SearchDocsInput = { query: string; locale: DocsLocale; source: "docs" | "api" | "all" };
+type SearchDocsInput = { query: string; locale: DocsLocale; source: "docs" | "api" | "all" };
 
-export function docsRerankExcerpt(
+function docsRerankExcerpt(
   section: DocsSection,
   chars = DOCS_RERANK_EXCERPT_CHARS,
   query = "",
@@ -108,7 +108,7 @@ export const searchDocsTool = {
     "Matches the query's words in full text and, with AI credits, also by meaning. " +
     `Required: query. Optional: locale (one of: ${docsLocaleList}; default ${DEFAULT_LOCALE}), source (one of: docs, api, all; default docs). ` +
     "Returns ranked pages with the best section of each (slug#anchor), then the best page's url and its snippet in text, plus up to 5 full matches as structured content. " +
-    "App routes in a snippet, such as `/company/subscription`, are relative: prefix them with the origin of the match's url (best= in text); that origin is the instance's configured BASE_URL. " +
+    "Links into the app in the docs are full URLs on this instance and open the reader's own workspace; pass them on unchanged. " +
     "Then read the best page with get_docs_page, passing its nonempty returned anchor as anchor and the original question as query to preserve both the section and the requested detail; omit anchor and query for an empty anchor. If it does not answer, read the next page.",
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
   inputSchema: z.object({
@@ -135,7 +135,7 @@ export const getDocsPageTool = {
   title: "Get documentation page",
   description:
     "Use this when you need one Customermates documentation page as markdown, with its canonical URL. " +
-    "App routes in the markdown, such as `/company/subscription`, are relative: prefix them with the origin of url; that origin is the instance's configured BASE_URL. " +
+    "Links into the app in the docs are full URLs on this instance and open the reader's own workspace; pass them on unchanged. " +
     `Required: slug (from search_docs). Optional: locale (one of: ${docsLocaleList}; default ${DEFAULT_LOCALE}), source (one of: docs, api; default docs). ` +
     "Pass the nonempty anchor returned by search_docs as anchor and the original question as query to read the selected section without losing the requested detail. For an empty anchor, omit anchor and query to read the full page. Otherwise pass query with the exact detail you need to get a bounded excerpt. " +
     "An unknown slug returns the valid slugs.",
@@ -167,7 +167,7 @@ export const getDocsPageTool = {
   execute: (input: GetDocsPageInput) => getDocsPage(input),
 };
 
-export type GetDocsPageInput = {
+type GetDocsPageInput = {
   slug: string;
   anchor?: string;
   query?: string;
@@ -240,7 +240,7 @@ export async function unifiedDocsSearchResult(input: SearchDocsInput, deps: Unif
   return { text, structuredContent: { results, total } };
 }
 
-export async function searchDocs(input: SearchDocsInput) {
+async function searchDocs(input: SearchDocsInput) {
   return unifiedDocsSearchResult(input, await unifiedDocsDeps());
 }
 
@@ -260,7 +260,7 @@ export async function unifiedDocsPageResult(input: GetDocsPageInput, deps: Unifi
   return docsPageResult(input, excerpt);
 }
 
-export async function getDocsPage(input: GetDocsPageInput) {
+async function getDocsPage(input: GetDocsPageInput) {
   if (input.anchor !== undefined || !input.query) return docsPageResult(input);
   return unifiedDocsPageResult(input, await unifiedDocsDeps());
 }

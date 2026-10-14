@@ -1,6 +1,6 @@
 import type { MessagingProvider } from "@/generated/prisma";
 
-export type MoveThread = {
+type MoveThread = {
   id: string;
   connectedAccountId: string;
   provider: MessagingProvider;
@@ -8,7 +8,7 @@ export type MoveThread = {
   unipileAccountId: string;
 };
 
-export type MovableMessage = {
+type MovableMessage = {
   id: string;
   unipileMessageId: string;
   folderIds: string[];

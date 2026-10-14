@@ -20,13 +20,13 @@ const Toaster = ({ ...props }: ToasterProps) => {
         loading: <Loader2Icon className="size-4 animate-spin" />,
       }}
       mobileOffset={{
-        bottom: "calc(var(--viewport-gutter) + var(--safe-bottom))",
+        bottom: "calc(var(--viewport-gutter) + var(--safe-bottom) + var(--unsaved-changes-bar-clearance, 0px))",
         left: "calc(var(--viewport-gutter) + var(--safe-left))",
         right: "calc(var(--viewport-gutter) + var(--safe-right))",
         top: "calc(var(--viewport-gutter) + var(--safe-top))",
       }}
       offset={{
-        bottom: "calc(1.5rem + var(--safe-bottom))",
+        bottom: "calc(1.5rem + var(--safe-bottom) + var(--unsaved-changes-bar-clearance, 0px))",
         left: "calc(1.5rem + var(--safe-left))",
         right: "calc(1.5rem + var(--safe-right))",
         top: "calc(1.5rem + var(--safe-top))",

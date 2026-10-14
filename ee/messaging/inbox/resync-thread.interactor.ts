@@ -1,15 +1,18 @@
 import type { MessagingService } from "../messaging.service";
 import type { IngestMessage, MessagingAttendee } from "../messaging.schema";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
+import type { UnusableProviderItemRepo } from "../ingest/unusable-provider-item.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 import * as Sentry from "@sentry/node";
 
-import { Action, Resource, MessagingThreadType } from "@/generated/prisma";
+import { Resource, MessagingThreadType } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Enforce } from "@/core/decorators/enforce.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
+import { failNotFound } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 import { UNIPILE_MAX_LIMIT, paginateStep } from "../ingest/backfill/paginate";
@@ -20,6 +23,7 @@ import { isEmailProvider } from "../provider";
 import { isUnipileRateLimit, getRetryAfterSeconds } from "../messaging.service";
 import { retryAfterPhrase } from "../retry-after.server";
 import type { ResyncThread, ResyncThreadRepo } from "./resync-thread.repo";
+import { synchronizeInboundAvatar, type ProviderAvatars } from "../ingest/inbound-avatar";
 
 const Schema = z.object({ threadId: z.uuid() });
 type ResyncThreadData = Data<typeof Schema>;
@@ -32,22 +36,25 @@ type ResyncThreadResult = {
   retryAfter?: string;
 };
 
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "update" })
 export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThreadData, ResyncThreadResult> {
   constructor(
     private repo: ResyncThreadRepo,
     private messagingService: MessagingService,
     private entitlements: EntitlementService,
+    private avatars: ProviderAvatars,
+    private diagnostics: UnusableProviderItemRepo,
   ) {
     super();
   }
 
-  @Enforce(Schema)
+  @Validate(Schema)
   async invoke(data: ResyncThreadData): Validated<ResyncThreadResult> {
     const denied = await this.entitlements.require("messaging");
     if (denied) return denied;
 
-    const thread = await this.repo.findThreadForResyncOrThrow(data.threadId);
+    const thread = await this.repo.findThreadForResync(data.threadId);
+    if (!thread) return failNotFound(CustomErrorCode.threadNotFound, ["threadId"]);
 
     try {
       const participantCount =
@@ -147,7 +154,7 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
         const parsed = UnipileMessageSchema.safeParse(raw);
 
         if (!parsed.success) {
-          await this.repo.recordUnusableItemUnscoped({
+          await this.diagnostics.recordUnusableItemUnscoped({
             companyId: thread.companyId,
             connectedAccountId: thread.connectedAccountId,
             payload: raw,
@@ -159,7 +166,7 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
         const normalized = normalizeChatMessage(parsed.data, thread.provider);
 
         if (!normalized) {
-          await this.repo.recordUnusableItemUnscoped({
+          await this.diagnostics.recordUnusableItemUnscoped({
             companyId: thread.companyId,
             connectedAccountId: thread.connectedAccountId,
             payload: parsed.data,
@@ -188,7 +195,7 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
       const parsed = UnipileEmailSchema.safeParse(raw);
 
       if (!parsed.success) {
-        await this.repo.recordUnusableItemUnscoped({
+        await this.diagnostics.recordUnusableItemUnscoped({
           companyId: thread.companyId,
           connectedAccountId: thread.connectedAccountId,
           payload: raw,
@@ -204,7 +211,7 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
       });
 
       if (!normalized) {
-        await this.repo.recordUnusableItemUnscoped({
+        await this.diagnostics.recordUnusableItemUnscoped({
           companyId: thread.companyId,
           connectedAccountId: thread.connectedAccountId,
           payload: parsed.data,
@@ -222,12 +229,13 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
 
   private async ingestSafely(thread: ResyncThread, message: IngestMessage, raw: unknown): Promise<boolean> {
     try {
-      await this.repo.ingestMessageUnscoped({
+      const ingested = await this.repo.ingestMessageUnscoped({
         companyId: thread.companyId,
         connectedAccountId: thread.connectedAccountId,
         message,
         backfill: true,
       });
+      await synchronizeInboundAvatar(this.avatars, thread.companyId, ingested);
 
       return true;
     } catch (err) {
@@ -238,7 +246,7 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
           connectedAccountId: thread.connectedAccountId,
         },
       });
-      await this.repo.recordUnusableItemUnscoped({
+      await this.diagnostics.recordUnusableItemUnscoped({
         companyId: thread.companyId,
         connectedAccountId: thread.connectedAccountId,
         payload: raw,

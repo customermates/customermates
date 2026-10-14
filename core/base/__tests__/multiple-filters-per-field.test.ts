@@ -1,7 +1,7 @@
-import type { GetResult } from "../base-get.interactor";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
-import type { Filter, FilterableField, GetQueryParams } from "../base-get.schema";
+import { TestQueryBuilder } from "./fixtures/multiple-filters-per-field-test-query-builder";
 import type { RootStore } from "@/core/stores/root.store";
+import type { GetResult } from "../base-get.interactor";
+import type { Filter, FilterableField, GetQueryParams } from "../base-get.schema";
 
 import { describe, expect, it, vi } from "vitest";
 
@@ -10,44 +10,31 @@ vi.mock("@/app/actions", () => ({
   saveDataViewStateAction: vi.fn(),
   selectDataViewAction: vi.fn(),
   bulkDeleteEntitiesAction: vi.fn(),
-  bulkUpdateCustomFieldValuesAction: vi.fn(),
-  getCustomColumnsByEntityTypeAction: vi.fn(),
-  updateEntityCustomFieldValueAction: vi.fn(),
 }));
 
-import { BaseDataViewStore } from "../base-data-view.store";
-import { BaseQueryBuilder, defaultValidateFilters, FilterOperatorKey, ViewMode } from "../base-query-builder";
-import { CustomColumnType, EntityType } from "@/generated/prisma";
-import { decodeGetParams, encodeGetParams } from "@/core/utils/get-params";
+import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
-import { SURFACE, ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
+import { decodeGetParams, encodeGetParams } from "@/core/utils/get-params";
+import { BaseDataViewStore } from "../base-data-view.store";
+import { defaultValidateFilters, FilterOperatorKey, ViewMode } from "../base-query-builder";
 
 type Item = { id: string };
 
-const CUSTOM_COLUMN_ID = "3f1c9a72-5d84-4a1e-9f3b-6c2d8e0a7b45";
-
 const FILTERABLE_FIELDS: FilterableField[] = [
-  { field: FilterFieldKey.status, operators: [FilterOperatorKey.in, FilterOperatorKey.notIn] },
-  { field: FilterFieldKey.userIds, operators: [FilterOperatorKey.in, FilterOperatorKey.notIn] },
-  { field: CUSTOM_COLUMN_ID, operators: [FilterOperatorKey.contains, FilterOperatorKey.equals] },
+  {
+    field: FilterFieldKey.status,
+    operators: [FilterOperatorKey.in, FilterOperatorKey.notIn],
+  },
 ];
 
-const CUSTOM_COLUMNS = [
-  { id: CUSTOM_COLUMN_ID, label: "Notes", entityType: EntityType.deal, type: CustomColumnType.plain },
-] as unknown as CustomColumnDto[];
+TestQueryBuilder.filterableFields = FILTERABLE_FIELDS;
 
 const statusFilter = (value: string): Filter =>
-  ({ field: FilterFieldKey.status, operator: FilterOperatorKey.in, value: [value] }) as Filter;
-
-class TestQueryBuilder extends BaseQueryBuilder<Record<string, unknown>> {
-  override getFilterableFields(): Promise<FilterableField[]> {
-    return Promise.resolve(FILTERABLE_FIELDS);
-  }
-
-  override getCustomColumns(): Promise<CustomColumnDto[]> {
-    return Promise.resolve(CUSTOM_COLUMNS);
-  }
-}
+  ({
+    field: FilterFieldKey.status,
+    operator: FilterOperatorKey.in,
+    value: [value],
+  }) as Filter;
 
 class TestStore extends BaseDataViewStore<Item> {
   get columnsDefinition() {
@@ -62,7 +49,7 @@ class TestStore extends BaseDataViewStore<Item> {
 function serverEcho(params?: GetQueryParams): GetResult<Item> {
   return {
     items: [],
-    p13nId: SURFACE.tasks,
+    p13nId: SURFACE.routines,
     filterableFields: FILTERABLE_FIELDS,
     filters: params?.filters ?? [],
     searchTerm: params?.searchTerm,
@@ -101,34 +88,6 @@ describe("two filters on one field", () => {
     });
 
     expect(andEntries(where)).toEqual([{ status: { in: ["open"] } }, { status: { in: ["won"] } }]);
-  });
-
-  it("becomes two separate AND clauses on a relation field", async () => {
-    const { where } = await new TestQueryBuilder().buildQueryArgs({
-      filters: [
-        { field: FilterFieldKey.userIds, operator: FilterOperatorKey.in, value: ["u1"] } as Filter,
-        { field: FilterFieldKey.userIds, operator: FilterOperatorKey.in, value: ["u2"] } as Filter,
-      ],
-    });
-
-    expect(andEntries(where)).toHaveLength(2);
-    expect(andEntries(where)).toEqual([
-      { users: { some: { userId: { in: ["u1"] } } } },
-      { users: { some: { userId: { in: ["u2"] } } } },
-    ]);
-  });
-
-  it("becomes two separate AND clauses on a custom column", async () => {
-    const { where } = await new TestQueryBuilder().buildQueryArgs({
-      filters: [
-        { field: CUSTOM_COLUMN_ID, operator: FilterOperatorKey.contains, value: "acme" } as Filter,
-        { field: CUSTOM_COLUMN_ID, operator: FilterOperatorKey.contains, value: "corp" } as Filter,
-      ],
-    });
-
-    expect(andEntries(where)).toHaveLength(2);
-    expect(JSON.stringify(andEntries(where)[0])).toContain("acme");
-    expect(JSON.stringify(andEntries(where)[1])).toContain("corp");
   });
 
   it("round-trips through the URL in order", () => {

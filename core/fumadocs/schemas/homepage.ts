@@ -61,7 +61,7 @@ export const heroSchema = z.object({
 });
 export type Hero = z.infer<typeof heroSchema>;
 
-export const howItWorksStepSchema = z.object({
+const howItWorksStepSchema = z.object({
   n: z.string(),
   title: z.string(),
   description: z.string(),
@@ -77,7 +77,7 @@ export const clipTerminalSchema = z.object({
 });
 export type ClipTerminal = z.infer<typeof clipTerminalSchema>;
 
-export const howItWorksSchema = z.object({
+const howItWorksSchema = z.object({
   eyebrow: z.string(),
   handoff: z.object({
     description: z.string(),
@@ -88,12 +88,12 @@ export const howItWorksSchema = z.object({
   steps: z.array(howItWorksStepSchema),
 });
 
-export const walkthroughBulletSchema = z.object({
+const walkthroughBulletSchema = z.object({
   title: z.string(),
   description: z.string(),
 });
 
-export const walkthroughSchema = z.object({
+const walkthroughSchema = z.object({
   badge: z.string(),
   title: z.string(),
   titleAccent: z.string(),
@@ -103,7 +103,7 @@ export const walkthroughSchema = z.object({
 });
 export type Walkthrough = z.infer<typeof walkthroughSchema>;
 
-export const homepageStorySchema = z.object({
+const homepageStorySchema = z.object({
   description: z.string(),
   eyebrow: z.string(),
   points: z.array(z.string()).length(3),
@@ -111,7 +111,7 @@ export const homepageStorySchema = z.object({
 });
 export type HomepageStory = z.infer<typeof homepageStorySchema>;
 
-export const homepageProductProofSchema = z.object({
+const homepageProductProofSchema = z.object({
   demoDescription: z.string(),
   demoEyebrow: z.string(),
   demoTitle: z.string(),
@@ -123,7 +123,7 @@ export const homepageProductProofSchema = z.object({
 });
 export type HomepageProductProof = z.infer<typeof homepageProductProofSchema>;
 
-export const homepageVisualLabelsSchema = z.object({
+const homepageVisualLabelsSchema = z.object({
   agentActivity: z.string(),
   connectedRecord: z.string(),
   customerRecord: z.string(),
@@ -142,12 +142,10 @@ export const homepageVisualLabelsSchema = z.object({
 });
 export type HomepageVisualLabels = z.infer<typeof homepageVisualLabelsSchema>;
 
-export const pricingTitleSchema = z.object({
+const pricingTitleSchema = z.object({
   subtitle: z.string(),
   title: z.string(),
 });
-export type PricingTitle = z.infer<typeof pricingTitleSchema>;
-
 const rootMetadataSchema = z.object({
   defaultDescription: z.string(),
   defaultTitle: z.string(),

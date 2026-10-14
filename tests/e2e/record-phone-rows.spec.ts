@@ -1,0 +1,185 @@
+import { randomUUID } from "node:crypto";
+
+import type { Page } from "@playwright/test";
+
+import { test, expect, collectPageErrors } from "./fixtures";
+import { presetId } from "../../features/records/crm-preset";
+import { RecordModelSchema } from "../../features/records/record-model.schema";
+import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
+import { openRecordLink } from "./record-rows";
+
+async function create(page: Page, mutation: Record<string, unknown>) {
+  const model = RecordModelSchema.parse(await (await page.request.post("/api/v1/model/read", { data: {} })).json());
+  const response = await page.request.post("/api/v1/records/mutate", {
+    data: {
+      expectedRevision: model.revision,
+      idempotencyKey: randomUUID(),
+      mutation: { action: "create", ...mutation },
+    },
+  });
+  expect(response.status(), await response.text()).toBe(200);
+  const result = RecordOperationResultSchema.parse(await response.json());
+  if (result.status !== "completed") throw new Error("The record must be created synchronously");
+  return result.refs[0];
+}
+
+test("phone rows load more per group until every record of the group is reachable", async ({ page, companyId }) => {
+  test.setTimeout(180000);
+  const errors = collectPageErrors(page);
+  const id = (key: string) => presetId(companyId, key);
+  const typeId = id("deal");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`/en/records/${typeId}`);
+  for (let index = 1; index <= 12; index++)
+    await create(page, {
+      typeId,
+      fields: [
+        { fieldId: id("deal.name"), value: { kind: "text", value: `Phone deal ${String(index).padStart(2, "0")}` } },
+        { fieldId: id("deal.stage"), value: { kind: "select", value: id("deal.stage.new") } },
+      ],
+    });
+
+  await page.goto(`/en/records/${typeId}?groupBy=${encodeURIComponent(id("deal.stage"))}`);
+  const rows = page.locator("[data-phone-rows] [data-row-id]");
+  await expect(rows).toHaveCount(10);
+  const loadMore = page.locator("[data-phone-rows] [data-slot='group-load-more']").getByRole("button", {
+    name: "Load more",
+    exact: true,
+  });
+  await expect(loadMore).toBeVisible();
+  await loadMore.click();
+  await expect(rows).toHaveCount(12);
+  await expect(page.locator("[data-phone-rows] [data-slot='group-load-more']")).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test("sub-list phone rows open the record on tap", async ({ page, companyId }) => {
+  test.setTimeout(180000);
+  const errors = collectPageErrors(page);
+  const id = (key: string) => presetId(companyId, key);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`/en/records/${id("deal")}`);
+  const deal = await create(page, {
+    typeId: id("deal"),
+    fields: [{ fieldId: id("deal.name"), value: { kind: "text", value: "Phone parent deal" } }],
+  });
+  await create(page, {
+    typeId: id("lineItem"),
+    fields: [{ fieldId: id("lineItem.name"), value: { kind: "text", value: "Phone line" } }],
+    links: [{ relationId: id("lineItem.deal"), direction: "outgoing", record: deal }],
+  });
+
+  await page.goto(`/en/records/${deal.typeId}/${deal.recordId}`);
+  const lineItems = page.getByRole("region", { name: "Line items" });
+  const row = lineItems.locator("[data-phone-rows] [data-row-id]");
+  await expect(row).toHaveCount(1);
+  await expect(row).toContainText("Phone line");
+  await openRecordLink(row.getByRole("button", { name: "Phone line", exact: true }));
+  const editor = page.getByRole("dialog");
+  await expect(editor).toBeVisible();
+  await expect(editor.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Phone line");
+  expect(errors).toEqual([]);
+});
+
+test("the row's More actions trigger sits on a solid surface on keyboard focus and on hover", async ({
+  page,
+  companyId,
+  isMobile,
+}) => {
+  test.skip(isMobile, "Touch shows no More actions trigger; a long press on the row opens the same menu");
+  test.setTimeout(180000);
+  const errors = collectPageErrors(page);
+  const id = (key: string) => presetId(companyId, key);
+  const typeId = id("deal");
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto(`/en/records/${typeId}`);
+  await create(page, {
+    typeId,
+    fields: [{ fieldId: id("deal.name"), value: { kind: "text", value: "Surface deal" } }],
+  });
+  await page.reload();
+  const row = page.locator("tr").filter({ has: page.getByRole("link", { name: "Surface deal", exact: true }) });
+  const more = row.getByRole("button", { name: "More actions for Surface deal", exact: true });
+  const surface = () =>
+    row.locator("[data-record-row-actions]").evaluate((element) => {
+      const style = getComputedStyle(element);
+      const trigger = element.querySelector("[data-item-actions-trigger]");
+      return {
+        opacity: trigger ? getComputedStyle(trigger).opacity : "",
+        surfaceOpacity: style.opacity,
+        color: style.backgroundColor,
+        image: style.backgroundImage,
+      };
+    });
+  const triggerBox = () =>
+    row.evaluate((rowElement) => {
+      const trigger = rowElement.querySelector<HTMLElement>("[data-item-actions-trigger]");
+      const surface = rowElement.querySelector<HTMLElement>("[data-record-row-actions]");
+      if (!trigger || !surface) throw new Error("The row must render its More actions trigger");
+      const style = getComputedStyle(trigger);
+      const rect = trigger.getBoundingClientRect();
+      const rowRect = rowElement.getBoundingClientRect();
+      const container = rowElement.closest("[data-slot=\"table-container\"]");
+      const edge = container ? container.getBoundingClientRect().right : rowRect.right;
+      const alpha = (color: string) => {
+        const match = /rgba?\(([^)]+)\)/.exec(color);
+        const parts = match ? match[1].split(/[\s,/]+/).filter(Boolean) : [];
+        return parts.length === 4 ? Number(parts[3]) : parts.length === 3 ? 1 : 0;
+      };
+      const hit = document.elementFromPoint(rect.left + 1, rect.top + rect.height / 2);
+      const surfaceRect = surface.getBoundingClientRect();
+      return {
+        borderWidth: Number.parseFloat(style.borderTopWidth),
+        borderStyle: style.borderTopStyle,
+        height: rect.height,
+        width: rect.width,
+        rowHeight: rowRect.height,
+        topInset: rect.top - rowRect.top,
+        bottomInset: rowRect.bottom - rect.bottom,
+        rightGap: Math.min(rowRect.right, edge) - rect.right,
+        backgroundAlpha: alpha(style.backgroundColor),
+        surfaceHeight: surfaceRect.height,
+        surfaceRightGap: Math.min(rowRect.right, edge) - surfaceRect.right,
+        surfaceAlpha: alpha(getComputedStyle(surface).backgroundColor),
+        hitsTrigger: hit !== null && (trigger.contains(hit) || surface === hit),
+      };
+    });
+
+  await expect(page.locator("#records-add")).toBeEnabled();
+  await row.hover();
+  await expect.poll(async () => (await surface()).opacity).toBe("1");
+  await expect.poll(async () => (await surface()).surfaceOpacity).toBe("1");
+  const hovered = await surface();
+  expect(hovered.color).not.toBe("rgba(0, 0, 0, 0)");
+  expect(hovered.image).toContain("linear-gradient");
+  const box = await triggerBox();
+  expect(box.borderStyle).toBe("solid");
+  expect(box.borderWidth).toBeGreaterThan(0);
+  expect(box.height).toBeLessThan(box.rowHeight - 4);
+  expect(box.topInset).toBeGreaterThanOrEqual(2);
+  expect(box.bottomInset).toBeGreaterThanOrEqual(2);
+  expect(box.rightGap).toBeGreaterThanOrEqual(2);
+  expect(Math.abs(box.width - box.height)).toBeLessThanOrEqual(2);
+  expect(box.backgroundAlpha).toBe(1);
+  expect(Math.abs(box.surfaceHeight - box.rowHeight)).toBeLessThanOrEqual(2);
+  expect(box.surfaceRightGap).toBeLessThanOrEqual(2);
+  expect(box.surfaceAlpha).toBe(1);
+  expect(box.hitsTrigger).toBe(true);
+  await page.screenshot({ path: test.info().outputPath("row-actions-hover.png"), animations: "disabled" });
+  await page.emulateMedia({ colorScheme: "dark" });
+  await row.hover();
+  await expect.poll(async () => (await surface()).surfaceOpacity).toBe("1");
+  expect((await triggerBox()).backgroundAlpha).toBe(1);
+  await page.screenshot({ path: test.info().outputPath("row-actions-hover-dark.png"), animations: "disabled" });
+  await page.emulateMedia({ colorScheme: "light" });
+
+  await page.mouse.move(0, 0);
+  await expect.poll(async () => (await surface()).opacity).toBe("0");
+  await expect.poll(async () => (await surface()).surfaceOpacity).toBe("0");
+  await more.focus();
+  await expect.poll(async () => (await surface()).opacity).toBe("1");
+  const focused = await surface();
+  expect(focused.color).not.toBe("rgba(0, 0, 0, 0)");
+  await page.screenshot({ path: test.info().outputPath("row-actions-focus.png"), animations: "disabled" });
+  expect(errors).toEqual([]);
+});

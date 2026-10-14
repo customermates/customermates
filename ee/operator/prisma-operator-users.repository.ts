@@ -1,13 +1,13 @@
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { DateBucket } from "@/core/base/grouping/grouping.schema";
-import type { GroupCountRow } from "@/core/base/grouping/group-count";
+import type { GroupCountRow } from "@/core/base/grouping/group-axis";
 import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
 import type { OperatorUserRowDto } from "./operator-lists.schema";
 import type { GetOperatorUsersRepo } from "@/ee/operator/get/get-operator-users.repo";
 
 import type { Prisma, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
-import { BaseRepository } from "@/core/base/base-repository";
+import { QueryRepository } from "@/core/base/query-repository";
 import { dateGroupables, enumGroupables } from "@/core/base/grouping/groupable-field";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
@@ -68,7 +68,7 @@ const OPERATOR_USER_SELECT = {
   },
 } as const;
 
-export class PrismaOperatorUsersRepo extends BaseRepository<Prisma.UserWhereInput> implements GetOperatorUsersRepo {
+export class PrismaOperatorUsersRepo extends QueryRepository<Prisma.UserWhereInput> implements GetOperatorUsersRepo {
   constructor(private readonly agentRepo: AgentUsageRepo) {
     super();
   }

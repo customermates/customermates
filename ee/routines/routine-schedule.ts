@@ -15,7 +15,7 @@ const FIELD_RANGES = {
   dayOfWeek: { min: 0, max: 7 },
 } as const;
 
-export type ParsedCron = {
+type ParsedCron = {
   minutes: number[];
   hours: number[];
   daysOfMonth: number[];
@@ -25,9 +25,9 @@ export type ParsedCron = {
   dayOfWeekRestricted: boolean;
 };
 
-export type CronParseResult = { ok: true; cron: ParsedCron } | { ok: false; reason: CronParseFailure };
+type CronParseResult = { ok: true; cron: ParsedCron } | { ok: false; reason: CronParseFailure };
 
-export type CronParseFailure = "fieldCount" | "fieldSyntax" | "fieldRange" | "stepValue" | "rangeOrder" | "unreachable";
+type CronParseFailure = "fieldCount" | "fieldSyntax" | "fieldRange" | "stepValue" | "rangeOrder" | "unreachable";
 
 function expandField(raw: string, range: { min: number; max: number }): number[] | CronParseFailure {
   const values = new Set<number>();

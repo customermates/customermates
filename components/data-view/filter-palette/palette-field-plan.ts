@@ -1,11 +1,11 @@
-import type { Filter, FilterableField } from "@/core/base/base-get.schema";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { FilterValueClass } from "@/components/data-view/filter-modal/filter-value-class";
+import type { Filter, FilterableField } from "@/core/base/base-get.schema";
+import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 
 import { resolveFilterValueClass } from "@/components/data-view/filter-modal/filter-value-class";
 import { FilterOperatorKey, isStandaloneOperator } from "@/core/base/base-query-builder";
 
-export type PalettePageKind = "select" | "text" | "number" | "date" | "operatorOnly";
+export type PalettePageKind = "select" | "values" | "text" | "number" | "date" | "operatorOnly";
 
 export type PalettePlan = {
   impliedOperator: FilterOperatorKey | undefined;
@@ -16,6 +16,7 @@ export type PalettePlan = {
 
 export const PALETTE_OPERATOR_PREFERENCE: FilterOperatorKey[] = [
   FilterOperatorKey.in,
+  FilterOperatorKey.hasAnyOf,
   FilterOperatorKey.contains,
   FilterOperatorKey.inLastDays,
   FilterOperatorKey.gte,
@@ -29,6 +30,7 @@ const PAGE_KIND_BY_VALUE_CLASS: Record<FilterValueClass, PalettePageKind> = {
   none: "operatorOnly",
   numericString: "number",
   stringArray: "select",
+  scalarArray: "values",
   text: "text",
   unavailable: "operatorOnly",
 };
@@ -44,10 +46,16 @@ export function declaredOperatorsOf(field: string, filterableFields: FilterableF
 export function palettePlan(
   field: string,
   filterableFields: FilterableField[],
-  customColumns?: CustomColumnDto[],
+  customColumns?: ColumnPresentation[],
 ): PalettePlan {
   const declared = declaredOperatorsOf(field, filterableFields);
-  const impliedOperator = PALETTE_OPERATOR_PREFERENCE.find((operator) => declared.includes(operator));
+  const impliedOperator =
+    PALETTE_OPERATOR_PREFERENCE.find(
+      (operator) =>
+        declared.includes(operator) && resolveFilterValueClass(field, operator, customColumns) !== "scalarArray",
+    ) ??
+    PALETTE_OPERATOR_PREFERENCE.find((operator) => declared.includes(operator)) ??
+    (declared.length === 1 && !isStandaloneOperator(declared[0]) ? declared[0] : undefined);
   const valueClass = resolveFilterValueClass(field, impliedOperator, customColumns);
 
   return {

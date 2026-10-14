@@ -9,12 +9,16 @@ type Props = {
   onActivate: () => void;
   close: () => void;
   children: ReactNode;
+  className?: string;
+  ariaLabel?: string;
 };
 
-export function StackDropdownItem({ href, onActivate, close, children }: Props) {
+export function StackDropdownItem({ href, onActivate, close, children, className, ariaLabel }: Props) {
   return (
     <DropdownMenuItem
+      aria-label={ariaLabel}
       asChild={Boolean(href)}
+      className={className}
       onSelect={(event) => {
         if (href) {
           event.preventDefault();

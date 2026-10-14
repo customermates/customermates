@@ -1,33 +1,15 @@
 import type { PrismaClient } from "@/generated/prisma";
 
+import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 import { Prisma } from "@/generated/prisma";
-import { SURFACE } from "@/core/data-view/data-view-keys";
-
-import {
-  CONTACT_DETAIL_FIELD,
-  CONTACT_DETAIL_P13N_ID,
-} from "@/app/[locale]/(protected)/contacts/components/contact-detail-personalization";
-import {
-  DEAL_DETAIL_FIELD,
-  DEAL_DETAIL_P13N_ID,
-} from "@/app/[locale]/(protected)/deals/components/deal-detail-personalization";
-import {
-  ORGANIZATION_DETAIL_FIELD,
-  ORGANIZATION_DETAIL_P13N_ID,
-} from "@/app/[locale]/(protected)/organizations/components/organization-detail-personalization";
-import {
-  SERVICE_DETAIL_FIELD,
-  SERVICE_DETAIL_P13N_ID,
-} from "@/app/[locale]/(protected)/services/components/service-detail-personalization";
-import {
-  TASK_DETAIL_FIELD,
-  TASK_DETAIL_P13N_ID,
-} from "@/app/[locale]/(protected)/tasks/components/task-detail-personalization";
 
 import type { SeedContext } from "./context";
 import type { CustomFieldSeedData } from "./custom-fields";
 
 import { fixtureId } from "./helpers";
+import { northwindColumns } from "./northwind-columns";
+import { northwindModelIds } from "./northwind-model";
+import { syntheticRecordKeys } from "./record-keys";
 
 export const SYNTHETIC_P13N_ID_PREFIX = "1f000000";
 export const SYNTHETIC_P13N_IDS = {
@@ -38,7 +20,6 @@ export const SYNTHETIC_P13N_IDS = {
   webhooks: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 5),
   deals: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 6),
   services: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 7),
-  auditLogs: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 8),
   webhookDeliveries: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 9),
   organizations: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 10),
   contactDetail: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 11),
@@ -47,6 +28,21 @@ export const SYNTHETIC_P13N_IDS = {
   serviceDetail: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 14),
   taskDetail: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 15),
   routines: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 16),
+  dashboard: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 19),
+  subscriptions: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 20),
+  onboardings: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 21),
+  tickets: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 22),
+  campaigns: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 23),
+  partners: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 24),
+  openRoles: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 25),
+  candidates: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 26),
+  subscriptionDetail: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 27),
+  onboardingDetail: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 28),
+  ticketDetail: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 29),
+  campaignDetail: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 30),
+  partnerDetail: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 31),
+  openRoleDetail: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 32),
+  candidateDetail: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 33),
 } as const;
 
 export const SYNTHETIC_TEAM_ROUTINE_P13N_IDS = {
@@ -60,24 +56,39 @@ function inputJson(value: unknown): Prisma.InputJsonValue {
   return value as Prisma.InputJsonValue;
 }
 
+/**
+ * The demo user's personalization: the "All" view of every list and the pinned fields of every record page. Like
+ * the saved views, each is curated for an overview: a card shows three to five chips, a table the name plus four to
+ * six columns, and a record page pins three to five facts. Every other field stays available but hidden.
+ */
 export function buildSyntheticP13nFixtures(
   context: Pick<SeedContext, "ids">,
   customFields: CustomFieldSeedData,
 ): SyntheticP13nFixture[] {
-  const { customColumnIds } = customFields;
+  const { customFieldIds } = customFields;
   const { company, user } = context.ids;
-  const userFilter = {
-    field: "userIds",
-    operator: "in",
-    value: [user],
-  } as const;
+  const { id, surface, relationship, path } = syntheticRecordKeys(company);
+  const { fields: f } = northwindModelIds(company);
+  const dealStage = f.deal.stage;
+  const columns = northwindColumns(company, customFieldIds);
+  const rel = relationship;
+  const listStateKeys = (grouping: boolean) => [
+    "filters",
+    "sortDescriptor",
+    "pageSize",
+    "viewMode",
+    ...(grouping ? ["grouping"] : []),
+    "columnOrder",
+    "columnWidths",
+    "hiddenColumns",
+  ];
 
   const fixture = (
-    id: string,
+    fixtureId: string,
     p13nId: string,
     data: Omit<SyntheticP13nFixture, "id" | "companyId" | "p13nId" | "userId">,
   ): SyntheticP13nFixture => ({
-    id,
+    id: fixtureId,
     companyId: company,
     p13nId,
     userId: user,
@@ -85,49 +96,86 @@ export function buildSyntheticP13nFixtures(
   });
 
   const detailFixture = (
-    id: string,
-    p13nId: string,
+    fixtureId: string,
+    type: string,
     columnOrder: string[],
     starredFieldIds: string[],
     fieldOrder: string[],
-    hiddenFieldIds: string[] = [],
+    hiddenFieldIds: string[],
   ): SyntheticP13nFixture =>
-    fixture(id, p13nId, {
+    fixture(fixtureId, `record-detail:${id(type)}`, {
       columnOrder,
       hiddenColumns: [],
       viewMode: null,
       detailOptions: inputJson({
         starredFieldIds,
         collapsedSectionIds: [],
-        hiddenFieldIds: [...hiddenFieldIds, "createdAt", "updatedAt"],
-        fieldOrder: [...fieldOrder, "createdAt", "updatedAt"],
+        hiddenFieldIds: [...hiddenFieldIds, "system:createdAt", "system:updatedAt"],
+        fieldOrder: [...fieldOrder, "system:assignedTo", "system:createdAt", "system:updatedAt"],
+      }),
+    });
+
+  type ListKey = Parameters<typeof columns.showOnly>[0];
+  /** Shows `visible` in that order (plus the name) and hides every other column of the list. */
+  const curated = (type: ListKey, visible: string[]) => ({
+    columnOrder: visible,
+    hiddenColumns: columns.showOnly(type, visible),
+  });
+  /** The curated "All" table of a custom list, sorted by `sortField`. */
+  const customListFixture = (
+    fixtureId: string,
+    type: ListKey,
+    visible: string[],
+    sortField: string,
+    direction: "asc" | "desc",
+  ): SyntheticP13nFixture =>
+    fixture(fixtureId, surface(type), {
+      ...curated(type, visible),
+      columnWidths: inputJson({}),
+      filters: inputJson([]),
+      searchTerm: null,
+      sortDescriptor: inputJson({ direction, field: sortField }),
+      pagination: inputJson({ pageSize: 100 }),
+      viewMode: "table",
+      groupingColumnId: null,
+      grouping: Prisma.DbNull,
+      viewStateKeys: inputJson(listStateKeys(false)),
+    });
+  /** The record page of a custom list: pins `starredFieldIds` and keeps the default field order. */
+  const pinsFixture = (fixtureId: string, type: string, starredFieldIds: string[]): SyntheticP13nFixture =>
+    fixture(fixtureId, `record-detail:${id(type)}`, {
+      columnOrder: [],
+      hiddenColumns: [],
+      viewMode: null,
+      detailOptions: inputJson({
+        starredFieldIds,
+        collapsedSectionIds: [],
+        hiddenFieldIds: [],
       }),
     });
 
   return [
-    fixture(SYNTHETIC_P13N_IDS.contacts, "contacts-card-store", {
-      columnOrder: [
-        "organizations",
-        "tasks",
-        "deals",
-        customColumnIds.contactSalesPipeline,
-        customColumnIds.contactPhone,
-        "channels",
-        "updatedAt",
-        "createdAt",
-        "users",
-      ],
-      columnWidths: inputJson({ tasks: 133 }),
-      filters: inputJson([userFilter]),
+    fixture(SYNTHETIC_P13N_IDS.contacts, surface("contact"), {
+      ...curated("contact", [
+        f.contact.jobTitle,
+        rel("contact.organizations", "outgoing"),
+        customFieldIds.contactSalesPipeline,
+        id("capability.identity"),
+      ]),
+      columnWidths: inputJson({ [f.contact.jobTitle]: 220 }),
+      filters: inputJson([]),
       searchTerm: null,
-      sortDescriptor: inputJson({ direction: "asc", field: "name" }),
+      sortDescriptor: inputJson({
+        direction: "asc",
+        field: id("contact.name"),
+      }),
       pagination: inputJson({ pageSize: 100 }),
-      hiddenColumns: ["deals", "createdAt"],
       viewMode: "table",
       groupingColumnId: null,
       grouping: Prisma.DbNull,
+      viewStateKeys: inputJson(listStateKeys(false)),
     }),
-    fixture(SYNTHETIC_P13N_IDS.users, "users-card-store", {
+    fixture(SYNTHETIC_P13N_IDS.users, SURFACE.users, {
       columnOrder: [],
       columnWidths: inputJson({ role: 108 }),
       filters: inputJson([]),
@@ -139,28 +187,22 @@ export function buildSyntheticP13nFixtures(
       groupingColumnId: null,
       grouping: Prisma.DbNull,
     }),
-    fixture(SYNTHETIC_P13N_IDS.tasks, "tasks-card-store", {
-      columnOrder: [customColumnIds.taskPriority, customColumnIds.taskStatus, "updatedAt", "createdAt", "users"],
+    fixture(SYNTHETIC_P13N_IDS.tasks, surface("task"), {
+      ...curated("task", [f.task.dueDate, customFieldIds.taskPriority, rel("task.deals", "outgoing")]),
       columnWidths: inputJson({}),
-      filters: inputJson([userFilter]),
+      filters: inputJson([]),
       searchTerm: null,
-      sortDescriptor: inputJson({ direction: "desc", field: "updatedAt" }),
+      sortDescriptor: inputJson({
+        direction: "desc",
+        field: "system:updatedAt",
+      }),
       pagination: inputJson({ pageSize: 100 }),
-      hiddenColumns: [
-        customColumnIds.taskStatus,
-        "createdAt",
-        "contacts",
-        "organizations",
-        "deals",
-        "services",
-        "users",
-        "updatedAt",
-      ],
       viewMode: "card",
-      groupingColumnId: customColumnIds.taskStatus,
-      grouping: inputJson({ field: customColumnIds.taskStatus }),
+      groupingColumnId: customFieldIds.taskStatus,
+      grouping: inputJson({ field: customFieldIds.taskStatus }),
+      viewStateKeys: inputJson(listStateKeys(true)),
     }),
-    fixture(SYNTHETIC_P13N_IDS.roles, "roles-card-store", {
+    fixture(SYNTHETIC_P13N_IDS.roles, SURFACE.roles, {
       columnOrder: [],
       columnWidths: inputJson({}),
       filters: inputJson([]),
@@ -172,7 +214,7 @@ export function buildSyntheticP13nFixtures(
       groupingColumnId: null,
       grouping: Prisma.DbNull,
     }),
-    fixture(SYNTHETIC_P13N_IDS.webhooks, "webhooks-card-store", {
+    fixture(SYNTHETIC_P13N_IDS.webhooks, SURFACE.webhooks, {
       columnOrder: [],
       columnWidths: inputJson({}),
       filters: inputJson([]),
@@ -184,65 +226,47 @@ export function buildSyntheticP13nFixtures(
       groupingColumnId: null,
       grouping: Prisma.DbNull,
     }),
-    fixture(SYNTHETIC_P13N_IDS.deals, "deals-card-store", {
-      columnOrder: [
-        customColumnIds.dealStatus,
-        "totalValue",
-        "weightedValue",
-        "tasks",
-        "totalQuantity",
-        customColumnIds.dealProjectPeriod,
-        "contacts",
-        "organizations",
-        "services",
-        "users",
-        "updatedAt",
-        "createdAt",
-      ],
+    fixture(SYNTHETIC_P13N_IDS.deals, surface("deal"), {
+      ...curated("deal", [
+        id("deal.totalValue"),
+        rel("deal.organizations", "outgoing"),
+        "system:assignedTo",
+        f.deal.openedOn,
+      ]),
       columnWidths: inputJson({}),
       filters: inputJson([]),
       searchTerm: null,
-      sortDescriptor: inputJson({ direction: "desc", field: "name" }),
+      sortDescriptor: inputJson({ direction: "desc", field: id("deal.name") }),
       pagination: inputJson({ pageSize: 100 }),
-      hiddenColumns: ["contacts", "updatedAt", "createdAt", "tasks"],
       viewMode: "card",
-      groupingColumnId: customColumnIds.dealStatus,
-      grouping: inputJson({ field: customColumnIds.dealStatus }),
+      groupingColumnId: dealStage,
+      grouping: inputJson({
+        field: dealStage,
+        summaries: [{ fieldId: id("deal.totalValue"), aggregation: "sum" }],
+      }),
+      viewStateKeys: inputJson(listStateKeys(true)),
     }),
-    fixture(SYNTHETIC_P13N_IDS.services, "services-card-store", {
-      columnOrder: [
-        customColumnIds.serviceType,
-        "amount",
-        customColumnIds.servicePricing,
-        "deals",
-        "tasks",
-        "updatedAt",
-        "createdAt",
-        "users",
-      ],
+    fixture(SYNTHETIC_P13N_IDS.services, surface("service"), {
+      ...curated("service", [
+        customFieldIds.serviceType,
+        id("service.amount"),
+        customFieldIds.servicePricing,
+        path("service.deals.path"),
+      ]),
       columnWidths: inputJson({}),
       filters: inputJson([]),
       searchTerm: null,
-      sortDescriptor: inputJson({ direction: "asc", field: "name" }),
+      sortDescriptor: inputJson({
+        direction: "asc",
+        field: id("service.name"),
+      }),
       pagination: inputJson({ pageSize: 100 }),
-      hiddenColumns: ["createdAt", "tasks"],
       viewMode: "table",
       groupingColumnId: null,
       grouping: Prisma.DbNull,
+      viewStateKeys: inputJson(listStateKeys(false)),
     }),
-    fixture(SYNTHETIC_P13N_IDS.auditLogs, "audit-logs-card-store", {
-      columnOrder: ["event", "entityId", "createdAt", "user"],
-      columnWidths: inputJson({ name: 302 }),
-      filters: inputJson([]),
-      searchTerm: null,
-      sortDescriptor: inputJson({ direction: "desc", field: "createdAt" }),
-      pagination: inputJson({ pageSize: 25 }),
-      hiddenColumns: ["entityId"],
-      viewMode: "table",
-      groupingColumnId: null,
-      grouping: Prisma.DbNull,
-    }),
-    fixture(SYNTHETIC_P13N_IDS.webhookDeliveries, "webhook-deliveries-card-store", {
+    fixture(SYNTHETIC_P13N_IDS.webhookDeliveries, SURFACE.webhookDeliveries, {
       columnOrder: [],
       columnWidths: inputJson({}),
       filters: inputJson([]),
@@ -254,26 +278,32 @@ export function buildSyntheticP13nFixtures(
       groupingColumnId: null,
       grouping: Prisma.DbNull,
     }),
-    fixture(SYNTHETIC_P13N_IDS.organizations, "organizations-card-store", {
-      columnOrder: [
-        "contacts",
-        "deals",
-        "tasks",
-        customColumnIds.organizationType,
-        customColumnIds.organizationWebsite,
-        "updatedAt",
-        "createdAt",
-        "users",
-      ],
-      columnWidths: inputJson({ deals: 227, tasks: 191 }),
+    fixture(SYNTHETIC_P13N_IDS.organizations, surface("organization"), {
+      ...curated("organization", [
+        customFieldIds.organizationType,
+        f.organization.industry,
+        f.organization.segment,
+        f.organization.arr,
+        "system:assignedTo",
+      ]),
+      columnWidths: inputJson({ [id("organization.name")]: 260 }),
       filters: inputJson([]),
       searchTerm: null,
-      sortDescriptor: inputJson({ direction: "asc", field: "name" }),
+      sortDescriptor: inputJson({
+        direction: "asc",
+        field: id("organization.name"),
+      }),
       pagination: inputJson({ pageSize: 100 }),
-      hiddenColumns: ["createdAt"],
       viewMode: "table",
       groupingColumnId: null,
       grouping: Prisma.DbNull,
+      viewStateKeys: inputJson(listStateKeys(false)),
+    }),
+    fixture(SYNTHETIC_P13N_IDS.dashboard, SURFACE.dashboard, {
+      columnOrder: [],
+      hiddenColumns: [],
+      viewMode: null,
+      activeViewKey: ALL_VIEW_KEY,
     }),
     fixture(SYNTHETIC_P13N_IDS.routines, SURFACE.routines, {
       columnOrder: [],
@@ -287,98 +317,202 @@ export function buildSyntheticP13nFixtures(
       groupingColumnId: "ownerUserId",
       grouping: inputJson({ field: "ownerUserId" }),
     }),
+    customListFixture(
+      SYNTHETIC_P13N_IDS.subscriptions,
+      "subscription",
+      [
+        rel("subscription.organization", "outgoing"),
+        f.subscription.plan,
+        f.subscription.arr,
+        f.subscription.renewalDate,
+        f.subscription.health,
+      ],
+      f.subscription.renewalDate,
+      "asc",
+    ),
+    customListFixture(
+      SYNTHETIC_P13N_IDS.onboardings,
+      "onboarding",
+      [rel("onboarding.organization", "outgoing"), f.onboarding.phase, f.onboarding.owner, f.onboarding.progress],
+      f.onboarding.progress,
+      "asc",
+    ),
+    customListFixture(
+      SYNTHETIC_P13N_IDS.tickets,
+      "ticket",
+      [f.ticket.priority, f.ticket.status, f.ticket.assignee, f.ticket.slaDue],
+      f.ticket.slaDue,
+      "asc",
+    ),
+    customListFixture(
+      SYNTHETIC_P13N_IDS.campaigns,
+      "campaign",
+      [f.campaign.channel, f.campaign.period, f.campaign.budget, f.campaign.pipelineSourced],
+      f.campaign.pipelineSourced,
+      "desc",
+    ),
+    customListFixture(
+      SYNTHETIC_P13N_IDS.partners,
+      "partner",
+      [f.partner.tier, f.partner.region, f.partner.referredPipeline, f.partner.revenueInfluenced],
+      f.partner.revenueInfluenced,
+      "desc",
+    ),
+    customListFixture(
+      SYNTHETIC_P13N_IDS.openRoles,
+      "openRole",
+      [f.openRole.department, f.openRole.status, f.openRole.hiringManager, f.openRole.targetStart],
+      f.openRole.targetStart,
+      "asc",
+    ),
+    customListFixture(
+      SYNTHETIC_P13N_IDS.candidates,
+      "candidate",
+      [rel("candidate.openRole", "outgoing"), f.candidate.stage, f.candidate.source, f.candidate.appliedOn],
+      f.candidate.appliedOn,
+      "desc",
+    ),
     detailFixture(
       SYNTHETIC_P13N_IDS.contactDetail,
-      CONTACT_DETAIL_P13N_ID,
-      [customColumnIds.contactSalesPipeline, customColumnIds.contactPhone],
-      [CONTACT_DETAIL_FIELD.identifiers, CONTACT_DETAIL_FIELD.organizationIds, customColumnIds.contactSalesPipeline],
+      "contact",
+      [customFieldIds.contactSalesPipeline, customFieldIds.contactPhone],
       [
-        CONTACT_DETAIL_FIELD.firstName,
-        CONTACT_DETAIL_FIELD.lastName,
-        customColumnIds.contactSalesPipeline,
-        CONTACT_DETAIL_FIELD.organizationIds,
-        CONTACT_DETAIL_FIELD.identifiers,
-        customColumnIds.contactPhone,
-        CONTACT_DETAIL_FIELD.dealIds,
-        CONTACT_DETAIL_FIELD.taskIds,
-        CONTACT_DETAIL_FIELD.userIds,
+        f.contact.jobTitle,
+        relationship("contact.organizations", "outgoing"),
+        customFieldIds.contactSalesPipeline,
+        id("capability.identity"),
       ],
-      [CONTACT_DETAIL_FIELD.taskIds],
+      [
+        id("contact.firstName"),
+        id("contact.lastName"),
+        f.contact.jobTitle,
+        customFieldIds.contactSalesPipeline,
+        relationship("contact.organizations", "outgoing"),
+        id("capability.identity"),
+        customFieldIds.contactPhone,
+        relationship("deal.contacts", "incoming"),
+        relationship("task.contacts", "incoming"),
+      ],
+      [relationship("task.contacts", "incoming")],
     ),
     detailFixture(
       SYNTHETIC_P13N_IDS.organizationDetail,
-      ORGANIZATION_DETAIL_P13N_ID,
-      [customColumnIds.organizationType, customColumnIds.organizationWebsite],
-      [customColumnIds.organizationType, customColumnIds.organizationWebsite, ORGANIZATION_DETAIL_FIELD.userIds],
+      "organization",
+      [customFieldIds.organizationType, customFieldIds.organizationWebsite],
+      [customFieldIds.organizationType, f.organization.industry, f.organization.arr, "system:assignedTo"],
       [
-        ORGANIZATION_DETAIL_FIELD.name,
-        customColumnIds.organizationType,
-        customColumnIds.organizationWebsite,
-        ORGANIZATION_DETAIL_FIELD.contactIds,
-        ORGANIZATION_DETAIL_FIELD.dealIds,
-        ORGANIZATION_DETAIL_FIELD.taskIds,
-        ORGANIZATION_DETAIL_FIELD.userIds,
+        id("organization.name"),
+        customFieldIds.organizationType,
+        f.organization.industry,
+        f.organization.arr,
+        customFieldIds.organizationWebsite,
+        relationship("contact.organizations", "incoming"),
+        relationship("deal.organizations", "incoming"),
+        relationship("task.organizations", "incoming"),
       ],
-      [ORGANIZATION_DETAIL_FIELD.taskIds],
+      [relationship("task.organizations", "incoming")],
     ),
     detailFixture(
       SYNTHETIC_P13N_IDS.dealDetail,
-      DEAL_DETAIL_P13N_ID,
-      [customColumnIds.dealStatus, customColumnIds.dealProjectPeriod],
+      "deal",
+      [customFieldIds.dealStatus, customFieldIds.dealProjectPeriod],
       [
-        DEAL_DETAIL_FIELD.totalValue,
-        DEAL_DETAIL_FIELD.totalQuantity,
-        DEAL_DETAIL_FIELD.organizationIds,
-        customColumnIds.dealStatus,
+        id("deal.totalValue"),
+        dealStage,
+        f.deal.openedOn,
+        relationship("deal.organizations", "outgoing"),
+        "system:assignedTo",
       ],
       [
-        DEAL_DETAIL_FIELD.name,
-        customColumnIds.dealStatus,
-        DEAL_DETAIL_FIELD.organizationIds,
-        customColumnIds.dealProjectPeriod,
-        DEAL_DETAIL_FIELD.serviceIds,
-        DEAL_DETAIL_FIELD.totalQuantity,
-        DEAL_DETAIL_FIELD.totalValue,
-        DEAL_DETAIL_FIELD.weightedValue,
-        DEAL_DETAIL_FIELD.contactIds,
-        DEAL_DETAIL_FIELD.taskIds,
-        DEAL_DETAIL_FIELD.userIds,
+        id("deal.name"),
+        dealStage,
+        f.deal.openedOn,
+        customFieldIds.dealStatus,
+        relationship("deal.organizations", "outgoing"),
+        customFieldIds.dealProjectPeriod,
+        path("deal.services.path"),
+        id("deal.totalQuantity"),
+        id("deal.totalValue"),
+        id("deal.weightedValue"),
+        relationship("deal.contacts", "outgoing"),
+        relationship("task.deals", "incoming"),
       ],
-      [DEAL_DETAIL_FIELD.weightedValue, DEAL_DETAIL_FIELD.contactIds, DEAL_DETAIL_FIELD.taskIds],
+      [id("deal.weightedValue"), relationship("deal.contacts", "outgoing"), relationship("task.deals", "incoming")],
     ),
     detailFixture(
       SYNTHETIC_P13N_IDS.serviceDetail,
-      SERVICE_DETAIL_P13N_ID,
-      [customColumnIds.serviceType, customColumnIds.servicePricing],
-      [SERVICE_DETAIL_FIELD.amount, customColumnIds.serviceType, customColumnIds.servicePricing],
+      "service",
+      [customFieldIds.serviceType, customFieldIds.servicePricing],
+      [id("service.amount"), customFieldIds.serviceType, customFieldIds.servicePricing],
       [
-        SERVICE_DETAIL_FIELD.name,
-        customColumnIds.serviceType,
-        customColumnIds.servicePricing,
-        SERVICE_DETAIL_FIELD.amount,
-        SERVICE_DETAIL_FIELD.dealIds,
-        SERVICE_DETAIL_FIELD.taskIds,
-        SERVICE_DETAIL_FIELD.userIds,
+        id("service.name"),
+        customFieldIds.serviceType,
+        customFieldIds.servicePricing,
+        id("service.amount"),
+        path("service.deals.path"),
+        relationship("task.services", "incoming"),
       ],
-      [SERVICE_DETAIL_FIELD.taskIds],
+      [relationship("task.services", "incoming")],
     ),
     detailFixture(
       SYNTHETIC_P13N_IDS.taskDetail,
-      TASK_DETAIL_P13N_ID,
-      [customColumnIds.taskPriority, customColumnIds.taskStatus],
-      [customColumnIds.taskStatus, customColumnIds.taskPriority, TASK_DETAIL_FIELD.userIds],
+      "task",
+      [customFieldIds.taskPriority, customFieldIds.taskStatus],
+      [customFieldIds.taskStatus, customFieldIds.taskPriority, f.task.dueDate, "system:assignedTo"],
       [
-        TASK_DETAIL_FIELD.name,
-        customColumnIds.taskStatus,
-        customColumnIds.taskPriority,
-        TASK_DETAIL_FIELD.contactIds,
-        TASK_DETAIL_FIELD.organizationIds,
-        TASK_DETAIL_FIELD.dealIds,
-        TASK_DETAIL_FIELD.serviceIds,
-        TASK_DETAIL_FIELD.userIds,
+        id("task.name"),
+        customFieldIds.taskStatus,
+        customFieldIds.taskPriority,
+        f.task.dueDate,
+        relationship("task.contacts", "outgoing"),
+        relationship("task.organizations", "outgoing"),
+        relationship("task.deals", "outgoing"),
+        relationship("task.services", "outgoing"),
       ],
-      [TASK_DETAIL_FIELD.organizationIds, TASK_DETAIL_FIELD.serviceIds],
+      [relationship("task.organizations", "outgoing"), relationship("task.services", "outgoing")],
     ),
+    pinsFixture(SYNTHETIC_P13N_IDS.subscriptionDetail, "subscription", [
+      rel("subscription.organization", "outgoing"),
+      f.subscription.plan,
+      f.subscription.arr,
+      f.subscription.renewalDate,
+      f.subscription.health,
+    ]),
+    pinsFixture(SYNTHETIC_P13N_IDS.onboardingDetail, "onboarding", [
+      rel("onboarding.organization", "outgoing"),
+      f.onboarding.phase,
+      f.onboarding.owner,
+      f.onboarding.progress,
+    ]),
+    pinsFixture(SYNTHETIC_P13N_IDS.ticketDetail, "ticket", [
+      f.ticket.priority,
+      f.ticket.status,
+      f.ticket.assignee,
+      f.ticket.slaDue,
+    ]),
+    pinsFixture(SYNTHETIC_P13N_IDS.campaignDetail, "campaign", [
+      f.campaign.channel,
+      f.campaign.owner,
+      f.campaign.budget,
+      f.campaign.pipelineSourced,
+    ]),
+    pinsFixture(SYNTHETIC_P13N_IDS.partnerDetail, "partner", [
+      f.partner.tier,
+      f.partner.region,
+      f.partner.revenueInfluenced,
+    ]),
+    pinsFixture(SYNTHETIC_P13N_IDS.openRoleDetail, "openRole", [
+      f.openRole.department,
+      f.openRole.status,
+      f.openRole.hiringManager,
+      f.openRole.targetStart,
+    ]),
+    pinsFixture(SYNTHETIC_P13N_IDS.candidateDetail, "candidate", [
+      rel("candidate.openRole", "outgoing"),
+      f.candidate.stage,
+      f.candidate.source,
+      f.candidate.appliedOn,
+    ]),
   ];
 }
 

@@ -1,12 +1,25 @@
 import { SYNTHETIC_AVATAR_URLS } from "../avatars";
+import { northwindDataset } from "../northwind-data";
+import { NORTHWIND_MEMBER_TITLES } from "../northwind-model";
 
-export type PersonKey = "amin" | "anna" | "clara" | "jonas" | "leon" | "marco" | "rashid" | "sophie" | "yasmin";
+export type PersonKey =
+  | "amin"
+  | "anna"
+  | "candidate"
+  | "clara"
+  | "jonas"
+  | "leon"
+  | "marco"
+  | "rashid"
+  | "sophie"
+  | "yasmin";
 
 export type SenderKey = PersonKey | "self";
 
 export type MessageFixture = {
   sender: SenderKey;
   text: string;
+  html?: string;
   draft?: boolean;
   reaction?: { sender: SenderKey; value: string };
 };
@@ -20,12 +33,32 @@ export type ThreadFixture = {
   state: "open" | "unread";
   subject: string | null;
   type: "single" | "group";
+  /** Records the conversation is linked to, resolved from the first participant: their deal, ticket or application. */
+  links?: ReadonlyArray<"deal" | "ticket" | "candidate">;
 };
+
+const northwind = northwindDataset();
+
+/** Email address and job of a demo contact, from the generated Northwind dataset. */
+function contactFacts(index: number) {
+  const contact = northwind.contacts[index];
+  const organization = contact && northwind.organizations[contact.organizationIndex];
+  if (!contact || !organization) throw new Error(`Missing Northwind contact ${index} for messaging`);
+  return { email: contact.email, occupation: `${contact.jobTitle} at ${organization.name}` };
+}
+
+/** The candidate who is in the case task stage; the recruiting thread is with them. */
+export const MESSAGING_CANDIDATE = (() => {
+  const candidate = northwind.candidates.find(({ stage }) => stage === "caseTask");
+  const role = candidate && northwind.openRoles[candidate.openRoleIndex];
+  if (!candidate || !role) throw new Error("Missing Northwind candidate for messaging");
+  return { ...candidate, roleName: role.name };
+})();
 
 export const people: Record<
   PersonKey,
   {
-    avatarPath: string;
+    avatarPath?: string;
     contactIndex: number | null;
     displayName: string;
     email?: string;
@@ -42,49 +75,44 @@ export const people: Record<
 > = {
   anna: {
     avatarPath: SYNTHETIC_AVATAR_URLS.annaMueller,
-    contactIndex: 22,
+    contactIndex: 20,
+    ...contactFacts(20),
     displayName: "Anna Müller",
-    email: "anna.mueller@roche.example",
-    occupation: "Program Manager at Roche",
   },
   amin: {
     avatarPath: SYNTHETIC_AVATAR_URLS.aminHassan,
     contactIndex: 7,
+    ...contactFacts(7),
     displayName: "Amin Hassan",
-    email: "amin.hassan@tui.example",
-    occupation: "Customer Experience Lead at TUI",
   },
   clara: {
     avatarPath: SYNTHETIC_AVATAR_URLS.claraNeumann,
     contactIndex: null,
     displayName: "Clara Neumann",
-    email: "clara.neumann@partner.demo.example",
-    occupation: "Customer Operations Consultant",
+    email: "clara.neumann@customermates.com",
+    occupation: `${NORTHWIND_MEMBER_TITLES.claraNeumann} at Northwind Labs`,
   },
   leon: {
     avatarPath: SYNTHETIC_AVATAR_URLS.leonBecker,
     contactIndex: 0,
+    ...contactFacts(0),
     displayName: "Leon Becker",
-    email: "leon.becker@bmw.example",
-    headline: "Leading practical IT transformation",
+    headline: "Planning field service that runs on time",
     linkedin: "leon-becker.linkedin.example",
-    occupation: "IT Transformation Lead at BMW",
     profileUrl: "https://linkedin.example/in/leon-becker",
   },
   sophie: {
     avatarPath: SYNTHETIC_AVATAR_URLS.sophieWagner,
-    contactIndex: 19,
+    contactIndex: 17,
+    ...contactFacts(17),
     displayName: "Sophie Wagner",
-    email: "sophie.wagner@bmw.example",
-    occupation: "Sales Operations Manager at BMW",
     phone: "+12025550119",
   },
   jonas: {
     avatarPath: SYNTHETIC_AVATAR_URLS.jonasWeber,
     contactIndex: 6,
+    ...contactFacts(6),
     displayName: "Jonas Weber",
-    email: "jonas.weber@continental.example",
-    occupation: "Product Lead at Continental",
     phone: "+12025550106",
     telegram: "jonas_weber",
     telegramProfileUrl: "https://telegram.example/jonas-weber",
@@ -93,27 +121,31 @@ export const people: Record<
     avatarPath: SYNTHETIC_AVATAR_URLS.marcoSilva,
     contactIndex: null,
     displayName: "Marco Silva",
-    occupation: "Implementation Partner",
+    occupation: `${NORTHWIND_MEMBER_TITLES.marcoSilva} at Northwind Labs`,
     phone: "+12025550127",
   },
   rashid: {
     avatarPath: SYNTHETIC_AVATAR_URLS.rashidMalik,
-    contactIndex: 26,
+    contactIndex: 24,
+    ...contactFacts(24),
     displayName: "Rashid Malik",
-    email: "rashid.malik@kpmg.example",
-    headline: "Turning digital strategy into measurable change",
+    headline: "Fewer second visits, better service data",
     linkedin: "rashid-malik.linkedin.example",
-    occupation: "Digital Strategy Manager at KPMG",
     profileUrl: "https://linkedin.example/in/rashid-malik",
   },
   yasmin: {
     avatarPath: SYNTHETIC_AVATAR_URLS.yasminFarouk,
-    contactIndex: 23,
+    contactIndex: 21,
+    ...contactFacts(21),
     displayName: "Yasmin Farouk",
-    email: "yasmin.farouk@asml.example",
     instagram: "yasmin.farouk",
     instagramProfileUrl: "https://instagram.example/yasmin-farouk",
-    occupation: "Partner Manager at ASML",
+  },
+  candidate: {
+    contactIndex: null,
+    displayName: MESSAGING_CANDIDATE.name,
+    email: MESSAGING_CANDIDATE.email,
+    occupation: `Candidate for ${MESSAGING_CANDIDATE.roleName}`,
   },
 };
 
@@ -136,7 +168,7 @@ export const calendarFixture = {
       ],
       durationMinutes: 60,
       startsMinutesAgo: 6 * 60,
-      title: "BMW rollout checkpoint",
+      title: "Onboarding checkpoint",
       unipileEventId: "demo-fixture-calendar-event-2",
     },
     {
@@ -203,19 +235,19 @@ const threadFixtures: ThreadFixture[] = [
     messages: [
       {
         sender: "anna",
-        text: "Hi Max, the team loved the walkthrough. Could you send the revised rollout plan with the two pilot milestones?",
+        text: "Hi Max,\n\nThe team loved the walkthrough yesterday, especially the dispatch board.\n\nCould you send the revised rollout plan with the two pilot milestones? Our operations lead would like to review it before we commit to dates.\n\nBest regards,\nAnna",
       },
       {
         sender: "self",
-        text: "Absolutely. I tightened the milestones and added owners for onboarding, data import, and the launch review.",
+        text: "Hi Anna,\n\nThank you, glad it landed well. I tightened the milestones and gave every workstream a named owner:\n\n- **Onboarding:** Clara, starting in week one\n- **Data import:** Marco, with a dry run before go-live\n- **Launch review:** me, together with your operations lead\n\nThe full plan is attached. Happy to walk through it on a short call.\n\nBest,\nMax",
       },
       {
         sender: "anna",
-        text: "Perfect. Our operations lead can join the planning call as well. Tuesday morning would work best for us.",
+        text: "Hi Max,\n\nPerfect, that is exactly the level of detail we needed. Our operations lead can join the planning call as well.\n\nTuesday morning would work best for us.\n\nThanks,\nAnna",
       },
       {
         sender: "self",
-        text: "Great, I have held Tuesday at 10:00 and included the updated rollout brief. Looking forward to it.",
+        text: "Hi Anna,\n\nGreat, I have held **Tuesday at 10:00** and included the updated rollout brief in the invite.\n\nLooking forward to it.\n\nBest,\nMax",
       },
       {
         sender: "anna",
@@ -230,20 +262,21 @@ const threadFixtures: ThreadFixture[] = [
     name: null,
     participants: ["anna"],
     state: "open",
-    subject: "Next steps for the Roche rollout",
+    subject: "Next steps for the Northwind Field rollout",
     type: "single",
+    links: ["deal"],
   },
   {
     account: "google",
-    latestMinutesAgo: 90,
+    latestMinutesAgo: 3 * 24 * 60 + 90,
     messages: [
       {
         sender: "self",
-        text: "Thanks again for the customer operations roundtable. I captured the current journey, the handoff gaps, and the three success metrics we discussed.",
+        text: "Hi all,\n\nThanks again for the customer operations roundtable. Here is a short summary of what we agreed:\n\n1. Map the current journey from first contact to resolved ticket.\n2. Close the two handoff gaps between sales and service.\n3. Track three success metrics: first response time, reopen rate and customer effort.\n\nPlease reply with anything I missed.\n\nBest,\nMax",
       },
       {
         sender: "anna",
-        text: "The summary is spot on. I added a note about the support team so we do not miss their workflow.",
+        text: "Hi Max,\n\nThe summary is spot on. I added a note about the support team so we do not miss their workflow.\n\nAnna",
       },
       {
         sender: "self",
@@ -251,7 +284,7 @@ const threadFixtures: ThreadFixture[] = [
       },
       {
         sender: "amin",
-        text: "I added the measurement goals from the TUI team. The 24-hour response target is the one leadership cares about most.",
+        text: "I added the measurement goals from our service desk. The 24-hour response target is the one leadership cares about most.",
       },
       {
         sender: "self",
@@ -270,15 +303,15 @@ const threadFixtures: ThreadFixture[] = [
   },
   {
     account: "google",
-    latestMinutesAgo: 70,
+    latestMinutesAgo: 2 * 24 * 60,
     messages: [
       {
         sender: "yasmin",
-        text: "I reviewed the retainer draft. The scope is clear; I only have two small comments on the renewal language.",
+        text: "Hi Max,\n\nI reviewed the retainer draft. The scope is clear; I only have two small comments on the renewal language:\n\n- The notice period should be **60 days**, not 30.\n- Please confirm that quarterly planning is part of the retainer.\n\nKind regards,\nYasmin",
       },
       {
         sender: "self",
-        text: "Thank you. I accepted the wording change on notice periods and clarified that quarterly planning is included.",
+        text: "Hi Yasmin,\n\nThank you for the quick review. I accepted the wording change on the notice period and clarified in section 3 that quarterly planning is included.\n\nBest,\nMax",
       },
       {
         sender: "yasmin",
@@ -291,6 +324,7 @@ const threadFixtures: ThreadFixture[] = [
       {
         sender: "yasmin",
         text: "The signed copy just came back. Friday is confirmed, and I have invited the implementation leads.",
+        html: '<html><head><style>.wrap{font-family:Georgia,\'Times New Roman\',serif;color:#2b2b2b}.band{background:#0f4c5c;color:#ffffff;padding:14px 20px;font-size:13px;letter-spacing:0.08em;text-transform:uppercase}.card{border:1px solid #d9e2e5;padding:18px 20px}.meta td{padding:4px 12px 4px 0;font-size:13px;color:#5b6b70}.meta td.value{color:#1d2b30;font-weight:bold}.note{font-size:12px;color:#7a868a;padding-top:12px}</style></head><body><div class="wrap"><div class="band">Contract desk &middot; Signature complete</div><div class="card"><p style="margin:0 0 12px;font-size:15px">Hi Max,</p><p style="margin:0 0 12px;font-size:15px">The signed copy just came back. Friday is confirmed, and I have invited the implementation leads.</p><table class="meta" role="presentation"><tr><td>Document</td><td class="value">Order form, Northwind Field Enterprise</td></tr><tr><td>Signed by</td><td class="value">Yasmin Farouk</td></tr><tr><td>Status</td><td class="value" style="color:#1e7a46">Completed</td></tr></table><p class="note">This summary was generated by the contract desk. Reply to this email if anything looks wrong.</p></div></div></body></html>',
       },
       {
         draft: true,
@@ -301,8 +335,9 @@ const threadFixtures: ThreadFixture[] = [
     name: null,
     participants: ["yasmin"],
     state: "open",
-    subject: "ASML retainer: contract review",
+    subject: "Order form review: Northwind Field Enterprise",
     type: "single",
+    links: ["deal"],
   },
   {
     account: "linkedin",
@@ -373,7 +408,7 @@ const threadFixtures: ThreadFixture[] = [
     messages: [
       {
         sender: "sophie",
-        text: "Morning! Are we still on for the BMW kickoff at 14:00?",
+        text: "Morning! Are we still on for the onboarding kickoff at 14:00?",
       },
       {
         sender: "self",
@@ -437,7 +472,7 @@ const threadFixtures: ThreadFixture[] = [
     messages: [
       {
         sender: "amin",
-        text: "Hi Max, I pulled the first response-time baseline for the service journey. The regional split is more useful than the overall average.",
+        text: "Hi Max,\n\nI pulled the first response-time baseline for the service journey. The **regional split** is more useful than the overall average, so I would lead with it.\n\nThanks,\nAmin",
       },
       {
         sender: "self",
@@ -464,8 +499,9 @@ const threadFixtures: ThreadFixture[] = [
     name: null,
     participants: ["amin"],
     state: "open",
-    subject: "TUI response-time baseline",
+    subject: "SLA response-time baseline",
     type: "single",
+    links: ["ticket"],
   },
   {
     account: "google",
@@ -473,7 +509,7 @@ const threadFixtures: ThreadFixture[] = [
     messages: [
       {
         sender: "self",
-        text: "Hi Anna, I completed the first pass of the account and contact field mapping. The only ambiguity is the regional owner field.",
+        text: "Hi Anna,\n\nI completed the first pass of the account and contact field mapping. Everything maps cleanly except one field:\n\n- **Regional owner:** should it come from the territory assignment or the legacy account owner?\n\nOnce that is settled, we are ready for the dry run.\n\nBest,\nMax",
       },
       {
         sender: "anna",
@@ -495,7 +531,7 @@ const threadFixtures: ThreadFixture[] = [
     name: null,
     participants: ["anna"],
     state: "unread",
-    subject: "Roche data mapping review",
+    subject: "Asset data mapping review",
     type: "single",
   },
   {
@@ -557,7 +593,7 @@ const threadFixtures: ThreadFixture[] = [
     name: null,
     participants: ["yasmin"],
     state: "open",
-    subject: "ASML partner enablement materials",
+    subject: "Partner enablement materials",
     type: "single",
   },
   {
@@ -597,7 +633,7 @@ const threadFixtures: ThreadFixture[] = [
     messages: [
       {
         sender: "anna",
-        text: "Security sent the final questionnaire. Most answers are already in the architecture note, but they need explicit retention periods.",
+        text: "Hi Max,\n\nSecurity sent the final questionnaire. Most answers are already in the architecture note, but they need explicit retention periods for:\n\n- customer data\n- application logs\n- backups\n\nCould you add those this week?\n\nThanks,\nAnna",
       },
       {
         sender: "self",
@@ -621,6 +657,7 @@ const threadFixtures: ThreadFixture[] = [
     state: "open",
     subject: "Security questionnaire follow-up",
     type: "single",
+    links: ["deal"],
   },
   {
     account: "google",
@@ -1063,10 +1100,11 @@ const threadFixtures: ThreadFixture[] = [
       {
         sender: "amin",
         text: "Hi Max, I reviewed the service journey baseline and the regional split is much more useful than the overall average.",
+        html: '<!doctype html><html><head><meta name="color-scheme" content="light dark"><meta name="supported-color-schemes" content="light dark"><style>:root{color-scheme:light dark}body{margin:0;background:#f4f7fb;color:#1c2733;font-family:-apple-system,\'Segoe UI\',Roboto,Helvetica,Arial,sans-serif}.digest{padding:20px}.title{font-size:18px;font-weight:600;margin:0 0 4px}.lead{color:#52606d;margin:0 0 16px;font-size:14px}.stats{width:100%;border-collapse:separate;border-spacing:8px 0}.stat{background:#ffffff;border:1px solid #dbe3ec;border-radius:10px;padding:12px}.value{font-size:22px;font-weight:600;color:#1f6feb}.label{font-size:12px;color:#52606d}.foot{font-size:12px;color:#7b8794;margin-top:16px}@media (prefers-color-scheme: dark){body{background:#10161d;color:#e6edf3}.lead,.label{color:#9aa7b4}.stat{background:#18212b;border-color:#2b3846}.value{color:#6cb6ff}.foot{color:#7d8a97}}[data-ogsc] .lead{color:#9aa7b4}</style></head><body><div class="digest"><p class="title">Service journey baseline</p><p class="lead">Hi Max, here is the regional baseline from our service desk, ahead of Friday\'s review.</p><table class="stats" role="presentation"><tr><td class="stat"><div class="value">3.4 h</div><div class="label">First response, North</div></td><td class="stat"><div class="value">5.1 h</div><div class="label">First response, South</div></td><td class="stat"><div class="value">8%</div><div class="label">Partner escalations</div></td></tr></table><p class="foot">Sent from the service desk reporting digest. The regional split is more useful than the overall average.</p></div></body></html>',
       },
       {
         sender: "self",
-        text: "Agreed. I moved the regional comparison to the opening section and kept the overall figure as leadership context.",
+        text: "Hi Amin,\n\nAgreed. I moved the regional comparison to the opening section and kept the overall figure as context for leadership.\n\nBest,\nMax",
       },
       {
         sender: "amin",
@@ -1084,8 +1122,41 @@ const threadFixtures: ThreadFixture[] = [
     name: null,
     participants: ["amin"],
     state: "open",
-    subject: "TUI service journey baseline",
+    subject: "Service report baseline",
     type: "single",
+    links: ["ticket"],
+  },
+  {
+    account: "google",
+    latestMinutesAgo: 9 * 24 * 60,
+    messages: [
+      {
+        sender: "self",
+        text: `Hi ${MESSAGING_CANDIDATE.name.split(" ")[0]}, thank you for the interviews. As the next step we would like to invite you to a short case task: plan one week of maintenance jobs for a fictional HVAC team and present it in 30 minutes.`,
+      },
+      {
+        sender: "candidate",
+        text: "Thank you, I am happy to do the case task. Could you send the material and two possible dates for the presentation?",
+      },
+      {
+        sender: "self",
+        text: "The material is attached. Would Tuesday at 14:00 or Thursday at 10:00 work for you? Laura from our People team will send the invite.",
+      },
+      {
+        sender: "candidate",
+        text: "Thursday at 10:00 works well. I will send my questions by Monday if anything is unclear.",
+      },
+      {
+        sender: "self",
+        text: "Thursday at 10:00 is confirmed. The panel is the hiring manager and one team member; plan for 30 minutes and 15 minutes of questions.",
+      },
+    ],
+    name: null,
+    participants: ["candidate"],
+    state: "unread",
+    subject: `Case task for the ${MESSAGING_CANDIDATE.roleName} role`,
+    type: "single",
+    links: ["candidate"],
   },
 ];
 

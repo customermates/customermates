@@ -9,6 +9,7 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 import { draftThreadProviderId } from "../../draft-thread-id";
 import { isDraftThreadId } from "../../provider";
 
+import { getConnectedAccountRepo, getRecordAccessPolicy, getRecordIdentityReader, getRecordRepo } from "@/core/di";
 import { PrismaMessagingRepo } from "../prisma-messaging.repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
@@ -35,20 +36,25 @@ describeDatabase("Bcc visibility on PostgreSQL", () => {
     profileUrl: null,
     headline: null,
     occupation: null,
-    contact: null,
+    records: [],
   });
 
   beforeAll(async () => {
     await client.connect();
-    for (const id of [companyId, otherCompanyId])
+    for (const id of [companyId, otherCompanyId]) {
       await client.query('INSERT INTO "Company" ("id", "updatedAt") VALUES ($1, CURRENT_TIMESTAMP)', [id]);
+      await client.query(
+        'INSERT INTO "UserRole" ("id", "name", "isSystemRole", "companyId", "updatedAt") VALUES ($1, $2, TRUE, $1, CURRENT_TIMESTAMP)',
+        [id, "Admin"],
+      );
+    }
     for (const [id, tenantId] of [
       [ownerId, companyId],
       [colleagueId, companyId],
       [outsiderId, otherCompanyId],
     ]) {
       await client.query(
-        'INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "updatedAt") VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)',
+        'INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "roleId", "status", "updatedAt") VALUES ($1, $2, $3, $4, $5, $5, \'active\', CURRENT_TIMESTAMP)',
         [id, `bcc-${id}@example.invalid`, "Bcc", "Test", tenantId],
       );
     }
@@ -96,7 +102,14 @@ describeDatabase("Bcc visibility on PostgreSQL", () => {
     async (opts) => {
       await client.query('UPDATE "ConnectedAccount" SET "shared" = FALSE WHERE "id" = $1', [accountId]);
       const read = (user: typeof owner) =>
-        runWithTenant(user, () => new PrismaMessagingRepo().listMessagesForThread(threadId, opts));
+        runWithTenant(user, () =>
+          new PrismaMessagingRepo(
+            getRecordRepo(),
+            getRecordAccessPolicy(),
+            getRecordIdentityReader(),
+            getConnectedAccountRepo(),
+          ).listMessagesForThread(threadId, opts),
+        );
       const owned = await read(owner);
       expect(owned.total).toBe(2);
       expect(owned.messages.find((message) => message.direction === "outbound")?.recipients.bcc).toEqual([
@@ -129,7 +142,12 @@ describeDatabase("Bcc visibility on PostgreSQL", () => {
     await client.query('UPDATE "ConnectedAccount" SET "shared" = FALSE, "hasMessaging" = TRUE WHERE "id" = $1', [
       accountId,
     ]);
-    const repo = new PrismaMessagingRepo();
+    const repo = new PrismaMessagingRepo(
+      getRecordRepo(),
+      getRecordAccessPolicy(),
+      getRecordIdentityReader(),
+      getConnectedAccountRepo(),
+    );
     const hidden = "private-draft@example.invalid";
     const cold = await runWithTenant(owner, () =>
       repo.findOrCreateDraftThread({

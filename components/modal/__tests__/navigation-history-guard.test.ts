@@ -15,8 +15,8 @@ const state = vi.hoisted(() => ({
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({ navigationGuard: state.controller }),
 }));
-vi.mock("../unsaved-changes-guard", () => ({
-  UnsavedChangesGuard: () => null,
+vi.mock("../confirm-dialog", () => ({
+  DiscardChangesDialog: () => null,
 }));
 
 import { NavigationGuardModal } from "../navigation-guard-modal";

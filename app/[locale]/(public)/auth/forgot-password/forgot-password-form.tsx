@@ -17,13 +17,14 @@ import { AppCardFooter } from "@/components/card/app-card-footer";
 import { CardHeroHeader } from "@/components/card/card-hero-header";
 import { Reveal } from "@/components/shared/reveal";
 import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = {
   inviterName?: string;
   onboardingIntent?: string;
 };
 
-export const ForgotPasswordForm = observer(({ inviterName, onboardingIntent }: Props) => {
+const ForgotPasswordFormContent = observer(({ inviterName, onboardingIntent }: Props) => {
   const t = useTranslations();
 
   const searchParams = useSearchParams();
@@ -89,3 +90,5 @@ export const ForgotPasswordForm = observer(({ inviterName, onboardingIntent }: P
     </AppForm>
   );
 });
+
+export const ForgotPasswordForm = serverRenderedClient(ForgotPasswordFormContent);

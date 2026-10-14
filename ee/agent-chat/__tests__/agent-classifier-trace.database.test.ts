@@ -1,3 +1,4 @@
+import { mockRecordDiscovery } from "@/tests/helpers/record-tools";
 import { randomUUID } from "node:crypto";
 
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
@@ -95,7 +96,7 @@ describeDatabase("agent turn classifier trace persistence", { timeout: 120_000 }
         dispatchTracked: vi.fn().mockResolvedValue("wrun_classifier_trace"),
         resume: vi.fn().mockResolvedValue(true),
       } as never,
-      { getCustomColumns: () => Promise.resolve([]) } as never,
+      mockRecordDiscovery(),
       {
         invoke: vi.fn().mockResolvedValue({
           ok: true,

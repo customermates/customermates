@@ -85,14 +85,14 @@ const GOLDEN_DEFINITIONS: Record<VisualPathway, GoldenDefinition> = {
     accentTarget: "quiet-signal",
     copy: {
       de: {
-        body: "Max Bergmann prüft CRM Rollout & Sales Enablement, das auf Won steht; Data & Analytics Transformation bleibt auf Open und Process Automation Program auf Lost im ruhigen Kontext.",
+        body: "Max Bergmann prüft Moorfield Property Management - Enterprise 373 - Neu, das auf Won steht; Oakridge Climate Systems - Professional 140 - Neu bleibt auf Open und Riverton HVAC Service - Enterprise 213 - Neu auf Lost im ruhigen Kontext.",
         focalLabel: "Signal",
         headline: "Ein relevantes Signal tritt hervor",
         semanticLabels: ["Prüfer"],
         takeaway: "Ein leises Signal wird klar genug, um zu handeln.",
       },
       en: {
-        body: "Max Bergmann inspects CRM Rollout & Sales Enablement, which is Won, while Data & Analytics Transformation stays Open and Process Automation Program stays Lost in the quiet context.",
+        body: "Max Bergmann inspects Moorfield Property Management - Enterprise 373 - New, which is Won, while Oakridge Climate Systems - Professional 140 - New stays Open and Riverton HVAC Service - Enterprise 213 - New stays Lost in the quiet context.",
         focalLabel: "Signal",
         headline: "A relevant signal comes into focus",
         semanticLabels: ["Inspector"],
@@ -104,7 +104,7 @@ const GOLDEN_DEFINITIONS: Record<VisualPathway, GoldenDefinition> = {
     focalSubject: {
       fixtures: {
         person: "max-bergmann",
-        record: "deal-crm-rollout",
+        record: "deal-moorfield-property-management",
         status: "deal-won",
       },
       form: "signal",
@@ -115,7 +115,7 @@ const GOLDEN_DEFINITIONS: Record<VisualPathway, GoldenDefinition> = {
     supportingSubjects: [
       {
         fixtures: {
-          record: "deal-data-analytics",
+          record: "deal-oakridge-climate-systems",
           status: "deal-open",
         },
         form: "context-card",
@@ -123,7 +123,7 @@ const GOLDEN_DEFINITIONS: Record<VisualPathway, GoldenDefinition> = {
       },
       {
         fixtures: {
-          record: "deal-process-automation",
+          record: "deal-riverton-hvac-service",
           status: "deal-lost",
         },
         form: "context-card",

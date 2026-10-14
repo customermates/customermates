@@ -1,32 +1,16 @@
 "use server";
 
-import type { ActivitiesParams } from "@/ee/messaging/activities/activities.schema";
-import type { ActivityThreadOptionsData } from "@/ee/messaging/activities/get-activity-thread-options.interactor";
-import type { ActivityRecordOptionsData } from "@/ee/messaging/activities/get-activity-record-options.interactor";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 
+import { z } from "zod";
+
 import {
-  getGetActivitiesInteractor,
-  getGetActivityThreadOptionsInteractor,
-  getGetActivityRecordOptionsInteractor,
   getGetCalendarsInteractor,
-  getGetMyConnectedAccountsInteractor,
+  getGetCalendarByIdInteractor,
   getGetMessagingFilterOptionsInteractor,
+  getGetMyConnectedAccountsInteractor,
 } from "@/core/di";
-import { serializeResult } from "@/core/utils/action-result";
 import { unwrapValidated } from "@/core/validation/validation.utils";
-
-export async function getActivitiesAction(input: ActivitiesParams) {
-  return serializeResult(getGetActivitiesInteractor().invoke(input));
-}
-
-export async function getActivityThreadOptionsAction(input: ActivityThreadOptionsData) {
-  return unwrapValidated(getGetActivityThreadOptionsInteractor().invoke(input));
-}
-
-export async function getActivityRecordOptionsAction(input: ActivityRecordOptionsData) {
-  return unwrapValidated(getGetActivityRecordOptionsInteractor().invoke(input));
-}
 
 export async function getConnectedAccountsAction() {
   return unwrapValidated(getGetMyConnectedAccountsInteractor().invoke());
@@ -38,4 +22,23 @@ export async function getMessagingFilterOptionsAction() {
 
 export async function getCalendarsAction(params?: GetQueryParams) {
   return unwrapValidated(getGetCalendarsInteractor().invoke(params));
+}
+
+export async function resolveCalendarOptionsAction(ids: string[]) {
+  const selected = z
+    .array(z.uuid())
+    .max(100)
+    .parse([...new Set(ids)]);
+  const results = await Promise.all(selected.map((id) => getGetCalendarByIdInteractor().invoke({ id })));
+  return results.flatMap((result) =>
+    result.ok
+      ? [
+          {
+            id: result.data.id,
+            name: result.data.name,
+            provider: result.data.provider,
+          },
+        ]
+      : [],
+  );
 }

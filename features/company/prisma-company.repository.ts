@@ -1,34 +1,32 @@
 import type { RepoArgs } from "@/core/utils/types";
-import type { EntityTerminologyOverride } from "@/features/entity-terminology/entity-terminology.types";
-import type { GetCompanySettingsRepo } from "./get-company-settings.interactor";
-import type { UpdateCompanySettingsRepo } from "./update-company-settings.interactor";
-import type { GetOrCreateInviteTokenRepo } from "./get-or-create-invite-token.interactor";
-import type { InviteTokenRepo } from "@/features/company/invite-token-validation.interactor";
-import type { SubscriptionRepo } from "@/ee/subscription/subscription.service";
-import type { GetSubscriptionRepo } from "@/ee/subscription/get-subscription.interactor";
-import type { RefreshSubscriptionRepo } from "@/ee/subscription/refresh-subscription.interactor";
-import type { CreateCheckoutCompanyRepo } from "@/ee/subscription/create-checkout-session.interactor";
-import type { GetBillingPortalUrlRepo } from "@/ee/subscription/get-billing-portal-url.interactor";
-import type { RouteGuardCompanyRepo } from "@/features/auth/route-guard-company.repo";
-import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/admin-update-user-details.interactor";
-import type { EntitlementSubscriptionRepo } from "@/ee/subscription/entitlement.service";
 import type { CreateAuthLinkSubscriptionRepo } from "@/ee/messaging/connect/create-auth-link-subscription.repo";
-import type { UpsertRoutineSubscriptionRepo } from "@/ee/routines/upsert-routine.interactor";
-import type { RegisterUserCompanyRepo } from "@/features/user/register/register-user.interactor";
-import type { GetDealWeightingColumnRepo } from "./get-deal-weighting-column.repo";
+import type { UpsertRoutineSubscriptionRepo } from "@/ee/routines/upsert-routine-subscription.repo";
+import type { CreateCheckoutCompanyRepo } from "@/ee/subscription/create-checkout-session.repo";
+import type { EntitlementSubscriptionRepo } from "@/ee/subscription/entitlement-subscription.repo";
+import type { GetBillingPortalUrlRepo } from "@/ee/subscription/get-billing-portal-url.repo";
+import type { GetSubscriptionRepo } from "@/ee/subscription/get-subscription.repo";
+import type { RefreshSubscriptionRepo } from "@/ee/subscription/refresh-subscription.repo";
+import type { SubscriptionRepo } from "@/ee/subscription/subscription.service";
+import type { RouteGuardCompanyRepo } from "@/features/auth/route-guard-company.repo";
+import type { InviteTokenRepo } from "@/features/company/invite-token-validation.interactor";
+import type { RegisterUserCompanyRepo } from "@/features/user/register/register-user-company.repo";
+import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/admin-update-user-subscription.repo";
+import type { GetCompanyRepo } from "./get-company.repo";
+import type { GetOrCreateInviteTokenRepo } from "./get-or-create-invite-token.repo";
 
-import { ConversionEventType, SubscriptionStatus } from "@/generated/prisma";
+import { ConversionEventType, SubscriptionStatus, type Subscription } from "@/generated/prisma";
 
-import { getCustomColumnRepo, getDealRepo } from "@/core/di";
+import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
+import { env } from "@/env";
+
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { BaseRepository } from "@/core/base/base-repository";
 
 export class PrismaCompanyRepo
-  extends BaseRepository
+  extends TenantRepository
   implements
-    GetCompanySettingsRepo,
-    UpdateCompanySettingsRepo,
+    GetCompanyRepo,
     GetOrCreateInviteTokenRepo,
     InviteTokenRepo,
     SubscriptionRepo,
@@ -41,65 +39,14 @@ export class PrismaCompanyRepo
     EntitlementSubscriptionRepo,
     CreateAuthLinkSubscriptionRepo,
     UpsertRoutineSubscriptionRepo,
-    RegisterUserCompanyRepo,
-    GetDealWeightingColumnRepo
+    RegisterUserCompanyRepo
 {
-  @Transaction
-  async updateDetails(args: RepoArgs<UpdateCompanySettingsRepo, "updateDetails">) {
+  async findCompanyOrThrow() {
     const { companyId } = this.user;
-
-    await this.prisma.company.update({
-      data: { ...args, id: companyId },
+    return await this.prisma.company.findUniqueOrThrow({
       where: { id: companyId },
+      select: { id: true, createdAt: true, updatedAt: true },
     });
-
-    if (args.dealWeightingColumnId !== undefined) await getDealRepo().recalculateWeightedValuesForCompany();
-  }
-
-  async getDetails() {
-    const { companyId } = this.user;
-    return await this.prisma.company.findUniqueOrThrow({ where: { id: companyId } });
-  }
-
-  async getDealWeightingColumnId(): Promise<string | null> {
-    const company = await this.prisma.company.findUnique({
-      where: { id: this.companyId },
-      select: { dealWeightingColumnId: true },
-    });
-    return company?.dealWeightingColumnId ?? null;
-  }
-
-  async getTerminology(): Promise<EntityTerminologyOverride[]> {
-    const { companyId } = this.user;
-
-    return this.prisma.entityTerminology.findMany({
-      where: { companyId },
-      select: { entityType: true, presetKey: true },
-      orderBy: { entityType: "asc" },
-    });
-  }
-
-  @Transaction
-  async setDealStageWeights(entries: RepoArgs<UpdateCompanySettingsRepo, "setDealStageWeights">) {
-    const columnId = await this.getDealWeightingColumnId();
-    if (!columnId) return;
-
-    await getCustomColumnRepo().setOptionWeights(columnId, entries);
-  }
-
-  @Transaction
-  async upsertTerminology(entries: RepoArgs<UpdateCompanySettingsRepo, "upsertTerminology">) {
-    const { companyId } = this.user;
-
-    for (const entry of entries) {
-      const row = { companyId, entityType: entry.entityType, presetKey: entry.presetKey };
-
-      await this.prisma.entityTerminology.upsert({
-        where: { companyId_entityType: { companyId, entityType: entry.entityType } },
-        create: row,
-        update: row,
-      });
-    }
   }
 
   @Transaction
@@ -196,6 +143,13 @@ export class PrismaCompanyRepo
     });
   }
 
+  async findSubscription() {
+    return this.prisma.subscription.findUnique({
+      where: { companyId: this.companyId },
+      select: { status: true, trialEndDate: true, plan: true },
+    });
+  }
+
   @BypassTenantGuard
   async getSubscriptionOrThrowUnscoped(companyId: string) {
     const subscription = await this.prisma.subscription.findUniqueOrThrow({
@@ -203,6 +157,85 @@ export class PrismaCompanyRepo
     });
 
     return subscription;
+  }
+
+  @BypassTenantGuard
+  async correctSubscriptionSnapshotUnscoped(
+    companyId: string,
+    next: Pick<Subscription, "plan" | "status" | "quantity">,
+  ): Promise<void> {
+    await this.prisma.subscription.update({ where: { companyId }, data: next });
+  }
+
+  @BypassTenantGuard
+  async setEnterpriseAgentCreditsUnscoped(companyId: string, creditsPerUser: number | null): Promise<void> {
+    await this.prisma.subscription.update({
+      where: { companyId },
+      data: { enterpriseAgentCreditsPerUser: creditsPerUser },
+    });
+  }
+
+  @BypassTenantGuard
+  async setSubscriptionTermsUnscoped(
+    companyId: string,
+    terms: { trialEndDate: Date | null; lemonSqueezyId: string | null },
+  ): Promise<void> {
+    await this.prisma.subscription.update({
+      where: { companyId },
+      data: {
+        trialEndDate: terms.trialEndDate,
+        lemonSqueezyId: terms.lemonSqueezyId,
+        ...(terms.lemonSqueezyId === null ? { lemonSqueezyVariantId: null } : {}),
+      },
+    });
+  }
+
+  @BypassTenantGuard
+  async setWorkspaceTagsUnscoped(companyId: string, tags: string[]): Promise<void> {
+    await this.prisma.company.update({ where: { id: companyId }, data: { tags } });
+  }
+
+  @BypassTenantGuard
+  async deleteInviteTokensByCreatorsUnscoped(creatorIds: string[]): Promise<void> {
+    await this.prisma.inviteToken.deleteMany({ where: { createdById: { in: creatorIds } } });
+  }
+
+  @BypassTenantGuard
+  async deleteCompanyUnscoped(companyId: string): Promise<void> {
+    await this.prisma.company.delete({ where: { id: companyId } });
+  }
+
+  async createRegisteredCompany() {
+    const company = await this.prisma.company.create({ data: {} });
+
+    const trialEndDate = new Date();
+    trialEndDate.setDate(trialEndDate.getDate() + CLOUD_TRIAL.days);
+
+    await this.prisma.subscription.create({
+      data:
+        env.APP_MODE !== "self-hosted"
+          ? {
+              companyId: company.id,
+              status: SubscriptionStatus.trial,
+              plan: CLOUD_TRIAL.plan,
+              trialEndDate,
+              agentCreditAnchorAt: new Date(),
+            }
+          : {
+              companyId: company.id,
+              status: SubscriptionStatus.active,
+              trialEndDate: null,
+              agentCreditAnchorAt: new Date(),
+            },
+    });
+
+    return company.id;
+  }
+
+  async recordSignupConversion(companyId: string, occurredAt: Date) {
+    await this.prisma.conversionEvent.create({
+      data: { companyId, type: ConversionEventType.signup, occurredAt },
+    });
   }
 
   @BypassTenantGuard

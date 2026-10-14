@@ -175,7 +175,7 @@ A short field guide to the failures I see most.
 
 ### Fragmented Tools and Data
 
-The most common problem. Email lives in Gmail, calls live in the phone system, support lives in Zendesk, sales lives in the CRM, and the customer timeline does not exist. Fix: pick one system to be the source of truth (usually the CRM), make sure every other system writes back to it, and audit the integrations quarterly. Customermates uses [[derived.webhooks.events.total]] webhook events, [[derived.webhooks.events.records]] record events (created, updated, and deleted across contacts, organizations, deals, services, and tasks) plus [[derived.webhooks.events.messaging]] messaging and calendar events, so any external tool can stay in sync without polling.
+The most common problem. Email lives in Gmail, calls live in the phone system, support lives in Zendesk, sales lives in the CRM, and the customer timeline does not exist. Fix: pick one system to be the source of truth (usually the CRM), make sure every other system writes back to it, and audit the integrations quarterly. Customermates uses [[derived.webhooks.events.total]] webhook events, [[derived.webhooks.events.records]] record events (created, updated, and deleted for any record type, including contacts, organizations, deals, services, and tasks) plus [[derived.webhooks.events.messaging]] messaging and calendar events, so any external tool can stay in sync without polling.
 
 ### Manual Logging That Decays
 

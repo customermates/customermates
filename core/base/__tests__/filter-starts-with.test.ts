@@ -61,7 +61,7 @@ describe("startsWith filter operator", () => {
   });
 
   it("emits a bounded prefix condition in the built query, not an unfiltered match", () => {
-    const source = readFileSync(join(process.cwd(), "core/base/base-query-builder.ts"), "utf8");
+    const source = readFileSync(join(process.cwd(), "core/base/query-repository.ts"), "utf8");
     expect(source).toMatch(
       /case FilterOperatorKey\.startsWith:\s*\n\s*return \{ startsWith: filter\.value, mode: "insensitive" \};/,
     );

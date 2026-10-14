@@ -3,15 +3,10 @@
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Check, ChevronDown, Copy, Loader2, Square, X } from "lucide-react";
-import { EntityType } from "@/generated/prisma";
 
 import type { AgentChatItem } from "./agent-chat.store";
 
-import {
-  agentActivityCopy,
-  agentActivityGroupSummary,
-  type AgentActivityResource,
-} from "@/ee/agent-chat/agent-activity";
+import { agentActivityCopy, agentActivityGroupSummary } from "@/ee/agent-chat/agent-activity";
 
 import { useActivityGroupState } from "./use-activity-group-state";
 import { useSteadyLabel } from "./use-steady-label";
@@ -24,22 +19,12 @@ import { AppLink } from "@/components/shared/app-link";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { MessageResponse } from "@/components/ai-elements/message";
 import { agentMessageComponents, agentMessageRehypePlugins } from "./agent-message-links";
-import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { cn } from "@/core/utils/cn";
+import { ITEM_REVEAL_CLASS, ITEM_REVEAL_GROUP_CLASS } from "@/components/ui/item-actions";
 import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
+import { DataViewProposalSchema, type DataViewProposal } from "@/core/data-view/data-view-proposal.schema";
 import { ActionTooltip, ItemTime, TypingDots, chatUiCopy, focusAgentComposer } from "./chat-ui";
 import { AgentComposerContexts } from "./agent-composer-contexts";
-
-export function useAgentActivityTerminology(): Partial<Record<AgentActivityResource, string>> {
-  const { plural } = useEntityTerminology();
-  return {
-    contacts: plural(EntityType.contact),
-    organizations: plural(EntityType.organization),
-    deals: plural(EntityType.deal),
-    services: plural(EntityType.service),
-    tasks: plural(EntityType.task),
-  };
-}
 
 export const AgentChatItemView = observer(function AgentChatItemView({
   item,
@@ -54,7 +39,6 @@ export const AgentChatItemView = observer(function AgentChatItemView({
   const uiTargets = useAgentChatUiTargets();
   const t = useTranslations();
   const copyToClipboard = useCopyToClipboard();
-  const terminology = useAgentActivityTerminology();
   const decideApproval = async (
     approval: Extract<AgentChatItem, { kind: "approval" }>,
     decision: "approve" | "reject",
@@ -65,7 +49,7 @@ export const AgentChatItemView = observer(function AgentChatItemView({
 
   if (item.kind === "user") {
     return (
-      <article aria-label={userLabel ?? t("Inbox.senderYou")} className="group/message flex justify-end">
+      <article aria-label={userLabel ?? t("Inbox.senderYou")} className="flex justify-end">
         <div className="flex max-w-[85%] flex-col items-end gap-1">
           {userLabel && <span className="text-subdued text-xs">{userLabel}</span>}
 
@@ -83,7 +67,7 @@ export const AgentChatItemView = observer(function AgentChatItemView({
 
   if (item.kind === "assistant") {
     return (
-      <article aria-label={t("AgentChat.title")} className="group/message flex flex-col gap-1.5">
+      <article aria-label={t("AgentChat.title")} className={cn(ITEM_REVEAL_GROUP_CLASS, "flex flex-col gap-1.5")}>
         <div className="flex min-w-0 flex-col items-start gap-1.5">
           <div className="w-full text-sm leading-relaxed [&_pre]:overflow-x-auto">
             <MessageResponse
@@ -100,7 +84,7 @@ export const AgentChatItemView = observer(function AgentChatItemView({
             <ActionTooltip label={t("Common.actions.copy")}>
               <Button
                 aria-label={t("Common.actions.copy")}
-                className="size-7 text-muted-foreground opacity-0 transition-opacity focus-visible:opacity-100 group-hover/message:opacity-100"
+                className={cn(ITEM_REVEAL_CLASS, "size-7 text-muted-foreground")}
                 size="icon"
                 variant="ghost"
                 onClick={() => runUserAction(() => copyToClipboard(item.text))}
@@ -144,7 +128,7 @@ export const AgentChatItemView = observer(function AgentChatItemView({
     );
   }
 
-  const copy = agentActivityCopy(item.activity, t, terminology);
+  const copy = agentActivityCopy(item.activity, t);
 
   return (
     <div className="rounded-2xl border px-4 py-3.5 text-sm" data-testid="agent-approval">
@@ -239,15 +223,17 @@ export const AgentActivity = observer(function AgentActivity({
   isWorking,
   isTrailing,
   items,
+  onReviewProposal,
 }: {
   isWorking: boolean;
   isTrailing: boolean;
   items: Extract<AgentChatItem, { kind: "activity" }>[];
+  onReviewProposal?: (proposal: DataViewProposal) => void;
 }) {
   const t = useTranslations();
   const rows = compactActivityItems(items);
   const activityCopy = (item: (typeof rows)[number]) => {
-    const copy = agentActivityCopy(item.activity, t, terminology);
+    const copy = agentActivityCopy(item.activity, t);
     return item.activity.kind === "generic" && item.repetitions > 1
       ? {
           ...copy,
@@ -259,7 +245,6 @@ export const AgentActivity = observer(function AgentActivity({
       : copy;
   };
   const uiCopy = chatUiCopy(t);
-  const terminology = useAgentActivityTerminology();
   const hasRunning = items.some((item) => item.status === "running");
   const isPending = isWorking && isTrailing;
   const hasError = items.some((item) => item.status === "error");
@@ -287,16 +272,17 @@ export const AgentActivity = observer(function AgentActivity({
           t,
         );
   const runningItem = items.findLast((item) => item.status === "running" || (isRecovering && item.status === "error"));
-  const runningLabel = runningItem ? agentActivityCopy(runningItem.activity, t, terminology).running : uiCopy.thinking;
+  const runningLabel = runningItem ? agentActivityCopy(runningItem.activity, t).running : uiCopy.thinking;
   const liveSummary =
     hasDetails && !hasError && !hasCancelled && elapsedSeconds !== null
       ? uiCopy.stepsTook(rows.length, elapsedSeconds)
       : settledSummary;
   const summary = useSteadyLabel(isActive ? runningLabel : liveSummary);
-  const viewHref = items.findLast((item) => {
+  const viewActivity = items.findLast((item) => {
     if (item.status !== "done" || item.activity.kind !== "views.configure") return false;
     return dataViewNavigationHref(item.activity.viewHref) !== null;
-  })?.activity.viewHref;
+  })?.activity;
+  const viewHref = viewActivity?.viewHref;
   const statusIcon = isActive ? (
     <Loader2 aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" />
   ) : hasError ? (
@@ -341,8 +327,15 @@ export const AgentActivity = observer(function AgentActivity({
 
         {viewHref && (
           <Button asChild size="xs" variant="ghost">
-            <AppLink appearance="unstyled" href={viewHref}>
-              {t("AgentChat.openSavedView")}
+            <AppLink
+              appearance="unstyled"
+              href={viewHref}
+              onClick={() => {
+                const proposal = DataViewProposalSchema.safeParse(viewActivity?.viewProposal);
+                if (proposal.success) runUserAction(() => onReviewProposal?.(proposal.data));
+              }}
+            >
+              {viewActivity?.viewProposed ? t("AgentChat.reviewProposal") : t("AgentChat.openSavedView")}
             </AppLink>
           </Button>
         )}

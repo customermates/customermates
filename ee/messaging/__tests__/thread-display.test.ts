@@ -9,6 +9,7 @@ const t = (key: string) => key;
 
 function attendee(displayName: string): MessagingAttendee {
   return {
+    records: [],
     attendeeId: displayName,
     displayName,
     identifier: `${displayName}@id`,
@@ -85,6 +86,7 @@ describe("deriveThreadDisplay title precedence", () => {
 describe("deriveThreadDisplay secondary line", () => {
   function whatsappAttendee(displayName: string, identifier: string): MessagingAttendee {
     return {
+      records: [],
       attendeeId: identifier,
       displayName,
       identifier,
@@ -126,6 +128,7 @@ describe("deriveThreadDisplay secondary line", () => {
 describe("deriveThreadDisplay self-chat ownership", () => {
   function selfAttendee(): MessagingAttendee {
     return {
+      records: [],
       attendeeId: "self",
       displayName: null,
       identifier: "",

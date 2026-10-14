@@ -1,84 +1,14 @@
-import type { Prisma } from "@/generated/prisma";
-
 import type { SeedContext } from "./context";
-import { fixtureId, relationshipTarget, upsertFixturesById } from "./helpers";
+import { northwindAt, northwindDataset } from "./northwind-data";
+import { northwindUpdatedAt } from "./northwind-history";
 import type { ServiceSeedData } from "./services";
-import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
 
-export const SYNTHETIC_DEAL_NAMES = [
-  "Process Automation Program",
-  "Data & Analytics Transformation",
-  "CRM Rollout & Sales Enablement",
-  "Enterprise Integration Program",
-  "Workplace Hardware Rollout",
-  "Digital Customer Platform",
-  "Data Center Refresh",
-  "Cloud Infrastructure Migration",
-  "Network Infrastructure Upgrade",
-  "HR Systems Optimization",
-] as const;
+/** Index into the Status options (Open, Won, Lost, Abandoned) of each deal. */
+export const SYNTHETIC_DEAL_STATUS_INDEXES = northwindDataset().deals.map(({ status }) =>
+  ["open", "won", "lost", "abandoned"].indexOf(status),
+);
 
-export const SYNTHETIC_DEAL_ORGANIZATION_LINKS = [
-  [0, 7],
-  [1, 10],
-  [2, 13],
-  [3, 5],
-  [4, 7],
-  [5, 14],
-  [6, 9],
-  [7, 9],
-  [8, 0],
-  [9, 2],
-] as const;
-
-export const SYNTHETIC_SERVICE_DEAL_LINKS = [
-  [0, 25, 1],
-  [0, 26, 4],
-  [0, 28, 8],
-  [0, 32, 30],
-  [1, 5, 1],
-  [1, 10, 1],
-  [1, 12, 5],
-  [1, 33, 1],
-  [2, 0, 1],
-  [2, 3, 4],
-  [2, 14, 1],
-  [2, 21, 6],
-  [2, 22, 1],
-  [3, 8, 10],
-  [3, 15, 1],
-  [3, 31, 1],
-  [3, 37, 1],
-  [4, 7, 300],
-  [4, 30, 300],
-  [4, 34, 150],
-  [4, 39, 300],
-  [5, 9, 70],
-  [5, 13, 90],
-  [5, 27, 1],
-  [5, 38, 1],
-  [6, 2, 12],
-  [6, 11, 2],
-  [6, 19, 24],
-  [6, 40, 1],
-  [6, 41, 12],
-  [7, 4, 1],
-  [7, 6, 1],
-  [7, 18, 22],
-  [7, 29, 4],
-  [8, 1, 1],
-  [8, 20, 1],
-  [8, 24, 2],
-  [8, 36, 6],
-  [8, 42, 10],
-  [9, 16, 25],
-  [9, 17, 1],
-  [9, 23, 1],
-  [9, 35, 3],
-] as const;
-
-export const SYNTHETIC_DEAL_STATUS_INDEXES = [2, 0, 1, 1, 0, 0, 2, 1, 3, 1] as const;
-
+/** Probability attribute of the Status options (Open, Won, Lost, Abandoned). */
 export const SYNTHETIC_DEAL_STATUS_WEIGHTS = [30, 100, 0, 0] as const;
 
 export type DealDefinition = readonly [
@@ -88,57 +18,45 @@ export type DealDefinition = readonly [
   statusIndex: number,
 ];
 
-export type DealFixture = Prisma.DealCreateManyInput & { id: string };
+export type DealFixture = {
+  id: string;
+  companyId: string;
+  name: string;
+  totalQuantity: number;
+  totalValue: number;
+  weightedValue: number;
+  createdAt: Date;
+  updatedAt: Date;
+};
 
 export type DealSeedData = {
   dealDefinitions: readonly DealDefinition[];
   deals: DealFixture[];
 };
 
-export async function seedDeals(context: SeedContext, serviceData: ServiceSeedData): Promise<DealSeedData> {
-  const dealDefinitions: readonly DealDefinition[] = SYNTHETIC_DEAL_NAMES.map(
-    (name, index) =>
-      [
-        name,
-        relationshipTarget(SYNTHETIC_DEAL_ORGANIZATION_LINKS, index, "deal-organization"),
-        [] as number[],
-        SYNTHETIC_DEAL_STATUS_INDEXES[index],
-      ] as const,
+const STAGE_PROBABILITY = { new: 10, qualified: 25, proposal: 60, won: 100, lost: 0 } as const;
+
+export function seedDeals(context: SeedContext, _serviceData: ServiceSeedData): Promise<DealSeedData> {
+  const { deals: dataset, lineItems } = northwindDataset();
+  const dealDefinitions: readonly DealDefinition[] = dataset.map(
+    (deal) =>
+      [deal.name, deal.organizationIndex, deal.contactIndexes, SYNTHETIC_DEAL_STATUS_INDEXES[deal.index] ?? 0] as const,
   );
-
-  const deals = dealDefinitions.map(([name], index) => {
-    const links = SYNTHETIC_SERVICE_DEAL_LINKS.filter(([dealIndex]) => dealIndex === index);
-    const totalValue = links.reduce(
-      (sum, [, serviceIndex, quantity]) => sum + serviceData.services[serviceIndex].amount * quantity,
-      0,
-    );
-    const totalQuantity = links.reduce((sum, [, , quantity]) => sum + quantity, 0);
-    const weight = SYNTHETIC_DEAL_STATUS_WEIGHTS[SYNTHETIC_DEAL_STATUS_INDEXES[index]];
-
+  const deals = dataset.map((deal) => {
+    const totalQuantity = lineItems
+      .filter((line) => line.dealIndex === deal.index)
+      .reduce((sum, line) => sum + line.quantity, 0);
     return {
-      id: fixtureId("80000000", index + 1),
+      id: deal.id,
       companyId: context.ids.company,
-      name,
+      name: deal.name,
       totalQuantity,
-      totalValue,
-      weightedValue: (totalValue * weight) / 100,
-      ...SYNTHETIC_SEED_TIMELINE.deal(index),
-    } satisfies Prisma.DealCreateManyInput;
+      totalValue: deal.totalValue,
+      weightedValue: (deal.totalValue * STAGE_PROBABILITY[deal.stage]) / 100,
+      createdAt: northwindAt(deal.createdAtMs),
+      updatedAt: northwindUpdatedAt("deal", deal.id, deal.createdAtMs),
+    } satisfies DealFixture;
   });
 
-  await upsertFixturesById(deals, (deal) =>
-    context.prisma.deal.upsert({
-      where: { id: deal.id },
-      update: deal,
-      create: deal,
-    }),
-  );
-  await context.prisma.deal.deleteMany({
-    where: {
-      companyId: context.ids.company,
-      id: { startsWith: "80000000-", notIn: deals.map(({ id }) => id) },
-    },
-  });
-
-  return { dealDefinitions, deals };
+  return Promise.resolve({ dealDefinitions, deals });
 }

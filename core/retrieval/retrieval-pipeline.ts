@@ -2,7 +2,7 @@ import { QueryEmbeddingWait } from "./query-embedding-wait";
 import type { RetrievalStopwatch } from "./retrieval-stopwatch";
 import type { RankableSection, SectionRanker, SectionRanking } from "./retrieval-context";
 
-export const RETRIEVAL_RRF_K = 60;
+const RETRIEVAL_RRF_K = 60;
 export const RETRIEVAL_EMBEDDING_WAIT_MS = 1_100;
 export const RETRIEVAL_SEMANTIC_MIN_SIMILARITY = 0.5;
 
@@ -12,7 +12,7 @@ export const RETRIEVAL_RELEVANCE_FLOOR: RelevanceFloor = { coverage: 0.9, simila
 export type QueryVector = { vector: number[]; model: string };
 export type QueryEmbedding = (query: string, wait?: QueryEmbeddingWait) => Promise<QueryVector | null>;
 
-export type FusedRetrieval<Key extends string> = {
+type FusedRetrieval<Key extends string> = {
   ranked: Key[];
   fullText: Key[];
   semantic: Key[] | null;
@@ -22,7 +22,7 @@ export type FusedRetrieval<Key extends string> = {
 
 export type RelevanceVerdict = "kept" | "dropped" | "rerank";
 
-export type RetrievalEvidence = { pinned: number; coverage: number; similarity: number | null };
+type RetrievalEvidence = { pinned: number; coverage: number; similarity: number | null };
 
 export function relevanceVerdict(
   evidence: RetrievalEvidence,
@@ -63,7 +63,7 @@ export function fuseRankings<Key extends string>(args: {
   return [...pinned, ...fused];
 }
 
-async function withinDeadline<T>(
+export async function withinDeadline<T>(
   promise: Promise<T>,
   deadlineMs: number,
   gives: () => boolean,

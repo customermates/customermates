@@ -92,7 +92,7 @@ Hier ist ein Setup, das etwa zehn Minuten dauert und „Rep gibt Daten ins CRM e
 }
 ```
 
-**Schritt 3.** Senden Sie dem Agenten die E-Mail, das Transkript oder den Kontext. Sagen Sie ihm, das CRM zu aktualisieren. Der Agent wählt die richtigen Tools (`list_records`, um den Deal zu finden, `update_deals`, um die Stufe vorzurücken, `update_record_notes`, um eine Zusammenfassung anzuhängen) und führt sie aus.
+**Schritt 3.** Senden Sie dem Agenten die E-Mail, das Transkript oder den Kontext. Sagen Sie ihm, das CRM zu aktualisieren. Der Agent wählt die richtigen Tools (`search_crm_records`, um den Deal zu finden, `mutate_crm_record`, um die Stufe vorzurücken und eine Zusammenfassung an die Notizen anzuhängen) und führt sie aus.
 
 **Schritt 4.** Prüfen und auditieren. Derselbe Agent kann Änderungen zur Verifikation zurücklesen. Webhook-Events feuern bei jedem Schreibvorgang, sodass ein n8n-Flow oder Slack-Channel zeigen kann, was sich geändert hat.
 

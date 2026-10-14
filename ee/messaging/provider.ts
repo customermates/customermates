@@ -1,18 +1,18 @@
 import type { MessagingProvider } from "@/generated/prisma";
 
-export const EMAIL_PROVIDERS: ReadonlyArray<MessagingProvider> = ["mail", "google", "outlook"];
+const EMAIL_PROVIDERS: ReadonlyArray<MessagingProvider> = ["mail", "google", "outlook"];
 
 export function isEmailProvider(provider: MessagingProvider): boolean {
   return EMAIL_PROVIDERS.includes(provider);
 }
 
-export const FILEABLE_EMAIL_PROVIDERS: ReadonlyArray<MessagingProvider> = ["mail", "outlook"];
+const FILEABLE_EMAIL_PROVIDERS: ReadonlyArray<MessagingProvider> = ["mail", "outlook"];
 
 export function isFileableEmailProvider(provider: MessagingProvider): boolean {
   return FILEABLE_EMAIL_PROVIDERS.includes(provider);
 }
 
-export const PHONE_PROVIDERS: ReadonlyArray<MessagingProvider> = ["whatsapp"];
+const PHONE_PROVIDERS: ReadonlyArray<MessagingProvider> = ["whatsapp"];
 
 export function isPhoneProvider(provider: MessagingProvider): boolean {
   return PHONE_PROVIDERS.includes(provider);
@@ -26,14 +26,6 @@ export function channelClass(provider: MessagingProvider): string {
 
 export function channelLabelKey(provider: MessagingProvider): MessagingProvider {
   return isEmailProvider(provider) ? "mail" : provider;
-}
-
-export function classWhere(
-  provider: MessagingProvider,
-): { provider: { in: MessagingProvider[] } } | { provider: MessagingProvider } {
-  if (isEmailProvider(provider)) return { provider: { in: EMAIL_PROVIDERS as MessagingProvider[] } };
-  if (isPhoneProvider(provider)) return { provider: { in: PHONE_PROVIDERS as MessagingProvider[] } };
-  return { provider };
 }
 
 const DETERMINISTIC_PROVIDERS: ReadonlyArray<MessagingProvider> = ["mail", "google", "outlook", "whatsapp"];

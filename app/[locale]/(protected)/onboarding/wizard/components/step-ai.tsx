@@ -41,7 +41,7 @@ export const StepAiFooter = observer(() => {
         variant="secondary"
         onClick={() => runUserAction(isProviderChooser ? onboardingWizardStore.back : stepAiStore.backToProviders)}
       >
-        {t("OnboardingWizard.back")}
+        {t("Common.actions.back")}
       </Button>
 
       {isProviderChooser ? (

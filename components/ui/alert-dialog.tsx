@@ -23,7 +23,7 @@ function AlertDialogOverlay({ className, ...props }: React.ComponentProps<typeof
   return (
     <AlertDialogPrimitive.Overlay
       className={cn(
-        "fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0",
+        "fixed inset-0 z-50 bg-scrim/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0",
         className,
       )}
       data-slot="alert-dialog-overlay"
@@ -34,18 +34,20 @@ function AlertDialogOverlay({ className, ...props }: React.ComponentProps<typeof
 
 function AlertDialogContent({
   className,
+  overlayClassName,
   size = "default",
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Content> & {
+  overlayClassName?: string;
   size?: "default" | "sm";
 }) {
   return (
     <AlertDialogPortal>
-      <AlertDialogOverlay />
+      <AlertDialogOverlay className={overlayClassName} />
 
       <AlertDialogPrimitive.Content
         className={cn(
-          "group/alert-dialog-content fixed top-[50%] left-[50%] z-50 grid max-h-(--overlay-block-budget) w-full max-w-[calc(100%-2rem)] translate-[-50%] gap-4 overflow-y-auto overscroll-contain rounded-lg border border-border-strong bg-card p-6 shadow-lg duration-200 data-[size=sm]:max-w-xs data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[size=default]:sm:max-w-lg",
+          "group/alert-dialog-content fixed top-[50%] left-[50%] z-50 grid max-h-(--overlay-block-budget) w-full max-w-[calc(100%-2rem)] translate-[-50%] gap-4 overflow-y-auto overscroll-contain rounded-lg border border-border-strong bg-card p-6 shadow-lg duration-200 outline-none data-[size=sm]:max-w-xs data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[size=default]:sm:max-w-lg",
           className,
         )}
         data-overlay-surface="alert"

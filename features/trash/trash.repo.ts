@@ -1,0 +1,46 @@
+import type { Prisma } from "@/generated/prisma";
+import type { TrashKind } from "./trash.schema";
+import type { DroppedViewReferences } from "./trash.schema";
+
+export type TrashItem = {
+  id: string;
+  kind: TrashKind;
+  targetId: string;
+  typeId: string | null;
+  surfaceKey: string | null;
+  ownerUserId: string | null;
+  label: string;
+  deletedById: string | null;
+  deletedAt: Date;
+  expiresAt: Date;
+  batchId: string;
+  payload: Prisma.JsonValue;
+};
+export type TrashItemInput = Omit<TrashItem, "deletedAt" | "expiresAt" | "payload" | "surfaceKey" | "ownerUserId"> & {
+  surfaceKey?: string | null;
+  ownerUserId?: string | null;
+  payload?: Prisma.InputJsonValue;
+};
+export type TrashListQuery = {
+  visibility: Prisma.Sql;
+  kinds?: TrashKind[];
+  itemIds?: string[];
+  typeIds?: string[];
+  search?: string;
+  sortDescriptor?: { field: "deletedAt"; direction: "asc" | "desc" };
+  page: number;
+  pageSize: number;
+};
+export type TrashSelection = { ids: string[] } | { batchId: string } | { all: true };
+
+export interface TrashRepo {
+  add(items: TrashItemInput[]): Promise<void>;
+  remove(ids: string[]): Promise<void>;
+  list(query: TrashListQuery): Promise<{ items: TrashItem[]; total: number }>;
+  find(selection: TrashSelection, visibility: Prisma.Sql): Promise<TrashItem[]>;
+  findExpired(now: Date, take: number, after?: TrashExpiryCursor): Promise<TrashItem[]>;
+  markPurgePending(id: string, operationId: string): Promise<void>;
+  droppedViewReferences(viewIds: string[]): Promise<DroppedViewReferences[]>;
+}
+
+export type TrashExpiryCursor = { expiresAt: string; id: string };

@@ -29,6 +29,7 @@ export function TableMenu({ editor, anchorRect, onClose }: Props) {
   ];
 
   const runAction = (apply: (chain: Chain) => Chain) => {
+    if (!editor.isEditable) return;
     apply(editor.chain().focus()).run();
   };
 

@@ -76,7 +76,6 @@ export class GetAgentConversationInteractor extends AuthenticatedInteractor<
         role: message.role,
         parts: clientSafeAgentMessageParts(message.parts, {
           sanitizeText: message.role !== "user",
-          stripLegacyUserContext: message.role === "user",
           wikiBaseUrl: env.BASE_URL,
           allowContext: message.role === "user",
         }),

@@ -13,9 +13,6 @@ vi.mock("next-intl", () => ({
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({ agentChatStore: testContext.store }),
 }));
-vi.mock("../agent-chat-items", () => ({
-  useAgentActivityTerminology: () => ({}),
-}));
 
 import { AgentInitialProgress, AgentStatusAnnouncer } from "../agent-status-announcer";
 

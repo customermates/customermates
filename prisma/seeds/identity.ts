@@ -56,7 +56,6 @@ export async function seedIdentity(context: SeedContext): Promise<void> {
   const password = await hashPassword(sharedUserPassword);
 
   const company = {
-    currency: "eur" as const,
     ...SYNTHETIC_SEED_TIMELINE.company,
   };
   await prisma.company.upsert({

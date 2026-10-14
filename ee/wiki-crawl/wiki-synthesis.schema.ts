@@ -12,12 +12,7 @@ export const WIKI_SYNTHESIS_FOUNDATION_ROLES = [
   "sales_messaging",
   "voice_and_tone",
 ] as const;
-export const WIKI_SYNTHESIS_ROLES = [
-  ...WIKI_SYNTHESIS_FOUNDATION_ROLES,
-  "offering",
-  "procedure",
-  "operating_guide",
-] as const;
+const WIKI_SYNTHESIS_ROLES = [...WIKI_SYNTHESIS_FOUNDATION_ROLES, "offering", "procedure", "operating_guide"] as const;
 export type WikiSynthesisRole = (typeof WIKI_SYNTHESIS_ROLES)[number];
 
 export const WikiSynthesisPlanSchema = z.object({

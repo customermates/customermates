@@ -4,11 +4,11 @@ import { join, relative } from "node:path";
 import ts from "typescript";
 import { describe, expect, it } from "vitest";
 
-import { REPO_ROOT, walkFiles } from "./walk";
+import { REPO_ROOT, REPO_SCAN_TIMEOUT_MS, walkFiles } from "./walk";
 
 const ENFORCED = true;
 
-const SCANNED_DIRECTORIES = ["app", "components", "features", "ee", "core", "workflows", "i18n"];
+const SCANNED_DIRECTORIES = ["app", "components", "features", "ee", "core", "workflows", "i18n", "constants", "hooks"];
 const FILE_ALLOWLIST = new Set(["core/di.ts"]);
 const ALLOWED_DIRECTIVE = /^\s*(eslint-|@ts-|prettier-)/;
 const TRIPLE_SLASH_REFERENCE = /^\/\/\/\s*<reference/;
@@ -76,7 +76,7 @@ describe("no code comments", () => {
     const violations = commentLines();
 
     expect(violations, violations.join("\n")).toEqual([]);
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it("detects comments in synthetic sources", () => {
     const text = 'const a = 1; // note\nconst b = "https://x.y//z";\nconst r = /https?:\\/\\//;\n{/* jsx */}\n';

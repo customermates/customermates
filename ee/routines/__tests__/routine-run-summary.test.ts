@@ -19,17 +19,17 @@ function storedAssistantText(value: string) {
 describe("routine run summary", () => {
   it("names a linked record by its label, never its route or id", () => {
     const text = storedAssistantText(
-      `I updated **[CRM Rollout](/deals/${RECORD_ID})** and [Roche](/inbox?threadId=${RECORD_ID}).`,
+      `I updated **[CRM Rollout](/records/60000000-0000-4000-8000-000000000002/${RECORD_ID})** and [Roche](/inbox?threadId=${RECORD_ID}).`,
     );
 
-    expect(text).toContain(`(/deals/${RECORD_ID})`);
+    expect(text).toContain(`(/records/60000000-0000-4000-8000-000000000002/${RECORD_ID})`);
     expect(summarizeAssistantParts([{ type: "text", text }])).toBe("I updated CRM Rollout and Roche.");
   });
 
   it("shows a stored summary that still holds a record link as plain text", () => {
     const run = {
       status: RoutineRunStatus.succeeded,
-      summary: `I updated [CRM Rollout](/deals/${RECORD_ID}).`,
+      summary: `I updated [CRM Rollout](/records/60000000-0000-4000-8000-000000000002/${RECORD_ID}).`,
       error: null,
     };
 
@@ -38,7 +38,10 @@ describe("routine run summary", () => {
 
   it("keeps the summary limit after turning the answer into plain text", () => {
     const summary = summarizeAssistantParts([
-      { type: "text", text: `[CRM Rollout](/deals/${RECORD_ID}) ${"note ".repeat(100)}` },
+      {
+        type: "text",
+        text: `[CRM Rollout](/records/60000000-0000-4000-8000-000000000002/${RECORD_ID}) ${"note ".repeat(100)}`,
+      },
     ]);
 
     expect(summary?.startsWith("CRM Rollout note note")).toBe(true);

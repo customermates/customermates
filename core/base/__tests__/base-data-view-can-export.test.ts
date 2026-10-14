@@ -42,8 +42,8 @@ function makeStore(resource: Resource | undefined, granted: boolean) {
 
 describe("BaseDataViewStore canExport", () => {
   it("follows the read permission when the view owns a resource", () => {
-    expect(makeStore(Resource.contacts, true).canExport).toBe(true);
-    expect(makeStore(Resource.contacts, false).canExport).toBe(false);
+    expect(makeStore(Resource.routines, true).canExport).toBe(true);
+    expect(makeStore(Resource.routines, false).canExport).toBe(false);
   });
 
   it("refuses a view that owns no resource, rather than assuming it is exportable", () => {

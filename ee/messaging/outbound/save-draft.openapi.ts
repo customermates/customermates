@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { SaveNewThreadDraftSchema, SaveReplyDraftBodySchema } from "@/ee/messaging/outbound/save-draft.interactor";
 import { MessagingMessageDtoSchema } from "@/ee/messaging/inbox/inbox.schema";
-import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
+import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/structured-interactor-handler";
 
 export const saveDraftOperation: ZodOpenApiOperationObject = {
   operationId: "saveDraft",

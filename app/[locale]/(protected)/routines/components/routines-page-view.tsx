@@ -20,18 +20,47 @@ import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
+import { RowActions } from "@/components/data-view/row-actions";
+import type { FocusKind } from "@/components/focus/focus-href";
+import { useFocusTarget } from "@/components/focus/focus-target";
 
 import { useRoutineColumns } from "./use-routine-columns";
 import { RoutinesPageSkeleton } from "./routines-page-skeleton";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = { initialRoutines: GetResult<RoutineDto> };
 
-export const RoutinesPageView = observer(function RoutinesPageView({ initialRoutines }: Props) {
+const ROUTINE_FOCUS_KINDS: FocusKind[] = ["routine"];
+
+const RoutinesPageViewContent = observer(function RoutinesPageView({ initialRoutines }: Props) {
   const { routineModalStore, routinesStore } = useRootStore();
 
   useDataViewSync(routinesStore, initialRoutines);
   const columns = useRoutineColumns();
   const t = useTranslations();
+  const { showTrashConfirmation } = useDeleteConfirmation();
+  const canDelete = routineModalStore.isAdmin;
+  const rowActions = useCallback(
+    (routine: RoutineDto) => (
+      <RowActions
+        name={routine.name}
+        onDelete={
+          canDelete
+            ? () =>
+                showTrashConfirmation(
+                  () => routineModalStore.deleteById(routine.id),
+                  routine.name,
+                  undefined,
+                  () => routinesStore.refresh(),
+                )
+            : undefined
+        }
+        onOpen={() => runUserAction(() => routineModalStore.openForEdit(routine))}
+      />
+    ),
+    [canDelete, routineModalStore, routinesStore, showTrashConfirmation],
+  );
   const view = resolveDataViewView(routinesStore.viewMode, routinesStore.canBoard);
   const pageState = resolveDataViewPageState({
     explicitlyUnpaginated: false,
@@ -48,6 +77,7 @@ export const RoutinesPageView = observer(function RoutinesPageView({ initialRout
       <DataViewToolbar
         addLabel={pageState === "true-empty" ? t("Common.actions.add") : undefined}
         anchorScope="routines"
+        searchLabel={t("Common.filters.searchFields.routines")}
         store={routinesStore}
         onAdd={handleAdd}
       />
@@ -55,6 +85,15 @@ export const RoutinesPageView = observer(function RoutinesPageView({ initialRout
     [handleAdd, pageState, t, routinesStore],
   );
   useSetTopBarActions(topBarNode);
+  useFocusTarget(
+    ROUTINE_FOCUS_KINDS,
+    (target) => {
+      const item = routinesStore.items.find((routine) => routine.id === target.id);
+      if (item) runUserAction(() => routineModalStore.openForEdit(item));
+      return true;
+    },
+    pageState !== "loading",
+  );
 
   let body: ReactNode;
   switch (pageState) {
@@ -110,6 +149,7 @@ export const RoutinesPageView = observer(function RoutinesPageView({ initialRout
       body = (
         <DataViewContent
           columns={columns}
+          rowActions={rowActions}
           store={routinesStore}
           view={view}
           onRowClick={(item) => runUserAction(() => routineModalStore.openForEdit(item))}
@@ -131,3 +171,5 @@ export const RoutinesPageView = observer(function RoutinesPageView({ initialRout
     </DataViewLayout>
   );
 });
+
+export const RoutinesPageView = serverRenderedClient(RoutinesPageViewContent);

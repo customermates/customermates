@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
-import { ActivitiesResultSchema, ActivitiesViewResultSchema } from "@/ee/messaging/activities/activities.schema";
-
 import { DataViewResultFields, createApiGetResultSchema, createGetResultSchema } from "../base-get.schema";
 
 const ItemSchema = z.object({ id: z.string() });
@@ -34,20 +32,5 @@ describe("the documented REST result schema stays free of data view state", () =
 
     expect(DATA_VIEW_KEYS.filter((key) => key in parsed).sort()).toEqual([...DATA_VIEW_KEYS].sort());
     expect(parsed.allState).toEqual({ viewMode: "card" });
-  });
-
-  it("keeps the same separation on the two activity result schemas", () => {
-    const activityResult = {
-      ...resultCarryingViewFields,
-      items: [],
-      availableSources: [],
-      pageLimitReached: false,
-      scopeTruncated: false,
-    };
-    const documented = ActivitiesResultSchema.parse(activityResult);
-    const interactive = ActivitiesViewResultSchema.parse(activityResult);
-
-    expect(DATA_VIEW_KEYS.filter((key) => key in documented)).toEqual([]);
-    expect(DATA_VIEW_KEYS.filter((key) => key in interactive).sort()).toEqual([...DATA_VIEW_KEYS].sort());
   });
 });

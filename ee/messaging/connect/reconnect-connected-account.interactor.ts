@@ -7,27 +7,29 @@ import { headers } from "next/headers";
 import { z } from "zod";
 import * as Sentry from "@sentry/node";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Enforce } from "@/core/decorators/enforce.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import { UserAccessor } from "@/core/base/user-accessor";
 import { resolveRequestOrigin } from "@/core/config/environment";
 import { redirectTo } from "@/features/auth/auth-outcome";
 import { signHostedAuthState } from "../webhook-signature";
-import { fail } from "@/core/validation/interactor-failure-server";
+import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 import { retryAfterPhrase } from "../retry-after.server";
 import { unipileErrorCode } from "../messaging.service";
 import { UnipileRequestError } from "../unipile-request-error";
 import { env } from "@/env";
 import type { ReconnectConnectedAccountRepo } from "./reconnect-connected-account.repo";
+import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 const HOSTED_AUTH_EXPIRY_MINUTES = 30;
 
 const Schema = z.object({ id: z.uuid() });
 type ReconnectConnectedAccountData = Data<typeof Schema>;
 
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "update" })
 export class ReconnectConnectedAccountInteractor extends UserAccessor {
   constructor(
     private repo: ReconnectConnectedAccountRepo,
@@ -37,12 +39,13 @@ export class ReconnectConnectedAccountInteractor extends UserAccessor {
     super();
   }
 
-  @Enforce(Schema)
+  @Validate(Schema)
   async invoke(data: ReconnectConnectedAccountData): Promise<Redirect | { ok: false; error: z.ZodError }> {
     const denied = await this.entitlements.require("messaging");
     if (denied) return denied;
 
-    const account = await this.repo.findAccountByIdOrThrow(data.id);
+    const account = await this.repo.findOwnedAccountById(data.id);
+    if (!account) return failNotFound(CustomErrorCode.connectedAccountNotFound, ["id"]);
 
     const requestOrigin = (await headers()).get("origin") ?? env.BASE_URL;
     const baseUrl = resolveRequestOrigin(requestOrigin, env.AUTH_ALLOWED_HOSTS, env.BASE_URL);
@@ -53,7 +56,7 @@ export class ReconnectConnectedAccountInteractor extends UserAccessor {
     try {
       link = await this.messagingService.createReconnectAuthLink({
         accountId: account.unipileAccountId,
-        redirectUri: `${baseUrl}/profile/connected-accounts`,
+        redirectUri: `${baseUrl}${settingsHref("channels")}`,
         expiresOn,
         state,
       });

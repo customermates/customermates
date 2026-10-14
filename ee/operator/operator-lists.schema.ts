@@ -85,7 +85,7 @@ export const OperatorRiskSummaryDtoSchema = z.object({
 
 export type OperatorRiskSummaryDto = z.infer<typeof OperatorRiskSummaryDtoSchema>;
 
-export const AdConversionExportRowDtoSchema = z.object({
+const AdConversionExportRowDtoSchema = z.object({
   provider: AdProviderSchema,
   identifierKind: AdIdentifierKindSchema,
   identifierValue: z.string(),

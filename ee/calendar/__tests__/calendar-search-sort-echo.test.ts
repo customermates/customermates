@@ -35,7 +35,6 @@ function stubRepo(sortField: string) {
     validateFilters: () => [],
     validateSortDescriptor: ({ sortDescriptor }: { sortDescriptor: SortDescriptor | undefined }) =>
       sortDescriptor?.field === sortField ? sortDescriptor : undefined,
-    sumNumericFields: () => Promise.resolve({}),
   };
 }
 

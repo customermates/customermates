@@ -13,7 +13,8 @@ import ResetPassword from "@/components/emails/reset-password";
 import VerifyEmail from "@/components/emails/verify-email";
 import NewUserNotification from "@/components/emails/new-user-notification";
 import { DEFAULT_EMAIL_LAYOUT_COPY, getEmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
-import { auth } from "@/core/auth/better-auth";
+import { auth, deleteApiKeysForIdentities } from "@/core/auth/better-auth";
+import { getTransactionClient } from "@/core/decorators/transaction-context";
 import { prisma } from "@/prisma/db";
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
 import { redirectTo } from "./auth-outcome";
@@ -52,6 +53,21 @@ type McpConsentValue = {
 
 export class AuthService {
   constructor(private emailService: EmailService) {}
+
+  async deleteVerificationsForEmails(emails: string[]): Promise<void> {
+    await (getTransactionClient<typeof prisma>() ?? prisma).authVerification.deleteMany({
+      where: { identifier: { in: emails, mode: "insensitive" } },
+    });
+  }
+
+  deleteApiKeysForIdentities(identityIds: string[]): Promise<void> {
+    return deleteApiKeysForIdentities(identityIds);
+  }
+
+  async revokeOauthConsents(userId: string): Promise<number> {
+    const consents = await prisma.oauthConsent.deleteMany({ where: { userId } });
+    return consents.count;
+  }
 
   async getSession() {
     const headersList = await headers();
@@ -417,6 +433,21 @@ export class AuthService {
 
   private hasBearerToken(headersList: Headers): boolean {
     return (headersList.get("authorization") ?? "").toLowerCase().startsWith("bearer ");
+  }
+
+  async isIntegrationCredentialRequest(): Promise<boolean> {
+    const headersList = await headers();
+    return headersList.has("x-api-key") || this.hasBearerToken(headersList);
+  }
+
+  async isMcpApiKeyValid(headersList: Headers): Promise<boolean> {
+    const key = headersList.get("x-api-key");
+    if (!key) return false;
+    try {
+      return (await auth.api.getSession({ headers: new Headers({ "x-api-key": key }) })) !== null;
+    } catch {
+      return false;
+    }
   }
 
   async isMcpBearerValid(headersList: Headers): Promise<boolean> {

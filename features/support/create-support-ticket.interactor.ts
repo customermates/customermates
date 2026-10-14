@@ -7,12 +7,12 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { type Data, type Validated } from "@/core/validation/validation.utils";
 import type { FeedbackCreator } from "@/features/feedback/feedback.creator";
 
-export const CreateSupportTicketSchema = z.object({
+const CreateSupportTicketSchema = z.object({
   subject: z.string().min(1).max(200),
   body: z.string().min(1).max(10000),
 });
 
-export type CreateSupportTicketData = Data<typeof CreateSupportTicketSchema>;
+type CreateSupportTicketData = Data<typeof CreateSupportTicketSchema>;
 
 const OutputSchema = z.object({ sent: z.literal(true) });
 type SupportRequestResult = Data<typeof OutputSchema>;

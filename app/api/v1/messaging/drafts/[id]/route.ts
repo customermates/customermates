@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 import { getDiscardDraftInteractor } from "@/core/di";
-import { handleError, interactorFailureResponse } from "@/core/api/interactor-handler";
+import { handleError, interactorFailureResponse } from "@/core/api/structured-interactor-handler";
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {

@@ -12,13 +12,14 @@ import { runWithTenant } from "@/core/decorators/tenant-context";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { draftThreadProviderId } from "../../draft-thread-id";
-import { PrismaMessagingRepo } from "../prisma-messaging.repository";
+import { createTestMessagingRepo } from "@/tests/helpers/messaging-repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 
 function attendee(identifier: string, isSelf = false): MessagingAttendee {
   return {
+    records: [],
     attendeeId: identifier,
     identifier,
     displayName: null,
@@ -27,7 +28,6 @@ function attendee(identifier: string, isSelf = false): MessagingAttendee {
     headline: null,
     occupation: null,
     isSelf,
-    contact: null,
   };
 }
 
@@ -149,7 +149,7 @@ describeDatabase("draft lifecycle persistence on PostgreSQL", () => {
     );
 
     const draftThread = await runWithTenant(tenant, () =>
-      new PrismaMessagingRepo().findOrCreateDraftThread({
+      createTestMessagingRepo().findOrCreateDraftThread({
         connectedAccountId: accountId,
         provider: MessagingProvider.google,
         recipients: [recipient],
@@ -175,7 +175,7 @@ describeDatabase("draft lifecycle persistence on PostgreSQL", () => {
     const results = await runWithTenant(tenant, () =>
       Promise.all(
         Array.from({ length: 12 }, () =>
-          new PrismaMessagingRepo().findOrCreateDraftThread({
+          createTestMessagingRepo().findOrCreateDraftThread({
             connectedAccountId: accountId,
             provider: MessagingProvider.google,
             recipients,
@@ -195,7 +195,7 @@ describeDatabase("draft lifecycle persistence on PostgreSQL", () => {
   });
 
   it("keeps Bcc-only cold draft targets separate and never creates public Bcc participants", async () => {
-    const repo = new PrismaMessagingRepo();
+    const repo = createTestMessagingRepo();
     const hidden = `private-${randomUUID()}@example.invalid`;
     const create = (cc: string[], bcc: string[]) =>
       runWithTenant(tenant, () =>
@@ -244,7 +244,7 @@ describeDatabase("draft lifecycle persistence on PostgreSQL", () => {
   it.each(["address", "role"])(
     "updates an empty-To draft identity atomically after a secondary %s edit",
     async (change) => {
-      const repo = new PrismaMessagingRepo();
+      const repo = createTestMessagingRepo();
       const initialAddress = `initial-${randomUUID()}@example.invalid`;
       const editedAddress = change === "role" ? initialAddress : `edited-${randomUUID()}@example.invalid`;
       const initial = { cc: [] as string[], bcc: [initialAddress] };
@@ -300,7 +300,7 @@ describeDatabase("draft lifecycle persistence on PostgreSQL", () => {
   );
 
   it("rolls back content and private identity when an edited cold target already has another draft", async () => {
-    const repo = new PrismaMessagingRepo();
+    const repo = createTestMessagingRepo();
     const firstAddress = `first-${randomUUID()}@example.invalid`;
     const secondAddress = `second-${randomUUID()}@example.invalid`;
     const create = (address: string) =>
@@ -340,13 +340,13 @@ describeDatabase("draft lifecycle persistence on PostgreSQL", () => {
     }
   });
 
-  it("canonicalizes a multi-recipient draft and creates every participant with group semantics", async () => {
+  it("canonicalizes a multi-recipient draft with indexed identities and group semantics", async () => {
     const first = `multi-a-${randomUUID()}@example.invalid`;
     const second = `multi-b-${randomUUID()}@example.invalid`;
-    const submitted = [second, first, second];
+    const submitted = [second.toUpperCase(), first, second];
 
     const thread = await runWithTenant(tenant, () =>
-      new PrismaMessagingRepo().findOrCreateDraftThread({
+      createTestMessagingRepo().findOrCreateDraftThread({
         connectedAccountId: accountId,
         provider: MessagingProvider.google,
         recipients: submitted,
@@ -359,18 +359,91 @@ describeDatabase("draft lifecycle persistence on PostgreSQL", () => {
     expect(storedThread.rows[0].type).toBe("group");
 
     const participants = await client.query(
-      'SELECT "identifier", "providerUserId", "isSelf" FROM "MessagingThreadParticipant" WHERE "messagingThreadId" = $1 ORDER BY "identifier"',
+      'SELECT "identifier", "providerUserId", "identityLookupValue", "isSelf" FROM "MessagingThreadParticipant" WHERE "messagingThreadId" = $1 ORDER BY "identifier"',
       [thread.id],
     );
     expect(participants.rows).toEqual([
-      { identifier: first, providerUserId: first, isSelf: false },
-      { identifier: second, providerUserId: second, isSelf: false },
+      { identifier: first, providerUserId: first, identityLookupValue: first, isSelf: false },
+      { identifier: second, providerUserId: second, identityLookupValue: second, isSelf: false },
     ]);
+  });
+
+  it("repairs reused and edited cold-draft identity keys without replacing participants or drafts", async () => {
+    const recipient = `repair-${randomUUID()}@example.invalid`;
+    const repo = createTestMessagingRepo();
+    const thread = await runWithTenant(tenant, () =>
+      repo.findOrCreateDraftThread({
+        connectedAccountId: accountId,
+        provider: MessagingProvider.google,
+        recipients: [recipient],
+      }),
+    );
+    const save = (bodyText: string) =>
+      repo.upsertThreadDraftOrThrow({
+        threadId: thread.id,
+        connectedAccountId: accountId,
+        provider: MessagingProvider.google,
+        sender: attendee(ownerEmail, true),
+        subject: "Keep the same draft",
+        bodyText,
+        recipients: { to: [attendee(recipient)], cc: [], bcc: [] },
+      });
+    const draft = await runWithTenant(tenant, () => save("Original body"));
+    const readDraft = async () =>
+      (
+        await client.query(
+          'SELECT id,"bodyText","updatedAt"::text AS revision FROM "MessagingMessage" WHERE "companyId"=$1 AND "messagingThreadId"=$2 AND "isDraft"',
+          [companyId, thread.id],
+        )
+      ).rows;
+    const initialDraft = await readDraft();
+    expect(initialDraft).toEqual([{ id: draft.id, bodyText: "Original body", revision: expect.any(String) }]);
+    await client.query(
+      'UPDATE "MessagingThreadParticipant" SET "displayName"=$2 WHERE "companyId"=$1 AND "messagingThreadId"=$3',
+      [companyId, "Preserved participant", thread.id],
+    );
+    const readParticipants = async () =>
+      (
+        await client.query(
+          'SELECT id,identifier,"identityLookupValue","displayName","providerUserId","updatedAt" FROM "MessagingThreadParticipant" WHERE "companyId"=$1 AND "messagingThreadId"=$2 ORDER BY id',
+          [companyId, thread.id],
+        )
+      ).rows;
+    const participants = await readParticipants();
+    expect(participants).toHaveLength(1);
+    expect(participants[0].identityLookupValue).toBe(recipient);
+    await client.query(
+      'UPDATE "MessagingThreadParticipant" SET "identityLookupValue"=NULL WHERE "companyId"=$1 AND "messagingThreadId"=$2',
+      [companyId, thread.id],
+    );
+    const reused = await runWithTenant(tenant, () =>
+      repo.findOrCreateDraftThread({
+        connectedAccountId: accountId,
+        provider: MessagingProvider.google,
+        recipients: [recipient.toUpperCase()],
+      }),
+    );
+    expect(reused.id).toBe(thread.id);
+    expect(await readParticipants()).toEqual(participants);
+    expect(await readDraft()).toEqual(initialDraft);
+    await client.query(
+      'UPDATE "MessagingThreadParticipant" SET "identityLookupValue"=$3 WHERE "companyId"=$1 AND "messagingThreadId"=$2',
+      [companyId, thread.id, "stale@example.invalid"],
+    );
+    const edited = await runWithTenant(tenant, () => save("Updated body"));
+    expect(edited.id).toBe(draft.id);
+    expect(edited.bodyText).toBe("Updated body");
+    expect(await readParticipants()).toEqual(participants);
+    const drafts = await client.query(
+      'SELECT id FROM "MessagingMessage" WHERE "companyId"=$1 AND "messagingThreadId"=$2 AND "isDraft"',
+      [companyId, thread.id],
+    );
+    expect(drafts.rows).toEqual([{ id: draft.id }]);
   });
 
   it("keeps one deterministic draft row across repeated and concurrent saves", async () => {
     const recipient = `concurrent-message-${randomUUID()}@example.invalid`;
-    const repo = new PrismaMessagingRepo();
+    const repo = createTestMessagingRepo();
     const thread = await runWithTenant(tenant, () =>
       repo.findOrCreateDraftThread({
         connectedAccountId: accountId,
@@ -417,7 +490,7 @@ describeDatabase("draft lifecycle persistence on PostgreSQL", () => {
 
   it("keeps the appended signature out of the thread preview", async () => {
     const recipient = `signature-preview-${randomUUID()}@example.invalid`;
-    const repo = new PrismaMessagingRepo();
+    const repo = createTestMessagingRepo();
     const unipileThreadId = `thread-${randomUUID()}`;
     const bodyText = "Short message body.\n\n-- \nAda Lovelace\nHead of Engineering, Example\nada@example.invalid";
     const bodyHtml =
@@ -459,7 +532,7 @@ describeDatabase("draft lifecycle persistence on PostgreSQL", () => {
 
   it("persists interactor-rendered draft HTML and reuses its text for summary repair", async () => {
     const recipient = `rendered-draft-${randomUUID()}@example.invalid`;
-    const repo = new PrismaMessagingRepo();
+    const repo = createTestMessagingRepo();
     const thread = await runWithTenant(tenant, () =>
       repo.findOrCreateDraftThread({
         connectedAccountId: accountId,
@@ -492,7 +565,7 @@ describeDatabase("draft lifecycle persistence on PostgreSQL", () => {
 
   it("upgrades a legacy randomized draft in place without creating a second draft", async () => {
     const recipient = `legacy-${randomUUID()}@example.invalid`;
-    const repo = new PrismaMessagingRepo();
+    const repo = createTestMessagingRepo();
     const thread = await runWithTenant(tenant, () =>
       repo.findOrCreateDraftThread({
         connectedAccountId: accountId,
@@ -536,7 +609,7 @@ describeDatabase("draft lifecycle persistence on PostgreSQL", () => {
 
   it("reconciles a provider copy on its actual thread and restores the source summary", async () => {
     const recipient = `provider-copy-${randomUUID()}@example.invalid`;
-    const repo = new PrismaMessagingRepo();
+    const repo = createTestMessagingRepo();
     const sourceThreadId = randomUUID();
     const providerThreadId = randomUUID();
     await client.query(
@@ -640,7 +713,7 @@ describeDatabase("draft lifecycle persistence on PostgreSQL", () => {
 
   it("preserves a newer reply-draft revision while persisting the sent provider message", async () => {
     const recipient = `revision-race-${randomUUID()}@example.invalid`;
-    const repo = new PrismaMessagingRepo();
+    const repo = createTestMessagingRepo();
     const threadId = randomUUID();
     const unipileThreadId = `revision-thread-${randomUUID()}`;
     await client.query(
@@ -749,7 +822,7 @@ describeDatabase("draft lifecycle persistence on PostgreSQL", () => {
 
   it("returns an existing provider copy without consuming a newer draft revision", async () => {
     const recipient = `provider-revision-${randomUUID()}@example.invalid`;
-    const repo = new PrismaMessagingRepo();
+    const repo = createTestMessagingRepo();
     const sourceThreadId = randomUUID();
     const providerThreadId = randomUUID();
     await client.query(
@@ -836,7 +909,7 @@ describeDatabase("draft lifecycle persistence on PostgreSQL", () => {
 
   it("uses the prior sent email reference when the newest message is a draft", async () => {
     const recipient = `reply-reference-${randomUUID()}@example.invalid`;
-    const repo = new PrismaMessagingRepo();
+    const repo = createTestMessagingRepo();
     const thread = await runWithTenant(tenant, () =>
       repo.findOrCreateDraftThread({
         connectedAccountId: accountId,
@@ -870,7 +943,7 @@ describeDatabase("draft lifecycle persistence on PostgreSQL", () => {
 
   it("deletes the empty cold-draft shell and its participants after send", async () => {
     const recipient = `discard-${randomUUID()}@example.invalid`;
-    const repo = new PrismaMessagingRepo();
+    const repo = createTestMessagingRepo();
     const thread = await runWithTenant(tenant, () =>
       repo.findOrCreateDraftThread({
         connectedAccountId: accountId,
@@ -913,7 +986,7 @@ describeDatabase("draft lifecycle persistence on PostgreSQL", () => {
 
   it("keeps a newer cold draft, shell, and participants after stale cleanup attempts", async () => {
     const recipient = `stale-discard-${randomUUID()}@example.invalid`;
-    const repo = new PrismaMessagingRepo();
+    const repo = createTestMessagingRepo();
     const thread = await runWithTenant(tenant, () =>
       repo.findOrCreateDraftThread({
         connectedAccountId: accountId,
@@ -998,7 +1071,7 @@ describeDatabase("draft lifecycle persistence on PostgreSQL", () => {
       bodyText: "Previous message",
       sentAt: previousSentAt,
     });
-    const repo = new PrismaMessagingRepo();
+    const repo = createTestMessagingRepo();
     const draft = await runWithTenant(tenant, () =>
       repo.upsertThreadDraftOrThrow({
         threadId,
@@ -1013,11 +1086,11 @@ describeDatabase("draft lifecycle persistence on PostgreSQL", () => {
 
     const results = await runWithTenant(tenant, () =>
       Promise.all([
-        new PrismaMessagingRepo().deleteDraft({
+        createTestMessagingRepo().deleteDraft({
           messageId: draft.id,
           expectedUpdatedAt: draft.updatedAt,
         }),
-        new PrismaMessagingRepo().deleteDraft({
+        createTestMessagingRepo().deleteDraft({
           messageId: draft.id,
           expectedUpdatedAt: draft.updatedAt,
         }),

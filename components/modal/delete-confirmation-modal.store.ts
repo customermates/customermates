@@ -1,7 +1,11 @@
 import type { RootStore } from "@/core/stores/root.store";
 import type { FormEvent } from "react";
 
+import type { ConfirmationSentence } from "./confirmation-sentence";
+import type { MovedToTrash } from "@/features/trash/moved-to-trash";
+
 import { BaseModalStore } from "@/core/base/base-modal.store";
+import { isMovedToTrash } from "@/features/trash/moved-to-trash";
 
 export interface DeleteConfirmationData {
   title: string;
@@ -9,11 +13,19 @@ export interface DeleteConfirmationData {
   entityName?: string;
   confirmLabel?: string;
   confirmVariant?: "default" | "destructive";
+  details?: Array<string | ConfirmationSentence>;
+  blockers?: Array<string | ConfirmationSentence>;
+  confirmationText?: string;
   successKey?: string;
-  onConfirm: () => Promise<boolean>;
+  focusAfterConfirm?: () => boolean;
+  onConfirm: () => Promise<boolean | MovedToTrash>;
+  onRestored?: () => unknown;
 }
 
 export class DeleteConfirmationModalStore extends BaseModalStore<DeleteConfirmationData> {
+  private sessionGeneration = 0;
+  private confirmedFocusReturn: { generation: number; form: DeleteConfirmationData; focus: () => boolean } | null =
+    null;
   constructor(rootStore: RootStore) {
     super(rootStore, {
       title: "",
@@ -22,20 +34,40 @@ export class DeleteConfirmationModalStore extends BaseModalStore<DeleteConfirmat
     });
   }
 
+  protected override prepareToClose(): boolean {
+    this.sessionGeneration += 1;
+    this.confirmedFocusReturn = null;
+    return true;
+  }
+
+  restoreConfirmedFocus = () => {
+    const handoff = this.confirmedFocusReturn;
+    this.confirmedFocusReturn = null;
+    if (!handoff || this.isOpen || handoff.generation !== this.sessionGeneration || handoff.form !== this.form)
+      return false;
+    return handoff.focus();
+  };
+
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
 
-    if (!this.form.onConfirm) return;
+    if (!this.isOpen || this.isLoading || !this.form.onConfirm) return;
+    const session = this.sessionGeneration;
+    const form = this.form;
+    const isCurrent = () => this.isOpen && session === this.sessionGeneration && form === this.form;
 
     this.setIsLoading(true);
     try {
-      const confirmed = await this.form.onConfirm();
-      if (!confirmed) return;
+      const confirmed = await form.onConfirm();
+      if (!confirmed || !isCurrent()) return;
 
-      this.toastSuccess(this.form.successKey ?? "Common.notifications.deleted");
+      if (isMovedToTrash(confirmed)) this.rootStore.trashStore.announceMovedToTrash(confirmed, form.onRestored);
+      else this.toastSuccess(form.successKey ?? "Common.notifications.deleted");
       this.close();
+      if (form.focusAfterConfirm)
+        this.confirmedFocusReturn = { generation: this.sessionGeneration, form, focus: form.focusAfterConfirm };
     } finally {
-      this.setIsLoading(false);
+      if (isCurrent()) this.setIsLoading(false);
     }
   };
 }

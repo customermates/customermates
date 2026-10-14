@@ -2,10 +2,10 @@ import type { PageStateProps } from "@/components/page-state/page-state";
 import type { WidgetDto } from "@/features/widget/widget.schema";
 import type { ReactElement, ReactNode } from "react";
 
+import { WidgetKind } from "@/generated/prisma";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { EntityType } from "@/generated/prisma";
 
 const harness = vi.hoisted(() => ({
   add: vi.fn(),
@@ -18,6 +18,8 @@ const harness = vi.hoisted(() => ({
   setTopBarActions: vi.fn(),
 }));
 
+vi.mock("@/components/data-view/views/data-view-views-rail", () => ({ DataViewViewsRail: () => null }));
+vi.mock("@/components/data-view/data-view-url-sync", () => ({ connectDataViewUrlSync: () => () => undefined }));
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
@@ -39,13 +41,15 @@ vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: harness.getRootStore,
 }));
 
-vi.mock("@/core/utils/use-is-touch-device", () => ({
-  useIsTouchDevice: () => harness.isTouchDevice,
+vi.mock("@/hooks/use-touch-input", () => ({
+  useTouchInput: () => harness.isTouchDevice,
 }));
 
 vi.mock("@/components/page-state/page-state", async (importOriginal) => {
   const React = await import("react");
-  const actual = await importOriginal<{ PageState: (props: PageStateProps) => ReactElement }>();
+  const actual = await importOriginal<{
+    PageState: (props: PageStateProps) => ReactElement;
+  }>();
 
   return {
     ...actual,
@@ -91,9 +95,9 @@ function renderDashboard(
   };
   const widgetModalStore = {
     add: harness.add,
-    availableEntityTypes: options.canAdd === false ? [] : [EntityType.contact],
+    availableEntityTypes: options.canAdd === false ? [] : ["contact"],
+    availableKinds: options.canAdd === false ? [] : [WidgetKind.chart],
     loadById: vi.fn(),
-    setExpandedFilterField: vi.fn(),
     setExpandedSection: vi.fn(),
   };
   harness.isTouchDevice = options.touch ?? false;
@@ -101,10 +105,14 @@ function renderDashboard(
 
   return renderToStaticMarkup(
     createElement(DashboardPageView, {
-      activityFilterableFields: [],
-      customColumns: [],
-      filterableFields: {} as never,
-      widgets: items,
+      dashboard: {
+        p13nId: "dashboard",
+        items,
+        views: [],
+        activeViewKey: "__all__",
+        allState: {},
+        viewPersistable: true,
+      },
     }),
   );
 }

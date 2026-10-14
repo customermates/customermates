@@ -1,15 +1,19 @@
+import type { Filter } from "@/core/base/base-get.schema";
+import type { DateBucket, GroupSummaryDefinition } from "@/core/base/grouping/grouping.schema";
 import type { DataViewState } from "@/core/data-view/data-view-state.schema";
-import type { DateBucket } from "@/core/base/grouping/grouping.schema";
 import type { PrismaClient } from "@/generated/prisma";
 
-import { SURFACE } from "@/core/data-view/data-view-keys";
 import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
+import { SURFACE } from "@/core/data-view/data-view-keys";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
-import { MessagingProvider, MessagingThreadState } from "@/generated/prisma";
 import { writeStoredState } from "@/features/data-view/data-view-row-mapping";
+import { MANUAL_ORDER_SORT_KEY } from "@/features/records/record-column.schema";
+import { MessagingProvider, MessagingThreadState } from "@/generated/prisma";
 
 import type { SeedContext } from "./context";
 import type { CustomFieldSeedData } from "./custom-fields";
+import { NORTHWIND_MEMBER_IDS, northwindModelIds } from "./northwind-model";
+import { northwindColumns } from "./northwind-columns";
 
 import { SYNTHETIC_DATA_VIEW_ID_PREFIX, SYNTHETIC_DATA_VIEW_IDS } from "./data-view-ids";
 
@@ -24,260 +28,834 @@ export type SyntheticDataViewFixture = {
   state: DataViewState;
 };
 
+type ViewDraft = Omit<SyntheticDataViewFixture, "position" | "userId"> & {
+  userId?: string;
+};
+
+/**
+ * The saved views of the Northwind Labs demo: two to four per list for the demo user, plus personal views that
+ * other members keep for themselves. Together they show every view capability: boards and tables, grouping by
+ * choice, member, relationship and date buckets with group totals, choice, member, boolean, relative date,
+ * relationship and related-field filters, sorts including manual order, ordered, sized and hidden columns, and
+ * Formatted text columns as excerpts. Seeded views are saved state, so they open unmodified.
+ *
+ * Every view is curated for an overview: a board card shows three to five chips (what it is, how big, who owns
+ * it, when), a table shows the name plus four to six columns for that view's purpose, and a grouping totals at
+ * most two values. Everything else stays available but hidden.
+ */
 export function buildSyntheticDataViewFixtures(
   context: Pick<SeedContext, "ids">,
   customFields: CustomFieldSeedData,
 ): SyntheticDataViewFixture[] {
-  const { customColumnIds, customOptionIds } = customFields;
-  const { user } = context.ids;
+  const { customFieldIds, customOptionIds } = customFields;
+  const model = northwindModelIds(context.ids.company);
+  const { fields: f, options: o, types } = model;
+  const columns = northwindColumns(context.ids.company, customFieldIds);
+  const { rel, path } = columns;
+  const members = NORTHWIND_MEMBER_IDS;
+  const me = context.ids.user;
 
-  const board = (field: string, bucket?: DateBucket): Pick<DataViewState, "viewMode" | "grouping"> => ({
+  const surface = (type: keyof typeof types) => `records:${types[type]}`;
+  const sum = (fieldId: string): GroupSummaryDefinition => ({
+    fieldId,
+    aggregation: "sum",
+  });
+  const average = (fieldId: string): GroupSummaryDefinition => ({
+    fieldId,
+    aggregation: "average",
+  });
+  const min = (fieldId: string): GroupSummaryDefinition => ({
+    fieldId,
+    aggregation: "min",
+  });
+  const max = (fieldId: string): GroupSummaryDefinition => ({
+    fieldId,
+    aggregation: "max",
+  });
+  const sorted = (field: string, direction: "asc" | "desc"): DataViewState["sortDescriptor"] => ({ field, direction });
+  const manual = sorted(MANUAL_ORDER_SORT_KEY, "asc");
+  const anyOf = (field: string, value: string[]): Filter => ({
+    field,
+    operator: FilterOperatorKey.in,
+    value,
+  });
+  const noneOf = (field: string, value: string[]): Filter => ({
+    field,
+    operator: FilterOperatorKey.notIn,
+    value,
+  });
+  const hasAny = (field: string, value: string[]): Filter => ({
+    field,
+    operator: FilterOperatorKey.hasAnyOf,
+    value,
+  });
+  const since = (field: string, days: number): Filter => ({
+    field,
+    operator: FilterOperatorKey.inLastDays,
+    value: days,
+  });
+  const before = (field: string, days: number): Filter => ({
+    field,
+    operator: FilterOperatorKey.notInLastDays,
+    value: days,
+  });
+  const linked = (field: string): Filter => ({
+    field,
+    operator: FilterOperatorKey.hasSome,
+  });
+  const assignedTo = (userId: string) => anyOf("system:assignedTo", [userId]);
+
+  /** A board grouped by `field`: the card shows `visible`, every other column is hidden. */
+  const board = (
+    type: Parameters<typeof columns.showOnly>[0],
+    field: string,
+    visible: string[],
+    extra: Partial<NonNullable<DataViewState["grouping"]>> = {},
+  ): DataViewState => ({
     viewMode: ViewMode.card,
-    grouping: bucket ? { field, bucket } : { field },
+    grouping: { field, ...extra },
+    columnOrder: visible,
+    hiddenColumns: columns.showOnly(type, visible),
+  });
+  /** A table showing `visible` in that order, every other column hidden. */
+  const table = (
+    type: Parameters<typeof columns.showOnly>[0],
+    visible: string[],
+    grouping?: {
+      field: string;
+      bucket?: DateBucket;
+      summaries?: GroupSummaryDefinition[];
+    },
+  ): DataViewState => ({
+    viewMode: ViewMode.table,
+    ...(grouping ? { grouping } : {}),
+    columnOrder: visible,
+    hiddenColumns: columns.showOnly(type, visible),
   });
 
-  const selected = (field: string, values: string[]): DataViewState["filters"] => [
-    { field, operator: FilterOperatorKey.in, value: values },
-  ];
+  const openStages = [o["deal.stage"].new, o["deal.stage"].qualified, o["deal.stage"].proposal];
+  const openTickets = [o["ticket.status"].new, o["ticket.status"].open, o["ticket.status"].waitingOnCustomer];
+  const closedTasks = [customOptionIds.taskStatus.done, customOptionIds.taskStatus.archived];
+  const dealOrganization = rel("deal.organizations", "outgoing");
+  const myOpenDealsBoard = (userId: string): DataViewState => ({
+    ...board("deal", f.deal.stage, [model.starter.dealTotalValue, dealOrganization, f.deal.openedOn], {
+      summaries: [sum(model.starter.dealTotalValue)],
+    }),
+    filters: [assignedTo(userId), anyOf(f.deal.stage, openStages)],
+    sortDescriptor: sorted(f.deal.openedOn, "asc"),
+  });
 
-  const sorted = (field: string, direction: "asc" | "desc"): DataViewState["sortDescriptor"] => ({ field, direction });
-
-  return [
-    {
-      id: SYNTHETIC_DATA_VIEW_IDS.openDeals,
-      userId: user,
-      surfaceKey: SURFACE.deals,
-      name: "Open deals",
-      position: 0,
-      state: {
-        filters: selected(customColumnIds.dealStatus, [customOptionIds.dealStatus.open]),
-        ...board(customColumnIds.dealStatus),
-        hiddenColumns: [
-          customColumnIds.dealStatus,
-          "contacts",
-          "services",
-          "tasks",
-          "totalQuantity",
-          "users",
-          "createdAt",
-          "updatedAt",
-        ],
-      },
-    },
+  const drafts: ViewDraft[] = [
+    // Deals
     {
       id: SYNTHETIC_DATA_VIEW_IDS.dealPipeline,
-      userId: user,
-      surfaceKey: SURFACE.deals,
-      name: "Sales pipeline",
-      position: 1,
+      surfaceKey: surface("deal"),
+      name: "Pipeline",
       state: {
-        ...board(customColumnIds.dealStatus),
-        sortDescriptor: sorted("totalValue", "desc"),
-        hiddenColumns: [
-          customColumnIds.dealStatus,
-          "contacts",
-          "services",
-          "tasks",
-          "totalQuantity",
-          "users",
-          "createdAt",
-          "updatedAt",
-        ],
+        ...board(
+          "deal",
+          f.deal.stage,
+          [model.starter.dealTotalValue, dealOrganization, "system:assignedTo", f.deal.openedOn],
+          {
+            summaries: [sum(model.starter.dealTotalValue)],
+            hidden: [`value:${o["deal.stage"].lost}`],
+          },
+        ),
+        sortDescriptor: manual,
       },
     },
     {
       id: SYNTHETIC_DATA_VIEW_IDS.dealForecast,
-      userId: user,
-      surfaceKey: SURFACE.deals,
-      name: "Forecast review",
-      position: 2,
+      surfaceKey: surface("deal"),
+      name: "Forecast",
       state: {
-        viewMode: ViewMode.table,
-        sortDescriptor: sorted("weightedValue", "desc"),
+        ...table(
+          "deal",
+          [
+            f.deal.stage,
+            f.deal.openedOn,
+            model.starter.dealTotalValue,
+            model.starter.dealWeightedValue,
+            dealOrganization,
+            "system:assignedTo",
+          ],
+          {
+            field: f.deal.stage,
+            summaries: [sum(model.starter.dealTotalValue), sum(model.starter.dealWeightedValue)],
+          },
+        ),
+        filters: [anyOf(f.deal.stage, openStages), since(f.deal.closeDate, 1)],
+        sortDescriptor: sorted(f.deal.openedOn, "asc"),
         pageSize: 25,
-        columnOrder: ["totalValue", "weightedValue", customColumnIds.dealStatus, "organizations", "users"],
-        columnWidths: { totalValue: 160, weightedValue: 180 },
-        hiddenColumns: ["contacts", "services", "tasks", "totalQuantity", "createdAt", "updatedAt"],
+        columnWidths: {
+          [model.starter.dealTotalValue]: 160,
+          [model.starter.dealWeightedValue]: 180,
+        },
       },
     },
     {
-      id: SYNTHETIC_DATA_VIEW_IDS.dealsByAccount,
-      userId: user,
-      surfaceKey: SURFACE.deals,
-      name: "By account",
-      position: 3,
+      id: SYNTHETIC_DATA_VIEW_IDS.myOpenDeals,
+      surfaceKey: surface("deal"),
+      name: "Open deals by rep",
       state: {
-        ...board("organizationIds"),
-        hiddenColumns: ["organizations", "contacts", "tasks", "totalQuantity", "users", "createdAt", "updatedAt"],
+        ...table(
+          "deal",
+          [
+            f.deal.stage,
+            model.starter.dealTotalValue,
+            f.deal.openedOn,
+            dealOrganization,
+            rel("deal.contacts", "outgoing"),
+          ],
+          {
+            field: "system:assignedTo",
+            summaries: [sum(model.starter.dealTotalValue)],
+          },
+        ),
+        filters: [anyOf(f.deal.stage, openStages)],
+        sortDescriptor: sorted(model.starter.dealTotalValue, "desc"),
       },
     },
     {
-      id: SYNTHETIC_DATA_VIEW_IDS.contactPipeline,
-      userId: user,
-      surfaceKey: SURFACE.contacts,
-      name: "Lead pipeline",
-      position: 0,
+      id: SYNTHETIC_DATA_VIEW_IDS.dealsWonThisYear,
+      surfaceKey: surface("deal"),
+      name: "Won this year",
       state: {
-        ...board(customColumnIds.contactSalesPipeline),
-        hiddenColumns: [
-          customColumnIds.contactSalesPipeline,
-          customColumnIds.contactPhone,
-          "channels",
-          "tasks",
-          "users",
-          "createdAt",
-          "updatedAt",
-        ],
+        ...table(
+          "deal",
+          [
+            f.deal.contractValue,
+            f.deal.discountPercent,
+            f.deal.closeDate,
+            dealOrganization,
+            rel("deal.campaign", "outgoing"),
+          ],
+          {
+            field: "system:assignedTo",
+            summaries: [sum(f.deal.contractValue)],
+          },
+        ),
+        filters: [anyOf(f.deal.stage, [o["deal.stage"].won]), since(f.deal.closeDate, 365)],
+        sortDescriptor: sorted(f.deal.closeDate, "desc"),
       },
     },
     {
-      id: SYNTHETIC_DATA_VIEW_IDS.contactsInPlay,
-      userId: user,
-      surfaceKey: SURFACE.contacts,
-      name: "In play",
-      position: 1,
+      id: SYNTHETIC_DATA_VIEW_IDS.claraOpenDeals,
+      userId: members.claraNeumann,
+      surfaceKey: surface("deal"),
+      name: "My open deals",
+      state: myOpenDealsBoard(members.claraNeumann),
+    },
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.marcoOpenDeals,
+      userId: members.marcoSilva,
+      surfaceKey: surface("deal"),
+      name: "My open deals",
+      state: myOpenDealsBoard(members.marcoSilva),
+    },
+
+    // Contacts
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.contactDecisionMakers,
+      surfaceKey: surface("contact"),
+      name: "Decision makers",
       state: {
-        filters: selected(customColumnIds.contactSalesPipeline, [
-          customOptionIds.contactSalesPipeline.contact,
-          customOptionIds.contactSalesPipeline.qualified,
-          customOptionIds.contactSalesPipeline.inProgress,
+        ...table("contact", [
+          f.contact.jobTitle,
+          rel("contact.organizations", "outgoing"),
+          model.starter.contactChannels,
+          "system:assignedTo",
         ]),
-        viewMode: ViewMode.table,
-        sortDescriptor: sorted("updatedAt", "desc"),
-        columnOrder: [customColumnIds.contactSalesPipeline, "organizations", "deals", "users"],
-        hiddenColumns: ["channels", "tasks", "createdAt"],
+        filters: [hasAny(f.contact.dealRole, [o["contact.dealRole"].decisionMaker])],
+        sortDescriptor: sorted(columns.id("contact.name"), "asc"),
+        columnWidths: { [f.contact.jobTitle]: 220 },
+      },
+    },
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.contactsByRole,
+      surfaceKey: surface("contact"),
+      name: "Buying committee",
+      state: {
+        ...table(
+          "contact",
+          [
+            f.contact.jobTitle,
+            f.contact.dealRole,
+            rel("contact.organizations", "outgoing"),
+            rel("deal.contacts", "incoming"),
+          ],
+          {
+            field: customFieldIds.contactSalesPipeline,
+          },
+        ),
+        filters: [
+          hasAny(f.contact.dealRole, [
+            o["contact.dealRole"].decisionMaker,
+            o["contact.dealRole"].champion,
+            o["contact.dealRole"].influencer,
+            o["contact.dealRole"].procurement,
+          ]),
+        ],
+        sortDescriptor: sorted(columns.id("contact.name"), "asc"),
       },
     },
     {
       id: SYNTHETIC_DATA_VIEW_IDS.contactsRecentlyAdded,
-      userId: user,
-      surfaceKey: SURFACE.contacts,
+      surfaceKey: surface("contact"),
       name: "Added by month",
-      position: 2,
       state: {
-        viewMode: ViewMode.table,
-        grouping: { field: "createdAt", bucket: "month" },
-        sortDescriptor: sorted("createdAt", "desc"),
+        ...table(
+          "contact",
+          [f.contact.jobTitle, rel("contact.organizations", "outgoing"), f.contact.leadSource, "system:createdAt"],
+          {
+            field: "system:createdAt",
+            bucket: "month",
+          },
+        ),
+        sortDescriptor: sorted("system:createdAt", "desc"),
         pageSize: 25,
-        hiddenColumns: ["channels", "tasks", "updatedAt"],
+      },
+    },
+
+    // Organizations
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.organizationsTopArr,
+      surfaceKey: surface("organization"),
+      name: "Top accounts by ARR",
+      state: {
+        ...table("organization", [
+          f.organization.arr,
+          f.organization.segment,
+          f.organization.industry,
+          f.organization.openPipeline,
+          "system:assignedTo",
+        ]),
+        filters: [linked(rel("subscription.organization", "incoming"))],
+        sortDescriptor: sorted(f.organization.arr, "desc"),
+        pageSize: 25,
+        columnWidths: {
+          [columns.id("organization.name")]: 260,
+          [f.organization.arr]: 150,
+        },
       },
     },
     {
-      id: SYNTHETIC_DATA_VIEW_IDS.organizationsByType,
-      userId: user,
-      surfaceKey: SURFACE.organizations,
-      name: "Accounts by type",
-      position: 0,
+      id: SYNTHETIC_DATA_VIEW_IDS.organizationsByIndustry,
+      surfaceKey: surface("organization"),
+      name: "By industry",
       state: {
-        ...board(customColumnIds.organizationType),
-        hiddenColumns: [
-          customColumnIds.organizationType,
-          customColumnIds.organizationWebsite,
-          "tasks",
-          "users",
-          "createdAt",
-          "updatedAt",
-        ],
+        ...table(
+          "organization",
+          [
+            f.organization.segment,
+            f.organization.companySize,
+            f.organization.arr,
+            f.organization.openPipeline,
+            path("organization.tickets.path"),
+          ],
+          {
+            field: f.organization.industry,
+            summaries: [sum(f.organization.arr), sum(f.organization.openPipeline)],
+          },
+        ),
+        sortDescriptor: sorted(f.organization.arr, "desc"),
       },
     },
     {
-      id: SYNTHETIC_DATA_VIEW_IDS.directCustomers,
-      userId: user,
-      surfaceKey: SURFACE.organizations,
-      name: "Direct customers",
-      position: 1,
+      id: SYNTHETIC_DATA_VIEW_IDS.organizationsBySegment,
+      surfaceKey: surface("organization"),
+      name: "By segment",
       state: {
-        filters: selected(customColumnIds.organizationType, [customOptionIds.organizationType.directCustomer]),
-        viewMode: ViewMode.table,
-        sortDescriptor: sorted("name", "asc"),
-        columnOrder: [customColumnIds.organizationType, "deals", "contacts", "users"],
-        columnWidths: { name: 260 },
-        hiddenColumns: ["tasks", "createdAt"],
+        ...board(
+          "organization",
+          f.organization.segment,
+          [f.organization.industry, f.organization.arr, "system:assignedTo"],
+          {
+            summaries: [sum(f.organization.arr)],
+            hideEmpty: true,
+          },
+        ),
+        sortDescriptor: sorted(f.organization.arr, "desc"),
       },
     },
+
+    // Products and services
     {
       id: SYNTHETIC_DATA_VIEW_IDS.serviceCatalogue,
-      userId: user,
-      surfaceKey: SURFACE.services,
+      surfaceKey: surface("service"),
       name: "Catalogue by pricing",
-      position: 0,
       state: {
-        ...board(customColumnIds.servicePricing),
-        hiddenColumns: [customColumnIds.servicePricing, "tasks", "users", "createdAt", "updatedAt"],
+        ...board("service", customFieldIds.servicePricing, [model.starter.serviceAmount, customFieldIds.serviceType], {
+          summaries: [average(model.starter.serviceAmount)],
+        }),
+        sortDescriptor: sorted(model.starter.serviceAmount, "desc"),
       },
     },
     {
-      id: SYNTHETIC_DATA_VIEW_IDS.hardwareServices,
-      userId: user,
-      surfaceKey: SURFACE.services,
-      name: "Hardware",
-      position: 1,
+      id: SYNTHETIC_DATA_VIEW_IDS.servicesByPrice,
+      surfaceKey: surface("service"),
+      name: "Price list",
       state: {
-        filters: selected(customColumnIds.serviceType, [customOptionIds.serviceType.hardware]),
-        viewMode: ViewMode.table,
-        sortDescriptor: sorted("amount", "desc"),
-        columnOrder: ["amount", customColumnIds.servicePricing, "deals"],
-        hiddenColumns: ["tasks", "users", "createdAt", "updatedAt"],
+        ...table("service", [
+          model.starter.serviceAmount,
+          customFieldIds.servicePricing,
+          customFieldIds.serviceType,
+          path("service.deals.path"),
+        ]),
+        sortDescriptor: sorted(model.starter.serviceAmount, "desc"),
+        pageSize: 100,
+      },
+    },
+
+    // Tasks
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.tasksDueThisWeek,
+      surfaceKey: surface("task"),
+      name: "Due soon by team",
+      state: {
+        ...table(
+          "task",
+          [
+            f.task.dueDate,
+            customFieldIds.taskPriority,
+            customFieldIds.taskStatus,
+            rel("task.deals", "outgoing"),
+            "system:assignedTo",
+          ],
+          {
+            field: f.task.team,
+          },
+        ),
+        filters: [noneOf(customFieldIds.taskStatus, closedTasks), since(f.task.dueDate, 7)],
+        sortDescriptor: sorted(f.task.dueDate, "asc"),
       },
     },
     {
-      id: SYNTHETIC_DATA_VIEW_IDS.servicesRecentlyUpdated,
-      userId: user,
-      surfaceKey: SURFACE.services,
-      name: "Updated by week",
-      position: 2,
+      id: SYNTHETIC_DATA_VIEW_IDS.tasksByTeam,
+      surfaceKey: surface("task"),
+      name: "Team board",
       state: {
-        viewMode: ViewMode.table,
-        grouping: { field: "updatedAt", bucket: "week" },
-        sortDescriptor: sorted("updatedAt", "desc"),
-        hiddenColumns: ["tasks", "createdAt"],
+        ...board("task", f.task.team, [f.task.dueDate, customFieldIds.taskPriority, "system:assignedTo"]),
+        filters: [noneOf(customFieldIds.taskStatus, closedTasks)],
+        sortDescriptor: manual,
       },
     },
     {
-      id: SYNTHETIC_DATA_VIEW_IDS.taskBoard,
-      userId: user,
-      surfaceKey: SURFACE.tasks,
-      name: "Delivery board",
-      position: 0,
+      id: SYNTHETIC_DATA_VIEW_IDS.tasksOverdue,
+      surfaceKey: surface("task"),
+      name: "Overdue",
       state: {
-        ...board(customColumnIds.taskStatus),
-        hiddenColumns: [customColumnIds.taskStatus, "contacts", "services", "users", "createdAt", "updatedAt"],
+        ...table("task", [
+          f.task.dueDate,
+          f.task.team,
+          customFieldIds.taskPriority,
+          rel("task.deals", "outgoing"),
+          "system:assignedTo",
+        ]),
+        filters: [noneOf(customFieldIds.taskStatus, closedTasks), before(f.task.dueDate, 1)],
+        sortDescriptor: sorted(f.task.dueDate, "asc"),
       },
     },
     {
-      id: SYNTHETIC_DATA_VIEW_IDS.highPriorityTasks,
-      userId: user,
-      surfaceKey: SURFACE.tasks,
-      name: "High priority",
-      position: 1,
+      id: SYNTHETIC_DATA_VIEW_IDS.myTasks,
+      surfaceKey: surface("task"),
+      name: "My tasks",
       state: {
-        filters: selected(customColumnIds.taskPriority, [customOptionIds.taskPriority.high]),
-        viewMode: ViewMode.table,
-        sortDescriptor: sorted("updatedAt", "desc"),
-        columnOrder: [customColumnIds.taskPriority, customColumnIds.taskStatus, "deals", "users"],
-        hiddenColumns: ["contacts", "organizations", "services", "createdAt"],
+        ...board("task", customFieldIds.taskStatus, [
+          f.task.dueDate,
+          customFieldIds.taskPriority,
+          rel("task.deals", "outgoing"),
+        ]),
+        filters: [assignedTo(me)],
+        sortDescriptor: sorted(f.task.dueDate, "asc"),
+      },
+    },
+
+    // Subscriptions
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.subscriptionRenewals,
+      surfaceKey: surface("subscription"),
+      name: "Upcoming renewals",
+      state: {
+        ...table(
+          "subscription",
+          [
+            rel("subscription.organization", "outgoing"),
+            f.subscription.plan,
+            f.subscription.arr,
+            f.subscription.renewalDate,
+            "system:assignedTo",
+          ],
+          {
+            field: f.subscription.health,
+            summaries: [sum(f.subscription.arr)],
+          },
+        ),
+        filters: [since(f.subscription.renewalDate, 1)],
+        sortDescriptor: sorted(f.subscription.renewalDate, "asc"),
       },
     },
     {
-      id: SYNTHETIC_DATA_VIEW_IDS.tasksByPriority,
-      userId: user,
-      surfaceKey: SURFACE.tasks,
-      name: "Priority list",
-      position: 2,
+      id: SYNTHETIC_DATA_VIEW_IDS.subscriptionsAtRisk,
+      surfaceKey: surface("subscription"),
+      name: "At risk",
       state: {
-        viewMode: ViewMode.table,
-        grouping: { field: customColumnIds.taskPriority },
-        sortDescriptor: sorted("name", "asc"),
-        columnOrder: [customColumnIds.taskStatus, "deals", "organizations"],
-        hiddenColumns: ["contacts", "services", "users", "createdAt", "updatedAt"],
+        ...table("subscription", [
+          f.subscription.health,
+          f.subscription.arr,
+          f.subscription.renewalDate,
+          rel("subscription.organization", "outgoing"),
+          f.subscription.notes,
+          "system:assignedTo",
+        ]),
+        filters: [anyOf(f.subscription.health, [o["subscription.health"].atRisk, o["subscription.health"].watch])],
+        sortDescriptor: sorted(f.subscription.arr, "desc"),
+        columnWidths: { [f.subscription.notes]: 360 },
       },
     },
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.subscriptionsByPlan,
+      surfaceKey: surface("subscription"),
+      name: "By plan",
+      state: {
+        ...board(
+          "subscription",
+          f.subscription.plan,
+          [
+            rel("subscription.organization", "outgoing"),
+            f.subscription.arr,
+            f.subscription.health,
+            f.subscription.renewalDate,
+          ],
+          {
+            summaries: [sum(f.subscription.arr)],
+          },
+        ),
+        sortDescriptor: sorted(f.subscription.arr, "desc"),
+      },
+    },
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.elenaRenewals,
+      userId: members.elenaHoffmann,
+      surfaceKey: surface("subscription"),
+      name: "My renewals",
+      state: {
+        ...table("subscription", [
+          rel("subscription.organization", "outgoing"),
+          f.subscription.renewalDate,
+          f.subscription.health,
+          f.subscription.arr,
+          f.subscription.notes,
+        ]),
+        filters: [assignedTo(members.elenaHoffmann), since(f.subscription.renewalDate, 1)],
+        sortDescriptor: sorted(f.subscription.renewalDate, "asc"),
+      },
+    },
+
+    // Onboarding projects
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.onboardingBoard,
+      surfaceKey: surface("onboarding"),
+      name: "Board by phase",
+      state: {
+        ...board(
+          "onboarding",
+          f.onboarding.phase,
+          [
+            rel("onboarding.organization", "outgoing"),
+            f.onboarding.owner,
+            f.onboarding.progress,
+            f.onboarding.timeline,
+          ],
+          {
+            summaries: [average(f.onboarding.progress)],
+          },
+        ),
+        sortDescriptor: manual,
+      },
+    },
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.onboardingTimeline,
+      surfaceKey: surface("onboarding"),
+      name: "Active projects",
+      state: {
+        ...table(
+          "onboarding",
+          [
+            f.onboarding.phase,
+            f.onboarding.timeline,
+            f.onboarding.progress,
+            rel("onboarding.deal", "outgoing"),
+            f.onboarding.notes,
+          ],
+          {
+            field: f.onboarding.owner,
+            summaries: [average(f.onboarding.progress), min(f.onboarding.progress)],
+          },
+        ),
+        filters: [noneOf(f.onboarding.phase, [o["onboarding.phase"].completed])],
+        sortDescriptor: sorted(f.onboarding.progress, "asc"),
+        columnWidths: { [f.onboarding.notes]: 320 },
+      },
+    },
+
+    // Tickets
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.ticketsOpenByPriority,
+      surfaceKey: surface("ticket"),
+      name: "Open by priority",
+      state: {
+        ...board(
+          "ticket",
+          f.ticket.priority,
+          [f.ticket.status, f.ticket.assignee, f.ticket.slaDue, rel("ticket.subscription", "outgoing")],
+          {
+            summaries: [max(f.ticket.daysOverSla)],
+          },
+        ),
+        filters: [anyOf(f.ticket.status, openTickets)],
+        sortDescriptor: sorted(f.ticket.slaDue, "asc"),
+      },
+    },
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.ticketsOverdue,
+      surfaceKey: surface("ticket"),
+      name: "SLA breached",
+      state: {
+        ...table("ticket", [
+          f.ticket.priority,
+          f.ticket.status,
+          f.ticket.assignee,
+          f.ticket.slaDue,
+          f.ticket.daysOverSla,
+          f.ticket.notes,
+        ]),
+        filters: [anyOf(f.ticket.overdue, ["true"])],
+        sortDescriptor: sorted(f.ticket.daysOverSla, "desc"),
+        columnWidths: { [f.ticket.notes]: 360 },
+      },
+    },
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.ticketsByWeek,
+      surfaceKey: surface("ticket"),
+      name: "Opened by week",
+      state: {
+        ...table("ticket", [f.ticket.category, f.ticket.priority, f.ticket.status, f.ticket.resolvedOn], {
+          field: f.ticket.openedOn,
+          bucket: "week",
+        }),
+        sortDescriptor: sorted(f.ticket.openedOn, "desc"),
+        pageSize: 25,
+      },
+    },
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.kianQueue,
+      userId: members.kianRahimi,
+      surfaceKey: surface("ticket"),
+      name: "My queue",
+      state: {
+        ...table("ticket", [
+          f.ticket.priority,
+          f.ticket.status,
+          f.ticket.slaDue,
+          rel("ticket.contact", "outgoing"),
+          f.ticket.notes,
+        ]),
+        filters: [anyOf(f.ticket.assignee, [members.kianRahimi]), anyOf(f.ticket.status, openTickets)],
+        sortDescriptor: sorted(f.ticket.slaDue, "asc"),
+      },
+    },
+
+    // Campaigns
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.campaignsPipelineSourced,
+      surfaceKey: surface("campaign"),
+      name: "Pipeline sourced",
+      state: {
+        ...table("campaign", [
+          f.campaign.channel,
+          f.campaign.budget,
+          f.campaign.dealsSourced,
+          f.campaign.pipelineSourced,
+          f.campaign.wonRevenue,
+        ]),
+        sortDescriptor: sorted(f.campaign.pipelineSourced, "desc"),
+        columnWidths: {
+          [f.campaign.pipelineSourced]: 170,
+          [f.campaign.wonRevenue]: 150,
+        },
+      },
+    },
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.campaignsByChannel,
+      surfaceKey: surface("campaign"),
+      name: "By channel",
+      state: {
+        ...table(
+          "campaign",
+          [
+            f.campaign.period,
+            f.campaign.budget,
+            f.campaign.pipelineSourced,
+            f.campaign.wonRevenue,
+            f.campaign.costPerDeal,
+          ],
+          {
+            field: f.campaign.channel,
+            summaries: [sum(f.campaign.pipelineSourced), sum(f.campaign.wonRevenue)],
+          },
+        ),
+        sortDescriptor: sorted(f.campaign.pipelineSourced, "desc"),
+      },
+    },
+
+    // Partners
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.partnersByTier,
+      surfaceKey: surface("partner"),
+      name: "By tier",
+      state: {
+        ...board(
+          "partner",
+          f.partner.tier,
+          [f.partner.region, f.partner.referredPipeline, f.partner.revenueInfluenced],
+          {
+            summaries: [sum(f.partner.referredPipeline)],
+          },
+        ),
+        sortDescriptor: sorted(f.partner.revenueInfluenced, "desc"),
+      },
+    },
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.partnersByRegion,
+      surfaceKey: surface("partner"),
+      name: "By region",
+      state: {
+        ...table(
+          "partner",
+          [
+            f.partner.tier,
+            f.partner.commissionRate,
+            f.partner.referredPipeline,
+            f.partner.revenueInfluenced,
+            f.partner.commissionDue,
+          ],
+          {
+            field: f.partner.region,
+            summaries: [sum(f.partner.revenueInfluenced)],
+          },
+        ),
+        sortDescriptor: sorted(f.partner.revenueInfluenced, "desc"),
+      },
+    },
+
+    // Open roles
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.openRolesByDepartment,
+      surfaceKey: surface("openRole"),
+      name: "By department",
+      state: {
+        ...board(
+          "openRole",
+          f.openRole.department,
+          [f.openRole.status, f.openRole.hiringManager, f.openRole.targetStart, f.openRole.candidateCount],
+          {
+            summaries: [sum(f.openRole.candidateCount)],
+            hideEmpty: true,
+          },
+        ),
+        sortDescriptor: sorted(f.openRole.targetStart, "asc"),
+      },
+    },
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.openRolesHiring,
+      surfaceKey: surface("openRole"),
+      name: "Hiring now",
+      state: {
+        ...table("openRole", [
+          f.openRole.department,
+          f.openRole.hiringManager,
+          f.openRole.targetStart,
+          f.openRole.candidateCount,
+          f.openRole.salaryBudget,
+          f.openRole.notes,
+        ]),
+        filters: [anyOf(f.openRole.status, [o["openRole.status"].open])],
+        sortDescriptor: sorted(f.openRole.targetStart, "asc"),
+        columnWidths: { [f.openRole.notes]: 340 },
+      },
+    },
+
+    // Candidates
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.candidatesHiringBoard,
+      surfaceKey: surface("candidate"),
+      name: "Hiring board",
+      state: {
+        ...board(
+          "candidate",
+          f.candidate.stage,
+          [rel("candidate.openRole", "outgoing"), f.candidate.source, f.candidate.interviewers],
+          {
+            summaries: [average(f.candidate.salaryExpectation)],
+            hidden: [`value:${o["candidate.stage"].rejected}`],
+          },
+        ),
+        sortDescriptor: manual,
+      },
+    },
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.candidatesInterviewNotes,
+      surfaceKey: surface("candidate"),
+      name: "Interview notes",
+      state: {
+        ...table(
+          "candidate",
+          [
+            rel("candidate.openRole", "outgoing"),
+            f.candidate.stage,
+            f.candidate.interviewers,
+            f.candidate.interviewNotes,
+            f.candidate.salaryExpectation,
+          ],
+          {
+            field: f.candidate.department,
+            summaries: [average(f.candidate.salaryExpectation)],
+          },
+        ),
+        filters: [
+          anyOf(f.candidate.stage, [
+            o["candidate.stage"].interview,
+            o["candidate.stage"].caseTask,
+            o["candidate.stage"].offer,
+          ]),
+        ],
+        sortDescriptor: sorted(f.candidate.appliedOn, "asc"),
+        columnWidths: { [f.candidate.interviewNotes]: 320 },
+      },
+    },
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.lauraInterviews,
+      userId: members.lauraFischer,
+      surfaceKey: surface("candidate"),
+      name: "My interviews",
+      state: {
+        ...table("candidate", [
+          rel("candidate.openRole", "outgoing"),
+          f.candidate.stage,
+          f.candidate.appliedOn,
+          f.candidate.interviewNotes,
+        ]),
+        filters: [anyOf(f.candidate.interviewers, [members.lauraFischer])],
+        sortDescriptor: sorted(f.candidate.appliedOn, "desc"),
+      },
+    },
+
+    // Inbox
     {
       id: SYNTHETIC_DATA_VIEW_IDS.inboxDrafts,
-      userId: user,
       surfaceKey: SURFACE.messagingThreads,
       name: "Drafts",
-      position: 0,
       state: {
         filters: [{ field: FilterFieldKey.draft, operator: FilterOperatorKey.hasSome }],
         viewMode: ViewMode.table,
@@ -285,50 +863,61 @@ export function buildSyntheticDataViewFixtures(
     },
     {
       id: SYNTHETIC_DATA_VIEW_IDS.inboxUnread,
-      userId: user,
       surfaceKey: SURFACE.messagingThreads,
       name: "Unread",
-      position: 1,
       state: {
-        filters: selected(FilterFieldKey.state, [MessagingThreadState.unread]),
+        filters: [anyOf(FilterFieldKey.state, [MessagingThreadState.unread])],
         viewMode: ViewMode.table,
       },
     },
     {
       id: SYNTHETIC_DATA_VIEW_IDS.inboxWhatsApp,
-      userId: user,
       surfaceKey: SURFACE.messagingThreads,
       name: "WhatsApp",
-      position: 2,
       state: {
-        filters: selected(FilterFieldKey.provider, [MessagingProvider.whatsapp]),
+        filters: [anyOf(FilterFieldKey.provider, [MessagingProvider.whatsapp])],
         viewMode: ViewMode.table,
       },
     },
   ];
+
+  const positions = new Map<string, number>();
+  return drafts.map(({ userId = me, ...draft }) => {
+    const key = `${userId}:${draft.surfaceKey}`;
+    const position = positions.get(key) ?? 0;
+    positions.set(key, position + 1);
+    return { ...draft, userId, position };
+  });
 }
 
 export async function persistSyntheticDataViewFixtures(
   prisma: Pick<PrismaClient, "dataView">,
   companyId: string,
   views: SyntheticDataViewFixture[],
+  prefix = SYNTHETIC_DATA_VIEW_ID_PREFIX,
 ): Promise<void> {
   for (const view of views) {
     const { id, state, ...rest } = view;
     const data = { companyId, ...rest, ...writeStoredState(state) };
-    await prisma.dataView.upsert({ where: { id }, update: data, create: { id, ...data } });
+    await prisma.dataView.upsert({
+      where: { id },
+      update: data,
+      create: { id, ...data },
+    });
   }
 
   await prisma.dataView.deleteMany({
     where: {
       companyId,
-      id: { startsWith: `${SYNTHETIC_DATA_VIEW_ID_PREFIX}-`, notIn: views.map(({ id }) => id) },
+      id: { startsWith: `${prefix}-`, notIn: views.map(({ id }) => id) },
     },
   });
 }
 
 export async function seedDataViews(context: SeedContext, customFields: CustomFieldSeedData): Promise<void> {
-  const views = buildSyntheticDataViewFixtures(context, customFields);
-
-  await persistSyntheticDataViewFixtures(context.prisma, context.ids.company, views);
+  await persistSyntheticDataViewFixtures(
+    context.prisma,
+    context.ids.company,
+    buildSyntheticDataViewFixtures(context, customFields),
+  );
 }

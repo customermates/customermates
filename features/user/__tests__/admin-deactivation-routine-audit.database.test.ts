@@ -1,3 +1,5 @@
+import { InitializeRecordModelService } from "@/features/records/initialize-record-model.service";
+import { runWithTenant } from "@/core/decorators/tenant-context";
 import type { TenantUser } from "@/features/user/user.schema";
 
 import { randomUUID } from "node:crypto";
@@ -53,6 +55,7 @@ vi.mock("@/features/user/user.service", () => ({
 const { getAdminUpdateUserDetailsInteractor } = await import("@/core/di");
 const { prisma } = await import("@/prisma/db");
 const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
+const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 
 const company = randomUUID();
 const admin = randomUUID();
@@ -134,6 +137,7 @@ describeDatabase("deactivating a teammate and the routines it disables", { timeo
         data: [seedRoutine(routineA, "Daily digest"), seedRoutine(routineB, "Stale deal sweep")],
       });
     });
+    await runWithTenant(actingAdmin, () => new InitializeRecordModelService(createTestRecordRepo()).initialize());
   });
 
   afterAll(async () => {
@@ -161,9 +165,12 @@ describeDatabase("deactivating a teammate and the routines it disables", { timeo
     expect(routines.map((routine) => routine.disabledReason)).toEqual(["ownerUnavailable", "ownerUnavailable"]);
     expect(routines.map((routine) => routine.nextRunAt)).toEqual([null, null]);
 
-    const rows = await runWithoutTenant(() => prisma.auditLog.findMany({ where: { companyId: company } }));
+    const rows = await runWithoutTenant(() => prisma.eventLog.findMany({ where: { companyId: company } }));
 
-    expect(rows.map((row) => row.event)).toEqual(["user.updated"]);
-    expect(rows[0].eventData).toMatchObject({ userId: admin, payload: { status: Status.inactive } });
+    expect(rows.map((row) => row.kind)).toEqual(["user.updated"]);
+    expect(rows[0].actorId).toBe(admin);
+    expect(rows[0].payload).toMatchObject({
+      changes: { status: { previous: Status.active, current: Status.inactive } },
+    });
   });
 });

@@ -61,7 +61,7 @@ class TestStore extends BaseDataViewStore<Item> {
 
     return Promise.resolve({
       items: [],
-      p13nId: SURFACE.deals,
+      p13nId: SURFACE.routines,
       pagination: { page: 1, pageSize: 25, total: 0, totalPages: 1 },
       views: [],
       activeViewKey: ALL_VIEW_KEY,
@@ -83,7 +83,7 @@ function groupedByTheStoredState(): TestStore {
   const store = new TestStore(rootStore());
   store.setItems({
     items: [],
-    p13nId: SURFACE.deals,
+    p13nId: SURFACE.routines,
     pagination: { page: 1, pageSize: 25, total: 0, totalPages: 1 },
     views: [],
     activeViewKey: ALL_VIEW_KEY,
@@ -123,6 +123,8 @@ describe("clearing the grouping outlives the refresh it triggers", () => {
 
     await vi.advanceTimersByTimeAsync(1000);
 
+    expect(saveDataViewStateAction).not.toHaveBeenCalled();
+    await store.saveViewChanges();
     expect(saveDataViewStateAction).toHaveBeenCalledTimes(1);
     expect(saveDataViewStateAction.mock.calls[0]?.[0]?.state?.grouping).toBeNull();
     expect(store.grouping).toBeNull();

@@ -6,7 +6,7 @@ import { BENCHMARK_CASES } from "../fixtures";
 const ANSWERS: Record<(typeof DOCS_CASE_IDS)[number], { pass: string[]; fail: string[] }> = {
   D1: {
     pass: [
-      "Open My Profile and choose API & Connectors (/profile/api-keys), then press Add.",
+      "Open My Profile and choose API & Connectors (/settings/api-keys), then press Add.",
       "See http://localhost:4107/en/docs/api-keys for the steps.",
     ],
     fail: ["Go to Settings > Integrations and generate a token."],
@@ -28,7 +28,7 @@ const ANSWERS: Record<(typeof DOCS_CASE_IDS)[number], { pass: string[]; fail: st
     fail: ["It stays open for 24 hours."],
   },
   D6: {
-    pass: ["Unter Mein Unternehmen > Einstellungen im Feld Währung.", "Öffnen Sie /company/settings."],
+    pass: ["Jedes Geldfeld hat seine eigene Währung, unter Konfigurieren am Feld.", "Öffnen Sie /configure."],
     fail: ["In Ihrem Profil unter Sprache."],
   },
   D7: {

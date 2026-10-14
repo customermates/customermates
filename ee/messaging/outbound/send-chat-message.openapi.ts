@@ -9,7 +9,7 @@ import {
   ConflictApiResponse,
   MessagingProviderApiResponses,
   NotFoundApiResponse,
-} from "@/core/api/interactor-handler";
+} from "@/core/api/structured-interactor-handler";
 
 export const sendChatMessageOperation: ZodOpenApiOperationObject = {
   operationId: "sendChatMessage",

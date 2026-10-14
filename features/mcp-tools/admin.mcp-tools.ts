@@ -1,144 +1,122 @@
 import { z } from "zod";
 
-import {
-  customMcpFailure,
-  mcpInteractorFailure,
-  mcpMessageFailure,
-  mcpValidationFailure,
-  runInteractor,
-  toonResult,
-} from "./utils";
+import { mcpValidationFailure, runInteractor, toonResult } from "./utils";
 
 import {
   getAdminUpdateUserDetailsInteractor,
-  getGetTeamMemberInteractor,
+  getGetInvitationLinkInteractor,
   getInviteUsersByEmailInteractor,
-  getUpdateCompanySettingsInteractor,
   getUpdateUserDetailsInteractor,
 } from "@/core/di";
-import { CustomErrorCode } from "@/core/validation/validation.types";
 import { UpdateUserDetailsSchema } from "@/features/user/upsert/update-user-details.interactor";
-import { AdminUpdateUserDetailsSchema } from "@/features/user/upsert/admin-update-user-details.interactor";
-import { GetUserByIdSchema } from "@/features/user/get/get-user-by-id.interactor";
-import { UpdateCompanySettingsSchema } from "@/features/company/update-company-settings.interactor";
+import { UpdateMemberSchema } from "@/features/user/upsert/admin-update-user-details.interactor";
 import { InviteUsersByEmailSchema } from "@/features/company/invite-users-by-email.interactor";
-import { ENTITY_TERMINOLOGY_PRESETS } from "@/features/entity-terminology/entity-terminology.constants";
 
-const UpdateWorkspaceSettingsSchema = z.object({
-  target: z
-    .enum(["profile", "company"])
-    .describe(
-      "profile = the authenticated user's own profile, company = the company profile (requires update permission on the company)",
+const UpdateMyProfileSchema = z
+  .object({
+    firstName: UpdateUserDetailsSchema.shape.firstName.describe("Omit to keep existing"),
+    lastName: UpdateUserDetailsSchema.shape.lastName.describe("Omit to keep existing"),
+    country: UpdateUserDetailsSchema.shape.country.describe("ISO country code. Omit to keep existing."),
+    avatarUrl: UpdateUserDetailsSchema.shape.avatarUrl.describe(
+      "HTTPS avatar URL, or '' / null to clear. Omit to keep existing.",
     ),
-  firstName: UpdateUserDetailsSchema.shape.firstName.describe("profile target: omit to keep existing"),
-  lastName: UpdateUserDetailsSchema.shape.lastName.describe("profile target: omit to keep existing"),
-  country: UpdateUserDetailsSchema.shape.country.describe("profile target: ISO country code. Omit to keep existing."),
-  avatarUrl: UpdateUserDetailsSchema.shape.avatarUrl.describe(
-    "profile target: HTTPS avatar URL, or '' / null to clear. Omit to keep existing.",
-  ),
-  currency: UpdateCompanySettingsSchema.shape.currency
-    .optional()
-    .describe("company target: currency code. Omit to keep existing."),
-  terminology: UpdateCompanySettingsSchema.shape.terminology.describe(
-    `company target: optional entity label presets ${JSON.stringify(ENTITY_TERMINOLOGY_PRESETS)}. Pass only the entities to change.`,
-  ),
-});
+    theme: UpdateUserDetailsSchema.shape.theme.describe("Colour theme: system, light or dark. Omit to keep existing."),
+    displayLanguage: UpdateUserDetailsSchema.shape.displayLanguage.describe(
+      "Language of the app interface. Omit to keep existing.",
+    ),
+    formattingLocale: UpdateUserDetailsSchema.shape.formattingLocale.describe(
+      "Locale for number, date and currency formatting. Omit to keep existing.",
+    ),
+  })
+  .strict();
 
-const CompanyWorkspaceSettingsSchema = UpdateCompanySettingsSchema.pick({
-  currency: true,
-  terminology: true,
-}).refine((data) => data.currency !== undefined || Boolean(data.terminology?.length), {
-  message: "Company settings need currency or at least one terminology entry.",
-});
-
-const ProfileWorkspaceSettingsSchema = UpdateUserDetailsSchema.pick({
-  firstName: true,
-  lastName: true,
-  country: true,
-  avatarUrl: true,
-}).refine(
-  (data) =>
-    data.firstName !== undefined ||
-    data.lastName !== undefined ||
-    data.country !== undefined ||
-    data.avatarUrl !== undefined,
+const ChangedProfileSchema = UpdateMyProfileSchema.refine(
+  (data) => Object.values(data).some((value) => value !== undefined),
   { message: "Profile settings need at least one changed field." },
 );
 
-const UpdateWorkspaceSettingsOutputSchema = z.looseObject({ message: z.string() });
+const PROFILE_FIELDS = [
+  "firstName",
+  "lastName",
+  "country",
+  "avatarUrl",
+  "theme",
+  "displayLanguage",
+  "formattingLocale",
+] as const;
+
+const UpdateMyProfileOutputSchema = z.looseObject({ message: z.string() });
 const ManageTeamOutputSchema = z
   .looseObject({
     sent: z.number().optional(),
+    link: z.string().optional(),
+    expiresAt: z.string().optional(),
     email: z.string().optional(),
     roleId: z.string().nullable().optional(),
     status: z.string().optional(),
     message: z.string(),
   })
-  .describe("action invite returns sent and message; update_member returns email, roleId, status and message.");
+  .describe(
+    "action invite returns sent and message; invite_link returns link, expiresAt and message; update_member returns email, roleId, status and message.",
+  );
 
-export const updateWorkspaceSettingsTool = {
-  name: "update_workspace_settings",
-  title: "Update workspace settings",
+export const updateMyProfileTool = {
+  name: "update_my_profile",
+  title: "Update my profile",
   description:
-    "Use this when updating the current user's profile or the company profile. " +
-    "target profile is a partial update of firstName, lastName, country, avatarUrl; omitted fields keep their current values. " +
-    "target company updates currency and/or the preset names used for contacts, organizations, deals, services, and tasks; requires update permission on the company (Manage on the Company row of the caller's role).",
+    "Use this when updating the current user's own profile and preferences. " +
+    "It is a partial update of firstName, lastName, country, avatarUrl, theme, displayLanguage and formattingLocale; omitted fields keep their current values. " +
+    "It never changes other members or workspace configuration.",
   annotations: {
     readOnlyHint: false,
     destructiveHint: false,
     idempotentHint: true,
     openWorldHint: false,
   },
-  inputSchema: UpdateWorkspaceSettingsSchema,
-  outputSchema: UpdateWorkspaceSettingsOutputSchema,
-  execute: async (params: z.infer<typeof UpdateWorkspaceSettingsSchema>) => {
-    if (params.target === "profile") {
-      const parsed = ProfileWorkspaceSettingsSchema.safeParse(params);
-      if (!parsed.success) return mcpValidationFailure(parsed.error);
-      return runInteractor(getUpdateUserDetailsInteractor().invoke(parsed.data), (data) =>
-        toonResult({
-          ...(parsed.data.firstName !== undefined ? { firstName: data.firstName } : {}),
-          ...(parsed.data.lastName !== undefined ? { lastName: data.lastName } : {}),
-          ...(parsed.data.country !== undefined ? { country: data.country } : {}),
-          ...(parsed.data.avatarUrl !== undefined ? { avatarUrl: data.avatarUrl } : {}),
-          message: "Profile updated",
-        }),
-      );
-    }
-    const parsed = CompanyWorkspaceSettingsSchema.safeParse(params);
+  inputSchema: UpdateMyProfileSchema,
+  outputSchema: UpdateMyProfileOutputSchema,
+  execute: async (params: z.infer<typeof UpdateMyProfileSchema>) => {
+    const parsed = ChangedProfileSchema.safeParse(params);
     if (!parsed.success) return mcpValidationFailure(parsed.error);
-    return runInteractor(getUpdateCompanySettingsInteractor().invoke(parsed.data), (data) =>
+    return runInteractor(getUpdateUserDetailsInteractor().invoke(parsed.data), (data) =>
       toonResult({
-        ...(data.currency !== undefined ? { currency: data.currency } : {}),
-        ...(data.terminology !== undefined ? { terminology: data.terminology } : {}),
-        message: "Company settings updated",
+        ...Object.fromEntries(
+          PROFILE_FIELDS.filter((field) => parsed.data[field] !== undefined).map((field) => [field, data[field]]),
+        ),
+        message: "Profile updated",
       }),
     );
   },
 };
 
+const ManageTeamMemberSchema = UpdateMemberSchema.pick({
+  userId: true,
+  email: true,
+  roleId: true,
+  status: true,
+}).refine(({ userId, email }) => Boolean(userId || email), { path: ["userId"], message: "Provide userId or email" });
+
 const ManageTeamSchema = z.object({
   action: z
-    .enum(["invite", "update_member"])
+    .enum(["invite", "invite_link", "update_member"])
     .describe(
-      "invite = send invitation emails (emails); update_member = change an existing member's role or status (userId plus roleId and/or status).",
+      "invite = send invitation emails (emails); invite_link = return the workspace invitation link to share yourself; update_member = change an existing member's role or status (userId or email plus roleId and/or status).",
     ),
   emails: InviteUsersByEmailSchema.shape.emails
     .optional()
     .describe("invite action: required, 1 to 20 email addresses, each receives a real invitation email"),
-  userId: GetUserByIdSchema.shape.id.optional().describe("update_member action: required, user id from list_users"),
-  roleId: AdminUpdateUserDetailsSchema.shape.roleId
-    .optional()
-    .describe("update_member action: new role id from get_workspace_context roles. Omit to keep the current role."),
-  status: AdminUpdateUserDetailsSchema.shape.status
-    .optional()
-    .describe("update_member action: new status. Omit to keep the current status."),
-});
-
-const UpdateMemberSchema = z.object({
-  userId: GetUserByIdSchema.shape.id,
-  roleId: AdminUpdateUserDetailsSchema.shape.roleId.optional(),
-  status: AdminUpdateUserDetailsSchema.shape.status.optional(),
+  userId: UpdateMemberSchema.shape.userId.describe(
+    "update_member action: user id from list_users; provide userId or email",
+  ),
+  email: UpdateMemberSchema.shape.email.describe(
+    "update_member action: member email; provide email or userId, and both must match when supplied",
+  ),
+  roleId: UpdateMemberSchema.shape.roleId.describe(
+    "update_member action: new role id from get_workspace_context roles. Omit to keep the current role.",
+  ),
+  status: UpdateMemberSchema.shape.status.describe(
+    "update_member action: new status. Omit to keep the current status.",
+  ),
 });
 
 export const manageTeamTool = {
@@ -147,10 +125,11 @@ export const manageTeamTool = {
   description:
     "Use this when administering team members. " +
     "action invite SENDS REAL INVITATION EMAILS to the given addresses (up to 20 per call). " +
-    "action update_member changes an existing member's role or status: pass userId from list_users.items[].id plus roleId from get_workspace_context.roles[].id and/or status, omitted fields keep their current values; " +
+    "action invite_link returns the workspace invitation link and its expiresAt, as the Invite modal shows it, creating one valid for 7 days when none is active; anyone who opens it can request to join, so hand it only to the people the user names. " +
+    "action update_member changes an existing member's role or status: identify the member by userId from list_users.items[].id or email (both must match if supplied), plus roleId from get_workspace_context.roles[].id and/or status; omitted fields keep their current values; " +
     "a member who has no role assigned yet (e.g. a still pending invite) has no role to keep, so you must pass roleId together with the change or the call is rejected. " +
     "last-admin protection is enforced server-side, the workspace can never lose its last active admin. " +
-    "invite requires create permission on users; update_member requires update permission and read access to all users (Manage and read All on Users & Roles).",
+    "invite requires create permission on users, as does invite_link; update_member requires update permission on users (Edit on Users & Roles), the same check as REST POST /v1/members/update.",
   annotations: {
     readOnlyHint: false,
     destructiveHint: false,
@@ -160,6 +139,11 @@ export const manageTeamTool = {
   inputSchema: ManageTeamSchema,
   outputSchema: ManageTeamOutputSchema,
   execute: async (params: z.infer<typeof ManageTeamSchema>) => {
+    if (params.action === "invite_link") {
+      return runInteractor(getGetInvitationLinkInteractor().invoke({}), (data) =>
+        toonResult({ link: data.link, expiresAt: data.expiresAt.toISOString(), message: "Invitation link ready" }),
+      );
+    }
     if (params.action === "invite") {
       const parsed = InviteUsersByEmailSchema.safeParse(params);
       if (!parsed.success) return mcpValidationFailure(parsed.error);
@@ -167,34 +151,10 @@ export const manageTeamTool = {
         toonResult({ sent: data.sent, message: "Invitation emails sent" }),
       );
     }
-    const parsed = UpdateMemberSchema.safeParse(params);
+    const parsed = ManageTeamMemberSchema.safeParse(params);
     if (!parsed.success) return mcpValidationFailure(parsed.error);
-    const loaded = await getGetTeamMemberInteractor().invoke({
-      id: parsed.data.userId,
-    });
-    if (!loaded.ok) return mcpInteractorFailure(loaded.error);
-    const member = loaded.data.user;
-    if (!member) return customMcpFailure(CustomErrorCode.userNotFound);
-    if (member.roleId == null && parsed.data.roleId == null)
-      return mcpMessageFailure("This member has no role assigned yet, so pass roleId together with the change.");
-
-    const candidate = AdminUpdateUserDetailsSchema.safeParse({
-      email: member.email,
-      firstName: member.firstName,
-      lastName: member.lastName,
-      country: member.country,
-      avatarUrl: member.avatarUrl,
-      roleId: parsed.data.roleId ?? member.roleId,
-      status: parsed.data.status ?? member.status,
-    });
-    if (!candidate.success) return mcpValidationFailure(candidate.error);
-    return runInteractor(getAdminUpdateUserDetailsInteractor().invoke(candidate.data), (data) =>
-      toonResult({
-        email: data.email,
-        roleId: data.roleId,
-        status: data.status,
-        message: "Member updated",
-      }),
+    return runInteractor(getAdminUpdateUserDetailsInteractor().invoke(parsed.data), (data) =>
+      toonResult({ email: data.email, roleId: data.roleId, status: data.status, message: "Member updated" }),
     );
   },
 };

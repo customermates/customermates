@@ -8,10 +8,6 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
 
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ plural: (entity: string) => entity }),
-}));
-
 vi.mock("../form-context", () => ({
   useAppForm: () => ({
     getError: (key: string) => formErrors.current[key],

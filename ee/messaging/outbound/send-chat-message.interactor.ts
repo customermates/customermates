@@ -12,13 +12,13 @@ import { z } from "zod";
 import * as Sentry from "@sentry/node";
 import { randomUUID } from "node:crypto";
 
-import { Resource, Action, MessagingMessageDirection, MessagingMessageOrigin } from "@/generated/prisma";
+import { Resource, MessagingMessageDirection, MessagingMessageOrigin } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { isDraftThreadId } from "../provider";
+import { isDraftThreadId, isEmailProvider } from "../provider";
 import { accountNeedsReconnect } from "../account-health";
 import {
   DraftRevisionSchema,
@@ -62,7 +62,7 @@ export const SendChatMessageSchema = BaseSendChatMessageSchema.superRefine((d, c
 });
 export type SendChatMessageData = Data<typeof SendChatMessageSchema>;
 
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.create })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "create" })
 export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatMessageData, MessagingMessageDto> {
   constructor(
     private repo: SendChatMessageRepo,
@@ -85,6 +85,7 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
 
     const thread = await this.repo.findThreadByIdOrThrow(data.threadId);
     if (isDraftThreadId(thread.unipileThreadId)) return fail(CustomErrorCode.draftThreadNotSent, ["threadId"]);
+    if (isEmailProvider(thread.provider)) return fail(CustomErrorCode.chatThreadRequired, ["threadId"]);
 
     const account = await this.accountRepo.findUsableAccountByIdOrThrow(thread.connectedAccountId);
     if (accountNeedsReconnect(account)) return fail(CustomErrorCode.unipileDisconnectedAccount, []);

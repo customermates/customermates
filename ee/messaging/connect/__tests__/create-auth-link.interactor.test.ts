@@ -57,7 +57,7 @@ function makeRepo(overrides: {
 
 function makeInteractor(repo: ReturnType<typeof makeRepo>) {
   const messagingService = { createAuthLink: vi.fn().mockResolvedValue("https://auth.example.com/link") };
-  const entitlements = new EntitlementService({ getSubscriptionOrThrow: repo.getSubscriptionOrThrow } as never);
+  const entitlements = new EntitlementService({ findSubscription: repo.getSubscriptionOrThrow } as never);
   return {
     interactor: new CreateAuthLinkInteractor(messagingService as never, repo as never, repo as never, entitlements),
     messagingService,
@@ -113,7 +113,7 @@ describe("CreateAuthLinkInteractor", () => {
 
     expect(messagingService.createAuthLink).toHaveBeenCalledWith(
       expect.objectContaining({
-        redirectUri: "https://feat-inbox.customermates.com/profile/connected-accounts",
+        redirectUri: "https://feat-inbox.customermates.com/settings/channels",
       }),
     );
   });
@@ -127,7 +127,7 @@ describe("CreateAuthLinkInteractor", () => {
 
     expect(messagingService.createAuthLink).toHaveBeenCalledWith(
       expect.objectContaining({
-        redirectUri: "https://customermates-git-feat-inbox-customermates.vercel.app/profile/connected-accounts",
+        redirectUri: "https://customermates-git-feat-inbox-customermates.vercel.app/settings/channels",
       }),
     );
   });

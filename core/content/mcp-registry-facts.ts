@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import ts from "typescript";
 
-export type McpRegistryFacts = {
+type McpRegistryFacts = {
   alwaysOn: number;
   grouped: number;
   groups: Readonly<Record<string, number>>;

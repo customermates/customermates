@@ -1,48 +1,46 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { RoutineRunPage } from "./routine-history";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { z } from "zod";
 
 import { ROUTINE_RUN_PAGE_SIZE, RoutineRunPageSchema } from "./routine-history";
+import { decodeRoutineRunCursor } from "./routine-run-cursor";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { fail } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import type { GetRoutineRunsRepo } from "./get-routine-runs.repo";
 
-const Schema = z.object({
-  routineId: z.uuid(),
+export const GetRoutineRunsSchema = z.object({
+  id: z.uuid(),
   cursor: z.string().max(500).nullable().optional(),
 });
 
-export type GetRoutineRunsData = Data<typeof Schema>;
-
-export abstract class GetRoutineRunsRepo {
-  abstract getRoutineRuns(routineId: string, limit: number, cursor?: string | null): Promise<RoutineRunPage>;
-}
+export type GetRoutineRunsData = Data<typeof GetRoutineRunsSchema>;
 
 @AllowInDemoMode
-@TenantInteractor({
-  permissions: [
-    { resource: Resource.routines, action: Action.readAll },
-    { resource: Resource.routines, action: Action.readOwn },
-  ],
-  condition: "OR",
-})
+@TenantInteractor({ resource: Resource.routines, read: true })
 export class GetRoutineRunsInteractor extends AuthenticatedInteractor<GetRoutineRunsData, RoutineRunPage> {
   constructor(private repo: GetRoutineRunsRepo) {
     super();
   }
 
-  @Validate(Schema)
+  @Validate(GetRoutineRunsSchema)
   @ValidateOutput(RoutineRunPageSchema)
   async invoke(data: GetRoutineRunsData): Validated<RoutineRunPage> {
+    await this.repo.assertReadableRoutineOrThrow(data.id);
+    const decoded = decodeRoutineRunCursor(data.cursor);
+    if (!decoded.valid) return fail(CustomErrorCode.routineRunCursorInvalid, ["cursor"]);
+
     return {
       ok: true as const,
-      data: await this.repo.getRoutineRuns(data.routineId, ROUTINE_RUN_PAGE_SIZE, data.cursor),
+      data: await this.repo.getRoutineRuns(data.id, ROUTINE_RUN_PAGE_SIZE, decoded.cursor),
     };
   }
 }

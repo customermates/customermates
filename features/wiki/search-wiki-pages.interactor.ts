@@ -6,7 +6,7 @@ import type { QueryVector, RelevanceFloor } from "@/core/retrieval/retrieval-pip
 import type { Validated } from "@/core/validation/validation.utils";
 import type { WikiPageDto, WikiPageSearchData, WikiPageSearchResult, WikiSearchResult } from "./wiki.schema";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
@@ -24,7 +24,7 @@ import { wikiSectionLocation, wikiSectionPlainText, wikiSectionTexts, wikiSnippe
 import { wikiSectionOffsetIn } from "./wiki-markdown-sections";
 import { WikiPageSearchResultSchema, WikiPageSearchSchema } from "./wiki.schema";
 
-export type WikiSearchHit = WikiSearchResult & { markdown: string };
+type WikiSearchHit = WikiSearchResult & { markdown: string };
 
 const WIKI_RERANK_CANDIDATES = 10;
 const WIKI_SEMANTIC_CANDIDATES = 30;
@@ -55,7 +55,7 @@ export type WikiSemanticRetrieval = {
 };
 
 @AllowInDemoMode
-@TenantInteractor({ resource: Resource.wiki, action: Action.readAll })
+@TenantInteractor({ resource: Resource.wiki, read: "all" })
 export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageSearchData, WikiPageSearchResult> {
   constructor(
     private repo: SearchWikiPagesRepo,

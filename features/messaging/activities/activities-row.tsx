@@ -18,7 +18,7 @@ import { ActivityRecordChips } from "./activity-record-chips";
 const BADGE_BASE =
   "ring-background bg-background absolute -right-px -bottom-px size-3.5 overflow-hidden rounded-full ring-2";
 
-export type BadgeTone = "created" | "updated" | "deleted" | "received" | "sent" | "calendar" | "activity";
+type BadgeTone = "created" | "updated" | "deleted" | "received" | "sent" | "calendar" | "activity";
 
 const BADGE_TONE: Record<BadgeTone, string> = {
   created: "border-success/30 bg-success/20 text-success",
@@ -87,6 +87,7 @@ export function DetailHeader({
   provider,
   providerLabel,
   subtitle,
+  subject,
   records,
 }: {
   avatar: ReactNode;
@@ -94,6 +95,7 @@ export function DetailHeader({
   provider?: MessagingProvider;
   providerLabel?: string;
   subtitle: string;
+  subject?: ReactNode;
   records?: ActivityRecordContextDto;
 }) {
   const ProviderIcon = provider ? getProviderIcon(provider) : null;
@@ -113,7 +115,9 @@ export function DetailHeader({
 
         <p className="text-muted-foreground text-xs">{subtitle}</p>
 
-        {records && (
+        {subject && <div className="mt-1.5">{subject}</div>}
+
+        {records?.primary && (
           <div className="mt-1.5">
             <ActivityRecordChips context={records} />
           </div>
@@ -134,6 +138,7 @@ type TimelineRowProps = {
   avatar: ReactNode;
   title: string;
   titleIcon?: ReactNode;
+  subject?: string | null;
   subtitle: ReactNode;
   time: string;
   isFirst: boolean;
@@ -141,7 +146,17 @@ type TimelineRowProps = {
   onClick?: () => void;
 };
 
-export function TimelineRow({ avatar, title, titleIcon, subtitle, time, isFirst, isLast, onClick }: TimelineRowProps) {
+export function TimelineRow({
+  avatar,
+  title,
+  titleIcon,
+  subject,
+  subtitle,
+  time,
+  isFirst,
+  isLast,
+  onClick,
+}: TimelineRowProps) {
   return (
     <li className="relative">
       {!isFirst && <span aria-hidden className="bg-border absolute left-[23.5px] top-0 h-[26px] w-px" />}
@@ -169,7 +184,19 @@ export function TimelineRow({ avatar, title, titleIcon, subtitle, time, isFirst,
             <time className="text-muted-foreground shrink-0 whitespace-nowrap text-xs">{time}</time>
           </div>
 
-          {subtitle && <p className="text-muted-foreground mt-0.5 line-clamp-2 text-xs">{subtitle}</p>}
+          {subtitle && (
+            <p className="text-muted-foreground mt-0.5 line-clamp-2 text-xs">
+              {subject && (
+                <>
+                  <span className="font-medium">{subject}</span>
+
+                  <span aria-hidden> · </span>
+                </>
+              )}
+
+              {subtitle}
+            </p>
+          )}
         </div>
       </button>
     </li>

@@ -1,3 +1,5 @@
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { createZodError } from "@/core/validation/validation.utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const calls = vi.hoisted(() => ({
@@ -15,21 +17,12 @@ vi.mock("@/core/di", () => ({
   getGetWikiPageInteractor: () => ({ invoke: calls.get }),
   getSearchWikiPagesInteractor: () => ({ invoke: calls.search }),
   getSearchExternalizedWikiPagesInteractor: () => ({ invoke: calls.search }),
-  getGetContactByIdInteractor: vi.fn(),
-  getGetDealByIdInteractor: vi.fn(),
-  getGetOrganizationByIdInteractor: vi.fn(),
-  getGetServiceByIdInteractor: vi.fn(),
-  getGetTaskByIdInteractor: vi.fn(),
-}));
-vi.mock("@/features/search/entity-list-executors", () => ({
-  entityListExecutors: {
-    contact: calls.records,
-    organization: calls.records,
-    deal: calls.records,
-    service: calls.records,
-    task: calls.records,
-  },
-  entityNameExtractors: {},
+  getSearchRecordsInteractor: () => ({ invoke: calls.records }),
+  getGetRecordInteractor: vi.fn(),
+  getGetRecordModelInteractor: vi.fn(),
+  getResolveRecordSearchInteractor: vi.fn(),
+  getAuthService: () => ({ isMcpApiKeyValid: () => Promise.resolve(true) }),
+  getAuthorizeMcpConnectionInteractor: () => ({ invoke: () => Promise.resolve({ ok: true, data: true }) }),
 }));
 vi.mock("@/features/mcp-tools/docs.mcp-tools", () => ({
   getDocsPageRaw: vi.fn(),
@@ -158,7 +151,7 @@ beforeEach(() => {
       pageSize: 5,
     },
   });
-  calls.records.mockResolvedValue({ ok: true, data: { items: [] } });
+  calls.records.mockResolvedValue({ ok: true, data: { results: [], schemaRevision: 1, nextCursor: null } });
 });
 
 describe("Wiki MCP transport", () => {
@@ -356,7 +349,13 @@ describe("Wiki MCP transport", () => {
 
   it("returns a generic missing-page error without reporting an expected stale link", async () => {
     const { handler, sessionId } = await initializedHandler();
-    calls.get.mockResolvedValue({ ok: true, data: null });
+    calls.get.mockResolvedValue({
+      ok: false,
+      error: createZodError(CustomErrorCode.wikiPageNotFound, ["id"], {
+        error: CustomErrorCode.wikiPageNotFound,
+        kind: "not_found",
+      }),
+    });
 
     const result = await rpc(
       handler,

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const AiConnectionSelectionSchema = z.strictObject({
+const AiConnectionSelectionSchema = z.strictObject({
   route: z.discriminatedUnion("screen", [
     z.strictObject({ screen: z.literal("providers") }),
     z.strictObject({ screen: z.literal("claude") }),
@@ -30,7 +30,7 @@ export const OnboardingWizardProgressSchema = z.strictObject({
 
 export type OnboardingWizardProgress = z.infer<typeof OnboardingWizardProgressSchema>;
 
-export function initialAiConnectionSelection(): AiConnectionSelection {
+function initialAiConnectionSelection(): AiConnectionSelection {
   return {
     route: { screen: "providers" },
     selectedProvider: null,
