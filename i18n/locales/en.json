@@ -1511,7 +1511,8 @@
       "triggerFilters": "Record filters",
       "triggerKind": "Trigger",
       "unavailableSelection": "Selection unavailable",
-      "url": "URL"
+      "url": "URL",
+      "websiteUrl": "Company website"
     },
     "language": "Language",
     "legacyEvents": {
@@ -2970,9 +2971,13 @@
       "ai": "AI tools",
       "invite": "Team",
       "profile": "You",
-      "wiki": "Knowledge"
+      "setup": "Workspace"
     },
     "next": "Next",
+    "profile": {
+      "websiteDescription": "Optional. We read your public website to suggest answers for setting up your workspace.",
+      "websitePlaceholder": "example.com"
+    },
     "progress": "Step {current} of {total}",
     "progressLabel": "Onboarding progress",
     "steps": {
@@ -2989,13 +2994,10 @@
         "subtitle": "Add your name and country so your teammates can recognize you. These details become your profile and can be updated later.",
         "title": "Make this workspace yours"
       },
-      "wiki": {
-        "subtitle": "Start with your company website. Mate turns what it can verify into shared, editable Knowledge Base pages, with sources and gaps for you to review.",
-        "title": "Give Mate your company knowledge"
+      "setup": {
+        "subtitle": "A few short questions about how you sell. What we could read on your website is already filled in, so you mostly confirm.",
+        "title": "Set up your workspace"
       }
-    },
-    "wiki": {
-      "skip": "Not now"
     }
   },
   "OperatorAudit": {
@@ -4535,8 +4537,6 @@
     }
   },
   "WikiSetup": {
-    "continue": "Continue",
-    "continueBackground": "Continue while Mate works",
     "crawlProgress": {
       "created": "Created",
       "discovering": "Finding website pages",
@@ -4594,29 +4594,16 @@
       },
       "sourcesHeading": "Sources"
     },
-    "homepageLabel": "Company website",
-    "homepagePlaceholder": "https://example.com",
-    "languageDescription": "Defaults to your browser language. Existing Knowledge Base pages determine the language when available.",
-    "languageLabel": "Knowledge Base language",
-    "start": "Build my Knowledge Base",
     "status": {
       "backgroundBanner": "Mate is still creating Knowledge Base pages in the background. New pages appear here as they're ready.",
-      "completedBodyOnboarding": "Mate created your starter pages with cited website facts. You can review them later in the Knowledge Base and confirm anything marked as a gap.",
-      "completedExistingBody": "Your Knowledge Base already contains pages. Continue onboarding or review the existing content.",
-      "completedTitle": "Your starter Knowledge Base is ready",
       "failedBody": "Setup stopped before all pages were ready. Any pages already created are still available. You can continue and review them in the Knowledge Base.",
       "failedBodyBlocked": "{domain} does not allow automated reading in its robots.txt, so nothing was imported. You can add pages yourself instead.",
       "failedBodySynthesis": "The website was read, but Mate could not write the pages. Try again. Any pages already created are still available.",
       "failedBodyUnavailable": "Mate could not read {domain}. Check the address, or continue and add pages later.",
       "failedTitle": "Setup did not finish",
-      "noContentBody": "Mate found no usable information for Knowledge Base pages. You can try another website or continue and add pages later.",
-      "noContentTitle": "No Knowledge Base pages were created",
-      "workingBody": "Mate is reading {domain} and turning sourced information into your Knowledge Base. You can continue to the next step while it works.",
       "workingBodyWiki": "Mate is reading {domain} and building the Knowledge Base. You can return later to see the finished pages.",
       "workingTitle": "Mate is learning about your company"
-    },
-    "tryAnother": "Try another website",
-    "unavailable": "Mate setup is not available right now. You can create Knowledge Base pages later in the Knowledge Base."
+    }
   },
   "WorkspaceMenu": {
     "inviteMembers": "Invite members",
@@ -4629,6 +4616,93 @@
       "looksRight": "Looks right",
       "upload": "Upload a spreadsheet",
       "winChance": "Win chance"
+    },
+    "build": {
+      "actions": {
+        "dashboard": "Building your dashboard",
+        "dataModel": "Creating your lists and fields",
+        "importing": "Importing {fileName}",
+        "knowledgeBase": "Writing your Knowledge Base pages ({written} of {planned})",
+        "pipeline": "Creating your {list} pipeline: {stages}",
+        "preparing": "Getting the next part ready",
+        "readingWebsite": "Reading {website}",
+        "records": "Adding sample records",
+        "views": "Arranging your lists"
+      },
+      "completedBody": "Everything is in place. Next, bring in your team.",
+      "completedTitle": "Your workspace is ready",
+      "continue": "Continue to invitations",
+      "continueAnyway": "Continue with what you have",
+      "failedBody": "Everything that finished is kept. Retry a part, or continue with what you have.",
+      "failedTitle": "Part of the setup did not finish",
+      "frameTitle": "Your workspace",
+      "keepsRunning": "This keeps running if you close the tab. You can come back at any time.",
+      "nameColumn": "Name",
+      "phases": {
+        "dashboard": "Dashboard",
+        "dataModel": "Lists and fields",
+        "knowledgeBase": "Knowledge Base",
+        "records": "Records",
+        "views": "List views"
+      },
+      "phasesLabel": "Setup progress",
+      "previewLabel": "Preview of your workspace",
+      "records": "Records",
+      "retry": "Retry",
+      "sidebarLabel": "Navigation preview",
+      "states": {
+        "active": "In progress",
+        "done": "Done",
+        "failed": "Not finished",
+        "skipped": "Skipped",
+        "waiting": "Waiting"
+      },
+      "summaries": {
+        "dashboard": "{count, plural, =0 {No widgets added} one {# widget added} other {# widgets added}}",
+        "dataModel": "{count, plural, =0 {Standard lists kept} one {# list ready} other {# lists ready}}",
+        "knowledgeBase": "{count, plural, =0 {No pages written} one {# page written} other {# pages written}}",
+        "records": "{count, plural, =0 {No records added} one {# record added} other {# records added}}",
+        "views": "{count, plural, =0 {Standard views kept} one {# view arranged} other {# views arranged}}"
+      },
+      "title": "Setting up your workspace"
+    },
+    "failures": {
+      "aiUnavailable": "The AI service is not available right now. Try again in a few minutes.",
+      "crawlFailed": "Your website could not be read.",
+      "dependency": "This part waits for an earlier part that did not finish.",
+      "error": "Something went wrong in this part.",
+      "generation": "The AI could not produce a usable result this time.",
+      "invalidPlan": "The plan did not fit your workspace.",
+      "permission": "Your role does not allow this change.",
+      "schemaChanged": "Your workspace changed while this part was running.",
+      "spendCap": "The setup budget for this workspace is used up, so this part stopped. Everything finished so far stays.",
+      "spreadsheet": "The spreadsheet could not be imported."
+    },
+    "interview": {
+      "addEntry": "Add an entry",
+      "adjusting": "Change any answer, then confirm the last screen to draft a new plan.",
+      "customPlaceholder": "Your own answer",
+      "days": "days",
+      "entryLabel": "Entry {index}",
+      "followUpsSubtitle": "Some answers could mean more than one thing. These questions settle it.",
+      "followUpsTitle": "A few more details",
+      "moveDown": "Move down",
+      "moveUp": "Move up",
+      "optional": "Optional",
+      "optionalPlaceholder": "Leave empty if nothing comes to mind",
+      "prefillFailed": "We could not read your website, so nothing is filled in. The questions still take only a few minutes.",
+      "prefillRunning": "Reading {website} to suggest answers…",
+      "rangeFrom": "From",
+      "rangeTo": "Up to",
+      "rankedHint": "{count} of {max} picked, in order of importance",
+      "rankedOption": "Rank {rank}: {label}",
+      "stepProgress": "Part {current} of {total}",
+      "stepsLabel": "Setup questions",
+      "uploadChoose": "Choose file",
+      "uploadHint": "CSV or Excel, up to {maxMegabytes} MB and {maxRows, number} rows.",
+      "uploadReady": "Ready to import into your new lists.",
+      "uploadReplace": "Choose another file",
+      "winChanceFor": "Win chance of entry {index}"
     },
     "options": {
       "addressForm": {
@@ -4738,6 +4812,37 @@
         "wonThisMonth": "Won this month"
       }
     },
+    "plan": {
+      "adjust": "Adjust answers",
+      "build": "Build my workspace",
+      "dashboard": "Dashboard",
+      "failedTitle": "The plan could not be drafted",
+      "importSummary": "Imports {fileName} into {list}.",
+      "keyFields": "Key fields on {list}",
+      "knowledgeBase": "Knowledge Base",
+      "lists": "Lists",
+      "morePages": "{count, plural, one {and # more page} other {and # more pages}}",
+      "noDashboard": "No dashboard widgets are planned.",
+      "noPages": "No Knowledge Base pages are planned.",
+      "pipeline": "Pipeline",
+      "planningBody": "We are turning your answers into lists, a pipeline, a dashboard and Knowledge Base pages.",
+      "planningTitle": "Drafting your plan",
+      "sampleSummary": "{count, plural, one {Adds # sample record so you can try things out right away.} other {Adds # sample records so you can try things out right away.}}",
+      "standard": "Start with the standard setup",
+      "standardLists": {
+        "contact": "Contacts",
+        "deal": "Deals",
+        "lineItem": "Line items",
+        "organization": "Organizations",
+        "service": "Services",
+        "task": "Tasks"
+      },
+      "standardPipeline": "Your deals keep the standard stages.",
+      "subtitle": "This is what we will build. Nothing changes until you confirm.",
+      "title": "Your workspace plan",
+      "tryAgain": "Try again",
+      "winChanceValue": "{value} %"
+    },
     "questions": {
       "addressForm": {
         "label": "How do you address customers?"
@@ -4840,6 +4945,10 @@
       "data": "Your data",
       "knowledge": "Knowledge",
       "winning": "Winning customers"
+    },
+    "start": {
+      "start": "Start the setup",
+      "withoutWebsite": "Continue without a website"
     }
   }
 }

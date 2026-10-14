@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import {
   ArrowRight,
+  Blocks,
   BookOpen,
   Building2,
   Check,
@@ -16,10 +17,10 @@ import {
 
 import { cn } from "@/core/utils/cn";
 
-import { WIZARD_STEPS } from "./onboarding-wizard.store";
+import type { WizardStep } from "./onboarding-wizard.store";
 
-type Step = (typeof WIZARD_STEPS)[number];
-const STEP_ICONS = { profile: UserRound, wiki: BookOpen, invite: UsersRound, ai: Sparkles };
+type Step = WizardStep;
+const STEP_ICONS = { profile: UserRound, setup: Blocks, invite: UsersRound, ai: Sparkles };
 
 function PaperLines() {
   return (
@@ -39,7 +40,7 @@ function ArtTile({ children, className }: { children?: ReactNode; className?: st
   );
 }
 
-function StepScene({ step, complete, pageTitles }: { step: Step; complete: boolean; pageTitles: string[] }) {
+function StepScene({ step }: { step: Step }) {
   switch (step) {
     case "profile":
       return (
@@ -65,7 +66,7 @@ function StepScene({ step, complete, pageTitles }: { step: Step; complete: boole
           </ArtTile>
         </div>
       );
-    case "wiki":
+    case "setup":
       return (
         <div className="flex items-center gap-4">
           <ArtTile className="w-24 -rotate-6 overflow-hidden">
@@ -86,27 +87,11 @@ function StepScene({ step, complete, pageTitles }: { step: Step; complete: boole
 
           <ArrowRight className="size-5 text-primary/60" strokeWidth={1.5} />
 
-          <div className="relative w-24 rotate-6">
-            <ArtTile className="absolute inset-0 translate-x-3 -translate-y-3 rotate-6" />
+          <ArtTile className="flex w-24 rotate-6 flex-col gap-3 p-3">
+            <Blocks className="size-7" strokeWidth={1.5} />
 
-            <ArtTile className="absolute inset-0 translate-x-1.5 -translate-y-1.5 rotate-3" />
-
-            <ArtTile className="flex flex-col gap-3 p-3">
-              <BookOpen className="size-7" strokeWidth={1.5} />
-
-              {complete && pageTitles[0] ? (
-                <span className="truncate text-xs text-foreground">{pageTitles[0]}</span>
-              ) : (
-                <PaperLines />
-              )}
-            </ArtTile>
-
-            {complete && (
-              <span className="absolute -right-2 -bottom-2 flex size-7 items-center justify-center rounded-full bg-primary text-primary-foreground animate-page-result-in motion-reduce:animate-none">
-                <Check className="size-4" />
-              </span>
-            )}
-          </div>
+            <PaperLines />
+          </ArtTile>
         </div>
       );
     case "invite":
@@ -168,15 +153,7 @@ function StepScene({ step, complete, pageTitles }: { step: Step; complete: boole
   }
 }
 
-export function OnboardingArtwork({
-  step,
-  complete = false,
-  pageTitles = [],
-}: {
-  step: Step;
-  complete?: boolean;
-  pageTitles?: string[];
-}) {
+export function OnboardingArtwork({ step }: { step: Step }) {
   return (
     <div aria-hidden="true" className="relative flex h-36 items-center justify-center overflow-hidden sm:h-40">
       <div className="absolute h-28 w-64 rounded-full bg-primary/10 blur-3xl" />
@@ -190,15 +167,23 @@ export function OnboardingArtwork({
       </svg>
 
       <div key={step} className="relative animate-page-result-in motion-reduce:animate-none">
-        <StepScene complete={complete} pageTitles={pageTitles} step={step} />
+        <StepScene step={step} />
       </div>
     </div>
   );
 }
-export function OnboardingMilestones({ current, labels }: { current: number; labels: Record<Step, string> }) {
+export function OnboardingMilestones({
+  current,
+  labels,
+  steps,
+}: {
+  current: number;
+  labels: Record<Step, string>;
+  steps: readonly Step[];
+}) {
   return (
     <ol className="flex items-start">
-      {WIZARD_STEPS.map((step, index) => {
+      {steps.map((step, index) => {
         const Icon = STEP_ICONS[step];
         return (
           <li
@@ -206,7 +191,7 @@ export function OnboardingMilestones({ current, labels }: { current: number; lab
             aria-current={index === current ? "step" : undefined}
             className="relative flex flex-1 flex-col items-center gap-2"
           >
-            {index < WIZARD_STEPS.length - 1 && (
+            {index < steps.length - 1 && (
               <span
                 aria-hidden="true"
                 className={cn("absolute top-4 left-1/2 h-px w-full", index < current ? "bg-primary/50" : "bg-border")}

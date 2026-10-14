@@ -8,14 +8,10 @@ import { CenteredCardPage } from "@/components/shared/centered-card-page";
 import { ONBOARDING_INTENT_QUERY_PARAM, onboardingIntentAuthRedirects } from "@/features/company/onboarding-intent-url";
 import { resolveOnboardingIntent } from "@/features/company/next/onboarding-intent";
 import { buildLocalePath } from "@/i18n/locale-registry";
-import {
-  getEntitlementService,
-  getGetOnboardingWizardProgressInteractor,
-  getGetWikiHomepageSetupStateInteractor,
-} from "@/core/di";
+import { getGetOnboardingWizardProgressInteractor, getGetWorkspaceSetupStatusInteractor } from "@/core/di";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { isRedirect } from "@/features/auth/auth-outcome";
-import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
+import type { WorkspaceSetupStatusView } from "@/ee/workspace-setup/workspace-setup-status";
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -50,21 +46,12 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
   );
   if (!user && !isInvited && !canCreateCompany) redirect(buildLocalePath(await getLocale(), "/onboarding"));
 
-  let wikiStepCompleted = false;
-  let wikiSetupState: WikiHomepageSetupState = {
-    status: "idle",
-    homepage: null,
-    domain: null,
-    pages: [],
-  };
-  let canSetupWithMate = false;
+  let setupStatus: WorkspaceSetupStatusView | undefined;
+  let setupStepCompleted = false;
   if (user?.role?.isSystemRole) {
-    const [setupState, agentDenial] = await runWithTenant(user, () =>
-      Promise.all([getGetWikiHomepageSetupStateInteractor().invoke(), getEntitlementService().require("agentChat")]),
-    );
-    if (setupState.ok) wikiSetupState = setupState.data;
-    wikiStepCompleted = user.onboardingWikiStepCompletedAt !== null;
-    canSetupWithMate = agentDenial === null;
+    const status = await runWithTenant(user, () => getGetWorkspaceSetupStatusInteractor().invoke());
+    if (status.ok) setupStatus = status.data;
+    setupStepCompleted = user.onboardingWikiStepCompletedAt !== null || !setupStatus?.available;
   }
 
   const sessionName = sessionUser.name ?? "";
@@ -83,7 +70,6 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
   return (
     <CenteredCardPage>
       <OnboardingWizard
-        canSetupWithMate={canSetupWithMate}
         inviterName={invitation?.inviterName}
         isInvited={isInvited}
         onboardingIntent={effectiveIntent?.intent}
@@ -93,9 +79,9 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
         sessionEmail={sessionUser.email}
         sessionFirstName={sessionFirstName}
         sessionLastName={sessionLastName}
+        setupStatus={setupStatus}
+        setupStepCompleted={setupStepCompleted}
         userId={user?.role?.isSystemRole ? user.id : undefined}
-        wikiSetupState={wikiSetupState}
-        wikiStepCompleted={wikiStepCompleted}
       />
     </CenteredCardPage>
   );

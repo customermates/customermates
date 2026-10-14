@@ -98,7 +98,7 @@ export const domTestFiles = [
   "app/[locale]/(protected)/records/[typeId]/components/__tests__/record-detail-page-handoff.dom.test.ts",
   "app/[locale]/(protected)/records/[typeId]/components/__tests__/record-relationship-editor.dom.test.ts",
   "components/editor/__tests__/editor-link-picker.test.ts",
-  "components/wiki/__tests__/wiki-homepage-setup.test.ts",
+  "app/**/onboarding/wizard/components/setup/__tests__/*.dom.test.ts",
   "components/wiki/__tests__/wiki-refresh-safety.test.ts",
   "components/modal/__tests__/delete-confirmation-modal.test.ts",
   "components/modal/__tests__/navigation-history-guard.test.ts",

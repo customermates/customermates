@@ -78,6 +78,17 @@ export const StepProfile = observer(
 
           <FormAutocompleteCountry required id="country" />
 
+          {appMode === "cloud" && !isInvited ? (
+            <FormInput
+              autoComplete="url"
+              description={t("OnboardingWizard.profile.websiteDescription")}
+              id="websiteUrl"
+              inputMode="url"
+              name="url"
+              placeholder={t("OnboardingWizard.profile.websitePlaceholder")}
+            />
+          ) : null}
+
           {appMode === "cloud" ? (
             <FormCheckbox
               required
