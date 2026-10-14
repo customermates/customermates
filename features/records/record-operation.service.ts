@@ -25,6 +25,7 @@ import { RecordJournal } from "./record-journal";
 import { RecordEventPayloadSchema } from "./record-event.schema";
 import { DeletionCursorSchema, RecordDeletionStaging } from "./record-deletion-staging";
 import type { RecordTrashService } from "./record-trash.service";
+import { droppedLinksOf } from "./record-trash.service";
 import { configurationTrashBatchId } from "./configuration-trash-batch";
 import type { RecordModel } from "./record-model.schema";
 import type { WebhookPauseNotifier } from "@/features/webhook/webhook-pause-notifier";
@@ -503,7 +504,7 @@ export class RecordOperationService extends UserAccessor {
       ...summary,
       restoredItemIds: finished ? [...summary.restoredItemIds, item.id] : summary.restoredItemIds,
       restoredRecords: summary.restoredRecords + refs.length,
-      droppedLinks: summary.droppedLinks + droppedLinks,
+      droppedLinks: summary.droppedLinks + droppedLinks + (finished ? droppedLinksOf(item) : 0),
     });
     await this.records.updateOperation(operation.id, {
       state: "staging",

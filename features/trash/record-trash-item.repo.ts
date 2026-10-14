@@ -14,5 +14,6 @@ export abstract class RecordTrashItemRepo {
   abstract findItemsCompanyWide(companyId: string, filter: TrashItemFilter): Promise<TrashItemRow[]>;
   abstract addItemsCompanyWide(companyId: string, items: TrashItemInput[]): Promise<void>;
   abstract removeItemsCompanyWide(companyId: string, ids: string[]): Promise<void>;
+  abstract addDroppedLinksCompanyWide(companyId: string, dropped: Array<{ id: string; count: number }>): Promise<void>;
   abstract publishStagedRecordItemsCompanyWide(companyId: string, operationId: string): Promise<void>;
 }

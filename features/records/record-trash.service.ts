@@ -1,4 +1,5 @@
 import { unwindFailure } from "@/core/validation/failure-unwind";
+import { z } from "zod";
 import type { RecordAccessPolicy } from "./record-access";
 import type { RecordRepo, RecordTrashItem } from "./record.repo";
 import type { RecordModel, RecordRef } from "./record-model.schema";
@@ -24,6 +25,13 @@ type RecordRestoreResult = {
   restoredRecords: number;
   droppedLinks: number;
 };
+
+const TrashedRecordPayloadSchema = z.object({ droppedLinks: z.number().int().nonnegative() });
+
+export function droppedLinksOf(item: RecordTrashItem): number {
+  const payload = TrashedRecordPayloadSchema.safeParse(item.payload);
+  return payload.success ? payload.data.droppedLinks : 0;
+}
 
 function deletedPermanentlyPayload(
   ref: RecordRef,
@@ -104,7 +112,7 @@ export class RecordTrashService {
         );
         if (result.restoredRecords + refs.length > limit)
           throw unwindFailure(CustomErrorCode.recordCalculationBudget, "conflict");
-        result.droppedLinks += await this.restoreRecords(refs, model, journal, limit);
+        result.droppedLinks += (await this.restoreRecords(refs, model, journal, limit)) + droppedLinksOf(item);
         await journal.repository.removeTrashItems([item.id]);
         result.restoredItemIds.push(item.id);
         result.restoredRecords += refs.length;

@@ -70,6 +70,20 @@ export class PrismaTrashRepo extends TenantRepository implements TrashRepo, Expi
     });
   }
 
+  async addDroppedLinksCompanyWide(companyId: string, dropped: Array<{ id: string; count: number }>): Promise<void> {
+    for (const { id, count } of dropped) {
+      const item = await this.prisma.trashItem.findFirst({ where: { companyId, id }, select: { payload: true } });
+      if (!item) continue;
+      const payload =
+        item.payload && typeof item.payload === "object" && !Array.isArray(item.payload) ? item.payload : {};
+      const previous = typeof payload.droppedLinks === "number" ? payload.droppedLinks : 0;
+      await this.prisma.trashItem.updateMany({
+        where: { companyId, id },
+        data: { payload: { ...payload, droppedLinks: previous + count } },
+      });
+    }
+  }
+
   async findItemsCompanyWide(companyId: string, filter: TrashItemFilter) {
     return this.prisma.trashItem.findMany({
       where: {

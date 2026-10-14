@@ -1457,6 +1457,18 @@ export class PrismaRecordRepo
     });
     const refs = purged.map((row) => ({ typeId: row.typeId, recordId: row.id }));
     if (refs.length) {
+      const droppedLinks = await this.prisma.$queryRaw<Array<{ id: string; count: number }>>(Prisma.sql`
+        SELECT survivor."trashItemId" AS id, COUNT(*)::integer AS count FROM "CrmRecord" purged
+        JOIN "RecordLink" link ON link."companyId" = purged."companyId" AND link."deletedAt" IS NOT NULL
+          AND ((link."sourceTypeId" = purged."typeId" AND link."sourceId" = purged.id)
+            OR (link."targetTypeId" = purged."typeId" AND link."targetId" = purged.id))
+        JOIN "CrmRecord" survivor ON survivor."companyId" = link."companyId" AND survivor."deletedAt" IS NOT NULL
+          AND ((survivor."typeId" = link."sourceTypeId" AND survivor.id = link."sourceId")
+            OR (survivor."typeId" = link."targetTypeId" AND survivor.id = link."targetId"))
+        WHERE purged."companyId" = ${companyId} AND purged."deletedAt" IS NOT NULL
+          AND purged."trashItemId" IN (${Prisma.join(ids)}) AND survivor."trashItemId" NOT IN (${Prisma.join(ids)})
+        GROUP BY survivor."trashItemId"`);
+      await this.owners.trash.addDroppedLinksCompanyWide(companyId, droppedLinks);
       await this.owners.events.eraseTrashedRecordPayloadsCompanyWide(companyId, ids);
       const identities = await this.prisma.recordIdentityLink.findMany({
         where: { companyId, record: { is: { companyId, trashItemId: { in: ids }, deletedAt: { not: null } } } },
