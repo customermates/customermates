@@ -30,8 +30,8 @@ import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 const HOSTED_AUTH_EXPIRY_MINUTES = 30;
 
-const Schema = z.object({ channel: z.enum(CONNECT_CHANNEL_KEYS) });
-type CreateAuthLinkData = z.infer<typeof Schema>;
+export const CreateAuthLinkSchema = z.object({ channel: z.enum(CONNECT_CHANNEL_KEYS) });
+type CreateAuthLinkData = z.infer<typeof CreateAuthLinkSchema>;
 
 type ConnectDenialCode = "upgradeToBusinessForMoreAccounts" | "accountLimitReached";
 
@@ -49,7 +49,7 @@ export class CreateAuthLinkInteractor extends UserAccessor {
     super();
   }
 
-  @Validate(Schema)
+  @Validate(CreateAuthLinkSchema)
   async invoke(data: CreateAuthLinkData): Promise<Redirect | CreateAuthLinkFailure> {
     const denied = await this.entitlements.require("messaging");
     if (denied) return denied;

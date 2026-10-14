@@ -243,9 +243,9 @@ Required: `operationId`.
 
 #### `read_trash`
 
-List deleted items in Trash, newest first, with who deleted them, when, and the days left before they are deleted permanently. Filter by kind, list and name. Only items you could see and delete are listed; administrators see everything except other members' saved views and widgets, which stay personal.
+List deleted items in Trash, newest first, with who deleted them, when, and the days left before they are deleted permanently. Filter by kind, list and name. Only items you could see and delete are listed; administrators see everything except other members' saved views and widgets, which stay personal. With action read and a record's typeId and recordId, open one deleted record read only as the Trash preview shows it: its values and related records as they were when it was deleted, its list's fields and its Trash item.
 
-**Read-only.** Optional: `kinds`, `itemIds`, `typeIds`, `search`, `sortDescriptor`, `page`, `pageSize`.
+**Read-only.** Optional: `kinds`, `itemIds`, `typeIds`, `search`, `sortDescriptor`, `page`, `pageSize`, `action`, `typeId`, `recordId`.
 
 #### `manage_trash`
 

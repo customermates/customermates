@@ -240,7 +240,7 @@ Wiederholungen laufen innerhalb derselben Zustellung und erzeugen keine weiteren
 
 ## Wo sehe ich vergangene Zustellungen? [#where-do-i-see-past-deliveries]
 
-Jede Zustellung wird auf der Seite [Zustellungen](app:settings/webhook-deliveries) protokolliert, die neueste zuerst, mit **URL**, **Ereignis**, **Element** (dem betroffenen Datensatz), **Status**, **Status-Code** und **Erstellt am**. Unter [Filter](app:settings/webhook-deliveries?focus=filter) durchsucht die Suche Ereignis und URL, die Filter decken Ereignis, URL und Erstellungsdatum ab. Über MCP nutzen Sie `manage_webhooks` mit `action: "list_deliveries"`; über REST listet `GET /api/v1/webhooks/{id}/deliveries` die Zustellungen eines Webhooks, die neueste zuerst. Zustellungen bleiben erhalten, solange der Workspace besteht.
+Jede Zustellung wird auf der Seite [Zustellungen](app:settings/webhook-deliveries) protokolliert, die neueste zuerst, mit **URL**, **Ereignis**, **Element** (dem betroffenen Datensatz), **Status**, **Status-Code** und **Erstellt am**. Unter [Filter](app:settings/webhook-deliveries?focus=filter) durchsucht die Suche Ereignis und URL, die Filter decken Ereignis, URL und Erstellungsdatum ab. Über MCP nutzen Sie `manage_webhooks` mit `action: "list_deliveries"`; über REST listet `GET /api/v1/webhooks/deliveries` die Zustellungen aller Webhooks und `GET /api/v1/webhooks/{id}/deliveries` die eines Webhooks, die neueste zuerst. Zustellungen bleiben erhalten, solange der Workspace besteht.
 
 Ein Klick auf eine Zeile öffnet **Ereignis-Details**: Status (**Ausstehend**, **Wird gesendet**, **Zugestellt** oder **Fehlgeschlagen**), **URL**, **Ereignis**, **Element**, **Erstellt am**, **Status-Code**, **Antwort-Nachricht** und **Ereignis-Payload**. Der Payload eines Messaging-Ereignisses erscheint so, wie er gesendet wurde. Der Payload eines Datensatzereignisses wird mit Ihren aktuellen Rechten neu gelesen: Werte, die Sie nicht lesen dürfen, erscheinen als eingeschränkt, und ohne Zugriff auf den Datensatz bleibt der Payload leer.
 
@@ -266,7 +266,7 @@ Der Wert eines Felds vom Typ Formatierter Text ist in Payloads ein `richText`-We
 
 - Suchen Sie die Zustellung unter [Zustellungen](app:settings/webhook-deliveries) und öffnen Sie sie, um die **Ereignis-Details** zu sehen.
 - Nutzen Sie [webhook.site](https://webhook.site) beim Testen als Einweg-Empfänger.
-- `manage_webhooks` mit `action: "list_deliveries"` und `GET /api/v1/webhooks/{id}/deliveries` unterstützen `searchTerm` auf URL und Ereignisname.
+- `manage_webhooks` mit `action: "list_deliveries"`, `GET /api/v1/webhooks/deliveries` und `GET /api/v1/webhooks/{id}/deliveries` unterstützen `searchTerm` auf URL und Ereignisname.
 - Customermates speichert nur den HTTP-Status-Code und den Statustext, den Ihr Empfänger zurückgegeben hat (zum Beispiel `404` und `Not Found`), angezeigt als **Status-Code** und **Antwort-Nachricht** in **Ereignis-Details**. Der Response-Body wird nicht gespeichert, protokollieren Sie ihn also auf der Empfängerseite. Ohne Antwort zeigt **Status-Code** einen Strich (in der Liste bleibt die Spalte leer) und **Antwort-Nachricht** nennt die Ursache, etwa den Timeout.
 
 ## Welche Ereignisse gibt es? [#which-events-exist]

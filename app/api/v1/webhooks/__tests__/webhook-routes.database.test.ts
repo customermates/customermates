@@ -26,6 +26,7 @@ vi.mock("next-intl/server", () => ({
 import { GET as listWebhooks, POST as createWebhook } from "../route";
 import { DELETE as deleteWebhook, GET as readWebhook, PATCH as updateWebhook } from "../[id]/route";
 import { GET as listDeliveries } from "../[id]/deliveries/route";
+import { GET as listWorkspaceDeliveries } from "../deliveries/route";
 import { POST as resendDelivery } from "../[id]/deliveries/[deliveryId]/resend/route";
 
 const databaseUrl = getLocalDatabaseTestUrl();
@@ -161,6 +162,21 @@ describeDatabase("webhook REST routes over API keys", () => {
     expect(foreignList.body).toMatchObject({ error: { kind: "not_found" } });
   });
 
+  it("lists deliveries across the caller's webhooks and never another workspace's", async () => {
+    const listed = await read(await listWorkspaceDeliveries(request("/deliveries?pageSize=25", "GET", admin.apiKey)));
+
+    expect(listed.status).toBe(200);
+    expect((listed.body.items as Array<{ id: string }>).map(({ id }) => id)).toEqual([ownDeliveryId]);
+    expect(JSON.stringify(listed.body)).not.toContain("foreign.example.com");
+    assertPublishedResponse("/v1/webhooks/deliveries", "get", listed.status, listed.body);
+
+    const foreignListed = await read(
+      await listWorkspaceDeliveries(request("/deliveries", "GET", foreign.members[0].apiKey)),
+    );
+    expect(foreignListed.status).toBe(200);
+    expect((foreignListed.body.items as Array<{ id: string }>).map(({ id }) => id)).toEqual([foreignDeliveryId]);
+  });
+
   it("refuses to update or resend across workspaces or across webhooks", async () => {
     const foreignUpdate = await read(
       await updateWebhook(request(`/${foreignWebhookId}`, "PATCH", admin.apiKey, { description: "Hijacked" }), {
@@ -215,6 +231,13 @@ describeDatabase("webhook REST routes over API keys", () => {
       }),
     );
     expect(deliveries.status).toBe(403);
+
+    const workspaceDeliveries = await read(
+      await listWorkspaceDeliveries(request("/deliveries", "GET", outsider.apiKey)),
+    );
+    expect(workspaceDeliveries.status).toBe(403);
+    expect(workspaceDeliveries.body).toMatchObject({ error: { kind: "authorization" } });
+    assertPublishedResponse("/v1/webhooks/deliveries", "get", workspaceDeliveries.status, workspaceDeliveries.body);
 
     const row = await client.query('SELECT "enabled" FROM "Webhook" WHERE "id" = $1', [ownWebhookId]);
     expect(row.rows).toEqual([{ enabled: true }]);

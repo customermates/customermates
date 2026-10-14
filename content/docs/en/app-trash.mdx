@@ -28,7 +28,7 @@ If another workspace change holds the write lock, restore returns a busy respons
 
 Deleting a field in [Configure](app:configure) removes saved-view filters, columns, sorts and grouping that use it. The delete preview and result name the affected views and widgets. Restoring the field does not recreate those settings. If you restore a saved view after its field was deleted, `droppedViewReferences` reports what was removed; the Trash message shows the counts. Recreate the settings after restoring the field.
 
-Opening a deleted record from Trash shows it read only with the banner **In Trash** and a **Restore** button; its **Activities** can be read there too, but not changed. Over REST, `POST /api/v1/trash/query` lists Trash items and `POST /api/v1/trash/read` returns the same read-only view of a deleted record.
+Opening a deleted record from Trash shows it read only with the banner **In Trash** and a **Restore** button; its **Activities** can be read there too, but not changed. Over REST, `POST /api/v1/trash/query` lists Trash items and `POST /api/v1/trash/read` returns the same read-only view of a deleted record; over MCP, `read_trash` lists them and, with `action: "read"` and the record's `typeId` and `recordId`, opens one the same way.
 
 ## What happens when I open a link to a deleted list or view? [#links-to-deleted-items]
 

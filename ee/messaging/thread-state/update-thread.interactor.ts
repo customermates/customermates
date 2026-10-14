@@ -19,6 +19,10 @@ export const UpdateThreadSchema = z.object({
 });
 export type UpdateThreadData = Data<typeof UpdateThreadSchema>;
 
+export const UpdateThreadStateSchema = UpdateThreadSchema.pick({ threadId: true, state: true }).required({
+  state: true,
+});
+
 @TenantInteractor({ resource: Resource.inboxMessages, manage: "update" })
 export class UpdateThreadInteractor extends AuthenticatedInteractor<UpdateThreadData, null> {
   constructor(

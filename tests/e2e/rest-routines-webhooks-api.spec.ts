@@ -441,6 +441,14 @@ test("drives routines and webhooks through the public REST API with an API key a
       200,
     );
     const deliveryId = String(deliveries.items[0]?.id);
+    const workspaceDeliveries = await call(
+      api,
+      "get",
+      "/v1/webhooks/deliveries",
+      "/v1/webhooks/deliveries?pageSize=10",
+      200,
+    );
+    expect(workspaceDeliveries.items.map(({ id }) => id)).toContain(deliveryId);
 
     const resent = await call(
       api,
