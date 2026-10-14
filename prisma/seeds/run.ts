@@ -2,9 +2,17 @@ import type { ContactSeedData } from "./contacts";
 import type { SeedContext } from "./context";
 import type { DealSeedData } from "./deals";
 import type { OrganizationSeedData } from "./organizations";
+import {
+  calculateSyntheticRecords,
+  resetOutdatedSyntheticWorkspace,
+  seedRecordFixtures,
+  syntheticRecordModel,
+} from "./records";
 import type { ServiceSeedData } from "./services";
 import type { TaskSeedData } from "./tasks";
 
+import { seedAgentConversations } from "./agent-chat";
+import { seedSyntheticAuditLogs } from "./audit-logs";
 import { seedContacts } from "./contacts";
 import { seedCustomFields } from "./custom-fields";
 import { seedDataViews } from "./data-views";
@@ -15,15 +23,17 @@ import {
   seedLocalHostedAiOperatorAccess,
 } from "./hosted-ai-operator";
 import { seedIdentity } from "./identity";
-import { seedAgentConversations } from "./agent-chat";
 import { seedDemoMessagingFixtures } from "./messaging/seed";
-import { seedSyntheticAuditLogs } from "./audit-logs";
 import { seedOrganizations } from "./organizations";
 import { seedPersonalization } from "./personalization";
+import { seedRecordHistory } from "./record-history";
 import { seedRelationships } from "./relationships";
 import { seedRoutines } from "./routines";
 import { seedServices } from "./services";
+import { seedSidebars } from "./sidebar";
+import { seedSublistColumns } from "./sublist-columns";
 import { seedTasks } from "./tasks";
+import { seedTrash } from "./trash";
 import { seedWebhooks } from "./webhooks";
 import { seedWidgets } from "./widgets";
 import { seedWikiPages } from "./wiki";
@@ -34,11 +44,6 @@ export async function runSyntheticSeed(
   context: SeedContext,
   options: { includeLocalOperatorAccess?: boolean } = {},
 ): Promise<SyntheticSeedData> {
-  await seedIdentity(context);
-  await seedHostedAiOperatorFixtures(context);
-  if (options.includeLocalOperatorAccess) await seedLocalHostedAiOperatorAccess(context);
-  await seedHostedAiOperatorUserTableFixtures(context, options);
-
   const organizationData = await seedOrganizations(context);
   const contactData = await seedContacts(context, organizationData.organizations);
   const serviceData = await seedServices(context);
@@ -51,20 +56,32 @@ export async function runSyntheticSeed(
     ...serviceData,
     ...taskData,
   };
+  const customFieldData = seedCustomFields(context, entities);
+  await resetOutdatedSyntheticWorkspace(context, syntheticRecordModel(context, customFieldData));
 
-  const customFieldData = await seedCustomFields(context, entities);
+  await seedIdentity(context);
+  await seedHostedAiOperatorFixtures(context);
+  if (options.includeLocalOperatorAccess) await seedLocalHostedAiOperatorAccess(context);
+  await seedHostedAiOperatorUserTableFixtures(context, options);
+
+  await seedRecordFixtures(context, entities, customFieldData);
+  await seedRelationships(context, entities);
+  await calculateSyntheticRecords(context.prisma, context.ids.company);
   await seedWidgets(context, customFieldData);
   await seedDataViews(context, customFieldData);
   await seedPersonalization(context, customFieldData);
-  await seedRelationships(context, entities);
-  await seedWebhooks(context);
+  await seedSidebars(context);
+  await seedSublistColumns(context);
   await seedDemoMessagingFixtures(context.prisma, {
     companyId: context.ids.company,
     contactIds: contactData.contacts.map(({ id }) => id),
     seedUserEmail: context.seedUserEmail,
     userId: context.ids.user,
   });
-  await seedSyntheticAuditLogs(context, entities);
+  await seedRecordHistory(context, entities);
+  await seedWebhooks(context);
+  await seedTrash(context);
+  await seedSyntheticAuditLogs(context);
   await seedWikiPages(context);
   await seedAgentConversations(context);
   await seedRoutines(context);

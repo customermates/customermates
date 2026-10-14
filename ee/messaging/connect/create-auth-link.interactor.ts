@@ -7,7 +7,7 @@ import { z } from "zod";
 import * as Sentry from "@sentry/node";
 import { getTranslations } from "next-intl/server";
 
-import { Action, Resource, SubscriptionPlan } from "@/generated/prisma";
+import { Resource, SubscriptionPlan } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
@@ -26,18 +26,19 @@ import { signHostedAuthState } from "../webhook-signature";
 import { CONNECT_CHANNELS, CONNECT_CHANNEL_KEYS } from "./connect-channels";
 import type { CreateHostedAuthLinkRepo } from "./create-hosted-auth-link.repo";
 import type { CreateAuthLinkSubscriptionRepo } from "./create-auth-link-subscription.repo";
+import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 const HOSTED_AUTH_EXPIRY_MINUTES = 30;
 
-const Schema = z.object({ channel: z.enum(CONNECT_CHANNEL_KEYS) });
-type CreateAuthLinkData = z.infer<typeof Schema>;
+export const CreateAuthLinkSchema = z.object({ channel: z.enum(CONNECT_CHANNEL_KEYS) });
+type CreateAuthLinkData = z.infer<typeof CreateAuthLinkSchema>;
 
 type ConnectDenialCode = "upgradeToBusinessForMoreAccounts" | "accountLimitReached";
 
 type Denial = { key: `ConnectedAccountsCard.${ConnectDenialCode}`; code: ConnectDenialCode };
 type CreateAuthLinkFailure = { ok: false; error: z.ZodError; code?: ConnectDenialCode | EntitlementDenialCode };
 
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.create })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "create" })
 export class CreateAuthLinkInteractor extends UserAccessor {
   constructor(
     private messagingService: MessagingService,
@@ -48,7 +49,7 @@ export class CreateAuthLinkInteractor extends UserAccessor {
     super();
   }
 
-  @Validate(Schema)
+  @Validate(CreateAuthLinkSchema)
   async invoke(data: CreateAuthLinkData): Promise<Redirect | CreateAuthLinkFailure> {
     const denied = await this.entitlements.require("messaging");
     if (denied) return denied;
@@ -69,7 +70,7 @@ export class CreateAuthLinkInteractor extends UserAccessor {
     try {
       link = await this.messagingService.createAuthLink({
         providers: [...entry.providers],
-        redirectUri: `${baseUrl}/profile/connected-accounts`,
+        redirectUri: `${baseUrl}${settingsHref("channels")}`,
         expiresOn,
         state,
         ...(entry.config ? { config: entry.config } : {}),

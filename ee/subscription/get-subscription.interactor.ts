@@ -1,18 +1,18 @@
 import { z } from "zod";
 import {
   Resource,
-  Action,
   SubscriptionStatus as SubscriptionStatusEnum,
   SubscriptionPlan as SubscriptionPlanEnum,
 } from "@/generated/prisma";
 
-import type { Subscription, SubscriptionStatus, SubscriptionPlan } from "@/generated/prisma";
+import type { SubscriptionStatus, SubscriptionPlan } from "@/generated/prisma";
 import type { CountActiveUsersRepo } from "@/features/user/count-active-users.repo";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import type { GetSubscriptionRepo } from "./get-subscription.repo";
 
 const OutputSchema = z.object({
   status: z.enum(SubscriptionStatusEnum),
@@ -24,10 +24,6 @@ const OutputSchema = z.object({
   hasBillingPortal: z.boolean(),
   hasActiveSubscription: z.boolean(),
 });
-
-export abstract class GetSubscriptionRepo {
-  abstract getSubscriptionOrThrow(): Promise<Subscription>;
-}
 
 export type SubscriptionDto = {
   status: SubscriptionStatus;
@@ -41,7 +37,7 @@ export type SubscriptionDto = {
 };
 
 @AllowInDemoMode
-@TenantInteractor({ resource: Resource.company, action: Action.readOwn })
+@TenantInteractor({ resource: Resource.company, read: true })
 export class GetSubscriptionInteractor extends AuthenticatedInteractor<void, SubscriptionDto> {
   constructor(
     private repo: GetSubscriptionRepo,

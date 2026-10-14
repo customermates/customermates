@@ -1,3 +1,4 @@
+import { ResetDataViewStateSchema } from "./reset-data-view-state.schema";
 import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
@@ -6,7 +7,7 @@ import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema"
 import { GroupingSchema } from "@/core/base/grouping/grouping.schema";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { AiManageableDataViewSurfaceKeySchema } from "@/core/data-view/ai-manageable-surfaces";
-import { DATA_VIEW_PATHS } from "@/core/data-view/data-view-paths";
+import { dataViewPath } from "@/core/data-view/data-view-paths";
 import { DATA_VIEW_NAME_MAX_LENGTH } from "@/core/data-view/data-view-limits";
 import {
   DataViewPageSizeSchema,
@@ -24,20 +25,14 @@ export const AgentDataViewStateSchema = z
     pageSize: DataViewPageSizeSchema.optional(),
     viewMode: z.enum(ViewMode).optional(),
     grouping: GroupingSchema.nullable().optional(),
+    columnOrder: z.array(z.string()).max(200).optional(),
+    columnWidths: z.record(z.string(), z.number().finite().min(40).max(2000)).optional(),
+    hiddenColumns: z.array(z.string()).max(200).optional(),
   })
   .strict();
 export type AgentDataViewState = Data<typeof AgentDataViewStateSchema>;
 
-export const DATA_VIEW_LAYOUT_FIELDS = ["columnOrder", "columnWidths", "hiddenColumns"] as const;
-
-export const AgentDataViewUpdateStateSchema = AgentDataViewStateSchema.extend({
-  columnOrder: DataViewStateWireSchema.shape.columnOrder,
-  columnWidths: DataViewStateWireSchema.shape.columnWidths,
-  hiddenColumns: DataViewStateWireSchema.shape.hiddenColumns,
-}).strict();
-export type AgentDataViewUpdateState = Data<typeof AgentDataViewUpdateStateSchema>;
-
-export const DataViewConfigSectionSchema = z.enum(["overview", "filters", "sorting", "grouping"]);
+export const DataViewConfigSectionSchema = z.enum(["overview", "filters", "sorting", "grouping", "appearance"]);
 export type DataViewConfigSection = z.infer<typeof DataViewConfigSectionSchema>;
 
 export const ManageDataViewPageSchema = z.coerce.number().int().min(1).max(10_000);
@@ -51,46 +46,56 @@ const page = {
   query: ManageDataViewQuerySchema,
 };
 
-const UpdateDataViewSchema = z
-  .object({
-    action: z.literal("update"),
-    ...surface,
-    viewKey: ViewKeySchema,
-    name: z.string().trim().min(1).max(DATA_VIEW_NAME_MAX_LENGTH).optional(),
-    state: AgentDataViewUpdateStateSchema.optional(),
-  })
-  .strict()
-  .superRefine((data, ctx) => {
-    if (data.name !== undefined || (data.state !== undefined && Object.keys(data.state).length > 0)) return;
-    ctx.addIssue({
-      code: "custom",
-      path: [],
-      params: { error: CustomErrorCode.dataViewUpdateEmpty },
-    });
+const update = {
+  ...surface,
+  viewKey: ViewKeySchema,
+  name: z.string().trim().min(1).max(DATA_VIEW_NAME_MAX_LENGTH).optional(),
+  state: AgentDataViewStateSchema.optional(),
+};
+
+function requireUpdateChange(data: { name?: string; state?: AgentDataViewState }, ctx: z.RefinementCtx) {
+  if (data.name !== undefined || (data.state !== undefined && Object.keys(data.state).length > 0)) return;
+  ctx.addIssue({
+    code: "custom",
+    path: [],
+    params: { error: CustomErrorCode.dataViewUpdateEmpty },
   });
+}
+
+const UpdateDataViewSchema = z
+  .object({ action: z.literal("update"), ...update })
+  .strict()
+  .superRefine(requireUpdateChange);
+
+export const DataViewSurfacesRequestSchema = z.object({}).strict();
+export const DataViewConfigRequestSchema = z
+  .object({ ...surface, section: DataViewConfigSectionSchema.optional(), ...page })
+  .strict();
+export const ListDataViewsRequestSchema = z.object({ ...surface, ...page }).strict();
+export const ReadDataViewRequestSchema = z.object({ ...surface, viewKey: ViewKeySchema }).strict();
+export const CreateDataViewRequestSchema = z
+  .object({
+    ...surface,
+    name: z.string().trim().min(1).max(DATA_VIEW_NAME_MAX_LENGTH),
+    state: AgentDataViewStateSchema,
+  })
+  .strict();
+export const UpdateDataViewRequestSchema = z.object(update).strict().superRefine(requireUpdateChange);
+export const SelectDataViewRequestSchema = z.object({ ...surface, viewKey: ViewKeySchema }).strict();
+export const DeleteDataViewRequestSchema = z
+  .object({ ...surface, viewKey: z.uuid(), name: z.string().trim().min(1).max(DATA_VIEW_NAME_MAX_LENGTH).optional() })
+  .strict();
 
 export const ManageDataViewsSchema = z.discriminatedUnion("action", [
-  z.object({ action: z.literal("surfaces") }).strict(),
-  z
-    .object({
-      action: z.literal("config"),
-      ...surface,
-      section: DataViewConfigSectionSchema.optional(),
-      ...page,
-    })
-    .strict(),
-  z.object({ action: z.literal("list"), ...surface, viewKey: ViewKeySchema.optional(), ...page }).strict(),
-  z
-    .object({
-      action: z.literal("create"),
-      ...surface,
-      name: z.string().trim().min(1).max(DATA_VIEW_NAME_MAX_LENGTH),
-      state: AgentDataViewStateSchema,
-    })
-    .strict(),
+  DataViewSurfacesRequestSchema.extend({ action: z.literal("surfaces") }),
+  DataViewConfigRequestSchema.extend({ action: z.literal("config") }),
+  ListDataViewsRequestSchema.extend({ action: z.literal("list"), viewKey: ViewKeySchema.optional() }),
+  ReadDataViewRequestSchema.extend({ action: z.literal("read") }),
+  CreateDataViewRequestSchema.extend({ action: z.literal("create") }),
   UpdateDataViewSchema,
-  z.object({ action: z.literal("select"), ...surface, viewKey: ViewKeySchema }).strict(),
-  z.object({ action: z.literal("delete"), ...surface, viewKey: z.uuid() }).strict(),
+  ResetDataViewStateSchema.extend({ action: z.literal("reset") }),
+  SelectDataViewRequestSchema.extend({ action: z.literal("select") }),
+  DeleteDataViewRequestSchema.extend({ action: z.literal("delete") }),
 ]);
 export type ManageDataViewsData = Data<typeof ManageDataViewsSchema>;
 
@@ -108,11 +113,10 @@ const ResultItemSchema = z.looseObject({
 
 export const ManageDataViewsResultSchema = z
   .looseObject({
-    action: z.enum(["surfaces", "config", "list", "create", "update", "select", "delete"]),
+    action: z.enum(["surfaces", "config", "list", "read", "create", "update", "select", "delete", "reset"]),
     surfaceKey: AiManageableDataViewSurfaceKeySchema.optional(),
     label: z.string().optional(),
     path: z.string().nullable().optional(),
-    entityType: z.string().optional(),
     section: DataViewConfigSectionSchema.optional(),
     total: z.number().int().min(0).optional(),
     page: z.number().int().min(1).optional(),
@@ -133,36 +137,64 @@ export const ManageDataViewsResultSchema = z
     link: z.string().nullable().optional(),
     selected: z.boolean().optional(),
     deleted: z.boolean().optional(),
+    proposed: z.literal(true).optional(),
+    trashBatchId: z.uuid().optional(),
   })
   .superRefine((result, ctx) => {
     const requireField = (field: "surfaceKey" | "viewKey" | "link") => {
       if (result[field] !== undefined) return;
-      ctx.addIssue({ code: "custom", path: [field], message: `${field} is required for ${result.action}` });
+      ctx.addIssue({
+        code: "custom",
+        path: [field],
+        message: `${field} is required for ${result.action}`,
+      });
     };
 
-    if (["create", "update", "select"].includes(result.action)) {
+    if (result.proposed && result.action === "create") {
+      requireField("surfaceKey");
+      if (result.state === undefined)
+        ctx.addIssue({ code: "custom", path: ["state"], message: "state is required for a proposal" });
+      return;
+    }
+    if (["create", "update", "select", "reset"].includes(result.action)) {
       requireField("surfaceKey");
       requireField("viewKey");
       requireField("link");
       if (result.surfaceKey && result.viewKey && result.link !== undefined) {
-        const path = DATA_VIEW_PATHS[result.surfaceKey];
+        const path = dataViewPath(result.surfaceKey);
         const expectedLink = path ? `${path}?view=${result.viewKey}` : null;
-        if (result.link !== expectedLink)
-          ctx.addIssue({ code: "custom", path: ["link"], message: `link must match ${result.surfaceKey}` });
+        const linkPath = result.link && URL.canParse(result.link) ? new URL(result.link) : null;
+        if (result.link !== expectedLink && `${linkPath?.pathname}${linkPath?.search}` !== expectedLink) {
+          ctx.addIssue({
+            code: "custom",
+            path: ["link"],
+            message: `link must match ${result.surfaceKey}`,
+          });
+        }
       }
     }
     if (result.action === "create" || result.action === "select") {
-      if (result.selected !== true)
-        ctx.addIssue({ code: "custom", path: ["selected"], message: `selected must be true for ${result.action}` });
+      if (result.selected !== true) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["selected"],
+          message: `selected must be true for ${result.action}`,
+        });
+      }
     }
     if (result.action === "delete") {
       requireField("surfaceKey");
       requireField("viewKey");
-      if (result.deleted !== true)
-        ctx.addIssue({ code: "custom", path: ["deleted"], message: "deleted must be true for delete" });
+      if (result.deleted !== true) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["deleted"],
+          message: "deleted must be true for delete",
+        });
+      }
     }
   })
   .describe(
-    "surfaces, config and list return total before paged items; mutations return their action, surfaceKey, viewKey and resulting state/link or selected/deleted flag.",
+    "surfaces, config and list return total before paged items; mutations return their action, surfaceKey, viewKey and resulting state/link or selected/deleted flag. In the app, create and update return proposed: true with the proposed state; the person saves or resets it.",
   );
 export type ManageDataViewsResult = Data<typeof ManageDataViewsResultSchema>;

@@ -54,8 +54,8 @@ describe("MCP tool execution contract", () => {
   });
 
   it("preserves canonical returned failures", async () => {
-    const error = createZodError("Missing service", ["id"], {
-      error: CustomErrorCode.serviceNotFound,
+    const error = createZodError("Missing webhook", ["id"], {
+      error: CustomErrorCode.webhookNotFound,
     });
     const failure = mcpInteractorFailure(error);
 
@@ -73,8 +73,8 @@ describe("MCP tool execution contract", () => {
           {
             code: "custom",
             path: ["id"],
-            message: "Missing service",
-            customCode: "serviceNotFound",
+            message: "Missing webhook",
+            customCode: "webhookNotFound",
           },
         ],
       },
@@ -293,8 +293,8 @@ describe("MCP failure text", () => {
   });
 
   it("keeps the validation label on a coded validation refusal", async () => {
-    await expect(customMcpFailure(CustomErrorCode.customColumnTypeMismatch)).resolves.toMatchObject({
-      text: "Validation error: localized:customColumnTypeMismatch",
+    await expect(customMcpFailure(CustomErrorCode.recordValueInvalid)).resolves.toMatchObject({
+      text: "Validation error: localized:recordValueInvalid",
       failure: { kind: "validation" },
     });
   });

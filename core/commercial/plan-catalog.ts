@@ -1,11 +1,11 @@
 export const PLAN_IDS = ["starter", "pro", "business", "enterprise"] as const;
-export type PlanId = (typeof PLAN_IDS)[number];
+type PlanId = (typeof PLAN_IDS)[number];
 
 export const PURCHASABLE_PLAN_IDS = ["starter", "pro", "business"] as const;
 export type PurchasablePlanId = (typeof PURCHASABLE_PLAN_IDS)[number];
 
 export const BILLING_CADENCES = ["monthly", "annual"] as const;
-export type BillingCadence = (typeof BILLING_CADENCES)[number];
+type BillingCadence = (typeof BILLING_CADENCES)[number];
 
 export const AVAILABLE_BILLING_CADENCES = ["monthly"] as const satisfies readonly BillingCadence[];
 export type AvailableBillingCadence = (typeof AVAILABLE_BILLING_CADENCES)[number];
@@ -46,7 +46,7 @@ type SalesLedPlanDefinition = {
   offers: Record<string, never>;
 };
 
-export type PlanDefinition = SelfServePlanDefinition | SalesLedPlanDefinition;
+type PlanDefinition = SelfServePlanDefinition | SalesLedPlanDefinition;
 
 export const CLOUD_TRIAL = {
   plan: "pro",
@@ -154,7 +154,7 @@ export function isPlanId(value: string): value is PlanId {
   return (PLAN_IDS as readonly string[]).includes(value);
 }
 
-export function isPurchasablePlanId(value: string): value is PurchasablePlanId {
+function isPurchasablePlanId(value: string): value is PurchasablePlanId {
   return (PURCHASABLE_PLAN_IDS as readonly string[]).includes(value);
 }
 

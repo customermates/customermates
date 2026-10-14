@@ -2,15 +2,21 @@ import type { ModelMessage } from "ai";
 import { describe, expect, it } from "vitest";
 
 import {
+  AGENT_MAX_SERIALIZED_BYTES_PER_CHAR,
   AGENT_RESERVATION_ROUNDS_AHEAD,
+  AGENT_TOOL_RESULT_ENVELOPE_BYTES,
   AGENT_TOOL_RESULT_TRUNCATED_MARK,
   agentContextBytesToWorstCaseProviderTokens,
   agentContextTokensToBytes,
+  agentNextRoundContextBytes,
+  agentPendingToolResultBytes,
+  agentRoundReserveMicrocents,
   agentToolResultText,
   agentFundedRetryCount,
   agentWebSearchReserveMicrocents,
   agentRoundWorstCaseMicrocents,
   agentRoundWorstCaseMicrocentsForContextBytes,
+  agentStepContext,
   isAgentContextWithinBudget,
   resolveAgentTurnBudget,
   serializedAgentContextBytes,
@@ -275,6 +281,31 @@ describe("agent turn credit budget", () => {
     expect(isAgentStepContextWithinBudget(providerContext, providerContext.messages, maxContextBytes)).toBe(true);
   });
 
+  it("counts the system prompt once when the model step already contains it", () => {
+    const context = buildAgentProviderContext("s".repeat(1_000), [{ role: "user", text: "hello" }], []);
+    const messages = [{ role: "system", content: context.system }, ...context.messages] as ModelMessage[];
+    const budget = serializedAgentContextBytes({ messages, tools: context.tools }) ?? 0;
+
+    expect(budget).toBeGreaterThan(0);
+    expect(agentStepContext({ ...context, messages })).toEqual({ messages, tools: context.tools });
+    expect(serializedAgentContextBytes({ ...context, messages })).toBeGreaterThan(budget);
+    expect(isAgentStepContextWithinBudget(context, messages, budget)).toBe(true);
+    expect(isAgentStepContextWithinBudget(context, messages, budget - 1)).toBe(false);
+  });
+
+  it("still counts the system prompt when the step does not lead with that exact prompt", () => {
+    const context = buildAgentProviderContext("s".repeat(1_000), [{ role: "user", text: "hello" }], []);
+    const changed = [{ role: "system", content: "t".repeat(1_000) }, ...context.messages] as ModelMessage[];
+    const later = [...context.messages, { role: "system", content: context.system }] as ModelMessage[];
+
+    for (const messages of [changed, later]) {
+      const both = serializedAgentContextBytes({ ...context, messages }) ?? 0;
+      expect(agentStepContext({ ...context, messages })).toEqual({ ...context, messages });
+      expect(isAgentStepContextWithinBudget(context, messages, both)).toBe(true);
+      expect(isAgentStepContextWithinBudget(context, messages, both - 1)).toBe(false);
+    }
+  });
+
   it("counts tool schemas when a continuation is near the context boundary", () => {
     const messages = [{ role: "user", content: "x".repeat(900) }] as ModelMessage[];
     const withoutTools = buildAgentProviderContext("system", [], []);
@@ -400,5 +431,119 @@ describe("agent turn budget reasoning settings", () => {
 
     expect(budget).not.toHaveProperty("reasoningEffort");
     expect(budget).not.toHaveProperty("thinkingLevel");
+  });
+});
+
+describe("per-round credit reserve", () => {
+  const shippedBudget = () => {
+    const budget = resolveAgentTurnBudget({ model: BALANCED, availableMicrocents: 10 * CREDIT });
+    if (!budget) throw new Error("Expected the shipped model to be admitted with 10 credits.");
+    return budget;
+  };
+  const appended = [
+    { role: "assistant", content: [{ type: "tool-call", toolCallId: "call-1", toolName: "read", input: {} }] },
+    {
+      role: "tool",
+      content: [
+        {
+          type: "tool-result",
+          toolCallId: "call-1",
+          toolName: "read",
+          output: { type: "json", value: { ok: true, result: "row" } },
+        },
+      ],
+    },
+  ];
+
+  it("prices a round from its own context at the full input price plus the longest reply", () => {
+    expect(agentRoundReserveMicrocents(shippedBudget(), 120_000)).toBe(4_315_300);
+    expect(agentRoundReserveMicrocents(shippedBudget(), 120_000)).toBe(
+      agentRoundWorstCaseMicrocentsForContextBytes(BALANCED, 120_000),
+    );
+    expect(agentRoundReserveMicrocents(shippedBudget(), 30_000)).toBeLessThan(
+      agentRoundReserveMicrocents(shippedBudget(), 120_000),
+    );
+  });
+
+  it("never reserves more than the model's worst-case round, which a full context reaches", () => {
+    const budget = shippedBudget();
+
+    expect(agentRoundReserveMicrocents(budget, budget.maxContextBytes)).toBe(5_602_300);
+    expect(agentRoundReserveMicrocents(budget, budget.maxContextBytes * 2)).toBe(5_602_300);
+    expect(agentRoundReserveMicrocents({ ...budget, roundReserveMicrocents: 3 * CREDIT }, 120_000)).toBe(3 * CREDIT);
+  });
+
+  it("reserves the worst-case round when the context size is unknown", () => {
+    for (const bytes of [0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY])
+      expect(agentRoundReserveMicrocents(shippedBudget(), bytes)).toBe(5_602_300);
+  });
+
+  it("prices a round from the provider's measured prompt plus the worst case of what was appended since", () => {
+    const measured = { contextBytes: 120_000, promptTokens: 28_000 };
+
+    expect(agentRoundReserveMicrocents(shippedBudget(), 130_000, measured)).toBe(3_341_800);
+    expect(agentRoundReserveMicrocents(shippedBudget(), 120_000, measured)).toBe(3_176_800);
+    expect(agentRoundReserveMicrocents(shippedBudget(), 130_000, measured)).toBeLessThan(
+      agentRoundReserveMicrocents(shippedBudget(), 130_000),
+    );
+  });
+
+  it("never prices a measured prompt above the context's own worst case", () => {
+    expect(
+      agentRoundReserveMicrocents(shippedBudget(), 120_000, { contextBytes: 100_000, promptTokens: 200_000 }),
+    ).toBe(agentRoundReserveMicrocents(shippedBudget(), 120_000));
+  });
+
+  it("ignores a measurement that cannot bound the context, such as one from a larger or unmeasured prompt", () => {
+    const unmeasured = agentRoundReserveMicrocents(shippedBudget(), 120_000);
+
+    for (const measured of [
+      { contextBytes: 150_000, promptTokens: 10_000 },
+      { contextBytes: 100_000, promptTokens: 0 },
+      { contextBytes: 100_000, promptTokens: 1.5 },
+      { contextBytes: Number.NaN, promptTokens: 10_000 },
+    ])
+      expect(agentRoundReserveMicrocents(shippedBudget(), 120_000, measured)).toBe(unmeasured);
+  });
+
+  it("bounds a pending tool result by its character cap at the widest serialized character", () => {
+    expect(agentPendingToolResultBytes(6_000)).toBe(
+      6_000 * AGENT_MAX_SERIALIZED_BYTES_PER_CHAR + AGENT_TOOL_RESULT_ENVELOPE_BYTES,
+    );
+    expect(agentPendingToolResultBytes(60_000)).toBe(agentPendingToolResultBytes(6_000));
+    expect(
+      serializedAgentContextBytes({ ok: false, applied: false, result: "\u0001".repeat(6_000) }),
+    ).toBeLessThanOrEqual(agentPendingToolResultBytes(6_000));
+  });
+
+  it("grows the next round's context by the round's output, its known results and each pending result", () => {
+    const appendedBytes = serializedAgentContextBytes(appended) ?? Number.NaN;
+    const next = (contextBytes: number, pendingToolResults: number) =>
+      agentNextRoundContextBytes({
+        contextBytes,
+        appended,
+        pendingToolResults,
+        maxToolResultChars: 6_000,
+        maxContextBytes: 198_000,
+      });
+
+    expect(next(120_000, 0)).toBe(120_000 + appendedBytes);
+    expect(next(100_000, 2)).toBe(100_000 + appendedBytes + 2 * agentPendingToolResultBytes(6_000));
+    expect(next(190_000, 1)).toBe(198_000);
+  });
+
+  it("assumes a full context when the round's output cannot be measured", () => {
+    const circular: Record<string, unknown> = {};
+    circular.self = circular;
+
+    expect(
+      agentNextRoundContextBytes({
+        contextBytes: 1_000,
+        appended: circular,
+        pendingToolResults: 0,
+        maxToolResultChars: 6_000,
+        maxContextBytes: 198_000,
+      }),
+    ).toBe(198_000);
   });
 });

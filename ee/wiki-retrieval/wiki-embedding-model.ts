@@ -14,6 +14,10 @@ const WIKI_DOCUMENT_TIMEOUT_MS = 30_000;
 
 export type WikiEmbeddingKind = "query" | "document";
 
+export function embeddingVectorLiteral(vector: number[]) {
+  return `[${vector.join(",")}]`;
+}
+
 function wikiEmbeddingProviderOptions(kind: WikiEmbeddingKind) {
   return {
     gateway: {

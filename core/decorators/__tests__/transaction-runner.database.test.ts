@@ -1,5 +1,7 @@
 import { randomUUID } from "node:crypto";
 
+import { Client } from "pg";
+
 import { afterAll, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
@@ -15,6 +17,7 @@ const { prisma } = await import("@/prisma/db");
 const { runWithoutTenant } = await import("../tenant-context");
 const { getTransactionClient } = await import("../transaction-context");
 const { runInTransaction } = await import("../transaction-runner");
+const { prismaClientError } = await import("@/core/errors/prisma-client-error");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const fixtureIds: string[] = [];
@@ -35,6 +38,91 @@ describeDatabase("structured interactor rollback against PostgreSQL", { timeout:
   afterAll(async () => {
     await runWithoutTenant(() => prisma.company.deleteMany({ where: { id: { in: fixtureIds } } }));
     await prisma.$disconnect();
+  });
+
+  it("ends a wait on a lock held elsewhere within the transaction timeout", async () => {
+    const companyId = randomUUID();
+    const holder = new Client({ connectionString: process.env.DATABASE_URL });
+    await holder.connect();
+    try {
+      await holder.query("BEGIN");
+      await holder.query("SELECT pg_advisory_xact_lock(hashtextextended($1, 0))", [companyId]);
+      const startedAt = Date.now();
+      await expect(
+        runWithoutTenant(() => runInTransaction(() => Promise.resolve("blocked"), { companyId, timeout: 2000 })),
+      ).rejects.toThrow();
+      expect(Date.now() - startedAt).toBeLessThan(10_000);
+    } finally {
+      await holder.query("ROLLBACK");
+      await holder.end();
+    }
+    await expect(
+      runWithoutTenant(() => runInTransaction(() => Promise.resolve("free"), { companyId, timeout: 2000 })),
+    ).resolves.toBe("free");
+  });
+
+  it("bounds the wait for a busy company lock separately and reports it as a busy service", async () => {
+    const companyId = randomUUID();
+    const holder = new Client({ connectionString: process.env.DATABASE_URL });
+    await holder.connect();
+    try {
+      await holder.query("BEGIN");
+      await holder.query("SELECT pg_advisory_xact_lock(hashtextextended($1, 0))", [companyId]);
+      const startedAt = Date.now();
+      const error = await runWithoutTenant(() =>
+        runInTransaction(() => Promise.resolve("blocked"), { companyId, timeout: 20_000, companyLockWait: 1000 }),
+      ).catch((caught: unknown) => caught);
+      expect(Date.now() - startedAt).toBeLessThan(8000);
+      expect(prismaClientError(error)).toMatchObject({ status: 429, kind: "rate_limit" });
+    } finally {
+      await holder.query("ROLLBACK");
+      await holder.end();
+    }
+    await expect(
+      runWithoutTenant(() =>
+        runInTransaction(
+          async () => {
+            const tx = getTransactionClient<typeof prisma>();
+            if (!tx) throw new Error("Missing transaction client");
+            const rows = await tx.$queryRaw<Array<{ value: string }>>`SELECT current_setting('lock_timeout') AS value`;
+            return rows[0]?.value;
+          },
+          { companyId, timeout: 20_000, companyLockWait: 1000 },
+        ),
+      ),
+    ).resolves.toBe("20s");
+  });
+
+  it("returns clean connections after a timed-out transaction that issued concurrent queries", async () => {
+    const companyId = randomUUID();
+    const client = () => {
+      const tx = getTransactionClient<typeof prisma>();
+      if (!tx) throw new Error("Missing transaction client");
+      return tx;
+    };
+    await expect(
+      runWithoutTenant(() =>
+        runInTransaction(
+          async () => {
+            const tx = client();
+            await Promise.all([1, 2, 3].map(() => tx.$queryRaw`SELECT pg_sleep(1.5)`));
+          },
+          { companyId, timeout: 2000 },
+        ),
+      ),
+    ).rejects.toThrow();
+    const answers = await Promise.all(
+      Array.from({ length: 12 }, () =>
+        runWithoutTenant(() =>
+          runInTransaction(async () => (await client().$queryRaw<Array<{ ok: number }>>`SELECT 1 AS ok`)[0]?.ok, {
+            companyId,
+            timeout: 5000,
+            maxWait: 10_000,
+          }),
+        ),
+      ),
+    );
+    expect(answers).toEqual(Array.from({ length: 12 }, () => 1));
   });
 
   it("does not commit a row when the transaction returns a structured failure", async () => {

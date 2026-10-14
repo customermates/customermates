@@ -26,9 +26,9 @@ const OnboardingIntentPayloadSchema = z.discriminatedUnion("type", [
   CreateCompanyPayloadSchema,
 ]);
 
-export type OnboardingIntentPayload = z.infer<typeof OnboardingIntentPayloadSchema>;
+type OnboardingIntentPayload = z.infer<typeof OnboardingIntentPayloadSchema>;
 
-export type DecodedOnboardingIntent =
+type DecodedOnboardingIntent =
   | { status: "expired" }
   | { status: "invalid" }
   | { payload: OnboardingIntentPayload; status: "valid" };

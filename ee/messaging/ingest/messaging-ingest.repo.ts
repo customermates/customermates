@@ -1,5 +1,6 @@
 import type { IngestMessage, MessageReactionEntry, MessagingMessage, MessagingThread } from "../messaging.schema";
 import type { MessagingThreadType } from "@/generated/prisma";
+import type { InboundSender } from "./inbound-avatar";
 
 export abstract class MessagingIngestRepo {
   abstract ingestMessageUnscoped(args: {
@@ -10,7 +11,7 @@ export abstract class MessagingIngestRepo {
   }): Promise<
     | { isEcho: true; isDuplicate?: false }
     | { isEcho: false; isDuplicate: true }
-    | { isEcho: false; isDuplicate?: false; message: MessagingMessage }
+    | { isEcho: false; isDuplicate?: false; message: MessagingMessage; inboundSender?: InboundSender }
   >;
   abstract upsertChatThreadUnscoped(
     args: Pick<MessagingThread, "connectedAccountId" | "unipileThreadId" | "provider" | "subject" | "participants"> & {

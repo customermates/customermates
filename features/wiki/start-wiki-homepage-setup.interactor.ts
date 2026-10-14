@@ -5,7 +5,7 @@ import type { BackgroundTaskService } from "@/core/utils/background-task.service
 import type { WikiWebsiteCrawlMode } from "./wiki-crawl-mode.schema";
 
 import { z } from "zod";
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { APP_LOCALES, appLocaleOrDefault } from "@/i18n/locale-registry";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -19,7 +19,7 @@ import { WikiCrawlModeSchema } from "./wiki-crawl-mode.schema";
 
 const [firstAppLocale, ...otherAppLocales] = APP_LOCALES;
 
-export const StartWikiHomepageSetupSchema = z.object({
+const StartWikiHomepageSetupSchema = z.object({
   homepage: z.string().trim().min(1).max(2_000),
   clientRequestId: z.uuid(),
   locale: z.enum([firstAppLocale, ...otherAppLocales]).optional(),
@@ -27,7 +27,7 @@ export const StartWikiHomepageSetupSchema = z.object({
 });
 export type StartWikiHomepageSetupData = Data<typeof StartWikiHomepageSetupSchema>;
 
-export type StartedWikiHomepageSetup = {
+type StartedWikiHomepageSetup = {
   homepage: string;
   domain: string;
   mode: WikiWebsiteCrawlMode;
@@ -47,7 +47,7 @@ export type WikiWebsiteCrawlStart = {
   extraHosts: string[];
 };
 
-@TenantInteractor({ resource: Resource.wiki, action: Action.create })
+@TenantInteractor({ resource: Resource.wiki, manage: "create" })
 export class StartWikiHomepageSetupInteractor extends AuthenticatedInteractor<
   StartWikiHomepageSetupData,
   StartedWikiHomepageSetup

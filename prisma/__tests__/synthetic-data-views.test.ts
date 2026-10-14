@@ -4,12 +4,17 @@ import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
 import { FilterSchema } from "@/core/base/base-get.schema";
-import { FilterFieldKey } from "@/core/types/filter-field-key";
-import { ViewMode } from "@/core/base/base-query-builder";
+import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
 import { DataViewStateSchema } from "@/core/data-view/data-view-state.schema";
+import { FilterFieldKey } from "@/core/types/filter-field-key";
+import { MANUAL_ORDER_SORT_KEY } from "@/features/records/record-column.schema";
 
 import { SEED_IDS } from "../seeds/context";
-import { SYNTHETIC_CUSTOM_COLUMN_IDS, SYNTHETIC_CUSTOM_OPTION_IDS } from "../seeds/custom-fields";
+import {
+  SYNTHETIC_CUSTOM_FIELD_IDS,
+  SYNTHETIC_CUSTOM_OPTION_IDS,
+  type CustomFieldSeedData,
+} from "../seeds/custom-fields";
 import {
   buildSyntheticDataViewFixtures,
   persistSyntheticDataViewFixtures,
@@ -17,15 +22,31 @@ import {
   SYNTHETIC_DATA_VIEW_IDS,
 } from "../seeds/data-views";
 import { fixtureId } from "../seeds/helpers";
+import { buildSyntheticP13nFixtures } from "../seeds/personalization";
+import { applyNorthwindModel } from "../seeds/northwind-schema";
+import { createCrmPreset } from "@/features/records/crm-preset";
+import { syntheticRecordKeys } from "../seeds/record-keys";
+import {
+  NORTHWIND_CUSTOM_TYPE_KEYS,
+  NORTHWIND_MEMBER_IDS,
+  NORTHWIND_STARTER_TYPE_KEYS,
+  northwindModelIds,
+} from "../seeds/northwind-model";
 
-const customFields = {
-  customColumnIds: SYNTHETIC_CUSTOM_COLUMN_IDS,
+const customFields: CustomFieldSeedData = {
+  customFields: [],
+  customFieldValues: [],
+  customFieldIds: SYNTHETIC_CUSTOM_FIELD_IDS,
   customOptionIds: SYNTHETIC_CUSTOM_OPTION_IDS,
 };
+const model = northwindModelIds(SEED_IDS.company);
+const surface = (type: keyof typeof model.types) => `records:${model.types[type]}`;
+const LISTS = [...NORTHWIND_STARTER_TYPE_KEYS, ...NORTHWIND_CUSTOM_TYPE_KEYS].filter((type) => type !== "lineItem");
+const INBOX = "messaging-threads-card-store";
+const DRAFT_FIELD: string = FilterFieldKey.draft;
 
 const views = () => buildSyntheticDataViewFixtures({ ids: SEED_IDS }, customFields);
-
-const DRAFT_FIELD: string = FilterFieldKey.draft;
+const own = () => views().filter(({ userId }) => userId === SEED_IDS.user);
 
 type StoredRow = {
   id: string;
@@ -63,32 +84,35 @@ function createViewRecorder() {
   return { deleteMany, identicalCreateAndUpdate, rows, upsert };
 }
 
-function createSeedPrisma(recorder: ReturnType<typeof createViewRecorder>): Pick<PrismaClient, "dataView"> {
-  return {
-    dataView: { deleteMany: recorder.deleteMany, upsert: recorder.upsert },
-  } as unknown as Pick<PrismaClient, "dataView">;
-}
-
 describe("synthetic data view fixtures", () => {
-  it("seeds personal views across every demo surface, owned by the demo user", () => {
+  it("never references a field the demo seeds in Trash, so data model changes stay unblocked", () => {
+    const archived = applyNorthwindModel(createCrmPreset(SEED_IDS.company), SEED_IDS.company)
+      .fields.filter((field) => field.archived)
+      .map((field) => field.id);
+    const states = [
+      ...views().map(({ name, state }) => [name, JSON.stringify(state)] as const),
+      ...buildSyntheticP13nFixtures({ ids: SEED_IDS }, customFields).map(
+        ({ p13nId, ...state }) => [p13nId, JSON.stringify(state)] as const,
+      ),
+    ];
+
+    expect(archived.length).toBeGreaterThan(0);
+    for (const [name, state] of states) {
+      expect(
+        archived.filter((id) => state.includes(id)),
+        name,
+      ).toEqual([]);
+    }
+  });
+
+  it("seeds valid, deterministic views on every Northwind list and the inbox", () => {
     const fixtures = views();
 
-    expect(fixtures.map(({ id }) => id)).toEqual(Object.values(SYNTHETIC_DATA_VIEW_IDS));
+    expect(new Set(fixtures.map(({ id }) => id))).toEqual(new Set(Object.values(SYNTHETIC_DATA_VIEW_IDS)));
+    expect(fixtures).toHaveLength(Object.keys(SYNTHETIC_DATA_VIEW_IDS).length);
     expect(fixtures.every(({ id }) => id.startsWith(`${SYNTHETIC_DATA_VIEW_ID_PREFIX}-`))).toBe(true);
-    expect(fixtures.every(({ userId }) => userId === SEED_IDS.user)).toBe(true);
-    expect(fixtures.every((fixture) => !("visibility" in fixture))).toBe(true);
     expect(fixtures.every(({ name }) => name.trim().length > 0)).toBe(true);
-
-    expect(new Set(fixtures.map(({ surfaceKey }) => surfaceKey))).toEqual(
-      new Set([
-        "contacts-card-store",
-        "organizations-card-store",
-        "deals-card-store",
-        "services-card-store",
-        "tasks-card-store",
-        "messaging-threads-card-store",
-      ]),
-    );
+    expect(new Set(fixtures.map(({ surfaceKey }) => surfaceKey))).toEqual(new Set([...LISTS.map(surface), INBOX]));
 
     for (const fixture of fixtures) {
       expect(DataViewStateSchema.safeParse(fixture.state).success, fixture.name).toBe(true);
@@ -97,92 +121,162 @@ describe("synthetic data view fixtures", () => {
     }
   });
 
-  it("gives every surface its own contiguous tab order", () => {
-    const bySurface = new Map<string, number[]>();
-    for (const { surfaceKey, position } of views())
-      bySurface.set(surfaceKey, [...(bySurface.get(surfaceKey) ?? []), position]);
+  it("gives the demo user two to four views per list, and other members personal views of their own", () => {
+    for (const type of LISTS) {
+      const count = own().filter(({ surfaceKey }) => surfaceKey === surface(type)).length;
+      expect(count, type).toBeGreaterThanOrEqual(2);
+      expect(count, type).toBeLessThanOrEqual(4);
+    }
 
-    for (const [surfaceKey, positions] of bySurface) {
-      expect(positions.length, surfaceKey).toBeGreaterThan(1);
-      expect(
-        [...positions].sort((left, right) => left - right),
-        surfaceKey,
-      ).toEqual(positions.map((_, index) => index));
+    const myTasks = own().find(({ id }) => id === SYNTHETIC_DATA_VIEW_IDS.myTasks);
+    expect(myTasks?.name).toBe("My tasks");
+    expect(myTasks?.state.filters).toEqual([{ field: "system:assignedTo", operator: "in", value: [SEED_IDS.user] }]);
+
+    const personal = views().filter(({ userId }) => userId !== SEED_IDS.user);
+    expect(new Set(personal.map(({ userId }) => userId))).toEqual(
+      new Set([
+        NORTHWIND_MEMBER_IDS.claraNeumann,
+        NORTHWIND_MEMBER_IDS.marcoSilva,
+        NORTHWIND_MEMBER_IDS.elenaHoffmann,
+        NORTHWIND_MEMBER_IDS.kianRahimi,
+        NORTHWIND_MEMBER_IDS.lauraFischer,
+      ]),
+    );
+    for (const view of personal) {
+      const mine = (view.state.filters ?? []).some(
+        (filter) => "value" in filter && Array.isArray(filter.value) && filter.value.includes(view.userId),
+      );
+      expect(mine, view.name).toBe(true);
     }
   });
 
-  it("shows a pipeline on every surface that can group, and filters the one that cannot", () => {
-    const grouped = views().filter(({ state }) => state.grouping);
+  it("gives every member and surface its own contiguous tab order", () => {
+    const bySurface = new Map<string, number[]>();
+    for (const { userId, surfaceKey, position } of views())
+      bySurface.set(`${userId}:${surfaceKey}`, [...(bySurface.get(`${userId}:${surfaceKey}`) ?? []), position]);
 
-    expect(new Set(grouped.map(({ surfaceKey }) => surfaceKey))).toEqual(
-      new Set([
-        "contacts-card-store",
-        "organizations-card-store",
-        "deals-card-store",
-        "services-card-store",
-        "tasks-card-store",
-      ]),
-    );
-
-    const inbox = views().filter(({ surfaceKey }) => surfaceKey === "messaging-threads-card-store");
-
-    expect(inbox.every(({ state }) => !state.grouping)).toBe(true);
-    expect(inbox.every(({ state }) => (state.filters ?? []).length > 0)).toBe(true);
-    expect(inbox.some(({ state }) => (state.filters ?? []).some((filter) => filter.field === DRAFT_FIELD))).toBe(true);
+    for (const [key, positions] of bySurface) expect(positions, key).toEqual(positions.map((_, index) => index));
   });
 
-  it("varies the appearance, so the demo shows boards, grouped tables and plain tables", () => {
+  it("shows boards, grouped tables with date buckets and plain tables", () => {
     const all = views();
     const boards = all.filter(({ state }) => state.viewMode === ViewMode.card);
     const groupedTables = all.filter(({ state }) => state.viewMode === ViewMode.table && state.grouping);
     const plainTables = all.filter(({ state }) => state.viewMode === ViewMode.table && !state.grouping);
 
     expect(boards.every(({ state }) => Boolean(state.grouping))).toBe(true);
-    expect(boards.length).toBeGreaterThan(4);
-    expect(groupedTables.length).toBeGreaterThan(0);
-    expect(plainTables.length).toBeGreaterThan(4);
-
-    const kinds = new Set(
-      all.flatMap(({ state }) => (state.grouping ? [state.grouping.bucket ? "dateBucket" : "field"] : [])),
-    );
-
-    expect(kinds).toEqual(new Set(["field", "dateBucket"]));
+    expect(boards.length).toBeGreaterThan(8);
+    expect(groupedTables.length).toBeGreaterThan(8);
+    expect(plainTables.length).toBeGreaterThan(8);
+    expect(new Set(all.flatMap(({ state }) => state.grouping?.bucket ?? []))).toEqual(new Set(["week", "month"]));
+    expect(all.some(({ state }) => state.grouping?.field === model.fields.onboarding.owner)).toBe(true);
+    expect(all.some(({ state }) => (state.grouping?.hidden ?? []).length > 0)).toBe(true);
   });
 
-  it("curates the columns on every board, so a card is not a dump of every field", () => {
-    const boards = views().filter(({ state }) => state.viewMode === ViewMode.card);
+  it("totals groups with every aggregation on money and number fields", () => {
+    const summaries = views().flatMap(({ state }) => state.grouping?.summaries ?? []);
 
-    expect(boards.length).toBeGreaterThan(4);
-    for (const boardView of boards) {
-      expect((boardView.state.hiddenColumns ?? []).length, boardView.name).toBeGreaterThan(3);
-      const groupingField = boardView.state.grouping?.field;
-      if (groupingField && !groupingField.endsWith("Ids"))
-        expect(boardView.state.hiddenColumns, boardView.name).toContain(groupingField);
+    expect(new Set(summaries.map(({ aggregation }) => aggregation))).toEqual(new Set(["sum", "average", "min", "max"]));
+    expect(views().find(({ id }) => id === SYNTHETIC_DATA_VIEW_IDS.dealPipeline)?.state.grouping).toMatchObject({
+      field: model.fields.deal.stage,
+      summaries: [{ fieldId: model.starter.dealTotalValue, aggregation: "sum" }],
+    });
+  });
+
+  it("filters by choice, member, boolean, relative date, relationship and multiple choice", () => {
+    const filters = views().flatMap(({ state }) => state.filters ?? []);
+    const operators = new Set(filters.map(({ operator }) => operator));
+
+    for (const operator of [
+      FilterOperatorKey.in,
+      FilterOperatorKey.notIn,
+      FilterOperatorKey.hasAnyOf,
+      FilterOperatorKey.hasSome,
+      FilterOperatorKey.inLastDays,
+      FilterOperatorKey.notInLastDays,
+    ])
+      expect(operators, operator).toContain(operator);
+    expect(filters.some(({ field }) => field === "system:assignedTo")).toBe(true);
+    expect(filters.some(({ field }) => field === model.fields.ticket.assignee)).toBe(true);
+    expect(filters.some(({ field }) => field === model.fields.ticket.overdue)).toBe(true);
+    expect(filters.some(({ field }) => field.startsWith("relationship:"))).toBe(true);
+    expect(filters.some(({ field }) => field === DRAFT_FIELD)).toBe(true);
+  });
+
+  it("curates columns: order, widths, page size, sorts with manual order and Formatted text excerpts", () => {
+    const all = views();
+
+    expect(all.some(({ state }) => state.sortDescriptor?.field === MANUAL_ORDER_SORT_KEY)).toBe(true);
+    expect(all.some(({ state }) => Object.keys(state.columnWidths ?? {}).length > 0)).toBe(true);
+    expect(all.some(({ state }) => state.pageSize)).toBe(true);
+    for (const notes of [
+      model.fields.subscription.notes,
+      model.fields.ticket.notes,
+      model.fields.candidate.interviewNotes,
+    ]) {
+      const showing = all.filter(({ state }) => state.columnOrder?.includes(notes));
+      expect(showing.length, notes).toBeGreaterThan(0);
+      expect(showing.every(({ state }) => !(state.hiddenColumns ?? []).includes(notes))).toBe(true);
+    }
+
+    for (const view of all.filter(({ surfaceKey }) => surfaceKey !== INBOX)) {
+      const hidden = view.state.hiddenColumns ?? [];
+      expect(hidden.length, view.name).toBeGreaterThan(3);
+      expect(
+        (view.state.columnOrder ?? []).filter((column) => hidden.includes(column)),
+        view.name,
+      ).toEqual([]);
+      const type = LISTS.find((candidate) => surface(candidate) === view.surfaceKey);
+      expect(type, view.name).toBeDefined();
+      expect(hidden, view.name).not.toContain(syntheticRecordKeys(SEED_IDS.company).id(`${type}.name`));
+      if (view.state.viewMode === ViewMode.card && view.state.grouping)
+        expect(hidden, view.name).toContain(view.state.grouping.field);
     }
   });
 
-  it("carries real column settings, not just filters", () => {
-    const all = views();
+  it("keeps boards, tables and group totals small enough for an overview", () => {
+    for (const view of views().filter(({ surfaceKey }) => surfaceKey !== INBOX)) {
+      const visible = view.state.columnOrder ?? [];
+      // A card shows three to five chips (the smallest list, services, shows two); a table four to six columns.
+      if (view.state.viewMode === ViewMode.card) {
+        expect(visible.length, view.name).toBeGreaterThanOrEqual(2);
+        expect(visible.length, view.name).toBeLessThanOrEqual(5);
+      } else {
+        expect(visible.length, view.name).toBeGreaterThanOrEqual(4);
+        expect(visible.length, view.name).toBeLessThanOrEqual(6);
+      }
+      expect((view.state.grouping?.summaries ?? []).length, view.name).toBeLessThanOrEqual(2);
+    }
 
-    expect(all.some(({ state }) => (state.columnOrder ?? []).length > 0)).toBe(true);
-    expect(all.some(({ state }) => (state.hiddenColumns ?? []).length > 0)).toBe(true);
-    expect(all.some(({ state }) => Object.keys(state.columnWidths ?? {}).length > 0)).toBe(true);
-    expect(all.some(({ state }) => state.sortDescriptor)).toBe(true);
-    expect(all.some(({ state }) => state.pageSize)).toBe(true);
-    expect(all.every(({ state }) => !(state.hiddenColumns ?? []).includes("name"))).toBe(true);
+    expect(views().find(({ id }) => id === SYNTHETIC_DATA_VIEW_IDS.dealPipeline)?.state).toMatchObject({
+      columnOrder: [
+        model.starter.dealTotalValue,
+        syntheticRecordKeys(SEED_IDS.company).relationship("deal.organizations", "outgoing"),
+        "system:assignedTo",
+        model.fields.deal.openedOn,
+      ],
+      grouping: {
+        summaries: [{ fieldId: model.starter.dealTotalValue, aggregation: "sum" }],
+      },
+    });
   });
 
   it("converges on a second run and removes only stale deterministic rows", async () => {
     const fixtures = views();
     const recorder = createViewRecorder();
 
-    recorder.rows.set("unrelated-data-view", { companyId: SEED_IDS.company, id: "unrelated-data-view" });
+    recorder.rows.set("unrelated-data-view", {
+      companyId: SEED_IDS.company,
+      id: "unrelated-data-view",
+    });
     recorder.rows.set(fixtureId(SYNTHETIC_DATA_VIEW_ID_PREFIX, 999), {
       companyId: SEED_IDS.company,
       id: fixtureId(SYNTHETIC_DATA_VIEW_ID_PREFIX, 999),
     });
 
-    const prisma = createSeedPrisma(recorder);
+    const prisma = {
+      dataView: { deleteMany: recorder.deleteMany, upsert: recorder.upsert },
+    } as unknown as Pick<PrismaClient, "dataView">;
 
     await persistSyntheticDataViewFixtures(prisma, SEED_IDS.company, fixtures);
     const afterFirstRun = new Map(recorder.rows);
@@ -193,14 +287,14 @@ describe("synthetic data view fixtures", () => {
     expect(recorder.rows.has("unrelated-data-view")).toBe(true);
     expect(recorder.rows.has(fixtureId(SYNTHETIC_DATA_VIEW_ID_PREFIX, 999))).toBe(false);
     expect(recorder.rows).toHaveLength(fixtures.length + 1);
-    expect(recorder.rows.get(SYNTHETIC_DATA_VIEW_IDS.openDeals)).toMatchObject({
+    expect(recorder.rows.get(SYNTHETIC_DATA_VIEW_IDS.dealPipeline)).toMatchObject({
       companyId: SEED_IDS.company,
       userId: SEED_IDS.user,
-      surfaceKey: "deals-card-store",
+      surfaceKey: surface("deal"),
     });
 
     await persistSyntheticDataViewFixtures(prisma, SEED_IDS.company, []);
-    expect(recorder.rows.has(SYNTHETIC_DATA_VIEW_IDS.openDeals)).toBe(false);
+    expect(recorder.rows.has(SYNTHETIC_DATA_VIEW_IDS.dealPipeline)).toBe(false);
     expect(recorder.rows.has("unrelated-data-view")).toBe(true);
   });
 });

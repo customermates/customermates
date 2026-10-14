@@ -1,8 +1,9 @@
 import type { ComponentProps, ComponentType, ReactNode } from "react";
 import type { Root } from "react-dom/client";
 
-import { act, createElement, useState } from "react";
-import { createRoot } from "react-dom/client";
+import { act, createElement, useRef, useState, useSyncExternalStore } from "react";
+import { createRoot, hydrateRoot } from "react-dom/client";
+import { renderToString } from "react-dom/server";
 import { observable, runInAction } from "mobx";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -18,7 +19,14 @@ import { OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
 const testContext = vi.hoisted(() => ({ isWide: true, rootStore: null as unknown }));
 
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
-vi.mock("@/hooks/use-media-query", () => ({ useIsWiderThan: () => testContext.isWide }));
+vi.mock("@/hooks/use-media-query", () => ({
+  useIsWiderThan: () =>
+    useSyncExternalStore(
+      () => () => undefined,
+      () => testContext.isWide,
+      () => true,
+    ),
+}));
 vi.mock("@/i18n/navigation", () => ({
   IntlLink: ({ children, ...props }: { children: ReactNode; href: string }) => createElement("a", props, children),
 }));
@@ -51,6 +59,42 @@ function AssistantPanel({ children }: { children?: ReactNode }) {
     createElement("textarea", { "aria-label": "Ask", id: "agent-composer" }),
     createElement("button", { id: "agent-send", type: "button" }, "Send"),
     children,
+  );
+}
+
+function ControlledFocusPage({ targetState }: { targetState: "available" | "disabled" | "removed" }) {
+  const [open, setOpen] = useState(false);
+  const opener = useRef<HTMLButtonElement>(null);
+  const fallback = useRef<HTMLButtonElement>(null);
+
+  return createElement(
+    "div",
+    null,
+    targetState !== "removed"
+      ? createElement(
+          "button",
+          {
+            id: "controlled-focus-opener",
+            ref: opener,
+            type: "button",
+            disabled: targetState === "disabled",
+            onClick: () => setOpen(true),
+          },
+          "Open",
+        )
+      : null,
+    createElement("button", { id: "controlled-focus-fallback", ref: fallback, type: "button" }, "Fallback"),
+    createElement(
+      TestAppModal,
+      {
+        open,
+        title: "Controlled focus",
+        onClose: () => setOpen(false),
+        focusReturnTarget: opener.current,
+        focusReturnFallback: fallback.current,
+      },
+      createElement("button", { id: "controlled-focus-close", type: "button", onClick: () => setOpen(false) }, "Close"),
+    ),
   );
 }
 
@@ -351,6 +395,48 @@ describe.each(SURFACES)("AppModal %s beside the assistant", (surface, isWide) =>
   });
 });
 
+describe.each(SURFACES)("AppModal controlled focus on the %s surface", (surface, isWide) => {
+  it.each(["available", "disabled", "removed"] as const)("returns focus with an %s opener", async (targetState) => {
+    testContext.isWide = isWide;
+    act(() => reactRoot.render(createElement(ControlledFocusPage, { targetState: "available" })));
+    const opener = element("controlled-focus-opener") as HTMLButtonElement;
+    const fallback = element("controlled-focus-fallback") as HTMLButtonElement;
+    for (const target of [opener, fallback])
+      vi.spyOn(target, "getClientRects").mockReturnValue([new DOMRect(0, 0, 80, 30)] as unknown as DOMRectList);
+
+    focus(opener);
+    act(() => opener.click());
+    await settleOutsideListeners();
+    expect(overlayContent(surface)?.contains(document.activeElement)).toBe(true);
+    act(() => reactRoot.render(createElement(ControlledFocusPage, { targetState })));
+    const close = element("controlled-focus-close");
+    focus(close);
+    act(() => close.click());
+    await settleOutsideListeners();
+    const closingContent = overlayContent(surface);
+    if (closingContent) {
+      expect(closingContent.getAttribute("data-state")).toBe("closed");
+      const animationName = getComputedStyle(closingContent).animationName;
+      expect(animationName).toMatch(/^[a-zA-Z][a-zA-Z0-9_-]*$/);
+      expect(animationName).not.toBe("none");
+      const animationEnd = new Event("animationend", { bubbles: true });
+      Object.defineProperty(animationEnd, "animationName", { value: animationName });
+      vi.stubGlobal("CSS", { escape: (value: string) => value });
+      try {
+        act(() => {
+          closingContent.dispatchEvent(animationEnd);
+        });
+      } finally {
+        vi.unstubAllGlobals();
+      }
+    }
+    await vi.waitFor(() => {
+      expect(overlayContent(surface)).toBeNull();
+      expect(document.activeElement).toBe(targetState === "available" ? opener : fallback);
+    });
+  });
+});
+
 describe("AppModal launched from the assistant", () => {
   it.each([
     ["dialog", true],
@@ -411,6 +497,30 @@ describe("AppModal confirmations beside the assistant", () => {
 
     expect(document.getElementById("agent-delete-chat-cancel")).toBeNull();
     expect(element("webhook-modal-secret")).toBeTruthy();
+    expect(onClose).not.toHaveBeenCalled();
+  });
+});
+
+describe("AppModal initial hydration", () => {
+  it("uses the client mobile presentation when a server-rendered modal is already open", async () => {
+    testContext.isWide = false;
+    const onClose = vi.fn();
+    const content = createElement(
+      TestAppModal,
+      { open: true, title: "Hydrated modal", onClose },
+      createElement("input", { id: "hydrated-modal-input", "aria-label": "Hydrated draft" }),
+    );
+    const html = renderToString(content);
+    act(() => reactRoot.unmount());
+    container.innerHTML = html;
+    await act(async () => {
+      reactRoot = hydrateRoot(container, content);
+      await Promise.resolve();
+    });
+    await settleOutsideListeners();
+    expect(overlayContent("drawer")).not.toBeNull();
+    expect(overlayContent("dialog")).toBeNull();
+    expect(element("hydrated-modal-input").closest("[aria-hidden='true']")).toBeNull();
     expect(onClose).not.toHaveBeenCalled();
   });
 });

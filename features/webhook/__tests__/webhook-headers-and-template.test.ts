@@ -13,9 +13,11 @@ import {
   isRenderableWebhookBodyTemplate,
   renderWebhookBody,
 } from "../webhook-body-template";
+import { WEBHOOK_EVENTS } from "../webhook-event-registry";
+import { RecordDeliveryEnvelopeSchema } from "@/features/records/record-delivery.schema";
 
 const ENVELOPE = {
-  event: "contact.created",
+  event: "record.created",
   data: {
     userId: "user-1",
     companyId: "company-1",
@@ -121,7 +123,7 @@ describe("renderWebhookBody", () => {
   it("substitutes scalar placeholders", () => {
     const result = renderWebhookBody('{"text": "{{event}} at {{timestamp}}"}', ENVELOPE);
 
-    expect(result).toEqual({ ok: true, body: { text: "contact.created at 2026-01-01T00:00:00.000Z" } });
+    expect(result).toEqual({ ok: true, body: { text: "record.created at 2026-01-01T00:00:00.000Z" } });
   });
 
   it("resolves a nested path", () => {
@@ -171,7 +173,21 @@ describe("renderWebhookBody", () => {
   });
 
   it("exposes a sample envelope shaped like a real delivery", () => {
-    expect(Object.keys(WEBHOOK_TEMPLATE_SAMPLE_ENVELOPE)).toEqual(["event", "data", "timestamp"]);
-    expect(Object.keys(WEBHOOK_TEMPLATE_SAMPLE_ENVELOPE.data)).toEqual(["userId", "companyId", "entityId", "payload"]);
+    expect(Object.keys(WEBHOOK_TEMPLATE_SAMPLE_ENVELOPE)).toEqual([
+      "event",
+      "id",
+      "timestamp",
+      "companyId",
+      "actorId",
+      "data",
+    ]);
+  });
+});
+
+describe("body template sample envelope", () => {
+  it("validates templates against a current record event, not a retired entity event", () => {
+    expect(WEBHOOK_EVENTS).toContain(WEBHOOK_TEMPLATE_SAMPLE_ENVELOPE.event);
+    expect(WEBHOOK_TEMPLATE_SAMPLE_ENVELOPE.event).toMatch(/^record\./);
+    expect(RecordDeliveryEnvelopeSchema.safeParse(WEBHOOK_TEMPLATE_SAMPLE_ENVELOPE).success).toBe(true);
   });
 });

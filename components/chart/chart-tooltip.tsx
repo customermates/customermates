@@ -1,22 +1,26 @@
 "use client";
 
 import type { TooltipProps } from "recharts";
-import { isCurrencyAggregation } from "@/features/widget/widget-aggregation";
 
 import { Tooltip } from "recharts";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
-import type { AggregationType } from "@/generated/prisma";
-import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { useRecordValueFormat } from "@/components/records/record-value";
+import { cn } from "@/core/utils/cn";
 
 type TooltipContentProps = {
   active?: boolean;
-  aggregationType?: AggregationType;
+  currency?: string | null;
   label?: string | number;
   payload?: ReadonlyArray<{
     name?: string;
-    payload?: { color?: string; fill?: string; label?: string };
+    payload?: {
+      color?: string;
+      fill?: string;
+      label?: string;
+      formattedValue?: string;
+    };
     value?: number;
   }>;
 };
@@ -25,15 +29,15 @@ const BASE_CLASS =
   "rounded-md border border-tooltip-foreground/10 bg-tooltip px-3 py-2 text-tooltip-foreground shadow-lg";
 
 const TooltipContent = observer((props: TooltipContentProps) => {
-  const { active, aggregationType, label, payload } = props;
-  const intlStore = useHydratedIntlStore();
+  const { active, currency, label, payload } = props;
+  const valueFormat = useRecordValueFormat();
   const t = useTranslations();
 
   if (!active || !payload || payload.length === 0) return null;
 
   const isPieChart = payload.length > 0 && payload[0].name && payload[0].name !== "value";
   const format = (value: number) =>
-    isCurrencyAggregation(aggregationType) ? intlStore.formatCurrency(value) : intlStore.formatNumber(value);
+    currency !== undefined ? valueFormat.decimal(value, { currency }) : valueFormat.number(value);
 
   if (payload.length === 1) {
     const entry = payload[0];
@@ -50,7 +54,9 @@ const TooltipContent = observer((props: TooltipContentProps) => {
             {title !== undefined && title !== "" && <span className="font-semibold truncate">{String(title)}</span>}
           </div>
 
-          <span className="font-medium tabular-nums whitespace-nowrap">{format(value)}</span>
+          <span className="font-medium tabular-nums whitespace-nowrap">
+            {entry.payload?.formattedValue ?? format(value)}
+          </span>
         </div>
       </div>
     );
@@ -59,7 +65,7 @@ const TooltipContent = observer((props: TooltipContentProps) => {
   const total = payload.reduce((sum, entry) => sum + (typeof entry.value === "number" ? entry.value : 0), 0);
 
   return (
-    <div className={`${BASE_CLASS} min-w-[180px]`}>
+    <div className={cn(BASE_CLASS, "min-w-[180px]")}>
       {label && <div className="mb-2 text-sm font-semibold">{String(label)}</div>}
 
       <div className="flex flex-col gap-1.5">
@@ -76,7 +82,9 @@ const TooltipContent = observer((props: TooltipContentProps) => {
                 {name && <span className="text-tooltip-foreground/65 truncate">{String(name)}</span>}
               </div>
 
-              <span className="font-medium tabular-nums whitespace-nowrap">{format(value)}</span>
+              <span className="font-medium tabular-nums whitespace-nowrap">
+                {entry.payload?.formattedValue ?? format(value)}
+              </span>
             </div>
           );
         })}
@@ -94,13 +102,13 @@ const TooltipContent = observer((props: TooltipContentProps) => {
 });
 
 type Props = TooltipProps<number, string> & {
-  aggregationType?: AggregationType;
+  currency?: string | null;
 };
 
-export function ChartTooltip({ aggregationType, ...props }: Props) {
+export function ChartTooltip({ currency, ...props }: Props) {
   return (
     <Tooltip
-      content={(tooltipProps) => <TooltipContent aggregationType={aggregationType} {...tooltipProps} />}
+      content={(tooltipProps) => <TooltipContent currency={currency} {...tooltipProps} />}
       cursor={false}
       {...props}
     />

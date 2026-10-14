@@ -1,6 +1,6 @@
 import type { Filter, GetQueryParams } from "@/core/base/base-get.schema";
 import type { DateBucket } from "@/core/base/grouping/grouping.schema";
-import type { GroupCountRow } from "@/core/base/grouping/group-count";
+import type { GroupCountRow } from "@/core/base/grouping/group-axis";
 import type { GroupScope } from "@/core/base/grouping/group-scope";
 import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
 import type { AppPrismaClient } from "@/prisma/db";
@@ -267,7 +267,7 @@ export function partitionOperatorWorkspaceFilters(filters: Filter[] | undefined)
   return { baseWhere, passthrough };
 }
 
-export function createdAtFilter(filter: Filter): Prisma.DateTimeFilter | undefined {
+function createdAtFilter(filter: Filter): Prisma.DateTimeFilter | undefined {
   const raw = (filter as { value?: unknown }).value;
   const toDate = (value: unknown) => (typeof value === "string" || value instanceof Date ? new Date(value) : undefined);
 
@@ -294,7 +294,7 @@ export function createdAtFilter(filter: Filter): Prisma.DateTimeFilter | undefin
   }
 }
 
-export type OperatorAuditFilterPlan = {
+type OperatorAuditFilterPlan = {
   sources: OperatorAuditSource[];
   workspaceIds: string[] | null;
   createdAt: Prisma.DateTimeFilter[];
@@ -343,7 +343,7 @@ export async function resolveWorkspaceOwners(
       u."companyId" AS "companyId",
       u."email" AS "owner"
     FROM "User" AS u
-    LEFT JOIN "UserRole" AS r ON r."id" = u."roleId"
+    LEFT JOIN "UserRole" AS r ON r."id" = u."roleId" AND r."companyId" = u."companyId"
     WHERE u."companyId" = ANY(${companyIds}::text[])
     ORDER BY
       u."companyId" ASC,

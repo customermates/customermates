@@ -5,8 +5,8 @@ import { SYNTHETIC_COMPANY_USERS } from "@/core/config/synthetic-seed-user";
 import type { SeedContext } from "./context";
 
 import { SYNTHETIC_AVATAR_URLS } from "./avatars";
-import { SEED_IDS } from "./context";
-import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
+import { northwindAt, northwindMemberJoinedMs } from "./northwind-data";
+import { NORTHWIND_MEMBER_IDS, NORTHWIND_MEMBER_ROLES } from "./northwind-model";
 
 export type SyntheticCompanyMemberDefinition = Readonly<{
   agreeToTerms: boolean;
@@ -21,43 +21,70 @@ export type SyntheticCompanyMemberDefinition = Readonly<{
   status: Status;
 }>;
 
+const member = (
+  key: keyof typeof NORTHWIND_MEMBER_IDS,
+  firstName: string,
+  lastName: string,
+  email: string,
+  avatarPath: string,
+  country: CountryCode,
+) => ({
+  id: NORTHWIND_MEMBER_IDS[key],
+  agreeToTerms: false,
+  avatarPath,
+  country,
+  email,
+  firstName,
+  isPlatformOperator: false,
+  lastName,
+  roleId: NORTHWIND_MEMBER_ROLES[key],
+  status: "active" as Status,
+});
+
+/** The seven Northwind Labs members; the first three keep their historical ids and sign-in identities. */
 export const SYNTHETIC_COMPANY_MEMBER_DEFINITIONS = [
-  {
-    id: SEED_IDS.user,
-    agreeToTerms: false,
-    avatarPath: SYNTHETIC_AVATAR_URLS.maxBergmann,
-    country: "de",
-    email: SYNTHETIC_COMPANY_USERS.maxBergmann.email,
-    firstName: SYNTHETIC_COMPANY_USERS.maxBergmann.firstName,
-    isPlatformOperator: false,
-    lastName: SYNTHETIC_COMPANY_USERS.maxBergmann.lastName,
-    roleId: SEED_IDS.role,
-    status: "active",
-  },
-  {
-    id: SEED_IDS.sofiaRossiUser,
-    agreeToTerms: false,
-    avatarPath: SYNTHETIC_AVATAR_URLS.sofiaRossi,
-    country: "it",
-    email: SYNTHETIC_COMPANY_USERS.sofiaRossi.email,
-    firstName: SYNTHETIC_COMPANY_USERS.sofiaRossi.firstName,
-    isPlatformOperator: false,
-    lastName: SYNTHETIC_COMPANY_USERS.sofiaRossi.lastName,
-    roleId: SEED_IDS.salesManagerRole,
-    status: "active",
-  },
-  {
-    id: SEED_IDS.elenaHoffmannUser,
-    agreeToTerms: false,
-    avatarPath: SYNTHETIC_AVATAR_URLS.elenaHoffmann,
-    country: "de",
-    email: SYNTHETIC_COMPANY_USERS.elenaHoffmann.email,
-    firstName: SYNTHETIC_COMPANY_USERS.elenaHoffmann.firstName,
-    isPlatformOperator: false,
-    lastName: SYNTHETIC_COMPANY_USERS.elenaHoffmann.lastName,
-    roleId: SEED_IDS.customerSuccessRole,
-    status: "active",
-  },
+  member(
+    "maxBergmann",
+    SYNTHETIC_COMPANY_USERS.maxBergmann.firstName,
+    SYNTHETIC_COMPANY_USERS.maxBergmann.lastName,
+    SYNTHETIC_COMPANY_USERS.maxBergmann.email,
+    SYNTHETIC_AVATAR_URLS.maxBergmann,
+    "de",
+  ),
+  member(
+    "sofiaRossi",
+    SYNTHETIC_COMPANY_USERS.sofiaRossi.firstName,
+    SYNTHETIC_COMPANY_USERS.sofiaRossi.lastName,
+    SYNTHETIC_COMPANY_USERS.sofiaRossi.email,
+    SYNTHETIC_AVATAR_URLS.sofiaRossi,
+    "it",
+  ),
+  member(
+    "elenaHoffmann",
+    SYNTHETIC_COMPANY_USERS.elenaHoffmann.firstName,
+    SYNTHETIC_COMPANY_USERS.elenaHoffmann.lastName,
+    SYNTHETIC_COMPANY_USERS.elenaHoffmann.email,
+    SYNTHETIC_AVATAR_URLS.elenaHoffmann,
+    "de",
+  ),
+  member(
+    "claraNeumann",
+    "Clara",
+    "Neumann",
+    "clara.neumann@customermates.com",
+    SYNTHETIC_AVATAR_URLS.claraNeumann,
+    "de",
+  ),
+  member("marcoSilva", "Marco", "Silva", "marco.silva@customermates.com", SYNTHETIC_AVATAR_URLS.marcoSilva, "pt"),
+  member("kianRahimi", "Kian", "Rahimi", "kian.rahimi@customermates.com", SYNTHETIC_AVATAR_URLS.kianRahimi, "de"),
+  member(
+    "lauraFischer",
+    "Laura",
+    "Fischer",
+    "laura.fischer@customermates.com",
+    SYNTHETIC_AVATAR_URLS.lauraFischer,
+    "de",
+  ),
 ] satisfies readonly SyntheticCompanyMemberDefinition[];
 
 async function reconcileMemberId(context: SeedContext, id: string, email: string): Promise<void> {
@@ -78,8 +105,10 @@ async function reconcileMemberId(context: SeedContext, id: string, email: string
 }
 
 export async function seedCompanyMembers(context: SeedContext): Promise<void> {
+  const keys = Object.keys(NORTHWIND_MEMBER_IDS) as Array<keyof typeof NORTHWIND_MEMBER_IDS>;
   for (const [index, { avatarPath, ...definition }] of SYNTHETIC_COMPANY_MEMBER_DEFINITIONS.entries()) {
-    const timeline = SYNTHETIC_SEED_TIMELINE.user(index);
+    const joined = northwindAt(northwindMemberJoinedMs(keys[index]));
+    const timeline = { createdAt: joined, updatedAt: new Date(joined.getTime() + 30 * 60_000) };
     const user = {
       ...definition,
       agentCreditActivatedAt: timeline.createdAt,

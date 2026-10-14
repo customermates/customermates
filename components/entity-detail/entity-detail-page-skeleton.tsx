@@ -44,30 +44,17 @@ export function EntityDetailPageSkeleton({
   animated = true,
   showSummary = false,
   summaryItemCount = 4,
-  showNotesPanel = true,
   showActivityPanel = false,
-}: Props & { showNotesPanel?: boolean; showActivityPanel?: boolean }) {
-  const panelCount = 1 + Number(showNotesPanel) + Number(showActivityPanel);
+}: Props & { showActivityPanel?: boolean }) {
+  const panelCount = 1 + Number(showActivityPanel);
   const renderSummaryItem = (index: number) => (
-    <div
+    <Shape
       key={index}
-      className={cn(
-        "flex min-w-0 max-w-56 shrink-0 flex-col justify-center rounded-md border border-border/60 bg-card/40 px-3 py-2",
-        SUMMARY_WIDTHS[index % SUMMARY_WIDTHS.length],
-      )}
-    >
-      <div className="flex min-h-4 items-center">
-        <Shape
-          animated={animated}
-          className="h-2.5 w-16"
-          motionPhase={MOTION_PHASES[index % MOTION_PHASES.length] ?? 0}
-        />
-      </div>
-
-      <div className="mt-0.5 flex min-h-6 items-center">
-        <Shape animated={animated} breathe={index === 0} className="h-4 w-20" motionPhase={1} />
-      </div>
-    </div>
+      animated={animated}
+      breathe={index === 0}
+      className={cn("h-[22px] rounded-md", SUMMARY_WIDTHS[index % SUMMARY_WIDTHS.length])}
+      motionPhase={MOTION_PHASES[index % MOTION_PHASES.length] ?? 0}
+    />
   );
 
   return (
@@ -84,20 +71,9 @@ export function EntityDetailPageSkeleton({
         className="flex size-full min-h-0 flex-col overflow-y-auto @6xl/detail:overflow-y-visible"
       >
         {showSummary ? (
-          <div
-            data-entity-detail-skeleton-summary
-            className="shrink-0 overflow-hidden border-b border-border px-4"
-            data-joins-top-bar=""
-            data-summary-variant="pinned-mini-cards"
-          >
-            <div className="-mx-4 overflow-hidden px-4">
-              <div
-                data-summary-rail
-                className="flex w-max min-w-full items-stretch gap-2 pt-0 pb-4"
-                data-summary-geometry="cards"
-              >
-                {Array.from({ length: summaryItemCount }, (_, index) => renderSummaryItem(index))}
-              </div>
+          <div data-entity-detail-skeleton-summary className="shrink-0 px-4 pb-3">
+            <div className="flex flex-wrap items-center gap-1" data-summary-variant="chip-row">
+              {Array.from({ length: summaryItemCount }, (_, index) => renderSummaryItem(index))}
             </div>
           </div>
         ) : null}
@@ -127,9 +103,7 @@ export function EntityDetailPageSkeleton({
         <div
           className={cn(
             "grid grid-cols-1 gap-px bg-border contain-[layout] @6xl/detail:min-h-0 @6xl/detail:flex-1",
-            showNotesPanel && showActivityPanel && "@6xl/detail:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_360px]",
-            showNotesPanel && !showActivityPanel && "@6xl/detail:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]",
-            !showNotesPanel && showActivityPanel && "@6xl/detail:grid-cols-[minmax(0,1fr)_360px]",
+            showActivityPanel && "@6xl/detail:grid-cols-[minmax(0,1fr)_360px]",
           )}
         >
           <div
@@ -150,19 +124,6 @@ export function EntityDetailPageSkeleton({
               </div>
             </div>
           </div>
-
-          {showNotesPanel ? (
-            <div
-              className="hidden flex-col bg-background @6xl/detail:flex @6xl/detail:min-h-0 @6xl/detail:overflow-hidden"
-              data-skeleton-group="1"
-            >
-              <SectionHeader animated={animated} labelWidth="w-16" />
-
-              <div className="min-h-0 flex-1 overflow-auto px-4 pb-4">
-                <Shape animated={animated} className="min-h-52 w-full" motionPhase={2} />
-              </div>
-            </div>
-          ) : null}
 
           {showActivityPanel ? (
             <div
@@ -192,61 +153,6 @@ export function EntityDetailPageSkeleton({
           ) : null}
         </div>
       </div>
-    </div>
-  );
-}
-
-export function EntityDetailDrawerSkeleton({ animated = true, showFooter = true }: Props & { showFooter?: boolean }) {
-  return (
-    <div
-      data-entity-detail-drawer-skeleton
-      aria-hidden="true"
-      className="flex size-full min-h-0 flex-col overflow-hidden"
-      data-page-skeleton-empty={!animated || undefined}
-      data-page-skeleton-loading={animated || undefined}
-      data-skeleton-kind="detail"
-      data-skeleton-view="drawer"
-    >
-      <div className="flex shrink-0 items-center p-6 pb-0 pr-14" data-skeleton-group="0">
-        <Shape breathe animated={animated} className="h-5 w-24" />
-      </div>
-
-      <div
-        className="min-h-0 flex-1 overflow-y-auto p-6 overscroll-contain"
-        data-skeleton-scroll-owner="entity-drawer-body"
-      >
-        <div className="flex flex-col gap-6">
-          <div className="flex flex-col gap-4">
-            <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
-              <FormFieldSkeleton short animated={animated} />
-
-              <FormFieldSkeleton short animated={animated} />
-            </div>
-
-            {FORM_ROWS.map((row) => (
-              <div key={row} data-skeleton-group={row % 4}>
-                <FormFieldSkeleton animated={animated} short={row % 2 === 0} />
-              </div>
-            ))}
-          </div>
-
-          <div className="flex flex-col gap-2" data-skeleton-group="2">
-            <Shape breathe animated={animated} className="h-3 w-16" />
-
-            <Shape animated={animated} className="min-h-40 w-full rounded-md" motionPhase={2} />
-          </div>
-        </div>
-      </div>
-
-      {showFooter ? (
-        <div
-          data-entity-drawer-footer
-          className="flex w-full shrink-0 justify-end p-6 pt-0 pb-[calc(1.5rem+var(--safe-bottom))]"
-          data-skeleton-group="3"
-        >
-          <Shape animated={animated} className="h-9 w-24 rounded-md" motionPhase={3} />
-        </div>
-      ) : null}
     </div>
   );
 }

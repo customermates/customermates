@@ -8,9 +8,9 @@ vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/decorators/transaction-runner", () => ({
   runInTransaction: (run: () => Promise<unknown>) => run(),
 }));
-vi.mock("../wiki-synthesis-model", () => ({
-  generateWikiSynthesisObject: model.generate,
-  wikiSynthesisWorstCaseMicrocents: () => 1_000,
+vi.mock("@/ee/agent-chat/structured-model-call", () => ({
+  generateStructuredObject: model.generate,
+  structuredCallWorstCaseMicrocents: () => 1_000,
 }));
 vi.mock("@/ee/agent-chat/classifier/metered", () => ({
   classifyMetered: model.review,

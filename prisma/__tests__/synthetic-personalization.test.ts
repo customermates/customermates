@@ -1,3 +1,4 @@
+import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import type { PrismaClient } from "@/generated/prisma";
 
 import { describe, expect, it, vi } from "vitest";
@@ -10,8 +11,15 @@ import { GroupingSchema } from "@/core/base/grouping/grouping.schema";
 import { groupingShadowColumnId } from "@/core/base/grouping/stored-grouping";
 
 import { SEED_IDS } from "../seeds/context";
-import { SYNTHETIC_CUSTOM_COLUMN_IDS, SYNTHETIC_CUSTOM_OPTION_IDS } from "../seeds/custom-fields";
+import {
+  SYNTHETIC_CUSTOM_FIELD_IDS,
+  SYNTHETIC_CUSTOM_OPTION_IDS,
+  type CustomFieldSeedData,
+} from "../seeds/custom-fields";
 import { fixtureId } from "../seeds/helpers";
+import { northwindColumns } from "../seeds/northwind-columns";
+import { NORTHWIND_CUSTOM_TYPE_KEYS, northwindModelIds } from "../seeds/northwind-model";
+import { syntheticRecordKeys } from "../seeds/record-keys";
 import {
   buildSyntheticP13nFixtures,
   persistSyntheticP13nFixtures,
@@ -20,34 +28,46 @@ import {
   type SyntheticP13nFixture,
 } from "../seeds/personalization";
 
-const customFields = {
-  customColumnIds: SYNTHETIC_CUSTOM_COLUMN_IDS,
+const customFields: CustomFieldSeedData = {
+  customFields: [],
+  customFieldValues: [],
+  customFieldIds: SYNTHETIC_CUSTOM_FIELD_IDS,
   customOptionIds: SYNTHETIC_CUSTOM_OPTION_IDS,
 };
+const { id, surface, relationship, path } = syntheticRecordKeys(SEED_IDS.company);
+const C = SYNTHETIC_CUSTOM_FIELD_IDS;
+const { fields: f } = northwindModelIds(SEED_IDS.company);
+const dealStage = f.deal.stage;
+const columns = northwindColumns(SEED_IDS.company, C);
+const LISTS = ["contact", "organization", "deal", "service", "task", ...NORTHWIND_CUSTOM_TYPE_KEYS] as const;
 
 describe("synthetic personalization fixtures", () => {
-  it("maps all legacy and entity-detail views to deterministic current column, option, and user IDs", () => {
+  it("keeps every list All state unfiltered, so All shows every record", () => {
+    const fixtures = buildSyntheticP13nFixtures({ ids: SEED_IDS }, customFields);
+    const lists = fixtures.filter(({ p13nId }) => p13nId.startsWith("records:"));
+    expect(lists).toHaveLength(LISTS.length);
+    for (const fixture of lists) expect(fixture.filters, fixture.p13nId).toEqual([]);
+  });
+
+  it("seeds list and record-detail personalization with deterministic field, option and user IDs", () => {
     const fixtures = buildSyntheticP13nFixtures({ ids: SEED_IDS }, customFields);
     const byP13nId = new Map(fixtures.map((fixture) => [fixture.p13nId, fixture]));
 
-    expect(fixtures).toHaveLength(16);
+    expect(fixtures).toHaveLength(30);
     expect(fixtures.map(({ p13nId }) => p13nId)).toEqual([
-      "contacts-card-store",
+      surface("contact"),
       "users-card-store",
-      "tasks-card-store",
+      surface("task"),
       "roles-card-store",
       "webhooks-card-store",
-      "deals-card-store",
-      "services-card-store",
-      "audit-logs-card-store",
+      surface("deal"),
+      surface("service"),
       "webhook-deliveries-card-store",
-      "organizations-card-store",
+      surface("organization"),
+      "dashboard",
       "routines-card-store",
-      "contact-detail",
-      "organization-detail",
-      "deal-detail",
-      "service-detail",
-      "task-detail",
+      ...NORTHWIND_CUSTOM_TYPE_KEYS.map((type) => surface(type)),
+      ...LISTS.map((type) => `record-detail:${id(type)}`),
     ]);
     expect(new Set(fixtures.map(({ id }) => id))).toEqual(new Set(Object.values(SYNTHETIC_P13N_IDS)));
     expect(fixtures.every(({ companyId, userId }) => companyId === SEED_IDS.company && userId === SEED_IDS.user)).toBe(
@@ -57,6 +77,7 @@ describe("synthetic personalization fixtures", () => {
       if (fixture.filters !== undefined) expect(z.array(FilterSchema).safeParse(fixture.filters).success).toBe(true);
       if (fixture.sortDescriptor !== undefined)
         expect(SortDescriptorSchema.safeParse(fixture.sortDescriptor).success).toBe(true);
+
       if (fixture.pagination !== undefined) {
         expect(PaginationRequestSchema.pick({ pageSize: true }).strict().safeParse(fixture.pagination).success).toBe(
           true,
@@ -87,94 +108,55 @@ describe("synthetic personalization fixtures", () => {
         expect(EntityDetailOptionsSchema.safeParse(fixture.detailOptions).success).toBe(true);
     }
 
-    expect(byP13nId.get("contacts-card-store")).toMatchObject({
+    expect(byP13nId.get(surface("contact"))).toMatchObject({
       columnOrder: [
-        "organizations",
-        "tasks",
-        "deals",
-        SYNTHETIC_CUSTOM_COLUMN_IDS.contactSalesPipeline,
-        SYNTHETIC_CUSTOM_COLUMN_IDS.contactPhone,
-        "channels",
-        "updatedAt",
-        "createdAt",
-        "users",
+        f.contact.jobTitle,
+        relationship("contact.organizations", "outgoing"),
+        C.contactSalesPipeline,
+        id("capability.identity"),
       ],
-      columnWidths: { tasks: 133 },
-      filters: [{ field: "userIds", operator: "in", value: [SEED_IDS.user] }],
-      hiddenColumns: ["deals", "createdAt"],
+      columnWidths: { [f.contact.jobTitle]: 220 },
+      filters: [],
       pagination: { pageSize: 100 },
-      sortDescriptor: { direction: "asc", field: "name" },
+      sortDescriptor: { direction: "asc", field: id("contact.name") },
       viewMode: "table",
     });
-    expect(byP13nId.get("tasks-card-store")).toMatchObject({
-      columnOrder: [
-        SYNTHETIC_CUSTOM_COLUMN_IDS.taskPriority,
-        SYNTHETIC_CUSTOM_COLUMN_IDS.taskStatus,
-        "updatedAt",
-        "createdAt",
-        "users",
-      ],
-      filters: [{ field: "userIds", operator: "in", value: [SEED_IDS.user] }],
-      groupingColumnId: SYNTHETIC_CUSTOM_COLUMN_IDS.taskStatus,
-      hiddenColumns: [
-        SYNTHETIC_CUSTOM_COLUMN_IDS.taskStatus,
-        "createdAt",
-        "contacts",
-        "organizations",
-        "deals",
-        "services",
-        "users",
-        "updatedAt",
-      ],
+    expect(byP13nId.get(surface("task"))).toMatchObject({
+      columnOrder: [f.task.dueDate, C.taskPriority, relationship("task.deals", "outgoing")],
+      filters: [],
+      groupingColumnId: C.taskStatus,
       viewMode: "card",
     });
-    expect(byP13nId.get("deals-card-store")).toMatchObject({
+    expect(byP13nId.get(surface("deal"))).toMatchObject({
       columnOrder: [
-        SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus,
-        "totalValue",
-        "weightedValue",
-        "tasks",
-        "totalQuantity",
-        SYNTHETIC_CUSTOM_COLUMN_IDS.dealProjectPeriod,
-        "contacts",
-        "organizations",
-        "services",
-        "users",
-        "updatedAt",
-        "createdAt",
+        id("deal.totalValue"),
+        relationship("deal.organizations", "outgoing"),
+        "system:assignedTo",
+        f.deal.openedOn,
       ],
-      groupingColumnId: SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus,
-      hiddenColumns: ["contacts", "updatedAt", "createdAt", "tasks"],
+      groupingColumnId: dealStage,
+      grouping: {
+        field: dealStage,
+        summaries: [{ fieldId: id("deal.totalValue"), aggregation: "sum" }],
+      },
       viewMode: "card",
     });
-    expect(byP13nId.get("services-card-store")).toMatchObject({
-      columnOrder: [
-        SYNTHETIC_CUSTOM_COLUMN_IDS.serviceType,
-        "amount",
-        SYNTHETIC_CUSTOM_COLUMN_IDS.servicePricing,
-        "deals",
-        "tasks",
-        "updatedAt",
-        "createdAt",
-        "users",
-      ],
-      hiddenColumns: ["createdAt", "tasks"],
+    expect(byP13nId.get("dashboard")).toMatchObject({
+      activeViewKey: ALL_VIEW_KEY,
+    });
+    expect(byP13nId.get(surface("service"))).toMatchObject({
+      columnOrder: [C.serviceType, id("service.amount"), C.servicePricing, path("service.deals.path")],
       viewMode: "table",
     });
-
-    expect(byP13nId.get("organizations-card-store")).toMatchObject({
+    expect(byP13nId.get(surface("organization"))).toMatchObject({
       columnOrder: [
-        "contacts",
-        "deals",
-        "tasks",
-        SYNTHETIC_CUSTOM_COLUMN_IDS.organizationType,
-        SYNTHETIC_CUSTOM_COLUMN_IDS.organizationWebsite,
-        "updatedAt",
-        "createdAt",
-        "users",
+        C.organizationType,
+        f.organization.industry,
+        f.organization.segment,
+        f.organization.arr,
+        "system:assignedTo",
       ],
-      columnWidths: { deals: 227, tasks: 191 },
-      hiddenColumns: ["createdAt"],
+      columnWidths: { [id("organization.name")]: 260 },
       viewMode: "table",
     });
     expect(byP13nId.get("routines-card-store")).toMatchObject({
@@ -204,72 +186,73 @@ describe("synthetic personalization fixtures", () => {
       sortDescriptor: { direction: "desc", field: "name" },
       viewMode: "table",
     });
-    expect(byP13nId.get("audit-logs-card-store")).toMatchObject({
-      columnOrder: ["event", "entityId", "createdAt", "user"],
-      hiddenColumns: ["entityId"],
-      pagination: { pageSize: 25 },
-      sortDescriptor: { direction: "desc", field: "createdAt" },
-      viewMode: "table",
-    });
     expect(byP13nId.get("webhook-deliveries-card-store")).toMatchObject({
       pagination: { pageSize: 25 },
       sortDescriptor: { direction: "desc", field: "createdAt" },
       viewMode: null,
     });
 
-    const detailIds = ["contact-detail", "organization-detail", "deal-detail", "service-detail", "task-detail"];
-    for (const id of detailIds) {
-      const entry = byP13nId.get(id);
+    for (const type of ["contact", "organization", "deal", "service", "task"] as const) {
+      const entry = byP13nId.get(`record-detail:${id(type)}`);
       const options = EntityDetailOptionsSchema.parse(entry?.detailOptions);
       expect(entry).toMatchObject({ hiddenColumns: [], viewMode: null });
       expect(options.collapsedSectionIds).toEqual([]);
-      expect(options.fieldOrder?.slice(-3)).toEqual(["userIds", "createdAt", "updatedAt"]);
+      expect(options.fieldOrder?.slice(-3)).toEqual(["system:assignedTo", "system:createdAt", "system:updatedAt"]);
       expect(new Set(options.fieldOrder).size).toBe(options.fieldOrder?.length);
-      expect(options.hiddenFieldIds).toEqual(expect.arrayContaining(["createdAt", "updatedAt"]));
-      expect(options.hiddenFieldIds).not.toContain("userIds");
-      expect(options.starredFieldIds).not.toEqual(expect.arrayContaining(["updatedAt"]));
+      expect(options.hiddenFieldIds).toEqual(expect.arrayContaining(["system:createdAt", "system:updatedAt"]));
+      expect(options.hiddenFieldIds).not.toContain("system:assignedTo");
       expect(options.fieldOrder).toEqual(expect.arrayContaining(z.array(z.string()).parse(entry?.columnOrder)));
       for (const field of [...options.starredFieldIds, ...(options.hiddenFieldIds ?? [])])
         expect(options.fieldOrder).toContain(field);
     }
-    expect(byP13nId.get("deal-detail")).toMatchObject({
-      columnOrder: [SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus, SYNTHETIC_CUSTOM_COLUMN_IDS.dealProjectPeriod],
+    expect(byP13nId.get(`record-detail:${id("deal")}`)).toMatchObject({
+      columnOrder: [C.dealStatus, C.dealProjectPeriod],
       detailOptions: {
-        starredFieldIds: ["totalValue", "totalQuantity", "organizationIds", SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus],
-        hiddenFieldIds: ["weightedValue", "contactIds", "taskIds", "createdAt", "updatedAt"],
-        fieldOrder: [
-          "name",
-          SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus,
-          "organizationIds",
-          SYNTHETIC_CUSTOM_COLUMN_IDS.dealProjectPeriod,
-          "serviceIds",
-          "totalQuantity",
-          "totalValue",
-          "weightedValue",
-          "contactIds",
-          "taskIds",
-          "userIds",
-          "createdAt",
-          "updatedAt",
+        starredFieldIds: [
+          id("deal.totalValue"),
+          dealStage,
+          f.deal.openedOn,
+          relationship("deal.organizations", "outgoing"),
+          "system:assignedTo",
+        ],
+        hiddenFieldIds: [
+          id("deal.weightedValue"),
+          relationship("deal.contacts", "outgoing"),
+          relationship("task.deals", "incoming"),
+          "system:createdAt",
+          "system:updatedAt",
         ],
       },
     });
-    expect(byP13nId.get("contact-detail")?.columnOrder).toEqual([
-      SYNTHETIC_CUSTOM_COLUMN_IDS.contactSalesPipeline,
-      SYNTHETIC_CUSTOM_COLUMN_IDS.contactPhone,
-    ]);
-    expect(byP13nId.get("organization-detail")?.columnOrder).toEqual([
-      SYNTHETIC_CUSTOM_COLUMN_IDS.organizationType,
-      SYNTHETIC_CUSTOM_COLUMN_IDS.organizationWebsite,
-    ]);
-    expect(byP13nId.get("service-detail")?.columnOrder).toEqual([
-      SYNTHETIC_CUSTOM_COLUMN_IDS.serviceType,
-      SYNTHETIC_CUSTOM_COLUMN_IDS.servicePricing,
-    ]);
-    expect(byP13nId.get("task-detail")?.columnOrder).toEqual([
-      SYNTHETIC_CUSTOM_COLUMN_IDS.taskPriority,
-      SYNTHETIC_CUSTOM_COLUMN_IDS.taskStatus,
-    ]);
+    expect(byP13nId.get(`record-detail:${id("task")}`)?.columnOrder).toEqual([C.taskPriority, C.taskStatus]);
+  });
+
+  it("curates every list's All view and record page for an overview", () => {
+    const fixtures = buildSyntheticP13nFixtures({ ids: SEED_IDS }, customFields);
+    const byP13nId = new Map(fixtures.map((fixture) => [fixture.p13nId, fixture]));
+
+    for (const type of LISTS) {
+      const list = byP13nId.get(surface(type));
+      const visible = z.array(z.string()).parse(list?.columnOrder);
+      const hidden = z.array(z.string()).parse(list?.hiddenColumns);
+      // A card shows three to five chips; a table the name plus four to six columns (three for the smallest lists).
+      expect(visible.length, type).toBeGreaterThanOrEqual(3);
+      expect(visible.length, type).toBeLessThanOrEqual(list?.viewMode === "card" ? 5 : 6);
+      expect(
+        visible.filter((column) => hidden.includes(column)),
+        type,
+      ).toEqual([]);
+      expect(new Set([...visible, ...hidden]), type).toEqual(new Set(columns.all(type)));
+      if (list?.groupingColumnId) expect(hidden, type).toContain(list.groupingColumnId);
+      expect(GroupingSchema.safeParse(list?.grouping).data?.summaries?.length ?? 0, type).toBeLessThanOrEqual(2);
+
+      const pins = EntityDetailOptionsSchema.parse(byP13nId.get(`record-detail:${id(type)}`)?.detailOptions);
+      expect(pins.starredFieldIds.length, type).toBeGreaterThanOrEqual(3);
+      expect(pins.starredFieldIds.length, type).toBeLessThanOrEqual(5);
+      expect(new Set(pins.starredFieldIds).size, type).toBe(pins.starredFieldIds.length);
+      for (const field of pins.starredFieldIds)
+        expect([...columns.all(type), id(`${type}.name`)], type).toContain(field);
+    }
   });
 
   it("upserts by the tenant-user-view key and removes only stale deterministic rows", async () => {
@@ -350,12 +333,12 @@ describe("synthetic personalization fixtures", () => {
     await persistSyntheticP13nFixtures(prisma, SEED_IDS.company, SEED_IDS.user, fixtures);
     await persistSyntheticP13nFixtures(prisma, SEED_IDS.company, SEED_IDS.user, fixtures);
 
-    expect(rows).toHaveLength(17);
+    expect(rows).toHaveLength(31);
     expect(rows.has("unrelated-p13n-row")).toBe(true);
     expect(rows.has(fixtureId(SYNTHETIC_P13N_ID_PREFIX, 999))).toBe(false);
 
     await persistSyntheticP13nFixtures(prisma, SEED_IDS.company, SEED_IDS.user, fixtures.slice(0, -1));
-    expect(rows).toHaveLength(16);
+    expect(rows).toHaveLength(30);
     expect(rows.has(fixtures.at(-1)?.id ?? "")).toBe(false);
     expect(rows.has("unrelated-p13n-row")).toBe(true);
   });

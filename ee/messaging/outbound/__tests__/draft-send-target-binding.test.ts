@@ -442,12 +442,16 @@ function chatInteractor(repo: any, service: any) {
       findUsableAccountByIdOrThrow: vi.fn().mockResolvedValue(chatAccount),
     } as never,
     {
-      findContactChannelCompanyWide: vi.fn(),
-      saveResolvedContactChannel: vi.fn(),
+      findIdentityChannelsCompanyWide: vi.fn().mockResolvedValue([]),
+      findIdentityCompanyWide: vi.fn(),
+      isRecordWritePaused: vi.fn(),
+      isRecordEditableCompanyWide: vi.fn(),
+      setIdentityResolutionCompanyWide: vi.fn(),
     } as never,
     service,
     repo,
     mockEntitlementService(),
+    { resolve: vi.fn().mockResolvedValue([]) } as never,
   );
 }
 
@@ -585,7 +589,7 @@ const emailDraftThread = {
       headline: null,
       occupation: null,
       isSelf: false,
-      contact: null,
+      record: null,
     },
   ],
 };

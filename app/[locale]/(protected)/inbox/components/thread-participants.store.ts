@@ -1,39 +1,53 @@
-import type { RootStore } from "@/core/stores/root.store";
 import { BaseStore } from "@/core/base/base.store";
-import type { MessagingAttendee } from "@/ee/messaging/messaging.schema";
-import type { IdentifierInput } from "@/features/contacts/contact.schema";
+import type { RootStore } from "@/core/stores/root.store";
+import type { IdentityRecordCreateChoice } from "@/features/records/get-identity-record-choices.interactor";
+import type { RecordIdentityReference } from "@/features/records/record-identity-reference.schema";
+import type { RecordIdentityInput } from "@/features/records/record-identity.schema";
+import type { RecordRef } from "@/features/records/record-model.schema";
+import type { MutateRecordInput, RecordOperationResult } from "@/features/records/record-query.schema";
 
-import { action, computed, makeObservable, observable, runInAction } from "mobx";
+import { action, computed, makeObservable, observable, runInAction, toJS } from "mobx";
 
-import { createContactByNameAction, getContactsAction } from "../../contacts/actions";
+import { channelClass } from "@/ee/messaging/provider";
+import { normalizeChannelValue } from "@/features/records/channel-value";
+import { getRecordAction, mutateRecordAction } from "../../records/actions";
+import { getIdentityRecordChoicesAction } from "../actions";
 
-import { linkContactToThreadAction, unlinkContactFromThreadAction } from "../actions";
-
-import { isHandleProvider } from "@/ee/messaging/provider";
-import { Debouncer } from "@/core/utils/debounce";
 import { reportApplicationError } from "@/core/errors/report-application-error";
+import { Debouncer } from "@/core/utils/debounce";
+import { isHandleProvider } from "@/ee/messaging/provider";
 
-type ActionOutcome = { ok: boolean };
+type ActionOutcome = { ok: boolean; pending?: boolean };
 
-type ContactRow = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  avatarUrl: string | null;
-};
+function identityInput(row: RecordIdentityInput): RecordIdentityInput {
+  return {
+    provider: row.provider,
+    value: row.value,
+    messagingId: row.messagingId,
+    displayName: row.displayName,
+    profileUrl: row.profileUrl,
+  };
+}
 
 export class ThreadParticipantsStore extends BaseStore {
   isOpen = false;
   activeIdentifier: string | null = null;
   query = "";
-  results: ContactRow[] = [];
+  results: RecordIdentityReference[] = [];
+  createTypes: IdentityRecordCreateChoice[] = [];
+  schemaRevision = 0;
+  pendingOperationId: string | null = null;
   isLoading = false;
   searchError = false;
   pending = false;
+  canManageRecords = false;
 
+  private retryMutation: { key: string; input: MutateRecordInput } | null = null;
   private threadId = "";
   private debouncer = new Debouncer();
   private searchGeneration = 0;
+  private sessionGeneration = 0;
+  private bindingGeneration = 0;
 
   constructor(rootStore: RootStore) {
     super(rootStore);
@@ -42,9 +56,14 @@ export class ThreadParticipantsStore extends BaseStore {
       activeIdentifier: observable,
       query: observable,
       results: observable,
+      createTypes: observable,
+      pendingOperationId: observable,
+      operationCompleted: action,
       isLoading: observable,
       searchError: observable,
       pending: observable,
+      canManageRecords: observable,
+      operationStopped: action,
       isSearching: computed,
       showCreate: computed,
       bind: action,
@@ -64,22 +83,43 @@ export class ThreadParticipantsStore extends BaseStore {
   }
 
   get showCreate(): boolean {
-    return this.query.trim().length > 0 && !this.isLoading && !this.searchError && this.results.length === 0;
+    return (
+      this.createTypes.length > 0 &&
+      this.query.trim().length > 0 &&
+      !this.isLoading &&
+      !this.searchError &&
+      this.results.length === 0
+    );
   }
 
   bind = (threadId: string) => {
+    this.sessionGeneration += 1;
+    this.bindingGeneration += 1;
     this.threadId = threadId;
     this.isOpen = false;
+    this.pending = false;
+    this.pendingOperationId = null;
+    this.retryMutation = null;
     this.reset();
+    this.canManageRecords = false;
+    void this.loadCapabilities(threadId);
   };
 
   setOpen = (next: boolean) => {
+    if (next !== this.isOpen) {
+      this.sessionGeneration += 1;
+      this.pending = false;
+      this.retryMutation = null;
+    }
     this.isOpen = next;
     this.reset();
     if (!next) void this.rootStore.messagingThreadDetailStore.refresh().catch(reportApplicationError);
   };
 
   startLink = (identifier: string) => {
+    this.sessionGeneration += 1;
+    this.pending = false;
+    this.retryMutation = null;
     this.activeIdentifier = identifier;
     this.query = "";
     this.results = [];
@@ -88,9 +128,13 @@ export class ThreadParticipantsStore extends BaseStore {
   };
 
   backToList = () => {
+    this.sessionGeneration += 1;
+    this.pending = false;
+    this.retryMutation = null;
     this.activeIdentifier = null;
     this.query = "";
     this.results = [];
+    this.createTypes = [];
     this.isLoading = false;
     this.searchError = false;
     this.searchGeneration += 1;
@@ -110,125 +154,191 @@ export class ThreadParticipantsStore extends BaseStore {
     await this.refresh();
   };
 
-  link = async (identifier: string, contactId: string): Promise<void> => {
-    const picked = this.results.find((c) => c.id === contactId) ?? null;
-    await this.mutate(
-      () => {
-        const args = this.linkArgsFor(identifier, contactId);
-        return args ? linkContactToThreadAction(args) : Promise.resolve({ ok: true as const });
-      },
-      () =>
-        this.rootStore.messagingThreadDetailStore.applyParticipantContact(
-          this.threadId,
-          identifier,
-          picked
-            ? {
-                id: picked.id,
-                firstName: picked.firstName,
-                lastName: picked.lastName,
-                avatarUrl: picked.avatarUrl,
-              }
-            : null,
-        ),
-    );
-  };
-
-  unlink = async (identifier: string): Promise<void> => {
-    await this.mutate(
-      () => {
-        const args = this.unlinkArgsFor(identifier);
-        return args ? unlinkContactFromThreadAction(args) : Promise.resolve({ ok: true as const });
-      },
-      () => this.rootStore.messagingThreadDetailStore.applyParticipantContact(this.threadId, identifier, null),
-    );
-  };
-
-  createAndAssign = async (identifier: string, name: string): Promise<void> => {
-    const trimmed = name.trim();
-    if (!trimmed) return;
+  link = async (identifier: string, reference: RecordRef): Promise<void> => {
+    const ref = { typeId: reference.typeId, recordId: reference.recordId };
     const linked = this.identifierInputFor(identifier);
     if (!linked) return;
-    let createdContact: MessagingAttendee["contact"] = null;
-    await this.mutate(
-      async () => {
-        const created = await createContactByNameAction(trimmed, this.rootStore.userStore.user?.id, linked);
-        if (!created.ok) return { ok: false as const };
-        createdContact = {
-          id: created.data.id,
-          firstName: created.data.firstName,
-          lastName: created.data.lastName,
-          avatarUrl: created.data.avatarUrl ?? null,
+    await this.mutate((session) =>
+      this.executeMutation(session, `link:${JSON.stringify([ref, linked])}`, async () => {
+        const loaded = await getRecordAction(toJS(ref));
+        if (!loaded.ok) return null;
+        const previous = loaded.data.identities?.map(identityInput) ?? [];
+        if (
+          !previous.some(
+            (row) =>
+              channelClass(row.provider) === channelClass(linked.provider) &&
+              (row.value === linked.value || (linked.messagingId && row.messagingId === linked.messagingId)),
+          )
+        )
+          previous.push(linked);
+        return {
+          expectedRevision: loaded.data.schemaRevision,
+          idempotencyKey: crypto.randomUUID(),
+          mutation: { action: "update", ref, expectedVersion: loaded.data.version, fields: [], identities: previous },
         };
-        return { ok: true as const };
-      },
-      async () => {
-        if (createdContact) {
-          await this.rootStore.messagingThreadDetailStore.applyParticipantContact(
-            this.threadId,
-            identifier,
-            createdContact,
-          );
-        }
-      },
+      }),
     );
   };
 
-  private identifierInputFor(identifier: string): IdentifierInput | null {
+  unlink = async (identifier: string, reference: RecordRef): Promise<void> => {
+    const thread = this.rootStore.messagingThreadDetailStore.thread;
+    const association = thread?.participants
+      .find((participant) => participant.identifier === identifier)
+      ?.records.find((record) => record.ref.typeId === reference.typeId && record.ref.recordId === reference.recordId);
+    if (!thread || !association) return;
+    const ref = { typeId: reference.typeId, recordId: reference.recordId };
+    await this.mutate((session) =>
+      this.executeMutation(session, `unlink:${JSON.stringify([ref, thread.provider, identifier])}`, async () => {
+        const loaded = await getRecordAction(toJS(ref));
+        if (!loaded.ok) return null;
+        const normalized = normalizeChannelValue(thread.provider, identifier) ?? identifier;
+        const identities =
+          loaded.data.identities
+            ?.filter(
+              (row) =>
+                !(
+                  row.id === association.identityId ||
+                  (channelClass(row.provider) === channelClass(thread.provider) &&
+                    (row.value === normalized || row.messagingId === identifier))
+                ),
+            )
+            .map(identityInput) ?? [];
+        return {
+          expectedRevision: loaded.data.schemaRevision,
+          idempotencyKey: crypto.randomUUID(),
+          mutation: { action: "update", ref, expectedVersion: loaded.data.version, fields: [], identities },
+        };
+      }),
+    );
+  };
+
+  createAndAssign = async (identifier: string, name: string, typeId?: string): Promise<void> => {
+    const trimmed = name.trim();
+    const linked = this.identifierInputFor(identifier);
+    const choice = typeId
+      ? this.createTypes.find((type) => type.typeId === typeId)
+      : this.createTypes.length === 1
+        ? this.createTypes[0]
+        : null;
+    if (!trimmed || !linked || !choice) return;
+    await this.mutate((session) =>
+      this.executeMutation(session, `create:${JSON.stringify([choice.typeId, trimmed, linked])}`, () => {
+        const [first, ...rest] = trimmed.split(/\s+/);
+        return Promise.resolve({
+          expectedRevision: this.schemaRevision,
+          idempotencyKey: crypto.randomUUID(),
+          mutation: {
+            action: "create",
+            typeId: choice.typeId,
+            assignedUserIds: this.rootStore.userStore.user ? [this.rootStore.userStore.user.id] : [],
+            fields: choice.nameFieldIds.map((fieldId, index) => ({
+              fieldId,
+              value: {
+                kind: "text",
+                value: choice.nameFieldIds.length === 1 ? trimmed : index === 0 ? first : rest.join(" "),
+              },
+            })),
+            identities: [linked],
+          },
+        });
+      }),
+    );
+  };
+
+  operationCompleted = async () => {
+    runInAction(() => {
+      this.pendingOperationId = null;
+    });
+    await this.rootStore.messagingThreadDetailStore.refresh();
+    await this.rootStore.recordWorkspaceStore.invalidate();
+  };
+
+  operationStopped = () => {
+    this.pendingOperationId = null;
+  };
+
+  private async loadCapabilities(threadId: string) {
+    const binding = this.bindingGeneration;
+    try {
+      const result = await getIdentityRecordChoicesAction("");
+      runInAction(() => {
+        if (this.threadId === threadId && binding === this.bindingGeneration) this.canManageRecords = result.canManage;
+      });
+    } catch (error) {
+      reportApplicationError(error);
+    }
+  }
+
+  private async executeMutation(
+    session: number,
+    key: string,
+    prepare: () => Promise<MutateRecordInput | null>,
+  ): Promise<ActionOutcome> {
+    const actor = this.rootStore.userStore.user;
+    const scopedKey = JSON.stringify([actor?.companyId, actor?.id, key]);
+    let request = this.retryMutation;
+    if (request?.key !== scopedKey) {
+      const input = await prepare();
+      if (!input || session !== this.sessionGeneration) return { ok: false };
+      request = { key: scopedKey, input };
+      this.retryMutation = request;
+    }
+    if (session !== this.sessionGeneration) return { ok: false };
+    const result = await mutateRecordAction(toJS(request.input));
+    if (session === this.sessionGeneration && this.retryMutation === request) this.retryMutation = null;
+    return result.ok ? this.acceptOperation(result.data, session) : { ok: false };
+  }
+
+  private acceptOperation(result: RecordOperationResult, session: number): ActionOutcome {
+    if (result.status === "pending" && session === this.sessionGeneration) {
+      runInAction(() => {
+        this.pendingOperationId = result.operationId;
+      });
+    }
+    return { ok: true, pending: result.status === "pending" };
+  }
+
+  private identifierInputFor(identifier: string): RecordIdentityInput | null {
     const thread = this.rootStore.messagingThreadDetailStore.thread;
     if (!thread) return null;
-
     const participant = thread.participants.find((p) => p.identifier === identifier) ?? null;
+    const raw = isHandleProvider(thread.provider) && participant?.profileUrl ? participant.profileUrl : identifier;
+    const value =
+      normalizeChannelValue(thread.provider, raw) ?? (isHandleProvider(thread.provider) ? identifier.trim() : null);
+    if (!value) return null;
     return {
       provider: thread.provider,
-      value: identifier,
+      value,
       messagingId: isHandleProvider(thread.provider) ? identifier : undefined,
       displayName: participant?.displayName ?? undefined,
       profileUrl: participant?.profileUrl ?? undefined,
     };
   }
 
-  private linkArgsFor(identifier: string, contactId: string) {
-    const thread = this.rootStore.messagingThreadDetailStore.thread;
-    if (!thread) return null;
-    const participant = thread.participants.find((p) => p.identifier === identifier) ?? null;
-    return {
-      contactId,
-      provider: thread.provider,
-      identifier,
-      displayName: participant?.displayName ?? undefined,
-      profileUrl: participant?.profileUrl ?? undefined,
-    };
-  }
-
-  private unlinkArgsFor(identifier: string) {
-    const thread = this.rootStore.messagingThreadDetailStore.thread;
-    const participant = thread?.participants.find((p) => p.identifier === identifier) ?? null;
-    const ownerId = participant?.contact?.id;
-    return thread && ownerId ? { contactId: ownerId, provider: thread.provider, identifier } : null;
-  }
-
-  private mutate = async (
-    run: () => Promise<ActionOutcome>,
-    applyOptimistic: () => void | Promise<void>,
-  ): Promise<void> => {
+  private mutate = async (run: (session: number) => Promise<ActionOutcome>): Promise<void> => {
+    if (this.pending || this.pendingOperationId) return;
+    const session = this.sessionGeneration;
     runInAction(() => {
       this.pending = true;
     });
     let succeeded = false;
     try {
-      const result = await run();
+      const result = await run(session);
       succeeded = result.ok;
-      if (succeeded) await applyOptimistic();
+      if (succeeded && !result.pending) {
+        if (session === this.sessionGeneration) await this.operationCompleted().catch(reportApplicationError);
+        else await this.rootStore.recordWorkspaceStore.invalidate().catch(reportApplicationError);
+      }
     } catch {
       succeeded = false;
     } finally {
-      runInAction(() => {
-        this.pending = false;
-        this.activeIdentifier = null;
-        this.query = "";
-        this.results = [];
-      });
-      if (!succeeded) this.toastError("Inbox.participants.linkUpdateFailed");
+      if (session === this.sessionGeneration) {
+        runInAction(() => {
+          this.pending = false;
+          if (succeeded) this.reset();
+        });
+        if (!succeeded) this.toastError("Inbox.participants.linkUpdateFailed");
+      }
     }
   };
 
@@ -236,6 +346,7 @@ export class ThreadParticipantsStore extends BaseStore {
     this.activeIdentifier = null;
     this.query = "";
     this.results = [];
+    this.createTypes = [];
     this.isLoading = false;
     this.searchError = false;
     this.searchGeneration += 1;
@@ -258,18 +369,21 @@ export class ThreadParticipantsStore extends BaseStore {
     });
 
     try {
-      const result = await getContactsAction({
-        searchTerm: requestedQuery,
-        pagination: { page: 1, pageSize: 10 },
-      });
+      const result = await getIdentityRecordChoicesAction(requestedQuery);
       runInAction(() => {
         if (!isCurrent()) return;
-        this.results = result.items.map((c) => ({
-          id: c.id,
-          firstName: c.firstName,
-          lastName: c.lastName,
-          avatarUrl: c.avatarUrl,
-        }));
+        const linked =
+          this.rootStore.messagingThreadDetailStore.thread?.participants.find(
+            (participant) => participant.identifier === requestedIdentifier,
+          )?.records ?? [];
+        this.results = result.records.filter(
+          (record) =>
+            !linked.some(
+              (existing) => existing.ref.typeId === record.ref.typeId && existing.ref.recordId === record.ref.recordId,
+            ),
+        );
+        this.createTypes = result.createTypes;
+        this.schemaRevision = result.schemaRevision;
       });
     } catch {
       runInAction(() => {

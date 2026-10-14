@@ -10,7 +10,7 @@ import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
 type FeedbackSender = Pick<TenantUser, "email" | "firstName" | "lastName">;
 
-export type FeedbackCreatorData = {
+type FeedbackCreatorData = {
   details: string;
   subject: string;
   user: FeedbackSender;

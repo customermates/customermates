@@ -38,9 +38,9 @@ describe("formatSupportTranscript", () => {
     expect(transcript).toHaveLength("user: ".length + SUPPORT_TRANSCRIPT_LINE_MAX_CHARS);
   });
 
-  it("redacts internal output and the legacy page-context marker before it leaves the product", () => {
+  it("redacts internal output and page-context markup before it leaves the product", () => {
     const transcript = formatSupportTranscript([
-      message("user", '<page_context route="/en/dashboard"/>\nPlease help'),
+      message("user", 'Please help <page_context route="/en/dashboard"/>'),
       message("assistant", "I looked at 00000000-0000-4000-8000-000000000001. apiKey=never-show"),
       message("provider", "modelId=gpt-5.6-luna; inputTokens=321"),
     ]);

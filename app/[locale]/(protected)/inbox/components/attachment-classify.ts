@@ -11,17 +11,9 @@ export type { AttachmentKind };
 export type AttachmentMeta = MessagingMessageDto["attachmentsMeta"][number];
 export type InboxT = (key: string, values?: Record<string, string | number>) => string;
 
-export function formatDuration(seconds: number | null | undefined): string | null {
-  if (typeof seconds !== "number" || !Number.isFinite(seconds) || seconds < 0) return null;
-  const total = Math.round(seconds);
-  const m = Math.floor(total / 60);
-  const s = total % 60;
-  return `${m}:${s.toString().padStart(2, "0")}`;
-}
-
 const BYTE_UNITS = ["B", "KB", "MB", "GB", "TB"];
 
-export type FormatNumber = (value: number | undefined, options?: { maximumFractionDigits?: number }) => string;
+type FormatNumber = (value: number | undefined, options?: { maximumFractionDigits?: number }) => string;
 
 export function formatBytes(size: number | null | undefined, formatNumber?: FormatNumber): string | null {
   if (typeof size !== "number" || !Number.isFinite(size) || size <= 0) return null;
@@ -44,13 +36,13 @@ export function describeFile(input: { mime?: string | null; fileName?: string | 
   const has = (m: string, e: string[]) => mime.includes(m) || e.includes(ext);
 
   if (mime === "application/pdf" || ext === "pdf")
-    return { Icon: FileText, typeLabelKey: "Inbox.fileTypePdf", accent: "text-red-500" };
+    return { Icon: FileText, typeLabelKey: "Inbox.fileTypePdf", accent: "text-destructive" };
   if (has("wordprocessingml", ["doc", "docx"]) || mime === "application/msword")
-    return { Icon: FileText, typeLabelKey: "Inbox.fileTypeWord", accent: "text-blue-500" };
+    return { Icon: FileText, typeLabelKey: "Inbox.fileTypeWord", accent: "text-primary" };
   if (has("spreadsheetml", ["xls", "xlsx", "csv"]) || mime === "application/vnd.ms-excel")
-    return { Icon: FileSpreadsheet, typeLabelKey: "Inbox.fileTypeExcel", accent: "text-emerald-600" };
+    return { Icon: FileSpreadsheet, typeLabelKey: "Inbox.fileTypeExcel", accent: "text-success" };
   if (has("presentationml", ["ppt", "pptx"]) || mime === "application/vnd.ms-powerpoint")
-    return { Icon: Presentation, typeLabelKey: "Inbox.fileTypePowerpoint", accent: "text-orange-500" };
+    return { Icon: Presentation, typeLabelKey: "Inbox.fileTypePowerpoint", accent: "text-warning" };
   if (mime.startsWith("image/"))
     return { Icon: FileImage, typeLabelKey: "Inbox.fileTypeImage", accent: "text-muted-foreground" };
   return { Icon: FileIcon, typeLabelKey: "Inbox.attachmentFile", accent: "text-muted-foreground" };

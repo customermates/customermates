@@ -3,6 +3,7 @@ import type { Root as ReactRoot } from "react-dom/client";
 import type { BaseFormStore } from "@/core/base/base-form.store";
 
 import { act, createElement } from "react";
+import { createPortal } from "react-dom";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -13,7 +14,7 @@ vi.mock("@/components/modal/use-navigation-guard", () => ({
   useNavigationGuard: vi.fn(),
 }));
 
-import { AppForm } from "../form-context";
+import { AppForm, AppFormProvider, useAppForm } from "../form-context";
 import { registerApplicationErrorHandler } from "@/core/errors/report-application-error";
 
 type TestAppFormProps = Omit<ComponentProps<typeof AppForm>, "children"> & {
@@ -37,6 +38,56 @@ afterEach(() => {
 });
 
 describe("AppForm submission boundary", () => {
+  it("provides an inline editor store inside the parent form without nesting forms", () => {
+    const parent = {} as BaseFormStore;
+    const child = {} as BaseFormStore;
+    const InlineField = () => createElement("input", { "data-has-store": useAppForm() === child });
+    container = document.createElement("div");
+    document.body.append(container);
+    root = createRoot(container);
+    act(() => {
+      root?.render(
+        createElement(
+          TestAppForm,
+          { store: parent },
+          createElement(AppFormProvider, { store: child }, createElement(InlineField)),
+        ),
+      );
+    });
+    expect(container.querySelectorAll("form")).toHaveLength(1);
+    expect(container.querySelector("[data-has-store=true]")).not.toBeNull();
+  });
+
+  it("submits a portaled child form without submitting its parent", () => {
+    const parentSubmit = vi.fn();
+    const childSubmit = vi.fn();
+    const parent = { onSubmit: parentSubmit } as unknown as BaseFormStore;
+    const child = { onSubmit: childSubmit } as unknown as BaseFormStore;
+    container = document.createElement("div");
+    document.body.append(container);
+    const portal = document.createElement("div");
+    container.append(portal);
+    const mount = document.createElement("div");
+    container.append(mount);
+    root = createRoot(mount);
+    act(() => {
+      root?.render(
+        createElement(
+          TestAppForm,
+          { store: parent },
+          createPortal(createElement(TestAppForm, { store: child }, "Child"), portal),
+        ),
+      );
+    });
+    const form = portal.querySelector("form");
+    expect(form).not.toBeNull();
+    act(() => {
+      form?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+    });
+    expect(childSubmit).toHaveBeenCalledTimes(1);
+    expect(parentSubmit).not.toHaveBeenCalled();
+  });
+
   it("reports a rejected store submission instead of dropping its promise", async () => {
     const error = new TypeError("Failed to fetch");
     const onSubmit = vi.fn().mockRejectedValue(error);

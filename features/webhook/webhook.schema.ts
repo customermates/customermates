@@ -3,11 +3,47 @@ import type { Data } from "@/core/validation/validation.utils";
 import { z } from "zod";
 
 import { zx } from "@/core/validation/validation.utils";
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import {
+  RecordTriggerDefinitionSchema,
+  RecordTriggerSourceSchema,
+} from "@/features/records/record-event-subscription.schema";
 import { WEBHOOK_EVENTS } from "./webhook-event-registry";
 
 export const WebhookEventSchema = z.enum(WEBHOOK_EVENTS);
 
 export const WEBHOOK_MASKED_VALUE = "********";
+
+export const WEBHOOK_URL_MAX_CHARS = 2048;
+
+export function isWebhookEndpointUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return (
+      (url.protocol === "http:" || url.protocol === "https:") && Boolean(url.hostname) && !url.username && !url.password
+    );
+  } catch {
+    return false;
+  }
+}
+
+export const WebhookEndpointSchema = zx
+  .secureUrl()
+  .superRefine((value, ctx) => {
+    if (!z.url({ protocol: /^(https?|mailto|tel)$/ }).safeParse(value).success) return;
+    if (value.length > WEBHOOK_URL_MAX_CHARS) {
+      ctx.addIssue({
+        code: "custom",
+        params: { error: CustomErrorCode.webhookUrlTooLong, maximum: WEBHOOK_URL_MAX_CHARS },
+      });
+    }
+    if (!isWebhookEndpointUrl(value))
+      ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.webhookEndpointInvalid } });
+  })
+  .meta({ maxLength: WEBHOOK_URL_MAX_CHARS })
+  .describe("HTTP or HTTPS endpoint with a valid host and no username or password");
+
+const WEBHOOK_PAUSE_REASONS = ["triggerFieldDeleted"] as const;
 
 export const WebhookDtoSchema = z.object({
   id: z.uuid(),
@@ -18,6 +54,14 @@ export const WebhookDtoSchema = z.object({
   headers: z.record(z.string(), z.string()).nullable(),
   bodyTemplate: z.string().nullable(),
   enabled: z.boolean(),
+  pausedReason: z
+    .enum(WEBHOOK_PAUSE_REASONS)
+    .nullable()
+    .optional()
+    .describe("Why the webhook was paused automatically, for example its only trigger field was deleted."),
+  recordTrigger: RecordTriggerDefinitionSchema.nullable().optional(),
+  recordSources: z.array(RecordTriggerSourceSchema).nullable().optional(),
+  recordOwnerUserId: z.uuid().nullable().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });

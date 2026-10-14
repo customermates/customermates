@@ -11,6 +11,7 @@ import { getMessagingThreadAction, updateThreadAction, resyncThreadAction, moveE
 import { isDraftThreadId, isEmailProvider } from "@/ee/messaging/provider";
 import { MESSAGING_RATE_LIMITS_DOCS_PATH } from "./lazy-media";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { serializedFailureErrorTree } from "@/core/validation/validation.utils";
 
 export type ThreadDetail = {
   thread: MessagingThread;
@@ -51,7 +52,7 @@ export class MessagingThreadDetailStore extends BaseStore {
       toggleSharing: action,
       resyncThread: action,
       loadOlderMessages: action,
-      applyParticipantContact: action,
+      applyParticipantRecord: action,
       appendMessage: action,
       replaceMessageById: action,
       removeMessageById: action,
@@ -159,7 +160,7 @@ export class MessagingThreadDetailStore extends BaseStore {
         state: next,
       });
       if (!result.ok) {
-        toastZodErrorTree(result.error);
+        toastZodErrorTree(serializedFailureErrorTree(result.failure));
         return;
       }
 
@@ -261,7 +262,11 @@ export class MessagingThreadDetailStore extends BaseStore {
           if (this.thread?.id === thread.id) this.thread.sharedToCrm = result.ok ? shared : previous;
         });
         if (!result.ok) {
-          this.toastError("Inbox.shareToCrmUpdateFailed");
+          this.toastError(
+            result.failure.kind === "authorization"
+              ? "Inbox.shareToCrmPermissionDenied"
+              : "Inbox.shareToCrmUpdateFailed",
+          );
           return;
         }
         this.toastSuccess(shared ? "Inbox.shareToCrmSharedToast" : "Inbox.shareToCrmPrivateToast");
@@ -324,10 +329,10 @@ export class MessagingThreadDetailStore extends BaseStore {
     }
   };
 
-  applyParticipantContact = async (threadId: string, identifier: string, contact: MessagingAttendee["contact"]) => {
+  applyParticipantRecord = async (threadId: string, identifier: string, records: MessagingAttendee["records"]) => {
     const patch = (participants: MessagingAttendee[]) =>
       participants.map((participant) =>
-        participant.identifier === identifier ? { ...participant, contact } : participant,
+        participant.identifier === identifier ? { ...participant, records } : participant,
       );
 
     runInAction(() => {
@@ -335,7 +340,7 @@ export class MessagingThreadDetailStore extends BaseStore {
         this.refreshGeneration += 1;
         this.thread.participants = patch(this.thread.participants);
         this.messages = this.messages.map((message) =>
-          message.sender.identifier === identifier ? { ...message, sender: { ...message.sender, contact } } : message,
+          message.sender.identifier === identifier ? { ...message, sender: { ...message.sender, records } } : message,
         );
       }
     });

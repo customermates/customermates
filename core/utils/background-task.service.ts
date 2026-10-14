@@ -8,7 +8,7 @@ import { tenantStorage } from "@/core/decorators/tenant-context";
 import { transactionStorage } from "@/core/decorators/transaction-context";
 import { WORKFLOW_REGISTRY } from "@/workflows/registry";
 
-export const VERCEL_WORKFLOW_REGION = "fra1";
+const VERCEL_WORKFLOW_REGION = "fra1";
 
 function currentTenant(): WorkflowTenant | undefined {
   const user = tenantStorage.getStore()?.user;

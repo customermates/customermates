@@ -12,7 +12,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical } from "lucide-react";
+import { DragHandle } from "@/components/shared/drag-handle";
 import { useTranslations } from "next-intl";
 import { createContext, useContext, useId } from "react";
 
@@ -20,7 +20,7 @@ import { cn } from "@/core/utils/cn";
 import { useEntityDetailPersonalization } from "./entity-detail-personalization";
 import { resolveDetailFieldOrder } from "./entity-detail-personalization.utils";
 
-type Field = { id: string; content: ReactNode };
+type Field = { id: string; label?: string; content: ReactNode };
 
 const SortableFieldContext = createContext<ReturnType<typeof useSortable> | null>(null);
 
@@ -55,17 +55,14 @@ export function EntityDetailFieldDragHandle({ label }: { label: string }) {
   if (!sortable || !enabled || !isPersonalizing) return null;
 
   return (
-    <button
-      ref={sortable.setActivatorNodeRef}
-      {...sortable.attributes}
-      {...sortable.listeners}
+    <DragHandle
       data-field-drag-handle
-      aria-label={`${t("DataView.dragToReorder")}: ${label}`}
-      className="flex size-5 shrink-0 touch-none items-center justify-center rounded text-muted-foreground cursor-grab hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:cursor-grabbing"
-      type="button"
-    >
-      <GripVertical className="size-3.5" />
-    </button>
+      attributes={sortable.attributes}
+      className="size-5"
+      label={t("DataView.dragToReorderNamed", { name: label })}
+      listeners={sortable.listeners}
+      setActivatorNodeRef={sortable.setActivatorNodeRef}
+    />
   );
 }
 
@@ -84,6 +81,7 @@ export function EntityDetailFields({ fields }: { fields: Field[] }) {
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
+      scrollBehavior: "auto",
     }),
   );
   const availableFields = fields.filter(
@@ -97,6 +95,8 @@ export function EntityDetailFields({ fields }: { fields: Field[] }) {
   const visibleIds = orderedIds.filter(
     (id) => !enabled || !applyFieldVisibility || isPersonalizing || !hiddenFieldIds.includes(id),
   );
+  const t = useTranslations();
+  const label = (id: string | number) => fieldsById.get(String(id))?.label ?? t("EntityDetail.overview");
 
   function handleDragEnd({ active, over }: DragEndEvent) {
     if (!enabled || !isPersonalizing || !over || active.id === over.id) return;
@@ -108,7 +108,22 @@ export function EntityDetailFields({ fields }: { fields: Field[] }) {
   }
 
   return (
-    <DndContext collisionDetection={closestCenter} id={contextId} sensors={sensors} onDragEnd={handleDragEnd}>
+    <DndContext
+      accessibility={{
+        screenReaderInstructions: { draggable: t("EntityDetail.reorderInstructions") },
+        announcements: {
+          onDragStart: ({ active }) => t("EntityDetail.fieldPickedUp", { field: label(active.id) }),
+          onDragOver: ({ active, over }) =>
+            over ? t("EntityDetail.fieldMoved", { field: label(active.id), target: label(over.id) }) : undefined,
+          onDragEnd: ({ active }) => t("EntityDetail.fieldDropped", { field: label(active.id) }),
+          onDragCancel: ({ active }) => t("EntityDetail.fieldCancelled", { field: label(active.id) }),
+        },
+      }}
+      collisionDetection={closestCenter}
+      id={contextId}
+      sensors={sensors}
+      onDragEnd={handleDragEnd}
+    >
       <SortableContext items={visibleIds} strategy={verticalListSortingStrategy}>
         <div className="flex min-w-0 flex-col gap-4" data-detail-field-list="overview">
           {visibleIds.map((id) => (

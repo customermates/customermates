@@ -10,7 +10,7 @@ const featureItemSchema = z.object({
 });
 export type FeatureItem = z.infer<typeof featureItemSchema>;
 
-export const featureSchema = z.object({
+const featureSchema = z.object({
   features: z.array(featureItemSchema),
   gridCols: z.string().optional(),
   hasSecondaryBackground: z.boolean().optional(),

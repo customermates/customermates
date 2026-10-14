@@ -48,11 +48,11 @@ import { AgentComposerContexts } from "../agent-composer-contexts";
 
 const INITIAL_CONTEXTS: AgentContextAttachment[] = [
   {
-    reference: { kind: "record", entityType: "contact", recordId: "contact-1" },
+    reference: { kind: "record", typeId: "10000000-0000-4000-8000-000000000001", recordId: "contact-1" },
     label: "Ada Lovelace",
   },
   {
-    reference: { kind: "record", entityType: "organization", recordId: "organization-1" },
+    reference: { kind: "record", typeId: "10000000-0000-4000-8000-000000000002", recordId: "organization-1" },
     label: "Analytical Engines",
   },
 ];

@@ -1,14 +1,15 @@
 import type { Filter, SortDescriptor } from "@/core/base/base-get.schema";
 import type { Grouping } from "@/core/base/grouping/grouping.schema";
+import { sameGrouping } from "@/core/base/grouping/grouping.schema";
 import type { DataViewState } from "./data-view-state.schema";
 
 import { ViewMode } from "@/core/base/base-query-builder";
 
 import { DATA_VIEW_STATE_FIELDS } from "./data-view-state.schema";
 
-export const DEFAULT_DATA_VIEW_PAGE_SIZE = 100;
+const DEFAULT_DATA_VIEW_PAGE_SIZE = 100;
 
-export type DataViewPageSize = 5 | 10 | 25 | 100;
+type DataViewPageSize = 5 | 10 | 25 | 100;
 
 const PARAM_CARRIED_FIELDS = new Set<keyof DataViewState>([
   "filters",
@@ -28,12 +29,7 @@ export type DataViewParamsLayer = {
   grouping?: Grouping | null;
 };
 
-export type DataViewDefaultsLayer = {
-  filters?: Filter[];
-  searchTerm?: string;
-  sortDescriptor?: SortDescriptor;
-  pageSize?: DataViewPageSize;
-};
+export type DataViewDefaultsLayer = DataViewState;
 
 export type ResolvedDataViewState = {
   filters: Filter[];
@@ -47,7 +43,7 @@ export type ResolvedDataViewState = {
   hiddenColumns: string[];
 };
 
-export type ResolveDataViewStateArgs = {
+type ResolveDataViewStateArgs = {
   params?: DataViewParamsLayer;
   base?: DataViewState;
   defaults?: DataViewDefaultsLayer;
@@ -77,12 +73,23 @@ export function resolveDataViewState({ params, base, defaults }: ResolveDataView
     }
   }
 
+  const stored = [base?.grouping, defaults?.grouping].find((grouping) =>
+    sameGrouping(grouping, out.grouping as Grouping | null | undefined),
+  );
+  const requested = params?.grouping;
+  if (stored) {
+    out.grouping =
+      requested && stored !== requested && requested.summaries !== undefined
+        ? { ...stored, summaries: requested.summaries }
+        : stored;
+  }
+
   const searchTerm = out.searchTerm as string | undefined;
 
   return {
     filters: (out.filters as Filter[] | undefined) ?? [],
     searchTerm: searchTerm === "" ? undefined : searchTerm,
-    sortDescriptor: (out.sortDescriptor as SortDescriptor | null | undefined) ?? defaults?.sortDescriptor,
+    sortDescriptor: (out.sortDescriptor as SortDescriptor | null | undefined) ?? defaults?.sortDescriptor ?? undefined,
     pageSize: (out.pageSize as DataViewPageSize | undefined) ?? defaults?.pageSize ?? DEFAULT_DATA_VIEW_PAGE_SIZE,
     viewMode: (out.viewMode as ViewMode | undefined) ?? ViewMode.table,
     grouping: (out.grouping as Grouping | null | undefined) ?? undefined,

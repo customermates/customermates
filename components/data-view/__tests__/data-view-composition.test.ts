@@ -13,11 +13,11 @@ const harness = vi.hoisted(() => ({
 
 vi.mock("mobx-react-lite", () => ({ observer: <T>(component: T) => component }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
-vi.mock("@/components/entity-terminology/use-column-label", () => ({
+vi.mock("@/components/data-view/use-column-label", () => ({
   useColumnLabel: () => (id: string) => id,
 }));
 vi.mock("@/core/stores/root-store.provider", () => ({
-  useRootStore: () => ({ terminologyStore: { overrides: {} } }),
+  useRootStore: () => ({ recordWorkspaceStore: { navigation: null } }),
 }));
 vi.mock("../data-kanban-view", () => ({ DataKanbanView: harness.kanban }));
 vi.mock("../data-table", () => ({ DataTable: harness.table }));
@@ -85,6 +85,7 @@ describe("data-view presentation composition", () => {
       createElement(DataViewContent<Item>, {
         columns,
         onRowClick,
+        renderCard: () => null,
         rowHref,
         store: store(),
         view,

@@ -1,24 +1,15 @@
-import type * as EntityDetailPersonalizationModule from "../entity-detail-personalization";
-import type * as EntityDetailFieldModule from "../entity-detail-field";
-import type * as EntityDetailFieldActionsModule from "../entity-detail-field-actions";
-import type { Root } from "react-dom/client";
 import type { ComponentType, ReactNode } from "react";
-import type { EntityDetailPersonalizationConfig } from "../entity-detail-personalization";
-import type { P13nEntry } from "@/features/p13n/prisma-p13n.repository";
+import type { Root } from "react-dom/client";
 
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const upsertP13nAction = vi.hoisted(() => vi.fn());
+import { EntityDetailField } from "../entity-detail-field";
+import { EntityDetailFieldActions } from "../entity-detail-field-actions";
+import { useEntityDetailPersonalization } from "../entity-detail-personalization";
+import { PersonalizationHarness } from "./personalization-harness";
 
-vi.mock("@/app/actions", () => ({ upsertP13nAction }));
-vi.mock("@/core/errors/report-application-error", () => ({
-  reportApplicationError: vi.fn(),
-}));
-vi.mock("@/core/utils/toast-zod-error-tree", () => ({
-  toastZodErrorTree: vi.fn(),
-}));
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: { field?: string }) => `${key}:${values?.field ?? ""}`,
 }));
@@ -48,22 +39,7 @@ vi.mock("@/components/ui/icon-button", () => ({
 }));
 
 const roots = new Set<Root>();
-const config: EntityDetailPersonalizationConfig = {
-  p13nId: "contact-detail",
-  defaultStarredFieldIds: [],
-  availableFieldIds: ["name"],
-};
-type TestProviderProps = {
-  applyFieldVisibility?: boolean;
-  children?: ReactNode;
-  config: EntityDetailPersonalizationConfig;
-  initial?: P13nEntry | null;
-  persistenceScope: string;
-};
-type TestFieldProps = {
-  children?: ReactNode;
-  fieldId: string;
-};
+const TestField = EntityDetailField as ComponentType<{ fieldId: string; children?: ReactNode }>;
 
 function Controls() {
   const { isPersonalizing, setIsPersonalizing } = useEntityDetailPersonalization();
@@ -95,20 +71,8 @@ function view({
   starred?: string[];
 }) {
   return createElement(
-    TestProvider,
-    {
-      applyFieldVisibility,
-      config,
-      initial: {
-        p13nId: config.p13nId,
-        detailOptions: {
-          collapsedSectionIds: [],
-          hiddenFieldIds: hidden,
-          starredFieldIds: starred,
-        },
-      },
-      persistenceScope: "user-1",
-    },
+    PersonalizationHarness,
+    { applyFieldVisibility, hidden, starred },
     createElement(Controls),
     createElement(PinnedFields),
     createElement(
@@ -136,25 +100,8 @@ function mount(node: ReactNode) {
   return { container, root };
 }
 
-let TestProvider: ComponentType<TestProviderProps>;
-let EntityDetailPersonalizationProvider: typeof EntityDetailPersonalizationModule.EntityDetailPersonalizationProvider;
-let useEntityDetailPersonalization: typeof EntityDetailPersonalizationModule.useEntityDetailPersonalization;
-let TestField: ComponentType<TestFieldProps>;
-let EntityDetailField: typeof EntityDetailFieldModule.EntityDetailField;
-let EntityDetailFieldActions: typeof EntityDetailFieldActionsModule.EntityDetailFieldActions;
-
-beforeEach(async () => {
+beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
-  vi.resetModules();
-  ({ EntityDetailPersonalizationProvider, useEntityDetailPersonalization } = await import(
-    "../entity-detail-personalization"
-  ));
-  TestProvider = EntityDetailPersonalizationProvider as ComponentType<TestProviderProps>;
-  ({ EntityDetailField } = await import("../entity-detail-field"));
-  TestField = EntityDetailField as ComponentType<TestFieldProps>;
-  ({ EntityDetailFieldActions } = await import("../entity-detail-field-actions"));
-  upsertP13nAction.mockReset();
-  upsertP13nAction.mockResolvedValue({ ok: true, data: {} });
 });
 
 afterEach(() => {
@@ -164,6 +111,18 @@ afterEach(() => {
 });
 
 describe("entity detail field visibility", () => {
+  it("shows pin buttons only while Customize is open", () => {
+    const { container } = mount(view({ starred: ["name"] }));
+
+    expect(container.querySelector('[aria-label="EntityDetail.unpinField:Name"]')).toBeNull();
+    expect(container.querySelector('[aria-label="EntityDetail.pinField:Name"]')).toBeNull();
+    expect(container.querySelector("[data-pinned-fields]")?.getAttribute("data-pinned-fields")).toBe("name");
+
+    act(() => container.querySelector<HTMLButtonElement>("[data-personalizing]")?.click());
+
+    expect(container.querySelector('[aria-label="EntityDetail.unpinField:Name"]')).not.toBeNull();
+  });
+
   it("keeps hidden fields restorable in Customize and removes them from the normal detail view", () => {
     const { container } = mount(view({ hidden: ["name"] }));
 
@@ -180,8 +139,8 @@ describe("entity detail field visibility", () => {
     expect(container.querySelector('[aria-label="EntityDetail.showField:Name"]')).not.toBeNull();
   });
 
-  it("hides a pinned field without removing it from the overview", async () => {
-    const { container, root } = mount(view({ starred: ["name"] }));
+  it("hides a pinned field without removing it from the overview", () => {
+    const { container } = mount(view({ starred: ["name"] }));
 
     act(() => container.querySelector<HTMLButtonElement>("[data-personalizing]")?.click());
     expect(container.querySelector('[aria-label="EntityDetail.unpinField:Name"]')).not.toBeNull();
@@ -190,43 +149,16 @@ describe("entity detail field visibility", () => {
 
     expect(container.querySelector("[data-field-content]")).toBeNull();
     expect(container.querySelector("[data-pinned-fields]")?.getAttribute("data-pinned-fields")).toBe("name");
-
-    act(() => root.unmount());
-    roots.delete(root);
-    await act(async () => Promise.resolve());
-
-    expect(upsertP13nAction).toHaveBeenCalledExactlyOnceWith({
-      p13nId: "contact-detail",
-      detailOptions: {
-        collapsedSectionIds: [],
-        hiddenFieldIds: ["name"],
-        starredFieldIds: ["name"],
-      },
-      columnOrder: [],
-    });
   });
 
-  it("allows a hidden field to be pinned while Customize is open", async () => {
-    const { container, root } = mount(view({ hidden: ["name"] }));
+  it("allows a hidden field to be pinned while Customize is open", () => {
+    const { container } = mount(view({ hidden: ["name"] }));
 
     act(() => container.querySelector<HTMLButtonElement>("[data-personalizing]")?.click());
     act(() => container.querySelector<HTMLButtonElement>('[aria-label="EntityDetail.pinField:Name"]')?.click());
 
     expect(container.querySelector('[aria-label="EntityDetail.unpinField:Name"]')).not.toBeNull();
-
-    act(() => root.unmount());
-    roots.delete(root);
-    await act(async () => Promise.resolve());
-
-    expect(upsertP13nAction).toHaveBeenCalledExactlyOnceWith({
-      p13nId: "contact-detail",
-      detailOptions: {
-        collapsedSectionIds: [],
-        hiddenFieldIds: ["name"],
-        starredFieldIds: ["name"],
-      },
-      columnOrder: [],
-    });
+    expect(container.querySelector("[data-pinned-fields]")?.getAttribute("data-pinned-fields")).toBe("name");
   });
 
   it("does not apply saved visibility while creating a new record", () => {

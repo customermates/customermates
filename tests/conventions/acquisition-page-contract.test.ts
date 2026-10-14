@@ -297,15 +297,15 @@ describe("approved acquisition page contract", () => {
 
   it("binds deal-pipeline proof to configurable stages and the rendered Kanban board", () => {
     const sources = ACQUISITION_FACT_SOURCES["product:deal-pipelines"];
-    expect(sources).toContain("features/mcp-tools/server-instructions.ts");
+    expect(sources).toContain("features/records/crm-preset.ts");
     expect(sources).toContain("components/data-view/data-kanban-view.tsx");
 
     expect(
       readFileSync(
-        join(REPO_ROOT, "features/mcp-tools/server-instructions.ts"),
+        join(REPO_ROOT, "features/records/crm-preset.ts"),
         "utf8",
       ),
-    ).toContain("Deal stage and task status are singleSelect custom columns");
+    ).toContain('addField("deal", "deal.stage", "Stage", "select")');
     expect(
       readFileSync(
         join(REPO_ROOT, "components/data-view/data-kanban-view.tsx"),
@@ -339,12 +339,9 @@ describe("approved acquisition page contract", () => {
     const coreRecordSources = ACQUISITION_FACT_SOURCES["product:core-crm-records"];
     expect(coreRecordSources).toEqual(
       expect.arrayContaining([
-        "features/mcp-tools/contact.mcp-tools.ts",
-        "features/mcp-tools/organization.mcp-tools.ts",
-        "app/api/v1/contacts/route.ts",
-        "app/api/v1/contacts/[id]/route.ts",
-        "app/api/v1/organizations/route.ts",
-        "app/api/v1/organizations/[id]/route.ts",
+        "features/mcp-tools/record-model.mcp-tools.ts",
+        "features/records/crm-preset.ts",
+        "features/records/record-model.schema.ts",
       ]),
     );
 

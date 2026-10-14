@@ -1,20 +1,18 @@
 "use client";
 
-import type { RoutineModalStore } from "./routine-modal.store";
 import type { RoutineTriggerGuidanceAction } from "@/ee/routines/routine-trigger-guidance";
+import type { RoutineModalStore } from "./routine-modal.store";
 
-import { observer } from "mobx-react-lite";
-import { useLocale, useTranslations } from "next-intl";
 import { History } from "lucide-react";
+import { observer } from "mobx-react-lite";
+import { useTranslations } from "next-intl";
 
 import { RoutineTriggerKind } from "@/generated/prisma";
 
-import { useChangeFieldLabel } from "@/components/entity-terminology/use-change-field-label";
-import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import { orderedRoutineTriggerGuidance } from "@/ee/routines/routine-trigger-guidance";
 import { describeRoutineSchedule, scheduleHasClockTime } from "@/ee/routines/routine-schedule-preset";
-import { terminologyLabelForSentence } from "@/features/entity-terminology/entity-terminology-label.utils";
+import { orderedRoutineTriggerGuidance } from "@/ee/routines/routine-trigger-guidance";
+import { eventLabel } from "@/features/event/event-label";
 
 function actionCopy(
   action: RoutineTriggerGuidanceAction,
@@ -32,6 +30,10 @@ function actionCopy(
       });
     case "recordDeleted":
       return t("RoutineDetail.empty.event.actions.recordDeleted", {
+        entity: entity ?? "",
+      });
+    case "recordRestored":
+      return t("RoutineDetail.empty.event.actions.recordRestored", {
         entity: entity ?? "",
       });
     case "messageReceived":
@@ -60,11 +62,8 @@ function actionCopy(
 }
 
 export const RoutineEmptyState = observer(({ store }: { store: RoutineModalStore }) => {
-  const locale = useLocale();
   const t = useTranslations();
   const intlStore = useHydratedIntlStore();
-  const { singular } = useEntityTerminology();
-  const changeFieldLabel = useChangeFieldLabel();
   const { form } = store;
   const scheduled = form.triggerKind === RoutineTriggerKind.schedule;
 
@@ -103,12 +102,15 @@ export const RoutineEmptyState = observer(({ store }: { store: RoutineModalStore
     );
   }
 
-  const watchedFields = (form.changedFields ?? []).map((field) => changeFieldLabel(field, store.customColumns));
+  const sources = form.recordSources?.length ? form.recordSources : form.recordTrigger ? [form.recordTrigger] : [];
+  const watchedFields = [...new Set(sources.flatMap((source) => source.changedFieldIds ?? []))].map(
+    (id) => store.recordModel?.fields.find((field) => field.id === id)?.label ?? t("RecordWidgets.unavailable"),
+  );
   const watchedFieldsList = new Intl.ListFormat(intlStore.resolvedFormattingLanguageTag, {
     style: "long",
     type: "disjunction",
   }).format(watchedFields);
-  const hasFilters = (store.payload.triggerFilters?.length ?? 0) > 0;
+  const hasFilters = sources.some((source) => source.query.filters.length > 0 || source.query.relationships.length > 0);
   const eventGuidance = orderedRoutineTriggerGuidance(form.triggerEvents ?? []);
   const hasDeletionEvent = eventGuidance.some(({ guidance }) => guidance.action === "recordDeleted");
 
@@ -127,13 +129,16 @@ export const RoutineEmptyState = observer(({ store }: { store: RoutineModalStore
 
       <ul aria-label={t("RoutineDetail.empty.event.instructionsLabel")} className="w-full max-w-lg space-y-2 text-left">
         {eventGuidance.map(({ event, guidance }) => {
-          const entity = guidance.entityType
-            ? terminologyLabelForSentence(singular(guidance.entityType), locale)
+          const entity = event.startsWith("record.")
+            ? sources
+                .map((source) => store.recordModel?.types.find((type) => type.id === source.query.typeId)?.label)
+                .filter((label): label is string => Boolean(label))
+                .join(", ") || t("RecordModel.record")
             : null;
 
           return (
             <li key={event} className="rounded-lg border px-3 py-2.5">
-              <p className="text-sm font-medium">{t(`Common.events.${event}`)}</p>
+              <p className="text-sm font-medium">{eventLabel(t, event)}</p>
 
               <p className="text-subdued mt-0.5 text-xs">{actionCopy(guidance.action, entity, t)}</p>
             </li>

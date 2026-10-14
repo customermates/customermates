@@ -17,18 +17,22 @@ export type NavSecondaryItem = {
   title: string;
   icon: React.FC<SVGProps<SVGSVGElement>>;
   href?: string;
+  prefetch?: boolean;
   onSelect?: (invoker: HTMLElement) => void;
 };
 
 type Props = {
   items: NavSecondaryItem[];
+  leading?: React.ReactNode;
 } & ComponentPropsWithoutRef<typeof SidebarGroup>;
 
-export function NavSecondary({ items, ...props }: Props) {
+export function NavSecondary({ items, leading, ...props }: Props) {
   return (
     <SidebarGroup {...props}>
       <SidebarGroupContent>
         <SidebarMenu>
+          {leading}
+
           {items.map((item) => (
             <SidebarMenuItem key={item.key}>
               {item.href ? (
@@ -37,6 +41,7 @@ export function NavSecondary({ items, ...props }: Props) {
                     className="text-foreground no-underline hover:no-underline"
                     href={item.href}
                     id={`nav-${item.key}`}
+                    prefetch={item.prefetch}
                   >
                     <NavLinkPendingIcon icon={item.icon} />
 

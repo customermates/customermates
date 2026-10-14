@@ -7,13 +7,14 @@ import type { Root } from "react-dom/client";
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { EntityType } from "@/generated/prisma";
 
 const harness = vi.hoisted(() => ({
   focusedAtOpen: null as Element | null,
   loadById: vi.fn(),
 }));
 
+vi.mock("@/components/data-view/views/data-view-views-rail", () => ({ DataViewViewsRail: () => null }));
+vi.mock("@/components/data-view/data-view-url-sync", () => ({ connectDataViewUrlSync: () => () => undefined }));
 vi.mock("mobx-react-lite", () => ({ observer: <T>(component: T) => component }));
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: { name?: string }) => (values?.name ? `${key}:${values.name}` : key),
@@ -26,7 +27,7 @@ vi.mock("next/dynamic", () => ({
 }));
 vi.mock("@/app/components/topbar-actions-context", () => ({ useSetTopBarActions: vi.fn() }));
 vi.mock("@/app/components/agent-chat/suggested-questions", () => ({ AgentStarterActions: () => null }));
-vi.mock("@/core/utils/use-is-touch-device", () => ({ useIsTouchDevice: () => false }));
+vi.mock("@/hooks/use-touch-input", () => ({ useTouchInput: () => false }));
 vi.mock("@/app/[locale]/(protected)/dashboard/components/chart-widget-card", () => ({
   ChartWidgetCard: ({ widget }: { widget: WidgetDto }) =>
     createElement("div", { "data-chart": widget.id }, widget.name),
@@ -35,17 +36,24 @@ vi.mock("@/app/[locale]/(protected)/dashboard/components/activity-widget-card", 
   ActivityWidgetCard: ({ widget }: { widget: WidgetDto }) =>
     createElement("div", { "data-activity": widget.id }, widget.name),
 }));
+vi.mock("@/app/[locale]/(protected)/dashboard/components/record-widget-card", () => ({
+  RecordWidgetCard: (widget: WidgetDto) => createElement("div", { "data-record-chart": widget.id }, widget.name),
+}));
+vi.mock("@/app/[locale]/(protected)/dashboard/components/record-activity-widget-card", () => ({
+  RecordActivityWidgetCard: ({ widget }: { widget: WidgetDto }) =>
+    createElement("div", { "data-record-activity": widget.id }, widget.name),
+}));
 vi.mock("@/app/[locale]/(protected)/dashboard/components/widget-modal", () => ({ WidgetModal: () => null }));
 vi.mock("@/core/stores/root-store.provider", () => {
-  const widget = { id: "widget-1", name: "Total Deal Value" };
+  const widget = { id: "widget-1", name: "Total Deal Value", kind: "chart" };
   const widgetModalStore = {
     add: vi.fn(),
+    availableKinds: ["chart"],
     availableEntityTypes: ["contact"],
     loadById: (id: string) => {
       harness.focusedAtOpen = document.activeElement;
       harness.loadById(id);
     },
-    setExpandedFilterField: vi.fn(),
     setExpandedSection: vi.fn(),
   };
   const widgetsStore = {
@@ -56,7 +64,7 @@ vi.mock("@/core/stores/root-store.provider", () => {
     refreshQuery: vi.fn(),
     setItems: vi.fn(),
   };
-  return { useRootStore: () => ({ widgetModalStore, widgetsStore }) };
+  return { useRootStore: () => ({ widgetModalStore, widgetsStore, recordWorkspaceStore: { navigation: null } }) };
 });
 
 import { DashboardPageView } from "@/app/[locale]/(protected)/dashboard/components/dashboard-page-view";
@@ -84,14 +92,20 @@ describe("DashboardPageView widget opening", () => {
     act(() =>
       reactRoot.render(
         createElement(DashboardPageView, {
-          activityFilterableFields: [],
-          customColumns: [],
-          filterableFields: { [EntityType.contact]: [] } as never,
-          widgets: [],
+          dashboard: {
+            p13nId: "dashboard",
+            items: [],
+            views: [],
+            activeViewKey: "__all__",
+            allState: {},
+            viewPersistable: true,
+          },
         }),
       ),
     );
-    const chart = container.querySelector<HTMLElement>('[data-chart="widget-1"], [data-activity="widget-1"]');
+    const chart = container.querySelector<HTMLElement>(
+      '[data-record-chart="widget-1"], [data-record-activity="widget-1"]',
+    );
     const editButton = container.querySelector<HTMLElement>('[data-slot="widget-card-open"]');
     if (!chart || !editButton) throw new Error("Expected the widget card and its edit button");
 

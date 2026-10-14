@@ -132,3 +132,132 @@ describe("DeleteConfirmationModal submission boundary", () => {
     });
   });
 });
+
+describe("moving to Trash", () => {
+  it("hands a trash batch to the shared Undo toast instead of the plain success toast", async () => {
+    const announceMovedToTrash = vi.fn();
+    const onRestored = vi.fn();
+    const modal = new DeleteConfirmationModalStore({
+      localeStore: { getTranslation: (key: string) => key },
+      registerModalStore: vi.fn(),
+      trashStore: { announceMovedToTrash },
+    } as unknown as RootStore);
+    modal.openWith({ onConfirm: () => Promise.resolve({ trashBatchId: "batch-1" }), onRestored });
+
+    await modal.onSubmit();
+
+    expect(modal.isOpen).toBe(false);
+    expect(toastSuccess).not.toHaveBeenCalled();
+    expect(announceMovedToTrash).toHaveBeenCalledExactlyOnceWith({ trashBatchId: "batch-1" }, expect.any(Function));
+    announceMovedToTrash.mock.calls[0][1]();
+    expect(onRestored).toHaveBeenCalledOnce();
+  });
+});
+
+describe("delete confirmation ownership", () => {
+  function store() {
+    return new DeleteConfirmationModalStore({
+      localeStore: { getTranslation: (key: string) => key },
+      registerModalStore: vi.fn(),
+    } as unknown as RootStore);
+  }
+  it("hands off confirmed close focus once, after the dialog closes", async () => {
+    const modal = store();
+    const focusAfterConfirm = vi.fn(() => true);
+    modal.openWith({ onConfirm: () => Promise.resolve(true), focusAfterConfirm });
+    expect(modal.restoreConfirmedFocus()).toBe(false);
+    await modal.onSubmit();
+    expect(modal.isOpen).toBe(false);
+    expect(focusAfterConfirm).not.toHaveBeenCalled();
+    expect(modal.restoreConfirmedFocus()).toBe(true);
+    expect(modal.restoreConfirmedFocus()).toBe(false);
+    expect(focusAfterConfirm).toHaveBeenCalledOnce();
+  });
+  it("keeps false confirmations and cancellation on normal opener restoration", async () => {
+    const modal = store();
+    const focusAfterConfirm = vi.fn(() => true);
+    modal.openWith({ onConfirm: () => Promise.resolve(false), focusAfterConfirm });
+    await modal.onSubmit();
+    expect(modal.restoreConfirmedFocus()).toBe(false);
+    modal.close();
+    expect(modal.restoreConfirmedFocus()).toBe(false);
+    expect(focusAfterConfirm).not.toHaveBeenCalled();
+  });
+  it("cannot restore a successful old target after a new confirmation opens or replaces its form", async () => {
+    const modal = store();
+    const focusAfterConfirm = vi.fn(() => true);
+    modal.openWith({ onConfirm: () => Promise.resolve(true), focusAfterConfirm });
+    await modal.onSubmit();
+    modal.openWith({ title: "New confirmation", focusAfterConfirm: undefined });
+    expect(modal.restoreConfirmedFocus()).toBe(false);
+    expect(focusAfterConfirm).not.toHaveBeenCalled();
+    modal.close();
+    modal.openWith({ onConfirm: () => Promise.resolve(true), focusAfterConfirm });
+    await modal.onSubmit();
+    modal.onInitOrRefresh({ title: "Replaced form", focusAfterConfirm: undefined });
+    expect(modal.restoreConfirmedFocus()).toBe(false);
+    expect(focusAfterConfirm).not.toHaveBeenCalled();
+  });
+  it("does not close or announce a new confirmation after an earlier delete completes", async () => {
+    const modal = store();
+    let resolve!: (value: boolean) => void;
+    modal.openWith({
+      title: "Earlier record",
+      onConfirm: () =>
+        new Promise<boolean>((done) => {
+          resolve = done;
+        }),
+    });
+    const first = modal.onSubmit();
+    modal.close();
+    modal.openWith({ title: "Current record", onConfirm: () => Promise.resolve(false) });
+    resolve(true);
+    await first;
+    expect(modal.isOpen).toBe(true);
+    expect(modal.form.title).toBe("Current record");
+    expect(toastSuccess).not.toHaveBeenCalled();
+  });
+  it("does not release a new confirmation's loading state when an earlier request settles", async () => {
+    const modal = store();
+    let firstResolve!: (value: boolean) => void;
+    let secondResolve!: (value: boolean) => void;
+    modal.openWith({
+      onConfirm: () =>
+        new Promise<boolean>((done) => {
+          firstResolve = done;
+        }),
+    });
+    const first = modal.onSubmit();
+    modal.close();
+    modal.openWith({
+      onConfirm: () =>
+        new Promise<boolean>((done) => {
+          secondResolve = done;
+        }),
+    });
+    const second = modal.onSubmit();
+    firstResolve(true);
+    await first;
+    expect(modal.isLoading).toBe(true);
+    secondResolve(false);
+    await second;
+    expect(modal.isLoading).toBe(false);
+    expect(modal.isOpen).toBe(true);
+  });
+  it("admits one confirmation submission while its request is outstanding", async () => {
+    const modal = store();
+    let resolve!: (value: boolean) => void;
+    const onConfirm = vi.fn(
+      () =>
+        new Promise<boolean>((done) => {
+          resolve = done;
+        }),
+    );
+    modal.openWith({ onConfirm });
+    const pending = modal.onSubmit();
+    await modal.onSubmit();
+    expect(onConfirm).toHaveBeenCalledOnce();
+    resolve(false);
+    await pending;
+  });
+});

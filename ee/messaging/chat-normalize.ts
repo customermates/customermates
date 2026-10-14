@@ -33,7 +33,7 @@ export function mapParticipantRecord(raw: unknown): MessagingAttendee | null {
   return parsed.success ? mapUnipileUser(parsed.data) : null;
 }
 
-export function mapUnipileAttachments(list: UnipileAttachment[] | null | undefined): AttachmentMeta[] {
+function mapUnipileAttachments(list: UnipileAttachment[] | null | undefined): AttachmentMeta[] {
   return (list ?? []).flatMap((a) => {
     if (!a.id) return [];
 

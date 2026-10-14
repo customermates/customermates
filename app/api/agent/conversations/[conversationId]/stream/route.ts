@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 
 import { env } from "@/env";
 import { getGetAgentRunStreamInteractor } from "@/core/di";
-import { handleError, interactorFailureResponse } from "@/core/api/interactor-handler";
+import { handleError, interactorFailureResponse } from "@/core/api/structured-interactor-handler";
 import { agentTurnSseStream } from "@/ee/agent-chat/agent-turn-stream";
 
 export const runtime = "nodejs";

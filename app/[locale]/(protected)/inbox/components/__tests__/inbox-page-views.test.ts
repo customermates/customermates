@@ -1,4 +1,3 @@
-import type { DataViewEmptyState } from "@/components/data-view/data-view-empty-state";
 import type { PageStateProps } from "@/components/page-state/page-state";
 import type { MessagingThread } from "@/ee/messaging/messaging.schema";
 import type { ReactElement, ReactNode } from "react";
@@ -11,7 +10,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MessagingProvider, MessagingThreadState, MessagingThreadType } from "@/generated/prisma";
 
 const harness = vi.hoisted(() => ({
-  emptyStateProps: vi.fn(),
   ensureLoaded: vi.fn(),
   getRootStore: vi.fn(),
   loadOlderMessages: vi.fn(),
@@ -65,19 +63,6 @@ vi.mock("@/components/data-view/views/data-view-views-rail", () => ({
     return createElement("div", { "data-data-view-rail": true });
   },
 }));
-
-vi.mock("@/components/data-view/data-view-empty-state", async (importOriginal) => {
-  const React = await import("react");
-  const actual = await importOriginal<{ DataViewEmptyState: typeof DataViewEmptyState }>();
-
-  return {
-    ...actual,
-    DataViewEmptyState: (props: Parameters<typeof actual.DataViewEmptyState>[0]) => {
-      harness.emptyStateProps(props);
-      return React.createElement(actual.DataViewEmptyState, props);
-    },
-  };
-});
 
 vi.mock("@/components/page-state/page-state", async (importOriginal) => {
   const React = await import("react");
@@ -250,7 +235,7 @@ describe("Inbox page-state owners", () => {
 
     const filtered = renderInboxList("ready", { searchTerm: "missing" });
     expect(filtered).toContain("Common.emptyState.filteredTitle");
-    expect(filtered).not.toContain('data-page-state="empty"');
+    expect(filtered).not.toContain("data-page-skeleton-empty");
 
     const empty = renderInboxList("ready");
     expect(empty).toContain('data-page-state="empty"');
@@ -274,7 +259,9 @@ describe("Inbox page-state owners", () => {
       "utf8",
     );
 
-    expect(surface).toContain('<DataViewViewsRail joinsTopBar detailParam="threadId" store={messagingThreadsStore} />');
+    expect(surface).toContain("<DataViewViewsRail");
+    expect(surface).toContain('detailParam="threadId"');
+    expect(surface).toContain("store={messagingThreadsStore}");
     expect(surface).toContain("useDataViewSync(messagingThreadsStore, threads)");
 
     const page = readFileSync(resolve(process.cwd(), "app/[locale]/(protected)/inbox/page.tsx"), "utf8");
@@ -291,10 +278,9 @@ describe("Inbox page-state owners", () => {
     expect(harness.setQueryOptions).toHaveBeenCalledWith({ forceRefresh: true });
 
     renderInboxList("ready", { searchTerm: "missing" });
-    const filteredProps = harness.emptyStateProps.mock.lastCall?.[0] as {
-      secondaryAction: { onClick: () => void };
-    };
-    filteredProps.secondaryAction.onClick();
+    const filteredProps = harness.pageStateProps.mock.calls.findLast(([props]) => props.state === "empty")?.[0];
+    const clear = filteredProps?.action as ReactElement<{ onClick: () => void }>;
+    clear.props.onClick();
     expect(harness.setQueryOptions).toHaveBeenCalledWith({ filters: [], searchTerm: "" });
 
     harness.search = "foo=bar";
@@ -322,11 +308,11 @@ describe("Inbox page-state owners", () => {
 
   it("offers Refresh only to a role with Manage on Inbox messages", () => {
     renderInboxList("ready", { withItem: true });
-    expect(renderToStaticMarkup(latestTopBar() as ReactElement)).toContain("Inbox.refresh");
+    expect(renderToStaticMarkup(latestTopBar() as ReactElement)).toContain("Common.actions.refresh");
 
     renderInboxList("ready", { canConnect: false, canUpdate: false, withItem: true });
     const readOnlyTopBar = renderToStaticMarkup(latestTopBar() as ReactElement);
-    expect(readOnlyTopBar).not.toContain("Inbox.refresh");
+    expect(readOnlyTopBar).not.toContain("Common.actions.refresh");
     expect(readOnlyTopBar).toContain("data-data-view-toolbar");
   });
 

@@ -8,6 +8,7 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { canConnectMcp } from "./mcp-access";
 
 const Schema = z.object({
   consentCode: z.string().min(1),
@@ -16,7 +17,7 @@ const Schema = z.object({
 export type DecideMcpConsentData = Data<typeof Schema>;
 
 const OutputSchema = z.object({ redirectURI: z.url() }).nullable();
-export type DecideMcpConsentResult = Data<typeof OutputSchema>;
+type DecideMcpConsentResult = Data<typeof OutputSchema>;
 
 @AllowInDemoMode
 @SystemInteractor
@@ -33,6 +34,7 @@ export class DecideMcpConsentInteractor {
     const state = await this.routeGuardService.resolveMcpConsentState(resolution);
     if (state !== "allowed" && state !== "onboarding") return { ok: true, data: null };
 
-    return { ok: true, data: await this.authService.decideMcpConsent(data) };
+    const accept = data.accept && canConnectMcp(resolution.user?.role);
+    return { ok: true, data: await this.authService.decideMcpConsent({ ...data, accept }) };
   }
 }

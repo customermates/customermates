@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -16,7 +18,7 @@ export const CATALOG_SECTIONS: Record<string, McpTool[]> = {
   messaging: MCP_TOOL_GROUPS.messaging,
   social: MCP_TOOL_GROUPS.social,
   docs: [...MCP_TOOL_GROUPS.docs, ...MCP_ALWAYS_ON_TOOLS],
-  "custom-columns": MCP_TOOL_GROUPS["custom-columns"],
+  "record-model": MCP_TOOL_GROUPS["record-model"],
   widgets: MCP_TOOL_GROUPS.widgets,
   routines: MCP_TOOL_GROUPS.routines,
   webhooks: MCP_TOOL_GROUPS.webhooks,
@@ -26,7 +28,11 @@ export const CATALOG_SECTIONS: Record<string, McpTool[]> = {
 
 export type CatalogSummaries = Record<string, string>;
 
-type SchemaLike = { shape?: Record<string, unknown>; def?: Record<string, unknown>; _zod?: { def?: Record<string, unknown> } };
+type SchemaLike = {
+  shape?: Record<string, unknown>;
+  def?: Record<string, unknown>;
+  _zod?: { def?: Record<string, unknown> };
+};
 
 function objectShape(schema: unknown): Record<string, unknown> | null {
   let current = schema as SchemaLike | null | undefined;
@@ -62,7 +68,10 @@ function renderToolEntry(tool: McpTool, summary: string, summaries: CatalogSumma
   const argumentLine =
     required.length === 0 && optional.length === 0
       ? `${noArgumentsLabel}.`
-      : [required.length ? `${requiredLabel}: ${code(required)}.` : "", optional.length ? `${optionalLabel}: ${code(optional)}.` : ""]
+      : [
+          required.length ? `${requiredLabel}: ${code(required)}.` : "",
+          optional.length ? `${optionalLabel}: ${code(optional)}.` : "",
+        ]
           .filter(Boolean)
           .join(" ");
   const flag = tool.annotations?.destructiveHint

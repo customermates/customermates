@@ -1,3 +1,5 @@
+import { presetId } from "@/features/records/crm-preset";
+import { identityKeys } from "@/features/records/record-identity";
 import type { MessagingProvider, Prisma, PrismaClient } from "@/generated/prisma";
 
 import type { EmailSettings } from "@/ee/messaging/email-settings";
@@ -10,11 +12,14 @@ import {
   SignatureTemplate,
   defaultEmailSettings,
 } from "@/ee/messaging/email-settings";
+import { identityLookupValue } from "@/ee/messaging/identity-lookup";
 import { composeEmailBodies } from "@/ee/messaging/outbound/email-signature";
 import { renderEmailMarkdown } from "@/ee/messaging/outbound/render-signature";
 
 import { SYNTHETIC_AVATAR_URLS } from "../avatars";
 import { fixtureId } from "../helpers";
+import { northwindDataset } from "../northwind-data";
+import { NORTHWIND_COMPANY_NAME, NORTHWIND_MEMBER_TITLES, NORTHWIND_RECORD_ID_PREFIXES } from "../northwind-model";
 import { SYNTHETIC_SEED_TIMELINE } from "../timeline";
 import {
   accountActivityFixtures,
@@ -44,6 +49,11 @@ type DemoAttendee = {
 };
 
 const MINUTE = 60_000;
+
+/** Minutes between the messages of a conversation: recent ones span a day or two, older ones about a week. */
+export function messageGapMinutes(fixture: Pick<ThreadFixture, "latestMinutesAgo">): number {
+  return fixture.latestMinutesAgo < 2 * 24 * 60 ? 7 * 60 : 26 * 60;
+}
 const EMAIL_FOLDER_IDS = {
   google: { inbox: "demo-google-inbox", sent: "demo-google-sent" },
   outlook: { inbox: "demo-outlook-inbox", sent: "demo-outlook-sent" },
@@ -60,9 +70,9 @@ const MARKDOWN_LINE_BREAK = "\\\n";
 function workspaceSignature(seedUserEmail: string): string {
   return [
     `**${SYNTHETIC_COMPANY_USERS.maxBergmann.name}**`,
-    "Customer Success, Customermates",
+    `${NORTHWIND_MEMBER_TITLES.maxBergmann}, ${NORTHWIND_COMPANY_NAME}`,
     `[${seedUserEmail}](mailto:${seedUserEmail})`,
-    "<https://customermates.com>",
+    "<https://northwind-labs.example>",
   ].join(MARKDOWN_LINE_BREAK);
 }
 
@@ -77,7 +87,11 @@ function workspaceEmailSettings(): EmailSettings {
       linkHex: DEFAULT_LINK_HEX,
       linkStyle: EmailLinkStyle.underlined,
     },
-    signature: { ...base.signature, enabled: true, template: SignatureTemplate.plain },
+    signature: {
+      ...base.signature,
+      enabled: true,
+      template: SignatureTemplate.plain,
+    },
   };
 }
 
@@ -92,7 +106,11 @@ function correspondentEmailSettings(): EmailSettings {
       linkHex: "#2f6fd0",
       linkStyle: EmailLinkStyle.plain,
     },
-    signature: { ...base.signature, enabled: true, template: SignatureTemplate.plain },
+    signature: {
+      ...base.signature,
+      enabled: true,
+      template: SignatureTemplate.plain,
+    },
   };
 }
 
@@ -152,7 +170,7 @@ function personAttendee(personKey: PersonKey, provider: ThreadFixture["account"]
     isSelf: false,
     headline: person.headline,
     occupation: person.occupation,
-    pictureUrl: person.avatarPath,
+    pictureUrl: person.avatarPath ?? "",
     profileUrl,
   };
 }
@@ -499,7 +517,7 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
         fullName: activityPerson.displayName,
         headline: activityPerson.headline,
         profileUrl: activityPerson.profileUrl,
-        pictureUrl: activityPerson.avatarPath,
+        pictureUrl: activityPerson.avatarPath ?? null,
       }),
       occurredAt: new Date(anchor.getTime() - fixture.occurredMinutesAgo * MINUTE),
     };
@@ -538,7 +556,7 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
       participants: { none: {} },
     },
   });
-  await prisma.contactIdentifier.deleteMany({
+  await prisma.recordIdentity.deleteMany({
     where: { companyId: context.companyId, id: { startsWith: "1a000000-" } },
   });
 
@@ -561,7 +579,6 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
 
     const data = {
       companyId: context.companyId,
-      contactId: context.contactIds[person.contactIndex],
       provider: channel.provider,
       channelClass: channel.provider === "whatsapp" ? "phone" : channel.provider,
       value: attendee.identifier,
@@ -570,10 +587,11 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
       profileUrl: attendee.profileUrl ?? null,
     };
 
-    if (!data.contactId) throw new Error(`Missing demo contact for ${channel.key}`);
+    const recordId = context.contactIds[person.contactIndex];
+    if (!recordId) throw new Error(`Missing demo contact for ${channel.key}`);
 
     const id = fixtureId("1a000000", index + 1);
-    const existingIdentifiers = await prisma.contactIdentifier.findMany({
+    const existingIdentifiers = await prisma.recordIdentity.findMany({
       where: {
         companyId: context.companyId,
         OR: [
@@ -588,23 +606,44 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
 
     const existingIdentifier = existingIdentifiers[0];
     if (existingIdentifier) {
-      await prisma.contactIdentifier.update({
-        where: { id: existingIdentifier.id },
-        data,
-      });
-    } else {
-      await prisma.contactIdentifier.upsert({
+      await prisma.recordIdentity.update({
         where: {
-          companyId_channelClass_value: {
+          companyId_id: {
             companyId: context.companyId,
-            channelClass: data.channelClass,
-            value: data.value,
+            id: existingIdentifier.id,
           },
         },
-        update: data,
-        create: { ...data, id },
+        data,
       });
-    }
+      await prisma.recordIdentityKey.deleteMany({
+        where: {
+          companyId: context.companyId,
+          identityId: existingIdentifier.id,
+        },
+      });
+    } else await prisma.recordIdentity.create({ data: { ...data, id } });
+
+    const identityId = existingIdentifier?.id ?? id;
+    await prisma.recordIdentityLink.createMany({
+      data: [
+        {
+          companyId: context.companyId,
+          identityId,
+          typeId: presetId(context.companyId, "contact"),
+          recordId,
+        },
+      ],
+      skipDuplicates: true,
+    });
+
+    await prisma.recordIdentityKey.createMany({
+      data: identityKeys(data).map((value) => ({
+        companyId: context.companyId,
+        identityId,
+        channelClass: data.channelClass,
+        value,
+      })),
+    });
   }
 
   let participantIndex = 0;
@@ -636,7 +675,7 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
       lastMessagePreview: lastMessage.text,
       lastMessageIsSender: lastMessage.sender === "self",
       sharedToCrm: true,
-      createdAt: new Date(latestAt.getTime() - (fixture.messages.length - 1) * 45 * MINUTE),
+      createdAt: new Date(latestAt.getTime() - (fixture.messages.length - 1) * messageGapMinutes(fixture) * MINUTE),
     };
     const occupiedThreadId = await prisma.messagingThread.findUnique({
       where: { id: threadId },
@@ -664,6 +703,7 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
         provider,
         providerUserId: attendee.attendeeId,
         identifier: attendee.identifier,
+        identityLookupValue: identityLookupValue(provider, attendee.identifier),
         displayName: attendee.displayName,
         pictureUrl: attendee.pictureUrl,
         profileUrl: attendee.profileUrl ?? null,
@@ -718,7 +758,9 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
       const recipientAttendees = attendees.filter((attendee) => attendee.attendeeId !== sender.attendeeId);
       const sentPosition = message.draft === true ? sentMessageCount - 1 : sentSoFar;
       if (message.draft !== true) sentSoFar += 1;
-      const sentAt = new Date(latestAt.getTime() - (sentMessageCount - 1 - sentPosition) * 45 * MINUTE);
+      const sentAt = new Date(
+        latestAt.getTime() - (sentMessageCount - 1 - sentPosition) * messageGapMinutes(fixture) * MINUTE,
+      );
       const reactionSender = message.reaction
         ? message.reaction.sender === "self"
           ? self
@@ -726,9 +768,11 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
         : null;
       const unipileMessageId = `demo-fixture-message-${messageIndex}`;
       const composedBodies = isEmailFixtureProvider(provider)
-        ? message.draft === true
-          ? draftBodies(message.text)
-          : emailBodies(message.text, message.sender, context.seedUserEmail)
+        ? message.html
+          ? { plainText: message.text, html: message.html }
+          : message.draft === true
+            ? draftBodies(message.text)
+            : emailBodies(message.text, message.sender, context.seedUserEmail)
         : null;
       const data = {
         companyId: context.companyId,
@@ -782,6 +826,16 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
         },
       });
     }
+    if (fixture.links?.length) {
+      await prisma.messagingThreadRecordLink.createMany({
+        data: fixture.links.map((link) => ({
+          companyId: context.companyId,
+          threadId: seededThread.id,
+          ...threadRecord(context.companyId, context.contactIds, fixture, link),
+        })),
+        skipDuplicates: true,
+      });
+    }
   }
   await prisma.connectedAccount.deleteMany({
     where: {
@@ -789,4 +843,40 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
       id: { startsWith: "16000000-", notIn: desiredAccountIds },
     },
   });
+}
+
+/** The CRM record a demo conversation is about: the participant's deal or ticket, or the candidate's application. */
+function threadRecord(
+  companyId: string,
+  contactIds: readonly string[],
+  fixture: ThreadFixture,
+  link: "deal" | "ticket" | "candidate",
+): { typeId: string; recordId: string } {
+  const data = northwindDataset();
+  const person = people[fixture.participants[0]];
+  if (link === "candidate") {
+    const candidate = data.candidates.find(({ email }) => email === person.email);
+    if (!candidate) throw new Error(`Missing demo candidate for ${person.displayName}`);
+    return { typeId: presetId(companyId, "candidate"), recordId: candidate.id };
+  }
+  const contact = person.contactIndex === null ? undefined : data.contacts[person.contactIndex];
+  if (!contact || contactIds[contact.index] !== contact.id)
+    throw new Error(`Missing demo contact for the ${link} of ${person.displayName}`);
+  if (link === "deal") {
+    const deals = data.deals.filter(({ organizationIndex }) => organizationIndex === contact.organizationIndex);
+    const deal = deals.filter(({ status }) => status === "open").at(-1) ?? deals.at(-1);
+    if (!deal) throw new Error(`Missing demo deal for ${person.displayName}`);
+    return { typeId: presetId(companyId, "deal"), recordId: deal.id };
+  }
+  const subscriptions = new Set(
+    data.subscriptions
+      .filter(({ organizationIndex }) => organizationIndex === contact.organizationIndex)
+      .map(({ index }) => index),
+  );
+  const ticket =
+    data.tickets.filter(({ subscriptionIndex }) => subscriptions.has(subscriptionIndex)).at(-1) ??
+    data.tickets.filter(({ resolvedMs }) => resolvedMs === null).at(-1);
+  if (!ticket || !ticket.id.startsWith(NORTHWIND_RECORD_ID_PREFIXES.ticket))
+    throw new Error(`Missing demo ticket for ${person.displayName}`);
+  return { typeId: presetId(companyId, "ticket"), recordId: ticket.id };
 }

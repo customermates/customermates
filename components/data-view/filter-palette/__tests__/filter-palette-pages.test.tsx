@@ -1,18 +1,24 @@
+import { recordInvariant } from "@/features/records/record-invariant";
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { Filter, FilterableField } from "@/core/base/base-get.schema";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
+import type { RootStore } from "@/core/stores/root.store";
 import type { ReactElement, ReactNode } from "react";
 import type { Root } from "react-dom/client";
-import type { RootStore } from "@/core/stores/root.store";
 
 import { act, createElement } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createRoot } from "react-dom/client";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { CustomColumnType, EntityType } from "@/generated/prisma";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
+import { CustomColumnType } from "@/core/data-view/column-presentation.types";
 
-const harness = vi.hoisted(() => ({ palette: { current: null as unknown } }));
+const harness = vi.hoisted(() => ({
+  palette: { current: null as unknown },
+  toast: { error: vi.fn(), dismiss: vi.fn() },
+}));
+
+vi.mock("sonner", () => ({ toast: harness.toast }));
 
 vi.mock("next-intl", () => ({
   useLocale: () => "en",
@@ -34,7 +40,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
       use12Hour: false,
     },
     localeStore: { locale: "en" },
-    terminologyStore: { overrides: [] },
+    recordWorkspaceStore: { navigation: null },
   }),
 }));
 
@@ -69,6 +75,7 @@ vi.mock("@/i18n/navigation", () => ({
 
 import { FilterPalette } from "../filter-palette";
 import { FilterPaletteStore } from "../filter-palette.store";
+import type { FilterPaletteSearch } from "../filter-target";
 
 const RANGE_COLUMN = "16000000-0000-4000-8000-000000000008";
 const FIRST_STAGE_COLUMN = "16000000-0000-4000-8000-000000000001";
@@ -87,9 +94,18 @@ const FILTERABLE_FIELDS: FilterableField[] = [
       FilterOperatorKey.notInLastDays,
     ],
   },
-  { field: FIRST_STAGE_COLUMN, operators: [FilterOperatorKey.in, FilterOperatorKey.notIn] },
-  { field: SECOND_STAGE_COLUMN, operators: [FilterOperatorKey.in, FilterOperatorKey.notIn] },
-  { field: "name", operators: [FilterOperatorKey.contains, FilterOperatorKey.equals] },
+  {
+    field: FIRST_STAGE_COLUMN,
+    operators: [FilterOperatorKey.in, FilterOperatorKey.notIn],
+  },
+  {
+    field: SECOND_STAGE_COLUMN,
+    operators: [FilterOperatorKey.in, FilterOperatorKey.notIn],
+  },
+  {
+    field: "name",
+    operators: [FilterOperatorKey.contains, FilterOperatorKey.equals],
+  },
   {
     field: RANGE_COLUMN,
     operators: [
@@ -106,9 +122,24 @@ const FILTERABLE_FIELDS: FilterableField[] = [
 ];
 
 const CUSTOM_COLUMNS = [
-  { id: RANGE_COLUMN, label: "Project period", entityType: EntityType.deal, type: CustomColumnType.dateRange },
-  { id: FIRST_STAGE_COLUMN, label: "Stage", entityType: EntityType.deal, type: CustomColumnType.singleSelect },
-  { id: SECOND_STAGE_COLUMN, label: "Stage", entityType: EntityType.deal, type: CustomColumnType.singleSelect },
+  {
+    id: RANGE_COLUMN,
+    label: "Project period",
+    entityType: "deal",
+    type: CustomColumnType.dateRange,
+  },
+  {
+    id: FIRST_STAGE_COLUMN,
+    label: "Stage",
+    entityType: "deal",
+    type: CustomColumnType.singleSelect,
+  },
+  {
+    id: SECOND_STAGE_COLUMN,
+    label: "Stage",
+    entityType: "deal",
+    type: CustomColumnType.singleSelect,
+  },
 ] as unknown as CustomColumnDto[];
 
 const roots: Root[] = [];
@@ -116,12 +147,14 @@ const containers: HTMLElement[] = [];
 
 function tableStore(filters: Filter[] = []) {
   const table = {
-    customColumns: CUSTOM_COLUMNS,
+    filterColumns: CUSTOM_COLUMNS,
     filterableFields: FILTERABLE_FIELDS,
     filters,
     p13nId: "deals",
     removeFilterAt: vi.fn((index: number) => {
-      table.setQueryOptions({ filters: table.filters.filter((_, position) => position !== index) });
+      table.setQueryOptions({
+        filters: table.filters.filter((_, position) => position !== index),
+      });
     }),
     setQueryOptions: vi.fn((args: { filters?: Filter[] }) => {
       if (args.filters) table.filters = args.filters;
@@ -155,8 +188,14 @@ function mount(element: ReactElement) {
   return container;
 }
 
-function mountPalette(table: ReturnType<typeof tableStore>) {
-  return mount(createElement(FilterPalette, { store: table as unknown as BaseDataViewStore<HasId> }));
+function mountPalette(table: ReturnType<typeof tableStore>, search?: FilterPaletteSearch) {
+  return mount(
+    createElement(FilterPalette, {
+      palette: harness.palette.current as FilterPaletteStore,
+      search,
+      store: table as unknown as BaseDataViewStore<HasId>,
+    }),
+  );
 }
 
 function press(target: Element, key: string) {
@@ -199,7 +238,10 @@ beforeEach(() => {
       disconnect() {}
     },
   );
-  Object.defineProperty(HTMLElement.prototype, "scrollIntoView", { configurable: true, value: vi.fn() });
+  Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {
+    configurable: true,
+    value: vi.fn(),
+  });
   vi.stubGlobal("matchMedia", (query: string) => ({
     matches: true,
     media: query,
@@ -217,8 +259,16 @@ afterEach(() => {
 
 describe("filter palette root page", () => {
   it("removes exactly the addressed filter from the root list without opening it", () => {
-    const alpha = { field: "name", operator: FilterOperatorKey.contains, value: "alpha" } as Filter;
-    const beta = { field: "name", operator: FilterOperatorKey.contains, value: "beta" } as Filter;
+    const alpha = {
+      field: "name",
+      operator: FilterOperatorKey.contains,
+      value: "alpha",
+    } as Filter;
+    const beta = {
+      field: "name",
+      operator: FilterOperatorKey.contains,
+      value: "beta",
+    } as Filter;
     const table = tableStore([alpha, beta]);
     const palette = openPalette(table);
     const container = mountPalette(table);
@@ -295,7 +345,13 @@ describe("filter palette date page", () => {
     const trigger = container.querySelector("[data-palette-operator-trigger]") as HTMLElement;
 
     act(() => {
-      trigger.dispatchEvent(new MouseEvent("pointerdown", { bubbles: true, cancelable: true, button: 0 }));
+      trigger.dispatchEvent(
+        new MouseEvent("pointerdown", {
+          bubbles: true,
+          cancelable: true,
+          button: 0,
+        }),
+      );
     });
 
     const item = [...document.querySelectorAll("[role='menuitem']")].find(
@@ -303,7 +359,13 @@ describe("filter palette date page", () => {
     ) as HTMLElement;
 
     act(() => {
-      item.dispatchEvent(new MouseEvent("pointerup", { bubbles: true, cancelable: true, button: 0 }));
+      item.dispatchEvent(
+        new MouseEvent("pointerup", {
+          bubbles: true,
+          cancelable: true,
+          button: 0,
+        }),
+      );
       item.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 }));
     });
 
@@ -373,5 +435,103 @@ describe("filter palette date page", () => {
 
     expect(palette.page.kind).toBe("dateInput");
     expect(table.setQueryOptions).not.toHaveBeenCalled();
+  });
+});
+
+describe("scalar array value editing", () => {
+  it.each([
+    { type: CustomColumnType.currency, first: "10", second: "25.5", bad: "not-a-number" },
+    { type: CustomColumnType.date, first: "2026-01-01", second: "2026-02-01", bad: "2026-02-30" },
+  ])(
+    "keeps malformed $type tokens visible and rejects the whole edit until corrected",
+    ({ type, first, second, bad }) => {
+      const initial: Filter = { field: FIRST_STAGE_COLUMN, operator: FilterOperatorKey.notIn, value: [first] };
+      const table = tableStore([initial]);
+      table.filterColumns = [
+        type === CustomColumnType.currency
+          ? { id: FIRST_STAGE_COLUMN, label: "Value", type: CustomColumnType.currency, options: { currency: "EUR" } }
+          : { id: FIRST_STAGE_COLUMN, label: "Value", type: CustomColumnType.date },
+      ];
+      const palette = openPalette(table);
+      const container = mountPalette(table);
+      act(() => palette.editFilterAt(0));
+      const input = recordInvariant(container.querySelector<HTMLInputElement>('[id="draft.value"]'));
+      const valueDescriptor = recordInvariant(Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value"));
+      const enter = (value: string) => {
+        act(() => {
+          valueDescriptor.set?.call(input, value);
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+        });
+        press(input, "Enter");
+      };
+      enter(bad);
+      expect(container.querySelector('[role="alert"]')?.textContent).toBe("Common.errors.invalidFilterValue");
+      expect(container.textContent).toContain(bad);
+      expect(harness.toast.error).toHaveBeenLastCalledWith("Common.errors.invalidFilterValue", {
+        id: expect.any(String),
+      });
+      act(() => palette.flushPendingChanges());
+      expect(table.filters).toEqual([initial]);
+      expect(palette.page.kind).toBe("value");
+      const removals = container.querySelectorAll('[aria-label="Common.actions.remove"]');
+      click(recordInvariant(removals.item(removals.length - 1)));
+      expect(container.querySelector('[role="alert"]')).toBeNull();
+      expect(harness.toast.dismiss).toHaveBeenCalledWith(expect.any(String));
+      enter(second);
+      act(() => palette.flushPendingChanges());
+      expect(table.filters).toEqual([{ ...initial, value: [first, second] }]);
+    },
+  );
+});
+
+describe("filter palette search", () => {
+  function searchTarget(term?: string) {
+    return { label: "Name", term, apply: vi.fn() };
+  }
+
+  it("offers the typed text as the first item and applies it as the list search", () => {
+    const table = tableStore();
+    const palette = openPalette(table);
+    const search = searchTarget();
+    const container = mountPalette(table, search);
+
+    expect(searchInput(container)).toBe(document.activeElement);
+    expect(container.querySelector("[data-palette-search]")).toBeNull();
+    act(() => palette.setQuery("  acme "));
+
+    const items = [...container.querySelectorAll("[cmdk-item]")];
+    expect(items[0]?.hasAttribute("data-palette-search")).toBe(true);
+    expect(items[0]?.closest("[cmdk-group]")?.hasAttribute("hidden")).toBe(false);
+    expect(container.querySelector("[cmdk-empty]")).toBeNull();
+    expect(items[0]?.getAttribute("aria-selected")).toBe("true");
+    click(items[0]);
+
+    expect(search.apply).toHaveBeenCalledExactlyOnceWith("acme");
+    expect(palette.query).toBe("");
+    expect(palette.isOpen).toBe(false);
+  });
+
+  it("lists the active search with the filters and removes it like a filter", () => {
+    const table = tableStore();
+    openPalette(table);
+    const search = searchTarget("acme");
+    const container = mountPalette(table, search);
+
+    const chip = container.querySelector("[data-palette-active-search]") as HTMLElement;
+    expect(chip).not.toBeNull();
+    click(chip.querySelector("[aria-label='Common.filters.palette.removeFilter']") as Element);
+
+    expect(search.apply).toHaveBeenCalledExactlyOnceWith(undefined);
+  });
+
+  it("offers no search item where the surface has no list search", () => {
+    const table = tableStore();
+    const palette = openPalette(table);
+    const container = mountPalette(table);
+
+    act(() => palette.setQuery("acme"));
+
+    expect(container.querySelector("[data-palette-search]")).toBeNull();
+    expect(container.querySelector("[data-palette-active-search]")).toBeNull();
   });
 });

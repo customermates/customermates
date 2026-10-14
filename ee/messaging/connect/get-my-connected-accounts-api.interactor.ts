@@ -1,7 +1,7 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
-import type { GetMyConnectedAccountsRepo } from "./get-my-connected-accounts.interactor";
+import type { GetMyConnectedAccountsRepo } from "./get-my-connected-accounts.repo";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
@@ -12,13 +12,7 @@ import { ConnectedAccountDtoSchema } from "../messaging.schema";
 type ConnectedAccountApiDto = Data<typeof ConnectedAccountDtoSchema>;
 
 @AllowInDemoMode
-@TenantInteractor({
-  permissions: [
-    { resource: Resource.inboxMessages, action: Action.readAll },
-    { resource: Resource.inboxMessages, action: Action.readOwn },
-  ],
-  condition: "OR",
-})
+@TenantInteractor({ resource: Resource.inboxMessages, read: true })
 export class GetMyConnectedAccountsApiInteractor extends AuthenticatedInteractor<void, ConnectedAccountApiDto[]> {
   constructor(private repo: GetMyConnectedAccountsRepo) {
     super();

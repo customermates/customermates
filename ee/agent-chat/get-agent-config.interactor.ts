@@ -10,6 +10,7 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { AgentUsageService } from "./agent-usage.service";
 import { AgentUsageSummarySchema } from "./agent-usage.service";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
+import type { RecordSuggestionSignals } from "./record-suggestion-signals";
 
 import { AgentConversationSummarySchema, AgentDataCountsSchema } from "./agent-chat.schema";
 import { resolveAgentModel } from "./model-catalog";
@@ -37,6 +38,7 @@ export class GetAgentConfigInteractor extends AuthenticatedInteractor<void, Agen
     private repo: PrismaAgentChatRepo,
     private usageService: AgentUsageService,
     private entitlements: EntitlementService,
+    private recordSignals: RecordSuggestionSignals,
   ) {
     super();
   }
@@ -48,20 +50,22 @@ export class GetAgentConfigInteractor extends AuthenticatedInteractor<void, Agen
 
     await this.repo.normalizeExpiredAgentRunLease(new Date(), resolveAgentModel().modelId);
 
-    const [usage, counts, conversation, conversationPage, archivedConversationPage] = await Promise.all([
-      this.usageService.getUsageSummary(this.userId),
-      this.repo.getSuggestionSignals(),
-      this.repo.findMyConversation(),
-      this.repo.listConversationPage({ archived: false }),
-      this.repo.listConversationPage({ archived: true }),
-    ]);
+    const [usage, systemCounts, recordCounts, conversation, conversationPage, archivedConversationPage] =
+      await Promise.all([
+        this.usageService.getUsageSummary(this.userId),
+        this.repo.getSuggestionSignals(),
+        this.recordSignals.read(),
+        this.repo.findMyConversation(),
+        this.repo.listConversationPage({ archived: false }),
+        this.repo.listConversationPage({ archived: true }),
+      ]);
 
     return {
       ok: true as const,
       data: {
         enabled: true as const,
         usage,
-        counts,
+        counts: { ...systemCounts, ...recordCounts },
         conversationId: conversation?.id ?? null,
         conversations: conversationPage.conversations,
         archivedConversations: archivedConversationPage.conversations,

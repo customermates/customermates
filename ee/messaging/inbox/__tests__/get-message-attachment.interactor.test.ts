@@ -22,6 +22,7 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 
 import { GetMessageAttachmentInteractor } from "../get-message-attachment.interactor";
+import { StructuredErrorResponseSchema } from "@/core/api/structured-interactor-handler";
 import { GET } from "@/app/api/messaging/attachments/[messageId]/[attachmentId]/route";
 
 function build() {
@@ -57,7 +58,10 @@ describe("GetMessageAttachmentInteractor", () => {
     });
 
     expect(response.status).toBe(400);
-    expect(await response.json()).toBe("✖ Invalid UUID\n  → at messageId");
+    expect(StructuredErrorResponseSchema.parse(await response.json()).error).toMatchObject({
+      kind: "validation",
+      issues: [{ path: ["messageId"], message: "Invalid UUID" }],
+    });
     expect(repo.findAttachmentForMessageOrThrow).not.toHaveBeenCalled();
   });
 });

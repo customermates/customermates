@@ -36,5 +36,3 @@ export const LANDING_HUBS = [
     hubPath: "/for",
   }),
 ] as const;
-
-export type LandingHub = (typeof LANDING_HUBS)[number];

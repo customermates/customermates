@@ -5,7 +5,6 @@ import { z } from "zod";
 import {
   AgentTurnStopReason,
   AgentTurnTerminalCode,
-  EntityType,
   RoutineRunStatus,
   RoutineTriggerKind,
   Status,
@@ -17,6 +16,11 @@ import { FilterSchema } from "@/core/base/base-get.schema";
 import { ROUTINE_TRIGGER_EVENTS, RoutineTriggerEventSchema } from "./routine-trigger-events";
 import { ROUTINE_TRIGGER_FIELD_LIMIT } from "./routine-run-trigger-context";
 import {
+  RecordTriggerDefinitionSchema,
+  RecordTriggerSourceSchema,
+} from "@/features/records/record-event-subscription.schema";
+import { RecordRefSchema } from "@/features/records/record-model.schema";
+import {
   DEFAULT_ROUTINE_TIMEZONE,
   MIN_ROUTINE_INTERVAL_MINUTES,
   isSupportedTimeZone,
@@ -27,12 +31,14 @@ import {
 export const ROUTINE_PROMPT_MAX_CHARS = 5000;
 export const ROUTINE_NAME_MAX_CHARS = 120;
 
-export const RoutineTriggerKindSchema = z.enum(RoutineTriggerKind);
-export const RoutineRunStatusSchema = z.enum(RoutineRunStatus);
+const RoutineTriggerKindSchema = z.enum(RoutineTriggerKind);
+const RoutineRunStatusSchema = z.enum(RoutineRunStatus);
+
+export const RoutineRecordTriggerSchema = RecordTriggerDefinitionSchema;
 
 export { ROUTINE_TRIGGER_EVENTS, RoutineTriggerEventSchema };
 
-export const RoutineOwnerDtoSchema = z.object({
+const RoutineOwnerDtoSchema = z.object({
   id: z.uuid(),
   firstName: z.string(),
   lastName: z.string(),
@@ -53,8 +59,9 @@ export const RoutineDtoSchema = z.object({
   cronExpression: z.string().nullable(),
   timezone: z.string().nullable(),
   triggerEvents: z.array(WebhookEventSchema),
-  changedFields: z.array(z.string()),
   triggerFilters: z.array(FilterSchema),
+  recordTrigger: RoutineRecordTriggerSchema.nullable().optional(),
+  recordSources: z.array(RecordTriggerSourceSchema).nullable().optional(),
   debounceSeconds: z.number().int(),
   nextRunAt: z.date().nullable(),
   lastRunAt: z.date().nullable(),
@@ -66,11 +73,12 @@ export const RoutineDtoSchema = z.object({
 
 export type RoutineDto = Data<typeof RoutineDtoSchema>;
 
-export const RoutineRunTriggerContextSchema = z.object({
-  entityType: z.enum(EntityType).nullable(),
+const RoutineRunTriggerContextSchema = z.object({
+  recordRef: RecordRefSchema.optional(),
   threadId: z.string().nullable(),
   changedFields: z.array(z.string()).max(ROUTINE_TRIGGER_FIELD_LIMIT),
   changedFieldsTruncated: z.boolean(),
+  changedFieldLabels: z.record(z.string(), z.string()),
 });
 
 export const RoutineRunDtoSchema = z.object({
@@ -108,12 +116,15 @@ const UpsertRoutineFieldsSchema = z.object({
   cronExpression: z.string().min(1).max(120).nullable().optional(),
   timezone: z.string().min(1).max(64).nullable().optional(),
   triggerEvents: z.array(RoutineTriggerEventSchema).optional(),
-  changedFields: z.array(z.string()).optional(),
-  triggerFilters: z.array(FilterSchema).optional(),
+  recordTrigger: RoutineRecordTriggerSchema.nullable().optional(),
+  recordSources: z.array(RecordTriggerSourceSchema).min(1).max(50).nullable().optional(),
+  expectedSchemaRevision: z.number().int().nonnegative().optional(),
   debounceSeconds: z.number().int().min(0).max(86_400).optional(),
 });
 
-export type RoutineValidationData = z.output<typeof UpsertRoutineFieldsSchema>;
+export type RoutineValidationData = Omit<z.output<typeof UpsertRoutineFieldsSchema>, "triggerEvents"> & {
+  triggerEvents?: z.output<typeof RoutineTriggerEventSchema>[];
+};
 
 export function validateRoutineFinalState(data: RoutineValidationData, ctx: z.RefinementCtx) {
   const creating = !data.id;
@@ -145,6 +156,52 @@ export function validateRoutineFinalState(data: RoutineValidationData, ctx: z.Re
       code: "custom",
       path: ["triggerEvents"],
       params: { error: CustomErrorCode.routineTriggerEventsRequired },
+    });
+  }
+
+  const genericEvents = data.triggerEvents?.filter((event) => event.startsWith("record.")) ?? [];
+  if (genericEvents.length && genericEvents.length !== data.triggerEvents?.length && !data.recordSources?.length) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["triggerEvents"],
+      params: { error: CustomErrorCode.recordConfigurationInvalid },
+    });
+  }
+  if (
+    creating &&
+    data.triggerKind === RoutineTriggerKind.event &&
+    genericEvents.length &&
+    !data.recordTrigger &&
+    !data.recordSources?.length
+  ) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["recordTrigger"],
+      params: { error: CustomErrorCode.recordConfigurationInvalid },
+    });
+  }
+  if (
+    data.recordTrigger &&
+    (data.triggerKind === RoutineTriggerKind.schedule || (data.triggerEvents && !genericEvents.length))
+  ) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["recordTrigger"],
+      params: { error: CustomErrorCode.recordConfigurationInvalid },
+    });
+  }
+  if (data.recordTrigger && data.recordSources?.length) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["recordSources"],
+      params: { error: CustomErrorCode.recordConfigurationInvalid },
+    });
+  }
+  if (data.recordSources?.length && data.triggerKind === RoutineTriggerKind.schedule) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["recordSources"],
+      params: { error: CustomErrorCode.recordConfigurationInvalid },
     });
   }
 

@@ -8,7 +8,7 @@ import { z } from "zod";
 
 import * as Sentry from "@sentry/node";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
@@ -18,15 +18,15 @@ import { getRetryAfterSeconds, isUnipileRateLimit } from "../messaging.service";
 import { accountNeedsReconnect } from "../account-health";
 import type { RefreshInboxRepo } from "./refresh-inbox.repo";
 
-export const RefreshInboxResultSchema = z.object({
+const RefreshInboxResultSchema = z.object({
   rateLimited: z.boolean(),
   retryAfterSeconds: z.number().nullable(),
   reconnectAccounts: z.number().int(),
   failedAccounts: z.number().int(),
 });
-export type RefreshInboxResult = z.infer<typeof RefreshInboxResultSchema>;
+type RefreshInboxResult = z.infer<typeof RefreshInboxResultSchema>;
 
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "update" })
 export class RefreshInboxInteractor extends AuthenticatedInteractor<void, RefreshInboxResult> {
   constructor(
     private repo: RefreshInboxRepo,

@@ -4,7 +4,7 @@ import { join, relative } from "node:path";
 import ts from "typescript";
 import { describe, expect, it } from "vitest";
 
-import { REPO_ROOT, walkFiles } from "./walk";
+import { REPO_ROOT, REPO_SCAN_TIMEOUT_MS, walkFiles } from "./walk";
 
 const SCANNED_DIRECTORIES = ["app", "components", "core", "features"];
 const LIFECYCLE_HANDLER_NAMES = new Set([
@@ -122,7 +122,7 @@ describe("user action promise boundaries", () => {
 
     expect(violations, violations.join("\n")).toEqual([]);
     expect(intentional).toEqual([...INTENTIONAL_UNHANDLED_USER_ACTIONS].sort());
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it("detects raw JSX, object-action, and detached named-handler promises", () => {
     const source = `

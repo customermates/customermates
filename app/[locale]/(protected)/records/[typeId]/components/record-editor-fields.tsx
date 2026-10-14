@@ -1,0 +1,149 @@
+"use client";
+
+import { withFormulaReferences } from "@/features/records/formula-references";
+import { useId } from "react";
+import { observer } from "mobx-react-lite";
+import { isRecordFieldWritable } from "@/features/records/record-input-value";
+import { useTranslations } from "next-intl";
+import { Camera, Link2, Sigma } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import type { RecordEditorStore } from "./record-editor.store";
+import type { RecordField, RecordFieldView } from "@/features/records/record-model.schema";
+import { EntityDetailFieldShell } from "@/components/entity-detail/entity-detail-field-shell";
+import { RecordValue, useRecordValueFormat } from "@/components/records/record-value";
+import { RecordInputField } from "./record-input-field";
+import { FormattedTextField } from "@/components/editor/formatted-text-field";
+import { ConfirmationSentenceView, referenceSentence } from "@/components/modal/confirmation-sentence";
+import { RecordIdentityEditor } from "./record-identity-editor";
+import { recordValueSource } from "@/features/records/record-value-source";
+import type { RecordValueSourceKind } from "@/features/records/record-value-source";
+import { EntityDetailDerivation } from "@/components/entity-detail/entity-detail-derivation";
+import type { DerivationContext } from "@/components/entity-detail/entity-detail-derivation";
+import { focusHref } from "@/components/focus/focus-href";
+import { CalculationFlowView } from "@/app/[locale]/(protected)/configure/components/calculation-flow-editor";
+import { recordDisplayName } from "@/features/records/record-display-name";
+import { runUserAction } from "@/core/errors/report-application-error";
+
+const DERIVATION_ICONS = { calculation: Sigma, lookup: Link2, saved: Camera } as const;
+
+export const RecordEditorField = observer(function RecordEditorField({
+  store,
+  field,
+}: {
+  store: RecordEditorStore;
+  field: RecordFieldView;
+}) {
+  const t = useTranslations();
+  const valueFormat = useRecordValueFormat();
+  const id = `values.${field.id}`;
+  const inputId = `${id}-${useId()}`;
+  const result = store.record?.fields.find((value) => value.fieldId === field.id)?.result;
+  const restricted = result?.state === "restricted";
+  const captureStaged = store.form.captureFieldIds.includes(field.id);
+  const captureAction =
+    store.record && !store.isReadOnly && field.behavior.kind === "snapshot" && field.behavior.capture === "explicit" ? (
+      <Button
+        aria-label={t(captureStaged ? "RecordModel.captureOnSaveField" : "RecordModel.captureValueField", {
+          field: field.label,
+        })}
+        aria-pressed={captureStaged}
+        disabled={store.isLoading}
+        size="sm"
+        type="button"
+        variant="ghost"
+        onClick={() => store.toggleCapture(field.id)}
+      >
+        <Camera aria-hidden className="size-3.5" />
+
+        {t(captureStaged ? "RecordModel.captureOnSave" : "RecordModel.captureValue")}
+      </Button>
+    ) : null;
+  if (field.valueType === "channels") return <RecordIdentityEditor field={field} store={store} />;
+  const permissionReadOnly = store.isPermissionReadOnly;
+  const derivationLabel = (kind: RecordValueSourceKind) =>
+    kind === "calculation"
+      ? t("RecordModel.derivation.calculation", { field: field.label })
+      : kind === "lookup"
+        ? t("RecordModel.derivation.lookup", { field: field.label })
+        : t("RecordModel.derivation.saved", { field: field.label });
+  if (restricted || !isRecordFieldWritable(field)) {
+    if (!store.record) return null;
+    if (result?.state === "value" && result.value.kind === "richText") {
+      return (
+        <EntityDetailFieldShell action={captureAction} fieldId={field.id} label={field.label}>
+          <FormattedTextField readOnly data={JSON.parse(result.value.documentJson) as object} label={field.label} />
+        </EntityDetailFieldShell>
+      );
+    }
+    const model = withFormulaReferences(store.presentation.model, store.presentation.formulaReferences);
+    const source = restricted ? null : recordValueSource({ model, field, t, format: valueFormat });
+    const lookup = source?.lookup;
+    const linked = lookup
+      ? store.record.relationships.find(
+          (summary) => summary.relationId === lookup.relationId && summary.direction === lookup.direction,
+        )?.records
+      : undefined;
+    const target = linked?.length === 1 ? linked[0] : null;
+    const targetName = target
+      ? recordDisplayName(target.title, store.presentation.linkLabels[target.ref.typeId], t)
+      : field.label;
+    const sentence = (derivation?: DerivationContext) =>
+      referenceSentence(source?.segments ?? [], (reference) =>
+        reference.kind === "list" && target
+          ? {
+              label: t("RecordModel.openRecord", { name: targetName }),
+              onOpen: (trigger) => {
+                derivation?.close();
+                runUserAction(() =>
+                  store.rootStore.recordWorkspaceStore.open(target.ref, derivation?.anchor ?? trigger),
+                );
+              },
+            }
+          : null,
+      );
+    return (
+      <EntityDetailFieldShell
+        action={restricted ? null : captureAction}
+        derivation={
+          source ? (
+            <EntityDetailDerivation
+              configureHref={
+                store.presentation.canManageSchema
+                  ? focusHref({ kind: "field", id: field.id, typeId: field.typeId })
+                  : null
+              }
+              icon={DERIVATION_ICONS[source.kind]}
+              label={derivationLabel(source.kind)}
+            >
+              {(context) => (
+                <div data-field-derivation-view={field.id}>
+                  {source.kind === "calculation" && field.behavior.kind !== "input" && field.behavior.expression ? (
+                    <CalculationFlowView field={field as RecordField} model={store.presentation.model} />
+                  ) : (
+                    <ConfirmationSentenceView sentence={sentence(context)} />
+                  )}
+                </div>
+              )}
+            </EntityDetailDerivation>
+          ) : undefined
+        }
+        fieldId={field.id}
+        label={field.label}
+        locked={restricted}
+        value={<RecordValue field={field} members={store.record.memberUsers} result={result} />}
+      />
+    );
+  }
+  return (
+    <EntityDetailFieldShell
+      action={captureAction}
+      fieldId={field.id}
+      inputId={field.valueType === "richText" ? undefined : inputId}
+      label={field.label}
+      locked={permissionReadOnly}
+      required={field.required}
+    >
+      <RecordInputField field={field} id={id} inputId={inputId} label={null} members={store.record?.memberUsers} />
+    </EntityDetailFieldShell>
+  );
+});

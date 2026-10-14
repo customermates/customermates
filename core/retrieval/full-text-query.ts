@@ -2,7 +2,7 @@ import { Prisma } from "@/generated/prisma";
 
 export { textSearchConfigFor } from "@/i18n/locale-registry";
 
-export const SUBSTRING_SEARCH_SCRIPT =
+const SUBSTRING_SEARCH_SCRIPT =
   /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}\p{Script=Thai}\p{Script=Lao}\p{Script=Khmer}\p{Script=Myanmar}]/u;
 const QUOTED_PHRASE = /["“”„«»]([^"“”„«»]*)["“”„«»]?/gu;
 const TOKEN_JOINER = /^[-_.'’]$/u;

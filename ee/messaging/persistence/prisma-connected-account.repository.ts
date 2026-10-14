@@ -1,33 +1,36 @@
+import type { PermissionService } from "@/core/base/permission.service";
 import type { MessagingProvider, Prisma } from "@/generated/prisma";
 
-import type { GetMyConnectedAccountsRepo } from "../connect/get-my-connected-accounts.interactor";
+import type { GetMyConnectedAccountsRepo } from "../connect/get-my-connected-accounts.repo";
 import type { CountChannelsNeedingActionRepo } from "../connect/count-channels-needing-action.interactor";
 import type { CreateHostedAuthLinkRepo } from "../connect/create-hosted-auth-link.repo";
 import type { ThreadAccountOwnersRepo } from "../inbox/thread-account-owners.repo";
 import type { MoveEmailThreadAccountRepo } from "../inbox/move-email-thread-account.repo";
-import type { DeleteConnectedAccountRepo } from "../connect/delete-connected-account.interactor";
-import type { ResyncConnectedAccountRepo } from "../connect/resync-connected-account.interactor";
+import type { DeleteConnectedAccountRepo } from "../connect/delete-connected-account.repo";
+import type { ResyncConnectedAccountRepo } from "../connect/resync-connected-account.repo";
 import type { ReconnectConnectedAccountRepo } from "../connect/reconnect-connected-account.repo";
-import type { SetConnectedAccountVisibilityRepo } from "../connect/set-connected-account-visibility.interactor";
-import type { SetConnectedAccountSignatureRepo } from "../connect/set-connected-account-signature.interactor";
+import type { SetConnectedAccountVisibilityRepo } from "../connect/set-connected-account-visibility.repo";
+import type { SetConnectedAccountSignatureRepo } from "../connect/set-connected-account-signature.repo";
 import type { AccountWebhookRepo } from "../webhooks/account/account-webhook.repo";
 import type { WebhookActivityRepo } from "../webhooks/relation/relation-webhook.repo";
 import type { ConnectedAccountRecord } from "../messaging.schema";
 import type { EmailSettings } from "../email-settings";
+import { resolveStoredEmailSettings } from "../email-settings";
 
 import { type EmailFolder, EmailFolderSchema } from "../email-folders";
 import type { BackfillConnectedAccountRepo } from "../ingest/backfill/backfill.repo";
+import type { UnusableProviderItemRepo } from "../ingest/unusable-provider-item.repo";
 import type { ClaimBackfillRepo } from "../ingest/claim-backfill.interactor";
 import type { ReleaseBackfillClaimRepo } from "../ingest/release-backfill-claim.interactor";
 import type { FindUsableAccountRepo } from "./find-usable-account.repo";
 import type { FindAccountByUnipileIdUnscopedRepo } from "./find-account-by-unipile-id-unscoped.repo";
 import type { DeleteAccountForBillingRepo } from "../connect/delete-account-for-billing.service";
-import type { DeleteAccountsForPlanConnectedAccountRepo } from "../connect/delete-accounts-for-plan.interactor";
+import type { DeleteAccountsForPlanConnectedAccountRepo } from "../connect/delete-accounts-for-plan-connected-account.repo";
 import type { DeleteConnectedAccountsForExpiredTrialsRepo } from "@/ee/lifecycle/delete-connected-accounts-for-expired-trials.interactor";
 import type { DeleteConnectedAccountsForInactiveOwnersRepo } from "@/ee/lifecycle/delete-connected-accounts-for-inactive-owners.interactor";
 import type { DeleteOrphanedUnipileAccountsRepo } from "@/ee/lifecycle/delete-orphaned-unipile-accounts.interactor";
 import type { RefreshInboxRepo } from "../inbox/refresh-inbox.repo";
-import type { SetSelectedFoldersRepo } from "../connect/set-selected-folders.interactor";
+import type { SetSelectedFoldersRepo } from "../connect/set-selected-folders.repo";
 import type { FindConnectedAccountsByIdsRepo } from "../find-connected-accounts-by-ids.repo";
 import type { RepoArgs } from "@/core/utils/types";
 import type { MessagingFilterOptionsRepo } from "../inbox/messaging-filter-options.repo";
@@ -37,7 +40,7 @@ import { randomUUID } from "node:crypto";
 
 import { AccountActivityKind, ConnectedAccountStatus, Resource, Status, SubscriptionStatus } from "@/generated/prisma";
 
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { accessibleConnectedAccountWhere, messageVisibilityWhere, threadAccessWhere } from "../messaging-access";
 import { accountNeedsAction, isEmailProvider } from "../provider";
@@ -46,7 +49,7 @@ import { emailFolderFilterValue } from "../inbox/messaging-filter-options.schema
 const BACKFILL_CLAIM_STALE_MS = 15 * 60 * 1000;
 
 export class PrismaConnectedAccountRepo
-  extends BaseRepository
+  extends TenantRepository
   implements
     GetMyConnectedAccountsRepo,
     CountChannelsNeedingActionRepo,
@@ -75,6 +78,13 @@ export class PrismaConnectedAccountRepo
     FindConnectedAccountsByIdsRepo,
     MessagingFilterOptionsRepo
 {
+  constructor(
+    private readonly permissions: PermissionService,
+    private readonly diagnostics: UnusableProviderItemRepo,
+  ) {
+    super();
+  }
+
   @BypassTenantGuard
   async createAccountUnscoped(args: RepoArgs<AccountWebhookRepo, "createAccountUnscoped">) {
     const row = await this.prisma.connectedAccount.upsert({
@@ -247,17 +257,8 @@ export class PrismaConnectedAccountRepo
   }
 
   @BypassTenantGuard
-  async recordUnusableItemUnscoped(args: RepoArgs<BackfillConnectedAccountRepo, "recordUnusableItemUnscoped">) {
-    await this.prisma.messagingInboundEvent.create({
-      data: {
-        source: "backfill",
-        companyId: args.companyId,
-        connectedAccountId: args.connectedAccountId,
-        payload: args.payload as Prisma.InputJsonValue,
-        unipileMessageId: args.unipileMessageId ?? null,
-        processed: false,
-      },
-    });
+  recordUnusableItemUnscoped(args: RepoArgs<BackfillConnectedAccountRepo, "recordUnusableItemUnscoped">) {
+    return this.diagnostics.recordUnusableItemUnscoped(args);
   }
 
   @BypassTenantGuard
@@ -490,7 +491,7 @@ export class PrismaConnectedAccountRepo
   }
 
   async listAccounts() {
-    if (!this.canAccess(Resource.inboxMessages)) return [];
+    if (!this.permissions.canRead(Resource.inboxMessages)) return [];
 
     const rows = await this.prisma.connectedAccount.findMany({
       where: {
@@ -587,7 +588,7 @@ export class PrismaConnectedAccountRepo
   }
 
   async countAccountsNeedingAction() {
-    if (!this.canAccess(Resource.inboxMessages)) return 0;
+    if (!this.permissions.canRead(Resource.inboxMessages)) return 0;
 
     const rows = await this.prisma.connectedAccount.findMany({
       where: {
@@ -612,6 +613,12 @@ export class PrismaConnectedAccountRepo
 
   async findAccountByIdOrThrow(id: string) {
     return this.prisma.connectedAccount.findFirstOrThrow({
+      where: { id, companyId: this.companyId, userId: this.userId },
+    });
+  }
+
+  async findOwnedAccountById(id: string) {
+    return this.prisma.connectedAccount.findFirst({
       where: { id, companyId: this.companyId, userId: this.userId },
     });
   }
@@ -664,6 +671,16 @@ export class PrismaConnectedAccountRepo
     });
 
     return this.getAccountByIdOrThrow(args.id);
+  }
+
+  async findOwnedAccountEmail(id: string) {
+    const row = await this.prisma.connectedAccount.findFirst({
+      where: { id, companyId: this.companyId, userId: this.userId },
+      select: { signature: true, signatureFields: true },
+    });
+    return row
+      ? { signature: row.signature, settings: resolveStoredEmailSettings(row.signature, row.signatureFields).settings }
+      : null;
   }
 
   async setAccountSignatureOrThrow(args: { id: string; signature: string | null; settings: EmailSettings }) {

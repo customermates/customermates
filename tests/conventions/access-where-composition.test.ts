@@ -1,25 +1,18 @@
 import { readFileSync } from "node:fs";
-import { join, relative } from "node:path";
+import { join,relative } from "node:path";
 
 import ts from "typescript";
-import { describe, expect, it } from "vitest";
+import { describe,expect,it } from "vitest";
 
-import { REPO_ROOT, walkFiles } from "./walk";
+import { REPO_ROOT,walkFiles } from "./walk";
 
 const ENFORCED = true;
 
 const SCANNED_DIRECTORIES = ["core", "ee", "features", "workflows", "app"];
 
-const CRM_ACCESS_KEYS = ["companyId", "users"];
-
 const HELPER_KEYS: Record<string, string[]> = {
-  'accessWhere("user")': ["companyId", "id"],
-  'accessWhere("contact")': CRM_ACCESS_KEYS,
-  'accessWhere("organization")': CRM_ACCESS_KEYS,
-  'accessWhere("deal")': CRM_ACCESS_KEYS,
-  'accessWhere("service")': CRM_ACCESS_KEYS,
-  'accessWhere("task")': CRM_ACCESS_KEYS,
-  'accessWhere("routine")': ["companyId", "ownerUserId"],
+  "userAccessWhere(": ["companyId", "id"],
+  "routineAccessWhere(": ["companyId", "ownerUserId"],
   "threadAccessWhere(": ["companyId", "OR"],
   "calendarAccessWhere(": ["companyId", "connectedAccount"],
   "calendarEventAccessWhere(": ["companyId", "connectedAccount"],

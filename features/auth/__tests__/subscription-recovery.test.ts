@@ -42,7 +42,7 @@ describe("resolveSubscriptionRecoveryPath", () => {
           isSystemRole: false,
           permissions: [
             { resource: Resource.company, action: Action.readAll },
-            { resource: Resource.contacts, action: Action.update },
+            { resource: Resource.routines, action: Action.update },
           ],
         } as unknown as TenantUser["role"]),
         SubscriptionPlan.pro,

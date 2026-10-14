@@ -4,9 +4,12 @@ import type { SeedContext } from "./context";
 
 import { SEED_IDS } from "./context";
 import { fixtureId } from "./helpers";
+import { NORTHWIND_ROLE_IDS, type NorthwindTypeKey } from "./northwind-model";
 import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
 
 type RoleGrant = readonly [resource: Resource, actions: readonly Action[]];
+type SyntheticRecordKind = Exclude<NorthwindTypeKey, "lineItem">;
+type RecordGrant = readonly [kind: SyntheticRecordKind, actions: readonly Action[]];
 export type SyntheticRolePermissionDefinition = Readonly<{
   action: Action;
   companyId: string;
@@ -21,6 +24,7 @@ export type SyntheticRoleDefinition = Readonly<{
   isSystemRole: boolean;
   name: string;
   permissions: readonly SyntheticRolePermissionDefinition[];
+  recordGrants: readonly RecordGrant[];
 }>;
 
 const manageAll = [Action.create, Action.readAll, Action.update, Action.delete] as const;
@@ -38,13 +42,25 @@ function permissionFixtures(roleId: string, offset: number, grants: readonly Rol
     }));
 }
 
+const readAll = [Action.readAll] as const;
+const contribute = [Action.create, Action.readOwn, Action.update] as const;
+const shareAccounts = [Action.create, Action.readAll, Action.update] as const;
+
+// Sales lead: every deal and the team forecast, plus marketing and partner lists; subscriptions read-only.
+const salesManagerRecordGrants = [
+  ["contact", manageAll],
+  ["organization", manageAll],
+  ["deal", manageAll],
+  ["task", manageAll],
+  ["service", readAll],
+  ["campaign", manageAll],
+  ["partner", manageAll],
+  ["subscription", readAll],
+  ["onboarding", readAll],
+] as const satisfies readonly RecordGrant[];
+
 const salesManagerGrants = [
-  [Resource.contacts, manageAll],
-  [Resource.organizations, manageAll],
-  [Resource.deals, manageAll],
-  [Resource.tasks, manageAll],
   [Resource.inboxMessages, manageAll],
-  [Resource.services, [Action.readAll]],
   [Resource.users, [Action.readAll]],
   [Resource.auditLog, [Action.readAll]],
   [Resource.wiki, [Action.readAll]],
@@ -52,16 +68,72 @@ const salesManagerGrants = [
   [Resource.company, companyVisibility],
 ] as const satisfies readonly RoleGrant[];
 
+// Customer success: subscriptions, onboarding projects and tickets; deals read-only.
+const customerSuccessRecordGrants = [
+  ["contact", manageAll],
+  ["organization", manageAll],
+  ["task", manageAll],
+  ["deal", readAll],
+  ["service", readAll],
+  ["subscription", manageAll],
+  ["onboarding", manageAll],
+  ["ticket", manageAll],
+] as const satisfies readonly RecordGrant[];
+
 const customerSuccessGrants = [
-  [Resource.contacts, manageAll],
-  [Resource.organizations, manageAll],
-  [Resource.tasks, manageAll],
   [Resource.inboxMessages, manageAll],
-  [Resource.deals, [Action.readAll]],
-  [Resource.services, [Action.readAll]],
   [Resource.users, [Action.readOwn]],
   [Resource.wiki, [Action.readAll]],
   [Resource.routines, [Action.readOwn]],
+  [Resource.company, companyVisibility],
+] as const satisfies readonly RoleGrant[];
+
+// Account executives: their own deals, shared accounts and contacts, subscriptions read-only.
+const accountExecutiveRecordGrants = [
+  ["contact", shareAccounts],
+  ["organization", shareAccounts],
+  ["deal", contribute],
+  ["task", contribute],
+  ["service", readAll],
+  ["subscription", readAll],
+  ["campaign", readAll],
+  ["partner", readAll],
+] as const satisfies readonly RecordGrant[];
+
+const accountExecutiveGrants = [
+  [Resource.inboxMessages, [Action.create, Action.readAll, Action.update]],
+  [Resource.users, [Action.readOwn]],
+  [Resource.wiki, [Action.readAll]],
+  [Resource.company, companyVisibility],
+] as const satisfies readonly RoleGrant[];
+
+// Support: tickets only, with read access to the accounts, contacts and subscriptions behind them.
+const supportRecordGrants = [
+  ["ticket", manageAll],
+  ["contact", readAll],
+  ["organization", readAll],
+  ["subscription", readAll],
+  ["task", contribute],
+] as const satisfies readonly RecordGrant[];
+
+const supportGrants = [
+  [Resource.inboxMessages, manageAll],
+  [Resource.users, [Action.readOwn]],
+  [Resource.wiki, [Action.readAll]],
+  [Resource.company, companyVisibility],
+] as const satisfies readonly RoleGrant[];
+
+// People and operations: open roles and candidates, no customer or deal data.
+const peopleOperationsRecordGrants = [
+  ["openRole", manageAll],
+  ["candidate", manageAll],
+  ["task", manageAll],
+] as const satisfies readonly RecordGrant[];
+
+const peopleOperationsGrants = [
+  [Resource.inboxMessages, [Action.create, Action.readAll, Action.update]],
+  [Resource.users, [Action.readAll]],
+  [Resource.wiki, manageAll],
   [Resource.company, companyVisibility],
 ] as const satisfies readonly RoleGrant[];
 
@@ -73,34 +145,59 @@ export const SYNTHETIC_ROLE_DEFINITIONS = [
     isSystemRole: true,
     name: "Admin",
     permissions: [],
+    recordGrants: [],
   },
   {
     id: SEED_IDS.salesManagerRole,
     companyId: SEED_IDS.company,
-    description: "Manages the sales pipeline, team workload, and customer conversations",
+    description: "Owns every deal, the team forecast, campaigns and partners",
     isSystemRole: false,
-    name: "Sales Manager",
+    name: "Sales lead",
     permissions: permissionFixtures(SEED_IDS.salesManagerRole, 1, salesManagerGrants),
+    recordGrants: salesManagerRecordGrants,
   },
   {
     id: SEED_IDS.customerSuccessRole,
     companyId: SEED_IDS.company,
-    description: "Manages customer relationships, follow-ups, and shared conversations",
+    description: "Runs subscriptions, onboarding projects and customer tickets",
     isSystemRole: false,
-    name: "Customer Success",
+    name: "Customer success",
     permissions: permissionFixtures(SEED_IDS.customerSuccessRole, 31, customerSuccessGrants),
+    recordGrants: customerSuccessRecordGrants,
+  },
+  {
+    id: NORTHWIND_ROLE_IDS.accountExecutive,
+    companyId: SEED_IDS.company,
+    description: "Works their own deals on shared accounts; subscriptions are read-only",
+    isSystemRole: false,
+    name: "Account executive",
+    permissions: permissionFixtures(NORTHWIND_ROLE_IDS.accountExecutive, 61, accountExecutiveGrants),
+    recordGrants: accountExecutiveRecordGrants,
+  },
+  {
+    id: NORTHWIND_ROLE_IDS.support,
+    companyId: SEED_IDS.company,
+    description: "Handles support tickets with read access to the accounts behind them",
+    isSystemRole: false,
+    name: "Support",
+    permissions: permissionFixtures(NORTHWIND_ROLE_IDS.support, 91, supportGrants),
+    recordGrants: supportRecordGrants,
+  },
+  {
+    id: NORTHWIND_ROLE_IDS.peopleOperations,
+    companyId: SEED_IDS.company,
+    description: "Runs hiring: open roles and candidates, without deals",
+    isSystemRole: false,
+    name: "People and operations",
+    permissions: permissionFixtures(NORTHWIND_ROLE_IDS.peopleOperations, 121, peopleOperationsGrants),
+    recordGrants: peopleOperationsRecordGrants,
   },
 ] satisfies readonly SyntheticRoleDefinition[];
 
 export const SYNTHETIC_CUSTOM_ROLES = SYNTHETIC_ROLE_DEFINITIONS.filter(({ isSystemRole }) => !isSystemRole);
-export const SYNTHETIC_ROLE_PERMISSION_COUNT = SYNTHETIC_ROLE_DEFINITIONS.reduce(
-  (count, role) => count + role.permissions.length,
-  0,
-);
-
 async function reconcileRoleId(
   prisma: Prisma.TransactionClient,
-  role: Omit<SyntheticRoleDefinition, "permissions"> & { createdAt: Date; updatedAt: Date },
+  role: Omit<SyntheticRoleDefinition, "permissions" | "recordGrants"> & { createdAt: Date; updatedAt: Date },
 ): Promise<void> {
   const [existingById, existingByName] = await Promise.all([
     prisma.userRole.findUnique({ where: { id: role.id }, select: { id: true } }),

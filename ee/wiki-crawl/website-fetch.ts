@@ -46,7 +46,7 @@ for (const [address, prefix] of [
 ] as const)
   IPV6_RESERVED.addSubnet(address, prefix, "ipv6");
 
-export type WebsiteFetchFailure =
+type WebsiteFetchFailure =
   | "invalid_url"
   | "outside_domain"
   | "blocked_address"
@@ -190,7 +190,7 @@ function decodeBody(body: Buffer, contentType: string, contentTypeHeader: string
 
 export type WebsiteResourceTarget = { url: string; host: string; registrableDomain: string };
 
-export type WebsiteResourceResult =
+type WebsiteResourceResult =
   | { ok: true; url: string; contentType: string; body: string; truncated: boolean }
   | { ok: false; reason: WebsiteFetchFailure; status?: number };
 

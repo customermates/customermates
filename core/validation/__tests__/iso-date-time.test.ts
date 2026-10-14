@@ -1,14 +1,11 @@
-import type { z } from "zod";
 import { describe, expect, it } from "vitest";
 
 import { canonicalIsoDateTime, isIsoDateTime } from "@/core/validation/iso-date-time";
-import { validateCustomFieldDateTime } from "@/core/validation/validate-custom-field-date-time";
+import { RecordDateTimeSchema } from "@/features/records/record-model.schema";
 
-const issuesFor = (value: string | string[]) => {
-  const issues: unknown[] = [];
-  const ctx = { addIssue: (issue: unknown) => issues.push(issue) } as unknown as z.RefinementCtx;
-  validateCustomFieldDateTime(value, ctx, ["customFieldValues", 0, "value"]);
-  return issues;
+const issuesFor = (value: string) => {
+  const result = RecordDateTimeSchema.safeParse(value);
+  return result.success ? [] : result.error.issues;
 };
 
 describe("iso date time", () => {

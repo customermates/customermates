@@ -1,5 +1,6 @@
 import type { TenantUser } from "@/features/user/user.schema";
 
+import { presetId } from "@/features/records/crm-preset";
 import { randomUUID } from "node:crypto";
 
 import { Client } from "pg";
@@ -7,10 +8,11 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { Action, Resource } from "@/generated/prisma";
 
-import { PrismaRoutineRepo } from "../prisma-routine.repository";
+import { createTestRoutineRepo } from "@/tests/helpers/record-delivery";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import { runWithTenant } from "@/core/decorators/tenant-context";
+import { routineRunDetail, routineRunStopReason } from "../routine-run-outcome";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -23,6 +25,10 @@ describeDatabase("routine run projection on PostgreSQL", () => {
   const contactId = randomUUID();
   const eventRunId = randomUUID();
   const scheduleRunId = randomUUID();
+  const conversationId = randomUUID();
+  const turnRequestId = randomUUID();
+  const limitConversationId = randomUUID();
+  const limitTurnRequestId = randomUUID();
 
   const viewer: TenantUser = {
     ...createMockUserWithPermissions([
@@ -33,13 +39,40 @@ describeDatabase("routine run projection on PostgreSQL", () => {
     companyId,
   };
 
+  const typeId = presetId(companyId, "contact");
+  const nameFieldId = presetId(companyId, "contact.firstName");
   const triggerPayload = {
+    id: randomUUID(),
     companyId,
-    userId: ownerId,
-    entityId: contactId,
-    payload: {
-      contact: { id: contactId, firstName: "Private", lastName: "Person", email: "private@example.com" },
-      changes: { firstName: { from: "Old", to: "Private" } },
+    event: "record.updated",
+    timestamp: "2026-01-01T00:00:00.000Z",
+    actorId: ownerId,
+    data: {
+      causeId: "cause-1",
+      cause: { kind: "mutation" },
+      record: {
+        ref: { typeId, recordId: contactId },
+        schemaRevision: 1,
+        beforeVersion: 1,
+        afterVersion: 2,
+        assignments: null,
+        identities: null,
+        links: [],
+        related: [],
+        fields: [
+          {
+            fieldId: nameFieldId,
+            before: null,
+            after: {
+              fieldId: nameFieldId,
+              label: "First name",
+              valueType: "text",
+              options: [],
+              value: { state: "value", value: { kind: "text", value: "private@example.com" } },
+            },
+          },
+        ],
+      },
     },
   };
 
@@ -57,7 +90,7 @@ describeDatabase("routine run projection on PostgreSQL", () => {
     );
 
     for (const [id, event, payload] of [
-      [eventRunId, "contact.updated", JSON.stringify(triggerPayload)],
+      [eventRunId, "record.updated", JSON.stringify(triggerPayload)],
       [scheduleRunId, null, null],
     ] as const) {
       await client.query(
@@ -69,10 +102,41 @@ describeDatabase("routine run projection on PostgreSQL", () => {
         [id, companyId, routineId, ownerId, event, event ? contactId : null, payload],
       );
     }
+    for (const [conversation, turnRequest, stopReason, summary, runId] of [
+      [conversationId, turnRequestId, "context_limit", "Earlier progress that fills the summary.", eventRunId],
+      [
+        limitConversationId,
+        limitTurnRequestId,
+        "run_credit_limit",
+        "I stopped before making any changes because this routine run reached its limit of 10 credits per run.",
+        scheduleRunId,
+      ],
+    ] as const) {
+      await client.query(
+        `INSERT INTO "AgentConversation" ("id", "companyId", "userId", "origin", "updatedAt")
+         VALUES ($1, $2, $3, 'routine', CURRENT_TIMESTAMP)`,
+        [conversation, companyId, ownerId],
+      );
+      await client.query(
+        `INSERT INTO "AgentTurnRequest"
+           ("id", "companyId", "userId", "conversationId", "clientRequestId", "text", "status", "runId",
+            "userMessageId", "terminalCode", "stopReason", "updatedAt")
+         VALUES ($1, $2, $3, $4, $5, 'Stage change', 'completed', $6, $7, 'partial', $8::"AgentTurnStopReason",
+                 CURRENT_TIMESTAMP)`,
+        [turnRequest, companyId, ownerId, conversation, randomUUID(), randomUUID(), randomUUID(), stopReason],
+      );
+      await client.query(
+        `UPDATE "RoutineRun" SET "conversationId" = $1, "turnRequestId" = $2, "status" = 'partial',
+           "summary" = $3, "terminalCode" = 'partial' WHERE "id" = $4`,
+        [conversation, turnRequest, summary, runId],
+      );
+    }
   });
 
   afterAll(async () => {
     await client.query('DELETE FROM "RoutineRun" WHERE "companyId" = $1', [companyId]);
+    await client.query('DELETE FROM "AgentTurnRequest" WHERE "companyId" = $1', [companyId]);
+    await client.query('DELETE FROM "AgentConversation" WHERE "companyId" = $1', [companyId]);
     await client.query('DELETE FROM "Routine" WHERE "companyId" = $1', [companyId]);
     await client.query('DELETE FROM "User" WHERE "companyId" = $1', [companyId]);
     await client.query('DELETE FROM "Company" WHERE "id" = $1', [companyId]);
@@ -80,7 +144,7 @@ describeDatabase("routine run projection on PostgreSQL", () => {
   });
 
   async function runs() {
-    return runWithTenant(viewer, () => new PrismaRoutineRepo().getRoutineRuns(routineId, 10));
+    return runWithTenant(viewer, () => createTestRoutineRepo().getRoutineRuns(routineId, 10, null));
   }
 
   it("never puts the raw event envelope on the wire", async () => {
@@ -97,11 +161,28 @@ describeDatabase("routine run projection on PostgreSQL", () => {
 
     expect(triggered?.triggerEntityId).toBe(contactId);
     expect(triggered?.triggerContext).toEqual({
-      entityType: "contact",
+      recordRef: { typeId, recordId: contactId },
       threadId: null,
-      changedFields: ["firstName"],
+      changedFields: [nameFieldId],
       changedFieldsTruncated: false,
+      changedFieldLabels: { [nameFieldId]: "First name" },
     });
+  });
+
+  it("projects a context-limit stop reason into the run history", async () => {
+    const { runs: rows } = await runs();
+    const triggered = rows.find((row) => row.id === eventRunId);
+
+    expect(triggered?.stopReason).toBe("context_limit");
+    expect(triggered && routineRunDetail(triggered, (key) => key)).toBe("RoutineRunStopReason.contextLimit");
+  });
+
+  it("projects the per-run credit limit as its own stop reason", async () => {
+    const { runs: rows } = await runs();
+    const limited = rows.find((row) => row.id === scheduleRunId);
+
+    expect(limited?.stopReason).toBe("run_credit_limit");
+    expect(limited && routineRunStopReason(limited, (key) => key)).toBe("RoutineRunStopReason.runCreditLimit");
   });
 
   it("leaves a run with no trigger event without a context at all", async () => {

@@ -98,9 +98,8 @@ describe("GroupPageRequestSchema", () => {
         overrides: { won: 50 },
         collapsed: ["lost"],
         only: "won",
-        includeValueSums: true,
       }),
-    ).toEqual({ perGroup: 10, overrides: { won: 50 }, collapsed: ["lost"], only: "won", includeValueSums: true });
+    ).toEqual({ perGroup: 10, overrides: { won: 50 }, collapsed: ["lost"], only: "won" });
     expect(GroupPageRequestSchema.safeParse({ perGroup: GROUP_PAGE_SIZE_MAX + 1 }).success).toBe(false);
     expect(GroupPageRequestSchema.safeParse({ overrides: { won: 0 } }).success).toBe(false);
   });

@@ -4,6 +4,7 @@ import { getFailRoutineRunInteractor, getStartRoutineRunInteractor } from "@/cor
 import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
 
 import { AppErrorCode, appErrorDetailsInCauseChain, isExpectedError } from "@/core/errors/app-errors";
+import { env } from "@/env";
 
 import { reportFailure, toWorkflowFailure } from "./capture-failure";
 
@@ -17,14 +18,17 @@ export type RunRoutineWorkflowPayload = {
 };
 
 function startFailureReason(error: unknown): string {
-  return appErrorDetailsInCauseChain(error)?.code === AppErrorCode.inactiveUser ? "ownerInactive" : "startFailed";
+  if (appErrorDetailsInCauseChain(error)?.code === AppErrorCode.inactiveUser) return "ownerInactive";
+  return env.HOSTED_AI_OPERATOR_CONTROLS_ENABLED && env.HOSTED_AI_PROVIDER_WORK_PAUSED ? "adminPaused" : "startFailed";
 }
 
 async function startRoutineRunStep(payload: RunRoutineWorkflowPayload): Promise<void> {
   "use step";
   try {
     await runAsBackgroundTenant(payload.ownerUserId, () =>
-      getStartRoutineRunInteractor().invoke({ routineRunId: payload.routineRunId }),
+      getStartRoutineRunInteractor().invoke({
+        routineRunId: payload.routineRunId,
+      }),
     );
   } catch (error) {
     await getFailRoutineRunInteractor().invoke({

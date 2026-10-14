@@ -1,3 +1,4 @@
+import { PermissionService } from "@/core/base/permission.service";
 import type { TenantUser } from "@/features/user/user.schema";
 
 import { randomUUID } from "node:crypto";
@@ -57,7 +58,11 @@ describeDatabase("Workspace Wiki search on PostgreSQL", () => {
   };
   const search = (query: string, tenant = user, page = 1) =>
     runWithTenant(tenant, () =>
-      new SearchWikiPagesInteractor(new PrismaWikiPageRepo(), "stored").invoke({ query, page, pageSize: 5 }),
+      new SearchWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), "stored").invoke({
+        query,
+        page,
+        pageSize: 5,
+      }),
     );
   const titles = async (query: string) => {
     const result = await search(query);
@@ -148,7 +153,11 @@ describeDatabase("Workspace Wiki search on PostgreSQL", () => {
       { title: "Travel expense policy", markdown: "Book trains early." },
     ]);
     const coverage = async (query: string) =>
-      (await runWithTenant(user, () => new PrismaWikiPageRepo().fullTextPageCandidates(query, 10))).coverage;
+      (
+        await runWithTenant(user, () =>
+          new PrismaWikiPageRepo(new PermissionService()).fullTextPageCandidates(query, 10),
+        )
+      ).coverage;
 
     expect(await coverage("finance lead refunds")).toBeCloseTo(1, 6);
     const partial = await coverage("finance lead parking garage");

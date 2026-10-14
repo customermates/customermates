@@ -585,7 +585,7 @@ describe("hub pagination and rendered reachability", () => {
         expect(response.headers.get("location"), path).toBeNull();
       }
 
-      for (const path of ["/en/dashboard", "/en/contacts/40000000-0000-4000-8000-000000000001?tab=notes"]) {
+      for (const path of ["/en/dashboard", "/en/records/30000000-0000-4000-8000-000000000001/40000000-0000-4000-8000-000000000001?tab=notes"]) {
         const response = await e2eResponse(path);
         expect(response.status, path).toBe(307);
         const location = response.headers.get("location") ?? "";

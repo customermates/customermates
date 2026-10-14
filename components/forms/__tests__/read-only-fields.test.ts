@@ -47,10 +47,10 @@ describe("FormOutput", () => {
     expect(markup).toContain('aria-labelledby="deal-value-label"');
     expect(markup).toContain('data-field-state="read-only"');
     expect(markup).toContain('tabindex="0"');
-    expect(markup).toContain("border-border");
-    expect(markup).toContain("bg-background");
-    expect(markup).not.toContain("bg-input-background");
-    expect(markup).toContain("shadow-none");
+    expect(markup).toContain("border-input");
+    expect(markup).toContain("bg-input-background");
+    expect(markup).toContain("shadow-xs");
+    expect(markup).toContain("cursor-[inherit]");
     expect(markup).toContain("€12,500");
   });
 

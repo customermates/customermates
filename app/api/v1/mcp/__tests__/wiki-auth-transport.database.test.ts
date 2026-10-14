@@ -120,10 +120,20 @@ describeDatabase("Workspace Wiki authenticated MCP transport", () => {
   const readerAuthUserId = randomUUID();
   const managerApiKeyId = randomUUID();
   const readerApiKeyId = randomUUID();
+  const expiredApiKeyId = randomUUID();
   const readablePageId = randomUUID();
   const foreignPageId = randomUUID();
   const managerApiKey = randomUUID().replaceAll("-", "").repeat(2);
   const readerApiKey = randomUUID().replaceAll("-", "").repeat(2);
+  const expiredApiKey = randomUUID().replaceAll("-", "").repeat(2);
+  const outsiderRoleId = randomUUID();
+  const outsiderUserId = randomUUID();
+  const outsiderAuthUserId = randomUUID();
+  const outsiderApiKeyId = randomUUID();
+  const outsiderApiKey = randomUUID().replaceAll("-", "").repeat(2);
+  const oauthClientId = randomUUID();
+  const managerBearer = randomUUID();
+  const outsiderBearer = randomUUID();
 
   beforeAll(async () => {
     await client.connect();
@@ -137,6 +147,10 @@ describeDatabase("Workspace Wiki authenticated MCP transport", () => {
     );
     await client.query(
       'INSERT INTO "RolePermission" ("id", "roleId", "companyId", "resource", "action") VALUES ($1, $2, $3, \'wiki\', \'readAll\')',
+      [randomUUID(), readerRoleId, companyId],
+    );
+    await client.query(
+      'INSERT INTO "RolePermission" ("id", "roleId", "companyId", "resource", "action") VALUES ($1, $2, $3, \'api\', \'readAll\')',
       [randomUUID(), readerRoleId, companyId],
     );
     await client.query(
@@ -178,6 +192,10 @@ describeDatabase("Workspace Wiki authenticated MCP transport", () => {
       ],
     );
     await client.query(
+      'INSERT INTO "Apikey" ("id", "name", "key", "referenceId", "configId", "enabled", "rateLimitEnabled", "requestCount", "expiresAt", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, \'default\', TRUE, FALSE, 0, CURRENT_TIMESTAMP - INTERVAL \'1 day\', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)',
+      [expiredApiKeyId, "Wiki transport expired", await defaultKeyHasher(expiredApiKey), managerAuthUserId],
+    );
+    await client.query(
       'INSERT INTO "WikiPage" ("id", "companyId", "title", "markdown", "updatedAt") VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP), ($5, $6, $7, $8, CURRENT_TIMESTAMP)',
       [
         readablePageId,
@@ -192,14 +210,91 @@ describeDatabase("Workspace Wiki authenticated MCP transport", () => {
     );
   });
 
+  beforeAll(async () => {
+    await client.query(
+      'INSERT INTO "UserRole" ("id", "name", "isSystemRole", "companyId", "updatedAt") VALUES ($1, $2, FALSE, $3, CURRENT_TIMESTAMP)',
+      [outsiderRoleId, "MCP Wiki reader without API access", companyId],
+    );
+    await client.query(
+      'INSERT INTO "RolePermission" ("id", "roleId", "companyId", "resource", "action") VALUES ($1, $2, $3, \'wiki\', \'readAll\')',
+      [randomUUID(), outsiderRoleId, companyId],
+    );
+    const email = `wiki-outsider-${outsiderUserId}@example.invalid`;
+    await client.query(
+      'INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "roleId", "status", "updatedAt") VALUES ($1, $2, \'Wiki\', \'Outsider\', $3, $4, \'active\', CURRENT_TIMESTAMP)',
+      [outsiderUserId, email, companyId, outsiderRoleId],
+    );
+    await client.query(
+      'INSERT INTO "AuthUser" ("id", "name", "email", "emailVerified", "companyId", "updatedAt") VALUES ($1, \'Wiki Outsider\', $2, TRUE, $3, CURRENT_TIMESTAMP)',
+      [outsiderAuthUserId, email, companyId],
+    );
+    await client.query(
+      'INSERT INTO "Apikey" ("id", "name", "key", "referenceId", "configId", "enabled", "rateLimitEnabled", "requestCount", "createdAt", "updatedAt") VALUES ($1, \'Wiki transport outsider\', $2, $3, \'default\', TRUE, FALSE, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)',
+      [outsiderApiKeyId, await defaultKeyHasher(outsiderApiKey), outsiderAuthUserId],
+    );
+    await client.query(
+      'INSERT INTO "OauthApplication" ("id", "name", "clientId", "redirectUrls", "type", "createdAt", "updatedAt") VALUES ($1, \'MCP permission test\', $1, \'http://127.0.0.1:1/callback\', \'public\', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)',
+      [oauthClientId],
+    );
+    for (const [token, authUserId] of [
+      [managerBearer, managerAuthUserId],
+      [outsiderBearer, outsiderAuthUserId],
+    ]) {
+      await client.query(
+        'INSERT INTO "OauthAccessToken" ("id", "accessToken", "refreshToken", "accessTokenExpiresAt", "refreshTokenExpiresAt", "clientId", "userId", "scopes", "createdAt", "updatedAt") VALUES ($1, $2, $3, CURRENT_TIMESTAMP + INTERVAL \'1 hour\', CURRENT_TIMESTAMP + INTERVAL \'1 day\', $4, $5, \'openid profile email\', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)',
+        [randomUUID(), token, randomUUID(), oauthClientId, authUserId],
+      );
+    }
+  });
+
   afterAll(async () => {
-    await client.query('DELETE FROM "Apikey" WHERE "id" = ANY($1)', [[managerApiKeyId, readerApiKeyId]]);
-    await client.query('DELETE FROM "AuthUser" WHERE "id" = ANY($1)', [[managerAuthUserId, readerAuthUserId]]);
+    await client.query('DELETE FROM "OauthApplication" WHERE "id" = $1', [oauthClientId]);
+    await client.query('DELETE FROM "Apikey" WHERE "id" = ANY($1)', [
+      [managerApiKeyId, readerApiKeyId, expiredApiKeyId, outsiderApiKeyId],
+    ]);
+    await client.query('DELETE FROM "AuthUser" WHERE "id" = ANY($1)', [
+      [managerAuthUserId, readerAuthUserId, outsiderAuthUserId],
+    ]);
     await client.query('DELETE FROM "Company" WHERE "id" = ANY($1)', [[companyId, foreignCompanyId]]);
     await client.end();
   });
 
-  it("rejects missing credentials and does not let an invalid API key read Wiki data", async () => {
+  it("refuses API key and OAuth connections without Read access All on API & Webhooks with a 403", async () => {
+    const connect = async (credential: Record<string, string>) => {
+      const headers = new Headers({
+        accept: "application/json, text/event-stream",
+        "content-type": "application/json",
+        ...credential,
+      });
+      requestContext.headers = headers;
+      const response = await POST(
+        new Request(MCP_URL, { method: "POST", headers, body: JSON.stringify(mcpBody("initialize", 50)) }),
+      );
+      return { status: response.status, body: await response.text() };
+    };
+
+    const refusedCredentials: Array<Record<string, string>> = [
+      { "x-api-key": outsiderApiKey },
+      { authorization: `Bearer ${outsiderBearer}` },
+    ];
+    for (const credential of refusedCredentials) {
+      const refused = await connect(credential);
+      expect(refused.status, Object.keys(credential)[0]).toBe(403);
+      expect(JSON.parse(refused.body)).toMatchObject({
+        error: "insufficient_permissions",
+        requiredPermission: { resource: "api", action: "readAll" },
+      });
+    }
+    const permittedCredentials: Array<Record<string, string>> = [
+      { "x-api-key": readerApiKey },
+      { "x-api-key": managerApiKey },
+      { authorization: `Bearer ${managerBearer}` },
+    ];
+    for (const credential of permittedCredentials)
+      expect((await connect(credential)).status, Object.values(credential)[0].slice(0, 6)).toBe(200);
+  });
+
+  it("rejects missing, invalid and expired API keys with the OAuth challenge", async () => {
     const headers = new Headers({
       accept: "application/json, text/event-stream",
       "content-type": "application/json",
@@ -215,21 +310,19 @@ describeDatabase("Workspace Wiki authenticated MCP transport", () => {
     expect(missing.status).toBe(401);
     expect(missing.headers.get("www-authenticate")).toContain("oauth-protected-resource");
 
-    const invalidKey = "z".repeat(64);
-    const initialized = await initialize(invalidKey);
-    const denied = await rpc(
-      invalidKey,
-      mcpBody("tools/call", 31, {
-        name: "manage_wiki_pages",
-        arguments: { action: "list" },
-      }),
-      initialized.sessionId,
-    );
-    expect(denied.data?.result).toMatchObject({
-      isError: true,
-      _meta: { failure: { kind: "authentication" } },
-    });
-    expect(denied.text).not.toContain("reader-key-discovery-phrase");
+    for (const rejectedKey of ["z".repeat(64), "pb6-not-a-valid-key", expiredApiKey]) {
+      const initialized = await rpc(rejectedKey, mcpBody("initialize", 31));
+      expect(initialized.response.status, rejectedKey === expiredApiKey ? "expired" : "invalid").toBe(401);
+      expect(initialized.response.headers.get("www-authenticate")).toContain("oauth-protected-resource");
+      const docs = await rpc(
+        rejectedKey,
+        mcpBody("tools/call", 32, { name: "search_docs", arguments: { query: "pipeline" } }),
+        undefined,
+        "http://localhost:4000/api/v1/mcp?toolsets=docs",
+      );
+      expect(docs.response.status).toBe(401);
+      expect(docs.text).not.toContain("reader-key-discovery-phrase");
+    }
   });
 
   it("discovers, writes, searches, follows, renames, and isolates Wiki pages through the production MCP route", async () => {
@@ -456,7 +549,7 @@ describeDatabase("Workspace Wiki authenticated MCP transport", () => {
     expect(foreignFetch.text).not.toContain("foreign-tenant-only-phrase");
 
     const auditRows = await client.query<{ event: string; entityId: string }>(
-      'SELECT "event", "entityId" FROM "AuditLog" WHERE "companyId" = $1 AND "entityId" = ANY($2)',
+      'SELECT kind AS "event", "subjectId" AS "entityId" FROM "EventLog" WHERE "companyId" = $1 AND "subjectKind" = \'wiki_page\' AND "subjectId" = ANY($2)',
       [companyId, [target.id, source.id]],
     );
     expect(auditRows.rows).toEqual(

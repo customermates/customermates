@@ -22,7 +22,7 @@ vi.mock("react-dom", async (importOriginal) => ({
 }));
 
 import { HeroDemoIframe } from "@/app/[locale]/(static)/components/hero-demo-iframe";
-import { ProductDemo } from "../product-demo";
+import { DEMO_RECORD_LIST_PATHS, ProductDemo } from "../product-demo";
 import { DocsDemo } from "@/core/fumadocs/docs-demo";
 import { localProductDemoSrc } from "../product-demo-src";
 
@@ -84,8 +84,8 @@ afterEach(() => {
 describe("BrowserFrame", () => {
   it.each([
     ["homepage", <HeroDemoIframe key="homepage" src="https://demo.customermates.com/en/dashboard" />],
-    ["article", <ProductDemo key="article" path="/contacts" />],
-    ["standalone", <ProductDemo key="standalone" path="/contacts" presentation="standalone" />],
+    ["article", <ProductDemo key="article" path={DEMO_RECORD_LIST_PATHS.contacts} />],
+    ["standalone", <ProductDemo key="standalone" path={DEMO_RECORD_LIST_PATHS.contacts} presentation="standalone" />],
     ["docs", <DocsDemo key="docs" src="https://demo.customermates.com/en/dashboard" title="Demo" />],
   ])("discloses an interactive live preview and shares one width cap on %s", (_, component) => {
     const host = mount(component);

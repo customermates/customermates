@@ -24,11 +24,8 @@ vi.mock("@/components/forms/form-context", () => ({
   }),
 }));
 
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ plural: (entity: string) => entity }),
-}));
 
-vi.mock("@/components/entity-detail/hooks/use-entity-drawer-stack", () => ({
+vi.mock("@/components/shared/use-navigate-to-href", () => ({
   useNavigateToHref: () => vi.fn(),
 }));
 
@@ -49,36 +46,18 @@ vi.mock("@/hooks/use-media-query", () => ({
   useIsWiderThan: () => true,
 }));
 
-vi.mock("@/components/data-view/filter-modal/inputs/use-filter-select-items", () => ({
-  useFilterSelectItems: () => ({
-    getItems: undefined,
-    isLoading: false,
-    items: [
-      { key: "contact-1", value: "contact-1", textValue: "Ada" },
-      { key: "contact-2", value: "contact-2", textValue: "Grace" },
-    ],
-    maxSelectedValues: undefined,
-    retrySelection: vi.fn(),
-    scopeKey: "contacts",
-    selectionError: false,
-  }),
-}));
-
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormIsoDatePicker } from "@/components/forms/form-iso-date-picker";
 import { FormIsoDateRangePicker } from "@/components/forms/form-iso-date-range-picker";
 import { FilterInputIsoDate } from "@/components/data-view/filter-modal/inputs/filter-input-iso-date";
 import { FilterInputIsoDateRange } from "@/components/data-view/filter-modal/inputs/filter-input-iso-date-range";
-import { FilterInputSelect } from "@/components/data-view/filter-modal/inputs/filter-input-select";
 import { LinkPopover } from "@/components/editor/link-popover";
-import { FilterOperatorKey } from "@/core/base/base-query-builder";
-import { FilterFieldKey } from "@/core/types/filter-field-key";
 
 const EVENTS = [
-  { value: "contact.created", label: "Contact created" },
-  { value: "deal.created", label: "Deal created" },
-  { value: "deal.updated", label: "Deal updated" },
+  { value: "record.created", label: "Record created" },
+  { value: "record.updated", label: "Record updated" },
+  { value: "record.deleted", label: "Record deleted" },
 ];
 
 let container: HTMLDivElement;
@@ -175,26 +154,7 @@ describe("form popovers inside a modal dialog", () => {
     await press("ArrowDown");
     await press("Enter");
 
-    expect(form.onChange).toHaveBeenCalledWith("events", ["deal.created"]);
-  });
-
-  it("moves focus into the filter value search box, so arrow keys and Enter pick a value", async () => {
-    renderInDialog(
-      createElement(FilterInputSelect, {
-        filter: { field: FilterFieldKey.contactIds, operator: FilterOperatorKey.in, value: [] },
-        id: "filters[0].value",
-        isValidFilter: true,
-      }),
-    );
-
-    await openWithKeyboardFocus("filters[0].value");
-
-    expect(document.activeElement?.hasAttribute("cmdk-input")).toBe(true);
-
-    await press("ArrowDown");
-    await press("Enter");
-
-    expect(form.onChange).toHaveBeenCalledWith("filters[0].value", ["contact-2"]);
+    expect(form.onChange).toHaveBeenCalledWith("events", ["record.updated"]);
   });
 
   it.each([

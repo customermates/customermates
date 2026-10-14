@@ -6,7 +6,7 @@ import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
-import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/company/components/subscription/subscription-panel";
+import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/settings/(workspace)/components/subscription/subscription-panel";
 import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
 
 export type OperatorChipOption = { value: string; label: string; color: ChipColor };

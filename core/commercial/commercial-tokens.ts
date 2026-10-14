@@ -73,7 +73,7 @@ function resolveEntitlementToken(parts: string[], locale: string): string {
   return value === "unlimited" ? localizedUnlimited(locale) : String(value);
 }
 
-export function resolveCommercialToken(token: string, locale: string): string {
+function resolveCommercialToken(token: string, locale: string): string {
   const parts = token.split(".");
   if (parts[0] === "price") return resolvePriceToken(parts, locale);
   if (token === "trial.days") return String(CLOUD_TRIAL.days);

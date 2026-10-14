@@ -44,10 +44,11 @@ describe("Platform reservation Prisma boundaries", () => {
 
   it("takes the global lock before reading and releasing a hold", async () => {
     await repo().settlePlatformUsageUnscoped({ reservationId: "hold", charge, now });
-    expect((db.$executeRaw.mock.calls[0][0] as TemplateStringsArray).join("?")).toContain(
-      "customermates:hosted-ai-global-admission",
+    const lock = db.$executeRaw.mock.calls.findIndex(([sql]) =>
+      (sql as TemplateStringsArray).join("?").includes("customermates:hosted-ai-global-admission"),
     );
-    expect(db.$executeRaw.mock.invocationCallOrder[0]).toBeLessThan(
+    expect(lock).toBeGreaterThanOrEqual(0);
+    expect(db.$executeRaw.mock.invocationCallOrder[lock]).toBeLessThan(
       db.hostedAiPlatformReservation.findUnique.mock.invocationCallOrder[0],
     );
     expect(db.hostedAiPlatformReservation.findUnique.mock.invocationCallOrder[0]).toBeLessThan(

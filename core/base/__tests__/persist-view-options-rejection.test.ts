@@ -31,7 +31,7 @@ class TestStore extends BaseDataViewStore<HasId> {
 function makeStore() {
   const rootStore = { localeStore: { getTranslation: (key: string) => key } } as unknown as RootStore;
   const store = new TestStore(rootStore);
-  store.p13nId = SURFACE.tasks;
+  store.p13nId = SURFACE.routines;
   return store;
 }
 
@@ -101,7 +101,7 @@ describe("persistViewState rejection handling", () => {
     unregister();
   });
 
-  it("sends a total state for the active view key, and stays silent when the surface cannot persist", async () => {
+  it("sends the saved view state with the new width for the active view key, and stays silent when the surface cannot persist", async () => {
     saveDataViewStateAction.mockResolvedValue({ ok: true, data: { viewKey: ALL_VIEW_KEY } });
 
     const store = makeStore();
@@ -109,19 +109,9 @@ describe("persistViewState rejection handling", () => {
     await vi.advanceTimersByTimeAsync(1500);
 
     expect(saveDataViewStateAction).toHaveBeenCalledExactlyOnceWith({
-      surfaceKey: SURFACE.tasks,
+      surfaceKey: SURFACE.routines,
       viewKey: ALL_VIEW_KEY,
-      state: {
-        filters: [],
-        searchTerm: "",
-        sortDescriptor: null,
-        pageSize: undefined,
-        viewMode: "table",
-        grouping: null,
-        columnOrder: [],
-        columnWidths: { title: 300 },
-        hiddenColumns: [],
-      },
+      state: { filters: [], searchTerm: "", columnWidths: { title: 300 } },
     });
 
     saveDataViewStateAction.mockClear();

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import { Action, Resource } from "@/generated/prisma";
@@ -26,7 +26,7 @@ vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
 }));
 
-import { ROUTINE_TRIGGER_EVENTS, UpsertRoutineSchema } from "../routine.schema";
+import { ROUTINE_TRIGGER_EVENTS, RoutineDtoSchema, RoutineRunDtoSchema, UpsertRoutineSchema } from "../routine.schema";
 import { RunRoutineNowInteractor } from "../run-routine-now.interactor";
 import { FailRoutineRunInteractor } from "../fail-routine-run.interactor";
 import { StartRoutineRunInteractor } from "../start-routine-run.interactor";
@@ -42,6 +42,13 @@ import { ForbiddenError } from "@/core/errors/app-errors";
 
 const ROUTINE_ID = "00000000-0000-4000-8000-000000000001";
 const RUN_ID = "00000000-0000-4000-8000-000000000002";
+
+afterEach(() => {
+  Object.assign(MOCK_ENV_MODULE.env, {
+    HOSTED_AI_OPERATOR_CONTROLS_ENABLED: false,
+    HOSTED_AI_PROVIDER_WORK_PAUSED: false,
+  });
+});
 
 function eventServiceStub() {
   return { publish: vi.fn().mockResolvedValue(undefined) } as never;
@@ -130,6 +137,31 @@ describe("UpsertRoutineSchema", () => {
         triggerEvents: ["messaging.chat.deleted"],
       }).success,
     ).toBe(false);
+  });
+
+  it("accepts only events that are still emitted", () => {
+    const retired = "deal.updated";
+    expect(ROUTINE_TRIGGER_EVENTS).not.toContain(retired);
+    const routine = {
+      name: "Deal watcher",
+      prompt: "Summarise the change",
+      triggerKind: "event",
+    } as const;
+    expect(UpsertRoutineSchema.safeParse({ ...routine, triggerEvents: [retired] }).success).toBe(false);
+    expect(
+      UpsertRoutineSchema.safeParse({
+        id: ROUTINE_ID,
+        triggerEvents: [retired],
+      }).success,
+    ).toBe(false);
+    expect(
+      UpsertRoutineSchema.safeParse({
+        ...routine,
+        triggerEvents: ["messaging.message.received"],
+      }).success,
+    ).toBe(true);
+    expect(RoutineDtoSchema.shape.triggerEvents.safeParse([retired]).success).toBe(false);
+    expect(RoutineRunDtoSchema.shape.triggerEvent.safeParse(retired).success).toBe(false);
   });
 
   it("rejects an unparseable cron expression", () => {
@@ -227,7 +259,6 @@ function routineFixture(overrides: Record<string, unknown> = {}) {
     cronExpression: "0 9 * * *",
     timezone: "UTC",
     triggerEvents: [],
-    changedFields: [],
     triggerFilters: [],
     debounceSeconds: 300,
     nextRunAt: null,
@@ -253,15 +284,18 @@ describe("RunRoutineNowInteractor", () => {
       }),
     };
     const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
+    const usage = {
+      getUsageSummary: vi.fn().mockResolvedValue({ blockedReason: null }),
+    };
 
-    return { repo, background };
+    return { repo, background, usage };
   }
 
   it("starts a manual test for a scheduled routine", async () => {
-    const { repo, background } = fixtures();
+    const { repo, background, usage } = fixtures();
 
-    const result = await new RunRoutineNowInteractor(repo as never, background as never).invoke({
-      routineId: ROUTINE_ID,
+    const result = await new RunRoutineNowInteractor(repo as never, background as never, usage as never).invoke({
+      id: ROUTINE_ID,
     });
 
     expect(result).toEqual({ ok: true, data: RUN_ID });
@@ -274,11 +308,11 @@ describe("RunRoutineNowInteractor", () => {
   });
 
   it("keeps manual tests update-gated for a read-own routine owner", async () => {
-    const { repo, background } = fixtures();
+    const { repo, background, usage } = fixtures();
 
     await expect(
       runWithTenant(readOwnRoutineUser(), () =>
-        new RunRoutineNowInteractor(repo as never, background as never).invoke({ routineId: ROUTINE_ID }),
+        new RunRoutineNowInteractor(repo as never, background as never, usage as never).invoke({ id: ROUTINE_ID }),
       ),
     ).rejects.toThrow(ForbiddenError);
     expect(repo.createManualRoutineRunOrThrow).not.toHaveBeenCalled();
@@ -286,16 +320,16 @@ describe("RunRoutineNowInteractor", () => {
   });
 
   it("rejects a context-free manual test for an event routine", async () => {
-    const { repo, background } = fixtures({ triggerKind: "event" });
+    const { repo, background, usage } = fixtures({ triggerKind: "event" });
 
-    const result = await new RunRoutineNowInteractor(repo as never, background as never).invoke({
-      routineId: ROUTINE_ID,
+    const result = await new RunRoutineNowInteractor(repo as never, background as never, usage as never).invoke({
+      id: ROUTINE_ID,
     });
 
     expect(result.ok).toBe(false);
     if (result.ok) throw new Error("Expected the event routine test to be rejected");
     expect(result.error.issues[0]).toMatchObject({
-      path: ["routineId"],
+      path: ["id"],
       params: {
         error: CustomErrorCode.routineRunNowRequiresSchedule,
         kind: "conflict",
@@ -306,13 +340,13 @@ describe("RunRoutineNowInteractor", () => {
   });
 
   it("does not let a non-owner administrator test a routine", async () => {
-    const { repo, background } = fixtures({
+    const { repo, background, usage } = fixtures({
       ownerUserId: "00000000-0000-4000-8000-000000000099",
       triggerKind: "event",
     });
 
-    const result = await new RunRoutineNowInteractor(repo as never, background as never).invoke({
-      routineId: ROUTINE_ID,
+    const result = await new RunRoutineNowInteractor(repo as never, background as never, usage as never).invoke({
+      id: ROUTINE_ID,
     });
 
     expect(result.ok).toBe(false);
@@ -328,18 +362,85 @@ describe("RunRoutineNowInteractor", () => {
   });
 
   it("requires an active scheduled routine before spending credits on a test", async () => {
-    const { repo, background } = fixtures({ enabled: false });
+    const { repo, background, usage } = fixtures({ enabled: false });
 
-    const result = await new RunRoutineNowInteractor(repo as never, background as never).invoke({
-      routineId: ROUTINE_ID,
+    const result = await new RunRoutineNowInteractor(repo as never, background as never, usage as never).invoke({
+      id: ROUTINE_ID,
     });
 
     expect(result.ok).toBe(false);
     if (result.ok) throw new Error("Expected the paused routine test to be rejected");
     expect(result.error.issues[0]).toMatchObject({
-      path: ["routineId"],
+      path: ["id"],
       params: {
         error: CustomErrorCode.routineTestRequiresEnabled,
+        kind: "conflict",
+      },
+    });
+    expect(repo.createManualRoutineRunOrThrow).not.toHaveBeenCalled();
+    expect(background.dispatch).not.toHaveBeenCalled();
+  });
+
+  it("refuses a manual run before queuing when hosted AI work is paused", async () => {
+    Object.assign(MOCK_ENV_MODULE.env, {
+      HOSTED_AI_OPERATOR_CONTROLS_ENABLED: true,
+      HOSTED_AI_PROVIDER_WORK_PAUSED: true,
+    });
+    const { repo, background, usage } = fixtures();
+
+    const result = await new RunRoutineNowInteractor(repo as never, background as never, usage as never).invoke({
+      id: ROUTINE_ID,
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("Expected paused AI work to refuse the manual run");
+    expect(result.error.issues[0]).toMatchObject({
+      path: ["id"],
+      params: {
+        error: CustomErrorCode.routineAiWorkPaused,
+        kind: "unavailable",
+      },
+    });
+    expect(usage.getUsageSummary).not.toHaveBeenCalled();
+    expect(repo.createManualRoutineRunOrThrow).not.toHaveBeenCalled();
+    expect(background.dispatch).not.toHaveBeenCalled();
+  });
+
+  it("refuses a manual run before queuing when credits are exhausted", async () => {
+    const { repo, background, usage } = fixtures();
+    usage.getUsageSummary.mockResolvedValue({
+      blockedReason: "credits_exhausted",
+    });
+
+    const result = await new RunRoutineNowInteractor(repo as never, background as never, usage as never).invoke({
+      id: ROUTINE_ID,
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("Expected insufficient credits to refuse the manual run");
+    expect(result.error.issues[0]).toMatchObject({
+      path: ["id"],
+      params: { error: CustomErrorCode.agentLimitReached, kind: "rate_limit" },
+    });
+    expect(repo.createManualRoutineRunOrThrow).not.toHaveBeenCalled();
+    expect(background.dispatch).not.toHaveBeenCalled();
+  });
+
+  it("refuses a manual run owned by an inactive member", async () => {
+    const { repo, background, usage } = fixtures({
+      owner: { ...routineFixture().owner, status: "inactive" },
+    });
+
+    const result = await new RunRoutineNowInteractor(repo as never, background as never, usage as never).invoke({
+      id: ROUTINE_ID,
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("Expected an inactive owner to refuse the manual run");
+    expect(result.error.issues[0]).toMatchObject({
+      path: ["id"],
+      params: {
+        error: CustomErrorCode.routineOwnerIneligible,
         kind: "conflict",
       },
     });
@@ -444,6 +545,7 @@ function startFixtures(
       ...overrides.run,
     }),
     countRecentRoutineRunsUnscoped: vi.fn().mockResolvedValue(0),
+    findCustomColumnLabelsUnscoped: vi.fn().mockResolvedValue({}),
     claimQueuedRoutineRunForOwnerUnscoped: vi.fn().mockResolvedValue({ routine: claimedRoutine }),
     settleRoutineRunUnscoped: vi.fn().mockResolvedValue(true),
   };
@@ -453,9 +555,12 @@ function startFixtures(
     deleteUnusedAgentConversation: vi.fn().mockResolvedValue(undefined),
   };
   const filterMatcher = {
-    matchesCurrentUser: vi.fn().mockResolvedValue(true),
+    currentUserTrigger: vi
+      .fn()
+      .mockImplementation(({ triggerPayload }: { triggerPayload: unknown }) =>
+        Promise.resolve({ payload: triggerPayload }),
+      ),
     matchesUserUnscoped: vi.fn().mockResolvedValue(true),
-    canUserAccessUnscoped: vi.fn().mockResolvedValue(true),
   };
   const sendAgentMessage = {
     invokeRoutine: vi.fn().mockResolvedValue({
@@ -471,8 +576,110 @@ function startFixtures(
   return { repo, conversations, sendAgentMessage, filterMatcher };
 }
 
+function recordTriggerEnvelope(fields: Array<{ fieldId: string; label: string }>) {
+  return {
+    id: "00000000-0000-4000-8000-0000000000e1",
+    companyId: mockUser.companyId,
+    event: "record.updated",
+    timestamp: "2026-01-01T00:00:00.000Z",
+    actorId: mockUser.id,
+    data: {
+      causeId: "cause-1",
+      cause: { kind: "mutation" },
+      record: {
+        ref: {
+          typeId: "00000000-0000-4000-8000-0000000000e2",
+          recordId: "00000000-0000-4000-8000-0000000000e3",
+        },
+        schemaRevision: 1,
+        beforeVersion: 1,
+        afterVersion: 2,
+        assignments: null,
+        identities: null,
+        links: [],
+        related: [],
+        fields: fields.map(({ fieldId, label }) => ({
+          fieldId,
+          before: null,
+          after: {
+            fieldId,
+            label,
+            valueType: "text",
+            options: [],
+            value: { state: "restricted" },
+          },
+        })),
+      },
+    },
+  };
+}
+
 describe("StartRoutineRunInteractor", () => {
   beforeEach(() => vi.clearAllMocks());
+
+  it("records adminPaused when hosted AI work is paused before agent admission", async () => {
+    Object.assign(MOCK_ENV_MODULE.env, {
+      HOSTED_AI_OPERATOR_CONTROLS_ENABLED: true,
+      HOSTED_AI_PROVIDER_WORK_PAUSED: true,
+    });
+    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
+    const interactor = new StartRoutineRunInteractor(
+      repo as never,
+      conversations as never,
+      sendAgentMessage as never,
+      filterMatcher as never,
+    );
+
+    expect(await interactor.invoke({ routineRunId: RUN_ID })).toEqual({
+      ok: true,
+      data: { started: false, reason: "platformPaused" },
+    });
+    expect(repo.settleRoutineRunUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({ status: "blocked", error: "platformPaused" }),
+    );
+    expect(conversations.createAndLinkRoutineConversationForRun).not.toHaveBeenCalled();
+    expect(sendAgentMessage.invokeRoutine).not.toHaveBeenCalled();
+  });
+
+  it("builds the prompt from the trigger as re-read under the owner's current access, not the admission copy", async () => {
+    const visible = {
+      fieldId: "00000000-0000-4000-8000-0000000000f1",
+      label: "Stage",
+    };
+    const revoked = {
+      fieldId: "00000000-0000-4000-8000-0000000000f2",
+      label: "Confidential margin",
+    };
+    const admitted = recordTriggerEnvelope([visible, revoked]);
+    const current = recordTriggerEnvelope([visible]);
+    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures({
+      run: {
+        triggerEvent: "record.updated",
+        triggerEntityId: admitted.data.record.ref.recordId,
+        triggerPayload: admitted,
+      },
+    });
+    filterMatcher.currentUserTrigger.mockResolvedValue({ payload: current });
+    const interactor = new StartRoutineRunInteractor(
+      repo as never,
+      conversations as never,
+      sendAgentMessage as never,
+      filterMatcher as never,
+    );
+
+    expect(await interactor.invoke({ routineRunId: RUN_ID })).toEqual({
+      ok: true,
+      data: { started: true },
+    });
+    expect(filterMatcher.currentUserTrigger).toHaveBeenCalledWith(
+      expect.objectContaining({ triggerPayload: admitted }),
+    );
+    const text = String(sendAgentMessage.invokeRoutine.mock.calls[0]?.[0]?.text);
+    expect(text).toContain(visible.fieldId);
+    expect(text).toContain("Stage");
+    expect(text).not.toContain(revoked.fieldId);
+    expect(text).not.toContain("Confidential margin");
+  });
 
   it("starts the turn in a routine-origin conversation", async () => {
     const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
@@ -551,7 +758,10 @@ describe("StartRoutineRunInteractor", () => {
     await interactor.invoke({ routineRunId: RUN_ID });
 
     expect(conversations.createAndLinkRoutineConversationForRun).toHaveBeenCalledWith(
-      expect.objectContaining({ title: "Claimed name", creditCeilingMicrocents: 10_000_000 }),
+      expect.objectContaining({
+        title: "Claimed name",
+        creditCeilingMicrocents: 10_000_000,
+      }),
     );
     expect(sendAgentMessage.invokeRoutine).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -699,7 +909,11 @@ describe("StartRoutineRunInteractor", () => {
     const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
     sendAgentMessage.invokeRoutine.mockResolvedValue({
       ok: true,
-      data: { disposition: "atCapacity", conversationId: "00000000-0000-4000-8000-000000000009", retryAllowed: true },
+      data: {
+        disposition: "atCapacity",
+        conversationId: "00000000-0000-4000-8000-000000000009",
+        retryAllowed: true,
+      },
     });
     const interactor = new StartRoutineRunInteractor(
       repo as never,
@@ -710,7 +924,10 @@ describe("StartRoutineRunInteractor", () => {
 
     const result = await interactor.invoke({ routineRunId: RUN_ID });
 
-    expect(result).toEqual({ ok: true, data: { started: false, reason: "agentAtCapacity" } });
+    expect(result).toEqual({
+      ok: true,
+      data: { started: false, reason: "agentAtCapacity" },
+    });
     expect(conversations.releaseUnstartedRoutineConversationForRetry).toHaveBeenCalledWith({
       routineRunId: RUN_ID,
       conversationId: expect.any(String),
@@ -720,12 +937,12 @@ describe("StartRoutineRunInteractor", () => {
 
   it("skips a run whose record no longer matches the routine's conditions", async () => {
     const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures({
-      run: { triggerEvent: "contact.updated", triggerEntityId: "contact-1" },
+      run: { triggerEvent: "record.updated", triggerEntityId: "contact-1" },
       routine: {
         triggerFilters: [{ field: "stage", operator: "equals", value: "won" }],
       },
     });
-    filterMatcher.matchesCurrentUser.mockResolvedValue(false);
+    filterMatcher.currentUserTrigger.mockResolvedValue(null);
     const interactor = new StartRoutineRunInteractor(
       repo as never,
       conversations as never,
@@ -745,9 +962,9 @@ describe("StartRoutineRunInteractor", () => {
 
   it("rechecks record visibility even when an event routine has no filters", async () => {
     const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures({
-      run: { triggerEvent: "contact.updated", triggerEntityId: "contact-1" },
+      run: { triggerEvent: "record.updated", triggerEntityId: "contact-1" },
     });
-    filterMatcher.matchesCurrentUser.mockResolvedValue(false);
+    filterMatcher.currentUserTrigger.mockResolvedValue(null);
     const interactor = new StartRoutineRunInteractor(
       repo as never,
       conversations as never,
@@ -757,11 +974,13 @@ describe("StartRoutineRunInteractor", () => {
 
     const result = await interactor.invoke({ routineRunId: RUN_ID });
 
-    expect(filterMatcher.matchesCurrentUser).toHaveBeenCalledWith({
-      event: "contact.updated",
+    expect(filterMatcher.currentUserTrigger).toHaveBeenCalledWith({
+      event: "record.updated",
       entityId: "contact-1",
       triggerPayload: null,
       filters: [],
+      recordQuery: undefined,
+      subscriptionId: ROUTINE_ID,
     });
     expect(result).toEqual({
       ok: true,
@@ -772,12 +991,12 @@ describe("StartRoutineRunInteractor", () => {
 
   it("fails a filtered deleted-record trigger closed when its required deletion snapshot is missing", async () => {
     const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures({
-      run: { triggerEvent: "contact.deleted", triggerEntityId: "contact-1" },
+      run: { triggerEvent: "record.deleted", triggerEntityId: "contact-1" },
       routine: {
         triggerFilters: [{ field: "stage", operator: "equals", value: "won" }],
       },
     });
-    filterMatcher.matchesCurrentUser.mockResolvedValue(false);
+    filterMatcher.currentUserTrigger.mockResolvedValue(null);
     const interactor = new StartRoutineRunInteractor(
       repo as never,
       conversations as never,
@@ -787,11 +1006,13 @@ describe("StartRoutineRunInteractor", () => {
 
     const result = await interactor.invoke({ routineRunId: RUN_ID });
 
-    expect(filterMatcher.matchesCurrentUser).toHaveBeenCalledWith({
-      event: "contact.deleted",
+    expect(filterMatcher.currentUserTrigger).toHaveBeenCalledWith({
+      event: "record.deleted",
       entityId: "contact-1",
       triggerPayload: null,
       filters: [{ field: "stage", operator: "equals", value: "won" }],
+      recordQuery: undefined,
+      subscriptionId: ROUTINE_ID,
     });
     expect(result).toEqual({
       ok: true,
@@ -872,9 +1093,47 @@ describe("StartRoutineRunInteractor", () => {
 
     const result = await interactor.invoke({ routineRunId: RUN_ID });
 
-    expect(result).toEqual({ ok: true, data: { started: false, reason: "agentLimitReached" } });
+    expect(result).toEqual({
+      ok: true,
+      data: { started: false, reason: "agentLimitReached" },
+    });
     expect(repo.settleRoutineRunUnscoped).toHaveBeenCalledWith(
-      expect.objectContaining({ status: "blocked", error: "agentLimitReached" }),
+      expect.objectContaining({
+        status: "blocked",
+        error: "agentLimitReached",
+      }),
+    );
+  });
+
+  it("preserves the hosted AI unavailable code on a blocked run", async () => {
+    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
+    sendAgentMessage.invokeRoutine.mockResolvedValue({
+      ok: false,
+      error: {
+        issues: [
+          {
+            code: "custom",
+            params: { error: CustomErrorCode.agentServiceUnavailable },
+          },
+        ],
+      },
+    });
+    const interactor = new StartRoutineRunInteractor(
+      repo as never,
+      conversations as never,
+      sendAgentMessage as never,
+      filterMatcher as never,
+    );
+
+    expect(await interactor.invoke({ routineRunId: RUN_ID })).toEqual({
+      ok: true,
+      data: { started: false, reason: "agentServiceUnavailable" },
+    });
+    expect(repo.settleRoutineRunUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: "blocked",
+        error: "agentServiceUnavailable",
+      }),
     );
   });
 
@@ -882,7 +1141,9 @@ describe("StartRoutineRunInteractor", () => {
     const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
     sendAgentMessage.invokeRoutine.mockResolvedValue({
       ok: false,
-      error: { issues: [{ code: "custom", message: "Routines require a paid plan." }] },
+      error: {
+        issues: [{ code: "custom", message: "Routines require a paid plan." }],
+      },
     });
     const interactor = new StartRoutineRunInteractor(
       repo as never,
@@ -893,7 +1154,10 @@ describe("StartRoutineRunInteractor", () => {
 
     const result = await interactor.invoke({ routineRunId: RUN_ID });
 
-    expect(result).toEqual({ ok: true, data: { started: false, reason: "startFailed" } });
+    expect(result).toEqual({
+      ok: true,
+      data: { started: false, reason: "startFailed" },
+    });
     expect(repo.settleRoutineRunUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({ status: "blocked", error: "startFailed" }),
     );
@@ -901,7 +1165,10 @@ describe("StartRoutineRunInteractor", () => {
 
   it("records a skipped run under a translatable reason when the agent declines the turn", async () => {
     const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
-    sendAgentMessage.invokeRoutine.mockResolvedValue({ ok: true, data: { disposition: "running" } });
+    sendAgentMessage.invokeRoutine.mockResolvedValue({
+      ok: true,
+      data: { disposition: "running" },
+    });
     const interactor = new StartRoutineRunInteractor(
       repo as never,
       conversations as never,
@@ -911,9 +1178,15 @@ describe("StartRoutineRunInteractor", () => {
 
     const result = await interactor.invoke({ routineRunId: RUN_ID });
 
-    expect(result).toEqual({ ok: true, data: { started: false, reason: "agentAlreadyRunning" } });
+    expect(result).toEqual({
+      ok: true,
+      data: { started: false, reason: "agentAlreadyRunning" },
+    });
     expect(repo.settleRoutineRunUnscoped).toHaveBeenCalledWith(
-      expect.objectContaining({ status: "skipped", error: "agentAlreadyRunning" }),
+      expect.objectContaining({
+        status: "skipped",
+        error: "agentAlreadyRunning",
+      }),
     );
   });
 });
@@ -1010,7 +1283,9 @@ describe("ReconcileRoutineRunsInteractor", () => {
       settleRoutineRunUnscoped: vi.fn().mockResolvedValue(true),
     };
 
-    await new ReconcileRoutineRunsInteractor(repo as never).invoke({ ownerUserId: mockUser.id });
+    await new ReconcileRoutineRunsInteractor(repo as never).invoke({
+      ownerUserId: mockUser.id,
+    });
 
     expect(repo.findRunningRoutineRunsUnscoped).toHaveBeenCalledWith(expect.any(Number), mockUser.id);
     expect(repo.findOrphanedRunningRoutineRunsUnscoped).not.toHaveBeenCalled();
@@ -1295,6 +1570,7 @@ describe("per-user routine plan allowance", () => {
     const issue = result.error.issues[0];
     expect(issue?.code === "custom" ? issue.params?.error : undefined).toBe(CustomErrorCode.routineLimitReached);
     expect(issue?.code === "custom" ? issue.params?.limit : undefined).toBe(5);
+    expect(issue?.path).toEqual([]);
     expect(repo.upsertRoutineOrThrow).toHaveBeenCalledOnce();
   });
 
@@ -1336,7 +1612,7 @@ describe("per-user routine plan allowance", () => {
           triggerKind: "event",
           cronExpression: null,
           timezone: null,
-          triggerEvents: ["deal.updated"],
+          triggerEvents: ["record.updated"],
         }),
       ),
       isEligibleRoutineOwner: vi.fn().mockResolvedValue(true),

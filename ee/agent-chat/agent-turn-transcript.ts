@@ -2,8 +2,9 @@ import { readAgentToolResultContext, type AgentActivityContext } from "./agent-a
 import type { AgentActivityDescriptor, AgentActivityResource } from "./agent-activity";
 import type { AgentMessagePart } from "./agent-chat.schema";
 
+import { z } from "zod";
 import { AgentVisibleTextStreamSanitizer } from "./agent-output-safety";
-import { agentToolSavedViewHref } from "./agent-tool-navigation";
+import { agentToolProposalHref, agentToolSavedViewHref, agentToolViewProposal } from "./agent-tool-navigation";
 
 export type AgentActivityStatus = "done" | "error" | "cancelled";
 export type AgentApprovalStatus = "approved" | "rejected" | "timeout" | "cancelled";
@@ -22,6 +23,7 @@ export type AgentTranscriptEvent =
         isError: boolean;
         status?: AgentActivityStatus;
         viewHref?: string;
+        viewProposal?: Record<string, unknown>;
         context?: AgentActivityContext;
       };
     }
@@ -44,6 +46,7 @@ export class AgentTurnTranscript {
   private readonly affected = new Set<AgentActivityResource>();
   private sanitizer: AgentVisibleTextStreamSanitizer;
   private text = "";
+  private failedToolMessage: string | null = null;
 
   constructor(
     private readonly emit: AgentTranscriptEmit,
@@ -58,6 +61,10 @@ export class AgentTurnTranscript {
 
   get replyText() {
     return this.text;
+  }
+
+  get lastFailedToolMessage() {
+    return this.failedToolMessage;
   }
 
   get affectedResources() {
@@ -122,12 +129,25 @@ export class AgentTurnTranscript {
     failed: boolean;
     output?: unknown;
   }) {
+    const output = result.output;
+    if (result.failed && output && typeof output === "object" && !Array.isArray(output)) {
+      const message = (output as { result?: unknown }).result;
+      if (typeof message === "string" && message.trim()) this.failedToolMessage = message.trim().slice(0, 300);
+    }
     if (result.failed && result.toolName) this.retryableFailureByTool.set(result.toolName, result.toolCallId);
-    const viewHref = result.status === "done" ? agentToolSavedViewHref(result.toolName, result.output) : null;
+    const viewHref =
+      result.status === "done"
+        ? (agentToolSavedViewHref(result.toolName, result.output) ??
+          agentToolProposalHref(result.toolName, result.output))
+        : null;
+    const viewProposal = result.status === "done" ? agentToolViewProposal(result.toolName, result.output) : null;
     const toolPart = this.toolParts.get(result.toolCallId);
     const context = result.status === "done" ? readAgentToolResultContext(result.toolName, result.output) : undefined;
     if (context && toolPart && !toolPart.activity.context) toolPart.activity = { ...toolPart.activity, context };
     if (viewHref && toolPart) toolPart.activity = { ...toolPart.activity, viewHref };
+    const jsonProposal = viewProposal ? z.record(z.string(), z.json()).safeParse(viewProposal) : null;
+    if (jsonProposal?.success && toolPart)
+      toolPart.activity = { ...toolPart.activity, viewProposed: true, viewProposal: jsonProposal.data };
     this.settleTool(result.toolCallId, result.status);
     this.emit({
       type: "activity_result",
@@ -136,6 +156,8 @@ export class AgentTurnTranscript {
         isError: result.failed,
         status: result.status,
         ...(viewHref ? { viewHref } : {}),
+        ...(viewProposal ? { viewProposal } : {}),
+        ...(viewProposal ? { viewProposed: true } : {}),
         ...(context ? { context } : {}),
       },
     });

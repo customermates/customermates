@@ -1,22 +1,22 @@
 "use client";
 
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { FilterOperatorKey } from "@/core/base/base-query-builder";
+import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 
 import { observer } from "mobx-react-lite";
 
-import { FilterInputDaysCount } from "@/components/data-view/filter-modal/inputs/filter-input-days-count";
-import { FilterInputIsoDate } from "@/components/data-view/filter-modal/inputs/filter-input-iso-date";
-import { FilterInputIsoDateRange } from "@/components/data-view/filter-modal/inputs/filter-input-iso-date-range";
 import {
   resolveFilterDateGranularity,
   resolveFilterValueClass,
 } from "@/components/data-view/filter-modal/filter-value-class";
+import { FilterInputDaysCount } from "@/components/data-view/filter-modal/inputs/filter-input-days-count";
+import { FilterInputIsoDate } from "@/components/data-view/filter-modal/inputs/filter-input-iso-date";
+import { FilterInputIsoDateRange } from "@/components/data-view/filter-modal/inputs/filter-input-iso-date-range";
 
 type Props = {
   field: string;
   operator: FilterOperatorKey | undefined;
-  customColumns: CustomColumnDto[] | undefined;
+  customColumns: ColumnPresentation[] | undefined;
   isValidFilter: boolean;
 };
 

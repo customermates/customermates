@@ -9,7 +9,7 @@ const actions = vi.hoisted(() => ({
 const assign = vi.hoisted(() => vi.fn());
 
 vi.mock("../../actions", () => actions);
-vi.mock("@/app/[locale]/(protected)/profile/actions", () => ({ createApiKeyAction: vi.fn() }));
+vi.mock("@/app/[locale]/(protected)/settings/(account)/actions", () => ({ createApiKeyAction: vi.fn() }));
 vi.mock("@/core/errors/report-application-error", () => ({ reportApplicationError: vi.fn() }));
 
 import { OnboardingWizardStore, WIZARD_STEPS } from "../onboarding-wizard.store";
@@ -219,7 +219,6 @@ describe("OnboardingWizardStore", () => {
     expect(WIZARD_STEPS).toEqual(["profile", "wiki", "invite", "ai"]);
     expect(store.totalSteps).toBe(4);
     expect(store.currentStep).toBe("profile");
-    expect("terminology" in store).toBe(false);
   });
 
   it("starts registered owners at Wiki and prevents returning to Profile", async () => {

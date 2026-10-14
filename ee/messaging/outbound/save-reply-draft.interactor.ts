@@ -4,22 +4,22 @@ import type { SaveDraftInteractor } from "./save-draft.interactor";
 
 import { z } from "zod";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 
 import { SaveReplyDraftBodySchema } from "./save-draft.interactor";
 
-export const SaveReplyDraftSchema = z
+const SaveReplyDraftSchema = z
   .object({
     threadId: z.uuid(),
     draft: SaveReplyDraftBodySchema,
   })
   .strict();
-export type SaveReplyDraftData = Data<typeof SaveReplyDraftSchema>;
+type SaveReplyDraftData = Data<typeof SaveReplyDraftSchema>;
 
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.create })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "create" })
 export class SaveReplyDraftInteractor extends AuthenticatedInteractor<SaveReplyDraftData, MessagingMessageDto> {
   constructor(private readonly saveDraft: SaveDraftInteractor) {
     super();

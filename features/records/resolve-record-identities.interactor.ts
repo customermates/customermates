@@ -1,0 +1,78 @@
+import type { RecordIdentityReader } from "./record-identity-reader";
+import { z } from "zod";
+import type { RecordAccessPolicy } from "./record-access";
+import { RecordIdentityReferenceSchema } from "./record-identity-reference.schema";
+import type { Validated } from "@/core/validation/validation.utils";
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
+import { runInTransaction } from "@/core/decorators/transaction-runner";
+import { failAuthorization, unwoundFailure } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { RecordIdentityInputSchema } from "./record-identity.schema";
+
+export const ResolveRecordIdentitiesSchema = z
+  .object({
+    identifiers: z
+      .array(RecordIdentityInputSchema.pick({ provider: true, value: true }))
+      .max(1000)
+      .describe("Up to 1,000 exact channel identifiers. Each input, including a repeated one, returns its own match."),
+    typeIds: z.array(z.uuid()).max(100).optional(),
+  })
+  .strict();
+type Input = z.infer<typeof ResolveRecordIdentitiesSchema>;
+export const ResolveRecordIdentitiesResultSchema = z
+  .object({
+    schemaRevision: z
+      .number()
+      .int()
+      .nonnegative()
+      .describe("Workspace schema revision for expectedRevision in a following record mutation."),
+    matches: z.array(
+      RecordIdentityInputSchema.pick({ provider: true, value: true })
+        .extend({
+          records: z.array(
+            RecordIdentityReferenceSchema.extend({
+              version: z
+                .number()
+                .int()
+                .positive()
+                .describe("Current record version for expectedVersion in an updateMany target."),
+            }).strict(),
+          ),
+        })
+        .strict(),
+    ),
+  })
+  .strict()
+  .describe(
+    "matches follow the input order. A record linked through several identifiers appears under each of them: deduplicate by typeId and recordId before building updateMany targets. Resolve every input with more than one record before updating; never pick one arbitrarily.",
+  );
+type Output = z.infer<typeof ResolveRecordIdentitiesResultSchema>;
+
+@AllowInDemoMode
+@TenantInteractor()
+export class ResolveRecordIdentitiesInteractor extends AuthenticatedInteractor<Input, Output> {
+  constructor(
+    private policy: RecordAccessPolicy,
+    private identities: RecordIdentityReader,
+  ) {
+    super();
+  }
+
+  @Validate(ResolveRecordIdentitiesSchema)
+  async invoke(input: Input): Validated<Output> {
+    return runInTransaction(
+      async () => {
+        const policy = await this.policy.load();
+        if (!policy.actor) return failAuthorization(CustomErrorCode.permissionDenied);
+        return {
+          ok: true as const,
+          data: await this.identities.resolveForUpdate(input.identifiers, input.typeIds),
+        };
+      },
+      { readOnly: true },
+    ).catch(unwoundFailure);
+  }
+}

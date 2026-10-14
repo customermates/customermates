@@ -1,13 +1,10 @@
 "use client";
 
-import type { DragEndEvent } from "@dnd-kit/core";
 import type { Prisma } from "@/generated/prisma";
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
+import type { DataViewGroup } from "@/core/base/grouping/grouping.schema";
 
-import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";
-import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { ArrowDownAZ, ArrowUpAZ, GripVertical, SlidersHorizontal } from "lucide-react";
+import { ArrowDownAZ, ArrowUpAZ, RotateCcw, SlidersHorizontal } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -17,22 +14,24 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ResponsiveOverlay } from "@/components/modal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { SegmentedControl } from "@/components/ui/segmented-control";
+import { Switch } from "@/components/ui/switch";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ViewMode } from "@/core/base/base-query-builder";
-import { useColumnLabel } from "@/components/entity-terminology/use-column-label";
+import { useColumnLabel } from "@/components/data-view/use-column-label";
 import { useGroupableFieldLabel } from "@/components/data-view/use-groupable-field-label";
-import { cn } from "@/core/utils/cn";
+import { useGroupLabel } from "@/components/data-view/group-label";
 import { useViewAi } from "@/components/data-view/views/use-view-ai";
-import { ViewAiAction } from "@/components/data-view/views/view-ai-action";
+import { ViewChangesNotice } from "@/components/data-view/views/view-changes-notice";
+import { AppModalActionRail } from "@/components/modal/app-modal-action";
+import { useAskAiAction } from "@/components/ui/ask-ai-action";
+import { MANUAL_ORDER_SORT_KEY } from "@/features/records/record-column.schema";
 
-import { LayoutIllustration } from "./layout-illustration";
+import { ColumnVisibilityList } from "./column-visibility-list";
+import { GroupSummaryOptions } from "./group-summary-options";
 import { PopoverSection as Section } from "./popover-section";
 
 type DataViewMode = "table" | "board";
-
-const LAYOUT_CARD_CLASS =
-  "interactive-surface h-auto min-h-16 w-full flex-col items-center gap-1.5 rounded-md border border-input bg-input-background px-2 py-2.5 shadow-xs data-[state=active]:border-primary/60";
 
 type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
@@ -40,58 +39,35 @@ type Props<E extends HasId> = {
   anchorScope?: string;
 };
 
-type FieldRowProps = {
-  uid: string;
-  label: string;
-  isVisible: boolean;
-  isPinned: boolean;
-  onToggle: (visible: boolean) => void;
-};
-
-function FieldRow({ uid, label, isVisible, isPinned, onToggle }: FieldRowProps) {
+function HiddenBoardColumns<E extends HasId>({
+  store,
+  groups,
+}: {
+  store: BaseDataViewStore<E>;
+  groups: DataViewGroup[];
+}) {
   const t = useTranslations();
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: uid,
-    disabled: isPinned,
-  });
-  const style = { transform: CSS.Transform.toString(transform), transition };
-
+  const groupLabel = useGroupLabel(store.groupingResult);
   return (
-    <div
-      ref={setNodeRef}
-      className={cn(
-        "flex items-center gap-2 rounded-md p-1 text-sm hover:bg-accent",
-        isDragging && "bg-accent shadow-md",
-      )}
-      style={style}
-    >
-      <button
-        aria-label={t("DataView.dragToReorder")}
-        className={cn(
-          "flex h-6 w-4 shrink-0 items-center justify-center rounded text-muted-foreground",
-          isPinned
-            ? "opacity-20 cursor-not-allowed"
-            : "cursor-grab transition-[color,background-color,transform] hover:bg-accent hover:text-foreground active:scale-[0.97] active:cursor-grabbing motion-reduce:transition-none",
-        )}
-        disabled={isPinned}
-        type="button"
-        {...attributes}
-        {...listeners}
-      >
-        <GripVertical className="size-3.5" />
-      </button>
+    <Section label={t("DataView.hiddenColumns")}>
+      <div className="flex flex-col gap-0.5">
+        {groups.map((group) => (
+          <Label
+            key={group.key}
+            className="flex items-center gap-2 rounded-md p-1 text-sm font-normal cursor-pointer hover:bg-accent min-w-0"
+            htmlFor={`hidden-group-${group.key}`}
+          >
+            <Checkbox
+              checked={false}
+              id={`hidden-group-${group.key}`}
+              onCheckedChange={(checked) => checked === true && store.showGroup(group.key)}
+            />
 
-      <Label className="flex flex-1 items-center gap-2 font-normal cursor-pointer min-w-0" htmlFor={`field-${uid}`}>
-        <Checkbox
-          checked={isVisible}
-          disabled={isPinned}
-          id={`field-${uid}`}
-          onCheckedChange={(checked) => onToggle(checked === true)}
-        />
-
-        <span className="truncate">{label}</span>
-      </Label>
-    </div>
+            <span className="truncate">{groupLabel(group)}</span>
+          </Label>
+        ))}
+      </div>
+    </Section>
   );
 }
 
@@ -102,6 +78,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
 }: Props<E>) {
   const t = useTranslations();
   const [isOpen, setIsOpen] = useState(false);
+  const askAiAction = useAskAiAction();
   const ai = useViewAi(store, {
     registerPageContext: false,
     entry: "appearance",
@@ -109,14 +86,8 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   const pendingAi = useRef<(() => void) | null>(null);
   const columnLabel = useColumnLabel();
   const groupableLabel = useGroupableFieldLabel();
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
-    useSensor(KeyboardSensor),
-  );
-
   const orderedColumns = store.orderedColumns;
   const hiddenSet = new Set(store.hiddenColumns);
-  const sortable = store.columnsDefinition.filter((col) => col.sortable);
   const canBoard = store.canBoard;
 
   const currentSortField = store.sortDescriptor?.field ?? "";
@@ -127,6 +98,15 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   const hasActiveOption = Boolean(currentSortField) || Boolean(store.grouping) || store.hiddenColumns.length > 0;
 
   const currentLayout: DataViewMode = store.viewMode === ViewMode.card && canBoard ? "board" : "table";
+  const boardGrouped = currentLayout === "board" && Boolean(store.grouping && store.groupingResult);
+  const hiddenGroupKeys = new Set(boardGrouped ? (store.grouping?.hidden ?? []) : []);
+  const hiddenGroups = (store.groupingResult?.groups ?? []).filter((group) => hiddenGroupKeys.has(group.key));
+  const offersManualOrder =
+    (store.supportsManualOrder && currentLayout === "board") || currentSortField === MANUAL_ORDER_SORT_KEY;
+  const sortable = [
+    ...store.columnsDefinition.filter((col) => col.sortable),
+    ...(offersManualOrder ? [{ uid: MANUAL_ORDER_SORT_KEY, label: t("Common.sort.manual") }] : []),
+  ];
 
   function handleLayoutChange(next: string) {
     if (!next) return;
@@ -140,7 +120,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
     store.setQueryOptions({
       sortDescriptor: {
         field: next,
-        direction: currentSortDirection as Prisma.SortOrder,
+        direction: next === MANUAL_ORDER_SORT_KEY ? "asc" : (currentSortDirection as Prisma.SortOrder),
       },
     });
   }
@@ -157,30 +137,19 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
 
   function handleGroupingChange(next: string) {
     const entry = store.groupableFields.find((field) => field.id === next);
+    const summaries = store.grouping?.summaries;
     store.setViewOptions({
-      grouping: next === "__none__" ? null : (entry?.grouping ?? null),
+      grouping:
+        next === "__none__" || !entry ? null : { ...entry.grouping, ...(summaries?.length ? { summaries } : {}) },
     });
   }
 
   function handleToggle(uid: string, visible: boolean) {
-    if (uid === "name") return;
+    if (uid === store.primaryColumnId) return;
     const next = new Set(hiddenSet);
     if (visible) next.delete(uid);
     else next.add(uid);
     store.setViewOptions({ hiddenColumns: Array.from(next) });
-  }
-
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-
-    const ids = orderedColumns.map((c) => c.uid);
-    const from = ids.indexOf(String(active.id));
-    const to = ids.indexOf(String(over.id));
-    if (from === -1 || to === -1) return;
-
-    const next = arrayMove(ids, from, to);
-    store.setViewOptions({ columnOrder: next });
   }
 
   const trigger = (
@@ -203,15 +172,35 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
     <ResponsiveOverlay
       align="end"
       headerAction={
-        ai.available && (
-          <ViewAiAction
-            id={id ? `${id}-ask-ai` : undefined}
-            onClick={() => {
-              pendingAi.current = ai.openCurrent;
-              setIsOpen(false);
-            }}
-          />
-        )
+        <AppModalActionRail
+          actions={[
+            ...(ai.available
+              ? [
+                  askAiAction({
+                    anchorId: id ? `${id}-ask-ai` : undefined,
+                    onClick: () => {
+                      pendingAi.current = ai.openCurrent;
+                      setIsOpen(false);
+                    },
+                  }),
+                ]
+              : []),
+            ...(store.resetLayout && store.differsFromDefaultLayout
+              ? [
+                  {
+                    id: "reset-layout",
+                    anchorId: id ? `${id}-reset` : undefined,
+                    icon: RotateCcw,
+                    label: t("RecordModel.resetLayout"),
+                    onClick: async () => {
+                      await store.resetLayout?.();
+                      setIsOpen(false);
+                    },
+                  },
+                ]
+              : []),
+          ]}
+        />
       }
       open={isOpen}
       popoverClassName="w-72"
@@ -226,152 +215,135 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
       }}
       onOpenChange={setIsOpen}
     >
-      <TooltipProvider>
-        <div className="flex flex-col">
+      <div className="flex flex-col">
+        <ViewChangesNotice anchorScope={id ? `${id}-view` : undefined} store={store} />
+
+        {store.supportsBoard && (
           <Section label={t("Common.table.layout")}>
-            <Tabs value={currentLayout} onValueChange={handleLayoutChange}>
-              <TabsList
-                aria-label={t("Common.table.layout")}
-                className="grid h-auto w-full grid-cols-2 gap-1.5 border-0 bg-transparent p-0 shadow-none group-data-[orientation=horizontal]/tabs:h-auto"
-                variant="segmented"
-              >
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="block min-w-0">
-                      <TabsTrigger
-                        aria-controls={undefined}
-                        aria-label={t("Common.ariaLabels.switchToTableView")}
-                        className={LAYOUT_CARD_CLASS}
-                        id={anchorScope ? `${anchorScope}-layout-table` : undefined}
-                        value="table"
-                      >
-                        <LayoutIllustration layout="table" />
+            <SegmentedControl
+              items={[
+                {
+                  value: "table",
+                  label: t("Common.table.layouts.table"),
+                  id: anchorScope ? `${anchorScope}-layout-table` : undefined,
+                  controls: false,
+                },
+                {
+                  value: "board",
+                  label: t("Common.table.layouts.board"),
+                  id: anchorScope ? `${anchorScope}-layout-board` : undefined,
+                  disabled: !canBoard,
+                  controls: false,
+                },
+              ]}
+              label={t("Common.table.layout")}
+              value={currentLayout}
+              onValueChange={handleLayoutChange}
+            />
 
-                        <span className="text-xs font-medium">{t("Common.table.layouts.table")}</span>
-                      </TabsTrigger>
-                    </span>
-                  </TooltipTrigger>
-
-                  <TooltipContent>{t("Common.ariaLabels.switchToTableView")}</TooltipContent>
-                </Tooltip>
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="block min-w-0">
-                      <TabsTrigger
-                        aria-controls={undefined}
-                        aria-label={t("Common.ariaLabels.switchToBoardView")}
-                        className={LAYOUT_CARD_CLASS}
-                        disabled={!canBoard}
-                        id={anchorScope ? `${anchorScope}-layout-board` : undefined}
-                        value="board"
-                      >
-                        <LayoutIllustration layout="board" />
-
-                        <span className="text-xs font-medium">{t("Common.table.layouts.board")}</span>
-                      </TabsTrigger>
-                    </span>
-                  </TooltipTrigger>
-
-                  <TooltipContent>
-                    {canBoard
-                      ? t("Common.ariaLabels.switchToBoardView")
-                      : t("Common.ariaLabels.switchToBoardViewDisabled")}
-                  </TooltipContent>
-                </Tooltip>
-              </TabsList>
-            </Tabs>
+            {!canBoard && (
+              <p className="mt-1.5 text-xs text-muted-foreground">{t("Common.ariaLabels.switchToBoardViewDisabled")}</p>
+            )}
           </Section>
+        )}
 
-          {store.groupableFields.length > 0 && (
-            <Section label={t("Common.table.groupBy")}>
-              <Select value={currentGroupingId || "__none__"} onValueChange={handleGroupingChange}>
-                <SelectTrigger aria-label={t("Common.table.groupBy")} className="h-8 w-full" size="sm">
+        {store.groupableFields.length > 0 && (
+          <Section label={t("Common.table.groupBy")}>
+            <Select value={currentGroupingId || "__none__"} onValueChange={handleGroupingChange}>
+              <SelectTrigger aria-label={t("Common.table.groupBy")} className="h-8 w-full" size="sm">
+                <SelectValue />
+              </SelectTrigger>
+
+              <SelectContent>
+                <SelectItem value="__none__">{t("Common.none")}</SelectItem>
+
+                {store.groupableFields.map((field) => (
+                  <SelectItem key={field.id} value={field.id}>
+                    {groupableLabel(field)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {boardGrouped && (
+              <Label
+                className="mt-1 flex items-center justify-between gap-2 text-sm font-normal"
+                htmlFor="board-hide-empty"
+              >
+                {t("DataView.hideEmptyColumns")}
+
+                <Switch
+                  checked={Boolean(store.grouping?.hideEmpty)}
+                  id="board-hide-empty"
+                  size="sm"
+                  onCheckedChange={(checked) => store.setHideEmptyGroups(checked)}
+                />
+              </Label>
+            )}
+          </Section>
+        )}
+
+        <GroupSummaryOptions store={store} />
+
+        {boardGrouped && hiddenGroups.length > 0 && <HiddenBoardColumns groups={hiddenGroups} store={store} />}
+
+        {sortable.length > 0 && (
+          <Section label={t("Common.sort.field")}>
+            <div className="flex gap-1 w-full">
+              <Select value={currentSortField} onValueChange={handleSortFieldChange}>
+                <SelectTrigger aria-label={t("Common.sort.field")} className="h-8 flex-1" size="sm">
                   <SelectValue />
                 </SelectTrigger>
 
                 <SelectContent>
-                  <SelectItem value="__none__">{t("Common.none")}</SelectItem>
-
-                  {store.groupableFields.map((field) => (
-                    <SelectItem key={field.id} value={field.id}>
-                      {groupableLabel(field)}
+                  {sortable.map((col) => (
+                    <SelectItem key={col.uid} value={col.uid}>
+                      {col.label || columnLabel(col.uid)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-            </Section>
-          )}
 
-          {sortable.length > 0 && (
-            <Section label={t("Common.sort.field")}>
-              <div className="flex gap-1 w-full">
-                <Select value={currentSortField} onValueChange={handleSortFieldChange}>
-                  <SelectTrigger aria-label={t("Common.sort.field")} className="h-8 flex-1" size="sm">
-                    <SelectValue />
-                  </SelectTrigger>
+              {currentSortField && currentSortField !== MANUAL_ORDER_SORT_KEY && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      aria-label={currentSortDirectionLabel}
+                      className="h-8 shrink-0"
+                      size="icon"
+                      variant="secondary"
+                      onClick={() => handleSortDirectionChange(currentSortDirection === "asc" ? "desc" : "asc")}
+                    >
+                      {currentSortDirection === "asc" ? (
+                        <ArrowUpAZ className="size-3.5" />
+                      ) : (
+                        <ArrowDownAZ className="size-3.5" />
+                      )}
+                    </Button>
+                  </TooltipTrigger>
 
-                  <SelectContent>
-                    {sortable.map((col) => (
-                      <SelectItem key={col.uid} value={col.uid}>
-                        {col.label || columnLabel(col.uid)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <TooltipContent>{currentSortDirectionLabel}</TooltipContent>
+                </Tooltip>
+              )}
+            </div>
+          </Section>
+        )}
 
-                {currentSortField && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        aria-label={currentSortDirectionLabel}
-                        className="h-8 shrink-0"
-                        size="icon"
-                        variant="secondary"
-                        onClick={() => handleSortDirectionChange(currentSortDirection === "asc" ? "desc" : "asc")}
-                      >
-                        {currentSortDirection === "asc" ? (
-                          <ArrowUpAZ className="size-3.5" />
-                        ) : (
-                          <ArrowDownAZ className="size-3.5" />
-                        )}
-                      </Button>
-                    </TooltipTrigger>
-
-                    <TooltipContent>{currentSortDirectionLabel}</TooltipContent>
-                  </Tooltip>
-                )}
-              </div>
-            </Section>
-          )}
-
-          {orderedColumns.length > 0 && (
-            <Section label={t("Common.table.fields")}>
-              <DndContext collisionDetection={closestCenter} sensors={sensors} onDragEnd={handleDragEnd}>
-                <SortableContext items={orderedColumns.map((c) => c.uid)} strategy={verticalListSortingStrategy}>
-                  <div className="flex flex-col gap-0.5">
-                    {orderedColumns.map((col) => {
-                      const isPinned = col.uid === "name";
-                      const isVisible = !hiddenSet.has(col.uid);
-                      const label = col.label || columnLabel(col.uid);
-                      return (
-                        <FieldRow
-                          key={col.uid}
-                          isPinned={isPinned}
-                          isVisible={isVisible}
-                          label={label}
-                          uid={col.uid}
-                          onToggle={(v) => handleToggle(col.uid, v)}
-                        />
-                      );
-                    })}
-                  </div>
-                </SortableContext>
-              </DndContext>
-            </Section>
-          )}
-        </div>
-      </TooltipProvider>
+        {orderedColumns.length > 0 && (
+          <Section label={t("Common.table.fields")}>
+            <ColumnVisibilityList
+              items={orderedColumns.map((col) => ({
+                uid: col.uid,
+                label: col.label || columnLabel(col.uid),
+                isVisible: !hiddenSet.has(col.uid),
+                isPinned: col.uid === store.primaryColumnId,
+              }))}
+              onReorder={(columnOrder) => store.setViewOptions({ columnOrder })}
+              onToggle={handleToggle}
+            />
+          </Section>
+        )}
+      </div>
     </ResponsiveOverlay>
   );
 

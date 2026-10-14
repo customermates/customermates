@@ -4,6 +4,7 @@ import rawManifest from "@/generated/raw-docs-manifest.json";
 
 import { env } from "@/env";
 import { generateOpenApiSpec } from "@/core/openapi/openapi-spec";
+import { resolvePublicAppLinks } from "@/features/docs/app-links";
 import { DOCS_API_KEY_PLACEHOLDER, getMcpInstallSnippet, type McpTool } from "@/features/docs/mcp-install-snippet";
 
 import { splitSections, unwrapDocsComponents, type DocsSection } from "./docs-sections";
@@ -60,17 +61,17 @@ export function pageMarkdown(source: DocsSource, locale: DocsLocale, slug: strin
   const cacheKey = `${source}:${locale}:${slug}`;
   const cached = pageCache.get(cacheKey);
   if (cached !== undefined) return cached;
-  const content = stripFrontmatter(page.content);
+  const content = resolvePublicAppLinks(stripFrontmatter(page.content), env.BASE_URL);
   const markdown = unwrapDocsComponents(source === "api" ? expandApiPage(slug, content) : content, expandSnippet);
   pageCache.set(cacheKey, markdown);
   return markdown;
 }
 
-export function pageSections(source: DocsSource, locale: DocsLocale, slug: string, page: ManifestPage): DocsSection[] {
+function pageSections(source: DocsSource, locale: DocsLocale, slug: string, page: ManifestPage): DocsSection[] {
   return splitSections({ slug, source, pageTitle: page.title, markdown: pageMarkdown(source, locale, slug, page) });
 }
 
-export function docsManifestPages(source: DocsSource, locale: DocsLocale): Array<[string, ManifestPage]> {
+function docsManifestPages(source: DocsSource, locale: DocsLocale): Array<[string, ManifestPage]> {
   return Object.entries(manifest[source]?.[locale] ?? {});
 }
 

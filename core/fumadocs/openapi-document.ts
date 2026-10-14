@@ -7,7 +7,7 @@ import { generateOpenApiSpec } from "@/core/openapi/openapi-spec";
 
 export const OPENAPI_DOCUMENT_ID = "/v1/openapi.json";
 
-export function docsOpenApiDocument(): Document {
+function docsOpenApiDocument(): Document {
   const spec = generateOpenApiSpec();
   return {
     ...spec,

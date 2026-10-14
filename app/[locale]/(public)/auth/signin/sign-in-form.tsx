@@ -24,6 +24,7 @@ import { CardHeroHeader } from "@/components/card/card-hero-header";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { Alert } from "@/components/shared/alert";
 import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = {
   callbackURL?: string;
@@ -32,7 +33,7 @@ type Props = {
   socialProviders: { google: boolean; microsoft: boolean };
 };
 
-export const SignInForm = observer(({ callbackURL, inviterName, onboardingIntent, socialProviders }: Props) => {
+const SignInFormContent = observer(({ callbackURL, inviterName, onboardingIntent, socialProviders }: Props) => {
   const searchParams = useSearchParams();
 
   const t = useTranslations();
@@ -174,3 +175,5 @@ export const SignInForm = observer(({ callbackURL, inviterName, onboardingIntent
     </AppForm>
   );
 });
+
+export const SignInForm = serverRenderedClient(SignInFormContent);

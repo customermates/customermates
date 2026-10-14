@@ -1,12 +1,13 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { BaseQueryBuilder, FilterOperatorKey } from "../base-query-builder";
+import { FilterOperatorKey } from "../base-query-builder";
+import { QueryRepository } from "../query-repository";
 import { FilterSchema, type Filter } from "../base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import { encodeGetParams, decodeGetParams } from "@/core/utils/get-params";
 
-class DateQueryBuilder extends BaseQueryBuilder<Record<string, unknown>> {
+class DateQueryBuilder extends QueryRepository<Record<string, unknown>> {
   override getFilterableFields() {
     return Promise.resolve([
       { field: FilterFieldKey.createdAt, operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.createdAt] },

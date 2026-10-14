@@ -3,7 +3,7 @@ import type { Data } from "@/core/validation/validation.utils";
 import { z } from "zod";
 
 import { parseMarkdownToJSON, serializeJSONToMarkdown } from "@/components/editor/editor.utils";
-import { MAX_NOTES_LENGTH } from "@/core/validation/validate-notes";
+import { MAX_RICH_TEXT_MARKDOWN_LENGTH } from "@/core/validation/rich-text-document";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
 
@@ -32,7 +32,7 @@ export function wikiPageKindIssue(page: {
 }
 
 export const WikiMarkdownSchema = z.string().transform((markdown, ctx) => {
-  if (markdown.length > MAX_NOTES_LENGTH) {
+  if (markdown.length > MAX_RICH_TEXT_MARKDOWN_LENGTH) {
     ctx.addIssue({
       code: "custom",
       params: { error: CustomErrorCode.notesExceedsMaxLength },
@@ -42,7 +42,7 @@ export const WikiMarkdownSchema = z.string().transform((markdown, ctx) => {
 
   try {
     const canonical = serializeJSONToMarkdown(parseMarkdownToJSON(markdown));
-    if (canonical.length > MAX_NOTES_LENGTH) {
+    if (canonical.length > MAX_RICH_TEXT_MARKDOWN_LENGTH) {
       ctx.addIssue({
         code: "custom",
         params: { error: CustomErrorCode.notesExceedsMaxLength },
@@ -119,7 +119,7 @@ export const WikiCatalogSchema = z.object({
 });
 export type WikiCatalog = Data<typeof WikiCatalogSchema>;
 
-export const WikiSearchResultSchema = WikiPageSummarySchema.extend({
+const WikiSearchResultSchema = WikiPageSummarySchema.extend({
   snippet: z.string(),
   offset: z.number().int().min(0).optional(),
   section: z.string().optional(),
@@ -150,7 +150,7 @@ export const WikiPageInputSchema = z
   });
 export type WikiPageInput = Data<typeof WikiPageInputSchema>;
 
-export const WikiPagePaginationSchema = z.object({
+const WikiPagePaginationSchema = z.object({
   page: z.number().int().min(1).default(1),
   pageSize: z.union([z.literal(5), z.literal(10), z.literal(25), z.literal(100)]).default(25),
 });

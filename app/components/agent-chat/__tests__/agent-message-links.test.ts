@@ -20,7 +20,7 @@ vi.mock("next-intl/navigation", async () => {
   const { createElement } = await import("react");
   return {
     createNavigation: () => ({
-      usePathname: () => "/contacts",
+      usePathname: () => "/records/50000000-0000-4000-8000-000000000001",
       Link: ({ children, ...props }: AnchorHTMLAttributes<HTMLAnchorElement>) => {
         state.links.push(props);
         return createElement("a", { ...props, href: `/${state.locale}${props.href}` }, children);
@@ -36,15 +36,15 @@ import {
 } from "@/core/data-view/ai-manageable-surfaces";
 import { dataViewNavigationHref, entityTimelineNavigationHref } from "@/core/data-view/data-view-links";
 import { SURFACE } from "@/core/data-view/data-view-keys";
-import { DATA_VIEW_PATHS, ENTITY_TIMELINE_PARENT_PATHS } from "@/core/data-view/data-view-paths";
+import { DATA_VIEW_PATHS } from "@/core/data-view/data-view-paths";
 import { sanitizeAgentVisibleTextForApp } from "@/ee/agent-chat/agent-output-safety";
 import { APP_LOCALES } from "@/i18n/locale-registry";
 import { agentMessageComponents, agentMessageRehypePlugins } from "../agent-message-links";
 
 const viewId = "00000000-0000-4000-8000-000000000001";
 const recordId = "00000000-0000-4000-8000-000000000002";
-const href = `/contacts?view=${viewId}`;
-const timelineHref = `/contacts/${recordId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline}`;
+const href = `/settings/webhooks?view=${viewId}`;
+const timelineHref = `/records/50000000-0000-4000-8000-000000000001/${recordId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline}`;
 function renderMessage(text: string) {
   return renderToStaticMarkup(
     createElement(
@@ -82,27 +82,27 @@ describe("saved-view message links", () => {
       `${href}&searchTerm=x`,
       `${href}#details`,
       `${href}/details`,
-      "/contacts?view=00000000-0000-4",
-      `/contacts?record=${viewId}`,
-      "/contacts",
+      "/settings/webhooks?view=00000000-0000-4",
+      `/settings/webhooks?record=${viewId}`,
+      "/records/50000000-0000-4000-8000-000000000001",
     ])
       expect(dataViewNavigationHref(invalid), invalid).toBeNull();
   });
 
   it("accepts an embedded timeline only on an exact record route", () => {
-    for (const path of ENTITY_TIMELINE_PARENT_PATHS) {
+    for (const path of ["/records/50000000-0000-4000-8000-000000000001"]) {
       const localized = `${path}/${recordId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline}`;
       for (const prefix of ["", ...APP_LOCALES.map((locale) => `/${locale}`)])
         expect(dataViewNavigationHref(`${prefix}${localized}`)).toBe(localized);
     }
     for (const invalid of [
-      `/contacts/not-a-record?view=${viewId}&viewSurface=${SURFACE.entityTimeline}`,
-      `/contacts/${recordId}?view=not-a-view&viewSurface=${SURFACE.entityTimeline}`,
-      `/contacts/${recordId}?view=${viewId}`,
-      `/contacts/${recordId}?viewSurface=${SURFACE.entityTimeline}&view=${viewId}`,
-      `/contacts/${recordId}?view=${viewId}&viewSurface=${SURFACE.contacts}`,
-      `/contacts/${recordId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline}&extra=value`,
-      `/company/members/${recordId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline}`,
+      `/records/50000000-0000-4000-8000-000000000001/not-a-record?view=${viewId}&viewSurface=${SURFACE.entityTimeline}`,
+      `/records/50000000-0000-4000-8000-000000000001/${recordId}?view=not-a-view&viewSurface=${SURFACE.entityTimeline}`,
+      `/records/50000000-0000-4000-8000-000000000001/${recordId}?view=${viewId}`,
+      `/records/50000000-0000-4000-8000-000000000001/${recordId}?viewSurface=${SURFACE.entityTimeline}&view=${viewId}`,
+      `/records/50000000-0000-4000-8000-000000000001/${recordId}?view=${viewId}&viewSurface=${SURFACE.users}`,
+      `/records/50000000-0000-4000-8000-000000000001/${recordId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline}&extra=value`,
+      `/settings/members/${recordId}?view=${viewId}&viewSurface=${SURFACE.entityTimeline}`,
     ])
       expect(dataViewNavigationHref(invalid), invalid).toBeNull();
   });
@@ -116,11 +116,19 @@ describe("saved-view message links", () => {
   });
 
   it("builds a timeline link only from an exact record-detail page route", () => {
-    expect(entityTimelineNavigationHref(`/en/contacts/${recordId}?view=__all__`, viewId)).toBe(timelineHref);
-    expect(entityTimelineNavigationHref(`/contacts/${recordId}#activity`, viewId)).toBeNull();
-    expect(entityTimelineNavigationHref("//example.com/contacts/record", viewId)).toBeNull();
-    expect(entityTimelineNavigationHref("/contacts", viewId)).toBeNull();
-    expect(entityTimelineNavigationHref(`/contacts/${recordId}`, "invalid")).toBeNull();
+    expect(
+      entityTimelineNavigationHref(`/en/records/50000000-0000-4000-8000-000000000001/${recordId}?view=__all__`, viewId),
+    ).toBe(timelineHref);
+    expect(
+      entityTimelineNavigationHref(`/records/50000000-0000-4000-8000-000000000001/${recordId}#activity`, viewId),
+    ).toBeNull();
+    expect(
+      entityTimelineNavigationHref("//example.com/records/50000000-0000-4000-8000-000000000001/record", viewId),
+    ).toBeNull();
+    expect(entityTimelineNavigationHref("/records/50000000-0000-4000-8000-000000000001", viewId)).toBeNull();
+    expect(
+      entityTimelineNavigationHref(`/records/50000000-0000-4000-8000-000000000001/${recordId}`, "invalid"),
+    ).toBeNull();
   });
 
   it("renders local views and other app routes as locale-aware anchors and external links behind the confirmation", () => {
@@ -156,7 +164,7 @@ describe("saved-view message links", () => {
 
   it("renders an already-redacted persisted saved-view link as a clean inert label", () => {
     const text = sanitizeAgentVisibleTextForApp(
-      "You can view the new list here: [Contacts with Deals](/contacts?view=[internal reference]).",
+      "You can view the new list here: [Contacts with Deals](/settings/webhooks?view=[internal reference]).",
       "http://localhost:4016",
     );
     const markup = renderMessage(text);
@@ -172,7 +180,7 @@ describe("saved-view message links", () => {
   it("keeps bare, autolink, and reference-style All-view destinations inert after sanitization", () => {
     const origin = "http://localhost:4016";
     const text = sanitizeAgentVisibleTextForApp(
-      `Bare /contacts?view=__all__. Auto <${origin}/en/contacts?view=__all__>. Ref [All][v].\n\n[v]: /contacts?view=__all__`,
+      `Bare /settings/webhooks?view=__all__. Auto <${origin}/en/settings/webhooks?view=__all__>. Ref [All][v].\n\n[v]: /settings/webhooks?view=__all__`,
       origin,
     );
     const markup = renderMessage(text);
@@ -198,7 +206,7 @@ describe("saved-view message links", () => {
     const text = sanitizeAgentVisibleTextForApp(`Created http://localhost:4016/en${href}.`, "http://localhost:4016");
     const markup = renderMessage(text);
 
-    expect(text).toBe("Created /contacts?view=[internal reference].");
+    expect(text).toBe("Created /settings/webhooks?view=[internal reference].");
     expect(markup).not.toContain("<a");
     expect(markup).not.toContain(viewId);
     expect(state.links).toHaveLength(0);

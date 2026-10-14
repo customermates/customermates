@@ -7,7 +7,7 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 
-import { Resource, Action } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { fail } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -25,7 +25,7 @@ import type { SaveDraftRepo } from "./save-draft.repo";
 
 const DraftRecipientsSchema = z.array(z.string().min(1)).max(100).describe("Recipients to preserve with the draft");
 
-export const BaseSaveDraftSchema = z.object({
+const BaseSaveDraftSchema = z.object({
   threadId: z
     .uuid()
     .optional()
@@ -95,7 +95,7 @@ function draftRecipient(identifier: string): MessagingAttendee {
   return { ...EMPTY_ATTENDEE, attendeeId: identifier, identifier };
 }
 
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.create })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "create" })
 export class SaveDraftInteractor extends AuthenticatedInteractor<SaveDraftData, MessagingMessageDto> {
   constructor(
     private repo: SaveDraftRepo,

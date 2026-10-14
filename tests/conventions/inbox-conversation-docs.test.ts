@@ -13,13 +13,10 @@ const SECTION_ANCHOR = "how-do-i-open-a-specific-conversation";
 function mateSentence(locale: string) {
   const section = read(`content/docs/${locale}/app-inbox.mdx`)
     .split("\n## ")
-    .find(
-      (block) => block.includes(`[#${SECTION_ANCHOR}]`) || block.startsWith("How do I open a specific conversation?"),
-    );
-  const linkLine = section
-    ?.split("\n")
-    .find((line) => line.includes("/inbox?threadId=<id>") && line.includes("**Mate:**"));
-  return linkLine?.slice(linkLine.indexOf("**Mate:**"));
+    .find((block) => block.includes(`[#${SECTION_ANCHOR}]`));
+  return section
+    ?.split(/(?<=[.!?])\s+/)
+    .find((sentence) => sentence.startsWith("Mate ") && /Inbox|Posteingang/.test(sentence));
 }
 
 describe("how the inbox guide says Mate points at one conversation", () => {
@@ -34,7 +31,6 @@ describe("how the inbox guide says Mate points at one conversation", () => {
     const sentence = mateSentence(locale);
 
     expect(sentence).toBeDefined();
-    expect(sentence).toContain("`nav-inbox`");
-    expect(sentence?.toLowerCase()).not.toContain("link");
+    expect(sentence).not.toMatch(/link|threadId|\]\(/i);
   });
 });

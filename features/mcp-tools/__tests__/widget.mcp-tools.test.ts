@@ -1,3 +1,9 @@
+import type { RecordActivityWidgetDto } from "@/features/widget/record-activity-widget.schema";
+import type * as RecordActivityWidgetModule from "@/features/widget/record-activity-widget.schema";
+import type * as RecordWidgetModule from "@/features/widget/record-widget.schema";
+import type * as SaveWidgetModule from "@/features/widget/save-widget.interactor";
+import type { ZodType } from "zod";
+import { RecordActivityQuerySchema } from "@/ee/messaging/activities/record-activities.schema";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { decode } from "@toon-format/toon";
 import { createTranslator } from "next-intl";
@@ -11,8 +17,11 @@ const mockUser = createMockUser();
 const spies = vi.hoisted(() => ({
   deleteWidget: vi.fn(),
   getWidgetById: vi.fn(),
+  getRecordWidget: vi.fn(),
   getWidgets: vi.fn(),
   upsertWidget: vi.fn(),
+  upsertRecordWidget: vi.fn(),
+  upsertRecordActivityWidget: vi.fn(),
 }));
 
 vi.mock("next-intl/server", () => ({
@@ -21,51 +30,107 @@ vi.mock("next-intl/server", () => ({
 }));
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
-vi.mock("@/core/di", () => ({
-  ...createMockDiModule(() => mockUser),
-  getDeleteWidgetInteractor: () => ({ invoke: spies.deleteWidget }),
-  getGetWidgetByIdInteractor: () => ({ invoke: spies.getWidgetById }),
-  getGetWidgetsInteractor: () => ({ invoke: spies.getWidgets }),
-  getUpsertWidgetInteractor: () => ({ invoke: spies.upsertWidget }),
-}));
+vi.mock("@/core/di", async () => {
+  const { SaveWidgetInteractor } = await vi.importActual<typeof SaveWidgetModule>(
+    "@/features/widget/save-widget.interactor",
+  );
+  const { RecordWidgetInputSchema } = await vi.importActual<typeof RecordWidgetModule>(
+    "@/features/widget/record-widget.schema",
+  );
+  const { RecordActivityWidgetInputSchema } = await vi.importActual<typeof RecordActivityWidgetModule>(
+    "@/features/widget/record-activity-widget.schema",
+  );
+  const validated = (schema: ZodType, spy: (input: unknown) => unknown) => ({
+    invoke: (input: unknown) => {
+      const parsed = schema.safeParse(input);
+      return parsed.success ? spy(parsed.data) : Promise.resolve({ ok: false, error: parsed.error });
+    },
+  });
+  return {
+    ...createMockDiModule(() => mockUser),
+    getSaveWidgetInteractor: () =>
+      new SaveWidgetInteractor(
+        {
+          findOwnedWidgetKind: async (id: string) => {
+            const found = (await spies.getWidgetById({ id })) as
+              | { ok: boolean; data?: { kind: "chart" | "activityTimeline" } | null }
+              | undefined;
+            return found?.ok && found.data ? found.data.kind : null;
+          },
+        },
+        validated(RecordWidgetInputSchema, spies.upsertRecordWidget) as never,
+        validated(RecordActivityWidgetInputSchema, spies.upsertRecordActivityWidget) as never,
+      ),
+    getDeleteWidgetInteractor: () => ({ invoke: spies.deleteWidget }),
+    getGetWidgetByIdInteractor: () => ({ invoke: spies.getWidgetById }),
+    getGetRecordWidgetInteractor: () => ({ invoke: spies.getRecordWidget }),
+    getGetWidgetsInteractor: () => ({ invoke: spies.getWidgets }),
+  };
+});
 
-import { AggregationType, EntityType, WidgetGroupByType, WidgetKind } from "@/generated/prisma";
-import { FilterFieldKey } from "@/core/types/filter-field-key";
-import { FilterOperatorKey } from "@/core/base/base-query-builder";
-import { ChartColor, DisplayType, type ActivityWidgetDto, type ChartWidgetDto } from "@/features/widget/widget.schema";
+import { WidgetKind } from "@/generated/prisma";
+import type { RecordWidgetDto } from "@/features/widget/record-widget.schema";
+import { RecordMeasureSchema } from "@/features/records/record-measure.schema";
+import { DisplayType } from "@/features/widget/widget.schema";
 
+import { runWithTenant } from "@/core/decorators/tenant-context";
 import { manageWidgetsTool } from "../widget.mcp-tools";
 import { mcpToolResultText } from "../mcp-tool";
 import { formatDatesInResponse } from "../utils";
+import { failNotFound } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const WIDGET_ID = "16000000-0000-4000-8000-000000000001";
 const RECORD_ID = "16000000-0000-4000-8000-000000000002";
-const relationshipFilter: ActivityWidgetDto["timelineFilters"][number] = {
-  field: FilterFieldKey.contactIds,
-  operator: FilterOperatorKey.in,
-  value: [RECORD_ID],
+const relationshipFilter = {
+  kind: "record" as const,
+  typeId: RECORD_ID,
+  operator: "in" as const,
+  recordIds: [RECORD_ID],
+};
+const activityQuery = RecordActivityQuerySchema.parse({
+  scope: { records: [], typeIds: [RECORD_ID] },
+  kinds: ["audit", "message"],
+  filters: [relationshipFilter],
+});
+const activityPreconditions = {
+  expectedRevision: 3,
+  idempotencyKey: "activity-widget-retry",
 };
 
-function chartWidget(overrides: Partial<ChartWidgetDto> = {}): ChartWidgetDto {
+function chartWidget(overrides: Partial<RecordWidgetDto> = {}): RecordWidgetDto {
   return {
     id: WIDGET_ID,
+    viewId: null,
     userId: mockUser.id,
     companyId: mockUser.companyId,
-    kind: WidgetKind.chart,
+    kind: "chart",
+    version: 1,
     name: "Deals",
-    entityType: EntityType.deal,
-    entityFilters: [],
-    dealFilters: [],
+    measure: RecordMeasureSchema.parse({
+      source: { typeId: RECORD_ID },
+      aggregation: "count",
+      valueFieldId: null,
+      groupBy: null,
+    }),
     displayOptions: {
       displayType: DisplayType.verticalBarChart,
-      reverseXAxis: false,
-      reverseYAxis: false,
-      barColors: [ChartColor.primary1],
+      showFilters: false,
     },
-    groupByType: WidgetGroupByType.none,
-    groupByCustomColumnId: null,
-    aggregationType: AggregationType.count,
-    data: [],
+    data: {
+      schemaRevision: 3,
+      attribution: "full",
+      groups: [],
+      total: {
+        count: 0,
+        result: {
+          state: "value",
+          value: { kind: "decimal", value: "0", currency: null },
+        },
+      },
+    },
+    status: "ready",
+    groupOptions: [],
     layout: null,
     isTemplate: false,
     createdAt: new Date(0),
@@ -74,14 +139,19 @@ function chartWidget(overrides: Partial<ChartWidgetDto> = {}): ChartWidgetDto {
   };
 }
 
-function activityWidget(overrides: Partial<ActivityWidgetDto> = {}): ActivityWidgetDto {
+function activityWidget(overrides: Partial<RecordActivityWidgetDto> = {}): RecordActivityWidgetDto {
   return {
     id: WIDGET_ID,
+    viewId: null,
     userId: mockUser.id,
     companyId: mockUser.companyId,
     kind: WidgetKind.activityTimeline,
     name: "Recent activity",
-    timelineFilters: [relationshipFilter],
+    activityQuery,
+    version: 1,
+    schemaRevision: 3,
+    status: "ready",
+    data: { items: [], availableSources: ["audit"], nextCursor: null },
     displayOptions: { showFilters: false },
     layout: null,
     isTemplate: false,
@@ -92,16 +162,16 @@ function activityWidget(overrides: Partial<ActivityWidgetDto> = {}): ActivityWid
 }
 
 async function run(args: Record<string, unknown>) {
-  return mcpToolResultText(await manageWidgetsTool.execute(manageWidgetsTool.inputSchema.parse(args)));
+  return mcpToolResultText(await runWithTenant(mockUser, () => manageWidgetsTool.execute(args)));
 }
 
 const chartCreate = {
   action: "create",
   name: "Deals",
-  entityType: EntityType.deal,
-  displayType: DisplayType.verticalBarChart,
-  groupByType: WidgetGroupByType.none,
-  aggregationType: AggregationType.count,
+  measure: chartWidget().measure,
+  displayOptions: chartWidget().displayOptions,
+  expectedRevision: 3,
+  idempotencyKey: "widget-retry-key",
 } as const;
 
 beforeEach(() => {
@@ -109,80 +179,96 @@ beforeEach(() => {
 });
 
 describe("manage_widgets create", () => {
-  it("keeps omitted kind backward-compatible with chart creation", async () => {
-    spies.upsertWidget.mockResolvedValue({ ok: true, data: chartWidget() });
-
-    const result = await run(chartCreate);
-
-    expect(spies.upsertWidget).toHaveBeenCalledWith({
-      kind: WidgetKind.chart,
-      name: "Deals",
-      entityType: EntityType.deal,
-      groupByType: WidgetGroupByType.none,
-      groupByCustomColumnId: undefined,
-      aggregationType: AggregationType.count,
-      entityFilters: [],
-      dealFilters: [],
-      displayOptions: {
-        displayType: DisplayType.verticalBarChart,
-        reverseXAxis: false,
-        reverseYAxis: false,
-        barColors: [ChartColor.primary1, ChartColor.primary2],
-      },
-      isTemplate: false,
+  it("creates a record measure through the shared version-two interactor", async () => {
+    spies.upsertRecordWidget.mockResolvedValue({
+      ok: true,
+      data: chartWidget(),
     });
+    const result = await run(chartCreate);
+    expect(spies.upsertRecordWidget).toHaveBeenCalledWith({
+      kind: "chart",
+      name: "Deals",
+      measure: chartCreate.measure,
+      displayOptions: chartCreate.displayOptions,
+      expectedRevision: 3,
+      idempotencyKey: "widget-retry-key",
+    });
+    expect(spies.upsertWidget).not.toHaveBeenCalled();
     expect(decode(result)).toEqual({
       id: WIDGET_ID,
-      kind: WidgetKind.chart,
+      kind: "chart",
       name: "Deals",
-      message: 'Widget "Deals" created successfully',
+      version: 1,
     });
   });
-
-  it("creates an activity widget with filter defaults", async () => {
-    spies.upsertWidget.mockResolvedValue({
+  it("creates a chart at a requested grid position in the same call and echoes the saved layout", async () => {
+    const layout = { x: 4, y: 2, w: 6, h: 3 };
+    spies.upsertRecordWidget.mockResolvedValue({
       ok: true,
-      data: activityWidget({ timelineFilters: [] }),
+      data: { ...chartWidget(), layout: { lg: { i: WIDGET_ID, ...layout } } },
     });
+    const result = await run({ ...chartCreate, layout });
+    expect(spies.upsertRecordWidget).toHaveBeenCalledWith(expect.objectContaining({ layout }));
+    expect(decode(result)).toMatchObject({ id: WIDGET_ID, layout });
+    expect(await run({ ...chartCreate, layout: { x: 8, y: 0, w: 6, h: 3 } })).toContain("Validation error:");
+    expect(spies.upsertRecordWidget).toHaveBeenCalledTimes(1);
+  });
 
+  it("rejects retired entity chart contracts and missing concurrency preconditions", async () => {
+    expect(await run({ action: "create", name: "Legacy", entityType: "deal" })).toContain("Validation error:");
+    const incomplete = { ...chartCreate, expectedRevision: undefined };
+    expect(await run(incomplete)).toContain("Validation error:");
+    expect(spies.upsertRecordWidget).not.toHaveBeenCalled();
+    expect(spies.upsertWidget).not.toHaveBeenCalled();
+  });
+
+  it("creates a generic activity widget through the versioned interactor", async () => {
+    spies.upsertRecordActivityWidget.mockResolvedValue({
+      ok: true,
+      data: activityWidget(),
+    });
     const result = await run({
       action: "create",
-      kind: WidgetKind.activityTimeline,
+      kind: "activityTimeline",
       name: "Recent activity",
-    });
-
-    expect(spies.upsertWidget).toHaveBeenCalledWith({
-      kind: WidgetKind.activityTimeline,
-      name: "Recent activity",
-      timelineFilters: [],
-      displayOptions: { showFilters: true },
-      isTemplate: false,
-    });
-    expect(decode(result)).toEqual({
-      id: WIDGET_ID,
-      kind: WidgetKind.activityTimeline,
-      name: "Recent activity",
-      message: 'Widget "Recent activity" created successfully',
-    });
-  });
-
-  it("round-trips relationship filters and a false display flag", async () => {
-    spies.upsertWidget.mockResolvedValue({ ok: true, data: activityWidget() });
-
-    await run({
-      action: "create",
-      kind: WidgetKind.activityTimeline,
-      name: "Recent activity",
-      timelineFilters: [relationshipFilter],
+      activityQuery,
+      ...activityPreconditions,
       showFilters: false,
     });
-
-    expect(spies.upsertWidget).toHaveBeenCalledWith(
-      expect.objectContaining({
-        timelineFilters: [relationshipFilter],
-        displayOptions: { showFilters: false },
+    expect(spies.upsertRecordActivityWidget).toHaveBeenCalledWith({
+      kind: "activityTimeline",
+      name: "Recent activity",
+      activityQuery,
+      ...activityPreconditions,
+      displayOptions: { showFilters: false },
+    });
+    expect(spies.upsertWidget).not.toHaveBeenCalled();
+    expect(decode(result)).toEqual({
+      id: WIDGET_ID,
+      kind: "activityTimeline",
+      name: "Recent activity",
+      version: 1,
+    });
+  });
+  it("rejects omitted preconditions and retired activity filters without writing", async () => {
+    expect(
+      await run({
+        action: "create",
+        kind: "activityTimeline",
+        name: "Recent activity",
+        activityQuery,
       }),
-    );
+    ).toContain("Validation error:");
+    expect(
+      await run({
+        action: "create",
+        kind: "activityTimeline",
+        name: "Recent activity",
+        timelineFilters: [],
+        ...activityPreconditions,
+      }),
+    ).toContain("Validation error:");
+    expect(spies.upsertRecordActivityWidget).not.toHaveBeenCalled();
   });
 
   it("rejects fields from the other widget kind", async () => {
@@ -192,151 +278,118 @@ describe("manage_widgets create", () => {
         action: "create",
         kind: WidgetKind.activityTimeline,
         name: "Recent activity",
-        entityType: EntityType.contact,
+        entityType: "contact",
       }),
     ).toContain("Validation error:");
     expect(spies.upsertWidget).not.toHaveBeenCalled();
   });
 
-  it("enforces strict relationship membership and standalone shapes", () => {
+  it("enforces bounded, typed record filter shapes", () => {
     const base = {
       action: "create",
-      kind: WidgetKind.activityTimeline,
+      kind: "activityTimeline",
       name: "Recent activity",
+      ...activityPreconditions,
     };
+    for (const filters of [
+      [{ ...relationshipFilter, recordIds: [] }],
+      [{ ...relationshipFilter, operator: "hasSome" }],
+      Array.from({ length: 21 }, () => relationshipFilter),
+      [{ ...relationshipFilter, workspaceId: RECORD_ID }],
+    ]) {
+      expect(
+        manageWidgetsTool.inputSchema.safeParse({
+          ...base,
+          activityQuery: { ...activityQuery, filters },
+        }).success,
+      ).toBe(false);
+    }
     expect(
       manageWidgetsTool.inputSchema.safeParse({
         ...base,
-        timelineFilters: [{ ...relationshipFilter, value: [] }],
+        activityQuery: {
+          ...activityQuery,
+          filters: [relationshipFilter, { kind: "source", operator: "notIn", values: ["message"] }],
+        },
       }).success,
-    ).toBe(false);
-    expect(
-      manageWidgetsTool.inputSchema.safeParse({
-        ...base,
-        timelineFilters: [
-          {
-            field: FilterFieldKey.contactIds,
-            operator: FilterOperatorKey.hasSome,
-            value: [RECORD_ID],
-          },
-        ],
-      }).success,
-    ).toBe(false);
-    expect(
-      manageWidgetsTool.inputSchema.safeParse({
-        ...base,
-        timelineFilters: Array.from({ length: 51 }, () => relationshipFilter),
-      }).success,
-    ).toBe(false);
-    expect(
-      manageWidgetsTool.inputSchema.safeParse({
-        ...base,
-        timelineFilters: [relationshipFilter, relationshipFilter],
-      }).success,
-    ).toBe(false);
+    ).toBe(true);
   });
 });
 
 describe("manage_widgets update", () => {
-  it("updates a stored chart while preserving every omitted chart field", async () => {
-    const stored = chartWidget({
-      entityFilters: [{ field: "name", operator: FilterOperatorKey.contains, value: "old" }],
-      dealFilters: [{ field: "status", operator: FilterOperatorKey.in, value: ["open"] }],
-      displayOptions: {
-        displayType: DisplayType.verticalBarChart,
-        reverseXAxis: false,
-        reverseYAxis: true,
-        barColors: [ChartColor.primary1],
-        showFilters: false,
-        showLegend: false,
-      },
-    });
+  it("forwards only the changed chart fields and the caller's concurrency preconditions to the stored kind", async () => {
+    const stored = chartWidget();
     spies.getWidgetById.mockResolvedValue({ ok: true, data: stored });
-    spies.upsertWidget.mockResolvedValue({
+    spies.upsertRecordWidget.mockResolvedValue({
       ok: true,
-      data: chartWidget({
-        name: "Renamed",
-        aggregationType: AggregationType.dealValue,
-      }),
+      data: chartWidget({ name: "Renamed", version: 2 }),
     });
-
-    const replacementFilters = [{ field: "name", operator: FilterOperatorKey.contains, value: "new" }];
     const result = await run({
       action: "update",
       id: WIDGET_ID,
       name: "Renamed",
-      aggregationType: AggregationType.dealValue,
-      displayType: DisplayType.horizontalBarChart,
-      reverseXAxis: true,
-      entityFilters: replacementFilters,
+      expectedRevision: 3,
+      expectedVersion: 1,
+      idempotencyKey: "update-retry-key",
     });
-
-    expect(spies.upsertWidget).toHaveBeenCalledWith({
+    expect(spies.upsertRecordWidget).toHaveBeenCalledWith({
+      kind: stored.kind,
       id: WIDGET_ID,
-      kind: WidgetKind.chart,
       name: "Renamed",
-      entityType: stored.entityType,
-      groupByType: stored.groupByType,
-      groupByCustomColumnId: undefined,
-      aggregationType: AggregationType.dealValue,
-      entityFilters: replacementFilters,
-      dealFilters: stored.dealFilters,
-      displayOptions: {
-        ...stored.displayOptions,
-        displayType: DisplayType.horizontalBarChart,
-        reverseXAxis: true,
-      },
-      isTemplate: false,
+      expectedRevision: 3,
+      expectedVersion: 1,
+      idempotencyKey: "update-retry-key",
     });
     expect(decode(result)).toMatchObject({
-      kind: WidgetKind.chart,
+      kind: "chart",
       name: "Renamed",
+      version: 2,
     });
   });
 
-  it("infers activity kind and preserves omitted filters without resubmitting them", async () => {
+  it("forwards a timeline rename without its omitted configuration", async () => {
     spies.getWidgetById.mockResolvedValue({ ok: true, data: activityWidget() });
-    spies.upsertWidget.mockResolvedValue({
+    spies.upsertRecordActivityWidget.mockResolvedValue({
       ok: true,
-      data: activityWidget({ name: "Renamed" }),
+      data: activityWidget({ name: "Renamed", version: 2 }),
     });
-
     const result = await run({
       action: "update",
       id: WIDGET_ID,
       name: "Renamed",
+      expectedVersion: 1,
+      ...activityPreconditions,
     });
-
-    expect(spies.upsertWidget).toHaveBeenCalledWith({
+    expect(spies.upsertRecordActivityWidget).toHaveBeenCalledWith({
+      kind: "activityTimeline",
       id: WIDGET_ID,
-      kind: WidgetKind.activityTimeline,
       name: "Renamed",
-      displayOptions: { showFilters: false },
-      isTemplate: false,
+      expectedVersion: 1,
+      ...activityPreconditions,
     });
-    expect(result).toContain(WidgetKind.activityTimeline);
+    expect(decode(result)).toMatchObject({
+      kind: "activityTimeline",
+      version: 2,
+    });
   });
-
-  it("clears filters with an explicit empty array and retains false", async () => {
+  it("clears filters only with an explicit replacement query and retains false", async () => {
+    const replacement = { ...activityQuery, filters: [] };
     spies.getWidgetById.mockResolvedValue({ ok: true, data: activityWidget() });
-    spies.upsertWidget.mockResolvedValue({
+    spies.upsertRecordActivityWidget.mockResolvedValue({
       ok: true,
-      data: activityWidget({
-        timelineFilters: [],
-        displayOptions: { showFilters: false },
-      }),
+      data: activityWidget({ activityQuery: replacement }),
     });
-
     await run({
       action: "update",
       id: WIDGET_ID,
-      timelineFilters: [],
+      expectedVersion: 1,
+      ...activityPreconditions,
+      activityQuery: replacement,
       showFilters: false,
     });
-
-    expect(spies.upsertWidget).toHaveBeenCalledWith(
+    expect(spies.upsertRecordActivityWidget).toHaveBeenCalledWith(
       expect.objectContaining({
-        timelineFilters: [],
+        activityQuery: replacement,
         displayOptions: { showFilters: false },
       }),
     );
@@ -349,14 +402,14 @@ describe("manage_widgets update", () => {
       await run({
         action: "update",
         id: WIDGET_ID,
-        kind: WidgetKind.activityTimeline,
+        kind: WidgetKind.chart,
       }),
     ).toContain("Validation error:");
     expect(
       await run({
         action: "update",
         id: WIDGET_ID,
-        aggregationType: AggregationType.count,
+        aggregationType: "count",
       }),
     ).toContain("Validation error:");
     expect(spies.upsertWidget).not.toHaveBeenCalled();
@@ -373,59 +426,87 @@ describe("manage_widgets update", () => {
 describe("manage_widgets read and delete", () => {
   it("lists and gets mixed widget kinds with reusable activity filters", async () => {
     spies.getWidgets.mockResolvedValue({
-      data: [chartWidget(), activityWidget({ id: RECORD_ID })],
+      data: { items: [chartWidget(), activityWidget({ id: RECORD_ID })] },
     });
     const list = await run({ action: "list" });
     expect(decode(list)).toEqual({
       items: [
-        { id: WIDGET_ID, name: "Deals", kind: WidgetKind.chart },
+        {
+          id: WIDGET_ID,
+          name: "Deals",
+          kind: WidgetKind.chart,
+          version: 1,
+          viewId: null,
+          layout: { x: 0, y: 0, w: 4, h: 8 },
+        },
         {
           id: RECORD_ID,
           name: "Recent activity",
           kind: WidgetKind.activityTimeline,
+          version: 1,
+          viewId: null,
+          layout: { x: 4, y: 0, w: 6, h: 8 },
         },
       ],
       total: 2,
     });
 
-    spies.getWidgetById.mockResolvedValueOnce({ ok: true, data: chartWidget() }).mockResolvedValueOnce({
+    spies.getRecordWidget.mockResolvedValueOnce({ ok: true, data: chartWidget() }).mockResolvedValueOnce({
       ok: true,
       data: activityWidget({ id: RECORD_ID }),
     });
     const get = await run({ action: "get", ids: [WIDGET_ID, RECORD_ID] });
-    expect(decode(get)).toEqual(formatDatesInResponse([chartWidget(), activityWidget({ id: RECORD_ID })]));
+    expect(decode(get)).toEqual({
+      items: formatDatesInResponse([chartWidget(), activityWidget({ id: RECORD_ID })]),
+    });
   });
 
   it("answers a missing id with an id-keyed error that fits the output schema and keeps the found widgets", async () => {
-    spies.getWidgetById
+    spies.getRecordWidget
       .mockResolvedValueOnce({ ok: true, data: chartWidget() })
-      .mockResolvedValueOnce({ ok: true, data: null });
+      .mockResolvedValueOnce(failNotFound(CustomErrorCode.widgetNotFound));
 
     const output = await manageWidgetsTool.execute(
-      manageWidgetsTool.inputSchema.parse({ action: "get", ids: [WIDGET_ID, RECORD_ID] }),
+      manageWidgetsTool.inputSchema.parse({
+        action: "get",
+        ids: [WIDGET_ID, RECORD_ID],
+      }),
     );
 
     if (typeof output === "string" || !("structuredContent" in output))
       throw new Error("Expected a structured MCP result");
     expect(manageWidgetsTool.outputSchema.safeParse(output.structuredContent).success).toBe(true);
-    expect(decode(output.text)).toEqual(
-      formatDatesInResponse([chartWidget(), { id: RECORD_ID, error: "Widget ID not found or not accessible." }]),
-    );
+    expect(decode(output.text)).toEqual({
+      items: formatDatesInResponse([
+        chartWidget(),
+        { id: RECORD_ID, error: "✖ Widget ID not found or not accessible." },
+      ]),
+    });
   });
 
   it("deletes either stored kind after existence is confirmed", async () => {
     spies.getWidgetById.mockResolvedValue({ ok: true, data: activityWidget() });
-    spies.deleteWidget.mockResolvedValue({ ok: true, data: WIDGET_ID });
+    spies.deleteWidget.mockResolvedValue({
+      ok: true,
+      data: {
+        id: WIDGET_ID,
+        trashBatchId: "40000000-0000-4000-8000-0000000000b1",
+      },
+    });
 
-    expect(await run({ action: "delete", id: WIDGET_ID })).toBe(`Deleted widget ${WIDGET_ID}`);
+    expect(decode(await run({ action: "delete", id: WIDGET_ID }))).toEqual({
+      id: WIDGET_ID,
+      deleted: true,
+      trashBatchId: "40000000-0000-4000-8000-0000000000b1",
+    });
     expect(spies.deleteWidget).toHaveBeenCalledWith({ id: WIDGET_ID });
   });
 });
 
 describe("manage_widgets description", () => {
-  it("keeps widgets for widget requests and sends data questions to list_records", () => {
+  it("keeps widgets for widget requests and sends data questions to the record query tools", () => {
     expect(manageWidgetsTool.description).toContain(
-      "Use this when the user asks to see, create, change or delete their dashboard widgets. A widget you create stays on their dashboard, so never create or update one to work out an answer; answer data questions with list_records filters, sums or groupBy instead.",
+      "Use this when the user asks to see, create, change or delete their dashboard widgets. A widget you create stays on their dashboard, so never create or update one to work out an answer; answer data questions with query_crm_measure or query_crm_records instead.",
     );
     expect(manageWidgetsTool.description).not.toContain("answers questions like");
     expect(manageWidgetsTool.description).not.toContain("analyze_records");

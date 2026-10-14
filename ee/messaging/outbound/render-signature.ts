@@ -18,7 +18,7 @@ type SignatureTemplateDefinition = {
   maxWidthPx: number;
 };
 
-export const SIGNATURE_TEMPLATES: Record<SignatureTemplate, SignatureTemplateDefinition> = {
+const SIGNATURE_TEMPLATES: Record<SignatureTemplate, SignatureTemplateDefinition> = {
   [SignatureTemplate.plain]: {
     logoPosition: "none",
     maxWidthPx: 460,
@@ -44,7 +44,7 @@ const SAFE_LINK_PROTOCOL = /^(?:https?:|mailto:|tel:)/i;
 
 type MarkdownEnv = { appearance?: EmailSettings["appearance"] };
 
-export const emailMarkdown = markdownit({
+const emailMarkdown = markdownit({
   html: false,
   linkify: true,
   breaks: true,

@@ -1,3 +1,4 @@
+import { PermissionService } from "@/core/base/permission.service";
 import "dotenv/config";
 
 import type {
@@ -483,7 +484,7 @@ async function evaluateWiki(
       );
     }
     const indexer = new WikiSemanticIndexService(
-      new PrismaWikiPageRepo(),
+      new PrismaWikiPageRepo(new PermissionService()),
       new EvalEmbeddingService(),
     );
     let indexed = 0;
@@ -515,7 +516,7 @@ async function evaluateWiki(
           }
         : null;
       const interactor = new SearchWikiPagesInteractor(
-        new PrismaWikiPageRepo(),
+        new PrismaWikiPageRepo(new PermissionService()),
         "stored",
         semantic,
       );

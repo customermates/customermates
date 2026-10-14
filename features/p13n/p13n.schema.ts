@@ -2,6 +2,8 @@ import { z } from "zod";
 
 import { PaginationRequestSchema } from "@/core/base/base-get.schema";
 
+import { P13nSettingsSchema } from "./p13n-settings.schema";
+
 export const EntityDetailOptionsSchema = z.object({
   starredFieldIds: z.array(z.string().min(1)),
   collapsedSectionIds: z.array(z.string().min(1)),
@@ -24,4 +26,5 @@ export const P13nEntrySchema = z.object({
   viewMode: z.string().optional(),
   grouping: z.any().optional(),
   detailOptions: EntityDetailOptionsSchema.optional(),
+  settings: P13nSettingsSchema.optional(),
 });

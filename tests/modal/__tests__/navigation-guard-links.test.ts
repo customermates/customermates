@@ -139,4 +139,21 @@ describe("useNavigationGuard with links from Mate", () => {
     });
     expect(router.push).toHaveBeenLastCalledWith("/company/settings?tab=roles#owners");
   });
+
+  it("leaves an in-app link that resolves the guard itself to its own click handler", () => {
+    const handled = vi.fn((event: ReactMouseEvent) => event.preventDefault());
+    render(
+      "",
+      createElement(
+        "a",
+        { href: "/records/type/record", "data-navigation-guard-handled": "", onClick: handled },
+        "Open page",
+      ),
+    );
+    expect(navigationGuard.isGuarding).toBe(true);
+    clickReachesBrowser(link("Open page"));
+    expect(handled).toHaveBeenCalledOnce();
+    expect(navigationGuard.isPending).toBe(false);
+    expect(router.push).not.toHaveBeenCalled();
+  });
 });

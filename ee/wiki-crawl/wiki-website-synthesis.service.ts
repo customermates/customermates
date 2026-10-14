@@ -24,7 +24,7 @@ import { env } from "@/env";
 import { wikiSourceHeadings } from "./wiki-source-inventory";
 import { wikiSourcePlanningPassages } from "./wiki-source-planning-passages";
 import { wikiSynthesisSectionMarkdown } from "./wiki-synthesis-markdown";
-import { generateWikiSynthesisObject, wikiSynthesisWorstCaseMicrocents } from "./wiki-synthesis-model";
+import { generateStructuredObject, structuredCallWorstCaseMicrocents } from "@/ee/agent-chat/structured-model-call";
 import {
   invalidWikiSynthesisEvidence,
   wikiSynthesisReviewDecision,
@@ -139,10 +139,16 @@ export class WikiWebsiteSynthesisService {
     for (let attempt = 0; attempt < 2; attempt += 1) {
       const result = await this.metered(
         crawl,
-        wikiSynthesisWorstCaseMicrocents(model, system, prompt),
+        structuredCallWorstCaseMicrocents(model, system, prompt),
         model.modelId,
         async () => {
-          const { output, charge, failure } = await generateWikiSynthesisObject({ model, schema, system, prompt });
+          const { output, charge, failure } = await generateStructuredObject({
+            label: "Website import",
+            model,
+            schema,
+            system,
+            prompt,
+          });
           if (failure) this.warnings.push(failure);
           return { value: output, charge };
         },

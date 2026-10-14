@@ -28,6 +28,7 @@ export function useDataViewSync<E extends HasId>(
   }, [store, initialResult]);
 
   useEffect(() => {
+    store.restoreQueryDraft();
     const cleanupUrlSync = connectDataViewUrlSync(store);
     const unregisters = linkedStores.map((s) => s.registerOnChange(() => store.refresh()));
     return () => {

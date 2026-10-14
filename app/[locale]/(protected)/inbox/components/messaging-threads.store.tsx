@@ -2,14 +2,26 @@ import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { MessagingThread } from "@/ee/messaging/messaging.schema";
 import type { TableColumn } from "@/core/base/base-data-view.store";
 import type { RootStore } from "@/core/stores/root.store";
+import type { SerializedInteractorFailure } from "@/core/validation/validation.utils";
 
 import { makeObservable, observable, runInAction } from "mobx";
 
 import { getMessagingThreadsAction, getUnreadThreadCountAction, refreshInboxAction } from "../actions";
+import { ForbiddenError } from "@/core/errors/app-errors";
 import { MESSAGING_RATE_LIMITS_DOCS_PATH } from "./lazy-media";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { settingsHref } from "@/app/components/navigation/settings-routes";
+
+function isExpectedInboxRefusal(failure: SerializedInteractorFailure): boolean {
+  return (
+    failure.kind === "authorization" ||
+    failure.issues.some(
+      (issue) => issue.entitlement === "paidSubscriptionRequired" || issue.entitlement === "messagingRequiresPro",
+    )
+  );
+}
 
 export class MessagingThreadsStore extends BaseDataViewStore<MessagingThread> {
   isRefreshingInbox = false;
@@ -31,14 +43,25 @@ export class MessagingThreadsStore extends BaseDataViewStore<MessagingThread> {
 
   protected async refreshAction(params?: GetQueryParams) {
     const [threads] = await Promise.all([getMessagingThreadsAction(params), this.refreshUnreadCount()]);
-    return threads;
+    if (!threads.ok) {
+      if (isExpectedInboxRefusal(threads.failure)) throw new ForbiddenError();
+      throw new Error("Inbox threads could not be loaded");
+    }
+    return threads.data;
   }
 
   refreshUnreadCount = async (): Promise<void> => {
     const generation = ++this.unreadCountGeneration;
     const count = await getUnreadThreadCountAction();
     if (generation !== this.unreadCountGeneration) return;
-    runInAction(() => (this.unreadThreadCount = count));
+    if (!count.ok) {
+      if (isExpectedInboxRefusal(count.failure)) {
+        runInAction(() => (this.unreadThreadCount = null));
+        return;
+      }
+      throw new Error("Inbox unread count could not be loaded");
+    }
+    runInAction(() => (this.unreadThreadCount = count.data));
   };
 
   refreshInbox = async (): Promise<void> => {
@@ -47,6 +70,10 @@ export class MessagingThreadsStore extends BaseDataViewStore<MessagingThread> {
     try {
       const result = await refreshInboxAction();
       if (!result.ok) {
+        if (result.code === "permissionDenied" || result.code === "insufficientPermissions") {
+          this.toastError("Inbox.shareToCrmPermissionDenied");
+          return;
+        }
         toastZodErrorTree(result.error);
         return;
       }
@@ -66,17 +93,23 @@ export class MessagingThreadsStore extends BaseDataViewStore<MessagingThread> {
           values: { count: reconnectAccounts },
           action: {
             labelKey: "ConnectedAccountsCard.title",
-            href: `/${this.rootStore.localeStore.locale}/profile/connected-accounts`,
+            href: `/${this.rootStore.localeStore.locale}${settingsHref("channels")}`,
           },
         });
       }
-      if (failedAccounts > 0) this.toastError("Inbox.refreshPartial", { values: { count: failedAccounts } });
+      if (failedAccounts > 0) {
+        this.toastError("Inbox.refreshPartial", {
+          values: { count: failedAccounts },
+        });
+      }
 
       await this.refresh();
       if (!result.data.rateLimited && reconnectAccounts === 0 && failedAccounts === 0)
         this.toastSuccess("Inbox.refreshDone");
-    } catch {
-      this.toastError("Common.notifications.unexpectedError");
+    } catch (error) {
+      this.toastError(
+        error instanceof ForbiddenError ? "Inbox.shareToCrmPermissionDenied" : "Common.notifications.unexpectedError",
+      );
     } finally {
       runInAction(() => (this.isRefreshingInbox = false));
     }

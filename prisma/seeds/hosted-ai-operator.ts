@@ -156,7 +156,6 @@ export async function seedHostedAiOperatorFixtures(context: SeedContext, now = n
 
   const company = {
     createdAt: FIXTURE_COMPANY_CREATED_AT,
-    currency: "eur" as const,
     updatedAt: FIXTURE_COMPANY_CREATED_AT,
   };
   await prisma.company.upsert({
@@ -320,7 +319,6 @@ export async function seedHostedAiOperatorUserTableFixtures(
   for (const [index, definition] of SYNTHETIC_HOSTED_AI_OPERATOR_USER_DEFINITIONS.entries()) {
     const company = {
       createdAt: new Date(definition.createdAt.getTime() - HOUR),
-      currency: "eur" as const,
       updatedAt: definition.createdAt,
     };
     await prisma.company.upsert({

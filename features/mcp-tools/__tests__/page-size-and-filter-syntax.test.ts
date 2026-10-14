@@ -7,9 +7,7 @@ import { z } from "zod";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 
 import {
-  FILTER_FIELD_DESCRIPTION,
   FILTER_OPERATORS,
-  FILTER_SYNTAX,
   MCP_PAGE_SIZE_DESCRIPTION,
   MCP_PAGE_SIZES,
   McpPageOutputShape,
@@ -17,8 +15,6 @@ import {
   mcpOptionalPageSize,
   mcpPageSize,
   planMcpPageFetch,
-  nameMatchNote,
-  nameQueryOf,
   type McpPageSize,
 } from "../utils";
 
@@ -169,60 +165,5 @@ describe("filter syntax", () => {
   it("lists every filter operator the query builder supports, exactly once", () => {
     expect([...FILTER_OPERATORS].toSorted()).toEqual(Object.values(FilterOperatorKey).toSorted());
     expect(new Set(FILTER_OPERATORS).size).toBe(FILTER_OPERATORS.length);
-    for (const operator of Object.values(FilterOperatorKey)) expect(FILTER_FIELD_DESCRIPTION).toContain(operator);
-    expect(Object.values(FILTER_SYNTAX.operators).flat().toSorted()).toEqual(
-      Object.values(FilterOperatorKey).toSorted(),
-    );
-  });
-
-  it("teaches single-select filters as in with option ids, the only shape those columns accept", () => {
-    expect(FILTER_SYNTAX.examples).toContainEqual({
-      field: "<single-select-custom-column-uuid>",
-      operator: "in",
-      value: ["<option-uuid>"],
-    });
-    expect(FILTER_SYNTAX.examples.some((example) => example.operator === "equals")).toBe(false);
-  });
-
-  it("gives isNull and isNotNull each its own meaning on a custom column", () => {
-    expect(FILTER_FIELD_DESCRIPTION).toContain(
-      "On custom columns isNull means the column has no value and isNotNull that it has one, so isNull finds records missing a value.",
-    );
-    expect(FILTER_FIELD_DESCRIPTION).not.toContain("never filled in");
-  });
-
-  it("stays compact enough to leave room for the schema it accompanies", () => {
-    expect(JSON.stringify(FILTER_SYNTAX).length).toBeLessThan(700);
-  });
-});
-
-describe("name match note", () => {
-  it("says so when two or more listed names contain the searched name", () => {
-    const note = nameMatchNote("Nova Expansion", [{ name: "Nova Expansion" }, { name: "Nova Expansion 2025" }]);
-    expect(note).toContain('2 records here match the name "Nova Expansion"');
-    expect(note).toContain("ask which one");
-    expect(note).toContain("act on all of them");
-  });
-
-  it("stays silent for a single match, a short term, or no term", () => {
-    expect(nameMatchNote("Nova Expansion", [{ name: "Nova Expansion" }, { name: "Kestrel" }])).toBeUndefined();
-    expect(nameMatchNote("No", [{ name: "Nova" }, { name: "Nordwind" }])).toBeUndefined();
-    expect(nameMatchNote(undefined, [{ name: "Nova" }, { name: "Nova" }])).toBeUndefined();
-  });
-
-  it("reads the name query from a search term or a name filter", () => {
-    expect(nameQueryOf("Acme", undefined)).toBe("Acme");
-    expect(nameQueryOf(undefined, [{ field: "name", operator: "startsWith", value: "Renewal" }])).toBe("Renewal");
-    expect(nameQueryOf(undefined, [{ field: "status", operator: "in", value: ["x"] }])).toBeUndefined();
-  });
-
-  it("reads a contact's first and last name filters as a name query, since contacts have no name filter", () => {
-    expect(
-      nameQueryOf(undefined, [
-        { field: "firstName", operator: "equals", value: "Anna" },
-        { field: "lastName", operator: "startsWith", value: "Probe 1" },
-      ]),
-    ).toBe("Anna Probe 1");
-    expect(nameQueryOf(undefined, [{ field: "lastName", operator: "isNull" }])).toBeUndefined();
   });
 });

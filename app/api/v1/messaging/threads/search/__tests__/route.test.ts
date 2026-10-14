@@ -12,6 +12,9 @@ const mockUser = createMockUser();
 const wiring = vi.hoisted(() => ({ api: null as unknown, interactive: null as unknown }));
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
+vi.mock("@/core/decorators/transaction-runner", () => ({
+  runInTransaction: <T>(run: () => Promise<T>) => run(),
+}));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/core/di", () => ({
   ...createMockDiModule(() => mockUser),
@@ -20,6 +23,7 @@ vi.mock("@/core/di", () => ({
 }));
 
 import { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
+import { StructuredErrorResponseSchema } from "@/core/api/structured-interactor-handler";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { GetMessagingThreadsInteractor } from "@/ee/messaging/inbox/get-messaging-threads.interactor";
 import { GetMessagingThreadsRepo } from "@/ee/messaging/inbox/get-messaging-threads.repo";
@@ -103,7 +107,10 @@ describe("messaging threads search route", () => {
     );
 
     expect(response.status).toBe(400);
-    expect(await response.json()).toContain("sortDescriptor.field");
+    expect(StructuredErrorResponseSchema.parse(await response.json()).error).toMatchObject({
+      kind: "validation",
+      issues: [expect.objectContaining({ path: ["sortDescriptor", "field"] })],
+    });
     expect(repo.itemCalls).toEqual([]);
   });
 

@@ -16,7 +16,7 @@ vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   }),
 }));
 
-vi.mock("@/app/[locale]/(protected)/company/components/subscription/subscription-panel", () => ({
+vi.mock("@/app/[locale]/(protected)/settings/(workspace)/components/subscription/subscription-panel", () => ({
   SUBSCRIPTION_STATUS_COLOR_MAP: {},
 }));
 

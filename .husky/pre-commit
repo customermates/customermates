@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 yarn run lint --max-warnings=0
-tsc --noEmit
+yarn run typecheck
 
 if ! git diff --quiet; then
   echo ""

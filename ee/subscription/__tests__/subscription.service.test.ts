@@ -70,7 +70,7 @@ describe("SubscriptionService.createCheckoutOrThrow", () => {
     await service.createCheckoutOrThrow({
       offer: getCommercialOfferOrThrow("pro", "monthly"),
       quantity: 4,
-      redirectUrl: "https://customermates.example/company/subscription",
+      redirectUrl: "https://customermates.example/settings/billing",
       custom: { company_id: "company-1" },
     });
 
@@ -80,7 +80,7 @@ describe("SubscriptionService.createCheckoutOrThrow", () => {
         variantQuantities: [{ variantId: 2002, quantity: 4 }],
       },
       productOptions: {
-        redirectUrl: "https://customermates.example/company/subscription",
+        redirectUrl: "https://customermates.example/settings/billing",
         enabledVariants: [2002],
       },
       checkoutOptions: { skipTrial: true },

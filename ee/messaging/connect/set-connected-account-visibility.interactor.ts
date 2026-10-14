@@ -1,33 +1,32 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
-import type { ConnectedAccountDto, ConnectedAccountRecord } from "../messaging.schema";
+import type { ConnectedAccountDto } from "../messaging.schema";
 import type { EventService } from "@/features/event/event.service";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { ConnectedAccountAppDtoSchema } from "../messaging.schema";
 import { toConnectedAccountDto } from "./connected-account-dto";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Enforce } from "@/core/decorators/enforce.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
+import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { DomainEvent } from "@/features/event/domain-events";
+import type { SetConnectedAccountVisibilityRepo } from "./set-connected-account-visibility.repo";
 
-const Schema = z.object({
-  id: z.uuid(),
-  shared: z.boolean(),
-});
-type SetConnectedAccountVisibilityData = Data<typeof Schema>;
+export const SetConnectedAccountVisibilitySchema = z
+  .object({
+    id: z.uuid(),
+    shared: z.boolean(),
+  })
+  .strict();
+type SetConnectedAccountVisibilityData = Data<typeof SetConnectedAccountVisibilitySchema>;
 
-export abstract class SetConnectedAccountVisibilityRepo {
-  abstract getAccountByIdOrThrow(id: string): Promise<ConnectedAccountRecord>;
-  abstract setAccountSharedOrThrow(args: { id: string; shared: boolean }): Promise<ConnectedAccountRecord>;
-}
-
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "update" })
 export class SetConnectedAccountVisibilityInteractor extends AuthenticatedInteractor<
   SetConnectedAccountVisibilityData,
   ConnectedAccountDto
@@ -40,38 +39,39 @@ export class SetConnectedAccountVisibilityInteractor extends AuthenticatedIntera
     super();
   }
 
-  @Enforce(Schema)
+  @Validate(SetConnectedAccountVisibilitySchema)
   @ValidateOutput(ConnectedAccountAppDtoSchema)
   async invoke(data: SetConnectedAccountVisibilityData): Validated<ConnectedAccountDto> {
-    const denied = await this.entitlements.require("sharedAccounts");
-    if (denied) return denied;
+    return runInTransaction(async () => {
+      const existing = await this.repo.getAccountByIdOrThrow(data.id);
+      const denied = await this.entitlements.require("sharedAccounts");
+      if (denied) return denied;
 
-    const existing = await this.repo.getAccountByIdOrThrow(data.id);
+      if (existing.shared === data.shared) return { ok: true as const, data: toConnectedAccountDto(existing) };
 
-    if (existing.shared === data.shared) return { ok: true as const, data: toConnectedAccountDto(existing) };
+      const updated = await this.repo.setAccountSharedOrThrow({
+        id: data.id,
+        shared: data.shared,
+      });
 
-    const updated = await this.repo.setAccountSharedOrThrow({
-      id: data.id,
-      shared: data.shared,
-    });
-
-    await this.eventService.publish(DomainEvent.CONNECTED_ACCOUNT_UPDATED, {
-      entityId: data.id,
-      payload: {
-        connectedAccount: {
-          provider: updated.provider,
-          displayName: updated.displayName,
-          emailAddress: updated.emailAddress,
-        },
-        changes: {
-          visibility: {
-            previous: existing.shared ? "shared" : "private",
-            current: data.shared ? "shared" : "private",
+      await this.eventService.publish(DomainEvent.CONNECTED_ACCOUNT_UPDATED, {
+        entityId: data.id,
+        payload: {
+          connectedAccount: {
+            provider: updated.provider,
+            displayName: updated.displayName,
+            emailAddress: updated.emailAddress,
+          },
+          changes: {
+            visibility: {
+              previous: existing.shared ? "shared" : "private",
+              current: data.shared ? "shared" : "private",
+            },
           },
         },
-      },
-    });
+      });
 
-    return { ok: true as const, data: toConnectedAccountDto(updated) };
+      return { ok: true as const, data: toConnectedAccountDto(updated) };
+    });
   }
 }

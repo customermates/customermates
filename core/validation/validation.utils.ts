@@ -36,11 +36,12 @@ export const InteractorFailureKindSchema = z.enum([
 
 export type InteractorFailureKind = z.infer<typeof InteractorFailureKindSchema>;
 
-export const SerializedInteractorIssueSchema = z.object({
+const SerializedInteractorIssueSchema = z.object({
   code: z.string(),
   path: z.array(z.union([z.string(), z.number()])),
   message: z.string(),
   customCode: z.enum(CustomErrorCode).optional(),
+  entitlement: z.string().optional(),
 });
 
 export const SerializedInteractorFailureSchema = z.object({
@@ -53,7 +54,13 @@ export type SerializedInteractorFailure = z.infer<typeof SerializedInteractorFai
 
 export function serializedFailureErrorTree(failure: SerializedInteractorFailure) {
   return z.treeifyError(
-    new z.ZodError(failure.issues.map(({ path, message }) => ({ code: "custom" as const, path, message }))),
+    new z.ZodError(
+      failure.issues.map(({ path, message }) => ({
+        code: "custom" as const,
+        path,
+        message,
+      })),
+    ),
   );
 }
 
@@ -61,20 +68,16 @@ const AUTHENTICATION_FAILURE_CODES = new Set<CustomErrorCode>([CustomErrorCode.n
 const AUTHORIZATION_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.userInactive,
   CustomErrorCode.permissionDenied,
+  CustomErrorCode.insufficientPermissions,
   CustomErrorCode.demoMode,
   CustomErrorCode.roleSelfEditForbidden,
 ]);
 const NOT_FOUND_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.calendarEventNotFound,
+  CustomErrorCode.calendarNotFound,
   CustomErrorCode.connectedAccountNotFound,
-  CustomErrorCode.contactNotFound,
-  CustomErrorCode.customColumnNotFound,
-  CustomErrorCode.customColumnIdNotFound,
-  CustomErrorCode.dealNotFound,
-  CustomErrorCode.organizationNotFound,
   CustomErrorCode.roleNotFound,
-  CustomErrorCode.serviceNotFound,
-  CustomErrorCode.taskNotFound,
+  CustomErrorCode.routineNotFound,
   CustomErrorCode.threadNotFound,
   CustomErrorCode.messageNotFound,
   CustomErrorCode.unipileResourceNotFound,
@@ -87,18 +90,26 @@ const NOT_FOUND_FAILURE_CODES = new Set<CustomErrorCode>([
 const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.channelAlreadyLinked,
   CustomErrorCode.operatorConflict,
+  CustomErrorCode.roleNameTaken,
   CustomErrorCode.roleSystemImmutable,
+  CustomErrorCode.roleAccessPresetInUse,
   CustomErrorCode.unipileProviderRejected,
   CustomErrorCode.unipileDisconnectedAccount,
   CustomErrorCode.unipileAccountRestricted,
   CustomErrorCode.unipileFeatureUnavailable,
   CustomErrorCode.unipileUnknown,
+  CustomErrorCode.webhookDeliveryInProgress,
+  CustomErrorCode.webhookDisabled,
   CustomErrorCode.wikiGuideExists,
   CustomErrorCode.wikiNotEmpty,
   CustomErrorCode.wikiPageConflict,
 ]);
-const RATE_LIMIT_FAILURE_CODES = new Set<CustomErrorCode>([CustomErrorCode.unipileRateLimit]);
+const RATE_LIMIT_FAILURE_CODES = new Set<CustomErrorCode>([
+  CustomErrorCode.serviceBusy,
+  CustomErrorCode.unipileRateLimit,
+]);
 const UNAVAILABLE_FAILURE_CODES = new Set<CustomErrorCode>([
+  CustomErrorCode.recordTransactionEnded,
   CustomErrorCode.unipileProviderError,
   CustomErrorCode.unipileRequestTimeout,
   CustomErrorCode.unipileServiceUnavailable,
@@ -106,6 +117,7 @@ const UNAVAILABLE_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.unipileSendOutcomeUnknown,
 ]);
 const RETRYABLE_FAILURE_CODES = new Set<CustomErrorCode>([
+  CustomErrorCode.serviceBusy,
   CustomErrorCode.unipileRateLimit,
   CustomErrorCode.unipileProviderError,
   CustomErrorCode.unipileServiceUnavailable,
@@ -173,12 +185,14 @@ export function serializeInteractorFailure(
     ...(isRetryableFailure(error) ? { retryable: true } : {}),
     issues: error.issues.map((issue) => {
       const customCode = issueCustomCode(issue) ?? undefined;
+      const entitlement = issue.code === "custom" ? issue.params?.entitlement : undefined;
 
       return {
         code: issue.code,
         path: serializableIssuePath(issue.path),
         message: issue.message,
         ...(customCode ? { customCode } : {}),
+        ...(typeof entitlement === "string" ? { entitlement } : {}),
       };
     }),
   };
@@ -247,17 +261,29 @@ function nonBlankText(max: number) {
     .string()
     .max(max)
     .superRefine((value, ctx) => {
-      if (value.trim().length === 0)
-        ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.mustNotBeBlank } });
-      if (/\u0000/.test(value))
-        ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.mustNotContainNullChars } });
+      if (value.trim().length === 0) {
+        ctx.addIssue({
+          code: "custom",
+          params: { error: CustomErrorCode.mustNotBeBlank },
+        });
+      }
+      if (/\u0000/.test(value)) {
+        ctx.addIssue({
+          code: "custom",
+          params: { error: CustomErrorCode.mustNotContainNullChars },
+        });
+      }
     });
 }
 
 function nulFreeText() {
   return z.string().superRefine((value, ctx) => {
-    if (/\u0000/.test(value))
-      ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.mustNotContainNullChars } });
+    if (/\u0000/.test(value)) {
+      ctx.addIssue({
+        code: "custom",
+        params: { error: CustomErrorCode.mustNotContainNullChars },
+      });
+    }
   });
 }
 

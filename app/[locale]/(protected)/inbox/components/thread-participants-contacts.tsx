@@ -3,7 +3,7 @@
 import type { MessagingProvider } from "@/generated/prisma";
 import type { MessagingAttendee } from "@/ee/messaging/messaging.schema";
 
-import { ChevronLeft, ExternalLink, Plus, Unlink, UserPlus } from "lucide-react";
+import { ChevronLeft, Plus, Unlink, UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 
@@ -11,9 +11,14 @@ import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
+import { RecordOperationProgress } from "@/components/records/record-operation-progress";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { displayableIdentifier, isAttendeeUnlinked, participantLabel } from "@/ee/messaging/thread-display";
+import {
+  displayableIdentifier,
+  isAttendeeUnlinked,
+  participantLabel,
+  participantAvatar,
+} from "@/ee/messaging/thread-display";
 import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { CopyableAddress } from "./copyable-address";
@@ -26,8 +31,17 @@ type ManagerProps = {
 
 export const ThreadPeopleManager = observer(({ participants, provider, canManage }: ManagerProps) => {
   const t = useTranslations();
-  const navigateToHref = useNavigateToHref();
-  const { threadParticipantsStore: store } = useRootStore();
+  const { threadParticipantsStore: store, recordWorkspaceStore } = useRootStore();
+
+  if (store.pendingOperationId) {
+    return (
+      <RecordOperationProgress
+        operationId={store.pendingOperationId}
+        onCompleted={store.operationCompleted}
+        onStopped={store.operationStopped}
+      />
+    );
+  }
 
   if (store.isSearching && store.activeIdentifier) {
     const activeIdentifier = store.activeIdentifier;
@@ -35,7 +49,14 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
     const activeLabel = active ? participantLabel(active, provider, t("Inbox.senderUnknown")) : "";
     const trimmedSuggestion = activeLabel.trim();
     const showSuggestedCreate =
-      !store.isLoading && !store.searchError && store.query.trim().length === 0 && trimmedSuggestion.length > 0;
+      store.createTypes.length > 0 &&
+      !store.isLoading &&
+      !store.searchError &&
+      store.query.trim().length === 0 &&
+      trimmedSuggestion.length > 0 &&
+      !store.results.some(
+        (record) => record.title.trim().toLocaleLowerCase() === trimmedSuggestion.toLocaleLowerCase(),
+      );
 
     return (
       <div className="border-border rounded-md border">
@@ -68,10 +89,10 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
             onKeyDown={(e) => {
               if (e.key !== "Enter") return;
               if (store.isLoading || store.searchError || store.pending) return;
-              if (store.showCreate) {
+              if (store.showCreate && store.createTypes.length === 1) {
                 e.preventDefault();
                 runUserAction(() => store.createAndAssign(activeIdentifier, store.query));
-              } else if (showSuggestedCreate) {
+              } else if (showSuggestedCreate && store.createTypes.length === 1) {
                 e.preventDefault();
                 runUserAction(() => store.createAndAssign(activeIdentifier, trimmedSuggestion));
               }
@@ -105,41 +126,53 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
 
             {!store.isLoading && (showSuggestedCreate || store.showCreate) && (
               <CommandGroup>
-                <CommandItem
-                  disabled={store.pending}
-                  value="__create__"
-                  onSelect={() =>
-                    runUserAction(() =>
-                      store.createAndAssign(activeIdentifier, showSuggestedCreate ? trimmedSuggestion : store.query),
-                    )
-                  }
-                >
-                  <Plus className="size-3.5" />
+                {store.createTypes.map((type) => (
+                  <CommandItem
+                    key={type.typeId}
+                    disabled={store.pending}
+                    value={`__create__${type.typeId}`}
+                    onSelect={() =>
+                      runUserAction(() =>
+                        store.createAndAssign(
+                          activeIdentifier,
+                          showSuggestedCreate ? trimmedSuggestion : store.query,
+                          type.typeId,
+                        ),
+                      )
+                    }
+                  >
+                    <Plus className="size-3.5" />
 
-                  <span>
-                    {t("Inbox.compose.createContact", {
-                      query: showSuggestedCreate ? trimmedSuggestion : store.query.trim(),
-                    })}
-                  </span>
-                </CommandItem>
+                    <span>
+                      {t("Inbox.compose.createContact", {
+                        query: showSuggestedCreate ? trimmedSuggestion : store.query.trim(),
+                      })}
+
+                      {store.createTypes.length > 1 ? ` · ${type.label}` : ""}
+                    </span>
+                  </CommandItem>
+                ))}
               </CommandGroup>
             )}
 
             {!store.isLoading && store.results.length > 0 && (
               <CommandGroup>
                 {store.results.map((c) => {
-                  const label = `${c.firstName} ${c.lastName}`.trim() || t("Inbox.compose.unnamed");
+                  const label = c.title.trim() || t("Inbox.compose.unnamed");
                   return (
                     <CommandItem
-                      key={c.id}
-                      disabled={store.pending}
-                      value={c.id}
-                      onSelect={() => runUserAction(() => store.link(activeIdentifier, c.id))}
+                      key={`${c.ref.typeId}:${c.ref.recordId}`}
+                      aria-label={label}
+                      disabled={store.pending || !c.canEdit}
+                      value={`${c.ref.typeId}:${c.ref.recordId}`}
+                      onSelect={() => runUserAction(() => store.link(activeIdentifier, c.ref))}
                     >
                       <Avatar name={label} size="sm" src={c.avatarUrl ?? undefined} />
 
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-sm">{label}</div>
+
+                        <div className="text-muted-foreground truncate text-xs">{c.typePluralLabel}</div>
                       </div>
                     </CommandItem>
                   );
@@ -155,13 +188,13 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
   return (
     <div className="flex flex-col gap-1">
       {participants.map((p) => {
-        const matched = p.contact ?? null;
+        const matches = p.records;
         const label = participantLabel(p, provider, t("Inbox.senderUnknown"));
         const subtitle = displayableIdentifier(provider, p.identifier);
-        const avatarUrl = matched?.avatarUrl ?? p.pictureUrl ?? undefined;
+        const avatarUrl = participantAvatar(p) ?? undefined;
 
         return (
-          <div key={p.identifier} className="flex items-center gap-2 py-2">
+          <div key={p.identifier} className="flex flex-col gap-2 py-2">
             <div className="flex min-w-0 flex-1 items-center gap-3">
               <Avatar
                 name={label}
@@ -178,47 +211,44 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
               </div>
             </div>
 
-            {matched ? (
-              <div className="flex shrink-0 items-center gap-2">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      aria-label={t("Inbox.participants.openContact")}
-                      className="size-7 text-muted-foreground"
-                      size="icon-sm"
-                      type="button"
-                      variant="ghost"
-                      onClick={() => navigateToHref(`/contacts/${matched.id}`)}
-                    >
-                      <ExternalLink className="size-3.5" />
-                    </Button>
-                  </TooltipTrigger>
+            <div className="flex min-w-0 flex-col items-start gap-1 pl-11">
+              {matches.map((record) => (
+                <div key={`${record.ref.typeId}:${record.ref.recordId}`} className="flex w-full items-center gap-1">
+                  <Button
+                    aria-label={t("Inbox.participants.openRecordNamed", { name: record.title })}
+                    className="h-7 min-w-0 flex-1 justify-start gap-1 px-2 text-xs"
+                    type="button"
+                    variant="secondary"
+                    onClick={(event) => recordWorkspaceStore.open(record.ref, event.currentTarget)}
+                  >
+                    <span className="truncate">{record.title || record.typeLabel}</span>
 
-                  <TooltipContent>{t("Inbox.participants.openContact")}</TooltipContent>
-                </Tooltip>
+                    <span className="text-muted-foreground shrink-0">· {record.typeLabel}</span>
+                  </Button>
 
-                {canManage && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        aria-label={t("Inbox.participants.unlink")}
-                        className="size-7"
-                        data-size="icon-sm"
-                        disabled={store.pending}
-                        type="button"
-                        variant="softDestructive"
-                        onClick={() => runUserAction(() => store.unlink(p.identifier))}
-                      >
-                        <Unlink className="size-3.5" />
-                      </Button>
-                    </TooltipTrigger>
+                  {canManage && record.canEdit && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          aria-label={t("Inbox.participants.unlinkRecordNamed", { name: record.title })}
+                          className="size-7"
+                          disabled={store.pending}
+                          size="icon-sm"
+                          type="button"
+                          variant="ghost"
+                          onClick={() => runUserAction(() => store.unlink(p.identifier, record.ref))}
+                        >
+                          <Unlink className="size-3.5" />
+                        </Button>
+                      </TooltipTrigger>
 
-                    <TooltipContent>{t("Inbox.participants.unlink")}</TooltipContent>
-                  </Tooltip>
-                )}
-              </div>
-            ) : (
-              canManage && (
+                      <TooltipContent>{t("Inbox.participants.unlinkRecord")}</TooltipContent>
+                    </Tooltip>
+                  )}
+                </div>
+              ))}
+
+              {canManage && (
                 <Button
                   className="h-7 shrink-0 gap-1.5 px-2"
                   disabled={store.pending}
@@ -230,8 +260,8 @@ export const ThreadPeopleManager = observer(({ participants, provider, canManage
 
                   <span className="text-xs">{t("Inbox.participants.link")}</span>
                 </Button>
-              )
-            )}
+              )}
+            </div>
           </div>
         );
       })}

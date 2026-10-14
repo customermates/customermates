@@ -8,10 +8,10 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("mobx-react-lite", () => ({ observer: <T>(component: T) => component }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
-vi.mock("@/components/entity-detail/hooks/use-entity-drawer-stack", () => ({
+vi.mock("@/components/shared/use-navigate-to-href", () => ({
   useNavigateToHref: () => vi.fn(),
 }));
-vi.mock("@/components/entity-terminology/use-column-label", () => ({
+vi.mock("@/components/data-view/use-column-label", () => ({
   useColumnLabel: () => (id: string) => id,
 }));
 vi.mock("../data-kanban-view", () => ({ DataKanbanView: () => null }));

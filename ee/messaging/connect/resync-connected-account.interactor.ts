@@ -1,4 +1,3 @@
-import type { ConnectedAccount } from "@/generated/prisma";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { EventService } from "@/features/event/event.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
@@ -6,22 +5,25 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Enforce } from "@/core/decorators/enforce.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { DomainEvent } from "@/features/event/domain-events";
+import type { ResyncConnectedAccountRepo } from "./resync-connected-account.repo";
 
-const Schema = z.object({ id: z.uuid() });
+const Schema = z.object({ id: z.uuid() }).strict();
 type ResyncConnectedAccountData = Data<typeof Schema>;
+export const ConnectedAccountResyncStartedSchema = z.object({ id: z.uuid(), resyncStarted: z.literal(true) });
+type ConnectedAccountResyncStarted = z.infer<typeof ConnectedAccountResyncStartedSchema>;
 
-export abstract class ResyncConnectedAccountRepo {
-  abstract findAccountByIdOrThrow(id: string): Promise<ConnectedAccount>;
-}
-
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
-export class ResyncConnectedAccountInteractor extends AuthenticatedInteractor<ResyncConnectedAccountData, null> {
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "update" })
+export class ResyncConnectedAccountInteractor extends AuthenticatedInteractor<
+  ResyncConnectedAccountData,
+  ConnectedAccountResyncStarted
+> {
   constructor(
     private repo: ResyncConnectedAccountRepo,
     private backgroundTaskService: BackgroundTaskService,
@@ -31,8 +33,9 @@ export class ResyncConnectedAccountInteractor extends AuthenticatedInteractor<Re
     super();
   }
 
-  @Enforce(Schema)
-  async invoke(data: ResyncConnectedAccountData): Validated<null> {
+  @Validate(Schema)
+  @ValidateOutput(ConnectedAccountResyncStartedSchema)
+  async invoke(data: ResyncConnectedAccountData): Validated<ConnectedAccountResyncStarted> {
     const denied = await this.entitlements.require("messaging");
     if (denied) return denied;
 
@@ -49,6 +52,6 @@ export class ResyncConnectedAccountInteractor extends AuthenticatedInteractor<Re
       },
     });
 
-    return { ok: true as const, data: null };
+    return { ok: true as const, data: { id: account.id, resyncStarted: true as const } };
   }
 }

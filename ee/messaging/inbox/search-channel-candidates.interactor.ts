@@ -3,13 +3,14 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { z } from "zod";
 
-import { MessagingProvider, Resource, Action } from "@/generated/prisma";
+import { MessagingProvider, Resource } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { zx } from "@/core/validation/validation.utils";
+import type { SearchChannelCandidatesRepo } from "./search-channel-candidates.repo";
 
 const OutputSchema = z.object({
   provider: z.enum(MessagingProvider),
@@ -25,17 +26,7 @@ const Schema = z.object({
 });
 export type SearchChannelCandidatesData = Data<typeof Schema>;
 
-export abstract class SearchChannelCandidatesRepo {
-  abstract searchChannelCandidates(query: string): Promise<ChannelCandidateDto[]>;
-}
-
-@TenantInteractor({
-  permissions: [
-    { resource: Resource.inboxMessages, action: Action.readAll },
-    { resource: Resource.inboxMessages, action: Action.readOwn },
-  ],
-  condition: "OR",
-})
+@TenantInteractor({ resource: Resource.inboxMessages, read: true })
 export class SearchChannelCandidatesInteractor extends AuthenticatedInteractor<
   SearchChannelCandidatesData,
   ChannelCandidateDto[]

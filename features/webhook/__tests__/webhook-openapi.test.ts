@@ -68,12 +68,13 @@ describe("webhook OpenAPI coverage", () => {
 
   it("documents the delivery envelope for every event", () => {
     for (const { key, schema } of documentedWebhookSchemas()) {
-      expect(Object.keys(schema?.properties ?? {}), key).toEqual(["event", "data", "timestamp"]);
-      expect(Object.keys(schema?.properties?.data.properties ?? {}), key).toEqual([
-        "userId",
+      expect(Object.keys(schema?.properties ?? {}), key).toEqual([
+        "event",
+        "id",
+        "timestamp",
         "companyId",
-        "entityId",
-        "payload",
+        "actorId",
+        "data",
       ]);
       expect(schema?.properties?.timestamp, key).toMatchObject({
         type: "string",
@@ -82,39 +83,45 @@ describe("webhook OpenAPI coverage", () => {
     }
   });
 
+  type MessagingData<E extends DomainEvent> = {
+    [K in keyof ({ entityId: string } & DomainEventMap[E]["payload"])]: ({
+      entityId: string;
+    } & DomainEventMap[E]["payload"])[K];
+  };
+
   it("locks the messaging payload schemas to DomainEventMap", () => {
     expectTypeOf<z.infer<typeof WebhookMessagingMessageReceivedSchema>["data"]>().toEqualTypeOf<
-      DomainEventMap[DomainEvent.MESSAGING_MESSAGE_RECEIVED]
+      MessagingData<DomainEvent.MESSAGING_MESSAGE_RECEIVED>
     >();
     expectTypeOf<z.infer<typeof WebhookMessagingMessageUpdatedSchema>["data"]>().toEqualTypeOf<
-      DomainEventMap[DomainEvent.MESSAGING_MESSAGE_UPDATED]
+      MessagingData<DomainEvent.MESSAGING_MESSAGE_UPDATED>
     >();
     expectTypeOf<z.infer<typeof WebhookMessagingMessageDeletedSchema>["data"]>().toEqualTypeOf<
-      DomainEventMap[DomainEvent.MESSAGING_MESSAGE_DELETED]
+      MessagingData<DomainEvent.MESSAGING_MESSAGE_DELETED>
     >();
     expectTypeOf<z.infer<typeof WebhookMessagingMessageReactionSchema>["data"]>().toEqualTypeOf<
-      DomainEventMap[DomainEvent.MESSAGING_MESSAGE_REACTION]
+      MessagingData<DomainEvent.MESSAGING_MESSAGE_REACTION>
     >();
     expectTypeOf<z.infer<typeof WebhookMessagingEmailReceivedSchema>["data"]>().toEqualTypeOf<
-      DomainEventMap[DomainEvent.MESSAGING_EMAIL_RECEIVED]
+      MessagingData<DomainEvent.MESSAGING_EMAIL_RECEIVED>
     >();
     expectTypeOf<z.infer<typeof WebhookMessagingEmailDeletedSchema>["data"]>().toEqualTypeOf<
-      DomainEventMap[DomainEvent.MESSAGING_EMAIL_DELETED]
+      MessagingData<DomainEvent.MESSAGING_EMAIL_DELETED>
     >();
     expectTypeOf<z.infer<typeof WebhookMessagingChatUpdatedSchema>["data"]>().toEqualTypeOf<
-      DomainEventMap[DomainEvent.MESSAGING_CHAT_UPDATED]
+      MessagingData<DomainEvent.MESSAGING_CHAT_UPDATED>
     >();
     expectTypeOf<z.infer<typeof WebhookMessagingChatDeletedSchema>["data"]>().toEqualTypeOf<
-      DomainEventMap[DomainEvent.MESSAGING_CHAT_DELETED]
+      MessagingData<DomainEvent.MESSAGING_CHAT_DELETED>
     >();
     expectTypeOf<z.infer<typeof WebhookMessagingCalendarChangedSchema>["data"]>().toEqualTypeOf<
-      DomainEventMap[DomainEvent.MESSAGING_CALENDAR_CHANGED]
+      MessagingData<DomainEvent.MESSAGING_CALENDAR_CHANGED>
     >();
     expectTypeOf<z.infer<typeof WebhookMessagingCalendarEventChangedSchema>["data"]>().toEqualTypeOf<
-      DomainEventMap[DomainEvent.MESSAGING_CALENDAR_EVENT_CHANGED]
+      MessagingData<DomainEvent.MESSAGING_CALENDAR_EVENT_CHANGED>
     >();
     expectTypeOf<z.infer<typeof WebhookMessagingRelationCreatedSchema>["data"]>().toEqualTypeOf<
-      DomainEventMap[DomainEvent.MESSAGING_RELATION_CREATED]
+      MessagingData<DomainEvent.MESSAGING_RELATION_CREATED>
     >();
   });
 });

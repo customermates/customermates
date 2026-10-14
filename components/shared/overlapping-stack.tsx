@@ -6,6 +6,7 @@ import { Fragment, useState } from "react";
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/core/utils/cn";
+import { useClientReady } from "@/hooks/use-client-ready";
 
 const STACK_CLASSES = {
   default:
@@ -43,6 +44,7 @@ export function OverlappingStack<TBadge, TRow = never>({
   triggerLabel,
 }: Props<TBadge, TRow>) {
   const [isOpen, setIsOpen] = useState(false);
+  const ready = useClientReady();
 
   if (!badges.length) return null;
 
@@ -78,6 +80,7 @@ export function OverlappingStack<TBadge, TRow = never>({
               stackClassName,
               "cursor-pointer rounded-full outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
             )}
+            disabled={!ready}
             type="button"
           >
             {stackBadges}

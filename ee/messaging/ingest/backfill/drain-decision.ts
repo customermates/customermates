@@ -1,8 +1,8 @@
-export const CATCHUP_DELAY_MS = 10_000;
+const CATCHUP_DELAY_MS = 10_000;
 export const GIVE_UP_RATE_LIMIT_SECONDS = 600;
 export const MAX_PAGE_STALL_RETRIES = 4;
 
-export type DrainPage = {
+type DrainPage = {
   nextCursor: string | null;
   done: boolean;
   retryAfterSeconds?: number;
@@ -10,7 +10,7 @@ export type DrainPage = {
   forbidden?: boolean;
 };
 
-export type DrainDecision =
+type DrainDecision =
   | { action: "skip"; reason: "forbidden" }
   | { action: "abandon"; reason: "stalled"; afterAttempts: number }
   | { action: "defer"; retryAfterSeconds: number }

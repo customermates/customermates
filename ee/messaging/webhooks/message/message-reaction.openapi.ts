@@ -2,6 +2,8 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 
 import z from "zod";
 
+import { EventEnvelopeSchema } from "@/features/event/event-envelope";
+
 import { MessagingProvider } from "@/generated/prisma";
 
 const PayloadSchema = z.object({
@@ -11,15 +13,10 @@ const PayloadSchema = z.object({
   threadId: z.uuid(),
 });
 
-export const WebhookMessagingMessageReactionSchema = z.object({
+export const WebhookMessagingMessageReactionSchema = EventEnvelopeSchema.extend({
   event: z.literal("messaging.message.reaction"),
-  data: z.object({
-    userId: z.null(),
-    companyId: z.uuid(),
-    entityId: z.uuid(),
-    payload: PayloadSchema,
-  }),
-  timestamp: z.iso.datetime(),
+  actorId: z.null(),
+  data: PayloadSchema.extend({ entityId: z.uuid() }),
 });
 
 export const webhookMessagingMessageReactionOperation: ZodOpenApiOperationObject = {

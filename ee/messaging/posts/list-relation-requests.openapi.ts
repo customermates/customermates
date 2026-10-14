@@ -2,7 +2,11 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 
 import { ListRelationRequestsSchema } from "@/ee/messaging/posts/list-relation-requests.interactor";
 import { RelationRequestListSchema } from "@/ee/messaging/posts/social-posts.schema";
-import { CommonApiResponses, MessagingProviderApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
+import {
+  CommonApiResponses,
+  MessagingProviderApiResponses,
+  NotFoundApiResponse,
+} from "@/core/api/structured-interactor-handler";
 
 export const listRelationRequestsOperation: ZodOpenApiOperationObject = {
   operationId: "listRelationRequests",

@@ -1,10 +1,7 @@
 "use server";
 
+import type { RecordRef } from "@/features/records/record-model.schema";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
-import type {
-  LinkContactIdentifierData,
-  UnlinkContactIdentifierData,
-} from "@/features/contacts/upsert/contact-identifier";
 import type { UpdateThreadData } from "@/ee/messaging/thread-state/update-thread.interactor";
 import type { SendChatMessageData } from "@/ee/messaging/outbound/send-chat-message.interactor";
 import type { SendEmailData } from "@/ee/messaging/outbound/send-email.interactor";
@@ -13,12 +10,12 @@ import type { DiscardDraftData } from "@/ee/messaging/outbound/discard-draft.int
 import type { StartChatData } from "@/ee/messaging/outbound/start-chat.interactor";
 import type { ResolveProviderProfileData } from "@/ee/messaging/outbound/resolve-provider-profile.interactor";
 import type { MoveEmailThreadData } from "@/ee/messaging/inbox/move-email-thread.interactor";
+import type { MutateThreadRecordsInput } from "@/ee/messaging/thread-records/thread-records.schema";
 
 import {
   getGetMessagingThreadsInteractor,
   getGetMessagingThreadInteractor,
-  getLinkContactIdentifierInteractor,
-  getUnlinkContactIdentifierInteractor,
+  getGetIdentityRecordChoicesInteractor,
   getUpdateThreadInteractor,
   getResyncThreadInteractor,
   getMoveEmailThreadInteractor,
@@ -30,20 +27,22 @@ import {
   getResolveProviderProfileInteractor,
   getRefreshInboxInteractor,
   getGetUnreadThreadCountInteractor,
+  getReadThreadRecordsInteractor,
+  getMutateThreadRecordsInteractor,
 } from "@/core/di";
-import { serializeResult } from "@/core/utils/action-result";
+import { serializeResult, serializeTypedResult } from "@/core/utils/action-result";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export async function getMessagingThreadsAction(params?: GetQueryParams) {
-  return unwrapValidated(getGetMessagingThreadsInteractor().invoke(params));
+  return serializeTypedResult(getGetMessagingThreadsInteractor().invoke(params));
 }
 
 export async function getUnreadThreadCountAction() {
-  return unwrapValidated(getGetUnreadThreadCountInteractor().invoke());
+  return serializeTypedResult(getGetUnreadThreadCountInteractor().invoke());
 }
 
 export async function getMessagingThreadAction(threadId: string) {
-  const result = await getGetMessagingThreadInteractor().invoke({ threadId });
+  const result = await serializeTypedResult(getGetMessagingThreadInteractor().invoke({ threadId }));
   return result.ok ? result.data : null;
 }
 
@@ -51,16 +50,25 @@ export async function refreshInboxAction() {
   return serializeResult(getRefreshInboxInteractor().invoke());
 }
 
-export async function linkContactToThreadAction(data: LinkContactIdentifierData) {
-  return serializeResult(getLinkContactIdentifierInteractor().invoke(data));
+export async function getIdentityRecordChoicesAction(search: string, refs?: Array<RecordRef | string>) {
+  return unwrapValidated(
+    getGetIdentityRecordChoicesInteractor().invoke({
+      search,
+      ...(refs ? { refs } : {}),
+    }),
+  );
 }
 
-export async function unlinkContactFromThreadAction(data: UnlinkContactIdentifierData) {
-  return serializeResult(getUnlinkContactIdentifierInteractor().invoke(data));
+export async function readThreadRecordsAction(threadId: string) {
+  return serializeResult(getReadThreadRecordsInteractor().invoke({ threadId }));
+}
+
+export async function mutateThreadRecordsAction(input: MutateThreadRecordsInput) {
+  return serializeResult(getMutateThreadRecordsInteractor().invoke(input));
 }
 
 export async function updateThreadAction(data: UpdateThreadData) {
-  return serializeResult(getUpdateThreadInteractor().invoke(data));
+  return serializeTypedResult(getUpdateThreadInteractor().invoke(data));
 }
 
 export async function resyncThreadAction(threadId: string) {

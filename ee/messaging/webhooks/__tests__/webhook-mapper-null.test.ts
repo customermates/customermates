@@ -43,7 +43,9 @@ beforeEach(() => vi.clearAllMocks());
 describe("message.new mapper-null handling", () => {
   it("throws an unmappable error carrying the message id when normalization fails", async () => {
     const ingest = { ingestMessageUnscoped: vi.fn() };
-    const interactor = new ProcessMessageNewWebhookInteractor(ingest as any, accountRepo() as any, {} as any);
+    const interactor = new ProcessMessageNewWebhookInteractor(ingest as any, accountRepo() as any, {} as any, () => ({
+      synchronize: () => Promise.resolve(),
+    }));
 
     const call = interactor.invoke({
       type: "message.new",
@@ -58,7 +60,9 @@ describe("message.new mapper-null handling", () => {
 
   it("silently returns for an excluded chat without ingesting or throwing", async () => {
     const ingest = { ingestMessageUnscoped: vi.fn() };
-    const interactor = new ProcessMessageNewWebhookInteractor(ingest as any, accountRepo() as any, {} as any);
+    const interactor = new ProcessMessageNewWebhookInteractor(ingest as any, accountRepo() as any, {} as any, () => ({
+      synchronize: () => Promise.resolve(),
+    }));
 
     await expect(
       interactor.invoke({
@@ -75,7 +79,9 @@ describe("message.new mapper-null handling", () => {
 describe("email.new mapper-null handling", () => {
   it("throws an unmappable error with a null id for an empty email shell", async () => {
     const ingest = { ingestMessageUnscoped: vi.fn() };
-    const interactor = new ProcessEmailNewWebhookInteractor(ingest as any, accountRepo() as any, {} as any);
+    const interactor = new ProcessEmailNewWebhookInteractor(ingest as any, accountRepo() as any, {} as any, () => ({
+      synchronize: () => Promise.resolve(),
+    }));
 
     const call = interactor.invoke({
       type: "email.new",

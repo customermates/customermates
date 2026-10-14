@@ -22,6 +22,7 @@ import { CardHeroHeader } from "@/components/card/card-hero-header";
 import { Reveal } from "@/components/shared/reveal";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = {
   invitationIntent?: string;
@@ -29,7 +30,7 @@ type Props = {
   socialProviders: { google: boolean; microsoft: boolean };
 };
 
-export const SignUpForm = observer(({ invitationIntent, inviterName, socialProviders }: Props) => {
+const SignUpFormContent = observer(({ invitationIntent, inviterName, socialProviders }: Props) => {
   const t = useTranslations();
   const { signUpStore, appMode } = useRootStore();
   useState(() => {
@@ -159,3 +160,5 @@ export const SignUpForm = observer(({ invitationIntent, inviterName, socialProvi
     </AppForm>
   );
 });
+
+export const SignUpForm = serverRenderedClient(SignUpFormContent);

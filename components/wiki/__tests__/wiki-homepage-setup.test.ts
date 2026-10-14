@@ -31,7 +31,7 @@ vi.mock("@/i18n/navigation", () => ({
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     navigationGuard: { register: vi.fn(), unregister: vi.fn(), isGuarding: false },
-    terminologyStore: { overrides: [] },
+    recordWorkspaceStore: { navigation: null },
   }),
 }));
 
