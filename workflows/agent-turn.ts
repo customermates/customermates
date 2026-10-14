@@ -89,6 +89,7 @@ import { createAgentToolInputResolver, type AgentToolInputResult } from "@/ee/ag
 import { resolveAgentApprovalContext } from "@/ee/agent-chat/agent-external-approval-context";
 import {
   agentFundedRetryCount,
+  agentStepContext,
   agentWebSearchReserveMicrocents,
   isAgentContextWithinBudget,
   resolveAgentToolResultMaxChars,
@@ -1647,11 +1648,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             : toolDefinitions;
           if (
             !isAgentContextWithinBudget(
-              {
+              agentStepContext({
                 system: instructions,
                 messages: stepMessages,
                 tools: activeDefinitions,
-              },
+              }),
               payload.turnBudget.maxContextBytes,
             )
           )

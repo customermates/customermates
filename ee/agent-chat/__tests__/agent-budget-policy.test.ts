@@ -11,6 +11,7 @@ import {
   agentWebSearchReserveMicrocents,
   agentRoundWorstCaseMicrocents,
   agentRoundWorstCaseMicrocentsForContextBytes,
+  agentStepContext,
   isAgentContextWithinBudget,
   resolveAgentTurnBudget,
   serializedAgentContextBytes,
@@ -273,6 +274,31 @@ describe("agent turn credit budget", () => {
     );
     expect(isAgentStepContextWithinBudget(providerContext, stepMessages, maxContextBytes)).toBe(false);
     expect(isAgentStepContextWithinBudget(providerContext, providerContext.messages, maxContextBytes)).toBe(true);
+  });
+
+  it("counts the system prompt once when the model step already contains it", () => {
+    const context = buildAgentProviderContext("s".repeat(1_000), [{ role: "user", text: "hello" }], []);
+    const messages = [{ role: "system", content: context.system }, ...context.messages] as ModelMessage[];
+    const budget = serializedAgentContextBytes({ messages, tools: context.tools }) ?? 0;
+
+    expect(budget).toBeGreaterThan(0);
+    expect(agentStepContext({ ...context, messages })).toEqual({ messages, tools: context.tools });
+    expect(serializedAgentContextBytes({ ...context, messages })).toBeGreaterThan(budget);
+    expect(isAgentStepContextWithinBudget(context, messages, budget)).toBe(true);
+    expect(isAgentStepContextWithinBudget(context, messages, budget - 1)).toBe(false);
+  });
+
+  it("still counts the system prompt when the step does not lead with that exact prompt", () => {
+    const context = buildAgentProviderContext("s".repeat(1_000), [{ role: "user", text: "hello" }], []);
+    const changed = [{ role: "system", content: "t".repeat(1_000) }, ...context.messages] as ModelMessage[];
+    const later = [...context.messages, { role: "system", content: context.system }] as ModelMessage[];
+
+    for (const messages of [changed, later]) {
+      const both = serializedAgentContextBytes({ ...context, messages }) ?? 0;
+      expect(agentStepContext({ ...context, messages })).toEqual({ ...context, messages });
+      expect(isAgentStepContextWithinBudget(context, messages, both)).toBe(true);
+      expect(isAgentStepContextWithinBudget(context, messages, both - 1)).toBe(false);
+    }
   });
 
   it("counts tool schemas when a continuation is near the context boundary", () => {
