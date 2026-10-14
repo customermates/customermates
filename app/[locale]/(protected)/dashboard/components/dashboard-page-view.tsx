@@ -249,8 +249,8 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
         joinsTopBar
         allLabel={t("Dashboard.mainView")}
         allowDuplicate={false}
-        deleteNotice={(view) => {
-          const widgets = widgetsStore.activeViewKey === view.id ? widgetsStore.items.map((widget) => widget.name) : [];
+        deleteNotice={async (view) => {
+          const widgets = await widgetsStore.widgetNamesOfView(view.id);
           return {
             message: t("Dashboard.deleteView", { name: view.name, count: widgets.length }),
             details: widgets,

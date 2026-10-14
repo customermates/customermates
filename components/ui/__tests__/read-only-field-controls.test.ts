@@ -3,7 +3,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import { Button } from "../button";
+import { Checkbox } from "../checkbox";
 import { Input } from "../input";
+import { RadioGroup, RadioGroupItem } from "../radio-group";
+import { Switch } from "../switch";
 import { Select, SelectTrigger } from "../select";
 import { Textarea } from "../textarea";
 
@@ -119,5 +122,37 @@ describe("SelectTrigger", () => {
 
     expect(markup).toContain('role="combobox"');
     expectFieldDisabledTreatment(markup);
+  });
+});
+
+describe("disabled choice controls", () => {
+  it("dims a checked checkbox like a disabled switch instead of keeping its active fill", () => {
+    const checkbox = renderToStaticMarkup(
+      createElement(Checkbox, { "aria-label": "Create", checked: true, disabled: true }),
+    );
+    const toggle = renderToStaticMarkup(
+      createElement(Switch, { "aria-label": "Visible", checked: true, disabled: true }),
+    );
+
+    expect(checkbox).toContain('disabled=""');
+    expect(checkbox).toContain('data-state="checked"');
+    expect(checkbox).toContain("disabled:data-[state=checked]:bg-primary/60");
+    expect(checkbox).toContain("disabled:data-[state=checked]:border-primary/60");
+    expect(toggle).toContain("disabled:data-[state=checked]:bg-primary/60");
+  });
+
+  it("dims the dot of a checked disabled radio with the item colour", () => {
+    const markup = renderToStaticMarkup(
+      createElement(
+        RadioGroup,
+        { "aria-label": "Read access", disabled: true, value: "all" },
+        createElement(RadioGroupItem, { "aria-label": "All", value: "all" }),
+      ),
+    );
+
+    expect(markup).toContain('disabled=""');
+    expect(markup).toContain("disabled:text-primary/60");
+    expect(markup).toContain("fill-current");
+    expect(markup).not.toContain("fill-primary");
   });
 });

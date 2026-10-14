@@ -10,7 +10,8 @@ export function useFormFieldErrors(id: string) {
   const store = useAppForm();
   const errors = store?.getError(id);
   const hasError = hasErrors(errors);
-  return { store, errors, hasError };
+  const message = Array.isArray(errors) ? errors.join(" ") : errors;
+  return { store, errors, hasError, message };
 }
 
 export function useFormFieldItemErrors(id: string, itemCount: number) {

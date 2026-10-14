@@ -547,3 +547,53 @@ describe("WidgetsStore refresh compatibility", () => {
     });
   });
 });
+
+describe("WidgetsStore widgets of a view", () => {
+  const VIEW_ID = "00000000-0000-4000-8000-0000000000a1";
+  const OTHER_VIEW_ID = "00000000-0000-4000-8000-0000000000a2";
+
+  function store() {
+    const root = {
+      localeStore: { getTranslation: (key: string) => key },
+      loadingOverlayStore: { isLoading: false },
+    } as unknown as RootStore;
+    const widgets = new WidgetsStore(root);
+    widgets.setItems({ items: [widget(FIRST_ID, 0, 0)] });
+    return widgets;
+  }
+
+  beforeEach(() => vi.resetAllMocks());
+
+  it("names the loaded widgets of the active view without a request", async () => {
+    const widgets = store();
+
+    expect(await widgets.widgetNamesOfView("__all__")).toEqual([FIRST_ID]);
+    expect(refreshWidgetsAction).not.toHaveBeenCalled();
+  });
+
+  it("reads the widgets of another view and leaves the shown dashboard unchanged", async () => {
+    const widgets = store();
+    refreshWidgetsAction.mockResolvedValueOnce({
+      items: [
+        { ...widget(SECOND_ID, 0, 0), viewId: VIEW_ID, name: "Berlin starter" },
+        { ...widget(FIRST_ID, 3, 0), viewId: VIEW_ID, name: "Berlin via API" },
+      ],
+      activeViewKey: VIEW_ID,
+    });
+
+    expect(await widgets.widgetNamesOfView(VIEW_ID)).toEqual(["Berlin starter", "Berlin via API"]);
+    expect(refreshWidgetsAction).toHaveBeenCalledExactlyOnceWith(VIEW_ID);
+    expect(widgets.items.map(({ id }) => id)).toEqual([FIRST_ID]);
+    expect(widgets.activeViewKey).toBe("__all__");
+  });
+
+  it("names no widgets when the view can no longer be read", async () => {
+    const widgets = store();
+    refreshWidgetsAction.mockResolvedValueOnce({
+      items: [{ ...widget(SECOND_ID, 0, 0), viewId: OTHER_VIEW_ID, name: "Other view widget" }],
+      activeViewKey: OTHER_VIEW_ID,
+    });
+
+    expect(await widgets.widgetNamesOfView(VIEW_ID)).toEqual([]);
+  });
+});

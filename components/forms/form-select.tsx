@@ -14,6 +14,7 @@ import { FormControlRow } from "./form-control-row";
 import { cn } from "@/core/utils/cn";
 
 import { useAppForm } from "./form-context";
+import { FormFieldError } from "./form-field-error";
 import { useFormFieldErrors, useResolvedFieldLabel } from "./use-form-field";
 import { SelectionOptionsSkeleton, SelectionValueSkeleton } from "./selection-loading";
 
@@ -34,6 +35,7 @@ type Props = {
   description?: ReactNode;
   placeholder?: string;
   required?: boolean;
+  showErrorMessage?: boolean;
   disabled?: boolean;
   readOnly?: boolean;
   items?: FormSelectItem[];
@@ -56,6 +58,7 @@ export const FormSelect = observer(
     description,
     placeholder,
     required,
+    showErrorMessage = false,
     disabled,
     readOnly,
     items,
@@ -76,13 +79,15 @@ export const FormSelect = observer(
     const resolvedLabel = useResolvedFieldLabel(id, label);
     const raw = controlledValue ?? store?.getValue(id);
     const value = raw == null ? "" : String(raw);
-    const { hasError } = useFormFieldErrors(id);
+    const { hasError, message } = useFormFieldErrors(id);
     const selectedItem = items?.find((it) => it.value === value);
     const isDisabled = Boolean(disabled) || Boolean(store?.isLoading);
     const isReadOnly = !isDisabled && ((store?.isReadOnly ?? false) || Boolean(readOnly));
     const hasUnresolvedValue = value !== "" && selectedItem === undefined;
     const canEdit = !isDisabled && !isReadOnly;
     const domId = inputId ?? id;
+    const errorId = `${domId}-error`;
+    const errorShown = showErrorMessage && hasError && Boolean(message);
 
     useEffect(() => {
       if (!canEdit) setOpen(false);
@@ -114,6 +119,7 @@ export const FormSelect = observer(
           <FormControlRow>
             <SelectTrigger
               aria-busy={optionsLoading || undefined}
+              aria-describedby={errorShown ? errorId : undefined}
               aria-invalid={hasError}
               aria-label={resolvedLabel ? undefined : ariaLabel}
               aria-readonly={isReadOnly || undefined}
@@ -207,6 +213,8 @@ export const FormSelect = observer(
             )}
           </SelectContent>
         </Select>
+
+        {errorShown && <FormFieldError id={errorId}>{message}</FormFieldError>}
 
         {description && !hasError && <p className="text-xs text-muted-foreground">{description}</p>}
       </div>

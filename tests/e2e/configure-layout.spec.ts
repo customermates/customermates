@@ -295,7 +295,7 @@ test("shows the data model graph and edits lists, fields and relationships from 
     const handle = services.locator(".react-flow__handle-bottom");
     await dragBetween(page, await center(handle), await center(tasks.getByRole("button", { name: "Tasks", exact: true })));
     await expect(dialog).toBeVisible();
-    await expect(dialog.getByRole("combobox", { name: "Link to", exact: true })).toContainText("Tasks");
+    await expect(dialog.getByRole("combobox", { name: "Link to", exact: false })).toContainText("Tasks");
     await dialog.getByRole("textbox", { name: "Label on this side", exact: false }).fill("Follow-up task");
     await dialog.getByRole("textbox", { name: "Label on the other side", exact: false }).fill("Related service");
     await saveDrawer(page);

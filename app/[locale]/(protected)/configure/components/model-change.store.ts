@@ -75,6 +75,19 @@ export abstract class ModelChangeStore<Form extends object> extends BaseModalSto
   protected validateDraft(): BaseModalStore<Form>["error"] {
     return undefined;
   }
+  protected requiredFields(): Array<{ id: keyof Form & string; message: string }> {
+    return [];
+  }
+  private draftErrors(): BaseModalStore<Form>["error"] {
+    const invalid = this.validateDraft();
+    const blank = this.requiredFields().filter(({ id }) => !String(this.form[id] ?? "").trim());
+    if (!blank.length) return invalid;
+    const { errors = [], properties = {} } = (invalid ?? {}) as { errors?: string[]; properties?: object };
+    return {
+      errors,
+      properties: { ...Object.fromEntries(blank.map(({ id, message }) => [id, { errors: [message] }])), ...properties },
+    } as BaseModalStore<Form>["error"];
+  }
   protected enrichPreviewChange(change: ConfigurationChange, _preview: ConfigurationPreview): ConfigurationChange {
     return change;
   }
@@ -281,14 +294,13 @@ export abstract class ModelChangeStore<Form extends object> extends BaseModalSto
   };
   protected afterChange() {
     this.setPreview(null);
+    if (this.error) this.showDraftErrors(this.draftErrors());
   }
   onSubmit = async () => {
     if (!this.isOpen || this.isLoading || this.pendingOperationId || this.isReadOnly) return;
-    const invalid = this.validateDraft();
-    if (invalid) {
-      this.showDraftErrors(invalid);
-      return;
-    }
+    const invalid = this.draftErrors();
+    this.showDraftErrors(invalid);
+    if (invalid) return;
     const session = this.sessionGeneration;
     const draft = this.draftGeneration;
     const submittedForm = toJS(this.form);

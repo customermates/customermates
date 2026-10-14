@@ -77,6 +77,22 @@ export class RelationshipModalStore extends ModelChangeStore<ReturnType<typeof e
     });
     this.open();
   };
+  protected override validateDraft() {
+    if (this.form.mode !== "path" || this.form.path.length) return undefined;
+    return {
+      errors: [],
+      properties: { path: { errors: [this.t("RecordModel.relationshipEditor.pathRequired")] } },
+    } as RelationshipModalStore["error"];
+  }
+  protected override requiredFields() {
+    if (this.form.mode === "path") return [{ id: "sourceLabel" as const, message: this.t("RecordModel.nameRequired") }];
+    const label = this.t("RecordModel.relationshipEditor.labelRequired");
+    return [
+      { id: "targetTypeId" as const, message: this.t("RecordModel.relationshipEditor.listRequired") },
+      { id: "sourceLabel" as const, message: label },
+      { id: "targetLabel" as const, message: label },
+    ];
+  }
   protected projectLatestModel(model: RecordModelView) {
     const source = model.types.find((type) => type.id === this.sourceTypeId);
     if (!source) return null;
@@ -182,6 +198,7 @@ const DirectRelationshipFields = observer(function DirectRelationshipFields({
 
         <FormInput
           required
+          showErrorMessage
           description={t("RecordModel.relationshipEditor.shownOn", { list: listLabel(source) })}
           id="sourceLabel"
           label={t("RecordModel.relationshipLabel")}
@@ -210,6 +227,8 @@ const DirectRelationshipFields = observer(function DirectRelationshipFields({
 
       <div className="flex flex-col gap-3 rounded-lg border border-border p-3" data-relationship-side="target">
         <FormSelect
+          required
+          showErrorMessage
           id="targetTypeId"
           items={types.map((type) => ({
             value: type.id,
@@ -221,6 +240,7 @@ const DirectRelationshipFields = observer(function DirectRelationshipFields({
 
         <FormInput
           required
+          showErrorMessage
           description={t("RecordModel.relationshipEditor.shownOn", { list: listLabel(target) })}
           id="targetLabel"
           label={t("RecordModel.oppositeLabel")}
@@ -297,10 +317,11 @@ export const RelationshipModal = observer(function RelationshipModal({
             <>
               <p className="text-sm text-muted-foreground">{t("RecordModel.relationshipPathHelp")}</p>
 
-              <FormInput required id="sourceLabel" label={t("RecordModel.name")} />
+              <FormInput required showErrorMessage id="sourceLabel" label={t("RecordModel.name")} />
 
               <RelationshipPathInput
                 disabled={store.isLoading || Boolean(store.pendingOperationId)}
+                error={store.getError("path")}
                 model={store.model}
                 typeId={store.sourceTypeId}
                 value={store.form.path}

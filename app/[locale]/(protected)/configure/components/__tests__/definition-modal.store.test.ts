@@ -16,7 +16,10 @@ vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn()
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 const company = "6487f9fb-7b10-439a-b783-9d3da8184b14";
 const id = (key: string) => presetId(company, key);
-const root = { registerModalStore: vi.fn(), localeStore: { locale: "en" } } as unknown as RootStore;
+const root = {
+  registerModalStore: vi.fn(),
+  localeStore: { locale: "en", getTranslation: (key: string) => key },
+} as unknown as RootStore;
 
 function validate(operations: unknown) {
   return ConfigurationChangeSchema.parse({ expectedRevision: 1, idempotencyKey: crypto.randomUUID(), operations });
@@ -394,6 +397,90 @@ describe("configuration form validation feedback", () => {
       expect(applyRecordConfigurationAction).not.toHaveBeenCalled();
     },
   );
+});
+
+describe("required configuration names", () => {
+  function submitted() {
+    vi.mocked(previewRecordConfigurationAction).mockClear();
+    vi.mocked(applyRecordConfigurationAction).mockClear();
+    vi.mocked(toastZodErrorTree).mockClear();
+  }
+  function sentNothing() {
+    expect(toastZodErrorTree).not.toHaveBeenCalled();
+    expect(previewRecordConfigurationAction).not.toHaveBeenCalled();
+    expect(applyRecordConfigurationAction).not.toHaveBeenCalled();
+  }
+
+  it("marks blank relationship labels and the missing list with their messages instead of a validator toast", async () => {
+    submitted();
+    const model = createCrmPreset(company);
+    const store = new RelationshipModalStore(root, model, vi.fn());
+    store.edit(model, id("deal"));
+    store.onChange("sourceLabel", "   ");
+    await store.onSubmit();
+    expect(store.getError("targetTypeId")).toEqual(["RecordModel.relationshipEditor.listRequired"]);
+    expect(store.getError("sourceLabel")).toEqual(["RecordModel.relationshipEditor.labelRequired"]);
+    expect(store.getError("targetLabel")).toEqual(["RecordModel.relationshipEditor.labelRequired"]);
+    expect(store.isOpen).toBe(true);
+    expect(store.isLoading).toBe(false);
+    sentNothing();
+  });
+
+  it("marks only the blank label once the linked list is chosen", async () => {
+    submitted();
+    const model = createCrmPreset(company);
+    const store = new RelationshipModalStore(root, model, vi.fn());
+    store.edit(model, id("deal"), undefined, id("service"));
+    store.onChange("sourceLabel", "Offered services");
+    await store.onSubmit();
+    expect(store.getError("targetTypeId")).toBeUndefined();
+    expect(store.getError("sourceLabel")).toBeUndefined();
+    expect(store.getError("targetLabel")).toEqual(["RecordModel.relationshipEditor.labelRequired"]);
+    sentNothing();
+  });
+
+  it("clears each draft error as soon as its field is filled", async () => {
+    submitted();
+    const model = createCrmPreset(company);
+    const store = new RelationshipModalStore(root, model, vi.fn());
+    store.edit(model, id("deal"), undefined, id("service"));
+    await store.onSubmit();
+    expect(store.getError("sourceLabel")).toEqual(["RecordModel.relationshipEditor.labelRequired"]);
+    store.onChange("sourceLabel", "Offered services");
+    expect(store.getError("sourceLabel")).toBeUndefined();
+    expect(store.getError("targetLabel")).toEqual(["RecordModel.relationshipEditor.labelRequired"]);
+    store.onChange("targetLabel", "Offered in deals");
+    expect(store.error).toBeUndefined();
+    sentNothing();
+  });
+
+  it("asks for the name of a column through linked records", async () => {
+    submitted();
+    const model = createCrmPreset(company);
+    const store = new RelationshipModalStore(root, model, vi.fn());
+    store.edit(model, id("deal"));
+    store.onChange("mode", "path");
+    await store.onSubmit();
+    expect(store.getError("sourceLabel")).toEqual(["RecordModel.nameRequired"]);
+    expect(store.getError("path")).toEqual(["RecordModel.relationshipEditor.pathRequired"]);
+    expect(store.getError("targetLabel")).toBeUndefined();
+    expect(store.getError("targetTypeId")).toBeUndefined();
+    sentNothing();
+  });
+
+  it("asks for a name before previewing a new list or field", async () => {
+    submitted();
+    const model = createCrmPreset(company);
+    const list = new TypeModalStore(root, model, vi.fn());
+    list.edit(model, null);
+    await list.onSubmit();
+    expect(list.getError("name")).toEqual(["RecordModel.nameRequired"]);
+    const field = new FieldModalStore(root, model, vi.fn());
+    field.edit(model, id("organization"), null);
+    await field.onSubmit();
+    expect(field.getError("label")).toEqual(["RecordModel.nameRequired"]);
+    sentNothing();
+  });
 });
 
 describe("Channels field", () => {

@@ -24,6 +24,8 @@ import { TrashStore } from "../trash.store";
 
 const BATCH_ID = "40000000-0000-4000-8000-000000000001";
 const ITEM_ID = "40000000-0000-4000-8000-000000000002";
+const SECOND_ITEM_ID = "40000000-0000-4000-8000-000000000003";
+const TYPE_ID = "40000000-0000-4000-8000-000000000004";
 
 function makeStore({ isSystemRole = true } = {}) {
   const invalidate = vi.fn(() => Promise.resolve());
@@ -143,7 +145,7 @@ describe("TrashStore", () => {
     trashActions.previewTrashDeletionAction.mockResolvedValue({
       ok: true,
       data: {
-        items: [{ itemId: ITEM_ID, kind: "record", label: "Acme" }],
+        items: [{ itemId: ITEM_ID, kind: "record", label: "Acme", surfaceKey: null }],
         removedRecords: [{ typeId: BATCH_ID, label: "Services", count: 1 }],
         removedLinks: 3,
         impactHash: "a".repeat(64),
@@ -173,12 +175,12 @@ describe("TrashStore", () => {
     expect(deleteConfirmation.form.successKey).toBe("Trash.deletedPermanently");
   });
 
-  it("warns that permanently deleting a view also deletes its widgets", async () => {
+  it("warns that permanently deleting a dashboard view also deletes its widgets", async () => {
     const { store, deleteConfirmation } = makeStore();
     trashActions.previewTrashDeletionAction.mockResolvedValue({
       ok: true,
       data: {
-        items: [{ itemId: ITEM_ID, kind: "view", label: "Board" }],
+        items: [{ itemId: ITEM_ID, kind: "view", label: "Board", surfaceKey: "dashboard" }],
         removedRecords: [],
         removedLinks: 0,
         impactHash: "c".repeat(64),
@@ -193,12 +195,52 @@ describe("TrashStore", () => {
     ]);
   });
 
+  it("does not mention widgets for a saved view of a list", async () => {
+    const { store, deleteConfirmation } = makeStore();
+    trashActions.previewTrashDeletionAction.mockResolvedValue({
+      ok: true,
+      data: {
+        items: [{ itemId: ITEM_ID, kind: "view", label: "My contacts", surfaceKey: `records:${TYPE_ID}` }],
+        removedRecords: [],
+        removedLinks: 0,
+        impactHash: "c".repeat(64),
+      },
+    });
+
+    await store.requestPermanentDelete([ITEM_ID], "My contacts");
+
+    expect(deleteConfirmation.onInitOrRefresh.mock.calls[0][0].details).toEqual(["Trash.permanentIrreversible"]);
+  });
+
+  it("mentions widgets once when a dashboard view is among several selected views", async () => {
+    const { store, deleteConfirmation } = makeStore();
+    trashActions.previewTrashDeletionAction.mockResolvedValue({
+      ok: true,
+      data: {
+        items: [
+          { itemId: ITEM_ID, kind: "view", label: "My contacts", surfaceKey: `records:${TYPE_ID}` },
+          { itemId: SECOND_ITEM_ID, kind: "view", label: "Board", surfaceKey: "dashboard" },
+        ],
+        removedRecords: [],
+        removedLinks: 0,
+        impactHash: "c".repeat(64),
+      },
+    });
+
+    await store.requestPermanentDelete([ITEM_ID, SECOND_ITEM_ID]);
+
+    expect(deleteConfirmation.onInitOrRefresh.mock.calls[0][0].details).toEqual([
+      "Trash.permanentViewWidgets",
+      "Trash.permanentIrreversible",
+    ]);
+  });
+
   it("does not report a permanent delete that continues in the background as done", async () => {
     const { store, deleteConfirmation } = makeStore();
     trashActions.previewTrashDeletionAction.mockResolvedValue({
       ok: true,
       data: {
-        items: [{ itemId: ITEM_ID, kind: "list", label: "Projects" }],
+        items: [{ itemId: ITEM_ID, kind: "list", label: "Projects", surfaceKey: null }],
         removedRecords: [],
         removedLinks: 0,
         impactHash: "b".repeat(64),

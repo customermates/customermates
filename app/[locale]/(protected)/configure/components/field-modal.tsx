@@ -322,6 +322,9 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
       );
     }
   };
+  protected override requiredFields() {
+    return [{ id: "label" as const, message: this.t("RecordModel.nameRequired") }];
+  }
   protected override validateDraft() {
     const issue = this.calculationIssues[0];
     const value = this.form.triggerValue;
@@ -556,7 +559,7 @@ export const FieldModal = observer(function FieldModal({
           )}
 
           <>
-            <FormInput required id="label" label={t("RecordModel.name")} />
+            <FormInput required showErrorMessage id="label" label={t("RecordModel.name")} />
 
             <div className={cn("grid gap-4", !store.isCalculated && "sm:grid-cols-2")}>
               {!store.isChannels && (

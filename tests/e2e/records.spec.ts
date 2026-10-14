@@ -79,7 +79,7 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await expect(dialog).not.toBeVisible();
   await followConfigureLink(page);
   await addFromConfigure(page, "Relationship");
-  await dialog.getByRole("combobox", { name: "Link to", exact: true }).click();
+  await dialog.getByRole("combobox", { name: "Link to", exact: false }).click();
   await page.getByRole("option", { name: "Organizations", exact: true }).click();
   await dialog.getByRole("textbox", { name: "Label on this side", exact: false }).fill("Client organization");
   await dialog.getByRole("textbox", { name: "Label on the other side", exact: false }).fill(name);

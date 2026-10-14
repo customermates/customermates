@@ -79,6 +79,9 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
   get parentType() {
     return this.model.types.find((type) => type.id === this.parentTypeId);
   }
+  protected override requiredFields() {
+    return [{ id: "name" as const, message: this.t("RecordModel.nameRequired") }];
+  }
   protected projectLatestModel(model: RecordModelView) {
     if (!this.original) return toJS(this.savedState);
     const latest = model.types.find((type) => type.id === this.original?.id);
@@ -195,6 +198,7 @@ export const TypeSettingsFields = observer(function TypeSettingsFields({
       <div className="space-y-3">
         <FormInput
           required
+          showErrorMessage
           id="name"
           inputId={inputId("name")}
           label={t("RecordModel.name")}
