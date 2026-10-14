@@ -611,7 +611,9 @@ export const FieldModal = observer(function FieldModal({
                                   ? { description: t("RecordModel.typeHints.file") }
                                   : value === "address"
                                     ? { description: t("RecordModel.typeHints.address") }
-                                    : {}),
+                                    : value === "channels"
+                                      ? { description: t("RecordModel.typeHints.channels") }
+                                      : {}),
                             },
                           ],
                     )}

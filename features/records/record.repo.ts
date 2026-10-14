@@ -1,4 +1,4 @@
-import type { MessagingProvider } from "@/generated/prisma";
+import type { RecordIdentityProvider } from "@/generated/prisma";
 import type { RecordActivityQuery } from "@/ee/messaging/activities/record-activities.schema";
 import type { DataViewState } from "@/core/data-view/data-view-state.schema";
 import type {
@@ -92,6 +92,7 @@ export type StoredRecord = CrmRecord & {
 export type RecordActor = {
   id: string;
   status: string;
+  country?: string;
   role: {
     id: string;
     companyId: string;
@@ -111,7 +112,7 @@ export interface RecordRepo {
   hasRecordHistoryCompanyWide(ref: RecordRef): Promise<boolean>;
   getRecordIdentitiesCompanyWide(typeId: string, recordIds: string[]): Promise<Map<string, RecordIdentity[]>>;
   getIdentityChannelsCompanyWide(keys: Array<{ channelClass: string; value: string }>): Promise<RecordIdentity[]>;
-  getIdentityProviderValueCompanyWide(id: string): Promise<{ provider: MessagingProvider; value: string } | null>;
+  getIdentityProviderValueCompanyWide(id: string): Promise<{ provider: RecordIdentityProvider; value: string } | null>;
   getStagedIdentityChannelsCompanyWide(
     operationId: string,
     keys: Array<{ channelClass: string; value: string }>,

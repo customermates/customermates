@@ -1,4 +1,4 @@
-import type { MessagingProvider } from "@/generated/prisma";
+import type { MessagingProvider, RecordIdentityProvider } from "@/generated/prisma";
 import type { StartChatContactChannel, StartChatContactRepo } from "@/ee/messaging/outbound/start-chat-contact.repo";
 import type { RecordRepo } from "./record.repo";
 import type { RecordRef } from "./record-model.schema";
@@ -23,7 +23,7 @@ export class StartChatRecordChannelRepo extends TenantRepository implements Star
     }));
   }
 
-  findIdentityCompanyWide(id: string): Promise<{ provider: MessagingProvider; value: string } | null> {
+  findIdentityCompanyWide(id: string): Promise<{ provider: RecordIdentityProvider; value: string } | null> {
     return this.records.getIdentityProviderValueCompanyWide(id);
   }
 

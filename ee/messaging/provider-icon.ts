@@ -1,9 +1,9 @@
-import type { MessagingProvider } from "@/generated/prisma";
+import type { RecordIdentityProvider } from "@/generated/prisma";
 
-import { Google, Instagram, Linkedin, Mail, Outlook, Telegram, Whatsapp } from "@/components/icons/channel-icon";
+import { Google, Instagram, Linkedin, Mail, Outlook, Phone, Telegram, Whatsapp } from "@/components/icons/channel-icon";
 import { channelLabelKey } from "@/ee/messaging/provider";
 
-export function getProviderIcon(provider: MessagingProvider) {
+export function getProviderIcon(provider: RecordIdentityProvider) {
   switch (provider) {
     case "linkedin":
       return Linkedin;
@@ -19,11 +19,13 @@ export function getProviderIcon(provider: MessagingProvider) {
       return Outlook;
     case "mail":
       return Mail;
+    case "phone":
+      return Phone;
     default:
       return Mail;
   }
 }
 
-export function getChannelIcon(provider: MessagingProvider) {
+export function getChannelIcon(provider: RecordIdentityProvider) {
   return getProviderIcon(channelLabelKey(provider));
 }

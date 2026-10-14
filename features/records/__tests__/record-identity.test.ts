@@ -13,11 +13,24 @@ describe("record identity channels", () => {
     ["mail", " Person@Example.test ", "person@example.test"],
     ["outlook", "Person@Example.test", "person@example.test"],
     ["whatsapp", "+49 (151) 12345678", "+4915112345678"],
+    ["phone", "+49 (0) 621 123456", "+49621123456"],
+    ["phone", "0049 621 123456", "+49621123456"],
     ["linkedin", "https://www.linkedin.com/in/person/", "person"],
     ["telegram", "@person", "person"],
     ["instagram", "https://instagram.com/person", "person"],
   ] as const)("preserves %s normalization", (provider, value, expected) => {
     expect(normalizedIdentity({ provider, value })?.value).toBe(expected);
+  });
+
+  it("normalises typed phone numbers in the acting user's country and keeps one identity per number", () => {
+    expect(normalizedIdentity({ provider: "phone", value: "0621 123456" }, "de")?.value).toBe("+49621123456");
+    expect(normalizedIdentity({ provider: "phone", value: "0621 123456" })).toBeNull();
+    expect(normalizedIdentity({ provider: "phone", value: "+49 621 123456 ext. 7" }, "de")).toBeNull();
+    expect(normalizedIdentity({ provider: "phone", value: "+49621123456", messagingId: "x" })?.messagingId).toBeNull();
+    const whatsapp = updatedIdentities([], [{ provider: "whatsapp", value: "+49621123456" }]);
+    expect(identityAssociations([{ provider: "phone", value: "+49621123456" }], whatsapp)).toEqual(whatsapp);
+    const phone = updatedIdentities([], [{ provider: "phone", value: "+49621123456" }]);
+    expect(identityAssociations([{ provider: "whatsapp", value: "+49621123456" }], phone)).toEqual(phone);
   });
 
   it("rejects invalid channels and discards redundant IDs only for deterministic providers", () => {

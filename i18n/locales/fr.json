@@ -1546,6 +1546,7 @@
       "linkedin": "LinkedIn",
       "mail": "E-mail",
       "outlook": "Outlook",
+      "phone": "Téléphone",
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
@@ -2260,7 +2261,7 @@
       "addAsLabel": "Ajouter comme",
       "noResults": "Aucune correspondance.",
       "searching": "Recherche…",
-      "searchPlaceholder": "Rechercher ou coller un e-mail, un téléphone ou un identifiant…",
+      "searchPlaceholder": "Rechercher ou coller un e-mail, un numéro de téléphone ou un compte social…",
       "sourceConversations": "Depuis vos conversations",
       "sourceLookup": "Trouvé par recherche",
       "trigger": "Ajouter un canal"
@@ -2270,7 +2271,12 @@
     "compose": {
       "noAccount": "Aucun compte {provider} utilisable n'est connecté. Connectez-en un dans Mon profil."
     },
-    "emptyHint": "Aucun canal pour le moment. Adresses e-mail, numéros de téléphone WhatsApp et comptes sociaux qui associent les messages à cette fiche.",
+    "emptyHint": "Aucun canal pour le moment. Adresses e-mail, numéros de téléphone et comptes sociaux qui associent les messages à cette fiche.",
+    "groups": {
+      "email": "E-mail",
+      "phone": "Téléphone",
+      "social": "Réseaux sociaux"
+    },
     "tooltipOpenInbox": "Aller à la boîte de réception",
     "tooltipStartNewThread": "Nouveau message",
     "tooltipUnlinkChannel": "Dissocier le canal",
@@ -3381,7 +3387,7 @@
       "oneToOne": "Un à un"
     },
     "changeBlocked": "Cette modification ne peut pas encore être appliquée",
-    "channelsHelp": "Adresses e-mail, numéros de téléphone WhatsApp et comptes sociaux qui associent les messages à cette fiche. Les numéros de téléphone ne sont associés que pour les discussions WhatsApp. Un identifiant peut être lié à plusieurs fiches.",
+    "channelsHelp": "Adresses e-mail, numéros de téléphone et comptes sociaux qui associent les messages à cette fiche. Un numéro de téléphone associe aussi les discussions WhatsApp du même numéro. Un identifiant peut être lié à plusieurs fiches.",
     "chooseOption": "Choisissez l’une des options du champ.",
     "clickAction": "Au clic",
     "clickActions": {
@@ -3815,6 +3821,7 @@
     "triggerValue": "À cette valeur",
     "typeHints": {
       "address": "Adresses postales avec pays",
+      "channels": "Adresses e-mail, numéros de téléphone et comptes sociaux",
       "file": "Documents, images, contrats",
       "richText": "Notes, descriptions, résumés"
     },

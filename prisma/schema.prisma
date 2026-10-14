@@ -1123,6 +1123,17 @@ enum MessagingProvider {
   telegram
 }
 
+enum RecordIdentityProvider {
+  google
+  outlook
+  mail
+  linkedin
+  whatsapp
+  instagram
+  telegram
+  phone
+}
+
 enum ConnectedAccountStatus {
   ok
   connecting
@@ -1765,16 +1776,16 @@ model CrmRecord {
 
 model RecordIdentity {
   companyId    String
-  id           String               @default(uuid())
-  provider     MessagingProvider
+  id           String                 @default(uuid())
+  provider     RecordIdentityProvider
   channelClass String
   value        String
   messagingId  String?
   displayName  String?
   profileUrl   String?
-  createdAt    DateTime             @default(now())
-  updatedAt    DateTime             @updatedAt
-  company      Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+  company      Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
   keys         RecordIdentityKey[]
   records      RecordIdentityLink[]
 

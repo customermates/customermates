@@ -8,7 +8,7 @@ import type {
   RecordScalar,
   RecordValueType,
 } from "@/features/records/record-model.schema";
-import type { MessagingProvider } from "@/generated/prisma";
+import type { RecordIdentityProvider } from "@/generated/prisma";
 
 import { isEmpty } from "@/features/event/audit-changes";
 import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
@@ -16,7 +16,7 @@ import { serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 
 type RecordHistoryDisplayValue = z.infer<typeof RecordHistoryDisplayValueSchema>;
 
-type ChangeChoice = { id: string; label: string; color?: ChipColor; provider?: MessagingProvider };
+type ChangeChoice = { id: string; label: string; color?: ChipColor; provider?: RecordIdentityProvider };
 
 type ChangeLinkedRecord = { id: string; label: string; icon: string; color: ChipColor | null };
 

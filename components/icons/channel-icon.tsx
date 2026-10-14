@@ -21,6 +21,7 @@ export const Telegram = makeChannelIcon("/icons/channels/telegram.svg", "Telegra
 export const Google = makeChannelIcon("/icons/channels/google.svg", "Gmail");
 export const Outlook = makeChannelIcon("/icons/channels/outlook.svg", "Outlook");
 export const Mail = makeChannelIcon("/icons/channels/mail.svg", "IMAP");
+export const Phone = makeChannelIcon("/icons/channels/phone.svg", "Phone");
 export const GoogleCalendar = makeChannelIcon("/icons/channels/google-calendar.svg", "Google Calendar");
 export const OutlookCalendar = makeChannelIcon("/icons/channels/outlook-calendar.svg", "Outlook Calendar");
 export const Messenger = makeChannelIcon("/icons/channels/messenger.svg", "Messenger");

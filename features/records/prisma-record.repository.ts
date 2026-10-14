@@ -2081,7 +2081,7 @@ export class PrismaRecordRepo
     `);
     await this.prisma.$executeRaw(Prisma.sql`
       INSERT INTO "RecordIdentity" ("companyId", id, provider, "channelClass", value, "messagingId", "displayName", "profileUrl", "createdAt", "updatedAt")
-      SELECT DISTINCT ON (item.data->>'id') ${companyId}, item.data->>'id', (item.data->>'provider')::"MessagingProvider",
+      SELECT DISTINCT ON (item.data->>'id') ${companyId}, item.data->>'id', (item.data->>'provider')::"RecordIdentityProvider",
         item.data->>'channelClass', item.data->>'value', item.data->>'messagingId', item.data->>'displayName', item.data->>'profileUrl',
         (item.data->>'createdAt')::timestamp, (item.data->>'updatedAt')::timestamp
       FROM "RecordStageRow" stage CROSS JOIN LATERAL jsonb_array_elements(stage.payload->'identities') AS item(data)

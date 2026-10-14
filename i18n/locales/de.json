@@ -1546,6 +1546,7 @@
       "linkedin": "LinkedIn",
       "mail": "E-Mail",
       "outlook": "Outlook",
+      "phone": "Telefon",
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
@@ -2260,7 +2261,7 @@
       "addAsLabel": "Hinzufügen als",
       "noResults": "Keine Treffer.",
       "searching": "Suche…",
-      "searchPlaceholder": "Suchen oder E-Mail, Telefon oder Handle einfügen…",
+      "searchPlaceholder": "Suchen oder E-Mail, Telefonnummer oder Social-Media-Konto einfügen…",
       "sourceConversations": "Aus deinen Konversationen",
       "sourceLookup": "Per Suche gefunden",
       "trigger": "Kanal hinzufügen"
@@ -2270,7 +2271,12 @@
     "compose": {
       "noAccount": "Kein nutzbares {provider} Konto verbunden. Verbinde eines unter Einstellungen › Kanäle."
     },
-    "emptyHint": "Noch keine Kanäle. E-Mail-Adressen, WhatsApp-Telefonnummern und soziale Konten, über die Nachrichten diesem Datensatz zugeordnet werden.",
+    "emptyHint": "Noch keine Kanäle. E-Mail-Adressen, Telefonnummern und Social-Media-Konten, über die Nachrichten diesem Datensatz zugeordnet werden.",
+    "groups": {
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "social": "Social Media"
+    },
     "tooltipOpenInbox": "Zum Posteingang",
     "tooltipStartNewThread": "Neue Nachricht",
     "tooltipUnlinkChannel": "Kanal entfernen",
@@ -3381,7 +3387,7 @@
       "oneToOne": "Eins zu eins"
     },
     "changeBlocked": "Diese Änderung kann noch nicht übernommen werden",
-    "channelsHelp": "E-Mail-Adressen, WhatsApp-Telefonnummern und soziale Konten, über die Nachrichten diesem Datensatz zugeordnet werden. Telefonnummern werden nur bei WhatsApp-Chats zugeordnet. Eine Kennung kann mit mehreren Datensätzen verknüpft sein.",
+    "channelsHelp": "E-Mail-Adressen, Telefonnummern und Social-Media-Konten, über die Nachrichten diesem Datensatz zugeordnet werden. Eine Telefonnummer ordnet auch WhatsApp-Chats derselben Nummer zu. Eine Kennung kann mit mehreren Datensätzen verknüpft sein.",
     "chooseOption": "Wähle eine der Optionen des Felds.",
     "clickAction": "Beim Klicken",
     "clickActions": {
@@ -3815,6 +3821,7 @@
     "triggerValue": "Auf diesen Wert",
     "typeHints": {
       "address": "Postanschriften mit Land",
+      "channels": "E-Mail-Adressen, Telefonnummern und Social-Media-Konten",
       "file": "Dokumente, Bilder, Verträge",
       "richText": "Notizen, Beschreibungen, Zusammenfassungen"
     },

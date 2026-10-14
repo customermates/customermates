@@ -1546,6 +1546,7 @@
       "linkedin": "LinkedIn",
       "mail": "Correo electrónico",
       "outlook": "Outlook",
+      "phone": "Teléfono",
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
@@ -2260,7 +2261,7 @@
       "addAsLabel": "Añadir como",
       "noResults": "Sin coincidencias.",
       "searching": "Buscando…",
-      "searchPlaceholder": "Busca o pega un correo, un teléfono o un identificador…",
+      "searchPlaceholder": "Busca o pega un correo, un número de teléfono o una cuenta social…",
       "sourceConversations": "De tus conversaciones",
       "sourceLookup": "Encontrado por búsqueda",
       "trigger": "Añadir canal"
@@ -2270,7 +2271,12 @@
     "compose": {
       "noAccount": "No hay ninguna cuenta de {provider} utilizable conectada. Conecta una en Mi perfil."
     },
-    "emptyHint": "Aún no hay canales. Direcciones de correo, números de teléfono de WhatsApp y cuentas sociales que asocian los mensajes con este registro.",
+    "emptyHint": "Aún no hay canales. Direcciones de correo, números de teléfono y cuentas sociales que asocian los mensajes con este registro.",
+    "groups": {
+      "email": "Correo electrónico",
+      "phone": "Teléfono",
+      "social": "Redes sociales"
+    },
     "tooltipOpenInbox": "Ir a la bandeja de entrada",
     "tooltipStartNewThread": "Mensaje nuevo",
     "tooltipUnlinkChannel": "Desvincular el canal",
@@ -3381,7 +3387,7 @@
       "oneToOne": "Uno a uno"
     },
     "changeBlocked": "Este cambio todavía no se puede aplicar",
-    "channelsHelp": "Direcciones de correo, números de teléfono de WhatsApp y cuentas sociales que asocian los mensajes con este registro. Los números de teléfono solo se asocian en los chats de WhatsApp. Un identificador puede vincularse con varios registros.",
+    "channelsHelp": "Direcciones de correo, números de teléfono y cuentas sociales que asocian los mensajes con este registro. Un número de teléfono también asocia los chats de WhatsApp del mismo número. Un identificador puede vincularse con varios registros.",
     "chooseOption": "Elige una de las opciones del campo.",
     "clickAction": "Al hacer clic",
     "clickActions": {
@@ -3815,6 +3821,7 @@
     "triggerValue": "A este valor",
     "typeHints": {
       "address": "Direcciones postales con país",
+      "channels": "Direcciones de correo, números de teléfono y cuentas sociales",
       "file": "Documentos, imágenes, contratos",
       "richText": "Notas, descripciones, resúmenes"
     },

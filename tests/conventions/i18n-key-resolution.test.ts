@@ -15,6 +15,7 @@ import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { AGENT_ACTIVITY_COPY_KINDS, AGENT_APPROVAL_COPY_KINDS } from "@/ee/agent-chat/agent-activity";
 import { ACCOUNT_REMOVAL_REASONS } from "@/ee/messaging/connect/account-removal-reason";
+import { CHANNEL_GROUPS } from "@/ee/messaging/provider";
 import { SignatureTemplate } from "@/ee/messaging/email-settings";
 import { OPERATOR_AUDIT_ACTION } from "@/ee/operator/operator.schema";
 import { ROUTINE_RUN_REASONS } from "@/ee/routines/routine-run-outcome";
@@ -33,9 +34,9 @@ import { DeletionBlockerSchema } from "@/features/records/configuration.schema";
 import { DIAGRAM_SYSTEM_LABEL_KEYS, DisplayType } from "@/features/widget/widget.schema";
 import {
   ConnectedAccountStatus,
-  MessagingProvider,
   MessagingMessageDirection,
   MessagingThreadState,
+  RecordIdentityProvider,
   Resource,
   RoutineRunStatus,
   RoutineTriggerKind,
@@ -296,7 +297,8 @@ const TABLE_COLUMN_KEYS = [
   "Common.table.columns.workspace",
 ] as const;
 
-const PROVIDER_KEYS = Object.values(MessagingProvider).map((provider) => `Common.providers.${provider}`);
+const PROVIDER_KEYS = Object.values(RecordIdentityProvider).map((provider) => `Common.providers.${provider}`);
+const CHANNEL_GROUP_KEYS = CHANNEL_GROUPS.map((group) => `EntityChannels.groups.${group}`);
 const USER_STATUS_KEYS = Object.values(Status).map((status) => `Common.userStatuses.${status}`);
 const LOCALE_KEYS = [...ROUTING_LOCALES, "system"].map((locale) => `Common.locales.${locale}`);
 const THEME_KEYS = Object.values(Theme).map((theme) => `Common.themes.${theme}`);
@@ -556,6 +558,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["Common.locales.${*}", LOCALE_KEYS],
   ["LegalDocumentNotice.documents.${*}", LEGAL_DOCUMENT_KEYS],
   ["Common.providers.${*}", PROVIDER_KEYS],
+  ["EntityChannels.groups.${*}", CHANNEL_GROUP_KEYS],
   ["Common.themes.${*}", THEME_KEYS],
   ["Common.userStatuses.${*}", USER_STATUS_KEYS],
   ["Trash.kinds.${*}", TRASH_KIND_KEYS],
@@ -726,10 +729,13 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/settings/(account)/components/user-details-avatar.tsx :: t :: Common.userStatuses.${status}",
   "app/[locale]/(protected)/records/[typeId]/components/contact-compose-popover.tsx :: t :: Common.providers.${provider}",
   "app/[locale]/(protected)/records/[typeId]/components/record-channels.tsx :: t :: Common.providers.${channelLabelKey(identifier.provider)}",
+  "app/[locale]/(protected)/records/[typeId]/components/record-channels.tsx :: t :: Common.providers.${channelLabelKey(composeProvider)}",
+  "app/[locale]/(protected)/records/[typeId]/components/record-channels.tsx :: t :: EntityChannels.groups.${group}",
   "app/[locale]/(protected)/records/[typeId]/components/record-detail-chip-row.tsx :: t :: RecordModel.${column.label}",
   "app/[locale]/(protected)/records/[typeId]/components/record-detail-overview.tsx :: t :: RecordModel.${column.label}",
   "app/[locale]/(protected)/records/[typeId]/components/record-field-value-editor.tsx :: getTranslation :: Common.errors.${code}",
   "app/[locale]/(protected)/records/[typeId]/components/record-identity-editor.tsx :: t :: Common.providers.${channelLabelKey(provider)}",
+  "app/[locale]/(protected)/records/[typeId]/components/record-identity-editor.tsx :: t :: EntityChannels.groups.${group}",
   "app/[locale]/(protected)/records/[typeId]/components/record-inline-field.tsx :: t :: RecordModel.operators.${operator}",
   "app/[locale]/(protected)/routines/components/routine-configuration-pane.tsx :: t :: Common.userStatuses.${form.owner.status}",
   "app/[locale]/(protected)/routines/components/routine-configuration-pane.tsx :: t :: RoutineSchedulePreset.${value}",

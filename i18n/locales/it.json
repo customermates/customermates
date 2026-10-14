@@ -1546,6 +1546,7 @@
       "linkedin": "LinkedIn",
       "mail": "E-mail",
       "outlook": "Outlook",
+      "phone": "Telefono",
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
@@ -2260,7 +2261,7 @@
       "addAsLabel": "Aggiungi come",
       "noResults": "Nessuna corrispondenza.",
       "searching": "Ricerca…",
-      "searchPlaceholder": "Cerca o incolla un'e-mail, un telefono o un identificativo…",
+      "searchPlaceholder": "Cerca o incolla un'e-mail, un numero di telefono o un account social…",
       "sourceConversations": "Dalle tue conversazioni",
       "sourceLookup": "Trovato tramite ricerca",
       "trigger": "Aggiungi canale"
@@ -2270,7 +2271,12 @@
     "compose": {
       "noAccount": "Nessun account {provider} utilizzabile è collegato. Collegane uno nella sezione Il mio profilo."
     },
-    "emptyHint": "Ancora nessun canale. Indirizzi e-mail, numeri di telefono WhatsApp e account social che associano i messaggi a questo record.",
+    "emptyHint": "Ancora nessun canale. Indirizzi e-mail, numeri di telefono e account social che associano i messaggi a questo record.",
+    "groups": {
+      "email": "E-mail",
+      "phone": "Telefono",
+      "social": "Social"
+    },
     "tooltipOpenInbox": "Vai alla posta in arrivo",
     "tooltipStartNewThread": "Nuovo messaggio",
     "tooltipUnlinkChannel": "Scollega il canale",
@@ -3381,7 +3387,7 @@
       "oneToOne": "Uno a uno"
     },
     "changeBlocked": "Questa modifica non può ancora essere applicata",
-    "channelsHelp": "Indirizzi e-mail, numeri di telefono WhatsApp e account social che associano i messaggi a questo record. I numeri di telefono vengono associati solo per le chat WhatsApp. Un identificatore può essere collegato a più record.",
+    "channelsHelp": "Indirizzi e-mail, numeri di telefono e account social che associano i messaggi a questo record. Un numero di telefono associa anche le chat WhatsApp dello stesso numero. Un identificatore può essere collegato a più record.",
     "chooseOption": "Scegli una delle opzioni del campo.",
     "clickAction": "Al clic",
     "clickActions": {
@@ -3815,6 +3821,7 @@
     "triggerValue": "A questo valore",
     "typeHints": {
       "address": "Indirizzi postali con paese",
+      "channels": "Indirizzi e-mail, numeri di telefono e account social",
       "file": "Documenti, immagini, contratti",
       "richText": "Note, descrizioni, riepiloghi"
     },

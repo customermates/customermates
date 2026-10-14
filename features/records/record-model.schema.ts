@@ -397,7 +397,7 @@ export const RecordFieldSchema = z
     typeId: z.uuid(),
     label: RecordNameSchema,
     valueType: RecordValueTypeSchema.describe(
-      "channels: email addresses, WhatsApp phone numbers and social accounts that match messages to the record. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value.",
+      "channels: email addresses, phone numbers and social accounts that match messages to the record; a phone number also matches WhatsApp chats from the same number. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value.",
     ),
     behavior: FieldBehaviorSchema,
     required: z.boolean(),

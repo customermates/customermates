@@ -838,8 +838,10 @@
                             "linkedin",
                             "whatsapp",
                             "instagram",
-                            "telegram"
-                          ]
+                            "telegram",
+                            "phone"
+                          ],
+                          "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                         },
                         "value": {
                           "type": "string",
@@ -901,8 +903,10 @@
                               "linkedin",
                               "whatsapp",
                               "instagram",
-                              "telegram"
-                            ]
+                              "telegram",
+                              "phone"
+                            ],
+                            "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                           },
                           "value": {
                             "type": "string",
@@ -3818,8 +3822,10 @@
                                                     "linkedin",
                                                     "whatsapp",
                                                     "instagram",
-                                                    "telegram"
-                                                  ]
+                                                    "telegram",
+                                                    "phone"
+                                                  ],
+                                                  "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                                 },
                                                 "value": {
                                                   "type": "string",
@@ -3887,8 +3893,10 @@
                                                     "linkedin",
                                                     "whatsapp",
                                                     "instagram",
-                                                    "telegram"
-                                                  ]
+                                                    "telegram",
+                                                    "phone"
+                                                  ],
+                                                  "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                                 },
                                                 "value": {
                                                   "type": "string",
@@ -11243,8 +11251,10 @@
                                     "linkedin",
                                     "whatsapp",
                                     "instagram",
-                                    "telegram"
-                                  ]
+                                    "telegram",
+                                    "phone"
+                                  ],
+                                  "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                 },
                                 "value": {
                                   "type": "string",
@@ -12377,8 +12387,10 @@
                                       "linkedin",
                                       "whatsapp",
                                       "instagram",
-                                      "telegram"
-                                    ]
+                                      "telegram",
+                                      "phone"
+                                    ],
+                                    "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                   },
                                   "value": {
                                     "type": "string",
@@ -20758,8 +20770,10 @@
                                                                 "linkedin",
                                                                 "whatsapp",
                                                                 "instagram",
-                                                                "telegram"
-                                                              ]
+                                                                "telegram",
+                                                                "phone"
+                                                              ],
+                                                              "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                                             },
                                                             "value": {
                                                               "type": "string",
@@ -20827,8 +20841,10 @@
                                                                 "linkedin",
                                                                 "whatsapp",
                                                                 "instagram",
-                                                                "telegram"
-                                                              ]
+                                                                "telegram",
+                                                                "phone"
+                                                              ],
+                                                              "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                                             },
                                                             "value": {
                                                               "type": "string",
@@ -30918,8 +30934,10 @@
                                                                 "linkedin",
                                                                 "whatsapp",
                                                                 "instagram",
-                                                                "telegram"
-                                                              ]
+                                                                "telegram",
+                                                                "phone"
+                                                              ],
+                                                              "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                                             },
                                                             "value": {
                                                               "type": "string",
@@ -30987,8 +31005,10 @@
                                                                 "linkedin",
                                                                 "whatsapp",
                                                                 "instagram",
-                                                                "telegram"
-                                                              ]
+                                                                "telegram",
+                                                                "phone"
+                                                              ],
+                                                              "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                                             },
                                                             "value": {
                                                               "type": "string",
@@ -35837,7 +35857,7 @@
                                     "file",
                                     "address"
                                   ],
-                                  "description": "channels: email addresses, WhatsApp phone numbers and social accounts that match messages to the record. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value."
+                                  "description": "channels: email addresses, phone numbers and social accounts that match messages to the record; a phone number also matches WhatsApp chats from the same number. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value."
                                 },
                                 "behavior": {
                                   "type": "object",
@@ -37771,7 +37791,7 @@
                                     "file",
                                     "address"
                                   ],
-                                  "description": "channels: email addresses, WhatsApp phone numbers and social accounts that match messages to the record. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value."
+                                  "description": "channels: email addresses, phone numbers and social accounts that match messages to the record; a phone number also matches WhatsApp chats from the same number. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value."
                                 },
                                 "behavior": {
                                   "type": "object",
@@ -40807,8 +40827,10 @@
                               "linkedin",
                               "whatsapp",
                               "instagram",
-                              "telegram"
-                            ]
+                              "telegram",
+                              "phone"
+                            ],
+                            "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                           },
                           "value": {
                             "type": "string",
@@ -43433,8 +43455,10 @@
                                     "linkedin",
                                     "whatsapp",
                                     "instagram",
-                                    "telegram"
-                                  ]
+                                    "telegram",
+                                    "phone"
+                                  ],
+                                  "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                 },
                                 "value": {
                                   "type": "string",
@@ -44512,8 +44536,10 @@
                                     "linkedin",
                                     "whatsapp",
                                     "instagram",
-                                    "telegram"
-                                  ]
+                                    "telegram",
+                                    "phone"
+                                  ],
+                                  "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                 },
                                 "value": {
                                   "type": "string",
@@ -44831,8 +44857,10 @@
                                     "linkedin",
                                     "whatsapp",
                                     "instagram",
-                                    "telegram"
-                                  ]
+                                    "telegram",
+                                    "phone"
+                                  ],
+                                  "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                 },
                                 "value": {
                                   "type": "string",
@@ -54116,7 +54144,7 @@
                               "file",
                               "address"
                             ],
-                            "description": "channels: email addresses, WhatsApp phone numbers and social accounts that match messages to the record. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value."
+                            "description": "channels: email addresses, phone numbers and social accounts that match messages to the record; a phone number also matches WhatsApp chats from the same number. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value."
                           },
                           "behavior": {
                             "oneOf": [
@@ -75934,8 +75962,10 @@
                                                                       "linkedin",
                                                                       "whatsapp",
                                                                       "instagram",
-                                                                      "telegram"
-                                                                    ]
+                                                                      "telegram",
+                                                                      "phone"
+                                                                    ],
+                                                                    "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                                                   },
                                                                   "value": {
                                                                     "type": "string",
@@ -76003,8 +76033,10 @@
                                                                       "linkedin",
                                                                       "whatsapp",
                                                                       "instagram",
-                                                                      "telegram"
-                                                                    ]
+                                                                      "telegram",
+                                                                      "phone"
+                                                                    ],
+                                                                    "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                                                   },
                                                                   "value": {
                                                                     "type": "string",
@@ -82722,8 +82754,10 @@
                                       "linkedin",
                                       "whatsapp",
                                       "instagram",
-                                      "telegram"
-                                    ]
+                                      "telegram",
+                                      "phone"
+                                    ],
+                                    "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                   },
                                   "value": {
                                     "type": "string",
@@ -83156,7 +83190,7 @@
                                   "file",
                                   "address"
                                 ],
-                                "description": "channels: email addresses, WhatsApp phone numbers and social accounts that match messages to the record. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value."
+                                "description": "channels: email addresses, phone numbers and social accounts that match messages to the record; a phone number also matches WhatsApp chats from the same number. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value."
                               },
                               "behavior": {
                                 "oneOf": [
@@ -112947,8 +112981,10 @@
                                             "linkedin",
                                             "whatsapp",
                                             "instagram",
-                                            "telegram"
-                                          ]
+                                            "telegram",
+                                            "phone"
+                                          ],
+                                          "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -113016,8 +113052,10 @@
                                             "linkedin",
                                             "whatsapp",
                                             "instagram",
-                                            "telegram"
-                                          ]
+                                            "telegram",
+                                            "phone"
+                                          ],
+                                          "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -114394,8 +114432,10 @@
                                             "linkedin",
                                             "whatsapp",
                                             "instagram",
-                                            "telegram"
-                                          ]
+                                            "telegram",
+                                            "phone"
+                                          ],
+                                          "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -114463,8 +114503,10 @@
                                             "linkedin",
                                             "whatsapp",
                                             "instagram",
-                                            "telegram"
-                                          ]
+                                            "telegram",
+                                            "phone"
+                                          ],
+                                          "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -115841,8 +115883,10 @@
                                             "linkedin",
                                             "whatsapp",
                                             "instagram",
-                                            "telegram"
-                                          ]
+                                            "telegram",
+                                            "phone"
+                                          ],
+                                          "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -115910,8 +115954,10 @@
                                             "linkedin",
                                             "whatsapp",
                                             "instagram",
-                                            "telegram"
-                                          ]
+                                            "telegram",
+                                            "phone"
+                                          ],
+                                          "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -117288,8 +117334,10 @@
                                             "linkedin",
                                             "whatsapp",
                                             "instagram",
-                                            "telegram"
-                                          ]
+                                            "telegram",
+                                            "phone"
+                                          ],
+                                          "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -117357,8 +117405,10 @@
                                             "linkedin",
                                             "whatsapp",
                                             "instagram",
-                                            "telegram"
-                                          ]
+                                            "telegram",
+                                            "phone"
+                                          ],
+                                          "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -118735,8 +118785,10 @@
                                             "linkedin",
                                             "whatsapp",
                                             "instagram",
-                                            "telegram"
-                                          ]
+                                            "telegram",
+                                            "phone"
+                                          ],
+                                          "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -118804,8 +118856,10 @@
                                             "linkedin",
                                             "whatsapp",
                                             "instagram",
-                                            "telegram"
-                                          ]
+                                            "telegram",
+                                            "phone"
+                                          ],
+                                          "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",

@@ -8457,6 +8457,103 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     },
   );
 
+  it("stores typed phone numbers as one phone identity that WhatsApp conversations match", async () => {
+    const { PrismaMessagingRepo } = await import("@/ee/messaging/persistence/prisma-messaging.repository");
+    const { FilterOperatorKey } = await import("@/core/base/base-query-builder");
+    const f = await fixture();
+    const contact = async (
+      firstName: string,
+      identities: NonNullable<Extract<RecordMutation, { action: "create" }>["identities"]>,
+    ) => {
+      const created = await f.mutation({
+        action: "create",
+        typeId: f.id("contact"),
+        fields: [{ fieldId: f.id("contact.firstName"), value: textValue(firstName) }],
+        identities,
+      });
+      if (!created.ok || created.data.status !== "completed") throw new Error(JSON.stringify(created));
+      return recordInvariant(created.data.refs.find((ref) => ref.typeId === f.id("contact")));
+    };
+    const typed = await contact("Typed", [{ provider: "phone", value: "0621 123456" }]);
+    const [stored] = recordInvariant((await f.readRecord(typed)).identities);
+    expect(stored).toMatchObject({
+      provider: "phone",
+      channelClass: "phone",
+      value: "+49621123456",
+      messagingId: null,
+    });
+    const synced = await contact("Synced", [{ provider: "whatsapp", value: "0049 621 123456" }]);
+    expect((await f.readRecord(synced)).identities).toEqual([stored]);
+    expect(
+      await f.mutation({
+        action: "create",
+        typeId: f.id("contact"),
+        fields: [],
+        identities: [{ provider: "phone", value: "+49 621 123456 ext. 9" }],
+      }),
+    ).toMatchObject({ ok: false });
+
+    const account = await f.run(() =>
+      prisma.connectedAccount.create({
+        data: {
+          companyId: f.company.id,
+          userId: f.admin.id,
+          unipileAccountId: randomUUID(),
+          provider: "whatsapp",
+          status: "ok",
+        },
+      }),
+    );
+    const thread = await f.run(() =>
+      prisma.messagingThread.create({
+        data: {
+          companyId: f.company.id,
+          connectedAccountId: account.id,
+          provider: "whatsapp",
+          unipileThreadId: randomUUID(),
+          lastMessageAt: new Date(),
+        },
+      }),
+    );
+    const inbox = new PrismaMessagingRepo(
+      getRecordRepo(),
+      getRecordAccessPolicy(),
+      getRecordIdentityReader(),
+      getConnectedAccountRepo(),
+    );
+    await inbox.upsertThreadParticipantsUnscoped({
+      companyId: f.company.id,
+      messagingThreadId: thread.id,
+      provider: "whatsapp",
+      participants: [
+        { attendeeId: "provider-person", identifier: "49621123456@s.whatsapp.net", displayName: null, records: [] },
+      ],
+    });
+    const participant = await f.run(() =>
+      prisma.messagingThreadParticipant.findFirstOrThrow({
+        where: { companyId: f.company.id, messagingThreadId: thread.id },
+      }),
+    );
+    expect(participant.identityLookupValue).toBe("+49621123456");
+    const filtered = (ref: RecordRef): GetQueryParams => ({
+      filters: [
+        { field: "participantContactId", operator: FilterOperatorKey.in, value: [`${ref.typeId}:${ref.recordId}`] },
+      ],
+    });
+    expect(await f.run(() => inbox.getCount(filtered(typed)))).toBe(1);
+    expect(await f.run(() => inbox.getCount(filtered(synced)))).toBe(1);
+    const records = (await f.run(() => inbox.getItems(filtered(typed))))[0]?.participants[0]?.records ?? [];
+    expect(records.map((record) => record.ref)).toEqual(expect.arrayContaining([typed, synced]));
+    const lookup = new ResolveRecordIdentitiesInteractor(f.policy, new RecordIdentityReader(f.repo, f.policy));
+    const resolved = await f.run(() =>
+      lookup.invoke({ identifiers: [{ provider: "phone", value: "+49 (0) 621 123456" }] }),
+    );
+    if (!resolved.ok) throw new Error(JSON.stringify(resolved.error));
+    expect(resolved.data.matches[0].records.map((record) => record.ref)).toEqual(
+      expect.arrayContaining([typed, synced]),
+    );
+  });
+
   it("discovers navigation from metadata without truncating types or granting schema managers record access", async () => {
     const f = await fixture();
     const service = recordInvariant(f.model.types.find((type) => type.id === f.id("service")));

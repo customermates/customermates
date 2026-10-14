@@ -1546,6 +1546,7 @@
       "linkedin": "LinkedIn",
       "mail": "Email",
       "outlook": "Outlook",
+      "phone": "Phone",
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
@@ -2260,7 +2261,7 @@
       "addAsLabel": "Add as",
       "noResults": "No matches found.",
       "searching": "Searching…",
-      "searchPlaceholder": "Search or paste an email, phone or handle…",
+      "searchPlaceholder": "Search or paste an email, phone number or social account…",
       "sourceConversations": "From your conversations",
       "sourceLookup": "Found by lookup",
       "trigger": "Add channel"
@@ -2270,7 +2271,12 @@
     "compose": {
       "noAccount": "No usable {provider} account is connected. Connect one under Settings › Channels."
     },
-    "emptyHint": "No channels yet. Email addresses, WhatsApp phone numbers and social accounts that match messages to this record.",
+    "emptyHint": "No channels yet. Email addresses, phone numbers and social accounts that match messages to this record.",
+    "groups": {
+      "email": "Email",
+      "phone": "Phone",
+      "social": "Social"
+    },
     "tooltipOpenInbox": "Go to inbox",
     "tooltipStartNewThread": "New message",
     "tooltipUnlinkChannel": "Unlink channel",
@@ -3381,7 +3387,7 @@
       "oneToOne": "One to one"
     },
     "changeBlocked": "This change can't be applied yet",
-    "channelsHelp": "Email addresses, WhatsApp phone numbers and social accounts that match messages to this record. Phone numbers are only matched for WhatsApp chats. An identifier can link to several records.",
+    "channelsHelp": "Email addresses, phone numbers and social accounts that match messages to this record. A phone number also matches WhatsApp chats from the same number. An identifier can link to several records.",
     "chooseOption": "Choose one of the field's options.",
     "clickAction": "On click",
     "clickActions": {
@@ -3815,6 +3821,7 @@
     "triggerValue": "To this value",
     "typeHints": {
       "address": "Postal addresses with country",
+      "channels": "Email addresses, phone numbers and social accounts",
       "file": "Documents, images, contracts",
       "richText": "Notes, descriptions, summaries"
     },
