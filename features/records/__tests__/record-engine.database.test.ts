@@ -141,6 +141,7 @@ const {
   getRoutineRepo,
   getRecordIdentityReader,
   getConnectedAccountRepo,
+  getRestoreTrashInteractor,
 } = await import("@/core/di");
 const { manageWebhooksTool } = await import("@/features/mcp-tools/webhook.mcp-tools");
 const { manageRoutinesTool } = await import("@/features/mcp-tools/routine.mcp-tools");
@@ -16293,7 +16294,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     await write({ action: "delete", ref: first, expectedVersion: (await f.readRecord(first)).version });
     expect(await totals(organization)).toEqual([amount("0"), count("0"), count("0")]);
   });
-  it("releases retained snapshot provenance when its relinked source record is deleted", async () => {
+  it("keeps retained snapshot provenance when its relinked source is trashed and restored", async () => {
     const f = await fixture();
     for (const key of ["deal", "lineItem"]) {
       await f.run(() =>
@@ -16308,8 +16309,16 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       "Saved line",
       [["lineItem.pricingMode", { kind: "select", value: "saved" }]],
       [
-        { relationId: f.id("lineItem.service"), direction: "outgoing", record: retired },
-        { relationId: f.id("lineItem.deal"), direction: "outgoing", record: deal },
+        {
+          relationId: f.id("lineItem.service"),
+          direction: "outgoing",
+          record: retired,
+        },
+        {
+          relationId: f.id("lineItem.deal"),
+          direction: "outgoing",
+          record: deal,
+        },
       ],
     );
     expect(
@@ -16319,38 +16328,81 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         expectedVersion: (await f.readRecord(line)).version,
         fields: [],
         linkChanges: [
-          { action: "unlink", relationId: f.id("lineItem.service"), direction: "outgoing", record: retired },
-          { action: "link", relationId: f.id("lineItem.service"), direction: "outgoing", record: replacement },
+          {
+            action: "unlink",
+            relationId: f.id("lineItem.service"),
+            direction: "outgoing",
+            record: retired,
+          },
+          {
+            action: "link",
+            relationId: f.id("lineItem.service"),
+            direction: "outgoing",
+            record: replacement,
+          },
         ],
       }),
     ).toMatchObject({ ok: true });
-    expect(await f.value(line, "lineItem.savedPrice", f.member)).toEqual({ state: "restricted" });
+    expect(await f.value(line, "lineItem.savedPrice", f.member)).toEqual({
+      state: "restricted",
+    });
     const dependencies = () =>
       f.run(() =>
         prisma.recordValueDependency.count({
-          where: { companyId: f.company.id, sourceTypeId: retired.typeId, sourceId: retired.recordId },
+          where: {
+            companyId: f.company.id,
+            sourceTypeId: retired.typeId,
+            sourceId: retired.recordId,
+          },
         }),
       );
-    expect(await dependencies()).toBeGreaterThan(0);
-    expect(
-      await f.mutation({ action: "delete", ref: retired, expectedVersion: (await f.readRecord(retired)).version }),
-    ).toMatchObject({ ok: true });
-    expect(await dependencies()).toBe(0);
-    expect(await f.value(line, "lineItem.savedPrice", f.member)).toEqual({
+    const restricted = async () => {
+      expect(await dependencies()).toBeGreaterThan(0);
+      for (const key of ["lineItem.savedPrice", "lineItem.effectivePrice", "lineItem.amount"]) {
+        expect(await f.value(line, key, f.member)).toEqual({
+          state: "restricted",
+        });
+      }
+      expect(
+        await f.run(
+          () =>
+            f.query.invoke(
+              RecordQuerySchema.parse({
+                typeId: line.typeId,
+                filters: [
+                  {
+                    fieldId: f.id("lineItem.savedPrice"),
+                    operator: "eq",
+                    value: decimal("1000"),
+                  },
+                ],
+              }),
+            ),
+          f.member,
+        ),
+      ).toMatchObject({ ok: true, data: { total: 0, records: [] } });
+    };
+    const deleted = await f.mutation({
+      action: "delete",
+      ref: retired,
+      expectedVersion: (await f.readRecord(retired)).version,
+    });
+    expect(deleted).toMatchObject({
+      ok: true,
+      data: { trashBatchId: expect.any(String) },
+    });
+    await restricted();
+    if (!deleted.ok || deleted.data.status !== "completed" || !deleted.data.trashBatchId)
+      throw new Error("Trash batch missing");
+    const trashBatchId = deleted.data.trashBatchId;
+    expect(await f.run(() => getRestoreTrashInteractor().invoke({ batchId: trashBatchId }), f.admin)).toMatchObject({
+      ok: true,
+    });
+    await restricted();
+    expect(await f.value(line, "lineItem.savedPrice", f.admin)).toEqual({
       state: "value",
       value: decimal("1000"),
     });
-    const filtered = await f.run(
-      () =>
-        f.query.invoke(
-          RecordQuerySchema.parse({
-            typeId: line.typeId,
-            filters: [{ fieldId: f.id("lineItem.savedPrice"), operator: "eq", value: decimal("1000") }],
-          }),
-        ),
-      f.member,
-    );
-    expect(filtered).toMatchObject({ ok: true, data: { total: 1, records: [{ ref: line }] } });
   });
   it("keeps missing and other-currency values for not-equal filters exactly like notIn", async () => {
     const f = await fixture();

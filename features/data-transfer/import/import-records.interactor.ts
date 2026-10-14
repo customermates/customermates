@@ -7,7 +7,7 @@ import type { Validated } from "@/core/validation/validation.utils";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
-import { runInTransaction } from "@/core/decorators/transaction-runner";
+import { INTERACTIVE_COMPANY_LOCK_WAIT_MS, runInTransaction } from "@/core/decorators/transaction-runner";
 import {
   fail,
   failAuthorization,
@@ -307,7 +307,7 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportMarke
         await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, data);
         return { ok: true as const, data };
       },
-      { timeout: 120_000 },
+      { timeout: 120_000, companyLockWait: INTERACTIVE_COMPANY_LOCK_WAIT_MS },
     ).catch(unwoundFailure);
   }
 

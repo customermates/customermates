@@ -16,6 +16,7 @@ import { validateDate } from "@/core/validation/validate-date";
 import { validateEnumValue } from "@/core/validation/validate-enum-value";
 import { validateEvent } from "@/core/validation/validate-event";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { tenantStorage } from "@/core/decorators/tenant-context";
 
 type StrictFields = {
   filterableFields: FilterableField[];
@@ -144,7 +145,9 @@ export class QueryParamsPrecheckInteractor {
           });
           break;
         }
-        if (ids.length > 0) await validator.invoke([{ ids: filter.value, path }], ctx);
+        const selfId = valueKind.entity === "user" ? tenantStorage.getStore()?.user?.id : undefined;
+        const otherIds = selfId ? ids.filter((id) => id !== selfId) : ids;
+        if (otherIds.length > 0) await validator.invoke([{ ids: otherIds, path }], ctx);
         break;
       }
       case "enum":

@@ -10,6 +10,7 @@ import {
   RecordCapabilitySchema,
   RecordGrantSchema,
   ExpressionBudgetSchema,
+  RecordNameSchema,
 } from "./record-model.schema";
 
 const CONFIGURATION_TARGET_KINDS = ["type", "field", "relationship"] as const;
@@ -218,8 +219,8 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
               .object({
                 operation: z.literal("createType"),
                 reference: ConfigurationReferenceSchema,
-                label: z.string().trim().min(1).max(200),
-                pluralLabel: z.string().trim().min(1).max(200),
+                label: RecordNameSchema,
+                pluralLabel: RecordNameSchema,
                 description: z.string().max(4000),
                 icon: z.string().max(64),
                 embedded: z.boolean(),

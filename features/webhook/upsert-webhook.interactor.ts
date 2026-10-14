@@ -126,7 +126,10 @@ export class UpsertWebhookInteractor extends AuthenticatedInteractor<UpsertWebho
 
     let webhook: WebhookDto;
     try {
-      webhook = await this.repo.upsertWebhookOrThrow(data);
+      webhook = await this.repo.upsertWebhookOrThrow({
+        ...data,
+        ...(data.url ? { url: new URL(data.url).href } : {}),
+      });
     } catch (error) {
       return unwoundFailure(error);
     }

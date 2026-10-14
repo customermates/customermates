@@ -50,7 +50,7 @@ await import("@/core/di");
 const { manageRoutinesTool } = await import("../routine.mcp-tools");
 const { mcpToolResultText } = await import("../mcp-tool");
 const { prisma } = await import("@/prisma/db");
-const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
+const { runWithoutTenant, runWithTenant } = await import("@/core/decorators/tenant-context");
 const { getStartRoutineRunInteractor } = await import("@/core/di");
 const { env } = await import("@/env");
 
@@ -173,6 +173,36 @@ describeDatabase("manage_routines against a real database", { timeout: 120_000 }
     );
     expect(trashed?.deletedAt).toBeInstanceOf(Date);
     expect((await run({ action: "list" })).text).not.toContain("MCP probe renamed");
+  });
+
+  it("lists the caller's routines with mine without Users read access", async () => {
+    const created = await run({
+      action: "create",
+      name: "Own private routine",
+      prompt: "Summarise the pipeline.",
+      triggerKind: "schedule",
+      cronExpression: "0 9 * * 1",
+      timezone: "Europe/Berlin",
+      enabled: false,
+    });
+    const id = created.structured.id as string;
+    const role = tenantUser.role;
+    if (!role) throw new Error("Routine owner has no role");
+    const restricted = createMockUser({
+      ...tenantUser,
+      role: {
+        ...role,
+        isSystemRole: false,
+        permissions: [
+          { id: randomUUID(), resource: "api", action: "readAll" },
+          { id: randomUUID(), resource: "routines", action: "readOwn" },
+        ],
+      },
+    });
+    const ordinary = await runWithTenant(restricted, () => run({ action: "list" }));
+    const mine = await runWithTenant(restricted, () => run({ action: "list", owner: "mine" }));
+    expect(ordinary.structured.items).toEqual(expect.arrayContaining([expect.objectContaining({ id })]));
+    expect(mine.structured.items).toEqual(expect.arrayContaining([expect.objectContaining({ id })]));
   });
 
   it("returns the paused reason on run_now and stores it on a queued run blocked at start", async () => {
