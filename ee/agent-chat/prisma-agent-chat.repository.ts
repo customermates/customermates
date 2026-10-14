@@ -26,6 +26,7 @@ import type {
   AgentRetrievalPayer,
   AgentTurnCreditState,
   AgentWorkspaceCreditPool,
+  WorkspacePlatformReservation,
 } from "./agent-usage.service";
 import type { AgentUsageRepo } from "@/ee/agent-chat/agent-usage.repo";
 import type { GetWikiSuggestionSignalRepo } from "@/features/wiki/get-wiki-suggestion-signal.repo";
@@ -2521,12 +2522,112 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
       where: { id: args.reservationId },
     });
     if (released.count !== 1) throw new Error("Platform AI reservation changed before settlement.");
+    const hold = await this.releaseWorkspaceHold(args.reservationId);
     if (!args.charge) return;
     if (reservation.model !== args.charge.model) throw new Error("Platform AI settlement model does not match.");
     await this.accruePlatformUsageUnscoped({
       purpose: reservation.purpose,
       charge: args.charge,
       now: args.now,
+    });
+    if (hold) await this.accrueWorkspacePlatformUsage(hold, args.charge, args.now);
+  }
+
+  @BypassTenantGuard
+  @Transaction
+  async reserveWorkspacePlatformUsageUnscoped(args: {
+    companyId: string;
+    purpose: string;
+    model: string;
+    reservedMicrocents: number;
+    capMicrocents: number;
+    now: Date;
+  }): Promise<WorkspacePlatformReservation> {
+    if (!Number.isSafeInteger(args.reservedMicrocents) || args.reservedMicrocents < 1)
+      throw new Error("Platform AI reservation is invalid.");
+    if (!Number.isSafeInteger(args.capMicrocents) || args.capMicrocents < 0)
+      throw new Error("Platform AI workspace cap is invalid.");
+    await this.prisma
+      .$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`customermates:workspace-platform-spend:${args.companyId}`}, 0))`;
+    const committed = await this.workspacePlatformCommitment(args.companyId, args.purpose);
+    if (committed.usedMicrocents + committed.heldMicrocents + args.reservedMicrocents > args.capMicrocents)
+      return { status: "cap" };
+    const id = await this.reservePlatformUsageUnscoped({
+      purpose: args.purpose,
+      model: args.model,
+      reservedMicrocents: args.reservedMicrocents,
+      now: args.now,
+    });
+    if (!id) return { status: "unavailable" };
+    await this.prisma.hostedAiPlatformWorkspaceHold.create({
+      data: {
+        reservationId: id,
+        companyId: args.companyId,
+        purpose: args.purpose,
+        reservedMicrocents: BigInt(args.reservedMicrocents),
+        createdAt: args.now,
+      },
+      select: { reservationId: true },
+    });
+    return { status: "reserved", id };
+  }
+
+  @BypassTenantGuard
+  async getWorkspacePlatformSpendUnscoped(args: {
+    companyId: string;
+    purpose: string;
+  }): Promise<{ usedMicrocents: number; heldMicrocents: number }> {
+    return this.workspacePlatformCommitment(args.companyId, args.purpose);
+  }
+
+  private async workspacePlatformCommitment(companyId: string, purpose: string) {
+    const [usage, holds] = await Promise.all([
+      this.prisma.hostedAiPlatformWorkspaceUsage.findUnique({
+        where: { companyId_purpose: { companyId, purpose } },
+        select: { costMicrocents: true },
+      }),
+      this.prisma.hostedAiPlatformWorkspaceHold.aggregate({
+        where: { companyId, purpose },
+        _sum: { reservedMicrocents: true },
+      }),
+    ]);
+    return {
+      usedMicrocents: agentMicrocentsFromStorage(usage?.costMicrocents ?? 0n, "Platform AI workspace usage"),
+      heldMicrocents: agentMicrocentsFromStorage(holds._sum.reservedMicrocents ?? 0n, "Platform AI workspace holds"),
+    };
+  }
+
+  private async releaseWorkspaceHold(reservationId: string) {
+    const hold = await this.prisma.hostedAiPlatformWorkspaceHold.findUnique({
+      where: { reservationId },
+      select: { companyId: true, purpose: true },
+    });
+    if (!hold) return null;
+    await this.prisma.hostedAiPlatformWorkspaceHold.deleteMany({ where: { reservationId } });
+    return hold;
+  }
+
+  private async accrueWorkspacePlatformUsage(
+    hold: { companyId: string; purpose: string },
+    charge: AgentRetrievalCharge,
+    now: Date,
+  ) {
+    await this.prisma.hostedAiPlatformWorkspaceUsage.upsert({
+      where: { companyId_purpose: { companyId: hold.companyId, purpose: hold.purpose } },
+      create: {
+        companyId: hold.companyId,
+        purpose: hold.purpose,
+        inputTokens: charge.inputTokens,
+        costMicrocents: BigInt(charge.costMicrocents),
+        createdAt: now,
+        updatedAt: now,
+      },
+      update: {
+        inputTokens: { increment: charge.inputTokens },
+        costMicrocents: { increment: BigInt(charge.costMicrocents) },
+        updatedAt: now,
+      },
+      select: { companyId: true },
     });
   }
 
@@ -2560,16 +2661,15 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
       throw new Error("Platform AI reservations changed before stale settlement.");
 
     for (const reservation of reservations) {
-      await this.accruePlatformUsageUnscoped({
-        purpose: reservation.purpose,
-        charge: {
-          model: reservation.model,
-          inputTokens: 0,
-          costMicrocents: agentMicrocentsFromStorage(reservation.reservedMicrocents, "Platform AI reservation"),
-          costSource: "estimated",
-        },
-        now: reservation.createdAt,
-      });
+      const charge: AgentRetrievalCharge = {
+        model: reservation.model,
+        inputTokens: 0,
+        costMicrocents: agentMicrocentsFromStorage(reservation.reservedMicrocents, "Platform AI reservation"),
+        costSource: "estimated",
+      };
+      await this.accruePlatformUsageUnscoped({ purpose: reservation.purpose, charge, now: reservation.createdAt });
+      const hold = await this.releaseWorkspaceHold(reservation.id);
+      if (hold) await this.accrueWorkspacePlatformUsage(hold, charge, args.now);
     }
     return reservations.length;
   }

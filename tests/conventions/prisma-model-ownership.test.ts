@@ -52,6 +52,8 @@ const OWNERS: Record<string, string> = {
   EventLog: "features/event/prisma-event-log.repository.ts",
   HostedAiPlatformReservation: "ee/agent-chat/prisma-agent-chat.repository.ts",
   HostedAiPlatformUsage: "ee/agent-chat/prisma-agent-chat.repository.ts",
+  HostedAiPlatformWorkspaceHold: "ee/agent-chat/prisma-agent-chat.repository.ts",
+  HostedAiPlatformWorkspaceUsage: "ee/agent-chat/prisma-agent-chat.repository.ts",
   InviteToken: "features/company/prisma-company.repository.ts",
   MessagingInboundEvent: "ee/messaging/persistence/prisma-unipile-webhook.repository.ts",
   MessagingMessage: "ee/messaging/persistence/prisma-messaging.repository.ts",
@@ -98,6 +100,7 @@ const OWNERS: Record<string, string> = {
   WikiPageSection: "features/wiki/prisma-wiki-section.repository.ts",
   WikiSourceDocument: "ee/wiki-crawl/prisma-wiki-website-crawl.repository.ts",
   WikiWebsiteCrawl: "ee/wiki-crawl/prisma-wiki-website-crawl.repository.ts",
+  WorkspaceSetup: "ee/workspace-setup/prisma-workspace-setup.repository.ts",
 };
 
 const ALLOWLIST: Record<string, string> = {};

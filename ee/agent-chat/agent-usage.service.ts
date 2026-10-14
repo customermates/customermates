@@ -54,6 +54,8 @@ export type AgentRetrievalGrant = {
 };
 
 export type PlatformRetrievalPurpose = "docsIndexing" | "commandCatalogIndexing";
+export type PlatformWorkspacePurpose = "workspaceSetup";
+export type WorkspacePlatformReservation = { status: "reserved"; id: string } | { status: "cap" | "unavailable" };
 
 export type AgentRetrievalCharge = {
   model: string;
@@ -420,6 +422,33 @@ export class AgentUsageService {
       reservedMicrocents: Math.max(1, args.worstCaseMicrocents),
       now: args.now ?? new Date(),
     });
+  }
+
+  async reserveWorkspacePlatform(args: {
+    companyId: string;
+    purpose: PlatformWorkspacePurpose;
+    model: string;
+    worstCaseMicrocents: number;
+    capMicrocents: number;
+    now?: Date;
+  }): Promise<WorkspacePlatformReservation> {
+    assertMicrocentCount(args.worstCaseMicrocents, "Platform AI reservation");
+    if (env.APP_MODE === "self-hosted" || env.APP_MODE === "demo") return { status: "unavailable" };
+    return this.repo.reserveWorkspacePlatformUsageUnscoped({
+      companyId: args.companyId,
+      purpose: args.purpose,
+      model: args.model,
+      reservedMicrocents: Math.max(1, args.worstCaseMicrocents),
+      capMicrocents: args.capMicrocents,
+      now: args.now ?? new Date(),
+    });
+  }
+
+  async workspacePlatformSpend(args: {
+    companyId: string;
+    purpose: PlatformWorkspacePurpose;
+  }): Promise<{ usedMicrocents: number; heldMicrocents: number }> {
+    return this.repo.getWorkspacePlatformSpendUnscoped(args);
   }
 
   async settlePlatformRetrieval(args: {

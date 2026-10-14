@@ -6,12 +6,13 @@ import type { WikiWebsiteCrawlRepo } from "@/ee/wiki-crawl/wiki-website-crawl.re
 import type { StartWikiWebsiteCrawlRepo } from "@/features/wiki/start-wiki-website-crawl.repo";
 import type { GetWikiWebsiteCrawlStateRepo } from "@/features/wiki/get-wiki-website-crawl-state.repo";
 import type { WikiWebsiteCrawlCleanupRepo, WikiWebsiteCrawlCleanup } from "./wiki-website-crawl-cleanup.repo";
+import type { WikiWebsiteCrawlControlRepo } from "./wiki-website-crawl-control.repo";
 
 import { Prisma } from "@/generated/prisma";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
-import { WIKI_CRAWL_ACTIVE_STATUSES } from "./wiki-website-crawl.service";
+import { WIKI_CRAWL_ACTIVE_STATUSES, WIKI_CRAWL_PAYERS } from "./wiki-website-crawl.service";
 import { parseStoredWikiCrawlTargets } from "./wiki-crawl-target.schema";
 import { parseWikiCrawlMode } from "@/features/wiki/wiki-crawl-mode.schema";
 import { parseStoredWikiSourceMetadata } from "./wiki-source-metadata.schema";
@@ -25,6 +26,7 @@ const CRAWL_SELECT = {
   registrableDomain: true,
   locale: true,
   mode: true,
+  payer: true,
   status: true,
   extraHosts: true,
   pendingHosts: true,
@@ -62,9 +64,12 @@ function crawlRecord(row: CrawlRow): WikiCrawlRecord {
   const targets = parseStoredWikiCrawlTargets(row.targets);
   if (["fetching", "importing", "synthesizing"].includes(row.status) && (!targets || targets.length === 0))
     throw new Error("Knowledge Base crawl progress is invalid.");
+  const payer = WIKI_CRAWL_PAYERS.find((candidate) => candidate === row.payer);
+  if (!payer) throw new Error("Knowledge Base crawl payer is invalid.");
 
   return {
     ...row,
+    payer,
     mode: parseWikiCrawlMode(row.mode),
     targets,
     topics: parseStoredWikiSynthesisTopics(row.topics),
@@ -78,7 +83,13 @@ function sourceRecord(row: SourceRow): WikiSourceRecord {
   };
 }
 
-function crawlPatch({ targets, topics, mode, ...rest }: Partial<Omit<WikiCrawlRecord, "id" | "userId">>) {
+function crawlPatch({
+  targets,
+  topics,
+  mode,
+  payer: _payer,
+  ...rest
+}: Partial<Omit<WikiCrawlRecord, "id" | "userId">>) {
   const storedTargets = targets === undefined ? undefined : parseStoredWikiCrawlTargets(targets);
   return {
     ...rest,
@@ -96,7 +107,12 @@ function crawlPatch({ targets, topics, mode, ...rest }: Partial<Omit<WikiCrawlRe
 
 export class PrismaWikiWebsiteCrawlRepo
   extends TenantRepository
-  implements WikiWebsiteCrawlRepo, StartWikiWebsiteCrawlRepo, GetWikiWebsiteCrawlStateRepo, WikiWebsiteCrawlCleanupRepo
+  implements
+    WikiWebsiteCrawlRepo,
+    StartWikiWebsiteCrawlRepo,
+    GetWikiWebsiteCrawlStateRepo,
+    WikiWebsiteCrawlCleanupRepo,
+    WikiWebsiteCrawlControlRepo
 {
   constructor(private readonly pages: WikiImportPageRepo) {
     super();
@@ -123,10 +139,44 @@ export class PrismaWikiWebsiteCrawlRepo
     });
   }
 
+  async stopCrawl(crawlId: string) {
+    const crawl = await this.prisma.wikiWebsiteCrawl.findFirst({
+      where: { id: crawlId, companyId: this.companyId, status: { in: [...WIKI_CRAWL_ACTIVE_STATUSES] } },
+      select: { topics: true, importedPages: true },
+    });
+    if (!crawl) return;
+    const written =
+      crawl.importedPages > 0 ||
+      (Array.isArray(crawl.topics) &&
+        crawl.topics.some(
+          (topic) => typeof topic === "object" && topic !== null && !Array.isArray(topic) && topic.status === "created",
+        ));
+    await this.prisma.wikiWebsiteCrawl.updateMany({
+      where: { id: crawlId, companyId: this.companyId, status: { in: [...WIKI_CRAWL_ACTIVE_STATUSES] } },
+      data: {
+        status: written ? "completed" : "failed",
+        failureReason: written ? null : "cancelled",
+        finishedAt: new Date(),
+      },
+    });
+  }
+
+  async setCrawlLocale(crawlId: string, locale: string) {
+    await this.prisma.wikiWebsiteCrawl.updateMany({
+      where: {
+        id: crawlId,
+        companyId: this.companyId,
+        status: { in: [...WIKI_CRAWL_ACTIVE_STATUSES] },
+        topics: { equals: Prisma.AnyNull },
+      },
+      data: { locale },
+    });
+  }
+
   async createCrawl(
     data: Pick<
       WikiCrawlRecord,
-      "clientRequestId" | "homepageUrl" | "registrableDomain" | "locale" | "mode" | "extraHosts"
+      "clientRequestId" | "homepageUrl" | "registrableDomain" | "locale" | "mode" | "extraHosts" | "payer"
     >,
   ) {
     const mode = parseWikiCrawlMode(data.mode);

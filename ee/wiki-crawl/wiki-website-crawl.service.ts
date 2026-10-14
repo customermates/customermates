@@ -29,6 +29,9 @@ const WIKI_IMPORT_PAGE_CHARACTERS = Math.floor(MAX_RICH_TEXT_MARKDOWN_LENGTH * 0
 export const WIKI_CRAWL_ACTIVE_STATUSES = ["queued", "discovering", "fetching", "importing", "synthesizing"] as const;
 export type WikiCrawlStatus = (typeof WIKI_CRAWL_ACTIVE_STATUSES)[number] | "completed" | "failed" | "blocked";
 
+export const WIKI_CRAWL_PAYERS = ["requester", "workspaceSetup"] as const;
+export type WikiCrawlPayer = (typeof WIKI_CRAWL_PAYERS)[number];
+
 export type WikiCrawlRecord = {
   id: string;
   userId: string;
@@ -37,6 +40,7 @@ export type WikiCrawlRecord = {
   registrableDomain: string;
   locale: string;
   mode: WikiWebsiteCrawlMode;
+  payer?: WikiCrawlPayer;
   status: WikiCrawlStatus;
   extraHosts: string[];
   pendingHosts: string[];

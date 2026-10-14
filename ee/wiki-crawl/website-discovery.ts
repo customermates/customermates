@@ -9,7 +9,7 @@ export { isExternalHelpHost } from "./website-url-vocabulary";
 const WIKI_CRAWL_USER_AGENT_TOKEN = "customermates";
 export const WIKI_CRAWL_USER_AGENT =
   "Customermates/1.0 (+https://customermates.com/docs/app-assistant; website import)";
-const WIKI_CRAWL_MAX_PAGES = 40;
+export const WIKI_CRAWL_MAX_PAGES = 40;
 export const WIKI_CRAWL_MAX_SITEMAP_URLS = 5_000;
 const WIKI_CRAWL_MAX_CRAWL_DELAY_MS = 10_000;
 

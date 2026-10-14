@@ -12,7 +12,12 @@ vi.mock("@/env", () => ({
   },
 }));
 
-import { AgentUsageService, AgentUsageViewSchema, toAgentUsageView } from "../agent-usage.service";
+import {
+  AgentUsageService,
+  AgentUsageViewSchema,
+  toAgentUsageView,
+  type WorkspacePlatformReservation,
+} from "../agent-usage.service";
 import { type AgentUsageRepo } from "@/ee/agent-chat/agent-usage.repo";
 import { agentRoundWorstCaseMicrocents } from "../agent-budget-policy";
 import { buildAgentUsageSettlement } from "../agent-usage-settlement";
@@ -95,6 +100,10 @@ function makeRepo(
     reserveRetrievalUsageUnscoped: vi.fn((): Promise<string | null> => Promise.resolve("hold-1")),
     settleRetrievalUsageUnscoped: vi.fn(() => Promise.resolve()),
     releaseStaleRetrievalReservationsUnscoped: vi.fn(() => Promise.resolve(0)),
+    reserveWorkspacePlatformUsageUnscoped: vi.fn(
+      (): Promise<WorkspacePlatformReservation> => Promise.resolve({ status: "reserved", id: "workspace-hold" }),
+    ),
+    getWorkspacePlatformSpendUnscoped: vi.fn(() => Promise.resolve({ usedMicrocents: 0, heldMicrocents: 0 })),
   };
 }
 
@@ -1020,5 +1029,48 @@ describe("toAgentUsageView", () => {
     expect(
       toAgentUsageView({ ...summary, creditsLimit: 0, creditsRemaining: 0, blockedReason: "subscription_unavailable" }),
     ).toMatchObject({ hasAllowance: false, usedPct: 0, recentTurnPct: null });
+  });
+});
+
+describe("AgentUsageService workspace platform spend", () => {
+  it("reserves platform-paid work against the workspace cap with at least one microcent", async () => {
+    const repo = makeRepo();
+    const service = new AgentUsageService(repo);
+
+    await expect(
+      service.reserveWorkspacePlatform({
+        companyId: "company-1",
+        purpose: "workspaceSetup",
+        model: HAIKU,
+        worstCaseMicrocents: 0,
+        capMicrocents: 150 * CREDIT,
+        now: NOW,
+      }),
+    ).resolves.toEqual({ status: "reserved", id: "workspace-hold" });
+    expect(repo.reserveWorkspacePlatformUsageUnscoped).toHaveBeenCalledWith({
+      companyId: "company-1",
+      purpose: "workspaceSetup",
+      model: HAIKU,
+      reservedMicrocents: 1,
+      capMicrocents: 150 * CREDIT,
+      now: NOW,
+    });
+  });
+
+  it("passes a reached cap through and refuses a fractional reservation", async () => {
+    const repo = makeRepo();
+    repo.reserveWorkspacePlatformUsageUnscoped.mockResolvedValueOnce({ status: "cap" });
+    const service = new AgentUsageService(repo);
+    const reservation = {
+      companyId: "company-1",
+      purpose: "workspaceSetup" as const,
+      model: HAIKU,
+      capMicrocents: CREDIT,
+    };
+
+    await expect(
+      service.reserveWorkspacePlatform({ ...reservation, worstCaseMicrocents: 2 * CREDIT }),
+    ).resolves.toEqual({ status: "cap" });
+    await expect(service.reserveWorkspacePlatform({ ...reservation, worstCaseMicrocents: 0.5 })).rejects.toThrow();
   });
 });

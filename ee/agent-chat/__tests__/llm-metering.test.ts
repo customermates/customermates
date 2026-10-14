@@ -147,6 +147,8 @@ describe("model catalog + pricing coverage", () => {
       "anthropic/claude-haiku-5.5",
       "anthropic/claude-haiku-5.5",
       "anthropic/claude-haiku-5.5",
+      "anthropic/claude-haiku-5.5",
+      "anthropic/claude-sonnet-5.5",
     ]);
   });
 

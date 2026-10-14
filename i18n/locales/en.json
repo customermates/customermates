@@ -1270,7 +1270,11 @@
       "wikiProposalNotFound": "This proposal no longer exists.",
       "wikiProposalReviewed": "Someone already reviewed this proposal.",
       "wikiProposalStale": "The page changed after Mate made this proposal. Reject the proposal, or ask Mate to propose the change again.",
-      "wikiWhenToUseRequired": "A procedure needs a short description of when to use it."
+      "wikiWhenToUseRequired": "A procedure needs a short description of when to use it.",
+      "workspaceSetupAnswerInvalid": "This answer does not fit the question. Check it and try again.",
+      "workspaceSetupConflict": "The workspace setup is busy with another step. Reload it and try again.",
+      "workspaceSetupNotFound": "No workspace setup was found for this workspace.",
+      "workspaceSetupUnavailable": "The AI workspace setup is not available here."
     },
     "events": {
       "connected_account": {
@@ -4560,6 +4564,19 @@
       "writingStep": "Writing Knowledge Base pages"
     },
     "generated": {
+      "address": {
+        "formal": "Address customers formally: use their surname and a polite, professional tone.",
+        "heading": "Form of address",
+        "informal": "Address customers informally: use their first name and a friendly, direct tone.",
+        "source": "The owner set this during the workspace setup."
+      },
+      "competitor": {
+        "heading": "To complete by your team",
+        "losses": "Where {competitor} is the better fit",
+        "offer": "What {competitor} offers, and at what price",
+        "response": "How we respond when a prospect mentions {competitor}",
+        "wins": "Where customers choose us over {competitor}"
+      },
       "gapsHeading": "Gaps to confirm",
       "pagesHeading": "Knowledge Base pages",
       "roles": {
@@ -4568,6 +4585,12 @@
         "operating_guide": "Operating Guide",
         "sales_messaging": "Sales messaging and FAQs",
         "voice_and_tone": "Voice and tone"
+      },
+      "setupPages": {
+        "competitor": "Compared with {competitor}",
+        "faq": "Frequently asked questions",
+        "processes": "Processes",
+        "productsPricing": "Products and pricing"
       },
       "sourcesHeading": "Sources"
     },
@@ -4598,5 +4621,225 @@
   "WorkspaceMenu": {
     "inviteMembers": "Invite members",
     "label": "Workspace menu"
+  },
+  "WorkspaceSetup": {
+    "actions": {
+      "addOwn": "Add your own",
+      "fromWebsite": "From your website",
+      "looksRight": "Looks right",
+      "upload": "Upload a spreadsheet",
+      "winChance": "Win chance"
+    },
+    "options": {
+      "addressForm": {
+        "formal": "Formal",
+        "informal": "Informal"
+      },
+      "afterSale": {
+        "appointments": "Appointments",
+        "contractsRenewals": "Contracts and renewals",
+        "nothing": "Nothing further",
+        "ordersInvoices": "Orders and invoices",
+        "projects": "Projects",
+        "supportTickets": "Support tickets"
+      },
+      "customerKind": {
+        "both": "Both",
+        "businesses": "Businesses",
+        "consumers": "Consumers"
+      },
+      "customerSize": {
+        "large": "Large enterprises",
+        "medium": "Mid-sized companies",
+        "mixed": "A mix of sizes",
+        "small": "Small companies"
+      },
+      "dashboardAudience": {
+        "management": "Management",
+        "me": "Just me",
+        "team": "The whole team"
+      },
+      "dealDetails": {
+        "budget": "Budget",
+        "closeDate": "Expected close date",
+        "contractEnd": "Contract end",
+        "decisionMaker": "Decision-maker",
+        "lostReason": "Reason for losing",
+        "nextStep": "Next step",
+        "vatId": "VAT ID"
+      },
+      "existingData": {
+        "empty": "Start empty",
+        "sampleData": "Start with sample data",
+        "spreadsheet": "Import a spreadsheet"
+      },
+      "knowledgePages": {
+        "faq": "Frequently asked questions",
+        "idealCustomer": "Ideal customer",
+        "overview": "Company overview",
+        "processes": "Processes",
+        "productsPricing": "Products and pricing",
+        "salesPlaybook": "Sales playbook and objections"
+      },
+      "leadSources": {
+        "ads": "Advertising",
+        "events": "Events and trade fairs",
+        "outbound": "Outbound outreach",
+        "partners": "Partners",
+        "referrals": "Referrals",
+        "socialMedia": "Social media",
+        "website": "Website"
+      },
+      "offeringKinds": {
+        "products": "Products",
+        "projects": "Projects",
+        "services": "Services",
+        "subscriptions": "Subscriptions"
+      },
+      "renewalPeriod": {
+        "monthly": "Monthly",
+        "multiYear": "Every few years",
+        "quarterly": "Quarterly",
+        "yearly": "Yearly"
+      },
+      "revenueModel": {
+        "both": "Both",
+        "oneOff": "One-off payments",
+        "recurring": "Recurring payments"
+      },
+      "taskOrganisation": {
+        "perCustomer": "Per customer",
+        "perDeal": "Per deal",
+        "perProject": "Per project",
+        "recurring": "Recurring tasks"
+      },
+      "teamRoles": {
+        "accountManagement": "Account management",
+        "delivery": "Delivery",
+        "finance": "Finance",
+        "sales": "Sales",
+        "support": "Support"
+      },
+      "teamSize": {
+        "large": "More than 20 people",
+        "medium": "6 to 20 people",
+        "small": "2 to 5 people",
+        "solo": "Just me"
+      },
+      "weeklyNumbers": {
+        "conversionByStage": "Conversion by stage",
+        "forecast": "Forecast",
+        "newLeads": "New leads",
+        "openTickets": "Open tickets",
+        "overdueTasks": "Overdue tasks",
+        "pipelineValue": "Pipeline value",
+        "recurringRevenue": "Recurring revenue",
+        "renewalsDue": "Renewals due",
+        "wonThisMonth": "Won this month"
+      }
+    },
+    "questions": {
+      "addressForm": {
+        "label": "How do you address customers?"
+      },
+      "afterSale": {
+        "label": "What follows a won deal?"
+      },
+      "anythingMissed": {
+        "label": "Anything we missed?"
+      },
+      "appointmentTypes": {
+        "label": "Your appointment types"
+      },
+      "companyName": {
+        "label": "Company name"
+      },
+      "competitors": {
+        "label": "Your main competitors"
+      },
+      "country": {
+        "label": "Country"
+      },
+      "currency": {
+        "label": "Currency"
+      },
+      "customerKind": {
+        "label": "Who are your customers?"
+      },
+      "customerSize": {
+        "label": "How large are your customers?"
+      },
+      "dashboardAudience": {
+        "label": "Who looks at the dashboard?"
+      },
+      "dealDetails": {
+        "label": "What must you know about a deal or customer?"
+      },
+      "dealSize": {
+        "label": "Typical deal size"
+      },
+      "existingData": {
+        "label": "How do you want to start?"
+      },
+      "industries": {
+        "label": "Which industries are they in?"
+      },
+      "knowledgePages": {
+        "label": "Which Knowledge Base pages should we write?"
+      },
+      "language": {
+        "label": "Language"
+      },
+      "leadSources": {
+        "label": "Where do your leads come from?"
+      },
+      "offeringKinds": {
+        "label": "What do you sell?"
+      },
+      "offerings": {
+        "label": "Your offerings"
+      },
+      "orderStatuses": {
+        "label": "Your order steps"
+      },
+      "projectPhases": {
+        "label": "Your project phases"
+      },
+      "renewalPeriod": {
+        "label": "How often do contracts renew?"
+      },
+      "revenueModel": {
+        "label": "Do customers pay once or regularly?"
+      },
+      "salesCycle": {
+        "label": "Typical sales cycle in days"
+      },
+      "salesSteps": {
+        "label": "What are your sales steps?"
+      },
+      "taskOrganisation": {
+        "label": "How are your tasks organised?"
+      },
+      "teamRoles": {
+        "label": "Who does what in your team?"
+      },
+      "teamSize": {
+        "label": "How big is your team?"
+      },
+      "ticketPriorities": {
+        "label": "Your ticket priorities"
+      },
+      "weeklyNumbers": {
+        "label": "Which numbers do you check every week? Pick up to three."
+      }
+    },
+    "screens": {
+      "afterSale": "After the sale",
+      "company": "Your company",
+      "dashboard": "Your dashboard",
+      "data": "Your data",
+      "knowledge": "Knowledge",
+      "winning": "Winning customers"
+    }
   }
 }

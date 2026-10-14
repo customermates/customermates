@@ -12,13 +12,14 @@ const state = vi.hoisted(() => ({
   plan: vi.fn(),
   writeTopic: vi.fn(),
   settle: vi.fn(),
+  sleep: vi.fn(),
   failWorkflowUnscoped: vi.fn(),
   reportFailure: vi.fn(),
   reportWarning: vi.fn(),
   warnings: [] as string[][],
 }));
 
-vi.mock("workflow", () => ({ getWorkflowMetadata: () => ({ workflowRunId: "run-owner" }) }));
+vi.mock("workflow", () => ({ getWorkflowMetadata: () => ({ workflowRunId: "run-owner" }), sleep: state.sleep }));
 vi.mock("@/core/decorators/background-tenant", () => ({
   runAsBackgroundTenant: async (_userId: string, run: () => Promise<unknown>) => {
     state.tenantCalls += 1;
@@ -69,6 +70,7 @@ beforeEach(() => {
   state.plan.mockResolvedValue(2);
   state.writeTopic.mockResolvedValue(undefined);
   state.settle.mockResolvedValue(undefined);
+  state.sleep.mockResolvedValue(undefined);
   state.failWorkflowUnscoped.mockResolvedValue(undefined);
   state.reportFailure.mockResolvedValue(undefined);
   state.reportWarning.mockResolvedValue(undefined);
@@ -166,5 +168,27 @@ describe("Website import workflow owner lifecycle", () => {
     expect(state.importSources.mock.invocationCallOrder[0]).toBeLessThan(state.finish.mock.invocationCallOrder[0]);
     expect(state.failWorkflowUnscoped).not.toHaveBeenCalled();
     expect(state.reportFailure).not.toHaveBeenCalled();
+  });
+
+  it("waits for a workspace setup to confirm its plan, then writes the pages it planned", async () => {
+    state.plan.mockResolvedValueOnce("wait").mockResolvedValueOnce("wait").mockResolvedValueOnce(1);
+    await crawlWikiWebsite(payload);
+    expect(state.plan.mock.calls).toEqual([
+      [payload.crawlId, false],
+      [payload.crawlId, false],
+      [payload.crawlId, false],
+    ]);
+    expect(state.sleep).toHaveBeenCalledTimes(2);
+    expect(state.writeTopic).toHaveBeenCalledExactlyOnceWith(payload.crawlId, 0);
+    expect(state.settle).toHaveBeenCalledOnce();
+  });
+
+  it("plans without the setup's brief once the wait is over", async () => {
+    state.plan.mockImplementation((_crawlId: string, giveUp: boolean) => Promise.resolve(giveUp ? 0 : "wait"));
+    await crawlWikiWebsite(payload);
+    expect(state.plan).toHaveBeenCalledTimes(361);
+    expect(state.plan).toHaveBeenLastCalledWith(payload.crawlId, true);
+    expect(state.writeTopic).not.toHaveBeenCalled();
+    expect(state.settle).toHaveBeenCalledOnce();
   });
 });

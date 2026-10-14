@@ -1171,7 +1171,12 @@ export const getWikiWebsiteCrawlService = () =>
     wikiWebsiteNetwork(),
   );
 export const getWikiWebsiteSynthesisService = () =>
-  new WikiWebsiteSynthesisService(getWikiWebsiteCrawlRepo(), getAgentUsageService(), getCreateWikiPagesInteractor());
+  new WikiWebsiteSynthesisService(
+    getWikiWebsiteCrawlRepo(),
+    getAgentUsageService(),
+    getCreateWikiPagesInteractor(),
+    getWorkspaceSetupKnowledgeBrief(),
+  );
 
 // --- Webhook ---
 
@@ -1969,3 +1974,102 @@ export const getManageDataViewsInteractor = () =>
 import { MutateThreadRecordsInteractor } from "@/ee/messaging/thread-records/thread-records.interactor";
 import { ReadThreadRecordsInteractor } from "@/ee/messaging/thread-records/read-thread-records.interactor";
 import { PrismaThreadRecordsRepo } from "@/ee/messaging/thread-records/prisma-thread-records.repository";
+
+import { PrismaWorkspaceSetupRepo } from "@/ee/workspace-setup/prisma-workspace-setup.repository";
+import { WorkspaceSetupModelService } from "@/ee/workspace-setup/workspace-setup-model.service";
+import { WorkspaceSetupInterviewService } from "@/ee/workspace-setup/workspace-setup-interview.service";
+import { WorkspaceSetupPlanner } from "@/ee/workspace-setup/workspace-setup-planner";
+import { WorkspaceSetupBuildService } from "@/ee/workspace-setup/workspace-setup-build.service";
+import { WorkspaceSetupCleanupService } from "@/ee/workspace-setup/workspace-setup-cleanup.service";
+import { WorkspaceSetupCrawlStarter } from "@/ee/workspace-setup/workspace-setup-crawl-starter";
+import { WorkspaceSetupKnowledgeBrief } from "@/ee/workspace-setup/workspace-setup-knowledge-brief";
+import { websiteBrandFetch } from "@/ee/workspace-setup/workspace-setup-brand";
+import { StartWorkspaceSetupInteractor } from "@/ee/workspace-setup/start-workspace-setup.interactor";
+import { GetWorkspaceSetupStatusInteractor } from "@/ee/workspace-setup/get-workspace-setup-status.interactor";
+import { SaveWorkspaceSetupAnswersInteractor } from "@/ee/workspace-setup/save-workspace-setup-answers.interactor";
+import { UploadWorkspaceSetupSpreadsheetInteractor } from "@/ee/workspace-setup/upload-workspace-setup-spreadsheet.interactor";
+import { PlanWorkspaceSetupInteractor } from "@/ee/workspace-setup/plan-workspace-setup.interactor";
+import { AdjustWorkspaceSetupInteractor } from "@/ee/workspace-setup/adjust-workspace-setup.interactor";
+import { ConfirmWorkspaceSetupInteractor } from "@/ee/workspace-setup/confirm-workspace-setup.interactor";
+import { RetryWorkspaceSetupPhaseInteractor } from "@/ee/workspace-setup/retry-workspace-setup-phase.interactor";
+import { RemoveWorkspaceSetupSampleDataInteractor } from "@/ee/workspace-setup/remove-workspace-setup-sample-data.interactor";
+import { RollBackWorkspaceSetupInteractor } from "@/ee/workspace-setup/roll-back-workspace-setup.interactor";
+import { UseStandardWorkspaceSetupInteractor } from "@/ee/workspace-setup/use-standard-workspace-setup.interactor";
+
+export const getWorkspaceSetupRepo = () => new PrismaWorkspaceSetupRepo(getWikiWebsiteCrawlRepo());
+export const getWorkspaceSetupKnowledgeBrief = () => new WorkspaceSetupKnowledgeBrief(getWorkspaceSetupRepo());
+export const getWorkspaceSetupModelService = () => new WorkspaceSetupModelService(getAgentUsageService());
+export const getWorkspaceSetupCrawlStarter = () =>
+  new WorkspaceSetupCrawlStarter(getWikiPageRepo(), getWikiWebsiteCrawlRepo(), getBackgroundTaskService());
+export const getWorkspaceSetupInterviewService = () => {
+  const models = getWorkspaceSetupModelService();
+  return new WorkspaceSetupInterviewService(
+    getWorkspaceSetupRepo(),
+    models,
+    new WorkspaceSetupPlanner(
+      models,
+      getRecordRepo(),
+      getPreviewRecordConfigurationInteractor(),
+      getRecordConfigurationService(),
+      getRecordAccessPolicy(),
+    ),
+  );
+};
+export const getWorkspaceSetupBuildService = () =>
+  new WorkspaceSetupBuildService(
+    getWorkspaceSetupRepo(),
+    getWorkspaceSetupModelService(),
+    getRecordRepo(),
+    getPreviewRecordConfigurationInteractor(),
+    getApplyRecordConfigurationInteractor(),
+    getUpsertDataViewInteractor(),
+    getUpsertRecordWidgetInteractor(),
+    getImportSpreadsheetInteractor(),
+    websiteBrandFetch,
+    getUpdateUserDetailsInteractor(),
+    getMutateRecordInteractor(),
+  );
+export const getWorkspaceSetupCleanupService = () =>
+  new WorkspaceSetupCleanupService(
+    getWorkspaceSetupRepo(),
+    getRecordRepo(),
+    getMutateRecordInteractor(),
+    getApplyRecordConfigurationInteractor(),
+    getDeleteWidgetInteractor(),
+    getDeleteDataViewInteractor(),
+    getDeleteWikiPageInteractor(),
+  );
+export const getStartWorkspaceSetupInteractor = () =>
+  new StartWorkspaceSetupInteractor(
+    getWorkspaceSetupRepo(),
+    getWorkspaceSetupCrawlStarter(),
+    getBackgroundTaskService(),
+  );
+export const getGetWorkspaceSetupStatusInteractor = () =>
+  new GetWorkspaceSetupStatusInteractor(getWorkspaceSetupRepo(), getAgentUsageService());
+export const getSaveWorkspaceSetupAnswersInteractor = () =>
+  new SaveWorkspaceSetupAnswersInteractor(getWorkspaceSetupRepo());
+export const getUploadWorkspaceSetupSpreadsheetInteractor = () =>
+  new UploadWorkspaceSetupSpreadsheetInteractor(getWorkspaceSetupRepo());
+export const getPlanWorkspaceSetupInteractor = () =>
+  new PlanWorkspaceSetupInteractor(getWorkspaceSetupRepo(), getBackgroundTaskService());
+export const getAdjustWorkspaceSetupInteractor = () =>
+  new AdjustWorkspaceSetupInteractor(
+    getWorkspaceSetupRepo(),
+    getSaveWorkspaceSetupAnswersInteractor(),
+    getPlanWorkspaceSetupInteractor(),
+  );
+export const getConfirmWorkspaceSetupInteractor = () =>
+  new ConfirmWorkspaceSetupInteractor(getWorkspaceSetupRepo(), getBackgroundTaskService());
+export const getRetryWorkspaceSetupPhaseInteractor = () =>
+  new RetryWorkspaceSetupPhaseInteractor(
+    getWorkspaceSetupRepo(),
+    getWorkspaceSetupCrawlStarter(),
+    getBackgroundTaskService(),
+  );
+export const getRemoveWorkspaceSetupSampleDataInteractor = () =>
+  new RemoveWorkspaceSetupSampleDataInteractor(getWorkspaceSetupRepo(), getWorkspaceSetupCleanupService());
+export const getUseStandardWorkspaceSetupInteractor = () =>
+  new UseStandardWorkspaceSetupInteractor(getWorkspaceSetupRepo());
+export const getRollBackWorkspaceSetupInteractor = () =>
+  new RollBackWorkspaceSetupInteractor(getWorkspaceSetupRepo(), getWorkspaceSetupCleanupService());

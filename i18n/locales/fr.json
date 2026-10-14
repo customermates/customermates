@@ -1270,7 +1270,11 @@
       "wikiProposalNotFound": "Cette proposition n’existe plus.",
       "wikiProposalReviewed": "Cette proposition a déjà été examinée.",
       "wikiProposalStale": "La page a changé après la proposition de Mate. Rejetez la proposition ou demandez à Mate de proposer à nouveau la modification.",
-      "wikiWhenToUseRequired": "Une procédure doit indiquer brièvement quand l'utiliser."
+      "wikiWhenToUseRequired": "Une procédure doit indiquer brièvement quand l'utiliser.",
+      "workspaceSetupAnswerInvalid": "Cette réponse ne correspond pas à la question. Vérifiez-la et réessayez.",
+      "workspaceSetupConflict": "La configuration de l'espace de travail est occupée par une autre étape. Rechargez-la et réessayez.",
+      "workspaceSetupNotFound": "Aucune configuration n'a été trouvée pour cet espace de travail.",
+      "workspaceSetupUnavailable": "La configuration de l'espace de travail par l'IA n'est pas disponible ici."
     },
     "events": {
       "connected_account": {
@@ -4560,6 +4564,19 @@
       "writingStep": "Rédaction des pages de la base de connaissances"
     },
     "generated": {
+      "address": {
+        "formal": "Les clients sont vouvoyés : « vous » et nom de famille, sur un ton poli et professionnel.",
+        "heading": "Forme d’adresse",
+        "informal": "Les clients sont tutoyés : « tu » et prénom, sur un ton amical et direct.",
+        "source": "Défini par le propriétaire lors de la configuration de l’espace de travail."
+      },
+      "competitor": {
+        "heading": "À compléter par votre équipe",
+        "losses": "Quand {competitor} convient mieux",
+        "offer": "Ce que propose {competitor}, et à quel prix",
+        "response": "Comment répondre quand un prospect mentionne {competitor}",
+        "wins": "Pourquoi les clients nous choisissent plutôt que {competitor}"
+      },
       "gapsHeading": "Points à confirmer",
       "pagesHeading": "Pages de la base de connaissances",
       "roles": {
@@ -4568,6 +4585,12 @@
         "operating_guide": "Guide opérationnel",
         "sales_messaging": "Argumentaire commercial et FAQ",
         "voice_and_tone": "Ton et style"
+      },
+      "setupPages": {
+        "competitor": "Comparaison avec {competitor}",
+        "faq": "Questions fréquentes",
+        "processes": "Processus",
+        "productsPricing": "Produits et tarifs"
       },
       "sourcesHeading": "Sources"
     },
@@ -4598,5 +4621,225 @@
   "WorkspaceMenu": {
     "inviteMembers": "Inviter des membres",
     "label": "Menu de l'espace de travail"
+  },
+  "WorkspaceSetup": {
+    "actions": {
+      "addOwn": "Ajouter le vôtre",
+      "fromWebsite": "D'après votre site web",
+      "looksRight": "C'est correct",
+      "upload": "Importer un tableur",
+      "winChance": "Probabilité de gain"
+    },
+    "options": {
+      "addressForm": {
+        "formal": "Formel (vous)",
+        "informal": "Familier (tu)"
+      },
+      "afterSale": {
+        "appointments": "Rendez-vous",
+        "contractsRenewals": "Contrats et renouvellements",
+        "nothing": "Rien de plus",
+        "ordersInvoices": "Commandes et factures",
+        "projects": "Projets",
+        "supportTickets": "Tickets de support"
+      },
+      "customerKind": {
+        "both": "Les deux",
+        "businesses": "Entreprises",
+        "consumers": "Particuliers"
+      },
+      "customerSize": {
+        "large": "Grandes entreprises",
+        "medium": "Entreprises de taille moyenne",
+        "mixed": "Tailles variées",
+        "small": "Petites entreprises"
+      },
+      "dashboardAudience": {
+        "management": "Direction",
+        "me": "Moi seul",
+        "team": "Toute l'équipe"
+      },
+      "dealDetails": {
+        "budget": "Budget",
+        "closeDate": "Date de signature prévue",
+        "contractEnd": "Fin du contrat",
+        "decisionMaker": "Décideur",
+        "lostReason": "Motif de la perte",
+        "nextStep": "Prochaine étape",
+        "vatId": "Numéro de TVA"
+      },
+      "existingData": {
+        "empty": "Commencer à vide",
+        "sampleData": "Commencer avec des données d'exemple",
+        "spreadsheet": "Importer un tableur"
+      },
+      "knowledgePages": {
+        "faq": "Questions fréquentes",
+        "idealCustomer": "Client idéal",
+        "overview": "Présentation de l'entreprise",
+        "processes": "Processus",
+        "productsPricing": "Produits et tarifs",
+        "salesPlaybook": "Guide de vente et objections"
+      },
+      "leadSources": {
+        "ads": "Publicité",
+        "events": "Événements et salons",
+        "outbound": "Prospection directe",
+        "partners": "Partenaires",
+        "referrals": "Recommandations",
+        "socialMedia": "Réseaux sociaux",
+        "website": "Site web"
+      },
+      "offeringKinds": {
+        "products": "Produits",
+        "projects": "Projets",
+        "services": "Services",
+        "subscriptions": "Abonnements"
+      },
+      "renewalPeriod": {
+        "monthly": "Mensuel",
+        "multiYear": "Tous les quelques ans",
+        "quarterly": "Trimestriel",
+        "yearly": "Annuel"
+      },
+      "revenueModel": {
+        "both": "Les deux",
+        "oneOff": "Paiements uniques",
+        "recurring": "Paiements récurrents"
+      },
+      "taskOrganisation": {
+        "perCustomer": "Par client",
+        "perDeal": "Par affaire",
+        "perProject": "Par projet",
+        "recurring": "Tâches récurrentes"
+      },
+      "teamRoles": {
+        "accountManagement": "Gestion des comptes",
+        "delivery": "Réalisation",
+        "finance": "Finances",
+        "sales": "Ventes",
+        "support": "Support"
+      },
+      "teamSize": {
+        "large": "Plus de 20 personnes",
+        "medium": "6 à 20 personnes",
+        "small": "2 à 5 personnes",
+        "solo": "Moi seul"
+      },
+      "weeklyNumbers": {
+        "conversionByStage": "Conversion par étape",
+        "forecast": "Prévision",
+        "newLeads": "Nouveaux prospects",
+        "openTickets": "Tickets ouverts",
+        "overdueTasks": "Tâches en retard",
+        "pipelineValue": "Valeur du pipeline",
+        "recurringRevenue": "Revenu récurrent",
+        "renewalsDue": "Renouvellements à venir",
+        "wonThisMonth": "Gagné ce mois-ci"
+      }
+    },
+    "questions": {
+      "addressForm": {
+        "label": "Comment vous adressez-vous à vos clients ?"
+      },
+      "afterSale": {
+        "label": "Que se passe-t-il après une affaire gagnée ?"
+      },
+      "anythingMissed": {
+        "label": "Avons-nous oublié quelque chose ?"
+      },
+      "appointmentTypes": {
+        "label": "Vos types de rendez-vous"
+      },
+      "companyName": {
+        "label": "Nom de l'entreprise"
+      },
+      "competitors": {
+        "label": "Vos principaux concurrents"
+      },
+      "country": {
+        "label": "Pays"
+      },
+      "currency": {
+        "label": "Devise"
+      },
+      "customerKind": {
+        "label": "Qui sont vos clients ?"
+      },
+      "customerSize": {
+        "label": "Quelle est la taille de vos clients ?"
+      },
+      "dashboardAudience": {
+        "label": "Qui consulte le tableau de bord ?"
+      },
+      "dealDetails": {
+        "label": "Que devez-vous savoir sur une affaire ou un client ?"
+      },
+      "dealSize": {
+        "label": "Montant habituel d'une affaire"
+      },
+      "existingData": {
+        "label": "Comment voulez-vous commencer ?"
+      },
+      "industries": {
+        "label": "Dans quels secteurs sont-ils ?"
+      },
+      "knowledgePages": {
+        "label": "Quelles pages de la base de connaissances devons-nous rédiger ?"
+      },
+      "language": {
+        "label": "Langue"
+      },
+      "leadSources": {
+        "label": "D'où viennent vos prospects ?"
+      },
+      "offeringKinds": {
+        "label": "Que vendez-vous ?"
+      },
+      "offerings": {
+        "label": "Vos offres"
+      },
+      "orderStatuses": {
+        "label": "Les étapes de vos commandes"
+      },
+      "projectPhases": {
+        "label": "Vos phases de projet"
+      },
+      "renewalPeriod": {
+        "label": "À quelle fréquence les contrats sont-ils renouvelés ?"
+      },
+      "revenueModel": {
+        "label": "Vos clients paient-ils une fois ou régulièrement ?"
+      },
+      "salesCycle": {
+        "label": "Cycle de vente habituel en jours"
+      },
+      "salesSteps": {
+        "label": "Quelles sont vos étapes de vente ?"
+      },
+      "taskOrganisation": {
+        "label": "Comment vos tâches sont-elles organisées ?"
+      },
+      "teamRoles": {
+        "label": "Qui fait quoi dans votre équipe ?"
+      },
+      "teamSize": {
+        "label": "Quelle est la taille de votre équipe ?"
+      },
+      "ticketPriorities": {
+        "label": "Vos priorités de tickets"
+      },
+      "weeklyNumbers": {
+        "label": "Quels chiffres consultez-vous chaque semaine ? Choisissez-en jusqu'à trois."
+      }
+    },
+    "screens": {
+      "afterSale": "Après la vente",
+      "company": "Votre entreprise",
+      "dashboard": "Votre tableau de bord",
+      "data": "Vos données",
+      "knowledge": "Connaissances",
+      "winning": "Gagner des clients"
+    }
   }
 }

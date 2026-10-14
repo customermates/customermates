@@ -7,7 +7,10 @@ import type { WikiCrawlRecord, WikiSourceRecord } from "./wiki-website-crawl.ser
 import type { WikiSynthesisCandidate, WikiSynthesisReviewDecision } from "./wiki-synthesis-review";
 import type { StoredWikiSynthesisTopic, WikiSynthesisDraft, WikiSynthesisRole } from "./wiki-synthesis.schema";
 import type { WikiSynthesisSkipReason } from "@/features/wiki/wiki-crawl-progress.schema";
+import type { WikiCrawlCategory } from "./website-discovery";
+import type { WikiSynthesisBrief, WikiSynthesisBriefSource } from "./wiki-synthesis-brief";
 
+import { UserAccessor } from "@/core/base/user-accessor";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { classifyMetered } from "@/ee/agent-chat/classifier/metered";
 import { classifierReservationMicrocents } from "@/ee/agent-chat/classifier/classifier-reservation";
@@ -20,6 +23,10 @@ import { WIKI_TITLE_MAX_LENGTH, WIKI_WHEN_TO_USE_MAX_LENGTH, wikiPageKindIssue }
 import { getTranslator } from "@/i18n/get-translator";
 import { appLocaleOrDefault } from "@/i18n/locale-registry";
 import { env } from "@/env";
+import {
+  WORKSPACE_SETUP_PLATFORM_PURPOSE,
+  WORKSPACE_SETUP_SPEND_CAP_MICROCENTS,
+} from "@/ee/workspace-setup/workspace-setup-spend";
 
 import { crawlDedupeKey } from "./website-discovery";
 import { wikiSourceHeadings } from "./wiki-source-inventory";
@@ -33,6 +40,7 @@ import {
   WIKI_SYNTHESIS_REVIEW_TIMEOUT_MS,
 } from "./wiki-synthesis-review";
 import {
+  WIKI_SYNTHESIS_BRIEF_PLAN_INSTRUCTION,
   WIKI_SYNTHESIS_EXTEND_PLAN_INSTRUCTION,
   WIKI_SYNTHESIS_INITIAL_PLAN_INSTRUCTION,
   WIKI_SYNTHESIS_PAGE_INSTRUCTION,
@@ -41,8 +49,11 @@ import {
 } from "./wiki-synthesis-grounding";
 import {
   WIKI_SYNTHESIS_FOUNDATION_ROLES,
+  WIKI_SYNTHESIS_MAX_OUTLINE,
   WIKI_SYNTHESIS_MAX_PAGES,
+  WIKI_SYNTHESIS_MAX_STORED_TOPICS,
   WIKI_SYNTHESIS_MAX_TOPIC_SOURCES,
+  WikiSynthesisBriefPlanSchema,
   WikiSynthesisDraftSchema,
   WikiSynthesisPlanSchema,
 } from "./wiki-synthesis.schema";
@@ -57,9 +68,23 @@ const ROLE_ORDER: Record<WikiSynthesisRole, number> = {
   sales_messaging: 2,
   voice_and_tone: 3,
   offering: 4,
-  procedure: 5,
-  operating_guide: 6,
+  faq: 5,
+  competitor: 6,
+  procedure: 7,
+  operating_guide: 8,
 };
+const FALLBACK_CATEGORIES: Record<WikiSynthesisRole, WikiCrawlCategory[]> = {
+  company_overview: ["about"],
+  customers_and_use_cases: ["customers", "about"],
+  sales_messaging: ["product", "customers"],
+  voice_and_tone: ["about", "product"],
+  offering: ["pricing", "product"],
+  faq: ["help"],
+  competitor: ["product", "pricing", "about"],
+  procedure: ["help"],
+  operating_guide: ["about"],
+};
+
 const TOPIC_TAKEN = new Error("Knowledge Base synthesis topic was settled by another delivery.");
 const TOPIC_CLAIM_STALE_MS = 20 * 60 * 1_000;
 const TOPIC_WAIT_MS = 12 * 60 * 1_000;
@@ -92,17 +117,67 @@ function pageKind(role: WikiSynthesisRole, whenToUse: string): WikiSynthesisCand
   return role === "procedure" && whenToUse ? "procedure" : "knowledge";
 }
 
-export class WikiWebsiteSynthesisService {
+type Translate = (key: string, values?: Record<string, string>) => string;
+
+function homepageSource(crawl: WikiCrawlRecord, sources: Sources) {
+  const homeKey = crawlDedupeKey(crawl.homepageUrl);
+  return sources.list.find((source) => homeKey !== null && crawlDedupeKey(source.url) === homeKey) ?? sources.list[0];
+}
+
+function savedTopicPages(crawl: WikiCrawlRecord) {
+  return (crawl.topics ?? []).flatMap(({ title, status, pageId }) =>
+    status === "created" && pageId ? [{ title, pageId }] : [],
+  );
+}
+
+function ownerSections(topic: StoredWikiSynthesisTopic, t: Translate) {
+  const address = topic.addressForm === "formal" ? t("address.formal") : t("address.informal");
+  const lead = topic.addressForm ? [`## ${t("address.heading")}\n\n${address} ${t("address.source")}`] : [];
+  const competitor = topic.competitor;
+  const questions = competitor
+    ? [
+        t("competitor.offer", { competitor }),
+        t("competitor.wins", { competitor }),
+        t("competitor.losses", { competitor }),
+        t("competitor.response", { competitor }),
+      ]
+    : [];
+  const tail = competitor
+    ? [`## ${t("competitor.heading")}\n\n${questions.map((question) => `- ${question}`).join("\n")}`]
+    : [];
+  return { lead, tail };
+}
+
+function guideLinkSections(
+  topic: StoredWikiSynthesisTopic,
+  savedPages: Array<{ title: string; pageId: string }>,
+  t: Translate,
+): string[] {
+  if (topic.role !== "operating_guide" || savedPages.length === 0) return [];
+  return [
+    `## ${t("pagesHeading")}\n\n${savedPages.map(({ title, pageId }) => `- ${wikiPageMarkdownLink(title, pageId)}`).join("\n")}`,
+  ];
+}
+
+export class WikiWebsiteSynthesisService extends UserAccessor {
   private readonly warnings: string[] = [];
 
   constructor(
     private repo: WikiWebsiteCrawlRepo,
     private usage: Pick<
       AgentUsageService,
-      "prepareRetrieval" | "reserveRetrieval" | "settleRetrieval" | "retrievalRefusal"
+      | "prepareRetrieval"
+      | "reserveRetrieval"
+      | "settleRetrieval"
+      | "retrievalRefusal"
+      | "reserveWorkspacePlatform"
+      | "settlePlatformRetrieval"
     >,
     private createPages: Pick<CreateWikiPagesInteractor, "invoke">,
-  ) {}
+    private briefs: Pick<WikiSynthesisBriefSource, "brief">,
+  ) {
+    super();
+  }
 
   drainWarnings(): string[] {
     return this.warnings.splice(0);
@@ -123,18 +198,51 @@ export class WikiWebsiteSynthesisService {
     };
   }
 
-  private async metered<T>(
+  private async reserve(
     crawl: WikiCrawlRecord,
     worstCaseMicrocents: number,
     model: string,
-    run: () => Promise<Metered<T>>,
-  ): Promise<{ ok: true; value: T } | { ok: false; reason: Refusal }> {
+  ): Promise<
+    | { ok: true; reservedMicrocents: number; settle: (charge: AgentRetrievalCharge | null) => Promise<void> }
+    | { ok: false; reason: Refusal }
+  > {
+    if (crawl.payer === "workspaceSetup") {
+      const reserved = await this.usage.reserveWorkspacePlatform({
+        companyId: this.companyId,
+        purpose: WORKSPACE_SETUP_PLATFORM_PURPOSE,
+        model,
+        worstCaseMicrocents,
+        capMicrocents: WORKSPACE_SETUP_SPEND_CAP_MICROCENTS,
+      });
+      if (reserved.status !== "reserved")
+        return { ok: false, reason: reserved.status === "cap" ? "credits" : "aiUnavailable" };
+      return {
+        ok: true,
+        reservedMicrocents: Math.max(1, worstCaseMicrocents),
+        settle: (charge) => this.usage.settlePlatformRetrieval({ reservationId: reserved.id, charge }),
+      };
+    }
     const grant = await this.usage.prepareRetrieval(crawl.userId, new Date(), "wikiSynthesis");
     const reservation = grant ? await this.usage.reserveRetrieval({ grant, worstCaseMicrocents, model }) : null;
     if (!reservation) {
       const refusal = await this.usage.retrievalRefusal(crawl.userId, worstCaseMicrocents);
       return { ok: false, reason: refusal === "credits" ? "credits" : "aiUnavailable" };
     }
+    return {
+      ok: true,
+      reservedMicrocents: reservation.reservedMicrocents,
+      settle: (charge) => this.usage.settleRetrieval({ reservation, charge }),
+    };
+  }
+
+  private async metered<T>(
+    crawl: WikiCrawlRecord,
+    worstCaseMicrocents: number,
+    model: string,
+    run: () => Promise<Metered<T>>,
+  ): Promise<{ ok: true; value: T } | { ok: false; reason: Refusal }> {
+    const reservation = await this.reserve(crawl, worstCaseMicrocents, model);
+    if (!reservation.ok) return reservation;
     let charge: AgentRetrievalCharge | null = {
       model,
       inputTokens: 0,
@@ -146,7 +254,7 @@ export class WikiWebsiteSynthesisService {
       charge = result.charge;
       return { ok: true, value: result.value };
     } finally {
-      await this.usage.settleRetrieval({ reservation, charge });
+      await reservation.settle(charge);
     }
   }
 
@@ -174,10 +282,17 @@ export class WikiWebsiteSynthesisService {
     return { ok: true as const, value: null };
   }
 
-  async plan(crawlId: string): Promise<number> {
+  async plan(crawlId: string, giveUp = false): Promise<number | "wait"> {
     const crawl = await this.load(crawlId);
     if (crawl.status !== "synthesizing") return 0;
     if (crawl.topics) return crawl.topics.length;
+    const state = await this.briefs.brief(crawl, giveUp);
+    if (state.status === "wait") return "wait";
+    if (state.status === "cancelled") {
+      await this.repo.storePlannedTopics(crawlId, [], "cancelled");
+      return 0;
+    }
+    const brief = state.status === "ready" ? state.brief : null;
     const sources = await this.sources(crawlId);
     const imported = await this.importedSourceIds(sources.list);
     const existingTitles = await this.repo.listPageTitles();
@@ -197,27 +312,51 @@ export class WikiWebsiteSynthesisService {
     );
     const system = [
       WIKI_SYNTHESIS_PLAN_INSTRUCTION,
-      crawl.mode === "initial" ? WIKI_SYNTHESIS_INITIAL_PLAN_INSTRUCTION : WIKI_SYNTHESIS_EXTEND_PLAN_INSTRUCTION,
-      `Plan at most ${WIKI_SYNTHESIS_MAX_PAGES} pages.`,
+      brief
+        ? WIKI_SYNTHESIS_BRIEF_PLAN_INSTRUCTION
+        : crawl.mode === "initial"
+          ? WIKI_SYNTHESIS_INITIAL_PLAN_INSTRUCTION
+          : WIKI_SYNTHESIS_EXTEND_PLAN_INSTRUCTION,
+      `Plan at most ${brief ? WIKI_SYNTHESIS_MAX_STORED_TOPICS : WIKI_SYNTHESIS_MAX_PAGES} pages.`,
     ].join(" ");
     const prompt = [
       `Knowledge Base language: ${languageName(locale)}.`,
       `Website: ${crawl.homepageUrl}`,
       existingTitles.length ? `Existing Knowledge Base pages: ${encodeJson(existingTitles.slice(0, 200))}` : "",
+      ...(brief
+        ? [
+            `Required pages: ${encodeJson(
+              brief.topics.map(({ key, title, role, outline, competitor }) => ({
+                key,
+                title,
+                role,
+                outline,
+                ...(competitor ? { competitor } : {}),
+              })),
+            )}`,
+            `Additional roles: ${encodeJson(brief.extraRoles)}`,
+          ]
+        : []),
       "Inventory, one source per line:",
       ...inventory,
     ]
       .filter(Boolean)
       .join("\n");
 
-    const plan = await this.generate(crawl, WikiSynthesisPlanSchema, system, prompt);
-    const topics =
-      plan.ok && plan.value ? await this.normalizePlan(crawl, sources, plan.value.topics, existingTitles) : [];
-    await this.repo.storePlannedTopics(
-      crawlId,
-      topics,
-      topics.length === 0 ? (plan.ok ? "synthesis" : plan.reason) : null,
-    );
+    let topics: StoredWikiSynthesisTopic[];
+    let refusal: Refusal | null = null;
+    if (brief) {
+      const plan = await this.generate(crawl, WikiSynthesisBriefPlanSchema, system, prompt);
+      if (!plan.ok) refusal = plan.reason;
+      topics = plan.ok
+        ? await this.normalizeBriefPlan(crawl, sources, plan.value?.topics ?? [], existingTitles, brief)
+        : [];
+    } else {
+      const plan = await this.generate(crawl, WikiSynthesisPlanSchema, system, prompt);
+      if (!plan.ok) refusal = plan.reason;
+      topics = plan.ok && plan.value ? await this.normalizePlan(crawl, sources, plan.value.topics, existingTitles) : [];
+    }
+    await this.repo.storePlannedTopics(crawlId, topics, topics.length === 0 ? (refusal ?? "synthesis") : null);
     return (await this.load(crawlId)).topics?.length ?? 0;
   }
 
@@ -229,9 +368,7 @@ export class WikiWebsiteSynthesisService {
   ): Promise<StoredWikiSynthesisTopic[]> {
     const initial = crawl.mode === "initial";
     const singular = new Set<WikiSynthesisRole>(REQUIRED_ROLES);
-    const homeKey = crawlDedupeKey(crawl.homepageUrl);
-    const homepage =
-      sources.list.find((source) => homeKey !== null && crawlDedupeKey(source.url) === homeKey) ?? sources.list[0];
+    const homepage = homepageSource(crawl, sources);
     const taken = new Set(existingTitles.map((title) => title.trim().toLocaleLowerCase()));
     const roles = new Set<WikiSynthesisRole>();
     const topics: StoredWikiSynthesisTopic[] = [];
@@ -274,6 +411,72 @@ export class WikiWebsiteSynthesisService {
     return [...required, ...rest].sort((a, b) => ROLE_ORDER[a.role] - ROLE_ORDER[b.role]);
   }
 
+  private async normalizeBriefPlan(
+    crawl: WikiCrawlRecord,
+    sources: Sources,
+    planned: Array<{ key: string; title: string; role: WikiSynthesisRole; sources: string[] }>,
+    existingTitles: readonly string[],
+    brief: WikiSynthesisBrief,
+  ): Promise<StoredWikiSynthesisTopic[]> {
+    const homepage = homepageSource(crawl, sources);
+    if (!homepage) return [];
+    const taken = new Set(existingTitles.map((title) => title.trim().toLocaleLowerCase()));
+    const topics: StoredWikiSynthesisTopic[] = [];
+    const cited = (keys: string[]) => keys.flatMap((key) => sources.keys.get(key.trim()) ?? []);
+    const fallback = (role: WikiSynthesisRole) => [
+      homepage.id,
+      ...sources.list.filter(({ category }) => FALLBACK_CATEGORIES[role].includes(category)).map(({ id }) => id),
+    ];
+    const add = (
+      title: string,
+      role: WikiSynthesisRole,
+      sourceIds: string[],
+      extra: Pick<StoredWikiSynthesisTopic, "setupKey" | "outline" | "competitor" | "addressForm">,
+    ) => {
+      const trimmed = title.trim().slice(0, WIKI_TITLE_MAX_LENGTH);
+      const key = trimmed.toLocaleLowerCase();
+      if (!trimmed || taken.has(key) || topics.length >= WIKI_SYNTHESIS_MAX_STORED_TOPICS) return false;
+      taken.add(key);
+      topics.push({
+        title: trimmed,
+        role,
+        sourceIds: [...new Set(sourceIds.length ? sourceIds : fallback(role))].slice(
+          0,
+          WIKI_SYNTHESIS_MAX_TOPIC_SOURCES,
+        ),
+        status: "pending",
+        ...Object.fromEntries(Object.entries(extra).filter(([, value]) => value !== undefined)),
+      });
+      return true;
+    };
+    const address = brief.addressForm ?? undefined;
+    const required = new Set(brief.topics.map(({ key }) => key));
+    for (const topic of brief.topics.slice(0, WIKI_SYNTHESIS_MAX_STORED_TOPICS - 1)) {
+      const match = planned.find((entry) => entry.key.trim() === topic.key);
+      add(topic.title, topic.role, match ? cited(match.sources) : [], {
+        setupKey: topic.key,
+        outline: topic.outline.length ? topic.outline.slice(0, WIKI_SYNTHESIS_MAX_OUTLINE) : undefined,
+        competitor: topic.competitor,
+        addressForm: topic.role === "voice_and_tone" ? address : undefined,
+      });
+    }
+    const guide = planned.find((entry) => entry.role === "operating_guide" && !required.has(entry.key.trim()));
+    const t = await getTranslator(appLocaleOrDefault(crawl.locale), "WikiSetup.generated");
+    const guideSources = guide ? cited(guide.sources) : [];
+    if (!(guide && add(guide.title, "operating_guide", guideSources, { addressForm: address })))
+      add(t("roles.operating_guide"), "operating_guide", [homepage.id], { addressForm: address });
+    const allowed = new Set(brief.extraRoles);
+    const room = Math.max(0, WIKI_SYNTHESIS_MAX_PAGES - topics.length);
+    let added = 0;
+    for (const entry of planned) {
+      if (added >= room) break;
+      if (required.has(entry.key.trim()) || !allowed.has(entry.role)) continue;
+      const sourceIds = cited(entry.sources);
+      if (sourceIds.length && add(entry.title, entry.role, sourceIds, {})) added += 1;
+    }
+    return topics.sort((a, b) => ROLE_ORDER[a.role] - ROLE_ORDER[b.role]);
+  }
+
   private async importedSourceIds(sources: WikiSourceRecord[]) {
     const imported = new Set<string>();
     for (const source of sources) {
@@ -297,6 +500,10 @@ export class WikiWebsiteSynthesisService {
       outcome = await this.synthesizeTopic(crawl, topic);
     } catch {
       outcome = { kind: "skipped", reason: "error" };
+    }
+    if (outcome.kind === "skipped" && (topic.addressForm || topic.competitor)) {
+      const page = await this.ownerPage(crawl, topic);
+      if (page) outcome = { kind: "page", page };
     }
     if (outcome.kind === "skipped") {
       await this.repo.settleSynthesisTopic(crawlId, index, { status: "skipped", skipReason: outcome.reason });
@@ -332,15 +539,17 @@ export class WikiWebsiteSynthesisService {
     const sources = await this.sources(crawl.id);
     const cited = topic.sourceIds.flatMap((id) => sources.byId.get(id) ?? []);
     const keyOf = new Map([...sources.keys].map(([key, id]) => [id, key]));
-    const savedPages = (crawl.topics ?? []).flatMap(({ title, status, pageId }) =>
-      status === "created" && pageId ? [{ title, pageId }] : [],
-    );
+    const savedPages = savedTopicPages(crawl);
     const perSource = Math.floor(PAGE_SOURCE_BUDGET_CHARACTERS / Math.max(1, cited.length));
     const system = `${WIKI_SYNTHESIS_PAGE_INSTRUCTION} ${wikiSynthesisRoleGuidance(topic.role)}`;
     const basePrompt = [
       `Knowledge Base language: ${languageName(locale)}.`,
       `Page title: ${topic.title}`,
       savedPages.length ? `Other Knowledge Base pages: ${encodeJson(savedPages.map(({ title }) => title))}` : "",
+      topic.competitor ? `Competitor: ${encodeJson(topic.competitor)}` : "",
+      topic.outline?.length
+        ? `Planned sections: ${encodeJson(topic.outline)}. Use them as section headings where the cited sources support them and turn the rest into gaps.`
+        : "",
       "Cited sources:",
       ...cited.map(
         (source) =>
@@ -443,15 +652,12 @@ export class WikiWebsiteSynthesisService {
     }
 
     const t = await getTranslator(locale, "WikiSetup.generated");
-    const guideLinks =
-      topic.role === "operating_guide" && savedPages.length > 0
-        ? [
-            `## ${t("pagesHeading")}\n\n${savedPages.map(({ title, pageId }) => `- ${wikiPageMarkdownLink(title, pageId)}`).join("\n")}`,
-          ]
-        : [];
+    const owner = ownerSections(topic, t);
     const markdown = [
+      ...owner.lead,
       ...candidate.sections.map(({ heading, content }) => `## ${heading}\n\n${wikiSynthesisSectionMarkdown(content)}`),
-      ...guideLinks,
+      ...owner.tail,
+      ...guideLinkSections(topic, savedPages, t),
       `## ${t("sourcesHeading")}\n\n${cited
         .map((source) => `- <${source.url}> (${source.fetchedAt.toISOString().slice(0, 10)})`)
         .join("\n")}`,
@@ -472,6 +678,16 @@ export class WikiWebsiteSynthesisService {
         markdown,
       },
     };
+  }
+
+  private async ownerPage(crawl: WikiCrawlRecord, topic: StoredWikiSynthesisTopic): Promise<SynthesizedPage | null> {
+    const t = await getTranslator(appLocaleOrDefault(crawl.locale), "WikiSetup.generated");
+    const owner = ownerSections(topic, t);
+    const markdown = [...owner.lead, ...owner.tail, ...guideLinkSections(topic, savedTopicPages(crawl), t)].join(
+      "\n\n",
+    );
+    if (!markdown || hasInvalidWikiPageLinks(markdown, env.BASE_URL)) return null;
+    return { title: topic.title, kind: pageKind(topic.role, ""), markdown };
   }
 
   private async review(

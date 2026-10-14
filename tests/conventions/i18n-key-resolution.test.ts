@@ -921,6 +921,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ["core/validation/interactor-failure-server.ts :: t.raw :: code", 1],
   ["ee/agent-chat/agent-tools.ts :: t :: labelKey", 1],
   ["ee/messaging/connect/create-auth-link.interactor.ts :: t :: denial.key", 1],
+  ["ee/workspace-setup/workspace-setup-prompts.ts :: t :: key as never", 1],
   ["features/mcp-tools/mcp-tool.ts :: t.raw :: customCode", 1],
   ["features/mcp-tools/utils.ts :: t.raw :: code", 1],
   ["features/messaging/activities/activities-detail-modal.tsx :: t :: responseKey as never", 1],

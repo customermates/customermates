@@ -203,10 +203,10 @@ model User {
 }
 
 model Company {
-  id                          String                         @id @default(uuid())
-  createdAt                   DateTime                       @default(now())
-  updatedAt                   DateTime                       @updatedAt
-  tags                        String[]                       @default([])
+  id                          String                           @id @default(uuid())
+  createdAt                   DateTime                         @default(now())
+  updatedAt                   DateTime                         @updatedAt
+  tags                        String[]                         @default([])
   users                       User[]
   adAttributions              AdAttribution[]
   conversionEvents            ConversionEvent[]
@@ -264,6 +264,9 @@ model Company {
   wikiWebsiteCrawls           WikiWebsiteCrawl[]
   wikiSourceDocuments         WikiSourceDocument[]
   trashItems                  TrashItem[]
+  workspaceSetup              WorkspaceSetup?
+  hostedAiWorkspaceUsage      HostedAiPlatformWorkspaceUsage[]
+  hostedAiWorkspaceHolds      HostedAiPlatformWorkspaceHold[]
 }
 
 enum WikiPageKind {
@@ -319,6 +322,7 @@ model WikiWebsiteCrawl {
   registrableDomain String
   locale            String
   mode              String                 @default("initial")
+  payer             String                 @default("requester")
   status            WikiWebsiteCrawlStatus @default(queued)
   extraHosts        String[]
   pendingHosts      String[]
@@ -460,6 +464,66 @@ model HostedAiPlatformUsage {
   updatedAt      DateTime @default(now()) @updatedAt
 
   @@unique([purpose, accrualMonth])
+}
+
+/// Platform-paid spend attributed to one workspace, lifetime per purpose, so a per-workspace cap can hold.
+model HostedAiPlatformWorkspaceUsage {
+  companyId      String
+  purpose        String
+  inputTokens    Int      @default(0)
+  costMicrocents BigInt   @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now()) @updatedAt
+  company        Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@id([companyId, purpose])
+}
+
+/// The workspace share of one HostedAiPlatformReservation, released or converted to usage when it settles.
+model HostedAiPlatformWorkspaceHold {
+  reservationId      String   @id
+  companyId          String
+  purpose            String
+  reservedMicrocents BigInt
+  createdAt          DateTime @default(now())
+  company            Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, purpose])
+}
+
+enum WorkspaceSetupStatus {
+  interview
+  planning
+  planned
+  building
+  completed
+  failed
+  rolledBack
+}
+
+model WorkspaceSetup {
+  id               String               @id @default(uuid())
+  companyId        String               @unique
+  userId           String
+  status           WorkspaceSetupStatus @default(interview)
+  websiteUrl       String?
+  crawlId          String?
+  answers          Json                 @default("{}")
+  interview        Json                 @default("{}")
+  plan             Json?
+  planRevision     Int                  @default(0)
+  phases           Json                 @default("{}")
+  artifacts        Json                 @default("{}")
+  created          Json                 @default("{}")
+  results          Json                 @default("{}")
+  spreadsheetName  String?
+  spreadsheetBytes Bytes?
+  workflowRunId    String?
+  startedAt        DateTime             @default(now())
+  confirmedAt      DateTime?
+  finishedAt       DateTime?
+  updatedAt        DateTime             @updatedAt
+  company          Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
 }
 
 model P13n {

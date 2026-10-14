@@ -14,5 +14,6 @@ export abstract class StartWikiWebsiteCrawlRepo {
     locale: string;
     mode: WikiWebsiteCrawlMode;
     extraHosts: string[];
+    payer?: "requester" | "workspaceSetup";
   }): Promise<{ status: "created"; crawl: WikiWebsiteCrawlStart } | { status: "active" }>;
 }

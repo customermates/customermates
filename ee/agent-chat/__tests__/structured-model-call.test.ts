@@ -8,9 +8,16 @@ vi.mock("ai", async (importOriginal) => ({
   generateText: provider.generate,
 }));
 
+import { MockLanguageModelV4 } from "ai/test";
+
 import { AGENT_MODELS } from "@/ee/agent-chat/model-catalog";
 
-import { generateStructuredObject, structuredCallWorstCaseMicrocents } from "../structured-model-call";
+import {
+  STRUCTURED_OUTPUT_MAX_UNION_TYPES,
+  generateStructuredObject,
+  structuredCallWorstCaseMicrocents,
+  structuredOutputUnionTypes,
+} from "../structured-model-call";
 
 function failure(statusCode: number) {
   return new ai.APICallError({
@@ -40,7 +47,7 @@ beforeEach(() => {
 });
 
 describe("generateStructuredObject", () => {
-  it("sends the synthesis entry's output ceiling and reasoning effort to the provider", async () => {
+  it("sends the entry's output ceiling without thinking, which would turn off constrained decoding", async () => {
     provider.generate.mockResolvedValue({
       output: { title: "Overview" },
       usage: { inputTokens: 10, outputTokens: 5 },
@@ -51,7 +58,7 @@ describe("generateStructuredObject", () => {
       expect.objectContaining({
         model: "anthropic/claude-haiku-5.5",
         maxOutputTokens: 16_384,
-        reasoning: "medium",
+        reasoning: "none",
       }),
     );
   });
@@ -133,5 +140,87 @@ describe("generateStructuredObject", () => {
     expect((await call()).charge?.costMicrocents).toBe(
       structuredCallWorstCaseMicrocents(AGENT_MODELS.wikiSynthesis, "system", "prompt"),
     );
+  });
+});
+
+const NestedSchema = z.object({ recordModel: z.object({ lists: z.array(z.string()) }) });
+
+async function malformed(text: string, finishReason: "stop" | "length" = "stop") {
+  const actual = await vi.importActual<typeof ai>("ai");
+  const model = new MockLanguageModelV4({
+    doGenerate: () =>
+      Promise.resolve({
+        content: [{ type: "text" as const, text }],
+        finishReason: { unified: finishReason, raw: finishReason },
+        usage: {
+          inputTokens: { total: 50, noCache: 50, cacheRead: undefined, cacheWrite: undefined },
+          outputTokens: { total: 20, text: 20, reasoning: undefined },
+        },
+        warnings: [],
+      }),
+  });
+  try {
+    await actual.generateText({ model, prompt: "x", output: actual.Output.object({ schema: NestedSchema }) });
+  } catch (error) {
+    return error as Error;
+  }
+  throw new Error("The mock answer was accepted.");
+}
+
+function nestedCall() {
+  return generateStructuredObject({
+    label: "Workspace setup plan",
+    model: AGENT_MODELS.setupPlanning,
+    schema: NestedSchema,
+    system: "system",
+    prompt: "prompt",
+  });
+}
+
+describe("structured output the provider did not constrain", () => {
+  it("never thinks, even for an entry whose turns do", async () => {
+    provider.generate.mockResolvedValue({ output: { title: "x" }, usage: { inputTokens: 1, outputTokens: 1 } });
+    await generateStructuredObject({
+      label: "Workspace setup pre-fill",
+      model: AGENT_MODELS.routine,
+      schema: z.object({ title: z.string() }),
+      system: "system",
+      prompt: "prompt",
+    });
+    expect(provider.generate).toHaveBeenCalledWith(expect.objectContaining({ reasoning: "none" }));
+  });
+
+  it("recovers a nested object the model returned as JSON text inside a string", async () => {
+    rejectWith(await malformed(JSON.stringify({ recordModel: JSON.stringify({ lists: ["deal"] }) })));
+    expect(await nestedCall()).toMatchObject({
+      output: { recordModel: { lists: ["deal"] } },
+      charge: { inputTokens: 50 },
+    });
+  });
+
+  it("names the paths that did not match, so a repair prompt can fix them", async () => {
+    rejectWith(await malformed(JSON.stringify({ recordModel: JSON.stringify({ fields: [] }) })));
+    expect(await nestedCall()).toMatchObject({
+      output: null,
+      failureScope: "request",
+      rejection: expect.stringContaining("recordModel.lists: Invalid input: expected array, received undefined"),
+    });
+  });
+
+  it("says an answer was cut off at the output limit instead of retrying it unchanged", async () => {
+    rejectWith(await malformed('{"recordModel": {"lists": ["de', "length"));
+    expect(await nestedCall()).toMatchObject({
+      output: null,
+      rejection: "The answer was cut off at the output limit; keep it shorter.",
+    });
+  });
+
+  it("counts the union-typed nodes that turn off constrained decoding", () => {
+    const nullable = Object.fromEntries(
+      Array.from({ length: 3 }, (_value, index) => [`f${index}`, z.string().nullable()]),
+    );
+    expect(structuredOutputUnionTypes(z.object(nullable))).toBe(3);
+    expect(structuredOutputUnionTypes(z.object({ kind: z.enum(["a", "b"]), list: z.array(z.string()) }))).toBe(0);
+    expect(STRUCTURED_OUTPUT_MAX_UNION_TYPES).toBeLessThan(22);
   });
 });
