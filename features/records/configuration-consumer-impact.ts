@@ -1,25 +1,12 @@
-import type {
-  DeletionBlocker,
-  DeletionCleanup,
-  DeletionReference,
-} from "./configuration.schema";
+import type { DeletionBlocker, DeletionCleanup, DeletionReference } from "./configuration.schema";
 import type { ModelIssue } from "./record-model-validation";
 import type { RecordModel } from "./record-model.schema";
 import type { ConfigurationConsumerCleanup, RecordRepo } from "./record.repo";
 import type { DroppedViewReferences } from "@/features/trash/trash.schema";
 
-import {
-  cleanRecordDetailLayout,
-  recordDetailLayoutIsValid,
-} from "./record-detail-layout";
-import {
-  cleanRecordEventSubscription,
-  recordEventSubscriptionIsValid,
-} from "./record-event-subscription-validation";
-import {
-  cleanRecordMeasure,
-  recordMeasureIsValid,
-} from "./record-measure-validation";
+import { cleanRecordDetailLayout, recordDetailLayoutIsValid } from "./record-detail-layout";
+import { cleanRecordEventSubscription, recordEventSubscriptionIsValid } from "./record-event-subscription-validation";
+import { cleanRecordMeasure, recordMeasureIsValid } from "./record-measure-validation";
 import { expressionFieldDependencies } from "./record-model-validation";
 import { fieldValueDefinition } from "./record-configuration-values";
 import {
@@ -30,9 +17,7 @@ import {
 } from "./record-view-state";
 import { CONFIGURATION_CONSUMER_PAGE } from "./record.repo";
 
-type Rows<K extends keyof RecordRepo> = RecordRepo[K] extends (
-  ...args: never[]
-) => Promise<Array<infer Row>>
+type Rows<K extends keyof RecordRepo> = RecordRepo[K] extends (...args: never[]) => Promise<Array<infer Row>>
   ? AsyncIterable<Row>
   : never;
 
@@ -84,22 +69,12 @@ export function configurationTypeChanges(
         expressionFieldDependencies(candidate.behavior.expression).has(fieldId),
     );
   for (const field of model.fields) {
-    const before = current.fields.find(
-      (candidate) => candidate.id === field.id,
-    );
-    if (
-      !before &&
-      field.behavior.kind === "input" &&
-      !field.required &&
-      field.behavior.defaultValue === undefined
-    ) {
+    const before = current.fields.find((candidate) => candidate.id === field.id);
+    if (!before && field.behavior.kind === "input" && !field.required && field.behavior.defaultValue === undefined) {
       schemaOnlyTypes.add(field.typeId);
       continue;
     }
-    if (
-      before &&
-      (before.valueType === "channels") !== (field.valueType === "channels")
-    ) {
+    if (before && (before.valueType === "channels") !== (field.valueType === "channels")) {
       issues.push({
         code: "channels_type_change",
         fieldId: field.id,
@@ -113,10 +88,8 @@ export function configurationTypeChanges(
     }
     if (
       before &&
-      (field.behavior.kind === "input" ||
-        (field.archived && !before.archived)) &&
-      fieldValueDefinition({ ...before, archived: field.archived }) ===
-        fieldValueDefinition(field) &&
+      (field.behavior.kind === "input" || (field.archived && !before.archived)) &&
+      fieldValueDefinition({ ...before, archived: field.archived }) === fieldValueDefinition(field) &&
       !referenced(field.id)
     ) {
       archivedOnlyTypes.add(field.typeId);
@@ -132,9 +105,7 @@ export function configurationTypeChanges(
         !changedTypes.has(field.typeId) &&
         field.behavior.kind !== "input" &&
         [...expressionFieldDependencies(field.behavior.expression)].some((id) =>
-          changedTypes.has(
-            model.fields.find((candidate) => candidate.id === id)?.typeId ?? "",
-          ),
+          changedTypes.has(model.fields.find((candidate) => candidate.id === id)?.typeId ?? ""),
         )
       ) {
         changedTypes.add(field.typeId);
@@ -142,22 +113,13 @@ export function configurationTypeChanges(
       }
     }
   }
-  const viewTypes = new Set([
-    ...changedTypes,
-    ...channelTypes,
-    ...archivedOnlyTypes,
-    ...schemaOnlyTypes,
-  ]);
+  const viewTypes = new Set([...changedTypes, ...channelTypes, ...archivedOnlyTypes, ...schemaOnlyTypes]);
   const changedRelations = new Set(
     [...current.relationships, ...model.relationships]
       .filter(
         (relation) =>
-          JSON.stringify(
-            current.relationships.find((before) => before.id === relation.id),
-          ) !==
-          JSON.stringify(
-            model.relationships.find((after) => after.id === relation.id),
-          ),
+          JSON.stringify(current.relationships.find((before) => before.id === relation.id)) !==
+          JSON.stringify(model.relationships.find((after) => after.id === relation.id)),
       )
       .map((relation) => relation.id),
   );
@@ -167,14 +129,9 @@ export function configurationTypeChanges(
       JSON.stringify(before) !== JSON.stringify(type) ||
       [...current.relationships, ...model.relationships].some(
         (relation) =>
-          changedRelations.has(relation.id) &&
-          (relation.sourceTypeId === type.id ||
-            relation.targetTypeId === type.id),
+          changedRelations.has(relation.id) && (relation.sourceTypeId === type.id || relation.targetTypeId === type.id),
       ) ||
-      [
-        ...(before?.relationshipPaths ?? []),
-        ...(type.relationshipPaths ?? []),
-      ].some((path) =>
+      [...(before?.relationshipPaths ?? []), ...(type.relationshipPaths ?? [])].some((path) =>
         path.path.some((step) => changedRelations.has(step.relationId)),
       )
     )
@@ -199,11 +156,7 @@ export async function collectConsumerImpact(
   if (viewTypes.size) {
     const blockedLayouts = new Set<string>();
     for await (const entry of consumers.detailLayouts) {
-      if (
-        deletedTypeIds.has(entry.typeId) ||
-        recordDetailLayoutIsValid(entry.typeId, entry.layout, model)
-      )
-        continue;
+      if (deletedTypeIds.has(entry.typeId) || recordDetailLayoutIsValid(entry.typeId, entry.layout, model)) continue;
       const layout =
         cause && recordDetailLayoutIsValid(entry.typeId, entry.layout, current)
           ? cleanRecordDetailLayout(entry.typeId, entry.layout, model)
@@ -227,33 +180,19 @@ export async function collectConsumerImpact(
     }
     for await (const consumer of consumers.viewStates) {
       if (consumer.trashed) continue;
-      if (
-        deletedTypeIds.has(consumer.typeId) ||
-        recordViewStateIsValid(consumer.typeId, consumer.state, model)
-      )
+      if (deletedTypeIds.has(consumer.typeId) || recordViewStateIsValid(consumer.typeId, consumer.state, model))
         continue;
       const kind = consumer.key.startsWith("view:") ? "view" : "personalLayout";
       const id = consumer.key.slice(consumer.key.indexOf(":") + 1);
-      const validBefore = recordViewStateIsValid(
-        consumer.typeId,
-        consumer.state,
-        current,
-      );
+      const validBefore = recordViewStateIsValid(consumer.typeId, consumer.state, current);
       if (!validBefore) {
-        const pruned = pruneStaleRecordViewColumns(
-          consumer.typeId,
-          consumer.state,
-          model,
-        );
+        const pruned = pruneStaleRecordViewColumns(consumer.typeId, consumer.state, model);
         if (pruned) {
           cleanups.push({ kind, id, state: pruned });
           continue;
         }
       }
-      const state =
-        cause && validBefore
-          ? cleanRecordViewState(consumer.typeId, consumer.state, model)
-          : null;
+      const state = cause && validBefore ? cleanRecordViewState(consumer.typeId, consumer.state, model) : null;
       if (cause && state) {
         cleanups.push({ kind, id, state });
         if (kind === "view") {
@@ -270,19 +209,11 @@ export async function collectConsumerImpact(
           ]);
           droppedViewReferences.push({
             viewId: id,
-            filters: Math.max(
-              0,
-              (consumer.state.filters?.length ?? 0) -
-                (restored.filters?.length ?? 0),
-            ),
+            filters: Math.max(0, (consumer.state.filters?.length ?? 0) - (restored.filters?.length ?? 0)),
             columns: [...columns].filter((column) => !kept.has(column)).length,
-            sort: Boolean(
-              consumer.state.sortDescriptor && !restored.sortDescriptor,
-            ),
+            sort: Boolean(consumer.state.sortDescriptor && !restored.sortDescriptor),
             grouping: Boolean(
-              consumer.state.grouping &&
-                JSON.stringify(consumer.state.grouping) !==
-                  JSON.stringify(restored.grouping),
+              consumer.state.grouping && JSON.stringify(consumer.state.grouping) !== JSON.stringify(restored.grouping),
             ),
           });
         }
@@ -303,12 +234,7 @@ export async function collectConsumerImpact(
         viewKind: kind,
         viewId: id,
         viewName: consumer.name ?? "All",
-        ...invalidRecordViewReference(
-          consumer.typeId,
-          consumer.state,
-          model,
-          current,
-        ),
+        ...invalidRecordViewReference(consumer.typeId, consumer.state, model, current),
       });
     }
   }
@@ -323,9 +249,7 @@ export async function collectConsumerImpact(
       };
       if (measure) {
         cleanups.push({ kind: "widget", id: widget.id, measure });
-        const counts =
-          measure.aggregation === "count" &&
-          widget.measure.aggregation !== "count";
+        const counts = measure.aggregation === "count" && widget.measure.aggregation !== "count";
         if (!widget.trashed) {
           cleaned.push({
             consumer,
@@ -333,8 +257,7 @@ export async function collectConsumerImpact(
             ...(counts ? { effect: "countsRecords" as const } : {}),
           });
         }
-      } else if (!widget.trashed)
-        blockers.push({ reason: "widget", source: consumer, target: cause });
+      } else if (!widget.trashed) blockers.push({ reason: "widget", source: consumer, target: cause });
       continue;
     }
     if (widget.trashed) continue;
@@ -348,13 +271,10 @@ export async function collectConsumerImpact(
     const typeIds = [
       ...query.scope.typeIds,
       ...query.scope.records.map((ref) => ref.typeId),
-      ...(query.filters ?? []).flatMap((filter) =>
-        filter.kind === "record" ? [filter.typeId] : [],
-      ),
+      ...(query.filters ?? []).flatMap((filter) => (filter.kind === "record" ? [filter.typeId] : [])),
     ];
     for (const typeId of new Set(typeIds)) {
-      if (model.types.some((type) => type.id === typeId && !type.archived))
-        continue;
+      if (model.types.some((type) => type.id === typeId && !type.archived)) continue;
       if (cause && deletedTypeIds.has(typeId)) {
         blockers.push({
           reason: "widget",
@@ -366,20 +286,13 @@ export async function collectConsumerImpact(
   }
   for await (const subscription of consumers.eventSubscriptions) {
     if (recordEventSubscriptionIsValid(subscription, model)) continue;
-    if (
-      cause &&
-      recordEventSubscriptionIsValid(subscription, current) &&
-      subscription.kind === "webhook"
-    ) {
+    if (cause && recordEventSubscriptionIsValid(subscription, current) && subscription.kind === "webhook") {
       const consumer = {
         kind: "webhook" as const,
         id: subscription.id,
         label: subscription.label,
       };
-      const { subscription: kept, paused } = cleanRecordEventSubscription(
-        subscription,
-        model,
-      );
+      const { subscription: kept, paused } = cleanRecordEventSubscription(subscription, model);
       cleanups.push({
         kind: "webhookSubscription",
         subscription: kept,
