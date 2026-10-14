@@ -32,9 +32,14 @@ export class RecordAccessPolicy extends UserAccessor {
     });
   }
 
-  async validAssignees(actor: RecordActor | null, ids: string[], canAssignOthers: boolean): Promise<boolean> {
-    if (!actor || (!canAssignOthers && ids.some((id) => id !== actor.id))) return false;
-    return (await this.actors.findRecordAssigneesCompanyWide([...new Set(ids)])).length === new Set(ids).size;
+  canAssign(actor: RecordActor | null, ids: string[], canAssignOthers: boolean): boolean {
+    return actor !== null && (canAssignOthers || ids.every((id) => id === actor.id));
+  }
+
+  async activeMembers(ids: string[]): Promise<boolean> {
+    const unique = new Set(ids);
+    if (!unique.size) return true;
+    return (await this.actors.findRecordAssigneesCompanyWide([...unique])).length === unique.size;
   }
 }
 

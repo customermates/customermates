@@ -175,6 +175,7 @@ describe("change detail", () => {
             kind: "audit",
             event,
             changes: [{ field: "url", snapshot: true, previous: undefined, current: "https://receiver.example" }],
+            subject: null,
           },
         }),
       );
@@ -212,6 +213,7 @@ describe("change detail", () => {
           kind: "audit",
           event: DomainEvent.RECORDS_EXPORTED,
           changes: [{ field: "count", snapshot: true, previous: undefined, current: 42 }],
+          subject: null,
         },
       }),
     );

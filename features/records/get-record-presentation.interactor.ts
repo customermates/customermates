@@ -12,6 +12,7 @@ import type { RecordQuery } from "./record-query.schema";
 import type { QueryRecordsInteractor } from "./query-records.interactor";
 import type { GetResult } from "@/core/base/base-get.interactor";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
+import type { Filter } from "@/core/base/base-get.schema";
 import type { RecordLinkColors, RecordLinkIcons, RecordLinkLabels, RecordRow } from "./record-presentation";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { Action } from "@/generated/prisma";
@@ -40,6 +41,7 @@ import { recordColumns } from "./record-columns";
 import { liveGroupSummaries, recordGroupableFields, resolveRecordGrouping } from "./record-grouping";
 import { parseRelationshipColumnKey } from "./record-column.schema";
 import { resolveRecordPath } from "./record-relationship-path";
+import { liveRecordFilters } from "./record-view-state";
 
 const GetRecordPresentationSchema = z.object({ typeId: z.uuid(), params: GetQueryParamsSchema.default({}) }).strict();
 export type RecordPresentationResult = {
@@ -108,18 +110,24 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
             relation.targetTypeId === type.id ||
             pathRelationships.has(relation.id),
         );
+        const liveState = <T extends { filters?: Filter[] }>(state: T): T =>
+          state.filters
+            ? { ...state, filters: liveRecordFilters(type.id, state.filters, model, relationships, paths) }
+            : state;
+        const views = viewState.views.map((view) => ({ ...view, state: liveState(view.state) }));
+        const allState = liveState(viewState.allState);
         const viewKey = selectActiveViewKey(
           input.params.viewId,
           viewState.activeViewKey,
-          new Map(viewState.views.map((view) => [view.id, view])),
+          new Map(views.map((view) => [view.id, view])),
         );
-        const selected = viewState.views.find((view) => view.id === viewKey);
+        const selected = views.find((view) => view.id === viewKey);
         const state = resolveDataViewState({
           params: {
-            ...input.params,
+            ...liveState(input.params),
             pageSize: input.params.pageSize ?? input.params.pagination?.pageSize,
           },
-          base: selected?.state ?? viewState.allState,
+          base: selected?.state ?? allState,
           defaults: recordDefaults(type.id, fields),
         });
         if (state.grouping && !resolveRecordGrouping(type.id, state.grouping, model)) state.grouping = undefined;
@@ -233,9 +241,9 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
                 total: queried.data.total,
                 totalPages: Math.max(1, Math.ceil(queried.data.total / state.pageSize)),
               },
-              views: viewState.views,
+              views,
               activeViewKey: viewKey,
-              allState: viewState.allState,
+              allState,
               viewPersistable: true,
             },
           },

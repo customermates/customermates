@@ -17,7 +17,6 @@ import { RecordScalarSchema } from "@/features/records/record-model.schema";
 import { recordInputValue } from "@/features/records/record-input-value";
 import { recordValueIssue } from "@/features/records/record-model-validation";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { RecordInputField } from "./record-input-field";
 
 export type RecordFieldSaveOutcome = { saved: boolean; invalid?: string[] };
@@ -70,9 +69,7 @@ export class RecordFieldValueStore extends BaseFormStore<{ value: unknown }> {
     }
   };
   private showInvalid(errors: string[]) {
-    const tree = { errors: [], properties: { value: { errors } } };
-    this.setError(tree);
-    toastZodErrorTree(tree);
+    this.setError({ errors: [], properties: { value: { errors } } });
   }
 }
 

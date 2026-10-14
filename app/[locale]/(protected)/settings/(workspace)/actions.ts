@@ -41,6 +41,7 @@ import {
 import { serializeResult } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
 import { unwrapValidated } from "@/core/validation/validation.utils";
+import { activeUsersQuery } from "@/features/user/get/active-users-query";
 
 export async function createCheckoutSessionAction(data: CreateCheckoutSessionData) {
   const result = await getCreateCheckoutSessionInteractor().invoke(data);
@@ -98,6 +99,10 @@ export async function deleteRoleAction(data: DeleteRoleData) {
 
 export async function getUsersAction(params?: GetQueryParams) {
   return unwrapValidated(getGetUsersInteractor().invoke(params));
+}
+
+export async function getActiveUsersAction(params?: GetQueryParams) {
+  return unwrapValidated(getGetUsersInteractor().invoke(activeUsersQuery(params)));
 }
 
 export async function getUserByIdAction(data: GetUserByIdData) {

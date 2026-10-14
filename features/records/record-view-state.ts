@@ -1,5 +1,9 @@
+import equal from "fast-deep-equal/es6";
+
+import type { Filter } from "@/core/base/base-get.schema";
 import { isPersistedColumnWidthKey, type DataViewState } from "@/core/data-view/data-view-state.schema";
-import type { RecordModel } from "./record-model.schema";
+import type { RecordField, RecordModel, RecordRelationship } from "./record-model.schema";
+import type { RecordRelationshipPath } from "./record-relationship-path.schema";
 
 import { presentationFiltersAreValid, presentationQuery } from "./record-presentation";
 import { invalidRecordQueryPart } from "./record-query-validation";
@@ -37,6 +41,53 @@ export function recordViewStateIsValid(typeId: string, state: DataViewState, mod
   }
 }
 
+function hasMultipleValues(filter: Filter): filter is Extract<Filter, { value: string[] }> {
+  return "value" in filter && Array.isArray(filter.value);
+}
+
+function withoutStaleOptions(filter: Filter, fields: RecordField[]): Filter | null {
+  const field = fields.find((candidate) => candidate.id === filter.field);
+  if (field?.valueType !== "select" || !hasMultipleValues(filter)) return filter;
+  const value = filter.value.filter((optionId) => field.options.some((option) => option.id === optionId));
+  if (value.length === filter.value.length) return filter;
+  return value.length ? { ...filter, value } : null;
+}
+
+export function liveRecordFilters(
+  typeId: string,
+  filters: Filter[],
+  model: RecordModel,
+  relationships: RecordRelationship[] = model.relationships,
+  paths: RecordRelationshipPath[] | undefined = model.types.find((type) => type.id === typeId)?.relationshipPaths,
+): Filter[] {
+  const fields = model.fields.filter((field) => field.typeId === typeId && !field.archived);
+  return filters.flatMap((filter) => {
+    const live = withoutStaleOptions(filter, fields);
+    if (!live) return [];
+    try {
+      const query = presentationQuery(typeId, fields, { filters: [live] }, relationships, paths);
+      return invalidRecordQueryPart(query, model) ? [] : [live];
+    } catch {
+      return [];
+    }
+  });
+}
+
+export function changedFilterCount(before: Filter[] = [], after: Filter[] = []): number {
+  return before.filter((filter) => !after.some((kept) => equal(kept, filter))).length;
+}
+
+function staleOptionLabels(filter: Filter, model: RecordModel, labels: RecordModel): string[] {
+  const field = model.fields.find((candidate) => candidate.id === filter.field);
+  if (field?.valueType !== "select" || !hasMultipleValues(filter)) return [];
+  const options = labels.fields.find((candidate) => candidate.id === filter.field)?.options ?? [];
+  return filter.value.flatMap((optionId) => {
+    if (field.options.some((option) => option.id === optionId)) return [];
+    const label = options.find((option) => option.id === optionId)?.label;
+    return label ? [label] : [];
+  });
+}
+
 function staleColumnCleanup(state: DataViewState, ids: Set<string>): DataViewState {
   const cleaned: DataViewState = {};
   if (state.columnOrder?.some((id) => !ids.has(id)))
@@ -71,36 +122,34 @@ export function invalidRecordViewReference(
 ): { columnId: string; columnLabel: string } | null {
   const ids = new Set(recordColumns(typeId, model).map((column) => column.id));
   const fields = model.fields.filter((field) => field.typeId === typeId && !field.archived);
-  const paths = model.types.find((type) => type.id === typeId)?.relationshipPaths;
+  const filter = state.filters?.find((candidate) => !equal(liveRecordFilters(typeId, [candidate], model), [candidate]));
   const columnId =
     [...(state.columnOrder ?? []), ...(state.hiddenColumns ?? [])].find((id) => !ids.has(id)) ??
     Object.keys(state.columnWidths ?? {}).find((id) => !isPersistedColumnWidthKey(id, ids)) ??
     (state.grouping && !resolveRecordGrouping(typeId, state.grouping, model) ? state.grouping.field : undefined) ??
     state.grouping?.summaries?.find((summary) => !liveGroupSummaries(typeId, [summary], fields).length)?.fieldId ??
-    state.filters?.find((filter) => !presentationFiltersAreValid([filter], fields, model.relationships, typeId, paths))
-      ?.field ??
+    filter?.field ??
     state.sortDescriptor?.field;
   if (!columnId) return null;
-  const label =
-    [...recordColumns(typeId, labels), ...recordColumns(typeId, model)].find((column) => column.id === columnId)
-      ?.label ?? labels.fields.find((field) => field.id === columnId)?.label;
+  const options = filter?.field === columnId ? staleOptionLabels(filter, model, labels) : [];
+  const label = options.length
+    ? options.join(", ")
+    : ([...recordColumns(typeId, labels), ...recordColumns(typeId, model)].find((column) => column.id === columnId)
+        ?.label ?? labels.fields.find((field) => field.id === columnId)?.label);
   return { columnId, columnLabel: label ?? columnId };
 }
 
 export function cleanRecordViewState(typeId: string, state: DataViewState, model: RecordModel): DataViewState | null {
   if (!model.types.some((type) => type.id === typeId && !type.archived)) return null;
   const fields = model.fields.filter((field) => field.typeId === typeId && !field.archived);
-  const paths = model.types.find((type) => type.id === typeId)?.relationshipPaths;
   const cleaned = staleColumnCleanup(state, new Set(recordColumns(typeId, model).map((column) => column.id)));
   if (state.grouping && !resolveRecordGrouping(typeId, state.grouping, model)) cleaned.grouping = null;
   else if (state.grouping?.summaries) {
     const summaries = liveGroupSummaries(typeId, state.grouping.summaries, fields);
     if (summaries.length !== state.grouping.summaries.length) cleaned.grouping = { ...state.grouping, summaries };
   }
-  const filters = state.filters?.filter((filter) =>
-    presentationFiltersAreValid([filter], fields, model.relationships, typeId, paths),
-  );
-  if (filters && filters.length !== state.filters?.length) cleaned.filters = filters;
+  const filters = state.filters && liveRecordFilters(typeId, state.filters, model);
+  if (filters && changedFilterCount(state.filters, filters)) cleaned.filters = filters;
   if (!recordViewStateIsValid(typeId, { ...state, ...cleaned }, model)) cleaned.sortDescriptor = null;
   return Object.keys(cleaned).length && recordViewStateIsValid(typeId, { ...state, ...cleaned }, model)
     ? cleaned

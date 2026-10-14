@@ -327,6 +327,9 @@ test("edits every field type inline in rows and on board cards, with validation,
   await expect(inPlace).toBeVisible();
   await expect(phoneInput).toHaveAttribute("aria-invalid", "true");
   await expect(page.getByText("Enter a phone number in international format", { exact: false }).first()).toBeVisible();
+  const phoneToasts = page.locator("[data-sonner-toast]").filter({ hasText: "international format" });
+  await expect(phoneToasts.first()).toBeVisible();
+  expect(await phoneToasts.count()).toBe(1);
   await phoneInput.fill("+49301234567");
   await phoneInput.press("Enter");
   await expect(inPlace).toHaveCount(0);

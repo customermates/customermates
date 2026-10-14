@@ -28,7 +28,7 @@ import { recordKey } from "@/features/records/record-calculation.service";
 import { hydrateMessageRecordIdentities } from "../record-message-identities";
 import { toMessagingMessageDto } from "../inbox/inbox.schema";
 import { ACTIVITY_RELATED_RECORD_LIMIT } from "./activity-record-refs";
-import { isSystemActivityAuditEvent, systemActivityChanges } from "./system-audit-events";
+import { activitySubject, isSystemActivityAuditEvent, systemActivityChanges } from "./system-audit-events";
 import { configurationActivity } from "./configuration-activity";
 import { CHANGE_ACTIVITY_KINDS } from "./activities.schema";
 
@@ -200,17 +200,7 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
           };
         };
         const entries = new Map<string, ActivityEntryDto>();
-        for (const event of events.filter((event) => isSystemActivityAuditEvent(event.kind))) {
-          entries.set(`audit:${event.id}`, {
-            kind: "audit",
-            id: event.id,
-            at: event.createdAt,
-            actor: event.actor,
-            event: event.kind,
-            changes: systemActivityChanges(event.kind, event.payload, policy.isAdmin),
-            records: context("audit", event.id),
-          });
-        }
+        const auditEvents = events.filter((event) => isSystemActivityAuditEvent(event.kind));
         for (const revision of configurations.revisions) {
           entries.set(`configuration:${revision.revision}`, {
             kind: "configuration",
@@ -238,8 +228,23 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
           ),
         ];
         const members = await this.activities.membersCompanyWide([
-          ...new Set(recordChanges.flatMap(({ changes }) => memberIds(changes))),
+          ...new Set([
+            ...recordChanges.flatMap(({ changes }) => memberIds(changes)),
+            ...auditEvents.flatMap((event) => (event.subjectKind === "user" ? [event.subjectId] : [])),
+          ]),
         ]);
+        for (const event of auditEvents) {
+          entries.set(`audit:${event.id}`, {
+            kind: "audit",
+            id: event.id,
+            at: event.createdAt,
+            actor: event.actor,
+            event: event.kind,
+            changes: systemActivityChanges(event.kind, event.payload, policy.isAdmin),
+            subject: activitySubject(event, members),
+            records: context("audit", event.id),
+          });
+        }
         for (const { event, changes } of recordChanges) {
           const referenced = new Set(memberIds(changes));
           const linkedTypes = new Set(

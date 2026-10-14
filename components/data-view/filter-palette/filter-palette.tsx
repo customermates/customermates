@@ -43,6 +43,7 @@ export const FilterPalette = observer(function FilterPalette({ store: host, pale
   const usedCommandRef = useRef(true);
 
   const page = palette.page;
+  const shownPageRef = useRef(page);
   const draft = palette.form.draft;
   const isRoot = page.kind === "root";
   const field = isRoot ? "" : page.field;
@@ -56,8 +57,10 @@ export const FilterPalette = observer(function FilterPalette({ store: host, pale
 
   useEffect(() => {
     const cameFromValuePage = !usedCommandRef.current;
+    const cameFromOtherPage = shownPageRef.current !== page;
     usedCommandRef.current = usesCommand;
-    if (usesCommand && !cameFromValuePage) return;
+    shownPageRef.current = page;
+    if (usesCommand && !cameFromValuePage && !cameFromOtherPage) return;
 
     const selector = usesCommand ? "[cmdk-input]" : '[id="draft.value"]';
     paletteRef.current?.querySelector<HTMLElement>(selector)?.focus({ preventScroll: true });

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Resource, CountryCode as CountryCodeEnum, Status, Theme } from "@/generated/prisma";
+import { CountryCode as CountryCodeEnum, Status, Theme } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
@@ -31,7 +31,7 @@ export const UserDetailsDtoSchema = z.object({
 export type UserDetails = z.infer<typeof UserDetailsDtoSchema>;
 
 @AllowInDemoMode
-@TenantInteractor({ resource: Resource.users, read: true })
+@TenantInteractor()
 export class GetUserDetailsInteractor extends AuthenticatedInteractor<void, UserDetails> {
   @ValidateOutput(UserDetailsDtoSchema)
   // eslint-disable-next-line @typescript-eslint/require-await

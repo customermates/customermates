@@ -3,6 +3,7 @@ import type { RecordAccessPolicy } from "@/features/records/record-access";
 import type { RecordDto } from "@/features/records/record-model.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { ExportRecordsInput } from "./export-records.interactor";
+import type { EventService } from "@/features/event/event.service";
 
 import { getTranslations } from "next-intl/server";
 
@@ -13,8 +14,9 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { withMemberUsers } from "@/features/records/record-dto";
+import { DomainEvent } from "@/features/event/domain-events";
 
-import { collectRecordExport, ExportRecordsSchema } from "./export-records.interactor";
+import { collectRecordExport, ExportRecordsSchema, recordsExportedEvent } from "./export-records.interactor";
 import { recordWorkbookRelationships, recordWorkbookSheets, writeRecordWorkbook } from "./record-workbook";
 
 const RECORD_WORKBOOK_LINK_NAMES = 200;
@@ -39,6 +41,7 @@ export class ExportRecordWorkbookInteractor extends AuthenticatedInteractor<Expo
   constructor(
     private records: RecordRepo,
     private policy: RecordAccessPolicy,
+    private events: EventService,
   ) {
     super();
   }
@@ -103,13 +106,15 @@ export class ExportRecordWorkbookInteractor extends AuthenticatedInteractor<Expo
       policy.canReadType,
     );
     const type = model.types.find((candidate) => candidate.id === typeId);
+    const workbook = await writeRecordWorkbook(sheets);
+    await this.events.publish(DomainEvent.RECORDS_EXPORTED, recordsExportedEvent(typeId, records.length));
     return {
       ok: true,
       data: {
         typeId,
         fileName: `${fileStem(type?.pluralLabel ?? "records")}-${new Date().toISOString().slice(0, 10)}.xlsx`,
         rowCount: records.length,
-        workbook: await writeRecordWorkbook(sheets),
+        workbook,
       },
     };
   }

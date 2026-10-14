@@ -36,6 +36,9 @@ const { createCrmPreset, presetId } = await import("@/features/records/crm-prese
 const { ExportRecordWorkbookInteractor } = await import(
   "@/features/data-transfer/export/export-record-workbook.interactor"
 );
+const { ExportRecordsInteractor } = await import("@/features/data-transfer/export/export-records.interactor");
+const { EventService } = await import("@/features/event/event.service");
+const { PrismaEventLogRepo } = await import("@/features/event/prisma-event-log.repository");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -78,7 +81,9 @@ async function workspace() {
     { dispatch: () => Promise.resolve() },
     new RecordTrashService(repo, new RecordCalculationService(repo)),
   );
-  const exporter = new ExportRecordWorkbookInteractor(repo, policy);
+  const events = new EventService([], new PrismaEventLogRepo({ dispatch: () => Promise.resolve() }));
+  const exporter = new ExportRecordWorkbookInteractor(repo, policy, events);
+  const jsonExporter = new ExportRecordsInteractor(repo, policy, events);
   await runWithTenant(admin, () =>
     runInTransaction(() => repo.saveModel(createCrmPreset(seed.company.id), admin.id), { timeout: 30000 }),
   );
@@ -117,7 +122,9 @@ async function workspace() {
     );
     return result;
   };
-  return { ...seed, admin, member, repo, id, run, create, exportWorkbook };
+  const exportJson = (typeId: string, as = admin) =>
+    run(() => jsonExporter.invoke({ typeId, filters: [], relationships: [], sort: [] }), as);
+  return { ...seed, admin, member, repo, id, run, create, exportWorkbook, exportJson };
 }
 
 async function sheets(workbook: Buffer) {
@@ -193,6 +200,28 @@ describeDatabase("record workbook export", () => {
     expect(lines.headers).not.toContain("Service");
     expect(JSON.stringify([...memberSheets.values()])).not.toContain("Private catalog");
     expect(JSON.stringify([...memberSheets.values()])).not.toContain("Other deal");
+  });
+
+  it("records every Excel and JSON export as a records.exported event and none for a refused export", async () => {
+    const f = await workspace();
+    await f.create("deal", "First deal");
+    await f.create("deal", "Second deal");
+    expect(await f.exportWorkbook(f.id("deal"))).toMatchObject({ ok: true, data: { rowCount: 2 } });
+    expect(await f.exportJson(f.id("deal"))).toMatchObject({ ok: true });
+    expect(await f.exportJson(randomUUID())).toMatchObject({ ok: false });
+    const events = await runWithoutTenant(() =>
+      prisma.eventLog.findMany({
+        where: { companyId: f.company.id, kind: "records.exported" },
+        orderBy: { createdAt: "asc" },
+      }),
+    );
+    const exported = {
+      subjectKind: "records",
+      subjectId: f.id("deal"),
+      actorId: f.admin.id,
+      payload: { typeId: f.id("deal"), rowCount: 2, truncated: false, scope: "view" },
+    };
+    expect(events).toMatchObject([exported, exported]);
   });
 
   it("never exports another workspace's records or lists", async () => {

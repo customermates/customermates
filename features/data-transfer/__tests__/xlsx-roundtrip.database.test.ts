@@ -48,6 +48,8 @@ const { ImportRecordsInteractor } = await import("@/features/data-transfer/impor
 const { ExportRecordWorkbookInteractor } = await import(
   "@/features/data-transfer/export/export-record-workbook.interactor"
 );
+const { EventService } = await import("@/features/event/event.service");
+const { PrismaEventLogRepo } = await import("@/features/event/prisma-event-log.repository");
 const { createCrmPreset, presetId } = await import("@/features/records/crm-preset");
 const { XlsxImportWizardStore } = await import(
   "@/app/[locale]/(protected)/records/[typeId]/components/xlsx-import-wizard.store"
@@ -206,7 +208,11 @@ describeRoundTrip("XLSX export and import round trip", () => {
     const before = await record(original);
 
     const exported = await runWithTenant(admin, () =>
-      new ExportRecordWorkbookInteractor(repo, policy).invoke({
+      new ExportRecordWorkbookInteractor(
+        repo,
+        policy,
+        new EventService([], new PrismaEventLogRepo({ dispatch: () => Promise.resolve() })),
+      ).invoke({
         typeId: deal,
         filters: [],
         relationships: [],

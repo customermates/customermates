@@ -5,7 +5,7 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { RecordTriggerFields } from "@/components/records/record-trigger-fields";
 import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-avatar";
 import { Button } from "@/components/ui/button";
-import { getUsersAction } from "../../actions";
+import { getActiveUsersAction } from "../../actions";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
@@ -142,7 +142,7 @@ export const WebhookModal = observer(() => {
                 )}
 
                 <FormAutocompleteAvatar
-                  getItems={getUsersAction}
+                  getItems={getActiveUsersAction}
                   id="recordOwnerUserId"
                   items={userStore.user ? [userStore.user] : []}
                   label={t("WebhookModal.recordOwner")}

@@ -5,6 +5,8 @@ import {
   membersDescriptor,
   recordsDescriptor,
   recordValueDescriptor,
+  subjectDescriptor,
+  subjectLabel,
   type ChangeValueLabels,
 } from "../change-value-descriptor";
 
@@ -204,5 +206,30 @@ describe("record value descriptors", () => {
         deals: { icon: "handshake", color: "info" },
       }),
     ).toEqual({ kind: "records", records: [{ id: "deals:d1", label: "Renewal", icon: "handshake", color: "info" }] });
+  });
+});
+
+describe("activity subject descriptors", () => {
+  it("renders a member subject as the member's avatar chip and a named subject as one chip", () => {
+    expect(subjectDescriptor({ kind: "user", member: MEMBER }, "Member")).toEqual({
+      kind: "members",
+      members: [MEMBER],
+    });
+    expect(subjectLabel({ kind: "user", member: MEMBER }, "Member")).toBe("Elena Hoffmann");
+    const role = { kind: "role" as const, id: "role-1", label: "Field team" };
+    expect(subjectDescriptor(role, "Member")).toEqual({
+      kind: "choices",
+      choices: [{ id: "role-1", label: "Field team" }],
+    });
+    expect(subjectLabel(role, "Member")).toBe("Field team");
+  });
+
+  it("names a member without a known name with the neutral member label", () => {
+    const former = { kind: "user" as const, member: { id: "gone", firstName: "", lastName: " ", avatarUrl: null } };
+    expect(subjectDescriptor(former, "Member")).toEqual({
+      kind: "members",
+      members: [{ id: "gone", firstName: "Member", lastName: "", avatarUrl: null }],
+    });
+    expect(subjectLabel(former, "Member")).toBe("Member");
   });
 });

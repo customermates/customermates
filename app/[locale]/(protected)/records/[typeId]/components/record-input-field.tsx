@@ -19,12 +19,18 @@ import { FormIsoDateRangePicker } from "@/components/forms/form-iso-date-range-p
 import { toChipColor } from "@/constants/chip-colors";
 import { FormattedTextField } from "@/components/editor/formatted-text-field";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { getUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
+import { getActiveUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 
 type KnownMember = Pick<RecordMember, "id" | "firstName" | "lastName"> & { avatarUrl?: string | null };
 
-export function knownMembers(members: RecordMember[], viewer: KnownMember | null | undefined): KnownMember[] {
-  const known = new Map<string, KnownMember>(members.map((member) => [member.id, member]));
+export function knownMembers(
+  members: RecordMember[],
+  viewer: KnownMember | null | undefined,
+  value: unknown,
+): KnownMember[] {
+  const known = new Map<string, KnownMember>(
+    members.filter((member) => member.id === value).map((member) => [member.id, member]),
+  );
   if (viewer && !known.has(viewer.id)) known.set(viewer.id, viewer);
   return [...known.values()];
 }
@@ -114,8 +120,8 @@ export const RecordInputField = observer(function RecordInputField({
       <FormAutocompleteAvatar
         {...shared}
         ariaLabel={label ?? field.label}
-        getItems={getUsersAction}
-        items={knownMembers(members, root.userStore.user)}
+        getItems={getActiveUsersAction}
+        items={knownMembers(members, root.userStore.user, store?.getValue(id))}
       />
     );
   }

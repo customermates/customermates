@@ -949,4 +949,24 @@ describe("agent saved-view management", () => {
     expect(recordViews.unsupportedGrouping).toHaveBeenCalledWith(surfaceKey, { field: roleId });
     expect(subject.upsert.invoke).not.toHaveBeenCalled();
   });
+
+  it("reads record views with the filter values of deleted options left out", async () => {
+    const surfaceKey = "records:10000000-0000-4000-8000-000000000001";
+    const recordViews = {
+      list: vi.fn().mockResolvedValue([]),
+      describe: vi.fn().mockResolvedValue({ type: { pluralLabel: "Contacts" }, fields: [], columns: [] }),
+      validate: vi.fn().mockResolvedValue(null),
+      liveState: vi.fn((_surfaceKey: string, state: object) => Promise.resolve({ ...state, filters: [] })),
+    };
+    const subject = setup(recordViews);
+    const named = await subject.run({ action: "read", surfaceKey, viewKey: VIEW_ID });
+    expect(named.ok && named.data.items).toEqual([
+      expect.objectContaining({ id: VIEW_ID, state: { searchTerm: "old", columnWidths: { name: 210 }, filters: [] } }),
+    ]);
+    const all = await subject.run({ action: "read", surfaceKey, viewKey: ALL_VIEW_KEY });
+    expect(all.ok && all.data.items).toEqual([
+      expect.objectContaining({ id: ALL_VIEW_KEY, state: { pageSize: 25, filters: [] } }),
+    ]);
+    expect(recordViews.liveState).toHaveBeenCalledWith(surfaceKey, subject.surfaceState.allState);
+  });
 });

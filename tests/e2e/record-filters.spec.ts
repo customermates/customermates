@@ -31,10 +31,15 @@ test("restores relationship, assignment and date filters with labels after reloa
   ]);
   const members = await database.query('SELECT id FROM "User" WHERE "companyId"=$1', [companyId]);
   await page.getByRole("button", { name: "Filters", exact: true }).click();
+  const paletteSearch = page.locator("#filter-palette-search").getByRole("combobox");
   await page.locator(`[data-palette-field="${relationship}"]`).click();
   await expect(page.getByText("Organizations", { exact: true }).last()).toBeVisible();
+  await expect(paletteSearch).toBeFocused();
+  await page.keyboard.type("Example");
+  await expect(paletteSearch).toHaveValue("Example");
   await page.locator(`[data-palette-value="${organization.rows[0].id}"]`).click();
   await page.locator("#filter-palette-back").click();
+  await expect(paletteSearch).toBeFocused();
   await page.locator('[data-palette-field="system:assignedTo"]').click();
   await page.locator(`[data-palette-value="${members.rows[0].id}"]`).click();
   await page.locator("#filter-palette-back").click();

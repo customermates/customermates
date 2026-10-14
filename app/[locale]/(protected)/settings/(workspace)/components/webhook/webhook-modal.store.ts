@@ -60,6 +60,7 @@ export class WebhookModalStore extends BaseModalStore<WebhookFormData> {
       cancelModelLoad: action,
 
       delete: action,
+      deleteById: action,
       onSubmit: action,
       toggleShowSecret: action,
     });
@@ -74,12 +75,12 @@ export class WebhookModalStore extends BaseModalStore<WebhookFormData> {
   }
 
   get ownsRecordAccess() {
+    return this.ownsRecordAccessOf(this.savedState);
+  }
+
+  ownsRecordAccessOf(webhook: { recordOwnerUserId?: string | null }) {
     const user = this.rootStore.userStore.user;
-    return (
-      !this.savedState.recordOwnerUserId ||
-      this.savedState.recordOwnerUserId === user?.id ||
-      Boolean(user?.role?.isSystemRole)
-    );
+    return !webhook.recordOwnerUserId || webhook.recordOwnerUserId === user?.id || Boolean(user?.role?.isSystemRole);
   }
 
   override get canManage() {
@@ -157,18 +158,23 @@ export class WebhookModalStore extends BaseModalStore<WebhookFormData> {
     this.setIsLoading(true);
 
     try {
-      const res = await deleteWebhookAction({ id: this.form.id });
-      if (!res.ok) {
-        toastZodErrorTree(res.error);
-        return false;
-      }
-
-      await this.rootStore.webhooksStore.removeItem(res.data);
-      this.close();
-      return true;
+      const deleted = await this.deleteById(this.form.id);
+      if (deleted) this.close();
+      return deleted;
     } finally {
       this.setIsLoading(false);
     }
+  };
+
+  deleteById = async (id: string): Promise<boolean> => {
+    const res = await deleteWebhookAction({ id });
+    if (!res.ok) {
+      toastZodErrorTree(res.error);
+      return false;
+    }
+
+    await this.rootStore.webhooksStore.removeItem(res.data);
+    return true;
   };
 
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {

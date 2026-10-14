@@ -21,6 +21,7 @@ import { messagePreview } from "../message-preview";
 import { auditCategory, IdentityAvatar, ProviderAvatar, TimelineRow, TypeBadge } from "./activities-row";
 import { activityEntryKey } from "./activity-entry-key";
 import { calendarEventTitle } from "./activity-labels";
+import { subjectLabel } from "./change-value-descriptor";
 import {
   buildCalendarSubtitle,
   buildMessageSubtitle,
@@ -221,19 +222,8 @@ export const ActivitiesList = observer(({ hasMore, items, loading, onLoadOlder }
                 }
                 isFirst={index === 0}
                 isLast={isLast}
-                subtitle={
-                  <>
-                    {entry.records.primary && (
-                      <>
-                        <span className="font-medium">{entry.records.primary.label}</span>
-
-                        <span aria-hidden> · </span>
-                      </>
-                    )}
-
-                    {fields || eventLabel(t, entry.event)}
-                  </>
-                }
+                subject={entry.records.primary?.label}
+                subtitle={fields || eventLabel(t, entry.event)}
                 time={time}
                 title={actorName}
                 onClick={() => timelineDetailModalStore.openWith({ entry })}
@@ -258,6 +248,8 @@ export const ActivitiesList = observer(({ hasMore, items, loading, onLoadOlder }
                 ),
               );
           const category = auditCategory(entry.event);
+          const subject =
+            entry.kind === "audit" && entry.subject ? subjectLabel(entry.subject, t("RecordModel.member")) : null;
 
           return (
             <TimelineRow
@@ -271,6 +263,7 @@ export const ActivitiesList = observer(({ hasMore, items, loading, onLoadOlder }
               }
               isFirst={index === 0}
               isLast={isLast}
+              subject={subject}
               subtitle={fields || eventLabel(t, entry.event)}
               time={time}
               title={actorName}

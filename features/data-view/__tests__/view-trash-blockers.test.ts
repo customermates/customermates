@@ -48,6 +48,36 @@ describe("restoring a saved record view", () => {
     });
   });
 
+  it("removes a filter value whose option was deleted while the view was in Trash", async () => {
+    const lost = presetId(companyId, "deal.stage.lost");
+    const withoutNew = {
+      ...model,
+      fields: model.fields.map((field) =>
+        field.id === fieldId
+          ? { ...field, options: field.options.filter((option) => option.id !== presetId(companyId, "deal.stage.new")) }
+          : field,
+      ),
+    };
+    const stale = {
+      filters: [
+        { field: fieldId, operator: FilterOperatorKey.in, value: [presetId(companyId, "deal.stage.new"), lost] },
+      ],
+    } satisfies DataViewState;
+    const rewriteViewStateCompanyWide = vi.fn().mockResolvedValue(undefined);
+    const blockers = new ViewTrashBlockers(
+      { getModel: () => Promise.resolve(withoutNew) },
+      {
+        getRecordViewStatesByIds: () => Promise.resolve([{ id: viewId, typeId, state: stale }]),
+        rewriteViewStateCompanyWide,
+      },
+    );
+    const dropped = await runWithTenant(user, () => blockers.restoreReferences([viewId]));
+    expect(dropped).toEqual([{ viewId, filters: 1, columns: 0, sort: false, grouping: false }]);
+    expect(rewriteViewStateCompanyWide).toHaveBeenCalledWith(companyId, viewId, {
+      filters: [{ field: fieldId, operator: FilterOperatorKey.in, value: [lost] }],
+    });
+  });
+
   it("keeps every setting when the field was restored first", async () => {
     const rewriteViewStateCompanyWide = vi.fn();
     const blockers = new ViewTrashBlockers(

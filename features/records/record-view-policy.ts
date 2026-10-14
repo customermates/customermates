@@ -7,7 +7,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordSurfaceKeySchema } from "@/core/data-view/data-view-identity.schema";
 import { isActivitySurface } from "@/core/data-view/data-view-keys";
 import { activityViewStateValid, activityViewFilters } from "@/ee/messaging/activities/record-activity-view";
-import { recordViewStateIsValid } from "./record-view-state";
+import { liveRecordFilters, recordViewStateIsValid } from "./record-view-state";
 import { recordSurfaceKey } from "@/core/data-view/data-view-keys";
 import { recordColumns } from "./record-columns";
 import { resolveRecordPath } from "./record-relationship-path";
@@ -88,6 +88,11 @@ export class RecordViewPolicy implements DataViewPolicy {
       };
     }
     return null;
+  }
+  async liveState(surfaceKey: string, state: DataViewState): Promise<DataViewState> {
+    if (!state.filters || !RecordSurfaceKeySchema.safeParse(surfaceKey).success) return state;
+    const model = await this.records.getModel();
+    return { ...state, filters: liveRecordFilters(surfaceKey.slice(8), state.filters, model) };
   }
   async validate(surfaceKey: string, state?: DataViewState): Promise<CustomErrorCode | null> {
     if (isActivitySurface(surfaceKey)) {

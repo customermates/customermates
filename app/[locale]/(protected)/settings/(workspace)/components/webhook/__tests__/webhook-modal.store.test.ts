@@ -35,9 +35,13 @@ const SAVED_WEBHOOK = {
   enabled: true,
 };
 
-function makeStore() {
+const MEMBER_ID = "30000000-0000-4000-8000-000000000002";
+const OTHER_MEMBER_ID = "30000000-0000-4000-8000-000000000003";
+
+function makeStore(user = { id: MEMBER_ID, role: { isSystemRole: false } }) {
   const rootStore = {
     registerModalStore: vi.fn(),
+    userStore: { user },
     webhooksStore: { upsertItem: vi.fn(), removeItem: vi.fn() },
   } as unknown as RootStore;
 
@@ -93,6 +97,54 @@ describe("WebhookModalStore submit", () => {
     await store.onSubmit();
 
     expect(submittedPayload()).toMatchObject({ id: SAVED_WEBHOOK.id, secret: "", bodyTemplate: "" });
+  });
+});
+
+describe("WebhookModalStore delete", () => {
+  it("deletes a listed webhook by id without opening the editor", async () => {
+    const store = makeStore();
+    companyActions.deleteWebhookAction.mockResolvedValue({ ok: true, data: SAVED_WEBHOOK.id });
+
+    await expect(store.deleteById(SAVED_WEBHOOK.id)).resolves.toBe(true);
+
+    expect(companyActions.deleteWebhookAction).toHaveBeenCalledExactlyOnceWith({ id: SAVED_WEBHOOK.id });
+    expect(store.rootStore.webhooksStore.removeItem).toHaveBeenCalledExactlyOnceWith(SAVED_WEBHOOK.id);
+    expect(store.isOpen).toBe(false);
+  });
+
+  it("keeps a webhook listed when its deletion is refused", async () => {
+    const store = makeStore();
+    companyActions.deleteWebhookAction.mockResolvedValue({ ok: false, error: { errors: ["Refused"] } });
+
+    await expect(store.deleteById(SAVED_WEBHOOK.id)).resolves.toBe(false);
+
+    expect(store.rootStore.webhooksStore.removeItem).not.toHaveBeenCalled();
+  });
+
+  it("closes the editor after deleting the webhook it shows", async () => {
+    const store = makeStore();
+    companyActions.deleteWebhookAction.mockResolvedValue({ ok: true, data: SAVED_WEBHOOK.id });
+    store.openWith(SAVED_WEBHOOK);
+
+    await expect(store.delete()).resolves.toBe(true);
+
+    expect(companyActions.deleteWebhookAction).toHaveBeenCalledExactlyOnceWith({ id: SAVED_WEBHOOK.id });
+    expect(store.isOpen).toBe(false);
+    expect(store.isLoading).toBe(false);
+  });
+
+  it.each([
+    ["a webhook without record events", { id: MEMBER_ID, role: { isSystemRole: false } }, null, true],
+    ["the member's own record webhook", { id: MEMBER_ID, role: { isSystemRole: false } }, MEMBER_ID, true],
+    ["another member's record webhook", { id: MEMBER_ID, role: { isSystemRole: false } }, OTHER_MEMBER_ID, false],
+    [
+      "another member's record webhook as administrator",
+      { id: MEMBER_ID, role: { isSystemRole: true } },
+      OTHER_MEMBER_ID,
+      true,
+    ],
+  ])("decides record access ownership for %s", (_label, user, recordOwnerUserId, owns) => {
+    expect(makeStore(user).ownsRecordAccessOf({ recordOwnerUserId })).toBe(owns);
   });
 });
 

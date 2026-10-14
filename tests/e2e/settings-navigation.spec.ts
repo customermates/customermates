@@ -1,5 +1,8 @@
+import { randomUUID } from "node:crypto";
+
 import { presetId } from "../../features/records/crm-preset";
 import { collectPageErrors, expect, test } from "./fixtures";
+import { secondUser } from "./second-user";
 import { openMenu, openSidebar } from "./sidebar";
 
 test("settings live in one area reached from the workspace menu, with Back to the work page", async ({
@@ -165,6 +168,8 @@ test("profile settings show the unsaved-changes bar only while edits are pending
   await firstName.fill(edited);
   await page.locator("#settings-profile-save").click();
   await expect(bar).toHaveCount(0);
+  await openSidebar(page);
+  await expect(page.locator("#nav-personal-menu")).toContainText(edited);
   await page.reload();
   await page.waitForLoadState("networkidle");
   await expect(firstName).toHaveValue(edited);
@@ -176,6 +181,48 @@ test("profile settings show the unsaved-changes bar only while edits are pending
   await page.locator("#settings-profile-save").click();
   await expect(bar).toHaveCount(0);
   expect(errors).toEqual([]);
+});
+
+test("a member whose role has no Users & Roles access opens and saves Profile & preferences", async ({
+  page,
+  browser,
+  database,
+  companyId,
+}, testInfo) => {
+  const model = await page.request.post("/api/v1/model/read", { data: {} });
+  const { revision } = (await model.json()) as { revision: number };
+  const saved = await page.request.post("/api/v1/roles/save", {
+    data: {
+      name: `No Users & Roles ${randomUUID().slice(0, 6)}`,
+      description: "Users & Roles read access None",
+      permissions: [{ resource: "users", actions: [] }],
+      recordGrants: [],
+      expectedRevision: revision,
+      idempotencyKey: randomUUID(),
+    },
+  });
+  expect(saved.status(), await saved.text()).toBe(200);
+  const roleId = ((await saved.json()) as { role: { id: string } }).role.id;
+  const member = await secondUser(browser, database, companyId, testInfo, roleId);
+  try {
+    await member.page.goto("/en/settings/profile");
+    await member.page.waitForLoadState("networkidle");
+    const firstName = member.page.locator("#settings-profile-first-name");
+    await expect(firstName).toHaveValue("Second");
+
+    await firstName.fill("Renamed");
+    await member.page.locator("#settings-profile-save").click();
+    await expect(member.page.locator("[data-slot='unsaved-changes-bar']")).toHaveCount(0);
+    await openSidebar(member.page);
+    await expect(member.page.locator("#nav-personal-menu")).toContainText("Renamed Person");
+
+    await member.page.reload();
+    await member.page.waitForLoadState("networkidle");
+    await expect(firstName).toHaveValue("Renamed");
+    expect(member.errors).toEqual([]);
+  } finally {
+    await member.close();
+  }
 });
 
 test("long profile email stays inside the phone viewport", async ({ page, database, workspace }) => {

@@ -534,9 +534,10 @@ export const getRecordConfigurationWriter = (records: RecordRepo = getRecordRepo
   new RecordConfigurationWriter(records, getRecordCalculationService(records), getWebhookPauseNotifier(companyId));
 export const getGetRecordModelInteractor = () => new GetRecordModelInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getQueryRecordsInteractor = () => new QueryRecordsInteractor(getRecordRepo(), getRecordAccessPolicy());
-export const getExportRecordsInteractor = () => new ExportRecordsInteractor(getRecordRepo(), getRecordAccessPolicy());
+export const getExportRecordsInteractor = () =>
+  new ExportRecordsInteractor(getRecordRepo(), getRecordAccessPolicy(), getEventService());
 export const getExportRecordWorkbookInteractor = () =>
-  new ExportRecordWorkbookInteractor(getRecordRepo(), getRecordAccessPolicy());
+  new ExportRecordWorkbookInteractor(getRecordRepo(), getRecordAccessPolicy(), getEventService());
 export const getImportRecordsInteractor = () =>
   new ImportRecordsInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordWriteService());
 export const getGetRecordInteractor = () => new GetRecordInteractor(getRecordRepo(), getRecordAccessPolicy());
