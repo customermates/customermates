@@ -32,6 +32,7 @@ const pureSkeletons = [
   "components/entity-detail/entity-detail-page-skeleton.tsx",
   "components/forms/settings-form-skeleton.tsx",
   "components/shared/centered-card-page-skeleton.tsx",
+  "app/[locale]/(protected)/configure/components/configure-graph-skeleton.tsx",
   "app/[locale]/(protected)/dashboard/components/dashboard-page-skeleton.tsx",
   "app/[locale]/(protected)/inbox/components/inbox-page-skeleton.tsx",
   "app/[locale]/(protected)/settings/(account)/components/profile-resource-page-skeleton.tsx",

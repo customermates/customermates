@@ -10,7 +10,6 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { observer } from "mobx-react-lite";
-import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useClientReady } from "@/hooks/use-client-ready";
@@ -25,6 +24,7 @@ import { useRecordRouteReady } from "@/components/records/use-record-route-ready
 
 import { discoverRecordTypesAction } from "../../records/actions";
 import { ConfigureTopBarActions } from "./configure-actions";
+import { ConfigureGraphSkeleton } from "./configure-graph-skeleton";
 import { ConfigureListPane } from "./configure-list-pane";
 import { isResolvedField } from "./configure-model";
 import { DataModelStore } from "./data-model.store";
@@ -39,8 +39,8 @@ import { useApplyOnChange } from "@/hooks/use-apply-on-change";
 const ConfigureGraph = dynamic(() => import("./configure-graph").then((module) => module.ConfigureGraph), {
   ssr: false,
   loading: () => (
-    <div aria-busy className="flex min-h-0 flex-1 items-center justify-center" data-configure-graph-loading="">
-      <Loader2 aria-hidden className="size-5 animate-spin text-muted-foreground" />
+    <div aria-busy className="flex min-h-0 flex-1" data-configure-graph-loading="">
+      <ConfigureGraphSkeleton />
     </div>
   ),
 });

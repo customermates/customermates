@@ -26,6 +26,7 @@ export const domTestFiles = [
   "app/**/records/**/components/__tests__/use-record-deletion.dom.test.ts",
   "app/**/records/**/components/__tests__/record-import-dialog.dom.test.ts",
   "app/**/configure/components/__tests__/calculation-literal-input.dom.test.ts",
+  "app/**/configure/components/__tests__/configure-graph-skeleton.dom.test.ts",
   "features/messaging/activities/__tests__/record-activities-panel.test.ts",
   "components/ai-elements/__tests__/message-links.test.ts",
   "app/[locale]/(public)/auth/reset-password/__tests__/reset-password-form.test.ts",
