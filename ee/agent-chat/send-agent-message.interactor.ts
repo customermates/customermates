@@ -299,7 +299,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     };
 
     const userName = `${user.firstName} ${user.lastName}`.trim();
-    const requestedToolsets = toolsetsForRequest({ text: data.text, pageRoute, contexts });
+    const requestedToolsets = toolsetsForRequest({ text: data.text, pageRoute, contexts, surface });
     const schemaDigest = await this.schemaDigest();
     const requiredContextBytes = conservativeAgentInitialContextBytes({
       systemPrompt: agentSystemPromptParts({

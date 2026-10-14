@@ -310,7 +310,9 @@ export function toolsetsForRequest(args: {
   text: string;
   pageRoute: string | null;
   contexts?: readonly AgentContextAttachment[];
+  surface?: "chat" | "routine";
 }): Set<AgentOnDemandToolset> {
+  if (args.surface === "routine") return new Set();
   const text = normalizeText(args.text);
   const route = args.pageRoute ? normalizeText(args.pageRoute).replace(/^\/[a-z]{2}(?=\/|$)/, "") : "";
   const matched = new Set<AgentOnDemandToolset>();

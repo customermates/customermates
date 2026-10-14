@@ -63,6 +63,16 @@ describe("toolset lexicon", () => {
 });
 
 describe("toolsetsForRequest", () => {
+  it("starts unattended routines with core tools even when reusable instructions mention other capabilities", () => {
+    const text =
+      '<routine_trigger event="record.updated" />\nRead records. Do not send messages or change roles or routines.';
+    expect([...toolsetsForRequest({ text, pageRoute: null, surface: "routine" })]).toEqual([]);
+    expect([...toolsetsForRequest({ text, pageRoute: null, surface: "chat" })]).toEqual([
+      "messaging",
+      "routines",
+      "admin",
+    ]);
+  });
   it("discovers personal detail layout controls in all application locales", () => {
     for (const text of [
       "Change my detail layout",

@@ -4091,6 +4091,7 @@
   "RoutineRunStopReason": {
     "cancelled": "L’exécution a été annulée.",
     "contentFilter": "Le fournisseur d’IA a bloqué une partie de cette exécution ; aucune autre modification n’a donc été effectuée.",
+    "contextLimit": "L’exécution s’est arrêtée car son contexte dépassait la limite du fournisseur du modèle, même après compression.",
     "creditLimit": "L’exécution s’est arrêtée faute de crédits Assistant disponibles.",
     "hostedAiUnavailable": "L’IA hébergée est devenue indisponible avant la fin de l’exécution.",
     "policyBreach": "Le fournisseur d’IA a dépassé le budget de crédits réservé ; l’exécution a donc été arrêtée.",

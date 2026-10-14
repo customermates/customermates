@@ -160,6 +160,7 @@ describe("agent turn terminal classification", () => {
       "hosted_ai_unavailable",
       "cancelled",
       "turn_error",
+      "context_limit",
       "policy_breach",
     ]);
     expect(AGENT_TURN_STOP_REASONS.every(isAgentTurnStopReason)).toBe(true);

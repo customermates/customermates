@@ -4091,6 +4091,7 @@
   "RoutineRunStopReason": {
     "cancelled": "Der Lauf wurde abgebrochen.",
     "contentFilter": "Der KI-Anbieter hat einen Teil dieses Laufs blockiert. Es wurden keine weiteren Änderungen vorgenommen.",
+    "contextLimit": "Der Lauf wurde beendet, weil sein Kontext auch nach der Komprimierung nicht in die Grenze des Modellanbieters passte.",
     "creditLimit": "Der Lauf wurde beendet, weil das verfügbare Assistenten-Guthaben aufgebraucht war.",
     "hostedAiUnavailable": "Die gehostete KI war nicht mehr verfügbar, bevor der Lauf abgeschlossen werden konnte.",
     "policyBreach": "Der KI-Anbieter hat das reservierte Guthabenbudget überschritten; deshalb wurde der Lauf beendet.",

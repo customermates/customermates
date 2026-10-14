@@ -84083,6 +84083,7 @@
                                   "hosted_ai_unavailable",
                                   "cancelled",
                                   "turn_error",
+                                  "context_limit",
                                   "policy_breach"
                                 ]
                               },

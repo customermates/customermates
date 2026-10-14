@@ -6,6 +6,8 @@ import { z } from "zod";
 import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
 
 import { createMockUser } from "@/tests/helpers/mock-user";
+import { recordRoutinePrompt } from "@/prisma/seeds/record-routine-prompts";
+import { composeRoutinePrompt } from "@/ee/routines/routine-prompt";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { presetId } from "@/features/records/crm-preset";
 import { resolvePublicAppLinks } from "@/features/docs/app-links";
@@ -72,9 +74,10 @@ import {
   agentContextTokensToBytes,
   agentRoundWorstCaseMicrocents,
   resolveAgentTurnBudget,
+  serializedAgentContextBytes,
 } from "../agent-budget-policy";
 import { SendAgentMessageSchema } from "../agent-chat.schema";
-import { conservativeAgentInitialContextBytes } from "../agent-provider-context";
+import { buildAgentProviderContext, conservativeAgentInitialContextBytes } from "../agent-provider-context";
 import { toolsetsForRequest } from "../agent-toolset-routing";
 import { ANALYZE_RECORDS_TOOL_NAME } from "../agent-toolset-routing";
 import { WIKI_REFERENCE_MAX_BYTES, agentWikiReferenceBytes, serializeAgentWikiCatalog } from "../agent-wiki-context";
@@ -540,6 +543,102 @@ describe("agent tools", () => {
     expect(funded).not.toBeNull();
     expect(funded?.maxContextBytes).toBeGreaterThanOrEqual(requiredContextBytes ?? Number.POSITIVE_INFINITY);
     expect(funded?.maxOutputTokens).toBe(model.maxOutputTokens);
+  });
+
+  it.each([12, 18])("fits the seeded stage-change routine %i in the provider budget", (index) => {
+    const prompt = composeRoutinePrompt(recordRoutinePrompt(index), {
+      routineName: `Seed routine ${index}`,
+      triggerEvent: "record.updated",
+      triggerEntityId: "30000000-0000-4000-8000-000000000042",
+      triggerPayload: {
+        event: "record.updated",
+        id: "30000000-0000-4000-8000-000000000043",
+        timestamp: "2026-10-14T00:00:00.000Z",
+        companyId: "30000000-0000-4000-8000-000000000040",
+        actorId: "30000000-0000-4000-8000-000000000044",
+        data: {
+          causeId: "stage-change",
+          cause: { kind: "mutation" },
+          record: {
+            ref: { typeId: "30000000-0000-4000-8000-000000000041", recordId: "30000000-0000-4000-8000-000000000042" },
+            schemaRevision: 1,
+            beforeVersion: 1,
+            afterVersion: 2,
+            assignments: null,
+            identities: null,
+            links: [],
+            related: [],
+            fields: [
+              {
+                fieldId: "30000000-0000-4000-8000-000000000045",
+                before: null,
+                after: {
+                  fieldId: "30000000-0000-4000-8000-000000000045",
+                  label: "Stage",
+                  valueType: "select",
+                  options: [],
+                  value: { state: "restricted" },
+                },
+              },
+            ],
+          },
+        },
+      },
+    });
+    const toolsets = [
+      ...toolsetsForRequest({
+        text: prompt,
+        pageRoute: null,
+        contexts: [],
+        surface: "routine",
+      }),
+    ];
+    const definitions = agentToolDefinitionsForToolsets(
+      agentToolDefinitionsForTurn({
+        servingProvider: SHIPPED_AGENT_MODEL.servingProvider,
+        surface: "routine",
+        webSearchEnabled: true,
+      }),
+      toolsets,
+    );
+    const systemPrompt = buildAgentSystemPrompt({
+      userName: "Elena Hoffmann",
+      locale: "en",
+      surface: "routine",
+      triggerEvent: "record.updated",
+      loadedToolsets: toolsets,
+      webSearchEnabled: true,
+    });
+    const context = buildAgentProviderContext(systemPrompt, [{ role: "user", text: prompt }], definitions);
+    const requiredContextBytes = conservativeAgentInitialContextBytes({
+      systemPrompt,
+      currentText: prompt,
+      pageRoute: null,
+      toolDefinitions: definitions,
+    });
+    const funded = resolveAgentTurnBudget({
+      model: SHIPPED_AGENT_MODEL,
+      availableMicrocents: agentRoundWorstCaseMicrocents(SHIPPED_AGENT_MODEL),
+      requiredContextBytes: requiredContextBytes ?? undefined,
+    });
+    const budget = funded?.maxContextBytes ?? 0;
+    const bytes = serializedAgentContextBytes(context);
+    expect(toolsets).toEqual([]);
+    expect(prompt).toContain('changedFieldLabels="Stage"');
+    expect(funded).not.toBeNull();
+    expect(bytes).not.toBeNull();
+    expect(budget - (bytes ?? budget)).toBeGreaterThan(60_000);
+    const modelTools = agentToolDefinitionsForToolsets(
+      agentToolDefinitionsForTurn({
+        servingProvider: SHIPPED_AGENT_MODEL.servingProvider,
+        surface: "routine",
+        webSearchEnabled: true,
+      }),
+      ["record-model"],
+    );
+    expect(serializedAgentContextBytes({ ...context, tools: modelTools }) ?? Number.POSITIVE_INFINITY).toBeLessThan(
+      budget - 8_192,
+    );
   });
 
   it.each([

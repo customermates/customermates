@@ -4091,6 +4091,7 @@
   "RoutineRunStopReason": {
     "cancelled": "La ejecución se canceló.",
     "contentFilter": "El proveedor de IA bloqueó parte de esta ejecución, por lo que no se realizaron más cambios.",
+    "contextLimit": "La ejecución se detuvo porque su contexto superaba el límite del proveedor del modelo incluso tras compactarlo.",
     "creditLimit": "La ejecución se detuvo porque se agotaron sus créditos de Asistente disponibles.",
     "hostedAiUnavailable": "La IA alojada dejó de estar disponible antes de que terminara la ejecución.",
     "policyBreach": "El proveedor de IA superó el presupuesto de créditos reservado, por lo que se detuvo la ejecución.",

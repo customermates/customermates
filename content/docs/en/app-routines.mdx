@@ -57,6 +57,8 @@ Leave both empty to run on every matching event. An event starts a run only for 
 
 Mate is told what happened before your instructions: the event, the kind of record and its ID, the changed fields on an update, and for an inbox event the thread. It can read the record from there but does not get the previous values.
 
+An event run starts with core CRM tools and loads other tool sets when needed. This keeps unrelated tool descriptions out of the model context. If the context still exceeds the provider budget after compaction, the run stops and its history states the context-limit reason.
+
 ## What do the runs and their statuses mean? [#what-do-the-runs-and-their-statuses-mean]
 
 Open a routine to see its **Runs**, newest first: next to the configuration on a wide screen, or behind the **Details** and **Runs** switch on a narrow one. Click a run for **Run details**: **Ran as** with the owner's name, the credits used (exact provider cost to one decimal), the trigger (**Record**, **Changed fields**, **Conversation**) and, when it stopped early, the reason. Only the person it ran as can open the full transcript, and once the run has finished they can reply below it to continue the conversation with Mate, which spends their credits.
