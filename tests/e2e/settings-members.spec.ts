@@ -32,6 +32,18 @@ test("the members row menu deletes another member through the guarded deactivati
     "Open details",
   ]);
   expect(await rowActionLabels(page, memberRow("Nora Second"), "Nora Second")).toEqual(["Open details", "Delete"]);
+  const member = page.getByRole("dialog");
+  await runRowAction(page, memberRow("Browser Administrator"), "Browser Administrator", "Open details");
+  await expect(member.locator("#member-modal-role")).toBeDisabled();
+  await expect(member.locator("#member-modal-status")).toBeDisabled();
+  await expect(member.locator("#member-modal-first-name")).toHaveAttribute("readonly", "");
+  await page.keyboard.press("Escape");
+  await expect(member).toHaveCount(0);
+  await runRowAction(page, memberRow("Nora Second"), "Nora Second", "Open details");
+  await expect(member.locator("#member-modal-role")).toBeEnabled();
+  await expect(member.locator("#member-modal-status")).toBeEnabled();
+  await page.keyboard.press("Escape");
+  await expect(member).toHaveCount(0);
   await openItemMenu(
     page,
     memberRow("Nora Second").getByRole("button", { name: "More actions for Nora Second", exact: true }),

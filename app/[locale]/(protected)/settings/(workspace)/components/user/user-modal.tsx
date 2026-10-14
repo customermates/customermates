@@ -109,6 +109,7 @@ export const CompanyUserModal = observer(() => {
 
             <FormSelect
               required
+              disabled={isOwnProfile}
               id="roleId"
               inputId="member-modal-role"
               items={rolesStore.items.map((item) => ({
@@ -126,6 +127,7 @@ export const CompanyUserModal = observer(() => {
 
             <FormSelectChip
               required
+              disabled={isOwnProfile}
               disabledKeys={new Set([Status.pendingAuthorization])}
               id="status"
               inputId="member-modal-status"
