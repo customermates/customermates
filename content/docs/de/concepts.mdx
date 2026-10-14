@@ -7,13 +7,13 @@ Customermates speichert CRM-Daten in konfigurierbaren Listen. Ein Workspace begi
 
 ## Welche Datensatztypen gibt es, und mit welchen beginnt ein Workspace? [#which-five-record-types-exist]
 
-| Startliste | Zweck | Beginnt mit |
-| --- | --- | --- |
-| [Kontakte](app:records/contact) | Personen | Name, Kanäle, Notizen, Zuweisungen |
-| [Organisationen](app:records/organization) | Firmen oder Accounts | Name, Notizen, Zuweisungen |
-| [Deals](app:records/deal) | Verkaufschancen | Name, Positionen, berechneter Wert und Menge, optional gewichteter Wert |
-| [Services](app:records/service) | Angebote oder Katalogeinträge | Name, aktueller Einzelpreis |
-| [Aufgaben](app:records/task) | Arbeitsschritte | Name, Zuweisungen, Status; Genehmigungsaufgaben behalten geschützte Aktionen |
+| Startliste                                 | Zweck                         | Beginnt mit                                                                  |
+| ------------------------------------------ | ----------------------------- | ---------------------------------------------------------------------------- |
+| [Kontakte](app:records/contact)            | Personen                      | Name, Kanäle, Notizen, Zuweisungen                                           |
+| [Organisationen](app:records/organization) | Firmen oder Accounts          | Name, Notizen, Zuweisungen                                                   |
+| [Deals](app:records/deal)                  | Verkaufschancen               | Name, Positionen, berechneter Wert und Menge, optional gewichteter Wert      |
+| [Services](app:records/service)            | Angebote oder Katalogeinträge | Name, aktueller Einzelpreis                                                  |
+| [Aufgaben](app:records/task)               | Arbeitsschritte               | Name, Zuweisungen, Status; Genehmigungsaufgaben behalten geschützte Aktionen |
 
 Startlisten sind gewöhnliche Listen: Felder, Beziehungen und Darstellung lassen sich wie bei jeder eigenen Liste erweitern oder ändern. Um Nachrichten Datensätzen zuzuordnen, fügen Sie einer Liste ein Feld **Kanäle** hinzu: die E-Mail-Adressen, WhatsApp-Telefonnummern und sozialen Konten, über die Nachrichten einem Datensatz zugeordnet werden. Es ist ein normales Feld, das Sie wie jedes andere verschieben, anheften und bearbeiten können; eine Kennung kann zu mehreren Datensätzen passen. Gewöhnliche E-Mail- und Telefonfelder nehmen an der Zuordnung nicht teil.
 
@@ -75,7 +75,7 @@ Ein Schema-Verwalter bearbeitet Phasen, Wahrscheinlichkeiten oder die Formel auf
 
 ## Was sind Widgets? [#what-are-widgets]
 
-Ein Diagramm-Widget im [Dashboard](app:dashboard) wählt eine Liste, eine Aggregation und ein Wertfeld, optionale Filter, eine Gruppierung und eine Darstellung, etwa die Summe des Deal-Werts nach Phase oder die Anzahl der Projekte nach Besitzer. Jeder Datensatz zählt einmal auf der Liste, aus der er stammt; ein Deal mit zwei Organisationen zählt in beiden Gruppen voll, daher können Gruppensummen die Gesamtsumme übersteigen. Service-Diagramme zählen Positionen. Widgets folgen denselben Zugriffsregeln wie Listen. Aktivitäts-Widgets zeigen einen Verlauf statt einer Zahl. Siehe [Dashboard](/docs/app-dashboard).
+Ein Diagramm-Widget im [Dashboard](app:dashboard) wählt eine Quellliste und eine Aggregation, bei anderen Aggregationen als Anzahl auch ein Wertfeld, sowie optionale Filter, eine Gruppierung und eine Darstellung, etwa die Summe des Deal-Werts nach Phase oder die Anzahl der Projekte nach Besitzer. Jeder Datensatz zählt einmal auf der Liste, aus der er stammt; ein Deal mit zwei Organisationen zählt in beiden Gruppen voll, daher können Gruppensummen die Gesamtsumme übersteigen. Ein Anzahl-Diagramm mit Services als Quellliste zählt Service-Datensätze; mit Positionen als Quellliste zählt es Positionsdatensätze. Widgets folgen denselben Zugriffsregeln wie Listen. Aktivitäts-Widgets zeigen einen Verlauf statt einer Zahl. Siehe [Dashboard](/docs/app-dashboard).
 
 ## Was sind Webhooks? [#what-are-webhooks]
 

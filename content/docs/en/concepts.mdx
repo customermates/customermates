@@ -7,13 +7,13 @@ Customermates keeps CRM data in configurable lists. A workspace starts with Cont
 
 ## Which record types exist, and which does a workspace start with? [#which-five-record-types-exist]
 
-| Starting list | Purpose | Starts with |
-| --- | --- | --- |
-| [Contacts](app:records/contact) | People | Name, channels, notes, assignments |
-| [Organizations](app:records/organization) | Companies or accounts | Name, notes, assignments |
-| [Deals](app:records/deal) | Sales opportunities | Name, line items, calculated value and quantity, optional weighted value |
-| [Services](app:records/service) | Offerings or catalog items | Name, live unit price |
-| [Tasks](app:records/task) | Work items | Name, assignments, status; membership-approval tasks keep protected actions |
+| Starting list                             | Purpose                    | Starts with                                                                 |
+| ----------------------------------------- | -------------------------- | --------------------------------------------------------------------------- |
+| [Contacts](app:records/contact)           | People                     | Name, channels, notes, assignments                                          |
+| [Organizations](app:records/organization) | Companies or accounts      | Name, notes, assignments                                                    |
+| [Deals](app:records/deal)                 | Sales opportunities        | Name, line items, calculated value and quantity, optional weighted value    |
+| [Services](app:records/service)           | Offerings or catalog items | Name, live unit price                                                       |
+| [Tasks](app:records/task)                 | Work items                 | Name, assignments, status; membership-approval tasks keep protected actions |
 
 Starting lists are ordinary lists: you can extend or change their fields, relationships and layout like any list you create. To match messages to records, add a **Channels** field to a list: the email addresses, WhatsApp phone numbers and social accounts that match messages to a record. It is a normal field you can move, pin and edit like any other; one identifier can match several records. Ordinary email and phone fields do not take part in matching.
 
@@ -75,7 +75,7 @@ A schema manager edits the stages, their probabilities or the formula on the [De
 
 ## What are widgets? [#what-are-widgets]
 
-A chart widget on the [Dashboard](app:dashboard) picks a list, an aggregation and a value field, optional filters, a grouping and a display style, for example the sum of Deal value by Stage or the count of Projects by Owner. Each record counts once at the list it comes from; a deal linked to two organizations counts fully in both groups, so grouped totals can exceed the overall total. Service charts count line items. Widgets follow the same access rules as lists. Activity widgets show a feed instead of a number. See [Dashboard](/docs/app-dashboard).
+A chart widget on the [Dashboard](app:dashboard) picks a source list and an aggregation, a value field for aggregations other than count, optional filters, a grouping and a display style, for example the sum of Deal value by Stage or the count of Projects by Owner. Each record counts once at the list it comes from; a deal linked to two organizations counts fully in both groups, so grouped totals can exceed the overall total. A count chart sourced from Services counts Service records; one sourced from Line items counts Line item records. Widgets follow the same access rules as lists. Activity widgets show a feed instead of a number. See [Dashboard](/docs/app-dashboard).
 
 ## What are webhooks? [#what-are-webhooks]
 

@@ -6,6 +6,18 @@ import { RecordIdentitySchema } from "./record-identity.schema";
 import { RecordRelationshipPathSchema } from "./record-relationship-path.schema";
 import { GroupSummaryDefinitionSchema } from "@/core/base/grouping/grouping.schema";
 
+export const RecordNameSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(200)
+  .regex(/^[^\u0000]*$/);
+const RecordOptionNameSchema = z
+  .string()
+  .min(1)
+  .max(200)
+  .regex(/^[^\u0000]*$/);
+
 export const RecordRefSchema = z.object({ typeId: z.uuid(), recordId: z.uuid() }).strict();
 export type RecordRef = z.infer<typeof RecordRefSchema>;
 
@@ -293,7 +305,7 @@ export const RecordFieldSchema = z
   .object({
     id: z.uuid(),
     typeId: z.uuid(),
-    label: z.string().trim().min(1).max(200),
+    label: RecordNameSchema,
     valueType: RecordValueTypeSchema.describe(
       "channels: email addresses, WhatsApp phone numbers and social accounts that match messages to the record. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields).",
     ),
@@ -337,7 +349,7 @@ export const RecordFieldSchema = z
       z
         .object({
           id: z.string().min(1).max(200),
-          label: z.string().min(1).max(200),
+          label: RecordOptionNameSchema,
           color: z.string().max(64).nullable(),
           attributes: z.array(z.object({ key: z.string().max(64), value: RecordScalarSchema }).strict()),
         })
@@ -353,8 +365,8 @@ export const RecordRelationshipSchema = z
     id: z.uuid(),
     sourceTypeId: z.uuid(),
     targetTypeId: z.uuid(),
-    sourceLabel: z.string().trim().min(1).max(200),
-    targetLabel: z.string().trim().min(1).max(200),
+    sourceLabel: RecordNameSchema,
+    targetLabel: RecordNameSchema,
     sourceCardinality: z.enum(["one", "many"]),
     targetCardinality: z.enum(["one", "many"]),
     onSourceDelete: z.enum(["unlink", "restrict", "cascade"]),
@@ -376,8 +388,8 @@ export type RecordGroupSummaryDefinition = z.infer<typeof RecordGroupSummaryDefi
 export const RecordTypeSchema = z
   .object({
     id: z.uuid(),
-    label: z.string().trim().min(1).max(200),
-    pluralLabel: z.string().trim().min(1).max(200),
+    label: RecordNameSchema,
+    pluralLabel: RecordNameSchema,
     description: z.string().max(4000),
     icon: z.string().max(64),
     color: z.enum(CHIP_COLORS).optional().describe("Chip color for links to records of this list; neutral when unset."),
@@ -401,7 +413,7 @@ export const RecordGrantSchema = z
 export const RecordAccessPresetSchema = z
   .object({
     id: z.uuid(),
-    label: z.string().trim().min(1).max(200),
+    label: RecordNameSchema,
     grants: z.array(RecordGrantSchema),
     archived: z.boolean(),
   })

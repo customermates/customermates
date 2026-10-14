@@ -16,7 +16,7 @@ Webhooks lassen andere Systeme auf CRM-Änderungen reagieren, ohne zu pollen, et
 
 | Feld | Wirkung |
 | --- | --- |
-| **URL** | Pflichtfeld. Ein HTTP- oder HTTPS-Endpunkt mit gültigem Host und ohne Benutzername oder Passwort erhält für jedes abonnierte Ereignis einen `POST`. Eine URL ohne Schema wird mit vorangestelltem `https://` gespeichert. Andere URL-Schemata wie `mailto:` und `tel:` werden abgelehnt. |
+| **URL** | Pflichtfeld. Ein HTTP- oder HTTPS-Endpunkt mit gültigem Host und ohne Benutzername oder Passwort erhält für jedes abonnierte Ereignis einen `POST`. Eine URL ohne Schema wird mit vorangestelltem `https://` gespeichert. Internationale Hostnamen und Pfade werden in ihrer ASCII-URL-Form gespeichert. Andere URL-Schemata wie `mailto:` und `tel:` werden abgelehnt. |
 | **Beschreibung** | Optional, bis zu 500 Zeichen. Erscheint in der Liste. |
 | **Ereignisse** | Pflichtfeld. Ein oder mehrere Ereignisse aus dem [Katalog](#which-events-exist). |
 | **Secret** | Optional, 1 bis 256 Zeichen. Signiert jede Zustellung (siehe [Wie prüfe ich die Signatur?](#how-do-i-verify-the-signature)). |

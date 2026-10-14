@@ -6,6 +6,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createApiKeyTenant } from "@/tests/helpers/api-key-tenant-fixture";
+import { assertPublishedResponse } from "@/tests/helpers/openapi-validator";
 
 const requestContext = vi.hoisted(() => ({ headers: new Headers() }));
 
@@ -22,8 +23,8 @@ vi.mock("next-intl/server", () => ({
   },
 }));
 
-import { GET as listWebhooks } from "../route";
-import { GET as readWebhook, PATCH as updateWebhook } from "../[id]/route";
+import { GET as listWebhooks, POST as createWebhook } from "../route";
+import { DELETE as deleteWebhook, GET as readWebhook, PATCH as updateWebhook } from "../[id]/route";
 import { GET as listDeliveries } from "../[id]/deliveries/route";
 import { POST as resendDelivery } from "../[id]/deliveries/[deliveryId]/resend/route";
 
@@ -236,5 +237,40 @@ describeDatabase("webhook REST routes over API keys", () => {
       headerNames: ["Authorization"],
     });
     expect(JSON.stringify(patched.body)).not.toContain("fixture-secret-value");
+  });
+
+  it.each([
+    ["https://bücher.example/hook", "https://xn--bcher-kva.example/hook"],
+    ["https://example.com/über", "https://example.com/%C3%BCber"],
+  ])("stores an international URL as a schema-valid URI", async (url, canonical) => {
+    const created = await read(
+      await createWebhook(
+        request("", "POST", admin.apiKey, {
+          url,
+          events: ["messaging.message.received"],
+          enabled: false,
+        }),
+      ),
+    );
+    expect(created.status).toBe(201);
+    expect(created.body.url).toBe(canonical);
+    assertPublishedResponse("/v1/webhooks", "post", created.status, created.body);
+    const id = created.body.id as string;
+    try {
+      expect((await client.query('SELECT "url" FROM "Webhook" WHERE "id" = $1', [id])).rows).toEqual([
+        { url: canonical },
+      ]);
+      const fetched = await read(
+        await readWebhook(request(`/${id}`, "GET", admin.apiKey), {
+          params: Promise.resolve({ id }),
+        }),
+      );
+      expect(fetched.body.url).toBe(canonical);
+      assertPublishedResponse("/v1/webhooks/{id}", "get", fetched.status, fetched.body);
+    } finally {
+      await deleteWebhook(request(`/${id}`, "DELETE", admin.apiKey), {
+        params: Promise.resolve({ id }),
+      });
+    }
   });
 });
