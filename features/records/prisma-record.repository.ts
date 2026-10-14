@@ -1470,12 +1470,17 @@ export class PrismaRecordRepo
     });
   }
 
-  async restoreLink(id: string): Promise<void> {
-    await this.prisma.recordLink.updateMany({ where: { companyId: this.companyId, id }, data: { deletedAt: null } });
+  async restoreLink(relationId: string, id: string): Promise<void> {
+    await this.prisma.recordLink.updateMany({
+      where: { companyId: this.companyId, relationId, id },
+      data: { deletedAt: null },
+    });
   }
 
-  async dropTrashedLink(id: string): Promise<void> {
-    await this.prisma.recordLink.deleteMany({ where: { companyId: this.companyId, id, deletedAt: { not: null } } });
+  async dropTrashedLink(relationId: string, id: string): Promise<void> {
+    await this.prisma.recordLink.deleteMany({
+      where: { companyId: this.companyId, relationId, id, deletedAt: { not: null } },
+    });
   }
 
   async removeTrashItems(ids: string[]): Promise<void> {
@@ -1667,18 +1672,20 @@ export class PrismaRecordRepo
     }));
   }
 
-  async getLinksCompanyWidePage(ref: RecordRef, afterId: string | undefined, take: number) {
+  async getLinksCompanyWidePage(ref: RecordRef, after: { id: string; relationId: string } | undefined, take: number) {
     const rows = await this.prisma.recordLink.findMany({
       where: {
         companyId: this.companyId,
         deletedAt: null,
-        ...(afterId ? { id: { gt: afterId } } : {}),
+        ...(after
+          ? { AND: { OR: [{ id: { gt: after.id } }, { id: after.id, relationId: { gt: after.relationId } }] } }
+          : {}),
         OR: [
           { sourceTypeId: ref.typeId, sourceId: ref.recordId },
           { targetTypeId: ref.typeId, targetId: ref.recordId },
         ],
       },
-      orderBy: { id: "asc" },
+      orderBy: [{ id: "asc" }, { relationId: "asc" }],
       take,
     });
     return rows.map((row) => ({

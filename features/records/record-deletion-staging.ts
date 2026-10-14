@@ -18,6 +18,7 @@ export const DeletionCursorSchema = z.object({
   phase: z.enum(["deletePlan", "deleteLinks", "deleteRecords", "deleteTouches"]),
   index: z.number().int().nonnegative(),
   afterId: z.string().optional(),
+  afterRelationId: z.string().optional(),
   ref: RecordRefSchema.optional(),
   root: z.string().optional(),
 });
@@ -55,7 +56,7 @@ export class RecordDeletionStaging {
     if (cursor.phase === "deletePlan") {
       let ref = cursor.ref;
       let root = cursor.root;
-      let afterId = cursor.afterId;
+      let after = cursor.afterId ? { id: cursor.afterId, relationId: cursor.afterRelationId ?? "" } : undefined;
       let processed = 0;
       let edgesRead = 0;
       while (processed < this.batchSize && edgesRead < this.batchSize) {
@@ -78,7 +79,7 @@ export class RecordDeletionStaging {
           };
         }
         const key = recordKey(ref);
-        if (!afterId) {
+        if (!after) {
           if (!model.types.some((type) => type.id === ref?.typeId && !type.archived))
             throw unwindFailure(CustomErrorCode.recordTypeNotFound, "not_found");
           const row = await this.records.getRecordCompanyWide(ref);
@@ -95,7 +96,7 @@ export class RecordDeletionStaging {
           await this.records.stageRow(this.operationId, "delete-affected", key, ref);
         }
         const take = this.batchSize - edgesRead;
-        const edges = await this.records.getLinksCompanyWidePage(ref, afterId, take);
+        const edges = await this.records.getLinksCompanyWidePage(ref, after, take);
         for (const edge of edges) {
           const relation = recordInvariant(model.relationships.find((relation) => relation.id === edge.relationId));
           const outgoing = recordKey(edge.source) === key;
@@ -114,16 +115,28 @@ export class RecordDeletionStaging {
             await this.records.stageRow(this.operationId, "delete-restrict", recordKey(opposite), opposite);
         }
         edgesRead += edges.length;
-        if (edges.length === take) afterId = recordInvariant(edges.at(-1)).id;
-        else {
+        if (edges.length === take) {
+          const last = recordInvariant(edges.at(-1));
+          after = { id: last.id, relationId: last.relationId };
+        } else {
           await this.records.completeDeletionRef(this.operationId, ref);
           processed++;
           ref = undefined;
           root = undefined;
-          afterId = undefined;
+          after = undefined;
         }
       }
-      return { cursor: { phase: "deletePlan", index: cursor.index + 1, ref, root, afterId }, processed };
+      return {
+        cursor: {
+          phase: "deletePlan",
+          index: cursor.index + 1,
+          ref,
+          root,
+          afterId: after?.id,
+          afterRelationId: after?.relationId,
+        },
+        processed,
+      };
     }
 
     const kind =

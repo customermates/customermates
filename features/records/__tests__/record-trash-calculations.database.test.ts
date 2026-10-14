@@ -40,6 +40,7 @@ const { RecordCalculationService, recordKey } = await import("../record-calculat
 const { RecordWriteService, sameRecordResult } = await import("../record-write.service");
 const { MutateRecordInteractor } = await import("../mutate-record.interactor");
 const { GetRecordInteractor } = await import("../get-record.interactor");
+const { PreviewRecordDeletionInteractor } = await import("../preview-record-deletion.interactor");
 const { RecordTrashHandler } = await import("../record-trash.handler");
 const { PrismaTrashRepo } = await import("@/features/trash/prisma-trash.repository");
 const { QueryTrashInteractor } = await import("@/features/trash/query-trash.interactor");
@@ -183,6 +184,10 @@ function extendModel(model: RecordModel, id: (key: string) => string) {
   add("contact", "contact.championOf", "text", {
     kind: "lookup",
     expression: related(id("deal.champion"), "incoming", field(id("deal.name")), "one"),
+  });
+  add("service", "service.quantitySold", "number", {
+    kind: "rollup",
+    expression: related(id("lineItem.service"), "incoming", field(id("lineItem.quantity")), "sum"),
   });
 }
 
@@ -537,19 +542,90 @@ async function seedDeals(f: Fixture, account: RecordRef, count: number, itemsPer
             model.revision,
           );
         }
-        const calculations = new RecordCalculationService(f.repo);
-        const { validateRecordModel } = await import("../record-model-validation");
-        for (const fieldId of validateRecordModel(model).calculationOrder) {
-          const definition = model.fields.find((candidate) => candidate.id === fieldId);
-          if (!definition || definition.behavior.kind === "snapshot") continue;
-          const refs = await f.repo.getRecordRefsCompanyWide(definition.typeId, undefined, 5000);
-          for (const ref of refs) await calculations.calculateField(model, ref, fieldId, 5000);
-        }
+        await recalculateAll(f, model);
       },
       { timeout: 600000 },
     ),
   );
   return deals;
+}
+
+async function recalculateAll(f: Fixture, model: RecordModel) {
+  const calculations = new RecordCalculationService(f.repo);
+  const { validateRecordModel } = await import("../record-model-validation");
+  for (const fieldId of validateRecordModel(model).calculationOrder) {
+    const definition = model.fields.find((candidate) => candidate.id === fieldId);
+    if (!definition || definition.behavior.kind === "snapshot") continue;
+    const refs = await f.repo.getRecordRefsCompanyWide(definition.typeId, undefined, 5000);
+    for (const ref of refs) await calculations.calculateField(model, ref, fieldId, 5000);
+  }
+}
+
+async function shareLinkIds(f: Fixture, rows: RecordRef[]) {
+  const recordIds = rows.map((row) => row.recordId);
+  await runWithoutTenant(async () => {
+    for (const relation of ["lineItem.deal", "lineItem.service"]) {
+      await prisma.$executeRaw`UPDATE "RecordLink" SET id = "sourceId" WHERE "companyId" = ${f.seed.company.id}
+        AND "relationId" = ${f.id(relation)} AND "sourceId" = ANY(${recordIds})`;
+    }
+  });
+}
+
+async function seedLineItemsSharingLinkIds(
+  f: Fixture,
+  parent: RecordRef,
+  serviceAt: (index: number) => RecordRef,
+  count: number,
+) {
+  const companyId = f.seed.company.id;
+  const rows = Array.from({ length: count }, (_, index) => ({
+    typeId: f.id("lineItem"),
+    recordId: `00000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`,
+  }));
+  await runWithoutTenant(async () => {
+    await prisma.crmRecord.createMany({
+      data: rows.map((ref) => ({ companyId, typeId: ref.typeId, id: ref.recordId })),
+    });
+    await prisma.recordLink.createMany({
+      data: [
+        ...rows.map((ref) => ({ relationId: f.id("lineItem.deal"), source: ref, target: parent })),
+        ...rows.map((ref, index) => ({ relationId: f.id("lineItem.service"), source: ref, target: serviceAt(index) })),
+      ].map((link) => ({
+        companyId,
+        id: link.source.recordId,
+        relationId: link.relationId,
+        sourceTypeId: link.source.typeId,
+        sourceId: link.source.recordId,
+        targetTypeId: link.target.typeId,
+        targetId: link.target.recordId,
+      })),
+    });
+  });
+  await runWithTenant(f.admin, () =>
+    runInTransaction(
+      async () => {
+        const model = await f.repo.getModel();
+        for (const ref of rows) {
+          await f.repo.setValue(ref, f.id("lineItem.name"), { state: "value", value: text("Row") }, model.revision);
+          await f.repo.setValue(
+            ref,
+            f.id("lineItem.quantity"),
+            { state: "value", value: decimal("1") },
+            model.revision,
+          );
+          await f.repo.setValue(
+            ref,
+            f.id("lineItem.pricingMode"),
+            { state: "value", value: { kind: "select", value: "live" } },
+            model.revision,
+          );
+        }
+        await recalculateAll(f, model);
+      },
+      { timeout: 600000 },
+    ),
+  );
+  return rows;
 }
 
 const ORGANIZATION_ROLLUPS = [
@@ -1075,4 +1151,141 @@ describeDatabase("record trash calculations", () => {
     expect((await f.rows(theirs))?.deletedAt).not.toBeNull();
     expect(await f.inconsistencies()).toEqual([]);
   }, 180_000);
+
+  it("10: line items whose deal and service links share one id, as upgraded ones do, come back with every link", async () => {
+    const f = await fixture();
+    const service = await f.created({
+      action: "create",
+      typeId: f.id("service"),
+      fields: [
+        { fieldId: f.id("service.name"), value: text("Consulting") },
+        { fieldId: f.id("service.amount"), value: euro("100") },
+      ],
+    });
+    const parent = await deal(f, "Upgraded", "1");
+    const rows = [await lineItem(f, parent, "2", service), await lineItem(f, parent, "3", service)];
+    await shareLinkIds(f, rows);
+    const liveLinks = () =>
+      runWithoutTenant(() =>
+        prisma.recordLink.count({
+          where: { companyId: f.seed.company.id, sourceId: { in: rows.map((row) => row.recordId) }, deletedAt: null },
+        }),
+      );
+    expect(await liveLinks()).toBe(4);
+    expect(await f.value(service, "service.quantitySold")).toBe(5);
+
+    const rowDelete = await f.remove(rows[0]);
+    expect(await f.value(service, "service.quantitySold")).toBe(3);
+    expect(await f.restore({ batchId: rowDelete.trashBatchId as string })).toMatchObject({
+      ok: true,
+      data: { restoredRecords: 1, droppedLinks: 0, blocked: [] },
+    });
+    expect(await liveLinks()).toBe(4);
+    expect(await f.value(service, "service.quantitySold")).toBe(5);
+
+    const dealDelete = await f.remove(parent);
+    expect(await f.value(service, "service.quantitySold")).toBe(0);
+    expect(await f.restore({ batchId: dealDelete.trashBatchId as string })).toMatchObject({
+      ok: true,
+      data: { restoredRecords: 3, droppedLinks: 0, blocked: [] },
+    });
+    expect(await liveLinks()).toBe(4);
+    expect(await f.value(service, "service.quantitySold")).toBe(5);
+    expect(await f.values(parent, ["deal.totalQuantity", "deal.totalValue"])).toEqual({
+      "deal.totalQuantity": 5,
+      "deal.totalValue": 500,
+    });
+    expect(await f.inconsistencies()).toEqual([]);
+
+    const again = await f.remove(parent);
+    const items = await f.items(again.trashBatchId as string);
+    const operationId = await runWithTenant(f.admin, () =>
+      runInTransaction(() => f.handler.restoreInBackground(items)),
+    );
+    expect(await f.drain(operationId)).toMatchObject({
+      state: "completed",
+      result: { restore: { restoredRecords: 3, droppedLinks: 0, blocked: [] } },
+    });
+    expect(await liveLinks()).toBe(4);
+    expect(await f.value(service, "service.quantitySold")).toBe(5);
+    expect(await f.inconsistencies()).toEqual([]);
+  }, 180_000);
+
+  it("10b: deleting and restoring more than 500 line items that share link ids in the background keeps rollups current", async () => {
+    const f = await fixture();
+    const service = (name: string) =>
+      f.created({
+        action: "create",
+        typeId: f.id("service"),
+        fields: [
+          { fieldId: f.id("service.name"), value: text(name) },
+          { fieldId: f.id("service.amount"), value: euro("100") },
+        ],
+      });
+    const shared = await service("Shared");
+    const own = await service("Own");
+    const parent = await deal(f, "Upgraded in bulk", "1");
+    const rows = await seedLineItemsSharingLinkIds(f, parent, (index) => (index === 24 ? own : shared), 501);
+    const liveLinks = () =>
+      runWithoutTenant(() =>
+        prisma.recordLink.count({
+          where: { companyId: f.seed.company.id, sourceId: { in: rows.map((row) => row.recordId) }, deletedAt: null },
+        }),
+      );
+    expect(await f.value(parent, "deal.totalQuantity")).toBe(501);
+    expect(await f.values(own, ["service.quantitySold"])).toEqual({ "service.quantitySold": 1 });
+    expect(await f.values(shared, ["service.quantitySold"])).toEqual({ "service.quantitySold": 500 });
+    expect(await liveLinks()).toBe(1002);
+    const ownLinkEvent = async () =>
+      (
+        await runWithoutTenant(() =>
+          prisma.eventLog.findMany({
+            where: { companyId: f.seed.company.id, subjectId: own.recordId, kind: "record.updated" },
+            orderBy: { createdAt: "desc" },
+            take: 1,
+            select: { payload: true },
+          }),
+        )
+      )[0]?.payload;
+
+    const expectedVersion = await f.version(parent);
+    const preview = await runWithTenant(f.admin, async () =>
+      new PreviewRecordDeletionInteractor(
+        f.repo,
+        f.policy,
+        new RecordWriteService(f.repo, f.policy, new RecordCalculationService(f.repo)),
+      ).invoke({ ref: parent, expectedVersion, expectedRevision: (await f.repo.getState())?.revision ?? 0 }),
+    );
+    if (!preview.ok) throw new Error(JSON.stringify(preview));
+    const deleted = await f.mutation({
+      action: "delete",
+      ref: parent,
+      expectedVersion,
+      expectedImpactHash: preview.data.impactHash,
+    });
+    if (!deleted.ok || deleted.data.status !== "pending") throw new Error(JSON.stringify(deleted));
+    expect(await f.drain(deleted.data.operationId)).toMatchObject({ state: "completed", errorCode: null });
+    expect(await f.value(own, "service.quantitySold")).toBe(0);
+    expect(await f.value(shared, "service.quantitySold")).toBe(0);
+    expect(await liveLinks()).toBe(0);
+    expect(await ownLinkEvent()).toMatchObject({
+      links: [{ relationId: f.id("lineItem.service"), source: rows[24], target: own, before: true, after: false }],
+    });
+    expect(await f.inconsistencies()).toEqual([]);
+
+    const restored = await f.restore({ batchId: deleted.data.operationId });
+    if (!restored.ok || restored.data.status !== "pending") throw new Error(JSON.stringify(restored));
+    expect(await f.drain(restored.data.operationId)).toMatchObject({
+      state: "completed",
+      result: { restore: { restoredRecords: 502, droppedLinks: 0, blocked: [] } },
+    });
+    expect(await liveLinks()).toBe(1002);
+    expect(await ownLinkEvent()).toMatchObject({
+      links: [{ relationId: f.id("lineItem.service"), source: rows[24], target: own, before: false, after: true }],
+    });
+    expect(await f.value(own, "service.quantitySold")).toBe(1);
+    expect(await f.value(shared, "service.quantitySold")).toBe(500);
+    expect(await f.value(parent, "deal.totalQuantity")).toBe(501);
+    expect(await f.inconsistencies()).toEqual([]);
+  }, 900_000);
 });

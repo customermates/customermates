@@ -155,11 +155,11 @@ export class RecordTrashService {
           (relation.targetCardinality === "one" &&
             (await records.linkedRecordsCompanyWide(link.target, link.relationId, "incoming", 1)).length > 0));
       if (conflicting) {
-        await records.dropTrashedLink(link.id);
+        await records.dropTrashedLink(link.relationId, link.id);
         droppedLinks++;
         continue;
       }
-      await records.restoreLink(link.id);
+      await records.restoreLink(link.relationId, link.id);
       await journal.restoreLink(link);
       seeds.set(recordKey(link.source), link.source);
       seeds.set(recordKey(link.target), link.target);
