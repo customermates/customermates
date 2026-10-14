@@ -523,35 +523,38 @@ export const SYNTHETIC_WIKI_PAGE_DEFINITIONS = [
 ] satisfies readonly WikiPageDefinition[];
 
 export async function seedWikiPages(context: SeedContext): Promise<void> {
-  await context.prisma.$transaction(async (prisma) => {
-    await prisma.wikiPage.deleteMany({
-      where: {
-        companyId: context.ids.company,
-        id: { startsWith: WIKI_FIXTURE_GROUP + "-", notIn: SYNTHETIC_WIKI_PAGE_DEFINITIONS.map(({ id }) => id) },
-      },
-    });
-    const existingGuide = await prisma.wikiPage.findFirst({
-      where: { companyId: context.ids.company, kind: "guide", id: { not: SYNTHETIC_WIKI_PAGE_IDS.guide } },
-      select: { id: true },
-    });
-    const definitions = SYNTHETIC_WIKI_PAGE_DEFINITIONS.filter(({ kind }) => !existingGuide || kind !== "guide");
-    if (existingGuide) {
+  await context.prisma.$transaction(
+    async (prisma) => {
       await prisma.wikiPage.deleteMany({
-        where: { id: SYNTHETIC_WIKI_PAGE_IDS.guide, companyId: context.ids.company },
+        where: {
+          companyId: context.ids.company,
+          id: { startsWith: WIKI_FIXTURE_GROUP + "-", notIn: SYNTHETIC_WIKI_PAGE_DEFINITIONS.map(({ id }) => id) },
+        },
       });
-    }
+      const existingGuide = await prisma.wikiPage.findFirst({
+        where: { companyId: context.ids.company, kind: "guide", id: { not: SYNTHETIC_WIKI_PAGE_IDS.guide } },
+        select: { id: true },
+      });
+      const definitions = SYNTHETIC_WIKI_PAGE_DEFINITIONS.filter(({ kind }) => !existingGuide || kind !== "guide");
+      if (existingGuide) {
+        await prisma.wikiPage.deleteMany({
+          where: { id: SYNTHETIC_WIKI_PAGE_IDS.guide, companyId: context.ids.company },
+        });
+      }
 
-    const pages = definitions.map((definition) => ({
-      ...definition,
-      companyId: context.ids.company,
-      ...SYNTHETIC_SEED_TIMELINE.company,
-    }));
-    await upsertFixturesById(pages, async (page) => {
-      const updated = await prisma.wikiPage.updateMany({
-        where: { id: page.id, companyId: context.ids.company },
-        data: page,
+      const pages = definitions.map((definition) => ({
+        ...definition,
+        companyId: context.ids.company,
+        ...SYNTHETIC_SEED_TIMELINE.company,
+      }));
+      await upsertFixturesById(pages, async (page) => {
+        const updated = await prisma.wikiPage.updateMany({
+          where: { id: page.id, companyId: context.ids.company },
+          data: page,
+        });
+        if (updated.count === 0) await prisma.wikiPage.create({ data: page });
       });
-      if (updated.count === 0) await prisma.wikiPage.create({ data: page });
-    });
-  });
+    },
+    { maxWait: 60000, timeout: 600000 },
+  );
 }
