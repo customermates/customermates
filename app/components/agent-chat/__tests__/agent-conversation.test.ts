@@ -24,7 +24,6 @@ vi.mock("../agent-chat-items", () => ({
   AgentChatItemView: () => null,
   consecutiveActivityItems: () => [],
   isWorkingActivityGroup: () => false,
-  useAgentActivityTerminology: () => ({}),
 }));
 vi.mock("../agent-chat-store-context", () => ({
   useAgentChatStore: () => testContext.store,

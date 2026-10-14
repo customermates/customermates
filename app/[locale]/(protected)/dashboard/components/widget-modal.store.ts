@@ -32,7 +32,7 @@ import { reportApplicationError } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
 
-type WidgetModalSection = "config" | "filters" | "dealFilters" | "activityFilters" | "display";
+type WidgetModalSection = "config" | "filters" | "activityFilters" | "display";
 type WidgetCreationStep = "choose" | "configure";
 export type WidgetModalForm = RecordWidgetForm | RecordActivityWidgetForm;
 

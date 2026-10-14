@@ -3,18 +3,6 @@ import { northwindAt, northwindDataset } from "./northwind-data";
 import { northwindUpdatedAt } from "./northwind-history";
 import type { ServiceSeedData } from "./services";
 
-export const SYNTHETIC_DEAL_NAMES = northwindDataset().deals.map(({ name }) => name);
-
-/** Organization of each deal, as [dealIndex, organizationIndex]. */
-export const SYNTHETIC_DEAL_ORGANIZATION_LINKS = northwindDataset().deals.map(
-  ({ index, organizationIndex }) => [index, organizationIndex] as const,
-);
-
-/** Line items as [dealIndex, serviceIndex, quantity]. */
-export const SYNTHETIC_SERVICE_DEAL_LINKS = northwindDataset().lineItems.map(
-  ({ dealIndex, serviceIndex, quantity }) => [dealIndex, serviceIndex, quantity] as const,
-);
-
 /** Index into the Status options (Open, Won, Lost, Abandoned) of each deal. */
 export const SYNTHETIC_DEAL_STATUS_INDEXES = northwindDataset().deals.map(({ status }) =>
   ["open", "won", "lost", "abandoned"].indexOf(status),

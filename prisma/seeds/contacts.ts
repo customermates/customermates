@@ -6,11 +6,6 @@ import type { OrganizationFixture } from "./organizations";
 /** Contacts with an approved avatar photo, in avatar order (the first contacts of the workspace). */
 export const SYNTHETIC_CONTACT_NAMES = NORTHWIND_NAMED_CONTACTS;
 
-/** Organization index of each contact, as [contactIndex, organizationIndex]. */
-export const SYNTHETIC_CONTACT_ORGANIZATION_LINKS = northwindDataset().contacts.map(
-  ({ index, organizationIndex }) => [index, organizationIndex] as const,
-);
-
 export const SYNTHETIC_CONTACT_EMAIL_ADDRESSES = northwindDataset().contacts.map(({ email }) => email);
 
 export type ContactDefinition = readonly [

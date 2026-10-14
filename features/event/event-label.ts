@@ -1,11 +1,7 @@
 export const LEGACY_DOMAIN_EVENTS = [
-  "company.updated",
   "contact.created",
   "contact.deleted",
   "contact.updated",
-  "custom_column.created",
-  "custom_column.deleted",
-  "custom_column.updated",
   "deal.created",
   "deal.deleted",
   "deal.updated",

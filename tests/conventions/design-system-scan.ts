@@ -96,10 +96,6 @@ export function formatFindings(findings: Finding[]) {
   return findings.map(({ file, line, snippet }) => `${file}:${line}: ${snippet}`);
 }
 
-export function filesOf(findings: Finding[]) {
-  return [...new Set(findings.map(({ file }) => file))].sort();
-}
-
 export function outsideAllowlist(findings: Finding[], allowlist: Readonly<Record<string, string>>) {
   return formatFindings(findings.filter(({ file }) => !(file in allowlist)));
 }

@@ -4,13 +4,6 @@ import { NORTHWIND_SERVICES, NORTHWIND_STORY_END_MS, northwindAt } from "./north
 
 const DAY = 86_400_000;
 
-/** The Northwind Labs price list: seats per year, onboarding packages and service days. */
-export const SYNTHETIC_SERVICE_NAMES = NORTHWIND_SERVICES.map(([name]) => name);
-
-export const SYNTHETIC_SERVICE_AMOUNTS = NORTHWIND_SERVICES.map(([, amount]) => amount);
-
-export type ServiceDefinition = readonly [name: string, amount: number];
-
 export type ServiceFixture = {
   amount: number;
   companyId: string;

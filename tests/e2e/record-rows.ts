@@ -49,10 +49,6 @@ export function recordRows(scope: Locator | Page) {
   return scope.locator("tbody tr, [data-phone-rows] [data-row-id]");
 }
 
-export function recordItemWithText(page: Page, text: string) {
-  return page.locator("tr, [data-row-id], [data-item-id]").filter({ hasText: text }).first();
-}
-
 export async function recordRowName(row: Locator) {
   const open = row.locator('[data-slot="data-row-open"]');
   if (await open.count()) return (await open.first().innerText()).trim();

@@ -4,10 +4,6 @@ import type { MessagingAttendee } from "./messaging.schema";
 import { parseChannelHandle } from "@/features/records/channel-value";
 import { getProviderProfileUrl, isEmailProvider, isHandleProvider, isPhoneProvider } from "./provider";
 
-export function contactFullName(contact: { firstName: string; lastName: string } | null | undefined): string {
-  return contact ? `${contact.firstName} ${contact.lastName}`.trim() : "";
-}
-
 function isGroupThread(thread: { type: MessagingThreadType }): boolean {
   return thread.type !== "single";
 }

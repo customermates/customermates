@@ -42,9 +42,6 @@ export const DEMO_DASHBOARDS = [
   { id: fixtureId("1f200000", 6), name: "Hiring" },
 ] as const;
 
-export const demoViewId = (index: number) => fixtureId("1f100000", index);
-export const demoFixtureId = fixtureId;
-
 /** The email of a seeded member, read from the database so the specs follow the seed. */
 async function memberEmail(database: Client, member: DemoMember) {
   const { userId } = DEMO_MEMBERS[member];
