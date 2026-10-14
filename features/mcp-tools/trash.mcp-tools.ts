@@ -25,7 +25,7 @@ const ReadTrashSchema = QueryTrashSchema.extend({
     .enum(["list", "read"])
     .default("list")
     .describe(
-      "list (default) pages the items in Trash with the filters below; read opens one deleted record read only and takes typeId and recordId.",
+      "list (default) pages the items in Trash, filtered by kinds, itemIds, typeIds and search; read opens one deleted record read only and takes typeId and recordId.",
     ),
   typeId: z.uuid().optional().describe("read: the list of the record, the typeId of a Trash item of kind record."),
   recordId: z.uuid().optional().describe("read: the record, the targetId of a Trash item of kind record."),
