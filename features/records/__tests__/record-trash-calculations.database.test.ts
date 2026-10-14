@@ -48,6 +48,7 @@ const { PreviewTrashDeletionInteractor } = await import("@/features/trash/previe
 const { DeleteTrashPermanentlyInteractor } = await import("@/features/trash/delete-trash-permanently.interactor");
 const { EmptyTrashInteractor } = await import("@/features/trash/empty-trash.interactor");
 const { PurgeCompanyTrashInteractor } = await import("@/features/trash/purge-company-trash.interactor");
+const { purgeTrashItems } = await import("@/features/trash/purge-trash-items");
 const { createCrmPreset, presetId } = await import("../crm-preset");
 const { RecordConfigurationService } = await import("../configuration.service");
 const { RecordTrashService } = await import("../record-trash.service");
@@ -836,6 +837,89 @@ describeDatabase("record trash calculations", () => {
       "organization.pipeline": 1000,
       "organization.quantity": 5,
     });
+    expect(await f.inconsistencies()).toEqual([]);
+  }, 180_000);
+
+  it("4b: a sub-list row in Trash leaves Trash with its deal when the deal is deleted permanently", async () => {
+    const f = await fixture();
+    const purgedParent = await deal(f, "Purged from Trash", "1");
+    const purgedRow = await lineItem(f, purgedParent, "2");
+    const purgedRowDelete = await f.remove(purgedRow);
+    const parentDelete = await f.remove(purgedParent);
+    const itemIds = (await f.items(parentDelete.trashBatchId as string)).map((item) => item.id);
+    const preview = await runWithTenant(f.admin, () => f.trash.preview.invoke({ itemIds }));
+    if (!preview.ok) throw new Error("Preview failed");
+    expect(preview.data.removedRecords.find((entry) => entry.typeId === f.id("lineItem"))?.count).toBe(1);
+    expect(
+      await runWithTenant(f.admin, () =>
+        f.trash.remove.invoke({ itemIds, expectedImpactHash: preview.data.impactHash }),
+      ),
+    ).toMatchObject({ ok: true, data: { deletedItemIds: itemIds } });
+    expect(await f.items(purgedRowDelete.trashBatchId as string)).toEqual([]);
+    expect(await f.rows(purgedRow)).toBeNull();
+
+    const deletedParent = await deal(f, "Deleted directly", "1");
+    const deletedRow = await lineItem(f, deletedParent, "3");
+    const deletedRowDelete = await f.remove(deletedRow);
+    await f.remove(deletedParent, f.admin, true);
+    expect(await f.items(deletedRowDelete.trashBatchId as string)).toEqual([]);
+    expect(await f.rows(deletedRow)).toBeNull();
+
+    const togetherParent = await deal(f, "Deleted together", "1");
+    const togetherRow = await lineItem(f, togetherParent, "4");
+    const together = await f.removeMany([togetherRow, togetherParent]);
+    if (!together.ok || together.data.status !== "completed") throw new Error(JSON.stringify(together));
+    const batch = await f.items(together.data.trashBatchId as string);
+    expect(batch).toHaveLength(2);
+    const parentFirst = [...batch].sort(
+      (left, right) =>
+        Number(right.targetId === togetherParent.recordId) - Number(left.targetId === togetherParent.recordId),
+    );
+    expect(
+      await runWithTenant(f.admin, () =>
+        purgeTrashItems(new PrismaTrashRepo(), [f.handler], parentFirst, {
+          companyId: f.seed.company.id,
+          actorId: f.admin.id,
+        }),
+      ),
+    ).toEqual({ deletedItemIds: parentFirst.map((item) => item.id), pendingItemIds: [], failedItemIds: [] });
+    expect(await f.rows(togetherRow)).toBeNull();
+    expect(await f.inconsistencies()).toEqual([]);
+
+    const service = await f.created({
+      action: "create",
+      typeId: f.id("service"),
+      fields: [
+        { fieldId: f.id("service.name"), value: text("Consulting") },
+        { fieldId: f.id("service.amount"), value: euro("100") },
+      ],
+    });
+    const servicedParent = await deal(f, "Serviced", "1");
+    const servicedRow = await lineItem(f, servicedParent, "5", service);
+    const serviceDelete = await f.remove(service);
+    expect((await f.rows(servicedRow))?.trashItemId).toBe((await f.items(serviceDelete.trashBatchId as string))[0].id);
+    const servicedParentDelete = await f.remove(servicedParent);
+    const servicedItemIds = (await f.items(servicedParentDelete.trashBatchId as string)).map((item) => item.id);
+    const servicedPreview = await runWithTenant(f.admin, () => f.trash.preview.invoke({ itemIds: servicedItemIds }));
+    if (!servicedPreview.ok) throw new Error("Preview failed");
+    expect(servicedPreview.data.removedRecords.map((entry) => [entry.typeId, entry.count])).toEqual(
+      expect.arrayContaining([
+        [f.id("deal"), 1],
+        [f.id("lineItem"), 1],
+      ]),
+    );
+    expect(
+      await runWithTenant(f.admin, () =>
+        f.trash.remove.invoke({ itemIds: servicedItemIds, expectedImpactHash: servicedPreview.data.impactHash }),
+      ),
+    ).toMatchObject({ ok: true, data: { deletedItemIds: servicedItemIds, failedItemIds: [] } });
+    expect(await f.rows(servicedRow)).toBeNull();
+    expect((await f.rows(service))?.deletedAt).not.toBeNull();
+    expect(await f.restore({ batchId: serviceDelete.trashBatchId as string })).toMatchObject({
+      ok: true,
+      data: { restoredRecords: 1, droppedLinks: 1, blocked: [] },
+    });
+    expect(await f.value(service, "service.name")).toBe("Consulting");
     expect(await f.inconsistencies()).toEqual([]);
   }, 180_000);
 

@@ -88,7 +88,9 @@ export class RecordTrashHandler extends UserAccessor implements TrashKindHandler
 
   async impact(items: TrashItem[]): Promise<TrashKindImpact> {
     const model = await this.records.getModel();
-    const counted = await this.records.countTrashedRecordsCompanyWide(items.map((item) => item.id));
+    const itemIds = items.map((item) => item.id);
+    const along = await this.recordTrash.purgedAlong(itemIds, model);
+    const counted = await this.records.countTrashedRecordsCompanyWide([...itemIds, ...along.itemIds], along.refs);
     return {
       removedRecords: counted.records.map((entry) => ({
         ...entry,
@@ -96,6 +98,11 @@ export class RecordTrashHandler extends UserAccessor implements TrashKindHandler
       })),
       removedLinks: counted.links,
     };
+  }
+
+  async dependents(items: TrashItem[]): Promise<string[]> {
+    const itemIds = items.map((item) => item.id);
+    return (await this.recordTrash.purgedAlong(itemIds, await this.records.getModel())).itemIds;
   }
 
   async purge(items: TrashItem[], actorId: string | null): Promise<void> {

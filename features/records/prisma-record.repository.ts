@@ -1410,6 +1410,58 @@ export class PrismaRecordRepo
     return link ? { typeId: link.targetTypeId, recordId: link.targetId } : null;
   }
 
+  async getTrashPurgedAlongCompanyWide(trashItemIds: string[], relationIds: string[]) {
+    if (!trashItemIds.length || !relationIds.length) return { itemIds: [], refs: [] };
+    const companyId = this.companyId;
+    const rows = await this.prisma.$queryRaw<
+      Array<{ typeId: string; id: string; trashItemId: string; whole: boolean }>
+    >(
+      Prisma.sql`
+      WITH RECURSIVE purged("typeId", id) AS (
+        SELECT record."typeId", record.id FROM "CrmRecord" record
+        WHERE record."companyId" = ${companyId} AND record."trashItemId" IN (${Prisma.join(trashItemIds)})
+          AND record."deletedAt" IS NOT NULL
+        UNION
+        SELECT next."typeId", next.id FROM purged CROSS JOIN LATERAL (
+          SELECT child."typeId", child.id FROM "RecordLink" link
+          JOIN "CrmRecord" child ON child."companyId" = link."companyId" AND child."typeId" = link."sourceTypeId"
+            AND child.id = link."sourceId" AND child."deletedAt" IS NOT NULL
+          WHERE link."companyId" = ${companyId} AND link."relationId" IN (${Prisma.join(relationIds)})
+            AND link."targetTypeId" = purged."typeId" AND link."targetId" = purged.id AND link."deletedAt" IS NOT NULL
+          UNION ALL
+          SELECT member."typeId", member.id FROM "TrashItem" item
+          JOIN "CrmRecord" member ON member."companyId" = item."companyId" AND member."trashItemId" = item.id
+            AND member."deletedAt" IS NOT NULL
+          WHERE item."companyId" = ${companyId} AND item.kind = 'record'
+            AND item."typeId" = purged."typeId" AND item."targetId" = purged.id
+        ) next
+      )
+      SELECT record."typeId", record.id, record."trashItemId",
+        EXISTS (SELECT 1 FROM "TrashItem" item JOIN purged root ON root."typeId" = item."typeId" AND root.id = item."targetId"
+          WHERE item."companyId" = ${companyId} AND item.id = record."trashItemId") AS whole
+      FROM purged JOIN "CrmRecord" record ON record."companyId" = ${companyId}
+        AND record."typeId" = purged."typeId" AND record.id = purged.id
+      WHERE record."trashItemId" NOT IN (${Prisma.join(trashItemIds)})
+      ORDER BY record."trashItemId", record."typeId", record.id`,
+    );
+    return {
+      itemIds: [...new Set(rows.filter((row) => row.whole).map((row) => row.trashItemId))],
+      refs: rows.filter((row) => !row.whole).map((row) => ({ typeId: row.typeId, recordId: row.id })),
+    };
+  }
+
+  async reassignTrashedRecordsCompanyWide(refs: RecordRef[], trashItemId: string): Promise<void> {
+    if (!refs.length) return;
+    await this.prisma.crmRecord.updateMany({
+      where: {
+        companyId: this.companyId,
+        deletedAt: { not: null },
+        OR: refs.map((ref) => ({ typeId: ref.typeId, id: ref.recordId })),
+      },
+      data: { trashItemId },
+    });
+  }
+
   async restoreRecords(refs: RecordRef[]): Promise<void> {
     if (!refs.length) return;
     await this.prisma.crmRecord.updateMany({
@@ -1430,10 +1482,16 @@ export class PrismaRecordRepo
     await this.owners.trash.removeItemsCompanyWide(this.companyId, ids);
   }
 
-  async countTrashedRecordsCompanyWide(trashItemIds: string[]) {
-    if (!trashItemIds.length) return { records: [], links: 0 };
+  async countTrashedRecordsCompanyWide(trashItemIds: string[], refs: RecordRef[] = []) {
+    if (!trashItemIds.length && !refs.length) return { records: [], links: 0 };
     const companyId = this.companyId;
-    const trashed = { companyId, trashItemId: { in: trashItemIds } };
+    const trashed = {
+      companyId,
+      OR: [
+        { trashItemId: { in: trashItemIds } },
+        ...refs.map((ref) => ({ typeId: ref.typeId, id: ref.recordId, deletedAt: { not: null } })),
+      ],
+    };
     const [groups, links] = await Promise.all([
       this.prisma.crmRecord.groupBy({
         by: ["typeId"],

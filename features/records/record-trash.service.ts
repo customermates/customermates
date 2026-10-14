@@ -33,6 +33,10 @@ export function droppedLinksOf(item: RecordTrashItem): number {
   return payload.success ? payload.data.droppedLinks : 0;
 }
 
+function parentRelationIds(model: RecordModel): string[] {
+  return model.types.flatMap((type) => (type.parentRelationshipId ? [type.parentRelationshipId] : []));
+}
+
 function deletedPermanentlyPayload(
   ref: RecordRef,
   model: RecordModel,
@@ -170,6 +174,10 @@ export class RecordTrashService {
     return droppedLinks;
   }
 
+  purgedAlong(itemIds: string[], model: RecordModel): Promise<{ itemIds: string[]; refs: RecordRef[] }> {
+    return this.records.getTrashPurgedAlongCompanyWide(itemIds, parentRelationIds(model));
+  }
+
   purge(
     itemIds: string[],
     model: RecordModel,
@@ -189,7 +197,9 @@ export async function purgeRecordTrashItems(
   causeId: string,
   cause: RecordEventPayload["cause"],
 ): Promise<RecordRef[]> {
-  const refs = await records.purgeTrashItems(itemIds);
+  const along = await records.getTrashPurgedAlongCompanyWide(itemIds, parentRelationIds(model));
+  if (along.refs.length) await records.reassignTrashedRecordsCompanyWide(along.refs, recordInvariant(itemIds[0]));
+  const refs = await records.purgeTrashItems([...itemIds, ...along.itemIds]);
   for (const ref of refs) {
     await records.appendEvent(
       ref,
