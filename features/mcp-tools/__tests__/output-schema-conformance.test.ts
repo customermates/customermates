@@ -23,6 +23,7 @@ const spies = vi.hoisted(() => ({
   getWebhookDeliveries: vi.fn(),
   queryMeasure: vi.fn(),
   resolveIdentities: vi.fn(),
+  moveEmailThread: vi.fn(),
 }));
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
@@ -39,12 +40,13 @@ vi.mock("@/core/di", () => ({
   getGetWebhookDeliveriesApiInteractor: () => ({ invoke: spies.getWebhookDeliveries }),
   getQueryRecordMeasureInteractor: () => ({ invoke: spies.queryMeasure }),
   getResolveRecordIdentitiesInteractor: () => ({ invoke: spies.resolveIdentities }),
+  getMoveEmailThreadInteractor: () => ({ invoke: spies.moveEmailThread }),
 }));
 
 import { executeMcpTool, type McpTool } from "../mcp-tool";
 import { McpPageOutputShape } from "../utils";
 import { listUsersTool } from "../workspace.mcp-tools";
-import { getCalendarsTool, getMessagingThreadsTool } from "../messaging.mcp-tools";
+import { getCalendarsTool, getMessagingThreadsTool, moveEmailThreadTool } from "../messaging.mcp-tools";
 import { manageRoutinesTool } from "../routine.mcp-tools";
 import { manageWebhooksTool } from "../webhook.mcp-tools";
 import { queryRecordMeasureV2Tool, resolveRecordIdentifiersV2Tool } from "../record-model.mcp-tools";
@@ -216,6 +218,27 @@ describe("tool results pass the MCP SDK output validation on the server and in t
     expect(outcome.structuredContent).toMatchObject({ page: 1, pageSize: "pageSize" in args ? args.pageSize : 25 });
     expect(outcome.structuredContent).not.toHaveProperty("requestedPageSize");
     expect(outcome.structuredContent).not.toHaveProperty("pageSizeNote");
+  });
+
+  it("publishes the reason of a move_email_thread result that stopped part way", async () => {
+    const stopped = {
+      threadId,
+      folderId: "folder-archive",
+      folderName: "Archive",
+      movedCount: 1,
+      skippedCount: 0,
+      failedCount: 1,
+      hiddenFromInbox: true,
+      rateLimited: false,
+      stoppedReason: "unipileDisconnectedAccount",
+      stoppedMessage: "Reconnect this account to continue.",
+    };
+    spies.moveEmailThread.mockResolvedValue({ ok: true, data: stopped });
+
+    const outcome = await sdkOutputViolations(moveEmailThreadTool as McpTool, { threadId, folderId: "folder-archive" });
+
+    expect({ server: outcome.server, client: outcome.client }).toEqual({ server: null, client: null });
+    expect(outcome.structuredContent).toEqual(stopped);
   });
 
   it("publishes record versions and the schema revision for an identifier batch update", async () => {
