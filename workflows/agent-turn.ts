@@ -434,10 +434,7 @@ async function authorizedWikiSetup(payload: AgentTurnWorkflowPayload): Promise<b
     try {
       if (getTenantUser().companyId !== payload.companyId) return false;
       if (!(await getUserService().hasPermission(Resource.wiki, Action.create))) return false;
-      const result = await getGetWikiPagesInteractor().invoke({
-        page: 1,
-        pageSize: 5,
-      });
+      const result = await getGetWikiPagesInteractor().invoke({ page: 1, pageSize: 5 });
       if (result.ok && result.data.total === 0) return true;
       const { getWikiWebsiteCrawlRepo } = await import("@/core/di");
       return ((await getWikiWebsiteCrawlRepo().findLatestCrawl())?.pendingHosts.length ?? 0) > 0;
@@ -458,10 +455,7 @@ async function authorizedWikiCatalog(payload: AgentTurnWorkflowPayload): Promise
   return runAsBackgroundTenant(payload.userId, async () => {
     try {
       if (getTenantUser().companyId !== payload.companyId) return null;
-      const result = await getGetWikiPagesInteractor().invoke({
-        page: 1,
-        pageSize: 5,
-      });
+      const result = await getGetWikiPagesInteractor().invoke({ page: 1, pageSize: 5 });
       if (!result.ok) throw new Error("Knowledge Base catalog could not be authorized.");
       return payload.wikiCatalog ?? null;
     } catch (error) {
