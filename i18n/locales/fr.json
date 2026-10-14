@@ -40,7 +40,7 @@
     "activity": {
       "approval": {
         "generic": "Prêt à effectuer une modification qui nécessite votre approbation",
-        "genericPermanent": "Prêt à supprimer définitivement {target}. Cette action est irréversible.",
+        "genericPermanent": "Prêt à supprimer définitivement {target}",
         "messages": {
           "discard": "Prêt à supprimer le brouillon",
           "draft": "Prêt à enregistrer un brouillon",

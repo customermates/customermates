@@ -1160,6 +1160,23 @@ describe("agent-turn credit-bounded continuation", () => {
     );
   });
 
+  it("resumes a stream interrupted after completed model reads from its saved continuation", async () => {
+    let segment = 0;
+    state.runTools = async ({ messages, completeStep }) => {
+      if (segment++ === 0) {
+        await completeStep(streamedStep("Read result.", "tool-calls"));
+        throw new Error('Step "doStreamStep" exceeded max retries (0 retries)');
+      }
+      return { finishReason: "stop", messages, steps: [streamedStep("Widget created.", "stop")] };
+    };
+
+    await runAgentTurn(payload);
+
+    expect(state.providerCalls).toBe(2);
+    expect(state.recordRound).toHaveBeenCalledTimes(2);
+    expect(state.finalize).toHaveBeenCalledWith(expect.objectContaining({ terminalCode: "completed" }));
+  });
+
   it("reports hosted AI as unavailable when a global gate denies a reservation extension", async () => {
     state.extendReservation.mockResolvedValueOnce({
       disposition: "hosted_ai_unavailable",

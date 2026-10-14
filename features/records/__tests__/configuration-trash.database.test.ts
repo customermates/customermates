@@ -255,6 +255,45 @@ afterAll(async () => {
 });
 
 describeDatabase("configuration trash", () => {
+  it("publishes an optional choice field without backfilling a Northwind-sized set of records", async () => {
+    const f = await fixture();
+    const companyId = f.seed.company.id;
+    const typeId = f.id("organization");
+    await runWithoutTenant(() =>
+      prisma.crmRecord.createMany({
+        data: Array.from({ length: 456 }, () => ({ companyId, typeId, id: randomUUID() })),
+      }),
+    );
+    const fieldId = randomUUID();
+    const change = await f.change([
+      {
+        operation: "putField",
+        field: {
+          id: fieldId,
+          typeId,
+          label: "PB renewal risk",
+          valueType: "select",
+          behavior: { kind: "input" },
+          required: false,
+          multiple: false,
+          options: [
+            { id: "low", label: "Low", color: "success", attributes: [] },
+            { id: "medium", label: "Medium", color: "warning", attributes: [] },
+            { id: "high", label: "High", color: "destructive", attributes: [] },
+          ],
+          position: 20,
+        },
+      },
+    ]);
+    const applied = await f.as(() => f.apply.invoke(change));
+    expect(applied).toMatchObject({ ok: true, data: { status: "completed", schemaRevision: 2 } });
+    const fields = await runWithoutTenant(() =>
+      prisma.recordFieldDefinition.findMany({ where: { companyId, typeId, id: fieldId } }),
+    );
+    expect(fields).toHaveLength(1);
+    expect(await runWithoutTenant(() => prisma.recordValue.count({ where: { companyId, fieldId } }))).toBe(0);
+  });
+
   it("creates, trashes and restores a calculated field on 2,100 records without a transaction timeout", async () => {
     const f = await fixture();
     const companyId = f.seed.company.id;
