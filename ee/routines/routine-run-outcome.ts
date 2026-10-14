@@ -44,9 +44,11 @@ export function routineRunDetail(
     status: RoutineRunStatus;
     summary: string | null;
     error: string | null;
+    stopReason?: AgentTurnStopReason | null;
   },
   t: (key: string) => string,
 ): string {
+  if (run.stopReason === "context_limit") return t("RoutineRunStopReason.contextLimit");
   const summary = run.summary ? plainRoutineSummary(run.summary) : "";
   if (summary) return summary;
 
@@ -69,6 +71,8 @@ export function routineRunStopReason(
       return t("RoutineRunStopReason.providerError");
     case "content_filter":
       return t("RoutineRunStopReason.contentFilter");
+    case "context_limit":
+      return t("RoutineRunStopReason.contextLimit");
     case "hosted_ai_unavailable":
       return t("RoutineRunStopReason.hostedAiUnavailable");
     case "cancelled":

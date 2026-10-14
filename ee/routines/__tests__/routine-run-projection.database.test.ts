@@ -12,6 +12,7 @@ import { createTestRoutineRepo } from "@/tests/helpers/record-delivery";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import { runWithTenant } from "@/core/decorators/tenant-context";
+import { routineRunDetail } from "../routine-run-outcome";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -24,6 +25,8 @@ describeDatabase("routine run projection on PostgreSQL", () => {
   const contactId = randomUUID();
   const eventRunId = randomUUID();
   const scheduleRunId = randomUUID();
+  const conversationId = randomUUID();
+  const turnRequestId = randomUUID();
 
   const viewer: TenantUser = {
     ...createMockUserWithPermissions([
@@ -97,10 +100,29 @@ describeDatabase("routine run projection on PostgreSQL", () => {
         [id, companyId, routineId, ownerId, event, event ? contactId : null, payload],
       );
     }
+    await client.query(
+      `INSERT INTO "AgentConversation" ("id", "companyId", "userId", "origin", "updatedAt")
+       VALUES ($1, $2, $3, 'routine', CURRENT_TIMESTAMP)`,
+      [conversationId, companyId, ownerId],
+    );
+    await client.query(
+      `INSERT INTO "AgentTurnRequest"
+         ("id", "companyId", "userId", "conversationId", "clientRequestId", "text", "status", "runId",
+          "userMessageId", "terminalCode", "stopReason", "updatedAt")
+       VALUES ($1, $2, $3, $4, $5, 'Stage change', 'completed', $6, $7, 'partial', 'context_limit', CURRENT_TIMESTAMP)`,
+      [turnRequestId, companyId, ownerId, conversationId, randomUUID(), randomUUID(), randomUUID()],
+    );
+    await client.query(
+      `UPDATE "RoutineRun" SET "conversationId" = $1, "turnRequestId" = $2, "status" = 'partial',
+         "summary" = $3, "terminalCode" = 'partial' WHERE "id" = $4`,
+      [conversationId, turnRequestId, "Earlier progress that fills the summary.", eventRunId],
+    );
   });
 
   afterAll(async () => {
     await client.query('DELETE FROM "RoutineRun" WHERE "companyId" = $1', [companyId]);
+    await client.query('DELETE FROM "AgentTurnRequest" WHERE "companyId" = $1', [companyId]);
+    await client.query('DELETE FROM "AgentConversation" WHERE "companyId" = $1', [companyId]);
     await client.query('DELETE FROM "Routine" WHERE "companyId" = $1', [companyId]);
     await client.query('DELETE FROM "User" WHERE "companyId" = $1', [companyId]);
     await client.query('DELETE FROM "Company" WHERE "id" = $1', [companyId]);
@@ -131,6 +153,14 @@ describeDatabase("routine run projection on PostgreSQL", () => {
       changedFieldsTruncated: false,
       changedFieldLabels: { [nameFieldId]: "First name" },
     });
+  });
+
+  it("projects a context-limit stop reason into the run history", async () => {
+    const { runs: rows } = await runs();
+    const triggered = rows.find((row) => row.id === eventRunId);
+
+    expect(triggered?.stopReason).toBe("context_limit");
+    expect(triggered && routineRunDetail(triggered, (key) => key)).toBe("RoutineRunStopReason.contextLimit");
   });
 
   it("leaves a run with no trigger event without a context at all", async () => {

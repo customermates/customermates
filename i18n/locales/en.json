@@ -4091,6 +4091,7 @@
   "RoutineRunStopReason": {
     "cancelled": "The run was cancelled.",
     "contentFilter": "The AI provider blocked part of this run, so no further changes were made.",
+    "contextLimit": "The run stopped because its context could not fit within the model provider's limit, even after compaction.",
     "creditLimit": "The run stopped because its available Assistant credits ran out.",
     "hostedAiUnavailable": "Hosted AI became unavailable before the run could finish.",
     "policyBreach": "The AI provider exceeded the reserved credit budget, so the run was stopped.",

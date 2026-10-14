@@ -23,6 +23,20 @@ describe("routineRunDetail", () => {
     expect(routineRunDetail(run, t)).toBe("30");
   });
 
+  it("shows a provider context failure ahead of a truncated partial summary", () => {
+    expect(
+      routineRunDetail(
+        {
+          status: RoutineRunStatus.partial,
+          summary: "Earlier progress that fills the summary.",
+          error: null,
+          stopReason: "context_limit",
+        },
+        t,
+      ),
+    ).toBe("RoutineRunStopReason.contextLimit");
+  });
+
   it("translates a known skip reason rather than leaking the enum", () => {
     const run = {
       status: RoutineRunStatus.skipped,
@@ -93,6 +107,7 @@ describe("routineRunDetail", () => {
       "RoutineRunStopReason.hostedAiUnavailable",
       "RoutineRunStopReason.cancelled",
       "RoutineRunStopReason.turnError",
+      "RoutineRunStopReason.contextLimit",
       "RoutineRunStopReason.policyBreach",
     ];
 

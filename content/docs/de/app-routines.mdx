@@ -57,6 +57,8 @@ Lassen Sie beide leer, um bei jedem passenden Ereignis zu laufen. Ein Ereignis s
 
 Mate erfährt vor Ihren Anweisungen, was passiert ist: das Ereignis, die Art des Datensatzes und seine ID, bei einer Aktualisierung die geänderten Felder und bei einem Posteingangs-Ereignis den Thread. Den Datensatz kann Mate von dort aus lesen, die vorherigen Werte erhält es nicht.
 
+Ein Ereignislauf beginnt mit den grundlegenden CRM-Werkzeugen und lädt weitere Werkzeuggruppen bei Bedarf. So belegen ungenutzte Werkzeugbeschreibungen keinen Modellkontext. Überschreitet der Kontext auch nach der Komprimierung das Anbieterbudget, endet der Lauf; im Verlauf steht der konkrete Grund zur Kontextgrenze.
+
 ## Was bedeuten die Läufe und ihre Status? [#what-do-the-runs-and-their-statuses-mean]
 
 Öffnen Sie eine Routine, um ihre **Läufe** zu sehen, die neuesten zuerst: auf einem breiten Bildschirm neben der Konfiguration, auf einem schmalen hinter dem Umschalter **Details** und **Läufe**. Ein Klick auf einen Lauf öffnet **Details zum Lauf**: **Ausgeführt als** mit dem Namen des Eigentümers, die verbrauchten Credits (genaue Anbieterkosten auf eine Nachkommastelle), der Auslöser (**Datensatz**, **Geänderte Felder**, **Unterhaltung**) und, wenn der Lauf vorzeitig gestoppt hat, der Grund. Nur die Person, unter deren Identität er lief, kann das vollständige Transkript öffnen und nach Ende des Laufs darunter antworten, um die Unterhaltung mit Mate fortzusetzen; das verbraucht ihre Credits.

@@ -62,7 +62,7 @@ import { describeAgentTool } from "@/ee/agent-chat/agent-activity";
 import { resolvedAgentApprovalActivity } from "@/ee/agent-chat/agent-approval-targets";
 import { approvalTargetRefusal } from "@/ee/agent-chat/agent-approval-guard";
 import { retryAgentFinalization } from "@/ee/agent-chat/agent-finalize-retry";
-import { agentTurnFailureMessageKind } from "@/ee/agent-chat/agent-failure-message";
+import { agentTurnFailureMessageKind, terminalAgentToolFailureMessage } from "@/ee/agent-chat/agent-failure-message";
 import { shouldResumeAgentStreamFailure, shouldRetryAgentStreamFailure } from "@/ee/agent-chat/agent-stream-retry";
 import {
   agentToolOutcomeStatus,
@@ -2061,7 +2061,9 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         : budgetStop
           ? "credit_limit"
           : roundFailure
-            ? "turn_error"
+            ? agentTurnFailureMessageKind(roundFailure.message) === "contextLimit"
+              ? "context_limit"
+              : "turn_error"
             : providerStop;
     const policyBreach =
       usageSettlementForTurn(payload, {
@@ -2081,7 +2083,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             ? performedWrite
               ? "creditLimit"
               : "creditLimitNoWrite"
-            : effectiveStopReason === "turn_error"
+            : effectiveStopReason === "turn_error" || effectiveStopReason === "context_limit"
               ? "turnError"
               : effectiveStopReason === "provider_error"
                 ? "providerError"
@@ -2091,15 +2093,15 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                     ? "policyBreach"
                     : null;
     if (stopKind) {
-      const message =
-        stopKind === "turnError" && transcript.lastFailedToolMessage
-          ? await resolveFailedToolRunnerMessage(payload.locale, transcript.lastFailedToolMessage)
-          : stopKind === "turnError"
-            ? await resolveRunnerMessage(
-                payload.locale,
-                agentTurnFailureMessageKind(roundFailure?.message, transcript.lastFailedToolMessage),
-              )
-            : await resolveRunnerMessage(payload.locale, stopKind);
+      const terminalToolFailure =
+        stopKind === "turnError"
+          ? terminalAgentToolFailureMessage(roundFailure?.message, transcript.lastFailedToolMessage)
+          : null;
+      const message = terminalToolFailure
+        ? await resolveFailedToolRunnerMessage(payload.locale, terminalToolFailure)
+        : stopKind === "turnError"
+          ? await resolveRunnerMessage(payload.locale, agentTurnFailureMessageKind(roundFailure?.message))
+          : await resolveRunnerMessage(payload.locale, stopKind);
       const trailing = transcript.replyText.trim() ? `\n\n${message}` : message;
       transcript.appendText(trailing);
       await publishAssistantText(trailing);
