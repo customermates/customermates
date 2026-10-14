@@ -11,6 +11,7 @@ import { Cable, Inbox, RefreshCw } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Action, Resource } from "@/generated/prisma";
+import { ForbiddenError } from "@/core/errors/app-errors";
 
 import { AgentStarterActions } from "@/app/components/agent-chat/suggested-questions";
 import { IntlLink as Link, useRouter, usePathname } from "@/i18n/navigation";
@@ -53,7 +54,9 @@ const InboxListContent = observer(({ canConnect, threads, selectedThreadId, lock
 
   useEffect(() => {
     if (locked) return;
-    void connectedAccountsStore.ensureLoaded().catch(() => toast.error(t("Common.notifications.unexpectedError")));
+    void connectedAccountsStore.ensureLoaded().catch((error) => {
+      if (!(error instanceof ForbiddenError)) toast.error(t("Common.notifications.unexpectedError"));
+    });
   }, [connectedAccountsStore, locked, t]);
   const channelsNeedingAction = connectedAccountsStore.needsActionCount;
 

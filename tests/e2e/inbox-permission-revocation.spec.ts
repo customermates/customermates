@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { collectPageErrors, expect, test } from "./fixtures";
+import { invokesServerAction, serverActionIds } from "./server-actions";
 
 test("losing Inbox permission leaves the thread private without generic background toasts", async ({
   page,
@@ -31,6 +32,23 @@ test("losing Inbox permission leaves the thread private without generic backgrou
     page,
     limit: 20,
   });
+  const accountActionIds = serverActionIds(
+    "app/[locale]/(protected)/settings/(account)/channels/actions.ts",
+    "refreshConnectedAccountsAction",
+  );
+  let releaseAccountLoad!: () => void;
+  const accountLoadHeld = new Promise<void>((resolve) => (releaseAccountLoad = resolve));
+  let signalAccountLoad!: () => void;
+  const accountLoadStarted = new Promise<void>((resolve) => (signalAccountLoad = resolve));
+  let heldAccountLoad = false;
+  await page.route("**/*", async (route) => {
+    if (!heldAccountLoad && invokesServerAction(route.request(), accountActionIds)) {
+      heldAccountLoad = true;
+      signalAccountLoad();
+      await accountLoadHeld;
+    }
+    await route.fallback();
+  });
   await page.setViewportSize({ width: 390, height: 1000 });
   await page.addInitScript(() => {
     (window as Window & { inboxToasts?: string[] }).inboxToasts = [];
@@ -45,6 +63,7 @@ test("losing Inbox permission leaves the thread private without generic backgrou
     });
   });
   await page.goto(`/de/inbox?threadId=${threadId}`);
+  await accountLoadStarted;
   await page
     .getByRole("button", { name: /Thread-Einstellungen|Konversationseinstellungen|Einstellungen/i })
     .last()
@@ -53,6 +72,7 @@ test("losing Inbox permission leaves the thread private without generic backgrou
   await expect(shared).toBeVisible();
   await page.evaluate(() => ((window as Window & { inboxToasts?: string[] }).inboxToasts = []));
   await database.query('UPDATE "User" SET "roleId"=$1 WHERE id=$2', [roleId, workspace.userId]);
+  releaseAccountLoad();
   await shared.click();
   await expect
     .poll(() => page.evaluate(() => (window as Window & { inboxToasts?: string[] }).inboxToasts ?? []))

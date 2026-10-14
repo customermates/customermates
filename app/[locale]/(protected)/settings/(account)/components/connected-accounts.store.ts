@@ -9,6 +9,7 @@ import { action, computed, makeObservable } from "mobx";
 
 import { accountNeedsAction, isUsableSenderFor } from "@/ee/messaging/provider";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { ForbiddenError } from "@/core/errors/app-errors";
 
 import {
   disconnectConnectedAccountAction,
@@ -223,8 +224,11 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
   };
 
   protected async refreshAction(_params?: GetQueryParams) {
-    const accounts = await refreshConnectedAccountsAction();
-
-    return { items: accounts };
+    const result = await refreshConnectedAccountsAction();
+    if (!result.ok) {
+      if (result.failure.kind === "authorization") throw new ForbiddenError();
+      throw new Error("Connected accounts could not be loaded");
+    }
+    return { items: result.data };
   }
 }

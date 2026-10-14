@@ -15,9 +15,8 @@ import {
   getSetConnectedAccountVisibilityInteractor,
   getSetSelectedFoldersInteractor,
 } from "@/core/di";
-import { serializeResult } from "@/core/utils/action-result";
+import { serializeResult, serializeTypedResult } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
-import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export async function startConnectAccountAction(channel: ConnectChannel) {
   const result = await getCreateAuthLinkInteractor().invoke({ channel });
@@ -62,5 +61,5 @@ export async function startReconnectAccountAction(id: string) {
 }
 
 export async function refreshConnectedAccountsAction() {
-  return unwrapValidated(getGetMyConnectedAccountsInteractor().invoke());
+  return serializeTypedResult(getGetMyConnectedAccountsInteractor().invoke());
 }
