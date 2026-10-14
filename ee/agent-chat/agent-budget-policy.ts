@@ -13,6 +13,10 @@ import { AGENT_MICROCENTS_PER_USD } from "@/core/commercial/agent-credits";
 export const AGENT_RESERVATION_ROUNDS_AHEAD = 2;
 export const AGENT_MAX_TOOL_RESULT_CHARS = 6000;
 export const AGENT_MIN_CONTEXT_TOKENS_PER_STEP = 8_000;
+export const AGENT_MAX_SERIALIZED_BYTES_PER_CHAR = 6;
+export const AGENT_TOOL_RESULT_ENVELOPE_BYTES = 4_096;
+
+export type AgentMeasuredContext = { contextBytes: number; promptTokens: number };
 
 export type AgentTurnBudget = {
   modelSpec: string;
@@ -42,8 +46,11 @@ export function agentContextBytesToWorstCaseProviderTokens(bytes: number) {
 
 const MICROCENTS_PER_USD_PER_MILLION_TOKENS = AGENT_MICROCENTS_PER_USD / 1_000_000;
 
-function stepWorstCaseMicrocents(entry: AgentModelEntry, contextTokens: number, outputTokens: number) {
-  const promptTokens = contextTokens + AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS;
+function stepWorstCaseMicrocents(
+  entry: Pick<AgentModelEntry, "modelId" | "servingProvider" | "inferenceRegion">,
+  promptTokens: number,
+  outputTokens: number,
+) {
   const pricing = resolveModelPricing(entry.modelId, promptTokens, entry.servingProvider, entry.inferenceRegion);
   const maxInputRate = Math.max(pricing.inputPerMTok, pricing.cacheReadPerMTok, pricing.cacheWritePerMTok);
   const microcents =
@@ -52,16 +59,75 @@ function stepWorstCaseMicrocents(entry: AgentModelEntry, contextTokens: number, 
   return Math.ceil(Math.round(microcents * 1_000_000) / 1_000_000);
 }
 
-export function agentRoundWorstCaseMicrocentsForContextBytes(entry: AgentModelEntry, contextBytes: number) {
-  return stepWorstCaseMicrocents(
-    entry,
-    agentContextBytesToWorstCaseProviderTokens(contextBytes),
-    entry.maxOutputTokens,
+function worstCasePromptTokens(contextBytes: number) {
+  return agentContextBytesToWorstCaseProviderTokens(contextBytes) + AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS;
+}
+
+function roundPromptTokens(contextBytes: number, measured: AgentMeasuredContext | null) {
+  const worstCase = worstCasePromptTokens(contextBytes);
+  if (
+    !measured ||
+    !Number.isSafeInteger(measured.promptTokens) ||
+    measured.promptTokens < 1 ||
+    !Number.isSafeInteger(measured.contextBytes) ||
+    contextBytes < measured.contextBytes
+  )
+    return worstCase;
+  return Math.min(
+    worstCase,
+    measured.promptTokens + agentContextBytesToWorstCaseProviderTokens(contextBytes - measured.contextBytes),
   );
+}
+
+export function agentRoundWorstCaseMicrocentsForContextBytes(entry: AgentModelEntry, contextBytes: number) {
+  return stepWorstCaseMicrocents(entry, worstCasePromptTokens(contextBytes), entry.maxOutputTokens);
 }
 
 export function agentRoundWorstCaseMicrocents(entry: AgentModelEntry) {
   return agentRoundWorstCaseMicrocentsForContextBytes(entry, agentContextTokensToBytes(entry.maxContextTokens));
+}
+
+export function agentRoundReserveMicrocents(
+  budget: AgentTurnBudget,
+  contextBytes: number,
+  measured: AgentMeasuredContext | null = null,
+) {
+  const bytes =
+    Number.isSafeInteger(contextBytes) && contextBytes > 0
+      ? Math.min(contextBytes, budget.maxContextBytes)
+      : budget.maxContextBytes;
+  return Math.min(
+    budget.roundReserveMicrocents,
+    stepWorstCaseMicrocents(
+      { modelId: budget.modelSpec, servingProvider: budget.servingProvider, inferenceRegion: budget.inferenceRegion },
+      roundPromptTokens(bytes, measured),
+      budget.maxOutputTokens,
+    ),
+  );
+}
+
+export function agentPendingToolResultBytes(maxToolResultChars: number) {
+  return (
+    resolveAgentToolResultMaxChars(maxToolResultChars) * AGENT_MAX_SERIALIZED_BYTES_PER_CHAR +
+    AGENT_TOOL_RESULT_ENVELOPE_BYTES
+  );
+}
+
+export function agentNextRoundContextBytes(args: {
+  contextBytes: number;
+  appended: unknown;
+  pendingToolResults: number;
+  maxToolResultChars: number;
+  maxContextBytes: number;
+}) {
+  const appendedBytes = serializedAgentContextBytes(args.appended);
+  if (appendedBytes === null || !Number.isSafeInteger(args.contextBytes)) return args.maxContextBytes;
+  return Math.min(
+    args.maxContextBytes,
+    args.contextBytes +
+      appendedBytes +
+      Math.max(0, args.pendingToolResults) * agentPendingToolResultBytes(args.maxToolResultChars),
+  );
 }
 
 export function agentFundedRetryCount(args: {

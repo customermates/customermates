@@ -1,6 +1,6 @@
 import type { Prisma } from "@/generated/prisma";
 import type { AgentToolDeps } from "@/ee/agent-chat/agent-tools";
-import type { AgentTurnBudget } from "@/ee/agent-chat/agent-budget-policy";
+import type { AgentMeasuredContext, AgentTurnBudget } from "@/ee/agent-chat/agent-budget-policy";
 import type { AgentActivityDescriptor, AgentActivityResource } from "@/ee/agent-chat/agent-activity";
 import type { AgentTranscriptEvent } from "@/ee/agent-chat/agent-turn-transcript";
 import type { AgentTurnTerminalEvent } from "@/ee/agent-chat/agent-durable-stream";
@@ -55,7 +55,7 @@ import {
 } from "@/ee/agent-chat/agent-web-search";
 import { userWebsiteHomepage } from "@/ee/agent-chat/user-website-homepages";
 import { buildAgentUsageSettlement, usageToTokenCounts } from "@/ee/agent-chat/agent-usage-settlement";
-import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
+import { computeCostMicrocents, promptTokensOf } from "@/ee/agent-chat/model-pricing";
 import { agentMicrocentsToCredits } from "@/core/commercial/agent-credits";
 import { createAgentSupportTicket } from "@/ee/agent-chat/agent-support-ticket";
 import { describeAgentTool } from "@/ee/agent-chat/agent-activity";
@@ -89,10 +89,13 @@ import { createAgentToolInputResolver, type AgentToolInputResult } from "@/ee/ag
 import { resolveAgentApprovalContext } from "@/ee/agent-chat/agent-external-approval-context";
 import {
   agentFundedRetryCount,
+  agentNextRoundContextBytes,
+  agentRoundReserveMicrocents,
   agentStepContext,
   agentWebSearchReserveMicrocents,
   isAgentContextWithinBudget,
   resolveAgentToolResultMaxChars,
+  serializedAgentContextBytes,
 } from "@/ee/agent-chat/agent-budget-policy";
 import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
 import { getTenantUser } from "@/core/decorators/tenant-context";
@@ -280,6 +283,33 @@ function addTokens(left: TokenCounts, right: TokenCounts): TokenCounts {
     outputTokens: left.outputTokens + right.outputTokens,
     cacheReadTokens: left.cacheReadTokens + right.cacheReadTokens,
     cacheWriteTokens: left.cacheWriteTokens + right.cacheWriteTokens,
+  };
+}
+
+function nextRoundGrowth(step: AgentRoundResult, outcomes: readonly AgentToolOutcome[]) {
+  const results = outcomes.flatMap((outcome) =>
+    "output" in outcome
+      ? [
+          {
+            type: "tool-result",
+            toolCallId: outcome.toolCallId,
+            toolName: outcome.toolName,
+            output: { type: "json", value: outcome.output },
+          },
+        ]
+      : [],
+  );
+  const answered = new Set(results.map((result) => result.toolCallId));
+  const pendingToolResults = step.content.filter((raw) => {
+    const part = raw as { type?: string; toolCallId?: string };
+    return part.type === "tool-call" && !answered.has(part.toolCallId ?? "");
+  }).length;
+  return {
+    appended: [
+      { role: "assistant", content: step.content },
+      { role: "tool", content: results },
+    ],
+    pendingToolResults,
   };
 }
 
@@ -634,6 +664,8 @@ type AgentRunnerMessageKind =
   | "contentFilter"
   | "creditLimit"
   | "creditLimitNoWrite"
+  | "runCreditLimit"
+  | "runCreditLimitNoWrite"
   | "hostedAiUnavailable"
   | "policyBreach"
   | "turnError"
@@ -643,7 +675,7 @@ type AgentRunnerMessageKind =
   | "emptyReply"
   | "sourcesHeading";
 
-async function resolveRunnerMessage(locale: string, kind: AgentRunnerMessageKind): Promise<string> {
+async function resolveRunnerMessage(locale: string, kind: AgentRunnerMessageKind, credits = 0): Promise<string> {
   "use step";
   const { getTranslator } = await import("@/i18n/get-translator");
   const { appLocaleOrDefault } = await import("@/i18n/locale-registry");
@@ -651,6 +683,8 @@ async function resolveRunnerMessage(locale: string, kind: AgentRunnerMessageKind
 
   if (kind === "creditLimit") return t("AgentChat.runner.creditLimit");
   if (kind === "creditLimitNoWrite") return t("AgentChat.runner.creditLimitNoWrite");
+  if (kind === "runCreditLimit") return t("AgentChat.runner.runCreditLimit", { credits });
+  if (kind === "runCreditLimitNoWrite") return t("AgentChat.runner.runCreditLimitNoWrite", { credits });
   if (kind === "hostedAiUnavailable") return t("AgentChat.runner.hostedAiUnavailable");
   if (kind === "turnError") return t("AgentChat.runner.turnError");
   if (kind === "contextLimit") return t("AgentChat.runner.contextLimit");
@@ -1032,11 +1066,17 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     let resolvedProviderErrorRetries = 0;
     let streamFailureRetries = 0;
     let providerFailure: WorkflowFailure | null = null;
-    let budgetStop = false;
+    let budgetStop = null as Extract<AgentTurnStopReason, "credit_limit" | "run_credit_limit"> | null;
+    let runCreditCeilingMicrocents = 0;
     let hostedAiStop = false;
     const hostedAiPaused = new Error("Hosted AI provider work is paused.");
     let abandoned = false;
     let reservedMicrocents = payload.turnBudget.reservedMicrocents;
+    let stepContextBytes = payload.turnBudget.maxContextBytes;
+    let roundReserveMicrocents = payload.turnBudget.roundReserveMicrocents;
+    let streamSegment = 0;
+    let measuredContext = null as (AgentMeasuredContext & { segment: number }) | null;
+    const measuredInSegment = () => (measuredContext?.segment === streamSegment ? measuredContext : null);
     let roundFailure: WorkflowFailure | null = null;
     const settledToolCallIds = new Set<string>();
     const seenDestructiveApprovals = new Set<string>();
@@ -1226,7 +1266,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const fundedRetryCount = () =>
       agentFundedRetryCount({
         remainingMicrocents: Math.max(0, reservedMicrocents - accruedCostMicrocents()),
-        roundReserveMicrocents: payload.turnBudget.roundReserveMicrocents,
+        roundReserveMicrocents,
         maxRetries: AGENT_MODEL_DEFAULT_MAX_RETRIES,
       });
 
@@ -1237,8 +1277,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         reservedMicrocents = extension.reservedMicrocents;
         return true;
       }
-      if (extension.disposition === "credit_limit") budgetStop = true;
-      else if (extension.disposition === "hosted_ai_unavailable") hostedAiStop = true;
+      if (extension.disposition === "credit_limit") budgetStop = "credit_limit";
+      else if (extension.disposition === "run_credit_limit") {
+        budgetStop = "run_credit_limit";
+        runCreditCeilingMicrocents = extension.ceilingMicrocents;
+      } else if (extension.disposition === "hosted_ai_unavailable") hostedAiStop = true;
       else roundFailure ??= toWorkflowFailure(new Error("Agent usage reservation is no longer available."));
       return false;
     };
@@ -1247,9 +1290,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       const remaining = webSearchCallLimit - webSearchCalls;
       if (remaining < 1) return false;
       const requiredMicrocents =
-        accruedCostMicrocents() +
-        payload.turnBudget.roundReserveMicrocents +
-        agentWebSearchReserveMicrocents(remaining);
+        accruedCostMicrocents() + roundReserveMicrocents + agentWebSearchReserveMicrocents(remaining);
       if (requiredMicrocents <= reservedMicrocents) return true;
       const extension = await ensureTurnReservation(payload, requiredMicrocents);
       if (extension.disposition !== "extended") return false;
@@ -1338,6 +1379,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         let roundTokens = emptyTokens();
         try {
           roundTokens = usageToTokenCounts(step.usage);
+          measuredContext = {
+            segment: streamSegment,
+            contextBytes: stepContextBytes,
+            promptTokens: Math.max(promptTokensOf(roundTokens), step.usage.inputTokens ?? 0),
+          };
         } catch (error) {
           roundFailure ??= toWorkflowFailure(error);
         }
@@ -1424,6 +1470,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         await publishTranscriptEvents(queued.splice(0));
 
         const accruedMicrocents = accruedCostMicrocents();
+        const settledIds = new Set(outcomes.map((outcome) => outcome.toolCallId));
+        const hasPausedCall = step.content.some((raw) => {
+          const part = raw as { type?: string; toolCallId?: string };
+          return part.type === "tool-call" && Boolean(part.toolCallId) && !settledIds.has(part.toolCallId as string);
+        });
         const needsAnotherProviderRound =
           !cancelled &&
           !abandoned &&
@@ -1433,14 +1484,20 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           roundFailure === null &&
           (step.finishReason === "length" || step.finishReason === "tool-calls");
         const requiredMicrocents =
-          accruedMicrocents + (needsAnotherProviderRound ? payload.turnBudget.roundReserveMicrocents : 0);
+          accruedMicrocents +
+          (needsAnotherProviderRound
+            ? agentRoundReserveMicrocents(
+                payload.turnBudget,
+                agentNextRoundContextBytes({
+                  contextBytes: stepContextBytes,
+                  ...nextRoundGrowth(step, outcomes),
+                  maxToolResultChars: payload.turnBudget.maxToolResultChars,
+                  maxContextBytes: payload.turnBudget.maxContextBytes,
+                }),
+                step.finishReason === "tool-calls" && !hasPausedCall ? measuredInSegment() : null,
+              )
+            : 0);
         await ensureReservation(requiredMicrocents);
-
-        const settledIds = new Set(outcomes.map((outcome) => outcome.toolCallId));
-        const hasPausedCall = step.content.some((raw) => {
-          const part = raw as { type?: string; toolCallId?: string };
-          return part.type === "tool-call" && Boolean(part.toolCallId) && !settledIds.has(part.toolCallId as string);
-        });
 
         if (hasPausedCall && step.finishReason === "tool-calls") {
           deferredRound = { step, outcomes };
@@ -1565,6 +1622,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     };
 
     while (!abandoned && !cancelled && !budgetStop && !hostedAiStop && providerStop === null && roundFailure === null) {
+      streamSegment += 1;
       const agent = new WorkflowAgent({
         id: WORKFLOW_NAME,
         model: payload.turnBudget.modelSpec,
@@ -1646,18 +1704,22 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           const activeDefinitions = activeTools
             ? toolDefinitions.filter((definition) => activeTools.includes(definition.name))
             : toolDefinitions;
-          if (
-            !isAgentContextWithinBudget(
-              agentStepContext({
-                system: instructions,
-                messages: stepMessages,
-                tools: activeDefinitions,
-              }),
-              payload.turnBudget.maxContextBytes,
-            )
-          )
+          const stepContext = agentStepContext({
+            system: instructions,
+            messages: stepMessages,
+            tools: activeDefinitions,
+          });
+          if (!isAgentContextWithinBudget(stepContext, payload.turnBudget.maxContextBytes))
             throw AGENT_CONTEXT_COMPACTION_REQUIRED;
           if (!(await canStartNextHostedAiProviderRound(payload))) throw hostedAiPaused;
+          stepContextBytes = serializedAgentContextBytes(stepContext) ?? payload.turnBudget.maxContextBytes;
+          roundReserveMicrocents = agentRoundReserveMicrocents(
+            payload.turnBudget,
+            stepContextBytes,
+            measuredInSegment(),
+          );
+          if (!(await ensureReservation(accruedCostMicrocents() + roundReserveMicrocents)))
+            throw AGENT_LOCAL_TERMINATION_REQUIRED;
           if (webSearchOvershoot) {
             return {
               activeTools: activeTools.filter((toolName) => !isAgentWebTool(toolName)),
@@ -1686,7 +1748,13 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         },
         stopWhen: [
           isStepCount(AGENT_SEGMENT_ROUNDS),
-          () => abandoned || cancelled || budgetStop || hostedAiStop || providerStop !== null || roundFailure !== null,
+          () =>
+            abandoned ||
+            cancelled ||
+            budgetStop !== null ||
+            hostedAiStop ||
+            providerStop !== null ||
+            roundFailure !== null,
         ],
         onToolExecutionEnd: (event) => {
           completedTools.push(
@@ -2059,13 +2127,12 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       ? "cancelled"
       : hostedAiStop
         ? "hosted_ai_unavailable"
-        : budgetStop
-          ? "credit_limit"
-          : roundFailure
+        : (budgetStop ??
+          (roundFailure
             ? agentTurnFailureMessageKind(roundFailure.message) === "contextLimit"
               ? "context_limit"
               : "turn_error"
-            : providerStop;
+            : providerStop));
     const policyBreach =
       usageSettlementForTurn(payload, {
         tokens,
@@ -2084,15 +2151,19 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             ? performedWrite
               ? "creditLimit"
               : "creditLimitNoWrite"
-            : effectiveStopReason === "turn_error" || effectiveStopReason === "context_limit"
-              ? "turnError"
-              : effectiveStopReason === "provider_error"
-                ? "providerError"
-                : effectiveStopReason === "content_filter"
-                  ? "contentFilter"
-                  : effectiveStopReason === "policy_breach"
-                    ? "policyBreach"
-                    : null;
+            : effectiveStopReason === "run_credit_limit"
+              ? performedWrite
+                ? "runCreditLimit"
+                : "runCreditLimitNoWrite"
+              : effectiveStopReason === "turn_error" || effectiveStopReason === "context_limit"
+                ? "turnError"
+                : effectiveStopReason === "provider_error"
+                  ? "providerError"
+                  : effectiveStopReason === "content_filter"
+                    ? "contentFilter"
+                    : effectiveStopReason === "policy_breach"
+                      ? "policyBreach"
+                      : null;
     if (stopKind) {
       const terminalToolFailure =
         stopKind === "turnError"
@@ -2102,7 +2173,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         ? await resolveFailedToolRunnerMessage(payload.locale, terminalToolFailure)
         : stopKind === "turnError"
           ? await resolveRunnerMessage(payload.locale, agentTurnFailureMessageKind(roundFailure?.message))
-          : await resolveRunnerMessage(payload.locale, stopKind);
+          : await resolveRunnerMessage(payload.locale, stopKind, agentMicrocentsToCredits(runCreditCeilingMicrocents));
       const trailing = transcript.replyText.trim() ? `\n\n${message}` : message;
       transcript.appendText(trailing);
       await publishAssistantText(trailing);

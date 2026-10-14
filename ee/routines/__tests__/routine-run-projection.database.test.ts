@@ -12,7 +12,7 @@ import { createTestRoutineRepo } from "@/tests/helpers/record-delivery";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import { runWithTenant } from "@/core/decorators/tenant-context";
-import { routineRunDetail } from "../routine-run-outcome";
+import { routineRunDetail, routineRunStopReason } from "../routine-run-outcome";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -27,6 +27,8 @@ describeDatabase("routine run projection on PostgreSQL", () => {
   const scheduleRunId = randomUUID();
   const conversationId = randomUUID();
   const turnRequestId = randomUUID();
+  const limitConversationId = randomUUID();
+  const limitTurnRequestId = randomUUID();
 
   const viewer: TenantUser = {
     ...createMockUserWithPermissions([
@@ -100,23 +102,35 @@ describeDatabase("routine run projection on PostgreSQL", () => {
         [id, companyId, routineId, ownerId, event, event ? contactId : null, payload],
       );
     }
-    await client.query(
-      `INSERT INTO "AgentConversation" ("id", "companyId", "userId", "origin", "updatedAt")
-       VALUES ($1, $2, $3, 'routine', CURRENT_TIMESTAMP)`,
-      [conversationId, companyId, ownerId],
-    );
-    await client.query(
-      `INSERT INTO "AgentTurnRequest"
-         ("id", "companyId", "userId", "conversationId", "clientRequestId", "text", "status", "runId",
-          "userMessageId", "terminalCode", "stopReason", "updatedAt")
-       VALUES ($1, $2, $3, $4, $5, 'Stage change', 'completed', $6, $7, 'partial', 'context_limit', CURRENT_TIMESTAMP)`,
-      [turnRequestId, companyId, ownerId, conversationId, randomUUID(), randomUUID(), randomUUID()],
-    );
-    await client.query(
-      `UPDATE "RoutineRun" SET "conversationId" = $1, "turnRequestId" = $2, "status" = 'partial',
-         "summary" = $3, "terminalCode" = 'partial' WHERE "id" = $4`,
-      [conversationId, turnRequestId, "Earlier progress that fills the summary.", eventRunId],
-    );
+    for (const [conversation, turnRequest, stopReason, summary, runId] of [
+      [conversationId, turnRequestId, "context_limit", "Earlier progress that fills the summary.", eventRunId],
+      [
+        limitConversationId,
+        limitTurnRequestId,
+        "run_credit_limit",
+        "I stopped before making any changes because this routine run reached its limit of 10 credits per run.",
+        scheduleRunId,
+      ],
+    ] as const) {
+      await client.query(
+        `INSERT INTO "AgentConversation" ("id", "companyId", "userId", "origin", "updatedAt")
+         VALUES ($1, $2, $3, 'routine', CURRENT_TIMESTAMP)`,
+        [conversation, companyId, ownerId],
+      );
+      await client.query(
+        `INSERT INTO "AgentTurnRequest"
+           ("id", "companyId", "userId", "conversationId", "clientRequestId", "text", "status", "runId",
+            "userMessageId", "terminalCode", "stopReason", "updatedAt")
+         VALUES ($1, $2, $3, $4, $5, 'Stage change', 'completed', $6, $7, 'partial', $8::"AgentTurnStopReason",
+                 CURRENT_TIMESTAMP)`,
+        [turnRequest, companyId, ownerId, conversation, randomUUID(), randomUUID(), randomUUID(), stopReason],
+      );
+      await client.query(
+        `UPDATE "RoutineRun" SET "conversationId" = $1, "turnRequestId" = $2, "status" = 'partial',
+           "summary" = $3, "terminalCode" = 'partial' WHERE "id" = $4`,
+        [conversation, turnRequest, summary, runId],
+      );
+    }
   });
 
   afterAll(async () => {
@@ -161,6 +175,14 @@ describeDatabase("routine run projection on PostgreSQL", () => {
 
     expect(triggered?.stopReason).toBe("context_limit");
     expect(triggered && routineRunDetail(triggered, (key) => key)).toBe("RoutineRunStopReason.contextLimit");
+  });
+
+  it("projects the per-run credit limit as its own stop reason", async () => {
+    const { runs: rows } = await runs();
+    const limited = rows.find((row) => row.id === scheduleRunId);
+
+    expect(limited?.stopReason).toBe("run_credit_limit");
+    expect(limited && routineRunStopReason(limited, (key) => key)).toBe("RoutineRunStopReason.runCreditLimit");
   });
 
   it("leaves a run with no trigger event without a context at all", async () => {

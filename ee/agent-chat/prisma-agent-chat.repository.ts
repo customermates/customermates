@@ -221,6 +221,7 @@ function sumAdjustmentMicrocents(rows: Array<{ deltaMicrocents: bigint }>): numb
 export type AgentUsageReservationExtension =
   | { disposition: "extended"; reservedMicrocents: number }
   | { disposition: "credit_limit" }
+  | { disposition: "run_credit_limit"; ceilingMicrocents: number }
   | { disposition: "hosted_ai_unavailable" }
   | { disposition: "turn_error" };
 
@@ -2897,7 +2898,7 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
         ceilingMicrocents !== null &&
         (reservedMicrocents > ceilingMicrocents || args.requiredMicrocents > ceilingMicrocents)
       )
-        return { disposition: "credit_limit" };
+        return { disposition: "run_credit_limit", ceilingMicrocents };
       if (reservedMicrocents >= args.requiredMicrocents) {
         return {
           disposition: "extended",

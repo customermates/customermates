@@ -30,7 +30,7 @@ Each user has their own allowance: Starter includes [[commercial.entitlement.sta
 | Limit | Value | At the limit |
 | --- | --- | --- |
 | Runs per routine and hour | 4 | A matching event is dropped without a run entry; a due scheduled run or **Test trigger** run is recorded as **Skipped** |
-| Credits per run | 10 | The run stops and is recorded as **Partial** |
+| Credits per run | 10 | The run stops before a round that could go past it, is recorded as **Partial** and names this limit as the reason |
 | Consecutive failed runs | 3 | The routine pauses itself and shows the reason; the owner switches it back on after fixing the cause |
 | Shortest schedule interval | 15 minutes | A more frequent schedule is rejected on save |
 | Run history | 90 days | Older runs are removed |
@@ -39,6 +39,8 @@ Each user has their own allowance: Starter includes [[commercial.entitlement.sta
 Skipped runs do not count against the hourly cap.
 
 Every routine run starts with core CRM tools and loads other tool sets when needed. This keeps unrelated tool descriptions out of the model context. If the context still exceeds the provider budget after compaction, the run stops and its history states the context-limit reason.
+
+Before each model round, a run reserves the most that round can cost: its context at the full input price, sized from what the provider measured for the previous round plus a worst-case allowance for everything added since, and the longest reply the model may write, up to 5.6 credits with the default model. When the credits already used plus that reservation would pass 10, the run stops before the round. Its summary and **Run details** name the per-run limit, which is separate from the owner's monthly credits.
 
 ## Schedules: how do I run a routine every morning or every Monday? [#how-do-schedules-work]
 

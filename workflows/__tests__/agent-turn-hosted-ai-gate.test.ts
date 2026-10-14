@@ -404,9 +404,11 @@ vi.mock("@/i18n/get-translator", async () => {
   return {
     getTranslator: (locale: string) =>
       Promise.resolve(
-        Object.assign((key: string) => (locale === "en" ? `localized:${key}` : `${locale}:${key}`), {
-          raw: (key: string) => errors.get(key),
-        }),
+        Object.assign(
+          (key: string, values?: Record<string, unknown>) =>
+            `${locale === "en" ? `localized:${key}` : `${locale}:${key}`}${values ? `:${JSON.stringify(values)}` : ""}`,
+          { raw: (key: string) => errors.get(key) },
+        ),
       ),
   };
 });
@@ -423,6 +425,19 @@ vi.mock("../capture-failure", () => ({
 import { runAgentTurn, type AgentTurnWorkflowPayload } from "../agent-turn";
 import { approvalDenialReason } from "@/ee/agent-chat/agent-approval-resume";
 import { AGENT_WIKI_REFERENCE_CLOSE, agentWikiSystemPrompt } from "@/ee/agent-chat/agent-wiki-context";
+import {
+  agentRoundReserveMicrocents,
+  agentRoundWorstCaseMicrocents,
+  agentRoundWorstCaseMicrocentsForContextBytes,
+  agentStepContext,
+  agentWebSearchReserveMicrocents,
+  resolveAgentTurnBudget,
+  serializedAgentContextBytes,
+} from "@/ee/agent-chat/agent-budget-policy";
+import { agentWebSearchCallLimit } from "@/ee/agent-chat/agent-web-search";
+import { SHIPPED_AGENT_MODEL } from "@/ee/agent-chat/model-catalog";
+import { agentCreditsToMicrocents } from "@/core/commercial/agent-credits";
+import { DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN } from "@/ee/routines/routine-run-limits";
 
 const notEmpty = { ok: true, data: { total: 1 } };
 
@@ -443,7 +458,7 @@ const payload: AgentTurnWorkflowPayload = {
     inferenceRegion: "eu",
     reservedMicrocents: 10 * CREDIT,
     roundReserveMicrocents: 2 * CREDIT,
-    maxOutputTokens: 100,
+    maxOutputTokens: 8_192,
     maxContextTokens: 8_000,
     maxContextBytes: 32_000,
     maxToolResultChars: 1_000,
@@ -1045,7 +1060,7 @@ describe("agent-turn credit-bounded continuation", () => {
       ...payload,
       turnBudget: {
         ...payload.turnBudget,
-        reservedMicrocents: CREDIT,
+        reservedMicrocents: 2 * CREDIT,
         roundReserveMicrocents: 2 * CREDIT,
       },
     });
@@ -1057,7 +1072,7 @@ describe("agent-turn credit-bounded continuation", () => {
         terminalCode: "partial",
         stopReason: "credit_limit",
         usageSettlement: expect.objectContaining({
-          reservedMicrocents: CREDIT,
+          reservedMicrocents: 2 * CREDIT,
           chargedMicrocents: 308,
         }),
       }),
@@ -1083,7 +1098,7 @@ describe("agent-turn credit-bounded continuation", () => {
 
     await runAgentTurn({
       ...payload,
-      turnBudget: { ...payload.turnBudget, reservedMicrocents: CREDIT, roundReserveMicrocents: 2 * CREDIT },
+      turnBudget: { ...payload.turnBudget, reservedMicrocents: 2 * CREDIT, roundReserveMicrocents: 2 * CREDIT },
     });
 
     expect(JSON.stringify(state.writes)).toContain(`localized:AgentChat.runner.${messageKey}`);
@@ -1108,7 +1123,7 @@ describe("agent-turn credit-bounded continuation", () => {
 
     await runAgentTurn({
       ...payload,
-      turnBudget: { ...payload.turnBudget, reservedMicrocents: CREDIT, roundReserveMicrocents: 2 * CREDIT },
+      turnBudget: { ...payload.turnBudget, reservedMicrocents: 2 * CREDIT, roundReserveMicrocents: 2 * CREDIT },
     });
 
     expect(state.execute).toHaveBeenCalledTimes(1);
@@ -1129,7 +1144,7 @@ describe("agent-turn credit-bounded continuation", () => {
       ...payload,
       turnBudget: {
         ...payload.turnBudget,
-        reservedMicrocents: CREDIT,
+        reservedMicrocents: 2 * CREDIT,
         roundReserveMicrocents: 2 * CREDIT,
       },
     });
@@ -1176,7 +1191,7 @@ describe("agent-turn credit-bounded continuation", () => {
       ...payload,
       turnBudget: {
         ...payload.turnBudget,
-        reservedMicrocents: CREDIT,
+        reservedMicrocents: 2 * CREDIT,
         roundReserveMicrocents: 2 * CREDIT,
       },
     });
@@ -1236,7 +1251,7 @@ describe("agent-turn credit-bounded continuation", () => {
       ...payload,
       turnBudget: {
         ...payload.turnBudget,
-        reservedMicrocents: CREDIT,
+        reservedMicrocents: 2 * CREDIT,
         roundReserveMicrocents: 2 * CREDIT,
       },
     });
@@ -1262,7 +1277,7 @@ describe("agent-turn credit-bounded continuation", () => {
       ...payload,
       turnBudget: {
         ...payload.turnBudget,
-        reservedMicrocents: CREDIT,
+        reservedMicrocents: 2 * CREDIT,
         roundReserveMicrocents: 2 * CREDIT,
       },
     });
@@ -1316,7 +1331,7 @@ describe("agent-turn credit-bounded continuation", () => {
       ...payload,
       turnBudget: {
         ...payload.turnBudget,
-        reservedMicrocents: CREDIT,
+        reservedMicrocents: 2 * CREDIT,
         roundReserveMicrocents: 2 * CREDIT,
       },
     });
@@ -1850,6 +1865,225 @@ describe("agent-turn credit-bounded continuation", () => {
   });
 });
 
+describe("routine per-run credit limit", () => {
+  const ceilingMicrocents = agentCreditsToMicrocents(DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN);
+  const evidenceRoundMicrocents = [1_054_846, 286_515, 255_554, 473_555, 1_403_689, 355_987, 351_527, 382_896];
+  const roundTextBytes = (round: number) => 122_000 + 8_500 * Math.min(round, 8) + 1_000 * Math.max(0, round - 8);
+  const roundPromptTokens = (round: number) => Math.round(roundTextBytes(round) / 4.27);
+  const routineMessages = [{ role: "user" as const, text: "r".repeat(roundTextBytes(0)) }];
+
+  const billedRound = (round: number, microcents: number, finishReason: string) => {
+    const usd = (microcents / 100_000_000).toFixed(8);
+    const promptTokens = roundPromptTokens(round);
+    return {
+      ...streamedStep("", finishReason),
+      usage: {
+        inputTokens: promptTokens,
+        outputTokens: 500,
+        totalTokens: promptTokens + 500,
+        inputTokenDetails: { noCacheTokens: promptTokens, cacheReadTokens: 0, cacheWriteTokens: 0 },
+        outputTokenDetails: { textTokens: 500, reasoningTokens: 0 },
+      },
+      providerMetadata: {
+        gateway: {
+          gatewayCost: usd,
+          cost: usd,
+          routing: {
+            finalProvider: "vertex",
+            modelAttempts: [{ providerAttempts: [{ provider: "vertex", credentialType: "system", success: true }] }],
+          },
+        },
+      },
+    };
+  };
+  const roundMessages = (round: number): unknown[] =>
+    round === 0
+      ? routineMessages
+      : [{ role: "user", content: [{ type: "text", text: "r".repeat(roundTextBytes(round)) }] }];
+  const contextBytesOf = (round: number) => {
+    const system = state.instructions[0] ?? "";
+    return (
+      serializedAgentContextBytes(
+        agentStepContext({
+          system,
+          messages: [{ role: "system", content: system }, ...roundMessages(round)],
+          tools: [],
+        }),
+      ) ?? Number.NaN
+    );
+  };
+  const routinePayload = (): AgentTurnWorkflowPayload => {
+    const turnBudget = resolveAgentTurnBudget({
+      model: SHIPPED_AGENT_MODEL,
+      availableMicrocents: ceilingMicrocents,
+      requiredContextBytes: 131_000,
+      webSearchReserveMicrocents: agentWebSearchReserveMicrocents(agentWebSearchCallLimit("routine")),
+    });
+    if (!turnBudget) throw new Error("Expected the default routine model to be admitted within the per-run limit.");
+    return { ...payload, surface: "routine", webSearchEnabled: false, messages: routineMessages, turnBudget };
+  };
+  const roundReserve = (round: number) =>
+    agentRoundReserveMicrocents(
+      routinePayload().turnBudget,
+      contextBytesOf(round),
+      round === 0 ? null : { contextBytes: contextBytesOf(round - 1), promptTokens: roundPromptTokens(round - 1) },
+    );
+  const accruedBefore = (costs: readonly number[], round: number) =>
+    costs.slice(0, round).reduce((total, cost) => total + cost, 0);
+  const enforceCeiling = () =>
+    state.extendReservation.mockImplementation(({ requiredMicrocents }: { requiredMicrocents: number }) =>
+      Promise.resolve(
+        requiredMicrocents > ceilingMicrocents
+          ? { disposition: "run_credit_limit", ceilingMicrocents }
+          : { disposition: "extended", reservedMicrocents: requiredMicrocents },
+      ),
+    );
+  const runRounds = (costs: readonly number[], finalMicrocents: number | null) => {
+    const steps = costs.map((cost, round) => billedRound(round, cost, "tool-calls"));
+    state.runTools = async ({ messages, completeStepAndPrepareNext }) => {
+      for (const [round, step] of steps.entries()) await completeStepAndPrepareNext(step, roundMessages(round + 1));
+      if (finalMicrocents === null) throw new Error("unreachable");
+      return { finishReason: "stop", messages, steps: [...steps, billedRound(steps.length, finalMicrocents, "stop")] };
+    };
+  };
+
+  it("lets a routine whose context grows from 120 KB pass 4.4 credits and finish under its limit", async () => {
+    enforceCeiling();
+    runRounds(evidenceRoundMicrocents, 300_000);
+
+    await runAgentTurn(routinePayload());
+
+    const beforeLastRound = accruedBefore(evidenceRoundMicrocents, 8);
+    expect(beforeLastRound).toBe(4_564_569);
+    expect(beforeLastRound + agentRoundWorstCaseMicrocents(SHIPPED_AGENT_MODEL)).toBeGreaterThan(ceilingMicrocents);
+    expect(
+      beforeLastRound + agentRoundWorstCaseMicrocentsForContextBytes(SHIPPED_AGENT_MODEL, contextBytesOf(8)),
+    ).toBeGreaterThan(ceilingMicrocents);
+    expect(contextBytesOf(0)).toBeGreaterThan(120_000);
+    expect(contextBytesOf(8)).toBeGreaterThan(189_000);
+    expect(state.providerCalls).toBe(9);
+    expect(state.extendReservation).not.toHaveBeenCalled();
+    expect(beforeLastRound + roundReserve(8)).toBeLessThanOrEqual(routinePayload().turnBudget.reservedMicrocents);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        terminalCode: "completed",
+        stopReason: null,
+        usageSettlement: expect.objectContaining({
+          chargedMicrocents: beforeLastRound + 300_000,
+          reservedMicrocents: routinePayload().turnBudget.reservedMicrocents,
+          policyBreach: false,
+        }),
+      }),
+    );
+    expect(routinePayload().turnBudget.reservedMicrocents).toBeLessThanOrEqual(ceilingMicrocents);
+    for (let round = 0; round < 9; round += 1) {
+      expect(accruedBefore(evidenceRoundMicrocents, round) + roundReserve(round)).toBeLessThanOrEqual(
+        ceilingMicrocents,
+      );
+    }
+  });
+
+  it("stops before a round whose worst case could pass the 10-credit limit and names that limit", async () => {
+    enforceCeiling();
+    const costs = [...evidenceRoundMicrocents, 1_500_000, 1_000_000, 1_000_000];
+    runRounds(costs, null);
+
+    await runAgentTurn(routinePayload());
+
+    const accrued = accruedBefore(costs, 10);
+    expect(state.providerCalls).toBe(10);
+    expect(accrued).toBe(7_064_569);
+    for (let round = 0; round < 10; round += 1)
+      expect(accruedBefore(costs, round) + roundReserve(round)).toBeLessThanOrEqual(ceilingMicrocents);
+    expect(
+      accrued +
+        agentRoundReserveMicrocents(routinePayload().turnBudget, contextBytesOf(9), {
+          contextBytes: contextBytesOf(9),
+          promptTokens: roundPromptTokens(9),
+        }),
+    ).toBeGreaterThan(ceilingMicrocents);
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        terminalCode: "partial",
+        stopReason: "run_credit_limit",
+        usageSettlement: expect.objectContaining({ chargedMicrocents: accrued, policyBreach: false }),
+      }),
+    );
+    expect(state.finalize.mock.calls[0]?.[0].parts).toContainEqual({
+      type: "text",
+      text: 'localized:AgentChat.runner.runCreditLimitNoWrite:{"credits":10}',
+    });
+    expect(JSON.stringify(state.finalize.mock.calls[0]?.[0].parts)).not.toContain("AgentChat.runner.creditLimit");
+    expect(state.writes).toContainEqual(
+      expect.objectContaining({
+        type: "turn_done",
+        payload: expect.objectContaining({ terminalCode: "partial", stopReason: "run_credit_limit" }),
+      }),
+    );
+  });
+
+  it("prices the first round after a stream restart from its context size alone", async () => {
+    enforceCeiling();
+    state.runTools = ({ messages }) =>
+      Promise.resolve({ finishReason: "tool-calls", messages, steps: [billedRound(0, 6_000_000, "tool-calls")] });
+
+    await runAgentTurn(routinePayload());
+
+    const budget = routinePayload().turnBudget;
+    const measured = { contextBytes: contextBytesOf(0), promptTokens: roundPromptTokens(0) };
+    expect(6_000_000 + agentRoundReserveMicrocents(budget, contextBytesOf(0), measured)).toBeLessThanOrEqual(
+      ceilingMicrocents,
+    );
+    expect(state.providerCalls).toBe(1);
+    expect(state.extendReservation).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        requiredMicrocents: 6_000_000 + agentRoundReserveMicrocents(budget, contextBytesOf(0), null),
+      }),
+    );
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "partial", stopReason: "run_credit_limit" }),
+    );
+  });
+
+  it("keeps the owner's period-credit stop distinct from the per-run limit", async () => {
+    state.extendReservation.mockResolvedValue({ disposition: "credit_limit" });
+    runRounds([...evidenceRoundMicrocents, 1_500_000, 1_000_000], null);
+
+    await runAgentTurn(routinePayload());
+
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "partial", stopReason: "credit_limit" }),
+    );
+    const reply = JSON.stringify(state.finalize.mock.calls[0]?.[0].parts);
+    expect(reply).toContain("localized:AgentChat.runner.creditLimitNoWrite");
+    expect(reply).not.toContain("runCreditLimit");
+  });
+
+  it.each([
+    ["list", "runCreditLimitNoWrite"],
+    ["create", "runCreditLimit"],
+  ] as const)("says whether a %s action ran before the per-run limit stopped the routine", async (action, key) => {
+    state.definitions.push({ name: "manage_widgets", description: "manage_widgets", inputSchema: { type: "object" } });
+    state.normalize.mockResolvedValue({ ok: true, input: { action } });
+    state.extendReservation.mockResolvedValueOnce({ disposition: "run_credit_limit", ceilingMicrocents });
+    state.runTools = async ({ messages, executeAndCompleteTool }) => {
+      await executeAndCompleteTool("manage_widgets", { action }, `call-${action}`);
+      return { finishReason: "length", messages, steps: [streamedStep("Partial response.", "length")] };
+    };
+
+    await runAgentTurn({
+      ...payload,
+      surface: "routine",
+      turnBudget: { ...payload.turnBudget, reservedMicrocents: 2 * CREDIT },
+    });
+
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({ terminalCode: "partial", stopReason: "run_credit_limit" }),
+    );
+    expect(JSON.stringify(state.writes)).toContain(`localized:AgentChat.runner.${key}:`);
+  });
+});
+
 describe("agent-turn terminal reasons", () => {
   it("classifies a provider-originated stream exception as a provider error", async () => {
     const providerFailure = Object.assign(new Error("provider unavailable"), {
@@ -1967,7 +2201,7 @@ describe("agent-turn terminal reasons", () => {
       ...payload,
       turnBudget: {
         ...payload.turnBudget,
-        reservedMicrocents: CREDIT,
+        reservedMicrocents: 2 * CREDIT,
         roundReserveMicrocents: 2 * CREDIT,
       },
     });
@@ -1975,8 +2209,8 @@ describe("agent-turn terminal reasons", () => {
     expect(state.finalize).toHaveBeenCalledWith(
       expect.objectContaining({
         usageSettlement: expect.objectContaining({
-          reservedMicrocents: CREDIT,
-          chargedMicrocents: CREDIT,
+          reservedMicrocents: 2 * CREDIT,
+          chargedMicrocents: 2 * CREDIT,
           policyBreach: true,
         }),
       }),
@@ -2544,7 +2778,7 @@ describe("agent-turn provider charge evidence", () => {
 
     await runAgentTurn({
       ...payload,
-      turnBudget: { ...payload.turnBudget, reservedMicrocents: CREDIT },
+      turnBudget: { ...payload.turnBudget, reservedMicrocents: CREDIT, maxOutputTokens: 100 },
     });
 
     expect(state.recordRound).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ costMicrocents: CREDIT }));

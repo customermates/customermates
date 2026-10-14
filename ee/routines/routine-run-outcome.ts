@@ -4,6 +4,8 @@ import type { AgentTurnStopReason } from "@/ee/agent-chat/agent-turn-request";
 import { RoutineRunStatus } from "@/generated/prisma";
 import { agentPlainTextPreview, sanitizeAgentPlainText } from "@/ee/agent-chat/agent-output-safety";
 
+import { DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN } from "./routine-run-limits";
+
 export const ROUTINE_SUMMARY_MAX_CHARS = 280;
 
 export const ROUTINE_RUN_REASONS = [
@@ -62,11 +64,13 @@ export function routineRunDetail(
 
 export function routineRunStopReason(
   run: { stopReason?: AgentTurnStopReason | null },
-  t: (key: string) => string,
+  t: (key: string, values?: Record<string, number>) => string,
 ): string {
   switch (run.stopReason) {
     case "credit_limit":
       return t("RoutineRunStopReason.creditLimit");
+    case "run_credit_limit":
+      return t("RoutineRunStopReason.runCreditLimit", { credits: DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN });
     case "provider_error":
       return t("RoutineRunStopReason.providerError");
     case "content_filter":

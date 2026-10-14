@@ -30,7 +30,7 @@ Jeder Nutzer hat ein eigenes Kontingent: Starter enthält [[commercial.entitleme
 | Limit | Wert | Am Limit |
 | --- | --- | --- |
 | Läufe pro Routine und Stunde | 4 | Ein passendes Ereignis wird ohne Eintrag verworfen; ein fälliger geplanter Lauf oder ein Lauf über **Auslöser testen** wird als **Übersprungen** erfasst |
-| Credits pro Lauf | 10 | Der Lauf stoppt und wird als **Teilweise** erfasst |
+| Credits pro Lauf | 10 | Der Lauf stoppt vor einer Runde, die es überschreiten könnte, wird als **Teilweise** erfasst und nennt dieses Limit als Grund |
 | Aufeinanderfolgende fehlgeschlagene Läufe | 3 | Die Routine pausiert sich selbst und zeigt den Grund; der Eigentümer schaltet sie wieder ein, sobald die Ursache behoben ist |
 | Kürzestes Zeitplan-Intervall | 15 Minuten | Ein häufigerer Zeitplan wird beim Speichern abgelehnt |
 | Laufverlauf | 90 Tage | Ältere Läufe werden entfernt |
@@ -39,6 +39,8 @@ Jeder Nutzer hat ein eigenes Kontingent: Starter enthält [[commercial.entitleme
 Übersprungene Läufe zählen nicht gegen die Stundenobergrenze.
 
 Jeder Routinelauf beginnt mit den grundlegenden CRM-Werkzeugen und lädt weitere Werkzeuggruppen bei Bedarf. So belegen ungenutzte Werkzeugbeschreibungen keinen Modellkontext. Überschreitet der Kontext auch nach der Komprimierung das Anbieterbudget, endet der Lauf; im Verlauf steht der konkrete Grund zur Kontextgrenze.
+
+Vor jeder Modellrunde reserviert ein Lauf, was diese Runde höchstens kosten kann: seinen Kontext zum vollen Eingabepreis, bemessen an dem, was der Anbieter für die vorige Runde gemessen hat, plus einem Höchstwert für alles seither Hinzugekommene, und die längste Antwort, die das Modell schreiben darf, mit dem Standardmodell bis zu 5,6 Credits. Würden die bereits verbrauchten Credits plus diese Reservierung 10 überschreiten, stoppt der Lauf vor der Runde. Seine Zusammenfassung und **Details zum Lauf** nennen das Limit pro Lauf, das von den monatlichen Credits des Eigentümers getrennt ist.
 
 ## Zeitpläne: Wie plane ich eine Routine für jeden Morgen oder jeden Montag? [#how-do-schedules-work]
 

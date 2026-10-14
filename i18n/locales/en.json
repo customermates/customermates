@@ -474,6 +474,8 @@
       "interruptedTurn": "This turn stopped before I could confirm its outcome. Check the activity above and the current records before trying again.",
       "policyBreach": "The AI provider exceeded the reserved credit budget, so the run was stopped. No further provider work was started.",
       "providerError": "The AI provider returned an error before I could finish. Nothing further was changed. Please try again.",
+      "runCreditLimit": "I completed part of this routine run, but stopped at its limit of {credits, number} credits per run. Completed work remains in place.",
+      "runCreditLimitNoWrite": "I stopped before making any changes because this routine run reached its limit of {credits, number} credits per run. Nothing was created, updated, or sent.",
       "sourcesHeading": "Sources",
       "streamInterrupted": "I had to stop because the model stream was interrupted. No further action was taken; check the activity above before trying again.",
       "turnError": "I couldn't complete that request. Please try again.",
@@ -4096,6 +4098,7 @@
     "hostedAiUnavailable": "Hosted AI became unavailable before the run could finish.",
     "policyBreach": "The AI provider exceeded the reserved credit budget, so the run was stopped.",
     "providerError": "The AI provider returned an error before the run could finish.",
+    "runCreditLimit": "The run stopped at its limit of {credits, number} credits per run.",
     "turnError": "The assistant could not complete this run."
   },
   "RoutinesCard": {
