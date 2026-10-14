@@ -71,7 +71,7 @@ export const ActivitiesFeed = observer(function ActivitiesFeed({ store }: { stor
 
       {!store.isReady && !error ? (
         <ActivityTimelineSkeleton />
-      ) : store.items.length ? (
+      ) : store.items.length || store.hasMore ? (
         <ActivitiesList
           hasMore={store.hasMore}
           items={store.items}

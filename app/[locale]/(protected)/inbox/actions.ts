@@ -34,11 +34,11 @@ import { serializeResult, serializeTypedResult } from "@/core/utils/action-resul
 import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export async function getMessagingThreadsAction(params?: GetQueryParams) {
-  return unwrapValidated(getGetMessagingThreadsInteractor().invoke(params));
+  return serializeTypedResult(getGetMessagingThreadsInteractor().invoke(params));
 }
 
 export async function getUnreadThreadCountAction() {
-  return unwrapValidated(getGetUnreadThreadCountInteractor().invoke());
+  return serializeTypedResult(getGetUnreadThreadCountInteractor().invoke());
 }
 
 export async function getMessagingThreadAction(threadId: string) {
@@ -51,7 +51,12 @@ export async function refreshInboxAction() {
 }
 
 export async function getIdentityRecordChoicesAction(search: string, refs?: Array<RecordRef | string>) {
-  return unwrapValidated(getGetIdentityRecordChoicesInteractor().invoke({ search, ...(refs ? { refs } : {}) }));
+  return unwrapValidated(
+    getGetIdentityRecordChoicesInteractor().invoke({
+      search,
+      ...(refs ? { refs } : {}),
+    }),
+  );
 }
 
 export async function readThreadRecordsAction(threadId: string) {

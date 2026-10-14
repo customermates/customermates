@@ -7,6 +7,7 @@ import type { ReactNode } from "react";
 import { useEffect } from "react";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { reportApplicationError } from "@/core/errors/report-application-error";
+import { ForbiddenError } from "@/core/errors/app-errors";
 import { startBackgroundPoll } from "@/core/utils/background-poll";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
@@ -35,7 +36,9 @@ const InboxSurfaceContent = observer(function InboxSurface({ children, threads }
     () =>
       startBackgroundPoll({
         refresh: () => Promise.all([messagingThreadsStore.refresh(), messagingThreadDetailStore.refresh(true)]),
-        onError: reportApplicationError,
+        onError: (error) => {
+          if (!(error instanceof ForbiddenError)) reportApplicationError(error);
+        },
         intervalMs: INBOX_REFRESH_INTERVAL_MS,
       }),
     [messagingThreadsStore, messagingThreadDetailStore],

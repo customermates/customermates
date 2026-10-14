@@ -18,9 +18,15 @@ const GROUP_PREFIX = "group:";
 
 type ConfigureGraphPoint = { x: number; y: number };
 
-export type ConfigureGraphPosition = ConfigureGraphPoint & { width: number; height: number };
+export type ConfigureGraphPosition = ConfigureGraphPoint & {
+  width: number;
+  height: number;
+};
 
-export type ConfigureGraphRoute = { points: ConfigureGraphPoint[]; label: ConfigureGraphPoint };
+export type ConfigureGraphRoute = {
+  points: ConfigureGraphPoint[];
+  label: ConfigureGraphPoint;
+};
 
 type ConfigureGraphLayout = {
   positions: Map<string, ConfigureGraphPosition>;
@@ -47,7 +53,14 @@ export function configureGraphLayout(
   direction: "TB" | "LR" = "TB",
 ): ConfigureGraphLayout {
   const graph = new dagre.graphlib.Graph({ multigraph: true, compound: true });
-  graph.setGraph({ rankdir: direction, nodesep: 40, ranksep: 64, edgesep: 20, marginx: 24, marginy: 24 });
+  graph.setGraph({
+    rankdir: direction,
+    nodesep: 40,
+    ranksep: 64,
+    edgesep: 20,
+    marginx: 24,
+    marginy: 24,
+  });
   graph.setDefaultEdgeLabel(() => ({}));
   const size = (id: string, height: number) => measured.get(id) ?? { width: GRAPH_NODE_WIDTH, height };
   for (const list of data.lists)
@@ -69,7 +82,17 @@ export function configureGraphLayout(
     }
     const { sourceTypeId, targetTypeId } = edge.relation;
     const [from, to] = edge.parent ? [targetTypeId, sourceTypeId] : [sourceTypeId, targetTypeId];
-    graph.setEdge(from, to, { ...RELATIONSHIP_CHIP, minlen: 1, weight: edge.parent ? 4 : 1, labelpos: "c" }, edge.id);
+    graph.setEdge(
+      from,
+      to,
+      {
+        ...RELATIONSHIP_CHIP,
+        minlen: 1,
+        weight: edge.parent ? 4 : 1,
+        labelpos: "c",
+      },
+      edge.id,
+    );
   }
   dagre.layout(graph);
   const positions = new Map<string, ConfigureGraphPosition>();
@@ -95,9 +118,16 @@ export function configureGraphLayout(
   return { positions, routes };
 }
 
-type ConfigureGraphCurve = { from: ConfigureGraphPoint; control: ConfigureGraphPoint; to: ConfigureGraphPoint };
+type ConfigureGraphCurve = {
+  from: ConfigureGraphPoint;
+  control: ConfigureGraphPoint;
+  to: ConfigureGraphPoint;
+};
 
-const midpoint = (a: ConfigureGraphPoint, b: ConfigureGraphPoint) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+const midpoint = (a: ConfigureGraphPoint, b: ConfigureGraphPoint) => ({
+  x: (a.x + b.x) / 2,
+  y: (a.y + b.y) / 2,
+});
 
 function routeCurves(points: readonly ConfigureGraphPoint[]): ConfigureGraphCurve[] {
   const last = points[points.length - 1];
@@ -217,25 +247,47 @@ export function configureEdgeGeometry(
   if (Math.abs(target.x - anchors.target.x - dx) < 0.5 && Math.abs(target.y - anchors.target.y - dy) < 0.5) {
     const curves = routeCurves(route.points.map((point) => ({ x: point.x + dx, y: point.y + dy })));
     const label = { x: route.label.x + dx, y: route.label.y + dy };
-    return { path: curvesPath(curves), label: visibleLabel(label, curves, obstacles) };
+    return {
+      path: curvesPath(curves),
+      label: visibleLabel(label, curves, obstacles),
+    };
   }
-  const start = boundaryPoint(source, { x: target.x + target.width / 2, y: target.y + target.height / 2 });
-  const end = boundaryPoint(target, { x: source.x + source.width / 2, y: source.y + source.height / 2 });
+  const start = boundaryPoint(source, {
+    x: target.x + target.width / 2,
+    y: target.y + target.height / 2,
+  });
+  const end = boundaryPoint(target, {
+    x: source.x + source.width / 2,
+    y: source.y + source.height / 2,
+  });
   const length = Math.hypot(end.x - start.x, end.y - start.y) || 1;
   const offset = lane * LANE_GAP;
-  const normal = { x: -(end.y - start.y) / length, y: (end.x - start.x) / length };
+  const normal = {
+    x: -(end.y - start.y) / length,
+    y: (end.x - start.x) / length,
+  };
   const middle = midpoint(start, end);
-  const label = { x: middle.x + normal.x * offset, y: middle.y + normal.y * offset };
-  const control = { x: middle.x + normal.x * offset * 2, y: middle.y + normal.y * offset * 2 };
+  const label = {
+    x: middle.x + normal.x * offset,
+    y: middle.y + normal.y * offset,
+  };
+  const control = {
+    x: middle.x + normal.x * offset * 2,
+    y: middle.y + normal.y * offset * 2,
+  };
   const curves = [{ from: start, control, to: end }];
-  return { path: curvesPath(curves), label: visibleLabel(label, curves, obstacles) };
+  return {
+    path: curvesPath(curves),
+    label: visibleLabel(label, curves, obstacles),
+  };
 }
 
 const VIEWPORT_PADDING = 16;
 const VIEWPORT_TOP = 64;
 const HINT_WIDTH = 1024;
 export const CONFIGURE_GRAPH_MIN_ZOOM = 0.1;
-export const configureGraphMinimumZoom = (nodeCount: number) => (nodeCount > 10 ? 0.01 : CONFIGURE_GRAPH_MIN_ZOOM);
+export const configureGraphMinimumZoom = (nodeCount: number) =>
+  nodeCount > 100 ? 0.001 : nodeCount > 10 ? 0.01 : CONFIGURE_GRAPH_MIN_ZOOM;
 
 export function configureGraphViewport(positions: Map<string, ConfigureGraphPosition>, width: number, height: number) {
   const boxes = [...positions.values()];

@@ -2,11 +2,10 @@ import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
 import type { Page } from "@playwright/test";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
-import { test, expect } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 import { postOk } from "./api";
 import { openItemMenu } from "./item-actions";
 import { openRecordDetails, rowActionLabels } from "./record-rows";
-
 
 async function setListColor(page: Page, typeId: string, color: string) {
   const model = RecordModelSchema.parse(await postOk(page, "/api/v1/model/read", {}));
@@ -50,7 +49,10 @@ test("record drawer keeps record actions icon-only in the header row next to Clo
   const name = `Header actions ${randomUUID().slice(0, 8)}`;
   await page.goto(`/en/records/${typeId}`);
   await page.locator("#records-add").click();
-  const drawer = page.getByRole("dialog", { name: "Organization", exact: true });
+  const drawer = page.getByRole("dialog", {
+    name: "Organization",
+    exact: true,
+  });
   const rail = drawer.locator('[data-slot="app-modal-actions"]');
   await expect(rail.getByRole("button", { name: "Customize", exact: true })).toBeVisible();
   await expect(rail.getByRole("button", { name: "Delete", exact: true })).toHaveCount(0);
@@ -59,7 +61,10 @@ test("record drawer keeps record actions icon-only in the header row next to Clo
   await expect(drawer).not.toBeVisible();
 
   await openRecordDetails(page, name);
-  const customize = rail.getByRole("button", { name: "Customize", exact: true });
+  const customize = rail.getByRole("button", {
+    name: "Customize",
+    exact: true,
+  });
   await expect(customize).toHaveText("");
   await expect(customize).toHaveAttribute("aria-pressed", "false");
   await customize.hover();
@@ -83,21 +88,23 @@ test("single select inputs show the selected option as a chip", async ({ page, c
   const drawer = page.getByRole("dialog", { name: "Deal", exact: true });
   const stage = drawer.getByRole("combobox", { name: "Stage", exact: false });
   await stage.click();
-  await expect(page.getByRole("option", { name: "Qualified", exact: true }).locator('[data-slot="badge"]')).toBeVisible();
+  await expect(
+    page.getByRole("option", { name: "Qualified", exact: true }).locator('[data-slot="badge"]'),
+  ).toBeVisible();
   await page.getByRole("option", { name: "Qualified", exact: true }).click();
   await expect(stage.locator('[data-slot="badge"]')).toHaveText("Qualified");
   await expect(stage.locator('[data-slot="badge"]')).toHaveAttribute("data-variant", "secondary");
 });
 
-test("relationship inputs keep linked chips and the record search inside one field", async ({
-  page,
-  companyId,
-}) => {
+test("relationship inputs keep linked chips and the record search inside one field", async ({ page, companyId }) => {
   await setListColor(page, presetId(companyId, "organization"), "info");
   await page.goto(`/en/records/${presetId(companyId, "deal")}`);
   await page.locator("#records-add").click();
   const drawer = page.getByRole("dialog", { name: "Deal", exact: true });
-  const combobox = drawer.getByRole("combobox", { name: "Organizations", exact: true });
+  const combobox = drawer.getByRole("combobox", {
+    name: "Organizations",
+    exact: true,
+  });
   const field = combobox.locator("xpath=ancestor::*[@data-relationship-field][1]");
   await expect(field).toContainText("Link a record");
   await combobox.click();
@@ -117,7 +124,11 @@ test("record tables edit cells in place, open linked chips and offer row actions
   page,
   companyId,
 }, testInfo) => {
-  test.skip(Boolean(testInfo.project.use.isMobile), "Table cells edit in place on the desktop table; phone rows render no cells");
+  const errors = collectPageErrors(page);
+  test.skip(
+    Boolean(testInfo.project.use.isMobile),
+    "Table cells edit in place on the desktop table; phone rows render no cells",
+  );
   test.setTimeout(180000);
   await setListColor(page, presetId(companyId, "organization"), "info");
   const name = `Inline deal ${randomUUID().slice(0, 8)}`;
@@ -145,23 +156,35 @@ test("record tables edit cells in place, open linked chips and offer row actions
   await expect(row.getByRole("button", { name: "Edit Value", exact: true })).toHaveCount(0);
   await expect(drawer).not.toBeVisible();
 
-  const organizations = row.getByRole("button", { name: "Edit Organizations", exact: true });
+  const organizations = row.getByRole("button", {
+    name: "Edit Organizations",
+    exact: true,
+  });
   await expect(organizations.locator('[data-slot="badge"]')).toHaveAttribute("data-variant", "info");
   await organizations.click();
   const picker = page.locator('[data-slot="popover-content"][data-state="open"]');
   await expect(picker.getByRole("option").last()).toHaveText("Open Example organization");
   await picker.getByRole("option", { name: "Open Example organization", exact: true }).click();
-  const organization = page.getByRole("dialog", { name: "Organization", exact: true });
+  const organization = page.getByRole("dialog", {
+    name: "Organization",
+    exact: true,
+  });
   await expect(organization.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Example organization");
   await organization.getByRole("button", { name: "Close", exact: true }).click();
   await expect(organization).not.toBeVisible();
-  await organizations.locator('[data-chip-id]').first().click({ modifiers: ["ControlOrMeta"] });
+  await organizations
+    .locator("[data-chip-id]")
+    .first()
+    .click({ modifiers: ["ControlOrMeta"] });
   await expect(organization.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Example organization");
   await expect(picker).toHaveCount(0);
   await organization.getByRole("button", { name: "Close", exact: true }).click();
   await expect(organization).not.toBeVisible();
 
-  const more = row.getByRole("button", { name: `More actions for ${name}`, exact: true });
+  const more = row.getByRole("button", {
+    name: `More actions for ${name}`,
+    exact: true,
+  });
   const moreSurface = row.locator("[data-record-row-actions]");
   await page.mouse.move(0, 0);
   await expect
@@ -181,6 +204,13 @@ test("record tables edit cells in place, open linked chips and offer row actions
   await page.keyboard.press("Enter");
   await page.getByRole("menuitem", { name: "Open details", exact: true }).click();
   await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue(name);
+  await drawer.locator("[data-relationship-chip]").getByRole("button", { name: "Open Example organization" }).click();
+  const related = page.getByRole("dialog", {
+    name: "Organization",
+    exact: true,
+  });
+  await expect(related.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Example organization");
+  await related.getByRole("button", { name: "Close", exact: true }).click();
   await drawer.getByRole("button", { name: "Close", exact: true }).click();
   await expect(drawer).not.toBeVisible();
   await openItemMenu(page, more);
@@ -189,6 +219,7 @@ test("record tables edit cells in place, open linked chips and offer row actions
   await remove.click();
   await page.getByRole("alertdialog").locator("#confirm-delete").click();
   await expect(row).toHaveCount(0);
+  expect(errors).toEqual([]);
 });
 
 test("record tables edit number fields in place without opening the drawer", async ({ page, companyId, isMobile }) => {
@@ -224,7 +255,12 @@ test("linked record chips collapse into a +N stack so rows and cards keep one he
       mutation: {
         action: "create",
         typeId: id(typeKey),
-        fields: [{ fieldId: id(`${typeKey}.name`), value: { kind: "text", value: name } }],
+        fields: [
+          {
+            fieldId: id(`${typeKey}.name`),
+            value: { kind: "text", value: name },
+          },
+        ],
         links,
       },
     });
@@ -234,21 +270,30 @@ test("linked record chips collapse into a +N stack so rows and cards keep one he
   const crowded = await create("deal", `Crowded deal ${suffix}`);
   const quiet = await create("deal", `Quiet deal ${suffix}`);
   await create("organization", `Single organization ${suffix}`, [
-    { relationId: id("deal.organizations"), direction: "incoming", record: quiet },
+    {
+      relationId: id("deal.organizations"),
+      direction: "incoming",
+      record: quiet,
+    },
   ]);
   for (let index = 1; index <= 8; index += 1)
     await create("organization", `Stacked organization with a long name ${index} ${suffix}`, [
-      { relationId: id("deal.organizations"), direction: "incoming", record: crowded },
+      {
+        relationId: id("deal.organizations"),
+        direction: "incoming",
+        record: crowded,
+      },
     ]);
 
   await page.setViewportSize({ width: 720, height: 900 });
   await page.goto(`/en/records/${id("deal")}`);
   const crowdedRow = page.getByRole("row").filter({ hasText: `Crowded deal ${suffix}` });
   const quietRow = page.getByRole("row").filter({ hasText: `Quiet deal ${suffix}` });
-  const organizations = crowdedRow.getByRole("button", { name: "Edit Organizations", exact: true });
-  const more = organizations
-    .locator('[data-slot="badge"]:not([aria-hidden="true"] *)')
-    .filter({ hasText: /^\+\d+$/ });
+  const organizations = crowdedRow.getByRole("button", {
+    name: "Edit Organizations",
+    exact: true,
+  });
+  const more = organizations.locator('[data-slot="badge"]:not([aria-hidden="true"] *)').filter({ hasText: /^\+\d+$/ });
   await expect(more).toHaveCount(1);
   await expect(more).toBeVisible();
   await expect
@@ -269,8 +314,14 @@ test("record drawer tabs remember the last tab and flag invalid fields on other 
   const id = (key: string) => presetId(companyId, key);
   await page.goto(`/en/records/${id("organization")}`);
   await openRecordDetails(page, "Example organization");
-  const drawer = page.getByRole("dialog", { name: "Organization", exact: true });
-  const tabs = drawer.getByRole("tablist", { name: "Detail panels", exact: true });
+  const drawer = page.getByRole("dialog", {
+    name: "Organization",
+    exact: true,
+  });
+  const tabs = drawer.getByRole("tablist", {
+    name: "Detail panels",
+    exact: true,
+  });
   await expect(tabs.getByRole("tab")).toHaveText(["Overview", "Activities"]);
   const name = drawer.getByRole("textbox", { name: "Name", exact: false });
   const renamed = `Tabbed ${randomUUID().slice(0, 6)}`;

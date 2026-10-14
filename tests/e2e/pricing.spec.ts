@@ -9,7 +9,10 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   database,
   companyId,
 }, testInfo) => {
-  test.skip(Boolean(test.info().project.use.isMobile), "The sub-list table with headers, totals and in-place cells is the desktop layout");
+  test.skip(
+    Boolean(test.info().project.use.isMobile),
+    "The sub-list table with headers, totals and in-place cells is the desktop layout",
+  );
   test.setTimeout(240000);
   const errors = collectPageErrors(page);
   const dialogs = page.getByRole("dialog");
@@ -116,7 +119,10 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
     .getByRole("region", { name: "Deals", exact: true })
     .getByRole("button", { name: "Where Deals comes from", exact: true })
     .click();
-  const dealsPath = page.getByRole("dialog", { name: "Where Deals comes from", exact: true });
+  const dealsPath = page.getByRole("dialog", {
+    name: "Where Deals comes from",
+    exact: true,
+  });
   await expect(dealsPath.locator("[data-field-derivation]")).toHaveText("Through linked records · Line items → Deals");
   await expect(
     dealsPath.locator('[data-slot="app-modal-actions"]').getByRole("link", { name: "Edit in Configure", exact: true }),
@@ -198,7 +204,9 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
     await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(1);
   }
   await expect.poll(totals).toEqual({ Value: "2600", Quantity: "5", "Weighted value": "1560" });
-  await openRecordLink(dialogs.getByRole("region", { name: "Line items" }).getByRole("button", { name: "B", exact: true }));
+  await openRecordLink(
+    dialogs.getByRole("region", { name: "Line items" }).getByRole("button", { name: "B", exact: true }),
+  );
   await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(2);
   await dialogs.getByRole("combobox", { name: "Pricing", exact: false }).click();
   await page.getByRole("option", { name: "Saved price", exact: true }).click();
@@ -295,6 +303,7 @@ test("refreshes the deal from in-place sub-list edits in the drawer and locks th
   await expect(value).toContainText("€100.00");
 
   await lineItems.getByRole("button", { name: "Edit Quantity", exact: true }).click();
+  await expect(page.locator("form form")).toHaveCount(0);
   const quantity = lineItems.locator("[data-in-place-editor] input").first();
   await quantity.fill("3");
   await quantity.press("Enter");

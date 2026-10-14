@@ -35,16 +35,27 @@ vi.mock("next/navigation", async () => {
     mocked.paramListeners.add(listener);
     return () => mocked.paramListeners.delete(listener);
   };
-  return { useSearchParams: () => useSyncExternalStore(subscribe, () => mocked.params) };
+  return {
+    useSearchParams: () => useSyncExternalStore(subscribe, () => mocked.params),
+  };
 });
-vi.mock("@/components/data-view/views/data-view-views-rail", () => ({ DataViewViewsRail: () => null }));
-vi.mock("@/components/data-view/header/filter-popover", () => ({ FilterPopover: () => null }));
-vi.mock("next-intl", () => ({ useLocale: () => "en", useTranslations: () => (key: string) => key }));
+vi.mock("@/components/data-view/views/data-view-views-rail", () => ({
+  DataViewViewsRail: () => null,
+}));
+vi.mock("@/components/data-view/header/filter-popover", () => ({
+  FilterPopover: () => null,
+}));
+vi.mock("next-intl", () => ({
+  useLocale: () => "en",
+  useTranslations: () => (key: string) => key,
+}));
 vi.mock("@/app/[locale]/(protected)/records/actions", () => ({
   getRecordActivitiesAction: mocked.action,
   getRecordActivityPresentationAction: mocked.presentation,
 }));
-vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => rootStore }));
+vi.mock("@/core/stores/root-store.provider", () => ({
+  useRootStore: () => rootStore,
+}));
 vi.mock("../activity-timeline-skeleton", () => ({
   ActivityTimelineSkeleton: () => createElement("div", null, "Loading"),
 }));
@@ -79,7 +90,10 @@ vi.mock("@/components/ui/dropdown-menu", () => {
 
 import { RecordActivitiesPanel } from "../record-activities-panel";
 
-const record = { typeId: "00000000-0000-4000-8000-000000000001", recordId: "00000000-0000-4000-8000-000000000002" };
+const record = {
+  typeId: "00000000-0000-4000-8000-000000000001",
+  recordId: "00000000-0000-4000-8000-000000000002",
+};
 const result = (id: string, hasMore = false) => ({
   ok: true,
   data: {
@@ -135,6 +149,20 @@ const refresh = () =>
   });
 
 describe("generic record activity requests", () => {
+  it("keeps older activity reachable when the first projected page is empty", async () => {
+    mocked.presentation.mockResolvedValueOnce({
+      ...presentation("hidden", true),
+      items: [],
+    });
+    mocked.action.mockResolvedValueOnce(result("older"));
+    await mount();
+    expect(container.textContent).toContain("Older");
+    expect(container.textContent).not.toContain("Dashboard.activityWidget.noActivity");
+    const older = [...container.querySelectorAll("button")].find((button) => button.textContent === "Older");
+    await settle(() => older?.click());
+    expect(container.textContent).toContain("older");
+  });
+
   it("keeps the last complete page during refresh failures and recovers on retry", async () => {
     mocked.presentation
       .mockResolvedValueOnce(presentation("saved"))
@@ -178,8 +206,18 @@ describe("generic record activity requests", () => {
     const pending = deferred();
     mocked.presentation.mockReturnValueOnce(pending.promise).mockResolvedValueOnce(presentation("replacement"));
     await mount();
-    const next = { ...record, recordId: "00000000-0000-4000-8000-000000000003" };
-    await settle(() => root.render(createElement(RecordActivitiesPanel, { key: next.recordId, record: next })));
+    const next = {
+      ...record,
+      recordId: "00000000-0000-4000-8000-000000000003",
+    };
+    await settle(() =>
+      root.render(
+        createElement(RecordActivitiesPanel, {
+          key: next.recordId,
+          record: next,
+        }),
+      ),
+    );
     await settle(() => pending.resolve(presentation("closed")));
     expect(container.textContent).toContain("replacement");
     expect(container.textContent).not.toContain("closed");
@@ -190,11 +228,27 @@ describe("generic record activity requests", () => {
 
 describe("record activity view selection from the URL", () => {
   it("keeps the panel store and applies a URL view change inside the existing store", async () => {
-    const views = ["first", "second"].map((id, position) => ({ id, name: id, position, state: {} }));
-    mocked.params = new URLSearchParams({ viewSurface: "entity-timeline", view: "first" });
+    const views = ["first", "second"].map((id, position) => ({
+      id,
+      name: id,
+      position,
+      state: {},
+    }));
+    mocked.params = new URLSearchParams({
+      viewSurface: "entity-timeline",
+      view: "first",
+    });
     mocked.presentation
-      .mockResolvedValueOnce({ ...presentation("saved"), views, activeViewKey: "first" })
-      .mockResolvedValueOnce({ ...presentation("second-view"), views, activeViewKey: "second" });
+      .mockResolvedValueOnce({
+        ...presentation("saved"),
+        views,
+        activeViewKey: "first",
+      })
+      .mockResolvedValueOnce({
+        ...presentation("second-view"),
+        views,
+        activeViewKey: "second",
+      });
     await settle(() => root.render(createElement(RecordActivitiesPanel, { record, viewSyncToUrl: true })));
     expect(mocked.presentation).toHaveBeenCalledTimes(1);
     expect(mocked.presentation.mock.calls[0][0].params.viewId).toBe("first");

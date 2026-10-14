@@ -151,6 +151,7 @@ export const FormIsoDatePicker = observer(
               className={cn(
                 "w-full justify-start text-left font-normal",
                 !parsed && "text-muted-foreground",
+                parsed && clearable && "active:scale-100",
                 className,
               )}
               data-field-state={isReadOnly ? "read-only" : undefined}
