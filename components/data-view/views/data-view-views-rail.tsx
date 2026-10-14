@@ -32,11 +32,11 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { VIEW_TAB_CLASS, ViewChip } from "./view-chip";
 import { ViewMenuItems } from "./view-menu-items";
-import { VIEW_META_NAME_INPUT_ID, ViewMetaOverlay } from "./view-meta-overlay";
+import { ViewMetaOverlay } from "./view-meta-overlay";
 import { allViewMenuItems, orderChips, sortViewsByPosition, viewMenuItems } from "./view-rail-model";
 import { surfaceKeyOf, viewHref } from "./view-actions";
 import { useRovingFocus } from "./use-roving-focus";
-import { type ViewDeleteNotice, useViewCommands } from "./use-view-commands";
+import { type ViewCommands, type ViewDeleteNotice, useViewCommands } from "./use-view-commands";
 import { useViewAi } from "./use-view-ai";
 
 type Props<E extends HasId> = {
@@ -44,7 +44,7 @@ type Props<E extends HasId> = {
   allLabel?: string;
   countLabel?: (count: number) => string;
   allowDuplicate?: boolean;
-  deleteNotice?: (view: DataViewChipDto) => ViewDeleteNotice;
+  deleteNotice?: (view: DataViewChipDto) => Promise<ViewDeleteNotice>;
   joinsTopBar?: boolean;
   detailParam?: string;
   store: BaseDataViewStore<E>;
@@ -80,7 +80,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
   const searchParams = useSearchParams();
   const [meta, setMeta] = useState<ViewMetaDraft | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const pendingAi = useRef<(() => void) | null>(null);
+  const pendingOverlay = useRef<(() => void) | null>(null);
   const owningRail = useRef<{ element: HTMLElement; store: BaseDataViewStore<E> } | null>(null);
   const ai = useViewAi(store);
   const offersViews = Boolean(store.p13nId);
@@ -142,11 +142,21 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
     </>
   );
 
-  const focusNameInput = (event: Event) => {
-    const nameInput = document.getElementById(VIEW_META_NAME_INPUT_ID);
-    if (!nameInput) return;
+  const openPendingOverlay = (event: Event) => {
+    const open = pendingOverlay.current;
+    if (!open) return;
     event.preventDefault();
-    nameInput.focus();
+    pendingOverlay.current = null;
+    open();
+  };
+  const menuCommands: ViewCommands = {
+    ...commands,
+    duplicate: (view) => {
+      pendingOverlay.current = () => commands.duplicate(view);
+    },
+    edit: (view) => {
+      pendingOverlay.current = () => commands.edit(view);
+    },
   };
   const chipMenu = (view: DataViewChipDto | null) => {
     const items = (
@@ -160,7 +170,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
       position: -1,
       state: store.allViewState,
     };
-    return <ViewMenuItems commands={commands} items={items} view={target} />;
+    return <ViewMenuItems commands={menuCommands} items={items} view={target} />;
   };
 
   const onChipClick = (viewKey: string) => (event: MouseEvent<HTMLAnchorElement>) => {
@@ -224,7 +234,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
                   preview={previewFor(allName, chip.isActive)}
                   tabIndex={tabIndexAt(index)}
                   onKeyDown={onKeyDownAt(index)}
-                  onMenuCloseAutoFocus={focusNameInput}
+                  onMenuCloseAutoFocus={openPendingOverlay}
                   onSelect={onChipClick(ALL_VIEW_KEY)}
                 />
               );
@@ -247,7 +257,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
                 preview={previewFor(chip.view.name, chip.isActive)}
                 tabIndex={tabIndexAt(index)}
                 onKeyDown={onKeyDownAt(index)}
-                onMenuCloseAutoFocus={focusNameInput}
+                onMenuCloseAutoFocus={openPendingOverlay}
                 onSelect={onChipClick(chip.view.id)}
               />
             );
@@ -313,23 +323,14 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
           <DropdownMenuContent
             align="end"
             aria-labelledby="global-data-views-menu"
-            onCloseAutoFocus={(event) => {
-              const handoff = pendingAi.current;
-              if (handoff) {
-                event.preventDefault();
-                pendingAi.current = null;
-                handoff();
-                return;
-              }
-              focusNameInput(event);
-            }}
+            onCloseAutoFocus={openPendingOverlay}
           >
             {ai.available && (
               <DropdownMenuItem
                 aria-label={t("DataView.views.aiLabel", { name: activeName })}
                 id="global-data-views-ai"
                 onSelect={() => {
-                  pendingAi.current = ai.openCurrent;
+                  pendingOverlay.current = ai.openCurrent;
                 }}
               >
                 <Sparkles aria-hidden />

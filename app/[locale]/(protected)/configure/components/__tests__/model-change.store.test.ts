@@ -27,8 +27,15 @@ const preview = (count = 1): ConfigurationPreview => ({
   calculations: [],
 });
 class DefinitionStore extends ModelChangeStore<{ name: string }> {
+  draftIssue: string | null = null;
   enableAutoApply() {
     this.immediateApply = true;
+  }
+  protected override requiredFields() {
+    return [{ id: "name" as const, message: "Name the definition" }];
+  }
+  protected override validateDraft() {
+    return this.draftIssue ? { errors: [this.draftIssue] } : undefined;
   }
   edit(name: string) {
     this.resetModel(model);
@@ -413,5 +420,32 @@ describe("explicit approval of affected published summaries", () => {
     await store.onSubmit();
     expect(actions.applyRecordConfigurationAction).toHaveBeenCalledTimes(applies);
     expect(store.isOpen).toBe(applies === 0);
+  });
+});
+
+describe("configuration draft validation", () => {
+  it("shows a blank required name together with the other draft issues and sends nothing", async () => {
+    const { store } = fixture();
+    store.onChange("name", "  ");
+    store.draftIssue = "The calculation is incomplete";
+    await store.onSubmit();
+    expect(store.error).toEqual({
+      errors: ["The calculation is incomplete"],
+      properties: { name: { errors: ["Name the definition"] } },
+    });
+    expect(store.isLoading).toBe(false);
+    expect(actions.previewRecordConfigurationAction).not.toHaveBeenCalled();
+  });
+
+  it("previews once every required name is filled and drops the earlier draft errors", async () => {
+    const { store } = fixture();
+    store.draftIssue = "The calculation is incomplete";
+    await store.onSubmit();
+    expect(store.error).toBeDefined();
+    store.draftIssue = null;
+    actions.previewRecordConfigurationAction.mockResolvedValue({ ok: true, data: preview() });
+    await store.onSubmit();
+    expect(store.error).toBeUndefined();
+    expect(actions.previewRecordConfigurationAction).toHaveBeenCalledOnce();
   });
 });

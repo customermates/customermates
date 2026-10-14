@@ -44248,12 +44248,23 @@
                           },
                           "label": {
                             "type": "string"
+                          },
+                          "surfaceKey": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
                           }
                         },
                         "required": [
                           "itemId",
                           "kind",
-                          "label"
+                          "label",
+                          "surfaceKey"
                         ],
                         "additionalProperties": false
                       }
@@ -96406,9 +96417,11 @@
                       "type": "string"
                     },
                     "stoppedReason": {
+                      "description": "Error code when the provider stopped the move part way for a reason other than a rate limit",
                       "type": "string"
                     },
                     "stoppedMessage": {
+                      "description": "Readable explanation of stoppedReason",
                       "type": "string"
                     }
                   },

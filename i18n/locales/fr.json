@@ -3640,6 +3640,7 @@
     "moreActions": "Plus d’actions pour {name}",
     "multipleValues": "Autoriser plusieurs valeurs",
     "name": "Nom",
+    "nameRequired": "Saisissez un nom.",
     "newRecord": "Nouvelle fiche",
     "no": "Non",
     "noGrouping": "Aucun regroupement",
@@ -3714,6 +3715,8 @@
     "relationshipChange": "{count} relations modifiées",
     "relationshipEditor": {
       "cardinality": "Nombre d’enregistrements liés",
+      "labelRequired": "Saisissez un libellé.",
+      "listRequired": "Choisissez une liste à lier.",
       "messagesHelp": "Les messages proviennent d’éléments liés avec des canaux ou de conversations liées. Les droits sur les éléments et les messages s’appliquent toujours.",
       "onDelete": "À la suppression",
       "otherList": "la liste liée",

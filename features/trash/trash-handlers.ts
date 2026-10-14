@@ -35,7 +35,7 @@ export async function trashDeletionPreview(
     removedLinks = removedLinks === null || impact.removedLinks === null ? null : removedLinks + impact.removedLinks;
   }
   const preview = {
-    items: items.map((item) => ({ itemId: item.id, kind: item.kind, label: item.label })),
+    items: items.map((item) => ({ itemId: item.id, kind: item.kind, label: item.label, surfaceKey: item.surfaceKey })),
     removedRecords: [...removedRecords.values()].sort((left, right) => compareRecordKey(left.typeId, right.typeId)),
     removedLinks,
   };

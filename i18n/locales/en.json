@@ -3640,6 +3640,7 @@
     "moreActions": "More actions for {name}",
     "multipleValues": "Allow several values",
     "name": "Name",
+    "nameRequired": "Enter a name.",
     "newRecord": "New record",
     "no": "No",
     "noGrouping": "No grouping",
@@ -3714,6 +3715,8 @@
     "relationshipChange": "{count} relationships changed",
     "relationshipEditor": {
       "cardinality": "How many records link",
+      "labelRequired": "Enter a label.",
+      "listRequired": "Choose a list to link to.",
       "messagesHelp": "Messages come from linked records with Channels or linked conversations. Record and message permissions still apply.",
       "onDelete": "When deleted",
       "otherList": "the linked list",

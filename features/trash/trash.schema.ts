@@ -135,7 +135,11 @@ export const PreviewTrashDeletionSchema = z.union([
 export type PreviewTrashDeletionData = z.infer<typeof PreviewTrashDeletionSchema>;
 export const TrashDeletionPreviewSchema = z
   .object({
-    items: z.array(z.object({ itemId: z.uuid(), kind: TrashKindSchema, label: z.string() }).strict()),
+    items: z.array(
+      z
+        .object({ itemId: z.uuid(), kind: TrashKindSchema, label: z.string(), surfaceKey: z.string().nullable() })
+        .strict(),
+    ),
     removedRecords: z.array(
       z
         .object({

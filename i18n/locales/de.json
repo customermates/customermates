@@ -3640,6 +3640,7 @@
     "moreActions": "Weitere Aktionen für {name}",
     "multipleValues": "Mehrere Werte erlauben",
     "name": "Name",
+    "nameRequired": "Gib einen Namen ein.",
     "newRecord": "Neuer Datensatz",
     "no": "Nein",
     "noGrouping": "Keine Gruppierung",
@@ -3714,6 +3715,8 @@
     "relationshipChange": "{count} Beziehungen geändert",
     "relationshipEditor": {
       "cardinality": "Wie viele Datensätze verknüpft sind",
+      "labelRequired": "Gib eine Bezeichnung ein.",
+      "listRequired": "Wähle eine Liste zum Verknüpfen aus.",
       "messagesHelp": "Nachrichten stammen von verknüpften Datensätzen mit Kanälen oder verknüpften Unterhaltungen. Berechtigungen für Datensätze und Nachrichten gelten weiterhin.",
       "onDelete": "Beim Löschen",
       "otherList": "der verknüpften Liste",

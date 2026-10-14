@@ -137,10 +137,21 @@ test("deletes, restores and permanently deletes a relationship and a list", asyn
   await followConfigureLink(page);
   const dialog = configureDrawer(page);
   await addFromConfigure(page, "Relationship");
-  await dialog.getByRole("combobox", { name: "Link to", exact: true }).click();
+  const linkTo = dialog.getByRole("combobox", { name: "Link to", exact: false });
+  const sourceLabel = dialog.getByRole("textbox", { name: "Label on this side", exact: false });
+  const targetLabel = dialog.getByRole("textbox", { name: "Label on the other side", exact: false });
+  await dialog.getByRole("button", { name: "Save", exact: true }).first().click();
+  for (const field of [linkTo, sourceLabel, targetLabel]) await expect(field).toHaveAttribute("aria-invalid", "true");
+  await expect(sourceLabel).toBeFocused();
+  await expect(dialog.getByText("Choose a list to link to.", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("Enter a label.", { exact: true })).toHaveCount(2);
+  await expect(page.locator("[data-sonner-toast]")).toHaveCount(0);
+  await linkTo.click();
   await page.getByRole("option", { name: "Organizations", exact: true }).click();
-  await dialog.getByRole("textbox", { name: "Label on this side", exact: false }).fill("Host organization");
-  await dialog.getByRole("textbox", { name: "Label on the other side", exact: false }).fill(name);
+  await expect(linkTo).toHaveAttribute("aria-invalid", "false");
+  await sourceLabel.fill("Host organization");
+  await targetLabel.fill(name);
+  await expect(dialog.getByText("Enter a label.", { exact: true })).toHaveCount(0);
   await saveDrawer(page);
   const relation = (await readModel(database, companyId)).relationships.find(
     (candidate) => candidate.sourceTypeId === typeId && candidate.sourceLabel === "Host organization",

@@ -3640,6 +3640,7 @@
     "moreActions": "Más acciones para {name}",
     "multipleValues": "Permitir varios valores",
     "name": "Nombre",
+    "nameRequired": "Introduce un nombre.",
     "newRecord": "Nuevo registro",
     "no": "No",
     "noGrouping": "Sin agrupación",
@@ -3714,6 +3715,8 @@
     "relationshipChange": "{count} relaciones modificadas",
     "relationshipEditor": {
       "cardinality": "Cuántos registros se vinculan",
+      "labelRequired": "Introduce una etiqueta.",
+      "listRequired": "Elige una lista para vincular.",
       "messagesHelp": "Los mensajes proceden de registros vinculados con canales o de conversaciones vinculadas. Los permisos de registros y mensajes siguen aplicándose.",
       "onDelete": "Al eliminar",
       "otherList": "la lista vinculada",

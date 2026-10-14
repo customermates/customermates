@@ -3640,6 +3640,7 @@
     "moreActions": "Altre azioni per {name}",
     "multipleValues": "Consenti più valori",
     "name": "Nome",
+    "nameRequired": "Inserisci un nome.",
     "newRecord": "Nuovo record",
     "no": "No",
     "noGrouping": "Nessun raggruppamento",
@@ -3714,6 +3715,8 @@
     "relationshipChange": "{count} relazioni modificate",
     "relationshipEditor": {
       "cardinality": "Quanti record sono collegati",
+      "labelRequired": "Inserisci un’etichetta.",
+      "listRequired": "Scegli una lista da collegare.",
       "messagesHelp": "I messaggi provengono da record collegati con canali o da conversazioni collegate. I permessi su record e messaggi restano validi.",
       "onDelete": "All'eliminazione",
       "otherList": "la lista collegata",
