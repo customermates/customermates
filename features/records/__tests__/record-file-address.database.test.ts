@@ -296,6 +296,27 @@ describeDatabase("file and address values in the record engine", () => {
     expect(await f.fileRow(cleared)).toMatchObject({ recordId: other.recordId, status: "detached" });
   });
 
+  it("finds a record by a file name only while its field lists the file", async () => {
+    const f = await fixture();
+    const proposal = await f.upload("Proposal.pdf");
+    const ref = await f.createDeal([{ fieldId: f.files, value: { kind: "file", value: [proposal] } }]);
+    const ids = async (search: string) => {
+      const result = await f.run(() => f.query.invoke(RecordQuerySchema.parse({ typeId: f.typeId, search })));
+      if (!result.ok) throw new Error(JSON.stringify(result));
+      return result.data.records.map((entry) => entry.ref.recordId);
+    };
+    expect(await ids("proposal")).toEqual([ref.recordId]);
+
+    await runWithoutTenant(() =>
+      prisma.recordValue.updateMany({
+        where: { companyId: f.companyId, recordId: ref.recordId, fieldId: f.files },
+        data: { textListValue: [], state: "missing" },
+      }),
+    );
+    expect(await f.fileRow(proposal)).toMatchObject({ recordId: ref.recordId, status: "ready" });
+    expect(await ids("proposal")).toEqual([]);
+  });
+
   it("holds exactly one file in a single file field", async () => {
     const f = await fixture();
     const first = await f.upload("First.pdf", f.single);

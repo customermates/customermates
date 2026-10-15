@@ -279,10 +279,13 @@ export function compileRecordQuery(
         (field) =>
           Prisma.sql`(value."fieldId" = ${field.id} AND ${fieldReadPredicate(companyId, field, model, access, searchRecord)})`,
       );
+      const listed = Prisma.sql`EXISTS (SELECT 1 FROM "RecordValue" listed WHERE listed."companyId" = ${companyId}
+        AND listed."typeId" = ${query.typeId} AND listed."recordId" = value."recordId"
+        AND listed."fieldId" = value."fieldId" AND listed.state = 'value' AND value.id = ANY(listed."textListValue"))`;
       matches.push(Prisma.sql`SELECT value."recordId" AS id FROM "RecordFile" value
         ${searchRecordSource}
         WHERE value."companyId" = ${companyId} AND value."typeId" = ${query.typeId} AND value.status = 'ready'
-          AND value.name ILIKE ${search} AND (${Prisma.join(permitted, " OR ")})`);
+          AND value.name ILIKE ${search} AND ${listed} AND (${Prisma.join(permitted, " OR ")})`);
       const content = recordFileContentMatch(query.search, Prisma.sql`chunk`);
       if (content) {
         matches.push(Prisma.sql`SELECT value."recordId" AS id FROM "RecordFile" value
@@ -290,10 +293,7 @@ export function compileRecordQuery(
           WHERE value."companyId" = ${companyId} AND value."typeId" = ${query.typeId} AND value.status = 'ready'
             AND EXISTS (SELECT 1 FROM "RecordFileChunk" chunk
               WHERE chunk."companyId" = ${companyId} AND chunk."fileId" = value.id AND ${content})
-            AND EXISTS (SELECT 1 FROM "RecordValue" listed WHERE listed."companyId" = ${companyId}
-              AND listed."typeId" = ${query.typeId} AND listed."recordId" = value."recordId"
-              AND listed."fieldId" = value."fieldId" AND listed.state = 'value' AND value.id = ANY(listed."textListValue"))
-            AND (${Prisma.join(permitted, " OR ")})`);
+            AND ${listed} AND (${Prisma.join(permitted, " OR ")})`);
       }
     }
     const richTextFields = [...fields.values()].filter((field) => field.valueType === "richText");
