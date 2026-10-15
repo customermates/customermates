@@ -105,6 +105,8 @@ export type SpreadsheetPreview = {
 export const SpreadsheetDateOrderSchema = z.enum(["dmy", "mdy", "ymd"]);
 export type SpreadsheetDateOrder = z.infer<typeof SpreadsheetDateOrderSchema>;
 
+export const SpreadsheetNamePartSchema = z.enum(["first", "last"]);
+
 export const SpreadsheetColumnMappingSchema = z
   .object({
     column: z.string().trim().min(1).max(SPREADSHEET_MAX_HEADER_LENGTH),
@@ -114,6 +116,7 @@ export const SpreadsheetColumnMappingSchema = z
       .string()
       .regex(/^[A-Z]{3}$/)
       .optional(),
+    namePart: SpreadsheetNamePartSchema.optional(),
   })
   .strict();
 export type SpreadsheetColumnMapping = z.infer<typeof SpreadsheetColumnMappingSchema>;

@@ -706,6 +706,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
             fieldId,
             ...(entry.dateOrder ? { dateOrder: entry.dateOrder } : {}),
             ...(entry.currency && /^[A-Z]{3}$/.test(entry.currency) ? { currency: entry.currency } : {}),
+            ...(entry.namePart ? { namePart: entry.namePart } : {}),
           },
         ];
       }),

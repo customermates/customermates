@@ -512,6 +512,10 @@ export const MappingWireSchema = z.object({
       field: z.string().nullable().describe("The offered field key, or null to leave the column out."),
       dateOrder: z.enum(["dmy", "mdy", "ymd"]).nullable(),
       currency: z.string().nullable(),
+      namePart: z
+        .enum(["first", "last"])
+        .nullable()
+        .describe("For a column of full person names: the part this field takes. Otherwise null."),
     }),
   ),
   relationships: z.array(z.object({ column: z.string(), relationship: z.string() })),

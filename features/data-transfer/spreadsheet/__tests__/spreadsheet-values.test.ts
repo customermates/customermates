@@ -11,6 +11,7 @@ import {
   parseDecimalText,
   parseSpreadsheetBoolean,
   parseSpreadsheetCurrency,
+  splitPersonName,
 } from "../spreadsheet-values";
 
 describe("spreadsheet value parsing", () => {
@@ -99,5 +100,17 @@ describe("spreadsheet value parsing", () => {
     expect(normalizeUrl("https://example.com")).toBe("https://example.com");
     expect(normalizeUrl("javascript:alert(1)")).toBeNull();
     expect(normalizeUrl("ftp://example.com")).toBeNull();
+  });
+
+  it("splits a full person name into first and last name", () => {
+    expect(splitPersonName("Ada Lovelace")).toEqual({ first: "Ada", last: "Lovelace" });
+    expect(splitPersonName("  Anna  Maria   Schmidt ")).toEqual({ first: "Anna Maria", last: "Schmidt" });
+    expect(splitPersonName("Lovelace, Ada")).toEqual({ first: "Ada", last: "Lovelace" });
+    expect(splitPersonName("Ursula von der Leyen")).toEqual({ first: "Ursula", last: "von der Leyen" });
+    expect(splitPersonName("Ludwig van Beethoven")).toEqual({ first: "Ludwig", last: "van Beethoven" });
+    expect(splitPersonName("Van Morrison")).toEqual({ first: "Van", last: "Morrison" });
+    expect(splitPersonName("Jean-Luc Picard")).toEqual({ first: "Jean-Luc", last: "Picard" });
+    expect(splitPersonName("Cher")).toEqual({ first: "Cher", last: "" });
+    expect(splitPersonName("")).toEqual({ first: "", last: "" });
   });
 });

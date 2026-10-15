@@ -19,6 +19,26 @@ const DATE_PATTERN = /^(\d{1,4})([./-])(\d{1,2})\2(\d{1,4})\.?$/;
 const ISO_DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 const TIME_PATTERN = /^(\d{1,2}):(\d{2})(?::(\d{2})(?:\.(\d{1,6}))?)?\s*([ap]\.?m\.?)?$/i;
 const OFFSET_PATTERN = /(?:Z|[+-]\d{2}:?\d{2})$/i;
+const NAME_PARTICLES = new Set([
+  "da",
+  "das",
+  "de",
+  "del",
+  "della",
+  "den",
+  "der",
+  "des",
+  "di",
+  "dos",
+  "du",
+  "la",
+  "le",
+  "ten",
+  "ter",
+  "van",
+  "von",
+  "zu",
+]);
 
 export function cellIsEmpty(cell: SpreadsheetCell): boolean {
   return cell === null || (typeof cell === "string" && cell.trim() === "");
@@ -288,4 +308,15 @@ export function splitListValues(input: string, separators: RegExp): string[] {
     .split(separators)
     .map((value) => value.trim())
     .filter(Boolean);
+}
+
+export function splitPersonName(input: string): { first: string; last: string } {
+  const text = input.replace(/\s+/g, " ").trim();
+  const comma = text.indexOf(",");
+  if (comma >= 0) return { first: text.slice(comma + 1).trim(), last: text.slice(0, comma).trim() };
+  const words = text.split(" ");
+  if (words.length < 2) return { first: text, last: "" };
+  const particle = words.findIndex((word, index) => index > 0 && index < words.length - 1 && NAME_PARTICLES.has(word));
+  const lastStart = particle > 0 ? particle : words.length - 1;
+  return { first: words.slice(0, lastStart).join(" "), last: words.slice(lastStart).join(" ") };
 }

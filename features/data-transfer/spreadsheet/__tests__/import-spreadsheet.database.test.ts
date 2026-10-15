@@ -212,6 +212,42 @@ describeDatabase("ImportSpreadsheetInteractor", () => {
     ).toEqual([names.get("Alpha GmbH")?.recordId, names.get("Beta AG")?.recordId].sort());
   });
 
+  it("splits a full-name column so the contact's formula name reads the whole name", async () => {
+    const f = await fixture();
+    const people = await table(new TextEncoder().encode("Name\nAda Lovelace\nUrsula von der Leyen\nCher\n"));
+    const result = await f.run(() =>
+      f.spreadsheet.invoke(
+        ImportSpreadsheetSchema.parse({
+          table: people,
+          mapping: {
+            typeId: f.id("contact"),
+            locale: "en",
+            columns: [
+              { column: "Name", fieldId: f.id("contact.firstName"), namePart: "first" },
+              { column: "Name", fieldId: f.id("contact.lastName"), namePart: "last" },
+            ],
+          },
+          idempotencyKey: randomUUID(),
+        }),
+      ),
+    );
+    expect(result, JSON.stringify(result)).toMatchObject({ ok: true, data: { created: 3, errorCount: 0 } });
+    const text = (row: { fields: Array<{ fieldId: string; result: unknown }> }, key: string) => {
+      const value = row.fields.find((field) => field.fieldId === f.id(key))?.result;
+      return value && typeof value === "object" && "value" in value ? (value.value as { value: string }).value : null;
+    };
+    const contacts = (await f.list("contact")).records.map((row) => [
+      text(row, "contact.name"),
+      text(row, "contact.firstName"),
+      text(row, "contact.lastName"),
+    ]);
+    expect(contacts.sort()).toEqual([
+      ["Ada Lovelace", "Ada", "Lovelace"],
+      ["Cher", "Cher", null],
+      ["Ursula von der Leyen", "Ursula", "von der Leyen"],
+    ]);
+  });
+
   it("rejects a mapping the importer cannot honour without writing", async () => {
     const f = await fixture();
     const result = await f.run(() =>

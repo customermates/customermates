@@ -276,6 +276,41 @@ describe("convertSpreadsheet", () => {
     ]);
   });
 
+  it("fills first and last name from one full-name column", async () => {
+    const table = await tableOf(
+      csv(
+        ["Name,E-Mail", "Ada Lovelace,ada@example.com", '"Hopper, Grace",', "Ludwig van Beethoven,", "Cher,"].join(
+          "\n",
+        ),
+      ),
+    );
+    const current = model();
+    const mapping = SpreadsheetMappingSchema.parse({
+      typeId: id("contact"),
+      locale: "en",
+      columns: [
+        { column: "Name", fieldId: id("contact.firstName"), namePart: "first" },
+        { column: "Name", fieldId: id("contact.lastName"), namePart: "last" },
+        { column: "E-Mail", fieldId: id("capability.identity") },
+      ],
+    });
+    expect(spreadsheetMappingIssues(table.headers, mapping, current)).toEqual([]);
+    const result = convertSpreadsheet(table, mapping, current, { idempotencyKey: "names-1", related: new Map() });
+    expect(result.errors).toEqual([]);
+    const names = result.documents[0].records.map((_record, index) => {
+      const row = values(result.documents[0], index);
+      return [row[id("contact.firstName")], row[id("contact.lastName")]];
+    });
+    const text = (value: string) => ({ state: "value", value: { kind: "text", value } });
+    expect(names).toEqual([
+      [text("Ada"), text("Lovelace")],
+      [text("Grace"), text("Hopper")],
+      [text("Ludwig"), text("van Beethoven")],
+      [text("Cher"), { state: "missing" }],
+    ]);
+    expect(result.documents[0].records[0].fields.some((entry) => entry.fieldId === id("contact.name"))).toBe(false);
+  });
+
   it("splits large sheets into importer-sized documents with stable record ids", async () => {
     const lines = ["Firma", ...Array.from({ length: 250 }, (_, index) => `Org ${index + 1}`)];
     const table = await tableOf(csv(lines.join("\n")));
@@ -326,5 +361,14 @@ describe("spreadsheetMappingIssues", () => {
     expect(issues({ typeId: id("organization"), columns: [] })).toEqual([
       { code: "requiredFieldUnmapped", path: ["fields", id("organization.name")] },
     ]);
+    expect(
+      issues({
+        typeId: id("contact"),
+        columns: [
+          { column: "Name", fieldId: id("contact.firstName"), namePart: "first" },
+          { column: "Name", fieldId: id("contact.avatarUrl"), namePart: "last" },
+        ],
+      }),
+    ).toEqual([{ code: "fieldNotImportable", path: ["columns", 1, "namePart"] }]);
   });
 });

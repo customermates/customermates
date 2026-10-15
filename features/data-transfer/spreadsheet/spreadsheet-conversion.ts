@@ -31,6 +31,7 @@ import {
   parseSpreadsheetCurrency,
   parseSpreadsheetNumber,
   splitListValues,
+  splitPersonName,
 } from "./spreadsheet-values";
 
 export const SPREADSHEET_DOCUMENT_TIME = "1970-01-01T00:00:00.000Z";
@@ -89,6 +90,8 @@ export function spreadsheetMappingIssues(
     if (!field || field.typeId !== type.id || !importableSpreadsheetField(field))
       issues.push({ code: "fieldNotImportable", path: ["columns", index, "fieldId"] });
     else if (mapped.has(field.id)) issues.push({ code: "duplicateField", path: ["columns", index, "fieldId"] });
+    else if (entry.namePart && (field.valueType !== "text" || field.multiple))
+      issues.push({ code: "fieldNotImportable", path: ["columns", index, "namePart"] });
     mapped.add(entry.fieldId);
   });
   for (const field of inputFields(model, type.id)) {
@@ -340,7 +343,8 @@ export function convertSpreadsheet(
     for (const field of fields) {
       const column = columnsByField.get(field.id);
       const index = column ? columnIndex.get(column.column) : undefined;
-      const cell = index === undefined ? null : (row.cells[index] ?? null);
+      const raw = index === undefined ? null : (row.cells[index] ?? null);
+      const cell = column?.namePart && !cellIsEmpty(raw) ? splitPersonName(cellText(raw))[column.namePart] : raw;
       if (!column || cellIsEmpty(cell)) {
         const fallback = fieldDefault(field);
         if (!fallback && field.required && column) fail(column.column, "required");

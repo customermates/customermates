@@ -81,6 +81,7 @@ export const SETUP_MAPPING_INSTRUCTION = [
   "You map the columns of an uploaded spreadsheet onto the fields of one CRM list.",
   "Map a column only when its header and sample values clearly match the field; leave everything else unmapped.",
   "Each field takes at most one column. For date columns, give the day order the samples use. For amount columns without a currency symbol, give the currency.",
+  "When a column holds full person names and the list has separate first and last name fields, map the column to both, with namePart first and last.",
   "A link column holds names of records in another list and maps to the offered relationship.",
   SETUP_UNTRUSTED_HANDLING,
 ].join(" ");
