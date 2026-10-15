@@ -130,13 +130,22 @@ export class PrismaRecordFileRepo
         LIMIT ${limit}
         FOR UPDATE SKIP LOCKED
       )
-      UPDATE "RecordFile" file SET "indexClaimedAt" = CURRENT_TIMESTAMP, "indexAttempts" = file."indexAttempts" + 1
+      UPDATE "RecordFile" file SET "indexClaimedAt" = CURRENT_TIMESTAMP
       FROM claimable c
       WHERE file."id" = c."id" AND file."companyId" = ${this.companyId}
       RETURNING file."id", file."name", file."mimeType", file."size", file."sha256", file."storageDriver",
         file."storageKey", file."indexAttempts"
     `);
     return rows.map((row) => ({ ...row, size: Number(row.size) }));
+  }
+
+  async startFileAttempt(fileId: string): Promise<number | null> {
+    const rows = await this.prisma.$queryRaw<Array<{ indexAttempts: number }>>(Prisma.sql`
+      UPDATE "RecordFile" SET "indexAttempts" = "indexAttempts" + 1
+      WHERE "companyId" = ${this.companyId} AND "id" = ${fileId} AND "extractionStatus" = 'pending'
+      RETURNING "indexAttempts"
+    `);
+    return rows[0]?.indexAttempts ?? null;
   }
 
   async findExtractionBySha256(sha256: string, exceptFileId: string): Promise<ReusableRecordFileExtraction | null> {

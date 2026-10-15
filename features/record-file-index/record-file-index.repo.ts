@@ -21,6 +21,7 @@ export type ReusableRecordFileExtraction =
 
 export abstract class RecordFileIndexRepo {
   abstract claimPendingFiles(limit: number): Promise<RecordFileIndexCandidate[]>;
+  abstract startFileAttempt(fileId: string): Promise<number | null>;
   abstract findExtractionBySha256(sha256: string, exceptFileId: string): Promise<ReusableRecordFileExtraction | null>;
   abstract storeExtraction(fileId: string, extraction: RecordFileExtraction): Promise<void>;
   abstract releaseFileClaims(fileIds: string[]): Promise<void>;

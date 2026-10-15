@@ -592,6 +592,26 @@ describeDatabase("record file contents indexed like the Knowledge Base", () => {
     }
   });
 
+  it("counts an attempt only for a file whose extraction starts", async () => {
+    mockEnv.APP_MODE = "self-hosted";
+    const w = await workspace();
+    const ids = await Promise.all(
+      Array.from({ length: 3 }, (_, index) => w.upload(`Attempt ${index}.txt`, "text/plain", utf8(`Attempt ${index}`))),
+    );
+    await w.createDeal("Attempts", ids);
+    const repo = new PrismaRecordFileRepo(w.companyId);
+    const claimed = await runWithoutTenant(() => repo.claimPendingFiles(4));
+    expect(claimed.map((file) => file.indexAttempts)).toEqual([0, 0, 0]);
+    await expect(runWithoutTenant(() => repo.startFileAttempt(ids[0]))).resolves.toBe(1);
+    await expect(runWithoutTenant(() => repo.startFileAttempt(ids[0]))).resolves.toBe(2);
+    expect(await w.fileRow(ids[1])).toMatchObject({ indexAttempts: 0 });
+    await runWithoutTenant(() => repo.storeExtraction(ids[2], { status: "noText" }));
+    await expect(runWithoutTenant(() => repo.startFileAttempt(ids[2]))).resolves.toBeNull();
+    await expect(
+      runWithoutTenant(() => new PrismaRecordFileRepo(randomUUID()).startFileAttempt(ids[1])),
+    ).resolves.toBeNull();
+  });
+
   it("gives concurrent indexers different files", async () => {
     mockEnv.APP_MODE = "self-hosted";
     const w = await workspace();

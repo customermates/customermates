@@ -26,7 +26,7 @@ function candidate(overrides: Partial<RecordFileIndexCandidate> = {}): RecordFil
     sha256: null,
     storageDriver: "database",
     storageKey: "company/file-1",
-    indexAttempts: 1,
+    indexAttempts: 0,
     ...overrides,
   };
 }
@@ -55,8 +55,14 @@ function setup(
   reusable: ReusableRecordFileExtraction | null = null,
 ) {
   const stored = new Map<string, RecordFileExtraction>();
+  const attempts = new Map(files.map((file) => [file.id, file.indexAttempts]));
   const repo = {
     claimPendingFiles: vi.fn(() => Promise.resolve(files)),
+    startFileAttempt: vi.fn((id: string): Promise<number | null> => {
+      const next = (attempts.get(id) ?? 0) + 1;
+      attempts.set(id, next);
+      return Promise.resolve(next);
+    }),
     findExtractionBySha256: vi.fn(() => Promise.resolve(reusable)),
     storeExtraction: vi.fn((id: string, extraction: RecordFileExtraction) => {
       stored.set(id, extraction);
@@ -72,7 +78,7 @@ function setup(
     (driver) => (driver === "database" ? files_.driver : null),
     semantic,
   );
-  return { service, repo, stored, read: files_.read, semantic };
+  return { service, repo, stored, attempts, read: files_.read, semantic };
 }
 
 describe("record file index service", () => {
@@ -95,7 +101,7 @@ describe("record file index service", () => {
       [
         candidate({ id: "image", name: "photo.png", mimeType: "image/png" }),
         candidate({ id: "huge", size: RECORD_FILE_TEXT_MAX_BYTES + 1 }),
-        candidate({ id: "retried", indexAttempts: RECORD_FILE_INDEX_MAX_ATTEMPTS + 1 }),
+        candidate({ id: "retried", indexAttempts: RECORD_FILE_INDEX_MAX_ATTEMPTS }),
         candidate({ id: "missing", storageKey: "company/missing" }),
       ],
       {},
@@ -159,18 +165,50 @@ describe("record file index service", () => {
     const service = new RecordFileIndexService(slow.repo, () => storage(contents).driver, slow.semantic, -1);
     await expect(service.indexPending()).resolves.toEqual({ extracted: 0, embedded: 0, remaining: true });
     expect(slow.repo.releaseFileClaims).toHaveBeenCalledWith(files.map((file) => file.id));
+    expect(slow.repo.startFileAttempt).not.toHaveBeenCalled();
     expect(slow.semantic.embedPending).not.toHaveBeenCalled();
   });
 
-  it("releases its claims and rethrows when storage fails, so the step retries", async () => {
-    const f = setup([candidate()], {});
+  it("counts an attempt only for the file it works on and keeps going when storage fails", async () => {
+    const files = [
+      candidate({ id: "unreadable", storageKey: "broken" }),
+      candidate({ id: "readable", storageKey: "fine" }),
+    ];
+    const f = setup(files, {});
+    const read = vi.fn((key: string) =>
+      key === "broken"
+        ? Promise.reject(new Error("connection reset"))
+        : storage({ fine: new TextEncoder().encode("Renewal terms") }).driver.read(key),
+    );
+    const service = new RecordFileIndexService(f.repo, () => ({ read }) as unknown as FileStorageDriver, f.semantic);
+
+    await expect(service.indexPending()).resolves.toMatchObject({ extracted: 1, remaining: true });
+    expect(f.stored.get("readable")).toMatchObject({ status: "done", text: "Renewal terms" });
+    expect(f.stored.has("unreadable")).toBe(false);
+    expect(Object.fromEntries(f.attempts)).toEqual({ unreadable: 1, readable: 1 });
+    expect(f.repo.releaseFileClaims).toHaveBeenCalledWith([]);
+  });
+
+  it("retries a file after a passing error and marks it failed when its last attempt fails too", async () => {
+    const f = setup([candidate({ indexAttempts: RECORD_FILE_INDEX_MAX_ATTEMPTS - 1 })], {});
     const failing = new RecordFileIndexService(
       f.repo,
       () => ({ read: () => Promise.reject(new Error("connection reset")) }) as unknown as FileStorageDriver,
       f.semantic,
     );
-    await expect(failing.indexPending()).rejects.toThrow("connection reset");
-    expect(f.repo.releaseFileClaims).toHaveBeenCalledWith(["file-1"]);
+
+    await expect(failing.indexPending()).resolves.toMatchObject({ extracted: 1 });
+    expect(f.stored.get("file-1")).toEqual({ status: "failed" });
+    expect(f.attempts.get("file-1")).toBe(RECORD_FILE_INDEX_MAX_ATTEMPTS);
+  });
+
+  it("leaves a file alone that was indexed or removed after it was claimed", async () => {
+    const f = setup([candidate()], { "company/file-1": new TextEncoder().encode("text") });
+    f.repo.startFileAttempt.mockResolvedValueOnce(null);
+
+    await f.service.indexPending();
+    expect(f.read).not.toHaveBeenCalled();
     expect(f.repo.storeExtraction).not.toHaveBeenCalled();
+    expect(f.repo.releaseFileClaims).toHaveBeenCalledWith([]);
   });
 });
