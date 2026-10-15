@@ -2119,7 +2119,7 @@ const addressLookupRateLimiter = new AddressLookupRateLimiter();
 const addressLookupCache = new AddressLookupCache();
 export const getAddressLookupService = () =>
   new AddressLookupService(
-    env.ADDRESS_LOOKUP_URL ? new PhotonAddressLookupProvider(env.ADDRESS_LOOKUP_URL) : null,
+    env.ADDRESS_LOOKUP_URL && env.APP_MODE !== "demo" ? new PhotonAddressLookupProvider(env.ADDRESS_LOOKUP_URL) : null,
     env.BETTER_AUTH_SECRET,
     addressLookupRateLimiter,
     addressLookupCache,
