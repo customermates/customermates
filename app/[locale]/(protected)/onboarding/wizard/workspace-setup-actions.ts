@@ -13,7 +13,6 @@ import {
   getConfirmWorkspaceSetupInteractor,
   getGetWorkspaceSetupStatusInteractor,
   getPlanWorkspaceSetupInteractor,
-  getRemoveWorkspaceSetupSampleDataInteractor,
   getRetryWorkspaceSetupPhaseInteractor,
   getSaveWorkspaceSetupAnswersInteractor,
   getStartWorkspaceSetupInteractor,
@@ -59,8 +58,4 @@ export async function confirmWorkspaceSetupAction(data: ConfirmWorkspaceSetupDat
 
 export async function retryWorkspaceSetupPhaseAction(data: RetryWorkspaceSetupPhaseData) {
   return serializeTypedResult(getRetryWorkspaceSetupPhaseInteractor().invoke(data));
-}
-
-export async function removeWorkspaceSetupSampleDataAction(data: WorkspaceSetupIdData) {
-  return serializeTypedResult(getRemoveWorkspaceSetupSampleDataInteractor().invoke(data));
 }

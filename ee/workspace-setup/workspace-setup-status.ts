@@ -61,7 +61,6 @@ export type WorkspaceSetupView = {
   currentPhase: WorkspaceSetupPhase | null;
   results: StoredSetupResults;
   spend: { usedMicrocents: number; heldMicrocents: number; capMicrocents: number; capReached: boolean };
-  canRemoveSampleData: boolean;
 };
 
 export function workspaceSetupView(
@@ -83,7 +82,6 @@ export function workspaceSetupView(
       finishedAt: phase.finishedAt,
     };
   });
-  const idle = !phases.some((phase) => phase.status === "running");
   const planStalled = setupPlanStalled(setup, now);
   return {
     id: setup.id,
@@ -126,6 +124,5 @@ export function workspaceSetupView(
       capMicrocents,
       capReached: spend.usedMicrocents + spend.heldMicrocents >= capMicrocents,
     },
-    canRemoveSampleData: setup.created.sampleRecords.length > 0 && idle,
   };
 }

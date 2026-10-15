@@ -297,7 +297,7 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     await runWithoutTenant(() => prisma.company.deleteMany({ where: { id: { in: companies } } }));
   });
 
-  it("designs the whole model of an empty workspace, builds views, samples and a dashboard, then removes samples", async () => {
+  it("designs the whole model of an empty workspace, builds views, samples and a dashboard", async () => {
     const ws = await workspace();
     expect(await ws.run(() => createTestRecordRepo().getModel())).toMatchObject({ revision: 0, types: [] });
     const { setupId, planRevision } = await planned(ws);
@@ -357,7 +357,6 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(view.results.records[0].titles).toEqual(["Sample 1", "Sample 2", "Sample 3"]);
     expect(view.spend.usedMicrocents).toBeGreaterThan(0);
     expect(view.spend).toMatchObject({ heldMicrocents: 0, capMicrocents: WORKSPACE_SETUP_BUDGETS.build.capMicrocents });
-    expect(view.canRemoveSampleData).toBe(true);
 
     const setup = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
     if (!setup) throw new Error("setup missing");
@@ -430,17 +429,6 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     ).toBe(5);
     expect(await runWithoutTenant(() => prisma.dataView.count({ where: { companyId: ws.companyId } }))).toBe(3);
     expect(await ws.run(() => service.runPhase(setupId, "records"))).toBe("skip");
-
-    const removed = await ws.run(() => di.getRemoveWorkspaceSetupSampleDataInteractor().invoke({ setupId }));
-    expect(removed).toEqual({ ok: true, data: { removed: 15 } });
-    expect(
-      await liveRecords(
-        ws.companyId,
-        setup.created.sampleRecords.map((ref) => ref.recordId),
-      ),
-    ).toBe(0);
-    expect(await lineItems()).toBe(0);
-    expect((await status(ws)).canRemoveSampleData).toBe(false);
   });
 
   it("lets a member invited after the build wait for approval in the planned tasks list", async () => {
@@ -1199,10 +1187,6 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     );
     expect(await ws.run(() => service.runPhase(setupId, "records"))).toBe("settled");
     expect(await lineItems()).toBe(3);
-
-    const removed = await ws.run(() => di.getRemoveWorkspaceSetupSampleDataInteractor().invoke({ setupId }));
-    expect(removed.ok, JSON.stringify(removed)).toBe(true);
-    expect(await lineItems()).toBe(0);
   });
 
   it("imports every spreadsheet row with its whole name, email and phone channels and the organization it names", async () => {

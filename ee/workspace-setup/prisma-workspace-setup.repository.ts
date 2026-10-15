@@ -136,7 +136,7 @@ export class PrismaWorkspaceSetupRepo extends TenantRepository implements Worksp
 
   async restart(id: string, data: { websiteUrl: string | null; answers: SetupAnswers }) {
     const { count } = await this.prisma.workspaceSetup.updateMany({
-      where: { id, companyId: this.companyId, status: { in: ["interview", "planned", "failed", "rolledBack"] } },
+      where: { id, companyId: this.companyId, status: { in: ["interview", "planned", "failed"] } },
       data: {
         userId: this.userId,
         status: "interview",

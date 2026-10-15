@@ -115,7 +115,6 @@ export function setupView(overrides: Partial<WorkspaceSetupView> = {}): Workspac
     currentPhase: null,
     results: { colors: null, lists: [], views: [], records: [], widgets: [], pages: [] },
     spend: { usedMicrocents: 0, heldMicrocents: 0, capMicrocents: 1, capReached: false },
-    canRemoveSampleData: false,
     ...overrides,
   };
 }

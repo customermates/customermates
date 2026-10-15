@@ -16,7 +16,7 @@ import { parsePublicWikiHomepage } from "@/features/wiki/wiki-homepage";
 import { StartWorkspaceSetupSchema } from "./workspace-setup-input.schema";
 import { workspaceSetupUnavailability } from "./workspace-setup-availability";
 
-const RESTARTABLE = new Set(["failed", "rolledBack"]);
+const RESTARTABLE = new Set(["failed"]);
 const REUSABLE = new Set(["interview", "planning", "planned"]);
 
 @TenantInteractor({ resource: Resource.dataModel, manage: "update" })

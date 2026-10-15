@@ -129,8 +129,7 @@ describe("Workspace setup brief for its website import", () => {
     });
   });
 
-  it("cancels the import's pages for a rolled-back setup or an abandoned crawl", async () => {
-    expect(await source(setup({ status: "rolledBack" })).brief(crawl, false)).toEqual({ status: "cancelled" });
+  it("cancels the import's pages for an abandoned crawl", async () => {
     expect(await source(setup({ crawlId: "crawl-2" })).brief(crawl, false)).toEqual({ status: "wait" });
     expect(await source(setup({ crawlId: "crawl-2" })).brief(crawl, true)).toEqual({ status: "cancelled" });
     expect(await source(null).brief(crawl, false)).toEqual({ status: "cancelled" });

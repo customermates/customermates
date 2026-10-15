@@ -21,7 +21,6 @@ export type WorkspaceSetupStatus = (typeof WORKSPACE_SETUP_STATUSES)[number];
 
 export const WORKSPACE_SETUP_PHASES = ["knowledgeBase", "dataModel", "views", "records", "dashboard"] as const;
 export type WorkspaceSetupPhase = (typeof WORKSPACE_SETUP_PHASES)[number];
-export const WORKSPACE_SETUP_PAID_PHASES: ReadonlySet<WorkspaceSetupPhase> = new Set(["knowledgeBase", "records"]);
 export const WORKSPACE_SETUP_PHASE_DEPENDENCIES: Record<WorkspaceSetupPhase, WorkspaceSetupPhase[]> = {
   knowledgeBase: [],
   dataModel: [],

@@ -1979,7 +1979,6 @@ import { WORKSPACE_SETUP_BUDGETS, type WorkspaceSetupBudgetKind } from "@/ee/wor
 import { WorkspaceSetupInterviewService } from "@/ee/workspace-setup/workspace-setup-interview.service";
 import { WorkspaceSetupPlanner } from "@/ee/workspace-setup/workspace-setup-planner";
 import { WorkspaceSetupBuildService } from "@/ee/workspace-setup/workspace-setup-build.service";
-import { WorkspaceSetupCleanupService } from "@/ee/workspace-setup/workspace-setup-cleanup.service";
 import { WorkspaceSetupCrawlStarter } from "@/ee/workspace-setup/workspace-setup-crawl-starter";
 import { WorkspaceSetupKnowledgeBrief } from "@/ee/workspace-setup/workspace-setup-knowledge-brief";
 import { websiteBrandFetch } from "@/ee/workspace-setup/workspace-setup-brand";
@@ -1991,7 +1990,6 @@ import { PlanWorkspaceSetupInteractor } from "@/ee/workspace-setup/plan-workspac
 import { AdjustWorkspaceSetupInteractor } from "@/ee/workspace-setup/adjust-workspace-setup.interactor";
 import { ConfirmWorkspaceSetupInteractor } from "@/ee/workspace-setup/confirm-workspace-setup.interactor";
 import { RetryWorkspaceSetupPhaseInteractor } from "@/ee/workspace-setup/retry-workspace-setup-phase.interactor";
-import { RemoveWorkspaceSetupSampleDataInteractor } from "@/ee/workspace-setup/remove-workspace-setup-sample-data.interactor";
 
 export const getWorkspaceSetupRepo = () => new PrismaWorkspaceSetupRepo(getWikiWebsiteCrawlRepo());
 export const getWorkspaceSetupKnowledgeBrief = () => new WorkspaceSetupKnowledgeBrief(getWorkspaceSetupRepo());
@@ -2027,8 +2025,6 @@ export const getWorkspaceSetupBuildService = () =>
     getUpdateUserDetailsInteractor(),
     getMutateRecordInteractor(),
   );
-export const getWorkspaceSetupCleanupService = () =>
-  new WorkspaceSetupCleanupService(getRecordRepo(), getMutateRecordInteractor());
 export const getStartWorkspaceSetupInteractor = () =>
   new StartWorkspaceSetupInteractor(
     getWorkspaceSetupRepo(),
@@ -2057,5 +2053,3 @@ export const getRetryWorkspaceSetupPhaseInteractor = () =>
     getWorkspaceSetupCrawlStarter(),
     getBackgroundTaskService(),
   );
-export const getRemoveWorkspaceSetupSampleDataInteractor = () =>
-  new RemoveWorkspaceSetupSampleDataInteractor(getWorkspaceSetupRepo(), getWorkspaceSetupCleanupService());
