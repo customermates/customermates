@@ -75,7 +75,7 @@ See the [MCP tool catalog](/docs/mcp#tool-catalog) for the full list.
 
 The application writes plain logs to its standard output. Environment values, such as the secrets in `.env`, are not written to the logs, but there is no filter that masks secrets in log lines. When an error reporting service is configured, as on the managed cloud, events are sent without request cookies, headers or bodies. Unexpected errors in MCP and assistant tools reach the client, and the error report, only as a generic message such as "The operation could not be completed".
 
-The published self-hosted image sets no error reporting address and turns off Next.js telemetry. On a self-hosted instance, errors the app writes to its output appear only in `docker compose logs app`. Errors it only reports to an error reporting service, such as an email Resend rejected, are not recorded anywhere, so check the Resend dashboard for failed sends.
+The published self-hosted image sets no error reporting address and turns off Next.js and Prisma telemetry. On a self-hosted instance, errors the app writes to its output appear only in `docker compose logs app`; errors it only reports to an error reporting service are not recorded anywhere. An email the provider rejected or did not answer in time is logged with its subject, the recipient's domain and the provider's reason, never with the full address.
 
 ## How are webhook secrets and destinations secured? [#how-are-webhook-secrets-and-destinations-secured]
 
