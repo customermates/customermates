@@ -126,6 +126,15 @@ describe("hosted AI pricing contract", () => {
       expect(docs).toContain(`${starterShare} % eines Starter-Kontingents`);
       expect(docs).not.toMatch(/% bei Max/);
     }
+
+    const perRunLimit = /per-run|Routinenlauf|ejecución de rutina|exécution de routine|esecuzione di routine/i;
+    for (const pricing of [pricingEn, pricingDe])
+      expect(pricing.slice(pricing.indexOf("  - plan: "), pricing.indexOf("\ncomparison:"))).not.toMatch(perRunLimit);
+    for (const source of Object.values(localeFiles)) {
+      const features = (JSON.parse(source) as { Subscription: { picker: { features: Record<string, string[]> } } })
+        .Subscription.picker.features;
+      expect(Object.values(features).flat().filter((feature) => perRunLimit.test(feature))).toEqual([]);
+    }
   });
 
   it("explains trial, monthly reset, no rollover, and external MCP separation", () => {

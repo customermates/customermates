@@ -4231,12 +4231,7 @@
       "creditNote": "Mate usage is shown as a multiple of the Starter allowance (Starter 1x, Pro 3x, Business 10x, Max 20x) and refreshes monthly; unused usage does not roll over. Each request counts its exact provider cost. External MCP clients bill model use through your own AI provider. Server-side semantic searches can count toward Mate usage.",
       "features": {
         "business": ["Everything in Pro", "Shared accounts and priority support"],
-        "max": [
-          "Everything in Business",
-          "Priority support",
-          "Early access to beta features",
-          "Twice the per-run limit for routines"
-        ],
+        "max": ["Everything in Business", "Priority support", "Early access to beta features"],
         "pro": ["Everything in Starter", "Unified inbox"],
         "starter": [
           "Full CRM: contacts, deals, organizations, tasks",

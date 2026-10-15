@@ -4231,12 +4231,7 @@
       "creditNote": "Die Mate-Nutzung wird als Vielfaches des Starter-Kontingents angegeben (Starter 1x, Pro 3x, Business 10x, Max 20x) und monatlich erneuert; nicht genutzte Nutzung wird nicht übertragen. Jede Anfrage zählt mit ihren genauen Anbieterkosten. Externe MCP-Clients rechnen die Modellnutzung über deinen eigenen KI-Anbieter ab. Serverseitige semantische Suchen können zur Mate-Nutzung zählen.",
       "features": {
         "business": ["Alles aus Pro", "Geteilte Konten und priorisierter Support"],
-        "max": [
-          "Alles aus Business",
-          "Priorisierter Support",
-          "Früher Zugang zu Beta-Funktionen",
-          "Doppeltes Limit pro Routinenlauf"
-        ],
+        "max": ["Alles aus Business", "Priorisierter Support", "Früher Zugang zu Beta-Funktionen"],
         "pro": ["Alles aus Starter", "Einheitlicher Posteingang"],
         "starter": [
           "Vollständiges CRM: Kontakte, Deals, Organisationen, Aufgaben",

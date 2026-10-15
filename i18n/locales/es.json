@@ -4231,12 +4231,7 @@
       "creditNote": "El uso de Mate se indica como múltiplo de la asignación de Starter (Starter 1x, Pro 3x, Business 10x, Max 20x) y se renueva cada mes; el uso no consumido no se acumula. Cada consulta cuenta su coste exacto del proveedor. Los clientes MCP externos facturan el uso del modelo a través de tu propio proveedor de IA. Las búsquedas semánticas del servidor pueden contar para el uso de Mate.",
       "features": {
         "business": ["Todo lo de Pro", "Cuentas compartidas y soporte prioritario"],
-        "max": [
-          "Todo lo de Business",
-          "Soporte prioritario",
-          "Acceso anticipado a funciones beta",
-          "El doble de límite por ejecución de rutina"
-        ],
+        "max": ["Todo lo de Business", "Soporte prioritario", "Acceso anticipado a funciones beta"],
         "pro": ["Todo lo de Starter", "Bandeja de entrada unificada"],
         "starter": [
           "CRM completo: contactos, oportunidades, organizaciones y tareas",
