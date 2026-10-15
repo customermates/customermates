@@ -1441,10 +1441,45 @@ describeDatabase("record trash calculations", () => {
     });
     expect(await f.restore({ itemIds: orphaned.serviceItems.map((item) => item.id) })).toMatchObject({
       ok: true,
-      data: { restoredItemIds: [], blocked: [{ itemId: orphaned.serviceItems[0].id, reason: "parentDeleted" }] },
+      data: { restoredItemIds: [orphaned.serviceItems[0].id], restoredRecords: 1, droppedLinks: 1, blocked: [] },
     });
-    expect((await f.rows(row))?.deletedAt).not.toBeNull();
+    expect(await f.rows(row)).toBeNull();
+    expect((await f.rows(service))?.deletedAt).toBeNull();
+    expect(await f.value(service, "service.quantitySold")).toBe(0);
     expect(await cardinality()).toEqual([]);
+    expect(await f.inconsistencies()).toEqual([]);
+
+    const backgroundParent = await deal(f, "Orphaned in the background", "1");
+    const backgroundRow = await lineItem(f, backgroundParent, "3", service);
+    const backgroundService = await f.remove(service);
+    const backgroundDeal = await f.remove(backgroundParent);
+    await runWithoutTenant(async () => {
+      await prisma.crmRecord.delete({
+        where: {
+          companyId_typeId_id: {
+            companyId: f.seed.company.id,
+            typeId: backgroundParent.typeId,
+            id: backgroundParent.recordId,
+          },
+        },
+      });
+      await prisma.trashItem.deleteMany({
+        where: { id: { in: (await f.items(backgroundDeal.trashBatchId as string)).map((item) => item.id) } },
+      });
+    });
+    const backgroundOperation = await runWithTenant(f.admin, () =>
+      runInTransaction(async () =>
+        f.handler.restoreInBackground(await f.items(backgroundService.trashBatchId as string)),
+      ),
+    );
+    expect(await f.drain(backgroundOperation)).toMatchObject({
+      state: "completed",
+      result: { restore: { restoredRecords: 1, droppedLinks: 1, blocked: [] } },
+    });
+    expect(await f.rows(backgroundRow)).toBeNull();
+    expect((await f.rows(service))?.deletedAt).toBeNull();
+    expect(await cardinality()).toEqual([]);
+    expect(await f.inconsistencies()).toEqual([]);
   }, 180_000);
 
   it("12: a member sees and restores the line items of their own deals and nothing of other deals", async () => {
