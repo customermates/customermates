@@ -251,6 +251,13 @@ describe("workspace setup plan schema", () => {
     expect(result.error?.issues.map((issue) => issue.message)).toContain("Mark exactly one list with the role tasks.");
   });
 
+  it("asks for a deals list next to an offerings list, since line items need both", () => {
+    const result = SetupPlanSchema.safeParse(variant((plan) => role(plan, "deal", undefined)));
+    expect(result.error?.issues.map((issue) => issue.message)).toContain(
+      "A list with the role offerings needs a list with the role deals for its line items.",
+    );
+  });
+
   it("accepts a calculation at the depth limit", () => {
     const plan = variant((value) => {
       value.recordModel.calculations[0].expression = deep(SETUP_PLAN_LIMITS.expressionDepth) as never;

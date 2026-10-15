@@ -196,7 +196,7 @@ const FieldKeyDescription = "<listKey>.<fieldName>, both lowerCamelCase, such as
 const FieldRefDescription =
   "A field reference such as deal.stage, or system:createdAt, system:updatedAt, system:assignedTo.";
 const RoleDescription =
-  "people: the list of individual people, exactly one. tasks: the list of to-dos, exactly one. deals: the list of sales opportunities or orders with stages and a money value, at most one. offerings: the catalog of products or services the company sells, at most one. null for every other list.";
+  "people: the list of individual people, exactly one. tasks: the list of to-dos, exactly one. deals: the list of sales opportunities or orders with stages and a money value, at most one. offerings: the catalog of products or services the company sells, at most one and only next to a deals list, whose deals get line items from it. null for every other list.";
 
 const RecordModelWireShape = {
   lists: z.array(

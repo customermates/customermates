@@ -354,6 +354,13 @@ export const SetupPlanSchema = z
         );
       }
     }
+    if (model.lists.some((list) => list.role === "offerings") && !model.lists.some((list) => list.role === "deals")) {
+      issue(
+        ["recordModel", "lists"],
+        "A list with the role offerings needs a list with the role deals for its line items.",
+      );
+    }
+
     const anchors = new Set(setupAnchorFields(plan.recordModel.lists));
     const fields = new Set<string>();
     const declare = (key: string, path: (string | number)[]) => {
