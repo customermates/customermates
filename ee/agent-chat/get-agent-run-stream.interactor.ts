@@ -16,7 +16,7 @@ const Schema = z.object({ conversationId: z.uuid() }).strict();
 
 export type GetAgentRunStreamData = Data<typeof Schema>;
 
-const OutputSchema = z.object({ externalRunId: z.string() });
+const OutputSchema = z.object({ externalRunId: z.string(), surface: z.enum(["chat", "routine"]) });
 
 type AgentRunStream = Data<typeof OutputSchema>;
 
@@ -42,6 +42,8 @@ export class GetAgentRunStreamInteractor extends AuthenticatedInteractor<GetAgen
     const externalRunId = await this.repo.findAgentTurnExternalRun(data.conversationId);
     if (!externalRunId) return failNotFound(CustomErrorCode.agentConversationNotFound, ["conversationId"]);
 
-    return { ok: true as const, data: { externalRunId } };
+    const surface = await this.repo.findAgentTurnSurface(externalRunId);
+
+    return { ok: true as const, data: { externalRunId, surface } };
   }
 }

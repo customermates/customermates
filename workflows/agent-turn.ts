@@ -1595,6 +1595,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           steps: continuationSteps,
           retainedResponseSteps,
           resultDigest: true,
+          surface,
         });
         const candidateMessages = continueOutput
           ? [

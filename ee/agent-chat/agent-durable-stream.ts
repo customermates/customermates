@@ -1,5 +1,6 @@
 import { readAgentToolResultContext } from "./agent-activity-context";
 import { describeAgentTool, type AgentActivityResource } from "./agent-activity";
+import type { AgentSurface } from "./agent-surface-policy";
 import type { AgentTurnStopReason, AgentTurnTerminalCode } from "./agent-turn-request";
 import type { AgentActivityStatus } from "./agent-turn-transcript";
 
@@ -57,6 +58,8 @@ export function unwrapToolOutput(output: unknown) {
 }
 
 export class AgentDurableStreamReader {
+  constructor(private readonly surface: AgentSurface = "chat") {}
+
   read(chunk: unknown): AgentClientEvent | null {
     if (!chunk || typeof chunk !== "object") return null;
     const part = chunk as {
@@ -87,7 +90,7 @@ export class AgentDurableStreamReader {
         type: "activity",
         payload: {
           id: part.toolCallId,
-          activity: describeAgentTool(internalToolIdentity(part.toolName), part.input),
+          activity: describeAgentTool(internalToolIdentity(part.toolName), part.input, this.surface),
         },
       };
     }

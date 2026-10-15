@@ -7,6 +7,7 @@ import {
   type AgentActivityResource,
   type AgentActivityRisk,
 } from "./agent-activity";
+import type { AgentSurface } from "./agent-surface-policy";
 import { internalToolIdentity } from "./tool-identity";
 
 export const AGENT_CONTINUATION_RETAINED_RESPONSE_STEPS = 2;
@@ -135,8 +136,9 @@ function projectActivity(
   status: AgentContinuationActivityStatus,
   trustedToolName: boolean,
   resultDigest: string | null = null,
+  surface?: AgentSurface,
 ): AgentContinuationActivitySummary {
-  const activity = describeAgentTool(internalToolIdentity(toolName), input);
+  const activity = describeAgentTool(internalToolIdentity(toolName), input, surface);
   return {
     toolName: trustedToolName ? safeToolName(toolName) : "unknown",
     kind: activity.kind,
@@ -150,7 +152,7 @@ function projectActivity(
   };
 }
 
-export type AgentContinuationSummaryOptions = { resultDigest?: boolean };
+export type AgentContinuationSummaryOptions = { resultDigest?: boolean; surface?: AgentSurface };
 
 export function summarizeAgentContinuationStep(
   step: AgentContinuationStep,
@@ -226,7 +228,14 @@ export function summarizeAgentContinuationStep(
       : pendingApprovals.has(call.id)
         ? "pending"
         : (statusByCallId.get(call.id) ?? "error");
-    return projectActivity(call.toolName, call.input, status, !call.invalid, digestByCallId.get(call.id) ?? null);
+    return projectActivity(
+      call.toolName,
+      call.input,
+      status,
+      !call.invalid,
+      digestByCallId.get(call.id) ?? null,
+      options.surface,
+    );
   });
 }
 
@@ -327,6 +336,7 @@ export function compactAgentContinuationContext(args: {
   checkpointMaxBytes?: number;
   retainedResponseSteps?: number;
   resultDigest?: boolean;
+  surface?: AgentSurface;
 }): AgentContinuationContext {
   const responseMessages = responseMessagesByStep(args.steps);
   const retainedResponseSteps = args.retainedResponseSteps ?? AGENT_CONTINUATION_RETAINED_RESPONSE_STEPS;
@@ -349,7 +359,7 @@ export function compactAgentContinuationContext(args: {
   }
 
   const serialized = serializeAgentContinuationCheckpoint(
-    checkpointForSteps(olderSteps, { resultDigest: args.resultDigest === true }),
+    checkpointForSteps(olderSteps, { resultDigest: args.resultDigest === true, surface: args.surface }),
     args.checkpointMaxBytes ??
       (args.resultDigest ? AGENT_CONTINUATION_DIGEST_CHECKPOINT_MAX_BYTES : AGENT_CONTINUATION_CHECKPOINT_MAX_BYTES),
   );

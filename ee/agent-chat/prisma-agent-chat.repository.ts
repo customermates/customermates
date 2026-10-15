@@ -36,6 +36,7 @@ import { AGENT_CONVERSATION_PAGE_SIZE, AGENT_MESSAGE_PAGE_SIZE, type AgentConver
 import { AGENT_MAX_CONCURRENT_RUNS_PER_USER } from "./agent-run-limits";
 import { clientSafeAgentMessageParts, hasRenderableAgentMessageParts, partsToText } from "./agent-chat.schema";
 import type { AgentContextAttachment } from "./agent-context";
+import type { AgentSurface } from "./agent-surface-policy";
 import {
   isPendingAgentApprovalToolName,
   parsePendingAgentApprovalToolName,
@@ -1742,6 +1743,19 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
       select: { externalRunId: true },
     });
     return turn?.externalRunId ?? null;
+  }
+
+  async findAgentTurnSurface(externalRunId: string): Promise<AgentSurface> {
+    const turn = await this.prisma.agentTurnRequest.findFirst({
+      where: { externalRunId, companyId: this.companyId, userId: this.userId },
+      select: { id: true },
+    });
+    if (!turn) return "chat";
+    const routineRun = await this.prisma.routineRun.findFirst({
+      where: { turnRequestId: turn.id, companyId: this.companyId },
+      select: { id: true },
+    });
+    return routineRun ? "routine" : "chat";
   }
 
   @BypassTenantGuard

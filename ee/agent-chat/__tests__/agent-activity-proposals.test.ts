@@ -8,6 +8,13 @@ import fr from "@/i18n/locales/fr.json";
 import itLocale from "@/i18n/locales/it.json";
 
 import { AgentActivityDescriptorSchema, agentActivityCopy, describeAgentTool } from "../agent-activity";
+import { clientSafeAgentMessageParts } from "../agent-chat.schema";
+import {
+  compactAgentContinuationContext,
+  summarizeAgentContinuationStep,
+  type AgentContinuationStep,
+} from "../agent-continuation";
+import { AgentDurableStreamReader } from "../agent-durable-stream";
 import { internalToolIdentity } from "../tool-identity";
 
 const CATALOGS = { de, en, es, fr, it: itLocale } as const;
@@ -96,5 +103,55 @@ describe("Knowledge Base proposal activity", () => {
       for (const text of [copy.running, copy.done, copy.error]) expect(text).not.toMatch(/AgentChat\.|\{|\}/);
       expect(copy.done).not.toBe(agentActivityCopy(wiki(input, "chat"), t).done);
     }
+  });
+});
+
+describe("Knowledge Base proposals in every transcript path", () => {
+  const toolCall = { type: "tool-call", toolCallId: "call-1", toolName: "manage_wiki_pages", input: UPDATE };
+  const wikiStep: AgentContinuationStep = {
+    finishReason: "tool-calls",
+    content: [
+      toolCall,
+      { type: "tool-result", toolCallId: "call-1", toolName: "manage_wiki_pages", output: { ok: true } },
+    ],
+    response: { messages: [{ role: "assistant", content: "Proposed the edit." }] },
+  };
+  const kindOfStreamedCall = (reader: AgentDurableStreamReader) =>
+    (reader.read(toolCall)?.payload.activity as { kind?: string } | undefined)?.kind;
+
+  it("streams a routine write as a proposal and a chat write as an edit", () => {
+    expect(kindOfStreamedCall(new AgentDurableStreamReader("routine"))).toBe("proposals.update");
+    expect(kindOfStreamedCall(new AgentDurableStreamReader("chat"))).toBe("records.update");
+    expect(kindOfStreamedCall(new AgentDurableStreamReader())).toBe("records.update");
+  });
+
+  it("summarizes a routine write as a proposal when the run is compacted", () => {
+    expect(summarizeAgentContinuationStep(wikiStep, { surface: "routine" })).toEqual([
+      expect.objectContaining({ kind: "proposals.update", status: "done" }),
+    ]);
+    expect(summarizeAgentContinuationStep(wikiStep)).toEqual([expect.objectContaining({ kind: "records.update" })]);
+
+    const compacted = compactAgentContinuationContext({
+      system: "system",
+      initialMessages: [],
+      steps: [wikiStep, wikiStep, wikiStep],
+      retainedResponseSteps: 1,
+      surface: "routine",
+    });
+    expect(compacted.checkpoint?.activities).toEqual([
+      expect.objectContaining({ kind: "proposals.update" }),
+      expect.objectContaining({ kind: "proposals.update" }),
+    ]);
+  });
+
+  it("labels a legacy stored routine write as a proposal", () => {
+    const legacy = [{ type: "tool_use", id: "call-1", name: "manage_wiki_pages", input: UPDATE, status: "done" }];
+
+    expect(clientSafeAgentMessageParts(legacy, { surface: "routine" })).toEqual([
+      expect.objectContaining({ type: "activity", activity: expect.objectContaining({ kind: "proposals.update" }) }),
+    ]);
+    expect(clientSafeAgentMessageParts(legacy)).toEqual([
+      expect.objectContaining({ type: "activity", activity: expect.objectContaining({ kind: "records.update" }) }),
+    ]);
   });
 });

@@ -14,6 +14,7 @@ import {
   type AgentContextAttachment,
 } from "./agent-context";
 import { sanitizeAgentPlainText, sanitizeAgentVisibleText } from "./agent-output-safety";
+import type { AgentSurface } from "./agent-surface-policy";
 import { internalToolIdentity } from "./tool-identity";
 import { agentViewRequestTarget } from "./agent-page-context";
 
@@ -89,6 +90,7 @@ export function clientSafeAgentMessageParts(
     sanitizeText?: boolean;
     wikiBaseUrl?: string;
     allowContext?: boolean;
+    surface?: AgentSurface;
   } = {},
 ): AgentMessagePart[] {
   if (!Array.isArray(value)) return [];
@@ -142,7 +144,7 @@ export function clientSafeAgentMessageParts(
         {
           type: "activity",
           id: part.id,
-          activity: describeAgentTool(internalToolIdentity(part.name), part.input),
+          activity: describeAgentTool(internalToolIdentity(part.name), part.input, options.surface),
           status: includes(ACTIVITY_STATUSES, part.status) ? part.status : "done",
         },
       ];

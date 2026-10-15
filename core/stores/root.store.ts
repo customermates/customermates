@@ -331,6 +331,7 @@ export class RootStore {
   get routineRunChatStore() {
     return (this._routineRunChatStore ??= new AgentChatStore(this, {
       persistOpenState: false,
+      surface: "routine",
     }));
   }
 
