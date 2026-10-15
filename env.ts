@@ -3,7 +3,10 @@ import {
   resolveAppMode,
   resolveAuthAllowedHosts,
   resolveBaseUrl,
+  resolveFileStorageDriver,
   resolveOptionalBigInt,
+  resolveOptionalHttpUrl,
+  resolvePositiveInteger,
   resolveStrictBoolean,
 } from "@/core/config/environment";
 
@@ -68,4 +71,14 @@ export const env = {
   UNIPILE_API_KEY: process.env.UNIPILE_API_KEY,
   UNIPILE_WEBHOOK_SECRET: process.env.UNIPILE_WEBHOOK_SECRET,
   UNIPILE_HOSTED_AUTH_DOMAIN: process.env.UNIPILE_HOSTED_AUTH_DOMAIN,
+
+  FILE_STORAGE_DRIVER: resolveFileStorageDriver(process.env.FILE_STORAGE_DRIVER),
+  FILE_MAX_UPLOAD_BYTES: resolvePositiveInteger("FILE_MAX_UPLOAD_BYTES", process.env.FILE_MAX_UPLOAD_BYTES, 26214400),
+  S3_ENDPOINT: process.env.S3_ENDPOINT,
+  S3_REGION: process.env.S3_REGION,
+  S3_BUCKET: process.env.S3_BUCKET,
+  S3_ACCESS_KEY_ID: process.env.S3_ACCESS_KEY_ID,
+  S3_SECRET_ACCESS_KEY: process.env.S3_SECRET_ACCESS_KEY,
+  S3_FORCE_PATH_STYLE: resolveStrictBoolean("S3_FORCE_PATH_STYLE", process.env.S3_FORCE_PATH_STYLE),
+  ADDRESS_LOOKUP_URL: resolveOptionalHttpUrl("ADDRESS_LOOKUP_URL", process.env.ADDRESS_LOOKUP_URL),
 };

@@ -60,6 +60,37 @@ export function resolveOptionalBigInt(name: string, value: string | undefined): 
   return BigInt(normalized);
 }
 
+export type FileStorageDriverName = "database" | "s3" | "vercel-blob";
+
+export function resolveFileStorageDriver(value: string | undefined): FileStorageDriverName {
+  const normalized = value?.trim();
+  if (!normalized) return "database";
+  if (normalized !== "database" && normalized !== "s3" && normalized !== "vercel-blob")
+    throw new Error("FILE_STORAGE_DRIVER must be database, s3, or vercel-blob");
+  return normalized;
+}
+
+export function resolvePositiveInteger(name: string, value: string | undefined, fallback: number): number {
+  const normalized = value?.trim();
+  if (!normalized) return fallback;
+  if (!/^[1-9]\d*$/u.test(normalized) || !Number.isSafeInteger(Number(normalized)))
+    throw new Error(`${name} must be configured as a positive whole number`);
+  return Number(normalized);
+}
+
+export function resolveOptionalHttpUrl(name: string, value: string | undefined): string | undefined {
+  const normalized = value?.trim();
+  if (!normalized) return undefined;
+  let url: URL;
+  try {
+    url = new URL(normalized);
+  } catch {
+    throw new Error(`${name} must be a valid URL`);
+  }
+  if (url.protocol !== "http:" && url.protocol !== "https:") throw new Error(`${name} must use http or https`);
+  return normalized.replace(/\/+$/u, "");
+}
+
 export function resolveAppMode(source: Environment): AppMode {
   const appMode = source.APP_MODE?.trim();
   if (!appMode) throw new Error("APP_MODE must be configured as self-hosted, cloud, or demo");

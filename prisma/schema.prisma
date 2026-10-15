@@ -195,6 +195,7 @@ model User {
   adAttributions                  AdAttribution[]
   recordAssignments               RecordAssignment[]
   recordEventSubscriptions        RecordEventSubscription[]
+  uploadedRecordFiles             RecordFile[]
 
   @@unique([companyId, id])
   @@index([companyId])
@@ -261,6 +262,9 @@ model Company {
   wikiWebsiteCrawls           WikiWebsiteCrawl[]
   wikiSourceDocuments         WikiSourceDocument[]
   trashItems                  TrashItem[]
+  recordFiles                 RecordFile[]
+  recordFileContents          RecordFileContent[]
+  recordFileChunks            RecordFileChunk[]
 }
 
 enum WikiPageKind {
@@ -1813,6 +1817,81 @@ model RecordIdentityKey {
 
   @@id([companyId, channelClass, value])
   @@index([companyId, identityId, channelClass])
+}
+
+enum RecordFileStatus {
+  pending
+  ready
+  detached
+}
+
+enum RecordFileExtractionStatus {
+  pending
+  done
+  noText
+  unsupported
+  failed
+  skipped
+}
+
+model RecordFile {
+  id               String                     @id @default(uuid())
+  companyId        String
+  typeId           String
+  fieldId          String
+  recordId         String?
+  storageDriver    String
+  storageKey       String                     @unique
+  name             String
+  mimeType         String
+  size             BigInt
+  sha256           String?
+  status           RecordFileStatus           @default(pending)
+  uploadedById     String?
+  extractionStatus RecordFileExtractionStatus @default(pending)
+  extractedText    String?
+  createdAt        DateTime                   @default(now())
+  attachedAt       DateTime?
+  detachedAt       DateTime?
+  indexedAt        DateTime?
+  company          Company                    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  uploadedBy       User?                      @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+  chunks           RecordFileChunk[]
+
+  @@index([companyId, status, createdAt])
+  @@index([companyId, recordId])
+  @@index([companyId, fieldId])
+}
+
+model RecordFileContent {
+  fileKey   String
+  part      Int
+  companyId String
+  data      Bytes
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@id([fileKey, part])
+  @@index([companyId])
+}
+
+model RecordFileChunk {
+  id           String                      @id @default(uuid())
+  companyId    String
+  fileId       String
+  ordinal      Int
+  heading      String?
+  text         String
+  searchVector Unsupported("tsvector")?    @default(dbgenerated("wiki_search_vector(COALESCE(heading, ''::text), text)"))
+  embedding    Unsupported("vector(768)")?
+  contentHash  String
+  embeddedAt   DateTime?
+  createdAt    DateTime                    @default(now())
+  company      Company                     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  file         RecordFile                  @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  @@unique([fileId, ordinal])
+  @@index([companyId, fileId])
+  @@index([searchVector], type: Gin)
 }
 
 model RecordValue {
