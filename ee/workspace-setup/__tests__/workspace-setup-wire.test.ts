@@ -235,6 +235,24 @@ describe("plan normalisation the model does not need to get right", () => {
     expect(converted.ok && converted.plan.sampleData.lists[0].kinds[0].length).toBeLessThanOrEqual(80);
   });
 
+  it("offers the app's list icons and gives a list an icon the app lacks the icon of its role", () => {
+    expect(PlanModelWireSchema.shape.lists.element.shape.icon.description).toContain("contact, user,");
+    const wire = planToWire(agencyPlan);
+    const icons: Record<string, string> = { contact: "users", task: "checkSquare", project: "hardHat" };
+    wire.recordModel.lists = wire.recordModel.lists.map((list) => ({ ...list, icon: icons[list.key] ?? list.icon }));
+    const converted = planFromWire(wire);
+    expect(
+      converted.ok && Object.fromEntries(converted.plan.recordModel.lists.map((list) => [list.key, list.icon])),
+    ).toEqual({
+      contact: "contact",
+      organization: "building",
+      deal: "handshake",
+      service: "package",
+      task: "check",
+      project: "folder",
+    });
+  });
+
   it("keeps the first twelve section headings of a planned page instead of rejecting the outline", () => {
     const wire = planToWire(agencyPlan);
     wire.knowledgeBase.pages[0].sections = Array.from({ length: 15 }, (_value, index) => `Section ${index + 1}`);

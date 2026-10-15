@@ -1,4 +1,5 @@
 import type { SetupAnswerValue, SetupAnswers } from "@/features/workspace-setup/setup-answers.schema";
+import type { SetupListRole } from "@/features/workspace-setup/setup-anchors";
 import type { SetupPlan } from "@/features/workspace-setup/setup-plan.schema";
 import type { SetupFollowUpQuestion } from "./workspace-setup.schema";
 
@@ -20,6 +21,7 @@ import {
   SetupPlanSchema,
 } from "@/features/workspace-setup/setup-plan.schema";
 import { SETUP_LIST_ROLES } from "@/features/workspace-setup/setup-anchors";
+import { RECORD_TYPE_ICON_KEYS } from "@/components/records/record-type-icon";
 import { WIDGET_STARTER_DISPLAY_TYPES } from "@/features/widget/widget-display-rules";
 import { APP_LOCALES } from "@/i18n/locale-registry";
 import { SETUP_FOLLOW_UP_IDS, SetupFollowUpQuestionSchema } from "./workspace-setup.schema";
@@ -203,7 +205,7 @@ const RecordModelWireShape = {
       label: z.string(),
       pluralLabel: z.string(),
       description: z.string(),
-      icon: z.string().describe("A lucide icon name in lowerCamelCase, such as kanban or fileText."),
+      icon: z.string().describe(`One of the app's list icons: ${RECORD_TYPE_ICON_KEYS.join(", ")}.`),
       color: z.enum(CHIP_COLORS).nullable(),
       role: z.enum(SETUP_LIST_ROLES).nullable().describe(RoleDescription),
     }),
@@ -377,6 +379,18 @@ function present<T>(value: T | null): T | undefined {
   return value === null ? undefined : value;
 }
 
+const ROLE_ICONS = {
+  people: "contact",
+  tasks: "check",
+  deals: "deal",
+  offerings: "package",
+} satisfies Record<SetupListRole, (typeof RECORD_TYPE_ICON_KEYS)[number]>;
+
+function listIcon(icon: string, role: SetupListRole | null): string {
+  if ((RECORD_TYPE_ICON_KEYS as readonly string[]).includes(icon)) return icon;
+  return role ? ROLE_ICONS[role] : "folder";
+}
+
 function option(entry: z.infer<typeof WireOptionSchema>) {
   return {
     key: entry.key,
@@ -429,7 +443,12 @@ export function planFromWire(
     version: 1,
     workspace: wire.workspace,
     recordModel: {
-      lists: model.lists.map((list) => ({ ...list, color: present(list.color), role: present(list.role) })),
+      lists: model.lists.map((list) => ({
+        ...list,
+        icon: listIcon(list.icon, list.role),
+        color: present(list.color),
+        role: present(list.role),
+      })),
       fields: model.fields
         .filter((field) => {
           const [list, name] = field.key.split(".");
