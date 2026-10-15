@@ -4,10 +4,10 @@ import type { HomepageCaptureName } from "./homepage-captures";
 
 export const HOMEPAGE_CAPTURE_PROVENANCE = {
   authenticity: "real",
-  capturedOn: "2026-10-14",
+  capturedOn: "2026-10-15",
   claim: "Real Customermates interface with synthetic demo data. Not a customer workspace and not a measured result.",
   environment: "Isolated local instance, APP_MODE=demo, fresh PostgreSQL migrated and seeded with prisma db seed",
-  productRef: "1f30b0030",
+  productRef: "8510bf681",
   renderer:
     "Chromium via Playwright in the page locale, Europe/Berlin, device scale factor 2, theme set through next-themes",
 } as const;
@@ -27,12 +27,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "WhatsApp thread with Sophie Wagner selected in the unified inbox",
     sha256: {
       de: {
-        dark: "17243295bb4dff72c7c9ac746817f06084d0f58bc706d91326ebbadfe4669aa3",
-        light: "52bfdeeceae8b12ea8d6479b32302268d2ae4ef14d45924404047c3de512d3d6",
+        dark: "4c059c28a3d0c4019340dee0104e0df031614eb058e01c0cbfad25adb089089d",
+        light: "c2ad057e84656d2633469a645cffb647b1d1e7a1e632497275a3b39b6b2e7dfd",
       },
       en: {
-        dark: "05f7e0d062040cb38e425b4f31aa42716ce22b5c54208d1a706b21f2cd0fe197",
-        light: "983d232b9d828682dd10fc3a4a78fecb0a0b16fbf27ed1c9f78f699ae301fefd",
+        dark: "0e6553b88de288ddfa576bc57a13de5c0854234000b6c1395bc305984113ae02",
+        light: "10dab0ba7074ac38fa6e75d75a93f0863246c153b43d2f679063ebdb62d76314",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -43,12 +43,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Contact record of Anna Müller with fields and cross-channel history",
     sha256: {
       de: {
-        dark: "32f427009558d6376471cd43d56a5ed3a5e13647cf50fbaaccb1c8eeb7fb69f0",
-        light: "78c48430949947806a0792d326dbb88f4333affec2795519fe0f165345211df8",
+        dark: "a59198b19536b15aed20d17aa7f71d0c1c5d44ebe0448c51210ccefaa3881bba",
+        light: "970e17020ca4a0259f50051e6968f401432ad7bffe3bedee45113cb090e41666",
       },
       en: {
-        dark: "0e92e7e97790ccb7bb6fbf268cbd9f9ea2f8743fdc336073c358d1cc017560e3",
-        light: "c32f8bfe1d122db140c9973067528aca2f925c88e0a3131a70d540eba2141471",
+        dark: "08ea998cfcac91e6ca1eb6df548cdf7f508c9be46b900c44ca33c32baacdb507",
+        light: "7ca41a91a5115aadc5154a734235d2e5c70ef28207edcd7c31c44a5471896f0c",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -91,12 +91,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Routines list grouped by owner with schedules, triggers and last runs",
     sha256: {
       de: {
-        dark: "e9861d92a50b630c2bcebf3d4e79ab9db2141929730115807c09002271f88deb",
-        light: "8e53207ffb2b646ebb68ec33d3aabb7307be444ae637694cebeb3dec94d5cbc1",
+        dark: "714d40429bd6fc0dbf90e2f86567dae6e73b62fb1acae8dd4c2be2d1df67d280",
+        light: "40eb06b4a55879afa92dda77d43e8b0958a37dd72ce9bdc1eb99535c56973ec0",
       },
       en: {
-        dark: "af889fd6569de9bad0e2dab7b2d65dbe6994ee12e7654c0a3ed8a89b09a322ab",
-        light: "09b016673f2476fb650dd8b9ad62df4d5c067b7336a76acc17bf9dd27a52e6dd",
+        dark: "f55a21ae4c7614e579f87a0966b52227d19a202d86561c79b2861a0f90f1a6b1",
+        light: "a82a059255aeffba112599d38ff1f0e409aa8881170d49c2e2517ad991760316",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -108,7 +108,7 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     sha256: {
       de: {
         dark: "c7882d5a75dc9202cfff7aa7694428d8a5682cd4115cd42c43e48ec953062628",
-        light: "c1e0c915171f01d6e542aa70b6fe07d38bc26d9a1037020f7f2f840111a0b687",
+        light: "66c80ef69aae99c2922a6d5a198efd531f2dac7f915cea445e7425eac7374d16",
       },
       en: {
         dark: "66ee2c1558e1cb6b7cbb4ee7aeed781fae08efdc6d893249e63ec99f70cacddc",
@@ -120,18 +120,18 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
   "homepage-thread-linkedin": {
     clipped: false,
     route: "/[locale]/inbox",
-    scenario: "LinkedIn conversation with Leon Becker next to the app sidebar at a 900 px window",
+    scenario: "LinkedIn conversation with Leon Becker beside the thread list, sidebar collapsed, at a 1024 px window",
     sha256: {
       de: {
-        dark: "4883c1172de7127909fe401242102c3bfc4f8174602595ed0099462f21be8d18",
-        light: "5a7860e2ceff4a4b2e1638d8ec08ec0eb6909dfde8a029c32935301a97088e53",
+        dark: "5888102c5bdc5c893a6d9bedfeb80e19a7127ba1bfdd99995561e69d702440a3",
+        light: "d29742a5f0a497cb8312392ada6d8d92b7665a0e79b2a43a3d3c24ccd9454fd3",
       },
       en: {
-        dark: "4f98b618c48f4eea15640cf6851eceb0ba88e22d626d7e96d3314051de72522f",
-        light: "00f18a54a9a78f449eb6ac10f2cd6fe8a560c668e3c44b87ceb3740c58bbb019",
+        dark: "aca613ba9fd796d1db8d4266142a09293fcb1e49acaf03d68ed8b88c80b36425",
+        light: "dbb9f6374603bfa2ae7cfa1b988338db60844cf81cb9cfaeca81e32bdfeab458",
       },
     },
-    viewport: { height: 900, width: 900 },
+    viewport: { height: 900, width: 1024 },
   },
   "homepage-draft": {
     clipped: true,
@@ -139,12 +139,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Email thread with Anna Müller ending in a saved reply draft with Send draft",
     sha256: {
       de: {
-        dark: "40604af3599de7a7825ef746af43d94155f520c01dac2d62ba27734ad639e6be",
-        light: "2d9d6109b23cf1bde4067b0517ee663aa1c626083647812ce3e32bcc8316d851",
+        dark: "d5bf3e7627c3a99bffd337ff6657ad3bd4056a3b50c8666505dbf93e07f4675a",
+        light: "d7bd9a615cc46297188151c93e919f25d63807827d9353733061c1647443e1f0",
       },
       en: {
-        dark: "93b176198098d1beda7d2b5627cec68ce79a78f07a81fb338d3033f241baaa8f",
-        light: "fbdfc13cc4592d7774285d262d083d99aae585e581ba2ad6cadb51f139b5024e",
+        dark: "8ec8184eb556eb1b5ea433f8e8fc971b83ae83edd6b9b4f56408621dadf402f9",
+        light: "01833bf3a0efa0ddf17376d774e86a43082f38d64ee5a0660550e00d321330d4",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -155,12 +155,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "WhatsApp thread with Sophie Wagner on a phone-width viewport",
     sha256: {
       de: {
-        dark: "36b0087a08d0c460c3aa1872e269820ac64316a429e10976b05c73892975a0a6",
-        light: "2bb78e7bda4ed1d69af3427212e79758d53a2b79c08d31f4f81c2b30c3725c25",
+        dark: "56c7add36b57c75b96f1efb3fc0e9449acbfd653f54e61f21fc199e2362c4e0a",
+        light: "21e253fe14ebd952d243a4df36494eff63f70fe32f5759535d28b636a2752a22",
       },
       en: {
-        dark: "9034371479e1fdca3104fc0c3dcb690112b23356eecc20218bbf0c58d54bb17a",
-        light: "69bd8beeecdeed5b8c9f14ab80443e4a9b7da172b41686e73e22def1776e69a5",
+        dark: "e8b7884975add94d4f0555b2bd64e91541762faaf2b538e0dc6b46da4b1c953b",
+        light: "8d6d135216de5856299d93e9420d80ed95428a3914f5d14afd66e2ca9cbeecba",
       },
     },
     viewport: { height: 844, width: 390 },

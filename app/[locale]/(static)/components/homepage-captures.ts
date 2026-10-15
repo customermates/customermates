@@ -28,8 +28,8 @@ export const HOMEPAGE_CAPTURES = {
     en: { height: 1800, width: 2880 },
   },
   "homepage-thread-linkedin": {
-    de: { height: 1800, width: 1800 },
-    en: { height: 1800, width: 1800 },
+    de: { height: 1800, width: 2048 },
+    en: { height: 1800, width: 2048 },
   },
   "homepage-draft": {
     de: { height: 802, width: 1586 },
