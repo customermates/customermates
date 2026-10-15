@@ -28,6 +28,23 @@ function storeWith(view = setupView()) {
   return store;
 }
 
+function plannedView(overrides: Parameters<typeof setupView>[0] = {}) {
+  return setupView({
+    status: "planned",
+    plan: { status: "completed", error: null, revision: 1, plan: setupPlan() },
+    ...overrides,
+  });
+}
+
+function answerCompanyScreen(store: WorkspaceSetupStore, companyName: string) {
+  store.setAnswer("companyName", { format: "shortText", value: companyName });
+  store.setAnswer("country", { format: "singleChoice", value: "DE" });
+  store.setAnswer("currency", { format: "singleChoice", value: "EUR" });
+  store.setAnswer("offerings", { format: "orderedList", items: [{ label: "Consulting" }] });
+  store.setAnswer("customerKind", { format: "singleChoice", value: "consumers" });
+  store.setAnswer("teamSize", { format: "singleChoice", value: "solo" });
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
   actions.saveWorkspaceSetupAnswersAction.mockResolvedValue({ ok: true, data: { answers: {} } });
@@ -103,25 +120,79 @@ describe("WorkspaceSetupStore", () => {
     expect(store.canConfirmScreen).toBe(true);
   });
 
-  it("re-plans through Adjust and returns to the plan", async () => {
-    const planned = setupView({
-      status: "planned",
-      plan: { status: "completed", error: null, revision: 1, plan: setupPlan() },
-    });
-    const store = storeWith(planned);
+  it("keeps Adjust changes in the browser until the last screen re-plans with every answer", async () => {
+    const store = storeWith(plannedView());
     expect(store.stage).toBe("plan");
 
     store.adjust();
     expect(store.stage).toBe("interview");
     expect(store.screenIndex).toBe(0);
+    answerCompanyScreen(store, "Acme Studio");
+    expect(await store.confirmScreen()).toBe(true);
+    expect(store.screenIndex).toBe(1);
+    expect(actions.saveWorkspaceSetupAnswersAction).not.toHaveBeenCalled();
+
     while (!store.isLastScreen) store.screenIndex += 1;
     store.setAnswer("existingData", { format: "singleChoice", value: "empty" });
+    await store.confirmScreen();
+
+    expect(actions.saveWorkspaceSetupAnswersAction).not.toHaveBeenCalled();
+    expect(actions.adjustWorkspaceSetupAction).toHaveBeenCalledWith({
+      setupId: SETUP_ID,
+      answers: expect.objectContaining({
+        companyName: { format: "shortText", value: "Acme Studio" },
+        existingData: { format: "singleChoice", value: "empty" },
+      }),
+      followUpAnswers: [],
+    });
+    expect(actions.planWorkspaceSetupAction).not.toHaveBeenCalled();
+    expect(store.adjusting).toBe(false);
+  });
+
+  it("drops Adjust changes when the owner backs out to the plan", async () => {
+    const confirmed = { source: "user" as const, confidence: 1 };
+    const store = storeWith(
+      plannedView({
+        interview: {
+          ...setupView().interview,
+          answers: { companyName: { ...confirmed, value: { format: "shortText", value: "Acme" } } },
+        },
+      }),
+    );
+
+    store.adjust();
+    answerCompanyScreen(store, "Renamed Ltd");
+    await store.confirmScreen();
+    store.previousScreen();
+    store.previousScreen();
+
+    expect(store.stage).toBe("plan");
+    expect(store.answers.companyName?.value).toEqual({ format: "shortText", value: "Acme" });
+    expect(actions.saveWorkspaceSetupAnswersAction).not.toHaveBeenCalled();
+    store.adjust();
+    expect(store.answers.companyName?.value).toEqual({ format: "shortText", value: "Acme" });
+  });
+
+  it("saves and re-plans once a new spreadsheet has withdrawn the plan being adjusted", async () => {
+    const store = storeWith(plannedView());
+    store.adjust();
+    while (!store.isLastScreen) store.screenIndex += 1;
+    store.setAnswer("existingData", { format: "singleChoice", value: "spreadsheet" });
+    store.hydrate({
+      available: true,
+      setup: plannedView({ status: "interview", spreadsheet: { fileName: "clients.csv" } }),
+    });
+    expect(store.stage).toBe("interview");
 
     await store.confirmScreen();
 
-    expect(actions.adjustWorkspaceSetupAction).toHaveBeenCalledWith(expect.objectContaining({ setupId: SETUP_ID }));
-    expect(actions.planWorkspaceSetupAction).not.toHaveBeenCalled();
-    expect(store.adjusting).toBe(false);
+    expect(actions.adjustWorkspaceSetupAction).not.toHaveBeenCalled();
+    expect(actions.saveWorkspaceSetupAnswersAction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        answers: expect.objectContaining({ existingData: { format: "singleChoice", value: "spreadsheet" } }),
+      }),
+    );
+    expect(actions.planWorkspaceSetupAction).toHaveBeenCalledWith({ setupId: SETUP_ID });
   });
 
   it("reopens the questions of a failed plan and drafts a new plan from the changed answers", async () => {
@@ -160,16 +231,36 @@ describe("WorkspaceSetupStore", () => {
     expect(actions.confirmWorkspaceSetupAction).toHaveBeenCalledWith({ setupId: SETUP_ID, planRevision: 3 });
   });
 
-  it("toasts a refused command and stays where it is", async () => {
+  it("toasts a refused command and reloads the setup to show where it stands", async () => {
     actions.retryWorkspaceSetupPhaseAction.mockResolvedValue({
       ok: false,
       failure: { kind: "conflict", issues: [{ code: "custom", path: [], message: "busy" }] },
+    });
+    actions.getWorkspaceSetupStatusAction.mockResolvedValue({
+      ok: true,
+      data: { available: true, setup: setupView({ status: "building" }) },
     });
     const store = storeWith(setupView({ status: "failed" }));
 
     expect(await store.retryPhase("records")).toBe(false);
     expect(toast).toHaveBeenCalledOnce();
     expect(store.pending).toBeNull();
+    expect(store.setup?.status).toBe("building");
+  });
+
+  it("shows the questions again when the plan to build was withdrawn in the meantime", async () => {
+    actions.confirmWorkspaceSetupAction.mockResolvedValue({
+      ok: false,
+      failure: { kind: "conflict", issues: [{ code: "custom", path: [], message: "changed" }] },
+    });
+    actions.getWorkspaceSetupStatusAction.mockResolvedValue({
+      ok: true,
+      data: { available: true, setup: plannedView({ status: "interview" }) },
+    });
+    const store = storeWith(plannedView());
+
+    expect(await store.build()).toBe(false);
+    expect(store.stage).toBe("interview");
   });
 
   it("polls only while something runs on the server", () => {

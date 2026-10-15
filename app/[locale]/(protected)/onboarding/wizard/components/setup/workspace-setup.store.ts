@@ -27,6 +27,7 @@ import {
 import {
   answerComplete,
   displayedFollowUpValue,
+  interviewAnswersPayload,
   mergeServerAnswers,
   resolveSetupStage,
   resumeScreenIndex,
@@ -149,7 +150,7 @@ export class WorkspaceSetupStore {
   previousScreen = () => {
     if (this.isBusy) return;
     if (this.screenIndex === 0) {
-      if (this.adjusting) this.adjusting = false;
+      if (this.adjusting) this.discardAdjustment();
       return;
     }
     this.screenIndex -= 1;
@@ -174,16 +175,13 @@ export class WorkspaceSetupStore {
       return result;
     });
 
-  confirmScreen = () =>
-    this.run("save", async () => {
+  confirmScreen = () => {
+    if (this.adjusting && !this.isLastScreen) return Promise.resolve(this.nextAdjustedScreen());
+    return this.run("save", async () => {
       const setup = this.setup;
       if (!setup || !this.canConfirmScreen) return null;
+      if (this.adjusting) return this.submitAdjustment(setup);
       const answers = toJS(screenAnswersPayload(this.screen, toJS(this.answers), this.locale));
-      if (this.isLastScreen && this.adjusting && setup.status === "planned") {
-        const adjusted = await adjustWorkspaceSetupAction({ setupId: setup.id, answers, followUpAnswers: [] });
-        if (adjusted.ok) await this.finishAdjusting();
-        return adjusted;
-      }
       const saved = await saveWorkspaceSetupAnswersAction({ setupId: setup.id, answers, followUpAnswers: [] });
       if (!saved.ok) return saved;
       if (!this.isLastScreen) {
@@ -192,10 +190,9 @@ export class WorkspaceSetupStore {
         });
         return saved;
       }
-      const planned = await planWorkspaceSetupAction({ setupId: setup.id });
-      if (planned.ok) await this.finishAdjusting();
-      return planned;
+      return this.requestPlan(setup.id);
     });
+  };
 
   confirmFollowUps = () =>
     this.run("followUps", async () => {
@@ -259,7 +256,36 @@ export class WorkspaceSetupStore {
     return isAppLocale(this.locale) ? this.locale : undefined;
   }
 
-  private async finishAdjusting() {
+  private nextAdjustedScreen(): boolean {
+    if (this.isBusy || !this.setup || !this.canConfirmScreen) return false;
+    this.screenIndex += 1;
+    return true;
+  }
+
+  private discardAdjustment() {
+    this.adjusting = false;
+    this.answers = this.setup?.interview.answers ?? {};
+    this.touched.clear();
+  }
+
+  private async submitAdjustment(setup: WorkspaceSetupView) {
+    const answers = toJS(interviewAnswersPayload(toJS(this.answers), this.locale));
+    if (setup.status !== "planned") {
+      const saved = await saveWorkspaceSetupAnswersAction({ setupId: setup.id, answers, followUpAnswers: [] });
+      return saved.ok ? this.requestPlan(setup.id) : saved;
+    }
+    const adjusted = await adjustWorkspaceSetupAction({ setupId: setup.id, answers, followUpAnswers: [] });
+    if (adjusted.ok) await this.planRequested();
+    return adjusted;
+  }
+
+  private async requestPlan(setupId: string) {
+    const planned = await planWorkspaceSetupAction({ setupId });
+    if (planned.ok) await this.planRequested();
+    return planned;
+  }
+
+  private async planRequested() {
     runInAction(() => {
       this.adjusting = false;
     });
@@ -274,7 +300,10 @@ export class WorkspaceSetupStore {
     this.pending = command;
     try {
       const result = await perform();
-      if (result && !result.ok) toastZodErrorTree(serializedFailureErrorTree(result.failure));
+      if (result && !result.ok) {
+        toastZodErrorTree(serializedFailureErrorTree(result.failure));
+        if (result.failure.kind === "conflict") await this.refresh();
+      }
       return result?.ok ?? false;
     } finally {
       runInAction(() => {

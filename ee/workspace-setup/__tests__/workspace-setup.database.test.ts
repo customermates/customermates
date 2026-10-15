@@ -674,6 +674,40 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     ]);
   });
 
+  it("withdraws a drafted plan when its answers or spreadsheet change, so the old plan cannot be built", async () => {
+    const ws = await workspace();
+    const { setupId, planRevision } = await planned(ws);
+    const confirm = (revision: number) =>
+      ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision: revision }));
+    const upload = (fileName: string) =>
+      ws.run(() =>
+        di
+          .getUploadWorkspaceSetupSpreadsheetInteractor()
+          .invoke({ setupId, fileName, bytes: new TextEncoder().encode("Name,Email\nAda Lovelace,ada@example.test") }),
+      );
+
+    const saved = await ws.run(() =>
+      di.getSaveWorkspaceSetupAnswersInteractor().invoke({
+        setupId,
+        answers: { companyName: { format: "shortText", value: "Studio North" } },
+        followUpAnswers: [],
+      }),
+    );
+    expect(saved.ok).toBe(true);
+    expect((await status(ws)).status).toBe("interview");
+    expect(await confirm(planRevision)).toMatchObject({ ok: false });
+
+    const replanned = await ws.run(() => di.getPlanWorkspaceSetupInteractor().invoke({ setupId }));
+    if (!replanned.ok) throw new Error(JSON.stringify(replanned.error));
+    expect(await draftPlan(ws, setupId)).toBe("planned");
+    expect(await upload("contacts.xls")).toMatchObject({ ok: true, data: { accepted: false } });
+    expect((await status(ws)).status).toBe("planned");
+    expect(await upload("contacts.csv")).toMatchObject({ ok: true, data: { accepted: true } });
+    expect((await status(ws)).status).toBe("interview");
+    expect(await confirm(replanned.data.planRevision)).toMatchObject({ ok: false });
+    expect(state.dispatch).not.toHaveBeenCalledWith("build-workspace-setup", expect.anything());
+  });
+
   it("applies the confirmed country and language to the settings before the data model", async () => {
     const ws = await workspace();
     const { setupId, planRevision } = await planned(ws);

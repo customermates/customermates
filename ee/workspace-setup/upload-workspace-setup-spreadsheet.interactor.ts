@@ -34,6 +34,7 @@ export class UploadWorkspaceSetupSpreadsheetInteractor extends AuthenticatedInte
     if (!(await this.repo.get(data.setupId))) return failNotFound(CustomErrorCode.workspaceSetupNotFound, ["setupId"]);
     const read = await readSpreadsheet(data.bytes, { fileName: data.fileName });
     if (!read.ok) return { ok: true, data: { accepted: false, failure: read.code } };
+    await this.repo.mutate(data.setupId, (setup) => (setup.status === "planned" ? { status: "interview" } : null));
     if (!(await this.repo.storeSpreadsheet(data.setupId, data.fileName, data.bytes)))
       return failConflict(CustomErrorCode.workspaceSetupConflict);
     return {

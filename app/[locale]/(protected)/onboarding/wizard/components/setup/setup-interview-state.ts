@@ -162,6 +162,15 @@ export function screenAnswersPayload(
   return payload;
 }
 
+export function interviewAnswersPayload(
+  answers: SetupAnswers,
+  locale: string,
+): Partial<Record<string, SetupAnswerValue | null>> {
+  return Object.fromEntries(
+    SETUP_SCREENS.flatMap((screen) => Object.entries(screenAnswersPayload(screen, answers, locale))),
+  );
+}
+
 export function resumeScreenIndex(answers: SetupAnswers): number {
   const index = SETUP_SCREENS.findIndex((screen) =>
     visibleScreenParts(screen, answers).some((part) => !part.optional && answers[part.id]?.source !== "user"),

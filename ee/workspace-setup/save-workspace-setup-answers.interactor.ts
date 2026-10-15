@@ -54,7 +54,7 @@ export class SaveWorkspaceSetupAnswersInteractor extends AuthenticatedInteractor
         ),
         ...data.followUpAnswers,
       ];
-      return { answers: parsed.data, interview: { ...current.interview, followUpAnswers } };
+      return { status: "interview", answers: parsed.data, interview: { ...current.interview, followUpAnswers } };
     });
     if (!saved?.changed) return failConflict(CustomErrorCode.workspaceSetupConflict);
     return { ok: true, data: { answers: saved.setup.answers } };
