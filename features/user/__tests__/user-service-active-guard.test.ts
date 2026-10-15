@@ -18,7 +18,12 @@ const OVERDUE = { emailVerified: false, createdAt: new Date(Date.now() - 25 * 60
 
 function serviceFor(
   status: Status,
-  options: { apiKey?: boolean; role?: TestRole; verification?: { emailVerified: boolean; createdAt: Date } } = {},
+  options: {
+    apiKey?: boolean;
+    role?: TestRole;
+    verification?: { emailVerified: boolean; createdAt: Date };
+    storedVerified?: boolean;
+  } = {},
 ) {
   const user = {
     id: "user-1",
@@ -28,10 +33,16 @@ function serviceFor(
   } as unknown as TenantUser;
   const verification = options.verification ?? { emailVerified: true, createdAt: new Date() };
   const authService = {
-    getSession: () => Promise.resolve({ user: { email: user.email, ...verification } }),
+    getSession: () => Promise.resolve({ user: { id: "auth-user-1", email: user.email, ...verification } }),
     isIntegrationCredentialRequest: () => Promise.resolve(options.apiKey ?? false),
   } as unknown as AuthService;
   const repo = {
+    findAuthUserAccountStateUnscoped: (id: string) =>
+      Promise.resolve(
+        id === "auth-user-1"
+          ? { companyId: null, emailVerified: options.storedVerified ?? verification.emailVerified }
+          : undefined,
+      ),
     findCurrentUserUnscoped: () => Promise.resolve(user),
     findCurrentUserOrThrowUnscoped: () => Promise.resolve(user),
   } as unknown as FindUserRepo;
@@ -86,6 +97,23 @@ describe("UserService.getActiveUserOrThrow", () => {
     expect(error).toBeInstanceOf(ForbiddenError);
     expect(appErrorResponse(error)?.statusCode).toBe(403);
     expect(isExpectedError(error)).toBe(true);
+  });
+
+  it("lets an account through once it is verified although its cached session still says unverified", async () => {
+    await expect(
+      serviceFor(Status.active, { verification: OVERDUE, storedVerified: true }).getActiveUserOrThrow(),
+    ).resolves.toMatchObject({ id: "user-1" });
+  });
+
+  it("holds an overdue account its stored state has unverified although its session says verified", async () => {
+    const error = await serviceFor(Status.active, {
+      verification: { ...OVERDUE, emailVerified: true },
+      storedVerified: false,
+    })
+      .getActiveUserOrThrow()
+      .catch((thrown: unknown) => thrown);
+
+    expect(error).toBeInstanceOf(EmailVerificationRequiredError);
   });
 
   it("lets an unverified account work inside the 24-hour grace period", async () => {

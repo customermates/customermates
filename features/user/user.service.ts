@@ -30,7 +30,12 @@ export class UserService {
 
     if (!email) throw new AuthError();
 
-    if (mustVerifyEmail(session.user)) throw new EmailVerificationRequiredError();
+    const account = await this.repo.findAuthUserAccountStateUnscoped(session.user.id);
+
+    if (!account) throw new AuthError();
+
+    if (mustVerifyEmail({ createdAt: session.user.createdAt, emailVerified: account.emailVerified }))
+      throw new EmailVerificationRequiredError();
 
     return await this.repo.findCurrentUserOrThrowUnscoped(email);
   }

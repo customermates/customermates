@@ -12,6 +12,7 @@ const tenantUser = createMockUser({ id: "tenant-user" });
 
 function service(overrides: Partial<FindUserRepo> = {}) {
   const repo = {
+    findAuthUserAccountStateUnscoped: vi.fn().mockResolvedValue({ companyId: null, emailVerified: true }),
     findCurrentUserUnscoped: vi.fn(),
     findCurrentUserOrThrowUnscoped: vi.fn().mockResolvedValue(sessionUser),
     findUserByIdOrThrowUnscoped: vi.fn().mockResolvedValue(tenantUser),
