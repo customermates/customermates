@@ -71,7 +71,9 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
   const firstTrialEnd = new Date(Math.floor((Date.now() + 5 * DAY_MS) / 1000) * 1000);
   const keys: { first: string; paid?: string } = { first: randomUUID().replaceAll("-", "").repeat(2) };
   const previousEnvironment: Record<string, unknown> = {};
+  const pendingAuthUserId = randomUUID();
   let cookie = "";
+  let pendingCookie = "";
   let subscription: ProviderSubscription;
 
   function asSession() {
@@ -203,13 +205,23 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
       'INSERT INTO "Apikey" ("id","name","key","referenceId","companyId","configId","enabled","rateLimitEnabled","requestCount","createdAt","updatedAt") VALUES ($1,\'First\',$2,$3,$4,\'default\',TRUE,FALSE,0,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)',
       [randomUUID(), await defaultKeyHasher(keys.first), authUserId, companies.first],
     );
-    const token = randomUUID().replaceAll("-", "");
     await client.query(
-      'INSERT INTO "AuthSession" ("id","token","userId","expiresAt","activeCompanyId","updatedAt") VALUES ($1,$2,$3,$4,$5,CURRENT_TIMESTAMP)',
-      [randomUUID(), token, authUserId, new Date(Date.now() + 60 * 60 * 1000), companies.paid],
+      'INSERT INTO "AuthUser" ("id","name","email","emailVerified","companyId","updatedAt") VALUES ($1,\'Paid Member\',$2,TRUE,$3,CURRENT_TIMESTAMP)',
+      [pendingAuthUserId, pendingEmail, companies.paid],
     );
     const { auth } = await import("@/core/auth/better-auth");
-    cookie = (await serializeSignedCookie("app.session_token", token, (await auth.$context).secret)).split(";")[0];
+    const secret = (await auth.$context).secret;
+    for (const [userId, setCookie] of [
+      [authUserId, (value: string) => (cookie = value)],
+      [pendingAuthUserId, (value: string) => (pendingCookie = value)],
+    ] as const) {
+      const token = randomUUID().replaceAll("-", "");
+      await client.query(
+        'INSERT INTO "AuthSession" ("id","token","userId","expiresAt","activeCompanyId","updatedAt") VALUES ($1,$2,$3,$4,$5,CURRENT_TIMESTAMP)',
+        [randomUUID(), token, userId, new Date(Date.now() + 60 * 60 * 1000), companies.paid],
+      );
+      setCookie((await serializeSignedCookie("app.session_token", token, secret)).split(";")[0]);
+    }
   });
 
   afterAll(async () => {
@@ -220,7 +232,7 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
     delete process.env.LEMONSQUEEZY_API_KEY;
     delete process.env.CRM_E2E_PROVIDER_DIRECTORY;
     await client.query('DELETE FROM "Apikey" WHERE "referenceId"=$1', [authUserId]);
-    await client.query('DELETE FROM "AuthUser" WHERE "id"=$1', [authUserId]);
+    await client.query('DELETE FROM "AuthUser" WHERE "id"=ANY($1)', [[authUserId, pendingAuthUserId]]);
     await client.query('DELETE FROM "Company" WHERE "id"=ANY($1)', [Object.values(companies)]);
     await client.end();
     rmSync(providerDirectory, { recursive: true, force: true });
@@ -321,8 +333,8 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
     expect(await storedSubscription("paid")).toMatchObject({ status: "active", lemonSqueezyId: subscription.id });
   });
 
-  it("updates the seats of the paid workspace's subscription when a member is approved or deactivated", async () => {
-    const { getAdminUpdateUserDetailsInteractor } = await import("@/core/di");
+  it("updates the seats of the paid workspace's subscription when a member is approved, deactivated or leaves", async () => {
+    const { getAdminUpdateUserDetailsInteractor, getLeaveWorkspaceInteractor } = await import("@/core/di");
     asSession();
 
     const approved = await getAdminUpdateUserDetailsInteractor().invoke({
@@ -336,6 +348,13 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
     const deactivated = await getAdminUpdateUserDetailsInteractor().invoke({ userId: pendingId, status: "inactive" });
     expect(deactivated.ok).toBe(true);
     expect(providerSubscription()).toMatchObject({ quantity: 2, quantityUpdates: [3, 2] });
+
+    asSession();
+    expect((await getAdminUpdateUserDetailsInteractor().invoke({ userId: pendingId, status: "active" })).ok).toBe(true);
+    expect(providerSubscription()).toMatchObject({ quantity: 3, quantityUpdates: [3, 2, 3] });
+    requestContext.headers = new Headers({ cookie: pendingCookie, "content-type": "application/json" });
+    expect(await getLeaveWorkspaceInteractor().invoke()).toEqual({ ok: true, data: { companyId: companies.paid } });
+    expect(providerSubscription()).toMatchObject({ quantity: 2, quantityUpdates: [3, 2, 3, 2] });
     expect(readLocalCheckouts(providerDirectory)).toHaveLength(1);
   });
 

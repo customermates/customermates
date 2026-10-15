@@ -1,5 +1,6 @@
 import type { Page } from "@playwright/test";
 
+import { BrowserDiagnostics } from "./browser-diagnostics";
 import { localOAuthAuthorizationEndpoints, localOAuthClients, localOAuthCode } from "./local-oauth-provider.mjs";
 
 export type SocialProvider = keyof typeof localOAuthClients;
@@ -22,7 +23,22 @@ export type SocialAuthorization = {
   codeChallengeMethod: string | null;
 };
 
-export async function routeSocialProvider(page: Page, provider: SocialProvider) {
+const ABORTED_REFRESH: Record<string, RegExp> = { webkit: /^TypeError: Load failed$/, firefox: /^JSHandle@object$/ };
+
+export function expectAbortedRefreshes(page: Page, navigations: number) {
+  const text = ABORTED_REFRESH[page.context().browser()?.browserType().name() ?? ""];
+  if (!text) return;
+  BrowserDiagnostics.ofPage(page).expect({
+    kind: "console",
+    text,
+    source: (url) => url.pathname.startsWith("/_next/static/chunks/"),
+    page,
+    limit: navigations,
+  });
+}
+
+export async function routeSocialProvider(page: Page, provider: SocialProvider, navigations = 2) {
+  expectAbortedRefreshes(page, navigations);
   const authorizations: SocialAuthorization[] = [];
   let identity: SocialIdentity | null = null;
   const endpoint = localOAuthAuthorizationEndpoints[provider];
@@ -48,7 +64,11 @@ export async function routeSocialProvider(page: Page, provider: SocialProvider) 
       const callback = new URL(redirectUri);
       callback.searchParams.set("code", localOAuthCode({ provider, identity, codeChallenge, redirectUri }));
       callback.searchParams.set("state", state);
-      await route.fulfill({ status: 302, headers: { location: callback.toString() } });
+      await route.fulfill({
+        status: 200,
+        contentType: "text/html",
+        body: `<!doctype html><html lang="en"><head><title>Local sign-in</title></head><body><script>location.replace(${JSON.stringify(callback.toString())})</script></body></html>`,
+      });
     },
   );
   return {
