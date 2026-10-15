@@ -97,7 +97,7 @@ export const SetupPlanFailed = observer(function SetupPlanFailed() {
     <section className="flex flex-col gap-5">
       <Alert color="danger" description={failureMessage(error)} title={t("WorkspaceSetup.plan.failedTitle")} />
 
-      <div className="flex flex-wrap items-center justify-end gap-2">
+      <div className="flex flex-col-reverse gap-2 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-end">
         {error === "spendCap" ? (
           <SetupSupportButton />
         ) : (
@@ -214,17 +214,15 @@ export const SetupPlanPreview = observer(function SetupPlanPreview() {
       ) : null}
 
       <div className="flex flex-col-reverse gap-2 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-end">
-        <div className="flex flex-col-reverse gap-2 sm:flex-row">
-          <Button disabled={store.isBusy} type="button" variant="secondary" onClick={store.adjust}>
-            {t("WorkspaceSetup.plan.adjust")}
-          </Button>
+        <Button disabled={store.isBusy} type="button" variant="secondary" onClick={store.adjust}>
+          {t("WorkspaceSetup.plan.adjust")}
+        </Button>
 
-          <Button disabled={store.isBusy} type="button" onClick={() => runUserAction(store.build)}>
-            {store.pending === "build" ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : <Sparkles />}
+        <Button disabled={store.isBusy} type="button" onClick={() => runUserAction(store.build)}>
+          {store.pending === "build" ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : <Sparkles />}
 
-            {t("WorkspaceSetup.plan.build")}
-          </Button>
-        </div>
+          {t("WorkspaceSetup.plan.build")}
+        </Button>
       </div>
     </section>
   );
