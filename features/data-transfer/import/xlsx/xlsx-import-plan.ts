@@ -17,6 +17,8 @@ import type { XlsxRow } from "./xlsx-workbook";
 
 import { RECORD_IMPORT_LIMIT, RECORD_IMPORT_LINK_LIMIT } from "@/features/data-transfer/record-transfer.schema";
 import { channelClass } from "@/ee/messaging/provider";
+import { addressDisplayText, cleanAddressPart } from "@/features/records/record-address-value";
+import { REGISTERED_LOCALES } from "@/i18n/locale-registry";
 
 import { normalizeXlsxHeader, xlsxImportFields, XLSX_CHANNELS_KEY, XLSX_SKIP_KEY } from "./xlsx-mapping";
 import {
@@ -86,6 +88,14 @@ const MISSING: CalculatedValue = { state: "missing" };
 
 function valueResult(value: RecordScalar | null): CalculatedValue {
   return value ? { state: "value", value } : MISSING;
+}
+
+function repeatsStoredAddress(value: RecordScalar, stored: CalculatedValue): boolean {
+  if (value.kind !== "address" || stored.state !== "value" || stored.value.kind !== "address") return false;
+  const address = stored.value.value;
+  return [address.formatted, ...REGISTERED_LOCALES.map((locale) => addressDisplayText(address, locale))].some(
+    (text) => cleanAddressPart(text, 500) === value.value.formatted,
+  );
 }
 
 const identityKey = (identity: Pick<RecordIdentityInput, "provider" | "value">) =>
@@ -305,7 +315,9 @@ export function planXlsxImport(
       ...match,
       fields: match.fields.map((field) => {
         const value = row.values.get(field.fieldId);
-        return value ? { fieldId: field.fieldId, result: valueResult(value) } : field;
+        return value && !repeatsStoredAddress(value, field.result)
+          ? { fieldId: field.fieldId, result: valueResult(value) }
+          : field;
       }),
       assignedUserIds: row.assignedUserIds ?? match.assignedUserIds,
       ...(row.identities.length

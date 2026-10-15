@@ -1,4 +1,4 @@
-import type { RecordAddress, RecordField, RecordModel, RecordScalar } from "../record-model.schema";
+import type { RecordAddress, RecordDto, RecordField, RecordModel, RecordScalar } from "../record-model.schema";
 
 import { describe, expect, it } from "vitest";
 
@@ -23,8 +23,10 @@ import { recordDraftValue, recordInputValue } from "../record-input-value";
 import { encodeRecordValue } from "../record-storage";
 import { recordValueDescriptor } from "@/features/messaging/activities/change-value-descriptor";
 import { parseXlsxFieldCell } from "@/features/data-transfer/import/xlsx/xlsx-values";
-import { xlsxImportFields } from "@/features/data-transfer/import/xlsx/xlsx-mapping";
+import { xlsxImportFields, xlsxTargetOptions } from "@/features/data-transfer/import/xlsx/xlsx-mapping";
+import { planXlsxImport } from "@/features/data-transfer/import/xlsx/xlsx-import-plan";
 import { recordWorkbookSheets } from "@/features/data-transfer/export/record-workbook";
+import { APP_LOCALES } from "@/i18n/locale-registry";
 
 const TYPE = "00000000-0000-4000-8000-000000000001";
 const OTHER_TYPE = "00000000-0000-4000-8000-000000000002";
@@ -490,6 +492,59 @@ describe("filters, sorting and editor values", () => {
 });
 
 describe("workbooks and history", () => {
+  it("keeps a verified address when an update import repeats the exported text and imports an edited one as text", () => {
+    const fields = [field(ADDRESS, "address", { label: "Address" })];
+    const at = "2026-10-14T12:00:00.000Z";
+    const stored: RecordDto = {
+      ref: { typeId: TYPE, recordId: "00000000-0000-4000-8000-000000000098" },
+      version: 3,
+      schemaRevision: 1,
+      createdAt: at,
+      updatedAt: at,
+      fields: [{ fieldId: ADDRESS, result: { state: "value", value: { kind: "address", value: MANNHEIM } } }],
+      assignedUserIds: [],
+      assignedUsers: [],
+      memberUsers: [],
+      relationships: [],
+    };
+    const labels = { assignedTo: "Assigned", recordId: "ID", rangeStart: "Start", rangeEnd: "End" };
+    const exported = (locale: string) => {
+      const [sheet] = recordWorkbookSheets(model(fields), TYPE, [stored], {
+        ...labels,
+        createdAt: "Created",
+        updatedAt: "Updated",
+        locale,
+      });
+      const column = (header: string) => sheet.columns.findIndex((entry) => entry.header === header);
+      return [sheet.rows[0][column("ID")], sheet.rows[0][column("Address")]].map(String);
+    };
+    const imported = (cells: string[]) =>
+      planXlsxImport(
+        {
+          model: model(fields),
+          typeId: TYPE,
+          headers: ["ID", "Address"],
+          rows: [{ sheetRow: 2, cells }],
+          mapping: ["recordId", `field:${ADDRESS}`],
+          options: xlsxTargetOptions(model(fields), TYPE, labels),
+          lookups: { members: [], relations: new Map() },
+        },
+        "update",
+        "recordId",
+        { records: [stored] },
+        () => "00000000-0000-4000-8000-000000000097",
+        at,
+      )[0].record?.fields.find((entry) => entry.fieldId === ADDRESS)?.result;
+
+    expect(exported("de")[1]).toBe("Hauptstraße 5, c/o Studio, 68159 Mannheim, Deutschland");
+    for (const locale of APP_LOCALES)
+      expect(imported(exported(locale))).toEqual({ state: "value", value: { kind: "address", value: MANNHEIM } });
+    expect(imported([exported("en")[0], "Hauptstraße 7, c/o Studio, 68159 Mannheim, Germany"])).toEqual({
+      state: "value",
+      value: { kind: "address", value: addressFromText("Hauptstraße 7, c/o Studio, 68159 Mannheim, Germany") },
+    });
+  });
+
   it("exports file names and the displayed address and imports addresses as unverified text", () => {
     const fields = [
       field(FILE, "file", { multiple: true, label: "Files" }),
