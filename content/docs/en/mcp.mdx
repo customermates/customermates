@@ -380,7 +380,7 @@ List, search, read, create, update, reorder (move before or after another page) 
 
 Messaging-backed tools need a plan with messaging: Pro or higher, cloud only; Starter and self-hosted instances refuse them. Without it, `get_activities` still returns audit-log changes when the caller's role has **Read access** **All** on the **Audit Log** row; its message, connected-account and calendar sources need **Read access** on the **Inbox messages** row plus a plan with messaging.
 
-`connect_messaging_account` also needs **Create** on **Inbox messages** and a free account slot: Pro allows [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, Business [[commercial.entitlement.business.includedAccountsPerUser]] and Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]].
+`connect_messaging_account` also needs **Create** on **Inbox messages** and a free account slot: Pro allows [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, Business [[commercial.entitlement.business.includedAccountsPerUser]], Max [[commercial.entitlement.max.includedAccountsPerUser]] and Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]].
 
 {/* mcp-catalog:messaging */}
 #### `get_messaging_threads`

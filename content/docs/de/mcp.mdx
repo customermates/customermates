@@ -380,7 +380,7 @@ Wissensdatenbank-Seiten auflisten, suchen, lesen, anlegen, aktualisieren, umsort
 
 Messaging-basierte Tools brauchen einen Tarif mit Messaging: ab Pro, nur Cloud; Starter und selbst gehostete Instanzen lehnen sie ab. Ohne Messaging liefert `get_activities` weiterhin Änderungen aus dem Audit-Log, wenn die Rolle des Aufrufers **Lesen** **Alle** in der Zeile **Audit-Log** hat; die Quellen Nachrichten, verbundene Konten und Kalender brauchen **Lesen** in der Zeile **Inbox-Nachrichten** und dazu einen Tarif mit Messaging.
 
-`connect_messaging_account` braucht außerdem **Erstellen** bei **Inbox-Nachrichten** und einen freien Kontoplatz: Pro erlaubt [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer, Business [[commercial.entitlement.business.includedAccountsPerUser]] und Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]].
+`connect_messaging_account` braucht außerdem **Erstellen** bei **Inbox-Nachrichten** und einen freien Kontoplatz: Pro erlaubt [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer, Business [[commercial.entitlement.business.includedAccountsPerUser]], Max [[commercial.entitlement.max.includedAccountsPerUser]] und Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]].
 
 {/* mcp-catalog:messaging */}
 #### `get_messaging_threads`
