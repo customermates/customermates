@@ -190,7 +190,7 @@ docker compose ps
 docker compose exec app sh
 ```
 
-The app writes its logs to the container output. Background jobs such as webhook deliveries run inside the app container through a PostgreSQL-backed queue in the same database; there is no separate worker service. The published image turns off Next.js telemetry and sets no error-reporting address. Errors the app writes to its output appear only in these logs. Errors it only reports to an error-reporting service, such as an email Resend rejected, are not recorded anywhere, so check the Resend dashboard for failed sends.
+On a self-hosted instance, the app writes its logs to the container output. Background jobs such as webhook deliveries run inside the app container through a PostgreSQL-backed queue in the same database; there is no separate worker service. The published image turns off Next.js telemetry and sets no error-reporting address. Errors the app writes to its output appear only in these logs. Errors it only reports to an error-reporting service, such as an email Resend rejected, are not recorded anywhere, so check the Resend dashboard for failed sends.
 
 ## Where are files stored when I self-host? [#file-storage]
 

@@ -138,20 +138,23 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
     'UPDATE "Subscription" SET plan = \'enterprise\', "enterpriseFileStorageBytesPerUser" = 1024 WHERE "companyId" = $1',
     [companyId],
   );
-  const quotaRefusal = diagnostics.expect({
+  diagnostics.expect({
     kind: "console",
     text: /^Failed to load resource: the server responded with a status of 409/,
     source: (url) => url.pathname === "/api/v1/files/uploads",
     page,
   });
   await openRecordDetails(page, "Example organization");
+  const quotaRefusal = page.waitForResponse(
+    (response) => new URL(response.url()).pathname === "/api/v1/files/uploads" && response.status() === 409,
+  );
   await editor.locator('input[type="file"]').setInputFiles([
     { name: "large.bin", mimeType: "application/octet-stream", buffer: Buffer.alloc(2048, 7) },
   ]);
   const refused = editor.locator('[data-record-file-upload="failed"]');
   await expect(refused).toContainText("large.bin");
   await expect(refused).toContainText(/Your workspace uses .+ of its 1 kB file storage\./);
-  await expect.poll(() => quotaRefusal.events.length).toBe(1);
+  await quotaRefusal;
   await editor.getByRole("button", { name: "Remove large.bin", exact: true }).click();
   await expect(refused).toHaveCount(0);
   await expect(editor.locator("[data-record-file]")).toHaveCount(1);
