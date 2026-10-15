@@ -25,6 +25,7 @@ import { RecordJournal } from "./record-journal";
 import { RecordEventPayloadSchema } from "./record-event.schema";
 import { DeletionCursorSchema, RecordDeletionStaging } from "./record-deletion-staging";
 import type { RecordTrashService } from "./record-trash.service";
+import { droppedLinksOf } from "./record-trash.service";
 import { configurationTrashBatchId } from "./configuration-trash-batch";
 import type { RecordModel } from "./record-model.schema";
 import type { WebhookPauseNotifier } from "@/features/webhook/webhook-pause-notifier";
@@ -493,6 +494,7 @@ export class RecordOperationService extends UserAccessor {
       await this.records.updateOperation(operation.id, { cursor: next, leaseUntil: new Date(Date.now() + 60000) });
       return { done: false };
     }
+    const current = cursor.started ? item : await service.prepareSubListRows(item, model, this.records);
     const refs = await this.records.getTrashedRecordRefsCompanyWide([item.id], RESTORE_PAGE_SIZE);
     const journal = new RecordJournal(this.records, model, BACKGROUND_FANOUT_LIMIT);
     const droppedLinks = await service.restoreRecords(refs, model, journal, BACKGROUND_FANOUT_LIMIT);
@@ -503,7 +505,7 @@ export class RecordOperationService extends UserAccessor {
       ...summary,
       restoredItemIds: finished ? [...summary.restoredItemIds, item.id] : summary.restoredItemIds,
       restoredRecords: summary.restoredRecords + refs.length,
-      droppedLinks: summary.droppedLinks + droppedLinks,
+      droppedLinks: summary.droppedLinks + droppedLinks + (finished ? droppedLinksOf(current) : 0),
     });
     await this.records.updateOperation(operation.id, {
       state: "staging",

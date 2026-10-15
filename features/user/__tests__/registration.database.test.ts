@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 
 import { afterAll, describe, expect, it, vi } from "vitest";
 
+import type * as NextServer from "next/server";
 import type { LegalNoticeAuditPayload } from "@/features/legal/legal-audit.schema";
 import type { TenantUser } from "@/features/user/user.schema";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
@@ -15,6 +16,7 @@ import messages from "@/i18n/locales/en.json";
 const activeTenantUser = vi.hoisted(() => ({
   value: null as TenantUser | null,
 }));
+const afterResponseTasks = vi.hoisted(() => [] as (() => Promise<unknown>)[]);
 
 vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
@@ -26,6 +28,12 @@ vi.mock("@/env", () => ({
     DATABASE_URL: process.env.DATABASE_URL,
     BASE_URL: "http://localhost:4000",
     NODE_ENV: "test",
+  },
+}));
+vi.mock("next/server", async (importOriginal) => ({
+  ...(await importOriginal<typeof NextServer>()),
+  after: (task: () => Promise<unknown>) => {
+    afterResponseTasks.push(task);
   },
 }));
 vi.mock("@/core/di", () => ({
@@ -392,6 +400,55 @@ describeDatabase("registration against a real database", () => {
       ),
     ).toBe(1);
   });
+
+  it("commits the registration before the operator notification and never waits for it", async () => {
+    const registrationEmail = `notification-after-commit-${Date.now()}@example.com`;
+    const authUserId = `auth-notification-${Date.now()}`;
+    await runWithoutTenant(() =>
+      prisma.authUser.create({
+        data: { id: authUserId, name: "Slow Mail", email: registrationEmail, companyId: null },
+      }),
+    );
+    authUserIds.push(authUserId);
+    let registeredWhenSending: boolean | null = null;
+    const sendNewUserNotificationEmail = vi.fn(async () => {
+      registeredWhenSending =
+        (await runWithoutTenant(() => prisma.user.count({ where: { email: registrationEmail } }))) === 1;
+      await new Promise((resolve) => setTimeout(resolve, 6000));
+    });
+    afterResponseTasks.length = 0;
+    const interactor = new RegisterUserInteractor(
+      { sendNewUserNotificationEmail } as never,
+      new PrismaUserRepo(new PermissionService()),
+      newEventService(),
+      unregisteredRouteGuardService(authUserId, registrationEmail) as never,
+      new PrismaCompanyRepo(),
+      new InitializeRecordModelService(createTestRecordRepo()),
+      createTestWorkspaceRegistration(),
+    );
+
+    const result = await interactor.invoke(
+      {
+        email: registrationEmail,
+        firstName: "Slow",
+        lastName: "Mail",
+        country: "de",
+        agreeToTerms: true,
+        avatarUrl: null,
+      },
+      { target: { type: "createCompany" } },
+    );
+
+    expect(result).toEqual({ ok: true, data: { redirectTo: "/onboarding/wizard" } });
+    const user = await runWithoutTenant(() => prisma.user.findUniqueOrThrow({ where: { email: registrationEmail } }));
+    companyIds.push(user.companyId);
+    expect(sendNewUserNotificationEmail).not.toHaveBeenCalled();
+    expect(afterResponseTasks).toHaveLength(1);
+
+    void afterResponseTasks[0]();
+    await vi.waitFor(() => expect(registeredWhenSending).toBe(true));
+    expect(sendNewUserNotificationEmail).toHaveBeenCalledWith({ email: registrationEmail, name: "Slow Mail" });
+  }, 15_000);
 
   it("persists an invited cloud user's acknowledgement without company-wide acceptance", async () => {
     const suffix = Date.now();

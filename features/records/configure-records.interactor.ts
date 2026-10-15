@@ -44,7 +44,10 @@ export class ApplyRecordConfigurationInteractor extends AuthenticatedInteractor<
     return this.run(input);
   }
 
-  run(input: ConfigurationChange): Validated<RecordOperationResult> {
+  run(
+    input: ConfigurationChange,
+    { background = false }: { background?: boolean } = {},
+  ): Validated<RecordOperationResult> {
     return runInTransaction(
       async (): Validated<RecordOperationResult> => {
         const policy = await this.policy.load();
@@ -64,7 +67,7 @@ export class ApplyRecordConfigurationInteractor extends AuthenticatedInteractor<
         const prepared = await this.configurations.prepare(input, current, policy);
         if (!prepared.preview.valid) return invalidConfigurationFailure(prepared.preview.issues);
         let data: RecordOperationResult;
-        if (prepared.preview.execution === "background") {
+        if (background || prepared.preview.execution === "background") {
           const operationId = randomUUID();
           await this.records.createOperation({
             id: operationId,

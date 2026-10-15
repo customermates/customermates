@@ -47,7 +47,7 @@ curl -fsSL https://raw.githubusercontent.com/customermates/customermates/main/.e
 ```
 </Step>
 <Step title="Fill in .env">
-Replace the placeholder values in `.env` before the first start: at least `POSTGRES_PASSWORD`, `BETTER_AUTH_SECRET` (for example from `openssl rand -hex 32`), `BASE_URL`, `RESEND_API_KEY` and `RESEND_OPERATOR_EMAIL`. Without `RESEND_API_KEY`, nobody can finish registering.
+Replace the placeholder values in `.env` before the first start: at least `POSTGRES_PASSWORD`, `BETTER_AUTH_SECRET` (for example from `openssl rand -hex 32`), `BASE_URL`, `RESEND_API_KEY` and `RESEND_OPERATOR_EMAIL`. Without a working `RESEND_API_KEY`, no email goes out, so nobody can confirm their email address and every new account is held after 24 hours.
 </Step>
 <Step title="Start">
 ```bash
@@ -111,7 +111,12 @@ Customermates sends email only through [Resend](https://resend.com); there is no
 - `RESEND_API_KEY`: the Resend API key.
 - `RESEND_OPERATOR_EMAIL`: the sender address, on a domain verified in Resend. Every email goes out as `Customermates <RESEND_OPERATOR_EMAIL>`. The same address receives a "New User Registration" email when someone saves the profile step of the wizard (see [Who can sign up](#who-can-sign-up-on-my-instance)) and the messages sent through **Send feedback** in the personal menu.
 
-The app emails verification links, password resets and invitations. Without a key, saving the profile step fails, so nobody can finish registering or join a workspace. If Resend rejects the emails, new users can use their account for 24 hours and are then held on **Email Verification** until they verify, **Forgot password?** sends nothing, and email invitations fail; the **Share link** tab of **Invite User** still works. Rejected sends do not appear in the app logs, so if emails are not arriving, check that the sender domain is verified and look for rejected sends in the Resend dashboard.
+The app emails verification links, password resets and invitations. When an email cannot go out, registering still works: new users can use their account for 24 hours and are then held on **Email Verification**, together with their API keys and MCP connections, until they verify. **Forgot password?** sends nothing, **Send feedback** fails, and the **Share link** tab of **Invite User** keeps working.
+
+- Without `RESEND_API_KEY`, every send fails with `RESEND_API_KEY is not configured` in the app log, and email invitations fail with an error.
+- If Resend rejects an email, or the server cannot reach Resend at all, for example behind a firewall that drops outbound traffic or without internet access, the send gives up after at most 10 seconds and the app log shows `[EmailService] Email not sent` with the subject, the recipient's domain and Resend's reason. **Send invitations** then reports the invitations that could not be sent and keeps only their addresses in the form, and the REST and MCP invite calls return their number as `failed` and the addresses as `failedEmails`. Sending an invitation again, for example after a timeout, does not email an address twice within 24 hours. Without a connection to Resend, registering and **Forgot password?** take those 10 seconds.
+
+If emails are not arriving, check the app log, check that the sender domain is verified, and look for rejected sends in the Resend dashboard.
 
 ## How do I create the first account on my instance? [#how-do-i-create-the-first-account-on-my-instance]
 
@@ -158,6 +163,10 @@ The `latest` tag is rebuilt from the main branch whenever it changes, so every p
 
 To decide when updates happen, pin the image in `docker-compose.yml` to a build tag instead of `latest`. Every image is also tagged `sha-` followed by the short commit id, for example `ghcr.io/customermates/customermates:sha-<commit>`.
 
+**Updating from a release older than 14 October 2026:** the release that made lists, fields and calculations configurable converts the CRM data of every workspace when the new image first starts. Records, values, links, assignees, Knowledge Base pages, members, roles and API keys are kept. Every dashboard widget, the saved views and personal settings of the record lists, the terminology chosen for the lists and the audit log are removed, so history starts again at the update, and every webhook is turned off until you turn it on again with the record events it should send. Before this update, take the backup and run the read-only inventory from the [migration notes](https://github.com/customermates/customermates/blob/main/prisma/migrations/20261010000000_dynamic_record_model/README.md#before-deploying), for example in `docker compose exec postgres sh -c 'psql -U "$POSTGRES_USER" "$POSTGRES_DB"'`, to list the webhooks it turns off. If the conversion refuses data it cannot convert, it changes nothing, the app does not start and its log names the fields and the number of values it refused: restore the backup, start the previous image, correct those records and update again.
+
+From a clone of the repository, `scripts/selfhost-update.sh` runs this update for you: it writes a backup to `backups/`, then pulls the images and recreates the containers. Next to it, `scripts/selfhost-setup.sh` creates `.env` from the template, checks the required values and starts the instance, `scripts/selfhost-restart.sh` recreates the app container so it picks up `.env` changes, and `scripts/selfhost-reset.sh` deletes all data like `docker compose down -v` once you type `RESET`.
+
 ## How do I apply .env changes? [#apply-env-changes]
 
 Run `docker compose up -d`. It recreates the containers whose configuration changed, so they start with the new `.env` values. `docker compose restart` keeps the old environment and does not apply `.env` changes.
@@ -171,16 +180,19 @@ docker compose ps
 docker compose exec app sh
 ```
 
-The app writes its logs to the container output. Background jobs such as webhook deliveries run inside the app container through a PostgreSQL-backed queue in the same database; there is no separate worker service. The published image turns off Next.js telemetry and sets no error-reporting address. Errors the app writes to its output appear only in these logs. Errors it only reports to an error-reporting service, such as an email Resend rejected, are not recorded anywhere, so check the Resend dashboard for failed sends.
+The app writes its logs to the container output. Background jobs such as webhook deliveries run inside the app container through a PostgreSQL-backed queue in the same database; there is no separate worker service. The published image turns off Next.js and Prisma telemetry and sets no error-reporting address. Errors the app writes to its output appear only in these logs; errors it only reports to an error-reporting service are not recorded anywhere. Every email that Resend rejected or did not answer in time is logged as `[EmailService] Email not sent` with Resend's reason.
 
 ## How do I create and restore database backups? [#backups]
 
 All data lives in the PostgreSQL database: records, users, settings, the Activity log and the background job queue. The app container keeps no data. Back up the database with `pg_dump` through the Postgres container, whose port the Compose file does not publish:
 
 ```bash
-mkdir -p backups
-docker compose exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' \
-  | gzip > backups/customermates-$(date +%Y%m%d).sql.gz
+(
+  umask 077
+  mkdir -p backups && chmod 700 backups
+  docker compose exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' \
+    | gzip > backups/customermates-$(date +%Y%m%d).sql.gz
+)
 ```
 
 Run it daily from a scheduler such as cron and copy the files to separate or off-site storage. Keep a copy of `.env` with them, stored securely and out of source control: restoring with a different `BETTER_AUTH_SECRET` signs everyone out.
@@ -201,7 +213,7 @@ Test the restore regularly on a separate machine. Moving to a new PostgreSQL maj
 
 The cloud calls two maintenance endpoints on a schedule; a self-hosted instance runs them only when you call them. Without the daily one, items in [Trash](/docs/app-trash) are never deleted permanently after their 30 days.
 
-- `/api/cron/lifecycle`, once a day: deletes Trash items whose 30 days have passed and runs the other daily housekeeping. Its jobs for cloud trials and subscriptions find nothing on a self-hosted instance.
+- `/api/cron/lifecycle`, once a day: deletes Trash items whose 30 days have passed and runs the other daily housekeeping. On a self-hosted instance it skips the cloud jobs for trials, subscriptions and connected accounts.
 - `/api/cron/record-deliveries`, every 5 minutes (optional): starts due webhook deliveries, event processing and background record work that no running job picked up, for example after a container restart.
 
 Both answer HTTP `401` unless the app has a `CRON_SECRET` and the request sends it as `Authorization: Bearer <secret>`. The template has a commented `CRON_SECRET` line next to `BETTER_AUTH_SECRET`, and the Compose file passes it to the app; if your `docker-compose.yml` does not list `CRON_SECRET` yet, download it again with the `curl` command from the installation steps. Uncomment the line, or add it to an `.env` created before it existed, set a long random value, for example from `openssl rand -hex 32`, run `docker compose up -d`, and schedule the calls on the host, for example with `crontab -e`:
@@ -211,7 +223,7 @@ Both answer HTTP `401` unless the app has a `CRON_SECRET` and the request sends 
 */5 * * * * curl -fsS -H "Authorization: Bearer YOUR_CRON_SECRET" http://localhost:4000/api/cron/record-deliveries
 ```
 
-Use your `APP_PORT` instead of `4000`. A successful call answers `{"ok":true,...}`.
+Use your `APP_PORT` instead of `4000`. A successful call answers `{"ok":true,...}`. If one of its jobs fails, the call answers HTTP `500` and the app log names the failed job; with `curl -fsS`, cron then reports the failure.
 
 ## How do I reset all data? [#how-do-i-reset-all-data]
 

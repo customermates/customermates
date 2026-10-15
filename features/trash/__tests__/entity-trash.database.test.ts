@@ -124,10 +124,10 @@ async function fixture() {
     });
   const restore = (as: TenantUser, batchId: string) =>
     runWithTenant(as, () => trash.restore.invoke({ batchId } as never));
-  const purge = async (as: TenantUser, itemIds: string[]) => {
-    const preview = await runWithTenant(as, () => trash.preview.invoke({ itemIds }));
+  const purge = async (as: TenantUser, itemIds: string[], using: Pick<typeof trash, "preview" | "remove"> = trash) => {
+    const preview = await runWithTenant(as, () => using.preview.invoke({ itemIds }));
     if (!preview.ok) throw new Error(JSON.stringify(preview));
-    return runWithTenant(as, () => trash.remove.invoke({ itemIds, expectedImpactHash: preview.data.impactHash }));
+    return runWithTenant(as, () => using.remove.invoke({ itemIds, expectedImpactHash: preview.data.impactHash }));
   };
   const tx = <T>(as: TenantUser, fn: () => Promise<T>) => runWithTenant(as, () => runInTransaction(fn));
   return { seed, admin, member, trash, items, restore, purge, tx, widgets, wiki };
@@ -272,18 +272,22 @@ describeDatabase("views, widgets, routines and knowledge base pages in Trash", (
     );
     expect(live).toEqual([{ id: loose.id }]);
 
-    const viewItems = (await f.items(f.admin)).filter((item) => item.kind === "view");
-    expect(
-      await f.purge(
-        f.admin,
-        viewItems.map((item) => item.id),
-      ),
-    ).toMatchObject({ ok: true });
+    const viewItemIds = (await f.items(f.admin)).filter((item) => item.kind === "view").map((item) => item.id);
+    const handlers = getTrashKindHandlers();
+    const production = {
+      preview: new PreviewTrashDeletionInteractor(new PrismaTrashRepo(), handlers),
+      remove: new DeleteTrashPermanentlyInteractor(new PrismaTrashRepo(), handlers),
+    };
+    expect(await f.purge(f.admin, viewItemIds, production)).toMatchObject({
+      ok: true,
+      data: { deletedItemIds: viewItemIds, failedItemIds: [] },
+    });
     expect(
       await runWithoutTenant(() =>
         prisma.widget.findMany({ where: { companyId: f.seed.company.id }, select: { id: true } }),
       ),
     ).toEqual([{ id: loose.id }]);
+    expect(await f.items(f.admin)).toEqual([]);
   });
 
   it("stops a trashed routine from running, shows it only to admins and reschedules it on restore", async () => {

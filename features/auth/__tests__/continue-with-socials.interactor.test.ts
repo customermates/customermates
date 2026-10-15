@@ -1,8 +1,13 @@
 import type { AuthService } from "../auth.service";
 import type { FindUserRepo } from "@/features/user/find-user.repo";
 
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
+const afterResponseTasks = vi.hoisted(() => [] as (() => Promise<unknown>)[]);
+
+vi.mock("@/core/utils/after-response", () => ({
+  runAfterResponse: (task: () => Promise<unknown>) => afterResponseTasks.push(task),
+}));
 vi.mock("next-intl/server", () => ({
   getLocale: vi.fn().mockResolvedValue("de"),
   getTranslations: vi.fn().mockResolvedValue(
@@ -15,6 +20,10 @@ vi.mock("next-intl/server", () => ({
 import { ContinueWithSocialsInteractor } from "../continue-with-socials.interactor";
 
 describe("ContinueWithSocialsInteractor callback validation", () => {
+  beforeEach(() => {
+    afterResponseTasks.length = 0;
+  });
+
   it.each(["google", "microsoft"] as const)(
     "rejects an external callback before invoking the %s auth provider",
     async (provider) => {
@@ -71,8 +80,8 @@ describe("ContinueWithSocialsInteractor callback validation", () => {
     await expect(interactor.invoke({ provider: "google" })).resolves.toEqual({ redirect: "/it/inbox" });
   });
 
-  it("notifies operators once for a newly authenticated user", async () => {
-    const sendNewUserNotificationEmail = vi.fn();
+  it("notifies operators once for a newly authenticated user after the response", async () => {
+    const sendNewUserNotificationEmail = vi.fn(() => new Promise(() => {}));
     const interactor = new ContinueWithSocialsInteractor(
       {
         continueWithSocials: vi.fn().mockResolvedValue({
@@ -89,7 +98,11 @@ describe("ContinueWithSocialsInteractor callback validation", () => {
       { findCurrentUserUnscoped: vi.fn().mockResolvedValue(null) } as unknown as FindUserRepo,
     );
 
-    await interactor.invoke({ provider: "microsoft" });
+    await expect(interactor.invoke({ provider: "microsoft" })).resolves.toEqual({ ok: true, data: null });
+    expect(sendNewUserNotificationEmail).not.toHaveBeenCalled();
+    expect(afterResponseTasks).toHaveLength(1);
+
+    void afterResponseTasks[0]();
 
     expect(sendNewUserNotificationEmail).toHaveBeenCalledOnce();
     expect(sendNewUserNotificationEmail).toHaveBeenCalledWith({
@@ -120,6 +133,7 @@ describe("ContinueWithSocialsInteractor callback validation", () => {
     await interactor.invoke({ provider: "google" });
 
     expect(sendNewUserNotificationEmail).not.toHaveBeenCalled();
+    expect(afterResponseTasks).toHaveLength(0);
   });
 
   it("redirects a user outside the verification grace period", async () => {

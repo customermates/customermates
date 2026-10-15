@@ -104,15 +104,21 @@ export async function applyConfigurationOperations(
     if (operation.operation === "putType") {
       const input = resolveDefinition(operation.type) as Omit<RecordModel["types"][number], "archived">;
       const existing = current.types.find((candidate) => candidate.id === input.id);
+      const archivedPaths = (existing?.relationshipPaths ?? []).filter(
+        (path) => path.archived && !input.relationshipPaths?.some((entry) => entry.id === path.id),
+      );
       const type = {
         ...input,
         archived: existing?.archived ?? false,
-        ...(input.relationshipPaths
+        ...(input.relationshipPaths || archivedPaths.length
           ? {
-              relationshipPaths: input.relationshipPaths.map((path) => ({
-                ...path,
-                archived: existing?.relationshipPaths?.find((before) => before.id === path.id)?.archived ?? false,
-              })),
+              relationshipPaths: [
+                ...(input.relationshipPaths ?? []).map((path) => ({
+                  ...path,
+                  archived: existing?.relationshipPaths?.find((before) => before.id === path.id)?.archived ?? false,
+                })),
+                ...archivedPaths,
+              ],
             }
           : {}),
       } as RecordModel["types"][number];

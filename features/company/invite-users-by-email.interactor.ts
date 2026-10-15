@@ -4,6 +4,7 @@ import type { GetOrCreateInviteTokenInteractor } from "@/features/company/get-or
 
 import { z } from "zod";
 
+import { createHash } from "node:crypto";
 import { createElement } from "react";
 import { getTranslations } from "next-intl/server";
 import { Resource } from "@/generated/prisma";
@@ -23,6 +24,8 @@ export const InviteUsersByEmailSchema = z.object({
 
 export const InviteUsersByEmailResultSchema = z.object({
   sent: z.number(),
+  failed: z.number(),
+  failedEmails: z.array(z.email()),
 });
 
 export type InviteUsersByEmailData = Data<typeof InviteUsersByEmailSchema>;
@@ -60,7 +63,7 @@ export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
 
     const uniqueEmails = Array.from(new Set(data.emails.map((e) => e.toLowerCase())));
 
-    await Promise.all(
+    const accepted = await Promise.all(
       uniqueEmails.map((email) =>
         this.emailService.send({
           to: email,
@@ -75,10 +78,18 @@ export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
             cta,
             fallback,
           }),
+          deduplicationKey: `company-invite/${createHash("sha256")
+            .update(JSON.stringify([inviteLink, email, locale, inviterName]))
+            .digest("hex")}`,
         }),
       ),
     );
 
-    return { ok: true as const, data: { sent: uniqueEmails.length } };
+    const failedEmails = uniqueEmails.filter((_, index) => !accepted[index]);
+
+    return {
+      ok: true as const,
+      data: { sent: uniqueEmails.length - failedEmails.length, failed: failedEmails.length, failedEmails },
+    };
   }
 }

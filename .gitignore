@@ -53,6 +53,7 @@ next-env.d.ts
 
 # database dumps
 dumps/
+/backups/
 
 # prisma
 generated/

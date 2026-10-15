@@ -70,6 +70,20 @@ export class PrismaTrashRepo extends TenantRepository implements TrashRepo, Expi
     });
   }
 
+  async addDroppedLinksCompanyWide(companyId: string, dropped: Array<{ id: string; count: number }>): Promise<void> {
+    for (const { id, count } of dropped) {
+      const item = await this.prisma.trashItem.findFirst({ where: { companyId, id }, select: { payload: true } });
+      if (!item) continue;
+      const payload =
+        item.payload && typeof item.payload === "object" && !Array.isArray(item.payload) ? item.payload : {};
+      const previous = typeof payload.droppedLinks === "number" ? payload.droppedLinks : 0;
+      await this.prisma.trashItem.updateMany({
+        where: { companyId, id },
+        data: { payload: { ...payload, droppedLinks: previous + count } },
+      });
+    }
+  }
+
   async findItemsCompanyWide(companyId: string, filter: TrashItemFilter) {
     return this.prisma.trashItem.findMany({
       where: {
@@ -184,6 +198,19 @@ export class PrismaTrashRepo extends TenantRepository implements TrashRepo, Expi
       where: { companyId: this.companyId, id },
       data: { payload: { ...payload, purgeOperationId: operationId } },
     });
+  }
+
+  async widgetItemIdsOnTrashedViews(viewIds: string[]): Promise<string[]> {
+    if (!viewIds.length) return [];
+    const widgets = await this.prisma.widget.findMany({
+      where: { companyId: this.companyId, viewId: { in: viewIds }, view: { is: { deletedAt: { not: null } } } },
+      select: { id: true },
+    });
+    const items = await this.prisma.trashItem.findMany({
+      where: { companyId: this.companyId, kind: "widget", targetId: { in: widgets.map((widget) => widget.id) } },
+      select: { id: true },
+    });
+    return items.map((item) => item.id);
   }
 
   async droppedViewReferences(viewIds: string[]): Promise<DroppedViewReferences[]> {

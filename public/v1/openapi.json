@@ -44163,7 +44163,9 @@
                                   "notFound",
                                   "requiresRestore",
                                   "nameTaken",
-                                  "routineLimitReached"
+                                  "routineLimitReached",
+                                  "incompatible",
+                                  "operationPending"
                                 ]
                               },
                               "typeId": {
@@ -44281,6 +44283,77 @@
                           "type": "string",
                           "format": "uuid",
                           "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "blocked": {
+                          "description": "Items that stay in Trash; the rest are restored by the operation.",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "itemId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "reason": {
+                                "type": "string",
+                                "enum": [
+                                  "listDeleted",
+                                  "parentDeleted",
+                                  "notFound",
+                                  "requiresRestore",
+                                  "nameTaken",
+                                  "routineLimitReached",
+                                  "incompatible",
+                                  "operationPending"
+                                ]
+                              },
+                              "typeId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "parent": {
+                                "type": "object",
+                                "properties": {
+                                  "typeId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  "recordId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  }
+                                },
+                                "required": [
+                                  "typeId",
+                                  "recordId"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "limit": {
+                                "description": "routineLimitReached only: the routines per user the plan includes; the owner is at this limit.",
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "required": [
+                              "itemId",
+                              "reason",
+                              "typeId"
+                            ],
+                            "additionalProperties": false
+                          }
                         },
                         "droppedViewReferences": {
                           "type": "array",
@@ -50102,7 +50175,7 @@
       "post": {
         "operationId": "inviteMembers",
         "summary": "Invite members by email",
-        "description": "Sends a workspace invitation email with the workspace's invitation link to each address, 1 to 20 per call; duplicate addresses receive one email. An invited person joins with no role until an administrator assigns one through POST /v1/members/update. Returns how many emails were sent. Requires: Users & Roles Create.",
+        "description": "Sends a workspace invitation email with the workspace's invitation link to each address, 1 to 20 per call; duplicate addresses receive one email. An invited person joins with no role until an administrator assigns one through POST /v1/members/update. Returns how many emails were sent, how many the email service did not accept (failed) and their addresses (failedEmails); share the link from POST /v1/members/invite-link with those people instead. Sending the same invitation to an address again within 24 hours does not email it twice. Requires: Users & Roles Create.",
         "tags": [
           "members"
         ],
@@ -50147,7 +50220,7 @@
         },
         "responses": {
           "200": {
-            "description": "The invitations were sent.",
+            "description": "The invitations were handed to the email service; failed counts the ones it did not accept.",
             "content": {
               "application/json": {
                 "schema": {
@@ -50155,10 +50228,23 @@
                   "properties": {
                     "sent": {
                       "type": "number"
+                    },
+                    "failed": {
+                      "type": "number"
+                    },
+                    "failedEmails": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "email",
+                        "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                      }
                     }
                   },
                   "required": [
-                    "sent"
+                    "sent",
+                    "failed",
+                    "failedEmails"
                   ],
                   "additionalProperties": false
                 }
@@ -118042,6 +118128,7 @@
                         "agentTurnAlreadyRunning",
                         "notAuthenticated",
                         "userInactive",
+                        "emailVerificationRequired",
                         "permissionDenied",
                         "insufficientPermissions",
                         "demoMode",
@@ -118130,6 +118217,7 @@
                         "routineScheduleTooFrequent",
                         "routineTimeZoneInvalid",
                         "routineLimitReached",
+                        "routinesRequireCloud",
                         "routineTriggerEventsRequired",
                         "invalidFilterField",
                         "invalidGroupingField",

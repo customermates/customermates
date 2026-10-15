@@ -1096,6 +1096,7 @@
       "emailMismatch": "Gli indirizzi e-mail devono coincidere.",
       "emailNotVerified": "E-mail non verificata.",
       "emailRecipientsRequired": "Aggiungi almeno un destinatario in A, Cc o Ccn.",
+      "emailVerificationRequired": "Verifica il tuo indirizzo e-mail per continuare a usare questo account. Accedi all'app e richiedi un nuovo link di verifica.",
       "enterpriseCheckoutUnavailable": "Gli spazi di lavoro Enterprise vengono fatturati manualmente e non possono avviare il pagamento self-service.",
       "filterBetweenInvalidArrayLength": "L'operatore 'between' richiede un array con esattamente 2 elementi.",
       "generic": "Si è verificato un errore.",
@@ -1188,6 +1189,7 @@
       "routineScheduleInvalid": "Questa pianificazione non è un'espressione cron valida.",
       "routineScheduleRequired": "Scegli una pianificazione o una data singola per questa routine.",
       "routineScheduleTooFrequent": "Questa pianificazione viene eseguita troppo spesso. Le routine possono essere eseguite al massimo ogni 15 minuti.",
+      "routinesRequireCloud": "Le routine vengono eseguite su Customermates Cloud. Un'istanza self-hosted non può eseguirle.",
       "routineTestRequiresEnabled": "Attiva la routine prima di testarla.",
       "routineTimeZoneInvalid": "Questo fuso orario non è supportato.",
       "routineTriggerEventsRequired": "Seleziona almeno un evento per questa routine.",
@@ -2935,6 +2937,9 @@
       "linkFailed": "Impossibile creare il link di invito.",
       "loadingLink": "Generazione del link…",
       "send": "Invia gli inviti",
+      "sendFailed": "{failed, plural, one {Non è stato possibile inviare l'invito.} other {Non è stato possibile inviare i # inviti.}}",
+      "sendFailedDescription": "Il servizio e-mail non li ha accettati. Condividi invece il link di invito.",
+      "sendPartlyFailed": "{sent, plural, one {# invito inviato} other {# inviti inviati}}, {failed, plural, one {# non è stato inviato.} other {# non sono stati inviati.}}",
       "sentSuccess": "{count, plural, one {# invito inviato.} other {# inviti inviati.}}",
       "tabs": {
         "email": "Invia e-mail",
@@ -4301,9 +4306,11 @@
     "permanentViewWidgets": "Per una vista dashboard, anche i suoi widget vengono eliminati definitivamente.",
     "restore": "Ripristina",
     "restoreBlocked": {
+      "incompatible": "{count, plural, one {# elemento resta} other {# elementi restano}} nel cestino perché non corrispondono più alla configurazione o ai dati attuali.",
       "listDeleted": "{count, plural, one {# elemento resta} other {# elementi restano}} nel cestino perché la loro lista è nel cestino. Ripristina prima la lista.",
       "nameTaken": "{count, plural, one {# elemento resta} other {# elementi restano}} nel cestino perché un altro elemento usa ora il loro nome o posto.",
       "notFound": "{count, plural, one {# elemento non esiste più ed è uscito} other {# elementi non esistono più e sono usciti}} dal cestino.",
+      "operationPending": "{count, plural, one {# elemento resta} other {# elementi restano}} nel cestino finché il ripristino in background non è terminato. Poi ripristinali di nuovo.",
       "parentDeleted": "{count, plural, one {# elemento resta} other {# elementi restano}} nel cestino perché ciò a cui appartengono è nel cestino. Ripristinalo prima.",
       "requiresRestore": "{count, plural, one {# elemento resta} other {# elementi restano}} nel cestino perché qualcosa di cui hanno bisogno è nel cestino. Ripristinalo prima.",
       "routineLimitReached": "{count, plural, one {# routine resta} other {# routine restano}} nel cestino perché il proprietario ha già tutte le routine incluse nel suo piano."
@@ -4535,6 +4542,15 @@
     },
     "tryAnother": "Prova un altro sito",
     "unavailable": "La configurazione con Mate non è disponibile al momento. Potrai creare pagine in seguito dalla base di conoscenza."
+  },
+  "WithoutErrorReporting": {
+    "ErrorCard": {
+      "contactSupport": "Riprova. Se il problema persiste, contatta la persona che gestisce questa istanza di Customermates.",
+      "unexpectedError": "Si è verificato un errore imprevisto. Riprova."
+    },
+    "NotFoundPage": {
+      "body": "Questa pagina non esiste o è stata spostata. Controlla l'indirizzo o torna alla pagina iniziale."
+    }
   },
   "WorkspaceMenu": {
     "inviteMembers": "Invita membri",

@@ -42,6 +42,25 @@ export class RecordTrashHandler extends UserAccessor implements TrashKindHandler
     const own = deletable
       .filter((type) => !type.parentRelationshipId && !all.includes(type.id) && policy.readScope(type.id) === "own")
       .map((type) => type.id);
+    const ownParent = deletable.filter(
+      (type) => type.parentRelationshipId && !all.includes(type.id) && policy.readScope(type.id) === "own",
+    );
+    const actorId = policy.actor.id;
+    const assigned = (typeId: string, recordId: Prisma.Sql, depth = 0): Prisma.Sql => {
+      const type = model.types.find((candidate) => candidate.id === typeId);
+      const parent = model.relationships.find((relation) => relation.id === type?.parentRelationshipId);
+      if (!parent) {
+        return Prisma.sql`EXISTS (SELECT 1 FROM "RecordAssignment" assignment
+          WHERE assignment."companyId" = ${alias}."companyId" AND assignment."typeId" = ${typeId}
+            AND assignment."recordId" = ${recordId} AND assignment."userId" = ${actorId})`;
+      }
+      if (depth >= 12) return Prisma.sql`FALSE`;
+      const link = Prisma.raw(`"parent_link_${depth}"`);
+      return Prisma.sql`EXISTS (SELECT 1 FROM "RecordLink" ${link}
+        WHERE ${link}."companyId" = ${alias}."companyId" AND ${link}."relationId" = ${parent.id}
+          AND ${link}."sourceTypeId" = ${typeId} AND ${link}."sourceId" = ${recordId}
+          AND ${assigned(parent.targetTypeId, Prisma.sql`${link}."targetId"`, depth + 1)})`;
+    };
     const branches = [
       ...(all.length ? [Prisma.sql`${alias}."typeId" IN (${Prisma.join(all)})`] : []),
       ...(own.length
@@ -51,6 +70,10 @@ export class RecordTrashHandler extends UserAccessor implements TrashKindHandler
                 AND assignment."recordId" = ${alias}."targetId" AND assignment."userId" = ${policy.actor.id}))`,
           ]
         : []),
+      ...ownParent.map(
+        (type) =>
+          Prisma.sql`(${alias}."typeId" = ${type.id} AND ${assigned(type.id, Prisma.sql`${alias}."targetId"`)})`,
+      ),
     ];
     if (!branches.length) return Prisma.sql`FALSE`;
     const cascaded = Prisma.sql`NOT EXISTS (SELECT 1 FROM "CrmRecord" member
@@ -88,7 +111,9 @@ export class RecordTrashHandler extends UserAccessor implements TrashKindHandler
 
   async impact(items: TrashItem[]): Promise<TrashKindImpact> {
     const model = await this.records.getModel();
-    const counted = await this.records.countTrashedRecordsCompanyWide(items.map((item) => item.id));
+    const itemIds = items.map((item) => item.id);
+    const along = await this.recordTrash.purgedAlong(itemIds, model);
+    const counted = await this.records.countTrashedRecordsCompanyWide([...itemIds, ...along.itemIds], along.refs);
     return {
       removedRecords: counted.records.map((entry) => ({
         ...entry,
@@ -96,6 +121,11 @@ export class RecordTrashHandler extends UserAccessor implements TrashKindHandler
       })),
       removedLinks: counted.links,
     };
+  }
+
+  async dependents(items: TrashItem[]): Promise<string[]> {
+    const itemIds = items.map((item) => item.id);
+    return (await this.recordTrash.purgedAlong(itemIds, await this.records.getModel())).itemIds;
   }
 
   async purge(items: TrashItem[], actorId: string | null): Promise<void> {

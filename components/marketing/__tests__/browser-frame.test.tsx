@@ -10,6 +10,9 @@ const resourceHints = vi.hoisted(() => ({
   preconnect: vi.fn(),
   prefetchDNS: vi.fn(),
 }));
+const appEnv = vi.hoisted(() => ({ APP_MODE: "cloud" as "cloud" | "self-hosted" }));
+
+vi.mock("@/env", () => ({ env: appEnv }));
 
 vi.mock("next-intl", () => ({
   useLocale: () => "en",
@@ -53,6 +56,7 @@ function setIntersection(isIntersecting: boolean): void {
 
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+  appEnv.APP_MODE = "cloud";
   observer.callback = undefined;
   observer.disconnect.mockReset();
   observer.observe.mockReset();
@@ -102,6 +106,26 @@ describe("BrowserFrame", () => {
     expect(urlLink?.getAttribute("href")).toBe(urlLink?.getAttribute("title"));
     expect(urlLink?.getAttribute("target")).toBe("_blank");
     expect(urlLink?.textContent).toBe("demo.customermates.com");
+  });
+
+  it.each([
+    ["homepage", <HeroDemoIframe key="homepage" src="https://demo.customermates.com/en/dashboard?agentChat=open" />],
+    ["article", <ProductDemo key="article" path={DEMO_RECORD_LIST_PATHS.contacts} />],
+    ["docs", <DocsDemo key="docs" src="https://demo.customermates.com/en/dashboard" title="Demo" />],
+  ])("links to the hosted demo instead of loading it on a self-hosted instance (%s)", (_, component) => {
+    appEnv.APP_MODE = "self-hosted";
+    const host = mount(component);
+    setIntersection(true);
+
+    expect(host.querySelector("iframe")).toBeNull();
+    expect(resourceHints.prefetchDNS).not.toHaveBeenCalled();
+    expect(resourceHints.preconnect).not.toHaveBeenCalled();
+    expect(
+      Array.from(host.querySelectorAll<HTMLAnchorElement>('a[target="_blank"]')).filter(
+        (link) =>
+          link.textContent?.includes("BrowserFrame.open") && link.href.startsWith("https://demo.customermates.com/"),
+      ),
+    ).toHaveLength(2);
   });
 
   it("routes product previews locally only during development", () => {

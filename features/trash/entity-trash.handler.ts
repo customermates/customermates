@@ -31,6 +31,7 @@ type EntityTrashKind = {
   visibility: (alias: Prisma.Sql) => Promise<Prisma.Sql>;
   blockers?: TrashRestoreBlockerSource;
   restoreReferences?: (ids: string[]) => Promise<DroppedViewReferences[]>;
+  dependents?: (ids: string[]) => Promise<string[]>;
   audit?: EntityTrashAudit;
 };
 
@@ -87,9 +88,14 @@ export class EntityTrashHandler implements TrashKindHandler {
     return Promise.resolve({ removedRecords: [], removedLinks: 0 });
   }
 
+  async dependents(items: TrashItem[]): Promise<string[]> {
+    return (await this.definition.dependents?.(items.map((item) => item.targetId))) ?? [];
+  }
+
   async purge(items: TrashItem[], actorId: string | null): Promise<void> {
+    const dependents = await this.dependents(items);
     await this.repo.purgeTrashed(items.map((item) => item.targetId));
-    await this.trash.remove(items.map((item) => item.id));
+    await this.trash.remove([...items.map((item) => item.id), ...dependents]);
     await this.publish("deletedPermanently", items, actorId);
   }
 

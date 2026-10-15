@@ -67,6 +67,7 @@ export function serializedFailureErrorTree(failure: SerializedInteractorFailure)
 const AUTHENTICATION_FAILURE_CODES = new Set<CustomErrorCode>([CustomErrorCode.notAuthenticated]);
 const AUTHORIZATION_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.userInactive,
+  CustomErrorCode.emailVerificationRequired,
   CustomErrorCode.permissionDenied,
   CustomErrorCode.insufficientPermissions,
   CustomErrorCode.demoMode,

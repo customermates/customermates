@@ -22,5 +22,6 @@ export interface TrashKindHandler {
   restore(items: TrashItem[]): Promise<TrashKindRestore>;
   restoreInBackground?(items: TrashItem[]): Promise<string>;
   impact(items: TrashItem[]): Promise<TrashKindImpact>;
+  dependents?(items: TrashItem[]): Promise<string[]>;
   purge(items: TrashItem[], actorId: string | null, companyId: string): Promise<void>;
 }

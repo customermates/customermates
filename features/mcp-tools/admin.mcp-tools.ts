@@ -49,6 +49,8 @@ const UpdateMyProfileOutputSchema = z.looseObject({ message: z.string() });
 const ManageTeamOutputSchema = z
   .looseObject({
     sent: z.number().optional(),
+    failed: z.number().optional(),
+    failedEmails: z.array(z.string()).optional(),
     link: z.string().optional(),
     expiresAt: z.string().optional(),
     email: z.string().optional(),
@@ -57,7 +59,7 @@ const ManageTeamOutputSchema = z
     message: z.string(),
   })
   .describe(
-    "action invite returns sent and message; invite_link returns link, expiresAt and message; update_member returns email, roleId, status and message.",
+    "action invite returns sent, failed, failedEmails and message; invite_link returns link, expiresAt and message; update_member returns email, roleId, status and message.",
   );
 
 export const updateMyProfileTool = {
@@ -148,7 +150,14 @@ export const manageTeamTool = {
       const parsed = InviteUsersByEmailSchema.safeParse(params);
       if (!parsed.success) return mcpValidationFailure(parsed.error);
       return runInteractor(getInviteUsersByEmailInteractor().invoke(parsed.data), (data) =>
-        toonResult({ sent: data.sent, message: "Invitation emails sent" }),
+        toonResult({
+          sent: data.sent,
+          failed: data.failed,
+          failedEmails: data.failedEmails,
+          message: data.failed
+            ? `${data.failed} of ${data.sent + data.failed} invitation emails were not sent because the email service did not accept them; tell the user which addresses (failedEmails) and offer the invitation link (action invite_link) for them`
+            : "Invitation emails sent",
+        }),
       );
     }
     const parsed = ManageTeamMemberSchema.safeParse(params);

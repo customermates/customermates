@@ -229,7 +229,7 @@ describe("homepage visual-system adoption", () => {
     expect(liveDemo).toContain('size="full"');
     expect(liveDemo).toContain("src={demoSrc}");
     expect(demoIframe).toContain('size = "full"');
-    expect(demoIframe).toContain("<BrowserFrame loadAhead size={size}");
+    expect(demoIframe).toContain("<BrowserFrame loadAhead embed={embed} size={size}");
   });
 
   it("authors page-specific visuals from the approved native fixture layer", () => {

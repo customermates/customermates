@@ -1,11 +1,13 @@
 import { RoutinesPageView } from "./components/routines-page-view";
 
 import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
 
 import { Resource } from "@/generated/prisma";
 
 import { getGetRoutinesInteractor } from "@/core/di";
 import { env } from "@/env";
+import { buildLocalePath } from "@/i18n/locale-registry";
 import { requireAccess } from "@/features/auth/next/require";
 import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
 import { SURFACE } from "@/core/data-view/data-view-keys";
@@ -18,7 +20,7 @@ type Props = {
 
 export default async function RoutinesPage({ searchParams }: Props) {
   await requireAccess({ resource: Resource.routines });
-  if (env.APP_MODE === "self-hosted") redirect("/dashboard");
+  if (env.APP_MODE === "self-hosted") redirect(buildLocalePath(await getLocale(), "/dashboard"));
 
   const routineParams = await readSurfaceParams(SURFACE.routines, searchParams);
 

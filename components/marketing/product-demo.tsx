@@ -3,6 +3,7 @@ import { useLocale } from "next-intl";
 import { BrowserFrame } from "./browser-frame";
 import { localProductDemoSrc } from "./product-demo-src";
 import { cn } from "@/core/utils/cn";
+import { env } from "@/env";
 import { type ContentLocale, contentLocaleOrDefault } from "@/i18n/locale-registry";
 
 export const DEMO_RECORD_LIST_PATHS = {
@@ -224,6 +225,7 @@ export function ProductDemo({ hostedBoundary = false, path, presentation = "arti
       </figcaption>
 
       <BrowserFrame
+        embed={env.APP_MODE !== "self-hosted"}
         fallbackMessage={copy.fallback}
         size={presentation === "standalone" ? "full" : "article"}
         src={localProductDemoSrc(buildProductDemoUrl(locale, path))}

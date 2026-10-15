@@ -11,6 +11,8 @@ import { AppErrorCode, AuthError, ForbiddenError } from "@/core/errors/app-error
 import { tenantStorage } from "@/core/decorators/tenant-context";
 import { canUseApiKeys } from "@/core/auth/api-key-route-guard";
 import { ApiKeyAccessDeniedError } from "@/core/auth/api-key-access-denied-error";
+import { EmailVerificationRequiredError } from "@/core/auth/email-verification-required-error";
+import { mustVerifyEmail } from "@/features/auth/email-verification-grace";
 
 export type { TenantUser } from "./user.schema";
 export type { FindUserRepo } from "./find-user.repo";
@@ -27,6 +29,13 @@ export class UserService {
     const email = session?.user?.email;
 
     if (!email) throw new AuthError();
+
+    const account = await this.repo.findAuthUserAccountStateUnscoped(session.user.id);
+
+    if (!account) throw new AuthError();
+
+    if (mustVerifyEmail({ createdAt: session.user.createdAt, emailVerified: account.emailVerified }))
+      throw new EmailVerificationRequiredError();
 
     return await this.repo.findCurrentUserOrThrowUnscoped(email);
   }

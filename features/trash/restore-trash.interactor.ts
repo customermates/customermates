@@ -8,7 +8,12 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { INTERACTIVE_COMPANY_LOCK_WAIT_MS, runInTransaction } from "@/core/decorators/transaction-runner";
 import { failNotFound, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { RestoreTrashSchema, type RestoreTrashData, type TrashRestoreResult } from "./trash.schema";
+import {
+  RestoreTrashSchema,
+  type RestoreTrashData,
+  type TrashRestoreBlocker,
+  type TrashRestoreResult,
+} from "./trash.schema";
 import { itemsByHandler, trashVisibility } from "./trash-handlers";
 
 const RESTORE_TIMEOUT_MS = 60000;
@@ -39,12 +44,14 @@ export class RestoreTrashInteractor extends AuthenticatedInteractor<RestoreTrash
           await trashVisibility(this.handlers),
         );
         let operationId: string | null = null;
+        const blocked: TrashRestoreBlocker[] = [];
         const droppedViewReferences: NonNullable<TrashRestoreResult["droppedViewReferences"]> = [];
         for (const group of itemsByHandler(this.handlers, items)) {
           if (group.handler.restoreInBackground) operationId = await group.handler.restoreInBackground(group.items);
           else {
             const restored = await group.handler.restore(group.items);
             operationId = restored.operationId ?? operationId;
+            blocked.push(...restored.blocked);
             droppedViewReferences.push(...(restored.droppedViewReferences ?? []));
           }
         }
@@ -54,6 +61,7 @@ export class RestoreTrashInteractor extends AuthenticatedInteractor<RestoreTrash
           data: {
             status: "pending" as const,
             operationId,
+            ...(blocked.length ? { blocked } : {}),
             ...(droppedViewReferences.length ? { droppedViewReferences } : {}),
           },
         };
@@ -81,14 +89,27 @@ export class RestoreTrashInteractor extends AuthenticatedInteractor<RestoreTrash
           restoredRecords: 0,
           droppedLinks: 0,
         };
-        for (const group of itemsByHandler(this.handlers, items)) {
+        const groups = itemsByHandler(this.handlers, items);
+        for (const [index, group] of groups.entries()) {
           const restored = await group.handler.restore(group.items);
           if (restored.operationId) {
+            const blocked = [
+              ...result.blocked,
+              ...restored.blocked,
+              ...groups.slice(index + 1).flatMap((later) =>
+                later.items.map((item) => ({
+                  itemId: item.id,
+                  reason: "operationPending" as const,
+                  typeId: item.typeId,
+                })),
+              ),
+            ];
             return {
               ok: true as const,
               data: {
                 status: "pending" as const,
                 operationId: restored.operationId,
+                ...(blocked.length ? { blocked } : {}),
                 ...(restored.droppedViewReferences?.length
                   ? { droppedViewReferences: restored.droppedViewReferences }
                   : {}),

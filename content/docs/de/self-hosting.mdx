@@ -47,7 +47,7 @@ curl -fsSL https://raw.githubusercontent.com/customermates/customermates/main/.e
 ```
 </Step>
 <Step title=".env ausfüllen">
-Ersetzen Sie die Platzhalter in `.env` vor dem ersten Start, mindestens `POSTGRES_PASSWORD`, `BETTER_AUTH_SECRET` (zum Beispiel aus `openssl rand -hex 32`), `BASE_URL`, `RESEND_API_KEY` und `RESEND_OPERATOR_EMAIL`. Ohne `RESEND_API_KEY` kann niemand die Registrierung abschließen.
+Ersetzen Sie die Platzhalter in `.env` vor dem ersten Start, mindestens `POSTGRES_PASSWORD`, `BETTER_AUTH_SECRET` (zum Beispiel aus `openssl rand -hex 32`), `BASE_URL`, `RESEND_API_KEY` und `RESEND_OPERATOR_EMAIL`. Ohne funktionierenden `RESEND_API_KEY` geht keine E-Mail hinaus; dann kann niemand seine E-Mail-Adresse bestätigen, und jedes neue Konto wird nach 24 Stunden festgehalten.
 </Step>
 <Step title="Starten">
 ```bash
@@ -111,7 +111,12 @@ Customermates versendet E-Mails nur über [Resend](https://resend.com); eine SMT
 - `RESEND_API_KEY`: den Resend-API-Key.
 - `RESEND_OPERATOR_EMAIL`: die Absenderadresse, auf einer in Resend verifizierten Domain. Jede E-Mail geht als `Customermates <RESEND_OPERATOR_EMAIL>` hinaus. Dieselbe Adresse erhält eine E-Mail „New User Registration“, wenn jemand den Profilschritt des Wizards speichert (siehe [Wer kann sich registrieren](#who-can-sign-up-on-my-instance)), sowie die Nachrichten, die über **Feedback senden** im persönlichen Menü gesendet werden.
 
-Die App verschickt Bestätigungslinks, Passwort-Resets und Einladungen per E-Mail. Ohne Key schlägt das Speichern des Profilschritts fehl, und niemand kann die Registrierung abschließen oder einem Workspace beitreten. Lehnt Resend die E-Mails ab, können neue Nutzer ihr Konto 24 Stunden lang verwenden und werden danach auf **E-Mail-Verifizierung** festgehalten, bis sie bestätigen; **Passwort vergessen?** verschickt nichts, und Einladungen per E-Mail schlagen fehl. Der Tab **Link teilen** in **Benutzer einladen** funktioniert weiterhin. Abgelehnte Sendungen erscheinen nicht in den Logs der App; kommen E-Mails nicht an, prüfen Sie, ob die Absender-Domain verifiziert ist, und suchen Sie im Resend-Dashboard nach abgelehnten Sendungen.
+Die App verschickt Bestätigungslinks, Passwort-Resets und Einladungen per E-Mail. Kann eine E-Mail nicht hinausgehen, funktioniert die Registrierung trotzdem: Neue Nutzer können ihr Konto 24 Stunden lang verwenden und werden danach samt ihren API-Keys und MCP-Verbindungen auf **E-Mail-Verifizierung** festgehalten, bis sie bestätigen. **Passwort vergessen?** verschickt nichts, **Feedback senden** schlägt fehl, und der Tab **Link teilen** in **Benutzer einladen** funktioniert weiterhin.
+
+- Ohne `RESEND_API_KEY` scheitert jede Sendung mit `RESEND_API_KEY is not configured` im Log der App, und Einladungen per E-Mail schlagen mit einem Fehler fehl.
+- Lehnt Resend eine E-Mail ab oder erreicht der Server Resend gar nicht, etwa hinter einer Firewall, die ausgehenden Verkehr verwirft, oder ohne Internetzugang, gibt die Sendung nach höchstens 10 Sekunden auf, und das Log der App zeigt `[EmailService] Email not sent` mit dem Betreff, der Domain des Empfängers und dem Grund von Resend. **Einladungen senden** meldet dann die Einladungen, die nicht gesendet werden konnten, und lässt nur deren Adressen im Formular stehen; die Einladungsaufrufe über REST und MCP geben ihre Anzahl als `failed` und die Adressen als `failedEmails` zurück. Wird eine Einladung erneut gesendet, etwa nach einer Zeitüberschreitung, erhält eine Adresse sie innerhalb von 24 Stunden nicht zweimal. Ohne Verbindung zu Resend dauern Registrierung und **Passwort vergessen?** diese 10 Sekunden.
+
+Kommen E-Mails nicht an, prüfen Sie das Log der App und ob die Absender-Domain verifiziert ist, und suchen Sie im Resend-Dashboard nach abgelehnten Sendungen.
 
 ## Wie lege ich das erste Konto auf meiner Instanz an? [#how-do-i-create-the-first-account-on-my-instance]
 
@@ -158,6 +163,10 @@ Das Tag `latest` wird bei jeder Änderung am Main-Branch neu gebaut, jedes Pull 
 
 Um selbst zu bestimmen, wann Updates kommen, pinnen Sie das Image in `docker-compose.yml` auf ein Build-Tag statt `latest`. Jedes Image trägt zusätzlich das Tag `sha-` mit der kurzen Commit-ID, zum Beispiel `ghcr.io/customermates/customermates:sha-<commit>`.
 
+**Update von einem Release vor dem 14. Oktober 2026:** Das Release, mit dem Listen, Felder und Berechnungen konfigurierbar wurden, wandelt beim ersten Start des neuen Images die CRM-Daten jedes Workspaces um. Datensätze, Werte, Verknüpfungen, Zuweisungen, Seiten der Wissensdatenbank, Mitglieder, Rollen und API-Keys bleiben erhalten. Alle Dashboard-Widgets, die gespeicherten Ansichten und persönlichen Einstellungen der Datensatzlisten, die für die Listen gewählte Terminologie und das Audit-Log werden entfernt, die Historie beginnt also mit dem Update neu, und jeder Webhook wird ausgeschaltet, bis Sie ihn mit den Datensatzereignissen, die er senden soll, wieder einschalten. Erstellen Sie vor diesem Update das Backup und führen Sie die schreibgeschützte Bestandsaufnahme aus den [Migrationshinweisen](https://github.com/customermates/customermates/blob/main/prisma/migrations/20261010000000_dynamic_record_model/README.md#before-deploying) aus, zum Beispiel in `docker compose exec postgres sh -c 'psql -U "$POSTGRES_USER" "$POSTGRES_DB"'`, um die Webhooks aufzulisten, die es ausschaltet. Lehnt die Umwandlung Daten ab, die sie nicht umwandeln kann, ändert sie nichts, die App startet nicht, und ihr Log nennt die Felder und die Anzahl der abgelehnten Werte: Spielen Sie das Backup zurück, starten Sie das vorherige Image, korrigieren Sie diese Datensätze und spielen Sie das Update erneut ein.
+
+In einem Klon des Repositorys erledigt `scripts/selfhost-update.sh` dieses Update für Sie: Es schreibt ein Backup nach `backups/`, lädt dann die Images und erstellt die Container neu. Daneben legt `scripts/selfhost-setup.sh` die `.env` aus der Vorlage an, prüft die Pflichtwerte und startet die Instanz, `scripts/selfhost-restart.sh` erstellt den App-Container neu, damit er `.env`-Änderungen übernimmt, und `scripts/selfhost-reset.sh` löscht wie `docker compose down -v` alle Daten, sobald Sie `RESET` eingeben.
+
 ## Wie wende ich Änderungen an der .env an? [#apply-env-changes]
 
 Führen Sie `docker compose up -d` aus. Der Befehl erstellt die Container neu, deren Konfiguration sich geändert hat, sodass sie mit den neuen `.env`-Werten starten. `docker compose restart` behält die alte Umgebung und übernimmt `.env`-Änderungen nicht.
@@ -171,16 +180,19 @@ docker compose ps
 docker compose exec app sh
 ```
 
-Die App schreibt ihre Logs in die Container-Ausgabe. Hintergrund-Jobs wie Webhook-Zustellungen laufen im App-Container über eine PostgreSQL-gestützte Warteschlange in derselben Datenbank; einen separaten Worker-Dienst gibt es nicht. Das veröffentlichte Image schaltet die Next.js-Telemetrie ab und setzt keine Adresse für Fehlerberichte. Fehler, die die App in ihre Ausgabe schreibt, erscheinen nur in diesen Logs. Fehler, die die App nur an einen Dienst für Fehlerberichte meldet, etwa eine von Resend abgelehnte E-Mail, werden nirgends festgehalten; prüfen Sie abgelehnte Sendungen im Resend-Dashboard.
+Die App schreibt ihre Logs in die Container-Ausgabe. Hintergrund-Jobs wie Webhook-Zustellungen laufen im App-Container über eine PostgreSQL-gestützte Warteschlange in derselben Datenbank; einen separaten Worker-Dienst gibt es nicht. Das veröffentlichte Image schaltet die Telemetrie von Next.js und Prisma ab und setzt keine Adresse für Fehlerberichte. Fehler, die die App in ihre Ausgabe schreibt, erscheinen nur in diesen Logs; Fehler, die die App nur an einen Dienst für Fehlerberichte meldet, werden nirgends festgehalten. Jede E-Mail, die Resend abgelehnt oder nicht rechtzeitig beantwortet hat, steht als `[EmailService] Email not sent` mit dem Grund von Resend im Log.
 
 ## Wie erstelle ich Datenbank-Backups und stelle sie wieder her? [#backups]
 
 Alle Daten liegen in der PostgreSQL-Datenbank: Datensätze, Nutzer, Einstellungen, das Aktivitätsprotokoll und die Warteschlange der Hintergrund-Jobs. Der App-Container speichert keine Daten. Sichern Sie die Datenbank mit `pg_dump` über den Postgres-Container, dessen Port die Compose-Datei nicht veröffentlicht:
 
 ```bash
-mkdir -p backups
-docker compose exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' \
-  | gzip > backups/customermates-$(date +%Y%m%d).sql.gz
+(
+  umask 077
+  mkdir -p backups && chmod 700 backups
+  docker compose exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' \
+    | gzip > backups/customermates-$(date +%Y%m%d).sql.gz
+)
 ```
 
 Führen Sie den Befehl täglich über einen Planer wie cron aus und kopieren Sie die Dateien auf getrennten oder externen Speicher. Bewahren Sie eine Kopie von `.env` sicher und außerhalb der Versionsverwaltung dazu auf: Eine Wiederherstellung mit einem anderen `BETTER_AUTH_SECRET` meldet alle ab.
@@ -201,7 +213,7 @@ Testen Sie die Wiederherstellung regelmäßig auf einem separaten Rechner. Auch 
 
 Die Cloud ruft zwei Wartungs-Endpunkte nach Zeitplan auf; eine Self-Hosted-Instanz führt sie nur aus, wenn Sie sie aufrufen. Ohne den täglichen Aufruf werden Elemente im [Papierkorb](/docs/app-trash) nach ihren 30 Tagen nie endgültig gelöscht.
 
-- `/api/cron/lifecycle`, einmal täglich: löscht Papierkorb-Elemente, deren 30 Tage abgelaufen sind, und erledigt die übrigen täglichen Wartungsaufgaben. Die Aufgaben für Cloud-Testphasen und Abonnements finden auf einer Self-Hosted-Instanz nichts.
+- `/api/cron/lifecycle`, einmal täglich: löscht Papierkorb-Elemente, deren 30 Tage abgelaufen sind, und erledigt die übrigen täglichen Wartungsaufgaben. Auf einer Self-Hosted-Instanz überspringt der Aufruf die Cloud-Aufgaben für Testphasen, Abonnements und verbundene Konten.
 - `/api/cron/record-deliveries`, alle 5 Minuten (optional): startet fällige Webhook-Zustellungen, Ereignisverarbeitung und Hintergrundarbeit an Datensätzen, die kein laufender Job übernommen hat, etwa nach einem Neustart des Containers.
 
 Beide antworten mit HTTP `401`, außer die App hat ein `CRON_SECRET` und die Anfrage sendet es als `Authorization: Bearer <secret>`. Die Vorlage enthält neben `BETTER_AUTH_SECRET` eine auskommentierte Zeile `CRON_SECRET`, und die Compose-Datei reicht den Wert an die App weiter; listet Ihre `docker-compose.yml` `CRON_SECRET` noch nicht auf, holen Sie die Datei erneut mit dem `curl`-Befehl aus den Installationsschritten. Entfernen Sie das Kommentarzeichen oder ergänzen Sie die Zeile in einer älteren `.env`, setzen Sie einen langen Zufallswert, etwa aus `openssl rand -hex 32`, führen Sie `docker compose up -d` aus und planen Sie die Aufrufe auf dem Host, etwa mit `crontab -e`:
@@ -211,7 +223,7 @@ Beide antworten mit HTTP `401`, außer die App hat ein `CRON_SECRET` und die Anf
 */5 * * * * curl -fsS -H "Authorization: Bearer YOUR_CRON_SECRET" http://localhost:4000/api/cron/record-deliveries
 ```
 
-Setzen Sie statt `4000` Ihren `APP_PORT` ein. Ein erfolgreicher Aufruf antwortet mit `{"ok":true,...}`.
+Setzen Sie statt `4000` Ihren `APP_PORT` ein. Ein erfolgreicher Aufruf antwortet mit `{"ok":true,...}`. Scheitert eine seiner Aufgaben, antwortet der Aufruf mit HTTP `500`, und das Log der App nennt die gescheiterte Aufgabe; mit `curl -fsS` meldet cron den Fehler dann.
 
 ## Wie setze ich alle Daten zurück? [#how-do-i-reset-all-data]
 

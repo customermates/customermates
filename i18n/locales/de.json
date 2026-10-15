@@ -1096,6 +1096,7 @@
       "emailMismatch": "E-Mail-Adressen müssen übereinstimmen.",
       "emailNotVerified": "E-Mail nicht verifiziert.",
       "emailRecipientsRequired": "Füge mindestens einen Empfänger unter An, Cc oder Bcc hinzu.",
+      "emailVerificationRequired": "Bestätige deine E-Mail-Adresse, um dieses Konto weiter zu nutzen. Melde dich in der App an und fordere einen neuen Bestätigungslink an.",
       "enterpriseCheckoutUnavailable": "Enterprise-Workspaces werden manuell abgerechnet und können keinen Self-Service-Checkout starten.",
       "filterBetweenInvalidArrayLength": "Der 'between'-Operator erfordert ein Array mit genau 2 Elementen.",
       "generic": "Ein Fehler ist aufgetreten.",
@@ -1188,6 +1189,7 @@
       "routineScheduleInvalid": "Dieser Zeitplan ist kein gültiger Cron-Ausdruck.",
       "routineScheduleRequired": "Wähle einen Zeitplan oder ein einmaliges Datum für diese Routine.",
       "routineScheduleTooFrequent": "Dieser Zeitplan läuft zu häufig. Routinen können höchstens alle 15 Minuten laufen.",
+      "routinesRequireCloud": "Routinen laufen in Customermates Cloud. Eine selbst gehostete Instanz kann sie nicht ausführen.",
       "routineTestRequiresEnabled": "Aktiviere die Routine, bevor du sie testest.",
       "routineTimeZoneInvalid": "Diese Zeitzone wird nicht unterstützt.",
       "routineTriggerEventsRequired": "Wähle mindestens ein Ereignis für diese Routine aus.",
@@ -2935,6 +2937,9 @@
       "linkFailed": "Einladungslink konnte nicht erstellt werden.",
       "loadingLink": "Link wird generiert…",
       "send": "Einladungen senden",
+      "sendFailed": "{failed, plural, one {Die Einladung konnte nicht gesendet werden.} other {Die # Einladungen konnten nicht gesendet werden.}}",
+      "sendFailedDescription": "Der E-Mail-Dienst hat sie nicht angenommen. Teile stattdessen den Einladungslink.",
+      "sendPartlyFailed": "{sent, plural, one {# Einladung gesendet} other {# Einladungen gesendet}}, {failed, plural, one {# konnte nicht gesendet werden.} other {# konnten nicht gesendet werden.}}",
       "sentSuccess": "{count, plural, one {# Einladung gesendet.} other {# Einladungen gesendet.}}",
       "tabs": {
         "email": "E-Mails senden",
@@ -4301,9 +4306,11 @@
     "permanentViewWidgets": "Bei einer Dashboard-Ansicht werden auch ihre Widgets endgültig gelöscht.",
     "restore": "Wiederherstellen",
     "restoreBlocked": {
+      "incompatible": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil sie nicht mehr zur aktuellen Einrichtung oder zu den Daten passen.",
       "listDeleted": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil ihre Liste im Papierkorb liegt. Stelle zuerst die Liste wieder her.",
       "nameTaken": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil ein anderes Element jetzt ihren Namen oder Platz hat.",
       "notFound": "{count, plural, one {# Element existiert} other {# Elemente existieren}} nicht mehr und wurden aus dem Papierkorb entfernt.",
+      "operationPending": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, bis die Wiederherstellung im Hintergrund fertig ist. Stelle sie danach erneut wieder her.",
       "parentDeleted": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil das, wozu sie gehören, im Papierkorb liegt. Stelle das zuerst wieder her.",
       "requiresRestore": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil etwas, das sie brauchen, im Papierkorb liegt. Stelle das zuerst wieder her.",
       "routineLimitReached": "{count, plural, one {# Routine bleibt} other {# Routinen bleiben}} im Papierkorb, weil die Person bereits alle Routinen ihres Tarifs nutzt."
@@ -4535,6 +4542,15 @@
     },
     "tryAnother": "Andere Website versuchen",
     "unavailable": "Die Einrichtung mit Mate ist derzeit nicht verfügbar. Du kannst später in der Wissensdatenbank Seiten erstellen."
+  },
+  "WithoutErrorReporting": {
+    "ErrorCard": {
+      "contactSupport": "Bitte versuche es erneut. Wenn das Problem bleibt, wende dich an die Person, die diese Customermates-Instanz betreibt.",
+      "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut."
+    },
+    "NotFoundPage": {
+      "body": "Diese Seite gibt es nicht oder sie wurde verschoben. Prüfe die Adresse oder gehe zurück zur Startseite."
+    }
   },
   "WorkspaceMenu": {
     "inviteMembers": "Mitglieder einladen",

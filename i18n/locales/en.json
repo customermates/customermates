@@ -1096,6 +1096,7 @@
       "emailMismatch": "Email addresses must match.",
       "emailNotVerified": "Email not verified.",
       "emailRecipientsRequired": "Add at least one recipient in To, Cc or Bcc.",
+      "emailVerificationRequired": "Verify your email address to keep using this account. Sign in to the app and request a new verification link.",
       "enterpriseCheckoutUnavailable": "Enterprise workspaces are billed manually and cannot start self-service checkout.",
       "filterBetweenInvalidArrayLength": "The 'between' operator requires an array with exactly 2 elements.",
       "generic": "An error occurred.",
@@ -1188,6 +1189,7 @@
       "routineScheduleInvalid": "That schedule is not a valid cron expression.",
       "routineScheduleRequired": "Choose a schedule or a one-off date for this routine.",
       "routineScheduleTooFrequent": "This schedule runs too often. Routines can run at most once every 15 minutes.",
+      "routinesRequireCloud": "Routines run on Customermates Cloud. A self-hosted instance cannot run them.",
       "routineTestRequiresEnabled": "Activate the routine before testing it.",
       "routineTimeZoneInvalid": "That time zone is not supported.",
       "routineTriggerEventsRequired": "Select at least one event for this routine.",
@@ -2935,6 +2937,9 @@
       "linkFailed": "Could not create the invite link.",
       "loadingLink": "Generating link…",
       "send": "Send invitations",
+      "sendFailed": "{failed, plural, one {The invitation could not be sent.} other {The # invitations could not be sent.}}",
+      "sendFailedDescription": "The email service did not accept them. Share the invitation link instead.",
+      "sendPartlyFailed": "{sent, plural, one {Sent # invitation} other {Sent # invitations}}, {failed, plural, one {# could not be sent.} other {# could not be sent.}}",
       "sentSuccess": "{count, plural, one {Sent # invitation.} other {Sent # invitations.}}",
       "tabs": {
         "email": "Send emails",
@@ -4301,9 +4306,11 @@
     "permanentViewWidgets": "For a dashboard view, its widgets are also deleted permanently.",
     "restore": "Restore",
     "restoreBlocked": {
+      "incompatible": "{count, plural, one {# item stays} other {# items stay}} in Trash because they no longer fit the current setup or data.",
       "listDeleted": "{count, plural, one {# item stays} other {# items stay}} in Trash because their list is in Trash. Restore the list first.",
       "nameTaken": "{count, plural, one {# item stays} other {# items stay}} in Trash because another item now uses their name or place.",
       "notFound": "{count, plural, one {# item} other {# items}} no longer exist and left Trash.",
+      "operationPending": "{count, plural, one {# item stays} other {# items stay}} in Trash while the restore finishes in the background. Restore them again when it is done.",
       "parentDeleted": "{count, plural, one {# item stays} other {# items stay}} in Trash because what they belong to is in Trash. Restore that first.",
       "requiresRestore": "{count, plural, one {# item stays} other {# items stay}} in Trash because something they need is in Trash. Restore that first.",
       "routineLimitReached": "{count, plural, one {# routine stays} other {# routines stay}} in Trash because the owner already has all the routines their plan includes."
@@ -4535,6 +4542,15 @@
     },
     "tryAnother": "Try another website",
     "unavailable": "Mate setup is not available right now. You can create Knowledge Base pages later in the Knowledge Base."
+  },
+  "WithoutErrorReporting": {
+    "ErrorCard": {
+      "contactSupport": "Please try again. If the problem continues, contact the person who runs this Customermates instance.",
+      "unexpectedError": "An unexpected error occurred. Please try again."
+    },
+    "NotFoundPage": {
+      "body": "This page does not exist or has moved. Check the address or go back to the start page."
+    }
   },
   "WorkspaceMenu": {
     "inviteMembers": "Invite members",

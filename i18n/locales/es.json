@@ -1096,6 +1096,7 @@
       "emailMismatch": "Las direcciones de correo deben coincidir.",
       "emailNotVerified": "Correo no verificado.",
       "emailRecipientsRequired": "Añade al menos un destinatario en Para, Cc o Cco.",
+      "emailVerificationRequired": "Verifica tu dirección de correo para seguir usando esta cuenta. Inicia sesión en la app y solicita un nuevo enlace de verificación.",
       "enterpriseCheckoutUnavailable": "Los espacios de trabajo Enterprise se facturan manualmente y no pueden iniciar el pago de autoservicio.",
       "filterBetweenInvalidArrayLength": "El operador 'between' requiere un array con exactamente 2 elementos.",
       "generic": "Se ha producido un error.",
@@ -1188,6 +1189,7 @@
       "routineScheduleInvalid": "Esa programación no es una expresión cron válida.",
       "routineScheduleRequired": "Elige una programación o una fecha única para esta rutina.",
       "routineScheduleTooFrequent": "Esta programación se ejecuta con demasiada frecuencia. Las rutinas pueden ejecutarse como máximo cada 15 minutos.",
+      "routinesRequireCloud": "Las rutinas se ejecutan en Customermates Cloud. Una instancia autoalojada no puede ejecutarlas.",
       "routineTestRequiresEnabled": "Activa la rutina antes de probarla.",
       "routineTimeZoneInvalid": "Esa zona horaria no es compatible.",
       "routineTriggerEventsRequired": "Selecciona al menos un evento para esta rutina.",
@@ -2935,6 +2937,9 @@
       "linkFailed": "No se pudo crear el enlace de invitación.",
       "loadingLink": "Generando el enlace…",
       "send": "Enviar las invitaciones",
+      "sendFailed": "{failed, plural, one {No se pudo enviar la invitación.} other {No se pudieron enviar las # invitaciones.}}",
+      "sendFailedDescription": "El servicio de correo no las aceptó. Comparte el enlace de invitación en su lugar.",
+      "sendPartlyFailed": "{sent, plural, one {# invitación enviada} other {# invitaciones enviadas}}, {failed, plural, one {# no se pudo enviar.} other {# no se pudieron enviar.}}",
       "sentSuccess": "{count, plural, one {# invitación enviada.} other {# invitaciones enviadas.}}",
       "tabs": {
         "email": "Enviar correos",
@@ -4301,9 +4306,11 @@
     "permanentViewWidgets": "Para una vista del panel, sus widgets también se eliminan permanentemente.",
     "restore": "Restaurar",
     "restoreBlocked": {
+      "incompatible": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque ya no encajan con la configuración o los datos actuales.",
       "listDeleted": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque su lista está en la papelera. Restaura primero la lista.",
       "nameTaken": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque otro elemento usa ahora su nombre o lugar.",
       "notFound": "{count, plural, one {# elemento ya no existe y salió} other {# elementos ya no existen y salieron}} de la papelera.",
+      "operationPending": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera hasta que termine la restauración en segundo plano. Después, restáuralos de nuevo.",
       "parentDeleted": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque aquello a lo que pertenecen está en la papelera. Restáuralo primero.",
       "requiresRestore": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque algo que necesitan está en la papelera. Restáuralo primero.",
       "routineLimitReached": "{count, plural, one {# rutina sigue} other {# rutinas siguen}} en la papelera porque su propietario ya tiene todas las rutinas que incluye su plan."
@@ -4535,6 +4542,15 @@
     },
     "tryAnother": "Probar otro sitio",
     "unavailable": "La configuración con Mate no está disponible ahora. Puedes crear páginas más adelante desde la base de conocimientos."
+  },
+  "WithoutErrorReporting": {
+    "ErrorCard": {
+      "contactSupport": "Vuelve a intentarlo. Si el problema continúa, contacta con la persona que administra esta instancia de Customermates.",
+      "unexpectedError": "Se produjo un error inesperado. Vuelve a intentarlo."
+    },
+    "NotFoundPage": {
+      "body": "Esta página no existe o se ha movido. Revisa la dirección o vuelve a la página de inicio."
+    }
   },
   "WorkspaceMenu": {
     "inviteMembers": "Invitar miembros",

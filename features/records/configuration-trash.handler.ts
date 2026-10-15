@@ -1,4 +1,5 @@
 import { unwindFailure, unwindInteractorFailure } from "@/core/validation/failure-unwind";
+import { createHash } from "node:crypto";
 import type { RecordRepo } from "./record.repo";
 import type { RecordAccessPolicy } from "./record-access";
 import type { ConfigurationChange, ConfigurationTarget } from "./configuration.schema";
@@ -11,11 +12,25 @@ import type { TrashRestoreBlocker } from "@/features/trash/trash.schema";
 import type { ConfigurationSystemPurge } from "./configuration-system-purge";
 
 import { Prisma } from "@/generated/prisma";
+import { runInSavepoint } from "@/core/decorators/transaction-runner";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { DroppedViewReferencesSchema } from "@/features/trash/trash.schema";
+import { recordInvariant } from "./record-invariant";
+import { isCalculationBudgetExceeded } from "./record-calculation.service";
+import { compareRecordKey } from "./record-json";
 
 const CONFIGURATION_KINDS = ["list", "field", "relationship"] as const;
 const ORDER: Record<string, number> = { list: 0, relationship: 1, field: 2 };
+
+function droppedViewReferences(item: TrashItem) {
+  if (!item.payload || typeof item.payload !== "object" || Array.isArray(item.payload)) return [];
+  const payload = item.payload as Record<string, unknown>;
+  if (!Array.isArray(payload.droppedViewReferences)) return [];
+  return payload.droppedViewReferences.flatMap((entry) => {
+    const parsed = DroppedViewReferencesSchema.safeParse(entry);
+    return parsed.success ? [parsed.data] : [];
+  });
+}
 
 function targetExists(model: RecordModel, item: TrashItem) {
   if (item.kind === "list") return model.types.some((type) => type.id === item.targetId);
@@ -53,50 +68,90 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
     return Prisma.sql`(${alias}.kind IN ('list', 'field', 'relationship') AND (${alias}.kind = 'list' OR ${outsideDeletedList}))`;
   }
 
-  private async change(item: TrashItem, operation: "restore" | "deletePermanently"): Promise<ConfigurationChange> {
+  private async change(items: TrashItem[], operation: "restore" | "deletePermanently"): Promise<ConfigurationChange> {
     const revision = (await this.records.getState())?.revision ?? 0;
+    const key =
+      items.length === 1
+        ? recordInvariant(items[0]).id
+        : createHash("sha256")
+            .update(items.map((item) => item.id).join(":"))
+            .digest("hex");
     return {
       expectedRevision: revision,
-      idempotencyKey: `trash:${operation}:${item.id}:${revision}`,
-      operations: [{ operation, target: target(item) }],
+      idempotencyKey: `trash:${operation}:${key}:${revision}`,
+      operations: items.map((item) => ({ operation, target: target(item) })),
     };
+  }
+
+  private async restorable(items: TrashItem[]): Promise<{ restorable: TrashItem[]; blocked: TrashRestoreBlocker[] }> {
+    const all = await this.preview.run(await this.change(items, "restore"));
+    if (all.ok && all.data.valid) return { restorable: items, blocked: [] };
+    const restorable: TrashItem[] = [];
+    const blockers = new Map<string, TrashRestoreBlocker>();
+    const blocked = () => items.flatMap((item) => (restorable.includes(item) ? [] : (blockers.get(item.id) ?? [])));
+    if (all.ok) {
+      const waiting = new Set(
+        all.data.deletion?.blockers
+          .filter((blocker) => blocker.reason === "requiresRestore")
+          .map((blocker) => blocker.source.id),
+      );
+      for (const item of items) if (waiting.has(item.targetId)) blockers.set(item.id, this.blocker(item, all.data));
+    }
+    let pending = items.filter((item) => !blockers.has(item.id));
+    if (blockers.size && pending.length) {
+      const rest = await this.preview.run(await this.change(pending, "restore"));
+      if (rest.ok && rest.data.valid) return { restorable: pending, blocked: blocked() };
+    }
+    for (let progressed = true; pending.length && progressed; ) {
+      progressed = false;
+      const waiting: TrashItem[] = [];
+      for (const item of pending) {
+        const preview = await this.preview.run(await this.change([...restorable, item], "restore"));
+        if (preview.ok && preview.data.valid) {
+          restorable.push(item);
+          progressed = true;
+          continue;
+        }
+        waiting.push(item);
+        blockers.set(item.id, this.blocker(item, preview.ok ? preview.data : null));
+      }
+      pending = waiting;
+    }
+    return { restorable, blocked: blocked() };
   }
 
   async restore(items: TrashItem[]): Promise<TrashKindRestore> {
     if ((await this.records.getState())?.activeOperationId)
       throw unwindFailure(CustomErrorCode.recordWritePaused, "conflict");
+    const newestFirst = [...items].sort(
+      (left, right) =>
+        right.deletedAt.getTime() - left.deletedAt.getTime() ||
+        ORDER[left.kind] - ORDER[right.kind] ||
+        compareRecordKey(left.id, right.id),
+    );
+    const { restorable, blocked } = await this.restorable(newestFirst);
     const result: TrashKindRestore = {
       restoredItemIds: [],
-      blocked: [],
+      blocked,
       restoredRecords: 0,
       droppedLinks: 0,
     };
-    for (const item of [...items].sort((left, right) => ORDER[left.kind] - ORDER[right.kind])) {
-      const change = await this.change(item, "restore");
-      const preview = await this.preview.run(change);
-      if (!preview.ok || !preview.data.valid) {
-        result.blocked.push(this.blocker(item, preview.ok ? preview.data : null));
-        continue;
-      }
-      const applied = await this.apply.run(change);
-      if (!applied.ok) throw unwindInteractorFailure(applied);
-      if (item.payload && typeof item.payload === "object" && !Array.isArray(item.payload)) {
-        const payload = item.payload as Record<string, unknown>;
-        if (Array.isArray(payload.droppedViewReferences)) {
-          const dropped = payload.droppedViewReferences.flatMap((entry) => {
-            const parsed = DroppedViewReferencesSchema.safeParse(entry);
-            return parsed.success ? [parsed.data] : [];
-          });
-          if (dropped.length) result.droppedViewReferences = [...(result.droppedViewReferences ?? []), ...dropped];
-        }
-      }
-      if (applied.data.status === "pending") {
-        result.operationId = applied.data.operationId;
-        break;
-      }
-      result.restoredItemIds.push(item.id);
-    }
+    if (!restorable.length) return result;
+    const change = await this.change(restorable, "restore");
+    const applied = await runInSavepoint(() => this.applied(change));
+    if (!applied.ok && !isCalculationBudgetExceeded(applied.error)) throw applied.error;
+    const data = applied.ok ? applied.value : await this.applied(change, { background: true });
+    const dropped = restorable.flatMap(droppedViewReferences);
+    if (dropped.length) result.droppedViewReferences = dropped;
+    if (data.status === "pending") result.operationId = data.operationId;
+    else result.restoredItemIds = restorable.map((item) => item.id);
     return result;
+  }
+
+  private async applied(change: ConfigurationChange, options?: { background: boolean }) {
+    const applied = await this.apply.run(change, options);
+    if (!applied.ok) throw unwindInteractorFailure(applied);
+    return applied.data;
   }
 
   private blocker(
@@ -106,11 +161,13 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
       deletion?: { blockers: Array<{ reason: string }> };
     } | null,
   ): TrashRestoreBlocker {
-    const reason = preview?.deletion?.blockers.some((blocker) => blocker.reason === "requiresRestore")
-      ? "requiresRestore"
-      : preview?.issues.some((issue) => issue.code.startsWith("duplicate_"))
-        ? "nameTaken"
-        : "notFound";
+    const reason = !preview
+      ? "notFound"
+      : preview.deletion?.blockers.some((blocker) => blocker.reason === "requiresRestore")
+        ? "requiresRestore"
+        : preview.issues.some((issue) => issue.code.startsWith("duplicate_"))
+          ? "nameTaken"
+          : "incompatible";
     return { itemId: item.id, reason, typeId: item.typeId };
   }
 
@@ -119,7 +176,7 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
     const removedRecords: TrashKindImpact["removedRecords"] = [];
     let removedLinks: number | null = 0;
     for (const item of items) {
-      const preview = await this.preview.run(await this.change(item, "deletePermanently"));
+      const preview = await this.preview.run(await this.change([item], "deletePermanently"));
       if (!preview.ok) continue;
       const removed = preview.data.deletion?.removed;
       if (!removed) continue;
@@ -142,10 +199,10 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
         continue;
       }
       if (actorId === null) {
-        await this.system.deletePermanently(item, await this.change(item, "deletePermanently"), companyId);
+        await this.system.deletePermanently(item, await this.change([item], "deletePermanently"), companyId);
         continue;
       }
-      const applied = await this.apply.run(await this.change(item, "deletePermanently"));
+      const applied = await this.apply.run(await this.change([item], "deletePermanently"));
       if (!applied.ok) throw unwindInteractorFailure(applied);
     }
   }
