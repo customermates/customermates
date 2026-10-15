@@ -52,6 +52,7 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: "25mb",
     },
+    proxyClientMaxBodySize: Math.max(10 * 1024 * 1024, env.FILE_MAX_UPLOAD_BYTES + 1024 * 1024),
     optimizePackageImports: [
       "lucide-react",
       "recharts",
@@ -75,7 +76,7 @@ const nextConfig: NextConfig = {
   headers() {
     return Promise.resolve([
       {
-        source: "/:path*",
+        source: "/:path((?!api/v1/files/[^/]+/content$).*)",
         headers: [
           {
             key: "Content-Security-Policy",

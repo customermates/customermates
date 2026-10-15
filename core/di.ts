@@ -166,7 +166,19 @@ import type { RecordFileIndexDispatcher } from "@/features/records/record-file-i
 import { S3FileStorageDriver, s3FileStorageConfig } from "@/core/storage/s3-file-storage.driver";
 import { VercelBlobFileStorageDriver } from "@/core/storage/vercel-blob-file-storage.driver";
 import { vercelBlobClient } from "@/core/storage/vercel-blob-client";
+import { RecordFileLinks } from "@/features/record-files/record-file-links";
 import { RecordFileQuotaService } from "@/features/record-files/record-file-quota.service";
+import { RecordFileUploadService } from "@/features/record-files/record-file-upload.service";
+import { RecordFileAccessService } from "@/features/record-files/record-file-access.service";
+import { RecordFileGrantTenant } from "@/features/record-files/record-file-grant-tenant";
+import { recordFileMaxUploadBytes } from "@/features/record-files/record-file-limits";
+import { CreateRecordFileUploadInteractor } from "@/features/record-files/create-record-file-upload.interactor";
+import { UploadRecordFileContentInteractor } from "@/features/record-files/upload-record-file-content.interactor";
+import { UploadRecordFileContentByGrantInteractor } from "@/features/record-files/upload-record-file-content-by-grant.interactor";
+import { GetRecordFileInteractor } from "@/features/record-files/get-record-file.interactor";
+import { DownloadRecordFileInteractor } from "@/features/record-files/download-record-file.interactor";
+import { DownloadRecordFileByGrantInteractor } from "@/features/record-files/download-record-file-by-grant.interactor";
+import { UploadRecordFileInteractor } from "@/features/record-files/upload-record-file.interactor";
 import { GetFileStorageUsageInteractor } from "@/features/record-files/get-file-storage-usage.interactor";
 import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
 import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
@@ -550,8 +562,13 @@ export const getRecordWriteService = (records: RecordRepo = getRecordRepo()) =>
   );
 export const getAddressCandidateVerifier = (): AddressCandidateVerifier =>
   new SignedAddressCandidateVerifier(env.BETTER_AUTH_SECRET);
-export const getRecordFileRepo = () => new PrismaRecordFileRepo();
-export const getRecordFileAttacher = (): RecordFileAttacher => new RecordFileAttachmentService(getRecordFileRepo());
+export const getRecordFileRepo = (companyId?: string) => new PrismaRecordFileRepo(companyId);
+export const getRecordFileAttacher = (): RecordFileAttacher =>
+  new RecordFileAttachmentService(
+    getRecordFileRepo(),
+    { drivers: getFileStorageDriver, maxBytes: recordFileMaxUploadBytes(env.APP_MODE, env.FILE_MAX_UPLOAD_BYTES) },
+    getRecordFileIndexDispatcher(),
+  );
 export const getRecordFileIndexDispatcher = (): RecordFileIndexDispatcher =>
   new BackgroundRecordFileIndexDispatcher(getBackgroundTaskService());
 export const getFileContentRepo = (companyId?: string) => new PrismaFileContentRepo(companyId);
@@ -564,6 +581,7 @@ export const getFileStorageDriver = (name: string = env.FILE_STORAGE_DRIVER, com
   throw new Error(`The ${name} file storage driver is unknown`);
 };
 // Record files: uploads, downloads, storage quota and lifecycle
+const getRecordFileLinks = () => new RecordFileLinks(env.BETTER_AUTH_SECRET, env.BASE_URL);
 const getRecordFileQuotaService = () =>
   new RecordFileQuotaService(
     {
@@ -572,6 +590,40 @@ const getRecordFileQuotaService = () =>
       usedBytes: () => getRecordFileRepo().storageUsageCompanyWide(),
     },
     env.APP_MODE,
+  );
+const getRecordFileUploadService = () =>
+  new RecordFileUploadService(
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getRecordFileRepo(),
+    getRecordFileQuotaService(),
+    {
+      maxBytes: recordFileMaxUploadBytes(env.APP_MODE, env.FILE_MAX_UPLOAD_BYTES),
+      driver: env.FILE_STORAGE_DRIVER,
+    },
+  );
+const getRecordFileAccessService = () =>
+  new RecordFileAccessService(getRecordRepo(), getRecordAccessPolicy(), getRecordFileRepo());
+const getRecordFileGrantTenant = () => new RecordFileGrantTenant(getRecordFileLinks(), getUserService());
+export const getCreateRecordFileUploadInteractor = () =>
+  new CreateRecordFileUploadInteractor(getRecordFileUploadService(), getFileStorageDriver, getRecordFileLinks());
+export const getUploadRecordFileContentInteractor = () =>
+  new UploadRecordFileContentInteractor(getRecordFileRepo(), getFileStorageDriver);
+export const getUploadRecordFileContentByGrantInteractor = () =>
+  new UploadRecordFileContentByGrantInteractor(getRecordFileGrantTenant(), getUploadRecordFileContentInteractor());
+export const getGetRecordFileInteractor = () =>
+  new GetRecordFileInteractor(getRecordFileAccessService(), getRecordFileLinks());
+export const getDownloadRecordFileInteractor = () =>
+  new DownloadRecordFileInteractor(getRecordFileAccessService(), getFileStorageDriver);
+export const getDownloadRecordFileByGrantInteractor = () =>
+  new DownloadRecordFileByGrantInteractor(getRecordFileGrantTenant(), getDownloadRecordFileInteractor());
+export const getUploadRecordFileInteractor = () =>
+  new UploadRecordFileInteractor(
+    getRecordFileUploadService(),
+    getRecordFileRepo(),
+    getFileStorageDriver,
+    getRecordRepo(),
+    getMutateRecordInteractor(),
   );
 export const getGetFileStorageUsageInteractor = () => new GetFileStorageUsageInteractor(getRecordFileQuotaService());
 export const getRecordConfigurationService = (records: RecordRepo = getRecordRepo()) =>

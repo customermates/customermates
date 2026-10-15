@@ -187,6 +187,14 @@ describe("environment configuration", () => {
     expect(config).not.toContain("*.vercel.app");
   });
 
+  it("leaves record file content its own policy so inline files stay sandboxed", () => {
+    const config = readFileSync(new URL("../../next.config.ts", import.meta.url), "utf8");
+    const headers = readFileSync(new URL("../../features/record-files/record-file-response.ts", import.meta.url), "utf8");
+    expect(config).toContain('source: "/:path((?!api/v1/files/[^/]+/content$).*)"');
+    expect(config).not.toContain('source: "/:path*"');
+    expect(headers).toContain(`file.inline ? "sandbox; frame-ancestors 'self'" : "frame-ancestors 'self'"`);
+  });
+
   it("uses the Better Auth host allowlist and dedicated OAuth proxy secret", () => {
     const authConfig = readFileSync(new URL("../../core/auth/better-auth.ts", import.meta.url), "utf8");
     const invitationRoute = readFileSync(

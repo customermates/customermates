@@ -1,5 +1,6 @@
 import type { RecordFileRepo, StoredRecordFile } from "./record-file.repo";
 import type { RecordRef } from "./record-model.schema";
+import type { PendingRecordFile, RecordFileDetails, RecordFileUploadRepo } from "./record-file-upload.repo";
 import type {
   RecordFileExtraction,
   RecordFileIndexCandidate,
@@ -22,9 +23,27 @@ const RECORD_FILE_CHUNK_INSERT_BATCH = 200;
 
 let semanticIndexColumn: Promise<boolean> | undefined;
 
+const STORED_FILE_SELECT = {
+  id: true,
+  typeId: true,
+  fieldId: true,
+  recordId: true,
+  storageDriver: true,
+  storageKey: true,
+  name: true,
+  mimeType: true,
+  size: true,
+  sha256: true,
+  status: true,
+  uploadedById: true,
+  createdAt: true,
+  attachedAt: true,
+  detachedAt: true,
+} satisfies Prisma.RecordFileSelect;
+
 export class PrismaRecordFileRepo
   extends TenantRepository
-  implements RecordFileRepo, RecordFileIndexRepo, RecordFileSemanticIndexRepo
+  implements RecordFileRepo, RecordFileUploadRepo, RecordFileIndexRepo, RecordFileSemanticIndexRepo
 {
   constructor(private readonly scopedCompanyId?: string) {
     super();
@@ -38,23 +57,7 @@ export class PrismaRecordFileRepo
     if (!fileIds.length) return [];
     const rows = await this.prisma.recordFile.findMany({
       where: { companyId: this.companyId, id: { in: [...new Set(fileIds)] } },
-      select: {
-        id: true,
-        typeId: true,
-        fieldId: true,
-        recordId: true,
-        storageDriver: true,
-        storageKey: true,
-        name: true,
-        mimeType: true,
-        size: true,
-        sha256: true,
-        status: true,
-        uploadedById: true,
-        createdAt: true,
-        attachedAt: true,
-        detachedAt: true,
-      },
+      select: STORED_FILE_SELECT,
     });
     return rows.map((row) => ({ ...row, size: Number(row.size) }));
   }
@@ -280,6 +283,34 @@ export class PrismaRecordFileRepo
         )
     `);
     return updated === 1;
+  }
+
+  async createPendingFile(file: PendingRecordFile): Promise<void> {
+    await this.prisma.recordFile.create({
+      data: {
+        ...file,
+        size: BigInt(file.size),
+        companyId: this.companyId,
+        uploadedById: this.userId,
+        status: "pending",
+      },
+    });
+  }
+
+  async getFileCompanyWide(fileId: string): Promise<RecordFileDetails | null> {
+    const row = await this.prisma.recordFile.findFirst({
+      where: { companyId: this.companyId, id: fileId },
+      select: { ...STORED_FILE_SELECT, extractionStatus: true },
+    });
+    return row ? { ...row, size: Number(row.size) } : null;
+  }
+
+  async markFileUploaded(fileId: string, upload: { size: number; sha256: string }): Promise<boolean> {
+    const result = await this.prisma.recordFile.updateMany({
+      where: { companyId: this.companyId, id: fileId, status: "pending" },
+      data: { size: BigInt(upload.size), sha256: upload.sha256 },
+    });
+    return result.count === 1;
   }
 
   async storageUsageCompanyWide(): Promise<number> {

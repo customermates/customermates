@@ -38,6 +38,13 @@ export enum CustomErrorCode {
   addressLookupRateLimited = "addressLookupRateLimited",
   recordAddressCandidateInvalid = "recordAddressCandidateInvalid",
   recordFileUnavailable = "recordFileUnavailable",
+  recordFileContentInvalid = "recordFileContentInvalid",
+  recordFileLinkInvalid = "recordFileLinkInvalid",
+  recordFileNameInvalid = "recordFileNameInvalid",
+  recordFileNotFound = "recordFileNotFound",
+  recordFileTooLarge = "recordFileTooLarge",
+  recordFileUploadIncomplete = "recordFileUploadIncomplete",
+  storageQuotaExceeded = "storageQuotaExceeded",
   trashItemNotFound = "trashItemNotFound",
   trashChanged = "trashChanged",
 
