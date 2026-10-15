@@ -28,9 +28,11 @@ function destructiveApprovalTargetKey(request: ApprovalTargetRequest): string | 
   return `${request.toolName}:${String(mutation.action)}:${JSON.stringify(refs)}`;
 }
 
+const CONTEXT_MARKUP = /<(?:page_context|selected_context)\b[^>]*\/>/gu;
+
 function quotedTargetName(text: string | null): string | null {
   if (!text) return null;
-  const matches = [...text.matchAll(/["“]([^"”]{1,200})["”]/gu)];
+  const matches = [...text.replace(CONTEXT_MARKUP, "").matchAll(/["“]([^"”]{1,200})["”]/gu)];
   return matches.length === 1 ? matches[0][1].trim() : null;
 }
 
