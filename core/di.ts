@@ -164,7 +164,6 @@ import type { RecordFileAttacher } from "@/features/records/record-file-attacher
 import { RecordFileAttachmentService } from "@/features/records/record-file-attachment.service";
 import { PrismaRecordFileRepo } from "@/features/records/prisma-record-file.repository";
 import type { RecordFileIndexDispatcher } from "@/features/records/record-file-index-dispatcher";
-import { NoopRecordFileIndexDispatcher } from "@/features/records/noop-record-file-index-dispatcher";
 import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
 import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
 import { PrismaWebhookDeliveryRepo } from "@/features/webhook/prisma-webhook-delivery.repository";
@@ -547,7 +546,8 @@ export const getRecordWriteService = (records: RecordRepo = getRecordRepo()) =>
 export const getAddressCandidateVerifier = (): AddressCandidateVerifier => new RejectingAddressCandidateVerifier();
 export const getRecordFileRepo = () => new PrismaRecordFileRepo();
 export const getRecordFileAttacher = (): RecordFileAttacher => new RecordFileAttachmentService(getRecordFileRepo());
-export const getRecordFileIndexDispatcher = (): RecordFileIndexDispatcher => new NoopRecordFileIndexDispatcher();
+export const getRecordFileIndexDispatcher = (): RecordFileIndexDispatcher =>
+  new BackgroundRecordFileIndexDispatcher(getBackgroundTaskService());
 export const getFileContentRepo = () => new PrismaFileContentRepo();
 export const getDatabaseFileStorageDriver = () => new DatabaseFileStorageDriver(getFileContentRepo(), env.BASE_URL);
 export const getFileStorageDriver = (): FileStorageDriver => {
@@ -921,6 +921,28 @@ const getWikiSemanticRetrieval = () => ({
   embedder: new WikiSemanticQueryEmbedder(getWikiEmbeddingService()),
   scheduler: getWikiSemanticIndexDispatcher("search"),
 });
+
+import { BackgroundRecordFileIndexDispatcher } from "@/features/record-file-index/background-record-file-index-dispatcher";
+import { IndexRecordFilesInteractor } from "@/features/record-file-index/index-record-files.interactor";
+import type { RecordFileStorageResolver } from "@/features/record-file-index/record-file-index.service";
+import { RecordFileIndexService } from "@/features/record-file-index/record-file-index.service";
+import { SweepRecordFileIndexInteractor } from "@/features/record-file-index/sweep-record-file-index.interactor";
+import { RecordFileSemanticIndexService } from "@/ee/record-file-index/record-file-semantic-index.service";
+const getRecordFileIndexStorage =
+  (companyId: string): RecordFileStorageResolver =>
+  (driver) => {
+    if (driver === "database") return new DatabaseFileStorageDriver(new PrismaFileContentRepo(companyId), env.BASE_URL);
+    return driver === env.FILE_STORAGE_DRIVER ? getFileStorageDriver() : null;
+  };
+export const getRecordFileIndexService = (companyId: string) =>
+  new RecordFileIndexService(
+    new PrismaRecordFileRepo(companyId),
+    getRecordFileIndexStorage(companyId),
+    new RecordFileSemanticIndexService(new PrismaRecordFileRepo(companyId), getWikiEmbeddingService(), companyId),
+  );
+export const getIndexRecordFilesInteractor = () => new IndexRecordFilesInteractor(getRecordFileIndexService);
+export const getSweepRecordFileIndexInteractor = () =>
+  new SweepRecordFileIndexInteractor(getRecordFileRepo(), getBackgroundTaskService());
 
 const EXPECTED_EVENT_LISTENERS = [
   {

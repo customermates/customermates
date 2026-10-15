@@ -1293,7 +1293,7 @@ model AgentUsageEvent {
   id                          String               @id @default(uuid())
   companyId                   String
   company                     Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  /// Null only for a workspace-level charge (purpose wikiIndexing) that no single person pays for.
+  /// Null only for a workspace-level charge (purpose wikiIndexing or fileIndexing) that no single person pays for.
   userId                      String?
   sessionId                   String?
   turnRequestId               String?
@@ -1335,6 +1335,7 @@ enum AgentUsagePurpose {
   wikiSynthesis
   calculationDraft
   commandResolve
+  fileIndexing
 }
 
 enum AgentUsageCostSource {
@@ -1865,6 +1866,10 @@ model RecordFile {
   attachedAt       DateTime?
   detachedAt       DateTime?
   indexedAt        DateTime?
+  textTruncated    Boolean                    @default(false)
+  indexClaimedAt   DateTime?
+  indexAttempts    Int                        @default(0)
+  embeddedModel    String?
   company          Company                    @relation(fields: [companyId], references: [id], onDelete: Cascade)
   uploadedBy       User?                      @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
   chunks           RecordFileChunk[]
@@ -1872,6 +1877,7 @@ model RecordFile {
   @@index([companyId, status, createdAt])
   @@index([companyId, recordId])
   @@index([companyId, fieldId])
+  @@index([companyId, sha256])
 }
 
 model RecordFileContent {
@@ -1895,6 +1901,8 @@ model RecordFileChunk {
   searchVector Unsupported("tsvector")?    @default(dbgenerated("wiki_search_vector(COALESCE(heading, ''::text), text)"))
   embedding    Unsupported("vector(768)")?
   contentHash  String
+  offset       Int                         @default(0)
+  model        String?
   embeddedAt   DateTime?
   createdAt    DateTime                    @default(now())
   company      Company                     @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -1902,6 +1910,7 @@ model RecordFileChunk {
 
   @@unique([fileId, ordinal])
   @@index([companyId, fileId])
+  @@index([companyId, contentHash])
   @@index([searchVector], type: Gin)
 }
 

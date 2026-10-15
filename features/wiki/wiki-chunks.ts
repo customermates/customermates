@@ -14,7 +14,11 @@ export type WikiSemanticChunk = {
   contentHash: string;
 };
 
-export function wikiSemanticChunks(title: string, markdown: string): WikiSemanticChunk[] {
+export function wikiSemanticChunks(
+  title: string,
+  markdown: string,
+  maxChunks = WIKI_SEMANTIC_MAX_CHUNKS,
+): WikiSemanticChunk[] {
   const chunks: WikiSemanticChunk[] = [];
   for (const section of wikiMarkdownSections(markdown)) {
     const body = markdown.slice(section.offset, section.end);
@@ -45,5 +49,5 @@ export function wikiSemanticChunks(title: string, markdown: string): WikiSemanti
       contentHash: createHash("sha256").update(title).digest("hex"),
     });
   }
-  return chunks.slice(0, WIKI_SEMANTIC_MAX_CHUNKS);
+  return chunks.slice(0, maxChunks);
 }

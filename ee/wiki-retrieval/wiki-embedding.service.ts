@@ -2,6 +2,7 @@ import type {
   AgentRetrievalGrant,
   AgentUsageService,
   PlatformRetrievalPurpose,
+  WorkspaceIndexingPurpose,
 } from "@/ee/agent-chat/agent-usage.service";
 import type { WikiEmbeddingKind } from "./wiki-embedding-model";
 
@@ -62,10 +63,14 @@ export class WikiEmbeddingService {
     }
   }
 
-  async authorizeIndexing(companyId: string): Promise<AgentRetrievalGrant | null> {
+  async authorizeIndexing(
+    companyId: string,
+    purpose: WorkspaceIndexingPurpose = "wikiIndexing",
+  ): Promise<AgentRetrievalGrant | null> {
     if (!isWikiSemanticSearchAvailable()) return null;
     try {
-      return await this.usage.prepareWorkspaceIndexing(companyId);
+      const grant = await this.usage.prepareWorkspaceIndexing(companyId);
+      return grant && { ...grant, purpose };
     } catch (error) {
       Sentry.captureException(error);
       return null;

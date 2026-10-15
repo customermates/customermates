@@ -4,6 +4,14 @@ import { Prisma } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
 
 export class PrismaFileContentRepo extends TenantRepository implements FileContentRepo {
+  constructor(private readonly scopedCompanyId?: string) {
+    super();
+  }
+
+  override get companyId(): string {
+    return this.scopedCompanyId ?? super.companyId;
+  }
+
   async writePart(fileKey: string, part: number, data: Uint8Array): Promise<void> {
     const companyId = this.companyId;
     await this.prisma.recordFileContent.upsert({

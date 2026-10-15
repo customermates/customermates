@@ -1,13 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const invoke = vi.hoisted(() => vi.fn());
+const sweepFiles = vi.hoisted(() => vi.fn());
 const mockEnv = vi.hoisted(() => ({
-  APP_MODE: "cloud" as "cloud" | "demo",
+  APP_MODE: "cloud" as "cloud" | "demo" | "self-hosted",
   CRON_SECRET: "test-cron-secret" as string | undefined,
   VERCEL_ENV: "production" as "production" | "preview",
 }));
 vi.mock("@/env", () => ({ env: mockEnv }));
-vi.mock("@/core/di", () => ({ getSweepRecordDeliveriesInteractor: () => ({ invoke }) }));
+vi.mock("@/core/di", () => ({
+  getSweepRecordDeliveriesInteractor: () => ({ invoke }),
+  getSweepRecordFileIndexInteractor: () => ({ invoke: sweepFiles }),
+}));
 
 import { GET } from "../route";
 
@@ -24,6 +28,7 @@ describe("record delivery recovery cron", () => {
     mockEnv.CRON_SECRET = "test-cron-secret";
     mockEnv.VERCEL_ENV = "production";
     invoke.mockResolvedValue({ eventWorkspaces: 2, webhookDeliveries: 3 });
+    sweepFiles.mockResolvedValue({ fileIndexWorkspaces: 1 });
   });
 
   it("requires the configured cron secret", async () => {
@@ -32,6 +37,7 @@ describe("record delivery recovery cron", () => {
     mockEnv.CRON_SECRET = undefined;
     expect((await GET(request("Bearer undefined"))).status).toBe(401);
     expect(invoke).not.toHaveBeenCalled();
+    expect(sweepFiles).not.toHaveBeenCalled();
   });
 
   it("skips demo and preview environments", async () => {
@@ -50,7 +56,18 @@ describe("record delivery recovery cron", () => {
       ok: true,
       eventWorkspaces: 2,
       webhookDeliveries: 3,
+      fileIndexWorkspaces: 1,
     });
     expect(invoke).toHaveBeenCalledTimes(1);
+    expect(sweepFiles).toHaveBeenCalledTimes(1);
+  });
+
+  it("restarts stalled file indexing on self-hosted instances too", async () => {
+    mockEnv.APP_MODE = "self-hosted";
+    await expect((await GET(request("Bearer test-cron-secret"))).json()).resolves.toMatchObject({
+      ok: true,
+      fileIndexWorkspaces: 1,
+    });
+    expect(sweepFiles).toHaveBeenCalledTimes(1);
   });
 });

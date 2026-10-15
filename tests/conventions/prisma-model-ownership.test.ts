@@ -68,6 +68,7 @@ const OWNERS: Record<string, string> = {
   RecordFieldDefinition: "features/records/prisma-record.repository.ts",
   RecordFile: "features/records/prisma-record-file.repository.ts",
   RecordFileContent: "core/storage/prisma-file-content.repository.ts",
+  RecordFileChunk: "features/records/prisma-record-file.repository.ts",
   RecordIdentity: "features/records/prisma-record.repository.ts",
   RecordIdentityKey: "features/records/prisma-record.repository.ts",
   RecordIdentityLink: "features/records/prisma-record.repository.ts",
