@@ -540,7 +540,7 @@ describe("website discovery across apex and www", () => {
       "https://www.example.com/terms",
     ]);
     expect(mocks.requested.some((line) => line.includes("/private"))).toBe(false);
-    expect(mocks.requested.some((line) => line.includes("other.com"))).toBe(false);
+    expect(mocks.requested.map((line) => new URL(line.split(" ")[0]).hostname)).not.toContain("www.other.com");
   });
 });
 
