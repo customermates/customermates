@@ -52,6 +52,7 @@ const { createTestRecordOperationService, createTestRecordRepo } = await import(
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
+const PREVIOUS_RELEASE_DELETION_KEYS = ["target", "cascade", "nameField", "bindings", "droppedViewReferences"];
 const noWebhooks = new WebhookPauseNotifier(
   { getWebhookByIdOrThrow: () => Promise.reject(new Error("No webhook expected")) },
   { publish: () => Promise.resolve() },
@@ -1003,7 +1004,10 @@ describeDatabase("restoring lists and relationships from Trash", () => {
     ]);
     const paths = async () =>
       Object.fromEntries(
-        (await f.getModel()).types.map((entry) => [entry.id, (entry.relationshipPaths ?? []).map((path) => path.id)]),
+        (await f.getModel()).types.map((entry) => [
+          entry.id,
+          (entry.relationshipPaths ?? []).filter((path) => !path.archived).map((path) => path.id),
+        ]),
       );
     const before = await paths();
     expect(before[f.id("service")]).toEqual([f.id("service.deals.path")]);
@@ -1019,6 +1023,73 @@ describeDatabase("restoring lists and relationships from Trash", () => {
     expect((await paths())[f.dealTypeId]).toEqual([f.id("deal.services.path")]);
     expect(await f.restore([relationship])).toMatchObject({ ok: true, data: { blocked: [] } });
     expect(await paths()).toEqual(before);
+  }, 180_000);
+
+  it("keeps Trash readable across a rollback and an archived path through edits of its list", async () => {
+    const f = await fixture();
+    const deals = (await f.getModel()).types.find((type) => type.id === f.dealTypeId);
+    if (!deals) throw new Error("The deal list is missing");
+    const contactsPath = {
+      id: randomUUID(),
+      label: "Customer contacts",
+      archived: false,
+      path: [
+        { relationId: f.customer, direction: "outgoing" as const },
+        { relationId: f.id("contact.organizations"), direction: "incoming" as const },
+      ],
+    };
+    await f.configure([
+      {
+        operation: "putType",
+        type: { ...omit(deals, "archived"), relationshipPaths: [...(deals.relationshipPaths ?? []), contactsPath] },
+      },
+    ]);
+    await f.remove({ kind: "field", id: f.customerCredit.id });
+    await f.remove({ kind: "field", id: f.ordered.id });
+    const relationship = await f.remove({ kind: "relationship", id: f.customer });
+
+    const revisions = await runWithoutTenant(() =>
+      prisma.recordSchemaRevision.findMany({ where: { companyId: f.companyId }, orderBy: { revision: "asc" } }),
+    );
+    const deletions = revisions.flatMap(
+      (row) => (row.change as { deletions?: Array<Record<string, unknown>> } | null)?.deletions ?? [],
+    );
+    expect(deletions.length).toBeGreaterThan(0);
+    expect(
+      deletions
+        .flatMap((deletion) => Object.keys(deletion))
+        .filter((key) => !PREVIOUS_RELEASE_DELETION_KEYS.includes(key)),
+    ).toEqual([]);
+    const latest = revisions.at(-1)?.revision;
+    await runWithoutTenant(
+      () =>
+        prisma.$executeRaw`UPDATE "RecordSchemaRevision" SET change = jsonb_set(change, '{deletions,0,addedLater}', '[]'::jsonb)
+          WHERE "companyId" = ${f.companyId} AND revision = ${latest}`,
+    );
+
+    const live = (await f.getModel()).types.find((type) => type.id === f.dealTypeId);
+    if (!live) throw new Error("The deal list is missing");
+    await f.configure([
+      {
+        operation: "putType",
+        type: {
+          ...omit(live, "archived"),
+          relationshipPaths: (live.relationshipPaths ?? [])
+            .filter((path) => !path.archived)
+            .map((path) => ({ ...path, label: `${path.label} (renamed)` })),
+        },
+      },
+    ]);
+
+    expect(await f.restore([relationship])).toMatchObject({
+      ok: true,
+      data: { status: "completed", blocked: [], restoredItemIds: [relationship] },
+    });
+    const restored = (await f.getModel()).types.find((type) => type.id === f.dealTypeId);
+    expect(restored?.relationshipPaths?.map((path) => [path.id, path.label, path.archived])).toEqual([
+      [f.id("deal.services.path"), "Services (renamed)", false],
+      [contactsPath.id, "Customer contacts", false],
+    ]);
   }, 180_000);
 
   it("restores a relationship with its lookups and rollups, and keeps a lookup its changed cardinality no longer allows", async () => {

@@ -19,7 +19,6 @@ type ConfigurationDeletion = {
   cascade: ConfigurationTarget[];
   nameField?: { typeId: string; replacementId: string | null };
   bindings?: DroppedBinding[];
-  paths?: DroppedPath[];
 };
 export type ConfigurationDeletionRecord = ConfigurationDeletion & { actorId: string; deletedAt: Date };
 
@@ -290,40 +289,47 @@ function restoreBindingFields(model: RecordModel, dropped: DroppedBinding[]) {
   });
 }
 
-type DroppedPath = { typeId: string; path: RecordRelationshipPath };
-
-function cleanRelationshipPaths(
+function archiveRelationshipPaths(
   model: RecordModel,
   removed: { relationIds: Set<string> },
   reference: (target: ConfigurationTarget) => DeletionReference,
   cause: DeletionReference,
-): { cleaned: DeletionCleanup[]; dropped: DroppedPath[] } {
+): DeletionCleanup[] {
   const cleaned: DeletionCleanup[] = [];
-  const dropped: DroppedPath[] = [];
+  const crosses = (path: RecordRelationshipPath) =>
+    !path.archived && path.path.some((step) => removed.relationIds.has(step.relationId));
   model.types = model.types.map((type): RecordType => {
-    if (type.archived) return type;
-    const paths = (type.relationshipPaths ?? []).filter((path) =>
-      path.path.some((step) => removed.relationIds.has(step.relationId)),
-    );
-    if (!paths.length) return type;
+    if (type.archived || !type.relationshipPaths?.some(crosses)) return type;
     cleaned.push({ consumer: reference({ kind: "type", id: type.id }), target: cause });
-    dropped.push(...paths.map((path) => ({ typeId: type.id, path })));
-    return { ...type, relationshipPaths: type.relationshipPaths?.filter((path) => !paths.includes(path)) };
+    return {
+      ...type,
+      relationshipPaths: type.relationshipPaths.map((path) => (crosses(path) ? { ...path, archived: true } : path)),
+    };
   });
-  return { cleaned, dropped };
+  return cleaned;
 }
 
-function restoreRelationshipPaths(model: RecordModel, dropped: DroppedPath[]) {
+function dropRelationshipPaths(model: RecordModel, relationIds: Set<string>) {
   model.types = model.types.map((type): RecordType => {
-    const paths = dropped
-      .filter(
-        (entry) =>
-          entry.typeId === type.id &&
-          !type.relationshipPaths?.some((path) => path.id === entry.path.id) &&
-          resolveRecordPath(type.id, entry.path.path, model)?.every((step) => activeType(model, step.typeId)),
-      )
-      .map((entry) => entry.path);
-    return paths.length ? { ...type, relationshipPaths: [...(type.relationshipPaths ?? []), ...paths] } : type;
+    if (type.archived) return type;
+    const paths = type.relationshipPaths?.filter(
+      (path) => path.archived || !path.path.some((step) => relationIds.has(step.relationId)),
+    );
+    return paths?.length === type.relationshipPaths?.length ? type : { ...type, relationshipPaths: paths };
+  });
+}
+
+function restoreRelationshipPaths(model: RecordModel) {
+  const resolves = (typeId: string, path: RecordRelationshipPath) =>
+    resolveRecordPath(typeId, path.path, model)?.every((step) => activeType(model, step.typeId)) ?? false;
+  model.types = model.types.map((type): RecordType => {
+    if (type.archived || !type.relationshipPaths?.some((path) => path.archived && resolves(type.id, path))) return type;
+    return {
+      ...type,
+      relationshipPaths: type.relationshipPaths.map((path) =>
+        path.archived && resolves(type.id, path) ? { ...path, archived: false } : path,
+      ),
+    };
   });
 }
 
@@ -405,7 +411,6 @@ export function applyConfigurationLifecycle(
       )
         setDeleted(model, orphan, false);
     }
-    if (record?.paths?.length) restoreRelationshipPaths(model, record.paths);
   };
   for (const operation of operations) {
     const target = operation.target;
@@ -450,15 +455,10 @@ export function applyConfigurationLifecycle(
   }
   blockers.push(...waiting.map((target) => restoreBlocker(model, target)));
   if (operations.some((operation) => operation.operation === "restore")) {
-    cleanRelationshipPaths(
+    restoreRelationshipPaths(model);
+    dropRelationshipPaths(
       model,
-      {
-        relationIds: new Set(
-          model.relationships.filter((relation) => relation.archived).map((relation) => relation.id),
-        ),
-      },
-      reference,
-      reference(operations[0].target),
+      new Set(model.relationships.filter((relation) => relation.archived).map((relation) => relation.id)),
     );
   }
   const softDeleted = deletions.flatMap((deletion) => [deletion.target, ...deletion.cascade]);
@@ -472,16 +472,10 @@ export function applyConfigurationLifecycle(
     blockers.push(...dependencyBlockers(before, sets, reference, false));
     const bindings = dropBindingFields(model, sets, reference);
     cleaned.push(...bindings.cleaned);
-    const paths = cleanRelationshipPaths(model, sets, reference, reference(deletions[0].target));
-    cleaned.push(...paths.cleaned);
+    cleaned.push(...archiveRelationshipPaths(model, sets, reference, reference(deletions[0].target)));
     for (const deletion of deletions) {
       const own = bindings.dropped.filter((entry) => entry.fieldId === deletion.target.id);
       if (own.length) deletion.bindings = own;
-      const relationIds = new Set(
-        [deletion.target, ...deletion.cascade].filter((item) => item.kind === "relationship").map((item) => item.id),
-      );
-      const dropped = paths.dropped.filter((entry) => entry.path.path.some((step) => relationIds.has(step.relationId)));
-      if (dropped.length) deletion.paths = dropped;
     }
   }
   let removed: RecordDefinitionDeletion | null = null;

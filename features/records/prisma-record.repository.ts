@@ -473,7 +473,7 @@ export class PrismaRecordRepo
     const records = new Map<string, ConfigurationDeletionRecord>();
     if (wanted && !wanted.size) return records;
     const companyId = this.companyId;
-    const deletions = RecordRevisionChangeSchema.shape.deletions.unwrap();
+    const deletions = RecordRevisionChangeSchema.shape.deletions.unwrap().element.strip().array();
     let cursor: number | undefined;
     for (;;) {
       const rows = await this.prisma.recordSchemaRevision.findMany({
