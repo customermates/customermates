@@ -186,7 +186,7 @@ export const RecordPropertyChipView = observer(function RecordPropertyChipView({
       );
     }
     if (field.valueType === "channels") return <IdentityChips field={field} record={record} />;
-    if (result?.state === "value" && result.value.kind === "selectList") {
+    if (result?.state === "value" && (result.value.kind === "selectList" || result.value.kind === "file")) {
       return (
         <FieldTooltip label={field.label}>
           {icon}

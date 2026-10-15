@@ -151,7 +151,14 @@ export const RecordEditorField = observer(function RecordEditorField({
       locked={permissionReadOnly}
       required={field.required}
     >
-      <RecordInputField field={field} id={id} inputId={inputId} label={null} members={store.record?.memberUsers} />
+      <RecordInputField
+        field={field}
+        files={store.record?.files}
+        id={id}
+        inputId={inputId}
+        label={null}
+        members={store.record?.memberUsers}
+      />
     </EntityDetailFieldShell>
   );
 });

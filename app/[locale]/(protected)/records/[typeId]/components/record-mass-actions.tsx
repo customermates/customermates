@@ -53,7 +53,7 @@ export const RecordMassActions = observer(function RecordMassActions({ store }: 
     onPending: (id) => store.setBulkState(false, id),
     mutateMany: store.bulkMutation,
   });
-  const fields = store.fields.filter(isRecordFieldWritable);
+  const fields = store.fields.filter((field) => isRecordFieldWritable(field) && field.valueType !== "file");
   const active = fields.find((field) => field.id === activeId);
   const close = () => {
     setOpen(false);

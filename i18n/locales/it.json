@@ -3544,8 +3544,15 @@
     "fieldTabs": {
       "calculation": "Calcolo"
     },
+    "fileAdd": "{mode, select, many {Aggiungi file} other {Aggiungi un file}}",
+    "fileCancelUpload": "Annulla il caricamento di {name}",
+    "fileDropHint": "{mode, select, many {oppure trascina qui i file} other {oppure trascina qui un file}}",
+    "fileLimit": "Questo campo contiene al massimo {count, plural, one {# file} other {# file}}.",
+    "fileOpen": "Apri {name} ({size})",
+    "fileRemove": "Rimuovi {name}",
     "fileUnavailable": "File non disponibile",
-    "fileUploadUnavailable": "Il caricamento dei file non è ancora disponibile.",
+    "fileUploadFailed": "Il caricamento non è riuscito. Riprova.",
+    "fileUploading": "Caricamento… {progress, number, percent}",
     "general": "Generale",
     "graph": {
       "accountEdge": "Sincronizza le conversazioni in {list}",

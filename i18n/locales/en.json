@@ -3544,8 +3544,15 @@
     "fieldTabs": {
       "calculation": "Calculation"
     },
+    "fileAdd": "{mode, select, many {Add files} other {Add file}}",
+    "fileCancelUpload": "Cancel uploading {name}",
+    "fileDropHint": "{mode, select, many {or drop files here} other {or drop a file here}}",
+    "fileLimit": "This field holds up to {count, plural, one {# file} other {# files}}.",
+    "fileOpen": "Open {name} ({size})",
+    "fileRemove": "Remove {name}",
     "fileUnavailable": "Unavailable file",
-    "fileUploadUnavailable": "File uploads are not available yet.",
+    "fileUploadFailed": "The upload failed. Try again.",
+    "fileUploading": "Uploading… {progress, number, percent}",
     "general": "General",
     "graph": {
       "accountEdge": "Syncs conversations into {list}",

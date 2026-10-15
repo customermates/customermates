@@ -3544,8 +3544,15 @@
     "fieldTabs": {
       "calculation": "Calcul"
     },
+    "fileAdd": "{mode, select, many {Ajouter des fichiers} other {Ajouter un fichier}}",
+    "fileCancelUpload": "Annuler le téléversement de {name}",
+    "fileDropHint": "{mode, select, many {ou déposez des fichiers ici} other {ou déposez un fichier ici}}",
+    "fileLimit": "Ce champ contient au maximum {count, plural, one {# fichier} other {# fichiers}}.",
+    "fileOpen": "Ouvrir {name} ({size})",
+    "fileRemove": "Retirer {name}",
     "fileUnavailable": "Fichier indisponible",
-    "fileUploadUnavailable": "Le téléversement de fichiers n’est pas encore disponible.",
+    "fileUploadFailed": "Le téléversement a échoué. Réessayez.",
+    "fileUploading": "Téléversement… {progress, number, percent}",
     "general": "Général",
     "graph": {
       "accountEdge": "Synchronise les conversations dans {list}",

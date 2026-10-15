@@ -3544,8 +3544,15 @@
     "fieldTabs": {
       "calculation": "Cálculo"
     },
+    "fileAdd": "{mode, select, many {Añadir archivos} other {Añadir archivo}}",
+    "fileCancelUpload": "Cancelar la subida de {name}",
+    "fileDropHint": "{mode, select, many {o suelta los archivos aquí} other {o suelta un archivo aquí}}",
+    "fileLimit": "Este campo admite como máximo {count, plural, one {# archivo} other {# archivos}}.",
+    "fileOpen": "Abrir {name} ({size})",
+    "fileRemove": "Quitar {name}",
     "fileUnavailable": "Archivo no disponible",
-    "fileUploadUnavailable": "La subida de archivos aún no está disponible.",
+    "fileUploadFailed": "La subida ha fallado. Inténtalo de nuevo.",
+    "fileUploading": "Subiendo… {progress, number, percent}",
     "general": "General",
     "graph": {
       "accountEdge": "Sincroniza conversaciones en {list}",

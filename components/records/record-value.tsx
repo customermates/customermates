@@ -24,6 +24,8 @@ import { cn } from "@/core/utils/cn";
 import { currencyFractionDigits } from "@/features/records/derived-value-format";
 import { AddressValue } from "@/components/records/address-value";
 
+import { RecordFileChips } from "./record-file-chips";
+
 type FormattedTextNode = { type?: string; text?: string; content?: FormattedTextNode[] };
 
 export function formattedTextExcerpt(documentJson: string) {
@@ -126,18 +128,8 @@ export const RecordValue = observer(function RecordValue({
       />
     );
   }
-  if (value.kind === "file") {
-    return (
-      <AppChipStack
-        fill={!compact}
-        items={value.value.map((id) => ({
-          id,
-          label: files.find((file) => file.id === id)?.name ?? t("RecordModel.fileUnavailable"),
-        }))}
-        overflowMenu={overflowMenu}
-      />
-    );
-  }
+  if (value.kind === "file")
+    return <RecordFileChips compact={compact} fileIds={value.value} files={files} overflowMenu={overflowMenu} />;
   if (value.kind === "address") {
     return (
       <AddressValue

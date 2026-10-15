@@ -3544,8 +3544,15 @@
     "fieldTabs": {
       "calculation": "Berechnung"
     },
+    "fileAdd": "{mode, select, many {Dateien hinzufügen} other {Datei hinzufügen}}",
+    "fileCancelUpload": "Upload von {name} abbrechen",
+    "fileDropHint": "{mode, select, many {oder Dateien hierher ziehen} other {oder eine Datei hierher ziehen}}",
+    "fileLimit": "Dieses Feld fasst höchstens {count, plural, one {# Datei} other {# Dateien}}.",
+    "fileOpen": "{name} öffnen ({size})",
+    "fileRemove": "{name} entfernen",
     "fileUnavailable": "Nicht verfügbare Datei",
-    "fileUploadUnavailable": "Datei-Uploads sind noch nicht verfügbar.",
+    "fileUploadFailed": "Der Upload ist fehlgeschlagen. Versuche es erneut.",
+    "fileUploading": "Wird hochgeladen … {progress, number, percent}",
     "general": "Allgemein",
     "graph": {
       "accountEdge": "Synchronisiert Unterhaltungen in {list}",
