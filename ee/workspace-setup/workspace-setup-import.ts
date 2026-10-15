@@ -6,6 +6,7 @@ import type {
 } from "@/features/data-transfer/spreadsheet/spreadsheet.schema";
 
 import {
+  importableSpreadsheetField,
   spreadsheetMappingIssues,
   spreadsheetRelatedNames,
 } from "@/features/data-transfer/spreadsheet/spreadsheet-conversion";
@@ -16,6 +17,19 @@ export type SetupLinkTargetImport = {
   table: SpreadsheetTable;
   mapping: SpreadsheetMapping;
 };
+
+export function usableSetupImportMapping(
+  mapping: SpreadsheetMapping,
+  sheet: { table: SpreadsheetTable; profile: readonly SpreadsheetColumnProfile[] },
+  model: RecordModel,
+): boolean {
+  if (spreadsheetMappingIssues(sheet.table.headers, mapping, model).length) return false;
+  const primaryId = model.types.find((type) => type.id === mapping.typeId)?.primaryFieldId;
+  const primary = model.fields.find((field) => field.id === primaryId);
+  if (!primary || !importableSpreadsheetField(primary)) return true;
+  const column = mapping.columns.find((entry) => entry.fieldId === primary.id)?.column;
+  return sheet.profile.some((entry) => entry.column === column && entry.filled > 0);
+}
 
 export function settleSetupImportMapping(
   mapping: SpreadsheetMapping,

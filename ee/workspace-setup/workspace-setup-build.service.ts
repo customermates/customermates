@@ -34,10 +34,7 @@ import {
   ImportSpreadsheetSchema,
   SpreadsheetMappingSchema,
 } from "@/features/data-transfer/spreadsheet/spreadsheet.schema";
-import {
-  spreadsheetMappingIssues,
-  spreadsheetRecordId,
-} from "@/features/data-transfer/spreadsheet/spreadsheet-conversion";
+import { spreadsheetRecordId } from "@/features/data-transfer/spreadsheet/spreadsheet-conversion";
 import {
   SETUP_LINE_ITEM_DEAL,
   SETUP_LINE_ITEM_LIST,
@@ -47,7 +44,11 @@ import {
   setupRoleList,
 } from "@/features/workspace-setup/setup-anchors";
 import { compileSetupDashboard } from "@/features/workspace-setup/setup-dashboard-compiler";
-import { compileSetupImportMapping } from "@/features/workspace-setup/setup-import-compiler";
+import {
+  compileSetupImportMapping,
+  setupImportList,
+  withOptionalImportFields,
+} from "@/features/workspace-setup/setup-import-compiler";
 import { compileSetupRecordModel } from "@/features/workspace-setup/setup-model-compiler";
 import {
   createSetupResolver,
@@ -85,7 +86,7 @@ import {
 import { setupModelLabels } from "./workspace-setup-labels";
 import { generatedSampleList, sampleListSpecs } from "./workspace-setup-samples";
 import { sampleLineItemPlans } from "./workspace-setup-line-items";
-import { settleSetupImportMapping, setupLinkTargetImports } from "./workspace-setup-import";
+import { settleSetupImportMapping, setupLinkTargetImports, usableSetupImportMapping } from "./workspace-setup-import";
 import { phaseFailure, phaseFailureOf } from "./workspace-setup-phase-failure";
 import { retriesAutomatically } from "./workspace-setup-attempts";
 import {
@@ -397,7 +398,8 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     let references = artifact(setup, "references", SetupReferencesSchema);
     if (!bundle || !references) {
       const model = await this.records.getModel();
-      const compiled = compileSetupRecordModel(plan, {
+      const planned = setupDataChoice(setup.answers) === "spreadsheet" ? withOptionalImportFields(plan) : plan;
+      const compiled = compileSetupRecordModel(planned, {
         setupId: setup.id,
         model,
         labels: await setupModelLabels(setupLanguage(setup.answers)),
@@ -703,19 +705,16 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     let mapping = artifact(setup, "importMapping", SpreadsheetMappingSchema);
     if (!mapping) {
       const compiled = compileSetupImportMapping(plan, resolver, model);
-      const typeId =
-        compiled.ok && compiled.data
-          ? compiled.data.typeId
-          : resolver.list(plan.importMapping?.list ?? setupRoleList(plan, "people") ?? "");
+      const typeId = compiled.ok && compiled.data ? compiled.data.typeId : resolver.list(setupImportList(plan) ?? "");
       if (!typeId) throw phaseFailure("invalidPlan");
       const proposed = await this.proposeMapping(setup, sheet, model, typeId, compiled.ok ? compiled.data : null);
-      mapping = await this.storeArtifact(
-        setup.id,
-        "importMapping",
-        settleSetupImportMapping(proposed, sheet.profile, model),
-        SpreadsheetMappingSchema,
-      );
+      mapping = await this.storeArtifact(setup.id, "importMapping", proposed, SpreadsheetMappingSchema);
     }
+    const refused = async (error: z.ZodError) => {
+      if (error.issues.some((issue) => issue.path[0] === "mapping"))
+        await this.clearArtifact(setup.id, "importMapping");
+      return phaseFailure(failureOf(error));
+    };
     const links = setupLinkTargetImports(sheet.table, mapping, model);
     const linked: RecordRef[] = [];
     const linkResults: StoredSetupResults["records"] = [];
@@ -727,7 +726,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
           idempotencyKey: setupIdempotencyKey(setup.id, `import:${target.relationId}`),
         }),
       );
-      if (!created.ok) throw phaseFailure(failureOf(created.error));
+      if (!created.ok) throw await refused(created.error);
       linked.push(...created.data.records);
       linkResults.push({
         listId: target.typeId,
@@ -741,7 +740,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     const imported = await this.importSpreadsheet.invoke(
       ImportSpreadsheetSchema.parse({ table: sheet.table, mapping: links.mapping, idempotencyKey }),
     );
-    if (!imported.ok) throw phaseFailure(failureOf(imported.error));
+    if (!imported.ok) throw await refused(imported.error);
     const primary = model.types.find((type) => type.id === mapping.typeId)?.primaryFieldId;
     const titleColumn =
       mapping.columns.find((column) => column.fieldId === primary)?.column ?? mapping.columns[0]?.column;
@@ -800,17 +799,14 @@ export class WorkspaceSetupBuildService extends UserAccessor {
       system: SETUP_MAPPING_INSTRUCTION,
       prompt: [
         `Workspace currency: ${setupCurrency(setup.answers) ?? plan(setup).workspace.currency}.`,
-        `Fields: ${encodePromptJson(fields.map((field, index) => ({ key: `f${index + 1}`, label: field.label, valueType: field.valueType, options: field.options.map((option) => option.label) })))}`,
+        `Fields: ${encodePromptJson(fields.map((field, index) => ({ key: `f${index + 1}`, label: field.label, valueType: field.valueType, required: field.required, options: field.options.map((option) => option.label) })))}`,
         `Relationships: ${encodePromptJson(relations.map((relation, index) => ({ key: `l${index + 1}`, label: relation.sourceLabel })))}`,
         `Suggested mapping: ${encodePromptJson((planned?.columns ?? []).map((column) => ({ column: column.column, field: [...keys].find(([, id]) => id === column.fieldId)?.[0] ?? null })))}`,
         "Spreadsheet:",
         untrustedText(encodePromptJson({ profile: sheet.profile, preview: sheet.preview })),
       ].join("\n"),
     });
-    if (!result.ok) {
-      if (result.failure === "spendCap") throw phaseFailure("spendCap", true);
-      return fallback;
-    }
+    if (!result.ok) throw phaseFailure(result.failure, result.failure === "spendCap");
     const used = new Set<string>();
     const proposal: SpreadsheetMapping = {
       typeId,
@@ -839,8 +835,11 @@ export class WorkspaceSetupBuildService extends UserAccessor {
       }),
     };
     const parsed = SpreadsheetMappingSchema.safeParse(proposal);
-    if (!parsed.success || spreadsheetMappingIssues(sheet.table.headers, parsed.data, model).length) return fallback;
-    return parsed.data;
+    for (const candidate of parsed.success ? [parsed.data, fallback] : [fallback]) {
+      const settled = settleSetupImportMapping(candidate, sheet.profile, model);
+      if (usableSetupImportMapping(settled, sheet, model)) return settled;
+    }
+    throw phaseFailure("generation");
   }
 }
 

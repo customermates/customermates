@@ -7,7 +7,7 @@ import type { SpreadsheetMapping, SpreadsheetTable } from "@/features/data-trans
 
 import { createCrmPreset, presetId } from "@/features/records/crm-preset";
 import { profileSpreadsheet } from "@/features/data-transfer/spreadsheet/spreadsheet-profile";
-import { settleSetupImportMapping, setupLinkTargetImports } from "../workspace-setup-import";
+import { settleSetupImportMapping, setupLinkTargetImports, usableSetupImportMapping } from "../workspace-setup-import";
 
 const companyId = randomUUID();
 const id = (key: string) => presetId(companyId, key);
@@ -61,6 +61,37 @@ describe("settleSetupImportMapping", () => {
     expect(settleSetupImportMapping(email, profile, model)).toEqual(email);
     const organizations = { ...contactMapping([]), typeId: id("organization") };
     expect(settleSetupImportMapping(organizations, profile, model)).toEqual(organizations);
+  });
+});
+
+describe("usableSetupImportMapping", () => {
+  const model = createCrmPreset(companyId);
+  const sheet = { table, profile };
+  const organizations = (columns: SpreadsheetMapping["columns"]) => ({
+    ...contactMapping(columns),
+    typeId: id("organization"),
+  });
+
+  it("accepts a mapping that fills every required field and names each record from a filled column", () => {
+    expect(
+      usableSetupImportMapping(organizations([{ column: "Company", fieldId: id("organization.name") }]), sheet, model),
+    ).toBe(true);
+    expect(usableSetupImportMapping(contactMapping([{ column: "Email", fieldId: CHANNELS }]), sheet, model)).toBe(true);
+  });
+
+  it("refuses a mapping without the name column, with an unknown column or naming records from an empty column", () => {
+    expect(usableSetupImportMapping(organizations([]), sheet, model)).toBe(false);
+    expect(
+      usableSetupImportMapping(organizations([{ column: "Name", fieldId: id("organization.name") }]), sheet, model),
+    ).toBe(false);
+    const empty: SpreadsheetTable = { ...table, headers: [...table.headers, "Trading name"] };
+    expect(
+      usableSetupImportMapping(
+        organizations([{ column: "Trading name", fieldId: id("organization.name") }]),
+        { table: empty, profile: profileSpreadsheet(empty, "en") },
+        model,
+      ),
+    ).toBe(false);
   });
 });
 

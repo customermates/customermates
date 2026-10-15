@@ -9,7 +9,7 @@ import { WIDGET_GRID_BREAKPOINT_COLUMNS, rectsOverlap } from "@/features/widget/
 import { ChartColor, DisplayType } from "@/features/widget/widget-display.schema";
 
 import { compileSetupDashboard } from "../setup-dashboard-compiler";
-import { compileSetupImportMapping } from "../setup-import-compiler";
+import { compileSetupImportMapping, setupImportList, withOptionalImportFields } from "../setup-import-compiler";
 import { compileSetupRecordModel } from "../setup-model-compiler";
 import { SETUP_PLAN_LIMITS, SetupPlanSchema } from "../setup-plan.schema";
 import { createSetupResolver, setupIdempotencyKey } from "../setup-references";
@@ -455,6 +455,24 @@ describe("workspace setup compiler", () => {
         ],
       },
     });
+  });
+
+  it("makes the fields of the list a spreadsheet fills optional, so missing cells and columns do not block rows", () => {
+    const input = structuredClone(agencyPlan);
+    input.importMapping = null;
+    input.recordModel.fields = input.recordModel.fields.map((field) => ({ ...field, required: true }));
+    const plan = SetupPlanSchema.parse(input);
+    expect(setupImportList(plan)).toBe("contact");
+    const relaxed = withOptionalImportFields(plan);
+    expect(
+      relaxed.recordModel.fields.filter((field) => field.required).map((field) => field.key.split(".")[0]),
+    ).not.toContain("contact");
+    expect(
+      relaxed.recordModel.fields.filter((field) => field.key.startsWith("deal.")).every((field) => field.required),
+    ).toBe(true);
+    expect(
+      setupImportList({ ...plan, importMapping: { list: "organization", columns: [{ column: "Name", field: null }] } }),
+    ).toBe("organization");
   });
 
   it("refuses a list default column of another list", () => {

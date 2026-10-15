@@ -4,7 +4,27 @@ import type { SetupCompileIssue, SetupCompileResult, SetupResolver } from "./set
 
 import { importableSpreadsheetField } from "@/features/data-transfer/spreadsheet/spreadsheet-conversion";
 
+import { setupRoleList } from "./setup-anchors";
+
 export type SetupImportMapping = { typeId: string; columns: Array<{ column: string; fieldId: string | null }> };
+
+export function setupImportList(plan: SetupPlan): string | null {
+  return plan.importMapping?.list ?? setupRoleList(plan, "people");
+}
+
+export function withOptionalImportFields(plan: SetupPlan): SetupPlan {
+  const list = setupImportList(plan);
+  if (!list) return plan;
+  return {
+    ...plan,
+    recordModel: {
+      ...plan.recordModel,
+      fields: plan.recordModel.fields.map((field) =>
+        field.key.startsWith(`${list}.`) ? { ...field, required: false } : field,
+      ),
+    },
+  };
+}
 
 export function compileSetupImportMapping(
   plan: SetupPlan,

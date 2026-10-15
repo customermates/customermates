@@ -150,6 +150,76 @@ function modelReplies() {
   );
 }
 
+type MappingReply = {
+  columns: Array<{ column: string; field: string | null; namePart?: "first" | "last" }>;
+  relationships: Array<{ column: string; relationship: string | null }>;
+};
+
+function promptKey(prompt: string, prefix: string, label: string) {
+  const line = prompt.split("\n").find((entry) => entry.startsWith(prefix)) ?? `${prefix}[]`;
+  const entries = JSON.parse(line.slice(prefix.length)) as { key: string; label: string }[];
+  return entries.find((entry) => entry.label === label)?.key ?? null;
+}
+
+function mappingReplies(reply: (key: (prefix: string, label: string) => string | null) => MappingReply | null) {
+  const planReply = state.generate.getMockImplementation();
+  state.generate.mockImplementation((args: { label: string; prompt: string; model: { modelId: string } }) => {
+    if (args.label !== "Workspace setup column mapping") return planReply?.(args);
+    const charge = { ...CHARGE, model: args.model.modelId };
+    const output = reply((prefix, label) => promptKey(args.prompt, prefix, label));
+    if (!output) return Promise.resolve({ output: null, charge, failure: "provider down", failureScope: "provider" });
+    return Promise.resolve({
+      output: {
+        columns: output.columns.map((column) => ({ dateOrder: null, currency: null, namePart: null, ...column })),
+        relationships: output.relationships,
+        phoneCountryCode: null,
+      },
+      charge,
+    });
+  });
+}
+
+const CLIENTS_CSV = [
+  "Full name,Email,Phone,Company,Job title",
+  "Mary Ann Collins,mary.collins@example.net,+44 20 7946 0005,,Owner",
+  "Priya Patel,priya.patel@example.com,+44 20 7946 0003,Northgate Analytics,Head of People",
+  "Jack Whitmore,jack.whitmore@example.com,+44 20 7946 0006,Northgate Analytics,CFO",
+  "Lily Chen,lily.chen@example.com,+44 20 7946 0019,Brightwave Media,Account Director",
+].join("\n");
+
+async function spreadsheetSetup(ws: Workspace, csv: string) {
+  const started = await ws.run(() => di.getStartWorkspaceSetupInteractor().invoke({ websiteUrl: null }));
+  if (!started.ok) throw new Error(JSON.stringify(started.error));
+  const setupId = started.data.setupId;
+  const uploaded = await ws.run(() =>
+    di
+      .getUploadWorkspaceSetupSpreadsheetInteractor()
+      .invoke({ setupId, fileName: "clients.csv", bytes: new TextEncoder().encode(csv) }),
+  );
+  expect(uploaded).toMatchObject({ ok: true, data: { accepted: true } });
+  const saved = await ws.run(() =>
+    di.getSaveWorkspaceSetupAnswersInteractor().invoke({
+      setupId,
+      answers: {
+        companyName: { format: "shortText", value: "Studio Example" },
+        language: { format: "singleChoice", value: "en" },
+        currency: { format: "singleChoice", value: "EUR" },
+        existingData: { format: "singleChoice", value: "spreadsheet" },
+      },
+      followUpAnswers: [],
+    }),
+  );
+  if (!saved.ok) throw new Error(JSON.stringify(saved.error));
+  const queued = await ws.run(() => di.getPlanWorkspaceSetupInteractor().invoke({ setupId }));
+  if (!queued.ok) throw new Error(JSON.stringify(queued.error));
+  expect(await draftPlan(ws, setupId)).toBe("planned");
+  const confirmed = await ws.run(() =>
+    di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision: queued.data.planRevision }),
+  );
+  expect(confirmed.ok).toBe(true);
+  return setupId;
+}
+
 async function planned(ws: Workspace) {
   const started = await ws.run(() => di.getStartWorkspaceSetupInteractor().invoke({ websiteUrl: null }));
   if (!started.ok) throw new Error(JSON.stringify(started.error));
@@ -1036,69 +1106,14 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
         ],
       },
     };
-    const planReply = state.generate.getMockImplementation();
-    state.generate.mockImplementation((args: { label: string; prompt: string; model: { modelId: string } }) => {
-      if (args.label !== "Workspace setup column mapping") return planReply?.(args);
-      const keyOf = (prefix: string, label: string) => {
-        const line = args.prompt.split("\n").find((entry) => entry.startsWith(prefix)) ?? `${prefix}[]`;
-        const entries = JSON.parse(line.slice(prefix.length)) as { key: string; label: string }[];
-        return entries.find((entry) => entry.label === label)?.key ?? null;
-      };
-      const column = (name: string, field: string | null, namePart: "first" | null = null) => ({
-        column: name,
-        field,
-        dateOrder: null,
-        currency: null,
-        namePart,
-      });
-      return Promise.resolve({
-        output: {
-          columns: [
-            column("Full name", keyOf("Fields: ", "Contact"), "first"),
-            column("Job title", keyOf("Fields: ", "Job title")),
-          ],
-          relationships: [{ column: "Company", relationship: keyOf("Relationships: ", "Client") }],
-          phoneCountryCode: null,
-        },
-        charge: { ...CHARGE, model: args.model.modelId },
-      });
-    });
-    const started = await ws.run(() => di.getStartWorkspaceSetupInteractor().invoke({ websiteUrl: null }));
-    if (!started.ok) throw new Error(JSON.stringify(started.error));
-    const setupId = started.data.setupId;
-    const csv = [
-      "Full name,Email,Phone,Company,Job title",
-      "Mary Ann Collins,mary.collins@example.net,+44 20 7946 0005,,Owner",
-      "Priya Patel,priya.patel@example.com,+44 20 7946 0003,Northgate Analytics,Head of People",
-      "Jack Whitmore,jack.whitmore@example.com,+44 20 7946 0006,Northgate Analytics,CFO",
-      "Lily Chen,lily.chen@example.com,+44 20 7946 0019,Brightwave Media,Account Director",
-    ].join("\n");
-    const uploaded = await ws.run(() =>
-      di
-        .getUploadWorkspaceSetupSpreadsheetInteractor()
-        .invoke({ setupId, fileName: "clients.csv", bytes: new TextEncoder().encode(csv) }),
-    );
-    expect(uploaded).toMatchObject({ ok: true, data: { accepted: true, rowCount: 4 } });
-    const saved = await ws.run(() =>
-      di.getSaveWorkspaceSetupAnswersInteractor().invoke({
-        setupId,
-        answers: {
-          companyName: { format: "shortText", value: "Studio Example" },
-          language: { format: "singleChoice", value: "en" },
-          currency: { format: "singleChoice", value: "EUR" },
-          existingData: { format: "singleChoice", value: "spreadsheet" },
-        },
-        followUpAnswers: [],
-      }),
-    );
-    if (!saved.ok) throw new Error(JSON.stringify(saved.error));
-    const queued = await ws.run(() => di.getPlanWorkspaceSetupInteractor().invoke({ setupId }));
-    if (!queued.ok) throw new Error(JSON.stringify(queued.error));
-    expect(await draftPlan(ws, setupId)).toBe("planned");
-    const confirmed = await ws.run(() =>
-      di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision: queued.data.planRevision }),
-    );
-    expect(confirmed.ok).toBe(true);
+    mappingReplies((key) => ({
+      columns: [
+        { column: "Full name", field: key("Fields: ", "Contact"), namePart: "first" },
+        { column: "Job title", field: key("Fields: ", "Job title") },
+      ],
+      relationships: [{ column: "Company", relationship: key("Relationships: ", "Client") }],
+    }));
+    const setupId = await spreadsheetSetup(ws, CLIENTS_CSV);
     expect((await build(ws, setupId)).records).toBe("settled");
 
     const reference = await references(ws, setupId);
@@ -1149,6 +1164,108 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
         }),
       ),
     ).toBe(3);
+  });
+
+  it("maps the sheet again instead of storing a column mapping the import cannot use", async () => {
+    const ws = await workspace();
+    state.plan = { ...structuredClone(agencyPlan), importMapping: null };
+    let reply: "down" | "unnamed" | "named" = "down";
+    mappingReplies((key) =>
+      reply === "down"
+        ? null
+        : {
+            columns: [
+              reply === "named"
+                ? { column: "Full name", field: key("Fields: ", "Contact") }
+                : { column: "Job title", field: key("Fields: ", "Job title") },
+            ],
+            relationships: [],
+          },
+    );
+    const setupId = await spreadsheetSetup(ws, CLIENTS_CSV);
+    const service = di.getWorkspaceSetupBuildService();
+    const stored = async () => (await ws.run(() => di.getWorkspaceSetupRepo().get(setupId)))?.artifacts.importMapping;
+    const records = async () => (await status(ws)).phases.find((phase) => phase.key === "records");
+    expect(await ws.run(() => service.runPhase(setupId, "dataModel"))).toBe("settled");
+
+    expect(await ws.run(() => service.runPhase(setupId, "records"))).toBe("wait");
+    expect(await records()).toMatchObject({ status: "pending", error: "aiUnavailable" });
+    expect(await stored()).toBeUndefined();
+
+    reply = "unnamed";
+    expect(await ws.run(() => service.runPhase(setupId, "records"))).toBe("wait");
+    expect(await records()).toMatchObject({ status: "pending", error: "generation" });
+    expect(await stored()).toBeUndefined();
+
+    reply = "named";
+    expect(await ws.run(() => service.runPhase(setupId, "records"))).toBe("settled");
+    expect(await records()).toMatchObject({ status: "completed", attempts: 3 });
+    expect((await status(ws)).results.records[0]).toMatchObject({ kind: "imported", count: 4, skippedRows: 0 });
+  });
+
+  it("drops a stored column mapping the import refuses and maps the sheet again", async () => {
+    const ws = await workspace();
+    state.plan = { ...structuredClone(agencyPlan), importMapping: null };
+    mappingReplies((key) => ({
+      columns: [{ column: "Full name", field: key("Fields: ", "Contact") }],
+      relationships: [],
+    }));
+    const setupId = await spreadsheetSetup(ws, CLIENTS_CSV);
+    const service = di.getWorkspaceSetupBuildService();
+    expect(await ws.run(() => service.runPhase(setupId, "dataModel"))).toBe("settled");
+    const reference = await references(ws, setupId);
+    await ws.run(() =>
+      di.getWorkspaceSetupRepo().mutate(setupId, (current) => ({
+        artifacts: {
+          ...current.artifacts,
+          importMapping: {
+            typeId: reference("$list.contact"),
+            locale: "en",
+            timeZone: "UTC",
+            columns: [{ column: "Client name", fieldId: reference("$list.contact.name") }],
+            relationships: [],
+          },
+        },
+      })),
+    );
+    expect(await ws.run(() => service.runPhase(setupId, "records"))).toBe("wait");
+    const cleared = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
+    expect(cleared?.artifacts.importMapping).toBeUndefined();
+    expect(await ws.run(() => service.runPhase(setupId, "records"))).toBe("settled");
+    const imported = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
+    expect(imported?.artifacts.importMapping).toMatchObject({
+      columns: [{ column: "Full name", fieldId: reference("$list.contact.name") }, { column: "Email" }],
+    });
+    expect((await status(ws)).results.records[0]).toMatchObject({ kind: "imported", count: 4 });
+  });
+
+  it("keeps the fields of the imported list optional, so rows import without a column for a required field", async () => {
+    const ws = await workspace();
+    const plan = structuredClone(agencyPlan);
+    state.plan = {
+      ...plan,
+      recordModel: {
+        ...plan.recordModel,
+        fields: plan.recordModel.fields.map((field) =>
+          field.key.startsWith("contact.") || field.key === "project.budget" ? { ...field, required: true } : field,
+        ),
+      },
+      importMapping: { list: "contact", columns: [{ column: "Full name", field: "contact.name" }] },
+    };
+    mappingReplies((key) => ({
+      columns: [{ column: "Full name", field: key("Fields: ", "Contact") }],
+      relationships: [],
+    }));
+    const setupId = await spreadsheetSetup(ws, CLIENTS_CSV);
+    expect((await build(ws, setupId)).records).toBe("settled");
+    expect((await status(ws)).results.records[0]).toMatchObject({ kind: "imported", count: 4, skippedRows: 0 });
+    const reference = await references(ws, setupId);
+    const model = await ws.run(() => createTestRecordRepo().getModel());
+    const required = (ref: string) => model.fields.find((field) => field.id === reference(ref))?.required;
+    expect(required("$field.contact.jobTitle")).toBe(false);
+    expect(required("$field.contact.email")).toBe(false);
+    expect(required("$list.contact.name")).toBe(true);
+    expect(required("$field.project.budget")).toBe(true);
   });
 
   it("skips the setup for a workspace that already has lists and never started one", async () => {
