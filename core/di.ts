@@ -163,6 +163,9 @@ import type { RecordFileAttacher } from "@/features/records/record-file-attacher
 import { RecordFileAttachmentService } from "@/features/records/record-file-attachment.service";
 import { PrismaRecordFileRepo } from "@/features/records/prisma-record-file.repository";
 import type { RecordFileIndexDispatcher } from "@/features/records/record-file-index-dispatcher";
+import { S3FileStorageDriver, s3FileStorageConfig } from "@/core/storage/s3-file-storage.driver";
+import { VercelBlobFileStorageDriver } from "@/core/storage/vercel-blob-file-storage.driver";
+import { vercelBlobClient } from "@/core/storage/vercel-blob-client";
 import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
 import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
 import { PrismaWebhookDeliveryRepo } from "@/features/webhook/prisma-webhook-delivery.repository";
@@ -548,11 +551,14 @@ export const getRecordFileRepo = () => new PrismaRecordFileRepo();
 export const getRecordFileAttacher = (): RecordFileAttacher => new RecordFileAttachmentService(getRecordFileRepo());
 export const getRecordFileIndexDispatcher = (): RecordFileIndexDispatcher =>
   new BackgroundRecordFileIndexDispatcher(getBackgroundTaskService());
-export const getFileContentRepo = () => new PrismaFileContentRepo();
-export const getDatabaseFileStorageDriver = () => new DatabaseFileStorageDriver(getFileContentRepo(), env.BASE_URL);
-export const getFileStorageDriver = (): FileStorageDriver => {
-  if (env.FILE_STORAGE_DRIVER === "database") return getDatabaseFileStorageDriver();
-  throw new Error(`The ${env.FILE_STORAGE_DRIVER} file storage driver is not available in this build`);
+export const getFileContentRepo = (companyId?: string) => new PrismaFileContentRepo(companyId);
+export const getDatabaseFileStorageDriver = (companyId?: string) =>
+  new DatabaseFileStorageDriver(getFileContentRepo(companyId), env.BASE_URL);
+export const getFileStorageDriver = (name: string = env.FILE_STORAGE_DRIVER, companyId?: string): FileStorageDriver => {
+  if (name === "database") return getDatabaseFileStorageDriver(companyId);
+  if (name === "s3") return new S3FileStorageDriver(s3FileStorageConfig(env));
+  if (name === "vercel-blob") return new VercelBlobFileStorageDriver(vercelBlobClient);
+  throw new Error(`The ${name} file storage driver is unknown`);
 };
 export const getRecordConfigurationService = (records: RecordRepo = getRecordRepo()) =>
   new RecordConfigurationService(records);

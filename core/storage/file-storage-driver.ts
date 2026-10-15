@@ -36,4 +36,5 @@ export interface FileStorageDriver {
   read(key: string, range?: StoredFileRange): Promise<StoredFileRead | null>;
   writeStream(key: string, stream: ReadableStream<Uint8Array>, maxBytes: number): Promise<StoredFileWrite>;
   delete(keys: string[]): Promise<void>;
+  deletePrefix?(prefix: string): Promise<number>;
 }
