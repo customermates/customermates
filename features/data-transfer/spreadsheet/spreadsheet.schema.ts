@@ -208,6 +208,7 @@ export const ImportSpreadsheetResultSchema = z
     rowCount: z.number().int().nonnegative(),
     created: z.number().int().nonnegative(),
     linked: z.number().int().nonnegative(),
+    ignoredValues: z.number().int().nonnegative(),
     errorCount: z.number().int().nonnegative(),
     errors: z.array(SpreadsheetRowErrorSchema).max(SPREADSHEET_MAX_ROW_ERRORS),
     schemaRevision: z.number().int().nonnegative(),

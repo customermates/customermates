@@ -98,6 +98,7 @@ export class ImportSpreadsheetInteractor extends AuthenticatedInteractor<
             rowCount: conversion.rowCount,
             created,
             linked,
+            ignoredValues: conversion.ignoredValues,
             errorCount: conversion.errors.length,
             errors: conversion.errors.slice(0, SPREADSHEET_MAX_ROW_ERRORS),
             schemaRevision: model.revision,

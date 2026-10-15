@@ -836,7 +836,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     };
     const parsed = SpreadsheetMappingSchema.safeParse(proposal);
     for (const candidate of parsed.success ? [parsed.data, fallback] : [fallback]) {
-      const settled = settleSetupImportMapping(candidate, sheet.profile, model);
+      const settled = settleSetupImportMapping(candidate, sheet.table, model);
       if (usableSetupImportMapping(settled, sheet, model)) return settled;
     }
     throw phaseFailure("generation");

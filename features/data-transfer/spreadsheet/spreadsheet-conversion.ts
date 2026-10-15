@@ -48,6 +48,7 @@ export type SpreadsheetConversion = {
   documents: RecordExport[];
   rowCount: number;
   convertedRows: number;
+  ignoredValues: number;
   errors: SpreadsheetRowError[];
 };
 
@@ -90,7 +91,8 @@ export function spreadsheetMappingIssues(
     const field = model.fields.find((candidate) => candidate.id === entry.fieldId);
     if (!field || field.typeId !== type.id || !importableSpreadsheetField(field))
       issues.push({ code: "fieldNotImportable", path: ["columns", index, "fieldId"] });
-    else if (mapped.has(field.id)) issues.push({ code: "duplicateField", path: ["columns", index, "fieldId"] });
+    else if (mapped.has(field.id) && field.valueType !== "channels")
+      issues.push({ code: "duplicateField", path: ["columns", index, "fieldId"] });
     else if (entry.namePart && (field.valueType !== "text" || field.multiple))
       issues.push({ code: "fieldNotImportable", path: ["columns", index, "namePart"] });
     mapped.add(entry.fieldId);
@@ -276,27 +278,45 @@ function convertCell(
   return { value: parsed.data };
 }
 
+export function spreadsheetChannelParts(cell: SpreadsheetCell): string[] {
+  return cellIsEmpty(cell) ? [] : splitListValues(cellText(cell), CONTACT_SEPARATORS);
+}
+
+export function spreadsheetChannelIdentity(
+  part: string,
+  phoneCountryCode?: string,
+): Pick<RecordIdentity, "provider" | "value"> | null {
+  const email = normalizeEmail(part);
+  if (email) return { provider: "mail", value: email };
+  const phone = normalizePhone(part, phoneCountryCode);
+  return phone ? { provider: "whatsapp", value: phone } : null;
+}
+
 function channelIdentities(
-  cell: SpreadsheetCell,
+  cells: SpreadsheetCell[],
   rowKey: string,
-  idempotencyKey: string,
-): RecordIdentity[] | SpreadsheetRowErrorCode {
-  if (cellIsEmpty(cell)) return [];
-  const parts = splitListValues(cellText(cell), CONTACT_SEPARATORS);
+  options: { idempotencyKey: string; phoneCountryCode?: string },
+): { identities: RecordIdentity[]; ignored: number } | SpreadsheetRowErrorCode {
+  const parts = cells.flatMap(spreadsheetChannelParts);
   if (parts.length > MAX_LIST_VALUES) return "tooManyValues";
-  const emails = parts.map(normalizeEmail);
-  if (emails.some((email) => email === null)) return "invalidEmail";
-  return [...new Set(emails as string[])].map((value, index) => ({
-    id: spreadsheetRecordId(idempotencyKey, `identity:${rowKey}:${index}`),
-    provider: "mail" as const,
-    value,
-    channelClass: channelClass("mail"),
-    messagingId: null,
-    displayName: null,
-    profileUrl: null,
-    createdAt: SPREADSHEET_DOCUMENT_TIME,
-    updatedAt: SPREADSHEET_DOCUMENT_TIME,
-  }));
+  const found = parts.map((part) => spreadsheetChannelIdentity(part, options.phoneCountryCode));
+  const unique = new Map(
+    found.flatMap((identity) => (identity ? [[`${identity.provider}:${identity.value}`, identity] as const] : [])),
+  );
+  return {
+    ignored: found.filter((identity) => identity === null).length,
+    identities: [...unique.values()].map((identity, index) => ({
+      id: spreadsheetRecordId(options.idempotencyKey, `identity:${rowKey}:${index}`),
+      provider: identity.provider,
+      value: identity.value,
+      channelClass: channelClass(identity.provider),
+      messagingId: null,
+      displayName: null,
+      profileUrl: null,
+      createdAt: SPREADSHEET_DOCUMENT_TIME,
+      updatedAt: SPREADSHEET_DOCUMENT_TIME,
+    })),
+  };
 }
 
 export function convertSpreadsheet(
@@ -312,7 +332,7 @@ export function convertSpreadsheet(
   const channelsField = model.fields.find(
     (field) => field.typeId === mapping.typeId && !field.archived && field.valueType === "channels",
   );
-  const channelsColumn = channelsField ? columnsByField.get(channelsField.id) : undefined;
+  const channelsColumns = channelsField ? mapping.columns.filter((entry) => entry.fieldId === channelsField.id) : [];
   const relations = mapping.relationships.flatMap((entry) => {
     const relation = model.relationships.find((candidate) => candidate.id === entry.relationId);
     const index = columnIndex.get(entry.column);
@@ -323,6 +343,7 @@ export function convertSpreadsheet(
   let records: RecordDto[] = [];
   let links: RecordExportLink[] = [];
   let convertedRows = 0;
+  let ignoredValues = 0;
   const flush = () => {
     if (!records.length) return;
     documents.push({
@@ -373,15 +394,21 @@ export function convertSpreadsheet(
       recordId: spreadsheetRecordId(options.idempotencyKey, `record:${row.rowNumber}`),
     };
     let identities: RecordIdentity[] | undefined;
-    if (channelsColumn) {
-      const index = columnIndex.get(channelsColumn.column);
+    let ignored = 0;
+    if (channelsColumns.length) {
       const result = channelIdentities(
-        index === undefined ? null : (row.cells[index] ?? null),
+        channelsColumns.map((entry) => {
+          const index = columnIndex.get(entry.column);
+          return index === undefined ? null : (row.cells[index] ?? null);
+        }),
         String(row.rowNumber),
-        options.idempotencyKey,
+        { idempotencyKey: options.idempotencyKey, phoneCountryCode: mapping.phoneCountryCode },
       );
-      if (typeof result === "string") fail(channelsColumn.column, result);
-      else identities = result;
+      if (typeof result === "string") fail(channelsColumns[0].column, result);
+      else {
+        identities = result.identities;
+        ignored = result.ignored;
+      }
     }
     const rowLinks: RecordExportLink[] = [];
     for (const { entry, relation, index } of relations) {
@@ -421,7 +448,8 @@ export function convertSpreadsheet(
     });
     links.push(...rowLinks);
     convertedRows += 1;
+    ignoredValues += ignored;
   }
   flush();
-  return { documents, rowCount: table.rows.length, convertedRows, errors };
+  return { documents, rowCount: table.rows.length, convertedRows, ignoredValues, errors };
 }

@@ -37,7 +37,7 @@ describe("settleSetupImportMapping", () => {
 
   it("keeps a full name whole unless the column fills both name parts", () => {
     const single = contactMapping([{ column: "Full name", fieldId: id("contact.firstName"), namePart: "first" }]);
-    expect(settleSetupImportMapping(single, profile, model).columns).toContainEqual({
+    expect(settleSetupImportMapping(single, table, model).columns).toContainEqual({
       column: "Full name",
       fieldId: id("contact.firstName"),
     });
@@ -45,22 +45,52 @@ describe("settleSetupImportMapping", () => {
       { column: "Full name", fieldId: id("contact.firstName"), namePart: "first" },
       { column: "Full name", fieldId: id("contact.lastName"), namePart: "last" },
     ]);
-    expect(settleSetupImportMapping(split, profile, model).columns.slice(0, 2)).toEqual(split.columns);
+    expect(settleSetupImportMapping(split, table, model).columns.slice(0, 2)).toEqual(split.columns);
   });
 
-  it("imports one column of email addresses into the channels, never another column", () => {
-    const phone = contactMapping([
+  it("imports the email and the phone column into the channels, never another column", () => {
+    const company = contactMapping([
       { column: "Full name", fieldId: id("contact.firstName") },
-      { column: "Phone", fieldId: CHANNELS },
+      { column: "Company", fieldId: CHANNELS },
     ]);
-    expect(settleSetupImportMapping(phone, profile, model).columns).toEqual([
+    expect(settleSetupImportMapping(company, table, model).columns).toEqual([
       { column: "Full name", fieldId: id("contact.firstName") },
       { column: "Email", fieldId: CHANNELS },
+      { column: "Phone", fieldId: CHANNELS },
     ]);
-    const email = contactMapping([{ column: "Email", fieldId: CHANNELS }]);
-    expect(settleSetupImportMapping(email, profile, model)).toEqual(email);
+    const phone = contactMapping([{ column: "Phone", fieldId: CHANNELS }]);
+    expect(settleSetupImportMapping(phone, table, model).columns).toEqual([
+      { column: "Phone", fieldId: CHANNELS },
+      { column: "Email", fieldId: CHANNELS },
+    ]);
+    const both = contactMapping([
+      { column: "Email", fieldId: CHANNELS },
+      { column: "Phone", fieldId: id("contact.firstName") },
+    ]);
+    expect(settleSetupImportMapping(both, table, model)).toEqual(both);
     const organizations = { ...contactMapping([]), typeId: id("organization") };
-    expect(settleSetupImportMapping(organizations, profile, model)).toEqual(organizations);
+    expect(settleSetupImportMapping(organizations, table, model)).toEqual(organizations);
+  });
+
+  it("keeps a column of email addresses in the channels when a few cells hold something else", () => {
+    const messy: SpreadsheetTable = {
+      ...table,
+      rows: table.rows.map((row, index) =>
+        index === 1 ? { ...row, cells: [row.cells[0], "keine", null, row.cells[3]] } : row,
+      ),
+    };
+    const email = contactMapping([{ column: "Email", fieldId: CHANNELS }]);
+    expect(settleSetupImportMapping(email, messy, model).columns).toEqual([
+      { column: "Email", fieldId: CHANNELS },
+      { column: "Phone", fieldId: CHANNELS },
+    ]);
+    const mostlyText: SpreadsheetTable = {
+      ...table,
+      rows: table.rows.map((row, index) => (index < 2 ? { ...row, cells: [row.cells[0], "n/a", null, null] } : row)),
+    };
+    expect(settleSetupImportMapping(email, mostlyText, model).columns).toEqual([
+      { column: "Phone", fieldId: CHANNELS },
+    ]);
   });
 });
 

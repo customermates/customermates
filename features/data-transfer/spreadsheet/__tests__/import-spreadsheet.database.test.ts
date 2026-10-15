@@ -136,6 +136,7 @@ describeDatabase("ImportSpreadsheetInteractor", () => {
         rowCount: 3,
         created: 2,
         linked: 0,
+        ignoredValues: 0,
         errorCount: 1,
         errors: [{ rowNumber: 4, column: "Firma", code: "required" }],
         schemaRevision: 1,
@@ -161,7 +162,7 @@ describeDatabase("ImportSpreadsheetInteractor", () => {
     sheet.addRow(["Vorname", "Nachname", "E-Mail", "Firma"]);
     sheet.addRow(["Ada", "Lovelace", "ada@example.test", "Alpha GmbH; Beta AG"]);
     sheet.addRow(["Grace", "Hopper", null, "Gamma"]);
-    sheet.addRow(["Alan", "Turing", "alan@example.test", null]);
+    sheet.addRow(["Alan", "Turing", "n/a", null]);
     const contacts = await table(new Uint8Array(await workbook.xlsx.writeBuffer()));
     const result = await f.run(() =>
       f.spreadsheet.invoke(
@@ -187,6 +188,7 @@ describeDatabase("ImportSpreadsheetInteractor", () => {
         rowCount: 3,
         created: 2,
         linked: 2,
+        ignoredValues: 1,
         errors: [{ rowNumber: 3, column: "Firma", code: "relatedNotFound" }],
       },
     });

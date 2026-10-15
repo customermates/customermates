@@ -7,9 +7,11 @@ import type {
 
 import {
   importableSpreadsheetField,
+  spreadsheetChannelParts,
   spreadsheetMappingIssues,
   spreadsheetRelatedNames,
 } from "@/features/data-transfer/spreadsheet/spreadsheet-conversion";
+import { looksLikePhone, normalizeEmail } from "@/features/data-transfer/spreadsheet/spreadsheet-values";
 
 export type SetupLinkTargetImport = {
   relationId: string;
@@ -31,25 +33,46 @@ export function usableSetupImportMapping(
   return sheet.profile.some((entry) => entry.column === column && entry.filled > 0);
 }
 
+function channelKind(table: SpreadsheetTable, column: string): "email" | "phone" | null {
+  const index = table.headers.indexOf(column);
+  let filled = 0;
+  let emails = 0;
+  let phones = 0;
+  for (const row of table.rows) {
+    const parts = spreadsheetChannelParts(row.cells[index] ?? null);
+    if (parts.length === 0) continue;
+    filled += 1;
+    if (!parts.every((part) => normalizeEmail(part) || looksLikePhone(part))) continue;
+    if (parts.some((part) => normalizeEmail(part))) emails += 1;
+    else phones += 1;
+  }
+  if ((emails + phones) * 2 <= filled) return null;
+  return emails >= phones ? "email" : "phone";
+}
+
 export function settleSetupImportMapping(
   mapping: SpreadsheetMapping,
-  profile: readonly SpreadsheetColumnProfile[],
+  table: SpreadsheetTable,
   model: RecordModel,
 ): SpreadsheetMapping {
   const parts = new Map<string, Set<string>>();
   for (const entry of mapping.columns)
     if (entry.namePart) parts.set(entry.column, new Set([...(parts.get(entry.column) ?? []), entry.namePart]));
-  const emails = profile.filter((column) => column.inferredType === "email").map((column) => column.column);
+  const kinds = new Map(table.headers.map((column) => [column, channelKind(table, column)]));
   const channels = model.fields.find(
     (field) => field.typeId === mapping.typeId && !field.archived && field.valueType === "channels",
   );
   const columns = mapping.columns.flatMap(({ namePart, ...entry }) => {
-    if (entry.fieldId === channels?.id && !emails.includes(entry.column)) return [];
+    if (entry.fieldId === channels?.id && !kinds.get(entry.column)) return [];
     return [namePart && parts.get(entry.column)?.size === 2 ? { ...entry, namePart } : entry];
   });
-  const email = emails.find((column) => mapping.columns.every((entry) => entry.column !== column));
-  if (channels && email && !columns.some((entry) => entry.fieldId === channels.id))
-    columns.push({ column: email, fieldId: channels.id });
+  if (!channels) return { ...mapping, columns };
+  const used = new Set([...mapping.columns, ...mapping.relationships].map((entry) => entry.column));
+  for (const kind of ["email", "phone"] as const) {
+    if (columns.some((entry) => entry.fieldId === channels.id && kinds.get(entry.column) === kind)) continue;
+    const column = table.headers.find((header) => kinds.get(header) === kind && !used.has(header));
+    if (column) columns.push({ column, fieldId: channels.id });
+  }
   return { ...mapping, columns };
 }
 

@@ -182,7 +182,7 @@ function mappingReplies(reply: (key: (prefix: string, label: string) => string |
 const CLIENTS_CSV = [
   "Full name,Email,Phone,Company,Job title",
   "Mary Ann Collins,mary.collins@example.net,+44 20 7946 0005,,Owner",
-  "Priya Patel,priya.patel@example.com,+44 20 7946 0003,Northgate Analytics,Head of People",
+  "Priya Patel,keine,+44 20 7946 0003,Northgate Analytics,Head of People",
   "Jack Whitmore,jack.whitmore@example.com,+44 20 7946 0006,Northgate Analytics,CFO",
   "Lily Chen,lily.chen@example.com,+44 20 7946 0019,Brightwave Media,Account Director",
 ].join("\n");
@@ -1092,7 +1092,7 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(await lineItems()).toBe(0);
   });
 
-  it("imports every spreadsheet row with its whole name, email channel and the organization it names", async () => {
+  it("imports every spreadsheet row with its whole name, email and phone channels and the organization it names", async () => {
     const ws = await workspace();
     state.plan = {
       ...structuredClone(agencyPlan),
@@ -1134,6 +1134,7 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
         { column: "Full name", fieldId: nameField },
         { column: "Job title" },
         { column: "Email", fieldId: channels },
+        { column: "Phone", fieldId: channels },
       ],
     });
     const names = await runWithoutTenant(() =>
@@ -1152,11 +1153,15 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
       prisma.recordIdentity.findMany({ where: { companyId: ws.companyId }, select: { value: true } }),
     );
     expect(identities.map((row) => row.value).sort()).toEqual([
+      "+442079460003",
+      "+442079460005",
+      "+442079460006",
+      "+442079460019",
       "jack.whitmore@example.com",
       "lily.chen@example.com",
       "mary.collins@example.net",
-      "priya.patel@example.com",
     ]);
+    expect(view.results.records[0].skippedRows).toBe(0);
     expect(
       await runWithoutTenant(() =>
         prisma.recordLink.count({
@@ -1234,7 +1239,11 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(await ws.run(() => service.runPhase(setupId, "records"))).toBe("settled");
     const imported = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
     expect(imported?.artifacts.importMapping).toMatchObject({
-      columns: [{ column: "Full name", fieldId: reference("$list.contact.name") }, { column: "Email" }],
+      columns: [
+        { column: "Full name", fieldId: reference("$list.contact.name") },
+        { column: "Email" },
+        { column: "Phone" },
+      ],
     });
     expect((await status(ws)).results.records[0]).toMatchObject({ kind: "imported", count: 4 });
   });

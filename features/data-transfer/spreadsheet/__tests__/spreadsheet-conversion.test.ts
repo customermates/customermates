@@ -252,10 +252,11 @@ describe("convertSpreadsheet", () => {
     expect(result.errors).toEqual([
       { rowNumber: 3, column: "Firma", code: "relatedNotFound" },
       { rowNumber: 4, column: "Firma", code: "relatedAmbiguous" },
-      { rowNumber: 5, column: "E-Mail", code: "invalidEmail" },
     ]);
+    expect(result.ignoredValues).toBe(1);
     const [document] = result.documents;
-    expect(document.records).toHaveLength(1);
+    expect(document.records).toHaveLength(2);
+    expect(document.records[1].identities).toEqual([]);
     const ada = document.records[0];
     expect(ada.fields.some((entry) => entry.fieldId === id("contact.name"))).toBe(false);
     expect(ada.identities?.map(({ provider, value, channelClass }) => ({ provider, value, channelClass }))).toEqual([
@@ -273,6 +274,43 @@ describe("convertSpreadsheet", () => {
         source: ada.ref,
         target: { typeId: id("organization"), recordId: babbage },
       },
+    ]);
+  });
+
+  it("imports emails and phone numbers of several columns into the channels and counts what it leaves out", async () => {
+    const table = await tableOf(
+      csv(
+        [
+          "Vorname,E-Mail,Telefon",
+          "Ada,ada@example.com,030 1234567",
+          "Grace,keine,+44 20 7946 0958",
+          'Alan,"alan@example.com, +1 (415) 555-0100",-',
+        ].join("\n"),
+      ),
+    );
+    const mapping = SpreadsheetMappingSchema.parse({
+      typeId: id("contact"),
+      locale: "de",
+      phoneCountryCode: "49",
+      columns: [
+        { column: "Vorname", fieldId: id("contact.firstName") },
+        { column: "E-Mail", fieldId: id("capability.identity") },
+        { column: "Telefon", fieldId: id("capability.identity") },
+      ],
+    });
+    const current = model();
+    expect(spreadsheetMappingIssues(table.headers, mapping, current)).toEqual([]);
+    const result = convertSpreadsheet(table, mapping, current, { idempotencyKey: "channels-1", related: new Map() });
+    expect(result.errors).toEqual([]);
+    expect(result.ignoredValues).toBe(2);
+    expect(
+      result.documents[0].records.map((record) =>
+        record.identities?.map(({ provider, value, channelClass }) => `${provider}:${value}:${channelClass}`),
+      ),
+    ).toEqual([
+      ["mail:ada@example.com:email", "whatsapp:+49301234567:phone"],
+      ["whatsapp:+442079460958:phone"],
+      ["mail:alan@example.com:email", "whatsapp:+14155550100:phone"],
     ]);
   });
 
