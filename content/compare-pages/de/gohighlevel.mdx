@@ -60,7 +60,7 @@ comparison:
         source: true
         competitor: Eingeschränkt
       - name: Custom Fields
-        source: 10 Feldtypen
+        source: 17 Feldtypen
         competitor: Eingeschränkt
       - name: Nativer einheitlicher Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram)
         source: Ab Pro ([[commercial.price.pro.monthly]])
@@ -140,7 +140,7 @@ Für eine Agentur, die einen einzigen Anbieter für alles möchte, ist das prakt
 
 ## Was ist Customermates?
 
-Customermates ist ein CRM, das sich selbst aktualisiert, wenn Sie bereits [Claude](/blog/chatgpt-summarize-notes), ChatGPT oder Codex nutzen. Die Pipeline bewegt sich, Follow-ups werden entworfen und Kontaktnotizen bleiben aktuell, weil die KI tippt. Dazu kommt ein nativer einheitlicher Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram und Telegram an einem Ort) ab Pro, den dieselben Agenten bedienen können. Unter dieser Outcome-Schicht steckt ein moderner Pipedrive-Ersatz: Kontakte, Unternehmen, Deals, Aufgaben, Services, zwei Ansichten (Tabelle und Kanban), zehn Custom-Field-Typen und eine vollständige REST-API. Open Source unter AGPL-3.0, ohne Lizenzkosten selbst hostbar via Docker, in der Cloud ab [[commercial.price.starter.monthly]] pro User pro Monat mit Datenbank in der AWS-Region Frankfurt, mit MCP-Server, REST-API, Webhooks und n8n-Community-Node in jeder Stufe.
+Customermates ist ein CRM, das sich selbst aktualisiert, wenn Sie bereits [Claude](/blog/chatgpt-summarize-notes), ChatGPT oder Codex nutzen. Die Pipeline bewegt sich, Follow-ups werden entworfen und Kontaktnotizen bleiben aktuell, weil die KI tippt. Dazu kommt ein nativer einheitlicher Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram und Telegram an einem Ort) ab Pro, den dieselben Agenten bedienen können. Unter dieser Outcome-Schicht steckt ein moderner Pipedrive-Ersatz: Kontakte, Unternehmen, Deals, Aufgaben, Services, zwei Ansichten (Tabelle und Kanban), typisierte Custom Fields und eine vollständige REST-API. Open Source unter AGPL-3.0, ohne Lizenzkosten selbst hostbar via Docker, in der Cloud ab [[commercial.price.starter.monthly]] pro User pro Monat mit Datenbank in der AWS-Region Frankfurt, mit MCP-Server, REST-API, Webhooks und n8n-Community-Node in jeder Stufe.
 
 Der Mechanismus, der die KI-Integration real macht: ein eingebauter MCP-Server mit [[derived.mcp.tools.total]] Tools, ein Community-Node für Ihr eigenes n8n, [[derived.webhooks.events.total]] Webhook-Events ([[derived.webhooks.events.records]] Datensatz + [[derived.webhooks.events.messaging]] Messaging) und die OpenAPI-3.1-Spezifikation unter `/api/v1/openapi`. Sie müssen nichts davon nutzen, aber es ist der Grund, warum der Agenten-Winkel echt ist und nicht Marketing.
 
@@ -168,7 +168,7 @@ Beide Produkte decken die Basics ab: Kontakte, Unternehmen, Deals, Pipelines. Wo
 
 Das CRM-Modul von GoHighLevel ist solide, aber sekundär zu den Marketing-Tools. Das Pipeline-Management ist einfach. Das Kontaktmanagement hat nicht die Beziehungsmodellierung dedizierter CRMs. Aufgaben und Services sind vorhanden, aber begrenzt. Mobile ist inkonsistent. Das Mental Model ist „CRM als Datenbank für die Marketing-Automatisierung".
 
-Customermates ist CRM-first. Die fünf Entitätstypen (Kontakte, Unternehmen, Deals, Services, Aufgaben) sind erstklassig, alle verlinken bidirektional und alle unterstützen Custom Fields über zehn typenspezifische Feldtypen (plain, link, email, phone, currency, singleSelect, date, dateRange, dateTime, dateTimeRange). Die Card-View gruppiert nach jeder Single-Select-Spalte, also Kanban-Layouts auf jeder Entität, nicht nur auf Deals. Die REST-API und der MCP-Server legen die zentralen Operationen offen, sodass dieselben Daten aus Skripten, n8n-Flows und Claude erreichbar sind.
+Customermates ist CRM-first. Die fünf Entitätstypen (Kontakte, Unternehmen, Deals, Services, Aufgaben) sind erstklassig, alle verlinken bidirektional und alle unterstützen typisierte Custom Fields, von Text, Zahl, Geldbetrag und Datum bis Einzel- und Mehrfachauswahl, E-Mail, Webadresse, Adresse, Datei und Kanäle ([alle Feldtypen](/docs/concepts#what-are-custom-columns)). Die Card-View gruppiert nach jeder Single-Select-Spalte, also Kanban-Layouts auf jeder Entität, nicht nur auf Deals. Die REST-API und der MCP-Server legen die zentralen Operationen offen, sodass dieselben Daten aus Skripten, n8n-Flows und Claude erreichbar sind.
 
 ## KI: integrierter Agent vs. kostenpflichtiges Add-on
 

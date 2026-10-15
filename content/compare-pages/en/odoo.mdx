@@ -57,7 +57,7 @@ comparison:
         source: Pro+, AI can operate it
         competitor: Email and WhatsApp module; no LinkedIn/Instagram/Telegram inbox
       - name: Custom fields
-        source: 10 typed, unlimited
+        source: Typed, unlimited
         competitor: Studio (Custom plan) for complex fields
       - name: Lead mining, scoring, dedup
         source: Not built in
@@ -120,7 +120,7 @@ Odoo splits two editions. The Community Edition is licensed under LGPLv3 and liv
 
 ## What is Customermates?
 
-Customermates is a CRM that updates itself if you already use [Claude](/blog/chatgpt-summarize-notes), ChatGPT, or Codex. The pipeline moves, follow-ups get drafted, and contact notes stay current because the agent types. Underneath that outcome layer sits a modern Pipedrive replacement: five entities (Contacts, Organizations, Deals, Services, Tasks), two views (Table and Kanban-style Card), ten custom field types, and a full REST API. Open source under AGPL-3.0, free of licence cost to self-host via Docker, and in the managed cloud from [[commercial.price.starter.monthly]] per user per month on Starter, with the MCP server, REST API and webhooks on every tier. n8n connects through a community node to an instance you operate.
+Customermates is a CRM that updates itself if you already use [Claude](/blog/chatgpt-summarize-notes), ChatGPT, or Codex. The pipeline moves, follow-ups get drafted, and contact notes stay current because the agent types. Underneath that outcome layer sits a modern Pipedrive replacement: five entities (Contacts, Organizations, Deals, Services, Tasks), two views (Table and Kanban-style Card), typed custom fields, and a full REST API. Open source under AGPL-3.0, free of licence cost to self-host via Docker, and in the managed cloud from [[commercial.price.starter.monthly]] per user per month on Starter, with the MCP server, REST API and webhooks on every tier. n8n connects through a community node to an instance you operate.
 
 The mechanism that makes the AI integration real: a built-in MCP server with [[derived.mcp.tools.total]] tools, an n8n community node, [[derived.webhooks.events.total]] webhook events, and the OpenAPI 3.1 spec at `/api/v1/openapi`.
 
@@ -146,7 +146,7 @@ The Card view groups by a single-select column, so supported records such as dea
 
 Odoo's CRM module is mature on lead management. Lead mining, AI-based lead scoring on historical data, UTM tracking, deduplication, GeoIP, and lead routing are all native. Teams generating high lead volume from marketing channels and needing systematic scoring and distribution get a workflow Odoo has been refining for years.
 
-Customermates starts with five lists: Contacts, Organizations, Deals, Services, and Tasks, and you can add your own. Records link bidirectionally through relationships, also through the link and unlink actions of `mutate_crm_record`. Custom fields are typed, from text, number, money and dates to single and multiple choice, email, phone, web address and member ([all field types](/docs/concepts#what-are-custom-columns)), and available from day one rather than as a Studio upsell. Lead mining and enrichment aren't built in but can connect through the MCP server, a separately run n8n instance, or Apify because the API exposes the relevant operations.
+Customermates starts with five lists: Contacts, Organizations, Deals, Services, and Tasks, and you can add your own. Records link bidirectionally through relationships, also through the link and unlink actions of `mutate_crm_record`. Custom fields are typed, from text, number, money and dates to single and multiple choice, email, web address, member, address, file and channels ([all field types](/docs/concepts#what-are-custom-columns)), and available from day one rather than as a Studio upsell. Lead mining and enrichment aren't built in but can connect through the MCP server, a separately run n8n instance, or Apify because the API exposes the relevant operations.
 
 ## AI: lead scoring vs. an agent that operates the CRM
 

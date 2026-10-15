@@ -2062,7 +2062,7 @@
       "matchHint": "Zeilen ohne passenden Datensatz werden übersprungen. Leere Zellen behalten den aktuellen Wert.",
       "moreFailures": "{count, plural, one {# weitere fehlgeschlagene Zeile wird} other {# weitere fehlgeschlagene Zeilen werden}} nicht angezeigt.",
       "next": "Weiter",
-      "noMatchColumn": "Ordne die Datensatz-ID oder ein Text-, E-Mail-, Telefon-, URL- oder Zahlenfeld zu, um vorhandene Datensätze abzugleichen.",
+      "noMatchColumn": "Ordne die Datensatz-ID oder ein Text-, E-Mail-, URL- oder Zahlenfeld zu, um vorhandene Datensätze abzugleichen.",
       "other": "Weitere",
       "previewHint": "{count, plural, =0 {Die ersten {rows} Zeilen haben keine Probleme.} one {# der ersten {rows} Zeilen hat ein Problem.} other {# der ersten {rows} Zeilen haben Probleme.}} Zeilen mit Problemen werden nicht importiert.",
       "problems": {

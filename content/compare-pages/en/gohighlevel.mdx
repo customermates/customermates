@@ -60,7 +60,7 @@ comparison:
         source: true
         competitor: Limited
       - name: Custom fields
-        source: 10 field types
+        source: 17 field types
         competitor: Limited
       - name: Native unified inbox (email, LinkedIn, WhatsApp, Instagram, Telegram)
         source: Pro+ ([[commercial.price.pro.monthly]])
@@ -140,7 +140,7 @@ For an agency that wants one vendor for everything, this is convenient. For a sm
 
 ## What is Customermates?
 
-Customermates is a CRM that updates itself if you already use [Claude](/blog/chatgpt-summarize-notes), ChatGPT, or Codex. The pipeline moves, follow-ups get drafted, and contact notes stay current because the AI does the typing. It also ships a native unified inbox (email, LinkedIn, WhatsApp, Instagram, and Telegram in one place) on Pro and up, which the same agents can operate. Underneath that outcome is a modern Pipedrive replacement: contacts, organizations, deals, tasks, services, two views (table and Kanban), ten custom field types, and a full REST API. It is open-source under AGPL-3.0, free of licence cost to self-host via Docker, and available in the managed cloud from [[commercial.price.starter.monthly]] per user per month on Starter, with the MCP server, REST API and webhooks on every tier. n8n connects through a community node to an instance you operate.
+Customermates is a CRM that updates itself if you already use [Claude](/blog/chatgpt-summarize-notes), ChatGPT, or Codex. The pipeline moves, follow-ups get drafted, and contact notes stay current because the AI does the typing. It also ships a native unified inbox (email, LinkedIn, WhatsApp, Instagram, and Telegram in one place) on Pro and up, which the same agents can operate. Underneath that outcome is a modern Pipedrive replacement: contacts, organizations, deals, tasks, services, two views (table and Kanban), typed custom fields, and a full REST API. It is open-source under AGPL-3.0, free of licence cost to self-host via Docker, and available in the managed cloud from [[commercial.price.starter.monthly]] per user per month on Starter, with the MCP server, REST API and webhooks on every tier. n8n connects through a community node to an instance you operate.
 
 The mechanism that makes the AI integration work is a built-in MCP server with [[derived.mcp.tools.total]] tools, an n8n community node, [[derived.webhooks.events.total]] webhook events, and the OpenAPI 3.1 specification at `/api/v1/openapi`. You do not have to use any of that, but it is the reason the agent angle is real and not marketing.
 
@@ -168,7 +168,7 @@ Both products cover the basics: contacts, organizations, deals, pipelines. Where
 
 HighLevel's CRM module is competent but secondary to its marketing tools. Pipeline management is basic. Contact management lacks the relationship modeling found in dedicated CRMs. Tasks and services are present but limited. Mobile is inconsistent. The mental model is "CRM as a database for the marketing automation."
 
-Customermates is CRM-first. The five entity types (contacts, organizations, deals, services, tasks) are first-class, all link bidirectionally, and all support custom fields across ten type-specific field types (plain, link, email, phone, currency, single-select, date, date range, datetime, datetime range). Card view groups by any single-select column for kanban-style layouts on any entity, not just deals. The REST API and MCP server expose every operation, which means the same data is reachable from your scripts, your n8n flows, and Claude.
+Customermates is CRM-first. The five entity types (contacts, organizations, deals, services, tasks) are first-class, all link bidirectionally, and all support typed custom fields, from text, number, money and dates to single and multiple choice, email, web address, address, file and channels ([all field types](/docs/concepts#what-are-custom-columns)). Card view groups by any single-select column for kanban-style layouts on any entity, not just deals. The REST API and MCP server expose every operation, which means the same data is reachable from your scripts, your n8n flows, and Claude.
 
 ## AI: integrated agent vs. paid add-on
 

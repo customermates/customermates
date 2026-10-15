@@ -2062,7 +2062,7 @@
       "matchHint": "Las filas sin registro coincidente se omiten. Las celdas vacías conservan el valor actual.",
       "moreFailures": "{count, plural, one {No se muestra # fila más con error} other {No se muestran # filas más con error}}.",
       "next": "Siguiente",
-      "noMatchColumn": "Asigna el ID del registro o un campo de texto, correo, teléfono, URL o número para encontrar registros existentes.",
+      "noMatchColumn": "Asigna el ID del registro o un campo de texto, correo, URL o número para encontrar registros existentes.",
       "other": "Más",
       "previewHint": "{count, plural, =0 {Las primeras {rows} filas no tienen problemas.} one {# de las primeras {rows} filas tiene un problema.} other {# de las primeras {rows} filas tienen problemas.}} Las filas con problemas no se importan.",
       "problems": {

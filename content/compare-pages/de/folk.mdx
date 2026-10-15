@@ -54,7 +54,7 @@ comparison:
         source: true
         competitor: Nur Aufgaben
       - name: Custom Fields
-        source: 10 Feldtypen
+        source: 17 Feldtypen
         competitor: Custom Objects ab Premium
       - name: Mobile App
         source: Mobil-optimierte Web-App
@@ -120,7 +120,7 @@ Der Premium-Tarif ergänzt Custom Objects, E-Mail-Sequenzen, erweiterte Berechti
 
 ## Was ist Customermates?
 
-Customermates ist ein CRM, das sich selbst aktualisiert, wenn Sie bereits [Claude](/blog/chatgpt-summarize-notes), ChatGPT oder Codex nutzen. Die Pipeline bewegt sich, Follow-ups werden entworfen und Kontaktnotizen bleiben aktuell, weil der Agent tippt. Dazu kommt ein nativer einheitlicher Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram und Telegram an einem Ort) ab Pro, den dieselben Agenten bedienen können. Unter dieser Outcome-Schicht steckt ein moderner Pipedrive-Ersatz: Kontakte, Unternehmen, Deals, Services, Aufgaben, zwei Ansichten (Tabelle und Kanban), zehn Custom-Field-Typen und eine vollständige REST-API. Open Source unter AGPL-3.0, ohne Lizenzkosten selbst hostbar via Docker, in der Cloud ab [[commercial.price.starter.monthly]] pro User pro Monat mit Datenbank in der AWS-Region Frankfurt, mit MCP-Server, REST-API, Webhooks und dem n8n-Community-Node in jeder Stufe, nicht hinter einem Upgrade versperrt. n8n selbst betreiben oder abonnieren Sie separat.
+Customermates ist ein CRM, das sich selbst aktualisiert, wenn Sie bereits [Claude](/blog/chatgpt-summarize-notes), ChatGPT oder Codex nutzen. Die Pipeline bewegt sich, Follow-ups werden entworfen und Kontaktnotizen bleiben aktuell, weil der Agent tippt. Dazu kommt ein nativer einheitlicher Posteingang (E-Mail, LinkedIn, WhatsApp, Instagram und Telegram an einem Ort) ab Pro, den dieselben Agenten bedienen können. Unter dieser Outcome-Schicht steckt ein moderner Pipedrive-Ersatz: Kontakte, Unternehmen, Deals, Services, Aufgaben, zwei Ansichten (Tabelle und Kanban), typisierte Custom Fields und eine vollständige REST-API. Open Source unter AGPL-3.0, ohne Lizenzkosten selbst hostbar via Docker, in der Cloud ab [[commercial.price.starter.monthly]] pro User pro Monat mit Datenbank in der AWS-Region Frankfurt, mit MCP-Server, REST-API, Webhooks und dem n8n-Community-Node in jeder Stufe, nicht hinter einem Upgrade versperrt. n8n selbst betreiben oder abonnieren Sie separat.
 
 Der Mechanismus, der die KI-Integration real macht: ein eingebauter MCP-Server mit [[derived.mcp.tools.total]] Tools, ein n8n-Community-Node, [[derived.webhooks.events.total]] Webhook-Events ([[derived.webhooks.events.records]] Datensatz + [[derived.webhooks.events.messaging]] Messaging) und die OpenAPI-3.1-Spezifikation unter `/api/v1/openapi`.
 
@@ -146,7 +146,7 @@ Auch in Customermates legen Sie einen Arbeitsbereich schnell an; der Aufwand fü
 
 Das CRM von Folk ist solide für den beziehungsorientierten Anwendungsfall. Kontakte, Deals, Pipelines, einfache Custom Fields auf Standard. Custom Objects schalten in Premium frei. E-Mail-Sequenzen sind nativ. Die KI-Assistenten entwerfen Nachrichten und reichern Profile mit Credits an (500 Anreicherungen pro Monat auf Standard, 1.000 auf Premium).
 
-Customermates liefert fünf Entitätstypen als erstklassige Bürger: Kontakte, Unternehmen, Deals, Services, Aufgaben, die bidirektional über API und MCP verlinken. Custom Fields sind über zehn Feldtypen typisiert (plain, link, email, phone, currency, singleSelect, date, dateRange, dateTime, dateTimeRange), ab Tag eins verfügbar statt als Upsell. E-Mail-Sequenzen und Kontaktanreicherung enthält Customermates nicht. Wer so etwas braucht, baut es über REST-API, Webhooks oder MCP mit einem separat betriebenen n8n oder einem externen KI-Client, mit den Kosten dieser Dienste.
+Customermates liefert fünf Entitätstypen als erstklassige Bürger: Kontakte, Unternehmen, Deals, Services, Aufgaben, die bidirektional über API und MCP verlinken. Custom Fields sind typisiert, von Text, Zahl, Geldbetrag und Datum bis Einzel- und Mehrfachauswahl, E-Mail, Webadresse, Adresse, Datei und Kanäle ([alle Feldtypen](/docs/concepts#what-are-custom-columns)), ab Tag eins verfügbar statt als Upsell. E-Mail-Sequenzen und Kontaktanreicherung enthält Customermates nicht. Wer so etwas braucht, baut es über REST-API, Webhooks oder MCP mit einem separat betriebenen n8n oder einem externen KI-Client, mit den Kosten dieser Dienste.
 
 ## KI: Assistenten vs. ein Agent, der das CRM bedient
 

@@ -2062,7 +2062,7 @@
       "matchHint": "Le righe senza record corrispondente vengono saltate. Le celle vuote mantengono il valore attuale.",
       "moreFailures": "{count, plural, one {# altra riga non riuscita non è mostrata} other {Altre # righe non riuscite non sono mostrate}}.",
       "next": "Avanti",
-      "noMatchColumn": "Abbina l'ID record o un campo di testo, email, telefono, URL o numero per trovare i record esistenti.",
+      "noMatchColumn": "Abbina l'ID record o un campo di testo, email, URL o numero per trovare i record esistenti.",
       "other": "Altro",
       "previewHint": "{count, plural, =0 {Le prime {rows} righe non hanno problemi.} one {# delle prime {rows} righe ha un problema.} other {# delle prime {rows} righe hanno problemi.}} Le righe con problemi non vengono importate.",
       "problems": {

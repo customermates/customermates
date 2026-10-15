@@ -2062,7 +2062,7 @@
       "matchHint": "Les lignes sans fiche correspondante sont ignorées. Les cellules vides conservent la valeur actuelle.",
       "moreFailures": "{count, plural, one {# autre ligne en échec n’est pas affichée} other {# autres lignes en échec ne sont pas affichées}}.",
       "next": "Suivant",
-      "noMatchColumn": "Associez l’ID de la fiche ou un champ texte, e-mail, téléphone, URL ou nombre pour retrouver les fiches existantes.",
+      "noMatchColumn": "Associez l’ID de la fiche ou un champ texte, e-mail, URL ou nombre pour retrouver les fiches existantes.",
       "other": "Autres",
       "previewHint": "{count, plural, =0 {Les {rows} premières lignes ne posent aucun problème.} one {# des {rows} premières lignes pose un problème.} other {# des {rows} premières lignes posent problème.}} Les lignes en erreur ne sont pas importées.",
       "problems": {

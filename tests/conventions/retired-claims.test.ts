@@ -75,18 +75,6 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
     authority: "app/api/v1/records/export/route.ts, features/data-transfer/record-transfer.schema.ts",
   },
   {
-    id: "record-attachments",
-    pattern:
-      /\b(?:attach|upload|store|save|anhäng\w*|hochlad\w*|speicher\w*)[^.!?;|]{0,28}\b(?:files?|photos?|documents?|certificates?|Dateien?|Fotos?|Dokumente?|Zertifikate?)\b[^.!?;|]{0,28}\b(?:record|contact|deal|customer|Datensatz|Kontakt|Deal|Kunde\w*)\b|\b(?:record|contact|deal|customer|Datensatz|Kontakt|Deal|Kunde\w*)[^.!?;|]{0,28}\b(?:file attachments?|Dateianhänge|Dokumentanhänge)\b/iu,
-    permittedContext: [
-      ...NO_OR_EXTERNAL,
-      /\b(?:message|inbox|thread|Nachricht|Postfach|Thread)\b[^.!?;|]{0,32}\b(?:attachment|Anhang|Anhänge)\b/iu,
-      /\bnotes?\b[^.!?;|]{0,32}\b(?:images?|tables?)\b|\bNotizen?\b[^.!?;|]{0,32}\b(?:Bilder?|Tabellen?)\b/iu,
-    ],
-    why: "Attachments belong to inbox messages; CRM records have no general attachment model",
-    authority: "prisma/schema.prisma",
-  },
-  {
     id: "record-tags",
     pattern:
       /\b(?:tag|label|categorize|verschlagwort\w*|tagg\w*|kategorisier\w*)[^.!?;|]{0,24}\b(?:contacts?|customers?|deals?|records?|Kontakte?|Kunden?|Deals?|Datensätze?)\b|\b(?:contact|record|Kontakt|Datensatz)[ -]?(?:tags?|labels?)\b/iu,
@@ -565,7 +553,7 @@ describe("retired claims stay retired", () => {
     expect(
       findViolationsInSource(
         "content/features/en/example.mdx",
-        "A record with file attachments is included.",
+        "A Slack integration is included.",
       ),
     ).toHaveLength(1);
     expect(
@@ -643,13 +631,13 @@ describe("retired claims stay retired", () => {
     expect(
       findViolationsInSource(
         "content/features/en/example.mdx",
-        "No Slack app. Every record keeps file attachments.",
+        "No Slack app. Every list exports to CSV.",
       ),
     ).toHaveLength(1);
     expect(
       findViolationsInSource(
         "content/features/en/example.mdx",
-        "Customermates has no record file attachments; link them from storage.",
+        "Customermates has no native Slack integration; connect it through webhooks.",
       ),
     ).toEqual([]);
   });
@@ -665,24 +653,24 @@ describe("retired claims stay retired", () => {
       "| Feature | Customermates | Rival |",
       "| --- | --- | --- |",
       "| Mobile app | Responsive web only | Native iOS app |",
-      "| Record file attachments | Included | Included |",
+      "| Slack integration | Included | Included |",
     ].join("\n");
     const violations = findViolationsInSource(
       "content/compare-pages/en/example.mdx",
       table,
     );
     expect(violations).toHaveLength(1);
-    expect(violations[0]).toContain("record-attachments");
+    expect(violations[0]).toContain("native-slack-integration");
   });
 
   it("carries same-line Customermates attribution across split assertions", () => {
-    const firstParty = "Customermates stores contacts; a record with file attachments is included.";
+    const firstParty = "Customermates stores contacts; a Slack integration is included.";
     const violations = findViolationsInSource(
       "content/blog-posts/en/example.mdx",
       firstParty,
     );
     expect(violations).toHaveLength(1);
-    expect(violations[0]).toContain("record-attachments");
+    expect(violations[0]).toContain("native-slack-integration");
 
     const competitor =
       "Customermates has no built-in AI; HubSpot includes native AI.";

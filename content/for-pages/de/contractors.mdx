@@ -54,7 +54,7 @@ Das Angebotsdokument selbst schreiben Sie weiterhin in Ihrer Handwerker- oder Re
 
 ### Auftrags- und Projektdaten
 
-Erfassen Sie Auftragsdetails wie Umfang, Objektadresse, Budget und eine Auftragsnummer aus Ihrem Fachsystem über typisierte eigene Felder direkt am Deal. Verschiedene Auftragsarten trennen Sie über ein eigenes Auswahlfeld „Auftragsart“ und gespeicherte Ansichten oder Gruppierung nach diesem Feld. Fotos, Pläne und Genehmigungen liegen in Ihrer Dateiablage; am Auftrag speichern Sie den Link.
+Erfassen Sie Auftragsdetails wie Umfang, Objektadresse, Budget und eine Auftragsnummer aus Ihrem Fachsystem über typisierte eigene Felder direkt am Deal. Verschiedene Auftragsarten trennen Sie über ein eigenes Auswahlfeld „Auftragsart“ und gespeicherte Ansichten oder Gruppierung nach diesem Feld. Fotos, Pläne und Genehmigungen legen Sie in einem Feld vom Typ Datei am Auftrag ab.
 
 ### Nachunternehmer-Verwaltung
 
@@ -94,12 +94,12 @@ Visualisieren Sie Ihr Geschäft auf einem Kanban-Board mit Phasen wie „Neuer L
 
 | Feld                     | Typ          | Beispielwerte                                |
 | ------------------------ | ------------ | -------------------------------------------- |
-| Auftragsart              | Einfachauswahl | Neubau, Sanierung, Reparatur, Wartung      |
-| Objektadresse            | Text         | Musterstraße 12, Mannheim                    |
+| Auftragsart              | Einzelauswahl | Neubau, Sanierung, Reparatur, Wartung       |
+| Objektadresse            | Adresse      | Musterstraße 12, Mannheim                    |
 | Fläche in m²             | Text         | 85                                           |
 | Genehmigung erteilt am   | Datum        | 14.03.2026                                   |
 | Auftragsnummer Fachsystem | Text        | A-2026-0418                                  |
-| Projektordner            | Link         | Link zum Auftragsordner in Ihrer Dateiablage |
+| Auftragsunterlagen       | Datei        | Fotos, Pläne, Genehmigungen                  |
 
 ### Kundenprofile und Auftragshistorie
 
@@ -136,7 +136,7 @@ Die Einrichtung von Customermates für Ihren Handwerksbetrieb dauert Minuten:
 1. **Konto erstellen**: ohne Kreditkarte. Die ersten [[commercial.trial.days]] Tage sind kostenlos.
 2. **Kunden übernehmen**: Importieren Sie Kontakte und Aufträge aus einer Excel-Datei (XLSX), einen Datensatztyp nach dem anderen, oder legen Sie sie an, sobald Anfragen eingehen.
 3. **Pipeline einrichten**: Benennen Sie die Phasen passend zu Ihrem Ablauf, etwa „Lead“, „Vor-Ort-Termin“, „Angebot“, „Nachfassen“, „Zugesagt“, „In Arbeit“, „Fertiggestellt“.
-4. **Eigene Felder anlegen**: für Auftragsart, Objektadresse, Auftragswert und Projektordner-Link.
+4. **Eigene Felder anlegen**: für Auftragsart, Objektadresse, Auftragswert und Auftragsunterlagen.
 5. **Kanäle verbinden**: Ab Pro verbinden Sie E-Mail und WhatsApp unter **Mein Profil › Kanäle**.
 
 Customermates ist Open Source und selbst hostbar; Datensätze lassen sich per REST-API und XLSX-Export (je Datensatztyp) übernehmen. Die Preise bleiben planbar.
