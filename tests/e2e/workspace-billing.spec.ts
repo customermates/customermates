@@ -268,6 +268,11 @@ test("paying for an extra workspace activates only that workspace, then its onbo
   expect(await whoAmI(request, firstKey.key)).toEqual({ status: 200, id: workspace.userId, code: null });
   expect(await mcpWorkspaceName(firstKey.key)).toEqual({ id: workspace.companyId, name: "Browser workspace" });
 
+  await page.goto("/en/settings/billing");
+  await clickHydrated(page.locator("#settings-billing-manage"));
+  await expect(page).toHaveURL(paid.attributes.urls.customer_portal);
+  expect(checkoutPages.at(-1)).toBe(paid.attributes.urls.customer_portal);
+
   await page.goto("/en/settings/workspaces");
   await expect(page.locator(`li[data-workspace-id="${steuern.companyId}"]`)).toContainText("Pro");
   await expect(page.locator(`li[data-workspace-id="${workspace.companyId}"]`)).toContainText(/Trial/);

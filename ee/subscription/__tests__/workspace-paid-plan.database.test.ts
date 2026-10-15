@@ -306,6 +306,21 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
     expect(await whoAmI(keys.first)).toEqual({ status: 200, userId: members.first });
   });
 
+  it("trusts the provider over a stale webhook payload for the paid workspace", async () => {
+    const stale = {
+      ...subscription,
+      attributes: {
+        ...subscription.attributes,
+        status: "expired",
+        ends_at: new Date(Date.now() - DAY_MS).toISOString(),
+      },
+    };
+
+    expect((await webhook("subscription_updated", stale)).status).toBe(200);
+
+    expect(await storedSubscription("paid")).toMatchObject({ status: "active", lemonSqueezyId: subscription.id });
+  });
+
   it("updates the seats of the paid workspace's subscription when a member is approved or deactivated", async () => {
     const { getAdminUpdateUserDetailsInteractor } = await import("@/core/di");
     asSession();
@@ -325,7 +340,10 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
   });
 
   it("keeps the lapsed workspace's API key through the grace, then deactivates only its members", async () => {
-    const { getDeactivateUsersAfterSubscriptionGracePeriodInteractor, getUserRepo } = await import("@/core/di");
+    const { getCreateApiKeyInteractor, getDeactivateUsersAfterSubscriptionGracePeriodInteractor, getUserRepo } =
+      await import("@/core/di");
+    const { CustomErrorCode } = await import("@/core/validation/validation.types");
+    const { interactorFailureCodes } = await import("@/core/validation/validation.utils");
     const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
     const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
     const { EmailService } = await import("@/features/email/email.service");
@@ -343,6 +361,11 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
       currentPeriodEnd: new Date(lapsedAt),
     });
     expect(await whoAmI(keys.paid as string)).toEqual({ status: 200, userId: members.paid });
+    asSession();
+    const refusedKey = await getCreateApiKeyInteractor().invoke({ name: "During the grace" });
+    expect(refusedKey.ok).toBe(false);
+    if (!refusedKey.ok)
+      expect(interactorFailureCodes(refusedKey.error)).toEqual([CustomErrorCode.workspacePlanRequired]);
 
     await client.query('UPDATE "Subscription" SET "updatedAt"=$2 WHERE "companyId"=$1', [
       companies.paid,
