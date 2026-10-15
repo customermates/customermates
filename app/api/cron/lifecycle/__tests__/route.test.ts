@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const invokes = vi.hoisted(() => Array.from({ length: 13 }, () => vi.fn()));
+const invokes = vi.hoisted(() => Array.from({ length: 14 }, () => vi.fn()));
 const mockEnv = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "demo",
   CRON_SECRET: "test-cron-secret",
@@ -31,6 +31,7 @@ vi.mock("@/core/di", () => ({
   getPruneRoutineRunsInteractor: () => ({ invoke: invokes[10] }),
   getPurgeExpiredTrashInteractor: () => ({ invoke: invokes[11] }),
   getPurgeExpiredRecordFilesInteractor: () => ({ invoke: invokes[12] }),
+  getNormalizePhoneIdentitiesInteractor: () => ({ invoke: invokes[13] }),
 }));
 
 import { GET } from "../route";

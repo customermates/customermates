@@ -153,6 +153,21 @@ timeout preferably while fewer people work:
 npx prisma migrate resolve --rolled-back 20261014230000_phone_channels
 ```
 
+## After deploying
+
+The migration stores every number as its phone field held it, but earlier releases normalised numbers differently
+from this one: a phone field value typed as `+49 (0)30 1234567` was stored as `+490301234567`, and a number typed into
+Channels as `0049 30 1234567` became `+0049301234567`. This release stores both as `+49301234567`, the form in which
+WhatsApp chats arrive. SQL cannot apply the phone number rules of `libphonenumber-js`, so the application finishes the
+job: the daily lifecycle call (`/api/cron/lifecycle`) reads every phone identity, and for each workspace that still
+has numbers in an earlier format it starts the background job `normalize-phone-identities`. Under the workspace's
+record engine lock it gives such an identity the current number, or, when another identity of the workspace already
+has that number, merges it into that one: the other identity takes over every record link, keeps the earlier values
+as aliases, fills in a missing WhatsApp id, name or profile link and stays WhatsApp when either was. No identity loses
+a record, numbers the current rules cannot read stay as they are, and no record event is written. A workspace with a
+running background record operation is checked again the next day. Until the first daily run after the deployment, a
+WhatsApp chat can miss a record whose number is still in an earlier format.
+
 ## The previous release
 
 `scripts/vercel-build.sh` migrates before the new release is built, so the previous release keeps serving requests on

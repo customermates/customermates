@@ -78,6 +78,12 @@ import { EntityDetailOptionsSchema } from "@/features/p13n/p13n.schema";
 import { configurationTrashBatchId } from "./configuration-trash-batch";
 import type { ProviderAvatarRecordRepo, RecordOperationUpdate } from "./provider-avatar-record.repo";
 import type { DueRecordOperation, RecordOperationQueueRepo } from "./record-operation-queue.repo";
+import type {
+  PhoneIdentityRename,
+  PhoneIdentityRepair,
+  PhoneIdentityValue,
+  RecordPhoneIdentityRepo,
+} from "./record-phone-identity.repo";
 
 const CONFIGURATION_DELETION_PAGE = 200;
 const STAGED_EVENT_PAGE = 1000;
@@ -86,7 +92,7 @@ const VIEW_KEY = "view:";
 
 export class PrismaRecordRepo
   extends TenantRepository
-  implements RecordRepo, ProviderAvatarRecordRepo, RecordOperationQueueRepo
+  implements RecordRepo, ProviderAvatarRecordRepo, RecordOperationQueueRepo, RecordPhoneIdentityRepo
 {
   private resolvedOwners?: RecordRepoOwners;
 
@@ -442,6 +448,91 @@ export class PrismaRecordRepo
       data,
     });
   }
+
+  @BypassTenantGuard
+  async findPhoneIdentityCompaniesUnscoped(after: string | null, limit: number): Promise<string[]> {
+    const groups = await this.prisma.recordIdentity.groupBy({
+      by: ["companyId"],
+      where: { channelClass: "phone", ...(after ? { companyId: { gt: after } } : {}) },
+      orderBy: { companyId: "asc" },
+      take: limit,
+    });
+    return groups.map((group) => group.companyId);
+  }
+
+  findPhoneIdentityValuesCompanyWide(after: string | null, limit: number): Promise<PhoneIdentityValue[]> {
+    return this.prisma.recordIdentity.findMany({
+      where: { companyId: this.companyId, channelClass: "phone", ...(after ? { id: { gt: after } } : {}) },
+      orderBy: { id: "asc" },
+      take: limit,
+      select: { id: true, value: true },
+    });
+  }
+
+  async hasActiveOperationCompanyWide(): Promise<boolean> {
+    const state = await this.prisma.recordSchemaState.findUnique({
+      where: { companyId: this.companyId },
+      select: { activeOperationId: true },
+    });
+    return Boolean(state?.activeOperationId);
+  }
+
+  async renamePhoneIdentitiesCompanyWide(renames: PhoneIdentityRename[]): Promise<PhoneIdentityRepair> {
+    const companyId = this.companyId;
+    const repair: PhoneIdentityRepair = { renamed: 0, merged: 0 };
+    for (const rename of renames) {
+      const source = await this.prisma.recordIdentity.findUnique({
+        where: { companyId, companyId_id: { companyId, id: rename.id } },
+      });
+      if (!source || source.channelClass !== "phone" || source.value === rename.value) continue;
+      const holder = await this.prisma.recordIdentityKey.findUnique({
+        where: { companyId, companyId_channelClass_value: { companyId, channelClass: "phone", value: rename.value } },
+        select: { identityId: true },
+      });
+      if (!holder || holder.identityId === source.id) {
+        if (!holder) {
+          await this.prisma.recordIdentityKey.create({
+            data: { companyId, channelClass: "phone", value: rename.value, identityId: source.id },
+          });
+        }
+        await this.prisma.recordIdentity.update({
+          where: { companyId, companyId_id: { companyId, id: source.id } },
+          data: { value: rename.value },
+        });
+        repair.renamed += 1;
+        continue;
+      }
+      const target = await this.prisma.recordIdentity.findUnique({
+        where: { companyId, companyId_id: { companyId, id: holder.identityId } },
+      });
+      if (!target) continue;
+      const links = await this.prisma.recordIdentityLink.findMany({
+        where: { companyId, identityId: source.id },
+        select: { typeId: true, recordId: true, createdAt: true },
+      });
+      await this.prisma.recordIdentityLink.createMany({
+        data: links.map((link) => ({ ...link, companyId, identityId: target.id })),
+        skipDuplicates: true,
+      });
+      await this.prisma.recordIdentityKey.updateMany({
+        where: { companyId, identityId: source.id },
+        data: { identityId: target.id },
+      });
+      await this.prisma.recordIdentity.update({
+        where: { companyId, companyId_id: { companyId, id: target.id } },
+        data: {
+          provider: source.provider === "whatsapp" ? "whatsapp" : target.provider,
+          messagingId: target.messagingId ?? source.messagingId,
+          displayName: target.displayName ?? source.displayName,
+          profileUrl: target.profileUrl ?? source.profileUrl,
+        },
+      });
+      await this.prisma.recordIdentity.delete({ where: { companyId, companyId_id: { companyId, id: source.id } } });
+      repair.merged += 1;
+    }
+    return repair;
+  }
+
   private readonly assignmentSelect = {
     userId: true,
     user: {

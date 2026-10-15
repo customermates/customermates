@@ -6,6 +6,7 @@ import { indexDocsChunks } from "./index-docs-chunks";
 import { indexRecordFiles } from "./index-record-files";
 import { indexSearchCatalog } from "./index-search-catalog";
 import { indexWikiPages } from "./index-wiki-pages";
+import { normalizePhoneIdentities } from "./normalize-phone-identities";
 import { reconcileRoutineRuns } from "./reconcile-routine-runs";
 import { runRoutine } from "./run-routine";
 import { providerAvatarOperation } from "./provider-avatar-operation";
@@ -25,6 +26,7 @@ export const WORKFLOW_REGISTRY = {
   "index-record-files": indexRecordFiles,
   "index-search-catalog": indexSearchCatalog,
   "index-wiki-pages": indexWikiPages,
+  "normalize-phone-identities": normalizePhoneIdentities,
   "reconcile-routine-runs": reconcileRoutineRuns,
   "run-routine": runRoutine,
   "record-operation": recordOperation,

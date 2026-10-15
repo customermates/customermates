@@ -12,6 +12,7 @@ import {
   getPruneRoutineRunsInteractor,
   getPurgeExpiredTrashInteractor,
   getPurgeExpiredRecordFilesInteractor,
+  getNormalizePhoneIdentitiesInteractor,
 } from "@/core/di";
 import { env } from "@/env";
 
@@ -39,6 +40,7 @@ export async function GET(req: Request) {
     getPruneRoutineRunsInteractor().invoke(),
     getPurgeExpiredTrashInteractor().invoke(),
     getPurgeExpiredRecordFilesInteractor().invoke(),
+    getNormalizePhoneIdentitiesInteractor().invoke(),
   ]);
 
   await getDeleteOrphanedUnipileAccountsInteractor().invoke();

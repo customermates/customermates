@@ -182,6 +182,8 @@ import { UploadRecordFileInteractor } from "@/features/record-files/upload-recor
 import { GetFileStorageUsageInteractor } from "@/features/record-files/get-file-storage-usage.interactor";
 import { PurgeExpiredRecordFilesInteractor } from "@/features/record-files/purge-expired-record-files.interactor";
 import { PurgeCompanyRecordFilesInteractor } from "@/features/record-files/purge-company-record-files.interactor";
+import { NormalizePhoneIdentitiesInteractor } from "@/features/records/normalize-phone-identities.interactor";
+import { NormalizeCompanyPhoneIdentitiesInteractor } from "@/features/records/normalize-company-phone-identities.interactor";
 import { PurgeCompanyFileObjectsInteractor } from "@/features/record-files/purge-company-file-objects.interactor";
 import type { RecordFileTextReader } from "@/features/record-files/record-file-text-reader";
 import { ReadRecordFileInteractor } from "@/features/record-files/read-record-file.interactor";
@@ -642,6 +644,14 @@ export const getPurgeCompanyRecordFilesInteractor = () =>
     (companyId) => getRecordFileRepo(companyId),
     (companyId) => (name) => getFileStorageDriver(name, companyId),
   );
+export const getNormalizePhoneIdentitiesInteractor = () =>
+  new NormalizePhoneIdentitiesInteractor(
+    getRecordRepo(),
+    (companyId) => createPrismaRecordRepo(companyId),
+    getBackgroundTaskService(),
+  );
+export const getNormalizeCompanyPhoneIdentitiesInteractor = () =>
+  new NormalizeCompanyPhoneIdentitiesInteractor((companyId) => createPrismaRecordRepo(companyId));
 export const getPurgeCompanyFileObjectsInteractor = () =>
   new PurgeCompanyFileObjectsInteractor(() =>
     env.FILE_STORAGE_DRIVER === "database" ? [] : [getFileStorageDriver(env.FILE_STORAGE_DRIVER)],
