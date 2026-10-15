@@ -124,6 +124,31 @@ describe("WorkspaceSetupStore", () => {
     expect(store.adjusting).toBe(false);
   });
 
+  it("reopens the questions of a failed plan and drafts a new plan from the changed answers", async () => {
+    const store = storeWith(setupView({ plan: { status: "failed", error: "invalidPlan", revision: 2, plan: null } }));
+    expect(store.stage).toBe("planFailed");
+
+    store.adjust();
+    expect(store.stage).toBe("interview");
+    store.previousScreen();
+    expect(store.stage).toBe("planFailed");
+
+    store.adjust();
+    while (!store.isLastScreen) store.screenIndex += 1;
+    store.setAnswer("existingData", { format: "singleChoice", value: "empty" });
+    await store.confirmScreen();
+
+    expect(actions.adjustWorkspaceSetupAction).not.toHaveBeenCalled();
+    expect(actions.saveWorkspaceSetupAnswersAction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        setupId: SETUP_ID,
+        answers: expect.objectContaining({ existingData: { format: "singleChoice", value: "empty" } }),
+      }),
+    );
+    expect(actions.planWorkspaceSetupAction).toHaveBeenCalledWith({ setupId: SETUP_ID });
+    expect(store.adjusting).toBe(false);
+  });
+
   it("confirms the build with the previewed plan revision", async () => {
     actions.confirmWorkspaceSetupAction.mockResolvedValue({ ok: true, data: { setupId: SETUP_ID } });
     const store = storeWith(

@@ -39,6 +39,7 @@ import {
 export type SetupCommand = "start" | "save" | "plan" | "followUps" | "build" | "retry" | "upload" | "refresh";
 
 const POLLED_GENERATION = new Set(["queued", "running"]);
+const ADJUSTABLE_STAGES = new Set<SetupStage>(["plan", "planFailed"]);
 
 export class WorkspaceSetupStore {
   view: WorkspaceSetupStatusView | null = null;
@@ -66,7 +67,7 @@ export class WorkspaceSetupStore {
 
   get stage(): SetupStage {
     const stage = resolveSetupStage(this.view);
-    return this.adjusting && stage === "plan" ? "interview" : stage;
+    return this.adjusting && ADJUSTABLE_STAGES.has(stage) ? "interview" : stage;
   }
 
   get screen() {
@@ -178,14 +179,9 @@ export class WorkspaceSetupStore {
       const setup = this.setup;
       if (!setup || !this.canConfirmScreen) return null;
       const answers = toJS(screenAnswersPayload(this.screen, toJS(this.answers), this.locale));
-      if (this.isLastScreen && this.adjusting) {
+      if (this.isLastScreen && this.adjusting && setup.status === "planned") {
         const adjusted = await adjustWorkspaceSetupAction({ setupId: setup.id, answers, followUpAnswers: [] });
-        if (adjusted.ok) {
-          runInAction(() => {
-            this.adjusting = false;
-          });
-          await this.refresh();
-        }
+        if (adjusted.ok) await this.finishAdjusting();
         return adjusted;
       }
       const saved = await saveWorkspaceSetupAnswersAction({ setupId: setup.id, answers, followUpAnswers: [] });
@@ -197,7 +193,7 @@ export class WorkspaceSetupStore {
         return saved;
       }
       const planned = await planWorkspaceSetupAction({ setupId: setup.id });
-      if (planned.ok) await this.refresh();
+      if (planned.ok) await this.finishAdjusting();
       return planned;
     });
 
@@ -261,6 +257,13 @@ export class WorkspaceSetupStore {
 
   private get appLocale() {
     return isAppLocale(this.locale) ? this.locale : undefined;
+  }
+
+  private async finishAdjusting() {
+    runInAction(() => {
+      this.adjusting = false;
+    });
+    await this.refresh();
   }
 
   private async run(
