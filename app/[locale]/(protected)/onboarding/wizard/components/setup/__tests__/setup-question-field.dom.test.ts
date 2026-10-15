@@ -31,6 +31,8 @@ vi.mock("@/components/forms/form-autocomplete-currency", () => ({
     createElement("span", { "data-autocomplete": "currency", "data-value": props.value }),
 }));
 
+import { AppChip } from "@/components/chip/app-chip";
+
 import { followUpDescriptor, partDescriptor } from "../setup-question-descriptor";
 import { SetupQuestionField } from "../setup-question-field";
 import { setupPart } from "@/features/workspace-setup/setup-interview";
@@ -124,19 +126,21 @@ describe("SetupQuestionField", () => {
     expect(onChange).toHaveBeenLastCalledWith({ format: "multipleChoice", values: ["website"], custom: ["Podcast"] });
   });
 
-  it("shows own entries at the text size and padding of the option toggles beside them", () => {
+  it("shows own entries as standard value chips that remove themselves", () => {
     render(descriptorOf("leadSources"), { format: "multipleChoice", values: ["website"], custom: ["Podcast"] });
 
-    const toggle = button("WorkspaceSetup.options.leadSources.website");
     const custom = [...container.querySelectorAll<HTMLElement>('[data-slot="badge"]')].find((chip) =>
       chip.textContent?.includes("Podcast"),
     );
     if (!custom) throw new Error("The own entry did not render.");
-    for (const className of ["text-sm", "px-3"]) {
-      expect(toggle.className.split(" ")).toContain(className);
-      expect(custom.className.split(" ")).toContain(className);
-    }
-    expect(custom.className).not.toContain("text-[11px]");
+    const reference = document.createElement("div");
+    const referenceRoot = createRoot(reference);
+    act(() => referenceRoot.render(createElement(AppChip, null, "Reference")));
+    const standard = reference.querySelector('[data-slot="badge"]')?.className.split(" ") ?? [];
+    act(() => referenceRoot.unmount());
+    expect(standard.length).toBeGreaterThan(0);
+    expect(custom.className.split(" ")).toEqual(expect.arrayContaining(standard));
+    expect(custom.querySelector("button")?.getAttribute("aria-label")).toBe("Common.actions.remove: Podcast");
     act(() => button("Common.actions.remove: Podcast").click());
     expect(onChange).toHaveBeenLastCalledWith({ format: "multipleChoice", values: ["website"], custom: [] });
   });
