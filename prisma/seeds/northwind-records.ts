@@ -2,7 +2,9 @@ import { presetId } from "@/features/records/crm-preset";
 import type { RecordScalar } from "@/features/records/record-model.schema";
 
 import { fixtureId } from "./helpers";
+import { northwindOrganizationAddress } from "./northwind-addresses";
 import { type MemberKey, northwindAt, northwindDataset, northwindDay, northwindDocument } from "./northwind-data";
+import { northwindRecordFiles } from "./northwind-files";
 import { northwindUpdatedAt } from "./northwind-history";
 import { NORTHWIND_MEMBER_IDS, NORTHWIND_RECORD_ID_PREFIXES } from "./northwind-model";
 
@@ -125,11 +127,17 @@ export function buildNorthwindRecords(companyId: string) {
   // Organizations, contacts, services, deals, tasks: the fields the demo adds -----------------------------------------
   const lastOwner = new Map<number, MemberKey>();
   for (const deal of data.deals) if (deal.type !== "renewal") lastOwner.set(deal.organizationIndex, deal.ownerKey);
+  const documents = new Map<number, string[]>();
+  for (const file of northwindRecordFiles())
+    documents.set(file.organizationIndex, [...(documents.get(file.organizationIndex) ?? []), file.id]);
   for (const organization of data.organizations) {
+    const files = documents.get(organization.index);
     set("organization", organization.id, [
       ["industry", option("organization.industry", organization.industry)],
       ["companySize", number(organization.companySize)],
       ["segment", option("organization.segment", organization.segment)],
+      ["address", { kind: "address", value: northwindOrganizationAddress(organization) }],
+      ["documents", files ? { kind: "file", value: files } : null],
       ["notes", organization.notes ? document(organization.notes) : null],
     ]);
     const customer = organization.profile === "legacyCustomer" || organization.profile === "newCustomer";

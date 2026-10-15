@@ -9,6 +9,9 @@ import {
   LEGACY_CRM_TABLES,
 } from "@/tests/helpers/legacy-migration-database";
 import { createSeedContext, SEED_IDS } from "../seeds/context";
+import { northwindDataset } from "../seeds/northwind-data";
+import { northwindRecordFiles } from "../seeds/northwind-files";
+import { northwindFileStorageKey } from "../seeds/record-files";
 import { runSyntheticSeed } from "../seeds/run";
 import { presetId } from "@/features/records/crm-preset";
 
@@ -44,6 +47,9 @@ suite("generic synthetic seed convergence", { timeout: 180000 }, () => {
         links: await prisma.recordLink.count({ where: { companyId } }),
         histories: await prisma.eventLog.count({ where: { companyId } }),
         deliveries: await prisma.webhookDelivery.count({ where: { companyId } }),
+        files: await prisma.recordFile.count({ where: { companyId } }),
+        fileParts: await prisma.recordFileContent.count({ where: { companyId } }),
+        fileChunks: await prisma.recordFileChunk.count({ where: { companyId } }),
       };
       await runSyntheticSeed(context);
       expect(
@@ -61,6 +67,38 @@ suite("generic synthetic seed convergence", { timeout: 180000 }, () => {
       expect(await prisma.recordLink.count({ where: { companyId } })).toBe(counts.links);
       expect(await prisma.eventLog.count({ where: { companyId } })).toBe(counts.histories);
       expect(await prisma.webhookDelivery.count({ where: { companyId } })).toBe(counts.deliveries);
+      expect(await prisma.recordFile.count({ where: { companyId } })).toBe(counts.files);
+      expect(await prisma.recordFileContent.count({ where: { companyId } })).toBe(counts.fileParts);
+      expect(await prisma.recordFileChunk.count({ where: { companyId } })).toBe(counts.fileChunks);
+      const organizations = northwindDataset().organizations;
+      for (const file of northwindRecordFiles()) {
+        const stored = await prisma.recordFile.findUniqueOrThrow({ where: { id: file.id } });
+        expect(stored).toMatchObject({
+          companyId,
+          recordId: organizations[file.organizationIndex].id,
+          fieldId: presetId(companyId, "organization.documents"),
+          status: "ready",
+          storageDriver: "database",
+          extractionStatus: "done",
+        });
+        const parts = await prisma.recordFileContent.findMany({
+          where: { companyId, fileKey: northwindFileStorageKey(companyId, file.id) },
+        });
+        expect(parts.map(({ data }) => Buffer.from(data).toString("utf8"))).toEqual([file.content]);
+        expect(Number(stored.size)).toBe(Buffer.byteLength(file.content));
+        expect(await prisma.recordFileChunk.count({ where: { companyId, fileId: file.id } })).toBeGreaterThan(0);
+        const value = await prisma.recordValue.findUniqueOrThrow({
+          where: {
+            companyId_typeId_recordId_fieldId: {
+              companyId,
+              typeId: presetId(companyId, "organization"),
+              recordId: stored.recordId ?? "",
+              fieldId: stored.fieldId,
+            },
+          },
+        });
+        expect(value.textListValue).toContain(file.id);
+      }
       for (const kind of ["contact", "organization", "deal", "service", "task"] as const) {
         // Records in Trash (the seeded Trash fixtures) are not part of the live lists.
         expect(

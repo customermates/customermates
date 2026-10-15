@@ -26,6 +26,7 @@ import { seedIdentity } from "./identity";
 import { seedDemoMessagingFixtures } from "./messaging/seed";
 import { seedOrganizations } from "./organizations";
 import { seedPersonalization } from "./personalization";
+import { seedRecordFiles } from "./record-files";
 import { seedRecordHistory } from "./record-history";
 import { seedRelationships } from "./relationships";
 import { seedRoutines } from "./routines";
@@ -65,6 +66,7 @@ export async function runSyntheticSeed(
   await seedHostedAiOperatorUserTableFixtures(context, options);
 
   await seedRecordFixtures(context, entities, customFieldData);
+  await seedRecordFiles(context);
   await seedRelationships(context, entities);
   await calculateSyntheticRecords(context.prisma, context.ids.company);
   await seedWidgets(context, customFieldData);
