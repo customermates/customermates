@@ -12,6 +12,7 @@ import { isTemporalRecordType } from "./record-temporal-filter";
 import { recordCollation } from "./record-collation";
 import { MANUAL_ORDER_SORT_KEY } from "./record-column.schema";
 import { recordManualOrderKey } from "./record-rank";
+import { recordFileContentMatch } from "@/features/record-file-index/record-file-content-query";
 
 function alias(index: number): Prisma.Sql {
   return Prisma.raw(`"record_${index}"`);
@@ -282,6 +283,18 @@ export function compileRecordQuery(
         ${searchRecordSource}
         WHERE value."companyId" = ${companyId} AND value."typeId" = ${query.typeId} AND value.status = 'ready'
           AND value.name ILIKE ${search} AND (${Prisma.join(permitted, " OR ")})`);
+      const content = recordFileContentMatch(query.search, Prisma.sql`chunk`);
+      if (content) {
+        matches.push(Prisma.sql`SELECT value."recordId" AS id FROM "RecordFile" value
+          ${searchRecordSource}
+          WHERE value."companyId" = ${companyId} AND value."typeId" = ${query.typeId} AND value.status = 'ready'
+            AND EXISTS (SELECT 1 FROM "RecordFileChunk" chunk
+              WHERE chunk."companyId" = ${companyId} AND chunk."fileId" = value.id AND ${content})
+            AND EXISTS (SELECT 1 FROM "RecordValue" listed WHERE listed."companyId" = ${companyId}
+              AND listed."typeId" = ${query.typeId} AND listed."recordId" = value."recordId"
+              AND listed."fieldId" = value."fieldId" AND listed.state = 'value' AND value.id = ANY(listed."textListValue"))
+            AND (${Prisma.join(permitted, " OR ")})`);
+      }
     }
     const richTextFields = [...fields.values()].filter((field) => field.valueType === "richText");
     if (richTextFields.length) {

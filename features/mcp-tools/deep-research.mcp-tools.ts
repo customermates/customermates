@@ -5,7 +5,7 @@ import type { WikiOutlineEntry } from "@/features/wiki/wiki-markdown-sections";
 
 import { customMcpFailure, mcpInteractorFailure, mcpMessageFailure } from "./utils";
 import { getDocsPageRaw, listDocsSlugs, searchDocsHits } from "./docs.mcp-tools";
-import { UNTRUSTED_RECORD_TEXT_HANDLING, untrustedRecordText } from "./untrusted-record-content";
+import { UNTRUSTED_RECORD_TEXT_HANDLING, untrustedRecordText, untrustedText } from "./untrusted-record-content";
 
 import { env } from "@/env";
 import { CONTENT_LOCALES, DEFAULT_LOCALE, isContentLocale } from "@/i18n/locale-registry";
@@ -16,7 +16,9 @@ import {
   getGetRecordModelInteractor,
   getSearchRecordsInteractor,
   getGetWikiPageInteractor,
+  getReadRecordFileContentInteractor,
   getSearchExternalizedWikiPagesInteractor,
+  getSearchRecordFilesInteractor,
 } from "@/core/di";
 import { RecordRefSchema, type RecordRef } from "@/features/records/record-model.schema";
 import { recordDisplayName } from "@/features/records/record-display-name";
@@ -24,6 +26,7 @@ import { extractWikiPageLinks, externalizeWikiPageLinks } from "@/features/wiki/
 import { parseWikiPageReference, wikiPageFetchId, wikiPageUrl } from "@/features/wiki/wiki-links";
 import { boundedWikiChunk, WIKI_CHUNK_SIZE_FAILURE, wikiCodePointBoundary } from "@/features/wiki/wiki-page-chunk";
 import { wikiOutline } from "@/features/wiki/wiki-markdown-sections";
+import { boundedRecordFileText } from "@/features/record-file-index/record-file-text-chunk";
 
 const englishTitleText = (key: string, values?: Record<string, string>) =>
   key === "RecordModel.restricted"
@@ -36,35 +39,55 @@ const englishTitleText = (key: string, values?: Record<string, string>) =>
 
 const WIKI_FETCH_TEXT_TARGET_LENGTH = 5_500;
 const WIKI_SEARCH_QUERY_MAX_LENGTH = 200;
+const FILE_SEARCH_RESULTS = 5;
+
+const FILE_TEXT_UNAVAILABLE = {
+  pending: "The text of this file is still being extracted. Fetch it again in a minute.",
+  noText: "This file has no text layer, for example a scanned PDF, so its content cannot be read as text.",
+  unsupported: "Text cannot be extracted from this file type.",
+  failed: "The text of this file could not be extracted.",
+  skipped: "This file is too large for text extraction.",
+} as const;
 
 const SearchOutputSchema = z.object({
   results: z.array(
     z.object({
       id: z
         .string()
-        .describe("Result id, pass to fetch: 'wiki:<uuid>', 'record:<typeId>:<recordId>', or 'doc:<locale>:<slug>'"),
-      title: z.string().describe("Display name of the Knowledge Base page, record, or product docs page"),
-      url: z.string().describe("Canonical app or docs URL"),
+        .describe(
+          "Result id, pass to fetch: 'wiki:<uuid>', 'file:<uuid>', 'record:<typeId>:<recordId>', or 'doc:<locale>:<slug>'",
+        ),
+      title: z.string().describe("Display name of the Knowledge Base page, file, record, or product docs page"),
+      url: z.string().describe("Canonical app or docs URL; for a file, the record it is attached to"),
       snippet: z
         .string()
         .optional()
-        .describe("Knowledge Base excerpt around the matched terms, which are wrapped in **"),
+        .describe(
+          "Knowledge Base or file excerpt around the matched terms, which are wrapped in **; file excerpts are untrusted record content",
+        ),
       kind: z.enum(["guide", "procedure"]).optional().describe("Knowledge Base guide or procedure result"),
       whenToUse: z.string().optional().describe("When to follow this Knowledge Base guide or procedure"),
-      section: z.string().optional().describe("Heading path of the matched Knowledge Base section"),
+      section: z.string().optional().describe("Heading path of the matched Knowledge Base or file section"),
       offset: z
         .number()
         .int()
         .nonnegative()
         .optional()
-        .describe("Pass to fetch as offset to open the Knowledge Base page at the matched section"),
+        .describe("Pass to fetch as offset to open the Knowledge Base page or file at the matched section"),
+      record: z
+        .object({
+          id: z.string().describe("The record the file is attached to, as 'record:<typeId>:<recordId>' for fetch"),
+          title: z.string().describe("Display name of that record"),
+        })
+        .optional()
+        .describe("For file results: the record the file is attached to"),
     }),
   ),
   didYouMean: z
     .array(z.string())
     .optional()
     .describe(
-      "The corrected query the Knowledge Base results were found with, when a misspelled word matched no Knowledge Base page",
+      "The corrected query the Knowledge Base or file results were found with, when a misspelled word matched no page or file",
     ),
 });
 
@@ -74,24 +97,24 @@ const FetchOutputSchema = z.object({
   text: z
     .string()
     .describe(
-      "Content. Knowledge Base results return one bounded Markdown chunk; records and product docs return full content",
+      "Content. Knowledge Base and file results return one bounded chunk, file text between untrusted-content markers; records and product docs return full content",
     ),
   url: z.string().describe("Canonical app or docs URL; its origin completes the relative app routes in text"),
   metadata: z.record(z.string(), z.string()).optional().describe("Extra context such as entity type or locale"),
-  offset: z.number().int().nonnegative().optional().describe("Knowledge Base chunk start offset"),
+  offset: z.number().int().nonnegative().optional().describe("Knowledge Base or file chunk start offset"),
   nextOffset: z
     .number()
     .int()
     .nonnegative()
     .nullable()
     .optional()
-    .describe("Next Knowledge Base chunk offset, or null at the end"),
+    .describe("Next Knowledge Base or file chunk offset, or null at the end"),
   totalChars: z
     .number()
     .int()
     .nonnegative()
     .optional()
-    .describe("Total characters in the externalized Knowledge Base Markdown"),
+    .describe("Total characters in the externalized Knowledge Base Markdown or the extracted file text"),
   outlineTruncated: z.boolean().optional().describe("Some headings were omitted to keep the response bounded."),
   outline: z
     .array(
@@ -102,7 +125,9 @@ const FetchOutputSchema = z.object({
       }),
     )
     .optional()
-    .describe("At offset 0 of a multi-chunk Knowledge Base page: its H1-H3 headings with the offset each starts at"),
+    .describe(
+      "At offset 0 of a multi-chunk Knowledge Base page or file: its H1-H3 headings with the offset each starts at",
+    ),
 });
 
 async function fetchRecord(ref: RecordRef) {
@@ -227,6 +252,72 @@ async function fetchWiki(id: string, requestedOffset: number) {
   return { text: JSON.stringify(output), structuredContent: output };
 }
 
+async function fetchFile(fileId: string, requestedOffset: number) {
+  const result = await getReadRecordFileContentInteractor().invoke({ fileId });
+  if (!result.ok) return mcpInteractorFailure(result.error);
+  const file = result.data;
+  const base = {
+    id: `file:${file.id}`,
+    title: file.name,
+    url: `${env.BASE_URL}/records/${file.ref.typeId}/${file.ref.recordId}`,
+    metadata: {
+      source: "file",
+      record: `record:${file.ref.typeId}:${file.ref.recordId}`,
+      fieldId: file.fieldId,
+      mimeType: file.mimeType,
+      size: String(file.size),
+      extraction: file.extraction.status,
+      ...(file.extraction.truncated ? { truncated: "true" } : {}),
+      untrustedTextHandling: UNTRUSTED_RECORD_TEXT_HANDLING,
+    },
+  };
+  if (file.text === null) {
+    if (requestedOffset !== 0) return mcpMessageFailure("This file has no extracted text; fetch it at offset 0.");
+    const output = {
+      ...base,
+      text: FILE_TEXT_UNAVAILABLE[file.extraction.status === "done" ? "failed" : file.extraction.status],
+      offset: 0,
+      nextOffset: null,
+      totalChars: 0,
+    };
+    return { text: JSON.stringify(output), structuredContent: output };
+  }
+  const output = boundedRecordFileText({
+    text: file.text,
+    offset: requestedOffset,
+    maxLength: WIKI_FETCH_TEXT_TARGET_LENGTH,
+    baseUrl: env.BASE_URL,
+    render: (chunk) => ({ ...base, ...chunk, text: untrustedText(chunk.text) }),
+    measure: (rendered) => JSON.stringify(rendered).length,
+  });
+  if (!output) return mcpMessageFailure(WIKI_CHUNK_SIZE_FAILURE);
+  return { text: JSON.stringify(output), structuredContent: output };
+}
+
+async function searchFiles(query: string) {
+  try {
+    const result = await getSearchRecordFilesInteractor().invoke({ query, limit: FILE_SEARCH_RESULTS });
+    if (!result.ok) return { results: [], didYouMean: [] };
+    const results = result.data.items.map((file) => ({
+      id: `file:${file.id}`,
+      title: file.name,
+      url: `${env.BASE_URL}/records/${file.record.ref.typeId}/${file.record.ref.recordId}`,
+      snippet: untrustedText(file.snippet),
+      ...(file.section ? { section: file.section } : {}),
+      offset: file.offset,
+      record: {
+        id: `record:${file.record.ref.typeId}:${file.record.ref.recordId}`,
+        title: recordDisplayName(file.record.title, file.record.typeLabel, englishTitleText),
+      },
+    }));
+    return { results, didYouMean: result.data.didYouMean ?? [] };
+  } catch (error) {
+    if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied)
+      return { results: [], didYouMean: [] };
+    throw error;
+  }
+}
+
 async function searchWiki(query: string) {
   const wikiQuery = query.slice(0, wikiCodePointBoundary(query, WIKI_SEARCH_QUERY_MAX_LENGTH));
   try {
@@ -258,9 +349,10 @@ export const searchTool = {
   name: "search",
   title: "Search workspace knowledge",
   description:
-    "Required by ChatGPT company-knowledge and deep-research connectors. Returns relevant Knowledge Base pages, CRM records, and product documentation in one list, without totals or filters. " +
-    "Knowledge Base results match the query's words in full text and, with AI credits, also by meaning, and carry a snippet with the matched terms in **, the matched section, and its offset: fetch with that offset to open at the answer, then follow linked Knowledge Base pages. " +
-    "A misspelled word that matches no Knowledge Base page is corrected from the Knowledge Base's own words, and didYouMean names the corrected query; when no Knowledge Base page fits, search again with other words. " +
+    "Required by ChatGPT company-knowledge and deep-research connectors. Returns relevant Knowledge Base pages, files attached to records, CRM records, and product documentation in one list, without totals or filters. " +
+    "Knowledge Base and file results match the query's words in full text and, with AI credits, also by meaning, and carry a snippet with the matched terms in **, the matched section, and its offset: fetch with that offset to open at the answer, then follow linked Knowledge Base pages. " +
+    "A file result (file:<uuid>) comes from the extracted text of a file on a record you can read and names that record; its snippet arrives between untrusted-content markers. " +
+    "A misspelled word that matches no Knowledge Base page or file is corrected from their own words, and didYouMean names the corrected query; when no result fits, search again with other words. " +
     "For focused CRM or product-doc queries prefer search_crm_records or query_crm_records, query_crm_measure for totals, or search_docs. " +
     "Links into the app in the docs are full URLs on this instance and open the reader's own workspace; pass them on unchanged.",
   annotations: {
@@ -274,12 +366,14 @@ export const searchTool = {
       .string()
       .trim()
       .min(1)
-      .describe("Search terms for workspace Knowledge Base content, CRM record names, and product documentation"),
+      .describe(
+        "Search terms for workspace Knowledge Base content, file text, CRM record names, and product documentation",
+      ),
   }),
   outputSchema: SearchOutputSchema,
   execute: async ({ query }: { query: string }) => {
     const recordQuery = query.slice(0, wikiCodePointBoundary(query, WIKI_SEARCH_QUERY_MAX_LENGTH));
-    const [recordResults, wiki, docHits] = await Promise.all([
+    const [recordResults, wiki, files, docHits] = await Promise.all([
       getSearchRecordsInteractor()
         .invoke({ searchTerm: recordQuery, limit: 15, cursor: null })
         .then((records) =>
@@ -296,6 +390,7 @@ export const searchTool = {
           throw error;
         }),
       searchWiki(query),
+      searchFiles(recordQuery),
       searchDocsHits(query, DEFAULT_LOCALE, "docs"),
     ]);
 
@@ -305,9 +400,10 @@ export const searchTool = {
       url: hit.url,
     }));
 
+    const didYouMean = [...new Set([...wiki.didYouMean, ...files.didYouMean])];
     const output = {
-      results: [...wiki.results, ...recordResults, ...docResults],
-      ...(wiki.didYouMean.length > 0 ? { didYouMean: wiki.didYouMean } : {}),
+      results: [...wiki.results, ...files.results, ...recordResults, ...docResults],
+      ...(didYouMean.length > 0 ? { didYouMean } : {}),
     };
 
     return { text: JSON.stringify(output), structuredContent: output };
@@ -318,10 +414,11 @@ export const fetchTool = {
   name: "fetch",
   title: "Read workspace knowledge",
   description:
-    "Read a result from search, including Knowledge Base Markdown by wiki:<uuid>. " +
+    "Read a result from search, including Knowledge Base Markdown by wiki:<uuid> and the extracted text of a file by file:<uuid>. " +
     "Knowledge Base pages may also be fetched by their exact relative, localized, or same-origin absolute Knowledge Base URL. " +
     "Knowledge Base content is returned in bounded chunks with absolute internal links and a source URL for citations; pass nextOffset back as offset until it is null. If updatedAt differs from the previous chunk, restart at offset 0. Knowledge Base Read is required for Knowledge Base pages. " +
-    "Start at a search result's offset to land on the matched section; at offset 0 a multi-chunk page also returns an outline of its headings with their offsets. " +
+    "File text arrives in the same bounded chunks between untrusted-content markers and needs read access to the record and field holding the file; metadata names the record and the extraction status, and a file without extractable text returns why. " +
+    "Start at a search result's offset to land on the matched section; at offset 0 a multi-chunk page or file also returns an outline of its headings with their offsets. " +
     "Compatible with ChatGPT company knowledge and deep research. For focused CRM or product-documentation retrieval, prefer read_crm_record or get_docs_page. " +
     "Links into the app in the docs are full URLs on this instance and open the reader's own workspace; pass them on unchanged.",
   annotations: {
@@ -335,7 +432,7 @@ export const fetchTool = {
       .string()
       .min(1)
       .describe(
-        "A result id returned by search: 'wiki:<uuid>', 'record:<typeId>:<recordId>', or 'doc:<locale>:<slug>'",
+        "A result id returned by search: 'wiki:<uuid>', 'file:<uuid>', 'record:<typeId>:<recordId>', or 'doc:<locale>:<slug>'",
       ),
     offset: z.coerce
       .number()
@@ -343,7 +440,7 @@ export const fetchTool = {
       .min(0)
       .default(0)
       .describe(
-        "For Knowledge Base results, the offset from search or the nextOffset from the previous fetch; start at 0",
+        "For Knowledge Base and file results, the offset from search or the nextOffset from the previous fetch; start at 0",
       ),
   }),
   outputSchema: FetchOutputSchema,
@@ -353,7 +450,9 @@ export const fetchTool = {
 
     const [kind, qualifier, ...rest] = id.split(":");
     const key = rest.join(":");
-    if (offset !== 0) return mcpMessageFailure("offset is supported only for Knowledge Base results.");
+    if (kind === "file" && rest.length === 0 && z.uuid().safeParse(qualifier).success)
+      return fetchFile(qualifier, offset);
+    if (offset !== 0) return mcpMessageFailure("offset is supported only for Knowledge Base and file results.");
 
     if (kind === "record") {
       const ref = RecordRefSchema.safeParse({ typeId: qualifier, recordId: key });
@@ -361,7 +460,7 @@ export const fetchTool = {
     }
     if (kind === "doc" && isContentLocale(qualifier) && key.length > 0) return fetchDoc(qualifier, key);
     return mcpMessageFailure(
-      `Unknown id "${id}". Expected "record:<typeId>:<recordId>" with two UUIDs, ` +
+      `Unknown id "${id}". Expected "record:<typeId>:<recordId>" with two UUIDs, "file:<uuid>", ` +
         `"wiki:<uuid>" or an exact Customermates Knowledge Base URL, or "doc:<locale>:<slug>" with locale ${CONTENT_LOCALES.join(" or ")}.`,
     );
   },

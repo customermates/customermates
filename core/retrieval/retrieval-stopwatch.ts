@@ -1,8 +1,8 @@
 import type {
-  RetrievalCorpus,
   RetrievalEmbeddingOutcome,
   RetrievalRerankOutcome,
   RetrievalTiming,
+  RetrievalTimingCorpus,
 } from "./retrieval-context";
 import { recordRetrievalTiming } from "./retrieval-context";
 import { elapsed } from "./retrieval-pipeline";
@@ -16,7 +16,7 @@ export class RetrievalStopwatch {
   rerank: RetrievalRerankOutcome = "none";
   rerankMs: number | null = null;
 
-  constructor(private readonly corpus: RetrievalCorpus) {}
+  constructor(private readonly corpus: RetrievalTimingCorpus) {}
 
   async time<T>(stage: "fullTextMs" | "semanticMs" | "embeddingMs" | "rerankMs", run: () => Promise<T>): Promise<T> {
     const started = performance.now();

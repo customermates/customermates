@@ -923,11 +923,17 @@ const getWikiSemanticRetrieval = () => ({
 });
 
 import { BackgroundRecordFileIndexDispatcher } from "@/features/record-file-index/background-record-file-index-dispatcher";
+import { ExtractedRecordFileTextReader } from "@/features/record-file-index/extracted-record-file-text-reader";
 import { IndexRecordFilesInteractor } from "@/features/record-file-index/index-record-files.interactor";
+import { PrismaRecordFileSearchRepo } from "@/features/record-file-index/prisma-record-file-search.repository";
+import { ReadRecordFileContentInteractor } from "@/features/record-file-index/read-record-file-content.interactor";
 import type { RecordFileStorageResolver } from "@/features/record-file-index/record-file-index.service";
 import { RecordFileIndexService } from "@/features/record-file-index/record-file-index.service";
+import { SearchRecordFilesInteractor } from "@/features/record-file-index/search-record-files.interactor";
 import { SweepRecordFileIndexInteractor } from "@/features/record-file-index/sweep-record-file-index.interactor";
+import { RecordFileSemanticIndexScheduler } from "@/ee/record-file-index/record-file-semantic-index-scheduler";
 import { RecordFileSemanticIndexService } from "@/ee/record-file-index/record-file-semantic-index.service";
+export const getRecordFileSearchRepo = () => new PrismaRecordFileSearchRepo();
 const getRecordFileIndexStorage =
   (companyId: string): RecordFileStorageResolver =>
   (driver) => {
@@ -943,6 +949,26 @@ export const getRecordFileIndexService = (companyId: string) =>
 export const getIndexRecordFilesInteractor = () => new IndexRecordFilesInteractor(getRecordFileIndexService);
 export const getSweepRecordFileIndexInteractor = () =>
   new SweepRecordFileIndexInteractor(getRecordFileRepo(), getBackgroundTaskService());
+const getRecordFileSemanticRetrieval = () => ({
+  embedder: new WikiSemanticQueryEmbedder(getWikiEmbeddingService()),
+  scheduler: new RecordFileSemanticIndexScheduler(
+    getRecordFileRepo(),
+    getWikiEmbeddingService(),
+    getBackgroundTaskService(),
+  ),
+});
+export const getSearchRecordFilesInteractor = () =>
+  new SearchRecordFilesInteractor(
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getRecordFileSearchRepo(),
+    getWikiPageRepo(),
+    getRecordFileSemanticRetrieval(),
+  );
+export const getReadRecordFileContentInteractor = () =>
+  new ReadRecordFileContentInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordFileSearchRepo());
+export const getExtractedRecordFileTextReader = () =>
+  new ExtractedRecordFileTextReader(getRecordFileSearchRepo(), env.BASE_URL);
 
 const EXPECTED_EVENT_LISTENERS = [
   {

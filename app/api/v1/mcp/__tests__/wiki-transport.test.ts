@@ -18,6 +18,9 @@ vi.mock("@/core/di", () => ({
   getSearchWikiPagesInteractor: () => ({ invoke: calls.search }),
   getSearchExternalizedWikiPagesInteractor: () => ({ invoke: calls.search }),
   getSearchRecordsInteractor: () => ({ invoke: calls.records }),
+  getSearchRecordFilesInteractor: () => ({
+    invoke: () => Promise.resolve({ ok: true, data: { items: [], retrieval: "keyword" } }),
+  }),
   getGetRecordInteractor: vi.fn(),
   getGetRecordModelInteractor: vi.fn(),
   getResolveRecordSearchInteractor: vi.fn(),

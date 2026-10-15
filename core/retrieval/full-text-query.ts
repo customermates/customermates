@@ -122,7 +122,7 @@ export function replaceQueryWords(query: string, replacements: ReadonlyMap<strin
   return `${replaced}${text.slice(cursor)}`;
 }
 
-function unitQuery(unit: FullTextUnit, configs: readonly string[]): Prisma.Sql {
+export function fullTextUnitQuery(unit: FullTextUnit, configs: readonly string[]): Prisma.Sql {
   const terms = fullTextUnitTerms(unit).map((parts) => parts.join(" "));
   const parts = configs.flatMap((config) =>
     terms.map((term) =>
@@ -156,7 +156,7 @@ export function fullTextUnitsCte(args: {
       ? Prisma.sql`SELECT * FROM (VALUES ${Prisma.join(
           words.map(
             ({ unit, ord }) =>
-              Prisma.sql`(${ord}::int, ${unitQuery(unit, ["simple", ...args.configs])}, ${unitStop(unit, args.stopConfig)})`,
+              Prisma.sql`(${ord}::int, ${fullTextUnitQuery(unit, ["simple", ...args.configs])}, ${unitStop(unit, args.stopConfig)})`,
           ),
         )}) AS v("ord", "query", "stop") WHERE numnode(v."query") > 0`
       : Prisma.sql`SELECT NULL::int AS "ord", NULL::tsquery AS "query", NULL::boolean AS "stop" WHERE false`;
