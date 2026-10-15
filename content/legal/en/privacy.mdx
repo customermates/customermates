@@ -5,7 +5,7 @@ description: Learn how Customermates processes and protects personal data and wh
 
 # Privacy Policy
 
-_Version 2026-09-13; editorially corrected 23 and 27 September 2026_
+_Version 2026-10-15_
 
 ## Scope of This Policy
 
@@ -43,7 +43,7 @@ We host and operate our website and our application with the following providers
 
 ### Vercel
 
-The provider is Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, USA (hereinafter referred to as Vercel). When you visit our website, Vercel processes request and log data, including IP addresses, to host and secure the website and web application. Vercel Web Analytics is described separately in section 4 and, according to Vercel, does not use cookies. Cookies required for account authentication and application functions are set by Customermates, not attributed to Vercel Web Analytics. For details, please refer to Vercel's privacy policy: https://vercel.com/legal/privacy-notice.
+The provider is Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, USA (hereinafter referred to as Vercel). When you visit our website, Vercel processes request and log data, including IP addresses, to host and secure the website and web application. In the managed service, Vercel also stores the files that users upload to File fields of records in a private Vercel Blob store, as described in section 8. Vercel Web Analytics is described separately in section 4 and, according to Vercel, does not use cookies. Cookies required for account authentication and application functions are set by Customermates, not attributed to Vercel Web Analytics. For details, please refer to Vercel's privacy policy: https://vercel.com/legal/privacy-notice.
 
 For personal data that Customermates processes as controller, hosting through Vercel is based on Art. 6 para. 1 lit. f GDPR because we have a legitimate interest in the reliable and secure provision of our website and, insofar as necessary to provide our contractual service, on Art. 6 para. 1 lit. b GDPR. For customer-controlled content, the customer determines the legal basis and Customermates processes the data on documented instructions under the Data Processing Agreement. Storage of or access to information on a user's device is addressed separately under "Cookies" below.
 
@@ -354,7 +354,7 @@ When you use the connected-account feature, the following personal data may be p
 - calendar events, including attendee email addresses and RSVP status;
 - message and account metadata.
 
-Attachment files are transmitted on demand and are not stored by Customermates; only attachment metadata is stored. In addition to the processing at Unipile, Customermates stores a copy of the synchronized connected-account content in its own database (see section 2, "Neon"), in particular message bodies (text and HTML), subjects, sender and recipient identifiers, thread participant profiles, calendar events with attendee email addresses, and the raw inbound data received from the providers. Social posts and engagement, profile lookups, relationship requests, and Sales Navigator search, result, and list data are retrieved or transmitted through Unipile when a customer requests the relevant operation and are returned to the requesting user or a customer-authorized API or MCP client. Customermates does not store that operation data as connected-account content unless the customer separately saves information as a CRM record. Relationship-request and list actions modify the underlying platform on the customer's instruction.
+Message attachment files are transmitted on demand and are not stored by Customermates; only attachment metadata is stored. In addition to the processing at Unipile, Customermates stores a copy of the synchronized connected-account content in its own database (see section 2, "Neon"), in particular message bodies (text and HTML), subjects, sender and recipient identifiers, thread participant profiles, calendar events with attendee email addresses, and the raw inbound data received from the providers. Social posts and engagement, profile lookups, relationship requests, and Sales Navigator search, result, and list data are retrieved or transmitted through Unipile when a customer requests the relevant operation and are returned to the requesting user or a customer-authorized API or MCP client. Customermates does not store that operation data as connected-account content unless the customer separately saves information as a CRM record. Relationship-request and list actions modify the underlying platform on the customer's instruction.
 
 The data processed via the connected-account feature includes personal data of your own users as well as third parties, including correspondents, post and comment authors, reactors, profile subjects, parties to relationship requests, Sales Navigator leads, and company representatives.
 
@@ -456,3 +456,29 @@ Use of Mate can involve processing in the United States and other countries used
 ### Responsibility
 
 Where Customermates acts as controller, it is responsible for processing involved in providing and technically operating Mate. Where a customer uses Mate with personal data for which that customer is controller, Customermates acts as processor as described above and in the [Data Processing Agreement](/dpa).
+
+## 8. Files and Addresses in Records
+
+This section describes the managed Customermates cloud service. An independent self-host operator decides itself where files are stored and whether an address lookup service is used.
+
+### Files in records (Vercel Blob)
+
+Users can upload files to File fields of records, for example contracts, quotes, photos, or certificates, of up to 25 MB each. In the managed service, the file content is stored in a private Vercel Blob store operated by Vercel Inc. (see section 2). A file is not publicly accessible: Customermates delivers it only to users who may read the record and the field, through the application or a download link that expires after 15 minutes. The file name, type, size, upload time, uploading user, and the text extracted from the file are stored in our database (see section 2, "Neon").
+
+A file removed from a record is deleted 30 days after its removal, and a file that was uploaded but never saved to a record is deleted after 24 hours. A record in the trash keeps its files; permanently deleting the record, the field, or the list deletes their files. After the contract ends, files are deleted or returned with the other customer-controlled data as described in the [Data Processing Agreement](/dpa).
+
+### Text in files and search (Google Cloud Vertex AI)
+
+After a file is saved to a record, Customermates extracts its text, for example from PDFs with a text layer and from Word, Excel, CSV, plain-text, Markdown, JSON, and HTML files, within its own application and without an external service, and stores the text and a search index in its database, so that search, the MCP interface, and Mate can find and read the file for users who may read the record and the field. Scanned documents and images are not read; there is no text recognition.
+
+Where the workspace has AI credits, Customermates also sends text passages of files and of Knowledge Base pages, and the search queries used to find them, through Vercel AI Gateway to Google Cloud Vertex AI. Vertex AI returns embeddings, numeric vectors for meaning-based search, which Customermates stores in its database. The team-wide Zero Data Retention control described in section 7 also applies to these requests, and they are sent with prompt training disallowed, but unlike Mate's default model they are not pinned to an EU inference zone. Without AI credits, files and Knowledge Base pages are found by their words only, and no text is sent for embeddings.
+
+### Address lookup (komoot Photon)
+
+Where address lookup is enabled in the managed service, an Address field suggests postal addresses while a user types, from three characters on, and checks an address that a user has entered. The suggestions come from the Photon service that **komoot GmbH**, Kienberger Allee 4, 12529 Schönefeld, Germany (hereinafter "komoot"), operates on OpenStreetMap data. Customermates sends each request from its own servers: komoot receives only the search text or the address to be checked, the interface language, and, where a country is chosen, its country code, but not the user's IP address, account, or session. API and MCP clients can use the same lookup. Customermates keeps lookup results in server memory for up to ten minutes and stores an address only when a user saves it to a record; an address taken from a suggestion is saved with its coordinates and marked as verified. Without address lookup, addresses are entered by hand and nothing is sent to komoot.
+
+komoot offers the public Photon service under the usage terms published at https://photon.komoot.io. Where a search text contains personal data covered by the Data Processing Agreement, komoot receives it as a subprocessor; every required Art. 28 GDPR contract must apply, and this notice does not by itself establish one. komoot is established in Germany; its role and further details are listed at [Subprocessors](/subprocessors).
+
+### Legal basis and roles
+
+Files, the text extracted from them, embeddings, and addresses in records are customer-controlled content. The customer is the controller and determines the legal basis; Customermates processes this content on the customer's documented instructions as a processor pursuant to Art. 28 GDPR and the [Data Processing Agreement](/dpa). Uploading a file, searching, or looking up an address is such an instruction. The customer remains responsible for deciding which files and addresses may be stored in the CRM. The recipients named above and their transfer bases are set out at [Subprocessors](/subprocessors).
