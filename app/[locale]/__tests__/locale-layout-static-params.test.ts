@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockEnv = vi.hoisted(() => ({ APP_MODE: "cloud" as "cloud" | "self-hosted", BASE_URL: "http://localhost:4000" }));
@@ -26,4 +28,13 @@ describe("locale pages rendered at build time", () => {
 
     expect(generateStaticParams()).toEqual([]);
   });
+
+  it.each(["(public)", "(protected)"])(
+    "renders the %s pages on every request, which self-hosted builds no longer prerender",
+    (group) => {
+      const source = readFileSync(new URL(`../${group}/layout.tsx`, import.meta.url), "utf8");
+
+      expect(source).toMatch(/^export const dynamic = "force-dynamic";$/m);
+    },
+  );
 });
