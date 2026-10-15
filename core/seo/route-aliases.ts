@@ -1,4 +1,4 @@
-import { CONTENT_LOCALES, DEFAULT_LOCALE, buildLocalePath } from "../../i18n/locale-registry";
+import { APP_LOCALES, CONTENT_LOCALES, DEFAULT_LOCALE, buildLocalePath } from "../../i18n/locale-registry";
 
 const RETIRED_ROUTE_ALIASES = {
   "/blog/ai-native-crm": "/blog/agentic-crm",
@@ -97,5 +97,45 @@ export function permanentAliasRedirects(): PermanentRedirect[] {
       destination: buildLocalePath(DEFAULT_LOCALE, survivor),
       permanent: true as const,
     },
+  ]);
+}
+
+const RETIRED_APP_ROUTE_ALIASES = {
+  "/company/audit-logs": "/settings/activity",
+  "/company/members": "/settings/members",
+  "/company/roles": "/settings/roles",
+  "/company/settings": "/configure",
+  "/company/subscription": "/settings/billing",
+  "/company/webhook-deliveries": "/settings/webhook-deliveries",
+  "/company/webhooks": "/settings/webhooks",
+  "/profile/api-keys": "/settings/api-keys",
+  "/profile/connected-accounts": "/settings/channels",
+  "/profile/settings": "/settings/profile",
+} as const satisfies Record<string, string>;
+
+const RETIRED_RECORD_LIST_PRESETS = {
+  "/contacts": "contact",
+  "/organizations": "organization",
+  "/deals": "deal",
+  "/services": "service",
+  "/tasks": "task",
+} as const satisfies Record<string, string>;
+
+export function retiredAppRouteRedirects(): PermanentRedirect[] {
+  const aliases: [string, string][] = [
+    ...Object.entries(RETIRED_APP_ROUTE_ALIASES),
+    ...Object.entries(RETIRED_RECORD_LIST_PRESETS).flatMap(([retired, preset]): [string, string][] => [
+      [retired, `/open/records/${preset}`],
+      [`${retired}/:recordId`, `/open/records/${preset}/:recordId`],
+    ]),
+  ];
+
+  return aliases.flatMap(([retired, survivor]) => [
+    ...APP_LOCALES.map((locale) => ({
+      source: buildLocalePath(locale, retired),
+      destination: buildLocalePath(locale, survivor),
+      permanent: true as const,
+    })),
+    { source: retired, destination: survivor, permanent: true as const },
   ]);
 }

@@ -9,9 +9,10 @@ import {
   RETIRED_ROUTE_PATHS,
   isRetiredRoutePath,
   permanentAliasRedirects,
+  retiredAppRouteRedirects,
 } from "@/core/seo/route-aliases";
-import { CONTENT_LOCALES, DEFAULT_LOCALE, buildLocalePath } from "@/i18n/locale-registry";
-import { PUBLIC_ROUTES } from "@/i18n/routing";
+import { APP_LOCALES, CONTENT_LOCALES, DEFAULT_LOCALE, buildLocalePath } from "@/i18n/locale-registry";
+import { PUBLIC_ROUTES, isProtectedPathname } from "@/i18n/routing";
 
 const REPO_ROOT = resolve(__dirname, "../../..");
 
@@ -126,6 +127,47 @@ describe("permanent route aliases", () => {
       expect(redirects.find((redirect) => redirect.source === retired)?.destination).toBe(
         buildLocalePath(DEFAULT_LOCALE, survivor),
       );
+    }
+  });
+});
+
+describe("retired app routes", () => {
+  const redirects = retiredAppRouteRedirects();
+  const destinationOf = (source: string) => redirects.find((redirect) => redirect.source === source)?.destination;
+
+  it("sends the pre-upgrade list, record, workspace and profile URLs to their current pages", () => {
+    expect(destinationOf("/contacts")).toBe("/open/records/contact");
+    expect(destinationOf("/organizations")).toBe("/open/records/organization");
+    expect(destinationOf("/deals")).toBe("/open/records/deal");
+    expect(destinationOf("/services")).toBe("/open/records/service");
+    expect(destinationOf("/tasks")).toBe("/open/records/task");
+    expect(destinationOf("/de/deals/:recordId")).toBe("/de/open/records/deal/:recordId");
+    expect(destinationOf("/company/members")).toBe("/settings/members");
+    expect(destinationOf("/company/audit-logs")).toBe("/settings/activity");
+    expect(destinationOf("/company/settings")).toBe("/configure");
+    expect(destinationOf("/fr/profile/api-keys")).toBe("/fr/settings/api-keys");
+    expect(destinationOf("/profile/settings")).toBe("/settings/profile");
+  });
+
+  it("redirects permanently from every app locale and from the unprefixed URL, without loops", () => {
+    const sources = redirects.map((redirect) => redirect.source);
+    expect(new Set(sources).size, "duplicate redirect sources").toBe(sources.length);
+
+    for (const redirect of redirects) {
+      expect(redirect.permanent).toBe(true);
+      expect(redirect.source).not.toBe(redirect.destination);
+      expect(isProtectedPathname(redirect.source), `${redirect.source} is still a live route`).toBe(false);
+      expect(isProtectedPathname(redirect.destination), `${redirect.destination} is not an app route`).toBe(true);
+    }
+
+    for (const redirect of redirects.filter(
+      (candidate) => !APP_LOCALES.some((locale) => candidate.source.startsWith(`/${locale}/`)),
+    )) {
+      for (const locale of APP_LOCALES) {
+        expect(destinationOf(buildLocalePath(locale, redirect.source))).toBe(
+          buildLocalePath(locale, redirect.destination),
+        );
+      }
     }
   });
 });
