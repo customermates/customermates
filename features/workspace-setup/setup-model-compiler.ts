@@ -387,7 +387,7 @@ export function compileSetupRecordModel(
       options: [],
     });
   }
-  if (offerings && priceRef)
+  if (offerings && priceRef) {
     define(priceRef, {
       typeId: setupListReference(offerings),
       label: labels.price,
@@ -397,7 +397,8 @@ export function compileSetupRecordModel(
       format: { currency },
       options: [],
     });
-  if (deals)
+  }
+  if (deals) {
     define(setupFieldReference(`${deals}.value`), {
       typeId: setupListReference(deals),
       label: labels.value,
@@ -418,6 +419,7 @@ export function compileSetupRecordModel(
       format: { currency },
       options: [],
     });
+  }
 
   for (const list of plan.recordModel.lists) {
     const reference = setupListReference(list.key);
@@ -555,7 +557,7 @@ export function compileSetupRecordModel(
 
   if (issues.length) return { ok: false, issues };
   for (const definition of definitions.values()) operations.push({ operation: "putField", field: definition });
-  if (people)
+  if (people) {
     operations.push({
       operation: "putCapability",
       capability: {
@@ -565,7 +567,8 @@ export function compileSetupRecordModel(
         fields: [{ role: "image", fieldId: setupFieldReference(`${people}.avatar`) }],
       },
     });
-  if (tasks && !model.capabilities.some((binding) => binding.kind === "membershipAuthorization"))
+  }
+  if (tasks && !model.capabilities.some((binding) => binding.kind === "membershipAuthorization")) {
     operations.push({
       operation: "putCapability",
       capability: {
@@ -575,6 +578,7 @@ export function compileSetupRecordModel(
         fields: [],
       },
     });
+  }
 
   const parsed = PublicConfigurationChangeSchema.safeParse({
     expectedRevision: model.revision,

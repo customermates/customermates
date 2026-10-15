@@ -1,5 +1,6 @@
 import type { Validated } from "@/core/validation/validation.utils";
 import type { AgentUsageService } from "@/ee/agent-chat/agent-usage.service";
+import type { RecordRepo } from "@/features/records/record.repo";
 import type { WorkspaceSetupRepo } from "./workspace-setup.repo";
 import type { WorkspaceSetupStatusView } from "./workspace-setup-status";
 import type { WorkspaceSetupStatus } from "./workspace-setup.schema";
@@ -22,6 +23,7 @@ export class GetWorkspaceSetupStatusInteractor extends AuthenticatedInteractor<v
   constructor(
     private repo: WorkspaceSetupRepo,
     private usage: Pick<AgentUsageService, "workspacePlatformSpend">,
+    private records: Pick<RecordRepo, "getModel">,
   ) {
     super();
   }
@@ -30,7 +32,12 @@ export class GetWorkspaceSetupStatusInteractor extends AuthenticatedInteractor<v
     const unavailable = workspaceSetupUnavailability();
     if (unavailable) return { ok: true, data: { available: false, reason: unavailable, setup: null } };
     const setup = await this.repo.findCurrent();
-    if (!setup) return { ok: true, data: { available: true, setup: null } };
+    if (!setup) {
+      const model = await this.records.getModel();
+      return model.types.some((type) => !type.archived && !type.embedded)
+        ? { ok: true, data: { available: false, reason: "configured", setup: null } }
+        : { ok: true, data: { available: true, setup: null } };
+    }
     const budget = WORKSPACE_SETUP_BUDGETS[BUILD_STATUSES.has(setup.status) ? "build" : "plan"];
     const [crawl, spend] = await Promise.all([
       setup.crawlId ? this.repo.crawlState(setup.crawlId) : Promise.resolve(null),

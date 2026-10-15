@@ -25,7 +25,7 @@ export type WorkspaceSetupPhaseView = {
 };
 
 export type WorkspaceSetupStatusView =
-  | { available: false; reason: "selfHosted" | "demo"; setup: null }
+  | { available: false; reason: "selfHosted" | "demo" | "configured"; setup: null }
   | { available: true; setup: WorkspaceSetupView | null };
 
 export type WorkspaceSetupView = {

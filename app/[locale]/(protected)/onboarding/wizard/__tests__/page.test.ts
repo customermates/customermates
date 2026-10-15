@@ -152,19 +152,22 @@ describe("OnboardingWizardPage authentication detours", () => {
     expect(page.props.children.props).toMatchObject({ profileCompleted: true, setupStepCompleted: true });
   });
 
-  it("never waits on the setup step where the setup is unavailable", async () => {
-    registeredOwner(null);
-    const unavailable = { available: false, reason: "selfHosted", setup: null };
-    mocks.getSetupStatus.mockResolvedValue({ ok: true, data: unavailable });
+  it.each(["selfHosted", "configured"])(
+    "never waits on the setup step where it is unavailable (%s)",
+    async (reason) => {
+      registeredOwner(null);
+      const unavailable = { available: false, reason, setup: null };
+      mocks.getSetupStatus.mockResolvedValue({ ok: true, data: unavailable });
 
-    const page = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+      const page = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
 
-    expect(page.props.children.props).toMatchObject({
-      profileCompleted: true,
-      setupStatus: unavailable,
-      setupStepCompleted: true,
-    });
-  });
+      expect(page.props.children.props).toMatchObject({
+        profileCompleted: true,
+        setupStatus: unavailable,
+        setupStepCompleted: true,
+      });
+    },
+  );
 
   it("restores a running setup from its persisted status after a refresh", async () => {
     registeredOwner(null);

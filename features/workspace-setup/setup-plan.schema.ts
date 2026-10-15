@@ -345,13 +345,14 @@ export const SetupPlanSchema = z
     });
     for (const role of SETUP_LIST_ROLES) {
       const count = model.lists.filter((list) => list.role === role).length;
-      if (SETUP_REQUIRED_LIST_ROLES.includes(role) ? count !== 1 : count > 1)
+      if (SETUP_REQUIRED_LIST_ROLES.includes(role) ? count !== 1 : count > 1) {
         issue(
           ["recordModel", "lists"],
           SETUP_REQUIRED_LIST_ROLES.includes(role)
             ? `Mark exactly one list with the role ${role}.`
             : `Mark at most one list with the role ${role}.`,
         );
+      }
     }
     const anchors = new Set(setupAnchorFields(plan.recordModel.lists));
     const fields = new Set<string>();

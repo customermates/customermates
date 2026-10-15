@@ -2035,7 +2035,7 @@ export const getStartWorkspaceSetupInteractor = () =>
     getBackgroundTaskService(),
   );
 export const getGetWorkspaceSetupStatusInteractor = () =>
-  new GetWorkspaceSetupStatusInteractor(getWorkspaceSetupRepo(), getAgentUsageService());
+  new GetWorkspaceSetupStatusInteractor(getWorkspaceSetupRepo(), getAgentUsageService(), getRecordRepo());
 export const getSaveWorkspaceSetupAnswersInteractor = () =>
   new SaveWorkspaceSetupAnswersInteractor(getWorkspaceSetupRepo());
 export const getUploadWorkspaceSetupSpreadsheetInteractor = () =>

@@ -255,14 +255,15 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
     const assembled = Boolean(drafts.model && drafts.knowledge && drafts.views);
     const updated = await this.repo.mutate(setupId, (current) => {
       if (!planning(current, revision)) return null;
-      if (outcome.ok)
+      if (outcome.ok) {
         return {
           status: "planned",
           plan: outcome.plan,
           artifacts: withoutPlanParts(current.artifacts, () => false),
           interview: { ...current.interview, plan: "completed", planError: null, planClaimedAt: null },
         };
-      if (retry)
+      }
+      if (retry) {
         return {
           artifacts: withoutPlanParts(
             current.artifacts,
@@ -270,6 +271,7 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
           ),
           interview: { ...current.interview, plan: "queued", planClaimedAt: null },
         };
+      }
       return {
         status: "interview",
         artifacts: withoutPlanParts(current.artifacts, () => false),

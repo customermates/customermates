@@ -200,7 +200,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     });
     if (!claimed?.changed) return "busy";
     let outcome: PhaseOutcome;
-    let thrown: unknown = null;
+    let thrown: { error: unknown } | null = null;
     try {
       outcome = await this.work(claimed.setup, phase, giveUp);
     } catch (error) {
@@ -208,17 +208,18 @@ export class WorkspaceSetupBuildService extends UserAccessor {
       outcome = failure
         ? { status: failure.stop ? "stopped" : "failed", error: failure.failure }
         : { status: "failed", error: "error" };
-      if (!failure) thrown = error;
+      if (!failure) thrown = { error };
     }
     if (outcome.status === "wait") return "wait";
     const state = claimed.setup.phases[phase] ?? emptySetupPhase();
     if (outcome.status === "failed" && !giveUp && retriesAutomatically(phase, outcome.error, state)) {
-      if (thrown) this.warnings.push(`${phase}: ${thrown instanceof Error ? thrown.message : String(thrown)}`);
+      if (thrown)
+        this.warnings.push(`${phase}: ${thrown.error instanceof Error ? thrown.error.message : String(thrown.error)}`);
       await this.requeue(setupId, phase, outcome.error);
       return "wait";
     }
     await this.settle(setupId, phase, outcome);
-    if (thrown) throw thrown;
+    if (thrown) throw thrown.error;
     return "settled";
   }
 

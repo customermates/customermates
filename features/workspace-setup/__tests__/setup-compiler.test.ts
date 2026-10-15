@@ -132,7 +132,7 @@ describe("workspace setup compiler", () => {
     expect(prepared.model.capabilities.filter((binding) => binding.kind === "membershipAuthorization")).toHaveLength(1);
   });
 
-  it("leaves an existing membership list in place", async () => {
+  it("leaves an existing membership list in place", () => {
     const model: RecordModel = {
       ...emptyWorkspaceModel(),
       revision: 3,

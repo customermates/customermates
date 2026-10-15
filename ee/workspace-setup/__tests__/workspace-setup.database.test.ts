@@ -43,7 +43,7 @@ vi.mock("@/ee/agent-chat/structured-model-call", async (importOriginal) => ({
 const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const di = await import("@/core/di");
-const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
+const { createTestRecordRepo, initializeStarterRecordModel } = await import("@/tests/helpers/record-repository");
 const { createTestWorkspaceRegistration } = await import("@/tests/helpers/workspace-registration");
 const { PermissionService } = await import("@/core/base/permission.service");
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
@@ -178,9 +178,10 @@ async function draftPlan(ws: Workspace, setupId: string) {
   const interview = di.getWorkspaceSetupInterviewService();
   const claim = await ws.run(() => interview.claimPlan(setupId));
   if (claim.status !== "claimed") throw new Error(`plan not claimed: ${claim.status}`);
-  for (const part of ["model", "knowledge", "views"] as const)
+  for (const part of ["model", "knowledge", "views"] as const) {
     for (let round = 0; round < 3; round += 1)
       if ((await ws.run(() => interview.planPart(setupId, claim.revision, part))) !== "retry") break;
+  }
   return ws.run(() => interview.finishPlan(setupId, claim.revision, true));
 }
 
@@ -193,11 +194,12 @@ async function references(ws: Workspace, setupId: string) {
 async function build(ws: Workspace, setupId: string) {
   const service = di.getWorkspaceSetupBuildService();
   const results: Record<string, string> = {};
-  for (const phase of ["knowledgeBase", "dataModel", "views", "records", "dashboard"] as const)
+  for (const phase of ["knowledgeBase", "dataModel", "views", "records", "dashboard"] as const) {
     for (let round = 0; round < SETUP_BUILD_PHASE_ATTEMPTS + 1; round += 1) {
       results[phase] = await ws.run(() => service.runPhase(setupId, phase));
       if (results[phase] !== "wait") break;
     }
+  }
   await ws.run(() => service.finish(setupId));
   return results;
 }
@@ -807,6 +809,15 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     const removed = await ws.run(() => di.getRemoveWorkspaceSetupSampleDataInteractor().invoke({ setupId }));
     expect(removed.ok, JSON.stringify(removed)).toBe(true);
     expect(await lineItems()).toBe(0);
+  });
+
+  it("skips the setup for a workspace that already has lists and never started one", async () => {
+    const ws = await workspace();
+    await ws.run(() => initializeStarterRecordModel());
+    expect(await ws.run(() => di.getGetWorkspaceSetupStatusInteractor().invoke())).toEqual({
+      ok: true,
+      data: { available: false, reason: "configured", setup: null },
+    });
   });
 
   it("keeps each workspace's setup to its own tenant", async () => {

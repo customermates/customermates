@@ -32,12 +32,18 @@ function interactors() {
   const crawls = { start: vi.fn() };
   const background = { dispatch: vi.fn() };
   const usage = { workspacePlatformSpend: vi.fn() };
+  const records = {
+    getModel: vi.fn(() =>
+      Promise.resolve({ revision: 0, types: [] as Array<{ id: string; archived: boolean; embedded: boolean }> }),
+    ),
+  };
   return {
     repo,
+    records,
     crawls,
     background,
     start: new StartWorkspaceSetupInteractor(repo as never, crawls, background),
-    status: new GetWorkspaceSetupStatusInteractor(repo as never, usage),
+    status: new GetWorkspaceSetupStatusInteractor(repo as never, usage, records as never),
   };
 }
 
@@ -67,6 +73,28 @@ describe("workspace setup availability", () => {
     expect(await runWithTenant(owner, () => status.invoke())).toEqual({
       ok: true,
       data: { available: false, reason: "demo", setup: null },
+    });
+  });
+
+  it("skips the setup for a workspace that already has lists but never ran it", async () => {
+    env.APP_MODE = "cloud";
+    const { status, repo, records } = interactors();
+    repo.findCurrent.mockResolvedValue(null);
+    expect(await runWithTenant(owner, () => status.invoke())).toEqual({
+      ok: true,
+      data: { available: true, setup: null },
+    });
+    const list = (state: { archived?: boolean; embedded?: boolean }) => ({
+      id: "list",
+      archived: state.archived ?? false,
+      embedded: state.embedded ?? false,
+    });
+    records.getModel.mockResolvedValue({ revision: 2, types: [list({ archived: true }), list({ embedded: true })] });
+    expect(await runWithTenant(owner, () => status.invoke())).toMatchObject({ data: { available: true } });
+    records.getModel.mockResolvedValue({ revision: 3, types: [list({})] });
+    expect(await runWithTenant(owner, () => status.invoke())).toEqual({
+      ok: true,
+      data: { available: false, reason: "configured", setup: null },
     });
   });
 
