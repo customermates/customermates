@@ -8,6 +8,7 @@ import {
 } from "./model-catalog";
 import { resolveModelPricing } from "./model-pricing";
 import { AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS } from "./agent-web-search";
+import { AGENT_SYSTEM_PROMPT_SEPARATOR } from "./agent-wiki-context";
 import { AGENT_MICROCENTS_PER_USD } from "@/core/commercial/agent-credits";
 
 export const AGENT_RESERVATION_ROUNDS_AHEAD = 2;
@@ -206,9 +207,18 @@ function withoutSystem<T extends { system: string }>({ system: _system, ...sent 
   return sent;
 }
 
+function leadingSystemText(messages: readonly unknown[]): string | null {
+  const contents: string[] = [];
+  for (const message of messages as readonly ({ role?: unknown; content?: unknown } | null)[]) {
+    if (message?.role !== "system") break;
+    if (typeof message.content !== "string") return null;
+    contents.push(message.content);
+  }
+  return contents.length ? contents.join(AGENT_SYSTEM_PROMPT_SEPARATOR) : null;
+}
+
 export function agentStepContext<T extends { system: string; messages: readonly unknown[] }>(context: T) {
-  const [first] = context.messages as readonly { role?: unknown; content?: unknown }[];
-  return first?.role === "system" && first.content === context.system ? withoutSystem(context) : context;
+  return leadingSystemText(context.messages) === context.system ? withoutSystem(context) : context;
 }
 
 export function isAgentContextWithinBudget(value: unknown, maxContextBytes: number) {

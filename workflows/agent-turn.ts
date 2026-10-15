@@ -39,6 +39,11 @@ import { agentSystemPromptParts, routineTriggerEventOf } from "@/ee/agent-chat/s
 import type { AgentAiToolDefinition, AgentToolOptions } from "@/ee/agent-chat/agent-tools";
 import { getAgentProviderOptions } from "@/ee/agent-chat/agent-provider-options";
 import {
+  AGENT_TOOLS_CACHE_CONTROL,
+  agentSystemInstructions,
+  agentToolsCacheBreakpoint,
+} from "@/ee/agent-chat/agent-prompt-cache";
+import {
   agentBatchContainsWebCall,
   isAgentWebTool,
   isSuccessfulAgentWebResult,
@@ -1049,6 +1054,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const toolDefinitions = shells.map(
       ({ annotations: _annotations, gated: _gated, toolset: _toolset, ...definition }) => definition,
     );
+    const toolsCacheBreakpoint = agentToolsCacheBreakpoint(shells);
     const activeToolNamesFor = (stepMessages: readonly unknown[]) =>
       activeAgentToolNames({
         tools: shells,
@@ -1643,7 +1649,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       const agent = new WorkflowAgent({
         id: WORKFLOW_NAME,
         model: payload.turnBudget.modelSpec,
-        instructions,
+        instructions: agentSystemInstructions(instructions, systemPrompt.stable),
         tools: Object.fromEntries(
           shells.map((shell) => [
             shell.name,
@@ -1659,6 +1665,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
               : {
                   description: shell.description,
                   inputSchema: jsonSchema(shell.inputSchema as never),
+                  ...(shell.name === toolsCacheBreakpoint ? { providerOptions: AGENT_TOOLS_CACHE_CONTROL } : {}),
                   needsApproval: async (input: unknown, options: { toolCallId: string }) => {
                     const prepared = await resolveToolInput(shell.name, options.toolCallId, input);
                     return (

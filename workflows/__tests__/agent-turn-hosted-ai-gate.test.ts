@@ -43,6 +43,8 @@ const state = vi.hoisted(() => ({
   providerOptions: null as unknown,
   maxRetries: undefined as number | undefined,
   instructions: [] as string[],
+  instructionMessages: [] as { role: "system"; content: string; providerOptions?: unknown }[][],
+  tools: [] as Record<string, unknown>[],
   providerContexts: [] as Array<{
     system: WikiContext.AgentSystemPromptParts;
     messages: unknown[];
@@ -134,7 +136,7 @@ vi.mock("@ai-sdk/workflow", () => {
           prepareStep: (input: { messages: unknown[] }) => Promise<unknown>;
           onStepEnd: (step: unknown) => Promise<void>;
           onToolExecutionEnd: (event: unknown) => void;
-          instructions: string;
+          instructions: { role: "system"; content: string; providerOptions?: unknown }[];
           providerOptions: unknown;
           maxRetries?: number;
           telemetry?: {
@@ -145,7 +147,9 @@ vi.mock("@ai-sdk/workflow", () => {
       ) {
         state.providerOptions = options.providerOptions;
         state.maxRetries = options.maxRetries;
-        state.instructions.push(options.instructions);
+        state.instructions.push(options.instructions.map(({ content }) => content).join("\n\n"));
+        state.instructionMessages.push(options.instructions);
+        state.tools.push(options.tools);
       }
 
       async stream({ messages }: { messages: unknown[] }) {
@@ -154,10 +158,7 @@ vi.mock("@ai-sdk/workflow", () => {
             "System messages are not allowed in the prompt or messages fields. Use the instructions option instead.",
           );
         }
-        const preparedMessages = (nextMessages: unknown[]) => [
-          { role: "system", content: this.options.instructions },
-          ...nextMessages,
-        ];
+        const preparedMessages = (nextMessages: unknown[]) => [...this.options.instructions, ...nextMessages];
         const startProviderRound = () => {
           if (state.serializationFailure) throw state.serializationFailure;
           this.options.telemetry?.integrations.onLanguageModelCallStart?.();
@@ -480,6 +481,8 @@ beforeEach(() => {
   state.providerOptions = null;
   state.maxRetries = undefined;
   state.instructions = [];
+  state.instructionMessages = [];
+  state.tools = [];
   state.providerContexts = [];
   state.tenantCompanyId = "company-1";
   state.wikiCatalogAuthorization.mockReset().mockResolvedValue({ ok: true, data: {} });
@@ -588,6 +591,26 @@ describe("agent-turn hosted-AI provider gates", () => {
       expect(state.providerContexts[0]?.system).toEqual({ stable: "system", volatile: "volatile" });
     },
   );
+
+  it("caches the core tools for an hour and the stable system block, and sends the per-user block after them", async () => {
+    state.definitions.push(
+      { name: "query_crm_records", description: "query_crm_records", inputSchema: { type: "object" } },
+      { name: "request_support", description: "request_support", inputSchema: { type: "object" } },
+    );
+    state.runTools = ({ messages }) =>
+      Promise.resolve({ finishReason: "stop", messages, steps: [streamedStep("Done.", "stop")] });
+
+    await runAgentTurn(payload);
+
+    expect(state.instructionMessages[0]).toEqual([
+      { role: "system", content: "system", providerOptions: { anthropic: { cacheControl: { type: "ephemeral" } } } },
+      { role: "system", content: "volatile" },
+    ]);
+    expect(state.tools[0]?.request_support).toMatchObject({
+      providerOptions: { anthropic: { cacheControl: { type: "ephemeral", ttl: "1h" } } },
+    });
+    expect(state.tools[0]?.query_crm_records).not.toHaveProperty("providerOptions");
+  });
 
   it.each(["chat", "routine"] as const)(
     "keeps the Wiki catalog reference, linked chunk reads, and stable citation intact on %s",
@@ -1863,7 +1886,7 @@ describe("routine per-run credit limit", () => {
       serializedAgentContextBytes(
         agentStepContext({
           system,
-          messages: [{ role: "system", content: system }, ...roundMessages(round)],
+          messages: [...(state.instructionMessages[0] ?? []), ...roundMessages(round)],
           tools: [],
         }),
       ) ?? Number.NaN

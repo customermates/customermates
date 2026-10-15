@@ -21,6 +21,7 @@ import {
   resolveAgentTurnBudget,
   serializedAgentContextBytes,
 } from "../agent-budget-policy";
+import { agentSystemInstructions } from "../agent-prompt-cache";
 import { buildAgentProviderContext, isAgentStepContextWithinBudget } from "../agent-provider-context";
 import {
   AGENT_MODELS,
@@ -290,6 +291,18 @@ describe("agent turn credit budget", () => {
     expect(serializedAgentContextBytes({ ...context, messages })).toBeGreaterThan(budget);
     expect(isAgentStepContextWithinBudget(context, messages, budget)).toBe(true);
     expect(isAgentStepContextWithinBudget(context, messages, budget - 1)).toBe(false);
+  });
+
+  it("counts a system prompt sent as a cached block and an uncached block once", () => {
+    const parts = { stable: "s".repeat(1_000), volatile: "v".repeat(200) };
+    const context = buildAgentProviderContext(parts, [{ role: "user", text: "hello" }], []);
+    const blocks = agentSystemInstructions(context.system, parts.stable);
+    const messages = [...blocks, ...context.messages] as ModelMessage[];
+    const partial = [blocks[0], ...context.messages] as ModelMessage[];
+
+    expect(blocks).toHaveLength(2);
+    expect(agentStepContext({ ...context, messages })).toEqual({ messages, tools: context.tools });
+    expect(agentStepContext({ ...context, messages: partial })).toEqual({ ...context, messages: partial });
   });
 
   it("still counts the system prompt when the step does not lead with that exact prompt", () => {

@@ -9,8 +9,10 @@ export type AgentSystemPromptParts = {
   volatile: string;
 };
 
+export const AGENT_SYSTEM_PROMPT_SEPARATOR = "\n\n";
+
 export function joinAgentSystemPrompt(parts: AgentSystemPromptParts, middle?: string): string {
-  return [parts.stable, middle, parts.volatile].filter(Boolean).join("\n\n");
+  return [parts.stable, middle, parts.volatile].filter(Boolean).join(AGENT_SYSTEM_PROMPT_SEPARATOR);
 }
 
 export const WIKI_REFERENCE_MAX_BYTES = 6000;

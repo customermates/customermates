@@ -44,7 +44,7 @@ vi.mock("@ai-sdk/workflow", () => ({
     prepareStep: (input: { messages: unknown[] }) => Promise<{ activeTools?: string[] }>;
     onStepEnd: (step: unknown) => Promise<void>;
     onToolExecutionEnd: (event: unknown) => void;
-    instructions: string;
+    instructions: { role: "system"; content: string }[];
     tools: Record<string, WorkflowTool>;
   }) {
     return { stream };
@@ -55,7 +55,7 @@ vi.mock("@ai-sdk/workflow", () => ({
       const steps: unknown[] = [];
       const prepare = async () => {
         const prepared = await options.prepareStep({
-          messages: [{ role: "system", content: options.instructions }, ...replay],
+          messages: [...options.instructions, ...replay],
         });
         expect(prepared.activeTools).toContain("configure_record_model");
         state.providerCalls++;

@@ -42,6 +42,7 @@ import {
   isAgentOnDemandToolset,
 } from "./agent-toolset-routing";
 import { onDemandToolsetOfTool, toolNamesOfToolset } from "./agent-toolsets";
+import { orderAgentToolsForCache } from "./agent-prompt-cache";
 
 import { AgentTourSchema } from "./agent-tours";
 import { AGENT_UI_TOOL_NAMES, toAgentUiCommandInput } from "./agent-ui-command";
@@ -894,12 +895,14 @@ export function agentToolDefinitionsForTurn(args: {
 }): AgentTurnToolDefinition[] {
   const panelToolNames = new Set<string>(AGENT_UI_TOOL_NAMES);
   const unattended = isUnattendedSurface(args.surface);
-  return getAgentAiToolDefinitions(args.servingProvider, args)
-    .filter((definition) => !unattended || !panelToolNames.has(definition.name))
-    .map((definition) => ({
-      ...definition,
-      toolset: onDemandToolsetOfTool(definition.name),
-    }));
+  return orderAgentToolsForCache(
+    getAgentAiToolDefinitions(args.servingProvider, args)
+      .filter((definition) => !unattended || !panelToolNames.has(definition.name))
+      .map((definition) => ({
+        ...definition,
+        toolset: onDemandToolsetOfTool(definition.name),
+      })),
+  );
 }
 
 export function agentToolDefinitionsForToolsets(
