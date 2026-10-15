@@ -67,7 +67,12 @@ const SearchOutputSchema = z.object({
         ),
       kind: z.enum(["guide", "procedure"]).optional().describe("Knowledge Base guide or procedure result"),
       whenToUse: z.string().optional().describe("When to follow this Knowledge Base guide or procedure"),
-      section: z.string().optional().describe("Heading path of the matched Knowledge Base or file section"),
+      section: z
+        .string()
+        .optional()
+        .describe(
+          "Heading path of the matched Knowledge Base or file section; a file's between untrusted-content markers",
+        ),
       offset: z
         .number()
         .int()
@@ -126,7 +131,7 @@ const FetchOutputSchema = z.object({
     )
     .optional()
     .describe(
-      "At offset 0 of a multi-chunk Knowledge Base page or file: its H1-H3 headings with the offset each starts at",
+      "At offset 0 of a multi-chunk Knowledge Base page or file: its H1-H3 headings with the offset each starts at; a file's headings sit between untrusted-content markers",
     ),
 });
 
@@ -286,7 +291,14 @@ async function fetchFile(fileId: string, requestedOffset: number) {
     text: file.text,
     offset: requestedOffset,
     maxLength: WIKI_FETCH_TEXT_TARGET_LENGTH,
-    render: (chunk) => ({ ...base, ...chunk, text: untrustedText(chunk.text) }),
+    render: (chunk) => ({
+      ...base,
+      ...chunk,
+      ...(chunk.outline
+        ? { outline: chunk.outline.map((entry) => ({ ...entry, heading: untrustedText(entry.heading) })) }
+        : {}),
+      text: untrustedText(chunk.text),
+    }),
     measure: (rendered) => JSON.stringify(rendered).length,
   });
   if (!output) return mcpMessageFailure(WIKI_CHUNK_SIZE_FAILURE);
@@ -302,7 +314,7 @@ async function searchFiles(query: string) {
       title: file.name,
       url: `${env.BASE_URL}/records/${file.record.ref.typeId}/${file.record.ref.recordId}`,
       snippet: untrustedText(file.snippet),
-      ...(file.section ? { section: file.section } : {}),
+      ...(file.section ? { section: untrustedText(file.section) } : {}),
       offset: file.offset,
       record: {
         id: `record:${file.record.ref.typeId}:${file.record.ref.recordId}`,
