@@ -11,7 +11,7 @@ import { Inbox, KanbanSquare, LayoutDashboard, Repeat, Settings2, UserRound } fr
 import { cn } from "@/core/utils/cn";
 
 import { HomepageCaptureImage } from "./homepage-capture-image";
-import { DEMO_RECORD_LIST_PATHS } from "@/components/marketing/product-demo";
+import { DEMO_RECORD_LIST_PATHS, DEMO_RECORD_TYPE_IDS } from "@/components/marketing/product-demo";
 import { ProductWindow } from "@/components/marketing/product-window";
 import { useHomepageMotion } from "./homepage-motion";
 import {
@@ -45,17 +45,13 @@ const MOBILE_CAPTURES = {
 const STAGE_DEMO_PATHS = {
   customers: DEMO_RECORD_LIST_PATHS.contacts,
   dashboard: "/dashboard",
-  "data-model": null,
+  "data-model": `/configure?focus=list:${DEMO_RECORD_TYPE_IDS.deals}`,
   inbox: "/inbox?threadId=latest",
   pipeline: DEMO_RECORD_LIST_PATHS.deals,
   routines: "/routines",
-} as const satisfies Record<HomepageStageArea, string | null>;
+} as const satisfies Record<HomepageStageArea, string>;
 
 const LIVE_STAGE_MEDIA = "(min-width: 40rem)";
-
-function hasLiveDemo(tab: HomepageStageTab) {
-  return STAGE_DEMO_PATHS[STAGE_AREAS[tab.capture]] !== null;
-}
 
 function subscribeToLiveStageMedia(onChange: () => void) {
   const media = window.matchMedia?.(LIVE_STAGE_MEDIA);
@@ -131,8 +127,7 @@ export function HomepageProductStage({ demoBaseUrl, label, live: liveCopy, local
   const liveBoxRef = useRef<HTMLDivElement>(null);
   const [liveScale, setLiveScale] = useState(1);
   const activeTab = tabs[activeIndex];
-  const activeShown = liveShown.has(activeIndex) || !hasLiveDemo(activeTab);
-  const liveReady = live && activeShown;
+  const liveReady = live && liveShown.has(activeIndex);
   const autoAdvance = shouldAnimate && !stopped && !hovered;
 
   preconnect(demoBaseUrl);
@@ -148,11 +143,11 @@ export function HomepageProductStage({ demoBaseUrl, label, live: liveCopy, local
   }, [activeIndex, live]);
 
   useEffect(() => {
-    if (!live || !activeShown) return;
+    if (!live || !liveShown.has(activeIndex)) return;
 
     const upcoming = (activeIndex + 1) % tabs.length;
     setLiveMounted((current) => (current.has(upcoming) ? current : new Set([...current, upcoming])));
-  }, [activeIndex, activeShown, live, tabs.length]);
+  }, [activeIndex, live, liveShown, tabs.length]);
 
   useEffect(() => {
     const frame = frameRef.current;
@@ -264,8 +259,7 @@ export function HomepageProductStage({ demoBaseUrl, label, live: liveCopy, local
   }, [live]);
 
   function liveSrcFor(tab: HomepageStageTab) {
-    const path: string | null = STAGE_DEMO_PATHS[STAGE_AREAS[tab.capture]];
-    if (!path) return null;
+    const path: string = STAGE_DEMO_PATHS[STAGE_AREAS[tab.capture]];
 
     return `${demoBaseUrl}/${locale}${path}${path.includes("?") ? "&" : "?"}agentChat=closed`;
   }
@@ -360,10 +354,8 @@ export function HomepageProductStage({ demoBaseUrl, label, live: liveCopy, local
                 </div>
               ))}
 
-              {tabs.map((tab, index) => {
-                const src = liveSrcFor(tab);
-
-                return live && src && liveMounted.has(index) ? (
+              {tabs.map((tab, index) =>
+                live && liveMounted.has(index) ? (
                   <iframe
                     key={tab.capture}
                     className={cn(
@@ -374,7 +366,7 @@ export function HomepageProductStage({ demoBaseUrl, label, live: liveCopy, local
                     inert={index !== activeIndex}
                     referrerPolicy="strict-origin-when-cross-origin"
                     sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-                    src={src}
+                    src={liveSrcFor(tab)}
                     style={{
                       height: LIVE_VIEWPORT.height,
                       transform: `scale(${liveScale})`,
@@ -384,8 +376,8 @@ export function HomepageProductStage({ demoBaseUrl, label, live: liveCopy, local
                     title={`${liveCopy.prompt}: ${tab.label}`}
                     onLoad={() => revealLive(index)}
                   />
-                ) : null;
-              })}
+                ) : null,
+              )}
             </div>
           </ProductWindow>
         </div>

@@ -221,16 +221,20 @@ describe("homepage visual-system adoption", () => {
     expect(hero).toContain("heroSection.titleRotations[0]");
     expect(hero).toContain('className="sr-only"');
     expect(rotations(englishHomepage)).toEqual([
+      "CRM",
       "Customer data",
       "Projects",
+      "ERP",
       "Suppliers",
       "Campaigns",
       "Team tasks",
       "Business data",
     ]);
     expect(rotations(germanHomepage)).toEqual([
+      "CRM",
       "Kundendaten",
       "Projekte",
+      "ERP",
       "Lieferanten",
       "Kampagnen",
       "Teamaufgaben",
@@ -243,7 +247,7 @@ describe("homepage visual-system adoption", () => {
     expect(hero).toContain("bg-linear-to-b from-foreground to-foreground/65 bg-clip-text");
     for (const mdx of [englishHomepage, germanHomepage]) {
       const hero = mdx.slice(mdx.indexOf("\nhero:\n"), mdx.indexOf("  subtitle:"));
-      expect(hero).not.toMatch(/\bERP\b|financ|Finanz|Budget|Buchhaltung|accounting|invoic|Rechnung/iu);
+      expect(hero).not.toMatch(/financ|Finanz|Budget|Buchhaltung|accounting|invoic|Rechnung/iu);
     }
   });
 
@@ -330,7 +334,7 @@ describe("homepage visual-system adoption", () => {
     expect(stage).toContain("<ProductWindow");
     expect(stage).toContain("LIVE_REVEAL_DELAY_MS = 500");
     expect(stage).toContain("onLoad={() => revealLive(index)}");
-    expect(stage).toContain("live && src && liveMounted.has(index)");
+    expect(stage).toContain("live && liveMounted.has(index)");
     expect(productWindow).not.toContain("data-homepage-window-chrome");
     expect(stage).toContain("LIVE_VIEWPORT = { height: 900, width: 1440 }");
     expect(stage).toContain('inbox: "/inbox?threadId=latest"');

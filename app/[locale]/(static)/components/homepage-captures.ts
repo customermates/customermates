@@ -32,8 +32,8 @@ export const HOMEPAGE_CAPTURES = {
     en: { height: 1800, width: 1606 },
   },
   "homepage-draft": {
-    de: { height: 862, width: 1606 },
-    en: { height: 862, width: 1606 },
+    de: { height: 802, width: 1586 },
+    en: { height: 802, width: 1586 },
   },
   "homepage-inbox-mobile": {
     de: { height: 1688, width: 780 },

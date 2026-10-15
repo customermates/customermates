@@ -31,7 +31,7 @@ import {
   PRODUCT_STAGE_INTERVAL_MS,
 } from "@/app/[locale]/(static)/components/homepage-product-stage";
 import { HomepageStageLink } from "@/app/[locale]/(static)/components/homepage-stage-link";
-import { DEMO_RECORD_LIST_PATHS } from "@/components/marketing/product-demo";
+import { DEMO_RECORD_LIST_PATHS, DEMO_RECORD_TYPE_IDS } from "@/components/marketing/product-demo";
 
 const tabs: HomepageStageTab[] = [
   { alt: "Inbox, using demo data", capture: "homepage-inbox", caption: "Inbox caption", label: "Inbox" },
@@ -489,7 +489,7 @@ it("opens from a product-demo hash on load and ignores unrelated hashes", () => 
   window.history.replaceState(null, "", "#");
 });
 
-it("shows the data model as a still and keeps preloading the next live area", () => {
+it("opens the live data model focused on the deals list", () => {
   vi.useFakeTimers();
   stubWideViewport(true);
   const host = render([
@@ -502,13 +502,13 @@ it("shows the data model as a still and keeps preloading the next live area", ()
     },
   ]);
 
+  loadAndReveal(activeIframe(host));
   act(() => tabButtons(host)[5]?.click());
 
   expect(selectedLabel(host)).toContain("Data model");
-  expect(activeIframe(host)).toBeNull();
-  expect(host.querySelector('iframe[src*="/configure"]')).toBeNull();
-  expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("ready");
-  expect(host.querySelector('iframe[data-homepage-stage-iframe="standby"]')?.getAttribute("src")).toBe(
-    "https://demo.example/en/inbox?threadId=latest&agentChat=closed",
+  expect(activeIframe(host)?.getAttribute("src")).toBe(
+    `https://demo.example/en/configure?focus=list:${DEMO_RECORD_TYPE_IDS.deals}&agentChat=closed`,
   );
+  loadAndReveal(activeIframe(host));
+  expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("ready");
 });

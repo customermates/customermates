@@ -30,18 +30,15 @@ export function HomepageHowItWorks({ eyebrow, handoff, liveLabel, locale, steps,
       <MarketingSection id="human-handoff">
         <div className="marketing-grid items-center gap-y-10">
           <div className="col-span-12 lg:col-span-7 lg:row-start-1">
-            <ProductPanel className="h-[17rem] sm:h-[22rem] lg:h-[24rem]">
-              <ProductWindow className="absolute top-8 left-8 w-full sm:top-12 sm:left-12">
+            <ProductPanel className="p-5 sm:p-10 lg:p-12">
+              <ProductWindow>
                 <HomepageStageLink area="inbox" label={liveLabel}>
-                  <div className="overflow-hidden">
-                    <HomepageCaptureImage
-                      alt={handoff.alt}
-                      className="-mt-[0.7%] max-sm:-ml-[19%] max-sm:w-[118%] max-sm:max-w-none"
-                      locale={locale}
-                      name="homepage-draft"
-                      sizes="(min-width: 1024px) 50vw, 92vw"
-                    />
-                  </div>
+                  <HomepageCaptureImage
+                    alt={handoff.alt}
+                    locale={locale}
+                    name="homepage-draft"
+                    sizes="(min-width: 1024px) 50vw, 92vw"
+                  />
                 </HomepageStageLink>
               </ProductWindow>
             </ProductPanel>

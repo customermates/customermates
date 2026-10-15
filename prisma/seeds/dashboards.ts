@@ -53,8 +53,8 @@ export const SYNTHETIC_MAIN_DASHBOARD = "sales" satisfies DashboardKey;
 
 const BREAKPOINTS = { md: 8, sm: 4, xs: 2 } as const;
 const KPI_HEIGHT = 2;
-const CHART_HEIGHT = 5;
-const ACTIVITY_HEIGHT = 8;
+const CHART_HEIGHT = 4;
+const ACTIVITY_HEIGHT = 6;
 
 function compactWidgets(widgets: WidgetDefinition[]): WidgetDefinition[] {
   const height = (widget: WidgetDefinition) =>

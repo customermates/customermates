@@ -12,13 +12,11 @@ export function ProductWindow({ children, className }: FrameProps) {
     <div
       data-homepage-window
       className={cn(
-        "relative rounded-[1.15rem] bg-foreground/[0.035] p-1.5 shadow-[0_2px_8px_-2px_rgb(0_0_0/0.08),0_32px_80px_-32px_rgb(0_0_0/0.35)] ring-1 ring-foreground/10 backdrop-blur-sm dark:shadow-[0_2px_8px_-2px_rgb(0_0_0/0.5),0_40px_110px_-36px_rgb(0_0_0/0.9)]",
+        "relative overflow-hidden rounded-xl bg-sidebar shadow-[0_2px_8px_-2px_rgb(0_0_0/0.08),0_32px_80px_-32px_rgb(0_0_0/0.35)] ring-1 ring-foreground/10 dark:shadow-[0_2px_8px_-2px_rgb(0_0_0/0.5),0_40px_110px_-36px_rgb(0_0_0/0.9)]",
         className,
       )}
     >
-      <div className="relative overflow-hidden rounded-[0.8rem] bg-sidebar ring-1 ring-foreground/[0.08]">
-        {children}
-      </div>
+      {children}
     </div>
   );
 }

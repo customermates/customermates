@@ -75,12 +75,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Main dashboard with open pipeline, forecast, won revenue and revenue per rep",
     sha256: {
       de: {
-        dark: "1ff319644167447f0f10a9de7faab56278304f86b445d5b74395289d16459711",
-        light: "e1e54b8eb11cfbaa6effdf7156daca3a6485549b9d7138eb66e166722ec89db1",
+        dark: "688824b5046d4479000882e6b3dc2d727449bb2f6750b882b519cae37512de3e",
+        light: "1cdf1ecfc5363de15a48cadc09b3d64cd9a49f1fbf80329517710cd7856d15c3",
       },
       en: {
-        dark: "7bbf8182523d358c18fd6ee388cbee0fb40c74f4c739a0b6d9f64db78df73b24",
-        light: "ed47d6dd0199ef63b7fbd56de89a0211525da41400b01793725f82d3fe0c2c24",
+        dark: "ac13e21488be931e321fd6dbfe74e34237947f9b2075b83d15b50fd88a551ba0",
+        light: "a96b1a94b4c8f212f407be2457e4bdb9b52b9577cb135d86f420bdf1d504240a",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -107,12 +107,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Data model graph zoomed to the Deals list and its line items with calculated fields",
     sha256: {
       de: {
-        dark: "1166317c95eaddb60188ece46eeb7739f12172402bbac42154e2f3844c8250be",
-        light: "046ee7ff65fa662a260eedd0572547b1801d460062bbde157c20262f52072db2",
+        dark: "c7882d5a75dc9202cfff7aa7694428d8a5682cd4115cd42c43e48ec953062628",
+        light: "c1e0c915171f01d6e542aa70b6fe07d38bc26d9a1037020f7f2f840111a0b687",
       },
       en: {
-        dark: "8f77970ed928fb1b8f01f13836de4bcb525fd2c64d918247da0d6648ffcb7305",
-        light: "e09bc558f00e787dec7f05427e52e4562bb071fc9c0649ebbbe3af344a84aa51",
+        dark: "66ee2c1558e1cb6b7cbb4ee7aeed781fae08efdc6d893249e63ec99f70cacddc",
+        light: "267db9ca88b5d38ae20d725c1ac04462b1b3b179789ab5a2adc26ecc99655a72",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -139,12 +139,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Email thread with Anna Müller ending in a saved reply draft with Send draft",
     sha256: {
       de: {
-        dark: "8d3fc6c8eb4f4e2bc33f60f36e8b46d60e7c466a8b573e281d5b47c3a76c3455",
-        light: "d0f97c500fd383d1ba9836b49d5c6ec71a46aae57aa437b9ce6dd9b69ec17dce",
+        dark: "40604af3599de7a7825ef746af43d94155f520c01dac2d62ba27734ad639e6be",
+        light: "2d9d6109b23cf1bde4067b0517ee663aa1c626083647812ce3e32bcc8316d851",
       },
       en: {
-        dark: "cc75db6db2861b4061f04df5f193a77eb103b44d36f1709caa42079845ea1fe0",
-        light: "ab488f6b4d09288bea426806bccf19a028813d13ddea8b279ae98e9ef2e5f8c2",
+        dark: "93b176198098d1beda7d2b5627cec68ce79a78f07a81fb338d3033f241baaa8f",
+        light: "fbdfc13cc4592d7774285d262d083d99aae585e581ba2ad6cadb51f139b5024e",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -203,12 +203,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Dashboard widgets on a phone-width viewport",
     sha256: {
       de: {
-        dark: "1e6d76cac106a0afb909682dea1ab5059f235f4ff0cea5331af6054a59e7d3a9",
-        light: "f745c06402653e1d9c1587b029637375350a76ce05437f31578df950a864997a",
+        dark: "cfb011c369dac90192efa61d7286502ae97d8145640f2a969e03a84f3dd3dddf",
+        light: "0ad71594b9dde43e7e166bc12bbc082f7abc67c39df22c6ecba79afdee8711ec",
       },
       en: {
-        dark: "d5e5816afd6d01533f25cc0d460d1c624cef49acfcc4c409b93fd9528188df48",
-        light: "a9dca45daca75023a81d329827e0a7e34d9964034c1e28508235ec3502797c2b",
+        dark: "cfa0e9df780219da447c2319089accb4bf17ca78a85b4aa0f17b33c17f68c7a8",
+        light: "17a04631e9a670811c73298a7fba178d66a6ba59bbee84fd87397fd4acfbb271",
       },
     },
     viewport: { height: 844, width: 390 },
