@@ -319,7 +319,7 @@ describe("SearchWikiPagesInteractor", () => {
     runWithTenant(mockUser, () =>
       new SearchWikiPagesInteractor(
         {
-          syncStaleSections: vi.fn().mockResolvedValue({ synced: 0, remaining: false }),
+          syncStaleSectionsUnlessBusy: vi.fn().mockResolvedValue({ synced: 0, remaining: false }),
           semanticSections: vi.fn(),
           getPagesByIds: vi.fn().mockResolvedValue([page({ markdown })]),
           getSectionsByIds: vi.fn().mockResolvedValue([approval]),
@@ -366,7 +366,7 @@ describe("Wiki permission boundary", () => {
   it("requires Wiki Read for list, search, and get", async () => {
     const repo = {
       listPages: vi.fn().mockResolvedValue({ items: [], total: 0, page: 1, pageSize: 25 }),
-      syncStaleSections: vi.fn().mockResolvedValue({ synced: 0, remaining: false }),
+      syncStaleSectionsUnlessBusy: vi.fn().mockResolvedValue({ synced: 0, remaining: false }),
       semanticSections: vi.fn(),
       getPagesByIds: vi.fn().mockResolvedValue([]),
       getSectionsByIds: vi.fn().mockResolvedValue([]),

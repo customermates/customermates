@@ -147,6 +147,29 @@ describeDatabase("Knowledge Base section sync from the lifecycle cron", { timeou
     expect(await syncedPageCount(companyId)).toBe(5);
   });
 
+  it("skips a workspace whose lock a long write holds and still syncs the others", async () => {
+    const repo = createTestWikiSectionRepo();
+    const busy = await seedWorkspace(2);
+    const idle = await seedWorkspace(2);
+    const holder = new Client({ connectionString: process.env.DATABASE_URL });
+    await holder.connect();
+    try {
+      await holder.query("BEGIN");
+      await holder.query("SELECT pg_advisory_xact_lock(hashtextextended($1, 0))", [busy]);
+      const run = await new SyncStaleWikiSectionsInteractor(repo).invoke();
+      expect(run).toEqual({ synced: 2, companies: 2, remaining: true });
+    } finally {
+      await holder.query("ROLLBACK");
+      await holder.end();
+    }
+    expect(await syncedPageCount(busy)).toBe(0);
+    expect(await syncedPageCount(idle)).toBe(2);
+
+    const next = await new SyncStaleWikiSectionsInteractor(repo).invoke();
+    expect(next).toEqual({ synced: 2, companies: 1, remaining: false });
+    expect(await syncedPageCount(busy)).toBe(2);
+  });
+
   it("resyncs a page whose sections went stale after an edit", async () => {
     const repo = createTestWikiSectionRepo();
     const companyId = await seedWorkspace(1);

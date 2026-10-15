@@ -29,6 +29,8 @@ import {
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
+import { runInTransaction } from "@/core/decorators/transaction-runner";
+import { isBusyDatabaseError } from "@/core/errors/prisma-client-error";
 
 import { wikiIdentifierPattern, wikiIdentifierTerms } from "./wiki-identifiers";
 import { UNCLAIMED_WIKI_INDEX_PAGE, staleWikiIndexPage, unembeddedWikiPage, unsyncedWikiPage } from "./wiki-index-sql";
@@ -39,6 +41,7 @@ const WIKI_FULL_TEXT_CONFIGS = ["english", "german", "spanish", "french", "itali
 const WIKI_SECTION_COLUMNS = ["pageId", "offset", "ordinal", "pageUpdatedAt"] as const;
 const WIKI_IDENTIFIER_MAX_PAGES = 3;
 const WIKI_SECTION_SYNC_LIMIT = 100;
+const WIKI_SECTION_SEARCH_LOCK_WAIT_MS = 100;
 const WIKI_SEMANTIC_INTRO_MARGIN = 0.03;
 
 let sectionEmbeddingColumn: Promise<boolean> | undefined;
@@ -96,6 +99,19 @@ export class PrismaWikiSectionRepo
     return this.syncStalePages(this.companyId, limit, Prisma.empty, (args) => this.replaceSections(args));
   }
 
+  async syncStaleSectionsUnlessBusy(limit = WIKI_SECTION_SYNC_LIMIT): Promise<WikiSectionSync> {
+    return this.syncStalePages(
+      this.companyId,
+      limit,
+      Prisma.empty,
+      (args) =>
+        runInTransaction(() => this.writeSections(this.companyId, args), {
+          companyLockWait: WIKI_SECTION_SEARCH_LOCK_WAIT_MS,
+        }),
+      true,
+    );
+  }
+
   @BypassTenantGuard
   async findCompaniesWithStaleSectionsUnscoped(limit: number): Promise<string[]> {
     const rows = await this.prisma.$queryRaw<Array<{ companyId: string }>>(Prisma.sql`
@@ -119,6 +135,7 @@ export class PrismaWikiSectionRepo
     limit: number,
     filter: Prisma.Sql,
     replace: (args: WikiSectionReplacement) => Promise<boolean>,
+    stopWhenBusy = false,
   ): Promise<WikiSectionSync> {
     const found = await this.prisma.$queryRaw<WikiIndexPage[]>(Prisma.sql`
       SELECT p."id", p."title", p."markdown", p."updatedAt", p."summary", p."summaryContentHash",
@@ -131,17 +148,22 @@ export class PrismaWikiSectionRepo
     let synced = 0;
     for (const page of found.slice(0, limit)) {
       const summary = currentWikiSummary(page);
-      const written = await replace({
-        pageId: page.id,
-        pageUpdatedAt: page.updatedAt,
-        pageTitle: page.title,
-        summary,
-        rows: wikiSectionRows(page, summary),
-        embeddings: new Map(),
-        version: null,
-        onlyIfStale: true,
-      });
-      if (written) synced += 1;
+      try {
+        const written = await replace({
+          pageId: page.id,
+          pageUpdatedAt: page.updatedAt,
+          pageTitle: page.title,
+          summary,
+          rows: wikiSectionRows(page, summary),
+          embeddings: new Map(),
+          version: null,
+          onlyIfStale: true,
+        });
+        if (written) synced += 1;
+      } catch (error) {
+        if (stopWhenBusy && isBusyDatabaseError(error)) return { synced, remaining: true };
+        throw error;
+      }
     }
     return { synced, remaining: found.length > limit };
   }

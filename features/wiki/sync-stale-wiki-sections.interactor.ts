@@ -1,6 +1,7 @@
 import type { SyncStaleWikiSectionsRepo } from "./sync-stale-wiki-sections.repo";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
+import { isBusyDatabaseError } from "@/core/errors/prisma-client-error";
 
 export const WIKI_SECTION_CRON_PAGE_BUDGET = 5000;
 export const WIKI_SECTION_CRON_BATCH_PAGES = 200;
@@ -28,12 +29,16 @@ export class SyncStaleWikiSectionsInteractor {
       }
       companies += 1;
       let companyRemaining = true;
-      while (companyRemaining && budget > 0 && Date.now() < deadline) {
-        const limit = Math.min(batchPages, budget);
-        const result = await this.repo.syncStaleSectionsUnscoped(companyId, limit);
-        synced += result.synced;
-        budget -= limit;
-        companyRemaining = result.remaining;
+      try {
+        while (companyRemaining && budget > 0 && Date.now() < deadline) {
+          const limit = Math.min(batchPages, budget);
+          const result = await this.repo.syncStaleSectionsUnscoped(companyId, limit);
+          synced += result.synced;
+          budget -= limit;
+          companyRemaining = result.remaining;
+        }
+      } catch (error) {
+        if (!isBusyDatabaseError(error)) throw error;
       }
       if (companyRemaining) remaining = true;
     }

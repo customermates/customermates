@@ -1,11 +1,13 @@
 import { WikiSearchOrders } from "./wiki-search-orders";
-import type { SearchWikiPagesRepo, WikiSectionHit } from "./search-wiki-pages.repo";
+import type { SearchWikiPagesRepo, WikiSectionHit, WikiSectionSync } from "./search-wiki-pages.repo";
 import type { WikiQueryEmbedder } from "./wiki-query-embedder";
 import type { WikiSemanticIndexScheduler } from "./wiki-semantic-index-scheduler";
 import type { WikiKnowledgeGapRecorder } from "./wiki-knowledge-gap-recorder";
 import type { QueryVector, RelevanceFloor } from "@/core/retrieval/retrieval-pipeline";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { WikiPageDto, WikiPageSearchData, WikiPageSearchResult, WikiSearchResult } from "./wiki.schema";
+
+import * as Sentry from "@sentry/node";
 
 import { Resource } from "@/generated/prisma";
 
@@ -155,7 +157,7 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
     },
   ): Promise<WikiSearchOrder> {
     const { window, pageStart, semantic, stopwatch, previous } = args;
-    const sync = await this.repo.syncStaleSections();
+    const sync = await this.syncStaleSections();
     const sections = new Map<string, string>();
     const limit = Math.max(WIKI_SEMANTIC_CANDIDATES, window + 1);
     let fullTextCount = 0;
@@ -227,6 +229,15 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
       incomplete: order.incomplete,
       expiresAt: order.expiresAt,
     };
+  }
+
+  private async syncStaleSections(): Promise<WikiSectionSync> {
+    try {
+      return await this.repo.syncStaleSectionsUnlessBusy();
+    } catch (error) {
+      Sentry.captureException(error, { tags: { kind: "wiki-section-search-sync", companyId: this.companyId } });
+      return { synced: 0, remaining: true };
+    }
   }
 
   private async rerank(

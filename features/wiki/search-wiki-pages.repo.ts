@@ -23,7 +23,7 @@ export type WikiSectionHit = {
 };
 
 export abstract class SearchWikiPagesRepo {
-  abstract syncStaleSections(limit?: number): Promise<WikiSectionSync>;
+  abstract syncStaleSectionsUnlessBusy(limit?: number): Promise<WikiSectionSync>;
   abstract fullTextSections(query: string, limit: number): Promise<WikiFullTextSections>;
   abstract semanticSections(vector: number[], version: string, limit: number): Promise<WikiSemanticSections | null>;
   abstract getSectionsByIds(ids: string[]): Promise<WikiSectionHit[]>;

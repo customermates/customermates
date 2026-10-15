@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const invokes = vi.hoisted(() => Array.from({ length: 14 }, () => vi.fn()));
+const invokes = vi.hoisted(() => Array.from({ length: 14 }, () => vi.fn(() => Promise.resolve())));
+const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
 const mockEnv = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "demo",
   CRON_SECRET: "test-cron-secret",
@@ -8,6 +9,7 @@ const mockEnv = vi.hoisted(() => ({
 }));
 
 vi.mock("@/env", () => ({ env: mockEnv }));
+vi.mock("@sentry/nextjs", () => sentry);
 
 vi.mock("@/core/di", () => ({
   getSendWelcomeAndDemoInteractor: () => ({ invoke: invokes[0] }),
@@ -67,5 +69,22 @@ describe("lifecycle cron", () => {
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ ok: true });
     expect(invokes.every((invoke) => invoke.mock.calls.length === 1)).toBe(true);
+  });
+
+  it("still runs the other lifecycle tasks when the Knowledge Base section sync fails", async () => {
+    mockEnv.VERCEL_ENV = "production";
+    const failure = new Error("canceling statement due to lock timeout");
+    invokes[13].mockRejectedValueOnce(failure);
+
+    const response = await GET(
+      new Request("https://customermates.com/api/cron/lifecycle", {
+        headers: { authorization: "Bearer test-cron-secret" },
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ ok: true });
+    expect(invokes.every((invoke) => invoke.mock.calls.length === 1)).toBe(true);
+    expect(sentry.captureException).toHaveBeenCalledWith(failure, { tags: { kind: "wiki-section-cron-sync" } });
   });
 });

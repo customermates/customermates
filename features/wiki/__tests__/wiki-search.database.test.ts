@@ -8,6 +8,7 @@ import { createTranslator } from "next-intl";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
+import { INTERACTIVE_COMPANY_LOCK_WAIT_MS } from "@/core/decorators/transaction-runner";
 import { ForbiddenError } from "@/core/errors/app-errors";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
@@ -115,6 +116,44 @@ describeDatabase("Workspace Wiki search on PostgreSQL", () => {
       ["Shipping", "Parcels leave the warehouse daily.", id],
     );
     expect((await read()).rows).toEqual([{ german: false, english: false }]);
+  });
+
+  it("searches the existing sections without waiting while a long write holds the workspace lock", async () => {
+    const [id] = await insert(user, [{ title: "Refund policy", markdown: "The finance lead approves refunds." }]);
+    const fresh = await search("refunds");
+    if (!fresh.ok) throw new Error("Wiki search failed.");
+    expect(fresh.data.items.map((item) => item.id)).toEqual([id]);
+    expect(fresh.data.incomplete).toBeUndefined();
+
+    await client.query('UPDATE "WikiPage" SET "markdown" = $1, "updatedAt" = CURRENT_TIMESTAMP WHERE "id" = $2', [
+      WikiMarkdownSchema.parse("The finance lead approves refunds within five days."),
+      id,
+    ]);
+    const holder = new Client({ connectionString: databaseUrl ?? undefined });
+    await holder.connect();
+    try {
+      await holder.query("BEGIN");
+      await holder.query("SELECT pg_advisory_xact_lock(hashtextextended($1, 0))", [companyId]);
+      const startedAt = Date.now();
+      const busy = await search("refunds");
+      expect(Date.now() - startedAt).toBeLessThan(INTERACTIVE_COMPANY_LOCK_WAIT_MS);
+      if (!busy.ok) throw new Error("Wiki search failed.");
+      expect(busy.data.items.map((item) => item.id)).toEqual([id]);
+      expect(busy.data).toMatchObject({ incomplete: true, totalIsExact: false });
+    } finally {
+      await holder.query("ROLLBACK");
+      await holder.end();
+    }
+
+    const resumed = await search("refunds");
+    if (!resumed.ok) throw new Error("Wiki search failed.");
+    expect(resumed.data.incomplete).toBeUndefined();
+    const sections = await client.query(
+      `SELECT bool_and(s."pageUpdatedAt" = p."updatedAt") AS "synced"
+       FROM "WikiPageSection" s JOIN "WikiPage" p ON p."id" = s."pageId" WHERE s."pageId" = $1`,
+      [id],
+    );
+    expect(sections.rows).toEqual([{ synced: true }]);
   });
 
   it("ranks by built-in full-text coverage and finds inflections, phrases and prefixes", async () => {

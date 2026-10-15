@@ -16,6 +16,7 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 const envState = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "demo" | "self-hosted",
 }));
+const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
 const mockUser = createMockUser();
 
 vi.mock("@/env", () => ({
@@ -26,6 +27,7 @@ vi.mock("@/env", () => ({
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
+vi.mock("@sentry/node", () => sentry);
 
 import { SearchWikiPagesInteractor } from "../search-wiki-pages.interactor";
 import { WikiSearchOrders } from "@/features/wiki/wiki-search-orders";
@@ -77,7 +79,7 @@ function repo(
   },
 ) {
   return {
-    syncStaleSections: vi.fn(() => Promise.resolve({ synced: 0, remaining: false })),
+    syncStaleSectionsUnlessBusy: vi.fn(() => Promise.resolve({ synced: 0, remaining: false })),
     semanticSections: vi.fn(() =>
       Promise.resolve(
         semantic
@@ -157,6 +159,7 @@ const search = (interactor: SearchWikiPagesInteractor, pageNumber = 1) =>
 
 beforeEach(() => {
   envState.APP_MODE = "cloud";
+  sentry.captureException.mockClear();
 });
 
 describe("unified Wiki search", () => {
@@ -179,6 +182,23 @@ describe("unified Wiki search", () => {
     expect(result.data).toMatchObject({ total: 3, retrieval: "semantic" });
     expect(semantic.scheduler.schedule).toHaveBeenCalledTimes(1);
     expect(timings).toEqual([expect.objectContaining({ corpus: "wiki", embedding: "used" })]);
+  });
+
+  it("searches the existing sections and reports the result incomplete when the section sync fails", async () => {
+    const chunks = repo([id(1)], null);
+    chunks.syncStaleSectionsUnlessBusy.mockRejectedValueOnce(new Error("connection terminated"));
+    const semantic = semanticRetrieval(null);
+
+    const result = await search(new SearchWikiPagesInteractor(chunks, "stored", semantic));
+    if (!result.ok) throw new Error("expected a search result");
+
+    expect(result.data.items.map((item) => item.id)).toEqual([id(1)]);
+    expect(result.data).toMatchObject({ incomplete: true, totalIsExact: false });
+    expect(result.data.abstained).toBeUndefined();
+    expect(semantic.scheduler.schedule).toHaveBeenCalledTimes(1);
+    expect(sentry.captureException).toHaveBeenCalledWith(expect.any(Error), {
+      tags: { kind: "wiki-section-search-sync", companyId: mockUser.companyId },
+    });
   });
 
   it("re-ranks results with the request's Wiki ranker and skips a page past the last result", async () => {

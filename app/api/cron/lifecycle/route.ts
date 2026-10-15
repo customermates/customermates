@@ -1,3 +1,5 @@
+import * as Sentry from "@sentry/nextjs";
+
 import {
   getDeactivateTrialUsersAndSendNoticeInteractor,
   getDeactivateUsersAfterSubscriptionGracePeriodInteractor,
@@ -40,7 +42,11 @@ export async function GET(req: Request) {
     getPruneRoutineRunsInteractor().invoke(),
     getPurgeExpiredTrashInteractor().invoke(),
     getPruneWikiKnowledgeGapsInteractor().invoke(),
-    getSyncStaleWikiSectionsInteractor().invoke(),
+    getSyncStaleWikiSectionsInteractor()
+      .invoke()
+      .catch((error: unknown) => {
+        Sentry.captureException(error, { tags: { kind: "wiki-section-cron-sync" } });
+      }),
   ]);
 
   await getDeleteOrphanedUnipileAccountsInteractor().invoke();
