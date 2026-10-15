@@ -71,6 +71,7 @@ Registrieren Sie sich, wählen Sie **Neuen Workspace erstellen** und schließen 
 - `APP_MODE`: bleibt `self-hosted`; die Compose-Datei setzt diesen Wert für die App selbst.
 - `CRON_SECRET`: optional und in der Vorlage auskommentiert; das Secret für die geplanten Wartungsaufrufe, siehe [Welche geplanten Aufgaben muss ich ausführen?](#scheduled-jobs).
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AZURE_AD_CLIENT_ID`, `AZURE_AD_CLIENT_SECRET`: optional und in der Vorlage auskommentiert, siehe [Können sich Nutzer mit Google oder Microsoft anmelden?](#can-users-sign-in-with-google-or-microsoft).
+- `ADDRESS_LOOKUP_URL`: optional und in der Vorlage auskommentiert; schaltet Adressvorschläge ein, siehe [Wie schalte ich Adressvorschläge ein?](#address-lookup).
 
 Halten Sie `.env` aus der Versionsverwaltung heraus. Änderungen wenden Sie mit `docker compose up -d` an.
 
@@ -143,6 +144,23 @@ Der MCP-Endpunkt ist `<BASE_URL>/api/v1/mcp`, zum Beispiel `https://crm.example.
 - **OAuth-Anmeldung**, für Clients, die sich aus der Cloud ihres Anbieters verbinden, etwa ein benutzerdefinierter Connector in Claude. Diese brauchen eine `BASE_URL`, die aus dem Internet über HTTPS erreichbar ist. Siehe [Claude und ChatGPT verbinden](/docs/connect-custom-connector).
 
 Der gehostete In-App-Assistent ist nur in der Cloud verfügbar: Mate gibt es auf Self-Hosted-Instanzen nicht. Externes MCP nutzt Ihren eigenen KI-Anbieter. Enterprise-SSO und White-Labeling sind in keiner Variante implementiert.
+
+## Wie schalte ich Adressvorschläge ein? [#address-lookup]
+
+Adressfelder funktionieren ohne Einrichtung: Straße, Postleitzahl, Ort und Land werden von Hand eingegeben, und nichts verlässt Ihren Server. Setzen Sie `ADDRESS_LOOKUP_URL` auf einen [Photon](https://github.com/komoot/photon)-Dienst, bekommen Adressfelder **Adresse suchen** und **Adresse prüfen**: Die Vorschläge stammen aus OpenStreetMap, und eine daraus gewählte Adresse wird als bestätigt gespeichert. Ihr Server schickt dem Dienst nur den Suchtext oder die zu prüfende Adresse und die Sprache der Person, der Dienst sieht also weder IP-Adressen noch Sitzungen. Jeder App-Container erlaubt jeder Person 30 Suchen in 10 Sekunden und beantwortet gleiche Suchen 10 Minuten lang aus seinem eigenen Zwischenspeicher.
+
+- **Öffentlicher Dienst von komoot:** `ADDRESS_LOOKUP_URL=https://photon.komoot.io` nutzt den kostenlosen Photon-Dienst der komoot GmbH in Deutschland, gedacht für maßvolle Nutzung. Ihr Server schickt die Suchtexte dann an komoot.
+- **Eigenes Photon:** Laden Sie das Photon-Jar aus den [Releases](https://github.com/komoot/photon/releases/latest), speichern Sie es als `photon.jar`, und laden Sie von [download1.graphhopper.com/public](https://download1.graphhopper.com/public/) einen Suchindex für die ganze Welt oder ein Land, der zur Photon-Version passt. Photon braucht Java 21 oder neuer und Arbeitsspeicher passend zum Index: Für den Index der ganzen Welt, rund 95 GB auf der Festplatte, empfiehlt Photon mindestens 64 GB RAM, ein Länderindex braucht deutlich weniger. Entpacken Sie den Index so, dass `photon_data` neben dem Jar in `/srv/photon` liegt, und starten Sie Photon im Netzwerk des Compose-Projekts, das nach seinem Ordner heißt, hier `customermates`, mit einem Java-Heap (`-Xmx`), der zu Ihrem Index passt:
+
+```bash
+docker run -d --name photon --restart unless-stopped \
+  --network customermates_default \
+  -v /srv/photon:/photon -w /photon \
+  eclipse-temurin:21-jre \
+  java -Xmx4g -jar photon.jar serve -listen-ip 0.0.0.0
+```
+
+Setzen Sie dann `ADDRESS_LOOKUP_URL=http://photon:2322` in `.env` und führen Sie `docker compose up -d` aus. Customermates ruft nur den eingetragenen Host auf und folgt keiner Weiterleitung. Ein Hostname, der auf eine private Adresse zeigt, wird nur angenommen, wenn der eingetragene Host selbst privat ist: eine IP-Adresse aus einem privaten Bereich, `localhost`, ein Name ohne Punkt wie `photon` oder ein Name unter `.local`, `.internal`, `.lan` oder `.home.arpa`. Antwortet der Dienst nicht innerhalb von 2 Sekunden, sehen die Personen, dass die Adresssuche nicht verfügbar ist, und können die Adresse weiter selbst eingeben. Entfernen Sie `ADDRESS_LOOKUP_URL` wieder, sind die Vorschläge aus; gespeicherte Adressen behalten ihre Bestätigung.
 
 ## Wie spiele ich ein Update der Self-Hosted-Installation ein? [#how-do-i-update-a-self-hosted-installation]
 

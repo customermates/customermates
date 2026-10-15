@@ -71,6 +71,7 @@ Register, choose **Create a new workspace** and complete the wizard; your accoun
 - `APP_MODE`: leave it at `self-hosted`; the Compose file sets this value for the app itself.
 - `CRON_SECRET`: optional, commented out in the template; the secret for the scheduled maintenance calls, see [Which scheduled jobs must I run?](#scheduled-jobs).
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AZURE_AD_CLIENT_ID`, `AZURE_AD_CLIENT_SECRET`: optional, commented out in the template, see [Can users sign in with Google or Microsoft?](#can-users-sign-in-with-google-or-microsoft).
+- `ADDRESS_LOOKUP_URL`: optional, commented out in the template; turns on address suggestions, see [How do I turn on address suggestions?](#address-lookup).
 
 Keep `.env` out of source control. Apply changes with `docker compose up -d`.
 
@@ -143,6 +144,23 @@ The MCP endpoint is `<BASE_URL>/api/v1/mcp`, for example `https://crm.example.co
 - **OAuth sign-in**, for clients that connect from their provider's cloud, such as a Claude custom connector. These need a `BASE_URL` that is reachable from the internet over HTTPS. See [Connect Claude and ChatGPT](/docs/connect-custom-connector).
 
 The hosted in-app Assistant is cloud-only: Mate is not available on self-hosted instances. External MCP uses your own AI provider. Enterprise SSO and white-labeling are not implemented in either deployment model.
+
+## How do I turn on address suggestions? [#address-lookup]
+
+Address fields work without any setup: people enter street, postal code, city and country themselves, and nothing leaves your server. Set `ADDRESS_LOOKUP_URL` to a [Photon](https://github.com/komoot/photon) service to add **Search address** and **Check address** to address fields: the suggestions come from OpenStreetMap, and an address picked from them is stored as verified. Your server sends the service only the search text or the address being checked and the person's language, so the service never sees people's IP addresses or sessions. Each app container allows each person 30 lookups in 10 seconds and answers identical lookups from its own cache for 10 minutes.
+
+- **komoot's public service:** `ADDRESS_LOOKUP_URL=https://photon.komoot.io` uses the free Photon service of komoot GmbH in Germany, meant for moderate use. Your server then sends the search texts to komoot.
+- **Your own Photon:** download the Photon jar from its [releases](https://github.com/komoot/photon/releases/latest), save it as `photon.jar`, and download a search index for the whole planet or one country from [download1.graphhopper.com/public](https://download1.graphhopper.com/public/) that matches the Photon version. Photon needs Java 21 or later and memory to match the index: for the planet index, about 95 GB on disk, Photon recommends at least 64 GB of RAM, while a country index needs far less. Unpack the index so that `photon_data` sits next to the jar in `/srv/photon`, then start Photon in the network of the Compose project, which is named after its folder, here `customermates`, with a Java heap (`-Xmx`) that fits your index:
+
+```bash
+docker run -d --name photon --restart unless-stopped \
+  --network customermates_default \
+  -v /srv/photon:/photon -w /photon \
+  eclipse-temurin:21-jre \
+  java -Xmx4g -jar photon.jar serve -listen-ip 0.0.0.0
+```
+
+Then set `ADDRESS_LOOKUP_URL=http://photon:2322` in `.env` and run `docker compose up -d`. Customermates calls only the configured host and never follows a redirect. A host name that resolves to a private address is accepted only when the configured host is itself private: an IP address in a private range, `localhost`, a name without a dot such as `photon`, or a name under `.local`, `.internal`, `.lan` or `.home.arpa`. When the service does not answer within 2 seconds, people see that address search is unavailable and can still type the address. Unset `ADDRESS_LOOKUP_URL` to turn the suggestions off again; stored addresses keep their verification.
 
 ## How do I update a self-hosted installation? [#how-do-i-update-a-self-hosted-installation]
 
