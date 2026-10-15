@@ -4,6 +4,7 @@ import { MarketingShell } from "./components/navigation/marketing-shell";
 import { RootDocument } from "./root-document";
 
 import { NotFoundPageView } from "@/components/shared/not-found-page-view";
+import { env } from "@/env";
 import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
 export default async function NotFoundPage() {
@@ -11,7 +12,7 @@ export default async function NotFoundPage() {
 
   return (
     <RootDocument displayLanguage={DEFAULT_LOCALE} messages={messages}>
-      <MarketingShell>
+      <MarketingShell appMode={env.APP_MODE}>
         <NotFoundPageView locale={DEFAULT_LOCALE} />
       </MarketingShell>
     </RootDocument>

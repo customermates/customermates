@@ -146,6 +146,7 @@ export function NavigationSwitch({
     shell = (
       <PublicScrollport
         accountState={currentAccountState}
+        appMode={rootStore.appMode}
         hasValidSession={hasValidSession}
         onboardingIntent={onboardingIntent}
       >

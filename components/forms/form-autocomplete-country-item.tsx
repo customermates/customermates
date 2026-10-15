@@ -4,16 +4,13 @@ import { useTranslations } from "next-intl";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { emojiFlag } from "@/core/utils/emoji-flag";
 
 type Props = {
   countryKey: string;
   label: string;
   size?: "sm" | "md";
 };
-
-function emojiFlag(countryKey: string): string {
-  return String.fromCodePoint(...[...countryKey.toUpperCase()].map((letter) => 0x1f1a5 + letter.charCodeAt(0)));
-}
 
 export function FormAutocompleteCountryItem({ countryKey, label, size = "md" }: Props) {
   const t = useTranslations();

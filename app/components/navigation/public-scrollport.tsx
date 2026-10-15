@@ -1,6 +1,7 @@
 "use client";
 
 import type { AccountState } from "@/features/auth/account-state";
+import type { AppMode } from "@/core/config/environment";
 
 import { useLayoutEffect, useRef } from "react";
 
@@ -10,13 +11,21 @@ import { usePathname } from "@/i18n/navigation";
 
 type Props = {
   accountState: AccountState;
+  appMode: AppMode;
   children: React.ReactNode;
   hasValidSession: boolean;
   onboardingIntent?: string;
   onSignedOut?: () => void;
 };
 
-export function PublicScrollport({ accountState, children, hasValidSession, onboardingIntent, onSignedOut }: Props) {
+export function PublicScrollport({
+  accountState,
+  appMode,
+  children,
+  hasValidSession,
+  onboardingIntent,
+  onSignedOut,
+}: Props) {
   const pathname = usePathname();
   const scrollportRef = useRef<HTMLDivElement>(null);
 
@@ -33,6 +42,7 @@ export function PublicScrollport({ accountState, children, hasValidSession, onbo
       <header className="sticky top-0 z-50 flex shrink-0 flex-col bg-background/90 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
         <PublicNavbar
           accountState={accountState}
+          appMode={appMode}
           hasValidSession={hasValidSession}
           onboardingIntent={onboardingIntent}
           onSignedOut={onSignedOut}

@@ -1,5 +1,7 @@
 "use client";
 
+import type { AppMode } from "@/core/config/environment";
+
 import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -21,7 +23,7 @@ import { ThemeSwitcher } from "@/components/shared/theme-switcher";
 
 import { isDocItemActive, normalizeDocsPath, useDocGroups } from "./docs-sidebar";
 
-export function DocsTopBar() {
+export function DocsTopBar({ appMode }: { appMode: AppMode }) {
   const t = useTranslations();
   const pathname = usePathname();
   const groups = useDocGroups();
@@ -40,7 +42,7 @@ export function DocsTopBar() {
     <ShellHeader
       actions={
         <div className="flex items-center gap-1">
-          <LocaleMenu align="end" />
+          <LocaleMenu align="end" appMode={appMode} />
 
           <ThemeSwitcher />
         </div>

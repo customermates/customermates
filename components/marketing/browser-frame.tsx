@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { preconnect, prefetchDNS } from "react-dom";
 
 type Props = {
+  embed?: boolean;
   fallbackMessage?: string;
   loadAhead?: boolean;
   src: string;
@@ -29,7 +30,7 @@ function getOrigin(src: string): string | null {
   }
 }
 
-export function BrowserFrame({ fallbackMessage, loadAhead = false, size = "full", src, title }: Props) {
+export function BrowserFrame({ embed = true, fallbackMessage, loadAhead = false, size = "full", src, title }: Props) {
   const t = useTranslations();
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [currentUrl, setCurrentUrl] = useState(src);
@@ -39,13 +40,14 @@ export function BrowserFrame({ fallbackMessage, loadAhead = false, size = "full"
   const frameRef = useRef<HTMLDivElement | null>(null);
   const origin = getOrigin(src);
 
-  if (loadAhead && origin) {
+  if (embed && loadAhead && origin) {
     prefetchDNS(origin);
     preconnect(origin);
   }
 
   useEffect(() => {
     const el = frameRef.current;
+    if (!embed) return;
     if (!el || typeof IntersectionObserver === "undefined") {
       setShouldMount(true);
       return;
@@ -61,7 +63,7 @@ export function BrowserFrame({ fallbackMessage, loadAhead = false, size = "full"
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [loadAhead]);
+  }, [embed, loadAhead]);
 
   useEffect(() => {
     if (!fallbackMessage || !shouldMount || loaded) return;
@@ -122,7 +124,22 @@ export function BrowserFrame({ fallbackMessage, loadAhead = false, size = "full"
         </div>
 
         <div className={`relative ${FRAME_HEIGHT_CLASS[size]}`}>
-          {!loaded ? (
+          {!embed ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-placeholder p-6 text-center">
+              <p className="max-w-xl text-xs leading-5 text-muted-foreground">{title}</p>
+
+              <a
+                className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-foreground hover:underline"
+                href={src}
+                rel="noreferrer noopener"
+                target="_blank"
+              >
+                {t("BrowserFrame.open")}
+
+                <ArrowUpRight aria-hidden className="size-3" />
+              </a>
+            </div>
+          ) : !loaded ? (
             <div className="absolute inset-0 animate-pulse bg-placeholder motion-reduce:animate-none" />
           ) : null}
 

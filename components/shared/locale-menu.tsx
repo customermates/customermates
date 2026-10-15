@@ -1,6 +1,7 @@
 "use client";
 
 import type { MouseEvent as ReactMouseEvent } from "react";
+import type { AppMode } from "@/core/config/environment";
 import type { ContentLocale } from "@/i18n/locale-registry";
 
 import { useEffect, useRef } from "react";
@@ -9,6 +10,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { useNavigationGuard } from "@/core/stores/navigation-guard.context";
 import { cn } from "@/core/utils/cn";
+import { emojiFlag } from "@/core/utils/emoji-flag";
 import { CONTENT_LOCALES, buildLocalePath, contentLocaleOrDefault, flagCodeFor } from "@/i18n/locale-registry";
 import { contentLocaleCookie } from "@/i18n/locale-preference";
 import { usePathname } from "@/i18n/navigation";
@@ -16,11 +18,12 @@ import { preserveAdClickInHref } from "@/features/acquisition/ad-click-url";
 
 type Props = {
   align?: "start" | "end";
+  appMode: AppMode;
   className?: string;
   side?: "top" | "bottom";
 };
 
-export function LocaleMenu({ align = "start", className, side = "bottom" }: Props) {
+export function LocaleMenu({ align = "start", appMode, className, side = "bottom" }: Props) {
   const t = useTranslations();
   const pathname = usePathname();
   const currentLocale = contentLocaleOrDefault(useLocale());
@@ -126,19 +129,25 @@ export function LocaleMenu({ align = "start", className, side = "bottom" }: Prop
               onClick={(event) => handleSelect(event, locale)}
               onContextMenu={(event) => preservePendingClick(event, locale)}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element -- a lazy flag inside a closed disclosure must not be requested, which next/image cannot express. */}
-              <img
-                aria-hidden
-                alt={label}
-                className="size-5 shrink-0 rounded-full object-cover"
-                height={20}
-                loading="lazy"
-                src={`https://flagcdn.com/${flagCodeFor(locale).toLowerCase()}.svg`}
-                width={20}
-                onError={(event) => {
-                  event.currentTarget.style.visibility = "hidden";
-                }}
-              />
+              {appMode === "self-hosted" ? (
+                <span aria-hidden className="grid size-5 shrink-0 place-items-center leading-none">
+                  {emojiFlag(flagCodeFor(locale))}
+                </span>
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element -- a lazy flag inside a closed disclosure must not be requested, which next/image cannot express.
+                <img
+                  aria-hidden
+                  alt={label}
+                  className="size-5 shrink-0 rounded-full object-cover"
+                  height={20}
+                  loading="lazy"
+                  src={`https://flagcdn.com/${flagCodeFor(locale).toLowerCase()}.svg`}
+                  width={20}
+                  onError={(event) => {
+                    event.currentTarget.style.visibility = "hidden";
+                  }}
+                />
+              )}
 
               <span className="truncate">{label}</span>
             </a>
