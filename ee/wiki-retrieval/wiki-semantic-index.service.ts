@@ -4,7 +4,7 @@ import type { WikiSummaryService } from "./wiki-summary.service";
 import type { WikiSummaryState } from "@/features/wiki/wiki-summary";
 
 import { UserAccessor } from "@/core/base/user-accessor";
-import { wikiContentHash, wikiSectionRows } from "@/features/wiki/wiki-sections";
+import { WIKI_SECTION_MAX_EMBEDDED_ROWS, wikiContentHash, wikiSectionRows } from "@/features/wiki/wiki-sections";
 import { currentWikiSummary, wikiSummaryNeeded } from "@/features/wiki/wiki-summary";
 
 import { embeddingVectorLiteral, WIKI_EMBEDDING_BATCH_SIZE, WIKI_EMBEDDING_VERSION } from "./wiki-embedding-model";
@@ -55,7 +55,11 @@ export class WikiSemanticIndexService extends UserAccessor {
         const rows = wikiSectionRows(page, summary);
         const known = await this.repo.sectionEmbeddingsByHash(page.id, WIKI_EMBEDDING_VERSION);
         const missing = [
-          ...new Map(rows.filter((row) => !known.has(row.contentHash)).map((row) => [row.contentHash, row])).values(),
+          ...new Map(
+            rows
+              .filter((row) => row.ordinal < WIKI_SECTION_MAX_EMBEDDED_ROWS && !known.has(row.contentHash))
+              .map((row) => [row.contentHash, row]),
+          ).values(),
         ];
         for (let start = 0; start < missing.length; start += WIKI_EMBEDDING_BATCH_SIZE) {
           const batch = missing.slice(start, start + WIKI_EMBEDDING_BATCH_SIZE);

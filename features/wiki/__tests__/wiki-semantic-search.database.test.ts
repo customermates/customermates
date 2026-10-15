@@ -198,6 +198,40 @@ describeDatabase("Workspace Wiki semantic retrieval on PostgreSQL with pgvector"
     expect(rows.every(({ text }) => text.startsWith("Paragraph "))).toBe(true);
   });
 
+  it("embeds the first 256 sections of a long page, keeps the rest keyword-searchable and does not re-index it", async () => {
+    const entries = Array.from(
+      { length: 300 },
+      (_, index) => `## Term ${index}\n\nGlossary entry ${index} ${index === 280 ? "zeppelin" : "airship"}.`,
+    );
+    const id = await insert(user, "Glossary", entries.join("\n\n"));
+    const { service, embed } = fakeEmbeddings();
+
+    expect(await indexAll(user, service)).toBe(1);
+    const stored = await client.query(
+      `SELECT count(*)::int AS "rows", count("embedding")::int AS "embedded",
+        count(*) FILTER (WHERE "embedding" IS NOT NULL AND "ordinal" < 256)::int AS "head"
+       FROM "WikiPageSection" WHERE "pageId" = $1`,
+      [id],
+    );
+    expect(stored.rows).toEqual([{ rows: 300, embedded: 256, head: 256 }]);
+    expect(embed.mock.calls.flatMap(([, texts]) => texts)).toHaveLength(256);
+    expect(await indexAll(user, fakeEmbeddings().service)).toBe(0);
+
+    const repo = createTestWikiSectionRepo();
+    const [keyword, semantic] = await runWithTenant(user, () =>
+      Promise.all([
+        repo.fullTextSections("zeppelin", 5),
+        repo.semanticSections(conceptVector("zeppelin"), WIKI_EMBEDDING_VERSION, 5),
+      ]),
+    );
+    const [hit] = keyword.hits;
+    expect(hit?.pageId).toBe(id);
+    expect(
+      (await client.query('SELECT "ordinal" FROM "WikiPageSection" WHERE "id" = $1', [hit?.sectionId])).rows,
+    ).toEqual([{ ordinal: 280 }]);
+    expect(semantic).toMatchObject({ complete: true, stale: false });
+  });
+
   it("generates a summary only when the page content hash changed, and keeps untouched imports summary-free", async () => {
     const id = await insert(user, "Holiday Calendar", "## Closures\n\nThe office closes for the holiday.");
     const imported = await insert(user, "Imported vacation page", "Vacation rules copied from the website.", 1);

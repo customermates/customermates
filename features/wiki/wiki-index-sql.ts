@@ -1,5 +1,7 @@
 import { Prisma } from "@/generated/prisma";
 
+import { WIKI_SECTION_MAX_EMBEDDED_ROWS } from "./wiki-sections";
+
 export const WIKI_INDEX_CLAIM_SECONDS = 300;
 
 const WIKI_CONTENT_HASH = Prisma.sql`encode(sha256(convert_to(p."title" || E'\\n' || p."markdown", 'UTF8')), 'hex')`;
@@ -18,7 +20,7 @@ export function unsyncedWikiPage() {
 export function unembeddedWikiPage(version: string) {
   return Prisma.sql`(${unsyncedWikiPage()} OR EXISTS (
     SELECT 1 FROM "WikiPageSection" s
-    WHERE s."pageId" = p."id" AND s."companyId" = p."companyId"
+    WHERE s."pageId" = p."id" AND s."companyId" = p."companyId" AND s."ordinal" < ${WIKI_SECTION_MAX_EMBEDDED_ROWS}
       AND (s."embedding" IS NULL OR s."embeddingVersion" IS DISTINCT FROM ${version})
   ))`;
 }

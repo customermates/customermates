@@ -9,7 +9,7 @@ import { slugifyHeading } from "@/core/utils/search-text";
 
 import { wikiMarkdownSections } from "./wiki-markdown-sections";
 
-const WIKI_SECTION_MAX_ROWS = 256;
+export const WIKI_SECTION_MAX_EMBEDDED_ROWS = 256;
 
 export type WikiSectionRow = {
   ordinal: number;
@@ -53,5 +53,5 @@ export function wikiSectionRows(page: { title: string; markdown: string }, summa
     for (const part of retrievalSectionParts(content)) push(section.offset, section.path, part);
   }
   if (rows.length === 0) push(0, [], "");
-  return rows.slice(0, WIKI_SECTION_MAX_ROWS);
+  return rows;
 }

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { RETRIEVAL_SECTION_MAX_LENGTH, retrievalSectionParts } from "@/core/retrieval/retrieval-sections";
 
-import { wikiContentHash, wikiSectionRows } from "../wiki-sections";
+import { WIKI_SECTION_MAX_EMBEDDED_ROWS, wikiContentHash, wikiSectionRows } from "../wiki-sections";
 import { wikiCompact, wikiIdentifierPattern, wikiIdentifierTerms } from "../wiki-identifiers";
 
 describe("Wiki identifier terms", () => {
@@ -58,6 +58,16 @@ describe("wikiSectionRows", () => {
     ]);
     expect(new Set(rows.map(({ contentHash }) => contentHash)).size).toBe(2);
     expect(wikiSectionRows({ title: "Billing", markdown }, null)[0].contentHash).not.toBe(rows[0].contentHash);
+  });
+
+  it("keeps every section of a long page for keyword search, beyond the rows that get embedded", () => {
+    const entries = Array.from({ length: 300 }, (_, index) => `## Term ${index}\n\nGlossary entry ${index}.`);
+    const rows = wikiSectionRows({ title: "Glossary", markdown: entries.join("\n\n") }, null);
+
+    expect(WIKI_SECTION_MAX_EMBEDDED_ROWS).toBe(256);
+    expect(rows).toHaveLength(300);
+    expect(rows.map(({ ordinal }) => ordinal)).toEqual(Array.from({ length: 300 }, (_, index) => index));
+    expect(rows.at(-1)).toMatchObject({ headingPath: ["Term 299"], text: "Glossary entry 299." });
   });
 
   it("splits long sections deterministically on paragraph boundaries and indexes a title-only page", () => {
