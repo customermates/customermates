@@ -4,7 +4,12 @@ import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
-import type { CalculatedValue, RecordFieldView, RecordMember } from "@/features/records/record-model.schema";
+import type {
+  CalculatedValue,
+  RecordFieldView,
+  RecordFileSummary,
+  RecordMember,
+} from "@/features/records/record-model.schema";
 import type { RecordIdentity } from "@/features/records/record-identity.schema";
 
 import { AppChip } from "@/components/chip/app-chip";
@@ -17,6 +22,7 @@ import { toChipColor } from "@/constants/chip-colors";
 import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { cn } from "@/core/utils/cn";
 import { currencyFractionDigits } from "@/features/records/derived-value-format";
+import { addressDisplayText } from "@/features/records/record-address-value";
 
 type FormattedTextNode = { type?: string; text?: string; content?: FormattedTextNode[] };
 
@@ -43,6 +49,7 @@ export function useRecordValueFormat() {
   const intl = useHydratedIntlStore();
   const locale = intl.formattingLocale;
   return {
+    locale,
     decimal: (
       value: string | number,
       { currency = null, compact = false, maximumFractionDigits }: DecimalFormat = {},
@@ -68,6 +75,7 @@ export const RecordValue = observer(function RecordValue({
   result,
   field,
   members = [],
+  files = [],
   identities,
   wrap = false,
   overflowMenu = true,
@@ -76,6 +84,7 @@ export const RecordValue = observer(function RecordValue({
   result?: CalculatedValue;
   field: RecordFieldView;
   members?: RecordMember[];
+  files?: RecordFileSummary[];
   identities?: Array<Pick<RecordIdentity, "id" | "provider" | "value" | "displayName" | "profileUrl">>;
   wrap?: boolean;
   overflowMenu?: boolean;
@@ -115,6 +124,31 @@ export const RecordValue = observer(function RecordValue({
         })}
         overflowMenu={overflowMenu}
       />
+    );
+  }
+  if (value.kind === "file") {
+    return (
+      <AppChipStack
+        fill={!compact}
+        items={value.value.map((id) => ({
+          id,
+          label: files.find((file) => file.id === id)?.name ?? t("RecordModel.fileUnavailable"),
+        }))}
+        overflowMenu={overflowMenu}
+      />
+    );
+  }
+  if (value.kind === "address") {
+    return (
+      <span className={cn("inline-flex min-w-0 max-w-full items-baseline gap-2", wrap && "flex-wrap")}>
+        <span className={wrap ? "whitespace-pre-wrap break-words" : "truncate"}>
+          {addressDisplayText(value.value, valueFormat.locale)}
+        </span>
+
+        {wrap && value.value.verification.status === "unverified" && (
+          <span className="shrink-0 text-xs text-muted-foreground">{t("RecordModel.addressUnverified")}</span>
+        )}
+      </span>
     );
   }
   if (value.kind === "boolean") return <span>{value.value ? t("RecordModel.yes") : t("RecordModel.no")}</span>;

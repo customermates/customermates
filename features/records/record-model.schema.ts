@@ -29,8 +29,72 @@ export const RecordValueTypeSchema = z.enum([
   "url",
   "member",
   "channels",
+  "file",
+  "address",
 ]);
 export type RecordValueType = z.infer<typeof RecordValueTypeSchema>;
+
+export const MAX_RECORD_FILES = 20;
+export const RecordFileIdsSchema = z
+  .array(z.uuid())
+  .min(1)
+  .max(MAX_RECORD_FILES)
+  .refine((ids) => new Set(ids).size === ids.length, "Each file can be attached once");
+
+const AddressInstantSchema = z.iso.datetime({ offset: true });
+const addressText = (max: number) =>
+  z
+    .string()
+    .max(max)
+    .refine((text) => !text.includes("\0"));
+const addressPart = (max: number) => addressText(max).nullable().default(null);
+
+export const RecordAddressSchema = z
+  .object({
+    street: addressPart(200),
+    line2: addressPart(200),
+    postalCode: addressPart(20),
+    city: addressPart(200),
+    region: addressPart(200),
+    countryCode: z
+      .string()
+      .regex(/^[a-z]{2}$/)
+      .nullable()
+      .default(null)
+      .describe("ISO 3166-1 alpha-2 country code in lowercase, such as de."),
+    formatted: addressText(500)
+      .default("")
+      .describe("One-line address the server formats from the parts; a sent value is replaced."),
+    location: z
+      .object({ lat: z.number().min(-90).max(90), lon: z.number().min(-180).max(180) })
+      .strict()
+      .nullable()
+      .default(null),
+    verification: z
+      .object({
+        status: z.enum(["verified", "unverified"]),
+        provider: addressText(64).nullable(),
+        checkedAt: z
+          .string()
+          .max(64)
+          .refine((value) => AddressInstantSchema.safeParse(value).success)
+          .nullable(),
+      })
+      .strict()
+      .default({ status: "unverified", provider: null, checkedAt: null })
+      .describe("Owned by the server: only a lookup candidateToken stores a verified address."),
+  })
+  .strict();
+export type RecordAddress = z.infer<typeof RecordAddressSchema>;
+
+export const RecordAddressPartsInputSchema = z.looseObject({
+  street: z.string().nullish(),
+  line2: z.string().nullish(),
+  postalCode: z.string().nullish(),
+  city: z.string().nullish(),
+  region: z.string().nullish(),
+  countryCode: z.string().nullish(),
+});
 
 export const DecimalStringSchema = z
   .string()
@@ -39,7 +103,7 @@ export const DecimalStringSchema = z
 export const RecordDateTimeSchema = z.iso
   .datetime({ offset: true })
   .refine((value) => !/\.\d{7}/.test(value), "Timestamp precision cannot exceed six decimal places");
-const ValidatedRecordScalarSchema = z.discriminatedUnion("kind", [
+const RECORD_SCALAR_VARIANTS = [
   z.object({ kind: z.literal("text"), value: StoredModelStringSchema.max(100000) }).strict(),
   z
     .object({
@@ -84,6 +148,7 @@ const ValidatedRecordScalarSchema = z.discriminatedUnion("kind", [
     })
     .strict(),
   z.object({ kind: z.literal("member"), value: z.uuid() }).strict(),
+  z.object({ kind: z.literal("file"), value: RecordFileIdsSchema }).strict(),
   z
     .object({
       kind: z.literal("richText"),
@@ -92,8 +157,13 @@ const ValidatedRecordScalarSchema = z.discriminatedUnion("kind", [
       ),
     })
     .strict(),
+] as const;
+const RecordAddressScalarSchema = z.object({ kind: z.literal("address"), value: RecordAddressSchema }).strict();
+const ValidatedRecordScalarSchema = z.discriminatedUnion("kind", [
+  ...RECORD_SCALAR_VARIANTS,
+  RecordAddressScalarSchema,
 ]);
-export const RecordScalarSchema = z
+const RecordScalarShapeSchema = z
   .object({
     kind: z.enum([
       "text",
@@ -107,12 +177,15 @@ export const RecordScalarSchema = z
       "selectList",
       "member",
       "richText",
+      "file",
+      "address",
     ]),
     value: z
       .union([
         StoredModelStringSchema.max(100000),
         z.boolean(),
         z.array(StoredModelStringSchema.max(100000)).min(1).max(100),
+        RecordAddressPartsInputSchema,
       ])
       .optional(),
     currency: z
@@ -124,12 +197,34 @@ export const RecordScalarSchema = z
     end: StoredModelStringSchema.nullable().optional(),
     documentJson: StoredModelStringSchema.max(1000000).optional(),
   })
-  .strict()
-  .describe(
-    "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read.",
-  )
-  .pipe(ValidatedRecordScalarSchema);
+  .strict();
+const RECORD_SCALAR_DESCRIPTION =
+  "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read. A file value lists uploaded file ids in order; the server formats an address value from its parts.";
+export const RecordScalarSchema =
+  RecordScalarShapeSchema.describe(RECORD_SCALAR_DESCRIPTION).pipe(ValidatedRecordScalarSchema);
 export type RecordScalar = z.infer<typeof RecordScalarSchema>;
+
+const RecordAddressWriteSchema = z
+  .object({
+    kind: z.literal("address"),
+    value: RecordAddressSchema.optional(),
+    candidateToken: z.string().min(1).max(4096).optional(),
+  })
+  .strict()
+  .refine((input) => (input.value === undefined) !== (input.candidateToken === undefined), {
+    message: "Send either an address value or a candidateToken",
+  });
+export const RecordScalarInputSchema = RecordScalarShapeSchema.extend({
+  candidateToken: z
+    .string()
+    .min(1)
+    .max(4096)
+    .optional()
+    .describe("Address only, instead of value: a candidateToken from an address lookup stores the verified address."),
+})
+  .describe(RECORD_SCALAR_DESCRIPTION)
+  .pipe(z.discriminatedUnion("kind", [...RECORD_SCALAR_VARIANTS, RecordAddressWriteSchema]));
+export type RecordScalarInput = z.infer<typeof RecordScalarInputSchema>;
 
 export const CalculatedValueSchema = z.discriminatedUnion("state", [
   z.object({ state: z.literal("value"), value: RecordScalarSchema }).strict(),
@@ -302,7 +397,7 @@ export const RecordFieldSchema = z
     typeId: z.uuid(),
     label: RecordNameSchema,
     valueType: RecordValueTypeSchema.describe(
-      "channels: email addresses, WhatsApp phone numbers and social accounts that match messages to the record. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields).",
+      "channels: email addresses, WhatsApp phone numbers and social accounts that match messages to the record. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value.",
     ),
     behavior: FieldBehaviorSchema,
     required: z.boolean(),
@@ -310,7 +405,7 @@ export const RecordFieldSchema = z
       .boolean()
       .optional()
       .describe(
-        "Allows several values: text, email, phone and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior.",
+        "Allows several values: text, email, phone and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior; a file field holds up to 20 files instead of one.",
       ),
     format: z
       .object({
@@ -327,7 +422,7 @@ export const RecordFieldSchema = z
           .nullable()
           .optional()
           .describe(
-            "Email, phone, url and channels fields only: what clicking a value does. open (default) starts mail, a call or opens the link or profile; copy copies it.",
+            "Email, phone, url, address and channels fields only: what clicking a value does. open (default) starts mail, a call, opens the link, profile or map; copy copies it.",
           ),
         providerAvatar: z
           .boolean()
@@ -460,7 +555,7 @@ export const RecordModelViewSchema = RecordModelSchema.extend({
 export type RecordModelView = z.infer<typeof RecordModelViewSchema>;
 
 export const RecordFieldAssignmentSchema = z
-  .object({ fieldId: z.uuid(), value: RecordScalarSchema.nullable() })
+  .object({ fieldId: z.uuid(), value: RecordScalarInputSchema.nullable() })
   .strict();
 const RecordFieldAppendSchema = z
   .object({
@@ -513,6 +608,17 @@ export const RecordMemberSchema = z
   })
   .strict();
 export type RecordMember = z.infer<typeof RecordMemberSchema>;
+export const RecordFileSummarySchema = z
+  .object({
+    id: z.uuid(),
+    name: z.string(),
+    mimeType: z.string(),
+    size: z.number().int().nonnegative(),
+    uploadedAt: z.iso.datetime(),
+    uploadedById: z.uuid().nullable(),
+  })
+  .strict();
+export type RecordFileSummary = z.infer<typeof RecordFileSummarySchema>;
 export const RecordDtoSchema = z
   .object({
     ref: RecordRefSchema,
@@ -528,6 +634,10 @@ export const RecordDtoSchema = z
     relationships: z.array(RecordRelationshipSummarySchema).default([]),
     relationshipPaths: z.array(RecordPathSummarySchema).optional(),
     identities: z.array(RecordIdentitySchema).optional(),
+    files: z
+      .array(RecordFileSummarySchema)
+      .optional()
+      .describe("Metadata of the files referenced by file values the caller can read."),
   })
   .strict();
 export type RecordDto = z.infer<typeof RecordDtoSchema>;

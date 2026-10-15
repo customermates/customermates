@@ -155,6 +155,16 @@ import { GetRecordOperationInteractor } from "@/features/records/get-record-oper
 import { CancelRecordOperationInteractor } from "@/features/records/cancel-record-operation.interactor";
 import { RecordOperationService } from "@/features/records/record-operation.service";
 import { RecordWriteService } from "@/features/records/record-write.service";
+import type { FileStorageDriver } from "@/core/storage/file-storage-driver";
+import { DatabaseFileStorageDriver } from "@/core/storage/database-file-storage.driver";
+import { PrismaFileContentRepo } from "@/core/storage/prisma-file-content.repository";
+import type { AddressCandidateVerifier } from "@/features/records/address-candidate-verifier";
+import { RejectingAddressCandidateVerifier } from "@/features/records/rejecting-address-candidate-verifier";
+import type { RecordFileAttacher } from "@/features/records/record-file-attacher";
+import { RecordFileAttachmentService } from "@/features/records/record-file-attachment.service";
+import { PrismaRecordFileRepo } from "@/features/records/prisma-record-file.repository";
+import type { RecordFileIndexDispatcher } from "@/features/records/record-file-index-dispatcher";
+import { NoopRecordFileIndexDispatcher } from "@/features/records/noop-record-file-index-dispatcher";
 import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
 import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
 import { PrismaWebhookDeliveryRepo } from "@/features/webhook/prisma-webhook-delivery.repository";
@@ -527,7 +537,23 @@ export const getRecordTrashService = (records: RecordRepo = getRecordRepo()) =>
 export const getPreviewCalculationInteractor = () =>
   new PreviewCalculationInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordCalculationService());
 export const getRecordWriteService = (records: RecordRepo = getRecordRepo()) =>
-  new RecordWriteService(records, getRecordAccessPolicy(), getRecordCalculationService(records));
+  new RecordWriteService(
+    records,
+    getRecordAccessPolicy(),
+    getRecordCalculationService(records),
+    getAddressCandidateVerifier(),
+    getRecordFileAttacher(),
+  );
+export const getAddressCandidateVerifier = (): AddressCandidateVerifier => new RejectingAddressCandidateVerifier();
+export const getRecordFileRepo = () => new PrismaRecordFileRepo();
+export const getRecordFileAttacher = (): RecordFileAttacher => new RecordFileAttachmentService(getRecordFileRepo());
+export const getRecordFileIndexDispatcher = (): RecordFileIndexDispatcher => new NoopRecordFileIndexDispatcher();
+export const getFileContentRepo = () => new PrismaFileContentRepo();
+export const getDatabaseFileStorageDriver = () => new DatabaseFileStorageDriver(getFileContentRepo(), env.BASE_URL);
+export const getFileStorageDriver = (): FileStorageDriver => {
+  if (env.FILE_STORAGE_DRIVER === "database") return getDatabaseFileStorageDriver();
+  throw new Error(`The ${env.FILE_STORAGE_DRIVER} file storage driver is not available in this build`);
+};
 export const getRecordConfigurationService = (records: RecordRepo = getRecordRepo()) =>
   new RecordConfigurationService(records);
 export const getRecordConfigurationWriter = (records: RecordRepo = getRecordRepo(), companyId?: string) =>

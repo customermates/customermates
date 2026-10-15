@@ -1138,11 +1138,13 @@
       "passwordMismatch": "Passwörter müssen übereinstimmen.",
       "permissionDenied": "Diese Aktion ist mit deinen aktuellen Berechtigungen nicht verfügbar.",
       "privacyAcknowledgementRequired": "Bitte bestätigen Sie, dass Sie die Datenschutzerklärung gelesen haben.",
+      "recordAddressCandidateInvalid": "Dieser Adressvorschlag ist nicht mehr gültig. Suche die Adresse erneut.",
       "recordCalculationBudget": "Diese Änderung erfordert eine Neuberechnung im Hintergrund.",
       "recordConfigurationInvalid": "Prüfe die Felder und Verknüpfungen dieser Konfiguration.",
       "recordDateInvalid": "Gib ein gültiges Datum ein.",
       "recordDateRangeInvalid": "Gib einen gültigen Zeitraum ein, dessen Ende nicht vor dem Beginn liegt.",
       "recordDependencies": "Aktualisiere zuerst die abhängigen Felder, Ansichten, Widgets oder Zuordnungen.",
+      "recordFileUnavailable": "Eine Datei in diesem Wert ist nicht verfügbar oder gehört zu einem anderen Datensatz. Lade sie erneut hoch.",
       "recordIdempotencyConflict": "Dieser Anfrageschlüssel wurde für eine andere Änderung verwendet. Starte eine neue Anfrage.",
       "recordIdUnavailable": "Diese Datensatz-ID gehörte bereits zu einem früheren Datensatz. Importiere den Datensatz mit einer neuen ID.",
       "recordMarkedTextChanged": "Markierter formatierter Text lässt sich nur unverändert aus dem gespeicherten Datensatz importieren; senden Sie neuen oder geänderten formatierten Text als richText-Wert mit documentJson.",
@@ -2026,6 +2028,7 @@
         "ambiguousRecord": "Mehrere Datensätze heißen „{value}“.",
         "currencyMismatch": "„{value}“ nutzt eine andere Währung als dieses Feld.",
         "duplicateMatch": "Eine andere Zeile aktualisiert bereits denselben Datensatz.",
+        "fileNotImportable": "Dateien lassen sich nicht aus einer Tabelle importieren. Lade sie stattdessen im Datensatz hoch.",
         "invalidBoolean": "„{value}“ ist weder Ja noch Nein.",
         "invalidDate": "„{value}“ ist kein Datum.",
         "invalidEmail": "„{value}“ ist keine E-Mail-Adresse.",
@@ -3219,6 +3222,15 @@
     "addPathStep": "Beziehungsschritt hinzufügen",
     "addProperty": "Eigenschaft hinzufügen",
     "addRelationship": "Beziehung hinzufügen",
+    "addressParts": {
+      "city": "Ort",
+      "country": "Land",
+      "line2": "Adresszeile 2",
+      "postalCode": "Postleitzahl",
+      "region": "Bundesland oder Region",
+      "street": "Straße und Hausnummer"
+    },
+    "addressUnverified": "Unbestätigt",
     "addValue": "{field} hinzufügen",
     "aggregation": "Zusammenfassung",
     "assignedTo": "Zugewiesen an",
@@ -3373,6 +3385,10 @@
     "chooseOption": "Wähle eine der Optionen des Felds.",
     "clickAction": "Beim Klicken",
     "clickActions": {
+      "address": {
+        "copy": "Adresse kopieren",
+        "open": "In Karten öffnen"
+      },
       "channels": {
         "copy": "Kopieren",
         "open": "E-Mail, Anruf oder Profil öffnen"
@@ -3491,6 +3507,8 @@
     "fieldTabs": {
       "calculation": "Berechnung"
     },
+    "fileUnavailable": "Nicht verfügbare Datei",
+    "fileUploadUnavailable": "Datei-Uploads sind noch nicht verfügbar.",
     "general": "Allgemein",
     "graph": {
       "accountEdge": "Synchronisiert Unterhaltungen in {list}",
@@ -3796,9 +3814,12 @@
     "triggerField": "Wenn sich dieses Feld ändert",
     "triggerValue": "Auf diesen Wert",
     "typeHints": {
+      "address": "Postanschriften mit Land",
+      "file": "Dokumente, Bilder, Verträge",
       "richText": "Notizen, Beschreibungen, Zusammenfassungen"
     },
     "types": {
+      "address": "Adresse",
       "boolean": "Ja oder nein",
       "channels": "Kanäle",
       "currency": "Geldbetrag",
@@ -3807,6 +3828,7 @@
       "dateTime": "Datum und Uhrzeit",
       "dateTimeRange": "Datums- und Zeitbereich",
       "email": "E-Mail",
+      "file": "Datei",
       "member": "Mitglied",
       "multiSelect": "Mehrfachauswahl",
       "number": "Zahl",

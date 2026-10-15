@@ -297,6 +297,7 @@ export function calculableFields(
       field.id !== excludeFieldId &&
       field.valueType !== "richText" &&
       field.valueType !== "channels" &&
+      field.valueType !== "file" &&
       !(field.valueType === "select" && field.multiple) &&
       (!types || types.includes(field.valueType)),
   );

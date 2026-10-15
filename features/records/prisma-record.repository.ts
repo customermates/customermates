@@ -33,7 +33,13 @@ import type {
 } from "./record.repo";
 import { CONFIGURATION_CONSUMER_PAGE } from "./record.repo";
 import { rankBetween, recordManualOrderKey } from "./record-rank";
-import type { CalculatedValue, RecordModel, RecordRef, RecordRelationshipSummary } from "./record-model.schema";
+import type {
+  CalculatedValue,
+  RecordModel,
+  RecordRef,
+  RecordRelationshipSummary,
+  RecordFileSummary,
+} from "./record-model.schema";
 import type { RecordRelationshipSelection } from "./record-column.schema";
 import type { RecordPathSelection } from "./record-relationship-path.schema";
 import type { RecordMember, RecordPathSummary } from "./record-model.schema";
@@ -1469,6 +1475,22 @@ export class PrismaRecordRepo
     return this.owners.members.getRecordMembersCompanyWide(this.companyId, userIds);
   }
 
+  async getRecordFilesCompanyWide(fileIds: string[]): Promise<RecordFileSummary[]> {
+    if (!fileIds.length) return [];
+    const files = await this.prisma.recordFile.findMany({
+      where: { companyId: this.companyId, id: { in: [...new Set(fileIds)] } },
+      select: { id: true, name: true, mimeType: true, size: true, createdAt: true, uploadedById: true },
+    });
+    return files.map((file) => ({
+      id: file.id,
+      name: file.name,
+      mimeType: file.mimeType,
+      size: Number(file.size),
+      uploadedAt: file.createdAt.toISOString(),
+      uploadedById: file.uploadedById,
+    }));
+  }
+
   async setAssignments(ref: RecordRef, userIds: string[]): Promise<void> {
     const companyId = this.companyId;
     await this.prisma.recordAssignment.deleteMany({
@@ -2099,14 +2121,14 @@ export class PrismaRecordRepo
     await this.prisma
       .$executeRaw(Prisma.sql`INSERT INTO "RecordValue" ("companyId", "typeId", "recordId", "fieldId", state, "textValue", "decimalValue", currency, "booleanValue", "instantValue", "jsonValue", "errorCode", "schemaRevision", "createdAt", "updatedAt", "textListValue", "lexicalValue", "rangeStart", "rangeEnd")
       SELECT ${companyId}, stage.payload->'ref'->>'typeId', stage.payload->'ref'->>'recordId', stage.payload->>'fieldId', stage.payload->'result'->>'state',
-        CASE WHEN stage.payload->'result'->'value'->>'kind' IN ('text', 'select', 'member') THEN stage.payload->'result'->'value'->>'value' END,
+        CASE WHEN stage.payload->'result'->'value'->>'kind' IN ('text', 'select', 'member') THEN stage.payload->'result'->'value'->>'value' WHEN stage.payload->'result'->'value'->>'kind' = 'address' THEN stage.payload->'result'->'value'->'value'->>'formatted' END,
         CASE WHEN stage.payload->'result'->'value'->>'kind' = 'decimal' THEN (stage.payload->'result'->'value'->>'value')::numeric END,
         stage.payload->'result'->'value'->>'currency',
         CASE WHEN stage.payload->'result'->'value'->>'kind' = 'boolean' THEN (stage.payload->'result'->'value'->>'value')::boolean END,
         CASE WHEN stage.payload->'result'->'value'->>'kind' IN ('date', 'dateTime') THEN (stage.payload->'result'->'value'->>'value')::timestamptz AT TIME ZONE 'UTC' END,
-        CASE WHEN stage.payload->'result'->'value'->>'kind' = 'richText' THEN (stage.payload->'result'->'value'->>'documentJson')::jsonb WHEN stage.payload->'result'->'value'->>'kind' = 'range' THEN (stage.payload->'result'->'value') - 'kind' END,
+        CASE WHEN stage.payload->'result'->'value'->>'kind' = 'richText' THEN (stage.payload->'result'->'value'->>'documentJson')::jsonb WHEN stage.payload->'result'->'value'->>'kind' = 'range' THEN (stage.payload->'result'->'value') - 'kind' WHEN stage.payload->'result'->'value'->>'kind' = 'address' THEN stage.payload->'result'->'value'->'value' END,
         stage.payload->'result'->>'code', ${revision}, NOW(), NOW(),
-        CASE WHEN stage.payload->'result'->'value'->>'kind' IN ('textList', 'selectList') THEN ARRAY(SELECT jsonb_array_elements_text(stage.payload->'result'->'value'->'value')) ELSE ARRAY[]::text[] END,
+        CASE WHEN stage.payload->'result'->'value'->>'kind' IN ('textList', 'selectList', 'file') THEN ARRAY(SELECT jsonb_array_elements_text(stage.payload->'result'->'value'->'value')) ELSE ARRAY[]::text[] END,
         CASE WHEN stage.payload->'result'->'value'->>'kind' IN ('date', 'dateTime') THEN stage.payload->'result'->'value'->>'value' END,
         CASE WHEN stage.payload->'result'->'value'->>'kind' = 'range' THEN (stage.payload->'result'->'value'->>'start')::timestamptz AT TIME ZONE 'UTC' END,
         CASE WHEN stage.payload->'result'->'value'->>'kind' = 'range' THEN (stage.payload->'result'->'value'->>'end')::timestamptz AT TIME ZONE 'UTC' END FROM "RecordStageRow" stage JOIN "CrmRecord" record ON record."companyId" = ${companyId} AND record."typeId" = stage.payload->'ref'->>'typeId' AND record.id = stage.payload->'ref'->>'recordId' WHERE ${stage("value")}

@@ -130,7 +130,9 @@ export const RecordEditorField = observer(function RecordEditorField({
         fieldId={field.id}
         label={field.label}
         locked={restricted}
-        value={<RecordValue field={field} members={store.record.memberUsers} result={result} />}
+        value={
+          <RecordValue field={field} files={store.record.files} members={store.record.memberUsers} result={result} />
+        }
       />
     );
   }

@@ -5,6 +5,8 @@ export function recordFilterOperators(
   field: Pick<RecordField, "valueType" | "multiple">,
 ): RecordQuery["filters"][number]["operator"][] {
   if (field.valueType === "channels") return [];
+  if (field.valueType === "file") return ["empty", "notEmpty"];
+  if (field.valueType === "address") return ["contains", "startsWith", "empty", "notEmpty"];
   if (field.valueType === "richText") return ["contains", "empty", "notEmpty"];
   if (field.valueType === "select" && field.multiple) return ["in", "all", "notIn", "empty", "notEmpty"];
   if (["dateRange", "dateTimeRange"].includes(field.valueType))

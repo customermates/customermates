@@ -2,6 +2,7 @@ import type { RecordFieldView, RecordRef, RecordScalar } from "@/features/record
 import type { XlsxCell } from "./xlsx-workbook";
 
 import { normalizePhoneNumber, scalarMatchesType } from "@/features/records/record-model-validation";
+import { addressFromText } from "@/features/records/record-address-value";
 
 import { normalizeXlsxHeader } from "./xlsx-mapping";
 import { xlsxCellText } from "./xlsx-workbook";
@@ -28,7 +29,8 @@ export type XlsxIssueCode =
   | "duplicateMatch"
   | "missingMatchValue"
   | "restricted"
-  | "lookupUnavailable";
+  | "lookupUnavailable"
+  | "fileNotImportable";
 
 type XlsxParsed<T> = { ok: true; value: T } | { ok: false; code: XlsxIssueCode; value?: string };
 
@@ -294,6 +296,12 @@ export function parseXlsxFieldCell(
     }
     case "richText":
       return ok({ kind: "richText", documentJson: plainTextDocument(text) });
+    case "address": {
+      const address = addressFromText(text);
+      return ok(address && { kind: "address", value: address });
+    }
+    case "file":
+      return issue("fileNotImportable", text);
     case "text":
     case "email":
     case "phone":

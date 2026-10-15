@@ -73,7 +73,8 @@ export function focusFirstControl(event: Event) {
 
 export function canEditInline(store: RecordsStore, record: RecordRow, field: RecordFieldView) {
   if (!store.canUpdateRecord(record) || !isRecordFieldWritable(field)) return false;
-  if (field.id === store.type?.primaryFieldId || field.valueType === "richText") return false;
+  if (field.id === store.type?.primaryFieldId || field.valueType === "richText" || field.valueType === "file")
+    return false;
   const result = record.fields.find((value) => value.fieldId === field.id)?.result;
   return result?.state !== "restricted" && result?.state !== "error";
 }
@@ -190,7 +191,7 @@ function useFieldValueStore(records: RecordsStore, record: RecordRow, field: Rec
     return new RecordFieldValueStore(
       records.rootStore,
       field,
-      recordDraftValue(result?.state === "value" ? result.value : null),
+      recordDraftValue(result?.state === "value" ? result.value : null, field),
       (value) => records.updateRecordField(latestRow(records, record), field.id, value),
       onDone,
     );

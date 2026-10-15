@@ -17,6 +17,7 @@ import type {
   RecordMember,
   RecordRelationshipSummary,
   RecordPathSummary,
+  RecordFileSummary,
 } from "./record-model.schema";
 import type { RecordPathSelection } from "./record-relationship-path.schema";
 import type { RecordRelationshipSelection } from "./record-column.schema";
@@ -238,6 +239,7 @@ export interface RecordRepo {
   ): Promise<{ records: Array<{ typeId: string; count: number }>; links: number }>;
   setAssignments(ref: RecordRef, userIds: string[]): Promise<void>;
   getMembersCompanyWide(userIds: string[]): Promise<RecordMember[]>;
+  getRecordFilesCompanyWide(fileIds: string[]): Promise<RecordFileSummary[]>;
   setValue(ref: RecordRef, fieldId: string, result: CalculatedValue, revision: number): Promise<void>;
   setValueDependencies(ref: RecordRef, fieldId: string, sources: RecordRef[]): Promise<void>;
   getValueDependencies(ref: RecordRef, fieldId: string): Promise<RecordRef[]>;

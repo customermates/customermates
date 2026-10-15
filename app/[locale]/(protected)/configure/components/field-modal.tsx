@@ -58,6 +58,7 @@ import {
 import { RecordInputField } from "../../records/[typeId]/components/record-input-field";
 import { recordDraftValue, recordInputValue } from "@/features/records/record-input-value";
 import {
+  CLICK_ACTION_VALUE_TYPES,
   CONTACT_VALUE_TYPES,
   MULTIPLE_VALUE_TYPES,
   calculationResultType,
@@ -169,7 +170,10 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
     return this.form.valueType === "channels";
   }
   get lockedType() {
-    return Boolean(this.original) && this.isChannels;
+    return Boolean(this.original) && (this.isChannels || this.original?.valueType === "file");
+  }
+  get canChooseFile() {
+    return !this.original || this.original.valueType === "file";
   }
   get canChooseChannels() {
     const type = this.model.types.find((candidate) => candidate.id === this.typeId);
@@ -354,7 +358,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
         field.typeId === this.typeId &&
         !field.archived &&
         !field.multiple &&
-        field.valueType !== "channels" &&
+        !["channels", "file", "address"].includes(field.valueType) &&
         field.behavior.kind === "input",
     );
   }
@@ -476,7 +480,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
           ["number", "currency"].includes(valueType) && form.decimalPlaces.trim() !== ""
             ? Number(form.decimalPlaces)
             : null,
-        onClick: CONTACT_VALUE_TYPES.includes(valueType) || valueType === "channels" ? form.onClick : null,
+        onClick: CLICK_ACTION_VALUE_TYPES.includes(valueType) ? form.onClick : null,
         ...(valueType === "channels" ? { providerAvatar: form.providerAvatar } : {}),
       },
       options:
@@ -565,12 +569,15 @@ export const FieldModal = observer(function FieldModal({
               {!store.isChannels && (
                 <FormSelect
                   id="source"
-                  items={(store.form.valueType === "select" && store.form.multiple ? ["input"] : VALUE_SOURCES).map(
-                    (value) => ({
-                      value,
-                      label: t(`RecordModel.behaviors.${value}`),
-                    }),
-                  )}
+                  items={(store.form.valueType === "file" || (store.form.valueType === "select" && store.form.multiple)
+                    ? ["input"]
+                    : store.form.valueType === "address"
+                      ? VALUE_SOURCES.filter((source) => source === "input" || source === "lookup")
+                      : VALUE_SOURCES
+                  ).map((value) => ({
+                    value,
+                    label: t(`RecordModel.behaviors.${value}`),
+                  }))}
                   label={t("RecordModel.behavior")}
                   onValueChange={(source) => store.chooseSource(source as ValueSource)}
                 />
@@ -582,7 +589,11 @@ export const FieldModal = observer(function FieldModal({
                   id="valueType"
                   items={RecordValueTypeSchema.options
                     .filter((value) =>
-                      value === "channels" ? store.isChannels || store.canChooseChannels : !store.lockedType,
+                      value === "channels"
+                        ? store.isChannels || store.canChooseChannels
+                        : value === "file"
+                          ? store.canChooseFile
+                          : !store.lockedType,
                     )
                     .flatMap((value) =>
                       value === "select"
@@ -594,7 +605,13 @@ export const FieldModal = observer(function FieldModal({
                             {
                               value,
                               label: t(`RecordModel.types.${value}`),
-                              ...(value === "richText" ? { description: t("RecordModel.typeHints.richText") } : {}),
+                              ...(value === "richText"
+                                ? { description: t("RecordModel.typeHints.richText") }
+                                : value === "file"
+                                  ? { description: t("RecordModel.typeHints.file") }
+                                  : value === "address"
+                                    ? { description: t("RecordModel.typeHints.address") }
+                                    : {}),
                             },
                           ],
                     )}
@@ -621,7 +638,7 @@ export const FieldModal = observer(function FieldModal({
               <FormAutocompleteCurrency required id="currency" label={t("RecordModel.currency")} />
             )}
 
-            {(CONTACT_VALUE_TYPES.includes(store.valueType) || store.isChannels) && (
+            {CLICK_ACTION_VALUE_TYPES.includes(store.valueType) && (
               <FormSelect
                 id="onClick"
                 items={(["open", "copy"] as const).map((value) => ({
@@ -645,7 +662,7 @@ export const FieldModal = observer(function FieldModal({
               />
             )}
 
-            {!store.isCalculated && !store.isChannels && (
+            {!store.isCalculated && !store.isChannels && !["file", "address"].includes(store.valueType) && (
               <div className="space-y-3">
                 <FormSwitch id="hasDefaultValue" label={t("RecordModel.setDefaultValue")} />
 
@@ -661,7 +678,7 @@ export const FieldModal = observer(function FieldModal({
 
             {!store.isChannels && <FormSwitch id="required" label={t("RecordModel.required")} />}
 
-            {!store.isCalculated && ["text", "email", "phone", "url"].includes(store.form.valueType) && (
+            {!store.isCalculated && ["text", "email", "phone", "url", "file"].includes(store.form.valueType) && (
               <FormSwitch id="multiple" label={t("RecordModel.multipleValues")} />
             )}
           </>

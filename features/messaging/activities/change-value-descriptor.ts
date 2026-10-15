@@ -186,6 +186,10 @@ export function recordValueDescriptor(
   if (!side || side.value.state === "missing") return EMPTY;
   if (side.value.state === "value" && side.value.value.kind === "member")
     return { kind: "members", members: [memberOrFormer(side.value.value.value, members, formerMember)] };
+  if (side.value.state === "value" && side.value.value.kind === "file") {
+    const files = side.files ?? [];
+    return choices(side.value.value.value, (id) => files.find((file) => file.id === id)?.name ?? id);
+  }
   if (side.value.state === "value" && side.value.value.kind === "richText") {
     let markdown = "";
     try {

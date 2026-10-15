@@ -190,7 +190,13 @@ export const RecordPropertyChipView = observer(function RecordPropertyChipView({
         <FieldTooltip label={field.label}>
           {icon}
 
-          <RecordValue field={field} members={record.memberUsers} overflowMenu={false} result={result} />
+          <RecordValue
+            field={field}
+            files={record.files}
+            members={record.memberUsers}
+            overflowMenu={false}
+            result={result}
+          />
         </FieldTooltip>
       );
     }
@@ -211,7 +217,7 @@ export const RecordPropertyChipView = observer(function RecordPropertyChipView({
         }
       >
         <ChipLabel name={name}>
-          <RecordValue compact field={field} members={record.memberUsers} result={result} />
+          <RecordValue compact field={field} files={record.files} members={record.memberUsers} result={result} />
         </ChipLabel>
       </AppChip>
     );

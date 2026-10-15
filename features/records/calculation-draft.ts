@@ -45,6 +45,7 @@ function hasUnsetInput(expression: CalculationExpression): boolean {
 }
 
 function offersField(field: RecordModelView["fields"][number], fieldId: string | undefined, model: RecordModelView) {
+  if (field.valueType === "file") return false;
   if (!fieldId) return true;
   if (field.id === fieldId) return false;
   const inner = field.behavior.kind !== "input" ? field.behavior.expression : undefined;

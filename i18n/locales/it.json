@@ -1138,11 +1138,13 @@
       "passwordMismatch": "Le password devono coincidere.",
       "permissionDenied": "Questa azione non è disponibile con le tue autorizzazioni attuali.",
       "privacyAcknowledgementRequired": "Conferma di aver letto l’Informativa sulla privacy.",
+      "recordAddressCandidateInvalid": "Questo suggerimento di indirizzo non è più valido. Cerca di nuovo l'indirizzo.",
       "recordCalculationBudget": "Questa modifica richiede un ricalcolo in background.",
       "recordConfigurationInvalid": "Controlla i campi e le relazioni di questa configurazione.",
       "recordDateInvalid": "Inserisci una data valida.",
       "recordDateRangeInvalid": "Inserisci un intervallo valido la cui fine non preceda l’inizio.",
       "recordDependencies": "Aggiorna prima i campi, le viste, i widget o le associazioni dipendenti.",
+      "recordFileUnavailable": "Un file di questo valore non è disponibile o appartiene a un altro record. Caricalo di nuovo.",
       "recordIdempotencyConflict": "Questa chiave di richiesta è stata usata per un’altra modifica. Crea una nuova richiesta.",
       "recordIdUnavailable": "Questo ID apparteneva già a un record precedente. Importa il record con un nuovo ID.",
       "recordMarkedTextChanged": "Il testo formattato contrassegnato può essere importato solo invariato dal record salvato; invia il testo formattato nuovo o modificato come valore richText con documentJson.",
@@ -2026,6 +2028,7 @@
         "ambiguousRecord": "Più record si chiamano «{value}».",
         "currencyMismatch": "«{value}» usa una valuta diversa da quella del campo.",
         "duplicateMatch": "Un'altra riga aggiorna già lo stesso record.",
+        "fileNotImportable": "I file non si possono importare da un foglio di calcolo. Caricali invece nel record.",
         "invalidBoolean": "«{value}» non è né sì né no.",
         "invalidDate": "«{value}» non è una data.",
         "invalidEmail": "«{value}» non è un indirizzo email.",
@@ -3219,6 +3222,15 @@
     "addPathStep": "Aggiungi un passaggio di relazione",
     "addProperty": "Aggiungi proprietà",
     "addRelationship": "Aggiungi relazione",
+    "addressParts": {
+      "city": "Città",
+      "country": "Paese",
+      "line2": "Riga indirizzo 2",
+      "postalCode": "CAP",
+      "region": "Stato o regione",
+      "street": "Via e numero civico"
+    },
+    "addressUnverified": "Non verificato",
     "addValue": "Aggiungi {field}",
     "aggregation": "Aggregazione",
     "assignedTo": "Assegnato a",
@@ -3373,6 +3385,10 @@
     "chooseOption": "Scegli una delle opzioni del campo.",
     "clickAction": "Al clic",
     "clickActions": {
+      "address": {
+        "copy": "Copia indirizzo",
+        "open": "Apri nelle mappe"
+      },
       "channels": {
         "copy": "Copia",
         "open": "Apri e-mail, chiamata o profilo"
@@ -3491,6 +3507,8 @@
     "fieldTabs": {
       "calculation": "Calcolo"
     },
+    "fileUnavailable": "File non disponibile",
+    "fileUploadUnavailable": "Il caricamento dei file non è ancora disponibile.",
     "general": "Generale",
     "graph": {
       "accountEdge": "Sincronizza le conversazioni in {list}",
@@ -3796,9 +3814,12 @@
     "triggerField": "Quando questo campo cambia",
     "triggerValue": "A questo valore",
     "typeHints": {
+      "address": "Indirizzi postali con paese",
+      "file": "Documenti, immagini, contratti",
       "richText": "Note, descrizioni, riepiloghi"
     },
     "types": {
+      "address": "Indirizzo",
       "boolean": "Sì o no",
       "channels": "Canali",
       "currency": "Importo",
@@ -3807,6 +3828,7 @@
       "dateTime": "Data e ora",
       "dateTimeRange": "Intervallo di date e ore",
       "email": "Email",
+      "file": "File",
       "member": "Membro",
       "multiSelect": "Scelta multipla",
       "number": "Numero",

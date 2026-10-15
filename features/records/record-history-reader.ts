@@ -65,6 +65,7 @@ export class RecordHistoryReader {
         format: value.format,
         options: value.options,
         value: readable ? value.value : { state: "restricted" as const },
+        ...(readable && value.files ? { files: value.files } : {}),
       };
     };
     return {

@@ -62,7 +62,7 @@ const ACTIVITY_EVENTS = [
 ];
 const DOMAIN_EVENT_KEYS = ACTIVITY_EVENTS.map((event) => `Common.events.${event}`);
 const LEGACY_EVENT_KEYS = LEGACY_DOMAIN_EVENTS.map((event) => `Common.legacyEvents.${event}`);
-const CLICK_ACTION_KEYS = ["email", "phone", "url", "channels"].flatMap((kind) =>
+const CLICK_ACTION_KEYS = ["email", "phone", "url", "channels", "address"].flatMap((kind) =>
   ["open", "copy"].map((action) => `RecordModel.clickActions.${kind}.${action}`),
 );
 const RECORD_VALUE_TYPE_KEYS = [...RecordValueTypeSchema.options, "multiSelect"].map(

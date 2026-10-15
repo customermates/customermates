@@ -13,6 +13,8 @@ import {
   Globe,
   Hash,
   Mail,
+  MapPin,
+  Paperclip,
   Phone,
   Type,
   UserRound,
@@ -36,6 +38,8 @@ const VALUE_TYPE_ICONS: Record<RecordValueType, LucideIcon> = {
   url: Globe,
   member: UserRound,
   channels: AtSign,
+  file: Paperclip,
+  address: MapPin,
 };
 
 function recordValueTypeIcon(valueType: RecordValueType): LucideIcon {

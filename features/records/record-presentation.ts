@@ -59,6 +59,7 @@ export function recordColumnPresentation(field: RecordFieldView): ColumnPresenta
     };
   }
   if (field.valueType === "member" || field.valueType === "boolean") return { ...base, type: field.valueType };
+  if (field.valueType === "file" || field.valueType === "address") return { ...base, type: field.valueType };
   if (field.valueType === "number" || field.valueType === "currency") return { ...base, type: "number" };
   if (["date", "dateTime", "dateRange", "dateTimeRange"].includes(field.valueType)) {
     return {

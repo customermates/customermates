@@ -67,7 +67,10 @@ export function invalidRecordQueryPart(
       continue;
     }
     if (["contains", "startsWith"].includes(filter.operator)) {
-      if (filter.value?.kind !== "text" || !["text", "email", "phone", "url", "richText"].includes(field.valueType))
+      if (
+        filter.value?.kind !== "text" ||
+        !["text", "email", "phone", "url", "richText", "address"].includes(field.valueType)
+      )
         return "filters";
       continue;
     }
@@ -174,7 +177,7 @@ export function keepValidQueryParts<T extends Partial<QueryParts> & { typeId: st
 
 export function isRecordSortField(field: Pick<RecordField, "multiple" | "valueType">): boolean {
   return (
-    !["richText", "dateRange", "dateTimeRange", "channels"].includes(field.valueType) &&
+    !["richText", "dateRange", "dateTimeRange", "channels", "file"].includes(field.valueType) &&
     !(field.valueType === "select" && field.multiple)
   );
 }

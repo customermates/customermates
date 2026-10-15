@@ -30,6 +30,8 @@ const { createTestRecordRepo } = await import("@/tests/helpers/record-repository
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
 
+const FILE_IDS = [randomUUID(), randomUUID()];
+
 const CASES: Array<[string, CalculatedValue]> = [
   ["text", { state: "value", value: { kind: "text", value: "Ünïcode ✓" } }],
   ["select", { state: "value", value: { kind: "select", value: "option-1" } }],
@@ -57,6 +59,27 @@ const CASES: Array<[string, CalculatedValue]> = [
   ],
   ["open range", { state: "value", value: { kind: "range", start: null, end: "2025-01-01T00:00:00-08:00" } }],
   ["richText", { state: "value", value: { kind: "richText", documentJson: '{"root":{"children":[],"type":"root"}}' } }],
+  ["file", { state: "value", value: { kind: "file", value: [FILE_IDS[1], FILE_IDS[0]] } }],
+  [
+    "address",
+    {
+      state: "value",
+      value: {
+        kind: "address",
+        value: {
+          street: "Hauptstraße 5",
+          line2: null,
+          postalCode: "68159",
+          city: "Mannheim",
+          region: null,
+          countryCode: "de",
+          formatted: "Hauptstraße 5, 68159 Mannheim",
+          location: { lat: 49.4875, lon: 8.466 },
+          verification: { status: "verified", provider: "photon", checkedAt: "2026-10-14T12:00:00.000Z" },
+        },
+      },
+    },
+  ],
   ["error", { state: "error", code: "currency_mismatch" }],
   ["missing", { state: "missing" }],
 ];
@@ -158,6 +181,10 @@ describeDatabase("record value encoders", () => {
         rangeEnd: "2024-03-31 03:30:00",
       });
       if (timeZone === "UTC") expect(await stored("date")).toMatchObject({ instantValue: "2024-02-29 00:00:00" });
+      expect(await stored("file")).toMatchObject({ textListValue: `{${FILE_IDS[1]},${FILE_IDS[0]}}`, jsonValue: null });
+      const address = await stored("address");
+      expect(address).toMatchObject({ textValue: "Hauptstraße 5, 68159 Mannheim" });
+      expect(JSON.parse(String(address.jsonValue))).toMatchObject({ countryCode: "de", location: { lat: 49.4875 } });
     }
   });
 });

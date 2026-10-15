@@ -235,6 +235,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
                 : !record && field.behavior.kind === "input"
                   ? (seed[field.id] ?? field.behavior.defaultValue ?? null)
                   : null,
+              field,
             ),
           ];
         }),

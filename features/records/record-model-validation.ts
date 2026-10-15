@@ -30,8 +30,9 @@ export type ModelIssue = {
   examples?: string[];
 };
 
-export const MULTIPLE_VALUE_TYPES: readonly RecordValueType[] = ["text", "email", "phone", "url", "select"];
+export const MULTIPLE_VALUE_TYPES: readonly RecordValueType[] = ["text", "email", "phone", "url", "select", "file"];
 export const CONTACT_VALUE_TYPES: readonly RecordValueType[] = ["email", "phone", "url"];
+export const CLICK_ACTION_VALUE_TYPES: readonly RecordValueType[] = [...CONTACT_VALUE_TYPES, "address", "channels"];
 
 export function selectedOptionIds(value: RecordScalar | null): string[] {
   if (!value) return [];
@@ -41,6 +42,7 @@ export function selectedOptionIds(value: RecordScalar | null): string[] {
 }
 
 export function scalarMatchesType(value: RecordScalar, type: RecordValueType, multiple = false): boolean {
+  if (type === "file") return value.kind === "file" && (multiple || value.value.length === 1);
   if (multiple && type === "select") return value.kind === "selectList";
   if (multiple) {
     return (
@@ -174,12 +176,14 @@ function inferExpressionType(
   };
   const expressionType = (child: CalculationExpression, childTypeId: string) =>
     inferExpressionType(child, childTypeId, fields, relations, report);
-  if (expression.kind === "literal") return primitiveType(expression.value);
+  if (expression.kind === "literal")
+    return expression.value?.kind === "file" ? invalid("file_not_calculable") : primitiveType(expression.value);
   if (expression.kind === "field" || expression.kind === "optionAttribute") {
     const field = fields.get(expression.fieldId);
     if (!field || field.archived || field.typeId !== typeId) return invalid("invalid_field_reference");
     if (field.valueType === "select" && field.multiple) return invalid("multiple_choice_not_calculable");
     if (field.valueType === "channels") return invalid("channels_not_calculable");
+    if (field.valueType === "file") return invalid("file_not_calculable");
     if (expression.kind === "field") return normalizeType(field.valueType);
     if (field.valueType !== "select") return invalid("option_attribute_requires_select");
     const attributeTypes = new Set(
@@ -204,6 +208,7 @@ function inferExpressionType(
     if (expression.reducer === "count") return "number";
     if (["sum", "average"].includes(expression.reducer) && result && !["number", "currency"].includes(result))
       return invalid("numeric_aggregation_required");
+    if (result === "address" && expression.reducer !== "one") return invalid("address_not_calculable");
     return result;
   }
   const args = expression.arguments.map((argument) => expressionType(argument, typeId));
@@ -217,6 +222,8 @@ function inferExpressionType(
           ? null
           : 2;
   if ((required !== null && args.length !== required) || args.length === 0) return invalid("invalid_argument_count");
+  if (args.includes("address") && operator !== "if" && operator !== "coalesce")
+    return invalid("address_not_calculable");
   if (operator === "if") {
     if (args[0] !== "boolean" || (args[1] && args[2] && args[1] !== args[2]))
       return invalid("conditional_type_mismatch");
@@ -402,8 +409,21 @@ export function validateRecordModel(model: RecordModel): {
       issues.push({ code: "duplicate_option_id", fieldId: field.id });
     if (field.valueType === "currency" && !field.format?.currency)
       issues.push({ code: "missing_currency", fieldId: field.id });
-    if (field.format?.onClick && !CONTACT_VALUE_TYPES.includes(field.valueType) && field.valueType !== "channels")
+    if (field.format?.onClick && !CLICK_ACTION_VALUE_TYPES.includes(field.valueType))
       issues.push({ code: "invalid_click_action", fieldId: field.id });
+    if (
+      field.valueType === "file" &&
+      (field.behavior.kind !== "input" || field.behavior.defaultValue || field.options.length)
+    )
+      issues.push({ code: "invalid_file_field", fieldId: field.id });
+    if (
+      field.valueType === "address" &&
+      ((field.behavior.kind === "input" && field.behavior.defaultValue) ||
+        field.behavior.kind === "formula" ||
+        field.behavior.kind === "rollup" ||
+        field.options.length)
+    )
+      issues.push({ code: "invalid_address_field", fieldId: field.id });
     if (field.format?.providerAvatar !== undefined && field.valueType !== "channels")
       issues.push({ code: "invalid_provider_avatar", fieldId: field.id });
     if (field.valueType === "channels") {
@@ -442,6 +462,8 @@ export function validateRecordModel(model: RecordModel): {
         trigger.archived ||
         trigger.behavior.kind !== "input" ||
         trigger.multiple ||
+        trigger.valueType === "file" ||
+        trigger.valueType === "address" ||
         !field.behavior.triggerValue ||
         !scalarMatchesType(field.behavior.triggerValue, trigger.valueType)
       )

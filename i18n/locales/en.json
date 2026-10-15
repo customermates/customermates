@@ -1138,11 +1138,13 @@
       "passwordMismatch": "Passwords must match.",
       "permissionDenied": "This action is not available with your current permissions.",
       "privacyAcknowledgementRequired": "Please confirm that you have read the Privacy Policy.",
+      "recordAddressCandidateInvalid": "This address suggestion is no longer valid. Look up the address again.",
       "recordCalculationBudget": "This change requires a background recalculation.",
       "recordConfigurationInvalid": "Review the fields and relationships in this configuration.",
       "recordDateInvalid": "Enter a valid date.",
       "recordDateRangeInvalid": "Enter a valid range whose end is not before its start.",
       "recordDependencies": "Update the dependent fields, views, widgets, or bindings first.",
+      "recordFileUnavailable": "A file in this value is unavailable or belongs to another record. Upload it again.",
       "recordIdempotencyConflict": "This request key was used for another change. Start a new request.",
       "recordIdUnavailable": "This record ID belongs to an earlier record. Import the record with a new ID.",
       "recordMarkedTextChanged": "Marked Formatted text can only be imported unchanged from the stored record; send new or changed Formatted text as a richText value with documentJson.",
@@ -2026,6 +2028,7 @@
         "ambiguousRecord": "Several records are named “{value}”.",
         "currencyMismatch": "“{value}” uses a different currency than this field.",
         "duplicateMatch": "Another row already updates the same record.",
+        "fileNotImportable": "Files can't be imported from a spreadsheet. Upload them on the record instead.",
         "invalidBoolean": "“{value}” is not yes or no.",
         "invalidDate": "“{value}” is not a date.",
         "invalidEmail": "“{value}” is not an email address.",
@@ -3219,6 +3222,15 @@
     "addPathStep": "Add a relationship step",
     "addProperty": "Add property",
     "addRelationship": "Add relationship",
+    "addressParts": {
+      "city": "City",
+      "country": "Country",
+      "line2": "Address line 2",
+      "postalCode": "Postal code",
+      "region": "State or region",
+      "street": "Street and number"
+    },
+    "addressUnverified": "Unverified",
     "addValue": "Add {field}",
     "aggregation": "Aggregation",
     "assignedTo": "Assigned to",
@@ -3373,6 +3385,10 @@
     "chooseOption": "Choose one of the field's options.",
     "clickAction": "On click",
     "clickActions": {
+      "address": {
+        "copy": "Copy address",
+        "open": "Open in maps"
+      },
       "channels": {
         "copy": "Copy",
         "open": "Open email, call or profile"
@@ -3491,6 +3507,8 @@
     "fieldTabs": {
       "calculation": "Calculation"
     },
+    "fileUnavailable": "Unavailable file",
+    "fileUploadUnavailable": "File uploads are not available yet.",
     "general": "General",
     "graph": {
       "accountEdge": "Syncs conversations into {list}",
@@ -3796,9 +3814,12 @@
     "triggerField": "When this field changes",
     "triggerValue": "To this value",
     "typeHints": {
+      "address": "Postal addresses with country",
+      "file": "Documents, images, contracts",
       "richText": "Notes, descriptions, summaries"
     },
     "types": {
+      "address": "Address",
       "boolean": "Yes or no",
       "channels": "Channels",
       "currency": "Money",
@@ -3807,6 +3828,7 @@
       "dateTime": "Date and time",
       "dateTimeRange": "Date and time range",
       "email": "Email",
+      "file": "File",
       "member": "Member",
       "multiSelect": "Multiple choice",
       "number": "Number",

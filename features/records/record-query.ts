@@ -125,7 +125,7 @@ export function fieldReadPredicate(
 const RICH_TEXT_NODES = Prisma.sql`jsonb_path_query(value."jsonValue", 'strict $.**.text') node(text)`;
 
 function storageColumn(field: RecordField): Prisma.Sql {
-  if (field.multiple) return Prisma.sql`array_to_string(value."textListValue", ',')`;
+  if (field.multiple || field.valueType === "file") return Prisma.sql`array_to_string(value."textListValue", ',')`;
   if (["number", "currency"].includes(field.valueType)) return Prisma.sql`value."decimalValue"`;
   if (["date", "dateTime"].includes(field.valueType)) return Prisma.sql`value."instantValue"`;
   if (field.valueType === "boolean") return Prisma.sql`value."booleanValue"`;
@@ -145,7 +145,9 @@ function scalarParameter(value: RecordScalar): Prisma.Sql {
       throw new Error("Collection filters must use an element value");
     case "range":
     case "richText":
-      throw new Error("Range and document query values must be rejected before compilation");
+    case "file":
+    case "address":
+      throw new Error("Range, document, file and address query values must be rejected before compilation");
     default:
       return Prisma.sql`${value.value}`;
   }
@@ -228,7 +230,7 @@ export function compileRecordQuery(
   let searchSource = Prisma.empty;
   if (query.search) {
     const searchable = [...fields.values()].filter((field) =>
-      ["text", "email", "phone", "url"].includes(field.valueType),
+      ["text", "email", "phone", "url", "address"].includes(field.valueType),
     );
     const search = `%${query.search.replace(/[\\%_]/g, "\\$&")}%`;
     const matches: Prisma.Sql[] = [];
@@ -269,6 +271,17 @@ export function compileRecordQuery(
     if (z.uuid().safeParse(query.search).success) {
       matches.push(Prisma.sql`SELECT id FROM "CrmRecord"
         WHERE "companyId" = ${companyId} AND "typeId" = ${query.typeId} AND id = ${query.search}`);
+    }
+    const fileFields = [...fields.values()].filter((field) => field.valueType === "file");
+    if (fileFields.length) {
+      const permitted = fileFields.map(
+        (field) =>
+          Prisma.sql`(value."fieldId" = ${field.id} AND ${fieldReadPredicate(companyId, field, model, access, searchRecord)})`,
+      );
+      matches.push(Prisma.sql`SELECT value."recordId" AS id FROM "RecordFile" value
+        ${searchRecordSource}
+        WHERE value."companyId" = ${companyId} AND value."typeId" = ${query.typeId} AND value.status = 'ready'
+          AND value.name ILIKE ${search} AND (${Prisma.join(permitted, " OR ")})`);
     }
     const richTextFields = [...fields.values()].filter((field) => field.valueType === "richText");
     if (richTextFields.length) {
@@ -478,7 +491,7 @@ export function compileRecordQuery(
     }
     const field = fields.get(sort.fieldId);
     if (!field) throw new Error("Sort field must be validated before compilation");
-    const collation = ["text", "email", "phone", "url", "select", "member"].includes(field.valueType)
+    const collation = ["text", "email", "phone", "url", "select", "member", "address"].includes(field.valueType)
       ? Prisma.sql`COLLATE ${recordCollation(query.locale)}`
       : Prisma.empty;
     const visibleMember =

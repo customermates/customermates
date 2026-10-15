@@ -12,9 +12,13 @@ import type {
   RecordModel,
   RecordRef,
   RecordScalar,
+  RecordScalarInput,
+  RecordAddress,
   RecordField,
   RecordFieldUpdate,
 } from "./record-model.schema";
+import type { AddressCandidateVerifier } from "./address-candidate-verifier";
+import type { RecordFileAttacher } from "./record-file-attacher";
 import type { RecordMutation } from "./record-query.schema";
 import type { InteractorFailureKind } from "@/core/validation/validation.utils";
 
@@ -32,6 +36,9 @@ import { identityKeys, normalizedIdentity, normalizedIdentityAssociation } from 
 import { channelClass } from "@/ee/messaging/provider";
 import { canonicalRecordJson, compareRecordKey } from "./record-json";
 import { recordTrashLabel } from "./record-trash-label";
+import { RejectingAddressCandidateVerifier } from "./rejecting-address-candidate-verifier";
+import { sameAddressParts, unverifiedRecordAddress } from "./record-address";
+import { COUNTRY_CODES } from "@/constants/countries";
 
 type Policy = Awaited<ReturnType<RecordAccessPolicy["load"]>>;
 function reject(
@@ -97,6 +104,33 @@ function isAppend(update: RecordFieldUpdate): update is Extract<RecordFieldUpdat
   return "append" in update;
 }
 
+function storedFileIds(row: StoredRecord | undefined, fieldId: string): string[] {
+  const stored = row?.values.find((value) => value.fieldId === fieldId);
+  return stored?.state === "value" ? stored.textListValue : [];
+}
+
+function storedAddress(row: StoredRecord | undefined, field: RecordField): RecordAddress | null {
+  const result = decodeRecordValue(
+    row?.values.find((value) => value.fieldId === field.id),
+    field,
+  );
+  return result.state === "value" && result.value.kind === "address" ? result.value.value : null;
+}
+
+function addressInput(
+  input: RecordScalar | null,
+  stored: RecordAddress | null,
+  path: Array<string | number>,
+): RecordScalar | null {
+  if (input?.kind !== "address") return input;
+  const countryCode = input.value.countryCode;
+  if (countryCode && !COUNTRY_CODES.some((code) => code === countryCode))
+    reject(CustomErrorCode.recordValueTypeMismatch, "validation", path);
+  const address = unverifiedRecordAddress(input.value);
+  if (!address) return null;
+  return { kind: "address", value: stored && sameAddressParts(stored, address) ? stored : address };
+}
+
 function storedMemberIds(row: StoredRecord | null, fieldId: string): string[] {
   const stored = row?.values.find((value) => value.fieldId === fieldId);
   return stored?.state === "value" && stored.textValue ? [stored.textValue] : [];
@@ -156,10 +190,30 @@ export class RecordWriteService {
     private records: RecordRepo,
     private policy: RecordAccessPolicy,
     private calculations: RecordCalculationService,
+    private addresses: AddressCandidateVerifier = new RejectingAddressCandidateVerifier(),
+    private files?: RecordFileAttacher,
   ) {}
 
   withRepository(records: RecordRepo): RecordWriteService {
-    return new RecordWriteService(records, this.policy, this.calculations.withRepository(records));
+    return new RecordWriteService(
+      records,
+      this.policy,
+      this.calculations.withRepository(records),
+      this.addresses,
+      this.files,
+    );
+  }
+
+  private async verifiedInput(
+    input: RecordScalarInput | null,
+    path: Array<string | number>,
+  ): Promise<{ value: RecordScalar | null; verified: boolean }> {
+    if (!input || input.kind !== "address") return { value: input, verified: false };
+    if (!input.candidateToken)
+      return { value: { kind: "address", value: recordInvariant(input.value) }, verified: false };
+    const address = await this.addresses.verify(input.candidateToken);
+    if (!address) reject(CustomErrorCode.recordAddressCandidateInvalid, "validation", path);
+    return { value: { kind: "address", value: address }, verified: true };
   }
 
   async recalculateWrites(
@@ -506,13 +560,19 @@ export class RecordWriteService {
     };
     const assignFields = async (
       ref: RecordRef,
-      assignments: Array<{ fieldId: string; value: RecordScalar | null }>,
+      assignments: Array<{ fieldId: string; value: RecordScalarInput | null }>,
       create: boolean,
       existing?: StoredRecord,
     ) => {
       if (new Set(assignments.map((assignment) => assignment.fieldId)).size !== assignments.length)
         reject(CustomErrorCode.recordValueInvalid, "validation", ["fields"]);
-      const supplied = new Map(assignments.map((assignment) => [assignment.fieldId, assignment.value]));
+      const supplied = new Map<string, RecordScalar | null>();
+      const verified = new Set<string>();
+      for (const [index, assignment] of assignments.entries()) {
+        const input = await this.verifiedInput(assignment.value, ["mutation", "fields", index, "value"]);
+        supplied.set(assignment.fieldId, input.value);
+        if (input.verified) verified.add(assignment.fieldId);
+      }
       for (const [fieldId] of supplied) {
         const field = fields.get(fieldId);
         if (!field || field.typeId !== ref.typeId || field.valueType === "channels")
@@ -533,12 +593,13 @@ export class RecordWriteService {
         if (!create && !supplied.has(field.id)) continue;
         const index = assignments.findIndex((assignment) => assignment.fieldId === field.id);
         const path = index < 0 ? ["mutation", "fields"] : ["mutation", "fields", index, "value"];
+        const input = supplied.has(field.id)
+          ? (supplied.get(field.id) ?? null)
+          : field.behavior.kind === "input"
+            ? (field.behavior.defaultValue ?? null)
+            : null;
         const value = normalizeRecordScalar(
-          supplied.has(field.id)
-            ? (supplied.get(field.id) ?? null)
-            : field.behavior.kind === "input"
-              ? (field.behavior.defaultValue ?? null)
-              : null,
+          verified.has(field.id) ? input : addressInput(input, storedAddress(existing, field), path),
           field,
           path,
         );
@@ -555,6 +616,16 @@ export class RecordWriteService {
         )
           continue;
         if (value?.kind === "member") await this.requireAssignable(policy, [value.value], path);
+        if (field.valueType === "file") {
+          if (!this.files) throw new Error("File values need a file attacher");
+          const attached = await this.files.attach({
+            ref,
+            fieldId: field.id,
+            fileIds: value?.kind === "file" ? value.value : [],
+            previousFileIds: storedFileIds(existing, field.id),
+          });
+          if (!attached) reject(CustomErrorCode.recordFileUnavailable, "validation", path);
+        }
         await this.records.setValue(ref, field.id, next, model.revision);
         await this.records.setValueDependencies(ref, field.id, []);
         changedFields.add(field.id);

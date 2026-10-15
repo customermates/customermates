@@ -11,6 +11,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { canonicalRecordJson, compareRecordKey } from "./record-json";
 import { RecordDateTimeSchema } from "./record-model.schema";
 import { normalizeRecordInput, scalarMatchesType } from "./record-model-validation";
+import { addressFromText } from "./record-address-value";
 
 const EXAMPLE_LENGTH = 40;
 const DECIMAL_TEXT = /^[+-]?\d+(?:\.\d+)?$/;
@@ -108,6 +109,8 @@ function scalarText(scalar: RecordScalar, before: RecordField): string | null {
       return optionLabel(scalar.value, before);
     case "selectList":
       return scalar.value.map((id) => optionLabel(id, before)).join(", ");
+    case "address":
+      return scalar.value.formatted || null;
     default:
       return null;
   }
@@ -155,6 +158,10 @@ function convertText(text: string, field: RecordField): RecordScalar | null {
     case "url":
     case "phone":
       return { kind: "text", value: trimmed };
+    case "address": {
+      const address = addressFromText(trimmed);
+      return address && { kind: "address", value: address };
+    }
     default:
       return null;
   }

@@ -251,6 +251,7 @@ function editsInChip(store: RecordEditorStore, column: RecordChipColumn) {
     return (
       isRecordFieldWritable(column.field) &&
       column.field.valueType !== "richText" &&
+      column.field.valueType !== "file" &&
       !CONTACT_VALUE_TYPES.includes(column.field.valueType)
     );
   }

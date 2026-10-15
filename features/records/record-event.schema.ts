@@ -28,6 +28,10 @@ const RecordHistoryValueSchema = z
     format: RecordFieldSchema.shape.format,
     options: RecordFieldSchema.shape.options.default([]),
     value: CalculatedValueSchema,
+    files: z
+      .array(z.object({ id: z.uuid(), name: z.string() }).strict())
+      .optional()
+      .describe("Names of the files a file value held when the change happened."),
     sources: z.array(RecordRefSchema),
     publications: z.array(RecordHistoryPublicationSchema),
     publishedSummary: z.boolean(),
@@ -112,6 +116,7 @@ export const RecordHistoryDisplayValueSchema = RecordHistoryValueSchema.pick({
   format: true,
   options: true,
   value: true,
+  files: true,
 });
 export const RecordHistoryChangesSchema = RecordEventPayloadSchema.pick({
   ref: true,

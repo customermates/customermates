@@ -72,7 +72,10 @@ function synonymMatch(header: string, label: string): boolean {
 
 export function xlsxImportFields(model: RecordModelView, typeId: string): RecordFieldView[] {
   return model.fields
-    .filter((field) => field.typeId === typeId && !field.archived && isRecordFieldWritable(field))
+    .filter(
+      (field) =>
+        field.typeId === typeId && !field.archived && field.valueType !== "file" && isRecordFieldWritable(field),
+    )
     .sort((left, right) => left.position - right.position);
 }
 

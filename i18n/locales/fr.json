@@ -1138,11 +1138,13 @@
       "passwordMismatch": "Les mots de passe doivent correspondre.",
       "permissionDenied": "Cette action n’est pas disponible avec vos autorisations actuelles.",
       "privacyAcknowledgementRequired": "Veuillez confirmer que vous avez lu la politique de confidentialité.",
+      "recordAddressCandidateInvalid": "Cette suggestion d'adresse n'est plus valide. Recherchez à nouveau l'adresse.",
       "recordCalculationBudget": "Cette modification nécessite un recalcul en arrière-plan.",
       "recordConfigurationInvalid": "Vérifie les champs et les relations de cette configuration.",
       "recordDateInvalid": "Saisissez une date valide.",
       "recordDateRangeInvalid": "Saisissez une période valide dont la fin n’est pas antérieure au début.",
       "recordDependencies": "Mets d’abord à jour les champs, vues, widgets ou associations dépendants.",
+      "recordFileUnavailable": "Un fichier de cette valeur n'est pas disponible ou appartient à un autre enregistrement. Téléversez-le à nouveau.",
       "recordIdempotencyConflict": "Cette clé de requête a été utilisée pour une autre modification. Crée une nouvelle requête.",
       "recordIdUnavailable": "Cet identifiant appartenait déjà à un enregistrement précédent. Importe l’enregistrement avec un nouvel identifiant.",
       "recordMarkedTextChanged": "Le texte formaté marqué ne peut être importé que sans modification depuis l'enregistrement stocké ; envoyez le texte formaté nouveau ou modifié comme valeur richText avec documentJson.",
@@ -2026,6 +2028,7 @@
         "ambiguousRecord": "Plusieurs fiches s’appellent « {value} ».",
         "currencyMismatch": "« {value} » utilise une autre devise que ce champ.",
         "duplicateMatch": "Une autre ligne met déjà à jour la même fiche.",
+        "fileNotImportable": "Les fichiers ne peuvent pas être importés depuis un tableur. Téléversez-les plutôt sur l’enregistrement.",
         "invalidBoolean": "« {value} » n’est ni oui ni non.",
         "invalidDate": "« {value} » n’est pas une date.",
         "invalidEmail": "« {value} » n’est pas une adresse e-mail.",
@@ -3219,6 +3222,15 @@
     "addPathStep": "Ajouter une étape de relation",
     "addProperty": "Ajouter une propriété",
     "addRelationship": "Ajouter une relation",
+    "addressParts": {
+      "city": "Ville",
+      "country": "Pays",
+      "line2": "Ligne d’adresse 2",
+      "postalCode": "Code postal",
+      "region": "État ou région",
+      "street": "Rue et numéro"
+    },
+    "addressUnverified": "Non vérifiée",
     "addValue": "Ajouter {field}",
     "aggregation": "Agrégation",
     "assignedTo": "Attribué à",
@@ -3373,6 +3385,10 @@
     "chooseOption": "Choisissez l’une des options du champ.",
     "clickAction": "Au clic",
     "clickActions": {
+      "address": {
+        "copy": "Copier l’adresse",
+        "open": "Ouvrir dans une carte"
+      },
       "channels": {
         "copy": "Copier",
         "open": "Ouvrir l’e-mail, l’appel ou le profil"
@@ -3491,6 +3507,8 @@
     "fieldTabs": {
       "calculation": "Calcul"
     },
+    "fileUnavailable": "Fichier indisponible",
+    "fileUploadUnavailable": "Le téléversement de fichiers n’est pas encore disponible.",
     "general": "Général",
     "graph": {
       "accountEdge": "Synchronise les conversations dans {list}",
@@ -3796,9 +3814,12 @@
     "triggerField": "Quand ce champ change",
     "triggerValue": "À cette valeur",
     "typeHints": {
+      "address": "Adresses postales avec pays",
+      "file": "Documents, images, contrats",
       "richText": "Notes, descriptions, résumés"
     },
     "types": {
+      "address": "Adresse",
       "boolean": "Oui ou non",
       "channels": "Canaux",
       "currency": "Montant",
@@ -3807,6 +3828,7 @@
       "dateTime": "Date et heure",
       "dateTimeRange": "Période avec heures",
       "email": "E-mail",
+      "file": "Fichier",
       "member": "Membre",
       "multiSelect": "Choix multiple",
       "number": "Nombre",

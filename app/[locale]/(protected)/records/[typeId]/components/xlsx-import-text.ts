@@ -56,6 +56,8 @@ export function useXlsxImportText() {
         return t("DataTransfer.xlsxImport.issues.restricted");
       case "lookupUnavailable":
         return t("DataTransfer.xlsxImport.issues.lookupUnavailable", values);
+      case "fileNotImportable":
+        return t("DataTransfer.xlsxImport.issues.fileNotImportable");
     }
   };
 

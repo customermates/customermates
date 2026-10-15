@@ -130,7 +130,7 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
       const stored = {
         ...encoded,
         jsonValue:
-          value.result.state === "value" && ["range", "richText"].includes(value.result.value.kind)
+          value.result.state === "value" && ["range", "richText", "address"].includes(value.result.value.kind)
             ? encoded.jsonValue
             : null,
         companyId,
