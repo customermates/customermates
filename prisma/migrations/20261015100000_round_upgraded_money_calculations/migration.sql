@@ -16,13 +16,15 @@
 -- keeps its values, and its lines keep theirs, when anything about it differs from what the upgrade wrote: a value
 -- that is missing or failed, another or an unknown currency, a line in Trash or a line linked to several deals.
 -- Lines without a deal are rounded on their own. Records in Trash and workspaces whose configuration changed since
--- the upgrade are left as they are.
+-- the upgrade are left as they are, and so is a workspace whose record lock the running application holds when the
+-- migration starts; the next recalculation of its records rounds them.
 --
 -- No record events are written, so no routine run or webhook delivery is emitted, as in the upgrade itself.
+-- README.md describes the locks and how to recover from a failed run.
 -- =============================================================================================
 
 SET LOCAL TIME ZONE 'UTC';
-SET LOCAL lock_timeout = '60s';
+SET LOCAL lock_timeout = '5s';
 SET LOCAL jit = off;
 
 -- presetId(companyId, key) (features/records/crm-preset.ts), as in 20261010000000_dynamic_record_model.
@@ -32,8 +34,10 @@ LANGUAGE sql IMMUTABLE STRICT AS $$
   FROM (SELECT encode(sha256(convert_to('customermates:records:v2:' || company_id || ':' || key, 'UTF8')), 'hex') AS h) digest
 $$;
 
--- The record engine's per-workspace advisory lock of every candidate workspace, taken in id order, so no record
--- write of the running application interleaves with the values read and written below.
+-- The record engine's per-workspace advisory lock of every candidate workspace, so no record write of the running
+-- application interleaves with the values read and written below. Each lock is only tried, never awaited: a
+-- workspace whose lock is held is skipped, so the migration neither waits for the application nor fails on it.
+CREATE TEMP TABLE crm_money_locked (company_id text PRIMARY KEY) ON COMMIT DROP;
 DO $$
 DECLARE
   v_company_id text;
@@ -44,7 +48,9 @@ BEGIN
     WHERE state.revision = 1 AND revision."actorId" = 'system:configurable-records-upgrade'
     ORDER BY state."companyId"
   LOOP
-    PERFORM pg_advisory_xact_lock(hashtextextended(v_company_id, 0));
+    IF pg_try_advisory_xact_lock(hashtextextended(v_company_id, 0)) THEN
+      INSERT INTO crm_money_locked (company_id) VALUES (v_company_id);
+    END IF;
   END LOOP;
 END
 $$;
@@ -70,7 +76,7 @@ INSERT INTO crm_money_currency (code, digits) VALUES
   ('UZS', 2), ('VED', 2), ('VES', 2), ('VND', 0), ('VUV', 0), ('WST', 2), ('XAF', 0), ('XCD', 2), ('XCG', 2), ('XOF', 0),
   ('XPF', 0), ('YER', 0), ('ZAR', 2), ('ZMW', 2), ('ZWG', 2);
 
--- Upgraded workspaces still at revision 1 without a running record operation, read after taking their locks, with
+-- Upgraded workspaces still at revision 1 without a running record operation whose lock this migration holds, with
 -- the starter definitions this migration recomputes. The upgrade wrote them identically in every workspace; the
 -- checks keep any other definition, including a decimal places setting, out. The weighted value is either the
 -- upgrade's formula over the stage field the former weighting column became, or missing for a workspace without one.
@@ -87,6 +93,7 @@ FROM (
     pg_temp.money_preset_id(state."companyId", 'deal.totalValue') AS total_field,
     pg_temp.money_preset_id(state."companyId", 'deal.weightedValue') AS weighted_field
   FROM "RecordSchemaState" state
+  JOIN crm_money_locked locked ON locked.company_id = state."companyId"
   JOIN "RecordSchemaRevision" revision ON revision."companyId" = state."companyId" AND revision.revision = state.revision
   WHERE state.revision = 1 AND state."activeOperationId" IS NULL AND revision."actorId" = 'system:configurable-records-upgrade'
 ) AS workspace

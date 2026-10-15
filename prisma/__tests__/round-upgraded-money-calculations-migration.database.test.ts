@@ -305,6 +305,34 @@ describeDatabase("rounding the money calculations of upgraded workspaces", () =>
     }
   });
 
+  it("skips a workspace whose record lock is held instead of waiting for it, and rounds the others", async () => {
+    const database = await createLegacyMigrationDatabase(databaseUrl);
+    databases.push(database);
+    const busy = await legacyWorkspace(database.client);
+    const free = await legacyWorkspace(database.client);
+    const holder = new Client({ connectionString: database.url });
+    await holder.connect();
+    let rounding = 0;
+    try {
+      await upgrade(database.client, {
+        between: async () => {
+          await holder.query("SELECT pg_advisory_lock(hashtextextended($1, 0))", [busy.companyId]);
+          rounding = Date.now();
+        },
+      });
+      expect(Date.now() - rounding).toBeLessThan(30_000);
+    } finally {
+      await holder.end();
+    }
+
+    expect(await stored(database.client, busy, "deal", busy.deals.weighted, "deal.weightedValue")).toMatchObject({
+      value: "866.6766666666667360008",
+    });
+    expect(await stored(database.client, free, "deal", free.deals.weighted, "deal.weightedValue")).toMatchObject({
+      value: "866.68",
+    });
+  }, 180000);
+
   it("stores what a recalculation by the record engine stores, so recalculating changes nothing", async () => {
     const exact = await upgradedDatabase();
     const exactWorkspace = await legacyWorkspace(exact);
