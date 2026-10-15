@@ -4615,6 +4615,10 @@
       "upload": "Upload a spreadsheet",
       "winChance": "Win chance"
     },
+    "anchors": {
+      "price": "Price",
+      "value": "Value"
+    },
     "build": {
       "actions": {
         "dashboard": "Building your dashboard",
@@ -4630,8 +4634,7 @@
       "completedBody": "Everything is in place. Next, bring in your team.",
       "completedTitle": "Your workspace is ready",
       "continue": "Continue to invitations",
-      "continueAnyway": "Continue with what you have",
-      "failedBody": "Everything that finished is kept. Retry a part, or continue with what you have.",
+      "failedBody": "Everything that finished is kept. Retry the part that did not finish to complete your workspace.",
       "failedTitle": "Part of the setup did not finish",
       "frameTitle": "Your workspace",
       "keepsRunning": "This keeps running if you close the tab. You can come back at any time.",
@@ -4657,15 +4660,16 @@
       },
       "summaries": {
         "dashboard": "{count, plural, =0 {No widgets added} one {# widget added} other {# widgets added}}",
-        "dataModel": "{count, plural, =0 {Standard lists kept} one {# list ready} other {# lists ready}}",
+        "dataModel": "{count, plural, =0 {No lists created} one {# list ready} other {# lists ready}}",
         "knowledgeBase": "{count, plural, =0 {No pages written} one {# page written} other {# pages written}}",
         "records": "{count, plural, =0 {No records added} one {# record added} other {# records added}}",
-        "views": "{count, plural, =0 {Standard views kept} one {# view arranged} other {# views arranged}}"
+        "views": "{count, plural, =0 {No views arranged} one {# view arranged} other {# views arranged}}"
       },
       "title": "Setting up your workspace"
     },
     "failures": {
       "aiUnavailable": "The AI service is not available right now. Try again in a few minutes.",
+      "contactSupport": "Contact support",
       "crawlFailed": "Your website could not be read.",
       "dependency": "This part waits for an earlier part that did not finish.",
       "error": "Something went wrong in this part.",
@@ -4673,8 +4677,9 @@
       "invalidPlan": "The plan did not fit your workspace.",
       "permission": "Your role does not allow this change.",
       "schemaChanged": "Your workspace changed while this part was running.",
-      "spendCap": "The setup budget for this workspace is used up, so this part stopped. Everything finished so far stays.",
-      "spreadsheet": "The spreadsheet could not be imported."
+      "spendCap": "The setup budget for this workspace is used up, so this part stopped. Everything finished so far stays. Contact us and we will help you finish the setup.",
+      "spreadsheet": "The spreadsheet could not be imported.",
+      "supportSubject": "Workspace setup budget"
     },
     "interview": {
       "addEntry": "Add an entry",
@@ -4822,20 +4827,11 @@
       "morePages": "{count, plural, one {and # more page} other {and # more pages}}",
       "noDashboard": "No dashboard widgets are planned.",
       "noPages": "No Knowledge Base pages are planned.",
+      "noPipeline": "No pipeline is planned.",
       "pipeline": "Pipeline",
       "planningBody": "We are turning your answers into lists, a pipeline, a dashboard and Knowledge Base pages.",
       "planningTitle": "Drafting your plan",
       "sampleSummary": "{count, plural, one {Adds # sample record so you can try things out right away.} other {Adds # sample records so you can try things out right away.}}",
-      "standard": "Start with the standard setup",
-      "standardLists": {
-        "contact": "Contacts",
-        "deal": "Deals",
-        "lineItem": "Line items",
-        "organization": "Organizations",
-        "service": "Services",
-        "task": "Tasks"
-      },
-      "standardPipeline": "Your deals keep the standard stages.",
       "subtitle": "This is what we will build. Nothing changes until you confirm.",
       "title": "Your workspace plan",
       "tryAgain": "Try again",

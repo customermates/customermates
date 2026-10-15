@@ -1,5 +1,6 @@
 import type { WorkflowTenant } from "./workflow-tenant";
 import type { WorkspaceSetupPhase } from "@/ee/workspace-setup/workspace-setup.schema";
+import type { SetupPlanPart } from "@/ee/workspace-setup/workspace-setup-planner";
 
 import { sleep } from "workflow";
 
@@ -16,6 +17,8 @@ export type WorkspaceSetupWorkflowPayload = {
 
 const PREFILL_WAIT_ROUNDS = 18;
 const KNOWLEDGE_BASE_WAIT_ROUNDS = 180;
+const PLAN_BUSY_ROUNDS = 100;
+const PLAN_PART_ROUNDS = 3;
 const WAIT = "10s";
 
 async function prefillWorkspaceSetupStep(
@@ -37,11 +40,33 @@ async function followUpWorkspaceSetupStep(
   return { result, warnings: service.drainWarnings() };
 }
 
-async function planWorkspaceSetupStep(payload: WorkspaceSetupWorkflowPayload): Promise<string[]> {
+async function claimWorkspaceSetupPlanStep(
+  payload: WorkspaceSetupWorkflowPayload,
+): Promise<{ status: "claimed"; revision: number } | { status: "busy" | "skip" }> {
+  "use step";
+  return runAsBackgroundTenant(payload.userId, () => getWorkspaceSetupInterviewService().claimPlan(payload.setupId));
+}
+
+async function planWorkspaceSetupPartStep(
+  payload: WorkspaceSetupWorkflowPayload,
+  revision: number,
+  part: SetupPlanPart,
+): Promise<{ result: "done" | "retry" | "failed" | "skip"; warnings: string[] }> {
   "use step";
   const service = getWorkspaceSetupInterviewService();
-  await runAsBackgroundTenant(payload.userId, () => service.plan(payload.setupId));
-  return service.drainWarnings();
+  const result = await runAsBackgroundTenant(payload.userId, () => service.planPart(payload.setupId, revision, part));
+  return { result, warnings: service.drainWarnings() };
+}
+
+async function finishWorkspaceSetupPlanStep(
+  payload: WorkspaceSetupWorkflowPayload,
+  revision: number,
+  final: boolean,
+): Promise<"planned" | "retry" | "failed" | "skip"> {
+  "use step";
+  return runAsBackgroundTenant(payload.userId, () =>
+    getWorkspaceSetupInterviewService().finishPlan(payload.setupId, revision, final),
+  );
 }
 
 async function buildWorkspaceSetupPhaseStep(
@@ -61,7 +86,9 @@ async function finishWorkspaceSetupStep(payload: WorkspaceSetupWorkflowPayload):
 }
 
 followUpWorkspaceSetupStep.maxRetries = 1;
-planWorkspaceSetupStep.maxRetries = 1;
+claimWorkspaceSetupPlanStep.maxRetries = 1;
+planWorkspaceSetupPartStep.maxRetries = 1;
+finishWorkspaceSetupPlanStep.maxRetries = 1;
 buildWorkspaceSetupPhaseStep.maxRetries = 1;
 
 async function warn(name: string, warnings: string[], tenant?: WorkflowTenant) {
@@ -83,13 +110,42 @@ export async function prepareWorkspaceSetup(payload: WorkspaceSetupWorkflowPaylo
   }
 }
 
+async function draftPlanPart(payload: WorkspaceSetupWorkflowPayload, revision: number, part: SetupPlanPart) {
+  for (let round = 0; round < PLAN_PART_ROUNDS; round += 1) {
+    const step = await planWorkspaceSetupPartStep(payload, revision, part);
+    await warn("plan-workspace-setup", step.warnings, payload.tenant);
+    if (step.result !== "retry") return step.result;
+  }
+  return "failed" as const;
+}
+
+async function claimPlan(payload: WorkspaceSetupWorkflowPayload) {
+  for (let round = 0; round <= PLAN_BUSY_ROUNDS; round += 1) {
+    const claim = await claimWorkspaceSetupPlanStep(payload);
+    if (claim.status !== "busy") return claim.status === "claimed" ? claim.revision : null;
+    await sleep(WAIT);
+  }
+  return null;
+}
+
+async function draftPlan(payload: WorkspaceSetupWorkflowPayload, final: boolean) {
+  const revision = await claimPlan(payload);
+  if (revision === null) return "skip" as const;
+  const [model] = await Promise.all([
+    draftPlanPart(payload, revision, "model"),
+    draftPlanPart(payload, revision, "knowledge"),
+  ]);
+  if (model === "done") await draftPlanPart(payload, revision, "views");
+  return finishWorkspaceSetupPlanStep(payload, revision, final);
+}
+
 export async function planWorkspaceSetup(payload: WorkspaceSetupWorkflowPayload): Promise<void> {
   "use workflow";
   try {
     const followUps = await followUpWorkspaceSetupStep(payload);
     await warn("plan-workspace-setup", followUps.warnings, payload.tenant);
     if (followUps.result !== "none") return;
-    await warn("plan-workspace-setup", await planWorkspaceSetupStep(payload), payload.tenant);
+    await draftPlan(payload, true);
   } catch (error) {
     await reportFailure("plan-workspace-setup", toWorkflowFailure(error), payload.tenant);
     throw error;

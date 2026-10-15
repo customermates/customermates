@@ -58,14 +58,14 @@ describe("resolveSetupStage", () => {
     ["building", "build"],
     ["completed", "build"],
     ["failed", "build"],
-    ["rolledBack", "done"],
+    ["rolledBack", "start"],
   ] as const)("maps a %s setup to the %s view", (status, stage) => {
     expect(resolveSetupStage({ available: true, setup: setupView({ status }) })).toBe(stage);
   });
 
-  it("continues past a completed standard setup without a built summary", () => {
-    const standard = setupView({ status: "completed", results: { ...setupView().results, standard: true } });
-    expect(resolveSetupStage({ available: true, setup: standard })).toBe("done");
+  it("shows a completed setup as built and lets a rolled-back setup start over", () => {
+    expect(resolveSetupStage({ available: true, setup: setupView({ status: "completed" }) })).toBe("build");
+    expect(resolveSetupStage({ available: true, setup: setupView({ status: "rolledBack" }) })).toBe("start");
   });
 
   it("reopens open follow-up questions and the failed plan from the persisted status", () => {

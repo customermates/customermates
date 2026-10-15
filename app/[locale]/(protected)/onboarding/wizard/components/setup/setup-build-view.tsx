@@ -43,14 +43,13 @@ import {
   phaseDone,
 } from "./setup-build-state";
 import { planBoards } from "./setup-plan-summary";
-import { useSetupFailureMessage } from "./setup-plan-preview";
+import { SetupSupportButton, useSetupFailureMessage } from "./setup-plan-preview";
 import {
   DashboardSketch,
   KnowledgePageList,
   PipelineBoard,
   PlaceholderLine,
   PreviewListChip,
-  useStandardListNames,
 } from "./setup-preview-parts";
 
 const PHASE_ICONS: Record<BuildPhaseState, LucideIcon> = {
@@ -77,14 +76,12 @@ function PhaseIcon({ state }: { state: BuildPhaseState }) {
   );
 }
 
-function useListLabel() {
-  const standardNames = useStandardListNames();
-  return (list: SetupPreviewList) => list.label ?? (list.standard ? standardNames[list.standard] : list.key);
+function listLabel(list: SetupPreviewList) {
+  return list.label ?? list.key;
 }
 
 const SetupAppFrame = observer(function SetupAppFrame({ setup }: { setup: WorkspaceSetupView }) {
   const t = useTranslations();
-  const listLabel = useListLabel();
   const { workspaceSetupStore: store } = useRootStore();
   const lists = buildLists(setup);
   const board = buildBoard(setup);
@@ -263,14 +260,13 @@ function FramePanel({ icon: Icon, title, children }: { icon: LucideIcon; title: 
   );
 }
 
-type Props = { onContinue: () => Promise<void>; onStandard: () => Promise<void> };
+type Props = { onContinue: () => Promise<void> };
 
-export const SetupBuildView = observer(function SetupBuildView({ onContinue, onStandard }: Props) {
+export const SetupBuildView = observer(function SetupBuildView({ onContinue }: Props) {
   const t = useTranslations();
   const router = useRouter();
   const { workspaceSetupStore: store, navigationGuard } = useRootStore();
   const failureMessage = useSetupFailureMessage();
-  const listLabel = useListLabel();
   const heading = useRef<HTMLHeadingElement>(null);
   const setup = store.setup;
   const outcome = setup ? buildOutcome(setup) : "running";
@@ -368,17 +364,9 @@ export const SetupBuildView = observer(function SetupBuildView({ onContinue, onS
         </div>
 
         <div className="flex shrink-0 flex-col-reverse gap-2 sm:flex-row">
-          {setup.canUseStandardSetup ? (
-            <Button disabled={store.isBusy} type="button" variant="ghost" onClick={() => runUserAction(onStandard)}>
-              {store.pending === "standard" ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : null}
-
-              {t("WorkspaceSetup.plan.standard")}
-            </Button>
-          ) : null}
-
-          {outcome !== "running" ? (
+          {outcome === "completed" ? (
             <Button disabled={store.isBusy} type="button" onClick={() => runUserAction(onContinue)}>
-              {outcome === "completed" ? t("WorkspaceSetup.build.continue") : t("WorkspaceSetup.build.continueAnyway")}
+              {t("WorkspaceSetup.build.continue")}
             </Button>
           ) : null}
         </div>
@@ -414,24 +402,39 @@ export const SetupBuildView = observer(function SetupBuildView({ onContinue, onS
                   <div className="flex flex-col gap-2 pl-7">
                     <p className="text-xs text-destructive">{failureMessage(phase.error)}</p>
 
-                    {canRetryPhase(phase) ? (
-                      <Button
-                        className="self-start"
-                        disabled={store.isBusy}
-                        size="xs"
-                        type="button"
-                        variant="secondary"
-                        onClick={() => runUserAction(() => store.retryPhase(phase.key))}
-                      >
-                        {store.pending === "retry" ? (
-                          <Loader2 className="animate-spin motion-reduce:animate-none" />
-                        ) : (
-                          <RotateCcw />
-                        )}
+                    <div className="flex flex-wrap gap-2">
+                      {canRetryPhase(phase) ? (
+                        <Button
+                          disabled={store.isBusy}
+                          size="xs"
+                          type="button"
+                          variant="secondary"
+                          onClick={() => runUserAction(() => store.retryPhase(phase.key))}
+                        >
+                          {store.pending === "retry" ? (
+                            <Loader2 className="animate-spin motion-reduce:animate-none" />
+                          ) : (
+                            <RotateCcw />
+                          )}
 
-                        {t("WorkspaceSetup.build.retry")}
-                      </Button>
-                    ) : null}
+                          {t("WorkspaceSetup.build.retry")}
+                        </Button>
+                      ) : null}
+
+                      {phase.key === "knowledgeBase" && setup.websiteUrl ? (
+                        <Button
+                          disabled={store.isBusy}
+                          size="xs"
+                          type="button"
+                          variant="ghost"
+                          onClick={() => runUserAction(() => store.retryPhase(phase.key, true))}
+                        >
+                          {t("WorkspaceSetup.start.withoutWebsite")}
+                        </Button>
+                      ) : null}
+
+                      {phase.error === "spendCap" ? <SetupSupportButton size="xs" /> : null}
+                    </div>
                   </div>
                 ) : null}
               </li>

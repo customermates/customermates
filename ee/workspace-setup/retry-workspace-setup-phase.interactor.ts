@@ -47,8 +47,12 @@ export class RetryWorkspaceSetupPhaseInteractor extends AuthenticatedInteractor<
     if ((setup.status !== "failed" && setup.status !== "building") || !state || !RETRYABLE.has(state.status))
       return failConflict(CustomErrorCode.workspaceSetupConflict);
 
+    const withoutWebsite = data.withoutWebsite === true;
     let crawlId = setup.crawlId;
-    if (data.phase === "knowledgeBase" && setup.websiteUrl) {
+    if (withoutWebsite) {
+      if (crawlId) await this.repo.stopCrawl(crawlId);
+      crawlId = null;
+    } else if (data.phase === "knowledgeBase" && setup.websiteUrl) {
       const crawl = crawlId ? await this.repo.crawlState(crawlId) : null;
       if (!crawl || crawl.status === "failed" || crawl.status === "blocked") {
         const started = await this.crawls.start({
@@ -69,7 +73,7 @@ export class RetryWorkspaceSetupPhaseInteractor extends AuthenticatedInteractor<
         const next = current.phases[dependent];
         if (next && next.status !== "completed") phases[dependent] = { ...emptySetupPhase(), attempts: next.attempts };
       }
-      return { status: "building", finishedAt: null, phases, crawlId };
+      return { status: "building", finishedAt: null, phases, crawlId, ...(withoutWebsite ? { websiteUrl: null } : {}) };
     });
     if (!reset?.changed) return failConflict(CustomErrorCode.workspaceSetupConflict);
     await this.background.dispatch("build-workspace-setup", { setupId: data.setupId, userId: this.userId });

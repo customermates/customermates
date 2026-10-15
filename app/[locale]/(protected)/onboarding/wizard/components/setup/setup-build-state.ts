@@ -2,6 +2,8 @@ import type { WorkspaceSetupPhaseView, WorkspaceSetupView } from "@/ee/workspace
 import type { WorkspaceSetupPhase, WorkspaceSetupPhaseStatus } from "@/ee/workspace-setup/workspace-setup.schema";
 import type { SetupPreviewList } from "./setup-plan-summary";
 
+import { setupRoleList } from "@/features/workspace-setup/setup-anchors";
+
 import { previewLists } from "./setup-plan-summary";
 
 export type BuildOutcome = "running" | "completed" | "failed";
@@ -49,8 +51,9 @@ export function buildLists(setup: WorkspaceSetupView): SetupPreviewList[] {
 
 export function buildBoard(setup: WorkspaceSetupView): { list: SetupPreviewList; records: string[] } | null {
   const lists = buildLists(setup);
+  const deals = setup.plan.plan ? setupRoleList(setup.plan.plan, "deals") : null;
   const list =
-    lists.find((candidate) => candidate.key === "deal" && candidate.stages.length) ??
+    lists.find((candidate) => candidate.key === deals && candidate.stages.length) ??
     lists.find((candidate) => candidate.stages.length);
   if (!list) return null;
   const built = setup.results.lists.find((candidate) => candidate.key === list.key);

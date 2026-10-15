@@ -1,9 +1,9 @@
+import type { RecordModel } from "@/features/records/record-model.schema";
 import type { SetupPlanInput } from "../setup-plan.schema";
 
 import { describe, expect, it } from "vitest";
 
 import { PublicConfigurationChangeSchema } from "@/features/records/configuration.schema";
-import { presetId } from "@/features/records/crm-preset";
 import { validateRecordModel } from "@/features/records/record-model-validation";
 import { WIDGET_GRID_BREAKPOINT_COLUMNS, rectsOverlap } from "@/features/widget/widget-grid";
 import { ChartColor, DisplayType } from "@/features/widget/widget-display.schema";
@@ -14,166 +14,302 @@ import { compileSetupRecordModel } from "../setup-model-compiler";
 import { SETUP_PLAN_LIMITS, SetupPlanSchema } from "../setup-plan.schema";
 import { createSetupResolver, setupIdempotencyKey } from "../setup-references";
 import { compileSetupListDefaults } from "../setup-view-compiler";
-import { SETUP_COMPANY_ID, SETUP_ID, prepareConfiguration, workspacePreset } from "./setup-harness";
+import { SETUP_ID, SETUP_LABELS, emptyWorkspaceModel, prepareConfiguration } from "./setup-harness";
 import { agencyPlan, fieldServicePlan, saasPlan } from "./setup-plan-fixtures";
 
-const id = (key: string) => presetId(SETUP_COMPANY_ID, key);
-
-async function build(input: SetupPlanInput, brand: { chip?: "info"; chart?: ChartColor } = {}) {
+async function build(
+  input: SetupPlanInput,
+  brand: { chip?: "info"; chart?: ChartColor } = {},
+  model: RecordModel = emptyWorkspaceModel(),
+) {
   const plan = SetupPlanSchema.parse(input);
-  const preset = await workspacePreset();
   const compiled = compileSetupRecordModel(plan, {
-    companyId: SETUP_COMPANY_ID,
     setupId: SETUP_ID,
-    model: preset,
+    model,
+    labels: SETUP_LABELS,
     brandChip: brand.chip,
   });
   if (!compiled.ok) throw new Error(JSON.stringify(compiled.issues));
-  const prepared = await prepareConfiguration(compiled.data, preset);
-  const resolver = createSetupResolver(plan, {
-    companyId: SETUP_COMPANY_ID,
-    model: prepared.model,
-    references: prepared.preview.references,
-  });
-  return { plan, preset, change: compiled.data, prepared, resolver };
+  const prepared = await prepareConfiguration(compiled.data, model);
+  const resolver = createSetupResolver(plan, { model: prepared.model, references: prepared.preview.references });
+  const reference = (key: string) => prepared.preview.references.find((entry) => entry.reference === key)?.id;
+  return { plan, change: compiled.data, prepared, resolver, reference };
 }
+
+const withoutOfferings: SetupPlanInput = {
+  ...agencyPlan,
+  recordModel: {
+    ...agencyPlan.recordModel,
+    lists: agencyPlan.recordModel.lists.map((list) =>
+      list.role === "offerings"
+        ? { key: list.key, label: list.label, pluralLabel: list.pluralLabel, icon: list.icon }
+        : list,
+    ),
+  },
+};
 
 describe("workspace setup compiler", () => {
   it.each([
     ["agency", agencyPlan],
     ["subscription business", saasPlan],
     ["field service", fieldServicePlan],
-  ])("compiles the %s plan into one valid configuration bundle", async (_name, input) => {
-    const { change, prepared, preset } = await build(input);
+  ])("compiles the %s plan into one valid bundle for an empty workspace", async (_name, input) => {
+    const { change, prepared } = await build(input);
     expect(PublicConfigurationChangeSchema.safeParse(change).success).toBe(true);
-    expect(change.expectedRevision).toBe(preset.revision);
+    expect(change.expectedRevision).toBe(0);
     expect(change.idempotencyKey).toBe(setupIdempotencyKey(SETUP_ID, "record-model"));
     expect(change.operations.length).toBeLessThanOrEqual(200);
     expect(change.operations.some((operation) => operation.operation === "delete")).toBe(false);
+    expect(change.operations.some((operation) => operation.operation === "setTypeGrants")).toBe(false);
     expect(prepared.preview.issues).toEqual([]);
     expect(prepared.preview.valid).toBe(true);
     expect(validateRecordModel(prepared.model).issues).toEqual([]);
-    for (const type of preset.types)
-      expect(prepared.model.types.some((candidate) => candidate.id === type.id)).toBe(true);
-    for (const field of preset.fields)
-      expect(prepared.model.fields.find((candidate) => candidate.id === field.id)?.archived).toBe(false);
   });
 
-  it("is deterministic and keys idempotency to the setup", async () => {
+  it("is deterministic and keys idempotency to the setup", () => {
     const plan = SetupPlanSchema.parse(agencyPlan);
-    const model = await workspacePreset();
-    const first = compileSetupRecordModel(plan, { companyId: SETUP_COMPANY_ID, setupId: SETUP_ID, model });
-    const second = compileSetupRecordModel(plan, { companyId: SETUP_COMPANY_ID, setupId: SETUP_ID, model });
-    const other = compileSetupRecordModel(plan, {
-      companyId: SETUP_COMPANY_ID,
-      setupId: "a2c4e6f8-1b3d-4f5a-8c7e-9d0b1a2c3e4f",
-      model,
-    });
+    const context = { setupId: SETUP_ID, model: emptyWorkspaceModel(), labels: SETUP_LABELS };
+    const first = compileSetupRecordModel(plan, context);
+    const second = compileSetupRecordModel(plan, context);
+    const other = compileSetupRecordModel(plan, { ...context, setupId: "a2c4e6f8-1b3d-4f5a-8c7e-9d0b1a2c3e4f" });
     expect(first).toEqual(second);
     expect(first.ok && other.ok && first.data.idempotencyKey !== other.data.idempotencyKey).toBe(true);
   });
 
-  it("uses client references for new definitions and real ids for the preset", async () => {
+  it("creates every planned list from client references", async () => {
     const { change } = await build(agencyPlan);
     const created = change.operations.flatMap((operation) =>
       operation.operation === "createType" ? [operation.reference] : [],
     );
-    expect(created).toEqual(["$list.project"]);
+    expect(created).toEqual([
+      "$list.contact",
+      "$list.organization",
+      "$list.deal",
+      "$list.service",
+      "$list.task",
+      "$list.project",
+      "$list.lineItem",
+    ]);
     const fields = change.operations.flatMap((operation) =>
       operation.operation === "putField" ? [operation.field] : [],
     );
     expect(fields.find((field) => field.id === "$field.project.phase")?.typeId).toBe("$list.project");
-    expect(fields.find((field) => field.id === "$field.deal.leadSource")?.typeId).toBe(id("deal"));
-    const duration = fields.find((field) => field.id === "$field.project.duration");
-    expect(duration?.behavior).toMatchObject({ kind: "formula", expression: { operator: "daysBetween" } });
+    expect(fields.find((field) => field.id === "$field.deal.leadSource")?.typeId).toBe("$list.deal");
+    expect(fields.find((field) => field.id === "$field.project.duration")?.behavior).toMatchObject({
+      kind: "formula",
+      expression: { operator: "daysBetween" },
+    });
     expect(fields.find((field) => field.id === "$field.organization.projectBudget")?.behavior).toMatchObject({
       kind: "rollup",
       expression: { relationId: "$rel.projectClient", direction: "incoming", reducer: "sum" },
     });
   });
 
-  it("replaces the pipeline stages, keeping preset option ids and win chances", async () => {
-    const { prepared } = await build(agencyPlan);
-    const stage = prepared.model.fields.find((field) => field.id === id("deal.stage"));
-    expect(stage?.options.map((option) => option.label)).toEqual(["Lead", "Briefing", "Offer", "Won", "Lost"]);
-    expect(stage?.options.map((option) => option.id)).toEqual([
-      "lead",
-      "briefing",
-      id("deal.stage.proposal"),
-      id("deal.stage.won"),
-      id("deal.stage.lost"),
+  it.each([
+    ["agency", agencyPlan, "contact", "task"],
+    ["subscription business", saasPlan, "person", "todo"],
+    ["field service", fieldServicePlan, "contact", "job"],
+  ])("always adds the %s anchors to the people and tasks lists", async (_name, input, people, tasks) => {
+    const { prepared, reference } = await build(input);
+    const peopleId = reference(`$list.${people}`);
+    const channels = prepared.model.fields.find((field) => field.id === reference(`$field.${people}.channels`));
+    expect(channels).toMatchObject({
+      typeId: peopleId,
+      label: "Channels",
+      valueType: "channels",
+      required: false,
+      behavior: { kind: "input" },
+      format: { onClick: "open", providerAvatar: true },
+    });
+    const avatar = prepared.model.fields.find((field) => field.id === reference(`$field.${people}.avatar`));
+    expect(avatar).toMatchObject({ typeId: peopleId, label: "Avatar", valueType: "url" });
+    expect(prepared.model.capabilities).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ kind: "avatar", typeId: peopleId, fields: [{ role: "image", fieldId: avatar?.id }] }),
+        expect.objectContaining({ kind: "membershipAuthorization", typeId: reference(`$list.${tasks}`), fields: [] }),
+      ]),
+    );
+    expect(prepared.model.capabilities.filter((binding) => binding.kind === "membershipAuthorization")).toHaveLength(1);
+  });
+
+  it("leaves an existing membership list in place", async () => {
+    const model: RecordModel = {
+      ...emptyWorkspaceModel(),
+      revision: 3,
+      types: [
+        {
+          id: "5f1d2c3b-4a59-4b6c-8d7e-9f0a1b2c3d4e",
+          label: "Approval",
+          pluralLabel: "Approvals",
+          description: "",
+          icon: "check",
+          primaryFieldId: null,
+          parentRelationshipId: null,
+          embedded: false,
+          navigationVisible: true,
+          archived: false,
+          position: 0,
+        },
+      ],
+      capabilities: [
+        {
+          id: "7a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d",
+          kind: "membershipAuthorization",
+          typeId: "5f1d2c3b-4a59-4b6c-8d7e-9f0a1b2c3d4e",
+          fields: [],
+        },
+      ],
+    };
+    const compiled = compileSetupRecordModel(SetupPlanSchema.parse(agencyPlan), {
+      setupId: SETUP_ID,
+      model,
+      labels: SETUP_LABELS,
+    });
+    if (!compiled.ok) throw new Error(JSON.stringify(compiled.issues));
+    expect(
+      compiled.data.operations.some(
+        (operation) =>
+          operation.operation === "putCapability" && operation.capability.kind === "membershipAuthorization",
+      ),
+    ).toBe(false);
+  });
+
+  it("shows the messages of people on the lists they are linked to", async () => {
+    const { prepared, reference } = await build(agencyPlan);
+    const relation = (key: string) =>
+      prepared.model.relationships.find((entry) => entry.id === reference(`$rel.${key}`));
+    expect(relation("dealContacts")).toMatchObject({ messagesOnSource: true, messagesOnTarget: false });
+    expect(relation("contactClient")).toMatchObject({ messagesOnSource: false, messagesOnTarget: true });
+    expect(relation("projectClient")).toMatchObject({ messagesOnSource: false, messagesOnTarget: false });
+  });
+
+  it("fills a win chance on every stage and opens new deals in the first open stage", async () => {
+    const { prepared, reference } = await build(agencyPlan);
+    const stage = prepared.model.fields.find((field) => field.id === reference("$field.deal.stage"));
+    expect(stage?.options.map((option) => [option.id, option.label, option.color])).toEqual([
+      ["lead", "Lead", "secondary"],
+      ["briefing", "Briefing", "info"],
+      ["proposal", "Offer", "info"],
+      ["won", "Won", "success"],
+      ["lost", "Lost", "destructive"],
     ]);
     const weights = stage?.options.map((option) => option.attributes.find((item) => item.key === "probability")?.value);
     expect(weights?.map((value) => (value?.kind === "decimal" ? value.value : null))).toEqual([
       "10",
       "45",
-      "60",
+      "68",
       "100",
       "0",
     ]);
-    expect(stage?.options.map((option) => option.color)).toEqual([
-      "secondary",
-      "info",
-      "warning",
-      "success",
-      "destructive",
-    ]);
     expect(stage?.behavior).toEqual({ kind: "input", defaultValue: { kind: "select", value: "lead" } });
+    const phase = prepared.model.fields.find((field) => field.id === reference("$field.project.phase"));
+    expect(phase?.options.every((option) => option.attributes.length === 0)).toBe(true);
+    expect(phase?.behavior).toEqual({ kind: "input" });
   });
 
-  it("renames standard lists and the relationship labels that named them", async () => {
-    const { prepared } = await build(agencyPlan);
-    const deal = prepared.model.types.find((type) => type.id === id("deal"));
-    expect([deal?.label, deal?.pluralLabel]).toEqual(["Opportunity", "Opportunities"]);
-    const dealContacts = prepared.model.relationships.find((relation) => relation.id === id("deal.contacts"));
-    expect(dealContacts?.targetLabel).toBe("Opportunities");
-    const lineItems = prepared.model.relationships.find((relation) => relation.id === id("lineItem.deal"));
-    expect(lineItems?.sourceLabel).toBe("Opportunity");
+  it("gives deals line items against the offerings list", async () => {
+    const { prepared, reference } = await build(agencyPlan);
+    const lineItem = prepared.model.types.find((type) => type.id === reference("$list.lineItem"));
+    const toDeal = reference("$rel.lineItemDeal");
+    expect(lineItem).toMatchObject({
+      label: "Line item",
+      pluralLabel: "Line items",
+      embedded: true,
+      navigationVisible: false,
+      parentRelationshipId: toDeal,
+    });
+    expect(prepared.model.relationships.find((relation) => relation.id === toDeal)).toMatchObject({
+      sourceTypeId: lineItem?.id,
+      targetTypeId: reference("$list.deal"),
+      sourceLabel: "Opportunity",
+      targetLabel: "Line items",
+      sourceCardinality: "one",
+      targetCardinality: "many",
+      onTargetDelete: "cascade",
+    });
+    expect(
+      prepared.model.relationships.find((relation) => relation.id === reference("$rel.lineItemOffering")),
+    ).toMatchObject({ targetTypeId: reference("$list.service"), sourceLabel: "Service", onTargetDelete: "cascade" });
+    const lineFields = prepared.model.fields
+      .filter((field) => field.typeId === lineItem?.id)
+      .sort((left, right) => left.position - right.position)
+      .map((field) => [field.label, field.valueType, field.behavior.kind]);
+    expect(lineFields).toEqual([
+      ["Line item", "text", "input"],
+      ["Quantity", "number", "input"],
+      ["Pricing", "select", "input"],
+      ["Saved unit price", "currency", "snapshot"],
+      ["Unit price", "currency", "formula"],
+      ["Amount", "currency", "formula"],
+    ]);
+    expect(prepared.model.fields.find((field) => field.id === reference("$field.deal.value"))).toMatchObject({
+      label: "Value",
+      valueType: "currency",
+      format: { currency: "EUR" },
+      behavior: { kind: "rollup", expression: { relationId: toDeal, direction: "incoming", reducer: "sum" } },
+    });
+    expect(prepared.model.fields.find((field) => field.id === reference("$field.service.price"))).toMatchObject({
+      label: "Price",
+      valueType: "currency",
+      required: true,
+      behavior: { kind: "input", defaultValue: { kind: "decimal", value: "0", currency: "EUR" } },
+    });
+    const deal = prepared.model.types.find((type) => type.id === reference("$list.deal"));
+    const service = prepared.model.types.find((type) => type.id === reference("$list.service"));
+    expect(deal?.relationshipPaths?.map((path) => path.label)).toEqual(["Services"]);
+    expect(service?.relationshipPaths?.map((path) => path.label)).toEqual(["Opportunities"]);
   });
 
-  it("switches every money field to the workspace currency", async () => {
+  it("gives deals a plain money value without an offerings list", async () => {
+    const { prepared, reference } = await build(withoutOfferings);
+    expect(reference("$list.lineItem")).toBeUndefined();
+    expect(prepared.model.types.some((type) => type.embedded)).toBe(false);
+    expect(prepared.model.fields.find((field) => field.id === reference("$field.deal.value"))).toMatchObject({
+      valueType: "currency",
+      behavior: { kind: "input" },
+      format: { currency: "EUR" },
+    });
+    expect(reference("$field.service.price")).toBeUndefined();
+  });
+
+  it("adds no money value or line items to a workspace without deals", async () => {
+    const { prepared } = await build(fieldServicePlan);
+    expect(prepared.model.types.some((type) => type.embedded)).toBe(false);
+    expect(prepared.model.fields.some((field) => field.valueType === "currency")).toBe(false);
+  });
+
+  it("puts every money field in the workspace currency", async () => {
     const { prepared } = await build(saasPlan);
     const money = prepared.model.fields.filter((field) => field.valueType === "currency");
     expect(money.length).toBeGreaterThan(6);
     for (const field of money) expect(field.format?.currency, field.label).toBe("USD");
-    expect(prepared.model.fields.find((field) => field.id === id("service.amount"))?.behavior).toEqual({
-      kind: "input",
-      defaultValue: { kind: "decimal", value: "0", currency: "USD" },
-    });
   });
 
-  it("orders list columns through field positions, primary field first", async () => {
-    const { prepared } = await build(agencyPlan);
-    const ordered = prepared.model.fields
-      .filter((field) => field.typeId === id("deal") && !field.archived)
-      .sort((left, right) => left.position - right.position)
-      .map((field) => field.id);
-    expect(ordered.slice(0, 5)).toEqual([
-      id("deal.name"),
-      id("deal.stage"),
-      id("deal.totalValue"),
-      ordered[3],
-      ordered[4],
-    ]);
-    const project = prepared.preview.references.find((entry) => entry.reference === "$list.project")?.id;
-    const projectFields = prepared.model.fields
-      .filter((field) => field.typeId === project)
-      .sort((left, right) => left.position - right.position)
-      .map((field) => field.label);
-    expect(projectFields.slice(0, 4)).toEqual(["Project", "Phase", "Due", "Budget"]);
+  it("orders list columns through field positions, name first", async () => {
+    const { prepared, reference } = await build(agencyPlan);
+    const ordered = (list: string) =>
+      prepared.model.fields
+        .filter((field) => field.typeId === reference(`$list.${list}`))
+        .sort((left, right) => left.position - right.position)
+        .map((field) => field.label);
+    expect(ordered("deal").slice(0, 5)).toEqual(["Opportunity", "Stage", "Value", "Expected close", "Lead source"]);
+    expect(ordered("project").slice(0, 4)).toEqual(["Project", "Phase", "Due", "Budget"]);
+    expect(ordered("contact").slice(0, 3)).toEqual(["Contact", "Channels", "Job title"]);
   });
 
-  it("colours new lists with the brand chip unless the plan names one", async () => {
+  it("colours lists with the brand chip unless the plan names one", async () => {
     const agency = await build(agencyPlan, { chip: "info" });
-    const project = agency.prepared.preview.references.find((entry) => entry.reference === "$list.project")?.id;
-    expect(agency.prepared.model.types.find((type) => type.id === project)?.color).toBe("info");
+    expect(agency.prepared.model.types.find((type) => type.id === agency.reference("$list.project"))?.color).toBe(
+      "info",
+    );
     const saas = await build(saasPlan, { chip: "info" });
-    const subscription = saas.prepared.preview.references.find((entry) => entry.reference === "$list.subscription")?.id;
-    expect(saas.prepared.model.types.find((type) => type.id === subscription)?.color).toBe("success");
+    expect(saas.prepared.model.types.find((type) => type.id === saas.reference("$list.subscription"))?.color).toBe(
+      "success",
+    );
   });
 
   it.each([
-    ["agency", agencyPlan, 2],
+    ["agency", agencyPlan, 3],
     ["subscription business", saasPlan, 2],
     ["field service", fieldServicePlan, 2],
   ])("compiles the %s list defaults into valid personal views", async (_name, input, count) => {
@@ -195,17 +331,17 @@ describe("workspace setup compiler", () => {
     expect(pipeline?.state).toMatchObject({
       viewMode: "card",
       grouping: {
-        field: id("deal.stage"),
+        field: resolver.field("deal.stage"),
         summaries: [
-          { fieldId: id("deal.totalValue"), aggregation: "sum" },
-          { fieldId: id("deal.weightedValue"), aggregation: "sum" },
+          { fieldId: resolver.field("deal.value"), aggregation: "sum" },
+          { fieldId: resolver.field("deal.weightedValue"), aggregation: "sum" },
         ],
       },
       sortDescriptor: { field: resolver.field("deal.closeDate"), direction: "asc" },
     });
-    expect(pipeline?.state.columnOrder?.[0]).toBe(id("deal.name"));
-    expect(pipeline?.state.hiddenColumns).toContain(id("deal.notes"));
-    expect(pipeline?.state.hiddenColumns).not.toContain(id("deal.stage"));
+    expect(pipeline?.state.columnOrder?.[0]).toBe(resolver.field("deal.name"));
+    expect(pipeline?.state.hiddenColumns).toContain(resolver.field("deal.weightedValue"));
+    expect(pipeline?.state.hiddenColumns).not.toContain(resolver.field("deal.stage"));
   });
 
   it.each([
@@ -245,13 +381,12 @@ describe("workspace setup compiler", () => {
       { x: 0, y: 0, w: 3, h: 2 },
       { x: 3, y: 0, w: 3, h: 2 },
     ]);
-    const won = widgets.data[1].measure?.source.filters;
-    expect(won).toEqual([
+    expect(widgets.data[1].measure?.source.filters).toEqual([
       {
-        fieldId: id("deal.stage"),
+        fieldId: resolver.field("deal.stage"),
         operator: "in",
         value: null,
-        values: [{ kind: "select", value: id("deal.stage.won") }],
+        values: [{ kind: "select", value: "won" }],
       },
       {
         fieldId: resolver.field("deal.closeDate"),
@@ -266,7 +401,7 @@ describe("workspace setup compiler", () => {
     const input = structuredClone(agencyPlan);
     input.dashboard.widgets = [{ ...agencyPlan.dashboard.widgets[2], display: DisplayType.number }];
     const { plan, prepared, resolver } = await build(input);
-    const widgets = compileSetupDashboard(plan, resolver, prepared.model, { setupId: SETUP_ID, expectedRevision: 2 });
+    const widgets = compileSetupDashboard(plan, resolver, prepared.model, { setupId: SETUP_ID, expectedRevision: 1 });
     expect(widgets).toEqual({ ok: false, issues: [{ code: "display_mismatch", path: "dashboard.widgets.0.display" }] });
   });
 
@@ -284,8 +419,8 @@ describe("workspace setup compiler", () => {
     input.importMapping = {
       list: "ticket",
       columns: [
-        { column: "Customer", field: "organization.name" },
-        { column: "Count", field: "organization.ticketCount" },
+        { column: "Customer", field: "customer.name" },
+        { column: "Count", field: "customer.ticketCount" },
       ],
     };
     const wrong = await build(input);
@@ -298,21 +433,23 @@ describe("workspace setup compiler", () => {
     });
   });
 
-  it("reports references to standard definitions that are gone", async () => {
-    const plan = SetupPlanSchema.parse(agencyPlan);
-    const model = await workspacePreset();
-    const trimmed = {
-      ...model,
-      fields: model.fields.map((field) => (field.id === id("deal.stage") ? { ...field, archived: true } : field)),
-    };
-    const compiled = compileSetupRecordModel(plan, { companyId: SETUP_COMPANY_ID, setupId: SETUP_ID, model: trimmed });
-    expect(compiled.ok).toBe(false);
-    if (!compiled.ok)
-      expect(compiled.issues).toContainEqual({ code: "unknown_field", path: "recordModel.fieldChanges.0" });
+  it("refuses a list default column of another list", () => {
+    const input = structuredClone(agencyPlan);
+    input.listDefaults[1] = { ...agencyPlan.listDefaults[1], columns: ["deal.closeDate"] };
+    const compiled = compileSetupRecordModel(SetupPlanSchema.parse(input), {
+      setupId: SETUP_ID,
+      model: emptyWorkspaceModel(),
+      labels: SETUP_LABELS,
+    });
+    expect(compiled).toEqual({
+      ok: false,
+      issues: [{ code: "column_outside_list", path: "listDefaults.1.columns.0" }],
+    });
   });
 
-  it("keeps the largest allowed plan inside one bundle", async () => {
+  it("keeps the largest allowed plan with anchors and line items inside one bundle", async () => {
     const lists = Array.from({ length: SETUP_PLAN_LIMITS.lists }, (_, index) => `list${index}`);
+    const roles = ["people", "tasks", "deals", "offerings"] as const;
     const input: SetupPlanInput = {
       ...saasPlan,
       recordModel: {
@@ -322,29 +459,24 @@ describe("workspace setup compiler", () => {
           pluralLabel: `Lists ${index}`,
           icon: "folder",
           color: "info",
-        })),
-        listChanges: ["contact", "organization", "deal", "service", "task", "lineItem"].map((list, index) => ({
-          list,
-          label: `Renamed ${index}`,
-          pluralLabel: `Renamed lists ${index}`,
+          ...(index < roles.length ? { role: roles[index] } : {}),
         })),
         fields: Array.from({ length: SETUP_PLAN_LIMITS.fields }, (_, index) => ({
           key: `${lists[index % lists.length]}.field${index}`,
           label: `Field ${index}`,
           valueType: "text" as const,
         })),
-        fieldChanges: [],
         relationships: Array.from({ length: SETUP_PLAN_LIMITS.relationships }, (_, index) => ({
           key: `relation${index}`,
           source: lists[index % lists.length],
-          target: "organization",
-          sourceLabel: `Organization ${index}`,
+          target: lists[(index + 1) % lists.length],
+          sourceLabel: `Target ${index}`,
           targetLabel: `Linked ${index}`,
           sourceCardinality: "many" as const,
           targetCardinality: "many" as const,
         })),
         calculations: Array.from({ length: SETUP_PLAN_LIMITS.calculations }, (_, index) => ({
-          key: `organization.calc${index}`,
+          key: `${lists[4]}.calc${index}`,
           label: `Calculation ${index}`,
           valueType: "number" as const,
           expression: { op: "number" as const, value: String(index) },

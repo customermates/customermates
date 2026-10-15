@@ -1,15 +1,29 @@
-import type { SetupPlan } from "@/features/workspace-setup/setup-plan.schema";
 import type { WorkspaceSetupRepo } from "./workspace-setup.repo";
 import type { StoredSetupInterview, WorkspaceSetupFailure, WorkspaceSetupRecord } from "./workspace-setup.schema";
 import type { WorkspaceSetupModelService } from "./workspace-setup-model.service";
-import type { WorkspaceSetupPlanner } from "./workspace-setup-planner";
+import type {
+  SetupPlanInput,
+  SetupPlanOutcome,
+  SetupPlanPart,
+  SetupPlanPartState,
+  WorkspaceSetupPlanner,
+} from "./workspace-setup-planner";
 
 import { UserAccessor } from "@/core/base/user-accessor";
 import { mergeWebsitePrefill } from "@/features/workspace-setup/setup-prefill";
 import { APP_LOCALES } from "@/i18n/locale-registry";
 import { untrustedText } from "@/features/mcp-tools/untrusted-record-content";
 
-import { FollowUpWireSchema, PrefillWireSchema, followUpQuestions, prefillAnswers } from "./workspace-setup-wire";
+import {
+  FollowUpWireSchema,
+  PlanKnowledgeWireSchema,
+  PlanModelWireSchema,
+  PlanViewsWireSchema,
+  PrefillWireSchema,
+  followUpQuestions,
+  prefillAnswers,
+} from "./workspace-setup-wire";
+import { SETUP_PLAN_PARTS, SetupPlanPartStateSchema, emptySetupPlanPart } from "./workspace-setup-planner";
 import {
   SETUP_FOLLOW_UP_INSTRUCTION,
   SETUP_REPAIR_INSTRUCTION,
@@ -26,6 +40,46 @@ const PREFILL_WEBSITE = { characters: 36_000, perSource: 3_000 };
 const CRAWL_READING = new Set(["queued", "discovering", "fetching"]);
 
 type Claimable = "prefill" | "plan";
+type PlanClaim = { status: "claimed"; revision: number } | { status: "busy" | "skip" };
+
+function planPartKey(part: SetupPlanPart): string {
+  return `plan:${part}`;
+}
+
+function planPartState(setup: WorkspaceSetupRecord, part: SetupPlanPart): SetupPlanPartState {
+  const stored = SetupPlanPartStateSchema.safeParse(setup.artifacts[planPartKey(part)]);
+  return stored.success && stored.data.revision === setup.planRevision
+    ? stored.data
+    : emptySetupPlanPart(setup.planRevision);
+}
+
+function planDrafts(setup: WorkspaceSetupRecord) {
+  const model = PlanModelWireSchema.safeParse(planPartState(setup, "model").value);
+  const knowledge = PlanKnowledgeWireSchema.safeParse(planPartState(setup, "knowledge").value);
+  const views = PlanViewsWireSchema.safeParse(planPartState(setup, "views").value);
+  return {
+    model: model.success ? model.data : null,
+    knowledge: knowledge.success ? knowledge.data : null,
+    views: views.success ? views.data : null,
+  };
+}
+
+function planFailure(setup: WorkspaceSetupRecord): WorkspaceSetupFailure {
+  const failures = SETUP_PLAN_PARTS.flatMap((part) => planPartState(setup, part).failure ?? []);
+  return failures.includes("spendCap") ? "spendCap" : (failures[0] ?? "generation");
+}
+
+function withoutPlanParts(artifacts: Record<string, unknown>, keep: (part: SetupPlanPart) => boolean) {
+  return Object.fromEntries(
+    Object.entries(artifacts).filter(([key]) =>
+      SETUP_PLAN_PARTS.every((part) => key !== planPartKey(part) || keep(part)),
+    ),
+  );
+}
+
+function planning(setup: WorkspaceSetupRecord, revision: number) {
+  return setup.status === "planning" && setup.planRevision === revision && setup.interview.plan === "running";
+}
 
 function stale(claimedAt: string | null, now: Date) {
   return !claimedAt || new Date(claimedAt).getTime() < now.getTime() - SETUP_GENERATION_STALE_MS;
@@ -35,7 +89,7 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
   constructor(
     private repo: WorkspaceSetupRepo,
     private models: Pick<WorkspaceSetupModelService, "generate" | "drainWarnings">,
-    private planner: Pick<WorkspaceSetupPlanner, "plan">,
+    private planner: Pick<WorkspaceSetupPlanner, "attempt" | "assemble">,
   ) {
     super();
   }
@@ -154,37 +208,85 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
     return updated?.changed && questions.length ? "asked" : "none";
   }
 
-  async plan(setupId: string): Promise<void> {
-    const setup = await this.claim(setupId, "plan", ["queued"]);
-    if (!setup) return;
-    const revision = setup.planRevision;
-    const outcome = await this.generatePlan(setup);
-    await this.repo.mutate(setupId, (current) => {
-      if (current.status !== "planning" || current.planRevision !== revision) return null;
-      return outcome.ok
-        ? {
-            status: "planned",
-            plan: outcome.plan,
-            interview: { ...current.interview, plan: "completed", planError: null, planClaimedAt: null },
-          }
-        : {
-            status: "interview",
-            interview: { ...current.interview, plan: "failed", planError: outcome.failure, planClaimedAt: null },
-          };
-    });
+  async claimPlan(setupId: string): Promise<PlanClaim> {
+    const claimed = await this.claim(setupId, "plan", ["queued"]);
+    if (claimed) return { status: "claimed", revision: claimed.planRevision };
+    const setup = await this.repo.get(setupId);
+    return setup?.status === "planning" && setup.interview.plan === "running" ? { status: "busy" } : { status: "skip" };
   }
 
-  private async generatePlan(
-    setup: WorkspaceSetupRecord,
-  ): Promise<{ ok: true; plan: SetupPlan } | { ok: false; failure: WorkspaceSetupFailure }> {
+  async planPart(
+    setupId: string,
+    revision: number,
+    part: SetupPlanPart,
+  ): Promise<"done" | "retry" | "failed" | "skip"> {
+    const setup = await this.repo.get(setupId);
+    if (!setup || !planning(setup, revision)) return "skip";
+    const state = planPartState(setup, part);
+    if (state.value !== null && state.value !== undefined) return "done";
+    if (state.failure) return "failed";
+    const { model, knowledge } = planDrafts(setup);
+    const next = await this.planner.attempt(part, await this.planInput(setup), state, { model, knowledge });
+    const stored = await this.repo.mutate(setupId, (current) =>
+      planning(current, revision) ? { artifacts: { ...current.artifacts, [planPartKey(part)]: next } } : null,
+    );
+    if (!stored?.changed) return "skip";
+    if (next.value !== null && next.value !== undefined) return "done";
+    return next.failure ? "failed" : "retry";
+  }
+
+  async finishPlan(setupId: string, revision: number, final: boolean): Promise<"planned" | "retry" | "failed" | "skip"> {
+    const setup = await this.repo.get(setupId);
+    if (!setup || !planning(setup, revision)) return "skip";
+    const drafts = planDrafts(setup);
+    const outcome: SetupPlanOutcome =
+      drafts.model && drafts.knowledge && drafts.views
+        ? await this.planner.assemble(await this.planInput(setup), {
+            model: drafts.model,
+            knowledge: drafts.knowledge,
+            views: drafts.views,
+          })
+        : { ok: false, failure: planFailure(setup) };
+    const retry = !outcome.ok && !final && outcome.failure !== "spendCap";
+    const assembled = Boolean(drafts.model && drafts.knowledge && drafts.views);
+    const updated = await this.repo.mutate(setupId, (current) => {
+      if (!planning(current, revision)) return null;
+      if (outcome.ok)
+        return {
+          status: "planned",
+          plan: outcome.plan,
+          artifacts: withoutPlanParts(current.artifacts, () => false),
+          interview: { ...current.interview, plan: "completed", planError: null, planClaimedAt: null },
+        };
+      if (retry)
+        return {
+          artifacts: withoutPlanParts(
+            current.artifacts,
+            (part) => !assembled && planPartState(current, part).failure === null && drafts[part] !== null,
+          ),
+          interview: { ...current.interview, plan: "queued", planClaimedAt: null },
+        };
+      return {
+        status: "interview",
+        artifacts: withoutPlanParts(current.artifacts, () => false),
+        interview: { ...current.interview, plan: "failed", planError: outcome.failure, planClaimedAt: null },
+      };
+    });
+    if (!updated?.changed) return "skip";
+    return outcome.ok ? "planned" : retry ? "retry" : "failed";
+  }
+
+  private async planInput(setup: WorkspaceSetupRecord): Promise<SetupPlanInput> {
     const language = setupLanguage(setup.answers);
     const sheet = await loadSetupSpreadsheet(
       setup.hasSpreadsheet ? await this.repo.readSpreadsheet(setup.id) : null,
       language,
     );
-    return this.planner.plan({
+    const drafted = setup.interview.prefillDraft?.language?.value;
+    return {
       setupId: setup.id,
       language,
+      answersLanguage: drafted?.format === "singleChoice" ? drafted.value : null,
       currency: setupCurrency(setup.answers) ?? "EUR",
       answers: setup.answers,
       followUps: setup.interview.followUpQuestions.map((question) => ({
@@ -195,6 +297,6 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
       })),
       sources: setup.crawlId ? await this.repo.crawlSources(setup.crawlId) : [],
       sheet,
-    });
+    };
   }
 }

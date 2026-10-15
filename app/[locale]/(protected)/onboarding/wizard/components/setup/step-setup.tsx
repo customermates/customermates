@@ -10,7 +10,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { GenericPageLoading } from "@/components/page-state/generic-page-loading";
 
 import { isClientTransportError } from "@/core/errors/client-transport-error";
-import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
+import { reportApplicationError } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { startBackgroundPoll } from "@/core/utils/background-poll";
 
@@ -57,13 +57,6 @@ export const StepSetup = observer(function StepSetup() {
   const t = useTranslations();
   const { workspaceSetupStore: store, onboardingWizardStore: wizard } = useRootStore();
   const stage = store.stage;
-  const startWithStandardSetup = async () => {
-    if (await store.applyStandardSetup()) await wizard.completeSetupStep();
-  };
-
-  useEffect(() => {
-    if (stage === "done") runUserAction(wizard.completeSetupStep);
-  }, [stage, wizard]);
 
   switch (stage) {
     case "start":
@@ -75,13 +68,12 @@ export const StepSetup = observer(function StepSetup() {
     case "planning":
       return <SetupPlanPending />;
     case "planFailed":
-      return <SetupPlanFailed onStandard={startWithStandardSetup} />;
+      return <SetupPlanFailed />;
     case "plan":
-      return <SetupPlanPreview onStandard={startWithStandardSetup} />;
+      return <SetupPlanPreview />;
     case "build":
-      return <SetupBuildView onContinue={wizard.completeSetupStep} onStandard={startWithStandardSetup} />;
+      return <SetupBuildView onContinue={wizard.completeSetupStep} />;
     case "unavailable":
-    case "done":
       return (
         <div aria-busy="true" className="flex min-h-36">
           <GenericPageLoading label={t("Loading.text")} />

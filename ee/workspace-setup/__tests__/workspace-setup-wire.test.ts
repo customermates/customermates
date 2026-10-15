@@ -11,7 +11,6 @@ import {
   PlanKnowledgeWireSchema,
   PlanModelWireSchema,
   PlanViewsWireSchema,
-  PlanWireSchema,
   PrefillWireSchema,
   followUpAnswerIssue,
   followUpQuestions,
@@ -166,7 +165,6 @@ describe("model-facing setup schemas", () => {
       ([, schema]) => structuredOutputUnionTypes(schema) > STRUCTURED_OUTPUT_MAX_UNION_TYPES,
     );
     expect(over.map(([name]) => name)).toEqual([]);
-    expect(structuredOutputUnionTypes(PlanWireSchema)).toBeGreaterThan(22);
   });
 
   it("keeps the model part flat, so no nested object can come back as JSON text", () => {
@@ -201,6 +199,7 @@ describe("plan normalisation the model does not need to get right", () => {
     expect(converted.ok && converted.plan.listDefaults.map((value) => [value.name, value.summaries.length])).toEqual([
       ["Pipeline", 2],
       ["Delivery", 0],
+      ["People", 0],
     ]);
     expect(converted.ok && converted.plan.recordModel.fields.some((field) => field.key === "project.name")).toBe(false);
   });

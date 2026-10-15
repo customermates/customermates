@@ -1990,8 +1990,6 @@ import { AdjustWorkspaceSetupInteractor } from "@/ee/workspace-setup/adjust-work
 import { ConfirmWorkspaceSetupInteractor } from "@/ee/workspace-setup/confirm-workspace-setup.interactor";
 import { RetryWorkspaceSetupPhaseInteractor } from "@/ee/workspace-setup/retry-workspace-setup-phase.interactor";
 import { RemoveWorkspaceSetupSampleDataInteractor } from "@/ee/workspace-setup/remove-workspace-setup-sample-data.interactor";
-import { RollBackWorkspaceSetupInteractor } from "@/ee/workspace-setup/roll-back-workspace-setup.interactor";
-import { UseStandardWorkspaceSetupInteractor } from "@/ee/workspace-setup/use-standard-workspace-setup.interactor";
 
 export const getWorkspaceSetupRepo = () => new PrismaWorkspaceSetupRepo(getWikiWebsiteCrawlRepo());
 export const getWorkspaceSetupKnowledgeBrief = () => new WorkspaceSetupKnowledgeBrief(getWorkspaceSetupRepo());
@@ -2027,15 +2025,7 @@ export const getWorkspaceSetupBuildService = () =>
     getMutateRecordInteractor(),
   );
 export const getWorkspaceSetupCleanupService = () =>
-  new WorkspaceSetupCleanupService(
-    getWorkspaceSetupRepo(),
-    getRecordRepo(),
-    getMutateRecordInteractor(),
-    getApplyRecordConfigurationInteractor(),
-    getDeleteWidgetInteractor(),
-    getDeleteDataViewInteractor(),
-    getDeleteWikiPageInteractor(),
-  );
+  new WorkspaceSetupCleanupService(getRecordRepo(), getMutateRecordInteractor());
 export const getStartWorkspaceSetupInteractor = () =>
   new StartWorkspaceSetupInteractor(
     getWorkspaceSetupRepo(),
@@ -2066,7 +2056,3 @@ export const getRetryWorkspaceSetupPhaseInteractor = () =>
   );
 export const getRemoveWorkspaceSetupSampleDataInteractor = () =>
   new RemoveWorkspaceSetupSampleDataInteractor(getWorkspaceSetupRepo(), getWorkspaceSetupCleanupService());
-export const getUseStandardWorkspaceSetupInteractor = () =>
-  new UseStandardWorkspaceSetupInteractor(getWorkspaceSetupRepo());
-export const getRollBackWorkspaceSetupInteractor = () =>
-  new RollBackWorkspaceSetupInteractor(getWorkspaceSetupRepo(), getWorkspaceSetupCleanupService());

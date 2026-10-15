@@ -2,7 +2,6 @@ import type { RecordRef } from "@/features/records/record-model.schema";
 import type { SetupAnswers } from "@/features/workspace-setup/setup-answers.schema";
 import type { GeneratedSampleList } from "./workspace-setup-samples";
 
-import { presetId } from "@/features/records/crm-preset";
 import { spreadsheetRecordId } from "@/features/data-transfer/spreadsheet/spreadsheet-conversion";
 import { setupIdempotencyKey } from "@/features/workspace-setup/setup-references";
 
@@ -13,7 +12,7 @@ export type SetupLineItemPlan = {
   deal: RecordRef;
   name: string | null;
   quantity: number;
-  service: RecordRef | null;
+  offering: RecordRef | null;
   unitPrice: string | null;
 };
 
@@ -42,11 +41,6 @@ export function setupDealSize(answers: SetupAnswers): { min: number; max: number
   return max > 0 ? { min: Math.min(value.min, max), max } : null;
 }
 
-function setupOfferings(answers: SetupAnswers): string[] {
-  const value = answers.offerings?.value;
-  return value?.format === "orderedList" ? value.items.map((item) => item.label) : [];
-}
-
 function roundedPrice(value: number): string | null {
   if (!Number.isFinite(value) || value <= 0) return null;
   const step = 10 ** Math.max(0, Math.floor(Math.log10(value)) - 1);
@@ -54,46 +48,34 @@ function roundedPrice(value: number): string | null {
 }
 
 export function sampleLineItemPlans(args: {
-  companyId: string;
   setupId: string;
   samples: GeneratedSampleList[];
   imported: ReadonlySet<string>;
   answers: SetupAnswers;
+  deals: string;
+  offerings: { typeId: string; priceFieldId: string; nameFieldId: string | undefined };
 }): SetupLineItemPlan[] {
-  const dealType = presetId(args.companyId, "deal");
-  const serviceType = presetId(args.companyId, "service");
   const rowsOf = (typeId: string) =>
     args.samples
       .filter((sample) => sample.typeId === typeId)
       .flatMap((sample) => importedRows(args.setupId, sample, args.imported));
-  const services = rowsOf(serviceType).flatMap((row) => {
-    const price = Number(row.cell(presetId(args.companyId, "service.amount")));
-    return Number.isFinite(price) && price > 0
-      ? [{ ref: row.ref, name: row.cell(presetId(args.companyId, "service.name")), price }]
-      : [];
+  const offerings = rowsOf(args.offerings.typeId).flatMap((row) => {
+    const price = Number(row.cell(args.offerings.priceFieldId));
+    const name = args.offerings.nameFieldId ? row.cell(args.offerings.nameFieldId) : null;
+    return Number.isFinite(price) && price > 0 ? [{ ref: row.ref, name, price }] : [];
   });
   const size = setupDealSize(args.answers);
-  const offerings = setupOfferings(args.answers);
-  return rowsOf(dealType).flatMap((deal, index): SetupLineItemPlan[] => {
+  return rowsOf(args.deals).flatMap((deal, index): SetupLineItemPlan[] => {
     const spread = (index * GOLDEN_STEP) % 1;
     const target = size ? size.min + (size.max - size.min) * spread : null;
-    if (services.length) {
-      const service = services[index % services.length];
+    if (offerings.length) {
+      const offering = offerings[index % offerings.length];
       const quantity = target
-        ? Math.min(MAX_QUANTITY, Math.max(1, Math.round(target / service.price)))
+        ? Math.min(MAX_QUANTITY, Math.max(1, Math.round(target / offering.price)))
         : 1 + (index % 3);
-      return [{ deal: deal.ref, name: service.name, quantity, service: service.ref, unitPrice: null }];
+      return [{ deal: deal.ref, name: offering.name, quantity, offering: offering.ref, unitPrice: null }];
     }
     const unitPrice = target === null ? null : roundedPrice(target);
-    if (!unitPrice) return [];
-    return [
-      {
-        deal: deal.ref,
-        name: offerings.length ? offerings[index % offerings.length] : null,
-        quantity: 1,
-        service: null,
-        unitPrice,
-      },
-    ];
+    return unitPrice ? [{ deal: deal.ref, name: null, quantity: 1, offering: null, unitPrice }] : [];
   });
 }

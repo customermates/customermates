@@ -11,6 +11,16 @@ function variant(change: (plan: SetupPlanInput) => void): SetupPlanInput {
   return plan;
 }
 
+function field(plan: SetupPlanInput, key: string) {
+  const found = plan.recordModel.fields.find((candidate) => candidate.key === key);
+  if (!found) throw new Error(`Missing fixture field ${key}`);
+  return found;
+}
+
+function role(plan: SetupPlanInput, key: string, value: "people" | "tasks" | "deals" | "offerings" | undefined) {
+  plan.recordModel.lists = plan.recordModel.lists.map((list) => (list.key === key ? { ...list, role: value } : list));
+}
+
 function deep(depth: number): unknown {
   return depth <= 1
     ? { op: "number", value: "1" }
@@ -26,12 +36,15 @@ describe("workspace setup plan schema", () => {
     [
       "too many lists",
       variant((plan) => {
-        plan.recordModel.lists = Array.from({ length: SETUP_PLAN_LIMITS.lists + 1 }, (_, index) => ({
-          key: `list${index}`,
-          label: `List ${index}`,
-          pluralLabel: `Lists ${index}`,
-          icon: "folder",
-        }));
+        plan.recordModel.lists = [
+          ...plan.recordModel.lists,
+          ...Array.from({ length: SETUP_PLAN_LIMITS.lists + 1 - plan.recordModel.lists.length }, (_, index) => ({
+            key: `list${index}`,
+            label: `List ${index}`,
+            pluralLabel: `Lists ${index}`,
+            icon: "folder",
+          })),
+        ];
       }),
     ],
     [
@@ -56,7 +69,7 @@ describe("workspace setup plan schema", () => {
     [
       "too many options",
       variant((plan) => {
-        plan.recordModel.fields[0].options = Array.from({ length: SETUP_PLAN_LIMITS.options + 1 }, (_, index) => ({
+        field(plan, "deal.stage").options = Array.from({ length: SETUP_PLAN_LIMITS.options + 1 }, (_, index) => ({
           key: `option${index}`,
           label: `Option ${index}`,
         }));
@@ -105,17 +118,47 @@ describe("workspace setup plan schema", () => {
       }),
     ],
     [
-      "a list key taken by a standard list",
+      "the reserved line item list key",
       variant((plan) => {
-        plan.recordModel.lists[0].key = "deal";
+        plan.recordModel.lists[5].key = "lineItem";
       }),
     ],
     [
-      "a field key taken by a standard field",
+      "a repeated list key",
       variant((plan) => {
-        plan.recordModel.fields[0].key = "deal.stage";
+        plan.recordModel.lists[5].key = "deal";
       }),
     ],
+    [
+      "a declared Channels field on the people list",
+      variant((plan) => {
+        plan.recordModel.fields[0].key = "contact.channels";
+      }),
+    ],
+    [
+      "a declared avatar field on the people list",
+      variant((plan) => {
+        plan.recordModel.fields[0].key = "contact.avatar";
+      }),
+    ],
+    [
+      "a declared money value on the deals list",
+      variant((plan) => {
+        plan.recordModel.fields.push({ key: "deal.value", label: "Value", valueType: "currency" });
+      }),
+    ],
+    [
+      "a declared price on the offerings list",
+      variant((plan) => {
+        plan.recordModel.fields.push({ key: "service.price", label: "Price", valueType: "currency" });
+      }),
+    ],
+    ["no people list", variant((plan) => role(plan, "contact", undefined))],
+    ["no tasks list", variant((plan) => role(plan, "task", undefined))],
+    ["two people lists", variant((plan) => role(plan, "organization", "people"))],
+    ["two tasks lists", variant((plan) => role(plan, "project", "tasks"))],
+    ["two deals lists", variant((plan) => role(plan, "project", "deals"))],
+    ["two offerings lists", variant((plan) => role(plan, "organization", "offerings"))],
     [
       "a new name field on a new list",
       variant((plan) => {
@@ -135,21 +178,21 @@ describe("workspace setup plan schema", () => {
       }),
     ],
     [
-      "a change to a list that is not standard",
+      "the retired changes to standard lists",
       variant((plan) => {
-        plan.recordModel.listChanges = [{ list: "project", label: "Job" }];
+        Object.assign(plan.recordModel, { listChanges: [] });
       }),
     ],
     [
       "options on a text field",
       variant((plan) => {
-        plan.recordModel.fields[0].valueType = "text";
+        field(plan, "deal.stage").valueType = "text";
       }),
     ],
     [
       "repeated option labels",
       variant((plan) => {
-        plan.recordModel.fields[0].options = [
+        field(plan, "deal.stage").options = [
           { key: "a", label: "Same" },
           { key: "b", label: "same" },
         ];
@@ -170,7 +213,7 @@ describe("workspace setup plan schema", () => {
     [
       "a count with a value field",
       variant((plan) => {
-        plan.dashboard.widgets[2].valueField = "deal.totalValue";
+        plan.dashboard.widgets[2].valueField = "deal.value";
       }),
     ],
     [
@@ -193,6 +236,19 @@ describe("workspace setup plan schema", () => {
     ],
   ])("rejects %s", (_name, plan) => {
     expect(SetupPlanSchema.safeParse(plan).success).toBe(false);
+  });
+
+  it("accepts a plan without deals or offerings and references to automatic fields", () => {
+    expect(SetupPlanSchema.safeParse(fieldServicePlan).success).toBe(true);
+    const plan = variant((value) => {
+      value.listDefaults[2].columns = ["contact.channels", "contact.avatar"];
+    });
+    expect(SetupPlanSchema.safeParse(plan).success).toBe(true);
+  });
+
+  it("explains a missing role so the planner can repair it", () => {
+    const result = SetupPlanSchema.safeParse(variant((plan) => role(plan, "task", undefined)));
+    expect(result.error?.issues.map((issue) => issue.message)).toContain("Mark exactly one list with the role tasks.");
   });
 
   it("accepts a calculation at the depth limit", () => {

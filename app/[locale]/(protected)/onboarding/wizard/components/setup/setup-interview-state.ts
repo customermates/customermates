@@ -14,8 +14,7 @@ export type SetupStage =
   | "planning"
   | "planFailed"
   | "plan"
-  | "build"
-  | "done";
+  | "build";
 
 const SINGLE_CHOICE_COVERS: Readonly<Record<string, readonly string[]>> = { both: ["businesses", "consumers"] };
 
@@ -37,12 +36,11 @@ export function resolveSetupStage(view: WorkspaceSetupStatusView | null): SetupS
     case "planned":
       return "plan";
     case "completed":
-      return setup.results.standard ? "done" : "build";
     case "building":
     case "failed":
       return "build";
     case "rolledBack":
-      return "done";
+      return "start";
   }
 }
 

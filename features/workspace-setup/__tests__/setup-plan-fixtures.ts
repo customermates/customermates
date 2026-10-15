@@ -12,9 +12,29 @@ export const agencyPlan: SetupPlanInput = {
   version: 1,
   workspace: { currency: "EUR", dashboardAudience: "team" },
   recordModel: {
-    lists: [{ key: "project", label: "Project", pluralLabel: "Projects", icon: "kanban", description: "Client work" }],
-    listChanges: [{ list: "deal", label: "Opportunity", pluralLabel: "Opportunities" }],
+    lists: [
+      { key: "contact", label: "Contact", pluralLabel: "Contacts", icon: "contact", role: "people" },
+      { key: "organization", label: "Client", pluralLabel: "Clients", icon: "building" },
+      { key: "deal", label: "Opportunity", pluralLabel: "Opportunities", icon: "handshake", role: "deals" },
+      { key: "service", label: "Service", pluralLabel: "Services", icon: "package", role: "offerings" },
+      { key: "task", label: "Task", pluralLabel: "Tasks", icon: "check", role: "tasks" },
+      { key: "project", label: "Project", pluralLabel: "Projects", icon: "kanban", description: "Client work" },
+    ],
     fields: [
+      { key: "contact.jobTitle", label: "Job title", valueType: "text" },
+      { key: "contact.email", label: "Email", valueType: "email" },
+      {
+        key: "deal.stage",
+        label: "Stage",
+        valueType: "select",
+        options: [
+          { key: "lead", label: "Lead", weight: 10 },
+          { key: "briefing", label: "Briefing" },
+          { key: "proposal", label: "Offer" },
+          { key: "won", label: "Won", outcome: "won" },
+          { key: "lost", label: "Lost", outcome: "lost" },
+        ],
+      },
       {
         key: "project.phase",
         label: "Phase",
@@ -42,20 +62,45 @@ export const agencyPlan: SetupPlanInput = {
       },
       { key: "deal.closeDate", label: "Expected close", valueType: "date" },
       { key: "organization.industry", label: "Industry", valueType: "text" },
-    ],
-    fieldChanges: [
       {
-        field: "deal.stage",
+        key: "task.status",
+        label: "Status",
+        valueType: "select",
         options: [
-          { key: "lead", label: "Lead", weight: 10 },
-          { key: "briefing", label: "Briefing" },
-          { key: "proposal", label: "Offer" },
-          { key: "won", label: "Won", outcome: "won" },
-          { key: "lost", label: "Lost", outcome: "lost" },
+          { key: "open", label: "Open" },
+          { key: "done", label: "Done", color: "success" },
         ],
       },
+      { key: "task.dueDate", label: "Due date", valueType: "date" },
     ],
     relationships: [
+      {
+        key: "contactClient",
+        source: "contact",
+        target: "organization",
+        sourceLabel: "Client",
+        targetLabel: "Contacts",
+        sourceCardinality: "one",
+        targetCardinality: "many",
+      },
+      {
+        key: "dealContacts",
+        source: "deal",
+        target: "contact",
+        sourceLabel: "Contacts",
+        targetLabel: "Opportunities",
+        sourceCardinality: "many",
+        targetCardinality: "many",
+      },
+      {
+        key: "dealClient",
+        source: "deal",
+        target: "organization",
+        sourceLabel: "Client",
+        targetLabel: "Opportunities",
+        sourceCardinality: "one",
+        targetCardinality: "many",
+      },
       {
         key: "projectDeal",
         source: "project",
@@ -103,6 +148,20 @@ export const agencyPlan: SetupPlanInput = {
           reducer: "sum",
         },
       },
+      {
+        key: "deal.weightedValue",
+        label: "Weighted value",
+        valueType: "currency",
+        expression: {
+          op: "divide",
+          left: {
+            op: "multiply",
+            left: { op: "field", field: "deal.value" },
+            right: { op: "optionWeight", field: "deal.stage" },
+          },
+          right: { op: "number", value: "100" },
+        },
+      },
     ],
   },
   listDefaults: [
@@ -112,9 +171,9 @@ export const agencyPlan: SetupPlanInput = {
       layout: "board",
       groupBy: "deal.stage",
       sort: { field: "deal.closeDate", direction: "asc" },
-      columns: ["deal.stage", "deal.totalValue", "deal.closeDate", "deal.leadSource"],
+      columns: ["deal.stage", "deal.value", "deal.closeDate", "deal.leadSource"],
       summaries: [
-        { field: "deal.totalValue", aggregation: "sum" },
+        { field: "deal.value", aggregation: "sum" },
         { field: "deal.weightedValue", aggregation: "sum" },
       ],
     },
@@ -127,10 +186,21 @@ export const agencyPlan: SetupPlanInput = {
       columns: ["project.phase", "project.dueDate", "project.budget"],
       summaries: [{ field: "project.budget", aggregation: "sum" }],
     },
+    {
+      list: "contact",
+      name: "People",
+      layout: "table",
+      groupBy: null,
+      sort: null,
+      columns: ["contact.channels", "contact.jobTitle"],
+      summaries: [],
+    },
   ],
   sampleData: {
     lists: [
       { list: "organization", count: 5, kinds: ["Marketing teams of mid-sized brands"] },
+      { list: "service", count: 4, kinds: ["Website relaunch", "Campaign"] },
+      { list: "contact", count: 6, kinds: ["Marketing leads"] },
       { list: "deal", count: 8, kinds: ["Website relaunch", "Campaign"] },
       { list: "project", count: 6, kinds: ["Website relaunch"] },
     ],
@@ -142,7 +212,7 @@ export const agencyPlan: SetupPlanInput = {
         title: "Open pipeline",
         list: "deal",
         aggregation: "sum",
-        valueField: "deal.totalValue",
+        valueField: "deal.value",
         groupBy: null,
         filters: [{ operator: "notIn", field: "deal.stage", options: ["won", "lost"] }],
         display: DisplayType.number,
@@ -152,7 +222,7 @@ export const agencyPlan: SetupPlanInput = {
         title: "Won in the last 30 days",
         list: "deal",
         aggregation: "sum",
-        valueField: "deal.totalValue",
+        valueField: "deal.value",
         groupBy: null,
         filters: [
           { operator: "in", field: "deal.stage", options: ["won"] },
@@ -204,7 +274,6 @@ export const agencyPlan: SetupPlanInput = {
     columns: [
       { column: "Company", field: "organization.name" },
       { column: "Sector", field: "organization.industry" },
-      { column: "Comments", field: "organization.notes" },
       { column: "Internal id", field: null },
     ],
   },
@@ -215,12 +284,16 @@ export const saasPlan: SetupPlanInput = {
   workspace: { currency: "USD", dashboardAudience: "management" },
   recordModel: {
     lists: [
+      { key: "person", label: "Person", pluralLabel: "People", icon: "user", role: "people" },
+      { key: "account", label: "Account", pluralLabel: "Accounts", icon: "building" },
+      { key: "opportunity", label: "Opportunity", pluralLabel: "Opportunities", icon: "handshake", role: "deals" },
+      { key: "plan", label: "Plan", pluralLabel: "Plans", icon: "tag", role: "offerings" },
+      { key: "todo", label: "To-do", pluralLabel: "To-dos", icon: "check", role: "tasks" },
       { key: "subscription", label: "Subscription", pluralLabel: "Subscriptions", icon: "repeat", color: "success" },
     ],
-    listChanges: [{ list: "service", label: "Plan", pluralLabel: "Plans", icon: "tag" }],
     fields: [
       {
-        key: "subscription.plan",
+        key: "subscription.tier",
         label: "Tier",
         valueType: "select",
         options: [
@@ -241,14 +314,11 @@ export const saasPlan: SetupPlanInput = {
       },
       { key: "subscription.monthlyFee", label: "Monthly fee", valueType: "currency", required: true },
       { key: "subscription.renewalDate", label: "Renewal date", valueType: "date" },
-      { key: "deal.recurring", label: "Recurring", valueType: "boolean" },
-      { key: "organization.seats", label: "Seats", valueType: "number" },
-      { key: "contact.role", label: "Role", valueType: "text" },
-    ],
-    fieldChanges: [
+      { key: "opportunity.recurring", label: "Recurring", valueType: "boolean" },
       {
-        field: "deal.stage",
+        key: "opportunity.stage",
         label: "Sales stage",
+        valueType: "select",
         options: [
           { key: "trial", label: "Trial", weight: 20 },
           { key: "demo", label: "Demo" },
@@ -257,12 +327,23 @@ export const saasPlan: SetupPlanInput = {
           { key: "lost", label: "Lost", outcome: "lost" },
         ],
       },
+      { key: "account.seats", label: "Seats", valueType: "number" },
+      { key: "person.role", label: "Role", valueType: "text" },
     ],
     relationships: [
       {
+        key: "personAccount",
+        source: "person",
+        target: "account",
+        sourceLabel: "Account",
+        targetLabel: "People",
+        sourceCardinality: "one",
+        targetCardinality: "many",
+      },
+      {
         key: "subscriptionCustomer",
         source: "subscription",
-        target: "organization",
+        target: "account",
         sourceLabel: "Customer",
         targetLabel: "Subscriptions",
         sourceCardinality: "one",
@@ -271,8 +352,8 @@ export const saasPlan: SetupPlanInput = {
       {
         key: "subscriptionDeal",
         source: "subscription",
-        target: "deal",
-        sourceLabel: "Deal",
+        target: "opportunity",
+        sourceLabel: "Opportunity",
         targetLabel: "Subscriptions",
         sourceCardinality: "one",
         targetCardinality: "many",
@@ -290,7 +371,7 @@ export const saasPlan: SetupPlanInput = {
         },
       },
       {
-        key: "organization.mrr",
+        key: "account.mrr",
         label: "Monthly recurring revenue",
         valueType: "currency",
         expression: {
@@ -310,17 +391,17 @@ export const saasPlan: SetupPlanInput = {
       layout: "table",
       groupBy: null,
       sort: { field: "subscription.renewalDate", direction: "asc" },
-      columns: ["subscription.plan", "subscription.status", "subscription.monthlyFee", "subscription.renewalDate"],
+      columns: ["subscription.tier", "subscription.status", "subscription.monthlyFee", "subscription.renewalDate"],
       summaries: [],
     },
     {
-      list: "deal",
+      list: "opportunity",
       name: "Pipeline",
       layout: "board",
-      groupBy: "deal.stage",
+      groupBy: "opportunity.stage",
       sort: null,
       columns: [],
-      summaries: [{ field: "deal.weightedValue", aggregation: "sum" }],
+      summaries: [{ field: "opportunity.value", aggregation: "sum" }],
     },
   ],
   dashboard: {
@@ -337,10 +418,10 @@ export const saasPlan: SetupPlanInput = {
       },
       {
         key: "forecast",
-        title: "Weighted forecast",
-        list: "deal",
+        title: "Pipeline value",
+        list: "opportunity",
         aggregation: "sum",
-        valueField: "deal.weightedValue",
+        valueField: "opportunity.value",
         groupBy: null,
         filters: [],
         display: DisplayType.number,
@@ -362,7 +443,7 @@ export const saasPlan: SetupPlanInput = {
         list: "subscription",
         aggregation: "count",
         valueField: null,
-        groupBy: { path: [], field: "subscription.plan" },
+        groupBy: { path: [], field: "subscription.tier" },
         filters: [],
         display: DisplayType.verticalBarChart,
       },
@@ -376,10 +457,12 @@ export const fieldServicePlan: SetupPlanInput = {
   workspace: { currency: "EUR", dashboardAudience: "me" },
   recordModel: {
     lists: [
+      { key: "contact", label: "Contact", pluralLabel: "Contacts", icon: "contact", role: "people" },
+      { key: "customer", label: "Customer", pluralLabel: "Customers", icon: "building" },
+      { key: "job", label: "Job", pluralLabel: "Jobs", icon: "check", role: "tasks" },
       { key: "appointment", label: "Appointment", pluralLabel: "Appointments", icon: "calendar" },
       { key: "ticket", label: "Ticket", pluralLabel: "Tickets", icon: "ticket" },
     ],
-    listChanges: [],
     fields: [
       { key: "appointment.start", label: "Start", valueType: "dateTime", required: true },
       {
@@ -416,14 +499,23 @@ export const fieldServicePlan: SetupPlanInput = {
         ],
       },
       { key: "ticket.openedOn", label: "Opened on", valueType: "date" },
-      { key: "organization.phone", label: "Phone", valueType: "phone" },
+      { key: "customer.phone", label: "Phone", valueType: "phone" },
+      { key: "job.dueDate", label: "Due date", valueType: "date" },
     ],
-    fieldChanges: [{ field: "deal.stage", label: "Quote stage" }],
     relationships: [
+      {
+        key: "contactCustomer",
+        source: "contact",
+        target: "customer",
+        sourceLabel: "Customer",
+        targetLabel: "Contacts",
+        sourceCardinality: "one",
+        targetCardinality: "many",
+      },
       {
         key: "appointmentCustomer",
         source: "appointment",
-        target: "organization",
+        target: "customer",
         sourceLabel: "Customer",
         targetLabel: "Appointments",
         sourceCardinality: "one",
@@ -432,7 +524,7 @@ export const fieldServicePlan: SetupPlanInput = {
       {
         key: "ticketCustomer",
         source: "ticket",
-        target: "organization",
+        target: "customer",
         sourceLabel: "Customer",
         targetLabel: "Tickets",
         sourceCardinality: "one",
@@ -450,7 +542,7 @@ export const fieldServicePlan: SetupPlanInput = {
     ],
     calculations: [
       {
-        key: "organization.ticketCount",
+        key: "customer.ticketCount",
         label: "Tickets raised",
         valueType: "number",
         expression: {

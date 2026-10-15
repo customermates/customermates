@@ -42,7 +42,6 @@ import { phaseView, setupPlan, setupView } from "./setup-view-fixture";
 let container: HTMLDivElement;
 let root: Root;
 let onContinue: ReturnType<typeof vi.fn<() => Promise<void>>>;
-let onStandard: ReturnType<typeof vi.fn<() => Promise<void>>>;
 
 const LIST_ID = "4a1c4b8f-4f75-4d0b-9a3e-1b5f0a2c6d71";
 
@@ -61,7 +60,7 @@ function render(setup: WorkspaceSetupView) {
     workspaceSetupStore: store,
     navigationGuard: { requestRouteRefreshWhenSafe: harness.requestRefresh },
   };
-  act(() => root.render(createElement(SetupBuildView, { onContinue, onStandard })));
+  act(() => root.render(createElement(SetupBuildView, { onContinue })));
   return store;
 }
 
@@ -78,7 +77,6 @@ beforeEach(() => {
   document.body.append(container);
   root = createRoot(container);
   onContinue = vi.fn().mockResolvedValue(undefined);
-  onStandard = vi.fn().mockResolvedValue(undefined);
   harness.retry.mockResolvedValue({ ok: true, data: { setupId: "x" } });
 });
 
@@ -88,7 +86,7 @@ afterEach(() => {
 });
 
 describe("SetupBuildView", () => {
-  it("names the running phase in plain words and offers the standard setup before the data model lands", () => {
+  it("names the running phase in plain words and offers no way out while it runs", () => {
     render(
       building({
         currentPhase: "dataModel",
@@ -106,8 +104,7 @@ describe("SetupBuildView", () => {
     expect(status?.textContent).toContain("WorkspaceSetup.build.actions.pipeline");
     expect(status?.textContent).toContain("Lead → Demo → Won");
     expect(container.querySelector("h1")?.textContent).toBe("WorkspaceSetup.build.title");
-    expect(button("WorkspaceSetup.plan.standard")).toBeDefined();
-    expect(button("WorkspaceSetup.build.continue")).toBeUndefined();
+    expect(container.querySelectorAll("button")).toHaveLength(0);
     expect(container.querySelector('[aria-current="step"]')?.textContent).toContain(
       "WorkspaceSetup.build.phases.knowledgeBase",
     );
@@ -118,7 +115,6 @@ describe("SetupBuildView", () => {
     render(
       building({
         status: "completed",
-        canUseStandardSetup: false,
         phases: [
           phaseView("knowledgeBase", "completed"),
           phaseView("dataModel", "completed"),
@@ -148,7 +144,6 @@ describe("SetupBuildView", () => {
             { id: "8c1b9a9e-2f43-4a77-9d38-7b9e6c2b4f10", title: "Pipeline value", display: DisplayType.number },
           ],
           pages: [{ id: "1b2f6d0e-7f5a-4c2d-8e3b-9a1c4d5e6f70", title: "Company overview" }],
-          standard: false,
         },
       }),
     );
@@ -156,7 +151,6 @@ describe("SetupBuildView", () => {
     expect(container.querySelector("h1")?.textContent).toBe("WorkspaceSetup.build.completedTitle");
     for (const text of ["Opportunities", "Rollout Nord", "Pilot Süd", "Pipeline value", "Company overview"])
       expect(container.textContent).toContain(text);
-    expect(button("WorkspaceSetup.plan.standard")).toBeUndefined();
     act(() => button("WorkspaceSetup.build.continue")?.click());
     expect(onContinue).toHaveBeenCalledOnce();
     expect(harness.requestRefresh).toHaveBeenCalledOnce();
@@ -166,7 +160,6 @@ describe("SetupBuildView", () => {
     render(
       building({
         status: "failed",
-        canUseStandardSetup: false,
         phases: [
           phaseView("knowledgeBase", "completed"),
           phaseView("dataModel", "completed"),
@@ -189,8 +182,33 @@ describe("SetupBuildView", () => {
       retries[0].click();
       await Promise.resolve();
     });
-    expect(harness.retry).toHaveBeenCalledWith(expect.objectContaining({ phase: "records" }));
-    expect(button("WorkspaceSetup.build.continueAnyway")).toBeDefined();
+    expect(harness.retry).toHaveBeenCalledWith({ setupId: expect.any(String), phase: "records" });
+    expect(button("WorkspaceSetup.build.continue")).toBeUndefined();
+  });
+
+  it("offers to continue without the website when it could not be read, and support when the budget is gone", async () => {
+    render(
+      building({
+        status: "failed",
+        phases: [
+          phaseView("knowledgeBase", "failed", "crawlFailed"),
+          phaseView("dataModel", "completed"),
+          phaseView("views", "completed"),
+          phaseView("records", "stopped", "spendCap"),
+          phaseView("dashboard", "completed"),
+        ],
+      }),
+    );
+    expect(button("WorkspaceSetup.failures.contactSupport")).toBeDefined();
+    await act(async () => {
+      button("WorkspaceSetup.start.withoutWebsite")?.click();
+      await Promise.resolve();
+    });
+    expect(harness.retry).toHaveBeenCalledWith({
+      setupId: expect.any(String),
+      phase: "knowledgeBase",
+      withoutWebsite: true,
+    });
   });
 
   it("names no finish time while it runs", () => {

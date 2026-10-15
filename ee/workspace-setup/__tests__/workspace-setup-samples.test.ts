@@ -1,36 +1,68 @@
 import { describe, expect, it } from "vitest";
 
-import { presetId } from "@/features/records/crm-preset";
+import { compileSetupRecordModel } from "@/features/workspace-setup/setup-model-compiler";
+import { SetupPlanSchema } from "@/features/workspace-setup/setup-plan.schema";
+import { createSetupResolver } from "@/features/workspace-setup/setup-references";
+import {
+  SETUP_ID,
+  SETUP_LABELS,
+  emptyWorkspaceModel,
+  prepareConfiguration,
+} from "@/features/workspace-setup/__tests__/setup-harness";
+import { agencyPlan } from "@/features/workspace-setup/__tests__/setup-plan-fixtures";
 
 import { generatedSampleList, sampleListSpecs } from "../workspace-setup-samples";
-import { SETUP_COMPANY_ID, workspacePreset } from "@/features/workspace-setup/__tests__/setup-harness";
 
-const id = (key: string) => presetId(SETUP_COMPANY_ID, key);
+async function agency() {
+  const plan = SetupPlanSchema.parse(agencyPlan);
+  const compiled = compileSetupRecordModel(plan, {
+    setupId: SETUP_ID,
+    model: emptyWorkspaceModel(),
+    labels: SETUP_LABELS,
+  });
+  if (!compiled.ok) throw new Error(JSON.stringify(compiled.issues));
+  const prepared = await prepareConfiguration(compiled.data, emptyWorkspaceModel());
+  const resolver = createSetupResolver(plan, { model: prepared.model, references: prepared.preview.references });
+  const list = (key: string) => resolver.list(key) ?? "";
+  const lineItem = prepared.preview.references.find((entry) => entry.reference === "$list.lineItem")?.id ?? "";
+  return { model: prepared.model, resolver, list, lineItem };
+}
 
 describe("sample record tables", () => {
   it("orders lists so link targets are written first and offers only importable columns", async () => {
-    const model = await workspacePreset();
+    const { model, resolver, list, lineItem } = await agency();
     const levels = sampleListSpecs(
       [
-        { list: "deal", typeId: id("deal"), count: 3, kinds: ["Relaunch"] },
-        { list: "organization", typeId: id("organization"), count: 2, kinds: [] },
-        { list: "lineItem", typeId: id("lineItem"), count: 2, kinds: [] },
+        { list: "deal", typeId: list("deal"), count: 3, kinds: ["Relaunch"] },
+        { list: "organization", typeId: list("organization"), count: 2, kinds: [] },
+        { list: "lineItem", typeId: lineItem, count: 2, kinds: [] },
       ],
       model,
     );
     expect(levels.map((level) => level.map((spec) => spec.list))).toEqual([["organization"], ["deal"]]);
     const deal = levels[1][0];
     expect(deal.links.map((link) => link.targetList)).toEqual(["organization"]);
-    expect(deal.columns.map((column) => column.fieldId)).not.toContain(id("deal.totalValue"));
-    expect(deal.columns.map((column) => column.fieldId)).toContain(id("deal.stage"));
+    expect(deal.columns.map((column) => column.fieldId)).not.toContain(resolver.field("deal.value"));
+    expect(deal.columns.map((column) => column.fieldId)).toContain(resolver.field("deal.stage"));
+  });
+
+  it("leaves the Channels and avatar fields of the people list out of sample columns", async () => {
+    const { model, resolver, list } = await agency();
+    const anchors = new Set([resolver.field("contact.channels") ?? "", resolver.field("contact.avatar") ?? ""]);
+    const [[contact]] = sampleListSpecs(
+      [{ list: "contact", typeId: list("contact"), count: 3, kinds: [] }],
+      model,
+      anchors,
+    );
+    expect(contact.columns.map((column) => column.label)).toEqual(["Contact", "Job title", "Email"]);
   });
 
   it("keeps only links to records that were generated and maps every column for the importer", async () => {
-    const model = await workspacePreset();
+    const { model, list } = await agency();
     const [[organization], [deal]] = sampleListSpecs(
       [
-        { list: "organization", typeId: id("organization"), count: 2, kinds: [] },
-        { list: "deal", typeId: id("deal"), count: 2, kinds: [] },
+        { list: "organization", typeId: list("organization"), count: 2, kinds: [] },
+        { list: "deal", typeId: list("deal"), count: 2, kinds: [] },
       ],
       model,
     );

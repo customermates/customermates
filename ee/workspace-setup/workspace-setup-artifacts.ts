@@ -5,14 +5,12 @@ import type { StoredSetupResults } from "./workspace-setup.schema";
 
 import { z } from "zod";
 
-import { presetId } from "@/features/records/crm-preset";
 import {
   SpreadsheetMappingSchema,
   SpreadsheetTableSchema,
 } from "@/features/data-transfer/spreadsheet/spreadsheet.schema";
 import { AgentDataViewStateSchema } from "@/features/data-view/manage-data-views.schema";
 import { RecordWidgetInputSchema } from "@/features/widget/record-widget.schema";
-import { isSetupPresetList } from "@/features/workspace-setup/setup-preset-keys";
 import { setupListReference } from "@/features/workspace-setup/setup-references";
 
 export const SetupReferencesSchema = z.array(z.object({ reference: z.string(), id: z.uuid() }).strict());
@@ -66,25 +64,13 @@ export function setupResultLists(
   plan: SetupPlan,
   model: RecordModel,
   references: SetupReferences,
-  companyId: string,
 ): StoredSetupResults["lists"] {
   const ids = new Map(references.map((entry) => [entry.reference, entry.id]));
-  const keys = [
-    ...plan.recordModel.lists.map((list) => ({
-      key: list.key,
-      id: ids.get(setupListReference(list.key)),
-      created: true,
-    })),
-    ...[
-      ...new Set([
-        ...plan.recordModel.listChanges.map((change) => change.list),
-        ...plan.recordModel.fieldChanges.map((change) => change.field.split(".")[0]),
-        ...plan.recordModel.fields.map((field) => field.key.split(".")[0]),
-      ]),
-    ]
-      .filter(isSetupPresetList)
-      .map((key) => ({ key, id: presetId(companyId, key), created: false })),
-  ];
+  const keys = plan.recordModel.lists.map((list) => ({
+    key: list.key,
+    id: ids.get(setupListReference(list.key)),
+    created: true,
+  }));
   return keys.flatMap(({ key, id, created }) => {
     const type = model.types.find((candidate) => candidate.id === id && !candidate.archived);
     if (!type) return [];

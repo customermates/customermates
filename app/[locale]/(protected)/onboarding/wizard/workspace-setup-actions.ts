@@ -15,11 +15,9 @@ import {
   getPlanWorkspaceSetupInteractor,
   getRemoveWorkspaceSetupSampleDataInteractor,
   getRetryWorkspaceSetupPhaseInteractor,
-  getRollBackWorkspaceSetupInteractor,
   getSaveWorkspaceSetupAnswersInteractor,
   getStartWorkspaceSetupInteractor,
   getUploadWorkspaceSetupSpreadsheetInteractor,
-  getUseStandardWorkspaceSetupInteractor,
 } from "@/core/di";
 import { serializeTypedResult } from "@/core/utils/action-result";
 
@@ -65,12 +63,4 @@ export async function retryWorkspaceSetupPhaseAction(data: RetryWorkspaceSetupPh
 
 export async function removeWorkspaceSetupSampleDataAction(data: WorkspaceSetupIdData) {
   return serializeTypedResult(getRemoveWorkspaceSetupSampleDataInteractor().invoke(data));
-}
-
-export async function useStandardWorkspaceSetupAction(data: WorkspaceSetupIdData) {
-  return serializeTypedResult(getUseStandardWorkspaceSetupInteractor().invoke(data));
-}
-
-export async function rollBackWorkspaceSetupAction(data: WorkspaceSetupIdData) {
-  return serializeTypedResult(getRollBackWorkspaceSetupInteractor().invoke(data));
 }

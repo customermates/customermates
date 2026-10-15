@@ -4,19 +4,12 @@ import { CHIP_COLORS } from "@/constants/chip-colors";
 import { WIDGET_STARTER_DISPLAY_TYPES } from "@/features/widget/widget-display-rules";
 import { RECORD_MEASURE_DATE_INTERVALS } from "@/features/records/record-measure.schema";
 
-import {
-  SETUP_PRESET_RELATIONSHIPS,
-  isSetupPresetField,
-  isSetupPresetList,
-  isSetupPresetRelationship,
-} from "./setup-preset-keys";
+import { SETUP_LINE_ITEM_LIST, SETUP_LIST_ROLES, SETUP_REQUIRED_LIST_ROLES, setupAnchorFields } from "./setup-anchors";
 
 export const SETUP_PLAN_LIMITS = {
-  lists: 8,
-  listChanges: 6,
-  fields: 60,
-  fieldChanges: 30,
-  relationships: 16,
+  lists: 10,
+  fields: 80,
+  relationships: 20,
   calculations: 12,
   options: 20,
   listDefaults: 16,
@@ -34,7 +27,6 @@ export const SETUP_PLAN_LIMITS = {
 
 export const SetupKeySchema = z.string().regex(/^[a-z][a-zA-Z0-9]{0,23}$/);
 export const SetupFieldKeySchema = z.string().regex(/^[a-z][a-zA-Z0-9]{0,23}\.[a-z][a-zA-Z0-9]{0,23}$/);
-export const SetupRelationshipRefSchema = z.union([z.enum(SETUP_PRESET_RELATIONSHIPS), SetupKeySchema]);
 export const SetupSystemColumnSchema = z.enum(["system:createdAt", "system:updatedAt", "system:assignedTo"]);
 const LabelSchema = z.string().trim().min(1).max(80);
 const DescriptionSchema = z.string().trim().max(500);
@@ -111,7 +103,7 @@ export const SetupExpressionSchema: z.ZodType<SetupExpression> = z.lazy(() =>
     z
       .object({
         op: z.literal("related"),
-        relationship: SetupRelationshipRefSchema,
+        relationship: SetupKeySchema,
         direction: z.enum(["outgoing", "incoming"]),
         field: SetupFieldKeySchema,
         reducer: z.enum(["one", "sum", "count", "average", "min", "max"]),
@@ -173,11 +165,7 @@ export const SetupWidgetSchema = z
     groupBy: z
       .object({
         path: z
-          .array(
-            z
-              .object({ relationship: SetupRelationshipRefSchema, direction: z.enum(["outgoing", "incoming"]) })
-              .strict(),
-          )
+          .array(z.object({ relationship: SetupKeySchema, direction: z.enum(["outgoing", "incoming"]) }).strict())
           .max(2),
         field: FieldOrSystemSchema.nullable(),
         dateInterval: z.enum(RECORD_MEASURE_DATE_INTERVALS).optional(),
@@ -227,16 +215,7 @@ export const SetupNewListSchema = z
     description: DescriptionSchema.default(""),
     icon: IconSchema,
     color: ChipColorSchema.optional(),
-  })
-  .strict();
-
-export const SetupListChangeSchema = z
-  .object({
-    list: SetupKeySchema,
-    label: LabelSchema.optional(),
-    pluralLabel: LabelSchema.optional(),
-    icon: IconSchema.optional(),
-    color: ChipColorSchema.optional(),
+    role: z.enum(SETUP_LIST_ROLES).optional(),
   })
   .strict();
 
@@ -257,18 +236,6 @@ export const SetupNewFieldSchema = z
       context.addIssue({ code: "custom", path: ["multiple"], message: "This kind of field holds one value." });
   });
 export type SetupNewField = z.infer<typeof SetupNewFieldSchema>;
-
-export const SetupFieldChangeSchema = z
-  .object({
-    field: SetupFieldKeySchema,
-    label: LabelSchema.optional(),
-    options: OptionListSchema.optional(),
-  })
-  .strict()
-  .refine((change) => change.options === undefined || change.options.length > 0, {
-    path: ["options"],
-    message: "A choice field keeps at least one option.",
-  });
 
 export const SetupNewRelationshipSchema = z
   .object({
@@ -315,9 +282,7 @@ export const SetupPlanSchema = z
     recordModel: z
       .object({
         lists: z.array(SetupNewListSchema).max(SETUP_PLAN_LIMITS.lists),
-        listChanges: z.array(SetupListChangeSchema).max(SETUP_PLAN_LIMITS.listChanges),
         fields: z.array(SetupNewFieldSchema).max(SETUP_PLAN_LIMITS.fields),
-        fieldChanges: z.array(SetupFieldChangeSchema).max(SETUP_PLAN_LIMITS.fieldChanges),
         relationships: z.array(SetupNewRelationshipSchema).max(SETUP_PLAN_LIMITS.relationships),
         calculations: z.array(SetupCalculationSchema).max(SETUP_PLAN_LIMITS.calculations),
       })
@@ -374,53 +339,55 @@ export const SetupPlanSchema = z
     const model = plan.recordModel;
     const lists = new Set<string>();
     model.lists.forEach((list, index) => {
-      if (isSetupPresetList(list.key) || lists.has(list.key))
+      if (list.key === SETUP_LINE_ITEM_LIST || lists.has(list.key))
         issue(["recordModel", "lists", index, "key"], "The list key is taken.");
       lists.add(list.key);
     });
-    const knownList = (key: string) => isSetupPresetList(key) || lists.has(key);
-    model.listChanges.forEach((change, index) => {
-      if (!isSetupPresetList(change.list))
-        issue(["recordModel", "listChanges", index, "list"], "Only standard lists change.");
-    });
+    for (const role of SETUP_LIST_ROLES) {
+      const count = model.lists.filter((list) => list.role === role).length;
+      if (SETUP_REQUIRED_LIST_ROLES.includes(role) ? count !== 1 : count > 1)
+        issue(
+          ["recordModel", "lists"],
+          SETUP_REQUIRED_LIST_ROLES.includes(role)
+            ? `Mark exactly one list with the role ${role}.`
+            : `Mark at most one list with the role ${role}.`,
+        );
+    }
+    const anchors = new Set(setupAnchorFields(plan.recordModel.lists));
     const fields = new Set<string>();
     const declare = (key: string, path: (string | number)[]) => {
       const [list, name] = key.split(".");
-      if (isSetupPresetField(key) || fields.has(key) || (lists.has(list) && name === "name"))
-        issue(path, "The field key is taken.");
-      if (!knownList(list)) issue(path, "The field belongs to an unknown list.");
+      if (anchors.has(key)) issue(path, "The field is added automatically; do not declare it.");
+      else if (fields.has(key) || name === "name") issue(path, "The field key is taken.");
+      if (!lists.has(list)) issue(path, "The field belongs to an unknown list.");
       fields.add(key);
     };
     model.fields.forEach((field, index) => declare(field.key, ["recordModel", "fields", index, "key"]));
     model.calculations.forEach((field, index) => declare(field.key, ["recordModel", "calculations", index, "key"]));
     const relationships = new Set<string>();
     model.relationships.forEach((relation, index) => {
-      if (isSetupPresetRelationship(relation.key) || relationships.has(relation.key))
+      if (relationships.has(relation.key))
         issue(["recordModel", "relationships", index, "key"], "The relationship key is taken.");
-      if (!knownList(relation.source) || !knownList(relation.target))
+      if (!lists.has(relation.source) || !lists.has(relation.target))
         issue(["recordModel", "relationships", index], "The relationship connects an unknown list.");
       relationships.add(relation.key);
     });
-    model.fieldChanges.forEach((change, index) => {
-      if (!isSetupPresetField(change.field))
-        issue(["recordModel", "fieldChanges", index, "field"], "Only standard fields change.");
-    });
     plan.listDefaults.forEach((value, index) => {
-      if (!knownList(value.list)) issue(["listDefaults", index, "list"], "Unknown list.");
+      if (!lists.has(value.list)) issue(["listDefaults", index, "list"], "Unknown list.");
     });
     if (new Set(plan.listDefaults.map((value) => value.list)).size !== plan.listDefaults.length)
       issue(["listDefaults"], "Each list has one default.");
     plan.dashboard.widgets.forEach((widget, index) => {
-      if (!knownList(widget.list)) issue(["dashboard", "widgets", index, "list"], "Unknown list.");
+      if (!lists.has(widget.list)) issue(["dashboard", "widgets", index, "list"], "Unknown list.");
     });
     if (new Set(plan.dashboard.widgets.map((widget) => widget.key)).size !== plan.dashboard.widgets.length)
       issue(["dashboard", "widgets"], "Widget keys repeat.");
     plan.sampleData.lists.forEach((value, index) => {
-      if (!knownList(value.list)) issue(["sampleData", "lists", index, "list"], "Unknown list.");
+      if (!lists.has(value.list)) issue(["sampleData", "lists", index, "list"], "Unknown list.");
     });
     if (new Set(plan.knowledgeBase.pages.map((page) => page.key)).size !== plan.knowledgeBase.pages.length)
       issue(["knowledgeBase", "pages"], "Page keys repeat.");
-    if (plan.importMapping && !knownList(plan.importMapping.list)) issue(["importMapping", "list"], "Unknown list.");
+    if (plan.importMapping && !lists.has(plan.importMapping.list)) issue(["importMapping", "list"], "Unknown list.");
   });
 export type SetupPlan = z.infer<typeof SetupPlanSchema>;
 export type SetupPlanInput = z.input<typeof SetupPlanSchema>;

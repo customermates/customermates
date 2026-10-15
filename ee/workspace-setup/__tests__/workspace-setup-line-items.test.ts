@@ -3,30 +3,33 @@ import { describe, expect, it } from "vitest";
 import type { SetupAnswers } from "@/features/workspace-setup/setup-answers.schema";
 import type { GeneratedSampleList } from "../workspace-setup-samples";
 
-import { presetId } from "@/features/records/crm-preset";
 import { spreadsheetRecordId } from "@/features/data-transfer/spreadsheet/spreadsheet-conversion";
 import { setupIdempotencyKey } from "@/features/workspace-setup/setup-references";
 
 import { sampleLineItemPlans } from "../workspace-setup-line-items";
 
-const COMPANY = "00000000-0000-4000-8000-0000000000aa";
 const SETUP = "00000000-0000-4000-8000-0000000000bb";
-const id = (key: string) => presetId(COMPANY, key);
+const DEALS = "00000000-0000-4000-8000-000000000001";
+const OFFERINGS = "00000000-0000-4000-8000-000000000002";
+const OFFERING_NAME = "00000000-0000-4000-8000-000000000003";
+const OFFERING_PRICE = "00000000-0000-4000-8000-000000000004";
+const DEAL_NAME = "00000000-0000-4000-8000-000000000005";
+const offerings = { typeId: OFFERINGS, priceFieldId: OFFERING_PRICE, nameFieldId: OFFERING_NAME };
 
-function sample(list: string, columns: Array<[string, string]>, rows: string[][]): GeneratedSampleList {
+function sample(list: string, typeId: string, columns: Array<[string, string]>, rows: string[][]): GeneratedSampleList {
   return {
     list,
-    typeId: id(list),
+    typeId,
     table: {
       sheetName: list,
       headers: columns.map(([column]) => column),
       rows: rows.map((cells, index) => ({ rowNumber: index + 2, cells })),
     },
     mapping: {
-      typeId: id(list),
+      typeId,
       locale: "en",
       timeZone: "UTC",
-      columns: columns.map(([column, field]) => ({ column, fieldId: id(field) })),
+      columns: columns.map(([column, fieldId]) => ({ column, fieldId })),
       relationships: [],
     },
     titles: rows.map((cells) => cells[0]),
@@ -35,12 +38,13 @@ function sample(list: string, columns: Array<[string, string]>, rows: string[][]
 
 const recordId = (list: string, row: number) =>
   spreadsheetRecordId(setupIdempotencyKey(SETUP, `sample:${list}`), `record:${row}`);
-const deals = sample("deal", [["c1", "deal.name"]], [["Relaunch"], ["Campaign"], ["Audit"], ["Rejected"]]);
-const services = sample(
-  "service",
+const deals = sample("deal", DEALS, [["c1", DEAL_NAME]], [["Relaunch"], ["Campaign"], ["Audit"], ["Rejected"]]);
+const catalog = sample(
+  "product",
+  OFFERINGS,
   [
-    ["c1", "service.name"],
-    ["c2", "service.amount"],
+    ["c1", OFFERING_NAME],
+    ["c2", OFFERING_PRICE],
   ],
   [
     ["Workshop", "1500"],
@@ -52,43 +56,44 @@ const imported = new Set([
   recordId("deal", 2),
   recordId("deal", 3),
   recordId("deal", 4),
-  recordId("service", 2),
-  recordId("service", 3),
-  recordId("service", 4),
+  recordId("product", 2),
+  recordId("product", 3),
+  recordId("product", 4),
 ]);
 const range = (min: number, max: number | null): SetupAnswers => ({
   dealSize: { source: "user", confidence: 1, value: { format: "range", min, max } },
 });
 
 describe("sample deal line items", () => {
-  it("prices imported deals from imported services, sized to the company's deal range", () => {
+  it("prices imported deals from imported offerings, sized to the company's deal range", () => {
     const plans = sampleLineItemPlans({
-      companyId: COMPANY,
       setupId: SETUP,
-      samples: [services, deals],
+      samples: [catalog, deals],
       imported,
       answers: range(3_000, 12_000),
+      deals: DEALS,
+      offerings,
     });
     expect(plans).toEqual([
       {
-        deal: { typeId: id("deal"), recordId: recordId("deal", 2) },
+        deal: { typeId: DEALS, recordId: recordId("deal", 2) },
         name: "Workshop",
         quantity: 2,
-        service: { typeId: id("service"), recordId: recordId("service", 2) },
+        offering: { typeId: OFFERINGS, recordId: recordId("product", 2) },
         unitPrice: null,
       },
       {
-        deal: { typeId: id("deal"), recordId: recordId("deal", 3) },
+        deal: { typeId: DEALS, recordId: recordId("deal", 3) },
         name: "Design sprint",
         quantity: 2,
-        service: { typeId: id("service"), recordId: recordId("service", 4) },
+        offering: { typeId: OFFERINGS, recordId: recordId("product", 4) },
         unitPrice: null,
       },
       {
-        deal: { typeId: id("deal"), recordId: recordId("deal", 4) },
+        deal: { typeId: DEALS, recordId: recordId("deal", 4) },
         name: "Workshop",
         quantity: 3,
-        service: { typeId: id("service"), recordId: recordId("service", 2) },
+        offering: { typeId: OFFERINGS, recordId: recordId("product", 2) },
         unitPrice: null,
       },
     ]);
@@ -96,29 +101,34 @@ describe("sample deal line items", () => {
 
   it("varies quantities without a deal size and skips deals that were not imported", () => {
     const plans = sampleLineItemPlans({
-      companyId: COMPANY,
       setupId: SETUP,
-      samples: [services, deals],
+      samples: [catalog, deals],
       imported,
       answers: {},
+      deals: DEALS,
+      offerings,
     });
     expect(plans.map(({ quantity }) => quantity)).toEqual([1, 2, 3]);
     expect(plans.some(({ deal }) => deal.recordId === recordId("deal", 5))).toBe(false);
   });
 
-  it("uses a rounded saved price per deal when there are no sample services, and nothing without a deal size", () => {
+  it("uses a rounded saved price without priced offerings and never copies answer text into names", () => {
     const answers: SetupAnswers = {
       ...range(2_000, null),
-      offerings: { source: "user", confidence: 1, value: { format: "orderedList", items: [{ label: "Relaunch" }] } },
+      offerings: {
+        source: "website",
+        confidence: 1,
+        value: { format: "orderedList", items: [{ label: "Jahresabo" }] },
+      },
     };
-    const plans = sampleLineItemPlans({ companyId: COMPANY, setupId: SETUP, samples: [deals], imported, answers });
-    expect(plans.map(({ name, quantity, unitPrice, service }) => [name, quantity, unitPrice, service])).toEqual([
-      ["Relaunch", 1, "2000", null],
-      ["Relaunch", 1, "2000", null],
-      ["Relaunch", 1, "2000", null],
+    const plans = sampleLineItemPlans({ setupId: SETUP, samples: [deals], imported, answers, deals: DEALS, offerings });
+    expect(plans.map(({ name, quantity, unitPrice, offering }) => [name, quantity, unitPrice, offering])).toEqual([
+      [null, 1, "2000", null],
+      [null, 1, "2000", null],
+      [null, 1, "2000", null],
     ]);
     expect(
-      sampleLineItemPlans({ companyId: COMPANY, setupId: SETUP, samples: [deals], imported, answers: {} }),
+      sampleLineItemPlans({ setupId: SETUP, samples: [deals], imported, answers: {}, deals: DEALS, offerings }),
     ).toEqual([]);
   });
 });

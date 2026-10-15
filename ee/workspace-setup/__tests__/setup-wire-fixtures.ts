@@ -21,20 +21,8 @@ export function planToWire(input: SetupPlanInput): PlanWire {
   return {
     workspace: plan.workspace,
     recordModel: {
-      lists: model.lists.map((list) => ({ ...list, color: list.color ?? null })),
-      listChanges: model.listChanges.map((change) => ({
-        list: change.list,
-        label: change.label ?? null,
-        pluralLabel: change.pluralLabel ?? null,
-        icon: change.icon ?? null,
-        color: change.color ?? null,
-      })),
+      lists: model.lists.map((list) => ({ ...list, color: list.color ?? null, role: list.role ?? null })),
       fields: model.fields.map((field) => ({ ...field, options: field.options.map(wireOption) })),
-      fieldChanges: model.fieldChanges.map((change) => ({
-        field: change.field,
-        label: change.label ?? null,
-        options: change.options ? change.options.map(wireOption) : null,
-      })),
       relationships: model.relationships,
       calculations: model.calculations.map((calculation) => ({
         ...calculation,

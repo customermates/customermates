@@ -3,7 +3,6 @@
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import type { ChipColor } from "@/constants/chip-colors";
-import type { StandardSetupList } from "./setup-plan-summary";
 
 import { FileText } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -24,18 +23,6 @@ const TILE_SPANS: Record<string, string> = {
 };
 
 const DISPLAY_TYPES = new Set<string>(Object.values(DisplayType));
-
-export function useStandardListNames(): Record<StandardSetupList, string> {
-  const t = useTranslations();
-  return {
-    contact: t("WorkspaceSetup.plan.standardLists.contact"),
-    organization: t("WorkspaceSetup.plan.standardLists.organization"),
-    deal: t("WorkspaceSetup.plan.standardLists.deal"),
-    service: t("WorkspaceSetup.plan.standardLists.service"),
-    task: t("WorkspaceSetup.plan.standardLists.task"),
-    lineItem: t("WorkspaceSetup.plan.standardLists.lineItem"),
-  };
-}
 
 export function PreviewPanel({
   title,

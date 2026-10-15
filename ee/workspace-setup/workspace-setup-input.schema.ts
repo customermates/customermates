@@ -54,6 +54,14 @@ export const ConfirmWorkspaceSetupSchema = z
 export type ConfirmWorkspaceSetupData = Data<typeof ConfirmWorkspaceSetupSchema>;
 
 export const RetryWorkspaceSetupPhaseSchema = z
-  .object({ setupId: z.uuid(), phase: z.enum(WORKSPACE_SETUP_PHASES) })
-  .strict();
+  .object({
+    setupId: z.uuid(),
+    phase: z.enum(WORKSPACE_SETUP_PHASES),
+    withoutWebsite: z.boolean().optional(),
+  })
+  .strict()
+  .refine((data) => !data.withoutWebsite || data.phase === "knowledgeBase", {
+    path: ["withoutWebsite"],
+    message: "Only the Knowledge Base part continues without a website.",
+  });
 export type RetryWorkspaceSetupPhaseData = Data<typeof RetryWorkspaceSetupPhaseSchema>;

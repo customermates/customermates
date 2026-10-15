@@ -4615,6 +4615,10 @@
       "upload": "Subir una hoja de cálculo",
       "winChance": "Probabilidad de cierre"
     },
+    "anchors": {
+      "price": "Precio",
+      "value": "Valor"
+    },
     "build": {
       "actions": {
         "dashboard": "Creando tu panel",
@@ -4630,8 +4634,7 @@
       "completedBody": "Todo está listo. Ahora, invita a tu equipo.",
       "completedTitle": "Tu espacio de trabajo está listo",
       "continue": "Continuar con las invitaciones",
-      "continueAnyway": "Continuar con lo que tienes",
-      "failedBody": "Todo lo terminado se conserva. Reintenta una parte o continúa con lo que tienes.",
+      "failedBody": "Todo lo terminado se conserva. Reintenta la parte que no terminó para completar tu espacio.",
       "failedTitle": "Una parte de la configuración no terminó",
       "frameTitle": "Tu espacio de trabajo",
       "keepsRunning": "Sigue en marcha aunque cierres la pestaña. Puedes volver cuando quieras.",
@@ -4657,15 +4660,16 @@
       },
       "summaries": {
         "dashboard": "{count, plural, =0 {Ningún widget añadido} one {# widget añadido} other {# widgets añadidos}}",
-        "dataModel": "{count, plural, =0 {Listas estándar conservadas} one {# lista lista} other {# listas listas}}",
+        "dataModel": "{count, plural, =0 {No se crearon listas} one {# lista lista} other {# listas listas}}",
         "knowledgeBase": "{count, plural, =0 {Ninguna página escrita} one {# página escrita} other {# páginas escritas}}",
         "records": "{count, plural, =0 {Ningún registro añadido} one {# registro añadido} other {# registros añadidos}}",
-        "views": "{count, plural, =0 {Vistas estándar conservadas} one {# vista organizada} other {# vistas organizadas}}"
+        "views": "{count, plural, =0 {No se organizaron vistas} one {# vista organizada} other {# vistas organizadas}}"
       },
       "title": "Configurando tu espacio de trabajo"
     },
     "failures": {
       "aiUnavailable": "El servicio de IA no está disponible ahora mismo. Vuelve a intentarlo en unos minutos.",
+      "contactSupport": "Contactar con soporte",
       "crawlFailed": "No se pudo leer tu sitio web.",
       "dependency": "Esta parte espera a una parte anterior que no terminó.",
       "error": "Algo salió mal en esta parte.",
@@ -4673,8 +4677,9 @@
       "invalidPlan": "El plan no encajaba con tu espacio de trabajo.",
       "permission": "Tu rol no permite este cambio.",
       "schemaChanged": "Tu espacio de trabajo cambió mientras se ejecutaba esta parte.",
-      "spendCap": "Se agotó el presupuesto de configuración de este espacio, así que esta parte se detuvo. Todo lo terminado se conserva.",
-      "spreadsheet": "No se pudo importar la hoja de cálculo."
+      "spendCap": "Se agotó el presupuesto de configuración de este espacio, así que esta parte se detuvo. Todo lo terminado se conserva. Escríbenos y te ayudaremos a terminar la configuración.",
+      "spreadsheet": "No se pudo importar la hoja de cálculo.",
+      "supportSubject": "Presupuesto de configuración del espacio"
     },
     "interview": {
       "addEntry": "Añadir una entrada",
@@ -4822,20 +4827,11 @@
       "morePages": "{count, plural, one {y # página más} other {y # páginas más}}",
       "noDashboard": "No hay widgets de panel previstos.",
       "noPages": "No hay páginas de la base de conocimiento previstas.",
+      "noPipeline": "No hay ningún pipeline previsto.",
       "pipeline": "Pipeline",
       "planningBody": "Convertimos tus respuestas en listas, un pipeline, un panel y páginas de la base de conocimiento.",
       "planningTitle": "Preparando tu plan",
       "sampleSummary": "{count, plural, one {Añade # registro de ejemplo para que puedas probar enseguida.} other {Añade # registros de ejemplo para que puedas probar enseguida.}}",
-      "standard": "Empezar con la configuración estándar",
-      "standardLists": {
-        "contact": "Contactos",
-        "deal": "Oportunidades",
-        "lineItem": "Partidas",
-        "organization": "Organizaciones",
-        "service": "Servicios",
-        "task": "Tareas"
-      },
-      "standardPipeline": "Tus oportunidades conservan las etapas estándar.",
       "subtitle": "Esto es lo que vamos a construir. Nada cambia hasta que confirmes.",
       "title": "El plan de tu espacio de trabajo",
       "tryAgain": "Reintentar",

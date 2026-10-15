@@ -4615,6 +4615,10 @@
       "upload": "Carica un foglio di calcolo",
       "winChance": "Probabilità di chiusura"
     },
+    "anchors": {
+      "price": "Prezzo",
+      "value": "Valore"
+    },
     "build": {
       "actions": {
         "dashboard": "Creazione della dashboard",
@@ -4630,8 +4634,7 @@
       "completedBody": "È tutto pronto. Ora invita il tuo team.",
       "completedTitle": "Il tuo workspace è pronto",
       "continue": "Continua con gli inviti",
-      "continueAnyway": "Continua con quello che hai",
-      "failedBody": "Tutto ciò che è finito resta. Riprova una parte o continua con quello che hai.",
+      "failedBody": "Tutto ciò che è finito resta. Riprova la parte non completata per finire il tuo workspace.",
       "failedTitle": "Una parte della configurazione non è stata completata",
       "frameTitle": "Il tuo workspace",
       "keepsRunning": "La configurazione continua anche se chiudi la scheda. Puoi tornare in qualsiasi momento.",
@@ -4657,15 +4660,16 @@
       },
       "summaries": {
         "dashboard": "{count, plural, =0 {Nessun widget aggiunto} one {# widget aggiunto} other {# widget aggiunti}}",
-        "dataModel": "{count, plural, =0 {Liste standard mantenute} one {# lista pronta} other {# liste pronte}}",
+        "dataModel": "{count, plural, =0 {Nessuna lista creata} one {# lista pronta} other {# liste pronte}}",
         "knowledgeBase": "{count, plural, =0 {Nessuna pagina scritta} one {# pagina scritta} other {# pagine scritte}}",
         "records": "{count, plural, =0 {Nessun record aggiunto} one {# record aggiunto} other {# record aggiunti}}",
-        "views": "{count, plural, =0 {Viste standard mantenute} one {# vista organizzata} other {# viste organizzate}}"
+        "views": "{count, plural, =0 {Nessuna vista organizzata} one {# vista organizzata} other {# viste organizzate}}"
       },
       "title": "Stiamo configurando il tuo workspace"
     },
     "failures": {
       "aiUnavailable": "Il servizio di IA non è disponibile al momento. Riprova tra qualche minuto.",
+      "contactSupport": "Contatta il supporto",
       "crawlFailed": "Non è stato possibile leggere il tuo sito web.",
       "dependency": "Questa parte attende una parte precedente che non è stata completata.",
       "error": "Qualcosa è andato storto in questa parte.",
@@ -4673,8 +4677,9 @@
       "invalidPlan": "Il piano non era adatto al tuo workspace.",
       "permission": "Il tuo ruolo non consente questa modifica.",
       "schemaChanged": "Il tuo workspace è cambiato mentre questa parte era in corso.",
-      "spendCap": "Il budget di configurazione di questo workspace è esaurito, quindi questa parte si è fermata. Tutto ciò che è già finito resta.",
-      "spreadsheet": "Non è stato possibile importare il foglio di calcolo."
+      "spendCap": "Il budget di configurazione di questo workspace è esaurito, quindi questa parte si è fermata. Tutto ciò che è già finito resta. Scrivici e ti aiuteremo a completare la configurazione.",
+      "spreadsheet": "Non è stato possibile importare il foglio di calcolo.",
+      "supportSubject": "Budget di configurazione del workspace"
     },
     "interview": {
       "addEntry": "Aggiungi una voce",
@@ -4822,20 +4827,11 @@
       "morePages": "{count, plural, one {e # altra pagina} other {e altre # pagine}}",
       "noDashboard": "Non sono previsti widget per la dashboard.",
       "noPages": "Non sono previste pagine della knowledge base.",
+      "noPipeline": "Non è prevista alcuna pipeline.",
       "pipeline": "Pipeline",
       "planningBody": "Trasformiamo le tue risposte in liste, una pipeline, una dashboard e pagine della knowledge base.",
       "planningTitle": "Stiamo preparando il tuo piano",
       "sampleSummary": "{count, plural, one {Aggiunge # record di esempio per provare subito.} other {Aggiunge # record di esempio per provare subito.}}",
-      "standard": "Inizia con la configurazione standard",
-      "standardLists": {
-        "contact": "Contatti",
-        "deal": "Trattative",
-        "lineItem": "Voci",
-        "organization": "Organizzazioni",
-        "service": "Servizi",
-        "task": "Attività"
-      },
-      "standardPipeline": "Le tue trattative mantengono le fasi standard.",
       "subtitle": "Ecco cosa costruiremo. Nulla cambia finché non confermi.",
       "title": "Il piano del tuo workspace",
       "tryAgain": "Riprova",

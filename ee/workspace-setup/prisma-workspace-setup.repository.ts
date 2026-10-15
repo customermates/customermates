@@ -262,14 +262,6 @@ export class PrismaWorkspaceSetupRepo extends TenantRepository implements Worksp
     });
   }
 
-  async wikiPages(ids: string[]) {
-    if (ids.length === 0) return [];
-    return this.prisma.wikiPage.findMany({
-      where: { companyId: this.companyId, deletedAt: null, id: { in: ids } },
-      select: { id: true, title: true, updatedAt: true },
-    });
-  }
-
   async findOwnedView(surfaceKey: string, name: string) {
     const row = await this.prisma.dataView.findFirst({
       where: { companyId: this.companyId, userId: this.userId, surfaceKey, name },

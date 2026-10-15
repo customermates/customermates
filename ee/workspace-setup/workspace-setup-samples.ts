@@ -41,13 +41,14 @@ export type GeneratedSampleList = {
 export function sampleListSpecs(
   entries: Array<{ list: string; typeId: string; count: number; kinds: string[] }>,
   model: RecordModel,
+  exclude: ReadonlySet<string> = new Set(),
 ): SampleListSpec[][] {
   const byType = new Map(entries.map((entry) => [entry.typeId, entry.list]));
   const specs = entries.flatMap((entry): SampleListSpec[] => {
     const type = model.types.find((candidate) => candidate.id === entry.typeId && !candidate.archived);
     if (!type || type.embedded || entry.count === 0) return [];
     const fields = model.fields
-      .filter((field) => field.typeId === type.id && importableSpreadsheetField(field))
+      .filter((field) => field.typeId === type.id && !exclude.has(field.id) && importableSpreadsheetField(field))
       .sort((left, right) => left.position - right.position)
       .slice(0, MAX_COLUMNS);
     const columns = fields.map((field, index) => ({

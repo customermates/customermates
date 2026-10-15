@@ -21,9 +21,7 @@ vi.mock("next-intl/server", () => ({
 
 const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
-const { createTestRecordRepo, createTestDataViewRepo, initializeStarterRecordModel } = await import(
-  "@/tests/helpers/record-repository"
-);
+const { createTestRecordRepo, createTestDataViewRepo } = await import("@/tests/helpers/record-repository");
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
 const { RecordAccessPolicy } = await import("@/features/records/record-access");
 const { RecordCalculationService } = await import("@/features/records/record-calculation.service");
@@ -45,6 +43,7 @@ const { createSetupResolver } = await import("../setup-references");
 const { compileSetupListDefaults } = await import("../setup-view-compiler");
 const { compileSetupDashboard } = await import("../setup-dashboard-compiler");
 const { agencyPlan, fieldServicePlan, saasPlan } = await import("./setup-plan-fixtures");
+const { SETUP_LABELS } = await import("./setup-harness");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -90,8 +89,7 @@ async function workspace() {
     createTestDataViewRepo(),
   );
   const run = <T>(fn: () => Promise<T>) => runWithTenant(admin, fn);
-  await run(() => initializeStarterRecordModel(repo));
-  return { companyId: seed.company.id, repo, preview, apply, widgets, run };
+  return { repo, preview, apply, widgets, run };
 }
 
 describeDatabase("workspace setup plan against the record engine", () => {
@@ -104,14 +102,15 @@ describeDatabase("workspace setup plan against the record engine", () => {
     ["subscription business", saasPlan],
     ["field service", fieldServicePlan],
   ])(
-    "previews, applies and re-applies the %s plan on a fresh workspace",
+    "previews, applies and re-applies the %s plan on an empty workspace",
     async (_name, input) => {
-      const { companyId, repo, preview, apply, widgets, run } = await workspace();
+      const { repo, preview, apply, widgets, run } = await workspace();
       const plan = SetupPlanSchema.parse(input);
       const setupId = randomUUID();
-      const preset = await run(() => repo.getModel());
-      expect(preset.revision).toBe(1);
-      const compiled = compileSetupRecordModel(plan, { companyId, setupId, model: preset, brandChip: "info" });
+      const empty = await run(() => repo.getModel());
+      expect(empty).toMatchObject({ revision: 0, types: [] });
+      const context = { setupId, model: empty, labels: SETUP_LABELS, brandChip: "info" as const };
+      const compiled = compileSetupRecordModel(plan, context);
       if (!compiled.ok) throw new Error(JSON.stringify(compiled.issues));
 
       const previewed = await run(() => preview.invoke(compiled.data));
@@ -123,19 +122,30 @@ describeDatabase("workspace setup plan against the record engine", () => {
       const first = await run(() => apply.invoke(compiled.data));
       expect(first).toEqual({
         ok: true,
-        data: expect.objectContaining({ status: "completed", refs: [], schemaRevision: 2 }),
+        data: expect.objectContaining({ status: "completed", refs: [], schemaRevision: 1 }),
       });
       const applied = await run(() => repo.getModel());
-      expect(applied.revision).toBe(2);
+      expect(applied.revision).toBe(1);
 
-      const again = compileSetupRecordModel(plan, { companyId, setupId, model: preset, brandChip: "info" });
+      const again = compileSetupRecordModel(plan, context);
       expect(again).toEqual(compiled);
       if (!again.ok) return;
       expect(await run(() => apply.invoke(again.data))).toEqual(first);
-      expect((await run(() => repo.getModel())).revision).toBe(2);
+      expect((await run(() => repo.getModel())).revision).toBe(1);
 
-      const resolver = createSetupResolver(plan, { companyId, model: applied, references: previewed.data.references });
+      const resolver = createSetupResolver(plan, { model: applied, references: previewed.data.references });
       for (const list of plan.recordModel.lists) expect(resolver.list(list.key)).toBeDefined();
+      const people = plan.recordModel.lists.find((list) => list.role === "people")?.key ?? "";
+      const tasks = plan.recordModel.lists.find((list) => list.role === "tasks")?.key ?? "";
+      expect(applied.fields.find((field) => field.id === resolver.field(`${people}.channels`))?.format).toMatchObject({
+        providerAvatar: true,
+      });
+      expect(applied.capabilities.map((binding) => [binding.kind, binding.typeId]).sort()).toEqual(
+        [
+          ["avatar", resolver.list(people)],
+          ["membershipAuthorization", resolver.list(tasks)],
+        ].sort(),
+      );
 
       const views = compileSetupListDefaults(plan, resolver, applied);
       if (!views.ok) throw new Error(JSON.stringify(views.issues));
@@ -157,14 +167,14 @@ describeDatabase("workspace setup plan against the record engine", () => {
   );
 
   it("is rejected by the engine when the workspace changed after compiling", async () => {
-    const { companyId, repo, apply, run } = await workspace();
+    const { repo, apply, run } = await workspace();
     const plan = SetupPlanSchema.parse(agencyPlan);
-    const preset = await run(() => repo.getModel());
-    const compiled = compileSetupRecordModel(plan, { companyId, setupId: randomUUID(), model: preset });
+    const empty = await run(() => repo.getModel());
+    const compiled = compileSetupRecordModel(plan, { setupId: randomUUID(), model: empty, labels: SETUP_LABELS });
     if (!compiled.ok) throw new Error(JSON.stringify(compiled.issues));
-    const stale = { ...compiled.data, expectedRevision: 0 };
+    const stale = { ...compiled.data, expectedRevision: 1 };
     const result = await run(() => apply.invoke(stale));
     expect(result.ok).toBe(false);
-    expect((await run(() => repo.getModel())).revision).toBe(1);
+    expect((await run(() => repo.getModel())).revision).toBe(0);
   });
 });

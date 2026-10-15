@@ -60,15 +60,8 @@ export type WorkspaceSetupView = {
   currentPhase: WorkspaceSetupPhase | null;
   results: StoredSetupResults;
   spend: { usedMicrocents: number; heldMicrocents: number; capMicrocents: number; capReached: boolean };
-  canUseStandardSetup: boolean;
   canRemoveSampleData: boolean;
-  canRollBack: boolean;
 };
-
-export function canUseStandardSetup(setup: Pick<WorkspaceSetupRecord, "status" | "phases">): boolean {
-  const dataModel = setup.phases.dataModel?.status;
-  return setup.status !== "completed" && dataModel !== "completed" && dataModel !== "running";
-}
 
 export function workspaceSetupView(
   setup: WorkspaceSetupRecord,
@@ -129,8 +122,6 @@ export function workspaceSetupView(
       capMicrocents,
       capReached: spend.usedMicrocents + spend.heldMicrocents >= capMicrocents,
     },
-    canUseStandardSetup: canUseStandardSetup(setup),
     canRemoveSampleData: setup.created.sampleRecords.length > 0 && idle,
-    canRollBack: (setup.status === "completed" || setup.status === "failed") && idle,
   };
 }

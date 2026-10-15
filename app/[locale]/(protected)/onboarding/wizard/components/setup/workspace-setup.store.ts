@@ -22,7 +22,6 @@ import {
   saveWorkspaceSetupAnswersAction,
   startWorkspaceSetupAction,
   uploadWorkspaceSetupSpreadsheetAction,
-  useStandardWorkspaceSetupAction as applyStandardWorkspaceSetupAction,
 } from "../../workspace-setup-actions";
 
 import {
@@ -37,16 +36,7 @@ import {
   unansweredFollowUps,
 } from "./setup-interview-state";
 
-export type SetupCommand =
-  | "start"
-  | "save"
-  | "plan"
-  | "followUps"
-  | "build"
-  | "retry"
-  | "standard"
-  | "upload"
-  | "refresh";
+export type SetupCommand = "start" | "save" | "plan" | "followUps" | "build" | "retry" | "upload" | "refresh";
 
 const POLLED_GENERATION = new Set(["queued", "running"]);
 
@@ -244,20 +234,17 @@ export class WorkspaceSetupStore {
       return confirmed;
     });
 
-  retryPhase = (phase: WorkspaceSetupPhase) =>
+  retryPhase = (phase: WorkspaceSetupPhase, withoutWebsite = false) =>
     this.run("retry", async () => {
       const setup = this.setup;
       if (!setup) return null;
-      const retried = await retryWorkspaceSetupPhaseAction({ setupId: setup.id, phase });
+      const retried = await retryWorkspaceSetupPhaseAction({
+        setupId: setup.id,
+        phase,
+        ...(withoutWebsite ? { withoutWebsite } : {}),
+      });
       if (retried.ok) await this.refresh();
       return retried;
-    });
-
-  applyStandardSetup = () =>
-    this.run("standard", async () => {
-      const setup = this.setup;
-      if (!setup) return null;
-      return applyStandardWorkspaceSetupAction({ setupId: setup.id });
     });
 
   uploadSpreadsheet = (file: File) =>

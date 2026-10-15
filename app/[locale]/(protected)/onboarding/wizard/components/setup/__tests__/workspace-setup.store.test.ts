@@ -11,7 +11,6 @@ const actions = vi.hoisted(() => ({
   saveWorkspaceSetupAnswersAction: vi.fn(),
   startWorkspaceSetupAction: vi.fn(),
   uploadWorkspaceSetupSpreadsheetAction: vi.fn(),
-  useStandardWorkspaceSetupAction: vi.fn(),
 }));
 const toast = vi.hoisted(() => vi.fn());
 

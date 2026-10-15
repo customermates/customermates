@@ -29,7 +29,6 @@ import { UserAccessor } from "@/core/base/user-accessor";
 import { interactorFailureCodes } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { PublicConfigurationChangeSchema } from "@/features/records/configuration.schema";
-import { presetId } from "@/features/records/crm-preset";
 import {
   ImportSpreadsheetSchema,
   SpreadsheetMappingSchema,
@@ -38,10 +37,25 @@ import {
   spreadsheetMappingIssues,
   spreadsheetRecordId,
 } from "@/features/data-transfer/spreadsheet/spreadsheet-conversion";
+import {
+  SETUP_LINE_ITEM_DEAL,
+  SETUP_LINE_ITEM_LIST,
+  SETUP_LINE_ITEM_OFFERING,
+  setupLineItemField,
+  setupLineItems,
+  setupRoleList,
+} from "@/features/workspace-setup/setup-anchors";
 import { compileSetupDashboard } from "@/features/workspace-setup/setup-dashboard-compiler";
 import { compileSetupImportMapping } from "@/features/workspace-setup/setup-import-compiler";
 import { compileSetupRecordModel } from "@/features/workspace-setup/setup-model-compiler";
-import { createSetupResolver, setupIdempotencyKey } from "@/features/workspace-setup/setup-references";
+import {
+  createSetupResolver,
+  setupFieldReference,
+  setupIdempotencyKey,
+  setupListReference,
+  setupNameReference,
+  setupRelationshipReference,
+} from "@/features/workspace-setup/setup-references";
 import { compileSetupListDefaults } from "@/features/workspace-setup/setup-view-compiler";
 import { untrustedText } from "@/features/mcp-tools/untrusted-record-content";
 
@@ -63,8 +77,11 @@ import {
   SETUP_MAPPING_INSTRUCTION,
   SETUP_SAMPLE_RECORDS_INSTRUCTION,
   encodePromptJson,
+  setupInterviewCatalog,
   setupLanguageName,
+  setupSampleFacts,
 } from "./workspace-setup-prompts";
+import { setupModelLabels } from "./workspace-setup-labels";
 import { generatedSampleList, sampleListSpecs } from "./workspace-setup-samples";
 import { sampleLineItemPlans } from "./workspace-setup-line-items";
 import { phaseFailure, phaseFailureOf } from "./workspace-setup-phase-failure";
@@ -115,7 +132,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
   constructor(
     private repo: WorkspaceSetupRepo,
     private models: Pick<WorkspaceSetupModelService, "generate" | "drainWarnings">,
-    private records: Pick<RecordRepo, "getModel" | "getGrants" | "getOperation">,
+    private records: Pick<RecordRepo, "getModel" | "getOperation">,
     private previewConfiguration: Pick<PreviewRecordConfigurationInteractor, "invoke">,
     private applyConfiguration: Pick<ApplyRecordConfigurationInteractor, "invoke">,
     private upsertView: Pick<UpsertDataViewInteractor, "invoke">,
@@ -309,16 +326,11 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     let references = artifact(setup, "references", SetupReferencesSchema);
     if (!bundle || !references) {
       const model = await this.records.getModel();
-      const dealType = presetId(this.companyId, "deal");
-      const listGrants = (await this.records.getGrants())
-        .filter((grant) => grant.typeId === dealType)
-        .map((grant) => ({ roleId: grant.roleId, actions: [...grant.actions] }));
       const compiled = compileSetupRecordModel(plan, {
-        companyId: this.companyId,
         setupId: setup.id,
         model,
+        labels: await setupModelLabels(setupLanguage(setup.answers)),
         brandChip: brand?.chip ?? null,
-        listGrants,
       });
       if (!compiled.ok) throw phaseFailure("invalidPlan");
       const previewed = await this.previewConfiguration.invoke(compiled.data);
@@ -349,7 +361,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
           fields: createdIdsOf(known, model, "field"),
           relationships: createdIdsOf(known, model, "relationship"),
         },
-        results: { ...current.results, colors: brand, lists: setupResultLists(plan, model, known, this.companyId) },
+        results: { ...current.results, colors: brand, lists: setupResultLists(plan, model, known) },
       }),
     };
   }
@@ -369,7 +381,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     const model = await this.records.getModel();
     return {
       model,
-      resolver: createSetupResolver(plan, { companyId: this.companyId, model, references: setup.created.references }),
+      resolver: createSetupResolver(plan, { model, references: setup.created.references }),
     };
   }
 
@@ -465,10 +477,15 @@ export class WorkspaceSetupBuildService extends UserAccessor {
         const typeId = resolver.list(entry.list);
         return typeId ? [{ list: entry.list, typeId, count: entry.count, kinds: entry.kinds }] : [];
       });
+      const people = setupRoleList(plan, "people");
+      const anchors = new Set(
+        (people ? [`${people}.channels`, `${people}.avatar`] : []).flatMap((ref) => resolver.field(ref) ?? []),
+      );
+      const facts = setupSampleFacts(setup.answers, await setupInterviewCatalog());
       const generated: GeneratedSampleList[] = [];
       const titles = new Map<string, string[]>();
-      for (const level of sampleListSpecs(entries, model)) {
-        const results = await Promise.all(level.map((spec) => this.generateSamples(setup, spec, titles)));
+      for (const level of sampleListSpecs(entries, model, anchors)) {
+        const results = await Promise.all(level.map((spec) => this.generateSamples(setup, spec, titles, facts)));
         for (const result of results) {
           if (result === "spendCap") capped = true;
           else if (result) {
@@ -516,33 +533,43 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     samples: GeneratedSampleList[],
     refs: RecordRef[],
   ) {
-    const model = await this.records.getModel();
-    const id = (key: string) => presetId(this.companyId, key);
-    const lineItem = model.types.find((type) => type.id === id("lineItem") && !type.archived);
-    const live = (key: string) => model.fields.some((field) => field.id === id(key) && !field.archived);
-    const linked = (key: string) =>
-      model.relationships.some((relation) => relation.id === id(key) && !relation.archived);
-    if (!lineItem || !linked("lineItem.deal") || !live("lineItem.quantity")) return;
+    const lineItems = setupLineItems(plan);
+    if (!lineItems) return;
+    const { model, resolver } = await this.resolver(setup, plan);
+    const references = new Map(setup.created.references.map((entry) => [entry.reference, entry.id]));
+    const live = <T extends { id: string; archived: boolean }>(items: T[], reference: string) => {
+      const id = references.get(reference);
+      return id && items.some((item) => item.id === id && !item.archived) ? id : undefined;
+    };
+    const lineItemType = live(model.types, setupListReference(SETUP_LINE_ITEM_LIST));
+    const dealRelation = live(model.relationships, setupRelationshipReference(SETUP_LINE_ITEM_DEAL));
+    const offeringRelation = live(model.relationships, setupRelationshipReference(SETUP_LINE_ITEM_OFFERING));
+    const field = (name: Parameters<typeof setupLineItemField>[0]) =>
+      live(model.fields, setupFieldReference(setupLineItemField(name)));
+    const [quantity, pricingMode, savedPrice] = [field("quantity"), field("pricingMode"), field("savedPrice")];
+    const lineName = live(model.fields, setupNameReference(SETUP_LINE_ITEM_LIST));
+    const deals = resolver.list(lineItems.deals);
+    const offerings = resolver.list(lineItems.offerings);
+    const price = resolver.field(`${lineItems.offerings}.price`);
+    if (!lineItemType || !dealRelation || !offeringRelation || !quantity || !deals || !offerings || !price) return;
     const items = sampleLineItemPlans({
-      companyId: this.companyId,
       setupId: setup.id,
       samples,
       imported: new Set(refs.map((ref) => ref.recordId)),
       answers: setup.answers,
+      deals,
+      offerings: { typeId: offerings, priceFieldId: price, nameFieldId: resolver.field(`${lineItems.offerings}.name`) },
     });
     for (const item of items) {
-      if (item.service && !linked("lineItem.service")) continue;
-      if (item.unitPrice && !(live("lineItem.pricingMode") && live("lineItem.savedPrice"))) continue;
+      if (item.unitPrice && !(pricingMode && savedPrice)) continue;
       const fields: Array<{ fieldId: string; value: RecordScalar }> = [
-        { fieldId: id("lineItem.quantity"), value: { kind: "decimal", value: String(item.quantity), currency: null } },
-        ...(item.name && live("lineItem.name")
-          ? [{ fieldId: id("lineItem.name"), value: { kind: "text" as const, value: item.name } }]
-          : []),
-        ...(item.unitPrice
+        { fieldId: quantity, value: { kind: "decimal", value: String(item.quantity), currency: null } },
+        ...(item.name && lineName ? [{ fieldId: lineName, value: { kind: "text" as const, value: item.name } }] : []),
+        ...(item.unitPrice && pricingMode && savedPrice
           ? [
-              { fieldId: id("lineItem.pricingMode"), value: { kind: "select" as const, value: "saved" } },
+              { fieldId: pricingMode, value: { kind: "select" as const, value: "saved" } },
               {
-                fieldId: id("lineItem.savedPrice"),
+                fieldId: savedPrice,
                 value: { kind: "decimal" as const, value: item.unitPrice, currency: plan.workspace.currency },
               },
             ]
@@ -553,12 +580,12 @@ export class WorkspaceSetupBuildService extends UserAccessor {
         idempotencyKey: setupIdempotencyKey(setup.id, `lineItem:${item.deal.recordId}`),
         mutation: {
           action: "create",
-          typeId: lineItem.id,
+          typeId: lineItemType,
           fields,
           links: [
-            { relationId: id("lineItem.deal"), direction: "outgoing", record: item.deal },
-            ...(item.service
-              ? [{ relationId: id("lineItem.service"), direction: "outgoing" as const, record: item.service }]
+            { relationId: dealRelation, direction: "outgoing", record: item.deal },
+            ...(item.offering
+              ? [{ relationId: offeringRelation, direction: "outgoing" as const, record: item.offering }]
               : []),
           ],
         },
@@ -573,6 +600,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     setup: WorkspaceSetupRecord,
     spec: SampleListSpec,
     titles: ReadonlyMap<string, string[]>,
+    facts: unknown,
   ): Promise<GeneratedSampleList | "spendCap" | null> {
     const headers = [...spec.columns.map((column) => column.column), ...spec.links.map((link) => link.column)];
     const result = await this.models.generate({
@@ -588,12 +616,8 @@ export class WorkspaceSetupBuildService extends UserAccessor {
           (link) =>
             `Link column ${link.column} (${link.label}, ${link.many ? "several names separated by ;" : "one name"}): ${encodePromptJson(titles.get(link.targetList) ?? [])}`,
         ),
-        "Company answers:",
-        untrustedText(
-          encodePromptJson(
-            Object.fromEntries(Object.entries(setup.answers).map(([key, answer]) => [key, answer?.value])),
-          ),
-        ),
+        "Company facts:",
+        untrustedText(encodePromptJson(facts)),
       ].join("\n"),
     });
     if (!result.ok) return result.failure === "spendCap" ? "spendCap" : null;
@@ -609,7 +633,9 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     if (!mapping) {
       const compiled = compileSetupImportMapping(plan, resolver, model);
       const typeId =
-        compiled.ok && compiled.data ? compiled.data.typeId : resolver.list(plan.importMapping?.list ?? "contact");
+        compiled.ok && compiled.data
+          ? compiled.data.typeId
+          : resolver.list(plan.importMapping?.list ?? setupRoleList(plan, "people") ?? "");
       if (!typeId) throw phaseFailure("invalidPlan");
       const proposed = await this.proposeMapping(setup, sheet, model, typeId, compiled.ok ? compiled.data : null);
       mapping = await this.storeArtifact(setup.id, "importMapping", proposed, SpreadsheetMappingSchema);

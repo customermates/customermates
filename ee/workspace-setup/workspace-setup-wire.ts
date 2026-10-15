@@ -18,6 +18,7 @@ import {
   SetupFieldKeySchema,
   SetupPlanSchema,
 } from "@/features/workspace-setup/setup-plan.schema";
+import { SETUP_LIST_ROLES } from "@/features/workspace-setup/setup-anchors";
 import { WIDGET_STARTER_DISPLAY_TYPES } from "@/features/widget/widget-display-rules";
 import { APP_LOCALES } from "@/i18n/locale-registry";
 import { SETUP_FOLLOW_UP_IDS, SetupFollowUpQuestionSchema } from "./workspace-setup.schema";
@@ -191,6 +192,8 @@ const KeyDescription = "lowerCamelCase letters and digits only, at most 24 chara
 const FieldKeyDescription = "<listKey>.<fieldName>, both lowerCamelCase, such as deal.renewalDate.";
 const FieldRefDescription =
   "A field reference such as deal.stage, or system:createdAt, system:updatedAt, system:assignedTo.";
+const RoleDescription =
+  "people: the list of individual people, exactly one. tasks: the list of to-dos, exactly one. deals: the list of sales opportunities or orders with stages and a money value, at most one. offerings: the catalog of products or services the company sells, at most one. null for every other list.";
 
 const RecordModelWireShape = {
   lists: z.array(
@@ -201,15 +204,7 @@ const RecordModelWireShape = {
       description: z.string(),
       icon: z.string().describe("A lucide icon name in lowerCamelCase, such as kanban or fileText."),
       color: z.enum(CHIP_COLORS).nullable(),
-    }),
-  ),
-  listChanges: z.array(
-    z.object({
-      list: z.string(),
-      label: z.string().nullable(),
-      pluralLabel: z.string().nullable(),
-      icon: z.string().nullable(),
-      color: z.enum(CHIP_COLORS).nullable(),
+      role: z.enum(SETUP_LIST_ROLES).nullable().describe(RoleDescription),
     }),
   ),
   fields: z.array(
@@ -221,9 +216,6 @@ const RecordModelWireShape = {
       multiple: z.boolean(),
       options: z.array(WireOptionSchema),
     }),
-  ),
-  fieldChanges: z.array(
-    z.object({ field: z.string(), label: z.string().nullable(), options: z.array(WireOptionSchema).nullable() }),
   ),
   relationships: z.array(
     z.object({
@@ -338,9 +330,7 @@ export const EMPTY_PLAN_MODEL_WIRE: PlanModelWire = {
   currency: "EUR",
   dashboardAudience: "me",
   lists: [],
-  listChanges: [],
   fields: [],
-  fieldChanges: [],
   relationships: [],
   calculations: [],
 };
@@ -434,25 +424,13 @@ export function planFromWire(
     version: 1,
     workspace: wire.workspace,
     recordModel: {
-      lists: model.lists.map((list) => ({ ...list, color: present(list.color) })),
-      listChanges: model.listChanges.map((change) => ({
-        list: change.list,
-        label: present(change.label),
-        pluralLabel: present(change.pluralLabel),
-        icon: present(change.icon),
-        color: present(change.color),
-      })),
+      lists: model.lists.map((list) => ({ ...list, color: present(list.color), role: present(list.role) })),
       fields: model.fields
         .filter((field) => {
           const [list, name] = field.key.split(".");
           return name !== "name" || !newLists.has(list);
         })
         .map((field) => ({ ...field, options: field.options.map(option) })),
-      fieldChanges: model.fieldChanges.map((change) => ({
-        field: change.field,
-        label: present(change.label),
-        options: change.options === null ? undefined : change.options.map(option),
-      })),
       relationships: model.relationships,
       calculations: model.calculations.map((calculation) => ({
         ...calculation,

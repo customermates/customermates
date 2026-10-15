@@ -25,7 +25,7 @@ export class WorkspaceSetupKnowledgeBrief extends WikiSynthesisBriefSource {
     const setup = await this.repo.findCurrent();
     if (!setup) return { status: "cancelled" };
     if (setup.crawlId !== crawl.id) return { status: giveUp ? "cancelled" : "wait" };
-    if (setup.status === "rolledBack" || setup.results.standard) return { status: "cancelled" };
+    if (setup.status === "rolledBack") return { status: "cancelled" };
     if (UNCONFIRMED.has(setup.status)) return { status: giveUp ? "none" : "wait" };
     if (!setup.plan) return { status: "none" };
     const locale = appLocaleOrDefault(crawl.locale);

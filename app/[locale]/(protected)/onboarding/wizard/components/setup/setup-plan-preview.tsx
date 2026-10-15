@@ -2,7 +2,7 @@
 
 import type { WorkspaceSetupFailure } from "@/ee/workspace-setup/workspace-setup.schema";
 
-import { BookOpen, Kanban, LayoutDashboard, List, Loader2, RotateCcw, Sparkles } from "lucide-react";
+import { BookOpen, Kanban, LayoutDashboard, List, Loader2, Mail, RotateCcw, Sparkles } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
@@ -11,6 +11,7 @@ import { IconContainer } from "@/components/shared/icon-container";
 import { Button } from "@/components/ui/button";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { contactHref } from "@/core/utils/contact-href";
 
 import { planBoards, planLists } from "./setup-plan-summary";
 import {
@@ -20,7 +21,6 @@ import {
   PlaceholderLine,
   PreviewListChip,
   PreviewPanel,
-  useStandardListNames,
 } from "./setup-preview-parts";
 
 export function useSetupFailureMessage() {
@@ -40,17 +40,26 @@ export function useSetupFailureMessage() {
   return (failure: WorkspaceSetupFailure | null) => messages[failure ?? "error"];
 }
 
-const StandardSetupButton = observer(function StandardSetupButton({ onStandard }: { onStandard: () => Promise<void> }) {
+export function SetupSupportButton({ size }: { size?: "xs" }) {
   const t = useTranslations();
-  const { workspaceSetupStore: store } = useRootStore();
   return (
-    <Button disabled={store.isBusy} type="button" variant="ghost" onClick={() => runUserAction(onStandard)}>
-      {store.pending === "standard" ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : null}
+    <Button
+      className={size ? "self-start" : undefined}
+      size={size}
+      type="button"
+      variant="secondary"
+      onClick={() => {
+        const href = contactHref("email", "support@customermates.com");
+        if (href)
+          window.location.assign(`${href}?subject=${encodeURIComponent(t("WorkspaceSetup.failures.supportSubject"))}`);
+      }}
+    >
+      <Mail />
 
-      {t("WorkspaceSetup.plan.standard")}
+      {t("WorkspaceSetup.failures.contactSupport")}
     </Button>
   );
-});
+}
 
 export const SetupPlanPending = observer(function SetupPlanPending() {
   const t = useTranslations();
@@ -79,53 +88,48 @@ export const SetupPlanPending = observer(function SetupPlanPending() {
   );
 });
 
-export const SetupPlanFailed = observer(function SetupPlanFailed({ onStandard }: { onStandard: () => Promise<void> }) {
+export const SetupPlanFailed = observer(function SetupPlanFailed() {
   const t = useTranslations();
   const { workspaceSetupStore: store } = useRootStore();
   const failureMessage = useSetupFailureMessage();
+  const error = store.setup?.plan.error ?? null;
   return (
     <section className="flex flex-col gap-5">
-      <Alert
-        color="danger"
-        description={failureMessage(store.setup?.plan.error ?? null)}
-        title={t("WorkspaceSetup.plan.failedTitle")}
-      />
+      <Alert color="danger" description={failureMessage(error)} title={t("WorkspaceSetup.plan.failedTitle")} />
 
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <StandardSetupButton onStandard={onStandard} />
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        {error === "spendCap" ? (
+          <SetupSupportButton />
+        ) : (
+          <>
+            <Button disabled={store.isBusy} type="button" variant="secondary" onClick={store.adjust}>
+              {t("WorkspaceSetup.plan.adjust")}
+            </Button>
 
-        <div className="flex flex-wrap gap-2">
-          <Button disabled={store.isBusy} type="button" variant="secondary" onClick={store.adjust}>
-            {t("WorkspaceSetup.plan.adjust")}
-          </Button>
+            <Button disabled={store.isBusy} type="button" onClick={() => runUserAction(store.replan)}>
+              {store.pending === "plan" ? (
+                <Loader2 className="animate-spin motion-reduce:animate-none" />
+              ) : (
+                <RotateCcw />
+              )}
 
-          <Button disabled={store.isBusy} type="button" onClick={() => runUserAction(store.replan)}>
-            {store.pending === "plan" ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : <RotateCcw />}
-
-            {t("WorkspaceSetup.plan.tryAgain")}
-          </Button>
-        </div>
+              {t("WorkspaceSetup.plan.tryAgain")}
+            </Button>
+          </>
+        )}
       </div>
     </section>
   );
 });
 
-export const SetupPlanPreview = observer(function SetupPlanPreview({
-  onStandard,
-}: {
-  onStandard: () => Promise<void>;
-}) {
+export const SetupPlanPreview = observer(function SetupPlanPreview() {
   const t = useTranslations();
   const { workspaceSetupStore: store } = useRootStore();
-  const standardNames = useStandardListNames();
   const plan = store.setup?.plan.plan;
   if (!plan) return <SetupPlanPending />;
   const lists = planLists(plan);
   const boards = planBoards(plan);
-  const listName = (key: string) => {
-    const list = lists.find((candidate) => candidate.key === key);
-    return list?.label ?? (list?.standard ? standardNames[list.standard] : key);
-  };
+  const listName = (key: string) => lists.find((candidate) => candidate.key === key)?.label ?? key;
   const withFields = lists.filter((list) => list.fields.length > 0);
   const sampleTotal = lists.reduce((total, list) => total + list.sampleCount, 0);
   const spreadsheet = store.setup?.spreadsheet;
@@ -136,12 +140,7 @@ export const SetupPlanPreview = observer(function SetupPlanPreview({
         <PreviewPanel icon={List} title={t("WorkspaceSetup.plan.lists")}>
           <div className="flex flex-wrap gap-1.5">
             {lists.map((list) => (
-              <PreviewListChip
-                key={list.key}
-                color={list.color}
-                icon={list.icon}
-                label={list.label ?? (list.standard ? standardNames[list.standard] : list.key)}
-              />
+              <PreviewListChip key={list.key} color={list.color} icon={list.icon} label={list.label} />
             ))}
           </div>
 
@@ -173,7 +172,7 @@ export const SetupPlanPreview = observer(function SetupPlanPreview({
               </div>
             ))
           ) : (
-            <p className="text-xs text-muted-foreground">{t("WorkspaceSetup.plan.standardPipeline")}</p>
+            <p className="text-xs text-muted-foreground">{t("WorkspaceSetup.plan.noPipeline")}</p>
           )}
         </PreviewPanel>
 
@@ -214,9 +213,7 @@ export const SetupPlanPreview = observer(function SetupPlanPreview({
         </p>
       ) : null}
 
-      <div className="flex flex-col-reverse gap-2 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
-        <StandardSetupButton onStandard={onStandard} />
-
+      <div className="flex flex-col-reverse gap-2 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-end">
         <div className="flex flex-col-reverse gap-2 sm:flex-row">
           <Button disabled={store.isBusy} type="button" variant="secondary" onClick={store.adjust}>
             {t("WorkspaceSetup.plan.adjust")}

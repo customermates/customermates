@@ -1,15 +1,7 @@
-import type { RecordModel } from "@/features/records/record-model.schema";
 import type { SetupAnswers } from "@/features/workspace-setup/setup-answers.schema";
 import type { SetupQuestionPart } from "@/features/workspace-setup/setup-interview";
 
-import { presetId } from "@/features/records/crm-preset";
-import { DEFAULT_SELECT_COLUMNS } from "@/features/records/crm-preset-options";
 import { SETUP_PARTS } from "@/features/workspace-setup/setup-interview";
-import {
-  SETUP_PRESET_FIELDS,
-  SETUP_PRESET_LISTS,
-  SETUP_PRESET_RELATIONSHIPS,
-} from "@/features/workspace-setup/setup-preset-keys";
 import { getTranslator } from "@/i18n/get-translator";
 
 export const SETUP_UNTRUSTED_HANDLING =
@@ -35,24 +27,25 @@ export const SETUP_FOLLOW_UP_INSTRUCTION = [
 ].join(" ");
 
 const SETUP_PLAN_LANGUAGE =
-  "Write every label, title, option and heading in the interview language, translating answers or website text written in another language, and use the workspace currency.";
+  "Write every list name, field label, option, relationship label, title, section heading and sample kind in the workspace language. Answers, list entries, stage names and website text may be in another language: translate them, including the names of offerings and stages; only brand names and proper product names keep their original spelling. Use the workspace currency.";
 
 export const SETUP_PLAN_MODEL_INSTRUCTION = [
-  "You design the record model of a CRM workspace for one company from its onboarding answers: workspace settings, new lists, changes to the standard lists, fields, relationships and calculations.",
-  "The workspace already has the standard lists described below; change them rather than duplicating them, and add new lists only for what follows a sale or what the answers clearly need.",
-  "Keys are lowerCamelCase. A field key is <listKey>.<fieldName>; reuse the standard field references exactly as listed. Every new list gets its name field <listKey>.name automatically, so never declare it.",
-  "The answer to the sales steps becomes the options of deal.stage with win chances as weight, ending with one won and one lost outcome.",
+  "You design the complete record model of a new, empty CRM workspace for one company from its onboarding answers: workspace settings, lists, fields, relationships and calculations.",
+  "Plan every list the company works with. Mark exactly one list of individual people with role people and exactly one list of to-dos with role tasks. Most companies also need a list of organizations and a list of deals or orders with role deals whose stage choice follows the answer to the sales steps, with win chances as weights and ending with one won and one lost outcome. When the company sells products, services, subscriptions or packages, add a catalog of them with role offerings. Add lists for what follows a sale only when the answers need them. Every other list has role null.",
+  "Some fields are added automatically, so never declare them: <people>.channels for email addresses and phone numbers, <people>.avatar, the money value <deals>.value and the price <offerings>.price. Use them in calculations, for example a weighted value that divides <deals>.value times the stage win chance by 100. With an offerings list, every deal gets line items with quantity and unit price that add up to <deals>.value.",
+  "Relate lists whose records belong together, for example people to their organization, deals to people and organizations, and tasks to what they are about.",
+  "Keys are lowerCamelCase. A field key is <listKey>.<fieldName>. Every list gets its name field <listKey>.name automatically, so never declare it. The list key lineItem is reserved.",
   "A calculation expression is a JSON string of one node: {op:field,field}, {op:number,value}, {op:add|subtract|multiply|divide,left,right}, {op:optionWeight,field}, {op:daysBetween,from,to} or {op:related,relationship,direction,field,reducer}; field, from and to are field keys such as deal.closeDate, never nodes or system columns.",
   SETUP_PLAN_LANGUAGE,
   SETUP_UNTRUSTED_HANDLING,
 ].join(" ");
 
 export const SETUP_PLAN_VIEWS_INSTRUCTION = [
-  "You design the list views, the dashboard and the sample-data specification of a CRM workspace whose record model is already planned.",
-  "Use only list keys, field references and option keys from the standard catalog and the planned record model below; never invent a field.",
+  "You design the list views, the dashboard and the sample-data specification of a new CRM workspace whose record model is already planned.",
+  "Use only list keys, field references and option keys of the planned record model below, including its automatic fields; never invent a field.",
   "Give at most one listDefaults entry per list. Columns name only fields of the same list, never relationships. A board layout needs groupBy on a choice field. Totals need a grouping.",
   "Dashboard widgets follow the ranked numbers the company checks every week; a count has valueField null, every other aggregation needs a number or currency field. Widget titles are short, about three words.",
-  "Sample data asks for five to ten realistic records per list the company will use daily.",
+  "Sample data asks for five to ten realistic records per list the company will use daily. Kinds describe them in the workspace language; for the offerings list, kinds name the company's own offerings translated into the workspace language.",
   "When a spreadsheet was uploaded, importMapping maps its columns onto fields of one list; otherwise importMapping is null.",
   SETUP_PLAN_LANGUAGE,
   SETUP_UNTRUSTED_HANDLING,
@@ -73,7 +66,7 @@ export const SETUP_SAMPLE_RECORDS_INSTRUCTION = [
   "Invent plausible but clearly fictitious names, companies and amounts that fit the company and its customers; never use real people's personal data.",
   "Fill every column with a value in the expected format: dates as YYYY-MM-DD, numbers without thousands separators, currency amounts as plain numbers, choice columns with exactly one of the listed option labels.",
   "A link column names records of the other list exactly as listed, or stays empty.",
-  "Write every text value in the workspace language, translating offerings, stages or answers given in another language; leave a column empty with an empty string.",
+  "Write every text value, including the names of products, services and offerings, in the workspace language; leave a column empty with an empty string.",
   SETUP_UNTRUSTED_HANDLING,
 ].join(" ");
 
@@ -169,46 +162,12 @@ export function setupAnswerDigest(answers: SetupAnswers, catalog: SetupCatalogPa
   });
 }
 
-const PRESET_OPTION_KEYS = [
-  ...new Set([...DEFAULT_SELECT_COLUMNS.flatMap((column) => column.options.map((option) => option.key))]),
-];
-
-export function presetOptionKey(companyId: string, presetKey: string, optionId: string): string {
-  return PRESET_OPTION_KEYS.find((key) => presetId(companyId, `${presetKey}.${key}`) === optionId) ?? optionId;
-}
-
-export function setupPresetCatalog(companyId: string, model: RecordModel) {
-  const lists = SETUP_PRESET_LISTS.flatMap((key) => {
-    const type = model.types.find((candidate) => candidate.id === presetId(companyId, key) && !candidate.archived);
-    return type ? [{ key, label: type.label, pluralLabel: type.pluralLabel, embedded: type.embedded }] : [];
+export function setupSampleFacts(answers: SetupAnswers, catalog: SetupCatalogPart[]) {
+  const choices = Object.entries(answers).flatMap(([part, answer]) => {
+    if (!answer) return [];
+    const value = answer.value;
+    if (value.format === "orderedList" || (value.format === "shortText" && part !== "companyName")) return [];
+    return [[part, value.format === "multipleChoice" ? { ...answer, value: { ...value, custom: [] } } : answer]];
   });
-  const fields = Object.entries(SETUP_PRESET_FIELDS).flatMap(([ref, presetKey]) => {
-    const field = model.fields.find(
-      (candidate) => candidate.id === presetId(companyId, presetKey) && !candidate.archived,
-    );
-    if (!field) return [];
-    return [
-      {
-        ref,
-        label: field.label,
-        valueType: field.valueType,
-        calculated: field.behavior.kind !== "input",
-        ...(field.options.length
-          ? {
-              options: field.options.map((option) => ({
-                key: presetOptionKey(companyId, presetKey, option.id),
-                label: option.label,
-              })),
-            }
-          : {}),
-      },
-    ];
-  });
-  const relationships = SETUP_PRESET_RELATIONSHIPS.flatMap((ref) => {
-    const relation = model.relationships.find(
-      (candidate) => candidate.id === presetId(companyId, ref) && !candidate.archived,
-    );
-    return relation ? [{ ref, sourceLabel: relation.sourceLabel, targetLabel: relation.targetLabel }] : [];
-  });
-  return { lists, fields, relationships, systemColumns: ["system:createdAt", "system:updatedAt", "system:assignedTo"] };
+  return setupAnswerDigest(Object.fromEntries(choices) as SetupAnswers, catalog);
 }

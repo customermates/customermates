@@ -9,6 +9,7 @@ import type { WorkspaceSetupPatch, WorkspaceSetupRecord } from "../workspace-set
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { agencyPlan } from "@/features/workspace-setup/__tests__/setup-plan-fixtures";
+import { planToWireParts } from "./setup-wire-fixtures";
 import { SETUP_COMPANY_ID } from "@/features/workspace-setup/__tests__/setup-harness";
 import { SetupPlanSchema } from "@/features/workspace-setup/setup-plan.schema";
 import { createMockUser } from "@/tests/helpers/mock-user";
@@ -72,7 +73,7 @@ function harness(overrides: Partial<WorkspaceSetupRecord> = {}, crawl: Partial<S
     readSpreadsheet: vi.fn(() => Promise.resolve(null)),
   };
   const models = { generate: vi.fn(), drainWarnings: () => [] };
-  const planner = { plan: vi.fn() };
+  const planner = { attempt: vi.fn(), assemble: vi.fn() };
   const service = new WorkspaceSetupInterviewService(repo as never, models as never, planner as never);
   const run = <T>(fn: () => Promise<T>) => runWithTenant(owner, fn);
   return { service, repo, models, planner, run, setup: () => setup };
@@ -173,7 +174,7 @@ describe("workspace setup interview", () => {
     });
   });
 
-  it("stores the planner's plan with the setup's answers, language, currency and website", async () => {
+  it("drafts each plan part in its own step with the setup's answers, language, currency and website", async () => {
     const { service, planner, run, setup } = harness({
       status: "planning",
       planRevision: 1,
@@ -181,32 +182,113 @@ describe("workspace setup interview", () => {
         language: { source: "user", confidence: 1, value: { format: "singleChoice", value: "en" } },
         currency: { source: "user", confidence: 1, value: { format: "singleChoice", value: "CHF" } },
       },
-      interview: StoredSetupInterviewSchema.parse({ plan: "queued", followUps: "completed" }),
+      interview: StoredSetupInterviewSchema.parse({
+        plan: "queued",
+        followUps: "completed",
+        prefillDraft: {
+          language: { source: "website", confidence: 0.9, value: { format: "singleChoice", value: "de" } },
+        },
+      }),
     });
-    const plan = SetupPlanSchema.parse(agencyPlan);
-    planner.plan.mockResolvedValue({ ok: true, plan });
-    await run(() => service.plan("setup-1"));
-    expect(planner.plan).toHaveBeenCalledWith(
+    const parts = planToWireParts(agencyPlan);
+    planner.attempt.mockImplementation((part: "model" | "knowledge" | "views", _input: unknown, state: object) =>
+      Promise.resolve({ ...state, attempts: 1, value: parts[part], repair: [], failure: null }),
+    );
+    expect(await run(() => service.claimPlan("setup-1"))).toEqual({ status: "claimed", revision: 1 });
+    expect(await run(() => service.claimPlan("setup-1"))).toEqual({ status: "busy" });
+    expect(await run(() => service.planPart("setup-1", 1, "model"))).toBe("done");
+    expect(await run(() => service.planPart("setup-1", 1, "model"))).toBe("done");
+    expect(await run(() => service.planPart("setup-1", 1, "knowledge"))).toBe("done");
+    expect(await run(() => service.planPart("setup-1", 1, "views"))).toBe("done");
+    expect(planner.attempt).toHaveBeenCalledTimes(3);
+    expect(planner.attempt.mock.calls[2][3]).toEqual({ model: parts.model, knowledge: parts.knowledge });
+    expect(planner.attempt).toHaveBeenCalledWith(
+      "model",
       expect.objectContaining({
         setupId: "setup-1",
         language: "en",
+        answersLanguage: "de",
         currency: "CHF",
         sources: expect.arrayContaining([expect.objectContaining({ category: "about" })]),
       }),
+      expect.objectContaining({ revision: 1, attempts: 0 }),
+      { model: null, knowledge: null },
     );
-    expect(setup()).toMatchObject({ status: "planned", plan });
+    const plan = SetupPlanSchema.parse(agencyPlan);
+    planner.assemble.mockResolvedValue({ ok: true, plan });
+    expect(await run(() => service.finishPlan("setup-1", 1, false))).toBe("planned");
+    expect(planner.assemble).toHaveBeenCalledWith(expect.objectContaining({ setupId: "setup-1" }), parts);
+    expect(setup()).toMatchObject({ status: "planned", plan, artifacts: {} });
     expect(setup().interview).toMatchObject({ plan: "completed", planError: null });
   });
 
-  it("returns the owner to the interview with the planner's failure", async () => {
+  it("keeps finished parts and queues another attempt when a part fails before the last attempt", async () => {
+    const { service, planner, run, setup } = harness({
+      status: "planning",
+      planRevision: 2,
+      interview: StoredSetupInterviewSchema.parse({ plan: "queued", followUps: "completed" }),
+    });
+    const parts = planToWireParts(agencyPlan);
+    planner.attempt.mockImplementation((part: "model" | "knowledge" | "views", _input: unknown, state: object) =>
+      Promise.resolve(
+        part === "views"
+          ? { ...state, attempts: 2, value: null, repair: [], failure: "invalidPlan" }
+          : { ...state, attempts: 1, value: parts[part], repair: [], failure: null },
+      ),
+    );
+    await run(() => service.claimPlan("setup-1"));
+    for (const part of ["model", "knowledge"] as const) await run(() => service.planPart("setup-1", 2, part));
+    expect(await run(() => service.planPart("setup-1", 2, "views"))).toBe("failed");
+    expect(await run(() => service.finishPlan("setup-1", 2, false))).toBe("retry");
+    expect(setup().status).toBe("planning");
+    expect(setup().interview).toMatchObject({ plan: "queued", planClaimedAt: null });
+    expect(Object.keys(setup().artifacts).sort()).toEqual(["plan:knowledge", "plan:model"]);
+    expect(planner.assemble).not.toHaveBeenCalled();
+
+    expect(await run(() => service.claimPlan("setup-1"))).toEqual({ status: "claimed", revision: 2 });
+    expect(await run(() => service.planPart("setup-1", 2, "model"))).toBe("done");
+    expect(planner.attempt).toHaveBeenCalledTimes(3);
+  });
+
+  it("returns the owner to the interview with the failure after the last attempt", async () => {
     const { service, planner, run, setup } = harness({
       status: "planning",
       planRevision: 1,
       interview: StoredSetupInterviewSchema.parse({ plan: "queued", followUps: "completed" }),
     });
-    planner.plan.mockResolvedValue({ ok: false, failure: "invalidPlan" });
-    await run(() => service.plan("setup-1"));
-    expect(setup()).toMatchObject({ status: "interview", plan: null });
+    planner.attempt.mockImplementation((_part: string, _input: unknown, state: object) =>
+      Promise.resolve({ ...state, attempts: 2, value: null, repair: [], failure: "invalidPlan" }),
+    );
+    await run(() => service.claimPlan("setup-1"));
+    expect(await run(() => service.planPart("setup-1", 1, "model"))).toBe("failed");
+    expect(await run(() => service.finishPlan("setup-1", 1, true))).toBe("failed");
+    expect(setup()).toMatchObject({ status: "interview", plan: null, artifacts: {} });
     expect(setup().interview).toMatchObject({ plan: "failed", planError: "invalidPlan" });
+  });
+
+  it("gives up at once when the plan budget is used up", async () => {
+    const { service, planner, run, setup } = harness({
+      status: "planning",
+      planRevision: 1,
+      interview: StoredSetupInterviewSchema.parse({ plan: "queued", followUps: "completed" }),
+    });
+    planner.attempt.mockImplementation((_part: string, _input: unknown, state: object) =>
+      Promise.resolve({ ...state, attempts: 1, value: null, repair: [], failure: "spendCap" }),
+    );
+    await run(() => service.claimPlan("setup-1"));
+    await run(() => service.planPart("setup-1", 1, "model"));
+    expect(await run(() => service.finishPlan("setup-1", 1, false))).toBe("failed");
+    expect(setup().interview).toMatchObject({ plan: "failed", planError: "spendCap" });
+  });
+
+  it("ignores parts and finishes of an earlier plan revision", async () => {
+    const { service, planner, run } = harness({
+      status: "planning",
+      planRevision: 3,
+      interview: StoredSetupInterviewSchema.parse({ plan: "running", followUps: "completed" }),
+    });
+    expect(await run(() => service.planPart("setup-1", 2, "model"))).toBe("skip");
+    expect(await run(() => service.finishPlan("setup-1", 2, true))).toBe("skip");
+    expect(planner.attempt).not.toHaveBeenCalled();
   });
 });

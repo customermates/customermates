@@ -230,9 +230,7 @@ export const StoredSetupResultsSchema = z
       .array(z.object({ id: z.uuid(), title: z.string(), display: z.enum(WIDGET_STARTER_DISPLAY_TYPES) }).strict())
       .default([]),
     pages: z.array(z.object({ id: z.uuid(), title: z.string() }).strict()).default([]),
-    standard: z.boolean().default(false),
-  })
-  .strict();
+  });
 export type StoredSetupResults = z.infer<typeof StoredSetupResultsSchema>;
 
 export type WorkspaceSetupRecord = {

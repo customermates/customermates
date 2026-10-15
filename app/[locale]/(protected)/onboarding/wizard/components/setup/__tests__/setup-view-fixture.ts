@@ -12,6 +12,9 @@ export function setupPlan(): SetupPlan {
     workspace: { currency: "EUR", dashboardAudience: "team" },
     recordModel: {
       lists: [
+        { key: "contact", label: "Contact", pluralLabel: "Contacts", description: "", icon: "contact", role: "people" },
+        { key: "deal", label: "Deal", pluralLabel: "Deals", description: "", icon: "handshake", role: "deals" },
+        { key: "task", label: "Task", pluralLabel: "Tasks", description: "", icon: "check", role: "tasks" },
         {
           key: "project",
           label: "Project",
@@ -21,9 +24,20 @@ export function setupPlan(): SetupPlan {
           color: "info",
         },
       ],
-      listChanges: [],
       fields: [
         { key: "deal.budget", label: "Budget", valueType: "currency", required: false, multiple: false, options: [] },
+        {
+          key: "deal.stage",
+          label: "Stage",
+          valueType: "select",
+          required: false,
+          multiple: false,
+          options: [
+            { key: "lead", label: "Lead", weight: 10, color: "secondary" },
+            { key: "demo", label: "Demo", weight: 40 },
+            { key: "won", label: "Won", weight: 100, color: "success", outcome: "won" },
+          ],
+        },
         {
           key: "project.phase",
           label: "Phase",
@@ -33,16 +47,6 @@ export function setupPlan(): SetupPlan {
           options: [
             { key: "kickoff", label: "Kickoff" },
             { key: "delivery", label: "Delivery" },
-          ],
-        },
-      ],
-      fieldChanges: [
-        {
-          field: "deal.stage",
-          options: [
-            { key: "lead", label: "Lead", weight: 10, color: "secondary" },
-            { key: "demo", label: "Demo", weight: 40 },
-            { key: "won", label: "Won", weight: 100, color: "success", outcome: "won" },
           ],
         },
       ],
@@ -109,11 +113,9 @@ export function setupView(overrides: Partial<WorkspaceSetupView> = {}): Workspac
     spreadsheet: null,
     phases: PHASES.map((key) => phaseView(key)),
     currentPhase: null,
-    results: { colors: null, lists: [], views: [], records: [], widgets: [], pages: [], standard: false },
+    results: { colors: null, lists: [], views: [], records: [], widgets: [], pages: [] },
     spend: { usedMicrocents: 0, heldMicrocents: 0, capMicrocents: 1, capReached: false },
-    canUseStandardSetup: true,
     canRemoveSampleData: false,
-    canRollBack: false,
     ...overrides,
   };
 }
