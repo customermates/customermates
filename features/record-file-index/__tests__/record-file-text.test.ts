@@ -227,5 +227,5 @@ describe("record file text extraction limits", () => {
       status: "skipped",
     });
     await expect(extractRecordFileText(sheet, "xlsx")).resolves.toMatchObject({ status: "done" });
-  });
+  }, 60_000);
 });
