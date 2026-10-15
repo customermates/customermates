@@ -47,7 +47,10 @@ describe("shipped agent models", () => {
   });
 
   it("drafts workspace setup with Haiku and plans it with Sonnet without thinking, since Vertex leaves structured output unconstrained", () => {
-    expect(AGENT_MODELS.setupDrafting).toMatchObject({ modelId: "anthropic/claude-haiku-5.5", reasoningEffort: "none" });
+    expect(AGENT_MODELS.setupDrafting).toMatchObject({
+      modelId: "anthropic/claude-haiku-5.5",
+      reasoningEffort: "none",
+    });
     expect(AGENT_MODELS.setupPlanning).toMatchObject({
       modelId: "anthropic/claude-sonnet-5.5",
       reasoningEffort: "none",

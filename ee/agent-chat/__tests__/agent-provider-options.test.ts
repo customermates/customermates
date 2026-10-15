@@ -22,7 +22,9 @@ describe("Agent provider options", () => {
   });
 
   it("routes one-shot structured calls the same way without Gateway caching, whose write no later call reads", () => {
-    const { caching: _caching, ...routing } = getAgentProviderOptions("vertexAnthropic", "eu").gateway;
+    const routing = Object.fromEntries(
+      Object.entries(getAgentProviderOptions("vertexAnthropic", "eu").gateway).filter(([key]) => key !== "caching"),
+    );
 
     expect(getStructuredCallProviderOptions("vertexAnthropic", "eu")).toEqual({ gateway: routing });
     expect(getStructuredCallProviderOptions("vertexAnthropic", "eu").gateway).not.toHaveProperty("caching");
