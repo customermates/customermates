@@ -1171,6 +1171,66 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     ).toBe(3);
   });
 
+  it("creates a client named in two link columns once, so every row that names it links", async () => {
+    const ws = await workspace();
+    const plan = structuredClone(agencyPlan);
+    state.plan = {
+      ...plan,
+      recordModel: {
+        ...plan.recordModel,
+        relationships: [
+          ...plan.recordModel.relationships,
+          {
+            key: "contactPartner",
+            source: "contact",
+            target: "organization",
+            sourceLabel: "Partner",
+            targetLabel: "Partner contacts",
+            sourceCardinality: "one",
+            targetCardinality: "many",
+          },
+        ],
+      },
+      importMapping: null,
+    };
+    mappingReplies((key) => ({
+      columns: [{ column: "Full name", field: key("Fields: ", "Contact") }],
+      relationships: [
+        { column: "Client", relationship: key("Relationships: ", "Client") },
+        { column: "Partner", relationship: key("Relationships: ", "Partner") },
+      ],
+    }));
+    const setupId = await spreadsheetSetup(
+      ws,
+      [
+        "Full name,Client,Partner",
+        "Mary Ann Collins,Acme GmbH,Northgate Analytics",
+        "Priya Patel,Brightwave Media,Acme GmbH",
+        "Jack Whitmore,Acme GmbH,",
+      ].join("\n"),
+    );
+    expect((await build(ws, setupId)).records).toBe("settled");
+    const reference = await references(ws, setupId);
+    const view = await status(ws);
+    expect(view.results.records.map((entry) => [entry.listId, entry.count, entry.skippedRows])).toEqual([
+      [reference("$list.contact"), 3, 0],
+      [reference("$list.organization"), 3, 0],
+    ]);
+    const acme = await runWithoutTenant(() =>
+      prisma.recordValue.count({
+        where: { companyId: ws.companyId, fieldId: reference("$list.organization.name"), textValue: "Acme GmbH" },
+      }),
+    );
+    expect(acme).toBe(1);
+    expect(
+      await runWithoutTenant(() =>
+        prisma.recordLink.count({
+          where: { companyId: ws.companyId, sourceTypeId: reference("$list.contact"), deletedAt: null },
+        }),
+      ),
+    ).toBe(5);
+  });
+
   it("maps the sheet again instead of storing a column mapping the import cannot use", async () => {
     const ws = await workspace();
     state.plan = { ...structuredClone(agencyPlan), importMapping: null };

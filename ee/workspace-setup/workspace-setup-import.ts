@@ -14,7 +14,6 @@ import {
 import { looksLikePhone, normalizeEmail } from "@/features/data-transfer/spreadsheet/spreadsheet-values";
 
 export type SetupLinkTargetImport = {
-  relationId: string;
   typeId: string;
   table: SpreadsheetTable;
   mapping: SpreadsheetMapping;
@@ -82,32 +81,41 @@ export function setupLinkTargetImports(
   model: RecordModel,
 ): { mapping: SpreadsheetMapping; targets: SetupLinkTargetImport[] } {
   const names = spreadsheetRelatedNames(table, mapping, model);
-  const targets: SetupLinkTargetImport[] = [];
-  const relationships = mapping.relationships.filter((entry) => {
+  const links = mapping.relationships.flatMap((entry) => {
     const relation = model.relationships.find((candidate) => candidate.id === entry.relationId);
     const target = relation && model.types.find((type) => type.id === relation.targetTypeId);
-    if (!target?.primaryFieldId || target.id === mapping.typeId) return false;
+    if (!target?.primaryFieldId || target.id === mapping.typeId) return [];
+    return [{ entry, target: target.id, primaryFieldId: target.primaryFieldId }];
+  });
+  const groups = new Map<string, { column: string; primaryFieldId: string; names: Set<string> }>();
+  for (const { entry, target, primaryFieldId } of links) {
     const listed = names.get(entry.relationId) ?? [];
-    if (listed.length === 0) return true;
+    if (listed.length === 0) continue;
+    const group = groups.get(target) ?? { column: entry.column, primaryFieldId, names: new Set<string>() };
+    for (const name of listed) group.names.add(name);
+    groups.set(target, group);
+  }
+  const targets: SetupLinkTargetImport[] = [];
+  const refused = new Set<string>();
+  for (const [typeId, group] of groups) {
     const link: SetupLinkTargetImport = {
-      relationId: entry.relationId,
-      typeId: target.id,
+      typeId,
       table: {
         sheetName: table.sheetName,
-        headers: [entry.column],
-        rows: listed.map((name, index) => ({ rowNumber: index + 2, cells: [name] })),
+        headers: [group.column],
+        rows: [...group.names].map((name, index) => ({ rowNumber: index + 2, cells: [name] })),
       },
       mapping: {
-        typeId: target.id,
+        typeId,
         locale: mapping.locale,
         timeZone: mapping.timeZone,
-        columns: [{ column: entry.column, fieldId: target.primaryFieldId }],
+        columns: [{ column: group.column, fieldId: group.primaryFieldId }],
         relationships: [],
       },
     };
-    if (spreadsheetMappingIssues(link.table.headers, link.mapping, model).length) return false;
-    targets.push(link);
-    return true;
-  });
+    if (spreadsheetMappingIssues(link.table.headers, link.mapping, model).length) refused.add(typeId);
+    else targets.push(link);
+  }
+  const relationships = links.filter(({ target }) => !refused.has(target)).map(({ entry }) => entry);
   return { mapping: { ...mapping, relationships }, targets };
 }

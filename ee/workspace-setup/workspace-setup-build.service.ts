@@ -723,7 +723,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
         ImportSpreadsheetSchema.parse({
           table: target.table,
           mapping: target.mapping,
-          idempotencyKey: setupIdempotencyKey(setup.id, `import:${target.relationId}`),
+          idempotencyKey: setupIdempotencyKey(setup.id, `import:${target.typeId}`),
         }),
       );
       if (!created.ok) throw await refused(created.error);

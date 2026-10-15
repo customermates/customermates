@@ -136,7 +136,6 @@ describe("setupLinkTargetImports", () => {
     expect(settled).toEqual(mapping);
     expect(targets).toEqual([
       {
-        relationId: id("contact.organizations"),
         typeId: id("organization"),
         table: {
           sheetName: "clients",
@@ -154,6 +153,42 @@ describe("setupLinkTargetImports", () => {
           relationships: [],
         },
       },
+    ]);
+  });
+
+  it("creates a name two link columns share once for their common list", () => {
+    const model = createCrmPreset(companyId);
+    const clients = model.relationships.find((relation) => relation.id === id("contact.organizations"));
+    if (!clients) throw new Error("relationship missing");
+    const partners = { ...clients, id: randomUUID(), sourceLabel: "Partners" };
+    model.relationships.push(partners);
+    const sheet: SpreadsheetTable = {
+      sheetName: "clients",
+      headers: ["Full name", "Client", "Partner"],
+      rows: [
+        { rowNumber: 2, cells: ["Mary Ann Collins", "Acme GmbH", "Northgate Analytics"] },
+        { rowNumber: 3, cells: ["Priya Patel", "Brightwave Media", "Acme GmbH"] },
+      ],
+    };
+    const mapping = contactMapping(
+      [{ column: "Full name", fieldId: id("contact.firstName") }],
+      [
+        { column: "Client", relationId: clients.id },
+        { column: "Partner", relationId: partners.id },
+      ],
+    );
+    const { mapping: settled, targets } = setupLinkTargetImports(sheet, mapping, model);
+    expect(settled).toEqual(mapping);
+    expect(targets).toHaveLength(1);
+    expect(targets[0]).toMatchObject({
+      typeId: id("organization"),
+      table: { headers: ["Client"] },
+      mapping: { columns: [{ column: "Client", fieldId: id("organization.name") }] },
+    });
+    expect(targets[0].table.rows.map((row) => row.cells[0])).toEqual([
+      "Acme GmbH",
+      "Brightwave Media",
+      "Northgate Analytics",
     ]);
   });
 
