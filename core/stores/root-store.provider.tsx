@@ -29,6 +29,7 @@ export type RootStoreInitialState = {
   locale: RoutingLocale;
   user: TenantUser | null;
   subscription: SubscriptionDto | null;
+  addressLookupAvailable?: boolean;
 };
 
 function createRootStore(agentChatEnabled: boolean, appMode: AppMode, initialState: RootStoreInitialState): RootStore {
@@ -38,6 +39,7 @@ function createRootStore(agentChatEnabled: boolean, appMode: AppMode, initialSta
   rootStore.subscriptionStore.setSubscription(initialState.subscription);
   rootStore.recordWorkspaceStore.setNavigation(initialState.recordNavigation ?? null);
   rootStore.sidebarLayoutStore.setLayout(initialState.sidebarLayout ?? null);
+  rootStore.addressLookupAvailable = initialState.addressLookupAvailable ?? false;
   return rootStore;
 }
 

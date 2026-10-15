@@ -13,7 +13,6 @@ import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item"
 import { AppChip } from "@/components/chip/app-chip";
 import { ContactValueActions } from "@/components/records/contact-value";
 import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-avatar";
-import { FormAutocompleteCountry } from "@/components/forms/form-autocomplete-country";
 import { FormSwitch } from "@/components/forms/form-switch";
 import { FormIsoDatePicker } from "@/components/forms/form-iso-date-picker";
 import { FormIsoDateRangePicker } from "@/components/forms/form-iso-date-range-picker";
@@ -21,6 +20,7 @@ import { toChipColor } from "@/constants/chip-colors";
 import { FormattedTextField } from "@/components/editor/formatted-text-field";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { getActiveUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
+import { RecordAddressInput } from "./record-address-input";
 
 type KnownMember = Pick<RecordMember, "id" | "firstName" | "lastName"> & { avatarUrl?: string | null };
 
@@ -150,33 +150,8 @@ export const RecordInputField = observer(function RecordInputField({
       </div>
     );
   }
-  if (field.valueType === "address") {
-    return (
-      <div aria-label={label ?? field.label} className="space-y-2" role="group">
-        {label && (
-          <p className="text-xs text-muted-foreground">
-            {label}
-
-            {field.required ? <span className="text-destructive"> *</span> : null}
-          </p>
-        )}
-
-        <FormInput id={`${id}.street`} label={t("RecordModel.addressParts.street")} />
-
-        <FormInput id={`${id}.line2`} label={t("RecordModel.addressParts.line2")} />
-
-        <div className="grid grid-cols-[minmax(0,8rem)_minmax(0,1fr)] gap-2">
-          <FormInput id={`${id}.postalCode`} label={t("RecordModel.addressParts.postalCode")} />
-
-          <FormInput id={`${id}.city`} label={t("RecordModel.addressParts.city")} />
-        </div>
-
-        <FormInput id={`${id}.region`} label={t("RecordModel.addressParts.region")} />
-
-        <FormAutocompleteCountry id={`${id}.countryCode`} label={t("RecordModel.addressParts.country")} />
-      </div>
-    );
-  }
+  if (field.valueType === "address")
+    return <RecordAddressInput field={field} id={id} inputId={inputId} label={label} />;
   if (field.valueType === "email" || field.valueType === "url") {
     const value = store?.getValue(id);
     return (

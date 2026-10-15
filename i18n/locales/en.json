@@ -3229,6 +3229,15 @@
     "addPathStep": "Add a relationship step",
     "addProperty": "Add property",
     "addRelationship": "Add relationship",
+    "addressCheck": {
+      "action": "Check address",
+      "checking": "Checking address",
+      "keep": "Keep as entered",
+      "noMatch": "No matching address found.",
+      "suggestion": "Suggested address",
+      "use": "Use suggested address"
+    },
+    "addressDetails": "Address details",
     "addressParts": {
       "city": "City",
       "country": "Country",
@@ -3237,7 +3246,14 @@
       "region": "State or region",
       "street": "Street and number"
     },
+    "addressSearch": {
+      "empty": "No matching address found.",
+      "hint": "Type at least {count} characters to search.",
+      "placeholder": "Street and number, postal code or city",
+      "trigger": "Search address"
+    },
     "addressUnverified": "Unverified",
+    "addressVerified": "Verified address",
     "addValue": "Add {field}",
     "aggregation": "Aggregation",
     "assignedTo": "Assigned to",

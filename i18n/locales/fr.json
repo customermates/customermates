@@ -3229,6 +3229,15 @@
     "addPathStep": "Ajouter une étape de relation",
     "addProperty": "Ajouter une propriété",
     "addRelationship": "Ajouter une relation",
+    "addressCheck": {
+      "action": "Vérifier l’adresse",
+      "checking": "Vérification de l’adresse",
+      "keep": "Garder telle quelle",
+      "noMatch": "Aucune adresse correspondante trouvée.",
+      "suggestion": "Adresse suggérée",
+      "use": "Utiliser l’adresse suggérée"
+    },
+    "addressDetails": "Détails de l’adresse",
     "addressParts": {
       "city": "Ville",
       "country": "Pays",
@@ -3237,7 +3246,14 @@
       "region": "État ou région",
       "street": "Rue et numéro"
     },
+    "addressSearch": {
+      "empty": "Aucune adresse correspondante trouvée.",
+      "hint": "Saisissez au moins {count} caractères pour lancer la recherche.",
+      "placeholder": "Rue et numéro, code postal ou ville",
+      "trigger": "Rechercher une adresse"
+    },
     "addressUnverified": "Non vérifiée",
+    "addressVerified": "Adresse vérifiée",
     "addValue": "Ajouter {field}",
     "aggregation": "Agrégation",
     "assignedTo": "Attribué à",

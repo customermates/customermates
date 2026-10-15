@@ -22,7 +22,7 @@ import { toChipColor } from "@/constants/chip-colors";
 import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { cn } from "@/core/utils/cn";
 import { currencyFractionDigits } from "@/features/records/derived-value-format";
-import { addressDisplayText } from "@/features/records/record-address-value";
+import { AddressValue } from "@/components/records/address-value";
 
 type FormattedTextNode = { type?: string; text?: string; content?: FormattedTextNode[] };
 
@@ -140,15 +140,12 @@ export const RecordValue = observer(function RecordValue({
   }
   if (value.kind === "address") {
     return (
-      <span className={cn("inline-flex min-w-0 max-w-full items-baseline gap-2", wrap && "flex-wrap")}>
-        <span className={wrap ? "whitespace-pre-wrap break-words" : "truncate"}>
-          {addressDisplayText(value.value, valueFormat.locale)}
-        </span>
-
-        {wrap && value.value.verification.status === "unverified" && (
-          <span className="shrink-0 text-xs text-muted-foreground">{t("RecordModel.addressUnverified")}</span>
-        )}
-      </span>
+      <AddressValue
+        action={field.format?.onClick ?? "open"}
+        address={value.value}
+        locale={valueFormat.locale}
+        wrap={wrap}
+      />
     );
   }
   if (value.kind === "boolean") return <span>{value.value ? t("RecordModel.yes") : t("RecordModel.no")}</span>;

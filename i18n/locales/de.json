@@ -3229,6 +3229,15 @@
     "addPathStep": "Beziehungsschritt hinzufügen",
     "addProperty": "Eigenschaft hinzufügen",
     "addRelationship": "Beziehung hinzufügen",
+    "addressCheck": {
+      "action": "Adresse prüfen",
+      "checking": "Adresse wird geprüft",
+      "keep": "Wie eingegeben behalten",
+      "noMatch": "Keine passende Adresse gefunden.",
+      "suggestion": "Vorgeschlagene Adresse",
+      "use": "Vorschlag übernehmen"
+    },
+    "addressDetails": "Adressdetails",
     "addressParts": {
       "city": "Ort",
       "country": "Land",
@@ -3237,7 +3246,14 @@
       "region": "Bundesland oder Region",
       "street": "Straße und Hausnummer"
     },
+    "addressSearch": {
+      "empty": "Keine passende Adresse gefunden.",
+      "hint": "Gib mindestens {count} Zeichen ein, um zu suchen.",
+      "placeholder": "Straße und Hausnummer, Postleitzahl oder Ort",
+      "trigger": "Adresse suchen"
+    },
     "addressUnverified": "Unbestätigt",
+    "addressVerified": "Bestätigte Adresse",
     "addValue": "{field} hinzufügen",
     "aggregation": "Zusammenfassung",
     "assignedTo": "Zugewiesen an",

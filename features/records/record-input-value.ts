@@ -1,4 +1,4 @@
-import type { RecordScalar, RecordFieldView } from "./record-model.schema";
+import type { RecordScalar, RecordScalarInput, RecordFieldView } from "./record-model.schema";
 import { filterScalar } from "./record-presentation";
 
 export function recordInputValue(raw: unknown, field: RecordFieldView): RecordScalar | null {
@@ -23,17 +23,34 @@ export function recordInputValue(raw: unknown, field: RecordFieldView): RecordSc
 }
 
 const ADDRESS_PARTS = ["street", "line2", "postalCode", "city", "region", "countryCode"] as const;
-type AddressDraft = Record<(typeof ADDRESS_PARTS)[number], string | null>;
+export type AddressDraftParts = Record<(typeof ADDRESS_PARTS)[number], string | null>;
+export type AddressDraft = AddressDraftParts & { verified?: AddressDraftParts; candidateToken?: string };
+
+export function addressDraftParts(raw: unknown): AddressDraftParts {
+  const draft = (typeof raw === "object" && raw !== null ? raw : {}) as Partial<Record<string, unknown>>;
+  return Object.fromEntries(
+    ADDRESS_PARTS.map((part) => {
+      const value = draft[part];
+      return [part, typeof value === "string" && value.trim() ? value.trim() : null];
+    }),
+  ) as AddressDraftParts;
+}
+
+export function isVerifiedAddressDraft(raw: unknown): boolean {
+  const verified = (raw as Partial<AddressDraft> | null | undefined)?.verified;
+  if (!verified) return false;
+  const parts = addressDraftParts(raw);
+  const expected = addressDraftParts(verified);
+  return ADDRESS_PARTS.every((part) => parts[part] === expected[part]) && Object.values(parts).some(Boolean);
+}
+
+export function verifiedAddressDraft(parts: AddressDraftParts, candidateToken: string): AddressDraft {
+  return { ...parts, verified: { ...parts }, candidateToken };
+}
 
 function addressInput(raw: unknown): RecordScalar | null {
   if (typeof raw !== "object" || raw === null) return null;
-  const draft = raw as Partial<AddressDraft>;
-  const parts = Object.fromEntries(
-    ADDRESS_PARTS.map((part) => [
-      part,
-      typeof draft[part] === "string" && draft[part].trim() ? draft[part].trim() : null,
-    ]),
-  ) as AddressDraft;
+  const parts = addressDraftParts(raw);
   if (!Object.values(parts).some(Boolean)) return null;
   return {
     kind: "address",
@@ -47,9 +64,19 @@ function addressInput(raw: unknown): RecordScalar | null {
 }
 
 function addressDraft(value: RecordScalar | null | undefined): AddressDraft {
-  return Object.fromEntries(
+  const parts = Object.fromEntries(
     ADDRESS_PARTS.map((part) => [part, value?.kind === "address" ? (value.value[part] ?? null) : null]),
-  ) as AddressDraft;
+  ) as AddressDraftParts;
+  return value?.kind === "address" && value.value.verification.status === "verified"
+    ? { ...parts, verified: { ...parts } }
+    : parts;
+}
+
+export function recordWriteValue(raw: unknown, field: RecordFieldView): RecordScalarInput | null {
+  const candidateToken = (raw as Partial<AddressDraft> | null | undefined)?.candidateToken;
+  if (field.valueType === "address" && typeof candidateToken === "string" && isVerifiedAddressDraft(raw))
+    return { kind: "address", candidateToken };
+  return recordInputValue(raw, field);
 }
 
 export function recordDraftValue(
