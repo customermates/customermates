@@ -109,59 +109,15 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
   },
   messaging: {
     any: ["whatsapp", "telegram"],
-    en: [
-      "email",
-      "e-mail",
-      "mail",
-      "inbox",
-      "thread",
-      "message",
-      "chat",
-      "calendar",
-      "meeting",
-      "reply",
-      "draft",
-      "conversation",
-    ],
-    de: ["nachricht", "posteingang", "termin", "kalender", "antwort", "entwurf", "unterhaltung"],
-    es: [
-      "correo",
-      "bandeja de entrada",
-      "mensaje",
-      "calendario",
-      "reunión",
-      "responder",
-      "respuesta",
-      "borrador",
-      "conversación",
-    ],
-    fr: [
-      "courriel",
-      "boîte de réception",
-      "messagerie",
-      "calendrier",
-      "réunion",
-      "rendez-vous",
-      "répondre",
-      "réponse",
-      "brouillon",
-    ],
-    it: [
-      "posta elettronica",
-      "casella di posta",
-      "messaggio",
-      "calendario",
-      "riunione",
-      "appuntamento",
-      "rispondere",
-      "risposta",
-      "bozza",
-      "conversazione",
-    ],
+    en: ["email", "e-mail", "mail", "inbox", "thread", "message", "calendar", "meeting"],
+    de: ["nachricht", "posteingang", "termin", "kalender"],
+    es: ["correo", "bandeja de entrada", "mensaje", "calendario", "reunión"],
+    fr: ["courriel", "boîte de réception", "messagerie", "calendrier", "réunion", "rendez-vous"],
+    it: ["posta elettronica", "casella di posta", "messaggio", "messaggi", "calendario", "riunione", "appuntamento"],
   },
   social: {
     any: ["linkedin", "instagram", "sales navigator"],
-    en: ["post", "profile", "engagement", "connection request", "prospect", "lead list", "follower"],
+    en: ["post", "profile", "connection request", "lead list", "follower"],
     de: ["kontaktanfrage", "profil", "beitrag"],
     es: ["publicación", "perfil", "solicitud de conexión", "seguidores", "lista de leads"],
     fr: ["publication", "profil", "demande de connexion", "abonnés", "liste de leads"],
@@ -185,59 +141,11 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
   },
   routines: {
     any: ["cron"],
-    en: [
-      "routine",
-      "schedule",
-      "automation",
-      "automate",
-      "recurring",
-      "every morning",
-      "every week",
-      "every day",
-      "remind me",
-    ],
-    de: [
-      "zeitplan",
-      "automatisch",
-      "automatisier",
-      "wiederkehrend",
-      "jeden morgen",
-      "jede woche",
-      "jeden tag",
-      "erinnere mich",
-    ],
-    es: [
-      "rutina",
-      "automatiza",
-      "automátic",
-      "programar",
-      "recurrente",
-      "cada mañana",
-      "cada semana",
-      "cada día",
-      "recuérdame",
-    ],
-    fr: [
-      "automatis",
-      "automatique",
-      "planifier",
-      "récurrent",
-      "chaque matin",
-      "chaque semaine",
-      "chaque jour",
-      "tous les jours",
-      "rappelle-moi",
-    ],
-    it: [
-      "automatizza",
-      "automatic",
-      "pianifica",
-      "ricorrente",
-      "ogni mattina",
-      "ogni settimana",
-      "ogni giorno",
-      "ricordami",
-    ],
+    en: ["routine", "automation", "automate", "every morning", "every week", "every day", "remind me"],
+    de: ["automatisch", "automatisier", "jeden morgen", "jede woche", "jeden tag", "erinnere mich"],
+    es: ["rutina", "automatiza", "automátic", "cada mañana", "cada semana", "cada día", "recuérdame"],
+    fr: ["automatis", "automatique", "chaque matin", "chaque semaine", "chaque jour", "tous les jours", "rappelle-moi"],
+    it: ["automatizza", "automatic", "ogni mattina", "ogni settimana", "ogni giorno", "ricordami"],
   },
   admin: {
     any: ["avatar"],
@@ -306,6 +214,14 @@ function normalizeText(value: string): string {
   return value.toLocaleLowerCase("en-US").normalize("NFKC");
 }
 
+const WORD_CHARACTER = /[\p{L}\p{N}]/u;
+
+function startsWordIn(text: string, term: string): boolean {
+  for (let index = text.indexOf(term); index !== -1; index = text.indexOf(term, index + 1))
+    if (!WORD_CHARACTER.test(text.charAt(index - 1))) return true;
+  return false;
+}
+
 export function toolsetsForRequest(args: {
   text: string;
   pageRoute: string | null;
@@ -328,7 +244,7 @@ export function toolsetsForRequest(args: {
   )
     matched.add("record-model");
   for (const toolset of AGENT_ON_DEMAND_TOOLSETS) {
-    if (TOOLSET_TERMS.get(toolset)?.some((term) => text.includes(term))) matched.add(toolset);
+    if (TOOLSET_TERMS.get(toolset)?.some((term) => startsWordIn(text, term))) matched.add(toolset);
     if (route && TOOLSET_ROUTES[toolset].some((prefix) => route === prefix || route.startsWith(`${prefix}/`)))
       matched.add(toolset);
   }

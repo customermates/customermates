@@ -174,6 +174,46 @@ describe("toolsetsForRequest", () => {
   it("keeps a plain records question on the core set", () => {
     expect(toolsetsForRequest({ text: "How many open deals do we have?", pageRoute: "/en/wiki" }).size).toBe(0);
   });
+
+  it("does not load messaging for words that only shape the answer or refer to this conversation", () => {
+    for (const text of [
+      "How many deals are in the Negotiation stage right now? Reply with the number.",
+      "Antworte nur mit der Zahl der offenen Deals.",
+      "Responde solo con el número de tratos abiertos.",
+      "Réponds uniquement avec le nombre d'affaires ouvertes.",
+      "Rispondi solo con il numero di trattative aperte.",
+      "Summarize this conversation and draft a proposal outline for ACME.",
+      "Fasse unsere Unterhaltung zusammen und erstelle einen Entwurf für ACME.",
+    ])
+      expect([...toolsetsForRequest({ text, pageRoute: null })], text).toEqual([]);
+  });
+
+  it("keeps pipeline, revenue and scheduling vocabulary of a CRM on the core set", () => {
+    for (const text of [
+      "How many prospects are in the pipeline?",
+      "What is our monthly recurring revenue from engagement fees?",
+      "Schedule a call with Anna next week.",
+      "Wie hoch ist der wiederkehrende Umsatz laut Zeitplan?",
+    ])
+      expect([...toolsetsForRequest({ text, pageRoute: null })], text).toEqual([]);
+  });
+
+  it("matches a term only where a word starts, so it is not found inside another word", () => {
+    for (const text of [
+      "Determine the deal owner for ACME.",
+      "Prüfe die Kontrolle der Rechnungen.",
+      "Mark the volatile accounts as at risk.",
+    ])
+      expect([...toolsetsForRequest({ text, pageRoute: null })], text).toEqual([]);
+    expect([...toolsetsForRequest({ text: "Show the messages in my inbox", pageRoute: null })]).toEqual(["messaging"]);
+    expect([...toolsetsForRequest({ text: "Verschiebe die Termine von Anna", pageRoute: null })]).toEqual([
+      "messaging",
+    ]);
+    expect([...toolsetsForRequest({ text: "Riassumi gli ultimi messaggi di ACME", pageRoute: null })]).toEqual([
+      "messaging",
+    ]);
+    expect([...toolsetsForRequest({ text: "Reply to the e-mail from ACME", pageRoute: null })]).toEqual(["messaging"]);
+  });
 });
 
 describe("toolsetsFromActivities", () => {
