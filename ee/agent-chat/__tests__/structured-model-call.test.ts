@@ -10,6 +10,7 @@ vi.mock("ai", async (importOriginal) => ({
 
 import { MockLanguageModelV4 } from "ai/test";
 
+import { getStructuredCallProviderOptions } from "@/ee/agent-chat/agent-provider-options";
 import { AGENT_MODELS } from "@/ee/agent-chat/model-catalog";
 
 import {
@@ -61,6 +62,34 @@ describe("generateStructuredObject", () => {
         reasoning: "none",
       }),
     );
+  });
+
+  it("sends a one-shot call without Gateway caching, so it pays no cache write that nothing reads", async () => {
+    provider.generate.mockResolvedValue({ output: { title: "x" }, usage: { inputTokens: 1, outputTokens: 1 } });
+    await call();
+    const [request] = provider.generate.mock.calls[0];
+    expect(request.providerOptions).toEqual(getStructuredCallProviderOptions("vertexAnthropic", "eu"));
+    expect(request.providerOptions.gateway).not.toHaveProperty("caching");
+  });
+
+  it("gives setup planning the timeout of its catalog entry and keeps the default for other purposes", async () => {
+    const timeout = vi.spyOn(AbortSignal, "timeout");
+    provider.generate.mockResolvedValue({ output: { recordModel: { lists: [] } }, usage: { inputTokens: 1 } });
+    try {
+      await nestedCall();
+      await call();
+      await generateStructuredObject({
+        label: "Calculation draft",
+        model: AGENT_MODELS.chat,
+        schema: z.object({ title: z.string() }),
+        system: "system",
+        prompt: "prompt",
+        timeoutMs: 20_000,
+      });
+      expect(timeout.mock.calls.map(([ms]) => ms)).toEqual([180_000, 90_000, 20_000]);
+    } finally {
+      timeout.mockRestore();
+    }
   });
 
   it.each([400, 401, 403, 429])("charges nothing when the gateway rejects the request with %i", async (status) => {

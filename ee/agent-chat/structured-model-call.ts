@@ -8,7 +8,7 @@ import {
   AGENT_MIN_BYTES_PER_PROVIDER_TOKEN,
   AGENT_PROVIDER_FRAMING_OVERHEAD_TOKENS,
 } from "@/ee/agent-chat/agent-model";
-import { getAgentProviderOptions } from "@/ee/agent-chat/agent-provider-options";
+import { getStructuredCallProviderOptions } from "@/ee/agent-chat/agent-provider-options";
 import { readAgentProviderCharge } from "@/ee/agent-chat/gateway-cost";
 import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
 
@@ -188,8 +188,8 @@ export async function generateStructuredObject<T>(args: {
       maxOutputTokens: args.model.maxOutputTokens,
       reasoning: STRUCTURED_OUTPUT_REASONING,
       maxRetries: 0,
-      abortSignal: AbortSignal.timeout(args.timeoutMs ?? TIMEOUT_MS),
-      providerOptions: getAgentProviderOptions(args.model.servingProvider, args.model.inferenceRegion),
+      abortSignal: AbortSignal.timeout(args.timeoutMs ?? args.model.timeoutMs ?? TIMEOUT_MS),
+      providerOptions: getStructuredCallProviderOptions(args.model.servingProvider, args.model.inferenceRegion),
     });
     const usage = result.usage;
     const reading = readAgentProviderCharge(result.providerMetadata, args.model.servingProvider);

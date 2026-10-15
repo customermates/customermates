@@ -16,6 +16,7 @@ export type AgentModelEntry = {
   maxContextTokens: number;
   maxToolResultChars: number;
   reasoningEffort?: AgentReasoningEffort;
+  timeoutMs?: number;
 };
 
 export function agentModelWorstCasePromptTokens(entry: AgentModelEntry) {

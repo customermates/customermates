@@ -36,9 +36,9 @@ export const AGENT_MODELS = {
     maxOutputTokens: 16_384,
     reasoningEffort: "none",
   },
-  wikiSummary: { ...HAIKU, maxOutputTokens: 512, reasoningEffort: "low" },
-  setupDrafting: { ...HAIKU, reasoningEffort: "low" },
-  setupPlanning: { ...SONNET, maxOutputTokens: 16_384, reasoningEffort: "none" },
+  wikiSummary: { ...HAIKU, maxOutputTokens: 512, reasoningEffort: "none" },
+  setupDrafting: { ...HAIKU, reasoningEffort: "none" },
+  setupPlanning: { ...SONNET, maxOutputTokens: 16_384, reasoningEffort: "none", timeoutMs: 180_000 },
 } as const satisfies Record<string, AgentModelEntry>;
 
 export type AgentModelPurpose = keyof typeof AGENT_MODELS;

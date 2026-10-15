@@ -28,11 +28,12 @@ describe("shipped agent models", () => {
     expect(resolveAgentModel("balanced", "routine")).toBe(AGENT_MODELS.routine);
   });
 
-  it("uses low effort for chat, medium for routines and no thinking for structured Knowledge Base synthesis", () => {
+  it("uses low effort for chat, medium for routines and no thinking for every structured purpose", () => {
     expect(AGENT_MODELS.chat.reasoningEffort).toBe("low");
     expect(AGENT_MODELS.routine.reasoningEffort).toBe("medium");
-    expect(AGENT_MODELS.wikiSynthesis.reasoningEffort).toBe("none");
-    expect(AGENT_MODELS.wikiSummary).toMatchObject({ reasoningEffort: "low", maxOutputTokens: 512 });
+    for (const purpose of ["wikiSynthesis", "wikiSummary", "setupDrafting", "setupPlanning"] as const)
+      expect(AGENT_MODELS[purpose].reasoningEffort, purpose).toBe("none");
+    expect(AGENT_MODELS.wikiSummary).toMatchObject({ maxOutputTokens: 512 });
   });
 
   it("pins every entry to Claude on Vertex Anthropic in the EU, Sonnet only for workspace-setup planning", () => {
@@ -45,13 +46,19 @@ describe("shipped agent models", () => {
     }
   });
 
-  it("drafts workspace setup with Haiku and plans it with Sonnet without thinking, since thinking turns off constrained decoding", () => {
-    expect(AGENT_MODELS.setupDrafting).toMatchObject({ modelId: "anthropic/claude-haiku-5.5", reasoningEffort: "low" });
+  it("drafts workspace setup with Haiku and plans it with Sonnet without thinking, since Vertex leaves structured output unconstrained", () => {
+    expect(AGENT_MODELS.setupDrafting).toMatchObject({ modelId: "anthropic/claude-haiku-5.5", reasoningEffort: "none" });
     expect(AGENT_MODELS.setupPlanning).toMatchObject({
       modelId: "anthropic/claude-sonnet-5.5",
       reasoningEffort: "none",
       maxOutputTokens: 16_384,
     });
+  });
+
+  it("gives only setup planning a longer timeout, for a plan part with up to 16K output tokens", () => {
+    expect(AGENT_MODELS.setupPlanning.timeoutMs).toBe(180_000);
+    for (const [purpose, model] of Object.entries(AGENT_MODELS))
+      if (purpose !== "setupPlanning") expect(model, purpose).not.toHaveProperty("timeoutMs");
   });
 
   it("keeps the Haiku worst-case prompt below its first pricing tier boundary", () => {
