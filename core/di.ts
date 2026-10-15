@@ -1974,6 +1974,7 @@ import { PrismaThreadRecordsRepo } from "@/ee/messaging/thread-records/prisma-th
 
 import { PrismaWorkspaceSetupRepo } from "@/ee/workspace-setup/prisma-workspace-setup.repository";
 import { WorkspaceSetupModelService } from "@/ee/workspace-setup/workspace-setup-model.service";
+import { WORKSPACE_SETUP_BUDGETS, type WorkspaceSetupBudgetKind } from "@/ee/workspace-setup/workspace-setup-spend";
 import { WorkspaceSetupInterviewService } from "@/ee/workspace-setup/workspace-setup-interview.service";
 import { WorkspaceSetupPlanner } from "@/ee/workspace-setup/workspace-setup-planner";
 import { WorkspaceSetupBuildService } from "@/ee/workspace-setup/workspace-setup-build.service";
@@ -1993,7 +1994,8 @@ import { RemoveWorkspaceSetupSampleDataInteractor } from "@/ee/workspace-setup/r
 
 export const getWorkspaceSetupRepo = () => new PrismaWorkspaceSetupRepo(getWikiWebsiteCrawlRepo());
 export const getWorkspaceSetupKnowledgeBrief = () => new WorkspaceSetupKnowledgeBrief(getWorkspaceSetupRepo());
-export const getWorkspaceSetupModelService = () => new WorkspaceSetupModelService(getAgentUsageService());
+export const getWorkspaceSetupModelService = (budget: WorkspaceSetupBudgetKind = "plan") =>
+  new WorkspaceSetupModelService(getAgentUsageService(), WORKSPACE_SETUP_BUDGETS[budget]);
 export const getWorkspaceSetupCrawlStarter = () =>
   new WorkspaceSetupCrawlStarter(getWikiPageRepo(), getWikiWebsiteCrawlRepo(), getBackgroundTaskService());
 export const getWorkspaceSetupInterviewService = () => {
@@ -2013,7 +2015,7 @@ export const getWorkspaceSetupInterviewService = () => {
 export const getWorkspaceSetupBuildService = () =>
   new WorkspaceSetupBuildService(
     getWorkspaceSetupRepo(),
-    getWorkspaceSetupModelService(),
+    getWorkspaceSetupModelService("build"),
     getRecordRepo(),
     getPreviewRecordConfigurationInteractor(),
     getApplyRecordConfigurationInteractor(),

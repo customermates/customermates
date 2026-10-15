@@ -262,8 +262,7 @@ export class WorkspaceSetupPlanner extends UserAccessor {
       ],
       check: async (value) => {
         const owned = ["listDefaults", "sampleData", "dashboard", "importMapping"];
-        const wire = (views: PlanViewsWire) =>
-          planWireFromParts(model, views, knowledge ?? EMPTY_PLAN_KNOWLEDGE_WIRE);
+        const wire = (views: PlanViewsWire) => planWireFromParts(model, views, knowledge ?? EMPTY_PLAN_KNOWLEDGE_WIRE);
         const issues = await this.wireIssues(input, wire(value), owned);
         const pruned = withoutUnknownColumns(value, issues);
         if (pruned === value) return { value, issues };

@@ -235,7 +235,11 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
     return next.failure ? "failed" : "retry";
   }
 
-  async finishPlan(setupId: string, revision: number, final: boolean): Promise<"planned" | "retry" | "failed" | "skip"> {
+  async finishPlan(
+    setupId: string,
+    revision: number,
+    final: boolean,
+  ): Promise<"planned" | "retry" | "failed" | "skip"> {
     const setup = await this.repo.get(setupId);
     if (!setup || !planning(setup, revision)) return "skip";
     const drafts = planDrafts(setup);

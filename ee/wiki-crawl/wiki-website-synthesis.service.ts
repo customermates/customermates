@@ -23,10 +23,7 @@ import { WIKI_TITLE_MAX_LENGTH, WIKI_WHEN_TO_USE_MAX_LENGTH, wikiPageKindIssue }
 import { getTranslator } from "@/i18n/get-translator";
 import { appLocaleOrDefault } from "@/i18n/locale-registry";
 import { env } from "@/env";
-import {
-  WORKSPACE_SETUP_PLATFORM_PURPOSE,
-  WORKSPACE_SETUP_SPEND_CAP_MICROCENTS,
-} from "@/ee/workspace-setup/workspace-setup-spend";
+import { WORKSPACE_SETUP_BUDGETS } from "@/ee/workspace-setup/workspace-setup-spend";
 
 import { crawlDedupeKey } from "./website-discovery";
 import { wikiSourceHeadings } from "./wiki-source-inventory";
@@ -209,10 +206,10 @@ export class WikiWebsiteSynthesisService extends UserAccessor {
     if (crawl.payer === "workspaceSetup") {
       const reserved = await this.usage.reserveWorkspacePlatform({
         companyId: this.companyId,
-        purpose: WORKSPACE_SETUP_PLATFORM_PURPOSE,
+        purpose: WORKSPACE_SETUP_BUDGETS.build.purpose,
         model,
         worstCaseMicrocents,
-        capMicrocents: WORKSPACE_SETUP_SPEND_CAP_MICROCENTS,
+        capMicrocents: WORKSPACE_SETUP_BUDGETS.build.capMicrocents,
       });
       if (reserved.status !== "reserved")
         return { ok: false, reason: reserved.status === "cap" ? "credits" : "aiUnavailable" };

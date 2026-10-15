@@ -85,6 +85,7 @@ import { setupModelLabels } from "./workspace-setup-labels";
 import { generatedSampleList, sampleListSpecs } from "./workspace-setup-samples";
 import { sampleLineItemPlans } from "./workspace-setup-line-items";
 import { phaseFailure, phaseFailureOf } from "./workspace-setup-phase-failure";
+import { retriesAutomatically } from "./workspace-setup-attempts";
 import {
   SetupReferencesSchema,
   SetupSamplesSchema,
@@ -111,7 +112,15 @@ type PhaseOutcome =
   | { status: "wait" };
 
 export function emptySetupPhase(): StoredSetupPhase {
-  return { status: "pending", error: null, attempts: 0, claimedAt: null, startedAt: null, finishedAt: null };
+  return {
+    status: "pending",
+    error: null,
+    attempts: 0,
+    retryFrom: 0,
+    claimedAt: null,
+    startedAt: null,
+    finishedAt: null,
+  };
 }
 
 function failureOf(error: z.ZodError): WorkspaceSetupFailure {
@@ -129,6 +138,8 @@ function artifact<T>(setup: WorkspaceSetupRecord, key: string, schema: z.ZodType
 }
 
 export class WorkspaceSetupBuildService extends UserAccessor {
+  private readonly warnings: string[] = [];
+
   constructor(
     private repo: WorkspaceSetupRepo,
     private models: Pick<WorkspaceSetupModelService, "generate" | "drainWarnings">,
@@ -146,7 +157,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
   }
 
   drainWarnings(): string[] {
-    return this.models.drainWarnings();
+    return [...this.warnings.splice(0), ...this.models.drainWarnings()];
   }
 
   async runPhase(setupId: string, phase: WorkspaceSetupPhase, giveUp = false): Promise<SetupPhaseResult> {
@@ -189,6 +200,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     });
     if (!claimed?.changed) return "busy";
     let outcome: PhaseOutcome;
+    let thrown: unknown = null;
     try {
       outcome = await this.work(claimed.setup, phase, giveUp);
     } catch (error) {
@@ -196,14 +208,26 @@ export class WorkspaceSetupBuildService extends UserAccessor {
       outcome = failure
         ? { status: failure.stop ? "stopped" : "failed", error: failure.failure }
         : { status: "failed", error: "error" };
-      if (!failure) {
-        await this.settle(setupId, phase, outcome);
-        throw error;
-      }
+      if (!failure) thrown = error;
     }
     if (outcome.status === "wait") return "wait";
+    const state = claimed.setup.phases[phase] ?? emptySetupPhase();
+    if (outcome.status === "failed" && !giveUp && retriesAutomatically(phase, outcome.error, state)) {
+      if (thrown) this.warnings.push(`${phase}: ${thrown instanceof Error ? thrown.message : String(thrown)}`);
+      await this.requeue(setupId, phase, outcome.error);
+      return "wait";
+    }
     await this.settle(setupId, phase, outcome);
+    if (thrown) throw thrown;
     return "settled";
+  }
+
+  private async requeue(setupId: string, phase: WorkspaceSetupPhase, error: WorkspaceSetupFailure) {
+    await this.repo.mutate(setupId, (setup) => {
+      const state = setup.phases[phase] ?? emptySetupPhase();
+      if (state.status !== "running") return null;
+      return { phases: { ...setup.phases, [phase]: { ...state, status: "pending", error, claimedAt: null } } };
+    });
   }
 
   private async settle(

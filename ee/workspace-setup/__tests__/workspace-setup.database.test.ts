@@ -51,7 +51,8 @@ const { PrismaCompanyRepo } = await import("@/features/company/prisma-company.re
 const { RegisterUserInteractor } = await import("@/features/user/register/register-user.interactor");
 const { agencyPlan } = await import("@/features/workspace-setup/__tests__/setup-plan-fixtures");
 const { planPartFor } = await import("./setup-wire-fixtures");
-const { WORKSPACE_SETUP_SPEND_CAP_MICROCENTS } = await import("../workspace-setup-spend");
+const { WORKSPACE_SETUP_BUDGETS } = await import("../workspace-setup-spend");
+const { SETUP_BUILD_PHASE_ATTEMPTS } = await import("../workspace-setup-attempts");
 const { emptySetupPhase } = await import("../workspace-setup-build.service");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
@@ -193,7 +194,10 @@ async function build(ws: Workspace, setupId: string) {
   const service = di.getWorkspaceSetupBuildService();
   const results: Record<string, string> = {};
   for (const phase of ["knowledgeBase", "dataModel", "views", "records", "dashboard"] as const)
-    results[phase] = await ws.run(() => service.runPhase(setupId, phase));
+    for (let round = 0; round < SETUP_BUILD_PHASE_ATTEMPTS + 1; round += 1) {
+      results[phase] = await ws.run(() => service.runPhase(setupId, phase));
+      if (results[phase] !== "wait") break;
+    }
   await ws.run(() => service.finish(setupId));
   return results;
 }
@@ -279,7 +283,7 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     ]);
     expect(view.results.records[0].titles).toEqual(["Sample 1", "Sample 2", "Sample 3"]);
     expect(view.spend.usedMicrocents).toBeGreaterThan(0);
-    expect(view.spend).toMatchObject({ heldMicrocents: 0, capMicrocents: WORKSPACE_SETUP_SPEND_CAP_MICROCENTS });
+    expect(view.spend).toMatchObject({ heldMicrocents: 0, capMicrocents: WORKSPACE_SETUP_BUDGETS.build.capMicrocents });
     expect(view.canRemoveSampleData).toBe(true);
 
     const setup = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
@@ -407,7 +411,7 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     }
   });
 
-  it("retries one failed phase alone and keeps the finished ones", async () => {
+  it("retries a failed phase automatically three times, then on request with three more tries", async () => {
     const ws = await workspace();
     const { setupId, planRevision } = await planned(ws);
     await ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision }));
@@ -419,12 +423,21 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
         failureScope: "request",
       }),
     );
+    const service = di.getWorkspaceSetupBuildService();
+    expect(await ws.run(() => service.runPhase(setupId, "dataModel"))).toBe("settled");
+    expect(await ws.run(() => service.runPhase(setupId, "records"))).toBe("wait");
+    expect((await status(ws)).phases.find((phase) => phase.key === "records")).toMatchObject({
+      status: "pending",
+      error: "generation",
+      attempts: 1,
+    });
     await build(ws, setupId);
     let view = await status(ws);
     expect(view.status).toBe("failed");
     expect(view.phases.find((phase) => phase.key === "records")).toMatchObject({
       status: "failed",
       error: "generation",
+      attempts: SETUP_BUILD_PHASE_ATTEMPTS,
     });
     expect(view.phases.filter((phase) => phase.status === "completed").map((phase) => phase.key)).toEqual([
       "dataModel",
@@ -432,27 +445,50 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
       "dashboard",
     ]);
 
-    modelReplies();
     const retried = await ws.run(() =>
       di.getRetryWorkspaceSetupPhaseInteractor().invoke({ setupId, phase: "records" }),
     );
     expect(retried).toEqual({ ok: true, data: { setupId } });
-    expect(await ws.run(() => di.getWorkspaceSetupBuildService().runPhase(setupId, "dataModel"))).toBe("settled");
-    expect(await ws.run(() => di.getWorkspaceSetupBuildService().runPhase(setupId, "records"))).toBe("settled");
-    await ws.run(() => di.getWorkspaceSetupBuildService().finish(setupId));
+    expect(await ws.run(() => service.runPhase(setupId, "records"))).toBe("wait");
+    modelReplies();
+    expect(await ws.run(() => service.runPhase(setupId, "records"))).toBe("settled");
+    await ws.run(() => service.finish(setupId));
     view = await status(ws);
     expect(view.status).toBe("completed");
-    expect(view.phases.find((phase) => phase.key === "records")).toMatchObject({ status: "completed", attempts: 2 });
+    expect(view.phases.find((phase) => phase.key === "records")).toMatchObject({ status: "completed", attempts: 5 });
     expect(view.phases.find((phase) => phase.key === "dataModel")?.attempts).toBe(1);
+  });
+
+  it("charges planning and building to separate workspace budgets", async () => {
+    const ws = await workspace();
+    const { setupId, planRevision } = await planned(ws);
+    const usage = (purpose: string) =>
+      runWithoutTenant(() =>
+        prisma.hostedAiPlatformWorkspaceUsage.findUnique({
+          where: { companyId_purpose: { companyId: ws.companyId, purpose } },
+          select: { costMicrocents: true },
+        }),
+      );
+    const plannedCost = await usage("workspaceSetup");
+    expect(Number(plannedCost?.costMicrocents ?? 0)).toBeGreaterThan(0);
+    expect(await usage("workspaceSetupBuild")).toBeNull();
+    expect((await status(ws)).spend.capMicrocents).toBe(WORKSPACE_SETUP_BUDGETS.plan.capMicrocents);
+    await ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision }));
+    await build(ws, setupId);
+    expect(Number((await usage("workspaceSetupBuild"))?.costMicrocents ?? 0)).toBeGreaterThan(0);
+    expect((await usage("workspaceSetup"))?.costMicrocents).toEqual(plannedCost?.costMicrocents);
   });
 
   it("stops paid phases at the workspace cap and keeps the free ones", async () => {
     const ws = await workspace();
     const { setupId, planRevision } = await planned(ws);
     await runWithoutTenant(() =>
-      prisma.hostedAiPlatformWorkspaceUsage.update({
-        where: { companyId_purpose: { companyId: ws.companyId, purpose: "workspaceSetup" } },
-        data: { costMicrocents: BigInt(WORKSPACE_SETUP_SPEND_CAP_MICROCENTS) },
+      prisma.hostedAiPlatformWorkspaceUsage.create({
+        data: {
+          companyId: ws.companyId,
+          purpose: "workspaceSetupBuild",
+          costMicrocents: BigInt(WORKSPACE_SETUP_BUDGETS.build.capMicrocents),
+        },
       }),
     );
     await ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision }));

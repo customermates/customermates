@@ -6,7 +6,9 @@ const state = vi.hoisted(() => ({
   kbWaits: 2,
   prefill: vi.fn(),
   followUps: vi.fn(),
-  plan: vi.fn(),
+  claimPlan: vi.fn(),
+  planPart: vi.fn(),
+  finishPlan: vi.fn(),
   runPhase: vi.fn(),
   finish: vi.fn(),
   reportFailure: vi.fn(),
@@ -26,7 +28,9 @@ vi.mock("@/core/di", () => ({
   getWorkspaceSetupInterviewService: () => ({
     prefill: state.prefill,
     followUps: state.followUps,
-    plan: state.plan,
+    claimPlan: state.claimPlan,
+    planPart: state.planPart,
+    finishPlan: state.finishPlan,
     drainWarnings: () => [],
   }),
   getWorkspaceSetupBuildService: () => ({
@@ -50,6 +54,9 @@ beforeEach(() => {
   state.calls = [];
   state.sleeps = 0;
   state.kbWaits = 2;
+  state.claimPlan.mockResolvedValue({ status: "claimed", revision: 4 });
+  state.planPart.mockResolvedValue("done");
+  state.finishPlan.mockResolvedValue("planned");
   state.runPhase.mockImplementation((_setupId: string, phase: string) => {
     state.calls.push(phase);
     if (phase === "knowledgeBase" && state.kbWaits > 0) {
@@ -76,12 +83,51 @@ describe("workspace setup workflows", () => {
     expect(state.prefill.mock.calls.at(-1)).toEqual(["setup-1", true]);
   });
 
-  it("plans only when no follow-up question was asked", async () => {
+  it("plans only when no follow-up question was asked, one durable step per plan part", async () => {
     state.followUps.mockReset().mockResolvedValueOnce("asked").mockResolvedValueOnce("none");
     await planWorkspaceSetup(payload);
-    expect(state.plan).not.toHaveBeenCalled();
+    expect(state.claimPlan).not.toHaveBeenCalled();
     await planWorkspaceSetup(payload);
-    expect(state.plan).toHaveBeenCalledWith("setup-1");
+    expect(state.planPart.mock.calls).toEqual([
+      ["setup-1", 4, "model"],
+      ["setup-1", 4, "knowledge"],
+      ["setup-1", 4, "views"],
+    ]);
+    expect(state.finishPlan).toHaveBeenCalledWith("setup-1", 4, false);
+    expect(state.sleeps).toBe(0);
+  });
+
+  it("repeats a part attempt the planner asked to repair and skips views without a record model", async () => {
+    state.followUps.mockResolvedValue("none");
+    state.planPart.mockImplementation((_id: string, _revision: number, part: string) =>
+      Promise.resolve(part === "model" ? "failed" : "done"),
+    );
+    state.planPart.mockResolvedValueOnce("retry");
+    state.finishPlan.mockResolvedValue("failed");
+    await planWorkspaceSetup(payload);
+    expect(state.planPart.mock.calls.map(([, , part]) => part)).toEqual(["model", "knowledge", "model"]);
+    expect(state.finishPlan).toHaveBeenCalledOnce();
+  });
+
+  it("drafts the plan a second time after a failed attempt and gives up after the last one", async () => {
+    state.followUps.mockResolvedValue("none");
+    state.finishPlan.mockResolvedValueOnce("retry").mockResolvedValueOnce("failed");
+    await planWorkspaceSetup(payload);
+    expect(state.finishPlan.mock.calls).toEqual([
+      ["setup-1", 4, false],
+      ["setup-1", 4, true],
+    ]);
+    expect(state.claimPlan).toHaveBeenCalledTimes(2);
+    expect(state.sleeps).toBe(1);
+  });
+
+  it("waits for a fresh plan claim held by another run and stops when the setup moved on", async () => {
+    state.followUps.mockResolvedValue("none");
+    state.claimPlan.mockResolvedValueOnce({ status: "busy" }).mockResolvedValueOnce({ status: "skip" });
+    await planWorkspaceSetup(payload);
+    expect(state.planPart).not.toHaveBeenCalled();
+    expect(state.finishPlan).not.toHaveBeenCalled();
+    expect(state.sleeps).toBe(1);
   });
 
   it("runs the Knowledge Base beside the data model, then views, records and dashboard, then finishes", async () => {

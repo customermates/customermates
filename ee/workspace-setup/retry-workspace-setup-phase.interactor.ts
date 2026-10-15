@@ -68,10 +68,11 @@ export class RetryWorkspaceSetupPhaseInteractor extends AuthenticatedInteractor<
     const reset = await this.repo.mutate(data.setupId, (current) => {
       const phase = current.phases[data.phase];
       if (!phase || !RETRYABLE.has(phase.status)) return null;
-      const phases = { ...current.phases, [data.phase]: { ...emptySetupPhase(), attempts: phase.attempts } };
+      const restart = (attempts: number) => ({ ...emptySetupPhase(), attempts, retryFrom: attempts });
+      const phases = { ...current.phases, [data.phase]: restart(phase.attempts) };
       for (const dependent of dependents(data.phase)) {
         const next = current.phases[dependent];
-        if (next && next.status !== "completed") phases[dependent] = { ...emptySetupPhase(), attempts: next.attempts };
+        if (next && next.status !== "completed") phases[dependent] = restart(next.attempts);
       }
       return { status: "building", finishedAt: null, phases, crawlId, ...(withoutWebsite ? { websiteUrl: null } : {}) };
     });

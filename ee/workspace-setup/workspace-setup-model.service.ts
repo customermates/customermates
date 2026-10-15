@@ -2,12 +2,11 @@ import type { z } from "zod";
 import type { AgentRetrievalCharge, AgentUsageService } from "@/ee/agent-chat/agent-usage.service";
 import type { AgentModelEntry } from "@/ee/agent-chat/model-catalog";
 import type { WorkspaceSetupFailure } from "./workspace-setup.schema";
+import type { WorkspaceSetupBudget } from "./workspace-setup-spend";
 
 import { UserAccessor } from "@/core/base/user-accessor";
 import { AGENT_MODELS } from "@/ee/agent-chat/model-catalog";
 import { generateStructuredObject, structuredCallWorstCaseMicrocents } from "@/ee/agent-chat/structured-model-call";
-
-import { WORKSPACE_SETUP_PLATFORM_PURPOSE, WORKSPACE_SETUP_SPEND_CAP_MICROCENTS } from "./workspace-setup-spend";
 
 export type SetupModelOutcome<T> =
   | { ok: true; value: T }
@@ -24,7 +23,10 @@ export type SetupModelCall<T> = {
 export class WorkspaceSetupModelService extends UserAccessor {
   private readonly warnings: string[] = [];
 
-  constructor(private usage: Pick<AgentUsageService, "reserveWorkspacePlatform" | "settlePlatformRetrieval">) {
+  constructor(
+    private usage: Pick<AgentUsageService, "reserveWorkspacePlatform" | "settlePlatformRetrieval">,
+    private budget: WorkspaceSetupBudget,
+  ) {
     super();
   }
 
@@ -37,10 +39,10 @@ export class WorkspaceSetupModelService extends UserAccessor {
     const worstCaseMicrocents = structuredCallWorstCaseMicrocents(model, call.system, call.prompt);
     const reserved = await this.usage.reserveWorkspacePlatform({
       companyId: this.companyId,
-      purpose: WORKSPACE_SETUP_PLATFORM_PURPOSE,
+      purpose: this.budget.purpose,
       model: model.modelId,
       worstCaseMicrocents,
-      capMicrocents: WORKSPACE_SETUP_SPEND_CAP_MICROCENTS,
+      capMicrocents: this.budget.capMicrocents,
     });
     if (reserved.status !== "reserved")
       return { ok: false, failure: reserved.status === "cap" ? "spendCap" : "aiUnavailable" };

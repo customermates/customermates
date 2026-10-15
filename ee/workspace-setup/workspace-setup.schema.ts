@@ -61,6 +61,7 @@ export const StoredSetupPhaseSchema = z
     status: z.enum(WORKSPACE_SETUP_PHASE_STATUSES),
     error: z.enum(WORKSPACE_SETUP_FAILURES).nullable(),
     attempts: z.number().int().nonnegative(),
+    retryFrom: z.number().int().nonnegative().default(0),
     claimedAt: IsoDateSchema.nullable(),
     startedAt: IsoDateSchema.nullable(),
     finishedAt: IsoDateSchema.nullable(),
@@ -204,33 +205,30 @@ export const SetupResultListSchema = z
   })
   .strict();
 
-export const StoredSetupResultsSchema = z
-  .object({
-    colors: BrandMappingSchema.nullable().default(null),
-    lists: z.array(SetupResultListSchema).default([]),
-    views: z
-      .array(
-        z.object({ id: z.uuid(), listId: z.uuid(), name: z.string(), layout: z.enum(["table", "board"]) }).strict(),
-      )
-      .default([]),
-    records: z
-      .array(
-        z
-          .object({
-            listId: z.uuid(),
-            kind: z.enum(["sample", "imported"]),
-            count: z.number().int().nonnegative(),
-            titles: z.array(z.string()).max(10),
-            skippedRows: z.number().int().nonnegative(),
-          })
-          .strict(),
-      )
-      .default([]),
-    widgets: z
-      .array(z.object({ id: z.uuid(), title: z.string(), display: z.enum(WIDGET_STARTER_DISPLAY_TYPES) }).strict())
-      .default([]),
-    pages: z.array(z.object({ id: z.uuid(), title: z.string() }).strict()).default([]),
-  });
+export const StoredSetupResultsSchema = z.object({
+  colors: BrandMappingSchema.nullable().default(null),
+  lists: z.array(SetupResultListSchema).default([]),
+  views: z
+    .array(z.object({ id: z.uuid(), listId: z.uuid(), name: z.string(), layout: z.enum(["table", "board"]) }).strict())
+    .default([]),
+  records: z
+    .array(
+      z
+        .object({
+          listId: z.uuid(),
+          kind: z.enum(["sample", "imported"]),
+          count: z.number().int().nonnegative(),
+          titles: z.array(z.string()).max(10),
+          skippedRows: z.number().int().nonnegative(),
+        })
+        .strict(),
+    )
+    .default([]),
+  widgets: z
+    .array(z.object({ id: z.uuid(), title: z.string(), display: z.enum(WIDGET_STARTER_DISPLAY_TYPES) }).strict())
+    .default([]),
+  pages: z.array(z.object({ id: z.uuid(), title: z.string() }).strict()).default([]),
+});
 export type StoredSetupResults = z.infer<typeof StoredSetupResultsSchema>;
 
 export type WorkspaceSetupRecord = {

@@ -6,6 +6,7 @@ import { sleep } from "workflow";
 
 import { getWorkspaceSetupBuildService, getWorkspaceSetupInterviewService } from "@/core/di";
 import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
+import { SETUP_PLAN_ATTEMPTS } from "@/ee/workspace-setup/workspace-setup-attempts";
 
 import { reportFailure, reportWarning, toWorkflowFailure } from "./capture-failure";
 
@@ -20,6 +21,7 @@ const KNOWLEDGE_BASE_WAIT_ROUNDS = 180;
 const PLAN_BUSY_ROUNDS = 100;
 const PLAN_PART_ROUNDS = 3;
 const WAIT = "10s";
+const PLAN_RETRY_WAIT = "30s";
 
 async function prefillWorkspaceSetupStep(
   payload: WorkspaceSetupWorkflowPayload,
@@ -145,7 +147,10 @@ export async function planWorkspaceSetup(payload: WorkspaceSetupWorkflowPayload)
     const followUps = await followUpWorkspaceSetupStep(payload);
     await warn("plan-workspace-setup", followUps.warnings, payload.tenant);
     if (followUps.result !== "none") return;
-    await draftPlan(payload, true);
+    for (let attempt = 1; attempt <= SETUP_PLAN_ATTEMPTS; attempt += 1) {
+      if ((await draftPlan(payload, attempt === SETUP_PLAN_ATTEMPTS)) !== "retry") return;
+      await sleep(PLAN_RETRY_WAIT);
+    }
   } catch (error) {
     await reportFailure("plan-workspace-setup", toWorkflowFailure(error), payload.tenant);
     throw error;

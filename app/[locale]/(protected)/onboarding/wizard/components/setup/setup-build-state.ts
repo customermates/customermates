@@ -26,7 +26,7 @@ export function buildOutcome(setup: WorkspaceSetupView): BuildOutcome {
 }
 
 export function buildPhaseState(phase: WorkspaceSetupPhaseView): BuildPhaseState {
-  return PHASE_STATES[phase.status];
+  return phase.status === "pending" && phase.error ? "active" : PHASE_STATES[phase.status];
 }
 
 export function phaseOf(setup: WorkspaceSetupView, key: WorkspaceSetupPhase): WorkspaceSetupPhaseView | undefined {

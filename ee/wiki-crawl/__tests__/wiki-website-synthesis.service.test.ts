@@ -24,10 +24,7 @@ import { AGENT_MODELS } from "@/ee/agent-chat/model-catalog";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { createMockUser } from "@/tests/helpers/mock-user";
-import {
-  WORKSPACE_SETUP_PLATFORM_PURPOSE,
-  WORKSPACE_SETUP_SPEND_CAP_MICROCENTS,
-} from "@/ee/workspace-setup/workspace-setup-spend";
+import { WORKSPACE_SETUP_BUDGETS } from "@/ee/workspace-setup/workspace-setup-spend";
 
 import { WikiWebsiteSynthesisService } from "../wiki-website-synthesis.service";
 
@@ -518,8 +515,8 @@ describe("website Knowledge Base synthesis", () => {
     expect(usage.reserveWorkspacePlatform).toHaveBeenCalledWith(
       expect.objectContaining({
         companyId: "company-setup",
-        purpose: WORKSPACE_SETUP_PLATFORM_PURPOSE,
-        capMicrocents: WORKSPACE_SETUP_SPEND_CAP_MICROCENTS,
+        purpose: WORKSPACE_SETUP_BUDGETS.build.purpose,
+        capMicrocents: WORKSPACE_SETUP_BUDGETS.build.capMicrocents,
       }),
     );
     expect(usage.settlePlatformRetrieval).toHaveBeenCalledTimes(usage.reserveWorkspacePlatform.mock.calls.length);
