@@ -163,8 +163,7 @@ export function hasSuccessfulAgentMutation(parts: readonly AgentMessagePart[]) {
 }
 
 export const AgentDataCountsSchema = z.object({
-  contacts: z.boolean(),
-  deals: z.boolean(),
+  records: z.boolean(),
   routines: z.boolean(),
   wiki: z.boolean(),
   widgets: z.boolean(),

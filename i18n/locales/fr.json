@@ -564,13 +564,13 @@
         },
         "default": {
           "data": {
-            "default-contact-count": {
-              "label": "Combien de contacts avons-nous ?",
-              "prompt": "Indiquez-moi combien de contacts nous avons et comment ce chiffre a évolué."
+            "default-needs-attention": {
+              "label": "Qu'est-ce qui demande mon attention ?",
+              "prompt": "Résumez les fiches ouvertes qui demandent mon attention en ce moment et l'état d'avancement de chacune."
             },
-            "default-open-deals": {
-              "label": "Quelles opportunités sont ouvertes ?",
-              "prompt": "Résumez les opportunités actuellement ouvertes et l'état d'avancement de chacune."
+            "default-record-overview": {
+              "label": "Que contient mon espace de travail ?",
+              "prompt": "Indiquez-moi quelles listes compte mon espace de travail, combien de fiches chacune contient et comment ce chiffre a évolué."
             },
             "default-tour": {
               "label": "Faites-moi visiter l'application",
@@ -583,8 +583,8 @@
               "prompt": "Expliquez-moi ce que vous pouvez faire pour moi dans Customermates et où vous êtes le plus utile."
             },
             "default-import": {
-              "label": "Comment importer mes contacts ?",
-              "prompt": "Guidez-moi pour importer mes contacts existants dans Customermates."
+              "label": "Comment importer mes données ?",
+              "prompt": "Guidez-moi pour importer mes fiches existantes dans Customermates, par exemple depuis un tableur."
             },
             "default-setup": {
               "label": "Aidez-moi à configurer mon CRM",
@@ -1067,6 +1067,7 @@
       "clearFilters": "Effacer les filtres",
       "cta": "Ajouter votre premier élément « {singular} »",
       "dashboardBody": "Les widgets apparaîtront ici à mesure que vous ajouterez des données.",
+      "dashboardNoListsBody": "Votre espace de travail n'a encore aucune liste. Créez une liste pour commencer à ajouter des fiches et des widgets.",
       "dashboardTitle": "Rien à afficher pour le moment",
       "filteredBody": "Aucun élément « {plural} » ne correspond à vos filtres.",
       "filteredTitle": "Aucune correspondance",
@@ -3172,15 +3173,12 @@
     "stats": {
       "assistantConversations": "Discussions avec l'assistant",
       "connectedAccounts": "Comptes connectés",
-      "contacts": "Contacts",
-      "deals": "Affaires",
       "lastActive": "Dernière connexion",
       "lastActivity": "Dernière modification enregistrée",
+      "lists": "Listes",
       "messages": "Messages",
       "never": "Jamais",
-      "organizations": "Organisations",
-      "services": "Services",
-      "tasks": "Tâches",
+      "records": "Fiches",
       "threads": "Conversations",
       "title": "Statistiques de l'espace"
     },

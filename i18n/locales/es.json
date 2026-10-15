@@ -564,13 +564,13 @@
         },
         "default": {
           "data": {
-            "default-contact-count": {
-              "label": "¿Cuántos contactos tenemos?",
-              "prompt": "Dime cuántos contactos tenemos y cómo ha evolucionado esa cifra."
+            "default-needs-attention": {
+              "label": "¿Qué necesita mi atención?",
+              "prompt": "Resume los registros abiertos que necesitan mi atención ahora mismo y en qué punto está cada uno."
             },
-            "default-open-deals": {
-              "label": "¿Qué oportunidades están abiertas?",
-              "prompt": "Resume las oportunidades abiertas ahora mismo y en qué punto está cada una."
+            "default-record-overview": {
+              "label": "¿Qué hay en mi espacio de trabajo?",
+              "prompt": "Dime qué listas tiene mi espacio de trabajo, cuántos registros contiene cada una y cómo ha evolucionado esa cifra."
             },
             "default-tour": {
               "label": "Enséñame la aplicación",
@@ -583,8 +583,8 @@
               "prompt": "Explícame qué puedes hacer por mí en Customermates y en qué eres más útil."
             },
             "default-import": {
-              "label": "¿Cómo importo mis contactos?",
-              "prompt": "Guíame para importar a Customermates los contactos que ya tengo."
+              "label": "¿Cómo importo mis datos?",
+              "prompt": "Guíame para importar a Customermates los registros que ya tengo, por ejemplo desde una hoja de cálculo."
             },
             "default-setup": {
               "label": "Ayúdame a configurar mi CRM",
@@ -1067,6 +1067,7 @@
       "clearFilters": "Borrar filtros",
       "cta": "Añade tu primer elemento «{singular}»",
       "dashboardBody": "Los widgets aparecerán aquí a medida que añadas datos.",
+      "dashboardNoListsBody": "Tu espacio de trabajo aún no tiene listas. Crea una lista para empezar a añadir registros y widgets.",
       "dashboardTitle": "Aún no hay nada que mostrar",
       "filteredBody": "Ningún elemento «{plural}» coincide con tus filtros.",
       "filteredTitle": "No hay coincidencias",
@@ -3172,15 +3173,12 @@
     "stats": {
       "assistantConversations": "Chats del asistente",
       "connectedAccounts": "Cuentas conectadas",
-      "contacts": "Contactos",
-      "deals": "Negocios",
       "lastActive": "Último inicio de sesión",
       "lastActivity": "Último cambio registrado",
+      "lists": "Listas",
       "messages": "Mensajes",
       "never": "Nunca",
-      "organizations": "Organizaciones",
-      "services": "Servicios",
-      "tasks": "Tareas",
+      "records": "Registros",
       "threads": "Conversaciones",
       "title": "Estadísticas del espacio"
     },

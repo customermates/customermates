@@ -39,7 +39,7 @@ const PAGE_ACTION_IDS: Record<SupportedPage, Record<PageState, readonly string[]
   },
   default: {
     empty: ["default-capabilities", "default-import", "default-setup"],
-    data: ["default-contact-count", "default-open-deals", "default-tour"],
+    data: ["default-record-overview", "default-needs-attention", "default-tour"],
   },
 };
 
@@ -53,7 +53,7 @@ export function agentPageState(page: SupportedPage, counts: AgentDataCounts): Pa
     case "connected-accounts":
       return counts.connectedAccounts ? "data" : "empty";
     case "default":
-      return counts.contacts || counts.deals ? "data" : "empty";
+      return counts.records ? "data" : "empty";
     default:
       return counts[page] ? "data" : "empty";
   }

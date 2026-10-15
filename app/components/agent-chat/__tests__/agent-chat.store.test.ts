@@ -48,11 +48,7 @@ const CONFIG = {
     blockedReason: null,
   },
   counts: {
-    contacts: false,
-    organizations: false,
-    deals: false,
-    services: false,
-    tasks: false,
+    records: false,
     routines: false,
     wiki: false,
     widgets: false,
@@ -447,9 +443,7 @@ describe("AgentChatStore", () => {
         ...CONFIG,
         counts: {
           ...CONFIG.counts,
-          contacts: true,
-          organizations: true,
-          tasks: true,
+          records: true,
           widgets: false,
         },
       },

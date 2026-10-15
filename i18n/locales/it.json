@@ -564,13 +564,13 @@
         },
         "default": {
           "data": {
-            "default-contact-count": {
-              "label": "Quanti contatti abbiamo?",
-              "prompt": "Dimmi quanti contatti abbiamo e come è cambiato questo numero nel tempo."
+            "default-needs-attention": {
+              "label": "Che cosa richiede la mia attenzione?",
+              "prompt": "Riepiloga i record aperti che richiedono la mia attenzione in questo momento e a che punto si trova ciascuno."
             },
-            "default-open-deals": {
-              "label": "Quali trattative sono aperte?",
-              "prompt": "Riepiloga le trattative attualmente aperte e a che punto si trova ciascuna."
+            "default-record-overview": {
+              "label": "Che cosa c'è nel mio spazio di lavoro?",
+              "prompt": "Dimmi quali liste ha il mio spazio di lavoro, quanti record contiene ciascuna e come è cambiato questo numero nel tempo."
             },
             "default-tour": {
               "label": "Fammi fare un giro dell'app",
@@ -583,8 +583,8 @@
               "prompt": "Spiegami che cosa puoi fare per me in Customermates e dove sei più utile."
             },
             "default-import": {
-              "label": "Come importo i miei contatti?",
-              "prompt": "Guidami nell'importazione dei contatti che ho già in Customermates."
+              "label": "Come importo i miei dati?",
+              "prompt": "Guidami nell'importazione in Customermates dei record che ho già, per esempio da un foglio di calcolo."
             },
             "default-setup": {
               "label": "Aiutami a configurare il mio CRM",
@@ -1067,6 +1067,7 @@
       "clearFilters": "Cancella filtri",
       "cta": "Aggiungi la tua prima voce «{singular}»",
       "dashboardBody": "I widget appariranno qui man mano che aggiungi dati.",
+      "dashboardNoListsBody": "Il tuo spazio di lavoro non ha ancora liste. Crea una lista per iniziare ad aggiungere record e widget.",
       "dashboardTitle": "Ancora niente da mostrare",
       "filteredBody": "Nessuna voce «{plural}» corrisponde ai tuoi filtri.",
       "filteredTitle": "Nessuna corrispondenza",
@@ -3172,15 +3173,12 @@
     "stats": {
       "assistantConversations": "Chat dell'assistente",
       "connectedAccounts": "Account collegati",
-      "contacts": "Contatti",
-      "deals": "Trattative",
       "lastActive": "Ultimo accesso",
       "lastActivity": "Ultima modifica registrata",
+      "lists": "Liste",
       "messages": "Messaggi",
       "never": "Mai",
-      "organizations": "Organizzazioni",
-      "services": "Servizi",
-      "tasks": "Attività",
+      "records": "Record",
       "threads": "Conversazioni",
       "title": "Statistiche dello spazio"
     },

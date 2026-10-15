@@ -1,4 +1,3 @@
-import { presetId } from "@/features/records/crm-preset";
 import type { OperatorWriteOwners } from "./operator-write-owners";
 import type { Prisma } from "@/generated/prisma";
 import { ConnectedAccountStatus, Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
@@ -1286,11 +1285,8 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
 
     const rows = await this.prisma.$queryRaw<
       Array<{
-        contacts: number;
-        organizations: number;
-        deals: number;
-        services: number;
-        tasks: number;
+        lists: number;
+        records: number;
         messagingThreads: number;
         messagingMessages: number;
         agentConversations: number;
@@ -1300,11 +1296,8 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
       }>
     >`
       SELECT
-        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "deletedAt" IS NULL AND "typeId" = ${presetId(data.companyId, "contact")})::int AS "contacts",
-        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "deletedAt" IS NULL AND "typeId" = ${presetId(data.companyId, "organization")})::int AS "organizations",
-        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "deletedAt" IS NULL AND "typeId" = ${presetId(data.companyId, "deal")})::int AS "deals",
-        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "deletedAt" IS NULL AND "typeId" = ${presetId(data.companyId, "service")})::int AS "services",
-        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "deletedAt" IS NULL AND "typeId" = ${presetId(data.companyId, "task")})::int AS "tasks",
+        (SELECT COUNT(*) FROM "RecordTypeDefinition" WHERE "companyId" = ${data.companyId} AND NOT "archived" AND NOT "embedded")::int AS "lists",
+        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "deletedAt" IS NULL AND "protectedKind" IS NULL)::int AS "records",
         (SELECT COUNT(*) FROM "MessagingThread" WHERE "companyId" = ${data.companyId})::int AS "messagingThreads",
         (SELECT COUNT(*) FROM "MessagingMessage" WHERE "companyId" = ${data.companyId})::int AS "messagingMessages",
         (SELECT COUNT(*) FROM "AgentConversation" WHERE "companyId" = ${data.companyId})::int AS "agentConversations",

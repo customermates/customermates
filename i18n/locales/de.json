@@ -564,13 +564,13 @@
         },
         "default": {
           "data": {
-            "default-contact-count": {
-              "label": "Wie viele Kontakte haben wir?",
-              "prompt": "Nenne mir die Anzahl unserer Kontakte und wie sich diese zuletzt entwickelt hat."
+            "default-needs-attention": {
+              "label": "Was braucht meine Aufmerksamkeit?",
+              "prompt": "Fasse zusammen, welche offenen Datensätze gerade meine Aufmerksamkeit brauchen und wo jeder davon steht."
             },
-            "default-open-deals": {
-              "label": "Welche Deals sind offen?",
-              "prompt": "Fasse zusammen, welche Deals aktuell offen sind und wo jeder davon steht."
+            "default-record-overview": {
+              "label": "Was steckt in meinem Arbeitsbereich?",
+              "prompt": "Nenne mir die Listen in meinem Arbeitsbereich, wie viele Datensätze jede enthält und wie sich das zuletzt entwickelt hat."
             },
             "default-tour": {
               "label": "Zeig mir die App",
@@ -583,8 +583,8 @@
               "prompt": "Erkläre, was du in Customermates für mich tun kannst und wo du am nützlichsten bist."
             },
             "default-import": {
-              "label": "Wie importiere ich meine Kontakte?",
-              "prompt": "Führe mich durch den Import meiner bestehenden Kontakte in Customermates."
+              "label": "Wie importiere ich meine Daten?",
+              "prompt": "Führe mich durch den Import meiner bestehenden Datensätze in Customermates, zum Beispiel aus einer Tabelle."
             },
             "default-setup": {
               "label": "Hilf mir bei der Einrichtung",
@@ -1067,6 +1067,7 @@
       "clearFilters": "Filter zurücksetzen",
       "cta": "Ersten Datensatz vom Typ „{singular}“ hinzufügen",
       "dashboardBody": "Widgets erscheinen hier, sobald du Daten hinzufügst.",
+      "dashboardNoListsBody": "Dein Arbeitsbereich hat noch keine Listen. Lege eine Liste an, um Datensätze und Widgets hinzuzufügen.",
       "dashboardTitle": "Noch nichts zu sehen",
       "filteredBody": "Keine {plural} entsprechen deinen Filtern.",
       "filteredTitle": "Keine Treffer",
@@ -3172,15 +3173,12 @@
     "stats": {
       "assistantConversations": "Assistent-Chats",
       "connectedAccounts": "Verbundene Konten",
-      "contacts": "Kontakte",
-      "deals": "Deals",
       "lastActive": "Letzte Anmeldung",
       "lastActivity": "Letzte erfasste Änderung",
+      "lists": "Listen",
       "messages": "Nachrichten",
       "never": "Nie",
-      "organizations": "Organisationen",
-      "services": "Leistungen",
-      "tasks": "Aufgaben",
+      "records": "Datensätze",
       "threads": "Unterhaltungen",
       "title": "Workspace-Statistiken"
     },

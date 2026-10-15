@@ -24,8 +24,7 @@ vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 import { GetAgentConfigInteractor } from "../get-agent-config.interactor";
 
 const COUNTS = {
-  contacts: true,
-  deals: true,
+  records: true,
   routines: true,
   wiki: false,
   widgets: false,
@@ -40,10 +39,7 @@ describe("GetAgentConfigInteractor", () => {
     listConversationPage: ReturnType<typeof vi.fn>;
   };
   const recordSignals = {
-    read: vi.fn().mockResolvedValue({
-      contacts: COUNTS.contacts,
-      deals: COUNTS.deals,
-    }),
+    read: vi.fn().mockResolvedValue({ records: COUNTS.records }),
   };
   const usageService = {
     getUsageSummary: vi.fn().mockResolvedValue({

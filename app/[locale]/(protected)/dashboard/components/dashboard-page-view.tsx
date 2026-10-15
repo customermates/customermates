@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useTouchInput } from "@/hooks/use-touch-input";
+import { useRouter } from "@/i18n/navigation";
 
 import { DashboardPageSkeleton } from "./dashboard-page-skeleton";
 import { DASHBOARD_GRID_MARGIN, DASHBOARD_ROW_HEIGHT, GRID_BREAKPOINTS, GRID_COLS } from "./grid.constants";
@@ -55,9 +56,12 @@ type Props = {
 const WIDGET_FOCUS_KINDS: FocusKind[] = ["widget"];
 
 const DashboardPageViewContent = observer(function DashboardPageView({ dashboard, recordTypes }: Props) {
-  const { widgetModalStore, widgetsStore } = useRootStore();
+  const { widgetModalStore, widgetsStore, recordWorkspaceStore } = useRootStore();
   const { items, layouts } = widgetsStore;
   const canAddWidget = widgetModalStore.availableKinds.length > 0;
+  const navigation = recordWorkspaceStore.navigation;
+  const needsFirstList = navigation?.canManageSchema === true && navigation.types.length === 0;
+  const router = useRouter();
   useEffect(() => {
     if (recordTypes) widgetModalStore.setRecordTypes(recordTypes);
   }, [recordTypes, widgetModalStore]);
@@ -177,25 +181,33 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
       body = (
         <PageState
           action={
-            <AgentStarterActions
-              fallback={
-                canAddWidget ? (
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => widgetModalStore.add(t("Dashboard.activityWidget.title"))}
-                  >
-                    {t("Dashboard.addCard")}
-                  </Button>
-                ) : undefined
-              }
-              pageId="dashboard"
-              state="empty"
-              surface="page"
-            />
+            needsFirstList ? (
+              <Button size="sm" variant="secondary" onClick={() => router.push("/configure?create=true")}>
+                {t("RecordModel.createList")}
+              </Button>
+            ) : (
+              <AgentStarterActions
+                fallback={
+                  canAddWidget ? (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => widgetModalStore.add(t("Dashboard.activityWidget.title"))}
+                    >
+                      {t("Dashboard.addCard")}
+                    </Button>
+                  ) : undefined
+                }
+                pageId="dashboard"
+                state="empty"
+                surface="page"
+              />
+            )
           }
           background={<DashboardPageSkeleton animated={false} />}
-          description={t("Common.emptyState.dashboardBody")}
+          description={
+            needsFirstList ? t("Common.emptyState.dashboardNoListsBody") : t("Common.emptyState.dashboardBody")
+          }
           icon={BarChart3}
           state="empty"
           title={t("Common.emptyState.dashboardTitle")}

@@ -167,11 +167,7 @@ const CONFIG = {
     blockedReason: null,
   },
   counts: {
-    contacts: false,
-    organizations: false,
-    deals: false,
-    services: false,
-    tasks: false,
+    records: false,
     routines: false,
     widgets: false,
     connectedAccounts: false,

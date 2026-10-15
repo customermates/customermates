@@ -14,6 +14,7 @@ const harness = vi.hoisted(() => ({
   isTouchDevice: false,
   onLayoutChange: vi.fn(),
   pageStateProps: vi.fn(),
+  push: vi.fn(),
   refreshQuery: vi.fn(),
   setTopBarActions: vi.fn(),
 }));
@@ -43,6 +44,10 @@ vi.mock("@/core/stores/root-store.provider", () => ({
 
 vi.mock("@/hooks/use-touch-input", () => ({
   useTouchInput: () => harness.isTouchDevice,
+}));
+
+vi.mock("@/i18n/navigation", () => ({
+  useRouter: () => ({ push: harness.push }),
 }));
 
 vi.mock("@/components/page-state/page-state", async (importOriginal) => {
@@ -82,7 +87,12 @@ function widget(): WidgetDto {
 
 function renderDashboard(
   status: RequestStatus,
-  options: { canAdd?: boolean; touch?: boolean; withItem?: boolean } = {},
+  options: {
+    canAdd?: boolean;
+    touch?: boolean;
+    withItem?: boolean;
+    navigation?: { canManageSchema: boolean; types: unknown[] } | null;
+  } = {},
 ) {
   const items = options.withItem ? [widget()] : [];
   const widgetsStore = {
@@ -101,7 +111,11 @@ function renderDashboard(
     setExpandedSection: vi.fn(),
   };
   harness.isTouchDevice = options.touch ?? false;
-  harness.getRootStore.mockReturnValue({ widgetModalStore, widgetsStore });
+  harness.getRootStore.mockReturnValue({
+    widgetModalStore,
+    widgetsStore,
+    recordWorkspaceStore: { navigation: options.navigation ?? null },
+  });
 
   return renderToStaticMarkup(
     createElement(DashboardPageView, {
@@ -170,6 +184,31 @@ describe("DashboardPageView", () => {
 
     expect(topBar).toContain('aria-label="Dashboard.addCard"');
     expect(topBar).toContain('<span class="hidden sm:inline">Dashboard.addCard</span>');
+  });
+
+  it("offers Create list to people who manage the data model of a workspace without lists", () => {
+    const html = renderDashboard("ready", { navigation: { canManageSchema: true, types: [] } });
+    const props = harness.pageStateProps.mock.lastCall?.[0] as PageStateProps & {
+      action: ReactElement<{ onClick: () => void }>;
+    };
+
+    expect(html).toContain('data-page-state="empty"');
+    expect(html).toContain("RecordModel.createList");
+    expect(html).toContain("Common.emptyState.dashboardNoListsBody");
+    props.action.props.onClick();
+    expect(harness.push).toHaveBeenCalledWith("/configure?create=true");
+  });
+
+  it("keeps the widget action when lists exist or the data model is managed by others", () => {
+    for (const navigation of [
+      { canManageSchema: true, types: [{ id: "projects" }] },
+      { canManageSchema: false, types: [] },
+    ]) {
+      const html = renderDashboard("ready", { navigation });
+
+      expect(html).not.toContain("RecordModel.createList");
+      expect(html).toContain("Common.emptyState.dashboardBody");
+    }
   });
 
   it("omits both add actions without widget permissions", () => {

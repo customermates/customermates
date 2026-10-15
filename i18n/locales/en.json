@@ -564,13 +564,13 @@
         },
         "default": {
           "data": {
-            "default-contact-count": {
-              "label": "How many contacts do we have?",
-              "prompt": "Tell me how many contacts we have and how that has been trending."
+            "default-needs-attention": {
+              "label": "What needs my attention?",
+              "prompt": "Summarize the open records that need my attention right now and where each one stands."
             },
-            "default-open-deals": {
-              "label": "What deals are open?",
-              "prompt": "Summarize the deals that are currently open and where each one stands."
+            "default-record-overview": {
+              "label": "What's in my workspace?",
+              "prompt": "Tell me which lists my workspace has, how many records each one holds and how that has been trending."
             },
             "default-tour": {
               "label": "Show me around the app",
@@ -583,8 +583,8 @@
               "prompt": "Explain what you can do for me in Customermates and where you are most useful."
             },
             "default-import": {
-              "label": "How do I import my contacts?",
-              "prompt": "Walk me through importing my existing contacts into Customermates."
+              "label": "How do I import my data?",
+              "prompt": "Walk me through importing my existing records, for example from a spreadsheet, into Customermates."
             },
             "default-setup": {
               "label": "Help me set up my CRM",
@@ -1067,6 +1067,7 @@
       "clearFilters": "Clear filters",
       "cta": "Add your first {singular}",
       "dashboardBody": "Widgets appear here as you add data.",
+      "dashboardNoListsBody": "Your workspace has no lists yet. Create a list to start adding records and widgets.",
       "dashboardTitle": "Nothing to show yet",
       "filteredBody": "No {plural} match your filters.",
       "filteredTitle": "No matches",
@@ -3172,15 +3173,12 @@
     "stats": {
       "assistantConversations": "Assistant chats",
       "connectedAccounts": "Connected accounts",
-      "contacts": "Contacts",
-      "deals": "Deals",
       "lastActive": "Last sign-in",
       "lastActivity": "Last recorded change",
+      "lists": "Lists",
       "messages": "Messages",
       "never": "Never",
-      "organizations": "Organizations",
-      "services": "Services",
-      "tasks": "Tasks",
+      "records": "Records",
       "threads": "Conversations",
       "title": "Workspace statistics"
     },

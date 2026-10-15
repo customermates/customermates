@@ -138,11 +138,8 @@ export type OperatorWorkspaceTagsDto = z.infer<typeof OperatorWorkspaceTagsDtoSc
 
 export const OperatorWorkspaceStatsDtoSchema = z.object({
   companyId: z.uuid(),
-  contacts: z.number(),
-  organizations: z.number(),
-  deals: z.number(),
-  services: z.number(),
-  tasks: z.number(),
+  lists: z.number(),
+  records: z.number(),
   messagingThreads: z.number(),
   messagingMessages: z.number(),
   agentConversations: z.number(),

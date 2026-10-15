@@ -224,5 +224,38 @@ describeDatabase("operator workspace channel history", { timeout: 120_000 }, () 
     assertAdmitted(stats);
 
     expect(stats.channelMonths).toEqual([]);
+    expect(stats).toMatchObject({ lists: 0, records: 0 });
+  });
+
+  it("counts live lists and their ordinary records whatever the workspace calls them", async () => {
+    const repo = createTestOperatorRepo();
+    const companyId = randomUUID();
+    companyIds.push(companyId);
+    const [projects, positions, retired] = [randomUUID(), randomUUID(), randomUUID()];
+
+    await runWithoutTenant(async () => {
+      await prisma.company.create({ data: { id: companyId } });
+      await prisma.recordTypeDefinition.createMany({
+        data: [
+          { companyId, id: projects, label: "Project", pluralLabel: "Projects", definition: {} },
+          { companyId, id: positions, label: "Position", pluralLabel: "Positions", embedded: true, definition: {} },
+          { companyId, id: retired, label: "Retired", pluralLabel: "Retired", archived: true, definition: {} },
+        ],
+      });
+      await prisma.crmRecord.createMany({
+        data: [
+          { companyId, typeId: projects },
+          { companyId, typeId: projects },
+          { companyId, typeId: positions },
+          { companyId, typeId: projects, deletedAt: new Date() },
+          { companyId, typeId: projects, protectedKind: "membershipAuthorization" },
+        ],
+      });
+    });
+
+    const stats = await runWithOperator(operatorActor(), () => repo.getWorkspaceStatsUnscoped({ companyId }));
+    assertAdmitted(stats);
+
+    expect(stats).toMatchObject({ lists: 1, records: 3 });
   });
 });
