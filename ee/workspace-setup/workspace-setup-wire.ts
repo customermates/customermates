@@ -224,8 +224,12 @@ const RecordModelWireShape = {
       target: z.string(),
       sourceLabel: z.string().describe("How a source record names its linked target."),
       targetLabel: z.string().describe("How a target record names its linked sources."),
-      sourceCardinality: z.enum(["one", "many"]),
-      targetCardinality: z.enum(["one", "many"]),
+      targetsPerSource: z
+        .enum(["one", "many"])
+        .describe("How many target records one source record links to: one for the organization of a deal."),
+      sourcesPerTarget: z
+        .enum(["one", "many"])
+        .describe("How many source records may link to one target record: many for the deals of an organization."),
     }),
   ),
   calculations: z.array(
@@ -431,7 +435,11 @@ export function planFromWire(
           return name !== "name" || !newLists.has(list);
         })
         .map((field) => ({ ...field, options: field.options.map(option) })),
-      relationships: model.relationships,
+      relationships: model.relationships.map(({ targetsPerSource, sourcesPerTarget, ...relation }) => ({
+        ...relation,
+        sourceCardinality: targetsPerSource,
+        targetCardinality: sourcesPerTarget,
+      })),
       calculations: model.calculations.map((calculation) => ({
         ...calculation,
         expression: expression(calculation.expression),

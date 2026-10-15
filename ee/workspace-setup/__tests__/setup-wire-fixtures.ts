@@ -23,7 +23,11 @@ export function planToWire(input: SetupPlanInput): PlanWire {
     recordModel: {
       lists: model.lists.map((list) => ({ ...list, color: list.color ?? null, role: list.role ?? null })),
       fields: model.fields.map((field) => ({ ...field, options: field.options.map(wireOption) })),
-      relationships: model.relationships,
+      relationships: model.relationships.map(({ sourceCardinality, targetCardinality, ...relation }) => ({
+        ...relation,
+        targetsPerSource: sourceCardinality,
+        sourcesPerTarget: targetCardinality,
+      })),
       calculations: model.calculations.map((calculation) => ({
         ...calculation,
         expression: JSON.stringify(calculation.expression),

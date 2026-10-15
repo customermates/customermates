@@ -90,4 +90,46 @@ describe("sample record tables", () => {
     expect(deals.mapping.columns.length).toBe(deal.columns.length);
     expect(deals.table.rows[0].rowNumber).toBe(2);
   });
+
+  it("links a target that takes only one source at most once across the sample rows", async () => {
+    const { model, resolver, list } = await agency();
+    const projectDeal = resolver.relationship("projectDeal");
+    const oneProjectPerDeal = {
+      ...model,
+      relationships: model.relationships.map((relation) =>
+        relation.id === projectDeal ? { ...relation, targetCardinality: "one" as const } : relation,
+      ),
+    };
+    const [[project]] = sampleListSpecs(
+      [
+        { list: "project", typeId: list("project"), count: 3, kinds: [] },
+        { list: "deal", typeId: list("deal"), count: 2, kinds: [] },
+        { list: "organization", typeId: list("organization"), count: 1, kinds: [] },
+      ],
+      oneProjectPerDeal,
+    ).filter((level) => level.some((spec) => spec.list === "project"));
+    const dealLink = project.links.find((link) => link.targetList === "deal");
+    const clientLink = project.links.find((link) => link.targetList === "organization");
+    expect([dealLink?.unique, clientLink?.unique]).toEqual([true, false]);
+    const columns = [dealLink?.column ?? "", clientLink?.column ?? ""];
+    const projects = generatedSampleList(
+      project,
+      [
+        { [project.titleColumns[0]]: "Launch", [columns[0]]: "Relaunch", [columns[1]]: "Alpha GmbH" },
+        { [project.titleColumns[0]]: "Phase two", [columns[0]]: "Relaunch; Campaign", [columns[1]]: "Alpha GmbH" },
+        { [project.titleColumns[0]]: "Phase three", [columns[0]]: "Campaign", [columns[1]]: "Alpha GmbH" },
+      ],
+      new Map([
+        ["deal", ["Relaunch", "Campaign"]],
+        ["organization", ["Alpha GmbH"]],
+      ]),
+      "EUR",
+    );
+    const indexes = columns.map((column) => projects.table.headers.indexOf(column));
+    expect(projects.table.rows.map((row) => indexes.map((index) => row.cells[index]))).toEqual([
+      ["Relaunch", "Alpha GmbH"],
+      ["Campaign", "Alpha GmbH"],
+      [null, "Alpha GmbH"],
+    ]);
+  });
 });

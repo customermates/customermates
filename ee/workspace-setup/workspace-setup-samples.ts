@@ -17,7 +17,14 @@ export type SampleColumn = {
   required: boolean;
 };
 
-export type SampleLink = { column: string; relationId: string; targetList: string; label: string; many: boolean };
+export type SampleLink = {
+  column: string;
+  relationId: string;
+  targetList: string;
+  label: string;
+  many: boolean;
+  unique: boolean;
+};
 
 export type SampleListSpec = {
   list: string;
@@ -71,6 +78,7 @@ export function sampleListSpecs(
           targetList,
           label: relation.sourceLabel,
           many: relation.sourceCardinality === "many",
+          unique: relation.targetCardinality === "one",
         },
       ];
     });
@@ -119,6 +127,7 @@ export function generatedSampleList(
 ): GeneratedSampleList {
   const headers = [...spec.columns.map((column) => column.column), ...spec.links.map((link) => link.column)];
   const kept = rows.slice(0, spec.count);
+  const linked = new Map(spec.links.map((link) => [link.column, new Set<string>()]));
   const table: SpreadsheetTable = {
     sheetName: spec.list,
     headers,
@@ -129,11 +138,17 @@ export function generatedSampleList(
         const value = row[header]?.trim() || null;
         if (!link || !value) return value;
         const known = new Set(titlesByList.get(link.targetList) ?? []);
-        const names = value
-          .split(/[;\n]/)
-          .map((name) => name.trim())
-          .filter((name) => known.has(name));
-        return (link.many ? names : names.slice(0, 1)).join(LINK_SEPARATOR) || null;
+        const taken = linked.get(link.column) ?? new Set<string>();
+        const names = [
+          ...new Set(
+            value
+              .split(/[;\n]/)
+              .map((name) => name.trim())
+              .filter((name) => known.has(name) && !(link.unique && taken.has(name))),
+          ),
+        ].slice(0, link.many ? undefined : 1);
+        for (const name of names) taken.add(name);
+        return names.join(LINK_SEPARATOR) || null;
       }),
     })),
   };

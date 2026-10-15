@@ -639,7 +639,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
         `Columns: ${encodePromptJson(spec.columns.map(({ column, label, valueType, multiple, options, required }) => ({ column, label, valueType, multiple, required, ...(options.length ? { options } : {}) })))}`,
         ...spec.links.map(
           (link) =>
-            `Link column ${link.column} (${link.label}, ${link.many ? "several names separated by ;" : "one name"}): ${encodePromptJson(titles.get(link.targetList) ?? [])}`,
+            `Link column ${link.column} (${link.label}, ${link.many ? "several names separated by ;" : "one name"}${link.unique ? ", each name in at most one record" : ""}): ${encodePromptJson(titles.get(link.targetList) ?? [])}`,
         ),
         "Company facts:",
         untrustedText(encodePromptJson(facts)),

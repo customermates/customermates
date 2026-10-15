@@ -128,6 +128,20 @@ describe("plan wire format", () => {
     expect(converted).toEqual({ ok: true, plan: SetupPlanSchema.parse(input) });
   });
 
+  it("reads targets per source and sources per target as the engine's source and target cardinality", () => {
+    const wire = planToWire(agencyPlan);
+    const dealClient = wire.recordModel.relationships.find((relation) => relation.key === "dealClient");
+    expect(dealClient).toMatchObject({ source: "deal", target: "organization", targetsPerSource: "one" });
+    expect(dealClient?.sourcesPerTarget).toBe("many");
+    const converted = planFromWire(wire);
+    expect(
+      converted.ok && converted.plan.recordModel.relationships.find((relation) => relation.key === "dealClient"),
+    ).toMatchObject({ sourceCardinality: "one", targetCardinality: "many" });
+    const relation = PlanModelWireSchema.shape.relationships.element.shape;
+    expect(relation.targetsPerSource.description).toContain("one source record links to");
+    expect(relation.sourcesPerTarget.description).toContain("may link to one target record");
+  });
+
   it("drops system columns from a list's column order, which only orders fields", () => {
     const wire = planToWire(agencyPlan);
     wire.listDefaults[0].columns = ["system:assignedTo", ...wire.listDefaults[0].columns, "system:createdAt"];
