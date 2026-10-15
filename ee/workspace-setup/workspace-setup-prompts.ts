@@ -45,6 +45,7 @@ export const SETUP_PLAN_VIEWS_INSTRUCTION = [
   "Use only list keys, field references and option keys of the planned record model below, including its automatic fields; never invent a field.",
   "Give at most one listDefaults entry per list. Columns name only fields of the same list, never relationships. A board layout needs groupBy on a choice field. Totals need a grouping.",
   "Dashboard widgets follow the ranked numbers the company checks every week; a count has valueField null, every other aggregation needs a number or currency field. Widget titles are short, about three words.",
+  "Relative date filters take a whole number of days of at least 1: inLastDays 30 keeps dates from 30 days ago onwards, notInLastDays 1 keeps dates before yesterday, for example overdue due dates.",
   "Sample data asks for five to ten realistic records per list the company will use daily. Kinds describe them in the workspace language; for the offerings list, kinds name the company's own offerings translated into the workspace language.",
   "When a spreadsheet was uploaded, importMapping maps its columns onto fields of one list; otherwise importMapping is null.",
   SETUP_PLAN_LANGUAGE,
@@ -66,7 +67,7 @@ export const SETUP_SAMPLE_RECORDS_INSTRUCTION = [
   "Invent plausible but clearly fictitious names, companies and amounts that fit the company and its customers; never use real people's personal data.",
   "Fill every column with a value in the expected format: dates as YYYY-MM-DD, numbers without thousands separators, currency amounts as plain numbers, choice columns with exactly one of the listed option labels.",
   "A link column names records of the other list exactly as listed, or stays empty.",
-  "Write every text value, including the names of products, services and offerings, in the workspace language; leave a column empty with an empty string.",
+  "Write every text value in the workspace language, including record names such as order, project and offering names, even when the company and its customers work in another language; only names of people and companies keep their own spelling. Leave a column empty with an empty string.",
   SETUP_UNTRUSTED_HANDLING,
 ].join(" ");
 
