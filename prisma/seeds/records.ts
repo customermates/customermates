@@ -350,8 +350,9 @@ export async function seedRecordFixtures(
     select: { id: true },
   });
   for (const company of companies) {
-    await context.prisma.$transaction((prisma) =>
-      initialize(prisma, company.id, createCrmPreset(company.id)).then(() => undefined),
+    await context.prisma.$transaction(
+      (prisma) => initialize(prisma, company.id, createCrmPreset(company.id)).then(() => undefined),
+      { maxWait: 60000, timeout: 600000 },
     );
   }
 }

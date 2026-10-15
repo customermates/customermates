@@ -48,6 +48,7 @@ type NavigationSwitchProps = {
   channelsNeedingActionCount: number;
   emailVerified: boolean | null;
   defaultSidebarOpen?: boolean;
+  defaultSidebarWidth?: number;
   legalStatus: LegalUpdateStatus | null;
   operatorConsoleVisible: boolean;
   children: React.ReactNode;
@@ -68,6 +69,7 @@ export function NavigationSwitch({
   channelsNeedingActionCount,
   emailVerified,
   defaultSidebarOpen = true,
+  defaultSidebarWidth,
   legalStatus,
   operatorConsoleVisible,
   children,
@@ -152,7 +154,7 @@ export function NavigationSwitch({
     );
   } else if (shellMode === "restricted") {
     shell = (
-      <SidebarProvider defaultOpen={defaultSidebarOpen}>
+      <SidebarProvider defaultOpen={defaultSidebarOpen} defaultWidth={defaultSidebarWidth}>
         {sidebarUser ? <AppSidebar mode="restricted" user={sidebarUser} /> : null}
 
         <SidebarInset className="min-w-0 overflow-x-clip">
@@ -166,7 +168,7 @@ export function NavigationSwitch({
     );
   } else {
     shell = (
-      <SidebarProvider defaultOpen={defaultSidebarOpen}>
+      <SidebarProvider defaultOpen={defaultSidebarOpen} defaultWidth={defaultSidebarWidth}>
         <AppSidebar
           channelsNeedingActionCount={channelsNeedingActionCount}
           emailVerified={emailVerified}

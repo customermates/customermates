@@ -31,7 +31,7 @@ import { DISPLAY_LANGUAGE_VALUES } from "@/i18n/user-locale";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { AppChip } from "@/components/chip/app-chip";
-import { Sidebar, SidebarContent, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarResizeHandle, useSidebar } from "@/components/ui/sidebar";
 import { DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { AppLink } from "@/components/shared/app-link";
 import { handOffSheet } from "@/components/ui/overlay-contract";
@@ -586,6 +586,8 @@ const FullAppSidebar = observer(
               onThemeChange={changeTheme}
             />
           </SidebarFooter>
+
+          <SidebarResizeHandle />
         </Sidebar>
 
         {!restricted && <SidebarCustomize groups={navGroups} open={customizeOpen} onOpenChange={setCustomizeOpen} />}

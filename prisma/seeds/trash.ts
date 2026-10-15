@@ -58,104 +58,107 @@ export async function seedTrash(context: SeedContext): Promise<void> {
     deletedAt: deletedAt(5),
   };
 
-  await prisma.$transaction(async (tx) => {
-    await tx.trashItem.deleteMany({ where: { companyId, id: { startsWith: `${ITEM_PREFIX}-` } } });
-    await tx.crmRecord.deleteMany({ where: { companyId, id: { startsWith: `${RECORD_PREFIX}-` } } });
-    await tx.dataView.deleteMany({ where: { companyId, id: { startsWith: `${VIEW_PREFIX}-` } } });
-    const state = await tx.recordSchemaState.findUniqueOrThrow({ where: { companyId } });
+  await prisma.$transaction(
+    async (tx) => {
+      await tx.trashItem.deleteMany({ where: { companyId, id: { startsWith: `${ITEM_PREFIX}-` } } });
+      await tx.crmRecord.deleteMany({ where: { companyId, id: { startsWith: `${RECORD_PREFIX}-` } } });
+      await tx.dataView.deleteMany({ where: { companyId, id: { startsWith: `${VIEW_PREFIX}-` } } });
+      const state = await tx.recordSchemaState.findUniqueOrThrow({ where: { companyId } });
 
-    for (const record of records) {
-      const typeId = id(record.typeKey);
-      const createdAt = new Date(record.deletedAt.getTime() - 20 * DAY);
-      await tx.crmRecord.create({
-        data: {
-          companyId,
-          typeId,
-          id: record.id,
-          createdAt,
-          updatedAt: record.deletedAt,
-          deletedAt: record.deletedAt,
-          trashItemId: record.itemId,
-        },
-      });
-      const values: Array<[string, string]> =
-        record.typeKey === "contact"
-          ? [
-              ["contact.firstName", "Badge"],
-              ["contact.lastName", "Scan"],
-              ["contact.name", record.name],
-            ]
-          : [[`${record.typeKey}.name`, record.name]];
-      for (const [fieldKey, text] of values) {
-        const encoded = encodeRecordValue({ state: "value", value: { kind: "text", value: text } });
-        await tx.recordValue.create({
+      for (const record of records) {
+        const typeId = id(record.typeKey);
+        const createdAt = new Date(record.deletedAt.getTime() - 20 * DAY);
+        await tx.crmRecord.create({
           data: {
             companyId,
             typeId,
-            recordId: record.id,
-            fieldId: id(fieldKey),
-            ...encoded,
-            jsonValue: encoded.jsonValue ?? Prisma.DbNull,
-            schemaRevision: state.revision,
+            id: record.id,
+            createdAt,
+            updatedAt: record.deletedAt,
+            deletedAt: record.deletedAt,
+            trashItemId: record.itemId,
           },
         });
+        const values: Array<[string, string]> =
+          record.typeKey === "contact"
+            ? [
+                ["contact.firstName", "Badge"],
+                ["contact.lastName", "Scan"],
+                ["contact.name", record.name],
+              ]
+            : [[`${record.typeKey}.name`, record.name]];
+        for (const [fieldKey, text] of values) {
+          const encoded = encodeRecordValue({ state: "value", value: { kind: "text", value: text } });
+          await tx.recordValue.create({
+            data: {
+              companyId,
+              typeId,
+              recordId: record.id,
+              fieldId: id(fieldKey),
+              ...encoded,
+              jsonValue: encoded.jsonValue ?? Prisma.DbNull,
+              schemaRevision: state.revision,
+            },
+          });
+        }
       }
-    }
-    await tx.dataView.create({
-      data: {
-        id: view.id,
-        companyId,
-        userId: NORTHWIND_MEMBER_IDS.maxBergmann,
-        surfaceKey: view.surfaceKey,
-        name: view.name,
-        position: 99,
-        viewMode: "table",
-        createdAt: new Date(view.deletedAt.getTime() - 120 * DAY),
-        updatedAt: view.deletedAt,
-        deletedAt: view.deletedAt,
-      },
-    });
-    await tx.trashItem.createMany({
-      data: [
-        ...records.map((record) => ({
+      await tx.dataView.create({
+        data: {
+          id: view.id,
           companyId,
-          id: record.itemId,
-          kind: "record" as const,
-          targetId: record.id,
-          typeId: id(record.typeKey),
-          label: record.name,
-          deletedById: record.by,
-          deletedAt: record.deletedAt,
-          expiresAt: expiresAt(record.deletedAt),
-          batchId: record.batchId,
-        })),
-        {
-          companyId,
-          id: view.itemId,
-          kind: "view" as const,
-          targetId: view.id,
-          typeId: id("deal"),
+          userId: NORTHWIND_MEMBER_IDS.maxBergmann,
           surfaceKey: view.surfaceKey,
-          ownerUserId: NORTHWIND_MEMBER_IDS.maxBergmann,
-          label: view.name,
-          deletedById: NORTHWIND_MEMBER_IDS.maxBergmann,
+          name: view.name,
+          position: 99,
+          viewMode: "table",
+          createdAt: new Date(view.deletedAt.getTime() - 120 * DAY),
+          updatedAt: view.deletedAt,
           deletedAt: view.deletedAt,
-          expiresAt: expiresAt(view.deletedAt),
-          batchId: view.batchId,
         },
-        {
-          companyId,
-          id: field.itemId,
-          kind: "field" as const,
-          targetId: id("organization.legacyAccountId"),
-          typeId: id("organization"),
-          label: "Legacy account ID",
-          deletedById: NORTHWIND_MEMBER_IDS.maxBergmann,
-          deletedAt: field.deletedAt,
-          expiresAt: expiresAt(field.deletedAt),
-          batchId: field.batchId,
-        },
-      ],
-    });
-  });
+      });
+      await tx.trashItem.createMany({
+        data: [
+          ...records.map((record) => ({
+            companyId,
+            id: record.itemId,
+            kind: "record" as const,
+            targetId: record.id,
+            typeId: id(record.typeKey),
+            label: record.name,
+            deletedById: record.by,
+            deletedAt: record.deletedAt,
+            expiresAt: expiresAt(record.deletedAt),
+            batchId: record.batchId,
+          })),
+          {
+            companyId,
+            id: view.itemId,
+            kind: "view" as const,
+            targetId: view.id,
+            typeId: id("deal"),
+            surfaceKey: view.surfaceKey,
+            ownerUserId: NORTHWIND_MEMBER_IDS.maxBergmann,
+            label: view.name,
+            deletedById: NORTHWIND_MEMBER_IDS.maxBergmann,
+            deletedAt: view.deletedAt,
+            expiresAt: expiresAt(view.deletedAt),
+            batchId: view.batchId,
+          },
+          {
+            companyId,
+            id: field.itemId,
+            kind: "field" as const,
+            targetId: id("organization.legacyAccountId"),
+            typeId: id("organization"),
+            label: "Legacy account ID",
+            deletedById: NORTHWIND_MEMBER_IDS.maxBergmann,
+            deletedAt: field.deletedAt,
+            expiresAt: expiresAt(field.deletedAt),
+            batchId: field.batchId,
+          },
+        ],
+      });
+    },
+    { maxWait: 60000, timeout: 600000 },
+  );
 }

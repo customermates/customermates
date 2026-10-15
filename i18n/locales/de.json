@@ -1554,6 +1554,7 @@
     },
     "sidebar": {
       "description": "Zeigt die mobile Seitenleiste an.",
+      "resize": "Seitenleiste in der Größe ändern. Ziehen oder Pfeiltasten verwenden; per Doppelklick oder Eingabetaste zurücksetzen.",
       "title": "Seitenleiste",
       "toggle": "Seitenleiste ein-/ausblenden"
     },

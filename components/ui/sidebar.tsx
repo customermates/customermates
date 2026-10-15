@@ -16,9 +16,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { detectKeyboardPlatform } from "@/components/keyboard/key-matching";
 import { matchesShortcut } from "@/components/keyboard/shortcut-registry";
+import {
+  SIDEBAR_DEFAULT_WIDTH,
+  SIDEBAR_MAX_WIDTH,
+  SIDEBAR_MIN_WIDTH,
+  clampSidebarWidth,
+  keyboardSidebarWidth,
+  sidebarOpenCookie,
+  sidebarWidthCookie,
+} from "@/components/layout/sidebar-width";
 
-const SIDEBAR_COOKIE_NAME = "sidebar_state";
-const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 const SIDEBAR_WIDTH = "16rem";
 const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
@@ -31,7 +38,12 @@ type SidebarContextProps = {
   setOpenMobile: (open: boolean) => void;
   isMobile: boolean;
   toggleSidebar: () => void;
+  width: number | null;
+  setWidth: (width: number | null) => void;
+  previewWidth: (width: number | undefined) => void;
 };
+
+const sidebarWidthValue = (width: number | null) => (width === null ? SIDEBAR_WIDTH : `${width}px`);
 
 const SidebarContext = React.createContext<SidebarContextProps | null>(null);
 
@@ -44,6 +56,7 @@ function useSidebar() {
 
 function SidebarProvider({
   defaultOpen = true,
+  defaultWidth,
   open: openProp,
   onOpenChange: setOpenProp,
   className,
@@ -52,11 +65,32 @@ function SidebarProvider({
   ...props
 }: React.ComponentProps<"div"> & {
   defaultOpen?: boolean;
+  defaultWidth?: number;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }) {
   const isMobile = useIsMobile();
   const [openMobile, setOpenMobile] = React.useState(false);
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
+  const [width, setWidthState] = React.useState<number | null>(
+    defaultWidth === undefined ? null : clampSidebarWidth(defaultWidth),
+  );
+  const widthRef = React.useRef(width);
+
+  const setWidth = React.useCallback((value: number | null) => {
+    const next = value === null ? null : clampSidebarWidth(value);
+    widthRef.current = next;
+    setWidthState(next);
+    document.cookie = sidebarWidthCookie(next);
+  }, []);
+
+  const previewWidth = React.useCallback((value: number | undefined) => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+    if (value === undefined) delete wrapper.dataset.resizing;
+    else wrapper.dataset.resizing = "true";
+    wrapper.style.setProperty("--sidebar-width", sidebarWidthValue(value ?? widthRef.current));
+  }, []);
 
   const [_open, _setOpen] = React.useState(defaultOpen);
   const open = openProp ?? _open;
@@ -66,7 +100,7 @@ function SidebarProvider({
       if (setOpenProp) setOpenProp(openState);
       else _setOpen(openState);
 
-      document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+      document.cookie = sidebarOpenCookie(openState);
     },
     [setOpenProp, open],
   );
@@ -99,18 +133,25 @@ function SidebarProvider({
       openMobile,
       setOpenMobile,
       toggleSidebar,
+      width,
+      setWidth,
+      previewWidth,
     }),
-    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar],
+    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar, width, setWidth, previewWidth],
   );
 
   return (
     <SidebarContext.Provider value={contextValue}>
       <div
-        className={cn("group/sidebar-wrapper flex h-svh w-full has-data-[variant=inset]:bg-sidebar", className)}
+        ref={wrapperRef}
+        className={cn(
+          "group/sidebar-wrapper flex h-svh w-full has-data-[variant=inset]:bg-sidebar data-resizing:cursor-col-resize data-resizing:select-none",
+          className,
+        )}
         data-slot="sidebar-wrapper"
         style={
           {
-            "--sidebar-width": SIDEBAR_WIDTH,
+            "--sidebar-width": sidebarWidthValue(width),
             "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
             ...style,
           } as React.CSSProperties
@@ -188,7 +229,7 @@ function Sidebar({
     >
       <div
         className={cn(
-          "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",
+          "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear group-data-resizing/sidebar-wrapper:transition-none",
           "group-data-[collapsible=offcanvas]:w-0",
           "group-data-[side=right]:rotate-180",
           variant === "floating" || variant === "inset"
@@ -200,7 +241,7 @@ function Sidebar({
 
       <div
         className={cn(
-          "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex",
+          "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear group-data-resizing/sidebar-wrapper:transition-none md:flex",
           side === "left"
             ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
             : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
@@ -220,6 +261,124 @@ function Sidebar({
           {children}
         </div>
       </div>
+    </div>
+  );
+}
+
+type SidebarDrag = { pointerId: number; startX: number; startWidth: number; width: number; moved: boolean };
+
+function SidebarResizeHandle({ className, ...props }: React.ComponentProps<"div">) {
+  const t = useTranslations();
+  const { isMobile, state, width, setWidth, previewWidth } = useSidebar();
+  const dragRef = React.useRef<SidebarDrag>();
+  const [dragWidth, setDragWidth] = React.useState<number>();
+
+  const endDrag = React.useCallback(
+    (handle: HTMLElement | null) => {
+      const drag = dragRef.current;
+      if (!drag) return;
+      dragRef.current = undefined;
+      if (handle?.hasPointerCapture?.(drag.pointerId)) handle.releasePointerCapture(drag.pointerId);
+      previewWidth(undefined);
+      setDragWidth(undefined);
+    },
+    [previewWidth],
+  );
+
+  React.useEffect(() => {
+    const cancelOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") endDrag(null);
+    };
+    window.addEventListener("keydown", cancelOnEscape);
+    return () => {
+      window.removeEventListener("keydown", cancelOnEscape);
+      endDrag(null);
+    };
+  }, [endDrag, isMobile, state]);
+
+  if (isMobile || state === "collapsed") return null;
+
+  const current = dragWidth ?? width ?? SIDEBAR_DEFAULT_WIDTH;
+
+  return (
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- an adjustable WAI-ARIA separator handles pointer and keyboard input
+    <div
+      aria-keyshortcuts="ArrowLeft ArrowRight Shift+ArrowLeft Shift+ArrowRight Home End Enter"
+      aria-label={t("Common.sidebar.resize")}
+      aria-orientation="vertical"
+      aria-valuemax={SIDEBAR_MAX_WIDTH}
+      aria-valuemin={SIDEBAR_MIN_WIDTH}
+      aria-valuenow={current}
+      className={cn(
+        "group/sidebar-resize absolute inset-y-0 right-0 z-20 flex w-2 cursor-col-resize touch-none justify-center outline-none select-none group-data-[side=right]:hidden group-data-[variant=inset]:inset-y-2",
+        className,
+      )}
+      data-sidebar="resize-handle"
+      data-slot="sidebar-resize-handle"
+      data-state={dragWidth === undefined ? undefined : "resizing"}
+      role="separator"
+      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- an adjustable WAI-ARIA separator is keyboard focusable
+      tabIndex={0}
+      onDoubleClick={(event) => {
+        event.preventDefault();
+        endDrag(event.currentTarget);
+        setWidth(null);
+      }}
+      onKeyDown={(event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          setWidth(null);
+          return;
+        }
+        const next = keyboardSidebarWidth(event.key, event.shiftKey, current);
+        if (next === undefined) return;
+        event.preventDefault();
+        setWidth(next);
+      }}
+      onLostPointerCapture={(event) => endDrag(event.currentTarget)}
+      onPointerCancel={(event) => endDrag(event.currentTarget)}
+      onPointerDown={(event) => {
+        if (!event.isPrimary || (event.pointerType === "mouse" && event.button !== 0)) return;
+        event.preventDefault();
+        const container = event.currentTarget.closest<HTMLElement>("[data-slot=sidebar-container]");
+        const startWidth = clampSidebarWidth(container?.getBoundingClientRect().width || current);
+        dragRef.current = {
+          pointerId: event.pointerId,
+          startX: event.clientX,
+          startWidth,
+          width: startWidth,
+          moved: false,
+        };
+        event.currentTarget.setPointerCapture?.(event.pointerId);
+      }}
+      onPointerMove={(event) => {
+        const drag = dragRef.current;
+        if (!drag || drag.pointerId !== event.pointerId) return;
+        const next = clampSidebarWidth(drag.startWidth + event.clientX - drag.startX);
+        if (next === drag.width) return;
+        drag.width = next;
+        drag.moved = true;
+        previewWidth(next);
+        setDragWidth(next);
+      }}
+      onPointerUp={(event) => {
+        const drag = dragRef.current;
+        if (!drag || drag.pointerId !== event.pointerId) return;
+        event.stopPropagation();
+        if (drag.moved) setWidth(clampSidebarWidth(drag.startWidth + event.clientX - drag.startX));
+        endDrag(event.currentTarget);
+      }}
+      {...props}
+    >
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute top-1/2 left-1/2 h-8 w-1 -translate-1/2 rounded-full bg-transparent transition-colors duration-150 group-hover/sidebar-resize:bg-muted-foreground/50 group-focus-visible/sidebar-resize:bg-muted-foreground group-data-[state=resizing]/sidebar-resize:bg-transparent"
+      />
+
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 left-full w-0.5 -translate-x-1/2 bg-linear-to-b from-transparent via-foreground/60 to-transparent opacity-0 transition-opacity duration-150 group-data-[state=resizing]/sidebar-resize:opacity-100"
+      />
     </div>
   );
 }
@@ -632,6 +791,7 @@ export {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   SidebarProvider,
+  SidebarResizeHandle,
   SidebarSeparator,
   SidebarTrigger,
   useSidebar,

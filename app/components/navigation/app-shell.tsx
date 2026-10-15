@@ -27,6 +27,12 @@ import { ForbiddenError } from "@/core/errors/app-errors";
 import { SIDEBAR_P13N_ID } from "@/features/p13n/sidebar-layout.schema";
 import { KEYBOARD_P13N_ID } from "@/features/p13n/keyboard-preferences.schema";
 import { readP13nSettings } from "@/features/p13n/p13n-settings.schema";
+import {
+  SIDEBAR_OPEN_COOKIE_NAME,
+  SIDEBAR_WIDTH_COOKIE_NAME,
+  parseSidebarOpen,
+  parseSidebarWidth,
+} from "@/components/layout/sidebar-width";
 
 type Props = {
   children: React.ReactNode;
@@ -69,8 +75,8 @@ export async function AppShell({ children, displayLanguage }: Props) {
     channelsNeedingActionCount: async () => (await getCountChannelsNeedingActionInteractor().invoke()).data,
   });
 
-  const sidebarCloseCookie = cookiesStore.get("sidebar-close")?.value;
-  const initialSidebarOpen = sidebarCloseCookie !== undefined ? sidebarCloseCookie !== "true" : undefined;
+  const initialSidebarOpen = parseSidebarOpen(cookiesStore.get(SIDEBAR_OPEN_COOKIE_NAME)?.value);
+  const initialSidebarWidth = parseSidebarWidth(cookiesStore.get(SIDEBAR_WIDTH_COOKIE_NAME)?.value);
   const accountAllowed = account.state === "allowed";
   const appUser = accountAllowed ? account.user : null;
 
@@ -92,6 +98,7 @@ export async function AppShell({ children, displayLanguage }: Props) {
           appUser={appUser}
           channelsNeedingActionCount={navigation.channelsNeedingActionCount}
           defaultSidebarOpen={initialSidebarOpen}
+          defaultSidebarWidth={initialSidebarWidth}
           emailVerified={accountAllowed ? account.emailVerified : null}
           keyboardPreferences={navigation.keyboardPreferences}
           legalStatus={accountAllowed ? account.legalStatus : null}

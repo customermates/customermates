@@ -1554,6 +1554,7 @@
     },
     "sidebar": {
       "description": "Affiche la barre latérale mobile.",
+      "resize": "Redimensionner la barre latérale. Faites glisser ou utilisez les touches fléchées ; double-cliquez ou appuyez sur Entrée pour réinitialiser.",
       "title": "Barre latérale",
       "toggle": "Afficher ou masquer la barre latérale"
     },
