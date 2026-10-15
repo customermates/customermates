@@ -529,10 +529,7 @@ describe("query-focused section-ranking evidence", () => {
   it("gives fused high-rank sections enough evidence to retain complete operation details", () => {
     const instruction =
       "Link the record to its related service, then enter a quantity for that relationship and save both changes in the record drawer.";
-    const source = instruction.replace(
-      "related service",
-      "related [service](http://localhost:4000/open/records/service)",
-    );
+    const source = instruction.replace("related service", "related [service](http://localhost:4000/configure)");
     const candidates = Array.from({ length: 120 }, (_, id) => ({
       id,
       section: {
@@ -794,8 +791,8 @@ describe("complete record procedures in bounded classifier evidence", () => {
       anchor: "how-do-i-change-a-deal-stage-or-a-task-status-on-the-board",
       controls: [
         "Stage and status are Single choice fields.",
-        "To edit the stages or their probabilities, open the field in Configure for Deals",
-        "Drag the card to another column on the Deals or Tasks board",
+        "To edit the stages or their probabilities, open the field on the configure page of the list in Configure",
+        "Drag the card to another column on the board of your deals or tasks list",
       ],
     },
     {
@@ -804,8 +801,8 @@ describe("complete record procedures in bounded classifier evidence", () => {
       anchor: "how-do-i-change-a-deal-stage-or-a-task-status-on-the-board",
       controls: [
         "Phase und Status sind Felder vom Typ Einzelauswahl.",
-        "Um Phasen oder ihre Wahrscheinlichkeiten zu bearbeiten, öffnen Sie das Feld unter Konfigurieren für Deals",
-        "Ziehen Sie die Karte auf dem Board von Deals oder Aufgaben in eine andere Spalte",
+        "Um Phasen oder ihre Wahrscheinlichkeiten zu bearbeiten, öffnen Sie das Feld auf der Konfigurationsseite der Liste unter Konfigurieren",
+        "Ziehen Sie die Karte auf dem Board Ihrer Deal- oder Aufgabenliste in eine andere Spalte",
       ],
     },
     {
@@ -813,7 +810,7 @@ describe("complete record procedures in bounded classifier evidence", () => {
       query: "How do I sort tasks by due date?",
       anchor: "how-do-i-switch-between-table-and-board-view",
       controls: [
-        "In Appearance, choose Table or Board.",
+        "In Appearance in the toolbar of the list, choose Table or Board.",
         "Sort by sorts by any field, including custom and calculated ones",
       ],
     },
@@ -822,7 +819,7 @@ describe("complete record procedures in bounded classifier evidence", () => {
       query: "Wie sortiere ich Aufgaben nach Fälligkeit?",
       anchor: "how-do-i-switch-between-table-and-board-view",
       controls: [
-        "Wählen Sie unter Darstellung Tabelle oder Board.",
+        "Wählen Sie unter Darstellung in der Toolbar der Liste Tabelle oder Board.",
         "Sortieren nach sortiert nach jedem Feld, auch nach benutzerdefinierten und berechneten",
       ],
     },
@@ -985,7 +982,7 @@ describe("requested documentation question and destination evidence", () => {
       section: {
         pageTitle: "Records",
         headingPath: ["Stored relation"],
-        text: `A relation stores quantity.\nOpen [${"Destination label ".repeat(30).trim()}](http://localhost:4000/open/records/deal).`,
+        text: `A relation stores quantity.\nOpen [${"Destination label ".repeat(30).trim()}](http://localhost:4000/settings/roles).`,
       },
     }));
     const options = docsRankSpec(candidates, "docs", "relation quantity").questions[0].options;

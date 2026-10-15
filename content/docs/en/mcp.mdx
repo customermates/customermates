@@ -167,7 +167,7 @@ Full JSON Schema for every tool is available live at `POST /api/v1/mcp` with `me
 
 ### Records
 
-The [[derived.mcp.tools.groups.records]] record tools serve the five starter lists and every list you create. Discover the type, read its current schema, then query or change its records. Fetch only the schemas the task needs; the catalog does not grow with customer fields.
+The [[derived.mcp.tools.groups.records]] record tools serve every list in the workspace, whoever created it. Discover the type, read its current schema, then query or change its records. Fetch only the schemas the task needs; the catalog does not grow with customer fields.
 
 Every record reference carries both `typeId` and `recordId`. `query_crm_records` pages through one type, `search_crm_records` finds accessible records, and `query_crm_measure` calculates totals across all matches. Never infer a complete total from one page, and inspect ambiguous search results before choosing a write target.
 
@@ -226,7 +226,7 @@ Inspect permitted deletion effects, including cascading records, links and depen
 
 #### `query_crm_measure`
 
-Count or aggregate once per source record at an explicit grain. Specify a source query, aggregation, optional valueFieldId and optional relationship/field grouping. Full attribution to several groups can make grouped totals exceed the distinct overall total. Use line items as the source for service quantities and contributions. Equal amounts on different records both count.
+Count or aggregate once per source record at an explicit grain. Specify a source query, aggregation, optional valueFieldId and optional relationship/field grouping. Full attribution to several groups can make grouped totals exceed the distinct overall total. Use line items as the source for quantities and contributions per catalog item. Equal amounts on different records both count.
 
 **Read-only.** Required: `source`, `aggregation`, `valueFieldId`, `groupBy`. Optional: `groupLimit`.
 
@@ -593,7 +593,7 @@ Preview or apply a typed configuration bundle containing types, fields, relation
 
 A chart measure picks its source type, filters, aggregation, value field and grouping, for example the sum of the Value field on Deals grouped by Stage. Weighted value is just another configured field, not a widget mode.
 
-The source sets the aggregation grain. Deal reporting counts each matching deal once in the overall total; a deal linked to two organizations counts fully in both organization groups, so their sum can exceed the distinct total. Service contributions and quantities use line items as the source. Equal amounts on different records both count. Restricted inputs stay restricted in widget results, and mixed currencies are never silently added.
+The source sets the aggregation grain. Deal reporting counts each matching deal once in the overall total; a deal linked to two organizations counts fully in both organization groups, so their sum can exceed the distinct total. Contributions and quantities per catalog item use line items as the source. Equal amounts on different records both count. Restricted inputs stay restricted in widget results, and mixed currencies are never silently added.
 
 {/* mcp-catalog:widgets */}
 #### `manage_widgets`

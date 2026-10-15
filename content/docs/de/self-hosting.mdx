@@ -28,7 +28,7 @@ Customermates ist Open Core. Code außerhalb von `ee/` und Material in `ee/`, da
 
 ## Welche Funktionen fehlen beim Self-Hosting? [#which-features-are-not-available-when-self-hosting]
 
-Jede Self-Hosted-Installation umfasst den Funktionsumfang von Starter. Diese Cloud-Funktionen bleiben ausgeschaltet, auch wenn Sie zusätzlich einen Cloud-Tarif bezahlen: verbundene Messaging-Konten (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram), der einheitliche Posteingang, verbundene Kalender und ihre Ereignisse, der gehostete Assistent Mate mit seinen gehosteten KI-Credits und Routinen, die Mate ausführt. Externe KI-Clients funktionieren weiterhin über MCP mit Ihrem eigenen KI-Anbieter. Enterprise-SSO (SAML) und White-Labeling sind in keiner Variante implementiert.
+Jede Self-Hosted-Installation umfasst den Funktionsumfang von Starter. Diese Cloud-Funktionen bleiben ausgeschaltet, auch wenn Sie zusätzlich einen Cloud-Tarif bezahlen: verbundene Messaging-Konten (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram), der einheitliche Posteingang, verbundene Kalender und ihre Ereignisse, der gehostete Assistent Mate mit seinen gehosteten KI-Credits, Routinen, die Mate ausführt, und die KI-Einrichtung im Onboarding, daher startet ein neuer Workspace ohne Listen. Externe KI-Clients funktionieren weiterhin über MCP mit Ihrem eigenen KI-Anbieter. Enterprise-SSO (SAML) und White-Labeling sind in keiner Variante implementiert.
 
 Die App blendet aus, was nicht gilt: Die Seitenleiste zeigt weder Posteingang noch Routinen, die Einstellungen haben keine Seiten Abrechnung und Kanäle, und der Rolleneditor blendet die Zeilen **Inbox-Nachrichten** und **Routinen** aus. Wer eine dieser Seiten per URL öffnet, landet wieder auf dem Dashboard.
 
@@ -115,7 +115,7 @@ Die App verschickt Bestätigungslinks, Passwort-Resets und Einladungen per E-Mai
 
 ## Wie lege ich das erste Konto auf meiner Instanz an? [#how-do-i-create-the-first-account-on-my-instance]
 
-Öffnen Sie `<BASE_URL>/auth/signup` und registrieren Sie sich mit E-Mail und Passwort über **Konto erstellen**, oder mit Google oder Microsoft, falls Sie diese eingerichtet haben. Wählen Sie im nächsten Schritt **Neuen Workspace erstellen**. Der erste Schritt des Wizards fragt nach Vorname, Nachname und Land und legt den Workspace an; die übrigen Schritte können Sie überspringen und den Wizard mit **Fertig** schließen. Das Konto, das den Workspace anlegt, erhält die eingebaute Rolle **Admin** mit allen Berechtigungen.
+Öffnen Sie `<BASE_URL>/auth/signup` und registrieren Sie sich mit E-Mail und Passwort über **Konto erstellen**, oder mit Google oder Microsoft, falls Sie diese eingerichtet haben. Wählen Sie im nächsten Schritt **Neuen Workspace erstellen**. Der erste Schritt des Wizards fragt nach Vorname, Nachname und Land und legt den Workspace an; die übrigen Schritte können Sie überspringen und den Wizard mit **Fertig** schließen. Das Konto, das den Workspace anlegt, erhält die eingebaute Rolle **Admin** mit allen Berechtigungen. Der neue Workspace hat noch keine Listen: Legen Sie die benötigten unter [Konfigurieren](app:configure) an oder mit **Liste erstellen** auf dem leeren Dashboard; siehe [Kernkonzepte](/docs/concepts#which-five-record-types-exist).
 
 Klicken Sie den Bestätigungslink in der E-Mail innerhalb von 24 Stunden an. Ein Konto, das 24 Stunden nach der Registrierung noch nicht bestätigt ist, wird auf **E-Mail-Verifizierung** festgehalten, wo **Verifizierungs-E-Mail erneut senden** einen neuen Link schickt.
 

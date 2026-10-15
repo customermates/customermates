@@ -167,7 +167,7 @@ Das volle JSON-Schema jedes Tools liegt live an `POST /api/v1/mcp` mit `method: 
 
 ### Records [#records]
 
-Die [[derived.mcp.tools.groups.records]] Datensatz-Tools bedienen die fünf Startlisten und jede Liste, die Sie anlegen. Zuerst den Typ ermitteln und sein aktuelles Schema lesen, dann Datensätze abfragen oder ändern. Nur die für den Auftrag nötigen Schemas laden; der Katalog wächst nicht mit Kundenfeldern.
+Die [[derived.mcp.tools.groups.records]] Datensatz-Tools bedienen jede Liste im Workspace, gleich wer sie angelegt hat. Zuerst den Typ ermitteln und sein aktuelles Schema lesen, dann Datensätze abfragen oder ändern. Nur die für den Auftrag nötigen Schemas laden; der Katalog wächst nicht mit Kundenfeldern.
 
 Jede Datensatzreferenz enthält `typeId` und `recordId`. `query_crm_records` liest einen Typ seitenweise, `search_crm_records` findet zugängliche Datensätze, `query_crm_measure` berechnet Summen über alle Treffer. Eine Seite ist nie eine vollständige Gesamtsumme, und mehrdeutige Suchtreffer klären Sie vor einer Änderung.
 
@@ -226,7 +226,7 @@ Erlaubte Auswirkungen einer Löschung prüfen, einschließlich abhängiger Daten
 
 #### `query_crm_measure`
 
-Je Quelldatensatz einmal zählen oder aggregieren. Quellabfrage, Aggregation, optional valueFieldId und Gruppierung über Felder oder Beziehungen angeben. Vollständige Zuordnung zu mehreren Gruppen kann Gruppensummen über die Gesamtsumme hinaus erhöhen. Für Service-Mengen und Beiträge Positionen als Quelle verwenden. Gleiche Beträge verschiedener Datensätze zählen jeweils.
+Je Quelldatensatz einmal zählen oder aggregieren. Quellabfrage, Aggregation, optional valueFieldId und Gruppierung über Felder oder Beziehungen angeben. Vollständige Zuordnung zu mehreren Gruppen kann Gruppensummen über die Gesamtsumme hinaus erhöhen. Für Mengen und Beiträge je Katalogeintrag Positionen als Quelle verwenden. Gleiche Beträge verschiedener Datensätze zählen jeweils.
 
 **Nur lesend.** Pflicht: `source`, `aggregation`, `valueFieldId`, `groupBy`. Optional: `groupLimit`.
 
@@ -593,7 +593,7 @@ Ein typisiertes Konfigurationspaket mit Typen, Feldern, Beziehungen, Berechnunge
 
 Eine Diagrammkennzahl wählt Quelltyp, Filter, Aggregation, Wertefeld und Gruppierung, etwa die Summe des Felds Wert aus Deals, gruppiert nach Phase. Der gewichtete Wert ist ein weiteres konfiguriertes Feld, kein Widget-Modus.
 
-Die Quelle legt fest, was einmal gezählt wird. Deal-Berichte zählen jeden passenden Deal einmal in der Gesamtsumme; ein Deal mit zwei Organisationen zählt in beiden Organisationsgruppen voll, deren Summe kann daher die eindeutige Gesamtsumme übersteigen. Service-Beiträge und Mengen verwenden Positionen als Quelle. Gleiche Beträge verschiedener Datensätze zählen jeweils. Gesperrte Eingaben bleiben in Widgets gesperrt, und verschiedene Währungen werden nie stillschweigend addiert.
+Die Quelle legt fest, was einmal gezählt wird. Deal-Berichte zählen jeden passenden Deal einmal in der Gesamtsumme; ein Deal mit zwei Organisationen zählt in beiden Organisationsgruppen voll, deren Summe kann daher die eindeutige Gesamtsumme übersteigen. Beiträge und Mengen je Katalogeintrag verwenden Positionen als Quelle. Gleiche Beträge verschiedener Datensätze zählen jeweils. Gesperrte Eingaben bleiben in Widgets gesperrt, und verschiedene Währungen werden nie stillschweigend addiert.
 
 {/* mcp-catalog:widgets */}
 #### `manage_widgets`

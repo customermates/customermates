@@ -1,25 +1,13 @@
-import { z } from "zod";
-
 import { focusHref } from "@/components/focus/focus-href";
-import { RECORD_LIST_CONTROLS } from "@/ee/agent-chat/record-ui-targets";
 import { TOOLBAR_PAGES_WITH_ADD, TOOLBAR_PAGES_WITHOUT_ADD } from "@/ee/agent-chat/ui-anchors";
 import { AGENT_UI_TARGETS } from "@/ee/agent-chat/ui-targets";
-import { RECORD_PRESET_KEYS, type RecordPresetKey } from "@/features/records/record-navigation.schema";
 import { escapeRegExp } from "@/i18n/routing";
 
 export const APP_LINK_SCHEME = "app:";
-const APP_LINK_OPEN_ROUTE = "/open";
 
 const APP_LINK_HREF = /\]\(app:([^)\s]*)\)/g;
-const LIST_AREAS = ["records", "configure"] as const;
 
-type ListArea = (typeof LIST_AREAS)[number];
-
-type ParsedAppLink =
-  | { kind: "page"; place: string; route: string; focus: string | null }
-  | { kind: ListArea; place: string; preset: RecordPresetKey; focus: string | null };
-
-type AppLinkWorkspace = { listId: (preset: RecordPresetKey) => string };
+type ParsedAppLink = { route: string; focus: string | null };
 
 const PAGE_ROUTES = new Set([
   ...AGENT_UI_TARGETS.filter((target) => target.id.startsWith("nav-") && target.route.startsWith("/")).map(
@@ -44,29 +32,11 @@ function pageFocusTargetId(route: string, focus: string): string | null {
   return target?.id ?? null;
 }
 
-const LIST_FOCUS: Record<ListArea, readonly string[]> = {
-  records: RECORD_LIST_CONTROLS.filter((control) => !control.startsWith("layout-")),
-  configure: [],
-};
-
-function isPreset(value: string): value is RecordPresetKey {
-  return (RECORD_PRESET_KEYS as readonly string[]).includes(value);
-}
-
-function isListArea(value: string): value is ListArea {
-  return (LIST_AREAS as readonly string[]).includes(value);
-}
-
 export function appLinkForPlace(place: string, focus: string | null): ParsedAppLink | null {
   const route = `/${place}`;
-  if (PAGE_ROUTES.has(route)) {
-    if (focus !== null && !pageFocusTargetId(route, focus)) return null;
-    return { kind: "page", place, route, focus };
-  }
-  const [area, preset, ...rest] = place.split("/");
-  if (rest.length > 0 || !isListArea(area) || !preset || !isPreset(preset)) return null;
-  if (focus !== null && !LIST_FOCUS[area].includes(focus)) return null;
-  return { kind: area, place, preset, focus };
+  if (!PAGE_ROUTES.has(route)) return null;
+  if (focus !== null && !pageFocusTargetId(route, focus)) return null;
+  return { route, focus };
 }
 
 export function parseAppLink(href: string): ParsedAppLink | null {
@@ -78,17 +48,9 @@ export function parseAppLink(href: string): ParsedAppLink | null {
   return focus ? appLinkForPlace(place, focus) : null;
 }
 
-export function appLinkPath(link: ParsedAppLink, workspace: AppLinkWorkspace | null): string {
-  if (link.kind === "page") {
-    const targetId = link.focus && pageFocusTargetId(link.route, link.focus);
-    return targetId ? focusHref({ kind: "control", id: targetId }) : link.route;
-  }
-
-  const openPath = `${APP_LINK_OPEN_ROUTE}/${link.place}`;
-  if (!workspace) return link.focus ? `${openPath}?${new URLSearchParams({ focus: link.focus })}` : openPath;
-  const typeId = workspace.listId(link.preset);
-  if (link.kind === "configure") return focusHref({ kind: "list", id: typeId });
-  return link.focus ? focusHref({ kind: "control", id: `records:${typeId}:${link.focus}` }) : `/records/${typeId}`;
+export function appLinkPath(link: ParsedAppLink): string {
+  const targetId = link.focus && pageFocusTargetId(link.route, link.focus);
+  return targetId ? focusHref({ kind: "control", id: targetId }) : link.route;
 }
 
 export function appLinkHrefs(markdown: string): string[] {
@@ -106,11 +68,11 @@ function resolveAppLinks(markdown: string, toHref: (link: ParsedAppLink) => stri
 export function publicAppLinkHref(href: string): string {
   const link = parseAppLink(href);
   if (!link) throw new Error(`Unknown app link: ${href}`);
-  return appLinkPath(link, null);
+  return appLinkPath(link);
 }
 
 export function resolvePublicAppLinks(markdown: string, baseUrl = ""): string {
-  return resolveAppLinks(markdown, (link) => `${baseUrl}${appLinkPath(link, null)}`);
+  return resolveAppLinks(markdown, (link) => `${baseUrl}${appLinkPath(link)}`);
 }
 
 const LINK_BASE = "https://app-link.invalid";
@@ -127,13 +89,10 @@ function onlyParam(url: URL, name: string) {
 
 function appLinkFromPublicPath(path: string): ParsedAppLink | null {
   const url = relativeUrl(path);
-  if (!url) return null;
+  if (!url || !PAGE_ROUTES.has(url.pathname)) return null;
   const focusParam = url.search ? onlyParam(url, "focus") : null;
   if (url.search && focusParam === null) return null;
   const place = url.pathname.slice(1);
-  if (url.pathname.startsWith(`${APP_LINK_OPEN_ROUTE}/`))
-    return appLinkForPlace(place.slice(APP_LINK_OPEN_ROUTE.length), focusParam);
-  if (!PAGE_ROUTES.has(url.pathname)) return null;
   if (focusParam === null) return appLinkForPlace(place, null);
   if (!focusParam.startsWith("control:")) return null;
   const targetId = focusParam.slice("control:".length);
@@ -141,31 +100,15 @@ function appLinkFromPublicPath(path: string): ParsedAppLink | null {
   return appLinkForPlace(place, targetId.startsWith(prefix) ? targetId.slice(prefix.length) : targetId);
 }
 
-function isResolvedListPath(path: string): boolean {
-  const url = relativeUrl(path);
-  if (!url) return false;
-  if (url.pathname === "/configure") {
-    const focus = onlyParam(url, "focus");
-    if (!focus?.startsWith("list:")) return false;
-    return z.uuid().safeParse(focus.slice("list:".length)).success;
-  }
-  const [, area, typeId, ...rest] = url.pathname.split("/");
-  if (area !== "records" || rest.length > 0 || !z.uuid().safeParse(typeId).success) return false;
-  if (!url.search) return true;
-  const focus = onlyParam(url, "focus");
-  return LIST_FOCUS.records.some((control) => focus === `control:records:${typeId}:${control}`);
-}
-
 export function isResolvedAppLinkPath(path: string): boolean {
-  if (isResolvedListPath(path)) return true;
   const link = appLinkFromPublicPath(path);
-  return link?.kind === "page" && appLinkPath(link, null) === path;
+  return link !== null && appLinkPath(link) === path;
 }
 
-export function localizeAppLinks(text: string, baseUrl: string, workspace: AppLinkWorkspace): string {
+export function localizeAppLinks(text: string, baseUrl: string): string {
   const pattern = new RegExp(`\\]\\(${escapeRegExp(baseUrl)}(/[^)\\s]*)\\)`, "g");
   return text.replace(pattern, (match, path: string) => {
     const link = appLinkFromPublicPath(path);
-    return link ? `](${appLinkPath(link, workspace)})` : match;
+    return link ? `](${appLinkPath(link)})` : match;
   });
 }

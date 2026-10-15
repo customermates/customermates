@@ -19,7 +19,7 @@ import { SignatureTemplate } from "@/ee/messaging/email-settings";
 import { OPERATOR_AUDIT_ACTION } from "@/ee/operator/operator.schema";
 import { ROUTINE_RUN_REASONS } from "@/ee/routines/routine-run-outcome";
 import { ROUTINE_SCHEDULE_PRESETS } from "@/ee/routines/routine-schedule-preset";
-import { RECORD_PRESET_KEYS } from "@/features/records/record-navigation.schema";
+import { RECORD_PRESET_KEYS } from "@/features/records/workspace-record-preset";
 import { DomainEvent } from "@/features/event/domain-events";
 import { LEGACY_DOMAIN_EVENTS } from "@/features/event/event-label";
 import { FeedbackType } from "@/features/feedback/send-feedback.schema";

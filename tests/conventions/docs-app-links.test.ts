@@ -11,10 +11,11 @@ import { REPO_ROOT, walkFiles } from "./walk";
 
 /**
  * Product docs name every place in the app as an inline link where the text mentions it,
- * using one app link format (`[Contacts](app:records/contact)`, with an optional `?focus=`).
+ * using one app link format (`[Roles](app:settings/roles)`, with an optional `?focus=`).
  * The same text serves the docs site, raw docs and Mate, so the old trailing **Link:** and
  * **Mate:** blocks, DOM ids and UI target strings have no place in the prose, and every app
- * link must resolve in features/docs/app-links.ts.
+ * link must resolve in features/docs/app-links.ts. Each workspace defines its own lists, so
+ * app links name fixed pages only, never a list.
  *
  * NOT_YET_CONVERTED lists pages still written the old way. It may only shrink: a listed page
  * that no longer violates the convention fails until it is removed from the list.
@@ -30,7 +31,6 @@ const APP_ROUTE_SECTIONS = [
     AGENT_UI_TARGETS.filter((target) => target.route.startsWith("/")).map((target) => target.route.split("/")[1]),
   ),
   "records",
-  "open",
 ];
 const BARE_APP_ROUTE = new RegExp(`\`/(?:${APP_ROUTE_SECTIONS.join("|")})(?:[/?][^\`]*)?\``);
 const ANY_APP_LINK = /(?<![\w-])app:[a-z]/;
@@ -123,12 +123,14 @@ describe("docs app links", () => {
     expect(appLinkViolations("Navigate with `nav-records:<typeId>`.")).toHaveLength(1);
     expect(appLinkViolations("Highlight `settings-roles-add`.")).toHaveLength(1);
     expect(appLinkViolations("Open [Projects](app:records/project).")).toHaveLength(1);
+    expect(appLinkViolations("Open [Contacts](app:records/contact).")).toHaveLength(1);
+    expect(appLinkViolations("Open [Configure for Deals](app:configure/deal).")).toHaveLength(1);
     expect(appLinkViolations("Open `/settings/roles` or `/records/<typeId>`.")).toHaveLength(1);
     expect(appLinkViolations('Open [Roles](app:settings/roles "Roles").')).toHaveLength(1);
     expect(appLinkViolations("The API lives at `/v1/records`.")).toEqual([]);
     expect(
       appLinkViolations(
-        "To add a contact, open [Contacts](app:records/contact) and click [Add](app:records/contact?focus=add). See [records](/docs/app-records#how-do-i-add-a-record).\n\n## Heading [#heading-anchor]",
+        "To add a role, open [Roles](app:settings/roles) and click [Add](app:settings/roles?focus=add). See [records](/docs/app-records#how-do-i-add-a-record).\n\n## Heading [#heading-anchor]",
       ),
     ).toEqual([]);
     expect(appLinkViolations("```\n#records-search\n```")).toEqual([]);

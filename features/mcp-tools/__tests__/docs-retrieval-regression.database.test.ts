@@ -22,19 +22,10 @@ const PAGE_LINK_QUESTIONS: [ContentLocale, string, string][] = [
   ["en", "API keys page URL", "/settings/api-keys"],
   ["en", "routines page URL", "/routines"],
   ["en", "URL of the routines page", "/routines"],
-  ["en", "contacts page URL", "/open/records/contact"],
-  ["en", "link to the deals page", "/open/records/deal"],
-  ["en", "tasks page URL", "/open/records/task"],
-  ["en", "organizations page URL", "/open/records/organization"],
-  ["en", "link to the services page", "/open/records/service"],
   ["de", "URL der Rollen-Seite", "/settings/roles"],
   ["de", "URL der Webhooks-Seite", "/settings/webhooks"],
   ["de", "URL der API-Keys-Seite", "/settings/api-keys"],
   ["de", "Link zur Routinen-Seite", "/routines"],
-  ["de", "URL der Kontakte-Seite", "/open/records/contact"],
-  ["de", "Link zur Aufgaben-Seite", "/open/records/task"],
-  ["de", "URL der Organisationen-Seite", "/open/records/organization"],
-  ["de", "URL der Services-Seite", "/open/records/service"],
   ["en", "webhooks route", "/settings/webhooks"],
   ["de", "Route Webhooks", "/settings/webhooks"],
   ["de", "URL der Profileinstellungen-Seite", "/settings/profile"],
@@ -62,11 +53,11 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
   ["de", "Wie lang darf ein Key-Name sein", "api-keys#what-is-the-key-format", null],
   ["de", "Wer kann Webhooks sehen und ändern", "webhooks#who-can-see-and-change-webhooks", null],
   ["de", "Wie debugge ich eine Delivery", "webhooks#how-do-i-debug-a-delivery", "/settings/webhook-deliveries"],
-  ["en", "where do I add a new contact", "app-records#how-do-i-add-a-record", "/open/records/"],
-  ["en", "where do I see a list of all tasks", "app-records#how-do-i-add-a-record", "/open/records/"],
-  ["en", "where do I see my services", "app-records#how-do-i-add-a-record", "/open/records/"],
-  ["de", "Kontakt anlegen", "app-records#how-do-i-add-a-record", "/open/records/"],
-  ["de", "Wo lege ich einen neuen Deal an", "app-records#how-do-i-add-a-record", "/open/records/"],
+  ["en", "where do I add a new contact", "app-records#how-do-i-add-a-record", null],
+  ["en", "where do I see a list of all tasks", "app-records#how-do-i-add-a-record", null],
+  ["en", "where do I see my services", "app-records#how-do-i-add-a-record", null],
+  ["de", "Kontakt anlegen", "app-records#how-do-i-add-a-record", null],
+  ["de", "Wo lege ich einen neuen Deal an", "app-records#how-do-i-add-a-record", null],
   ["en", "where do I create a routine", "app-routines#how-do-i-create-a-routine", "/routines"],
   ["de", "Wo lege ich eine Routine an", "app-routines#how-do-i-create-a-routine", "/routines"],
   [
@@ -160,17 +151,12 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
   ["en", "How is a deal's total value calculated?", "concepts#how-is-a-deals-total-value-calculated", null],
   ["en", "What does Assigned read access mean?", "concepts#who-are-users-roles-and-the-company", null],
   ["en", "Which custom field types are there?", "concepts#what-are-custom-columns", null],
-  [
-    "en",
-    "show my pipeline as a kanban board",
-    "app-records#how-do-i-switch-between-table-and-board-view",
-    "/open/records/",
-  ],
+  ["en", "show my pipeline as a kanban board", "app-records#how-do-i-switch-between-table-and-board-view", null],
   [
     "en",
     "How do I set up pipeline stages?",
     "app-records#how-do-i-change-a-deal-stage-or-a-task-status-on-the-board",
-    "/open/records/",
+    "/configure",
   ],
   [
     "en",
@@ -183,7 +169,7 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
   ["en", "change my password", "app-profile#what-can-i-not-change-here", null],
   ["en", "Why is the inbox locked on Starter?", "app-inbox#who-can-use-the-inbox", null],
   ["en", "Can an admin read my private conversations?", "app-inbox#which-conversations-do-i-see", "/settings/channels"],
-  ["en", "write a new email to a contact", "app-inbox#how-do-i-start-a-new-conversation", "/open/records/"],
+  ["en", "write a new email to a contact", "app-inbox#how-do-i-start-a-new-conversation", null],
   ["en", "Is there a calendar in Customermates?", "app-dashboard#what-can-an-activity-timeline-show", null],
   ["en", "share a dashboard widget with my team", "app-dashboard#what-does-the-dashboard-show", "/dashboard"],
   ["en", "Which chart types can a widget show?", "app-dashboard#which-widget-types-exist", "/dashboard"],
@@ -203,7 +189,7 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
     "de",
     "Wo speichere ich die Telefonnummer eines Kontakts?",
     "app-records#what-is-special-about-each-record-type",
-    "/open/records/",
+    null,
   ],
   ["de", "Wie lege ich eine Automatisierung an?", "app-routines#how-do-i-create-a-routine", "/routines"],
   ["de", "Kanal für Kollegen sichtbar machen", "app-profile#private-or-shared", null],
@@ -901,7 +887,7 @@ describeDatabase("documentation retrieval exact regression contracts", () => {
     ] as const) {
       const excerpt = await excerptOf("concepts", query, locale);
       expect(excerpt, query).toContain(formula);
-      expect(appLinks(excerpt).split(" "), query).toContain(`${APP}/open/configure/deal`);
+      expect(appLinks(excerpt).split(" "), query).toContain(`${APP}/configure`);
       expect(excerpt.length, query).toBeLessThanOrEqual(1400);
     }
   });

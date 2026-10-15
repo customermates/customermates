@@ -28,7 +28,7 @@ Customermates is open core. Code outside `ee/`, and material in `ee/` that is se
 
 ## Which features are not available when self-hosting? [#which-features-are-not-available-when-self-hosting]
 
-Every self-hosted installation uses the Starter feature set. These cloud-only features stay off, even if you also pay for a cloud plan: connected messaging accounts (email, LinkedIn, WhatsApp, Instagram, Telegram), the unified Inbox, connected calendars and their events, the hosted assistant Mate with its hosted AI credits, and Routines, which Mate runs. External AI clients still work through MCP with your own AI provider. Enterprise SSO (SAML) and white-labeling are not implemented in either deployment model.
+Every self-hosted installation uses the Starter feature set. These cloud-only features stay off, even if you also pay for a cloud plan: connected messaging accounts (email, LinkedIn, WhatsApp, Instagram, Telegram), the unified Inbox, connected calendars and their events, the hosted assistant Mate with its hosted AI credits, Routines, which Mate runs, and the AI workspace setup in onboarding, so a new workspace starts with no lists. External AI clients still work through MCP with your own AI provider. Enterprise SSO (SAML) and white-labeling are not implemented in either deployment model.
 
 The app hides what does not apply: the sidebar shows no Inbox or Routines, Settings has no Billing or Channels page, and the role editor hides the **Inbox messages** and **Routines** rows. Opening one of those pages by URL returns you to the Dashboard.
 
@@ -115,7 +115,7 @@ The app emails verification links, password resets and invitations. Without a ke
 
 ## How do I create the first account on my instance? [#how-do-i-create-the-first-account-on-my-instance]
 
-Open `<BASE_URL>/auth/signup` and register with email and password under **Create account**, or with Google or Microsoft if you configured them. On the next screen choose **Create a new workspace**. The wizard's first step asks for your first name, last name and country and creates the workspace; you can skip the remaining steps and close the wizard with **Finish**. The account that creates the workspace gets the built-in **Admin** role, which has every permission.
+Open `<BASE_URL>/auth/signup` and register with email and password under **Create account**, or with Google or Microsoft if you configured them. On the next screen choose **Create a new workspace**. The wizard's first step asks for your first name, last name and country and creates the workspace; you can skip the remaining steps and close the wizard with **Finish**. The account that creates the workspace gets the built-in **Admin** role, which has every permission. The new workspace has no lists yet: create the ones you need in [Configure](app:configure), or with **Create list** on the empty Dashboard; see [Core concepts](/docs/concepts#which-five-record-types-exist).
 
 Click the verification link in the email within 24 hours. An account that is still unverified 24 hours after registering is held on **Email Verification**, where **Resend verification email** sends a fresh link.
 

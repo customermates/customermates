@@ -33,7 +33,7 @@ Click [Add](app:settings/members?focus=add) on Members (or **Invite members** in
 - **Share link** shows one **Invitation link** for the whole workspace with a copy button. It is valid for 7 days ("Expires on" with the date) and reused until then; the first time the dialog opens after it expired, a new link is created. Anyone with the link can register, and it cannot be revoked early.
 - **Send emails** takes 1 to 20 addresses, separated by a comma or Enter. **Send invitations** emails each address the workspace link once and confirms with "Sent 3 invitations." (with the actual count).
 
-People who register join with status **Waiting for approval** and no role, and see **Waiting for Approval** until someone approves them. Each registration also creates an approval task in [Tasks](app:records/task) for members whose **Tasks** read access is **All**; it disappears once the member is approved or set Inactive. An expired or altered link shows an error asking them to request a new one.
+People who register join with status **Waiting for approval** and no role, and see **Waiting for Approval** until someone approves them. When the workspace has a list for membership approvals (on Customermates Cloud, the tasks list from the AI workspace setup), each registration also creates an approval task there for members whose read access to that list is **All**; it disappears once the member is approved or set Inactive. Without such a list, for example on a new self-hosted workspace, no task is created, and you approve people on [Members](app:settings/members). An expired or altered link shows an error asking them to request a new one.
 
 ### How do I approve, edit, deactivate or remove a member? [#how-do-i-approve-deactivate-or-edit-a-member]
 
@@ -188,15 +188,15 @@ Click [Add](app:settings/webhooks?focus=add), or a row to edit. The **Webhook** 
 
 ## Where is the currency set? [#where-is-the-currency-set]
 
-There is no workspace currency: every money field carries its own. Open [Configure](app:configure), open the list and the money field, and pick **Currency**. New workspaces start money fields in EUR. Changing a field's currency does not convert stored amounts, and totals that mix currencies show a currency mismatch instead of a sum. Configuring fields needs **Data model** **Edit**.
+There is no workspace currency: every money field carries its own. Open [Configure](app:configure), open the list and the money field, and pick **Currency**. The AI workspace setup creates money fields in the currency you choose in its questions; a money field you add yourself starts in EUR. Changing a field's currency does not convert stored amounts, and totals that mix currencies show a currency mismatch instead of a sum. Configuring fields needs **Data model** **Edit**.
 
 ### How do stage probabilities and totals work? [#how-do-stage-probabilities-and-totals-work]
 
-Open [Configure for Deals](app:configure/deal), open the **Stage** field and set **Probability %** on each option. **Weighted value** multiplies **Value** by the stage probability divided by 100; zero gives zero, no probability leaves it empty. Changes show a dependency preview and recalculate affected records. For pipeline totals, add a chart widget on the [Dashboard](app:dashboard) that sums **Value** or **Weighted value**, grouped by stage if you like. See [weighted pipeline](/docs/concepts#how-does-a-weighted-pipeline-work).
+In [Configure](app:configure), open your deals list, open its stage field and set **Probability %** on each option; the AI workspace setup fills these in from the win chance of each stage. A weighted value field multiplies the deal value by the stage probability divided by 100; zero gives zero, no probability leaves it empty. Changes show a dependency preview and recalculate affected records. For pipeline totals, add a chart widget on the [Dashboard](app:dashboard) that sums the deal value or the weighted value, grouped by stage if you like. See [weighted pipeline](/docs/concepts#how-does-a-weighted-pipeline-work).
 
 ### How do I rename a list such as Deals? [#how-do-i-rename-record-types-in-the-data-model]
 
-Open the list in [Configure](app:configure/deal), change **Name** and **Plural name** under **General** and click **Save**. Every list can be renamed; records, links, views, widgets and API references stay connected. List names must be unique, ignoring case and accents. Deleting a list moves it to **Trash**, where you can **Restore** it for 30 days or **Delete permanently**.
+Open the list in [Configure](app:configure), change **Name** and **Plural name** under **General** and click **Save**. Every list can be renamed; records, links, views, widgets and API references stay connected. List names must be unique, ignoring case and accents. Deleting a list moves it to **Trash**, where you can **Restore** it for 30 days or **Delete permanently**.
 
 ## For agents [#tips-for-agents]
 

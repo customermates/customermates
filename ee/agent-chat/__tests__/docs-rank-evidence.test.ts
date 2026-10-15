@@ -173,7 +173,9 @@ describe("bounded classifier evidence", () => {
       locale: "en",
     });
     expect(excerpt).toContain("Stage and status are Single choice fields.");
-    expect(excerpt).toContain("To edit the stages or their probabilities, open the field in Configure for Deals");
+    expect(excerpt).toContain(
+      "To edit the stages or their probabilities, open the field on the configure page of the list in Configure",
+    );
     expect(excerpt.length).toBeLessThanOrEqual(374);
   });
 

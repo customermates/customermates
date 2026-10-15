@@ -58,7 +58,7 @@ export function docsHref(slug: string, anchor: string, text: string): string {
   const link = appLinkHrefs(text)
     .map(parseAppLink)
     .find((parsed) => parsed !== null);
-  return link ? appLinkPath(link, null) : `/docs/${slug}#${anchor}`;
+  return link ? appLinkPath(link) : `/docs/${slug}#${anchor}`;
 }
 
 function catalogFingerprint(revision: number, views: ReadonlyArray<{ id: string; name: string }>): string {

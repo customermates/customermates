@@ -9,7 +9,6 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 import { recordRoutinePrompt } from "@/prisma/seeds/record-routine-prompts";
 import { composeRoutinePrompt } from "@/ee/routines/routine-prompt";
 import { runWithTenant } from "@/core/decorators/tenant-context";
-import { presetId } from "@/features/records/crm-preset";
 import { resolvePublicAppLinks } from "@/features/docs/app-links";
 import {
   createMockDiModule,
@@ -1729,25 +1728,24 @@ describe("agent tools", () => {
     expect(pageResult.result).toContain("WhatsApp");
   });
 
-  it("hands Mate docs app links as paths into the reader's own workspace", async () => {
+  it("hands Mate docs app links as relative paths into the app", async () => {
     const tools = getAgentAiTools(deps({ runInCallerContext: (run) => runWithTenant(mockUser, run) }));
     const markdown = resolvePublicAppLinks(
-      "To add a contact, open [Contacts](app:records/contact) and click [Add](app:records/contact?focus=add).",
+      "To add a role, open [Roles](app:settings/roles) and click [Add](app:settings/roles?focus=add).",
       "http://localhost:4000",
     );
     vi.spyOn(getDocsPageTool, "execute").mockResolvedValueOnce({
       text: markdown,
       structuredContent: {
-        title: "Records",
-        url: "http://localhost:4000/en/docs/app-records",
+        title: "Workspace settings",
+        url: "http://localhost:4000/en/docs/app-company",
         markdown,
         excerpt: true,
       },
     });
-    const contacts = presetId(mockUser.companyId, "contact");
 
     const result = (await execute(tools.get_docs_page, {
-      slug: "app-records",
+      slug: "app-company",
       locale: "en",
       source: "docs",
     })) as {
@@ -1756,7 +1754,7 @@ describe("agent tools", () => {
     };
 
     expect(result.result).toBe(
-      `To add a contact, open [Contacts](/records/${contacts}) and click [Add](/records/${contacts}?focus=control%3Arecords%3A${contacts}%3Aadd).`,
+      "To add a role, open [Roles](/settings/roles) and click [Add](/settings/roles?focus=control%3Asettings-roles-add).",
     );
   });
 

@@ -90,13 +90,13 @@ describe("unified documentation search", () => {
       "en",
       "How is the weighted pipeline value calculated?",
       "Weighted deal value = deal value × stage probability / 100",
-      "[Deals configure page](http://localhost:4000/open/configure/deal)",
+      "[Configure](http://localhost:4000/configure)",
     ],
     [
       "de",
       "Wie wird der gewichtete Pipeline-Wert berechnet?",
       "Gewichteter Deal-Wert = Deal-Wert × Phasenwahrscheinlichkeit / 100",
-      "[Konfigurationsseite von Deals](http://localhost:4000/open/configure/deal)",
+      "[Konfigurieren](http://localhost:4000/configure)",
     ],
   ] as const)(
     "fetches the complete pipeline formula and section app link in %s",
@@ -151,9 +151,9 @@ describe("unified documentation search", () => {
     const markdown = (fetched as { structuredContent: { markdown: string } }).structuredContent.markdown;
     expect(markdown).toContain("Stage and status are **Single choice** fields");
     expect(markdown).toContain(
-      "To edit the stages or their probabilities, open the field in [Configure for Deals](http://localhost:4000/open/configure/deal)",
+      "To edit the stages or their probabilities, open the field on the configure page of the list in [Configure](http://localhost:4000/configure)",
     );
-    expect(markdown).toContain("[Deals](http://localhost:4000/open/records/deal)");
+    expect(markdown).toContain("Drag the card to another column on the board of your deals or tasks list");
     expect(markdown.length).toBeLessThanOrEqual(1_400);
     expect(ranker).toHaveBeenCalledTimes(1);
   });
@@ -829,7 +829,7 @@ describe("authoritative action and condition excerpts", () => {
       anchor: "how-do-i-import-or-export-records",
       query: "Wie läuft der Import ab?",
       facts: [
-        "Öffnen Sie [Weitere Aktionen](http://localhost:4000/open/records/contact?focus=more) in der Toolbar, zum Beispiel bei [Kontakte](http://localhost:4000/open/records/contact)",
+        "Öffnen Sie **Weitere Aktionen** in der Toolbar der Liste, zum Beispiel bei Ihrer Kontaktliste",
         "Dateien einer anderen Liste, von vor einer Strukturänderung oder mit mehr als 100 Datensätzen oder 500 Verknüpfungen werden abgelehnt",
         "Mit einer Excel-Arbeitsmappe startet ein Assistent",
       ],
@@ -875,9 +875,9 @@ describe("authoritative action and condition excerpts", () => {
       anchor: "how-is-a-deals-total-value-calculated",
       query: "Is the link between a deal and its services stored with a quantity?",
       facts: [
-        "A deal's **Line items** are a sub-list of Deals: each line belongs to one deal",
-        "Each line has a service, a quantity, a pricing mode and an effective unit price",
-        "The same service can appear on several lines",
+        "gives your deals list **Line items**, a sub-list: each line belongs to one deal",
+        "Each line has an offering, a quantity, a pricing mode and an effective unit price",
+        "The same offering can appear on several lines",
       ],
     },
   ])(

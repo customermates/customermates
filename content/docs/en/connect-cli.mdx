@@ -80,7 +80,7 @@ The server provides connection instructions describing its tool surface, safety 
 - _"Pull the last ten contacts I created. Any without an email address?"_
 - _"Create a contact for Jane Doe at Initech, link it to the Initech organization, and start a deal for 12 hours of consulting."_
 
-Contacts, organizations, deals, services, and tasks are the starting record types; your workspace can add more. Attributes such as a deal's stage or a task's priority depend on the workspace configuration. Call `discover_record_types` and then `get_record_model` for the relevant type IDs before writing.
+Each workspace defines its own record types, such as contacts, deals or tasks, and attributes such as a deal's stage or a task's priority depend on the workspace configuration too. Call `discover_record_types` and then `get_record_model` for the relevant type IDs before writing.
 
 ## Troubleshooting [#troubleshooting]
 
