@@ -381,6 +381,9 @@ describe("self-hosted configuration", () => {
         .map((line) => line.trim());
 
     expect(directory).toBe("backups");
+    expect(update.indexOf("umask 077\n")).toBeGreaterThan(-1);
+    expect(update.indexOf("umask 077\n")).toBeLessThan(update.indexOf("pg_dump"));
+    expect(update).toContain("chmod 700 backups\n");
     expect(lines(".gitignore")).toContain(`/${directory}/`);
     expect(lines(".dockerignore")).toContain(directory);
   });

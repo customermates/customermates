@@ -187,7 +187,8 @@ The app writes its logs to the container output. Background jobs such as webhook
 All data lives in the PostgreSQL database: records, users, settings, the Activity log and the background job queue. The app container keeps no data. Back up the database with `pg_dump` through the Postgres container, whose port the Compose file does not publish:
 
 ```bash
-mkdir -p backups
+umask 077
+mkdir -p backups && chmod 700 backups
 docker compose exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' \
   | gzip > backups/customermates-$(date +%Y%m%d).sql.gz
 ```

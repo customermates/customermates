@@ -16,7 +16,9 @@ if ! docker compose version >/dev/null 2>&1; then
 fi
 
 BACKUP="backups/customermates-$(date +%Y%m%d-%H%M%S).sql.gz"
+umask 077
 mkdir -p backups
+chmod 700 backups
 trap 'rm -f "$BACKUP.partial"' EXIT
 if ! docker compose exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' | gzip > "$BACKUP.partial"; then
   echo "ERROR: the database backup failed, so nothing was updated."

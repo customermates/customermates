@@ -187,7 +187,8 @@ Die App schreibt ihre Logs in die Container-Ausgabe. Hintergrund-Jobs wie Webhoo
 Alle Daten liegen in der PostgreSQL-Datenbank: Datensätze, Nutzer, Einstellungen, das Aktivitätsprotokoll und die Warteschlange der Hintergrund-Jobs. Der App-Container speichert keine Daten. Sichern Sie die Datenbank mit `pg_dump` über den Postgres-Container, dessen Port die Compose-Datei nicht veröffentlicht:
 
 ```bash
-mkdir -p backups
+umask 077
+mkdir -p backups && chmod 700 backups
 docker compose exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' \
   | gzip > backups/customermates-$(date +%Y%m%d).sql.gz
 ```
