@@ -124,6 +124,23 @@ describe("SetupQuestionField", () => {
     expect(onChange).toHaveBeenLastCalledWith({ format: "multipleChoice", values: ["website"], custom: ["Podcast"] });
   });
 
+  it("shows own entries at the text size and padding of the option toggles beside them", () => {
+    render(descriptorOf("leadSources"), { format: "multipleChoice", values: ["website"], custom: ["Podcast"] });
+
+    const toggle = button("WorkspaceSetup.options.leadSources.website");
+    const custom = [...container.querySelectorAll<HTMLElement>('[data-slot="badge"]')].find((chip) =>
+      chip.textContent?.includes("Podcast"),
+    );
+    if (!custom) throw new Error("The own entry did not render.");
+    for (const className of ["text-sm", "px-3"]) {
+      expect(toggle.className.split(" ")).toContain(className);
+      expect(custom.className.split(" ")).toContain(className);
+    }
+    expect(custom.className).not.toContain("text-[11px]");
+    act(() => button("Common.actions.remove: Podcast").click());
+    expect(onChange).toHaveBeenLastCalledWith({ format: "multipleChoice", values: ["website"], custom: [] });
+  });
+
   it("edits, reorders and removes ordered list entries with win chances", () => {
     render(descriptorOf("salesSteps"), {
       format: "orderedList",
@@ -184,6 +201,24 @@ describe("SetupQuestionField", () => {
 
     expect(container.textContent).toContain("Euro (EUR)");
     expect(container.textContent).not.toContain("eur");
+  });
+
+  it("lets both range bounds shrink on narrow screens so the currency stays on their row", () => {
+    render(descriptorOf("dealSize"), { format: "range", min: 500, max: 5000 }, { currency: "EUR" });
+
+    const [from, to] = container.querySelectorAll<HTMLInputElement>('input[type="number"]');
+    const bounds = from.parentElement;
+    expect(to.parentElement).toBe(bounds);
+    expect(bounds?.className.split(" ")).toEqual(expect.arrayContaining(["flex-1", "min-w-48", "sm:flex-none"]));
+    for (const input of [from, to])
+      expect(input.className.split(" ")).toEqual(expect.arrayContaining(["min-w-0", "flex-1", "sm:w-32"]));
+    const unit = [...(bounds?.parentElement?.children ?? [])].find((child) => child.textContent === "Euro (EUR)");
+    expect(unit).toBeDefined();
+
+    render(descriptorOf("salesCycle"), { format: "range", min: 30, max: null });
+    const [single] = container.querySelectorAll<HTMLInputElement>('input[type="number"]');
+    expect(single.className.split(" ")).toContain("w-32");
+    expect(single.className.split(" ")).not.toContain("flex-1");
   });
 
   it("renders a long short-text answer as a text area", () => {

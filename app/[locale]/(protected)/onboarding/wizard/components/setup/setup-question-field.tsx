@@ -329,46 +329,49 @@ function RangeField({
         ? getCurrencyLabel(currency, locale)
         : ""
       : t("WorkspaceSetup.interview.days");
+  const boundClassName = descriptor.single ? "w-32" : "min-w-0 flex-1 sm:w-32 sm:flex-none";
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Input
-        aria-label={descriptor.single ? descriptor.label : t("WorkspaceSetup.interview.rangeFrom")}
-        className="w-32"
-        disabled={disabled}
-        inputMode="decimal"
-        max={descriptor.max}
-        min={descriptor.min}
-        type="number"
-        value={minText}
-        onChange={(event) => {
-          setMinText(event.target.value);
-          commit(event.target.value, maxText);
-        }}
-      />
+      <div className={cn("flex items-center gap-2", !descriptor.single && "min-w-48 flex-1 sm:flex-none")}>
+        <Input
+          aria-label={descriptor.single ? descriptor.label : t("WorkspaceSetup.interview.rangeFrom")}
+          className={boundClassName}
+          disabled={disabled}
+          inputMode="decimal"
+          max={descriptor.max}
+          min={descriptor.min}
+          type="number"
+          value={minText}
+          onChange={(event) => {
+            setMinText(event.target.value);
+            commit(event.target.value, maxText);
+          }}
+        />
 
-      {descriptor.single ? null : (
-        <>
-          <span aria-hidden className="text-muted-foreground">
-            –
-          </span>
+        {descriptor.single ? null : (
+          <>
+            <span aria-hidden className="text-muted-foreground">
+              –
+            </span>
 
-          <Input
-            aria-label={t("WorkspaceSetup.interview.rangeTo")}
-            className="w-32"
-            disabled={disabled}
-            inputMode="decimal"
-            max={descriptor.max}
-            min={descriptor.min}
-            type="number"
-            value={maxText}
-            onChange={(event) => {
-              setMaxText(event.target.value);
-              commit(minText, event.target.value);
-            }}
-          />
-        </>
-      )}
+            <Input
+              aria-label={t("WorkspaceSetup.interview.rangeTo")}
+              className={boundClassName}
+              disabled={disabled}
+              inputMode="decimal"
+              max={descriptor.max}
+              min={descriptor.min}
+              type="number"
+              value={maxText}
+              onChange={(event) => {
+                setMaxText(event.target.value);
+                commit(minText, event.target.value);
+              }}
+            />
+          </>
+        )}
+      </div>
 
       {unit ? <span className="text-sm text-muted-foreground">{unit}</span> : null}
     </div>

@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
+import { cn } from "@/core/utils/cn";
 
 export const SETUP_CHIP_CLASS = "px-3";
 
@@ -105,7 +106,7 @@ export function SetupRemovableChip({ label, disabled, onRemove }: RemovableChipP
   const t = useTranslations();
   return (
     <AppChip
-      className="animate-page-result-in motion-reduce:animate-none"
+      className={cn(SETUP_CHIP_CLASS, "animate-page-result-in motion-reduce:animate-none")}
       endContent={
         <IconButton
           fieldAction
@@ -115,6 +116,7 @@ export function SetupRemovableChip({ label, disabled, onRemove }: RemovableChipP
           onClick={onRemove}
         />
       }
+      size="lg"
       startContent={<Check aria-hidden />}
     >
       {label}
