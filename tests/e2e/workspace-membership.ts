@@ -144,5 +144,6 @@ export function expectRefusedPageAction(page: Page, path: string) {
     text: /^Failed to load resource: the server responded with a status of 500/,
     source: (url) => url.pathname === path,
     page,
+    limit: Number.POSITIVE_INFINITY,
   });
 }

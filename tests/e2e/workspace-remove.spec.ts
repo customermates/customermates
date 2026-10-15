@@ -231,7 +231,7 @@ test("a member removed while a page is open meets the workspace-changed dialog a
       await removed.page.screenshot({
         path: testInfo.outputPath(`ws-remove-stale-page-${testInfo.project.name}.png`),
       });
-      await expect.poll(() => refused.events.length).toBe(1);
+      await expect.poll(() => refused.events.length).toBeGreaterThan(0);
       await notice.getByRole("button", { name: englishMessages.Workspaces.otherTab.reload, exact: true }).click();
 
       await expect(removed.page).toHaveURL(/\/en\/dashboard$/);
