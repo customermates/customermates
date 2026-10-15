@@ -138,13 +138,13 @@ export class S3FileStorageDriver implements FileStorageDriver {
     const signed = await this.signer(
       url,
       "PUT",
-      { "content-length": String(size), "content-type": mimeType },
+      { "content-length": String(size), "content-type": mimeType, "if-none-match": "*" },
       { signQuery: true, allHeaders: true },
     ).sign();
     return {
       url: signed.url.toString(),
       method: "PUT",
-      headers: { "Content-Type": mimeType },
+      headers: { "Content-Type": mimeType, "If-None-Match": "*" },
       expiresAt: new Date(Date.now() + expiresInSeconds * 1000).toISOString(),
     };
   }

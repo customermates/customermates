@@ -55,7 +55,7 @@ export class VercelBlobFileStorageDriver implements FileStorageDriver {
       validUntil,
       maximumSizeInBytes: Math.max(1, size),
       allowedContentTypes: [mimeType],
-      allowOverwrite: true,
+      allowOverwrite: false,
     });
     return {
       url: presignedUrl,

@@ -86,7 +86,7 @@ describe("s3 file storage configuration", () => {
 });
 
 describe("s3 file storage driver requests", () => {
-  it("presigns a 15-minute PUT that binds the content type and the exact length", async () => {
+  it("presigns a 15-minute PUT that binds the content type, the exact length and a first write", async () => {
     const driver = new S3FileStorageDriver(CONFIG);
     const target = await driver.createUpload({
       fileId: randomUUID(),
@@ -99,11 +99,11 @@ describe("s3 file storage driver requests", () => {
     expect(url.origin).toBe("https://crm-files.s3.eu-central-1.amazonaws.com");
     expect(url.pathname).toBe("/company/file/abc");
     expect(url.searchParams.get("X-Amz-Expires")).toBe("900");
-    expect(url.searchParams.get("X-Amz-SignedHeaders")).toBe("content-length;content-type;host");
+    expect(url.searchParams.get("X-Amz-SignedHeaders")).toBe("content-length;content-type;host;if-none-match");
     expect(url.searchParams.get("X-Amz-Signature")).toMatch(/^[0-9a-f]{64}$/);
     expect(target).toMatchObject({
       method: "PUT",
-      headers: { "Content-Type": "application/pdf" },
+      headers: { "Content-Type": "application/pdf", "If-None-Match": "*" },
     });
     expect(Date.parse(target.expiresAt) - Date.now()).toBeGreaterThan(890_000);
 
@@ -112,7 +112,7 @@ describe("s3 file storage driver requests", () => {
     const expected = await new AwsV4Signer({
       url: unsigned.toString(),
       method: "PUT",
-      headers: { "content-length": "1234", "content-type": "application/pdf" },
+      headers: { "content-length": "1234", "content-type": "application/pdf", "if-none-match": "*" },
       accessKeyId: CONFIG.accessKeyId,
       secretAccessKey: CONFIG.secretAccessKey,
       region: CONFIG.region,
@@ -274,6 +274,25 @@ describeMinio("s3 file storage driver against an S3-compatible server", () => {
       size: 2048,
       contentType: "application/pdf",
     });
+    expect(await bytesOf(await driver.read(key))).toEqual(content);
+    await driver.delete([key]);
+  });
+
+  it("refuses a second upload through the same presigned URL, so an attached file cannot be replaced", async () => {
+    const key = `contract-${randomUUID()}/${randomUUID()}`;
+    const content = contractBytes(64);
+    const target = await driver.createUpload({
+      fileId: randomUUID(),
+      key,
+      size: content.byteLength,
+      mimeType: "application/pdf",
+      expiresInSeconds: 900,
+    });
+    const put = (body: Uint8Array) =>
+      fetch(target.url, { method: target.method, headers: target.headers, body: new Blob([new Uint8Array(body)]) });
+    expect((await put(content)).status).toBe(200);
+    const replaced = await put(contractBytes(64).map((byte) => byte ^ 0xff));
+    expect(replaced.status).toBe(412);
     expect(await bytesOf(await driver.read(key))).toEqual(content);
     await driver.delete([key]);
   });

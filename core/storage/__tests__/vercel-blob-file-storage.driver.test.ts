@@ -85,13 +85,13 @@ describe("vercel blob file storage driver", () => {
       operation: "put",
       pathname: "company/file/abc",
       access: "private",
-      allowOverwrite: true,
+      allowOverwrite: false,
     });
     const url = new URL(target.url);
     expect(url.searchParams.get("pathname")).toBe("company/file/abc");
     expect(url.searchParams.get("vercel-blob-delegation")).toBeTruthy();
     expect(url.searchParams.get("vercel-blob-signature")).toBeTruthy();
-    expect(url.searchParams.get("vercel-blob-allow-overwrite")).toBe("true");
+    expect(url.searchParams.get("vercel-blob-allow-overwrite")).toBe("false");
     expect(target).toMatchObject({
       method: "PUT",
       headers: {
