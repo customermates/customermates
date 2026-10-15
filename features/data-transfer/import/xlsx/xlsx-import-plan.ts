@@ -15,6 +15,7 @@ import type { XlsxIssueCode, XlsxMember, XlsxRecordIndex } from "./xlsx-values";
 import type { XlsxRow } from "./xlsx-workbook";
 
 import { RECORD_IMPORT_LIMIT, RECORD_IMPORT_LINK_LIMIT } from "@/features/data-transfer/record-transfer.schema";
+import { splitPersonName } from "@/features/data-transfer/spreadsheet/spreadsheet-values";
 
 import { normalizeXlsxHeader, xlsxImportFields, XLSX_SKIP_KEY } from "./xlsx-mapping";
 import {
@@ -24,6 +25,7 @@ import {
   parseXlsxRecordId,
   parseXlsxRelationshipCell,
 } from "./xlsx-values";
+import { xlsxCellText } from "./xlsx-workbook";
 
 export type XlsxImportMode = "create" | "update";
 
@@ -126,6 +128,18 @@ export function parseXlsxRows(input: XlsxPlanInput, rows: XlsxRow[] = input.rows
         }
         const current = ranges.get(field.id) ?? { start: null, end: null };
         ranges.set(field.id, { ...current, [target.part]: result.value });
+      } else if (target.kind === "nameParts") {
+        const name = splitPersonName(xlsxCellText(cell));
+        for (const [fieldId, part] of [
+          [target.firstFieldId, name.first],
+          [target.lastFieldId, name.last],
+        ] as const) {
+          const field = fields.get(fieldId);
+          if (!field) continue;
+          const result = parseXlsxFieldCell(part || null, field, input.lookups.members);
+          if (result.ok) parsed.values.set(field.id, result.value);
+          else report(result.code, result.value);
+        }
       } else if (target.kind === "relationship") {
         const result = parseXlsxRelationshipCell(cell, input.lookups.relations.get(target.relationId) ?? null);
         if (result.ok) {

@@ -8,7 +8,17 @@ import { RecordExportSchema } from "@/features/data-transfer/record-transfer.sch
 
 import { planXlsxImport, runXlsxImport, xlsxImportBatches } from "../xlsx-import-plan";
 import { xlsxTargetOptions } from "../xlsx-mapping";
-import { COMPANY, fields, labels, model, PROJECT, PROJECT_COMPANY } from "./xlsx-fixture";
+import {
+  COMPANY,
+  fields,
+  labels,
+  model,
+  PERSON,
+  personFields,
+  personModel,
+  PROJECT,
+  PROJECT_COMPANY,
+} from "./xlsx-fixture";
 
 const acme = { typeId: COMPANY, recordId: "40000000-0000-4000-8000-000000000001" };
 const now = "2026-10-12T10:00:00.000Z";
@@ -82,6 +92,41 @@ describe("xlsx import planning", () => {
       links: plan[0].links,
     };
     expect(RecordExportSchema.safeParse(document).success).toBe(true);
+  });
+
+  it("fills first and last name from one full-name column", () => {
+    const plan = planXlsxImport(
+      {
+        model: personModel,
+        typeId: PERSON,
+        headers: ["Full name"],
+        rows: [
+          { sheetRow: 2, cells: ["Ada Lovelace"] },
+          { sheetRow: 3, cells: ["Hopper, Grace"] },
+          { sheetRow: 4, cells: ["Cher"] },
+        ],
+        mapping: [`nameParts:${personFields.first.id}:${personFields.last.id}`],
+        options: xlsxTargetOptions(personModel, PERSON, labels),
+        lookups: { members: [], relations: new Map() },
+      },
+      "create",
+      null,
+      null,
+      newId,
+      now,
+    );
+    const names = plan.map((row) =>
+      [personFields.first.id, personFields.last.id].map(
+        (fieldId) => row.record?.fields.find((field) => field.fieldId === fieldId)?.result,
+      ),
+    );
+    const text = (value: string) => ({ state: "value", value: { kind: "text", value } });
+    expect(names).toEqual([
+      [text("Ada"), text("Lovelace")],
+      [text("Grace"), text("Hopper")],
+      [text("Cher"), { state: "missing" }],
+    ]);
+    expect(plan.flatMap((row) => row.issues)).toEqual([]);
   });
 
   it("reports a missing required value in create mode", () => {

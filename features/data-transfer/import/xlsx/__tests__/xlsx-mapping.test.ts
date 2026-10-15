@@ -7,7 +7,7 @@ import {
   xlsxTargetOptions,
   XLSX_SKIP_KEY,
 } from "../xlsx-mapping";
-import { fields, labels, model, PROJECT, PROJECT_COMPANY } from "./xlsx-fixture";
+import { fields, labels, model, PERSON, personFields, personModel, PROJECT, PROJECT_COMPANY } from "./xlsx-fixture";
 
 const options = xlsxTargetOptions(model, PROJECT, labels);
 
@@ -69,5 +69,50 @@ describe("xlsx column auto-mapping", () => {
 
   it("reports targets chosen by more than one column", () => {
     expect(duplicateXlsxTargets(["a", XLSX_SKIP_KEY, "a", "b", XLSX_SKIP_KEY])).toEqual(["a"]);
+  });
+});
+
+describe("xlsx full-name split", () => {
+  const split = `nameParts:${personFields.first.id}:${personFields.last.id}`;
+  const personOptions = xlsxTargetOptions(personModel, PERSON, labels);
+
+  it("offers first and last name together only when a list keeps them apart", () => {
+    expect(personOptions.find((option) => option.key === split)).toEqual({
+      key: split,
+      label: "First name + Last name",
+      target: { kind: "nameParts", firstFieldId: personFields.first.id, lastFieldId: personFields.last.id },
+    });
+    expect(options.some((option) => option.target.kind === "nameParts")).toBe(false);
+  });
+
+  it("maps a full-name column onto both name fields when the name itself is calculated", () => {
+    expect(autoMapXlsxColumns(["Full name", "Email"], personOptions)).toEqual([
+      split,
+      `field:${personFields.email.id}`,
+    ]);
+    expect(autoMapXlsxColumns(["Name"], personOptions)).toEqual([split]);
+    expect(autoMapXlsxColumns(["Vollständiger Name"], personOptions)).toEqual([split]);
+  });
+
+  it("prefers a writable name field for a full-name column", () => {
+    const writableName = {
+      ...personModel,
+      fields: personModel.fields.map((field) =>
+        field.id === personFields.name.id ? { ...field, behavior: { kind: "input" as const } } : field,
+      ),
+    };
+    expect(autoMapXlsxColumns(["Full name"], xlsxTargetOptions(writableName, PERSON, labels))).toEqual([
+      `field:${personFields.name.id}`,
+    ]);
+  });
+
+  it("never splits into a name field another column already fills", () => {
+    expect(autoMapXlsxColumns(["Full name", "First name"], personOptions)).toEqual([
+      XLSX_SKIP_KEY,
+      `field:${personFields.first.id}`,
+    ]);
+    expect(
+      duplicateXlsxTargets([split, `field:${personFields.first.id}`, XLSX_SKIP_KEY, `field:${personFields.email.id}`]),
+    ).toEqual([split, `field:${personFields.first.id}`]);
   });
 });
