@@ -149,11 +149,14 @@ const OnboardingWizardContent = observer(
     const showFooterNav = currentStep === "invite";
     const planStage = currentStep === "setup" && setupStage === "plan";
     const title = planStage ? t("WorkspaceSetup.plan.title") : t(`OnboardingWizard.steps.${currentStep}.title`);
+    const planPending = currentStep === "setup" && (setupStage === "planning" || setupStage === "planFailed");
     const subtitle = planStage
       ? t("WorkspaceSetup.plan.subtitle")
-      : currentStep === "profile" && isInvited
-        ? t("OnboardingWizard.steps.profile.invitedSubtitle")
-        : t(`OnboardingWizard.steps.${currentStep}.subtitle`);
+      : planPending
+        ? t("OnboardingWizard.steps.setup.planningSubtitle")
+        : currentStep === "profile" && isInvited
+          ? t("OnboardingWizard.steps.profile.invitedSubtitle")
+          : t(`OnboardingWizard.steps.${currentStep}.subtitle`);
 
     return (
       <AppCard

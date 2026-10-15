@@ -2996,6 +2996,7 @@
         "title": "Rendi tuo questo spazio di lavoro"
       },
       "setup": {
+        "planningSubtitle": "Le tue risposte sono salvate. Mate le trasforma in un piano per il tuo workspace, che controlli prima che venga creato qualcosa.",
         "subtitle": "Alcune brevi domande su come vendi. Quello che abbiamo potuto leggere sul tuo sito è già compilato: per lo più devi solo confermare.",
         "title": "Configura il tuo workspace"
       }

@@ -189,6 +189,17 @@ describe("OnboardingWizard", () => {
     expect(html).toContain("max-w-5xl");
   });
 
+  it.each(["planning", "planFailed"] as const)(
+    "describes the saved answers instead of the questions while %s",
+    (stage) => {
+      testContext.stage = stage;
+      const html = renderWizard({ profileCompleted: true, setupStatus: AVAILABLE });
+
+      expect(html).toContain("OnboardingWizard.steps.setup.planningSubtitle");
+      expect(html).not.toContain("OnboardingWizard.steps.setup.subtitle");
+    },
+  );
+
   it("renders the build full screen without the wizard card", () => {
     testContext.stage = "build";
     const html = renderWizard({ profileCompleted: true, setupStatus: AVAILABLE });
