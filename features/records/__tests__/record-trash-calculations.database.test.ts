@@ -847,6 +847,56 @@ describeDatabase("record trash calculations", () => {
     expect(await f.inconsistencies()).toEqual([]);
   }, 180_000);
 
+  it("3e: many-to-many links and the rollups over them follow both sides into Trash and back", async () => {
+    const f = await fixture();
+    const contact = (name: string) =>
+      f.created({
+        action: "create",
+        typeId: f.id("contact"),
+        fields: [{ fieldId: f.id("contact.firstName"), value: text(name) }],
+      });
+    const ada = await contact("Ada");
+    const bob = await contact("Bob");
+    const withContacts = (name: string, amount: string, contacts: RecordRef[]) =>
+      f.created({
+        action: "create",
+        typeId: f.id("deal"),
+        fields: [
+          { fieldId: f.id("deal.name"), value: text(name) },
+          { fieldId: f.id("deal.amount"), value: decimal(amount) },
+        ],
+        links: contacts.map((record) => ({
+          relationId: f.id("deal.contacts"),
+          direction: "outgoing" as const,
+          record,
+        })),
+      });
+    const shared = await withContacts("Shared", "10", [ada, bob]);
+    await withContacts("Ada only", "5", [ada]);
+    const rollups = ["contact.dealCount", "contact.dealSum"];
+    expect(await f.values(ada, rollups)).toEqual({ "contact.dealCount": 2, "contact.dealSum": 15 });
+    expect(await f.values(bob, rollups)).toEqual({ "contact.dealCount": 1, "contact.dealSum": 10 });
+
+    const dealDelete = await f.remove(shared);
+    expect(await f.values(ada, rollups)).toEqual({ "contact.dealCount": 1, "contact.dealSum": 5 });
+    expect(await f.values(bob, rollups)).toEqual({ "contact.dealCount": 0, "contact.dealSum": 0 });
+    const contactDelete = await f.remove(ada);
+    expect(await f.inconsistencies()).toEqual([]);
+
+    expect(await f.restore({ batchId: dealDelete.trashBatchId as string })).toMatchObject({
+      ok: true,
+      data: { restoredRecords: 1, droppedLinks: 0, blocked: [] },
+    });
+    expect(await f.values(bob, rollups)).toEqual({ "contact.dealCount": 1, "contact.dealSum": 10 });
+    expect(await f.inconsistencies()).toEqual([]);
+    expect(await f.restore({ batchId: contactDelete.trashBatchId as string })).toMatchObject({
+      ok: true,
+      data: { restoredRecords: 1, droppedLinks: 0, blocked: [] },
+    });
+    expect(await f.values(ada, rollups)).toEqual({ "contact.dealCount": 2, "contact.dealSum": 15 });
+    expect(await f.inconsistencies()).toEqual([]);
+  }, 180_000);
+
   it("4: sub-list rows follow their deal and roll up into the organization across Trash", async () => {
     const f = await fixture();
     const acme = await organization(f, "Acme");
@@ -1034,6 +1084,24 @@ describeDatabase("record trash calculations", () => {
       "organization.quantity": 540,
     });
     for (const parent of parents) expect(await f.value(parent, "deal.totalQuantity")).toBe(180);
+    expect(await f.inconsistencies()).toEqual([]);
+
+    const purged = await f.removeMany(parents, true);
+    if (!purged.ok || purged.data.status !== "pending") throw new Error(JSON.stringify(purged));
+    expect(await f.drain(purged.data.operationId)).toMatchObject({ state: "completed", errorCode: null });
+    expect(await f.items(purged.data.operationId)).toEqual([]);
+    expect(
+      await runWithoutTenant(() =>
+        prisma.crmRecord.count({
+          where: { companyId: f.seed.company.id, typeId: { in: [f.id("deal"), f.id("lineItem")] } },
+        }),
+      ),
+    ).toBe(0);
+    expect(await f.values(acme, ["organization.dealCount", "organization.dealSum", "organization.quantity"])).toEqual({
+      "organization.dealCount": 0,
+      "organization.dealSum": 0,
+      "organization.quantity": 0,
+    });
     expect(await f.inconsistencies()).toEqual([]);
   }, 900_000);
 
