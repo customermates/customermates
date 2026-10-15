@@ -6,9 +6,9 @@ import type { SetupPageKind } from "./workspace-setup-knowledge";
 
 import { WikiSynthesisBriefSource } from "@/ee/wiki-crawl/wiki-synthesis-brief";
 import { getTranslator } from "@/i18n/get-translator";
-import { appLocaleOrDefault } from "@/i18n/locale-registry";
 
 import { setupKnowledgeBrief } from "./workspace-setup-knowledge";
+import { setupLanguage } from "./workspace-setup-inputs";
 
 const UNCONFIRMED: ReadonlySet<WorkspaceSetupStatus> = new Set(["interview", "planning", "planned"]);
 
@@ -28,7 +28,7 @@ export class WorkspaceSetupKnowledgeBrief extends WikiSynthesisBriefSource {
     if (setup.status === "rolledBack") return { status: "cancelled" };
     if (UNCONFIRMED.has(setup.status)) return { status: giveUp ? "none" : "wait" };
     if (!setup.plan) return { status: "none" };
-    const locale = appLocaleOrDefault(crawl.locale);
+    const locale = setupLanguage(setup.answers, crawl.locale);
     const t = await getTranslator(locale, "WikiSetup.generated");
     const titles: Record<Exclude<SetupPageKind, "competitor">, string> = {
       overview: t("roles.company_overview"),

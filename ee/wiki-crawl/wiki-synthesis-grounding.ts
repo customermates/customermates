@@ -9,8 +9,12 @@ export const WIKI_SYNTHESIS_PLAN_INSTRUCTION = [
   "Plan one page per distinct offering (product, service or package) the website evidences, citing the one to six sources that describe it. Combine translations of the same page. Do not plan an offering that is only a navigation label.",
   "Plan procedures only when a source describes concrete customer-facing steps.",
   "Sources marked imported are already in the Knowledge Base word for word; cite them only when another page needs them.",
-  "Write titles in the Knowledge Base language, unique and specific.",
+  "Titles are unique and specific.",
 ].join(" ");
+
+export function wikiSynthesisTitleLanguage(language: string): string {
+  return `Write every title in ${language}: translate the names of offerings, packages and procedures taken from the website, and keep only brand and product names in their original spelling.`;
+}
 
 export const WIKI_SYNTHESIS_INITIAL_PLAN_INSTRUCTION =
   "Also plan exactly one page for each foundation role, each citing the most relevant one to six sources: company_overview, customers_and_use_cases (customer types, industries, cases), sales_messaging (value propositions, differentiators and frequently asked questions), voice_and_tone (how the company writes, observed from its own wording). End with exactly one operating_guide citing the homepage and contact or about sources.";

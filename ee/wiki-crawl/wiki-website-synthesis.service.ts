@@ -42,6 +42,7 @@ import {
   WIKI_SYNTHESIS_INITIAL_PLAN_INSTRUCTION,
   WIKI_SYNTHESIS_PAGE_INSTRUCTION,
   WIKI_SYNTHESIS_PLAN_INSTRUCTION,
+  wikiSynthesisTitleLanguage,
   wikiSynthesisRoleGuidance,
 } from "./wiki-synthesis-grounding";
 import {
@@ -309,6 +310,7 @@ export class WikiWebsiteSynthesisService extends UserAccessor {
     );
     const system = [
       WIKI_SYNTHESIS_PLAN_INSTRUCTION,
+      wikiSynthesisTitleLanguage(languageName(locale)),
       brief
         ? WIKI_SYNTHESIS_BRIEF_PLAN_INSTRUCTION
         : crawl.mode === "initial"

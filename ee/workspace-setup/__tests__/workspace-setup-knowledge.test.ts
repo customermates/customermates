@@ -145,4 +145,22 @@ describe("Workspace setup brief for its website import", () => {
       "Compared with Pixel & Co",
     ]);
   });
+
+  it("titles fallback pages in the workspace language even when the website import started in another one", async () => {
+    const german = setup({
+      answers: {
+        ...answers,
+        language: { source: "user", confidence: 1, value: { format: "singleChoice", value: "de" } },
+      },
+    });
+    const state = await source(german).brief({ ...crawl, locale: "en" }, false);
+    if (state.status !== "ready") throw new Error(state.status);
+    expect(state.brief.topics.map(({ title: pageTitle }) => pageTitle)).toEqual([
+      "About the agency",
+      "Häufig gestellte Fragen",
+      "Sprache und Tonalität",
+      "Compared with Studio North",
+      "Im Vergleich: Pixel & Co",
+    ]);
+  });
 });

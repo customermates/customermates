@@ -796,6 +796,15 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
       }),
     );
     expect(names.map((name) => name.textValue).filter((name) => name === "Relaunch")).toEqual([]);
+    const samplePrompts = state.generate.mock.calls
+      .map(([args]) => args as { label: string; prompt: string })
+      .filter((args) => args.label === "Workspace setup sample records")
+      .map((args) => args.prompt);
+    expect(samplePrompts.length).toBeGreaterThan(0);
+    for (const prompt of samplePrompts) {
+      expect(prompt).toContain("Company facts:");
+      expect(prompt).not.toContain("Relaunch");
+    }
 
     await ws.run(() =>
       di.getWorkspaceSetupRepo().mutate(setupId, (current) => ({

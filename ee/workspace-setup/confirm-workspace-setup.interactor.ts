@@ -32,6 +32,9 @@ export class ConfirmWorkspaceSetupInteractor extends AuthenticatedInteractor<
   @Write({ input: ConfirmWorkspaceSetupSchema, tx: false })
   async invoke(data: ConfirmWorkspaceSetupData): Validated<{ setupId: string }> {
     if (workspaceSetupUnavailability()) return fail(CustomErrorCode.workspaceSetupUnavailable);
+    const pending = await this.repo.get(data.setupId);
+    if (pending?.status === "planned" && pending.crawlId)
+      await this.repo.setCrawlLocale(pending.crawlId, setupLanguage(pending.answers));
     const confirmed = await this.repo.mutate(data.setupId, (setup) => {
       if (setup.status !== "planned" || !setup.plan || setup.planRevision !== data.planRevision) return null;
       return {
@@ -46,8 +49,6 @@ export class ConfirmWorkspaceSetupInteractor extends AuthenticatedInteractor<
         return { ok: true, data: { setupId: data.setupId } };
       return failConflict(CustomErrorCode.workspaceSetupConflict);
     }
-    if (confirmed.setup.crawlId)
-      await this.repo.setCrawlLocale(confirmed.setup.crawlId, setupLanguage(confirmed.setup.answers));
 
     await this.background.dispatch("build-workspace-setup", { setupId: data.setupId, userId: this.userId });
     return { ok: true, data: { setupId: data.setupId } };

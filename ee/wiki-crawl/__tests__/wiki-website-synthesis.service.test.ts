@@ -600,6 +600,10 @@ describe("website Knowledge Base synthesis from a workspace setup plan", () => {
     expect(await runWithTenant(createMockUser({ companyId: "company-setup" }), () => service.plan("crawl-1"))).toBe(6);
     const call = model.generate.mock.calls[0][0] as { system: string; prompt: string };
     expect(call.system).toContain("required pages");
+    expect(call.system).toContain(
+      "Write every title in English: translate the names of offerings, packages and procedures taken from the website",
+    );
+    expect(call.system.split("Write every title in")).toHaveLength(2);
     expect(call.prompt).toContain('"outline":["What we do","Who we serve"]');
     expect(call.prompt).toContain('Additional roles: ["offering"]');
     expect(crawl().topics?.map(({ title, role, setupKey }) => [title, role, setupKey])).toEqual([
