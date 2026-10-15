@@ -227,7 +227,7 @@ describeDatabase("operator workspace channel history", { timeout: 120_000 }, () 
     expect(stats).toMatchObject({ lists: 0, records: 0 });
   });
 
-  it("counts live lists and their ordinary records whatever the workspace calls them", async () => {
+  it("counts live lists and the ordinary records in them whatever the workspace calls them", async () => {
     const repo = createTestOperatorRepo();
     const companyId = randomUUID();
     companyIds.push(companyId);
@@ -249,6 +249,7 @@ describeDatabase("operator workspace channel history", { timeout: 120_000 }, () 
           { companyId, typeId: positions },
           { companyId, typeId: projects, deletedAt: new Date() },
           { companyId, typeId: projects, protectedKind: "membershipAuthorization" },
+          { companyId, typeId: retired },
         ],
       });
     });
@@ -256,6 +257,6 @@ describeDatabase("operator workspace channel history", { timeout: 120_000 }, () 
     const stats = await runWithOperator(operatorActor(), () => repo.getWorkspaceStatsUnscoped({ companyId }));
     assertAdmitted(stats);
 
-    expect(stats).toMatchObject({ lists: 1, records: 3 });
+    expect(stats).toMatchObject({ lists: 1, records: 2 });
   });
 });

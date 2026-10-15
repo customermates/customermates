@@ -60,7 +60,7 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
   const { items, layouts } = widgetsStore;
   const canAddWidget = widgetModalStore.availableKinds.length > 0;
   const navigation = recordWorkspaceStore.navigation;
-  const needsFirstList = navigation?.canManageSchema === true && navigation.types.length === 0;
+  const needsFirstList = navigation?.canManageSchema === true && !navigation.hasLists;
   const router = useRouter();
   useEffect(() => {
     if (recordTypes) widgetModalStore.setRecordTypes(recordTypes);

@@ -5,6 +5,7 @@ export const RecordNavigationSchema = z
     companyId: z.uuid(),
     schemaRevision: z.number().int().nonnegative(),
     canManageSchema: z.boolean(),
+    hasLists: z.boolean(),
     types: z.array(
       z
         .object({

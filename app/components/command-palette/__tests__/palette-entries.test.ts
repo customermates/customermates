@@ -67,6 +67,7 @@ describe("workspace palette entries", () => {
         companyId: "00000000-0000-4000-8000-000000000009",
         schemaRevision: 3,
         canManageSchema: true,
+        hasLists: true,
         types: [
           {
             id: DEALS,

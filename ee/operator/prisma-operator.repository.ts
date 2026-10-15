@@ -1297,7 +1297,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
     >`
       SELECT
         (SELECT COUNT(*) FROM "RecordTypeDefinition" WHERE "companyId" = ${data.companyId} AND NOT "archived" AND NOT "embedded")::int AS "lists",
-        (SELECT COUNT(*) FROM "CrmRecord" WHERE "companyId" = ${data.companyId} AND "deletedAt" IS NULL AND "protectedKind" IS NULL)::int AS "records",
+        (SELECT COUNT(*) FROM "CrmRecord" r JOIN "RecordTypeDefinition" t ON t."companyId" = r."companyId" AND t."id" = r."typeId" WHERE r."companyId" = ${data.companyId} AND r."deletedAt" IS NULL AND r."protectedKind" IS NULL AND NOT t."archived" AND NOT t."embedded")::int AS "records",
         (SELECT COUNT(*) FROM "MessagingThread" WHERE "companyId" = ${data.companyId})::int AS "messagingThreads",
         (SELECT COUNT(*) FROM "MessagingMessage" WHERE "companyId" = ${data.companyId})::int AS "messagingMessages",
         (SELECT COUNT(*) FROM "AgentConversation" WHERE "companyId" = ${data.companyId})::int AS "agentConversations",

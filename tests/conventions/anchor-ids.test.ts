@@ -113,6 +113,7 @@ describe("interface anchor id fidelity", () => {
       companyId: "00000000-0000-4000-8000-000000000002",
       schemaRevision: 1,
       canManageSchema: true,
+      hasLists: true,
       types: [
         {
           id: typeId,

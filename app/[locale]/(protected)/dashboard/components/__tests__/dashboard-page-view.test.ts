@@ -91,7 +91,7 @@ function renderDashboard(
     canAdd?: boolean;
     touch?: boolean;
     withItem?: boolean;
-    navigation?: { canManageSchema: boolean; types: unknown[] } | null;
+    navigation?: { canManageSchema: boolean; hasLists: boolean; types: unknown[] } | null;
   } = {},
 ) {
   const items = options.withItem ? [widget()] : [];
@@ -187,7 +187,7 @@ describe("DashboardPageView", () => {
   });
 
   it("offers Create list to people who manage the data model of a workspace without lists", () => {
-    const html = renderDashboard("ready", { navigation: { canManageSchema: true, types: [] } });
+    const html = renderDashboard("ready", { navigation: { canManageSchema: true, hasLists: false, types: [] } });
     const props = harness.pageStateProps.mock.lastCall?.[0] as PageStateProps & {
       action: ReactElement<{ onClick: () => void }>;
     };
@@ -199,10 +199,11 @@ describe("DashboardPageView", () => {
     expect(harness.push).toHaveBeenCalledWith("/configure?create=true");
   });
 
-  it("keeps the widget action when lists exist or the data model is managed by others", () => {
+  it("keeps the widget action when lists exist, even hidden or unreadable, or the data model is managed by others", () => {
     for (const navigation of [
-      { canManageSchema: true, types: [{ id: "projects" }] },
-      { canManageSchema: false, types: [] },
+      { canManageSchema: true, hasLists: true, types: [{ id: "projects" }] },
+      { canManageSchema: true, hasLists: true, types: [] },
+      { canManageSchema: false, hasLists: false, types: [] },
     ]) {
       const html = renderDashboard("ready", { navigation });
 

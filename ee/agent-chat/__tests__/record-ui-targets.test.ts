@@ -10,6 +10,7 @@ const navigation = {
   companyId: "company",
   schemaRevision: 1,
   canManageSchema: true,
+  hasLists: true,
   types: [
     {
       id: typeId,

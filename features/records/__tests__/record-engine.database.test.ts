@@ -8608,7 +8608,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     expect(await f.run(() => f.navigation.invoke(), f.member)).toMatchObject({
       ok: true,
-      data: { types: [], canManageSchema: true },
+      data: { types: [], canManageSchema: true, hasLists: true },
     });
     expect(
       await f.run(() =>
@@ -8626,6 +8626,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ).toMatchObject({ ok: true });
     const hidden = await f.run(() => f.navigation.invoke());
     expect(hidden.ok && hidden.data.types.some((type) => type.id === service.id)).toBe(false);
+    expect(hidden.ok && hidden.data.hasLists).toBe(true);
     expect(await f.run(() => f.editor.invoke({ typeId: service.id }))).toMatchObject({ ok: true });
   });
 

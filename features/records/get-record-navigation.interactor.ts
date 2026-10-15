@@ -31,6 +31,7 @@ export class GetRecordNavigationInteractor extends AuthenticatedInteractor<void,
             companyId: this.companyId,
             schemaRevision: model.revision,
             canManageSchema: policy.canManageSchema,
+            hasLists: model.types.some((type) => !type.archived && !type.embedded),
             types: model.types
               .filter(
                 (type) => !type.archived && !type.embedded && type.navigationVisible && policy.canReadType(type.id),
