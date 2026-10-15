@@ -642,8 +642,8 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
       }),
     );
     if (!adjusted.ok) throw new Error(JSON.stringify(adjusted.error));
-    await draftPlan(ws, setupId);
     await ws.run(() => di.getWorkspaceSetupRepo().mutate(setupId, () => ({ crawlId: crawl.id })));
+    await draftPlan(ws, setupId);
     const synthesis = di.getWikiWebsiteSynthesisService();
     expect(await ws.run(() => synthesis.plan(crawl.id))).toBe("wait");
 

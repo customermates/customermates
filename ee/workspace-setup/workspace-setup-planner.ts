@@ -83,6 +83,7 @@ export type SetupPlanInput = {
   answers: SetupAnswers;
   followUps: Array<{ question: string; format: string; options?: unknown; answer: unknown }>;
   sources: SetupCrawlSource[];
+  website: boolean;
   sheet: LoadedSpreadsheet | null;
 };
 
@@ -161,7 +162,9 @@ export class WorkspaceSetupPlanner extends UserAccessor {
       case "model":
         return this.run(this.modelPart(input, context), state);
       case "knowledge":
-        return this.run(this.knowledgePart(input, context), state);
+        return input.website
+          ? this.run(this.knowledgePart(input, context), state)
+          : { ...state, attempts: state.attempts + 1, value: EMPTY_PLAN_KNOWLEDGE_WIRE };
       case "views":
         return drafts.model
           ? this.run(this.viewsPart(input, context, drafts.model, drafts.knowledge), state)

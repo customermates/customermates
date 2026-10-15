@@ -33,6 +33,7 @@ const input: SetupPlanInput = {
   answers: { companyName: { source: "user", confidence: 1, value: { format: "shortText", value: "Studio" } } },
   followUps: [],
   sources: [{ url: "https://studio.example/", title: "Studio", text: "We design websites.", category: "about" }],
+  website: true,
   sheet: null,
 };
 
@@ -104,6 +105,14 @@ describe("workspace setup planner", () => {
     expect(views).toContain('Automatic fields: ["contact.channels","contact.avatar","deal.value","service.price"]');
     expect(calls()[0].prompt).toContain("Workspace language: English (en).");
     expect(calls()[0].prompt).not.toContain("Answers drafted from the website");
+  });
+
+  it("plans no Knowledge Base pages without a website and spends no model call on them", async () => {
+    const { answer, calls, plan } = harness();
+    answer();
+    const planned = await plan({ ...input, sources: [], website: false });
+    expect(planned.ok && planned.plan.knowledgeBase.pages).toEqual([]);
+    expect(calls().map(({ label }) => label)).toEqual([PLAN_PART_LABELS.model, PLAN_PART_LABELS.views]);
   });
 
   it("names the website language when the answers were drafted in another language", async () => {

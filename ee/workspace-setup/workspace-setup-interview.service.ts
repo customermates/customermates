@@ -302,6 +302,7 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
         answer: setup.interview.followUpAnswers.find((answer) => answer.id === question.id)?.value ?? null,
       })),
       sources: setup.crawlId ? await this.repo.crawlSources(setup.crawlId) : [],
+      website: setup.crawlId !== null,
       sheet,
     };
   }
