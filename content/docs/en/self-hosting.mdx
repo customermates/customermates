@@ -158,6 +158,8 @@ The `latest` tag is rebuilt from the main branch whenever it changes, so every p
 
 To decide when updates happen, pin the image in `docker-compose.yml` to a build tag instead of `latest`. Every image is also tagged `sha-` followed by the short commit id, for example `ghcr.io/customermates/customermates:sha-<commit>`.
 
+From a clone of the repository, `scripts/selfhost-update.sh` runs this update for you: it writes a backup to `backups/`, then pulls the images and recreates the containers. Next to it, `scripts/selfhost-setup.sh` creates `.env` from the template, checks the required values and starts the instance, `scripts/selfhost-restart.sh` recreates the app container so it picks up `.env` changes, and `scripts/selfhost-reset.sh` deletes all data like `docker compose down -v` once you type `RESET`.
+
 ## How do I apply .env changes? [#apply-env-changes]
 
 Run `docker compose up -d`. It recreates the containers whose configuration changed, so they start with the new `.env` values. `docker compose restart` keeps the old environment and does not apply `.env` changes.

@@ -15,7 +15,16 @@ if ! docker compose version >/dev/null 2>&1; then
   exit 1
 fi
 
-docker compose pull app
-docker compose run --rm app npx prisma migrate deploy
-docker compose up -d --no-deps app
+BACKUP="backups/customermates-$(date +%Y%m%d-%H%M%S).sql.gz"
+mkdir -p backups
+trap 'rm -f "$BACKUP.partial"' EXIT
+if ! docker compose exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' | gzip > "$BACKUP.partial"; then
+  echo "ERROR: the database backup failed, so nothing was updated."
+  exit 1
+fi
+mv "$BACKUP.partial" "$BACKUP"
+echo "Backup written to $BACKUP"
+
+docker compose pull
+docker compose up -d
 docker compose ps

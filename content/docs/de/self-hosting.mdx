@@ -158,6 +158,8 @@ Das Tag `latest` wird bei jeder Änderung am Main-Branch neu gebaut, jedes Pull 
 
 Um selbst zu bestimmen, wann Updates kommen, pinnen Sie das Image in `docker-compose.yml` auf ein Build-Tag statt `latest`. Jedes Image trägt zusätzlich das Tag `sha-` mit der kurzen Commit-ID, zum Beispiel `ghcr.io/customermates/customermates:sha-<commit>`.
 
+In einem Klon des Repositorys erledigt `scripts/selfhost-update.sh` dieses Update für Sie: Es schreibt ein Backup nach `backups/`, lädt dann die Images und erstellt die Container neu. Daneben legt `scripts/selfhost-setup.sh` die `.env` aus der Vorlage an, prüft die Pflichtwerte und startet die Instanz, `scripts/selfhost-restart.sh` erstellt den App-Container neu, damit er `.env`-Änderungen übernimmt, und `scripts/selfhost-reset.sh` löscht wie `docker compose down -v` alle Daten, sobald Sie `RESET` eingeben.
+
 ## Wie wende ich Änderungen an der .env an? [#apply-env-changes]
 
 Führen Sie `docker compose up -d` aus. Der Befehl erstellt die Container neu, deren Konfiguration sich geändert hat, sodass sie mit den neuen `.env`-Werten starten. `docker compose restart` behält die alte Umgebung und übernimmt `.env`-Änderungen nicht.
