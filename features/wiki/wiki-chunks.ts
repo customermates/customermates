@@ -14,6 +14,32 @@ export type WikiSemanticChunk = {
   contentHash: string;
 };
 
+function nextIndex(text: string, search: string, from: number): number {
+  const found = text.indexOf(search, from);
+  return found < 0 ? text.length : found;
+}
+
+function withoutLinkTargets(text: string): string {
+  let result = "";
+  let from = 0;
+  let paren = -1;
+  let newline = -1;
+  for (let index = text.indexOf("]("); index >= 0; ) {
+    const start = index + 2;
+    if (paren < start) paren = nextIndex(text, ")", start);
+    if (paren === text.length) break;
+    if (newline < start) newline = nextIndex(text, "\n", start);
+    if (newline < paren) {
+      index = text.indexOf("](", newline + 1);
+      continue;
+    }
+    result += text.slice(from, index + 1);
+    from = paren + 1;
+    index = text.indexOf("](", from);
+  }
+  return result + text.slice(from);
+}
+
 export function wikiSemanticChunks(
   title: string,
   markdown: string,
@@ -23,9 +49,7 @@ export function wikiSemanticChunks(
   for (const section of wikiMarkdownSections(markdown)) {
     const body = markdown.slice(section.offset, section.end);
     const newline = body.indexOf("\n");
-    const content = (section.level === 0 ? body : newline < 0 ? "" : body.slice(newline + 1))
-      .replace(/\]\([^)\n]*\)/gu, "]")
-      .trim();
+    const content = withoutLinkTargets(section.level === 0 ? body : newline < 0 ? "" : body.slice(newline + 1)).trim();
     const heading = section.path.at(-1) ?? "";
     if (!content && !heading) continue;
     const label = heading && heading !== title ? `${title} > ${heading}` : title;
