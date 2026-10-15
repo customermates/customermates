@@ -13,6 +13,7 @@ import type { WikiPageDto } from "./wiki.schema";
 import type { WikiImportPageRepo, WikiImportProvenance } from "./wiki-import-page.repo";
 import type { GetWikiSuggestionSignalRepo } from "./get-wiki-suggestion-signal.repo";
 import type { WikiIndexClaimRepo } from "./wiki-index-claim.repo";
+import type { PurgeWikiPageProposalsRepo } from "./purge-wiki-page-proposals.repo";
 import type { WikiIndexPage } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
 
 import { Prisma, Resource } from "@/generated/prisma";
@@ -46,6 +47,7 @@ export class PrismaWikiPageRepo
   constructor(
     private readonly permissions: PermissionService,
     private readonly scopedCompanyId?: string,
+    private readonly proposals?: PurgeWikiPageProposalsRepo,
   ) {
     super();
   }
@@ -77,9 +79,13 @@ export class PrismaWikiPageRepo
   }
 
   async purgeTrashed(ids: string[]) {
-    await this.prisma.wikiPage.deleteMany({
+    const trashed = await this.prisma.wikiPage.findMany({
       where: { id: { in: ids }, companyId: this.companyId, deletedAt: { not: null } },
+      select: { id: true },
     });
+    const pageIds = trashed.map((page) => page.id);
+    await this.proposals?.deleteProposalsOfPages(pageIds);
+    await this.prisma.wikiPage.deleteMany({ where: { id: { in: pageIds }, companyId: this.companyId } });
   }
 
   async findSuggestionWikiPage(): Promise<{ id: string } | null> {

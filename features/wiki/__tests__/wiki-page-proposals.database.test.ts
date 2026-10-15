@@ -7,7 +7,8 @@ import { createTranslator } from "next-intl";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { Action, Resource } from "@/generated/prisma";
-import { runWithTenant } from "@/core/decorators/tenant-context";
+import { runWithTenant, runWithoutTenant } from "@/core/decorators/tenant-context";
+import { getWikiPageRepo } from "@/core/di";
 import { ForbiddenError } from "@/core/errors/app-errors";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { EventService } from "@/features/event/event.service";
@@ -353,6 +354,42 @@ describeDatabase("Knowledge Base proposals on PostgreSQL", () => {
     expect(errorCode(await approve(proposal.id, admin))).toBe(CustomErrorCode.wikiProposalReviewed);
     expect(errorCode(await reject(proposal.id, admin))).toBe(CustomErrorCode.wikiProposalReviewed);
     expect(await storedPage(page.id)).toEqual({ title: "Tone", markdown: "Warm." });
+  });
+
+  it("deletes a page's proposals of every status when the page is purged from Trash", async () => {
+    const page = await createPage("Escalations", "Call the team lead.");
+    const live = await createPage("Holidays", "Closed on Sundays.");
+    const superseded = data(
+      await propose({
+        action: "update",
+        conversationId,
+        id: page.id,
+        expectedUpdatedAt: page.updatedAt,
+        markdown: "Call the on-call lead.",
+      }),
+    )[0];
+    const rejected = data(
+      await propose({ action: "delete", conversationId, id: page.id, expectedUpdatedAt: page.updatedAt }),
+    )[0];
+    expect(await reject(rejected.id, editor)).toMatchObject({ ok: true, data: { status: "rejected" } });
+    expect(await storedProposal(superseded.id)).toMatchObject({ status: "superseded" });
+    const kept = data(
+      await propose({
+        action: "update",
+        conversationId,
+        id: live.id,
+        expectedUpdatedAt: live.updatedAt,
+        markdown: "Closed on Sundays and public holidays.",
+      }),
+    )[0];
+    await client.query('UPDATE "WikiPage" SET "deletedAt" = CURRENT_TIMESTAMP WHERE "id" = $1', [page.id]);
+
+    await runWithoutTenant(() => getWikiPageRepo(companyId).purgeTrashed([page.id, live.id]));
+
+    const remaining = await client.query('SELECT "id" FROM "WikiPageProposal" WHERE "companyId" = $1', [companyId]);
+    expect(remaining.rows).toEqual([{ id: kept.id }]);
+    expect((await client.query('SELECT 1 FROM "WikiPage" WHERE "id" = $1', [page.id])).rowCount).toBe(0);
+    expect(await storedPage(live.id)).toEqual({ title: "Holidays", markdown: "Closed on Sundays." });
   });
 
   it("keeps proposals inside their company", async () => {

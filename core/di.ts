@@ -819,7 +819,8 @@ export const getRoutineRepo = (companyId?: string) =>
 export const getRoutineEventAccess = () => new PrismaRoutineEventAccess(getRecordRecipientReader());
 export const getWebhookDeliveryRepo = () => new PrismaWebhookDeliveryRepo(getRecordRecipientReader());
 export const getEventLogRepo = () => new PrismaEventLogRepo(getBackgroundTaskService());
-export const getWikiPageRepo = (companyId?: string) => new PrismaWikiPageRepo(getPermissionService(), companyId);
+export const getWikiPageRepo = (companyId?: string) =>
+  new PrismaWikiPageRepo(getPermissionService(), companyId, new PrismaWikiPageProposalRepo(companyId));
 export const getWikiSectionRepo = () => new PrismaWikiSectionRepo(getWikiPageRepo());
 export const getWikiKnowledgeGapRepo = () => new PrismaWikiKnowledgeGapRepo();
 export const getMessagingRepo = () =>

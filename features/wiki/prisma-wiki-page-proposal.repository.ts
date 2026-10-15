@@ -2,6 +2,7 @@ import type { RepoArgs } from "@/core/utils/types";
 import type { ProposeWikiPageChangesRepo } from "./propose-wiki-page-changes.repo";
 import type { GetWikiPageProposalsRepo } from "./get-wiki-page-proposals.repo";
 import type { ReviewWikiPageProposalRepo } from "./review-wiki-page-proposal.repo";
+import type { PurgeWikiPageProposalsRepo } from "./purge-wiki-page-proposals.repo";
 import type { WikiPageDto } from "./wiki.schema";
 import type { WikiPageProposalDto } from "./wiki-page-proposal.schema";
 
@@ -58,8 +59,25 @@ function isStale(proposal: WikiPageProposalDto, page: WikiPageDto | null) {
 
 export class PrismaWikiPageProposalRepo
   extends TenantRepository
-  implements ProposeWikiPageChangesRepo, GetWikiPageProposalsRepo, ReviewWikiPageProposalRepo
+  implements
+    ProposeWikiPageChangesRepo,
+    GetWikiPageProposalsRepo,
+    ReviewWikiPageProposalRepo,
+    PurgeWikiPageProposalsRepo
 {
+  constructor(private readonly scopedCompanyId?: string) {
+    super();
+  }
+
+  override get companyId(): string {
+    return this.scopedCompanyId ?? super.companyId;
+  }
+
+  async deleteProposalsOfPages(pageIds: string[]) {
+    if (pageIds.length === 0) return;
+    await this.prisma.wikiPageProposal.deleteMany({ where: { companyId: this.companyId, pageId: { in: pageIds } } });
+  }
+
   async proposeChanges(data: RepoArgs<ProposeWikiPageChangesRepo, "proposeChanges">) {
     let drafts: ProposalDraft[];
     if (data.action === "create") {
