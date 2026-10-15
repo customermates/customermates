@@ -2,9 +2,11 @@ import { createHash } from "node:crypto";
 
 import { retrievalChunkText, retrievalWindows } from "@/core/retrieval/retrieval-chunks";
 
-import { wikiMarkdownSections } from "./wiki-markdown-sections";
+import { boundedWikiText, wikiMarkdownSections } from "./wiki-markdown-sections";
 
 const WIKI_SEMANTIC_MAX_CHUNKS = 256;
+
+export type WikiSemanticChunkOptions = { maxChunks?: number; maxHeadingLength?: number };
 
 export type WikiSemanticChunk = {
   ordinal: number;
@@ -43,22 +45,28 @@ function withoutLinkTargets(text: string): string {
 export function wikiSemanticChunks(
   title: string,
   markdown: string,
-  maxChunks = WIKI_SEMANTIC_MAX_CHUNKS,
+  { maxChunks = WIKI_SEMANTIC_MAX_CHUNKS, maxHeadingLength }: WikiSemanticChunkOptions = {},
 ): WikiSemanticChunk[] {
   const chunks: WikiSemanticChunk[] = [];
   for (const section of wikiMarkdownSections(markdown)) {
+    if (chunks.length >= maxChunks) break;
+    const path =
+      maxHeadingLength === undefined
+        ? section.path
+        : section.path.map((heading) => boundedWikiText(heading, maxHeadingLength));
     const body = markdown.slice(section.offset, section.end);
     const newline = body.indexOf("\n");
     const content = withoutLinkTargets(section.level === 0 ? body : newline < 0 ? "" : body.slice(newline + 1)).trim();
-    const heading = section.path.at(-1) ?? "";
+    const heading = path.at(-1) ?? "";
     if (!content && !heading) continue;
     const label = heading && heading !== title ? `${title} > ${heading}` : title;
     for (const { text: part } of retrievalWindows(content)) {
+      if (chunks.length >= maxChunks) break;
       const text = retrievalChunkText(label, part);
       chunks.push({
         ordinal: chunks.length,
         offset: section.offset,
-        section: section.path.join(" > ") || null,
+        section: path.join(" > ") || null,
         text,
         contentHash: createHash("sha256").update(text).digest("hex"),
       });

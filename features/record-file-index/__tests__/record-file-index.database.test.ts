@@ -570,6 +570,28 @@ describeDatabase("record file contents indexed like the Knowledge Base", () => {
     expect(chunks).toEqual([{ text: "Copy.txt\n\nShared onboarding checklist." }]);
   });
 
+  it("indexes a file with a huge heading and keeps every stored chunk heading short", async () => {
+    mockEnv.APP_MODE = "self-hosted";
+    const w = await workspace();
+    const heading = Array.from({ length: 40_000 }, (_, index) => `term${index}`).join(" ");
+    const notes = await w.upload(
+      "Notes.md",
+      "text/markdown",
+      utf8(`# ${heading}\n\n${"Renewal terms for every plan. ".repeat(300)}`),
+    );
+    await w.createDeal("Huge heading", [notes]);
+    await w.index();
+    expect(await w.fileRow(notes)).toMatchObject({ extractionStatus: "done" });
+    const chunks = await runWithoutTenant(() =>
+      prisma.recordFileChunk.findMany({ where: { fileId: notes }, select: { heading: true, text: true } }),
+    );
+    expect(chunks.length).toBeGreaterThan(3);
+    for (const chunk of chunks) {
+      expect(chunk.heading?.length).toBeLessThanOrEqual(160);
+      expect(chunk.text.length).toBeLessThan(2_200);
+    }
+  });
+
   it("gives concurrent indexers different files", async () => {
     mockEnv.APP_MODE = "self-hosted";
     const w = await workspace();

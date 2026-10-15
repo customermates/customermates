@@ -116,7 +116,7 @@ describe("wiki Markdown parsing in linear time", () => {
     expect(elapsedMs(() => wikiMarkdownSections(spacedHeading))).toBeLessThan(500);
     expect(elapsedMs(() => wikiMarkdownSections(openBrackets))).toBeLessThan(500);
     expect(elapsedMs(() => wikiMarkdownSections(openLinks))).toBeLessThan(500);
-    expect(elapsedMs(() => wikiSemanticChunks("Notes", linkOpeners, 10_000))).toBeLessThan(500);
+    expect(elapsedMs(() => wikiSemanticChunks("Notes", linkOpeners, { maxChunks: 10_000 }))).toBeLessThan(500);
     expect(wikiMarkdownSections(spacedHeading)[0].path).toEqual(["a b"]);
   });
 });

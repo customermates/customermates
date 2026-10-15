@@ -1,7 +1,7 @@
 import { wikiCodePointBoundary } from "./wiki-page-chunk";
 
 const WIKI_OUTLINE_MAX_ENTRIES = 30;
-const WIKI_SECTION_MAX_LENGTH = 160;
+export const WIKI_SECTION_MAX_LENGTH = 160;
 const FENCE_LINE = /^[ \t]{0,3}(?:```|~~~)/u;
 const LINE_TERMINATOR = /[\r\u2028\u2029]/u;
 
@@ -14,7 +14,7 @@ type WikiMarkdownSection = {
 
 export type WikiOutlineEntry = { level: number; heading: string; offset: number };
 
-function boundedText(value: string, maxLength: number): string {
+export function boundedWikiText(value: string, maxLength: number): string {
   if (value.length <= maxLength) return value;
   return `${value.slice(0, wikiCodePointBoundary(value, maxLength - 1)).trimEnd()}…`;
 }
@@ -97,7 +97,7 @@ export function wikiOutline(markdown: string): WikiOutlineEntry[] {
     .slice(0, WIKI_OUTLINE_MAX_ENTRIES)
     .map((section) => ({
       level: section.level,
-      heading: boundedText(section.path.at(-1) ?? "", WIKI_SECTION_MAX_LENGTH),
+      heading: boundedWikiText(section.path.at(-1) ?? "", WIKI_SECTION_MAX_LENGTH),
       offset: section.offset,
     }));
 }

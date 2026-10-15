@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { RETRIEVAL_CHUNK_MAX_LENGTH } from "@/core/retrieval/retrieval-chunks";
 import { wikiSemanticChunks } from "@/features/wiki/wiki-chunks";
+import { WIKI_SECTION_MAX_LENGTH } from "@/features/wiki/wiki-markdown-sections";
 
 import { RECORD_FILE_MAX_CHUNKS, recordFileChunks } from "../record-file-chunks";
 
@@ -67,5 +68,22 @@ describe("record file chunks", () => {
       (_, index) => `## Part ${index}\n\nText ${index}`,
     ).join("\n\n");
     expect(recordFileChunks("parts.md", text)).toHaveLength(RECORD_FILE_MAX_CHUNKS);
+  });
+
+  it("caps a long heading in every chunk of a file, while Knowledge Base chunks keep the whole heading", () => {
+    const heading = Array.from({ length: 40_000 }, (_, index) => `w${index}`).join(" ");
+    const text = `# ${heading}\n\n${"The renewal terms apply to every plan. ".repeat(200)}`;
+    const chunks = recordFileChunks("notes.md", text);
+
+    expect(chunks.length).toBeGreaterThan(3);
+    for (const chunk of chunks) {
+      expect(chunk.heading?.length).toBeLessThanOrEqual(WIKI_SECTION_MAX_LENGTH);
+      expect(chunk.heading?.endsWith("…")).toBe(true);
+      expect(chunk.text.startsWith(`notes.md > ${chunk.heading}\n\n`)).toBe(true);
+      expect(chunk.text.length).toBeLessThanOrEqual(
+        `notes.md > \n\n`.length + WIKI_SECTION_MAX_LENGTH + RETRIEVAL_CHUNK_MAX_LENGTH,
+      );
+    }
+    expect(wikiSemanticChunks("notes.md", text)[0].section).toBe(heading);
   });
 });
