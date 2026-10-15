@@ -106,7 +106,7 @@ export function PipelineBoard({
 }) {
   const t = useTranslations();
   return (
-    <div className="grid grid-cols-[repeat(auto-fit,minmax(5rem,1fr))] gap-x-1.5 gap-y-3">
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(6.5rem,1fr))] gap-x-1.5 gap-y-3">
       {stages.map((stage, index) => {
         const cards = records.filter((_, at) => at % stages.length === index);
         return (
@@ -114,7 +114,7 @@ export function PipelineBoard({
             key={`${stage.label}-${index}`}
             className="flex min-w-0 animate-page-result-in flex-col gap-2 motion-reduce:animate-none"
           >
-            <div className="flex min-w-0 items-center gap-1.5">
+            <div className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1">
               <AppChip variant={stage.color ?? "secondary"}>{stage.label}</AppChip>
 
               {stage.weight !== null && stage.weight !== undefined ? (
