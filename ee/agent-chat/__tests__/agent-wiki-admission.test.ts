@@ -8,7 +8,7 @@ import { z } from "zod";
 import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
 import { Action, Resource } from "@/generated/prisma";
 import { runWithTenant } from "@/core/decorators/tenant-context";
-import { createMockUser } from "@/tests/helpers/mock-user";
+import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import { mockEntitlementService } from "@/tests/helpers/mock-entitlement-service";
 import {
   createMockDiModule,
@@ -223,6 +223,34 @@ describe("Workspace Wiki admission bootstrap", () => {
     ).toMatchObject({ ok: true, data: { disposition: "run" } });
     expect(state.catalog.invoke).toHaveBeenCalledTimes(2);
     expect(state.payload().wikiCatalog).toBe(serializeAgentWikiCatalog(catalogData("Edited after the first turn")));
+  });
+
+  it("stops reusing a conversation's catalog snapshot once the user loses Wiki Read", async () => {
+    const state = fixture();
+    const captured = serializeAgentWikiCatalog(catalogData());
+    state.repo.findInteractiveConversation.mockResolvedValue({
+      id: CONVERSATION_ID,
+      origin: "interactive",
+      modelKey: "balanced",
+      wikiCatalogSnapshot: captured,
+    });
+    state.catalog.invoke.mockRejectedValue(new ForbiddenError("Wiki Read denied"));
+
+    const result = await runWithTenant(createMockUserWithPermissions([]), () =>
+      state.interactor.invoke({
+        clientRequestId: CLIENT_REQUEST_ID,
+        text: "Draft with our voice",
+        retry: false,
+        locale: "en",
+        conversationId: CONVERSATION_ID,
+      }),
+    );
+
+    expect(result).toMatchObject({ ok: true, data: { disposition: "run" } });
+    expect(state.catalog.invoke).toHaveBeenCalledOnce();
+    expect(state.payload().wikiCatalog).toBeNull();
+    expect(JSON.stringify(state.payload())).not.toContain("Current workspace guidance");
+    expect(state.repo.admitAgentTurnOrThrow.mock.calls[0][0]).not.toHaveProperty("wikiCatalogSnapshot");
   });
 
   it("takes no snapshot of an empty Knowledge Base, so pages added later reach the conversation", async () => {

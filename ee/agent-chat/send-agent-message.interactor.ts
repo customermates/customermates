@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { rolePermits } from "@/core/base/permission.service";
 import { resolveRequestOrigin } from "@/core/config/environment";
 import { isInteractorFailure, type Validated } from "@/core/validation/validation.utils";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
@@ -124,7 +125,8 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     return this.userService.hasPermission(Resource.wiki, Action.create);
   }
 
-  private async wikiTurnContext(mode: AgentInvocationMode, snapshot: string | null) {
+  private async wikiTurnContext(mode: AgentInvocationMode, stored: string | null) {
+    const snapshot = stored && rolePermits(this.user.role, Resource.wiki, Action.readAll) ? stored : null;
     try {
       const captured = snapshot ? null : await this.wikiCatalog.invoke({ page: 1 });
       if (captured && !captured.ok) return { ok: false as const, failure: captured };
