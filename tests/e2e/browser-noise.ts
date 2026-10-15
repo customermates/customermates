@@ -14,20 +14,20 @@ export function webkitCancelledChunk(request: Pick<Request, "url" | "failure">):
   return CHUNK_PATH.test(pathname) ? pathname : undefined;
 }
 
-const ABORTED_PAGE_FETCH = new Set(["Load request cancelled", "NS_BINDING_ABORTED"]);
-const ABORTED_FETCH_REPORT = /^(?:TypeError: Load failed|JSHandle@object)$/;
+const ABORTED_PAGE_LOAD = new Set(["Load request cancelled", "NS_BINDING_ABORTED"]);
+const ABORTED_LOAD_REPORT = /^(?:TypeError: Load failed|JSHandle@object)$/;
 const LOOPBACK_HOSTS = new Set(["127.0.0.1", "localhost", "[::1]"]);
 
-/** WebKit and Firefox cancel the page's own fetches and chunk scripts, such as a route refresh, when a document navigation starts. */
+/** WebKit and Firefox cancel the page's own fetches and chunk scripts, a route refresh too, on a navigation. */
 export function isAbortedPageLoad(request: Pick<Request, "url" | "failure" | "resourceType">): boolean {
-  if (!ABORTED_PAGE_FETCH.has(request.failure()?.errorText ?? "")) return false;
+  if (!ABORTED_PAGE_LOAD.has(request.failure()?.errorText ?? "")) return false;
   if (!["fetch", "xhr", "script"].includes(request.resourceType())) return false;
   return LOOPBACK_HOSTS.has(new URL(request.url()).hostname);
 }
 
 /** React logs such a cancelled load from the framework chunk, as WebKit's TypeError or Firefox's bare error object. */
-export function isAbortedFetchReport(diagnostic: { kind: string; text: string; source: string }): boolean {
-  if (diagnostic.kind !== "console" || !ABORTED_FETCH_REPORT.test(diagnostic.text)) return false;
+export function isAbortedLoadReport(diagnostic: { kind: string; text: string; source: string }): boolean {
+  if (diagnostic.kind !== "console" || !ABORTED_LOAD_REPORT.test(diagnostic.text)) return false;
   try {
     return CHUNK_PATH.test(new URL(diagnostic.source).pathname);
   } catch {

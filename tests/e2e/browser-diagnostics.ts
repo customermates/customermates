@@ -2,7 +2,7 @@ import type { BrowserContext, ConsoleMessage, Page, Request, TestInfo } from "@p
 
 import {
   chunkLoadErrorChunk,
-  isAbortedFetchReport,
+  isAbortedLoadReport,
   isAbortedPageLoad,
   isAppConsoleError,
   isBenignPageError,
@@ -93,7 +93,7 @@ export class BrowserDiagnostics {
   private readonly rules: Array<{ rule: ExpectedDiagnosticRule; events: BrowserDiagnostic[] }> = [];
   private readonly views = new Map<Page, string[][]>();
   private readonly cancelledChunks = new Map<Page, Set<string>>();
-  private readonly abortedFetches = new Set<Page>();
+  private readonly abortedLoads = new Set<Page>();
   private readonly sinceLoad = new Map<Page, BrowserDiagnostic[]>();
 
   watch(context: BrowserContext) {
@@ -110,12 +110,12 @@ export class BrowserDiagnostics {
     });
     context.on("requestfailed", (request: Request) => {
       this.noteCancelledChunk(request);
-      this.noteAbortedFetch(request);
+      this.noteAbortedLoad(request);
     });
     const watchPage = (page: Page) =>
       page.on("domcontentloaded", () => {
         this.dropCancelledChunkErrors(page);
-        this.dropAbortedFetchReports(page);
+        this.dropAbortedLoadReports(page);
         this.sinceLoad.delete(page);
       });
     context.pages().forEach(watchPage);
@@ -179,15 +179,15 @@ export class BrowserDiagnostics {
     this.cancelledChunks.set(page, (this.cancelledChunks.get(page) ?? new Set()).add(chunk));
   }
 
-  private noteAbortedFetch(request: Request) {
+  private noteAbortedLoad(request: Request) {
     const page = isAbortedPageLoad(request) ? requestPage(request) : null;
-    if (page) this.abortedFetches.add(page);
+    if (page) this.abortedLoads.add(page);
   }
 
   /** A load the browser cancelled for a document navigation is reported before the next page loads; forget it then. */
-  private dropAbortedFetchReports(page: Page) {
-    if (!this.abortedFetches.delete(page)) return;
-    const reports = new Set((this.sinceLoad.get(page) ?? []).filter(isAbortedFetchReport));
+  private dropAbortedLoadReports(page: Page) {
+    if (!this.abortedLoads.delete(page)) return;
+    const reports = new Set((this.sinceLoad.get(page) ?? []).filter(isAbortedLoadReport));
     if (reports.size === 0) return;
     const kept = this.unexpected.filter((diagnostic) => !reports.has(diagnostic));
     this.unexpected.splice(0, this.unexpected.length, ...kept);
