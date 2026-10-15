@@ -28,7 +28,9 @@ export async function createNamedLogin(database: Client, workspaceName: string, 
 }
 
 export async function loginEmail(database: Client, login: BrowserWorkspace) {
-  const result = await database.query<{ email: string }>('SELECT email FROM "AuthUser" WHERE id=$1', [login.authUserId]);
+  const result = await database.query<{ email: string }>('SELECT email FROM "AuthUser" WHERE id=$1', [
+    login.authUserId,
+  ]);
   return result.rows[0].email;
 }
 
@@ -139,11 +141,17 @@ export async function addOrganization(page: Page, name: string) {
 }
 
 export function expectRefusedPageAction(page: Page, path: string) {
-  return BrowserDiagnostics.ofPage(page).expect({
+  BrowserDiagnostics.ofPage(page).expect({
     kind: "console",
     text: /^Failed to load resource: the server responded with a status of 500/,
     source: (url) => url.pathname === path,
     page,
     limit: Number.POSITIVE_INFINITY,
   });
+  const refusals: number[] = [];
+  page.on("response", (response) => {
+    if (new URL(response.url()).pathname === path && response.request().method() === "POST")
+      refusals.push(response.status());
+  });
+  return refusals;
 }
