@@ -66,7 +66,7 @@ export const SetupStart = observer(function SetupStart() {
         <p className="text-xs text-muted-foreground">{t("OnboardingWizard.profile.websiteDescription")}</p>
       </div>
 
-      <div className="flex flex-wrap justify-end gap-2">
+      <div className="flex flex-col-reverse gap-2 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-end">
         <Button
           disabled={store.isBusy}
           type="button"
