@@ -1378,4 +1378,62 @@ describeDatabase("record trash calculations", () => {
     expect((await f.rows(row))?.deletedAt).not.toBeNull();
     expect(await cardinality()).toEqual([]);
   }, 180_000);
+
+  it("12: a member sees and restores the line items of their own deals and nothing of other deals", async () => {
+    const f = await fixture();
+    await runWithTenant(f.admin, () =>
+      runInTransaction(
+        () =>
+          f.repo.setGrants(f.id("deal"), [
+            { roleId: f.seed.memberRole.id, actions: ["readOwn", "create", "update", "delete"] },
+          ]),
+        { timeout: 30000 },
+      ),
+    );
+    const mine = await deal(f, "Mine", "1", undefined, f.member);
+    const theirs = await deal(f, "Theirs", "1");
+    const myRows = [
+      await f.created(
+        {
+          action: "create",
+          typeId: f.id("lineItem"),
+          fields: [{ fieldId: f.id("lineItem.quantity"), value: decimal("2") }],
+          links: [{ relationId: f.id("lineItem.deal"), direction: "outgoing", record: mine }],
+        },
+        f.member,
+      ),
+      await f.created(
+        {
+          action: "create",
+          typeId: f.id("lineItem"),
+          fields: [{ fieldId: f.id("lineItem.quantity"), value: decimal("3") }],
+          links: [{ relationId: f.id("lineItem.deal"), direction: "outgoing", record: mine }],
+        },
+        f.member,
+      ),
+    ];
+    const theirRow = await lineItem(f, theirs, "4");
+    const myRowDelete = await f.remove(myRows[0], f.member);
+    const theirRowDelete = await f.remove(theirRow);
+    expect(await f.value(mine, "deal.totalQuantity")).toBe(3);
+    const listed = await runWithTenant(f.member, () => f.trash.query.invoke({} as never));
+    expect(listed.ok && listed.data.items.map((item) => item.batchId)).toEqual([myRowDelete.trashBatchId]);
+    expect(await f.restore({ batchId: theirRowDelete.trashBatchId as string }, f.member)).toMatchObject({ ok: false });
+    expect(await f.restore({ batchId: myRowDelete.trashBatchId as string }, f.member)).toMatchObject({
+      ok: true,
+      data: { restoredRecords: 1, droppedLinks: 0, blocked: [] },
+    });
+    expect(await f.value(mine, "deal.totalQuantity")).toBe(5);
+
+    const myDealDelete = await f.remove(mine, f.member);
+    const ownDeal = await runWithTenant(f.member, () => f.trash.query.invoke({} as never));
+    expect(ownDeal.ok && ownDeal.data.items.map((item) => item.batchId)).toEqual([myDealDelete.trashBatchId]);
+    expect(await f.restore({ batchId: myDealDelete.trashBatchId as string }, f.member)).toMatchObject({
+      ok: true,
+      data: { restoredRecords: 3, droppedLinks: 0, blocked: [] },
+    });
+    expect(await f.value(mine, "deal.totalQuantity")).toBe(5);
+    expect((await f.rows(theirRow))?.deletedAt).not.toBeNull();
+    expect(await f.inconsistencies()).toEqual([]);
+  }, 180_000);
 });
