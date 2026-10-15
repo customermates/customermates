@@ -13,7 +13,7 @@ export const WIKI_SYNTHESIS_PLAN_INSTRUCTION = [
 ].join(" ");
 
 export function wikiSynthesisTitleLanguage(language: string): string {
-  return `Write every title in ${language}: translate the names of offerings, packages and procedures taken from the website, and keep only brand and product names in their original spelling.`;
+  return `Write every title in ${language}, also when the website names an offering, service or procedure in another language: translate every descriptive word and keep only a brand name itself, so the German "FlowMax Heizungsumwälzpumpen" becomes "FlowMax heating circulation pumps" in English.`;
 }
 
 export const WIKI_SYNTHESIS_INITIAL_PLAN_INSTRUCTION =
