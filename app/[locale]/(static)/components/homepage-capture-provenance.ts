@@ -118,20 +118,20 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     viewport: { height: 900, width: 1440 },
   },
   "homepage-thread-linkedin": {
-    clipped: true,
+    clipped: false,
     route: "/[locale]/inbox",
-    scenario: "LinkedIn conversation with Leon Becker, conversation pane only",
+    scenario: "LinkedIn conversation with Leon Becker next to the app sidebar at a 900 px window",
     sha256: {
       de: {
-        dark: "16596bcb45b1e92e4baca059a66ec00ef892b58848a311efcc9764cf655d2eeb",
-        light: "0a30917da73376f795254391668b96b7425f298e0c07533e85f1715adbdef4d4",
+        dark: "4883c1172de7127909fe401242102c3bfc4f8174602595ed0099462f21be8d18",
+        light: "5a7860e2ceff4a4b2e1638d8ec08ec0eb6909dfde8a029c32935301a97088e53",
       },
       en: {
-        dark: "acf857e020ed7398595ba4908cc8afb799597ba1ef21dd1dcd491ad8484a1705",
-        light: "670379107996ec2fe54060cfa0f3e4d6fae36fd2df875b173b4b68413fb4e4ab",
+        dark: "4f98b618c48f4eea15640cf6851eceb0ba88e22d626d7e96d3314051de72522f",
+        light: "00f18a54a9a78f449eb6ac10f2cd6fe8a560c668e3c44b87ceb3740c58bbb019",
       },
     },
-    viewport: { height: 900, width: 1440 },
+    viewport: { height: 900, width: 900 },
   },
   "homepage-draft": {
     clipped: true,

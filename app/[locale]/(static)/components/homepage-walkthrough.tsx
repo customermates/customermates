@@ -51,15 +51,12 @@ export function HomepageWalkthrough({ liveLabel, locale, walkthrough }: Props) {
           <ProductPanel className="h-[30rem] sm:h-[34rem] lg:h-[38rem]">
             <ProductWindow className="absolute top-10 left-10 w-[72%] max-sm:hidden lg:top-14 lg:left-14">
               <HomepageStageLink area="inbox" label={liveLabel}>
-                <div className="overflow-hidden">
-                  <HomepageCaptureImage
-                    alt={desktopAlt}
-                    className="-mt-[1%] w-[101%] max-w-none"
-                    locale={locale}
-                    name="homepage-thread-linkedin"
-                    sizes="(min-width: 1024px) 44vw, 70vw"
-                  />
-                </div>
+                <HomepageCaptureImage
+                  alt={desktopAlt}
+                  locale={locale}
+                  name="homepage-thread-linkedin"
+                  sizes="(min-width: 1024px) 44vw, 70vw"
+                />
               </HomepageStageLink>
             </ProductWindow>
 
