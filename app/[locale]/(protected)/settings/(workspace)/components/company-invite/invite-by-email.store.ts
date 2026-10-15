@@ -51,9 +51,13 @@ export class InviteByEmailStore extends BaseFormStore<InviteUsersByEmailData> {
         this.onInitOrRefresh({ emails: [] });
         this.toastSuccess("OnboardingWizard.invite.sentSuccess", { values: { count: res.data.sent } });
       } else {
+        this.onInitOrRefresh({ emails: res.data.failedEmails });
         this.toastError(
           res.data.sent === 0 ? "OnboardingWizard.invite.sendFailed" : "OnboardingWizard.invite.sendPartlyFailed",
-          { values: res.data, descriptionKey: "OnboardingWizard.invite.sendFailedDescription" },
+          {
+            values: { sent: res.data.sent, failed: res.data.failed },
+            descriptionKey: "OnboardingWizard.invite.sendFailedDescription",
+          },
         );
       }
     } finally {

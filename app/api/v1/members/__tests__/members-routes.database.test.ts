@@ -167,7 +167,7 @@ describeDatabase("member and profile REST routes", () => {
       emails: ["Invitee@Example.invalid", "invitee@example.invalid"],
     });
 
-    expect(invited).toEqual({ status: 200, body: { sent: 1, failed: 0 } });
+    expect(invited).toEqual({ status: 200, body: { sent: 1, failed: 0, failedEmails: [] } });
     expect(sentEmails).toHaveBeenCalledExactlyOnceWith({
       to: "invitee@example.invalid",
       subject: expect.any(String) as string,

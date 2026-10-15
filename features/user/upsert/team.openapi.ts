@@ -43,7 +43,7 @@ export const memberApiPaths = {
       operationId: "inviteMembers",
       summary: "Invite members by email",
       description:
-        "Sends a workspace invitation email with the workspace's invitation link to each address, 1 to 20 per call; duplicate addresses receive one email. An invited person joins with no role until an administrator assigns one through POST /v1/members/update. Returns how many emails were sent and how many the email service did not accept (failed); share the link from POST /v1/members/invite-link with those people instead. Requires: Users & Roles Create.",
+        "Sends a workspace invitation email with the workspace's invitation link to each address, 1 to 20 per call; duplicate addresses receive one email. An invited person joins with no role until an administrator assigns one through POST /v1/members/update. Returns how many emails were sent, how many the email service did not accept (failed) and their addresses (failedEmails); share the link from POST /v1/members/invite-link with those people instead. Sending the same invitation to an address again within 24 hours does not email it twice. Requires: Users & Roles Create.",
       tags: ["members"],
       security: [{ apiKeyAuth: [] }],
       requestBody: {

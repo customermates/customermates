@@ -149,7 +149,7 @@ describe("update_my_profile", () => {
 
 describe("manage_team invite", () => {
   it("reports sent invitations", async () => {
-    spies.inviteUsers.mockResolvedValue({ ok: true, data: { sent: 2, failed: 0 } });
+    spies.inviteUsers.mockResolvedValue({ ok: true, data: { sent: 2, failed: 0, failedEmails: [] } });
 
     const outcome = await executeMcpTool(manageTeamTool, [
       manageTeamTool.inputSchema.parse({ action: "invite", emails: ["a@example.com", "b@example.com"] }),
@@ -162,13 +162,19 @@ describe("manage_team invite", () => {
   });
 
   it("tells the agent which share of the invitations the email service did not accept", async () => {
-    spies.inviteUsers.mockResolvedValue({ ok: true, data: { sent: 0, failed: 2 } });
+    spies.inviteUsers.mockResolvedValue({
+      ok: true,
+      data: { sent: 0, failed: 2, failedEmails: ["a@example.com", "b@example.com"] },
+    });
 
     const outcome = await executeMcpTool(manageTeamTool, [
       manageTeamTool.inputSchema.parse({ action: "invite", emails: ["a@example.com", "b@example.com"] }),
     ]);
 
-    expect(outcome).toMatchObject({ ok: true, structuredContent: { sent: 0, failed: 2 } });
+    expect(outcome).toMatchObject({
+      ok: true,
+      structuredContent: { sent: 0, failed: 2, failedEmails: ["a@example.com", "b@example.com"] },
+    });
     expect(outcome.ok && outcome.structuredContent?.message).toContain(
       "2 of 2 invitation emails were not sent because the email service did not accept them",
     );

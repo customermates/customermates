@@ -75,7 +75,7 @@ describe("InviteUsersByEmailInteractor", () => {
       emails: ["NEW.MEMBER@example.com", "new.member@example.com", "second.member@example.com"],
     });
 
-    expect(result).toEqual({ ok: true, data: { sent: 2, failed: 0 } });
+    expect(result).toEqual({ ok: true, data: { sent: 2, failed: 0, failedEmails: [] } });
     expect(emailService.send).toHaveBeenCalledTimes(2);
     expect(emailService.send.mock.calls.map(([message]) => message.to)).toEqual([
       "new.member@example.com",
@@ -89,6 +89,18 @@ describe("InviteUsersByEmailInteractor", () => {
 
     const result = await interactor.invoke({ emails: ["accepted@example.com", "rejected@example.com"] });
 
-    expect(result).toEqual({ ok: true, data: { sent: 1, failed: 1 } });
+    expect(result).toEqual({ ok: true, data: { sent: 1, failed: 1, failedEmails: ["rejected@example.com"] } });
+  });
+
+  it("sends each invitation with its own deduplication key, the same when the invitation is sent again", async () => {
+    const { emailService, interactor } = makeInteractor();
+
+    await interactor.invoke({ emails: ["first@example.com", "second@example.com"] });
+    await interactor.invoke({ emails: ["FIRST@example.com"] });
+
+    const keys = emailService.send.mock.calls.map(([message]) => message.deduplicationKey as string);
+    expect(keys[0]).toMatch(/^company-invite\/[0-9a-f]{64}$/u);
+    expect(keys[1]).not.toBe(keys[0]);
+    expect(keys[2]).toBe(keys[0]);
   });
 });

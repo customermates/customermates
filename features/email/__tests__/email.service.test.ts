@@ -51,7 +51,17 @@ describe("EmailService", () => {
         subject: email.subject,
         to: email.to,
       }),
+      undefined,
     );
+  });
+
+  it("sends the deduplication key as Resend's Idempotency-Key, so sending again does not deliver twice", async () => {
+    resendSend.mockResolvedValue({ data: { id: "message-123" }, error: null });
+
+    await expect(new EmailService().send({ ...email, deduplicationKey: "company-invite/abc" })).resolves.toBe(true);
+    expect(resendSend).toHaveBeenCalledWith(expect.objectContaining({ to: email.to }), {
+      headers: { "Idempotency-Key": "company-invite/abc" },
+    });
   });
 
   it("returns false and logs the reason when the provider rejects the email", async () => {

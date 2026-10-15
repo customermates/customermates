@@ -10,6 +10,7 @@ type SendArgs = {
   subject: string;
   react: React.ReactElement<Record<string, unknown>>;
   from?: string;
+  deduplicationKey?: string;
 };
 
 type SendFailure = { name: string; message: string };
@@ -47,12 +48,15 @@ export class EmailService {
     });
 
     const { error } = await Promise.race([
-      resend.emails.send({
-        from: args.from ?? defaultSender,
-        to: args.to,
-        subject: args.subject,
-        react: args.react,
-      }),
+      resend.emails.send(
+        {
+          from: args.from ?? defaultSender,
+          to: args.to,
+          subject: args.subject,
+          react: args.react,
+        },
+        args.deduplicationKey ? { headers: { "Idempotency-Key": args.deduplicationKey } } : undefined,
+      ),
       timedOut,
     ]).finally(() => clearTimeout(timer));
 

@@ -32,7 +32,7 @@ describe("InviteByEmailStore", () => {
   });
 
   it("confirms and clears the form when every invitation was sent", async () => {
-    actions.inviteUsersByEmailAction.mockResolvedValue({ ok: true, data: { sent: 2, failed: 0 } });
+    actions.inviteUsersByEmailAction.mockResolvedValue({ ok: true, data: { sent: 2, failed: 0, failedEmails: [] } });
     const store = storeWith(["a@example.com", "b@example.com"]);
 
     await store.onSubmit();
@@ -43,7 +43,10 @@ describe("InviteByEmailStore", () => {
   });
 
   it("reports unsent invitations instead of a success and keeps the addresses", async () => {
-    actions.inviteUsersByEmailAction.mockResolvedValue({ ok: true, data: { sent: 0, failed: 2 } });
+    actions.inviteUsersByEmailAction.mockResolvedValue({
+      ok: true,
+      data: { sent: 0, failed: 2, failedEmails: ["a@example.com", "b@example.com"] },
+    });
     const store = storeWith(["a@example.com", "b@example.com"]);
 
     await store.onSubmit();
@@ -56,14 +59,19 @@ describe("InviteByEmailStore", () => {
     expect(store.form.emails).toEqual(["a@example.com", "b@example.com"]);
   });
 
-  it("names both counts when only some invitations were sent", async () => {
-    actions.inviteUsersByEmailAction.mockResolvedValue({ ok: true, data: { sent: 1, failed: 1 } });
+  it("names both counts when only some invitations were sent and keeps only the unsent addresses", async () => {
+    actions.inviteUsersByEmailAction.mockResolvedValue({
+      ok: true,
+      data: { sent: 1, failed: 1, failedEmails: ["b@example.com"] },
+    });
+    const store = storeWith(["a@example.com", "b@example.com"]);
 
-    await storeWith(["a@example.com", "b@example.com"]).onSubmit();
+    await store.onSubmit();
 
     expect(toast.error).toHaveBeenCalledWith(
       'OnboardingWizard.invite.sendPartlyFailed {"sent":1,"failed":1}',
       expect.objectContaining({ description: "OnboardingWizard.invite.sendFailedDescription" }),
     );
+    expect(store.form.emails).toEqual(["b@example.com"]);
   });
 });
