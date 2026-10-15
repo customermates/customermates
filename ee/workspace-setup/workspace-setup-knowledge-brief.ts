@@ -26,7 +26,7 @@ export class WorkspaceSetupKnowledgeBrief extends WikiSynthesisBriefSource {
     if (!setup) return { status: "cancelled" };
     if (setup.crawlId !== crawl.id) return { status: giveUp ? "cancelled" : "wait" };
     if (setup.status === "rolledBack") return { status: "cancelled" };
-    if (UNCONFIRMED.has(setup.status)) return { status: giveUp ? "none" : "wait" };
+    if (UNCONFIRMED.has(setup.status)) return { status: giveUp ? "cancelled" : "wait" };
     if (!setup.plan) return { status: "none" };
     const locale = setupLanguage(setup.answers, crawl.locale);
     const t = await getTranslator(locale, "WikiSetup.generated");

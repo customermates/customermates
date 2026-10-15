@@ -31,6 +31,7 @@ describe("confirming the workspace setup", () => {
     } as unknown as WorkspaceSetupRecord;
     const repo = {
       get: vi.fn(() => Promise.resolve(setup)),
+      reopenCrawlSynthesis: vi.fn(() => Promise.resolve(false)),
       setCrawlLocale: vi.fn((crawlId: string, locale: string) => {
         order.push(`locale ${crawlId} ${locale}`);
         return Promise.resolve();

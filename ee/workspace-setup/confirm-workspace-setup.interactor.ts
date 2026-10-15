@@ -33,8 +33,12 @@ export class ConfirmWorkspaceSetupInteractor extends AuthenticatedInteractor<
   async invoke(data: ConfirmWorkspaceSetupData): Validated<{ setupId: string }> {
     if (workspaceSetupUnavailability()) return fail(CustomErrorCode.workspaceSetupUnavailable);
     const pending = await this.repo.get(data.setupId);
-    if (pending?.status === "planned" && pending.crawlId)
+    if (pending?.status === "planned" && pending.crawlId) {
+      const reopened = await this.repo.reopenCrawlSynthesis(pending.crawlId);
       await this.repo.setCrawlLocale(pending.crawlId, setupLanguage(pending.answers));
+      if (reopened)
+        await this.background.dispatch("crawl-wiki-website", { crawlId: pending.crawlId, userId: this.userId });
+    }
     const confirmed = await this.repo.mutate(data.setupId, (setup) => {
       if (setup.status !== "planned" || !setup.plan || setup.planRevision !== data.planRevision) return null;
       return {

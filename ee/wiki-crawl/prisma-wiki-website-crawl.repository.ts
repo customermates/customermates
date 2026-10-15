@@ -173,6 +173,28 @@ export class PrismaWikiWebsiteCrawlRepo
     });
   }
 
+  async reopenSynthesis(crawlId: string) {
+    const { count } = await this.prisma.wikiWebsiteCrawl.updateMany({
+      where: {
+        id: crawlId,
+        companyId: this.companyId,
+        payer: "workspaceSetup",
+        OR: [
+          { status: { in: ["completed", "failed"] }, topics: { equals: [] } },
+          { status: "synthesizing", topics: { equals: Prisma.DbNull }, workflowRunId: null },
+        ],
+      },
+      data: {
+        status: "synthesizing",
+        topics: Prisma.DbNull,
+        failureReason: null,
+        finishedAt: null,
+        workflowRunId: null,
+      },
+    });
+    return count === 1;
+  }
+
   async createCrawl(
     data: Pick<
       WikiCrawlRecord,

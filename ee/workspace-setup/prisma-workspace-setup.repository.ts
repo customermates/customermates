@@ -240,6 +240,10 @@ export class PrismaWorkspaceSetupRepo extends TenantRepository implements Worksp
     return this.crawls.setCrawlLocale(crawlId, locale);
   }
 
+  reopenCrawlSynthesis(crawlId: string) {
+    return this.crawls.reopenSynthesis(crawlId);
+  }
+
   async knowledgeBasePages(crawlId: string) {
     const crawl = await this.crawlState(crawlId);
     if (!crawl) return [];

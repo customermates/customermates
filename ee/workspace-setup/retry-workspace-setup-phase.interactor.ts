@@ -56,7 +56,9 @@ export class RetryWorkspaceSetupPhaseInteractor extends AuthenticatedInteractor<
     if (withoutWebsite) {
       if (crawlId) await this.repo.stopCrawl(crawlId);
       crawlId = null;
-    } else if (data.phase === "knowledgeBase" && setup.websiteUrl) {
+    } else if (data.phase === "knowledgeBase" && crawlId && (await this.repo.reopenCrawlSynthesis(crawlId)))
+      await this.background.dispatch("crawl-wiki-website", { crawlId, userId: this.userId });
+    else if (data.phase === "knowledgeBase" && setup.websiteUrl) {
       const crawl = crawlId ? await this.repo.crawlState(crawlId) : null;
       if (!crawl || crawl.status === "failed" || crawl.status === "blocked") {
         const started = await this.crawls.start({

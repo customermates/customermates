@@ -121,9 +121,12 @@ describe("Workspace setup brief for its website import", () => {
     expect(await source(setup()).brief({ ...crawl, payer: "requester" }, false)).toEqual({ status: "none" });
   });
 
-  it("waits until the plan is confirmed, and falls back to the website alone after the wait", async () => {
+  it("waits until the plan is confirmed, and writes nothing without a confirmed plan after the wait", async () => {
     expect(await source(setup({ status: "planned" })).brief(crawl, false)).toEqual({ status: "wait" });
-    expect(await source(setup({ status: "interview", plan: null })).brief(crawl, true)).toEqual({ status: "none" });
+    expect(await source(setup({ status: "planned" })).brief(crawl, true)).toEqual({ status: "cancelled" });
+    expect(await source(setup({ status: "interview", plan: null })).brief(crawl, true)).toEqual({
+      status: "cancelled",
+    });
   });
 
   it("cancels the import's pages for a rolled-back setup or an abandoned crawl", async () => {

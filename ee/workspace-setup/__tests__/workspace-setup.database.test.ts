@@ -946,6 +946,119 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(state.dispatch).not.toHaveBeenCalledWith("build-workspace-setup", expect.anything());
   });
 
+  it("writes no Knowledge Base before the plan is confirmed and resumes the website import at Confirm", async () => {
+    const ws = await workspace();
+    const { setupId, planRevision } = await planned(ws);
+    const crawl = await runWithoutTenant(() =>
+      prisma.wikiWebsiteCrawl.create({
+        data: {
+          companyId: ws.companyId,
+          userId: ws.owner.id,
+          clientRequestId: randomUUID(),
+          homepageUrl: "https://studio-example.com/",
+          registrableDomain: "studio-example.com",
+          locale: "de",
+          payer: "workspaceSetup",
+          status: "synthesizing",
+          workflowRunId: "wrun_first_import",
+          importedPages: 1,
+          targets: [{ url: "https://studio-example.com/", category: "about", status: "read" }],
+          sources: {
+            create: {
+              companyId: ws.companyId,
+              url: "https://studio-example.com/",
+              canonicalUrl: "https://studio-example.com/",
+              category: "about",
+              title: "Studio Example",
+              text: "Studio Example designs websites for marketing teams.",
+              contentHash: "home",
+            },
+          },
+        },
+      }),
+    );
+    await ws.run(() => di.getWorkspaceSetupRepo().mutate(setupId, () => ({ crawlId: crawl.id })));
+    const synthesis = di.getWikiWebsiteSynthesisService();
+    const stored = () =>
+      runWithoutTenant(() =>
+        prisma.wikiWebsiteCrawl.findUniqueOrThrow({
+          where: { id: crawl.id },
+          select: { status: true, topics: true, locale: true, workflowRunId: true },
+        }),
+      );
+    const calls = state.generate.mock.calls.length;
+    expect(await ws.run(() => synthesis.plan(crawl.id, true))).toBe(0);
+    await ws.run(() => synthesis.settle(crawl.id));
+    expect(state.generate.mock.calls.length).toBe(calls);
+    expect(await stored()).toMatchObject({ status: "completed", topics: [] });
+
+    state.dispatch.mockClear();
+    const confirmed = await ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision }));
+    expect(confirmed.ok).toBe(true);
+    expect(state.dispatch).toHaveBeenCalledWith("crawl-wiki-website", { crawlId: crawl.id, userId: ws.owner.id });
+    expect(await stored()).toEqual({ status: "synthesizing", topics: null, locale: "en", workflowRunId: null });
+    expect(await ws.run(() => di.getWorkspaceSetupRepo().reopenCrawlSynthesis(crawl.id))).toBe(true);
+    await runWithoutTenant(() =>
+      prisma.wikiWebsiteCrawl.update({ where: { id: crawl.id }, data: { workflowRunId: "wrun_second_import" } }),
+    );
+    expect(await ws.run(() => di.getWorkspaceSetupRepo().reopenCrawlSynthesis(crawl.id))).toBe(false);
+    state.generate.mockImplementationOnce((args: { model: { modelId: string } }) =>
+      Promise.resolve({
+        output: { topics: [{ key: "overview", title: "x", role: "company_overview", sources: ["s1"] }] },
+        charge: { ...CHARGE, model: args.model.modelId },
+      }),
+    );
+    expect(await ws.run(() => synthesis.plan(crawl.id))).toBeGreaterThan(0);
+    expect((await stored()).topics).toEqual(
+      expect.arrayContaining([expect.objectContaining({ role: "company_overview", setupKey: "overview" })]),
+    );
+  });
+
+  it("resumes a website import whose pages were never planned when the owner retries the Knowledge Base", async () => {
+    const ws = await workspace();
+    const { setupId, planRevision } = await planned(ws);
+    await ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision }));
+    const crawl = await runWithoutTenant(() =>
+      prisma.wikiWebsiteCrawl.create({
+        data: {
+          companyId: ws.companyId,
+          userId: ws.owner.id,
+          clientRequestId: randomUUID(),
+          homepageUrl: "https://studio-example.com/",
+          registrableDomain: "studio-example.com",
+          locale: "en",
+          payer: "workspaceSetup",
+          status: "failed",
+          failureReason: "cancelled",
+          workflowRunId: "wrun_first_import",
+          topics: [],
+        },
+      }),
+    );
+    await ws.run(() =>
+      di.getWorkspaceSetupRepo().mutate(setupId, (current) => ({
+        crawlId: crawl.id,
+        websiteUrl: "https://studio-example.com/",
+        phases: {
+          ...current.phases,
+          knowledgeBase: { ...emptySetupPhase(), status: "failed", error: "crawlFailed", attempts: 1 },
+        },
+      })),
+    );
+    state.dispatch.mockClear();
+    expect(
+      await ws.run(() => di.getRetryWorkspaceSetupPhaseInteractor().invoke({ setupId, phase: "knowledgeBase" })),
+    ).toEqual({ ok: true, data: { setupId } });
+    expect(state.dispatch).toHaveBeenCalledWith("crawl-wiki-website", { crawlId: crawl.id, userId: ws.owner.id });
+    expect(await runWithoutTenant(() => prisma.wikiWebsiteCrawl.count({ where: { companyId: ws.companyId } }))).toBe(1);
+    expect(
+      await runWithoutTenant(() =>
+        prisma.wikiWebsiteCrawl.findUniqueOrThrow({ where: { id: crawl.id }, select: { status: true } }),
+      ),
+    ).toEqual({ status: "synthesizing" });
+    expect((await ws.run(() => di.getWorkspaceSetupRepo().get(setupId)))?.crawlId).toBe(crawl.id);
+  });
+
   it("applies the confirmed country and language to the settings before the data model", async () => {
     const ws = await workspace();
     const { setupId, planRevision } = await planned(ws);
