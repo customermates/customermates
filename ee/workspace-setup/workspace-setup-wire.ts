@@ -15,6 +15,7 @@ import {
 import {
   SETUP_FIELD_VALUE_TYPES,
   SETUP_PAGE_KINDS,
+  SETUP_PLAN_LIMITS,
   SetupFieldKeySchema,
   SetupPlanSchema,
 } from "@/features/workspace-setup/setup-plan.schema";
@@ -480,7 +481,13 @@ export function planFromWire(
         ),
       })),
     },
-    knowledgeBase: { pages: wire.knowledgeBase.pages.map((page) => ({ ...page, key: lowerCamelKey(page.key) })) },
+    knowledgeBase: {
+      pages: wire.knowledgeBase.pages.map((page) => ({
+        ...page,
+        key: lowerCamelKey(page.key),
+        sections: page.sections.slice(0, SETUP_PLAN_LIMITS.pageSections),
+      })),
+    },
     importMapping: wire.importMapping,
   };
   const parsed = SetupPlanSchema.safeParse(input);

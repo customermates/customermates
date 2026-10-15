@@ -235,6 +235,15 @@ describe("plan normalisation the model does not need to get right", () => {
     expect(converted.ok && converted.plan.sampleData.lists[0].kinds[0].length).toBeLessThanOrEqual(80);
   });
 
+  it("keeps the first twelve section headings of a planned page instead of rejecting the outline", () => {
+    const wire = planToWire(agencyPlan);
+    wire.knowledgeBase.pages[0].sections = Array.from({ length: 15 }, (_value, index) => `Section ${index + 1}`);
+    const converted = planFromWire(wire);
+    expect(converted.ok && converted.plan.knowledgeBase.pages[0].sections).toEqual(
+      Array.from({ length: 12 }, (_value, index) => `Section ${index + 1}`),
+    );
+  });
+
   it("derives a valid key from a page or widget key written as words", () => {
     expect(lowerCamelKey("competitor-hubspot")).toBe("competitorHubspot");
     expect(lowerCamelKey("ruby Hotels")).toBe("rubyHotels");
