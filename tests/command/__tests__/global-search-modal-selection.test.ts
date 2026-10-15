@@ -43,11 +43,13 @@ vi.mock("@/core/stores/root-store.provider", () => ({
       submitDraft: harness.submitDraft,
     },
     companyInviteModalStore: { open: vi.fn(), generateInviteLink: vi.fn() },
+    createWorkspaceModalStore: { start: vi.fn() },
     feedbackModalStore: { openFrom: vi.fn(), onInitOrRefresh: vi.fn() },
     keyboardShortcutsStore: { openFrom: vi.fn() },
     navigationGuard: { tryNavigate: (navigate: () => void) => navigate() },
     userStore: { can: () => true, updateTheme: vi.fn() },
     viewPickerStore: { surface: null },
+    workspacesStore: { others: [], requestSwitch: vi.fn() },
   }),
 }));
 vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ push: harness.push }), usePathname: () => "/dashboard" }));

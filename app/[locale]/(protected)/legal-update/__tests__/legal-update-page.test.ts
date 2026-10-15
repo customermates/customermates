@@ -9,6 +9,7 @@ vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
 vi.mock("@/features/auth/next/require", () => ({ requireAccountState: mocks.requireAccountState }));
 vi.mock("@/components/shared/centered-card-page", () => ({ CenteredCardPage: () => null }));
 vi.mock("../components/legal-update-view", () => ({ LegalUpdateView: () => null }));
+vi.mock("@/app/components/workspaces/restricted-workspace-switch", () => ({ RestrictedWorkspaceSwitch: () => null }));
 
 import LegalUpdatePage from "../page";
 

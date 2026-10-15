@@ -9,7 +9,7 @@ Die Workspace-Einstellungen umfassen alles, was den ganzen Workspace betrifft un
 
 Klicken Sie oben in der Seitenleiste auf **Customermates**, um das Workspace-Menü zu öffnen, und wählen Sie **Einstellungen**, oder drücken Sie G, dann S. Die Einstellungen öffnen sich auf [Profil & Einstellungen](app:settings/profile), und die Seitenleiste wechselt zur Einstellungsnavigation: Ihre eigenen Seiten unter **Konto**, die Workspace-Seiten unter **Workspace**: [Mitglieder](app:settings/members), [Rollen](app:settings/roles), [Abrechnung](app:settings/billing) (nur Cloud), [Aktivität](app:settings/activity) und [Webhooks](app:settings/webhooks). **Zurück** oben in der Navigation führt zur Seite zurück, von der Sie kamen.
 
-Das Workspace-Menü enthält von oben nach unten **Mitglieder einladen** (erfordert **Benutzer & Rollen** **Erstellen**), **Mitglieder**, **Einstellungen**, **Abrechnung** mit dem Tarif-Chip (nur Cloud) und, nur für Customermates-Operatoren, **Operator-Konsole**.
+Das Workspace-Menü listet die Workspaces, zu denen Sie gehören, um zwischen ihnen zu wechseln, und bietet **Workspace erstellen** ([Workspaces](/docs/app-workspaces)). Außerdem enthält es **Mitglieder einladen** (erfordert **Benutzer & Rollen** **Erstellen**), **Mitglieder**, **Einstellungen**, **Abrechnung** mit dem Tarif-Chip (nur Cloud) und, nur für Customermates-Operatoren, **Operator-Konsole**.
 
 Ihre Rolle bestimmt, was Sie sehen. Eine Seite, die Ihre Rolle nicht lesen darf, fehlt in der Navigation, und ein direkter Aufruf landet auf dem [Dashboard](app:dashboard). Auf einer Seite, die Sie lesen, aber nicht ändern dürfen, fehlen **Hinzufügen**, **Speichern** und **Löschen**, und Dialoge öffnen schreibgeschützt. Rollenänderungen gelten beim nächsten Seitenaufruf oder API-Aufruf des Mitglieds. Die eingebaute Rolle **Admin** sieht und ändert alles.
 
@@ -33,7 +33,7 @@ Klicken Sie auf Mitglieder auf [Hinzufügen](app:settings/members?focus=add) (od
 - **Link teilen** zeigt einen **Einladungslink** für den ganzen Workspace mit Kopier-Button. Er gilt 7 Tage ("Läuft am" mit Datum ab) und wird bis dahin wiederverwendet; öffnet sich der Dialog nach Ablauf zum ersten Mal, entsteht ein neuer Link. Jeder mit dem Link kann sich registrieren, und er lässt sich nicht vorzeitig widerrufen.
 - **E-Mails senden** nimmt 1 bis 20 Adressen an, getrennt durch Komma oder Enter. **Einladungen senden** schickt jeder Adresse den Workspace-Link einmal und bestätigt mit der Anzahl der gesendeten Einladungen.
 
-Wer sich registriert, tritt mit dem Status **Wartet auf Genehmigung** und ohne Rolle bei und sieht **Warten auf Genehmigung**, bis jemand genehmigt. Jede Registrierung legt außerdem in [Aufgaben](app:records/task) eine Genehmigungsaufgabe für Mitglieder an, deren Leserecht auf **Aufgaben** **Alle** ist; sie verschwindet, sobald das Mitglied genehmigt oder auf Inaktiv gesetzt ist. Ein abgelaufener oder veränderter Link zeigt einen Fehler mit der Bitte, einen neuen anzufordern.
+Wer sich registriert, tritt mit dem Status **Wartet auf Genehmigung** und ohne Rolle bei und sieht **Warten auf Genehmigung**, bis jemand genehmigt. Jede Registrierung legt außerdem in [Aufgaben](app:records/task) eine Genehmigungsaufgabe für Mitglieder an, deren Leserecht auf **Aufgaben** **Alle** ist; sie verschwindet, sobald das Mitglied genehmigt oder auf Inaktiv gesetzt ist. Ein abgelaufener oder veränderter Link zeigt einen Fehler mit der Bitte, einen neuen anzufordern. Wer schon ein Customermates-Konto hat, tritt angemeldet über denselben Link bei und wartet genauso auf die Genehmigung; siehe [Beitreten mit bestehendem Konto](/docs/app-workspaces#how-do-i-join-with-an-existing-account).
 
 ### Wie genehmige, bearbeite, deaktiviere oder entferne ich ein Mitglied? [#how-do-i-approve-deactivate-or-edit-a-member]
 
@@ -42,6 +42,7 @@ Klicken Sie in [Mitglieder](app:settings/members) auf die Zeile des Mitglieds, u
 - **Genehmigen:** Wählen Sie eine **Rolle**, setzen Sie **Status** auf **Aktiv** und klicken Sie **Speichern**. Das Mitglied kann sich sofort anmelden und zählt als abgerechneter Nutzerplatz.
 - **Entfernen:** Mitglieder lassen sich nicht löschen; setzen Sie **Status** auf **Inaktiv**. Das sperrt die Anmeldung ("Dein Konto ist derzeit inaktiv. Kontaktiere deinen Administrator, um dein Konto zu reaktivieren."), die API-Keys und MCP-Verbindungen des Mitglieds, entfernt den Nutzerplatz aus der Abrechnung, pausiert seine Routinen, und der tägliche Job löscht seine verbundenen Messaging-Konten. **Wartet auf Genehmigung** lässt sich nicht wählen; nur eine Einladung setzt diesen Status.
 - Ihre eigene Zeile öffnet schreibgeschützt: Ihren Namen ändern Sie unter [Profil & Einstellungen](app:settings/profile), Ihre Rolle oder Ihren Status ändert ein anderes Mitglied mit **Benutzer & Rollen** **Bearbeiten**.
+- Ihre Änderungen hier gelten für das Mitglied nur in diesem Workspace; was Mitglieder selbst unter Profil & Einstellungen ändern, gilt in jedem Workspace, zu dem sie gehören. Mitglieder können einen Workspace auch selbst verlassen, siehe [Wie verlasse ich einen Workspace?](/docs/app-workspaces#how-do-i-leave-a-workspace).
 - Der Workspace behält immer mindestens ein **Aktives** Mitglied mit der Rolle **Admin**; ein Speichern, das das letzte entfernen würde, schlägt mit "Mindestens ein Nutzer muss Systemadministrator sein." fehl.
 
 Jedes Speichern wird in [Aktivität](app:settings/activity) festgehalten.
@@ -85,7 +86,7 @@ Jeder Workspace startet mit einer eingebauten Rolle, **Admin**, die die Person e
 
 ## Abrechnung [#subscription-tab]
 
-[Abrechnung](app:settings/billing) zeigt Tarif, Status, Nutzerplätze und Abrechnung eines Cloud-Workspace; selbst gehostete Installationen haben keinen Plan, und die Seite leitet zum Dashboard um. Customermates rechnet über Lemon Squeezy ab, das Checkout und Kundenportal betreibt.
+[Abrechnung](app:settings/billing) zeigt Tarif, Status, Nutzerplätze und Abrechnung eines Cloud-Workspace; selbst gehostete Installationen haben keinen Plan, und die Seite leitet zum Dashboard um. Customermates rechnet über Lemon Squeezy ab, das Checkout und Kundenportal betreibt. Jeder Workspace hat seinen eigenen Tarif, sein eigenes Abonnement, eigene Rechnungen und einen eigenen Pool gehosteter KI-Credits; siehe [wie jeder Workspace abgerechnet wird](/docs/app-workspaces#how-is-each-workspace-billed).
 
 | Feld | Was es zeigt |
 |---|---|
@@ -102,7 +103,7 @@ Auf [Abrechnung](app:settings/billing) sehen Rollen mit **Unternehmen** **Bearbe
 
 ### Was bedeuten die Abo-Status? [#what-does-each-subscription-status-mean]
 
-**Testphase** setzt die App beim Anlegen eines Cloud-Workspace; jeder andere Status kommt von Lemon Squeezy oder vom Customermates-Support.
+**Testphase** setzt die App, wenn ein Login seinen ersten Cloud-Workspace anlegt. Jeder weitere Workspace, den dieser Login anlegt, startet ohne Testphase und zeigt **Abonnement erforderlich**, bis ein Tarif gewählt ist ([welcher Workspace die kostenlose Testphase erhält](/docs/app-workspaces#which-workspace-gets-the-free-trial)). Jeder andere Status kommt von Lemon Squeezy oder vom Customermates-Support.
 
 | Status | Wirkung |
 |---|---|
@@ -138,7 +139,7 @@ Klicken Sie auf [Verwalten mit Lemon Squeezy](app:settings/billing?focus=manage)
 
 ### Wie werden Nutzerplätze gezählt und abgerechnet? [#how-are-seats-counted-and-billed]
 
-Ein Nutzerplatz ist ein Mitglied mit dem Status **Aktiv**; Mitglieder mit **Wartet auf Genehmigung** oder **Inaktiv** werden nicht abgerechnet. Der Checkout übernimmt die Zahl in diesem Moment, und jede spätere Statusänderung unter [Mitglieder](app:settings/members) schickt die neue Zahl sofort an Lemon Squeezy: "Du zahlst pro aktivem Nutzer. Änderungen an den Nutzerplätzen werden anteilig mit der nächsten Rechnung verrechnet." Um die Rechnung zu senken, setzen Sie Mitglieder, die keinen Zugang mehr brauchen, auf **Inaktiv**. Enterprise-Nutzerplätze werden nicht synchronisiert.
+Ein Nutzerplatz ist ein Mitglied mit dem Status **Aktiv**; Mitglieder mit **Wartet auf Genehmigung** oder **Inaktiv** werden nicht abgerechnet. Nutzerplätze zählen je Workspace: Wer in mehreren Workspaces **Aktiv** ist, ist in jedem davon ein abgerechneter Nutzerplatz, und wer einen Workspace verlässt, gibt dort seinen Nutzerplatz frei. Der Checkout übernimmt die Zahl in diesem Moment, und jede spätere Statusänderung unter [Mitglieder](app:settings/members) schickt die neue Zahl sofort an Lemon Squeezy: "Du zahlst pro aktivem Nutzer. Änderungen an den Nutzerplätzen werden anteilig mit der nächsten Rechnung verrechnet." Um die Rechnung zu senken, setzen Sie Mitglieder, die keinen Zugang mehr brauchen, auf **Inaktiv**. Enterprise-Nutzerplätze werden nicht synchronisiert.
 
 ### Was passiert, wenn die Testphase endet oder eine Zahlung ausbleibt? [#what-happens-when-the-trial-ends-or-a-payment-fails]
 
@@ -205,4 +206,5 @@ Nutzen Sie bevorzugt die [MCP](/docs/mcp)-Tools: `manage_team` lädt per E-Mail 
 
 - [Webhooks](/docs/webhooks)
 - [App-Anleitung Profil](/docs/app-profile)
+- [Workspaces](/docs/app-workspaces)
 - [Tarife und Credits](/docs/app-assistant#plans-and-credits)

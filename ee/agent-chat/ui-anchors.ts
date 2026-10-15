@@ -464,7 +464,7 @@ export const MENU_NAV_TARGETS: {
   {
     key: "workspace-menu",
     description:
-      "Workspace menu on the workspace name at the top of the sidebar: Invite members, Members, Settings, Billing and, for operators, the Operator console",
+      "Workspace menu on the workspace name at the top of the sidebar: the person's workspaces to switch between, Create workspace, Invite members, Members, Settings, Billing and, for operators, the Operator console",
     labelKey: "WorkspaceMenu.label",
   },
   {
@@ -477,8 +477,11 @@ export const MENU_NAV_TARGETS: {
 
 export const SETTINGS_NAV_DESCRIPTIONS: Record<SettingsSlug, string> = {
   profile: "Settings link to Profile & preferences: name, avatar, language, theme and email verification",
+  workspaces:
+    "Settings link to Workspaces, every workspace the person belongs to with role, status and plan, and Switch, Leave and Create workspace",
   channels: "Settings link to Channels, the connected accounts for email, LinkedIn, WhatsApp, Instagram and Telegram",
   "api-keys": "Settings link to API keys for the REST API, MCP clients and connectors",
+  general: "Settings link to General, the workspace name and Leave workspace",
   members: "Settings link to Members, the team members of the workspace and their roles",
   roles: "Settings link to Roles and their permissions",
   billing: "Settings link to Billing, the plan, subscription, trial status and invoices",

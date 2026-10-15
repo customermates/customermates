@@ -34,6 +34,7 @@ type Props = {
   onboardingIntent?: string;
   inviterName?: string;
   isInvited?: boolean;
+  canNameWorkspace?: boolean;
   sessionEmail?: string;
   sessionFirstName?: string;
   sessionLastName?: string;
@@ -51,6 +52,7 @@ const OnboardingWizardContent = observer(
     onboardingIntent,
     inviterName,
     isInvited = false,
+    canNameWorkspace = false,
     sessionEmail = "",
     sessionFirstName,
     sessionLastName,
@@ -100,6 +102,7 @@ const OnboardingWizardContent = observer(
           return (
             <StepProfile
               avatarUrl={sessionAvatarUrl}
+              canNameWorkspace={canNameWorkspace}
               email={sessionEmail}
               firstName={sessionFirstName}
               inviterName={inviterName}

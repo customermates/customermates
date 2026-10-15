@@ -17,9 +17,22 @@ function service(overrides: Partial<FindUserRepo> = {}) {
     findUserByIdOrThrowUnscoped: vi.fn().mockResolvedValue(tenantUser),
     ...overrides,
   } as unknown as FindUserRepo;
-  const authService = { getSession: vi.fn().mockResolvedValue({ user: { email: "session@example.com" } }) };
+  const authService = {
+    getSession: vi.fn().mockResolvedValue({ user: { email: "session@example.com" } }),
+    isIntegrationCredentialRequest: vi.fn().mockResolvedValue(false),
+  };
 
-  return new UserService(authService as never, repo);
+  return new UserService(
+    authService as never,
+    repo,
+    {
+      resolveMembership: () =>
+        (
+          repo as unknown as { findCurrentUserOrThrowUnscoped: () => Promise<unknown> }
+        ).findCurrentUserOrThrowUnscoped(),
+    } as never,
+    { canUseIntegrations: vi.fn().mockResolvedValue(true) },
+  );
 }
 
 describe("resolving the user an operation runs as", () => {

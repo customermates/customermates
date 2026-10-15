@@ -74,7 +74,7 @@ Der Connector öffnet ein Customermates-Fenster:
 Oder Sie sind schon angemeldet.
 </Step>
 <Step title="Lesen, was autorisiert wird">
-Der Screen **Zugriff autorisieren** nennt die App, die sich verbindet, listet, was sie anfordert (etwa **Deine Identität bestätigen**, **Dein Basisprofil lesen**, **Deine E-Mail-Adresse lesen** und **Verbunden bleiben, während du abwesend bist**), und zeigt unter **Verbindungsziel** den Host, an den der Zugriff geht.
+Der Screen **Zugriff autorisieren** nennt die App, die sich verbindet, listet, was sie anfordert (etwa **Deine Identität bestätigen**, **Dein Basisprofil lesen**, **Deine E-Mail-Adresse lesen** und **Verbunden bleiben, während du abwesend bist**), und zeigt unter **Verbindungsziel** den Host, an den der Zugriff geht. Gehören Sie zu mehreren Workspaces, fragt er außerdem, welchen Workspace die Verbindung erhält; Ihr aktueller Workspace ist vorausgewählt.
 </Step>
 <Step title="Zulassen">
 Klicken Sie auf **Zulassen**, oder auf **Ablehnen**, um abzulehnen.
@@ -89,7 +89,8 @@ Der Connector akzeptiert jeden Client, daher ist der Screen **Zugriff autorisier
 
 - Einmal in Claude Web hinzufügen, und es erscheint auch auf **Desktop und Mobile**. Die Verbindung hängt an Ihrem Claude-Konto, nicht an einem Gerät.
 - Sie erneuert sich im Hintergrund. Nutzen Sie sie innerhalb von 30 Tagen, und Sie autorisieren nie neu; bleiben Sie länger untätig, und Sie geben einmal mehr frei.
-- Jeder Aufruf läuft als der Customermates-User, der freigegeben hat, innerhalb der Daten dieses Kontos und mit den Rechten seiner Rolle. API-Keys funktionieren genauso: Sie erben die Berechtigungen des besitzenden Users, und es gibt kein Scoping pro Key.
+- Jeder Aufruf läuft als der Customermates-User, der freigegeben hat, innerhalb des auf **Zugriff autorisieren** gewählten Workspace und mit den Rechten seiner Rolle dort. API-Keys funktionieren genauso: Sie erben die Berechtigungen des besitzenden Users in dem Workspace, in dem sie erstellt wurden, und es gibt kein Scoping pro Key.
+- Eine Verbindung bleibt samt erneuerter Tokens in ihrem Workspace. Um in mehreren Workspaces zu arbeiten, verbinden Sie sich einmal pro Workspace, zum Beispiel mit einem eigenen Claude-Konto je Workspace; siehe [Workspaces](/docs/app-workspaces#which-workspace-do-api-keys-and-connections-use).
 - Wird dieser User auf **Inaktiv** gesetzt, scheitert jeder Aufruf, der Workspace-Daten liest oder ändert, mit „Your user account is inactive. Contact a workspace administrator.“, bis ein Mitglied mit **Bearbeiten** auf **Benutzer & Rollen** ihn wieder auf **Aktiv** setzt.
 
 ## Was probiere ich zuerst? [#try-your-first-prompt]

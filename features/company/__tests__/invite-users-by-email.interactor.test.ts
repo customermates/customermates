@@ -25,19 +25,30 @@ vi.mock("next/headers", () => ({
   headers: () => new Headers({ origin: request.origin }),
 }));
 vi.mock("next-intl/server", () => ({
-  getTranslations: () => Promise.resolve((key: string) => key),
+  getTranslations: () =>
+    Promise.resolve((key: string, values?: Record<string, string>) =>
+      values ? `${key} ${JSON.stringify(values)}` : key,
+    ),
   getLocale: () => Promise.resolve("en"),
 }));
 
 import { InviteUsersByEmailInteractor } from "../invite-users-by-email.interactor";
 
-function makeInteractor() {
+function makeInteractor(workspaceName: string | null = null) {
   const emailService = { send: vi.fn().mockResolvedValue(undefined) };
   const tokenInteractor = { invoke: vi.fn().mockResolvedValue({ ok: true, data: { token: "invite-token" } }) };
+  const companyRepo = {
+    findCompanyOrThrow: vi.fn().mockResolvedValue({
+      id: mockUser.companyId,
+      name: workspaceName,
+      createdAt: new Date(0),
+      updatedAt: new Date(0),
+    }),
+  };
 
   return {
     emailService,
-    interactor: new InviteUsersByEmailInteractor(emailService as never, tokenInteractor as never),
+    interactor: new InviteUsersByEmailInteractor(emailService as never, tokenInteractor as never, companyRepo),
   };
 }
 
@@ -81,5 +92,31 @@ describe("InviteUsersByEmailInteractor", () => {
       "new.member@example.com",
       "second.member@example.com",
     ]);
+  });
+
+  it("names the workspace in the subject, preview and introduction when it has a name", async () => {
+    const { emailService, interactor } = makeInteractor("Taxes");
+
+    await interactor.invoke({ emails: ["new.member@example.com"] });
+
+    const message = emailService.send.mock.calls[0][0];
+    const inviterName = `${mockUser.firstName} ${mockUser.lastName}`.trim();
+    expect(message.subject).toBe(`CompanyInvite.workspaceSubject ${JSON.stringify({ workspace: "Taxes" })}`);
+    expect(message.react.props.preview).toBe(
+      `CompanyInvite.workspacePreview ${JSON.stringify({ inviterName, workspace: "Taxes" })}`,
+    );
+    expect(message.react.props.intro).toBe(
+      `CompanyInvite.workspaceIntro ${JSON.stringify({ inviterName, workspace: "Taxes" })}`,
+    );
+  });
+
+  it("keeps the team wording for a workspace without a name", async () => {
+    const { emailService, interactor } = makeInteractor(null);
+
+    await interactor.invoke({ emails: ["new.member@example.com"] });
+
+    const message = emailService.send.mock.calls[0][0];
+    expect(message.subject).toBe("CompanyInvite.subject");
+    expect(message.react.props.intro).toContain("CompanyInvite.intro");
   });
 });

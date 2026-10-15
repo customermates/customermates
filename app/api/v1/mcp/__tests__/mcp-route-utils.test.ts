@@ -6,6 +6,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { mutateRecordV2Tool } from "@/features/mcp-tools/record-model.mcp-tools";
 import { mcpInteractorFailure, type McpTool } from "@/features/mcp-tools/mcp-tool";
 import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
+import { WorkspacePlanRequiredError } from "@/core/auth/workspace-plan-required-error";
 
 const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
 const apiKeys = vi.hoisted(() => ({
@@ -240,5 +241,15 @@ describe("public MCP execution boundary", () => {
       error: "insufficient_permissions",
       requiredPermission: { resource: "api", action: "readAll" },
     });
+  });
+
+  it("refuses a credential of a workspace that has no plan yet with a structured 403", async () => {
+    const handler = createMcpRoute({ test: [expectedFailureTool] });
+    apiKeys.authorize.mockRejectedValueOnce(new WorkspacePlanRequiredError());
+
+    const refused = await rpc(handler, requestBody("initialize", 1));
+
+    expect(refused.response.status).toBe(403);
+    expect(refused.data).toMatchObject({ error: "plan_required", message: expect.stringContaining("no plan yet") });
   });
 });

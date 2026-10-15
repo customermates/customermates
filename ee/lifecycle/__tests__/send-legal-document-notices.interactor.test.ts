@@ -49,10 +49,8 @@ import type {
   LegalAuditRecord,
   LegalNoticeAuditPayload,
 } from "@/features/legal/legal-audit.schema";
-import {
-  SendLegalDocumentNoticesInteractor,
-  type LegalNoticeRecipient,
-} from "../send-legal-document-notices.interactor";
+import type { LegalNoticeRecipient } from "../send-legal-document-notices.repo";
+import { SendLegalDocumentNoticesInteractor } from "../send-legal-document-notices.interactor";
 
 const NOW = new Date("2026-08-07T09:00:00.000Z");
 const OLD_CREATED_AT = new Date("2026-08-01T09:00:00.000Z");
@@ -62,13 +60,16 @@ type TestLegalAuditRecord = LegalAuditRecord & { companyId: string };
 function recipient(
   id: string,
   isSystemAdministrator: boolean,
-  options: Partial<Pick<LegalNoticeRecipient, "companyId" | "createdAt" | "displayLanguage">> = {},
+  options: Partial<
+    Pick<LegalNoticeRecipient, "companyId" | "companyName" | "createdAt" | "displayLanguage" | "email">
+  > = {},
 ): LegalNoticeRecipient {
   return {
     id,
     companyId: options.companyId ?? "company-1",
+    companyName: options.companyName ?? null,
     createdAt: options.createdAt ?? OLD_CREATED_AT,
-    email: `${id}@example.com`,
+    email: options.email ?? `${id}@example.com`,
     firstName: id,
     displayLanguage: options.displayLanguage ?? "en",
     formattingLocale: "system",
@@ -623,6 +624,135 @@ describe("SendLegalDocumentNoticesInteractor", () => {
     expect(error).toBe(auditFailure);
     expect(emailService.send).toHaveBeenCalledOnce();
     expect(eventService.publish).toHaveBeenCalledOnce();
+  });
+
+  it("sends the Privacy notice once per login across workspaces and records it for every membership", async () => {
+    recipients = [
+      recipient("member-a", false, { companyId: "company-1", email: "shared@example.com" }),
+      recipient("member-b", false, { companyId: "company-2", email: "Shared@Example.com" }),
+    ];
+
+    await invoke();
+
+    expect(emailService.send).toHaveBeenCalledOnce();
+    expect(emailService.send.mock.calls[0][0].to).toBe("shared@example.com");
+    expect(emailService.send.mock.calls[0][0].subject).toBe("Customermates legal information updated");
+    expect(documentNames(emailService.send.mock.calls[0][0])).toEqual(["Privacy Policy"]);
+    expect(
+      eventService.publish.mock.calls.map(([, data, options]) => [
+        data.entityId,
+        options.systemCompanyId,
+        data.payload.changedDocuments,
+        data.payload.effectiveAt,
+      ]),
+    ).toEqual([
+      ["member-a", "company-1", ["privacy"], null],
+      ["member-b", "company-2", ["privacy"], null],
+    ]);
+
+    emailService.send.mockClear();
+    eventService.publish.mockClear();
+    await invoke(new Date("2026-08-08T09:00:00.000Z"));
+    expect(emailService.send).not.toHaveBeenCalled();
+    expect(eventService.publish).not.toHaveBeenCalled();
+  });
+
+  it("lets a workspace notice carry the Privacy notice of the same person's other memberships", async () => {
+    recipients = [
+      recipient("member-b", false, { companyId: "company-2", email: "shared@example.com" }),
+      recipient("admin-a", true, { companyId: "company-1", companyName: "Acme", email: "shared@example.com" }),
+    ];
+
+    await invoke();
+
+    expect(emailService.send).toHaveBeenCalledOnce();
+    const [email] = emailService.send.mock.calls[0];
+    expect(email.subject).toBe("Action required for “Acme”: updated Customermates legal documents");
+    expect(documentNames(email)).toEqual([
+      "Terms and Conditions",
+      "Data Processing Agreement",
+      "Privacy Policy",
+      "Subprocessors",
+    ]);
+    expect(
+      eventService.publish.mock.calls.map(([, data, options]) => [
+        data.entityId,
+        options.systemCompanyId,
+        data.payload.changedDocuments,
+      ]),
+    ).toEqual([
+      ["admin-a", "company-1", ["terms", "dpa", "privacy", "subprocessors"]],
+      ["member-b", "company-2", ["privacy"]],
+    ]);
+  });
+
+  it("keeps contract notices per workspace and names every workspace that has a name", async () => {
+    recipients = [
+      recipient("admin-a", true, { companyId: "company-1", companyName: "Acme", email: "owner@example.com" }),
+      recipient("admin-b", true, { companyId: "company-2", email: "owner@example.com" }),
+    ];
+
+    await invoke();
+
+    expect(emailService.send).toHaveBeenCalledTimes(2);
+    const [named, unnamed] = emailService.send.mock.calls.map(([email]) => email);
+    expect(named.subject).toBe("Action required for “Acme”: updated Customermates legal documents");
+    expect(named.react.props.subject).toBe(named.subject);
+    expect(named.react.props.body).toBe(
+      "We updated the legal documents listed below for the workspace “Acme”. Please review them for the business customer and arrange electronic acceptance by an authorised system administrator.",
+    );
+    expect(unnamed.subject).toBe("Action required: updated Customermates legal documents");
+    expect(unnamed.react.props.body).not.toContain("workspace");
+    expect(eventService.publish.mock.calls.map(([, data]) => data.entityId)).toEqual(["admin-a", "admin-b"]);
+  });
+
+  it("names the workspace in a Subprocessor notice but never in a personal Privacy notice", async () => {
+    recipients = [
+      recipient("admin-a", true, { companyId: "company-1", companyName: "Acme" }),
+      recipient("member-c", false, { companyId: "company-2", companyName: "Beta" }),
+    ];
+    records.push(acceptanceRecord({ companyId: "company-1", userId: "someone-else" }));
+
+    await invoke();
+
+    const [subprocessorNotice, privacyNotice] = emailService.send.mock.calls.map(([email]) => email);
+    expect(documentNames(subprocessorNotice)).toEqual(["Privacy Policy", "Subprocessors"]);
+    expect(subprocessorNotice.subject).toBe("Customermates legal information updated for “Acme”");
+    expect(subprocessorNotice.react.props.body).toContain("for the workspace “Acme”");
+    expect(documentNames(privacyNotice)).toEqual(["Privacy Policy"]);
+    expect(privacyNotice.subject).toBe("Customermates legal information updated");
+    expect(privacyNotice.react.props.body).not.toContain("Beta");
+  });
+
+  it("localizes the workspace name in the formal German contract notice", async () => {
+    recipients = [
+      recipient("admin-a", true, { companyId: "company-1", companyName: "Bergmann Steuern", displayLanguage: "de" }),
+    ];
+
+    await invoke();
+
+    const [email] = emailService.send.mock.calls[0];
+    expect(email.subject).toBe(
+      "Handlung erforderlich für „Bergmann Steuern“: aktualisierte Customermates-Rechtsdokumente",
+    );
+    expect(email.react.props.body).toContain("für den Workspace „Bergmann Steuern“");
+  });
+
+  it("retries every membership a failed shared delivery covered", async () => {
+    recipients = [
+      recipient("member-a", false, { companyId: "company-1", email: "shared@example.com" }),
+      recipient("member-b", false, { companyId: "company-2", email: "shared@example.com" }),
+    ];
+    emailService.send.mockResolvedValueOnce(false);
+
+    await invoke();
+    expect(emailService.send).toHaveBeenCalledOnce();
+    expect(eventService.publish).not.toHaveBeenCalled();
+
+    emailService.send.mockClear().mockResolvedValue(true);
+    await invoke(new Date("2026-08-08T09:00:00.000Z"));
+    expect(emailService.send).toHaveBeenCalledOnce();
+    expect(eventService.publish.mock.calls.map(([, data]) => data.entityId)).toEqual(["member-a", "member-b"]);
   });
 
   it("is a no-op outside managed cloud mode", async () => {

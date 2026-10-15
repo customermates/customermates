@@ -28,7 +28,7 @@ import {
 
 const WorkspaceContextOutputSchema = z.looseObject({
   user: z.looseObject({}),
-  company: z.looseObject({ id: z.string() }),
+  company: z.looseObject({ id: z.string(), name: z.string().nullable() }),
   roles: z.array(z.looseObject({ id: z.string() })),
   connectedAccounts: z.array(z.looseObject({ id: z.string() })),
   wiki: z
@@ -110,7 +110,8 @@ export const getWorkspaceContextTool = {
   name: "get_workspace_context",
   title: "Get workspace context",
   description:
-    "Use this when starting a session: returns the current user, company, role catalog with permissions, connected messaging accounts, and the Knowledge Base in one call. " +
+    "Use this when starting a session: returns the current user, company (the workspace, with its name; null for an unnamed workspace), role catalog with permissions, connected messaging accounts, and the Knowledge Base in one call. " +
+    "This connection is bound to exactly one workspace: every tool reads and writes only that workspace, and another workspace of the same login needs its own connection. " +
     "On the first page wiki.guide is the Operating Guide (follow it; nextOffset marks where the full page continues) and wiki.procedures lists procedures with whenToUse (read the matching one before acting). " +
     "wiki.items are knowledge pages, ten per page in creation order, each with id, title, url, timestamps and a short opening excerpt, never the complete page. " +
     "Pass wiki.nextPage as wikiPage to continue. wiki is omitted without Knowledge Base Read. " +
@@ -127,7 +128,7 @@ export function hostedWorkspaceContextTool() {
   return {
     ...getWorkspaceContextTool,
     description:
-      "Use this when starting a session: returns the current user, company, role catalog with permissions, and connected messaging accounts in one call. " +
+      "Use this when starting a session: returns the current user, company (the workspace, with its name; null for an unnamed workspace), role catalog with permissions, and connected messaging accounts in one call. " +
       WORKSPACE_CONTEXT_FIELDS_DESCRIPTION,
     inputSchema: z.object({}),
     execute: () => workspaceContext(null),

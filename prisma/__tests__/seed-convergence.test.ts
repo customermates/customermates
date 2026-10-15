@@ -68,6 +68,38 @@ suite("generic synthetic seed convergence", { timeout: 180000 }, () => {
         ).toBe(entities[`${kind}s`].length + (kind === "contact" ? 1 : 0));
       }
 
+      const secondWorkspace = SEED_IDS.secondWorkspaceCompany;
+      const owner = await prisma.user.findUniqueOrThrow({ where: { id: SEED_IDS.user }, select: { email: true } });
+      expect(
+        await prisma.user.findMany({
+          where: { email: owner.email },
+          select: {
+            companyId: true,
+            status: true,
+            company: { select: { name: true } },
+            role: { select: { isSystemRole: true } },
+          },
+          orderBy: { createdAt: "asc" },
+        }),
+      ).toEqual([
+        { companyId, status: "active", company: { name: "Northwind Labs" }, role: { isSystemRole: true } },
+        {
+          companyId: secondWorkspace,
+          status: "active",
+          company: { name: "Bergmann Steuern" },
+          role: { isSystemRole: true },
+        },
+      ]);
+      expect(await prisma.userRole.count({ where: { companyId: secondWorkspace } })).toBe(1);
+      expect(await prisma.recordSchemaState.count({ where: { companyId: secondWorkspace } })).toBe(1);
+      expect(await prisma.recordTypeDefinition.count({ where: { companyId: secondWorkspace } })).toBeGreaterThan(0);
+      expect(
+        await prisma.subscription.findUniqueOrThrow({
+          where: { companyId: secondWorkspace },
+          select: { status: true },
+        }),
+      ).toEqual({ status: "active" });
+
       const hooks = await prisma.webhook.findMany({ where: { companyId } });
       expect(
         hooks.every((hook) => hook.events.every((event) => !/^(contact|organization|deal|service|task)\./.test(event))),

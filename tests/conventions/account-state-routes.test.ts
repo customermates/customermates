@@ -23,10 +23,7 @@ describe("guarded account-state route contract", () => {
       "app/[locale]/(protected)/subscription-expired/page.tsx",
       /requireAccountState\(\s*"subscription",\s*settingsHref\("billing"\),?\s*\)/,
     ],
-    [
-      "app/[locale]/(public)/auth/mcp-consent/page.tsx",
-      /requireAccountState\(\s*\[\s*"allowed",\s*"onboarding"\s*\]\s*\)/,
-    ],
+    ["app/[locale]/(public)/auth/mcp-consent/page.tsx", /requireAccountState\(\s*MCP_CONSENT_MEMBER_STATES\s*\)/],
   ])("server-gates %s with the canonical state resolver", (path, contract) => {
     expect(source(path)).toMatch(contract);
   });
@@ -126,10 +123,15 @@ describe("guarded account-state route contract", () => {
     expect(authActions).not.toContain("resolveRequestAccountState");
     expect(authActions).not.toContain("getAuthService");
     expect(consentInteractor).toContain("this.routeGuardService.resolveMcpConsentState(resolution)");
-    expect(consentInteractor).toContain('state !== "allowed" && state !== "onboarding"');
-    expect(source("app/[locale]/(public)/auth/mcp-consent/page.tsx")).toContain(
-      "getRouteGuardService().resolveMcpConsentState(resolution)",
-    );
+    expect(consentInteractor).toContain('state === "allowed" || state === "onboarding" ? resolution.user : null');
+    expect(consentInteractor).toContain("choosesOther && isMcpConsentMemberState(resolution.state)");
+    expect(consentInteractor).toContain("this.routeGuardService.resolveMembershipForConsent(companyId)");
+    const mcpAccess = source("features/auth/mcp-access.ts");
+    for (const state of ["unauthenticated", "overdueVerification", "unregistered"])
+      expect(mcpAccess, state).not.toContain(`"${state}"`);
+    const consentPage = source("app/[locale]/(public)/auth/mcp-consent/page.tsx");
+    expect(consentPage).toContain("getRouteGuardService().resolveMcpConsentState(resolution)");
+    expect(consentPage).toContain("workspaces.some((workspace) => workspace.unavailableReason === null)");
     const requireSource = source("features/auth/next/require.ts");
     expect(requireSource).toMatch(
       /accessRedirectForAccountState\(\s*await resolveRequestAccountState\(\),\s*options,?\s*\)/,

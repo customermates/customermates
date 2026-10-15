@@ -1,4 +1,5 @@
 import type { Data } from "@/core/validation/validation.utils";
+import type { AuthService } from "@/features/auth/auth.service";
 import type { EventService } from "@/features/event/event.service";
 import type { UpdateUserDetailsRepo } from "./update-user-details.repo";
 
@@ -48,11 +49,22 @@ export type StoredUserProfileData = Omit<UserProfileData, "displayLanguage" | "f
   formattingLocale: Locale;
 };
 
+const PERSONAL_PROFILE_FIELDS = [
+  "firstName",
+  "lastName",
+  "country",
+  "avatarUrl",
+  "theme",
+  "displayLanguage",
+  "formattingLocale",
+] as const satisfies readonly (keyof StoredUserProfileData)[];
+
 @TenantInteractor()
 export class UpdateUserDetailsInteractor extends AuthenticatedInteractor<UpdateUserDetailsData, UserProfileData> {
   constructor(
     private repo: UpdateUserDetailsRepo,
     private eventService: EventService,
+    private authService: Pick<AuthService, "getInteractiveSession">,
   ) {
     super();
   }
@@ -77,6 +89,47 @@ export class UpdateUserDetailsInteractor extends AuthenticatedInteractor<UpdateU
     if (Object.keys(changes).length)
       await this.eventService.publish(DomainEvent.USER_UPDATED, { entityId: this.userId, payload: { changes } });
 
+    if (await this.isInteractiveSession()) await this.applyToOtherMemberships(data, storedProfile);
+
     return { ok: true as const, data: profile };
+  }
+
+  private async isInteractiveSession(): Promise<boolean> {
+    const session = await this.authService.getInteractiveSession().catch(() => null);
+    return session?.user.email === this.user.email;
+  }
+
+  private async applyToOtherMemberships(data: UpdateUserDetailsData, storedProfile: StoredUserProfileData) {
+    const personal = Object.fromEntries(
+      PERSONAL_PROFILE_FIELDS.filter((field) => data[field] !== undefined).map((field) => [
+        field,
+        storedProfile[field],
+      ]),
+    ) as Partial<StoredUserProfileData>;
+    if (Object.keys(personal).length === 0) return;
+
+    const memberships = await this.repo.applyPersonalProfileToOtherMembershipsUnscoped({
+      email: this.user.email,
+      exceptUserId: this.userId,
+      profile: personal,
+    });
+
+    for (const membership of memberships) {
+      const changes = calculateChanges(
+        { firstName: membership.firstName, lastName: membership.lastName, country: membership.country },
+        {
+          firstName: personal.firstName ?? membership.firstName,
+          lastName: personal.lastName ?? membership.lastName,
+          country: personal.country ?? membership.country,
+        },
+      );
+      if (Object.keys(changes).length) {
+        await this.eventService.publish(
+          DomainEvent.USER_UPDATED,
+          { entityId: membership.id, payload: { changes } },
+          { systemCompanyId: membership.companyId, systemUserId: membership.id },
+        );
+      }
+    }
   }
 }

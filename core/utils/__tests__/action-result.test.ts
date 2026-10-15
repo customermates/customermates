@@ -8,6 +8,8 @@ vi.mock("next-intl/server", () => ({
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { ForbiddenError } from "@/core/errors/app-errors";
+import { WORKSPACE_CHANGED_DIGEST } from "@/core/errors/workspace-changed";
+import { WorkspaceChangedError } from "@/core/errors/workspace-changed-error";
 import { createZodError, serializeInteractorFailure } from "@/core/validation/validation.utils";
 
 import { serializeResult, serializeTypedResult } from "../action-result";
@@ -59,6 +61,15 @@ describe("serializeResult", () => {
       ok: false,
       failure: { kind: "authorization", issues: [{ customCode: CustomErrorCode.permissionDenied }] },
     });
+  });
+
+  it("lets a changed workspace reach the browser as an error carrying its digest instead of a permission refusal", async () => {
+    await expect(serializeTypedResult(Promise.reject(new WorkspaceChangedError()))).rejects.toMatchObject({
+      digest: WORKSPACE_CHANGED_DIGEST,
+    });
+    await expect(serializeResult(Promise.reject(new WorkspaceChangedError()))).rejects.toBeInstanceOf(
+      WorkspaceChangedError,
+    );
   });
 
   it("reports an expired transaction as unavailable without a retry hint", async () => {

@@ -1,3 +1,4 @@
+import type { ActiveWorkspaceService } from "@/features/workspace/active-workspace.service";
 import type { TenantUser } from "@/features/user/user.schema";
 import type { AuthService } from "../auth.service";
 import type { FindUserRepo } from "../../user/user.service";
@@ -32,6 +33,7 @@ const mocks = {
   findCurrentUserUnscoped: vi.fn(),
   getSubscriptionOrThrowUnscoped: vi.fn(),
   getLegalStatus: vi.fn(),
+  hasLeftMembershipUnscoped: vi.fn(),
 };
 
 function makeService() {
@@ -41,12 +43,16 @@ function makeService() {
       findAuthUserCompanyIdUnscoped: mocks.findAuthUserCompanyIdUnscoped,
       findAuthUserAccountStateUnscoped: mocks.findAuthUserAccountStateUnscoped,
       findCurrentUserUnscoped: mocks.findCurrentUserUnscoped,
+      hasLeftMembershipUnscoped: mocks.hasLeftMembershipUnscoped,
     } as unknown as FindUserRepo,
     {
       existsUnscoped: mocks.existsUnscoped,
       getSubscriptionOrThrowUnscoped: mocks.getSubscriptionOrThrowUnscoped,
     } as unknown as RouteGuardCompanyRepo,
     { invoke: mocks.getLegalStatus } as unknown as GetLegalStatusInteractor,
+    {
+      resolveMembership: (session: { user: { email: string } }) => mocks.findCurrentUserUnscoped(session.user.email),
+    } as unknown as ActiveWorkspaceService,
   );
 }
 
@@ -102,6 +108,7 @@ beforeEach(() => {
   mocks.findCurrentUserUnscoped.mockResolvedValue(user());
   mocks.getSubscriptionOrThrowUnscoped.mockResolvedValue(subscription(SubscriptionStatus.active));
   mocks.getLegalStatus.mockResolvedValue({ mustAccept: false });
+  mocks.hasLeftMembershipUnscoped.mockResolvedValue(false);
 });
 
 describe("RouteGuardService.resolveAccountState", () => {
@@ -184,6 +191,18 @@ describe("RouteGuardService.resolveAccountState", () => {
     });
   });
 
+  it("does not route a login back into a workspace it left", async () => {
+    mocks.findCurrentUserUnscoped.mockResolvedValue(null);
+    mocks.findAuthUserCompanyIdUnscoped.mockResolvedValue("left-company-id");
+    mocks.hasLeftMembershipUnscoped.mockResolvedValue(true);
+
+    expect(await makeService().resolveAccountState()).toMatchObject({
+      state: "unregistered",
+      sessionUser: { companyId: null },
+    });
+    expect(mocks.hasLeftMembershipUnscoped).toHaveBeenCalledExactlyOnceWith("max@example.com", "left-company-id");
+  });
+
   it("treats a cached session for a deleted identity as unauthenticated", async () => {
     mocks.findCurrentUserUnscoped.mockResolvedValue(null);
     mocks.findAuthUserCompanyIdUnscoped.mockResolvedValue(undefined);
@@ -254,14 +273,21 @@ describe("RouteGuardService.resolveAccountState", () => {
     expect(mocks.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
   });
 
-  it("resolves incomplete administrator onboarding before tenant checks", async () => {
+  it("resolves incomplete administrator onboarding while the workspace plan is usable", async () => {
     mocks.findCurrentUserUnscoped.mockResolvedValue(user({ onboardingWizardCompletedAt: null }));
 
     expect(await makeService().resolveAccountState()).toMatchObject({
       state: "onboarding",
     });
-    expect(mocks.getLegalStatus).not.toHaveBeenCalled();
-    expect(mocks.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("sends an incomplete administrator of a workspace without a usable plan to the plan page first", async () => {
+    mocks.findCurrentUserUnscoped.mockResolvedValue(user({ onboardingWizardCompletedAt: null }));
+    mocks.getSubscriptionOrThrowUnscoped.mockResolvedValue(subscription(SubscriptionStatus.trial, PAST));
+
+    expect(await makeService().resolveAccountState()).toMatchObject({
+      state: "subscription",
+    });
   });
 
   it("fails closed if a new account status is not mapped explicitly", async () => {

@@ -116,4 +116,17 @@ describe("ConfirmDialog", () => {
     });
     expect(confirmButton()?.disabled).toBe(false);
   });
+
+  it("blocks the page without a way to dismiss it when there is no cancel action", () => {
+    const onConfirm = vi.fn();
+    render({ onCancel: undefined, onConfirm, confirmLabel: "Reload" });
+    expect(document.getElementById("confirm-cancel")).toBeNull();
+    const dialog = document.querySelector<HTMLElement>("[data-slot='confirm-dialog']");
+    act(() => {
+      dialog?.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    });
+    expect(document.querySelector("[data-slot='confirm-dialog']")).not.toBeNull();
+    act(() => confirmButton()?.click());
+    expect(onConfirm).toHaveBeenCalledOnce();
+  });
 });

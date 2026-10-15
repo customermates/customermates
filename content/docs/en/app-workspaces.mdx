@@ -1,0 +1,80 @@
+---
+title: "Multiple Workspaces: Create, Switch, Join and Leave"
+description: "One login, several isolated workspaces: create, switch, join and leave them, and how API keys, MCP connections, billing and the trial work per workspace."
+---
+
+A workspace is one company's CRM in Customermates. One login, your email address, can belong to several workspaces, much like being a member of several companies, and you switch between them in the app. Each workspace is fully separate from the others.
+
+## What is a workspace, and what does it keep separate? [#what-is-a-workspace]
+
+A workspace is a separate CRM with its own lists and data model, records, [Knowledge Base](app:wiki), members, roles, plan and billing, API keys, MCP connections (Claude, ChatGPT and any other connector), webhooks, routines, Mate chats and hosted AI credits. Nothing is shared or searchable across workspaces: search, Mate, MCP and the REST API always act inside one workspace, and an id from another workspace reads as not found.
+
+### What is the same in every workspace? [#what-is-the-same-in-every-workspace]
+
+Your personal profile: first and last name, avatar, display language, formatting locale, theme and country. Changing it in [Profile & preferences](app:settings/profile) updates it in every workspace you belong to; a change made with an API key or an MCP connection applies only in the workspace of that key or connection. Your role, your status and your seat are set per workspace, so you can have the **Admin** role in one workspace and a restricted role in another. When a member with **Edit** on **Users & Roles** changes another member on [Members](app:settings/members), the change applies only in that workspace.
+
+## How do I create a workspace? [#how-do-i-create-a-workspace]
+
+Open the workspace menu at the top of the sidebar and choose **Create workspace**. Enter a name of 1 to 80 characters and, on Customermates Cloud, agree to the Terms. Anyone signed in can create workspaces, whatever their role in the current one; the public demo does not offer it. On Customermates Cloud, one login can create up to [[commercial.workspaces.creationLimit]] workspaces; contact support if you need more.
+
+You get the built-in **Admin** role in the new workspace, and this browser session switches to it. It starts with the same lists as every new workspace ([which record types a workspace starts with](/docs/concepts#which-five-record-types-exist)) and with none of the data of your other workspaces. The [onboarding wizard](/docs/app-onboarding) opens for it without the profile step, because your profile already exists: the Knowledge Base, invite and AI steps remain. On Cloud, only the first workspace you create has a free trial; see [Which workspace gets the free trial?](#which-workspace-gets-the-free-trial).
+
+## How do I switch between workspaces? [#how-do-i-switch-workspaces]
+
+The workspace menu at the top of the sidebar lists every workspace you belong to; choose one to switch to it. The choice applies to this browser session, so another browser or device can be in a different workspace at the same time. The workspace you switched to is remembered as your last used one and opens at your next sign-in.
+
+**Workspaces** under **Account** in Settings lists the same workspaces with your role, your status and the plan of each.
+
+## How do I rename a workspace? [#how-do-i-rename-a-workspace]
+
+Open Settings, choose **General** under **Workspace** and change the workspace name, 1 to 80 characters. Renaming needs **Edit** on the **Company** row of your role; the **Admin** role has it. A workspace created before workspaces had names stays unnamed until someone renames it.
+
+## How do I join a workspace with my existing account? [#how-do-i-join-with-an-existing-account]
+
+Invitations work as for new people: a member shares the invitation link or sends it by email, see [How do I invite people](/docs/app-company#how-do-invitations-work). Open the link while you are signed in to Customermates, and you join with the profile you already have. The workspace appears in your workspace menu, and as for a new user your status is **Waiting for approval** until someone with **Edit** on **Users & Roles** approves you on [Members](app:settings/members).
+
+If you are already a member of that workspace, the link just switches you to it. If you left the workspace earlier, a new invitation lets you rejoin, and you need approval again.
+
+## How do I leave a workspace? [#how-do-i-leave-a-workspace]
+
+Open Settings, choose **General** under **Workspace** and click **Leave workspace**. Leaving:
+
+- sets your status in that workspace to **Inactive**,
+- revokes your API keys and MCP connections for that workspace,
+- disconnects the channels you connected in it, such as mailboxes and LinkedIn accounts,
+- pauses your routines in it,
+- on Cloud, removes your seat from that workspace's billing.
+
+Pages of that workspace still open in another tab or on another device stop saving and ask you to reload, which opens your last used workspace. Your account and your other workspaces stay untouched. The last active member with the **Admin** role cannot leave: make another active member an admin first, otherwise leaving fails with "You are the only admin of this workspace. Make another active member an admin before you leave." Customermates platform operators cannot leave a workspace. To come back you need a new invitation and approval. The app offers no way to delete a workspace.
+
+## Which workspace do API keys and AI connections use? [#which-workspace-do-api-keys-and-connections-use]
+
+An API key belongs to exactly one workspace: a key created in a workspace only ever acts in that workspace, with your role there. [API keys](app:settings/api-keys) lists and deletes only the keys of the current workspace, so switch to another workspace to see or delete its keys. Keys created before a login could belong to several workspaces stay bound to the workspace they were created in.
+
+An MCP connection over OAuth, such as the Claude or ChatGPT connector, also gets exactly one workspace. If you belong to several, the **Authorize access** screen asks which workspace the connection gets: your current workspace is preselected, and you can pick another one where you are **Active** and your role has **Read access** **All** on **API & Webhooks**. The connection, including the tokens it refreshes later, stays bound to that workspace. To work in several workspaces from AI clients, connect once per workspace, for example with a different Claude account per workspace; see [Connect with a custom connector](/docs/connect-custom-connector).
+
+Channels you connect in [Channels](app:settings/channels), such as a mailbox or a LinkedIn account, belong to the workspace you connected them in.
+
+## How is each workspace billed, and how are seats counted? [#how-is-each-workspace-billed]
+
+On Customermates Cloud, each workspace has its own plan, subscription, invoices and hosted AI credit pool on [Billing](app:settings/billing), managed by its members with **Edit** on **Company**. A person who is **Active** in several workspaces is a billed seat in each of them; see [How are seats counted and billed?](/docs/app-company#how-are-seats-counted-and-billed).
+
+### Which workspace gets the free trial? [#which-workspace-gets-the-free-trial]
+
+Only the first workspace a login creates gets the free trial of [[commercial.trial.days]] days. Every additional workspace starts without a trial: its admin chooses a plan on the **Subscription Required** screen before the workspace can be used, and until then its API keys and MCP connections are refused as well, see [What happens when the trial ends?](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails). Joining someone else's workspace neither uses up nor grants a trial.
+
+## How do workspaces work when you self-host? [#how-do-workspaces-work-when-self-hosting]
+
+When you run Customermates yourself, it holds any number of workspaces, with no billing and no trial: every workspace starts active. Any registered user can create additional workspaces, and the app offers no way to delete a workspace. See [Who can sign up on my instance?](/docs/self-hosting#who-can-sign-up-on-my-instance).
+
+## For agents [#for-agents]
+
+Every MCP and REST call acts in exactly one workspace: the one the API key was created in or the OAuth connection was approved for. `get_workspace_context` returns that workspace as `company` (its id and name), and an id from another workspace answers `not_found`. No MCP tool or REST endpoint lists, creates, switches, renames or leaves workspaces; send the user to the workspace menu. To act in another workspace, the user connects a separate key or connection there.
+
+## Related [#related]
+
+- [App guide, Company](/docs/app-company): members, roles and billing of one workspace.
+- [App guide, Profile](/docs/app-profile): the profile that is the same in every workspace.
+- [API keys](/docs/api-keys): creating, using and deleting keys.
+- [Connect with a custom connector](/docs/connect-custom-connector): connecting Claude and ChatGPT over OAuth.
+- [Onboarding Wizard](/docs/app-onboarding): the steps after you create a workspace.

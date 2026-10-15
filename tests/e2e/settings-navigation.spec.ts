@@ -30,8 +30,11 @@ test("settings live in one area reached from the workspace menu, with Back to th
 
   await test.step("the workspace menu opens Settings on Profile & preferences", async () => {
     const menu = await openMenu(page, "#nav-workspace-menu");
-    await expect(menu.getByRole("menuitem").first()).toHaveText("Invite members");
-    expect((await menu.getByRole("menuitem").allTextContents()).slice(0, 4)).toEqual([
+    await expect(menu.locator("[data-workspace-id]")).toHaveText([/Browser workspace$/]);
+    await expect(menu.getByRole("menuitem").nth(2)).toHaveText("Invite members");
+    expect((await menu.getByRole("menuitem").allTextContents()).slice(0, 6)).toEqual([
+      expect.stringMatching(/Browser workspace$/),
+      "Create workspace",
       "Invite members",
       "Members",
       "Settings",

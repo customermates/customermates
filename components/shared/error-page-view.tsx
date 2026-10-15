@@ -1,5 +1,7 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 import Image from "next/image";
 
 import { AppCard } from "@/components/card/app-card";
@@ -17,58 +19,63 @@ type Props = {
   backLabel?: string;
   retryLabel?: string;
   onRetry?: () => void;
+  aside?: ReactNode;
 };
 
-export function ErrorPageView({ title, subtitle, body, backHref, backLabel, retryLabel, onRetry }: Props) {
+export function ErrorPageView({ title, subtitle, body, backHref, backLabel, retryLabel, onRetry, aside }: Props) {
   const showRetry = onRetry !== undefined && retryLabel !== undefined;
   const showBack = backHref !== undefined && backLabel !== undefined;
 
   return (
     <CenteredCardPage>
-      <AppCard className="max-w-md">
-        <AppCardHeader className="text-center flex-col gap-2">
-          <Image
-            alt={title}
-            className="inline-block rounded-lg object-contain select-none shadow-[0_0_10px_0] shadow-primary/10 dark:hidden"
-            height={48}
-            src="/images/light/customermates-square.svg"
-            width={48}
-          />
+      <div className="flex w-full flex-col items-center gap-4">
+        <AppCard className="max-w-md">
+          <AppCardHeader className="text-center flex-col gap-2">
+            <Image
+              alt={title}
+              className="inline-block rounded-lg object-contain select-none shadow-[0_0_10px_0] shadow-primary/10 dark:hidden"
+              height={48}
+              src="/images/light/customermates-square.svg"
+              width={48}
+            />
 
-          <Image
-            alt={title}
-            className="hidden rounded-lg object-contain select-none shadow-[0_0_10px_0] dark:inline-block dark:shadow-primary/20"
-            height={48}
-            src="/images/dark/customermates-square.svg"
-            width={48}
-          />
+            <Image
+              alt={title}
+              className="hidden rounded-lg object-contain select-none shadow-[0_0_10px_0] dark:inline-block dark:shadow-primary/20"
+              height={48}
+              src="/images/dark/customermates-square.svg"
+              width={48}
+            />
 
-          <h1 className="text-x-2xl mt-4">{title}</h1>
+            <h1 className="text-x-2xl mt-4">{title}</h1>
 
-          <span className="text-x-sm text-subdued">{subtitle}</span>
-        </AppCardHeader>
+            <span className="text-x-sm text-subdued">{subtitle}</span>
+          </AppCardHeader>
 
-        <AppCardBody>
-          <p className="text-x-sm text-center">{body}</p>
-        </AppCardBody>
+          <AppCardBody>
+            <p className="text-x-sm text-center">{body}</p>
+          </AppCardBody>
 
-        {showRetry || showBack ? (
-          <AppCardFooter className="flex-col">
-            {showRetry && (
-              <Button className="w-full" variant="secondary" onClick={onRetry}>
-                {retryLabel}
-              </Button>
-            )}
+          {showRetry || showBack ? (
+            <AppCardFooter className="flex-col">
+              {showRetry && (
+                <Button className="w-full" variant="secondary" onClick={onRetry}>
+                  {retryLabel}
+                </Button>
+              )}
 
-            {showBack ? (
-              <Button asChild className="w-full" variant="destructive">
-                {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- ErrorPageView renders without provider context (global-error) */}
-                <a href={backHref}>{backLabel}</a>
-              </Button>
-            ) : null}
-          </AppCardFooter>
-        ) : null}
-      </AppCard>
+              {showBack ? (
+                <Button asChild className="w-full" variant="destructive">
+                  {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- ErrorPageView renders without provider context (global-error) */}
+                  <a href={backHref}>{backLabel}</a>
+                </Button>
+              ) : null}
+            </AppCardFooter>
+          ) : null}
+        </AppCard>
+
+        {aside}
+      </div>
     </CenteredCardPage>
   );
 }

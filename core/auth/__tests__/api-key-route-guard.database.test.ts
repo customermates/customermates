@@ -60,17 +60,35 @@ async function seedMember(
   return { authUserId, cookie };
 }
 
-async function call(member: Member, path: string, body?: unknown) {
+async function http(member: Member | null, path: string, body?: unknown) {
   const { auth } = await import("@/core/auth/better-auth");
   const origin = await baseUrl();
   const response = await auth.handler(
     new Request(`${origin}/api/auth${path}`, {
       method: body === undefined ? "GET" : "POST",
-      headers: { cookie: member.cookie, origin, "content-type": "application/json" },
+      headers: { ...(member ? { cookie: member.cookie } : {}), origin, "content-type": "application/json" },
       body: body === undefined ? undefined : JSON.stringify(body),
     }),
   );
-  return { status: response.status, body: (await response.json().catch(() => null)) as Record<string, unknown> | null };
+  return response.status;
+}
+
+type ServerCall = { status: number; code: string | null; body: Record<string, unknown> | null };
+
+async function server(member: Member, run: (headers: Headers) => Promise<unknown>): Promise<ServerCall> {
+  try {
+    const body = (await run(new Headers({ cookie: member.cookie }))) as Record<string, unknown> | null;
+    return { status: 200, code: null, body };
+  } catch (error) {
+    const failure = error as { statusCode?: unknown; body?: { code?: string } };
+    if (typeof failure.statusCode !== "number") throw error;
+    return { status: failure.statusCode, code: failure.body?.code ?? null, body: null };
+  }
+}
+
+async function keys() {
+  const { auth } = await import("@/core/auth/better-auth");
+  return auth.api;
 }
 
 async function ownKey(member: Member) {
@@ -78,84 +96,105 @@ async function ownKey(member: Member) {
   return auth.api.createApiKey({ body: { name: "Seeded", userId: member.authUserId } });
 }
 
-describeDatabase("API key plugin routes enforce the API permission", { timeout: 120_000 }, () => {
-  let admin: Member;
-  let member: Member;
-  let creator: Member;
-  let pending: Member;
+describeDatabase(
+  "API key plugin endpoints stay server-side and enforce the API permission",
+  { timeout: 120_000 },
+  () => {
+    let admin: Member;
+    let member: Member;
+    let creator: Member;
+    let pending: Member;
 
-  beforeAll(async () => {
-    const { prisma, runWithoutTenant } = await db();
-    await runWithoutTenant(() => prisma.company.create({ data: { id: companyId } }));
-    admin = await seedMember("admin", "active", { isSystemRole: true, actions: [] });
-    member = await seedMember("member", "active", { isSystemRole: false, actions: [] });
-    creator = await seedMember("creator", "active", { isSystemRole: false, actions: ["create", "readAll"] });
-    pending = await seedMember("pending", "pendingAuthorization", { isSystemRole: true, actions: [] });
-  });
+    beforeAll(async () => {
+      const { prisma, runWithoutTenant } = await db();
+      await runWithoutTenant(() => prisma.company.create({ data: { id: companyId } }));
+      admin = await seedMember("admin", "active", { isSystemRole: true, actions: [] });
+      member = await seedMember("member", "active", { isSystemRole: false, actions: [] });
+      creator = await seedMember("creator", "active", { isSystemRole: false, actions: ["create", "readAll"] });
+      pending = await seedMember("pending", "pendingAuthorization", { isSystemRole: true, actions: [] });
+    });
 
-  afterAll(async () => {
-    const { prisma, runWithoutTenant } = await db();
-    await prisma.apikey.deleteMany({ where: { referenceId: { in: authUserIds } } });
-    await prisma.authUser.deleteMany({ where: { id: { in: authUserIds } } });
-    await runWithoutTenant(() => prisma.company.deleteMany({ where: { id: companyId } }));
-  });
+    afterAll(async () => {
+      const { prisma, runWithoutTenant } = await db();
+      await prisma.apikey.deleteMany({ where: { referenceId: { in: authUserIds } } });
+      await prisma.authUser.deleteMany({ where: { id: { in: authUserIds } } });
+      await runWithoutTenant(() => prisma.company.deleteMany({ where: { id: companyId } }));
+    });
 
-  it("refuses every key route to a member without the API permission", async () => {
-    const seeded = await ownKey(member);
+    it("refuses every key route over HTTP, even to an admin, so keys are only managed through the app", async () => {
+      const seeded = await ownKey(admin);
 
-    expect((await call(member, "/api-key/create", { name: "Minted", expiresIn: 86_400 })).status).toBe(403);
-    expect((await call(member, "/api-key/update", { keyId: seeded.id, name: "Renamed" })).status).toBe(403);
-    expect((await call(member, "/api-key/delete", { keyId: seeded.id })).status).toBe(403);
-    expect((await call(member, "/api-key/list")).status).toBe(403);
-    expect((await call(member, `/api-key/get?id=${seeded.id}`)).status).toBe(403);
+      expect(await http(admin, "/api-key/create", { name: "Minted", expiresIn: 86_400 })).toBe(404);
+      expect(await http(admin, "/api-key/update", { keyId: seeded.id, name: "Renamed" })).toBe(404);
+      expect(await http(admin, "/api-key/delete", { keyId: seeded.id })).toBe(404);
+      expect(await http(admin, "/api-key/list")).toBe(404);
+      expect(await http(admin, `/api-key/get?id=${seeded.id}`)).toBe(404);
+      expect(await http(null, "/api-key/create", { name: "Anonymous", userId: admin.authUserId })).toBe(404);
 
-    const { prisma } = await db();
-    expect(await prisma.apikey.count({ where: { referenceId: member.authUserId } })).toBe(1);
-  });
+      const { prisma } = await db();
+      expect(await prisma.apikey.count({ where: { referenceId: admin.authUserId } })).toBe(1);
+    });
 
-  it("refuses a user pending approval even with a full role", async () => {
-    const created = await call(pending, "/api-key/create", { name: "Minted", expiresIn: 86_400 });
+    it("refuses every key call to a member without the API permission", async () => {
+      const api = await keys();
+      const seeded = await ownKey(member);
 
-    expect(created.status).toBe(403);
-    expect(created.body?.code).toBe("USER_INACTIVE");
-    expect((await call(pending, "/api-key/list")).status).toBe(403);
-  });
+      const calls = [
+        await server(member, (headers) => api.createApiKey({ body: { name: "Minted", expiresIn: 86_400 }, headers })),
+        await server(member, (headers) => api.updateApiKey({ body: { keyId: seeded.id, name: "Renamed" }, headers })),
+        await server(member, (headers) => api.deleteApiKey({ body: { keyId: seeded.id }, headers })),
+        await server(member, (headers) => api.listApiKeys({ headers })),
+        await server(member, (headers) => api.getApiKey({ query: { id: seeded.id }, headers })),
+      ];
+      expect(calls.map((call) => call.status)).toEqual([403, 403, 403, 403, 403]);
 
-  it("grants each route only the action it needs", async () => {
-    const created = await call(creator, "/api-key/create", { name: "Minted", expiresIn: 86_400 });
-    expect(created.status).toBe(200);
+      const { prisma } = await db();
+      expect(await prisma.apikey.count({ where: { referenceId: member.authUserId } })).toBe(1);
+    });
 
-    const denied = await call(creator, "/api-key/delete", { keyId: created.body?.id });
-    expect(denied.status).toBe(403);
-    expect(denied.body?.code).toBe("PERMISSION_DENIED");
-    expect((await call(creator, "/api-key/update", { keyId: created.body?.id, name: "Renamed" })).status).toBe(403);
-  });
+    it("refuses a user pending approval even with a full role", async () => {
+      const api = await keys();
+      const created = await server(pending, (headers) =>
+        api.createApiKey({ body: { name: "Minted", expiresIn: 86_400 }, headers }),
+      );
 
-  it("lets an admin manage keys and lists only the caller's own keys", async () => {
-    await ownKey(member);
-    const created = await call(admin, "/api-key/create", { name: "Admin key", expiresIn: 86_400 });
-    expect(created.status).toBe(200);
+      expect(created).toMatchObject({ status: 403, code: "USER_INACTIVE" });
+      expect((await server(pending, (headers) => api.listApiKeys({ headers }))).status).toBe(403);
+    });
 
-    const listed = await call(admin, "/api-key/list");
-    expect(listed.status).toBe(200);
-    const ids = (listed.body?.apiKeys as Array<{ id: string; referenceId: string }>).map((key) => key.referenceId);
-    expect(new Set(ids)).toEqual(new Set([admin.authUserId]));
+    it("grants each call only the action it needs", async () => {
+      const api = await keys();
+      const created = await server(creator, (headers) =>
+        api.createApiKey({ body: { name: "Minted", expiresIn: 86_400 }, headers }),
+      );
+      expect(created.status).toBe(200);
+      const keyId = created.body?.id as string;
 
-    expect((await call(admin, "/api-key/update", { keyId: created.body?.id, name: "Renamed" })).status).toBe(200);
-    expect((await call(admin, "/api-key/delete", { keyId: created.body?.id })).status).toBe(200);
-  });
+      const denied = await server(creator, (headers) => api.deleteApiKey({ body: { keyId }, headers }));
+      expect(denied).toMatchObject({ status: 403, code: "PERMISSION_DENIED" });
+      expect(
+        (await server(creator, (headers) => api.updateApiKey({ body: { keyId, name: "Renamed" }, headers }))).status,
+      ).toBe(403);
+    });
 
-  it("refuses a key route without a signed-in session", async () => {
-    const { auth } = await import("@/core/auth/better-auth");
-    const origin = await baseUrl();
-    const response = await auth.handler(
-      new Request(`${origin}/api/auth/api-key/create`, {
-        method: "POST",
-        headers: { origin, "content-type": "application/json" },
-        body: JSON.stringify({ name: "Anonymous", userId: admin.authUserId }),
-      }),
-    );
+    it("lets an admin manage keys and lists only the caller's own keys", async () => {
+      const api = await keys();
+      await ownKey(member);
+      const created = await server(admin, (headers) =>
+        api.createApiKey({ body: { name: "Admin key", expiresIn: 86_400 }, headers }),
+      );
+      expect(created.status).toBe(200);
+      const keyId = created.body?.id as string;
 
-    expect(response.status).toBe(401);
-  });
-});
+      const listed = await server(admin, (headers) => api.listApiKeys({ headers }));
+      expect(listed.status).toBe(200);
+      const owners = (listed.body?.apiKeys as Array<{ referenceId: string }>).map((key) => key.referenceId);
+      expect(new Set(owners)).toEqual(new Set([admin.authUserId]));
+
+      expect(
+        (await server(admin, (headers) => api.updateApiKey({ body: { keyId, name: "Renamed" }, headers }))).status,
+      ).toBe(200);
+      expect((await server(admin, (headers) => api.deleteApiKey({ body: { keyId }, headers }))).status).toBe(200);
+    });
+  },
+);

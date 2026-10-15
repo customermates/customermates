@@ -1,7 +1,7 @@
 import type { EmailService } from "@/features/email/email.service";
 import type { ReleaseOwnerRoutinesInteractor } from "@/ee/routines/release-owner-routines.interactor";
 
-import type { User } from "@/generated/prisma";
+import type { DeactivateTrialUsersAndSendNoticeRepo } from "./deactivate-trial-users-and-send-notice.repo";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 
@@ -10,12 +10,6 @@ import { getEmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
 import { getTranslator } from "@/i18n/get-translator";
 import { resolveUserLocale } from "@/i18n/user-locale";
 import { env } from "@/env";
-
-export abstract class DeactivateTrialUsersAndSendNoticeRepo {
-  abstract findUsersWithTrialEndedBetween6And7Days(): Promise<User[]>;
-  abstract claimTrialInactivationNoticeSent(args: { userId: string; sentAt: Date }): Promise<boolean>;
-  abstract deactivateUserOrThrow(userId: string): Promise<void>;
-}
 
 @SystemInteractor
 export class DeactivateTrialUsersAndSendNoticeInteractor {
@@ -39,20 +33,22 @@ export class DeactivateTrialUsersAndSendNoticeInteractor {
       const contactHref = `${env.BASE_URL}/contact`;
       const t = await getTranslator(locale, "TrialInactivationNotice");
       const layoutCopy = await getEmailLayoutCopy(locale);
+      const workspace = user.company.name;
+      const subject = workspace ? t("subjectNamed", { workspace }) : t("subject");
 
       await this.emailService.send({
         to: user.email,
-        subject: t("subject"),
+        subject,
         react: TrialInactivationNotice({
           locale,
           layoutCopy,
           greeting: t("greeting", { firstName: user.firstName }),
-          body: t("body"),
+          body: workspace ? t("bodyNamed", { workspace }) : t("body"),
           cta: t("cta"),
           dismiss: t("dismiss"),
           scheduleFallback: t("scheduleFallback"),
           signoff: t("signoff"),
-          subject: t("subject"),
+          subject,
           title: t("title"),
           href: contactHref,
         }),

@@ -1,8 +1,7 @@
 import type { PlanEntitlements } from "@/core/commercial/plan-catalog";
-import type { SubscriptionPlan } from "@/generated/prisma";
 import type { AppMode } from "@/core/config/environment";
 
-import { SubscriptionStatus } from "@/generated/prisma";
+import { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 import { PLAN_CATALOG } from "@/core/commercial/plan-catalog";
 
 export type { PlanEntitlements } from "@/core/commercial/plan-catalog";
@@ -41,5 +40,21 @@ export function isSubscriptionUsable(subscription: { status: SubscriptionStatus;
   return (
     subscription.status === SubscriptionStatus.trial &&
     (subscription.trialEndDate === null || subscription.trialEndDate >= new Date())
+  );
+}
+
+export function isAwaitingFirstPlan(subscription: {
+  status: SubscriptionStatus;
+  plan: SubscriptionPlan;
+  lemonSqueezyId: string | null;
+  trialEndDate: Date | null;
+  currentPeriodEnd: Date | null;
+}): boolean {
+  return (
+    subscription.status === SubscriptionStatus.expired &&
+    subscription.plan !== SubscriptionPlan.enterprise &&
+    !subscription.lemonSqueezyId &&
+    subscription.trialEndDate === null &&
+    subscription.currentPeriodEnd === null
   );
 }

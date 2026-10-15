@@ -114,7 +114,11 @@ describe("onboarding progress access and persistence", () => {
     const pruned = { ...progress, ai: { ...progress.ai, apiKeyIds: { cursor: "valid" } } };
 
     await expect(save().invoke({ userId: user.id, progress: stale })).resolves.toEqual({ ok: true, data: pruned });
-    expect(auth.resolveApiKeyReferences).toHaveBeenCalledWith("auth-user-id", ["valid", "deleted", "disabled"]);
+    expect(auth.resolveApiKeyReferences).toHaveBeenCalledWith(
+      "auth-user-id",
+      ["valid", "deleted", "disabled"],
+      user.companyId,
+    );
     expect(repo.saveOnboardingWizardProgress).toHaveBeenCalledExactlyOnceWith(pruned);
   });
 

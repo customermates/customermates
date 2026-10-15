@@ -83652,7 +83652,7 @@
                     "items": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/UserDtoSchema"
+                        "$ref": "#/components/schemas/MemberDtoSchema"
                       }
                     },
                     "filters": {
@@ -118054,6 +118054,15 @@
                         "passwordMismatch",
                         "passwordInvalid",
                         "dataViewNotFound",
+                        "apiKeyNotFound",
+                        "workspaceNotFound",
+                        "workspaceLastAdmin",
+                        "workspaceCreationUnavailable",
+                        "workspaceChanged",
+                        "workspaceInvitationInvalid",
+                        "workspaceLimitReached",
+                        "workspacePlanRequired",
+                        "workspaceMemberLeft",
                         "dataViewNameMismatch",
                         "dataViewAllNameImmutable",
                         "dataViewUpdateEmpty",
@@ -118219,7 +118228,7 @@
         "additionalProperties": false,
         "description": "Structured failure. error.kind classifies the HTTP status. Each issue carries its JSON path and, when one applies, a stable customCode such as recordVersionChanged or recordSchemaChanged. Messages are localized prose for people."
       },
-      "UserDtoSchema": {
+      "MemberDtoSchema": {
         "type": "object",
         "properties": {
           "id": {
@@ -118472,6 +118481,16 @@
           },
           "updatedAt": {
             "type": "string"
+          },
+          "leftAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -118484,7 +118503,8 @@
           "country",
           "avatarUrl",
           "createdAt",
-          "updatedAt"
+          "updatedAt",
+          "leftAt"
         ],
         "additionalProperties": false
       },
@@ -127106,6 +127126,275 @@
           "lastMessageFromSelf",
           "lastSentMessageFromSelf",
           "lastMessageSenderName",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "UserDtoSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "roleId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive",
+              "pendingAuthorization"
+            ]
+          },
+          "country": {
+            "type": "string",
+            "enum": [
+              "af",
+              "ao",
+              "al",
+              "ad",
+              "ae",
+              "ar",
+              "am",
+              "ag",
+              "au",
+              "at",
+              "az",
+              "bi",
+              "be",
+              "bj",
+              "bf",
+              "bd",
+              "bg",
+              "bh",
+              "bs",
+              "ba",
+              "by",
+              "bz",
+              "bo",
+              "br",
+              "bb",
+              "bn",
+              "bt",
+              "bw",
+              "cf",
+              "ca",
+              "ch",
+              "cl",
+              "cn",
+              "ci",
+              "cm",
+              "cd",
+              "cg",
+              "co",
+              "km",
+              "cv",
+              "cr",
+              "cu",
+              "cy",
+              "cz",
+              "de",
+              "dj",
+              "dm",
+              "dk",
+              "do",
+              "dz",
+              "ec",
+              "eg",
+              "er",
+              "es",
+              "ee",
+              "et",
+              "fi",
+              "fj",
+              "fr",
+              "fm",
+              "ga",
+              "gb",
+              "ge",
+              "gh",
+              "gn",
+              "gm",
+              "gw",
+              "gq",
+              "gr",
+              "gd",
+              "gt",
+              "gy",
+              "hn",
+              "hr",
+              "ht",
+              "hu",
+              "id",
+              "in",
+              "ie",
+              "ir",
+              "iq",
+              "is",
+              "il",
+              "it",
+              "jm",
+              "jo",
+              "jp",
+              "ke",
+              "kg",
+              "kh",
+              "ki",
+              "kn",
+              "kp",
+              "kr",
+              "kw",
+              "kz",
+              "la",
+              "lb",
+              "lc",
+              "li",
+              "lk",
+              "lr",
+              "ls",
+              "lt",
+              "lu",
+              "lv",
+              "ly",
+              "ma",
+              "mc",
+              "md",
+              "me",
+              "mg",
+              "mh",
+              "mk",
+              "ml",
+              "mm",
+              "mn",
+              "mr",
+              "mt",
+              "mu",
+              "mv",
+              "mw",
+              "mx",
+              "my",
+              "mz",
+              "na",
+              "ne",
+              "ng",
+              "ni",
+              "nl",
+              "no",
+              "np",
+              "nr",
+              "nz",
+              "om",
+              "pa",
+              "pe",
+              "pg",
+              "ph",
+              "pk",
+              "pl",
+              "pt",
+              "pw",
+              "py",
+              "qa",
+              "ro",
+              "rs",
+              "ru",
+              "rw",
+              "sa",
+              "sb",
+              "sc",
+              "sd",
+              "se",
+              "sg",
+              "si",
+              "sk",
+              "sl",
+              "sm",
+              "sn",
+              "so",
+              "sr",
+              "ss",
+              "st",
+              "sv",
+              "sy",
+              "sz",
+              "td",
+              "tg",
+              "th",
+              "tj",
+              "tl",
+              "tm",
+              "tn",
+              "to",
+              "tr",
+              "tt",
+              "tv",
+              "tz",
+              "ua",
+              "ug",
+              "us",
+              "uy",
+              "uz",
+              "va",
+              "vc",
+              "ve",
+              "vn",
+              "vu",
+              "ws",
+              "ye",
+              "za",
+              "zm",
+              "zw"
+            ]
+          },
+          "avatarUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "firstName",
+          "lastName",
+          "roleId",
+          "status",
+          "country",
+          "avatarUrl",
           "createdAt",
           "updatedAt"
         ],

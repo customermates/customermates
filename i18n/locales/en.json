@@ -857,6 +857,7 @@
       "addWebhook": "Add webhook",
       "connectChannel": "Connect a channel",
       "createApiKey": "Create API key",
+      "switchWorkspace": "Switch workspace…",
       "themeDark": "Switch to dark theme",
       "themeLight": "Switch to light theme",
       "themeSystem": "Use the system theme"
@@ -874,11 +875,13 @@
     "synonyms": {
       "action": {
         "add": "new, create, new record",
+        "createWorkspace": "new workspace, add workspace, new company, start a workspace",
         "inviteMembers": "add user, invite colleague, team",
         "sendFeedback": "report a problem, suggestion, contact support",
         "shortcuts": "hotkeys, keys, keyboard",
         "signOut": "log out, logout, exit",
         "switchView": "change view, saved views",
+        "switchWorkspace": "change workspace, other workspace, switch company, switch account, go to workspace",
         "themeDark": "dark mode, night mode",
         "themeLight": "light mode, bright",
         "themeSystem": "automatic theme, follow system"
@@ -921,11 +924,13 @@
         "api-keys": "tokens, API, MCP, developer, access keys",
         "billing": "plan, subscription, invoices, payment, pricing",
         "channels": "connected accounts, email accounts, LinkedIn, WhatsApp, integrations",
+        "general": "workspace name, rename workspace, leave workspace",
         "members": "team, users, people, colleagues",
         "profile": "account, preferences, personal, name",
         "roles": "permissions, access, rights",
         "webhook-deliveries": "webhook deliveries, webhook log, sent events",
-        "webhooks": "integrations, callbacks, events, HTTP"
+        "webhooks": "integrations, callbacks, events, HTTP",
+        "workspaces": "my workspaces, memberships, companies, switch workspace, leave workspace"
       }
     }
   },
@@ -1067,6 +1072,7 @@
       "apiKeyMaxExpiration": "API key expiration cannot exceed 365 days.",
       "apiKeyMinExpiration": "API key expiration must be at least 1 day.",
       "apiKeyNameLength": "API key names must be between 1 and 255 characters long.",
+      "apiKeyNotFound": "This API key was not found in this workspace.",
       "billingPortalUnavailable": "The billing portal is not available for this workspace. Contact support to make changes.",
       "calendarEventNotFound": "Calendar event ID not found or not accessible.",
       "calendarNotFound": "Calendar ID not found or not accessible.",
@@ -1247,7 +1253,15 @@
       "wikiPagePinned": "The Operating Guide stays first. Move another page instead.",
       "wikiPageUpdateEmpty": "Provide at least one field to update the page.",
       "wikiProcedureNeedsSteps": "A procedure needs numbered steps.",
-      "wikiWhenToUseRequired": "A procedure needs a short description of when to use it."
+      "wikiWhenToUseRequired": "A procedure needs a short description of when to use it.",
+      "workspaceChanged": "Your workspace changed in another tab or on another device. Reload the page before you continue.",
+      "workspaceCreationUnavailable": "New workspaces cannot be created here.",
+      "workspaceInvitationInvalid": "This invitation link is invalid or has expired. Ask for a new link.",
+      "workspaceLastAdmin": "You are the only admin of this workspace. Make another active member an admin before you leave.",
+      "workspaceLimitReached": "You can create up to {limit} workspaces. Contact support if you need more.",
+      "workspaceMemberLeft": "This member left the workspace. Invite them again to give them access.",
+      "workspaceNotFound": "This workspace was not found or you are not a member.",
+      "workspacePlanRequired": "API keys and MCP connections need an active plan for this workspace. Choose a plan to use them."
     },
     "events": {
       "connected_account": {
@@ -1654,7 +1668,10 @@
     "fallback": "If the button does not work, copy and paste this link into your browser: ",
     "intro": "{inviterName} invited you to join their team on Customermates. Click the button below to accept the invitation and create your account.",
     "preview": "{inviterName} invited you to their team on Customermates",
-    "subject": "Join your team on Customermates"
+    "subject": "Join your team on Customermates",
+    "workspaceIntro": "{inviterName} invited you to join {workspace} on Customermates. Click the button below to accept the invitation and sign in or create your account.",
+    "workspacePreview": "{inviterName} invited you to {workspace} on Customermates",
+    "workspaceSubject": "Join {workspace} on Customermates"
   },
   "CompanyInviteModal": {
     "description": "Share this link with users you want to invite to your company.",
@@ -2187,6 +2204,7 @@
     "appRoutines": "Routines",
     "appSearch": "Global Search",
     "appTrash": "Trash",
+    "appWorkspaces": "Workspaces",
     "architectureSecurity": "Architecture & Security",
     "concepts": "Core Concepts",
     "connectCli": "CLI & editors",
@@ -2586,10 +2604,7 @@
     "joinAction": "Continue",
     "joinBody": "Continue to set up your profile and request access. A workspace administrator must approve you before you can join.",
     "joinSubtitle": "You are signed in as {email}",
-    "joinTitle": "Accept your invitation",
-    "switchBody": "This account already belongs to a workspace. Sign out to continue with a different account.",
-    "switchSubtitle": "You are signed in as {email}",
-    "switchTitle": "You are already signed in"
+    "joinTitle": "Accept your invitation"
   },
   "JoinWorkspace": {
     "backAction": "Back to choices",
@@ -2655,9 +2670,11 @@
   },
   "LegalDocumentNotice": {
     "contractBody": "We updated the legal documents listed below. Please review them for the business customer and arrange electronic acceptance by an authorised system administrator.",
+    "contractBodyNamed": "We updated the legal documents listed below for the workspace “{workspace}”. Please review them for the business customer and arrange electronic acceptance by an authorised system administrator.",
     "contractDeadlineLabel": "Objection and acceptance deadline",
     "contractObjection": "Please send any objection before the stated deadline by replying to this email. Silence or inactivity is not acceptance. If updated contractual documents are not accepted by the deadline, access to the managed-service user interface may be restricted until an authorised administrator accepts them.",
     "contractSubject": "Action required: updated Customermates legal documents",
+    "contractSubjectNamed": "Action required for “{workspace}”: updated Customermates legal documents",
     "contractTitle": "Legal documents updated",
     "documents": {
       "dpa": "Data Processing Agreement",
@@ -2667,7 +2684,9 @@
     },
     "greeting": "Hi {firstName},",
     "informationBody": "We updated the legal information listed below. This notice does not require acceptance unless the email also identifies updated Terms or a Data Processing Agreement.",
+    "informationBodyNamed": "We updated the legal information listed below for the workspace “{workspace}”. This notice does not require acceptance unless the email also identifies updated Terms or a Data Processing Agreement.",
     "informationSubject": "Customermates legal information updated",
+    "informationSubjectNamed": "Customermates legal information updated for “{workspace}”",
     "informationTitle": "Legal information updated",
     "signoff": "Best regards,\nBen",
     "subprocessorDeadlineLabel": "Subprocessor objection deadline",
@@ -2726,8 +2745,20 @@
       "openid": "Confirm your identity",
       "profile": "Read your basic profile"
     },
-    "subtitle": "{client} wants to connect to your account.",
-    "title": "Authorize access"
+    "subtitle": "{client} wants to connect to your account."
+  },
+  "McpConsentWorkspace": {
+    "current": "Current workspace",
+    "pickerLabel": "Choose a workspace",
+    "scopeHint": "{client} only reaches the workspace you choose. To use another workspace, connect again.",
+    "title": "Connect {client} to {workspace}",
+    "titleUnnamed": "Connect {client} to this workspace",
+    "unavailable": {
+      "inactive": "Your access is deactivated",
+      "permission": "Your role has no API access",
+      "plan": "No active subscription",
+      "terms": "Updated terms need to be accepted"
+    }
   },
   "MessagingUpsell": {
     "cta": "Upgrade your plan",
@@ -3182,7 +3213,10 @@
   "PendingCard": {
     "body": "You can sign in once your account has been approved by your company's administrator.",
     "subtitle": "Your account is currently being reviewed by your company's administrator",
-    "title": "Waiting for Approval"
+    "title": "Waiting for Approval",
+    "withdraw": "Withdraw request",
+    "withdrawConfirmDescription": "The administrators no longer see your request. To join later, an admin has to invite you again.",
+    "withdrawConfirmTitle": "Withdraw your request to join {name}?"
   },
   "ProfileSections": {
     "apiKeysDescription": "Long-lived API keys for programmatic access."
@@ -4115,11 +4149,13 @@
     "billing": "Billing",
     "channels": "Channels",
     "deliveries": "Deliveries",
+    "general": "General",
     "members": "Members",
     "profile": "Profile & preferences",
     "roles": "Roles",
     "webhooks": "Webhooks",
-    "workspace": "Workspace"
+    "workspace": "Workspace",
+    "workspaces": "Workspaces"
   },
   "SidebarCustomize": {
     "deleteSection": "Delete section",
@@ -4251,12 +4287,14 @@
   },
   "SubscriptionInactivationNotice": {
     "body": "Your account is now inactive because your subscription has been unpaid or expired for more than 3 days. If you want to continue, I can help you restore access quickly.",
+    "bodyNamed": "Your access to the workspace “{workspace}” is now inactive because its subscription has been unpaid or expired for more than 3 days. If you want to continue, I can help you restore access quickly.",
     "cta": "Get in touch",
     "dismiss": "If this email reached you at a busy time, just reply when you're ready and I'll help with the next steps.",
     "greeting": "Hi {firstName},",
     "scheduleFallback": "If the button does not work, copy and paste this link into your browser: ",
     "signoff": "Best regards,\nBen",
     "subject": "Your account is inactive: we can help you restore access",
+    "subjectNamed": "Your access to “{workspace}” is inactive: we can help you restore it",
     "title": "Subscription inactivated"
   },
   "Trash": {
@@ -4318,31 +4356,37 @@
   },
   "TrialExpiredOffer": {
     "body": "Your trial ended recently, but I'd love to help you get real value from Customermates. If you want, I can extend your trial and walk through your setup with you.",
+    "bodyNamed": "The trial of your workspace “{workspace}” ended recently, but I'd love to help you get real value from Customermates. If you want, I can extend the trial and walk through your setup with you.",
     "cta": "Get in touch",
     "greeting": "Hi {firstName},",
     "scheduleFallback": "If the button does not work, copy and paste this link into your browser: ",
     "signoff": "Best regards,\nBen",
     "subject": "Need more time? Let's continue together",
+    "subjectNamed": "Need more time for “{workspace}”? Let's continue together",
     "title": "Trial Extension Offer"
   },
   "TrialInactivationNotice": {
     "body": "Your account is now inactive because your trial ended more than 6 days ago. If you still want to continue, I can help you reactivate quickly and guide you through the next steps.",
+    "bodyNamed": "Your access to the workspace “{workspace}” is now inactive because its trial ended more than 6 days ago. If you still want to continue, I can help you reactivate quickly and guide you through the next steps.",
     "cta": "Get in touch",
     "dismiss": "If this email reached you at a busy time, no problem. You can come back anytime and I'll help personally.",
     "greeting": "Hi {firstName},",
     "scheduleFallback": "If the button does not work, copy and paste this link into your browser: ",
     "signoff": "Best regards,\nBen",
     "subject": "Your account is inactive: we can help you restart",
+    "subjectNamed": "Your access to “{workspace}” is inactive: we can help you restart",
     "title": "Account inactivated"
   },
   "TrialInactivationReminder": {
     "body": "Your trial ended a few days ago, and your account will become inactive in 3 days. If you want, I can quickly help you finish setup and keep everything active.",
+    "bodyNamed": "The trial of your workspace “{workspace}” ended a few days ago, and your access to it will become inactive in 3 days. If you want, I can quickly help you finish setup and keep everything active.",
     "cta": "Get in touch",
     "dismiss": "If you no longer need your account, no action is required.",
     "greeting": "Hi {firstName},",
     "scheduleFallback": "If the button does not work, copy and paste this link into your browser: ",
     "signoff": "Best regards,\nBen",
     "subject": "3 days left before your account becomes inactive",
+    "subjectNamed": "3 days left before your access to “{workspace}” becomes inactive",
     "title": "Trial inactivation reminder"
   },
   "TrialWelcome": {
@@ -4536,8 +4580,85 @@
     "tryAnother": "Try another website",
     "unavailable": "Mate setup is not available right now. You can create Knowledge Base pages later in the Knowledge Base."
   },
+  "WorkspaceInvitation": {
+    "inactive": {
+      "body": "An administrator deactivated your access to {workspace}. Ask them to reactivate it.",
+      "bodyUnnamed": "An administrator deactivated your access to this workspace. Ask them to reactivate it.",
+      "title": "Your access is deactivated"
+    },
+    "join": {
+      "action": "Join workspace",
+      "body": "An administrator approves your request before you get access. Your other workspaces stay as they are.",
+      "terms": "By joining, you agree to comply with the <termsOfServiceLink>Terms</termsOfServiceLink> and confirm that you have read the <dpaLink>DPA</dpaLink> and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
+      "title": "Join {workspace}",
+      "titleUnnamed": "Join this workspace"
+    },
+    "member": {
+      "action": "Open workspace",
+      "body": "Open it to continue working there.",
+      "title": "You already belong to {workspace}",
+      "titleUnnamed": "You already belong to this workspace"
+    },
+    "otherAccount": "Use another account",
+    "pending": {
+      "action": "Show status",
+      "body": "An administrator of {workspace} still has to approve your request.",
+      "bodyUnnamed": "An administrator of this workspace still has to approve your request.",
+      "title": "Your request is waiting for approval"
+    },
+    "signedInAs": "Signed in as {email}"
+  },
+  "WorkspaceMembership": {
+    "left": "Left",
+    "leftNotice": "{name} left this workspace. To give them access again, send a new invitation."
+  },
   "WorkspaceMenu": {
     "inviteMembers": "Invite members",
     "label": "Workspace menu"
+  },
+  "WorkspaceOnboarding": {
+    "workspaceName": "Workspace name",
+    "workspaceNameDescription": "Optional. Helps you tell your workspaces apart; you can change it later.",
+    "workspaceNamePlaceholder": "e.g. Acme Sales"
+  },
+  "Workspaces": {
+    "apiKeysScope": "These keys only access this workspace.",
+    "apiKeysScopeNamed": "These keys only access the {name} workspace.",
+    "billingNote": "Each workspace has its own plan and seats. The first workspace you create includes the free trial; any further workspace starts by choosing a plan.",
+    "create": "Create workspace",
+    "createDescription": "A new workspace starts empty, with its own records, Knowledge Base, members and connections.",
+    "current": "Current",
+    "dangerZone": "Danger zone",
+    "fallbackName": "Workspace",
+    "firstPlan": {
+      "description": "{name} doesn't have a plan yet. The free trial comes with your first workspace only, so choose a plan to start working here.",
+      "subtitle": "Each workspace has its own plan",
+      "title": "Choose a plan for {name}"
+    },
+    "leave": "Leave workspace",
+    "leaveConfirmDescription": "You lose access to its records, Knowledge Base and connections, and your API keys and AI connections for it stop working. To come back, an admin has to invite you again.",
+    "leaveConfirmTitle": "Leave {name}?",
+    "leaveDescription": "Remove yourself from this workspace. Your other workspaces stay as they are.",
+    "leaveShort": "Leave",
+    "listDescription": "Every workspace you belong to. Each one keeps its own records, members, API keys and connections.",
+    "memberCount": "{count, plural, one {# member} other {# members}}",
+    "nameDescription": "Everyone in this workspace sees this name in the workspace switcher.",
+    "nameLabel": "Workspace name",
+    "noPlan": "No plan",
+    "otherTab": {
+      "description": "This tab still shows {current}. Reload it so nothing is saved to the wrong workspace.",
+      "reload": "Reload",
+      "title": "You switched workspaces in another tab",
+      "titleChanged": "Your workspace changed",
+      "titleNamed": "You switched to {name} in another tab"
+    },
+    "renameReadOnly": "Only members who can manage the workspace can change its name.",
+    "restrictedCreateHint": "You can also create your own workspace.",
+    "status": {
+      "pending": "Pending"
+    },
+    "switch": "Switch",
+    "switchTo": "Switch to {name}",
+    "switchWorkspace": "Switch workspace"
   }
 }

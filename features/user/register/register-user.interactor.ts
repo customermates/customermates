@@ -30,6 +30,8 @@ import {
   RegistrationAdAttributionSchema,
   type RegistrationAdAttribution,
 } from "@/features/acquisition/ad-attribution.schema";
+import { startsWithTrial } from "@/features/workspace/workspace-trial-policy";
+import { WorkspaceNameSchema } from "@/features/workspace/workspace.schema";
 
 const RegisterUserSchema = z
   .object({
@@ -39,6 +41,10 @@ const RegisterUserSchema = z
     country: z.enum(CountryCode),
     avatarUrl: zx.secureUrl().or(z.literal("")).nullable(),
     agreeToTerms: z.boolean(),
+    workspaceName: z.preprocess(
+      (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+      WorkspaceNameSchema.optional(),
+    ),
   })
   .superRefine((data, ctx) => {
     if (env.APP_MODE === "cloud" && data.agreeToTerms !== true) {
@@ -124,13 +130,13 @@ export class RegisterUserInteractor {
     data: RegistrationData,
     plannedCompanyId: string | null | undefined,
   ): Promise<Awaited<Validated<RegisterUserResult>> | Redirect> {
-    const { sessionUserId, adAttribution, target, ...registrationData } = data;
+    const { sessionUserId, adAttribution, target, workspaceName, ...registrationData } = data;
     if (plannedCompanyId && !(await this.companyRepo.existsUnscoped(plannedCompanyId)))
       return redirectTo(target.type === "invitation" ? "/auth/error?type=invalidInviteLink" : "/onboarding");
 
     const authUserCompanyId = await this.repo.findAuthUserCompanyIdForUpdateUnscoped(sessionUserId);
     if (authUserCompanyId === undefined) return redirectTo("/auth/signup");
-    const existingUser = await this.repo.findCurrentUserUnscoped(registrationData.email);
+    const existingUser = await this.repo.findAnyMembershipUnscoped(registrationData.email);
     if (existingUser) {
       return redirectTo(
         existingUser.status === Status.pendingAuthorization
@@ -150,6 +156,12 @@ export class RegisterUserInteractor {
           ? authUserCompanyId
           : null;
     if (!companyId && target.type !== "createCompany") return redirectTo("/onboarding");
+    if (
+      companyId &&
+      target.type === "existingAuthUserCompanyBinding" &&
+      (await this.repo.hasLeftMembershipUnscoped(registrationData.email, companyId))
+    )
+      return redirectTo("/onboarding");
 
     const isNewCloudCompany = env.APP_MODE === "cloud" && target.type === "createCompany";
     const eligibleAdAttribution =
@@ -165,6 +177,11 @@ export class RegisterUserInteractor {
       : await this.registration.createCompanyAndUser({
           ...registrationData,
           adAttribution: eligibleAdAttribution,
+          workspace: {
+            name: workspaceName ?? null,
+            createdByAuthUserId: sessionUserId,
+            trial: await startsWithTrial(sessionUserId, this.repo),
+          },
         });
 
     await this.repo.bindAuthUserToCompanyOrThrowUnscoped({

@@ -9,7 +9,7 @@ Workspace settings cover everything that affects the whole workspace rather than
 
 Click **Customermates** at the top of the sidebar to open the workspace menu and choose **Settings**, or press G then S. Settings opens on [Profile & preferences](app:settings/profile), and the sidebar switches to the settings nav: your own pages under **Account**, the workspace pages under **Workspace**: [Members](app:settings/members), [Roles](app:settings/roles), [Billing](app:settings/billing) (Cloud only), [Activity](app:settings/activity) and [Webhooks](app:settings/webhooks). **Back** at the top of the nav returns to the page you came from.
 
-The workspace menu holds, from top to bottom, **Invite members** (needs **Users & Roles** **Create**), **Members**, **Settings**, **Billing** with the plan chip (Cloud only) and, for Customermates operators only, **Operator Console**.
+The workspace menu lists the workspaces you belong to, to switch between them, and offers **Create workspace** ([Workspaces](/docs/app-workspaces)). It also holds **Invite members** (needs **Users & Roles** **Create**), **Members**, **Settings**, **Billing** with the plan chip (Cloud only) and, for Customermates operators only, **Operator Console**.
 
 Your role decides what you see. A page your role cannot read is missing from the nav, and opening it directly lands on the [Dashboard](app:dashboard). On a page you can read but not change, **Add**, **Save** and **Delete** are missing and dialogs open read-only. Role changes apply on the member's next page load or API call. The built-in **Admin** role sees and changes everything.
 
@@ -33,7 +33,7 @@ Click [Add](app:settings/members?focus=add) on Members (or **Invite members** in
 - **Share link** shows one **Invitation link** for the whole workspace with a copy button. It is valid for 7 days ("Expires on" with the date) and reused until then; the first time the dialog opens after it expired, a new link is created. Anyone with the link can register, and it cannot be revoked early.
 - **Send emails** takes 1 to 20 addresses, separated by a comma or Enter. **Send invitations** emails each address the workspace link once and confirms with "Sent 3 invitations." (with the actual count).
 
-People who register join with status **Waiting for approval** and no role, and see **Waiting for Approval** until someone approves them. Each registration also creates an approval task in [Tasks](app:records/task) for members whose **Tasks** read access is **All**; it disappears once the member is approved or set Inactive. An expired or altered link shows an error asking them to request a new one.
+People who register join with status **Waiting for approval** and no role, and see **Waiting for Approval** until someone approves them. Each registration also creates an approval task in [Tasks](app:records/task) for members whose **Tasks** read access is **All**; it disappears once the member is approved or set Inactive. An expired or altered link shows an error asking them to request a new one. Someone who already has a Customermates account joins through the same link while signed in and waits for approval the same way; see [joining with an existing account](/docs/app-workspaces#how-do-i-join-with-an-existing-account).
 
 ### How do I approve, edit, deactivate or remove a member? [#how-do-i-approve-deactivate-or-edit-a-member]
 
@@ -42,6 +42,7 @@ In [Members](app:settings/members), click the member's row to open the **User** 
 - **Approve:** choose a **Role**, set **Status** to **Active** and click **Save**. The member can sign in right away and counts as a billed seat.
 - **Remove:** members cannot be deleted; set **Status** to **Inactive**. That blocks their sign-in ("Your account is currently inactive. Please contact your administrator to reactivate your account."), their API keys and MCP connections, removes their seat from billing, pauses their routines, and the daily job deletes their connected messaging accounts. **Waiting for approval** cannot be chosen; only an invitation sets it.
 - Your own row opens read-only: change your name in [Profile & preferences](app:settings/profile) and ask another member with **Users & Roles** **Edit** to change your role or status.
+- Edits you make here apply to the member in this workspace only; what members change in their own Profile & preferences applies in every workspace they belong to. Members can also leave a workspace themselves, see [How do I leave a workspace?](/docs/app-workspaces#how-do-i-leave-a-workspace).
 - The workspace always keeps at least one **Active** member with the **Admin** role; a save that would remove the last one fails with "At least one user must be a system administrator."
 
 Every save is recorded in [Activity](app:settings/activity).
@@ -85,7 +86,7 @@ Every workspace starts with one built-in role, **Admin**, given to the person wh
 
 ## Billing [#subscription-tab]
 
-[Billing](app:settings/billing) shows the plan, status, seats and billing of a Cloud workspace; self-hosted installs have no plan, and the page redirects to the Dashboard. Customermates bills through Lemon Squeezy, which runs checkout and the customer portal.
+[Billing](app:settings/billing) shows the plan, status, seats and billing of a Cloud workspace; self-hosted installs have no plan, and the page redirects to the Dashboard. Customermates bills through Lemon Squeezy, which runs checkout and the customer portal. Every workspace has its own plan, subscription, invoices and hosted AI credit pool; see [how each workspace is billed](/docs/app-workspaces#how-is-each-workspace-billed).
 
 | Field | What it shows |
 |---|---|
@@ -102,7 +103,7 @@ On [Billing](app:settings/billing), roles with **Company** **Edit** and the **Ad
 
 ### What does each subscription status mean? [#what-does-each-subscription-status-mean]
 
-The app sets **Trial** when a Cloud workspace is created; every other status comes from Lemon Squeezy or from Customermates support.
+The app sets **Trial** when a login creates its first Cloud workspace. Every additional workspace that login creates starts without a trial and shows **Subscription Required** until a plan is chosen ([which workspace gets the free trial](/docs/app-workspaces#which-workspace-gets-the-free-trial)). Every other status comes from Lemon Squeezy or from Customermates support.
 
 | Status | Effect |
 |---|---|
@@ -138,7 +139,7 @@ Portal changes reach Customermates automatically. If Billing still shows old val
 
 ### How are seats counted and billed? [#how-are-seats-counted-and-billed]
 
-A seat is a member with status **Active**; **Waiting for approval** and **Inactive** members are not billed. Checkout takes the count at that moment, and every later status change on [Members](app:settings/members) sends the new count to Lemon Squeezy right away: "You pay per active user. Seat changes are prorated on your next invoice." To lower the bill, set members who no longer need access to **Inactive**. Enterprise seats are not synced.
+A seat is a member with status **Active**; **Waiting for approval** and **Inactive** members are not billed. Seats count per workspace: a person who is **Active** in several workspaces is a billed seat in each of them, and leaving a workspace removes the seat there. Checkout takes the count at that moment, and every later status change on [Members](app:settings/members) sends the new count to Lemon Squeezy right away: "You pay per active user. Seat changes are prorated on your next invoice." To lower the bill, set members who no longer need access to **Inactive**. Enterprise seats are not synced.
 
 ### What happens when the trial ends or a payment fails? [#what-happens-when-the-trial-ends-or-a-payment-fails]
 
@@ -205,4 +206,5 @@ Prefer [MCP](/docs/mcp) tools: `manage_team` invites by email or returns the inv
 
 - [Webhooks](/docs/webhooks)
 - [App guide, Profile](/docs/app-profile)
+- [Workspaces](/docs/app-workspaces)
 - [Plans and credits](/docs/app-assistant#plans-and-credits)

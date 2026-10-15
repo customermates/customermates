@@ -110,6 +110,7 @@ export class ResolveCommandInteractor extends AuthenticatedInteractor<ResolveCom
       appMode: env.APP_MODE,
       canManageSchema: policy.canManageSchema,
       onListPage: false,
+      otherWorkspaces: true,
       can: policy.allowedSystem,
     };
     const commands: ResolvableCommand[] = STATIC_COMMANDS.filter(

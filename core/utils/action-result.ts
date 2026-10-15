@@ -11,6 +11,7 @@ import { z } from "zod";
 import { isRedirect } from "@/features/auth/auth-outcome";
 import { isBusyDatabaseError } from "@/core/errors/prisma-client-error";
 import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
+import { WorkspaceChangedError } from "@/core/errors/workspace-changed-error";
 import { failAuthorization, failRateLimit, failUnavailable } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { interactorFailureCodes, isRetryableFailure, serializeInteractorFailure } from "../validation/validation.utils";
@@ -28,6 +29,7 @@ export async function settleActionResult<T>(result: ActionInput<T>): Promise<Awa
     return await result;
   } catch (error) {
     if (isBusyDatabaseError(error)) return failRateLimit(CustomErrorCode.serviceBusy);
+    if (error instanceof WorkspaceChangedError) throw error;
     if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied)
       return failAuthorization(CustomErrorCode.permissionDenied);
     if ((error as { code?: unknown } | null)?.code === "P2028")

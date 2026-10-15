@@ -36,7 +36,7 @@ type ConfirmDialogProps = {
   confirmationText?: string;
   busy?: boolean;
   anchorScope?: string;
-  onCancel: () => void;
+  onCancel?: () => void;
   onConfirm?: () => unknown;
   onCloseAutoFocus?: (event: Event) => void;
 };
@@ -82,7 +82,7 @@ export function ConfirmDialog({
     <AlertDialog
       open={open}
       onOpenChange={(next) => {
-        if (!next) onCancel();
+        if (!next) onCancel?.();
       }}
     >
       <AlertDialogContent
@@ -90,6 +90,7 @@ export function ConfirmDialog({
         data-slot="confirm-dialog"
         overlayClassName={OVERLAY_TOPMOST_LAYER_CLASS}
         size="sm"
+        onEscapeKeyDown={onCancel ? undefined : (event) => event.preventDefault()}
         {...focusReturn}
         onCloseAutoFocus={(event) => {
           onCloseAutoFocus?.(event);
@@ -127,9 +128,11 @@ export function ConfirmDialog({
           </AppCardBody>
 
           <AppCardFooter data-slot="confirm-dialog-actions">
-            <AlertDialogCancel disabled={busy} id={anchorScope ? `${anchorScope}-cancel` : undefined}>
-              {onConfirm ? t("Common.actions.cancel") : t("Common.actions.close")}
-            </AlertDialogCancel>
+            {onCancel ? (
+              <AlertDialogCancel disabled={busy} id={anchorScope ? `${anchorScope}-cancel` : undefined}>
+                {onConfirm ? t("Common.actions.cancel") : t("Common.actions.close")}
+              </AlertDialogCancel>
+            ) : null}
 
             {onConfirm ? (
               <AlertDialogAction

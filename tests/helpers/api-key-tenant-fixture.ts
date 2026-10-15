@@ -53,12 +53,13 @@ export async function createApiKeyTenant(
       [authUserId, `${member.label} Fixture`, email, companyId],
     );
     await client.query(
-      'INSERT INTO "Apikey" ("id", "name", "key", "referenceId", "configId", "enabled", "rateLimitEnabled", "requestCount", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, \'default\', TRUE, FALSE, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)',
+      'INSERT INTO "Apikey" ("id", "name", "key", "referenceId", "companyId", "configId", "enabled", "rateLimitEnabled", "requestCount", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5, \'default\', TRUE, FALSE, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)',
       [
         apiKeyId,
         `${member.label} fixture`,
         await defaultKeyHasher(apiKey),
         authUserId,
+        companyId,
       ],
     );
 

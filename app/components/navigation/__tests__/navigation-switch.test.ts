@@ -21,6 +21,7 @@ const state = vi.hoisted(() => ({
   setSubscription: vi.fn(),
   setUser: vi.fn(),
   setRecordNavigation: vi.fn(),
+  setWorkspaces: vi.fn(),
 }));
 
 state.setUser.mockImplementation((user: { id: string } | null) => {
@@ -47,6 +48,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
     recordWorkspaceStore: { setNavigation: state.setRecordNavigation },
     sidebarLayoutStore: { setLayout: () => undefined },
     keyboardShortcutsStore: { setPreferences: () => undefined },
+    workspacesStore: { setWorkspaces: state.setWorkspaces },
     userStore: {
       get user() {
         return state.currentUser;
@@ -90,6 +92,9 @@ vi.mock("@/components/shared/app-locale-preference-sync", () => ({
 }));
 vi.mock("../protected-enhancements-context", () => ({
   ProtectedEnhancementsProvider: ({ children }: { children: ReactNode }) => children,
+}));
+vi.mock("@/app/components/workspaces/workspace-tab-guard", () => ({
+  WorkspaceTabGuard: () => jsx("span", { "data-workspace-tab-guard": true }),
 }));
 
 import { NavigationSwitch } from "../navigation-switch";
@@ -231,6 +236,43 @@ describe("NavigationSwitch account-state refresh", () => {
     expect(state.renderPhaseUserWrites).toEqual([]);
     expect(state.setUser).toHaveBeenLastCalledWith(replacementAppUser);
     expect(state.currentUser).toBe(replacementAppUser);
+  });
+
+  it("keeps the workspace list in sync and guards every shell against a switch in another tab", () => {
+    const workspaces = [
+      {
+        companyId: "company-1",
+        name: "Acme",
+        status: "active",
+        roleName: "Admin",
+        isAdmin: true,
+        isCurrent: true,
+        activeMemberCount: 2,
+        subscription: null,
+        joinedAt: new Date("2026-01-01T00:00:00.000Z"),
+      },
+    ] satisfies NonNullable<NavigationSwitchProps["workspaces"]>;
+
+    act(() => {
+      root.render(jsx(NavigationSwitch, { ...allowedProps(), workspaces, children: "page" }));
+    });
+
+    expect(state.setWorkspaces).toHaveBeenLastCalledWith(workspaces);
+    expect(container.querySelector("[data-workspace-tab-guard]")).not.toBeNull();
+
+    act(() => {
+      root.render(
+        jsx(NavigationSwitch, {
+          ...allowedProps(),
+          accountState: "unauthenticated",
+          sidebarUser: null,
+          children: "signed out",
+        }),
+      );
+    });
+
+    expect(state.setWorkspaces).toHaveBeenLastCalledWith([]);
+    expect(container.querySelector("[data-workspace-tab-guard]")).not.toBeNull();
   });
 
   it("uses the normal app shell for an allowed operator route", () => {

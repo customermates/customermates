@@ -83,6 +83,7 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
   return (
     <CenteredCardPage>
       <OnboardingWizard
+        canNameWorkspace={canCreateCompany}
         canSetupWithMate={canSetupWithMate}
         inviterName={invitation?.inviterName}
         isInvited={isInvited}

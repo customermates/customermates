@@ -37,8 +37,9 @@ export class PrismaOperatorAccessRepo extends TenantRepository implements Operat
       isPlatformOperator: true,
     } as const;
 
-    const user = await this.prisma.user.findUnique({
-      where: { email: freshAuthEmail },
+    const user = await this.prisma.user.findFirst({
+      where: { email: freshAuthEmail, isPlatformOperator: true, status: Status.active, leftAt: null },
+      orderBy: [{ lastActiveAt: { sort: "desc", nulls: "last" } }, { createdAt: "asc" }],
       select: operatorUserSelect,
     });
     if (!user) return null;

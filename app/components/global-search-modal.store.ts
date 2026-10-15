@@ -34,7 +34,8 @@ const RECENT_COMMANDS_MAX = 5;
 export type PaletteLevel =
   | { kind: "field"; fieldId: string; label: string }
   | { kind: "assign"; label: string }
-  | { kind: "link"; relationId: string; direction: "outgoing" | "incoming"; label: string };
+  | { kind: "link"; relationId: string; direction: "outgoing" | "incoming"; label: string }
+  | { kind: "workspaces"; label: string };
 
 function actorScope(root: RootStore) {
   const user = root.userStore.user;

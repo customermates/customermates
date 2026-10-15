@@ -74,7 +74,7 @@ The connector opens a Customermates window:
 Or you are already signed in.
 </Step>
 <Step title="Read what is being authorized">
-The **Authorize access** screen names the app that is connecting, lists what it asks for (such as **Confirm your identity**, **Read your basic profile**, **Read your email address** and **Stay connected while you are away**), and shows **Connection destination** with the host it will send access to.
+The **Authorize access** screen names the app that is connecting, lists what it asks for (such as **Confirm your identity**, **Read your basic profile**, **Read your email address** and **Stay connected while you are away**), and shows **Connection destination** with the host it will send access to. If you belong to several workspaces, it also asks which workspace the connection gets; your current workspace is preselected.
 </Step>
 <Step title="Approve">
 Click **Approve**, or **Deny** to refuse.
@@ -89,7 +89,8 @@ The connector accepts any client, so the **Authorize access** screen is the gate
 
 - Add it once on Claude web and it appears on **desktop and mobile** too. The connection is tied to your Claude account, not one device.
 - It refreshes in the background. Use it within any 30-day window and you never re-authorize; go idle longer and you approve once more.
-- Every call runs as the Customermates user who approved, inside that account's data and with that user's role permissions. API keys work the same way: they inherit the owning user's permissions, and there is no per-key scoping.
+- Every call runs as the Customermates user who approved, inside the workspace chosen on **Authorize access** and with that user's role permissions there. API keys work the same way: they inherit the owning user's permissions in the workspace they were created in, and there is no per-key scoping.
+- A connection stays in its workspace, refreshed tokens included. To work in several workspaces, connect once per workspace, for example with a different Claude account per workspace; see [Workspaces](/docs/app-workspaces#which-workspace-do-api-keys-and-connections-use).
 - If that user is set to **Inactive**, every call that reads or changes workspace data fails with "Your user account is inactive. Contact a workspace administrator." until a member with **Edit** on **Users & Roles** sets them back to **Active**.
 
 ## What should I try first? [#try-your-first-prompt]

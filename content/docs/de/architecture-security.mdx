@@ -3,7 +3,7 @@ title: "CRM-Sicherheit: Mandantentrennung und Aktivitätsprotokoll"
 description: "Aufbau von Customermates, Datenisolation je Workspace, Anmeldung per API-Key und MCP-OAuth, Inhalt des Aktivitätsprotokolls, Meldeweg für Schwachstellen."
 ---
 
-Jedes Unternehmen ist ein isolierter Mandant in einer gemeinsamen PostgreSQL-Datenbank. Jeder Datensatz gehört zu genau einem Unternehmen, API-Keys und OAuth-Verbindungen handeln als der Nutzer, der sie erstellt oder autorisiert hat, und KI-Agents sehen nur, was dieser Nutzer sehen darf.
+Jedes Unternehmen ist ein isolierter Mandant in einer gemeinsamen PostgreSQL-Datenbank. Jeder Datensatz gehört zu genau einem Unternehmen, API-Keys und OAuth-Verbindungen handeln als der Nutzer, der sie erstellt oder autorisiert hat, und KI-Agents sehen nur, was dieser Nutzer sehen darf. Ein Login kann zu mehreren Workspaces gehören, und jede Sitzung, jeder API-Key und jede OAuth-Verbindung handelt in genau einem davon; siehe [Workspaces](/docs/app-workspaces).
 
 ## Was ist der Stack? [#what-is-the-stack]
 
@@ -29,9 +29,9 @@ Eine Self-Hosted-Instanz kann mehrere Workspaces nebeneinander mit derselben Tre
 
 Drei Wege, die alle auf denselben Nutzer- und Unternehmenskontext auflösen:
 
-- **Session-Cookie** (Browser): signiert, http-only, `Secure` unter HTTPS. Angemeldet wird mit E-Mail und Passwort oder mit Google oder Microsoft, sofern die Instanz diese Anbieter eingerichtet hat. Ein neues Konto ist 24 Stunden nutzbar, bevor die E-Mail-Adresse bestätigt werden muss. Jede Anfrage prüft die Session in der Datenbank, daher wirkt das Cookie nach dem Abmelden, einer widerrufenen Session oder dem Status **Inaktiv** sofort nicht mehr.
-- **API-Key**: 64 Zeichen langes Token aus ASCII-Buchstaben (`a-z`, `A-Z`), ausgestellt vom better-auth-API-Key-Plugin, nur als Hash gespeichert, an einen Nutzer gebunden, optional mit Ablaufdatum. Wird im Header `x-api-key` gesendet. Siehe [API-Keys](/docs/api-keys).
-- **OAuth 2.1** (MCP): Remote-MCP-Clients autorisieren sich über better-auth mit PKCE und senden statt eines API-Keys ein Bearer-Token. Access-Tokens gelten eine Stunde, Refresh-Tokens dreißig Tage.
+- **Session-Cookie** (Browser): signiert, http-only, `Secure` unter HTTPS. Angemeldet wird mit E-Mail und Passwort oder mit Google oder Microsoft, sofern die Instanz diese Anbieter eingerichtet hat. Ein neues Konto ist 24 Stunden nutzbar, bevor die E-Mail-Adresse bestätigt werden muss. Jede Anfrage prüft die Session in der Datenbank, daher wirkt das Cookie nach dem Abmelden, einer widerrufenen Session oder dem Status **Inaktiv** sofort nicht mehr. Die Session hält auch den Workspace fest, in den Sie gewechselt haben, sodass ein anderer Browser in einem anderen Workspace arbeiten kann.
+- **API-Key**: 64 Zeichen langes Token aus ASCII-Buchstaben (`a-z`, `A-Z`), ausgestellt vom better-auth-API-Key-Plugin, nur als Hash gespeichert, an einen Nutzer und den Workspace gebunden, in dem er erstellt wurde, optional mit Ablaufdatum. Wird im Header `x-api-key` gesendet. Siehe [API-Keys](/docs/api-keys).
+- **OAuth 2.1** (MCP): Remote-MCP-Clients autorisieren sich über better-auth mit PKCE und senden statt eines API-Keys ein Bearer-Token. Access-Tokens gelten eine Stunde, Refresh-Tokens dreißig Tage. Eine Verbindung ist an den Workspace gebunden, der auf dem Zustimmungsbildschirm gewählt wurde, ebenso die Tokens, die sie erneuert.
 
 ## Unterstützt Customermates SSO oder SAML? [#does-customermates-support-sso-or-saml]
 

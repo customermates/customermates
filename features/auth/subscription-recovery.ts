@@ -1,5 +1,5 @@
 import type { TenantUser } from "@/features/user/user.schema";
-import type { SubscriptionPlan } from "@/generated/prisma";
+import type { Subscription, SubscriptionPlan } from "@/generated/prisma";
 
 import { Action, Resource, SubscriptionPlan as SubscriptionPlanEnum } from "@/generated/prisma";
 
@@ -15,4 +15,8 @@ export function resolveSubscriptionRecoveryPath(user: TenantUser, plan: Subscrip
   if (!hasRecoveryPermission) return "administratorRequired";
   if (plan === SubscriptionPlanEnum.enterprise) return "manualEnterpriseBilling";
   return "selfServiceCheckout";
+}
+
+export function isFirstPlanChoice(subscription: Pick<Subscription, "trialEndDate" | "lemonSqueezyId">): boolean {
+  return subscription.trialEndDate === null && !subscription.lemonSqueezyId;
 }

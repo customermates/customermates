@@ -19,6 +19,7 @@ export function isRemovableMember(member: RemovableMember) {
 
 export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
   public loadedUserId: string | null = null;
+  public loadedLeftAt: Date | null = null;
   private loadSequence = 0;
 
   constructor(rootStore: RootStore) {
@@ -43,6 +44,7 @@ export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
       setLoadedUserId: action,
 
       loadedUserId: observable,
+      loadedLeftAt: observable,
       isOwnProfile: computed,
       canRemove: computed,
     });
@@ -64,8 +66,9 @@ export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
     );
   }
 
-  setLoadedUserId = (loadedUserId: string | null) => {
+  setLoadedUserId = (loadedUserId: string | null, loadedLeftAt: Date | null = null) => {
     this.loadedUserId = loadedUserId;
+    this.loadedLeftAt = loadedLeftAt;
   };
 
   loadById = async (id: string) => {
@@ -83,7 +86,7 @@ export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
       if (!user) return;
 
       this.setError(undefined);
-      this.setLoadedUserId(user.id);
+      this.setLoadedUserId(user.id, user.leftAt);
 
       this.openWith({
         email: user.email,

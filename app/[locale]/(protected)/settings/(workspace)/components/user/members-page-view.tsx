@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import type { GetResult } from "@/core/base/base-get.interactor";
 import type { RoleDto } from "@/features/role/get-roles.interactor";
-import type { UserDto } from "@/features/user/user.schema";
+import type { MemberDto } from "@/features/user/user.schema";
 
 import { observer } from "mobx-react-lite";
 import { useCallback, useLayoutEffect, useMemo } from "react";
@@ -31,7 +31,7 @@ import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = {
   initialRoles: GetResult<RoleDto>;
-  initialUsers: GetResult<UserDto>;
+  initialUsers: GetResult<MemberDto>;
 };
 
 const MembersPageViewContent = observer(function MembersPageView({ initialRoles, initialUsers }: Props) {

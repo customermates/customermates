@@ -22,7 +22,12 @@ import {
   type AgentActivityDescriptor,
 } from "@/ee/agent-chat/agent-activity";
 
-import { isDemoEnvironment, reportApplicationError } from "@/core/errors/report-application-error";
+import {
+  isDemoEnvironment,
+  notifyWorkspaceChanged,
+  reportApplicationError,
+} from "@/core/errors/report-application-error";
+import { isWorkspaceChangedFailure } from "@/core/errors/workspace-changed";
 import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
 
 import { BaseStore } from "@/core/base/base.store";
@@ -1556,7 +1561,9 @@ export class AgentChatStore extends BaseStore {
       }
 
       if (!response.ok || !response.body) {
-        if (response.status === 403 && isDemoEnvironment()) {
+        const message = await response.json().catch(() => null);
+        const workspaceChanged = response.status === 409 && isWorkspaceChangedFailure(message);
+        if (workspaceChanged || (response.status === 403 && isDemoEnvironment())) {
           runInAction(() => {
             if (options.appendUser !== false)
               this.items = this.items.filter((item) => !(item.kind === "user" && item.messageId === messageId));
@@ -1570,10 +1577,10 @@ export class AgentChatStore extends BaseStore {
                 : null;
             }
           });
-          reportApplicationError(new Error("The assistant cannot send messages in demo mode."));
+          if (workspaceChanged) notifyWorkspaceChanged();
+          else reportApplicationError(new Error("The assistant cannot send messages in demo mode."));
           return;
         }
-        const message = await response.json().catch(() => null);
         const bodyConversationId =
           message &&
           typeof message === "object" &&

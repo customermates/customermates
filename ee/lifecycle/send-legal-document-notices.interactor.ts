@@ -1,8 +1,8 @@
 import type { EmailService } from "@/features/email/email.service";
 import type { EventService } from "@/features/event/event.service";
 import type { LegalDocument, LegalDocumentVersions } from "@/constants/legal-documents";
-import type { Locale } from "@/generated/prisma";
 import type { AppLocale } from "@/i18n/locale-registry";
+import type { LegalNoticeRecipient, SendLegalDocumentNoticesRepo } from "./send-legal-document-notices.repo";
 
 import LegalDocumentNoticeContract from "@/components/emails/legal-document-notice-contract";
 import LegalDocumentNoticeInformation from "@/components/emails/legal-document-notice-information";
@@ -25,21 +25,6 @@ import { env } from "@/env";
 
 const DAY_IN_MS = 86_400_000;
 
-export type LegalNoticeRecipient = {
-  id: string;
-  companyId: string;
-  createdAt: Date;
-  email: string;
-  firstName: string;
-  displayLanguage: Locale;
-  formattingLocale: Locale;
-  isSystemAdministrator: boolean;
-};
-
-export abstract class SendLegalDocumentNoticesRepo {
-  abstract findActiveLegalNoticeRecipientsUnscoped(): Promise<LegalNoticeRecipient[]>;
-}
-
 type VersionEvidence = {
   createdAt: Date;
   versions: LegalDocumentVersions;
@@ -52,6 +37,11 @@ type LegalNoticePlan = {
   effectiveAt: string | null;
   includesContract: boolean;
   subprocessorEffectiveAt: string | null;
+};
+
+type LegalNoticeDelivery = {
+  plan: LegalNoticePlan;
+  riders: LegalNoticePlan[];
 };
 
 @SystemInteractor
@@ -76,22 +66,56 @@ export class SendLegalDocumentNoticesInteractor {
       recipientsByCompany.set(recipient.companyId, companyRecipients);
     }
 
+    const plans: LegalNoticePlan[] = [];
     for (const [companyId, companyRecipients] of recipientsByCompany) {
-      await this.sendCompanyNotices(
-        companyId,
-        companyRecipients.sort((a, b) => Number(b.isSystemAdministrator) - Number(a.isSystemAdministrator)),
-        now,
-        SUPPLIER_SUBPROCESSOR_OBJECTION_DEADLINE,
+      plans.push(
+        ...(await this.planCompanyNotices(
+          companyId,
+          companyRecipients.sort((a, b) => Number(b.isSystemAdministrator) - Number(a.isSystemAdministrator)),
+          now,
+          SUPPLIER_SUBPROCESSOR_OBJECTION_DEADLINE,
+        )),
       );
     }
+
+    for (const delivery of this.deliveries(plans)) await this.deliver(delivery);
   }
 
-  private async sendCompanyNotices(
+  private deliveries(plans: LegalNoticePlan[]): LegalNoticeDelivery[] {
+    const isPersonalPrivacyNotice = (plan: LegalNoticePlan) =>
+      plan.changedDocuments.length === 1 && plan.changedDocuments[0] === "privacy";
+    const loginOf = (plan: LegalNoticePlan) => plan.recipient.email.toLowerCase();
+    const privacyCarriers = new Map<string, LegalNoticeDelivery>();
+    const deliveries = new Map<LegalNoticePlan, LegalNoticeDelivery>();
+
+    for (const plan of plans.filter((candidate) => !isPersonalPrivacyNotice(candidate))) {
+      const delivery: LegalNoticeDelivery = { plan, riders: [] };
+      deliveries.set(plan, delivery);
+      if (plan.changedDocuments.includes("privacy") && !privacyCarriers.has(loginOf(plan)))
+        privacyCarriers.set(loginOf(plan), delivery);
+    }
+
+    for (const plan of plans.filter(isPersonalPrivacyNotice)) {
+      const carrier = privacyCarriers.get(loginOf(plan));
+      if (carrier) {
+        carrier.riders.push(plan);
+        continue;
+      }
+      const delivery: LegalNoticeDelivery = { plan, riders: [] };
+      deliveries.set(plan, delivery);
+      privacyCarriers.set(loginOf(plan), delivery);
+    }
+
+    return plans.flatMap((plan) => deliveries.get(plan) ?? []);
+  }
+
+  private async planCompanyNotices(
     companyId: string,
     recipients: LegalNoticeRecipient[],
     now: Date,
     configuredSupplierDeadline: string | null,
-  ): Promise<void> {
+  ): Promise<LegalNoticePlan[]> {
+    const plans: LegalNoticePlan[] = [];
     const records = await this.auditRepo.findLegalEventsUnscoped(companyId);
     const contractAccepted = records.some(
       (record) =>
@@ -131,7 +155,7 @@ export class SendLegalDocumentNoticesInteractor {
         effectiveAt = subprocessorEffectiveAt;
       }
 
-      await this.sendNotice({
+      plans.push({
         companyId,
         recipient,
         changedDocuments,
@@ -140,9 +164,11 @@ export class SendLegalDocumentNoticesInteractor {
         subprocessorEffectiveAt: includesSubprocessors ? subprocessorEffectiveAt : null,
       });
     }
+
+    return plans;
   }
 
-  private async sendNotice(plan: LegalNoticePlan): Promise<void> {
+  private async deliver({ plan, riders }: LegalNoticeDelivery): Promise<void> {
     const locale = resolveUserLocale(plan.recipient);
     const formattingTag = resolveUserFormattingTag(plan.recipient, locale);
     const email = await this.buildEmail(plan, locale, formattingTag);
@@ -150,6 +176,10 @@ export class SendLegalDocumentNoticesInteractor {
     const accepted = await this.emailService.send(email);
     if (!accepted) return;
 
+    for (const notice of [plan, ...riders]) await this.recordNotice(notice);
+  }
+
+  private async recordNotice(plan: LegalNoticePlan): Promise<void> {
     await this.eventService.publish(
       DomainEvent.LEGAL_NOTICE_SENT,
       {
@@ -276,7 +306,22 @@ export class SendLegalDocumentNoticesInteractor {
     const Email = plan.includesContract ? LegalDocumentNoticeContract : LegalDocumentNoticeInformation;
     const t = await getTranslator(locale, "LegalDocumentNotice");
     const layoutCopy = await getEmailLayoutCopy(locale);
-    const subject = plan.includesContract ? t("contractSubject") : t("informationSubject");
+    const workspaceSpecific = plan.includesContract || plan.changedDocuments.includes("subprocessors");
+    const workspace = workspaceSpecific ? plan.recipient.companyName : null;
+    const subject = plan.includesContract
+      ? workspace
+        ? t("contractSubjectNamed", { workspace })
+        : t("contractSubject")
+      : workspace
+        ? t("informationSubjectNamed", { workspace })
+        : t("informationSubject");
+    const body = plan.includesContract
+      ? workspace
+        ? t("contractBodyNamed", { workspace })
+        : t("contractBody")
+      : workspace
+        ? t("informationBodyNamed", { workspace })
+        : t("informationBody");
     const documents = plan.changedDocuments.map((document) => ({
       name: t(`documents.${document}`),
       version: this.formatDate(LEGAL_DOCUMENT_VERSIONS[document], formattingTag),
@@ -301,7 +346,7 @@ export class SendLegalDocumentNoticesInteractor {
       to: plan.recipient.email,
       subject,
       react: Email({
-        body: plan.includesContract ? t("contractBody") : t("informationBody"),
+        body,
         deadline,
         deadlineLabel: plan.includesContract ? t("contractDeadlineLabel") : t("subprocessorDeadlineLabel"),
         documents,

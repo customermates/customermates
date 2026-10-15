@@ -3,6 +3,7 @@ import type { CountryCode, Prisma, Status } from "@/generated/prisma";
 import { SYNTHETIC_COMPANY_USERS } from "@/core/config/synthetic-seed-user";
 
 import type { SeedContext } from "./context";
+import type { SeedMembershipKey } from "./helpers";
 
 import { SYNTHETIC_AVATAR_URLS } from "./avatars";
 import { northwindAt, northwindMemberJoinedMs } from "./northwind-data";
@@ -87,10 +88,14 @@ export const SYNTHETIC_COMPANY_MEMBER_DEFINITIONS = [
   ),
 ] satisfies readonly SyntheticCompanyMemberDefinition[];
 
-async function reconcileMemberId(context: SeedContext, id: string, email: string): Promise<void> {
+async function reconcileMemberId(
+  context: SeedContext,
+  id: string,
+  { companyId, email }: SeedMembershipKey,
+): Promise<void> {
   const [existingById, existingByEmail] = await Promise.all([
     context.prisma.user.findUnique({ where: { id }, select: { id: true } }),
-    context.prisma.user.findUnique({ where: { email }, select: { id: true } }),
+    context.prisma.user.findUnique({ where: { companyId_email: { companyId, email } }, select: { id: true } }),
   ]);
 
   if (!existingByEmail || existingByEmail.id === id) return;
@@ -118,7 +123,7 @@ export async function seedCompanyMembers(context: SeedContext): Promise<void> {
       ...timeline,
     } satisfies Prisma.UserUncheckedCreateInput;
 
-    await reconcileMemberId(context, user.id, user.email);
+    await reconcileMemberId(context, user.id, user);
     await context.prisma.user.upsert({
       where: { id: user.id },
       update: user,

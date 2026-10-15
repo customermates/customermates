@@ -47,7 +47,7 @@ export function memberName(member: { firstName: string; lastName: string; email:
 export const CompanyUserModal = observer(() => {
   const t = useTranslations();
   const { userModalStore: store, rolesStore } = useRootStore();
-  const { form, savedState, isOwnProfile, canRemove, isLoading, loadedUserId } = store;
+  const { form, savedState, isOwnProfile, canRemove, isLoading, loadedUserId, loadedLeftAt } = store;
   const confirmDelete = useMemberDeleteConfirmation();
 
   return (
@@ -83,6 +83,14 @@ export const CompanyUserModal = observer(() => {
           </AppCardHeader>
 
           <AppCardBody>
+            {loadedLeftAt ? (
+              <Alert color="warning">
+                <p className="text-x-sm">
+                  {t("WorkspaceMembership.leftNotice", { name: memberName({ ...savedState, email: form.email }) })}
+                </p>
+              </Alert>
+            ) : null}
+
             {isOwnProfile && (
               <Alert color="warning">
                 <p className="text-x-sm">
@@ -127,7 +135,7 @@ export const CompanyUserModal = observer(() => {
 
             <FormSelectChip
               required
-              disabled={isOwnProfile}
+              disabled={isOwnProfile || Boolean(loadedLeftAt)}
               disabledKeys={new Set([Status.pendingAuthorization])}
               id="status"
               inputId="member-modal-status"

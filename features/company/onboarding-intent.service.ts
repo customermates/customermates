@@ -21,6 +21,7 @@ type OnboardingIntentState =
   | { authUserId: string; intent: string; source: IntentSource; status: "valid"; type: "createCompany" }
   | {
       companyId: string;
+      companyName: string | null;
       expiresAt: Date;
       intent: string;
       inviterName: string;
@@ -94,6 +95,7 @@ export class OnboardingIntentService {
 
     return {
       companyId: result.data.companyId,
+      companyName: result.data.companyName,
       expiresAt: result.data.expiresAt,
       intent,
       inviterName: result.data.inviterName,

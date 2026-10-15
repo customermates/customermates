@@ -17,6 +17,7 @@ const RELEASE_CALLERS = [
   "ee/lifecycle/deactivate-users-after-subscription-grace-period.interactor.ts",
   "ee/operator/update-operator-user-status.interactor.ts",
   "features/user/upsert/admin-update-user-details.interactor.ts",
+  "features/workspace/leave-workspace.interactor.ts",
 ];
 
 const USER_STATUS_WRITE = /prisma\.user\.update(?:Many)?\(\{[\s\S]{0,600}?\bstatus:/;

@@ -1,13 +1,18 @@
 "use client";
 
+import type { McpConsentWorkspace } from "@/features/auth/list-mcp-consent-workspaces.interactor";
+
+import { useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
+import { RadioGroup } from "@/components/ui/radio-group";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { CardHeroHeader } from "@/components/card/card-hero-header";
+import { SelectableCard } from "@/components/forms/selectable-card";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
@@ -15,14 +20,16 @@ import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 type Props = {
   clientName: string;
   consentCode: string;
-  permitted: boolean;
   redirectHost: string;
   scopes: string[];
+  workspaces: McpConsentWorkspace[];
 };
 
-const McpConsentCardContent = observer(({ clientName, consentCode, permitted, redirectHost, scopes }: Props) => {
+const McpConsentCardContent = observer(({ clientName, consentCode, redirectHost, scopes, workspaces }: Props) => {
   const t = useTranslations();
   const { mcpConsentStore, navigationGuard } = useRootStore();
+  useState(() => mcpConsentStore.initialize(workspaces));
+  const { canApprove, isSubmitting, selectedCompanyId, selectedWorkspace } = mcpConsentStore;
 
   const decide = async (accept: boolean) => {
     const redirectURI = await mcpConsentStore.decide(consentCode, accept);
@@ -48,17 +55,65 @@ const McpConsentCardContent = observer(({ clientName, consentCode, permitted, re
     }
   };
 
+  const unavailableLabel = (reason: McpConsentWorkspace["unavailableReason"]): string | undefined => {
+    switch (reason) {
+      case "pending":
+        return t("Common.userStatuses.pendingAuthorization");
+      case "inactive":
+        return t("McpConsentWorkspace.unavailable.inactive");
+      case "permission":
+        return t("McpConsentWorkspace.unavailable.permission");
+      case "plan":
+        return t("McpConsentWorkspace.unavailable.plan");
+      case "terms":
+        return t("McpConsentWorkspace.unavailable.terms");
+      default:
+        return undefined;
+    }
+  };
+
+  const title = selectedWorkspace?.name
+    ? t("McpConsentWorkspace.title", { client: clientName, workspace: selectedWorkspace.name })
+    : t("McpConsentWorkspace.titleUnnamed", { client: clientName });
+
   return (
     <AppCard className="max-w-md">
-      <CardHeroHeader
-        subtitle={t("McpConsentCard.subtitle", { client: clientName })}
-        title={t("McpConsentCard.title")}
-      />
+      <CardHeroHeader subtitle={t("McpConsentCard.subtitle", { client: clientName })} title={title} />
 
       <AppCardBody>
         <p className="text-x-sm">{t("McpConsentCard.body", { client: clientName })}</p>
 
-        {!permitted && <p className="text-x-sm text-destructive">{t("McpConsentCard.permissionRequired")}</p>}
+        {workspaces.length > 1 ? (
+          <fieldset className="min-w-0">
+            <legend className="text-muted-foreground mb-1.5 text-xs leading-none font-normal">
+              {t("McpConsentWorkspace.pickerLabel")}
+            </legend>
+
+            <RadioGroup
+              className="grid gap-2"
+              disabled={isSubmitting}
+              value={selectedCompanyId ?? ""}
+              onValueChange={mcpConsentStore.select}
+            >
+              {workspaces.map((workspace) => (
+                <SelectableCard
+                  key={workspace.companyId}
+                  description={
+                    unavailableLabel(workspace.unavailableReason) ??
+                    (workspace.isCurrent ? t("McpConsentWorkspace.current") : undefined)
+                  }
+                  disabled={isSubmitting || workspace.unavailableReason !== null}
+                  id={`mcp-consent-workspace-${workspace.companyId}`}
+                  label={workspace.name ?? t("Workspaces.fallbackName")}
+                  selectionMode="single"
+                  value={workspace.companyId}
+                />
+              ))}
+            </RadioGroup>
+          </fieldset>
+        ) : null}
+
+        {!canApprove && <p className="text-x-sm text-destructive">{t("McpConsentCard.permissionRequired")}</p>}
 
         <ul className="text-x-sm text-subdued list-disc space-y-1 pl-5">
           <li>{t("McpConsentCard.access.crmData")}</li>
@@ -70,20 +125,18 @@ const McpConsentCardContent = observer(({ clientName, consentCode, permitted, re
           ))}
         </ul>
 
+        <p className="text-x-xs text-subdued">{t("McpConsentWorkspace.scopeHint", { client: clientName })}</p>
+
         <p className="text-x-xs text-subdued">{t("McpConsentCard.destination", { host: redirectHost })}</p>
       </AppCardBody>
 
       <AppCardFooter>
-        <Button
-          disabled={mcpConsentStore.isSubmitting}
-          variant="secondary"
-          onClick={() => runUserAction(() => decide(false))}
-        >
+        <Button disabled={isSubmitting} variant="secondary" onClick={() => runUserAction(() => decide(false))}>
           {t("McpConsentCard.deny")}
         </Button>
 
-        {permitted && (
-          <Button disabled={mcpConsentStore.isSubmitting} onClick={() => runUserAction(() => decide(true))}>
+        {canApprove && (
+          <Button disabled={isSubmitting} onClick={() => runUserAction(() => decide(true))}>
             {t("McpConsentCard.approve")}
           </Button>
         )}

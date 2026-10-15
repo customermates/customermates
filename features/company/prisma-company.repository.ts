@@ -1,17 +1,20 @@
+import type { WorkspaceSetup } from "@/features/user/register/register-user-company.repo";
 import type { RepoArgs } from "@/core/utils/types";
 import type { CreateAuthLinkSubscriptionRepo } from "@/ee/messaging/connect/create-auth-link-subscription.repo";
 import type { UpsertRoutineSubscriptionRepo } from "@/ee/routines/upsert-routine-subscription.repo";
 import type { CreateCheckoutCompanyRepo } from "@/ee/subscription/create-checkout-session.repo";
 import type { EntitlementSubscriptionRepo } from "@/ee/subscription/entitlement-subscription.repo";
+import type { WorkspacePlanRepo } from "@/ee/subscription/workspace-plan.repo";
 import type { GetBillingPortalUrlRepo } from "@/ee/subscription/get-billing-portal-url.repo";
 import type { GetSubscriptionRepo } from "@/ee/subscription/get-subscription.repo";
 import type { RefreshSubscriptionRepo } from "@/ee/subscription/refresh-subscription.repo";
 import type { SubscriptionRepo } from "@/ee/subscription/subscription.service";
 import type { RouteGuardCompanyRepo } from "@/features/auth/route-guard-company.repo";
-import type { InviteTokenRepo } from "@/features/company/invite-token-validation.interactor";
+import type { InviteTokenRepo } from "@/features/company/invite-token-validation.repo";
 import type { RegisterUserCompanyRepo } from "@/features/user/register/register-user-company.repo";
 import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/admin-update-user-subscription.repo";
 import type { GetCompanyRepo } from "./get-company.repo";
+import type { RenameWorkspaceRepo } from "@/features/workspace/rename-workspace.repo";
 import type { GetOrCreateInviteTokenRepo } from "./get-or-create-invite-token.repo";
 
 import { ConversionEventType, SubscriptionStatus, type Subscription } from "@/generated/prisma";
@@ -27,6 +30,7 @@ export class PrismaCompanyRepo
   extends TenantRepository
   implements
     GetCompanyRepo,
+    RenameWorkspaceRepo,
     GetOrCreateInviteTokenRepo,
     InviteTokenRepo,
     SubscriptionRepo,
@@ -37,6 +41,7 @@ export class PrismaCompanyRepo
     AdminUpdateUserSubscriptionRepo,
     RouteGuardCompanyRepo,
     EntitlementSubscriptionRepo,
+    WorkspacePlanRepo,
     CreateAuthLinkSubscriptionRepo,
     UpsertRoutineSubscriptionRepo,
     RegisterUserCompanyRepo
@@ -45,8 +50,13 @@ export class PrismaCompanyRepo
     const { companyId } = this.user;
     return await this.prisma.company.findUniqueOrThrow({
       where: { id: companyId },
-      select: { id: true, createdAt: true, updatedAt: true },
+      select: { id: true, name: true, createdAt: true, updatedAt: true },
     });
+  }
+
+  async renameCompany(name: string) {
+    const { companyId } = this.user;
+    await this.prisma.company.update({ where: { id: companyId }, data: { name } });
   }
 
   @Transaction
@@ -83,6 +93,7 @@ export class PrismaCompanyRepo
       where: { token },
       select: {
         companyId: true,
+        company: { select: { name: true } },
         expiresAt: true,
         createdBy: { select: { email: true, firstName: true, lastName: true } },
       },
@@ -151,6 +162,14 @@ export class PrismaCompanyRepo
   }
 
   @BypassTenantGuard
+  async findWorkspacePlanUnscoped(companyId: string) {
+    return this.prisma.subscription.findUnique({
+      where: { companyId },
+      select: { status: true, plan: true, lemonSqueezyId: true, trialEndDate: true, currentPeriodEnd: true },
+    });
+  }
+
+  @BypassTenantGuard
   async getSubscriptionOrThrowUnscoped(companyId: string) {
     const subscription = await this.prisma.subscription.findUniqueOrThrow({
       where: { companyId },
@@ -205,28 +224,38 @@ export class PrismaCompanyRepo
     await this.prisma.company.delete({ where: { id: companyId } });
   }
 
-  async createRegisteredCompany() {
-    const company = await this.prisma.company.create({ data: {} });
+  async createRegisteredCompany(setup: WorkspaceSetup = {}) {
+    const company = await this.prisma.company.create({
+      data: { name: setup.name ?? null, createdByAuthUserId: setup.createdByAuthUserId ?? null },
+    });
 
     const trialEndDate = new Date();
     trialEndDate.setDate(trialEndDate.getDate() + CLOUD_TRIAL.days);
 
     await this.prisma.subscription.create({
       data:
-        env.APP_MODE !== "self-hosted"
+        env.APP_MODE === "self-hosted"
           ? {
-              companyId: company.id,
-              status: SubscriptionStatus.trial,
-              plan: CLOUD_TRIAL.plan,
-              trialEndDate,
-              agentCreditAnchorAt: new Date(),
-            }
-          : {
               companyId: company.id,
               status: SubscriptionStatus.active,
               trialEndDate: null,
               agentCreditAnchorAt: new Date(),
-            },
+            }
+          : setup.trial === false
+            ? {
+                companyId: company.id,
+                status: SubscriptionStatus.expired,
+                plan: CLOUD_TRIAL.plan,
+                trialEndDate: null,
+                agentCreditAnchorAt: new Date(),
+              }
+            : {
+                companyId: company.id,
+                status: SubscriptionStatus.trial,
+                plan: CLOUD_TRIAL.plan,
+                trialEndDate,
+                agentCreditAnchorAt: new Date(),
+              },
     });
 
     return company.id;

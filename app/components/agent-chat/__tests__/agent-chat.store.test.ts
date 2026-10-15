@@ -24,6 +24,7 @@ const actionsMock = vi.hoisted(() => ({
 }));
 const toastMock = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn() }));
 const reportApplicationErrorMock = vi.hoisted(() => vi.fn());
+const notifyWorkspaceChangedMock = vi.hoisted(() => vi.fn());
 
 vi.mock("../actions", () => actionsMock);
 vi.mock("sonner", () => ({ toast: toastMock }));
@@ -31,6 +32,7 @@ vi.mock("@/core/errors/report-application-error", () => ({
   isDemoEnvironment: () =>
     typeof window !== "undefined" && window.location.hostname.toLocaleLowerCase().includes("demo"),
   reportApplicationError: reportApplicationErrorMock,
+  notifyWorkspaceChanged: notifyWorkspaceChangedMock,
 }));
 
 import { AgentChatStore, type AgentChatItem } from "../agent-chat.store";
@@ -3233,6 +3235,30 @@ describe("AgentChatStore", () => {
         messageId: expect.any(String),
       }),
     );
+    fetchMock.mockRestore();
+  });
+
+  it("blocks the page instead of failing the turn when this session's workspace changed elsewhere", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          error: {
+            kind: "conflict",
+            issues: [{ code: "custom", path: [], message: "Reload the page", customCode: "workspaceChanged" }],
+          },
+        }),
+        { status: 409, headers: { "content-type": "application/json" } },
+      ),
+    );
+    const store = new AgentChatStore(root() as never);
+
+    await store.sendMessage("Create a contact for Anna");
+
+    expect(notifyWorkspaceChangedMock).toHaveBeenCalledOnce();
+    expect(toastMock.error).not.toHaveBeenCalled();
+    expect(store.items.some((item) => item.kind === "user" || item.kind === "turn_error")).toBe(false);
+    expect(store.composerDraft).toBe("Create a contact for Anna");
+    expect(store.isWorking).toBe(false);
     fetchMock.mockRestore();
   });
 

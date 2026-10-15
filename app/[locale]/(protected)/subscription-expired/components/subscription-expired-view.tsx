@@ -16,20 +16,37 @@ import { PlanPicker } from "@/app/[locale]/(protected)/settings/(workspace)/comp
 import { runUserAction } from "@/core/errors/report-application-error";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 import { contactHref } from "@/core/utils/contact-href";
+import { workspaceDisplayName } from "@/app/components/workspaces/workspace-identity";
 
-const SubscriptionExpiredViewContent = observer(({ recoveryPath }: { recoveryPath: SubscriptionRecoveryPath }) => {
+type Props = {
+  recoveryPath: SubscriptionRecoveryPath;
+  firstPlan: boolean;
+};
+
+const SubscriptionExpiredViewContent = observer(({ recoveryPath, firstPlan }: Props) => {
   const t = useTranslations();
-  const { subscriptionExpiredStore, loadingOverlayStore } = useRootStore();
+  const { subscriptionExpiredStore, loadingOverlayStore, workspacesStore } = useRootStore();
+  const workspaceName = workspaceDisplayName(workspacesStore.current?.name, t("Workspaces.fallbackName"));
+  const choosingFirstPlan = firstPlan && recoveryPath === "selfServiceCheckout";
   const description =
     recoveryPath === "selfServiceCheckout"
-      ? t("SubscriptionExpiredView.selfServiceCheckoutDescription")
+      ? choosingFirstPlan
+        ? t("Workspaces.firstPlan.description", { name: workspaceName })
+        : t("SubscriptionExpiredView.selfServiceCheckoutDescription")
       : recoveryPath === "manualEnterpriseBilling"
         ? t("SubscriptionExpiredView.manualEnterpriseBillingDescription")
         : t("SubscriptionExpiredView.administratorRequiredDescription");
 
   return (
     <AppCard className="max-w-3xl">
-      <CardHeroHeader subtitle={t("SubscriptionExpiredView.subtitle")} title={t("SubscriptionExpiredView.title")} />
+      <CardHeroHeader
+        subtitle={choosingFirstPlan ? t("Workspaces.firstPlan.subtitle") : t("SubscriptionExpiredView.subtitle")}
+        title={
+          choosingFirstPlan
+            ? t("Workspaces.firstPlan.title", { name: workspaceName })
+            : t("SubscriptionExpiredView.title")
+        }
+      />
 
       <AppCardBody>
         <p className="text-x-sm text-center text-subdued">{description}</p>

@@ -116,6 +116,19 @@ describe("UserModalStore own-profile read-only contract", () => {
     expect(store.isOwnProfile).toBe(false);
   });
 
+  it("remembers that the loaded member left the workspace until another record loads", async () => {
+    const store = new UserModalStore(makeRootStore({ signedInUserId: SIGNED_IN_USER_ID, canManage: true }));
+    const leftAt = new Date("2026-10-01T00:00:00.000Z");
+    actions.getUserByIdAction.mockResolvedValue({ user: { ...userRecord(OTHER_USER_ID), leftAt } });
+    actions.getRolesAction.mockResolvedValue([]);
+
+    await store.loadById(OTHER_USER_ID);
+    expect(store.loadedLeftAt).toEqual(leftAt);
+
+    await loadUserInto(store, SIGNED_IN_USER_ID);
+    expect(store.loadedLeftAt).toBeNull();
+  });
+
   it("re-evaluates the read-only state when the modal switches to another record", async () => {
     const store = new UserModalStore(makeRootStore({ signedInUserId: SIGNED_IN_USER_ID, canManage: true }));
     const observed: boolean[] = [];

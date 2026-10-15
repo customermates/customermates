@@ -38,6 +38,26 @@ describe("StepProfileStore", () => {
       firstName: "Owner",
       lastName: "Example",
       onboardingIntent: "signed.create.intent",
+      workspaceName: "",
     });
+  });
+
+  it("submits the name chosen for a new workspace", async () => {
+    const store = new StepProfileStore(rootStore);
+    store.onInitOrRefresh({
+      avatarUrl: null,
+      email: "owner@example.com",
+      firstName: "Owner",
+      lastName: "Example",
+      onboardingIntent: "signed.create.intent",
+    });
+    store.onChange("workspaceName", "Bergmann Steuern");
+    store.onChange("agreeToTerms", true);
+
+    await store.onSubmit();
+
+    expect(actions.registerProfileAction).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ onboardingIntent: "signed.create.intent", workspaceName: "Bergmann Steuern" }),
+    );
   });
 });

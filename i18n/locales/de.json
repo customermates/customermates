@@ -857,6 +857,7 @@
       "addWebhook": "Webhook hinzufügen",
       "connectChannel": "Kanal verbinden",
       "createApiKey": "API-Key erstellen",
+      "switchWorkspace": "Workspace wechseln…",
       "themeDark": "Dunkle Darstellung verwenden",
       "themeLight": "Helle Darstellung verwenden",
       "themeSystem": "Darstellung des Systems verwenden"
@@ -874,11 +875,13 @@
     "synonyms": {
       "action": {
         "add": "neu, erstellen, anlegen, neuer Datensatz",
+        "createWorkspace": "neuer Workspace, Workspace hinzufügen, neue Firma, Workspace anlegen",
         "inviteMembers": "Benutzer hinzufügen, Kollegen einladen, Team",
         "sendFeedback": "Problem melden, Vorschlag, Support kontaktieren",
         "shortcuts": "Hotkeys, Tasten, Tastatur",
         "signOut": "ausloggen, Logout, abmelden",
         "switchView": "Ansicht ändern, gespeicherte Ansichten",
+        "switchWorkspace": "anderer Workspace, Workspace ändern, Firma wechseln, Konto wechseln, zum Workspace",
         "themeDark": "dunkel, dunkler Modus, Nachtmodus",
         "themeLight": "heller Modus, hell",
         "themeSystem": "automatische Darstellung, wie System"
@@ -921,11 +924,13 @@
         "api-keys": "Token, API, MCP, Entwickler, Zugangsschlüssel",
         "billing": "Tarif, Abonnement, Rechnungen, Zahlung, Preise",
         "channels": "verbundene Konten, E-Mail-Konten, LinkedIn, WhatsApp, Integrationen",
+        "general": "Workspace-Name, Workspace umbenennen, Workspace verlassen",
         "members": "Team, Benutzer, Personen, Kollegen",
         "profile": "Konto, Einstellungen, persönlich, Name",
         "roles": "Berechtigungen, Zugriff, Rechte",
         "webhook-deliveries": "Webhook-Zustellungen, Webhook-Protokoll, gesendete Ereignisse",
-        "webhooks": "Integrationen, Callbacks, Ereignisse, HTTP"
+        "webhooks": "Integrationen, Callbacks, Ereignisse, HTTP",
+        "workspaces": "meine Workspaces, Mitgliedschaften, Firmen, Workspace wechseln, Workspace verlassen"
       }
     }
   },
@@ -1067,6 +1072,7 @@
       "apiKeyMaxExpiration": "Die Ablaufzeit des API-Schlüssels darf 365 Tage nicht überschreiten.",
       "apiKeyMinExpiration": "Die Ablaufzeit des API-Schlüssels muss mindestens 1 Tag betragen.",
       "apiKeyNameLength": "Der Name eines API-Schlüssels muss zwischen 1 und 255 Zeichen lang sein.",
+      "apiKeyNotFound": "Dieser API-Schlüssel wurde in diesem Workspace nicht gefunden.",
       "billingPortalUnavailable": "Das Abrechnungsportal ist für diesen Workspace nicht verfügbar. Wende dich für Änderungen an den Support.",
       "calendarEventNotFound": "Kalenderereignis-ID nicht gefunden oder nicht zugänglich.",
       "calendarNotFound": "Kalender-ID nicht gefunden oder nicht zugänglich.",
@@ -1247,7 +1253,15 @@
       "wikiPagePinned": "Der Betriebsleitfaden bleibt an erster Stelle. Verschiebe eine andere Seite.",
       "wikiPageUpdateEmpty": "Gib mindestens ein Feld an, um die Seite zu aktualisieren.",
       "wikiProcedureNeedsSteps": "Ein Verfahren braucht nummerierte Schritte.",
-      "wikiWhenToUseRequired": "Ein Verfahren braucht eine kurze Beschreibung, wann es gilt."
+      "wikiWhenToUseRequired": "Ein Verfahren braucht eine kurze Beschreibung, wann es gilt.",
+      "workspaceChanged": "Dein Workspace hat sich in einem anderen Tab oder auf einem anderen Gerät geändert. Lade die Seite neu, bevor du weitermachst.",
+      "workspaceCreationUnavailable": "Hier können keine neuen Workspaces erstellt werden.",
+      "workspaceInvitationInvalid": "Dieser Einladungslink ist ungültig oder abgelaufen. Bitte um einen neuen Link.",
+      "workspaceLastAdmin": "Du bist der einzige Admin dieses Workspaces. Mache vor dem Verlassen ein anderes aktives Mitglied zum Admin.",
+      "workspaceLimitReached": "Du kannst bis zu {limit} Workspaces erstellen. Wende dich an den Support, wenn du mehr brauchst.",
+      "workspaceMemberLeft": "Dieses Mitglied hat den Workspace verlassen. Lade es erneut ein, um ihm wieder Zugriff zu geben.",
+      "workspaceNotFound": "Dieser Workspace wurde nicht gefunden oder du bist kein Mitglied.",
+      "workspacePlanRequired": "API-Schlüssel und MCP-Verbindungen brauchen einen aktiven Tarif für diesen Workspace. Wähle einen Tarif, um sie zu nutzen."
     },
     "events": {
       "connected_account": {
@@ -1654,7 +1668,10 @@
     "fallback": "Falls der Button nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein: ",
     "intro": "{inviterName} hat dich eingeladen, dem Team auf Customermates beizutreten. Klicke auf den Button unten, um die Einladung anzunehmen und dein Konto zu erstellen.",
     "preview": "{inviterName} hat dich zu seinem Team auf Customermates eingeladen",
-    "subject": "Tritt deinem Team auf Customermates bei"
+    "subject": "Tritt deinem Team auf Customermates bei",
+    "workspaceIntro": "{inviterName} hat dich eingeladen, {workspace} auf Customermates beizutreten. Klicke auf den Button unten, um die Einladung anzunehmen und dich anzumelden oder dein Konto zu erstellen.",
+    "workspacePreview": "{inviterName} hat dich zu {workspace} auf Customermates eingeladen",
+    "workspaceSubject": "Tritt {workspace} auf Customermates bei"
   },
   "CompanyInviteModal": {
     "description": "Teile diesen Link mit Benutzern, die du zu deinem Unternehmen einladen möchtest.",
@@ -2187,6 +2204,7 @@
     "appRoutines": "Routinen",
     "appSearch": "Globale Suche",
     "appTrash": "Papierkorb",
+    "appWorkspaces": "Workspaces",
     "architectureSecurity": "Architektur & Sicherheit",
     "concepts": "Kernkonzepte",
     "connectCli": "CLI & Editoren",
@@ -2586,10 +2604,7 @@
     "joinAction": "Weiter",
     "joinBody": "Richte dein Profil ein und beantrage den Zugang. Ein Workspace-Administrator muss dich freigeben, bevor du beitreten kannst.",
     "joinSubtitle": "Du bist als {email} angemeldet",
-    "joinTitle": "Einladung annehmen",
-    "switchBody": "Dieses Konto gehört bereits zu einem Workspace. Melde dich ab, um mit einem anderen Konto fortzufahren.",
-    "switchSubtitle": "Du bist als {email} angemeldet",
-    "switchTitle": "Du bist bereits angemeldet"
+    "joinTitle": "Einladung annehmen"
   },
   "JoinWorkspace": {
     "backAction": "Zurück zur Auswahl",
@@ -2655,9 +2670,11 @@
   },
   "LegalDocumentNotice": {
     "contractBody": "Wir haben die unten aufgeführten Rechtsdokumente aktualisiert. Bitte prüfen Sie diese für den Geschäftskunden und veranlassen Sie die elektronische Annahme durch einen berechtigten Systemadministrator.",
+    "contractBodyNamed": "Wir haben die unten aufgeführten Rechtsdokumente für den Workspace „{workspace}“ aktualisiert. Bitte prüfen Sie diese für den Geschäftskunden und veranlassen Sie die elektronische Annahme durch einen berechtigten Systemadministrator.",
     "contractDeadlineLabel": "Widerspruchs- und Annahmefrist",
     "contractObjection": "Bitte teilen Sie einen etwaigen Widerspruch vor Ablauf der angegebenen Frist mit, indem Sie auf diese E-Mail antworten. Schweigen oder Untätigkeit gelten nicht als Zustimmung. Werden geänderte Vertragsdokumente nicht fristgerecht angenommen, kann der Zugang zur Benutzeroberfläche des verwalteten Dienstes bis zur Annahme durch einen berechtigten Administrator beschränkt werden.",
     "contractSubject": "Handlung erforderlich: aktualisierte Customermates-Rechtsdokumente",
+    "contractSubjectNamed": "Handlung erforderlich für „{workspace}“: aktualisierte Customermates-Rechtsdokumente",
     "contractTitle": "Rechtsdokumente aktualisiert",
     "documents": {
       "dpa": "Auftragsverarbeitungsvertrag",
@@ -2667,7 +2684,9 @@
     },
     "greeting": "Hallo {firstName},",
     "informationBody": "Wir haben die unten aufgeführten rechtlichen Informationen aktualisiert. Eine Annahme ist nicht erforderlich, sofern diese E-Mail nicht zugleich geänderte AGB oder einen geänderten Auftragsverarbeitungsvertrag nennt.",
+    "informationBodyNamed": "Wir haben die unten aufgeführten rechtlichen Informationen für den Workspace „{workspace}“ aktualisiert. Eine Annahme ist nicht erforderlich, sofern diese E-Mail nicht zugleich geänderte AGB oder einen geänderten Auftragsverarbeitungsvertrag nennt.",
     "informationSubject": "Rechtliche Informationen von Customermates aktualisiert",
+    "informationSubjectNamed": "Rechtliche Informationen von Customermates für „{workspace}“ aktualisiert",
     "informationTitle": "Rechtliche Informationen aktualisiert",
     "signoff": "Viele Grüße\nBen",
     "subprocessorDeadlineLabel": "Widerspruchsfrist für Unterauftragsverarbeiter",
@@ -2726,8 +2745,20 @@
       "openid": "Deine Identität bestätigen",
       "profile": "Dein Basisprofil lesen"
     },
-    "subtitle": "{client} möchte sich mit deinem Konto verbinden.",
-    "title": "Zugriff autorisieren"
+    "subtitle": "{client} möchte sich mit deinem Konto verbinden."
+  },
+  "McpConsentWorkspace": {
+    "current": "Aktueller Workspace",
+    "pickerLabel": "Workspace auswählen",
+    "scopeHint": "{client} erreicht nur den Workspace, den du auswählst. Für einen anderen Workspace verbindest du erneut.",
+    "title": "{client} mit {workspace} verbinden",
+    "titleUnnamed": "{client} mit diesem Workspace verbinden",
+    "unavailable": {
+      "inactive": "Dein Zugriff ist deaktiviert",
+      "permission": "Deine Rolle hat keinen API-Zugriff",
+      "plan": "Kein aktives Abonnement",
+      "terms": "Neue Bedingungen müssen akzeptiert werden"
+    }
   },
   "MessagingUpsell": {
     "cta": "Tarif upgraden",
@@ -2994,7 +3025,7 @@
         "userStatusUpdate": "Kontostatus aktualisiert",
         "userSummaryRead": "Benutzerübersicht gelesen",
         "workspaceDelete": "Workspace gelöscht",
-        "workspaceTagsUpdate": "Arbeitsbereichs-Schlagwörter aktualisiert"
+        "workspaceTagsUpdate": "Workspace-Schlagwörter aktualisiert"
       },
       "source": {
         "operator": "Operator",
@@ -3005,11 +3036,11 @@
   "OperatorConsole": {
     "confirm": {
       "allowance": "Enterprise-Kontingent für {name} auf {value} Credits pro Nutzer setzen? Das gilt für den gesamten Workspace.",
-      "changes": "Diese Änderungen für {name} speichern? Sie gelten für den gesamten Arbeitsbereich.",
+      "changes": "Diese Änderungen für {name} speichern? Sie gelten für den gesamten Workspace.",
       "plan": "Den Tarif für {name} auf {value} setzen? Das gilt für den gesamten Workspace.",
       "subscription": "Den Abonnementstatus für {name} auf {value} setzen? Das gilt für den gesamten Workspace und kontaktiert keinen Zahlungsanbieter.",
-      "tags": "Schlagwörter für {name} auf {value} setzen? Das gilt für den gesamten Arbeitsbereich.",
-      "tagsCleared": "Alle Schlagwörter von {name} entfernen? Das gilt für den gesamten Arbeitsbereich.",
+      "tags": "Schlagwörter für {name} auf {value} setzen? Das gilt für den gesamten Workspace.",
+      "tagsCleared": "Alle Schlagwörter von {name} entfernen? Das gilt für den gesamten Workspace.",
       "terms": "Abonnementkonditionen für {name} aktualisieren? Gilt für den gesamten Workspace.",
       "termsClearingBilling": "Abonnementkonditionen für {name} aktualisieren und das Abrechnungsabo trennen? Der Anbieter berechnet weiter, bis du dort kündigst.",
       "title": "Operator-Änderung bestätigen"
@@ -3033,7 +3064,7 @@
       "withoutColumnCount": "Nicht in dieser Datei enthaltene Google-Conversions: {count}. Ihr Klick trug eine gbraid- oder wbraid-Kennung, für die Googles Upload-Vorlage keine Spalte hat."
     },
     "growth": {
-      "description": "Dazu {workspaces} neue Arbeitsbereiche",
+      "description": "Dazu {workspaces} neue Workspaces",
       "label": "Neue Benutzer in 30 Tagen"
     },
     "navigation": "Übersicht",
@@ -3060,7 +3091,7 @@
     },
     "workspaces": {
       "description": "{enterprise} mit Enterprise",
-      "label": "Arbeitsbereiche"
+      "label": "Workspaces"
     }
   },
   "OperatorUsers": {
@@ -3085,7 +3116,7 @@
       "remaining": "Verbleibend",
       "setAllowance": "Workspace-Kontingent setzen",
       "title": "Aktueller Credit-Stand",
-      "unavailableDescription": "Der Arbeitsbereich benötigt eine gültige Berechtigung und einen Credit-Anker, bevor Credits korrigiert oder zurückgesetzt werden können."
+      "unavailableDescription": "Der Workspace benötigt eine gültige Berechtigung und einen Credit-Anker, bevor Credits korrigiert oder zurückgesetzt werden können."
     },
     "emptyBody": "Passe Suche oder Filter an, um das Verzeichnis zu erweitern.",
     "emptyTitle": "Keine Benutzer passen zu diesen Filtern",
@@ -3118,7 +3149,7 @@
       "label": "Credits pro Benutzer",
       "notSet": "Nicht gesetzt",
       "title": "Enterprise-Kontingent",
-      "warningDescription": "Das Kontingent gilt pro Benutzer im gesamten Arbeitsbereich und wirkt sich auf die aktuelle Periode aus."
+      "warningDescription": "Das Kontingent gilt pro Benutzer im gesamten Workspace und wirkt sich auf die aktuelle Periode aus."
     },
     "channels": {
       "approximate": "Mindestens ein Trennzeitpunkt ist geschätzt, daher kann dieser Höchstwert leicht zu hoch sein.",
@@ -3135,13 +3166,13 @@
       "warningDescription": "Beim Löschen von {name} werden der Workspace und {members, plural, =1 {sein einziges Mitgliedskonto} other {alle # Mitgliedskonten}} dauerhaft entfernt, samt Kontakten, Deals, Nachrichten, Anmeldedaten und Abrechnungsdaten. Dies kann nicht rückgängig gemacht werden."
     },
     "emptyBody": "Passe Suche oder Filter an, um die Liste zu erweitern.",
-    "emptyTitle": "Keine Arbeitsbereiche passen zu diesen Filtern",
+    "emptyTitle": "Keine Workspaces passen zu diesen Filtern",
     "modal": {
       "identity": "{domain} · {owner}",
       "subscription": "Abonnement",
       "workspaceId": "Workspace-ID"
     },
-    "navigation": "Arbeitsbereiche",
+    "navigation": "Workspaces",
     "stats": {
       "assistantConversations": "Assistent-Chats",
       "connectedAccounts": "Verbundene Konten",
@@ -3158,7 +3189,7 @@
       "title": "Workspace-Statistiken"
     },
     "tags": {
-      "description": "Arbeitsbereiche nach Reseller oder Kundenbetreuung gruppieren. Schlagwörter erscheinen in der Nutzerliste und lassen sich in beiden Listen filtern.",
+      "description": "Workspaces nach Reseller oder Kundenbetreuung gruppieren. Schlagwörter erscheinen in der Nutzerliste und lassen sich in beiden Listen filtern.",
       "label": "Zugewiesene Schlagwörter",
       "more": "+{count} weitere",
       "placeholder": "Schlagwort eingeben und Enter drücken",
@@ -3182,7 +3213,10 @@
   "PendingCard": {
     "body": "Du kannst dich anmelden, sobald dein Konto von einem Administrator deines Unternehmens genehmigt wurde.",
     "subtitle": "Dein Konto wird derzeit von einem Administrator deines Unternehmens geprüft",
-    "title": "Warten auf Genehmigung"
+    "title": "Warten auf Genehmigung",
+    "withdraw": "Anfrage zurückziehen",
+    "withdrawConfirmDescription": "Die Admins sehen deine Anfrage nicht mehr. Um später beizutreten, muss dich ein Admin erneut einladen.",
+    "withdrawConfirmTitle": "Anfrage für {name} zurückziehen?"
   },
   "ProfileSections": {
     "apiKeysDescription": "Langlebige API-Schlüssel für den programmatischen Zugriff."
@@ -4115,11 +4149,13 @@
     "billing": "Abrechnung",
     "channels": "Kanäle",
     "deliveries": "Zustellungen",
+    "general": "Allgemein",
     "members": "Mitglieder",
     "profile": "Profil & Einstellungen",
     "roles": "Rollen",
     "webhooks": "Webhooks",
-    "workspace": "Workspace"
+    "workspace": "Workspace",
+    "workspaces": "Workspaces"
   },
   "SidebarCustomize": {
     "deleteSection": "Abschnitt löschen",
@@ -4251,12 +4287,14 @@
   },
   "SubscriptionInactivationNotice": {
     "body": "Dein Konto ist jetzt inaktiv, weil dein Abonnement seit mehr als 3 Tagen unbezahlt oder abgelaufen ist. Wenn du weitermachen möchtest, helfe ich dir gerne dabei, den Zugang schnell wiederherzustellen.",
+    "bodyNamed": "Dein Zugang zum Workspace „{workspace}“ ist jetzt inaktiv, weil sein Abonnement seit mehr als 3 Tagen unbezahlt oder abgelaufen ist. Wenn du weitermachen möchtest, helfe ich dir gerne dabei, den Zugang schnell wiederherzustellen.",
     "cta": "Kontakt aufnehmen",
     "dismiss": "Falls dich diese E-Mail gerade zu einem ungünstigen Zeitpunkt erreicht, antworte einfach später und ich helfe dir bei den nächsten Schritten.",
     "greeting": "Hallo {firstName},",
     "scheduleFallback": "Falls der Button nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein: ",
     "signoff": "Viele Grüße\nBen",
     "subject": "Dein Konto ist inaktiv: Wir helfen bei der Wiederherstellung",
+    "subjectNamed": "Dein Zugang zu „{workspace}“ ist inaktiv: Wir helfen bei der Wiederherstellung",
     "title": "Abonnement deaktiviert"
   },
   "Trash": {
@@ -4318,31 +4356,37 @@
   },
   "TrialExpiredOffer": {
     "body": "Deine Testphase ist vor Kurzem abgelaufen, aber ich helfe dir gerne dabei, echten Nutzen aus Customermates zu ziehen. Wenn du möchtest, verlängere ich deine Testphase und gehe dein Setup gemeinsam mit dir Schritt für Schritt durch.",
+    "bodyNamed": "Die Testphase deines Workspaces „{workspace}“ ist vor Kurzem abgelaufen, aber ich helfe dir gerne dabei, echten Nutzen aus Customermates zu ziehen. Wenn du möchtest, verlängere ich die Testphase und gehe dein Setup gemeinsam mit dir Schritt für Schritt durch.",
     "cta": "Kontakt aufnehmen",
     "greeting": "Hallo {firstName},",
     "scheduleFallback": "Falls der Button nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein: ",
     "signoff": "Viele Grüße\nBen",
     "subject": "Mehr Zeit nötig? Wir machen gemeinsam weiter",
+    "subjectNamed": "Mehr Zeit für „{workspace}“ nötig? Wir machen gemeinsam weiter",
     "title": "Angebot zur Testverlängerung"
   },
   "TrialInactivationNotice": {
     "body": "Dein Konto ist jetzt inaktiv, weil dein Testzeitraum vor mehr als 6 Tagen abgelaufen ist. Wenn du doch noch weitermachen möchtest, helfe ich dir gerne bei der schnellen Reaktivierung und begleite dich bei den nächsten Schritten.",
+    "bodyNamed": "Dein Zugang zum Workspace „{workspace}“ ist jetzt inaktiv, weil seine Testphase vor mehr als 6 Tagen abgelaufen ist. Wenn du doch noch weitermachen möchtest, helfe ich dir gerne bei der schnellen Reaktivierung und begleite dich bei den nächsten Schritten.",
     "cta": "Kontakt aufnehmen",
     "dismiss": "Falls es gerade nicht passt, kein Problem. Du kannst jederzeit zurückkommen und ich helfe dir persönlich.",
     "greeting": "Hallo {firstName},",
     "scheduleFallback": "Falls der Button nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein: ",
     "signoff": "Viele Grüße\nBen",
     "subject": "Dein Konto ist inaktiv: Wir helfen dir beim Wiedereinstieg",
+    "subjectNamed": "Dein Zugang zu „{workspace}“ ist inaktiv: Wir helfen dir beim Wiedereinstieg",
     "title": "Konto inaktiv gesetzt"
   },
   "TrialInactivationReminder": {
     "body": "Dein Testzeitraum ist vor einigen Tagen abgelaufen und dein Konto wird in 3 Tagen inaktiv. Wenn du möchtest, unterstütze ich dich kurz beim Setup, damit alles aktiv bleibt.",
+    "bodyNamed": "Die Testphase deines Workspaces „{workspace}“ ist vor einigen Tagen abgelaufen, und dein Zugang dazu wird in 3 Tagen inaktiv. Wenn du möchtest, unterstütze ich dich kurz beim Setup, damit alles aktiv bleibt.",
     "cta": "Kontakt aufnehmen",
     "dismiss": "Wenn du dein Konto nicht mehr benötigst, ist keine Aktion erforderlich.",
     "greeting": "Hallo {firstName},",
     "scheduleFallback": "Falls der Button nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein: ",
     "signoff": "Viele Grüße\nBen",
     "subject": "Noch 3 Tage bis zur Inaktivierung deines Kontos",
+    "subjectNamed": "Noch 3 Tage bis zur Inaktivierung deines Zugangs zu „{workspace}“",
     "title": "Erinnerung zur Inaktivierung"
   },
   "TrialWelcome": {
@@ -4536,8 +4580,85 @@
     "tryAnother": "Andere Website versuchen",
     "unavailable": "Die Einrichtung mit Mate ist derzeit nicht verfügbar. Du kannst später in der Wissensdatenbank Seiten erstellen."
   },
+  "WorkspaceInvitation": {
+    "inactive": {
+      "body": "Ein Admin hat deinen Zugriff auf {workspace} deaktiviert. Bitte einen Admin, ihn wieder zu aktivieren.",
+      "bodyUnnamed": "Ein Admin hat deinen Zugriff auf diesen Workspace deaktiviert. Bitte einen Admin, ihn wieder zu aktivieren.",
+      "title": "Dein Zugriff ist deaktiviert"
+    },
+    "join": {
+      "action": "Workspace beitreten",
+      "body": "Ein Admin gibt deine Anfrage frei, bevor du Zugriff bekommst. Deine anderen Workspaces bleiben unverändert.",
+      "terms": "Mit dem Beitritt verpflichtest du dich, die <termsOfServiceLink>AGB</termsOfServiceLink> einzuhalten, und bestätigst, dass du den <dpaLink>AVV</dpaLink> sowie die <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> gelesen hast.",
+      "title": "{workspace} beitreten",
+      "titleUnnamed": "Diesem Workspace beitreten"
+    },
+    "member": {
+      "action": "Workspace öffnen",
+      "body": "Öffne ihn, um dort weiterzuarbeiten.",
+      "title": "Du bist bereits Mitglied von {workspace}",
+      "titleUnnamed": "Du bist bereits Mitglied dieses Workspaces"
+    },
+    "otherAccount": "Anderes Konto verwenden",
+    "pending": {
+      "action": "Status anzeigen",
+      "body": "Ein Admin von {workspace} muss deine Anfrage noch freigeben.",
+      "bodyUnnamed": "Ein Admin dieses Workspaces muss deine Anfrage noch freigeben.",
+      "title": "Deine Anfrage wartet auf Freigabe"
+    },
+    "signedInAs": "Angemeldet als {email}"
+  },
+  "WorkspaceMembership": {
+    "left": "Ausgetreten",
+    "leftNotice": "{name} hat diesen Workspace verlassen. Für erneuten Zugriff schick eine neue Einladung."
+  },
   "WorkspaceMenu": {
     "inviteMembers": "Mitglieder einladen",
     "label": "Workspace-Menü"
+  },
+  "WorkspaceOnboarding": {
+    "workspaceName": "Workspace-Name",
+    "workspaceNameDescription": "Optional. Damit unterscheidest du deine Workspaces; du kannst ihn später ändern.",
+    "workspaceNamePlaceholder": "z. B. Acme Vertrieb"
+  },
+  "Workspaces": {
+    "apiKeysScope": "Diese Schlüssel greifen nur auf diesen Workspace zu.",
+    "apiKeysScopeNamed": "Diese Schlüssel greifen nur auf den Workspace {name} zu.",
+    "billingNote": "Jeder Workspace hat einen eigenen Tarif und eigene Nutzerplätze. Dein erster selbst erstellter Workspace enthält die kostenlose Testphase, jeder weitere startet mit der Wahl eines Tarifs.",
+    "create": "Workspace erstellen",
+    "createDescription": "Ein neuer Workspace startet leer, mit eigenen Datensätzen, eigener Wissensdatenbank, eigenen Mitgliedern und Verbindungen.",
+    "current": "Aktuell",
+    "dangerZone": "Gefahrenbereich",
+    "fallbackName": "Workspace",
+    "firstPlan": {
+      "description": "{name} hat noch keinen Tarif. Die kostenlose Testphase gilt nur für deinen ersten Workspace, wähle also einen Tarif, um hier loszulegen.",
+      "subtitle": "Jeder Workspace hat einen eigenen Tarif",
+      "title": "Wähle einen Tarif für {name}"
+    },
+    "leave": "Workspace verlassen",
+    "leaveConfirmDescription": "Du verlierst den Zugriff auf seine Datensätze, die Wissensdatenbank und Verbindungen, und deine API-Schlüssel und KI-Verbindungen dafür funktionieren nicht mehr. Um zurückzukommen, muss dich ein Admin erneut einladen.",
+    "leaveConfirmTitle": "{name} verlassen?",
+    "leaveDescription": "Entferne dich aus diesem Workspace. Deine anderen Workspaces bleiben unverändert.",
+    "leaveShort": "Verlassen",
+    "listDescription": "Alle Workspaces, zu denen du gehörst. Jeder hat eigene Datensätze, Mitglieder, API-Schlüssel und Verbindungen.",
+    "memberCount": "{count, plural, one {# Mitglied} other {# Mitglieder}}",
+    "nameDescription": "Alle Mitglieder sehen diesen Namen im Workspace-Wechsler.",
+    "nameLabel": "Workspace-Name",
+    "noPlan": "Kein Tarif",
+    "otherTab": {
+      "description": "Dieser Tab zeigt noch {current}. Lade ihn neu, damit nichts im falschen Workspace gespeichert wird.",
+      "reload": "Neu laden",
+      "title": "Du hast in einem anderen Tab den Workspace gewechselt",
+      "titleChanged": "Dein Workspace hat sich geändert",
+      "titleNamed": "Du hast in einem anderen Tab zu {name} gewechselt"
+    },
+    "renameReadOnly": "Nur Mitglieder, die den Workspace verwalten dürfen, können den Namen ändern.",
+    "restrictedCreateHint": "Du kannst auch einen eigenen Workspace erstellen.",
+    "status": {
+      "pending": "Ausstehend"
+    },
+    "switch": "Wechseln",
+    "switchTo": "Zu {name} wechseln",
+    "switchWorkspace": "Workspace wechseln"
   }
 }

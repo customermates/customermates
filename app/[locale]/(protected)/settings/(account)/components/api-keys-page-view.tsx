@@ -30,9 +30,13 @@ type Props = {
 
 const ApiKeysPageViewContent = observer(({ apiKeys }: Props) => {
   const t = useTranslations();
-  const { apiKeyModalStore, apiKeysStore } = useRootStore();
+  const { apiKeyModalStore, apiKeysStore, workspacesStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
   const { canManage } = apiKeysStore;
+  const workspaceName = workspacesStore.current?.name?.trim();
+  const workspaceScope = workspaceName
+    ? t("Workspaces.apiKeysScopeNamed", { name: workspaceName })
+    : t("Workspaces.apiKeysScope");
 
   useLayoutEffect(() => apiKeysStore.setItems({ items: apiKeys }), [apiKeys]);
 
@@ -84,7 +88,7 @@ const ApiKeysPageViewContent = observer(({ apiKeys }: Props) => {
             ) : undefined
           }
           background={<ApiKeysPageSkeleton animated={false} />}
-          description={t("ProfileSections.apiKeysDescription")}
+          description={`${t("ProfileSections.apiKeysDescription")} ${workspaceScope}`}
           icon={KeyRound}
           state="empty"
           title={t("Common.emptyState.genericTitle")}
@@ -94,7 +98,9 @@ const ApiKeysPageViewContent = observer(({ apiKeys }: Props) => {
     case "content":
       body = (
         <div className="animate-page-result-in flex w-full max-w-3xl flex-col gap-4 motion-reduce:animate-none">
-          <Alert color="primary" description={t("ProfileSections.apiKeysDescription")} />
+          <Alert color="primary" description={t("ProfileSections.apiKeysDescription")}>
+            <p>{workspaceScope}</p>
+          </Alert>
 
           <div className={PROFILE_RESOURCE_CARD_GRID_CLASS_NAME}>
             {apiKeysStore.items.map((key) => (
