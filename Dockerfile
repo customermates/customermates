@@ -20,6 +20,7 @@ RUN yarn build
 FROM base AS runner
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV CHECKPOINT_DISABLE=1
 ENV _FUMADOCS_MDX=1
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/yarn.lock ./yarn.lock
