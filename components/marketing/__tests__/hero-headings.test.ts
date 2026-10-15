@@ -71,8 +71,10 @@ describe("hero headings", () => {
     const heading = html.match(/<h1\b[\s\S]*?<\/h1>/u)?.[0] ?? "";
 
     expect(headingText(html).startsWith("Customer data and your AI, in one workspace.")).toBe(true);
-    expect(heading).toContain('<span class="sr-only">Customer data and your AI, in one workspace.</span>');
-    expect(heading.match(/aria-hidden="true"/gu)?.length).toBeGreaterThanOrEqual(2);
+    expect(headingText(html)).toBe("Customer data and your AI, in one workspace.");
+    expect(heading).toContain('<span class="sr-only">Customer data </span>');
+    expect(heading.match(/aria-hidden="true"/gu)).toHaveLength(1);
+    expect(heading).toContain('data-word="Customer data"');
     expect(heading).toContain('data-homepage-motion="rotating-accent"');
     expect(html).toContain('role="tablist"');
     expect(html.match(/role="tab"/gu)).toHaveLength(5);

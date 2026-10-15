@@ -1,3 +1,5 @@
+export const PUBLIC_DEMO_ORIGIN = "https://demo.customermates.com";
+
 export function localDemoBaseUrl(): string | null {
   if (process.env.NODE_ENV !== "development") return null;
 
@@ -11,7 +13,7 @@ export function localProductDemoSrc(src: string): string {
   if (!base) return src;
 
   const url = new URL(src);
-  if (url.hostname !== "demo.customermates.com") return src;
+  if (url.origin !== PUBLIC_DEMO_ORIGIN) return src;
 
   return `${base}${url.pathname}${url.search}${url.hash}`;
 }

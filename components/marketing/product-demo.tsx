@@ -1,7 +1,7 @@
 import { useLocale } from "next-intl";
 
 import { BrowserFrame } from "./browser-frame";
-import { localProductDemoSrc } from "./product-demo-src";
+import { PUBLIC_DEMO_ORIGIN, localProductDemoSrc } from "./product-demo-src";
 import { cn } from "@/core/utils/cn";
 import { type ContentLocale, contentLocaleOrDefault } from "@/i18n/locale-registry";
 
@@ -176,7 +176,7 @@ export function buildProductDemoUrl(locale: ContentLocale, path: string): string
 
   const query = path === "/inbox" ? "threadId=latest&agentChat=closed" : "agentChat=closed";
 
-  return `https://demo.customermates.com/${locale}${path}?${query}`;
+  return `${PUBLIC_DEMO_ORIGIN}/${locale}${path}?${query}`;
 }
 
 type Props = {

@@ -1,6 +1,6 @@
 export const SESSION_HINT_COOKIE_NAME = "app.session_hint";
 
-export const SESSION_HINT_DOCUMENT_ATTRIBUTE = "data-session-hint";
+const SESSION_HINT_DOCUMENT_ATTRIBUTE = "data-session-hint";
 
 const SESSION_HINT_MAX_AGE = 30 * 24 * 60 * 60;
 

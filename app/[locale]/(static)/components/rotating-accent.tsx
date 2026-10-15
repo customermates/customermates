@@ -69,21 +69,22 @@ export function RotatingAccent({ className, highlightClassName, words }: Props) 
         initial={false}
         transition={transition}
       >
-        <span ref={measureRef} className="pointer-events-none invisible absolute whitespace-nowrap">
-          {activeWord}
-        </span>
+        <span
+          ref={measureRef}
+          className="pointer-events-none invisible absolute whitespace-nowrap after:content-[attr(data-word)]"
+          data-word={activeWord}
+        />
 
         <AnimatePresence initial={false} mode="popLayout">
           <motion.span
             key={activeWord}
             animate={{ opacity: 1, y: "0%" }}
-            className="inline-block"
+            className="inline-block after:content-[attr(data-word)]"
+            data-word={activeWord}
             exit={{ opacity: 0, y: "-100%" }}
             initial={shouldAnimate ? { opacity: 0, y: "100%" } : false}
             transition={transition}
-          >
-            {activeWord}
-          </motion.span>
+          />
         </AnimatePresence>
       </motion.span>
     </span>

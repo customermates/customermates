@@ -37,9 +37,7 @@ export function HomepageHero({ heroSection, locale }: Props) {
             className="mt-6 text-[clamp(2.25rem,6.4vw,4.75rem)] leading-[1.04] font-medium tracking-[-0.045em] text-balance"
             data-homepage-hero-line="lead"
           >
-            <span className="sr-only">
-              {`${heroSection.titleRotations[0]} ${heroSection.title} ${heroSection.titleAccent}`}
-            </span>
+            <span className="sr-only">{`${heroSection.titleRotations[0]} `}</span>
 
             <RotatingAccent
               highlightClassName="rounded-[0.32em] bg-primary/10 pt-[0.12em] pr-[0.2em] pb-[0.19em] pl-[0.16em] text-primary ring-1 ring-primary/15 ring-inset"
@@ -47,11 +45,10 @@ export function HomepageHero({ heroSection, locale }: Props) {
             />
 
             <span
-              aria-hidden
               className="block bg-linear-to-b from-foreground to-foreground/65 bg-clip-text pb-[0.06em] text-transparent"
               data-homepage-hero-line="accent"
             >
-              <span className="block">{heroSection.title}</span>
+              <span className="block">{`${heroSection.title} `}</span>
 
               <span className="block">{heroSection.titleAccent}</span>
             </span>

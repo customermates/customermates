@@ -101,7 +101,7 @@ export function isPrimaryPublicNavLink(groups: PublicNavGroup[], link: PublicNav
   return false;
 }
 
-export function PublicNavLinkMark({ mark }: { mark: PublicNavMark }) {
+function PublicNavLinkMark({ mark }: { mark: PublicNavMark }) {
   const hydrated = useSyncExternalStore(subscribeToHydration, clientHydrationSnapshot, serverHydrationSnapshot);
   let icon: ReactNode = null;
 
@@ -128,7 +128,7 @@ export function PublicNavLinkMark({ mark }: { mark: PublicNavMark }) {
   );
 }
 
-export function PublicNavLinkIcon({ icon: LinkIcon }: { icon: LucideIcon }) {
+function PublicNavLinkIcon({ icon: LinkIcon }: { icon: LucideIcon }) {
   return (
     <span aria-hidden className="grid h-[18px] w-[22px] shrink-0 place-items-center" data-public-nav-icon="true">
       <LinkIcon className="size-4" />

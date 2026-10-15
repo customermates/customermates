@@ -2,6 +2,8 @@ import { existsSync, readdirSync } from "node:fs";
 import { extname, join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
+import { HUB_PAGE_SEGMENT, hubPageCount, resolveHubPageSegment } from "@/core/seo/hub-pagination";
+import { LANDING_HUBS } from "@/core/seo/landing-hubs";
 import {
   DELETED_ROUTE_PATHS,
   DUPLICATE_ROUTE_PATHS,
@@ -39,8 +41,20 @@ function prefixOf(routePath: string): string | null {
   return Object.keys(COLLECTION_BY_PREFIX).find((prefix) => routePath.startsWith(prefix)) ?? null;
 }
 
+function resolvesToLiveHubPage(routePath: string): boolean | null {
+  for (const { collection, hubPath } of LANDING_HUBS) {
+    const prefix = `${hubPath}/${HUB_PAGE_SEGMENT}/`;
+    if (!routePath.startsWith(prefix)) continue;
+    const pageCount = hubPageCount(publishedSlugs(collection, DEFAULT_LOCALE).size);
+    return resolveHubPageSegment(routePath.slice(prefix.length), pageCount).kind === "page";
+  }
+  return null;
+}
+
 function resolvesToLivePage(routePath: string, locale: string): boolean {
   if (STATIC_ROUTES.has(routePath)) return true;
+  const hubPage = resolvesToLiveHubPage(routePath);
+  if (hubPage !== null) return hubPage;
   const prefix = prefixOf(routePath);
   if (!prefix) return false;
   return publishedSlugs(COLLECTION_BY_PREFIX[prefix], locale).has(routePath.slice(prefix.length));
