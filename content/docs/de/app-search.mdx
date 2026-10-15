@@ -7,9 +7,15 @@ Die globale Suche öffnet sich überall in der App über der aktuellen Seite: Dr
 
 ## Was findet die globale Suche, und welche Kontaktfelder durchsucht sie? [#what-does-global-search-find]
 
-Die Suche durchsucht Datensätze in allen Listen, die Sie lesen dürfen, auch in Listen, die Ihr Workspace angelegt hat, und gruppiert die Treffer nach Liste. Sie findet Titel und durchsuchbare Feldwerte, auch E-Mail-Felder, und Kontakte über jede E-Mail-Adresse oder Telefonnummer in ihren **Kanälen**. Werte, die Sie nicht sehen dürfen, werden nicht durchsucht. Darf Ihre Rolle eine Liste nur mit **Zugewiesen** lesen, erhalten Sie nur Datensätze, denen Sie zugewiesen sind. **Mehr laden** ruft weitere Treffer ab.
+Die Suche durchsucht Datensätze in allen Listen, die Sie lesen dürfen, auch in Listen, die Ihr Workspace angelegt hat, und gruppiert die Treffer nach Liste. Sie findet Titel und durchsuchbare Feldwerte, auch E-Mail-Felder, Kontakte über jede E-Mail-Adresse oder Telefonnummer in ihren **Kanälen** und Datensätze über die Namen und den Text ihrer [angehängten Dateien](#does-search-look-inside-files). Werte, die Sie nicht sehen dürfen, werden nicht durchsucht. Darf Ihre Rolle eine Liste nur mit **Zugewiesen** lesen, erhalten Sie nur Datensätze, denen Sie zugewiesen sind. **Mehr laden** ruft weitere Treffer ab.
 
 Vor der Eingabe zeigt **Zuletzt geöffnet** Ihre letzten Auswahlen aus der Suche, nur in diesem Browser gespeichert; **Leeren** leert die Liste. **Vorschläge** darunter bieten an, was zur aktuellen Seite passt, zum Beispiel einen Datensatz in der geöffneten Liste hinzuzufügen. Die Pfeiltasten bewegen sich durch die Treffer, Enter öffnet einen. Ein ausgewählter Datensatz öffnet sich im Details-Drawer.
+
+## Durchsucht die Suche auch angehängte Dateien? [#does-search-look-inside-files]
+
+Ja. Kurz nachdem eine Datei an einen Datensatz angehängt wurde, wird ihr Text ausgelesen: die Textebene einer PDF, Word-Dokumente (.docx), jedes Tabellenblatt einer Excel-Arbeitsmappe (.xlsx) sowie CSV-, Text-, Markdown-, JSON- und HTML-Dateien. Die Suche findet den Datensatz dann, wenn alle Ihre Wörter im selben Abschnitt einer seiner Dateien vorkommen, einschließlich Beugungsformen auf Englisch, Deutsch, Spanisch, Französisch und Italienisch, und das letzte Wort darf der Anfang eines längeren Wortes sein. Auch der Dateiname wird durchsucht. Gescannte PDFs und Bilder werden nicht nach Inhalt durchsucht, weil es keine Texterkennung (OCR) gibt, und von einer Datei werden nur die ersten 500.000 Zeichen indexiert.
+
+Der Inhalt einer Datei wird nur durchsucht, wenn Sie den Datensatz und das Feld mit der Datei lesen dürfen. Eine aus ihrem Datensatz entfernte Datei, ein Datensatz im [Papierkorb](/docs/app-trash) und ein gelöschtes Feld werden nicht mehr gefunden. Das Suchfeld einer Liste findet Datensätze genauso über den Text ihrer Dateien, und über [MCP](/docs/mcp#file-contents) verbundene KI-Clients können den Text der Dateien suchen und lesen, die Sie lesen dürfen.
 
 ## Wie springe ich zu einer Liste, Ansicht, Seite oder Einstellung? [#how-do-i-jump-to-a-page-or-setting]
 

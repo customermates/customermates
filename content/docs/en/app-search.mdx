@@ -7,9 +7,15 @@ Global search opens over the page you are on, from anywhere in the app: press Cm
 
 ## What does global search find, and which contact fields does it match? [#what-does-global-search-find]
 
-Search looks through records in every list you can read, including lists your workspace created, and groups the hits by list. It matches record titles and searchable field values, including email fields, and finds contacts by any email address or phone number in their **Channels**. Values you are not allowed to see are not searched. If your role reads a list only with **Assigned**, you only get records you are assigned to. **Load more** fetches further hits.
+Search looks through records in every list you can read, including lists your workspace created, and groups the hits by list. It matches record titles and searchable field values, including email fields, finds contacts by any email address or phone number in their **Channels**, and finds records by the names and the text of their [attached files](#does-search-look-inside-files). Values you are not allowed to see are not searched. If your role reads a list only with **Assigned**, you only get records you are assigned to. **Load more** fetches further hits.
 
 Before you type, **Recently opened** shows your last picks from search, stored in this browser only; **Clear** empties it. **Suggestions** below it offer what fits the page you are on, for example adding a record to the list you have open. Arrow keys move through the hits and Enter opens one. Selecting a record opens it in the details drawer.
+
+## Does search look inside attached files? [#does-search-look-inside-files]
+
+Yes. Shortly after a file is attached to a record, its text is extracted: the text layer of a PDF, Word documents (.docx), every sheet of an Excel workbook (.xlsx), and CSV, plain text, Markdown, JSON and HTML files. Search then finds the record when all of your words appear in the same passage of one of its files, including inflected forms in English, German, Spanish, French and Italian, and the last word may be the start of a longer one. The file name is searched as well. Scanned PDFs and images are not searched by content, because there is no text recognition (OCR), and only the first 500,000 characters of a file are indexed.
+
+The content of a file is searched only where you may read the record and the field that holds it. A file removed from its record, a record in the [Trash](/docs/app-trash) and a deleted field are no longer found. The search box in a list finds records by their files' text in the same way, and AI clients connected through [MCP](/docs/mcp#file-contents) can search and read the text of the files you can read.
 
 ## How do I jump to a list, view, page or setting? [#how-do-i-jump-to-a-page-or-setting]
 
