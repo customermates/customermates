@@ -86,10 +86,12 @@ export function PipelineBoard({
   stages,
   records = [],
   pulse = false,
+  placeholders = true,
 }: {
   stages: BoardStage[];
   records?: string[];
   pulse?: boolean;
+  placeholders?: boolean;
 }) {
   const t = useTranslations();
   return (
@@ -117,13 +119,15 @@ export function PipelineBoard({
                     <CardContent className="px-2 text-xs break-words">{title}</CardContent>
                   </Card>
                 ))
-              : [0, 1].slice(0, index % 2 === 0 ? 2 : 1).map((slot) => (
-                  <Card key={slot} className="gap-0 py-3">
-                    <CardContent className="px-2">
-                      <PlaceholderLine className="w-3/4" pulse={pulse} />
-                    </CardContent>
-                  </Card>
-                ))}
+              : placeholders
+                ? [0, 1].slice(0, index % 2 === 0 ? 2 : 1).map((slot) => (
+                    <Card key={slot} className="gap-0 py-3">
+                      <CardContent className="px-2">
+                        <PlaceholderLine className="w-3/4" pulse={pulse} />
+                      </CardContent>
+                    </Card>
+                  ))
+                : null}
           </div>
         );
       })}

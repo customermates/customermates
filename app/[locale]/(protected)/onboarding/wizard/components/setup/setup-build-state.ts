@@ -41,8 +41,17 @@ export function phaseActive(setup: WorkspaceSetupView, key: WorkspaceSetupPhase)
   return phaseOf(setup, key)?.status === "running";
 }
 
+export function phaseSettled(setup: WorkspaceSetupView, key: WorkspaceSetupPhase): boolean {
+  const status = phaseOf(setup, key)?.status;
+  return status === "completed" || status === "skipped";
+}
+
 export function canRetryPhase(phase: WorkspaceSetupPhaseView): boolean {
   return (phase.status === "failed" || phase.status === "stopped") && phase.error !== "dependency";
+}
+
+export function buildRecordCount(setup: WorkspaceSetupView): number {
+  return setup.results.records.reduce((total, entry) => total + entry.count, 0);
 }
 
 export function buildLists(setup: WorkspaceSetupView): SetupPreviewList[] {

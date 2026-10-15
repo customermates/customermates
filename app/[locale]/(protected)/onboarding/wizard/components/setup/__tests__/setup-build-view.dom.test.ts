@@ -70,6 +70,10 @@ function button(label: string) {
   );
 }
 
+function region(label: string) {
+  return container.querySelector<HTMLElement>(`[role="region"][aria-label="${label}"]`);
+}
+
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   vi.clearAllMocks();
@@ -234,6 +238,77 @@ describe("SetupBuildView", () => {
     const failed = rows[3].querySelector('[data-slot="card-content"]');
     expect(failed?.textContent).toContain("WorkspaceSetup.failures.generation");
     expect(failed?.querySelector("button")?.textContent).toContain("WorkspaceSetup.build.retry");
+  });
+
+  it("states what a finished or skipped part added instead of leaving placeholders", () => {
+    render(
+      building({
+        status: "completed",
+        phases: [
+          phaseView("knowledgeBase", "skipped"),
+          phaseView("dataModel", "completed"),
+          phaseView("views", "completed"),
+          phaseView("records", "skipped"),
+          phaseView("dashboard", "completed"),
+        ],
+        results: {
+          colors: null,
+          lists: [
+            {
+              id: LIST_ID,
+              key: "deal",
+              name: "Deal",
+              pluralName: "Deals",
+              icon: "handshake",
+              color: null,
+              created: true,
+              stages: ["Lead", "Demo", "Won"],
+            },
+          ],
+          views: [],
+          records: [],
+          widgets: [],
+          pages: [],
+        },
+      }),
+    );
+
+    const frame = container.querySelector('[aria-label="WorkspaceSetup.build.previewLabel"]');
+    expect(frame?.querySelector('[data-slot="skeleton"]')).toBeNull();
+    expect(region("WorkspaceSetup.plan.knowledgeBase")?.textContent).toContain(
+      "WorkspaceSetup.build.summaries.knowledgeBase 0",
+    );
+    expect(region("WorkspaceSetup.build.records")?.textContent).toContain("WorkspaceSetup.build.summaries.records 0");
+    expect(region("WorkspaceSetup.build.records")?.querySelector("table")).toBeNull();
+    expect(region("WorkspaceSetup.plan.dashboard")?.textContent).toContain(
+      "WorkspaceSetup.build.summaries.dashboard 0",
+    );
+    const board = region("Deals");
+    expect(board?.textContent).toContain("Lead");
+    expect(board?.querySelectorAll('[data-slot="card"]')).toHaveLength(0);
+  });
+
+  it("keeps placeholders for the parts that are still to come", () => {
+    render(
+      building({
+        currentPhase: "records",
+        phases: [
+          phaseView("knowledgeBase", "running"),
+          phaseView("dataModel", "completed"),
+          phaseView("views", "completed"),
+          phaseView("records", "running"),
+          phaseView("dashboard"),
+        ],
+      }),
+    );
+
+    for (const label of [
+      "Deals",
+      "WorkspaceSetup.build.records",
+      "WorkspaceSetup.plan.dashboard",
+      "WorkspaceSetup.plan.knowledgeBase",
+    ])
+      expect(region(label)?.querySelector('[data-slot="skeleton"]')).not.toBeNull();
   });
 
   it("names no finish time while it runs", () => {

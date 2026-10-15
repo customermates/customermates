@@ -37,10 +37,12 @@ import {
   buildLists,
   buildOutcome,
   buildPhaseState,
+  buildRecordCount,
   buildTable,
   canRetryPhase,
   phaseActive,
   phaseDone,
+  phaseSettled,
 } from "./setup-build-state";
 import { planBoards } from "./setup-plan-summary";
 import { SetupSupportButton, useSetupFailureMessage } from "./setup-plan-preview";
@@ -95,6 +97,7 @@ const SetupAppFrame = observer(function SetupAppFrame({ setup }: { setup: Worksp
   const plannedWidgets = plan?.dashboard.widgets.length ?? 0;
   const pages = setup.results.pages;
   const plannedPages = Math.max(plan?.knowledgeBase.pages.length ?? 0, setup.knowledgeBase.pagesPlanned);
+  const recordsSettled = phaseSettled(setup, "records");
 
   return (
     <div
@@ -153,6 +156,7 @@ const SetupAppFrame = observer(function SetupAppFrame({ setup }: { setup: Worksp
           {board ? (
             <FramePanel icon={Kanban} title={listLabel(board.list)}>
               <PipelineBoard
+                placeholders={!recordsSettled}
                 pulse={phaseActive(setup, "dataModel")}
                 records={board.records}
                 stages={board.list.stages.map((label) => ({
@@ -164,32 +168,38 @@ const SetupAppFrame = observer(function SetupAppFrame({ setup }: { setup: Worksp
           ) : null}
 
           <FramePanel icon={Rows3} title={table ? listLabel(table.list) : t("WorkspaceSetup.build.records")}>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t("WorkspaceSetup.build.nameColumn")}</TableHead>
-                </TableRow>
-              </TableHeader>
+            {!table && recordsSettled ? (
+              <p className="text-xs text-muted-foreground">
+                {t("WorkspaceSetup.build.summaries.records", { count: buildRecordCount(setup) })}
+              </p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t("WorkspaceSetup.build.nameColumn")}</TableHead>
+                  </TableRow>
+                </TableHeader>
 
-              <TableBody>
-                {table
-                  ? table.titles.slice(0, 5).map((title) => (
-                      <TableRow key={title} className="animate-page-result-in motion-reduce:animate-none">
-                        <TableCell className="whitespace-normal [overflow-wrap:anywhere]">{title}</TableCell>
-                      </TableRow>
-                    ))
-                  : [0, 1, 2].map((row) => (
-                      <TableRow key={row}>
-                        <TableCell>
-                          <PlaceholderLine
-                            className={row === 1 ? "w-1/2" : "w-2/3"}
-                            pulse={phaseActive(setup, "records")}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-              </TableBody>
-            </Table>
+                <TableBody>
+                  {table
+                    ? table.titles.slice(0, 5).map((title) => (
+                        <TableRow key={title} className="animate-page-result-in motion-reduce:animate-none">
+                          <TableCell className="whitespace-normal [overflow-wrap:anywhere]">{title}</TableCell>
+                        </TableRow>
+                      ))
+                    : [0, 1, 2].map((row) => (
+                        <TableRow key={row}>
+                          <TableCell>
+                            <PlaceholderLine
+                              className={row === 1 ? "w-1/2" : "w-2/3"}
+                              pulse={phaseActive(setup, "records")}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                </TableBody>
+              </Table>
+            )}
           </FramePanel>
 
           <FramePanel icon={LayoutDashboard} title={t("WorkspaceSetup.plan.dashboard")}>
@@ -197,6 +207,10 @@ const SetupAppFrame = observer(function SetupAppFrame({ setup }: { setup: Worksp
               <DashboardSketch
                 tiles={widgets.map((widget) => ({ key: widget.id, title: widget.title, display: widget.display }))}
               />
+            ) : phaseSettled(setup, "dashboard") ? (
+              <p className="text-xs text-muted-foreground">
+                {t("WorkspaceSetup.build.summaries.dashboard", { count: 0 })}
+              </p>
             ) : (
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {Array.from({ length: Math.min(Math.max(plannedWidgets, 2), 4) }, (_, tile) => (
@@ -216,6 +230,10 @@ const SetupAppFrame = observer(function SetupAppFrame({ setup }: { setup: Worksp
           <FramePanel icon={BookOpen} title={t("WorkspaceSetup.plan.knowledgeBase")}>
             {pages.length ? (
               <KnowledgePageList titles={pages.map((page) => page.title)} />
+            ) : phaseSettled(setup, "knowledgeBase") ? (
+              <p className="text-xs text-muted-foreground">
+                {t("WorkspaceSetup.build.summaries.knowledgeBase", { count: setup.knowledgeBase.pagesWritten })}
+              </p>
             ) : (
               <div className="grid gap-x-3 gap-y-2 sm:grid-cols-2">
                 {Array.from({ length: Math.min(Math.max(plannedPages, 2), 6) }, (_, row) => (
@@ -297,7 +315,7 @@ export const SetupBuildView = observer(function SetupBuildView({ onContinue }: P
     skipped: t("WorkspaceSetup.build.states.skipped"),
   };
   const board = buildBoard(setup);
-  const recordCount = setup.results.records.reduce((total, entry) => total + entry.count, 0);
+  const recordCount = buildRecordCount(setup);
   const imported = setup.results.records.some((entry) => entry.kind === "imported") || Boolean(setup.spreadsheet);
   const summaries: Record<WorkspaceSetupPhase, string> = {
     knowledgeBase: t("WorkspaceSetup.build.summaries.knowledgeBase", {
