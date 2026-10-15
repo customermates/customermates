@@ -205,6 +205,7 @@ describe("synthetic Better Auth identities", () => {
     expect(calls.companyUpsert.mock.calls[0]?.[0].create).toMatchObject(SYNTHETIC_SEED_TIMELINE.company);
     expect(calls.subscriptionUpsert).toHaveBeenCalledWith({
       where: { companyId: SEED_IDS.company },
+      select: { id: true },
       update: SYNTHETIC_SUBSCRIPTION,
       create: {
         id: SEED_IDS.subscription,
