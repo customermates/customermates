@@ -38,7 +38,7 @@ export const fields = {
   active: field("Active", "boolean"),
   email: field("Email", "email"),
   website: field("Website", "url"),
-  phone: field("Phone", "phone"),
+  channels: field("Channels", "channels"),
   status: field("Status", "select", {
     options: [
       { id: "open", label: "Open", color: null, attributes: [] },

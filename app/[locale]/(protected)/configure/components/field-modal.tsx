@@ -680,7 +680,7 @@ export const FieldModal = observer(function FieldModal({
 
             {!store.isChannels && <FormSwitch id="required" label={t("RecordModel.required")} />}
 
-            {!store.isCalculated && ["text", "email", "phone", "url", "file"].includes(store.form.valueType) && (
+            {!store.isCalculated && ["text", "email", "url", "file"].includes(store.form.valueType) && (
               <FormSwitch id="multiple" label={t("RecordModel.multipleValues")} />
             )}
           </>

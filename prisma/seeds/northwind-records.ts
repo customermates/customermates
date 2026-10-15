@@ -370,7 +370,7 @@ export function buildNorthwindIdentities() {
     id: string;
     typeKey: string;
     recordId: string;
-    provider: "mail" | "linkedin";
+    provider: "mail" | "linkedin" | "phone";
     value: string;
   }> = [];
   for (const contact of data.contacts) {
@@ -390,6 +390,13 @@ export function buildNorthwindIdentities() {
         value: contact.linkedin,
       });
     }
+    identities.push({
+      id: fixtureId("b0000000", 3000 + contact.index + 1),
+      typeKey: "contact",
+      recordId: contact.id,
+      provider: "phone",
+      value: contact.phone,
+    });
   }
   for (const organization of data.organizations) {
     identities.push({

@@ -13,25 +13,32 @@ const RecordOptionNameSchema = StoredModelStringSchema.min(1).max(200);
 export const RecordRefSchema = z.object({ typeId: z.uuid(), recordId: z.uuid() }).strict();
 export type RecordRef = z.infer<typeof RecordRefSchema>;
 
-export const RecordValueTypeSchema = z.enum([
-  "text",
-  "richText",
-  "number",
-  "currency",
-  "boolean",
-  "date",
-  "dateTime",
-  "dateRange",
-  "dateTimeRange",
-  "select",
-  "email",
-  "phone",
-  "url",
-  "member",
-  "channels",
-  "file",
-  "address",
-]);
+export const RecordValueTypeSchema = z.enum(
+  [
+    "text",
+    "richText",
+    "number",
+    "currency",
+    "boolean",
+    "date",
+    "dateTime",
+    "dateRange",
+    "dateTimeRange",
+    "select",
+    "email",
+    "url",
+    "member",
+    "channels",
+    "file",
+    "address",
+  ],
+  {
+    error: (issue) =>
+      issue.input === "phone"
+        ? "phone is not a field type: phone numbers are channel identities. Add a channels field to the list and write each number as an identity with provider phone."
+        : undefined,
+  },
+);
 export type RecordValueType = z.infer<typeof RecordValueTypeSchema>;
 
 export const MAX_RECORD_FILES = 20;
@@ -397,7 +404,7 @@ export const RecordFieldSchema = z
     typeId: z.uuid(),
     label: RecordNameSchema,
     valueType: RecordValueTypeSchema.describe(
-      "channels: email addresses, phone numbers and social accounts that match messages to the record; a phone number also matches WhatsApp chats from the same number. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value.",
+      "channels: email addresses, phone numbers and social accounts that match messages to the record; a phone number also matches WhatsApp chats from the same number. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). There is no phone type: phone numbers belong in channels. file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value.",
     ),
     behavior: FieldBehaviorSchema,
     required: z.boolean(),
@@ -405,7 +412,7 @@ export const RecordFieldSchema = z
       .boolean()
       .optional()
       .describe(
-        "Allows several values: text, email, phone and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior; a file field holds up to 20 files instead of one.",
+        "Allows several values: text, email and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior; a file field holds up to 20 files instead of one.",
       ),
     format: z
       .object({
@@ -422,7 +429,7 @@ export const RecordFieldSchema = z
           .nullable()
           .optional()
           .describe(
-            "Email, phone, url, address and channels fields only: what clicking a value does. open (default) starts mail, a call, opens the link, profile or map; copy copies it.",
+            "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
           ),
         providerAvatar: z
           .boolean()

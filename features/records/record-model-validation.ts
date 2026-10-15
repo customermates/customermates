@@ -30,8 +30,8 @@ export type ModelIssue = {
   examples?: string[];
 };
 
-export const MULTIPLE_VALUE_TYPES: readonly RecordValueType[] = ["text", "email", "phone", "url", "select", "file"];
-export const CONTACT_VALUE_TYPES: readonly RecordValueType[] = ["email", "phone", "url"];
+export const MULTIPLE_VALUE_TYPES: readonly RecordValueType[] = ["text", "email", "url", "select", "file"];
+export const CONTACT_VALUE_TYPES: readonly RecordValueType[] = ["email", "url"];
 export const CLICK_ACTION_VALUE_TYPES: readonly RecordValueType[] = [...CONTACT_VALUE_TYPES, "address", "channels"];
 
 export function selectedOptionIds(value: RecordScalar | null): string[] {
@@ -47,7 +47,7 @@ export function scalarMatchesType(value: RecordScalar, type: RecordValueType, mu
   if (multiple) {
     return (
       value.kind === "textList" &&
-      ["text", "email", "phone", "url"].includes(type) &&
+      ["text", "email", "url"].includes(type) &&
       value.value.every((text) => scalarMatchesType({ kind: "text", value: text }, type))
     );
   }
@@ -66,8 +66,6 @@ export function scalarMatchesType(value: RecordScalar, type: RecordValueType, mu
         return false;
       }
     }
-    case "phone":
-      return value.kind === "text" && z.e164().safeParse(value.value.trim()).success;
     case "dateRange":
     case "dateTimeRange": {
       if (value.kind !== "range") return false;
@@ -81,22 +79,9 @@ export function scalarMatchesType(value: RecordScalar, type: RecordValueType, mu
   }
 }
 
-export function normalizePhoneNumber(text: string): string {
-  const compact = text.trim().replace(/[\s().\-/]/g, "");
-  return compact.startsWith("00") ? `+${compact.slice(2)}` : compact;
-}
-
-export function normalizeRecordInput(value: RecordScalar, type: RecordValueType): RecordScalar {
-  if (type !== "phone") return value;
-  if (value.kind === "text") return { kind: "text", value: normalizePhoneNumber(value.value) };
-  if (value.kind === "textList") return { kind: "textList", value: value.value.map(normalizePhoneNumber) };
-  return value;
-}
-
 const TYPE_MISMATCH_CODES: Partial<Record<RecordValueType, CustomErrorCode>> = {
   email: CustomErrorCode.invalidEmail,
   url: CustomErrorCode.invalidUrl,
-  phone: CustomErrorCode.invalidPhone,
   number: CustomErrorCode.recordNumberInvalid,
   currency: CustomErrorCode.recordNumberInvalid,
   date: CustomErrorCode.recordDateInvalid,
@@ -158,7 +143,7 @@ function primitiveType(value: RecordScalar | null): RecordValueType | null {
 }
 
 function normalizeType(value: RecordValueType | null): RecordValueType | null {
-  return value && ["email", "phone", "url"].includes(value) ? "text" : value;
+  return value && ["email", "url"].includes(value) ? "text" : value;
 }
 
 type CalculationInputField = Pick<RecordField, "id" | "typeId" | "archived" | "valueType" | "multiple" | "options">;

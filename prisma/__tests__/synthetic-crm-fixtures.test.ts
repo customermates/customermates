@@ -8,6 +8,7 @@ import {
   SYNTHETIC_SHARED_USER_PASSWORD,
 } from "@/core/config/synthetic-seed-user";
 import { presetId } from "@/features/records/crm-preset";
+import { normalizedIdentity } from "@/features/records/record-identity";
 
 import { SYNTHETIC_AVATAR_ORIGIN, SYNTHETIC_AVATAR_URLS, SYNTHETIC_CONTACT_AVATAR_URLS } from "../seeds/avatars";
 import { SYNTHETIC_CONTACT_EMAIL_ADDRESSES, SYNTHETIC_CONTACT_NAMES, seedContacts } from "../seeds/contacts";
@@ -34,7 +35,8 @@ import {
   NORTHWIND_MODEL_IDS,
   NORTHWIND_ROLE_IDS,
 } from "../seeds/northwind-model";
-import { buildNorthwindRecords } from "../seeds/northwind-records";
+import { buildNorthwindIdentities, buildNorthwindRecords } from "../seeds/northwind-records";
+import { people } from "../seeds/messaging/fixtures";
 import { NORTHWIND_OPTION_LABELS } from "../seeds/northwind-schema";
 import { seedOrganizations, SYNTHETIC_ORGANIZATION_DEFINITIONS } from "../seeds/organizations";
 import { syntheticRecordModel } from "../seeds/records";
@@ -307,7 +309,6 @@ describe("Northwind Labs demo fixture contract", () => {
         "dateRange",
         "select",
         "email",
-        "phone",
         "url",
         "member",
         "channels",
@@ -333,7 +334,17 @@ describe("Northwind Labs demo fixture contract", () => {
       fixtureId("17000000", 27),
       ...Array.from({ length: 22 }, (_, index) => fixtureId("17000000", index + 5)),
     ]);
-    expect(SYNTHETIC_CUSTOM_FIELD_DEFINITIONS).toHaveLength(10);
+    expect(SYNTHETIC_CUSTOM_FIELD_DEFINITIONS).toHaveLength(9);
+  });
+
+  it("keeps every demo contact's number in Channels as one phone identity, never as a phone field", () => {
+    const phones = buildNorthwindIdentities().filter((identity) => identity.provider === "phone");
+    expect(phones.map((identity) => identity.recordId)).toEqual(data.contacts.map((contact) => contact.id));
+    for (const identity of phones) expect(normalizedIdentity(identity)?.value).toBe(identity.value);
+    const whatsapp = Object.values(people).flatMap((person) => (person.phone ? [person.phone] : []));
+    expect(whatsapp.length).toBeGreaterThan(0);
+    expect(phones.filter((identity) => whatsapp.includes(identity.value))).toEqual([]);
+    expect(SYNTHETIC_CUSTOM_FIELD_DEFINITIONS.map((definition) => definition.label)).not.toContain("Phones");
   });
 
   it("links every generated record to existing records", () => {

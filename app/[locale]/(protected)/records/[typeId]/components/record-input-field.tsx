@@ -177,7 +177,7 @@ export const RecordInputField = observer(function RecordInputField({
       </div>
     );
   }
-  if (field.valueType === "email" || field.valueType === "phone" || field.valueType === "url") {
+  if (field.valueType === "email" || field.valueType === "url") {
     const value = store?.getValue(id);
     return (
       <FormInput

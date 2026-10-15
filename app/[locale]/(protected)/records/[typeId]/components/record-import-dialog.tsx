@@ -21,6 +21,7 @@ import { SegmentedControl } from "@/components/ui/segmented-control";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { AppModal } from "@/components/modal";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { useRootStore } from "@/core/stores/root-store.provider";
 import { importRecordsAction } from "../../actions";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
@@ -50,6 +51,7 @@ export const RecordImportDialog = observer(function RecordImportDialog({
   onImported: () => Promise<void>;
 }) {
   const t = useTranslations();
+  const { userStore } = useRootStore();
   const describeIssue = useXlsxImportText().issue;
   const fileInput = useRef<HTMLInputElement>(null);
   const key = useRef<string | null>(null);
@@ -72,6 +74,7 @@ export const RecordImportDialog = observer(function RecordImportDialog({
             rangeEnd: t("RecordModel.rangeEnd"),
           },
           xlsxImportPorts(t("DataTransfer.recordImport.failed")),
+          userStore.user?.country ?? null,
         )
       : null,
   );

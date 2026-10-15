@@ -18692,7 +18692,7 @@ describeDatabase("value type conversion of populated fields", { timeout: 60000 }
     expect(await stored(ref, tier.id)).toEqual({ state: "value", value: textValue("Gold") });
   });
 
-  it("converts text to number, date, phone and choices when every value parses", async () => {
+  it("converts text to number, date and choices when every value parses, never to the retired phone type", async () => {
     const { apply, add, record, stored, option } = await retypeFixture();
     const count = await add("count", "text");
     const since = await add("since", "text");
@@ -18712,7 +18712,9 @@ describeDatabase("value type conversion of populated fields", { timeout: 60000 }
     ]);
     expect(await apply({ ...count, valueType: "number" })).toMatchObject({ valid: true });
     expect(await apply({ ...since, valueType: "date" })).toMatchObject({ valid: true });
-    expect(await apply({ ...phone, valueType: "phone" })).toMatchObject({ valid: true });
+    await expect(apply({ ...phone, valueType: "phone" })).rejects.toMatchObject({
+      issues: [expect.objectContaining({ message: expect.stringContaining("phone numbers are channel identities") })],
+    });
     const options = [option("food", "Food"), option("hosp", "Hospitality")];
     expect(await apply({ ...industry, valueType: "select", options })).toMatchObject({ valid: true });
     expect(
@@ -18727,7 +18729,7 @@ describeDatabase("value type conversion of populated fields", { timeout: 60000 }
       value: { kind: "decimal", value: "7.5", currency: null },
     });
     expect(await stored(first, since.id)).toEqual({ state: "value", value: { kind: "date", value: "2026-01-15" } });
-    expect(await stored(first, phone.id)).toEqual({ state: "value", value: textValue("+49301234567") });
+    expect(await stored(first, phone.id)).toEqual({ state: "value", value: textValue("+49 30 1234567") });
     expect(await stored(first, industry.id)).toEqual({ state: "value", value: { kind: "select", value: "food" } });
     expect(await stored(second, industry.id)).toEqual({ state: "value", value: { kind: "select", value: "hosp" } });
     expect(await stored(first, labels.id)).toEqual({

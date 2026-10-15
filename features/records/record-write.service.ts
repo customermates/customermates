@@ -26,7 +26,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { unwindFailure } from "@/core/validation/failure-unwind";
 import { MAX_RICH_TEXT_JSON_SIZE, validateRichTextDocument } from "@/core/validation/rich-text-document";
 import { parseMarkdownToJSON, serializeJSONToMarkdown } from "@/components/editor/editor.utils";
-import { normalizeRecordInput, recordValueIssue, recordValueIssueValues } from "./record-model-validation";
+import { recordValueIssue, recordValueIssueValues } from "./record-model-validation";
 import { valueResult } from "./calculation";
 import { decodeRecordValue } from "./record-storage";
 import type { CalculationLinkChange, RecordCalculationService } from "./record-calculation.service";
@@ -63,16 +63,15 @@ export function normalizeRecordScalar(
     if (field.required) required();
     return null;
   }
-  const value = normalizeRecordInput(input, field.valueType);
-  const issue = recordValueIssue(value, field);
-  if (issue) reject(issue, "validation", path, recordValueIssueValues(issue, value, field));
-  if (field.required && value.kind === "text" && !value.value.trim()) required();
-  if (value.kind === "richText") {
-    const document = validateRichTextDocument(value.documentJson);
+  const issue = recordValueIssue(input, field);
+  if (issue) reject(issue, "validation", path, recordValueIssueValues(issue, input, field));
+  if (field.required && input.kind === "text" && !input.value.trim()) required();
+  if (input.kind === "richText") {
+    const document = validateRichTextDocument(input.documentJson);
     if (!document) reject(CustomErrorCode.notesInvalidFormat, "validation", path);
     return { kind: "richText", documentJson: JSON.stringify(document) };
   }
-  return value;
+  return input;
 }
 
 const MAX_TEXT_LENGTH = 100_000;

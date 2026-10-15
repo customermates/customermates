@@ -27,8 +27,8 @@ const issues = (extra: RecordField) => {
 };
 
 describe("contact value click actions", () => {
-  it("accept open, copy, null and an omitted setting on email, phone and web fields", () => {
-    for (const valueType of ["email", "phone", "url"] as const) {
+  it("accept open, copy, null and an omitted setting on email and web fields", () => {
+    for (const valueType of ["email", "url"] as const) {
       for (const onClick of ["open", "copy", null, undefined] as const) {
         const candidate = field(valueType, onClick);
         expect(RecordFieldSchema.safeParse(candidate).success).toBe(true);

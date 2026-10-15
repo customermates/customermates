@@ -10,7 +10,7 @@ import { normalizeRecordScalar } from "./record-write.service";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { canonicalRecordJson, compareRecordKey } from "./record-json";
 import { RecordDateTimeSchema } from "./record-model.schema";
-import { normalizeRecordInput, scalarMatchesType } from "./record-model-validation";
+import { scalarMatchesType } from "./record-model-validation";
 import { addressFromText } from "./record-address-value";
 
 const EXAMPLE_LENGTH = 40;
@@ -156,7 +156,6 @@ function convertText(text: string, field: RecordField): RecordScalar | null {
       return RecordDateTimeSchema.safeParse(trimmed).success ? { kind: "dateTime", value: trimmed } : null;
     case "email":
     case "url":
-    case "phone":
       return { kind: "text", value: trimmed };
     case "address": {
       const address = addressFromText(trimmed);
@@ -172,8 +171,7 @@ function convertScalar(
   before: RecordField | undefined,
   field: RecordField,
 ): RecordScalar | null {
-  if (!scalar || scalarMatchesType(normalizeRecordInput(scalar, field.valueType), field.valueType, field.multiple))
-    return scalar;
+  if (!scalar || scalarMatchesType(scalar, field.valueType, field.multiple)) return scalar;
   if (field.valueType === "select") return convertChoiceScalar(scalar, field);
   if (!before || field.multiple) return scalar;
   if (field.valueType === "text") {

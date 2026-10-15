@@ -19,6 +19,7 @@ import {
   duplicateXlsxTargets,
   normalizeXlsxHeader,
   xlsxTargetOptions,
+  XLSX_CHANNELS_KEY,
   XLSX_SKIP_KEY,
 } from "@/features/data-transfer/import/xlsx/xlsx-mapping";
 import { parseXlsxRows, planXlsxImport, runXlsxImport } from "@/features/data-transfer/import/xlsx/xlsx-import-plan";
@@ -84,6 +85,7 @@ export class XlsxImportWizardStore {
     private typeId: string,
     private labels: XlsxTargetLabels,
     private ports: XlsxWizardPorts,
+    private region: string | null = null,
   ) {
     makeObservable<XlsxImportWizardStore, "model">(this, {
       step: observable,
@@ -148,6 +150,7 @@ export class XlsxImportWizardStore {
         mapping: this.mapping,
         options: this.options,
         lookups: this.lookups,
+        region: this.region,
       },
       rows,
     );
@@ -161,7 +164,7 @@ export class XlsxImportWizardStore {
       if (option.target.kind === "recordId") return true;
       if (option.target.kind !== "field") return false;
       const field = fields.get(option.target.fieldId);
-      return Boolean(field && !field.multiple && ["text", "email", "phone", "url", "number"].includes(field.valueType));
+      return Boolean(field && !field.multiple && ["text", "email", "url", "number"].includes(field.valueType));
     });
   }
 
@@ -343,6 +346,7 @@ export class XlsxImportWizardStore {
         filters: [],
         relationships: [],
         sort: [],
+        ...(this.mapping.includes(XLSX_CHANNELS_KEY) ? { includeIdentities: true } : {}),
       });
       if (!result.ok) return null;
       records.push(...result.data.records);
@@ -399,6 +403,7 @@ export class XlsxImportWizardStore {
           mapping: this.mapping,
           options: this.options,
           lookups,
+          region: this.region,
         },
         this.mode,
         this.mode === "update" ? this.matchKey : null,

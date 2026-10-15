@@ -4151,13 +4151,14 @@
                                                     "dateTimeRange",
                                                     "select",
                                                     "email",
-                                                    "phone",
                                                     "url",
                                                     "member",
                                                     "channels",
                                                     "file",
-                                                    "address"
-                                                  ]
+                                                    "address",
+                                                    "phone"
+                                                  ],
+                                                  "description": "The field's value type when the change happened; phone only in history of retired phone fields."
                                                 },
                                                 "format": {
                                                   "type": "object",
@@ -4210,7 +4211,7 @@
                                                       ]
                                                     },
                                                     "onClick": {
-                                                      "description": "Email, phone, url, address and channels fields only: what clicking a value does. open (default) starts mail, a call, opens the link, profile or map; copy copies it.",
+                                                      "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
                                                       "anyOf": [
                                                         {
                                                           "type": "string",
@@ -5033,13 +5034,14 @@
                                                     "dateTimeRange",
                                                     "select",
                                                     "email",
-                                                    "phone",
                                                     "url",
                                                     "member",
                                                     "channels",
                                                     "file",
-                                                    "address"
-                                                  ]
+                                                    "address",
+                                                    "phone"
+                                                  ],
+                                                  "description": "The field's value type when the change happened; phone only in history of retired phone fields."
                                                 },
                                                 "format": {
                                                   "type": "object",
@@ -5092,7 +5094,7 @@
                                                       ]
                                                     },
                                                     "onClick": {
-                                                      "description": "Email, phone, url, address and channels fields only: what clicking a value does. open (default) starts mail, a call, opens the link, profile or map; copy copies it.",
+                                                      "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
                                                       "anyOf": [
                                                         {
                                                           "type": "string",
@@ -21099,13 +21101,14 @@
                                                                 "dateTimeRange",
                                                                 "select",
                                                                 "email",
-                                                                "phone",
                                                                 "url",
                                                                 "member",
                                                                 "channels",
                                                                 "file",
-                                                                "address"
-                                                              ]
+                                                                "address",
+                                                                "phone"
+                                                              ],
+                                                              "description": "The field's value type when the change happened; phone only in history of retired phone fields."
                                                             },
                                                             "format": {
                                                               "type": "object",
@@ -21158,7 +21161,7 @@
                                                                   ]
                                                                 },
                                                                 "onClick": {
-                                                                  "description": "Email, phone, url, address and channels fields only: what clicking a value does. open (default) starts mail, a call, opens the link, profile or map; copy copies it.",
+                                                                  "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
                                                                   "anyOf": [
                                                                     {
                                                                       "type": "string",
@@ -21981,13 +21984,14 @@
                                                                 "dateTimeRange",
                                                                 "select",
                                                                 "email",
-                                                                "phone",
                                                                 "url",
                                                                 "member",
                                                                 "channels",
                                                                 "file",
-                                                                "address"
-                                                              ]
+                                                                "address",
+                                                                "phone"
+                                                              ],
+                                                              "description": "The field's value type when the change happened; phone only in history of retired phone fields."
                                                             },
                                                             "format": {
                                                               "type": "object",
@@ -22040,7 +22044,7 @@
                                                                   ]
                                                                 },
                                                                 "onClick": {
-                                                                  "description": "Email, phone, url, address and channels fields only: what clicking a value does. open (default) starts mail, a call, opens the link, profile or map; copy copies it.",
+                                                                  "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
                                                                   "anyOf": [
                                                                     {
                                                                       "type": "string",
@@ -31263,13 +31267,14 @@
                                                                 "dateTimeRange",
                                                                 "select",
                                                                 "email",
-                                                                "phone",
                                                                 "url",
                                                                 "member",
                                                                 "channels",
                                                                 "file",
-                                                                "address"
-                                                              ]
+                                                                "address",
+                                                                "phone"
+                                                              ],
+                                                              "description": "The field's value type when the change happened; phone only in history of retired phone fields."
                                                             },
                                                             "format": {
                                                               "type": "object",
@@ -31322,7 +31327,7 @@
                                                                   ]
                                                                 },
                                                                 "onClick": {
-                                                                  "description": "Email, phone, url, address and channels fields only: what clicking a value does. open (default) starts mail, a call, opens the link, profile or map; copy copies it.",
+                                                                  "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
                                                                   "anyOf": [
                                                                     {
                                                                       "type": "string",
@@ -32145,13 +32150,14 @@
                                                                 "dateTimeRange",
                                                                 "select",
                                                                 "email",
-                                                                "phone",
                                                                 "url",
                                                                 "member",
                                                                 "channels",
                                                                 "file",
-                                                                "address"
-                                                              ]
+                                                                "address",
+                                                                "phone"
+                                                              ],
+                                                              "description": "The field's value type when the change happened; phone only in history of retired phone fields."
                                                             },
                                                             "format": {
                                                               "type": "object",
@@ -32204,7 +32210,7 @@
                                                                   ]
                                                                 },
                                                                 "onClick": {
-                                                                  "description": "Email, phone, url, address and channels fields only: what clicking a value does. open (default) starts mail, a call, opens the link, profile or map; copy copies it.",
+                                                                  "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
                                                                   "anyOf": [
                                                                     {
                                                                       "type": "string",
@@ -35850,14 +35856,13 @@
                                     "dateTimeRange",
                                     "select",
                                     "email",
-                                    "phone",
                                     "url",
                                     "member",
                                     "channels",
                                     "file",
                                     "address"
                                   ],
-                                  "description": "channels: email addresses, phone numbers and social accounts that match messages to the record; a phone number also matches WhatsApp chats from the same number. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value."
+                                  "description": "channels: email addresses, phone numbers and social accounts that match messages to the record; a phone number also matches WhatsApp chats from the same number. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). There is no phone type: phone numbers belong in channels. file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value."
                                 },
                                 "behavior": {
                                   "type": "object",
@@ -36099,7 +36104,7 @@
                                   "type": "boolean"
                                 },
                                 "multiple": {
-                                  "description": "Allows several values: text, email, phone and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior; a file field holds up to 20 files instead of one.",
+                                  "description": "Allows several values: text, email and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior; a file field holds up to 20 files instead of one.",
                                   "type": "boolean"
                                 },
                                 "format": {
@@ -36153,7 +36158,7 @@
                                       ]
                                     },
                                     "onClick": {
-                                      "description": "Email, phone, url, address and channels fields only: what clicking a value does. open (default) starts mail, a call, opens the link, profile or map; copy copies it.",
+                                      "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
                                       "anyOf": [
                                         {
                                           "type": "string",
@@ -37784,14 +37789,13 @@
                                     "dateTimeRange",
                                     "select",
                                     "email",
-                                    "phone",
                                     "url",
                                     "member",
                                     "channels",
                                     "file",
                                     "address"
                                   ],
-                                  "description": "channels: email addresses, phone numbers and social accounts that match messages to the record; a phone number also matches WhatsApp chats from the same number. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value."
+                                  "description": "channels: email addresses, phone numbers and social accounts that match messages to the record; a phone number also matches WhatsApp chats from the same number. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). There is no phone type: phone numbers belong in channels. file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value."
                                 },
                                 "behavior": {
                                   "type": "object",
@@ -38033,7 +38037,7 @@
                                   "type": "boolean"
                                 },
                                 "multiple": {
-                                  "description": "Allows several values: text, email, phone and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior; a file field holds up to 20 files instead of one.",
+                                  "description": "Allows several values: text, email and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior; a file field holds up to 20 files instead of one.",
                                   "type": "boolean"
                                 },
                                 "format": {
@@ -38087,7 +38091,7 @@
                                       ]
                                     },
                                     "onClick": {
-                                      "description": "Email, phone, url, address and channels fields only: what clicking a value does. open (default) starts mail, a call, opens the link, profile or map; copy copies it.",
+                                      "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
                                       "anyOf": [
                                         {
                                           "type": "string",
@@ -54137,14 +54141,13 @@
                               "dateTimeRange",
                               "select",
                               "email",
-                              "phone",
                               "url",
                               "member",
                               "channels",
                               "file",
                               "address"
                             ],
-                            "description": "channels: email addresses, phone numbers and social accounts that match messages to the record; a phone number also matches WhatsApp chats from the same number. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value."
+                            "description": "channels: email addresses, phone numbers and social accounts that match messages to the record; a phone number also matches WhatsApp chats from the same number. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). There is no phone type: phone numbers belong in channels. file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value."
                           },
                           "behavior": {
                             "oneOf": [
@@ -54867,7 +54870,7 @@
                             "type": "boolean"
                           },
                           "multiple": {
-                            "description": "Allows several values: text, email, phone and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior; a file field holds up to 20 files instead of one.",
+                            "description": "Allows several values: text, email and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior; a file field holds up to 20 files instead of one.",
                             "type": "boolean"
                           },
                           "format": {
@@ -54921,7 +54924,7 @@
                                 ]
                               },
                               "onClick": {
-                                "description": "Email, phone, url, address and channels fields only: what clicking a value does. open (default) starts mail, a call, opens the link, profile or map; copy copies it.",
+                                "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
                                 "anyOf": [
                                   {
                                     "type": "string",
@@ -76291,13 +76294,14 @@
                                                                       "dateTimeRange",
                                                                       "select",
                                                                       "email",
-                                                                      "phone",
                                                                       "url",
                                                                       "member",
                                                                       "channels",
                                                                       "file",
-                                                                      "address"
-                                                                    ]
+                                                                      "address",
+                                                                      "phone"
+                                                                    ],
+                                                                    "description": "The field's value type when the change happened; phone only in history of retired phone fields."
                                                                   },
                                                                   "format": {
                                                                     "type": "object",
@@ -76350,7 +76354,7 @@
                                                                         ]
                                                                       },
                                                                       "onClick": {
-                                                                        "description": "Email, phone, url, address and channels fields only: what clicking a value does. open (default) starts mail, a call, opens the link, profile or map; copy copies it.",
+                                                                        "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
                                                                         "anyOf": [
                                                                           {
                                                                             "type": "string",
@@ -77173,13 +77177,14 @@
                                                                       "dateTimeRange",
                                                                       "select",
                                                                       "email",
-                                                                      "phone",
                                                                       "url",
                                                                       "member",
                                                                       "channels",
                                                                       "file",
-                                                                      "address"
-                                                                    ]
+                                                                      "address",
+                                                                      "phone"
+                                                                    ],
+                                                                    "description": "The field's value type when the change happened; phone only in history of retired phone fields."
                                                                   },
                                                                   "format": {
                                                                     "type": "object",
@@ -77232,7 +77237,7 @@
                                                                         ]
                                                                       },
                                                                       "onClick": {
-                                                                        "description": "Email, phone, url, address and channels fields only: what clicking a value does. open (default) starts mail, a call, opens the link, profile or map; copy copies it.",
+                                                                        "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
                                                                         "anyOf": [
                                                                           {
                                                                             "type": "string",
@@ -83183,14 +83188,13 @@
                                   "dateTimeRange",
                                   "select",
                                   "email",
-                                  "phone",
                                   "url",
                                   "member",
                                   "channels",
                                   "file",
                                   "address"
                                 ],
-                                "description": "channels: email addresses, phone numbers and social accounts that match messages to the record; a phone number also matches WhatsApp chats from the same number. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value."
+                                "description": "channels: email addresses, phone numbers and social accounts that match messages to the record; a phone number also matches WhatsApp chats from the same number. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). There is no phone type: phone numbers belong in channels. file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value."
                               },
                               "behavior": {
                                 "oneOf": [
@@ -83913,7 +83917,7 @@
                                 "type": "boolean"
                               },
                               "multiple": {
-                                "description": "Allows several values: text, email, phone and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior; a file field holds up to 20 files instead of one.",
+                                "description": "Allows several values: text, email and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior; a file field holds up to 20 files instead of one.",
                                 "type": "boolean"
                               },
                               "format": {
@@ -83967,7 +83971,7 @@
                                     ]
                                   },
                                   "onClick": {
-                                    "description": "Email, phone, url, address and channels fields only: what clicking a value does. open (default) starts mail, a call, opens the link, profile or map; copy copies it.",
+                                    "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
                                     "anyOf": [
                                       {
                                         "type": "string",
@@ -113309,13 +113313,14 @@
                                             "dateTimeRange",
                                             "select",
                                             "email",
-                                            "phone",
                                             "url",
                                             "member",
                                             "channels",
                                             "file",
-                                            "address"
-                                          ]
+                                            "address",
+                                            "phone"
+                                          ],
+                                          "description": "The field's value type when the change happened; phone only in history of retired phone fields."
                                         },
                                         "format": {
                                           "type": "object",
@@ -113368,7 +113373,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, phone, url, address and channels fields only: what clicking a value does. open (default) starts mail, a call, opens the link, profile or map; copy copies it.",
+                                              "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -113762,13 +113767,14 @@
                                             "dateTimeRange",
                                             "select",
                                             "email",
-                                            "phone",
                                             "url",
                                             "member",
                                             "channels",
                                             "file",
-                                            "address"
-                                          ]
+                                            "address",
+                                            "phone"
+                                          ],
+                                          "description": "The field's value type when the change happened; phone only in history of retired phone fields."
                                         },
                                         "format": {
                                           "type": "object",
@@ -113821,7 +113827,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, phone, url, address and channels fields only: what clicking a value does. open (default) starts mail, a call, opens the link, profile or map; copy copies it.",
+                                              "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -114760,13 +114766,14 @@
                                             "dateTimeRange",
                                             "select",
                                             "email",
-                                            "phone",
                                             "url",
                                             "member",
                                             "channels",
                                             "file",
-                                            "address"
-                                          ]
+                                            "address",
+                                            "phone"
+                                          ],
+                                          "description": "The field's value type when the change happened; phone only in history of retired phone fields."
                                         },
                                         "format": {
                                           "type": "object",
@@ -114819,7 +114826,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, phone, url, address and channels fields only: what clicking a value does. open (default) starts mail, a call, opens the link, profile or map; copy copies it.",
+                                              "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -115213,13 +115220,14 @@
                                             "dateTimeRange",
                                             "select",
                                             "email",
-                                            "phone",
                                             "url",
                                             "member",
                                             "channels",
                                             "file",
-                                            "address"
-                                          ]
+                                            "address",
+                                            "phone"
+                                          ],
+                                          "description": "The field's value type when the change happened; phone only in history of retired phone fields."
                                         },
                                         "format": {
                                           "type": "object",
@@ -115272,7 +115280,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, phone, url, address and channels fields only: what clicking a value does. open (default) starts mail, a call, opens the link, profile or map; copy copies it.",
+                                              "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -116211,13 +116219,14 @@
                                             "dateTimeRange",
                                             "select",
                                             "email",
-                                            "phone",
                                             "url",
                                             "member",
                                             "channels",
                                             "file",
-                                            "address"
-                                          ]
+                                            "address",
+                                            "phone"
+                                          ],
+                                          "description": "The field's value type when the change happened; phone only in history of retired phone fields."
                                         },
                                         "format": {
                                           "type": "object",
@@ -116270,7 +116279,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, phone, url, address and channels fields only: what clicking a value does. open (default) starts mail, a call, opens the link, profile or map; copy copies it.",
+                                              "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -116664,13 +116673,14 @@
                                             "dateTimeRange",
                                             "select",
                                             "email",
-                                            "phone",
                                             "url",
                                             "member",
                                             "channels",
                                             "file",
-                                            "address"
-                                          ]
+                                            "address",
+                                            "phone"
+                                          ],
+                                          "description": "The field's value type when the change happened; phone only in history of retired phone fields."
                                         },
                                         "format": {
                                           "type": "object",
@@ -116723,7 +116733,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, phone, url, address and channels fields only: what clicking a value does. open (default) starts mail, a call, opens the link, profile or map; copy copies it.",
+                                              "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -117662,13 +117672,14 @@
                                             "dateTimeRange",
                                             "select",
                                             "email",
-                                            "phone",
                                             "url",
                                             "member",
                                             "channels",
                                             "file",
-                                            "address"
-                                          ]
+                                            "address",
+                                            "phone"
+                                          ],
+                                          "description": "The field's value type when the change happened; phone only in history of retired phone fields."
                                         },
                                         "format": {
                                           "type": "object",
@@ -117721,7 +117732,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, phone, url, address and channels fields only: what clicking a value does. open (default) starts mail, a call, opens the link, profile or map; copy copies it.",
+                                              "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -118115,13 +118126,14 @@
                                             "dateTimeRange",
                                             "select",
                                             "email",
-                                            "phone",
                                             "url",
                                             "member",
                                             "channels",
                                             "file",
-                                            "address"
-                                          ]
+                                            "address",
+                                            "phone"
+                                          ],
+                                          "description": "The field's value type when the change happened; phone only in history of retired phone fields."
                                         },
                                         "format": {
                                           "type": "object",
@@ -118174,7 +118186,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, phone, url, address and channels fields only: what clicking a value does. open (default) starts mail, a call, opens the link, profile or map; copy copies it.",
+                                              "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -119113,13 +119125,14 @@
                                             "dateTimeRange",
                                             "select",
                                             "email",
-                                            "phone",
                                             "url",
                                             "member",
                                             "channels",
                                             "file",
-                                            "address"
-                                          ]
+                                            "address",
+                                            "phone"
+                                          ],
+                                          "description": "The field's value type when the change happened; phone only in history of retired phone fields."
                                         },
                                         "format": {
                                           "type": "object",
@@ -119172,7 +119185,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, phone, url, address and channels fields only: what clicking a value does. open (default) starts mail, a call, opens the link, profile or map; copy copies it.",
+                                              "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -119566,13 +119579,14 @@
                                             "dateTimeRange",
                                             "select",
                                             "email",
-                                            "phone",
                                             "url",
                                             "member",
                                             "channels",
                                             "file",
-                                            "address"
-                                          ]
+                                            "address",
+                                            "phone"
+                                          ],
+                                          "description": "The field's value type when the change happened; phone only in history of retired phone fields."
                                         },
                                         "format": {
                                           "type": "object",
@@ -119625,7 +119639,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, phone, url, address and channels fields only: what clicking a value does. open (default) starts mail, a call, opens the link, profile or map; copy copies it.",
+                                              "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -122516,7 +122530,6 @@
                         "socialActionRequiresSocialAccount",
                         "salesNavigatorNotAvailable",
                         "invalidUrl",
-                        "invalidPhone",
                         "emailLinkColourInvalid",
                         "legalNoticeNotDelivered",
                         "termsNotAgreed",

@@ -1,13 +1,7 @@
 import type { RecordScalar, RecordFieldView } from "./record-model.schema";
 import { filterScalar } from "./record-presentation";
-import { normalizeRecordInput } from "./record-model-validation";
 
 export function recordInputValue(raw: unknown, field: RecordFieldView): RecordScalar | null {
-  const value = parsedRecordInput(raw, field);
-  return value && normalizeRecordInput(value, field.valueType);
-}
-
-function parsedRecordInput(raw: unknown, field: RecordFieldView): RecordScalar | null {
   if (raw === undefined || raw === null || raw === "") return null;
   if (field.valueType === "richText") return { kind: "richText", documentJson: JSON.stringify(raw) };
   if (field.valueType === "boolean") return { kind: "boolean", value: Boolean(raw) };

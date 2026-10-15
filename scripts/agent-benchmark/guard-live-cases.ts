@@ -501,7 +501,7 @@ export async function seedGuardLiveCase(caseId: GuardLiveCaseId, h: SeedHelpers,
       await h.contact(record.key, record.firstName, record.lastName);
       await h.field(record.key, "contact", "guard-column-city", "plain", record.city);
       if (record.email) await h.field(record.key, "contact", "contact-email", "email", record.email);
-      if (record.phone) await h.field(record.key, "contact", "contact-phone", "phone", record.phone);
+      if (record.phone) await h.phone(record.key, record.phone);
     }
     if (record.entity === "task") await h.task(record.key, record.name, record.dealKey, "2026-09-15T08:00:00.000Z", "sofia");
   }

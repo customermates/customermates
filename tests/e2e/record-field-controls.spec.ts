@@ -90,7 +90,7 @@ async function list(page: Page, typeId: string) {
   await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}$`));
 }
 
-test("configures and persists all fourteen field types, multiple values and calendar controls through the UI", async ({
+test("configures and persists every field type, multiple values and calendar controls through the UI", async ({
   page,
   database,
   companyId,
@@ -111,7 +111,6 @@ test("configures and persists all fourteen field types, multiple values and cale
     ["Calendar time range", "Date and time range"],
     ["Choice", "Single choice"],
     ["Email addresses", "Email"],
-    ["Phone numbers", "Phone"],
     ["Web addresses", "Web address"],
     ["Responsible member", "Member"],
     ["Notes", "Formatted text"],
@@ -120,7 +119,7 @@ test("configures and persists all fourteen field types, multiple values and cale
   for (const [label, valueType] of definitions) {
     await test.step(`configure ${valueType}`, async () => {
       await addField(page, label, valueType);
-      if (["Email", "Phone", "Web address"].includes(valueType))
+      if (["Email", "Web address"].includes(valueType))
         await dialog.getByRole("switch", { name: "Allow several values", exact: true }).check();
       if (valueType === "Single choice") {
         const popover = page.locator('[data-slot="popover-content"]');
@@ -173,7 +172,7 @@ test("configures and persists all fourteen field types, multiple values and cale
     ).rows[0].snapshot,
   );
   const fields = model.fields.filter((field) => field.typeId === typeId);
-  expect(new Set(fields.map((field) => field.valueType)).size).toBe(14);
+  expect(new Set(fields.map((field) => field.valueType)).size).toBe(13);
   expect(fields.find((field) => field.label === "Choice")?.options).toEqual([
     expect.objectContaining({
       label: "Accepted",
@@ -208,7 +207,6 @@ test("configures and persists all fourteen field types, multiple values and cale
   await dialog
     .getByRole("textbox", { name: "Email addresses", exact: true })
     .fill("one@example.test\ntwo@example.test");
-  await dialog.getByRole("textbox", { name: "Phone numbers", exact: true }).fill("+49123456789\n+441234567890");
   await dialog
     .getByRole("textbox", { name: "Web addresses", exact: true })
     .fill("https://example.test/a\nhttps://example.test/b");
@@ -265,7 +263,6 @@ test("configures and persists all fourteen field types, multiple values and cale
   expect(value("Responsible member").textValue).toBe(workspace.userId);
   for (const [label, expected] of [
     ["Email addresses", ["one@example.test", "two@example.test"]],
-    ["Phone numbers", ["+49123456789", "+441234567890"]],
     ["Web addresses", ["https://example.test/a", "https://example.test/b"]],
   ] as const)
     expect(value(label).textListValue).toEqual(expected);

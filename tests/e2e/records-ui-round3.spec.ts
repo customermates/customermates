@@ -43,7 +43,7 @@ async function createLabList(page: Page, contactTypeId: string) {
       }),
       field("$member", "Owner", "member", 7),
       field("$bool", "Done", "boolean", 8),
-      field("$phone", "Phone", "phone", 9),
+      field("$email", "Email", "email", 9),
       field("$emails", "Emails", "email", 11, { multiple: true }),
       field("$double", "Double", "number", 10, {
         behavior: {
@@ -321,19 +321,19 @@ test("edits every field type inline in rows and on board cards, with validation,
   await expect(inPlace).toHaveCount(0);
   await expect(row.getByRole("button", { name: "Edit Text", exact: true })).toBeFocused();
 
-  const phoneInput = await openInPlace("Phone");
-  await phoneInput.fill("12 34");
-  await phoneInput.press("Enter");
+  const emailInput = await openInPlace("Email");
+  await emailInput.fill("ada at example");
+  await emailInput.press("Enter");
   await expect(inPlace).toBeVisible();
-  await expect(phoneInput).toHaveAttribute("aria-invalid", "true");
-  await expect(page.getByText("Enter a phone number in international format", { exact: false }).first()).toBeVisible();
-  const phoneToasts = page.locator("[data-sonner-toast]").filter({ hasText: "international format" });
-  await expect(phoneToasts.first()).toBeVisible();
-  expect(await phoneToasts.count()).toBe(1);
-  await phoneInput.fill("+49301234567");
-  await phoneInput.press("Enter");
+  await expect(emailInput).toHaveAttribute("aria-invalid", "true");
+  await expect(page.getByText("Enter a valid email address.", { exact: false }).first()).toBeVisible();
+  const emailToasts = page.locator("[data-sonner-toast]").filter({ hasText: "valid email address" });
+  await expect(emailToasts.first()).toBeVisible();
+  expect(await emailToasts.count()).toBe(1);
+  await emailInput.fill("ada@example.test");
+  await emailInput.press("Enter");
   await expect(inPlace).toHaveCount(0);
-  await expect(row).toContainText("+49301234567");
+  await expect(row).toContainText("ada@example.test");
 
   const cancelled = await openInPlace("Text");
   await cancelled.fill("Never saved");
@@ -432,7 +432,7 @@ test("board cards show one chip row with icons, hide empty and grouped values an
   await expect(chip("Number")).toContainText("Number");
   await expect(chip("Double")).toContainText("Double");
   await expect(chip("Choice")).toHaveCount(0);
-  for (const empty of ["Text", "Date", "Owner", "Phone"]) await expect(chip(empty)).toHaveCount(0);
+  for (const empty of ["Text", "Date", "Owner", "Email"]) await expect(chip(empty)).toHaveCount(0);
   await expect(card).not.toContainText("Money");
 
   await chip("Money").hover();
@@ -454,7 +454,7 @@ test("board cards show one chip row with icons, hide empty and grouped values an
   const add = card.getByRole("button", { name: "Add property", exact: true });
   await expect(add).toBeVisible();
   await add.click();
-  await expect(page.getByRole("menuitem")).toHaveText(["Text", "Date", "Owner", "Done", "Phone", "Emails", "Contacts"]);
+  await expect(page.getByRole("menuitem")).toHaveText(["Text", "Date", "Owner", "Done", "Email", "Emails", "Contacts"]);
   await page.getByRole("menuitem", { name: "Text", exact: true }).click();
   await expect(editor).toContainText("Text");
   await editor.locator("input").first().fill("Card text");

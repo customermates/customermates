@@ -4,10 +4,9 @@ import type { RecordField, RecordScalar } from "../record-model.schema";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { failureUnwindCause } from "@/core/validation/failure-unwind";
-import { normalizePhoneNumber, normalizeRecordInput, recordValueIssue } from "../record-model-validation";
+import { recordValueIssue } from "../record-model-validation";
 import { recordFieldErrors, recordValuesErrorTree } from "../record-mutation-failure";
 import { normalizeRecordScalar } from "../record-write.service";
-import { recordInputValue } from "../record-input-value";
 
 function field(valueType: RecordField["valueType"], overrides: Partial<RecordField> = {}): RecordField {
   return {
@@ -43,9 +42,8 @@ describe("record value validation", () => {
   it.each([
     ["email", "bad-email", CustomErrorCode.invalidEmail],
     ["url", "not a url", CustomErrorCode.invalidUrl],
-    ["phone", "030 1234567", CustomErrorCode.invalidPhone],
   ] as const)("names the specific %s failure", (valueType, value, code) => {
-    expect(recordValueIssue(normalizeRecordInput(text(value), valueType), field(valueType))).toBe(code);
+    expect(recordValueIssue(text(value), field(valueType))).toBe(code);
   });
 
   it("names number, date, range and option failures", () => {
@@ -62,27 +60,6 @@ describe("record value validation", () => {
     expect(recordValueIssue({ kind: "boolean", value: true }, field("member"))).toBe(
       CustomErrorCode.recordValueTypeMismatch,
     );
-  });
-
-  it.each([
-    ["+49 30 1234567", "+49301234567"],
-    ["+49 (30) 123-45.67", "+49301234567"],
-    ["0049 30 1234567", "+49301234567"],
-    [" +1 (415) 555-0100 ", "+14155550100"],
-  ])("normalises the phone number %s", (input, expected) => {
-    expect(normalizePhoneNumber(input)).toBe(expected);
-    expect(recordValueIssue(normalizeRecordInput(text(input), "phone"), field("phone"))).toBeNull();
-  });
-
-  it("stores the normalised phone number from every writer", () => {
-    expect(normalizeRecordScalar(text("+49 30 1234567"), field("phone"))).toEqual(text("+49301234567"));
-    expect(
-      normalizeRecordScalar(
-        { kind: "textList", value: ["+49 30 1234567", "+44 20 7946 0000"] },
-        field("phone", { multiple: true }),
-      ),
-    ).toEqual({ kind: "textList", value: ["+49301234567", "+442079460000"] });
-    expect(recordInputValue("+49 30 1234567", field("phone") as never)).toEqual(text("+49301234567"));
   });
 
   it("fails a write with the field path and a specific code", () => {

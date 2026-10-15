@@ -16,7 +16,6 @@ import { northwindDataset, northwindDay } from "./northwind-data";
 export type SyntheticRecordType = "contact" | "organization" | "deal" | "service" | "task";
 
 export const SYNTHETIC_CUSTOM_FIELD_DEFINITIONS = [
-  { recordType: "contact", label: "Phones", optionLabels: [], valueType: "phone" },
   { recordType: "service", label: "Type", optionLabels: ["Service", "Subscription"], valueType: "select" },
   {
     recordType: "organization",
@@ -49,7 +48,6 @@ export const SYNTHETIC_CUSTOM_FIELD_DEFINITIONS = [
 ] as const;
 
 export const SYNTHETIC_CUSTOM_FIELD_IDS = {
-  contactPhone: fixtureId("16000000", 1),
   serviceType: fixtureId("16000000", 2),
   organizationType: fixtureId("16000000", 3),
   organizationWebsite: fixtureId("16000000", 4),
@@ -172,93 +170,87 @@ export function seedCustomFields(context: SeedContext, entities: CustomFieldSeed
     });
 
   const serviceTypeOptions: OptionDefinition[] = [
-    [options.serviceType.service, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[1].optionLabels[0], "secondary"],
-    [options.serviceType.hardware, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[1].optionLabels[1], "info"],
+    [options.serviceType.service, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[0].optionLabels[0], "secondary"],
+    [options.serviceType.hardware, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[0].optionLabels[1], "info"],
   ];
   const organizationTypeOptions: OptionDefinition[] = [
-    [options.organizationType.directCustomer, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[2].optionLabels[0], "success"],
-    [options.organizationType.affiliatedCompany, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[2].optionLabels[1], "info"],
-    [options.organizationType.formerCustomer, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[2].optionLabels[2], "secondary"],
+    [options.organizationType.directCustomer, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[1].optionLabels[0], "success"],
+    [options.organizationType.affiliatedCompany, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[1].optionLabels[1], "info"],
+    [options.organizationType.formerCustomer, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[1].optionLabels[2], "secondary"],
   ];
   const priorityOptions: OptionDefinition[] = [
-    [options.taskPriority.low, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[4].optionLabels[0], "secondary"],
-    [options.taskPriority.medium, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[4].optionLabels[1], "info"],
-    [options.taskPriority.high, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[4].optionLabels[2], "destructive"],
+    [options.taskPriority.low, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[3].optionLabels[0], "secondary"],
+    [options.taskPriority.medium, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[3].optionLabels[1], "info"],
+    [options.taskPriority.high, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[3].optionLabels[2], "destructive"],
   ];
   const dealStatusOptions: OptionDefinition[] = [
     [
       options.dealStatus.open,
-      SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[5].optionLabels[0],
+      SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[4].optionLabels[0],
       "warning",
       SYNTHETIC_DEAL_STATUS_WEIGHTS[0],
     ],
     [
       options.dealStatus.won,
-      SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[5].optionLabels[1],
+      SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[4].optionLabels[1],
       "success",
       SYNTHETIC_DEAL_STATUS_WEIGHTS[1],
     ],
     [
       options.dealStatus.lost,
-      SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[5].optionLabels[2],
+      SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[4].optionLabels[2],
       "destructive",
       SYNTHETIC_DEAL_STATUS_WEIGHTS[2],
     ],
     [
       options.dealStatus.abandoned,
-      SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[5].optionLabels[3],
+      SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[4].optionLabels[3],
       "secondary",
       SYNTHETIC_DEAL_STATUS_WEIGHTS[3],
     ],
   ];
   const taskStatusOptions: OptionDefinition[] = [
-    [options.taskStatus.open, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[6].optionLabels[0], "info"],
-    [options.taskStatus.inProgress, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[6].optionLabels[1], "warning"],
-    [options.taskStatus.blocked, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[6].optionLabels[2], "destructive"],
-    [options.taskStatus.onHold, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[6].optionLabels[3], "secondary"],
-    [options.taskStatus.done, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[6].optionLabels[4], "success"],
-    [options.taskStatus.archived, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[6].optionLabels[5], "secondary"],
+    [options.taskStatus.open, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[5].optionLabels[0], "info"],
+    [options.taskStatus.inProgress, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[5].optionLabels[1], "warning"],
+    [options.taskStatus.blocked, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[5].optionLabels[2], "destructive"],
+    [options.taskStatus.onHold, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[5].optionLabels[3], "secondary"],
+    [options.taskStatus.done, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[5].optionLabels[4], "success"],
+    [options.taskStatus.archived, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[5].optionLabels[5], "secondary"],
   ];
   const contactSalesPipelineOptions: OptionDefinition[] = [
-    [options.contactSalesPipeline.new, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[8].optionLabels[0], "secondary"],
-    [options.contactSalesPipeline.contact, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[8].optionLabels[1], "default"],
-    [options.contactSalesPipeline.qualified, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[8].optionLabels[2], "info"],
-    [options.contactSalesPipeline.inProgress, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[8].optionLabels[3], "warning"],
-    [options.contactSalesPipeline.won, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[8].optionLabels[4], "success"],
-    [options.contactSalesPipeline.lost, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[8].optionLabels[5], "destructive"],
+    [options.contactSalesPipeline.new, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[7].optionLabels[0], "secondary"],
+    [options.contactSalesPipeline.contact, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[7].optionLabels[1], "default"],
+    [options.contactSalesPipeline.qualified, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[7].optionLabels[2], "info"],
+    [options.contactSalesPipeline.inProgress, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[7].optionLabels[3], "warning"],
+    [options.contactSalesPipeline.won, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[7].optionLabels[4], "success"],
+    [options.contactSalesPipeline.lost, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[7].optionLabels[5], "destructive"],
   ];
   const servicePricingOptions: OptionDefinition[] = [
-    [options.servicePricing.fixed, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[9].optionLabels[0], "default"],
-    [options.servicePricing.monthly, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[9].optionLabels[1], "secondary"],
-    [options.servicePricing.daily, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[9].optionLabels[2], "success"],
+    [options.servicePricing.fixed, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[8].optionLabels[0], "default"],
+    [options.servicePricing.monthly, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[8].optionLabels[1], "secondary"],
+    [options.servicePricing.daily, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[8].optionLabels[2], "success"],
   ];
 
   const customFields: SyntheticCustomField[] = [
-    field(0, ids.contactPhone, {
-      multiple: true,
-      format: format("secondary"),
-      behavior: { kind: "input" },
-      options: [],
-    }),
-    select(1, ids.serviceType, serviceTypeOptions, options.serviceType.service),
-    select(2, ids.organizationType, organizationTypeOptions, null),
-    field(3, ids.organizationWebsite, {
+    select(0, ids.serviceType, serviceTypeOptions, options.serviceType.service),
+    select(1, ids.organizationType, organizationTypeOptions, null),
+    field(2, ids.organizationWebsite, {
       multiple: false,
       format: format("secondary"),
       behavior: { kind: "input" },
       options: [],
     }),
-    select(4, ids.taskPriority, priorityOptions, options.taskPriority.low),
-    select(5, ids.dealStatus, dealStatusOptions, options.dealStatus.open),
-    select(6, ids.taskStatus, taskStatusOptions, options.taskStatus.open),
-    field(7, ids.dealProjectPeriod, {
+    select(3, ids.taskPriority, priorityOptions, options.taskPriority.low),
+    select(4, ids.dealStatus, dealStatusOptions, options.dealStatus.open),
+    select(5, ids.taskStatus, taskStatusOptions, options.taskStatus.open),
+    field(6, ids.dealProjectPeriod, {
       multiple: false,
       format: format(null, "numericalShort"),
       behavior: { kind: "input" },
       options: [],
     }),
-    select(8, ids.contactSalesPipeline, contactSalesPipelineOptions, options.contactSalesPipeline.new),
-    select(9, ids.servicePricing, servicePricingOptions, options.servicePricing.fixed),
+    select(7, ids.contactSalesPipeline, contactSalesPipelineOptions, options.contactSalesPipeline.new),
+    select(8, ids.servicePricing, servicePricingOptions, options.servicePricing.fixed),
   ];
 
   const data = northwindDataset();
@@ -276,12 +268,6 @@ export function seedCustomFields(context: SeedContext, entities: CustomFieldSeed
       const source = data.contacts[index];
       if (!source) throw new Error(`Missing Northwind contact ${index}`);
       return [
-        {
-          recordType: "contact" as const,
-          recordId: contact.id,
-          fieldId: ids.contactPhone,
-          value: { kind: "textList" as const, value: [source.phone] },
-        },
         {
           recordType: "contact" as const,
           recordId: contact.id,

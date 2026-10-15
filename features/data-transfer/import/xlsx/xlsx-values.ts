@@ -1,7 +1,10 @@
 import type { RecordFieldView, RecordRef, RecordScalar } from "@/features/records/record-model.schema";
+import type { RecordIdentityInput } from "@/features/records/record-identity.schema";
 import type { XlsxCell } from "./xlsx-workbook";
 
-import { normalizePhoneNumber, scalarMatchesType } from "@/features/records/record-model-validation";
+import { channelClass } from "@/ee/messaging/provider";
+import { inferChannelProviders, normalizeChannelValue } from "@/features/records/channel-value";
+import { scalarMatchesType } from "@/features/records/record-model-validation";
 import { addressFromText } from "@/features/records/record-address-value";
 
 import { normalizeXlsxHeader } from "./xlsx-mapping";
@@ -15,7 +18,7 @@ export type XlsxIssueCode =
   | "invalidBoolean"
   | "invalidEmail"
   | "invalidUrl"
-  | "invalidPhone"
+  | "invalidChannel"
   | "invalidValue"
   | "unknownOption"
   | "unknownMember"
@@ -198,11 +201,9 @@ export function plainTextDocument(text: string): string {
 }
 
 function textScalar(text: string, field: RecordFieldView): XlsxParsed<string> {
-  const value = field.valueType === "phone" ? normalizePhoneNumber(text) : text;
-  if (scalarMatchesType({ kind: "text", value }, field.valueType)) return ok(value);
+  if (scalarMatchesType({ kind: "text", value: text }, field.valueType)) return ok(text);
   if (field.valueType === "email") return issue("invalidEmail", text);
   if (field.valueType === "url") return issue("invalidUrl", text);
-  if (field.valueType === "phone") return issue("invalidPhone", text);
   return issue("invalidValue", text);
 }
 
@@ -304,7 +305,6 @@ export function parseXlsxFieldCell(
       return issue("fileNotImportable", text);
     case "text":
     case "email":
-    case "phone":
     case "url": {
       if (!field.multiple) {
         const parsed = textScalar(text, field);
@@ -323,6 +323,25 @@ export function parseXlsxFieldCell(
     default:
       return issue("invalidValue", text);
   }
+}
+
+export function parseXlsxChannelsCell(cell: XlsxCell, region: string | null): XlsxParsed<RecordIdentityInput[]> {
+  const text = xlsxCellText(cell);
+  if (!text) return ok([]);
+  const identities: RecordIdentityInput[] = [];
+  for (const part of splitXlsxList(text)) {
+    const providers = inferChannelProviders(part, region);
+    const value = providers.length === 1 ? normalizeChannelValue(providers[0], part, region) : null;
+    if (!value) return issue("invalidChannel", part);
+    const provider = providers[0];
+    if (
+      !identities.some(
+        (identity) => identity.value === value && channelClass(identity.provider) === channelClass(provider),
+      )
+    )
+      identities.push({ provider, value });
+  }
+  return identities.length > 100 ? issue("tooManyValues", text) : ok(identities);
 }
 
 export function parseXlsxRelationshipCell(cell: XlsxCell, index: XlsxRecordIndex | null): XlsxParsed<RecordRef[]> {

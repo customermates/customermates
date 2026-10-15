@@ -7,7 +7,7 @@ import type { XlsxImportPort, XlsxPlanInput } from "../xlsx-import-plan";
 import { RecordExportSchema } from "@/features/data-transfer/record-transfer.schema";
 
 import { planXlsxImport, runXlsxImport, xlsxImportBatches } from "../xlsx-import-plan";
-import { xlsxTargetOptions } from "../xlsx-mapping";
+import { xlsxTargetOptions, XLSX_CHANNELS_KEY } from "../xlsx-mapping";
 import { COMPANY, fields, labels, model, PROJECT, PROJECT_COMPANY } from "./xlsx-fixture";
 
 const acme = { typeId: COMPANY, recordId: "40000000-0000-4000-8000-000000000001" };
@@ -143,6 +143,87 @@ describe("xlsx import planning", () => {
     expect(plan[0].record?.fields.find((field) => field.fieldId === fields.budget.id)).toEqual(existing.fields[2]);
     expect(plan[1]).toMatchObject({ record: null, skipped: "noMatch" });
     expect(plan[2].issues.map((issue) => issue.code)).toEqual(["duplicateMatch"]);
+  });
+
+  it("adds the numbers of Channels columns as identities and keeps a record's other identities", () => {
+    const created = planXlsxImport(
+      {
+        ...input(
+          ["Name", "Phone", "Mobile"],
+          [`field:${fields.name.id}`, XLSX_CHANNELS_KEY, XLSX_CHANNELS_KEY],
+          [{ sheetRow: 2, cells: ["Atlas", "0621 123456", "+49 621 123456; ada@example.test"] }],
+        ),
+        region: "de",
+      },
+      "create",
+      null,
+      null,
+      newId,
+      now,
+    );
+    expect(
+      created[0].record?.identities?.map(({ provider, value, channelClass }) => ({ provider, value, channelClass })),
+    ).toEqual([
+      { provider: "phone", value: "+49621123456", channelClass: "phone" },
+      { provider: "mail", value: "ada@example.test", channelClass: "email" },
+    ]);
+    expect(
+      RecordExportSchema.safeParse({
+        format: "customermates-records",
+        version: 1,
+        typeId: PROJECT,
+        schemaRevision: model.revision,
+        exportedAt: now,
+        records: [created[0].record],
+        links: [],
+      }).success,
+    ).toBe(true);
+
+    const whatsapp = {
+      id: "70000000-0000-4000-8000-000000000001",
+      provider: "whatsapp" as const,
+      value: "+491701234567",
+      channelClass: "phone",
+      messagingId: null,
+      displayName: "Atlas",
+      profileUrl: null,
+      createdAt: now,
+      updatedAt: now,
+    };
+    const existing: RecordDto = {
+      ref: { typeId: PROJECT, recordId: "60000000-0000-4000-8000-000000000002" },
+      version: 2,
+      schemaRevision: model.revision,
+      createdAt: now,
+      updatedAt: now,
+      fields: [{ fieldId: fields.name.id, result: { state: "value", value: { kind: "text", value: "Atlas" } } }],
+      assignedUserIds: [],
+      assignedUsers: [],
+      memberUsers: [],
+      relationships: [],
+      identities: [whatsapp],
+    };
+    const update = (record: RecordDto, cells: string[]) =>
+      planXlsxImport(
+        {
+          ...input(["Name", "Phone"], [`field:${fields.name.id}`, XLSX_CHANNELS_KEY], [{ sheetRow: 2, cells }]),
+          region: "de",
+        },
+        "update",
+        `field:${fields.name.id}`,
+        { records: [record] },
+        newId,
+        now,
+      )[0];
+    expect(update(existing, ["Atlas", "0170 1234567, 0621 123456"]).record?.identities).toEqual([
+      whatsapp,
+      expect.objectContaining({ provider: "phone", value: "+49621123456" }),
+    ]);
+    expect(update(existing, ["Atlas", ""]).record?.identities).toEqual([whatsapp]);
+    expect(update({ ...existing, identities: undefined }, ["Atlas", "0621 123456"])).toMatchObject({
+      record: null,
+      issues: [{ code: "lookupUnavailable", column: "Phone", value: "Phone" }],
+    });
   });
 
   it("splits large imports into batches of at most 100 records and 500 links", () => {

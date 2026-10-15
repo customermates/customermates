@@ -26,8 +26,8 @@ export function useXlsxImportText() {
         return t("DataTransfer.xlsxImport.issues.invalidEmail", values);
       case "invalidUrl":
         return t("DataTransfer.xlsxImport.issues.invalidUrl", values);
-      case "invalidPhone":
-        return t("DataTransfer.xlsxImport.issues.invalidPhone", values);
+      case "invalidChannel":
+        return t("DataTransfer.xlsxImport.issues.invalidChannel", values);
       case "invalidValue":
         return t("DataTransfer.xlsxImport.issues.invalidValue", values);
       case "unknownOption":

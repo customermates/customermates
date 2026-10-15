@@ -36,7 +36,6 @@ export type BenchmarkFieldDeclaration = {
     | "dateRange"
     | "dateTimeRange"
     | "email"
-    | "phone"
     | "link"
     | "singleSelect";
   options?: {

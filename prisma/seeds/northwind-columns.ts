@@ -47,7 +47,6 @@ export function northwindColumns(companyId: string, legacy: CustomFieldSeedData[
       id("contact.lastName"),
       id("contact.avatarUrl"),
       id("capability.identity"),
-      legacy.contactPhone,
       legacy.contactSalesPipeline,
     ],
     organization: [legacy.organizationType, legacy.organizationWebsite],

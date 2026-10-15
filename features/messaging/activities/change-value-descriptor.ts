@@ -200,7 +200,7 @@ export function recordValueDescriptor(
     return markdown ? { kind: "richText", markdown } : EMPTY;
   }
   const field = {
-    ...scalarField(side.fieldId, side.label, side.valueType),
+    ...scalarField(side.fieldId, side.label, side.valueType === "phone" ? "text" : side.valueType),
     typeId,
     format: side.format,
     options: side.options,

@@ -5,6 +5,7 @@ import {
   duplicateXlsxTargets,
   normalizeXlsxHeader,
   xlsxTargetOptions,
+  XLSX_CHANNELS_KEY,
   XLSX_SKIP_KEY,
 } from "../xlsx-mapping";
 import { fields, labels, model, PROJECT, PROJECT_COMPANY } from "./xlsx-fixture";
@@ -69,5 +70,31 @@ describe("xlsx column auto-mapping", () => {
 
   it("reports targets chosen by more than one column", () => {
     expect(duplicateXlsxTargets(["a", XLSX_SKIP_KEY, "a", "b", XLSX_SKIP_KEY])).toEqual(["a"]);
+  });
+
+  it("maps phone columns to the Channels field, several columns at once", () => {
+    expect(options.find((option) => option.key === XLSX_CHANNELS_KEY)).toEqual({
+      key: XLSX_CHANNELS_KEY,
+      label: "Channels",
+      target: { kind: "channels" },
+    });
+    expect(autoMapXlsxColumns(["Phone", "Mobile", "Telefonnummer", "Mobil", "Channels"], options)).toEqual([
+      XLSX_CHANNELS_KEY,
+      XLSX_CHANNELS_KEY,
+      XLSX_CHANNELS_KEY,
+      XLSX_CHANNELS_KEY,
+      XLSX_SKIP_KEY,
+    ]);
+    expect(duplicateXlsxTargets([XLSX_CHANNELS_KEY, XLSX_CHANNELS_KEY])).toEqual([]);
+  });
+
+  it("maps phone columns to a text field when the list has no live Channels field", () => {
+    const phone = { ...fields.name, id: "20000000-0000-4000-8000-000000009999", label: "Phone", required: false };
+    const trashed = model.fields.map((field) =>
+      field.valueType === "channels" ? { ...field, archived: true } : field,
+    );
+    const plain = xlsxTargetOptions({ ...model, fields: [...trashed, phone] }, PROJECT, labels);
+    expect(plain.some((option) => option.key === XLSX_CHANNELS_KEY)).toBe(false);
+    expect(autoMapXlsxColumns(["Telefon", "Mobile"], plain)).toEqual([`field:${phone.id}`, XLSX_SKIP_KEY]);
   });
 });

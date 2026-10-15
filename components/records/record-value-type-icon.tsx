@@ -15,7 +15,6 @@ import {
   Mail,
   MapPin,
   Paperclip,
-  Phone,
   Type,
   UserRound,
 } from "lucide-react";
@@ -34,7 +33,6 @@ const VALUE_TYPE_ICONS: Record<RecordValueType, LucideIcon> = {
   dateTimeRange: CalendarRange,
   select: CircleDot,
   email: Mail,
-  phone: Phone,
   url: Globe,
   member: UserRound,
   channels: AtSign,

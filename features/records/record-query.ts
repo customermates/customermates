@@ -230,7 +230,7 @@ export function compileRecordQuery(
   let searchSource = Prisma.empty;
   if (query.search) {
     const searchable = [...fields.values()].filter((field) =>
-      ["text", "email", "phone", "url", "address"].includes(field.valueType),
+      ["text", "email", "url", "address"].includes(field.valueType),
     );
     const search = `%${query.search.replace(/[\\%_]/g, "\\$&")}%`;
     const matches: Prisma.Sql[] = [];
@@ -491,7 +491,7 @@ export function compileRecordQuery(
     }
     const field = fields.get(sort.fieldId);
     if (!field) throw new Error("Sort field must be validated before compilation");
-    const collation = ["text", "email", "phone", "url", "select", "member", "address"].includes(field.valueType)
+    const collation = ["text", "email", "url", "select", "member", "address"].includes(field.valueType)
       ? Prisma.sql`COLLATE ${recordCollation(query.locale)}`
       : Prisma.empty;
     const visibleMember =

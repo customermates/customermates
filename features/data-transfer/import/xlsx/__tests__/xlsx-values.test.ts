@@ -5,6 +5,7 @@ import type { XlsxRecordIndex } from "../xlsx-values";
 import {
   excelSerialDate,
   parseXlsxBoolean,
+  parseXlsxChannelsCell,
   parseXlsxDate,
   parseXlsxDecimal,
   parseXlsxFieldCell,
@@ -110,7 +111,7 @@ describe("xlsx value parsing", () => {
     expect(parseXlsxFieldCell("maybe", fields.active, null)).toMatchObject({ ok: false, code: "invalidBoolean" });
   });
 
-  it("validates emails, web addresses and phone numbers", () => {
+  it("validates emails and web addresses", () => {
     expect(parseXlsxFieldCell("ada@example.test", fields.email, null)).toEqual({
       ok: true,
       value: { kind: "text", value: "ada@example.test" },
@@ -118,10 +119,29 @@ describe("xlsx value parsing", () => {
     expect(parseXlsxFieldCell("ada at example", fields.email, null)).toMatchObject({ ok: false, code: "invalidEmail" });
     expect(parseXlsxFieldCell("https://example.test", fields.website, null)).toMatchObject({ ok: true });
     expect(parseXlsxFieldCell("example.test", fields.website, null)).toMatchObject({ ok: false, code: "invalidUrl" });
-    expect(parseXlsxFieldCell("0049 (170) 123-4567", fields.phone, null)).toEqual({
+  });
+
+  it("reads phone numbers, emails and profile links of a Channels column with the importer's country", () => {
+    expect(parseXlsxChannelsCell("0621 123456; 0049 (170) 123-4567\nada@example.test, +49 621 123456", "de")).toEqual({
       ok: true,
-      value: { kind: "text", value: "+491701234567" },
+      value: [
+        { provider: "phone", value: "+49621123456" },
+        { provider: "phone", value: "+491701234567" },
+        { provider: "mail", value: "ada@example.test" },
+      ],
     });
+    expect(parseXlsxChannelsCell("https://www.linkedin.com/in/ada", null)).toEqual({
+      ok: true,
+      value: [{ provider: "linkedin", value: "ada" }],
+    });
+    expect(parseXlsxChannelsCell(null, "de")).toEqual({ ok: true, value: [] });
+    expect(parseXlsxChannelsCell("0621 123456", null)).toEqual({
+      ok: false,
+      code: "invalidChannel",
+      value: "0621 123456",
+    });
+    expect(parseXlsxChannelsCell("+49 621 123456 ext. 7", "de")).toMatchObject({ ok: false, code: "invalidChannel" });
+    expect(parseXlsxChannelsCell("@ada", "de")).toEqual({ ok: false, code: "invalidChannel", value: "@ada" });
   });
 
   it("imports formatted text as plain paragraphs", () => {

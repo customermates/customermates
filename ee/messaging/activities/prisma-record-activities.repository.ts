@@ -20,6 +20,7 @@ import type { RecordRef } from "@/features/records/record-model.schema";
 import { WIKI_PAGE_AUDIT_EVENTS } from "@/features/wiki/wiki-audit-events";
 import { RecordRevisionChangeSchema } from "@/features/records/record-revision.schema";
 import { RecordModelSchema } from "@/features/records/record-model.schema";
+import { historicalRecordModel, historicalRevisionChange } from "@/features/records/historical-record-model";
 
 export class PrismaRecordActivitiesRepo extends TenantRepository implements RecordActivitiesRepo {
   constructor(private readonly permissions: PermissionService) {
@@ -83,10 +84,12 @@ export class PrismaRecordActivitiesRepo extends TenantRepository implements Reco
           select: { revision: true, createdAt: true, actorId: true, change: true, snapshot: true },
         })
       : [];
-    const snapshots = new Map(rows.map((row) => [row.revision, RecordModelSchema.parse(row.snapshot)]));
+    const snapshots = new Map(
+      rows.map((row) => [row.revision, RecordModelSchema.parse(historicalRecordModel(row.snapshot))]),
+    );
     const parsed = rows.flatMap((row) => {
       if (!requested.includes(row.revision)) return [];
-      const result = RecordRevisionChangeSchema.safeParse(row.change);
+      const result = RecordRevisionChangeSchema.safeParse(historicalRevisionChange(row.change));
       return result.success
         ? [{ revision: row.revision, createdAt: row.createdAt, actorId: row.actorId, change: result.data }]
         : [];
