@@ -1060,6 +1060,8 @@
       "title": "Noch keine {plural}"
     },
     "errors": {
+      "addressLookupRateLimited": "Zu viele Adresssuchen in kurzer Zeit. Warte ein paar Sekunden und versuche es dann erneut.",
+      "addressLookupUnavailable": "Die Adresssuche ist gerade nicht verfügbar. Gib die Adresse selbst ein oder versuche es später erneut.",
       "agentApprovalUnavailable": "Diese Freigabeanfrage ist nicht verfügbar oder abgelaufen.",
       "agentConversationNotFound": "Diese Unterhaltung wurde nicht gefunden oder ist nicht mehr zugänglich.",
       "agentLimitReached": "Es sind nicht genügend KI-Credits übrig, um eine weitere Anfrage zu starten.",

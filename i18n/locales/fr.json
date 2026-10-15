@@ -1060,6 +1060,8 @@
       "title": "Aucun élément « {plural} » pour le moment"
     },
     "errors": {
+      "addressLookupRateLimited": "Trop de recherches d'adresse en peu de temps. Patientez quelques secondes, puis réessayez.",
+      "addressLookupUnavailable": "La recherche d'adresse n'est pas disponible pour le moment. Saisissez l'adresse vous-même ou réessayez plus tard.",
       "agentApprovalUnavailable": "Cette demande d’approbation n’est pas disponible ou a expiré.",
       "agentConversationNotFound": "Cette conversation est introuvable ou n’est plus accessible.",
       "agentLimitReached": "Il ne reste pas assez de crédits IA pour lancer une autre demande.",

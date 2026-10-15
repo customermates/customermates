@@ -159,7 +159,6 @@ import type { FileStorageDriver } from "@/core/storage/file-storage-driver";
 import { DatabaseFileStorageDriver } from "@/core/storage/database-file-storage.driver";
 import { PrismaFileContentRepo } from "@/core/storage/prisma-file-content.repository";
 import type { AddressCandidateVerifier } from "@/features/records/address-candidate-verifier";
-import { RejectingAddressCandidateVerifier } from "@/features/records/rejecting-address-candidate-verifier";
 import type { RecordFileAttacher } from "@/features/records/record-file-attacher";
 import { RecordFileAttachmentService } from "@/features/records/record-file-attachment.service";
 import { PrismaRecordFileRepo } from "@/features/records/prisma-record-file.repository";
@@ -543,7 +542,8 @@ export const getRecordWriteService = (records: RecordRepo = getRecordRepo()) =>
     getAddressCandidateVerifier(),
     getRecordFileAttacher(),
   );
-export const getAddressCandidateVerifier = (): AddressCandidateVerifier => new RejectingAddressCandidateVerifier();
+export const getAddressCandidateVerifier = (): AddressCandidateVerifier =>
+  new SignedAddressCandidateVerifier(env.BETTER_AUTH_SECRET);
 export const getRecordFileRepo = () => new PrismaRecordFileRepo();
 export const getRecordFileAttacher = (): RecordFileAttacher => new RecordFileAttachmentService(getRecordFileRepo());
 export const getRecordFileIndexDispatcher = (): RecordFileIndexDispatcher =>
@@ -2003,3 +2003,22 @@ export const getManageDataViewsInteractor = () =>
 import { MutateThreadRecordsInteractor } from "@/ee/messaging/thread-records/thread-records.interactor";
 import { ReadThreadRecordsInteractor } from "@/ee/messaging/thread-records/read-thread-records.interactor";
 import { PrismaThreadRecordsRepo } from "@/ee/messaging/thread-records/prisma-thread-records.repository";
+import { AddressLookupCache } from "@/features/addresses/address-lookup-cache";
+import { AddressLookupRateLimiter } from "@/features/addresses/address-lookup-rate-limiter";
+import { AddressLookupService } from "@/features/addresses/address-lookup.service";
+import { LookupAddressInteractor } from "@/features/addresses/lookup-address.interactor";
+import { PhotonAddressLookupProvider } from "@/features/addresses/photon-address-lookup.provider";
+import { SignedAddressCandidateVerifier } from "@/features/addresses/signed-address-candidate-verifier";
+import { VerifyAddressInteractor } from "@/features/addresses/verify-address.interactor";
+
+const addressLookupRateLimiter = new AddressLookupRateLimiter();
+const addressLookupCache = new AddressLookupCache();
+export const getAddressLookupService = () =>
+  new AddressLookupService(
+    env.ADDRESS_LOOKUP_URL ? new PhotonAddressLookupProvider(env.ADDRESS_LOOKUP_URL) : null,
+    env.BETTER_AUTH_SECRET,
+    addressLookupRateLimiter,
+    addressLookupCache,
+  );
+export const getLookupAddressInteractor = () => new LookupAddressInteractor(getAddressLookupService());
+export const getVerifyAddressInteractor = () => new VerifyAddressInteractor(getAddressLookupService());

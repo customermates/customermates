@@ -85119,6 +85119,472 @@
         }
       }
     },
+    "/v1/addresses/lookup": {
+      "post": {
+        "operationId": "lookupAddress",
+        "summary": "Look up postal addresses",
+        "description": "Finds postal addresses for free text, as the Search address box of an address field does: a street with house number and city, a postal code and city, or the name of a place. Each candidate carries its formatted address parts, the map location and a candidateToken. Write `{\"kind\":\"address\",\"candidateToken\":\"…\"}` to an address field through /v1/records/mutate to store that candidate as a verified address; the token is valid for 24 hours and only in this workspace. Any other address write is stored as unverified, so a client cannot mark an address verified itself. countryCode limits the results to one country; without it, addresses in the caller's country come first. Show the attribution with the results. The server asks the address provider on the caller's behalf, so the provider never sees the caller's IP address or session. When the operator has not configured ADDRESS_LOOKUP_URL, nothing leaves the server and available is false. Requests are limited to 30 per user in 10 seconds (429 addressLookupRateLimited), and a provider that does not answer within 2 seconds returns 422 addressLookupUnavailable.\n\nRequires: an active member of the workspace; no record permission, because a lookup changes nothing.",
+        "tags": [
+          "addresses"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "query": "Hauptstraße 5, Mannheim",
+                "countryCode": "de",
+                "limit": 5
+              },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 200,
+                    "description": "Free text as a person would type it, such as a street with house number and city or a place name."
+                  },
+                  "countryCode": {
+                    "description": "Only addresses in this country: ISO 3166-1 alpha-2 code in lowercase, such as de.",
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z]{2}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "limit": {
+                    "default": 5,
+                    "description": "Most candidates to return, 1 to 10; default 5.",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10
+                  }
+                },
+                "required": [
+                  "query"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Candidates in the provider's order, or available false when address lookup is off.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "available": {
+                      "type": "boolean",
+                      "description": "False when address lookup is off on this server; then write the address parts, which stay unverified."
+                    },
+                    "attribution": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Source credit to show with the candidates, such as © OpenStreetMap contributors."
+                    },
+                    "candidates": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "candidateToken": {
+                            "type": "string",
+                            "description": "Valid for 24 hours in this workspace: write {\"kind\":\"address\",\"candidateToken\":\"…\"} to an address field to store this address as verified."
+                          },
+                          "name": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "Name of the matched place, such as a business or building, or null."
+                          },
+                          "address": {
+                            "$ref": "#/components/schemas/RecordAddress"
+                          }
+                        },
+                        "required": [
+                          "candidateToken",
+                          "name",
+                          "address"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "available",
+                    "attribution",
+                    "candidates"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
+    "/v1/addresses/verify": {
+      "post": {
+        "operationId": "verifyAddress",
+        "summary": "Check an address entered by hand",
+        "description": "Checks address parts entered by hand, as the Check address action of an address field does. The server asks the address provider for the formatted address and returns a match only when the provider's address has the same postal code and city and, when given, the same street and house number, compared without case, accents and common street abbreviations. The match keeps the input's line2 and carries a candidateToken: write it as `{\"kind\":\"address\",\"candidateToken\":\"…\"}` to store the suggested address as verified, or write the parts as `{\"kind\":\"address\",\"value\":{…}}` to keep them unverified. Input without a postal code or city returns no match. The server asks the address provider on the caller's behalf, so the provider never sees the caller's IP address or session. When the operator has not configured ADDRESS_LOOKUP_URL, nothing leaves the server and available is false. Requests are limited to 30 per user in 10 seconds (429 addressLookupRateLimited), and a provider that does not answer within 2 seconds returns 422 addressLookupUnavailable.\n\nRequires: an active member of the workspace; no record permission, because a check changes nothing.",
+        "tags": [
+          "addresses"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "street": "Hauptstr. 5",
+                "postalCode": "68259",
+                "city": "Mannheim",
+                "countryCode": "de"
+              },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "street": {
+                    "description": "Street with house number, as written in the country.",
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 200
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "line2": {
+                    "description": "Apartment, floor or c/o; kept as entered and never checked.",
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 200
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "postalCode": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 20
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "city": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 200
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "region": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 200
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "countryCode": {
+                    "description": "Only addresses in this country: ISO 3166-1 alpha-2 code in lowercase, such as de.",
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z]{2}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The matching provider address with its candidateToken, or null.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "available": {
+                      "type": "boolean",
+                      "description": "False when address lookup is off on this server."
+                    },
+                    "attribution": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "match": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "candidateToken": {
+                              "type": "string",
+                              "description": "Valid for 24 hours in this workspace: write {\"kind\":\"address\",\"candidateToken\":\"…\"} to an address field to store this address as verified."
+                            },
+                            "name": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ],
+                              "description": "Name of the matched place, such as a business or building, or null."
+                            },
+                            "address": {
+                              "$ref": "#/components/schemas/RecordAddress"
+                            }
+                          },
+                          "required": [
+                            "candidateToken",
+                            "name",
+                            "address"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "The provider's address when its postal code and city and, when given, its street and house number equal the input; it keeps the input's line2. Null when nothing matches."
+                    }
+                  },
+                  "required": [
+                    "available",
+                    "attribution",
+                    "match"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
     "/v1/messaging/connected-accounts/{id}": {
       "delete": {
         "operationId": "disconnectConnectedAccount",
@@ -122491,6 +122957,8 @@
                         "recordTransactionEnded",
                         "recordProtected",
                         "recordMeasureDateIntervalInvalid",
+                        "addressLookupUnavailable",
+                        "addressLookupRateLimited",
                         "recordAddressCandidateInvalid",
                         "recordFileUnavailable",
                         "trashItemNotFound",

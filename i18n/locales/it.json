@@ -1060,6 +1060,8 @@
       "title": "Ancora nessuna voce «{plural}»"
     },
     "errors": {
+      "addressLookupRateLimited": "Troppe ricerche di indirizzi in poco tempo. Attendi qualche secondo e riprova.",
+      "addressLookupUnavailable": "La ricerca degli indirizzi non è disponibile al momento. Inserisci l'indirizzo manualmente o riprova più tardi.",
       "agentApprovalUnavailable": "Questa richiesta di approvazione non è disponibile o è scaduta.",
       "agentConversationNotFound": "Questa conversazione non è stata trovata o non è più accessibile.",
       "agentLimitReached": "Non restano abbastanza crediti IA per avviare un'altra richiesta.",

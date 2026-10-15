@@ -1,15 +1,12 @@
 import * as addressFormatterModule from "@fragaria/address-formatter";
 
 import type { RecordAddress } from "./record-model.schema";
+import type { RecordAddressParts } from "./record-address-lines";
 
 import { cleanAddressPart, UNVERIFIED_ADDRESS } from "./record-address-value";
+import { addressFormatterOf, recordAddressLines, recordAddressStreetLine } from "./record-address-lines";
 
-type AddressFormatter = Pick<typeof addressFormatterModule, "format">;
-
-const addressFormatter: AddressFormatter =
-  (addressFormatterModule as { default?: AddressFormatter }).default ?? addressFormatterModule;
-
-type AddressParts = Pick<RecordAddress, "street" | "line2" | "postalCode" | "city" | "region" | "countryCode">;
+const addressFormatter = addressFormatterOf(addressFormatterModule);
 
 const PART_LIMITS = {
   street: 200,
@@ -19,7 +16,7 @@ const PART_LIMITS = {
   region: 200,
 } as const;
 
-function addressParts(address: AddressParts): AddressParts {
+function addressParts(address: RecordAddressParts): RecordAddressParts {
   return {
     street: cleanAddressPart(address.street, PART_LIMITS.street),
     line2: cleanAddressPart(address.line2, PART_LIMITS.line2),
@@ -30,31 +27,18 @@ function addressParts(address: AddressParts): AddressParts {
   };
 }
 
-function hasParts(parts: AddressParts): boolean {
+function hasParts(parts: RecordAddressParts): boolean {
   return Object.values(parts).some(Boolean);
 }
 
-export function formatRecordAddress(address: AddressParts): string {
+export function formatRecordAddress(address: RecordAddressParts): string {
   const parts = addressParts(address);
   if (!hasParts({ ...parts, countryCode: null })) return "";
-  const lines = addressFormatter.format(
-    {
-      ...(parts.street ? { road: parts.street } : {}),
-      ...(parts.postalCode ? { postcode: parts.postalCode } : {}),
-      ...(parts.city ? { city: parts.city } : {}),
-      ...(parts.region ? { state: parts.region } : {}),
-      ...(parts.countryCode ? { countryCode: parts.countryCode.toUpperCase() } : {}),
-    },
-    {
-      output: "array",
-      abbreviate: false,
-      appendCountry: false,
-      cleanupPostcode: false,
-    },
-  );
-  const street = parts.street;
-  if (parts.line2) lines.splice((street ? lines.findIndex((line) => line.includes(street)) : -1) + 1, 0, parts.line2);
-  return lines.join(", ").slice(0, 500).trim();
+  return recordAddressLines(addressFormatter, parts).join(", ").slice(0, 500).trim();
+}
+
+export function formatAddressStreet(road: string, houseNumber: string | null, countryCode: string | null): string {
+  return recordAddressStreetLine(addressFormatter, road, houseNumber, countryCode);
 }
 
 export function unverifiedRecordAddress(address: RecordAddress): RecordAddress | null {
@@ -70,7 +54,7 @@ export function unverifiedRecordAddress(address: RecordAddress): RecordAddress |
 }
 
 export function verifiedRecordAddress(
-  address: AddressParts,
+  address: RecordAddressParts,
   verification: {
     provider: string;
     checkedAt: string;

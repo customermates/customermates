@@ -1060,6 +1060,8 @@
       "title": "No {plural} yet"
     },
     "errors": {
+      "addressLookupRateLimited": "Too many address searches in a short time. Wait a few seconds and try again.",
+      "addressLookupUnavailable": "Address search is not available right now. Enter the address yourself or try again later.",
       "agentApprovalUnavailable": "This approval request is unavailable or has expired.",
       "agentConversationNotFound": "This conversation was not found or is no longer accessible.",
       "agentLimitReached": "Not enough AI credits remain to start another request.",

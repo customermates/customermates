@@ -112,6 +112,7 @@ import { recordModelApiPaths } from "@/features/records/record-model.openapi";
 import { dataViewApiPaths } from "@/features/data-view/data-view.openapi";
 import { widgetApiPaths } from "@/features/widget/widget.openapi";
 import { trashApiPaths } from "@/features/trash/trash.openapi";
+import { addressApiPaths } from "@/features/addresses/addresses.openapi";
 
 export function generateOpenApiSpec() {
   const document = createDocument({
@@ -135,6 +136,7 @@ export function generateOpenApiSpec() {
       ...dataViewApiPaths,
       ...widgetApiPaths,
       ...trashApiPaths,
+      ...addressApiPaths,
       ...connectedAccountSettingsApiPaths,
       "/v1/users/search": {
         post: getUsersOperation,

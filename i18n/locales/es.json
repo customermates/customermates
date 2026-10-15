@@ -1060,6 +1060,8 @@
       "title": "Aún no hay elementos «{plural}»"
     },
     "errors": {
+      "addressLookupRateLimited": "Demasiadas búsquedas de direcciones en poco tiempo. Espera unos segundos y vuelve a intentarlo.",
+      "addressLookupUnavailable": "La búsqueda de direcciones no está disponible en este momento. Escribe la dirección manualmente o vuelve a intentarlo más tarde.",
       "agentApprovalUnavailable": "Esta solicitud de aprobación no está disponible o ha caducado.",
       "agentConversationNotFound": "No se encontró esta conversación o ya no es accesible.",
       "agentLimitReached": "No quedan suficientes créditos de IA para iniciar otra solicitud.",
