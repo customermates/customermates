@@ -566,7 +566,7 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
 
         <FormFooterActions
           anchorScope="operator-modal"
-          dirty={tagsDirty || termsDirty || allowanceDirty}
+          dirty={tagsDirty || termsDirty || allowanceDirty || fileStorageDirty}
           onSave={save}
         />
       </AppCard>

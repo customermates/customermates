@@ -117,6 +117,7 @@ export const domTestFiles = [
   "app/[locale]/(protected)/settings/(account)/components/__tests__/account-signature-behavior.test.ts",
   "app/[locale]/(protected)/routines/components/__tests__/routine-modal.render.test.tsx",
   "app/[locale]/(protected)/routines/components/__tests__/routine-runs-pane.render.test.tsx",
+  "app/[locale]/(protected)/operator/components/workspaces/__tests__/operator-workspace-modal.render.test.tsx",
   "features/messaging/__tests__/email-frame.test.ts",
   "features/messaging/__tests__/email-frame-theme.test.ts",
   "app/[locale]/(protected)/inbox/components/__tests__/thread-reply-composer-navigation.test.ts",
