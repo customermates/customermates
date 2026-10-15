@@ -18,6 +18,7 @@ vi.mock("next-intl/server", () => ({
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { LeaveWorkspaceInteractor } from "../leave-workspace.interactor";
+import { WorkspaceDepartureService } from "../workspace-departure.service";
 
 const adminRole = createMockUser().role;
 const member = createMockUser({
@@ -34,21 +35,21 @@ describe("LeaveWorkspaceInteractor", () => {
   let channelRemoval: { deleteForBillingOrThrow: ReturnType<typeof vi.fn> };
   let repo: { isPlatformOperatorCompanyWide: ReturnType<typeof vi.fn>; leaveCompanyWide: ReturnType<typeof vi.fn> };
   let roleRepo: { hasAnotherActiveSystemRoleUser: ReturnType<typeof vi.fn> };
+  let events: { publish: ReturnType<typeof vi.fn> };
+  let authService: {
+    getInteractiveSession: ReturnType<typeof vi.fn>;
+    revokeMembershipCredentials: ReturnType<typeof vi.fn>;
+  };
 
   function interactor() {
-    return new LeaveWorkspaceInteractor(
-      {
-        getInteractiveSession: vi.fn().mockResolvedValue({ user: { id: "login-1", email: member.email } }),
-        revokeMembershipCredentials: vi.fn().mockResolvedValue(0),
-      } as never,
-      repo as never,
-      roleRepo as never,
+    const departure = new WorkspaceDepartureService(
+      authService as never,
       {
         findAuthUserCompanyIdUnscoped: vi.fn().mockResolvedValue("company-2"),
         listWorkspaceMembershipsUnscoped: vi.fn().mockResolvedValue([]),
         setLastUsedCompanyUnscoped: vi.fn(),
       } as never,
-      { publish: vi.fn().mockResolvedValue(undefined) } as never,
+      events as never,
       { updateSubscriptionQuantityOrThrow: vi.fn() } as never,
       {
         getSubscriptionOrThrow: vi.fn().mockResolvedValue({ plan: SubscriptionPlan.pro, lemonSqueezyId: null }),
@@ -58,11 +59,19 @@ describe("LeaveWorkspaceInteractor", () => {
       channels as never,
       channelRemoval as never,
     );
+    return new LeaveWorkspaceInteractor(authService as never, repo as never, roleRepo as never, departure);
   }
 
   beforeEach(() => {
     vi.clearAllMocks();
     order.length = 0;
+    authService = {
+      getInteractiveSession: vi.fn().mockResolvedValue({ user: { id: "login-1", email: member.email } }),
+      revokeMembershipCredentials: vi.fn(() => {
+        order.push("revoked");
+        return Promise.resolve(0);
+      }),
+    };
     repo = {
       isPlatformOperatorCompanyWide: vi.fn().mockResolvedValue(false),
       leaveCompanyWide: vi.fn(() => {
@@ -71,6 +80,12 @@ describe("LeaveWorkspaceInteractor", () => {
       }),
     };
     roleRepo = { hasAnotherActiveSystemRoleUser: vi.fn().mockResolvedValue(true) };
+    events = {
+      publish: vi.fn(() => {
+        order.push("announced");
+        return Promise.resolve();
+      }),
+    };
     channels = { findOwnedConnectedAccountIdsCompanyWide: vi.fn().mockResolvedValue(["account-1", "account-2"]) };
     channelRemoval = {
       deleteForBillingOrThrow: vi.fn((accountId: string) => {
@@ -89,7 +104,11 @@ describe("LeaveWorkspaceInteractor", () => {
       ["account-1", "ownerInactive"],
       ["account-2", "ownerInactive"],
     ]);
-    expect(order).toEqual(["left", "disconnected account-1", "disconnected account-2"]);
+    expect(order).toEqual(["left", "announced", "revoked", "disconnected account-1", "disconnected account-2"]);
+    expect(events.publish).toHaveBeenCalledWith("user.updated", {
+      entityId: "member-1",
+      payload: { changes: { status: { previous: Status.active, current: Status.inactive } } },
+    });
   });
 
   it("still leaves and reports a channel the provider could not disconnect, leaving it to the daily cleanup", async () => {
@@ -99,7 +118,7 @@ describe("LeaveWorkspaceInteractor", () => {
     await expect(runWithTenant(member, () => interactor().invoke())).resolves.toMatchObject({ ok: true });
 
     expect(channelRemoval.deleteForBillingOrThrow).toHaveBeenCalledTimes(2);
-    expect(sentry.captureException).toHaveBeenCalledWith(failure, { tags: { kind: "leave-workspace-channel" } });
+    expect(sentry.captureException).toHaveBeenCalledWith(failure, { tags: { kind: "workspace-departure-channel" } });
   });
 
   it("keeps every channel when leaving is refused", async () => {
@@ -111,5 +130,6 @@ describe("LeaveWorkspaceInteractor", () => {
     expect(result.ok).toBe(false);
     expect(channels.findOwnedConnectedAccountIdsCompanyWide).not.toHaveBeenCalled();
     expect(channelRemoval.deleteForBillingOrThrow).not.toHaveBeenCalled();
+    expect(events.publish).not.toHaveBeenCalled();
   });
 });

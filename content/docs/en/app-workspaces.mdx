@@ -33,7 +33,7 @@ Open Settings, choose **General** under **Workspace** and change the workspace n
 
 Invitations work as for new people: a member shares the invitation link or sends it by email, see [How do I invite people](/docs/app-company#how-do-invitations-work). Open the link while you are signed in to Customermates, and you join with the profile you already have. The workspace appears in your workspace menu, and as for a new user your status is **Waiting for approval** until someone with **Edit** on **Users & Roles** approves you on [Members](app:settings/members).
 
-If you are already a member of that workspace, the link just switches you to it. If you left the workspace earlier, a new invitation lets you rejoin, and you need approval again.
+If you are already a member of that workspace, the link just switches you to it. If you left the workspace or were removed from it, a new invitation lets you rejoin, and you need approval again.
 
 ## How do I leave a workspace? [#how-do-i-leave-a-workspace]
 
@@ -46,6 +46,10 @@ Open Settings, choose **General** under **Workspace** and click **Leave workspac
 - on Cloud, removes your seat from that workspace's billing.
 
 Pages of that workspace still open in another tab or on another device stop saving and ask you to reload, which opens your last used workspace. Your account and your other workspaces stay untouched. The last active member with the **Admin** role cannot leave: make another active member an admin first, otherwise leaving fails with "You are the only admin of this workspace. Make another active member an admin before you leave." Customermates platform operators cannot leave a workspace. To come back you need a new invitation and approval. The app offers no way to delete a workspace.
+
+## What happens when someone removes me from a workspace? [#what-happens-when-removed]
+
+A member with **Edit** on **Users & Roles** can remove you on [Members](app:settings/members), see [How do I approve, edit, deactivate or remove a member?](/docs/app-company#how-do-i-approve-deactivate-or-edit-a-member). For you it works like leaving: your API keys and MCP connections for that workspace stop working, the channels you connected in it are disconnected, and the workspace disappears from your workspace menu. Pages of that workspace still open in a tab or on another device stop saving and ask you to reload, which opens your last used other workspace. If you were waiting for approval, the removal declines your request. To come back you need a new invitation and approval.
 
 ## Which workspace do API keys and AI connections use? [#which-workspace-do-api-keys-and-connections-use]
 
@@ -69,7 +73,7 @@ When you run Customermates yourself, it holds any number of workspaces, with no 
 
 ## For agents [#for-agents]
 
-Every MCP and REST call acts in exactly one workspace: the one the API key was created in or the OAuth connection was approved for. `get_workspace_context` returns that workspace as `company` (its id and name), and an id from another workspace answers `not_found`. No MCP tool or REST endpoint lists, creates, switches, renames or leaves workspaces; send the user to the workspace menu. To act in another workspace, the user connects a separate key or connection there.
+Every MCP and REST call acts in exactly one workspace: the one the API key was created in or the OAuth connection was approved for. `get_workspace_context` returns that workspace as `company` (its id and name), and an id from another workspace answers `not_found`. No MCP tool or REST endpoint lists, creates, switches, renames or leaves workspaces; send the user to the workspace menu. To remove another member, use `manage_team` with `remove_member` or `POST /api/v1/members/remove`. To act in another workspace, the user connects a separate key or connection there.
 
 ## Related [#related]
 

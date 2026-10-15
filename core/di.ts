@@ -213,7 +213,10 @@ import { ActiveWorkspaceService } from "@/features/workspace/active-workspace.se
 import { WorkspacePlanService } from "@/ee/subscription/workspace-plan.service";
 import { CreateWorkspaceInteractor } from "@/features/workspace/create-workspace.interactor";
 import { JoinWorkspaceInteractor } from "@/features/workspace/join-workspace.interactor";
+import { GetMemberRemovalInteractor } from "@/features/workspace/get-member-removal.interactor";
 import { LeaveWorkspaceInteractor } from "@/features/workspace/leave-workspace.interactor";
+import { RemoveWorkspaceMemberInteractor } from "@/features/workspace/remove-workspace-member.interactor";
+import { WorkspaceDepartureService } from "@/features/workspace/workspace-departure.service";
 import { ListMyWorkspacesInteractor } from "@/features/workspace/list-my-workspaces.interactor";
 import { RenameWorkspaceInteractor } from "@/features/workspace/rename-workspace.interactor";
 import { SwitchWorkspaceInteractor } from "@/features/workspace/switch-workspace.interactor";
@@ -984,7 +987,7 @@ export const getListMyWorkspacesInteractor = () =>
 
 export const getSwitchWorkspaceInteractor = () => new SwitchWorkspaceInteractor(getAuthService(), getUserRepo());
 export const getWithdrawWorkspaceRequestInteractor = () =>
-  new WithdrawWorkspaceRequestInteractor(getAuthService(), getUserRepo());
+  new WithdrawWorkspaceRequestInteractor(getAuthService(), getUserRepo(), getWorkspaceDepartureService());
 
 export const getCreateWorkspaceInteractor = () =>
   new CreateWorkspaceInteractor(
@@ -998,11 +1001,9 @@ export const getCreateWorkspaceInteractor = () =>
 
 export const getRenameWorkspaceInteractor = () => new RenameWorkspaceInteractor(getCompanyRepo());
 
-export const getLeaveWorkspaceInteractor = () =>
-  new LeaveWorkspaceInteractor(
+export const getWorkspaceDepartureService = () =>
+  new WorkspaceDepartureService(
     getAuthService(),
-    getUserRepo(),
-    getRoleRepo(),
     getUserRepo(),
     getEventService(),
     getSubscriptionService(),
@@ -1012,6 +1013,14 @@ export const getLeaveWorkspaceInteractor = () =>
     getConnectedAccountRepo(),
     getDeleteAccountForBillingService(),
   );
+
+export const getLeaveWorkspaceInteractor = () =>
+  new LeaveWorkspaceInteractor(getAuthService(), getUserRepo(), getRoleRepo(), getWorkspaceDepartureService());
+
+export const getRemoveWorkspaceMemberInteractor = () =>
+  new RemoveWorkspaceMemberInteractor(getUserRepo(), getRoleRepo(), getUserRepo(), getWorkspaceDepartureService());
+
+export const getGetMemberRemovalInteractor = () => new GetMemberRemovalInteractor(getUserRepo(), getRoleRepo());
 
 export const getJoinWorkspaceInteractor = () =>
   new JoinWorkspaceInteractor(

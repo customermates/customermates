@@ -10,9 +10,13 @@ const actions = vi.hoisted(() => ({
   getUserByIdAction: vi.fn(),
   getRolesAction: vi.fn(),
   adminUpdateUserDetailsAction: vi.fn(),
+  getMemberRemovalAction: vi.fn(),
+  removeWorkspaceMemberAction: vi.fn(),
 }));
+const toasts = vi.hoisted(() => ({ toastZodErrorTree: vi.fn() }));
 
 vi.mock("../../../actions", () => actions);
+vi.mock("@/core/utils/toast-zod-error-tree", () => toasts);
 
 const SIGNED_IN_USER_ID = "30000000-0000-4000-8000-000000000001";
 const OTHER_USER_ID = "30000000-0000-4000-8000-000000000002";
@@ -28,8 +32,17 @@ const userRecord = (id: string) => ({
   avatarUrl: null,
 });
 
-const makeRootStore = ({ signedInUserId, canManage }: { signedInUserId: string | null; canManage: boolean }) =>
+const makeRootStore = ({
+  signedInUserId,
+  canManage,
+  appMode = "cloud",
+}: {
+  signedInUserId: string | null;
+  canManage: boolean;
+  appMode?: string;
+}) =>
   ({
+    appMode,
     registerModalStore: vi.fn(),
     userStore: {
       user: signedInUserId ? userRecord(signedInUserId) : null,
@@ -47,6 +60,7 @@ const loadUserInto = async (store: UserModalStore, id: string) => {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  actions.getMemberRemovalAction.mockResolvedValue({ ok: true, data: { userId: OTHER_USER_ID, refusal: null } });
 });
 
 describe("UserModalStore own-profile read-only contract", () => {
@@ -159,5 +173,87 @@ describe("UserModalStore own-profile read-only contract", () => {
     await store.onSubmit();
 
     expect(actions.adminUpdateUserDetailsAction).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("UserModalStore removal from the workspace", () => {
+  const loadOther = async (store: UserModalStore, user: Record<string, unknown> = {}) => {
+    actions.getUserByIdAction.mockResolvedValue({ user: { ...userRecord(OTHER_USER_ID), leftAt: null, ...user } });
+    actions.getRolesAction.mockResolvedValue([]);
+    await store.loadById(OTHER_USER_ID);
+  };
+
+  it("offers removal for another member, pending ones included, and removes through the remove action", async () => {
+    const root = makeRootStore({ signedInUserId: SIGNED_IN_USER_ID, canManage: true });
+    const store = new UserModalStore(root);
+
+    await loadOther(store, { status: Status.pendingAuthorization });
+
+    expect(actions.getMemberRemovalAction).toHaveBeenCalledWith({ userId: OTHER_USER_ID });
+    expect(store.loadedStatus).toBe(Status.pendingAuthorization);
+    expect(store.showsRemoval).toBe(true);
+    expect(store.canRemove).toBe(true);
+    expect(store.removalBlockedBy).toBeNull();
+
+    actions.removeWorkspaceMemberAction.mockResolvedValue({ ok: true, data: { userId: OTHER_USER_ID } });
+    await expect(store.remove(OTHER_USER_ID)).resolves.toBe(true);
+
+    expect(actions.removeWorkspaceMemberAction).toHaveBeenCalledWith({ userId: OTHER_USER_ID });
+    expect(actions.adminUpdateUserDetailsAction).not.toHaveBeenCalled();
+    expect(root.usersStore.refresh).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows a blocked removal with its reason and never sends it", async () => {
+    const store = new UserModalStore(makeRootStore({ signedInUserId: SIGNED_IN_USER_ID, canManage: true }));
+    actions.getMemberRemovalAction.mockResolvedValue({
+      ok: true,
+      data: { userId: OTHER_USER_ID, refusal: "lastAdmin" },
+    });
+
+    await loadOther(store);
+
+    expect(store.showsRemoval).toBe(true);
+    expect(store.removalBlockedBy).toBe("lastAdmin");
+    expect(store.canRemove).toBe(false);
+    await expect(store.remove(OTHER_USER_ID)).resolves.toBe(false);
+    expect(actions.removeWorkspaceMemberAction).not.toHaveBeenCalled();
+  });
+
+  it("hides removal for the signed-in user's own row, a member who left, without permission and in the demo", async () => {
+    const own = new UserModalStore(makeRootStore({ signedInUserId: SIGNED_IN_USER_ID, canManage: true }));
+    await loadUserInto(own, SIGNED_IN_USER_ID);
+    expect(own.showsRemoval).toBe(false);
+
+    const left = new UserModalStore(makeRootStore({ signedInUserId: SIGNED_IN_USER_ID, canManage: true }));
+    actions.getMemberRemovalAction.mockResolvedValue({ ok: true, data: { userId: OTHER_USER_ID, refusal: "left" } });
+    await loadOther(left, { leftAt: new Date("2026-10-01T00:00:00.000Z") });
+    expect(left.showsRemoval).toBe(false);
+
+    vi.clearAllMocks();
+    const reader = new UserModalStore(makeRootStore({ signedInUserId: SIGNED_IN_USER_ID, canManage: false }));
+    await loadOther(reader);
+    const demo = new UserModalStore(
+      makeRootStore({ signedInUserId: SIGNED_IN_USER_ID, canManage: true, appMode: "demo" }),
+    );
+    await loadOther(demo);
+
+    expect(actions.getMemberRemovalAction).not.toHaveBeenCalled();
+    expect(reader.showsRemoval).toBe(false);
+    expect(demo.showsRemoval).toBe(false);
+    expect(demo.offersRemovalFor({ id: OTHER_USER_ID, leftAt: null })).toBe(false);
+  });
+
+  it("keeps the dialog open and reports a refused removal", async () => {
+    const root = makeRootStore({ signedInUserId: SIGNED_IN_USER_ID, canManage: true });
+    const store = new UserModalStore(root);
+    await loadOther(store);
+    const error = { errors: ["Common.errors.workspaceMemberLastAdmin"] };
+    actions.removeWorkspaceMemberAction.mockResolvedValue({ ok: false, error });
+
+    await expect(store.remove(OTHER_USER_ID)).resolves.toBe(false);
+
+    expect(toasts.toastZodErrorTree).toHaveBeenCalledWith(error);
+    expect(root.usersStore.refresh).not.toHaveBeenCalled();
+    expect(store.isOpen).toBe(true);
   });
 });

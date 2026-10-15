@@ -105,6 +105,7 @@
         "socialInviteTarget": "Enviar una solicitud de conexión a {target}",
         "teamInvite": "Enviar correos de invitación a las personas seleccionadas",
         "teamInviteTarget": "Enviar {count} correo(s) de invitación a: {target}",
+        "teamRemove": "Quitar al miembro del equipo seleccionado de este espacio de trabajo",
         "teamUpdate": "Cambiar el rol o el estado del miembro del equipo seleccionado",
         "threadMove": "Mover la conversación a otra carpeta del buzón",
         "threadUpdate": "Cambiar el estado de la conversación seleccionada",
@@ -1259,7 +1260,10 @@
       "workspaceInvitationInvalid": "Este enlace de invitación no es válido o ha caducado. Pide un enlace nuevo.",
       "workspaceLastAdmin": "Eres el único administrador de este espacio de trabajo. Nombra administrador a otro miembro activo antes de salir.",
       "workspaceLimitReached": "Puedes crear hasta {limit} espacios de trabajo. Contacta con soporte si necesitas más.",
+      "workspaceMemberLastAdmin": "Este miembro es el único administrador activo de este espacio de trabajo. Nombra administrador a otro miembro activo antes de quitarlo.",
       "workspaceMemberLeft": "Este miembro salió del espacio de trabajo. Vuelve a invitarlo para darle acceso.",
+      "workspaceMemberPlatformOperator": "Esta cuenta pertenece a un operador de plataforma y no se puede quitar aquí. Usa la consola de operador.",
+      "workspaceMemberRemoveSelf": "No puedes quitarte a ti mismo de un espacio de trabajo. Sal de él en su lugar.",
       "workspaceNotFound": "No se encontró este espacio de trabajo o no eres miembro.",
       "workspacePlanRequired": "Las claves de API y las conexiones MCP necesitan un plan activo para este espacio de trabajo. Elige un plan para usarlas."
     },
@@ -1682,7 +1686,6 @@
   },
   "CompanyUserModal": {
     "activeUserWarning": "Puedes editar tu propia cuenta en tus <settingsLink>ajustes</settingsLink>.",
-    "deleteMessage": "{name} se desactiva y pierde el acceso a este espacio de trabajo. Sus registros e historial se conservan y puedes reactivarlo desde sus detalles.",
     "title": "Usuario"
   },
   "ComparePage": {
@@ -2759,6 +2762,24 @@
       "plan": "Sin suscripción activa",
       "terms": "Hay que aceptar las nuevas condiciones"
     }
+  },
+  "MemberRemoval": {
+    "action": "Quitar del espacio de trabajo",
+    "blocked": {
+      "lastAdmin": "{name} es el único administrador activo de este espacio de trabajo. Nombra primero administrador a otro miembro activo.",
+      "platformOperator": "Los operadores de plataforma no se pueden quitar aquí. Usa la consola de operador."
+    },
+    "confirmDescription": "{name} pierde el acceso a este espacio de trabajo en todos sus dispositivos.",
+    "confirmTitle": "¿Quitar a {name} de {workspace}?",
+    "consequences": {
+      "channels": "Los buzones y las cuentas de LinkedIn que conectó aquí se desconectan.",
+      "credentials": "Sus claves de API y conexiones de IA para este espacio de trabajo dejan de funcionar.",
+      "records": "Sus registros y su historial se conservan.",
+      "rejoin": "Para volver, necesita una nueva invitación."
+    },
+    "ownHint": "Para salir de este espacio de trabajo, usa «Salir del espacio de trabajo» en <generalLink>General</generalLink>.",
+    "pendingDescription": "{name} está esperando aprobación. Quitarlo rechaza la solicitud.",
+    "removed": "Miembro quitado del espacio de trabajo"
   },
   "MessagingUpsell": {
     "cta": "Mejora tu plan",

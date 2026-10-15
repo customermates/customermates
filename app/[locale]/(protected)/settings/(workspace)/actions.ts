@@ -13,6 +13,8 @@ import type { DeleteWebhookData } from "@/features/webhook/delete-webhook.intera
 import type { ResendWebhookDeliveryData } from "@/features/webhook/resend-webhook-delivery.interactor";
 import type { InviteUsersByEmailData } from "@/features/company/invite-users-by-email.interactor";
 import type { CreateCheckoutSessionData } from "@/ee/subscription/create-checkout-session.interactor";
+import type { GetMemberRemovalData } from "@/features/workspace/get-member-removal.interactor";
+import type { RemoveWorkspaceMemberData } from "@/features/workspace/remove-workspace-member.interactor";
 
 import { z } from "zod";
 
@@ -37,6 +39,8 @@ import {
   getDeleteWebhookInteractor,
   getGetWebhookDeliveriesInteractor,
   getResendWebhookDeliveryInteractor,
+  getRemoveWorkspaceMemberInteractor,
+  getGetMemberRemovalInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
@@ -70,6 +74,14 @@ export async function sendFeedbackAction(data: SendFeedbackData) {
 
 export async function adminUpdateUserDetailsAction(data: AdminUpdateUserDetailsData) {
   return serializeResult(getAdminUpdateUserDetailsInteractor().invoke(data));
+}
+
+export async function removeWorkspaceMemberAction(data: RemoveWorkspaceMemberData) {
+  return serializeResult(getRemoveWorkspaceMemberInteractor().invoke(data));
+}
+
+export async function getMemberRemovalAction(data: GetMemberRemovalData) {
+  return serializeResult(getGetMemberRemovalInteractor().invoke(data));
 }
 
 export async function getOrCreateInviteTokenAction() {

@@ -105,6 +105,7 @@
         "socialInviteTarget": "Send a connection request to {target}",
         "teamInvite": "Send invitation emails to the selected people",
         "teamInviteTarget": "Send {count} invitation email(s) to: {target}",
+        "teamRemove": "Remove the selected team member from this workspace",
         "teamUpdate": "Change the selected team member’s role or status",
         "threadMove": "Move the conversation to another folder in the mailbox",
         "threadUpdate": "Change the selected conversation state",
@@ -1259,7 +1260,10 @@
       "workspaceInvitationInvalid": "This invitation link is invalid or has expired. Ask for a new link.",
       "workspaceLastAdmin": "You are the only admin of this workspace. Make another active member an admin before you leave.",
       "workspaceLimitReached": "You can create up to {limit} workspaces. Contact support if you need more.",
+      "workspaceMemberLastAdmin": "This member is the only active admin of this workspace. Make another active member an admin before you remove them.",
       "workspaceMemberLeft": "This member left the workspace. Invite them again to give them access.",
+      "workspaceMemberPlatformOperator": "This account belongs to a platform operator and cannot be removed here. Use the operator console.",
+      "workspaceMemberRemoveSelf": "You cannot remove yourself from a workspace. Leave it instead.",
       "workspaceNotFound": "This workspace was not found or you are not a member.",
       "workspacePlanRequired": "API keys and MCP connections need an active plan for this workspace. Choose a plan to use them."
     },
@@ -1682,7 +1686,6 @@
   },
   "CompanyUserModal": {
     "activeUserWarning": "You can edit your own user account in your <settingsLink>settings</settingsLink>.",
-    "deleteMessage": "{name} is deactivated and loses access to this workspace. Their records and history stay, and you can reactivate them from their details.",
     "title": "User"
   },
   "ComparePage": {
@@ -2759,6 +2762,24 @@
       "plan": "No active subscription",
       "terms": "Updated terms need to be accepted"
     }
+  },
+  "MemberRemoval": {
+    "action": "Remove from workspace",
+    "blocked": {
+      "lastAdmin": "{name} is the only active admin of this workspace. Make another active member an admin first.",
+      "platformOperator": "Platform operators cannot be removed here. Use the operator console."
+    },
+    "confirmDescription": "{name} loses access to this workspace on every device.",
+    "confirmTitle": "Remove {name} from {workspace}?",
+    "consequences": {
+      "channels": "Mailboxes and LinkedIn accounts they connected here are disconnected.",
+      "credentials": "Their API keys and AI connections for this workspace stop working.",
+      "records": "Records they own and their history stay.",
+      "rejoin": "To come back, they need a new invitation."
+    },
+    "ownHint": "To leave this workspace, use Leave workspace in <generalLink>General</generalLink>.",
+    "pendingDescription": "{name} is waiting for approval. Removing them declines the request.",
+    "removed": "Member removed from the workspace"
   },
   "MessagingUpsell": {
     "cta": "Upgrade your plan",

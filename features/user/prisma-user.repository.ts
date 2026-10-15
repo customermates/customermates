@@ -29,6 +29,7 @@ import type { FindUserRepo } from "./find-user.repo";
 import type { WorkspaceMembershipRepo } from "@/features/workspace/workspace-membership.repo";
 import type { LeaveWorkspaceRepo } from "@/features/workspace/leave-workspace.repo";
 import type { JoinWorkspaceRepo } from "@/features/workspace/join-workspace.repo";
+import type { RemoveWorkspaceMemberRepo } from "@/features/workspace/remove-workspace-member.repo";
 
 import { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
@@ -87,7 +88,8 @@ export class PrismaUserRepo
     RecordMemberRepo,
     WorkspaceMembershipRepo,
     LeaveWorkspaceRepo,
-    JoinWorkspaceRepo
+    JoinWorkspaceRepo,
+    RemoveWorkspaceMemberRepo
 {
   constructor(private readonly permissions: PermissionService) {
     super();
@@ -606,6 +608,12 @@ export class PrismaUserRepo
   @BypassTenantGuard
   async setLastUsedCompanyUnscoped(authUserId: string, companyId: string | null) {
     await this.prisma.authUser.update({ where: { id: authUserId }, data: { companyId } });
+  }
+
+  @BypassTenantGuard
+  async findLoginIdUnscoped(email: string) {
+    const authUser = await this.prisma.authUser.findUnique({ where: { email }, select: { id: true } });
+    return authUser?.id ?? null;
   }
 
   @BypassTenantGuard

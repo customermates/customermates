@@ -26,12 +26,14 @@ export const RowActions = observer(function RowActions({
   onOpen,
   onDelete,
   deleteLabel,
+  deleteIcon: DeleteIcon = Trash2,
 }: {
   name: string;
   contextAction?: { label: string; icon: LucideIcon; onSelect: () => void };
   onOpen?: (returnFocusTo: HTMLElement | null) => void;
   onDelete?: () => unknown;
   deleteLabel?: string;
+  deleteIcon?: LucideIcon;
 }) {
   const t = useTranslations();
   const trigger = useRef<HTMLButtonElement>(null);
@@ -75,7 +77,7 @@ export const RowActions = observer(function RowActions({
 
             {onDelete && (
               <DropdownMenuItem variant="destructive" onSelect={() => afterClose(() => runUserAction(onDelete))}>
-                <Trash2 className="size-4" />
+                <DeleteIcon className="size-4" />
 
                 {deleteLabel ?? t("Common.actions.delete")}
               </DropdownMenuItem>

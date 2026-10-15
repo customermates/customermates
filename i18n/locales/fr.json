@@ -105,6 +105,7 @@
         "socialInviteTarget": "Envoyer une demande de connexion à {target}",
         "teamInvite": "Envoyer des e-mails d’invitation aux personnes sélectionnées",
         "teamInviteTarget": "Envoyer {count} e-mail(s) d’invitation à : {target}",
+        "teamRemove": "Retirer le membre de l’équipe sélectionné de cet espace de travail",
         "teamUpdate": "Modifier le rôle ou le statut du membre de l’équipe sélectionné",
         "threadMove": "Déplacer la conversation vers un autre dossier de la boîte mail",
         "threadUpdate": "Modifier l’état de la conversation sélectionnée",
@@ -1259,7 +1260,10 @@
       "workspaceInvitationInvalid": "Ce lien d'invitation n'est pas valide ou a expiré. Demandez un nouveau lien.",
       "workspaceLastAdmin": "Vous êtes le seul administrateur de cet espace de travail. Nommez un autre membre actif administrateur avant de partir.",
       "workspaceLimitReached": "Vous pouvez créer jusqu'à {limit} espaces de travail. Contactez le support si vous avez besoin de plus.",
+      "workspaceMemberLastAdmin": "Ce membre est le seul administrateur actif de cet espace de travail. Nommez un autre membre actif administrateur avant de le retirer.",
       "workspaceMemberLeft": "Ce membre a quitté l'espace de travail. Invitez-le à nouveau pour lui redonner accès.",
+      "workspaceMemberPlatformOperator": "Ce compte appartient à un opérateur de la plateforme et ne peut pas être retiré ici. Utilisez la console opérateur.",
+      "workspaceMemberRemoveSelf": "Vous ne pouvez pas vous retirer vous-même d'un espace de travail. Quittez-le plutôt.",
       "workspaceNotFound": "Cet espace de travail est introuvable ou vous n'en êtes pas membre.",
       "workspacePlanRequired": "Les clés API et les connexions MCP nécessitent une offre active pour cet espace de travail. Choisissez une offre pour les utiliser."
     },
@@ -1682,7 +1686,6 @@
   },
   "CompanyUserModal": {
     "activeUserWarning": "Vous pouvez modifier votre propre compte dans vos <settingsLink>paramètres</settingsLink>.",
-    "deleteMessage": "{name} est désactivé et perd l'accès à cet espace de travail. Ses enregistrements et son historique sont conservés, et vous pouvez le réactiver depuis ses détails.",
     "title": "Utilisateur"
   },
   "ComparePage": {
@@ -2759,6 +2762,24 @@
       "plan": "Aucun abonnement actif",
       "terms": "Les nouvelles conditions doivent être acceptées"
     }
+  },
+  "MemberRemoval": {
+    "action": "Retirer de l'espace de travail",
+    "blocked": {
+      "lastAdmin": "{name} est le seul administrateur actif de cet espace de travail. Nommez d'abord un autre membre actif administrateur.",
+      "platformOperator": "Les opérateurs de la plateforme ne peuvent pas être retirés ici. Utilisez la console opérateur."
+    },
+    "confirmDescription": "{name} perd l'accès à cet espace de travail sur tous ses appareils.",
+    "confirmTitle": "Retirer {name} de {workspace} ?",
+    "consequences": {
+      "channels": "Les boîtes mail et comptes LinkedIn connectés ici par cette personne sont déconnectés.",
+      "credentials": "Ses clés API et connexions IA pour cet espace de travail cessent de fonctionner.",
+      "records": "Ses enregistrements et son historique sont conservés.",
+      "rejoin": "Pour revenir, une nouvelle invitation est nécessaire."
+    },
+    "ownHint": "Pour quitter cet espace de travail, utilisez « Quitter l'espace de travail » dans <generalLink>Général</generalLink>.",
+    "pendingDescription": "{name} attend une approbation. Le retirer refuse la demande.",
+    "removed": "Membre retiré de l'espace de travail"
   },
   "MessagingUpsell": {
     "cta": "Passer à une formule supérieure",

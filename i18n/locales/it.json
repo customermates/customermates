@@ -105,6 +105,7 @@
         "socialInviteTarget": "Inviare una richiesta di collegamento a {target}",
         "teamInvite": "Inviare email di invito alle persone selezionate",
         "teamInviteTarget": "Inviare {count} email di invito a: {target}",
+        "teamRemove": "Rimuovere il membro del team selezionato da questo workspace",
         "teamUpdate": "Modificare il ruolo o lo stato del membro del team selezionato",
         "threadMove": "Sposta la conversazione in un'altra cartella della casella",
         "threadUpdate": "Modificare lo stato della conversazione selezionata",
@@ -1259,7 +1260,10 @@
       "workspaceInvitationInvalid": "Questo link di invito non è valido o è scaduto. Chiedi un nuovo link.",
       "workspaceLastAdmin": "Sei l'unico amministratore di questo workspace. Rendi amministratore un altro membro attivo prima di uscire.",
       "workspaceLimitReached": "Puoi creare fino a {limit} workspace. Contatta l'assistenza se te ne servono di più.",
+      "workspaceMemberLastAdmin": "Questo membro è l'unico amministratore attivo di questo workspace. Rendi amministratore un altro membro attivo prima di rimuoverlo.",
       "workspaceMemberLeft": "Questo membro ha lasciato il workspace. Invitalo di nuovo per ridargli l'accesso.",
+      "workspaceMemberPlatformOperator": "Questo account appartiene a un operatore della piattaforma e non può essere rimosso qui. Usa la console operatore.",
+      "workspaceMemberRemoveSelf": "Non puoi rimuovere te stesso da un workspace. Esci invece dal workspace.",
       "workspaceNotFound": "Questo workspace non è stato trovato o non ne fai parte.",
       "workspacePlanRequired": "Le chiavi API e le connessioni MCP richiedono un piano attivo per questo workspace. Scegli un piano per usarle."
     },
@@ -1682,7 +1686,6 @@
   },
   "CompanyUserModal": {
     "activeUserWarning": "Puoi modificare il tuo account nelle tue <settingsLink>impostazioni</settingsLink>.",
-    "deleteMessage": "{name} viene disattivato e perde l'accesso a questo workspace. I suoi record e la cronologia restano e puoi riattivarlo dai suoi dettagli.",
     "title": "Utente"
   },
   "ComparePage": {
@@ -2759,6 +2762,24 @@
       "plan": "Nessun abbonamento attivo",
       "terms": "Le nuove condizioni devono essere accettate"
     }
+  },
+  "MemberRemoval": {
+    "action": "Rimuovi dal workspace",
+    "blocked": {
+      "lastAdmin": "{name} è l'unico amministratore attivo di questo workspace. Rendi prima amministratore un altro membro attivo.",
+      "platformOperator": "Gli operatori della piattaforma non possono essere rimossi qui. Usa la console operatore."
+    },
+    "confirmDescription": "{name} perde l'accesso a questo workspace su tutti i dispositivi.",
+    "confirmTitle": "Rimuovere {name} da {workspace}?",
+    "consequences": {
+      "channels": "Le caselle email e gli account LinkedIn collegati qui vengono scollegati.",
+      "credentials": "Le sue chiavi API e connessioni IA per questo workspace smettono di funzionare.",
+      "records": "I suoi record e la cronologia restano.",
+      "rejoin": "Per tornare serve un nuovo invito."
+    },
+    "ownHint": "Per uscire da questo workspace, usa «Esci dal workspace» in <generalLink>Generale</generalLink>.",
+    "pendingDescription": "{name} è in attesa di approvazione. Rimuoverlo rifiuta la richiesta.",
+    "removed": "Membro rimosso dal workspace"
   },
   "MessagingUpsell": {
     "cta": "Passa a un piano superiore",

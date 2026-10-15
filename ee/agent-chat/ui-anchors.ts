@@ -197,6 +197,12 @@ export const CONTROL_PAGES: ControlPage[] = [
           "Status select that activates or deactivates the member; editable for roles with Manage, read-only on your own row",
         prerequisite: "a member row",
       },
+      {
+        control: "remove",
+        description:
+          "Remove from workspace action in the member dialog header; for roles with Manage, absent on your own row and for members who left",
+        prerequisite: "a member row",
+      },
     ],
   },
   {

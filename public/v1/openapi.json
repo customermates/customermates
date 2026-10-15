@@ -51030,6 +51030,175 @@
         }
       }
     },
+    "/v1/members/remove": {
+      "post": {
+        "operationId": "removeMember",
+        "summary": "Remove a member from the workspace",
+        "description": "Removes another member from this workspace, as Remove from workspace in the members settings and the MCP remove_member action do. Name the member by userId or email (both must match when you send both). Works for active, inactive and waiting-for-approval members; removing a member waiting for approval declines the request. The member's status becomes inactive and they are shown as left, their API keys and MCP connections for this workspace stop working, the mailboxes and LinkedIn accounts they connected here are disconnected, their routines pause, and an active member's seat is freed. Records they own and their history stay. To come back they need a new invitation and approval. Returns the removed member and the status they had. You cannot remove yourself (leave the workspace in the app instead), a platform operator, a member who already left, or the last active member with the Admin role. Requires: Users & Roles Edit.",
+        "tags": [
+          "members"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                  }
+                }
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "userId": "00000000-0000-4000-8000-000000000002"
+                  }
+                },
+                "byEmail": {
+                  "value": {
+                    "email": "former.colleague@example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The member was removed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "userId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                    },
+                    "previousStatus": {
+                      "type": "string",
+                      "enum": [
+                        "active",
+                        "inactive",
+                        "pendingAuthorization"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "userId",
+                    "email",
+                    "previousStatus"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
     "/v1/model/discover": {
       "post": {
         "operationId": "discoverRecordTypes",
@@ -118063,6 +118232,9 @@
                         "workspaceLimitReached",
                         "workspacePlanRequired",
                         "workspaceMemberLeft",
+                        "workspaceMemberLastAdmin",
+                        "workspaceMemberPlatformOperator",
+                        "workspaceMemberRemoveSelf",
                         "dataViewNameMismatch",
                         "dataViewAllNameImmutable",
                         "dataViewUpdateEmpty",

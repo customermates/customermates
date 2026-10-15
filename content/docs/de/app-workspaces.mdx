@@ -33,7 +33,7 @@ Das Workspace-Menü oben in der Seitenleiste listet jeden Workspace, zu dem Sie 
 
 Einladungen funktionieren wie für neue Personen: Ein Mitglied teilt den Einladungslink oder schickt ihn per E-Mail, siehe [Wie lade ich Personen ein](/docs/app-company#how-do-invitations-work). Öffnen Sie den Link, während Sie bei Customermates angemeldet sind, und Sie treten mit dem Profil bei, das Sie schon haben. Der Workspace erscheint in Ihrem Workspace-Menü, und wie bei neuen Nutzern ist Ihr Status **Wartet auf Genehmigung**, bis jemand mit **Bearbeiten** bei **Benutzer & Rollen** Sie unter [Mitglieder](app:settings/members) genehmigt.
 
-Sind Sie bereits Mitglied dieses Workspace, wechselt der Link Sie nur in ihn. Haben Sie den Workspace früher verlassen, treten Sie mit einer neuen Einladung wieder bei und brauchen erneut eine Genehmigung.
+Sind Sie bereits Mitglied dieses Workspace, wechselt der Link Sie nur in ihn. Haben Sie den Workspace früher verlassen oder wurden Sie daraus entfernt, treten Sie mit einer neuen Einladung wieder bei und brauchen erneut eine Genehmigung.
 
 ## Wie verlasse ich einen Workspace? [#how-do-i-leave-a-workspace]
 
@@ -46,6 +46,10 @@ Sind Sie bereits Mitglied dieses Workspace, wechselt der Link Sie nur in ihn. Ha
 - entfernt in der Cloud Ihren Nutzerplatz aus der Abrechnung dieses Workspace.
 
 Seiten dieses Workspace, die noch in einem anderen Tab oder auf einem anderen Gerät offen sind, speichern nichts mehr und bitten Sie, neu zu laden; danach öffnet sich Ihr zuletzt genutzter Workspace. Ihr Konto und Ihre anderen Workspaces bleiben unberührt. Das letzte aktive Mitglied mit der Rolle **Admin** kann nicht gehen: Machen Sie zuerst ein anderes aktives Mitglied zum Admin, sonst schlägt das Verlassen mit "Du bist der einzige Admin dieses Workspaces. Mache vor dem Verlassen ein anderes aktives Mitglied zum Admin." fehl. Customermates-Plattform-Operatoren können einen Workspace nicht verlassen. Um zurückzukehren, brauchen Sie eine neue Einladung und eine Genehmigung. Einen Workspace zu löschen, bietet die App nicht an.
+
+## Was passiert, wenn mich jemand aus einem Workspace entfernt? [#what-happens-when-removed]
+
+Ein Mitglied mit **Bearbeiten** bei **Benutzer & Rollen** kann Sie unter [Mitglieder](app:settings/members) entfernen, siehe [Wie genehmige, bearbeite, deaktiviere oder entferne ich ein Mitglied?](/docs/app-company#how-do-i-approve-deactivate-or-edit-a-member). Für Sie wirkt das wie Verlassen: Ihre API-Keys und MCP-Verbindungen für diesen Workspace funktionieren nicht mehr, die Kanäle, die Sie darin verbunden haben, werden getrennt, und der Workspace verschwindet aus Ihrem Workspace-Menü. Seiten dieses Workspace, die noch in einem Tab oder auf einem anderen Gerät offen sind, speichern nichts mehr und bitten Sie, neu zu laden; danach öffnet sich Ihr zuletzt genutzter anderer Workspace. Haben Sie auf eine Genehmigung gewartet, lehnt das Entfernen Ihre Anfrage ab. Um zurückzukehren, brauchen Sie eine neue Einladung und eine Genehmigung.
 
 ## Welchen Workspace nutzen API-Keys und KI-Verbindungen? [#which-workspace-do-api-keys-and-connections-use]
 
@@ -69,7 +73,7 @@ Eine Self-Hosted-Instanz fasst beliebig viele Workspaces, ohne Abrechnung und oh
 
 ## Für Agents [#for-agents]
 
-Jeder MCP- und REST-Aufruf handelt in genau einem Workspace: in dem, in dem der API-Key erstellt oder für den die OAuth-Verbindung freigegeben wurde. `get_workspace_context` liefert diesen Workspace als `company` (ID und Name), und eine ID aus einem anderen Workspace antwortet mit `not_found`. Kein MCP-Tool und kein REST-Endpunkt kann Workspaces auflisten, erstellen, wechseln, umbenennen oder verlassen; verweisen Sie die Person auf das Workspace-Menü. Um in einem anderen Workspace zu arbeiten, verbindet die Person dort einen eigenen Key oder eine eigene Verbindung.
+Jeder MCP- und REST-Aufruf handelt in genau einem Workspace: in dem, in dem der API-Key erstellt oder für den die OAuth-Verbindung freigegeben wurde. `get_workspace_context` liefert diesen Workspace als `company` (ID und Name), und eine ID aus einem anderen Workspace antwortet mit `not_found`. Kein MCP-Tool und kein REST-Endpunkt kann Workspaces auflisten, erstellen, wechseln, umbenennen oder verlassen; verweisen Sie die Person auf das Workspace-Menü. Ein anderes Mitglied entfernen Sie mit `manage_team` und `remove_member` oder mit `POST /api/v1/members/remove`. Um in einem anderen Workspace zu arbeiten, verbindet die Person dort einen eigenen Key oder eine eigene Verbindung.
 
 ## Verwandt [#related]
 

@@ -25,6 +25,7 @@ const AUTHENTICATED_TENANT_ENTRYPOINTS = [
   "features/user/register/register-user.interactor.ts",
   "features/workspace/create-workspace.interactor.ts",
   "features/workspace/join-workspace.interactor.ts",
+  "features/workspace/withdraw-workspace-request.interactor.ts",
 ];
 
 const THROWAWAY_WORKSPACE_ENTRYPOINTS = [
