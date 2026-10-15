@@ -372,6 +372,19 @@ describe("self-hosted configuration", () => {
     expect(update).not.toMatch(/docker compose (?:pull|run|up -d)\b[^\n]*\bapp\b/u);
   });
 
+  it("keeps the update script's database backups out of Git and the Docker build context", () => {
+    const update = readFileSync(join(REPO_ROOT, "scripts", "selfhost-update.sh"), "utf8");
+    const directory = /^BACKUP="([\w-]+)\//mu.exec(update)?.[1];
+    const lines = (file: string) =>
+      readFileSync(join(REPO_ROOT, file), "utf8")
+        .split("\n")
+        .map((line) => line.trim());
+
+    expect(directory).toBe("backups");
+    expect(lines(".gitignore")).toContain(`/${directory}/`);
+    expect(lines(".dockerignore")).toContain(directory);
+  });
+
   it("names every self-host helper script in the self-hosting docs", () => {
     const scripts = walkFiles(join(REPO_ROOT, "scripts"), (path) => /selfhost-[\w-]+\.sh$/u.test(path)).map(
       (path) => `scripts/${basename(path)}`,
