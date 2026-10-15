@@ -147,6 +147,7 @@ import {
   resolveHubPageSegment,
 } from "@/core/seo/hub-pagination";
 import { LANDING_HUBS } from "@/core/seo/landing-hubs";
+import { isRetiredRoutePath } from "@/core/seo/route-aliases";
 import {
   CONTENT_LOCALES,
   DEFAULT_LOCALE,
@@ -796,7 +797,9 @@ describe("hub pagination and rendered reachability", () => {
             `${buildLocalePath(locale, hubPageHref(hubPath, 2))}?utm_source=e2e`,
           );
 
-          const invalidPage = await e2eResponse(buildLocalePath(locale, `${hubPath}/page/${pageCount + 1}`));
+          let invalidPageNumber = pageCount + 1;
+          while (isRetiredRoutePath(`${hubPath}/page/${invalidPageNumber}`)) invalidPageNumber++;
+          const invalidPage = await e2eResponse(buildLocalePath(locale, `${hubPath}/page/${invalidPageNumber}`));
           await expectSemanticNotFound(invalidPage, `${locale} ${hubPath} invalid page`, locale);
           const pageOnePath = await e2eResponse(buildLocalePath(locale, `${hubPath}/page/1`));
           await expectSemanticNotFound(pageOnePath, `${locale} ${hubPath} page one path`, locale);
