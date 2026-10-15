@@ -4702,8 +4702,21 @@
       "stepProgress": "Parte {current} de {total}",
       "stepsLabel": "Preguntas de configuración",
       "uploadChoose": "Elegir archivo",
+      "uploadFailures": {
+        "cellTooLong": "Una celda tiene más de {maxCharacters, number} caracteres.",
+        "fileTooLarge": "Supera los {maxMegabytes} MB.",
+        "macroWorkbook": "Contiene macros. Guárdalo como libro de Excel sin macros (.xlsx) y vuelve a elegirlo.",
+        "noHeader": "No contiene datos. La primera fila lleva los nombres de las columnas y las siguientes, los registros.",
+        "sheetNotFound": "El libro no tiene ninguna hoja que importar.",
+        "tooManyColumns": "Tiene más de {maxColumns, number} columnas.",
+        "tooManyRows": "Tiene más de {maxRows, number} filas.",
+        "unreadableFile": "No se pudo leer el archivo. Puede que esté dañado.",
+        "unsupportedFormat": "Guárdalo como CSV o como libro de Excel (.xlsx) y vuelve a elegirlo."
+      },
       "uploadHint": "CSV o Excel, hasta {maxMegabytes} MB y {maxRows, number} filas.",
+      "uploadKept": "La configuración sigue usando {fileName}.",
       "uploadReady": "Listo para importar en tus nuevas listas.",
+      "uploadRejected": "No se puede importar {fileName}. {reason}",
       "uploadReplace": "Elegir otro archivo",
       "winChanceFor": "Probabilidad de cierre de la entrada {index}"
     },

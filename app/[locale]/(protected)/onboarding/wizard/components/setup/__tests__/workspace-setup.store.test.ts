@@ -263,6 +263,36 @@ describe("WorkspaceSetupStore", () => {
     expect(store.stage).toBe("interview");
   });
 
+  it("names why a spreadsheet was refused and clears the reason once a file is accepted", async () => {
+    actions.uploadWorkspaceSetupSpreadsheetAction.mockResolvedValueOnce({
+      ok: true,
+      data: { accepted: false, failure: "tooManyRows" },
+    });
+    const store = storeWith(setupView({ spreadsheet: { fileName: "clients.csv" } }));
+
+    expect(await store.uploadSpreadsheet(new File(["Name"], "contacts.csv"))).toBe(true);
+    expect(store.spreadsheetRejection).toEqual({ fileName: "contacts.csv", failure: "tooManyRows" });
+    expect(actions.getWorkspaceSetupStatusAction).not.toHaveBeenCalled();
+
+    actions.uploadWorkspaceSetupSpreadsheetAction.mockResolvedValueOnce({
+      ok: true,
+      data: { accepted: true, fileName: "contacts.csv", sheetName: "contacts", headers: ["Name"], rowCount: 1 },
+    });
+    await store.uploadSpreadsheet(new File(["Name\nAda"], "contacts.csv"));
+    expect(store.spreadsheetRejection).toBeNull();
+    expect(actions.getWorkspaceSetupStatusAction).toHaveBeenCalledOnce();
+  });
+
+  it("refuses a file over the size limit without sending it", async () => {
+    const store = storeWith();
+    const file = new File(["Name"], "export.csv");
+    Object.defineProperty(file, "size", { value: 6 * 1024 * 1024 });
+
+    expect(await store.uploadSpreadsheet(file)).toBe(false);
+    expect(actions.uploadWorkspaceSetupSpreadsheetAction).not.toHaveBeenCalled();
+    expect(store.spreadsheetRejection).toEqual({ fileName: "export.csv", failure: "fileTooLarge" });
+  });
+
   it("polls only while something runs on the server", () => {
     expect(storeWith(setupView({ interview: { ...setupView().interview, prefill: "running" } })).shouldPoll).toBe(true);
     expect(storeWith(setupView({ status: "planning" })).shouldPoll).toBe(true);

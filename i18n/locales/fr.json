@@ -4702,8 +4702,21 @@
       "stepProgress": "Partie {current} sur {total}",
       "stepsLabel": "Questions de configuration",
       "uploadChoose": "Choisir un fichier",
+      "uploadFailures": {
+        "cellTooLong": "Une cellule contient plus de {maxCharacters, number} caractères.",
+        "fileTooLarge": "Il dépasse {maxMegabytes} Mo.",
+        "macroWorkbook": "Il contient des macros. Enregistrez-le comme classeur Excel sans macros (.xlsx), puis choisissez-le à nouveau.",
+        "noHeader": "Il ne contient aucune donnée. La première ligne porte les noms des colonnes, les lignes suivantes les enregistrements.",
+        "sheetNotFound": "Le classeur ne contient aucune feuille à importer.",
+        "tooManyColumns": "Il compte plus de {maxColumns, number} colonnes.",
+        "tooManyRows": "Il compte plus de {maxRows, number} lignes.",
+        "unreadableFile": "Le fichier n’a pas pu être lu. Il est peut-être endommagé.",
+        "unsupportedFormat": "Enregistrez-le au format CSV ou comme classeur Excel (.xlsx), puis choisissez-le à nouveau."
+      },
       "uploadHint": "CSV ou Excel, jusqu’à {maxMegabytes} Mo et {maxRows, number} lignes.",
+      "uploadKept": "La configuration conserve {fileName}.",
       "uploadReady": "Prêt à être importé dans vos nouvelles listes.",
+      "uploadRejected": "Impossible d’importer {fileName}. {reason}",
       "uploadReplace": "Choisir un autre fichier",
       "winChanceFor": "Probabilité de gain de l’entrée {index}"
     },

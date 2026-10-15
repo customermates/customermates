@@ -3,10 +3,12 @@ import type { SerializedInteractorFailure } from "@/core/validation/validation.u
 import type { SetupAnswerValue, SetupAnswers } from "@/features/workspace-setup/setup-answers.schema";
 import type { WorkspaceSetupStatusView, WorkspaceSetupView } from "@/ee/workspace-setup/workspace-setup-status";
 import type { WorkspaceSetupPhase } from "@/ee/workspace-setup/workspace-setup.schema";
+import type { SpreadsheetReadFailureCode } from "@/features/data-transfer/spreadsheet/spreadsheet.schema";
 import type { SetupStage } from "./setup-interview-state";
 
 import { action, makeAutoObservable, observable, runInAction, toJS } from "mobx";
 
+import { SPREADSHEET_MAX_FILE_BYTES } from "@/features/data-transfer/spreadsheet/spreadsheet.schema";
 import { SETUP_SCREENS } from "@/features/workspace-setup/setup-interview";
 import { touchAnswer } from "@/features/workspace-setup/setup-prefill";
 import { serializedFailureErrorTree } from "@/core/validation/validation.utils";
@@ -39,6 +41,8 @@ import {
 
 export type SetupCommand = "start" | "save" | "plan" | "followUps" | "build" | "retry" | "upload" | "refresh";
 
+export type SpreadsheetRejection = { fileName: string; failure: SpreadsheetReadFailureCode };
+
 const POLLED_GENERATION = new Set(["queued", "running"]);
 const ADJUSTABLE_STAGES = new Set<SetupStage>(["plan", "planFailed"]);
 
@@ -49,6 +53,7 @@ export class WorkspaceSetupStore {
   followUpDrafts: Record<string, SetupAnswerValue> = {};
   screenIndex = 0;
   adjusting = false;
+  spreadsheetRejection: SpreadsheetRejection | null = null;
   pending: SetupCommand | null = null;
   locale = "en";
   private hydratedSetupId: string | null | undefined = undefined;
@@ -132,6 +137,7 @@ export class WorkspaceSetupStore {
       this.touched.clear();
       this.followUpDrafts = {};
       this.adjusting = false;
+      this.spreadsheetRejection = null;
       this.screenIndex = resumeScreenIndex(this.answers);
       return;
     }
@@ -244,11 +250,21 @@ export class WorkspaceSetupStore {
     this.run("upload", async () => {
       const setup = this.setup;
       if (!setup) return null;
+      if (file.size > SPREADSHEET_MAX_FILE_BYTES) {
+        this.spreadsheetRejection = { fileName: file.name, failure: "fileTooLarge" };
+        return null;
+      }
       const formData = new FormData();
       formData.set("setupId", setup.id);
       formData.set("file", file);
       const uploaded = await uploadWorkspaceSetupSpreadsheetAction(formData);
-      if (uploaded.ok) await this.refresh();
+      if (!uploaded.ok) return uploaded;
+      runInAction(() => {
+        this.spreadsheetRejection = uploaded.data.accepted
+          ? null
+          : { fileName: file.name, failure: uploaded.data.failure };
+      });
+      if (uploaded.data.accepted) await this.refresh();
       return uploaded;
     });
 

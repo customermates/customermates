@@ -4702,8 +4702,21 @@
       "stepProgress": "Teil {current} von {total}",
       "stepsLabel": "Fragen zur Einrichtung",
       "uploadChoose": "Datei wählen",
+      "uploadFailures": {
+        "cellTooLong": "Eine Zelle enthält mehr als {maxCharacters, number} Zeichen.",
+        "fileTooLarge": "Sie ist größer als {maxMegabytes} MB.",
+        "macroWorkbook": "Sie enthält Makros. Speichere sie als Excel-Arbeitsmappe ohne Makros (.xlsx) und wähle sie erneut.",
+        "noHeader": "Sie enthält keine Daten. In die erste Zeile gehören die Spaltennamen, darunter die Datensätze.",
+        "sheetNotFound": "Die Arbeitsmappe hat kein Tabellenblatt zum Importieren.",
+        "tooManyColumns": "Sie hat mehr als {maxColumns, number} Spalten.",
+        "tooManyRows": "Sie hat mehr als {maxRows, number} Zeilen.",
+        "unreadableFile": "Die Datei konnte nicht gelesen werden. Sie ist vielleicht beschädigt.",
+        "unsupportedFormat": "Speichere sie als CSV oder als Excel-Arbeitsmappe (.xlsx) und wähle sie erneut."
+      },
       "uploadHint": "CSV oder Excel, bis {maxMegabytes} MB und {maxRows, number} Zeilen.",
+      "uploadKept": "Die Einrichtung verwendet weiter {fileName}.",
       "uploadReady": "Bereit für den Import in deine neuen Listen.",
+      "uploadRejected": "{fileName} kann nicht importiert werden. {reason}",
       "uploadReplace": "Andere Datei wählen",
       "winChanceFor": "Abschlusschance von Eintrag {index}"
     },

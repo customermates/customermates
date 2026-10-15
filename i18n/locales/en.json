@@ -4702,8 +4702,21 @@
       "stepProgress": "Part {current} of {total}",
       "stepsLabel": "Setup questions",
       "uploadChoose": "Choose file",
+      "uploadFailures": {
+        "cellTooLong": "A cell holds more than {maxCharacters, number} characters.",
+        "fileTooLarge": "It is larger than {maxMegabytes} MB.",
+        "macroWorkbook": "It contains macros. Save it as an Excel workbook without macros (.xlsx) and choose it again.",
+        "noHeader": "It contains no data. The first row needs the column names, the rows below the records.",
+        "sheetNotFound": "The workbook has no sheet to import.",
+        "tooManyColumns": "It has more than {maxColumns, number} columns.",
+        "tooManyRows": "It has more than {maxRows, number} rows.",
+        "unreadableFile": "The file could not be read. It may be damaged.",
+        "unsupportedFormat": "Save it as CSV or as an Excel workbook (.xlsx) and choose it again."
+      },
       "uploadHint": "CSV or Excel, up to {maxMegabytes} MB and {maxRows, number} rows.",
+      "uploadKept": "The setup keeps {fileName}.",
       "uploadReady": "Ready to import into your new lists.",
+      "uploadRejected": "{fileName} cannot be imported. {reason}",
       "uploadReplace": "Choose another file",
       "winChanceFor": "Win chance of entry {index}"
     },
