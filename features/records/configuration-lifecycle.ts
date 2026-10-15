@@ -309,16 +309,6 @@ function archiveRelationshipPaths(
   return cleaned;
 }
 
-function dropRelationshipPaths(model: RecordModel, relationIds: Set<string>) {
-  model.types = model.types.map((type): RecordType => {
-    if (type.archived) return type;
-    const paths = type.relationshipPaths?.filter(
-      (path) => path.archived || !path.path.some((step) => relationIds.has(step.relationId)),
-    );
-    return paths?.length === type.relationshipPaths?.length ? type : { ...type, relationshipPaths: paths };
-  });
-}
-
 function restoreRelationshipPaths(model: RecordModel) {
   const resolves = (typeId: string, path: RecordRelationshipPath) =>
     resolveRecordPath(typeId, path.path, model)?.every((step) => activeType(model, step.typeId)) ?? false;
@@ -456,9 +446,15 @@ export function applyConfigurationLifecycle(
   blockers.push(...waiting.map((target) => restoreBlocker(model, target)));
   if (operations.some((operation) => operation.operation === "restore")) {
     restoreRelationshipPaths(model);
-    dropRelationshipPaths(
+    archiveRelationshipPaths(
       model,
-      new Set(model.relationships.filter((relation) => relation.archived).map((relation) => relation.id)),
+      {
+        relationIds: new Set(
+          model.relationships.filter((relation) => relation.archived).map((relation) => relation.id),
+        ),
+      },
+      reference,
+      reference(operations[0].target),
     );
   }
   const softDeleted = deletions.flatMap((deletion) => [deletion.target, ...deletion.cascade]);

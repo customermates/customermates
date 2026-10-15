@@ -983,6 +983,62 @@ describeDatabase("restoring lists and relationships from Trash", () => {
     }
   }, 180_000);
 
+  it("brings back every path across the relationship of two lists restored one at a time in deletion order", async () => {
+    const f = await fixture();
+    const between = f.id("contact.organizations");
+    const step = (relationId: string, direction: "outgoing" | "incoming") => ({ relationId, direction });
+    const added = new Map([
+      [f.organizationTypeId, { id: randomUUID(), label: "People", archived: false, path: [step(between, "incoming")] }],
+      [
+        f.id("contact"),
+        {
+          id: randomUUID(),
+          label: "Organization deals",
+          archived: false,
+          path: [step(between, "outgoing"), step(f.customer, "incoming")],
+        },
+      ],
+      [
+        f.dealTypeId,
+        {
+          id: randomUUID(),
+          label: "Customer contacts",
+          archived: false,
+          path: [step(f.customer, "outgoing"), step(between, "incoming")],
+        },
+      ],
+    ]);
+    const model = await f.getModel();
+    await f.configure(
+      [...added].map(([typeId, path]) => {
+        const type = model.types.find((entry) => entry.id === typeId);
+        if (!type) throw new Error("A list is missing");
+        return {
+          operation: "putType" as const,
+          type: { ...omit(type, "archived"), relationshipPaths: [...(type.relationshipPaths ?? []), path] },
+        };
+      }),
+    );
+    const live = async () =>
+      Object.fromEntries(
+        (await f.getModel()).types.map((type) => [
+          type.id,
+          (type.relationshipPaths ?? []).filter((path) => !path.archived).map((path) => path.id),
+        ]),
+      );
+    const before = await live();
+    await f.remove({ kind: "field", id: f.customerCredit.id });
+    const organizations = await f.remove({ kind: "type", id: f.organizationTypeId });
+    const contacts = await f.remove({ kind: "type", id: f.id("contact") });
+
+    expect(await f.restore([organizations])).toMatchObject({
+      ok: true,
+      data: { blocked: [], restoredItemIds: [organizations] },
+    });
+    expect(await f.restore([contacts])).toMatchObject({ ok: true, data: { blocked: [], restoredItemIds: [contacts] } });
+    expect(await live()).toEqual(before);
+  }, 180_000);
+
   it("brings back the relationship columns that deleting a list or a relationship removed from other lists", async () => {
     const f = await fixture();
     const deals = (await f.getModel()).types.find((type) => type.id === f.dealTypeId);
