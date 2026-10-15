@@ -18,6 +18,7 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
   "linkedin_search_sales_companies",
   "linkedin_search_sales_leads",
   "list_users",
+  "lookup_address",
   "preview_crm_deletion",
   "query_crm_measure",
   "query_crm_records",

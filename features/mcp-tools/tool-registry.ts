@@ -20,6 +20,7 @@ import {
 import { getDocsPageTool, searchDocsTool } from "@/features/mcp-tools/docs.mcp-tools";
 import { getWorkspaceContextTool, listUsersTool } from "@/features/mcp-tools/workspace.mcp-tools";
 import { fetchTool, searchTool } from "@/features/mcp-tools/deep-research.mcp-tools";
+import { lookupAddressTool } from "@/features/mcp-tools/address.mcp-tools";
 import { manageTeamTool, updateMyProfileTool } from "@/features/mcp-tools/admin.mcp-tools";
 import { manageWebhooksTool } from "@/features/mcp-tools/webhook.mcp-tools";
 import { manageWidgetsTool } from "@/features/mcp-tools/widget.mcp-tools";
@@ -63,6 +64,7 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
     queryRecordsV2Tool,
     searchRecordsV2Tool,
     resolveRecordIdentifiersV2Tool,
+    lookupAddressTool,
     readRecordV2Tool,
     mutateRecordV2Tool,
     previewRecordDeletionV2Tool,

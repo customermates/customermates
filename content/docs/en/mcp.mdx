@@ -162,7 +162,7 @@ Customermates exposes [[derived.mcp.tools.total]] MCP tools, all enabled by defa
 **Read-only** means the tool does not write. **Can delete data** marks a tool that includes destructive operations; not every action on it deletes (a configuration preview, for example, writes nothing). Tools that send messages, invitations or support requests, move email or change provider data have real effects even without the destructive flag. Set client approval for the actual operation: the server enforces authorization and validation, but an external MCP call does not open the hosted assistant's approval dialog.
 
 {/* mcp-catalog:flags */}
-**Read-only:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `export_crm_records`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
+**Read-only:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `lookup_address`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `export_crm_records`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
 
 **Can delete data:** `mutate_crm_record`, `manage_trash`, `import_crm_records`, `manage_data_views`, `manage_wiki_pages`, `discard_message_draft`, `manage_connected_accounts`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_roles`
 {/* /mcp-catalog */}
@@ -209,6 +209,12 @@ Search accessible configured types, including customer-created types. includeEmb
 Resolve up to 1,000 exact email, phone or supported profile identifiers through the indexed channel registry. Each input returns every accessible linked record with its type label and current version, plus the workspace schemaRevision, so matches feed updateMany directly. Optional typeIds limit the lists. Empty records arrays mean no accessible match; deduplicate records matched through several identifiers and clarify ambiguity before changing a record.
 
 **Read-only.** Required: `identifiers`. Optional: `typeIds`.
+
+#### `lookup_address`
+
+Look up postal addresses for free text, such as a street with house number and city, through the server's address service. Each candidate carries a candidateToken: writing `{kind: "address", candidateToken}` with mutate_crm_record within 24 hours stores that address as verified, while address parts written directly stay unverified. available false means address lookup is off on this server. Place names arrive between untrusted-content markers.
+
+**Read-only.** Required: `query`. Optional: `countryCode`, `limit`.
 
 #### `read_crm_record`
 
@@ -337,6 +343,15 @@ Two calls update records you know only by email addresses or profile identifiers
    ```
 
 The patch applies to every target atomically; a large recalculation can return `status: "pending"` with an operationId to read through `read_crm_operation`. If any target or the schema changed after the lookup, the whole batch is rejected with a `conflict` and nothing is written: resolve again and retry with a new idempotency key. Retrying the identical request with the same key returns the original result without writing twice.
+
+### Verified addresses [#verified-addresses]
+
+An address field stores one postal address. Write the parts the user gave as `{"kind": "address", "value": {"street": "Hauptstraße 5", "postalCode": "68259", "city": "Mannheim", "countryCode": "de"}}`: the server formats the address line and stores the address as unverified, whatever `formatted` or `verification` you send. To store a verified address, look it up first:
+
+1. Call `lookup_address` (REST: `POST /api/v1/addresses/lookup`) with the address as `query`, for example `{"query": "Hauptstraße 5, Mannheim", "countryCode": "de"}`. Each candidate holds the formatted parts, the map location and a `candidateToken`.
+2. Write the token instead of a value in `mutate_crm_record`: `{"fieldId": "<address field id>", "value": {"kind": "address", "candidateToken": "<candidateToken>"}}`. The server stores the candidate as verified, with the provider and the time of the lookup.
+
+A token works for 24 hours and only in the workspace that looked it up; otherwise the write is refused with `recordAddressCandidateInvalid`, and a new lookup helps. When several candidates fit, ask the user; when none does, write the parts. `available: false` means the server has no address service configured: write the parts. Show `attribution` (© OpenStreetMap contributors) with candidates you present. Each person can look up 30 addresses in 10 seconds (`rate_limit` with `addressLookupRateLimited`); a service that does not answer returns `unavailable` with `addressLookupUnavailable`. To check parts a person typed, `POST /api/v1/addresses/verify` returns the matching address with a token, or `match: null`.
 
 ### Workspace
 

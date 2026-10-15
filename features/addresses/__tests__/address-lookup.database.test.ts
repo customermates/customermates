@@ -37,8 +37,11 @@ const { runInTransaction } = await import("@/core/decorators/transaction-runner"
 const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 const { createCrmPreset, presetId } = await import("@/features/records/crm-preset");
 const { postAs, restRoute } = await import("@/tests/helpers/rest-route-workspace");
+const { executeMcpTool } = await import("@/features/mcp-tools/mcp-tool");
+const { lookupAddressTool } = await import("@/features/mcp-tools/address.mcp-tools");
 const { addressCandidateSigningSecret, encodeAddressCandidate } = await import("../address-candidate-token");
 const { verifiedRecordAddress } = await import("@/features/records/record-address");
+const { UNTRUSTED_RECORD_TEXT_OPEN } = await import("@/features/mcp-tools/untrusted-record-content");
 
 const lookupRoute = await restRoute("/v1/addresses/lookup");
 const verifyRoute = await restRoute("/v1/addresses/verify");
@@ -290,6 +293,21 @@ describeDatabase("address lookup on PostgreSQL", () => {
       status: 200,
       body: { available: true, attribution: "© OpenStreetMap contributors", match: null },
     });
+  });
+
+  it("answers lookup_address over MCP with tokens and marked place names", async () => {
+    lookup.url = photonOrigin;
+    const w = await workspace();
+    const result = await w.as(w.admin, () =>
+      executeMcpTool(lookupAddressTool, [lookupAddressTool.inputSchema.parse({ query: "Hauptstraße Kehl" })]),
+    );
+    if (!result.ok) throw new Error(result.result);
+    const candidates = (
+      result.structuredContent as { candidates: Array<{ name: string | null; candidateToken: string }> }
+    ).candidates;
+    expect(candidates).toHaveLength(2);
+    expect(candidates.every((candidate) => candidate.candidateToken.length > 0)).toBe(true);
+    expect(candidates.find((candidate) => candidate.name)?.name).toContain(UNTRUSTED_RECORD_TEXT_OPEN);
   });
 
   it("reports a failing provider, limits each person and stays off without a configured service", async () => {

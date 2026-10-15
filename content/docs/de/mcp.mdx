@@ -162,7 +162,7 @@ Customermates bietet [[derived.mcp.tools.total]] MCP-Tools, standardmäßig alle
 **Nur lesend** bedeutet, dass ein Tool nicht schreibt. **Kann Daten löschen** kennzeichnet ein Tool mit destruktiven Aktionen; nicht jede seiner Aktionen löscht (eine Konfigurationsvorschau schreibt zum Beispiel nichts). Tools, die Nachrichten, Einladungen oder Supportanfragen versenden, E-Mails verschieben oder Anbieterdaten ändern, haben auch ohne destruktives Kennzeichen reale Auswirkungen. Stellen Sie die Client-Freigabe für die konkrete Aktion ein: Das Backend prüft Berechtigungen und Eingaben, aber ein externer MCP-Aufruf öffnet keinen Freigabedialog des gehosteten Assistenten.
 
 {/* mcp-catalog:flags */}
-**Nur lesend:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `export_crm_records`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
+**Nur lesend:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `lookup_address`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `export_crm_records`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
 
 **Kann Daten löschen:** `mutate_crm_record`, `manage_trash`, `import_crm_records`, `manage_data_views`, `manage_wiki_pages`, `discard_message_draft`, `manage_connected_accounts`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_roles`
 {/* /mcp-catalog */}
@@ -209,6 +209,12 @@ Zugängliche konfigurierte Typen durchsuchen, einschließlich selbst angelegter 
 Bis zu 1.000 exakte E-Mail-, Telefon- oder unterstützte Profilkennungen über das indizierte Kanalregister auflösen. Jede Eingabe liefert alle zugänglichen verknüpften Datensätze mit Typbezeichnung und aktueller Version, dazu die schemaRevision des Workspace, sodass Treffer direkt in updateMany einfließen. typeIds begrenzt die Listen. Ein leeres records-Array bedeutet keinen zugänglichen Treffer; über mehrere Kennungen gefundene Datensätze deduplizieren und Mehrdeutigkeit vor Änderungen klären.
 
 **Nur lesend.** Pflicht: `identifiers`. Optional: `typeIds`.
+
+#### `lookup_address`
+
+Postadressen zu Freitext wie Straße mit Hausnummer und Ort über den Adressdienst des Servers suchen. Jeder Kandidat trägt ein candidateToken: Wird `{kind: "address", candidateToken}` innerhalb von 24 Stunden mit mutate_crm_record geschrieben, speichert das die Adresse als bestätigt; direkt geschriebene Adressteile bleiben unbestätigt. available false bedeutet, dass die Adresssuche auf diesem Server ausgeschaltet ist. Ortsnamen kommen zwischen Markern für nicht vertrauenswürdige Inhalte.
+
+**Nur lesend.** Pflicht: `query`. Optional: `countryCode`, `limit`.
 
 #### `read_crm_record`
 
@@ -337,6 +343,15 @@ Zwei Aufrufe aktualisieren Datensätze, die Sie nur über E-Mail-Adressen oder P
    ```
 
 Die Änderung gilt atomar für alle Ziele; eine große Neuberechnung kann `status: "pending"` mit einer operationId liefern, die Sie über `read_crm_operation` verfolgen. Hat sich nach der Abfrage ein Ziel oder das Schema geändert, wird der ganze Stapel mit `conflict` abgelehnt und nichts geschrieben: erneut auflösen und mit neuem Idempotenzschlüssel senden. Eine identische Wiederholung mit demselben Schlüssel liefert das ursprüngliche Ergebnis, ohne doppelt zu schreiben.
+
+### Bestätigte Adressen [#verified-addresses]
+
+Ein Adressfeld speichert eine Postadresse. Schreiben Sie die Teile, die Ihr Nutzer nennt, als `{"kind": "address", "value": {"street": "Hauptstraße 5", "postalCode": "68259", "city": "Mannheim", "countryCode": "de"}}`: Der Server formatiert die Adresszeile und speichert die Adresse als unbestätigt, gleich welches `formatted` oder welche `verification` Sie mitsenden. Für eine bestätigte Adresse suchen Sie sie zuerst:
+
+1. Rufen Sie `lookup_address` (REST: `POST /api/v1/addresses/lookup`) mit der Adresse als `query` auf, zum Beispiel `{"query": "Hauptstraße 5, Mannheim", "countryCode": "de"}`. Jeder Kandidat enthält die formatierten Teile, den Kartenpunkt und ein `candidateToken`.
+2. Schreiben Sie in `mutate_crm_record` das Token statt eines Werts: `{"fieldId": "<address field id>", "value": {"kind": "address", "candidateToken": "<candidateToken>"}}`. Der Server speichert den Kandidaten als bestätigt, mit Anbieter und Zeitpunkt der Suche.
+
+Ein Token gilt 24 Stunden und nur in dem Workspace, der gesucht hat; sonst wird das Schreiben mit `recordAddressCandidateInvalid` abgelehnt, und eine neue Suche hilft. Passen mehrere Kandidaten, fragen Sie nach; passt keiner, schreiben Sie die Teile. `available: false` bedeutet, dass auf dem Server kein Adressdienst eingerichtet ist: Schreiben Sie dann die Teile. Zeigen Sie `attribution` (© OpenStreetMap contributors) zusammen mit den Kandidaten an. Jede Person kann 30 Adressen in 10 Sekunden suchen (`rate_limit` mit `addressLookupRateLimited`); antwortet der Dienst nicht, kommt `unavailable` mit `addressLookupUnavailable`. Um Teile zu prüfen, die jemand eingegeben hat, liefert `POST /api/v1/addresses/verify` die passende Adresse mit Token oder `match: null`.
 
 ### Workspace [#workspace]
 
