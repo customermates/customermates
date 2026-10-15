@@ -11,8 +11,9 @@ by hand: `psql --single-transaction --set ON_ERROR_STOP=1 -f migration.sql`.
 
 | Step | Work |
 | --- | --- |
-| 1 Identity providers | `RecordIdentity.provider` gets its own enum `RecordIdentityProvider`: the messaging providers plus `phone`, so `phone` can never become a connectable messaging account. |
-| 2 Phone fields | Takes the record engine's lock of every workspace (in id order), then converts every phone field of every workspace's current record model as described below, in one new configuration revision per affected workspace. |
+| Locks | Takes the record engine's lock of every workspace (in id order) before it locks any table, so a write of the previous release that already holds its workspace's lock finishes first instead of deadlocking with the migration. |
+| 1 Identity providers | `RecordIdentity.provider` gets its own enum `RecordIdentityProvider`: the messaging providers plus `phone`, so `phone` can never become a connectable messaging account. An assignment cast from `MessagingProvider` keeps the previous release's identity writes working, see [The previous release](#the-previous-release). |
+| 2 Phone fields | Converts every phone field of every workspace's current record model as described below, in one new configuration revision per affected workspace. |
 | 3 Guard | Adds the check constraint `RecordFieldDefinition_valueType_not_phone`, so an older application version that still serves requests during the deployment cannot create a phone field afterwards. |
 
 ## What moves into Channels
@@ -143,4 +144,30 @@ point to a defect of the migration rather than to the data. Report them:
 - `A phone field is still stored`
 - `A changed field definition does not match its record model`
 
-A lock that is not granted within 60 seconds also rolls the migration back; deploy again.
+A lock that is not granted within 60 seconds also rolls the migration back, for example while a long import holds its
+workspace. The database then stays as it was, but Prisma records the migration as failed and refuses every further
+`prisma migrate deploy` (P3009) until it is marked as rolled back. Mark it once, then deploy again, after a lock
+timeout preferably while fewer people work:
+
+```bash
+npx prisma migrate resolve --rolled-back 20261014230000_phone_channels
+```
+
+## The previous release
+
+`scripts/vercel-build.sh` migrates before the new release is built, so the previous release keeps serving requests on
+the migrated database until the new one takes over, and an instant rollback runs it again. It writes identity
+providers as `MessagingProvider` values: its record writes cast them with `::"MessagingProvider"` and its Prisma client
+with `CAST(… AS "MessagingProvider")`. The cast `MessagingProvider → RecordIdentityProvider` (`WITH INOUT AS
+ASSIGNMENT`, created by step 1) converts such a value when it is stored; every messaging provider is also an identity
+provider. The previous release never compares providers, so it needs no other cast, and it cannot create phone fields
+(step 3). It cannot read a `phone` identity, though: its identity schema refuses the provider, so opening, listing,
+exporting or saving a record that has a phone number in Channels fails there. Deploy while few people work, and roll
+back past this release only together with a database backup from before the migration.
+
+Drop the cast in a later migration once no deployment older than this release can run against the database again, at
+the latest in the migration that removes a value from `MessagingProvider` or drops the type:
+
+```sql
+DROP CAST IF EXISTS ("MessagingProvider" AS "RecordIdentityProvider");
+```

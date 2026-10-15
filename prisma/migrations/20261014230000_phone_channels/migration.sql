@@ -2,7 +2,8 @@
 -- Phone numbers become channel identities.
 --
 --   1. A record identity gets its own provider enum with "phone" next to the messaging providers, so "phone" can
---      never become a connectable messaging account.
+--      never become a connectable messaging account. The previous release still writes "MessagingProvider" values
+--      into it while this release deploys and after a rollback, so they convert on assignment.
 --   2. Every phone field becomes Channels data: its numbers become phone identities of the record (one identity per
 --      number and workspace, shared by every record that has it and reused when WhatsApp already knows the number),
 --      the list gets a Channels field when it has none, and the phone field is removed with its saved-view, layout
@@ -17,6 +18,18 @@
 SET LOCAL lock_timeout = '60s';
 SET LOCAL jit = off;
 
+-- The record engine's per-workspace lock of every workspace, in id order, before any table lock: a configuration or
+-- record write of the previous release that holds its workspace's lock then finishes instead of waiting for a table
+-- this file has already locked, and no such write runs while phone fields move.
+DO $$
+DECLARE
+  v_workspace record;
+BEGIN
+  FOR v_workspace IN SELECT id FROM "Company" ORDER BY id LOOP
+    PERFORM pg_advisory_xact_lock(hashtextextended(v_workspace.id, 0));
+  END LOOP;
+END $$;
+
 -- ---------------------------------------------------------------------------------------------
 -- 1. Identity providers
 -- ---------------------------------------------------------------------------------------------
@@ -30,6 +43,14 @@ BEGIN
     <> '"RecordIdentityProvider"'::regtype THEN
     ALTER TABLE "RecordIdentity"
       ALTER COLUMN "provider" TYPE "RecordIdentityProvider" USING ("provider"::text::"RecordIdentityProvider");
+  END IF;
+  -- The previous release inserts identities with (value)::"MessagingProvider". Every messaging provider is also an
+  -- identity provider, so the value converts through its text. README.md says when to drop this cast again.
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_cast
+    WHERE castsource = '"MessagingProvider"'::regtype AND casttarget = '"RecordIdentityProvider"'::regtype
+  ) THEN
+    CREATE CAST ("MessagingProvider" AS "RecordIdentityProvider") WITH INOUT AS ASSIGNMENT;
   END IF;
 END $$;
 
@@ -172,12 +193,6 @@ DECLARE
   v_operations jsonb;
   v_failed record;
 BEGIN
-  -- The record engine's per-workspace lock of every workspace, in id order, so no configuration or record write of
-  -- the previous release runs while phone fields move.
-  FOR v_workspace IN SELECT id FROM "Company" ORDER BY id LOOP
-    PERFORM pg_advisory_xact_lock(hashtextextended(v_workspace.id, 0));
-  END LOOP;
-
   FOR v_workspace IN
     SELECT state."companyId" AS company_id, state.revision, revision.snapshot
     FROM "RecordSchemaState" state

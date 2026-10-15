@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import type { Client } from "pg";
+import { Client } from "pg";
 import { afterAll, describe, expect, it } from "vitest";
 
 import { configurationActivity } from "@/ee/messaging/activities/configuration-activity";
@@ -32,14 +32,18 @@ type Json = Record<string, unknown>;
 type FixtureField = Json & { id: string; typeId: string; archived: boolean };
 type Model = { revision: number; types: Json[]; fields: Json[]; relationships: Json[] } & Json;
 
-async function previousRelease() {
+async function previousReleaseDatabase() {
   const database = await createLegacyMigrationDatabase(databaseUrl ?? undefined);
   databases.push(database);
   for (const migration of await migrationDirectories(
     (entry) => entry >= DYNAMIC_RECORD_MODEL_MIGRATION && entry < PHONE_CHANNELS_MIGRATION,
   ))
     await database.client.query(await readMigration(migration));
-  return database.client;
+  return database;
+}
+
+async function previousRelease() {
+  return (await previousReleaseDatabase()).client;
 }
 
 async function migrate(client: Client) {
@@ -709,6 +713,78 @@ describeDatabase("phone channels migration", { timeout: 240000 }, () => {
       "Phone fields: 0 moved into Channels with 0 numbers on 0 records (0 new Channels fields), 0 kept as text",
     );
     expect(await storedState(client)).toBe(stored);
+  });
+
+  it("lets the previous release keep writing identity providers as MessagingProvider values", async () => {
+    const client = await previousRelease();
+    const { companyId } = await workspace(client);
+    await migrate(client);
+    const staged = randomUUID();
+    const created = randomUUID();
+    // The record write of the previous release, cast like features/records/prisma-record.repository.ts on main.
+    await client.query(
+      `INSERT INTO "RecordIdentity" ("companyId", id, provider, "channelClass", value, "messagingId", "displayName", "profileUrl", "createdAt", "updatedAt")
+       SELECT $1, item.data->>'id', (item.data->>'provider')::"MessagingProvider", item.data->>'channelClass', item.data->>'value', NULL, NULL, NULL, now(), now()
+       FROM jsonb_array_elements($2::jsonb) AS item(data)`,
+      [companyId, JSON.stringify([{ id: staged, provider: "whatsapp", channelClass: "phone", value: "+4930111111" }])],
+    );
+    // Its Prisma client casts enum parameters with CAST($n::text AS "public"."MessagingProvider").
+    await client.query(
+      'INSERT INTO "RecordIdentity" ("companyId", id, provider, "channelClass", value, "updatedAt") VALUES ($1, $2, CAST($3::text AS "public"."MessagingProvider"), $4, $5, now())',
+      [companyId, created, "mail", "email", "ada@example.test"],
+    );
+    await client.query(
+      'UPDATE "RecordIdentity" SET provider = CAST($1::text AS "public"."MessagingProvider") WHERE "companyId" = $2 AND id = $3',
+      ["outlook", companyId, created],
+    );
+    expect(
+      await rows(
+        client,
+        'SELECT id, provider::text AS provider FROM "RecordIdentity" WHERE "companyId" = $1 ORDER BY "channelClass"',
+        [companyId],
+      ),
+    ).toEqual([
+      { id: created, provider: "outlook" },
+      { id: staged, provider: "whatsapp" },
+    ]);
+  });
+
+  it("waits for a write of the previous release that holds its workspace lock instead of deadlocking with it", async () => {
+    const database = await previousReleaseDatabase();
+    const { companyId } = await workspace(database.client);
+    const writer = new Client({ connectionString: database.url });
+    await writer.connect();
+    try {
+      // A record write of the previous release: it holds its workspace's lock and then stores an identity.
+      await writer.query("BEGIN");
+      await writer.query("SELECT pg_advisory_xact_lock(hashtextextended($1, 0))", [companyId]);
+      const migration = migrate(database.client);
+      const deadline = Date.now() + 20_000;
+      while (
+        !(
+          await writer.query(
+            "SELECT 1 FROM pg_locks WHERE locktype = 'advisory' AND NOT granted AND database = (SELECT oid FROM pg_database WHERE datname = current_database())",
+          )
+        ).rowCount
+      ) {
+        if (Date.now() > deadline) throw new Error("The migration never waited for the workspace lock");
+        await new Promise((done) => setTimeout(done, 50));
+      }
+      const identity = randomUUID();
+      await writer.query(
+        'INSERT INTO "RecordIdentity" ("companyId", id, provider, "channelClass", value, "updatedAt") VALUES ($1, $2, $3::"MessagingProvider", $4, $5, now())',
+        [companyId, identity, "whatsapp", "phone", "+4930222222"],
+      );
+      await writer.query("COMMIT");
+      await migration;
+      expect(
+        await rows(database.client, 'SELECT provider::text AS provider FROM "RecordIdentity" WHERE id = $1', [
+          identity,
+        ]),
+      ).toEqual([{ provider: "whatsapp" }]);
+    } finally {
+      await writer.end();
+    }
   });
 
   it("names the history entry when a list already has a Channels field and only moves numbers", async () => {
