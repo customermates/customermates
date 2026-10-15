@@ -1,6 +1,10 @@
 import { createDocument } from "zod-openapi";
 
-import { CalculationExpressionShapeSchema } from "@/features/records/record-model.schema";
+import {
+  CalculationExpressionShapeSchema,
+  RecordAddressPartsInputSchema,
+  RecordAddressSchema,
+} from "@/features/records/record-model.schema";
 import { CalculationExpressionInputSchema } from "@/features/records/configuration.schema";
 
 import { StructuredErrorResponseSchema } from "@/core/api/structured-interactor-handler";
@@ -289,6 +293,8 @@ export function generateOpenApiSpec() {
       schemas: {
         CalculationExpression: CalculationExpressionShapeSchema,
         CalculationExpressionInput: CalculationExpressionInputSchema,
+        RecordAddress: RecordAddressSchema,
+        RecordAddressPartsInput: RecordAddressPartsInputSchema,
         StructuredErrorResponseSchema,
         WebhookMessagingMessageReceivedSchema,
         WebhookMessagingMessageUpdatedSchema,
