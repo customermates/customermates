@@ -18,7 +18,9 @@ vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
 }));
 
+import { env } from "@/env";
 import { runWithTenant } from "@/core/decorators/tenant-context";
+import { DemoModeError } from "@/core/errors/app-errors";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { interactorFailureCodes } from "@/core/validation/validation.utils";
 import { unwindFailure } from "@/core/validation/failure-unwind";
@@ -245,6 +247,17 @@ describe("RemoveWorkspaceMemberInteractor", () => {
     if (!result.ok) expect(interactorFailureCodes(result.error)).toEqual([CustomErrorCode.recordWritePaused]);
     expect(authService.revokeMembershipCredentials).not.toHaveBeenCalled();
     expect(channelRemoval.deleteForBillingOrThrow).not.toHaveBeenCalled();
+  });
+
+  it("is refused in the demo", async () => {
+    const mode = env.APP_MODE;
+    Object.assign(env, { APP_MODE: "demo" });
+    try {
+      await expect(removeAs()).rejects.toBeInstanceOf(DemoModeError);
+    } finally {
+      Object.assign(env, { APP_MODE: mode });
+    }
+    expect(order).toEqual([]);
   });
 
   it("is only available to roles that can edit members", async () => {
