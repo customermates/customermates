@@ -45,11 +45,24 @@ const STORED_FILE_SELECT = {
   detachedAt: true,
 } satisfies Prisma.RecordFileSelect;
 
-function expiredFiles({ pendingBefore, detachedBefore }: RecordFileExpiry): Prisma.RecordFileWhereInput[] {
-  return [
-    { status: "pending", createdAt: { lt: pendingBefore } },
-    { status: "detached", detachedAt: { lt: detachedBefore } },
-  ];
+function expiredFiles({ pendingBefore, detachedBefore }: RecordFileExpiry): Prisma.Sql {
+  return Prisma.sql`((f.status = 'pending' AND f."createdAt" < ${pendingBefore})
+    OR (f.status = 'detached' AND f."detachedAt" < ${detachedBefore}))`;
+}
+
+function listedBySavedValue(companyId: string): Prisma.Sql {
+  return Prisma.sql`EXISTS (
+    SELECT 1 FROM "RecordValue" AS v
+    WHERE v."companyId" = ${companyId} AND v."typeId" = f."typeId" AND v."recordId" = f."recordId"
+      AND v."fieldId" = f."fieldId" AND v.state = 'value' AND f.id = ANY(v."textListValue")
+  )`;
+}
+
+function noActiveOperation(companyId: string): Prisma.Sql {
+  return Prisma.sql`NOT EXISTS (
+    SELECT 1 FROM "RecordSchemaState" AS s
+    WHERE s."companyId" = ${companyId} AND s."activeOperationId" IS NOT NULL
+  )`;
 }
 
 export class PrismaRecordFileRepo
@@ -363,32 +376,34 @@ export class PrismaRecordFileRepo
     return this.prisma.$executeRaw(Prisma.sql`
       UPDATE "RecordFile" AS f SET status = 'detached', "detachedAt" = NOW()
       WHERE f."companyId" = ${companyId} AND f.status = 'ready' AND f."attachedAt" < ${attachedBefore}
-        AND NOT EXISTS (
-          SELECT 1 FROM "RecordSchemaState" AS s
-          WHERE s."companyId" = ${companyId} AND s."activeOperationId" IS NOT NULL
-        )
-        AND NOT EXISTS (
-          SELECT 1 FROM "RecordValue" AS v
-          WHERE v."companyId" = ${companyId} AND v."typeId" = f."typeId" AND v."recordId" = f."recordId"
-            AND v."fieldId" = f."fieldId" AND v.state = 'value' AND f.id = ANY(v."textListValue")
-        )`);
+        AND ${noActiveOperation(companyId)} AND NOT ${listedBySavedValue(companyId)}`);
+  }
+
+  reattachListedFiles(): Promise<number> {
+    return this.reattachListedFilesCompanyWide(this.companyId);
+  }
+
+  async reattachListedFilesCompanyWide(companyId: string): Promise<number> {
+    return this.prisma.$executeRaw(Prisma.sql`
+      UPDATE "RecordFile" AS f SET status = 'ready', "detachedAt" = NULL
+      WHERE f."companyId" = ${companyId} AND f.status = 'detached' AND f."recordId" IS NOT NULL
+        AND ${noActiveOperation(companyId)} AND ${listedBySavedValue(companyId)}`);
   }
 
   async findExpiredFiles(expiry: RecordFileExpiry, limit: number): Promise<ExpiredRecordFile[]> {
-    return this.prisma.recordFile.findMany({
-      where: { companyId: this.companyId, OR: expiredFiles(expiry) },
-      select: { id: true, storageDriver: true, storageKey: true },
-      orderBy: { id: "asc" },
-      take: limit,
-    });
+    return this.prisma.$queryRaw<ExpiredRecordFile[]>(Prisma.sql`
+      SELECT f.id, f."storageDriver", f."storageKey" FROM "RecordFile" AS f
+      WHERE f."companyId" = ${this.companyId} AND ${expiredFiles(expiry)} AND NOT ${listedBySavedValue(this.companyId)}
+      ORDER BY f.id ASC
+      LIMIT ${limit}`);
   }
 
   async deleteExpiredFiles(ids: string[], expiry: RecordFileExpiry): Promise<number> {
     if (!ids.length) return 0;
-    const result = await this.prisma.recordFile.deleteMany({
-      where: { companyId: this.companyId, id: { in: [...new Set(ids)] }, OR: expiredFiles(expiry) },
-    });
-    return result.count;
+    return this.prisma.$executeRaw(Prisma.sql`
+      DELETE FROM "RecordFile" AS f
+      WHERE f."companyId" = ${this.companyId} AND f.id = ANY(${[...new Set(ids)]}::text[]) AND ${expiredFiles(expiry)}
+        AND NOT ${listedBySavedValue(this.companyId)}`);
   }
 
   async expireRecordFilesCompanyWide(companyId: string, refs: RecordRef[]): Promise<number> {

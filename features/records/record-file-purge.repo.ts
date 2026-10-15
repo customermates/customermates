@@ -8,4 +8,5 @@ export abstract class RecordFilePurgeRepo {
     companyId: string,
     scope: { typeIds: string[]; fieldIds: string[] },
   ): Promise<number>;
+  abstract reattachListedFilesCompanyWide(companyId: string): Promise<number>;
 }

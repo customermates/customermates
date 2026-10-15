@@ -16,7 +16,7 @@ const PurgeCompanyRecordFilesSchema = z
   .strict();
 type PurgeCompanyRecordFilesData = z.infer<typeof PurgeCompanyRecordFilesSchema>;
 
-export type CompanyRecordFilePurgeBatch = { detached: number; deleted: number; more: boolean };
+export type CompanyRecordFilePurgeBatch = { reattached: number; detached: number; deleted: number; more: boolean };
 
 @SystemInteractor
 export class PurgeCompanyRecordFilesInteractor {
@@ -33,6 +33,7 @@ export class PurgeCompanyRecordFilesInteractor {
     const expiry = recordFileExpiry(now);
     return runInTransaction(
       async () => {
+        const reattached = input.detachOrphans ? await files.reattachListedFiles() : 0;
         const detached = input.detachOrphans ? await files.detachOrphanedFiles(orphanedRecordFileCutoff(now)) : 0;
         const expired = await files.findExpiredFiles(expiry, RECORD_FILE_PURGE_BATCH_SIZE);
         const keys = new Map<string, string[]>();
@@ -43,7 +44,7 @@ export class PurgeCompanyRecordFilesInteractor {
           expired.map((file) => file.id),
           expiry,
         );
-        return { detached, deleted, more: expired.length === RECORD_FILE_PURGE_BATCH_SIZE };
+        return { reattached, detached, deleted, more: expired.length === RECORD_FILE_PURGE_BATCH_SIZE };
       },
       { companyId: input.companyId, timeout: RECORD_FILE_PURGE_TIMEOUT_MS },
     );

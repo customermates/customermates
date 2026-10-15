@@ -37,7 +37,12 @@ const { PrismaRecordFileRepo } = await import("@/features/records/prisma-record-
 const { PrismaFileContentRepo } = await import("@/core/storage/prisma-file-content.repository");
 const { DatabaseFileStorageDriver } = await import("@/core/storage/database-file-storage.driver");
 const { createCrmPreset, presetId } = await import("@/features/records/crm-preset");
-const { createTestRecordRepo, preloadTestRecordRepo } = await import("@/tests/helpers/record-repository");
+const { createTestRecordOperationService, createTestRecordRepo, preloadTestRecordRepo } = await import(
+  "@/tests/helpers/record-repository"
+);
+const { RecordConfigurationService } = await import("@/features/records/configuration.service");
+const { CancelRecordOperationInteractor } = await import("@/features/records/cancel-record-operation.interactor");
+const { WebhookPauseNotifier } = await import("@/features/webhook/webhook-pause-notifier");
 const { RecordFileQuotaService } = await import("../record-file-quota.service");
 const { RecordFileUploadService } = await import("../record-file-upload.service");
 const { RecordFileAccessService } = await import("../record-file-access.service");
@@ -156,28 +161,36 @@ async function workspace() {
     },
   });
   const calculations = new RecordCalculationService(repo);
+  const attacher = new RecordFileAttachmentService(
+    files,
+    { drivers, maxBytes: 64 * 1024 },
+    {
+      dispatch: (request) => {
+        indexed.push(request);
+        return Promise.resolve();
+      },
+    },
+  );
   const mutate = new MutateRecordInteractor(
     repo,
     policy,
-    new RecordWriteService(
-      repo,
-      policy,
-      calculations,
-      undefined,
-      new RecordFileAttachmentService(
-        files,
-        { drivers, maxBytes: 64 * 1024 },
-        {
-          dispatch: (request) => {
-            indexed.push(request);
-            return Promise.resolve();
-          },
-        },
-      ),
-    ),
+    new RecordWriteService(repo, policy, calculations, undefined, attacher),
     { dispatch: () => Promise.resolve() },
     new RecordTrashService(repo, new RecordCalculationService(repo)),
   );
+  const worker = () =>
+    createTestRecordOperationService(
+      repo,
+      policy,
+      new RecordConfigurationService(repo),
+      new WebhookPauseNotifier(
+        { getWebhookByIdOrThrow: () => Promise.reject(new Error("No webhooks in this test")) },
+        { publish: () => Promise.resolve() },
+      ),
+      undefined,
+      attacher,
+    );
+  const cancel = new CancelRecordOperationInteractor(repo, policy);
   const access = new RecordFileAccessService(repo, policy, files);
   const content = new DownloadRecordFileInteractor(access, drivers);
   const putContent = new UploadRecordFileContentInteractor(files, drivers);
@@ -269,6 +282,9 @@ async function workspace() {
     parts,
     contentParts,
     repo,
+    revision,
+    worker,
+    cancel,
   };
 }
 
@@ -563,7 +579,7 @@ describeDatabase("record files", () => {
       now: new Date().toISOString(),
       detachOrphans: true,
     });
-    expect(today).toEqual({ detached: 1, deleted: 1, more: false });
+    expect(today).toEqual({ reattached: 0, detached: 1, deleted: 1, more: false });
     expect(await w.row(stale.fileId)).toBeNull();
     expect(await w.contentParts(staleKey)).toBe(0);
     expect(await w.row(fresh.fileId)).toMatchObject({ status: "pending" });
@@ -580,6 +596,59 @@ describeDatabase("record files", () => {
     for (const fileId of [removed.fileId, orphan.fileId, fresh.fileId]) expect(await w.row(fileId)).toBeNull();
     expect(await w.contentParts(removedKey)).toBe(0);
     expect(await w.row(kept.fileId)).toMatchObject({ status: "ready" });
+  });
+
+  it("re-attaches files a cancelled background operation removed and never deletes a file a value lists", async () => {
+    const w = await workspace();
+    const listed = await w.uploaded(100);
+    const ref = await w.createDeal([{ fieldId: w.multiple, value: { kind: "file", value: [listed.fileId] } }]);
+    const key = (await w.row(listed.fileId))?.storageKey ?? "";
+    const operationId = randomUUID();
+    const expectedRevision = await w.revision();
+    const expectedVersion = await w.version(ref);
+    await w.as(w.admin, () =>
+      runInTransaction(() =>
+        w.repo.createOperation({
+          id: operationId,
+          userId: w.admin.id,
+          kind: "mutation",
+          expectedRevision,
+          request: {
+            expectedRevision,
+            idempotencyKey: randomUUID(),
+            mutation: { action: "update", ref, expectedVersion, fields: [{ fieldId: w.multiple, value: null }] },
+          },
+        }),
+      ),
+    );
+    await w.as(w.admin, () => w.worker().advance(operationId));
+    expect(await w.row(listed.fileId)).toMatchObject({ status: "detached" });
+
+    expect(await w.as(w.admin, () => w.cancel.invoke({ operationId }))).toMatchObject({ ok: true });
+    expect(await w.row(listed.fileId)).toMatchObject({ status: "ready", detachedAt: null });
+    const download = data(await w.as(w.admin, () => w.interactors.read.invoke({ fileId: listed.fileId })));
+    expect(await bytesOf(download.body)).toEqual(listed.bytes);
+
+    await runWithoutTenant(() =>
+      prisma.recordFile.update({
+        where: { id: listed.fileId },
+        data: { status: "detached", detachedAt: new Date(Date.now() - 40 * DAY) },
+      }),
+    );
+    const purged = await w.interactors.purge.invoke({
+      companyId: w.companyId,
+      now: new Date().toISOString(),
+      detachOrphans: false,
+    });
+    expect(purged).toMatchObject({ deleted: 0 });
+    expect(await w.contentParts(key)).toBeGreaterThan(0);
+    const repaired = await w.interactors.purge.invoke({
+      companyId: w.companyId,
+      now: new Date().toISOString(),
+      detachOrphans: true,
+    });
+    expect(repaired).toMatchObject({ reattached: 1, deleted: 0 });
+    expect(await w.row(listed.fileId)).toMatchObject({ status: "ready", detachedAt: null });
   });
 
   it("keeps files in Trash and deletes them when the record or the field is deleted permanently", async () => {

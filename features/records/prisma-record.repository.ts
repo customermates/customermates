@@ -2190,6 +2190,7 @@ export class PrismaRecordRepo
     await this.prisma.recordStageRow.deleteMany({
       where: { companyId, operationId: id },
     });
+    await this.owners.files.reattachListedFilesCompanyWide(companyId);
   }
 
   @BypassTenantGuard
