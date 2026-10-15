@@ -260,7 +260,7 @@ export class WorkspaceSetupPlanner extends UserAccessor {
       prompt: [
         ...context,
         `Planned record model: ${encodePromptJson(model)}`,
-        `Automatic fields: ${encodePromptJson(setupAnchorFields(model.lists))}`,
+        `Automatic fields: ${encodePromptJson([...model.lists.map((list) => `${list.key}.name`), ...setupAnchorFields(model.lists)])}`,
         ...(sheet.length ? sheet : ["No spreadsheet was uploaded: importMapping is null."]),
       ],
       check: async (value) => {

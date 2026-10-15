@@ -84,6 +84,7 @@ import {
 import { setupModelLabels } from "./workspace-setup-labels";
 import { generatedSampleList, sampleListSpecs } from "./workspace-setup-samples";
 import { sampleLineItemPlans } from "./workspace-setup-line-items";
+import { settleSetupImportMapping, setupLinkTargetImports } from "./workspace-setup-import";
 import { phaseFailure, phaseFailureOf } from "./workspace-setup-phase-failure";
 import { retriesAutomatically } from "./workspace-setup-attempts";
 import {
@@ -663,36 +664,62 @@ export class WorkspaceSetupBuildService extends UserAccessor {
           : resolver.list(plan.importMapping?.list ?? setupRoleList(plan, "people") ?? "");
       if (!typeId) throw phaseFailure("invalidPlan");
       const proposed = await this.proposeMapping(setup, sheet, model, typeId, compiled.ok ? compiled.data : null);
-      mapping = await this.storeArtifact(setup.id, "importMapping", proposed, SpreadsheetMappingSchema);
+      mapping = await this.storeArtifact(
+        setup.id,
+        "importMapping",
+        settleSetupImportMapping(proposed, sheet.profile, model),
+        SpreadsheetMappingSchema,
+      );
     }
+    const links = setupLinkTargetImports(sheet.table, mapping, model);
+    const linked: RecordRef[] = [];
+    const linkResults: StoredSetupResults["records"] = [];
+    for (const target of links.targets) {
+      const created = await this.importSpreadsheet.invoke(
+        ImportSpreadsheetSchema.parse({
+          table: target.table,
+          mapping: target.mapping,
+          idempotencyKey: setupIdempotencyKey(setup.id, `import:${target.relationId}`),
+        }),
+      );
+      if (!created.ok) throw phaseFailure(failureOf(created.error));
+      linked.push(...created.data.records);
+      linkResults.push({
+        listId: target.typeId,
+        kind: "imported",
+        count: created.data.created,
+        titles: target.table.rows.slice(0, 10).map((row) => String(row.cells[0] ?? "")),
+        skippedRows: created.data.errorCount,
+      });
+    }
+    const idempotencyKey = setupIdempotencyKey(setup.id, "import");
     const imported = await this.importSpreadsheet.invoke(
-      ImportSpreadsheetSchema.parse({
-        table: sheet.table,
-        mapping,
-        idempotencyKey: setupIdempotencyKey(setup.id, "import"),
-      }),
+      ImportSpreadsheetSchema.parse({ table: sheet.table, mapping: links.mapping, idempotencyKey }),
     );
     if (!imported.ok) throw phaseFailure(failureOf(imported.error));
     const primary = model.types.find((type) => type.id === mapping.typeId)?.primaryFieldId;
     const titleColumn =
       mapping.columns.find((column) => column.fieldId === primary)?.column ?? mapping.columns[0]?.column;
     const titleIndex = titleColumn ? sheet.table.headers.indexOf(titleColumn) : -1;
+    const kept = new Set(imported.data.records.map((ref) => ref.recordId));
     const results: StoredSetupResults["records"] = [
       {
         listId: mapping.typeId,
         kind: "imported",
         count: imported.data.created,
         titles: sheet.table.rows
+          .filter((row) => kept.has(spreadsheetRecordId(idempotencyKey, `record:${row.rowNumber}`)))
           .slice(0, 10)
           .map((row) => (titleIndex >= 0 ? String(row.cells[titleIndex] ?? "") : ""))
           .filter(Boolean),
         skippedRows: imported.data.errorCount,
       },
+      ...linkResults,
     ];
     return {
       status: "completed",
       patch: (current) => ({
-        created: { ...current.created, importedRecords: imported.data.records },
+        created: { ...current.created, importedRecords: [...linked, ...imported.data.records] },
         results: { ...current.results, records: results },
       }),
     };

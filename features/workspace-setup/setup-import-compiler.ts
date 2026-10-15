@@ -2,6 +2,8 @@ import type { RecordModel } from "@/features/records/record-model.schema";
 import type { SetupPlan } from "./setup-plan.schema";
 import type { SetupCompileIssue, SetupCompileResult, SetupResolver } from "./setup-references";
 
+import { importableSpreadsheetField } from "@/features/data-transfer/spreadsheet/spreadsheet-conversion";
+
 export type SetupImportMapping = { typeId: string; columns: Array<{ column: string; fieldId: string | null }> };
 
 export function compileSetupImportMapping(
@@ -20,8 +22,7 @@ export function compileSetupImportMapping(
     const path = `importMapping.columns.${index}.field`;
     const definition = model.fields.find((candidate) => candidate.id === resolver.field(field));
     if (!definition || definition.typeId !== typeId) issues.push({ code: "unknown_field", path });
-    else if (definition.behavior.kind !== "input" || definition.valueType === "channels")
-      issues.push({ code: "field_not_importable", path });
+    else if (!importableSpreadsheetField(definition)) issues.push({ code: "field_not_importable", path });
     else if (targets.has(definition.id)) issues.push({ code: "field_mapped_twice", path });
     else targets.add(definition.id);
     return { column, fieldId: definition?.id ?? null };

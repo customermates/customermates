@@ -433,6 +433,30 @@ describe("workspace setup compiler", () => {
     });
   });
 
+  it("compiles names onto the list's name field and an email column onto the people channels", async () => {
+    const input = structuredClone(agencyPlan);
+    input.importMapping = {
+      list: "contact",
+      columns: [
+        { column: "Full name", field: "contact.name" },
+        { column: "Email", field: "contact.channels" },
+        { column: "Company", field: null },
+      ],
+    };
+    const { plan, prepared, resolver } = await build(input);
+    expect(compileSetupImportMapping(plan, resolver, prepared.model)).toEqual({
+      ok: true,
+      data: {
+        typeId: resolver.list("contact"),
+        columns: [
+          { column: "Full name", fieldId: resolver.field("contact.name") },
+          { column: "Email", fieldId: resolver.field("contact.channels") },
+          { column: "Company", fieldId: null },
+        ],
+      },
+    });
+  });
+
   it("refuses a list default column of another list", () => {
     const input = structuredClone(agencyPlan);
     input.listDefaults[1] = { ...agencyPlan.listDefaults[1], columns: ["deal.closeDate"] };

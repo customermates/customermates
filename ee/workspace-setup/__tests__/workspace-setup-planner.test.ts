@@ -102,7 +102,9 @@ describe("workspace setup planner", () => {
     const views = calls()[2].prompt;
     expect(views).toContain('Planned record model: {"currency":"EUR"');
     expect(views).toContain('"key":"project"');
-    expect(views).toContain('Automatic fields: ["contact.channels","contact.avatar","deal.value","service.price"]');
+    expect(views).toContain(
+      'Automatic fields: ["contact.name","organization.name","deal.name","service.name","task.name","project.name","contact.channels","contact.avatar","deal.value","service.price"]',
+    );
     expect(calls()[0].prompt).toContain("Workspace language: English (en).");
     expect(calls()[0].prompt).not.toContain("Answers drafted from the website");
   });

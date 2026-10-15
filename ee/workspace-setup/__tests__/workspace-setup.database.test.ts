@@ -820,6 +820,135 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(await lineItems()).toBe(0);
   });
 
+  it("imports every spreadsheet row with its whole name, email channel and the organization it names", async () => {
+    const ws = await workspace();
+    state.plan = {
+      ...structuredClone(agencyPlan),
+      importMapping: {
+        list: "contact",
+        columns: [
+          { column: "Full name", field: "contact.name" },
+          { column: "Email", field: null },
+          { column: "Company", field: null },
+          { column: "Job title", field: "contact.jobTitle" },
+        ],
+      },
+    };
+    const planReply = state.generate.getMockImplementation();
+    state.generate.mockImplementation((args: { label: string; prompt: string; model: { modelId: string } }) => {
+      if (args.label !== "Workspace setup column mapping") return planReply?.(args);
+      const keyOf = (prefix: string, label: string) => {
+        const line = args.prompt.split("\n").find((entry) => entry.startsWith(prefix)) ?? `${prefix}[]`;
+        const entries = JSON.parse(line.slice(prefix.length)) as { key: string; label: string }[];
+        return entries.find((entry) => entry.label === label)?.key ?? null;
+      };
+      const column = (name: string, field: string | null, namePart: "first" | null = null) => ({
+        column: name,
+        field,
+        dateOrder: null,
+        currency: null,
+        namePart,
+      });
+      return Promise.resolve({
+        output: {
+          columns: [
+            column("Full name", keyOf("Fields: ", "Contact"), "first"),
+            column("Job title", keyOf("Fields: ", "Job title")),
+          ],
+          relationships: [{ column: "Company", relationship: keyOf("Relationships: ", "Client") }],
+          phoneCountryCode: null,
+        },
+        charge: { ...CHARGE, model: args.model.modelId },
+      });
+    });
+    const started = await ws.run(() => di.getStartWorkspaceSetupInteractor().invoke({ websiteUrl: null }));
+    if (!started.ok) throw new Error(JSON.stringify(started.error));
+    const setupId = started.data.setupId;
+    const csv = [
+      "Full name,Email,Phone,Company,Job title",
+      "Mary Ann Collins,mary.collins@example.net,+44 20 7946 0005,,Owner",
+      "Priya Patel,priya.patel@example.com,+44 20 7946 0003,Northgate Analytics,Head of People",
+      "Jack Whitmore,jack.whitmore@example.com,+44 20 7946 0006,Northgate Analytics,CFO",
+      "Lily Chen,lily.chen@example.com,+44 20 7946 0019,Brightwave Media,Account Director",
+    ].join("\n");
+    const uploaded = await ws.run(() =>
+      di
+        .getUploadWorkspaceSetupSpreadsheetInteractor()
+        .invoke({ setupId, fileName: "clients.csv", bytes: new TextEncoder().encode(csv) }),
+    );
+    expect(uploaded).toMatchObject({ ok: true, data: { accepted: true, rowCount: 4 } });
+    const saved = await ws.run(() =>
+      di.getSaveWorkspaceSetupAnswersInteractor().invoke({
+        setupId,
+        answers: {
+          companyName: { format: "shortText", value: "Studio Example" },
+          language: { format: "singleChoice", value: "en" },
+          currency: { format: "singleChoice", value: "EUR" },
+          existingData: { format: "singleChoice", value: "spreadsheet" },
+        },
+        followUpAnswers: [],
+      }),
+    );
+    if (!saved.ok) throw new Error(JSON.stringify(saved.error));
+    const queued = await ws.run(() => di.getPlanWorkspaceSetupInteractor().invoke({ setupId }));
+    if (!queued.ok) throw new Error(JSON.stringify(queued.error));
+    expect(await draftPlan(ws, setupId)).toBe("planned");
+    const confirmed = await ws.run(() =>
+      di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision: queued.data.planRevision }),
+    );
+    expect(confirmed.ok).toBe(true);
+    expect((await build(ws, setupId)).records).toBe("settled");
+
+    const reference = await references(ws, setupId);
+    const contacts = reference("$list.contact");
+    const clients = reference("$list.organization");
+    const model = await ws.run(() => createTestRecordRepo().getModel());
+    const nameField = model.types.find((type) => type.id === contacts)?.primaryFieldId ?? "";
+    const channels = model.fields.find((field) => field.typeId === contacts && field.valueType === "channels")?.id;
+    const view = await status(ws);
+    expect(view.results.records.map((entry) => [entry.listId, entry.kind, entry.count, entry.titles])).toEqual([
+      [contacts, "imported", 4, ["Mary Ann Collins", "Priya Patel", "Jack Whitmore", "Lily Chen"]],
+      [clients, "imported", 2, ["Northgate Analytics", "Brightwave Media"]],
+    ]);
+    const setup = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
+    expect(setup?.created.importedRecords).toHaveLength(6);
+    expect(setup?.artifacts.importMapping).toMatchObject({
+      columns: [
+        { column: "Full name", fieldId: nameField },
+        { column: "Job title" },
+        { column: "Email", fieldId: channels },
+      ],
+    });
+    const names = await runWithoutTenant(() =>
+      prisma.recordValue.findMany({
+        where: { companyId: ws.companyId, fieldId: nameField },
+        select: { textValue: true },
+      }),
+    );
+    expect(names.map((row) => row.textValue).sort()).toEqual([
+      "Jack Whitmore",
+      "Lily Chen",
+      "Mary Ann Collins",
+      "Priya Patel",
+    ]);
+    const identities = await runWithoutTenant(() =>
+      prisma.recordIdentity.findMany({ where: { companyId: ws.companyId }, select: { value: true } }),
+    );
+    expect(identities.map((row) => row.value).sort()).toEqual([
+      "jack.whitmore@example.com",
+      "lily.chen@example.com",
+      "mary.collins@example.net",
+      "priya.patel@example.com",
+    ]);
+    expect(
+      await runWithoutTenant(() =>
+        prisma.recordLink.count({
+          where: { companyId: ws.companyId, sourceTypeId: contacts, targetTypeId: clients, deletedAt: null },
+        }),
+      ),
+    ).toBe(3);
+  });
+
   it("skips the setup for a workspace that already has lists and never started one", async () => {
     const ws = await workspace();
     await ws.run(() => initializeStarterRecordModel());

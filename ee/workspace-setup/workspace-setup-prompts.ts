@@ -47,7 +47,7 @@ export const SETUP_PLAN_VIEWS_INSTRUCTION = [
   "Dashboard widgets follow the ranked numbers the company checks every week; a count has valueField null, every other aggregation needs a number or currency field. Widget titles are short, about three words.",
   "Relative date filters take a whole number of days of at least 1: inLastDays 30 keeps dates from 30 days ago onwards, notInLastDays 1 keeps dates before yesterday, for example overdue due dates.",
   "Sample data asks for five to ten realistic records per list the company will use daily. Kinds describe them in the workspace language; for the offerings list, kinds name the company's own offerings translated into the workspace language.",
-  "When a spreadsheet was uploaded, importMapping maps its columns onto fields of one list; otherwise importMapping is null.",
+  "When a spreadsheet was uploaded, importMapping maps its columns onto fields of one list: a column of record names, such as full person names, onto <listKey>.name and one column of email addresses onto <people>.channels. Otherwise importMapping is null.",
   SETUP_PLAN_LANGUAGE,
   SETUP_UNTRUSTED_HANDLING,
 ].join(" ");
