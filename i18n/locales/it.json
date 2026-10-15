@@ -1552,6 +1552,7 @@
     },
     "sidebar": {
       "description": "Mostra la barra laterale per dispositivi mobili.",
+      "resize": "Ridimensiona la barra laterale. Trascina o usa i tasti freccia; fai doppio clic o premi Invio per ripristinare.",
       "title": "Barra laterale",
       "toggle": "Mostra o nascondi la barra laterale"
     },

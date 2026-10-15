@@ -103,7 +103,7 @@ export function PageState(props: PageStateProps) {
       >
         <EmptyContent
           {...props}
-          className="animate-page-empty-in pointer-events-none relative isolate before:pointer-events-none before:absolute before:-inset-12 before:-z-10 before:rounded-full before:bg-radial before:from-background/85 before:from-40% before:to-transparent motion-reduce:animate-none"
+          className="animate-page-empty-in pointer-events-none relative isolate before:pointer-events-none before:absolute before:-inset-x-24 before:-inset-y-16 before:-z-10 before:bg-radial-[closest-side] before:from-background before:from-55% before:to-transparent motion-reduce:animate-none"
         />
       </div>
     </section>
