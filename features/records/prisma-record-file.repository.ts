@@ -281,4 +281,12 @@ export class PrismaRecordFileRepo
     `);
     return updated === 1;
   }
+
+  async storageUsageCompanyWide(): Promise<number> {
+    const usage = await this.prisma.recordFile.aggregate({
+      where: { companyId: this.companyId },
+      _sum: { size: true },
+    });
+    return Number(usage._sum.size ?? 0n);
+  }
 }

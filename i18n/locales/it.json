@@ -2995,6 +2995,7 @@
         "creditAdjustmentCreate": "Correzione di crediti registrata",
         "creditBalanceReset": "Saldo crediti azzerato",
         "enterpriseAllowanceUpdate": "Assegnazione Enterprise aggiornata",
+        "enterpriseFileStorageUpdate": "Spazio per i file Enterprise aggiornato",
         "overviewRead": "Panoramica Hosted-AI letta",
         "subscriptionSnapshotCorrect": "Abbonamento dello spazio di lavoro corretto",
         "subscriptionTermsUpdate": "Condizioni di abbonamento aggiornate",
@@ -3016,6 +3017,7 @@
     "confirm": {
       "allowance": "Impostare l'allocazione Enterprise di {name} su {value} crediti per utente? Si applica all'intero spazio di lavoro.",
       "changes": "Salvare queste modifiche per {name}? Si applicano all'intera area di lavoro.",
+      "fileStorage": "Impostare lo spazio file Enterprise di {name} su {value} GB per utente? Si applica all'intero spazio di lavoro.",
       "plan": "Impostare il piano di {name} su {value}? Si applica all’intero spazio di lavoro.",
       "subscription": "Impostare lo stato dell’abbonamento di {name} su {value}? Si applica all’intero spazio di lavoro e non contatta alcun fornitore di fatturazione.",
       "tags": "Impostare le etichette di {name} su {value}? Si applica all'intera area di lavoro.",
@@ -3146,6 +3148,11 @@
     },
     "emptyBody": "Modifica la ricerca o i filtri per ampliare l’elenco.",
     "emptyTitle": "Nessuna area corrisponde a questi filtri",
+    "fileStorage": {
+      "description": "Lo spazio che ogni utente attivo aggiunge allo spazio file condiviso dell’area. Senza un valore, ogni utente aggiunge 50 GB.",
+      "label": "Spazio file per utente (GB)",
+      "title": "Spazio file Enterprise"
+    },
     "modal": {
       "identity": "{domain} · {owner}",
       "subscription": "Abbonamento",
@@ -4233,6 +4240,7 @@
       "currentPeriodEndManage": "Definita dal ciclo di fatturazione attuale. Usa «{billing}» per modificare l’abbonamento.",
       "currentPeriodEndReadOnly": "Definita dal ciclo di fatturazione attuale. Chiedi le modifiche a un amministratore dell’area di lavoro.",
       "currentPeriodEndUnavailable": "Definita dal ciclo di fatturazione attuale. Contatta l’assistenza per apportare modifiche.",
+      "fileStorage": "Qui contano tutti i file dei campi file, i file rimossi per altri 30 giorni. Ogni utente attivo aggiunge spazio all’area; al limite i nuovi caricamenti vengono rifiutati e non viene eliminato nulla.",
       "planManage": "Sincronizzato con la fatturazione. Usa «{billing}» per apportare modifiche.",
       "planPicker": "Scegli un piano qui sotto per avviare o modificare l’abbonamento.",
       "planReadOnly": "Sincronizzato con la fatturazione. Chiedi le modifiche a un amministratore dell’area di lavoro.",
@@ -4241,6 +4249,8 @@
       "trialEndsPicker": "Definita dal periodo di prova. Scegli un piano prima di questa data per continuare senza interruzioni.",
       "trialEndsReadOnly": "Definita dal periodo di prova. Chiedi a un amministratore dell’area di lavoro di gestire l’abbonamento."
     },
+    "fileStorage": "Spazio per i file",
+    "fileStorageUsage": "{used} di {limit}",
     "managedExternallyNote": "Questa area di lavoro usa un piano Enterprise con pagamento tramite fattura. Contatta il tuo account manager per apportare modifiche.",
     "manageWithLemonSqueezy": "Gestisci con Lemon Squeezy",
     "picker": {

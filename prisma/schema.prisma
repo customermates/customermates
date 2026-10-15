@@ -637,20 +637,21 @@ model WebhookDelivery {
 }
 
 model Subscription {
-  id                            String             @id @default(uuid())
-  companyId                     String             @unique
-  company                       Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  lemonSqueezyId                String?            @unique
-  lemonSqueezyVariantId         String?
-  status                        SubscriptionStatus @default(trial)
-  plan                          SubscriptionPlan   @default(pro)
-  quantity                      Int?
-  trialEndDate                  DateTime?
-  currentPeriodEnd              DateTime?
-  agentCreditAnchorAt           DateTime?
-  enterpriseAgentCreditsPerUser Int?
-  createdAt                     DateTime           @default(now())
-  updatedAt                     DateTime           @updatedAt
+  id                                String             @id @default(uuid())
+  companyId                         String             @unique
+  company                           Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  lemonSqueezyId                    String?            @unique
+  lemonSqueezyVariantId             String?
+  status                            SubscriptionStatus @default(trial)
+  plan                              SubscriptionPlan   @default(pro)
+  quantity                          Int?
+  trialEndDate                      DateTime?
+  currentPeriodEnd                  DateTime?
+  agentCreditAnchorAt               DateTime?
+  enterpriseAgentCreditsPerUser     Int?
+  enterpriseFileStorageBytesPerUser BigInt?
+  createdAt                         DateTime           @default(now())
+  updatedAt                         DateTime           @updatedAt
 
   @@index([companyId])
   @@index([lemonSqueezyId])
@@ -1875,6 +1876,7 @@ model RecordFile {
   chunks           RecordFileChunk[]
 
   @@index([companyId, status, createdAt])
+  @@index([companyId, status, detachedAt])
   @@index([companyId, recordId])
   @@index([companyId, fieldId])
   @@index([companyId, sha256])

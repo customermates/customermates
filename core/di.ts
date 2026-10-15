@@ -166,6 +166,8 @@ import type { RecordFileIndexDispatcher } from "@/features/records/record-file-i
 import { S3FileStorageDriver, s3FileStorageConfig } from "@/core/storage/s3-file-storage.driver";
 import { VercelBlobFileStorageDriver } from "@/core/storage/vercel-blob-file-storage.driver";
 import { vercelBlobClient } from "@/core/storage/vercel-blob-client";
+import { RecordFileQuotaService } from "@/features/record-files/record-file-quota.service";
+import { GetFileStorageUsageInteractor } from "@/features/record-files/get-file-storage-usage.interactor";
 import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
 import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
 import { PrismaWebhookDeliveryRepo } from "@/features/webhook/prisma-webhook-delivery.repository";
@@ -429,6 +431,7 @@ import { PrismaOperatorWorkspacesRepo } from "@/ee/operator/prisma-operator-work
 import { PrismaOperatorRepo } from "@/ee/operator/prisma-operator.repository";
 import { ResetOperatorUserCreditsInteractor } from "@/ee/operator/reset-operator-user-credits.interactor";
 import { UpdateHostedAiEnterpriseAllowanceInteractor } from "@/ee/operator/update-hosted-ai-enterprise-allowance.interactor";
+import { UpdateEnterpriseFileStorageInteractor } from "@/ee/operator/update-enterprise-file-storage.interactor";
 import { UpdateOperatorSubscriptionTermsInteractor } from "@/ee/operator/update-operator-subscription-terms.interactor";
 import { UpdateOperatorUserPlatformAccessInteractor } from "@/ee/operator/update-operator-user-platform-access.interactor";
 import { UpdateOperatorUserStatusInteractor } from "@/ee/operator/update-operator-user-status.interactor";
@@ -560,6 +563,17 @@ export const getFileStorageDriver = (name: string = env.FILE_STORAGE_DRIVER, com
   if (name === "vercel-blob") return new VercelBlobFileStorageDriver(vercelBlobClient);
   throw new Error(`The ${name} file storage driver is unknown`);
 };
+// Record files: uploads, downloads, storage quota and lifecycle
+const getRecordFileQuotaService = () =>
+  new RecordFileQuotaService(
+    {
+      subscription: () => getCompanyRepo().findFileStoragePlan(),
+      activeUsers: () => getUserRepo().countActiveUsers(),
+      usedBytes: () => getRecordFileRepo().storageUsageCompanyWide(),
+    },
+    env.APP_MODE,
+  );
+export const getGetFileStorageUsageInteractor = () => new GetFileStorageUsageInteractor(getRecordFileQuotaService());
 export const getRecordConfigurationService = (records: RecordRepo = getRecordRepo()) =>
   new RecordConfigurationService(records);
 export const getRecordConfigurationWriter = (records: RecordRepo = getRecordRepo(), companyId?: string) =>
@@ -1879,6 +1893,8 @@ export const getGetOperatorConsoleVisibilityInteractor = () =>
 export const getGetHostedAiOperatorOverviewInteractor = () =>
   new GetHostedAiOperatorOverviewInteractor(getOperatorRepo());
 
+export const getUpdateEnterpriseFileStorageInteractor = () =>
+  new UpdateEnterpriseFileStorageInteractor(getOperatorRepo());
 export const getUpdateHostedAiEnterpriseAllowanceInteractor = () =>
   new UpdateHostedAiEnterpriseAllowanceInteractor(getOperatorRepo());
 

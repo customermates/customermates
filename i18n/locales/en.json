@@ -2995,6 +2995,7 @@
         "creditAdjustmentCreate": "Credit correction recorded",
         "creditBalanceReset": "Credit balance reset",
         "enterpriseAllowanceUpdate": "Enterprise allowance updated",
+        "enterpriseFileStorageUpdate": "Enterprise file storage updated",
         "overviewRead": "Hosted-AI overview read",
         "subscriptionSnapshotCorrect": "Workspace subscription corrected",
         "subscriptionTermsUpdate": "Subscription terms updated",
@@ -3016,6 +3017,7 @@
     "confirm": {
       "allowance": "Set the Enterprise allowance for {name} to {value} credits per user? This applies to the whole workspace.",
       "changes": "Save these changes to {name}? They apply to the whole workspace.",
+      "fileStorage": "Set the Enterprise file storage for {name} to {value} GB per user? This applies to the whole workspace.",
       "plan": "Set the plan for {name} to {value}? This applies to the whole workspace.",
       "subscription": "Set the subscription status for {name} to {value}? This applies to the whole workspace and contacts no billing provider.",
       "tags": "Set the tags for {name} to {value}? This applies to the whole workspace.",
@@ -3146,6 +3148,11 @@
     },
     "emptyBody": "Adjust the search or filters to widen the list.",
     "emptyTitle": "No workspaces match these filters",
+    "fileStorage": {
+      "description": "The storage each active user adds to the workspace's shared file storage. Without a value, each user adds 50 GB.",
+      "label": "File storage per user (GB)",
+      "title": "Enterprise file storage"
+    },
     "modal": {
       "identity": "{domain} · {owner}",
       "subscription": "Subscription",
@@ -4233,6 +4240,7 @@
       "currentPeriodEndManage": "Set by the current billing cycle. Use {billing} to make subscription changes.",
       "currentPeriodEndReadOnly": "Set by the current billing cycle. Ask a workspace administrator to make changes.",
       "currentPeriodEndUnavailable": "Set by the current billing cycle. Contact support to make changes.",
+      "fileStorage": "All files in file fields count here, removed files for 30 more days. Each active user adds storage to the workspace; at the limit, new uploads are refused and nothing is deleted.",
       "planManage": "Synced from billing. Use {billing} to make changes.",
       "planPicker": "Choose a plan below to start or change the subscription.",
       "planReadOnly": "Synced from billing. Ask a workspace administrator to make changes.",
@@ -4241,6 +4249,8 @@
       "trialEndsPicker": "Set by the trial period. Choose a plan before this date to continue without interruption.",
       "trialEndsReadOnly": "Set by the trial period. Ask a workspace administrator to manage the subscription."
     },
+    "fileStorage": "File storage",
+    "fileStorageUsage": "{used} of {limit}",
     "managedExternallyNote": "This workspace is on an Enterprise plan billed by invoice. Contact your account manager to make changes.",
     "manageWithLemonSqueezy": "Manage with Lemon Squeezy",
     "picker": {

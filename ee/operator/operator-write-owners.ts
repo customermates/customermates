@@ -21,6 +21,7 @@ export type OperatorWriteOwners = {
       next: Pick<Subscription, "plan" | "status" | "quantity">,
     ): Promise<void>;
     setEnterpriseAgentCreditsUnscoped(companyId: string, creditsPerUser: number | null): Promise<void>;
+    setEnterpriseFileStorageUnscoped(companyId: string, bytesPerUser: number | null): Promise<void>;
     setSubscriptionTermsUnscoped(
       companyId: string,
       terms: { trialEndDate: Date | null; lemonSqueezyId: string | null },

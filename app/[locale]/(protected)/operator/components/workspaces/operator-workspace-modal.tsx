@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import { Trash2 } from "lucide-react";
 
 import { SubscriptionPlan as SubscriptionPlanEnum } from "@/generated/prisma";
+import { MAX_ENTERPRISE_FILE_STORAGE_GB_PER_USER } from "@/ee/operator/operator.schema";
 
 import { AppModal } from "@/components/modal";
 import { ConfirmDialog } from "@/components/modal/confirm-dialog";
@@ -40,6 +41,12 @@ import { getOperatorWorkspaceTagsAction } from "../../actions";
 
 type Props = { workspace: OperatorWorkspaceRowDto | null; onClose: () => void };
 
+const GIB = 1024 ** 3;
+
+function storageGigabytes(bytes: number | null): number | undefined {
+  return bytes === null ? undefined : Math.round(bytes / GIB);
+}
+
 function toDateInput(value: Date | null): string {
   if (!value) return "";
   const year = value.getFullYear();
@@ -57,6 +64,7 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
   const [stats, setStats] = useState<OperatorWorkspaceStatsDto | null>(null);
   const [isLoadingStats, setIsLoadingStats] = useState(false);
   const [allowance, setAllowance] = useState<number | undefined>(undefined);
+  const [fileStorage, setFileStorage] = useState<number | undefined>(undefined);
   const [trialEnd, setTrialEnd] = useState("");
   const [billingId, setBillingId] = useState("");
   const [channelMonth, setChannelMonth] = useState("");
@@ -82,6 +90,7 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
     setStats(null);
     setChannelMonth("");
     setAllowance(workspace.enterpriseCreditsPerUser ?? undefined);
+    setFileStorage(storageGigabytes(workspace.enterpriseFileStorageBytesPerUser));
     setTrialEnd(toDateInput(workspace.trialEndDate));
     setBillingId(workspace.lemonSqueezyId ?? "");
     setTags(workspace.tags);
@@ -130,6 +139,8 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
   const tagsDirty = tags.join("\u0000") !== workspace.tags.join("\u0000");
   const termsDirty = trialEnd !== toDateInput(workspace.trialEndDate) || billingId !== (workspace.lemonSqueezyId ?? "");
   const allowanceDirty = isEnterprise && allowance !== (workspace.enterpriseCreditsPerUser ?? undefined);
+  const fileStorageDirty =
+    isEnterprise && fileStorage !== storageGigabytes(workspace.enterpriseFileStorageBytesPerUser);
   const tagSuggestions = knownTags.filter(
     (tag) => !tags.some((applied) => applied.toLowerCase() === tag.toLowerCase()),
   );
@@ -139,7 +150,18 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
     const nextTrialEnd = trialEnd ? new Date(`${trialEnd}T23:59:59.999`) : null;
     const trimmedId = billingId.trim();
     const allowanceValid = creditsPerUser !== undefined && Number.isInteger(creditsPerUser) && creditsPerUser >= 1;
-    if ((allowanceDirty && !allowanceValid) || (nextTrialEnd && !Number.isFinite(nextTrialEnd.getTime()))) return;
+    const gigabytesPerUser = fileStorage;
+    const fileStorageValid =
+      gigabytesPerUser !== undefined &&
+      Number.isInteger(gigabytesPerUser) &&
+      gigabytesPerUser >= 1 &&
+      gigabytesPerUser <= MAX_ENTERPRISE_FILE_STORAGE_GB_PER_USER;
+    if (
+      (allowanceDirty && !allowanceValid) ||
+      (fileStorageDirty && !fileStorageValid) ||
+      (nextTrialEnd && !Number.isFinite(nextTrialEnd.getTime()))
+    )
+      return;
 
     const details = [
       ...(tagsDirty
@@ -164,6 +186,14 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
             }),
           ]
         : []),
+      ...(fileStorageDirty && gigabytesPerUser !== undefined
+        ? [
+            t("OperatorConsole.confirm.fileStorage", {
+              name: identity,
+              value: intlStore.formatNumber(gigabytesPerUser),
+            }),
+          ]
+        : []),
     ];
 
     showConfirmation({
@@ -184,8 +214,14 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
           }))
         )
           return false;
-        if (allowanceDirty && creditsPerUser !== undefined)
-          return operatorWorkspacesStore.updateEnterpriseAllowance({ companyId: workspace.id, creditsPerUser });
+        if (
+          allowanceDirty &&
+          creditsPerUser !== undefined &&
+          !(await operatorWorkspacesStore.updateEnterpriseAllowance({ companyId: workspace.id, creditsPerUser }))
+        )
+          return false;
+        if (fileStorageDirty && gigabytesPerUser !== undefined)
+          return operatorWorkspacesStore.updateEnterpriseFileStorage({ companyId: workspace.id, gigabytesPerUser });
         return true;
       },
     });
@@ -387,6 +423,26 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
                     min={1}
                     value={allowance}
                     onValueChange={setAllowance}
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <div className="space-y-1">
+                  <h3 className="text-x-sm font-medium">{t("OperatorWorkspaces.fileStorage.title")}</h3>
+
+                  <p className="text-xs text-muted-foreground">{t("OperatorWorkspaces.fileStorage.description")}</p>
+                </div>
+
+                <div className="flex items-end gap-2">
+                  <FormNumberInput
+                    containerClassName="flex-1"
+                    id="operator-modal-file-storage"
+                    label={t("OperatorWorkspaces.fileStorage.label")}
+                    max={MAX_ENTERPRISE_FILE_STORAGE_GB_PER_USER}
+                    min={1}
+                    value={fileStorage}
+                    onValueChange={setFileStorage}
                   />
                 </div>
               </div>

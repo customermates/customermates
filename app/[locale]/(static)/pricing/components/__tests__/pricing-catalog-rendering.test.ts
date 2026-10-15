@@ -133,6 +133,7 @@ describe("catalog-backed pricing rendering", () => {
           rows: [
             { label: "Price", catalogFact: "monthlyPrice" },
             { label: "Accounts", catalogFact: "includedAccountsPerUser" },
+            { label: "Storage", catalogFact: "fileStoragePerActiveUser" },
           ],
         },
       ],
@@ -142,6 +143,7 @@ describe("catalog-backed pricing rendering", () => {
     expect(presentation.sections[0].rows).toEqual([
       { label: "Price", values: ["€12", "€29", "€69", "Custom"] },
       { label: "Accounts", values: ["0", "1", "3", "Unlimited"] },
+      { label: "Storage", values: ["1 GB", "5 GB", "20 GB", "Custom"] },
     ]);
   });
 

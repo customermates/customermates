@@ -160,6 +160,7 @@ export class PrismaOperatorWorkspacesRepo
             status: true,
             quantity: true,
             enterpriseAgentCreditsPerUser: true,
+            enterpriseFileStorageBytesPerUser: true,
             trialEndDate: true,
             lemonSqueezyId: true,
             updatedAt: true,
@@ -187,6 +188,10 @@ export class PrismaOperatorWorkspacesRepo
         subscriptionStatus: company.subscription?.status ?? null,
         seats: company.subscription?.quantity ?? null,
         enterpriseCreditsPerUser: company.subscription?.enterpriseAgentCreditsPerUser ?? null,
+        enterpriseFileStorageBytesPerUser:
+          company.subscription?.enterpriseFileStorageBytesPerUser == null
+            ? null
+            : Number(company.subscription.enterpriseFileStorageBytesPerUser),
         creditsPerUser: subscription
           ? workspaceAgentCreditRate({
               plan: subscription.plan,

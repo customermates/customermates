@@ -2995,6 +2995,7 @@
         "creditAdjustmentCreate": "Correction de crédits enregistrée",
         "creditBalanceReset": "Solde de crédits réinitialisé",
         "enterpriseAllowanceUpdate": "Allocation Enterprise mise à jour",
+        "enterpriseFileStorageUpdate": "Stockage de fichiers Enterprise mis à jour",
         "overviewRead": "Vue d’ensemble Hosted-AI consultée",
         "subscriptionSnapshotCorrect": "Abonnement de l’espace de travail corrigé",
         "subscriptionTermsUpdate": "Conditions d'abonnement mises à jour",
@@ -3016,6 +3017,7 @@
     "confirm": {
       "allowance": "Définir l'allocation Enterprise de {name} à {value} crédits par utilisateur ? Cela s'applique à tout l'espace de travail.",
       "changes": "Enregistrer ces modifications pour {name} ? Elles s'appliquent à tout l'espace de travail.",
+      "fileStorage": "Définir le stockage de fichiers Enterprise de {name} à {value} Go par utilisateur ? Cela s'applique à tout l'espace de travail.",
       "plan": "Définir le forfait de {name} sur {value} ? Cela s’applique à tout l’espace de travail.",
       "subscription": "Définir le statut d’abonnement de {name} sur {value} ? Cela s’applique à tout l’espace de travail et ne contacte aucun prestataire de facturation.",
       "tags": "Définir les étiquettes de {name} sur {value} ? Cela s'applique à tout l'espace de travail.",
@@ -3146,6 +3148,11 @@
     },
     "emptyBody": "Ajustez la recherche ou les filtres pour élargir la liste.",
     "emptyTitle": "Aucun espace ne correspond à ces filtres",
+    "fileStorage": {
+      "description": "Le stockage que chaque utilisateur actif ajoute au stockage de fichiers partagé de l’espace. Sans valeur, chaque utilisateur ajoute 50 Go.",
+      "label": "Stockage de fichiers par utilisateur (Go)",
+      "title": "Stockage de fichiers Enterprise"
+    },
     "modal": {
       "identity": "{domain} · {owner}",
       "subscription": "Abonnement",
@@ -4233,6 +4240,7 @@
       "currentPeriodEndManage": "Définie par le cycle de facturation actuel. Utilisez « {billing} » pour modifier l’abonnement.",
       "currentPeriodEndReadOnly": "Définie par le cycle de facturation actuel. Demandez les modifications à un administrateur de l’espace de travail.",
       "currentPeriodEndUnavailable": "Définie par le cycle de facturation actuel. Contactez l’assistance pour la modifier.",
+      "fileStorage": "Tous les fichiers des champs de fichiers comptent ici, les fichiers retirés encore 30 jours. Chaque utilisateur actif ajoute du stockage à l’espace ; à la limite, les nouveaux téléversements sont refusés et rien n’est supprimé.",
       "planManage": "Synchronisé avec la facturation. Utilisez « {billing} » pour le modifier.",
       "planPicker": "Choisissez une offre ci-dessous pour démarrer ou modifier l’abonnement.",
       "planReadOnly": "Synchronisé avec la facturation. Demandez les modifications à un administrateur de l’espace de travail.",
@@ -4241,6 +4249,8 @@
       "trialEndsPicker": "Définie par la période d’essai. Choisissez une offre avant cette date pour continuer sans interruption.",
       "trialEndsReadOnly": "Définie par la période d’essai. Demandez à un administrateur de l’espace de travail de gérer l’abonnement."
     },
+    "fileStorage": "Stockage de fichiers",
+    "fileStorageUsage": "{used} sur {limit}",
     "managedExternallyNote": "Cet espace de travail utilise une formule Enterprise réglée sur facture. Contactez votre gestionnaire de compte pour toute modification.",
     "manageWithLemonSqueezy": "Gérer avec Lemon Squeezy",
     "picker": {

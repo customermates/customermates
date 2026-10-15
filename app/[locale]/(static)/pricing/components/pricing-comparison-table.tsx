@@ -49,6 +49,10 @@ export function pricingComparisonPresentation({
           }
           case "sharedAccounts":
             return definition.entitlements.sharedAccounts;
+          case "fileStoragePerActiveUser": {
+            const bytes = definition.entitlements.fileStorageBytesPerActiveUser;
+            return typeof bytes === "number" ? `${bytes / 1024 ** 3} GB` : customValue;
+          }
         }
       });
 

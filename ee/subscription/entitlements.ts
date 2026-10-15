@@ -16,8 +16,13 @@ export function getEntitlements(plan: SubscriptionPlan): PlanEntitlements {
 }
 
 export function getEffectiveEntitlements(input: { appMode: AppMode; plan: SubscriptionPlan }): PlanEntitlements {
-  if (input.appMode === "self-hosted")
-    return { ...PLAN_CATALOG.starter.entitlements, hostedAiCreditsPerActiveUser: null };
+  if (input.appMode === "self-hosted") {
+    return {
+      ...PLAN_CATALOG.starter.entitlements,
+      hostedAiCreditsPerActiveUser: null,
+      fileStorageBytesPerActiveUser: null,
+    };
+  }
 
   return getEntitlements(input.plan);
 }

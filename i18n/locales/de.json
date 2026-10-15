@@ -2995,6 +2995,7 @@
         "creditAdjustmentCreate": "Guthabenkorrektur erfasst",
         "creditBalanceReset": "Guthaben zurückgesetzt",
         "enterpriseAllowanceUpdate": "Enterprise-Kontingent aktualisiert",
+        "enterpriseFileStorageUpdate": "Enterprise-Dateispeicher aktualisiert",
         "overviewRead": "Hosted-AI-Übersicht gelesen",
         "subscriptionSnapshotCorrect": "Workspace-Abonnement korrigiert",
         "subscriptionTermsUpdate": "Abonnementkonditionen aktualisiert",
@@ -3016,6 +3017,7 @@
     "confirm": {
       "allowance": "Enterprise-Kontingent für {name} auf {value} Credits pro Nutzer setzen? Das gilt für den gesamten Workspace.",
       "changes": "Diese Änderungen für {name} speichern? Sie gelten für den gesamten Arbeitsbereich.",
+      "fileStorage": "Enterprise-Dateispeicher für {name} auf {value} GB pro Nutzer setzen? Das gilt für den gesamten Workspace.",
       "plan": "Den Tarif für {name} auf {value} setzen? Das gilt für den gesamten Workspace.",
       "subscription": "Den Abonnementstatus für {name} auf {value} setzen? Das gilt für den gesamten Workspace und kontaktiert keinen Zahlungsanbieter.",
       "tags": "Schlagwörter für {name} auf {value} setzen? Das gilt für den gesamten Arbeitsbereich.",
@@ -3146,6 +3148,11 @@
     },
     "emptyBody": "Passe Suche oder Filter an, um die Liste zu erweitern.",
     "emptyTitle": "Keine Arbeitsbereiche passen zu diesen Filtern",
+    "fileStorage": {
+      "description": "Der Speicher, den jeder aktive Benutzer zum gemeinsamen Dateispeicher des Workspace beiträgt. Ohne Wert trägt jeder Benutzer 50 GB bei.",
+      "label": "Dateispeicher pro Benutzer (GB)",
+      "title": "Enterprise-Dateispeicher"
+    },
     "modal": {
       "identity": "{domain} · {owner}",
       "subscription": "Abonnement",
@@ -4233,6 +4240,7 @@
       "currentPeriodEndManage": "Wird durch den aktuellen Abrechnungszeitraum festgelegt. Verwende „{billing}“ für Änderungen am Abonnement.",
       "currentPeriodEndReadOnly": "Wird durch den aktuellen Abrechnungszeitraum festgelegt. Bitte eine Workspace-Administration um Änderungen.",
       "currentPeriodEndUnavailable": "Wird durch den aktuellen Abrechnungszeitraum festgelegt. Wende dich für Änderungen an den Support.",
+      "fileStorage": "Hier zählen alle Dateien in Dateifeldern, entfernte Dateien noch 30 Tage lang. Jeder aktive Benutzer erweitert den Speicher des Workspace; ist das Limit erreicht, werden neue Uploads abgelehnt und nichts wird gelöscht.",
       "planManage": "Wird mit der Abrechnung synchronisiert. Verwende „{billing}“ für Änderungen.",
       "planPicker": "Wähle unten einen Tarif, um das Abonnement zu starten oder zu ändern.",
       "planReadOnly": "Wird mit der Abrechnung synchronisiert. Bitte eine Workspace-Administration um Änderungen.",
@@ -4241,6 +4249,8 @@
       "trialEndsPicker": "Wird durch den Testzeitraum festgelegt. Wähle vor diesem Datum einen Tarif, um Unterbrechungen zu vermeiden.",
       "trialEndsReadOnly": "Wird durch den Testzeitraum festgelegt. Bitte eine Workspace-Administration, das Abonnement zu verwalten."
     },
+    "fileStorage": "Dateispeicher",
+    "fileStorageUsage": "{used} von {limit}",
     "managedExternallyNote": "Dieser Workspace nutzt einen Enterprise-Tarif mit Rechnungsstellung. Wende dich an deinen Ansprechpartner, um Änderungen vorzunehmen.",
     "manageWithLemonSqueezy": "Verwalten mit Lemon Squeezy",
     "picker": {
