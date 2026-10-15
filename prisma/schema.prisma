@@ -257,6 +257,7 @@ model Company {
   recordIdentities            RecordIdentity[]
   wikiPageProposals           WikiPageProposal[]
   wikiPages                   WikiPage[]
+  wikiPageChunks              WikiPageChunk[]                  @ignore
   searchCatalogEntries        SearchCatalogEntry[]
   wikiPageSections            WikiPageSection[]
   wikiKnowledgeGaps           WikiKnowledgeGap[]
@@ -276,29 +277,36 @@ enum WikiPageKind {
 }
 
 model WikiPage {
-  id                      String            @id @default(uuid())
+  id                      String                   @id @default(uuid())
   companyId               String
   title                   String
   markdown                String
+  /// Retired by WikiPageSection.searchVector and never read. Kept so the previous deployment works until a later release drops it.
+  searchVector            Unsupported("tsvector")? @default(dbgenerated("wiki_search_vector(title, markdown)"))
+  /// Retired with searchVector and never read. Kept so the previous deployment works until a later release drops it.
+  searchCompact           String?                  @default(dbgenerated("wiki_search_compact(title, markdown)")) @ignore
   summary                 String?
   summaryContentHash      String?
   semanticIndexClaimedAt  DateTime?
-  kind                    WikiPageKind      @default(knowledge)
+  kind                    WikiPageKind             @default(knowledge)
   whenToUse               String?
-  sortOrder               Int               @default(2147483647)
+  sortOrder               Int                      @default(2147483647)
   sourceUrl               String?
   sourceFetchedAt         DateTime?
   sourceContentHash       String?
   sourceImportedUpdatedAt DateTime?
   deletedAt               DateTime?
-  createdAt               DateTime          @default(now())
-  updatedAt               DateTime          @updatedAt
-  company                 Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  company                 Company                  @relation(fields: [companyId], references: [id], onDelete: Cascade)
   sections                WikiPageSection[]
+  chunks                  WikiPageChunk[]          @ignore
 
   @@index([companyId, createdAt, id])
   @@index([companyId, sortOrder, createdAt, id])
   @@index([companyId, kind, title])
+  @@index([searchVector], type: Gin)
+  @@index([searchCompact(ops: raw("gin_trgm_ops"))], type: Gin)
 }
 
 enum WikiWebsiteCrawlStatus {
@@ -412,6 +420,54 @@ model DocsSection {
   @@unique([buildHash, locale, source, slug, sectionOrder, partOrdinal], map: "DocsSection_build_part_key")
   @@index([contentHash])
   @@index([searchVector], type: Gin)
+}
+
+/// Retired by WikiPageSection and never read or written. Kept so the previous deployment works until a later release drops it.
+model WikiPageChunk {
+  id            String                      @id @default(uuid())
+  companyId     String
+  pageId        String
+  ordinal       Int
+  offset        Int
+  section       String?
+  contentHash   String
+  model         String
+  pageUpdatedAt DateTime
+  embedding     Unsupported("vector(768)")?
+  createdAt     DateTime                    @default(now())
+  company       Company                     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  page          WikiPage                    @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@unique([pageId, ordinal])
+  @@index([companyId, pageId])
+  @@ignore
+}
+
+/// Retired by DocsSection and never read or written. Kept so the previous deployment works until a later release drops it.
+model DocsChunk {
+  id           String                      @id @default(uuid())
+  buildHash    String
+  locale       String
+  source       String
+  slug         String
+  sectionOrder Int
+  chunkOrdinal Int
+  charOffset   Int
+  anchor       String
+  pageTitle    String
+  headingPath  String[]
+  label        String
+  body         String
+  contentHash  String
+  searchVector Unsupported("tsvector")?    @default(dbgenerated("docs_search_vector(locale, label, body)"))
+  model        String?
+  embedding    Unsupported("vector(768)")?
+  createdAt    DateTime                    @default(now())
+
+  @@unique([buildHash, locale, source, slug, sectionOrder, chunkOrdinal], map: "DocsChunk_build_chunk_key")
+  @@index([contentHash])
+  @@index([searchVector], type: Gin)
+  @@ignore
 }
 
 model SearchCatalogEntry {

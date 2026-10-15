@@ -1,5 +1,7 @@
 -- Knowledge Base and documentation retrieval moves from offset-only chunks to section rows that carry their own text.
--- One transaction: the old chunk tables are dropped here and existing pages are re-indexed through the indexing path.
+-- Expand only: the previous deployment keeps reading WikiPage.searchVector/searchCompact, WikiPageChunk, DocsChunk and
+-- their functions while this release builds and after a rollback, so a later release drops them.
+-- Existing pages are re-indexed into section rows through the indexing path.
 BEGIN;
 
 CREATE OR REPLACE FUNCTION retrieval_heading_text(heading_path text[]) RETURNS text
@@ -30,10 +32,6 @@ ALTER TABLE "WikiPage"
   ADD COLUMN "summary" TEXT,
   ADD COLUMN "summaryContentHash" TEXT,
   ADD CONSTRAINT "WikiPage_summary_length" CHECK ("summary" IS NULL OR char_length("summary") <= 160);
-
-DROP INDEX IF EXISTS "WikiPage_searchVector_idx";
-DROP INDEX IF EXISTS "WikiPage_searchCompact_idx";
-ALTER TABLE "WikiPage" DROP COLUMN "searchVector", DROP COLUMN "searchCompact";
 
 CREATE TABLE "WikiPageSection" (
   "id" TEXT NOT NULL,
@@ -127,12 +125,6 @@ ALTER TABLE "WikiIndexSchedule" ADD CONSTRAINT "WikiIndexSchedule_companyId_fkey
 
 -- The Knowledge Base catalog the assistant sees is captured at a conversation's first turn and reused afterwards.
 ALTER TABLE "AgentConversation" ADD COLUMN "wikiCatalogSnapshot" TEXT;
-
-DROP TABLE "WikiPageChunk";
-DROP TABLE "DocsChunk";
-DROP FUNCTION IF EXISTS docs_search_vector(text, text, text);
-DROP FUNCTION IF EXISTS wiki_search_vector(text, text);
-DROP FUNCTION IF EXISTS wiki_search_heading_text(text);
 
 -- Every page lacks section rows now, so the indexing path rebuilds them; release stale indexing leases.
 UPDATE "WikiPage" SET "semanticIndexClaimedAt" = NULL WHERE "semanticIndexClaimedAt" IS NOT NULL;
