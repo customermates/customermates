@@ -88,7 +88,20 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
     if (all.ok && all.data.valid) return { restorable: items, blocked: [] };
     const restorable: TrashItem[] = [];
     const blockers = new Map<string, TrashRestoreBlocker>();
-    let pending = items;
+    const blocked = () => items.flatMap((item) => (restorable.includes(item) ? [] : (blockers.get(item.id) ?? [])));
+    if (all.ok) {
+      const waiting = new Set(
+        all.data.deletion?.blockers
+          .filter((blocker) => blocker.reason === "requiresRestore")
+          .map((blocker) => blocker.source.id),
+      );
+      for (const item of items) if (waiting.has(item.targetId)) blockers.set(item.id, this.blocker(item, all.data));
+    }
+    let pending = items.filter((item) => !blockers.has(item.id));
+    if (blockers.size && pending.length) {
+      const rest = await this.preview.run(await this.change(pending, "restore"));
+      if (rest.ok && rest.data.valid) return { restorable: pending, blocked: blocked() };
+    }
     for (let progressed = true; pending.length && progressed; ) {
       progressed = false;
       const waiting: TrashItem[] = [];
@@ -104,7 +117,7 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
       }
       pending = waiting;
     }
-    return { restorable, blocked: pending.map((item) => recordInvariant(blockers.get(item.id))) };
+    return { restorable, blocked: blocked() };
   }
 
   async restore(items: TrashItem[]): Promise<TrashKindRestore> {

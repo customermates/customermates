@@ -865,6 +865,33 @@ describeDatabase("restoring calculated fields from Trash", () => {
     expect(await f.value(deal, closingNet)).toEqual(money("20"));
   }, 180_000);
 
+  it("settles a restore that leaves a calculation waiting for its input with two previews", async () => {
+    const f = await fixture();
+    const extras = ["First note", "Second note", "Third note"].map((label) =>
+      f.extraField(f.dealTypeId, label, { valueType: "text" }),
+    );
+    await f.configure(extras.map((entry) => ({ operation: "putField" as const, field: entry })));
+    const waiting = await f.remove({ kind: "field", id: f.gross.id });
+    await f.remove({ kind: "field", id: f.ordered.id });
+    await f.remove({ kind: "field", id: f.net.id });
+    const restorable = [];
+    for (const entry of extras) restorable.push(await f.remove({ kind: "field", id: entry.id }));
+    const previews = vi.spyOn(PreviewRecordConfigurationInteractor.prototype, "run");
+    try {
+      expect(await f.restore([waiting, ...restorable])).toMatchObject({
+        ok: true,
+        data: {
+          status: "completed",
+          blocked: [{ itemId: waiting, reason: "requiresRestore" }],
+          restoredItemIds: expect.arrayContaining(restorable),
+        },
+      });
+      expect(previews).toHaveBeenCalledTimes(2);
+    } finally {
+      previews.mockRestore();
+    }
+  }, 180_000);
+
   it("explains a restore that no longer fits the data instead of claiming the item left Trash", async () => {
     const f = await fixture();
     const priority = f.extraField(f.dealTypeId, "Priority", { valueType: "number" });
