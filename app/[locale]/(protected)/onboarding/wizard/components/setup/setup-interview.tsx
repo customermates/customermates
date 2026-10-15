@@ -4,7 +4,7 @@ import type { SetupQuestion } from "@/features/workspace-setup/setup-interview";
 
 import { Loader2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { useEffect, useRef } from "react";
+import { Fragment, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 
 import { Alert } from "@/components/shared/alert";
@@ -44,17 +44,28 @@ const SetupQuestionBlock = observer(function SetupQuestionBlock({ question }: { 
   const parts = question.parts.filter((part) => partVisible(part, store.answers));
   if (!parts.length) return null;
   const currency = store.answers.currency?.value;
-  const fields = parts.map((part) => (
-    <SetupQuestionField
-      key={part.id}
-      currency={currency?.format === "singleChoice" ? currency.value : null}
-      descriptor={partDescriptor(part, t)}
-      disabled={store.isBusy}
-      fromWebsite={answerFromWebsite(store.answers, part.id)}
-      value={displayedAnswerValue(part, store.answers, store.locale)}
-      onChange={(value) => store.setAnswer(part.id, value)}
-    />
-  ));
+  const fields = parts.map((part) => {
+    const answer = store.answers[part.id]?.value;
+    return (
+      <Fragment key={part.id}>
+        <SetupQuestionField
+          currency={currency?.format === "singleChoice" ? currency.value : null}
+          descriptor={partDescriptor(part, t)}
+          disabled={store.isBusy}
+          fromWebsite={answerFromWebsite(store.answers, part.id)}
+          value={displayedAnswerValue(part, store.answers, store.locale)}
+          onChange={(value) => store.setAnswer(part.id, value)}
+        />
+
+        {part.format === "singleChoice" &&
+        part.upload &&
+        answer?.format === "singleChoice" &&
+        answer.value === "spreadsheet" ? (
+          <SetupSpreadsheetUpload />
+        ) : null}
+      </Fragment>
+    );
+  });
 
   if (question.confirmationCard) {
     return (
@@ -108,12 +119,6 @@ export const SetupInterview = observer(function SetupInterview() {
         {screenQuestions(SETUP_SCREENS[store.screenIndex]).map((question) => (
           <SetupQuestionBlock key={question.id} question={question} />
         ))}
-
-        {store.screen === "data" &&
-        store.answers.existingData?.value.format === "singleChoice" &&
-        store.answers.existingData.value.value === "spreadsheet" ? (
-          <SetupSpreadsheetUpload />
-        ) : null}
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-4">
