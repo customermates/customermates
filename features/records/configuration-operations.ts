@@ -8,7 +8,7 @@ import type { ConfigurationReferences } from "./configuration-references";
 import type { RecordAccessPolicy } from "./record-access";
 import type { RecordField, RecordModel } from "./record-model.schema";
 
-import { deterministicId } from "./crm-preset";
+import { deterministicId } from "./deterministic-id";
 
 export type ConfigurationGrants = Array<{
   typeId: string;
@@ -171,10 +171,13 @@ export async function applyConfigurationOperations(
       const existing = current.capabilities.find((candidate) => candidate.id === binding.id);
       if (!policy.isAdmin) throw unwindFailure(CustomErrorCode.permissionDenied, "authorization");
       const protectedKind = (kind: string) => kind === "membershipAuthorization";
+      const anotherProtected = model.capabilities.some(
+        (candidate) => candidate.id !== binding.id && protectedKind(candidate.kind),
+      );
       if (
         (existing && (existing.typeId !== binding.typeId || existing.kind !== binding.kind)) ||
         (existing && protectedKind(existing.kind) && JSON.stringify(existing) !== JSON.stringify(binding)) ||
-        (!existing && protectedKind(binding.kind))
+        (!existing && protectedKind(binding.kind) && anotherProtected)
       )
         throw unwindFailure(CustomErrorCode.recordProtected, "authorization");
       upsert(model.capabilities, binding);

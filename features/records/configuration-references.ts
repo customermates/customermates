@@ -3,7 +3,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import type { ConfigurationChange } from "./configuration.schema";
 
-import { deterministicId } from "./crm-preset";
+import { deterministicId } from "./deterministic-id";
 
 const RESOLVED_KEYS = [
   "id",

@@ -12,7 +12,6 @@ import { recordReadPredicate } from "@/features/records/record-query";
 import { recordChannelsTypeIds } from "@/features/records/record-channels";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { parseRecordReferenceKey } from "@/features/records/record-reference-key";
-import { presetId } from "@/features/records/crm-preset";
 import { parseEmailFolderFilterValue } from "../inbox/messaging-filter-options.schema";
 
 const SUPPORTED_FIELDS = [
@@ -108,10 +107,10 @@ export function compileMessagingRecordQuery(
       ];
     }
     if (fieldKey === FilterFieldKey.participantContactId) {
-      const refs = values(filter).map((value) => {
+      const refs = values(filter).flatMap((value) => {
         const ref = parseRecordReferenceKey(value);
-        if (ref) return ref;
-        if (z.uuid().safeParse(value).success) return { typeId: presetId(companyId, "contact"), recordId: value };
+        if (ref) return [ref];
+        if (z.uuid().safeParse(value).success) return [...bound].map((typeId) => ({ typeId, recordId: value }));
         throw unwindFailure(CustomErrorCode.invalidFilterField);
       });
       const match = participant(linked(refs));

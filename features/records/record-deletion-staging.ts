@@ -12,7 +12,7 @@ import { RecordRefSchema } from "./record-model.schema";
 import { recordKey } from "./record-calculation.service";
 import { recordInvariant } from "./record-invariant";
 import { recordTrashLabel } from "./record-trash-label";
-import { deterministicId } from "./crm-preset";
+import { deterministicId } from "./deterministic-id";
 
 export const DeletionCursorSchema = z.object({
   phase: z.enum(["deletePlan", "deleteLinks", "deleteRecords", "deleteTouches"]),

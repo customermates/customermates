@@ -43,8 +43,7 @@ vi.mock("@/ee/agent-chat/structured-model-call", async (importOriginal) => ({
 const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const di = await import("@/core/di");
-const { InitializeRecordModelService } = await import("@/features/records/initialize-record-model.service");
-const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
+const { createTestRecordRepo, initializeStarterRecordModel } = await import("@/tests/helpers/record-repository");
 const { presetId } = await import("@/features/records/crm-preset");
 const { agencyPlan } = await import("@/features/workspace-setup/__tests__/setup-plan-fixtures");
 const { planPartFor } = await import("./setup-wire-fixtures");
@@ -78,7 +77,7 @@ async function workspace(): Promise<Workspace> {
   });
   const owner = createMockUser({ ...seed.admin, role: { ...seed.role, permissions: [] } });
   const run = <T>(fn: () => Promise<T>) => runWithTenant(owner, fn);
-  await run(() => new InitializeRecordModelService(createTestRecordRepo()).initialize());
+  await run(() => initializeStarterRecordModel());
   return { companyId: seed.company.id, owner, run };
 }
 

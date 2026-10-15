@@ -63,7 +63,7 @@ export class UpsertRecordWidgetInteractor extends AuthenticatedInteractor<Record
         }
         const state = await this.records.getState();
         if (state?.activeOperationId) return failConflict(CustomErrorCode.recordWritePaused);
-        if (state?.revision !== input.expectedRevision) return failConflict(CustomErrorCode.recordSchemaChanged);
+        if ((state?.revision ?? 0) !== input.expectedRevision) return failConflict(CustomErrorCode.recordSchemaChanged);
         const current = input.id ? await this.widgets.findOwnedRecordWidget("chart", input.id) : null;
         if (input.id) {
           if (!current) return failNotFound(CustomErrorCode.widgetNotFound);

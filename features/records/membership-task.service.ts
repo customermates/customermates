@@ -36,9 +36,10 @@ export class MembershipTaskService extends UserAccessor {
       const member = await this.tasks.getMemberCompanyWide(userId);
       if (!member) throw unwindFailure(CustomErrorCode.userNotFound, "not_found");
       const state = await this.records.getState();
-      if (!state?.revision) throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
+      if (!state?.revision) return;
       const model = await this.records.getModel();
       const bindings = model.capabilities.filter((binding) => binding.kind === "membershipAuthorization");
+      if (bindings.length === 0) return;
       if (bindings.length !== 1) throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
       const binding = recordInvariant(bindings[0]);
       const type = model.types.find((candidate) => candidate.id === binding.typeId && !candidate.archived);
@@ -121,7 +122,6 @@ export class MembershipTaskService extends UserAccessor {
   getSystemTasksCount(): Promise<number> {
     return runInTransaction(
       async () => {
-        if (!(await this.records.getState())?.revision) throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
         const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
         if (!policy.actor || !policy.allowedSystem("users", "update")) return 0;
         const types = model.capabilities

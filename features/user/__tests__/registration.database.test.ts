@@ -1,5 +1,4 @@
 import { PermissionService } from "@/core/base/permission.service";
-import { InitializeRecordModelService } from "@/features/records/initialize-record-model.service";
 import { randomUUID } from "node:crypto";
 
 import { afterAll, describe, expect, it, vi } from "vitest";
@@ -118,7 +117,7 @@ const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 
 describeDatabase("registration against a real database", () => {
-  it("creates membership infrastructure before the record template is initialized", async () => {
+  it("creates the company and its owner without a record model", async () => {
     const user = await runWithoutTenant(() =>
       createTestWorkspaceRegistration().createCompanyAndUser({
         email,
@@ -275,7 +274,6 @@ describeDatabase("registration against a real database", () => {
       eventService,
       unregisteredRouteGuardService(authUserId, registrationEmail) as never,
       new PrismaCompanyRepo(),
-      new InitializeRecordModelService(createTestRecordRepo()),
       createTestWorkspaceRegistration(),
     );
 
@@ -301,18 +299,18 @@ describeDatabase("registration against a real database", () => {
     if (!tenantUser) throw new Error("The newly registered workspace owner is missing.");
     await runWithTenant(tenantUser, async () => {
       const records = createTestRecordRepo();
-      const seeded = await records.getModel();
-      expect(seeded.revision).toBe(1);
-      expect(seeded.types.filter((type) => !type.embedded)).toHaveLength(5);
-      expect(seeded.types.filter((type) => type.embedded)).toHaveLength(1);
-      expect(await records.countRecordsCompanyWide(seeded.types.map((type) => type.id))).toBe(0);
-      const edited = { ...seeded, revision: 2 };
-      edited.types[0].label = "Person";
-      edited.types[0].pluralLabel = "People";
-      await runInTransaction(() => records.saveModel(edited, user.id));
-      await new InitializeRecordModelService(records).initialize();
-      expect(await records.getModel()).toEqual(edited);
+      expect(await records.getState()).toBeNull();
+      expect(await records.getModel()).toMatchObject({
+        revision: 0,
+        types: [],
+        fields: [],
+        relationships: [],
+        capabilities: [],
+      });
     });
+    expect(
+      await runWithoutTenant(() => prisma.recordSchemaRevision.count({ where: { companyId: user.companyId } })),
+    ).toBe(0);
     expect(
       await runWithoutTenant(() =>
         prisma.authUser.findUniqueOrThrow({ where: { id: authUserId }, select: { companyId: true } }),
@@ -434,7 +432,6 @@ describeDatabase("registration against a real database", () => {
       eventService,
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(),
-      new InitializeRecordModelService(createTestRecordRepo()),
       createTestWorkspaceRegistration(),
     );
 
@@ -504,7 +501,6 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(),
-      new InitializeRecordModelService(createTestRecordRepo()),
       createTestWorkspaceRegistration(),
     );
 
@@ -577,7 +573,6 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(),
-      new InitializeRecordModelService(createTestRecordRepo()),
       createTestWorkspaceRegistration(),
     );
 
@@ -624,7 +619,6 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(authUserId, registrationEmail) as never,
       new PrismaCompanyRepo(),
-      new InitializeRecordModelService(createTestRecordRepo()),
       createTestWorkspaceRegistration(),
     );
 
@@ -666,7 +660,6 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(authUserId, registrationEmail) as never,
       new PrismaCompanyRepo(),
-      new InitializeRecordModelService(createTestRecordRepo()),
       createTestWorkspaceRegistration(),
     );
 
@@ -709,7 +702,6 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(missingAuthUserId, registrationEmail) as never,
       new PrismaCompanyRepo(),
-      new InitializeRecordModelService(createTestRecordRepo()),
       createTestWorkspaceRegistration(),
     );
 
@@ -774,7 +766,6 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(),
-      new InitializeRecordModelService(createTestRecordRepo()),
       createTestWorkspaceRegistration(),
     );
 
@@ -860,7 +851,6 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(),
-      new InitializeRecordModelService(createTestRecordRepo()),
       createTestWorkspaceRegistration(),
     ).invoke(registrationData, registrationTarget);
 
@@ -871,7 +861,6 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(),
-      new InitializeRecordModelService(createTestRecordRepo()),
       createTestWorkspaceRegistration(),
     ).invoke(registrationData, registrationTarget);
 
@@ -967,7 +956,6 @@ describeDatabase("registration against a real database", () => {
       newEventService(),
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(),
-      new InitializeRecordModelService(createTestRecordRepo()),
       createTestWorkspaceRegistration(),
     ).invoke(
       {
@@ -1157,7 +1145,6 @@ describeDatabase("registration against a real database", () => {
       eventService,
       unregisteredRouteGuardService(authUserId, rollbackEmail) as never,
       new PrismaCompanyRepo(),
-      new InitializeRecordModelService(createTestRecordRepo()),
       createTestWorkspaceRegistration(),
     );
 

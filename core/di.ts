@@ -111,7 +111,6 @@ import { DiscoverRecordTypesInteractor } from "@/features/records/discover-recor
 import { GetRecordChoicesInteractor } from "@/features/records/get-record-choices.interactor";
 import { GetRecordEditorInteractor } from "@/features/records/get-record-editor.interactor";
 import { EmbeddedSublistReader } from "@/features/records/embedded-sublist-reader";
-import { InitializeRecordModelService } from "@/features/records/initialize-record-model.service";
 import { MembershipTaskService } from "@/features/records/membership-task.service";
 import { MutateRecordInteractor } from "@/features/records/mutate-record.interactor";
 import { PreviewRecordDeletionInteractor } from "@/features/records/preview-record-deletion.interactor";
@@ -966,7 +965,6 @@ export const getConnectedAccountIdsValidator = () =>
 
 // --- User ---
 
-export const getInitializeRecordModelService = () => new InitializeRecordModelService(getRecordRepo());
 export const getRegisterUserInteractor = () =>
   new RegisterUserInteractor(
     getAuthService(),
@@ -974,7 +972,6 @@ export const getRegisterUserInteractor = () =>
     getEventService(),
     getRouteGuardService(),
     getCompanyRepo(),
-    getInitializeRecordModelService(),
     new WorkspaceRegistrationService(getCompanyRepo(), getRoleRepo(), getUserRepo()),
   );
 

@@ -6,7 +6,6 @@ import type { AuthService } from "@/features/auth/auth.service";
 import type { EventService } from "@/features/event/event.service";
 import type { RouteGuardService } from "@/features/auth/route-guard.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
-import type { InitializeRecordModelService } from "@/features/records/initialize-record-model.service";
 import type { WorkspaceRegistrationService } from "./workspace-registration.service";
 
 import { z } from "zod";
@@ -83,7 +82,6 @@ export class RegisterUserInteractor {
     private eventService: EventService,
     private routeGuardService: RouteGuardService,
     private companyRepo: RegisterUserCompanyRepo,
-    private recordModel: Pick<InitializeRecordModelService, "initialize">,
     private registration: Pick<WorkspaceRegistrationService, "createCompanyAndUser">,
   ) {}
 
@@ -173,7 +171,6 @@ export class RegisterUserInteractor {
     });
 
     await runWithTenant(tenantUser, async () => {
-      if (target.type === "createCompany") await this.recordModel.initialize();
       if (isNewCloudCompany) {
         await this.eventService.publish(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, {
           entityId: tenantUser.companyId,

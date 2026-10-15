@@ -45,7 +45,6 @@ describe("RegisterUserInteractor", () => {
   let mockRouteGuardService: any;
   let mockCompanyRepo: any;
   let mockRegistration: any;
-  let mockRecordModel: { initialize: ReturnType<typeof vi.fn<() => Promise<void>>> };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -79,7 +78,6 @@ describe("RegisterUserInteractor", () => {
         subscription: null,
       }),
     };
-    mockRecordModel = { initialize: vi.fn<() => Promise<void>>().mockResolvedValue(undefined) };
     mockCompanyRepo = { existsUnscoped: vi.fn().mockResolvedValue(true) };
     mockRegistration = { createCompanyAndUser: vi.fn().mockResolvedValue(mockTenantUser) };
   });
@@ -91,7 +89,6 @@ describe("RegisterUserInteractor", () => {
       mockEventService,
       mockRouteGuardService,
       mockCompanyRepo,
-      mockRecordModel,
       mockRegistration,
     );
   }
@@ -125,7 +122,6 @@ describe("RegisterUserInteractor", () => {
       authUserId: USER_ID,
       companyId: mockTenantUser.companyId,
     });
-    expect(mockRecordModel.initialize).toHaveBeenCalledOnce();
   });
 
   it("records current company-wide legal acceptance for a new cloud company", async () => {
@@ -255,7 +251,6 @@ describe("RegisterUserInteractor", () => {
 
     expect("ok" in result && result.ok).toBe(false);
     expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
-    expect(mockRecordModel.initialize).not.toHaveBeenCalled();
     expect(mockEventService.publish).not.toHaveBeenCalled();
   });
 

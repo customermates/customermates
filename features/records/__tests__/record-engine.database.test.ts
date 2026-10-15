@@ -151,7 +151,6 @@ const { PrismaRoleRepo } = await import("@/features/role/prisma-role.repository"
 const { UpsertRoleSchema } = await import("@/features/role/role-management.schema");
 const { RegisterUserInteractor } = await import("@/features/user/register/register-user.interactor");
 const { PrismaCompanyRepo } = await import("@/features/company/prisma-company.repository");
-const { InitializeRecordModelService } = await import("../initialize-record-model.service");
 const { DomainEvent } = await import("@/features/event/domain-events");
 const { PrismaWidgetRepo } = await import("@/features/widget/prisma-widget.repository");
 const { SaveWidgetInteractor } = await import("@/features/widget/save-widget.interactor");
@@ -5546,7 +5545,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           }),
       } as never,
       new PrismaCompanyRepo(),
-      new InitializeRecordModelService(f.repo),
       createTestWorkspaceRegistration(),
     );
     const data = {
@@ -8040,6 +8038,85 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     expect((await f.run(read, f.member)).messages).toEqual([]);
     expect(await f.run(() => inbox.getCount({}), f.member)).toBe(0);
+  });
+
+  it("expands a legacy bare record ID across every Channels list for identity choices and the inbox filter", async () => {
+    const { PrismaMessagingRepo } = await import("@/ee/messaging/persistence/prisma-messaging.repository");
+    const { GetIdentityRecordChoicesInteractor } = await import("../get-identity-record-choices.interactor");
+    const { FilterOperatorKey } = await import("@/core/base/base-query-builder");
+    const f = await fixture();
+    expect(
+      await f.run(() =>
+        f.configure.invoke({
+          expectedRevision: f.model.revision,
+          idempotencyKey: randomUUID(),
+          operations: [channelsFieldOperation(f.id("organization"))],
+        }),
+      ),
+    ).toMatchObject({ ok: true });
+    const created = await f.mutation(
+      {
+        action: "create",
+        typeId: f.id("organization"),
+        fields: [{ fieldId: f.id("organization.name"), value: textValue("Legacy Supplier") }],
+        identities: [{ provider: "google", value: "supplier@example.test" }],
+      },
+      f.admin,
+      randomUUID(),
+      f.model.revision + 1,
+    );
+    if (!created.ok || created.data.status !== "completed") throw new Error("Organization fixture failed");
+    const ref = recordInvariant(created.data.refs.find((candidate) => candidate.typeId === f.id("organization")));
+    const account = await f.run(() =>
+      prisma.connectedAccount.create({
+        data: {
+          companyId: f.company.id,
+          userId: f.admin.id,
+          unipileAccountId: randomUUID(),
+          provider: "outlook",
+          status: "ok",
+          shared: true,
+        },
+      }),
+    );
+    const thread = await f.run(() =>
+      prisma.messagingThread.create({
+        data: {
+          companyId: f.company.id,
+          connectedAccountId: account.id,
+          provider: "outlook",
+          unipileThreadId: randomUUID(),
+          lastMessageAt: new Date(),
+          participants: {
+            create: {
+              companyId: f.company.id,
+              provider: "outlook",
+              providerUserId: "supplier@example.test",
+              identifier: "supplier@example.test",
+              identityLookupValue: "supplier@example.test",
+              displayName: "Supplier",
+            },
+          },
+        },
+      }),
+    );
+    const lookup = new GetIdentityRecordChoicesInteractor(f.repo, f.policy);
+    expect(await f.run(() => lookup.invoke({ search: "", refs: [ref.recordId] }))).toMatchObject({
+      ok: true,
+      data: { records: [{ ref }] },
+    });
+    const inbox = new PrismaMessagingRepo(
+      getRecordRepo(),
+      getRecordAccessPolicy(),
+      getRecordIdentityReader(),
+      getConnectedAccountRepo(),
+    );
+    const params: GetQueryParams = {
+      filters: [{ field: "participantContactId", operator: FilterOperatorKey.in, value: [ref.recordId] }],
+      pagination: { page: 1, pageSize: 5 as const },
+    };
+    expect(await f.run(() => inbox.getCount(params))).toBe(1);
+    expect((await f.run(() => inbox.getItems(params))).map((row) => row.id)).toEqual([thread.id]);
   });
 
   it("resolves every selected Channels record while keeping search results bounded and unreadable refs absent", async () => {

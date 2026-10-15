@@ -21,13 +21,14 @@ vi.mock("next-intl/server", () => ({
 
 const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
-const { createTestRecordRepo, createTestDataViewRepo } = await import("@/tests/helpers/record-repository");
+const { createTestRecordRepo, createTestDataViewRepo, initializeStarterRecordModel } = await import(
+  "@/tests/helpers/record-repository"
+);
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
 const { RecordAccessPolicy } = await import("@/features/records/record-access");
 const { RecordCalculationService } = await import("@/features/records/record-calculation.service");
 const { RecordConfigurationService } = await import("@/features/records/configuration.service");
 const { RecordConfigurationWriter } = await import("@/features/records/record-configuration-writer");
-const { InitializeRecordModelService } = await import("@/features/records/initialize-record-model.service");
 const { PreviewRecordConfigurationInteractor } = await import(
   "@/features/records/preview-record-configuration.interactor"
 );
@@ -89,7 +90,7 @@ async function workspace() {
     createTestDataViewRepo(),
   );
   const run = <T>(fn: () => Promise<T>) => runWithTenant(admin, fn);
-  await run(() => new InitializeRecordModelService(repo).initialize());
+  await run(() => initializeStarterRecordModel(repo));
   return { companyId: seed.company.id, repo, preview, apply, widgets, run };
 }
 

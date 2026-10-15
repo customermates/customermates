@@ -6,7 +6,6 @@ import { Client } from "pg";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
-import { InitializeRecordModelService } from "@/features/records/initialize-record-model.service";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 
@@ -45,7 +44,7 @@ vi.mock("@/features/email/email.service", () => ({
 import { POST as inviteMembers } from "../invite/route";
 import { POST as updateMember } from "../update/route";
 import { PATCH as updateProfile } from "../../users/me/route";
-import { createTestRecordRepo } from "@/tests/helpers/record-repository";
+import { initializeStarterRecordModel } from "@/tests/helpers/record-repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -140,7 +139,7 @@ describeDatabase("member and profile REST routes", () => {
       ],
     );
     const owner = createMockUser({ id: adminUserId, companyId, roleId: adminRoleId });
-    await runWithTenant(owner, () => new InitializeRecordModelService(createTestRecordRepo()).initialize());
+    await runWithTenant(owner, () => initializeStarterRecordModel());
   });
 
   beforeEach(() => {

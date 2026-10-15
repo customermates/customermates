@@ -1,6 +1,5 @@
 import { recordInvariant } from "./record-invariant";
-
-import { createHash } from "node:crypto";
+import { deterministicId } from "./deterministic-id";
 
 import type {
   CalculationExpression,
@@ -10,11 +9,6 @@ import type {
   RecordScalar,
   RecordType,
 } from "./record-model.schema";
-
-export function deterministicId(companyId: string, key: string): string {
-  const hash = createHash("sha256").update(`customermates:records:v2:${companyId}:${key}`).digest("hex");
-  return `${hash.slice(0, 8)}-${hash.slice(8, 12)}-8${hash.slice(13, 16)}-8${hash.slice(17, 20)}-${hash.slice(20, 32)}`;
-}
 
 export function presetId(companyId: string, key: string): string {
   return deterministicId(companyId, key);
