@@ -1096,6 +1096,7 @@
       "emailMismatch": "Les adresses e-mail doivent correspondre.",
       "emailNotVerified": "Adresse e-mail non vérifiée.",
       "emailRecipientsRequired": "Ajoutez au moins un destinataire dans À, Cc ou Cci.",
+      "emailVerificationRequired": "Vérifiez votre adresse e-mail pour continuer à utiliser ce compte. Connectez-vous à l'application et demandez un nouveau lien de vérification.",
       "enterpriseCheckoutUnavailable": "Les espaces de travail Enterprise sont facturés manuellement et ne peuvent pas lancer le paiement en libre-service.",
       "filterBetweenInvalidArrayLength": "L'opérateur 'between' requiert un tableau contenant exactement 2 éléments.",
       "generic": "Une erreur est survenue.",

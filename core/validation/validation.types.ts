@@ -46,6 +46,7 @@ export enum CustomErrorCode {
   agentTurnAlreadyRunning = "agentTurnAlreadyRunning",
   notAuthenticated = "notAuthenticated",
   userInactive = "userInactive",
+  emailVerificationRequired = "emailVerificationRequired",
   permissionDenied = "permissionDenied",
   insufficientPermissions = "insufficientPermissions",
   demoMode = "demoMode",

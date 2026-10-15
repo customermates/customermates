@@ -1096,6 +1096,7 @@
       "emailMismatch": "E-Mail-Adressen müssen übereinstimmen.",
       "emailNotVerified": "E-Mail nicht verifiziert.",
       "emailRecipientsRequired": "Füge mindestens einen Empfänger unter An, Cc oder Bcc hinzu.",
+      "emailVerificationRequired": "Bestätige deine E-Mail-Adresse, um dieses Konto weiter zu nutzen. Melde dich in der App an und fordere einen neuen Bestätigungslink an.",
       "enterpriseCheckoutUnavailable": "Enterprise-Workspaces werden manuell abgerechnet und können keinen Self-Service-Checkout starten.",
       "filterBetweenInvalidArrayLength": "Der 'between'-Operator erfordert ein Array mit genau 2 Elementen.",
       "generic": "Ein Fehler ist aufgetreten.",

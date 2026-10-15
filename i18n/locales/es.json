@@ -1096,6 +1096,7 @@
       "emailMismatch": "Las direcciones de correo deben coincidir.",
       "emailNotVerified": "Correo no verificado.",
       "emailRecipientsRequired": "Añade al menos un destinatario en Para, Cc o Cco.",
+      "emailVerificationRequired": "Verifica tu dirección de correo para seguir usando esta cuenta. Inicia sesión en la app y solicita un nuevo enlace de verificación.",
       "enterpriseCheckoutUnavailable": "Los espacios de trabajo Enterprise se facturan manualmente y no pueden iniciar el pago de autoservicio.",
       "filterBetweenInvalidArrayLength": "El operador 'between' requiere un array con exactamente 2 elementos.",
       "generic": "Se ha producido un error.",

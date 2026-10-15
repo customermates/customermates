@@ -17,7 +17,9 @@ function service(overrides: Partial<FindUserRepo> = {}) {
     findUserByIdOrThrowUnscoped: vi.fn().mockResolvedValue(tenantUser),
     ...overrides,
   } as unknown as FindUserRepo;
-  const authService = { getSession: vi.fn().mockResolvedValue({ user: { email: "session@example.com" } }) };
+  const authService = {
+    getSession: vi.fn().mockResolvedValue({ user: { email: "session@example.com", emailVerified: true } }),
+  };
 
   return new UserService(authService as never, repo);
 }

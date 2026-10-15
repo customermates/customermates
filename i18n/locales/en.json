@@ -1096,6 +1096,7 @@
       "emailMismatch": "Email addresses must match.",
       "emailNotVerified": "Email not verified.",
       "emailRecipientsRequired": "Add at least one recipient in To, Cc or Bcc.",
+      "emailVerificationRequired": "Verify your email address to keep using this account. Sign in to the app and request a new verification link.",
       "enterpriseCheckoutUnavailable": "Enterprise workspaces are billed manually and cannot start self-service checkout.",
       "filterBetweenInvalidArrayLength": "The 'between' operator requires an array with exactly 2 elements.",
       "generic": "An error occurred.",

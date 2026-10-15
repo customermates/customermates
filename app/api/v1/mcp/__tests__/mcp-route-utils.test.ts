@@ -6,6 +6,10 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { mutateRecordV2Tool } from "@/features/mcp-tools/record-model.mcp-tools";
 import { mcpInteractorFailure, type McpTool } from "@/features/mcp-tools/mcp-tool";
 import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
+import {
+  EMAIL_VERIFICATION_REQUIRED_MESSAGE,
+  EmailVerificationRequiredError,
+} from "@/core/auth/email-verification-required-error";
 
 const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
 const apiKeys = vi.hoisted(() => ({
@@ -225,6 +229,16 @@ describe("public MCP execution boundary", () => {
 
     expect(refused.response.status).toBe(403);
     expect(refused.data).toMatchObject({ error: "inactive_user", message: "Your account is currently inactive." });
+  });
+
+  it("refuses the credential of an account overdue for email verification with a structured 403", async () => {
+    const handler = createMcpRoute({ test: [expectedFailureTool] });
+    apiKeys.authorize.mockRejectedValueOnce(new EmailVerificationRequiredError());
+
+    const refused = await rpc(handler, requestBody("initialize", 1));
+
+    expect(refused.response.status).toBe(403);
+    expect(refused.data).toMatchObject({ error: "email_not_verified", message: EMAIL_VERIFICATION_REQUIRED_MESSAGE });
   });
 
   it("refuses a valid credential without the API & Webhooks permission with a structured 403", async () => {
