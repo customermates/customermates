@@ -65,6 +65,12 @@ function invalid(): never {
   throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
 }
 
+function inModel(model: RecordModel, target: ConfigurationTarget): boolean {
+  const items: Array<{ id: string }> =
+    target.kind === "type" ? model.types : target.kind === "field" ? model.fields : model.relationships;
+  return items.some((item) => item.id === target.id);
+}
+
 function isDeleted(model: RecordModel, target: ConfigurationTarget): boolean {
   if (target.kind === "type") return model.types.find((type) => type.id === target.id)?.archived ?? invalid();
   if (target.kind === "field") return model.fields.find((field) => field.id === target.id)?.archived ?? invalid();
@@ -383,7 +389,7 @@ export function applyConfigurationLifecycle(
     const named = record?.nameField && model.types.find((type) => type.id === record.nameField?.typeId);
     if (named && named.primaryFieldId === record?.nameField?.replacementId) setNameField(model, named.id, target.id);
     if (record?.bindings?.length) restoreBindingFields(model, record.bindings);
-    const cascade = record?.cascade ?? [];
+    const cascade = (record?.cascade ?? []).filter((item) => inModel(model, item));
     for (const kind of ["type", "relationship", "field"] as const) {
       for (const item of cascade.filter((entry) => entry.kind === kind))
         if (isDeleted(model, item) && canRestore(model, item)) setDeleted(model, item, false);
@@ -430,7 +436,9 @@ export function applyConfigurationLifecycle(
       if (!deleted) invalid();
       permanent.push(
         target,
-        ...(records.get(targetKey(target))?.cascade ?? []).filter((item) => isDeleted(model, item)),
+        ...(records.get(targetKey(target))?.cascade ?? []).filter(
+          (item) => inModel(model, item) && isDeleted(model, item),
+        ),
       );
     }
   }

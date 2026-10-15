@@ -1039,6 +1039,41 @@ describeDatabase("restoring lists and relationships from Trash", () => {
     expect(await live()).toEqual(before);
   }, 180_000);
 
+  it("restores or deletes a list permanently after the list its relationship led to was deleted permanently", async () => {
+    for (const restore of [true, false]) {
+      const f = await fixture();
+      await f.remove({ kind: "field", id: f.customerCredit.id });
+      const organizations = await f.remove({ kind: "type", id: f.organizationTypeId });
+      const contacts = await f.remove({ kind: "type", id: f.id("contact") });
+      const preview = await f.as(() => f.trash.preview.invoke({ itemIds: [contacts] }));
+      if (!preview.ok) throw new Error(JSON.stringify(preview));
+      expect(
+        await f.as(() => f.trash.remove.invoke({ itemIds: [contacts], expectedImpactHash: preview.data.impactHash })),
+      ).toMatchObject({ ok: true, data: { deletedItemIds: [contacts], failedItemIds: [] } });
+      expect((await f.getModel()).relationships.some((relation) => relation.id === f.id("contact.organizations"))).toBe(
+        false,
+      );
+
+      if (restore) {
+        expect(await f.restore([organizations])).toMatchObject({
+          ok: true,
+          data: { status: "completed", blocked: [], restoredItemIds: [organizations] },
+        });
+        expect((await f.getModel()).types.find((type) => type.id === f.organizationTypeId)?.archived).toBe(false);
+        continue;
+      }
+      await runWithoutTenant(
+        () =>
+          prisma.$executeRaw`UPDATE "TrashItem" SET "expiresAt" = "deletedAt" - interval '1 day' WHERE "companyId" = ${f.companyId}`,
+      );
+      expect(
+        await f.trash.purge.invoke({ companyId: f.companyId, now: new Date().toISOString(), after: null }),
+      ).toMatchObject({ failed: 0 });
+      expect((await f.getModel()).types.some((type) => type.id === f.organizationTypeId)).toBe(false);
+      expect(await f.items()).toEqual([]);
+    }
+  }, 180_000);
+
   it("brings back the relationship columns that deleting a list or a relationship removed from other lists", async () => {
     const f = await fixture();
     const deals = (await f.getModel()).types.find((type) => type.id === f.dealTypeId);
