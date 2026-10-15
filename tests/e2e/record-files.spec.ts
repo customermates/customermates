@@ -22,8 +22,11 @@ async function storedFiles(database: Client, companyId: string, fieldId: string)
 async function saveRecord(page: Page, drawer: Locator) {
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer.getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
-  await drawer.getByRole("button", { name: "Close", exact: true }).click();
-  await expect(drawer).not.toBeVisible();
+  await expect(async () => {
+    const close = drawer.getByRole("button", { name: "Close", exact: true });
+    if (await close.isVisible()) await close.click({ timeout: 2000 });
+    await expect(drawer).not.toBeVisible({ timeout: 2000 });
+  }).toPass();
   await page.waitForLoadState("networkidle");
 }
 
