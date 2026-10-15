@@ -1,7 +1,7 @@
 import type { Validated } from "@/core/validation/validation.utils";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { WorkspaceSetupRepo } from "./workspace-setup.repo";
-import type { WorkspaceSetupPhase } from "./workspace-setup.schema";
+import type { StoredSetupPhase, WorkspaceSetupPhase } from "./workspace-setup.schema";
 import type { WorkspaceSetupCrawlStarter } from "./workspace-setup-crawl-starter";
 import type { RetryWorkspaceSetupPhaseData } from "./workspace-setup-input.schema";
 
@@ -16,10 +16,14 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { WORKSPACE_SETUP_PHASES, WORKSPACE_SETUP_PHASE_DEPENDENCIES } from "./workspace-setup.schema";
 import { RetryWorkspaceSetupPhaseSchema } from "./workspace-setup-input.schema";
 import { workspaceSetupUnavailability } from "./workspace-setup-availability";
-import { emptySetupPhase } from "./workspace-setup-build.service";
+import { abandonedSetupPatch, emptySetupPhase, setupPhaseStalled } from "./workspace-setup-build.service";
 import { setupLanguage } from "./workspace-setup-inputs";
 
 const RETRYABLE = new Set(["failed", "stopped"]);
+
+function retryable(state: StoredSetupPhase | undefined, now: Date): state is StoredSetupPhase {
+  return Boolean(state && (RETRYABLE.has(state.status) || setupPhaseStalled(state, now)));
+}
 
 function dependents(phase: WorkspaceSetupPhase): WorkspaceSetupPhase[] {
   return WORKSPACE_SETUP_PHASES.filter((candidate) => WORKSPACE_SETUP_PHASE_DEPENDENCIES[candidate].includes(phase));
@@ -44,7 +48,7 @@ export class RetryWorkspaceSetupPhaseInteractor extends AuthenticatedInteractor<
     const setup = await this.repo.get(data.setupId);
     if (!setup) return failNotFound(CustomErrorCode.workspaceSetupNotFound, ["setupId"]);
     const state = setup.phases[data.phase];
-    if ((setup.status !== "failed" && setup.status !== "building") || !state || !RETRYABLE.has(state.status))
+    if ((setup.status !== "failed" && setup.status !== "building") || !retryable(state, new Date()))
       return failConflict(CustomErrorCode.workspaceSetupConflict);
 
     const withoutWebsite = data.withoutWebsite === true;
@@ -67,7 +71,7 @@ export class RetryWorkspaceSetupPhaseInteractor extends AuthenticatedInteractor<
 
     const reset = await this.repo.mutate(data.setupId, (current) => {
       const phase = current.phases[data.phase];
-      if (!phase || !RETRYABLE.has(phase.status)) return null;
+      if (!retryable(phase, new Date())) return null;
       const restart = (attempts: number) => ({ ...emptySetupPhase(), attempts, retryFrom: attempts });
       const phases = { ...current.phases, [data.phase]: restart(phase.attempts) };
       for (const dependent of dependents(data.phase)) {
@@ -77,7 +81,13 @@ export class RetryWorkspaceSetupPhaseInteractor extends AuthenticatedInteractor<
       return { status: "building", finishedAt: null, phases, crawlId, ...(withoutWebsite ? { websiteUrl: null } : {}) };
     });
     if (!reset?.changed) return failConflict(CustomErrorCode.workspaceSetupConflict);
-    await this.background.dispatch("build-workspace-setup", { setupId: data.setupId, userId: this.userId });
+    try {
+      await this.background.dispatch("build-workspace-setup", { setupId: data.setupId, userId: this.userId });
+    } catch (error) {
+      const restarted = [data.phase, ...dependents(data.phase)];
+      await this.repo.mutate(data.setupId, (current) => abandonedSetupPatch(current, new Date(), restarted));
+      throw error;
+    }
     return { ok: true, data: { setupId: data.setupId } };
   }
 }

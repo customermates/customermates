@@ -53,7 +53,8 @@ const { agencyPlan } = await import("@/features/workspace-setup/__tests__/setup-
 const { planPartFor } = await import("./setup-wire-fixtures");
 const { WORKSPACE_SETUP_BUDGETS } = await import("../workspace-setup-spend");
 const { SETUP_BUILD_PHASE_ATTEMPTS } = await import("../workspace-setup-attempts");
-const { emptySetupPhase } = await import("../workspace-setup-build.service");
+const { SETUP_PHASE_STALE_MS, emptySetupPhase } = await import("../workspace-setup-build.service");
+const { SETUP_GENERATION_STALE_MS } = await import("../workspace-setup-interview.service");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -459,6 +460,173 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(view.status).toBe("completed");
     expect(view.phases.find((phase) => phase.key === "records")).toMatchObject({ status: "completed", attempts: 5 });
     expect(view.phases.find((phase) => phase.key === "dataModel")?.attempts).toBe(1);
+  });
+
+  it("shows a phase whose step died as failed once its claim is stale and lets Retry restart it", async () => {
+    const ws = await workspace();
+    const { setupId, planRevision } = await planned(ws);
+    await ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision }));
+    const claimedAt = (age: number) => new Date(Date.now() - age).toISOString();
+    const claim = (age: number) =>
+      ws.run(() =>
+        di.getWorkspaceSetupRepo().mutate(setupId, (current) => ({
+          phases: {
+            ...current.phases,
+            dataModel: { ...emptySetupPhase(), status: "running", attempts: 1, claimedAt: claimedAt(age) },
+          },
+        })),
+      );
+    const retry = () =>
+      ws.run(() => di.getRetryWorkspaceSetupPhaseInteractor().invoke({ setupId, phase: "dataModel" }));
+    const service = di.getWorkspaceSetupBuildService();
+
+    await claim(60_000);
+    expect((await status(ws)).phases.find((phase) => phase.key === "dataModel")).toMatchObject({
+      status: "running",
+      error: null,
+    });
+    expect(await ws.run(() => service.runPhase(setupId, "dataModel"))).toBe("busy");
+    expect((await retry()).ok).toBe(false);
+
+    await claim(SETUP_PHASE_STALE_MS + 60_000);
+    expect((await status(ws)).phases.find((phase) => phase.key === "dataModel")).toMatchObject({
+      status: "failed",
+      error: "error",
+    });
+    state.dispatch.mockClear();
+    expect(await retry()).toEqual({ ok: true, data: { setupId } });
+    expect(state.dispatch).toHaveBeenCalledWith("build-workspace-setup", { setupId, userId: ws.owner.id });
+    expect((await status(ws)).phases.find((phase) => phase.key === "dataModel")).toMatchObject({
+      status: "pending",
+      error: null,
+    });
+    expect(await ws.run(() => service.runPhase(setupId, "dataModel"))).toBe("settled");
+    expect((await status(ws)).phases.find((phase) => phase.key === "dataModel")?.status).toBe("completed");
+  });
+
+  it("keeps the setup retryable when the build or plan workflow cannot be started", async () => {
+    const ws = await workspace();
+    const { setupId, planRevision } = await planned(ws);
+    state.dispatch.mockRejectedValueOnce(new Error("queue down"));
+    await expect(
+      ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision })),
+    ).rejects.toThrow("queue down");
+    expect((await status(ws)).status).toBe("planned");
+    expect(await ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision }))).toEqual({
+      ok: true,
+      data: { setupId },
+    });
+    expect((await status(ws)).status).toBe("building");
+
+    const service = di.getWorkspaceSetupBuildService();
+    await ws.run(() =>
+      di.getWorkspaceSetupRepo().mutate(setupId, (current) => ({
+        phases: { ...current.phases, records: { ...emptySetupPhase(), status: "failed", error: "error", attempts: 3 } },
+      })),
+    );
+    expect(await ws.run(() => service.runPhase(setupId, "dataModel"))).toBe("settled");
+    state.dispatch.mockRejectedValueOnce(new Error("queue down"));
+    await expect(
+      ws.run(() => di.getRetryWorkspaceSetupPhaseInteractor().invoke({ setupId, phase: "records" })),
+    ).rejects.toThrow("queue down");
+    expect((await status(ws)).phases.find((phase) => phase.key === "records")).toMatchObject({
+      status: "failed",
+      error: "error",
+      attempts: 3,
+    });
+    expect(
+      await ws.run(() => di.getRetryWorkspaceSetupPhaseInteractor().invoke({ setupId, phase: "records" })),
+    ).toEqual({ ok: true, data: { setupId } });
+
+    const other = await workspace();
+    const replanned = await planned(other);
+    state.dispatch.mockRejectedValueOnce(new Error("queue down"));
+    await expect(
+      other.run(() => di.getPlanWorkspaceSetupInteractor().invoke({ setupId: replanned.setupId })),
+    ).rejects.toThrow("queue down");
+    expect((await status(other)).status).toBe("planned");
+    expect((await status(other)).plan).toMatchObject({ status: "completed", revision: replanned.planRevision });
+    const again = await other.run(() => di.getPlanWorkspaceSetupInteractor().invoke({ setupId: replanned.setupId }));
+    expect(again).toEqual({ ok: true, data: { planRevision: replanned.planRevision + 1 } });
+  });
+
+  it("offers Try again for a plan whose run stopped and abandons a failed planning run", async () => {
+    const ws = await workspace();
+    const { setupId, planRevision } = await planned(ws);
+    const queued = await ws.run(() => di.getPlanWorkspaceSetupInteractor().invoke({ setupId }));
+    expect(queued).toEqual({ ok: true, data: { planRevision: planRevision + 1 } });
+    const claim = await ws.run(() => di.getWorkspaceSetupInterviewService().claimPlan(setupId));
+    expect(claim).toEqual({ status: "claimed", revision: planRevision + 1 });
+    expect(await status(ws)).toMatchObject({ status: "planning", plan: { status: "running" } });
+    expect((await ws.run(() => di.getPlanWorkspaceSetupInteractor().invoke({ setupId }))).ok).toBe(false);
+
+    await ws.run(() =>
+      di.getWorkspaceSetupRepo().mutate(setupId, (current) => ({
+        interview: {
+          ...current.interview,
+          planClaimedAt: new Date(Date.now() - SETUP_GENERATION_STALE_MS - 60_000).toISOString(),
+        },
+      })),
+    );
+    expect(await status(ws)).toMatchObject({ status: "interview", plan: { status: "failed", error: "error" } });
+    expect(await ws.run(() => di.getPlanWorkspaceSetupInteractor().invoke({ setupId }))).toEqual({
+      ok: true,
+      data: { planRevision: planRevision + 2 },
+    });
+
+    await ws.run(() => di.getWorkspaceSetupInterviewService().abandonPlan(setupId, planRevision + 1));
+    expect((await status(ws)).status).toBe("planning");
+    await ws.run(() => di.getWorkspaceSetupInterviewService().abandonPlan(setupId, null));
+    expect(await status(ws)).toMatchObject({ status: "interview", plan: { status: "failed", error: "error" } });
+  });
+
+  it("releases the phases a failed build run left behind without touching live claims", async () => {
+    const ws = await workspace();
+    const { setupId, planRevision } = await planned(ws);
+    await ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision }));
+    const service = di.getWorkspaceSetupBuildService();
+    await ws.run(() =>
+      di.getWorkspaceSetupRepo().mutate(setupId, (current) => ({
+        phases: {
+          ...current.phases,
+          knowledgeBase: {
+            ...emptySetupPhase(),
+            status: "running",
+            attempts: 1,
+            claimedAt: new Date().toISOString(),
+          },
+          dataModel: { ...emptySetupPhase(), status: "pending", error: "generation", attempts: 1 },
+        },
+      })),
+    );
+    await ws.run(() => service.abandon(setupId));
+    let view = await status(ws);
+    expect(view.status).toBe("building");
+    expect(view.phases.map((phase) => [phase.key, phase.status, phase.error])).toEqual([
+      ["knowledgeBase", "running", null],
+      ["dataModel", "failed", "error"],
+      ["views", "failed", "dependency"],
+      ["records", "failed", "dependency"],
+      ["dashboard", "failed", "dependency"],
+    ]);
+    await ws.run(() =>
+      di.getWorkspaceSetupRepo().mutate(setupId, (current) => ({
+        phases: { ...current.phases, knowledgeBase: { ...emptySetupPhase(), status: "skipped", attempts: 1 } },
+      })),
+    );
+    await ws.run(() => service.abandon(setupId));
+    view = await status(ws);
+    expect(view.status).toBe("failed");
+    expect(
+      await ws.run(() => di.getRetryWorkspaceSetupPhaseInteractor().invoke({ setupId, phase: "dataModel" })),
+    ).toEqual({ ok: true, data: { setupId } });
+    expect((await status(ws)).phases.map((phase) => phase.status)).toEqual([
+      "skipped",
+      "pending",
+      "pending",
+      "pending",
+      "pending",
+    ]);
   });
 
   it("charges planning and building to separate workspace budgets", async () => {

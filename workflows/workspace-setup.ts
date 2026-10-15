@@ -19,6 +19,7 @@ export type WorkspaceSetupWorkflowPayload = {
 const PREFILL_WAIT_ROUNDS = 18;
 const KNOWLEDGE_BASE_WAIT_ROUNDS = 180;
 const PLAN_BUSY_ROUNDS = 100;
+const PHASE_BUSY_ROUNDS = 130;
 const PLAN_PART_ROUNDS = 3;
 const WAIT = "10s";
 const PLAN_RETRY_WAIT = "30s";
@@ -87,6 +88,25 @@ async function finishWorkspaceSetupStep(payload: WorkspaceSetupWorkflowPayload):
   await runAsBackgroundTenant(payload.userId, () => getWorkspaceSetupBuildService().finish(payload.setupId));
 }
 
+async function abandonWorkspaceSetupStep(payload: WorkspaceSetupWorkflowPayload): Promise<void> {
+  "use step";
+  await runAsBackgroundTenant(payload.userId, () => getWorkspaceSetupBuildService().abandon(payload.setupId), {
+    allowInactive: true,
+  });
+}
+
+async function abandonWorkspaceSetupPlanStep(
+  payload: WorkspaceSetupWorkflowPayload,
+  revision: number | null,
+): Promise<void> {
+  "use step";
+  await runAsBackgroundTenant(
+    payload.userId,
+    () => getWorkspaceSetupInterviewService().abandonPlan(payload.setupId, revision),
+    { allowInactive: true },
+  );
+}
+
 followUpWorkspaceSetupStep.maxRetries = 1;
 claimWorkspaceSetupPlanStep.maxRetries = 1;
 planWorkspaceSetupPartStep.maxRetries = 1;
@@ -130,9 +150,10 @@ async function claimPlan(payload: WorkspaceSetupWorkflowPayload) {
   return null;
 }
 
-async function draftPlan(payload: WorkspaceSetupWorkflowPayload, final: boolean) {
+async function draftPlan(payload: WorkspaceSetupWorkflowPayload, final: boolean, claimed: { revision: number | null }) {
   const revision = await claimPlan(payload);
   if (revision === null) return "skip" as const;
+  claimed.revision = revision;
   const [model] = await Promise.all([
     draftPlanPart(payload, revision, "model"),
     draftPlanPart(payload, revision, "knowledge"),
@@ -143,16 +164,21 @@ async function draftPlan(payload: WorkspaceSetupWorkflowPayload, final: boolean)
 
 export async function planWorkspaceSetup(payload: WorkspaceSetupWorkflowPayload): Promise<void> {
   "use workflow";
+  const claimed: { revision: number | null } = { revision: null };
   try {
     const followUps = await followUpWorkspaceSetupStep(payload);
     await warn("plan-workspace-setup", followUps.warnings, payload.tenant);
     if (followUps.result !== "none") return;
     for (let attempt = 1; attempt <= SETUP_PLAN_ATTEMPTS; attempt += 1) {
-      if ((await draftPlan(payload, attempt === SETUP_PLAN_ATTEMPTS)) !== "retry") return;
+      if ((await draftPlan(payload, attempt === SETUP_PLAN_ATTEMPTS, claimed)) !== "retry") return;
       await sleep(PLAN_RETRY_WAIT);
     }
   } catch (error) {
-    await reportFailure("plan-workspace-setup", toWorkflowFailure(error), payload.tenant);
+    try {
+      await abandonWorkspaceSetupPlanStep(payload, claimed.revision);
+    } finally {
+      await reportFailure("plan-workspace-setup", toWorkflowFailure(error), payload.tenant);
+    }
     throw error;
   }
 }
@@ -173,17 +199,21 @@ export async function buildWorkspaceSetup(payload: WorkspaceSetupWorkflowPayload
     await Promise.all([
       runUntilSettled(payload, "knowledgeBase", KNOWLEDGE_BASE_WAIT_ROUNDS),
       (async () => {
-        await runUntilSettled(payload, "dataModel", PREFILL_WAIT_ROUNDS);
+        await runUntilSettled(payload, "dataModel", PHASE_BUSY_ROUNDS);
         await Promise.all([
-          runUntilSettled(payload, "views", PREFILL_WAIT_ROUNDS),
-          runUntilSettled(payload, "records", PREFILL_WAIT_ROUNDS),
-          runUntilSettled(payload, "dashboard", PREFILL_WAIT_ROUNDS),
+          runUntilSettled(payload, "views", PHASE_BUSY_ROUNDS),
+          runUntilSettled(payload, "records", PHASE_BUSY_ROUNDS),
+          runUntilSettled(payload, "dashboard", PHASE_BUSY_ROUNDS),
         ]);
       })(),
     ]);
     await finishWorkspaceSetupStep(payload);
   } catch (error) {
-    await reportFailure("build-workspace-setup", toWorkflowFailure(error), payload.tenant);
+    try {
+      await abandonWorkspaceSetupStep(payload);
+    } finally {
+      await reportFailure("build-workspace-setup", toWorkflowFailure(error), payload.tenant);
+    }
     throw error;
   }
 }

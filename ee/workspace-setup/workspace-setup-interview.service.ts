@@ -85,6 +85,10 @@ function stale(claimedAt: string | null, now: Date) {
   return !claimedAt || new Date(claimedAt).getTime() < now.getTime() - SETUP_GENERATION_STALE_MS;
 }
 
+export function setupPlanStalled(setup: Pick<WorkspaceSetupRecord, "status" | "interview">, now: Date): boolean {
+  return setup.status === "planning" && setup.interview.plan === "running" && stale(setup.interview.planClaimedAt, now);
+}
+
 export class WorkspaceSetupInterviewService extends UserAccessor {
   constructor(
     private repo: WorkspaceSetupRepo,
@@ -206,6 +210,17 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
         : { interview };
     });
     return updated?.changed && questions.length ? "asked" : "none";
+  }
+
+  async abandonPlan(setupId: string, revision: number | null): Promise<void> {
+    await this.repo.mutate(setupId, (setup) => {
+      if (setup.status !== "planning" || (revision !== null && setup.planRevision !== revision)) return null;
+      return {
+        status: "interview",
+        artifacts: withoutPlanParts(setup.artifacts, () => false),
+        interview: { ...setup.interview, plan: "failed", planError: "error", planClaimedAt: null },
+      };
+    });
   }
 
   async claimPlan(setupId: string): Promise<PlanClaim> {

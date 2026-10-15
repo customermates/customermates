@@ -50,7 +50,15 @@ export class ConfirmWorkspaceSetupInteractor extends AuthenticatedInteractor<
       return failConflict(CustomErrorCode.workspaceSetupConflict);
     }
 
-    await this.background.dispatch("build-workspace-setup", { setupId: data.setupId, userId: this.userId });
+    try {
+      await this.background.dispatch("build-workspace-setup", { setupId: data.setupId, userId: this.userId });
+    } catch (error) {
+      await this.repo.mutate(data.setupId, (setup) => {
+        const untouched = WORKSPACE_SETUP_PHASES.every((phase) => (setup.phases[phase]?.attempts ?? 0) === 0);
+        return setup.status === "building" && untouched ? { status: "planned", confirmedAt: null } : null;
+      });
+      throw error;
+    }
     return { ok: true, data: { setupId: data.setupId } };
   }
 }

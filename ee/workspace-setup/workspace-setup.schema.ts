@@ -247,7 +247,6 @@ export type WorkspaceSetupRecord = {
   results: StoredSetupResults;
   spreadsheetName: string | null;
   hasSpreadsheet: boolean;
-  workflowRunId: string | null;
   startedAt: Date;
   confirmedAt: Date | null;
   finishedAt: Date | null;
@@ -265,7 +264,6 @@ export type WorkspaceSetupPatch = Partial<
     | "artifacts"
     | "created"
     | "results"
-    | "workflowRunId"
     | "confirmedAt"
     | "finishedAt"
     | "crawlId"

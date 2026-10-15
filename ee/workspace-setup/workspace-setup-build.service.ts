@@ -16,6 +16,7 @@ import type { WorkspaceSetupRepo } from "./workspace-setup.repo";
 import type {
   BrandMapping,
   StoredSetupPhase,
+  StoredSetupPhases,
   StoredSetupResults,
   WorkspaceSetupFailure,
   WorkspaceSetupPatch,
@@ -124,6 +125,48 @@ export function emptySetupPhase(): StoredSetupPhase {
   };
 }
 
+export function setupPhaseStalled(state: StoredSetupPhase, now: Date): boolean {
+  return (
+    state.status === "running" &&
+    (!state.claimedAt || new Date(state.claimedAt).getTime() <= now.getTime() - SETUP_PHASE_STALE_MS)
+  );
+}
+
+function settledSetupStatus(phases: StoredSetupPhases): "completed" | "failed" | null {
+  const states = WORKSPACE_SETUP_PHASES.map((phase) => phases[phase]?.status ?? "pending");
+  if (!states.every((state) => SETTLED.has(state))) return null;
+  return states.every((state) => state === "completed" || state === "skipped") ? "completed" : "failed";
+}
+
+export function abandonedSetupPatch(
+  setup: WorkspaceSetupRecord,
+  now: Date,
+  only: readonly WorkspaceSetupPhase[] = WORKSPACE_SETUP_PHASES,
+): WorkspaceSetupPatch | null {
+  if (setup.status !== "building") return null;
+  const phases: StoredSetupPhases = { ...setup.phases };
+  let changed = false;
+  for (const phase of WORKSPACE_SETUP_PHASES.filter((candidate) => only.includes(candidate))) {
+    const state = phases[phase] ?? emptySetupPhase();
+    if (SETTLED.has(state.status) || (state.status === "running" && !setupPhaseStalled(state, now))) continue;
+    const dependencies = WORKSPACE_SETUP_PHASE_DEPENDENCIES[phase].map(
+      (dependency) => phases[dependency]?.status ?? "pending",
+    );
+    if (dependencies.some((status) => !SETTLED.has(status))) continue;
+    phases[phase] = {
+      ...state,
+      status: "failed",
+      error: dependencies.every((status) => status === "completed") ? "error" : "dependency",
+      claimedAt: null,
+      finishedAt: now.toISOString(),
+    };
+    changed = true;
+  }
+  const status = settledSetupStatus(phases);
+  if (!changed && !status) return null;
+  return { phases, ...(status ? { status, finishedAt: now } : {}) };
+}
+
 function failureOf(error: z.ZodError): WorkspaceSetupFailure {
   const codes = interactorFailureCodes(error);
   if (codes.includes(CustomErrorCode.permissionDenied)) return "permission";
@@ -179,10 +222,10 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     const claimed = await this.repo.mutate(setupId, (setup) => {
       const state = setup.phases[phase] ?? emptySetupPhase();
       if (setup.status !== "building") return null;
-      const fresh = state.claimedAt && new Date(state.claimedAt).getTime() > now.getTime() - SETUP_PHASE_STALE_MS;
-      if (state.status !== "pending" && !(state.status === "running" && (!fresh || phase === "knowledgeBase")))
+      const stalled = setupPhaseStalled(state, now);
+      if (state.status !== "pending" && !(state.status === "running" && (stalled || phase === "knowledgeBase")))
         return null;
-      if (state.status === "running" && phase === "knowledgeBase" && fresh && !giveUp && state.attempts > 0)
+      if (state.status === "running" && phase === "knowledgeBase" && !stalled && !giveUp && state.attempts > 0)
         return { phases: { ...setup.phases, [phase]: { ...state, claimedAt: now.toISOString() } } };
 
       return {
@@ -259,11 +302,13 @@ export class WorkspaceSetupBuildService extends UserAccessor {
   async finish(setupId: string): Promise<void> {
     await this.repo.mutate(setupId, (setup) => {
       if (setup.status !== "building") return null;
-      const states = WORKSPACE_SETUP_PHASES.map((phase) => setup.phases[phase]?.status ?? "pending");
-      if (!states.every((state) => SETTLED.has(state))) return null;
-      const clean = states.every((state) => state === "completed" || state === "skipped");
-      return { status: clean ? "completed" : "failed", finishedAt: new Date() };
+      const status = settledSetupStatus(setup.phases);
+      return status ? { status, finishedAt: new Date() } : null;
     });
+  }
+
+  async abandon(setupId: string): Promise<void> {
+    await this.repo.mutate(setupId, (setup) => abandonedSetupPatch(setup, new Date()));
   }
 
   private work(setup: WorkspaceSetupRecord, phase: WorkspaceSetupPhase, giveUp: boolean): Promise<PhaseOutcome> {

@@ -11,6 +11,8 @@ const state = vi.hoisted(() => ({
   finishPlan: vi.fn(),
   runPhase: vi.fn(),
   finish: vi.fn(),
+  abandon: vi.fn(),
+  abandonPlan: vi.fn(),
   reportFailure: vi.fn(),
   reportWarning: vi.fn(),
 }));
@@ -31,11 +33,13 @@ vi.mock("@/core/di", () => ({
     claimPlan: state.claimPlan,
     planPart: state.planPart,
     finishPlan: state.finishPlan,
+    abandonPlan: state.abandonPlan,
     drainWarnings: () => [],
   }),
   getWorkspaceSetupBuildService: () => ({
     runPhase: state.runPhase,
     finish: state.finish,
+    abandon: state.abandon,
     drainWarnings: () => ["phase warning"],
   }),
 }));
@@ -46,6 +50,9 @@ vi.mock("../capture-failure", () => ({
 }));
 
 import { buildWorkspaceSetup, planWorkspaceSetup, prepareWorkspaceSetup } from "../workspace-setup";
+import { SETUP_PHASE_STALE_MS } from "@/ee/workspace-setup/workspace-setup-build.service";
+
+const WAIT_MS = 10_000;
 
 const payload = { setupId: "setup-1", userId: "owner-1" };
 
@@ -141,12 +148,58 @@ describe("workspace setup workflows", () => {
     expect(state.reportWarning).toHaveBeenCalledWith("build-workspace-setup", "phase warning", undefined);
   });
 
-  it("reports and rethrows a failed build without finishing it", async () => {
+  it("reports and rethrows a failed build without finishing it, leaving its phases retryable", async () => {
     state.runPhase.mockRejectedValue(new Error("database down"));
     await expect(buildWorkspaceSetup(payload)).rejects.toThrow("database down");
     expect(state.finish).not.toHaveBeenCalled();
+    expect(state.abandon).toHaveBeenCalledWith("setup-1");
     expect(state.reportFailure).toHaveBeenCalledWith(
       "build-workspace-setup",
+      { name: "Error", message: "database down" },
+      undefined,
+    );
+  });
+
+  it("still reports a failed build when its phases cannot be released", async () => {
+    state.runPhase.mockRejectedValue(new Error("database down"));
+    state.abandon.mockRejectedValue(new Error("still down"));
+    await expect(buildWorkspaceSetup(payload)).rejects.toThrow("still down");
+    expect(state.reportFailure).toHaveBeenCalledWith(
+      "build-workspace-setup",
+      { name: "Error", message: "database down" },
+      undefined,
+    );
+  });
+
+  it("waits on a phase claimed by a dead step until its claim goes stale, then builds the rest", async () => {
+    const busyRounds = Math.floor(SETUP_PHASE_STALE_MS / WAIT_MS) + 1;
+    let busy = busyRounds;
+    state.runPhase.mockImplementation((_setupId: string, phase: string) => {
+      state.calls.push(phase);
+      if (phase === "dataModel" && busy > 0) {
+        busy -= 1;
+        return Promise.resolve("busy");
+      }
+      return Promise.resolve("settled");
+    });
+    await buildWorkspaceSetup(payload);
+    expect(state.calls.filter((phase) => phase === "dataModel")).toHaveLength(busyRounds + 1);
+    expect(busyRounds * WAIT_MS).toBeGreaterThan(SETUP_PHASE_STALE_MS);
+    expect(state.calls).toEqual(expect.arrayContaining(["views", "records", "dashboard"]));
+    expect(state.finish).toHaveBeenCalledWith("setup-1");
+  });
+
+  it("marks the plan of a failed planning run failed so the owner can try again", async () => {
+    state.followUps.mockResolvedValue("none");
+    state.planPart.mockRejectedValue(new Error("database down"));
+    await expect(planWorkspaceSetup(payload)).rejects.toThrow("database down");
+    expect(state.abandonPlan).toHaveBeenCalledWith("setup-1", 4);
+
+    state.followUps.mockRejectedValue(new Error("database down"));
+    await expect(planWorkspaceSetup(payload)).rejects.toThrow("database down");
+    expect(state.abandonPlan).toHaveBeenLastCalledWith("setup-1", null);
+    expect(state.reportFailure).toHaveBeenCalledWith(
+      "plan-workspace-setup",
       { name: "Error", message: "database down" },
       undefined,
     );

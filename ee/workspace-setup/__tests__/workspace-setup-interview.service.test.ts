@@ -41,7 +41,6 @@ function harness(overrides: Partial<WorkspaceSetupRecord> = {}, crawl: Partial<S
     results: StoredSetupResultsSchema.parse({}),
     spreadsheetName: null,
     hasSpreadsheet: false,
-    workflowRunId: null,
     startedAt: new Date(),
     confirmedAt: null,
     finishedAt: null,

@@ -13,7 +13,8 @@ import type {
 } from "./workspace-setup.schema";
 
 import { WORKSPACE_SETUP_PHASES } from "./workspace-setup.schema";
-import { emptySetupPhase } from "./workspace-setup-build.service";
+import { emptySetupPhase, setupPhaseStalled } from "./workspace-setup-build.service";
+import { setupPlanStalled } from "./workspace-setup-interview.service";
 
 export type WorkspaceSetupPhaseView = {
   key: WorkspaceSetupPhase;
@@ -68,22 +69,25 @@ export function workspaceSetupView(
   crawl: SetupCrawlState | null,
   spend: { usedMicrocents: number; heldMicrocents: number },
   capMicrocents: number,
+  now = new Date(),
 ): WorkspaceSetupView {
   const phases = WORKSPACE_SETUP_PHASES.map((key) => {
     const phase = setup.phases[key] ?? emptySetupPhase();
+    const stalled = setupPhaseStalled(phase, now);
     return {
       key,
-      status: phase.status,
-      error: phase.error,
+      status: stalled ? ("failed" as const) : phase.status,
+      error: stalled ? ("error" as const) : phase.error,
       attempts: phase.attempts,
       startedAt: phase.startedAt,
       finishedAt: phase.finishedAt,
     };
   });
   const idle = !phases.some((phase) => phase.status === "running");
+  const planStalled = setupPlanStalled(setup, now);
   return {
     id: setup.id,
-    status: setup.status,
+    status: planStalled ? "interview" : setup.status,
     websiteUrl: setup.websiteUrl,
     startedAt: setup.startedAt.toISOString(),
     confirmedAt: setup.confirmedAt?.toISOString() ?? null,
@@ -103,8 +107,8 @@ export function workspaceSetupView(
       followUpAnswers: setup.interview.followUpAnswers,
     },
     plan: {
-      status: setup.interview.plan,
-      error: setup.interview.planError,
+      status: planStalled ? "failed" : setup.interview.plan,
+      error: planStalled ? "error" : setup.interview.planError,
       revision: setup.planRevision,
       plan: setup.plan,
     },

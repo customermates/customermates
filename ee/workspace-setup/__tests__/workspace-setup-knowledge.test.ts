@@ -51,7 +51,6 @@ function setup(overrides: Partial<WorkspaceSetupRecord> = {}): WorkspaceSetupRec
     results: StoredSetupResultsSchema.parse({}),
     spreadsheetName: null,
     hasSpreadsheet: false,
-    workflowRunId: null,
     startedAt: new Date(),
     confirmedAt: new Date(),
     finishedAt: null,
