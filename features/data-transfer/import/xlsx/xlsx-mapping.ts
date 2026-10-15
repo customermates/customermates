@@ -23,23 +23,13 @@ const LAST_NAME_WORDS = ["lastname", "surname", "familyname", "nachname", "nom",
 
 const FULL_NAME_WORDS = ["fullname", "vollstandigername", "nomcomplet", "nombrecompleto", "nomecompleto"];
 
+const PERSON_NAME_WORDS = ["name", ...FULL_NAME_WORDS];
+
 const SYNONYM_GROUPS: string[][] = [
   ["amount", "price", "value", "betrag", "preis", "montant", "importe", "prezzo"],
   FIRST_NAME_WORDS,
   LAST_NAME_WORDS,
-  [
-    "name",
-    ...FULL_NAME_WORDS,
-    "title",
-    "companyname",
-    "accountname",
-    "dealname",
-    "firmenname",
-    "titel",
-    "titre",
-    "titolo",
-    "titulo",
-  ],
+  ["name", "title", "companyname", "accountname", "dealname", "firmenname", "titel", "titre", "titolo", "titulo"],
   ["notes", "note", "description", "comments", "notizen", "beschreibung", "descripcion", "descrizione"],
   ["contacts", "kontakte", "contactos", "contatti", "people", "personen"],
   ["deals", "opportunities", "abschlusse", "oportunidades", "affaires", "trattative"],
@@ -83,10 +73,12 @@ function sameWord(left: string, right: string): boolean {
   return left === right || singular(left) === singular(right);
 }
 
+function inGroup(group: string[], normalized: string): boolean {
+  return group.some((word) => sameWord(word, normalized));
+}
+
 function synonymMatch(header: string, label: string): boolean {
-  return SYNONYM_GROUPS.some(
-    (group) => group.some((word) => sameWord(word, header)) && group.some((word) => sameWord(word, label)),
-  );
+  return SYNONYM_GROUPS.some((group) => inGroup(group, header) && inGroup(group, label));
 }
 
 export function xlsxImportFields(model: RecordModelView, typeId: string): RecordFieldView[] {
@@ -147,9 +139,9 @@ function matchScore(header: string, option: XlsxTargetOption): number {
   const label = normalizeXlsxHeader(option.label);
   if (option.target.kind === "recordId" && RECORD_ID_SYNONYMS.includes(header)) return 100;
   if (option.target.kind === "assignedTo" && ASSIGNED_SYNONYMS.some((word) => sameWord(word, header))) return 95;
-  if (option.target.kind === "nameParts")
-    return ["name", ...FULL_NAME_WORDS].some((word) => sameWord(word, header)) ? 75 : 0;
+  if (option.target.kind === "nameParts") return inGroup(PERSON_NAME_WORDS, header) ? 85 : 0;
   if (label && sameWord(label, header)) return 100;
+  if (label && inGroup(PERSON_NAME_WORDS, header) && inGroup(PERSON_NAME_WORDS, label)) return 90;
   if (label && synonymMatch(header, label)) return 80;
   return 0;
 }

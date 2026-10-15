@@ -11,6 +11,8 @@ import {
   parseDecimalText,
   parseSpreadsheetBoolean,
   parseSpreadsheetCurrency,
+  loneNameParts,
+  requiredNamePart,
   splitPersonName,
 } from "../spreadsheet-values";
 
@@ -112,5 +114,42 @@ describe("spreadsheet value parsing", () => {
     expect(splitPersonName("Jean-Luc Picard")).toEqual({ first: "Jean-Luc", last: "Picard" });
     expect(splitPersonName("Cher")).toEqual({ first: "Cher", last: "" });
     expect(splitPersonName("")).toEqual({ first: "", last: "" });
+    expect(splitPersonName("Vincent Van Gogh")).toEqual({ first: "Vincent", last: "Van Gogh" });
+    expect(splitPersonName("Anna De La Cruz")).toEqual({ first: "Anna", last: "De La Cruz" });
+  });
+
+  it("keeps a suffix with the last name and drops leading titles", () => {
+    expect(splitPersonName("Martin Luther King, Jr.")).toEqual({ first: "Martin Luther", last: "King Jr." });
+    expect(splitPersonName("Martin Luther King Jr.")).toEqual({ first: "Martin Luther", last: "King Jr." });
+    expect(splitPersonName("King, Martin Luther, Jr.")).toEqual({ first: "Martin Luther", last: "King Jr." });
+    expect(splitPersonName("John Smith, III")).toEqual({ first: "John", last: "Smith III" });
+    expect(splitPersonName("Dr. Anna Schmidt")).toEqual({ first: "Anna", last: "Schmidt" });
+    expect(splitPersonName("Prof. Dr. Anna Schmidt")).toEqual({ first: "Anna", last: "Schmidt" });
+    expect(splitPersonName("Schmidt, Dr. Anna")).toEqual({ first: "Anna", last: "Schmidt" });
+    expect(splitPersonName("Mrs Jane Doe")).toEqual({ first: "Jane", last: "Doe" });
+    expect(splitPersonName("Herr Müller")).toEqual({ first: "", last: "Müller" });
+  });
+
+  it("puts a lone word into the name part the list requires", () => {
+    expect(splitPersonName("Madonna", "last")).toEqual({ first: "", last: "Madonna" });
+    expect(splitPersonName("Frau Schmidt", "first")).toEqual({ first: "Schmidt", last: "" });
+    expect(requiredNamePart({ required: false }, { required: true })).toBe("last");
+    expect(requiredNamePart({ required: true }, undefined)).toBe("first");
+    expect(requiredNamePart({ required: true }, { required: true })).toBeUndefined();
+    expect(requiredNamePart(undefined, undefined)).toBeUndefined();
+    expect(
+      loneNameParts(
+        [
+          { column: "Name", fieldId: "first", namePart: "first" },
+          { column: "Name", fieldId: "last", namePart: "last" },
+          { column: "Email", fieldId: "email" },
+        ],
+        [
+          { id: "first", required: false },
+          { id: "last", required: true },
+          { id: "email", required: true },
+        ],
+      ),
+    ).toEqual(new Map([["Name", "last"]]));
   });
 });

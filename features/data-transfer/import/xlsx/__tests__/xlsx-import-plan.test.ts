@@ -129,6 +129,46 @@ describe("xlsx import planning", () => {
     expect(plan.flatMap((row) => row.issues)).toEqual([]);
   });
 
+  it("puts a one-word name into the required name part and drops titles", () => {
+    const requiredLast = {
+      ...personModel,
+      fields: personModel.fields.map((field) =>
+        field.id === personFields.last.id ? { ...field, required: true } : field,
+      ),
+    };
+    const plan = planXlsxImport(
+      {
+        model: requiredLast,
+        typeId: PERSON,
+        headers: ["Full name"],
+        rows: [
+          { sheetRow: 2, cells: ["Cher"] },
+          { sheetRow: 3, cells: ["Dr. Anna Schmidt"] },
+        ],
+        mapping: [`nameParts:${personFields.first.id}:${personFields.last.id}`],
+        options: xlsxTargetOptions(requiredLast, PERSON, labels),
+        lookups: { members: [], relations: new Map() },
+      },
+      "create",
+      null,
+      null,
+      newId,
+      now,
+    );
+    const text = (value: string) => ({ state: "value", value: { kind: "text", value } });
+    expect(
+      plan.map((row) =>
+        [personFields.first.id, personFields.last.id].map(
+          (fieldId) => row.record?.fields.find((field) => field.fieldId === fieldId)?.result,
+        ),
+      ),
+    ).toEqual([
+      [{ state: "missing" }, text("Cher")],
+      [text("Anna"), text("Schmidt")],
+    ]);
+    expect(plan.flatMap((row) => row.issues)).toEqual([]);
+  });
+
   it("reports a missing required value in create mode", () => {
     const plan = planXlsxImport(
       input(["Hours"], [`field:${fields.hours.id}`], [{ sheetRow: 2, cells: [3] }]),

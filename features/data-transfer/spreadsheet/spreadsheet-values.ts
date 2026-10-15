@@ -39,6 +39,11 @@ const NAME_PARTICLES = new Set([
   "von",
   "zu",
 ]);
+const NAME_TITLES = new Set(["dr", "prof", "mr", "mrs", "ms", "herr", "frau"]);
+const NAME_SUFFIXES = new Set(["jr", "sr", "ii", "iii", "iv"]);
+
+type PersonName = { first: string; last: string };
+type PersonNamePart = keyof PersonName;
 
 export function cellIsEmpty(cell: SpreadsheetCell): boolean {
   return cell === null || (typeof cell === "string" && cell.trim() === "");
@@ -310,13 +315,68 @@ export function splitListValues(input: string, separators: RegExp): string[] {
     .filter(Boolean);
 }
 
-export function splitPersonName(input: string): { first: string; last: string } {
-  const text = input.replace(/\s+/g, " ").trim();
-  const comma = text.indexOf(",");
-  if (comma >= 0) return { first: text.slice(comma + 1).trim(), last: text.slice(0, comma).trim() };
-  const words = text.split(" ");
-  if (words.length < 2) return { first: text, last: "" };
-  const particle = words.findIndex((word, index) => index > 0 && index < words.length - 1 && NAME_PARTICLES.has(word));
+function nameWordKey(word: string): string {
+  return word.toLowerCase().replace(/\.$/, "");
+}
+
+function withoutTitles(words: string[]): { words: string[]; titled: boolean } {
+  let start = 0;
+  while (start < words.length - 1 && NAME_TITLES.has(nameWordKey(words[start]))) start += 1;
+  return { words: words.slice(start), titled: start > 0 };
+}
+
+export function requiredNamePart(
+  first: { required: boolean } | undefined,
+  last: { required: boolean } | undefined,
+): PersonNamePart | undefined {
+  if (last?.required && !first?.required) return "last";
+  if (first?.required && !last?.required) return "first";
+  return undefined;
+}
+
+export function loneNameParts(
+  columns: ReadonlyArray<{ column: string; fieldId: string; namePart?: PersonNamePart }>,
+  fields: ReadonlyArray<{ id: string; required: boolean }>,
+): Map<string, PersonNamePart | undefined> {
+  const field = (column: string, part: PersonNamePart) => {
+    const entry = columns.find((candidate) => candidate.column === column && candidate.namePart === part);
+    return fields.find((candidate) => candidate.id === entry?.fieldId);
+  };
+  const parts = new Map<string, PersonNamePart | undefined>();
+  for (const entry of columns) {
+    if (entry.namePart)
+      parts.set(entry.column, requiredNamePart(field(entry.column, "first"), field(entry.column, "last")));
+  }
+  return parts;
+}
+
+export function splitPersonName(input: string, lonePart?: PersonNamePart): PersonName {
+  const segments = input
+    .replace(/\s+/g, " ")
+    .split(",")
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+  let named = segments.length;
+  while (named > 1 && segments[named - 1].split(" ").every((word) => NAME_SUFFIXES.has(nameWordKey(word)))) named -= 1;
+  const suffixes = segments.slice(named);
+  const withSuffixes = (last: string) => [last, ...suffixes].filter(Boolean).join(" ");
+  if (named > 1) {
+    return {
+      first: withoutTitles(segments.slice(1, named).join(" ").split(" ")).words.join(" "),
+      last: withSuffixes(segments[0]),
+    };
+  }
+  const { words, titled } = withoutTitles((segments[0] ?? "").split(" ").filter(Boolean));
+  while (words.length > 1 && NAME_SUFFIXES.has(nameWordKey(words[words.length - 1])))
+    suffixes.unshift(words.pop() ?? "");
+  if (words.length < 2) {
+    const name = withSuffixes(words.join(" "));
+    const part = lonePart ?? (titled || suffixes.length > 0 ? "last" : "first");
+    return part === "last" ? { first: "", last: name } : { first: name, last: "" };
+  }
+  const particle = words.findIndex(
+    (word, index) => index > 0 && index < words.length - 1 && NAME_PARTICLES.has(word.toLowerCase()),
+  );
   const lastStart = particle > 0 ? particle : words.length - 1;
-  return { first: words.slice(0, lastStart).join(" "), last: words.slice(lastStart).join(" ") };
+  return { first: words.slice(0, lastStart).join(" "), last: withSuffixes(words.slice(lastStart).join(" ")) };
 }

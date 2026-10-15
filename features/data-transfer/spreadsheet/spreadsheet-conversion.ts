@@ -21,6 +21,7 @@ import { scalarMatchesType } from "@/features/records/record-model-validation";
 import {
   cellIsEmpty,
   cellText,
+  loneNameParts,
   matchOptionKey,
   normalizeEmail,
   normalizePhone,
@@ -307,6 +308,7 @@ export function convertSpreadsheet(
   const fields = inputFields(model, mapping.typeId);
   const columnIndex = new Map(table.headers.map((header, index) => [header, index]));
   const columnsByField = new Map(mapping.columns.map((entry) => [entry.fieldId, entry]));
+  const lonePartByColumn = loneNameParts(mapping.columns, fields);
   const channelsField = model.fields.find(
     (field) => field.typeId === mapping.typeId && !field.archived && field.valueType === "channels",
   );
@@ -344,7 +346,10 @@ export function convertSpreadsheet(
       const column = columnsByField.get(field.id);
       const index = column ? columnIndex.get(column.column) : undefined;
       const raw = index === undefined ? null : (row.cells[index] ?? null);
-      const cell = column?.namePart && !cellIsEmpty(raw) ? splitPersonName(cellText(raw))[column.namePart] : raw;
+      const cell =
+        column?.namePart && !cellIsEmpty(raw)
+          ? splitPersonName(cellText(raw), lonePartByColumn.get(column.column))[column.namePart]
+          : raw;
       if (!column || cellIsEmpty(cell)) {
         const fallback = fieldDefault(field);
         if (!fallback && field.required && column) fail(column.column, "required");

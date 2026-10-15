@@ -106,6 +106,24 @@ describe("xlsx full-name split", () => {
     ]);
   });
 
+  it("splits a full-name column rather than filling a title field", () => {
+    const title = { ...personFields.first, id: "20000000-0000-4000-8000-000000000990", label: "Title" };
+    const withTitle = { ...personModel, fields: [...personModel.fields, title] };
+    const titleOptions = xlsxTargetOptions(withTitle, PERSON, labels);
+    expect(autoMapXlsxColumns(["Full name"], titleOptions)).toEqual([split]);
+    expect(autoMapXlsxColumns(["Name", "Title"], titleOptions)).toEqual([split, `field:${title.id}`]);
+
+    const writableName = {
+      ...withTitle,
+      fields: withTitle.fields.map((field) =>
+        field.id === personFields.name.id ? { ...field, behavior: { kind: "input" as const } } : field,
+      ),
+    };
+    expect(autoMapXlsxColumns(["Full name"], xlsxTargetOptions(writableName, PERSON, labels))).toEqual([
+      `field:${personFields.name.id}`,
+    ]);
+  });
+
   it("never splits into a name field another column already fills", () => {
     expect(autoMapXlsxColumns(["Full name", "First name"], personOptions)).toEqual([
       XLSX_SKIP_KEY,

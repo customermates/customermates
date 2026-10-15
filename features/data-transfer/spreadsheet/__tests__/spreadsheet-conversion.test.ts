@@ -311,6 +311,36 @@ describe("convertSpreadsheet", () => {
     expect(result.documents[0].records[0].fields.some((entry) => entry.fieldId === id("contact.name"))).toBe(false);
   });
 
+  it("puts a one-word name into the required name part", async () => {
+    const table = await tableOf(csv(["Name", "Madonna", "Dr. Anna Schmidt", '"Martin Luther King, Jr."'].join("\n")));
+    const base = model();
+    const current = {
+      ...base,
+      fields: base.fields.map((field) => (field.id === id("contact.lastName") ? { ...field, required: true } : field)),
+    };
+    const mapping = SpreadsheetMappingSchema.parse({
+      typeId: id("contact"),
+      locale: "en",
+      columns: [
+        { column: "Name", fieldId: id("contact.firstName"), namePart: "first" },
+        { column: "Name", fieldId: id("contact.lastName"), namePart: "last" },
+      ],
+    });
+    const result = convertSpreadsheet(table, mapping, current, { idempotencyKey: "names-2", related: new Map() });
+    expect(result.errors).toEqual([]);
+    const text = (value: string) => ({ state: "value", value: { kind: "text", value } });
+    expect(
+      result.documents[0].records.map((_record, index) => {
+        const row = values(result.documents[0], index);
+        return [row[id("contact.firstName")], row[id("contact.lastName")]];
+      }),
+    ).toEqual([
+      [{ state: "missing" }, text("Madonna")],
+      [text("Anna"), text("Schmidt")],
+      [text("Martin Luther"), text("King Jr.")],
+    ]);
+  });
+
   it("splits large sheets into importer-sized documents with stable record ids", async () => {
     const lines = ["Firma", ...Array.from({ length: 250 }, (_, index) => `Org ${index + 1}`)];
     const table = await tableOf(csv(lines.join("\n")));

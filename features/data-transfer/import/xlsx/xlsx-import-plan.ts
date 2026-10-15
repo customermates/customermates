@@ -15,7 +15,7 @@ import type { XlsxIssueCode, XlsxMember, XlsxRecordIndex } from "./xlsx-values";
 import type { XlsxRow } from "./xlsx-workbook";
 
 import { RECORD_IMPORT_LIMIT, RECORD_IMPORT_LINK_LIMIT } from "@/features/data-transfer/record-transfer.schema";
-import { splitPersonName } from "@/features/data-transfer/spreadsheet/spreadsheet-values";
+import { requiredNamePart, splitPersonName } from "@/features/data-transfer/spreadsheet/spreadsheet-values";
 
 import { normalizeXlsxHeader, xlsxImportFields, XLSX_SKIP_KEY } from "./xlsx-mapping";
 import {
@@ -129,7 +129,10 @@ export function parseXlsxRows(input: XlsxPlanInput, rows: XlsxRow[] = input.rows
         const current = ranges.get(field.id) ?? { start: null, end: null };
         ranges.set(field.id, { ...current, [target.part]: result.value });
       } else if (target.kind === "nameParts") {
-        const name = splitPersonName(xlsxCellText(cell));
+        const name = splitPersonName(
+          xlsxCellText(cell),
+          requiredNamePart(fields.get(target.firstFieldId), fields.get(target.lastFieldId)),
+        );
         for (const [fieldId, part] of [
           [target.firstFieldId, name.first],
           [target.lastFieldId, name.last],
