@@ -55,7 +55,7 @@ Date and date-time fields support appropriate ordered comparisons and `between`.
 
 ### Which operators work on text fields?
 
-Text, email, phone, and URL fields support the text operators appropriate to their value type. A field that stores multiple values is searched element by element. Search terms treat percent signs and underscores as literal characters, not SQL wildcards.
+Text, email, and URL fields support the text operators appropriate to their value type. Phone numbers live in a list's Channels field; the list search also looks through its channels, so searching for a number finds its record. A field that stores multiple values is searched element by element. Search terms treat percent signs and underscores as literal characters, not SQL wildcards.
 
 ### Which relationship operators exist, for example to find contacts without an organization? [#which-relationship-operators-exist]
 
