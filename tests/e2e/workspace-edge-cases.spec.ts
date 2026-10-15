@@ -172,3 +172,42 @@ test("an invitation to a workspace that deactivated the login explains it and of
   expect((await activeWorkspaceOf(database, workspace)).session).toBe(workspace.companyId);
   expect(errors).toEqual([]);
 });
+
+test("switching from the command palette over a record dialog with an unsaved draft asks first and keeps the draft", async ({
+  page,
+  database,
+  workspace,
+}, testInfo) => {
+  const errors = collectPageErrors(page);
+  const second = await addBrowserWorkspace(database, workspace, "Bergmann Steuern");
+  const draft = await startOrganization(page, workspace.companyId, "Ungespeicherte Firma");
+  await page.keyboard.press("ControlOrMeta+k");
+  const search = page.locator("#global-search-input input");
+  const palette = page.getByRole("dialog").filter({ has: page.locator("#global-search-input") });
+  await expect(search).toBeVisible();
+  await expect(palette).toHaveCSS("opacity", "1");
+  await page.screenshot({ path: testInfo.outputPath("ws-palette-over-draft.png"), fullPage: true });
+  await search.fill("Switch workspace");
+  await palette.getByRole("option", { name: "Switch workspace…", exact: true }).click();
+  await palette.getByRole("option").filter({ hasText: "Bergmann Steuern" }).click();
+
+  const discard = page.getByRole("alertdialog", { name: englishMessages.Common.navigationGuard.title, exact: true });
+  await expect(discard).toBeVisible();
+  await discard.getByRole("button", { name: englishMessages.Common.actions.cancel, exact: true }).click();
+  await expect(discard).toHaveCount(0);
+  await expect(draft.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Ungespeicherte Firma");
+  expect((await activeWorkspaceOf(database, workspace)).session).toBe(workspace.companyId);
+
+  await page.keyboard.press("ControlOrMeta+k");
+  await search.fill("Switch workspace");
+  await palette.getByRole("option", { name: "Switch workspace…", exact: true }).click();
+  await palette.getByRole("option").filter({ hasText: "Bergmann Steuern" }).click();
+  await expect(discard).toBeVisible();
+  await discard.getByRole("button", { name: englishMessages.Common.actions.discard, exact: true }).click();
+  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  await expectCurrentWorkspace(page, "Bergmann Steuern");
+  expect((await activeWorkspaceOf(database, workspace)).session).toBe(second.companyId);
+  expect(await organizationNames(database, workspace.companyId)).not.toContain("Ungespeicherte Firma");
+  expect(await organizationNames(database, second.companyId)).not.toContain("Ungespeicherte Firma");
+  expect(errors).toEqual([]);
+});
