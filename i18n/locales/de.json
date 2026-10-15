@@ -4543,6 +4543,15 @@
     "tryAnother": "Andere Website versuchen",
     "unavailable": "Die Einrichtung mit Mate ist derzeit nicht verfügbar. Du kannst später in der Wissensdatenbank Seiten erstellen."
   },
+  "WithoutErrorReporting": {
+    "ErrorCard": {
+      "contactSupport": "Bitte versuche es erneut. Wenn das Problem bleibt, wende dich an die Person, die diese Customermates-Instanz betreibt.",
+      "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut."
+    },
+    "NotFoundPage": {
+      "body": "Diese Seite gibt es nicht oder sie wurde verschoben. Prüfe die Adresse oder gehe zurück zur Startseite."
+    }
+  },
   "WorkspaceMenu": {
     "inviteMembers": "Mitglieder einladen",
     "label": "Workspace-Menü"

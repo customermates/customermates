@@ -965,6 +965,20 @@ const OPERATOR_AUDIT_ACTION_LABEL_EVIDENCE = Object.fromEntries(
 
 const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
   {
+    file: "i18n/error-reporting-messages.ts",
+    keys: [
+      "WithoutErrorReporting.ErrorCard.contactSupport",
+      "WithoutErrorReporting.ErrorCard.unexpectedError",
+      "WithoutErrorReporting.NotFoundPage.body",
+    ],
+    evidence: Object.fromEntries(
+      ["ErrorCard.contactSupport", "ErrorCard.unexpectedError", "NotFoundPage.body"].map((key) => [
+        `WithoutErrorReporting.${key}`,
+        [{ kind: "literal" as const, value: "WithoutErrorReporting" }],
+      ]),
+    ),
+  },
+  {
     file: "app/[locale]/(protected)/trash/components/trash.store.ts",
     keys: [
       "Trash.restoreBlocked.listDeleted",

@@ -4543,6 +4543,15 @@
     "tryAnother": "Essayer un autre site",
     "unavailable": "La configuration avec Mate n’est pas disponible pour le moment. Vous pourrez créer des pages plus tard depuis la base de connaissances."
   },
+  "WithoutErrorReporting": {
+    "ErrorCard": {
+      "contactSupport": "Veuillez réessayer. Si le problème persiste, contactez la personne qui gère cette instance de Customermates.",
+      "unexpectedError": "Une erreur inattendue s'est produite. Veuillez réessayer."
+    },
+    "NotFoundPage": {
+      "body": "Cette page n'existe pas ou a été déplacée. Vérifiez l'adresse ou revenez à la page d'accueil."
+    }
+  },
   "WorkspaceMenu": {
     "inviteMembers": "Inviter des membres",
     "label": "Menu de l'espace de travail"

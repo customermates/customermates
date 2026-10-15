@@ -4543,6 +4543,15 @@
     "tryAnother": "Try another website",
     "unavailable": "Mate setup is not available right now. You can create Knowledge Base pages later in the Knowledge Base."
   },
+  "WithoutErrorReporting": {
+    "ErrorCard": {
+      "contactSupport": "Please try again. If the problem continues, contact the person who runs this Customermates instance.",
+      "unexpectedError": "An unexpected error occurred. Please try again."
+    },
+    "NotFoundPage": {
+      "body": "This page does not exist or has moved. Check the address or go back to the start page."
+    }
+  },
   "WorkspaceMenu": {
     "inviteMembers": "Invite members",
     "label": "Workspace menu"

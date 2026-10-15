@@ -13,11 +13,17 @@ import {
   resolveGlobalErrorLocale,
 } from "../global-error-copy";
 
-type ErrorCardCatalog = { ErrorCard: Record<string, string> };
+type ErrorCardCatalog = {
+  ErrorCard: Record<string, string>;
+  WithoutErrorReporting: { ErrorCard: Record<string, string> };
+};
+
+function catalog(locale: string): ErrorCardCatalog {
+  return JSON.parse(readFileSync(join(REPO_ROOT, "i18n", "locales", `${locale}.json`), "utf8")) as ErrorCardCatalog;
+}
 
 function errorCardCopy(locale: string): Record<string, string> {
-  const raw = readFileSync(join(REPO_ROOT, "i18n", "locales", `${locale}.json`), "utf8");
-  return (JSON.parse(raw) as ErrorCardCatalog).ErrorCard;
+  return catalog(locale).ErrorCard;
 }
 
 describe("global error fallback", () => {
@@ -33,6 +39,7 @@ describe("global error fallback", () => {
         retryLabel: errorCard.retry,
         subtitle: errorCard.subtitle,
         title: errorCard.title,
+        unreportedBody: catalog(locale).WithoutErrorReporting.ErrorCard.contactSupport,
       });
     }
   });
