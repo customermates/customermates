@@ -187,7 +187,7 @@ test("paying for an extra workspace activates only that workspace, then its onbo
   );
   const firstBefore = await subscriptionOf(database, workspace.companyId);
   const firstKey = await mintApiKey(database, workspace, "Browser bookkeeping");
-  const checkoutPages = await stubCheckoutPage(page, 6);
+  const checkoutPages = await stubCheckoutPage(page);
 
   await createWorkspaceFromSettings(page, "Steuern 2026");
   const steuern = await workspaceNamed(database, "Steuern 2026");
@@ -316,7 +316,7 @@ test("each paid workspace bills its own seats when members are approved or deact
     [pendingId, second.companyId, `mara-${pendingId}@example.test`],
   );
   await setActiveWorkspace(database, workspace, second.companyId);
-  await stubCheckoutPage(page, 2);
+  await stubCheckoutPage(page);
   await page.goto("/en/dashboard");
   await expect(page).toHaveURL(/\/en\/subscription-expired$/);
   await choosePlan(page, "Business");

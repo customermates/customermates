@@ -1,6 +1,13 @@
 import type { BrowserContext, ConsoleMessage, Page, Request, TestInfo } from "@playwright/test";
 
-import { chunkLoadErrorChunk, isAppConsoleError, isBenignPageError, webkitCancelledChunk } from "./browser-noise";
+import {
+  chunkLoadErrorChunk,
+  isAbortedFetchReport,
+  isAbortedPageLoad,
+  isAppConsoleError,
+  isBenignPageError,
+  webkitCancelledChunk,
+} from "./browser-noise";
 
 export type BrowserDiagnostic = { kind: "pageerror" | "console"; text: string; source: string; page: Page | null };
 
@@ -86,6 +93,8 @@ export class BrowserDiagnostics {
   private readonly rules: Array<{ rule: ExpectedDiagnosticRule; events: BrowserDiagnostic[] }> = [];
   private readonly views = new Map<Page, string[][]>();
   private readonly cancelledChunks = new Map<Page, Set<string>>();
+  private readonly abortedFetches = new Set<Page>();
+  private readonly sinceLoad = new Map<Page, BrowserDiagnostic[]>();
 
   watch(context: BrowserContext) {
     if (byContext.get(context) === this) return this;
@@ -99,8 +108,16 @@ export class BrowserDiagnostics {
       if (isAppConsoleError(message))
         this.record({ kind: "console", text: message.text(), source: message.location().url, page: message.page() });
     });
-    context.on("requestfailed", (request: Request) => this.noteCancelledChunk(request));
-    const watchPage = (page: Page) => page.on("domcontentloaded", () => this.dropCancelledChunkErrors(page));
+    context.on("requestfailed", (request: Request) => {
+      this.noteCancelledChunk(request);
+      this.noteAbortedFetch(request);
+    });
+    const watchPage = (page: Page) =>
+      page.on("domcontentloaded", () => {
+        this.dropCancelledChunkErrors(page);
+        this.dropAbortedFetchReports(page);
+        this.sinceLoad.delete(page);
+      });
     context.pages().forEach(watchPage);
     context.on("page", watchPage);
     return this;
@@ -150,7 +167,9 @@ export class BrowserDiagnostics {
       return;
     }
     this.unexpected.push(diagnostic);
-    if (diagnostic.page) for (const texts of this.views.get(diagnostic.page) ?? []) texts.push(diagnostic.text);
+    if (!diagnostic.page) return;
+    this.sinceLoad.set(diagnostic.page, [...(this.sinceLoad.get(diagnostic.page) ?? []), diagnostic]);
+    for (const texts of this.views.get(diagnostic.page) ?? []) texts.push(diagnostic.text);
   }
 
   private noteCancelledChunk(request: Request) {
@@ -158,6 +177,25 @@ export class BrowserDiagnostics {
     const page = chunk ? requestPage(request) : null;
     if (!chunk || !page) return;
     this.cancelledChunks.set(page, (this.cancelledChunks.get(page) ?? new Set()).add(chunk));
+  }
+
+  private noteAbortedFetch(request: Request) {
+    const page = isAbortedPageLoad(request) ? requestPage(request) : null;
+    if (page) this.abortedFetches.add(page);
+  }
+
+  /** A load the browser cancelled for a document navigation is reported before the next page loads; forget it then. */
+  private dropAbortedFetchReports(page: Page) {
+    if (!this.abortedFetches.delete(page)) return;
+    const reports = new Set((this.sinceLoad.get(page) ?? []).filter(isAbortedFetchReport));
+    if (reports.size === 0) return;
+    const kept = this.unexpected.filter((diagnostic) => !reports.has(diagnostic));
+    this.unexpected.splice(0, this.unexpected.length, ...kept);
+    for (const texts of this.views.get(page) ?? [])
+      for (const { text } of reports) {
+        const index = texts.lastIndexOf(text);
+        if (index >= 0) texts.splice(index, 1);
+      }
   }
 
   /** WebKit cancels chunk loads when a page navigates away; their ChunkLoadError is gone once the next page loads. */

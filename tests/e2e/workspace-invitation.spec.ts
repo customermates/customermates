@@ -5,7 +5,6 @@ import type { Client } from "pg";
 import { hashPassword } from "better-auth/crypto";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
-import { BrowserDiagnostics } from "./browser-diagnostics";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { addBrowserWorkspace, createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
 import {
@@ -108,7 +107,6 @@ test("an existing login joins another workspace by invitation, waits for approva
 });
 
 test("a signed-out person opens an invitation, signs in with the existing login and can join from there", async ({
-  browserName,
   context,
   page,
   database,
@@ -134,8 +132,6 @@ test("a signed-out person opens an invitation, signs in with the existing login 
     await expectHydrated(page.locator("#email"));
     await page.locator("#email").fill(login.rows[0].email);
     await page.locator("#password").fill(password);
-    if (browserName === "webkit")
-      BrowserDiagnostics.ofPage(page).expect({ kind: "console", text: /^TypeError: Load failed$/, page });
     await clickHydrated(page.getByRole("button", { name: englishMessages.SignInForm.signInCta, exact: true }));
 
     await expect(page).toHaveURL(/\/en\/auth\/invitation\?intent=/);

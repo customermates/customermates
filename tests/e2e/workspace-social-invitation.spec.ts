@@ -179,7 +179,7 @@ test("a Google login with another e-mail than the invited person sees whom it is
     const otherEmail = await loginEmail(database, other.authUserId);
     const token = await inviteToken(database, { companyId: inviter.companyId, createdById: inviter.userId });
     await context.clearCookies();
-    const google = await routeSocialProvider(page, "google", 4);
+    const google = await routeSocialProvider(page, "google");
     google.signInAs(providerIdentity(otherEmail, "Browser Administrator"));
 
     await openInvitationSignedOut(page, token, "signin");

@@ -1,6 +1,5 @@
 import type { Page } from "@playwright/test";
 
-import { BrowserDiagnostics } from "./browser-diagnostics";
 import { localOAuthAuthorizationEndpoints, localOAuthClients, localOAuthCode } from "./local-oauth-provider.mjs";
 
 export type SocialProvider = keyof typeof localOAuthClients;
@@ -23,22 +22,7 @@ export type SocialAuthorization = {
   codeChallengeMethod: string | null;
 };
 
-const ABORTED_REFRESH: Record<string, RegExp> = { webkit: /^TypeError: Load failed$/, firefox: /^JSHandle@object$/ };
-
-export function expectAbortedRefreshes(page: Page, navigations: number) {
-  const text = ABORTED_REFRESH[page.context().browser()?.browserType().name() ?? ""];
-  if (!text) return;
-  BrowserDiagnostics.ofPage(page).expect({
-    kind: "console",
-    text,
-    source: (url) => url.pathname.startsWith("/_next/static/chunks/"),
-    page,
-    limit: navigations,
-  });
-}
-
-export async function routeSocialProvider(page: Page, provider: SocialProvider, navigations = 2) {
-  expectAbortedRefreshes(page, navigations);
+export async function routeSocialProvider(page: Page, provider: SocialProvider) {
   const authorizations: SocialAuthorization[] = [];
   let identity: SocialIdentity | null = null;
   const endpoint = localOAuthAuthorizationEndpoints[provider];

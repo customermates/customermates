@@ -5,7 +5,6 @@ import type { APIRequestContext, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 
 import { localE2eEnvironment } from "./local-environment";
-import { expectAbortedRefreshes } from "./social-sign-in";
 import {
   localCheckoutOrigin,
   localLemonSqueezyVariants,
@@ -157,8 +156,7 @@ export async function deliverSubscriptionWebhook(
   expect(await response.json()).toEqual({ success: true });
 }
 
-export async function stubCheckoutPage(page: Page, navigations = 1) {
-  expectAbortedRefreshes(page, navigations);
+export async function stubCheckoutPage(page: Page) {
   const visited: string[] = [];
   await page.route(`${localCheckoutOrigin}/**`, async (route) => {
     visited.push(route.request().url());

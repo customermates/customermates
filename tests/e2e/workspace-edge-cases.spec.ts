@@ -99,6 +99,7 @@ test("switching workspaces with an unsaved workspace name asks first and never s
   let menu = await openWorkspaceSwitcher(page);
   await menu.locator(`[data-workspace-id="${second.companyId}"]`).click();
   await expect(discard).toBeVisible();
+  await expect(menu).toBeHidden();
   await page.screenshot({ path: testInfo.outputPath("ws-switch-unsaved.png"), fullPage: true });
   expect((await activeWorkspaceOf(database, workspace)).session).toBe(workspace.companyId);
   await discard.getByRole("button", { name: englishMessages.Common.actions.cancel, exact: true }).click();
