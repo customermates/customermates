@@ -33,8 +33,14 @@ export function droppedLinksOf(item: RecordTrashItem): number {
   return payload.success ? payload.data.droppedLinks : 0;
 }
 
+function subLists(model: RecordModel): Array<{ typeId: string; relationId: string }> {
+  return model.types.flatMap((type) =>
+    type.parentRelationshipId ? [{ typeId: type.id, relationId: type.parentRelationshipId }] : [],
+  );
+}
+
 function parentRelationIds(model: RecordModel): string[] {
-  return model.types.flatMap((type) => (type.parentRelationshipId ? [type.parentRelationshipId] : []));
+  return subLists(model).map((entry) => entry.relationId);
 }
 
 function deletedPermanentlyPayload(
@@ -81,7 +87,33 @@ export class RecordTrashService {
         };
       }
     }
+    if ((await this.records.getTrashedSubListRowsCompanyWide(item.id, subLists(model))).some((row) => !row.parent))
+      return { itemId: item.id, reason: "parentDeleted", typeId: item.typeId };
     return (await policy.canRead(row)) ? null : { itemId: item.id, reason: "notFound", typeId: item.typeId };
+  }
+
+  async keepSubListRowsWithTheirParents(itemId: string, model: RecordModel, records = this.records): Promise<void> {
+    const rows = await records.getTrashedSubListRowsCompanyWide(itemId, subLists(model));
+    const destinations = new Map<string, string>();
+    for (let moved = true; moved; ) {
+      moved = false;
+      for (const row of rows) {
+        if (!row.parent || destinations.has(recordKey(row.ref))) continue;
+        const destination =
+          row.parent.trashItemId && row.parent.trashItemId !== itemId
+            ? row.parent.trashItemId
+            : destinations.get(recordKey(row.parent.ref));
+        if (!destination) continue;
+        destinations.set(recordKey(row.ref), destination);
+        moved = true;
+      }
+    }
+    for (const destination of new Set(destinations.values())) {
+      await records.reassignTrashedRecordsCompanyWide(
+        rows.filter((row) => destinations.get(recordKey(row.ref)) === destination).map((row) => row.ref),
+        destination,
+      );
+    }
   }
 
   async restore(
@@ -110,6 +142,7 @@ export class RecordTrashService {
           result.blocked.push(blocker);
           continue;
         }
+        await this.keepSubListRowsWithTheirParents(item.id, model, journal.repository);
         const refs = await journal.repository.getTrashedRecordRefsCompanyWide(
           [item.id],
           limit - result.restoredRecords + 1,

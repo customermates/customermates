@@ -1288,4 +1288,94 @@ describeDatabase("record trash calculations", () => {
     expect(await f.value(parent, "deal.totalQuantity")).toBe(501);
     expect(await f.inconsistencies()).toEqual([]);
   }, 900_000);
+
+  it("11: a line item deleted with its service waits in Trash for its deal and never blocks configuration", async () => {
+    const f = await fixture();
+    const service = await f.created({
+      action: "create",
+      typeId: f.id("service"),
+      fields: [
+        { fieldId: f.id("service.name"), value: text("Consulting") },
+        { fieldId: f.id("service.amount"), value: euro("100") },
+      ],
+    });
+    const parent = await deal(f, "Waiting", "1");
+    const row = await lineItem(f, parent, "2", service);
+    const cardinality = () =>
+      runWithTenant(f.admin, () =>
+        runInTransaction(async () => f.repo.validateRelationshipCardinality(await f.repo.getModel())),
+      );
+    const removeBoth = async () => {
+      const serviceDelete = await f.remove(service);
+      expect((await f.rows(row))?.trashItemId).toBe((await f.items(serviceDelete.trashBatchId as string))[0].id);
+      const dealDelete = await f.remove(parent);
+      return {
+        serviceItems: await f.items(serviceDelete.trashBatchId as string),
+        dealItems: await f.items(dealDelete.trashBatchId as string),
+      };
+    };
+    const live = async () => {
+      expect(await f.value(service, "service.quantitySold")).toBe(2);
+      expect(await f.values(parent, ["deal.totalQuantity", "deal.totalValue"])).toEqual({
+        "deal.totalQuantity": 2,
+        "deal.totalValue": 200,
+      });
+      expect(await cardinality()).toEqual([]);
+      expect(await f.inconsistencies()).toEqual([]);
+    };
+
+    const first = await removeBoth();
+    expect(await f.restore({ itemIds: first.serviceItems.map((item) => item.id) })).toMatchObject({
+      ok: true,
+      data: { restoredRecords: 1, droppedLinks: 0, blocked: [] },
+    });
+    expect((await f.rows(service))?.deletedAt).toBeNull();
+    expect((await f.rows(row))?.trashItemId).toBe(first.dealItems[0].id);
+    expect(await cardinality()).toEqual([]);
+    expect(await f.value(service, "service.quantitySold")).toBe(0);
+    expect(await f.inconsistencies()).toEqual([]);
+    expect(await f.restore({ itemIds: first.dealItems.map((item) => item.id) })).toMatchObject({
+      ok: true,
+      data: { restoredRecords: 2, droppedLinks: 0, blocked: [] },
+    });
+    await live();
+
+    const together = await removeBoth();
+    expect(
+      await f.restore({ itemIds: [...together.serviceItems, ...together.dealItems].map((item) => item.id) }),
+    ).toMatchObject({ ok: true, data: { restoredRecords: 3, droppedLinks: 0, blocked: [] } });
+    await live();
+
+    const background = await removeBoth();
+    const operationId = await runWithTenant(f.admin, () =>
+      runInTransaction(() => f.handler.restoreInBackground(background.serviceItems)),
+    );
+    expect(await f.drain(operationId)).toMatchObject({
+      state: "completed",
+      result: { restore: { restoredRecords: 1, droppedLinks: 0, blocked: [] } },
+    });
+    expect((await f.rows(row))?.trashItemId).toBe(background.dealItems[0].id);
+    expect(await cardinality()).toEqual([]);
+    expect(await f.restore({ itemIds: background.dealItems.map((item) => item.id) })).toMatchObject({
+      ok: true,
+      data: { restoredRecords: 2, droppedLinks: 0, blocked: [] },
+    });
+    await live();
+
+    const orphaned = await removeBoth();
+    await runWithoutTenant(async () => {
+      await prisma.crmRecord.delete({
+        where: {
+          companyId_typeId_id: { companyId: f.seed.company.id, typeId: parent.typeId, id: parent.recordId },
+        },
+      });
+      await prisma.trashItem.deleteMany({ where: { id: { in: orphaned.dealItems.map((item) => item.id) } } });
+    });
+    expect(await f.restore({ itemIds: orphaned.serviceItems.map((item) => item.id) })).toMatchObject({
+      ok: true,
+      data: { restoredItemIds: [], blocked: [{ itemId: orphaned.serviceItems[0].id, reason: "parentDeleted" }] },
+    });
+    expect((await f.rows(row))?.deletedAt).not.toBeNull();
+    expect(await cardinality()).toEqual([]);
+  }, 180_000);
 });

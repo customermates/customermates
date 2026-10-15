@@ -233,6 +233,10 @@ export interface RecordRepo {
     trashItemIds: string[],
     relationIds: string[],
   ): Promise<{ itemIds: string[]; refs: RecordRef[] }>;
+  getTrashedSubListRowsCompanyWide(
+    trashItemId: string,
+    subLists: Array<{ typeId: string; relationId: string }>,
+  ): Promise<Array<{ ref: RecordRef; parent: { ref: RecordRef; trashItemId: string | null } | null }>>;
   reassignTrashedRecordsCompanyWide(refs: RecordRef[], trashItemId: string): Promise<void>;
   restoreRecords(refs: RecordRef[]): Promise<void>;
   restoreLink(relationId: string, id: string): Promise<void>;

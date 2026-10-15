@@ -1450,6 +1450,37 @@ export class PrismaRecordRepo
     };
   }
 
+  async getTrashedSubListRowsCompanyWide(trashItemId: string, subLists: Array<{ typeId: string; relationId: string }>) {
+    if (!subLists.length) return [];
+    const rows = await this.prisma.$queryRaw<
+      Array<{
+        typeId: string;
+        id: string;
+        parentTypeId: string | null;
+        parentId: string | null;
+        parentItemId: string | null;
+      }>
+    >(Prisma.sql`
+      SELECT member."typeId", member.id, parent."typeId" AS "parentTypeId", parent.id AS "parentId",
+        parent."trashItemId" AS "parentItemId"
+      FROM "CrmRecord" member
+      JOIN (VALUES ${Prisma.join(subLists.map((entry) => Prisma.sql`(${entry.typeId}::text, ${entry.relationId}::text)`))})
+        AS sublist("typeId", "relationId") ON sublist."typeId" = member."typeId"
+      LEFT JOIN "RecordLink" link ON link."companyId" = member."companyId" AND link."relationId" = sublist."relationId"
+        AND link."sourceTypeId" = member."typeId" AND link."sourceId" = member.id
+      LEFT JOIN "CrmRecord" parent ON parent."companyId" = link."companyId" AND parent."typeId" = link."targetTypeId"
+        AND parent.id = link."targetId"
+      WHERE member."companyId" = ${this.companyId} AND member."trashItemId" = ${trashItemId}
+      ORDER BY member."typeId", member.id`);
+    return rows.map((row) => ({
+      ref: { typeId: row.typeId, recordId: row.id },
+      parent:
+        row.parentTypeId && row.parentId
+          ? { ref: { typeId: row.parentTypeId, recordId: row.parentId }, trashItemId: row.parentItemId }
+          : null,
+    }));
+  }
+
   async reassignTrashedRecordsCompanyWide(refs: RecordRef[], trashItemId: string): Promise<void> {
     if (!refs.length) return;
     await this.prisma.crmRecord.updateMany({

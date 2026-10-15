@@ -494,6 +494,7 @@ export class RecordOperationService extends UserAccessor {
       await this.records.updateOperation(operation.id, { cursor: next, leaseUntil: new Date(Date.now() + 60000) });
       return { done: false };
     }
+    if (!cursor.started) await service.keepSubListRowsWithTheirParents(item.id, model, this.records);
     const refs = await this.records.getTrashedRecordRefsCompanyWide([item.id], RESTORE_PAGE_SIZE);
     const journal = new RecordJournal(this.records, model, BACKGROUND_FANOUT_LIMIT);
     const droppedLinks = await service.restoreRecords(refs, model, journal, BACKGROUND_FANOUT_LIMIT);
