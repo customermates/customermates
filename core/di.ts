@@ -183,6 +183,8 @@ import { GetFileStorageUsageInteractor } from "@/features/record-files/get-file-
 import { PurgeExpiredRecordFilesInteractor } from "@/features/record-files/purge-expired-record-files.interactor";
 import { PurgeCompanyRecordFilesInteractor } from "@/features/record-files/purge-company-record-files.interactor";
 import { PurgeCompanyFileObjectsInteractor } from "@/features/record-files/purge-company-file-objects.interactor";
+import type { RecordFileTextReader } from "@/features/record-files/record-file-text-reader";
+import { ReadRecordFileInteractor } from "@/features/record-files/read-record-file.interactor";
 import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
 import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
 import { PrismaWebhookDeliveryRepo } from "@/features/webhook/prisma-webhook-delivery.repository";
@@ -629,6 +631,9 @@ export const getUploadRecordFileInteractor = () =>
     getRecordRepo(),
     getMutateRecordInteractor(),
   );
+export const getRecordFileTextReader = (): RecordFileTextReader => getExtractedRecordFileTextReader();
+export const getReadRecordFileInteractor = () =>
+  new ReadRecordFileInteractor(getGetRecordFileInteractor(), getRecordFileTextReader());
 export const getGetFileStorageUsageInteractor = () => new GetFileStorageUsageInteractor(getRecordFileQuotaService());
 export const getPurgeExpiredRecordFilesInteractor = () =>
   new PurgeExpiredRecordFilesInteractor(getRecordFileRepo(), getBackgroundTaskService());

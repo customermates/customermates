@@ -281,6 +281,12 @@ Export one list as the JSON document of the list page's Export as JSON: every re
 Create or update up to 100 records and 500 links of one list from an export document in one atomic call (mode create or update), checked against the current schema revision. An invalid row rejects the whole document. Needs create or edit access on the list.
 
 **Can delete data.** Required: `document`, `mode`, `idempotencyKey`.
+
+#### `manage_record_files`
+
+Upload files into a file field and read them. upload takes base64 content of up to 3 MB and, with recordId, writes the file into that record's field at once, appending it or replacing the files there; create_upload returns a PUT URL and headers for exactly size bytes that work for 15 minutes, after which you write the fileId into the field with mutate_crm_record. read returns the file's details, a download link valid for 15 minutes and, once extracted, its text in chunks with offset and nextOffset. Uploads count against the workspace storage.
+
+Required: `action`. Optional: `typeId`, `fieldId`, `name`, `mimeType`, `content`, `size`, `recordId`, `attach`, `expectedVersion`, `fileId`, `offset`.
 {/* /mcp-catalog */}
 
 ### Batch update by channel identifiers [#batch-identifier-update]

@@ -201,7 +201,7 @@ describe("provider-safe tool schemas", () => {
       }
     }
 
-    expect(Object.fromEntries(census)).toEqual({ uuid: 260, "date-time": 15, email: 7, uri: 5 });
+    expect(Object.fromEntries(census)).toEqual({ uuid: 264, "date-time": 15, email: 7, uri: 5 });
   });
 
   it("still enforces the real constraint through the tool's own validator", async () => {

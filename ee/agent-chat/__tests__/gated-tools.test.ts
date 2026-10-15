@@ -383,7 +383,7 @@ describe("gated-tools", () => {
 
     expect(groupSizes).toEqual({
       "record-model": 1,
-      records: 17,
+      records: 18,
       workspace: 2,
       views: 2,
       wiki: 1,

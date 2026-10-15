@@ -28,6 +28,7 @@ import { manageRoutinesTool } from "@/features/mcp-tools/routine.mcp-tools";
 import { requestSupportTool } from "@/features/mcp-tools/support.mcp-tools";
 import { manageWikiPagesTool } from "@/features/mcp-tools/wiki.mcp-tools";
 import { exportCrmRecordsTool, importCrmRecordsTool } from "@/features/mcp-tools/data-transfer.mcp-tools";
+import { manageRecordFilesTool } from "@/features/mcp-tools/record-file.mcp-tools";
 import { manageConnectedAccountsTool } from "@/features/mcp-tools/connected-account.mcp-tools";
 import {
   connectMessagingAccountTool,
@@ -76,6 +77,7 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
     manageTrashTool,
     exportCrmRecordsTool,
     importCrmRecordsTool,
+    manageRecordFilesTool,
   ],
   "record-model": [configureRecordModelV2Tool],
   workspace: [getWorkspaceContextTool, listUsersTool],

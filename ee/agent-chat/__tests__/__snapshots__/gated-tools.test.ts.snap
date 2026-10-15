@@ -61,6 +61,7 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
   "import_crm_records",
   "manage_conversation_records",
   "manage_record_detail_layout",
+  "manage_record_files",
   "manage_roles",
   "manage_team",
   "manage_trash",
@@ -101,6 +102,11 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
     "read",
     "save",
     "reset",
+  ],
+  "manage_record_files": [
+    "read",
+    "create_upload",
+    "upload",
   ],
   "manage_roles": [
     "read",

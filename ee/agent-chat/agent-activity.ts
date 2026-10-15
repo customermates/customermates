@@ -293,6 +293,15 @@ function describeAgentToolAction(identity: AgentToolIdentity, input: unknown): A
     }
     return descriptor("workspace.configure", "wiki", multiplexedRisk(toolName, details));
   }
+  if (toolName === "manage_record_files") {
+    const action = actionValue(details);
+    if (isMultiplexedRead(toolName, details)) return descriptor("records.read", undefined, "read");
+    if (action === "upload" && typeof details.recordId === "string")
+      return descriptor("records.update", undefined, multiplexedRisk(toolName, details));
+    if (action === "upload" || action === "create_upload")
+      return descriptor("records.create", undefined, multiplexedRisk(toolName, details));
+    return descriptor("generic", undefined, multiplexedRisk(toolName, details));
+  }
   if (toolName === "request_support") {
     return descriptor("support.escalate", undefined, "sensitive", [], {
       action: "support.request",

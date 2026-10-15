@@ -281,6 +281,12 @@ Exportiert eine Liste als JSON-Dokument wie Als JSON exportieren auf der Listens
 Erstellt oder aktualisiert bis zu 100 Datensätze und 500 Verknüpfungen einer Liste aus einem Export-Dokument in einem atomaren Aufruf (mode create oder update), geprüft gegen die aktuelle Schema-Revision. Eine ungültige Zeile weist das ganze Dokument ab. Braucht Erstellen- oder Bearbeiten-Rechte auf der Liste.
 
 **Kann Daten löschen.** Pflicht: `document`, `mode`, `idempotencyKey`.
+
+#### `manage_record_files`
+
+Dateien in ein Dateifeld hochladen und lesen. upload nimmt Base64-Inhalt bis 3 MB und schreibt die Datei mit recordId sofort in das Feld dieses Datensatzes, angehängt oder anstelle der vorhandenen Dateien; create_upload liefert eine PUT-URL und Header für genau size Bytes, die 15 Minuten gelten, danach schreiben Sie die fileId mit mutate_crm_record in das Feld. read liefert die Angaben zur Datei, einen 15 Minuten gültigen Download-Link und, sobald er extrahiert ist, ihren Text in Abschnitten mit offset und nextOffset. Uploads zählen zum Speicher des Workspace.
+
+Pflicht: `action`. Optional: `typeId`, `fieldId`, `name`, `mimeType`, `content`, `size`, `recordId`, `attach`, `expectedVersion`, `fileId`, `offset`.
 {/* /mcp-catalog */}
 
 ### Stapel-Update über Kanalkennungen [#batch-identifier-update]
