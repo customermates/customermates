@@ -161,8 +161,11 @@ function inferExpressionType(
   };
   const expressionType = (child: CalculationExpression, childTypeId: string) =>
     inferExpressionType(child, childTypeId, fields, relations, report);
-  if (expression.kind === "literal")
-    return expression.value?.kind === "file" ? invalid("file_not_calculable") : primitiveType(expression.value);
+  if (expression.kind === "literal") {
+    if (expression.value?.kind === "file") return invalid("file_not_calculable");
+    if (expression.value?.kind === "address") return invalid("address_not_calculable");
+    return primitiveType(expression.value);
+  }
   if (expression.kind === "field" || expression.kind === "optionAttribute") {
     const field = fields.get(expression.fieldId);
     if (!field || field.archived || field.typeId !== typeId) return invalid("invalid_field_reference");
@@ -178,6 +181,8 @@ function inferExpressionType(
           .map((attribute) => primitiveType(attribute.value)),
       ),
     );
+    if (attributeTypes.has("file")) return invalid("file_not_calculable");
+    if (attributeTypes.has("address")) return invalid("address_not_calculable");
     if (attributeTypes.size > 1) return invalid("option_attribute_type_mismatch");
     return [...attributeTypes][0] ?? null;
   }
@@ -392,6 +397,11 @@ export function validateRecordModel(model: RecordModel): {
     if (!types.has(field.typeId)) issues.push({ code: "invalid_field_type", fieldId: field.id });
     if (new Set(field.options.map((option) => option.id)).size !== field.options.length)
       issues.push({ code: "duplicate_option_id", fieldId: field.id });
+    const attributeKinds = new Set(
+      field.options.flatMap((option) => option.attributes.map((attribute) => attribute.value.kind)),
+    );
+    if (attributeKinds.has("file")) issues.push({ code: "file_not_calculable", fieldId: field.id });
+    if (attributeKinds.has("address")) issues.push({ code: "address_not_calculable", fieldId: field.id });
     if (field.valueType === "currency" && !field.format?.currency)
       issues.push({ code: "missing_currency", fieldId: field.id });
     if (field.format?.onClick && !CLICK_ACTION_VALUE_TYPES.includes(field.valueType))

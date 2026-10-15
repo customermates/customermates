@@ -277,6 +277,68 @@ describe("file and address field definitions", () => {
     });
   });
 
+  it("refuses address and file constants in calculations, so no calculation can store a verified address", () => {
+    const SELECT = "00000000-0000-4000-8000-000000000014";
+    const branches = field(SELECT, "select", {
+      options: [
+        {
+          id: "hq",
+          label: "HQ",
+          color: null,
+          attributes: [{ key: "office", value: { kind: "address", value: MANNHEIM } }],
+        },
+      ],
+    });
+    const captured = field(ADDRESS, "address", {
+      behavior: {
+        kind: "snapshot",
+        expression: { kind: "literal", value: { kind: "address", value: MANNHEIM } },
+        capture: "create",
+      },
+    });
+    const lookup = field(TEXT, "address", {
+      typeId: OTHER_TYPE,
+      behavior: {
+        kind: "lookup",
+        expression: {
+          kind: "related",
+          relationId: RELATION,
+          direction: "outgoing",
+          reducer: "one",
+          expression: { kind: "optionAttribute", fieldId: SELECT, attribute: "office" },
+        },
+      },
+    });
+    expect(issues([captured])).toContainEqual({ code: "address_not_calculable", fieldId: ADDRESS });
+    expect(issues([branches])).toContainEqual({ code: "address_not_calculable", fieldId: SELECT });
+    expect(issues([branches, lookup])).toContainEqual({ code: "address_not_calculable", fieldId: TEXT });
+    expect(
+      calculationExpressionIssues(
+        { kind: "optionAttribute", fieldId: SELECT, attribute: "office" },
+        TYPE,
+        model([branches]),
+      ).issues,
+    ).toContain("address_not_calculable");
+    const attachments = field(SELECT, "select", {
+      options: [
+        {
+          id: "hq",
+          label: "HQ",
+          color: null,
+          attributes: [{ key: "offer", value: { kind: "file", value: [FILE_A] } }],
+        },
+      ],
+    });
+    expect(issues([attachments])).toContainEqual({ code: "file_not_calculable", fieldId: SELECT });
+    expect(
+      calculationExpressionIssues(
+        { kind: "optionAttribute", fieldId: SELECT, attribute: "offer" },
+        TYPE,
+        model([attachments]),
+      ).issues,
+    ).toContain("file_not_calculable");
+  });
+
   it("refuses file and address fields as snapshot triggers", () => {
     const snapshot = (triggerFieldId: string, triggerValue: RecordScalar) =>
       field(TEXT, "text", {
