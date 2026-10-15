@@ -135,6 +135,7 @@ export enum CustomErrorCode {
   routineScheduleTooFrequent = "routineScheduleTooFrequent",
   routineTimeZoneInvalid = "routineTimeZoneInvalid",
   routineLimitReached = "routineLimitReached",
+  routinesRequireCloud = "routinesRequireCloud",
   routineTriggerEventsRequired = "routineTriggerEventsRequired",
   invalidFilterField = "invalidFilterField",
   invalidGroupingField = "invalidGroupingField",

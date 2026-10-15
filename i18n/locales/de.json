@@ -1189,6 +1189,7 @@
       "routineScheduleInvalid": "Dieser Zeitplan ist kein gültiger Cron-Ausdruck.",
       "routineScheduleRequired": "Wähle einen Zeitplan oder ein einmaliges Datum für diese Routine.",
       "routineScheduleTooFrequent": "Dieser Zeitplan läuft zu häufig. Routinen können höchstens alle 15 Minuten laufen.",
+      "routinesRequireCloud": "Routinen laufen in Customermates Cloud. Eine selbst gehostete Instanz kann sie nicht ausführen.",
       "routineTestRequiresEnabled": "Aktiviere die Routine, bevor du sie testest.",
       "routineTimeZoneInvalid": "Diese Zeitzone wird nicht unterstützt.",
       "routineTriggerEventsRequired": "Wähle mindestens ein Ereignis für diese Routine aus.",

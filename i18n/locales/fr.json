@@ -1189,6 +1189,7 @@
       "routineScheduleInvalid": "Cette planification n'est pas une expression cron valide.",
       "routineScheduleRequired": "Choisissez une planification ou une date unique pour cette routine.",
       "routineScheduleTooFrequent": "Cette planification s'exécute trop souvent. Les routines peuvent s'exécuter au maximum toutes les 15 minutes.",
+      "routinesRequireCloud": "Les routines s'exécutent sur Customermates Cloud. Une instance auto-hébergée ne peut pas les exécuter.",
       "routineTestRequiresEnabled": "Activez la routine avant de la tester.",
       "routineTimeZoneInvalid": "Ce fuseau horaire n'est pas pris en charge.",
       "routineTriggerEventsRequired": "Sélectionnez au moins un évènement pour cette routine.",

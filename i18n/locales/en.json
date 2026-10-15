@@ -1189,6 +1189,7 @@
       "routineScheduleInvalid": "That schedule is not a valid cron expression.",
       "routineScheduleRequired": "Choose a schedule or a one-off date for this routine.",
       "routineScheduleTooFrequent": "This schedule runs too often. Routines can run at most once every 15 minutes.",
+      "routinesRequireCloud": "Routines run on Customermates Cloud. A self-hosted instance cannot run them.",
       "routineTestRequiresEnabled": "Activate the routine before testing it.",
       "routineTimeZoneInvalid": "That time zone is not supported.",
       "routineTriggerEventsRequired": "Select at least one event for this routine.",
