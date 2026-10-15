@@ -72,6 +72,7 @@ Registrieren Sie sich, wählen Sie **Neuen Workspace erstellen** und schließen 
 - `CRON_SECRET`: optional und in der Vorlage auskommentiert; das Secret für die geplanten Wartungsaufrufe, siehe [Welche geplanten Aufgaben muss ich ausführen?](#scheduled-jobs).
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AZURE_AD_CLIENT_ID`, `AZURE_AD_CLIENT_SECRET`: optional und in der Vorlage auskommentiert, siehe [Können sich Nutzer mit Google oder Microsoft anmelden?](#can-users-sign-in-with-google-or-microsoft).
 - `ADDRESS_LOOKUP_URL`: optional und in der Vorlage auskommentiert; schaltet Adressvorschläge ein, siehe [Wie schalte ich Adressvorschläge ein?](#address-lookup).
+- `FILE_STORAGE_DRIVER`, `FILE_MAX_UPLOAD_BYTES` und die `S3_`-Variablen: optional und in der Vorlage auskommentiert; wo Dateifelder ihre Dateien ablegen und wie groß eine sein darf, siehe [Wo werden Dateien beim Self-Hosting gespeichert?](#file-storage).
 
 Halten Sie `.env` aus der Versionsverwaltung heraus. Änderungen wenden Sie mit `docker compose up -d` an.
 
@@ -191,9 +192,19 @@ docker compose exec app sh
 
 Die App schreibt ihre Logs in die Container-Ausgabe. Hintergrund-Jobs wie Webhook-Zustellungen laufen im App-Container über eine PostgreSQL-gestützte Warteschlange in derselben Datenbank; einen separaten Worker-Dienst gibt es nicht. Das veröffentlichte Image schaltet die Next.js-Telemetrie ab und setzt keine Adresse für Fehlerberichte. Fehler, die die App in ihre Ausgabe schreibt, erscheinen nur in diesen Logs. Fehler, die die App nur an einen Dienst für Fehlerberichte meldet, etwa eine von Resend abgelehnte E-Mail, werden nirgends festgehalten; prüfen Sie abgelehnte Sendungen im Resend-Dashboard.
 
+## Wo werden Dateien beim Self-Hosting gespeichert? [#file-storage]
+
+Dateifelder speichern ihre Dateien standardmäßig in der PostgreSQL-Datenbank, sodass das Backup mit `pg_dump` sie enthält. Eine Datei darf höchstens `FILE_MAX_UPLOAD_BYTES` Bytes groß sein, ohne Angabe 26214400 (25 MB); darüber hinaus hat ein selbst gehosteter Workspace kein Speicherlimit außer Ihrem Speicherplatz. Für viele oder große Dateien legen Sie sie in einem S3-kompatiblen Bucket ab, etwa bei AWS S3, MinIO, Cloudflare R2 oder im Object Storage von Hetzner oder OVH:
+
+- `FILE_STORAGE_DRIVER=s3` sowie `S3_BUCKET`, `S3_ACCESS_KEY_ID` und `S3_SECRET_ACCESS_KEY` eines privaten Buckets.
+- `S3_ENDPOINT` für jeden Anbieter außer AWS, zum Beispiel `https://fsn1.your-objectstorage.com`, und `S3_REGION`, wenn der Anbieter eine verlangt (ohne Angabe `us-east-1`).
+- `S3_FORCE_PATH_STYLE=true` für MinIO und andere Server, die den Bucket im Pfad statt im Hostnamen adressieren.
+
+Browser senden neue Dateien direkt an den Bucket, deshalb müssen seine CORS-Regeln `PUT` mit dem Header `Content-Type` von Ihrer `BASE_URL` erlauben. Downloads laufen immer über die App, die zuerst den Zugriff prüft. Eine Datei bleibt dort, wo sie hochgeladen wurde: Nach einem Wechsel zu `s3` bleiben frühere Dateien in der Datenbank und lassen sich weiter öffnen, und die S3-Variablen müssen gesetzt bleiben, solange der Bucket Dateien enthält. Sichern Sie den Bucket zusammen mit der Datenbank. Der tägliche Aufruf von `/api/cron/lifecycle` löscht Dateien, die vor 30 Tagen aus Datensätzen entfernt wurden, und Uploads, die nie gespeichert wurden, siehe [Welche geplanten Aufgaben muss ich ausführen?](#scheduled-jobs).
+
 ## Wie erstelle ich Datenbank-Backups und stelle sie wieder her? [#backups]
 
-Alle Daten liegen in der PostgreSQL-Datenbank: Datensätze, Nutzer, Einstellungen, das Aktivitätsprotokoll und die Warteschlange der Hintergrund-Jobs. Der App-Container speichert keine Daten. Sichern Sie die Datenbank mit `pg_dump` über den Postgres-Container, dessen Port die Compose-Datei nicht veröffentlicht:
+Alle Daten liegen in der PostgreSQL-Datenbank: Datensätze, Nutzer, Einstellungen, das Aktivitätsprotokoll und die Warteschlange der Hintergrund-Jobs, dazu die Dateien der Dateifelder, sofern `FILE_STORAGE_DRIVER` nicht `s3` ist (dann sichern Sie auch den Bucket). Der App-Container speichert keine Daten. Sichern Sie die Datenbank mit `pg_dump` über den Postgres-Container, dessen Port die Compose-Datei nicht veröffentlicht:
 
 ```bash
 mkdir -p backups
@@ -219,7 +230,7 @@ Testen Sie die Wiederherstellung regelmäßig auf einem separaten Rechner. Auch 
 
 Die Cloud ruft zwei Wartungs-Endpunkte nach Zeitplan auf; eine Self-Hosted-Instanz führt sie nur aus, wenn Sie sie aufrufen. Ohne den täglichen Aufruf werden Elemente im [Papierkorb](/docs/app-trash) nach ihren 30 Tagen nie endgültig gelöscht.
 
-- `/api/cron/lifecycle`, einmal täglich: löscht Papierkorb-Elemente, deren 30 Tage abgelaufen sind, und erledigt die übrigen täglichen Wartungsaufgaben. Die Aufgaben für Cloud-Testphasen und Abonnements finden auf einer Self-Hosted-Instanz nichts.
+- `/api/cron/lifecycle`, einmal täglich: löscht Papierkorb-Elemente, deren 30 Tage abgelaufen sind, Dateien, die vor 30 Tagen aus Datensätzen entfernt wurden, und nie gespeicherte Uploads, und erledigt die übrigen täglichen Wartungsaufgaben. Die Aufgaben für Cloud-Testphasen und Abonnements finden auf einer Self-Hosted-Instanz nichts.
 - `/api/cron/record-deliveries`, alle 5 Minuten (optional): startet fällige Webhook-Zustellungen, Ereignisverarbeitung, das Auslesen von Text aus angehängten Dateien und andere Hintergrundarbeit an Datensätzen, die kein laufender Job übernommen hat, etwa nach einem Neustart des Containers.
 
 Beide antworten mit HTTP `401`, außer die App hat ein `CRON_SECRET` und die Anfrage sendet es als `Authorization: Bearer <secret>`. Die Vorlage enthält neben `BETTER_AUTH_SECRET` eine auskommentierte Zeile `CRON_SECRET`, und die Compose-Datei reicht den Wert an die App weiter; listet Ihre `docker-compose.yml` `CRON_SECRET` noch nicht auf, holen Sie die Datei erneut mit dem `curl`-Befehl aus den Installationsschritten. Entfernen Sie das Kommentarzeichen oder ergänzen Sie die Zeile in einer älteren `.env`, setzen Sie einen langen Zufallswert, etwa aus `openssl rand -hex 32`, führen Sie `docker compose up -d` aus und planen Sie die Aufrufe auf dem Host, etwa mit `crontab -e`:
