@@ -98,3 +98,112 @@ test("intercepts synthetic email delivery and adoption without accepting other p
     delete process.env.UNIPILE_API_KEY;
   }
 });
+
+test("answers Lemon Squeezy checkout, subscription and seat calls locally only with the local key", async () => {
+  const { mkdtempSync, rmSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const provider = await import("./local-lemonsqueezy-provider.mjs");
+  const directory = mkdtempSync(join(tmpdir(), "lemonsqueezy-guard-"));
+  const headers = {
+    Authorization: `Bearer ${provider.localLemonSqueezyKey}`,
+    "Content-Type": "application/vnd.api+json",
+  };
+  process.env.CRM_E2E_PROVIDER_DIRECTORY = directory;
+  try {
+    assert.throws(() => fetch("https://api.lemonsqueezy.com/v1/checkouts", { method: "POST", headers }), /blocked/);
+    process.env.LEMONSQUEEZY_API_KEY = provider.localLemonSqueezyKey;
+    const checkout = await fetch("https://api.lemonsqueezy.com/v1/checkouts", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        data: {
+          attributes: { checkout_data: { custom: { company_id: "company-1" } } },
+          relationships: {
+            store: { data: { id: provider.localLemonSqueezyStoreId } },
+            variant: { data: { id: provider.localLemonSqueezyVariants.pro } },
+          },
+        },
+      }),
+    });
+    assert.equal(checkout.status, 201);
+    assert.match(
+      (await checkout.json()).data.attributes.url,
+      /^https:\/\/customermates\.lemonsqueezy\.com\/checkout\/custom\//,
+    );
+    assert.deepEqual(
+      provider.readLocalCheckouts(directory).map((stored) => stored.custom),
+      [{ company_id: "company-1" }],
+    );
+    const { id, itemId } = provider.newLocalSubscriptionIds();
+    provider.writeLocalSubscription(directory, {
+      id,
+      itemId,
+      companyId: "company-1",
+      quantity: 1,
+      attributes: { status: "active" },
+    });
+    const subscription = await fetch(`https://api.lemonsqueezy.com/v1/subscriptions/${id}`, { headers });
+    assert.equal((await subscription.json()).data.attributes.first_subscription_item.quantity, 1);
+    const seats = await fetch(`https://api.lemonsqueezy.com/v1/subscription-items/${itemId}`, {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify({ data: { attributes: { quantity: 3 } } }),
+    });
+    assert.equal(seats.status, 200);
+    assert.deepEqual(provider.readLocalSubscription(directory, id).quantityUpdates, [3]);
+    assert.equal((await fetch("https://api.lemonsqueezy.com/v1/subscriptions/123", { headers })).status, 404);
+    assert.throws(() => fetch("https://api.lemonsqueezy.com/v1/stores/1", { headers }), /blocked/);
+    assert.throws(
+      () =>
+        fetch(`https://api.lemonsqueezy.com/v1/subscriptions/${id}`, { headers: { Authorization: "Bearer other" } }),
+      /blocked/,
+    );
+  } finally {
+    delete process.env.LEMONSQUEEZY_API_KEY;
+    delete process.env.CRM_E2E_PROVIDER_DIRECTORY;
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("issues local OAuth tokens only to the local clients and only for the PKCE verifier of the code", async () => {
+  const { createHash } = await import("node:crypto");
+  const provider = await import("./local-oauth-provider.mjs");
+  const verifier = "local-verifier-".repeat(4);
+  const redirectUri = "http://127.0.0.1:4181/api/auth/callback/google";
+  const code = provider.localOAuthCode({
+    provider: "google",
+    identity: { sub: "1", email: "person@example.test", name: "Local Person" },
+    codeChallenge: createHash("sha256").update(verifier).digest("base64url"),
+    redirectUri,
+  });
+  const exchange = (fields) =>
+    fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: redirectUri,
+        code_verifier: verifier,
+        client_id: provider.localOAuthClients.google.id,
+        client_secret: provider.localOAuthClients.google.secret,
+        ...fields,
+      }),
+    });
+  assert.throws(() => exchange({}), /blocked a non-loopback connection/);
+  Object.assign(process.env, provider.localOAuthEnvironment("google"));
+  try {
+    const issued = await exchange({});
+    assert.equal(issued.status, 200);
+    const claims = JSON.parse(Buffer.from((await issued.json()).id_token.split(".")[1], "base64url").toString());
+    assert.equal(claims.email, "person@example.test");
+    assert.equal(claims.email_verified, true);
+    assert.equal((await exchange({ code_verifier: "another-verifier" })).status, 400);
+    assert.equal((await exchange({ redirect_uri: "http://127.0.0.1:4181/elsewhere" })).status, 400);
+    assert.equal((await exchange({ client_secret: "wrong" })).status, 401);
+  } finally {
+    delete process.env.GOOGLE_CLIENT_ID;
+    delete process.env.GOOGLE_CLIENT_SECRET;
+  }
+});

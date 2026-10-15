@@ -32,5 +32,6 @@ export function localE2eEnvironment() {
     baseUrl: base.origin,
     databaseUrl,
     workflowDirectory: resolve(".runs", "e2e", database.pathname.slice(1), "workflow"),
+    providerDirectory: resolve(".runs", "e2e", database.pathname.slice(1), "providers"),
   };
 }
