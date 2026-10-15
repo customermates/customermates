@@ -72,21 +72,55 @@ describe("generateStructuredObject", () => {
     expect(request.providerOptions.gateway).not.toHaveProperty("caching");
   });
 
-  it("gives setup planning the timeout of its catalog entry and keeps the default for other purposes", async () => {
+  it.each([
+    ["wikiSynthesis", 16_384, 90_000],
+    ["wikiSummary", 512, 90_000],
+    ["setupDrafting", 8_192, 90_000],
+    ["setupPlanning", 16_384, 180_000],
+    ["chat", 8_192, 90_000],
+  ] as const)(
+    "sends %s without thinking or Gateway caching, with its output ceiling and timeout",
+    async (purpose, maxOutputTokens, timeoutMs) => {
+      const timeout = vi.spyOn(AbortSignal, "timeout");
+      provider.generate.mockResolvedValue({ output: { title: "x" }, usage: { inputTokens: 1, outputTokens: 1 } });
+      try {
+        await generateStructuredObject({
+          label: purpose,
+          model: AGENT_MODELS[purpose],
+          schema: z.object({ title: z.string() }),
+          system: "system",
+          prompt: "prompt",
+        });
+        const [request] = provider.generate.mock.calls[0];
+        expect(request).toMatchObject({ model: AGENT_MODELS[purpose].modelId, maxOutputTokens, reasoning: "none" });
+        expect(request.providerOptions).toEqual({
+          gateway: {
+            only: ["vertexAnthropic"],
+            inferenceRegion: { scope: "zone", geoRegion: "eu" },
+            zeroDataRetention: true,
+            disallowPromptTraining: true,
+          },
+        });
+        expect(timeout).toHaveBeenCalledWith(timeoutMs);
+      } finally {
+        timeout.mockRestore();
+      }
+    },
+  );
+
+  it("lets a caller's own timeout win over the catalog entry", async () => {
     const timeout = vi.spyOn(AbortSignal, "timeout");
-    provider.generate.mockResolvedValue({ output: { recordModel: { lists: [] } }, usage: { inputTokens: 1 } });
+    provider.generate.mockResolvedValue({ output: { title: "x" }, usage: { inputTokens: 1, outputTokens: 1 } });
     try {
-      await nestedCall();
-      await call();
       await generateStructuredObject({
         label: "Calculation draft",
-        model: AGENT_MODELS.chat,
+        model: AGENT_MODELS.setupPlanning,
         schema: z.object({ title: z.string() }),
         system: "system",
         prompt: "prompt",
         timeoutMs: 20_000,
       });
-      expect(timeout.mock.calls.map(([ms]) => ms)).toEqual([180_000, 90_000, 20_000]);
+      expect(timeout).toHaveBeenCalledWith(20_000);
     } finally {
       timeout.mockRestore();
     }
