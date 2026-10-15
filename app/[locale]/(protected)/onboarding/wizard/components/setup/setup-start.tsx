@@ -1,13 +1,15 @@
 "use client";
 
-import { Globe, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { FormControlRow } from "@/components/forms/form-control-row";
+import { FormLabel } from "@/components/forms/form-label";
+import { GenericPageLoading } from "@/components/page-state/generic-page-loading";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
@@ -33,28 +35,20 @@ export const SetupStart = observer(function SetupStart() {
 
   if (autoStarting) {
     return (
-      <div aria-busy="true" className="flex min-h-36 items-center justify-center" role="status">
-        <Loader2 aria-hidden className="size-5 animate-spin text-muted-foreground motion-reduce:animate-none" />
-
-        <span className="sr-only">{t("WorkspaceSetup.start.start")}</span>
+      <div aria-busy="true" className="flex min-h-36">
+        <GenericPageLoading label={t("Loading.text")} />
       </div>
     );
   }
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="setup-website">{t("Common.inputs.websiteUrl")}</Label>
+      <div className="space-y-1.5">
+        <FormLabel htmlFor="setup-website">{t("Common.inputs.websiteUrl")}</FormLabel>
 
-        <div className="relative">
-          <Globe
-            aria-hidden
-            className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-          />
-
+        <FormControlRow>
           <Input
             autoComplete="url"
-            className="pl-9"
             disabled={store.isBusy}
             id="setup-website"
             inputMode="url"
@@ -67,7 +61,7 @@ export const SetupStart = observer(function SetupStart() {
               runUserAction(() => store.start(website.trim()));
             }}
           />
-        </div>
+        </FormControlRow>
 
         <p className="text-xs text-muted-foreground">{t("OnboardingWizard.profile.websiteDescription")}</p>
       </div>

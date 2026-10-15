@@ -5,23 +5,16 @@ import type { ReactNode } from "react";
 import type { ChipColor } from "@/constants/chip-colors";
 import type { StandardSetupList } from "./setup-plan-summary";
 
-import { ChartArea, ChartBar, ChartColumn, ChartPie, FileText, Filter, Hash, ListOrdered, Radar } from "lucide-react";
+import { FileText } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { ChartTypeIllustration } from "@/app/[locale]/(protected)/dashboard/components/widget-display-type-picker";
 import { AppChip } from "@/components/chip/app-chip";
 import { RecordTypeGlyph } from "@/components/records/record-type-glyph";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/core/utils/cn";
-
-const DISPLAY_ICONS: Record<string, LucideIcon> = {
-  number: Hash,
-  verticalBarChart: ChartColumn,
-  horizontalBarChart: ChartBar,
-  areaChart: ChartArea,
-  rankedTable: ListOrdered,
-  doughnutChart: ChartPie,
-  funnelChart: Filter,
-  radarChart: Radar,
-};
+import { DisplayType } from "@/features/widget/widget.schema";
 
 const TILE_SPANS: Record<string, string> = {
   small: "col-span-1",
@@ -30,7 +23,7 @@ const TILE_SPANS: Record<string, string> = {
   wide: "col-span-2 @2xl/sketch:col-span-4",
 };
 
-const BAR_HEIGHTS = ["h-1/3", "h-2/3", "h-1/2", "h-full", "h-3/4"];
+const DISPLAY_TYPES = new Set<string>(Object.values(DisplayType));
 
 export function useStandardListNames(): Record<StandardSetupList, string> {
   const t = useTranslations();
@@ -58,19 +51,19 @@ export function PreviewPanel({
   busy?: boolean;
 }) {
   return (
-    <section
-      aria-busy={busy}
-      aria-label={title}
-      className={cn("flex min-w-0 flex-col gap-3 rounded-xl border border-border bg-card p-4", className)}
-    >
-      <h3 className="flex items-center gap-2 text-sm font-medium">
-        <Icon aria-hidden className="size-4 text-muted-foreground" />
+    <Card aria-busy={busy} aria-label={title} className={cn("min-w-0 gap-4", className)} role="region">
+      <CardHeader>
+        <CardTitle>
+          <h3 className="flex items-center gap-2 text-sm">
+            <Icon aria-hidden className="size-4 text-muted-foreground" />
 
-        {title}
-      </h3>
+            {title}
+          </h3>
+        </CardTitle>
+      </CardHeader>
 
-      {children}
-    </section>
+      <CardContent className="flex min-w-0 flex-col gap-3">{children}</CardContent>
+    </Card>
   );
 }
 
@@ -97,12 +90,7 @@ export function PreviewListChip({
 }
 
 export function PlaceholderLine({ className, pulse = false }: { className?: string; pulse?: boolean }) {
-  return (
-    <span
-      aria-hidden
-      className={cn("block h-2 rounded-full bg-muted", pulse && "animate-pulse motion-reduce:animate-none", className)}
-    />
-  );
+  return <Skeleton aria-hidden animated={pulse} className={cn("h-2", className)} />;
 }
 
 export type BoardStage = { label: string; color: ChipColor | null; weight?: number | null };
@@ -118,19 +106,19 @@ export function PipelineBoard({
 }) {
   const t = useTranslations();
   return (
-    <div className="flex gap-2 overflow-x-auto pb-1">
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(5rem,1fr))] gap-x-1.5 gap-y-3">
       {stages.map((stage, index) => {
         const cards = records.filter((_, at) => at % stages.length === index);
         return (
           <div
             key={`${stage.label}-${index}`}
-            className="flex min-w-[6.5rem] flex-1 animate-page-result-in flex-col gap-2 rounded-lg bg-muted/60 p-2 motion-reduce:animate-none"
+            className="flex min-w-0 animate-page-result-in flex-col gap-2 motion-reduce:animate-none"
           >
-            <div className="flex items-center justify-between gap-1">
+            <div className="flex min-w-0 items-center gap-1.5">
               <AppChip variant={stage.color ?? "secondary"}>{stage.label}</AppChip>
 
               {stage.weight !== null && stage.weight !== undefined ? (
-                <span className="text-[11px] text-muted-foreground">
+                <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
                   {t("WorkspaceSetup.plan.winChanceValue", { value: stage.weight })}
                 </span>
               ) : null}
@@ -138,17 +126,16 @@ export function PipelineBoard({
 
             {cards.length
               ? cards.map((title) => (
-                  <div
-                    key={title}
-                    className="animate-page-result-in truncate rounded-md border border-border bg-card px-2 py-1.5 text-xs shadow-xs motion-reduce:animate-none"
-                  >
-                    {title}
-                  </div>
+                  <Card key={title} className="animate-page-result-in gap-0 py-2 motion-reduce:animate-none">
+                    <CardContent className="px-2 text-xs break-words">{title}</CardContent>
+                  </Card>
                 ))
               : [0, 1].slice(0, index % 2 === 0 ? 2 : 1).map((slot) => (
-                  <div key={slot} className="rounded-md border border-border bg-card p-2">
-                    <PlaceholderLine className="w-3/4" pulse={pulse} />
-                  </div>
+                  <Card key={slot} className="gap-0 py-3">
+                    <CardContent className="px-2">
+                      <PlaceholderLine className="w-3/4" pulse={pulse} />
+                    </CardContent>
+                  </Card>
                 ))}
           </div>
         );
@@ -159,43 +146,25 @@ export function PipelineBoard({
 
 export type DashboardTile = { key: string; title: string; display: string; size?: string | null };
 
-export function DashboardSketch({ tiles, pulse = false }: { tiles: DashboardTile[]; pulse?: boolean }) {
+export function DashboardSketch({ tiles }: { tiles: DashboardTile[] }) {
   return (
     <div className="@container/sketch">
       <div className="grid grid-cols-2 gap-2 @2xl/sketch:grid-cols-4">
         {tiles.map((tile) => {
-          const Icon = DISPLAY_ICONS[tile.display] ?? ChartColumn;
-          const numeric = tile.display === "number";
+          const display = DISPLAY_TYPES.has(tile.display)
+            ? (tile.display as DisplayType)
+            : DisplayType.verticalBarChart;
           return (
             <div
               key={tile.key}
               className={cn(
-                "flex min-h-24 animate-page-result-in flex-col gap-2 rounded-lg border border-border bg-background p-2.5 motion-reduce:animate-none",
-                TILE_SPANS[tile.size ?? (numeric ? "small" : "medium")] ?? "col-span-1",
+                "flex min-h-28 min-w-0 animate-page-result-in flex-col gap-3 rounded-lg border border-border p-3 motion-reduce:animate-none",
+                TILE_SPANS[tile.size ?? (display === DisplayType.number ? "small" : "medium")] ?? "col-span-1",
               )}
             >
-              <div className="flex items-start gap-1.5 text-xs font-medium">
-                <Icon aria-hidden className="mt-px size-3.5 shrink-0 text-muted-foreground" />
+              <span className="text-xs font-medium [overflow-wrap:anywhere]">{tile.title}</span>
 
-                <span className="line-clamp-2 min-w-0 break-words">{tile.title}</span>
-              </div>
-
-              {numeric ? (
-                <PlaceholderLine className="mt-auto h-4 w-1/2 bg-primary/25" pulse={pulse} />
-              ) : (
-                <div aria-hidden className="mt-auto flex h-10 items-end gap-1">
-                  {BAR_HEIGHTS.map((height, bar) => (
-                    <span
-                      key={bar}
-                      className={cn(
-                        "flex-1 rounded-sm bg-primary/30",
-                        height,
-                        pulse && "animate-pulse motion-reduce:animate-none",
-                      )}
-                    />
-                  ))}
-                </div>
-              )}
+              <ChartTypeIllustration className="mt-auto h-10 w-full" type={display} />
             </div>
           );
         })}
@@ -210,22 +179,20 @@ export function KnowledgePageList({ titles }: { titles: string[] }) {
   const t = useTranslations();
   const hidden = titles.length - VISIBLE_PAGE_TITLES;
   return (
-    <ul className="grid gap-1.5 sm:grid-cols-2">
+    <ul className="grid gap-x-3 gap-y-2 sm:grid-cols-2">
       {titles.slice(0, VISIBLE_PAGE_TITLES).map((title) => (
         <li
           key={title}
-          className="flex min-w-0 animate-page-result-in items-center gap-2 rounded-md bg-muted/60 px-2.5 py-1.5 text-xs motion-reduce:animate-none"
+          className="flex min-w-0 animate-page-result-in items-start gap-2 text-sm motion-reduce:animate-none"
         >
-          <FileText aria-hidden className="size-3.5 shrink-0 text-muted-foreground" />
+          <FileText aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
 
-          <span className="truncate">{title}</span>
+          <span className="min-w-0 [overflow-wrap:anywhere]">{title}</span>
         </li>
       ))}
 
       {hidden > 0 ? (
-        <li className="flex items-center px-2.5 py-1.5 text-xs text-muted-foreground">
-          {t("WorkspaceSetup.plan.morePages", { count: hidden })}
-        </li>
+        <li className="text-sm text-muted-foreground">{t("WorkspaceSetup.plan.morePages", { count: hidden })}</li>
       ) : null}
     </ul>
   );

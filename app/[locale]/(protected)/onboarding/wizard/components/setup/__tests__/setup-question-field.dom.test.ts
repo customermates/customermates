@@ -17,6 +17,7 @@ vi.mock("@/components/ui/tooltip", () => ({
   TooltipTrigger: ({ children }: { children: unknown }) => children,
   TooltipContent: () => null,
 }));
+vi.mock("@/components/forms/form-context", () => ({ useAppForm: () => undefined }));
 vi.mock("@/components/forms/form-autocomplete-country", () => ({
   FormAutocompleteCountry: (props: { value?: string; onValueChange: (value: string) => void }) =>
     createElement("button", {
@@ -176,6 +177,13 @@ describe("SetupQuestionField", () => {
     expect(onChange).toHaveBeenLastCalledWith({ format: "range", min: 1000, max: null });
     type(to, "5000");
     expect(onChange).toHaveBeenLastCalledWith({ format: "range", min: 1000, max: 5000 });
+  });
+
+  it("names the range currency with the shared currency label, whatever the stored casing", () => {
+    render(descriptorOf("dealSize"), null, { currency: "eur" });
+
+    expect(container.textContent).toContain("Euro (EUR)");
+    expect(container.textContent).not.toContain("eur");
   });
 
   it("renders a long short-text answer as a text area", () => {

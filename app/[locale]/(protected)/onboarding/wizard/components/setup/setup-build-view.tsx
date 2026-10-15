@@ -6,12 +6,26 @@ import type { WorkspaceSetupView } from "@/ee/workspace-setup/workspace-setup-st
 import type { BuildPhaseState } from "./setup-build-state";
 import type { SetupPreviewList } from "./setup-plan-summary";
 
-import { BookOpen, Check, Circle, Kanban, LayoutDashboard, Loader2, Minus, RotateCcw, Rows3, X } from "lucide-react";
+import {
+  BookOpen,
+  Check,
+  Circle,
+  FileText,
+  Kanban,
+  LayoutDashboard,
+  Loader2,
+  Minus,
+  RotateCcw,
+  Rows3,
+  X,
+} from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { RecordTypeGlyph } from "@/components/records/record-type-glyph";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -50,17 +64,15 @@ const PHASE_ICONS: Record<BuildPhaseState, LucideIcon> = {
 function PhaseIcon({ state }: { state: BuildPhaseState }) {
   const Icon = PHASE_ICONS[state];
   return (
-    <span
-      aria-hidden
-      className={cn(
-        "flex size-5 shrink-0 items-center justify-center rounded-full",
-        state === "done" && "bg-success/15 text-success",
-        state === "failed" && "bg-destructive/15 text-destructive",
-        state === "active" && "text-primary",
-        (state === "waiting" || state === "skipped") && "text-muted-foreground",
-      )}
-    >
-      <Icon className={cn("size-3.5", state === "active" && "animate-spin motion-reduce:animate-none")} />
+    <span aria-hidden className="flex size-5 shrink-0 items-center justify-center">
+      <Icon
+        className={cn(
+          "size-3.5 shrink-0",
+          state === "active" && "animate-spin motion-reduce:animate-none",
+          state === "failed" && "text-destructive",
+          (state === "waiting" || state === "skipped") && "text-muted-foreground",
+        )}
+      />
     </span>
   );
 }
@@ -82,7 +94,6 @@ const SetupAppFrame = observer(function SetupAppFrame({ setup }: { setup: Worksp
   const boardColors = planStages.find((candidate) => candidate.list === board?.list.key)?.stages ?? [];
   const modelReady = phaseDone(setup, "dataModel");
   const companyName = store.answers.companyName?.value;
-  const brand = setup.results.colors;
   const widgets = setup.results.widgets;
   const plannedWidgets = plan?.dashboard.widgets.length ?? 0;
   const pages = setup.results.pages;
@@ -95,27 +106,11 @@ const SetupAppFrame = observer(function SetupAppFrame({ setup }: { setup: Worksp
       role="group"
     >
       <div className="flex items-center gap-2 border-b border-border px-3 py-2">
-        <span aria-hidden className="flex gap-1">
-          <span className="size-2 rounded-full bg-muted-foreground/25" />
-
-          <span className="size-2 rounded-full bg-muted-foreground/25" />
-
-          <span className="size-2 rounded-full bg-muted-foreground/25" />
-        </span>
-
-        <span className="truncate text-xs font-medium">
+        <span className="min-w-0 text-xs font-medium [overflow-wrap:anywhere]">
           {companyName?.format === "shortText" && companyName.value
             ? companyName.value
             : t("WorkspaceSetup.build.frameTitle")}
         </span>
-
-        {brand ? (
-          <span
-            aria-hidden
-            className="ml-auto size-3 animate-page-result-in rounded-full border border-border motion-reduce:animate-none"
-            style={{ backgroundColor: brand.hex }}
-          />
-        ) : null}
       </div>
 
       <div className="flex min-h-[26rem]">
@@ -129,7 +124,7 @@ const SetupAppFrame = observer(function SetupAppFrame({ setup }: { setup: Worksp
             {t("WorkspaceSetup.plan.dashboard")}
           </span>
 
-          <span className="px-2 pt-3 pb-1 text-[11px] text-muted-foreground">{t("WorkspaceSetup.plan.lists")}</span>
+          <span className="px-2 pt-3 pb-1 text-muted-foreground">{t("WorkspaceSetup.plan.lists")}</span>
 
           {lists.map((list) =>
             list.ready || modelReady ? (
@@ -172,29 +167,32 @@ const SetupAppFrame = observer(function SetupAppFrame({ setup }: { setup: Worksp
           ) : null}
 
           <FramePanel icon={Rows3} title={table ? listLabel(table.list) : t("WorkspaceSetup.build.records")}>
-            <div className="overflow-hidden rounded-md border border-border">
-              <div className="border-b border-border bg-muted/50 px-2.5 py-1.5 text-[11px] text-muted-foreground">
-                {t("WorkspaceSetup.build.nameColumn")}
-              </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("WorkspaceSetup.build.nameColumn")}</TableHead>
+                </TableRow>
+              </TableHeader>
 
-              {table
-                ? table.titles.slice(0, 5).map((title) => (
-                    <div
-                      key={title}
-                      className="animate-page-result-in truncate border-b border-border px-2.5 py-1.5 text-xs last:border-b-0 motion-reduce:animate-none"
-                    >
-                      {title}
-                    </div>
-                  ))
-                : [0, 1, 2].map((row) => (
-                    <div key={row} className="border-b border-border px-2.5 py-2 last:border-b-0">
-                      <PlaceholderLine
-                        className={row === 1 ? "w-1/2" : "w-2/3"}
-                        pulse={phaseActive(setup, "records")}
-                      />
-                    </div>
-                  ))}
-            </div>
+              <TableBody>
+                {table
+                  ? table.titles.slice(0, 5).map((title) => (
+                      <TableRow key={title} className="animate-page-result-in motion-reduce:animate-none">
+                        <TableCell className="whitespace-normal [overflow-wrap:anywhere]">{title}</TableCell>
+                      </TableRow>
+                    ))
+                  : [0, 1, 2].map((row) => (
+                      <TableRow key={row}>
+                        <TableCell>
+                          <PlaceholderLine
+                            className={row === 1 ? "w-1/2" : "w-2/3"}
+                            pulse={phaseActive(setup, "records")}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+              </TableBody>
+            </Table>
           </FramePanel>
 
           <FramePanel icon={LayoutDashboard} title={t("WorkspaceSetup.plan.dashboard")}>
@@ -207,7 +205,7 @@ const SetupAppFrame = observer(function SetupAppFrame({ setup }: { setup: Worksp
                 {Array.from({ length: Math.min(Math.max(plannedWidgets, 2), 4) }, (_, tile) => (
                   <div
                     key={tile}
-                    className="flex h-16 flex-col justify-end gap-1.5 rounded-lg border border-border p-2"
+                    className="flex min-h-28 flex-col justify-end gap-2 rounded-lg border border-border p-3"
                   >
                     <PlaceholderLine className="w-2/3" pulse={phaseActive(setup, "dashboard")} />
 
@@ -222,10 +220,12 @@ const SetupAppFrame = observer(function SetupAppFrame({ setup }: { setup: Worksp
             {pages.length ? (
               <KnowledgePageList titles={pages.map((page) => page.title)} />
             ) : (
-              <div className="grid gap-1.5 sm:grid-cols-2">
+              <div className="grid gap-x-3 gap-y-2 sm:grid-cols-2">
                 {Array.from({ length: Math.min(Math.max(plannedPages, 2), 6) }, (_, row) => (
-                  <div key={row} className="rounded-md bg-muted/60 px-2.5 py-2">
-                    <PlaceholderLine className="w-3/4 bg-background" pulse={phaseActive(setup, "knowledgeBase")} />
+                  <div key={row} className="flex items-center gap-2">
+                    <FileText aria-hidden className="size-4 shrink-0 text-muted-foreground" />
+
+                    <PlaceholderLine className="w-3/4" pulse={phaseActive(setup, "knowledgeBase")} />
                   </div>
                 ))}
               </div>
@@ -249,15 +249,17 @@ const SetupAppFrame = observer(function SetupAppFrame({ setup }: { setup: Worksp
 
 function FramePanel({ icon: Icon, title, children }: { icon: LucideIcon; title: string; children: React.ReactNode }) {
   return (
-    <section aria-label={title} className="flex min-w-0 flex-col gap-2 rounded-lg border border-border bg-card p-2.5">
-      <h3 className="flex items-center gap-1.5 text-xs font-medium">
-        <Icon aria-hidden className="size-3.5 text-muted-foreground" />
+    <Card aria-label={title} className="min-w-0 gap-2 py-3" role="region">
+      <CardContent className="flex min-w-0 flex-col gap-2 px-3">
+        <h3 className="flex items-center gap-1.5 text-xs font-medium">
+          <Icon aria-hidden className="size-3.5 shrink-0 text-muted-foreground" />
 
-        <span className="truncate">{title}</span>
-      </h3>
+          <span className="min-w-0 [overflow-wrap:anywhere]">{title}</span>
+        </h3>
 
-      {children}
-    </section>
+        {children}
+      </CardContent>
+    </Card>
   );
 }
 
@@ -390,18 +392,16 @@ export const SetupBuildView = observer(function SetupBuildView({ onContinue, onS
               <li
                 key={phase.key}
                 aria-current={state === "active" ? "step" : undefined}
-                className={cn(
-                  "flex flex-col gap-1.5 rounded-lg border bg-card p-3 transition-colors motion-reduce:transition-none",
-                  state === "active" ? "border-primary/40" : "border-border",
-                  state === "failed" && "border-destructive/40",
-                )}
+                className="flex flex-col gap-1.5 rounded-lg border border-border bg-card p-3 shadow-xs"
               >
                 <div className="flex items-center gap-2">
                   <PhaseIcon state={state} />
 
-                  <span className="min-w-0 flex-1 truncate text-sm font-medium">{phaseLabels[phase.key]}</span>
+                  <span className="min-w-0 flex-1 text-sm font-medium [overflow-wrap:anywhere]">
+                    {phaseLabels[phase.key]}
+                  </span>
 
-                  <span className="text-xs text-muted-foreground">{stateLabels[state]}</span>
+                  <span className="shrink-0 text-xs text-muted-foreground">{stateLabels[state]}</span>
                 </div>
 
                 {state === "active" ? (

@@ -2,16 +2,17 @@
 
 import type { SetupQuestion } from "@/features/workspace-setup/setup-interview";
 
-import { Globe, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 
 import { Alert } from "@/components/shared/alert";
+import { WizardProgress } from "@/components/shared/wizard-progress";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { cn } from "@/core/utils/cn";
 import { SETUP_SCREEN_DEFINITIONS, SETUP_SCREENS } from "@/features/workspace-setup/setup-interview";
 
 import { answerFromWebsite, displayedAnswerValue, partVisible, screenQuestions } from "./setup-interview-state";
@@ -23,23 +24,16 @@ export function SetupScreenSteps({ current, titles }: { current: number; titles:
   const t = useTranslations();
   return (
     <div className="flex flex-col gap-2">
-      <ol aria-label={t("WorkspaceSetup.interview.stepsLabel")} className="flex gap-1.5">
-        {titles.map((title, index) => (
-          <li
-            key={title}
-            aria-current={index === current ? "step" : undefined}
-            aria-label={title}
-            className={cn(
-              "h-1.5 flex-1 rounded-full transition-colors duration-300 motion-reduce:transition-none",
-              index <= current ? "bg-primary" : "bg-muted",
-            )}
-          />
-        ))}
-      </ol>
-
       <p className="text-xs text-muted-foreground">
         {t("WorkspaceSetup.interview.stepProgress", { current: current + 1, total: titles.length })}
       </p>
+
+      <WizardProgress
+        current={current + 1}
+        label={t("WorkspaceSetup.interview.stepsLabel")}
+        total={titles.length}
+        valueText={titles[current] ?? ""}
+      />
     </div>
   );
 }
@@ -62,8 +56,13 @@ const SetupQuestionBlock = observer(function SetupQuestionBlock({ question }: { 
     />
   ));
 
-  if (question.confirmationCard)
-    return <div className="grid gap-5 rounded-xl border border-border bg-card p-4 sm:grid-cols-2">{fields}</div>;
+  if (question.confirmationCard) {
+    return (
+      <Card>
+        <CardContent className="grid gap-5 sm:grid-cols-2">{fields}</CardContent>
+      </Card>
+    );
+  }
 
   return <div className="flex flex-col gap-6">{fields}</div>;
 });
@@ -91,7 +90,7 @@ export const SetupInterview = observer(function SetupInterview() {
 
       {store.prefillRunning ? (
         <p aria-live="polite" className="flex items-center gap-2 text-xs text-muted-foreground" role="status">
-          <Globe aria-hidden className="size-3.5 animate-pulse motion-reduce:animate-none" />
+          <Loader2 aria-hidden className="size-3.5 animate-spin motion-reduce:animate-none" />
 
           {t("WorkspaceSetup.interview.prefillRunning", { website: setup?.websiteUrl ?? "" })}
         </p>

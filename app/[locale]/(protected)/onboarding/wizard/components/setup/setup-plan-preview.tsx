@@ -7,6 +7,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
 import { Alert } from "@/components/shared/alert";
+import { IconContainer } from "@/components/shared/icon-container";
 import { Button } from "@/components/ui/button";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -54,15 +55,17 @@ const StandardSetupButton = observer(function StandardSetupButton({ onStandard }
 export const SetupPlanPending = observer(function SetupPlanPending() {
   const t = useTranslations();
   return (
-    <section aria-live="polite" className="flex flex-col items-center gap-4 py-10 text-center" role="status">
-      <span className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-        <Sparkles aria-hidden className="size-6 animate-pulse motion-reduce:animate-none" />
-      </span>
+    <section
+      aria-live="polite"
+      className="flex animate-page-empty-in flex-col items-center gap-5 py-10 text-center motion-reduce:animate-none"
+      role="status"
+    >
+      <IconContainer icon={Sparkles} size="md" />
 
-      <div className="space-y-1">
-        <h2 className="text-lg font-semibold">{t("WorkspaceSetup.plan.planningTitle")}</h2>
+      <div className="flex max-w-md flex-col gap-2">
+        <h2 className="text-base font-medium text-foreground">{t("WorkspaceSetup.plan.planningTitle")}</h2>
 
-        <p className="max-w-md text-sm text-muted-foreground">{t("WorkspaceSetup.plan.planningBody")}</p>
+        <p className="text-sm leading-relaxed text-muted-foreground">{t("WorkspaceSetup.plan.planningBody")}</p>
       </div>
 
       <div aria-hidden className="grid w-full max-w-md gap-2">

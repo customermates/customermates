@@ -3,10 +3,11 @@
 import type { WorkspaceSetupStatusView } from "@/ee/workspace-setup/workspace-setup-status";
 import type { WorkspaceSetupStore } from "./workspace-setup.store";
 
-import { Loader2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useEffect, useLayoutEffect, useState } from "react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+
+import { GenericPageLoading } from "@/components/page-state/generic-page-loading";
 
 import { isClientTransportError } from "@/core/errors/client-transport-error";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
@@ -53,6 +54,7 @@ export function useHydratedSetupStore(initialStatus: WorkspaceSetupStatusView) {
 }
 
 export const StepSetup = observer(function StepSetup() {
+  const t = useTranslations();
   const { workspaceSetupStore: store, onboardingWizardStore: wizard } = useRootStore();
   const stage = store.stage;
   const startWithStandardSetup = async () => {
@@ -81,8 +83,8 @@ export const StepSetup = observer(function StepSetup() {
     case "unavailable":
     case "done":
       return (
-        <div aria-busy="true" className="flex min-h-36 items-center justify-center">
-          <Loader2 aria-hidden className="size-5 animate-spin text-muted-foreground motion-reduce:animate-none" />
+        <div aria-busy="true" className="flex min-h-36">
+          <GenericPageLoading label={t("Loading.text")} />
         </div>
       );
   }

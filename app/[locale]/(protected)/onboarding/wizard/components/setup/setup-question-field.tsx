@@ -5,16 +5,21 @@ import type { SetupQuestionDescriptor } from "./setup-question-descriptor";
 
 import { ArrowDown, ArrowUp, Globe, Plus, X } from "lucide-react";
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { FormAutocompleteCountry } from "@/components/forms/form-autocomplete-country";
 import { FormAutocompleteCurrency } from "@/components/forms/form-autocomplete-currency";
+import { FormControlRow } from "@/components/forms/form-control-row";
+import { FormLabel } from "@/components/forms/form-label";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Toggle } from "@/components/ui/toggle";
+import { getCurrencyLabel } from "@/constants/currencies";
+import { cn } from "@/core/utils/cn";
 import { APP_LOCALES } from "@/i18n/locale-registry";
 
 import { SETUP_CHIP_CLASS, SetupChip, SetupCustomEntry, SetupRemovableChip } from "./setup-choice-chips";
@@ -136,106 +141,113 @@ function OrderedListField({ descriptor, value, onChange, disabled }: FieldProps<
     next.splice(index + offset, 0, item);
     update(next);
   };
+  const rowGrid = descriptor.winChance
+    ? "grid-cols-[1.25rem_minmax(0,1fr)_6rem_auto]"
+    : "grid-cols-[1.25rem_minmax(0,1fr)_auto]";
 
   return (
     <div className="flex flex-col gap-2">
-      {descriptor.winChance && items.length > 0 ? (
-        <div aria-hidden className="flex justify-end pr-[5.75rem] text-xs text-muted-foreground">
-          <span className="w-20 text-right">{t("WorkspaceSetup.actions.winChance")}</span>
-        </div>
-      ) : null}
-
-      <ol aria-label={descriptor.label} className="flex flex-col gap-1.5">
-        {items.map((item, index) => (
-          <li key={index} className="flex animate-page-result-in items-center gap-2 motion-reduce:animate-none">
-            <span aria-hidden className="w-5 shrink-0 text-right text-xs text-muted-foreground tabular-nums">
-              {index + 1}
+      <div className={cn("grid items-center gap-2", rowGrid)}>
+        {descriptor.winChance && items.length > 0 ? (
+          <div aria-hidden className="col-span-full grid grid-cols-subgrid">
+            <span className="col-start-3 truncate text-right text-xs font-medium text-muted-foreground">
+              {t("WorkspaceSetup.actions.winChance")}
             </span>
+          </div>
+        ) : null}
 
-            <Input
-              aria-label={t("WorkspaceSetup.interview.entryLabel", { index: index + 1 })}
-              className="h-8 min-w-0 flex-1"
-              disabled={disabled}
-              maxLength={80}
-              value={item.label}
-              onChange={(event) =>
-                update(items.map((entry, at) => (at === index ? { ...entry, label: event.target.value } : entry)))
-              }
-            />
+        <ol aria-label={descriptor.label} className="col-span-full grid grid-cols-subgrid gap-y-2">
+          {items.map((item, index) => (
+            <li
+              key={index}
+              className="col-span-full grid animate-page-result-in grid-cols-subgrid items-center motion-reduce:animate-none"
+            >
+              <span aria-hidden className="text-right text-xs text-muted-foreground tabular-nums">
+                {index + 1}
+              </span>
 
-            {descriptor.winChance ? (
-              <div className="relative w-20 shrink-0">
-                <Input
-                  aria-label={t("WorkspaceSetup.interview.winChanceFor", { index: index + 1 })}
-                  className="h-8 pr-6 text-right"
-                  disabled={disabled}
-                  inputMode="numeric"
-                  max={100}
-                  min={0}
-                  type="number"
-                  value={item.winChance ?? ""}
-                  onChange={(event) => {
-                    const raw = event.target.value;
-                    const parsed = Math.round(Number(raw));
-                    const winChance =
-                      raw === "" || Number.isNaN(parsed) ? undefined : Math.min(100, Math.max(0, parsed));
-                    update(items.map((entry, at) => (at === index ? { label: entry.label, winChance } : entry)));
-                  }}
+              <Input
+                aria-label={t("WorkspaceSetup.interview.entryLabel", { index: index + 1 })}
+                disabled={disabled}
+                maxLength={80}
+                value={item.label}
+                onChange={(event) =>
+                  update(items.map((entry, at) => (at === index ? { ...entry, label: event.target.value } : entry)))
+                }
+              />
+
+              {descriptor.winChance ? (
+                <FormControlRow>
+                  <Input
+                    aria-label={t("WorkspaceSetup.interview.winChanceFor", { index: index + 1 })}
+                    className="pr-7 text-right"
+                    disabled={disabled}
+                    inputMode="numeric"
+                    max={100}
+                    min={0}
+                    type="number"
+                    value={item.winChance ?? ""}
+                    onChange={(event) => {
+                      const raw = event.target.value;
+                      const parsed = Math.round(Number(raw));
+                      const winChance =
+                        raw === "" || Number.isNaN(parsed) ? undefined : Math.min(100, Math.max(0, parsed));
+                      update(items.map((entry, at) => (at === index ? { label: entry.label, winChance } : entry)));
+                    }}
+                  />
+
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-sm text-muted-foreground"
+                  >
+                    %
+                  </span>
+                </FormControlRow>
+              ) : null}
+
+              <div className="flex items-center gap-1">
+                <IconButton
+                  fieldAction
+                  disabled={disabled || index === 0}
+                  icon={ArrowUp}
+                  label={t("WorkspaceSetup.interview.moveUp")}
+                  onClick={() => move(index, -1)}
                 />
 
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 text-xs text-muted-foreground"
-                >
-                  %
-                </span>
+                <IconButton
+                  fieldAction
+                  disabled={disabled || index === items.length - 1}
+                  icon={ArrowDown}
+                  label={t("WorkspaceSetup.interview.moveDown")}
+                  onClick={() => move(index, 1)}
+                />
+
+                <IconButton
+                  fieldAction
+                  disabled={disabled}
+                  icon={X}
+                  label={t("Common.actions.remove")}
+                  onClick={() => update(items.filter((_, at) => at !== index))}
+                />
               </div>
-            ) : null}
+            </li>
+          ))}
+        </ol>
+      </div>
 
-            <div className="flex shrink-0 items-center">
-              <IconButton
-                fieldAction
-                className="size-7"
-                disabled={disabled || index === 0}
-                icon={ArrowUp}
-                label={t("WorkspaceSetup.interview.moveUp")}
-                onClick={() => move(index, -1)}
-              />
+      <div>
+        <Button
+          disabled={disabled || items.length >= descriptor.maxItems}
+          size="sm"
+          type="button"
+          variant="secondary"
+          onClick={() => update([...items, { label: "" }])}
+        >
+          <Plus aria-hidden />
 
-              <IconButton
-                fieldAction
-                className="size-7"
-                disabled={disabled || index === items.length - 1}
-                icon={ArrowDown}
-                label={t("WorkspaceSetup.interview.moveDown")}
-                onClick={() => move(index, 1)}
-              />
-
-              <IconButton
-                fieldAction
-                className="size-7"
-                disabled={disabled}
-                icon={X}
-                label={t("Common.actions.remove")}
-                onClick={() => update(items.filter((_, at) => at !== index))}
-              />
-            </div>
-          </li>
-        ))}
-      </ol>
-
-      <Button
-        className="self-start"
-        disabled={disabled || items.length >= descriptor.maxItems}
-        size="sm"
-        type="button"
-        variant="ghost"
-        onClick={() => update([...items, { label: "" }])}
-      >
-        <Plus />
-
-        {t("WorkspaceSetup.interview.addEntry")}
-      </Button>
+          {t("WorkspaceSetup.interview.addEntry")}
+        </Button>
+      </div>
     </div>
   );
 }
@@ -267,14 +279,7 @@ function RankedPickField({ descriptor, value, onChange, disabled }: FieldProps<"
                 onChange({ format: "rankedPick", values: next });
               }}
             >
-              {picked ? (
-                <span
-                  aria-hidden
-                  className="flex size-5 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground"
-                >
-                  {rank + 1}
-                </span>
-              ) : null}
+              {picked ? <Badge aria-hidden>{rank + 1}</Badge> : null}
 
               {option.label}
             </Toggle>
@@ -301,6 +306,7 @@ function RangeField({
   currency,
 }: FieldProps<"range"> & { currency: string | null }) {
   const t = useTranslations();
+  const locale = useLocale();
   const [minText, setMinText] = useState(numberText(value?.min));
   const [maxText, setMaxText] = useState(numberText(value?.max));
   const [synced, setSynced] = useState(value);
@@ -317,7 +323,12 @@ function RangeField({
       descriptor.single || nextMax.trim() === "" || Number.isNaN(Number(nextMax)) ? null : clamp(Number(nextMax));
     onChange({ format: "range", min, max: max !== null && max < min ? min : max });
   };
-  const unit = descriptor.unit === "currency" ? (currency?.toUpperCase() ?? "") : t("WorkspaceSetup.interview.days");
+  const unit =
+    descriptor.unit === "currency"
+      ? currency
+        ? getCurrencyLabel(currency, locale)
+        : ""
+      : t("WorkspaceSetup.interview.days");
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -453,11 +464,9 @@ export function SetupQuestionField({ descriptor, fromWebsite = false, ...props }
   const t = useTranslations();
   const labelId = `setup-question-${descriptor.id}`;
   return (
-    <div aria-labelledby={labelId} className="flex flex-col gap-2.5" role="group">
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm font-medium" id={labelId}>
-          {descriptor.label}
-        </span>
+    <div aria-labelledby={labelId} className="flex flex-col gap-1.5" role="group">
+      <div className="flex flex-wrap items-center gap-1.5">
+        <FormLabel id={labelId}>{descriptor.label}</FormLabel>
 
         {descriptor.optional ? (
           <span className="text-xs text-muted-foreground">{t("WorkspaceSetup.interview.optional")}</span>

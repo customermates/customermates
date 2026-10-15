@@ -6,13 +6,13 @@ import { Check, Plus, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { AppChip } from "@/components/chip/app-chip";
 import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
-import { cn } from "@/core/utils/cn";
 
-export const SETUP_CHIP_CLASS =
-  "h-8 rounded-full px-3 text-sm font-normal data-[state=on]:border-primary/40 data-[state=on]:bg-primary/15 data-[state=on]:text-primary-soft-foreground data-[state=on]:hover:bg-primary/20";
+export const SETUP_CHIP_CLASS = "px-3";
 
 type ChipProps = {
   pressed: boolean;
@@ -34,7 +34,7 @@ export function SetupChip({ pressed, disabled, onPressedChange, children, role }
       variant="outline"
       onPressedChange={onPressedChange}
     >
-      {pressed ? <Check aria-hidden className="size-3.5" /> : null}
+      {pressed ? <Check aria-hidden /> : null}
 
       {children}
     </Toggle>
@@ -64,15 +64,8 @@ export function SetupCustomEntry({ disabled, maxLength = 80, onAdd }: CustomEntr
 
   if (!open) {
     return (
-      <Button
-        className="h-8 rounded-full border-dashed px-3 font-normal"
-        disabled={disabled}
-        size="sm"
-        type="button"
-        variant="secondary"
-        onClick={() => setOpen(true)}
-      >
-        <Plus />
+      <Button disabled={disabled} size="sm" type="button" variant="ghost" onClick={() => setOpen(true)}>
+        <Plus aria-hidden />
 
         {t("WorkspaceSetup.actions.addOwn")}
       </Button>
@@ -84,7 +77,7 @@ export function SetupCustomEntry({ disabled, maxLength = 80, onAdd }: CustomEntr
       <Input
         ref={input}
         aria-label={t("WorkspaceSetup.actions.addOwn")}
-        className="h-8 sm:w-56"
+        className="sm:w-56"
         disabled={disabled}
         maxLength={maxLength}
         placeholder={t("WorkspaceSetup.interview.customPlaceholder")}
@@ -99,7 +92,7 @@ export function SetupCustomEntry({ disabled, maxLength = 80, onAdd }: CustomEntr
         }}
       />
 
-      <Button disabled={disabled || !draft.trim()} size="sm" type="button" variant="secondary" onClick={submit}>
+      <Button disabled={disabled || !draft.trim()} type="button" variant="secondary" onClick={submit}>
         {t("Common.actions.add")}
       </Button>
     </div>
@@ -111,25 +104,20 @@ type RemovableChipProps = { label: string; disabled?: boolean; onRemove: () => v
 export function SetupRemovableChip({ label, disabled, onRemove }: RemovableChipProps) {
   const t = useTranslations();
   return (
-    <span
-      className={cn(
-        "inline-flex h-8 items-center gap-1 rounded-full border border-primary/40 bg-primary/15 pr-1 pl-3 text-sm text-primary-soft-foreground",
-        "animate-page-result-in motion-reduce:animate-none",
-      )}
+    <AppChip
+      className="animate-page-result-in motion-reduce:animate-none"
+      endContent={
+        <IconButton
+          fieldAction
+          disabled={disabled}
+          icon={X}
+          label={`${t("Common.actions.remove")}: ${label}`}
+          onClick={onRemove}
+        />
+      }
+      startContent={<Check aria-hidden />}
     >
-      <Check aria-hidden className="size-3.5" />
-
-      <span className="max-w-48 truncate">{label}</span>
-
-      <button
-        aria-label={`${t("Common.actions.remove")}: ${label}`}
-        className="flex size-6 items-center justify-center rounded-full outline-none hover:bg-primary/20 focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:opacity-50"
-        disabled={disabled}
-        type="button"
-        onClick={onRemove}
-      >
-        <X aria-hidden className="size-3.5" />
-      </button>
-    </span>
+      {label}
+    </AppChip>
   );
 }

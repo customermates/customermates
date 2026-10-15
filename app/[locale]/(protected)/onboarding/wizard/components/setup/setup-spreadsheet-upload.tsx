@@ -1,10 +1,11 @@
 "use client";
 
-import { FileSpreadsheet, Loader2, Upload } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useRef } from "react";
 import { useTranslations } from "next-intl";
 
+import { FormLabel } from "@/components/forms/form-label";
 import { Button } from "@/components/ui/button";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -19,26 +20,15 @@ export const SetupSpreadsheetUpload = observer(function SetupSpreadsheetUpload()
   const uploading = store.pending === "upload";
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-dashed border-border-strong p-4 sm:flex-row sm:items-center">
-      <FileSpreadsheet aria-hidden className="size-8 shrink-0 text-muted-foreground" strokeWidth={1.5} />
-
-      <div className="min-w-0 flex-1 space-y-0.5">
-        <p className="truncate text-sm font-medium">
-          {uploaded ? uploaded.fileName : t("WorkspaceSetup.actions.upload")}
-        </p>
-
-        <p className="text-xs text-muted-foreground">
-          {uploaded
-            ? t("WorkspaceSetup.interview.uploadReady")
-            : t("WorkspaceSetup.interview.uploadHint", { maxMegabytes: 5, maxRows: 2_000 })}
-        </p>
-      </div>
+    <div className="space-y-1.5">
+      <FormLabel htmlFor="setup-spreadsheet">{t("WorkspaceSetup.actions.upload")}</FormLabel>
 
       <input
         ref={input}
         accept={SPREADSHEET_ACCEPT}
         aria-label={t("WorkspaceSetup.actions.upload")}
         className="sr-only"
+        id="setup-spreadsheet"
         tabIndex={-1}
         type="file"
         onChange={(event) => {
@@ -48,17 +38,21 @@ export const SetupSpreadsheetUpload = observer(function SetupSpreadsheetUpload()
         }}
       />
 
-      <Button
-        disabled={store.isBusy}
-        size="sm"
-        type="button"
-        variant="secondary"
-        onClick={() => input.current?.click()}
-      >
-        {uploading ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : <Upload />}
+      <div className="flex flex-wrap items-center gap-3">
+        <Button disabled={store.isBusy} type="button" variant="secondary" onClick={() => input.current?.click()}>
+          {uploading ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : null}
 
-        {uploaded ? t("WorkspaceSetup.interview.uploadReplace") : t("WorkspaceSetup.interview.uploadChoose")}
-      </Button>
+          {uploaded ? t("WorkspaceSetup.interview.uploadReplace") : t("WorkspaceSetup.interview.uploadChoose")}
+        </Button>
+
+        {uploaded ? <p className="min-w-0 text-sm break-all text-muted-foreground">{uploaded.fileName}</p> : null}
+      </div>
+
+      <p className="text-xs text-muted-foreground">
+        {uploaded
+          ? t("WorkspaceSetup.interview.uploadReady")
+          : t("WorkspaceSetup.interview.uploadHint", { maxMegabytes: 5, maxRows: 2_000 })}
+      </p>
     </div>
   );
 });
