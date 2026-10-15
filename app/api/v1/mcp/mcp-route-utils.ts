@@ -212,6 +212,7 @@ export function createMcpRoute(
         registerFeatures?.(server, tools);
       },
       {
+        serverInfo: { name: "Customermates", version: "1.0.0" },
         instructions: buildMcpServerInstructions(tools.map((tool) => tool.name)),
       },
       { streamableHttpEndpoint: endpoint },
