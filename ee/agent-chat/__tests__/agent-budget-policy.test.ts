@@ -75,14 +75,14 @@ describe("agent turn credit budget", () => {
 
     expect(model.maxOutputTokens).toBe(16_384);
     expect(model.reasoningEffort).toBe("none");
-    expect(perRound).toBe(2_276_120);
+    expect(perRound).toBe(3_101_120);
     expect(resolveAgentTurnBudget({ model, availableMicrocents: perRound - 1 })).toBeNull();
     expect(resolveAgentTurnBudget({ model, availableMicrocents: perRound })).toMatchObject({
       maxOutputTokens: 16_384,
       roundReserveMicrocents: perRound,
       reservedMicrocents: perRound,
     });
-    expect(agentRoundWorstCaseMicrocents(AGENT_MODELS.chat)).toBe(1_825_560);
+    expect(agentRoundWorstCaseMicrocents(AGENT_MODELS.chat)).toBe(2_650_560);
   });
 
   it("reserves a few rounds ahead rather than a whole worst-case turn", () => {
@@ -94,7 +94,7 @@ describe("agent turn credit budget", () => {
   });
 
   it("keeps the round worst case in exact microcents, without a whole-credit round-up or minimum", () => {
-    expect(agentRoundWorstCaseMicrocents(BALANCED)).toBe(1_825_560);
+    expect(agentRoundWorstCaseMicrocents(BALANCED)).toBe(2_650_560);
     expect(Number.isSafeInteger(agentRoundWorstCaseMicrocents(CHEAPER))).toBe(true);
     expect(agentRoundWorstCaseMicrocents(CHEAPER) % CREDIT).not.toBe(0);
   });
@@ -154,8 +154,8 @@ describe("agent turn credit budget", () => {
       routineSearch: 2_400_000,
     });
     for (const [webSearchReserveMicrocents, reservedMicrocents] of [
-      [chatSearch, 5_425_560],
-      [routineSearch, 4_225_560],
+      [chatSearch, 6_250_560],
+      [routineSearch, 5_301_120],
     ]) {
       const budget = resolveAgentTurnBudget({
         model: BALANCED,
@@ -163,8 +163,10 @@ describe("agent turn credit budget", () => {
         webSearchReserveMicrocents,
       });
       expect(budget?.reservedMicrocents).toBe(reservedMicrocents);
-      expect(budget?.reservedMicrocents).toBe(perRound + webSearchReserveMicrocents);
-      expect(budget?.reservedMicrocents).toBeGreaterThan(perRound * AGENT_RESERVATION_ROUNDS_AHEAD);
+      expect(budget?.reservedMicrocents).toBe(
+        Math.max(perRound * AGENT_RESERVATION_ROUNDS_AHEAD, perRound + webSearchReserveMicrocents),
+      );
+      expect(budget?.reservedMicrocents).toBeGreaterThanOrEqual(perRound + webSearchReserveMicrocents);
     }
     expect(
       resolveAgentTurnBudget({
@@ -467,7 +469,7 @@ describe("per-round credit reserve", () => {
   ];
 
   it("prices a round from its own context at the full input price plus the longest reply", () => {
-    expect(agentRoundReserveMicrocents(shippedBudget(), 120_000)).toBe(1_309_935);
+    expect(agentRoundReserveMicrocents(shippedBudget(), 120_000)).toBe(1_825_560);
     expect(agentRoundReserveMicrocents(shippedBudget(), 120_000)).toBe(
       agentRoundWorstCaseMicrocentsForContextBytes(BALANCED, 120_000),
     );
@@ -479,21 +481,21 @@ describe("per-round credit reserve", () => {
   it("never reserves more than the model's worst-case round, which a full context reaches", () => {
     const budget = shippedBudget();
 
-    expect(agentRoundReserveMicrocents(budget, budget.maxContextBytes)).toBe(1_825_560);
-    expect(agentRoundReserveMicrocents(budget, budget.maxContextBytes * 2)).toBe(1_825_560);
+    expect(agentRoundReserveMicrocents(budget, budget.maxContextBytes)).toBe(2_650_560);
+    expect(agentRoundReserveMicrocents(budget, budget.maxContextBytes * 2)).toBe(2_650_560);
     expect(agentRoundReserveMicrocents({ ...budget, roundReserveMicrocents: CREDIT }, 120_000)).toBe(CREDIT);
   });
 
   it("reserves the worst-case round when the context size is unknown", () => {
     for (const bytes of [0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY])
-      expect(agentRoundReserveMicrocents(shippedBudget(), bytes)).toBe(1_825_560);
+      expect(agentRoundReserveMicrocents(shippedBudget(), bytes)).toBe(2_650_560);
   });
 
   it("prices a round from the provider's measured prompt plus the worst case of what was appended since", () => {
     const measured = { contextBytes: 120_000, promptTokens: 28_000 };
 
-    expect(agentRoundReserveMicrocents(shippedBudget(), 130_000, measured)).toBe(904_310);
-    expect(agentRoundReserveMicrocents(shippedBudget(), 120_000, measured)).toBe(835_560);
+    expect(agentRoundReserveMicrocents(shippedBudget(), 130_000, measured)).toBe(1_176_560);
+    expect(agentRoundReserveMicrocents(shippedBudget(), 120_000, measured)).toBe(1_066_560);
     expect(agentRoundReserveMicrocents(shippedBudget(), 130_000, measured)).toBeLessThan(
       agentRoundReserveMicrocents(shippedBudget(), 130_000),
     );

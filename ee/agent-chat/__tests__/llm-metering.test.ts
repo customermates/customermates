@@ -169,6 +169,7 @@ describe("model catalog + pricing coverage", () => {
       outputPerMTok: 0.55,
       cacheReadPerMTok: 0.011,
       cacheWritePerMTok: 0.1375,
+      cacheWrite1hPerMTok: 0.22,
     });
   });
 });

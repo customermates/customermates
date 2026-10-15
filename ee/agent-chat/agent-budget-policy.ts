@@ -52,7 +52,12 @@ function stepWorstCaseMicrocents(
   outputTokens: number,
 ) {
   const pricing = resolveModelPricing(entry.modelId, promptTokens, entry.servingProvider, entry.inferenceRegion);
-  const maxInputRate = Math.max(pricing.inputPerMTok, pricing.cacheReadPerMTok, pricing.cacheWritePerMTok);
+  const maxInputRate = Math.max(
+    pricing.inputPerMTok,
+    pricing.cacheReadPerMTok,
+    pricing.cacheWritePerMTok,
+    pricing.cacheWrite1hPerMTok,
+  );
   const microcents =
     (promptTokens * maxInputRate + outputTokens * pricing.outputPerMTok) * MICROCENTS_PER_USD_PER_MILLION_TOKENS;
 

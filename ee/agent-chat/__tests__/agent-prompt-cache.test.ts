@@ -73,6 +73,26 @@ describe("agent tool order for prompt caching", () => {
     },
   );
 
+  it.each(["chat", "routine"] as const)(
+    "keeps the active %s tools' cached prefix byte-identical as on-demand sets load, up to every set",
+    (surface) => {
+      const definitions = agentToolDefinitionsForTurn({
+        servingProvider: SERVING_PROVIDER,
+        surface,
+        webSearchEnabled: true,
+      });
+      const active = (initialToolsets: string[]) => {
+        const names = activeAgentToolNames({ tools: definitions, initialToolsets, messages: [] });
+        return definitions.filter((definition) => names.includes(definition.name));
+      };
+      const prefix = JSON.stringify(cachedPrefix(active([])));
+
+      expect(prefix).toContain("load_toolset");
+      expect(JSON.stringify(cachedPrefix(active(["messaging"])))).toBe(prefix);
+      expect(JSON.stringify(cachedPrefix(active([...AGENT_ON_DEMAND_TOOLSETS])))).toBe(prefix);
+    },
+  );
+
   it("marks the last core tool, which stays active when every on-demand set is loaded", () => {
     const definitions = agentToolDefinitionsForTurn({ servingProvider: SERVING_PROVIDER, surface: "chat" });
     const breakpoint = agentToolsCacheBreakpoint(definitions);

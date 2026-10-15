@@ -27,6 +27,9 @@ type CatalogModel = {
 };
 
 const UNBILLED_WHEN_ABSENT = new Set(["input_cache_write"]);
+const ONE_HOUR_CACHE_WRITE_INPUT_MULTIPLE = 2n;
+
+type EndpointTier = { costUsdPerToken: string; minPromptTokens?: number; maxPromptTokens?: number };
 
 function tiers(pricing: CatalogPricing, baseKey: string, tierKey: string) {
   const tiered = pricing[tierKey];
@@ -44,6 +47,22 @@ function tiers(pricing: CatalogPricing, baseKey: string, tierKey: string) {
   if (baseKey === "input_cache_read") return tiers(pricing, "prompt", "prompt_tiers");
 
   throw new Error(`Model is unpriceable: missing ${baseKey}`);
+}
+
+function multipliedRate(rate: string, multiple: bigint) {
+  const [whole, fraction = ""] = rate.split(".");
+  const digits = (BigInt(`${whole}${fraction}`) * multiple).toString().padStart(fraction.length + 1, "0");
+  const decimals = digits.slice(digits.length - fraction.length).replace(/0+$/, "");
+  const integer = digits.slice(0, digits.length - fraction.length);
+  return decimals ? `${integer}.${decimals}` : integer;
+}
+
+function oneHourCacheWriteTiers(prompt: EndpointTier[], cacheWrite: EndpointTier[]) {
+  if (cacheWrite.every((tier) => Number(tier.costUsdPerToken) === 0)) return cacheWrite;
+  return prompt.map((tier) => ({
+    ...tier,
+    costUsdPerToken: multipliedRate(tier.costUsdPerToken, ONE_HOUR_CACHE_WRITE_INPUT_MULTIPLE),
+  }));
 }
 
 function pricingForRegion(pricing: CatalogModel["pricing"], region: string | null): CatalogPricing {
@@ -93,6 +112,8 @@ async function main() {
       ? pricingForRegion(catalogModel.pricing, pin.inferenceRegion)
       : (served.pricing as CatalogPricing);
 
+    const prompt = tiers(pricing, "prompt", "prompt_tiers");
+    const inputCacheWrite = tiers(pricing, "input_cache_write", "input_cache_write_tiers");
     endpoints.push({
       modelId: pin.modelId,
       providerNativeModelId: pin.providerNativeModelId,
@@ -102,10 +123,11 @@ async function main() {
       maxCompletionTokens: (served.max_completion_tokens as number | null) || null,
       requestUsd: (pricing.request as string) ?? "0",
       webSearchUsdPerThousandCalls: (pricing.web_search as string) ?? "0",
-      prompt: tiers(pricing, "prompt", "prompt_tiers"),
+      prompt,
       completion: tiers(pricing, "completion", "completion_tiers"),
       inputCacheRead: tiers(pricing, "input_cache_read", "input_cache_read_tiers"),
-      inputCacheWrite: tiers(pricing, "input_cache_write", "input_cache_write_tiers"),
+      inputCacheWrite,
+      inputCacheWrite1h: oneHourCacheWriteTiers(prompt, inputCacheWrite),
     });
   }
 

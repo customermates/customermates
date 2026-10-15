@@ -1974,16 +1974,16 @@ describe("routine per-run credit limit", () => {
 
     await runAgentTurn(fullyReservedPayload());
 
-    const accrued = accruedBefore(costs, 10);
-    expect(state.providerCalls).toBe(10);
-    expect(accrued).toBe(9_450_000);
-    for (let round = 0; round < 10; round += 1)
+    const accrued = accruedBefore(costs, 9);
+    expect(state.providerCalls).toBe(9);
+    expect(accrued).toBe(8_850_000);
+    for (let round = 0; round < 9; round += 1)
       expect(accruedBefore(costs, round) + roundReserve(round)).toBeLessThanOrEqual(ceilingMicrocents);
     expect(
       accrued +
-        agentRoundReserveMicrocents(routinePayload().turnBudget, contextBytesOf(9), {
-          contextBytes: contextBytesOf(9),
-          promptTokens: roundPromptTokens(9),
+        agentRoundReserveMicrocents(routinePayload().turnBudget, contextBytesOf(8), {
+          contextBytes: contextBytesOf(8),
+          promptTokens: roundPromptTokens(8),
         }),
     ).toBeGreaterThan(ceilingMicrocents);
     expect(state.finalize).toHaveBeenCalledWith(

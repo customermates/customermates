@@ -48,6 +48,15 @@ describe("reservation floor", () => {
     ).toBeNull();
   });
 
+  it("prices the whole worst-case prompt at the one-hour cache write rate, twice the input rate", () => {
+    const chat = AGENT_MODELS.chat;
+    const promptTokens = agentModelWorstCasePromptTokens(chat);
+    expect(promptTokens).toBe(100_000);
+    expect(agentRoundWorstCaseMicrocents(chat)).toBe(
+      Math.ceil((promptTokens * 0.22 + chat.maxOutputTokens * 0.55) * 100),
+    );
+  });
+
   it("holds two rounds ahead and tops up round by round", () => {
     expect(AGENT_RESERVATION_ROUNDS_AHEAD).toBe(2);
   });
@@ -55,7 +64,7 @@ describe("reservation floor", () => {
   it("reserves at most six credits per round for the shipped model and admits a user holding that much", () => {
     const perRound = agentRoundWorstCaseMicrocents(AGENT_MODELS.chat);
     expect(perRound).toBeLessThanOrEqual(6_000_000);
-    expect(perRound).toBe(1_825_560);
+    expect(perRound).toBe(2_650_560);
     expect(resolveAgentTurnBudget({ model: AGENT_MODELS.chat, availableMicrocents: perRound })).not.toBeNull();
     expect(resolveAgentTurnBudget({ model: AGENT_MODELS.chat, availableMicrocents: perRound - 1 })).toBeNull();
   });

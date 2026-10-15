@@ -55,6 +55,17 @@ export const MODEL_PRICING_SNAPSHOT = {
           minPromptTokens: 100001,
         },
       ],
+      inputCacheWrite1h: [
+        {
+          costUsdPerToken: "0.00000022",
+          minPromptTokens: 0,
+          maxPromptTokens: 100001,
+        },
+        {
+          costUsdPerToken: "0.0000011",
+          minPromptTokens: 100001,
+        },
+      ],
     },
     {
       modelId: "anthropic/claude-sonnet-5.5",
@@ -85,6 +96,11 @@ export const MODEL_PRICING_SNAPSHOT = {
           costUsdPerToken: "0.00000275",
         },
       ],
+      inputCacheWrite1h: [
+        {
+          costUsdPerToken: "0.0000044",
+        },
+      ],
     },
     {
       modelId: "typesafe-ai/jev",
@@ -111,6 +127,11 @@ export const MODEL_PRICING_SNAPSHOT = {
         },
       ],
       inputCacheWrite: [
+        {
+          costUsdPerToken: "0",
+        },
+      ],
+      inputCacheWrite1h: [
         {
           costUsdPerToken: "0",
         },

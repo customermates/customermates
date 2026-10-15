@@ -58,6 +58,7 @@ describe("pinned pricing snapshot", () => {
       outputPerMTok: 0.55,
       cacheReadPerMTok: 0.011,
       cacheWritePerMTok: 0.1375,
+      cacheWrite1hPerMTok: 0.22,
     });
     expect(() => resolveModelPricing(GATEWAY_ID, 0, PROVIDER, "us")).toThrow(/No pinned pricing/);
     expect(() => resolveModelPricing(GATEWAY_ID, 0, PROVIDER, null)).toThrow(/global routing/);
@@ -72,6 +73,7 @@ describe("tier selection", () => {
       outputPerMTok: 0.55,
       cacheReadPerMTok: 0.011,
       cacheWritePerMTok: 0.1375,
+      cacheWrite1hPerMTok: 0.22,
     });
   });
 
@@ -81,7 +83,22 @@ describe("tier selection", () => {
       outputPerMTok: 2.75,
       cacheReadPerMTok: 0.055,
       cacheWritePerMTok: 0.6875,
+      cacheWrite1hPerMTok: 1.1,
     });
+  });
+
+  it("prices one-hour cache writes at twice the input rate wherever the endpoint bills cache writes", () => {
+    for (const endpoint of pinnedModelEndpoints()) {
+      for (const promptTokens of [0, BOUNDARY - 1, BOUNDARY, 1_000_000]) {
+        const pricing = resolveModelPricing(
+          endpoint.modelId,
+          promptTokens,
+          endpoint.provider,
+          endpoint.inferenceRegion,
+        );
+        expect(pricing.cacheWrite1hPerMTok).toBe(pricing.cacheWritePerMTok > 0 ? 2 * pricing.inputPerMTok : 0);
+      }
+    }
   });
 
   it("resolves a tier whose bounds are omitted in the catalog for every prompt size", () => {
@@ -91,6 +108,7 @@ describe("tier selection", () => {
         outputPerMTok: 0,
         cacheReadPerMTok: 0.042,
         cacheWritePerMTok: 0,
+        cacheWrite1hPerMTok: 0,
       });
     }
   });

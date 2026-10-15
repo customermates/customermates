@@ -259,13 +259,13 @@ describe("activeAgentToolNames", () => {
     expect(active).not.toContain("get_social_posts");
   });
 
-  it("drops the loader from the list once every set is loaded", () => {
+  it("keeps the loader in the list once every set is loaded, so the cached tool prefix stays the same", () => {
     const active = activeAgentToolNames({
       tools: TOOLS,
       initialToolsets: [...AGENT_ON_DEMAND_TOOLSETS],
       messages: [],
     });
-    expect(active).not.toContain("load_toolset");
+    expect(active).toContain("load_toolset");
     expect(activeAgentToolNames({ tools: TOOLS, initialToolsets: ["messaging"], messages: [] })).toContain(
       "load_toolset",
     );

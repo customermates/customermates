@@ -307,10 +307,8 @@ export function activeAgentToolNames(args: {
   };
   const active = new Set<AgentOnDemandToolset>(args.initialToolsets.filter(isAgentOnDemandToolset));
   for (const toolset of toolsetsUsedInMessages(args.messages, toolsetOf)) active.add(toolset);
-  const everySetLoaded = AGENT_ON_DEMAND_TOOLSETS.every((toolset) => active.has(toolset));
   return args.tools
     .filter((tool) => !isAgentOnDemandToolset(tool.toolset) || active.has(tool.toolset))
-    .filter((tool) => !everySetLoaded || tool.name !== LOAD_TOOLSET_TOOL_NAME)
     .map((tool) => tool.name);
 }
 
