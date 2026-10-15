@@ -14,6 +14,11 @@ import {
   RECOMMENDED_PLAN_ID,
 } from "@/core/commercial/plan-catalog";
 import { DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN } from "@/ee/routines/routine-run-limits";
+import { AGENT_MICROCENTS_PER_USD, agentCreditsToMicrocents } from "@/core/commercial/agent-credits";
+import { agentRoundWorstCaseMicrocents, agentWebSearchReserveMicrocents } from "@/ee/agent-chat/agent-budget-policy";
+import { AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS, agentWebSearchCallLimit } from "@/ee/agent-chat/agent-web-search";
+import { AGENT_MODELS } from "@/ee/agent-chat/model-catalog";
+import { MODEL_PRICING_SNAPSHOT } from "@/ee/agent-chat/model-pricing.snapshot";
 
 const ROOT = process.cwd();
 
@@ -135,6 +140,52 @@ describe("hosted AI pricing contract", () => {
         .Subscription.picker.features;
       expect(Object.values(features).flat().filter((feature) => perRunLimit.test(feature))).toEqual([]);
     }
+  });
+
+  it("states web search and round reservations in the Mate docs as the shares of a Starter allowance the code uses", () => {
+    const share = (microcents: number) =>
+      (microcents / agentCreditsToMicrocents(HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER)) * 100;
+    const chat = AGENT_MODELS.chat;
+    const endpoint = MODEL_PRICING_SNAPSHOT.endpoints.find(
+      (candidate) =>
+        candidate.modelId === chat.modelId &&
+        candidate.provider === chat.servingProvider &&
+        candidate.inferenceRegion === chat.inferenceRegion,
+    );
+    if (!endpoint) throw new Error("The default chat model has no pinned pricing.");
+    const searchCost = share((Number(endpoint.webSearchUsdPerThousandCalls) / 1000) * AGENT_MICROCENTS_PER_USD);
+    const shares = {
+      search: Math.round(searchCost),
+      reservePerSearch: share(AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS).toFixed(1),
+      chatSearches: share(agentWebSearchReserveMicrocents(agentWebSearchCallLimit("chat"))).toFixed(1),
+      routineSearches: share(agentWebSearchReserveMicrocents(agentWebSearchCallLimit("routine"))).toFixed(1),
+      round: share(agentRoundWorstCaseMicrocents(chat)).toFixed(1),
+    };
+    expect(shares).toEqual({
+      search: 1,
+      reservePerSearch: "1.2",
+      chatSearches: "3.6",
+      routineSearches: "2.4",
+      round: "2.7",
+    });
+    const de = (value: string) => value.replace(".", ",");
+
+    expect(assistantEn).toContain(
+      `A search costs about ${shares.search}% of a Starter allowance on top of the model cost.`,
+    );
+    expect(assistantEn).toContain(
+      `reserves ${shares.reservePerSearch}% of a Starter allowance per search still allowed (up to ${shares.chatSearches}% in a chat, ${shares.routineSearches}% in a routine run)`,
+    );
+    expect(assistantEn).toContain(
+      `with the default model that is at most about ${shares.round}% of a Starter allowance.`,
+    );
+    expect(assistantDe).toContain(`Eine Suche kostet etwa ${shares.search} % eines Starter-Kontingents zusätzlich`);
+    expect(assistantDe).toContain(
+      `reserviert Mate ${de(shares.reservePerSearch)} % eines Starter-Kontingents je noch erlaubter Suche (bis zu ${de(shares.chatSearches)} % im Chat, ${de(shares.routineSearches)} % in einem Routinenlauf)`,
+    );
+    expect(assistantDe).toContain(
+      `mit dem Standardmodell sind das höchstens etwa ${de(shares.round)} % eines Starter-Kontingents.`,
+    );
   });
 
   it("explains trial, monthly reset, no rollover, and external MCP separation", () => {
