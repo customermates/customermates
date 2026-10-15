@@ -50,9 +50,11 @@ const { GetRecordFileInteractor } = await import("../get-record-file.interactor"
 const { DownloadRecordFileInteractor } = await import("../download-record-file.interactor");
 const { DownloadRecordFileByGrantInteractor } = await import("../download-record-file-by-grant.interactor");
 const { UploadRecordFileInteractor } = await import("../upload-record-file.interactor");
+const { PurgeCompanyRecordFilesInteractor } = await import("../purge-company-record-files.interactor");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
+const DAY = 24 * 60 * 60 * 1000;
 
 function fileField(id: string, typeId: string, label: string, position: number, multiple: boolean) {
   return {
@@ -187,6 +189,10 @@ async function workspace() {
     read: content,
     readByGrant: new DownloadRecordFileByGrantInteractor(grants, content),
     upload: new UploadRecordFileInteractor(uploads, files, drivers, repo, mutate),
+    purge: new PurgeCompanyRecordFilesInteractor(
+      () => new PrismaRecordFileRepo(companyId),
+      () => () => new DatabaseFileStorageDriver(new PrismaFileContentRepo(companyId), "http://127.0.0.1:4000", 1024),
+    ),
   };
   const id = (key: string) => presetId(companyId, key);
   const typeId = id("deal");
@@ -240,6 +246,8 @@ async function workspace() {
       const file = await prisma.recordFile.findUnique({ where: { id: fileId } });
       return file ? prisma.recordFileContent.count({ where: { fileKey: file.storageKey } }) : 0;
     });
+  const contentParts = (storageKey: string) =>
+    runWithoutTenant(() => prisma.recordFileContent.count({ where: { fileKey: storageKey } }));
   return {
     companyId,
     typeId,
@@ -259,6 +267,7 @@ async function workspace() {
     uploaded,
     row,
     parts,
+    contentParts,
     repo,
   };
 }
@@ -519,6 +528,100 @@ describeDatabase("record files", () => {
         ),
       ).code,
     ).toBe("recordFileContentInvalid");
+  });
+
+  it("detaches removed files and deletes expired and orphaned files with their bytes", async () => {
+    const w = await workspace();
+    const kept = await w.uploaded(100);
+    const removed = await w.uploaded(100);
+    const ref = await w.createDeal([
+      { fieldId: w.multiple, value: { kind: "file", value: [kept.fileId, removed.fileId] } },
+    ]);
+    expect((await w.setFiles(ref, w.multiple, [kept.fileId])).ok).toBe(true);
+    expect(await w.row(removed.fileId)).toMatchObject({ status: "detached" });
+    const fresh = await w.uploaded(10);
+    const stale = await w.uploaded(10);
+    const staleKey = (await w.row(stale.fileId))?.storageKey ?? "";
+    await runWithoutTenant(() =>
+      prisma.recordFile.update({ where: { id: stale.fileId }, data: { createdAt: new Date(Date.now() - 2 * DAY) } }),
+    );
+    const orphan = await w.uploaded(10);
+    const other = await w.createDeal([{ fieldId: w.multiple, value: { kind: "file", value: [orphan.fileId] } }]);
+    await runWithoutTenant(async () => {
+      await prisma.recordValue.updateMany({
+        where: { companyId: w.companyId, recordId: other.recordId, fieldId: w.multiple },
+        data: { textListValue: [], state: "missing" },
+      });
+      await prisma.recordFile.update({
+        where: { id: orphan.fileId },
+        data: { attachedAt: new Date(Date.now() - 2 * DAY) },
+      });
+    });
+
+    const today = await w.interactors.purge.invoke({
+      companyId: w.companyId,
+      now: new Date().toISOString(),
+      detachOrphans: true,
+    });
+    expect(today).toEqual({ detached: 1, deleted: 1, more: false });
+    expect(await w.row(stale.fileId)).toBeNull();
+    expect(await w.contentParts(staleKey)).toBe(0);
+    expect(await w.row(fresh.fileId)).toMatchObject({ status: "pending" });
+    expect(await w.row(orphan.fileId)).toMatchObject({ status: "detached" });
+    expect(await w.row(kept.fileId)).toMatchObject({ status: "ready" });
+
+    const removedKey = (await w.row(removed.fileId))?.storageKey ?? "";
+    const later = await w.interactors.purge.invoke({
+      companyId: w.companyId,
+      now: new Date(Date.now() + 31 * DAY).toISOString(),
+      detachOrphans: false,
+    });
+    expect(later.deleted).toBe(3);
+    for (const fileId of [removed.fileId, orphan.fileId, fresh.fileId]) expect(await w.row(fileId)).toBeNull();
+    expect(await w.contentParts(removedKey)).toBe(0);
+    expect(await w.row(kept.fileId)).toMatchObject({ status: "ready" });
+  });
+
+  it("keeps files in Trash and deletes them when the record or the field is deleted permanently", async () => {
+    const w = await workspace();
+    const file = await w.uploaded(200);
+    const ref = await w.createDeal([{ fieldId: w.multiple, value: { kind: "file", value: [file.fileId] } }]);
+    const key = (await w.row(file.fileId))?.storageKey ?? "";
+    expect((await w.mutation({ action: "delete", ref, expectedVersion: await w.version(ref) })).ok).toBe(true);
+    expect(await w.row(file.fileId)).toMatchObject({ status: "ready", recordId: ref.recordId });
+    await w.interactors.purge.invoke({ companyId: w.companyId, now: new Date().toISOString(), detachOrphans: true });
+    expect(await w.row(file.fileId)).toMatchObject({ status: "ready" });
+
+    const purgedFile = await w.uploaded(200);
+    const purgedKey = (await w.row(purgedFile.fileId))?.storageKey ?? "";
+    const purged = await w.createDeal([{ fieldId: w.multiple, value: { kind: "file", value: [purgedFile.fileId] } }]);
+    const permanent = await w.mutation({
+      action: "delete",
+      ref: purged,
+      expectedVersion: await w.version(purged),
+      permanent: true,
+    });
+    expect(permanent.ok).toBe(true);
+    expect(await w.row(purgedFile.fileId)).toMatchObject({ status: "detached", detachedAt: new Date(0) });
+    await w.interactors.purge.invoke({ companyId: w.companyId, now: new Date().toISOString(), detachOrphans: false });
+    expect(await w.row(purgedFile.fileId)).toBeNull();
+    expect(await w.contentParts(purgedKey)).toBe(0);
+
+    const fieldFile = await w.uploaded(50, w.single, "Contract.pdf");
+    await w.as(w.admin, () =>
+      runInTransaction(() =>
+        w.repo.deleteDefinitions({
+          typeIds: [],
+          fieldIds: [w.multiple, w.single],
+          relationIds: [],
+          channelTypeIds: [],
+        }),
+      ),
+    );
+    await w.interactors.purge.invoke({ companyId: w.companyId, now: new Date().toISOString(), detachOrphans: false });
+    expect(await w.row(file.fileId)).toBeNull();
+    expect(await w.row(fieldFile.fileId)).toBeNull();
+    expect(await w.contentParts(key)).toBe(0);
   });
 });
 

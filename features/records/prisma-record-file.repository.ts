@@ -1,6 +1,8 @@
 import type { RecordFileRepo, StoredRecordFile } from "./record-file.repo";
 import type { RecordRef } from "./record-model.schema";
 import type { PendingRecordFile, RecordFileDetails, RecordFileUploadRepo } from "./record-file-upload.repo";
+import type { ExpiredRecordFile, RecordFileCleanupRepo, RecordFileExpiry } from "./record-file-cleanup.repo";
+import type { RecordFilePurgeRepo } from "./record-file-purge.repo";
 import type {
   RecordFileExtraction,
   RecordFileIndexCandidate,
@@ -17,6 +19,8 @@ import { Prisma } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { BULK_WRITE_TRANSACTION, Transaction } from "@/core/decorators/transaction.decorator";
+
+import { RECORD_FILE_PURGED_AT } from "./record-file-purge.repo";
 
 const RECORD_FILE_INDEX_CLAIM_SECONDS = 300;
 const RECORD_FILE_CHUNK_INSERT_BATCH = 200;
@@ -41,9 +45,22 @@ const STORED_FILE_SELECT = {
   detachedAt: true,
 } satisfies Prisma.RecordFileSelect;
 
+function expiredFiles({ pendingBefore, detachedBefore }: RecordFileExpiry): Prisma.RecordFileWhereInput[] {
+  return [
+    { status: "pending", createdAt: { lt: pendingBefore } },
+    { status: "detached", detachedAt: { lt: detachedBefore } },
+  ];
+}
+
 export class PrismaRecordFileRepo
   extends TenantRepository
-  implements RecordFileRepo, RecordFileUploadRepo, RecordFileIndexRepo, RecordFileSemanticIndexRepo
+  implements
+    RecordFileRepo,
+    RecordFileUploadRepo,
+    RecordFileCleanupRepo,
+    RecordFilePurgeRepo,
+    RecordFileIndexRepo,
+    RecordFileSemanticIndexRepo
 {
   constructor(private readonly scopedCompanyId?: string) {
     super();
@@ -319,5 +336,75 @@ export class PrismaRecordFileRepo
       _sum: { size: true },
     });
     return Number(usage._sum.size ?? 0n);
+  }
+
+  @BypassTenantGuard
+  async findFileCompaniesUnscoped(after: string | null, limit: number): Promise<string[]> {
+    const groups = await this.prisma.recordFile.groupBy({
+      by: ["companyId"],
+      where: after ? { companyId: { gt: after } } : {},
+      orderBy: { companyId: "asc" },
+      take: limit,
+    });
+    return groups.map((group) => group.companyId);
+  }
+
+  async detachOrphanedFiles(attachedBefore: Date): Promise<number> {
+    const companyId = this.companyId;
+    return this.prisma.$executeRaw(Prisma.sql`
+      UPDATE "RecordFile" AS f SET status = 'detached', "detachedAt" = NOW()
+      WHERE f."companyId" = ${companyId} AND f.status = 'ready' AND f."attachedAt" < ${attachedBefore}
+        AND NOT EXISTS (
+          SELECT 1 FROM "RecordSchemaState" AS s
+          WHERE s."companyId" = ${companyId} AND s."activeOperationId" IS NOT NULL
+        )
+        AND NOT EXISTS (
+          SELECT 1 FROM "RecordValue" AS v
+          WHERE v."companyId" = ${companyId} AND v."typeId" = f."typeId" AND v."recordId" = f."recordId"
+            AND v."fieldId" = f."fieldId" AND v.state = 'value' AND f.id = ANY(v."textListValue")
+        )`);
+  }
+
+  async findExpiredFiles(expiry: RecordFileExpiry, limit: number): Promise<ExpiredRecordFile[]> {
+    return this.prisma.recordFile.findMany({
+      where: { companyId: this.companyId, OR: expiredFiles(expiry) },
+      select: { id: true, storageDriver: true, storageKey: true },
+      orderBy: { id: "asc" },
+      take: limit,
+    });
+  }
+
+  async deleteExpiredFiles(ids: string[], expiry: RecordFileExpiry): Promise<number> {
+    if (!ids.length) return 0;
+    const result = await this.prisma.recordFile.deleteMany({
+      where: { companyId: this.companyId, id: { in: [...new Set(ids)] }, OR: expiredFiles(expiry) },
+    });
+    return result.count;
+  }
+
+  async expireRecordFilesCompanyWide(companyId: string, refs: RecordRef[]): Promise<number> {
+    if (!refs.length) return 0;
+    const byType = new Map<string, string[]>();
+    for (const ref of refs) byType.set(ref.typeId, [...(byType.get(ref.typeId) ?? []), ref.recordId]);
+    const result = await this.prisma.recordFile.updateMany({
+      where: {
+        companyId,
+        OR: [...byType].map(([typeId, recordIds]) => ({ typeId, recordId: { in: recordIds } })),
+      },
+      data: { status: "detached", detachedAt: RECORD_FILE_PURGED_AT },
+    });
+    return result.count;
+  }
+
+  async expireDefinitionFilesCompanyWide(
+    companyId: string,
+    { typeIds, fieldIds }: { typeIds: string[]; fieldIds: string[] },
+  ): Promise<number> {
+    if (!typeIds.length && !fieldIds.length) return 0;
+    const result = await this.prisma.recordFile.updateMany({
+      where: { companyId, OR: [{ typeId: { in: typeIds } }, { fieldId: { in: fieldIds } }] },
+      data: { status: "detached", detachedAt: RECORD_FILE_PURGED_AT },
+    });
+    return result.count;
   }
 }

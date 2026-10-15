@@ -112,6 +112,15 @@ export class PrismaRecordRepo
     if (this.background) await wakeEventOutbox(this.background, this.companyId);
   }
 
+  private async purgeReleasedFiles(released: number): Promise<void> {
+    if (released && this.background) {
+      await this.background.dispatch("purge-record-files", {
+        companyId: this.companyId,
+        now: new Date().toISOString(),
+      });
+    }
+  }
+
   override get companyId(): string {
     return this.scopedCompanyId ?? super.companyId;
   }
@@ -736,6 +745,9 @@ export class PrismaRecordRepo
     });
     await this.prisma.recordIdentityLink.deleteMany({ where: { companyId, typeId: { in: channelTypeIds } } });
     await this.prisma.recordRelationshipDefinition.deleteMany({ where: { companyId, id: { in: relationIds } } });
+    await this.purgeReleasedFiles(
+      await this.owners.files.expireDefinitionFilesCompanyWide(companyId, { typeIds, fieldIds }),
+    );
     await this.prisma.recordFieldDefinition.deleteMany({ where: { companyId, id: { in: fieldIds } } });
     await this.prisma.recordTypeDefinition.deleteMany({ where: { companyId, id: { in: typeIds } } });
     await this.deleteOrphanedIdentities(identities.map((row) => row.identityId));
@@ -1457,6 +1469,7 @@ export class PrismaRecordRepo
     const refs = purged.map((row) => ({ typeId: row.typeId, recordId: row.id }));
     if (refs.length) {
       await this.owners.events.eraseTrashedRecordPayloadsCompanyWide(companyId, ids);
+      await this.purgeReleasedFiles(await this.owners.files.expireRecordFilesCompanyWide(companyId, refs));
       const identities = await this.prisma.recordIdentityLink.findMany({
         where: { companyId, record: { is: { companyId, trashItemId: { in: ids }, deletedAt: { not: null } } } },
         select: { identityId: true },

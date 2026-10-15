@@ -42,6 +42,7 @@ import type { RecordWebhookConfigurationRepo } from "@/features/webhook/record-w
 import type { RoutineLabelRepo } from "@/ee/routines/routine-label.repo";
 import type { RecordMemberRepo } from "@/features/user/record-member.repo";
 import type { RecordRoleRepo } from "@/features/role/record-role.repo";
+import type { RecordFilePurgeRepo } from "./record-file-purge.repo";
 
 export const CONFIGURATION_CONSUMER_PAGE = 200;
 
@@ -56,6 +57,7 @@ export type RecordRepoOwners = {
   members: RecordMemberRepo;
   roles: RecordRoleRepo;
   subscriptions: RecordSubscriptionConfigurationRepo;
+  files: RecordFilePurgeRepo;
 };
 
 export type RecordDefinitionDeletion = {

@@ -22,6 +22,7 @@ import { PrismaWikiPageRepo } from "@/features/wiki/prisma-wiki-page.repository"
 import { PrismaRoutineEventAccess } from "@/ee/routines/prisma-routine-event-access.repository";
 import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
 import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
+import { PrismaRecordFileRepo } from "@/features/records/prisma-record-file.repository";
 import { RecordCalculationService } from "@/features/records/record-calculation.service";
 import { RecordConfigurationWriter } from "@/features/records/record-configuration-writer";
 import { RecordOperationService } from "@/features/records/record-operation.service";
@@ -83,6 +84,7 @@ export function createTestRecordRepoOwners(): RecordRepoOwners {
     members: new PrismaUserRepo(new PermissionService()),
     roles: new PrismaRoleRepo(),
     subscriptions,
+    files: new PrismaRecordFileRepo(),
   };
 }
 

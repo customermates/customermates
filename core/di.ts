@@ -180,6 +180,9 @@ import { DownloadRecordFileInteractor } from "@/features/record-files/download-r
 import { DownloadRecordFileByGrantInteractor } from "@/features/record-files/download-record-file-by-grant.interactor";
 import { UploadRecordFileInteractor } from "@/features/record-files/upload-record-file.interactor";
 import { GetFileStorageUsageInteractor } from "@/features/record-files/get-file-storage-usage.interactor";
+import { PurgeExpiredRecordFilesInteractor } from "@/features/record-files/purge-expired-record-files.interactor";
+import { PurgeCompanyRecordFilesInteractor } from "@/features/record-files/purge-company-record-files.interactor";
+import { PurgeCompanyFileObjectsInteractor } from "@/features/record-files/purge-company-file-objects.interactor";
 import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
 import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
 import { PrismaWebhookDeliveryRepo } from "@/features/webhook/prisma-webhook-delivery.repository";
@@ -490,6 +493,7 @@ const getRecordRepoOwners = (): RecordRepoOwners => ({
   members: getUserRepo(),
   roles: getRoleRepo(),
   subscriptions: getRecordEventSubscriptionRepo(),
+  files: getRecordFileRepo(),
 });
 export const createPrismaRecordRepo = (companyId?: string, background?: Pick<BackgroundTaskService, "dispatch">) =>
   new PrismaRecordRepo(getRecordRepoOwners, companyId, background);
@@ -626,6 +630,17 @@ export const getUploadRecordFileInteractor = () =>
     getMutateRecordInteractor(),
   );
 export const getGetFileStorageUsageInteractor = () => new GetFileStorageUsageInteractor(getRecordFileQuotaService());
+export const getPurgeExpiredRecordFilesInteractor = () =>
+  new PurgeExpiredRecordFilesInteractor(getRecordFileRepo(), getBackgroundTaskService());
+export const getPurgeCompanyRecordFilesInteractor = () =>
+  new PurgeCompanyRecordFilesInteractor(
+    (companyId) => getRecordFileRepo(companyId),
+    (companyId) => (name) => getFileStorageDriver(name, companyId),
+  );
+export const getPurgeCompanyFileObjectsInteractor = () =>
+  new PurgeCompanyFileObjectsInteractor(() =>
+    env.FILE_STORAGE_DRIVER === "database" ? [] : [getFileStorageDriver(env.FILE_STORAGE_DRIVER)],
+  );
 export const getRecordConfigurationService = (records: RecordRepo = getRecordRepo()) =>
   new RecordConfigurationService(records);
 export const getRecordConfigurationWriter = (records: RecordRepo = getRecordRepo(), companyId?: string) =>
@@ -1950,7 +1965,8 @@ export const getUpdateEnterpriseFileStorageInteractor = () =>
 export const getUpdateHostedAiEnterpriseAllowanceInteractor = () =>
   new UpdateHostedAiEnterpriseAllowanceInteractor(getOperatorRepo());
 
-export const getDeleteOperatorWorkspaceInteractor = () => new DeleteOperatorWorkspaceInteractor(getOperatorRepo());
+export const getDeleteOperatorWorkspaceInteractor = () =>
+  new DeleteOperatorWorkspaceInteractor(getOperatorRepo(), getBackgroundTaskService());
 
 export const getUpdateOperatorSubscriptionTermsInteractor = () =>
   new UpdateOperatorSubscriptionTermsInteractor(getOperatorRepo());

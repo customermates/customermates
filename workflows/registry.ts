@@ -12,6 +12,8 @@ import { providerAvatarOperation } from "./provider-avatar-operation";
 import { recordOperation } from "./record-operation";
 import { processEvents } from "./process-events";
 import { purgeTrash } from "./purge-trash";
+import { purgeRecordFiles } from "./purge-record-files";
+import { purgeCompanyFiles } from "./purge-company-files";
 import { triggerTestError } from "./trigger-test-error";
 
 export const WORKFLOW_REGISTRY = {
@@ -29,6 +31,8 @@ export const WORKFLOW_REGISTRY = {
   "provider-avatar-operation": providerAvatarOperation,
   "process-events": processEvents,
   "purge-trash": purgeTrash,
+  "purge-record-files": purgeRecordFiles,
+  "purge-company-files": purgeCompanyFiles,
   "trigger-test-error": triggerTestError,
 } as const;
 
