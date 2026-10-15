@@ -377,66 +377,70 @@ export const SetupBuildView = observer(function SetupBuildView({ onContinue }: P
           {setup.phases.map((phase) => {
             const state = buildPhaseState(phase);
             return (
-              <li
-                key={phase.key}
-                aria-current={state === "active" ? "step" : undefined}
-                className="flex flex-col gap-1.5 rounded-lg border border-border bg-card p-3 shadow-xs"
-              >
-                <div className="flex items-center gap-2">
-                  <PhaseIcon state={state} />
+              <li key={phase.key} aria-current={state === "active" ? "step" : undefined}>
+                <Card className="gap-0 py-3">
+                  <CardContent className="flex flex-col gap-1.5 px-3">
+                    <div className="flex items-center gap-2">
+                      <PhaseIcon state={state} />
 
-                  <span className="min-w-0 flex-1 text-sm font-medium [overflow-wrap:anywhere]">
-                    {phaseLabels[phase.key]}
-                  </span>
+                      <span className="min-w-0 flex-1 text-sm font-medium [overflow-wrap:anywhere]">
+                        {phaseLabels[phase.key]}
+                      </span>
 
-                  <span className="shrink-0 text-xs text-muted-foreground">{stateLabels[state]}</span>
-                </div>
-
-                {state === "active" ? (
-                  <p className="pl-7 text-xs text-muted-foreground [overflow-wrap:anywhere]">{actions[phase.key]}</p>
-                ) : null}
-
-                {state === "done" ? <p className="pl-7 text-xs text-muted-foreground">{summaries[phase.key]}</p> : null}
-
-                {state === "failed" ? (
-                  <div className="flex flex-col gap-2 pl-7">
-                    <p className="text-xs text-destructive">{failureMessage(phase.error)}</p>
-
-                    <div className="flex flex-wrap gap-2">
-                      {canRetryPhase(phase) ? (
-                        <Button
-                          disabled={store.isBusy}
-                          size="xs"
-                          type="button"
-                          variant="secondary"
-                          onClick={() => runUserAction(() => store.retryPhase(phase.key))}
-                        >
-                          {store.pending === "retry" ? (
-                            <Loader2 className="animate-spin motion-reduce:animate-none" />
-                          ) : (
-                            <RotateCcw />
-                          )}
-
-                          {t("WorkspaceSetup.build.retry")}
-                        </Button>
-                      ) : null}
-
-                      {phase.key === "knowledgeBase" && setup.websiteUrl ? (
-                        <Button
-                          disabled={store.isBusy}
-                          size="xs"
-                          type="button"
-                          variant="ghost"
-                          onClick={() => runUserAction(() => store.retryPhase(phase.key, true))}
-                        >
-                          {t("WorkspaceSetup.start.withoutWebsite")}
-                        </Button>
-                      ) : null}
-
-                      {phase.error === "spendCap" ? <SetupSupportButton size="xs" /> : null}
+                      <span className="shrink-0 text-xs text-muted-foreground">{stateLabels[state]}</span>
                     </div>
-                  </div>
-                ) : null}
+
+                    {state === "active" ? (
+                      <p className="pl-7 text-xs text-muted-foreground [overflow-wrap:anywhere]">
+                        {actions[phase.key]}
+                      </p>
+                    ) : null}
+
+                    {state === "done" ? (
+                      <p className="pl-7 text-xs text-muted-foreground">{summaries[phase.key]}</p>
+                    ) : null}
+
+                    {state === "failed" ? (
+                      <div className="flex flex-col gap-2 pl-7">
+                        <p className="text-xs text-destructive">{failureMessage(phase.error)}</p>
+
+                        <div className="flex flex-wrap gap-2">
+                          {canRetryPhase(phase) ? (
+                            <Button
+                              disabled={store.isBusy}
+                              size="xs"
+                              type="button"
+                              variant="secondary"
+                              onClick={() => runUserAction(() => store.retryPhase(phase.key))}
+                            >
+                              {store.pending === "retry" ? (
+                                <Loader2 className="animate-spin motion-reduce:animate-none" />
+                              ) : (
+                                <RotateCcw />
+                              )}
+
+                              {t("WorkspaceSetup.build.retry")}
+                            </Button>
+                          ) : null}
+
+                          {phase.key === "knowledgeBase" && setup.websiteUrl ? (
+                            <Button
+                              disabled={store.isBusy}
+                              size="xs"
+                              type="button"
+                              variant="ghost"
+                              onClick={() => runUserAction(() => store.retryPhase(phase.key, true))}
+                            >
+                              {t("WorkspaceSetup.start.withoutWebsite")}
+                            </Button>
+                          ) : null}
+
+                          {phase.error === "spendCap" ? <SetupSupportButton size="xs" /> : null}
+                        </div>
+                      </div>
+                    ) : null}
+                  </CardContent>
+                </Card>
               </li>
             );
           })}

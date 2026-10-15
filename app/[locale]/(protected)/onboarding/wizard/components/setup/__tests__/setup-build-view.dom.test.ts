@@ -211,6 +211,31 @@ describe("SetupBuildView", () => {
     });
   });
 
+  it("shows every part as a platform card, with its retry inside the card", () => {
+    render(
+      building({
+        status: "failed",
+        phases: [
+          phaseView("knowledgeBase", "completed"),
+          phaseView("dataModel", "completed"),
+          phaseView("views", "completed"),
+          phaseView("records", "failed", "generation"),
+          phaseView("dashboard", "completed"),
+        ],
+      }),
+    );
+
+    const rows = container.querySelectorAll('ol[aria-label="WorkspaceSetup.build.phasesLabel"] > li');
+    expect(rows).toHaveLength(5);
+    for (const row of rows) {
+      expect(row.children).toHaveLength(1);
+      expect(row.firstElementChild?.getAttribute("data-slot")).toBe("card");
+    }
+    const failed = rows[3].querySelector('[data-slot="card-content"]');
+    expect(failed?.textContent).toContain("WorkspaceSetup.failures.generation");
+    expect(failed?.querySelector("button")?.textContent).toContain("WorkspaceSetup.build.retry");
+  });
+
   it("names no finish time while it runs", () => {
     render(building({ currentPhase: "records", phases: [phaseView("records", "running")] }));
     expect(container.textContent).not.toMatch(/minute|second|ETA/i);
