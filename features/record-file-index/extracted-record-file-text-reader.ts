@@ -8,10 +8,7 @@ import { boundedRecordFileText } from "./record-file-text-chunk";
 export const RECORD_FILE_READ_MAX_LENGTH = 5_000;
 
 export class ExtractedRecordFileTextReader {
-  constructor(
-    private files: ReadRecordFileContentRepo,
-    private baseUrl: string,
-  ) {}
+  constructor(private files: ReadRecordFileContentRepo) {}
 
   async read(fileId: string, offset: number): Promise<RecordFileTextChunk | null> {
     const file = await this.files.getFileContent(fileId);
@@ -21,7 +18,6 @@ export class ExtractedRecordFileTextReader {
       text,
       offset,
       maxLength: RECORD_FILE_READ_MAX_LENGTH,
-      baseUrl: this.baseUrl,
       outline: false,
       render: (chunk) => chunk,
       measure: (chunk) => JSON.stringify({ ...chunk, text: untrustedText(chunk.text) }).length,

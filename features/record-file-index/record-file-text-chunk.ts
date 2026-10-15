@@ -18,7 +18,6 @@ export function boundedRecordFileText<T>(args: {
   text: string;
   offset: number;
   maxLength: number;
-  baseUrl: string;
   outline?: boolean;
   render: (chunk: RecordFileTextChunk) => T;
   measure: (rendered: T) => number;
@@ -39,7 +38,7 @@ export function boundedRecordFileText<T>(args: {
       text,
       args.offset,
       (start, stop) => args.measure(output(start, stop, outline)) <= args.maxLength,
-      args.baseUrl,
+      null,
     );
   const plain = chunk([]);
   if (!plain) return null;

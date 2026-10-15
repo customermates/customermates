@@ -1059,8 +1059,7 @@ export const getSearchRecordFilesInteractor = () =>
   );
 export const getReadRecordFileContentInteractor = () =>
   new ReadRecordFileContentInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordFileSearchRepo());
-export const getExtractedRecordFileTextReader = () =>
-  new ExtractedRecordFileTextReader(getRecordFileSearchRepo(), env.BASE_URL);
+export const getExtractedRecordFileTextReader = () => new ExtractedRecordFileTextReader(getRecordFileSearchRepo());
 
 const EXPECTED_EVENT_LISTENERS = [
   {

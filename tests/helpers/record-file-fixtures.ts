@@ -72,12 +72,12 @@ function header(size: number, fields: Array<[number, number, 2 | 4]>): Uint8Arra
   return bytes;
 }
 
-export function zipFixture(entries: Record<string, string>): Uint8Array {
+export function zipFixture(entries: Record<string, string | Uint8Array>): Uint8Array {
   const locals: Uint8Array[] = [];
   const centrals: Uint8Array[] = [];
   let offset = 0;
   for (const [name, text] of Object.entries(entries)) {
-    const data = new TextEncoder().encode(text);
+    const data = typeof text === "string" ? new TextEncoder().encode(text) : text;
     const compressed = new Uint8Array(deflateRawSync(data));
     const fileName = new TextEncoder().encode(name);
     const checksum = crc32(data);

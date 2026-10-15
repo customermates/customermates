@@ -286,7 +286,6 @@ async function fetchFile(fileId: string, requestedOffset: number) {
     text: file.text,
     offset: requestedOffset,
     maxLength: WIKI_FETCH_TEXT_TARGET_LENGTH,
-    baseUrl: env.BASE_URL,
     render: (chunk) => ({ ...base, ...chunk, text: untrustedText(chunk.text) }),
     measure: (rendered) => JSON.stringify(rendered).length,
   });

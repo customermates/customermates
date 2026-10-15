@@ -16,8 +16,13 @@ export function wikiCodePointBoundary(value: string, offset: number): number {
     : offset;
 }
 
-function completeWikiLinkBoundary(markdown: string, requestedOffset: number, maximumChars: number, baseUrl: string) {
-  const ranges = wikiMarkdownLinkRanges(markdown, baseUrl);
+function completeWikiLinkBoundary(
+  markdown: string,
+  requestedOffset: number,
+  maximumChars: number,
+  baseUrl: string | null,
+) {
+  const ranges = baseUrl === null ? [] : wikiMarkdownLinkRanges(markdown, baseUrl);
   let offset = wikiCodePointBoundary(markdown, Math.min(requestedOffset, markdown.length));
   const containingStart = ranges.find((range) => offset > range.start && offset < range.end);
   if (containingStart) offset = containingStart.start;
@@ -35,7 +40,7 @@ export function boundedWikiChunk(
   markdown: string,
   requestedOffset: number,
   fits: (offset: number, end: number) => boolean,
-  baseUrl: string,
+  baseUrl: string | null,
 ) {
   const { offset } = completeWikiLinkBoundary(markdown, requestedOffset, 0, baseUrl);
   let low = offset;

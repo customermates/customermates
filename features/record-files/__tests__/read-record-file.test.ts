@@ -83,10 +83,10 @@ function interactor(details: RecordFileReadResult | null, file: StoredRecordFile
     files,
     read: (offset = 0) =>
       runWithTenant(mockUser, () =>
-        new ReadRecordFileInteractor(
-          files,
-          new ExtractedRecordFileTextReader(contents, "http://localhost:4000"),
-        ).invoke({ fileId: FILE_ID, offset }),
+        new ReadRecordFileInteractor(files, new ExtractedRecordFileTextReader(contents)).invoke({
+          fileId: FILE_ID,
+          offset,
+        }),
       ),
   };
 }

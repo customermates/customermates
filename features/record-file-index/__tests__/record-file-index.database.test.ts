@@ -389,13 +389,12 @@ describeDatabase("record file contents indexed like the Knowledge Base", () => {
       text,
       offset: hit.offset,
       maxLength: 5_500,
-      baseUrl: mockEnv.BASE_URL,
       render: (value) => value,
       measure: (value) => JSON.stringify(value).length,
     });
     expect(chunk).toMatchObject({ offset: hit.offset, nextOffset: null, totalChars: text.length });
     expect(chunk?.text).toContain("The subscription renews every twelve months unless cancelled.");
-    const reader = new ExtractedRecordFileTextReader(new PrismaRecordFileSearchRepo(), mockEnv.BASE_URL);
+    const reader = new ExtractedRecordFileTextReader(new PrismaRecordFileSearchRepo());
     const part = await runWithTenant(w.admin, () => reader.read(pdf, hit.offset));
     expect(part).toEqual({
       offset: hit.offset,

@@ -32,7 +32,7 @@ function stored(overrides: Partial<StoredRecordFileContent> = {}): StoredRecordF
 
 function reader(file: StoredRecordFileContent | null) {
   const files: ReadRecordFileContentRepo = { getFileContent: () => Promise.resolve(file) };
-  return new ExtractedRecordFileTextReader(files, "http://localhost:4000");
+  return new ExtractedRecordFileTextReader(files);
 }
 
 describe("extracted record file text reader", () => {
