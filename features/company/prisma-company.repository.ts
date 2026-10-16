@@ -10,6 +10,7 @@ import type { GetBillingPortalUrlRepo } from "@/ee/subscription/get-billing-port
 import type { GetSubscriptionRepo } from "@/ee/subscription/get-subscription.repo";
 import type { RefreshSubscriptionRepo } from "@/ee/subscription/refresh-subscription.repo";
 import type { SubscriptionRepo } from "@/ee/subscription/subscription.repo";
+import type { ProcessLemonSqueezyWebhookRepo } from "@/ee/subscription/process-lemon-squeezy-webhook.repo";
 import type { RouteGuardCompanyRepo } from "@/features/auth/route-guard-company.repo";
 import type { InviteTokenRepo } from "@/features/company/invite-token-validation.repo";
 import type { RegisterUserCompanyRepo } from "@/features/user/register/register-user-company.repo";
@@ -18,7 +19,7 @@ import type { GetCompanyRepo } from "./get-company.repo";
 import type { RenameWorkspaceRepo } from "@/features/workspace/rename-workspace.repo";
 import type { GetOrCreateInviteTokenRepo } from "./get-or-create-invite-token.repo";
 
-import { ConversionEventType, SubscriptionStatus, type Subscription } from "@/generated/prisma";
+import { ConversionEventType, SubscriptionStatus, type Prisma, type Subscription } from "@/generated/prisma";
 
 import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
 import { env } from "@/env";
@@ -35,6 +36,7 @@ export class PrismaCompanyRepo
     GetOrCreateInviteTokenRepo,
     InviteTokenRepo,
     SubscriptionRepo,
+    ProcessLemonSqueezyWebhookRepo,
     GetSubscriptionRepo,
     RefreshSubscriptionRepo,
     CreateCheckoutCompanyRepo,
@@ -108,47 +110,64 @@ export class PrismaCompanyRepo
   }
 
   @BypassTenantGuard
-  async upsertSubscriptionUnscoped(data: RepoArgs<SubscriptionRepo, "upsertSubscriptionUnscoped">) {
-    const payload = {
-      companyId: data.companyId,
-      lemonSqueezyId: data.lemonSqueezyId,
-      lemonSqueezyVariantId: data.lemonSqueezyVariantId,
-      status: data.status ?? SubscriptionStatus.trial,
-      plan: data.plan,
-      quantity: data.quantity,
-      trialEndDate: data.trialEndDate,
-      currentPeriodEnd: data.currentPeriodEnd,
-      checkoutStartedAt: data.checkoutStartedAt,
-      agentCreditAnchorAt: data.agentCreditAnchorAt,
-    };
+  async writeSubscriptionUnscoped(data: RepoArgs<SubscriptionRepo, "writeSubscriptionUnscoped">) {
+    const { companyId, expectedLemonSqueezyId, ...fields } = data;
 
-    await this.withCompanyTransaction(data.companyId, async () => {
-      await this.prisma.subscription.upsert({
-        where: { companyId: data.companyId },
-        create: payload,
-        update: payload,
+    return await this.withCompanyTransaction(companyId, async () => {
+      const { count } = await this.prisma.subscription.updateMany({
+        where: { companyId, lemonSqueezyId: expectedLemonSqueezyId },
+        data: fields,
       });
+      if (count === 0) return false;
 
-      if (payload.status !== SubscriptionStatus.active) return;
+      if (fields.status !== SubscriptionStatus.active) return true;
 
-      const attributed = await this.prisma.adAttribution.count({ where: { companyId: data.companyId } });
-      if (attributed === 0) return;
+      const attributed = await this.prisma.adAttribution.count({ where: { companyId } });
+      if (attributed === 0) return true;
 
       await this.prisma.conversionEvent.createMany({
-        data: [{ companyId: data.companyId, type: ConversionEventType.paid, occurredAt: new Date() }],
+        data: [{ companyId, type: ConversionEventType.paid, occurredAt: new Date() }],
         skipDuplicates: true,
       });
+      return true;
     });
   }
 
   @BypassTenantGuard
-  async findCompanyIdBySubscriptionIdUnscoped(subscriptionId: string) {
+  async findWorkspaceBillingUnscoped(companyId: string) {
     const subscription = await this.prisma.subscription.findUnique({
-      where: { lemonSqueezyId: subscriptionId },
-      select: { companyId: true },
+      where: { companyId },
+      select: this.workspaceBillingSelect,
     });
 
-    return subscription?.companyId ?? null;
+    return subscription ? this.workspaceBilling(subscription) : null;
+  }
+
+  @BypassTenantGuard
+  async findWorkspaceBillingBySubscriptionIdUnscoped(subscriptionId: string) {
+    const subscription = await this.prisma.subscription.findUnique({
+      where: { lemonSqueezyId: subscriptionId },
+      select: this.workspaceBillingSelect,
+    });
+
+    return subscription ? this.workspaceBilling(subscription) : null;
+  }
+
+  private get workspaceBillingSelect() {
+    return {
+      companyId: true,
+      status: true,
+      plan: true,
+      lemonSqueezyId: true,
+      company: { select: { name: true } },
+    } satisfies Prisma.SubscriptionSelect;
+  }
+
+  private workspaceBilling({
+    company,
+    ...subscription
+  }: Prisma.SubscriptionGetPayload<{ select: PrismaCompanyRepo["workspaceBillingSelect"] }>) {
+    return { ...subscription, name: company.name };
   }
 
   async getSubscriptionOrThrow() {

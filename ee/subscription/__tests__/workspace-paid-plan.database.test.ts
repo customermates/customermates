@@ -11,12 +11,14 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import {
+  type LemonSqueezyCustomData,
   type LemonSqueezySubscriptionAttributes,
   type LemonSqueezySubscriptionEventName,
   type LemonSqueezySubscriptionResource,
   lemonSqueezySubscriptionAttributes,
   lemonSqueezySubscriptionEvent,
   lemonSqueezyTimestamp,
+  signedCheckoutCustomData,
 } from "@/tests/helpers/lemonsqueezy-subscription";
 import {
   localCheckoutOrigin,
@@ -140,13 +142,17 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
     return Object.fromEntries(rows.map((row) => [row.id, row.status]));
   }
 
+  function signed(companyId: string) {
+    return signedCheckoutCustomData(companyId, process.env.BETTER_AUTH_SECRET);
+  }
+
   function webhookBody(
     event: LemonSqueezySubscriptionEventName,
     body: ProviderSubscription,
-    companyId = body.companyId,
+    customData: LemonSqueezyCustomData | null = signed(body.companyId),
   ) {
     const resource = localSubscriptionResource(body) as LemonSqueezySubscriptionResource;
-    return JSON.stringify(lemonSqueezySubscriptionEvent(event, resource, companyId));
+    return JSON.stringify(lemonSqueezySubscriptionEvent(event, resource, customData));
   }
 
   function webhook(event: LemonSqueezySubscriptionEventName, body: ProviderSubscription, secret?: string) {
@@ -179,7 +185,7 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
   beforeAll(async () => {
     await client.connect();
     const { env } = await import("@/env");
-    const patched = { APP_MODE: "cloud", ...lemonSqueezy };
+    const patched = { APP_MODE: "cloud", RESEND_OPERATOR_EMAIL: "operator@example.invalid", ...lemonSqueezy };
     for (const key of Object.keys(patched)) previousEnvironment[key] = env[key as keyof typeof env];
     Object.assign(env, patched);
     process.env.LEMONSQUEEZY_API_KEY = lemonSqueezy.LEMONSQUEEZY_API_KEY;
@@ -290,7 +296,7 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
     expect(isRedirect(result) ? result.redirect : null).toBe(checkouts[0].url);
     expect(checkouts[0]).toMatchObject({
       variantId: localLemonSqueezyVariants.pro,
-      custom: { company_id: companies.paid },
+      custom: signed(companies.paid),
       variantQuantities: [{ variant_id: Number(localLemonSqueezyVariants.pro), quantity: 2 }],
       redirectUrl: `${env.BASE_URL}/settings/billing`,
       skipTrial: true,
@@ -301,8 +307,9 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
   it("refuses a forged webhook and activates only the paid workspace on the signed ones, replayed", async () => {
     subscription = providerSubscriptionFor(companies.paid, 2);
     writeLocalSubscription(providerDirectory, subscription);
-    const created = webhookBody("subscription_created", subscription);
-    const updated = webhookBody("subscription_updated", subscription);
+    const [checkout] = readLocalCheckouts(providerDirectory) as Array<{ custom: LemonSqueezyCustomData }>;
+    const created = webhookBody("subscription_created", subscription, checkout.custom);
+    const updated = webhookBody("subscription_updated", subscription, checkout.custom);
 
     expect((await deliver(created, "forged")).status).toBe(401);
     expect(await storedSubscription("paid")).toMatchObject({ status: "expired", lemonSqueezyId: null });
@@ -371,7 +378,7 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
     const renewsAt = lemonSqueezyTimestamp(new Date(Date.now() + 45 * DAY_MS));
     const renewed = changeProvider({ renews_at: renewsAt });
 
-    const response = await deliver(webhookBody("subscription_updated", renewed, companies.first));
+    const response = await deliver(webhookBody("subscription_updated", renewed, signed(companies.first)));
 
     expect(response.status).toBe(200);
     expect(await storedSubscription("paid")).toMatchObject({
@@ -389,7 +396,9 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
     });
   });
 
-  it("answers 404 and binds nothing for a signed event that names an unknown workspace", async () => {
+  it("answers 404, binds nothing and tells the operator for a signed event that names an unknown workspace", async () => {
+    const { EmailService } = await import("@/features/email/email.service");
+    const sent = vi.spyOn(EmailService.prototype, "send").mockResolvedValue(true);
     const stray = providerSubscriptionFor(randomUUID(), 1);
     writeLocalSubscription(providerDirectory, stray);
 
@@ -398,6 +407,11 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
       expect(response.status).toBe(404);
       expect(await response.json()).toEqual({ error: "Unknown workspace" });
     }
+    expect(sent.mock.calls.map(([args]) => [args.to, args.subject])).toEqual([
+      ["operator@example.invalid", "Lemon Squeezy subscription for a missing workspace"],
+      ["operator@example.invalid", "Lemon Squeezy subscription for a missing workspace"],
+    ]);
+    sent.mockRestore();
 
     const bound = await client.query('SELECT "companyId" FROM "Subscription" WHERE "lemonSqueezyId"=$1', [stray.id]);
     expect(bound.rows).toEqual([]);

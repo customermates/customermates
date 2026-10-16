@@ -19,6 +19,7 @@ import { failUnavailable } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { CreateCheckoutCompanyRepo } from "./create-checkout-session.repo";
 import { checkoutPendingSince } from "./checkout-state";
+import { signCheckoutWorkspace } from "./checkout-workspace-signature";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 const Schema = z.object({
@@ -65,6 +66,7 @@ export class CreateCheckoutSessionInteractor extends UserAccessor {
         quantity: activeUsersCount,
         custom: {
           company_id: this.companyId,
+          company_signature: signCheckoutWorkspace(this.companyId, env.BETTER_AUTH_SECRET),
         },
         redirectUrl,
       });

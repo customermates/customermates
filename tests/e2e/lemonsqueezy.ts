@@ -2,6 +2,7 @@ import { createHmac } from "node:crypto";
 
 import type { APIRequestContext, Page } from "@playwright/test";
 import type {
+  LemonSqueezyCustomData,
   LemonSqueezySubscriptionAttributes,
   LemonSqueezySubscriptionEventName,
   LemonSqueezySubscriptionResource,
@@ -14,6 +15,7 @@ import {
   lemonSqueezySubscriptionAttributes,
   lemonSqueezySubscriptionEvent,
   lemonSqueezyTimestamp,
+  signedCheckoutCustomData,
 } from "../helpers/lemonsqueezy-subscription";
 import { localE2eEnvironment } from "./local-environment";
 import {
@@ -46,7 +48,7 @@ export type LocalCheckout = {
   createdAt: string;
   storeId: string;
   variantId: string;
-  custom: { company_id?: string } | null;
+  custom: { company_id?: string; company_signature?: string } | null;
   variantQuantities: Array<{ variant_id: number; quantity: number }>;
   redirectUrl: string | null;
   enabledVariants: number[];
@@ -78,6 +80,7 @@ export function startProviderSubscription(
   plan: ProviderPlan,
   quantity: number,
   customer: ProviderCustomer = SYNTHETIC_CUSTOMER,
+  createdAt?: Date,
 ) {
   const { id, itemId } = newLocalSubscriptionIds();
   const subscription: ProviderSubscription = {
@@ -94,6 +97,7 @@ export function startProviderSubscription(
       variantName: PLAN_NAMES[plan],
       quantity,
       customer,
+      createdAt,
     }),
   };
   writeLocalSubscription(providerDirectory(), subscription);
@@ -128,13 +132,17 @@ export function webhookSecret() {
   return localLemonSqueezyWebhookSecret(process.env.BETTER_AUTH_SECRET);
 }
 
+export function signedCustomData(companyId: string): LemonSqueezyCustomData {
+  return signedCheckoutCustomData(companyId, process.env.BETTER_AUTH_SECRET);
+}
+
 export function subscriptionWebhookBody(
   event: LemonSqueezySubscriptionEventName,
   subscription: ProviderSubscription,
-  companyId = subscription.companyId,
+  customData: LemonSqueezyCustomData | null = signedCustomData(subscription.companyId),
 ) {
   const resource = localSubscriptionResource(subscription) as LemonSqueezySubscriptionResource;
-  return JSON.stringify(lemonSqueezySubscriptionEvent(event, resource, companyId));
+  return JSON.stringify(lemonSqueezySubscriptionEvent(event, resource, customData));
 }
 
 export async function postSignedWebhook(request: APIRequestContext, body: string, secret = webhookSecret()) {

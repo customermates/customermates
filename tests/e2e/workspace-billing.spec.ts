@@ -14,6 +14,7 @@ import {
   deliverWebhookBody,
   postSignedWebhook,
   providerSubscription,
+  signedCustomData,
   startProviderSubscription,
   stubCheckoutPage,
   subscriptionWebhookBody,
@@ -408,7 +409,7 @@ test("a signed event naming another or an unknown workspace activates neither an
   });
   const foreign = await postSignedWebhook(
     request,
-    subscriptionWebhookBody("subscription_updated", renewed, workspace.companyId),
+    subscriptionWebhookBody("subscription_updated", renewed, signedCustomData(workspace.companyId)),
   );
   expect(foreign.status(), await foreign.text()).toBe(200);
   expect(await subscriptionOf(database, second.companyId)).toMatchObject({
@@ -428,7 +429,7 @@ test("a signed event naming another or an unknown workspace activates neither an
   }
   expect(await boundWorkspaces(database, stray.id)).toEqual([]);
   const missing = await request.post("/api/webhooks/lemonsqueezy", {
-    data: subscriptionWebhookBody("subscription_created", stray, workspace.companyId),
+    data: subscriptionWebhookBody("subscription_created", stray, signedCustomData(workspace.companyId)),
     headers: { "content-type": "application/json" },
   });
   expect(missing.status()).toBe(401);

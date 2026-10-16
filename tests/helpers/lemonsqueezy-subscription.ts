@@ -1,5 +1,7 @@
 import { createHmac, randomInt, randomUUID } from "node:crypto";
 
+import { signCheckoutWorkspace } from "@/ee/subscription/checkout-workspace-signature";
+
 export type LemonSqueezySubscriptionStatus =
   | "on_trial"
   | "active"
@@ -154,10 +156,16 @@ export function lemonSqueezySubscriptionAttributes(input: {
   };
 }
 
+export type LemonSqueezyCustomData = Record<string, string>;
+
+export function signedCheckoutCustomData(companyId: string, authSecret: string | undefined): LemonSqueezyCustomData {
+  return { company_id: companyId, company_signature: signCheckoutWorkspace(companyId, authSecret) };
+}
+
 export function lemonSqueezySubscriptionEvent(
   eventName: LemonSqueezySubscriptionEventName,
   resource: LemonSqueezySubscriptionResource,
-  companyId: string,
+  customData: LemonSqueezyCustomData | null,
 ) {
   return {
     data: resource,
@@ -165,7 +173,7 @@ export function lemonSqueezySubscriptionEvent(
       test_mode: true,
       event_name: eventName,
       webhook_id: randomUUID(),
-      custom_data: { company_id: companyId },
+      ...(customData ? { custom_data: customData } : {}),
     },
   };
 }

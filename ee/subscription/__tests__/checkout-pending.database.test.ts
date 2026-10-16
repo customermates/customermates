@@ -15,6 +15,7 @@ import {
   lemonSqueezyStatusFormatted,
   lemonSqueezySubscriptionAttributes,
   lemonSqueezySubscriptionEvent,
+  signedCheckoutCustomData,
 } from "@/tests/helpers/lemonsqueezy-subscription";
 import {
   localCheckoutOrigin,
@@ -134,7 +135,8 @@ describeDatabase("a pending checkout of a workspace on PostgreSQL", { timeout: 1
     subscription: ReturnType<typeof providerSubscription>,
   ) {
     const resource = localSubscriptionResource(subscription) as LemonSqueezySubscriptionResource;
-    const body = JSON.stringify(lemonSqueezySubscriptionEvent(event, resource, subscription.companyId));
+    const customData = signedCheckoutCustomData(subscription.companyId, process.env.BETTER_AUTH_SECRET);
+    const body = JSON.stringify(lemonSqueezySubscriptionEvent(event, resource, customData));
     const response = await lemonSqueezyWebhook(
       new NextRequest("http://localhost:4000/api/webhooks/lemonsqueezy", {
         method: "POST",

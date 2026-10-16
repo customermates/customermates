@@ -11,6 +11,7 @@ import { describe, expect, it } from "vitest";
 
 import AccountAccessRevoked from "../account-access-revoked";
 import AccountsRemovedNotice from "../accounts-removed-notice";
+import BillingWebhookAlert from "../billing-webhook-alert";
 import CompanyInvite from "../company-invite";
 import ContactInquiry from "../contact-inquiry";
 import Feedback from "../feedback";
@@ -196,6 +197,25 @@ const EMAIL_PREVIEW_CASES = [
         email: "sofia@example.test",
         name: "Sofia Example",
         provider: "Google",
+      }),
+  },
+  {
+    key: "billing-webhook-alert",
+    sendSite: "billing-webhook-alert",
+    audience: "operator-english",
+    sourcePath: "ee/subscription/process-lemon-squeezy-webhook.interactor.ts",
+    templatePath: "components/emails/billing-webhook-alert.tsx",
+    template: BillingWebhookAlert,
+    expectedText: () => "Second subscription for a workspace",
+    render: (locale) =>
+      createElement(BillingWebhookAlert, {
+        ...previewLayoutProps(locale),
+        reason: "duplicate",
+        eventName: "subscription_updated",
+        subscriptionId: "100000001",
+        workspaceId: "00000000-0000-4000-8000-000000000001",
+        workspaceName: "Hoffmann Consulting",
+        otherSubscriptionId: "200000002",
       }),
   },
   {
@@ -473,11 +493,11 @@ const LOCALIZED_PREVIEW_CASES = EMAIL_PREVIEW_CASES.flatMap((definition) =>
 );
 
 describe("transactional email preview inventory", () => {
-  it("maps all 15 production send sites onto 16 production templates", () => {
-    expect(EMAIL_PREVIEW_CASES).toHaveLength(16);
-    expect(new Set(EMAIL_PREVIEW_CASES.map(({ key }) => key)).size).toBe(16);
-    expect(new Set(EMAIL_PREVIEW_CASES.map(({ sendSite }) => sendSite)).size).toBe(15);
-    expect(new Set(EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath)).size).toBe(16);
+  it("maps all 16 production send sites onto 17 production templates", () => {
+    expect(EMAIL_PREVIEW_CASES).toHaveLength(17);
+    expect(new Set(EMAIL_PREVIEW_CASES.map(({ key }) => key)).size).toBe(17);
+    expect(new Set(EMAIL_PREVIEW_CASES.map(({ sendSite }) => sendSite)).size).toBe(16);
+    expect(new Set(EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath)).size).toBe(17);
     expect(EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath).sort()).toEqual(topLevelTemplates());
   });
 
@@ -507,10 +527,10 @@ describe("transactional email preview inventory", () => {
 
   it("keeps recipient localization and internal English explicit", () => {
     expect(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "recipient-localized")).toHaveLength(13);
-    expect(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "operator-english")).toHaveLength(3);
+    expect(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "operator-english")).toHaveLength(4);
   });
 
-  it("discovers all 16 top-level production templates", () => {
+  it("discovers all 17 top-level production templates", () => {
     expect(discoveredPreviewEntries()).toEqual(
       EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath.replace("components/emails/", "")).sort(),
     );
@@ -536,7 +556,7 @@ describe("transactional email preview inventory", () => {
 
 describe("transactional email preview rendering", () => {
   it("covers every behavior in each of its locales", () => {
-    expect(LOCALIZED_PREVIEW_CASES).toHaveLength(68);
+    expect(LOCALIZED_PREVIEW_CASES).toHaveLength(69);
   });
 
   it.each(LOCALIZED_PREVIEW_CASES)(

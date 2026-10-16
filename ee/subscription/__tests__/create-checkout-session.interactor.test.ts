@@ -35,6 +35,7 @@ vi.mock("next/headers", () => ({
 }));
 
 const { CreateCheckoutSessionInteractor } = await import("../create-checkout-session.interactor");
+const { isCheckoutWorkspaceSignature } = await import("../checkout-workspace-signature");
 
 function makeCheckoutRepo(plan = "pro", checkoutStartedAt: Date | null = null) {
   return {
@@ -82,9 +83,30 @@ describe("CreateCheckoutSessionInteractor", () => {
     expect(subscriptionService.createCheckoutOrThrow).toHaveBeenCalledWith({
       offer: expect.objectContaining({ id: "business:monthly" }),
       quantity: 4,
-      custom: { company_id: COMPANY_ID },
+      custom: { company_id: COMPANY_ID, company_signature: expect.stringMatching(/^[0-9a-f]{64}$/) },
       redirectUrl: "https://feat-inbox.customermates.com/settings/billing",
     });
+  });
+
+  it("signs the workspace id it puts into the checkout with the server secret", async () => {
+    const subscriptionService = makeSubscriptionService();
+    const interactor = new CreateCheckoutSessionInteractor(
+      subscriptionService as never,
+      makeCheckoutRepo() as never,
+      makeUserRepo() as never,
+    );
+
+    await interactor.invoke({ plan: "pro", cadence: "monthly" } as never);
+
+    const { custom } = subscriptionService.createCheckoutOrThrow.mock.calls[0][0] as {
+      custom: { company_id: string; company_signature: string };
+    };
+    expect(
+      isCheckoutWorkspaceSignature(COMPANY_ID, custom.company_signature, MOCK_ENV_MODULE.env.BETTER_AUTH_SECRET),
+    ).toBe(true);
+    expect(
+      isCheckoutWorkspaceSignature("another-company", custom.company_signature, MOCK_ENV_MODULE.env.BETTER_AUTH_SECRET),
+    ).toBe(false);
   });
 
   it("falls back to the stable branch origin for an untrusted request origin", async () => {

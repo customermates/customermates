@@ -34,6 +34,7 @@ function make(overrides: {
     getSubscriptionOrThrow: vi.fn().mockResolvedValue({ lemonSqueezyId, plan: overrides.plan ?? "pro" }),
   };
   const subscriptionService = {
+    getSubscriptionOrThrowUnscoped: vi.fn().mockResolvedValue({ data: { id: lemonSqueezyId, attributes: {} } }),
     syncSubscription: vi
       .fn()
       .mockResolvedValue(
@@ -96,12 +97,16 @@ describe("RefreshSubscriptionInteractor", () => {
     expect(deleteAccountsForPlan.invoke).not.toHaveBeenCalled();
   });
 
-  it("syncs against the stored LemonSqueezy id under the current company", async () => {
+  it("syncs the provider's copy of the stored LemonSqueezy id into the current company", async () => {
     const { interactor, subscriptionService } = make({ updateResult: { companyId: "company-1", changedPlan: null } });
 
     await interactor.invoke();
 
-    expect(subscriptionService.syncSubscription).toHaveBeenCalledWith("ls-1", mockUser.companyId);
+    expect(subscriptionService.getSubscriptionOrThrowUnscoped).toHaveBeenCalledWith("ls-1");
+    expect(subscriptionService.syncSubscription).toHaveBeenCalledWith(
+      { companyId: mockUser.companyId, plan: "pro", lemonSqueezyId: "ls-1" },
+      { data: { id: "ls-1", attributes: {} } },
+    );
   });
 
   it("enforces plan caps when the sync reports a changed plan", async () => {
@@ -122,7 +127,7 @@ describe("RefreshSubscriptionInteractor", () => {
     expect(deleteAccountsForPlan.invoke).not.toHaveBeenCalled();
   });
 
-  it("reports the subscription as unavailable when the sync finds no workspace for it", async () => {
+  it("reports the subscription as unavailable when the workspace's binding changed during the sync", async () => {
     const { interactor, deleteAccountsForPlan } = make({ updateResult: null });
 
     await expect(interactor.invoke()).resolves.toMatchObject({
@@ -133,12 +138,13 @@ describe("RefreshSubscriptionInteractor", () => {
   });
 
   it("reports the subscription as unavailable when it has no LemonSqueezy id", async () => {
-    const { interactor, deleteAccountsForPlan } = make({ lemonSqueezyId: null });
+    const { interactor, deleteAccountsForPlan, subscriptionService } = make({ lemonSqueezyId: null });
 
     await expect(interactor.invoke()).resolves.toMatchObject({
       ok: false,
       error: { issues: [{ params: { error: "billingPortalUnavailable" } }] },
     });
     expect(deleteAccountsForPlan.invoke).not.toHaveBeenCalled();
+    expect(subscriptionService.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
   });
 });

@@ -26,7 +26,11 @@ export class RefreshSubscriptionInteractor extends AuthenticatedInteractor<void,
     if (subscription.plan === SubscriptionPlan.enterprise) return { ok: true as const, data: null };
     if (!subscription.lemonSqueezyId) return failUnavailable(CustomErrorCode.billingPortalUnavailable);
 
-    const synced = await this.subscriptionService.syncSubscription(subscription.lemonSqueezyId, this.companyId);
+    const provider = await this.subscriptionService.getSubscriptionOrThrowUnscoped(subscription.lemonSqueezyId);
+    const synced = await this.subscriptionService.syncSubscription(
+      { companyId: this.companyId, plan: subscription.plan, lemonSqueezyId: subscription.lemonSqueezyId },
+      provider,
+    );
     if (!synced) return failUnavailable(CustomErrorCode.billingPortalUnavailable);
 
     if (synced.changedPlan)
