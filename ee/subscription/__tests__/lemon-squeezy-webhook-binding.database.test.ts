@@ -54,11 +54,20 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const OPERATOR = "operator@example.invalid";
 const WEBHOOK_AUTH_SECRET = "webhook-binding-database-test";
 
-type Workspace = "signed" | "transition" | "liveTransition" | "forged" | "twice" | "deleted" | "portal";
+type Workspace = "signed" | "transition" | "liveTransition" | "forged" | "twice" | "late" | "deleted" | "portal";
 type ProviderPlan = keyof typeof localLemonSqueezyVariants;
 type ProviderSubscription = ReturnType<typeof newProviderSubscription>;
 
-const WORKSPACES: Workspace[] = ["signed", "transition", "liveTransition", "forged", "twice", "deleted", "portal"];
+const WORKSPACES: Workspace[] = [
+  "signed",
+  "transition",
+  "liveTransition",
+  "forged",
+  "twice",
+  "late",
+  "deleted",
+  "portal",
+];
 
 function newProviderSubscription(
   companyId: string,
@@ -349,6 +358,38 @@ describeDatabase("which workspace a Lemon Squeezy subscription binds to, on Post
       body: { ignored: true },
     });
     expect(await stored("twice")).toEqual({ status: "active", plan: "business", lemonSqueezyId: newest.id });
+    expect(mails()).toEqual([]);
+  });
+
+  it("never moves a workspace back to an older subscription after its newer one was cancelled", async () => {
+    const older = provider(newProviderSubscription(companies.late, { createdAt: new Date(Date.now() - 3 * DAY_MS) }));
+    expect((await deliver("subscription_created", older, signed(companies.late))).status).toBe(200);
+    const newer = provider(
+      newProviderSubscription(companies.late, { plan: "business", createdAt: new Date(Date.now() - DAY_MS) }),
+    );
+    expect((await deliver("subscription_created", newer, signed(companies.late))).status).toBe(200);
+    const cancelled = provider({
+      ...newer,
+      attributes: {
+        ...newer.attributes,
+        status: "cancelled",
+        status_formatted: lemonSqueezyStatusFormatted("cancelled"),
+      },
+    });
+    expect((await deliver("subscription_cancelled", cancelled, signed(companies.late))).status).toBe(200);
+    expect(await stored("late")).toEqual({ status: "cancelled", plan: "business", lemonSqueezyId: newer.id });
+    sent.mockClear();
+
+    const expired = provider({
+      ...older,
+      attributes: { ...older.attributes, status: "expired", status_formatted: lemonSqueezyStatusFormatted("expired") },
+    });
+    expect(await deliver("subscription_expired", expired, signed(companies.late))).toEqual({
+      status: 200,
+      body: { ignored: true },
+    });
+
+    expect(await stored("late")).toEqual({ status: "cancelled", plan: "business", lemonSqueezyId: newer.id });
     expect(mails()).toEqual([]);
   });
 

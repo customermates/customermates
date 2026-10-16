@@ -176,10 +176,11 @@ export class PrismaCompanyRepo
     });
   }
 
-  async claimCheckoutStart(startedAt: Date, pendingSince: Date) {
+  async claimCheckoutStart(startedAt: Date, pendingSince: Date, lemonSqueezyId: string | null) {
     const { count } = await this.prisma.subscription.updateMany({
       where: {
         companyId: this.companyId,
+        lemonSqueezyId,
         OR: [{ checkoutStartedAt: null }, { checkoutStartedAt: { lte: pendingSince } }],
       },
       data: { checkoutStartedAt: startedAt },

@@ -59,30 +59,24 @@ export class ProcessLemonSqueezyWebhookInteractor {
     const workspace = await this.repo.findWorkspaceBillingUnscoped(claim.companyId);
     if (workspace?.lemonSqueezyId === event.subscriptionId)
       return this.apply(workspace, await this.provider(event.subscriptionId));
-    if (
-      claim.signature !== null &&
-      !isCheckoutWorkspaceSignature(claim.companyId, claim.signature, env.BETTER_AUTH_SECRET)
-    )
+    const signed = claim.signature !== null;
+    if (signed && !isCheckoutWorkspaceSignature(claim.companyId, claim.signature ?? "", env.BETTER_AUTH_SECRET))
       return this.refuse("forged", event, workspace);
     if (!workspace) return this.refuse("workspaceMissing", event, null);
-
-    if (claim.signature === null) {
-      if (!hasLiveSubscription(workspace) && acceptsUnsignedCheckoutClaim(event.subscriptionCreatedAt))
-        return this.apply(workspace, await this.provider(event.subscriptionId));
+    if (!signed && !acceptsUnsignedCheckoutClaim(event.subscriptionCreatedAt))
       return this.refuse("unsigned", event, workspace);
-    }
-
-    if (!hasLiveSubscription(workspace)) return this.apply(workspace, await this.provider(event.subscriptionId));
 
     const [incoming, current] = await Promise.all([
       this.provider(event.subscriptionId),
-      this.provider(workspace.lemonSqueezyId),
+      workspace.lemonSqueezyId ? this.provider(workspace.lemonSqueezyId) : null,
     ]);
-    if (isLive(incoming) && createdAt(incoming) > createdAt(current)) {
-      await this.alert("replaced", event, workspace, workspace.lemonSqueezyId);
-      return this.apply(workspace, incoming);
-    }
-    if (!isLive(incoming) && createdAt(incoming) < createdAt(current)) return "ignored";
+    const newer = !current || createdAt(incoming) > createdAt(current);
+    if (!newer && !isLive(incoming)) return "ignored";
+    const live = hasLiveSubscription(workspace);
+    if (newer && !live) return this.apply(workspace, incoming);
+    if (!signed) return this.refuse("unsigned", event, workspace);
+    if (newer && isLive(incoming))
+      return this.apply(workspace, incoming, () => this.alert("replaced", event, workspace, workspace.lemonSqueezyId));
 
     return this.refuse("duplicate", event, workspace, workspace.lemonSqueezyId);
   }
@@ -91,10 +85,15 @@ export class ProcessLemonSqueezyWebhookInteractor {
     return this.subscriptionService.getSubscriptionOrThrowUnscoped(subscriptionId);
   }
 
-  private async apply(workspace: WorkspaceBilling, subscription: LemonSqueezySubscription) {
+  private async apply(
+    workspace: WorkspaceBilling,
+    subscription: LemonSqueezySubscription,
+    announce?: () => Promise<void>,
+  ) {
     const synced = await this.subscriptionService.syncSubscription(workspace, subscription);
     if (!synced) throw new Error("The workspace's billing binding changed while the event was processed");
 
+    await announce?.();
     if (synced.changedPlan)
       await this.deleteAccountsForPlan.invoke({ companyId: synced.companyId, plan: synced.changedPlan });
 

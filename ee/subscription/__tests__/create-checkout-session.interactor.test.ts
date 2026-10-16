@@ -40,10 +40,13 @@ const { isCheckoutWorkspaceSignature } = await import("../checkout-workspace-sig
 function makeCheckoutRepo(
   plan = "pro",
   checkoutStartedAt: Date | null = null,
-  binding: { lemonSqueezyId: string | null; status: string } = { lemonSqueezyId: null, status: "trial" },
+  binding: { lemonSqueezyId: string | null; status: string; trialEndDate?: Date | null } = {
+    lemonSqueezyId: null,
+    status: "trial",
+  },
 ) {
   return {
-    getSubscriptionOrThrow: vi.fn().mockResolvedValue({ plan, checkoutStartedAt, ...binding }),
+    getSubscriptionOrThrow: vi.fn().mockResolvedValue({ plan, checkoutStartedAt, trialEndDate: null, ...binding }),
     claimCheckoutStart: vi.fn().mockResolvedValue(true),
     releaseCheckoutStart: vi.fn().mockResolvedValue(undefined),
   };
@@ -178,7 +181,8 @@ describe("CreateCheckoutSessionInteractor", () => {
     await interactor.invoke({ plan: "pro", cadence: "monthly" } as never);
 
     expect(repo.claimCheckoutStart).toHaveBeenCalledOnce();
-    const [startedAt, pendingSince] = repo.claimCheckoutStart.mock.calls[0] as [Date, Date];
+    const [startedAt, pendingSince, binding] = repo.claimCheckoutStart.mock.calls[0] as [Date, Date, string | null];
+    expect(binding).toBeNull();
     expect(startedAt.getTime()).toBeGreaterThanOrEqual(before);
     expect(startedAt.getTime()).toBeLessThanOrEqual(Date.now());
     expect(startedAt.getTime() - pendingSince.getTime()).toBe(15 * 60 * 1000);
@@ -259,4 +263,23 @@ describe("CreateCheckoutSessionInteractor", () => {
       });
     },
   );
+
+  it("opens a checkout for a workspace that holds a subscription but is paused because its trial date passed", async () => {
+    const repo = makeCheckoutRepo("pro", null, {
+      lemonSqueezyId: "sub-1",
+      status: "trial",
+      trialEndDate: new Date(Date.now() - 60_000),
+    });
+    const subscriptionService = makeSubscriptionService();
+    const interactor = new CreateCheckoutSessionInteractor(
+      subscriptionService as never,
+      repo as never,
+      makeUserRepo() as never,
+    );
+
+    expect(await interactor.invoke({ plan: "pro", cadence: "monthly" } as never)).toMatchObject({
+      redirect: "https://checkout.example.com",
+    });
+    expect(repo.claimCheckoutStart.mock.calls[0][2]).toBe("sub-1");
+  });
 });

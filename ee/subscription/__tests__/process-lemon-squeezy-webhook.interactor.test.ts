@@ -157,7 +157,10 @@ describe("a signed workspace claim", () => {
     async (status) => {
       const lapsed = { ...unbound, status, lemonSqueezyId: "sub-0" };
       const incoming = providerSubscription("sub-1", "active", "2026-10-16T09:00:00.000000Z");
-      const { interactor, subscriptionService, mails } = setup({ workspaces: [lapsed], provider: [incoming] });
+      const { interactor, subscriptionService, mails } = setup({
+        workspaces: [lapsed],
+        provider: [incoming, providerSubscription("sub-0", "expired", "2026-08-01T00:00:00.000000Z")],
+      });
 
       expect(await interactor.invoke(event("sub-1", signed("company-1")))).toBe("applied");
 
@@ -282,9 +285,27 @@ describe("a second subscription for a workspace with a live one", () => {
     },
   );
 
-  it("tells the operator before moving the binding, so a write the provider retries cannot lose the e-mail", async () => {
+  it("tells the operator once the binding moved and before the plan's caps apply", async () => {
     const live = { ...unbound, status: "active", lemonSqueezyId: "sub-old" };
-    const { interactor, emailService, subscriptionService, mails } = setup({
+    const { interactor, emailService, subscriptionService, deleteAccountsForPlan, mails } = setup({
+      workspaces: [live],
+      provider: [
+        providerSubscription("sub-old", "active", "2026-10-01T00:00:00.000000Z"),
+        providerSubscription("sub-new", "active", "2026-10-16T09:00:00.000000Z"),
+      ],
+      synced: { companyId: "company-1", changedPlan: "starter" },
+    });
+
+    expect(await interactor.invoke(event("sub-new", signed("company-1")))).toBe("applied");
+
+    expect(mails().map((mail) => mail.props.reason)).toEqual(["replaced"]);
+    expect(subscriptionService.syncSubscription).toHaveBeenCalledBefore(emailService.send);
+    expect(emailService.send).toHaveBeenCalledBefore(deleteAccountsForPlan.invoke);
+  });
+
+  it("sends no e-mail when another delivery moved the binding first and the provider retries", async () => {
+    const live = { ...unbound, status: "active", lemonSqueezyId: "sub-old" };
+    const { interactor, mails } = setup({
       workspaces: [live],
       provider: [
         providerSubscription("sub-old", "active", "2026-10-01T00:00:00.000000Z"),
@@ -294,9 +315,37 @@ describe("a second subscription for a workspace with a live one", () => {
     });
 
     await expect(interactor.invoke(event("sub-new", signed("company-1")))).rejects.toThrow(/binding changed/);
-    expect(mails().map((mail) => mail.props.reason)).toEqual(["replaced"]);
-    expect(emailService.send).toHaveBeenCalledBefore(subscriptionService.syncSubscription);
+    expect(mails()).toEqual([]);
   });
+
+  it.each(["cancelled", "unPaid"])(
+    "never rebinds a workspace whose newer subscription is %s to an older one",
+    async (status) => {
+      const newerEnded = { ...unbound, status, lemonSqueezyId: "sub-new" };
+      const newest = providerSubscription(
+        "sub-new",
+        status === "unPaid" ? "unpaid" : "cancelled",
+        "2026-10-16T09:00:00.000000Z",
+      );
+      const settled = setup({
+        workspaces: [newerEnded],
+        provider: [newest, providerSubscription("sub-old", "expired", "2026-10-01T00:00:00.000000Z")],
+      });
+
+      expect(await settled.interactor.invoke(event("sub-old", signed("company-1")))).toBe("ignored");
+      expect(settled.subscriptionService.syncSubscription).not.toHaveBeenCalled();
+      expect(settled.mails()).toEqual([]);
+
+      const stillPaying = setup({
+        workspaces: [newerEnded],
+        provider: [newest, providerSubscription("sub-old", "active", "2026-10-01T00:00:00.000000Z")],
+      });
+
+      expect(await stillPaying.interactor.invoke(event("sub-old", signed("company-1")))).toBe("refused");
+      expect(stillPaying.subscriptionService.syncSubscription).not.toHaveBeenCalled();
+      expect(stillPaying.mails().map((mail) => mail.props.reason)).toEqual(["duplicate"]);
+    },
+  );
 
   it.each(["cancelled", "expired", "unpaid"])(
     "acknowledges an event of the older subscription once it is %s, without telling the operator again",
@@ -353,7 +402,13 @@ describe("an unsigned workspace claim", () => {
     "binds nothing during the transition when the workspace already has a %s binding",
     async (status) => {
       const live = { ...unbound, status, lemonSqueezyId: "sub-0" };
-      const { interactor, subscriptionService, mails } = setup({ workspaces: [live] });
+      const { interactor, subscriptionService, mails } = setup({
+        workspaces: [live],
+        provider: [
+          providerSubscription("sub-0", "active", "2026-09-01T00:00:00.000000Z"),
+          providerSubscription("sub-1", "active", BEFORE_END.toISOString()),
+        ],
+      });
 
       const result = await interactor.invoke(event("sub-1", unsigned("company-1"), BEFORE_END));
 
@@ -362,6 +417,25 @@ describe("an unsigned workspace claim", () => {
       expect(mails().map((mail) => mail.props.reason)).toEqual(["unsigned"]);
     },
   );
+
+  it("acknowledges an event of a replaced older checkout once it is no longer live", async () => {
+    const replacedBy = { ...unbound, status: "active", lemonSqueezyId: "sub-new" };
+    const { interactor, subscriptionService, mails } = setup({
+      workspaces: [replacedBy],
+      provider: [
+        providerSubscription("sub-new", "active", "2026-10-16T09:00:00.000000Z"),
+        providerSubscription("sub-legacy", "cancelled", "2026-10-01T00:00:00.000000Z"),
+      ],
+    });
+
+    const result = await interactor.invoke(
+      event("sub-legacy", unsigned("company-1"), new Date("2026-10-01T00:00:00.000Z")),
+    );
+
+    expect(result).toBe("ignored");
+    expect(subscriptionService.syncSubscription).not.toHaveBeenCalled();
+    expect(mails()).toEqual([]);
+  });
 
   it("tells the operator the workspace is missing when an older checkout names a deleted one", async () => {
     const { interactor, mails } = setup({});

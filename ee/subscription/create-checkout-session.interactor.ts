@@ -20,6 +20,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { CreateCheckoutCompanyRepo } from "./create-checkout-session.repo";
 import { checkoutPendingSince } from "./checkout-state";
 import { hasLiveSubscription } from "./live-subscription";
+import { isSubscriptionExpired } from "./entitlements";
 import { signCheckoutWorkspace } from "./checkout-workspace-signature";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
 
@@ -52,11 +53,16 @@ export class CreateCheckoutSessionInteractor extends UserAccessor {
 
     if (subscription.plan === SubscriptionPlan.enterprise)
       return failUnavailable(CustomErrorCode.enterpriseCheckoutUnavailable, ["plan"]);
-    if (hasLiveSubscription(subscription)) return SUBSCRIPTION_ACTIVE;
+    if (hasLiveSubscription(subscription) && !isSubscriptionExpired(subscription)) return SUBSCRIPTION_ACTIVE;
 
     const offer = getCommercialOfferOrThrow(data.plan, data.cadence);
     const startedAt = new Date();
-    if (!(await this.repo.claimCheckoutStart(startedAt, checkoutPendingSince(startedAt)))) return CHECKOUT_PENDING;
+    const claimed = await this.repo.claimCheckoutStart(
+      startedAt,
+      checkoutPendingSince(startedAt),
+      subscription.lemonSqueezyId,
+    );
+    if (!claimed) return CHECKOUT_PENDING;
 
     try {
       const activeUsersCount = await this.userRepo.countActiveUsers();
