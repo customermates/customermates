@@ -1,5 +1,6 @@
 import { PermissionService } from "@/core/base/permission.service";
 import { describe, expect, it, vi } from "vitest";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 const COMPANY = "company-1";
 const VIEWER = "user-viewer";
@@ -20,9 +21,11 @@ describe("findFolderContextById access scope", () => {
   it("never scopes on company alone, so a colleague's private mailbox stays private", async () => {
     findFirst.mockResolvedValueOnce(null);
     await asViewer(() =>
-      new PrismaConnectedAccountRepo(new PermissionService(), new PrismaUnipileWebhookRepo()).findFolderContextById(
-        "someone-elses-account",
-      ),
+      new PrismaConnectedAccountRepo(
+        new PermissionService(),
+        new PrismaUnipileWebhookRepo(),
+        new PrismaBillingUsageRepo(),
+      ).findFolderContextById("someone-elses-account"),
     );
 
     const where = findFirst.mock.calls.at(-1)?.[0].where;
@@ -39,9 +42,11 @@ describe("findFolderContextById access scope", () => {
 
     await expect(
       asViewer(() =>
-        new PrismaConnectedAccountRepo(new PermissionService(), new PrismaUnipileWebhookRepo()).findFolderContextById(
-          "hidden",
-        ),
+        new PrismaConnectedAccountRepo(
+          new PermissionService(),
+          new PrismaUnipileWebhookRepo(),
+          new PrismaBillingUsageRepo(),
+        ).findFolderContextById("hidden"),
       ),
     ).resolves.toBeNull();
   });

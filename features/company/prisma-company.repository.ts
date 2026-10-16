@@ -7,6 +7,7 @@ import type { GetBillingPortalUrlRepo } from "@/ee/subscription/get-billing-port
 import type { GetSubscriptionRepo } from "@/ee/subscription/get-subscription.repo";
 import type { RefreshSubscriptionRepo } from "@/ee/subscription/refresh-subscription.repo";
 import type { SubscriptionRepo } from "@/ee/subscription/subscription.service";
+import type { BillingUsageRepo } from "@/features/billing-usage/billing-usage.repo";
 import type { RouteGuardCompanyRepo } from "@/features/auth/route-guard-company.repo";
 import type { InviteTokenRepo } from "@/features/company/invite-token-validation.interactor";
 import type { RegisterUserCompanyRepo } from "@/features/user/register/register-user-company.repo";
@@ -22,7 +23,6 @@ import { env } from "@/env";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { BillingUsageLedger } from "@/features/billing-usage/billing-usage-ledger";
 
 export class PrismaCompanyRepo
   extends TenantRepository
@@ -42,7 +42,9 @@ export class PrismaCompanyRepo
     UpsertRoutineSubscriptionRepo,
     RegisterUserCompanyRepo
 {
-  private readonly billingUsage = new BillingUsageLedger();
+  constructor(private readonly billingUsage: BillingUsageRepo) {
+    super();
+  }
 
   async findCompanyOrThrow() {
     const { companyId } = this.user;

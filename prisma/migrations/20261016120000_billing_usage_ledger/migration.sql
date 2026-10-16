@@ -17,6 +17,7 @@ CREATE TABLE "BillingUsageInterval" (
     "roleName" TEXT,
     "provider" TEXT,
     "identifier" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "BillingUsageInterval_pkey" PRIMARY KEY ("id")
 );
@@ -24,10 +25,11 @@ CREATE TABLE "BillingUsageInterval" (
 -- CreateTable
 CREATE TABLE "BillingUsageWorkspace" (
     "companyId" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL,
+    "workspaceCreatedAt" TIMESTAMP(3) NOT NULL,
     "deletedAt" TIMESTAMP(3),
     "seatsRecordedFrom" TIMESTAMP(3),
     "channelsRecordedFrom" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "BillingUsageWorkspace_pkey" PRIMARY KEY ("companyId")
 );
@@ -48,6 +50,7 @@ CREATE UNIQUE INDEX "BillingUsageInterval_open_subject_key" ON "BillingUsageInte
 -- Backfill the workspaces that exist now. Their earlier seat changes are unknown;
 -- connected-account history is known from the event log since the messaging
 -- migration that cleared all earlier accounts (claimed only when its time is known).
+-- The block reads "_prisma_migrations" only when it exists, as it does under Prisma Migrate.
 DO $$
 DECLARE
     messaging_history_from TIMESTAMP(3);
@@ -57,10 +60,10 @@ BEGIN
             INTO messaging_history_from
             USING '20260625161605_unipile_v2_messaging';
     END IF;
-    messaging_history_from := COALESCE(messaging_history_from, (now() AT TIME ZONE 'UTC')::TIMESTAMP(3));
+    messaging_history_from := COALESCE(messaging_history_from, CURRENT_TIMESTAMP);
 
-    INSERT INTO "BillingUsageWorkspace" ("companyId", "createdAt", "seatsRecordedFrom", "channelsRecordedFrom")
-    SELECT c."id", c."createdAt", (now() AT TIME ZONE 'UTC')::TIMESTAMP(3),
+    INSERT INTO "BillingUsageWorkspace" ("companyId", "workspaceCreatedAt", "seatsRecordedFrom", "channelsRecordedFrom")
+    SELECT c."id", c."createdAt", CURRENT_TIMESTAMP,
            CASE WHEN c."createdAt" < messaging_history_from THEN messaging_history_from END
     FROM "Company" c;
 END;
@@ -72,7 +75,7 @@ INSERT INTO "BillingUsageInterval" (
     "firstName", "lastName", "email", "roleName"
 )
 SELECT gen_random_uuid()::text, u."companyId", 'seat', u."id",
-       LEAST(COALESCE(u."agentCreditActivatedAt", u."createdAt"), (now() AT TIME ZONE 'UTC')::TIMESTAMP(3)), FALSE,
+       LEAST(COALESCE(u."agentCreditActivatedAt", u."createdAt"), CURRENT_TIMESTAMP), FALSE,
        u."firstName", u."lastName", u."email", r."name"
 FROM "User" u
 LEFT JOIN "UserRole" r ON r."id" = u."roleId"

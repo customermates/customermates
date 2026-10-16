@@ -26,6 +26,7 @@ import type { Prisma } from "@/generated/prisma";
 import type { CountActiveUsersRepo } from "./count-active-users.repo";
 import type { ResolveUserOptionsRepo } from "./get/resolve-user-options.repo";
 import type { FindUserRepo } from "./find-user.repo";
+import type { BillingUsageRepo } from "@/features/billing-usage/billing-usage.repo";
 
 import { Status, SubscriptionStatus } from "@/generated/prisma";
 
@@ -38,7 +39,7 @@ import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
-import { BillingUsageLedger, seatChange } from "@/features/billing-usage/billing-usage-ledger";
+import { seatChange } from "@/features/billing-usage/billing-usage-changes";
 
 function recordActorSelect(companyId: string) {
   return {
@@ -84,9 +85,10 @@ export class PrismaUserRepo
     WithdrawAdAttributionRepo,
     RecordMemberRepo
 {
-  private readonly billingUsage = new BillingUsageLedger();
-
-  constructor(private readonly permissions: PermissionService) {
+  constructor(
+    private readonly permissions: PermissionService,
+    private readonly billingUsage: BillingUsageRepo,
+  ) {
     super();
   }
 

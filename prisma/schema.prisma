@@ -701,6 +701,7 @@ model BillingUsageInterval {
   roleName   String?
   provider   String?
   identifier String?
+  createdAt  DateTime         @default(now())
 
   @@index([companyId, kind, startedAt])
   @@index([kind, startedAt])
@@ -711,10 +712,11 @@ model BillingUsageInterval {
 // recorded the workspace since its creation; otherwise changes before it are unknown.
 model BillingUsageWorkspace {
   companyId            String    @id
-  createdAt            DateTime
+  workspaceCreatedAt   DateTime
   deletedAt            DateTime?
   seatsRecordedFrom    DateTime?
   channelsRecordedFrom DateTime?
+  createdAt            DateTime  @default(now())
 }
 
 enum BillingUsageKind {

@@ -1,22 +1,9 @@
+import type { BillingUsageChanges, BillingUsageRepo } from "./billing-usage.repo";
+import type { ReconcileBillingUsageRepo } from "./reconcile-billing-usage.repo";
+
 import { TenantRepository } from "@/core/base/tenant-repository";
+import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { BillingUsageKind, ConnectedAccountStatus, Status } from "@/generated/prisma";
-
-export type BillingUsageChanges = readonly string[] | "sweep";
-
-export function seatChange(subjectId: string, before: Status | null | undefined, after: Status | null): string[] {
-  return (before === Status.active) !== (after === Status.active) ? [subjectId] : [];
-}
-
-export function channelChange(
-  subjectId: string,
-  before: ConnectedAccountStatus | null | undefined,
-  after: ConnectedAccountStatus | null,
-): string[] {
-  const counted = (status: ConnectedAccountStatus | null | undefined) =>
-    status !== null && status !== undefined && status !== ConnectedAccountStatus.deleted;
-
-  return counted(before) !== counted(after) ? [subjectId] : [];
-}
 
 type Snapshot = {
   firstName: string | null;
@@ -39,7 +26,29 @@ function sameIdentity(a: Snapshot, b: Snapshot): boolean {
   );
 }
 
-export class BillingUsageLedger extends TenantRepository {
+export class PrismaBillingUsageRepo extends TenantRepository implements BillingUsageRepo, ReconcileBillingUsageRepo {
+  @BypassTenantGuard
+  async findRecordedWorkspacesUnscoped(after: string | null, limit: number): Promise<string[]> {
+    const workspaces = await this.prisma.billingUsageWorkspace.findMany({
+      where: { deletedAt: null, ...(after ? { companyId: { gt: after } } : {}) },
+      orderBy: { companyId: "asc" },
+      take: limit,
+      select: { companyId: true },
+    });
+
+    return workspaces.map((workspace) => workspace.companyId);
+  }
+
+  @BypassTenantGuard
+  async reconcileWorkspaceUnscoped(companyId: string): Promise<void> {
+    await this.withCompanyTransaction(companyId, async () => {
+      if (!(await this.prisma.company.findFirst({ where: { id: companyId }, select: { id: true } })))
+        return this.recordWorkspaceDeleted(companyId, "sweep");
+      await this.recordSeats(companyId, "sweep");
+      await this.recordChannels(companyId, "sweep");
+    });
+  }
+
   async recordSeats(companyId: string, changed: BillingUsageChanges): Promise<void> {
     const users = await this.prisma.user.findMany({
       where: { companyId, status: Status.active },
@@ -88,7 +97,7 @@ export class BillingUsageLedger extends TenantRepository {
     const company = await this.prisma.company.findFirst({ where: { id: companyId }, select: { createdAt: true } });
 
     await this.prisma.billingUsageWorkspace.createMany({
-      data: [{ companyId, createdAt: company?.createdAt ?? new Date() }],
+      data: [{ companyId, workspaceCreatedAt: company?.createdAt ?? new Date() }],
       skipDuplicates: true,
     });
   }
@@ -202,7 +211,7 @@ export class BillingUsageLedger extends TenantRepository {
       data: [
         {
           companyId,
-          createdAt: company?.createdAt ?? now,
+          workspaceCreatedAt: company?.createdAt ?? now,
           seatsRecordedFrom: now,
           channelsRecordedFrom: now,
         },

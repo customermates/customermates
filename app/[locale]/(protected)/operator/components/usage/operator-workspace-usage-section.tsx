@@ -10,12 +10,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
-import { billingUsageMonthsBetween, lastFullBillingUsageMonth } from "@/ee/operator/billing-usage";
+import { lastFullBillingUsageMonth } from "@/ee/operator/billing-usage";
 
 import { getOperatorBillingUsageAction } from "../../workspaces/actions";
 
 import { OperatorUsageCoverageNote } from "./operator-usage-coverage-note";
 import { OperatorUsageMonthSelect } from "./operator-usage-month-select";
+import { operatorUsageMonths } from "./operator-usage-months";
 
 type Props = { companyId: string; createdAt: Date };
 
@@ -27,7 +28,7 @@ function defaultMonth(months: readonly string[]): string {
 export function OperatorWorkspaceUsageSection({ companyId, createdAt }: Props) {
   const t = useTranslations();
   const intlStore = useHydratedIntlStore();
-  const months = useMemo(() => billingUsageMonthsBetween(createdAt, new Date()), [createdAt]);
+  const months = useMemo(() => operatorUsageMonths(createdAt, new Date()), [createdAt]);
   const [month, setMonth] = useState(() => defaultMonth(months));
   const [usage, setUsage] = useState<OperatorBillingUsageDto | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -106,7 +107,7 @@ export function OperatorWorkspaceUsageSection({ companyId, createdAt }: Props) {
             </InfoRow>
 
             {workspace.deletedAt ? (
-              <InfoRow label={t("OperatorUsage.columns.workspace")}>
+              <InfoRow label={t("Common.table.columns.status")}>
                 {t("OperatorUsage.deleted", { date: dateTime(workspace.deletedAt) })}
               </InfoRow>
             ) : null}
@@ -121,9 +122,9 @@ export function OperatorWorkspaceUsageSection({ companyId, createdAt }: Props) {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>{t("OperatorUsage.columns.name")}</TableHead>
+                    <TableHead>{t("Common.table.columns.name")}</TableHead>
 
-                    <TableHead>{t("OperatorUsage.columns.role")}</TableHead>
+                    <TableHead>{t("Common.table.columns.role")}</TableHead>
 
                     <TableHead>{t("OperatorUsage.columns.added")}</TableHead>
 

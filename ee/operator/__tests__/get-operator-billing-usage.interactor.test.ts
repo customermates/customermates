@@ -1,14 +1,24 @@
 import { describe, expect, it, vi } from "vitest";
 
+import type { OperatorActor } from "@/core/decorators/operator-context";
 import type { BillingUsageLedger } from "../get/get-operator-billing-usage.repo";
 
-vi.mock("@/core/decorators/operator-interactor.decorator", () => ({ OperatorReadInteractor: () => undefined }));
-vi.mock("@/core/decorators/validate-output.decorator", () => ({ ValidateOutput: () => undefined }));
+const actor: OperatorActor = {
+  authUserId: "auth-1",
+  userId: "user-1",
+  companyId: "company-1",
+  email: "operator@example.invalid",
+};
+
+vi.mock("@/core/di", () => ({
+  getOperatorAccessService: () => ({ authorizeRead: () => Promise.resolve(actor) }),
+}));
 vi.mock("@/core/validation/zod-error-map-server", () => ({ getZodParseContext: () => Promise.resolve(undefined) }));
 vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
 }));
 
+import { interactorFailureStatus } from "@/core/validation/validation.utils";
 import { GetOperatorBillingUsageInteractor } from "../get/get-operator-billing-usage.interactor";
 
 const LIVE = "00000000-0000-4000-8000-000000000031";
@@ -101,7 +111,7 @@ describe("GetOperatorBillingUsageInteractor", () => {
 
     const result = await subject.invoke({ month: "2026-09", companyId: "00000000-0000-4000-8000-000000000099" });
 
-    expect(result.ok).toBe(false);
+    expect(!result.ok && interactorFailureStatus(result.error)).toBe(404);
   });
 
   it("returns a validation failure for a malformed month without reading the ledger", async () => {

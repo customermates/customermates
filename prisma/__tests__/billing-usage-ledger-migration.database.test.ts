@@ -13,6 +13,11 @@ const migrationsRoot = join(process.cwd(), "prisma/migrations");
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 
+function requiredDatabaseUrl() {
+  if (!databaseUrl) throw new Error("Database tests must be enabled for this test");
+  return databaseUrl;
+}
+
 function migrationNames() {
   return readdirSync(migrationsRoot, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
@@ -113,7 +118,7 @@ async function ledger(client: Client) {
 
 describeDatabase("billing usage ledger migration", { timeout: 240_000 }, () => {
   it("backfills only what the data proves and flags inferred or estimated times", async () => {
-    await withTemporaryDatabase(databaseUrl ?? "", async (client) => {
+    await withTemporaryDatabase(requiredDatabaseUrl(), async (client) => {
       const names = migrationNames();
       await applyMigrations(client, names.slice(0, names.indexOf(MIGRATION)));
       await client.query(
@@ -190,7 +195,7 @@ describeDatabase("billing usage ledger migration", { timeout: 240_000 }, () => {
   });
 
   it("claims no channel history when the migration ledger is unavailable", async () => {
-    await withTemporaryDatabase(databaseUrl ?? "", async (client) => {
+    await withTemporaryDatabase(requiredDatabaseUrl(), async (client) => {
       const names = migrationNames();
       await applyMigrations(client, names.slice(0, names.indexOf(MIGRATION)));
       await legacyHistory(client);

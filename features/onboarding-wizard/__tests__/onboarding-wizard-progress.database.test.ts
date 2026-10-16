@@ -8,6 +8,7 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 import { PermissionService } from "@/core/base/permission.service";
 import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
 import { readOnboardingWizardProgress } from "../onboarding-wizard-progress.schema";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -60,12 +61,14 @@ describeDatabase("durable onboarding progress on PostgreSQL", () => {
   it("restores progress through a fresh repository and fresh tenant context", async () => {
     expect(
       await runWithTenant(tenant(), () =>
-        new PrismaUserRepo(new PermissionService()).saveOnboardingWizardProgress(progress),
+        new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()).saveOnboardingWizardProgress(
+          progress,
+        ),
       ),
     ).toBe(true);
     expect(
       await runWithTenant(tenant(), () =>
-        new PrismaUserRepo(new PermissionService()).findOnboardingWizardProgressOrThrow(),
+        new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()).findOnboardingWizardProgressOrThrow(),
       ),
     ).toEqual(progress);
   });
@@ -73,22 +76,24 @@ describeDatabase("durable onboarding progress on PostgreSQL", () => {
   it("keeps another member and another workspace independent", async () => {
     expect(
       await runWithTenant(tenant(colleagueId), () =>
-        new PrismaUserRepo(new PermissionService()).findOnboardingWizardProgressOrThrow(),
+        new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()).findOnboardingWizardProgressOrThrow(),
       ),
     ).toBeNull();
     expect(
       await runWithTenant(tenant(outsiderId, otherCompanyId), () =>
-        new PrismaUserRepo(new PermissionService()).findOnboardingWizardProgressOrThrow(),
+        new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()).findOnboardingWizardProgressOrThrow(),
       ),
     ).toBeNull();
     expect(
       await runWithTenant(tenant(userId, otherCompanyId), () =>
-        new PrismaUserRepo(new PermissionService()).saveOnboardingWizardProgress(progress),
+        new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()).saveOnboardingWizardProgress(
+          progress,
+        ),
       ),
     ).toBe(false);
     await expect(
       runWithTenant(tenant(userId, otherCompanyId), () =>
-        new PrismaUserRepo(new PermissionService()).findOnboardingWizardProgressOrThrow(),
+        new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()).findOnboardingWizardProgressOrThrow(),
       ),
     ).rejects.toThrow();
   });
@@ -96,22 +101,26 @@ describeDatabase("durable onboarding progress on PostgreSQL", () => {
   it("preserves navigation choices backwards as well as forwards", async () => {
     const backwards = { ...progress, step: "invite" as const };
     await runWithTenant(tenant(), () =>
-      new PrismaUserRepo(new PermissionService()).saveOnboardingWizardProgress(backwards),
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()).saveOnboardingWizardProgress(backwards),
     );
     expect(
       await runWithTenant(tenant(), () =>
-        new PrismaUserRepo(new PermissionService()).findOnboardingWizardProgressOrThrow(),
+        new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()).findOnboardingWizardProgressOrThrow(),
       ),
     ).toEqual(backwards);
   });
 
   it("keeps completion final even when an older tab saves afterward", async () => {
     await runWithTenant(tenant(), () =>
-      new PrismaUserRepo(new PermissionService()).markOnboardingWizardCompleted({ userId }),
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()).markOnboardingWizardCompleted({
+        userId,
+      }),
     );
     expect(
       await runWithTenant(tenant(), () =>
-        new PrismaUserRepo(new PermissionService()).saveOnboardingWizardProgress(progress),
+        new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()).saveOnboardingWizardProgress(
+          progress,
+        ),
       ),
     ).toBe(false);
     const { rows } = await client.query(

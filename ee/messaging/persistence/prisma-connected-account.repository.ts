@@ -35,6 +35,7 @@ import type { FindConnectedAccountsByIdsRepo } from "../find-connected-accounts-
 import type { RepoArgs } from "@/core/utils/types";
 import type { MessagingFilterOptionsRepo } from "../inbox/messaging-filter-options.repo";
 import type { MessagingFilterOptions } from "../inbox/messaging-filter-options.schema";
+import type { BillingUsageRepo } from "@/features/billing-usage/billing-usage.repo";
 
 import { randomUUID } from "node:crypto";
 
@@ -45,7 +46,7 @@ import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { accessibleConnectedAccountWhere, messageVisibilityWhere, threadAccessWhere } from "../messaging-access";
 import { accountNeedsAction, isEmailProvider } from "../provider";
 import { emailFolderFilterValue } from "../inbox/messaging-filter-options.schema";
-import { BillingUsageLedger, channelChange } from "@/features/billing-usage/billing-usage-ledger";
+import { channelChange } from "@/features/billing-usage/billing-usage-changes";
 
 const BACKFILL_CLAIM_STALE_MS = 15 * 60 * 1000;
 
@@ -79,11 +80,10 @@ export class PrismaConnectedAccountRepo
     FindConnectedAccountsByIdsRepo,
     MessagingFilterOptionsRepo
 {
-  private readonly billingUsage = new BillingUsageLedger();
-
   constructor(
     private readonly permissions: PermissionService,
     private readonly diagnostics: UnusableProviderItemRepo,
+    private readonly billingUsage: BillingUsageRepo,
   ) {
     super();
   }

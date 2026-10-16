@@ -10,6 +10,7 @@ import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { interactorFailureStatus } from "@/core/validation/validation.utils";
 import { recordInvariant } from "../record-invariant";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 vi.mock("@/env", () => ({
   env: {
@@ -53,7 +54,10 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
   const actors: Record<"admin" | "schema" | "grants" | "steward" | "reader" | "restricted", TenantUser> = {} as never;
   const roleIds: Record<string, string> = {};
   const repo = createTestRecordRepo();
-  const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
+  const policy = new RecordAccessPolicy(
+    new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+    repo,
+  );
   const calculations = new RecordCalculationService(repo);
   const background = { dispatch: () => Promise.resolve() };
   const configurations = new RecordConfigurationService(repo);

@@ -1,28 +1,43 @@
 import { describe, expect, it, vi } from "vitest";
 
-const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
-
-vi.mock("@sentry/nextjs", () => sentry);
 vi.mock("@/env", () => ({ env: { APP_MODE: "cloud" } }));
 
 import { ReconcileBillingUsageInteractor } from "../reconcile-billing-usage.interactor";
+import { ReconcileWorkspaceBillingUsageInteractor } from "../reconcile-workspace-billing-usage.interactor";
 
-describe("ReconcileBillingUsageInteractor", () => {
-  it("reconciles every workspace and closes vanished ones even when one workspace fails", async () => {
-    const reconcileCompanyUnscoped = vi.fn((companyId: string) =>
-      companyId === "broken" ? Promise.reject(new Error("boom")) : Promise.resolve(),
+const first = "1b0f8f0e-41a4-4a8f-9c1e-7d3c56f4e001";
+const second = "1b0f8f0e-41a4-4a8f-9c1e-7d3c56f4e002";
+
+describe("billing usage reconciliation", () => {
+  it("pages through every recorded workspace and starts one reconciliation per workspace", async () => {
+    const companies = Array.from({ length: 200 }, (_, index) => `${index}`.padStart(3, "0"));
+    const findRecordedWorkspacesUnscoped = vi
+      .fn()
+      .mockResolvedValueOnce(companies)
+      .mockResolvedValueOnce([first, second]);
+    const dispatch = vi.fn().mockResolvedValue(undefined);
+    const sweep = new ReconcileBillingUsageInteractor(
+      { findRecordedWorkspacesUnscoped, reconcileWorkspaceUnscoped: vi.fn() },
+      { dispatch },
     );
-    const closeMissingWorkspaceUnscoped = vi.fn((companyId: string) => Promise.resolve(companyId !== "revived"));
-    const interactor = new ReconcileBillingUsageInteractor({
-      listCompanyIdsUnscoped: () => Promise.resolve(["a", "broken", "c"]),
-      listRecordedWorkspacesWithoutCompanyUnscoped: () => Promise.resolve(["gone", "revived"]),
-      reconcileCompanyUnscoped,
-      closeMissingWorkspaceUnscoped,
+
+    await expect(sweep.invoke()).resolves.toEqual({ dispatched: 202 });
+    expect(findRecordedWorkspacesUnscoped.mock.calls).toEqual([
+      [null, 200],
+      ["199", 200],
+    ]);
+    expect(dispatch).toHaveBeenLastCalledWith("reconcile-billing-usage", { companyId: second });
+  });
+
+  it("reconciles one workspace and rejects an invalid workspace id", async () => {
+    const reconcileWorkspaceUnscoped = vi.fn().mockResolvedValue(undefined);
+    const reconcile = new ReconcileWorkspaceBillingUsageInteractor({
+      findRecordedWorkspacesUnscoped: vi.fn(),
+      reconcileWorkspaceUnscoped,
     });
 
-    await expect(interactor.invoke()).resolves.toEqual({ workspaces: 3, closed: 1, failed: 1 });
-    expect(reconcileCompanyUnscoped.mock.calls.map(([companyId]) => companyId)).toEqual(["a", "broken", "c"]);
-    expect(closeMissingWorkspaceUnscoped).toHaveBeenCalledWith("gone");
-    expect(sentry.captureException).toHaveBeenCalledOnce();
+    await reconcile.invoke({ companyId: first });
+    await expect(async () => reconcile.invoke({ companyId: "not-a-workspace" })).rejects.toThrow();
+    expect(reconcileWorkspaceUnscoped.mock.calls).toEqual([[first]]);
   });
 });

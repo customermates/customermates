@@ -10,11 +10,12 @@ import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repositor
 import { PrismaWikiPageRepo } from "@/features/wiki/prisma-wiki-page.repository";
 import { type RoutineEventAccess } from "@/ee/routines/routine-event-access";
 import { PrismaRoutineEventAccess } from "@/ee/routines/prisma-routine-event-access.repository";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 export const createTestRecordRecipientReader = () =>
   new RecordRecipientReader(
     (companyId) => createTestRecordRepo(companyId),
-    new PrismaRecordRecipientRepo(new PrismaUserRepo(new PermissionService())),
+    new PrismaRecordRecipientRepo(new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo())),
   );
 export const createTestRoutineRepo = (access?: RoutineEventAccess): PrismaRoutineRepo => {
   const routines: PrismaRoutineRepo = new PrismaRoutineRepo(

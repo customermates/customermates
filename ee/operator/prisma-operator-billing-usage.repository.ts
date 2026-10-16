@@ -16,6 +16,7 @@ function deletedWorkspaceLabel(metadata: unknown): string | null {
 }
 
 const INTERVAL_SELECT = {
+  id: true,
   companyId: true,
   kind: true,
   subjectId: true,
@@ -41,7 +42,14 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
     const scope = args.companyId ? { companyId: args.companyId } : {};
     const [recorded, companies, intervals, recording] = await Promise.all([
       this.prisma.billingUsageWorkspace.findMany({
-        where: args.companyId ? { companyId: args.companyId } : { createdAt: { lt: args.before } },
+        where: args.companyId ? { companyId: args.companyId } : { workspaceCreatedAt: { lt: args.before } },
+        select: {
+          companyId: true,
+          workspaceCreatedAt: true,
+          deletedAt: true,
+          seatsRecordedFrom: true,
+          channelsRecordedFrom: true,
+        },
       }),
       this.prisma.company.findMany({
         where: args.companyId ? { id: args.companyId } : { createdAt: { lt: args.before } },
@@ -69,10 +77,11 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
             select: INTERVAL_SELECT,
           });
 
+    const intervalIds = new Set(intervals.map((row) => row.id));
     const recordedIds = new Set(recorded.map((workspace) => workspace.companyId));
     const observedAt = new Date();
     const workspaces = [
-      ...recorded,
+      ...recorded.map(({ workspaceCreatedAt, ...workspace }) => ({ ...workspace, createdAt: workspaceCreatedAt })),
       ...companies
         .filter((company) => !recordedIds.has(company.id))
         .map((company) => ({
@@ -84,8 +93,12 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
         })),
     ];
 
-    const liveIds = workspaces.filter((workspace) => workspace.deletedAt === null).map((w) => w.companyId);
-    const deletedIds = workspaces.filter((workspace) => workspace.deletedAt !== null).map((w) => w.companyId);
+    const liveIds = workspaces
+      .filter((workspace) => workspace.deletedAt === null)
+      .map((workspace) => workspace.companyId);
+    const deletedIds = workspaces
+      .filter((workspace) => workspace.deletedAt !== null)
+      .map((workspace) => workspace.companyId);
 
     const [members, activeSeats, connectedChannels, deletions] = await Promise.all([
       this.prisma.user.findMany({ where: { companyId: { in: liveIds } }, select: { companyId: true, email: true } }),
@@ -137,7 +150,7 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
         activeSeats: seatCounts.get(workspace.companyId) ?? 0,
         connectedChannels: channelCounts.get(workspace.companyId) ?? 0,
       })),
-      intervals: [...intervals, ...firstSeats],
+      intervals: [...intervals, ...firstSeats.filter((row) => !intervalIds.has(row.id))],
       recordingStartedAt: recording._min.seatsRecordedFrom,
     };
   }

@@ -10,6 +10,7 @@ import type { QueryFilters } from "@/components/records/record-filter-target";
 import type { RecordField, RecordScalar } from "../record-model.schema";
 import type { RecordMutation } from "../record-query.schema";
 import { RecordQuerySchema } from "../record-query.schema";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 vi.mock("@/env", () => ({
   env: {
     APP_MODE: "cloud",
@@ -68,7 +69,10 @@ async function fixture() {
   });
   const admin = createMockUser({ ...seed.user, role: { ...seed.role, permissions: [] } });
   const repo = createTestRecordRepo();
-  const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
+  const policy = new RecordAccessPolicy(
+    new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+    repo,
+  );
   const mutate = new MutateRecordInteractor(
     repo,
     policy,

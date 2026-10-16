@@ -8,6 +8,7 @@ import type { TenantUser } from "@/features/user/user.schema";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { interactorFailureStatus } from "@/core/validation/validation.utils";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 vi.mock("@/env", () => ({
   env: {
@@ -43,7 +44,10 @@ describeDatabase("Calculation preview", { timeout: 240_000 }, () => {
   const id = (key: string) => presetId(companyId, key);
   const actors: Record<"admin" | "schema" | "reader", TenantUser> = {} as never;
   const repo = createTestRecordRepo();
-  const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
+  const policy = new RecordAccessPolicy(
+    new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+    repo,
+  );
   const calculations = new RecordCalculationService(repo);
   const preview = new PreviewCalculationInteractor(repo, policy, calculations);
   const mutate = new MutateRecordInteractor(

@@ -6,6 +6,7 @@ import type { GetRolesRepo } from "@/features/role/get-roles.repo";
 import type { DeleteRoleRepo } from "./delete-role.repo";
 import type { UpdateUserRoleRepo } from "@/features/user/upsert/update-user-role.repo";
 import type { FindRolesByIdsRepo } from "./find-roles-by-ids.repo";
+import type { BillingUsageRepo } from "@/features/billing-usage/billing-usage.repo";
 
 import { Action, Resource } from "@/generated/prisma";
 
@@ -21,7 +22,6 @@ import {
 } from "@/features/role/resource-access";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
-import { BillingUsageLedger } from "@/features/billing-usage/billing-usage-ledger";
 
 function roleDto<T extends { recordTypeGrants: Array<{ typeId: string; actions: Action[] }> }>(role: T) {
   const { recordTypeGrants, ...rest } = role;
@@ -45,7 +45,9 @@ export class PrismaRoleRepo
     RecordRoleRepo,
     RegisterUserRoleRepo
 {
-  private readonly billingUsage = new BillingUsageLedger();
+  constructor(private readonly billingUsage: BillingUsageRepo) {
+    super();
+  }
 
   async createAdminRole(companyId: string) {
     const role = await this.prisma.userRole.create({

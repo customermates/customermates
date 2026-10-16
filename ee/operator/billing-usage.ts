@@ -1,15 +1,12 @@
 import type {
   BillingUsageChannelDto,
-  BillingUsageCoverage,
+  BillingUsageCoverageDto,
   BillingUsageSeatDto,
   WorkspaceBillingUsageDto,
 } from "./billing-usage.schema";
 
 import { BILLING_USAGE_MONTH_PATTERN } from "./billing-usage.schema";
-
-function compareOrdinal(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
-}
+import { operatorCollator } from "./operator-list-filters";
 
 export type BillingUsageIntervalRow = {
   kind: "seat" | "channel";
@@ -85,10 +82,14 @@ export function workspaceExistsIn(
 }
 
 function byStart(a: BillingUsageIntervalRow, b: BillingUsageIntervalRow): number {
-  return a.startedAt.getTime() - b.startedAt.getTime() || compareOrdinal(a.subjectId, b.subjectId);
+  return a.startedAt.getTime() - b.startedAt.getTime() || operatorCollator().compare(a.subjectId, b.subjectId);
 }
 
-function coverage(recordedFrom: Date | null, window: BillingUsageWindow, inexactTimes: boolean): BillingUsageCoverage {
+function coverage(
+  recordedFrom: Date | null,
+  window: BillingUsageWindow,
+  inexactTimes: boolean,
+): BillingUsageCoverageDto {
   const recordedWholeMonth = recordedFrom === null || recordedFrom <= window.from;
 
   return { complete: recordedWholeMonth && !inexactTimes, recordedFrom, inexactTimes };
@@ -126,7 +127,10 @@ export function billedSeats(
     });
   }
 
-  return seats.sort((a, b) => compareOrdinal(a.email ?? "", b.email ?? "") || compareOrdinal(a.userId, b.userId));
+  return seats.sort(
+    (a, b) =>
+      operatorCollator().compare(a.email ?? "", b.email ?? "") || operatorCollator().compare(a.userId, b.userId),
+  );
 }
 
 export function peakChannels(

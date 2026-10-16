@@ -12,5 +12,8 @@ export async function GET(req: Request) {
   if (env.APP_MODE === "demo") return Response.json({ skipped: "demo-mode" });
   if (env.VERCEL_ENV === "preview") return Response.json({ skipped: "preview-environment" });
 
-  return Response.json(await getReconcileBillingUsageInteractor().invoke());
+  return Response.json({
+    ok: true,
+    ...(await getReconcileBillingUsageInteractor().invoke()),
+  });
 }

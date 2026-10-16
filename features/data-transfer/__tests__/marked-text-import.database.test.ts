@@ -7,6 +7,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 vi.mock("@/env", () => ({
   env: {
@@ -94,7 +95,10 @@ describeDatabase("import of exported records with marked Formatted text", () => 
     admin = createMockUser({ ...seed.user, role: { ...seed.role, permissions: [] } });
     id = (key: string) => presetId(companyId, key);
     const repo = createTestRecordRepo();
-    const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
+    const policy = new RecordAccessPolicy(
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+      repo,
+    );
     const writer = new RecordWriteService(repo, policy, new RecordCalculationService(repo));
     importer = new ImportRecordsInteractor(repo, policy, writer);
     exporter = new ExportRecordsInteractor(

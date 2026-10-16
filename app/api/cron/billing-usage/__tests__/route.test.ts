@@ -1,49 +1,52 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const reconcile = vi.hoisted(() => vi.fn());
+const invoke = vi.hoisted(() => vi.fn());
 const mockEnv = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "demo",
-  CRON_SECRET: "test-cron-secret",
-  VERCEL_ENV: "production" as "preview" | "production",
+  CRON_SECRET: "test-cron-secret" as string | undefined,
+  VERCEL_ENV: "production" as "production" | "preview",
 }));
-
 vi.mock("@/env", () => ({ env: mockEnv }));
-vi.mock("@/core/di", () => ({ getReconcileBillingUsageInteractor: () => ({ invoke: reconcile }) }));
+vi.mock("@/core/di", () => ({ getReconcileBillingUsageInteractor: () => ({ invoke }) }));
 
 import { GET } from "../route";
 
 function request(authorization?: string) {
-  return new Request("https://customermates.com/api/cron/billing-usage", {
+  return new Request("http://127.0.0.1/api/cron/billing-usage", {
     headers: authorization ? { authorization } : {},
   });
 }
 
-beforeEach(() => {
-  reconcile.mockReset().mockResolvedValue({ workspaces: 2, closed: 0, failed: 0 });
-  mockEnv.APP_MODE = "cloud";
-  mockEnv.VERCEL_ENV = "production";
-});
-
 describe("billing usage cron", () => {
-  it("refuses a request without the cron secret", async () => {
-    const response = await GET(request("Bearer wrong"));
-
-    expect(response.status).toBe(401);
-    expect(reconcile).not.toHaveBeenCalled();
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockEnv.APP_MODE = "cloud";
+    mockEnv.CRON_SECRET = "test-cron-secret";
+    mockEnv.VERCEL_ENV = "production";
+    invoke.mockResolvedValue({ dispatched: 2 });
   });
 
-  it("skips preview deployments", async () => {
+  it("requires the configured cron secret", async () => {
+    expect((await GET(request())).status).toBe(401);
+    expect((await GET(request("Bearer wrong"))).status).toBe(401);
+    mockEnv.CRON_SECRET = undefined;
+    expect((await GET(request("Bearer undefined"))).status).toBe(401);
+    expect(invoke).not.toHaveBeenCalled();
+  });
+
+  it("skips demo and preview environments", async () => {
+    mockEnv.APP_MODE = "demo";
+    await expect((await GET(request("Bearer test-cron-secret"))).json()).resolves.toEqual({ skipped: "demo-mode" });
+    mockEnv.APP_MODE = "cloud";
     mockEnv.VERCEL_ENV = "preview";
-
-    expect(await (await GET(request("Bearer test-cron-secret"))).json()).toEqual({ skipped: "preview-environment" });
-    expect(reconcile).not.toHaveBeenCalled();
+    await expect((await GET(request("Bearer test-cron-secret"))).json()).resolves.toEqual({
+      skipped: "preview-environment",
+    });
+    expect(invoke).not.toHaveBeenCalled();
   });
 
-  it("reconciles the billing usage ledger on its own schedule", async () => {
-    const response = await GET(request("Bearer test-cron-secret"));
-
-    expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ workspaces: 2, closed: 0, failed: 0 });
-    expect(reconcile).toHaveBeenCalledOnce();
+  it("starts the workspace reconciliations only after authorization", async () => {
+    await expect((await GET(request("Bearer test-cron-secret"))).json()).resolves.toEqual({ ok: true, dispatched: 2 });
+    expect(invoke).toHaveBeenCalledTimes(1);
   });
 });

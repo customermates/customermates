@@ -1,12 +1,12 @@
 "use client";
 
-import type { BillingUsageCoverage } from "@/ee/operator/billing-usage.schema";
+import type { BillingUsageCoverageDto } from "@/ee/operator/billing-usage.schema";
 
 import { useTranslations } from "next-intl";
 
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
-type Props = { coverage: BillingUsageCoverage; kind: "seats" | "channels"; monthStart: Date };
+type Props = { coverage: BillingUsageCoverageDto; kind: "seats" | "channels"; monthStart: Date };
 
 export function OperatorUsageCoverageNote({ coverage, kind, monthStart }: Props) {
   const t = useTranslations();
@@ -29,7 +29,9 @@ export function OperatorUsageCoverageNote({ coverage, kind, monthStart }: Props)
 
       {coverage.inexactTimes ? (
         <span>
-          {kind === "seats" ? t("OperatorUsage.coverage.seatsInexactTimes") : t("OperatorUsage.coverage.inexactTimes")}
+          {kind === "seats"
+            ? t("OperatorUsage.coverage.seatsInexactTimes")
+            : t("OperatorUsage.coverage.channelsInexactTimes")}
         </span>
       ) : null}
     </div>

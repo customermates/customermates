@@ -23,8 +23,11 @@ const CATALOG_LOCALES = CONTENT_LOCALES;
 const REQUIRED_ANNOTATIONS = ["readOnlyHint", "idempotentHint", "destructiveHint", "openWorldHint"];
 
 let activeTools: typeof import("@/features/mcp-tools/tool-registry").ALL_MCP_TOOLS;
+let operatorTools: typeof import("@/features/mcp-tools/tool-registry").MCP_OPERATOR_TOOLS;
 beforeAll(async () => {
-  activeTools = (await import("@/features/mcp-tools/tool-registry")).ALL_MCP_TOOLS;
+  ({ ALL_MCP_TOOLS: activeTools, MCP_OPERATOR_TOOLS: operatorTools } = await import(
+    "@/features/mcp-tools/tool-registry"
+  ));
 }, 120_000);
 
 function registeredToolNames(): Set<string> {
@@ -88,9 +91,9 @@ describe("MCP catalog generation", () => {
 });
 
 describe("MCP tool description quality", () => {
-  let registry: typeof import("@/features/mcp-tools/tool-registry").ALL_MCP_TOOLS;
+  let registry: typeof import("@/features/mcp-tools/tool-registry").ALL_MCP_TOOLS_WITH_OPERATOR;
   beforeAll(async () => {
-    registry = (await import("@/features/mcp-tools/tool-registry")).ALL_MCP_TOOLS;
+    registry = (await import("@/features/mcp-tools/tool-registry")).ALL_MCP_TOOLS_WITH_OPERATOR;
   }, 120_000);
   const loadRegistry = async () => registry;
   const CONNECTOR_MINIMUM_TOOLS = new Set(["search", "fetch"]);
@@ -191,7 +194,7 @@ describe("MCP tool description quality", () => {
 describe("MCP tool catalog fidelity", () => {
   it("registers each active tool once with complete metadata", () => {
     expect(registeredToolNames().size).toBe(activeTools.length);
-    for (const tool of activeTools) {
+    for (const tool of [...activeTools, ...operatorTools]) {
       expect(tool.name).toMatch(/^[a-z][a-z0-9_]+$/);
       expect(tool.title?.trim()).toBeTruthy();
       for (const annotation of REQUIRED_ANNOTATIONS)

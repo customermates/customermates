@@ -1,33 +1,28 @@
+import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { ReconcileBillingUsageRepo } from "./reconcile-billing-usage.repo";
-
-import * as Sentry from "@sentry/nextjs";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 
+const BILLING_USAGE_WORKSPACE_PAGE = 200;
+
 @SystemInteractor
 export class ReconcileBillingUsageInteractor {
-  constructor(private readonly repo: ReconcileBillingUsageRepo) {}
+  constructor(
+    private repo: ReconcileBillingUsageRepo,
+    private background: Pick<BackgroundTaskService, "dispatch">,
+  ) {}
 
-  async invoke(): Promise<{ workspaces: number; closed: number; failed: number }> {
-    let failed = 0;
-    const attempt = async (companyId: string, run: () => Promise<unknown>) => {
-      try {
-        return (await run()) !== false;
-      } catch (error) {
-        failed += 1;
-        Sentry.captureException(error, { tags: { kind: "billing-usage-reconcile" }, extra: { companyId } });
-        return false;
+  async invoke(): Promise<{ dispatched: number }> {
+    let dispatched = 0;
+    let after: string | null = null;
+    for (;;) {
+      const companies = await this.repo.findRecordedWorkspacesUnscoped(after, BILLING_USAGE_WORKSPACE_PAGE);
+      for (const companyId of companies) {
+        await this.background.dispatch("reconcile-billing-usage", { companyId });
+        dispatched += 1;
       }
-    };
-
-    const companyIds = await this.repo.listCompanyIdsUnscoped();
-    for (const companyId of companyIds) await attempt(companyId, () => this.repo.reconcileCompanyUnscoped(companyId));
-
-    const missing = await this.repo.listRecordedWorkspacesWithoutCompanyUnscoped();
-    let closed = 0;
-    for (const companyId of missing)
-      if (await attempt(companyId, () => this.repo.closeMissingWorkspaceUnscoped(companyId))) closed += 1;
-
-    return { workspaces: companyIds.length, closed, failed };
+      if (companies.length < BILLING_USAGE_WORKSPACE_PAGE) return { dispatched };
+      after = companies.at(-1) ?? null;
+    }
   }
 }

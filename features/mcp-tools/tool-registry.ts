@@ -118,6 +118,8 @@ export const MCP_OPERATOR_TOOLS: McpTool[] = [getOperatorUsageTool];
 
 export const ALL_MCP_TOOLS = [...Object.values(MCP_TOOL_GROUPS).flat(), ...MCP_ALWAYS_ON_TOOLS];
 
+export const ALL_MCP_TOOLS_WITH_OPERATOR = [...ALL_MCP_TOOLS, ...MCP_OPERATOR_TOOLS];
+
 export function countMcpTools(tools: readonly Pick<McpTool, "name">[] = ALL_MCP_TOOLS): number {
   const names = tools.map((tool) => tool.name);
   const duplicateNames = names.filter((name, index) => names.indexOf(name) !== index);
