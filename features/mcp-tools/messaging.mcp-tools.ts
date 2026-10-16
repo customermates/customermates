@@ -534,7 +534,7 @@ export const sendChatMessageTool = {
         (data) =>
           data.repeated
             ? `${REPEATED_NOTE}${data.threadId ? `; thread ${data.threadId}` : ""}`
-            : `Message sent in thread ${data.threadId ?? threadId}; ${ACCEPTED_NOTE}`,
+            : `${data.threadId ? `Message sent in thread ${data.threadId}` : "Message sent"}; ${ACCEPTED_NOTE}`,
         (data) => ({ sent: true, threadId: data.threadId, messageId: data.messageId, repeated: data.repeated }),
       );
     }

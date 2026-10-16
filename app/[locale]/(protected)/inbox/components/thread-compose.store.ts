@@ -81,7 +81,11 @@ const DRAFT_REFUSALS = new Set<string>([
   CustomErrorCode.draftTargetMismatch,
 ]);
 
-const DRAFT_BINDING_LOST = new Set<string>([CustomErrorCode.draftMessageNotFound, CustomErrorCode.draftTargetMismatch]);
+const DRAFT_BINDING_LOST = new Set<string>([
+  CustomErrorCode.draftMessageNotFound,
+  CustomErrorCode.draftTargetMismatch,
+  CustomErrorCode.draftAlreadySent,
+]);
 
 function isDraftRefusal(code: string | undefined): code is CustomErrorCode {
   return Boolean(code && DRAFT_REFUSALS.has(code));
@@ -626,7 +630,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       return false;
     }
     const keepBinding = !DRAFT_BINDING_LOST.has(args.code);
-    if (args.target) this.newThreadTarget = args.target;
+    if (args.target) this.newThreadTarget = keepBinding ? args.target : { ...args.target, draftThreadId: undefined };
     this.form.body = args.snapshot.body;
     this.form.subject = args.snapshot.subject;
     this.form.recipients = args.snapshot.recipients;
@@ -972,21 +976,26 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
         sameValues(this.form.cc, snapshot.cc) &&
         sameValues(this.form.bcc, snapshot.bcc);
       runInAction(() => {
+        if (!draftUnchanged) {
+          detail.removeMessageById(draft.id);
+          this.editingDraftId = draft.id;
+          this.editingDraftRevision = draft.draftRevision;
+          if (target && !threadId) this.newThreadTarget = { ...target, draftThreadId: draft.messagingThreadId };
+          return;
+        }
         if (draftThreadId) {
           if (detail.messages.some((message) => message.id === draft.id)) detail.replaceMessageById(draft.id, draft);
           else detail.appendMessage(draft);
         }
-        if (draftUnchanged) {
-          this.form.body = "";
-          if (!threadId) this.form.subject = "";
-          this.form.cc = [];
-          this.form.bcc = [];
-          this.draftAttachments = [...this.attachments];
-          this.attachments = [];
-          this.editingDraftId = null;
-          this.editingDraftRevision = null;
-          this.onInitOrRefresh(this.form);
-        }
+        this.form.body = "";
+        if (!threadId) this.form.subject = "";
+        this.form.cc = [];
+        this.form.bcc = [];
+        this.draftAttachments = [...this.attachments];
+        this.attachments = [];
+        this.editingDraftId = null;
+        this.editingDraftRevision = null;
+        this.onInitOrRefresh(this.form);
       });
 
       if (!threadId) {

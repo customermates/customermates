@@ -39,6 +39,7 @@ import { EMPTY_ATTENDEE, buildChatAttendee } from "../unipile.mappers";
 import { UnipileInboxSchema } from "../unipile.schema";
 import { SendAttachmentSchema } from "./send-email.interactor";
 import {
+  chatSendContentHash,
   completeDraftSendQuietly,
   gateMissingDraft,
   openDraftSend,
@@ -157,12 +158,16 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
       data.draftMessageId && data.draftRevision
         ? await this.threadRepo.findDraftById({ messageId: data.draftMessageId })
         : null;
+    const contentHash = data.draftMessageId
+      ? chatSendContentHash({ text: data.text, attachments: data.attachments })
+      : "";
     if (data.draftMessageId && data.draftRevision) {
       if (!draft) {
         const missing = await gateMissingDraft(this.threadRepo, {
           draftMessageId: data.draftMessageId,
           draftRevision: draftUpdatedAtFromRevision(data.draftRevision),
           connectedAccountId: account.id,
+          contentHash,
         });
         if ("failure" in missing) return missing.failure;
         return {
@@ -187,6 +192,7 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
         draftMessageId: draft.id,
         draftRevision: draftUpdatedAtFromRevision(data.draftRevision),
         connectedAccountId: account.id,
+        contentHash,
       });
       if ("replay" in gate) {
         return {

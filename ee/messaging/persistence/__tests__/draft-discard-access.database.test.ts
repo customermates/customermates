@@ -122,7 +122,12 @@ describeDatabase("draft discard access on PostgreSQL", () => {
 
     const repo = createTestMessagingRepo();
     const claim = await runWithTenant(colleague, () =>
-      repo.beginDraftSend({ draftMessageId: draftId, draftRevision: revision, connectedAccountId: accountId }),
+      repo.beginDraftSend({
+        draftMessageId: draftId,
+        draftRevision: revision,
+        connectedAccountId: accountId,
+        contentHash: "teammate-send",
+      }),
     );
     if (claim.status !== "claimed") throw new Error(`Expected a claim, got ${claim.status}`);
     await runWithTenant(colleague, () =>

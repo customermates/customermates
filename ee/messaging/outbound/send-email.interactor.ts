@@ -37,9 +37,11 @@ import { UnipileEmailSchema } from "../unipile.schema";
 import { SentMessageResultSchema, sentMessageResult, type SentMessageResult } from "./sent-message-result";
 import {
   completeDraftSendQuietly,
+  emailSendContentHash,
   gateMissingDraft,
   openDraftSend,
   recordDraftSendQuietly,
+  releaseDraftSendOnFailure,
   releaseDraftSendQuietly,
   settleDraftSendQuietly,
 } from "./draft-send-gate";
@@ -157,13 +159,23 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
     let thread: MessagingThread | null = null;
     let draftThreadId: string | null = null;
     let inReplyTo: string | undefined;
+    const contentHash = data.draftMessageId
+      ? emailSendContentHash({
+          to: data.to.map((recipient) => recipient.identifier),
+          cc: data.cc,
+          bcc: data.bcc,
+          subject: data.subject,
+          body: data.body,
+          attachments: data.attachments,
+        })
+      : "";
 
     if (data.threadId) {
       const found = data.draftMessageId
         ? await this.repo.findThreadById(data.threadId)
         : await this.repo.findThreadByIdOrThrow(data.threadId);
       if (!found && data.draftMessageId && data.draftRevision) {
-        const settled = await this.settledDraftConversation(data.draftMessageId, data.draftRevision);
+        const settled = await this.settledDraftConversation(data.draftMessageId, data.draftRevision, contentHash);
         if (settled) return settled;
       }
       const target = found ?? (await this.repo.findThreadByIdOrThrow(data.threadId));
@@ -195,6 +207,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
           draftMessageId: data.draftMessageId,
           draftRevision: revision,
           connectedAccountId: account.id,
+          contentHash,
         });
         return "replay" in missing ? this.replay(missing.replay, account, thread?.id ?? null) : missing.failure;
       }
@@ -226,20 +239,23 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
         draftMessageId: draft.id,
         draftRevision: draftUpdatedAtFromRevision(data.draftRevision),
         connectedAccountId: account.id,
+        contentHash,
       });
       if ("replay" in gate) return this.replay(gate.replay, account, thread?.id ?? null);
       if ("failure" in gate) return gate.failure;
       claim = gate.claim;
     }
 
+    const duplicateThreadId = thread && outgoingBody.trim() ? thread.id : null;
     if (
-      thread &&
-      outgoingBody.trim() &&
-      (await this.repo.findRecentOutboundDuplicate({
-        messagingThreadId: thread.id,
-        bodyText: outgoingBody,
-        windowMs: DUPLICATE_OUTBOUND_WINDOW_MS,
-      }))
+      duplicateThreadId &&
+      (await releaseDraftSendOnFailure(this.repo, claim, () =>
+        this.repo.findRecentOutboundDuplicate({
+          messagingThreadId: duplicateThreadId,
+          bodyText: outgoingBody,
+          windowMs: DUPLICATE_OUTBOUND_WINDOW_MS,
+        }),
+      ))
     ) {
       if (claim) await releaseDraftSendQuietly(this.repo, claim);
       return failConflict(CustomErrorCode.duplicateOutboundSuppressed);
@@ -401,6 +417,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
   private async settledDraftConversation(
     draftMessageId: string,
     draftRevision: string,
+    contentHash: string,
   ): Promise<Awaited<Validated<SentMessageResult>> | null> {
     const record = await this.repo.findDraftSend({ draftMessageId });
     if (!record) return null;
@@ -409,6 +426,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
       draftMessageId,
       draftRevision: draftUpdatedAtFromRevision(draftRevision),
       connectedAccountId: account.id,
+      contentHash,
     });
     return "replay" in missing ? this.replay(missing.replay, account, null) : missing.failure;
   }

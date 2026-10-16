@@ -7,6 +7,7 @@ export abstract class DraftSendRepo {
     draftMessageId: string;
     draftRevision: Date;
     connectedAccountId: string;
+    contentHash: string;
   }): Promise<DraftSendStart>;
   abstract settleDraftSend(args: {
     claim: DraftSendClaim;

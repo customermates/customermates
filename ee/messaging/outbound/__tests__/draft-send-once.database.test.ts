@@ -19,6 +19,7 @@ import { createTestMessagingRepo } from "@/tests/helpers/messaging-repository";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { PrismaConnectedAccountRepo } from "../../persistence/prisma-connected-account.repository";
 import { PrismaUnipileWebhookRepo } from "../../persistence/prisma-unipile-webhook.repository";
+import { DiscardDraftInteractor } from "../discard-draft.interactor";
 import { SaveDraftInteractor, type SaveDraftData } from "../save-draft.interactor";
 import { SendChatMessageInteractor, type SendChatMessageData } from "../send-chat-message.interactor";
 import { SendEmailInteractor, type SendEmailData } from "../send-email.interactor";
@@ -342,12 +343,69 @@ describeDatabase("sending a saved draft revision at most once", () => {
     expect(provider.sendEmail).toHaveBeenCalledOnce();
   });
 
-  it("refuses another version of a draft whose earlier version was already sent", async () => {
+  it("does not send again after an unknown outcome when only the revision changed, not the content", async () => {
+    const { draft, input } = await newEmail("unchanged-resave");
+    const provider = emailProvider(["unknown"]);
+    await sendEmail(input, provider);
+
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    const resaved = await save({
+      threadId: draft.threadId,
+      subject: "unchanged-resave subject",
+      body: "unchanged-resave body",
+    });
+    const again = await sendEmail({ ...input, draftRevision: resaved.revision }, provider);
+
+    expect(resaved.id).toBe(draft.id);
+    expect(resaved.revision).not.toBe(draft.revision);
+    expect(failureCode(again)).toBe(CustomErrorCode.draftSendOutcomeUnknown);
+    expect(provider.sendEmail).toHaveBeenCalledOnce();
+    expect(await claimRow(draft.id)).toMatchObject({ state: "unknown" });
+  });
+
+  it("refuses a repeated send of an accepted revision whose text changed, and sends nothing", async () => {
+    const { draft, input } = await newEmail("repeat-edited");
+    const provider = emailProvider();
+
+    const first = sentData(await sendEmail(input, provider));
+    const edited = await sendEmail({ ...input, body: "repeat-edited body, changed" }, provider);
+
+    expect(first.repeated).toBe(false);
+    expect(failureCode(edited)).toBe(CustomErrorCode.draftAlreadySent);
+    expect(provider.sendEmail).toHaveBeenCalledOnce();
+    expect(await claimRow(draft.id)).toMatchObject({ state: "sent" });
+  });
+
+  it("refuses to discard a draft while its send is running", async () => {
+    const { draft, input } = await newEmail("discard-in-flight");
+    const provider = emailProvider();
+    const release = deferred();
+    provider.gate.wait = release.promise;
+
+    const sending = sendEmail(input, provider);
+    await vi.waitFor(() => expect(provider.sendEmail).toHaveBeenCalledOnce());
+    const discard = await runWithTenant(tenant, () =>
+      new DiscardDraftInteractor(createTestMessagingRepo(), mockEntitlementService()).invoke({
+        messageId: draft.id,
+        draftRevision: draft.revision,
+      }),
+    );
+    release.resolve();
+    const sent = sentData(await sending);
+
+    expect(failureCode(discard)).toBe(CustomErrorCode.draftSendInProgress);
+    expect(sent.repeated).toBe(false);
+    expect(await draftRow(draft.id)).toBeNull();
+    expect(provider.sendEmail).toHaveBeenCalledOnce();
+  });
+
+  it("starts a new draft when the leftover of an already sent draft is saved again, and sends that once", async () => {
     const { draft, input } = await newEmail("sent-then-edited");
     const provider = emailProvider();
     const failing = createTestMessagingRepo();
     failing.completeDraftSendRemovingDraft = () => Promise.reject(new Error("database unavailable"));
     expect(sentData(await sendEmail(input, provider, failing)).repeated).toBe(false);
+    expect(await draftRow(draft.id)).toEqual({ isDraft: true, bodyText: "sent-then-edited body" });
 
     await new Promise((resolve) => setTimeout(resolve, 5));
     const edited = await save({
@@ -355,14 +413,20 @@ describeDatabase("sending a saved draft revision at most once", () => {
       subject: "sent-then-edited subject",
       body: "edited after the send",
     });
-    const second = await sendEmail(
-      { ...input, body: "edited after the send", draftRevision: edited.revision },
-      provider,
+    const staleBinding = await sendEmail({ ...input, body: "edited after the send" }, provider);
+    const second = sentData(
+      await sendEmail(
+        { ...input, body: "edited after the send", draftMessageId: edited.id, draftRevision: edited.revision },
+        provider,
+      ),
     );
 
-    expect(edited.id).toBe(draft.id);
-    expect(failureCode(second)).toBe(CustomErrorCode.draftAlreadySent);
-    expect(provider.sendEmail).toHaveBeenCalledOnce();
+    expect(edited.id).not.toBe(draft.id);
+    expect(await draftRow(draft.id)).toBeNull();
+    expect(failureCode(staleBinding)).toBe(CustomErrorCode.draftAlreadySent);
+    expect(second.repeated).toBe(false);
+    expect(provider.sendEmail).toHaveBeenCalledTimes(2);
+    expect(await draftRow(edited.id)).toBeNull();
   });
 
   it("replays the first result when another send finishes the draft between its check and its claim", async () => {

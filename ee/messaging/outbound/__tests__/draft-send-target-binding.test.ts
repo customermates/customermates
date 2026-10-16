@@ -39,6 +39,7 @@ import { SaveDraftInteractor } from "../save-draft.interactor";
 import { SendEmailInteractor } from "../send-email.interactor";
 import { StartChatInteractor } from "../start-chat.interactor";
 import { DiscardDraftInteractor } from "../discard-draft.interactor";
+import { chatSendContentHash, emailSendContentHash } from "../draft-send-gate";
 
 const EMAIL_ACCOUNT_ID = "00000000-0000-4000-8000-000000000001";
 const OTHER_ACCOUNT_ID = "00000000-0000-4000-8000-000000000002";
@@ -135,6 +136,7 @@ const coldEmailInput = {
   subject: "Cold email",
   body: "Hello",
 };
+const COLD_EMAIL_CONTENT = emailSendContentHash({ to: [EMAIL_RECIPIENT], subject: "Cold email", body: "Hello" });
 
 function emailRepo(overrides: Record<string, unknown> = {}) {
   return {
@@ -333,6 +335,7 @@ describe("SendEmailInteractor draft target binding", () => {
       draftMessageId: EMAIL_DRAFT_ID,
       draftRevision: DRAFT_UPDATED_AT,
       connectedAccountId: EMAIL_ACCOUNT_ID,
+      contentHash: COLD_EMAIL_CONTENT,
     });
     expect(service.getEmail).toHaveBeenCalledWith({
       accountId: "email-account",
@@ -416,6 +419,7 @@ describe("SendEmailInteractor draft target binding", () => {
       providerMessageId: "provider-email",
       sentMessageId: persistedEmail.id,
       sentThreadId: persistedEmail.messagingThreadId,
+      contentHash: COLD_EMAIL_CONTENT,
       updatedAt: new Date(),
     };
     const repo = emailRepo({
@@ -425,7 +429,11 @@ describe("SendEmailInteractor draft target binding", () => {
     });
     const service = emailService();
 
-    const result: any = await emailInteractor(repo, service).invoke(coldEmailInput);
+    const result: any = await emailInteractor(repo, service).invoke({
+      ...coldEmailInput,
+      to: [{ identifier: "Recipient@Example.com", display_name: "Recipient" }],
+      bodyFormat: "markdown",
+    });
 
     expect(result.ok).toBe(true);
     expect(result.data).toMatchObject({
@@ -434,6 +442,35 @@ describe("SendEmailInteractor draft target binding", () => {
       providerMessageId: "provider-email",
       repeated: true,
     });
+    expect(service.sendEmail).not.toHaveBeenCalled();
+
+    const edited: any = await emailInteractor(repo, service).invoke({ ...coldEmailInput, body: "Hello, edited" });
+
+    expectDraftConflict(edited, CustomErrorCode.draftAlreadySent);
+    expect(service.sendEmail).not.toHaveBeenCalled();
+  });
+
+  it("releases the claim when the duplicate check fails before anything is sent", async () => {
+    const repo = emailRepo({
+      findDraftById: vi.fn().mockResolvedValue({
+        ...emailDraft,
+        messagingThreadId: REPLY_THREAD_ID,
+        unipileThreadId: "email-thread",
+      }),
+      findRecentOutboundDuplicate: vi.fn().mockRejectedValue(new Error("connection pool timeout")),
+    });
+    const service = emailService();
+
+    await expect(
+      emailInteractor(repo, service).invoke({
+        ...coldEmailInput,
+        connectedAccountId: undefined,
+        threadId: REPLY_THREAD_ID,
+      }),
+    ).rejects.toThrow("connection pool timeout");
+
+    expect(repo.beginDraftSend).toHaveBeenCalledOnce();
+    expect(repo.releaseDraftSend).toHaveBeenCalledWith({ claim: CLAIM });
     expect(service.sendEmail).not.toHaveBeenCalled();
   });
 
@@ -693,6 +730,39 @@ describe("StartChatInteractor cold-draft target binding", () => {
   });
 });
 
+describe("draft send content", () => {
+  it("treats the same email as the same content regardless of address case, order and empty groups", () => {
+    const sent = emailSendContentHash({
+      to: ["first@example.com", "Second@Example.com"],
+      subject: "Subject",
+      body: "Body",
+    });
+
+    expect(
+      emailSendContentHash({
+        to: ["second@example.com", "first@example.com"],
+        cc: [],
+        bcc: [],
+        subject: "Subject",
+        body: "Body",
+        attachments: [],
+      }),
+    ).toBe(sent);
+  });
+
+  it("tells edited emails and chat messages apart", () => {
+    const email = { to: ["first@example.com"], subject: "Subject", body: "Body" };
+    const file = { filename: "offer.pdf", content_type: "application/pdf", content: "JVBERi0x" };
+
+    expect(emailSendContentHash({ ...email, body: "Body, edited" })).not.toBe(emailSendContentHash(email));
+    expect(emailSendContentHash({ ...email, bcc: ["hidden@example.com"] })).not.toBe(emailSendContentHash(email));
+    expect(emailSendContentHash({ ...email, attachments: [file] })).not.toBe(emailSendContentHash(email));
+    expect(chatSendContentHash({ text: "Hello", attachments: [file] })).not.toBe(
+      chatSendContentHash({ text: "Hello" }),
+    );
+  });
+});
+
 describe("DiscardDraftInteractor revision binding", () => {
   it("reports a stale revision as a changed draft so optimistic UI removal can roll back", async () => {
     const repo = {
@@ -709,6 +779,17 @@ describe("DiscardDraftInteractor revision binding", () => {
       messageId: EMAIL_DRAFT_ID,
       expectedUpdatedAt: DRAFT_UPDATED_AT,
     });
+  });
+
+  it("refuses to discard a draft while it is being sent", async () => {
+    const repo = { deleteDraft: vi.fn().mockResolvedValue({ status: "send_in_progress" }) };
+
+    const result = await new DiscardDraftInteractor(repo as never, mockEntitlementService()).invoke({
+      messageId: EMAIL_DRAFT_ID,
+      draftRevision: DRAFT_REVISION,
+    });
+
+    expectDraftConflict(result, CustomErrorCode.draftSendInProgress);
   });
 });
 

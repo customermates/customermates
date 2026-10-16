@@ -161,7 +161,12 @@ describeDatabase("draft lifecycle persistence on PostgreSQL", () => {
     sentRevision: Date,
   ) {
     const claim = await runWithTenant(tenant, () =>
-      repo.beginDraftSend({ draftMessageId, draftRevision: sentRevision, connectedAccountId: accountId }),
+      repo.beginDraftSend({
+        draftMessageId,
+        draftRevision: sentRevision,
+        connectedAccountId: accountId,
+        contentHash: "completed-send",
+      }),
     );
     if (claim.status !== "claimed") throw new Error(`Expected a claim, got ${claim.status}`);
     await runWithTenant(tenant, () =>
@@ -945,6 +950,7 @@ describeDatabase("draft lifecycle persistence on PostgreSQL", () => {
         draftMessageId: firstRevision.id,
         draftRevision: firstRevision.updatedAt,
         connectedAccountId: accountId,
+        contentHash: "first-cold-revision",
       }),
     );
     if (claim.status !== "claimed") throw new Error(`Expected a claim, got ${claim.status}`);

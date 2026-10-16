@@ -3,6 +3,7 @@ import type { DraftSendClaim, DraftSendRecord, DraftSendStart } from "../draft-s
 import type { DraftSendRepo } from "./draft-send.repo";
 
 import * as Sentry from "@sentry/node";
+import { createHash } from "node:crypto";
 
 import { failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -11,6 +12,51 @@ import { decideMissingDraftSend } from "../draft-send";
 type DraftSendRefusal = Exclude<DraftSendStart["status"], "claimed" | "replay">;
 
 export type DraftSendGate = { claim: DraftSendClaim } | { replay: DraftSendRecord } | { failure: InteractorFailure };
+
+type DraftSendTarget = { draftMessageId: string; draftRevision: Date; connectedAccountId: string; contentHash: string };
+
+type SentAttachment = { filename: string; content_type: string; content: string };
+
+function digest(value: string): string {
+  return createHash("sha256").update(value).digest("hex");
+}
+
+function attachmentDigests(attachments: readonly SentAttachment[] | undefined) {
+  return (attachments ?? []).map((attachment) => [
+    attachment.filename,
+    attachment.content_type,
+    digest(attachment.content),
+  ]);
+}
+
+function addressList(values: readonly string[] | undefined): string[] {
+  return (values ?? []).map((value) => value.trim().toLowerCase()).sort();
+}
+
+export function emailSendContentHash(content: {
+  to: readonly string[];
+  cc?: readonly string[];
+  bcc?: readonly string[];
+  subject: string;
+  body: string;
+  attachments?: readonly SentAttachment[];
+}): string {
+  return digest(
+    JSON.stringify([
+      "email",
+      addressList(content.to),
+      addressList(content.cc),
+      addressList(content.bcc),
+      content.subject,
+      content.body,
+      attachmentDigests(content.attachments),
+    ]),
+  );
+}
+
+export function chatSendContentHash(content: { text: string; attachments?: readonly SentAttachment[] }): string {
+  return digest(JSON.stringify(["chat", content.text, attachmentDigests(content.attachments)]));
+}
 
 export function refuseDraftSend(status: DraftSendRefusal): Promise<InteractorFailure> {
   switch (status) {
@@ -27,10 +73,7 @@ export function refuseDraftSend(status: DraftSendRefusal): Promise<InteractorFai
   }
 }
 
-export async function openDraftSend(
-  repo: DraftSendRepo,
-  args: { draftMessageId: string; draftRevision: Date; connectedAccountId: string },
-): Promise<DraftSendGate> {
+export async function openDraftSend(repo: DraftSendRepo, args: DraftSendTarget): Promise<DraftSendGate> {
   const start = await repo.beginDraftSend(args);
   if (start.status === "claimed") return { claim: start.claim };
   if (start.status === "replay") return { replay: start.record };
@@ -39,12 +82,12 @@ export async function openDraftSend(
 
 export async function gateMissingDraft(
   repo: DraftSendRepo,
-  args: { draftMessageId: string; draftRevision: Date; connectedAccountId: string },
+  args: DraftSendTarget,
 ): Promise<{ replay: DraftSendRecord } | { failure: InteractorFailure }> {
   const record = await repo.findDraftSend({ draftMessageId: args.draftMessageId });
   if (record && record.connectedAccountId !== args.connectedAccountId)
     return { failure: await failConflict(CustomErrorCode.draftTargetMismatch) };
-  const decision = decideMissingDraftSend(record, args.draftRevision);
+  const decision = decideMissingDraftSend(record, args.draftRevision, args.contentHash);
   if (decision === "replay" && record) return { replay: record };
   return { failure: await refuseDraftSend(decision === "replay" ? "not_found" : decision) };
 }
@@ -70,6 +113,19 @@ export async function releaseDraftSendQuietly(repo: DraftSendRepo, claim: DraftS
     await repo.releaseDraftSend({ claim });
   } catch (err) {
     Sentry.captureException(err, { tags: { kind: "draft-send-release-failure" } });
+  }
+}
+
+export async function releaseDraftSendOnFailure<T>(
+  repo: DraftSendRepo,
+  claim: DraftSendClaim | null,
+  step: () => Promise<T>,
+): Promise<T> {
+  try {
+    return await step();
+  } catch (err) {
+    if (claim) await releaseDraftSendQuietly(repo, claim);
+    throw err;
   }
 }
 

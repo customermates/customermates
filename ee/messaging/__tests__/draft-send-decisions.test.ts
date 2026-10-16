@@ -17,6 +17,8 @@ import { draftBindingConflict, type DraftThreadTarget } from "../draft-thread";
 const NOW = new Date("2026-10-16T10:00:00.000Z");
 const REVISION = new Date("2026-10-16T09:59:00.000Z");
 const OTHER_REVISION = new Date("2026-10-16T09:59:30.000Z");
+const CONTENT = "content-sent-first";
+const OTHER_CONTENT = "content-edited-later";
 
 function record(state: DraftSendState, overrides: Partial<DraftSendRecord> = {}): DraftSendRecord {
   return {
@@ -29,6 +31,7 @@ function record(state: DraftSendState, overrides: Partial<DraftSendRecord> = {})
     providerMessageId: null,
     sentMessageId: null,
     sentThreadId: null,
+    contentHash: CONTENT,
     updatedAt: NOW,
     ...overrides,
   };
@@ -53,30 +56,65 @@ describe("effectiveDraftSendState", () => {
 
 describe("decideDraftSend", () => {
   it.each([
-    ["no earlier send", null, REVISION, "claim"],
-    ["a running send of this revision", record("sending"), REVISION, "in_progress"],
-    ["a running send of another revision", record("sending"), OTHER_REVISION, "in_progress"],
-    ["an accepted send of this revision", record("sent"), REVISION, "replay"],
-    ["an accepted send of another revision", record("sent"), OTHER_REVISION, "already_sent"],
-    ["an unknown outcome of this revision", record("unknown"), REVISION, "outcome_unknown"],
-    ["an unknown outcome of an older revision", record("unknown"), OTHER_REVISION, "take_over"],
-    ["a send that never finished, same revision", record("sending", stale), REVISION, "outcome_unknown"],
-    ["a send that never finished, newer revision", record("sending", stale), OTHER_REVISION, "take_over"],
-  ] as const)("answers %s with %s", (_label, existing, revision, decision) => {
-    expect(decideDraftSend(existing, revision, NOW)).toBe(decision);
+    ["no earlier send", null, REVISION, CONTENT, "claim"],
+    ["a running send of this revision", record("sending"), REVISION, CONTENT, "in_progress"],
+    ["a running send of another revision", record("sending"), OTHER_REVISION, OTHER_CONTENT, "in_progress"],
+    ["an accepted send of this revision and content", record("sent"), REVISION, CONTENT, "replay"],
+    ["an accepted send of this revision with other content", record("sent"), REVISION, OTHER_CONTENT, "already_sent"],
+    ["an accepted send of another revision", record("sent"), OTHER_REVISION, OTHER_CONTENT, "already_sent"],
+    ["an unknown outcome of this revision", record("unknown"), REVISION, CONTENT, "outcome_unknown"],
+    [
+      "an unknown outcome of this revision with other content",
+      record("unknown"),
+      REVISION,
+      OTHER_CONTENT,
+      "outcome_unknown",
+    ],
+    [
+      "an unknown outcome, then an edited newer revision",
+      record("unknown"),
+      OTHER_REVISION,
+      OTHER_CONTENT,
+      "take_over",
+    ],
+    [
+      "an unknown outcome, then a newer revision with the same content",
+      record("unknown"),
+      OTHER_REVISION,
+      CONTENT,
+      "outcome_unknown",
+    ],
+    ["a send that never finished, same revision", record("sending", stale), REVISION, CONTENT, "outcome_unknown"],
+    [
+      "a send that never finished, edited newer revision",
+      record("sending", stale),
+      OTHER_REVISION,
+      OTHER_CONTENT,
+      "take_over",
+    ],
+    [
+      "a send that never finished, newer revision with the same content",
+      record("sending", stale),
+      OTHER_REVISION,
+      CONTENT,
+      "outcome_unknown",
+    ],
+  ] as const)("answers %s with %s", (_label, existing, revision, content, decision) => {
+    expect(decideDraftSend(existing, revision, content, NOW)).toBe(decision);
   });
 });
 
 describe("decideMissingDraftSend", () => {
   it.each([
-    ["a draft that was never sent", null, REVISION, "not_found"],
-    ["a draft still being sent", record("sending"), REVISION, "in_progress"],
-    ["a draft sent with this revision", record("sent"), REVISION, "replay"],
-    ["a draft sent with another revision", record("sent"), OTHER_REVISION, "already_sent"],
-    ["a draft whose send could not be confirmed", record("unknown"), REVISION, "outcome_unknown"],
-    ["an unconfirmed send of another revision", record("unknown"), OTHER_REVISION, "not_found"],
-  ] as const)("answers %s with %s", (_label, existing, revision, decision) => {
-    expect(decideMissingDraftSend(existing, revision, NOW)).toBe(decision);
+    ["a draft that was never sent", null, REVISION, CONTENT, "not_found"],
+    ["a draft still being sent", record("sending"), REVISION, CONTENT, "in_progress"],
+    ["a draft sent with this revision and content", record("sent"), REVISION, CONTENT, "replay"],
+    ["a draft sent with this revision but other content", record("sent"), REVISION, OTHER_CONTENT, "already_sent"],
+    ["a draft sent with another revision", record("sent"), OTHER_REVISION, CONTENT, "already_sent"],
+    ["a draft whose send could not be confirmed", record("unknown"), REVISION, CONTENT, "outcome_unknown"],
+    ["an unconfirmed send of another revision", record("unknown"), OTHER_REVISION, OTHER_CONTENT, "not_found"],
+  ] as const)("answers %s with %s", (_label, existing, revision, content, decision) => {
+    expect(decideMissingDraftSend(existing, revision, content, NOW)).toBe(decision);
   });
 });
 

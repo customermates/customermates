@@ -13,6 +13,7 @@ CREATE TABLE "MessagingDraftSend" (
     "providerMessageId" TEXT,
     "sentMessageId" TEXT,
     "sentThreadId" TEXT,
+    "contentHash" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 

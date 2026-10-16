@@ -19,7 +19,8 @@ export type DraftThreadTarget = {
 export type DraftDeleteResult =
   | { status: "deleted"; messagingThreadId: string }
   | { status: "not_found" }
-  | { status: "revision_mismatch" };
+  | { status: "revision_mismatch" }
+  | { status: "send_in_progress" };
 
 export const DraftRevisionSchema = z.iso
   .datetime({ offset: true, precision: 3 })

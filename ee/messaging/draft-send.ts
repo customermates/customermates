@@ -16,6 +16,7 @@ export type DraftSendRecord = {
   providerMessageId: string | null;
   sentMessageId: string | null;
   sentThreadId: string | null;
+  contentHash: string;
   updatedAt: Date;
 };
 
@@ -47,25 +48,33 @@ export function effectiveDraftSendState(
 export function decideDraftSend(
   record: DraftSendRecord | null,
   revision: Date,
+  contentHash: string,
   now: Date = new Date(),
 ): DraftSendDecision {
   if (!record) return "claim";
   const state = effectiveDraftSendState(record, now);
   if (state === "sending") return "in_progress";
-  if (record.draftRevision.getTime() !== revision.getTime()) return state === "sent" ? "already_sent" : "take_over";
-  return state === "sent" ? "replay" : "outcome_unknown";
+  const sameContent = record.contentHash === contentHash;
+  if (record.draftRevision.getTime() !== revision.getTime()) {
+    if (state === "sent") return "already_sent";
+    return sameContent ? "outcome_unknown" : "take_over";
+  }
+  if (state === "sent") return sameContent ? "replay" : "already_sent";
+  return "outcome_unknown";
 }
 
 export function decideMissingDraftSend(
   record: DraftSendRecord | null,
   revision: Date,
+  contentHash: string,
   now: Date = new Date(),
 ): MissingDraftSendDecision {
   if (!record) return "not_found";
   const state = effectiveDraftSendState(record, now);
   if (state === "sending") return "in_progress";
   if (record.draftRevision.getTime() !== revision.getTime()) return state === "sent" ? "already_sent" : "not_found";
-  return state === "sent" ? "replay" : "outcome_unknown";
+  if (state === "sent") return record.contentHash === contentHash ? "replay" : "already_sent";
+  return "outcome_unknown";
 }
 
 export function providerSendOutcome(code: CustomErrorCode): ProviderSendOutcome {

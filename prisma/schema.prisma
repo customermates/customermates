@@ -1107,6 +1107,7 @@ model MessagingDraftSend {
   providerMessageId  String?
   sentMessageId      String?
   sentThreadId       String?
+  contentHash        String
   createdAt          DateTime                @default(now())
   updatedAt          DateTime                @updatedAt
 

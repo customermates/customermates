@@ -9,7 +9,7 @@ export const discardDraftOperation: ZodOpenApiOperationObject = {
   operationId: "discardDraft",
   summary: "Discard a message draft",
   description:
-    "Deletes exactly the saved draft revision identified by id and draftRevision. A newer edit is never discarded; sent messages are unaffected. An id that holds no draft visible to the key (already discarded or sent, or not a draft) is a safe no-op that returns `threadId: null`. A draftRevision that no longer matches the saved draft answers 409 with customCode draftChanged and deletes nothing.",
+    "Deletes exactly the saved draft revision identified by id and draftRevision. A newer edit is never discarded; sent messages are unaffected. An id that holds no draft visible to the key (already discarded or sent, or not a draft) is a safe no-op that returns `threadId: null`. A draftRevision that no longer matches the saved draft answers 409 with customCode draftChanged, and a draft that is being sent answers 409 with customCode draftSendInProgress; both delete nothing.",
   tags: ["messaging"],
   security: [{ apiKeyAuth: [] }],
   requestParams: {

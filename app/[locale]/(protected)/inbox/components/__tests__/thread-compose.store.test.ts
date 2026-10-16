@@ -358,6 +358,56 @@ describe("ThreadComposeStore draft lifecycle", () => {
     expect(store.hasUnsavedChanges).toBe(true);
   });
 
+  it("binds the composer to the revision it just saved when typing continued during the save", async () => {
+    const saving = deferred<{ ok: true; data: MessagingMessageDto }>();
+    const draft = message({ provider: MessagingProvider.google });
+    const { detail, store } = makeHarness([draft]);
+    store.initialize({ provider: MessagingProvider.google, threadId: THREAD_ID, defaultRecipients: [RECIPIENT] });
+    store.loadDraft(draft);
+    actions.saveDraftAction.mockReturnValue(saving.promise);
+    const pending = store.saveDraft();
+    store.onChange("body", "Typed while saving");
+    saving.resolve({
+      ok: true,
+      data: message({ provider: MessagingProvider.google, draftRevision: "2026-09-04T10:01:00.000Z" }),
+    });
+    await pending;
+
+    expect(store.editingDraftId).toBe(DRAFT_ID);
+    expect(store.editingDraftRevision).toBe("2026-09-04T10:01:00.000Z");
+    expect(detail.messages.some((shown) => shown.id === DRAFT_ID)).toBe(false);
+    expect(store.form.body).toBe("Typed while saving");
+  });
+
+  it("keeps saving a new email into the draft conversation it created when typing continued during the save", async () => {
+    const saving = deferred<{ ok: true; data: MessagingMessageDto }>();
+    const { store } = makeHarness();
+    store.initializeNewThread({
+      provider: MessagingProvider.google,
+      connectedAccountId: ACCOUNT_ID,
+      recipients: [{ identifier: RECIPIENT, displayName: null }],
+    });
+    store.onChange("subject", "New email");
+    store.onChange("body", "First words");
+    actions.saveDraftAction.mockReturnValue(saving.promise);
+    const pending = store.saveDraft();
+    store.onChange("body", "First words and more");
+    saving.resolve({
+      ok: true,
+      data: message({ provider: MessagingProvider.google, messagingThreadId: DRAFT_THREAD_ID }),
+    });
+    await pending;
+
+    expect(store.newThreadTarget?.draftThreadId).toBe(DRAFT_THREAD_ID);
+    expect(store.editingDraftId).toBe(DRAFT_ID);
+    actions.saveDraftAction.mockResolvedValue({
+      ok: true,
+      data: message({ provider: MessagingProvider.google, messagingThreadId: DRAFT_THREAD_ID }),
+    });
+    await store.saveDraft();
+    expect(actions.saveDraftAction).toHaveBeenLastCalledWith(expect.objectContaining({ threadId: DRAFT_THREAD_ID }));
+  });
+
   it("preserves derived chat recipients when a legacy chat draft has an empty to list", () => {
     const draft = message({
       provider: MessagingProvider.linkedin,
@@ -1466,7 +1516,7 @@ describe("ThreadComposeStore draft refusals", () => {
     expect(store.draftConflict).toBeNull();
   });
 
-  it.each(["draftSendOutcomeUnknown", "draftSendInProgress", "draftAlreadySent"])(
+  it.each(["draftSendOutcomeUnknown", "draftSendInProgress"])(
     "keeps the text and the refused draft binding after %s so sending again stays refused",
     async (code) => {
       const { store } = editReply(code);
@@ -1479,6 +1529,37 @@ describe("ThreadComposeStore draft refusals", () => {
       expect(store.draftConflict).toBeNull();
     },
   );
+
+  it("keeps the edited text but drops the binding when that draft was already sent, so the edits are not lost", async () => {
+    const { store } = editReply("draftAlreadySent");
+
+    await store.send();
+
+    expect(store.form).toMatchObject({ body: "My edited reply", cc: ["copy@example.com"] });
+    expect(store.editingDraftId).toBeNull();
+    expect(store.editingDraftRevision).toBeNull();
+    expect(store.draftConflict).toBeNull();
+  });
+
+  it("forgets the consumed draft conversation of a new email that was already sent", async () => {
+    const draft = message({ provider: MessagingProvider.google, messagingThreadId: DRAFT_THREAD_ID });
+    const { store } = makeHarness([draft]);
+    store.initializeNewThread({
+      provider: MessagingProvider.google,
+      connectedAccountId: ACCOUNT_ID,
+      recipients: [{ identifier: RECIPIENT, displayName: null }],
+      draftThreadId: DRAFT_THREAD_ID,
+    });
+    store.loadDraft(draft);
+    store.onChange("body", "Edited new email");
+    actions.sendEmailAction.mockResolvedValueOnce(refusal("draftAlreadySent"));
+
+    await store.send();
+
+    expect(store.form.body).toBe("Edited new email");
+    expect(store.editingDraftId).toBeNull();
+    expect(store.newThreadTarget).toMatchObject({ connectedAccountId: ACCOUNT_ID, draftThreadId: undefined });
+  });
 
   it("restores a new-conversation draft and its conversation target after a refusal", async () => {
     const draft = message({ provider: MessagingProvider.google, messagingThreadId: DRAFT_THREAD_ID });

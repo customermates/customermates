@@ -34,9 +34,11 @@ import { EMPTY_ATTENDEE } from "../unipile.mappers";
 import { SendAttachmentSchema } from "./send-email.interactor";
 import { sentMessageResult, type SentMessageResult } from "./sent-message-result";
 import {
+  chatSendContentHash,
   gateMissingDraft,
   openDraftSend,
   recordDraftSendQuietly,
+  releaseDraftSendOnFailure,
   releaseDraftSendQuietly,
   settleDraftSendQuietly,
 } from "./draft-send-gate";
@@ -100,11 +102,14 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
     const denied = await this.entitlements.require("messaging");
     if (denied) return denied;
 
+    const contentHash = data.draftMessageId
+      ? chatSendContentHash({ text: data.text, attachments: data.attachments })
+      : "";
     const found = data.draftMessageId
       ? await this.repo.findThreadById(data.threadId)
       : await this.repo.findThreadByIdOrThrow(data.threadId);
     if (!found && data.draftMessageId && data.draftRevision) {
-      const settled = await this.settledDraftConversation(data.draftMessageId, data.draftRevision);
+      const settled = await this.settledDraftConversation(data.draftMessageId, data.draftRevision, contentHash);
       if (settled) return settled;
       return failNotFound(CustomErrorCode.threadNotFound, ["threadId"]);
     }
@@ -124,6 +129,7 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
           draftMessageId: data.draftMessageId,
           draftRevision: revision,
           connectedAccountId: account.id,
+          contentHash,
         });
         return "replay" in missing ? this.replay(missing.replay, account.id, thread.id) : missing.failure;
       }
@@ -144,6 +150,7 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
         draftMessageId: draft.id,
         draftRevision: draftUpdatedAtFromRevision(data.draftRevision),
         connectedAccountId: account.id,
+        contentHash,
       });
       if ("replay" in gate) return this.replay(gate.replay, account.id, thread.id);
       if ("failure" in gate) return gate.failure;
@@ -152,11 +159,13 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
 
     if (
       data.text.trim() &&
-      (await this.repo.findRecentOutboundDuplicate({
-        messagingThreadId: thread.id,
-        bodyText: data.text,
-        windowMs: DUPLICATE_OUTBOUND_WINDOW_MS,
-      }))
+      (await releaseDraftSendOnFailure(this.repo, claim, () =>
+        this.repo.findRecentOutboundDuplicate({
+          messagingThreadId: thread.id,
+          bodyText: data.text,
+          windowMs: DUPLICATE_OUTBOUND_WINDOW_MS,
+        }),
+      ))
     ) {
       if (claim) await releaseDraftSendQuietly(this.repo, claim);
       return failConflict(CustomErrorCode.duplicateOutboundSuppressed);
@@ -290,6 +299,7 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
   private async settledDraftConversation(
     draftMessageId: string,
     draftRevision: string,
+    contentHash: string,
   ): Promise<Awaited<Validated<SentMessageResult>> | null> {
     const record = await this.repo.findDraftSend({ draftMessageId });
     if (!record) return null;
@@ -297,6 +307,7 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
       draftMessageId,
       draftRevision: draftUpdatedAtFromRevision(draftRevision),
       connectedAccountId: record.connectedAccountId,
+      contentHash,
     });
     if ("failure" in missing) return missing.failure;
     const message = await this.repo.findDraftSendMessage({
