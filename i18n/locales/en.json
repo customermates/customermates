@@ -4841,7 +4841,7 @@
       "planningBody": "We are turning your answers into lists, a pipeline, a dashboard and Knowledge Base pages.",
       "planningTitle": "Drafting your plan",
       "sampleSummary": "{count, plural, one {Adds # sample record so you can try things out right away.} other {Adds # sample records so you can try things out right away.}}",
-      "subtitle": "This is what we will build. Nothing changes until you confirm.",
+      "subtitle": "This is what we will build once you confirm.",
       "title": "Your workspace plan",
       "tryAgain": "Try again",
       "winChanceValue": "{value} %"

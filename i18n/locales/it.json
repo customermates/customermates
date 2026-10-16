@@ -4841,7 +4841,7 @@
       "planningBody": "Trasformiamo le tue risposte in liste, una pipeline, una dashboard e pagine della knowledge base.",
       "planningTitle": "Stiamo preparando il tuo piano",
       "sampleSummary": "{count, plural, one {Aggiunge # record di esempio per provare subito.} other {Aggiunge # record di esempio per provare subito.}}",
-      "subtitle": "Ecco cosa costruiremo. Nulla cambia finché non confermi.",
+      "subtitle": "Ecco cosa costruiremo non appena confermi.",
       "title": "Il piano del tuo workspace",
       "tryAgain": "Riprova",
       "winChanceValue": "{value} %"

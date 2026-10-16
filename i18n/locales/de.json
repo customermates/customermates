@@ -4841,7 +4841,7 @@
       "planningBody": "Aus deinen Antworten entstehen Listen, eine Pipeline, ein Dashboard und Seiten für die Wissensdatenbank.",
       "planningTitle": "Wir erstellen deinen Plan",
       "sampleSummary": "{count, plural, one {Legt # Beispieldatensatz an, damit du gleich loslegen kannst.} other {Legt # Beispieldatensätze an, damit du gleich loslegen kannst.}}",
-      "subtitle": "Das bauen wir für dich. Bis du bestätigst, ändert sich nichts.",
+      "subtitle": "Das bauen wir für dich, sobald du bestätigst.",
       "title": "Dein Plan für den Workspace",
       "tryAgain": "Erneut versuchen",
       "winChanceValue": "{value} %"

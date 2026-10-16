@@ -4845,7 +4845,7 @@
       "planningBody": "Nous transformons vos réponses en listes, en pipeline, en tableau de bord et en pages de base de connaissances.",
       "planningTitle": "Préparation de votre plan",
       "sampleSummary": "{count, plural, one {Ajoute # exemple d’enregistrement pour essayer tout de suite.} other {Ajoute # exemples d’enregistrements pour essayer tout de suite.}}",
-      "subtitle": "Voici ce que nous allons construire. Rien ne change avant votre confirmation.",
+      "subtitle": "Voici ce que nous construirons dès votre confirmation.",
       "title": "Le plan de votre espace de travail",
       "tryAgain": "Réessayer",
       "winChanceValue": "{value} %"
