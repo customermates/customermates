@@ -27,16 +27,18 @@ const { ForbiddenError } = await import("@/core/errors/app-errors");
 function make(overrides: {
   lemonSqueezyId?: string | null;
   plan?: string;
-  updateResult?: { companyId: string; changedPlan: string | null };
+  updateResult?: { companyId: string; changedPlan: string | null } | null;
 }) {
   const lemonSqueezyId = "lemonSqueezyId" in overrides ? overrides.lemonSqueezyId : "ls-1";
   const repo = {
     getSubscriptionOrThrow: vi.fn().mockResolvedValue({ lemonSqueezyId, plan: overrides.plan ?? "pro" }),
   };
   const subscriptionService = {
-    updateSubscriptionOrThrow: vi
+    syncSubscription: vi
       .fn()
-      .mockResolvedValue(overrides.updateResult ?? { companyId: "company-1", changedPlan: null }),
+      .mockResolvedValue(
+        "updateResult" in overrides ? overrides.updateResult : { companyId: "company-1", changedPlan: null },
+      ),
   };
   const deleteAccountsForPlan = { invoke: vi.fn().mockResolvedValue(undefined) };
 
@@ -66,7 +68,7 @@ describe("RefreshSubscriptionInteractor authorization", () => {
 
     await expect(runWithTenant(readOnlyMember(), () => interactor.invoke())).rejects.toThrow(ForbiddenError);
 
-    expect(subscriptionService.updateSubscriptionOrThrow).not.toHaveBeenCalled();
+    expect(subscriptionService.syncSubscription).not.toHaveBeenCalled();
     expect(deleteAccountsForPlan.invoke).not.toHaveBeenCalled();
   });
 
@@ -80,7 +82,7 @@ describe("RefreshSubscriptionInteractor authorization", () => {
 
     await expect(runWithTenant(manager, () => interactor.invoke())).resolves.toEqual({ ok: true, data: null });
 
-    expect(subscriptionService.updateSubscriptionOrThrow).toHaveBeenCalledOnce();
+    expect(subscriptionService.syncSubscription).toHaveBeenCalledOnce();
   });
 });
 
@@ -90,7 +92,7 @@ describe("RefreshSubscriptionInteractor", () => {
 
     await interactor.invoke();
 
-    expect(subscriptionService.updateSubscriptionOrThrow).not.toHaveBeenCalled();
+    expect(subscriptionService.syncSubscription).not.toHaveBeenCalled();
     expect(deleteAccountsForPlan.invoke).not.toHaveBeenCalled();
   });
 
@@ -99,7 +101,7 @@ describe("RefreshSubscriptionInteractor", () => {
 
     await interactor.invoke();
 
-    expect(subscriptionService.updateSubscriptionOrThrow).toHaveBeenCalledWith("ls-1", mockUser.companyId);
+    expect(subscriptionService.syncSubscription).toHaveBeenCalledWith("ls-1", mockUser.companyId);
   });
 
   it("enforces plan caps when the sync reports a changed plan", async () => {
@@ -117,6 +119,16 @@ describe("RefreshSubscriptionInteractor", () => {
 
     await interactor.invoke();
 
+    expect(deleteAccountsForPlan.invoke).not.toHaveBeenCalled();
+  });
+
+  it("reports the subscription as unavailable when the sync finds no workspace for it", async () => {
+    const { interactor, deleteAccountsForPlan } = make({ updateResult: null });
+
+    await expect(interactor.invoke()).resolves.toMatchObject({
+      ok: false,
+      error: { issues: [{ params: { error: "billingPortalUnavailable" } }] },
+    });
     expect(deleteAccountsForPlan.invoke).not.toHaveBeenCalled();
   });
 

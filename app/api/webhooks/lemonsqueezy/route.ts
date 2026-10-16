@@ -27,12 +27,11 @@ export async function POST(request: NextRequest) {
     })
     .parse(JSON.parse(body));
 
-  const { companyId, changedPlan } = await getSubscriptionService().updateSubscriptionOrThrow(
-    payload.data.id,
-    payload.meta.custom_data?.company_id,
-  );
+  const synced = await getSubscriptionService().syncSubscription(payload.data.id, payload.meta.custom_data?.company_id);
+  if (!synced) return NextResponse.json({ error: "Unknown workspace" }, { status: 404 });
 
-  if (changedPlan) await getDeleteAccountsForPlanInteractor().invoke({ companyId, plan: changedPlan });
+  if (synced.changedPlan)
+    await getDeleteAccountsForPlanInteractor().invoke({ companyId: synced.companyId, plan: synced.changedPlan });
 
   return NextResponse.json({ success: true });
 }

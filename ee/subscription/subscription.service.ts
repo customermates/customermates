@@ -7,7 +7,8 @@ import {
 } from "@lemonsqueezy/lemonsqueezy.js";
 import { SubscriptionStatus } from "@/generated/prisma";
 
-import type { Subscription, SubscriptionPlan } from "@/generated/prisma";
+import type { SubscriptionPlan } from "@/generated/prisma";
+import type { SubscriptionRepo } from "./subscription.repo";
 
 import { z } from "zod";
 
@@ -15,24 +16,6 @@ import { env } from "@/env";
 import { CLOUD_TRIAL, type CommercialOffer } from "@/core/commercial/plan-catalog";
 
 import { offerToVariant, variantToOffer } from "./lemon-squeezy-bindings";
-
-export abstract class SubscriptionRepo {
-  abstract getSubscriptionOrThrowUnscoped(companyId: string): Promise<Subscription>;
-
-  abstract upsertSubscriptionUnscoped(data: {
-    companyId: string;
-    lemonSqueezyId?: string;
-    lemonSqueezyVariantId?: string;
-    status?: SubscriptionStatus;
-    plan?: SubscriptionPlan;
-    quantity?: number;
-    trialEndDate?: Date;
-    currentPeriodEnd?: Date;
-    agentCreditAnchorAt?: Date;
-  }): Promise<void>;
-
-  abstract findCompanyIdBySubscriptionIdOrThrowUnscoped(subscriptionId: string): Promise<string>;
-}
 
 export class SubscriptionService {
   private isConfigured = false;
@@ -106,14 +89,16 @@ export class SubscriptionService {
       .parse(result.data);
   }
 
-  async updateSubscriptionOrThrow(
+  async syncSubscription(
     subscriptionId: string,
-    companyId?: string,
-  ): Promise<{ companyId: string; changedPlan: SubscriptionPlan | null }> {
+    claimedCompanyId?: string,
+  ): Promise<{ companyId: string; changedPlan: SubscriptionPlan | null } | null> {
     this.ensureConfigured();
 
-    const resolvedCompanyId =
-      companyId ?? (await this.subscriptionRepo.findCompanyIdBySubscriptionIdOrThrowUnscoped(subscriptionId));
+    const companyId =
+      (await this.subscriptionRepo.findCompanyIdBySubscriptionIdUnscoped(subscriptionId)) ?? claimedCompanyId;
+    const existing = companyId ? await this.subscriptionRepo.findWorkspacePlanUnscoped(companyId) : null;
+    if (!companyId || !existing) return null;
 
     const subscription = await this.getSubscriptionOrThrowUnscoped(subscriptionId);
 
@@ -125,11 +110,10 @@ export class SubscriptionService {
     const quantity = attributes.first_subscription_item?.quantity ?? undefined;
     const variantId = attributes.variant_id?.toString();
 
-    const existing = await this.subscriptionRepo.getSubscriptionOrThrowUnscoped(resolvedCompanyId);
     const syncedPlan = variantId ? (variantToOffer(variantId)?.plan ?? null) : null;
 
     await this.subscriptionRepo.upsertSubscriptionUnscoped({
-      companyId: resolvedCompanyId,
+      companyId,
       lemonSqueezyId: subscription.data.id,
       lemonSqueezyVariantId: variantId,
       status,
@@ -140,7 +124,7 @@ export class SubscriptionService {
     });
 
     return {
-      companyId: resolvedCompanyId,
+      companyId,
       changedPlan: syncedPlan !== null && syncedPlan !== existing.plan ? syncedPlan : null,
     };
   }

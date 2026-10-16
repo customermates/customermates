@@ -30,14 +30,19 @@ vi.mock("@/env", () => ({
 const { SubscriptionService } = await import("../subscription.service");
 const { offerToVariant, variantToOffer } = await import("../lemon-squeezy-bindings");
 const { getCommercialOfferOrThrow } = await import("@/core/commercial/plan-catalog");
+const { lemonSqueezySubscriptionAttributes } = await import("@/tests/helpers/lemonsqueezy-subscription");
 
 function makeRepo(overrides: Partial<Record<string, unknown>> = {}) {
   return {
-    getSubscriptionOrThrowUnscoped: vi.fn(),
+    findWorkspacePlanUnscoped: vi.fn(),
     upsertSubscriptionUnscoped: vi.fn().mockResolvedValue(undefined),
-    findCompanyIdBySubscriptionIdOrThrowUnscoped: vi.fn(),
+    findCompanyIdBySubscriptionIdUnscoped: vi.fn().mockResolvedValue(null),
     ...overrides,
   };
+}
+
+function providerSubscription(attributes: Record<string, unknown>) {
+  return { error: null, data: { data: { id: "sub-1", attributes } } };
 }
 
 beforeEach(() => {
@@ -88,10 +93,10 @@ describe("SubscriptionService.createCheckoutOrThrow", () => {
   });
 });
 
-describe("SubscriptionService.updateSubscriptionOrThrow", () => {
+describe("SubscriptionService.syncSubscription", () => {
   it("upserts the base subscription columns and sets plan from the synced variant", async () => {
     const repo = makeRepo({
-      getSubscriptionOrThrowUnscoped: vi.fn().mockResolvedValue({ plan: "pro" }),
+      findWorkspacePlanUnscoped: vi.fn().mockResolvedValue({ plan: "pro" }),
     });
     const service = new SubscriptionService(repo as never);
 
@@ -110,7 +115,7 @@ describe("SubscriptionService.updateSubscriptionOrThrow", () => {
       },
     });
 
-    await service.updateSubscriptionOrThrow("sub-1", "company-1");
+    await service.syncSubscription("sub-1", "company-1");
 
     expect(repo.upsertSubscriptionUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -123,7 +128,7 @@ describe("SubscriptionService.updateSubscriptionOrThrow", () => {
 
   it("reports the changed plan when the synced variant changes the stored plan", async () => {
     const repo = makeRepo({
-      getSubscriptionOrThrowUnscoped: vi.fn().mockResolvedValue({ plan: "business" }),
+      findWorkspacePlanUnscoped: vi.fn().mockResolvedValue({ plan: "business" }),
     });
     const service = new SubscriptionService(repo as never);
 
@@ -142,14 +147,14 @@ describe("SubscriptionService.updateSubscriptionOrThrow", () => {
       },
     });
 
-    const result = await service.updateSubscriptionOrThrow("sub-1", "company-1");
+    const result = await service.syncSubscription("sub-1", "company-1");
 
     expect(result).toEqual({ companyId: "company-1", changedPlan: "pro" });
   });
 
   it("reports no plan change when the synced variant maps to the stored plan", async () => {
     const repo = makeRepo({
-      getSubscriptionOrThrowUnscoped: vi.fn().mockResolvedValue({ plan: "pro" }),
+      findWorkspacePlanUnscoped: vi.fn().mockResolvedValue({ plan: "pro" }),
     });
     const service = new SubscriptionService(repo as never);
 
@@ -168,16 +173,16 @@ describe("SubscriptionService.updateSubscriptionOrThrow", () => {
       },
     });
 
-    const result = await service.updateSubscriptionOrThrow("sub-1", "company-1");
+    const result = await service.syncSubscription("sub-1", "company-1");
 
     expect(repo.upsertSubscriptionUnscoped).toHaveBeenCalledTimes(1);
-    expect(result.changedPlan).toBeNull();
+    expect(result?.changedPlan).toBeNull();
   });
 
   it("resolves the company id from the subscription id when none is passed", async () => {
     const repo = makeRepo({
-      getSubscriptionOrThrowUnscoped: vi.fn().mockResolvedValue({ plan: "pro" }),
-      findCompanyIdBySubscriptionIdOrThrowUnscoped: vi.fn().mockResolvedValue("resolved-company-id"),
+      findWorkspacePlanUnscoped: vi.fn().mockResolvedValue({ plan: "pro" }),
+      findCompanyIdBySubscriptionIdUnscoped: vi.fn().mockResolvedValue("resolved-company-id"),
     });
     const service = new SubscriptionService(repo as never);
 
@@ -195,13 +200,91 @@ describe("SubscriptionService.updateSubscriptionOrThrow", () => {
       },
     });
 
-    const result = await service.updateSubscriptionOrThrow("sub-1");
+    const result = await service.syncSubscription("sub-1");
 
-    expect(repo.findCompanyIdBySubscriptionIdOrThrowUnscoped).toHaveBeenCalledWith("sub-1");
+    expect(repo.findCompanyIdBySubscriptionIdUnscoped).toHaveBeenCalledWith("sub-1");
     expect(repo.upsertSubscriptionUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({ companyId: "resolved-company-id" }),
     );
-    expect(result.companyId).toBe("resolved-company-id");
+    expect(result?.companyId).toBe("resolved-company-id");
+  });
+
+  it("syncs the workspace the subscription is bound to and leaves another workspace the event names untouched", async () => {
+    const repo = makeRepo({
+      findWorkspacePlanUnscoped: vi.fn().mockResolvedValue({ plan: "business" }),
+      findCompanyIdBySubscriptionIdUnscoped: vi.fn().mockResolvedValue("bound-company"),
+    });
+    const service = new SubscriptionService(repo as never);
+    mockGetSubscription.mockResolvedValue(
+      providerSubscription({ status: "past_due", renews_at: "2026-07-01T00:00:00.000000Z", variant_id: 2003 }),
+    );
+
+    const result = await service.syncSubscription("sub-1", "other-company");
+
+    expect(result).toEqual({ companyId: "bound-company", changedPlan: null });
+    expect(repo.findWorkspacePlanUnscoped).toHaveBeenCalledExactlyOnceWith("bound-company");
+    expect(repo.upsertSubscriptionUnscoped).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ companyId: "bound-company", lemonSqueezyId: "sub-1", status: "pastDue" }),
+    );
+  });
+
+  it("syncs nothing and asks the provider nothing when the workspace the event names does not exist", async () => {
+    const repo = makeRepo({ findWorkspacePlanUnscoped: vi.fn().mockResolvedValue(null) });
+    const service = new SubscriptionService(repo as never);
+
+    const result = await service.syncSubscription("sub-1", "unknown-company");
+
+    expect(result).toBeNull();
+    expect(repo.findWorkspacePlanUnscoped).toHaveBeenCalledWith("unknown-company");
+    expect(mockGetSubscription).not.toHaveBeenCalled();
+    expect(repo.upsertSubscriptionUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("syncs nothing for a subscription no workspace holds when the event names no workspace", async () => {
+    const repo = makeRepo();
+    const service = new SubscriptionService(repo as never);
+
+    const result = await service.syncSubscription("sub-1");
+
+    expect(result).toBeNull();
+    expect(repo.findWorkspacePlanUnscoped).not.toHaveBeenCalled();
+    expect(mockGetSubscription).not.toHaveBeenCalled();
+    expect(repo.upsertSubscriptionUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("reads every column from a real-shaped Business subscription of the provider", async () => {
+    const repo = makeRepo({ findWorkspacePlanUnscoped: vi.fn().mockResolvedValue({ plan: "pro" }) });
+    const service = new SubscriptionService(repo as never);
+    const attributes = lemonSqueezySubscriptionAttributes({
+      subscriptionId: "123456789",
+      itemId: 987654321,
+      storeId: 1,
+      storeOrigin: "https://customermates.lemonsqueezy.com",
+      variantId: 2003,
+      variantName: "Business",
+      quantity: 1,
+      customer: { name: "Test Customer", email: "customer@example.invalid" },
+      createdAt: new Date("2026-10-16T09:12:34.567Z"),
+    });
+    mockGetSubscription.mockResolvedValue({
+      error: null,
+      data: { data: { type: "subscriptions", id: "123456789", attributes } },
+    });
+
+    const result = await service.syncSubscription("123456789", "company-1");
+
+    expect(attributes.renews_at).toBe("2026-11-16T09:12:34.000000Z");
+    expect(repo.upsertSubscriptionUnscoped).toHaveBeenCalledExactlyOnceWith({
+      companyId: "company-1",
+      lemonSqueezyId: "123456789",
+      lemonSqueezyVariantId: "2003",
+      status: "active",
+      plan: "business",
+      quantity: 1,
+      trialEndDate: undefined,
+      currentPeriodEnd: new Date("2026-11-16T09:12:34.000Z"),
+    });
+    expect(result).toEqual({ companyId: "company-1", changedPlan: "business" });
   });
 });
 

@@ -26,12 +26,11 @@ export class RefreshSubscriptionInteractor extends AuthenticatedInteractor<void,
     if (subscription.plan === SubscriptionPlan.enterprise) return { ok: true as const, data: null };
     if (!subscription.lemonSqueezyId) return failUnavailable(CustomErrorCode.billingPortalUnavailable);
 
-    const { companyId, changedPlan } = await this.subscriptionService.updateSubscriptionOrThrow(
-      subscription.lemonSqueezyId,
-      this.companyId,
-    );
+    const synced = await this.subscriptionService.syncSubscription(subscription.lemonSqueezyId, this.companyId);
+    if (!synced) return failUnavailable(CustomErrorCode.billingPortalUnavailable);
 
-    if (changedPlan) await this.deleteAccountsForPlan.invoke({ companyId, plan: changedPlan });
+    if (synced.changedPlan)
+      await this.deleteAccountsForPlan.invoke({ companyId: synced.companyId, plan: synced.changedPlan });
 
     return { ok: true as const, data: null };
   }

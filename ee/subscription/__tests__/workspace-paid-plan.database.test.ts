@@ -367,6 +367,43 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
     expect(await storedSubscription("paid")).toMatchObject({ status: "active", lemonSqueezyId: subscription.id });
   });
 
+  it("syncs only the subscription's own workspace when a signed event names another workspace", async () => {
+    const renewsAt = lemonSqueezyTimestamp(new Date(Date.now() + 45 * DAY_MS));
+    const renewed = changeProvider({ renews_at: renewsAt });
+
+    const response = await deliver(webhookBody("subscription_updated", renewed, companies.first));
+
+    expect(response.status).toBe(200);
+    expect(await storedSubscription("paid")).toMatchObject({
+      status: "active",
+      lemonSqueezyId: subscription.id,
+      currentPeriodEnd: new Date(renewsAt),
+    });
+    expect(await storedSubscription("first")).toEqual({
+      status: "trial",
+      plan: "pro",
+      lemonSqueezyId: null,
+      quantity: null,
+      trialEndDate: firstTrialEnd,
+      currentPeriodEnd: null,
+    });
+  });
+
+  it("answers 404 and binds nothing for a signed event that names an unknown workspace", async () => {
+    const stray = providerSubscriptionFor(randomUUID(), 1);
+    writeLocalSubscription(providerDirectory, stray);
+
+    for (const event of ["subscription_updated", "subscription_created"] as const) {
+      const response = await webhook(event, stray);
+      expect(response.status).toBe(404);
+      expect(await response.json()).toEqual({ error: "Unknown workspace" });
+    }
+
+    const bound = await client.query('SELECT "companyId" FROM "Subscription" WHERE "lemonSqueezyId"=$1', [stray.id]);
+    expect(bound.rows).toEqual([]);
+    expect(await storedSubscription("unpaid")).toMatchObject({ status: "expired", lemonSqueezyId: null });
+  });
+
   it("updates the seats of the paid workspace's subscription when a member is approved, deactivated or leaves", async () => {
     const { getAdminUpdateUserDetailsInteractor, getLeaveWorkspaceInteractor } = await import("@/core/di");
     asSession();

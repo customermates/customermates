@@ -8,7 +8,7 @@ import type { WorkspacePlanRepo } from "@/ee/subscription/workspace-plan.repo";
 import type { GetBillingPortalUrlRepo } from "@/ee/subscription/get-billing-portal-url.repo";
 import type { GetSubscriptionRepo } from "@/ee/subscription/get-subscription.repo";
 import type { RefreshSubscriptionRepo } from "@/ee/subscription/refresh-subscription.repo";
-import type { SubscriptionRepo } from "@/ee/subscription/subscription.service";
+import type { SubscriptionRepo } from "@/ee/subscription/subscription.repo";
 import type { RouteGuardCompanyRepo } from "@/features/auth/route-guard-company.repo";
 import type { InviteTokenRepo } from "@/features/company/invite-token-validation.repo";
 import type { RegisterUserCompanyRepo } from "@/features/user/register/register-user-company.repo";
@@ -139,13 +139,13 @@ export class PrismaCompanyRepo
   }
 
   @BypassTenantGuard
-  async findCompanyIdBySubscriptionIdOrThrowUnscoped(subscriptionId: string) {
-    const subscription = await this.prisma.subscription.findFirstOrThrow({
+  async findCompanyIdBySubscriptionIdUnscoped(subscriptionId: string) {
+    const subscription = await this.prisma.subscription.findUnique({
       where: { lemonSqueezyId: subscriptionId },
       select: { companyId: true },
     });
 
-    return subscription.companyId;
+    return subscription?.companyId ?? null;
   }
 
   async getSubscriptionOrThrow() {
