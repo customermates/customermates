@@ -4,6 +4,10 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 
 export const DRAFT_SEND_STALE_AFTER_MS = 5 * 60_000;
 
+export const DRAFT_SEND_RETENTION_DAYS = 30;
+
+export const DRAFT_SEND_PRUNE_BATCH_LIMIT = 500;
+
 export type DraftSendState = "sending" | "sent" | "unknown";
 
 export type DraftSendRecord = {

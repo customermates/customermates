@@ -30,6 +30,7 @@ import type { ChannelCandidateDto } from "../inbox/search-channel-candidates.int
 import type { SearchChannelCandidatesRepo } from "../inbox/search-channel-candidates.repo";
 import type { MessagingIngestRepo } from "../ingest/messaging-ingest.repo";
 import type { DiscardDraftRepo } from "../outbound/discard-draft.repo";
+import type { PruneDraftSendsRepo } from "../outbound/prune-draft-sends.repo";
 import type { SaveDraftRepo } from "../outbound/save-draft.repo";
 import type { SendChatMessageRepo } from "../outbound/send-chat-message.repo";
 import type { SendEmailRepo } from "../outbound/send-email.repo";
@@ -109,6 +110,7 @@ export class PrismaMessagingRepo
     StartChatThreadRepo,
     SaveDraftRepo,
     DiscardDraftRepo,
+    PruneDraftSendsRepo,
     SearchChannelCandidatesRepo,
     GetMessageAttachmentMetaRepo,
     FindThreadsByIdsRepo
@@ -1394,6 +1396,39 @@ export class PrismaMessagingRepo
         state: MessagingDraftSendState.sending,
       },
     });
+  }
+
+  @BypassTenantGuard
+  async pruneDraftSendsUnscoped(args: { before: Date; after: string | null; limit: number }) {
+    const expired = await this.prisma.messagingDraftSend.findMany({
+      where: { updatedAt: { lt: args.before }, ...(args.after ? { id: { gt: args.after } } : {}) },
+      orderBy: { id: "asc" },
+      take: args.limit,
+      select: { id: true, companyId: true, draftMessageId: true },
+    });
+    const sendsByCompany = new Map<string, typeof expired>();
+    for (const send of expired)
+      sendsByCompany.set(send.companyId, [...(sendsByCompany.get(send.companyId) ?? []), send]);
+    let pruned = 0;
+
+    for (const [companyId, sends] of sendsByCompany) {
+      pruned += await this.withCompanyTransaction(companyId, async () => {
+        const drafts = await this.prisma.messagingMessage.findMany({
+          where: { id: { in: sends.map((send) => send.draftMessageId) }, companyId, isDraft: true },
+          select: { id: true },
+        });
+        const draftIds = new Set(drafts.map((draft) => draft.id));
+        const prunable = sends.filter((send) => !draftIds.has(send.draftMessageId)).map((send) => send.id);
+        if (prunable.length === 0) return 0;
+
+        const removed = await this.prisma.messagingDraftSend.deleteMany({
+          where: { id: { in: prunable }, companyId, updatedAt: { lt: args.before } },
+        });
+        return removed.count;
+      });
+    }
+
+    return { pruned, next: expired.length === args.limit ? (expired.at(-1)?.id ?? null) : null };
   }
 
   async completeDraftSendRemovingDraft(args: {
