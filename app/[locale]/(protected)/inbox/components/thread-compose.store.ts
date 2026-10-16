@@ -105,6 +105,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   private sourceActorId: string | null = null;
   submissionVersion = 0;
   private pendingDeliveries = new Map<string, PendingDelivery>();
+  private sendToastIds = new Map<string, string>();
 
   private onNewThreadDone: (() => void) | null = null;
   private onNewThreadSent: ((threadId: string | null) => void) | null = null;
@@ -499,23 +500,24 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       if (delivery.files.length) this.pendingAttachments = { ...this.pendingAttachments, [id]: delivery.files };
       this.displayDelivery({ ...delivery, status: "sending" });
     });
-    const toastId = `send:${id}`;
     toast.info(this.t("Inbox.compose.sendStarted"), {
-      id: toastId,
+      id: this.nextSendToastId(id),
       duration: 4000,
       action: undefined,
       description: this.t("Inbox.compose.sendInBackground"),
     });
-    const options = {
-      id: toastId,
-      duration: Infinity,
-      description: undefined,
-      action: {
-        label: this.t("Inbox.compose.retry"),
-        onClick: () => runUserAction(() => this.retrySend(id)),
-      },
+    const resultToast = () => {
+      const options = {
+        id: this.nextSendToastId(id),
+        duration: Infinity,
+        description: undefined,
+        action: {
+          label: this.t("Inbox.compose.retry"),
+          onClick: () => runUserAction(() => this.retrySend(id)),
+        },
+      };
+      return { options, finalOptions: { ...options, action: undefined } };
     };
-    const finalOptions = { ...options, action: undefined };
 
     const failed = (retryable: boolean) =>
       runInAction(() => {
@@ -538,8 +540,10 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
             const detail = this.rootStore.messagingThreadDetailStore;
             if (detail.thread?.id === delivery.message.messagingThreadId) detail.removeMessageById(id);
           });
+          const { finalOptions } = resultToast();
           if (!toastZodErrorTree(result.error, finalOptions))
             toast.error(this.t("ErrorCard.unexpectedError"), finalOptions);
+          this.sendToastIds.delete(id);
           const onRefused = delivery.onRefused;
           runUserAction(() =>
             runInAction(() => {
@@ -550,6 +554,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
           return;
         }
         const retryable = "retryable" in result && result.retryable === true;
+        const { options, finalOptions } = resultToast();
         const toastOptions = retryable ? options : finalOptions;
         failed(retryable);
         if (!toastZodErrorTree(result.error, toastOptions))
@@ -578,11 +583,12 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
           ? this.t("Inbox.compose.messageSent")
           : this.t("Inbox.compose.messageSentPendingSync");
       toast.success(sentNotice, {
-        id: toastId,
+        id: this.nextSendToastId(id),
         duration: 4000,
         action: undefined,
         description: undefined,
       });
+      this.sendToastIds.delete(id);
       runUserAction(() => runInAction(() => delivery.onSent?.(sentThreadId)));
     } catch (error) {
       if (delivered) {
@@ -590,11 +596,20 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
         return;
       }
       failed(!dispatched);
+      const { options, finalOptions } = resultToast();
       reportApplicationError(
         error,
         dispatched ? { ...finalOptions, description: this.t("Inbox.compose.sendOutcomeUnknown") } : options,
       );
     }
+  };
+
+  private nextSendToastId = (messageId: string): string => {
+    const previous = this.sendToastIds.get(messageId);
+    if (previous) toast.dismiss(previous);
+    const next = `send:${messageId}:${crypto.randomUUID()}`;
+    this.sendToastIds.set(messageId, next);
+    return next;
   };
 
   private keepRefusedText = (delivery: PendingDelivery) => {

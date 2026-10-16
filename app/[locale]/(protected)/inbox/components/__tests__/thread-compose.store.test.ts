@@ -31,7 +31,7 @@ vi.mock("../attachment-input", () => ({
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({
   toastZodErrorTree: vi.fn(() => false),
 }));
-vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn(), info: vi.fn() } }));
+vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn(), info: vi.fn(), dismiss: vi.fn() } }));
 
 import { ThreadComposeStore } from "../thread-compose.store";
 import { NavigationGuardController } from "@/core/stores/navigation-guard.controller";
@@ -1273,7 +1273,7 @@ describe("ThreadComposeStore background delivery", () => {
     expect(store.getDeliveryStatus(DRAFT_ID)).toBeUndefined();
     expect(detail.messages).toEqual([]);
     expect(toast.success).toHaveBeenCalledWith("Inbox.compose.messageSentPendingSync", {
-      id: `send:${DRAFT_ID}`,
+      id: expect.stringMatching(new RegExp(`^send:${DRAFT_ID}:`)),
       duration: 4000,
       action: undefined,
       description: undefined,
