@@ -114,25 +114,61 @@ function causeIssues(cause: unknown): string[] {
   return issueLines(nested && typeof nested === "object" && "issues" in nested ? nested.issues : null);
 }
 
-function decodeEmbeddedJson(value: unknown): unknown {
+export function salvageArrayElements(text: string): unknown[] | undefined {
+  if (!text.startsWith("[")) return undefined;
+  const elements: unknown[] = [];
+  let depth = 0;
+  let start = -1;
+  let quoted = false;
+  let escaped = false;
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index];
+    if (quoted) {
+      if (escaped) escaped = false;
+      else if (char === "\\") escaped = true;
+      else if (char === '"') quoted = false;
+      continue;
+    }
+    if (char === '"') quoted = true;
+    else if (char === "{" || char === "[") {
+      if (depth === 1 && start < 0) start = index;
+      depth += 1;
+    } else if (char === "}" || char === "]") {
+      if (depth === 1 && char === "}") continue;
+      depth -= 1;
+      if (depth === 0) break;
+      if (depth === 1 && start >= 0) {
+        try {
+          elements.push(JSON.parse(text.slice(start, index + 1)));
+        } catch {}
+        start = -1;
+      }
+    }
+  }
+  return elements.length ? elements : undefined;
+}
+
+function decodeEmbeddedJson(value: unknown, salvage: boolean): unknown {
   if (typeof value === "string") {
     const text = value.trim();
     if (!/^[[{]/u.test(text)) return value;
     try {
-      return decodeEmbeddedJson(JSON.parse(text));
+      return decodeEmbeddedJson(JSON.parse(text), salvage);
     } catch {
-      return value;
+      const salvaged = salvage ? salvageArrayElements(text) : undefined;
+      return salvaged ? decodeEmbeddedJson(salvaged, salvage) : value;
     }
   }
-  if (Array.isArray(value)) return value.map(decodeEmbeddedJson);
+  if (Array.isArray(value)) return value.map((entry) => decodeEmbeddedJson(entry, salvage));
   if (value && typeof value === "object")
-    return Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, decodeEmbeddedJson(entry)]));
+    return Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, decodeEmbeddedJson(entry, salvage)]));
+
   return value;
 }
 
-function parsedText(text: string): unknown {
+function parsedText(text: string, salvage: boolean): unknown {
   try {
-    return decodeEmbeddedJson(JSON.parse(text));
+    return decodeEmbeddedJson(JSON.parse(text), salvage);
   } catch {
     return undefined;
   }
@@ -140,11 +176,15 @@ function parsedText(text: string): unknown {
 
 export type UnconstrainedOutput<T> = { output: T } | { rejection: string } | null;
 
-export function readUnconstrainedOutput<T>(error: unknown, schema: z.ZodType<T>): UnconstrainedOutput<T> {
+export function readUnconstrainedOutput<T>(
+  error: unknown,
+  schema: z.ZodType<T>,
+  salvageArrays = false,
+): UnconstrainedOutput<T> {
   if (!NoObjectGeneratedError.isInstance(error)) return null;
   if (error.finishReason === "length")
     return { rejection: "The answer was cut off at the output limit; keep it shorter." };
-  const decoded = error.text ? parsedText(error.text) : undefined;
+  const decoded = error.text ? parsedText(error.text, salvageArrays) : undefined;
   if (decoded === undefined) {
     const issues = causeIssues(error.cause);
     return {
@@ -171,6 +211,7 @@ export async function generateStructuredObject<T>(args: {
   system: string;
   prompt: string;
   timeoutMs?: number;
+  salvageArrays?: boolean;
 }): Promise<{
   output: T | null;
   charge: AgentRetrievalCharge | null;
@@ -212,7 +253,7 @@ export async function generateStructuredObject<T>(args: {
     const scope = failureScope(error);
     if (rejectedBeforeGeneration(error)) return { output: null, charge: null, failure, failureScope: scope };
     const usage = NoObjectGeneratedError.isInstance(error) ? error.usage : undefined;
-    const unconstrained = readUnconstrainedOutput(error, args.schema);
+    const unconstrained = readUnconstrainedOutput(error, args.schema, args.salvageArrays);
     if (unconstrained && "output" in unconstrained) {
       return {
         output: unconstrained.output,

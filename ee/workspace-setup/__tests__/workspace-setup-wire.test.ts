@@ -54,6 +54,23 @@ describe("pre-fill answers from the website", () => {
     });
   });
 
+  it("reads win chances given as fractions of one as percentages", () => {
+    const steps = [
+      { label: "Lead", winChance: 0.1 },
+      { label: "Proposal", winChance: 0.55 },
+      { label: "Won", winChance: 1 },
+    ];
+    const answers = prefillAnswers({ answers: [{ ...blank, part: "salesSteps", confidence: 0.8, items: steps }] });
+    expect(answers.salesSteps?.value).toEqual({
+      format: "orderedList",
+      items: [
+        { label: "Lead", winChance: 10 },
+        { label: "Proposal", winChance: 55 },
+        { label: "Won", winChance: 100 },
+      ],
+    });
+  });
+
   it("drops never-prefilled parts, unknown options, invalid codes, unknown parts and clamps confidence", () => {
     const answers = prefillAnswers({
       answers: [

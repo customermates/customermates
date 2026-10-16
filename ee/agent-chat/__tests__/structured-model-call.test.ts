@@ -18,6 +18,8 @@ import {
   generateStructuredObject,
   structuredCallWorstCaseMicrocents,
   structuredOutputUnionTypes,
+  readUnconstrainedOutput,
+  salvageArrayElements,
 } from "../structured-model-call";
 
 function failure(statusCode: number) {
@@ -259,6 +261,24 @@ describe("structured output the provider did not constrain", () => {
       output: { recordModel: { lists: ["deal"] } },
       charge: { inputTokens: 50 },
     });
+  });
+
+  it("salvages the well-formed elements of an array returned as malformed JSON text only when asked", () => {
+    const text = JSON.stringify({ items: '[{"a":1},{"a":"x}]"},{"a":3}}]' });
+    const error = new ai.NoObjectGeneratedError({
+      message: "no object",
+      text,
+      response: { id: "r", timestamp: new Date(), modelId: "m" },
+      usage: { inputTokens: 1, outputTokens: 1, totalTokens: 2 },
+      finishReason: "stop",
+    } as never);
+    const schema = z.object({ items: z.array(z.object({ a: z.union([z.number(), z.string()]) })) });
+
+    expect(readUnconstrainedOutput(error, schema, true)).toEqual({
+      output: { items: [{ a: 1 }, { a: "x}]" }, { a: 3 }] },
+    });
+    expect(readUnconstrainedOutput(error, schema)).toMatchObject({ rejection: expect.stringContaining("items") });
+    expect(salvageArrayElements("not an array")).toBeUndefined();
   });
 
   it("names the paths that did not match, so a repair prompt can fix them", async () => {

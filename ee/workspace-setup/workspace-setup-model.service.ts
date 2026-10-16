@@ -18,6 +18,7 @@ export type SetupModelCall<T> = {
   schema: z.ZodType<T>;
   system: string;
   prompt: string;
+  salvageArrays?: boolean;
 };
 
 export class WorkspaceSetupModelService extends UserAccessor {
@@ -60,6 +61,7 @@ export class WorkspaceSetupModelService extends UserAccessor {
         schema: call.schema,
         system: call.system,
         prompt: call.prompt,
+        salvageArrays: call.salvageArrays,
       });
       charge = result.charge;
       if (result.failure) this.warnings.push(result.failure);

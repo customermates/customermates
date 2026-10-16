@@ -32,7 +32,12 @@ const AnswerFields = {
   choices: z.array(z.string()).describe("multipleChoice or rankedPick: option ids in order."),
   custom: z.array(z.string()).describe("multipleChoice: own entries when allowCustom."),
   items: z
-    .array(z.object({ label: z.string(), winChance: z.number().nullable() }))
+    .array(
+      z.object({
+        label: z.string(),
+        winChance: z.number().nullable().describe("A percentage from 0 to 100, or null."),
+      }),
+    )
     .describe("orderedList: entries in order."),
   min: z.number().nullable().describe("range: the number, or the lower bound."),
   max: z.number().nullable().describe("range: the upper bound, null for one number."),
@@ -52,14 +57,17 @@ export function wireAnswerValue(format: (typeof SETUP_QUESTION_FORMATS)[number],
       return { format, value: wire.choice ?? "" };
     case "multipleChoice":
       return { format, values: wire.choices, custom: wire.custom };
-    case "orderedList":
+    case "orderedList": {
+      const chances = wire.items.flatMap((item) => (item.winChance === null ? [] : [item.winChance]));
+      const scale = chances.some((chance) => chance > 0) && chances.every((chance) => chance <= 1) ? 100 : 1;
       return {
         format,
         items: wire.items.map((item) => ({
           label: item.label,
-          ...(item.winChance === null ? {} : { winChance: Math.round(item.winChance) }),
+          ...(item.winChance === null ? {} : { winChance: Math.round(item.winChance * scale) }),
         })),
       };
+    }
     case "rankedPick":
       return { format, values: wire.choices };
     case "range":

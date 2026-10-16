@@ -148,6 +148,7 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
       label: "Workspace setup pre-fill",
       purpose: "setupDrafting",
       schema: PrefillWireSchema,
+      salvageArrays: true,
       system: SETUP_PREFILL_INSTRUCTION,
       prompt,
     });
@@ -156,6 +157,7 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
         label: "Workspace setup pre-fill",
         purpose: "setupDrafting",
         schema: PrefillWireSchema,
+        salvageArrays: true,
         system: SETUP_PREFILL_INSTRUCTION,
         prompt: [
           prompt,
