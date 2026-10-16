@@ -1,6 +1,6 @@
 "use client";
 
-import type { AccountState, MarketingAccountProfile } from "@/features/auth/account-state";
+import type { AccountState, MarketingAccount, MarketingAccountProfile } from "@/features/auth/account-state";
 
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 
@@ -13,16 +13,17 @@ import {
 } from "@/features/auth/session-hint";
 
 export function useMarketingAccountState(
-  knownAccountState: AccountState | undefined,
+  knownAccount: MarketingAccount | undefined,
   enabled: boolean,
   pathname: string,
 ) {
   const [resolvedAccountState, setResolvedAccountState] = useState<AccountState>("unauthenticated");
   const [profile, setProfile] = useState<MarketingAccountProfile | null>(null);
   const [settled, setSettled] = useState(false);
+  const known = knownAccount !== undefined;
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || known) return;
     if (!hasSessionHint(document.cookie)) {
       setResolvedAccountState("unauthenticated");
       setProfile(null);
@@ -47,11 +48,11 @@ export function useMarketingAccountState(
     return () => {
       current = false;
     };
-  }, [enabled, pathname]);
+  }, [enabled, known, pathname]);
 
   useLayoutEffect(() => {
-    if (settled) clearSessionHintDocumentAttribute();
-  }, [settled]);
+    if (settled || known) clearSessionHintDocumentAttribute();
+  }, [settled, known]);
 
   const markSignedOut = useCallback(() => {
     document.cookie = expiredSessionHintCookie();
@@ -59,7 +60,8 @@ export function useMarketingAccountState(
     setProfile(null);
   }, []);
 
-  const accountState = knownAccountState ?? resolvedAccountState;
+  const accountState = knownAccount?.state ?? resolvedAccountState;
+  const accountProfile = knownAccount ? knownAccount.profile : profile;
 
-  return { accountState, markSignedOut, profile: accountState === "unauthenticated" ? null : profile };
+  return { accountState, markSignedOut, profile: accountState === "unauthenticated" ? null : accountProfile };
 }

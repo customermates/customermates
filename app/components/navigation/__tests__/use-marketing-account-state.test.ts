@@ -1,5 +1,5 @@
 import type { Root } from "react-dom/client";
-import type { AccountState } from "@/features/auth/account-state";
+import type { MarketingAccount } from "@/features/auth/account-state";
 
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
@@ -22,12 +22,12 @@ let root: Root;
 let container: HTMLDivElement;
 let latest: Snapshot | null = null;
 
-function Probe({ known, enabled, pathname }: { known?: AccountState; enabled: boolean; pathname: string }) {
+function Probe({ known, enabled, pathname }: { known?: MarketingAccount; enabled: boolean; pathname: string }) {
   latest = useMarketingAccountState(known, enabled, pathname);
   return null;
 }
 
-async function render(props: { known?: AccountState; enabled?: boolean; pathname?: string } = {}) {
+async function render(props: { known?: MarketingAccount; enabled?: boolean; pathname?: string } = {}) {
   await act(async () => {
     root.render(
       createElement(Probe, { enabled: props.enabled ?? true, known: props.known, pathname: props.pathname ?? "/" }),
@@ -80,13 +80,15 @@ describe("useMarketingAccountState", () => {
     expect(mocks.readAccountState).not.toHaveBeenCalled();
   });
 
-  it("uses a server-resolved state as given and still loads the profile for the avatar", async () => {
+  it("uses a server-resolved account as given and never posts the lookup from that page", async () => {
     document.cookie = `${SESSION_HINT_COOKIE_NAME}=1; Path=/`;
-    mocks.readAccountState.mockResolvedValue({ state: "allowed", profile: PROFILE });
+    document.documentElement.setAttribute("data-session-hint", "");
 
-    const snapshot = await render({ known: "pending" });
+    const snapshot = await render({ known: { state: "pending", profile: PROFILE } });
     expect(snapshot.accountState).toBe("pending");
     expect(snapshot.profile).toStrictEqual(PROFILE);
+    expect(mocks.readAccountState).not.toHaveBeenCalled();
+    expect(document.documentElement.hasAttribute("data-session-hint")).toBe(false);
   });
 
   it("drops back to signed out and clears the hint after signing out", async () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import type { AccountState } from "@/features/auth/account-state";
+import type { MarketingAccount } from "@/features/auth/account-state";
 
 import dynamic from "next/dynamic";
 
@@ -13,14 +13,14 @@ import { usePathname } from "@/i18n/navigation";
 const DocsShell = dynamic(() => import("./docs-shell").then((mod) => ({ default: mod.DocsShell })));
 
 type Props = {
-  accountState?: AccountState;
+  account?: MarketingAccount;
   children: React.ReactNode;
 };
 
-export function MarketingShell({ accountState: knownAccountState, children }: Props) {
+export function MarketingShell({ account: knownAccount, children }: Props) {
   const pathname = usePathname();
   const isDocs = pathname === "/docs" || pathname.startsWith("/docs/");
-  const { accountState, markSignedOut, profile } = useMarketingAccountState(knownAccountState, !isDocs, pathname);
+  const { accountState, markSignedOut, profile } = useMarketingAccountState(knownAccount, !isDocs, pathname);
   const onboardingIntent = useOnboardingIntentFromLocation(pathname);
 
   if (isDocs) return <DocsShell>{children}</DocsShell>;

@@ -26,7 +26,7 @@ import { MarketingShell } from "../components/navigation/marketing-shell";
 import { NotFoundPageView } from "@/components/shared/not-found-page-view";
 
 type Element<Props> = ReactElement<Props & { children: ReactElement }>;
-type Shell = Element<{ accountState?: string }>;
+type Shell = Element<{ account?: unknown }>;
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -34,11 +34,15 @@ beforeEach(() => {
   mocks.getMessages.mockImplementation((options?: { locale?: string }) =>
     Promise.resolve({ NotFoundPage: { title: options?.locale ?? "request" } }),
   );
-  mocks.resolveRequestAccountState.mockResolvedValue({ state: "allowed", user: null });
+  mocks.resolveRequestAccountState.mockResolvedValue({
+    state: "allowed",
+    sessionUser: { email: "anna@example.com", image: null, name: "Anna Müller" },
+    user: null,
+  });
 });
 
 describe("global not-found page", () => {
-  it("renders an unmatched URL in the request's locale with the visitor's account state, without shipping the store", async () => {
+  it("renders an unmatched URL in the request's locale with the visitor's account and profile, without shipping the store", async () => {
     const page = (await GlobalNotFoundPage()) as Element<{ displayLanguage: string; messages: unknown }>;
     const shell = page.props.children as Shell;
 
@@ -46,7 +50,10 @@ describe("global not-found page", () => {
     expect(page.props.displayLanguage).toBe("de");
     expect(page.props.messages).toEqual({ NotFoundPage: { title: "request" } });
     expect(shell.type).toBe(MarketingShell);
-    expect(shell.props.accountState).toBe("allowed");
+    expect(shell.props.account).toStrictEqual({
+      profile: { avatarUrl: null, email: "anna@example.com", name: "Anna Müller" },
+      state: "allowed",
+    });
     expect(shell.props.children.type).toBe(NotFoundPageView);
   });
 });
@@ -58,7 +65,7 @@ describe("root not-found boundary", () => {
 
     expect(page.props.displayLanguage).toBe("en");
     expect(page.props.messages).toEqual({ NotFoundPage: { title: "en" } });
-    expect(shell.props.accountState).toBeUndefined();
+    expect(shell.props.account).toBeUndefined();
     expect((shell.props.children as Element<{ locale: string }>).props.locale).toBe("en");
     expect(mocks.getLocale).not.toHaveBeenCalled();
     expect(mocks.resolveRequestAccountState).not.toHaveBeenCalled();
@@ -68,7 +75,7 @@ describe("root not-found boundary", () => {
     const page = LocaleNotFoundPage() as Shell;
 
     expect(page.type).toBe(MarketingShell);
-    expect(page.props.accountState).toBeUndefined();
+    expect(page.props.account).toBeUndefined();
     expect(page.props.children.type).toBe(NotFoundPageView);
   });
 });

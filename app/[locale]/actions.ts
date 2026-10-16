@@ -18,22 +18,12 @@ import { redirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
 
 import { serializeResult } from "@/core/utils/action-result";
+import { marketingAccountOf } from "@/features/auth/marketing-account";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 import { buildLocalePath } from "@/i18n/locale-registry";
 
 export async function readMarketingAccountAction(): Promise<MarketingAccount> {
-  const { state, sessionUser, user } = await getRouteGuardService().resolveAccountState();
-  if (state === "unauthenticated" || !sessionUser) return { profile: null, state };
-
-  const name = user ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() : (sessionUser.name ?? "").trim();
-  return {
-    profile: {
-      avatarUrl: user?.avatarUrl ?? sessionUser.image ?? null,
-      email: user?.email ?? sessionUser.email,
-      name,
-    },
-    state,
-  };
+  return marketingAccountOf(await getRouteGuardService().resolveAccountState());
 }
 
 export async function signOutAction() {
