@@ -54,6 +54,7 @@ export type SetupCommand =
 export type SpreadsheetRejection = { fileName: string; failure: SpreadsheetReadFailureCode };
 
 const POLLED_GENERATION = new Set(["queued", "running"]);
+const PENDING_PREFILL = new Set(["idle", "queued", "running"]);
 const ADJUSTABLE_STAGES = new Set<SetupStage>(["plan", "planFailed"]);
 
 export class WorkspaceSetupStore {
@@ -125,12 +126,12 @@ export class WorkspaceSetupStore {
     if (!setup) return false;
     if (setup.status === "planning" || setup.status === "building") return true;
     if (setup.status !== "interview") return false;
-    return POLLED_GENERATION.has(setup.interview.prefill) || POLLED_GENERATION.has(setup.plan.status);
+    return this.prefillRunning || POLLED_GENERATION.has(setup.plan.status);
   }
 
   get prefillRunning(): boolean {
     const setup = this.setup;
-    return Boolean(setup?.websiteUrl) && POLLED_GENERATION.has(setup?.interview.prefill ?? "idle");
+    return Boolean(setup?.websiteUrl) && PENDING_PREFILL.has(setup?.interview.prefill ?? "skipped");
   }
 
   setLocale = (locale: string) => {

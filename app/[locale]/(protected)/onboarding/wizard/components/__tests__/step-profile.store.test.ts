@@ -33,7 +33,7 @@ describe("StepProfileStore", () => {
     expect(actions.registerProfileAction).toHaveBeenCalledExactlyOnceWith({
       agreeToTerms: true,
       avatarUrl: null,
-      country: "de",
+      displayLanguage: "system",
       email: "owner@example.com",
       firstName: "Owner",
       lastName: "Example",
@@ -41,14 +41,14 @@ describe("StepProfileStore", () => {
     });
   });
 
-  it("keeps the company website for the setup step without sending it to registration", async () => {
+  it("sends the chosen display language and no country to registration", async () => {
     const store = new StepProfileStore(rootStore);
     store.onInitOrRefresh({ email: "owner@example.com", firstName: "Owner", lastName: "Example" });
-    store.onChange("websiteUrl", "example.com");
+    store.onChange("displayLanguage", "de");
 
     await store.onSubmit();
 
-    expect(actions.registerProfileAction.mock.calls[0][0]).not.toHaveProperty("websiteUrl");
-    expect(store.form.websiteUrl).toBe("example.com");
+    expect(actions.registerProfileAction.mock.calls[0][0]).toMatchObject({ displayLanguage: "de" });
+    expect(actions.registerProfileAction.mock.calls[0][0]).not.toHaveProperty("country");
   });
 });

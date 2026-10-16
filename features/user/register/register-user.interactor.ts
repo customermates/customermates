@@ -9,7 +9,7 @@ import type { Redirect } from "@/features/auth/auth-outcome";
 import type { WorkspaceRegistrationService } from "./workspace-registration.service";
 
 import { z } from "zod";
-import { CountryCode, Status } from "@/generated/prisma";
+import { CountryCode, Locale, Status } from "@/generated/prisma";
 
 import { currentLegalDocumentVersions } from "@/constants/legal-documents";
 import { env } from "@/env";
@@ -35,7 +35,8 @@ const RegisterUserSchema = z
     email: z.email(),
     firstName: z.string().min(1),
     lastName: z.string().min(1),
-    country: z.enum(CountryCode),
+    country: z.enum(CountryCode).optional(),
+    displayLanguage: z.enum(Locale).optional(),
     avatarUrl: zx.secureUrl().or(z.literal("")).nullable(),
     agreeToTerms: z.boolean(),
   })

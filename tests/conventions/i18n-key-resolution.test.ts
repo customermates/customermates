@@ -720,6 +720,7 @@ export const DYNAMIC_KEY_SITES = [
   "app/components/app-sidebar.tsx :: t :: Common.locales.${value}",
   "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx :: t :: Common.locales.${detectBrowserUiLocale()}",
   "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx :: t :: Common.locales.${key}",
+  "app/[locale]/(protected)/onboarding/wizard/components/step-profile.tsx :: t :: Common.locales.${key}",
   "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx :: t :: Common.themes.${key}",
   "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx :: t :: Common.themes.${systemTheme}",
   "app/[locale]/(protected)/settings/(account)/components/signature-template-picker.tsx :: t :: ConnectedAccountsCard.signatureTemplates.${template}",

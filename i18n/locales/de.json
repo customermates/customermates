@@ -4957,7 +4957,9 @@
     "website": {
       "change": "Ändern",
       "from": "Antworten vorgeschlagen von {website}",
-      "read": "Website lesen"
+      "hint": "Optional. Wir lesen deine öffentliche Website und schlagen Antworten vor, die du meist nur noch bestätigst.",
+      "read": "Website lesen",
+      "title": "Antworten aus deiner Website vorschlagen lassen"
     }
   }
 }

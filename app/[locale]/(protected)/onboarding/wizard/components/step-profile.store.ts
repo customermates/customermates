@@ -3,23 +3,22 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { RegisterOnboardingProfileData } from "@/features/user/register/register-onboarding-profile.interactor";
 
 import { action, makeObservable, toJS } from "mobx";
-import { CountryCode } from "@/generated/prisma";
+import { Locale } from "@/generated/prisma";
 
 import { registerProfileAction } from "../actions";
 
 import { BaseFormStore } from "@/core/base/base-form.store";
 
-export class StepProfileStore extends BaseFormStore<RegisterOnboardingProfileData & { websiteUrl: string }> {
+export class StepProfileStore extends BaseFormStore<RegisterOnboardingProfileData> {
   constructor(rootStore: RootStore) {
     super(rootStore, {
       firstName: "",
       lastName: "",
-      country: CountryCode.de,
+      displayLanguage: Locale.system,
       avatarUrl: null,
       email: "",
       agreeToTerms: false,
       onboardingIntent: undefined,
-      websiteUrl: "",
     });
 
     makeObservable(this, {
@@ -32,11 +31,13 @@ export class StepProfileStore extends BaseFormStore<RegisterOnboardingProfileDat
     this.setIsLoading(true);
 
     try {
-      const { firstName, lastName, country, avatarUrl, email, agreeToTerms, onboardingIntent } = toJS(this.form);
+      const { firstName, lastName, displayLanguage, avatarUrl, email, agreeToTerms, onboardingIntent } = toJS(
+        this.form,
+      );
       const res = await registerProfileAction({
         firstName,
         lastName,
-        country,
+        displayLanguage,
         avatarUrl,
         email,
         agreeToTerms,

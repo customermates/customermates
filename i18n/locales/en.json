@@ -4957,7 +4957,9 @@
     "website": {
       "change": "Change",
       "from": "Answers suggested from {website}",
-      "read": "Read website"
+      "hint": "Optional. We read your public website and suggest answers, so you mostly just confirm.",
+      "read": "Read website",
+      "title": "Fill in answers from your website"
     }
   }
 }

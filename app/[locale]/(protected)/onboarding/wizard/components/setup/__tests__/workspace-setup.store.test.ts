@@ -301,6 +301,17 @@ describe("WorkspaceSetupStore", () => {
     expect(storeWith(setupView()).shouldPoll).toBe(false);
   });
 
+  it("keeps polling while the website pre-fill still waits for the website to be read", () => {
+    const waiting = storeWith(setupView({ interview: { ...setupView().interview, prefill: "idle" } }));
+    expect(waiting.shouldPoll).toBe(true);
+    expect(waiting.prefillRunning).toBe(true);
+    const withoutWebsite = storeWith(
+      setupView({ websiteUrl: null, interview: { ...setupView().interview, prefill: "idle" } }),
+    );
+    expect(withoutWebsite.shouldPoll).toBe(false);
+    expect(withoutWebsite.prefillRunning).toBe(false);
+  });
+
   it("resumes on the first unconfirmed screen and resets when a new setup appears", () => {
     const confirmed = {
       source: "user" as const,

@@ -15,23 +15,19 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 
 export const SetupStart = observer(function SetupStart() {
   const t = useTranslations();
-  const { workspaceSetupStore: store, stepProfileStore } = useRootStore();
-  const [fromProfile] = useState(() => ({
-    submitted: stepProfileStore.form.email.length > 0,
-    website: stepProfileStore.form.websiteUrl.trim(),
-  }));
-  const [website, setWebsite] = useState(fromProfile.website);
-  const [autoStarting, setAutoStarting] = useState(fromProfile.submitted);
+  const { workspaceSetupStore: store } = useRootStore();
+  const [website, setWebsite] = useState("");
+  const [autoStarting, setAutoStarting] = useState(true);
   const starting = store.pending === "start";
   const autoStarted = useRef(false);
 
   useEffect(() => {
-    if (!fromProfile.submitted || autoStarted.current) return;
+    if (autoStarted.current) return;
     autoStarted.current = true;
     runUserAction(async () => {
-      if (!(await store.start(fromProfile.website || null))) setAutoStarting(false);
+      if (!(await store.start(null))) setAutoStarting(false);
     });
-  }, [fromProfile, store]);
+  }, [store]);
 
   if (autoStarting) {
     return (

@@ -4957,7 +4957,9 @@
     "website": {
       "change": "Cambiar",
       "from": "Respuestas sugeridas a partir de {website}",
-      "read": "Leer el sitio web"
+      "hint": "Opcional. Leemos tu sitio web público y sugerimos respuestas, así que casi solo tienes que confirmarlas.",
+      "read": "Leer el sitio web",
+      "title": "Rellena las respuestas desde tu sitio web"
     }
   }
 }

@@ -66,6 +66,16 @@ afterEach(() => {
   container.remove();
 });
 
+function renderWebsite(view: ReturnType<typeof setupView>) {
+  const store = new WorkspaceSetupStore({} as never);
+  store.hydrate({ available: true, setup: view });
+  harness.rootStore = { workspaceSetupStore: store };
+  act(() => root.unmount());
+  root = createRoot(container);
+  act(() => root.render(createElement(SetupInterview)));
+  return container.textContent ?? "";
+}
+
 describe("SetupInterview", () => {
   it("puts the spreadsheet upload right under the choice that asks for it", () => {
     renderDataScreen("spreadsheet");
@@ -80,5 +90,22 @@ describe("SetupInterview", () => {
 
     expect(container.querySelector("#setup-spreadsheet")).toBeNull();
     expect(field("existingData").nextElementSibling).toBe(field("anythingMissed"));
+  });
+
+  it("says the website is still being read until its suggestions are in", () => {
+    const reading = renderWebsite(setupView({ interview: { ...setupView().interview, prefill: "idle" } }));
+    expect(reading).toContain("WorkspaceSetup.interview.prefillRunning example.com");
+    expect(reading).not.toContain("WorkspaceSetup.website.from");
+
+    expect(renderWebsite(setupView())).toContain("WorkspaceSetup.website.from example.com");
+  });
+
+  it("offers to fill in the answers from a website on every part when none is given", () => {
+    const text = renderWebsite(
+      setupView({ websiteUrl: null, interview: { ...setupView().interview, prefill: "skipped" } }),
+    );
+    expect(text).toContain("WorkspaceSetup.website.title");
+    expect(text).toContain("WorkspaceSetup.website.hint");
+    expect(text).toContain("WorkspaceSetup.website.read");
   });
 });

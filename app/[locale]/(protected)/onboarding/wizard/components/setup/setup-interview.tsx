@@ -80,12 +80,25 @@ const SetupWebsiteContext = observer(function SetupWebsiteContext() {
   const reading = store.pending === "website";
 
   if (website && !editing) {
+    const host = new URL(website).host;
     return (
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border px-3 py-2">
+      <div
+        aria-live="polite"
+        className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border px-3 py-2"
+        role="status"
+      >
         <span className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
-          <Globe aria-hidden className="size-4 shrink-0" />
+          {store.prefillRunning ? (
+            <Loader2 aria-hidden className="size-4 shrink-0 animate-spin motion-reduce:animate-none" />
+          ) : (
+            <Globe aria-hidden className="size-4 shrink-0" />
+          )}
 
-          <span className="truncate">{t("WorkspaceSetup.website.from", { website: new URL(website).host })}</span>
+          <span className="truncate">
+            {store.prefillRunning
+              ? t("WorkspaceSetup.interview.prefillRunning", { website: host })
+              : t("WorkspaceSetup.website.from", { website: host })}
+          </span>
         </span>
 
         {editable ? (
@@ -116,7 +129,17 @@ const SetupWebsiteContext = observer(function SetupWebsiteContext() {
   };
 
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-3 rounded-md border border-border p-3">
+      <div className="flex items-start gap-2">
+        <Globe aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <span className="text-sm font-medium">{t("WorkspaceSetup.website.title")}</span>
+
+          <span className="text-xs text-muted-foreground">{t("WorkspaceSetup.website.hint")}</span>
+        </div>
+      </div>
+
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
         <Input
           aria-label={t("Common.inputs.websiteUrl")}
@@ -141,8 +164,6 @@ const SetupWebsiteContext = observer(function SetupWebsiteContext() {
           {t("WorkspaceSetup.website.read")}
         </Button>
       </div>
-
-      <p className="text-xs text-muted-foreground">{t("OnboardingWizard.profile.websiteDescription")}</p>
     </div>
   );
 });
@@ -169,14 +190,6 @@ export const SetupInterview = observer(function SetupInterview() {
       <SetupWebsiteContext />
 
       {store.adjusting ? <Alert color="primary" description={t("WorkspaceSetup.interview.adjusting")} /> : null}
-
-      {store.prefillRunning ? (
-        <p aria-live="polite" className="flex items-center gap-2 text-xs text-muted-foreground" role="status">
-          <Loader2 aria-hidden className="size-3.5 animate-spin motion-reduce:animate-none" />
-
-          {t("WorkspaceSetup.interview.prefillRunning", { website: setup?.websiteUrl ?? "" })}
-        </p>
-      ) : null}
 
       {prefillFailed && store.screenIndex === 0 ? (
         <Alert color="warning" description={t("WorkspaceSetup.interview.prefillFailed")} />

@@ -4961,7 +4961,9 @@
     "website": {
       "change": "Modifier",
       "from": "Réponses suggérées à partir de {website}",
-      "read": "Lire le site web"
+      "hint": "Facultatif. Nous lisons votre site web public et suggérons des réponses que vous n’avez plus qu’à confirmer.",
+      "read": "Lire le site web",
+      "title": "Pré-remplir les réponses à partir de votre site web"
     }
   }
 }

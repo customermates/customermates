@@ -20,6 +20,7 @@ vi.mock("@/core/errors/report-application-error", () => ({
   runUserAction: (action: () => unknown) => void action(),
   reportApplicationError: vi.fn(),
 }));
+vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn() }));
 vi.mock("../../../workspace-setup-actions", () => ({
   startWorkspaceSetupAction: harness.start,
   getWorkspaceSetupStatusAction: harness.status,
@@ -51,7 +52,7 @@ beforeEach(() => {
   harness.status.mockResolvedValue({ ok: true, data: { available: true, setup: null } });
   const store = new WorkspaceSetupStore({} as never);
   store.hydrate({ available: true, setup: null });
-  harness.rootStore = { workspaceSetupStore: store, stepProfileStore: { form: { email: "", websiteUrl: "" } } };
+  harness.rootStore = { workspaceSetupStore: store };
 });
 
 afterEach(() => {
@@ -59,9 +60,28 @@ afterEach(() => {
   container.remove();
 });
 
+const FAILED_START = { ok: false, failure: { kind: "validation", issues: [] } };
+
+async function renderAfterFailedStart() {
+  harness.start.mockResolvedValueOnce(FAILED_START);
+  await act(async () => {
+    root.render(createElement(SetupStart));
+    await Promise.resolve();
+  });
+}
+
 describe("SetupStart", () => {
-  it("ends in the setup footer, with Start the setup first on phones", () => {
-    act(() => root.render(createElement(SetupStart)));
+  it("starts the setup by itself without a website, which the interview asks for instead", async () => {
+    await act(async () => {
+      root.render(createElement(SetupStart));
+      await Promise.resolve();
+    });
+    expect(harness.start).toHaveBeenCalledTimes(1);
+    expect(harness.start).toHaveBeenCalledWith({ websiteUrl: null, locale: expect.any(String) });
+  });
+
+  it("ends in the setup footer, with Start the setup first on phones", async () => {
+    await renderAfterFailedStart();
 
     const footer = button("WorkspaceSetup.start.start").parentElement;
     expect(footer?.className.split(" ")).toEqual(expect.arrayContaining(FOOTER_CLASSES));
@@ -72,12 +92,12 @@ describe("SetupStart", () => {
   });
 
   it("starts without a website from the secondary action", async () => {
-    act(() => root.render(createElement(SetupStart)));
+    await renderAfterFailedStart();
 
     await act(async () => {
       button("WorkspaceSetup.start.withoutWebsite").click();
       await Promise.resolve();
     });
-    expect(harness.start).toHaveBeenCalledWith({ websiteUrl: null, locale: expect.any(String) });
+    expect(harness.start).toHaveBeenLastCalledWith({ websiteUrl: null, locale: expect.any(String) });
   });
 });
