@@ -3170,7 +3170,7 @@
       "action": "Workspace löschen",
       "confirmTitle": "Diesen Workspace dauerhaft löschen",
       "reasonLabel": "Grund",
-      "warningDescription": "Beim Löschen von {name} werden der Workspace und {members, plural, =1 {sein einziges Mitgliedskonto} other {alle # Mitgliedskonten}} dauerhaft entfernt, samt Kontakten, Deals, Nachrichten, Anmeldedaten und Abrechnungsdaten. Dies kann nicht rückgängig gemacht werden."
+      "warningDescription": "Beim Löschen von {name} werden der Workspace und {members, plural, =1 {sein einziges Mitgliedskonto} other {alle # Mitgliedskonten}} dauerhaft entfernt, samt Kontakten, Deals, Nachrichten, Anmeldedaten und Abrechnungsdaten. Die monatlichen Nutzungszahlen bleiben für die Abrechnung erhalten, ohne Namen, E-Mail-Adressen oder Kontokennungen. Dies kann nicht rückgängig gemacht werden."
     },
     "emptyBody": "Passe Suche oder Filter an, um die Liste zu erweitern.",
     "emptyTitle": "Keine Arbeitsbereiche passen zu diesen Filtern",

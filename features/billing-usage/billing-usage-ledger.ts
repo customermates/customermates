@@ -105,6 +105,10 @@ export class BillingUsageLedger extends TenantRepository {
       where: { companyId, endedAt: null },
       data: { endedAt: now, endExact: changed === "deleted" },
     });
+    await this.prisma.billingUsageInterval.updateMany({
+      where: { companyId },
+      data: { firstName: null, lastName: null, email: null, identifier: null },
+    });
     await this.prisma.billingUsageWorkspace.updateMany({
       where: { companyId, deletedAt: null },
       data: { deletedAt: now },

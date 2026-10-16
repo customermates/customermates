@@ -323,7 +323,7 @@ describeDatabase("billing usage ledger", { timeout: 120_000 }, () => {
     expect(await intervals(companyId)).toMatchObject([{ subjectId: userId, endExact: true }]);
   });
 
-  it("keeps a deleted workspace's history, closes its seats and labels it from the deletion audit", async () => {
+  it("keeps a deleted workspace's counts without identities, closes its seats and labels it from the deletion audit", async () => {
     const { companyId, userId } = await workspace();
     await recordSeats(companyId);
 
@@ -359,7 +359,13 @@ describeDatabase("billing usage ledger", { timeout: 120_000 }, () => {
       includeDetails: true,
     });
     expect(usage.seats.count).toBe(1);
-    expect(usage.seats.users?.[0]).toMatchObject({ userId, firstName: "Ledger", roleName: "Member" });
+    expect(usage.seats.users?.[0]).toMatchObject({
+      userId,
+      firstName: null,
+      lastName: null,
+      email: null,
+      roleName: "Member",
+    });
     expect(usage.current).toEqual({ activeSeats: 0, connectedChannels: 0 });
   });
 
@@ -383,7 +389,7 @@ describeDatabase("billing usage ledger", { timeout: 120_000 }, () => {
 
     expect(await intervals(kept.companyId)).toMatchObject([{ endExact: false }]);
     expect((await intervals(kept.companyId))[0].endedAt).toBeInstanceOf(Date);
-    expect(await intervals(vanished.companyId)).toMatchObject([{ endExact: false }]);
+    expect(await intervals(vanished.companyId)).toMatchObject([{ endExact: false, email: null }]);
     expect((await ledgerWorkspace(vanished.companyId))?.deletedAt).toBeInstanceOf(Date);
   });
 

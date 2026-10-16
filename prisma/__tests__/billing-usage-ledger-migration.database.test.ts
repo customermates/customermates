@@ -67,7 +67,13 @@ async function legacyHistory(client: Client) {
       ('c-old', 'e4', 'connected_account', 'a-gone', 'connected_account.created', '{"provider":"whatsapp","displayName":"+4917000000"}', '2026-08-01'),
       ('c-old', 'e5', 'connected_account', 'a-gone', 'connected_account.deleted', '{"provider":"whatsapp","displayName":"+4917000000"}', '2026-08-20'),
       ('c-old', 'e6', 'connected_account', 'a-gone-no-event', 'connected_account.created', '{"provider":"linkedin","displayName":"Profile"}', '2026-08-02'),
-      ('c-old', 'e7', 'connected_account', 'a-gone-no-event', 'connected_account.updated', '{"provider":"linkedin","displayName":"Profile"}', '2026-08-25');
+      ('c-old', 'e7', 'connected_account', 'a-gone-no-event', 'connected_account.updated', '{"provider":"linkedin","displayName":"Profile"}', '2026-08-25'),
+      ('c-old', 'n1', 'legal', 'u-inactive', 'legal.notice_sent', '{}', '2026-08-09'),
+      ('c-old', 'n2', 'legal', 'u-inactive', 'legal.notice_sent', '{}', '2026-09-01T09:00:00Z'),
+      ('c-old', 'n3', 'legal', 'u-reactivated', 'legal.notice_sent', '{}', '2026-08-09'),
+      ('c-old', 'n4', 'legal', 'u-reactivated', 'legal.notice_sent', '{}', '2026-09-20'),
+      ('c-new', 'n5', 'legal', 'u-new', 'legal.notice_sent', '{}', '2026-08-31'),
+      ('c-old', 'n6', 'legal', 'u-gone', 'legal.notice_sent', '{}', '2026-08-09');
   `);
 }
 
@@ -94,7 +100,15 @@ async function ledger(client: Client) {
     )
   ).rows;
 
-  return { intervals: new Map(intervals.map((row) => [row.subjectId, row])), workspaces };
+  const open = intervals.filter((row) => row.kind !== "seat" || row.endedAt === null);
+  const closedSeats = intervals.filter((row) => row.kind === "seat" && row.endedAt !== null);
+  const bySubject = (rows: typeof intervals) => new Map(rows.map((row) => [row.subjectId, row]));
+
+  return {
+    intervals: new Map([...bySubject(closedSeats), ...bySubject(open)]),
+    closedSeats: bySubject(closedSeats),
+    workspaces,
+  };
 }
 
 describeDatabase("billing usage ledger migration", { timeout: 240_000 }, () => {
@@ -109,7 +123,7 @@ describeDatabase("billing usage ledger migration", { timeout: 240_000 }, () => {
       await legacyHistory(client);
 
       await applyMigrations(client, [MIGRATION]);
-      const { intervals, workspaces } = await ledger(client);
+      const { intervals, closedSeats, workspaces } = await ledger(client);
 
       expect(intervals.get("u-reactivated")).toMatchObject({
         kind: "seat",
@@ -122,8 +136,24 @@ describeDatabase("billing usage ledger migration", { timeout: 240_000 }, () => {
         startedAt: new Date("2026-04-01T00:00:00.000Z"),
         startExact: false,
       });
-      expect(intervals.has("u-inactive")).toBe(false);
+      expect(intervals.get("u-inactive")).toMatchObject({
+        kind: "seat",
+        startedAt: new Date("2026-08-09T00:00:00.000Z"),
+        endedAt: new Date("2026-09-01T09:00:00.000Z"),
+        startExact: false,
+        endExact: false,
+        who: "c@old.example.invalid",
+        roleName: "Admin",
+      });
       expect(intervals.has("u-pending")).toBe(false);
+      expect(intervals.has("u-gone")).toBe(false);
+      expect(closedSeats.get("u-reactivated")).toMatchObject({
+        startedAt: new Date("2026-08-09T00:00:00.000Z"),
+        endedAt: new Date("2026-08-09T00:00:00.000Z"),
+        startExact: false,
+        endExact: false,
+      });
+      expect(closedSeats.has("u-new")).toBe(false);
 
       expect(intervals.get("a-live")).toMatchObject({
         kind: "channel",

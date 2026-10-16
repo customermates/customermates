@@ -78,6 +78,29 @@ FROM "User" u
 LEFT JOIN "UserRole" r ON r."id" = u."roleId"
 WHERE u."status" = 'active';
 
+-- Legal notices go only to active users, so each one proves a seat at that moment.
+-- Notices before a user's current seat become one closed seat from the first to
+-- the last of them; both times are inferred.
+WITH notices AS (
+    SELECT e."companyId", e."subjectId" AS "userId",
+           MIN(e."createdAt") AS "firstNoticeAt", MAX(e."createdAt") AS "lastNoticeAt"
+    FROM "EventLog" e
+    LEFT JOIN "BillingUsageInterval" s
+        ON s."kind" = 'seat' AND s."companyId" = e."companyId" AND s."subjectId" = e."subjectId"
+    WHERE e."kind" = 'legal.notice_sent' AND e."subjectKind" = 'legal'
+      AND (s."startedAt" IS NULL OR e."createdAt" < s."startedAt")
+    GROUP BY e."companyId", e."subjectId"
+)
+INSERT INTO "BillingUsageInterval" (
+    "id", "companyId", "kind", "subjectId", "startedAt", "endedAt", "startExact", "endExact",
+    "firstName", "lastName", "email", "roleName"
+)
+SELECT gen_random_uuid()::text, n."companyId", 'seat', n."userId", n."firstNoticeAt", n."lastNoticeAt", FALSE, FALSE,
+       u."firstName", u."lastName", u."email", r."name"
+FROM notices n
+JOIN "User" u ON u."id" = n."userId" AND u."companyId" = n."companyId"
+LEFT JOIN "UserRole" r ON r."id" = u."roleId";
+
 -- Connected accounts from the event log and the account rows. A disconnect without
 -- an event falls back to the row's last update or the account's last event and is
 -- marked inexact.

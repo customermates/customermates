@@ -3170,7 +3170,7 @@
       "action": "Elimina spazio di lavoro",
       "confirmTitle": "Elimina definitivamente questo spazio di lavoro",
       "reasonLabel": "Motivo",
-      "warningDescription": "L'eliminazione di {name} rimuove definitivamente lo spazio di lavoro e {members, plural, =1 {il suo unico account membro} other {tutti i suoi # account membri}}, insieme a contatti, trattative, messaggi, credenziali di accesso e dati di fatturazione. L'operazione non è reversibile."
+      "warningDescription": "L'eliminazione di {name} rimuove definitivamente lo spazio di lavoro e {members, plural, =1 {il suo unico account membro} other {tutti i suoi # account membri}}, insieme a contatti, trattative, messaggi, credenziali di accesso e dati di fatturazione. I dati di utilizzo mensili restano conservati per la fatturazione, senza nomi, indirizzi email o identificativi degli account. L'operazione non è reversibile."
     },
     "emptyBody": "Modifica la ricerca o i filtri per ampliare l’elenco.",
     "emptyTitle": "Nessuna area corrisponde a questi filtri",

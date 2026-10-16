@@ -3170,7 +3170,7 @@
       "action": "Delete workspace",
       "confirmTitle": "Delete this workspace permanently",
       "reasonLabel": "Reason",
-      "warningDescription": "Deleting {name} permanently removes the workspace and {members, plural, =1 {its one member account} other {all # member accounts}}, together with their contacts, deals, messages, sign-in credentials and billing records. This cannot be undone."
+      "warningDescription": "Deleting {name} permanently removes the workspace and {members, plural, =1 {its one member account} other {all # member accounts}}, together with their contacts, deals, messages, sign-in credentials and billing records. Monthly usage counts are kept for billing, without names, email addresses or account identifiers. This cannot be undone."
     },
     "emptyBody": "Adjust the search or filters to widen the list.",
     "emptyTitle": "No workspaces match these filters",
