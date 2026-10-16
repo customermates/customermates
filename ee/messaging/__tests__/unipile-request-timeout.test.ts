@@ -203,7 +203,7 @@ describe("unipile request timeout behind the Next.js patched fetch", () => {
 
     expect(response.status).toBe(200);
     const [request] = received;
-    const boundary = request.contentType?.match(/boundary=(.+)$/)?.[1];
+    const [, boundary] = (request.contentType ?? "").split("boundary=");
     expect(boundary).toBeTruthy();
     expect(request.body).toContain(`--${boundary}`);
     expect(request.body).toContain('filename="proof.txt"');
