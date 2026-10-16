@@ -632,7 +632,9 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     for (const widget of setupWidgetCreationOrder(widgets)) {
       const display = displays.get(widget.idempotencyKey);
       if (!display) throw phaseFailure("invalidPlan");
-      const saved = await this.upsertWidget.invoke(widget);
+      let saved = await this.upsertWidget.invoke(widget);
+      if (!saved.ok && interactorFailureCodes(saved.error).includes(CustomErrorCode.widgetLayoutOverlap))
+        saved = await this.upsertWidget.invoke({ ...widget, layout: undefined });
       if (!saved.ok) {
         const failure = failureOf(saved.error);
         if (failure === "schemaChanged") await this.clearArtifact(setup.id, "widgets");

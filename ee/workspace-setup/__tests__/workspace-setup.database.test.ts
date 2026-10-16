@@ -446,6 +446,29 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(await ws.run(() => service.runPhase(setupId, "records"))).toBe("skip");
   });
 
+  it("puts a dashboard widget into the next free spot when its planned spot is taken", async () => {
+    const ws = await workspace();
+    const { setupId, planRevision } = await planned(ws);
+    await ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision }));
+    const { UpsertRecordWidgetInteractor } = await import("@/features/widget/record-widget.interactor");
+    const { fail } = await import("@/core/validation/interactor-failure-server");
+    const { CustomErrorCode } = await import("@/core/validation/validation.types");
+    const spy = vi
+      .spyOn(UpsertRecordWidgetInteractor.prototype, "invoke")
+      .mockImplementationOnce(() => Promise.resolve(fail(CustomErrorCode.widgetLayoutOverlap, ["layout"])));
+    try {
+      expect(await build(ws, setupId)).toMatchObject({ dashboard: "settled" });
+      const requested = spy.mock.calls.map(([input]) => input.layout);
+      expect(requested[0]).toEqual({ x: 0, y: 0, w: 6, h: 2 });
+      expect(requested[1]).toBeUndefined();
+    } finally {
+      spy.mockRestore();
+    }
+    const view = await status(ws);
+    expect(view.phases.find((phase) => phase.key === "dashboard")?.status).toBe("completed");
+    expect(view.results.widgets).toHaveLength(agencyPlan.dashboard.widgets.length);
+  });
+
   it("lets a member invited after the build wait for approval in the planned tasks list", async () => {
     const ws = await workspace();
     const { setupId, planRevision } = await planned(ws);
