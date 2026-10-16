@@ -2774,6 +2774,7 @@
     "consequences": {
       "channels": "Los buzones y las cuentas de LinkedIn que conectó aquí se desconectan.",
       "credentials": "Sus claves de API y conexiones de IA para este espacio de trabajo dejan de funcionar.",
+      "notified": "Se le avisa por correo.",
       "records": "Sus registros y su historial se conservan.",
       "rejoin": "Para volver, necesita una nueva invitación."
     },

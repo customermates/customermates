@@ -2774,6 +2774,7 @@
     "consequences": {
       "channels": "Les boîtes mail et comptes LinkedIn connectés ici par cette personne sont déconnectés.",
       "credentials": "Ses clés API et connexions IA pour cet espace de travail cessent de fonctionner.",
+      "notified": "Cette personne en est informée par e-mail.",
       "records": "Ses enregistrements et son historique sont conservés.",
       "rejoin": "Pour revenir, une nouvelle invitation est nécessaire."
     },

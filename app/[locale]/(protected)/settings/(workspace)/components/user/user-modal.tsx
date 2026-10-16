@@ -47,6 +47,7 @@ export function useMemberRemovalConfirmation() {
             t("MemberRemoval.consequences.channels"),
             t("MemberRemoval.consequences.records"),
             t("MemberRemoval.consequences.rejoin"),
+            t("MemberRemoval.consequences.notified"),
           ],
       confirmLabel: t("MemberRemoval.action"),
       confirmVariant: "destructive",

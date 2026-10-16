@@ -2774,6 +2774,7 @@
     "consequences": {
       "channels": "Mailboxes and LinkedIn accounts they connected here are disconnected.",
       "credentials": "Their API keys and AI connections for this workspace stop working.",
+      "notified": "They get an email about the removal.",
       "records": "Records they own and their history stay.",
       "rejoin": "To come back, they need a new invitation."
     },

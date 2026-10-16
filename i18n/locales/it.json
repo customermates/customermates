@@ -2774,6 +2774,7 @@
     "consequences": {
       "channels": "Le caselle email e gli account LinkedIn collegati qui vengono scollegati.",
       "credentials": "Le sue chiavi API e connessioni IA per questo workspace smettono di funzionare.",
+      "notified": "Riceve un’e-mail sulla rimozione.",
       "records": "I suoi record e la cronologia restano.",
       "rejoin": "Per tornare serve un nuovo invito."
     },
