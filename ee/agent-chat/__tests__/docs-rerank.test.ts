@@ -806,7 +806,7 @@ describe("complete record procedures in bounded classifier evidence", () => {
       query: "How do I sort tasks by due date?",
       anchor: "how-do-i-switch-between-table-and-board-view",
       controls: [
-        "In Appearance, choose Table or Board.",
+        "In Appearance, choose Table, Board or Calendar.",
         "Sort by sorts by any field, including custom and calculated ones",
       ],
     },
@@ -815,7 +815,7 @@ describe("complete record procedures in bounded classifier evidence", () => {
       query: "Wie sortiere ich Aufgaben nach Fälligkeit?",
       anchor: "how-do-i-switch-between-table-and-board-view",
       controls: [
-        "Wählen Sie unter Darstellung Tabelle oder Board.",
+        "Wählen Sie unter Darstellung Tabelle, Board oder Kalender.",
         "Sortieren nach sortiert nach jedem Feld, auch nach benutzerdefinierten und berechneten",
       ],
     },
