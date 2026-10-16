@@ -101,7 +101,7 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
             return failNotFound(CustomErrorCode.recordNotFound);
         }
         const availableSources: ActivityKind[] = [];
-        if (policy.allowedSystem("auditLog", "readAll")) {
+        if (policy.allowedSystem("activityLog", "readAll")) {
           availableSources.push(
             ...CHANGE_ACTIVITY_KINDS.filter(
               (kind) => kind !== "configuration" || policy.canManageSchema || policy.canManageRoles,

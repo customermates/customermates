@@ -36,6 +36,41 @@
     "privacyLink": "Privacy details",
     "title": "Help us learn what works"
   },
+  "ActivityDetail": {
+    "eventAt": "{event} at {date}",
+    "fields": {
+      "acceptanceType": "Acceptance type",
+      "acceptingEmail": "Accepted by",
+      "changedDocuments": "Changed documents",
+      "country": "Country",
+      "createType": "New type",
+      "cronExpression": "Schedule",
+      "debounceSeconds": "Debounce",
+      "delete": "Moved to Trash",
+      "deletePermanently": "Permanently deleted",
+      "disabledReason": "Disabled reason",
+      "effectiveAt": "Effective from",
+      "isNewCompany": "First user in the workspace",
+      "markdown": "Markdown",
+      "prompt": "Instructions",
+      "publishSummary": "Published summary",
+      "putAccessPreset": "Access preset",
+      "putCapability": "Capability",
+      "putField": "Field",
+      "putRelationship": "Relationship",
+      "putType": "Type",
+      "recipientEmail": "Sent to",
+      "removalReason": "Removal reason",
+      "restore": "Restored",
+      "timezone": "Time zone",
+      "triggerEvents": "Trigger events",
+      "triggerFilters": "Trigger filters",
+      "triggerKind": "Trigger",
+      "versions": "Document versions",
+      "visibility": "Visibility"
+    },
+    "unchangedLines": "{count, plural, one {# unchanged line} other {# unchanged lines}}"
+  },
   "AgentChat": {
     "activity": {
       "approval": {
@@ -769,41 +804,6 @@
   },
   "ApiKeysCard": {
     "unnamed": "Unnamed"
-  },
-  "AuditLogModal": {
-    "eventAt": "{event} at {date}",
-    "fields": {
-      "acceptanceType": "Acceptance type",
-      "acceptingEmail": "Accepted by",
-      "changedDocuments": "Changed documents",
-      "country": "Country",
-      "createType": "New type",
-      "cronExpression": "Schedule",
-      "debounceSeconds": "Debounce",
-      "delete": "Moved to Trash",
-      "deletePermanently": "Permanently deleted",
-      "disabledReason": "Disabled reason",
-      "effectiveAt": "Effective from",
-      "isNewCompany": "First user in the workspace",
-      "markdown": "Markdown",
-      "prompt": "Instructions",
-      "publishSummary": "Published summary",
-      "putAccessPreset": "Access preset",
-      "putCapability": "Capability",
-      "putField": "Field",
-      "putRelationship": "Relationship",
-      "putType": "Type",
-      "recipientEmail": "Sent to",
-      "removalReason": "Removal reason",
-      "restore": "Restored",
-      "timezone": "Time zone",
-      "triggerEvents": "Trigger events",
-      "triggerFilters": "Trigger filters",
-      "triggerKind": "Trigger",
-      "versions": "Document versions",
-      "visibility": "Visibility"
-    },
-    "unchangedLines": "{count, plural, one {# unchanged line} other {# unchanged lines}}"
   },
   "AuthSocialErrors": {
     "accessDenied": "The sign-in was cancelled at the provider.",
@@ -3921,8 +3921,8 @@
     "recordTypesHint": "New types start without access. Embedded items inherit access from their parent record.",
     "resourceHeader": "Resource",
     "resources": {
+      "activityLog": "Activity log",
       "api": "API & Webhooks",
-      "auditLog": "Audit Log",
       "company": "Company",
       "dataModel": "Data model",
       "inboxMessages": "Inbox messages",

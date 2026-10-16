@@ -37,8 +37,8 @@ test("configures a role for a new type, preserves granular rights after rename a
   const dataModel = role.locator('[data-resource-permission="dataModel"]');
   await expect(dataModel.getByRole("checkbox")).toHaveCount(1);
   await dataModel.getByRole("checkbox", { name: "Edit", exact: true }).check();
-  const auditLog = role.locator('[data-resource-permission="auditLog"]');
-  await expect(auditLog.getByRole("checkbox")).toHaveCount(0);
+  const activityLog = role.locator('[data-resource-permission="activityLog"]');
+  await expect(activityLog.getByRole("checkbox")).toHaveCount(0);
   const api = role.locator('[data-resource-permission="api"]');
   await api.getByRole("checkbox", { name: "Create", exact: true }).check();
   await api.getByRole("checkbox", { name: "Delete", exact: true }).check();

@@ -76,7 +76,7 @@ Wählen Sie **Neue Seite**, geben Sie einen Titel ein und schreiben Sie im visue
 
 Um eine andere Seite zu verlinken, nutzen Sie die Link-Funktion des Editors oder **Seitenlink kopieren** unter **Seitenaktionen**. Es sind gewöhnliche Markdown-Links, und beim Umbenennen bleibt die Adresse erhalten; ein separater Index oder Verknüpfungsmetadaten sind nicht nötig.
 
-Die Rechte folgen der Zeile **Wissensdatenbank** Ihrer Rolle: Leserechte erlauben das Anzeigen, **Erstellen**, **Bearbeiten** und **Löschen** erlauben das Anlegen, das Bearbeiten und Umordnen oder das Löschen von Seiten, und jedes schließt Leserechte ein. Ändert jemand anderes die Seite vor Ihrem Speichern, wird Ihr veralteter Stand abgelehnt, und Ihre Änderungen bleiben sichtbar, damit Sie sie abgleichen können. **Seite löschen** verschiebt eine Seite in den [Papierkorb](/docs/app-trash), wo sie 30 Tage lang wiederhergestellt werden kann. Änderungen erscheinen unter [Aktivität](app:settings/activity); ihre Wissensdatenbank-Inhalte sehen Sie nur mit Zugriff auf **Audit-Log** und Wissensdatenbank-Leserechten. Das Aktivitätsprotokoll bietet keine Wiederherstellung.
+Die Rechte folgen der Zeile **Wissensdatenbank** Ihrer Rolle: Leserechte erlauben das Anzeigen, **Erstellen**, **Bearbeiten** und **Löschen** erlauben das Anlegen, das Bearbeiten und Umordnen oder das Löschen von Seiten, und jedes schließt Leserechte ein. Ändert jemand anderes die Seite vor Ihrem Speichern, wird Ihr veralteter Stand abgelehnt, und Ihre Änderungen bleiben sichtbar, damit Sie sie abgleichen können. **Seite löschen** verschiebt eine Seite in den [Papierkorb](/docs/app-trash), wo sie 30 Tage lang wiederhergestellt werden kann. Änderungen erscheinen unter [Aktivität](app:settings/activity); ihre Wissensdatenbank-Inhalte sehen Sie nur mit Zugriff auf **Aktivitätsprotokoll** und Wissensdatenbank-Leserechten. Das Aktivitätsprotokoll bietet keine Wiederherstellung.
 
 ### Betriebsleitfaden, Verfahren und Wissen [#page-types]
 
@@ -371,7 +371,7 @@ Wissensdatenbank-Seiten auflisten, suchen, lesen, anlegen, aktualisieren, umsort
 
 ### Messaging [#messaging]
 
-Messaging-basierte Tools brauchen einen Tarif mit Messaging: ab Pro, nur Cloud; Starter und selbst gehostete Instanzen lehnen sie ab. Ohne Messaging liefert `get_activities` weiterhin Änderungen aus dem Audit-Log, wenn die Rolle des Aufrufers **Lesen** **Alle** in der Zeile **Audit-Log** hat; die Quellen Nachrichten, verbundene Konten und Kalender brauchen **Lesen** in der Zeile **Inbox-Nachrichten** und dazu einen Tarif mit Messaging.
+Messaging-basierte Tools brauchen einen Tarif mit Messaging: ab Pro, nur Cloud; Starter und selbst gehostete Instanzen lehnen sie ab. Ohne Messaging liefert `get_activities` weiterhin Änderungen aus dem Aktivitätsprotokoll, wenn die Rolle des Aufrufers **Lesen** **Alle** in der Zeile **Aktivitätsprotokoll** hat; die Quellen Nachrichten, verbundene Konten und Kalender brauchen **Lesen** in der Zeile **Inbox-Nachrichten** und dazu einen Tarif mit Messaging.
 
 `connect_messaging_account` braucht außerdem **Erstellen** bei **Inbox-Nachrichten** und einen freien Kontoplatz: Pro erlaubt [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer, Business [[commercial.entitlement.business.includedAccountsPerUser]] und Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]].
 

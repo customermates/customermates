@@ -27,7 +27,7 @@ export function useCanonicalColumnLabel() {
 
   return (columnId: string) => {
     if (t.has(`Common.table.columns.${columnId}`)) return t(`Common.table.columns.${columnId}`);
-    if (t.has(`AuditLogModal.fields.${columnId}`)) return t(`AuditLogModal.fields.${columnId}`);
+    if (t.has(`ActivityDetail.fields.${columnId}`)) return t(`ActivityDetail.fields.${columnId}`);
     return humanizeColumnId(columnId);
   };
 }

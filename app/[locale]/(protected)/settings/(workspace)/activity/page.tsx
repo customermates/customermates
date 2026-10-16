@@ -6,7 +6,7 @@ import { requireAccess } from "@/features/auth/next/require";
 import { PageContainer } from "@/components/shared/page-container";
 
 export default async function CompanyActivityPage() {
-  await requireAccess({ resource: Resource.auditLog });
+  await requireAccess({ resource: Resource.activityLog });
 
   return (
     <PageContainer padded={false}>

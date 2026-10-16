@@ -76,7 +76,7 @@ Choose **New page**, enter a title and write in the visual editor, which uses th
 
 To link another page, use the editor's link control or **Copy page link** in **Page actions**. These are ordinary Markdown links, and renaming a page keeps its address; no separate index or linking metadata is needed.
 
-Permissions follow the **Knowledge Base** row of your role: read access lets you view pages, **Create**, **Edit** and **Delete** let you create, edit and reorder, or delete pages, and each includes read access. If someone else changes a page before you save, your stale save is refused and your edits stay visible so you can reconcile them. **Delete page** moves a page to [Trash](/docs/app-trash), where it can be restored for 30 days. Changes appear on [Activity](app:settings/activity); seeing their Knowledge Base content needs both **Audit Log** access and Knowledge Base read access. The activity log is not a restore feature.
+Permissions follow the **Knowledge Base** row of your role: read access lets you view pages, **Create**, **Edit** and **Delete** let you create, edit and reorder, or delete pages, and each includes read access. If someone else changes a page before you save, your stale save is refused and your edits stay visible so you can reconcile them. **Delete page** moves a page to [Trash](/docs/app-trash), where it can be restored for 30 days. Changes appear on [Activity](app:settings/activity); seeing their Knowledge Base content needs both **Activity log** access and Knowledge Base read access. The activity log is not a restore feature.
 
 ### Operating Guide, procedures, and knowledge [#page-types]
 
@@ -371,7 +371,7 @@ List, search, read, create, update, reorder (move before or after another page) 
 
 ### Messaging
 
-Messaging-backed tools need a plan with messaging: Pro or higher, cloud only; Starter and self-hosted instances refuse them. Without it, `get_activities` still returns audit-log changes when the caller's role has **Read access** **All** on the **Audit Log** row; its message, connected-account and calendar sources need **Read access** on the **Inbox messages** row plus a plan with messaging.
+Messaging-backed tools need a plan with messaging: Pro or higher, cloud only; Starter and self-hosted instances refuse them. Without it, `get_activities` still returns activity-log changes when the caller's role has **Read access** **All** on the **Activity log** row; its message, connected-account and calendar sources need **Read access** on the **Inbox messages** row plus a plan with messaging.
 
 `connect_messaging_account` also needs **Create** on **Inbox messages** and a free account slot: Pro allows [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, Business [[commercial.entitlement.business.includedAccountsPerUser]] and Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]].
 

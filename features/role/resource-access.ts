@@ -16,7 +16,7 @@ export const RESOURCE_ACCESS = {
   [Resource.company]: { manage: [Action.update], read: [] },
   [Resource.dataModel]: { manage: [Action.update], read: [] },
   [Resource.wiki]: { manage: ALL_MANAGE, read: READ_ALL_OR_NONE },
-  [Resource.auditLog]: { manage: [], read: READ_ALL_OR_NONE },
+  [Resource.activityLog]: { manage: [], read: READ_ALL_OR_NONE },
   [Resource.inboxMessages]: { manage: ALL_MANAGE, read: READ_ALL_OR_NONE },
   [Resource.routines]: { manage: ALL_MANAGE, read: READ_SCOPED },
 } as const satisfies Record<Resource, ResourceAccess>;

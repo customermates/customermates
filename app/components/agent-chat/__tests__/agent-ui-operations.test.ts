@@ -32,7 +32,7 @@ function controlStore({
 }
 
 const CUSTOMER_SUCCESS_READS = Object.values(Resource).filter(
-  (resource) => resource !== Resource.api && resource !== Resource.auditLog,
+  (resource) => resource !== Resource.api && resource !== Resource.activityLog,
 );
 
 describe("AgentUiControlStore.navigate", () => {
