@@ -8,8 +8,6 @@ import { getProcessLemonSqueezyWebhookInteractor } from "@/core/di";
 import { verifyHmacSha256Hex } from "@/core/utils/hmac";
 import { env } from "@/env";
 
-const ClaimField = z.string().min(1).max(200).optional().catch(undefined);
-
 const EventSchema = z.looseObject({
   data: z.looseObject({
     type: z.string().optional(),
@@ -18,9 +16,20 @@ const EventSchema = z.looseObject({
   }),
   meta: z.looseObject({
     event_name: z.string().min(1).catch("unknown"),
-    custom_data: z.looseObject({ company_id: ClaimField, company_signature: ClaimField }).nullish().catch(null),
+    custom_data: z
+      .looseObject({
+        company_id: z.string().min(1).max(200).optional().catch(undefined),
+        company_signature: z.unknown(),
+      })
+      .nullish()
+      .catch(null),
   }),
 });
+
+function claimedSignature(value: unknown): string | null {
+  if (value === undefined || value === null) return null;
+  return typeof value === "string" ? value.slice(0, 200) : "";
+}
 
 function parseCreatedAt(value: string | null | undefined): Date | null {
   const date = value ? new Date(value) : null;
@@ -44,15 +53,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ignored: true });
 
   const customData = payload.meta.custom_data;
-  const result = await getProcessLemonSqueezyWebhookInteractor().invoke({
+  const outcome = await getProcessLemonSqueezyWebhookInteractor().invoke({
     eventName: payload.meta.event_name,
     subscriptionId: payload.data.id,
     subscriptionCreatedAt: parseCreatedAt(payload.data.attributes?.created_at),
     claim: customData?.company_id
-      ? { companyId: customData.company_id, signature: customData.company_signature ?? null }
+      ? { companyId: customData.company_id, signature: claimedSignature(customData.company_signature) }
       : null,
   });
-  if (!result.applied) return NextResponse.json({ error: "Unknown workspace" }, { status: 404 });
+  if (outcome === "refused") return NextResponse.json({ error: "Unknown workspace" }, { status: 404 });
+  if (outcome === "ignored") return NextResponse.json({ ignored: true });
 
   return NextResponse.json({ success: true });
 }

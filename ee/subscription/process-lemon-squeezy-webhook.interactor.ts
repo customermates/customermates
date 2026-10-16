@@ -4,7 +4,6 @@ import type { DeleteAccountsForPlanInteractor } from "@/ee/messaging/connect/del
 import type { EmailService } from "@/features/email/email.service";
 
 import React from "react";
-import { SubscriptionStatus } from "@/generated/prisma";
 
 import BillingWebhookAlert from "@/components/emails/billing-webhook-alert";
 import {
@@ -17,6 +16,7 @@ import { env } from "@/env";
 import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
 import { isCheckoutWorkspaceSignature } from "./checkout-workspace-signature";
+import { hasLiveSubscription } from "./live-subscription";
 import { acceptsUnsignedCheckoutClaim } from "./unsigned-checkout-claims";
 
 export type LemonSqueezyWebhookEvent = {
@@ -26,16 +26,9 @@ export type LemonSqueezyWebhookEvent = {
   claim: { companyId: string; signature: string | null } | null;
 };
 
-const LIVE_STATUSES = new Set<SubscriptionStatus>([
-  SubscriptionStatus.active,
-  SubscriptionStatus.trial,
-  SubscriptionStatus.pastDue,
-]);
-const LIVE_PROVIDER_STATUSES = new Set(["active", "on_trial", "past_due"]);
+export type LemonSqueezyWebhookOutcome = "applied" | "ignored" | "refused";
 
-function hasLiveBinding(workspace: WorkspaceBilling): workspace is WorkspaceBilling & { lemonSqueezyId: string } {
-  return workspace.lemonSqueezyId !== null && LIVE_STATUSES.has(workspace.status);
-}
+const LIVE_PROVIDER_STATUSES = new Set(["active", "on_trial", "past_due"]);
 
 function createdAt(subscription: LemonSqueezySubscription): number {
   const value = subscription.data.attributes.created_at;
@@ -43,8 +36,8 @@ function createdAt(subscription: LemonSqueezySubscription): number {
   return Number.isNaN(time) ? Number.NEGATIVE_INFINITY : time;
 }
 
-function replaces(incoming: LemonSqueezySubscription, current: LemonSqueezySubscription): boolean {
-  return LIVE_PROVIDER_STATUSES.has(incoming.data.attributes.status) && createdAt(incoming) > createdAt(current);
+function isLive(subscription: LemonSqueezySubscription): boolean {
+  return LIVE_PROVIDER_STATUSES.has(subscription.data.attributes.status);
 }
 
 @SystemInteractor
@@ -56,7 +49,7 @@ export class ProcessLemonSqueezyWebhookInteractor {
     private emailService: EmailService,
   ) {}
 
-  async invoke(event: LemonSqueezyWebhookEvent): Promise<{ applied: boolean }> {
+  async invoke(event: LemonSqueezyWebhookEvent): Promise<LemonSqueezyWebhookOutcome> {
     const bound = await this.repo.findWorkspaceBillingBySubscriptionIdUnscoped(event.subscriptionId);
     if (bound) return this.apply(bound, await this.provider(event.subscriptionId));
 
@@ -64,26 +57,34 @@ export class ProcessLemonSqueezyWebhookInteractor {
     if (!claim) return this.refuse("unclaimed", event, null);
 
     const workspace = await this.repo.findWorkspaceBillingUnscoped(claim.companyId);
+    if (workspace?.lemonSqueezyId === event.subscriptionId)
+      return this.apply(workspace, await this.provider(event.subscriptionId));
+    if (
+      claim.signature !== null &&
+      !isCheckoutWorkspaceSignature(claim.companyId, claim.signature, env.BETTER_AUTH_SECRET)
+    )
+      return this.refuse("forged", event, workspace);
+    if (!workspace) return this.refuse("workspaceMissing", event, null);
+
     if (claim.signature === null) {
-      if (workspace && !hasLiveBinding(workspace) && acceptsUnsignedCheckoutClaim(event.subscriptionCreatedAt))
+      if (!hasLiveSubscription(workspace) && acceptsUnsignedCheckoutClaim(event.subscriptionCreatedAt))
         return this.apply(workspace, await this.provider(event.subscriptionId));
       return this.refuse("unsigned", event, workspace);
     }
 
-    if (!isCheckoutWorkspaceSignature(claim.companyId, claim.signature, env.BETTER_AUTH_SECRET))
-      return this.refuse("forged", event, workspace);
-    if (!workspace) return this.refuse("workspaceMissing", event, null);
-    if (!hasLiveBinding(workspace)) return this.apply(workspace, await this.provider(event.subscriptionId));
+    if (!hasLiveSubscription(workspace)) return this.apply(workspace, await this.provider(event.subscriptionId));
 
     const [incoming, current] = await Promise.all([
       this.provider(event.subscriptionId),
       this.provider(workspace.lemonSqueezyId),
     ]);
-    if (!replaces(incoming, current)) return this.refuse("duplicate", event, workspace, workspace.lemonSqueezyId);
+    if (isLive(incoming) && createdAt(incoming) > createdAt(current)) {
+      await this.alert("replaced", event, workspace, workspace.lemonSqueezyId);
+      return this.apply(workspace, incoming);
+    }
+    if (!isLive(incoming) && createdAt(incoming) < createdAt(current)) return "ignored";
 
-    const outcome = await this.apply(workspace, incoming);
-    await this.alert("replaced", event, workspace, workspace.lemonSqueezyId);
-    return outcome;
+    return this.refuse("duplicate", event, workspace, workspace.lemonSqueezyId);
   }
 
   private provider(subscriptionId: string) {
@@ -97,7 +98,7 @@ export class ProcessLemonSqueezyWebhookInteractor {
     if (synced.changedPlan)
       await this.deleteAccountsForPlan.invoke({ companyId: synced.companyId, plan: synced.changedPlan });
 
-    return { applied: true };
+    return "applied" as const;
   }
 
   private async refuse(
@@ -107,7 +108,7 @@ export class ProcessLemonSqueezyWebhookInteractor {
     otherSubscriptionId: string | null = null,
   ) {
     await this.alert(reason, event, workspace, otherSubscriptionId);
-    return { applied: false };
+    return "refused" as const;
   }
 
   private async alert(

@@ -5,6 +5,7 @@ import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { UNSIGNED_CHECKOUT_CLAIMS_END } from "../../ee/subscription/unsigned-checkout-claims";
 import { collectPageErrors, expect, test } from "./fixtures";
 import {
+  changeProviderSubscription,
   checkoutsFor,
   deliverWebhookBody,
   postSignedWebhook,
@@ -173,12 +174,16 @@ test("every admin sees the payment being processed, and the server refuses a sec
   await inTrial(database, workspace.companyId);
   const colleague = await secondUser(browser, database, workspace.companyId, testInfo);
   try {
+    const stale = await colleague.page.context().newPage();
     await stubCheckoutPage(page);
     await stubCheckoutPage(colleague.page);
+    await stubCheckoutPage(stale);
     await page.goto("/en/settings/billing");
     await colleague.page.goto("/en/settings/billing");
+    await stale.goto("/en/settings/billing");
     await expect(planPicker(page)).toBeVisible();
     await expect(planPicker(colleague.page)).toBeVisible();
+    await expect(planPicker(stale)).toBeVisible();
 
     await choosePlan(page, "Business");
     await expect.poll(() => checkoutsFor(workspace.companyId).length).toBe(1);
@@ -211,6 +216,13 @@ test("every admin sees the payment being processed, and the server refuses a sec
       lemonSqueezyId: paid.id,
       checkoutStartedAt: null,
     });
+
+    await expect(planPicker(stale)).toBeVisible();
+    await choosePlan(stale, "Starter");
+    await expectPlan(stale, "Business", "Active");
+    await expect(planPicker(stale)).toHaveCount(0);
+    await expect(stale).toHaveURL(/\/en\/settings\/billing$/);
+    expect(checkoutsFor(workspace.companyId)).toHaveLength(1);
     expect(colleague.errors).toEqual([]);
   } finally {
     await colleague.close();
@@ -342,6 +354,15 @@ test.describe("workspace claims of the webhook", () => {
       "Workspace moved to its newest subscription",
       "Second subscription for a workspace",
     ]);
+
+    const cancelled = await postSignedWebhook(
+      request,
+      subscriptionWebhookBody("subscription_cancelled", changeProviderSubscription(first.id, { status: "cancelled" })),
+    );
+    expect(cancelled.status()).toBe(200);
+    expect(await cancelled.json()).toEqual({ ignored: true });
+    expect(await billing(database, second.companyId)).toMatchObject({ plan: "business", lemonSqueezyId: newest.id });
+    expect(operatorMailsAbout(first.id)).toHaveLength(2);
 
     await page.goto("/en/settings/billing");
     await expect(page).toHaveURL(/\/en\/settings\/billing$/);

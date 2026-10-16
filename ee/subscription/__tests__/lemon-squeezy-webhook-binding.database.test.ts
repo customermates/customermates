@@ -334,6 +334,22 @@ describeDatabase("which workspace a Lemon Squeezy subscription binds to, on Post
     expect(
       mails().map((mail) => [mail.props.reason, mail.props.subscriptionId, mail.props.otherSubscriptionId]),
     ).toEqual([["duplicate", first.id, newest.id]]);
+
+    sent.mockClear();
+    const cancelled = provider({
+      ...first,
+      attributes: {
+        ...first.attributes,
+        status: "cancelled",
+        status_formatted: lemonSqueezyStatusFormatted("cancelled"),
+      },
+    });
+    expect(await deliver("subscription_updated", cancelled, signed(companies.twice))).toEqual({
+      status: 200,
+      body: { ignored: true },
+    });
+    expect(await stored("twice")).toEqual({ status: "active", plan: "business", lemonSqueezyId: newest.id });
+    expect(mails()).toEqual([]);
   });
 
   it("keeps updating the workspace a subscription is bound to, across a portal upgrade and downgrade", async () => {
@@ -362,9 +378,11 @@ describeDatabase("which workspace a Lemon Squeezy subscription binds to, on Post
     await client.query('DELETE FROM "Company" WHERE "id"=$1', [companies.deleted]);
 
     expect((await deliver("subscription_updated", subscription, signed(companies.deleted))).status).toBe(404);
+    expect((await deliver("subscription_updated", subscription, { company_id: companies.deleted })).status).toBe(404);
     expect((await deliver("subscription_updated", subscription, null)).status).toBe(404);
 
     expect(mails().map((mail) => [mail.props.reason, mail.props.workspaceId])).toEqual([
+      ["workspaceMissing", companies.deleted],
       ["workspaceMissing", companies.deleted],
       ["unclaimed", null],
     ]);

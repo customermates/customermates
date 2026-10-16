@@ -48,7 +48,7 @@ export const BILLING_WEBHOOK_ALERT_COPY: Record<BillingWebhookAlertReason, Alert
   },
   duplicate: {
     subject: "Second subscription for a workspace",
-    summary: "The workspace is bound to a newer live subscription, so this one stays unbound. Nothing changed.",
+    summary: "The workspace keeps its live subscription, so this one stays unbound. Nothing changed.",
     action: "Cancel this subscription in Lemon Squeezy and refund it. Nothing was cancelled automatically.",
     subscription: "Subscription to cancel or refund",
     other: "Subscription the workspace keeps",

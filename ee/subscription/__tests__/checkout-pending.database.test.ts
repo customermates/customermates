@@ -288,6 +288,15 @@ describeDatabase("a pending checkout of a workspace on PostgreSQL", { timeout: 1
     expect(await checkoutState("owner")).toBe("none");
   });
 
+  it("answers that the workspace is paid instead of opening another checkout from a stale page", async () => {
+    const opened = checkoutsOf("first").length;
+
+    expect(await startCheckout("colleague")).toEqual({ ok: true, data: { checkout: "active" } });
+
+    expect(checkoutsOf("first")).toHaveLength(opened);
+    expect(await startedAt("first")).toBeNull();
+  });
+
   it("keeps a new checkout pending while the workspace's lapsed subscription reports it expired, and settles it on renewal", async () => {
     const lapsed = providerSubscription("other", "expired");
     expect(await deliver("subscription_created", lapsed)).toBe(200);

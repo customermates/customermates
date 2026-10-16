@@ -46,11 +46,12 @@ export class SubscriptionExpiredStore extends BaseStore {
         toastZodErrorTree(res.error);
         return;
       }
-      if (res.data.checkout === "pending") {
-        this.setCheckout("pending");
+      if (res.data.checkout === "started") {
+        window.location.assign(res.data.url);
         return;
       }
-      window.location.assign(res.data.url);
+      if (res.data.checkout === "pending") this.setCheckout("pending");
+      else await this.refreshCheckout();
     });
   };
 

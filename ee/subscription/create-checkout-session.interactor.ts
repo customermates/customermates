@@ -19,6 +19,7 @@ import { failUnavailable } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { CreateCheckoutCompanyRepo } from "./create-checkout-session.repo";
 import { checkoutPendingSince } from "./checkout-state";
+import { hasLiveSubscription } from "./live-subscription";
 import { signCheckoutWorkspace } from "./checkout-workspace-signature";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
 
@@ -28,9 +29,10 @@ const Schema = z.object({
 });
 export type CreateCheckoutSessionData = Data<typeof Schema>;
 
-export type CheckoutPending = { ok: true; data: { checkout: "pending" } };
+export type CheckoutNotStarted = { ok: true; data: { checkout: "pending" | "active" } };
 
-const CHECKOUT_PENDING: CheckoutPending = { ok: true, data: { checkout: "pending" } };
+const CHECKOUT_PENDING: CheckoutNotStarted = { ok: true, data: { checkout: "pending" } };
+const SUBSCRIPTION_ACTIVE: CheckoutNotStarted = { ok: true, data: { checkout: "active" } };
 
 @TenantInteractor({ resource: Resource.company, manage: "update" })
 export class CreateCheckoutSessionInteractor extends UserAccessor {
@@ -45,11 +47,12 @@ export class CreateCheckoutSessionInteractor extends UserAccessor {
   @Validate(Schema)
   async invoke(
     data: CreateCheckoutSessionData,
-  ): Promise<Redirect | CheckoutPending | { ok: false; error: z.ZodError }> {
+  ): Promise<Redirect | CheckoutNotStarted | { ok: false; error: z.ZodError }> {
     const subscription = await this.repo.getSubscriptionOrThrow();
 
     if (subscription.plan === SubscriptionPlan.enterprise)
       return failUnavailable(CustomErrorCode.enterpriseCheckoutUnavailable, ["plan"]);
+    if (hasLiveSubscription(subscription)) return SUBSCRIPTION_ACTIVE;
 
     const offer = getCommercialOfferOrThrow(data.plan, data.cadence);
     const startedAt = new Date();

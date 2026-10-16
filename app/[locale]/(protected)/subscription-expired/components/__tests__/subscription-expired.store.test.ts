@@ -56,6 +56,17 @@ describe("SubscriptionExpiredStore", () => {
     expect(harness.assign).not.toHaveBeenCalled();
   });
 
+  it("moves on instead of opening a checkout when another admin's payment already activated the workspace", async () => {
+    harness.checkout.mockResolvedValue({ ok: true, data: { checkout: "active" } });
+    harness.subscription.mockResolvedValue(subscription({ status: "active", checkout: "none" }));
+    const expired = store();
+
+    await expired.handleSubscribe({ plan: "business", cadence: "monthly" });
+
+    expect(harness.assign).not.toHaveBeenCalled();
+    expect(harness.navigateDocument).toHaveBeenCalledExactlyOnceWith("/de/settings/billing");
+  });
+
   it("clears the pending payment when the person did not finish paying", async () => {
     harness.abandon.mockResolvedValue({ ok: true, data: null });
     const expired = store();

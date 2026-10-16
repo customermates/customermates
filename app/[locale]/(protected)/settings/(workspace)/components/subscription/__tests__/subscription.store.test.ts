@@ -77,6 +77,20 @@ describe("handleSubscribe", () => {
   });
 });
 
+describe("handleSubscribe when the workspace was paid meanwhile", () => {
+  it("shows the paid plan instead of opening a second checkout", async () => {
+    const paid = { plan: "business", status: "active", hasActiveSubscription: true, checkout: "none" };
+    harness.checkout.mockResolvedValue({ ok: true, data: { checkout: "active" } });
+    harness.subscription.mockResolvedValue(paid);
+    const subscriptions = store();
+
+    await subscriptions.handleSubscribe({ plan: "pro", cadence: "monthly" });
+
+    expect(harness.assign).not.toHaveBeenCalled();
+    expect(subscriptions.subscription).toEqual(paid);
+  });
+});
+
 describe("handleAbandon", () => {
   it("clears the pending payment and shows the plans again", async () => {
     const cleared = { plan: "pro", status: "trial", checkout: "none" };

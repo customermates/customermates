@@ -108,7 +108,7 @@ describe("an event for a subscription a workspace already holds", () => {
 
     const result = await interactor.invoke(event("sub-1", signed("company-2")));
 
-    expect(result).toEqual({ applied: true });
+    expect(result).toBe("applied");
     expect(subscriptionService.syncSubscription).toHaveBeenCalledExactlyOnceWith(bound, incoming);
     expect(repo.findWorkspaceBillingUnscoped).not.toHaveBeenCalled();
     expect(mails()).toEqual([]);
@@ -147,7 +147,7 @@ describe("a signed workspace claim", () => {
 
     const result = await interactor.invoke(event("sub-1", signed("company-1")));
 
-    expect(result).toEqual({ applied: true });
+    expect(result).toBe("applied");
     expect(subscriptionService.syncSubscription).toHaveBeenCalledExactlyOnceWith(unbound, incoming);
     expect(mails()).toEqual([]);
   });
@@ -159,7 +159,7 @@ describe("a signed workspace claim", () => {
       const incoming = providerSubscription("sub-1", "active", "2026-10-16T09:00:00.000000Z");
       const { interactor, subscriptionService, mails } = setup({ workspaces: [lapsed], provider: [incoming] });
 
-      expect(await interactor.invoke(event("sub-1", signed("company-1")))).toEqual({ applied: true });
+      expect(await interactor.invoke(event("sub-1", signed("company-1")))).toBe("applied");
 
       expect(subscriptionService.syncSubscription).toHaveBeenCalledExactlyOnceWith(lapsed, incoming);
       expect(mails()).toEqual([]);
@@ -171,7 +171,7 @@ describe("a signed workspace claim", () => {
 
     const result = await interactor.invoke(event("sub-1", signed("deleted-company")));
 
-    expect(result).toEqual({ applied: false });
+    expect(result).toBe("refused");
     expect(subscriptionService.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
     expect(subscriptionService.syncSubscription).not.toHaveBeenCalled();
     expect(mails()).toEqual([
@@ -204,7 +204,7 @@ describe("a signed workspace claim", () => {
 
     const result = await interactor.invoke(event("sub-1", { companyId: "company-1", signature }));
 
-    expect(result).toEqual({ applied: false });
+    expect(result).toBe("refused");
     expect(subscriptionService.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
     expect(subscriptionService.syncSubscription).not.toHaveBeenCalled();
     expect(mails()).toEqual([
@@ -227,7 +227,7 @@ describe("a second subscription for a workspace with a live one", () => {
 
       const result = await interactor.invoke(event("sub-new", signed("company-1")));
 
-      expect(result).toEqual({ applied: true });
+      expect(result).toBe("applied");
       expect(subscriptionService.syncSubscription).toHaveBeenCalledExactlyOnceWith(live, newest);
       expect(mails()).toEqual([
         {
@@ -253,7 +253,7 @@ describe("a second subscription for a workspace with a live one", () => {
 
     const result = await interactor.invoke(event("sub-old", signed("company-1")));
 
-    expect(result).toEqual({ applied: false });
+    expect(result).toBe("refused");
     expect(subscriptionService.syncSubscription).not.toHaveBeenCalled();
     expect(mails()).toEqual([
       expect.objectContaining({
@@ -275,16 +275,16 @@ describe("a second subscription for a workspace with a live one", () => {
       const newest = providerSubscription("sub-new", status, "2026-10-16T09:00:00.000000Z");
       const { interactor, subscriptionService, mails } = setup({ workspaces: [live], provider: [old, newest] });
 
-      expect(await interactor.invoke(event("sub-new", signed("company-1")))).toEqual({ applied: false });
+      expect(await interactor.invoke(event("sub-new", signed("company-1")))).toBe("refused");
 
       expect(subscriptionService.syncSubscription).not.toHaveBeenCalled();
       expect(mails().map((mail) => mail.props.reason)).toEqual(["duplicate"]);
     },
   );
 
-  it("sends no operator e-mail when binding the newest subscription fails and the provider retries", async () => {
+  it("tells the operator before moving the binding, so a write the provider retries cannot lose the e-mail", async () => {
     const live = { ...unbound, status: "active", lemonSqueezyId: "sub-old" };
-    const { interactor, mails } = setup({
+    const { interactor, emailService, subscriptionService, mails } = setup({
       workspaces: [live],
       provider: [
         providerSubscription("sub-old", "active", "2026-10-01T00:00:00.000000Z"),
@@ -294,8 +294,28 @@ describe("a second subscription for a workspace with a live one", () => {
     });
 
     await expect(interactor.invoke(event("sub-new", signed("company-1")))).rejects.toThrow(/binding changed/);
-    expect(mails()).toEqual([]);
+    expect(mails().map((mail) => mail.props.reason)).toEqual(["replaced"]);
+    expect(emailService.send).toHaveBeenCalledBefore(subscriptionService.syncSubscription);
   });
+
+  it.each(["cancelled", "expired", "unpaid"])(
+    "acknowledges an event of the older subscription once it is %s, without telling the operator again",
+    async (status) => {
+      const live = { ...unbound, status: "active", lemonSqueezyId: "sub-new" };
+      const { interactor, subscriptionService, mails } = setup({
+        workspaces: [live],
+        provider: [
+          providerSubscription("sub-old", status, "2026-10-01T00:00:00.000000Z"),
+          providerSubscription("sub-new", "active", "2026-10-16T09:00:00.000000Z"),
+        ],
+      });
+
+      expect(await interactor.invoke(event("sub-old", signed("company-1")))).toBe("ignored");
+
+      expect(subscriptionService.syncSubscription).not.toHaveBeenCalled();
+      expect(mails()).toEqual([]);
+    },
+  );
 });
 
 describe("an unsigned workspace claim", () => {
@@ -305,7 +325,7 @@ describe("an unsigned workspace claim", () => {
 
     const result = await interactor.invoke(event("sub-1", unsigned("company-1"), BEFORE_END));
 
-    expect(result).toEqual({ applied: true });
+    expect(result).toBe("applied");
     expect(subscriptionService.syncSubscription).toHaveBeenCalledExactlyOnceWith(unbound, incoming);
     expect(mails()).toEqual([]);
   });
@@ -318,7 +338,7 @@ describe("an unsigned workspace claim", () => {
 
     const result = await interactor.invoke(event("sub-1", unsigned("company-1"), createdAt));
 
-    expect(result).toEqual({ applied: false });
+    expect(result).toBe("refused");
     expect(subscriptionService.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
     expect(subscriptionService.syncSubscription).not.toHaveBeenCalled();
     expect(mails()).toEqual([
@@ -337,23 +357,54 @@ describe("an unsigned workspace claim", () => {
 
       const result = await interactor.invoke(event("sub-1", unsigned("company-1"), BEFORE_END));
 
-      expect(result).toEqual({ applied: false });
+      expect(result).toBe("refused");
       expect(subscriptionService.syncSubscription).not.toHaveBeenCalled();
       expect(mails().map((mail) => mail.props.reason)).toEqual(["unsigned"]);
     },
   );
 
-  it("binds nothing during the transition for a workspace that does not exist", async () => {
+  it("tells the operator the workspace is missing when an older checkout names a deleted one", async () => {
     const { interactor, mails } = setup({});
 
-    expect(await interactor.invoke(event("sub-1", unsigned("unknown-company"), BEFORE_END))).toEqual({
-      applied: false,
-    });
+    expect(await interactor.invoke(event("sub-1", unsigned("unknown-company"), BEFORE_END))).toBe("refused");
     expect(mails()).toEqual([
       expect.objectContaining({
-        props: expect.objectContaining({ reason: "unsigned", workspaceId: "unknown-company", workspaceName: null }),
+        subject: "Lemon Squeezy subscription for a missing workspace",
+        props: expect.objectContaining({
+          reason: "workspaceMissing",
+          workspaceId: "unknown-company",
+          workspaceName: null,
+        }),
       }),
     ]);
+  });
+});
+
+describe("events racing each other", () => {
+  it.each([
+    ["a signed", signed("company-1")],
+    ["an unsigned", unsigned("company-1")],
+  ])(
+    "updates the workspace when another event bound %s claim's subscription between the two reads",
+    async (_, claim) => {
+      const justBound = { ...unbound, status: "active", lemonSqueezyId: "sub-1" };
+      const incoming = providerSubscription("sub-1", "active", AFTER_END.toISOString());
+      const { interactor, repo, subscriptionService, mails } = setup({ workspaces: [justBound], provider: [incoming] });
+      repo.findWorkspaceBillingBySubscriptionIdUnscoped.mockResolvedValueOnce(null);
+
+      expect(await interactor.invoke(event("sub-1", claim, AFTER_END))).toBe("applied");
+
+      expect(subscriptionService.syncSubscription).toHaveBeenCalledExactlyOnceWith(justBound, incoming);
+      expect(mails()).toEqual([]);
+    },
+  );
+
+  it("treats a malformed signature for a missing workspace as forged", async () => {
+    const { interactor, mails } = setup({});
+
+    expect(await interactor.invoke(event("sub-1", { companyId: "missing-company", signature: "" }))).toBe("refused");
+
+    expect(mails().map((mail) => mail.props.reason)).toEqual(["forged"]);
   });
 });
 
@@ -363,7 +414,7 @@ describe("an event that names no workspace", () => {
 
     const result = await interactor.invoke(event("sub-1", null));
 
-    expect(result).toEqual({ applied: false });
+    expect(result).toBe("refused");
     expect(subscriptionService.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
     expect(mails()).toEqual([
       {

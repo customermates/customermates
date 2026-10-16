@@ -37,9 +37,13 @@ vi.mock("next/headers", () => ({
 const { CreateCheckoutSessionInteractor } = await import("../create-checkout-session.interactor");
 const { isCheckoutWorkspaceSignature } = await import("../checkout-workspace-signature");
 
-function makeCheckoutRepo(plan = "pro", checkoutStartedAt: Date | null = null) {
+function makeCheckoutRepo(
+  plan = "pro",
+  checkoutStartedAt: Date | null = null,
+  binding: { lemonSqueezyId: string | null; status: string } = { lemonSqueezyId: null, status: "trial" },
+) {
   return {
-    getSubscriptionOrThrow: vi.fn().mockResolvedValue({ plan, lemonSqueezyId: null, checkoutStartedAt }),
+    getSubscriptionOrThrow: vi.fn().mockResolvedValue({ plan, checkoutStartedAt, ...binding }),
     claimCheckoutStart: vi.fn().mockResolvedValue(true),
     releaseCheckoutStart: vi.fn().mockResolvedValue(undefined),
   };
@@ -219,4 +223,40 @@ describe("CreateCheckoutSessionInteractor", () => {
     const [startedAt] = repo.claimCheckoutStart.mock.calls[0] as [Date];
     expect(repo.releaseCheckoutStart).toHaveBeenCalledExactlyOnceWith(startedAt, previous);
   });
+
+  it.each(["active", "trial", "pastDue"])(
+    "answers that the workspace is already paid instead of a new checkout while its subscription is %s",
+    async (status) => {
+      const repo = makeCheckoutRepo("pro", null, { lemonSqueezyId: "sub-1", status });
+      const subscriptionService = makeSubscriptionService();
+      const interactor = new CreateCheckoutSessionInteractor(
+        subscriptionService as never,
+        repo as never,
+        makeUserRepo() as never,
+      );
+
+      const result = await interactor.invoke({ plan: "business", cadence: "monthly" } as never);
+
+      expect(result).toEqual({ ok: true, data: { checkout: "active" } });
+      expect(repo.claimCheckoutStart).not.toHaveBeenCalled();
+      expect(subscriptionService.createCheckoutOrThrow).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(["expired", "cancelled", "unPaid"])(
+    "opens a new checkout for a workspace whose subscription is %s",
+    async (status) => {
+      const repo = makeCheckoutRepo("pro", null, { lemonSqueezyId: "sub-1", status });
+      const subscriptionService = makeSubscriptionService();
+      const interactor = new CreateCheckoutSessionInteractor(
+        subscriptionService as never,
+        repo as never,
+        makeUserRepo() as never,
+      );
+
+      expect(await interactor.invoke({ plan: "business", cadence: "monthly" } as never)).toMatchObject({
+        redirect: "https://checkout.example.com",
+      });
+    },
+  );
 });

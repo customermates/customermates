@@ -45,7 +45,7 @@ export class SubscriptionStore extends BaseStore {
         toastZodErrorTree(res.error);
         return;
       }
-      if (res.data.checkout === "pending") {
+      if (res.data.checkout !== "started") {
         await this.reloadSubscription();
         return;
       }

@@ -843,10 +843,10 @@
     "open": "In neuem Tab öffnen"
   },
   "CheckoutPending": {
-    "abandon": "Ich habe nicht fertig bezahlt – Tarif wählen",
+    "abandon": "Ich habe die Zahlung nicht abgeschlossen – Tarif wählen",
     "checking": "Zahlung wird geprüft",
     "contactSupport": "Support kontaktieren",
-    "description": "Lemon Squeezy bestätigt gerade die Zahlung für diesen Workspace. Die Seite geht von selbst weiter, sobald sie da ist.",
+    "description": "Lemon Squeezy bestätigt gerade die Zahlung für diesen Workspace. Die Seite geht von selbst weiter, sobald die Zahlung bestätigt ist.",
     "overdue": "Zahlung noch nicht angekommen?",
     "supportEmailSubject": "Zahlung nicht angekommen",
     "title": "Zahlung wird verarbeitet"

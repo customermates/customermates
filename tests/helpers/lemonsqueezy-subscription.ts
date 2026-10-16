@@ -14,6 +14,7 @@ export type LemonSqueezySubscriptionStatus =
 export type LemonSqueezySubscriptionEventName =
   | "subscription_created"
   | "subscription_updated"
+  | "subscription_cancelled"
   | "subscription_expired"
   | "subscription_payment_success";
 

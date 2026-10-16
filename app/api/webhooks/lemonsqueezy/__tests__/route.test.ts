@@ -8,7 +8,7 @@ const SIGNATURE = "a".repeat(64);
 
 vi.mock("@/env", () => ({ env: { LEMONSQUEEZY_WEBHOOK_SECRET: WEBHOOK_SECRET } }));
 
-const mockProcess = vi.fn().mockResolvedValue({ applied: true });
+const mockProcess = vi.fn().mockResolvedValue("applied");
 
 vi.mock("@/core/di", () => ({
   getProcessLemonSqueezyWebhookInteractor: () => ({ invoke: mockProcess }),
@@ -126,16 +126,36 @@ describe("LemonSqueezy webhook route", () => {
     expect(mockProcess).toHaveBeenCalledWith(expect.objectContaining({ claim: null }));
   });
 
-  it("drops an unreadable signature but keeps the claim as unsigned", async () => {
+  it.each([
+    ["a number", 7, ""],
+    ["an object", { value: SIGNATURE }, ""],
+    ["an overlong string", "a".repeat(500), "a".repeat(200)],
+  ])("passes a signature given as %s on as an invalid one, never as unsigned", async (_, signature, expected) => {
     const request = makeRequest({
-      meta: { event_name: "subscription_created", custom_data: { company_id: "company-1", company_signature: 7 } },
+      meta: {
+        event_name: "subscription_created",
+        custom_data: { company_id: "company-1", company_signature: signature },
+      },
       data: { id: "sub-1", attributes: { created_at: "not a date" } },
     });
 
     await POST(request);
 
     expect(mockProcess).toHaveBeenCalledWith(
-      expect.objectContaining({ claim: { companyId: "company-1", signature: null }, subscriptionCreatedAt: null }),
+      expect.objectContaining({ claim: { companyId: "company-1", signature: expected }, subscriptionCreatedAt: null }),
+    );
+  });
+
+  it("treats an explicit null signature as unsigned", async () => {
+    const request = makeRequest({
+      meta: { event_name: "subscription_created", custom_data: { company_id: "company-1", company_signature: null } },
+      data: { id: "sub-1", attributes: {} },
+    });
+
+    await POST(request);
+
+    expect(mockProcess).toHaveBeenCalledWith(
+      expect.objectContaining({ claim: { companyId: "company-1", signature: null } }),
     );
   });
 
@@ -155,8 +175,24 @@ describe("LemonSqueezy webhook route", () => {
     expect(mockProcess).not.toHaveBeenCalled();
   });
 
-  it("answers 404 when the interactor could not apply the event", async () => {
-    mockProcess.mockResolvedValueOnce({ applied: false });
+  it("acknowledges an event the interactor deliberately left alone", async () => {
+    mockProcess.mockResolvedValueOnce("ignored");
+    const request = makeRequest({
+      meta: {
+        event_name: "subscription_cancelled",
+        custom_data: { company_id: "company-1", company_signature: SIGNATURE },
+      },
+      data: { type: "subscriptions", id: "sub-old", attributes: {} },
+    });
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ ignored: true });
+  });
+
+  it("answers 404 when the interactor refused the event", async () => {
+    mockProcess.mockResolvedValueOnce("refused");
     const request = makeRequest({
       meta: { event_name: "subscription_updated", custom_data: { company_id: "unknown-company" } },
       data: { id: "sub-1", attributes: {} },
