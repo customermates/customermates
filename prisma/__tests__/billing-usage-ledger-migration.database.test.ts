@@ -8,7 +8,6 @@ import { describe, expect, it } from "vitest";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
 const MIGRATION = "20261016120000_billing_usage_ledger";
-const MESSAGING_MIGRATION = "20260625161605_unipile_v2_messaging";
 const migrationsRoot = join(process.cwd(), "prisma/migrations");
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -67,6 +66,7 @@ async function legacyHistory(client: Client) {
       ('a-soft-event', 'c-old', 'u-reactivated', 'x3', 'mail', 'deleted', 'event@old.example.invalid', '2026-07-15', '2026-09-30');
     INSERT INTO "EventLog" ("companyId", id, "subjectKind", "subjectId", kind, payload, "createdAt") VALUES
       ('c-old', 'e1', 'connected_account', 'a-live', 'connected_account.created', '{"provider":"google","emailAddress":"live@old.example.invalid"}', '2026-07-10'),
+      ('c-old', 'e8', 'connected_account', 'a-soft-no-event', 'connected_account.created', '{"provider":"outlook","emailAddress":"soft@old.example.invalid"}', '2026-07-12'),
       ('c-old', 'e2', 'connected_account', 'a-soft-event', 'connected_account.created', '{"provider":"mail","emailAddress":"event@old.example.invalid"}', '2026-07-15'),
       ('c-old', 'e3', 'connected_account', 'a-soft-event', 'connected_account.deleted', '{"provider":"mail","emailAddress":"event@old.example.invalid"}', '2026-09-22'),
       ('c-old', 'e4', 'connected_account', 'a-gone', 'connected_account.created', '{"provider":"whatsapp","displayName":"+4917000000"}', '2026-08-01'),
@@ -121,10 +121,6 @@ describeDatabase("billing usage ledger migration", { timeout: 240_000 }, () => {
     await withTemporaryDatabase(requiredDatabaseUrl(), async (client) => {
       const names = migrationNames();
       await applyMigrations(client, names.slice(0, names.indexOf(MIGRATION)));
-      await client.query(
-        `CREATE TABLE "_prisma_migrations" ("migration_name" TEXT NOT NULL, "finished_at" TIMESTAMPTZ)`,
-      );
-      await client.query(`INSERT INTO "_prisma_migrations" VALUES ($1, '2026-07-03T08:00:00Z')`, [MESSAGING_MIGRATION]);
       await legacyHistory(client);
 
       await applyMigrations(client, [MIGRATION]);
@@ -189,21 +185,25 @@ describeDatabase("billing usage ledger migration", { timeout: 240_000 }, () => {
       const [newer, older] = workspaces;
       expect(newer).toMatchObject({ companyId: "c-new", channelsRecordedFrom: null });
       expect(newer.seatsRecordedFrom).toBeInstanceOf(Date);
-      expect(older).toMatchObject({ companyId: "c-old", channelsRecordedFrom: new Date("2026-07-03T08:00:00.000Z") });
+      expect(older).toMatchObject({ companyId: "c-old", channelsRecordedFrom: new Date("2026-07-10T00:00:00.000Z") });
       expect(older.seatsRecordedFrom).toBeInstanceOf(Date);
     });
   });
 
-  it("claims no channel history when the migration ledger is unavailable", async () => {
+  it("claims no channel history before the migration when the activity log is empty", async () => {
     await withTemporaryDatabase(requiredDatabaseUrl(), async (client) => {
       const names = migrationNames();
       await applyMigrations(client, names.slice(0, names.indexOf(MIGRATION)));
-      await legacyHistory(client);
+      await client.query(
+        `INSERT INTO "Company" (id, "createdAt", "updatedAt") VALUES ('c-old', '2026-03-01', '2026-03-01')`,
+      );
+      const before = new Date();
 
       await applyMigrations(client, [MIGRATION]);
       const { workspaces } = await ledger(client);
 
-      for (const workspace of workspaces) expect(workspace.channelsRecordedFrom).toBeInstanceOf(Date);
+      expect(workspaces).toHaveLength(1);
+      expect(workspaces[0].channelsRecordedFrom?.getTime()).toBeGreaterThanOrEqual(before.getTime() - 1000);
     });
   });
 });

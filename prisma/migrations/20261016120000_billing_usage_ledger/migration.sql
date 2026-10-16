@@ -44,30 +44,16 @@ CREATE INDEX "BillingUsageInterval_kind_startedAt_idx" ON "BillingUsageInterval"
 CREATE INDEX "BillingUsageInterval_kind_endedAt_idx" ON "BillingUsageInterval"("kind", "endedAt");
 
 -- At most one open interval per subject. The application keeps the ledger
--- (features/billing-usage/billing-usage-ledger.ts).
+-- (features/billing-usage/prisma-billing-usage.repository.ts).
 CREATE UNIQUE INDEX "BillingUsageInterval_open_subject_key" ON "BillingUsageInterval"("companyId", "kind", "subjectId") WHERE "endedAt" IS NULL;
 
--- Backfill the workspaces that exist now. Their earlier seat changes are unknown;
--- connected-account history is known from the event log since the messaging
--- migration that cleared all earlier accounts (claimed only when its time is known).
--- The block reads "_prisma_migrations" only when it exists, as it does under Prisma Migrate.
-DO $$
-DECLARE
-    messaging_history_from TIMESTAMP(3);
-BEGIN
-    IF to_regclass('"_prisma_migrations"') IS NOT NULL THEN
-        EXECUTE 'SELECT MIN("finished_at") AT TIME ZONE ''UTC'' FROM "_prisma_migrations" WHERE "migration_name" = $1'
-            INTO messaging_history_from
-            USING '20260625161605_unipile_v2_messaging';
-    END IF;
-    messaging_history_from := COALESCE(messaging_history_from, CURRENT_TIMESTAMP);
-
-    INSERT INTO "BillingUsageWorkspace" ("companyId", "workspaceCreatedAt", "seatsRecordedFrom", "channelsRecordedFrom")
-    SELECT c."id", c."createdAt", CURRENT_TIMESTAMP,
-           CASE WHEN c."createdAt" < messaging_history_from THEN messaging_history_from END
-    FROM "Company" c;
-END;
-$$;
+-- Backfill the workspaces that exist now. Their earlier seat changes are unknown. The
+-- activity log holds the connected-account history since the messaging migration cleared
+-- all earlier accounts, so channel changes are known from its first entry.
+INSERT INTO "BillingUsageWorkspace" ("companyId", "workspaceCreatedAt", "seatsRecordedFrom", "channelsRecordedFrom")
+SELECT c."id", c."createdAt", CURRENT_TIMESTAMP, CASE WHEN c."createdAt" < h."startedAt" THEN h."startedAt" END
+FROM "Company" c
+CROSS JOIN (SELECT COALESCE(MIN("createdAt"), CURRENT_TIMESTAMP) AS "startedAt" FROM "EventLog") h;
 
 -- Users active now count from their latest activation; that start is inferred.
 INSERT INTO "BillingUsageInterval" (
@@ -104,53 +90,29 @@ FROM notices n
 JOIN "User" u ON u."id" = n."userId" AND u."companyId" = n."companyId"
 LEFT JOIN "UserRole" r ON r."id" = u."roleId";
 
--- Connected accounts from the event log and the account rows. A disconnect without
--- an event falls back to the row's last update or the account's last event and is
+-- Connected accounts from the activity log. A removal without a deleted entry ends at the
+-- account row's last update, or at the account's last entry once the row is gone, and is
 -- marked inexact.
-WITH ev AS (
-    SELECT "companyId", "subjectId" AS "accountId", "kind", "createdAt",
-           payload->>'provider' AS "provider",
-           COALESCE(NULLIF(payload->>'emailAddress', ''), NULLIF(payload->>'displayName', '')) AS "identifier"
+WITH accounts AS (
+    SELECT "companyId", "subjectId" AS "accountId",
+           MIN("createdAt") FILTER (WHERE "kind" = 'connected_account.created') AS "connectedAt",
+           MAX("createdAt") FILTER (WHERE "kind" = 'connected_account.deleted') AS "deletedAt",
+           MAX("createdAt") AS "lastEventAt",
+           MIN(payload->>'provider') AS "provider",
+           MIN(COALESCE(NULLIF(payload->>'emailAddress', ''), NULLIF(payload->>'displayName', ''))) AS "identifier"
     FROM "EventLog"
     WHERE "subjectKind" = 'connected_account'
-),
-by_account AS (
-    SELECT "companyId", "accountId",
-           MIN("createdAt") FILTER (WHERE "kind" = 'connected_account.created') AS "createdEventAt",
-           MAX("createdAt") FILTER (WHERE "kind" = 'connected_account.deleted') AS "deletedEventAt",
-           MIN("createdAt") AS "firstEventAt",
-           MAX("createdAt") AS "lastEventAt",
-           MIN("provider") AS "provider",
-           MIN("identifier") AS "identifier"
-    FROM ev
-    GROUP BY "companyId", "accountId"
-),
-accounts AS (
-    SELECT COALESCE(a."companyId", b."companyId") AS "companyId",
-           COALESCE(a."id", b."accountId") AS "accountId",
-           a."id" IS NOT NULL AS "rowExists",
-           a."status"::text AS "status",
-           a."createdAt" AS "rowCreatedAt",
-           a."updatedAt" AS "rowUpdatedAt",
-           b."createdEventAt", b."deletedEventAt", b."firstEventAt", b."lastEventAt",
-           COALESCE(a."provider"::text, b."provider") AS "provider",
-           COALESCE(NULLIF(a."emailAddress", ''), NULLIF(a."displayName", ''), b."identifier", a."unipileAccountId") AS "identifier"
-    FROM "ConnectedAccount" a
-    FULL OUTER JOIN by_account b ON b."accountId" = a."id" AND b."companyId" = a."companyId"
+    GROUP BY "companyId", "subjectId"
 )
 INSERT INTO "BillingUsageInterval" (
     "id", "companyId", "kind", "subjectId", "startedAt", "endedAt", "startExact", "endExact", "provider", "identifier"
 )
-SELECT gen_random_uuid()::text, "companyId", 'channel', "accountId",
-       COALESCE("createdEventAt", "rowCreatedAt", "firstEventAt"),
-       CASE
-           WHEN "rowExists" AND "status" <> 'deleted' THEN NULL
-           WHEN "deletedEventAt" IS NOT NULL THEN "deletedEventAt"
-           WHEN "rowExists" AND "status" = 'deleted' THEN "rowUpdatedAt"
-           WHEN NOT "rowExists" THEN "lastEventAt"
-       END,
-       "createdEventAt" IS NOT NULL OR "rowExists",
-       ("rowExists" AND "status" <> 'deleted') OR "deletedEventAt" IS NOT NULL,
-       "provider", "identifier"
-FROM accounts
-WHERE "companyId" IS NOT NULL AND COALESCE("createdEventAt", "rowCreatedAt", "firstEventAt") IS NOT NULL;
+SELECT gen_random_uuid()::text, a."companyId", 'channel', a."accountId", a."connectedAt",
+       CASE WHEN r."status" <> 'deleted' THEN NULL ELSE COALESCE(a."deletedAt", r."updatedAt", a."lastEventAt") END,
+       TRUE,
+       COALESCE(r."status" <> 'deleted', FALSE) OR a."deletedAt" IS NOT NULL,
+       COALESCE(r."provider"::text, a."provider"),
+       COALESCE(NULLIF(r."emailAddress", ''), NULLIF(r."displayName", ''), a."identifier", r."unipileAccountId")
+FROM accounts a
+LEFT JOIN "ConnectedAccount" r ON r."id" = a."accountId" AND r."companyId" = a."companyId"
+WHERE a."connectedAt" IS NOT NULL;
