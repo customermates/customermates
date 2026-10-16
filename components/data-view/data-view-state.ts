@@ -4,7 +4,7 @@ import { ViewMode } from "@/core/base/base-query-builder";
 
 export type DataViewPageState = "error" | "loading" | "filtered-empty" | "true-empty" | "content";
 
-export type DataViewView = "table" | "board";
+export type DataViewView = "table" | "board" | "calendar";
 
 type ResolveDataViewPageStateInput = {
   request: DataViewRequestState;
@@ -32,6 +32,7 @@ export function resolveDataViewPageState({
   return "content";
 }
 
-export function resolveDataViewView(viewMode: ViewMode, canBoard: boolean): DataViewView {
+export function resolveDataViewView(viewMode: ViewMode, canBoard: boolean, canCalendar = false): DataViewView {
+  if (viewMode === ViewMode.calendar && canCalendar) return "calendar";
   return viewMode === ViewMode.card && canBoard ? "board" : "table";
 }

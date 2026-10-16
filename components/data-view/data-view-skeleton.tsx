@@ -14,7 +14,8 @@ export type DataViewSkeletonSpec =
       view: "table";
       tableVariant: "contact" | "entity" | "member" | "plain";
     }
-  | { identity: "avatar" | "text"; view: "board" };
+  | { identity: "avatar" | "text"; view: "board" }
+  | { view: "calendar" };
 
 type Props = ComponentProps<"div"> & {
   animated?: boolean;
@@ -27,6 +28,8 @@ const TABLE_COLUMNS = Array.from({ length: 3 }, (_, index) => index);
 const CARD_ROWS = Array.from({ length: 4 }, (_, index) => index);
 const BOARD_COLUMNS = Array.from({ length: 3 }, (_, index) => index);
 const BOARD_CARDS = Array.from({ length: 3 }, (_, index) => index);
+const CALENDAR_DAYS = Array.from({ length: 35 }, (_, index) => index);
+const CALENDAR_WEEKDAYS = Array.from({ length: 7 }, (_, index) => index);
 
 function CardBodySkeleton({
   animated,
@@ -158,6 +161,48 @@ function BoardSkeleton({ animated, identity }: { animated: boolean; identity: "a
   );
 }
 
+function CalendarSkeleton({ animated }: { animated: boolean }) {
+  return (
+    <div className="flex h-full min-h-0 flex-col" data-skeleton-scroll-owner="calendar">
+      <div className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
+        <Shape animated={animated} className="size-8 rounded-md" motionPhase={1} />
+
+        <Shape animated={animated} className="h-8 w-16 rounded-md" motionPhase={1} />
+
+        <Shape animated={animated} className="size-8 rounded-md" motionPhase={1} />
+
+        <Shape breathe animated={animated} className="ml-2 h-3.5 w-32" motionPhase={2} />
+
+        <Shape animated={animated} className="ml-auto hidden h-8 w-56 rounded-lg sm:block" motionPhase={3} />
+      </div>
+
+      <div className="grid shrink-0 grid-cols-7 border-b">
+        {CALENDAR_WEEKDAYS.map((day) => (
+          <div key={day} className="p-2">
+            <Shape animated={animated} className="h-2.5 w-8" motionPhase={2} />
+          </div>
+        ))}
+      </div>
+
+      <div className="grid min-h-0 flex-1 grid-cols-7 grid-rows-5">
+        {CALENDAR_DAYS.map((day) => (
+          <div
+            key={day}
+            className="flex min-h-16 flex-col gap-1.5 border-r border-b p-1.5 [&:nth-child(7n)]:border-r-0"
+            data-skeleton-group={day % 4}
+          >
+            <Shape animated={animated} className="h-2.5 w-4" motionPhase={2} />
+
+            {day % 3 === 1 && <Shape breathe animated={animated} className="h-4 w-full rounded-sm" motionPhase={3} />}
+
+            {day % 5 === 2 && <Shape animated={animated} className="h-4 w-2/3 rounded-sm" motionPhase={3} />}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function PaginationSkeleton({ animated }: { animated: boolean }) {
   return (
     <div data-skeleton-pagination className={DATA_VIEW_PAGINATION_RAIL_CLASS_NAME} data-skeleton-group="3">
@@ -184,19 +229,23 @@ export function DataViewSkeleton({ animated = true, className, spec, ...props }:
       data-page-skeleton-empty={!animated || undefined}
       data-page-skeleton-loading={animated || undefined}
       data-skeleton-kind="data-view"
-      data-skeleton-variant={spec.view === "table" ? spec.tableVariant : spec.identity}
+      data-skeleton-variant={
+        spec.view === "table" ? spec.tableVariant : spec.view === "board" ? spec.identity : spec.view
+      }
       data-skeleton-view={spec.view}
       {...props}
     >
       <div className="min-h-0 flex-1">
         {spec.view === "table" ? (
           <TableSkeleton animated={animated} variant={spec.tableVariant} />
-        ) : (
+        ) : spec.view === "board" ? (
           <BoardSkeleton animated={animated} identity={spec.identity} />
+        ) : (
+          <CalendarSkeleton animated={animated} />
         )}
       </div>
 
-      {animated && spec.view !== "board" && <PaginationSkeleton animated={animated} />}
+      {animated && spec.view === "table" && <PaginationSkeleton animated={animated} />}
     </div>
   );
 }
