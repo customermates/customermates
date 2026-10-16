@@ -197,7 +197,15 @@ export class PrismaWorkspaceSetupRepo extends TenantRepository implements Worksp
   async crawlState(crawlId: string): Promise<SetupCrawlState | null> {
     const row = await this.prisma.wikiWebsiteCrawl.findFirst({
       where: { id: crawlId, companyId: this.companyId },
-      select: { status: true, failureReason: true, homepageUrl: true, registrableDomain: true, topics: true },
+      select: {
+        status: true,
+        failureReason: true,
+        homepageUrl: true,
+        registrableDomain: true,
+        discovered: true,
+        fetched: true,
+        topics: true,
+      },
     });
     if (!row) return null;
     const topics = Array.isArray(row.topics)
@@ -213,6 +221,8 @@ export class PrismaWorkspaceSetupRepo extends TenantRepository implements Worksp
       failureReason: row.failureReason,
       homepageUrl: row.homepageUrl,
       registrableDomain: row.registrableDomain,
+      discovered: row.discovered,
+      fetched: row.fetched,
       topics,
     };
   }

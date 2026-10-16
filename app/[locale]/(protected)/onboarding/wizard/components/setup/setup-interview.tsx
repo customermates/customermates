@@ -8,6 +8,7 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { Alert } from "@/components/shared/alert";
+import { IconContainer } from "@/components/shared/icon-container";
 import { WizardProgress } from "@/components/shared/wizard-progress";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,7 +51,7 @@ const SetupQuestionBlock = observer(function SetupQuestionBlock({ question }: { 
       <Fragment key={part.id}>
         <SetupQuestionField
           currency={currency?.format === "singleChoice" ? currency.value : null}
-          descriptor={partDescriptor(part, t)}
+          descriptor={partDescriptor(part, t, store.answers)}
           disabled={store.isBusy}
           fromWebsite={answerFromWebsite(store.answers, part.id)}
           value={displayedAnswerValue(part, store.answers, store.locale)}
@@ -70,6 +71,8 @@ const SetupQuestionBlock = observer(function SetupQuestionBlock({ question }: { 
   return <div className="flex flex-col gap-6">{fields}</div>;
 });
 
+const WEBSITE_CARD_CLASS = "flex flex-col gap-3 rounded-lg border border-primary/30 bg-primary/10 p-4";
+
 const SetupWebsiteContext = observer(function SetupWebsiteContext() {
   const t = useTranslations();
   const { workspaceSetupStore: store } = useRootStore();
@@ -81,39 +84,47 @@ const SetupWebsiteContext = observer(function SetupWebsiteContext() {
 
   if (website && !editing) {
     const host = new URL(website).host;
+    const progress = store.websiteReading;
+    const status = progress
+      ? t(`WorkspaceSetup.website.${progress.stage}`, { website: host, read: progress.read, total: progress.total })
+      : t("WorkspaceSetup.website.suggestedHint");
     return (
-      <div
-        aria-live="polite"
-        className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border px-3 py-2"
-        role="status"
-      >
-        <span className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
-          {store.prefillRunning ? (
-            <Loader2 aria-hidden className="size-4 shrink-0 animate-spin motion-reduce:animate-none" />
-          ) : (
-            <Globe aria-hidden className="size-4 shrink-0" />
-          )}
+      <div aria-live="polite" className={WEBSITE_CARD_CLASS} role="status">
+        <div className="flex items-center gap-3">
+          <IconContainer
+            icon={progress ? Loader2 : Globe}
+            iconClassName={progress ? "animate-spin motion-reduce:animate-none" : undefined}
+            size="md"
+          />
 
-          <span className="truncate">
-            {store.prefillRunning
-              ? t("WorkspaceSetup.interview.prefillRunning", { website: host })
-              : t("WorkspaceSetup.website.from", { website: host })}
-          </span>
-        </span>
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <span className="truncate text-sm font-medium">{host}</span>
 
-        {editable ? (
-          <Button
-            disabled={store.isBusy}
-            size="sm"
-            type="button"
-            variant="ghost"
-            onClick={() => {
-              setDraft(new URL(website).host);
-              setEditing(true);
-            }}
-          >
-            {t("WorkspaceSetup.website.change")}
-          </Button>
+            <span className="text-xs text-muted-foreground">{status}</span>
+          </div>
+
+          {editable ? (
+            <Button
+              disabled={store.isBusy}
+              size="sm"
+              type="button"
+              variant="ghost"
+              onClick={() => {
+                setDraft(host);
+                setEditing(true);
+              }}
+            >
+              {t("WorkspaceSetup.website.change")}
+            </Button>
+          ) : null}
+        </div>
+
+        {progress ? (
+          <div className="flex flex-col gap-1.5">
+            <WizardProgress current={progress.progress} label={host} total={100} valueText={status} />
+
+            <span className="text-xs text-muted-foreground">{t("WorkspaceSetup.website.eta")}</span>
+          </div>
         ) : null}
       </div>
     );
@@ -129,9 +140,9 @@ const SetupWebsiteContext = observer(function SetupWebsiteContext() {
   };
 
   return (
-    <div className="flex flex-col gap-3 rounded-md border border-border p-3">
-      <div className="flex items-start gap-2">
-        <Globe aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+    <div className={WEBSITE_CARD_CLASS}>
+      <div className="flex items-center gap-3">
+        <IconContainer icon={Globe} size="md" />
 
         <div className="flex min-w-0 flex-col gap-0.5">
           <span className="text-sm font-medium">{t("WorkspaceSetup.website.title")}</span>
@@ -158,7 +169,7 @@ const SetupWebsiteContext = observer(function SetupWebsiteContext() {
           }}
         />
 
-        <Button disabled={store.isBusy || !draft.trim()} type="button" variant="secondary" onClick={submit}>
+        <Button disabled={store.isBusy || !draft.trim()} type="button" onClick={submit}>
           {reading ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : <Globe aria-hidden />}
 
           {t("WorkspaceSetup.website.read")}
@@ -174,6 +185,8 @@ export const SetupInterview = observer(function SetupInterview() {
   const heading = useRef<HTMLHeadingElement>(null);
   const previous = useRef(store.screenIndex);
   const titles = SETUP_SCREEN_DEFINITIONS.map((screen) => t(screen.titleKey));
+  const visibleScreens = store.visibleScreens;
+  const position = Math.max(0, visibleScreens.indexOf(store.screenIndex));
   const setup = store.setup;
   const prefillFailed = setup?.interview.prefill === "failed" && Boolean(setup.websiteUrl);
   const saving = store.pending === "save";
@@ -185,7 +198,7 @@ export const SetupInterview = observer(function SetupInterview() {
 
   return (
     <section aria-busy={store.isBusy} className="flex flex-col gap-6">
-      <SetupScreenSteps current={store.screenIndex} titles={titles} />
+      <SetupScreenSteps current={position} titles={visibleScreens.map((index) => titles[index])} />
 
       <SetupWebsiteContext />
 
@@ -206,7 +219,7 @@ export const SetupInterview = observer(function SetupInterview() {
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2">
-        {store.screenIndex > 0 || store.adjusting ? (
+        {position > 0 || store.adjusting ? (
           <Button disabled={store.isBusy} type="button" variant="secondary" onClick={store.previousScreen}>
             {t("Common.actions.back")}
           </Button>

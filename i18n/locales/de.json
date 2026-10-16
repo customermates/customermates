@@ -2982,7 +2982,7 @@
     "progressLabel": "Fortschritt der Einrichtung",
     "steps": {
       "ai": {
-        "subtitle": "Wähle ein KI-Tool und verbinde es mit deinem Arbeitsbereich und eurem Unternehmenswissen. Verbinde jetzt eines, ergänze später weitere oder überspringe diesen Schritt.",
+        "subtitle": "Wähle ein KI-Tool und verbinde es mit deinem Arbeitsbereich und seinem Wissen. Verbinde jetzt eines, ergänze später weitere oder überspringe diesen Schritt.",
         "title": "Verbinde die KI, die du schon nutzt"
       },
       "invite": {
@@ -2996,9 +2996,9 @@
       },
       "setup": {
         "planningSubtitle": "Deine Antworten sind gespeichert. Mate macht daraus einen Plan für deinen Workspace, den du prüfst, bevor etwas angelegt wird.",
-        "subtitle": "Ein paar kurze Fragen dazu, wie du verkaufst. Was wir auf deiner Website lesen konnten, ist schon ausgefüllt – meist musst du nur bestätigen.",
+        "subtitle": "Ein paar kurze Fragen dazu, wofür du diesen Workspace nutzt. Was wir auf deiner Website lesen konnten, ist schon ausgefüllt – meist musst du nur bestätigen.",
         "title": "Richte deinen Workspace ein",
-        "withoutWebsiteSubtitle": "Ein paar kurze Fragen dazu, wie du verkaufst. Die meisten sind eine schnelle Auswahl, das dauert nur wenige Minuten."
+        "withoutWebsiteSubtitle": "Ein paar kurze Fragen dazu, wofür du diesen Workspace nutzt. Die meisten sind eine schnelle Auswahl, das dauert nur wenige Minuten."
       }
     }
   },
@@ -4607,7 +4607,7 @@
   "WorkspaceSetup": {
     "actions": {
       "addOwn": "Eigenen Eintrag hinzufügen",
-      "fromWebsite": "Von deiner Website",
+      "fromWebsite": "Von deiner Website vorgeschlagen",
       "looksRight": "Passt so",
       "upload": "Tabelle hochladen",
       "winChance": "Abschlusschance"
@@ -4690,7 +4690,6 @@
       "moveUp": "Nach oben",
       "optionalPlaceholder": "Leer lassen, wenn dir nichts einfällt",
       "prefillFailed": "Wir konnten deine Website nicht lesen, deshalb ist nichts ausgefüllt. Die Fragen dauern trotzdem nur wenige Minuten.",
-      "prefillRunning": "Wir lesen {website} und schlagen Antworten vor …",
       "rangeFrom": "Von",
       "rangeTo": "Bis",
       "rankedHint": "{count} von {max} gewählt, nach Wichtigkeit geordnet",
@@ -4762,7 +4761,7 @@
       "knowledgePages": {
         "faq": "Häufig gestellte Fragen",
         "idealCustomer": "Idealer Kunde",
-        "overview": "Unternehmensüberblick",
+        "overview": "Übersicht",
         "processes": "Abläufe",
         "productsPricing": "Produkte und Preise",
         "salesPlaybook": "Vertriebsleitfaden und Einwände"
@@ -4781,6 +4780,14 @@
         "projects": "Projekte",
         "services": "Dienstleistungen",
         "subscriptions": "Abonnements"
+      },
+      "purpose": {
+        "clients": "Kunden und Vertrieb",
+        "finances": "Finanzen und Steuern",
+        "hiring": "Recruiting",
+        "marketing": "Marketing und Content",
+        "projects": "Projekte",
+        "support": "Kundensupport"
       },
       "renewalPeriod": {
         "monthly": "Monatlich",
@@ -4848,7 +4855,7 @@
     },
     "questions": {
       "addressForm": {
-        "label": "Wie sprichst du Kunden an?"
+        "label": "Wie sprichst du andere schriftlich an?"
       },
       "afterSale": {
         "label": "Was folgt auf einen gewonnenen Auftrag?"
@@ -4860,7 +4867,7 @@
         "label": "Deine Terminarten"
       },
       "companyName": {
-        "label": "Firmenname"
+        "label": "Name deines Unternehmens oder Projekts"
       },
       "competitors": {
         "label": "Deine wichtigsten Wettbewerber"
@@ -4913,6 +4920,13 @@
       "projectPhases": {
         "label": "Deine Projektphasen"
       },
+      "purpose": {
+        "label": "Wofür nutzt du diesen Workspace?"
+      },
+      "purposeDetails": {
+        "label": "Beschreib ihn in einem Satz",
+        "placeholder": "Zum Beispiel: meine Freelance-Kunden, Rechnungen und Steuerfristen"
+      },
       "renewalPeriod": {
         "label": "Wie oft verlängern sich Verträge?"
       },
@@ -4943,11 +4957,11 @@
     },
     "screens": {
       "afterSale": "Nach dem Verkauf",
-      "company": "Dein Unternehmen",
       "dashboard": "Dein Dashboard",
       "data": "Deine Daten",
       "knowledge": "Wissen",
-      "winning": "Kunden gewinnen"
+      "winning": "Kunden gewinnen",
+      "workspace": "Über diesen Workspace"
     },
     "start": {
       "start": "Einrichtung starten",
@@ -4955,9 +4969,13 @@
     },
     "website": {
       "change": "Ändern",
-      "from": "Antworten vorgeschlagen von {website}",
+      "eta": "Dauert meist 1 bis 2 Minuten. Du kannst schon anfangen zu antworten.",
+      "finding": "Wir suchen Seiten auf {website}",
       "hint": "Optional. Wir lesen deine öffentliche Website und schlagen Antworten vor, die du meist nur noch bestätigst.",
       "read": "Website lesen",
+      "reading": "Wir lesen {website}: {read} von {total} Seiten",
+      "suggestedHint": "Prüf die markierten Antworten und ändere, was nicht passt.",
+      "suggesting": "Wir schlagen Antworten aus {website} vor",
       "title": "Antworten aus deiner Website vorschlagen lassen"
     }
   }

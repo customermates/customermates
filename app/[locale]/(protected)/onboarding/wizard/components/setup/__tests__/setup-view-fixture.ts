@@ -100,7 +100,14 @@ export function setupView(overrides: Partial<WorkspaceSetupView> = {}): Workspac
     startedAt: "2026-10-11T10:00:00.000Z",
     confirmedAt: null,
     finishedAt: null,
-    knowledgeBase: { crawlStatus: null, failureReason: null, pagesPlanned: 0, pagesWritten: 0 },
+    knowledgeBase: {
+      crawlStatus: null,
+      failureReason: null,
+      pagesPlanned: 0,
+      pagesWritten: 0,
+      sourcesFound: 0,
+      sourcesRead: 0,
+    },
     interview: {
       answers: {},
       prefill: "completed",

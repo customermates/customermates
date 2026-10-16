@@ -7,6 +7,8 @@ export type SetupCrawlState = {
   failureReason: string | null;
   homepageUrl: string;
   registrableDomain: string;
+  discovered: number;
+  fetched: number;
   topics: Array<{ status: string; pageId?: string }>;
 };
 

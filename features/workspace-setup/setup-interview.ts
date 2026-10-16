@@ -1,4 +1,6 @@
-export const SETUP_SCREENS = ["company", "winning", "afterSale", "dashboard", "knowledge", "data"] as const;
+import type { SetupAnswers } from "./setup-answers.schema";
+
+export const SETUP_SCREENS = ["workspace", "winning", "afterSale", "dashboard", "knowledge", "data"] as const;
 export type SetupScreen = (typeof SETUP_SCREENS)[number];
 
 export const SETUP_QUESTION_FORMATS = [
@@ -21,14 +23,16 @@ export const SETUP_MAX_RANKED_PICKS = 3;
 export const SETUP_MAX_FOLLOW_UP_QUESTIONS = 3;
 export const SETUP_PREFILL_CONFIDENCE = 0.7;
 
-export type SetupOption = { id: string; labelKey: string; preselected?: boolean };
+export type SetupVisibility = { part: string; anyOf: string[] };
+
+export type SetupOption = { id: string; labelKey: string; preselected?: boolean; visibleWhen?: SetupVisibility };
 
 type SetupPartBase = {
   id: string;
   labelKey: string;
   prefill: SetupPrefillLevel;
   optional?: boolean;
-  visibleWhen?: { part: string; includes: string };
+  visibleWhen?: SetupVisibility;
 };
 
 export type SetupQuestionPart = SetupPartBase &
@@ -39,20 +43,21 @@ export type SetupQuestionPart = SetupPartBase &
     | { format: "orderedList"; winChance: boolean; maxItems: number }
     | { format: "rankedPick"; options: SetupOption[]; maxPicks: number }
     | { format: "range"; unit: "currency" | "days"; single: boolean; min: number; max: number }
-    | { format: "shortText"; maxLength: number }
+    | { format: "shortText"; maxLength: number; placeholderKey?: string }
   );
 
 export type SetupQuestion = {
   id: string;
   number: number;
   screen: SetupScreen;
+  visibleWhen?: SetupVisibility;
   parts: SetupQuestionPart[];
 };
 
 export type SetupScreenDefinition = { id: SetupScreen; titleKey: string };
 
 export const SETUP_SCREEN_DEFINITIONS: SetupScreenDefinition[] = [
-  { id: "company", titleKey: "WorkspaceSetup.screens.company" },
+  { id: "workspace", titleKey: "WorkspaceSetup.screens.workspace" },
   { id: "winning", titleKey: "WorkspaceSetup.screens.winning" },
   { id: "afterSale", titleKey: "WorkspaceSetup.screens.afterSale" },
   { id: "dashboard", titleKey: "WorkspaceSetup.screens.dashboard" },
@@ -68,14 +73,41 @@ export const SETUP_INTERVIEW_ACTIONS = {
   winChance: { labelKey: "WorkspaceSetup.actions.winChance" },
 };
 
+const FOR_CLIENTS: SetupVisibility = { part: "purpose", anyOf: ["clients"] };
+
 export const SETUP_QUESTIONS: SetupQuestion[] = [
   {
-    id: "company",
+    id: "workspace",
     number: 1,
-    screen: "company",
+    screen: "workspace",
     parts: [
       {
+        id: "purpose",
+        labelKey: "WorkspaceSetup.questions.purpose.label",
+        format: "multipleChoice",
+        allowCustom: true,
+        prefill: "partly",
+        options: [
+          { id: "clients", labelKey: "WorkspaceSetup.options.purpose.clients" },
+          { id: "projects", labelKey: "WorkspaceSetup.options.purpose.projects" },
+          { id: "marketing", labelKey: "WorkspaceSetup.options.purpose.marketing" },
+          { id: "finances", labelKey: "WorkspaceSetup.options.purpose.finances" },
+          { id: "hiring", labelKey: "WorkspaceSetup.options.purpose.hiring" },
+          { id: "support", labelKey: "WorkspaceSetup.options.purpose.support" },
+        ],
+      },
+      {
+        id: "purposeDetails",
+        optional: true,
+        labelKey: "WorkspaceSetup.questions.purposeDetails.label",
+        format: "shortText",
+        maxLength: 300,
+        placeholderKey: "WorkspaceSetup.questions.purposeDetails.placeholder",
+        prefill: "partly",
+      },
+      {
         id: "companyName",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.companyName.label",
         format: "shortText",
         maxLength: 120,
@@ -111,7 +143,8 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
   {
     id: "offerings",
     number: 2,
-    screen: "company",
+    screen: "workspace",
+    visibleWhen: FOR_CLIENTS,
     parts: [
       {
         id: "offeringKinds",
@@ -141,7 +174,8 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
   {
     id: "customers",
     number: 3,
-    screen: "company",
+    screen: "workspace",
+    visibleWhen: FOR_CLIENTS,
     parts: [
       {
         id: "customerKind",
@@ -169,7 +203,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
         labelKey: "WorkspaceSetup.questions.customerSize.label",
         format: "singleChoice",
         prefill: "partly",
-        visibleWhen: { part: "customerKind", includes: "businesses" },
+        visibleWhen: { part: "customerKind", anyOf: ["businesses"] },
         options: [
           { id: "small", labelKey: "WorkspaceSetup.options.customerSize.small" },
           { id: "medium", labelKey: "WorkspaceSetup.options.customerSize.medium" },
@@ -182,7 +216,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
   {
     id: "team",
     number: 4,
-    screen: "company",
+    screen: "workspace",
     parts: [
       {
         id: "teamSize",
@@ -200,6 +234,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
       {
         id: "teamRoles",
         optional: true,
+        visibleWhen: FOR_CLIENTS,
         labelKey: "WorkspaceSetup.questions.teamRoles.label",
         format: "multipleChoice",
         allowCustom: false,
@@ -218,6 +253,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
     id: "leadSources",
     number: 5,
     screen: "winning",
+    visibleWhen: FOR_CLIENTS,
     parts: [
       {
         id: "leadSources",
@@ -242,6 +278,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
     id: "salesSteps",
     number: 6,
     screen: "winning",
+    visibleWhen: FOR_CLIENTS,
     parts: [
       {
         id: "salesSteps",
@@ -258,6 +295,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
     id: "dealShape",
     number: 7,
     screen: "winning",
+    visibleWhen: FOR_CLIENTS,
     parts: [
       {
         id: "dealSize",
@@ -299,6 +337,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
     id: "dealDetails",
     number: 8,
     screen: "winning",
+    visibleWhen: FOR_CLIENTS,
     parts: [
       {
         id: "dealDetails",
@@ -323,6 +362,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
     id: "afterSale",
     number: 9,
     screen: "afterSale",
+    visibleWhen: FOR_CLIENTS,
     parts: [
       {
         id: "afterSale",
@@ -346,6 +386,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
     id: "afterSaleDetails",
     number: 10,
     screen: "afterSale",
+    visibleWhen: FOR_CLIENTS,
     parts: [
       {
         id: "projectPhases",
@@ -355,7 +396,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
         winChance: false,
         maxItems: 12,
         prefill: "suggested",
-        visibleWhen: { part: "afterSale", includes: "projects" },
+        visibleWhen: { part: "afterSale", anyOf: ["projects"] },
       },
       {
         id: "orderStatuses",
@@ -365,7 +406,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
         winChance: false,
         maxItems: 12,
         prefill: "suggested",
-        visibleWhen: { part: "afterSale", includes: "ordersInvoices" },
+        visibleWhen: { part: "afterSale", anyOf: ["ordersInvoices"] },
       },
       {
         id: "renewalPeriod",
@@ -373,7 +414,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
         labelKey: "WorkspaceSetup.questions.renewalPeriod.label",
         format: "singleChoice",
         prefill: "suggested",
-        visibleWhen: { part: "afterSale", includes: "contractsRenewals" },
+        visibleWhen: { part: "afterSale", anyOf: ["contractsRenewals"] },
         options: [
           { id: "monthly", labelKey: "WorkspaceSetup.options.renewalPeriod.monthly" },
           { id: "quarterly", labelKey: "WorkspaceSetup.options.renewalPeriod.quarterly" },
@@ -389,7 +430,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
         winChance: false,
         maxItems: 8,
         prefill: "suggested",
-        visibleWhen: { part: "afterSale", includes: "supportTickets" },
+        visibleWhen: { part: "afterSale", anyOf: ["supportTickets"] },
       },
       {
         id: "appointmentTypes",
@@ -399,7 +440,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
         winChance: false,
         maxItems: 12,
         prefill: "suggested",
-        visibleWhen: { part: "afterSale", includes: "appointments" },
+        visibleWhen: { part: "afterSale", anyOf: ["appointments"] },
       },
     ],
   },
@@ -407,6 +448,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
     id: "tasks",
     number: 11,
     screen: "afterSale",
+    visibleWhen: FOR_CLIENTS,
     parts: [
       {
         id: "taskOrganisation",
@@ -428,6 +470,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
     id: "weeklyNumbers",
     number: 12,
     screen: "dashboard",
+    visibleWhen: FOR_CLIENTS,
     parts: [
       {
         id: "weeklyNumbers",
@@ -454,6 +497,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
     id: "dashboardAudience",
     number: 13,
     screen: "dashboard",
+    visibleWhen: FOR_CLIENTS,
     parts: [
       {
         id: "dashboardAudience",
@@ -487,9 +531,20 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
             id: "productsPricing",
             labelKey: "WorkspaceSetup.options.knowledgePages.productsPricing",
             preselected: true,
+            visibleWhen: FOR_CLIENTS,
           },
-          { id: "idealCustomer", labelKey: "WorkspaceSetup.options.knowledgePages.idealCustomer", preselected: true },
-          { id: "salesPlaybook", labelKey: "WorkspaceSetup.options.knowledgePages.salesPlaybook", preselected: true },
+          {
+            id: "idealCustomer",
+            labelKey: "WorkspaceSetup.options.knowledgePages.idealCustomer",
+            preselected: true,
+            visibleWhen: FOR_CLIENTS,
+          },
+          {
+            id: "salesPlaybook",
+            labelKey: "WorkspaceSetup.options.knowledgePages.salesPlaybook",
+            preselected: true,
+            visibleWhen: FOR_CLIENTS,
+          },
           { id: "faq", labelKey: "WorkspaceSetup.options.knowledgePages.faq", preselected: true },
           { id: "processes", labelKey: "WorkspaceSetup.options.knowledgePages.processes", preselected: true },
         ],
@@ -518,6 +573,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
     id: "competitors",
     number: 16,
     screen: "knowledge",
+    visibleWhen: FOR_CLIENTS,
     parts: [
       {
         id: "competitors",
@@ -565,4 +621,56 @@ export const SETUP_PART_IDS = SETUP_PARTS.map((part) => part.id) as [string, ...
 
 export function setupPart(id: string): SetupQuestionPart | undefined {
   return SETUP_PARTS.find((part) => part.id === id);
+}
+
+const SINGLE_CHOICE_COVERS: Readonly<Record<string, readonly string[]>> = { both: ["businesses", "consumers"] };
+
+function setupQuestionOf(partId: string): SetupQuestion | undefined {
+  return SETUP_QUESTIONS.find((question) => question.parts.some((part) => part.id === partId));
+}
+
+function conditionMet(condition: SetupVisibility | undefined, answers: SetupAnswers): boolean {
+  if (!condition) return true;
+  if (!setupPartVisible(condition.part, answers)) return false;
+  const value = answers[condition.part]?.value;
+  if (value?.format === "multipleChoice") return condition.anyOf.some((id) => value.values.includes(id));
+  if (value?.format === "singleChoice") {
+    return condition.anyOf.some(
+      (id) => value.value === id || (SINGLE_CHOICE_COVERS[value.value]?.includes(id) ?? false),
+    );
+  }
+  return false;
+}
+
+export function setupPartVisible(partId: string, answers: SetupAnswers): boolean {
+  const question = setupQuestionOf(partId);
+  const part = setupPart(partId);
+  return (
+    Boolean(question && part) &&
+    conditionMet(question?.visibleWhen, answers) &&
+    conditionMet(part?.visibleWhen, answers)
+  );
+}
+
+export function setupOptionVisible(option: Pick<SetupOption, "visibleWhen">, answers: SetupAnswers): boolean {
+  return conditionMet(option.visibleWhen, answers);
+}
+
+export function setupVisibleAnswers(answers: SetupAnswers): SetupAnswers {
+  const visible: SetupAnswers = {};
+  for (const [id, answer] of Object.entries(answers)) {
+    const part = setupPart(id);
+    if (!answer || !part || !setupPartVisible(id, answers)) continue;
+    const hidden = new Set(
+      "options" in part
+        ? part.options.filter((option) => !setupOptionVisible(option, answers)).map(({ id }) => id)
+        : [],
+    );
+    const value = answer.value;
+    if (value.format === "multipleChoice" || value.format === "rankedPick")
+      visible[id] = { ...answer, value: { ...value, values: value.values.filter((choice) => !hidden.has(choice)) } };
+    else if (value.format === "singleChoice" && hidden.has(value.value)) continue;
+    else visible[id] = answer;
+  }
+  return visible;
 }

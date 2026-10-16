@@ -1,3 +1,5 @@
+import type { SetupAnswers } from "../setup-answers.schema";
+
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -12,6 +14,9 @@ import {
   SETUP_QUESTIONS,
   SETUP_SCREEN_DEFINITIONS,
   SETUP_SCREENS,
+  setupPart,
+  setupPartVisible,
+  setupVisibleAnswers,
 } from "../setup-interview";
 import { mergeWebsitePrefill, touchAnswer } from "../setup-prefill";
 
@@ -47,7 +52,7 @@ describe("workspace setup interview", () => {
       SETUP_QUESTIONS.flatMap((question) => question.parts)
         .filter((part) => !part.optional)
         .map((part) => part.id),
-    ).toEqual(["companyName", "language", "currency", "customerKind", "existingData"]);
+    ).toEqual(["purpose", "language", "currency", "customerKind", "existingData"]);
     for (const part of byNumber(10)) expect(part.visibleWhen?.part).toBe("afterSale");
     for (const number of [11, 12, 13, 17]) for (const part of byNumber(number)) expect(part.prefill).toBe("no");
   });
@@ -60,9 +65,46 @@ describe("workspace setup interview", () => {
       ...SETUP_PARTS.flatMap((part) => [
         part.labelKey,
         ...("options" in part ? part.options.map((option) => option.labelKey) : []),
+        ...("placeholderKey" in part && part.placeholderKey ? [part.placeholderKey] : []),
       ]),
     ];
     for (const key of keys) expect(typeof lookup(messages, key), key).toBe("string");
+  });
+});
+
+describe("workspace setup purpose", () => {
+  const user = (value: NonNullable<SetupAnswers[string]>["value"]) => ({
+    source: "user" as const,
+    confidence: 1,
+    value,
+  });
+  const purpose = (...values: string[]) => user({ format: "multipleChoice", values, custom: [] });
+
+  it("starts with what the workspace is for and keeps the name optional", () => {
+    expect(SETUP_QUESTIONS[0].parts.map((part) => part.id).slice(0, 3)).toEqual([
+      "purpose",
+      "purposeDetails",
+      "companyName",
+    ]);
+    expect(setupPart("companyName")?.optional).toBe(true);
+  });
+
+  it("keeps only the answers and options that fit the workspace's purpose", () => {
+    const answers: SetupAnswers = {
+      purpose: purpose("finances"),
+      companyName: user({ format: "shortText", value: "Ada Lovelace" }),
+      leadSources: user({ format: "multipleChoice", values: ["referrals"], custom: [] }),
+      knowledgePages: user({ format: "multipleChoice", values: ["overview", "salesPlaybook"], custom: [] }),
+    };
+
+    const visible = setupVisibleAnswers(answers);
+
+    expect(Object.keys(visible)).toEqual(["purpose", "companyName", "knowledgePages"]);
+    expect(visible.knowledgePages?.value).toEqual({ format: "multipleChoice", values: ["overview"], custom: [] });
+    expect(setupVisibleAnswers({ ...answers, purpose: purpose("clients", "finances") }).leadSources).toEqual(
+      answers.leadSources,
+    );
+    expect(setupPartVisible("leadSources", {})).toBe(false);
   });
 });
 

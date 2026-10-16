@@ -223,7 +223,7 @@ describe("SetupQuestionField", () => {
   });
 
   it("marks a required question with the form asterisk", () => {
-    render(descriptorOf("companyName"), null);
+    render(descriptorOf("language"), null);
     expect(container.querySelector("label .text-destructive")?.textContent).toBe(" *");
   });
 

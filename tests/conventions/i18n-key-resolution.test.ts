@@ -598,6 +598,10 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["OnboardingWizard.ai.openai.methods.${*}.title", onboardingOpenAiMethodKeys("title")],
   ["OnboardingWizard.steps.${*}.subtitle", ONBOARDING_STEP_SUBTITLE_KEYS],
   ["OnboardingWizard.steps.${*}.title", ONBOARDING_STEP_TITLE_KEYS],
+  [
+    "WorkspaceSetup.website.${*}",
+    ["WorkspaceSetup.website.finding", "WorkspaceSetup.website.reading", "WorkspaceSetup.website.suggesting"],
+  ],
   ["RoleModal.resources.${*}", ROLE_RESOURCE_KEYS],
   ["Wiki.kind.${*}", WIKI_PAGE_KIND_KEYS],
   ["Subscription.picker.features.${*}", SUBSCRIPTION_FEATURE_KEYS],
@@ -807,6 +811,7 @@ export const DYNAMIC_KEY_SITES = [
   "components/shared/locale-menu.tsx :: t :: Common.locales.${currentLocale}",
   "components/shared/locale-menu.tsx :: t :: Common.locales.${locale}",
   "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-question-field.tsx :: t :: Common.locales.${locale}",
+  "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-interview.tsx :: t :: WorkspaceSetup.website.${progress.stage}",
   "core/validation/zod-error-map-server.ts :: t.raw :: Common.errors.${code}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.approval.${copyKind}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.label.${name}",
@@ -852,6 +857,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ["app/[locale]/(protected)/onboarding/wizard/components/setup/setup-interview.tsx :: t :: screen.titleKey", 1],
   ["app/[locale]/(protected)/onboarding/wizard/components/setup/setup-question-descriptor.ts :: t :: option.labelKey", 1],
   ["app/[locale]/(protected)/onboarding/wizard/components/setup/setup-question-descriptor.ts :: t :: part.labelKey", 1],
+  ["app/[locale]/(protected)/onboarding/wizard/components/setup/setup-question-descriptor.ts :: t :: part.placeholderKey", 1],
   ["ee/command-resolver/resolve-command.interactor.ts :: t :: command.labelKey", 1],
   ["ee/command-resolver/resolve-command.interactor.ts :: t :: parent.labelKey", 1],
   ["app/components/global-search-modal.tsx :: t :: key", 1],
@@ -1142,7 +1148,7 @@ const NAMESPACE_PATTERN = /(?:useTranslations|getTranslations)\(\s*"([^"]+)"\s*\
 const TRANSLATOR_NAMESPACE_PATTERN = /getTranslator\(\s*[^,)]+,\s*"([^"]+)"\s*\)/g;
 const STRING_LITERAL_PATTERN = /"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)'|`((?:[^`\\]|\\.)*)`/g;
 const INDIRECT_TRANSLATION_KEY_PATTERN =
-  /(?:alertTranslationKey|descriptionKey|i18nKey|labelKey|nameTranslationKey|primaryButtonLabel|successKey|titleKey|translationKey)\s*(?::|=)\s*("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g;
+  /(?:alertTranslationKey|descriptionKey|i18nKey|labelKey|nameTranslationKey|placeholderKey|primaryButtonLabel|successKey|titleKey|translationKey)\s*(?::|=)\s*("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g;
 const TOAST_CALL_PATTERN = /toast(?:Success|Error)\(([\s\S]*?)\);/g;
 
 function loadCatalogPaths(): {

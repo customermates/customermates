@@ -1,5 +1,8 @@
 import type { SetupFollowUpQuestion } from "@/ee/workspace-setup/workspace-setup.schema";
-import type { SetupOptionSource, SetupQuestionPart } from "@/features/workspace-setup/setup-interview";
+import type { SetupAnswers } from "@/features/workspace-setup/setup-answers.schema";
+import type { SetupOption, SetupOptionSource, SetupQuestionPart } from "@/features/workspace-setup/setup-interview";
+
+import { setupOptionVisible } from "@/features/workspace-setup/setup-interview";
 
 export type SetupChoice = { id: string; label: string };
 
@@ -12,13 +15,19 @@ export type SetupQuestionDescriptor = DescriptorBase &
     | { format: "orderedList"; winChance: boolean; maxItems: number }
     | { format: "rankedPick"; options: SetupChoice[]; maxPicks: number }
     | { format: "range"; unit: "currency" | "days"; single: boolean; min: number; max: number }
-    | { format: "shortText"; maxLength: number }
+    | { format: "shortText"; maxLength: number; placeholder?: string }
   );
 
-export function partDescriptor(part: SetupQuestionPart, t: (key: string) => string): SetupQuestionDescriptor {
+export function partDescriptor(
+  part: SetupQuestionPart,
+  t: (key: string) => string,
+  answers: SetupAnswers = {},
+): SetupQuestionDescriptor {
   const base = { id: part.id, label: t(part.labelKey), optional: Boolean(part.optional) };
-  const choices = (options: Array<{ id: string; labelKey: string }>) =>
-    options.map((option) => ({ id: option.id, label: t(option.labelKey) }));
+  const choices = (options: SetupOption[]) =>
+    options
+      .filter((option) => setupOptionVisible(option, answers))
+      .map((option) => ({ id: option.id, label: t(option.labelKey) }));
   switch (part.format) {
     case "singleChoice":
       return {
@@ -36,7 +45,12 @@ export function partDescriptor(part: SetupQuestionPart, t: (key: string) => stri
     case "range":
       return { ...base, format: "range", unit: part.unit, single: part.single, min: part.min, max: part.max };
     case "shortText":
-      return { ...base, format: "shortText", maxLength: part.maxLength };
+      return {
+        ...base,
+        format: "shortText",
+        maxLength: part.maxLength,
+        ...(part.placeholderKey ? { placeholder: t(part.placeholderKey) } : {}),
+      };
   }
 }
 

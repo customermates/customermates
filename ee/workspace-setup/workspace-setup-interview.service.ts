@@ -10,6 +10,7 @@ import type {
 } from "./workspace-setup-planner";
 
 import { UserAccessor } from "@/core/base/user-accessor";
+import { setupVisibleAnswers } from "@/features/workspace-setup/setup-interview";
 import { mergeWebsitePrefill } from "@/features/workspace-setup/setup-prefill";
 import { APP_LOCALES } from "@/i18n/locale-registry";
 import { untrustedText } from "@/features/mcp-tools/untrusted-record-content";
@@ -182,7 +183,9 @@ export class WorkspaceSetupInterviewService extends UserAccessor {
   ) {
     await this.repo.mutate(setupId, (setup) => ({
       interview: { ...setup.interview, prefill: state, prefillError: error, prefillDraft: draft },
-      ...(draft && setup.status === "interview" ? { answers: mergeWebsitePrefill(setup.answers, draft) } : {}),
+      ...(draft && setup.status === "interview"
+        ? { answers: setupVisibleAnswers(mergeWebsitePrefill(setup.answers, draft)) }
+        : {}),
     }));
   }
 

@@ -92,12 +92,22 @@ describe("SetupInterview", () => {
     expect(field("existingData").nextElementSibling).toBe(field("anythingMissed"));
   });
 
-  it("says the website is still being read until its suggestions are in", () => {
-    const reading = renderWebsite(setupView({ interview: { ...setupView().interview, prefill: "idle" } }));
-    expect(reading).toContain("WorkspaceSetup.interview.prefillRunning example.com");
-    expect(reading).not.toContain("WorkspaceSetup.website.from");
+  it("shows how far the website has been read until its suggestions are in", () => {
+    const idle = { interview: { ...setupView().interview, prefill: "idle" as const } };
+    const finding = renderWebsite(setupView(idle));
+    expect(finding).toContain("WorkspaceSetup.website.finding example.com");
+    expect(finding).toContain("WorkspaceSetup.website.eta");
 
-    expect(renderWebsite(setupView())).toContain("WorkspaceSetup.website.from example.com");
+    const knowledgeBase = { ...setupView().knowledgeBase, crawlStatus: "fetching", sourcesFound: 20, sourcesRead: 5 };
+    const reading = renderWebsite(setupView({ ...idle, knowledgeBase }));
+    expect(reading).toContain("WorkspaceSetup.website.reading example.com 5 20");
+    expect(
+      container.querySelector('[role="progressbar"][aria-label="example.com"]')?.getAttribute("aria-valuenow"),
+    ).toBe("28");
+
+    const done = renderWebsite(setupView());
+    expect(done).toContain("WorkspaceSetup.website.suggestedHint");
+    expect(done).not.toContain("WorkspaceSetup.website.eta");
   });
 
   it("offers to fill in the answers from a website on every part when none is given", () => {

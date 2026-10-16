@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
 
-export const SETUP_CHIP_CLASS = "px-3";
+export const SETUP_CHIP_CLASS =
+  "px-3 data-[state=on]:border-primary/40 data-[state=on]:bg-primary/20 data-[state=on]:text-primary-soft-foreground data-[state=on]:hover:bg-primary/25 data-[state=on]:hover:text-primary-soft-foreground";
 
 type ChipProps = {
   pressed: boolean;

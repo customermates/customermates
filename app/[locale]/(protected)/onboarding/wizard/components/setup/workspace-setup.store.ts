@@ -28,6 +28,7 @@ import {
 } from "../../workspace-setup-actions";
 
 import {
+  adjacentScreenIndex,
   answerComplete,
   displayedFollowUpValue,
   interviewAnswersPayload,
@@ -38,6 +39,7 @@ import {
   screenAnswersPayload,
   screenComplete,
   unansweredFollowUps,
+  visibleScreenIndexes,
 } from "./setup-interview-state";
 
 export type SetupCommand =
@@ -56,6 +58,14 @@ export type SpreadsheetRejection = { fileName: string; failure: SpreadsheetReadF
 const POLLED_GENERATION = new Set(["queued", "running"]);
 const PENDING_PREFILL = new Set(["idle", "queued", "running"]);
 const ADJUSTABLE_STAGES = new Set<SetupStage>(["plan", "planFailed"]);
+const FINDING_CRAWL = new Set(["queued", "discovering"]);
+
+export type WebsiteReading = {
+  stage: "finding" | "reading" | "suggesting";
+  progress: number;
+  read: number;
+  total: number;
+};
 
 export class WorkspaceSetupStore {
   view: WorkspaceSetupStatusView | null = null;
@@ -92,7 +102,11 @@ export class WorkspaceSetupStore {
   }
 
   get isLastScreen(): boolean {
-    return this.screenIndex === SETUP_SCREENS.length - 1;
+    return adjacentScreenIndex(this.screenIndex, this.answers, 1) === null;
+  }
+
+  get visibleScreens(): number[] {
+    return visibleScreenIndexes(this.answers);
   }
 
   get isBusy(): boolean {
@@ -134,6 +148,19 @@ export class WorkspaceSetupStore {
     return Boolean(setup?.websiteUrl) && PENDING_PREFILL.has(setup?.interview.prefill ?? "skipped");
   }
 
+  get websiteReading(): WebsiteReading | null {
+    const setup = this.setup;
+    if (!setup || !this.prefillRunning) return null;
+    const { crawlStatus, sourcesFound, sourcesRead } = setup.knowledgeBase;
+    if (crawlStatus === null || FINDING_CRAWL.has(crawlStatus) || (crawlStatus === "fetching" && sourcesFound === 0))
+      return { stage: "finding", progress: 5, read: 0, total: 0 };
+    if (crawlStatus === "fetching") {
+      const read = Math.min(sourcesRead, sourcesFound);
+      return { stage: "reading", progress: 10 + Math.round((70 * read) / sourcesFound), read, total: sourcesFound };
+    }
+    return { stage: "suggesting", progress: 85, read: sourcesRead, total: sourcesFound };
+  }
+
   setLocale = (locale: string) => {
     this.locale = locale;
   };
@@ -166,11 +193,12 @@ export class WorkspaceSetupStore {
 
   previousScreen = () => {
     if (this.isBusy) return;
-    if (this.screenIndex === 0) {
+    const previous = adjacentScreenIndex(this.screenIndex, this.answers, -1);
+    if (previous === null) {
       if (this.adjusting) this.discardAdjustment();
       return;
     }
-    this.screenIndex -= 1;
+    this.screenIndex = previous;
   };
 
   adjust = () => {
@@ -217,7 +245,7 @@ export class WorkspaceSetupStore {
       if (!saved.ok) return saved;
       if (!this.isLastScreen) {
         runInAction(() => {
-          this.screenIndex += 1;
+          this.screenIndex = adjacentScreenIndex(this.screenIndex, this.answers, 1) ?? this.screenIndex;
         });
         return saved;
       }
@@ -299,7 +327,7 @@ export class WorkspaceSetupStore {
 
   private nextAdjustedScreen(): boolean {
     if (this.isBusy || !this.setup || !this.canConfirmScreen) return false;
-    this.screenIndex += 1;
+    this.screenIndex = adjacentScreenIndex(this.screenIndex, this.answers, 1) ?? this.screenIndex;
     return true;
   }
 

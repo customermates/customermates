@@ -2982,7 +2982,7 @@
     "progressLabel": "Onboarding progress",
     "steps": {
       "ai": {
-        "subtitle": "Choose an AI tool to connect with your workspace and its company knowledge. Connect one now, add others later, or skip this step.",
+        "subtitle": "Choose an AI tool to connect with your workspace and its knowledge. Connect one now, add others later, or skip this step.",
         "title": "Connect the AI you already use"
       },
       "invite": {
@@ -2996,9 +2996,9 @@
       },
       "setup": {
         "planningSubtitle": "Your answers are saved. Mate turns them into a plan for your workspace that you review before anything is built.",
-        "subtitle": "A few short questions about how you sell. What we could read on your website is already filled in, so you mostly confirm.",
+        "subtitle": "A few short questions about what this workspace is for. What we could read on your website is already filled in, so you mostly confirm.",
         "title": "Set up your workspace",
-        "withoutWebsiteSubtitle": "A few short questions about how you sell. Most are a quick choice, so this takes only a few minutes."
+        "withoutWebsiteSubtitle": "A few short questions about what this workspace is for. Most are a quick choice, so this takes only a few minutes."
       }
     }
   },
@@ -4607,7 +4607,7 @@
   "WorkspaceSetup": {
     "actions": {
       "addOwn": "Add your own",
-      "fromWebsite": "From your website",
+      "fromWebsite": "Suggested from your website",
       "looksRight": "Looks right",
       "upload": "Upload a spreadsheet",
       "winChance": "Win chance"
@@ -4690,7 +4690,6 @@
       "moveUp": "Move up",
       "optionalPlaceholder": "Leave empty if nothing comes to mind",
       "prefillFailed": "We could not read your website, so nothing is filled in. The questions still take only a few minutes.",
-      "prefillRunning": "Reading {website} to suggest answers…",
       "rangeFrom": "From",
       "rangeTo": "Up to",
       "rankedHint": "{count} of {max} picked, in order of importance",
@@ -4762,7 +4761,7 @@
       "knowledgePages": {
         "faq": "Frequently asked questions",
         "idealCustomer": "Ideal customer",
-        "overview": "Company overview",
+        "overview": "Overview",
         "processes": "Processes",
         "productsPricing": "Products and pricing",
         "salesPlaybook": "Sales playbook and objections"
@@ -4781,6 +4780,14 @@
         "projects": "Projects",
         "services": "Services",
         "subscriptions": "Subscriptions"
+      },
+      "purpose": {
+        "clients": "Clients and sales",
+        "finances": "Finances and taxes",
+        "hiring": "Hiring",
+        "marketing": "Marketing and content",
+        "projects": "Projects",
+        "support": "Customer support"
       },
       "renewalPeriod": {
         "monthly": "Monthly",
@@ -4848,7 +4855,7 @@
     },
     "questions": {
       "addressForm": {
-        "label": "How do you address customers?"
+        "label": "How do you address people in writing?"
       },
       "afterSale": {
         "label": "What follows a won deal?"
@@ -4860,7 +4867,7 @@
         "label": "Your appointment types"
       },
       "companyName": {
-        "label": "Company name"
+        "label": "Name of your business or project"
       },
       "competitors": {
         "label": "Your main competitors"
@@ -4913,6 +4920,13 @@
       "projectPhases": {
         "label": "Your project phases"
       },
+      "purpose": {
+        "label": "What will you use this workspace for?"
+      },
+      "purposeDetails": {
+        "label": "Describe it in a sentence",
+        "placeholder": "For example: my freelance clients, invoices and tax deadlines"
+      },
       "renewalPeriod": {
         "label": "How often do contracts renew?"
       },
@@ -4943,11 +4957,11 @@
     },
     "screens": {
       "afterSale": "After the sale",
-      "company": "Your company",
       "dashboard": "Your dashboard",
       "data": "Your data",
       "knowledge": "Knowledge",
-      "winning": "Winning customers"
+      "winning": "Winning customers",
+      "workspace": "About this workspace"
     },
     "start": {
       "start": "Start the setup",
@@ -4955,9 +4969,13 @@
     },
     "website": {
       "change": "Change",
-      "from": "Answers suggested from {website}",
+      "eta": "Usually takes 1 to 2 minutes. You can start answering in the meantime.",
+      "finding": "Finding pages on {website}",
       "hint": "Optional. We read your public website and suggest answers, so you mostly just confirm.",
       "read": "Read website",
+      "reading": "Reading {website}: {read} of {total} pages",
+      "suggestedHint": "Check the marked answers and change anything that's off.",
+      "suggesting": "Suggesting answers from {website}",
       "title": "Fill in answers from your website"
     }
   }

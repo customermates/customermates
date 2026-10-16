@@ -59,6 +59,8 @@ function harness(overrides: Partial<WorkspaceSetupRecord> = {}, crawl: Partial<S
         failureReason: null,
         homepageUrl: "https://studio.example/",
         registrableDomain: "studio.example",
+        discovered: 12,
+        fetched: 12,
         topics: [],
         ...crawl,
       }),
@@ -94,6 +96,7 @@ describe("workspace setup interview", () => {
       value: {
         answers: [
           { ...blank, part: "companyName", confidence: 0.99, text: "Studio Example" },
+          { ...blank, part: "purpose", confidence: 0.9, choices: ["clients"], custom: [] },
           { ...blank, part: "customerKind", confidence: 0.9, choice: "businesses" },
           { ...blank, part: "industries", confidence: 0.4, choices: [], custom: [] },
         ],
@@ -157,6 +160,7 @@ describe("workspace setup interview", () => {
           answers: [
             { ...blank, part: "industries", confidence: 0.8, choices: ["Fashion brands"] },
             { ...blank, part: "companyName", confidence: 0.95, text: "Studio Example" },
+            { ...blank, part: "purpose", confidence: 0.9, choices: ["clients"], custom: [] },
           ],
         },
       });

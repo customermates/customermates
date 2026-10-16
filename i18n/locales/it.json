@@ -2982,7 +2982,7 @@
     "progressLabel": "Avanzamento della configurazione iniziale",
     "steps": {
       "ai": {
-        "subtitle": "Scegli uno strumento di IA da collegare al tuo spazio di lavoro e alle conoscenze aziendali. Collegane uno ora, aggiungine altri più avanti oppure salta questo passaggio.",
+        "subtitle": "Scegli uno strumento di IA da collegare al tuo spazio di lavoro e alle sue conoscenze. Collegane uno ora, aggiungine altri più avanti oppure salta questo passaggio.",
         "title": "Collega l’IA che usi già"
       },
       "invite": {
@@ -2996,9 +2996,9 @@
       },
       "setup": {
         "planningSubtitle": "Le tue risposte sono salvate. Mate le trasforma in un piano per il tuo workspace, che controlli prima che venga creato qualcosa.",
-        "subtitle": "Alcune brevi domande su come vendi. Quello che abbiamo potuto leggere sul tuo sito è già compilato: per lo più devi solo confermare.",
+        "subtitle": "Alcune brevi domande sull'uso di questo workspace. Quello che abbiamo potuto leggere sul tuo sito è già compilato: per lo più devi solo confermare.",
         "title": "Configura il tuo workspace",
-        "withoutWebsiteSubtitle": "Alcune brevi domande su come vendi. Quasi tutte si risolvono con una scelta rapida: bastano pochi minuti."
+        "withoutWebsiteSubtitle": "Alcune brevi domande sull'uso di questo workspace. Quasi tutte si risolvono con una scelta rapida: bastano pochi minuti."
       }
     }
   },
@@ -4607,7 +4607,7 @@
   "WorkspaceSetup": {
     "actions": {
       "addOwn": "Aggiungi una voce",
-      "fromWebsite": "Dal tuo sito web",
+      "fromWebsite": "Suggerito dal tuo sito web",
       "looksRight": "Va bene così",
       "upload": "Carica un foglio di calcolo",
       "winChance": "Probabilità di chiusura"
@@ -4690,7 +4690,6 @@
       "moveUp": "Sposta su",
       "optionalPlaceholder": "Lascia vuoto se non ti viene in mente nulla",
       "prefillFailed": "Non siamo riusciti a leggere il tuo sito, quindi nulla è precompilato. Le domande richiedono comunque solo pochi minuti.",
-      "prefillRunning": "Stiamo leggendo {website} per suggerire le risposte…",
       "rangeFrom": "Da",
       "rangeTo": "Fino a",
       "rankedHint": "{count} di {max} scelti, in ordine di importanza",
@@ -4762,7 +4761,7 @@
       "knowledgePages": {
         "faq": "Domande frequenti",
         "idealCustomer": "Cliente ideale",
-        "overview": "Panoramica aziendale",
+        "overview": "Panoramica",
         "processes": "Processi",
         "productsPricing": "Prodotti e prezzi",
         "salesPlaybook": "Guida alla vendita e obiezioni"
@@ -4781,6 +4780,14 @@
         "projects": "Progetti",
         "services": "Servizi",
         "subscriptions": "Abbonamenti"
+      },
+      "purpose": {
+        "clients": "Clienti e vendite",
+        "finances": "Finanze e tasse",
+        "hiring": "Selezione del personale",
+        "marketing": "Marketing e contenuti",
+        "projects": "Progetti",
+        "support": "Assistenza clienti"
       },
       "renewalPeriod": {
         "monthly": "Mensile",
@@ -4848,7 +4855,7 @@
     },
     "questions": {
       "addressForm": {
-        "label": "Come ti rivolgi ai clienti?"
+        "label": "Come ti rivolgi alle persone per iscritto?"
       },
       "afterSale": {
         "label": "Che cosa segue a una trattativa vinta?"
@@ -4860,7 +4867,7 @@
         "label": "I tuoi tipi di appuntamento"
       },
       "companyName": {
-        "label": "Nome dell'azienda"
+        "label": "Nome della tua attività o del progetto"
       },
       "competitors": {
         "label": "I tuoi principali concorrenti"
@@ -4913,6 +4920,13 @@
       "projectPhases": {
         "label": "Le fasi dei tuoi progetti"
       },
+      "purpose": {
+        "label": "Per cosa userai questo workspace?"
+      },
+      "purposeDetails": {
+        "label": "Descrivilo in una frase",
+        "placeholder": "Per esempio: i miei clienti da freelance, le fatture e le scadenze fiscali"
+      },
       "renewalPeriod": {
         "label": "Ogni quanto si rinnovano i contratti?"
       },
@@ -4943,11 +4957,11 @@
     },
     "screens": {
       "afterSale": "Dopo la vendita",
-      "company": "La tua azienda",
       "dashboard": "La tua dashboard",
       "data": "I tuoi dati",
       "knowledge": "Conoscenza",
-      "winning": "Acquisire clienti"
+      "winning": "Acquisire clienti",
+      "workspace": "Su questo workspace"
     },
     "start": {
       "start": "Avvia la configurazione",
@@ -4955,9 +4969,13 @@
     },
     "website": {
       "change": "Modifica",
-      "from": "Risposte suggerite da {website}",
+      "eta": "Di solito servono 1 o 2 minuti. Nel frattempo puoi iniziare a rispondere.",
+      "finding": "Cerchiamo le pagine su {website}",
       "hint": "Facoltativo. Leggiamo il tuo sito web pubblico e suggeriamo le risposte, così ti basta confermarle.",
       "read": "Leggi il sito web",
+      "reading": "Leggiamo {website}: {read} di {total} pagine",
+      "suggestedHint": "Controlla le risposte contrassegnate e cambia ciò che non va.",
+      "suggesting": "Suggeriamo le risposte da {website}",
       "title": "Compila le risposte dal tuo sito web"
     }
   }

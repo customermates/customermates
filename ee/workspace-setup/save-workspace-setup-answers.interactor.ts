@@ -11,6 +11,7 @@ import { Write } from "@/core/decorators/write.decorator";
 import { fail, failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { SetupAnswersSchema } from "@/features/workspace-setup/setup-answers.schema";
+import { setupVisibleAnswers } from "@/features/workspace-setup/setup-interview";
 import { touchAnswer } from "@/features/workspace-setup/setup-prefill";
 
 import { SaveWorkspaceSetupAnswersSchema } from "./workspace-setup-input.schema";
@@ -38,7 +39,7 @@ export class SaveWorkspaceSetupAnswersInteractor extends AuthenticatedInteractor
       Object.entries(setup.answers).filter(([part]) => !cleared.has(part)),
     );
     for (const [part, value] of Object.entries(data.answers)) if (value) answers = touchAnswer(answers, part, value);
-    const parsed = SetupAnswersSchema.safeParse(answers);
+    const parsed = SetupAnswersSchema.safeParse(setupVisibleAnswers(answers));
     if (!parsed.success)
       return fail(CustomErrorCode.workspaceSetupAnswerInvalid, ["answers", ...parsed.error.issues[0].path.map(String)]);
     for (const [index, answer] of data.followUpAnswers.entries()) {

@@ -36,7 +36,8 @@ function plannedView(overrides: Parameters<typeof setupView>[0] = {}) {
   });
 }
 
-function answerCompanyScreen(store: WorkspaceSetupStore, companyName: string) {
+function answerWorkspaceScreen(store: WorkspaceSetupStore, companyName: string) {
+  store.setAnswer("purpose", { format: "multipleChoice", values: ["clients"], custom: [] });
   store.setAnswer("companyName", { format: "shortText", value: companyName });
   store.setAnswer("country", { format: "singleChoice", value: "DE" });
   store.setAnswer("currency", { format: "singleChoice", value: "EUR" });
@@ -78,6 +79,7 @@ describe("WorkspaceSetupStore", () => {
   it("saves a confirmed screen and moves to the next one", async () => {
     const store = storeWith();
     store.setLocale("en");
+    store.setAnswer("purpose", { format: "multipleChoice", values: ["clients"], custom: [] });
     store.setAnswer("companyName", { format: "shortText", value: "Acme" });
     store.setAnswer("country", { format: "singleChoice", value: "DE" });
     store.setAnswer("currency", { format: "singleChoice", value: "EUR" });
@@ -120,6 +122,18 @@ describe("WorkspaceSetupStore", () => {
     expect(store.canConfirmScreen).toBe(true);
   });
 
+  it("skips the sales screens for a workspace that is not about clients", async () => {
+    const store = storeWith();
+    store.setLocale("en");
+    store.setAnswer("purpose", { format: "multipleChoice", values: ["finances"], custom: [] });
+    store.setAnswer("currency", { format: "singleChoice", value: "EUR" });
+    expect(store.visibleScreens).toEqual([0, 4, 5]);
+    expect(await store.confirmScreen()).toBe(true);
+    expect(store.screenIndex).toBe(4);
+    store.previousScreen();
+    expect(store.screenIndex).toBe(0);
+  });
+
   it("keeps Adjust changes in the browser until the last screen re-plans with every answer", async () => {
     const store = storeWith(plannedView());
     expect(store.stage).toBe("plan");
@@ -127,7 +141,7 @@ describe("WorkspaceSetupStore", () => {
     store.adjust();
     expect(store.stage).toBe("interview");
     expect(store.screenIndex).toBe(0);
-    answerCompanyScreen(store, "Acme Studio");
+    answerWorkspaceScreen(store, "Acme Studio");
     expect(await store.confirmScreen()).toBe(true);
     expect(store.screenIndex).toBe(1);
     expect(actions.saveWorkspaceSetupAnswersAction).not.toHaveBeenCalled();
@@ -161,7 +175,7 @@ describe("WorkspaceSetupStore", () => {
     );
 
     store.adjust();
-    answerCompanyScreen(store, "Renamed Ltd");
+    answerWorkspaceScreen(store, "Renamed Ltd");
     await store.confirmScreen();
     store.previousScreen();
     store.previousScreen();
@@ -322,6 +336,7 @@ describe("WorkspaceSetupStore", () => {
         interview: {
           ...setupView().interview,
           answers: {
+            purpose: { ...confirmed, value: { format: "multipleChoice", values: ["clients"], custom: [] } },
             companyName: { ...confirmed, value: { format: "shortText", value: "Acme" } },
             country: { ...confirmed, value: { format: "singleChoice", value: "DE" } },
             language: { ...confirmed, value: { format: "singleChoice", value: "de" } },

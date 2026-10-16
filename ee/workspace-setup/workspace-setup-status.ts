@@ -12,6 +12,8 @@ import type {
   WorkspaceSetupStatus,
 } from "./workspace-setup.schema";
 
+import { WIKI_CRAWL_MAX_PAGES } from "@/ee/wiki-crawl/website-discovery";
+
 import { WORKSPACE_SETUP_PHASES } from "./workspace-setup.schema";
 import { emptySetupPhase, setupPhaseStalled } from "./workspace-setup-build.service";
 import { setupPlanStalled } from "./workspace-setup-interview.service";
@@ -42,6 +44,8 @@ export type WorkspaceSetupView = {
     failureReason: string | null;
     pagesPlanned: number;
     pagesWritten: number;
+    sourcesFound: number;
+    sourcesRead: number;
   };
   interview: {
     answers: SetupAnswers;
@@ -101,6 +105,8 @@ export function workspaceSetupView(
       pagesWritten: crawl
         ? crawl.topics.filter((topic) => topic.status === "created").length
         : (answerPages?.pages.filter((page) => page.pageId).length ?? 0),
+      sourcesFound: Math.min(crawl?.discovered ?? 0, WIKI_CRAWL_MAX_PAGES),
+      sourcesRead: Math.min(crawl?.fetched ?? 0, WIKI_CRAWL_MAX_PAGES),
     },
     interview: {
       answers: setup.answers,

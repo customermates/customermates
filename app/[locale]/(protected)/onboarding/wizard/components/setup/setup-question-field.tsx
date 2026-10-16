@@ -3,21 +3,20 @@
 import type { SetupAnswerValue } from "@/features/workspace-setup/setup-answers.schema";
 import type { SetupQuestionDescriptor } from "./setup-question-descriptor";
 
-import { ArrowDown, ArrowUp, Globe, Plus, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Plus, Sparkles, X } from "lucide-react";
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
-import { AppChip } from "@/components/chip/app-chip";
 import { FormAutocompleteCountry } from "@/components/forms/form-autocomplete-country";
 import { FormAutocompleteCurrency } from "@/components/forms/form-autocomplete-currency";
 import { FormControlRow } from "@/components/forms/form-control-row";
 import { FormLabel } from "@/components/forms/form-label";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Toggle } from "@/components/ui/toggle";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getCurrencyLabel } from "@/constants/currencies";
 import { cn } from "@/core/utils/cn";
 import { APP_LOCALES } from "@/i18n/locale-registry";
@@ -284,7 +283,14 @@ function RankedPickField({ descriptor, value, onChange, disabled }: FieldProps<"
                 onChange({ format: "rankedPick", values: next });
               }}
             >
-              {picked ? <Badge aria-hidden>{rank + 1}</Badge> : null}
+              {picked ? (
+                <span
+                  aria-hidden
+                  className="grid size-4 place-items-center rounded-full bg-primary text-[10px] text-primary-foreground tabular-nums"
+                >
+                  {rank + 1}
+                </span>
+              ) : null}
 
               {option.label}
             </Toggle>
@@ -389,7 +395,8 @@ function ShortTextField({ descriptor, value, onChange, disabled }: FieldProps<"s
     "aria-label": descriptor.label,
     disabled,
     maxLength: descriptor.maxLength,
-    placeholder: descriptor.optional ? t("WorkspaceSetup.interview.optionalPlaceholder") : undefined,
+    placeholder:
+      descriptor.placeholder ?? (descriptor.optional ? t("WorkspaceSetup.interview.optionalPlaceholder") : undefined),
     value: value?.value ?? "",
   };
   return descriptor.maxLength > 200 ? (
@@ -481,13 +488,17 @@ export function SetupQuestionField({ descriptor, fromWebsite = false, ...props }
         </FormLabel>
 
         {fromWebsite ? (
-          <AppChip
-            className="animate-page-result-in motion-reduce:animate-none"
-            startContent={<Globe aria-hidden />}
-            variant="info"
-          >
-            {t("WorkspaceSetup.actions.fromWebsite")}
-          </AppChip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="inline-flex animate-page-result-in text-primary motion-reduce:animate-none">
+                <Sparkles aria-hidden className="size-3.5" />
+
+                <span className="sr-only">{t("WorkspaceSetup.actions.fromWebsite")}</span>
+              </span>
+            </TooltipTrigger>
+
+            <TooltipContent>{t("WorkspaceSetup.actions.fromWebsite")}</TooltipContent>
+          </Tooltip>
         ) : null}
       </div>
 

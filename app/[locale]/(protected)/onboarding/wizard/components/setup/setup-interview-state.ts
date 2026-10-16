@@ -3,7 +3,13 @@ import type { SetupQuestion, SetupQuestionPart, SetupScreen } from "@/features/w
 import type { WorkspaceSetupStatusView, WorkspaceSetupView } from "@/ee/workspace-setup/workspace-setup-status";
 import type { SetupFollowUpQuestion } from "@/ee/workspace-setup/workspace-setup.schema";
 
-import { SETUP_QUESTIONS, SETUP_SCREENS } from "@/features/workspace-setup/setup-interview";
+import {
+  SETUP_PARTS,
+  SETUP_QUESTIONS,
+  SETUP_SCREENS,
+  setupOptionVisible,
+  setupPartVisible,
+} from "@/features/workspace-setup/setup-interview";
 import { mergeWebsitePrefill } from "@/features/workspace-setup/setup-prefill";
 
 export type SetupStage =
@@ -15,8 +21,6 @@ export type SetupStage =
   | "planFailed"
   | "plan"
   | "build";
-
-const SINGLE_CHOICE_COVERS: Readonly<Record<string, readonly string[]>> = { both: ["businesses", "consumers"] };
 
 export function unansweredFollowUps(setup: WorkspaceSetupView) {
   const { followUpQuestions, followUpAnswers } = setup.interview;
@@ -45,13 +49,7 @@ export function resolveSetupStage(view: WorkspaceSetupStatusView | null): SetupS
 }
 
 export function partVisible(part: SetupQuestionPart, answers: SetupAnswers): boolean {
-  if (!part.visibleWhen) return true;
-  const { part: parentId, includes } = part.visibleWhen;
-  const value = answers[parentId]?.value;
-  if (value?.format === "multipleChoice") return value.values.includes(includes);
-  if (value?.format === "singleChoice")
-    return value.value === includes || (SINGLE_CHOICE_COVERS[value.value]?.includes(includes) ?? false);
-  return false;
+  return setupPartVisible(part.id, answers);
 }
 
 export function screenQuestions(screen: SetupScreen): SetupQuestion[] {
@@ -64,12 +62,27 @@ export function visibleScreenParts(screen: SetupScreen, answers: SetupAnswers): 
     .filter((part) => partVisible(part, answers));
 }
 
-export function defaultAnswerValue(part: SetupQuestionPart, locale: string): SetupAnswerValue | null {
+export function visibleScreenIndexes(answers: SetupAnswers): number[] {
+  return SETUP_SCREENS.flatMap((screen, index) => (visibleScreenParts(screen, answers).length > 0 ? [index] : []));
+}
+
+export function adjacentScreenIndex(from: number, answers: SetupAnswers, step: 1 | -1): number | null {
+  const indexes = visibleScreenIndexes(answers);
+  return (step === 1 ? indexes.find((index) => index > from) : indexes.findLast((index) => index < from)) ?? null;
+}
+
+export function defaultAnswerValue(
+  part: SetupQuestionPart,
+  locale: string,
+  answers: SetupAnswers = {},
+): SetupAnswerValue | null {
   switch (part.format) {
     case "multipleChoice":
       return {
         format: "multipleChoice",
-        values: part.options.filter((option) => option.preselected).map((option) => option.id),
+        values: part.options
+          .filter((option) => option.preselected && setupOptionVisible(option, answers))
+          .map((option) => option.id),
         custom: [],
       };
     case "orderedList":
@@ -89,7 +102,7 @@ export function displayedAnswerValue(
   answers: SetupAnswers,
   locale: string,
 ): SetupAnswerValue | null {
-  return answers[part.id]?.value ?? defaultAnswerValue(part, locale);
+  return answers[part.id]?.value ?? defaultAnswerValue(part, locale, answers);
 }
 
 export function sanitizeAnswerValue(value: SetupAnswerValue): SetupAnswerValue {
@@ -128,16 +141,17 @@ export function answerIsEmpty(value: SetupAnswerValue | null): boolean {
 export function answerComplete(
   part: Pick<SetupQuestionPart, "format" | "optional">,
   value: SetupAnswerValue | null,
+  { requireChoice = false }: { requireChoice?: boolean } = {},
 ): boolean {
   if (part.optional) return true;
   if (!value) return false;
-  if (value.format === "multipleChoice") return true;
+  if (value.format === "multipleChoice" && !requireChoice) return true;
   return !answerIsEmpty(value);
 }
 
 export function screenComplete(screen: SetupScreen, answers: SetupAnswers, locale: string): boolean {
   return visibleScreenParts(screen, answers).every((part) =>
-    answerComplete(part, displayedAnswerValue(part, answers, locale)),
+    answerComplete(part, displayedAnswerValue(part, answers, locale), { requireChoice: true }),
   );
 }
 
@@ -147,6 +161,7 @@ export function screenAnswersPayload(
   locale: string,
 ): Partial<Record<string, SetupAnswerValue | null>> {
   const payload: Partial<Record<string, SetupAnswerValue | null>> = {};
+  for (const part of SETUP_PARTS) if (answers[part.id] && !partVisible(part, answers)) payload[part.id] = null;
   for (const part of screenQuestions(screen).flatMap((question) => question.parts)) {
     if (!partVisible(part, answers)) {
       if (answers[part.id]) payload[part.id] = null;
@@ -172,11 +187,15 @@ export function interviewAnswersPayload(
 }
 
 export function resumeScreenIndex(answers: SetupAnswers, confirmedScreens = 0): number {
-  const unconfirmed = SETUP_SCREENS.findIndex((screen) =>
-    visibleScreenParts(screen, answers).some((part) => !part.optional && answers[part.id]?.source !== "user"),
+  const visible = visibleScreenIndexes(answers);
+  const unconfirmed = visible.find((index) =>
+    visibleScreenParts(SETUP_SCREENS[index], answers).some(
+      (part) => !part.optional && answers[part.id]?.source !== "user",
+    ),
   );
-  const last = SETUP_SCREENS.length - 1;
-  return Math.min(unconfirmed === -1 ? last : unconfirmed, confirmedScreens, last);
+  const last = visible.at(-1) ?? 0;
+  const target = Math.min(unconfirmed ?? last, confirmedScreens, last);
+  return visible.find((index) => index >= target) ?? last;
 }
 
 export function mergeServerAnswers(
