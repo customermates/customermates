@@ -2835,7 +2835,7 @@
   },
   "OnboardingChoice": {
     "create": {
-      "description": "Richte einen eigenen Workspace für ein Unternehmen ein, das du führst oder verwaltest.",
+      "description": "Richte einen neuen Workspace für dein Unternehmen, ein Projekt oder deine eigene Arbeit ein.",
       "note": "{days} Tage kostenlos testen",
       "title": "Neuen Workspace erstellen"
     },
@@ -2846,8 +2846,8 @@
       "title": "Bestehendem Workspace beitreten"
     },
     "optionsLabel": "Auswahl für die Workspace-Einrichtung",
-    "signedInAs": "Angemeldet als {email}",
-    "subtitle": "Erstelle einen Workspace für dein Unternehmen oder tritt einem Team bei, das Customermates bereits nutzt.",
+    "signedInAs": "Angemeldet als",
+    "subtitle": "Erstelle einen Workspace für dein Unternehmen, ein Projekt oder deine eigene Arbeit, oder tritt einem Team bei, das Customermates bereits nutzt.",
     "title": "Wie möchtest du starten?"
   },
   "OnboardingForm": {

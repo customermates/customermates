@@ -19,6 +19,8 @@ import { Locale } from "@/generated/prisma";
 import { DISPLAY_LANGUAGE_VALUES } from "@/i18n/user-locale";
 import { appLocaleOrDefault } from "@/i18n/locale-registry";
 
+import { SignedInIdentity } from "../../signed-in-identity";
+
 type Props = {
   email: string;
   firstName?: string;
@@ -77,7 +79,7 @@ export const StepProfile = observer(
             </Alert>
           ) : null}
 
-          <FormInput readOnly autoComplete="email" id="email" name="email" type="email" />
+          <SignedInIdentity avatarUrl={avatarUrl} email={email} />
 
           <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
             <FormInput required autoComplete="given-name" id="firstName" name="given-name" />

@@ -2835,7 +2835,7 @@
   },
   "OnboardingChoice": {
     "create": {
-      "description": "Configura un espacio de trabajo independiente para una empresa que poseas o gestiones.",
+      "description": "Configura un espacio de trabajo nuevo para tu negocio, un proyecto o tu propio trabajo.",
       "note": "Gratis durante {days} días",
       "title": "Crear un espacio de trabajo nuevo"
     },
@@ -2846,8 +2846,8 @@
       "title": "Unirte a un espacio de trabajo existente"
     },
     "optionsLabel": "Opciones de configuración del espacio de trabajo",
-    "signedInAs": "Sesión iniciada como {email}",
-    "subtitle": "Crea un espacio de trabajo para tu empresa o únete a un equipo que ya usa Customermates.",
+    "signedInAs": "Sesión iniciada como",
+    "subtitle": "Crea un espacio de trabajo para tu negocio, un proyecto o tu propio trabajo, o únete a un equipo que ya usa Customermates.",
     "title": "¿Cómo quieres empezar?"
   },
   "OnboardingForm": {

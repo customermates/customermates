@@ -2835,7 +2835,7 @@
   },
   "OnboardingChoice": {
     "create": {
-      "description": "Set up a separate workspace for a company you own or manage.",
+      "description": "Set up a new workspace for your business, a project or your own work.",
       "note": "Free for {days} days",
       "title": "Create a new workspace"
     },
@@ -2846,8 +2846,8 @@
       "title": "Join an existing workspace"
     },
     "optionsLabel": "Workspace setup choices",
-    "signedInAs": "Signed in as {email}",
-    "subtitle": "Create a workspace for your company or join a team that already uses Customermates.",
+    "signedInAs": "Signed in as",
+    "subtitle": "Create a workspace for your business, a project or your own work, or join a team that already uses Customermates.",
     "title": "Choose how to get started"
   },
   "OnboardingForm": {
