@@ -187,7 +187,7 @@ function verifiedMoves(): [string, string][] {
   const base = reviewBaseSha();
   const cached = movesByBase.get(base);
   if (cached) return cached;
-  const moves = git("diff", "-M", "--name-status", base)
+  const moves = git("diff", "-M", "-l0", "--name-status", base)
     .split("\n")
     .filter((line) => line.startsWith("R"))
     .map((line): [string, string] => {

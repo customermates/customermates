@@ -82,7 +82,7 @@ export const domTestFiles = [
   "components/entity-detail/__tests__/entity-detail-visibility.test.tsx",
   "components/entity-detail/__tests__/entity-detail-panels.dom.test.ts",
   "components/marketing/__tests__/browser-frame.test.tsx",
-  "components/marketing/__tests__/homepage-hero-sequence.test.tsx",
+  "components/marketing/__tests__/homepage-product-stage.test.tsx",
   "components/forms/__tests__/form-context.test.ts",
   "components/forms/__tests__/form-select-help.test.ts",
   "components/forms/__tests__/form-decimal-input.test.ts",

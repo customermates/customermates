@@ -18,6 +18,7 @@ export const PUBLIC_ROUTES_SEO = [
   "/auth/forgot-password",
   "/auth/reset-password",
   "/help-and-feedback",
+  "/about",
   "/imprint",
   "/privacy",
   "/terms",

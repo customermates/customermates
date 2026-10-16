@@ -839,8 +839,6 @@
     "userInfoIsMissing": "The provider did not return your profile. Please try again."
   },
   "BrowserFrame": {
-    "live": "Live preview",
-    "liveDemoTitle": "Customermates live demo",
     "open": "Open in new tab"
   },
   "CommandPalette": {
@@ -1644,6 +1642,7 @@
     },
     "unnamed": "Unnamed",
     "unsavedChanges": "Unsaved changes",
+    "updatedOn": "Updated {date}",
     "userStatuses": {
       "active": "Active",
       "inactive": "Inactive",
@@ -2354,6 +2353,7 @@
     "success": "Feedback received. You're officially part of the build crew."
   },
   "Footer": {
+    "about": "About",
     "company": "Company",
     "copyrightText": "© {year} Customermates. All rights reserved.",
     "dpa": "DPA",
@@ -2760,8 +2760,9 @@
       "consultants": "Consultants",
       "contactManagement": "Contact management",
       "emailAndGmail": "Email and Gmail",
-      "healthcare": "Healthcare",
+      "freelancers": "Freelancers",
       "integrations": "Integrations",
+      "lawFirms": "Law firms",
       "mcp": "MCP",
       "n8n": "n8n automation",
       "openSourceCrm": "Open-source CRM",
@@ -2769,7 +2770,6 @@
       "primaryNavigation": "Primary navigation",
       "product": "Product",
       "professionalServices": "Professional services",
-      "propertyManagement": "Property management",
       "providerChatGPT": "ChatGPT",
       "providerClaude": "Claude",
       "providerCodex": "Codex",

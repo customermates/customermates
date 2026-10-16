@@ -68,7 +68,7 @@ describe("seeded public product demo", () => {
       "/settings/webhooks",
     ]);
     expect(buildProductDemoUrl("en", "/inbox")).toBe(
-      "https://demo.customermates.com/en/inbox?agentChat=closed",
+      "https://demo.customermates.com/en/inbox?threadId=latest&agentChat=closed",
     );
     expect(buildProductDemoUrl("de", DEMO_RECORD_LIST_PATHS.deals)).toBe(
       `https://demo.customermates.com/de/records/${presetId(SEED_IDS.company, "deal")}?agentChat=closed`,
@@ -113,15 +113,10 @@ describe("seeded public product demo", () => {
       ),
     ).toBe(true);
     expect(FEATURE_PRODUCT_DEMOS["self-hosted"].hostedBoundary).toBe(true);
-    expect(FEATURE_PRODUCT_DEMOS["crm-integration"]).toStrictEqual({
-      path: "/settings/webhooks",
-    });
-    expect(FEATURE_PRODUCT_DEMOS["sales-automation"]).toStrictEqual({
+    expect(FEATURE_PRODUCT_DEMOS["workflow-automation"]).toStrictEqual({
       path: "/settings/webhooks",
     });
     for (const slug of [
-      "customer-service",
-      "email-integration",
       "integrations",
       "linkedin-integration",
       "outlook-integration",
@@ -209,12 +204,12 @@ describe("seeded public product demo", () => {
     );
     expect(demo).toContain("fallbackMessage={copy.fallback}");
     expect(demo).toContain("title={copy.titles[path]}");
-    expect(demo).toContain(
-      'size={presentation === "standalone" ? "full" : "article"}',
-    );
+    expect(demo).not.toContain("size={");
 
-    expect(frame).toContain('size?: "article" | "full"');
-    expect(frame).toContain('article: "h-[480px] sm:h-[600px] lg:h-[680px]"');
+    expect(frame).toContain("<ProductWindow");
+    expect(frame).toContain("DESKTOP_VIEWPORT = { height: 900, width: 1440 }");
+    expect(frame).toContain("BROWSER_FRAME_REVEAL_DELAY_MS = 500");
+    expect(frame).not.toContain("BrowserFrame.live");
     expect(frame).toContain("IntersectionObserver");
     expect(frame).toContain('loadAhead?: boolean');
     expect(frame).toContain('const LOAD_AHEAD_MARGIN = "400px 0px"');
@@ -222,9 +217,6 @@ describe("seeded public product demo", () => {
     expect(frame).toContain("prefetchDNS(origin)");
     expect(frame).toContain("preconnect(origin)");
     expect(frame).toContain('loading={loadAhead ? "eager" : "lazy"}');
-    expect(read("app/[locale]/(static)/components/hero-demo-iframe.tsx")).toContain(
-      "<BrowserFrame loadAhead",
-    );
     expect(frame).toContain(
       'sandbox="allow-scripts allow-same-origin allow-popups allow-forms"',
     );

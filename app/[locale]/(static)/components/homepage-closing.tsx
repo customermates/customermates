@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 
 import { Faq, FaqItem } from "@/components/marketing/faq";
 import { MarketingSection } from "@/components/marketing/marketing-section";
+import { SectionGlow } from "@/components/marketing/section-glow";
 import { Button } from "@/components/ui/button";
 import { AppLink } from "@/components/shared/app-link";
 
@@ -72,7 +73,12 @@ export function HomepageClosing({
 }: ClosingProps) {
   return (
     <MarketingSection flush id="get-started">
-      <div className="rounded-card border border-border bg-sidebar px-5 py-14 text-center sm:px-10 sm:py-16 lg:py-20">
+      <div
+        data-reveal
+        className="relative isolate overflow-hidden rounded-card border border-border bg-sidebar px-5 py-14 text-center sm:px-10 sm:py-16 lg:py-20"
+      >
+        <SectionGlow />
+
         <div className="mx-auto max-w-3xl">
           <p className="text-eyebrow">{eyebrow}</p>
 
@@ -89,7 +95,7 @@ export function HomepageClosing({
               </AppLink>
             </Button>
 
-            <Button asChild size="lg" variant="secondary">
+            <Button asChild className="glass-surface" size="lg" variant="ghost">
               <AppLink external={buttonRightHref.startsWith("http")} href={buttonRightHref}>
                 {buttonRightText}
               </AppLink>

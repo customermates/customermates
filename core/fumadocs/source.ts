@@ -4,6 +4,7 @@ import { toFumadocsSource } from "fumadocs-mdx/runtime/server";
 import { i18n } from "./i18n";
 
 import {
+  about,
   apiDocs,
   apiOverview,
   affiliate,
@@ -54,6 +55,12 @@ export const apiDocsSource = loader({
   baseUrl: "/docs/openapi",
   i18n,
   source: toFumadocsSource(apiDocs, []),
+});
+
+export const aboutSource = loader({
+  baseUrl: "/about",
+  i18n,
+  source: toFumadocsSource(about, []),
 });
 
 export const contactSource = loader({

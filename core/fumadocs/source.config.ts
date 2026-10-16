@@ -50,6 +50,12 @@ export const apiDocs = defineCollections({
   schema: docsSchema,
 });
 
+export const about = defineCollections({
+  type: "doc",
+  dir: "content/about",
+  schema: docsSchema,
+});
+
 export const contact = defineCollections({
   type: "doc",
   dir: "content/contact",
