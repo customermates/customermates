@@ -30,6 +30,7 @@ import {
   hasCompleteDraftBinding,
 } from "../draft-thread";
 import { DRAFT_CONFLICT_CODES, providerSendOutcome } from "../draft-send";
+import { emailSendCopyHashes } from "../draft-send-copy";
 import { composeEmailBodies } from "./email-signature";
 import { resolveStoredEmailSettings } from "../email-settings";
 import { EMPTY_ATTENDEE, buildEmailMessage, toAttachmentsMeta } from "../unipile.mappers";
@@ -240,6 +241,14 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
         draftRevision: draftUpdatedAtFromRevision(data.draftRevision),
         connectedAccountId: account.id,
         contentHash,
+        matchHashes: emailSendCopyHashes({
+          to: data.to.map((recipient) => recipient.identifier),
+          cc: data.cc,
+          subject: data.subject,
+          html: outgoingHtml,
+          plainText: outgoingBody,
+          attachments: data.attachments,
+        }),
       });
       if ("replay" in gate) return this.replay(gate.replay, account, thread?.id ?? null);
       if ("failure" in gate) return gate.failure;
@@ -294,10 +303,12 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
     else if (providerSendOutcome(res.error) === "accepted")
       accepted = { unipileMessageId: null, providerMessageId: null };
     else {
-      if (claim) {
-        if (providerSendOutcome(res.error) === "unknown")
+      if (claim && draft) {
+        if (providerSendOutcome(res.error) === "unknown") {
           await settleDraftSendQuietly(this.repo, { claim, state: "unknown" });
-        else await releaseDraftSendQuietly(this.repo, claim);
+          const confirmed = await this.confirmedBySyncedCopy(claim, draft.id, account, thread?.id ?? null);
+          if (confirmed) return confirmed;
+        } else await releaseDraftSendQuietly(this.repo, claim);
       }
       return fail(res.error, [], {
         retryAfter: await retryAfterPhrase(res.retryAfterSeconds),
@@ -431,10 +442,27 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
     return "replay" in missing ? this.replay(missing.replay, account, null) : missing.failure;
   }
 
+  private async confirmedBySyncedCopy(
+    claim: DraftSendClaim,
+    draftMessageId: string,
+    account: ConnectedAccount,
+    replyThreadId: string | null,
+  ): Promise<Awaited<Validated<SentMessageResult>> | null> {
+    let record: DraftSendRecord | null = null;
+    try {
+      record = await this.repo.reconcileDraftSend({ draftMessageId });
+    } catch (err) {
+      Sentry.captureException(err, { tags: { kind: "draft-send-reconcile-failure" } });
+    }
+    if (record?.state !== "sent" || record.draftRevision.getTime() !== claim.draftRevision.getTime()) return null;
+    return this.replay(record, account, replyThreadId, false);
+  }
+
   private async replay(
     record: DraftSendRecord,
     account: ConnectedAccount,
     replyThreadId: string | null,
+    repeated = true,
   ): Validated<SentMessageResult> {
     const message = await this.repo.findDraftSendMessage({ record, connectedAccountId: account.id });
     return {
@@ -444,7 +472,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
         messageId: record.sentMessageId,
         threadId: record.sentThreadId ?? replyThreadId,
         providerMessageId: record.providerMessageId,
-        repeated: true,
+        repeated,
       }),
     };
   }

@@ -3,11 +3,13 @@ import type { DraftSendClaim, DraftSendRecord, DraftSendStart } from "../draft-s
 
 export abstract class DraftSendRepo {
   abstract findDraftSend(args: { draftMessageId: string }): Promise<DraftSendRecord | null>;
+  abstract reconcileDraftSend(args: { draftMessageId: string }): Promise<DraftSendRecord | null>;
   abstract beginDraftSend(args: {
     draftMessageId: string;
     draftRevision: Date;
     connectedAccountId: string;
     contentHash: string;
+    matchHashes?: string[];
   }): Promise<DraftSendStart>;
   abstract settleDraftSend(args: {
     claim: DraftSendClaim;

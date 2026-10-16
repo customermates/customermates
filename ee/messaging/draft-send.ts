@@ -8,6 +8,12 @@ export const DRAFT_SEND_RETENTION_DAYS = 30;
 
 export const DRAFT_SEND_PRUNE_BATCH_LIMIT = 500;
 
+export const DRAFT_SEND_COPY_EARLIEST_MS = 2 * 60_000;
+
+export const DRAFT_SEND_COPY_LATEST_MS = 60 * 60_000;
+
+export const DRAFT_SEND_COPY_CANDIDATE_LIMIT = 100;
+
 export type DraftSendState = "sending" | "sent" | "unknown";
 
 export type DraftSendRecord = {
@@ -21,6 +27,8 @@ export type DraftSendRecord = {
   sentMessageId: string | null;
   sentThreadId: string | null;
   contentHash: string;
+  matchHashes: string[];
+  claimedAt: Date;
   updatedAt: Date;
 };
 
@@ -47,6 +55,38 @@ export function effectiveDraftSendState(
 ): DraftSendState {
   if (record.state !== "sending") return record.state;
   return now.getTime() - record.updatedAt.getTime() > DRAFT_SEND_STALE_AFTER_MS ? "unknown" : "sending";
+}
+
+export function hasDraftSendReference(
+  record: Pick<DraftSendRecord, "sentMessageId" | "unipileMessageId" | "providerMessageId">,
+): boolean {
+  return Boolean(record.sentMessageId || record.unipileMessageId || record.providerMessageId);
+}
+
+export function canReconcileDraftSend(
+  record: Pick<
+    DraftSendRecord,
+    "state" | "updatedAt" | "matchHashes" | "sentMessageId" | "unipileMessageId" | "providerMessageId"
+  >,
+  now: Date = new Date(),
+): boolean {
+  if (record.matchHashes.length === 0) return false;
+  const state = effectiveDraftSendState(record, now);
+  return state === "unknown" || (state === "sent" && !hasDraftSendReference(record));
+}
+
+export function draftSendCopyWindow(claimedAt: Date): { earliest: Date; latest: Date } {
+  return {
+    earliest: new Date(claimedAt.getTime() - DRAFT_SEND_COPY_EARLIEST_MS),
+    latest: new Date(claimedAt.getTime() + DRAFT_SEND_COPY_LATEST_MS),
+  };
+}
+
+export function draftSendClaimWindow(copy: { sentAt: Date; createdAt: Date }): { earliest: Date; latest: Date } {
+  return {
+    earliest: new Date(copy.sentAt.getTime() - DRAFT_SEND_COPY_LATEST_MS),
+    latest: new Date(Math.min(copy.sentAt.getTime() + DRAFT_SEND_COPY_EARLIEST_MS, copy.createdAt.getTime())),
+  };
 }
 
 export function decideDraftSend(

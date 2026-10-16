@@ -1108,11 +1108,13 @@ model MessagingDraftSend {
   sentMessageId      String?
   sentThreadId       String?
   contentHash        String
+  matchHashes        String[]                @default([])
+  claimedAt          DateTime                @default(now())
   createdAt          DateTime                @default(now())
   updatedAt          DateTime                @updatedAt
 
   @@unique([companyId, draftMessageId])
-  @@index([connectedAccountId])
+  @@index([connectedAccountId, claimedAt])
 }
 
 model AccountActivity {

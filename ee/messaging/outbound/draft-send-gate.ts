@@ -13,7 +13,13 @@ type DraftSendRefusal = Exclude<DraftSendStart["status"], "claimed" | "replay">;
 
 export type DraftSendGate = { claim: DraftSendClaim } | { replay: DraftSendRecord } | { failure: InteractorFailure };
 
-type DraftSendTarget = { draftMessageId: string; draftRevision: Date; connectedAccountId: string; contentHash: string };
+type DraftSendTarget = {
+  draftMessageId: string;
+  draftRevision: Date;
+  connectedAccountId: string;
+  contentHash: string;
+  matchHashes?: string[];
+};
 
 type SentAttachment = { filename: string; content_type: string; content: string };
 
@@ -84,7 +90,7 @@ export async function gateMissingDraft(
   repo: DraftSendRepo,
   args: DraftSendTarget,
 ): Promise<{ replay: DraftSendRecord } | { failure: InteractorFailure }> {
-  const record = await repo.findDraftSend({ draftMessageId: args.draftMessageId });
+  const record = await repo.reconcileDraftSend({ draftMessageId: args.draftMessageId });
   if (record && record.connectedAccountId !== args.connectedAccountId)
     return { failure: await failConflict(CustomErrorCode.draftTargetMismatch) };
   const decision = decideMissingDraftSend(record, args.draftRevision, args.contentHash);

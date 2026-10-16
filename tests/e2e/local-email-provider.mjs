@@ -3,6 +3,7 @@ import { appendFileSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 export const localProviderKey = "e2e-local-provider-no-network";
+export const localWebhookSecret = "e2e-local-unipile-webhook-secret";
 export const responseLostAfterAcceptance = "[response lost after acceptance]";
 export const sentCopyUnavailable = "[sent copy unavailable]";
 const emails = new Map();
@@ -51,7 +52,7 @@ async function sendEmail(request, accountId) {
   )
     throw new Error("Local email transport accepts synthetic fixture mail without attachments only");
   const id = `e2e_email_${randomUUID()}`;
-  emails.set(`${accountId}:${id}`, {
+  const email = {
     id,
     message_id: id,
     thread_id: `e2e_thread_${randomUUID()}`,
@@ -63,8 +64,9 @@ async function sendEmail(request, accountId) {
     cc: body.cc ?? [],
     bcc: body.bcc ?? [],
     folders: ["e2e_sent"],
-  });
-  recordAcceptedEmail({ accountId, id, subject: body.subject });
+  };
+  emails.set(`${accountId}:${id}`, email);
+  recordAcceptedEmail({ accountId, id, subject: body.subject, email });
   if (body.subject.includes(responseLostAfterAcceptance))
     return Response.json({ type: "api/proxy_timeout", status: 504, title: "Gateway timeout" }, { status: 504 });
   return Response.json({ id, message_id: id });

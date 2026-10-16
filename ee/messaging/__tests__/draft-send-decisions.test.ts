@@ -4,9 +4,14 @@ import { MessagingProvider } from "@/generated/prisma";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import {
+  DRAFT_SEND_COPY_EARLIEST_MS,
+  DRAFT_SEND_COPY_LATEST_MS,
   DRAFT_SEND_STALE_AFTER_MS,
+  canReconcileDraftSend,
   decideDraftSend,
   decideMissingDraftSend,
+  draftSendClaimWindow,
+  draftSendCopyWindow,
   effectiveDraftSendState,
   providerSendOutcome,
   type DraftSendRecord,
@@ -32,6 +37,8 @@ function record(state: DraftSendState, overrides: Partial<DraftSendRecord> = {})
     sentMessageId: null,
     sentThreadId: null,
     contentHash: CONTENT,
+    matchHashes: ["copy-hash"],
+    claimedAt: REVISION,
     updatedAt: NOW,
     ...overrides,
   };
@@ -115,6 +122,48 @@ describe("decideMissingDraftSend", () => {
     ["an unconfirmed send of another revision", record("unknown"), OTHER_REVISION, OTHER_CONTENT, "not_found"],
   ] as const)("answers %s with %s", (_label, existing, revision, content, decision) => {
     expect(decideMissingDraftSend(existing, revision, content, NOW)).toBe(decision);
+  });
+});
+
+describe("canReconcileDraftSend", () => {
+  it("looks for a synced copy when the outcome is unknown or a send never finished", () => {
+    expect(canReconcileDraftSend(record("unknown"), NOW)).toBe(true);
+    expect(canReconcileDraftSend(record("sending", stale), NOW)).toBe(true);
+  });
+
+  it("looks for a synced copy of an accepted send that has no reference yet", () => {
+    expect(canReconcileDraftSend(record("sent"), NOW)).toBe(true);
+  });
+
+  it("leaves running sends, referenced sends and claims without copy hashes alone", () => {
+    expect(canReconcileDraftSend(record("sending"), NOW)).toBe(false);
+    expect(canReconcileDraftSend(record("sent", { unipileMessageId: "email" }), NOW)).toBe(false);
+    expect(canReconcileDraftSend(record("sent", { sentMessageId: "message" }), NOW)).toBe(false);
+    expect(canReconcileDraftSend(record("sent", { providerMessageId: "<id@example.test>" }), NOW)).toBe(false);
+    expect(canReconcileDraftSend(record("unknown", { matchHashes: [] }), NOW)).toBe(false);
+  });
+});
+
+describe("synced copy windows", () => {
+  it("accepts copies from shortly before the claim until an hour after it", () => {
+    expect(draftSendCopyWindow(REVISION)).toEqual({
+      earliest: new Date(REVISION.getTime() - DRAFT_SEND_COPY_EARLIEST_MS),
+      latest: new Date(REVISION.getTime() + DRAFT_SEND_COPY_LATEST_MS),
+    });
+  });
+
+  it("matches a copy only to claims made before the copy was stored", () => {
+    const sentAt = new Date("2026-10-16T10:00:00.000Z");
+    const storedSoon = new Date("2026-10-16T10:00:20.000Z");
+    const storedLate = new Date("2026-10-16T11:00:00.000Z");
+
+    expect(draftSendClaimWindow({ sentAt, createdAt: storedSoon })).toEqual({
+      earliest: new Date(sentAt.getTime() - DRAFT_SEND_COPY_LATEST_MS),
+      latest: storedSoon,
+    });
+    expect(draftSendClaimWindow({ sentAt, createdAt: storedLate }).latest).toEqual(
+      new Date(sentAt.getTime() + DRAFT_SEND_COPY_EARLIEST_MS),
+    );
   });
 });
 

@@ -40,6 +40,9 @@ import { SendEmailInteractor } from "../send-email.interactor";
 import { StartChatInteractor } from "../start-chat.interactor";
 import { DiscardDraftInteractor } from "../discard-draft.interactor";
 import { chatSendContentHash, emailSendContentHash } from "../draft-send-gate";
+import { syncedEmailCopyHash } from "../../draft-send-copy";
+import { buildEmailMessage } from "../../unipile.mappers";
+import { UnipileEmailSchema } from "../../unipile.schema";
 
 const EMAIL_ACCOUNT_ID = "00000000-0000-4000-8000-000000000001";
 const OTHER_ACCOUNT_ID = "00000000-0000-4000-8000-000000000002";
@@ -336,7 +339,16 @@ describe("SendEmailInteractor draft target binding", () => {
       draftRevision: DRAFT_UPDATED_AT,
       connectedAccountId: EMAIL_ACCOUNT_ID,
       contentHash: COLD_EMAIL_CONTENT,
+      matchHashes: expect.any(Array),
     });
+    const copy = buildEmailMessage(UnipileEmailSchema.parse({ ...sentEmail, folders: ["sent"] }), {
+      provider: MessagingProvider.google,
+      emailAddress: "sender@example.com",
+      sentFolderIds: ["sent"],
+    });
+    if (!copy) throw new Error("sent copy did not map");
+    const claimed = repo.beginDraftSend.mock.calls[0][0] as unknown as { matchHashes: string[] };
+    expect(claimed.matchHashes).toContain(syncedEmailCopyHash(copy));
     expect(service.getEmail).toHaveBeenCalledWith({
       accountId: "email-account",
       emailId: "unipile-email",
@@ -420,6 +432,8 @@ describe("SendEmailInteractor draft target binding", () => {
       sentMessageId: persistedEmail.id,
       sentThreadId: persistedEmail.messagingThreadId,
       contentHash: COLD_EMAIL_CONTENT,
+      matchHashes: [],
+      claimedAt: new Date(),
       updatedAt: new Date(),
     };
     const repo = emailRepo({
@@ -448,6 +462,98 @@ describe("SendEmailInteractor draft target binding", () => {
 
     expectDraftConflict(edited, CustomErrorCode.draftAlreadySent);
     expect(service.sendEmail).not.toHaveBeenCalled();
+  });
+
+  it("reports an unknown provider outcome as sent once the sent copy has already synced", async () => {
+    const settled = {
+      id: MOCK_DRAFT_SEND_CLAIM_ID,
+      draftMessageId: EMAIL_DRAFT_ID,
+      draftRevision: DRAFT_UPDATED_AT,
+      connectedAccountId: EMAIL_ACCOUNT_ID,
+      state: "sent",
+      unipileMessageId: "unipile-email",
+      providerMessageId: "provider-email",
+      sentMessageId: persistedEmail.id,
+      sentThreadId: persistedEmail.messagingThreadId,
+      contentHash: COLD_EMAIL_CONTENT,
+      matchHashes: ["copy"],
+      claimedAt: new Date(),
+      updatedAt: new Date(),
+    };
+    const repo = emailRepo({
+      reconcileDraftSend: vi.fn().mockResolvedValue(settled),
+      findDraftSendMessage: vi.fn().mockResolvedValue(persistedEmail),
+    });
+    const service = {
+      ...emailService(),
+      sendEmail: vi.fn().mockResolvedValue({ ok: false, error: CustomErrorCode.unipileSendOutcomeUnknown }),
+    };
+
+    const result: any = await emailInteractor(repo, service).invoke(coldEmailInput);
+
+    expect(result.ok).toBe(true);
+    expect(result.data).toMatchObject({
+      messageId: persistedEmail.id,
+      threadId: persistedEmail.messagingThreadId,
+      providerMessageId: "provider-email",
+      repeated: false,
+    });
+    expect(repo.settleDraftSend).toHaveBeenCalledWith({ claim: CLAIM, state: "unknown" });
+    expect(repo.settleDraftSend.mock.invocationCallOrder[0]).toBeLessThan(
+      repo.reconcileDraftSend.mock.invocationCallOrder[0],
+    );
+    expect(repo.reconcileDraftSend).toHaveBeenCalledWith({ draftMessageId: EMAIL_DRAFT_ID });
+    expect(service.sendEmail).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    ["no synced copy", { state: "unknown" }],
+    ["a copy of another revision", { state: "sent", draftRevision: new Date("2026-09-04T09:59:30.000Z") }],
+  ])("keeps reporting an unknown provider outcome when there is %s", async (_label, record) => {
+    const repo = emailRepo({
+      reconcileDraftSend: vi.fn().mockResolvedValue({
+        id: MOCK_DRAFT_SEND_CLAIM_ID,
+        draftMessageId: EMAIL_DRAFT_ID,
+        draftRevision: DRAFT_UPDATED_AT,
+        connectedAccountId: EMAIL_ACCOUNT_ID,
+        unipileMessageId: null,
+        providerMessageId: null,
+        sentMessageId: null,
+        sentThreadId: null,
+        contentHash: COLD_EMAIL_CONTENT,
+        matchHashes: ["copy"],
+        claimedAt: new Date(),
+        updatedAt: new Date(),
+        ...record,
+      }),
+    });
+    const service = {
+      ...emailService(),
+      sendEmail: vi.fn().mockResolvedValue({ ok: false, error: CustomErrorCode.unipileSendOutcomeUnknown }),
+    };
+
+    const result: any = await emailInteractor(repo, service).invoke(coldEmailInput);
+
+    expect(result.ok).toBe(false);
+    expect(result.error.issues[0].params).toEqual(
+      expect.objectContaining({ error: CustomErrorCode.unipileSendOutcomeUnknown }),
+    );
+    expect(repo.completeDraftSendRemovingDraft).not.toHaveBeenCalled();
+    expect(repo.releaseDraftSend).not.toHaveBeenCalled();
+  });
+
+  it("does not look for a synced copy when the provider refused the send", async () => {
+    const repo = emailRepo();
+    const service = {
+      ...emailService(),
+      sendEmail: vi.fn().mockResolvedValue({ ok: false, error: CustomErrorCode.unipileProviderRejected }),
+    };
+
+    const result = await emailInteractor(repo, service).invoke(coldEmailInput);
+
+    expect(result.ok).toBe(false);
+    expect(repo.releaseDraftSend).toHaveBeenCalledWith({ claim: CLAIM });
+    expect(repo.reconcileDraftSend).not.toHaveBeenCalled();
   });
 
   it("releases the claim when the duplicate check fails before anything is sent", async () => {
