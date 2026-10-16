@@ -194,6 +194,10 @@ describe("provider-safe tool schemas", () => {
           expect(validate("ada@example.com"), `${mcp.name} ${path} rejects a real address`).toBe(true);
           expect(validate("not-an-email"), `${mcp.name} ${path} accepts garbage`).toBe(false);
         }
+        if (format === "date") {
+          expect(validate("2026-10-16"), `${mcp.name} ${path} rejects a real date`).toBe(true);
+          expect(validate("16.10.2026"), `${mcp.name} ${path} accepts garbage`).toBe(false);
+        }
         if (format === "uri") {
           expect(validate("https://example.com/x"), `${mcp.name} ${path} rejects a real url`).toBe(true);
           expect(validate("not a uri"), `${mcp.name} ${path} accepts garbage`).toBe(false);
@@ -201,7 +205,7 @@ describe("provider-safe tool schemas", () => {
       }
     }
 
-    expect(Object.fromEntries(census)).toEqual({ uuid: 264, "date-time": 15, email: 7, uri: 5 });
+    expect(Object.fromEntries(census)).toEqual({ uuid: 291, "date-time": 15, email: 7, uri: 5, date: 2 });
   });
 
   it("still enforces the real constraint through the tool's own validator", async () => {
