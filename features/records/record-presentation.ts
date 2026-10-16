@@ -102,6 +102,7 @@ export function recordFilterableFields(
           if (operator === "eq") return [FilterOperatorKey.equals];
           if (operator === "empty") return [FilterOperatorKey.isNull];
           if (operator === "notEmpty") return [FilterOperatorKey.isNotNull];
+          if (operator === "overlaps") return [];
           if (field.valueType === "select" && field.multiple)
             return [MULTIPLE_CHOICE_OPERATORS[operator as keyof typeof MULTIPLE_CHOICE_OPERATORS]];
           return [FilterOperatorKey[operator as Exclude<typeof operator, "all">]];

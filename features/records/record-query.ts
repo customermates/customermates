@@ -160,10 +160,12 @@ function temporalFilter(filter: RecordQuery["filters"][number], start: Prisma.Sq
     const cutoff = Prisma.sql`date_trunc('day', transaction_timestamp() AT TIME ZONE 'UTC') - ${filter.value.value}::integer * INTERVAL '1 day'`;
     return filter.operator === "inLastDays" ? Prisma.sql`${end} >= ${cutoff}` : Prisma.sql`${end} < ${cutoff}`;
   }
-  if (filter.operator === "between") {
+  if (filter.operator === "between" || filter.operator === "overlaps") {
     const [from, until] = filter.values ?? [];
     if (!from || !until) throw new Error("Date window requires two endpoints");
-    return Prisma.sql`(${start} >= ${scalarParameter(from)} AND ${end} <= ${scalarParameter(until)})`;
+    return filter.operator === "between"
+      ? Prisma.sql`(${start} >= ${scalarParameter(from)} AND ${end} <= ${scalarParameter(until)})`
+      : Prisma.sql`(${start} <= ${scalarParameter(until)} AND ${end} >= ${scalarParameter(from)})`;
   }
   if (filter.operator === "in" || filter.operator === "notIn") {
     const choices = filter.values ?? [];
@@ -348,7 +350,12 @@ export function compileRecordQuery(
       );
       continue;
     }
-    if (filter.operator === "between" || filter.operator === "inLastDays" || filter.operator === "notInLastDays")
+    if (
+      filter.operator === "between" ||
+      filter.operator === "overlaps" ||
+      filter.operator === "inLastDays" ||
+      filter.operator === "notInLastDays"
+    )
       throw new Error("Temporal operator requires a date field");
     if (field.valueType === "select" && field.multiple) {
       if (filter.operator !== "in" && filter.operator !== "notIn" && filter.operator !== "all")

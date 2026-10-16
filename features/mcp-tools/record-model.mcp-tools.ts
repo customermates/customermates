@@ -156,7 +156,7 @@ export const queryRecordsV2Tool = {
   name: "query_crm_records",
   title: "Query records",
   description:
-    "Query an accessible type with typed filters, relationships, locale-aware sorting and database pagination. A filter is {fieldId, operator, value}; single-value operators use a typed scalar value, while in, notIn, all and between use values (an array of typed scalars) and value: null. For a multiple choice field use individual {kind: 'select', value: optionId} scalars in values, not one selectList value. Multiple choice fields filter with in (any of), all and notIn (none of) and cannot be sorted or grouped here. Optional grouping supports single choices, booleans, members, relationships and date buckets, with per-group pages. Read its schema first; reuse returned group keys for further pages. Calculated, restricted, missing and failed values are distinct. Decimal values use strings. Formatted text arrives as Markdown between untrusted-content markers.",
+    "Query an accessible type with typed filters, relationships, locale-aware sorting and database pagination. A filter is {fieldId, operator, value}; single-value operators use a typed scalar value, while in, notIn, all, between and overlaps use values (an array of typed scalars) and value: null. For a multiple choice field use individual {kind: 'select', value: optionId} scalars in values, not one selectList value. Multiple choice fields filter with in (any of), all and notIn (none of) and cannot be sorted or grouped here. Optional grouping supports single choices, booleans, members, relationships and date buckets, with per-group pages. Read its schema first; reuse returned group keys for further pages. Calculated, restricted, missing and failed values are distinct. Decimal values use strings. Formatted text arrives as Markdown between untrusted-content markers.",
   inputSchema: RecordQuerySchema,
   outputSchema: MarkedRecordQueryOutputSchema,
   annotations: read,
@@ -167,7 +167,7 @@ export const queryRecordsV2Tool = {
     const index = issue?.path[1];
     if (typeof index !== "number" || !input.filters[index]) return result;
     const filter = input.filters[index];
-    const multiple = ["in", "notIn", "all", "between"].includes(filter.operator);
+    const multiple = ["in", "notIn", "all", "between", "overlaps"].includes(filter.operator);
     const shape = multiple
       ? "values: an array of typed scalars (for a multiple choice field, {kind: 'select', value: optionId} for each option), with value: null"
       : ["empty", "notEmpty"].includes(filter.operator)
