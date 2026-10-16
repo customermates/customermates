@@ -96,6 +96,7 @@ import {
   SetupWidgetInputsSchema,
   createdIdsOf,
   setupResultLists,
+  setupStageField,
 } from "./workspace-setup-artifacts";
 
 export const SETUP_PHASE_STALE_MS = 20 * 60 * 1_000;
@@ -572,6 +573,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     }
     const refs: RecordRef[] = [];
     const results: StoredSetupResults["records"] = [];
+    const model = await this.records.getModel();
     for (const sample of samples) {
       const idempotencyKey = setupIdempotencyKey(setup.id, `sample:${sample.list}`);
       const imported = await this.importSpreadsheet.invoke(
@@ -580,15 +582,23 @@ export class WorkspaceSetupBuildService extends UserAccessor {
       if (!imported.ok) throw phaseFailure(failureOf(imported.error));
       refs.push(...imported.data.records);
       const kept = new Set(imported.data.records.map((ref) => ref.recordId));
+      const stageField = setupStageField(model, sample.typeId);
+      const stageColumn = sample.mapping.columns.find((column) => column.fieldId === stageField?.id)?.column;
+      const stageIndex = stageColumn ? sample.table.headers.indexOf(stageColumn) : -1;
+      const shown = sample.table.rows
+        .filter((row) => kept.has(spreadsheetRecordId(idempotencyKey, `record:${row.rowNumber}`)))
+        .map((row) => ({
+          title: sample.titles[row.rowNumber - 2] ?? "",
+          stage: stageIndex >= 0 ? String(row.cells[stageIndex] ?? "") || null : null,
+        }))
+        .filter((entry) => entry.title)
+        .slice(0, 10);
       results.push({
         listId: sample.typeId,
         kind: "sample",
         count: imported.data.created,
-        titles: sample.table.rows
-          .filter((row) => kept.has(spreadsheetRecordId(idempotencyKey, `record:${row.rowNumber}`)))
-          .map((row) => sample.titles[row.rowNumber - 2] ?? "")
-          .filter(Boolean)
-          .slice(0, 10),
+        titles: shown.map((entry) => entry.title),
+        ...(stageIndex >= 0 ? { stages: shown.map((entry) => entry.stage) } : {}),
         skippedRows: imported.data.errorCount,
       });
     }

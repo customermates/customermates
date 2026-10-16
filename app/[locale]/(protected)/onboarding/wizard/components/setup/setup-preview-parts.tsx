@@ -89,15 +89,18 @@ export function PipelineBoard({
   placeholders = true,
 }: {
   stages: BoardStage[];
-  records?: string[];
+  records?: { title: string; stage: string | null }[];
   pulse?: boolean;
   placeholders?: boolean;
 }) {
   const t = useTranslations();
+  const staged = records.some((record) => stages.some((stage) => stage.label === record.stage));
   return (
     <div className="grid grid-cols-[repeat(auto-fit,minmax(6.5rem,1fr))] gap-x-1.5 gap-y-3">
       {stages.map((stage, index) => {
-        const cards = records.filter((_, at) => at % stages.length === index);
+        const cards = records
+          .filter((record, at) => (staged ? record.stage === stage.label : at % stages.length === index))
+          .map((record) => record.title);
         return (
           <div
             key={`${stage.label}-${index}`}

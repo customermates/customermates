@@ -60,6 +60,17 @@ export function createdIdsOf(references: SetupReferences, model: RecordModel, ki
   return references.filter((entry) => kindOf(entry.reference) === kind && live.has(entry.id)).map((entry) => entry.id);
 }
 
+export function setupStageField(model: RecordModel, typeId: string) {
+  const choices = model.fields
+    .filter((field) => field.typeId === typeId && !field.archived && field.valueType === "select")
+    .sort((left, right) => left.position - right.position);
+  return (
+    choices.find((field) =>
+      field.options.some((option) => option.attributes.some((entry) => entry.key === "probability")),
+    ) ?? choices[0]
+  );
+}
+
 export function setupResultLists(
   plan: SetupPlan,
   model: RecordModel,
@@ -74,13 +85,7 @@ export function setupResultLists(
   return keys.flatMap(({ key, id, created }) => {
     const type = model.types.find((candidate) => candidate.id === id && !candidate.archived);
     if (!type) return [];
-    const choices = model.fields
-      .filter((field) => field.typeId === type.id && !field.archived && field.valueType === "select")
-      .sort((left, right) => left.position - right.position);
-    const staged =
-      choices.find((field) =>
-        field.options.some((option) => option.attributes.some((entry) => entry.key === "probability")),
-      ) ?? choices[0];
+    const staged = setupStageField(model, type.id);
     return [
       {
         id: type.id,

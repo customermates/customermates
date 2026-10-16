@@ -218,6 +218,7 @@ export const StoredSetupResultsSchema = z.object({
           kind: z.enum(["sample", "imported"]),
           count: z.number().int().nonnegative(),
           titles: z.array(z.string()).max(10),
+          stages: z.array(z.string().nullable()).max(10).optional(),
           skippedRows: z.number().int().nonnegative(),
         })
         .strict(),

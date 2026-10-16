@@ -77,6 +77,27 @@ describe("setup preview parts", () => {
     for (const title of titles) expect(clampedAncestors(elementWithText(title))).toEqual([]);
   });
 
+  it("places each built record under its own stage", () => {
+    render(
+      createElement(PipelineBoard, {
+        stages: [
+          { label: "New lead", color: null },
+          { label: "Won", color: "success" },
+        ],
+        records: [
+          { title: "Parkview order", stage: "Won" },
+          { title: "Maple inquiry", stage: "New lead" },
+          { title: "Elbe order", stage: "Won" },
+        ],
+      }),
+    );
+
+    const columns = [...container.querySelectorAll<HTMLElement>(":scope > div > div")].map((column) =>
+      column.textContent?.trim(),
+    );
+    expect(columns).toEqual(["New leadMaple inquiry", "WonParkview orderElbe order"]);
+  });
+
   it("lets a stage's win chance wrap below its label instead of squeezing the label", () => {
     render(
       createElement(PipelineBoard, {

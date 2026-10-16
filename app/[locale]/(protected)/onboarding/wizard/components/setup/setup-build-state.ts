@@ -58,7 +58,9 @@ export function buildLists(setup: WorkspaceSetupView): SetupPreviewList[] {
   return previewLists(setup.plan.plan, setup.results);
 }
 
-export function buildBoard(setup: WorkspaceSetupView): { list: SetupPreviewList; records: string[] } | null {
+export type BoardRecord = { title: string; stage: string | null };
+
+export function buildBoard(setup: WorkspaceSetupView): { list: SetupPreviewList; records: BoardRecord[] } | null {
   const lists = buildLists(setup);
   const deals = setup.plan.plan ? setupRoleList(setup.plan.plan, "deals") : null;
   const list =
@@ -66,7 +68,8 @@ export function buildBoard(setup: WorkspaceSetupView): { list: SetupPreviewList;
     lists.find((candidate) => candidate.stages.length);
   if (!list) return null;
   const built = setup.results.lists.find((candidate) => candidate.key === list.key);
-  const records = built ? (setup.results.records.find((entry) => entry.listId === built.id)?.titles ?? []) : [];
+  const entry = built ? setup.results.records.find((candidate) => candidate.listId === built.id) : undefined;
+  const records = (entry?.titles ?? []).map((title, index) => ({ title, stage: entry?.stages?.[index] ?? null }));
   return { list, records };
 }
 
