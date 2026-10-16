@@ -128,7 +128,7 @@ Jeder Tarif enthält das vollständige CRM, das Aktivitätsprotokoll, die API, d
 
 ### Wie wähle oder wechsle ich einen Tarif? [#how-do-i-choose-or-change-a-plan]
 
-Vor dem ersten Checkout (in der Praxis während der Testphase) zeigt die [Tarifauswahl](app:settings/billing?focus=plan-picker) Karten für **Starter**, **Pro** und **Business** (**Am beliebtesten**) mit Preis, Funktionen, verbundenen Konten, Routinen und KI-Credits pro Nutzer. Ein Klick auf eine Karte öffnet den Lemon-Squeezy-Checkout für so viele Nutzerplätze, wie es **Aktive** Mitglieder gibt. Die Abrechnung beginnt mit dem Checkout, auch wenn noch Testtage übrig sind; nach der Zahlung kehren Sie zu Abrechnung zurück, die sich aktualisiert, sobald Lemon Squeezy bestätigt.
+Vor dem ersten Checkout (in der Praxis während der Testphase) zeigt die [Tarifauswahl](app:settings/billing?focus=plan-picker) Karten für **Starter**, **Pro** und **Business** (**Am beliebtesten**) mit Preis, Funktionen, verbundenen Konten, Routinen und KI-Credits pro Nutzer. Ein Klick auf eine Karte öffnet den Lemon-Squeezy-Checkout für so viele Nutzerplätze, wie es **Aktive** Mitglieder gibt. Die Abrechnung beginnt mit dem Checkout, auch wenn noch Testtage übrig sind. Nach der Zahlung kehren Sie zu Abrechnung zurück: Bis Lemon Squeezy bestätigt, höchstens 15 Minuten lang, sehen alle Administratoren des Workspaces "Zahlung wird verarbeitet" statt der Karten, die Seite aktualisiert sich von selbst, und ein zweiter Checkout wird abgelehnt. Der Link **Ich habe die Zahlung nicht abgeschlossen** bringt die Karten sofort zurück; nach 15 Minuten erscheinen sie wieder mit "Zahlung noch nicht angekommen? Support kontaktieren".
 
 Nach dem ersten Checkout erscheint die Auswahl nicht wieder: Wechseln Sie den Tarif über [Verwalten mit Lemon Squeezy](app:settings/billing?focus=manage). Enterprise-Workspaces sehen die Auswahl nie.
 
@@ -144,7 +144,7 @@ Ein Nutzerplatz ist ein Mitglied mit dem Status **Aktiv**; Mitglieder mit **Wart
 
 ### Was passiert, wenn die Testphase endet oder eine Zahlung ausbleibt? [#what-happens-when-the-trial-ends-or-a-payment-fails]
 
-Solange der Status **Unbezahlt** oder **Abgelaufen** ist oder die Testphase ihr Enddatum überschritten hat, zeigt jede Seite **Abonnement erforderlich** ("Der Zugriff auf den Arbeitsbereich ist pausiert"). Rollen mit **Unternehmen** **Bearbeiten** erhalten die Tarifauswahl für einen neuen Checkout (Enterprise: einen Hinweis auf manuelle Abrechnung); alle anderen sehen, dass ein Unternehmensadministrator das Abonnement wiederherstellen muss. **Support kontaktieren** schreibt dem Support, **Erneut versuchen** lädt neu. Sobald das Abonnement wieder nutzbar ist, landen Sie auf Abrechnung.
+Solange der Status **Unbezahlt** oder **Abgelaufen** ist oder die Testphase ihr Enddatum überschritten hat, zeigt jede Seite **Abonnement erforderlich** ("Der Zugriff auf den Arbeitsbereich ist pausiert"). Rollen mit **Unternehmen** **Bearbeiten** erhalten die Tarifauswahl für einen neuen Checkout (Enterprise: einen Hinweis auf manuelle Abrechnung), die nach einem Checkout wie Abrechnung "Zahlung wird verarbeitet" zeigt; alle anderen sehen, dass ein Unternehmensadministrator das Abonnement wiederherstellen muss. **Support kontaktieren** schreibt dem Support, **Erneut versuchen** lädt neu. Sobald das Abonnement wieder nutzbar ist, landen Sie auf Abrechnung.
 
 Endet eine Testphase ohne Checkout, erledigt ein täglicher Job um 09:00 UTC:
 
