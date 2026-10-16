@@ -30,6 +30,7 @@ import {
   e2eAppMode,
   expectCurrentWorkspace,
   setActiveWorkspace,
+  switchFromBlockedPage,
 } from "./workspace-switching";
 
 test.skip(e2eAppMode() !== "cloud", "Plans, checkout and the trial exist in the cloud only");
@@ -316,8 +317,7 @@ test("paying Business for an extra workspace activates only it in the real event
   expect(await subscriptionOf(database, workspace.companyId)).toEqual(firstBefore);
   expect(await subscriptionOf(database, steuern.companyId)).toEqual(activated);
 
-  const others = page.locator("[data-slot='restricted-workspace-switch']");
-  await clickHydrated(others.getByRole("button", { name: "Browser workspace", exact: true }));
+  await switchFromBlockedPage(page, workspace.companyId);
   await expect(page).toHaveURL(/\/en\/dashboard$/);
   await expectCurrentWorkspace(page, "Browser workspace");
   await expectBilling(page, "Pro", "Trial", 1);
@@ -554,8 +554,7 @@ test("a lapsed paid workspace keeps its integrations through the grace, asks to 
   expect(await whoAmI(request, key.key)).toEqual({ status: 200, id: second.userId, code: null });
   expect(await mcpWorkspaceName(key.key)).toEqual({ id: second.companyId, name: "Bergmann Steuern" });
 
-  const others = page.locator("[data-slot='restricted-workspace-switch']");
-  await clickHydrated(others.getByRole("button", { name: "Browser workspace", exact: true }));
+  await switchFromBlockedPage(page, workspace.companyId);
   await expect(page).toHaveURL(/\/en\/dashboard$/);
   await expectCurrentWorkspace(page, "Browser workspace");
 

@@ -8,7 +8,6 @@ import { checkoutStateOf } from "@/ee/subscription/checkout-state";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 import { isFirstPlanChoice, resolveSubscriptionRecoveryPath } from "@/features/auth/subscription-recovery";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
-import { RestrictedWorkspaceSwitch } from "@/app/components/workspaces/restricted-workspace-switch";
 
 export default async function SubscriptionExpiredPage() {
   const resolution = await requireAccountState("subscription", settingsHref("billing"));
@@ -18,15 +17,11 @@ export default async function SubscriptionExpiredPage() {
 
   return (
     <CenteredCardPage className="animate-page-result-in motion-reduce:animate-none">
-      <div className="flex w-full flex-col items-center gap-4">
-        <SubscriptionExpiredView
-          checkout={checkoutStateOf(subscription.checkoutStartedAt)}
-          firstPlan={isFirstPlanChoice(subscription)}
-          recoveryPath={resolveSubscriptionRecoveryPath(user, subscription.plan)}
-        />
-
-        <RestrictedWorkspaceSwitch />
-      </div>
+      <SubscriptionExpiredView
+        checkout={checkoutStateOf(subscription.checkoutStartedAt)}
+        firstPlan={isFirstPlanChoice(subscription)}
+        recoveryPath={resolveSubscriptionRecoveryPath(user, subscription.plan)}
+      />
     </CenteredCardPage>
   );
 }

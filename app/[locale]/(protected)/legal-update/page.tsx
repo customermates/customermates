@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 
-import { RestrictedWorkspaceSwitch } from "@/app/components/workspaces/restricted-workspace-switch";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 import { requireAccountState } from "@/features/auth/next/require";
 
@@ -14,11 +13,7 @@ export default async function LegalUpdatePage() {
 
   return (
     <CenteredCardPage className="animate-page-result-in motion-reduce:animate-none">
-      <div className="flex w-full flex-col items-center gap-4">
-        <LegalUpdateView status={status} />
-
-        <RestrictedWorkspaceSwitch />
-      </div>
+      <LegalUpdateView status={status} />
     </CenteredCardPage>
   );
 }

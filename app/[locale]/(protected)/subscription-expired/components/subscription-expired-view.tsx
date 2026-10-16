@@ -79,10 +79,16 @@ const SubscriptionExpiredViewContent = observer(({ recoveryPath, firstPlan, chec
         ) : null}
       </AppCardBody>
 
-      <AppCardFooter>
+      <AppCardFooter className="flex-col gap-2">
+        {!selfServiceCheckout ? (
+          <Button className="w-full" onClick={() => window.location.reload()}>
+            {t("SubscriptionExpiredView.retry")}
+          </Button>
+        ) : null}
+
         <Button
           className="w-full"
-          variant="secondary"
+          variant="ghost"
           onClick={() => {
             const supportHref = supportMailHref(t("SubscriptionExpiredView.supportEmailSubject"));
             if (supportHref) window.location.href = supportHref;
@@ -90,12 +96,6 @@ const SubscriptionExpiredViewContent = observer(({ recoveryPath, firstPlan, chec
         >
           {t("SubscriptionExpiredView.contactSupportCta")}
         </Button>
-
-        {!selfServiceCheckout ? (
-          <Button className="w-full" onClick={() => window.location.reload()}>
-            {t("SubscriptionExpiredView.retry")}
-          </Button>
-        ) : null}
       </AppCardFooter>
     </AppCard>
   );

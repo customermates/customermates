@@ -13,6 +13,7 @@ import {
   e2eAppMode,
   expectCurrentWorkspace,
   expectHydrated,
+  openBlockedPageSwitcher,
   openWorkspaceSwitcher,
   signInLogin,
   switcherWorkspaces,
@@ -59,14 +60,15 @@ test("an existing login joins another workspace by invitation, waits for approva
 
     await expect(page).toHaveURL(/\/en\/auth\/pending$/);
     await expect(page.getByRole("heading", { level: 1, name: englishMessages.PendingCard.title })).toBeVisible();
-    const others = page.locator("[data-slot='restricted-workspace-switch']");
-    await expect(others.getByRole("button", { name: "Browser workspace", exact: true })).toBeVisible();
     expect(await joined()).toEqual([{ firstName: "Jonas", status: "pendingAuthorization", roleId: null }]);
     expect(await activeWorkspaceOf(database, workspace)).toEqual({
       session: inviter.companyId,
       lastUsed: inviter.companyId,
     });
     await page.screenshot({ path: testInfo.outputPath("ws-join-pending.png"), fullPage: true });
+    const switcher = await openBlockedPageSwitcher(page);
+    await expect(switcher.locator(`[data-workspace-id="${workspace.companyId}"]`)).toBeVisible();
+    await page.keyboard.press("Escape");
 
     await page.goto(`/en/invitation/${token}`);
     await expect(

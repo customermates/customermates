@@ -2,7 +2,6 @@
 
 import { useTranslations } from "next-intl";
 
-import { RestrictedWorkspaceSwitch } from "@/app/components/workspaces/restricted-workspace-switch";
 import { ErrorPageView } from "@/components/shared/error-page-view";
 
 export type ErrorPageKey =
@@ -17,7 +16,6 @@ export function ErrorPageContent({ errorKey, isInactive }: { errorKey: ErrorPage
 
   return (
     <ErrorPageView
-      aside={isInactive ? <RestrictedWorkspaceSwitch /> : undefined}
       backHref={isInactive ? undefined : "/"}
       backLabel={isInactive ? undefined : t("ErrorCard.ctaLabel")}
       body={errorKey ? t(`ErrorCard.${errorKey}`) : t("ErrorCard.contactSupport")}

@@ -9,6 +9,7 @@ import {
   e2eAppMode,
   expectCurrentWorkspace,
   openWorkspaceSwitcher,
+  switchFromBlockedPage,
 } from "./workspace-switching";
 
 test.skip(e2eAppMode() === "demo", "Demo mode signs every visitor in as the shared demo account");
@@ -72,10 +73,9 @@ test("an extra cloud workspace asks for a plan before its onboarding and the pla
     isSystemRole: true,
   });
   expect(await activeWorkspaceOf(database, workspace)).toEqual({ session: created.id, lastUsed: created.id });
-  const others = page.locator("[data-slot='restricted-workspace-switch']");
-  await expect(others.getByRole("heading", { name: "Switch workspace", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Switch workspace", exact: true })).toHaveCount(0);
   await page.screenshot({ path: testInfo.outputPath("ws-first-plan.png"), fullPage: true });
-  await clickHydrated(others.getByRole("button", { name: "Browser workspace", exact: true }));
+  await switchFromBlockedPage(page, workspace.companyId);
 
   await expect(page).toHaveURL(/\/en\/dashboard$/);
   await expectCurrentWorkspace(page, "Browser workspace");

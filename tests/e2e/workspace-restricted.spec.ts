@@ -3,17 +3,19 @@ import { collectPageErrors, expect, test } from "./fixtures";
 import { addBrowserWorkspace } from "./workspace";
 import {
   activeWorkspaceOf,
-  clickHydrated,
   e2eAppMode,
   expectCurrentWorkspace,
+  openBlockedPageSwitcher,
   openWorkspaceSwitcher,
   setActiveWorkspace,
   setMembershipStatus,
+  switcherWorkspaces,
+  switchFromBlockedPage,
 } from "./workspace-switching";
 
 test.skip(e2eAppMode() === "demo", "Demo mode signs every visitor in as the shared demo account");
 
-test("a pending membership waits on its approval screen and keeps the way to the other workspaces open", async ({
+test("a pending membership waits on its approval screen and leaves the way to the other workspaces to the sidebar switcher", async ({
   page,
   database,
   workspace,
@@ -26,12 +28,12 @@ test("a pending membership waits on its approval screen and keeps the way to the
 
   await expect(page).toHaveURL(/\/en\/auth\/pending$/);
   await expect(page.getByRole("heading", { level: 1, name: englishMessages.PendingCard.title })).toBeVisible();
-  const others = page.locator("[data-slot='restricted-workspace-switch']");
-  await expect(others.getByRole("heading", { name: "Switch workspace", exact: true })).toBeVisible();
-  await expect(others.locator("[data-workspace-id]")).toHaveCount(1);
-  await expect(others.getByRole("button", { name: "Create workspace", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Switch workspace", exact: true })).toHaveCount(0);
   await page.screenshot({ path: testInfo.outputPath("ws-restricted-pending.png"), fullPage: true });
-  await clickHydrated(others.getByRole("button", { name: "Browser workspace", exact: true }));
+  const restricted = await openBlockedPageSwitcher(page);
+  await expect(switcherWorkspaces(restricted)).toHaveCount(2);
+  await expect(restricted.locator("#workspace-menu-create")).toBeVisible();
+  await restricted.locator(`[data-workspace-id="${workspace.companyId}"]`).click();
 
   await expect(page).toHaveURL(/\/en\/dashboard$/);
   await expectCurrentWorkspace(page, "Browser workspace");
@@ -46,7 +48,7 @@ test("a pending membership waits on its approval screen and keeps the way to the
   expect(errors).toEqual([]);
 });
 
-test("a deactivated membership explains itself and keeps the way to the other workspaces open", async ({
+test("a deactivated membership explains itself and leaves the way to the other workspaces to the sidebar switcher", async ({
   page,
   database,
   workspace,
@@ -59,10 +61,9 @@ test("a deactivated membership explains itself and keeps the way to the other wo
 
   await expect(page).toHaveURL(/\/en\/auth\/error\?type=inactiveUser$/);
   await expect(page.getByText(englishMessages.ErrorCard.inactiveUser, { exact: true })).toBeVisible();
-  const others = page.locator("[data-slot='restricted-workspace-switch']");
-  await expect(others.locator("[data-workspace-id]")).toHaveCount(1);
+  await expect(page.getByRole("heading", { name: "Switch workspace", exact: true })).toHaveCount(0);
   await page.screenshot({ path: testInfo.outputPath("ws-restricted-inactive.png"), fullPage: true });
-  await clickHydrated(others.getByRole("button", { name: "Browser workspace", exact: true }));
+  await switchFromBlockedPage(page, workspace.companyId);
 
   await expect(page).toHaveURL(/\/en\/dashboard$/);
   await expectCurrentWorkspace(page, "Browser workspace");

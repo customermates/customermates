@@ -25,11 +25,24 @@ export function workspaceListRefreshed(page: Page) {
   return page.waitForResponse((response) => invokesServerAction(response.request(), listed));
 }
 
-export async function openWorkspaceSwitcher(page: Page) {
+async function openSwitcher(page: Page, ready?: readonly string[]) {
   const refreshed = workspaceListRefreshed(page);
-  const menu = await openMenu(page, "#nav-workspace-menu");
+  const menu = await openMenu(page, "#nav-workspace-menu", ready);
   await refreshed;
   return menu;
+}
+
+export function openWorkspaceSwitcher(page: Page) {
+  return openSwitcher(page);
+}
+
+export function openBlockedPageSwitcher(page: Page) {
+  return openSwitcher(page, ["sidebar-trigger"]);
+}
+
+export async function switchFromBlockedPage(page: Page, companyId: string) {
+  const menu = await openBlockedPageSwitcher(page);
+  await menu.locator(`[data-workspace-id="${companyId}"]`).click();
 }
 
 export async function expectHydrated(locator: Locator) {

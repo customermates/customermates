@@ -59,7 +59,6 @@ export const domTestFiles = [
   "app/components/navigation/__tests__/public-navbar-menu.test.ts",
   "app/components/workspaces/__tests__/workspace-tab-guard.dom.test.ts",
   "app/components/workspaces/__tests__/workspace-switcher-items.dom.test.ts",
-  "app/components/workspaces/__tests__/restricted-workspace-switch.dom.test.ts",
   "app/**/settings/**/general/__tests__/workspace-general-view.dom.test.ts",
   "core/base/__tests__/data-view-autosave.test.ts",
   "core/base/__tests__/base-data-view-clear-grouping.test.ts",

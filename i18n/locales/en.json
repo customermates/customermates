@@ -4267,6 +4267,7 @@
     "managedExternallyNote": "This workspace is on an Enterprise plan billed by invoice. Contact your account manager to make changes.",
     "manageWithLemonSqueezy": "Manage with Lemon Squeezy",
     "picker": {
+      "choose": "Choose {plan}",
       "connectedAccountsPerUser": "{accounts, plural, one {# connected account per user} other {# connected accounts per user}}",
       "creditNote": "Hosted AI credits refresh monthly; unused credits do not roll over. Each request is charged its exact provider cost, shown to one decimal. External MCP clients bill model use through your own AI provider. Server-side semantic searches can consume hosted AI credits.",
       "features": {
@@ -4694,12 +4695,10 @@
       "titleNamed": "You switched to {name} in another tab"
     },
     "renameReadOnly": "Only members who can manage the workspace can change its name.",
-    "restrictedCreateHint": "You can also create your own workspace.",
     "status": {
       "pending": "Pending"
     },
     "switch": "Switch",
-    "switchTo": "Switch to {name}",
-    "switchWorkspace": "Switch workspace"
+    "switchTo": "Switch to {name}"
   }
 }

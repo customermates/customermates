@@ -4267,6 +4267,7 @@
     "managedExternallyNote": "Cet espace de travail utilise une formule Enterprise réglée sur facture. Contactez votre gestionnaire de compte pour toute modification.",
     "manageWithLemonSqueezy": "Gérer avec Lemon Squeezy",
     "picker": {
+      "choose": "Choisir {plan}",
       "connectedAccountsPerUser": "{accounts, plural, one {# compte connecté par utilisateur} other {# comptes connectés par utilisateur}}",
       "creditNote": "Les crédits IA hébergés sont renouvelés chaque mois ; les crédits non utilisés ne sont pas reportés. Chaque demande est facturée à son coût exact chez le fournisseur, affiché avec une décimale. Les clients MCP externes facturent les modèles via votre propre fournisseur d'IA. Les recherches sémantiques côté serveur peuvent consommer des crédits IA hébergés.",
       "features": {
@@ -4694,12 +4695,10 @@
       "titleNamed": "Vous avez basculé vers {name} dans un autre onglet"
     },
     "renameReadOnly": "Seuls les membres autorisés à gérer l'espace de travail peuvent modifier son nom.",
-    "restrictedCreateHint": "Vous pouvez aussi créer votre propre espace de travail.",
     "status": {
       "pending": "En attente"
     },
     "switch": "Changer",
-    "switchTo": "Passer à {name}",
-    "switchWorkspace": "Changer d'espace de travail"
+    "switchTo": "Passer à {name}"
   }
 }

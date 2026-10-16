@@ -4267,6 +4267,7 @@
     "managedExternallyNote": "Dieser Workspace nutzt einen Enterprise-Tarif mit Rechnungsstellung. Wende dich an deinen Ansprechpartner, um Änderungen vorzunehmen.",
     "manageWithLemonSqueezy": "Verwalten mit Lemon Squeezy",
     "picker": {
+      "choose": "{plan} wählen",
       "connectedAccountsPerUser": "{accounts, plural, one {# verbundenes Konto pro Nutzer} other {# verbundene Konten pro Nutzer}}",
       "creditNote": "Credits für den gehosteten KI-Assistenten werden monatlich erneuert; nicht genutzte Credits werden nicht übertragen. Jede Anfrage wird mit ihren genauen Anbieterkosten berechnet und auf eine Nachkommastelle angezeigt. Externe MCP-Clients rechnen die Modellnutzung über deinen eigenen KI-Anbieter ab. Serverseitige semantische Suchen können gehostete KI-Credits verbrauchen.",
       "features": {
@@ -4694,12 +4695,10 @@
       "titleNamed": "Du hast in einem anderen Tab zu {name} gewechselt"
     },
     "renameReadOnly": "Nur Mitglieder, die den Workspace verwalten dürfen, können den Namen ändern.",
-    "restrictedCreateHint": "Du kannst auch einen eigenen Workspace erstellen.",
     "status": {
       "pending": "Ausstehend"
     },
     "switch": "Wechseln",
-    "switchTo": "Zu {name} wechseln",
-    "switchWorkspace": "Workspace wechseln"
+    "switchTo": "Zu {name} wechseln"
   }
 }

@@ -21,7 +21,8 @@ export async function createWorkspaceFromSettings(page: Page, name: string) {
 
 export async function choosePlan(page: Page, plan: string) {
   const picker = page.locator("#settings-billing-plan-picker");
-  await clickHydrated(picker.getByRole("button").filter({ has: page.getByText(plan, { exact: true }) }));
+  const name = englishMessages.Subscription.picker.choose.replace("{plan}", plan);
+  await clickHydrated(picker.getByRole("button", { name, exact: true }));
 }
 
 export async function finishOnboarding(page: Page) {
