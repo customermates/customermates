@@ -627,7 +627,7 @@ Optional: `firstName`, `lastName`, `country`, `avatarUrl`, `theme`, `displayLang
 
 #### `manage_team`
 
-Mitglieder per E-Mail einladen (Action invite, bis 20, verschickt echte Einladungs-E-Mails), den Einladungslink abrufen (invite_link), Rolle und Status eines Mitglieds ändern (update_member) oder ein Mitglied aus dem Workspace entfernen (remove_member). Bei update_member und remove_member nennen Sie das Mitglied per userId oder email; wenn Sie beide angeben, müssen sie übereinstimmen. remove_member beendet den Zugriff, widerruft API-Schlüssel und MCP-Verbindungen des Mitglieds für diesen Workspace, trennt die dort verbundenen Kanäle und lehnt eine offene Beitrittsanfrage ab; seine Datensätze bleiben. invite und invite_link brauchen Erstellen auf Benutzer & Rollen, update_member und remove_member Bearbeiten, wie REST.
+Mitglieder per E-Mail einladen (Action invite, bis 20, verschickt echte Einladungs-E-Mails), den Einladungslink abrufen (invite_link), Rolle und Status eines Mitglieds ändern (update_member) oder ein Mitglied aus dem Workspace entfernen (remove_member). Bei update_member und remove_member nennen Sie das Mitglied per userId oder email; wenn Sie beide angeben, müssen sie übereinstimmen. remove_member beendet den Zugriff, widerruft API-Schlüssel und MCP-Verbindungen des Mitglieds für diesen Workspace, trennt die dort verbundenen Kanäle und lehnt eine offene Beitrittsanfrage ab; es schickt dem entfernten Mitglied eine echte E-Mail (keine bei einer abgelehnten Anfrage), und seine Datensätze bleiben. invite und invite_link brauchen Erstellen auf Benutzer & Rollen, update_member und remove_member Bearbeiten, wie REST.
 
 **Kann Daten löschen.** Pflicht: `action`. Optional: `emails`, `userId`, `email`, `roleId`, `status`.
 

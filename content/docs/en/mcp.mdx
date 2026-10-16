@@ -627,7 +627,7 @@ Optional: `firstName`, `lastName`, `country`, `avatarUrl`, `theme`, `displayLang
 
 #### `manage_team`
 
-Invite members by email (action invite, up to 20, sends real invitation emails), return the invitation link (invite_link), change a member's role and status (update_member), or remove a member from the workspace (remove_member). For update_member and remove_member, identify the member by userId or email; if you provide both, they must match. remove_member ends the member's access, revokes their API keys and MCP connections for this workspace, disconnects the channels they connected here and declines a pending request; their records stay. invite and invite_link need Create on Users & Roles; update_member and remove_member need Edit, like REST.
+Invite members by email (action invite, up to 20, sends real invitation emails), return the invitation link (invite_link), change a member's role and status (update_member), or remove a member from the workspace (remove_member). For update_member and remove_member, identify the member by userId or email; if you provide both, they must match. remove_member ends the member's access, revokes their API keys and MCP connections for this workspace, disconnects the channels they connected here and declines a pending request; it sends the removed member a real email (none for a declined request), and their records stay. invite and invite_link need Create on Users & Roles; update_member and remove_member need Edit, like REST.
 
 **Can delete data.** Required: `action`. Optional: `emails`, `userId`, `email`, `roleId`, `status`.
 
