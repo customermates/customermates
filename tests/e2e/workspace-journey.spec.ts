@@ -127,6 +127,7 @@ async function createSecondWorkspace(page: Page, request: APIRequestContext, dat
     const paid = startProviderSubscription(companyId, "business", 1, { name: MEMBER, email });
     await page.goto(checkout.redirectUrl as string);
     await expect(page).toHaveURL(/\/en\/subscription-expired$/);
+    await expect(page.locator("#settings-billing-payment-pending")).toBeVisible();
     await deliverSubscriptionWebhook(request, "subscription_created", paid);
     await deliverSubscriptionWebhook(request, "subscription_updated", changeProviderSubscription(paid.id, {}));
     expect(await subscriptionOf(database, companyId)).toMatchObject({
@@ -134,7 +135,6 @@ async function createSecondWorkspace(page: Page, request: APIRequestContext, dat
       plan: "business",
       lemonSqueezyId: paid.id,
     });
-    await page.reload();
   }
   await finishOnboarding(page);
   await expectCurrentWorkspace(page, SECOND);

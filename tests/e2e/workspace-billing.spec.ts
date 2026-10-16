@@ -188,7 +188,7 @@ test("paying Business for an extra workspace activates only it in the real event
   expect(checkout).toMatchObject({
     storeId: localLemonSqueezyStoreId,
     variantId: localLemonSqueezyVariants.business,
-    custom: { company_id: steuern.companyId },
+    custom: signedCustomData(steuern.companyId),
     variantQuantities: [{ variant_id: Number(localLemonSqueezyVariants.business), quantity: 1 }],
     enabledVariants: [Number(localLemonSqueezyVariants.business)],
     redirectUrl: `${baseUrl}/settings/billing`,
@@ -205,9 +205,11 @@ test("paying Business for an extra workspace activates only it in the real event
   await expect(
     page.getByRole("heading", { level: 1, name: "Choose a plan for Steuern 2026", exact: true }),
   ).toBeVisible();
+  await expect(page.locator("#settings-billing-payment-pending")).toBeVisible();
+  await expect(page.locator("#settings-billing-plan-picker")).toHaveCount(0);
   expect((await subscriptionOf(database, steuern.companyId)).status).toBe("expired");
 
-  const created = subscriptionWebhookBody("subscription_created", paid);
+  const created = subscriptionWebhookBody("subscription_created", paid, checkout.custom);
   expect(JSON.parse(created)).toMatchObject({
     data: {
       type: "subscriptions",
@@ -233,7 +235,7 @@ test("paying Business for an extra workspace activates only it in the real event
       test_mode: true,
       event_name: "subscription_created",
       webhook_id: expect.stringMatching(/^[0-9a-f-]{36}$/),
-      custom_data: { company_id: steuern.companyId },
+      custom_data: { company_id: steuern.companyId, company_signature: expect.stringMatching(/^[0-9a-f]{64}$/) },
     },
   });
   const renewsAt = new Date(paid.attributes.renews_at as string);
@@ -271,7 +273,7 @@ test("paying Business for an extra workspace activates only it in the real event
   expect(await boundWorkspaces(database, paid.id)).toEqual([steuern.companyId]);
   expect(await subscriptionOf(database, workspace.companyId)).toEqual(firstBefore);
 
-  await page.reload();
+  await expect(page).toHaveURL(/\/en\/onboarding\/wizard$/);
   await page.screenshot({ path: testInfo.outputPath("ws-billing-onboarding.png"), fullPage: true });
   await finishOnboarding(page);
   await expectCurrentWorkspace(page, "Steuern 2026");

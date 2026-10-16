@@ -48,7 +48,7 @@ export type LocalCheckout = {
   createdAt: string;
   storeId: string;
   variantId: string;
-  custom: { company_id?: string; company_signature?: string } | null;
+  custom: LemonSqueezyCustomData | null;
   variantQuantities: Array<{ variant_id: number; quantity: number }>;
   redirectUrl: string | null;
   enabledVariants: number[];
