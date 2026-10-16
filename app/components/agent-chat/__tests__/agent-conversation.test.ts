@@ -86,6 +86,20 @@ describe("AgentConversationLog", () => {
     expect(html).toContain("Inbox.dateToday");
   });
 
+  it("pins each date chip inside its own day so the next day pushes it away", () => {
+    testContext.store.items = [
+      { id: "one", kind: "message", at: new Date(2026, 8, 28, 22) },
+      { id: "two", kind: "message", at: new Date(2026, 8, 28, 23) },
+      { id: "three", kind: "message", at: new Date(2026, 8, 29, 8) },
+    ];
+    const sections = renderToStaticMarkup(createElement(AgentConversationLog)).split("<section").slice(1);
+
+    expect(sections).toHaveLength(2);
+    expect(sections[0]).toContain("Inbox.dateYesterday");
+    expect(sections[1]).toContain("Inbox.dateToday");
+    expect(sections.every((section) => section.includes("sticky top-0"))).toBe(true);
+  });
+
   it("keeps the date for a conversation entirely from yesterday", () => {
     testContext.store.items = [{ id: "one", kind: "message", at: new Date(2026, 8, 28, 8) }];
 

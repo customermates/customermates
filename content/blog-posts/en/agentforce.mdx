@@ -1,180 +1,200 @@
 ---
-title: "Agentforce 2026: What It Is, Pricing, and Alternatives"
-description: "Agentforce is Salesforce's AI agent platform. What it does, what it costs, where it fits, and the open-source alternative for an agent-native CRM."
+title: "Salesforce Agentforce: What It Is, Pricing and Setup"
+description: "Agentforce is Salesforce's AI agent platform. How the agents work, what Flex Credits, add-ons and Foundations cost, where Einstein fits and who it suits."
+
+relatedHrefs:
+  - /blog/salesforce-pricing
+  - /compare/salesforce-alternative
+  - /blog/agentic-crm
+  - /blog/salesforce-mcp
 
 hero:
-  title: "Agentforce: What It Is, Where It Fits, What It Costs"
-  description: "Agentforce is Salesforce's bet on autonomous AI agents inside CRM. Here is the practical guide for teams evaluating it (or evaluating leaving it)."
+  title: "Salesforce Agentforce: How Its AI Agents Work and What They Cost"
+  description: "Agentforce is Salesforce's platform for AI agents that answer customers and act on Salesforce data. Here is how an agent is built, what each pricing model costs in practice, what happened to Einstein, and how to introduce it one use case at a time."
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Back to blog
   by: by Benjamin Wagner
   date: 2026-05-07
+  updated: 2026-10-08
   tags:
     - Agentforce
     - Salesforce
+    - Salesforce Einstein
     - AI Agents
     - CRM Comparison
-    - Open Source
 ---
 
-# Agentforce Explained 2026: What It Is, Pricing, and Alternatives
+# Agentforce Explained: Agents, Credits, Einstein and Setup
 
-Agentforce is Salesforce's platform for building and deploying autonomous AI agents inside the Salesforce ecosystem. Instead of a chatbot that answers questions, Agentforce agents reason, plan, and take action: they handle support tickets, qualify inbound leads, draft outbound messages, and update CRM records, all without a human pressing each button.
+Salesforce Agentforce is Salesforce's platform for AI agents that work on the data in your Salesforce org. Customer-facing agents answer on your website, in messaging channels and on the phone. Employee agents work inside Salesforce, for example by updating a record or summarizing a case. You pay per agent action with Flex Credits, per customer conversation, or per user through add-ons and the Max editions.
 
-I run Customermates, an open-source CRM also built around AI agents (a different architecture, a different price point). I sit in conversations weekly with founders trying to decide whether Agentforce is the right bet, whether to extend their existing Salesforce setup with it, or whether to look for an alternative that does not require a Salesforce contract. This post is the honest guide to what Agentforce is, what it costs, and where it fits.
+Agentforce does not run on its own. It needs a Salesforce org, and the free way in is Salesforce Foundations, a $0 add-on for Enterprise Edition and higher. Einstein, the older brand, now mostly names the layer underneath: the Einstein Trust Layer masks data and scores responses for toxicity, while the assistant once called Einstein Copilot is part of Agentforce.
 
-## What Agentforce actually is
+Customermates, an open-source CRM, publishes this guide. Salesforce facts come from Salesforce's own pages, checked on 8 October 2026 and linked at the end. Customermates appears once, in its own labelled section.
 
-Agentforce sits on top of the existing Salesforce platform. It uses Salesforce's data layer (Customer 360, Data Cloud), security model (Einstein Trust Layer), and integration tooling (MuleSoft) to give AI agents the inputs they need: customer records, knowledge base articles, real-time activity, third-party data via connectors.
+<ArticleSummary title="At a glance">
+  <SummaryItem label="What it is">Salesforce's platform for AI agents that answer and act on Salesforce data, for customers and for employees.</SummaryItem>
+  <SummaryItem label="What it needs">A Salesforce org. Salesforce's sales pricing page says AI can be added to Core and above, and its comparison table marks some Agentforce features as available for purchase on the smaller suites.</SummaryItem>
+  <SummaryItem label="List prices">$0.10 per standard action in Flex Credits, $2 per conversation for customer-facing agents, $125 per user per month for the employee add-ons, Max editions from $550 per user per month.</SummaryItem>
+  <SummaryItem label="Einstein">Einstein Copilot was renamed and folded into Agentforce. The Einstein Trust Layer keeps its name and handles masking, toxicity scores and the audit trail.</SummaryItem>
+  <SummaryItem label="Who it fits">Organizations that already run Salesforce, keep their records and Knowledge articles in order, and have someone to build and test agents.</SummaryItem>
+</ArticleSummary>
 
-Three components matter most in practice:
+## How an Agentforce agent works
 
-**Agent Builder.** A low-code interface for defining agents. You describe the agent's role, the topics it covers, the actions it can take, and the data it can access. No model fine-tuning required; the agent uses Salesforce's hosted LLM (or an external one through BYOM).
+An agent is a role, a set of topics, written instructions and the actions it may take, all configured in Agentforce Builder. When a request arrives, the Atlas Reasoning Engine works out what the person wants and which action to run next. Salesforce calls this hybrid reasoning, combining "deterministic logic and adaptive AI": Agent Script holds the steps that must run the same way every time, and the model handles the rest.
 
-**Atlas Reasoning Engine.** The orchestration layer that turns user intent into a plan: which data to retrieve, which actions to call in sequence, when to stop and ask the human. This is the core of why Agentforce agents act autonomously rather than just answering questions.
+| Building block | What it does |
+|---|---|
+| Agentforce Builder | Where you define an agent's role, topics, instructions and permitted actions |
+| Agent Script | Fixed logic for the parts of a conversation that must not vary |
+| Atlas Reasoning Engine | Interprets the request and chooses the next action |
+| Actions | One function an agent executes, such as updating a record, summarizing a case or answering a product question. Flex Credits are billed per action |
+| Agentforce Data Library | Indexes Knowledge articles, uploaded text, HTML and PDF files, and web search results, so answers rest on your content |
+| Data 360 (formerly Data Cloud) | Salesforce's data platform, which unifies data from other systems into one customer profile |
+| Einstein Trust Layer | Masks sensitive data, checks responses for toxicity and keeps an audit trail |
+| Model Builder | Lets you bring your own language model, for example from Anthropic, Google, OpenAI or Hugging Face |
 
-**Einstein Trust Layer.** A guardrails layer over data flow: PII masking, output review, audit logging, hallucination guardrails. The pitch is that an Agentforce agent cannot leak customer data the way a raw LLM might.
+Salesforce lists the web, the phone, apps, self-service portals and messaging channels as places to deploy agents, and MuleSoft API connectors for reaching systems outside Salesforce.
 
-The architecture is genuinely well-designed for enterprises that already live inside Salesforce. The economics, however, depend on whether you are already a Salesforce customer.
+### One question, followed through
 
-## Agentforce pricing in 2026
+A customer types into your web chat: "Where is my order 4711?" The agent matches the topic "Order status", and the reasoning engine calls three actions: one finds the customer, one looks up the order, one reads the shipping status. Before the prompt goes to the language model, the Trust Layer can swap the customer's name and email address for placeholders. When the answer comes back, it is checked for toxicity, the real values are put back in, and the exchange is written to the audit trail.
 
-Salesforce offers three pricing models for Agentforce. All add to your existing Salesforce bill, and Flex Credits and Conversations cannot be combined in the same org.
+Billed in Flex Credits, those three standard actions use 60 credits, which is $0.30. Billed per conversation, the same exchange costs $2. That gap is the main pricing decision: per-conversation pricing only comes out cheaper once an average conversation runs more than 20 standard actions.
 
-**Conversation-based pricing.** $2 per conversation. A conversation is one user interacting with an agent over a session, regardless of how many turns. Useful for predictable customer service workloads where you can model conversation volume.
+## The Einstein Trust Layer and its toxicity score
 
-**Flex Credits.** Roughly $0.10 per agent action (each action consumes 20 credits, and 100,000-credit packs sell for $500). An action is roughly one tool call: read a record, update a field, send an email. Voice actions cost 30 credits. Useful for variable internal workloads where conversation count is hard to predict.
+The Trust Layer sits between Salesforce and the language model. Salesforce lists secure data retrieval and grounding, data masking, zero data retention (prompts and responses are never stored or used to train the underlying third-party models), toxicity detection and security guardrails.
 
-**Per-user licensing.** A seat-based option starting at $125 per user per month, rising to $550 per user per month for the Agentforce 1 Sales edition. Useful when usage is high and predictable enough that a flat per-seat rate beats consumption pricing.
+The toxicity score is what most people look for in the documentation. Salesforce's Trailhead module on the response journey explains that the overall score runs from 0 to 1, where 1 is the most toxic, and that it covers five categories: violence, sexual, profanity, hate and physical. The audit trail stores the prompt, the original unfiltered response, any toxicity scores and the feedback collected along the way. Review it after a pilot, before you let an agent answer customers unsupervised.
 
-For a typical mid-market sales team running an Agentforce SDR for outbound:
+## What Agentforce costs
 
-- Conversations per day: 50-200 prospects
-- Actions per conversation: 5-15 (research, draft, send, log)
-- Daily action count: 250-3,000
-- Monthly cost at $0.10/action: $750-$9,000 just for Agentforce, on top of the Sales Cloud license
+These are Salesforce's list prices from the [Agentforce pricing page](https://www.salesforce.com/agentforce/pricing/), checked on 8 October 2026.
 
-For customer service:
+| Option | List price | What you get |
+|---|---|---|
+| Salesforce Foundations | $0 add-on | Agentforce Builder, Prompt Builder, Agent Script, Agentforce Coworker, Agentforce Vibes and a starting allowance of Flex Credits. For Enterprise Edition and higher; availability varies by edition and region |
+| Flex Credits | $500 per 100,000 credits | 20 credits ($0.10) per standard action, 30 credits ($0.15) per voice action |
+| Conversations | $2 per conversation | Customer-facing agents only. Flex Credits and Conversations are not supported in the same org |
+| Agentforce User License | $5 per user per month, plus Flex Credits | Agentforce access for every employee, limited CRM objects, metered usage |
+| Agentforce add-ons for Sales, Service, Field Service | $125 per user per month | Unmetered Agentforce use for employees, plus Prompt Builder and AI analytics |
+| Max editions | from $550 per user per month | The add-on included, plus 2.75 million Flex Credits per org per year |
 
-- Tickets per day: 100-500
-- Conversation cost: $200-$1,000/day, $6,000-$30,000/month
+The [Foundations page](https://www.salesforce.com/crm/foundations/) currently lists 450,000 Flex Credits for Agentforce and Data 360 "to get started (restrictions apply)". Older Salesforce pages give smaller numbers, so confirm the figure for your org.
 
-**Important context:** Agentforce requires Sales Cloud, Service Cloud, or Data Cloud as the host platform. As of September 2026, Salesforce lists Sales Cloud at $25/user/month (Starter Suite), $100 (Pro Suite), $195 (Core), $395 (Advanced) and $550 (Max), billed annually above Starter. Most teams that deploy Agentforce sit on Core or above. A 25-user team running Sales Cloud Core plus Agentforce realistically spends $5,000-$15,000/month before implementation costs.
+You buy usage up front for the contract term (Pre-Purchase), commit to a baseline with no upfront payment (Pre-Commit, which Salesforce says becomes widely available later this year), or pay only for what you use with no commitment (PayGo).
 
-Implementation typically runs $30,000-$150,000 for a Salesforce partner to set up Agentforce alongside an existing Salesforce deployment.
+All of this sits on top of a Salesforce edition. On the [Sales pricing page](https://www.salesforce.com/sales/pricing/), Starter Suite costs $25, Pro Suite $100, Core $195, Advanced $395 and Max $550 per user per month. Starter Suite can be billed monthly or annually; the other four are billed annually.
 
-## Where Agentforce fits well
+### A 10-person sales team, worked through
 
-Three contexts where Agentforce makes sense:
+| Setup | Per month | Per year |
+|---|---:|---:|
+| Core plus the Agentforce for Sales add-on: 10 × $195 + 10 × $125 | $3,200 | $38,400 |
+| Max, which includes Agentforce for Sales and Agentforce Coworker: 10 × $550 | $5,500 | $66,000 |
+| A service agent with 2,000 customer conversations a month, priced per conversation | $4,000 | $48,000 |
+| The same 2,000 conversations on Flex Credits, at an average of three standard actions | $600 | $7,200 |
 
-**Existing Salesforce customers with mature data.** If your company already runs on Salesforce and your data is well-structured, Agentforce drops into that environment cleanly. The agents inherit your security model, your integrations, your reporting. Adding Agentforce is incremental cost on top of a system that already works.
+The last two rows are alternatives, because one org uses Flex Credits or Conversations, not both. None of these figures includes Data 360 usage beyond the included credits (Salesforce notes that overage fees apply), implementation work or any discount in your contract. Every Salesforce edition and add-on is listed in the [Salesforce pricing guide](/blog/salesforce-pricing).
 
-**Enterprise customer service at scale.** Agentforce Service Agent is built for high-volume support: deflecting common tickets and routing complex ones faster. If you process thousands of support cases per day, the per-conversation cost economics work.
+Looking for an Einstein GPT price? Salesforce's current pricing pages list no product under that name. Generative features such as Prompt Builder come with Foundations, the add-ons and the Max editions, and agent actions are paid in Flex Credits.
 
-**Regulated industries with strict data controls.** Banks, healthcare providers, and government contractors that need detailed audit trails on every AI decision get value from the Einstein Trust Layer. The data masking, output review, and audit logging are a compliance feature, not a marketing feature.
+## Agentforce, Einstein and the other new names
 
-## Where Agentforce does not fit
+Salesforce has renamed several products in a short time, which is why search results contradict each other.
 
-Three contexts where it is the wrong choice:
+| Name you may see | What it is now |
+|---|---|
+| Einstein | The older name for AI across Salesforce. It lives on in the Einstein Trust Layer |
+| Einstein Copilot | The conversational assistant. It became Agentforce Assistant and was then upgraded to Agentforce |
+| Einstein GPT | No separate product on today's pricing pages |
+| Data Cloud | Renamed Data 360 |
+| Service Cloud | Salesforce's help documentation now calls it Agentforce Service |
+| Agentforce 360 Platform | The name of the platform the agents run on |
 
-**Small to mid-sized teams without existing Salesforce.** The total cost of getting started (Sales Cloud + Agentforce + implementation partner) starts around $50,000/year for a small team. For comparison, Customermates uses the current CRM subscription plus the chosen model provider's metered API usage, so compare the stacks with your actual team size and usage rather than a fixed all-in estimate.
+## Introducing Agentforce, one use case at a time
 
-**Teams that want to use their preferred AI model.** Agentforce uses Salesforce's hosted models by default. BYOM (bring your own model) exists but adds cost and complexity. If you already use Claude for internal work and want the CRM agent to use the same model for consistency, an open-source CRM with [MCP support](/features/api) gives you that natively.
+<Steps>
+  <Step title="Check your edition">The sales pricing page says AI can be added to Core and above, while its comparison table marks some Agentforce features as available for purchase on Starter Suite and Pro Suite. Foundations is for Enterprise Edition and higher, and Salesforce says its availability varies by region, so ask your account executive what your org gets.</Step>
+  <Step title="Pick one use case with a number attached">For example, order-status questions in web chat, or an opportunity summary before a sales call. Write down today's figure, such as weekly tickets on that topic, so the pilot has something to beat.</Step>
+  <Step title="Clean what the agent will read">The Data Library grounds answers in your Knowledge articles, files and web sources. An outdated article becomes an outdated answer.</Step>
+  <Step title="Build the agent in Agentforce Builder">Define the topic, the instructions and the actions. Put anything that must always happen the same way, such as checking who the customer is before showing order data, into Agent Script.</Step>
+  <Step title="Test with real past questions">Run a batch of genuine customer or seller questions through the agent, then read the audit trail and the toxicity scores. Rewrite instructions where answers drift.</Step>
+  <Step title="Choose the pricing model before go-live">Flex Credits or Conversations, not both in one org. Apply the 20-action break-even to your own volumes. PayGo suits a pilot; Pre-Purchase makes sense once volume is known.</Step>
+  <Step title="Go live on one channel">Start with one channel and one topic, decide what happens when the agent cannot answer, and review the audit trail weekly before adding the next topic.</Step>
+</Steps>
 
-**Teams that need to leave the Salesforce ecosystem.** Once you build Agentforce flows on top of Sales Cloud, your data model, your agents, and your integrations are all Salesforce-shaped. Migration off Salesforce becomes a multi-year project. If you value optionality, this matters.
+Without a Salesforce admin in-house, budget for a Salesforce consulting partner. The general rollout questions, from data cleanup to training, are in the [CRM implementation guide](/blog/crm-implementation).
 
-## Agentforce vs. open-source alternatives
+## When Agentforce fits, and when to look elsewhere
 
-The market has converged on three architectures for AI agents in CRM:
+| Your situation | Better fit |
+|---|---|
+| Your company runs on Salesforce and keeps Knowledge articles current | Agentforce. The agents work on records and content you already maintain |
+| You need a service agent on web chat, messaging or the phone around the clock | Agentforce Service, priced per conversation or in Flex Credits |
+| You are on Starter Suite or Pro Suite and want to try agents | Ask Salesforce which Agentforce features your edition can buy; Foundations needs Enterprise Edition or higher |
+| You want Claude or ChatGPT to work on your Salesforce data from your own AI client | An MCP connection, covered in the [Salesforce MCP guide](/blog/salesforce-mcp) |
+| You have no CRM yet, or a small team with nobody to run Salesforce | A smaller CRM whose AI is part of the plan; the [agentic CRM guide](/blog/agentic-crm) explains what to look for |
 
-**Salesforce Agentforce.** Closed-source, hosted, integrated with Salesforce platform. Best for enterprise Salesforce shops with budget. Price: $2/conversation, ~$0.10/action, or from $125/user/month, plus the Salesforce license.
+## Where Customermates fits
 
-**HubSpot Breeze Agents.** Closed-source, hosted, integrated with HubSpot. Smaller scope than Agentforce, simpler to set up. Price: included in Sales Hub Pro and above. Limited language support outside English.
+This section is about Customermates, which publishes this guide. Customermates is an open-source, AI-native CRM built in Germany for small client-facing teams: consultants, agencies, other service businesses and founders. It is not a Salesforce add-on, and it has no agent for your website or phone line. It is a CRM in which AI does the record work around client relationships.
 
-**Open-source CRM + external LLM via MCP.** [Customermates](/blog/open-source-crm) plus Claude, Codex, or any MCP-compatible model. Open-source under AGPL-3.0, self-hostable, with a managed cloud whose database runs in the AWS Frankfurt region. Price: from [[commercial.price.starter.monthly]]/user/month for the CRM (Starter; Pro at [[commercial.price.pro.monthly]] adds the unified inbox) plus your AI API costs (typically $5-50/month for small teams).
+| Agentforce | Closest thing in Customermates | Difference |
+|---|---|---|
+| Agents and actions | Mate, the assistant in Customermates Cloud, which uses hosted AI credits, plus [routines](/docs/app-routines): saved instructions that run on a schedule or when a record changes | One assistant, no agent builder, no voice. Deletions and a few admin actions wait for your approval |
+| Agentforce Data Library | The Knowledge Base, written by hand or imported from your website by Mate | Mate cites the pages it used |
+| Flex Credits | Monthly hosted AI credits per active user, part of each cloud plan | No per-action price; see [pricing](/pricing) |
+| Bring your own model | Claude, ChatGPT and other clients connect through the [MCP server](/docs/mcp) and its [[derived.mcp.tools.total]] tools, on your own AI subscription | Works on every plan and on self-hosted installs |
+| Einstein Trust Layer | Approval cards for deletions, team invitations and a few other actions | No data masking and no toxicity scores |
+| Customer-facing service agents | None | No website chat, voice agent or telephony |
 
-The architectural difference: Agentforce and Breeze put the agent inside the CRM vendor's stack. Open-source plus MCP keeps the agent separate from the CRM, so you can swap models, change vendors, and own the data layer.
+A routine for a consultancy might run **On a schedule**, **Every day** at 08:00, with these instructions:
 
-For many teams under 100 users, the open-source path delivers much of the relevant agent capability at materially lower software cost. For enterprise with existing Salesforce investment, Agentforce extends what you have rather than replacing it.
+```text
+Look at the open deals assigned to me. For each deal, read the
+latest conversation with its contacts. If the client wrote last
+and has no reply yet, save a reply draft in that thread, in the
+language of the conversation. Do not send anything.
+End with a list of the drafts you saved.
+```
 
-## Customermates as an open-source Agentforce alternative
+A routine runs as its owner, with the owner's connected channels and permissions, and refuses anything that would need approval. Mate sends messages when asked to, which is why the instruction says "Do not send anything".
 
-Customermates exposes [[derived.mcp.tools.total]] MCP tools that let Claude, Codex, ChatGPT, or any other MCP-compatible agent operate the full CRM:
+For the same 10 people, Pro costs [[commercial.price.pro.monthly.seats.10]] per month. That includes the [unified inbox](/features/unified-inbox) with [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user (email, LinkedIn, WhatsApp, Instagram or Telegram), up to [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user and monthly hosted AI credits per active user. Starter costs [[commercial.price.starter.monthly.seats.10]] per month, with Mate and MCP but no inbox. Billing is monthly. Self-hosting gives you the AGPL core with REST, webhooks and MCP, without the inbox, Mate or routines.
 
-**Read operations.** Search contacts, organizations, deals, tasks, services. Filter by any field. Pull communication history. Query pipeline state.
+Customermates has no high-volume service agent, no voice agent and no predictive AI for large sales teams. If you need those, or your company has already built its processes in Salesforce, Agentforce is the shorter path, and the [Salesforce alternative comparison](/compare/salesforce-alternative) helps if you are weighing a move.
 
-**Write operations.** Create or update records. Add notes. Move deal stages. Assign tasks. Manage webhook subscriptions.
-
-**Multi-step work.** The agent can plan a multi-step task and execute each step through the tools, asking you before destructive changes. Customermates has no built-in rules engine; scheduled or event-driven work runs through cloud routines (the hosted Mate assistant), webhooks, or an external scheduler such as n8n.
-
-The agent layer is your choice: Claude Sonnet for cost-effective routine work, Claude Opus for complex reasoning, GPT-4o for specific use cases, local models like Mistral or Llama for full data sovereignty.
-
-The CRM is open-source under AGPL-3.0. Self-hosted, the cost is the server rent (a small VPS at around €5/month is enough for a small team) plus your time to operate it. Cloud-hosted, [pricing](/pricing) starts at [[commercial.price.starter.monthly]]/user/month (Starter), with the application database in the AWS Frankfurt region; hosting and other subprocessors, including US providers, are listed on the [subprocessors page](/subprocessors).
-
-The trade-off is honest: Salesforce has a 25-year head start on enterprise integrations, vertical-specific features, and partner ecosystem. Customermates has a smaller scope, fewer integrations, and a younger product. For sales teams that want agent-native CRM without Salesforce's price tag and lock-in, the trade-off favors Customermates. For enterprises with complex Salesforce setups already running, Agentforce is the natural extension.
-
-## Agentforce vs. ChatGPT for sales
-
-A common confusion in 2026: people compare Agentforce to ChatGPT for sales tasks. They are not the same category.
-
-**ChatGPT** (or Claude, or any other consumer LLM) is a general-purpose AI accessed through a chat interface or API. You can use it for sales prep, drafting outreach, summarizing calls. It does not natively connect to your CRM unless you build the integration.
-
-**Agentforce** is a CRM-integrated agent platform: the agents have native access to Salesforce data, the actions they can take are pre-configured Salesforce operations, and the agents run on Salesforce infrastructure with Salesforce security.
-
-The right comparison: ChatGPT plus a CRM that exposes [MCP tools](/features/api) gets you most of the Agentforce experience for a fraction of the price. Open the [ChatGPT for sales guide](/blog/chatgpt-for-sales) for the practical workflow.
-
-## Common Agentforce evaluation mistakes
-
-Three patterns I see during Agentforce evaluations that consistently waste budget:
-
-**Underestimating the platform tax.** Buyers focus on the per-conversation Agentforce price ($2/conversation) and forget the underlying Sales Cloud or Service Cloud license is the real cost driver. A 25-user team running Sales Cloud Core plus Agentforce realistically spends $5,000-$15,000/month before the first agent ships. The Agentforce line item is rarely the largest. Build the budget assuming the full Salesforce stack.
-
-**Buying ahead of the data work.** Agentforce agents are only as smart as the Salesforce data layer they sit on top of. Buyers who deploy Agentforce on a half-cleaned Salesforce instance get agents that hallucinate or stall on missing fields. The data preparation, often 4-8 weeks of cleanup before deploying any agent, is the unglamorous prerequisite that determines whether the agents actually work.
-
-**Skipping the human-in-the-loop calibration.** First-week Agentforce agents almost always need supervision: false-positive replies, off-tone messages, edge cases in qualification logic. Teams that skip the calibration phase ("we'll let the agent run autonomously from day one") burn customer goodwill faster than they save rep time. Plan 4-6 weeks of supervised mode before progressively unlocking autonomy.
-
-The right framing: Agentforce works for Salesforce shops that have done their data hygiene homework, have budget for the platform plus an implementation partner, and are ready to invest 2-3 months before consistent value lands. Teams skipping any of these three preconditions get a worse outcome than just hiring another SDR.
-
-## Common Agentforce questions
+## Frequently asked questions
 
 <Faq>
-<FaqItem question="Is Agentforce just a chatbot?">
-No. The orchestration layer (Atlas Reasoning Engine) plans multi-step actions: research a prospect, draft a personalized email, send it, log the activity, schedule the follow-up. Chatbots respond to messages; Agentforce agents take action across systems.
+<FaqItem question="Is Agentforce free on Salesforce?">
+Partly. Salesforce Foundations is a $0 add-on for orgs on Enterprise Edition and higher, with Agentforce Builder, Prompt Builder, Agent Script and a starting allowance of Flex Credits, under limits and terms. After that, actions cost $0.10 each in Flex Credits, or you switch to per-conversation pricing or a per-user add-on.
 </FaqItem>
 
-<FaqItem question="Does Agentforce work without Salesforce?">
-Not really. Agentforce sits on top of the Salesforce data layer. Without Sales Cloud, Service Cloud, or Data Cloud as the host, you cannot deploy Agentforce. Salesforce occasionally announces standalone capabilities, but the core architecture assumes a Salesforce platform underneath.
+<FaqItem question="Has Salesforce been renamed to Agentforce?">
+No. The company is still Salesforce, and its sales pricing page still compares Sales Cloud editions. Agentforce is the name of the agent platform, and Salesforce has started using it in other product names, such as Agentforce Service.
 </FaqItem>
 
-<FaqItem question="How is Agentforce different from Einstein?">
-Einstein is Salesforce's older AI suite: predictive features, scoring, GPT-style content generation embedded in Sales Cloud and Service Cloud. Agentforce is the newer, more autonomous category: agents that take action across multiple steps, not just predictions or generated content. Einstein still exists; Agentforce is the strategic priority for Salesforce's AI roadmap.
+<FaqItem question="What is the difference between Agentforce and Salesforce Einstein?">
+Einstein is the older name for AI across Salesforce. Agentforce is the platform for agents that act on their own. Einstein Copilot became part of Agentforce, and the Einstein Trust Layer handles masking, toxicity checks and the audit trail for Agentforce.
 </FaqItem>
 
-<FaqItem question="Can I use Claude or GPT with Agentforce?">
-Through BYOM (bring your own model) yes, but it is not the default. Salesforce hosts its own LLM stack and routes most requests through it. BYOM adds configuration work and cost.
+<FaqItem question="Is Agentforce the same as Copilot?">
+No. Copilot is Microsoft's brand. Microsoft's Sales agent, part of its Copilot offering for sellers, brings data from Dynamics 365 Sales or Salesforce into Outlook and Teams, where it drafts emails and captures action items from meetings. Agentforce runs inside Salesforce and can also answer your customers. Because the Sales agent can read Salesforce, the two can sit side by side. The [Copilot for sales guide](/blog/copilot-for-sales) covers Microsoft's side.
 </FaqItem>
 
-<FaqItem question="What is the best Agentforce alternative for small teams?">
-For teams under 50 users without existing Salesforce, the most cost-effective alternative is an open-source CRM with MCP support plus your preferred LLM. [Customermates](/blog/open-source-crm) plus Claude or ChatGPT delivers much of the relevant agent experience at materially lower software cost. The trade-off is a smaller integration ecosystem; for many small teams, that is not the binding constraint.
+<FaqItem question="What is RAG in Agentforce?">
+Retrieval augmented generation: before the model answers, relevant passages from your content are added to the prompt. In Agentforce, the Data Library indexes Knowledge articles, uploaded files and web search results for this. Adding a data library in Agentforce Builder sets up retrieval with default settings; Data 360 is where you fine-tune it.
 </FaqItem>
 
-<FaqItem question="What does Agentforce cost for small teams?">
-The minimum realistic cost for Agentforce is the Salesforce platform license plus the Agentforce usage. For a 10-user team, that is roughly $2,000-$5,000/month for Sales Cloud Core plus Agentforce, before implementation. Most small teams cannot justify that. For comparison, the same team's Customermates Starter subscription is [[commercial.price.starter.monthly.seats.10]] per month before the chosen provider's metered Claude API usage.
-</FaqItem>
-
-<FaqItem question="How do I migrate off Agentforce later if needed?">
-Migration off Agentforce means migration off Salesforce, which is a multi-quarter project. The data export is straightforward (Salesforce supports it well), but the rebuilding of agents, integrations, and workflows on a new platform is the slow part. Plan for 3-9 months for a mid-sized migration with a partner.
-</FaqItem>
-
-<FaqItem question="Is Agentforce GDPR compliant?">
-Salesforce has detailed Data Processing Agreements and EU data residency options for Agentforce. The Einstein Trust Layer adds specific protections (PII masking, audit logging) that simplify the compliance posture. For most use cases, Agentforce is GDPR-workable; for regulated sectors with strict data sovereignty requirements, self-hosting on EU infrastructure remains the cleanest option.
-</FaqItem>
-
-<FaqItem question="Where does Agentforce go from here?">
-Salesforce's stated roadmap centers on Agentforce as the strategic priority: more pre-built agents (Sales Coach, Personal Shopper, IT Service Agent), deeper Slack and Tableau integration, third-party agent marketplace. The pace of new features is high. The cost trajectory is the open question; pricing has changed twice in 18 months and is likely to change again.
-
-The honest framing: if you already use Salesforce, evaluate Agentforce as the natural agent layer for your existing investment. If you do not, evaluate it against open-source alternatives that cover much of the value at much lower cost.
+<FaqItem question="Can Agentforce use Claude or OpenAI models?">
+Yes. Salesforce's page on Agentforce Assistant describes Model Builder, which lets you bring your own large language model from providers such as Anthropic, Google, OpenAI and Hugging Face. The Trust Layer's zero data retention refers to Salesforce's agreements with its third-party model providers, so check how it applies to a model you connect yourself.
 </FaqItem>
 </Faq>
+
+Salesforce and Microsoft details checked on 8 October 2026 against [Agentforce pricing](https://www.salesforce.com/agentforce/pricing/), [Sales pricing](https://www.salesforce.com/sales/pricing/), [Salesforce Foundations](https://www.salesforce.com/crm/foundations/), [What Foundations includes](https://www.salesforce.com/blog/small-business/what-does-foundations-do/), the [Agentforce overview](https://www.salesforce.com/agentforce/), the [Agentforce 360 Platform](https://www.salesforce.com/platform/agentforce-platform/), the [Einstein Trust Layer](https://www.salesforce.com/eu/products/secure-ai/), Trailhead on the [Trust Layer response journey](https://trailhead.salesforce.com/content/learn/modules/the-einstein-trust-layer/follow-the-response-journey) and on [RAG in Agentforce](https://trailhead.salesforce.com/content/learn/modules/retrieval-augmented-generation-quick-look/augment-prompts-with-relevant-knowledge), [Agentforce Assistant, formerly Einstein Copilot](https://www.salesforce.com/agentforce/einstein-copilot/), [Data 360](https://www.salesforce.com/data/), [What Is Agentforce Service?](https://help.salesforce.com/s/articleView?id=service.service_cloud_def.htm&language=en_US&type=5) and Microsoft's [Sales agent documentation](https://learn.microsoft.com/en-us/microsoft-sales-copilot/introduction).

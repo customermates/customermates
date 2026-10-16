@@ -856,8 +856,6 @@
     "userInfoIsMissing": "Le fournisseur n'a pas renvoyé votre profil. Veuillez réessayer."
   },
   "BrowserFrame": {
-    "live": "Aperçu en direct",
-    "liveDemoTitle": "Démo en direct de Customermates",
     "open": "Ouvrir dans un nouvel onglet"
   },
   "CommandPalette": {
@@ -1671,6 +1669,7 @@
     },
     "unnamed": "Sans nom",
     "unsavedChanges": "Modifications non enregistrées",
+    "updatedOn": "Mis à jour le {date}",
     "userStatuses": {
       "active": "Actif",
       "inactive": "Inactif",
@@ -2381,6 +2380,7 @@
     "success": "Retour bien reçu. Vous faites officiellement partie de l'équipe."
   },
   "Footer": {
+    "about": "À propos",
     "company": "Entreprise",
     "copyrightText": "© {year} Customermates. Tous droits réservés.",
     "dpa": "DPA",
@@ -2787,8 +2787,9 @@
       "consultants": "Consultants",
       "contactManagement": "Gestion des contacts",
       "emailAndGmail": "E-mail et Gmail",
-      "healthcare": "Santé",
+      "freelancers": "Freelances",
       "integrations": "Intégrations",
+      "lawFirms": "Cabinets d'avocats",
       "mcp": "MCP",
       "n8n": "Automatisation n8n",
       "openSourceCrm": "CRM open source",
@@ -2796,7 +2797,6 @@
       "primaryNavigation": "Navigation principale",
       "product": "Produit",
       "professionalServices": "Services professionnels",
-      "propertyManagement": "Gestion immobilière",
       "providerChatGPT": "ChatGPT",
       "providerClaude": "Claude",
       "providerCodex": "Codex",

@@ -21,14 +21,14 @@ export function AutomationDemo({ architecture }: Props) {
 
   return (
     <MarketingSection description={description} id="architecture" title={title} tone="canvas">
-      <VisualArtboard aria-label={title} className="mx-auto mt-10 min-h-0 max-w-5xl border border-border p-5 sm:p-8">
+      <VisualArtboard aria-label={title} className="mx-auto mt-10 min-h-0 max-w-5xl p-5 sm:p-8">
         <div
           aria-hidden
           className="absolute inset-0 opacity-40 [background-image:linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] [background-size:36px_36px] [mask-image:radial-gradient(ellipse_85%_90%_at_50%_50%,black,transparent_95%)]"
         />
 
         <div className="relative grid items-stretch gap-3 lg:grid-cols-[1fr_0.8fr_1fr]">
-          <div className="rounded-xl border border-border bg-background p-5">
+          <div className="product-card rounded-xl p-5">
             <Database aria-hidden className="size-5 text-subdued" strokeWidth={1.75} />
 
             <p className="mt-5 text-sm font-medium">{crmTitle}</p>
@@ -36,7 +36,7 @@ export function AutomationDemo({ architecture }: Props) {
             <p className="mt-2 text-xs leading-5 text-subdued">{crmDescription}</p>
           </div>
 
-          <div className="rounded-xl border border-border bg-card/75 p-5">
+          <div className="product-card rounded-xl p-5">
             <RadioTower aria-hidden className="size-5 text-subdued" strokeWidth={1.75} />
 
             <p className="mt-5 text-meta">{interfaceTitle}</p>
@@ -50,7 +50,7 @@ export function AutomationDemo({ architecture }: Props) {
             </div>
           </div>
 
-          <div className="rounded-xl border border-border-strong bg-background p-5 shadow-sm">
+          <div className="product-card rounded-xl p-5">
             <NativeAutomationProviderIdentity descriptor={workflowDescription} provider="n8n" />
 
             <div className="mt-5 border-t border-border pt-4">

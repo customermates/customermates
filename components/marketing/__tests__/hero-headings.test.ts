@@ -38,7 +38,7 @@ function headingText(html: string): string {
 }
 
 describe("hero headings", () => {
-  it("keeps the rotating homepage variants out of the h1", () => {
+  it("keeps the whole homepage claim inside one h1 and reads the first rotation to assistive technology", () => {
     const html = renderToStaticMarkup(
       createElement(HomepageHero, {
         heroSection: {
@@ -46,17 +46,38 @@ describe("hero headings", () => {
           buttonLeftText: "Start free",
           buttonRightHref: "#demo",
           buttonRightText: "Watch",
+          stage: {
+            label: "Product areas",
+            live: { prompt: "Try it live" },
+            tabs: [
+              { alt: "Inbox", capture: "homepage-inbox", caption: "Inbox caption", label: "Inbox" },
+              { alt: "Record", capture: "homepage-record", caption: "Record caption", label: "Customers" },
+              { alt: "Pipeline", capture: "homepage-pipeline", caption: "Pipeline caption", label: "Pipeline" },
+              { alt: "Dashboard", capture: "homepage-dashboard", caption: "Dashboard caption", label: "Dashboard" },
+              { alt: "Routines", capture: "homepage-routines", caption: "Routines caption", label: "Routines" },
+            ],
+          },
           startFree: "No card",
           subtitle: "Subtitle",
-          title: "The open-source CRM",
-          titleAccentRotations: ["for AI agents.", "for Claude.", "for ChatGPT."],
+          title: "and your AI,",
+          titleAccent: "in one workspace.",
+          titleRotations: ["Customer data", "Projects", "Business data"],
           useCase: "Use case",
-        } as Parameters<typeof HomepageHero>[0]["heroSection"],
+        },
+        locale: "en",
       }),
     );
 
-    expect(headingText(html)).toBe("The open-source CRM for AI agents.");
-    expect(html).toContain("for Claude.");
+    const heading = html.match(/<h1\b[\s\S]*?<\/h1>/u)?.[0] ?? "";
+
+    expect(headingText(html).startsWith("Customer data and your AI, in one workspace.")).toBe(true);
+    expect(headingText(html)).toBe("Customer data and your AI, in one workspace.");
+    expect(heading).toContain('<span class="sr-only">Customer data </span>');
+    expect(heading.match(/aria-hidden="true"/gu)).toHaveLength(1);
+    expect(heading).toContain('data-word="Customer data"');
+    expect(heading).toContain('data-homepage-motion="rotating-accent"');
+    expect(html).toContain('role="tablist"');
+    expect(html.match(/role="tab"/gu)).toHaveLength(5);
   });
 
   it("keeps a page hero's accent phrase beside the h1 rather than inside it", () => {

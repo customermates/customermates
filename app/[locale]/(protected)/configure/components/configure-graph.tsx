@@ -24,6 +24,7 @@ import { createContext, useCallback, useContext, useEffect, useId, useMemo, useR
 import { useLocale, useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { useTouchInput } from "@/hooks/use-touch-input";
+import { useEmbeddedFrame } from "@/hooks/use-embedded-frame";
 import {
   Background,
   BackgroundVariant,
@@ -607,6 +608,7 @@ function ConfigureGraphCanvas({
   const locale = useLocale();
   const connectPrompt = accounts.state !== "unavailable";
   const touchInput = useTouchInput();
+  const embedded = useEmbeddedFrame();
   const help = canManage ? t("RecordModel.graph.help") : t("RecordModel.graph.helpReadOnly");
   const container = useRef<HTMLDivElement>(null);
   const [direction, setDirection] = useState<"TB" | "LR" | null>(null);
@@ -883,7 +885,6 @@ function ConfigureGraphCanvas({
         role="group"
       >
         <ReactFlow
-          panOnScroll
           ariaLabelConfig={{
             "node.a11yDescription.default": help,
             "node.a11yDescription.keyboardDisabled": help,
@@ -905,6 +906,8 @@ function ConfigureGraphCanvas({
           nodesConnectable={canManage && !disabled}
           nodesDraggable={!disabled && !touchInput}
           nodesFocusable={false}
+          panOnScroll={!embedded}
+          preventScrolling={!embedded}
           proOptions={{ hideAttribution: true }}
           zoomOnScroll={false}
           onConnectEnd={(event, connection) => {

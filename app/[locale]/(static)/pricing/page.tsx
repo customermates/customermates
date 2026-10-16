@@ -31,7 +31,7 @@ export default async function PricingPage({ params }: StaticLocaleProps) {
   if (!page) notFound();
 
   return (
-    <div className="flex flex-col items-center justify-center">
+    <div className="flex flex-col items-center justify-center" data-marketing-flow="continuous">
       <JsonLd
         schema={softwareApplicationSchema({
           description: page.data.description,

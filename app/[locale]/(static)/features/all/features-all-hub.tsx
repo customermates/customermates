@@ -68,7 +68,7 @@ export async function renderFeaturesAllHub(rawLocale: string, pageNumber: number
     .sort((a, b) => collator.compare(a.name, b.name));
 
   return (
-    <div className="flex flex-col items-center justify-center">
+    <div className="flex flex-col items-center justify-center" data-marketing-flow="continuous">
       <JsonLd
         schema={breadcrumbListSchema([
           { name: t("StructuredData.breadcrumb.home"), path: `/${locale}` },

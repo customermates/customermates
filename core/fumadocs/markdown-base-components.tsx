@@ -29,7 +29,7 @@ export const markdownBaseComponents: Pick<
   | "td"
 > = {
   h1: ({ className, children, ...props }) => (
-    <h1 className={cn("text-x-3xl", className)} {...props}>
+    <h1 className={cn("text-x-3xl text-display-gradient", className)} {...props}>
       {children}
     </h1>
   ),

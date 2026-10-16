@@ -1,5 +1,5 @@
 import type { Root } from "react-dom/client";
-import type { AccountState } from "@/features/auth/account-state";
+import type { MarketingAccount } from "@/features/auth/account-state";
 
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
@@ -7,12 +7,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({ readAccountState: vi.fn(), report: vi.fn() }));
 
-vi.mock("@/app/[locale]/actions", () => ({ readMarketingAccountStateAction: mocks.readAccountState }));
+vi.mock("@/app/[locale]/actions", () => ({ readMarketingAccountAction: mocks.readAccountState }));
 vi.mock("@/core/errors/report-application-error", () => ({ reportApplicationError: mocks.report }));
 
 import { useMarketingAccountState } from "../use-marketing-account-state";
 
 import { SESSION_HINT_COOKIE_NAME } from "@/features/auth/session-hint";
+
+const PROFILE = { avatarUrl: null, email: "anna@example.com", name: "Anna Müller" };
 
 type Snapshot = ReturnType<typeof useMarketingAccountState>;
 
@@ -20,12 +22,12 @@ let root: Root;
 let container: HTMLDivElement;
 let latest: Snapshot | null = null;
 
-function Probe({ known, enabled, pathname }: { known?: AccountState; enabled: boolean; pathname: string }) {
+function Probe({ known, enabled, pathname }: { known?: MarketingAccount; enabled: boolean; pathname: string }) {
   latest = useMarketingAccountState(known, enabled, pathname);
   return null;
 }
 
-async function render(props: { known?: AccountState; enabled?: boolean; pathname?: string } = {}) {
+async function render(props: { known?: MarketingAccount; enabled?: boolean; pathname?: string } = {}) {
   await act(async () => {
     root.render(
       createElement(Probe, { enabled: props.enabled ?? true, known: props.known, pathname: props.pathname ?? "/" }),
@@ -63,9 +65,11 @@ describe("useMarketingAccountState", () => {
 
   it("asks the server for the account state once the session hint is present", async () => {
     document.cookie = `${SESSION_HINT_COOKIE_NAME}=1; Path=/`;
-    mocks.readAccountState.mockResolvedValue("allowed");
+    mocks.readAccountState.mockResolvedValue({ state: "allowed", profile: PROFILE });
 
-    expect((await render()).accountState).toBe("allowed");
+    const snapshot = await render();
+    expect(snapshot.accountState).toBe("allowed");
+    expect(snapshot.profile).toStrictEqual(PROFILE);
     expect(mocks.readAccountState).toHaveBeenCalledOnce();
   });
 
@@ -76,27 +80,32 @@ describe("useMarketingAccountState", () => {
     expect(mocks.readAccountState).not.toHaveBeenCalled();
   });
 
-  it("uses a server-resolved state as given", async () => {
+  it("uses a server-resolved account as given and never posts the lookup from that page", async () => {
     document.cookie = `${SESSION_HINT_COOKIE_NAME}=1; Path=/`;
+    document.documentElement.setAttribute("data-session-hint", "");
 
-    expect((await render({ known: "pending" })).accountState).toBe("pending");
+    const snapshot = await render({ known: { state: "pending", profile: PROFILE } });
+    expect(snapshot.accountState).toBe("pending");
+    expect(snapshot.profile).toStrictEqual(PROFILE);
     expect(mocks.readAccountState).not.toHaveBeenCalled();
+    expect(document.documentElement.hasAttribute("data-session-hint")).toBe(false);
   });
 
   it("drops back to signed out and clears the hint after signing out", async () => {
     document.cookie = `${SESSION_HINT_COOKIE_NAME}=1; Path=/`;
-    mocks.readAccountState.mockResolvedValue("allowed");
+    mocks.readAccountState.mockResolvedValue({ state: "allowed", profile: PROFILE });
     const signedIn = await render();
 
     act(() => signedIn.markSignedOut());
 
     expect(latest?.accountState).toBe("unauthenticated");
+    expect(latest?.profile).toBeNull();
     expect(document.cookie).not.toContain(`${SESSION_HINT_COOKIE_NAME}=`);
   });
 
   it("rechecks on navigation, so a sign-out that redirected elsewhere shows the signed-out navbar", async () => {
     document.cookie = `${SESSION_HINT_COOKIE_NAME}=1; Path=/`;
-    mocks.readAccountState.mockResolvedValue("allowed");
+    mocks.readAccountState.mockResolvedValue({ state: "allowed", profile: PROFILE });
     expect((await render({ pathname: "/pricing" })).accountState).toBe("allowed");
 
     document.cookie = `${SESSION_HINT_COOKIE_NAME}=; Path=/; Max-Age=0`;

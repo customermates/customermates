@@ -1,16 +1,23 @@
 ---
-title: "Agentic AI: Definition, How It Works, and Real Examples"
-description: "Agentic AI acts autonomously to reach a goal, using tools and planning steps. How it differs from generative AI, and where it fits in CRM and sales workflows."
+title: "Agentic AI: What It Is, How It Works, Examples"
+description: "Agentic AI gets a goal, plans the steps and acts through tools. How it differs from generative AI, real examples, the main risk and a safe first job."
+
+relatedHrefs:
+  - /blog/agentic-crm
+  - /blog/claude-crm
+  - /docs/mcp
+  - /docs/app-routines
 
 hero:
-  title: "Agentic AI: Definition, How It Works, and Real-World Examples"
-  description: Agentic AI acts instead of just responding. Here is what that means and how teams are applying it today.
+  title: "Agentic AI: Definition, How It Works, and Real Examples"
+  description: Agentic AI receives a goal instead of a prompt, then plans, uses tools and checks its own results. What that means in practice, where it already works, and how to keep it under control.
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Back to Blog
   by: by Benjamin Wagner
   date: 2026-04-23
+  updated: 2026-10-08
   tags:
     - agentic-ai
     - agentic-ai-workflow
@@ -18,212 +25,228 @@ blogPost:
     - CRM
 ---
 
-# Agentic AI: Definition, How It Works, and Real-World Examples
+# Agentic AI: Definition, How It Works, and Real Examples
 
-Agentic AI refers to autonomous systems that reach a defined goal by planning tasks, using tools, and executing action sequences with minimal human supervision. Unlike generative AI, which responds to prompts and produces content, agentic AI acts proactively: it observes a state, makes decisions, and takes actions without waiting for each individual instruction.
+**Agentic AI** is AI that is handed a goal instead of a single question. It works toward that goal by planning steps, calling tools such as a search engine, an API or a CRM, checking what came back and deciding what to do next. What it produces is a change in some system: an edited file, an updated record, a sent message.
 
-The concept represents the next meaningful step in AI software. Generative AI changed how content is produced. Agentic AI is changing how work gets done.
+"Agentic" is the adjective of "agent": something that acts on someone's behalf. IBM's short definition is a good anchor. Agentic AI is "an artificial intelligence system that can accomplish a specific goal with limited supervision" ([IBM](https://www.ibm.com/think/topics/agentic-ai)). The two words that carry the meaning are *goal* and *limited*. Someone still sets the goal, and someone still decides how much the system may do without asking.
 
-"The agentic AI age is already here. We have agents deployed at scale in the economy," says Sinan Aral, professor at MIT Sloan. The question for most organizations is no longer whether to adopt agentic AI, but how to adopt it responsibly.
+Disclosure: Customermates, an open-source CRM, publishes this guide. The worked example uses it; the definitions, patterns and risks apply to any agent.
 
-## What Is Agentic AI?
-
-Agentic AI is an artificial intelligence system capable of reaching a specific goal with limited oversight. It consists of one or more AI agents that independently plan sub-tasks, call external tools, and adapt to changing conditions.
-
-The four core characteristics of agentic AI:
-
-- **Autonomy.** The system receives a goal and determines the necessary steps itself, without requiring an instruction for every intermediate action.
-- **Tool use.** Agents can call external tools, browsers, APIs, and databases to retrieve information or trigger actions.
-- **Planning and memory.** Complex tasks are broken into sub-tasks. The agent retains context from prior steps in the current task session.
-- **Proactivity.** The agent does not wait for prompts; it monitors a state and acts when conditions require it.
-
-This positions agentic AI as the transition from information generation to operational execution: a shift IBM, Google Cloud, and AWS have all identified as the defining next phase of enterprise AI.
-
-## Agentic AI vs. Generative AI: The Key Difference
-
-Generative AI produces content on request: text, images, code, summaries. It responds to a prompt and returns an output. That is useful, but it is passive.
-
-Agentic AI acts. It executes tasks, calls tools, writes data back into systems, and makes decisions mid-process. The difference is structural:
-
-| Characteristic | Generative AI          | Agentic AI                       |
-| -------------- | ---------------------- | -------------------------------- |
-| Behavior       | Reactive               | Proactive                        |
-| Input          | Prompt                 | Goal                             |
-| Output         | Content                | Action                           |
-| Tool use       | None                   | Browsers, APIs, databases        |
-| Memory         | Context window only    | Persistent state across steps    |
-| Supervision    | Human after every step | Human defines limits, agent acts |
-
-A practical example: you ask a generative AI to write an outreach email. The text is good, but you have to copy it, paste it into the CRM, and send it yourself. An agentic AI agent writes the email, enters the contact into the CRM, sends the message, and schedules a follow-up, all in one workflow step.
-
-## Architecture of Agentic AI Systems
-
-An agentic AI system consists of several components working together:
-
-**Language model as the cognitive core.** The large language model makes decisions, generates plans, and formulates responses. It is the reasoning engine of the system.
-
-**Context engineering.** The agent is equipped with relevant background: information about the task, available tools, previous interactions, and rules for its behavior. The quality of the context directly determines the quality of the agent's actions.
-
-**Tools.** Agents use structured interfaces to access external systems. These can be APIs (such as the [MCP interface that Customermates exposes](/features/api)), browser tools, code interpreters, or database queries. Tool access defines what the agent can do in the world.
-
-**Planning and reflection.** More sophisticated agents break a goal into sub-tasks, execute them sequentially, and check results before the next step. This reflection mechanism reduces errors significantly compared to agents that act without verification.
-
-**Orchestration logic.** In multi-agent systems, an orchestration agent coordinates specialized sub-agents: one for research, one for writing, one for CRM updates. This parallel architecture enables agentic systems to handle complex multi-step workflows efficiently.
-
-## Types of Agentic AI Systems
-
-Agentic AI systems vary significantly in their architecture and autonomy level.
-
-**Single-agent systems.** One AI model manages the full goal: planning, execution, and verification. Good for bounded tasks with a clear endpoint. Example: an agent that reads a call transcript, extracts deal information, and updates the CRM record.
-
-**Multi-agent systems.** Multiple specialized agents collaborate, coordinated by an orchestrator. Each agent handles a distinct sub-task: one researches the prospect, one drafts the outreach, one logs the interaction. The orchestrator manages handoffs and resolves conflicts. Multi-agent systems outperform single agents on complex, multi-domain tasks.
-
-**Reactive agents.** These respond to specific triggers rather than pursuing a long-running goal. A webhook fires when a CRM record changes; the agent reads the event, takes the defined action, and stops. Simple, reliable, and easy to debug.
-
-**Deliberative agents.** These maintain a persistent model of the environment and plan multiple steps ahead before acting. Higher reasoning quality; higher computational cost. Used for complex scenarios like multi-stakeholder enterprise sales automation.
-
-**Learning agents.** These improve over time by incorporating feedback on their outputs. When a human corrects an agent's draft, the correction becomes training signal. Learning agents are still emerging in production; most deployed systems use fixed behavior with human-reviewed updates.
-
-## Agentic AI in Practice: Industry Examples
-
-### Software Development
-
-Coding agents like Claude Code or GitHub Copilot write, test, and improve code. They can take a goal like "build an API route for exporting CRM contacts" and independently produce working, tested output without requiring a developer to specify every intermediate step.
-
-### Customer Service
-
-An agentic AI agent in customer service receives a request, checks order status in the backend system, composes a personalized response, and closes the ticket, all without a human agent intervening for standard requests.
-
-### CRM and Sales
-
-In sales, agentic AI is particularly valuable because CRM data goes stale constantly. An agentic AI agent reads emails and conversation transcripts, extracts information, and automatically updates contacts, deals, and tasks in the CRM.
-
-Customermates is designed so AI agents can access the CRM directly via [MCP](/features/api). With [[derived.mcp.tools.total]] MCP tools, agents can read and write all entities: contacts, organizations, deals, services, tasks, and custom fields. This makes Customermates a practical foundation for agentic AI in [sales workflows](/blog/ai-in-sales). Cloud [pricing](/pricing) starts at [[commercial.price.starter.monthly]] per user per month (Starter); self-hosting the open-source core has no licence cost. For teams comparing Salesforce Agentforce, the [Salesforce alternative page](/compare/salesforce-alternative) covers the agentic feature breakdown.
-
-### Financial Services
-
-Banks and financial institutions are deploying agentic AI for loan processing, fraud detection, and client onboarding. An agent reviews application documents, verifies identity data against external sources, scores creditworthiness, and routes to human reviewers only when edge cases arise. JPMorgan Chase and similar institutions have publicly described agentic workflows processing thousands of routine decisions daily.
-
-### Healthcare
-
-Agentic systems handle scheduling, prior authorization, and patient communication at scale. An agent reads a referral, checks insurance eligibility, identifies available appointment slots, confirms with the patient, and updates the electronic health record, steps that previously required multiple staff touchpoints.
-
-### Retail and Supply Chain
-
-Agentic systems monitor inventory levels, detect deviations from forecasts, and automatically trigger reorder processes across supplier networks. When a SKU falls below a threshold, the agent checks demand signals, prices competing suppliers, places the order, and notifies the logistics team. Siemens has publicly described agentic architectures in industrial operations.
-
-### Data Analysis and Reporting
-
-An agent with access to raw data can independently formulate queries, identify patterns, test hypotheses, and produce a structured report, without an analyst specifying each step. What took a data team a week can take an agentic system an hour.
-
-## Benefits of Agentic AI
-
-**Speed and throughput.** Agentic AI operates continuously without fatigue. Tasks that take humans hours run in minutes; tasks that run in minutes run in seconds. At scale, this throughput advantage compounds.
-
-**Consistency.** Human performance varies by day, energy level, and experience. An agentic system applies the same process every time, which is valuable for tasks where consistency matters more than creativity.
-
-**Cost reduction.** Automating routine high-volume tasks with agentic AI reduces labor costs significantly. AWS estimates that agentic AI can reduce transaction costs for repeatable business processes by 40-70%.
-
-**Error reduction.** Well-designed agentic systems with verification steps catch mistakes that humans under time pressure miss. This is particularly visible in data entry and multi-step administrative processes.
-
-**Scalability.** A single agentic system can manage workloads that previously required teams. One well-configured agentic CRM agent can maintain accurate records across hundreds of active deals simultaneously.
-
-**Human augmentation.** Agentic AI does not eliminate human roles: it removes the routine parts so humans can focus on the judgment-intensive work. Sales reps who no longer do data entry can focus on relationships; analysts who no longer build reports can focus on interpretation.
-
-## Agentic AI Workflow Patterns
-
-Several agentic AI workflow architectures have emerged as standard patterns:
-
-**Sequential workflows.** The agent completes one step, evaluates the result, then moves to the next. This pattern works well for tasks where each step depends on the previous output (research, then draft, then CRM entry).
-
-**Parallel workflows.** Multiple specialized agents run simultaneously and hand results to an orchestrating agent. Faster for tasks with independent components. A prospect research agent and a CRM verification agent can run in parallel, with the drafting agent starting only when both finish.
-
-**Reactive event-driven workflows.** The agent listens for a trigger event (a new email, a webhook from the CRM, a Slack message) and kicks off a pre-defined action sequence. This is how agentic CRM updates work in practice: a Customermates webhook fires when a deal changes, the agent reads the new state, and takes the appropriate next action.
-
-**Human-in-the-loop workflows.** Certain steps require a human approval before the agent continues. For high-risk actions (sending an email to a major account, modifying a closed deal), inserting a review checkpoint is good practice. This "supervised autonomy" model is the recommended starting point for most organizations new to agentic AI.
-
-## Risks and Challenges of Agentic AI
-
-Agentic AI introduces risks that generative AI does not. Understanding them is prerequisite for responsible deployment.
-
-**Cascading errors.** In a multi-step workflow, an error in an early step can propagate through subsequent steps. If the agent misclassifies an inbound lead, every downstream action built on that classification is also wrong. Detection and recovery mechanisms are essential.
-
-**Permission creep.** Agents given broad permissions tend to use them in ways their operators did not anticipate. The principle of least privilege (agents should only have access to what their task requires) is critical.
-
-**Hallucinated actions.** LLMs can produce confident but incorrect outputs. In a generative context, this produces a bad draft. In an agentic context, it can produce a wrong CRM entry, an incorrect email, or a mis-triggered workflow. Verification steps mitigate this.
-
-**Cybersecurity exposure.** Agentic systems that can access external APIs and execute actions are a larger attack surface than static applications. Prompt injection attacks (malicious instructions embedded in content the agent reads) are a growing concern.
-
-**Lack of auditability.** If an agentic system makes a decision that causes a problem, tracing the decision back through multi-agent steps is harder than reviewing a human action. Comprehensive logging is not optional.
-
-**Regulatory uncertainty.** In regulated industries (financial services, healthcare, legal), agentic AI acting on behalf of the organization may create liability that regulation has not yet addressed. Legal review before deploying agentic AI in regulated contexts is prudent.
-
-## Design Principles for Agentic AI
-
-Teams building or deploying agentic AI systems should know a few fundamentals:
-
-**Human-in-the-loop where precision matters.** For tasks with high error risk (financial transactions, regulated domains), build in a human approval step. Agentic AI is not infallible.
-
-**Clear tool boundaries.** An agent should only have access to the systems its task requires. Excessive permissions increase the probability of unintended actions.
-
-**Audit trail.** Every agent action should be logged. This matters especially for agentic AI that writes to CRM systems or sends emails.
-
-**Testability.** Agentic systems are harder to debug than simple rule-based automations. Clear input/output boundaries and test scenarios make maintenance tractable.
-
-**Incremental autonomy.** Start with human review on all outputs; reduce oversight progressively as trust in the agent's quality builds. This approach catches problems before they reach customers.
-
-## Agentic AI and GDPR
-
-Agentic AI systems often process personal data: names, email addresses, conversation content. In the United States, teams should verify that AI providers meet their compliance requirements. For European operations, GDPR applies in full.
-
-Self-hosted solutions have advantages here: data does not leave your own infrastructure, and you retain full control over processing logic and access rights. Customermates as an [open-source CRM](/blog/open-source-crm) can be operated fully on your own infrastructure, which keeps you in control of where the data lives.
-
-## How Organizations Are Adopting Agentic AI
-
-Agentic AI does not have to start as a large project. The pragmatic entry point:
-
-1. Identify a clearly bounded process (for example: CRM update after a customer call)
-2. Choose a CRM or backend system accessible via API or MCP
-3. Connect an AI agent (Claude, GPT-4o, or another model) to the system
-4. Equip the agent with a clearly stated goal and clear boundaries
-5. Observe the first runs with human oversight before increasing autonomy
-
-This iterative approach reduces risk and allows trust in the agent to build incrementally. Most organizations that have successfully deployed agentic AI at scale started with a single high-value, low-risk process and expanded from there.
-
-The [agentic CRM](/blog/agentic-crm) pattern is one of the most practical starting points for sales and revenue teams: it applies agentic AI to a process (CRM hygiene) that is high-value, measurable, and recoverable if something goes wrong.
-
-## Frequently Asked Questions
+<ArticleSummary title="At a glance">
+  <SummaryItem label="Definition">
+    AI that pursues a goal by planning, calling tools and acting, with limited
+    supervision.
+  </SummaryItem>
+  <SummaryItem label="Versus generative AI">
+    Generative AI returns content for you to use. Agentic AI uses a generative
+    model to decide, then changes something itself.
+  </SummaryItem>
+  <SummaryItem label="Workflow or agent">
+    A fixed path with AI steps is a workflow. An agent chooses its own steps.
+    For most business tasks, a workflow is enough.
+  </SummaryItem>
+  <SummaryItem label="Main risk">
+    Excessive agency: too many tools, too many permissions, or no approval
+    before high-impact actions.
+  </SummaryItem>
+  <SummaryItem label="Good first job">
+    A narrow task with a clear end, whose output is a draft a person checks.
+  </SummaryItem>
+</ArticleSummary>
+
+## How agentic AI works
+
+Every agentic system runs a version of the same loop:
+
+1. **Goal.** A person, a schedule or an event hands the agent a goal, such as "prepare a reply to this email" or "fix the failing test".
+2. **Plan.** A language model breaks the goal into steps and picks the first one.
+3. **Act.** The agent calls a tool: a search, a database query, an API call, a file edit.
+4. **Observe.** It reads the result and compares it with the goal.
+5. **Continue or stop.** It takes the next step, asks a person, or ends when the goal is met or a limit is reached.
+
+IBM splits the same cycle into finer steps, from perception and reasoning through execution to learning and orchestration. What sets an agent's reach is its tools: a model without tool access can describe an action but cannot take it. That is why the [Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro), in its maintainers' words "an open-source standard for connecting AI applications to external systems", sits at the centre of so many agent setups.
+
+### How the main definitions differ
+
+The main sources define agentic AI in slightly different words, and the differences show what each one cares about.
+
+| Source | Definition | What it stresses |
+|---|---|---|
+| [IBM](https://www.ibm.com/think/topics/agentic-ai) | "an artificial intelligence system that can accomplish a specific goal with limited supervision" | The goal, and how much supervision remains |
+| [AWS](https://aws.amazon.com/what-is/agentic-ai/) | "an autonomous AI system that can act independently to achieve pre-determined goals" | Independence from step-by-step prompting |
+| [MIT Sloan](https://mitsloan.mit.edu/ideas-made-to-matter/agentic-ai-explained), citing a paper by John Horton and co-authors | "autonomous software systems that perceive, reason, and act in digital environments to achieve goals on behalf of human principals" | Acting on behalf of a person |
+| [Salesforce](https://www.salesforce.com/agentforce/what-is-agentic-ai/) | "an intelligent system that can act autonomously, reason through multi-step problems, and adapt its actions in real-time to achieve a specific business goal with minimal human supervision" | Business goals and adapting while running |
+| [Anthropic](https://www.anthropic.com/engineering/building-effective-agents) | Agents are "systems where LLMs dynamically direct their own processes and tool usage" | Who controls the path: the model or the code |
+
+The shared core is a goal, tools, and some freedom in how to get there. The disagreement is about how much freedom.
+
+## Agentic AI vs. generative AI
+
+Generative AI produces content: text, images, code, a summary. You read it and decide what to do with it. Agentic AI usually contains a generative model, but uses its output to choose an action and then takes it. IBM's example: generative AI can tell you the best time to climb Mount Everest, while an agentic system can also book the flights and the hotel.
+
+| | Generative AI | Agentic AI |
+|---|---|---|
+| You give it | A prompt | A goal |
+| It returns | Content | Actions, plus a report of what changed |
+| Tools | Optional | Required |
+| Who takes the next step | You | The agent, within its limits |
+| A typical mistake | A wrong sentence in a draft | A wrong update, or a message to the wrong person |
+| Where review happens | Before you use the output | Before the action, or in the run log afterwards |
+
+The last two rows are the practical difference. A hallucination in a draft costs you an edit. The same hallucination inside an agent becomes a changed record or a sent email. So agents need permissions and approval rules that a text generator never needed.
+
+## Agentic workflows and AI agents
+
+Anthropic's engineering guide separates **workflows**, "systems where LLMs and tools are orchestrated through predefined code paths", from **agents**, where the model directs its own process and tool use. Both count as agentic systems. The guide's advice is blunt: find the simplest solution that works, which "might mean not building agentic systems at all", and keep real agents for open-ended problems where you cannot predict the number of steps. I agree with it. Most business tasks that people call "agents" are better built as workflows with one or two AI steps.
+
+The guide names five workflow patterns:
+
+| Pattern | What it does | Business example |
+|---|---|---|
+| Prompt chaining | Fixed steps, each feeding the next, with checks in between | Summarize a call, extract the next steps, write them to the deal |
+| Routing | Classifies the input and sends it to a specialised step | Sort incoming email into sales enquiries and everything else |
+| Parallelization | Runs several model calls at once and combines the results | Two independent checks of one contract clause, compared |
+| Orchestrator-workers | One model splits the job and delegates the parts | A lead agent hands account research to sub-agents |
+| Evaluator-optimizer | One model drafts, another critiques until the draft passes | A reply draft revised against your tone guide |
+
+**Agentic AI vs. AI agents.** IBM describes agentic AI as a system that consists of AI agents, so "agentic AI" names the whole and "AI agents" the components. When several agents work together, each handles a subtask and an orchestration step coordinates them.
+
+## Examples of agentic AI in use
+
+Each product below is called an agent by its own vendor, and the middle columns follow the vendor's documentation.
+
+| Product | What it is given | What it does | Natural human checkpoint |
+|---|---|---|---|
+| [Claude Code](https://code.claude.com/docs/en/overview) (Anthropic) | A coding task in a repository | Reads the codebase, edits files, runs commands, and can create commits and pull requests | The diff or pull request |
+| [GitHub Copilot cloud agent](https://docs.github.com/en/copilot/concepts/agents/coding-agent/about-coding-agent) | An issue or task | Researches the repository, plans and implements changes in an ephemeral cloud environment, runs tests and linters, pushes a branch | The branch, before it is merged |
+| [ChatGPT agent](https://openai.com/index/introducing-chatgpt-agent/) (OpenAI) | A multi-step task on the web | Browses and acts on websites | OpenAI says it asks for permission before consequential actions such as purchases |
+| [Salesforce Agentforce](https://www.salesforce.com/agentforce/what-is-agentic-ai/) | A support ticket | Handles the ticket "from start to finish", including updating the case status | Salesforce names monitoring and human supervision as key |
+| Customermates routine (Customermates Cloud) | A new email on a deal | Summarizes it into the deal notes and saves a reply draft | The draft, before a person sends it |
+
+Outside software and sales, [AWS](https://aws.amazon.com/what-is/agentic-ai/) lists uses such as shift scheduling, supply chain and inventory management, incident response and customer service.
+
+## A worked example: one narrow agent in a CRM
+
+CRM work suits a first agent well. It repeats every day, the context sits in one place, and most changes can be corrected. Here is a concrete setup in Customermates, built as a routine: a saved instruction plus a trigger, run by Mate, the assistant in Customermates Cloud, using hosted AI credits.
+
+**What you need.** Customermates Cloud on Pro or higher, because the trigger is an inbox event and the [unified inbox](/features/unified-inbox) starts at Pro. One connected email account (Gmail, Outlook or IMAP).
+
+<Steps>
+  <Step title="Create the routine">
+    Open **Routines**, click **Add** and give it a name, for example "Reply prep
+    for active deals".
+  </Step>
+  <Step title="Choose the trigger">
+    Select **When something changes** and the event **Email Received**.
+  </Step>
+  <Step title="Write the instructions">
+    Paste the instruction below into **Instructions**. Keep the stop rule and
+    the draft-only rule in it.
+  </Step>
+  <Step title="Read the first runs">
+    Open each run's details to see what triggered it, what Mate read and
+    changed, and the credits it used. Adjust the wording until the drafts are
+    ones you would send.
+  </Step>
+</Steps>
+
+```
+A new email arrived. Find the sender among my contacts.
+If the contact is linked to a deal that is not in a won or lost stage:
+1. Read the thread and the deal.
+2. Append three lines to the deal's notes: what the sender wants,
+   any date or amount they mention, and the open question.
+3. Save a reply draft in the thread that answers what you can from
+   the deal and its notes. Mark anything you are unsure about.
+Do not send any message. Do not change the deal stage or value.
+If the sender is not linked to an open deal, do nothing.
+```
+
+Why it is written this way:
+
+- **Draft-only has to be said.** Mate sends emails and chat messages without a fresh approval when an instruction asks it to. A routine that should only draft must say so.
+- **Unattended runs cannot ask.** In a chat, deletions and a few admin actions wait for your approval. In a routine nobody is there to answer, so those actions are declined and the run records the refusal.
+- **It runs as you.** A routine runs as its owner, with that owner's access, connected channels and credits. An email the owner cannot see never starts a run.
+- **It cannot loop.** Changes made by a routine run never trigger routines.
+- **Browsing and writing are kept apart.** A run can search the web or change data, not both: once a web search has returned results, every write in that run is refused. Text from a web page cannot turn into a changed record in the same run.
+- **Spending is capped.** Each run has a credit cap and each routine an hourly run limit. The current numbers are in the [routines documentation](/docs/app-routines), and the full approval list is in the [Mate documentation](/docs/app-assistant).
+
+**What it costs.** A three-person team on Pro pays [[commercial.price.pro.monthly.seats.3]] per month, at [[commercial.price.pro.monthly]] per user. Each Pro user can keep [[commercial.entitlement.pro.includedRoutinesPerUser]] routines, and every active user gets monthly hosted AI credits; see [pricing](/pricing). A routine spends its owner's credits.
+
+**With your own AI client instead.** Claude, ChatGPT and other clients work with the same records through [MCP](/docs/mcp), started from the client rather than by an inbox event, and your AI provider bills the model use. MCP also works on a self-hosted installation, which has no inbox and no Mate. Two limits matter for agent design: an API key carries the full permissions of the user who created it, with no per-key scoping, and the server only asks clients to confirm before deleting or sending; whether they do is up to the client. The [agentic CRM guide](/blog/agentic-crm) compares both routes.
+
+## The risks, and the controls that work
+
+OWASP lists "Excessive Agency" in its [Top 10 for LLM applications](https://genai.owasp.org/llmrisk/llm062025-excessive-agency/) (LLM06:2025) and defines it as "the vulnerability that enables damaging actions to be performed in response to unexpected, ambiguous or manipulated outputs from an LLM". The trigger can be a hallucination, a prompt injection hidden in content the agent reads, or a compromised tool. OWASP names three root causes, and each has a direct control:
+
+| Root cause (OWASP) | What it looks like | Control |
+|---|---|---|
+| Excessive functionality | The agent that writes notes can also delete records | Give it only the tools the task needs |
+| Excessive permissions | It runs with an administrator's access | Run it as a user whose role covers the task and nothing more |
+| Excessive autonomy | It sends, pays or deletes with nobody checking | Require approval for high-impact actions, or produce drafts only |
+
+Two more problems show up in practice. Errors cascade: if the first step misreads an email, every later step builds on the mistake. And cost grows with every step, which is why per-run limits exist.
+
+Gartner expects over 40% of agentic AI projects to be canceled by the end of 2027, citing escalating costs, unclear business value or inadequate risk controls. In the same release from 25 June 2025 it warns of "agent washing", the relabelling of assistants, chatbots and RPA tools as agents, and estimates that only about 130 of the thousands of vendors claiming agentic AI are real ([Gartner](https://www.gartner.com/en/newsroom/press-releases/2025-06-25-gartner-predicts-over-40-percent-of-agentic-ai-projects-will-be-canceled-by-end-of-2027)). A quick test for any product sold as an agent: which tools can it call, with whose permissions, and what does it do without asking?
+
+## How to give an agent its first job
+
+<Steps>
+  <Step title="Pick a task with a clear end">
+    A good first task finishes in one run and has an obvious "done": a meeting
+    brief, a reply draft, a cleaned-up record. Avoid open goals like "grow the
+    pipeline".
+  </Step>
+  <Step title="Start with drafts and a narrow role">
+    Let the agent prepare and a person decide, and run it as a user whose role
+    covers the task. Allow direct actions only for steps that are cheap to
+    undo.
+  </Step>
+  <Step title="Write the stop rule">
+    Say what happens when a case does not fit: "If X, do nothing." Cases the
+    instruction did not anticipate are where agents improvise.
+  </Step>
+  <Step title="Read every run at first">
+    Check the log of each early run. Widen what the agent may do one action at
+    a time.
+  </Step>
+</Steps>
+
+## When agentic AI is the wrong tool
+
+If the steps never change, a fixed rule is cheaper and more predictable than an agent. "When a deal moves to Won, create an onboarding task" needs a webhook and a [workflow automation](/features/workflow-automation), not a language model. Agents earn their cost where the input varies: free-text emails, messy notes, questions that need several lookups. They are the wrong choice where a wrong action cannot be undone and nobody can review it in time, payments being the obvious case.
+
+## Agentic AI and data protection
+
+Agents read personal data: names, email addresses, the content of conversations. Under the GDPR, a provider that processes that data on your behalf is a processor and needs a data processing agreement, and the AI providers it relies on are its subprocessors. For Mate in Customermates Cloud, the model providers are named in the [subprocessors list](/subprocessors). If you want to choose the provider yourself, connect your own AI client through MCP, or self-host the open-source core so the CRM data stays on your own servers.
+
+## Frequently asked questions
 
 <Faq>
-<FaqItem question="What is agentic AI?">
-Agentic AI refers to autonomous AI systems that reach a defined goal through planning, tool use, and action execution, with minimal human supervision.
+<FaqItem question="What is agentic AI in simple terms?">
+AI that you give a goal rather than a question. It plans the steps, uses tools such as search, APIs or business software to carry them out, checks the results, and stops when the goal is met or it needs a person.
+</FaqItem>
+
+<FaqItem question="Is ChatGPT an agentic AI?">
+In an ordinary chat, ChatGPT is generative AI: it answers and you act. It works agentically when it can use tools to act for you, for example in OpenAI's agent mode, which browses and acts on websites and, according to OpenAI, asks for permission before consequential actions such as purchases. Connected to business software through MCP, it can also read and change data there.
+</FaqItem>
+
+<FaqItem question="What is the difference between generative AI and agentic AI?">
+Generative AI creates content from a prompt, and you decide what to do with it. Agentic AI pursues a goal and takes the actions itself, usually with a generative model choosing each next step.
 </FaqItem>
 
 <FaqItem question="What is the difference between agentic AI and AI agents?">
-AI agents are the individual units within an agentic system. Agentic AI is the overarching concept: a system consisting of one or more AI agents that work toward a goal in a coordinated way.
+IBM describes agentic AI as a system that consists of AI agents: the whole versus the components that do the work. In everyday use the terms are interchangeable.
+</FaqItem>
+
+<FaqItem question="What is an agentic workflow?">
+A process in which language models and tools follow a path defined in advance, as opposed to an agent that chooses its own path. Prompt chaining and routing are typical patterns. For most business tasks a workflow is cheaper and easier to control.
 </FaqItem>
 
 <FaqItem question="What are examples of agentic AI?">
-Claude Code (software development), Salesforce Agentforce (CRM), GitHub Copilot (coding), and custom agents that access CRM systems like Customermates via MCP to automate sales processes.
-</FaqItem>
-
-<FaqItem question="Is agentic AI safe?">
-Agentic AI is safer when clear permission boundaries are set, actions are logged, and human approval gates are built in for critical steps. Open-source solutions with self-hosting provide additional control. The risk profile depends heavily on the task, the tool access granted, and the verification steps built into the workflow.
-</FaqItem>
-
-<FaqItem question="How does agentic AI differ from generative AI?">
-Generative AI produces content on request. Agentic AI executes tasks, calls external tools, and takes actions without waiting for each prompt.
-</FaqItem>
-
-<FaqItem question="What is an agentic AI workflow?">
-A structured sequence of automated steps that an AI agent executes toward a goal, often combining tool calls, data reads and writes, and conditional logic, with defined human checkpoints where needed.
-</FaqItem>
-
-<FaqItem question="Which industries are adopting agentic AI fastest?">
-Financial services (loan processing, fraud detection), customer service (ticket resolution, routing), software development (code generation and testing), and sales (CRM automation, lead qualification) are seeing the earliest and broadest production deployments.
-</FaqItem>
-
-<FaqItem question="What is multi-agent orchestration?">
-A pattern where multiple specialized AI agents coordinate on a shared task. An orchestrator agent manages handoffs between a research agent, a drafting agent, and an execution agent. This architecture scales better than a single agent handling all tasks, and it allows each agent to be optimized for its specific function.
+Coding agents such as Claude Code and GitHub Copilot's cloud agent, OpenAI's ChatGPT agent for web tasks, service agents such as Salesforce Agentforce, and CRM routines that summarize incoming email into a deal and prepare a reply draft.
 </FaqItem>
 </Faq>
+
+Third-party definitions, product descriptions and figures checked on 8 October 2026 against [IBM](https://www.ibm.com/think/topics/agentic-ai), [AWS](https://aws.amazon.com/what-is/agentic-ai/), [MIT Sloan](https://mitsloan.mit.edu/ideas-made-to-matter/agentic-ai-explained), [Salesforce](https://www.salesforce.com/agentforce/what-is-agentic-ai/), [Anthropic](https://www.anthropic.com/engineering/building-effective-agents), [OWASP](https://genai.owasp.org/llmrisk/llm062025-excessive-agency/), the [MCP documentation](https://modelcontextprotocol.io/docs/getting-started/intro), the [Claude Code documentation](https://code.claude.com/docs/en/overview), [GitHub Docs](https://docs.github.com/en/copilot/concepts/agents/coding-agent/about-coding-agent), [OpenAI](https://openai.com/index/introducing-chatgpt-agent/) and [Gartner](https://www.gartner.com/en/newsroom/press-releases/2025-06-25-gartner-predicts-over-40-percent-of-agentic-ai-projects-will-be-canceled-by-end-of-2027).
