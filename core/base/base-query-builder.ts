@@ -21,6 +21,7 @@ export interface SearchableField {
 export enum ViewMode {
   table = "table",
   card = "card",
+  calendar = "calendar",
 }
 
 export enum FilterOperatorKey {

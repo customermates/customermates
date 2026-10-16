@@ -74,7 +74,29 @@ describe("shared view links", () => {
       columnOrder: ["value"],
       columnWidths: { value: 90 },
       hiddenColumns: ["value"],
+      calendar: null,
     });
+  });
+
+  it("keeps a calendar only where the recipient has all of its fields", () => {
+    const scope = {
+      columnIds: new Set<string>(),
+      groupings: [],
+      sortableColumnIds: new Set<string>(),
+      supportsBoard: true,
+      calendarFieldIds: new Set(["close", "stage"]),
+    };
+    const calendar = { dateFieldId: "close", colorFieldId: "stage", mode: "week" as const };
+    expect(scopeSharedViewState({ viewMode: ViewMode.calendar, calendar }, scope)).toMatchObject({
+      viewMode: ViewMode.calendar,
+      calendar,
+    });
+    expect(
+      scopeSharedViewState({ viewMode: ViewMode.calendar, calendar: { ...calendar, endDateFieldId: "end" } }, scope),
+    ).toMatchObject({ viewMode: ViewMode.table, calendar: null });
+    expect(
+      scopeSharedViewState({ viewMode: ViewMode.calendar, calendar }, { ...scope, calendarFieldIds: undefined }),
+    ).toMatchObject({ viewMode: ViewMode.table, calendar: null });
   });
 
   it("opens a board as a table where the recipient has no board", () => {

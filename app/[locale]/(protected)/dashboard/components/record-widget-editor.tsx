@@ -24,7 +24,7 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { discoverWidgetRecordTypesAction } from "../actions";
 import { isRecordWidgetForm } from "./record-widget-form";
-import { browserTimeZone } from "./widget-time-zone";
+import { browserTimeZone } from "@/core/utils/time-zone";
 import { RecordWidgetCard } from "./record-widget-card";
 import {
   WidgetEditorColumns,

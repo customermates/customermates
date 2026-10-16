@@ -264,6 +264,10 @@ export class RecordConfigurationService extends UserAccessor {
           (cursor) => this.records.getActivityWidgetQueriesCompanyWide(cursor),
           (widget) => widget.id,
         ),
+        recordWidgets: recordPages(
+          (cursor) => this.records.getRecordWidgetQueriesCompanyWide(cursor),
+          (widget) => widget.id,
+        ),
         eventSubscriptions: recordPages(
           (cursor) => this.records.getEventSubscriptionsCompanyWide(cursor),
           (subscription) => subscription.id,

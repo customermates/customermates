@@ -21,7 +21,7 @@ export function temporalFilterIsValid(filter: RecordQuery["filters"][number], ty
       Number(filter.value.value) <= 365000
     );
   }
-  if (filter.operator === "between") {
+  if (filter.operator === "between" || filter.operator === "overlaps") {
     const [start, end] = filter.values ?? [];
     return (
       filter.values?.length === 2 &&

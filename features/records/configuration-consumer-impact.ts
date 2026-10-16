@@ -17,6 +17,12 @@ import {
   recordViewStateIsValid,
 } from "./record-view-state";
 import { CONFIGURATION_CONSUMER_PAGE } from "./record.repo";
+import {
+  calendarWidgetQueryIssue,
+  cleanCalendarWidgetQuery,
+  cleanMapWidgetQuery,
+  mapWidgetQueryIssue,
+} from "@/features/widget/record-widget-query-validation";
 
 type Rows<K extends keyof RecordRepo> = RecordRepo[K] extends (...args: never[]) => Promise<Array<infer Row>>
   ? AsyncIterable<Row>
@@ -27,6 +33,7 @@ type ConfigurationConsumers = {
   viewStates: Rows<"getViewStatesCompanyWide">;
   widgetMeasures: Rows<"getWidgetMeasuresCompanyWide">;
   activityWidgets: Rows<"getActivityWidgetQueriesCompanyWide">;
+  recordWidgets: Rows<"getRecordWidgetQueriesCompanyWide">;
   eventSubscriptions: Rows<"getEventSubscriptionsCompanyWide">;
 };
 
@@ -273,6 +280,39 @@ export async function collectConsumerImpact(
       code: "widget_incompatible",
       typeId: widget.measure.source.typeId,
     });
+  }
+  for await (const widget of consumers.recordWidgets) {
+    const issue = (candidate: RecordModel) =>
+      widget.kind === "map"
+        ? mapWidgetQueryIssue(widget.query, candidate)
+        : calendarWidgetQueryIssue(widget.query, candidate);
+    if (!issue(model)) continue;
+    if (cause && !issue(current)) {
+      const consumer = { kind: "widget" as const, id: widget.id, label: widget.name };
+      const cleanup =
+        widget.kind === "map"
+          ? (() => {
+              const query = cleanMapWidgetQuery(widget.query, model);
+              return query ? { kind: "mapWidget" as const, id: widget.id, query } : null;
+            })()
+          : (() => {
+              const query = cleanCalendarWidgetQuery(widget.query, model);
+              return query ? { kind: "calendarWidget" as const, id: widget.id, query } : null;
+            })();
+      if (cleanup) {
+        cleanups.push(cleanup);
+        const counts =
+          cleanup.kind === "calendarWidget" &&
+          widget.kind === "calendar" &&
+          widget.query.aggregation === "sum" &&
+          cleanup.query.aggregation === "count";
+        if (!widget.trashed)
+          cleaned.push({ consumer, target: cause, ...(counts ? { effect: "countsRecords" as const } : {}) });
+      } else if (!widget.trashed) blockers.push({ reason: "widget", source: consumer, target: cause });
+      continue;
+    }
+    if (widget.trashed) continue;
+    issues.push({ code: "widget_incompatible", typeId: widget.query.source.typeId });
   }
   for await (const { id, name, query, trashed } of consumers.activityWidgets) {
     if (trashed) continue;

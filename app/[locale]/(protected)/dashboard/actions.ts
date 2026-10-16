@@ -2,6 +2,10 @@
 
 import type { RecordMeasure } from "@/features/records/record-measure.schema";
 import type { RecordActivityWidgetInput } from "@/features/widget/record-activity-widget.schema";
+import type { RecordCalendarWidgetInput } from "@/features/widget/record-calendar-widget.schema";
+import type { RecordMapWidgetInput } from "@/features/widget/record-map-widget.schema";
+import type { CalendarWidgetQuery, CalendarWidgetWindow } from "@/features/widget/record-calendar-widget.schema";
+import type { MapWidgetQuery } from "@/features/widget/record-map-widget.schema";
 
 import type { UpdateUserDetailsData } from "@/features/user/upsert/update-user-details.interactor";
 import type { DeleteWidgetData } from "@/features/widget/delete-widget.interactor";
@@ -20,6 +24,11 @@ import {
   getUpdateWidgetLayoutsInteractor,
   getUpsertRecordActivityWidgetInteractor,
   getUpsertRecordWidgetInteractor,
+  getUpsertRecordCalendarWidgetInteractor,
+  getUpsertRecordMapWidgetInteractor,
+  getPreviewRecordCalendarWidgetInteractor,
+  getPreviewRecordMapWidgetInteractor,
+  getGetRecordWidgetInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 import { unwrapValidated } from "@/core/validation/validation.utils";
@@ -76,4 +85,24 @@ export async function previewRecordWidgetAction(measure: RecordMeasure) {
 
 export async function upsertRecordActivityWidgetAction(input: RecordActivityWidgetInput) {
   return serializeResult(getUpsertRecordActivityWidgetInteractor().invoke(input));
+}
+
+export async function upsertRecordCalendarWidgetAction(input: RecordCalendarWidgetInput) {
+  return serializeResult(getUpsertRecordCalendarWidgetInteractor().invoke(input));
+}
+
+export async function upsertRecordMapWidgetAction(input: RecordMapWidgetInput) {
+  return serializeResult(getUpsertRecordMapWidgetInteractor().invoke(input));
+}
+
+export async function previewCalendarWidgetAction(calendarQuery: CalendarWidgetQuery, window?: CalendarWidgetWindow) {
+  return serializeResult(getPreviewRecordCalendarWidgetInteractor().invoke({ calendarQuery, window }));
+}
+
+export async function previewMapWidgetAction(mapQuery: MapWidgetQuery) {
+  return serializeResult(getPreviewRecordMapWidgetInteractor().invoke({ mapQuery }));
+}
+
+export async function readCalendarWidgetWindowAction(id: string, window: CalendarWidgetWindow) {
+  return serializeResult(getGetRecordWidgetInteractor().invoke({ id, window }));
 }

@@ -2,12 +2,14 @@ import type { Filter, SortDescriptor } from "@/core/base/base-get.schema";
 import type { DataViewState } from "@/core/data-view/data-view-state.schema";
 import type { Grouping } from "@/core/base/grouping/grouping.schema";
 import type { ViewMode } from "@/core/base/base-query-builder";
+import type { CalendarViewConfig } from "@/core/data-view/calendar-view-config.schema";
 
 import { Prisma } from "@/generated/prisma";
 
 import { DATA_VIEW_PAGE_SIZES, DATA_VIEW_STATE_FIELDS } from "@/core/data-view/data-view-state.schema";
 import { groupingShadowColumnId, readStoredGrouping } from "@/core/base/grouping/stored-grouping";
 import { normalizeFilterInput } from "@/core/base/filter-value";
+import { CalendarViewConfigSchema } from "@/core/data-view/calendar-view-config.schema";
 
 type NullableJson = Prisma.InputJsonValue | typeof Prisma.DbNull;
 
@@ -23,6 +25,7 @@ type DataViewStateColumns = {
   columnOrder: NullableJson;
   columnWidths: NullableJson;
   hiddenColumns: NullableJson;
+  calendar: NullableJson;
   pageSize: number | null;
 };
 
@@ -36,6 +39,7 @@ type StoredStateRow = {
   columnOrder: unknown;
   columnWidths: unknown;
   hiddenColumns: unknown;
+  calendar: unknown;
   pageSize: number | null;
 };
 
@@ -61,6 +65,7 @@ export type PersonalizationStateWrite = {
   columnOrder?: string[];
   columnWidths?: Record<string, number>;
   hiddenColumns?: string[];
+  calendar?: CalendarViewConfig | null;
 };
 
 export function readPersonalizationState(state: PersonalizationStateWrite): DataViewState {
@@ -74,6 +79,7 @@ export function readPersonalizationState(state: PersonalizationStateWrite): Data
     ...(state.columnOrder !== undefined ? { columnOrder: state.columnOrder } : {}),
     ...(state.columnWidths !== undefined ? { columnWidths: state.columnWidths } : {}),
     ...(state.hiddenColumns !== undefined ? { hiddenColumns: state.hiddenColumns } : {}),
+    ...(state.calendar !== undefined ? { calendar: state.calendar } : {}),
   };
 }
 
@@ -94,6 +100,11 @@ function storedPageSize(pagination: unknown): number | null {
     : null;
 }
 
+function readStoredCalendar(value: unknown): CalendarViewConfig | undefined {
+  const parsed = CalendarViewConfigSchema.safeParse(value);
+  return parsed.success ? parsed.data : undefined;
+}
+
 export function readStoredState(row: StoredStateRow): DataViewState {
   const state: DataViewState = {};
 
@@ -108,6 +119,8 @@ export function readStoredState(row: StoredStateRow): DataViewState {
   if (Array.isArray(row.columnOrder)) state.columnOrder = row.columnOrder as string[];
   if (isPlainObject(row.columnWidths)) state.columnWidths = row.columnWidths as Record<string, number>;
   if (Array.isArray(row.hiddenColumns)) state.hiddenColumns = row.hiddenColumns as string[];
+  const calendar = readStoredCalendar(row.calendar);
+  if (calendar !== undefined) state.calendar = calendar;
 
   return state;
 }
@@ -128,6 +141,7 @@ export function readStoredPersonalizationState({
     columnOrder: [],
     columnWidths: {},
     hiddenColumns: [],
+    calendar: null,
   };
   return Object.fromEntries(
     DATA_VIEW_STATE_FIELDS.filter((key) => keys.has(key)).map((key) => [key, state[key] ?? clear[key]]),
@@ -148,6 +162,7 @@ export function writeStoredState(state: DataViewState): DataViewStateColumns {
     columnOrder: json(state.columnOrder),
     columnWidths: json(state.columnWidths),
     hiddenColumns: json(state.hiddenColumns),
+    calendar: json(state.calendar ?? undefined),
     pageSize: state.pageSize === undefined ? null : state.pageSize,
   };
 }
@@ -177,6 +192,7 @@ export function writePersonalizationState(state: DataViewState): Personalization
   if (state.columnOrder !== undefined) write.columnOrder = state.columnOrder;
   if (state.columnWidths !== undefined) write.columnWidths = state.columnWidths;
   if (state.hiddenColumns !== undefined) write.hiddenColumns = state.hiddenColumns;
+  if (state.calendar !== undefined) write.calendar = state.calendar;
 
   return write;
 }

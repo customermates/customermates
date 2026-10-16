@@ -37,6 +37,8 @@ export type SyntheticWidgetFixture = {
   layout: Prisma.InputJsonValue;
   measure?: Prisma.InputJsonValue;
   activityQuery?: Prisma.InputJsonValue;
+  calendarQuery?: Prisma.InputJsonValue;
+  mapQuery?: Prisma.InputJsonValue;
 };
 
 export function buildSyntheticDashboardViewFixtures(
@@ -78,6 +80,22 @@ export function buildSyntheticWidgetFixtures(
           kind: WidgetKind.activityTimeline,
           displayOptions: { showFilters: true },
           activityQuery: widget.activityQuery as Prisma.InputJsonValue,
+        };
+      }
+      if (widget.kind === "calendar") {
+        return {
+          ...base,
+          kind: WidgetKind.calendar,
+          displayOptions: { showFilters: widget.calendarQuery.source.filters.length > 0 },
+          calendarQuery: widget.calendarQuery as Prisma.InputJsonValue,
+        };
+      }
+      if (widget.kind === "map") {
+        return {
+          ...base,
+          kind: WidgetKind.map,
+          displayOptions: { showFilters: widget.mapQuery.source.filters.length > 0 },
+          mapQuery: widget.mapQuery as Prisma.InputJsonValue,
         };
       }
       const filtered = widget.measure.source.filters.length + widget.measure.source.relationships.length > 0;

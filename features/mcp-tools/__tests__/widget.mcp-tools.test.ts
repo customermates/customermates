@@ -1,6 +1,8 @@
 import type { RecordActivityWidgetDto } from "@/features/widget/record-activity-widget.schema";
 import type * as RecordActivityWidgetModule from "@/features/widget/record-activity-widget.schema";
 import type * as RecordWidgetModule from "@/features/widget/record-widget.schema";
+import type * as RecordCalendarWidgetModule from "@/features/widget/record-calendar-widget.schema";
+import type * as RecordMapWidgetModule from "@/features/widget/record-map-widget.schema";
 import type * as SaveWidgetModule from "@/features/widget/save-widget.interactor";
 import type { ZodType } from "zod";
 import { RecordActivityQuerySchema } from "@/ee/messaging/activities/record-activities.schema";
@@ -22,6 +24,8 @@ const spies = vi.hoisted(() => ({
   upsertWidget: vi.fn(),
   upsertRecordWidget: vi.fn(),
   upsertRecordActivityWidget: vi.fn(),
+  upsertRecordCalendarWidget: vi.fn(),
+  upsertRecordMapWidget: vi.fn(),
 }));
 
 vi.mock("next-intl/server", () => ({
@@ -39,6 +43,12 @@ vi.mock("@/core/di", async () => {
   );
   const { RecordActivityWidgetInputSchema } = await vi.importActual<typeof RecordActivityWidgetModule>(
     "@/features/widget/record-activity-widget.schema",
+  );
+  const { RecordCalendarWidgetInputSchema } = await vi.importActual<typeof RecordCalendarWidgetModule>(
+    "@/features/widget/record-calendar-widget.schema",
+  );
+  const { RecordMapWidgetInputSchema } = await vi.importActual<typeof RecordMapWidgetModule>(
+    "@/features/widget/record-map-widget.schema",
   );
   const validated = (schema: ZodType, spy: (input: unknown) => unknown) => ({
     invoke: (input: unknown) => {
@@ -60,6 +70,8 @@ vi.mock("@/core/di", async () => {
         },
         validated(RecordWidgetInputSchema, spies.upsertRecordWidget) as never,
         validated(RecordActivityWidgetInputSchema, spies.upsertRecordActivityWidget) as never,
+        validated(RecordCalendarWidgetInputSchema, spies.upsertRecordCalendarWidget) as never,
+        validated(RecordMapWidgetInputSchema, spies.upsertRecordMapWidget) as never,
       ),
     getDeleteWidgetInteractor: () => ({ invoke: spies.deleteWidget }),
     getGetWidgetByIdInteractor: () => ({ invoke: spies.getWidgetById }),
@@ -250,6 +262,89 @@ describe("manage_widgets create", () => {
       version: 1,
     });
   });
+  it("creates calendar and map widgets through their own interactors", async () => {
+    const calendarQuery = {
+      source: { typeId: RECORD_ID, filters: [], relationships: [] },
+      dateFieldId: RECORD_ID,
+      layout: "upcoming",
+      timeZone: "Europe/Berlin",
+    };
+    spies.upsertRecordCalendarWidget.mockResolvedValue({
+      ok: true,
+      data: { id: WIDGET_ID, kind: "calendar", name: "Due soon", version: 1, layout: null },
+    });
+    const calendar = await run({
+      action: "create",
+      kind: "calendar",
+      name: "Due soon",
+      calendarQuery,
+      showFilters: true,
+      ...activityPreconditions,
+    });
+    expect(spies.upsertRecordCalendarWidget).toHaveBeenCalledWith({
+      kind: "calendar",
+      name: "Due soon",
+      calendarQuery: {
+        ...calendarQuery,
+        days: 14,
+        showOverdue: true,
+        amountFieldId: null,
+        aggregation: "count",
+      },
+      displayOptions: { showFilters: true },
+      ...activityPreconditions,
+    });
+    expect(decode(calendar)).toEqual({ id: WIDGET_ID, kind: "calendar", name: "Due soon", version: 1 });
+
+    const mapQuery = { source: { typeId: RECORD_ID, filters: [], relationships: [] }, addressFieldId: RECORD_ID };
+    spies.upsertRecordMapWidget.mockResolvedValue({
+      ok: true,
+      data: { id: RECORD_ID, kind: "map", name: "Customers", version: 1, layout: null },
+    });
+    await run({
+      action: "create",
+      kind: "map",
+      name: "Customers",
+      mapQuery,
+      showFilters: false,
+      ...activityPreconditions,
+    });
+    expect(spies.upsertRecordMapWidget).toHaveBeenCalledWith({
+      kind: "map",
+      name: "Customers",
+      mapQuery: { ...mapQuery, colorFieldId: null, sizeFieldId: null, detailFieldId: null },
+      displayOptions: { showFilters: false },
+      ...activityPreconditions,
+    });
+    expect(
+      await run({ action: "create", kind: "map", name: "Customers", calendarQuery, ...activityPreconditions }),
+    ).toContain("Validation error:");
+    expect(
+      await run({
+        action: "create",
+        kind: "calendar",
+        name: "Due soon",
+        calendarQuery: { ...calendarQuery, timeZone: "Atlantis/Lost" },
+        ...activityPreconditions,
+      }),
+    ).toContain("Validation error:");
+  });
+
+  it("reads another window of a calendar widget only through get", async () => {
+    spies.getRecordWidget.mockResolvedValue({ ok: true, data: chartWidget() });
+    await run({ action: "get", ids: [WIDGET_ID], window: { from: "2026-10-01", to: "2026-10-31" } });
+    expect(spies.getRecordWidget).toHaveBeenCalledWith({
+      id: WIDGET_ID,
+      window: { from: "2026-10-01", to: "2026-10-31" },
+    });
+    expect(await run({ action: "get", ids: [WIDGET_ID], window: { from: "2026-10-01", to: "2026-12-31" } })).toContain(
+      "Validation error:",
+    );
+    expect(
+      await run({ action: "update", id: WIDGET_ID, name: "Renamed", window: { from: "2026-10-01", to: "2026-10-02" } }),
+    ).toContain("window");
+  });
+
   it("rejects omitted preconditions and retired activity filters without writing", async () => {
     expect(
       await run({

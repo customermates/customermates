@@ -48,6 +48,12 @@ import { SaveWidgetInteractor } from "@/features/widget/save-widget.interactor";
 import { RecordWidgetReader } from "@/features/widget/record-widget-reader";
 import { WidgetDtoReader } from "@/features/widget/widget-dto-reader";
 import { PreviewRecordWidgetInteractor } from "@/features/widget/preview-record-widget.interactor";
+import { RecordCalendarWidgetReader } from "@/features/widget/record-calendar-widget-reader";
+import { RecordMapWidgetReader } from "@/features/widget/record-map-widget-reader";
+import { UpsertRecordCalendarWidgetInteractor } from "@/features/widget/record-calendar-widget.interactor";
+import { UpsertRecordMapWidgetInteractor } from "@/features/widget/record-map-widget.interactor";
+import { PreviewRecordCalendarWidgetInteractor } from "@/features/widget/preview-record-calendar-widget.interactor";
+import { PreviewRecordMapWidgetInteractor } from "@/features/widget/preview-record-map-widget.interactor";
 import { wikiWebsiteNetwork } from "@/ee/wiki-crawl/wiki-website-network";
 /**
  * Application dependency injection - single source of truth for everything wired
@@ -905,6 +911,8 @@ export const getDataViewStateRepo = () => createPrismaDataViewRepo();
 export const getWidgetDtoReaders = (): WidgetDtoReaders => ({
   chart: getRecordWidgetReader(),
   activityTimeline: getRecordActivityWidgetReader(),
+  calendar: getRecordCalendarWidgetReader(),
+  map: getRecordMapWidgetReader(),
 });
 export const getWidgetRepo = () => new PrismaWidgetRepo();
 export const getWebhookRepo = () =>
@@ -2093,7 +2101,33 @@ export const getGetRecordWidgetInteractor = () =>
     getRecordWidgetReader(),
     getRecordAccessPolicy(),
     getRecordActivityWidgetReader(),
+    getRecordCalendarWidgetReader(),
+    getRecordMapWidgetReader(),
   );
+
+export const getRecordCalendarWidgetReader = () =>
+  new RecordCalendarWidgetReader(getRecordRepo(), getQueryRecordsInteractor(), getQueryRecordMeasureInteractor());
+export const getRecordMapWidgetReader = () => new RecordMapWidgetReader(getRecordRepo(), getQueryRecordsInteractor());
+export const getUpsertRecordCalendarWidgetInteractor = () =>
+  new UpsertRecordCalendarWidgetInteractor(
+    getWidgetRepo(),
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getRecordCalendarWidgetReader(),
+    getDataViewStateRepo(),
+  );
+export const getUpsertRecordMapWidgetInteractor = () =>
+  new UpsertRecordMapWidgetInteractor(
+    getWidgetRepo(),
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getRecordMapWidgetReader(),
+    getDataViewStateRepo(),
+  );
+export const getPreviewRecordCalendarWidgetInteractor = () =>
+  new PreviewRecordCalendarWidgetInteractor(getRecordCalendarWidgetReader(), getRecordAccessPolicy());
+export const getPreviewRecordMapWidgetInteractor = () =>
+  new PreviewRecordMapWidgetInteractor(getRecordMapWidgetReader(), getRecordAccessPolicy());
 
 export const getWidgetDtoReader = () => new WidgetDtoReader(getWidgetDtoReaders);
 export const getRecordActivityWidgetReader = () =>
@@ -2113,6 +2147,8 @@ export const getSaveWidgetInteractor = () =>
     getWidgetRepo(),
     getUpsertRecordWidgetInteractor(),
     getUpsertRecordActivityWidgetInteractor(),
+    getUpsertRecordCalendarWidgetInteractor(),
+    getUpsertRecordMapWidgetInteractor(),
   );
 
 export const getManageDataViewsInteractor = () =>

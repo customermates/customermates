@@ -1,3 +1,5 @@
+import { RecordWidgetSourceSchema } from "@/features/widget/record-widget-source.schema";
+import { RecordDisplayFieldSchema } from "@/features/records/record-display-field.schema";
 import { createDocument } from "zod-openapi";
 
 import {
@@ -299,6 +301,8 @@ export function generateOpenApiSpec() {
         CalculationExpressionInput: CalculationExpressionInputSchema,
         RecordAddress: RecordAddressSchema,
         RecordAddressPartsInput: RecordAddressPartsInputSchema,
+        RecordSource: RecordWidgetSourceSchema,
+        RecordDisplayField: RecordDisplayFieldSchema,
         StructuredErrorResponseSchema,
         WebhookMessagingMessageReceivedSchema,
         WebhookMessagingMessageUpdatedSchema,

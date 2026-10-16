@@ -3,7 +3,7 @@ import { z } from "zod";
 import { CalculatedValueSchema, RecordRefSchema } from "./record-model.schema";
 import { RecordQuerySchema } from "./record-query.schema";
 import { RecordFieldKeySchema } from "./record-column.schema";
-import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
+import { isIanaTimeZone } from "@/core/utils/time-zone";
 
 export const RECORD_MEASURE_DATE_INTERVALS = ["day", "week", "month", "quarter", "year"] as const;
 export type RecordMeasureDateInterval = (typeof RECORD_MEASURE_DATE_INTERVALS)[number];
@@ -11,12 +11,7 @@ export const RECORD_MEASURE_DEFAULT_GROUP_LIMIT = 100;
 export const RECORD_MEASURE_MAX_GROUP_LIMIT = 1000;
 
 export function isRecordMeasureTimeZone(timeZone: string): boolean {
-  if (!/^[A-Za-z][A-Za-z0-9_+-]*(\/[A-Za-z0-9_+-]+)*$/.test(timeZone)) return false;
-  try {
-    return Boolean(new Intl.DateTimeFormat(DEFAULT_LOCALE, { timeZone }).resolvedOptions().timeZone);
-  } catch {
-    return false;
-  }
+  return isIanaTimeZone(timeZone);
 }
 
 const RecordMeasureGroupFilterSchema = RecordQuerySchema.pick({

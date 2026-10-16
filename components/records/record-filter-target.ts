@@ -258,6 +258,12 @@ function toPaletteFilter(filter: RecordFilter, field: string): Filter | null {
         operator: FilterOperatorKey[filter.operator],
         value: (filter.values ?? []).map(scalarText),
       };
+    case "overlaps":
+      return {
+        field,
+        operator: FilterOperatorKey.between,
+        value: (filter.values ?? []).map(scalarText),
+      };
     case "inLastDays":
     case "notInLastDays":
       return {

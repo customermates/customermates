@@ -11,6 +11,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { FilterSchema, SortDescriptorSchema, PaginationRequestSchema } from "@/core/base/base-get.schema";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { GroupingSchema } from "@/core/base/grouping/grouping.schema";
+import { CalendarViewConfigSchema } from "@/core/data-view/calendar-view-config.schema";
 import { EntityDetailOptionsSchema, P13nEntrySchema } from "./p13n.schema";
 import { p13nSettingsSchema, type P13nSettings } from "./p13n-settings.schema";
 import { isWritableP13nId, P13N_ID_MAX_LENGTH } from "./writable-p13n-id";
@@ -41,6 +42,7 @@ const Schema = z
     hiddenColumns: z.array(z.string().min(1).max(P13N_KEY_MAX_LENGTH)).max(P13N_COLUMNS_MAX).optional(),
     viewMode: z.enum(ViewMode).nullish(),
     grouping: GroupingSchema.nullish(),
+    calendar: CalendarViewConfigSchema.nullish(),
     detailOptions: EntityDetailOptionsSchema.nullish(),
     settings: z.custom<P13nSettings>().nullish(),
   })

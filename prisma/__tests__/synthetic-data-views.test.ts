@@ -121,11 +121,13 @@ describe("synthetic data view fixtures", () => {
     }
   });
 
-  it("gives the demo user two to four views per list, and other members personal views of their own", () => {
+  it("gives the demo user two to four views per list plus at most one calendar, and other members their own", () => {
     for (const type of LISTS) {
-      const count = own().filter(({ surfaceKey }) => surfaceKey === surface(type)).length;
-      expect(count, type).toBeGreaterThanOrEqual(2);
-      expect(count, type).toBeLessThanOrEqual(4);
+      const lists = own().filter(({ surfaceKey }) => surfaceKey === surface(type));
+      const calendars = lists.filter(({ state }) => state.viewMode === ViewMode.calendar);
+      expect(lists.length - calendars.length, type).toBeGreaterThanOrEqual(2);
+      expect(lists.length - calendars.length, type).toBeLessThanOrEqual(4);
+      expect(calendars.length, type).toBeLessThanOrEqual(1);
     }
 
     const myTasks = own().find(({ id }) => id === SYNTHETIC_DATA_VIEW_IDS.myTasks);
@@ -156,6 +158,15 @@ describe("synthetic data view fixtures", () => {
       bySurface.set(`${userId}:${surfaceKey}`, [...(bySurface.get(`${userId}:${surfaceKey}`) ?? []), position]);
 
     for (const [key, positions] of bySurface) expect(positions, key).toEqual(positions.map((_, index) => index));
+  });
+
+  it("shows calendars of a date, a due date and a date range, each colored by a choice field", () => {
+    const calendars = views().filter(({ state }) => state.viewMode === ViewMode.calendar);
+    expect(calendars.map(({ state }) => state.calendar)).toEqual([
+      { dateFieldId: model.fields.deal.closeDate, colorFieldId: model.fields.deal.stage, mode: "month" },
+      { dateFieldId: model.fields.task.dueDate, colorFieldId: expect.any(String), mode: "month" },
+      { dateFieldId: model.fields.campaign.period, colorFieldId: model.fields.campaign.channel, mode: "month" },
+    ]);
   });
 
   it("shows boards, grouped tables with date buckets and plain tables", () => {

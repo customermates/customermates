@@ -128,6 +128,7 @@ export const domTestFiles = [
   "components/keyboard/__tests__/key-matching-context.dom.test.ts",
   "app/components/keyboard-shortcuts/__tests__/global-keyboard-shortcuts.dom.test.ts",
   "components/ui/__tests__/overlay-focus-return.dom.test.ts",
+  "components/map/__tests__/map-view.dom.test.tsx",
 ];
 
 export default defineConfig({

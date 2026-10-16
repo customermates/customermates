@@ -350,14 +350,14 @@ describe("Northwind Labs demo fixture contract", () => {
     expect(SYNTHETIC_CUSTOM_FIELD_DEFINITIONS.map((definition) => definition.label)).not.toContain("Phones");
   });
 
-  it("gives every organization a hand-entered office address and two customers their Documents files", () => {
+  it("gives every organization a hand-entered office address at its postal code and two customers their Documents files", () => {
     const { values } = buildNorthwindRecords(SEED_IDS.company);
     const addresses = values.filter(({ fieldKey }) => fieldKey === "organization.address");
     expect(addresses.map(({ recordId }) => recordId)).toEqual(data.organizations.map(({ id }) => id));
     for (const { value } of addresses) {
       if (value.kind !== "address") throw new Error("Organization address is not an address value");
       expect(value.value).toMatchObject({
-        location: null,
+        location: { precision: "postcode" },
         verification: { status: "unverified", provider: null, checkedAt: null },
       });
       expect(value.value.street && value.value.postalCode && value.value.city && value.value.countryCode).toBeTruthy();

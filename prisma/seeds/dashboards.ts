@@ -2,6 +2,8 @@ import type { RecordActivityQuery } from "@/ee/messaging/activities/record-activ
 import type { RecordMeasure, RecordMeasureDateInterval } from "@/features/records/record-measure.schema";
 import type { RecordQuery } from "@/features/records/record-query.schema";
 import type { WidgetLayout } from "@/features/widget/widget-display.schema";
+import type { CalendarWidgetQuery } from "@/features/widget/record-calendar-widget.schema";
+import type { MapWidgetQuery } from "@/features/widget/record-map-widget.schema";
 
 import { ChartColor, DisplayType } from "@/features/widget/widget-display.schema";
 import { packBreakpointLayout, type GridRect } from "@/features/widget/widget-grid";
@@ -38,7 +40,25 @@ export type ActivityWidgetDefinition = {
   lg: GridRect;
 };
 
-export type WidgetDefinition = ChartWidgetDefinition | ActivityWidgetDefinition;
+export type CalendarWidgetDefinition = {
+  kind: "calendar";
+  name: string;
+  calendarQuery: CalendarWidgetQuery;
+  lg: GridRect;
+};
+
+export type MapWidgetDefinition = {
+  kind: "map";
+  name: string;
+  mapQuery: MapWidgetQuery;
+  lg: GridRect;
+};
+
+export type WidgetDefinition =
+  | ChartWidgetDefinition
+  | ActivityWidgetDefinition
+  | CalendarWidgetDefinition
+  | MapWidgetDefinition;
 
 export type DashboardDefinition = {
   key: DashboardKey;
@@ -55,14 +75,16 @@ const BREAKPOINTS = { md: 8, sm: 4, xs: 2 } as const;
 const KPI_HEIGHT = 2;
 const CHART_HEIGHT = 4;
 const ACTIVITY_HEIGHT = 6;
+const CALENDAR_HEIGHT = 7;
+const MAP_HEIGHT = 8;
 
 function compactWidgets(widgets: WidgetDefinition[]): WidgetDefinition[] {
-  const height = (widget: WidgetDefinition) =>
-    widget.kind === "activityTimeline"
-      ? ACTIVITY_HEIGHT
-      : widget.displayType === DisplayType.number
-        ? widget.lg.h
-        : CHART_HEIGHT;
+  const height = (widget: WidgetDefinition) => {
+    if (widget.kind === "activityTimeline") return ACTIVITY_HEIGHT;
+    if (widget.kind === "calendar") return CALENDAR_HEIGHT;
+    if (widget.kind === "map") return MAP_HEIGHT;
+    return widget.displayType === DisplayType.number ? widget.lg.h : CHART_HEIGHT;
+  };
   const rows = [...new Set(widgets.map((widget) => widget.lg.y))].sort((a, b) => a - b);
   const rowTop = new Map<number, number>();
   let top = 0;
@@ -104,7 +126,7 @@ export function dashboardWidgetId(dashboard: DashboardKey, index: number): strin
  * The six Northwind Labs dashboards. Together they use every display type (number, vertical and horizontal
  * bars with and without labels, doughnut, radar, area, ranked table and funnel), count, sum, average, min and max,
  * day, week, month and quarter intervals, grouping by choice, member, date, related record and a field across a relationship, source,
- * relationship and group filters, and activity timelines.
+ * relationship and group filters, activity timelines, both calendar layouts and a map of the customers.
  */
 export function buildSyntheticDashboards(
   companyId: string,
@@ -173,6 +195,22 @@ export function buildSyntheticDashboards(
   ): ChartWidgetDefinition => ({ kind: "chart", name, displayType, measure: m, barColors: colors, useGroupColors, lg });
   const kpi = (name: string, m: RecordMeasure, x: number) =>
     chart(name, DisplayType.number, m, { x, y: 0, w: 3, h: KPI_HEIGHT }, [ChartColor.primary1]);
+  const calendarWidget = (
+    name: string,
+    calendarQuery: Omit<CalendarWidgetQuery, "timeZone">,
+    lg: GridRect,
+  ): CalendarWidgetDefinition => ({
+    kind: "calendar",
+    name,
+    calendarQuery: { ...calendarQuery, timeZone: "Europe/Berlin" },
+    lg,
+  });
+  const mapWidget = (name: string, mapQuery: MapWidgetQuery, lg: GridRect): MapWidgetDefinition => ({
+    kind: "map",
+    name,
+    mapQuery,
+    lg,
+  });
   const activity = (name: string, sources: RecordActivityQuery["kinds"], lg: GridRect): ActivityWidgetDefinition => ({
     kind: "activityTimeline",
     name,
@@ -297,6 +335,32 @@ export function buildSyntheticDashboards(
       { x: 9, y: 16, w: 3, h: 7 },
       CATEGORICAL,
     ),
+    calendarWidget(
+      "Deals closing this month",
+      {
+        source: source("deal", [openDeals]),
+        dateFieldId: f.deal.closeDate,
+        layout: "month",
+        days: 14,
+        showOverdue: false,
+        amountFieldId: starter.dealTotalValue,
+        aggregation: "sum",
+      },
+      { x: 0, y: 23, w: 6, h: 7 },
+    ),
+    calendarWidget(
+      "Tasks due in the next 14 days",
+      {
+        source: source("task", [openTasks]),
+        dateFieldId: f.task.dueDate,
+        layout: "upcoming",
+        days: 14,
+        showOverdue: true,
+        amountFieldId: null,
+        aggregation: "count",
+      },
+      { x: 6, y: 23, w: 6, h: 7 },
+    ),
   ];
 
   const health = o["subscription.health"];
@@ -378,6 +442,17 @@ export function buildSyntheticDashboards(
       measure(source("subscription"), "sum", f.subscription.arr, byField(f.subscription.industry)),
       { x: 6, y: 16, w: 6, h: 7 },
       [C.primary1],
+    ),
+    mapWidget(
+      "Customers by location",
+      {
+        source: source("organization", [notEmpty(f.organization.arr)]),
+        addressFieldId: f.organization.address,
+        colorFieldId: f.organization.segment,
+        sizeFieldId: f.organization.arr,
+        detailFieldId: f.organization.industry,
+      },
+      { x: 0, y: 23, w: 12, h: 8 },
     ),
   ];
 

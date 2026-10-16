@@ -69,6 +69,7 @@ const VIEW_SELECT = {
   columnOrder: true,
   columnWidths: true,
   hiddenColumns: true,
+  calendar: true,
   pageSize: true,
 } satisfies Prisma.DataViewSelect;
 
@@ -85,6 +86,7 @@ const PERSONALIZATION_SELECT = {
   columnOrder: true,
   columnWidths: true,
   hiddenColumns: true,
+  calendar: true,
 } satisfies Prisma.P13nSelect;
 
 function toChip(row: StoredViewRow): DataViewChipDto {

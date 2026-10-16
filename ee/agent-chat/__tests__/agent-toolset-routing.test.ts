@@ -111,6 +111,16 @@ describe("toolsetsForRequest", () => {
     expect([...toolsetsForRequest({ text: "Lade Anna als Teammitglied ein", pageRoute: null })]).toEqual(["admin"]);
     expect([...toolsetsForRequest({ text: "Update my current view", pageRoute: null })]).toEqual(["views"]);
     expect([...toolsetsForRequest({ text: "Passe meine aktuelle Ansicht an", pageRoute: null })]).toEqual(["views"]);
+    expect([
+      ...toolsetsForRequest({ text: "Show the deals in a calendar view by close date", pageRoute: null }),
+    ]).toEqual(["views", "messaging"]);
+    expect([...toolsetsForRequest({ text: "Erstelle eine Kalenderansicht der Aufgaben", pageRoute: null })]).toEqual([
+      "views",
+      "messaging",
+    ]);
+    expect([...toolsetsForRequest({ text: "Add a map widget of our customers", pageRoute: null })]).toEqual([
+      "widgets",
+    ]);
   });
 
   it("routes by user vocabulary in Spanish, French and Italian", () => {

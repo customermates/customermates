@@ -67,6 +67,8 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
       "create a view",
       "update a view",
       "delete a view",
+      "calendar view",
+      "calendar layout",
     ],
     de: [
       "detailansicht",
@@ -78,6 +80,8 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
       "meine ansicht",
       "ansicht erstellen",
       "ansicht löschen",
+      "kalenderansicht",
+      "kalenderlayout",
     ],
     es: [
       "vista de detalle",
@@ -87,6 +91,7 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
       "nueva vista",
       "mi vista",
       "crear una vista",
+      "vista de calendario",
     ],
     fr: [
       "fiche détaillée",
@@ -96,6 +101,7 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
       "nouvelle vue",
       "ma vue",
       "créer une vue",
+      "vue calendrier",
     ],
     it: [
       "dettagli del record",
@@ -105,6 +111,7 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
       "nuova vista",
       "mia vista",
       "crea una vista",
+      "vista calendario",
     ],
   },
   messaging: {

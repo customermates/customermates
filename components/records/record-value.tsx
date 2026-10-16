@@ -84,7 +84,9 @@ export const RecordValue = observer(function RecordValue({
   compact = false,
 }: {
   result?: CalculatedValue;
-  field: RecordFieldView;
+  field: Pick<RecordFieldView, "valueType" | "format" | "multiple"> & {
+    options: ReadonlyArray<Pick<RecordFieldView["options"][number], "id" | "label" | "color">>;
+  };
   members?: RecordMember[];
   files?: RecordFileSummary[];
   identities?: Array<Pick<RecordIdentity, "id" | "provider" | "value" | "displayName" | "profileUrl">>;
