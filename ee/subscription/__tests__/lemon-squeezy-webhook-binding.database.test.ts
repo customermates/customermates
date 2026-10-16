@@ -13,6 +13,7 @@ import {
   type LemonSqueezySubscriptionEventName,
   type LemonSqueezySubscriptionResource,
   type LemonSqueezySubscriptionStatus,
+  lemonSqueezyPaymentSuccessEvent,
   lemonSqueezyStatusFormatted,
   lemonSqueezySubscriptionAttributes,
   lemonSqueezySubscriptionEvent,
@@ -122,9 +123,16 @@ describeDatabase("which workspace a Lemon Squeezy subscription binds to, on Post
     customData: LemonSqueezyCustomData | null,
     resource: object = localSubscriptionResource(subscription) as LemonSqueezySubscriptionResource,
   ) {
-    const body = JSON.stringify(
-      lemonSqueezySubscriptionEvent(event, resource as LemonSqueezySubscriptionResource, customData),
+    return post(
+      JSON.stringify(lemonSqueezySubscriptionEvent(event, resource as LemonSqueezySubscriptionResource, customData)),
     );
+  }
+
+  async function deliverPayment(subscription: ProviderSubscription, customData: LemonSqueezyCustomData | null) {
+    return post(JSON.stringify(lemonSqueezyPaymentSuccessEvent(subscription.id, customData)));
+  }
+
+  async function post(body: string) {
     const response = await lemonSqueezyWebhook(
       new NextRequest("http://localhost:4000/api/webhooks/lemonsqueezy", {
         method: "POST",
@@ -413,20 +421,46 @@ describeDatabase("which workspace a Lemon Squeezy subscription binds to, on Post
     expect(mails()).toEqual([]);
   });
 
-  it("answers 404 and tells the operator about events of a subscription whose workspace was deleted", async () => {
+  it("acknowledges events of a subscription whose workspace was deleted and tells the operator only about payments", async () => {
     const subscription = provider(newProviderSubscription(companies.deleted));
     expect((await deliver("subscription_created", subscription, signed(companies.deleted))).status).toBe(200);
     await client.query('DELETE FROM "Company" WHERE "id"=$1', [companies.deleted]);
+    const acknowledged = { status: 200, body: { ignored: true } };
 
-    expect((await deliver("subscription_updated", subscription, signed(companies.deleted))).status).toBe(404);
-    expect((await deliver("subscription_updated", subscription, { company_id: companies.deleted })).status).toBe(404);
+    for (const event of ["subscription_updated", "subscription_cancelled", "subscription_expired"] as const)
+      expect(await deliver(event, subscription, signed(companies.deleted))).toEqual(acknowledged);
+    expect(await deliver("subscription_updated", subscription, { company_id: companies.deleted })).toEqual(
+      acknowledged,
+    );
+    expect(mails()).toEqual([]);
+
+    expect(await deliverPayment(subscription, signed(companies.deleted))).toEqual(acknowledged);
+    expect(await deliver("subscription_created", subscription, signed(companies.deleted))).toEqual(acknowledged);
     expect((await deliver("subscription_updated", subscription, null)).status).toBe(404);
 
-    expect(mails().map((mail) => [mail.props.reason, mail.props.workspaceId])).toEqual([
-      ["workspaceMissing", companies.deleted],
-      ["workspaceMissing", companies.deleted],
-      ["unclaimed", null],
+    expect(mails().map((mail) => [mail.props.reason, mail.props.eventName, mail.props.workspaceId])).toEqual([
+      ["workspaceMissing", "subscription_payment_success", companies.deleted],
+      ["workspaceMissing", "subscription_created", companies.deleted],
+      ["unclaimed", "subscription_updated", null],
     ]);
+    const bound = await client.query('SELECT "companyId" FROM "Subscription" WHERE "lemonSqueezyId"=$1', [
+      subscription.id,
+    ]);
+    expect(bound.rows).toEqual([]);
+  });
+
+  it("acknowledges a payment of a subscription a live workspace holds without telling the operator", async () => {
+    const subscription = provider(newProviderSubscription(companies.portal));
+    await bindDirectly("portal", subscription.id, "active");
+    const before = await stored("portal");
+
+    expect(await deliverPayment(subscription, signed(companies.deleted))).toEqual({
+      status: 200,
+      body: { ignored: true },
+    });
+
+    expect(await stored("portal")).toEqual(before);
+    expect(mails()).toEqual([]);
   });
 
   it("acknowledges an invoice event without binding anything or telling the operator", async () => {

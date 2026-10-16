@@ -12,7 +12,15 @@ const EventSchema = z.looseObject({
   data: z.looseObject({
     type: z.string().optional(),
     id: z.string().min(1),
-    attributes: z.looseObject({ created_at: z.string().nullish().catch(null) }).nullish(),
+    attributes: z
+      .looseObject({
+        created_at: z.string().nullish().catch(null),
+        subscription_id: z
+          .union([z.number().int().positive(), z.string().regex(/^[1-9]\d{0,19}$/)])
+          .nullish()
+          .catch(null),
+      })
+      .nullish(),
   }),
   meta: z.looseObject({
     event_name: z.string().min(1).catch("unknown"),
@@ -49,17 +57,36 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
 
   const payload = EventSchema.parse(JSON.parse(body));
+  const eventName = payload.meta.event_name;
+  const customData = payload.meta.custom_data;
+  const claim = customData?.company_id
+    ? { companyId: customData.company_id, signature: claimedSignature(customData.company_signature) }
+    : null;
+
+  const paidSubscriptionId = payload.data.attributes?.subscription_id;
+  if (
+    payload.data.type === "subscription-invoices" &&
+    eventName === "subscription_payment_success" &&
+    paidSubscriptionId
+  ) {
+    await getProcessLemonSqueezyWebhookInteractor().invoke({
+      kind: "payment",
+      eventName,
+      subscriptionId: String(paidSubscriptionId),
+      subscriptionCreatedAt: null,
+      claim,
+    });
+    return NextResponse.json({ ignored: true });
+  }
   if (payload.data.type !== undefined && payload.data.type !== "subscriptions")
     return NextResponse.json({ ignored: true });
 
-  const customData = payload.meta.custom_data;
   const outcome = await getProcessLemonSqueezyWebhookInteractor().invoke({
-    eventName: payload.meta.event_name,
+    kind: "subscription",
+    eventName,
     subscriptionId: payload.data.id,
     subscriptionCreatedAt: parseCreatedAt(payload.data.attributes?.created_at),
-    claim: customData?.company_id
-      ? { companyId: customData.company_id, signature: claimedSignature(customData.company_signature) }
-      : null,
+    claim,
   });
   if (outcome === "refused") return NextResponse.json({ error: "Unknown workspace" }, { status: 404 });
   if (outcome === "ignored") return NextResponse.json({ ignored: true });

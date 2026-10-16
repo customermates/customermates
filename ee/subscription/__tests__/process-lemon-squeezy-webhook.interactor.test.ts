@@ -9,7 +9,9 @@ vi.mock("@/env", () => ({
     RESEND_OPERATOR_EMAIL: "operator@example.invalid",
   },
 }));
+vi.mock("@sentry/nextjs", () => ({ captureMessage: vi.fn() }));
 
+const Sentry = await import("@sentry/nextjs");
 const { ProcessLemonSqueezyWebhookInteractor } = await import("../process-lemon-squeezy-webhook.interactor");
 const { signCheckoutWorkspace } = await import("../checkout-workspace-signature");
 const { UNSIGNED_CHECKOUT_CLAIMS_END } = await import("../unsigned-checkout-claims");
@@ -39,7 +41,27 @@ function event(
   claim: { companyId: string; signature: string | null } | null,
   subscriptionCreatedAt: Date | null = AFTER_END,
 ) {
-  return { eventName: "subscription_created", subscriptionId, subscriptionCreatedAt, claim };
+  return {
+    kind: "subscription" as const,
+    eventName: "subscription_created",
+    subscriptionId,
+    subscriptionCreatedAt,
+    claim,
+  };
+}
+
+function named(eventName: string, subscriptionId: string, claim: { companyId: string; signature: string | null }) {
+  return { ...event(subscriptionId, claim), eventName };
+}
+
+function payment(subscriptionId: string, claim: { companyId: string; signature: string | null } | null) {
+  return {
+    kind: "payment" as const,
+    eventName: "subscription_payment_success",
+    subscriptionId,
+    subscriptionCreatedAt: null,
+    claim,
+  };
 }
 
 function providerSubscription(id: string, status: string, createdAt: string) {
@@ -169,18 +191,19 @@ describe("a signed workspace claim", () => {
     },
   );
 
-  it("binds nothing and tells the operator when the signed workspace no longer exists", async () => {
+  it("acknowledges a new subscription for a signed workspace that no longer exists and tells the operator", async () => {
     const { interactor, subscriptionService, mails } = setup({});
 
     const result = await interactor.invoke(event("sub-1", signed("deleted-company")));
 
-    expect(result).toBe("refused");
+    expect(result).toBe("ignored");
     expect(subscriptionService.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
     expect(subscriptionService.syncSubscription).not.toHaveBeenCalled();
+    expect(Sentry.captureMessage).not.toHaveBeenCalled();
     expect(mails()).toEqual([
       {
         to: "operator@example.invalid",
-        subject: "Lemon Squeezy subscription for a missing workspace",
+        subject: "Lemon Squeezy payment for a missing workspace",
         props: expect.objectContaining({
           reason: "workspaceMissing",
           eventName: "subscription_created",
@@ -440,10 +463,10 @@ describe("an unsigned workspace claim", () => {
   it("tells the operator the workspace is missing when an older checkout names a deleted one", async () => {
     const { interactor, mails } = setup({});
 
-    expect(await interactor.invoke(event("sub-1", unsigned("unknown-company"), BEFORE_END))).toBe("refused");
+    expect(await interactor.invoke(event("sub-1", unsigned("unknown-company"), BEFORE_END))).toBe("ignored");
     expect(mails()).toEqual([
       expect.objectContaining({
-        subject: "Lemon Squeezy subscription for a missing workspace",
+        subject: "Lemon Squeezy payment for a missing workspace",
         props: expect.objectContaining({
           reason: "workspaceMissing",
           workspaceId: "unknown-company",
@@ -497,5 +520,88 @@ describe("an event that names no workspace", () => {
         props: expect.objectContaining({ reason: "unclaimed", subscriptionId: "sub-1", workspaceId: null }),
       },
     ]);
+  });
+});
+
+describe("an event for a workspace that no longer exists", () => {
+  it.each(["subscription_updated", "subscription_cancelled", "subscription_expired", "subscription_resumed"])(
+    "acknowledges %s without changes or an e-mail and logs it",
+    async (eventName) => {
+      const { interactor, subscriptionService, mails } = setup({});
+
+      expect(await interactor.invoke(named(eventName, "sub-1", signed("deleted-company")))).toBe("ignored");
+
+      expect(subscriptionService.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
+      expect(subscriptionService.syncSubscription).not.toHaveBeenCalled();
+      expect(mails()).toEqual([]);
+      expect(Sentry.captureMessage).toHaveBeenCalledExactlyOnceWith(
+        "Lemon Squeezy event for a missing workspace acknowledged without changes",
+        { level: "info", tags: { eventName, subscriptionId: "sub-1", workspaceId: "deleted-company" } },
+      );
+    },
+  );
+
+  it("acknowledges an unsigned claim of an older checkout the same way", async () => {
+    const { interactor, mails } = setup({});
+
+    const result = await interactor.invoke({
+      ...named("subscription_cancelled", "sub-1", unsigned("deleted-company")),
+      subscriptionCreatedAt: BEFORE_END,
+    });
+
+    expect(result).toBe("ignored");
+    expect(mails()).toEqual([]);
+    expect(Sentry.captureMessage).toHaveBeenCalledOnce();
+  });
+});
+
+describe("a successful payment", () => {
+  it("tells the operator when it pays for a subscription whose workspace no longer exists", async () => {
+    const { interactor, subscriptionService, mails } = setup({ workspaces: [unbound] });
+
+    expect(await interactor.invoke(payment("sub-1", signed("deleted-company")))).toBe("ignored");
+
+    expect(subscriptionService.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
+    expect(subscriptionService.syncSubscription).not.toHaveBeenCalled();
+    expect(Sentry.captureMessage).not.toHaveBeenCalled();
+    expect(mails()).toEqual([
+      {
+        to: "operator@example.invalid",
+        subject: "Lemon Squeezy payment for a missing workspace",
+        props: expect.objectContaining({
+          reason: "workspaceMissing",
+          eventName: "subscription_payment_success",
+          subscriptionId: "sub-1",
+          workspaceId: "deleted-company",
+          workspaceName: null,
+          otherSubscriptionId: null,
+        }),
+      },
+    ]);
+  });
+
+  it("tells the operator about an unsigned claim of an older checkout for a deleted workspace too", async () => {
+    const { interactor, mails } = setup({});
+
+    expect(await interactor.invoke(payment("sub-1", unsigned("deleted-company")))).toBe("ignored");
+
+    expect(mails().map((mail) => mail.props.reason)).toEqual(["workspaceMissing"]);
+  });
+
+  it.each([
+    ["a workspace holds the subscription", signed("deleted-company"), { ...unbound, lemonSqueezyId: "sub-1" }],
+    ["it names an existing workspace", signed("company-1"), unbound],
+    ["it names no workspace", null, unbound],
+    ["its claim is forged", { companyId: "deleted-company", signature: "not-a-signature" }, unbound],
+  ])("acknowledges it without changes or an e-mail when %s", async (_, claim, workspace) => {
+    const { interactor, subscriptionService, deleteAccountsForPlan, mails } = setup({ workspaces: [workspace] });
+
+    expect(await interactor.invoke(payment("sub-1", claim))).toBe("ignored");
+
+    expect(subscriptionService.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
+    expect(subscriptionService.syncSubscription).not.toHaveBeenCalled();
+    expect(deleteAccountsForPlan.invoke).not.toHaveBeenCalled();
+    expect(mails()).toEqual([]);
+    expect(Sentry.captureMessage).not.toHaveBeenCalled();
   });
 });

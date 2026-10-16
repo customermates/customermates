@@ -11,6 +11,7 @@ import type {
 import { expect } from "@playwright/test";
 
 import {
+  lemonSqueezyPaymentSuccessEvent,
   lemonSqueezyStatusFormatted,
   lemonSqueezySubscriptionAttributes,
   lemonSqueezySubscriptionEvent,
@@ -144,6 +145,13 @@ export function subscriptionWebhookBody(
 ) {
   const resource = localSubscriptionResource(subscription) as LemonSqueezySubscriptionResource;
   return JSON.stringify(lemonSqueezySubscriptionEvent(event, resource, customData));
+}
+
+export function paymentWebhookBody(
+  subscription: ProviderSubscription,
+  customData: LemonSqueezyCustomData | null = signedCustomData(subscription.companyId),
+) {
+  return JSON.stringify(lemonSqueezyPaymentSuccessEvent(subscription.id, customData));
 }
 
 export async function postSignedWebhook(request: APIRequestContext, body: string, secret = webhookSecret()) {

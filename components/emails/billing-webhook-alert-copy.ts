@@ -40,9 +40,10 @@ export const BILLING_WEBHOOK_ALERT_COPY: Record<BillingWebhookAlertReason, Alert
     other: "Bound subscription",
   },
   workspaceMissing: {
-    subject: "Lemon Squeezy subscription for a missing workspace",
-    summary: "An event names a workspace that does not exist, for example one that was deleted. Nothing changed.",
-    action: "Cancel the subscription in Lemon Squeezy and refund it if the customer still pays for it.",
+    subject: "Lemon Squeezy payment for a missing workspace",
+    summary:
+      "Lemon Squeezy took a payment for a subscription whose workspace does not exist, for example one that was deleted. Nothing changed. Events of this subscription that take no payment are acknowledged without an e-mail.",
+    action: "Cancel the subscription in Lemon Squeezy and refund the payment. Nothing was cancelled automatically.",
     subscription: "Subscription",
     other: "Bound subscription",
   },

@@ -178,3 +178,45 @@ export function lemonSqueezySubscriptionEvent(
     },
   };
 }
+
+export function lemonSqueezyPaymentSuccessEvent(
+  subscriptionId: string,
+  customData: LemonSqueezyCustomData | null,
+  billingReason: "initial" | "renewal" = "renewal",
+) {
+  const now = lemonSqueezyTimestamp(new Date());
+  return {
+    data: {
+      type: "subscription-invoices",
+      id: String(syntheticId()),
+      attributes: {
+        store_id: syntheticId(),
+        subscription_id: Number(subscriptionId),
+        customer_id: syntheticId(),
+        user_name: "Synthetic Payer",
+        user_email: "payer@example.invalid",
+        billing_reason: billingReason,
+        card_brand: "visa",
+        card_last_four: "4242",
+        currency: "EUR",
+        status: "paid",
+        status_formatted: "Paid",
+        refunded: false,
+        refunded_at: null,
+        subtotal: 2900,
+        discount_total: 0,
+        tax: 0,
+        total: 2900,
+        created_at: now,
+        updated_at: now,
+        test_mode: true,
+      },
+    },
+    meta: {
+      test_mode: true,
+      event_name: "subscription_payment_success",
+      webhook_id: randomUUID(),
+      ...(customData ? { custom_data: customData } : {}),
+    },
+  };
+}

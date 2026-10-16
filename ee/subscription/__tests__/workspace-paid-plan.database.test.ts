@@ -396,7 +396,7 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
     });
   });
 
-  it("answers 404, binds nothing and tells the operator for a signed event that names an unknown workspace", async () => {
+  it("acknowledges a signed event that names an unknown workspace, binds nothing and reports only the payment", async () => {
     const { EmailService } = await import("@/features/email/email.service");
     const sent = vi.spyOn(EmailService.prototype, "send").mockResolvedValue(true);
     const stray = providerSubscriptionFor(randomUUID(), 1);
@@ -404,12 +404,11 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
 
     for (const event of ["subscription_updated", "subscription_created"] as const) {
       const response = await webhook(event, stray);
-      expect(response.status).toBe(404);
-      expect(await response.json()).toEqual({ error: "Unknown workspace" });
+      expect(response.status).toBe(200);
+      expect(await response.json()).toEqual({ ignored: true });
     }
     expect(sent.mock.calls.map(([args]) => [args.to, args.subject])).toEqual([
-      ["operator@example.invalid", "Lemon Squeezy subscription for a missing workspace"],
-      ["operator@example.invalid", "Lemon Squeezy subscription for a missing workspace"],
+      ["operator@example.invalid", "Lemon Squeezy payment for a missing workspace"],
     ]);
     sent.mockRestore();
 

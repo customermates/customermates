@@ -426,8 +426,8 @@ test("a signed event naming another or an unknown workspace activates neither an
   const stray = startProviderSubscription(randomUUID(), "business", 1);
   for (const event of ["subscription_updated", "subscription_created"] as const) {
     const unknown = await postSignedWebhook(request, subscriptionWebhookBody(event, stray));
-    expect(unknown.status()).toBe(404);
-    expect(await unknown.json()).toEqual({ error: "Unknown workspace" });
+    expect(unknown.status()).toBe(200);
+    expect(await unknown.json()).toEqual({ ignored: true });
   }
   expect(await boundWorkspaces(database, stray.id)).toEqual([]);
   const missing = await request.post("/api/webhooks/lemonsqueezy", {

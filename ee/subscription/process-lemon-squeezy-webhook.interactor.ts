@@ -4,6 +4,7 @@ import type { DeleteAccountsForPlanInteractor } from "@/ee/messaging/connect/del
 import type { EmailService } from "@/features/email/email.service";
 
 import React from "react";
+import * as Sentry from "@sentry/nextjs";
 
 import BillingWebhookAlert from "@/components/emails/billing-webhook-alert";
 import {
@@ -19,16 +20,20 @@ import { isCheckoutWorkspaceSignature } from "./checkout-workspace-signature";
 import { hasLiveSubscription } from "./live-subscription";
 import { acceptsUnsignedCheckoutClaim } from "./unsigned-checkout-claims";
 
+type WorkspaceClaim = { companyId: string; signature: string | null };
+
 export type LemonSqueezyWebhookEvent = {
+  kind: "subscription" | "payment";
   eventName: string;
   subscriptionId: string;
   subscriptionCreatedAt: Date | null;
-  claim: { companyId: string; signature: string | null } | null;
+  claim: WorkspaceClaim | null;
 };
 
 export type LemonSqueezyWebhookOutcome = "applied" | "ignored" | "refused";
 
 const LIVE_PROVIDER_STATUSES = new Set(["active", "on_trial", "past_due"]);
+const PAYMENT_EVENTS = new Set(["subscription_created", "subscription_payment_success"]);
 
 function createdAt(subscription: LemonSqueezySubscription): number {
   const value = subscription.data.attributes.created_at;
@@ -38,6 +43,12 @@ function createdAt(subscription: LemonSqueezySubscription): number {
 
 function isLive(subscription: LemonSqueezySubscription): boolean {
   return LIVE_PROVIDER_STATUSES.has(subscription.data.attributes.status);
+}
+
+function isForged(claim: WorkspaceClaim): boolean {
+  return (
+    claim.signature !== null && !isCheckoutWorkspaceSignature(claim.companyId, claim.signature, env.BETTER_AUTH_SECRET)
+  );
 }
 
 @SystemInteractor
@@ -51,6 +62,7 @@ export class ProcessLemonSqueezyWebhookInteractor {
 
   async invoke(event: LemonSqueezyWebhookEvent): Promise<LemonSqueezyWebhookOutcome> {
     const bound = await this.repo.findWorkspaceBillingBySubscriptionIdUnscoped(event.subscriptionId);
+    if (event.kind === "payment") return bound ? "ignored" : this.notePayment(event);
     if (bound) return this.apply(bound, await this.provider(event.subscriptionId));
 
     const { claim } = event;
@@ -59,10 +71,9 @@ export class ProcessLemonSqueezyWebhookInteractor {
     const workspace = await this.repo.findWorkspaceBillingUnscoped(claim.companyId);
     if (workspace?.lemonSqueezyId === event.subscriptionId)
       return this.apply(workspace, await this.provider(event.subscriptionId));
+    if (isForged(claim)) return this.refuse("forged", event, workspace);
+    if (!workspace) return this.acknowledgeMissingWorkspace(event, claim);
     const signed = claim.signature !== null;
-    if (signed && !isCheckoutWorkspaceSignature(claim.companyId, claim.signature ?? "", env.BETTER_AUTH_SECRET))
-      return this.refuse("forged", event, workspace);
-    if (!workspace) return this.refuse("workspaceMissing", event, null);
     if (!signed && !acceptsUnsignedCheckoutClaim(event.subscriptionCreatedAt))
       return this.refuse("unsigned", event, workspace);
 
@@ -83,6 +94,27 @@ export class ProcessLemonSqueezyWebhookInteractor {
 
   private provider(subscriptionId: string) {
     return this.subscriptionService.getSubscriptionOrThrowUnscoped(subscriptionId);
+  }
+
+  private async notePayment(event: LemonSqueezyWebhookEvent) {
+    const { claim } = event;
+    if (!claim || isForged(claim)) return "ignored" as const;
+    if (await this.repo.findWorkspaceBillingUnscoped(claim.companyId)) return "ignored" as const;
+
+    return this.acknowledgeMissingWorkspace(event, claim);
+  }
+
+  private async acknowledgeMissingWorkspace(event: LemonSqueezyWebhookEvent, claim: WorkspaceClaim) {
+    if (PAYMENT_EVENTS.has(event.eventName)) {
+      await this.alert("workspaceMissing", event, null, null);
+      return "ignored" as const;
+    }
+
+    Sentry.captureMessage("Lemon Squeezy event for a missing workspace acknowledged without changes", {
+      level: "info",
+      tags: { eventName: event.eventName, subscriptionId: event.subscriptionId, workspaceId: claim.companyId },
+    });
+    return "ignored" as const;
   }
 
   private async apply(

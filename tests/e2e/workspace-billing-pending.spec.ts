@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import type { Page } from "@playwright/test";
 import type { Client as Database } from "pg";
 
@@ -8,6 +10,7 @@ import {
   changeProviderSubscription,
   checkoutsFor,
   deliverWebhookBody,
+  paymentWebhookBody,
   postSignedWebhook,
   signedCustomData,
   startProviderSubscription,
@@ -317,6 +320,39 @@ test.describe("workspace claims of the webhook", () => {
     await expect(page).toHaveURL(/\/en\/subscription-expired$/);
     await expect(planPicker(page)).toBeVisible();
     expect(errors).toEqual([]);
+  });
+
+  test("events for a workspace that no longer exists are acknowledged, and only payments reach the operator", async ({
+    request,
+    database,
+  }) => {
+    const deleted = randomUUID();
+    const stray = startProviderSubscription(deleted, "pro", 1);
+
+    for (const event of ["subscription_updated", "subscription_cancelled", "subscription_expired"] as const) {
+      const response = await postSignedWebhook(request, subscriptionWebhookBody(event, stray));
+      expect(response.status()).toBe(200);
+      expect(await response.json()).toEqual({ ignored: true });
+    }
+    expect(operatorMailsAbout(stray.id)).toEqual([]);
+
+    for (const body of [subscriptionWebhookBody("subscription_created", stray), paymentWebhookBody(stray)]) {
+      const response = await postSignedWebhook(request, body);
+      expect(response.status()).toBe(200);
+      expect(await response.json()).toEqual({ ignored: true });
+    }
+    const mails = operatorMailsAbout(stray.id);
+    expect(mails.map((mail) => mail.subject)).toEqual([
+      "Lemon Squeezy payment for a missing workspace",
+      "Lemon Squeezy payment for a missing workspace",
+    ]);
+    expect(mails.every((mail) => emailLanguage(mail) === "en")).toBe(true);
+    const texts = mails.map(emailText);
+    expect(texts.filter((text) => text.includes("Event subscription_created"))).toHaveLength(1);
+    expect(texts.filter((text) => text.includes("Event subscription_payment_success"))).toHaveLength(1);
+    expect(texts.every((text) => text.includes(`Workspace ${deleted}`))).toBe(true);
+    const bound = await database.query('SELECT "companyId" FROM "Subscription" WHERE "lemonSqueezyId"=$1', [stray.id]);
+    expect(bound.rows).toEqual([]);
   });
 
   test("a second paid subscription for a workspace binds the newest and asks the operator to refund the older one", async ({

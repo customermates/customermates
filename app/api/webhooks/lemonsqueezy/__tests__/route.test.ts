@@ -15,9 +15,8 @@ vi.mock("@/core/di", () => ({
 }));
 
 const { POST } = await import("../route");
-const { lemonSqueezySubscriptionAttributes, lemonSqueezySubscriptionEvent } = await import(
-  "@/tests/helpers/lemonsqueezy-subscription"
-);
+const { lemonSqueezyPaymentSuccessEvent, lemonSqueezySubscriptionAttributes, lemonSqueezySubscriptionEvent } =
+  await import("@/tests/helpers/lemonsqueezy-subscription");
 
 function sign(body: string): string {
   return createHmac("sha256", WEBHOOK_SECRET).update(body).digest("hex");
@@ -77,6 +76,7 @@ describe("LemonSqueezy webhook route", () => {
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ success: true });
     expect(mockProcess).toHaveBeenCalledExactlyOnceWith({
+      kind: "subscription",
       eventName: "subscription_updated",
       subscriptionId: "sub-1",
       subscriptionCreatedAt: new Date("2026-10-16T09:12:34.000Z"),
@@ -159,13 +159,50 @@ describe("LemonSqueezy webhook route", () => {
     );
   });
 
-  it("acknowledges an event about another kind of object without touching any workspace", async () => {
+  it.each([
+    ["a failed payment", "subscription_payment_failed", "subscription-invoices"],
+    ["a refunded payment", "subscription_payment_refunded", "subscription-invoices"],
+    ["an order", "order_created", "orders"],
+    ["a license key", "license_key_created", "license-keys"],
+  ])("acknowledges %s without touching any workspace", async (_, eventName, type) => {
     const request = makeRequest({
-      meta: {
-        event_name: "subscription_payment_success",
-        custom_data: { company_id: "company-1", company_signature: SIGNATURE },
-      },
-      data: { type: "subscription-invoices", id: "invoice-1", attributes: { subscription_id: 1 } },
+      meta: { event_name: eventName, custom_data: { company_id: "company-1", company_signature: SIGNATURE } },
+      data: { type, id: "object-1", attributes: { subscription_id: 1 } },
+    });
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ ignored: true });
+    expect(mockProcess).not.toHaveBeenCalled();
+  });
+
+  it("hands a successful payment to the interactor with the subscription it pays for and acknowledges it", async () => {
+    mockProcess.mockResolvedValueOnce("ignored");
+    const request = makeRequest(
+      lemonSqueezyPaymentSuccessEvent("123456789", { company_id: "company-1", company_signature: SIGNATURE }),
+    );
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ ignored: true });
+    expect(mockProcess).toHaveBeenCalledExactlyOnceWith({
+      kind: "payment",
+      eventName: "subscription_payment_success",
+      subscriptionId: "123456789",
+      subscriptionCreatedAt: null,
+      claim: { companyId: "company-1", signature: SIGNATURE },
+    });
+  });
+
+  it.each([
+    ["no subscription", {}],
+    ["a malformed subscription", { subscription_id: "sub-1" }],
+  ])("acknowledges a successful payment that names %s without asking the interactor", async (_, attributes) => {
+    const request = makeRequest({
+      meta: { event_name: "subscription_payment_success", custom_data: { company_id: "company-1" } },
+      data: { type: "subscription-invoices", id: "invoice-1", attributes },
     });
 
     const response = await POST(request);
@@ -229,6 +266,7 @@ describe("LemonSqueezy webhook route", () => {
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ success: true });
     expect(mockProcess).toHaveBeenCalledExactlyOnceWith({
+      kind: "subscription",
       eventName: "subscription_created",
       subscriptionId: "123456789",
       subscriptionCreatedAt: new Date("2026-10-16T09:12:34.000Z"),
