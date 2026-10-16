@@ -8,7 +8,7 @@ import { validateRecordModel } from "@/features/records/record-model-validation"
 import { WIDGET_GRID_BREAKPOINT_COLUMNS, rectsOverlap } from "@/features/widget/widget-grid";
 import { ChartColor, DisplayType } from "@/features/widget/widget-display.schema";
 
-import { compileSetupDashboard } from "../setup-dashboard-compiler";
+import { compileSetupDashboard, setupDashboardLayouts } from "../setup-dashboard-compiler";
 import { compileSetupImportMapping, setupImportList, withOptionalImportFields } from "../setup-import-compiler";
 import { compileSetupRecordModel } from "../setup-model-compiler";
 import { SETUP_PLAN_LIMITS, SetupPlanSchema } from "../setup-plan.schema";
@@ -31,7 +31,10 @@ async function build(
   });
   if (!compiled.ok) throw new Error(JSON.stringify(compiled.issues));
   const prepared = await prepareConfiguration(compiled.data, model);
-  const resolver = createSetupResolver(plan, { model: prepared.model, references: prepared.preview.references });
+  const resolver = createSetupResolver(plan, {
+    model: prepared.model,
+    references: prepared.preview.references,
+  });
   const reference = (key: string) => prepared.preview.references.find((entry) => entry.reference === key)?.id;
   return { plan, change: compiled.data, prepared, resolver, reference };
 }
@@ -42,7 +45,12 @@ const withoutOfferings: SetupPlanInput = {
     ...agencyPlan.recordModel,
     lists: agencyPlan.recordModel.lists.map((list) =>
       list.role === "offerings"
-        ? { key: list.key, label: list.label, pluralLabel: list.pluralLabel, icon: list.icon }
+        ? {
+            key: list.key,
+            label: list.label,
+            pluralLabel: list.pluralLabel,
+            icon: list.icon,
+          }
         : list,
     ),
   },
@@ -68,10 +76,17 @@ describe("workspace setup compiler", () => {
 
   it("is deterministic and keys idempotency to the setup", () => {
     const plan = SetupPlanSchema.parse(agencyPlan);
-    const context = { setupId: SETUP_ID, model: emptyWorkspaceModel(), labels: SETUP_LABELS };
+    const context = {
+      setupId: SETUP_ID,
+      model: emptyWorkspaceModel(),
+      labels: SETUP_LABELS,
+    };
     const first = compileSetupRecordModel(plan, context);
     const second = compileSetupRecordModel(plan, context);
-    const other = compileSetupRecordModel(plan, { ...context, setupId: "a2c4e6f8-1b3d-4f5a-8c7e-9d0b1a2c3e4f" });
+    const other = compileSetupRecordModel(plan, {
+      ...context,
+      setupId: "a2c4e6f8-1b3d-4f5a-8c7e-9d0b1a2c3e4f",
+    });
     expect(first).toEqual(second);
     expect(first.ok && other.ok && first.data.idempotencyKey !== other.data.idempotencyKey).toBe(true);
   });
@@ -101,7 +116,11 @@ describe("workspace setup compiler", () => {
     });
     expect(fields.find((field) => field.id === "$field.organization.projectBudget")?.behavior).toMatchObject({
       kind: "rollup",
-      expression: { relationId: "$rel.projectClient", direction: "incoming", reducer: "sum" },
+      expression: {
+        relationId: "$rel.projectClient",
+        direction: "incoming",
+        reducer: "sum",
+      },
     });
   });
 
@@ -122,11 +141,23 @@ describe("workspace setup compiler", () => {
       format: { onClick: "open", providerAvatar: true },
     });
     const avatar = prepared.model.fields.find((field) => field.id === reference(`$field.${people}.avatar`));
-    expect(avatar).toMatchObject({ typeId: peopleId, label: "Avatar", valueType: "url" });
+    expect(avatar).toMatchObject({
+      typeId: peopleId,
+      label: "Avatar",
+      valueType: "url",
+    });
     expect(prepared.model.capabilities).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ kind: "avatar", typeId: peopleId, fields: [{ role: "image", fieldId: avatar?.id }] }),
-        expect.objectContaining({ kind: "membershipAuthorization", typeId: reference(`$list.${tasks}`), fields: [] }),
+        expect.objectContaining({
+          kind: "avatar",
+          typeId: peopleId,
+          fields: [{ role: "image", fieldId: avatar?.id }],
+        }),
+        expect.objectContaining({
+          kind: "membershipAuthorization",
+          typeId: reference(`$list.${tasks}`),
+          fields: [],
+        }),
       ]),
     );
     expect(prepared.model.capabilities.filter((binding) => binding.kind === "membershipAuthorization")).toHaveLength(1);
@@ -178,9 +209,18 @@ describe("workspace setup compiler", () => {
     const { prepared, reference } = await build(agencyPlan);
     const relation = (key: string) =>
       prepared.model.relationships.find((entry) => entry.id === reference(`$rel.${key}`));
-    expect(relation("dealContacts")).toMatchObject({ messagesOnSource: true, messagesOnTarget: false });
-    expect(relation("contactClient")).toMatchObject({ messagesOnSource: false, messagesOnTarget: true });
-    expect(relation("projectClient")).toMatchObject({ messagesOnSource: false, messagesOnTarget: false });
+    expect(relation("dealContacts")).toMatchObject({
+      messagesOnSource: true,
+      messagesOnTarget: false,
+    });
+    expect(relation("contactClient")).toMatchObject({
+      messagesOnSource: false,
+      messagesOnTarget: true,
+    });
+    expect(relation("projectClient")).toMatchObject({
+      messagesOnSource: false,
+      messagesOnTarget: false,
+    });
   });
 
   it("fills a win chance on every stage and opens new deals in the first open stage", async () => {
@@ -201,7 +241,10 @@ describe("workspace setup compiler", () => {
       "100",
       "0",
     ]);
-    expect(stage?.behavior).toEqual({ kind: "input", defaultValue: { kind: "select", value: "lead" } });
+    expect(stage?.behavior).toEqual({
+      kind: "input",
+      defaultValue: { kind: "select", value: "lead" },
+    });
     const phase = prepared.model.fields.find((field) => field.id === reference("$field.project.phase"));
     expect(phase?.options.every((option) => option.attributes.length === 0)).toBe(true);
     expect(phase?.behavior).toEqual({ kind: "input" });
@@ -229,7 +272,11 @@ describe("workspace setup compiler", () => {
     });
     expect(
       prepared.model.relationships.find((relation) => relation.id === reference("$rel.lineItemOffering")),
-    ).toMatchObject({ targetTypeId: reference("$list.service"), sourceLabel: "Service", onTargetDelete: "cascade" });
+    ).toMatchObject({
+      targetTypeId: reference("$list.service"),
+      sourceLabel: "Service",
+      onTargetDelete: "cascade",
+    });
     const lineFields = prepared.model.fields
       .filter((field) => field.typeId === lineItem?.id)
       .sort((left, right) => left.position - right.position)
@@ -246,13 +293,23 @@ describe("workspace setup compiler", () => {
       label: "Value",
       valueType: "currency",
       format: { currency: "EUR" },
-      behavior: { kind: "rollup", expression: { relationId: toDeal, direction: "incoming", reducer: "sum" } },
+      behavior: {
+        kind: "rollup",
+        expression: {
+          relationId: toDeal,
+          direction: "incoming",
+          reducer: "sum",
+        },
+      },
     });
     expect(prepared.model.fields.find((field) => field.id === reference("$field.service.price"))).toMatchObject({
       label: "Price",
       valueType: "currency",
       required: true,
-      behavior: { kind: "input", defaultValue: { kind: "decimal", value: "0", currency: "EUR" } },
+      behavior: {
+        kind: "input",
+        defaultValue: { kind: "decimal", value: "0", currency: "EUR" },
+      },
     });
     const deal = prepared.model.types.find((type) => type.id === reference("$list.deal"));
     const service = prepared.model.types.find((type) => type.id === reference("$list.service"));
@@ -337,7 +394,10 @@ describe("workspace setup compiler", () => {
           { fieldId: resolver.field("deal.weightedValue"), aggregation: "sum" },
         ],
       },
-      sortDescriptor: { field: resolver.field("deal.closeDate"), direction: "asc" },
+      sortDescriptor: {
+        field: resolver.field("deal.closeDate"),
+        direction: "asc",
+      },
     });
     expect(pipeline?.state.columnOrder?.[0]).toBe(resolver.field("deal.name"));
     expect(pipeline?.state.hiddenColumns).toContain(resolver.field("deal.weightedValue"));
@@ -370,6 +430,32 @@ describe("workspace setup compiler", () => {
     }
   });
 
+  it("packs metrics into the first rows and charts into equal pairs below", () => {
+    const [metric, chart] = [agencyPlan.dashboard.widgets[0], agencyPlan.dashboard.widgets[2]];
+    const widgets = [
+      chart,
+      metric,
+      { ...chart, key: "wide", size: "wide" as const },
+      metric,
+      metric,
+      chart,
+      metric,
+      metric,
+      chart,
+    ];
+    expect(setupDashboardLayouts(widgets, [{ x: 0, y: 0, w: 12, h: 3 }])).toEqual([
+      { x: 0, y: 13, w: 6, h: 6 },
+      { x: 0, y: 3, w: 3, h: 2 },
+      { x: 0, y: 7, w: 12, h: 6 },
+      { x: 3, y: 3, w: 3, h: 2 },
+      { x: 6, y: 3, w: 3, h: 2 },
+      { x: 6, y: 13, w: 6, h: 6 },
+      { x: 9, y: 3, w: 3, h: 2 },
+      { x: 0, y: 5, w: 12, h: 2 },
+      { x: 0, y: 19, w: 12, h: 6 },
+    ]);
+  });
+
   it("puts the first ranked numbers on the top row", async () => {
     const { plan, prepared, resolver } = await build(agencyPlan);
     const widgets = compileSetupDashboard(plan, resolver, prepared.model, {
@@ -378,8 +464,8 @@ describe("workspace setup compiler", () => {
     });
     if (!widgets.ok) throw new Error(JSON.stringify(widgets.issues));
     expect(widgets.data.slice(0, 2).map((widget) => widget.layout)).toEqual([
-      { x: 0, y: 0, w: 3, h: 2 },
-      { x: 3, y: 0, w: 3, h: 2 },
+      { x: 0, y: 0, w: 6, h: 2 },
+      { x: 6, y: 0, w: 6, h: 2 },
     ]);
     expect(widgets.data[1].measure?.source.filters).toEqual([
       {
@@ -401,8 +487,14 @@ describe("workspace setup compiler", () => {
     const input = structuredClone(agencyPlan);
     input.dashboard.widgets = [{ ...agencyPlan.dashboard.widgets[2], display: DisplayType.number }];
     const { plan, prepared, resolver } = await build(input);
-    const widgets = compileSetupDashboard(plan, resolver, prepared.model, { setupId: SETUP_ID, expectedRevision: 1 });
-    expect(widgets).toEqual({ ok: false, issues: [{ code: "display_mismatch", path: "dashboard.widgets.0.display" }] });
+    const widgets = compileSetupDashboard(plan, resolver, prepared.model, {
+      setupId: SETUP_ID,
+      expectedRevision: 1,
+    });
+    expect(widgets).toEqual({
+      ok: false,
+      issues: [{ code: "display_mismatch", path: "dashboard.widgets.0.display" }],
+    });
   });
 
   it("compiles the import mapping to fields of the target list", async () => {
@@ -460,7 +552,10 @@ describe("workspace setup compiler", () => {
   it("makes the fields of the list a spreadsheet fills optional, so missing cells and columns do not block rows", () => {
     const input = structuredClone(agencyPlan);
     input.importMapping = null;
-    input.recordModel.fields = input.recordModel.fields.map((field) => ({ ...field, required: true }));
+    input.recordModel.fields = input.recordModel.fields.map((field) => ({
+      ...field,
+      required: true,
+    }));
     const plan = SetupPlanSchema.parse(input);
     expect(setupImportList(plan)).toBe("contact");
     const relaxed = withOptionalImportFields(plan);
@@ -471,13 +566,22 @@ describe("workspace setup compiler", () => {
       relaxed.recordModel.fields.filter((field) => field.key.startsWith("deal.")).every((field) => field.required),
     ).toBe(true);
     expect(
-      setupImportList({ ...plan, importMapping: { list: "organization", columns: [{ column: "Name", field: null }] } }),
+      setupImportList({
+        ...plan,
+        importMapping: {
+          list: "organization",
+          columns: [{ column: "Name", field: null }],
+        },
+      }),
     ).toBe("organization");
   });
 
   it("refuses a list default column of another list", () => {
     const input = structuredClone(agencyPlan);
-    input.listDefaults[1] = { ...agencyPlan.listDefaults[1], columns: ["deal.closeDate"] };
+    input.listDefaults[1] = {
+      ...agencyPlan.listDefaults[1],
+      columns: ["deal.closeDate"],
+    };
     const compiled = compileSetupRecordModel(SetupPlanSchema.parse(input), {
       setupId: SETUP_ID,
       model: emptyWorkspaceModel(),

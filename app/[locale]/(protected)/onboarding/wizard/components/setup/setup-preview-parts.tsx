@@ -15,12 +15,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/core/utils/cn";
 import { DisplayType } from "@/features/widget/widget.schema";
 
-const TILE_SPANS: Record<string, string> = {
-  small: "col-span-1",
-  medium: "col-span-1 @2xl/sketch:col-span-2",
-  large: "col-span-2",
-  wide: "col-span-2 @2xl/sketch:col-span-4",
-};
+const METRIC_SPAN = "col-span-1";
+const CHART_SPAN = "col-span-2";
+const WIDE_SPAN = "col-span-2 @2xl/sketch:col-span-4";
 
 const DISPLAY_TYPES = new Set<string>(Object.values(DisplayType));
 
@@ -80,7 +77,11 @@ export function PlaceholderLine({ className, pulse = false }: { className?: stri
   return <Skeleton aria-hidden animated={pulse} className={cn("h-2", className)} />;
 }
 
-export type BoardStage = { label: string; color: ChipColor | null; weight?: number | null };
+export type BoardStage = {
+  label: string;
+  color: ChipColor | null;
+  weight?: number | null;
+};
 
 export function PipelineBoard({
   stages,
@@ -111,7 +112,9 @@ export function PipelineBoard({
 
               {stage.weight !== null && stage.weight !== undefined ? (
                 <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
-                  {t("WorkspaceSetup.plan.winChanceValue", { value: stage.weight })}
+                  {t("WorkspaceSetup.plan.winChanceValue", {
+                    value: stage.weight,
+                  })}
                 </span>
               ) : null}
             </div>
@@ -138,22 +141,46 @@ export function PipelineBoard({
   );
 }
 
-export type DashboardTile = { key: string; title: string; display: string; size?: string | null };
+export type DashboardTile = {
+  key: string;
+  title: string;
+  display: string;
+  size?: string | null;
+};
+
+function sketchTiles(tiles: DashboardTile[]) {
+  const typed = tiles.map((tile) => ({
+    tile,
+    display: DISPLAY_TYPES.has(tile.display) ? (tile.display as DisplayType) : DisplayType.verticalBarChart,
+  }));
+  const metrics = typed.filter(({ display }) => display === DisplayType.number);
+  const charts = typed.filter(({ display }) => display !== DisplayType.number);
+  const paired = charts.filter(({ tile }) => tile.size !== "wide").length;
+  let seen = 0;
+  return [
+    ...metrics.map((entry) => ({ ...entry, span: METRIC_SPAN })),
+    ...charts.map((entry) => {
+      if (entry.tile.size === "wide") return { ...entry, span: WIDE_SPAN };
+      seen += 1;
+      return {
+        ...entry,
+        span: paired % 2 === 1 && seen === paired ? WIDE_SPAN : CHART_SPAN,
+      };
+    }),
+  ];
+}
 
 export function DashboardSketch({ tiles }: { tiles: DashboardTile[] }) {
   return (
     <div className="@container/sketch">
       <div className="grid grid-cols-2 gap-2 @2xl/sketch:grid-cols-4">
-        {tiles.map((tile) => {
-          const display = DISPLAY_TYPES.has(tile.display)
-            ? (tile.display as DisplayType)
-            : DisplayType.verticalBarChart;
+        {sketchTiles(tiles).map(({ tile, display, span }) => {
           return (
             <div
               key={tile.key}
               className={cn(
                 "flex min-h-28 min-w-0 animate-page-result-in flex-col gap-3 rounded-lg border border-border p-3 motion-reduce:animate-none",
-                TILE_SPANS[tile.size ?? (display === DisplayType.number ? "small" : "medium")] ?? "col-span-1",
+                span,
               )}
             >
               <span className="text-xs font-medium [overflow-wrap:anywhere]">{tile.title}</span>

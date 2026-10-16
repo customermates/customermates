@@ -10,23 +10,41 @@ import { recordMeasureIsValid } from "@/features/records/record-measure-validati
 import { RecordWidgetInputSchema } from "@/features/widget/record-widget.schema";
 import { widgetDisplayTypeIssue } from "@/features/widget/widget-display-rules";
 import { DisplayType } from "@/features/widget/widget-display.schema";
-import { WIDGET_GRID_BREAKPOINT_COLUMNS, firstFreeSpot, widgetDefaultSize } from "@/features/widget/widget-grid";
+import { WIDGET_GRID_BREAKPOINT_COLUMNS, widgetDefaultSize } from "@/features/widget/widget-grid";
 
 import { setupIdempotencyKey } from "./setup-references";
 
-const WIDGET_SIZES: Record<NonNullable<SetupWidget["size"]>, { w: number; h: number }> = {
-  small: { w: 3, h: 4 },
-  medium: { w: 4, h: 6 },
-  large: { w: 6, h: 8 },
-  wide: { w: 12, h: 6 },
-};
 const GRID_COLUMNS = WIDGET_GRID_BREAKPOINT_COLUMNS.lg;
+const METRICS_PER_ROW = 4;
+const CHARTS_PER_ROW = 2;
+const CHART_HEIGHT = 6;
 
-function setupWidgetSize(widget: SetupWidget): { w: number; h: number } {
-  const fallback = widgetDefaultSize("chart", widget.display);
-  if (!widget.size) return fallback;
-  const size = WIDGET_SIZES[widget.size];
-  return widget.display === DisplayType.number ? { w: size.w, h: fallback.h } : size;
+export function setupDashboardLayouts(widgets: readonly SetupWidget[], occupied: readonly GridRect[] = []): GridRect[] {
+  const layouts: GridRect[] = [];
+  let y = occupied.reduce((bottom, rect) => Math.max(bottom, rect.y + rect.h), 0);
+  const placeRow = (indices: number[], h: number) => {
+    const w = GRID_COLUMNS / indices.length;
+    indices.forEach((index, column) => {
+      layouts[index] = { x: column * w, y, w, h };
+    });
+    y += h;
+  };
+  const metrics = widgets.flatMap((widget, index) => (widget.display === DisplayType.number ? [index] : []));
+  for (let start = 0; start < metrics.length; start += METRICS_PER_ROW)
+    placeRow(metrics.slice(start, start + METRICS_PER_ROW), widgetDefaultSize("chart", DisplayType.number).h);
+
+  let row: number[] = [];
+  widgets.forEach((widget, index) => {
+    if (widget.display === DisplayType.number) return;
+    if (widget.size === "wide") return placeRow([index], CHART_HEIGHT);
+    row.push(index);
+    if (row.length === CHARTS_PER_ROW) {
+      placeRow(row, CHART_HEIGHT);
+      row = [];
+    }
+  });
+  if (row.length) placeRow(row, CHART_HEIGHT);
+  return layouts;
 }
 
 export type SetupDashboardContext = {
@@ -43,7 +61,7 @@ export function compileSetupDashboard(
   context: SetupDashboardContext,
 ): SetupCompileResult<RecordWidgetInput[]> {
   const issues: SetupCompileIssue[] = [];
-  const occupied: GridRect[] = [...(context.occupied ?? [])];
+  const layouts = setupDashboardLayouts(plan.dashboard.widgets, context.occupied);
   const widgets: RecordWidgetInput[] = [];
   plan.dashboard.widgets.forEach((widget, index) => {
     const path = `dashboard.widgets.${index}`;
@@ -71,7 +89,11 @@ export function compileSetupDashboard(
           {
             fieldId,
             operator: filter.operator,
-            value: { kind: "decimal", value: String(filter.days), currency: null },
+            value: {
+              kind: "decimal",
+              value: String(filter.days),
+              currency: null,
+            },
           },
         ];
       }
@@ -100,10 +122,6 @@ export function compileSetupDashboard(
     if (!recordMeasureIsValid(measure, model)) return missing("invalid_measure", "list");
     if (widgetDisplayTypeIssue(widget.display, measure, model)) return missing("display_mismatch", "display");
     const choice = groupField ? model.fields.find((candidate) => candidate.id === groupField) : undefined;
-    const size = setupWidgetSize(widget);
-    const spot = firstFreeSpot(occupied, GRID_COLUMNS, size.w, size.h);
-    const layout = { ...spot, w: Math.min(size.w, GRID_COLUMNS), h: size.h };
-    occupied.push(layout);
     const input = {
       expectedRevision: context.expectedRevision,
       idempotencyKey: setupIdempotencyKey(context.setupId, `widget:${widget.key}`),
@@ -115,7 +133,7 @@ export function compileSetupDashboard(
         ...(choice?.valueType === "select" ? { useGroupColors: true } : {}),
       },
       isTemplate: plan.workspace.dashboardAudience !== "me",
-      layout,
+      layout: layouts[index],
       viewId: null,
     };
     const parsed = RecordWidgetInputSchema.safeParse(input);

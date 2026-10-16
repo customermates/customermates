@@ -44,7 +44,7 @@ export const SETUP_PLAN_VIEWS_INSTRUCTION = [
   "You design the list views, the dashboard and the sample-data specification of a new CRM workspace whose record model is already planned.",
   "Use only list keys, field references and option keys of the planned record model below, including its automatic fields; never invent a field.",
   "Give at most one listDefaults entry per list. Columns name only fields of the same list, never relationships. A board layout needs groupBy on a choice field. Totals need a grouping.",
-  "Dashboard widgets follow the ranked numbers the company checks every week; a count has valueField null, every other aggregation needs a number or currency field. Widget titles are short, about three words.",
+  "Dashboard widgets follow the ranked numbers the company checks every week; a count has valueField null, every other aggregation needs a number or currency field. Widget titles are short, about three words. Number widgets fill the top row, up to four side by side, and charts follow in pairs of equal size; give a chart size wide only when it needs the full width, such as a trend over time, and leave size unset otherwise.",
   "Relative date filters take a whole number of days of at least 1: inLastDays 30 keeps dates from 30 days ago onwards, notInLastDays 1 keeps dates before yesterday, for example overdue due dates.",
   "Sample data asks for five to ten realistic records per list the company will use daily. Kinds describe them in the workspace language; for the offerings list, kinds name the company's own offerings translated into the workspace language.",
   "When a spreadsheet was uploaded, importMapping maps its columns onto fields of one list: a column of record names, such as full person names, onto <listKey>.name and one column of email addresses onto <people>.channels. Otherwise importMapping is null.",
@@ -101,23 +101,41 @@ function partDescription(part: SetupQuestionPart, label: (key: string) => string
     case "singleChoice":
       return part.optionSource
         ? { ...base, optionSource: part.optionSource }
-        : { ...base, options: part.options.map((option) => ({ id: option.id, label: label(option.labelKey) })) };
+        : {
+            ...base,
+            options: part.options.map((option) => ({
+              id: option.id,
+              label: label(option.labelKey),
+            })),
+          };
     case "multipleChoice":
       return {
         ...base,
         allowCustom: part.allowCustom,
-        options: part.options.map((option) => ({ id: option.id, label: label(option.labelKey) })),
+        options: part.options.map((option) => ({
+          id: option.id,
+          label: label(option.labelKey),
+        })),
       };
     case "rankedPick":
       return {
         ...base,
         maxPicks: part.maxPicks,
-        options: part.options.map((option) => ({ id: option.id, label: label(option.labelKey) })),
+        options: part.options.map((option) => ({
+          id: option.id,
+          label: label(option.labelKey),
+        })),
       };
     case "orderedList":
       return { ...base, maxItems: part.maxItems, winChance: part.winChance };
     case "range":
-      return { ...base, unit: part.unit, single: part.single, min: part.min, max: part.max };
+      return {
+        ...base,
+        unit: part.unit,
+        single: part.single,
+        min: part.min,
+        max: part.max,
+      };
     case "shortText":
       return { ...base, maxLength: part.maxLength };
   }
@@ -145,7 +163,10 @@ export function setupAnswerDigest(answers: SetupAnswers, catalog: SetupCatalogPa
     const entry = catalog.find((candidate) => candidate.part === part);
     if (!answer || !entry) return [];
     const options = "options" in entry ? entry.options : [];
-    const choice = (id: string) => ({ id, label: options.find((option) => option.id === id)?.label ?? id });
+    const choice = (id: string) => ({
+      id,
+      label: options.find((option) => option.id === id)?.label ?? id,
+    });
     const value = answer.value;
     const given =
       value.format === "singleChoice"
