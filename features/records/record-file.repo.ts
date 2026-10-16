@@ -2,9 +2,10 @@ import type { RecordRef } from "./record-model.schema";
 
 export type StoredRecordFile = {
   id: string;
-  typeId: string;
-  fieldId: string;
+  typeId: string | null;
+  fieldId: string | null;
   recordId: string | null;
+  conversationId: string | null;
   storageDriver: string;
   storageKey: string;
   name: string;
@@ -20,6 +21,6 @@ export type StoredRecordFile = {
 
 export interface RecordFileRepo {
   getFilesCompanyWide(fileIds: string[]): Promise<StoredRecordFile[]>;
-  attachFiles(ref: RecordRef, fieldId: string, fileIds: string[]): Promise<number>;
+  attachFiles(ref: RecordRef, fieldId: string, fileIds: string[], chatOwnerId?: string | null): Promise<number>;
   detachFiles(ref: RecordRef, fieldId: string, fileIds: string[]): Promise<number>;
 }

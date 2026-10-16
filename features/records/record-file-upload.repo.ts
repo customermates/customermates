@@ -2,8 +2,8 @@ import type { StoredRecordFile } from "./record-file.repo";
 
 export type PendingRecordFile = {
   id: string;
-  typeId: string;
-  fieldId: string;
+  typeId: string | null;
+  fieldId: string | null;
   storageDriver: string;
   storageKey: string;
   name: string;
@@ -13,7 +13,10 @@ export type PendingRecordFile = {
 
 export type RecordFileExtractionStatus = "pending" | "done" | "noText" | "unsupported" | "failed" | "skipped";
 
-export type RecordFileDetails = StoredRecordFile & { extractionStatus: RecordFileExtractionStatus };
+export type RecordFileDetails = StoredRecordFile & {
+  extractionStatus: RecordFileExtractionStatus;
+  pageCount: number | null;
+};
 
 export interface RecordFileUploadRepo {
   createPendingFile(file: PendingRecordFile): Promise<void>;

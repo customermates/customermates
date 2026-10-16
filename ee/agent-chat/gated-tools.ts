@@ -61,7 +61,7 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
     approvalFreeActions: ["list", "search", "get", "create", "update"],
     readOnlyActions: ["list", "search", "get"],
   },
-  manage_record_files: { approvalFreeActions: ["read", "create_upload", "upload"], readOnlyActions: ["read"] },
+  manage_record_files: { inputRisk: (input) => recordToolRisk("manage_record_files", input) },
   move_email_thread: { approvalFree: true },
   linkedin_manage_sales_lists: {
     approvalFreeActions: ["list", "browse", "save"],

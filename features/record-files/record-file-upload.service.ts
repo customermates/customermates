@@ -2,7 +2,7 @@ import type { FileStorageDriverName } from "@/core/config/environment";
 import type { RecordRepo } from "@/features/records/record.repo";
 import type { RecordAccessPolicy } from "@/features/records/record-access";
 import type { PendingRecordFile, RecordFileUploadRepo } from "@/features/records/record-file-upload.repo";
-import type { CreateRecordFileUpload } from "./record-file.schema";
+import type { CreateChatFileUpload, CreateRecordFileUpload } from "./record-file.schema";
 import type { RecordFileQuotaService } from "./record-file-quota.service";
 
 import { randomBytes, randomUUID } from "node:crypto";
@@ -39,6 +39,20 @@ export class RecordFileUploadService extends UserAccessor {
       throw unwindFailure(CustomErrorCode.recordValueInvalid, "validation", ["fieldId"]);
     if (!policy.allowed(input.typeId, "create") && !policy.allowed(input.typeId, "update"))
       throw unwindFailure(CustomErrorCode.permissionDenied, "authorization");
+    return this.create({ typeId: input.typeId, fieldId: input.fieldId }, input, locale);
+  }
+
+  async reserveChatFile(input: CreateChatFileUpload, locale: string): Promise<PendingRecordFile> {
+    const policy = await this.policy.load();
+    if (!policy.actor) throw unwindFailure(CustomErrorCode.permissionDenied, "authorization");
+    return this.create({ typeId: null, fieldId: null }, input, locale);
+  }
+
+  private async create(
+    target: Pick<PendingRecordFile, "typeId" | "fieldId">,
+    input: CreateChatFileUpload,
+    locale: string,
+  ): Promise<PendingRecordFile> {
     if (input.size > this.limits.maxBytes) {
       throw unwindFailure(CustomErrorCode.recordFileTooLarge, "validation", ["size"], {
         limit: storageSizeLabel(this.limits.maxBytes, locale),
@@ -56,8 +70,7 @@ export class RecordFileUploadService extends UserAccessor {
     const id = randomUUID();
     const file: PendingRecordFile = {
       id,
-      typeId: input.typeId,
-      fieldId: input.fieldId,
+      ...target,
       storageDriver: this.limits.driver,
       storageKey: `${this.companyId}/${id}/${randomBytes(16).toString("hex")}`,
       name,

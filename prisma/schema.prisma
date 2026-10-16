@@ -1875,9 +1875,10 @@ enum RecordFileExtractionStatus {
 model RecordFile {
   id               String                     @id @default(uuid())
   companyId        String
-  typeId           String
-  fieldId          String
+  typeId           String?
+  fieldId          String?
   recordId         String?
+  conversationId   String?
   storageDriver    String
   storageKey       String                     @unique
   name             String
@@ -1896,6 +1897,7 @@ model RecordFile {
   indexClaimedAt   DateTime?
   indexAttempts    Int                        @default(0)
   embeddedModel    String?
+  pageCount        Int?
   company          Company                    @relation(fields: [companyId], references: [id], onDelete: Cascade)
   uploadedBy       User?                      @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
   chunks           RecordFileChunk[]
@@ -1905,6 +1907,7 @@ model RecordFile {
   @@index([companyId, recordId])
   @@index([companyId, fieldId])
   @@index([companyId, sha256])
+  @@index([companyId, conversationId])
 }
 
 model RecordFileContent {

@@ -75,6 +75,19 @@ export class RecordFileIndexService {
     };
   }
 
+  async extractFile(fileId: string): Promise<void> {
+    const file = await this.repo.extractionCandidate(fileId);
+    if (!file) return;
+    for (;;) {
+      const attempts = await this.repo.startFileAttempt(file.id);
+      if (attempts === null) return;
+      const extraction = await this.attempt(file, attempts);
+      if (!extraction) continue;
+      await this.repo.storeExtraction(file.id, extraction);
+      return;
+    }
+  }
+
   private async attempt(file: RecordFileIndexCandidate, attempts: number): Promise<RecordFileExtraction | null> {
     if (attempts > RECORD_FILE_INDEX_MAX_ATTEMPTS) return { status: "failed" };
     try {

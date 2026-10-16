@@ -22,7 +22,7 @@ export class ReadRecordFileInteractor extends AuthenticatedInteractor<ReadRecord
   async invoke({ fileId, offset }: ReadRecordFile): Validated<ReadRecordFileResult> {
     const file = await this.files.invoke({ fileId });
     if (!file.ok) return file;
-    const chunk = file.data.status === "ready" ? await this.text.read(file.data.id, offset) : null;
+    const chunk = await this.text.read(file.data.id, offset);
     if (!chunk) return { ok: true, data: { ...file.data, textAvailable: false } };
     const { text, nextOffset, totalChars } = chunk;
     return {

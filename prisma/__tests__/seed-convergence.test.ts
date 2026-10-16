@@ -93,7 +93,7 @@ suite("generic synthetic seed convergence", { timeout: 180000 }, () => {
               companyId,
               typeId: presetId(companyId, "organization"),
               recordId: stored.recordId ?? "",
-              fieldId: stored.fieldId,
+              fieldId: stored.fieldId ?? "",
             },
           },
         });

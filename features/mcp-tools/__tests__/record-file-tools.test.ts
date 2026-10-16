@@ -11,7 +11,7 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 import { createMockDiModule, MOCK_ENV_MODULE, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
 
 const mockUser = createMockUser();
-const spies = vi.hoisted(() => ({ upload: vi.fn(), createUpload: vi.fn(), read: vi.fn() }));
+const spies = vi.hoisted(() => ({ upload: vi.fn(), createUpload: vi.fn(), read: vi.fn(), attach: vi.fn() }));
 
 vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
@@ -24,6 +24,7 @@ vi.mock("@/core/di", () => ({
   getUploadRecordFileInteractor: () => ({ invoke: spies.upload }),
   getCreateRecordFileUploadInteractor: () => ({ invoke: spies.createUpload }),
   getReadRecordFileInteractor: () => ({ invoke: spies.read }),
+  getAttachRecordFileInteractor: () => ({ invoke: spies.attach }),
 }));
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -206,9 +207,68 @@ describe("manage_record_files", () => {
     expect(JSON.stringify(result)).toContain("recordFileNotFound");
   });
 
-  it("lets Mate read and upload without approval and treats only read as read-only", () => {
+  it("attaches a pending chat file to a record field with the record update's mode and version", async () => {
+    const chatFile = { ...file, typeId: TYPE_ID, fieldId: FIELD_ID, recordId: RECORD_ID };
+    spies.attach.mockResolvedValue({ ok: true, data: { file: chatFile, attached: true } });
+    const result = await execute({
+      action: "attach",
+      fileId: FILE_ID,
+      typeId: TYPE_ID,
+      recordId: RECORD_ID,
+      fieldId: FIELD_ID,
+      attach: "append",
+      expectedVersion: 3,
+    });
+    expect(spies.attach).toHaveBeenCalledWith({
+      fileId: FILE_ID,
+      typeId: TYPE_ID,
+      recordId: RECORD_ID,
+      fieldId: FIELD_ID,
+      mode: "append",
+      expectedVersion: 3,
+    });
+    const content = structured(result);
+    expect(content).toMatchObject({ action: "attach", attached: true, file: { id: FILE_ID, recordId: RECORD_ID } });
+    expect(await sdkOutputViolations(content)).toEqual({ server: null, client: null });
+
+    await execute({ action: "attach", fileId: FILE_ID, typeId: TYPE_ID, recordId: RECORD_ID, fieldId: FIELD_ID });
+    expect(spies.attach).toHaveBeenLastCalledWith({
+      fileId: FILE_ID,
+      typeId: TYPE_ID,
+      recordId: RECORD_ID,
+      fieldId: FIELD_ID,
+    });
+    const missing = await execute({ action: "attach", fileId: FILE_ID, typeId: TYPE_ID });
+    expect(JSON.stringify(missing)).toContain("recordId");
+    expect(spies.attach).toHaveBeenCalledTimes(2);
+  });
+
+  it("reads a chat file that is not in any field yet", async () => {
+    spies.read.mockResolvedValue({
+      ok: true,
+      data: {
+        ...file,
+        typeId: null,
+        fieldId: null,
+        recordId: null,
+        status: "pending",
+        downloadUrl: `https://crm.example.com/api/v1/files/${FILE_ID}/content?token=abc`,
+        downloadUrlExpiresAt: "2026-10-15T09:15:00.000Z",
+        textAvailable: true,
+        text: "Offer",
+        offset: 0,
+        nextOffset: null,
+        totalChars: 5,
+      },
+    });
+    const content = structured(await execute({ action: "read", fileId: FILE_ID }));
+    expect(content).toMatchObject({ file: { typeId: null, fieldId: null, status: "pending" }, textAvailable: true });
+    expect(await sdkOutputViolations(content)).toEqual({ server: null, client: null });
+  });
+
+  it("lets Mate read, upload and attach without approval and treats only read as read-only", () => {
     const identity = internalToolIdentity("manage_record_files");
-    for (const action of ["read", "create_upload", "upload"])
+    for (const action of ["read", "create_upload", "upload", "attach"])
       expect(requiresApproval(identity, manageRecordFilesTool, { action }), action).toBe(false);
     expect(isReadOnlyAgentToolCall("manage_record_files", manageRecordFilesTool, { action: "read" })).toBe(true);
     expect(isReadOnlyAgentToolCall("manage_record_files", manageRecordFilesTool, { action: "upload" })).toBe(false);

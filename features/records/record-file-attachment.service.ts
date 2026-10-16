@@ -27,8 +27,9 @@ export class RecordFileAttachmentService extends UserAccessor implements RecordF
     const added = [...new Set(fileIds)].filter((id) => !previousFileIds.includes(id));
     const removed = previousFileIds.filter((id) => !fileIds.includes(id));
     if (added.length) {
-      if (!(await this.stored(ref, fieldId, added))) return false;
-      if ((await this.files.attachFiles(ref, fieldId, added)) !== added.length) return false;
+      const owner = this.chatOwner();
+      if (!(await this.stored(ref, fieldId, added, owner))) return false;
+      if ((await this.files.attachFiles(ref, fieldId, added, owner)) !== added.length) return false;
       const indexer = this.indexer;
       if (indexer) {
         const request = { companyId: this.companyId, fileIds: added };
@@ -39,13 +40,23 @@ export class RecordFileAttachmentService extends UserAccessor implements RecordF
     return true;
   }
 
-  private async stored(ref: RecordRef, fieldId: string, fileIds: string[]): Promise<boolean> {
+  private chatOwner(): string | null {
+    try {
+      return this.userId;
+    } catch {
+      return null;
+    }
+  }
+
+  private async stored(ref: RecordRef, fieldId: string, fileIds: string[], owner: string | null): Promise<boolean> {
     const verification = this.verification;
     if (!verification) return true;
     const rows = await this.files.getFilesCompanyWide(fileIds);
     for (const id of fileIds) {
       const row = rows.find((candidate) => candidate.id === id);
-      if (!row || row.typeId !== ref.typeId || row.fieldId !== fieldId) return false;
+      if (!row) return false;
+      const chatFile = row.fieldId === null && row.status === "pending" && owner !== null && row.uploadedById === owner;
+      if (!chatFile && (row.typeId !== ref.typeId || row.fieldId !== fieldId)) return false;
       if (row.recordId === ref.recordId && row.status !== "pending") continue;
       const head = await verification.drivers(row.storageDriver).head(row.storageKey);
       if (!head || head.size !== row.size || head.size > verification.maxBytes) return false;

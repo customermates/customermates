@@ -31,7 +31,8 @@ export class ReadRecordFileContentInteractor extends AuthenticatedInteractor<Rea
     return runInTransaction(
       async () => {
         const file = await this.files.getFileContent(fileId);
-        if (!file?.recordId || file.status !== "ready") return failNotFound(CustomErrorCode.recordNotFound);
+        if (!file?.recordId || !file.typeId || !file.fieldId || file.status !== "ready")
+          return failNotFound(CustomErrorCode.recordNotFound);
         const ref = { typeId: file.typeId, recordId: file.recordId };
         const [model, policy, record] = await Promise.all([
           this.records.getModel(),

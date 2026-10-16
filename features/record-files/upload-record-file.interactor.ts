@@ -17,6 +17,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RECORD_FILE_INLINE_UPLOAD_MAX_BYTES, UploadRecordFileSchema } from "./record-file.schema";
 import { decodeRecordFileContent, streamOfBytes } from "./record-file-content";
 import { recordFileDto } from "./record-file-dto";
+import { writeRecordFileIntoField } from "./record-file-field-write";
 import { storageSizeLabel } from "./storage-size";
 
 @TenantInteractor()
@@ -66,7 +67,20 @@ export class UploadRecordFileInteractor extends AuthenticatedInteractor<UploadRe
     );
     if (!written.ok) return fail(CustomErrorCode.recordFileUploadIncomplete, [], { size: pending.size });
     await this.files.markFileUploaded(pending.id, written);
-    const attachment = input.recordId ? await this.attach(input, input.recordId, pending.id) : null;
+    const attachment = input.recordId
+      ? await writeRecordFileIntoField(
+          { records: this.records, mutate: this.mutate },
+          pending.id,
+          {
+            typeId: input.typeId,
+            recordId: input.recordId,
+            fieldId: input.fieldId,
+            mode: input.attach,
+            expectedVersion: input.expectedVersion,
+          },
+          `record-file-upload:${pending.id}`,
+        )
+      : null;
     if (attachment && !attachment.ok) return attachment;
     const file = await this.files.getFileCompanyWide(pending.id);
     if (!file) return failNotFound(CustomErrorCode.recordFileNotFound, ["fileId"]);
@@ -78,26 +92,5 @@ export class UploadRecordFileInteractor extends AuthenticatedInteractor<UploadRe
         ...(attachment?.data.status === "pending" ? { operationId: attachment.data.operationId } : {}),
       },
     };
-  }
-
-  private async attach(input: UploadRecordFile, recordId: string, fileId: string): Validated<RecordOperationResult> {
-    const ref = { typeId: input.typeId, recordId };
-    const [model, record] = await Promise.all([this.records.getModel(), this.records.getRecordCompanyWide(ref)]);
-    if (!record) return failNotFound(CustomErrorCode.recordNotFound, ["recordId"]);
-    const field = model.fields.find((candidate) => candidate.id === input.fieldId);
-    const stored = record.values.find((value) => value.fieldId === input.fieldId);
-    const current = stored?.state === "value" ? stored.textListValue : [];
-    const mode = input.attach ?? (field?.multiple ? "append" : "replace");
-    const ids = mode === "replace" ? [fileId] : [...current.filter((id) => id !== fileId), fileId];
-    return this.mutate.invoke({
-      expectedRevision: model.revision,
-      idempotencyKey: `record-file-upload:${fileId}`,
-      mutation: {
-        action: "update",
-        ref,
-        expectedVersion: input.expectedVersion ?? record.version,
-        fields: [{ fieldId: input.fieldId, value: { kind: "file", value: ids } }],
-      },
-    });
   }
 }

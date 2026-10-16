@@ -236,6 +236,15 @@ function describeAgentToolAction(identity: AgentToolIdentity, input: unknown): A
     if (toolName === "configure_record_model")
       return descriptor(recordRisk === "read" ? "customFields.read" : "workspace.configure", undefined, recordRisk);
 
+    if (toolName === "manage_record_files") {
+      const action = actionValue(details);
+      if (recordRisk === "read") return descriptor("records.read", undefined, recordRisk);
+      if (action === "attach" || (action === "upload" && typeof details.recordId === "string"))
+        return descriptor("records.update", undefined, recordRisk);
+      if (action === "upload" || action === "create_upload") return descriptor("records.create", undefined, recordRisk);
+      return descriptor("generic", undefined, recordRisk);
+    }
+
     if (toolName === "mutate_crm_record") {
       const mutation = inputRecord(details.mutation);
       const action = actionValue(mutation);
@@ -292,15 +301,6 @@ function describeAgentToolAction(identity: AgentToolIdentity, input: unknown): A
       };
     }
     return descriptor("workspace.configure", "wiki", multiplexedRisk(toolName, details));
-  }
-  if (toolName === "manage_record_files") {
-    const action = actionValue(details);
-    if (isMultiplexedRead(toolName, details)) return descriptor("records.read", undefined, "read");
-    if (action === "upload" && typeof details.recordId === "string")
-      return descriptor("records.update", undefined, multiplexedRisk(toolName, details));
-    if (action === "upload" || action === "create_upload")
-      return descriptor("records.create", undefined, multiplexedRisk(toolName, details));
-    return descriptor("generic", undefined, multiplexedRisk(toolName, details));
   }
   if (toolName === "request_support") {
     return descriptor("support.escalate", undefined, "sensitive", [], {

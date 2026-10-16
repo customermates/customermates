@@ -76,7 +76,9 @@ export class PrismaRecordFileSearchRepo
       where: { companyId: this.companyId, id: { in: ids }, status: "ready", recordId: { not: null } },
       select: { id: true, name: true, mimeType: true, typeId: true, recordId: true, fieldId: true },
     });
-    return files.flatMap((file) => (file.recordId ? [{ ...file, recordId: file.recordId }] : []));
+    return files.flatMap(({ recordId, typeId, fieldId, ...file }) =>
+      recordId && typeId && fieldId ? [{ ...file, recordId, typeId, fieldId }] : [],
+    );
   }
 
   private get stopConfig() {

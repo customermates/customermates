@@ -122,14 +122,20 @@ describe("ReadRecordFileInteractor", () => {
     }
   });
 
-  it("does not read text for a pending upload and passes access failures on unchanged", async () => {
-    const pending = interactor({ ...DETAILS, status: "pending", recordId: null }, stored());
-    expect(await pending.read()).toEqual({
-      ok: true,
-      data: { ...DETAILS, status: "pending", recordId: null, textAvailable: false },
-    });
-    expect(pending.contents.getFileContent).not.toHaveBeenCalled();
+  it("reads the text of the uploader's own chat file before it is in any field", async () => {
+    const chatFile = { ...DETAILS, typeId: null, fieldId: null, recordId: null, status: "pending" as const };
+    const pending = interactor(chatFile, stored({ typeId: null, fieldId: null, recordId: null, status: "pending" }));
+    const outcome = await pending.read();
+    if (!outcome.ok) throw new Error("Expected the chat file's text");
+    expect(outcome.data).toMatchObject({ ...chatFile, textAvailable: true, offset: 0, totalChars: TEXT.length });
+  });
 
+  it("reads no text of a file whose bytes were removed", async () => {
+    const outcome = await interactor(DETAILS, stored({ status: "detached" })).read();
+    expect(outcome).toEqual({ ok: true, data: { ...DETAILS, textAvailable: false } });
+  });
+
+  it("passes access failures on unchanged without reading the text", async () => {
     const hidden = interactor(null, stored());
     const outcome = await hidden.read();
     expect(outcome.ok).toBe(false);

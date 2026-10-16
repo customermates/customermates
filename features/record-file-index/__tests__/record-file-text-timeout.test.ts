@@ -16,6 +16,7 @@ describe("record file text extraction time limit", () => {
       status: "done",
       text: "Fast page",
       truncated: false,
+      pageCount: 1,
     });
   });
 
@@ -24,7 +25,7 @@ describe("record file text extraction time limit", () => {
       extractRecordFileText(pdfFixture([[`Page ${index}`]]), "pdf"),
     );
     await expect(Promise.all(files)).resolves.toEqual(
-      files.map((_, index) => ({ status: "done", text: `Page ${index}`, truncated: false })),
+      files.map((_, index) => ({ status: "done", text: `Page ${index}`, truncated: false, pageCount: 1 })),
     );
   });
 });

@@ -26,7 +26,7 @@ export class RecordFileAccessService extends UserAccessor {
       if (file.uploadedById !== this.userId) throw missing();
       return file;
     }
-    if (!file.recordId) throw missing();
+    if (!file.recordId || !file.typeId || !file.fieldId) throw missing();
     const ref = { typeId: file.typeId, recordId: file.recordId };
     const [model, policy, record] = await Promise.all([
       this.records.getModel(),

@@ -5,14 +5,16 @@ import { z } from "zod";
 import { StructuredApiResponses } from "@/core/api/structured-interactor-handler";
 import { structuredOperation } from "@/core/openapi/structured-operation";
 import {
+  AttachRecordFileTargetSchema,
   CreateRecordFileUploadResultSchema,
   CreateRecordFileUploadSchema,
   RecordFileReadResultSchema,
   UploadRecordFileContentResultSchema,
+  UploadRecordFileResultSchema,
 } from "./record-file.schema";
 
 const FILE_CONTRACT =
-  "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate`. Access to a file follows read access to its record and field.";
+  "Files of file fields. Upload in three steps: start an upload, send the bytes to the returned URL, then write the file id into the file field with `/v1/records/mutate` or attach it with `/v1/files/{fileId}/attach`. Access to a file follows read access to its record and field.";
 
 const FileIdPathSchema = z.object({ fileId: z.uuid().describe("Id of the file.") });
 const FileTokenSchema = z
@@ -102,8 +104,39 @@ const downloadContentOperation: ZodOpenApiOperationObject = {
   },
 };
 
+const attachOperation: ZodOpenApiOperationObject = {
+  operationId: "attachFile",
+  summary: "Attach a pending file to a record",
+  description: `${FILE_CONTRACT} Writes a pending file you uploaded into a record's file field: a pending upload of that field, or a file you gave to Mate in a chat, which is not in any field yet. This is a record update, checked like \`/v1/records/mutate\`: mode append adds the file after the existing ones, replace keeps only this file, and expectedVersion guards against a concurrent change. Attaching a file that is already in that field returns it unchanged; a file in another record or field is refused with recordFileUnavailable. Once attached, access follows the record and the field. When the write continues in the background, operationId names the operation to read.\n\nRequires: update access to the record and the file field`,
+  tags: ["files"],
+  security: [{ apiKeyAuth: [] }],
+  requestParams: { path: FileIdPathSchema },
+  requestBody: {
+    required: true,
+    content: {
+      "application/json": {
+        schema: AttachRecordFileTargetSchema,
+        example: {
+          typeId: "0b6f3c1e-8a52-4c39-9d7e-2f4a6b8c1d01",
+          recordId: "5d2a8c4e-1f3b-4a6d-8e9c-0b1a2c3d4e51",
+          fieldId: "c7e1a3b5-2d4f-4a6c-9e8b-0f1a2b3c4d31",
+          mode: "append",
+        },
+      },
+    },
+  },
+  responses: {
+    "200": {
+      description: "The file and whether it is in the field now.",
+      content: { "application/json": { schema: UploadRecordFileResultSchema } },
+    },
+    ...StructuredApiResponses,
+  },
+};
+
 export const recordFileApiPaths = {
   "/v1/files/uploads": { post: createUploadOperation },
   "/v1/files/{fileId}": { get: getFileOperation },
+  "/v1/files/{fileId}/attach": { post: attachOperation },
   "/v1/files/{fileId}/content": { get: downloadContentOperation, put: uploadContentOperation },
 };

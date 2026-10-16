@@ -30,6 +30,9 @@ export const CreateRecordFileUploadSchema = z
   .strict();
 export type CreateRecordFileUpload = z.infer<typeof CreateRecordFileUploadSchema>;
 
+export const CreateChatFileUploadSchema = CreateRecordFileUploadSchema.omit({ typeId: true, fieldId: true }).strict();
+export type CreateChatFileUpload = z.infer<typeof CreateChatFileUploadSchema>;
+
 export const RecordFileUploadTargetSchema = z
   .object({
     url: z.url().describe("Send the bytes here with the given method and headers before expiresAt."),
@@ -64,7 +67,9 @@ export type UploadRecordFileContent = z.infer<typeof UploadRecordFileContentSche
 
 export const RecordFileStatusSchema = z
   .enum(["pending", "ready"])
-  .describe("pending: uploaded or awaiting its bytes but not yet in a file field; ready: in a record's file field.");
+  .describe(
+    "pending: uploaded or awaiting its bytes but not yet in a file field, such as a file given to Mate in a chat; ready: in a record's file field.",
+  );
 
 export const RecordFileExtractionStatusSchema = z
   .enum(["pending", "done", "noText", "unsupported", "failed", "skipped"])
@@ -75,8 +80,14 @@ export const RecordFileExtractionStatusSchema = z
 export const RecordFileDtoSchema = z
   .object({
     id: z.uuid(),
-    typeId: z.uuid(),
-    fieldId: z.uuid(),
+    typeId: z
+      .uuid()
+      .nullable()
+      .describe("List of the file field; null for a file given to Mate in a chat until it is attached to a record."),
+    fieldId: z
+      .uuid()
+      .nullable()
+      .describe("File field that holds or receives the file; null for a chat file until it is attached."),
     recordId: z.uuid().nullable().describe("Record whose file field holds the file; null while pending."),
     name: z.string(),
     mimeType: z.string(),
@@ -146,6 +157,35 @@ export const UploadRecordFileResultSchema = z
   })
   .strict();
 export type UploadRecordFileResult = z.infer<typeof UploadRecordFileResultSchema>;
+
+export const RecordFileAttachModeSchema = z
+  .enum(["append", "replace"])
+  .describe(
+    "append adds the file after the existing ones (default for fields that hold several files); replace keeps only this file (default for single-file fields).",
+  );
+
+export const AttachRecordFileTargetSchema = z
+  .object({
+    typeId: z.uuid().describe("List (typeId) of the record."),
+    recordId: z.uuid().describe("Record whose file field receives the file."),
+    fieldId: z.uuid().describe("File field of that list."),
+    mode: RecordFileAttachModeSchema.optional(),
+    expectedVersion: z
+      .number()
+      .int()
+      .positive()
+      .optional()
+      .describe("The record version you read; the current version when omitted."),
+  })
+  .strict();
+export type AttachRecordFileTarget = z.infer<typeof AttachRecordFileTargetSchema>;
+
+export const AttachRecordFileSchema = AttachRecordFileTargetSchema.extend({
+  fileId: z
+    .uuid()
+    .describe("A pending file you uploaded: a file given to Mate in a chat or a pending upload of this file field."),
+}).strict();
+export type AttachRecordFile = z.infer<typeof AttachRecordFileSchema>;
 
 export const FileStorageUsageSchema = z
   .object({

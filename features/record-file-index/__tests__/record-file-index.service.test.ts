@@ -58,6 +58,9 @@ function setup(
   const attempts = new Map(files.map((file) => [file.id, file.indexAttempts]));
   const repo = {
     claimPendingFiles: vi.fn(() => Promise.resolve(files)),
+    extractionCandidate: vi.fn((id: string) =>
+      Promise.resolve(stored.has(id) ? null : (files.find((file) => file.id === id) ?? null)),
+    ),
     startFileAttempt: vi.fn((id: string): Promise<number | null> => {
       const next = (attempts.get(id) ?? 0) + 1;
       attempts.set(id, next);
@@ -128,7 +131,7 @@ describe("record file index service", () => {
 
     await f.service.indexPending();
     expect(f.stored.get("broken")).toEqual({ status: "failed" });
-    expect(f.stored.get("scan")).toEqual({ status: "noText" });
+    expect(f.stored.get("scan")).toEqual({ status: "noText", pageCount: 1 });
   });
 
   it("reuses the extracted text of identical bytes without reading the file again", async () => {
@@ -200,6 +203,52 @@ describe("record file index service", () => {
     await expect(failing.indexPending()).resolves.toMatchObject({ extracted: 1 });
     expect(f.stored.get("file-1")).toEqual({ status: "failed" });
     expect(f.attempts.get("file-1")).toBe(RECORD_FILE_INDEX_MAX_ATTEMPTS);
+  });
+
+  it("extracts one chat file at once, with its PDF page count, and never embeds it", async () => {
+    const f = setup([candidate({ id: "chat", name: "scan.pdf", mimeType: "application/pdf", storageKey: "chat" })], {
+      chat: pdfFixture([[], []]),
+    });
+
+    await f.service.extractFile("chat");
+    expect(f.stored.get("chat")).toEqual({ status: "noText", pageCount: 2 });
+    expect(f.repo.claimPendingFiles).not.toHaveBeenCalled();
+    expect(f.semantic.embedPending).not.toHaveBeenCalled();
+
+    await f.service.extractFile("chat");
+    expect(f.repo.storeExtraction).toHaveBeenCalledTimes(1);
+  });
+
+  it("retries a chat file through passing storage errors until its extraction is final", async () => {
+    const f = setup([candidate({ id: "chat" })], {});
+    let reads = 0;
+    const flaky = new RecordFileIndexService(
+      f.repo,
+      () =>
+        ({
+          read: () => {
+            reads += 1;
+            return reads < 2
+              ? Promise.reject(new Error("connection reset"))
+              : storage({ "company/file-1": new TextEncoder().encode("Offer terms") }).driver.read("company/file-1");
+          },
+        }) as unknown as FileStorageDriver,
+      f.semantic,
+    );
+
+    await flaky.extractFile("chat");
+    expect(f.stored.get("chat")).toMatchObject({ status: "done", text: "Offer terms" });
+    expect(f.attempts.get("chat")).toBe(2);
+
+    const failing = setup([candidate({ id: "broken" })], {});
+    const broken = new RecordFileIndexService(
+      failing.repo,
+      () => ({ read: () => Promise.reject(new Error("connection reset")) }) as unknown as FileStorageDriver,
+      failing.semantic,
+    );
+    await broken.extractFile("broken");
+    expect(failing.stored.get("broken")).toEqual({ status: "failed" });
+    expect(failing.attempts.get("broken")).toBe(RECORD_FILE_INDEX_MAX_ATTEMPTS);
   });
 
   it("leaves a file alone that was indexed or removed after it was claimed", async () => {

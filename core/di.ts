@@ -179,6 +179,7 @@ import { GetRecordFileInteractor } from "@/features/record-files/get-record-file
 import { DownloadRecordFileInteractor } from "@/features/record-files/download-record-file.interactor";
 import { DownloadRecordFileByGrantInteractor } from "@/features/record-files/download-record-file-by-grant.interactor";
 import { UploadRecordFileInteractor } from "@/features/record-files/upload-record-file.interactor";
+import { AttachRecordFileInteractor } from "@/features/record-files/attach-record-file.interactor";
 import { GetFileStorageUsageInteractor } from "@/features/record-files/get-file-storage-usage.interactor";
 import { PurgeExpiredRecordFilesInteractor } from "@/features/record-files/purge-expired-record-files.interactor";
 import { PurgeCompanyRecordFilesInteractor } from "@/features/record-files/purge-company-record-files.interactor";
@@ -634,6 +635,11 @@ export const getUploadRecordFileInteractor = () =>
     getRecordRepo(),
     getMutateRecordInteractor(),
   );
+export const getAttachRecordFileInteractor = () =>
+  new AttachRecordFileInteractor(getRecordFileRepo(), getRecordFileAccessService(), {
+    records: getRecordRepo(),
+    mutate: getMutateRecordInteractor(),
+  });
 export const getRecordFileTextReader = (): RecordFileTextReader => getExtractedRecordFileTextReader();
 export const getReadRecordFileInteractor = () =>
   new ReadRecordFileInteractor(getGetRecordFileInteractor(), getRecordFileTextReader());

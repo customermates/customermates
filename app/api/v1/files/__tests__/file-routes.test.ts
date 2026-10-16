@@ -5,6 +5,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { createZodError } from "@/core/validation/validation.utils";
 
 const interactors = vi.hoisted(() => ({
+  attach: vi.fn(),
   createUpload: vi.fn(),
   getFile: vi.fn(),
   readContent: vi.fn(),
@@ -14,6 +15,7 @@ const interactors = vi.hoisted(() => ({
 }));
 
 vi.mock("@/core/di", () => ({
+  getAttachRecordFileInteractor: () => ({ invoke: interactors.attach }),
   getCreateRecordFileUploadInteractor: () => ({ invoke: interactors.createUpload }),
   getGetRecordFileInteractor: () => ({ invoke: interactors.getFile }),
   getDownloadRecordFileInteractor: () => ({ invoke: interactors.readContent }),
@@ -25,6 +27,7 @@ vi.mock("@/core/di", () => ({
 import { POST as createUpload } from "../uploads/route";
 import { GET as getFile } from "../[fileId]/route";
 import { GET as download, PUT as upload } from "../[fileId]/content/route";
+import { POST as attach } from "../[fileId]/attach/route";
 
 const FILE_ID = "40000000-0000-4000-8000-000000000001";
 const params = { params: Promise.resolve({ fileId: FILE_ID }) };
@@ -52,6 +55,25 @@ describe("file routes", () => {
     const full = await createUpload(request());
     expect(full.status).toBe(409);
     expect((await full.json()).error.issues[0].customCode).toBe("storageQuotaExceeded");
+  });
+
+  it("attaches the file of the path to the record of the body and maps a file in another record to 400", async () => {
+    const body = { typeId: FILE_ID, recordId: FILE_ID, fieldId: FILE_ID, mode: "append", fileId: "ignored" };
+    const request = () =>
+      new NextRequest(`http://localhost:4105/api/v1/files/${FILE_ID}/attach`, {
+        method: "POST",
+        body: JSON.stringify(body),
+      });
+    interactors.attach.mockResolvedValueOnce({ ok: true, data: { file: { id: FILE_ID }, attached: true } });
+    const attached = await attach(request(), params);
+    expect(attached.status).toBe(200);
+    expect(await attached.json()).toEqual({ file: { id: FILE_ID }, attached: true });
+    expect(interactors.attach).toHaveBeenCalledWith({ ...body, fileId: FILE_ID });
+
+    interactors.attach.mockResolvedValueOnce(failure(CustomErrorCode.recordFileUnavailable, "validation"));
+    const refused = await attach(request(), params);
+    expect(refused.status).toBe(400);
+    expect((await refused.json()).error.issues[0].customCode).toBe("recordFileUnavailable");
   });
 
   it("returns file details and 404 for unknown files", async () => {

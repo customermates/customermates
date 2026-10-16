@@ -2,8 +2,8 @@ import type { RecordFileExtractionStatus, RecordFileStatus } from "@/generated/p
 
 export type StoredRecordFileContent = {
   id: string;
-  typeId: string;
-  fieldId: string;
+  typeId: string | null;
+  fieldId: string | null;
   recordId: string | null;
   status: RecordFileStatus;
   name: string;

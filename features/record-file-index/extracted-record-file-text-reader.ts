@@ -12,7 +12,7 @@ export class ExtractedRecordFileTextReader {
 
   async read(fileId: string, offset: number): Promise<RecordFileTextChunk | null> {
     const file = await this.files.getFileContent(fileId);
-    const text = file?.status === "ready" && file.extractionStatus === "done" ? file.extractedText : null;
+    const text = file && file.status !== "detached" && file.extractionStatus === "done" ? file.extractedText : null;
     if (!text) return null;
     return boundedRecordFileText({
       text,

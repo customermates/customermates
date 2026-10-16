@@ -12,15 +12,16 @@ export type RecordFileIndexCandidate = {
 };
 
 export type RecordFileExtraction =
-  | { status: "done"; text: string; truncated: boolean; chunks: RecordFileChunkDraft[] }
-  | { status: "noText" | "unsupported" | "failed" | "skipped" };
+  | { status: "done"; text: string; truncated: boolean; chunks: RecordFileChunkDraft[]; pageCount?: number }
+  | { status: "noText" | "unsupported" | "failed" | "skipped"; pageCount?: number };
 
 export type ReusableRecordFileExtraction =
-  | { status: "done"; text: string; truncated: boolean }
-  | { status: "noText" | "unsupported" };
+  | { status: "done"; text: string; truncated: boolean; pageCount?: number }
+  | { status: "noText" | "unsupported"; pageCount?: number };
 
 export abstract class RecordFileIndexRepo {
   abstract claimPendingFiles(limit: number): Promise<RecordFileIndexCandidate[]>;
+  abstract extractionCandidate(fileId: string): Promise<RecordFileIndexCandidate | null>;
   abstract startFileAttempt(fileId: string): Promise<number | null>;
   abstract findExtractionBySha256(sha256: string, exceptFileId: string): Promise<ReusableRecordFileExtraction | null>;
   abstract storeExtraction(fileId: string, extraction: RecordFileExtraction): Promise<void>;

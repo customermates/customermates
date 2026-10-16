@@ -50,16 +50,21 @@ describe("record file text extraction", () => {
       status: "done",
       text: "## Page 1\n\nQuarterly report\nRevenue grew by eleven percent.\n\n## Page 3\n\nZebra crossing",
       truncated: false,
+      pageCount: 3,
     });
     await expect(extractRecordFileText(pdfFixture([["Only page"]]), "pdf")).resolves.toEqual({
       status: "done",
       text: "Only page",
       truncated: false,
+      pageCount: 1,
     });
   });
 
   it("reports a PDF without a text layer as noText and a broken document as failed", async () => {
-    await expect(extractRecordFileText(pdfFixture([[], []]), "pdf")).resolves.toEqual({ status: "noText" });
+    await expect(extractRecordFileText(pdfFixture([[], []]), "pdf")).resolves.toEqual({
+      status: "noText",
+      pageCount: 2,
+    });
     await expect(extractRecordFileText(utf8("not a pdf"), "pdf")).resolves.toEqual({ status: "failed" });
     await expect(extractRecordFileText(utf8("not a zip"), "docx")).resolves.toEqual({ status: "failed" });
   });
@@ -208,6 +213,7 @@ describe("record file text extraction limits", () => {
       status: "done",
       text: "## Page 1\n\nPage text 1\n\n## Page 2\n\nPage text 2",
       truncated: true,
+      pageCount: 5,
     });
   });
 

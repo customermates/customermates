@@ -104,11 +104,6 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
     "save",
     "reset",
   ],
-  "manage_record_files": [
-    "read",
-    "create_upload",
-    "upload",
-  ],
   "manage_roles": [
     "read",
   ],

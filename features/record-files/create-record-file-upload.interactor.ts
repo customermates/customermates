@@ -11,7 +11,8 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { INTERACTIVE_COMPANY_LOCK_WAIT_MS, runInTransaction } from "@/core/decorators/transaction-runner";
 import { unwoundFailure } from "@/core/validation/interactor-failure-server";
-import { CreateRecordFileUploadSchema, RECORD_FILE_UPLOAD_SECONDS } from "./record-file.schema";
+import { CreateRecordFileUploadSchema } from "./record-file.schema";
+import { recordFileUploadTarget } from "./record-file-upload-target";
 
 @TenantInteractor()
 export class CreateRecordFileUploadInteractor extends AuthenticatedInteractor<
@@ -34,18 +35,6 @@ export class CreateRecordFileUploadInteractor extends AuthenticatedInteractor<
       { companyLockWait: INTERACTIVE_COMPANY_LOCK_WAIT_MS },
     ).catch(unwoundFailure);
     if (!reserved.ok) return reserved;
-    const file = reserved.data;
-    const target = await this.drivers(file.storageDriver).createUpload({
-      fileId: file.id,
-      key: file.storageKey,
-      size: file.size,
-      mimeType: file.mimeType,
-      expiresInSeconds: RECORD_FILE_UPLOAD_SECONDS,
-    });
-    const url =
-      file.storageDriver === "database"
-        ? this.links.withUploadGrant(target.url, file.id, this.userId, new Date(target.expiresAt))
-        : target.url;
-    return { ok: true, data: { fileId: file.id, upload: { ...target, url } } };
+    return { ok: true, data: await recordFileUploadTarget(reserved.data, this.drivers, this.links, this.userId) };
   }
 }

@@ -1,6 +1,6 @@
 export type ExpiredRecordFile = { id: string; storageDriver: string; storageKey: string };
 
-export type RecordFileExpiry = { pendingBefore: Date; detachedBefore: Date };
+export type RecordFileExpiry = { pendingBefore: Date; chatBefore: Date; detachedBefore: Date };
 
 export abstract class RecordFileCleanupRepo {
   abstract findFileCompaniesUnscoped(after: string | null, limit: number): Promise<string[]>;

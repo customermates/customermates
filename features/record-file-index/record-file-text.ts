@@ -22,8 +22,8 @@ const CONTROL_CHARACTERS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/gu;
 export type RecordFileTextFormat = "pdf" | "docx" | "xlsx" | "html" | "json" | "csv" | "markdown" | "text";
 
 export type RecordFileText =
-  | { status: "done"; text: string; truncated: boolean }
-  | { status: "noText" | "failed" | "skipped" };
+  | { status: "done"; text: string; truncated: boolean; pageCount?: number }
+  | { status: "noText" | "failed" | "skipped"; pageCount?: number };
 
 export type RecordFileTextLimits = Pick<RecordFileParserLimits, "timeoutMs" | "heapMb" | "maxPages">;
 
@@ -136,10 +136,17 @@ function sheetsText(sheets: RecordFileSheet[], cut: boolean): RecordFileText {
   return capped(parts.join("\n\n"), truncated || cut);
 }
 
+function withPageCount(text: RecordFileText, pageCount: number | undefined): RecordFileText {
+  return pageCount !== undefined && (text.status === "done" || text.status === "noText")
+    ? { ...text, pageCount }
+    : text;
+}
+
 function parsedText(parsed: RecordFileParsed): RecordFileText {
   if (parsed.kind === "invalid") return { status: "failed" };
   if (parsed.kind === "tooLarge") return { status: "skipped" };
-  if (parsed.kind === "pages") return pagesText(parsed.pages, parsed.numbered, parsed.truncated);
+  if (parsed.kind === "pages")
+    return withPageCount(pagesText(parsed.pages, parsed.numbered, parsed.truncated), parsed.pageCount);
   if (parsed.kind === "sheets") return sheetsText(parsed.sheets, parsed.truncated);
   return capped(parsed.text, parsed.truncated);
 }

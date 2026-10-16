@@ -3,6 +3,7 @@ import type { RecordRef } from "./record-model.schema";
 import type { PendingRecordFile, RecordFileDetails, RecordFileUploadRepo } from "./record-file-upload.repo";
 import type { ExpiredRecordFile, RecordFileCleanupRepo, RecordFileExpiry } from "./record-file-cleanup.repo";
 import type { RecordFilePurgeRepo } from "./record-file-purge.repo";
+import type { RecordChatFileRepo, RecordFileTextExcerpt } from "./record-chat-file.repo";
 import type {
   RecordFileExtraction,
   RecordFileIndexCandidate,
@@ -32,6 +33,7 @@ const STORED_FILE_SELECT = {
   typeId: true,
   fieldId: true,
   recordId: true,
+  conversationId: true,
   storageDriver: true,
   storageKey: true,
   name: true,
@@ -45,8 +47,9 @@ const STORED_FILE_SELECT = {
   detachedAt: true,
 } satisfies Prisma.RecordFileSelect;
 
-function expiredFiles({ pendingBefore, detachedBefore }: RecordFileExpiry): Prisma.Sql {
-  return Prisma.sql`((f.status = 'pending' AND f."createdAt" < ${pendingBefore})
+function expiredFiles({ pendingBefore, chatBefore, detachedBefore }: RecordFileExpiry): Prisma.Sql {
+  return Prisma.sql`((f.status = 'pending' AND f."conversationId" IS NULL AND f."createdAt" < ${pendingBefore})
+    OR (f.status = 'pending' AND f."conversationId" IS NOT NULL AND f."createdAt" < ${chatBefore})
     OR (f.status = 'detached' AND f."detachedAt" < ${detachedBefore}))`;
 }
 
@@ -73,7 +76,8 @@ export class PrismaRecordFileRepo
     RecordFileCleanupRepo,
     RecordFilePurgeRepo,
     RecordFileIndexRepo,
-    RecordFileSemanticIndexRepo
+    RecordFileSemanticIndexRepo,
+    RecordChatFileRepo
 {
   constructor(private readonly scopedCompanyId?: string) {
     super();
@@ -92,17 +96,28 @@ export class PrismaRecordFileRepo
     return rows.map((row) => ({ ...row, size: Number(row.size) }));
   }
 
-  async attachFiles(ref: RecordRef, fieldId: string, fileIds: string[]): Promise<number> {
+  async attachFiles(
+    ref: RecordRef,
+    fieldId: string,
+    fileIds: string[],
+    chatOwnerId: string | null = null,
+  ): Promise<number> {
     if (!fileIds.length) return 0;
     const result = await this.prisma.recordFile.updateMany({
       where: {
         companyId: this.companyId,
-        typeId: ref.typeId,
-        fieldId,
         id: { in: [...new Set(fileIds)] },
-        OR: [{ recordId: null, status: { in: ["pending", "ready"] } }, { recordId: ref.recordId }],
+        OR: [
+          { typeId: ref.typeId, fieldId, recordId: null, status: { in: ["pending", "ready"] } },
+          { typeId: ref.typeId, fieldId, recordId: ref.recordId },
+          ...(chatOwnerId
+            ? [{ typeId: null, fieldId: null, recordId: null, status: "pending" as const, uploadedById: chatOwnerId }]
+            : []),
+        ],
       },
       data: {
+        typeId: ref.typeId,
+        fieldId,
         recordId: ref.recordId,
         status: "ready",
         attachedAt: new Date(),
@@ -152,6 +167,23 @@ export class PrismaRecordFileRepo
     return rows.map((row) => ({ ...row, size: Number(row.size) }));
   }
 
+  async extractionCandidate(fileId: string): Promise<RecordFileIndexCandidate | null> {
+    const row = await this.prisma.recordFile.findFirst({
+      where: { companyId: this.companyId, id: fileId, status: { not: "detached" }, extractionStatus: "pending" },
+      select: {
+        id: true,
+        name: true,
+        mimeType: true,
+        size: true,
+        sha256: true,
+        storageDriver: true,
+        storageKey: true,
+        indexAttempts: true,
+      },
+    });
+    return row ? { ...row, size: Number(row.size) } : null;
+  }
+
   async startFileAttempt(fileId: string): Promise<number | null> {
     const rows = await this.prisma.$queryRaw<Array<{ indexAttempts: number }>>(Prisma.sql`
       UPDATE "RecordFile" SET "indexAttempts" = "indexAttempts" + 1
@@ -176,12 +208,13 @@ export class PrismaRecordFileRepo
         extractionStatus: { in: ["done", "noText"] },
       },
       orderBy: [{ indexedAt: "desc" }, { id: "asc" }],
-      select: { extractionStatus: true, extractedText: true, textTruncated: true },
+      select: { extractionStatus: true, extractedText: true, textTruncated: true, pageCount: true },
     });
     if (!twin) return null;
+    const pages = twin.pageCount === null ? {} : { pageCount: twin.pageCount };
     if (twin.extractionStatus === "done" && twin.extractedText)
-      return { status: "done", text: twin.extractedText, truncated: twin.textTruncated };
-    return twin.extractionStatus === "noText" ? { status: "noText" } : null;
+      return { status: "done", text: twin.extractedText, truncated: twin.textTruncated, ...pages };
+    return twin.extractionStatus === "noText" ? { status: "noText", ...pages } : null;
   }
 
   @Transaction(BULK_WRITE_TRANSACTION)
@@ -193,6 +226,7 @@ export class PrismaRecordFileRepo
         extractionStatus: extraction.status,
         extractedText: done?.text ?? null,
         textTruncated: done?.truncated ?? false,
+        pageCount: extraction.pageCount ?? null,
         indexedAt: new Date(),
         indexClaimedAt: null,
         embeddedModel: null,
@@ -339,7 +373,7 @@ export class PrismaRecordFileRepo
   async getFileCompanyWide(fileId: string): Promise<RecordFileDetails | null> {
     const row = await this.prisma.recordFile.findFirst({
       where: { companyId: this.companyId, id: fileId },
-      select: { ...STORED_FILE_SELECT, extractionStatus: true },
+      select: { ...STORED_FILE_SELECT, extractionStatus: true, pageCount: true },
     });
     return row ? { ...row, size: Number(row.size) } : null;
   }
@@ -418,6 +452,41 @@ export class PrismaRecordFileRepo
       data: { status: "detached", detachedAt: RECORD_FILE_PURGED_AT },
     });
     return result.count;
+  }
+
+  async bindChatFiles(conversationId: string, fileIds: string[]): Promise<number> {
+    if (!fileIds.length) return 0;
+    const result = await this.prisma.recordFile.updateMany({
+      where: {
+        companyId: this.companyId,
+        id: { in: [...new Set(fileIds)] },
+        uploadedById: this.userId,
+        typeId: null,
+        fieldId: null,
+        status: "pending",
+        conversationId: null,
+      },
+      data: { conversationId },
+    });
+    return result.count;
+  }
+
+  async expireConversationChatFiles(conversationId: string): Promise<number> {
+    const result = await this.prisma.recordFile.updateMany({
+      where: { companyId: this.companyId, conversationId, typeId: null, fieldId: null, status: "pending" },
+      data: { status: "detached", detachedAt: RECORD_FILE_PURGED_AT },
+    });
+    return result.count;
+  }
+
+  async fileTextExcerpts(fileIds: string[], maxChars: number): Promise<RecordFileTextExcerpt[]> {
+    if (!fileIds.length || maxChars < 1) return [];
+    return this.prisma.$queryRaw<RecordFileTextExcerpt[]>(Prisma.sql`
+      SELECT f.id, substring(f."extractedText" FROM 1 FOR ${maxChars}) AS text,
+        char_length(f."extractedText")::int AS "totalChars"
+      FROM "RecordFile" AS f
+      WHERE f."companyId" = ${this.companyId} AND f.id = ANY(${[...new Set(fileIds)]}::text[])
+        AND f."extractionStatus" = 'done' AND f."extractedText" IS NOT NULL`);
   }
 
   async expireDefinitionFilesCompanyWide(

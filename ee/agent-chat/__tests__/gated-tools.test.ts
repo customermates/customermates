@@ -378,6 +378,31 @@ describe("gated-tools", () => {
     });
   });
 
+  it("files a chat attachment onto a record under the same policy as a record update", () => {
+    const files = toolByName("manage_record_files");
+    const attach = {
+      action: "attach",
+      fileId: "70000000-0000-4000-8000-000000000001",
+      typeId: "70000000-0000-4000-8000-000000000002",
+      recordId: "70000000-0000-4000-8000-000000000003",
+      fieldId: "70000000-0000-4000-8000-000000000004",
+    };
+    const update = { mutation: { action: "update" } };
+
+    expect(approvalNeeded(files, attach)).toBe(approvalNeeded(toolByName("mutate_crm_record"), update));
+    expect(approvalNeeded(files, attach)).toBe(false);
+    for (const action of ["upload", "create_upload"]) expect(approvalNeeded(files, { action })).toBe(false);
+    expect(isReadOnlyAgentToolCall(files.name, files, { action: "read" })).toBe(true);
+    expect(isReadOnlyAgentToolCall(files.name, files, attach)).toBe(false);
+    for (const input of [{}, { action: "delete" }, { action: 7 }, undefined])
+      expect(approvalNeeded(files, input)).toBe(true);
+    expect(describeInternalTool(files.name, attach)).toMatchObject({ kind: "records.update", risk: "write" });
+    expect(describeInternalTool(files.name, { action: "read", fileId: attach.fileId })).toMatchObject({
+      kind: "records.read",
+      risk: "read",
+    });
+  });
+
   it("snapshots the surface so new tools and actions force a conscious approval decision", () => {
     const groupSizes = Object.fromEntries(Object.entries(MCP_TOOL_GROUPS).map(([key, tools]) => [key, tools.length]));
 

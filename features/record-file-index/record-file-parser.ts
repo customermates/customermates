@@ -16,7 +16,7 @@ export type RecordFileParserLimits = {
 export type RecordFileSheet = { name: string; rows: unknown[][] };
 
 export type RecordFileParsed =
-  | { kind: "pages"; pages: string[]; numbered: boolean; truncated: boolean }
+  | { kind: "pages"; pages: string[]; numbered: boolean; truncated: boolean; pageCount?: number }
   | { kind: "text"; text: string; truncated: boolean }
   | { kind: "sheets"; sheets: RecordFileSheet[]; truncated: boolean }
   | { kind: "invalid" }
@@ -94,7 +94,13 @@ const PARSER_SOURCE = `(async () => {
           pages.push(text);
           chars += text.length;
         }
-        return { kind: "pages", pages, numbered: pdf.numPages > 1, truncated: pages.length < pdf.numPages };
+        return {
+          kind: "pages",
+          pages,
+          numbered: pdf.numPages > 1,
+          truncated: pages.length < pdf.numPages,
+          pageCount: pdf.numPages,
+        };
       } finally {
         await pdf.loadingTask.destroy();
       }

@@ -22,6 +22,7 @@ function storedFile(overrides: Partial<RecordFileDetails> = {}): RecordFileDetai
     typeId: TYPE_ID,
     fieldId: FIELD_ID,
     recordId: RECORD_ID,
+    conversationId: null,
     storageDriver: "database",
     storageKey: `company/${FILE_ID}/key`,
     name: "Offer.pdf",
@@ -34,6 +35,7 @@ function storedFile(overrides: Partial<RecordFileDetails> = {}): RecordFileDetai
     attachedAt: new Date(),
     detachedAt: null,
     extractionStatus: "pending",
+    pageCount: null,
     ...overrides,
   };
 }
