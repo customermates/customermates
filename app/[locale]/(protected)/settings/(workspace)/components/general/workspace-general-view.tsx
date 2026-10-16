@@ -12,6 +12,7 @@ import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { UnsavedChangesBar, unsavedChangesMode } from "@/components/forms/unsaved-changes-bar";
 import { ConfirmDialog } from "@/components/modal/confirm-dialog";
+import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
@@ -79,23 +80,23 @@ const WorkspaceGeneralViewContent = observer(({ workspace }: Props) => {
                 {t("Workspaces.dangerZone")}
               </h2>
 
-              <div className="flex flex-col gap-3 rounded-lg border border-destructive/30 p-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex min-w-0 flex-col gap-1">
-                  <span className="text-sm font-medium">{t("Workspaces.leave")}</span>
-
-                  <span className="text-sm text-subdued">{t("Workspaces.leaveDescription")}</span>
-                </div>
-
+              <Alert
+                color="danger"
+                description={t("Workspaces.leaveDescription")}
+                role="note"
+                title={t("Workspaces.leave")}
+              >
                 <Button
-                  className="shrink-0"
+                  className="mt-2"
                   id="settings-general-leave"
+                  size="sm"
                   type="button"
-                  variant="destructive"
+                  variant="secondary"
                   onClick={() => setConfirmingLeave(true)}
                 >
                   {t("Workspaces.leave")}
                 </Button>
-              </div>
+              </Alert>
             </section>
           )}
         </div>

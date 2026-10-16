@@ -106,4 +106,21 @@ describe("WorkspaceGeneralView", () => {
     expect(container.textContent).toContain("Workspaces.renameReadOnly");
     expect(container.querySelector("#settings-general-leave")).not.toBeNull();
   });
+
+  it("puts leaving into the shared danger alert with its secondary action, like the app's other alert actions", () => {
+    freshRootStore(true);
+    container = document.createElement("div");
+    container.innerHTML = renderToString(createElement(WorkspaceGeneralView, { workspace }));
+
+    const zone = container.querySelector("section[aria-labelledby='settings-general-danger-zone']");
+    const alert = zone?.querySelector<HTMLElement>("[data-slot='alert']");
+    const leave = alert?.querySelector<HTMLButtonElement>("#settings-general-leave");
+
+    expect(alert?.getAttribute("role")).toBe("note");
+    expect(alert?.className).toContain("border-destructive/30");
+    expect(alert?.querySelector("[data-slot='alert-title']")?.textContent).toBe("Workspaces.leave");
+    expect(alert?.querySelector("[data-slot='alert-description']")?.textContent).toBe("Workspaces.leaveDescription");
+    expect(leave?.dataset.variant).toBe("secondary");
+    expect(leave?.dataset.size).toBe("sm");
+  });
 });
