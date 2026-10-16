@@ -12,10 +12,10 @@ describe("ReconcileBillingUsageInteractor", () => {
     const reconcileCompanyUnscoped = vi.fn((companyId: string) =>
       companyId === "broken" ? Promise.reject(new Error("boom")) : Promise.resolve(),
     );
-    const closeMissingWorkspaceUnscoped = vi.fn(() => Promise.resolve());
+    const closeMissingWorkspaceUnscoped = vi.fn((companyId: string) => Promise.resolve(companyId !== "revived"));
     const interactor = new ReconcileBillingUsageInteractor({
       listCompanyIdsUnscoped: () => Promise.resolve(["a", "broken", "c"]),
-      listRecordedWorkspacesWithoutCompanyUnscoped: () => Promise.resolve(["gone"]),
+      listRecordedWorkspacesWithoutCompanyUnscoped: () => Promise.resolve(["gone", "revived"]),
       reconcileCompanyUnscoped,
       closeMissingWorkspaceUnscoped,
     });

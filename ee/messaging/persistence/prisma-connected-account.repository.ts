@@ -187,6 +187,7 @@ export class PrismaConnectedAccountRepo
         where: { unipileAccountId: args.unipileAccountId },
         select: { status: true },
       });
+      if (before?.status === ConnectedAccountStatus.deleted) return null;
       const row = await this.writeAccountUpdate(args);
       await this.billingUsage.recordChannels(row.companyId, channelChange(row.id, before?.status, row.status));
       return row;

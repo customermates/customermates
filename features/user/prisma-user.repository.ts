@@ -708,17 +708,18 @@ export class PrismaUserRepo
   }
 
   async deactivateUserOrThrow(userId: string) {
-    const { companyId, status } = await this.prisma.user.findUniqueOrThrow({
+    const { companyId } = await this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
-      select: { companyId: true, status: true },
+      select: { companyId: true },
     });
 
     await this.withCompanyTransaction(companyId, async () => {
+      const before = await this.prisma.user.findFirst({ where: { id: userId, companyId }, select: { status: true } });
       await this.prisma.user.update({
         where: { id: userId, companyId },
         data: { status: Status.inactive, agentCreditActivatedAt: null },
       });
-      await this.billingUsage.recordSeats(companyId, seatChange(userId, status, Status.inactive));
+      await this.billingUsage.recordSeats(companyId, seatChange(userId, before?.status, Status.inactive));
     });
   }
 

@@ -2,7 +2,8 @@ import { randomUUID } from "node:crypto";
 
 import { afterAll, describe, expect, it, vi } from "vitest";
 
-import { runWithoutTenant } from "@/core/decorators/tenant-context";
+import { runWithTenant, runWithoutTenant } from "@/core/decorators/tenant-context";
+import { createMockUser } from "@/tests/helpers/mock-user";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
 vi.mock("@/env", () => ({
@@ -255,6 +256,71 @@ describeDatabase("billing usage ledger", { timeout: 120_000 }, () => {
     });
     expect(channels.find((row) => row.subjectId === hardRow.id)).toMatchObject({ identifier: "+4917600000009" });
     expect(channels.every((row) => row.endedAt instanceof Date)).toBe(true);
+  });
+
+  it("records a user's disconnect exactly, keeps a late status webhook from reviving it and repairs an existing row as estimated", async () => {
+    const { companyId, userId } = await workspace();
+    const repo = accounts();
+    const unipileAccountId = `u-${randomUUID()}`;
+    const input = {
+      companyId,
+      userId,
+      unipileAccountId,
+      provider: "google" as const,
+      status: "ok" as const,
+      displayName: null,
+      emailAddress: "owned@ledger.example.invalid",
+      hasMessaging: true,
+      hasCalendar: false,
+    };
+    const row = await runWithoutTenant(() => repo.createAccountUnscoped(input));
+
+    await runWithoutTenant(() => prisma.billingUsageInterval.deleteMany({ where: { companyId, subjectId: row.id } }));
+    await runWithoutTenant(() => repo.createAccountUnscoped(input));
+    expect((await intervals(companyId)).find((interval) => interval.subjectId === row.id)).toMatchObject({
+      startExact: false,
+    });
+
+    await runWithTenant(createMockUser({ id: userId, companyId }), () => repo.deleteAccount(row.id));
+    expect(await runWithoutTenant(() => prisma.connectedAccount.findFirst({ where: { id: row.id } }))).toBeNull();
+    const closed = (await intervals(companyId)).find((interval) => interval.subjectId === row.id);
+    expect(closed).toMatchObject({ endExact: true });
+    expect(closed?.endedAt).toBeInstanceOf(Date);
+
+    const softId = (
+      await runWithoutTenant(() => repo.createAccountUnscoped({ ...input, unipileAccountId: `u-${randomUUID()}` }))
+    ).id;
+    await runWithoutTenant(() => repo.markAccountDeletedUnscoped(softId));
+    const soft = await runWithoutTenant(() => prisma.connectedAccount.findFirstOrThrow({ where: { id: softId } }));
+    await expect(
+      runWithoutTenant(() => repo.updateAccountUnscoped({ unipileAccountId: soft.unipileAccountId, status: "ok" })),
+    ).resolves.toBeNull();
+    expect(
+      (await runWithoutTenant(() => prisma.connectedAccount.findFirstOrThrow({ where: { id: softId } }))).status,
+    ).toBe("deleted");
+    expect(
+      (await intervals(companyId)).filter((interval) => interval.subjectId === softId && interval.endedAt === null),
+    ).toEqual([]);
+  });
+
+  it("records an admin's status change under the tenant guard", async () => {
+    const { companyId, userId, roleId } = await workspace();
+    await recordSeats(companyId, [userId]);
+
+    await runWithTenant(createMockUser({ id: randomUUID(), companyId }), () =>
+      users().adminUpdateDetailsOrThrow({
+        userId,
+        email: "admin-change@ledger.example.invalid",
+        firstName: "Ledger",
+        lastName: "Probe",
+        status: "inactive",
+        avatarUrl: null,
+        country: "de",
+        roleId,
+      }),
+    );
+
+    expect(await intervals(companyId)).toMatchObject([{ subjectId: userId, endExact: true }]);
   });
 
   it("keeps a deleted workspace's history, closes its seats and labels it from the deletion audit", async () => {

@@ -10,10 +10,9 @@ export class ReconcileBillingUsageInteractor {
 
   async invoke(): Promise<{ workspaces: number; closed: number; failed: number }> {
     let failed = 0;
-    const attempt = async (companyId: string, run: () => Promise<void>) => {
+    const attempt = async (companyId: string, run: () => Promise<unknown>) => {
       try {
-        await run();
-        return true;
+        return (await run()) !== false;
       } catch (error) {
         failed += 1;
         Sentry.captureException(error, { tags: { kind: "billing-usage-reconcile" }, extra: { companyId } });

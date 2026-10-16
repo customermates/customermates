@@ -249,6 +249,8 @@ describe("workspace billing usage", () => {
       false,
     );
     expect(usage([seat("late-start", "2026-10-01T05:00:00.000Z", null, { startExact: false })])).toBe(false);
+    expect(usage([seat("lag-edge", "2026-10-03T23:59:00.000Z", null, { startExact: false })])).toBe(false);
+    expect(usage([seat("past-lag", "2026-10-04T00:00:00.000Z", null, { startExact: false })])).toBe(true);
   });
 
   it("flags a channel the sweep picked up just after the month", () => {

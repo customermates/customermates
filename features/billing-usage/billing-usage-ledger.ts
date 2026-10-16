@@ -96,6 +96,10 @@ export class BillingUsageLedger extends TenantRepository {
   async recordWorkspaceDeleted(companyId: string, changed: "deleted" | "sweep"): Promise<void> {
     const now = new Date();
     await this.ensureWorkspace(companyId, now);
+    if (changed === "deleted") {
+      await this.recordSeats(companyId, []);
+      await this.recordChannels(companyId, []);
+    }
 
     await this.prisma.billingUsageInterval.updateMany({
       where: { companyId, endedAt: null },
