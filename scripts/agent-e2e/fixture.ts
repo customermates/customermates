@@ -119,7 +119,6 @@ export async function seedAgentE2eFixture(
         status: "active",
         displayLanguage: "en",
         formattingLocale: "en",
-        country: "de",
         agreeToTerms: true,
         onboardingWizardCompletedAt: now,
         onboardingWikiStepCompletedAt: now,

@@ -127,9 +127,12 @@ describeDatabase("a workspace without a record model", { timeout: 120_000 }, () 
 
   it("edits the owner's profile without a membership list", async () => {
     const updated = await asOwner(() =>
-      getUpdateUserDetailsInteractor().invoke({ firstName: "Olivia", country: "at" }),
+      getUpdateUserDetailsInteractor().invoke({ firstName: "Olivia", formattingLocale: "de" }),
     );
-    expect(updated, JSON.stringify(updated)).toMatchObject({ ok: true, data: { firstName: "Olivia", country: "at" } });
+    expect(updated, JSON.stringify(updated)).toMatchObject({
+      ok: true,
+      data: { firstName: "Olivia", formattingLocale: "de" },
+    });
   });
 
   it("registers an invited member as pending without creating an approval task", async () => {
@@ -149,7 +152,6 @@ describeDatabase("a workspace without a record model", { timeout: 120_000 }, () 
         email: memberEmail,
         firstName: "Pending",
         lastName: "Member",
-        country: "de",
         agreeToTerms: true,
         avatarUrl: null,
       },

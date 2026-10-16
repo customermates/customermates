@@ -18,13 +18,12 @@ Change any field in [Profile & preferences](app:settings/profile) and click **Sa
 | Field | Rules and effect |
 |---|---|
 | **First Name**, **Last Name** | Required, up to 255 characters; your name across the workspace |
-| **Country** | Required; stored with your profile, it does not change formats |
 | **Avatar URL** | Optional link to a public image (no upload; `https://` is added); empty shows your initials |
 | [Display Language](app:settings/profile?focus=display-language) | **English**, **German**, **French**, **Italian**, **Spanish** or **System** (browser language, else English). The interface and Mate use it, and so do notification emails (English with **System**). Saving reloads the app |
 | [Formatting Locale](app:settings/profile?focus=formatting-locale) | The same choices; how numbers, dates and amounts are written, independent of the display language. **System** follows the display language |
 | [Theme](app:settings/profile?focus=theme) | **System**, **Dark** or **Light** |
 
-**Theme** and **Language** can also be switched in the personal menu. The header above the form shows your email, verification status, member status and role; these are read-only here. Role and status, and your name, country and avatar, can also be set by a member with **Edit** on **Users & Roles** in [Members](app:settings/members).
+**Theme** and **Language** can also be switched in the personal menu. The header above the form shows your email, verification status, member status and role; these are read-only here. Role and status, and your name and avatar, can also be set by a member with **Edit** on **Users & Roles** in [Members](app:settings/members).
 
 ### How do I turn off single-key shortcuts? [#keyboard-shortcut-preferences]
 
@@ -115,7 +114,7 @@ Open a channel you own:
 
 ## For agents [#tips-for-agents]
 
-Over MCP and in Mate, `update_my_profile` changes only your own first name, last name, country, avatar URL, theme, display language and formatting locale; `connect_messaging_account` (REST `POST /api/v1/messaging/connected-accounts/connect-link`) creates a connection link under the same plan, permission and allowance rules. `manage_connected_accounts` lists your channels and, for a channel you own, sets folders, signature and appearance, visibility (with approval), resyncs or disconnects it (with approval); REST uses `/api/v1/messaging/connected-accounts/{id}` (`DELETE`) and its `folders`, `signature`, `sharing` and `resync` operations. An id that is not a channel you own answers `not_found` (REST `404`) before any plan check. Shortcuts, reactivate and API keys are set in the app only. Do not repeat a channel's signature in a message body. A new API key is shown once. Over REST, `GET /api/v1/users/me` reads your profile and `PATCH /api/v1/users/me` changes the same fields as `update_my_profile`; omitted fields keep their values.
+Over MCP and in Mate, `update_my_profile` changes only your own first name, last name, avatar URL, theme, display language and formatting locale; `connect_messaging_account` (REST `POST /api/v1/messaging/connected-accounts/connect-link`) creates a connection link under the same plan, permission and allowance rules. `manage_connected_accounts` lists your channels and, for a channel you own, sets folders, signature and appearance, visibility (with approval), resyncs or disconnects it (with approval); REST uses `/api/v1/messaging/connected-accounts/{id}` (`DELETE`) and its `folders`, `signature`, `sharing` and `resync` operations. An id that is not a channel you own answers `not_found` (REST `404`) before any plan check. Shortcuts, reactivate and API keys are set in the app only. Do not repeat a channel's signature in a message body. A new API key is shown once. Over REST, `GET /api/v1/users/me` reads your profile and `PATCH /api/v1/users/me` changes the same fields as `update_my_profile`; omitted fields keep their values.
 
 ## Related [#related]
 

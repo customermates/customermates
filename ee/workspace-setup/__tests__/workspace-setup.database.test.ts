@@ -493,7 +493,7 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
       );
       expect(
         await register.invoke(
-          { email, firstName: "Invited", lastName: "Member", country: "de", agreeToTerms: true, avatarUrl: null },
+          { email, firstName: "Invited", lastName: "Member", agreeToTerms: true, avatarUrl: null },
           { target: { type: "invitation", companyId: ws.companyId } },
         ),
       ).toEqual({ ok: true, data: { redirectTo: "/auth/pending" } });
@@ -1093,7 +1093,7 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect((await ws.run(() => di.getWorkspaceSetupRepo().get(setupId)))?.crawlId).toBe(crawl.id);
   });
 
-  it("applies the confirmed country and language to the settings before the data model", async () => {
+  it("applies the confirmed language to the formatting settings and stores no country on the owner", async () => {
     const ws = await workspace();
     const { setupId, planRevision } = await planned(ws);
     await ws.run(() =>
@@ -1112,13 +1112,13 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
       runWithoutTenant(() =>
         prisma.user.findUniqueOrThrow({
           where: { id: ws.owner.id },
-          select: { country: true, formattingLocale: true },
+          select: { formattingLocale: true },
         }),
       );
-    expect(await owner()).toEqual({ country: "at", formattingLocale: "de" });
+    expect(await owner()).toEqual({ formattingLocale: "de" });
     expect((await status(ws)).phases.find((phase) => phase.key === "dataModel")?.status).toBe("completed");
     expect(await ws.run(() => service.runPhase(setupId, "dataModel"))).toBe("settled");
-    expect(await owner()).toEqual({ country: "at", formattingLocale: "de" });
+    expect(await owner()).toEqual({ formattingLocale: "de" });
   });
 
   it("reads a website named later in the interview and keeps the owner's own answers", async () => {

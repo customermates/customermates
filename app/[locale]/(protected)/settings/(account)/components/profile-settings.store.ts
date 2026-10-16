@@ -3,7 +3,7 @@ import type { UpdateUserDetailsData } from "@/features/user/upsert/update-user-d
 import type { RootStore } from "@/core/stores/root.store";
 
 import { action, makeObservable, toJS } from "mobx";
-import { CountryCode, Locale, Theme } from "@/generated/prisma";
+import { Locale, Theme } from "@/generated/prisma";
 
 import { updateUserAction } from "../actions";
 
@@ -14,7 +14,6 @@ export class ProfileSettingsStore extends BaseFormStore<UpdateUserDetailsData> {
     super(rootStore, {
       firstName: "",
       lastName: "",
-      country: CountryCode.de,
       avatarUrl: "",
       theme: Theme.system,
       displayLanguage: Locale.system,

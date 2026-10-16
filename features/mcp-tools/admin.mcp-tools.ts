@@ -16,7 +16,6 @@ const UpdateMyProfileSchema = z
   .object({
     firstName: UpdateUserDetailsSchema.shape.firstName.describe("Omit to keep existing"),
     lastName: UpdateUserDetailsSchema.shape.lastName.describe("Omit to keep existing"),
-    country: UpdateUserDetailsSchema.shape.country.describe("ISO country code. Omit to keep existing."),
     avatarUrl: UpdateUserDetailsSchema.shape.avatarUrl.describe(
       "HTTPS avatar URL, or '' / null to clear. Omit to keep existing.",
     ),
@@ -35,15 +34,7 @@ const ChangedProfileSchema = UpdateMyProfileSchema.refine(
   { message: "Profile settings need at least one changed field." },
 );
 
-const PROFILE_FIELDS = [
-  "firstName",
-  "lastName",
-  "country",
-  "avatarUrl",
-  "theme",
-  "displayLanguage",
-  "formattingLocale",
-] as const;
+const PROFILE_FIELDS = ["firstName", "lastName", "avatarUrl", "theme", "displayLanguage", "formattingLocale"] as const;
 
 const UpdateMyProfileOutputSchema = z.looseObject({ message: z.string() });
 const ManageTeamOutputSchema = z
@@ -65,7 +56,7 @@ export const updateMyProfileTool = {
   title: "Update my profile",
   description:
     "Use this when updating the current user's own profile and preferences. " +
-    "It is a partial update of firstName, lastName, country, avatarUrl, theme, displayLanguage and formattingLocale; omitted fields keep their current values. " +
+    "It is a partial update of firstName, lastName, avatarUrl, theme, displayLanguage and formattingLocale; omitted fields keep their current values. " +
     "It never changes other members or workspace configuration.",
   annotations: {
     readOnlyHint: false,

@@ -56,5 +56,5 @@
   "send_chat_message": "Delivers immediately. With threadId replies in an existing chat; with connectedAccountId plus attendeeIdentifiers starts a new one (optional chatName names a group). To send a saved draft, pass both draftMessageId and draftRevision. New LinkedIn chats default to Classic; set linkedinProduct to sales_navigator or recruiter to send an InMail (needs inmailSubject), or inmail:true to InMail someone outside your network on Classic.",
   "send_email": "Delivers immediately. Send or reply from a connected email account; sending a saved draft requires both draftMessageId and draftRevision. The account's enabled signature is appended automatically, so never write a sign-off into the body.",
   "update_messaging_thread": "Set the thread state: unread, open, closed, or spam.",
-  "update_my_profile": "Changes your own name, country, avatar, theme, display language and formatting locale."
+  "update_my_profile": "Changes your own name, avatar, theme, display language and formatting locale."
 }

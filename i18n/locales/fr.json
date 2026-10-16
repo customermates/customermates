@@ -919,7 +919,6 @@
         },
         "profile": {
           "avatarUrl": "photo de profil, photo, image",
-          "country": "emplacement, région",
           "displayLanguage": "langue, langue de l'interface, traduction",
           "firstName": "nom, prénom",
           "formattingLocale": "format de date, format des nombres, région",

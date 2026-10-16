@@ -4,7 +4,7 @@ import type { UpdateUserDetailsRepo } from "./update-user-details.repo";
 
 import { z } from "zod";
 import type { Locale } from "@/generated/prisma";
-import { CountryCode, Theme } from "@/generated/prisma";
+import { Theme } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { zx, type Validated } from "@/core/validation/validation.utils";
@@ -24,7 +24,6 @@ import {
 export const UpdateUserDetailsSchema = z.object({
   firstName: z.string().min(1).max(255).optional(),
   lastName: z.string().min(1).max(255).optional(),
-  country: z.enum(CountryCode).optional(),
   avatarUrl: zx.secureUrl().or(z.literal("")).nullable().optional(),
   theme: z.enum(Theme).optional(),
   displayLanguage: StoredDisplayLanguageSchema.optional(),
@@ -35,7 +34,6 @@ export type UpdateUserDetailsData = Data<typeof UpdateUserDetailsSchema>;
 export const UserProfileSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
-  country: z.enum(CountryCode),
   avatarUrl: z.string().nullable(),
   theme: z.enum(Theme),
   displayLanguage: StoredDisplayLanguageSchema,
@@ -61,7 +59,7 @@ export class UpdateUserDetailsInteractor extends AuthenticatedInteractor<UpdateU
   @Transaction
   @ValidateOutput(UserProfileSchema)
   async invoke(data: UpdateUserDetailsData): Validated<UserProfileData> {
-    const previous = { firstName: this.user.firstName, lastName: this.user.lastName, country: this.user.country };
+    const previous = { firstName: this.user.firstName, lastName: this.user.lastName };
     const storedProfile = await this.repo.updateDetails(data);
     const profile = {
       ...storedProfile,
@@ -72,7 +70,6 @@ export class UpdateUserDetailsInteractor extends AuthenticatedInteractor<UpdateU
     const changes = calculateChanges(previous, {
       firstName: profile.firstName,
       lastName: profile.lastName,
-      country: profile.country,
     });
     if (Object.keys(changes).length)
       await this.eventService.publish(DomainEvent.USER_UPDATED, { entityId: this.userId, payload: { changes } });

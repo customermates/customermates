@@ -2,7 +2,7 @@ import type { RootStore } from "@/core/stores/root.store";
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { autorun } from "mobx";
-import { CountryCode, Status } from "@/generated/prisma";
+import { Status } from "@/generated/prisma";
 
 import { UserModalStore } from "../user-modal.store";
 
@@ -24,7 +24,6 @@ const userRecord = (id: string) => ({
   lastName: "User",
   roleId: "40000000-0000-4000-8000-000000000001",
   status: Status.active,
-  country: CountryCode.de,
   avatarUrl: null,
 });
 

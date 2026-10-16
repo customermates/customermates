@@ -5,7 +5,7 @@ import { randomUUID } from "node:crypto";
 
 import { createTranslator } from "next-intl";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import { Action, CountryCode, Resource, Status } from "@/generated/prisma";
+import { Action, Resource, Status } from "@/generated/prisma";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
@@ -148,7 +148,6 @@ describeDatabase("deactivating a teammate and the routines it disables", { timeo
       email: teammateEmail,
       firstName: "Tom",
       lastName: "Teammate",
-      country: CountryCode.de,
       status: Status.inactive,
       avatarUrl: null,
       roleId: memberRole,

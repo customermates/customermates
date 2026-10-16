@@ -501,7 +501,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
 
   private async companySettings(setup: WorkspaceSetupRecord) {
     const settings = setupCompanySettings(setup.answers);
-    if (settings.country === undefined && settings.formattingLocale === undefined) return;
+    if (settings.formattingLocale === undefined) return;
     const updated = await this.settings.invoke(settings);
     if (!updated.ok) throw phaseFailure(failureOf(updated.error));
   }

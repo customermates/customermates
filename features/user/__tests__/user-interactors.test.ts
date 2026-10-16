@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { CountryCode } from "@/generated/prisma";
 import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import {
   MOCK_ENV_MODULE,
@@ -35,7 +34,6 @@ const mockTenantUser = createMockUser({
   email: "jane@example.com",
   firstName: "Jane",
   lastName: "Doe",
-  country: CountryCode.de,
 });
 
 describe("RegisterUserInteractor", () => {
@@ -100,7 +98,6 @@ describe("RegisterUserInteractor", () => {
         email: "jane@example.com",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: true,
       },
@@ -132,7 +129,6 @@ describe("RegisterUserInteractor", () => {
         email: "jane@example.com",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: true,
       },
@@ -182,7 +178,6 @@ describe("RegisterUserInteractor", () => {
       email: "jane@example.com",
       firstName: "Jane",
       lastName: "Doe",
-      country: "de" as const,
       avatarUrl: null,
       agreeToTerms: true,
     };
@@ -210,7 +205,6 @@ describe("RegisterUserInteractor", () => {
         email: "jane@example.com",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: true,
       },
@@ -242,7 +236,6 @@ describe("RegisterUserInteractor", () => {
         email: "jane@example.com",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: false,
       },
@@ -264,7 +257,6 @@ describe("RegisterUserInteractor", () => {
         email: "jane@example.com",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: false,
       },
@@ -296,7 +288,6 @@ describe("RegisterUserInteractor", () => {
         email: "jane@example.com",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: false,
       },
@@ -319,7 +310,6 @@ describe("RegisterUserInteractor", () => {
         email: "jane@example.com",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: true,
       },
@@ -342,7 +332,6 @@ describe("RegisterUserInteractor", () => {
         email: "jane@example.com",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: false,
       },
@@ -361,7 +350,6 @@ describe("RegisterUserInteractor", () => {
         email: "jane@example.com",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: true,
       },
@@ -381,7 +369,6 @@ describe("RegisterUserInteractor", () => {
           email: "jane@example.com",
           firstName: "Jane",
           lastName: "Doe",
-          country: "de",
           avatarUrl: null,
           agreeToTerms: true,
         },
@@ -400,7 +387,6 @@ describe("RegisterUserInteractor", () => {
         email: "jane@example.com",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: true,
       },
@@ -420,7 +406,6 @@ describe("RegisterUserInteractor", () => {
         email: "jane@example.com",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: true,
       },
@@ -437,7 +422,6 @@ describe("RegisterUserInteractor", () => {
         email: "not-an-email",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: true,
       },
@@ -466,7 +450,6 @@ describe("RegisterUserInteractor", () => {
         email: "jane@example.com",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: true,
       },
@@ -483,7 +466,6 @@ describe("RegisterUserInteractor", () => {
           email: "jane@example.com",
           firstName: "Jane",
           lastName: "Doe",
-          country: "de",
           avatarUrl: null,
           agreeToTerms: true,
         },
@@ -505,7 +487,6 @@ describe("RegisterUserInteractor", () => {
           email: "jane@example.com",
           firstName: "Jane",
           lastName: "Doe",
-          country: "de",
           avatarUrl: null,
           agreeToTerms: true,
         },
@@ -531,7 +512,6 @@ describe("RegisterUserInteractor", () => {
           email: "jane@example.com",
           firstName: "Jane",
           lastName: "Doe",
-          country: "de",
           avatarUrl: null,
           agreeToTerms: true,
         },
@@ -556,7 +536,6 @@ describe("RegisterUserInteractor", () => {
         email: "jane@example.com",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: true,
       },
@@ -582,7 +561,6 @@ describe("RegisterUserInteractor", () => {
           email: "jane@example.com",
           firstName: "Jane",
           lastName: "Doe",
-          country: "de",
           avatarUrl: null,
           agreeToTerms: true,
         },
@@ -610,7 +588,6 @@ describe("RegisterUserInteractor", () => {
           email: "jane@example.com",
           firstName: "Jane",
           lastName: "Doe",
-          country: "de",
           avatarUrl: null,
           agreeToTerms: true,
         },
@@ -647,7 +624,6 @@ describe("RegisterUserInteractor", () => {
             email: "jane@example.com",
             firstName: "Jane",
             lastName: "Doe",
-            country: "de",
             avatarUrl: null,
             agreeToTerms: true,
           },
@@ -670,7 +646,6 @@ describe("UpdateUserDetailsInteractor", () => {
   const detailsData = {
     firstName: "Janet",
     lastName: "Doe",
-    country: "de" as const,
     avatarUrl: null,
   };
 
@@ -735,8 +710,8 @@ describe("UpdateUserDetailsInteractor", () => {
     );
   });
 
-  it("publishes nothing when the saved profile keeps its name and country", async () => {
-    mockRepo.updateDetails.mockResolvedValue({ ...profileResult, firstName: "Test", lastName: "User", country: "de" });
+  it("publishes nothing when the saved profile keeps its name", async () => {
+    mockRepo.updateDetails.mockResolvedValue({ ...profileResult, firstName: "Test", lastName: "User" });
     const result: any = await createInteractor().invoke({ theme: "dark" } as never);
 
     expect(result.ok).toBe(true);
@@ -807,7 +782,6 @@ describe("avatar schemas require an absolute URL", () => {
       email: "max.bergmann@customermates.com",
       firstName: "Max",
       lastName: "Bergmann",
-      country: CountryCode.de,
       status: "active",
       avatarUrl: SEEDED_AVATAR,
       roleId: "00000000-0000-4000-8000-000000000001",

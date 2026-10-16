@@ -1,7 +1,7 @@
 import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
-import { Status, CountryCode, Locale, Theme } from "@/generated/prisma";
+import { Status, Locale, Theme } from "@/generated/prisma";
 
 import { RoleDtoSchema } from "@/features/role/role.schema";
 
@@ -12,7 +12,6 @@ export const UserDtoSchema = z.object({
   lastName: z.string(),
   roleId: z.uuid().nullable(),
   status: z.enum(Status),
-  country: z.enum(CountryCode),
   avatarUrl: z.string().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),

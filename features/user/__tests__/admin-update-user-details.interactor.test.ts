@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { Action, CountryCode, Resource, Status, SubscriptionPlan } from "@/generated/prisma";
+import { Action, Resource, Status, SubscriptionPlan } from "@/generated/prisma";
 import { DomainEvent } from "@/features/event/domain-events";
 import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import {
@@ -83,7 +83,6 @@ function harness(previousStatus: Status) {
       email: TARGET_EMAIL,
       firstName: "Team",
       lastName: "Mate",
-      country: CountryCode.de,
       status,
       avatarUrl: null,
       roleId: TARGET_ROLE_ID,
@@ -217,7 +216,6 @@ describe("AdminUpdateUserDetailsInteractor partial member update", () => {
       email: TARGET_EMAIL,
       firstName: "Test",
       lastName: "User",
-      country: CountryCode.de,
       avatarUrl: null,
       roleId: MEMBER_ROLE.id,
       status: Status.inactive,

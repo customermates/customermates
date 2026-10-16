@@ -59,7 +59,6 @@ const registerArgs = {
   email: "owner@example.com",
   firstName: "Owner",
   lastName: "Example",
-  country: "de",
   agreeToTerms: true,
   avatarUrl: null,
 } as Parameters<InstanceType<typeof WorkspaceRegistrationService>["createCompanyAndUser"]>[0];

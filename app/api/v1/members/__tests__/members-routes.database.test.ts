@@ -81,7 +81,6 @@ describeDatabase("member and profile REST routes", () => {
     email: email("target", targetUserId),
     firstName: "Target",
     lastName: "Member",
-    country: "de",
     avatarUrl: null,
     roleId: memberRoleId,
     status: "active",
@@ -106,7 +105,7 @@ describeDatabase("member and profile REST routes", () => {
       [randomUUID(), memberRoleId, companyId, randomUUID()],
     );
     await client.query(
-      "INSERT INTO \"User\" (\"id\", \"email\", \"firstName\", \"lastName\", \"companyId\", \"roleId\", \"status\", \"country\", \"updatedAt\") VALUES ($1, $2, 'REST', 'Admin', $3, $4, 'active', 'de', CURRENT_TIMESTAMP), ($5, $6, 'REST', 'Member', $3, $7, 'active', 'de', CURRENT_TIMESTAMP), ($8, $9, 'Target', 'Member', $3, $7, 'active', 'de', CURRENT_TIMESTAMP), ($10, $11, 'Foreign', 'Admin', $12, $13, 'active', 'de', CURRENT_TIMESTAMP)",
+      "INSERT INTO \"User\" (\"id\", \"email\", \"firstName\", \"lastName\", \"companyId\", \"roleId\", \"status\", \"updatedAt\") VALUES ($1, $2, 'REST', 'Admin', $3, $4, 'active', CURRENT_TIMESTAMP), ($5, $6, 'REST', 'Member', $3, $7, 'active', CURRENT_TIMESTAMP), ($8, $9, 'Target', 'Member', $3, $7, 'active', CURRENT_TIMESTAMP), ($10, $11, 'Foreign', 'Admin', $12, $13, 'active', CURRENT_TIMESTAMP)",
       [
         adminUserId,
         email("admin", adminUserId),
@@ -241,14 +240,13 @@ describeDatabase("member and profile REST routes", () => {
       updateProfile,
       memberKey,
       "users/me",
-      { firstName: "Renamed", country: "gb", theme: "dark", displayLanguage: "de", formattingLocale: "en" },
+      { firstName: "Renamed", theme: "dark", displayLanguage: "de", formattingLocale: "en" },
       "PATCH",
     );
     expect(updated.status, JSON.stringify(updated.body)).toBe(200);
     expect(updated.body).toMatchObject({
       firstName: "Renamed",
       lastName: "Member",
-      country: "gb",
       theme: "dark",
       displayLanguage: "de",
       formattingLocale: "en",
