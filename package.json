@@ -200,6 +200,7 @@
     "pg-protocol": "1.14.0"
   },
   "scripts": {
+    "address-metadata:generate": "tsx scripts/generate-address-metadata.ts",
     "agent:benchmark": "RUN_AGENT_BENCHMARK=true tsx --import ./scripts/lib/register-server-only-shim.mjs scripts/agent-benchmark/bootstrap.ts",
     "agent:web-search-smoke": "tsx scripts/smoke-agent-web-search-provider.ts",
     "billing:verify-catalog": "tsx scripts/verify-billing-catalog.ts",

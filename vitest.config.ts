@@ -11,6 +11,7 @@ const testEnvironment = {
   APP_MODE: "self-hosted",
   BASE_URL: "http://localhost:4000",
   BETTER_AUTH_SECRET: "vitest-secret",
+  POSTAL_CODE_DATA_URL: "off",
 };
 export const nodeTestInclude = [
   "**/__tests__/**/*.test.ts",

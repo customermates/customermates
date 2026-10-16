@@ -23,7 +23,11 @@ const ADDRESS = verifiedRecordAddress(
     region: "Baden-Württemberg",
     countryCode: "de",
   },
-  { provider: "photon", checkedAt: "2026-10-15T07:59:00.000Z", location: { lat: 49.4857901, lon: 8.5370071 } },
+  {
+    provider: "photon",
+    checkedAt: "2026-10-15T07:59:00.000Z",
+    location: { lat: 49.4857901, lon: 8.5370071, precision: "address" },
+  },
 );
 
 function token() {

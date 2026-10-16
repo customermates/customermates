@@ -407,6 +407,31 @@ model DocsChunk {
   @@index([searchVector], type: Gin)
 }
 
+model PostalCodeCountry {
+  countryCode String    @id
+  status      String
+  version     String
+  rowCount    Int       @default(0)
+  sources     Json      @default("[]")
+  loadedAt    DateTime?
+  attemptedAt DateTime
+  attempts    Int       @default(0)
+  failure     String?
+}
+
+model PostalCode {
+  countryCode String
+  postalKey   String
+  ordinal     Int
+  postalCode  String
+  city        String?
+  region      String?
+  latitude    Float
+  longitude   Float
+
+  @@id([countryCode, postalKey, ordinal])
+}
+
 model SearchCatalogEntry {
   id          String                      @id @default(uuid())
   companyId   String?

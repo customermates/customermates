@@ -328,6 +328,34 @@ export const RestoreSummarySchema = z
   })
   .strict();
 
+export const RECORD_WRITE_WARNING_CODES = [
+  "countryMissing",
+  "partMissing",
+  "regionUnknown",
+  "postalCodeRegionMismatch",
+  "cityMismatch",
+] as const;
+
+export const RecordWriteWarningSchema = z
+  .object({
+    code: z
+      .enum(RECORD_WRITE_WARNING_CODES)
+      .describe(
+        "Address check that did not block the write: countryMissing (a postal code or region without a country, so neither was checked), partMissing (an address with a street lacks a part the country's postal format needs), regionUnknown (not one of the country's regions), postalCodeRegionMismatch (the postal code belongs to another region), cityMismatch (the city does not belong to the postal code in the postal code directory).",
+      ),
+    fieldId: z.string(),
+    recordIds: z.array(z.string()).min(1).max(20).describe("The records it applies to, at most 20."),
+    part: z.enum(["street", "postalCode", "city", "region", "countryCode"]).describe("The address part concerned."),
+    expected: z
+      .array(z.string())
+      .max(5)
+      .optional()
+      .describe("cityMismatch: cities of the postal code; postalCodeRegionMismatch: its region keys."),
+    message: z.string().describe("The warning as an English sentence."),
+  })
+  .strict();
+export type RecordWriteWarning = z.infer<typeof RecordWriteWarningSchema>;
+
 export const RecordOperationResultSchema = z.discriminatedUnion("status", [
   z
     .object({
@@ -344,6 +372,12 @@ export const RecordOperationResultSchema = z.discriminatedUnion("status", [
         .optional()
         .describe("Data model deletion only: views, layouts and widgets changed automatically."),
       restore: RestoreSummarySchema.optional(),
+      warnings: z
+        .array(RecordWriteWarningSchema)
+        .optional()
+        .describe(
+          "Address values were saved but look incomplete or implausible; correct them with another update where the user agrees.",
+        ),
     })
     .strict(),
   z

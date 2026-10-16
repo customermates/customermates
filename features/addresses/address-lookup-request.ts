@@ -22,6 +22,10 @@ export type ProviderJsonResult =
   | { ok: true; body: unknown }
   | { ok: false; reason: ProviderJsonFailure; status?: number };
 
+export type ProviderFileResult =
+  | { ok: true; body: Buffer; modifiedAt: string | null }
+  | { ok: false; reason: ProviderJsonFailure; status?: number };
+
 export type ResolveHost = (hostname: string) => Promise<LookupAddress[]>;
 
 export type ProviderJsonOptions = {
@@ -30,6 +34,8 @@ export type ProviderJsonOptions = {
   userAgent: string;
   resolve?: ResolveHost;
 };
+
+export type ProviderFileOptions = ProviderJsonOptions & { contentTypes: ReadonlySet<string> };
 
 const PRIVATE_HOST_SUFFIXES = [".localhost", ".local", ".internal", ".lan", ".home.arpa"];
 const JSON_CONTENT_TYPES = new Set(["application/json", "application/geo+json"]);
@@ -93,7 +99,13 @@ async function pinnedAddress(hostname: string, resolve: ResolveHost, signal: Abo
   return addresses[0];
 }
 
-function send(url: URL, address: LookupAddress, signal: AbortSignal, userAgent: string): Promise<IncomingMessage> {
+function send(
+  url: URL,
+  address: LookupAddress,
+  signal: AbortSignal,
+  userAgent: string,
+  accept = "application/json",
+): Promise<IncomingMessage> {
   return new Promise((resolve, reject) => {
     const options: RequestOptions & Pick<TcpSocketConnectOpts, "autoSelectFamily"> = {
       agent: false,
@@ -102,7 +114,7 @@ function send(url: URL, address: LookupAddress, signal: AbortSignal, userAgent: 
       maxHeaderSize: 16_384,
       signal,
       headers: {
-        Accept: "application/json",
+        Accept: accept,
         "Accept-Encoding": "identity",
         "User-Agent": userAgent,
       },
@@ -114,9 +126,14 @@ function send(url: URL, address: LookupAddress, signal: AbortSignal, userAgent: 
   });
 }
 
-async function readJson(response: IncomingMessage, maxBytes: number, signal: AbortSignal): Promise<unknown> {
+async function readBody(
+  response: IncomingMessage,
+  maxBytes: number,
+  signal: AbortSignal,
+  contentTypes: ReadonlySet<string>,
+): Promise<Buffer> {
   const contentType = (response.headers["content-type"] ?? "").split(";", 1)[0].trim().toLowerCase();
-  if (!JSON_CONTENT_TYPES.has(contentType)) throw providerJsonError("unsupported_content");
+  if (!contentTypes.has(contentType)) throw providerJsonError("unsupported_content");
   const encoding = response.headers["content-encoding"]?.trim().toLowerCase();
   if (encoding && encoding !== "identity") throw providerJsonError("unsupported_content");
   const declared = Number(response.headers["content-length"]);
@@ -130,8 +147,13 @@ async function readJson(response: IncomingMessage, maxBytes: number, signal: Abo
     if (size > maxBytes) throw providerJsonError("too_large");
     chunks.push(new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength));
   }
+  return Buffer.concat(chunks);
+}
+
+async function readJson(response: IncomingMessage, maxBytes: number, signal: AbortSignal): Promise<unknown> {
+  const body = await readBody(response, maxBytes, signal, JSON_CONTENT_TYPES);
   try {
-    return JSON.parse(new TextDecoder().decode(Buffer.concat(chunks)));
+    return JSON.parse(new TextDecoder().decode(body));
   } catch {
     throw providerJsonError("unsupported_content");
   }
@@ -147,6 +169,31 @@ export async function requestProviderJson(url: URL, options: ProviderJsonOptions
       const status = response.statusCode ?? 0;
       if (status < 200 || status >= 300) return { ok: false, reason: "status", status };
       return { ok: true, body: await readJson(response, options.maxBytes, signal) };
+    } finally {
+      response.destroy();
+    }
+  } catch (error) {
+    if (signal.aborted) return { ok: false, reason: "timeout" };
+    return { ok: false, reason: providerJsonFailure(error) };
+  }
+}
+
+export async function requestProviderFile(url: URL, options: ProviderFileOptions): Promise<ProviderFileResult> {
+  if (url.protocol !== "http:" && url.protocol !== "https:") return { ok: false, reason: "blocked" };
+  const signal = AbortSignal.timeout(options.timeoutMs);
+  try {
+    const address = await pinnedAddress(bareHostname(url), options.resolve ?? resolveHost, signal);
+    const response = await send(url, address, signal, options.userAgent, "*/*");
+    try {
+      const status = response.statusCode ?? 0;
+      if (status < 200 || status >= 300) return { ok: false, reason: "status", status };
+      const modified = response.headers["last-modified"];
+      const body = await readBody(response, options.maxBytes, signal, options.contentTypes);
+      return {
+        ok: true,
+        body,
+        modifiedAt: modified && !Number.isNaN(Date.parse(modified)) ? new Date(modified).toISOString() : null,
+      };
     } finally {
       response.destroy();
     }

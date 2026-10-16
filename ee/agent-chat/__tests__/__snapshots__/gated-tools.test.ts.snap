@@ -2,6 +2,7 @@
 
 exports[`gated-tools > snapshots the surface so new tools and actions force a conscious approval decision 1`] = `
 [
+  "check_address",
   "discover_record_types",
   "export_crm_records",
   "fetch",

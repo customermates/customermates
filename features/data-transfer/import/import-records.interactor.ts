@@ -34,6 +34,7 @@ import { recordRequestHash } from "@/features/records/record-request-hash";
 import { RecordJournal } from "@/features/records/record-journal";
 import { decodeRecordValue } from "@/features/records/record-storage";
 import { sameRecordResult } from "@/features/records/record-write.service";
+import { mergeRecordWriteWarnings } from "@/features/records/record-address-warnings";
 import { valueResult } from "@/features/records/calculation";
 
 type ImportRow = ImportRecordsInput["document"]["records"][number];
@@ -298,11 +299,13 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportMarke
         await journal.flush(model, this.userId, input.idempotencyKey, {
           kind: "mutation",
         });
+        const warnings = mergeRecordWriteWarnings(writes.map((write) => write.warnings));
         const data: ImportRecordsResult = {
           created: input.mode === "create" ? document.records.length : 0,
           updated: input.mode === "update" ? document.records.length - skipped : 0,
           linked,
           schemaRevision: model.revision,
+          ...(warnings.length ? { warnings } : {}),
         };
         await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, data);
         return { ok: true as const, data };

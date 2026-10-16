@@ -567,6 +567,7 @@ export const getRecordWriteService = (records: RecordRepo = getRecordRepo()) =>
     getRecordCalculationService(records),
     getAddressCandidateVerifier(),
     getRecordFileAttacher(),
+    getAddressCheckService(),
   );
 export const getAddressCandidateVerifier = (): AddressCandidateVerifier =>
   new SignedAddressCandidateVerifier(env.BETTER_AUTH_SECRET);
@@ -2126,3 +2127,25 @@ export const getAddressLookupService = () =>
   );
 export const getLookupAddressInteractor = () => new LookupAddressInteractor(getAddressLookupService());
 export const getVerifyAddressInteractor = () => new VerifyAddressInteractor(getAddressLookupService());
+import { ADDRESS_METADATA, addressFormatOf } from "@/features/addresses/address-metadata";
+import { PostalCodeCache } from "@/features/addresses/postal-codes/postal-code-cache";
+import { downloadPostalCodeFile } from "@/features/addresses/postal-codes/postal-code-download";
+import { POSTAL_CODE_LOADER_VERSION } from "@/features/addresses/postal-codes/postal-code-sources";
+import { PostalCodeService } from "@/features/addresses/postal-codes/postal-code.service";
+import { PrismaPostalCodeRepo } from "@/features/addresses/postal-codes/prisma-postal-code.repository";
+import { AddressCheckService } from "@/features/addresses/address-check.service";
+import { CheckAddressInteractor } from "@/features/addresses/check-address.interactor";
+
+const postalCodeCache = new PostalCodeCache();
+export const getPostalCodeService = () =>
+  new PostalCodeService(
+    new PrismaPostalCodeRepo(),
+    postalCodeCache,
+    env.POSTAL_CODE_DATA_URL,
+    `${POSTAL_CODE_LOADER_VERSION}:${ADDRESS_METADATA.source.retrievedOn}`,
+    addressFormatOf,
+    (countryCode) => getBackgroundTaskService().dispatch("load-postal-codes", { countryCode }),
+    downloadPostalCodeFile,
+  );
+export const getAddressCheckService = () => new AddressCheckService(getPostalCodeService());
+export const getCheckAddressInteractor = () => new CheckAddressInteractor(getAddressCheckService());

@@ -93,6 +93,31 @@ describe("record value validation", () => {
     });
   });
 
+  it("marks the refused part of an address as well as the address field", () => {
+    const message = "In Address, 6825 is not a postal code of the chosen country. Postal codes there look like 26133.";
+    const errors = recordFieldErrors(
+      {
+        kind: "validation",
+        issues: [{ code: "custom", path: ["mutation", "fields", 0, "value", "postalCode"], message }],
+      },
+      ["address"],
+    );
+    expect(errors).toEqual({
+      errors: [],
+      fields: { address: [message] },
+      parts: { address: { postalCode: [message] } },
+    });
+    expect(recordValuesErrorTree(errors)).toEqual({
+      errors: [],
+      properties: {
+        values: {
+          errors: [],
+          properties: { address: { errors: [message], properties: { postalCode: { errors: [message] } } } },
+        },
+      },
+    });
+  });
+
   it("maps a refused assignee to the Assigned to field", () => {
     const message = "This member is inactive or not part of this workspace. Choose an active member.";
     const errors = recordFieldErrors(

@@ -18,6 +18,9 @@ import type {
   RecordFieldUpdate,
 } from "./record-model.schema";
 import type { AddressCandidateVerifier } from "./address-candidate-verifier";
+import type { RecordAddressChecker } from "./record-address-checker";
+import type { AddressIssue } from "@/features/addresses/address-check";
+import type { RecordWriteWarning } from "./record-query.schema";
 import type { RecordFileAttacher } from "./record-file-attacher";
 import type { RecordMutation } from "./record-query.schema";
 import type { InteractorFailureKind } from "@/core/validation/validation.utils";
@@ -38,7 +41,9 @@ import { canonicalRecordJson, compareRecordKey } from "./record-json";
 import { recordTrashLabel } from "./record-trash-label";
 import { RejectingAddressCandidateVerifier } from "./rejecting-address-candidate-verifier";
 import { sameAddressParts, unverifiedRecordAddress } from "./record-address";
-import { COUNTRY_CODES } from "@/constants/countries";
+import { AddressCheckService } from "@/features/addresses/address-check.service";
+import { isBlockingAddressIssue } from "@/features/addresses/address-check";
+import { addressWarnings, mergeRecordWriteWarnings, type FieldAddressIssues } from "./record-address-warnings";
 
 type Policy = Awaited<ReturnType<RecordAccessPolicy["load"]>>;
 function reject(
@@ -116,20 +121,6 @@ function storedAddress(row: StoredRecord | undefined, field: RecordField): Recor
   return result.state === "value" && result.value.kind === "address" ? result.value.value : null;
 }
 
-function addressInput(
-  input: RecordScalar | null,
-  stored: RecordAddress | null,
-  path: Array<string | number>,
-): RecordScalar | null {
-  if (input?.kind !== "address") return input;
-  const countryCode = input.value.countryCode;
-  if (countryCode && !COUNTRY_CODES.some((code) => code === countryCode))
-    reject(CustomErrorCode.recordValueTypeMismatch, "validation", path);
-  const address = unverifiedRecordAddress(input.value);
-  if (!address) return null;
-  return { kind: "address", value: stored && sameAddressParts(stored, address) ? stored : address };
-}
-
 function storedMemberIds(row: StoredRecord | null, fieldId: string): string[] {
   const stored = row?.values.find((value) => value.fieldId === fieldId);
   return stored?.state === "value" && stored.textValue ? [stored.textValue] : [];
@@ -182,7 +173,14 @@ export type RecordWrite = {
   links: CalculationLinkChange[];
   unchanged: string[];
   trashBatchId?: string;
+  warnings?: RecordWriteWarning[];
 };
+
+const ADDRESS_ERROR_CODES = {
+  countryUnknown: CustomErrorCode.recordAddressCountryInvalid,
+  postalCodeInvalid: CustomErrorCode.recordAddressPostalCodeInvalid,
+  regionInvalid: CustomErrorCode.recordAddressRegionInvalid,
+} as const;
 
 export class RecordWriteService {
   constructor(
@@ -191,6 +189,7 @@ export class RecordWriteService {
     private calculations: RecordCalculationService,
     private addresses: AddressCandidateVerifier = new RejectingAddressCandidateVerifier(),
     private files?: RecordFileAttacher,
+    private addressChecker: RecordAddressChecker = new AddressCheckService(),
   ) {}
 
   withRepository(records: RecordRepo): RecordWriteService {
@@ -200,7 +199,39 @@ export class RecordWriteService {
       this.calculations.withRepository(records),
       this.addresses,
       this.files,
+      this.addressChecker,
     );
+  }
+
+  private async addressValue(
+    input: RecordScalar | null,
+    stored: RecordAddress | null,
+    field: RecordField,
+    path: Array<string | number>,
+  ): Promise<{ value: RecordScalar | null; issues: AddressIssue[] }> {
+    if (input?.kind !== "address") return { value: input, issues: [] };
+    const address = unverifiedRecordAddress(input.value);
+    if (!address) return { value: null, issues: [] };
+    if (stored && sameAddressParts(stored, address)) return { value: { kind: "address", value: stored }, issues: [] };
+    const checked = await this.addressChecker.check(address);
+    const blocking = checked.issues.find(isBlockingAddressIssue);
+    if (blocking && blocking.code in ADDRESS_ERROR_CODES) {
+      reject(
+        ADDRESS_ERROR_CODES[blocking.code as keyof typeof ADDRESS_ERROR_CODES],
+        "validation",
+        [...path, blocking.part],
+        {
+          field: field.label,
+          country: address.countryCode ?? "",
+          postalCode: checked.address.postalCode ?? "",
+          region: checked.address.region ?? "",
+          example: blocking.example ?? "",
+        },
+      );
+    }
+    if (stored && sameAddressParts(stored, checked.address))
+      return { value: { kind: "address", value: stored }, issues: [] };
+    return { value: { kind: "address", value: checked.address }, issues: checked.issues };
   }
 
   private async verifiedInput(
@@ -421,6 +452,7 @@ export class RecordWriteService {
       const captures = new Map<string, Set<string>>();
       const links: CalculationLinkChange[] = [];
       const propagating = new Set<string>();
+      const warnings: Array<RecordWriteWarning[] | undefined> = [];
       for (const target of mutation.targets) {
         const result = await this.apply(
           {
@@ -436,6 +468,7 @@ export class RecordWriteService {
           { skipCalculations: true, skipTouches: true },
         );
         for (const ref of result.refs) seeds.set(recordKey(ref), ref);
+        warnings.push(result.warnings);
         const unchanged = new Set(result.unchanged);
         for (const ref of result.refs) if (!unchanged.has(recordKey(ref))) propagating.add(recordKey(ref));
         links.push(...result.links);
@@ -470,6 +503,7 @@ export class RecordWriteService {
         })),
         links,
         unchanged: [...seeds.keys()].filter((key) => !propagating.has(key)),
+        ...(warnings.some((list) => list?.length) ? { warnings: mergeRecordWriteWarnings(warnings) } : {}),
       };
     }
     const fields = new Map(model.fields.filter((field) => !field.archived).map((field) => [field.id, field]));
@@ -480,6 +514,7 @@ export class RecordWriteService {
     const captures = new Map<string, Set<string>>();
     const deleted = new Set<string>();
     const fresh = new Set<string>();
+    const addressIssues: FieldAddressIssues[] = [];
     let trashBatchId: string | undefined;
     const assignIdentities = async (ref: RecordRef, inputs: RecordIdentityInput[] | undefined) => {
       if (!inputs) return;
@@ -598,11 +633,11 @@ export class RecordWriteService {
           : field.behavior.kind === "input"
             ? (field.behavior.defaultValue ?? null)
             : null;
-        const value = normalizeRecordScalar(
-          verified.has(field.id) ? input : addressInput(input, storedAddress(existing, field), path),
-          field,
-          path,
-        );
+        const addressed = verified.has(field.id)
+          ? { value: input, issues: [] }
+          : await this.addressValue(input, storedAddress(existing, field), field, path);
+        if (addressed.issues.length) addressIssues.push({ recordId: ref.recordId, field, issues: addressed.issues });
+        const value = normalizeRecordScalar(addressed.value, field, path);
         const next = valueResult(value);
         if (
           existing &&
@@ -828,6 +863,7 @@ export class RecordWriteService {
       links,
       unchanged: [...seeds.keys()].filter((key) => !propagating.has(key)),
       ...(trashBatchId ? { trashBatchId } : {}),
+      ...(addressIssues.length ? { warnings: addressWarnings(addressIssues) } : {}),
     };
   }
 }

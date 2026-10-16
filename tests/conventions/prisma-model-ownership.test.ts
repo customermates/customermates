@@ -49,6 +49,8 @@ const OWNERS: Record<string, string> = {
   CrmRecord: "features/records/prisma-record.repository.ts",
   DataView: "features/data-view/prisma-data-view.repository.ts",
   DocsChunk: "features/mcp-tools/prisma-docs-chunk.repository.ts",
+  PostalCode: "features/addresses/postal-codes/prisma-postal-code.repository.ts",
+  PostalCodeCountry: "features/addresses/postal-codes/prisma-postal-code.repository.ts",
   EventLog: "features/event/prisma-event-log.repository.ts",
   HostedAiPlatformReservation: "ee/agent-chat/prisma-agent-chat.repository.ts",
   HostedAiPlatformUsage: "ee/agent-chat/prisma-agent-chat.repository.ts",

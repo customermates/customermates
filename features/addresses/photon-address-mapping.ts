@@ -38,7 +38,7 @@ function postalCodeOf(value: unknown): string | null {
 function locationOf(coordinates: number[] | undefined): RecordAddress["location"] {
   const [lon, lat] = coordinates ?? [];
   if (lat === undefined || lon === undefined || !Number.isFinite(lat) || !Number.isFinite(lon)) return null;
-  return Math.abs(lat) <= 90 && Math.abs(lon) <= 180 ? { lat, lon } : null;
+  return Math.abs(lat) <= 90 && Math.abs(lon) <= 180 ? { lat, lon, precision: "address" } : null;
 }
 
 export function photonMatch(feature: unknown, checkedAt: string): AddressLookupMatch | null {

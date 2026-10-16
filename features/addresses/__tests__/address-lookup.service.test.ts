@@ -25,7 +25,7 @@ function match(parts: Partial<RecordAddressParts>, name: string | null = null): 
     name,
     address: verifiedRecordAddress(
       { street: null, line2: null, postalCode: null, city: null, region: null, countryCode: null, ...parts },
-      { provider: "photon", checkedAt: NOW.toISOString(), location: { lat: 49.48, lon: 8.47 } },
+      { provider: "photon", checkedAt: NOW.toISOString(), location: { lat: 49.48, lon: 8.47, precision: "address" } },
     ),
   };
 }

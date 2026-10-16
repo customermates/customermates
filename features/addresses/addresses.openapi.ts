@@ -6,11 +6,26 @@ import {
   LookupAddressSchema,
   VerifyAddressSchema,
 } from "./address-lookup.schema";
+import { AddressCheckResultSchema, CheckAddressSchema } from "./address-check.schema";
 
 const LOOKUP_PRIVACY =
   "The server asks the address provider on the caller's behalf, so the provider never sees the caller's IP address or session. When the operator has not configured ADDRESS_LOOKUP_URL, nothing leaves the server and available is false. Requests are limited to 30 per user in 10 seconds (429 addressLookupRateLimited), and a provider that does not answer within 2 seconds returns 422 addressLookupUnavailable.";
 
 export const addressApiPaths = {
+  "/v1/addresses/check": {
+    post: structuredOperation({
+      operationId: "checkAddress",
+      summary: "Check address parts offline",
+      description:
+        "Checks address parts the way every address write does, without saving anything and without asking an outside service. Returns the parts as a write would store them (trimmed, the postal code in the country's format, a region name or ISO code turned into the country's region code), the issues, and the cities and regions the postal code directory lists for the postal code, with the centre of the postal code. Errors (countryUnknown, postalCodeInvalid, regionInvalid) make a write with these parts fail with 422; warnings (countryMissing, partMissing, regionUnknown, postalCodeRegionMismatch, cityMismatch) are returned with the write result. The country formats come from Google's libaddressinput metadata (CC BY 4.0) shipped with the app. The postal code directory holds GeoNames postal codes (CC BY 4.0) in this server's own database: a country is loaded the first time someone enters one of its postal codes, so the first check can answer status loading; show the attribution with places.",
+      requires: "an active member of the workspace; no record permission, because a check changes nothing.",
+      tag: "addresses",
+      input: CheckAddressSchema,
+      output: AddressCheckResultSchema,
+      outputDescription: "The normalised address, its issues and the postal code's places.",
+      example: { street: "Hauptstr. 5", postalCode: "68259", city: "Mannheim", countryCode: "de" },
+    }),
+  },
   "/v1/addresses/lookup": {
     post: structuredOperation({
       operationId: "lookupAddress",

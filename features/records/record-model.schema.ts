@@ -73,10 +73,20 @@ export const RecordAddressSchema = z
       .default("")
       .describe("One-line address the server formats from the parts; a sent value is replaced."),
     location: z
-      .object({ lat: z.number().min(-90).max(90), lon: z.number().min(-180).max(180) })
+      .object({
+        lat: z.number().min(-90).max(90),
+        lon: z.number().min(-180).max(180),
+        precision: z
+          .enum(["address", "postcode"])
+          .optional()
+          .describe(
+            "address: the building, from an address lookup; postcode: the centre of the postal code. Missing on locations stored before it existed, which are buildings.",
+          ),
+      })
       .strict()
       .nullable()
-      .default(null),
+      .default(null)
+      .describe("Owned by the server: coordinates for maps, from an address lookup or the postal code."),
     verification: z
       .object({
         status: z.enum(["verified", "unverified"]),

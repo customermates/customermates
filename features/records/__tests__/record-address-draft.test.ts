@@ -37,7 +37,7 @@ const PARTS = {
 const VERIFIED = verifiedRecordAddress(PARTS, {
   provider: "photon",
   checkedAt: "2026-10-15T08:00:00.000Z",
-  location: { lat: 49.4857901, lon: 8.5370071 },
+  location: { lat: 49.4857901, lon: 8.5370071, precision: "address" },
 });
 
 describe("address street lines", () => {

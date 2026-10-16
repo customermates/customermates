@@ -31,6 +31,20 @@ describe("typed record value boundary", () => {
         verification: { status: "verified", provider: "photon", checkedAt: "2026-10-14T12:00:00Z" },
       },
     },
+    {
+      kind: "address",
+      value: {
+        street: null,
+        line2: null,
+        postalCode: "68159",
+        city: "Mannheim",
+        region: null,
+        countryCode: "de",
+        formatted: "68159 Mannheim",
+        location: { lat: 49.48751, lon: 8.46601, precision: "postcode" },
+        verification: { status: "unverified", provider: null, checkedAt: null },
+      },
+    },
   ])("preserves every supported typed value exactly: $kind", (value) => {
     expect(RecordScalarSchema.parse(value)).toEqual(value);
   });

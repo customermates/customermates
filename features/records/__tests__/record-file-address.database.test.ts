@@ -48,7 +48,11 @@ const VERIFIED_TOKEN = "candidate-mannheim";
 
 const verifiedAddress = verifiedRecordAddress(
   { street: "Hauptstraße 5", line2: null, postalCode: "68159", city: "Mannheim", region: null, countryCode: "de" },
-  { provider: "photon", checkedAt: "2026-10-14T12:00:00.000Z", location: { lat: 49.4875, lon: 8.466 } },
+  {
+    provider: "photon",
+    checkedAt: "2026-10-14T12:00:00.000Z",
+    location: { lat: 49.4875, lon: 8.466, precision: "address" },
+  },
 );
 
 function inputField(
@@ -370,7 +374,7 @@ describeDatabase("file and address values in the record engine", () => {
       ],
     });
     expect(unknownCountry.ok).toBe(false);
-    expect(JSON.stringify(unknownCountry)).toContain("recordValueTypeMismatch");
+    expect(JSON.stringify(unknownCountry)).toContain("recordAddressCountryInvalid");
     const ref = await f.createDeal([
       {
         fieldId: f.address,
@@ -382,7 +386,7 @@ describeDatabase("file and address values in the record engine", () => {
             city: "Mannheim",
             countryCode: "de",
             formatted: "Somewhere else entirely",
-            location: { lat: 1, lon: 2 },
+            location: { lat: 1, lon: 2, precision: "address" },
             verification: { status: "verified", provider: "client", checkedAt: "2026-10-14T00:00:00Z" },
           }),
         },

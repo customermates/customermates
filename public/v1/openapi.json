@@ -12654,6 +12654,69 @@
                       "type": "integer",
                       "minimum": 0,
                       "maximum": 9007199254740991
+                    },
+                    "warnings": {
+                      "description": "Address values that were imported but look incomplete or implausible, with the records concerned.",
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "code": {
+                            "type": "string",
+                            "enum": [
+                              "countryMissing",
+                              "partMissing",
+                              "regionUnknown",
+                              "postalCodeRegionMismatch",
+                              "cityMismatch"
+                            ],
+                            "description": "Address check that did not block the write: countryMissing (a postal code or region without a country, so neither was checked), partMissing (an address with a street lacks a part the country's postal format needs), regionUnknown (not one of the country's regions), postalCodeRegionMismatch (the postal code belongs to another region), cityMismatch (the city does not belong to the postal code in the postal code directory)."
+                          },
+                          "fieldId": {
+                            "type": "string"
+                          },
+                          "recordIds": {
+                            "minItems": 1,
+                            "maxItems": 20,
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "The records it applies to, at most 20."
+                          },
+                          "part": {
+                            "type": "string",
+                            "enum": [
+                              "street",
+                              "postalCode",
+                              "city",
+                              "region",
+                              "countryCode"
+                            ],
+                            "description": "The address part concerned."
+                          },
+                          "expected": {
+                            "description": "cityMismatch: cities of the postal code; postalCodeRegionMismatch: its region keys.",
+                            "maxItems": 5,
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "message": {
+                            "type": "string",
+                            "description": "The warning as an English sentence."
+                          }
+                        },
+                        "required": [
+                          "code",
+                          "fieldId",
+                          "recordIds",
+                          "part",
+                          "message"
+                        ],
+                        "additionalProperties": false
+                      }
                     }
                   },
                   "required": [
@@ -39046,6 +39109,69 @@
                             "droppedLinks"
                           ],
                           "additionalProperties": false
+                        },
+                        "warnings": {
+                          "description": "Address values were saved but look incomplete or implausible; correct them with another update where the user agrees.",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "code": {
+                                "type": "string",
+                                "enum": [
+                                  "countryMissing",
+                                  "partMissing",
+                                  "regionUnknown",
+                                  "postalCodeRegionMismatch",
+                                  "cityMismatch"
+                                ],
+                                "description": "Address check that did not block the write: countryMissing (a postal code or region without a country, so neither was checked), partMissing (an address with a street lacks a part the country's postal format needs), regionUnknown (not one of the country's regions), postalCodeRegionMismatch (the postal code belongs to another region), cityMismatch (the city does not belong to the postal code in the postal code directory)."
+                              },
+                              "fieldId": {
+                                "type": "string"
+                              },
+                              "recordIds": {
+                                "minItems": 1,
+                                "maxItems": 20,
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "description": "The records it applies to, at most 20."
+                              },
+                              "part": {
+                                "type": "string",
+                                "enum": [
+                                  "street",
+                                  "postalCode",
+                                  "city",
+                                  "region",
+                                  "countryCode"
+                                ],
+                                "description": "The address part concerned."
+                              },
+                              "expected": {
+                                "description": "cityMismatch: cities of the postal code; postalCodeRegionMismatch: its region keys.",
+                                "maxItems": 5,
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "message": {
+                                "type": "string",
+                                "description": "The warning as an English sentence."
+                              }
+                            },
+                            "required": [
+                              "code",
+                              "fieldId",
+                              "recordIds",
+                              "part",
+                              "message"
+                            ],
+                            "additionalProperties": false
+                          }
                         }
                       },
                       "required": [
@@ -45851,6 +45977,69 @@
                             "droppedLinks"
                           ],
                           "additionalProperties": false
+                        },
+                        "warnings": {
+                          "description": "Address values were saved but look incomplete or implausible; correct them with another update where the user agrees.",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "code": {
+                                "type": "string",
+                                "enum": [
+                                  "countryMissing",
+                                  "partMissing",
+                                  "regionUnknown",
+                                  "postalCodeRegionMismatch",
+                                  "cityMismatch"
+                                ],
+                                "description": "Address check that did not block the write: countryMissing (a postal code or region without a country, so neither was checked), partMissing (an address with a street lacks a part the country's postal format needs), regionUnknown (not one of the country's regions), postalCodeRegionMismatch (the postal code belongs to another region), cityMismatch (the city does not belong to the postal code in the postal code directory)."
+                              },
+                              "fieldId": {
+                                "type": "string"
+                              },
+                              "recordIds": {
+                                "minItems": 1,
+                                "maxItems": 20,
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "description": "The records it applies to, at most 20."
+                              },
+                              "part": {
+                                "type": "string",
+                                "enum": [
+                                  "street",
+                                  "postalCode",
+                                  "city",
+                                  "region",
+                                  "countryCode"
+                                ],
+                                "description": "The address part concerned."
+                              },
+                              "expected": {
+                                "description": "cityMismatch: cities of the postal code; postalCodeRegionMismatch: its region keys.",
+                                "maxItems": 5,
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "message": {
+                                "type": "string",
+                                "description": "The warning as an English sentence."
+                              }
+                            },
+                            "required": [
+                              "code",
+                              "fieldId",
+                              "recordIds",
+                              "part",
+                              "message"
+                            ],
+                            "additionalProperties": false
+                          }
                         }
                       },
                       "required": [
@@ -50644,6 +50833,69 @@
                                     "droppedLinks"
                                   ],
                                   "additionalProperties": false
+                                },
+                                "warnings": {
+                                  "description": "Address values were saved but look incomplete or implausible; correct them with another update where the user agrees.",
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "code": {
+                                        "type": "string",
+                                        "enum": [
+                                          "countryMissing",
+                                          "partMissing",
+                                          "regionUnknown",
+                                          "postalCodeRegionMismatch",
+                                          "cityMismatch"
+                                        ],
+                                        "description": "Address check that did not block the write: countryMissing (a postal code or region without a country, so neither was checked), partMissing (an address with a street lacks a part the country's postal format needs), regionUnknown (not one of the country's regions), postalCodeRegionMismatch (the postal code belongs to another region), cityMismatch (the city does not belong to the postal code in the postal code directory)."
+                                      },
+                                      "fieldId": {
+                                        "type": "string"
+                                      },
+                                      "recordIds": {
+                                        "minItems": 1,
+                                        "maxItems": 20,
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        },
+                                        "description": "The records it applies to, at most 20."
+                                      },
+                                      "part": {
+                                        "type": "string",
+                                        "enum": [
+                                          "street",
+                                          "postalCode",
+                                          "city",
+                                          "region",
+                                          "countryCode"
+                                        ],
+                                        "description": "The address part concerned."
+                                      },
+                                      "expected": {
+                                        "description": "cityMismatch: cities of the postal code; postalCodeRegionMismatch: its region keys.",
+                                        "maxItems": 5,
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "message": {
+                                        "type": "string",
+                                        "description": "The warning as an English sentence."
+                                      }
+                                    },
+                                    "required": [
+                                      "code",
+                                      "fieldId",
+                                      "recordIds",
+                                      "part",
+                                      "message"
+                                    ],
+                                    "additionalProperties": false
+                                  }
                                 }
                               },
                               "required": [
@@ -85028,6 +85280,391 @@
                     "linkColors",
                     "linkIcons",
                     "linkLabels"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
+    "/v1/addresses/check": {
+      "post": {
+        "operationId": "checkAddress",
+        "summary": "Check address parts offline",
+        "description": "Checks address parts the way every address write does, without saving anything and without asking an outside service. Returns the parts as a write would store them (trimmed, the postal code in the country's format, a region name or ISO code turned into the country's region code), the issues, and the cities and regions the postal code directory lists for the postal code, with the centre of the postal code. Errors (countryUnknown, postalCodeInvalid, regionInvalid) make a write with these parts fail with 422; warnings (countryMissing, partMissing, regionUnknown, postalCodeRegionMismatch, cityMismatch) are returned with the write result. The country formats come from Google's libaddressinput metadata (CC BY 4.0) shipped with the app. The postal code directory holds GeoNames postal codes (CC BY 4.0) in this server's own database: a country is loaded the first time someone enters one of its postal codes, so the first check can answer status loading; show the attribution with places.\n\nRequires: an active member of the workspace; no record permission, because a check changes nothing.",
+        "tags": [
+          "addresses"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "street": "Hauptstr. 5",
+                "postalCode": "68259",
+                "city": "Mannheim",
+                "countryCode": "de"
+              },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "street": {
+                    "description": "Street with house number, as written in the country.",
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 200
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "line2": {
+                    "description": "Apartment, floor or c/o; kept as entered and never checked.",
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 200
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "postalCode": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 20
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "city": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 200
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "region": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 200
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "countryCode": {
+                    "description": "Only addresses in this country: ISO 3166-1 alpha-2 code in lowercase, such as de.",
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z]{2}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "additionalProperties": false,
+                "description": "Address parts as a person entered them; the same parts an address field value takes."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The normalised address, its issues and the postal code's places.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "address": {
+                      "description": "The parts as a write stores them: trimmed, the postal code in the country's format, the region as the country's code, and the centre of the postal code as location when the directory knows the code.",
+                      "$ref": "#/components/schemas/RecordAddress"
+                    },
+                    "issues": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "code": {
+                            "type": "string",
+                            "enum": [
+                              "countryUnknown",
+                              "postalCodeInvalid",
+                              "regionInvalid",
+                              "countryMissing",
+                              "partMissing",
+                              "regionUnknown",
+                              "postalCodeRegionMismatch",
+                              "cityMismatch"
+                            ],
+                            "description": "Errors: countryUnknown (not an ISO 3166-1 alpha-2 code), postalCodeInvalid (does not fit the country's format), regionInvalid (a code that is not one of the country's region codes). Warnings: countryMissing, partMissing, regionUnknown, postalCodeRegionMismatch, cityMismatch."
+                          },
+                          "severity": {
+                            "type": "string",
+                            "enum": [
+                              "error",
+                              "warning"
+                            ],
+                            "description": "error: writing this address is refused; warning: the address is saved and the warning returned."
+                          },
+                          "part": {
+                            "type": "string",
+                            "enum": [
+                              "street",
+                              "postalCode",
+                              "city",
+                              "region",
+                              "countryCode"
+                            ],
+                            "description": "The address part concerned."
+                          },
+                          "message": {
+                            "type": "string",
+                            "description": "The issue as an English sentence."
+                          },
+                          "example": {
+                            "description": "postalCodeInvalid: a postal code in the country's format.",
+                            "type": "string"
+                          },
+                          "expected": {
+                            "description": "cityMismatch: cities of the postal code; postalCodeRegionMismatch: its region codes.",
+                            "maxItems": 5,
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "required": [
+                          "code",
+                          "severity",
+                          "part",
+                          "message"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "postalCode": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "ready",
+                            "loading",
+                            "unavailable",
+                            "notChecked"
+                          ],
+                          "description": "ready: the directory was searched; loading: the country's postal codes are being loaded, try again in a minute; unavailable: no directory for this country or it is switched off on this server; notChecked: no country, no postal code, or an error above."
+                        },
+                        "match": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "exact",
+                                "area",
+                                "none"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "description": "exact: the directory knows the postal code (or the area it lists for the country); area: only a broader area matched, so places are approximate; none: unknown to the directory."
+                        },
+                        "places": {
+                          "maxItems": 20,
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "city": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "region": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ],
+                                "description": "The country's region code, as an address field stores it, or null."
+                              },
+                              "location": {
+                                "type": "object",
+                                "properties": {
+                                  "lat": {
+                                    "type": "number",
+                                    "minimum": -90,
+                                    "maximum": 90
+                                  },
+                                  "lon": {
+                                    "type": "number",
+                                    "minimum": -180,
+                                    "maximum": 180
+                                  },
+                                  "precision": {
+                                    "type": "string",
+                                    "const": "postcode"
+                                  }
+                                },
+                                "required": [
+                                  "lat",
+                                  "lon",
+                                  "precision"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": [
+                              "city",
+                              "region",
+                              "location"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "description": "Cities and regions of the postal code, most likely first; use them to fill an empty city or region."
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "match",
+                        "places"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "attribution": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Source credit to show with places from the postal code directory."
+                    }
+                  },
+                  "required": [
+                    "address",
+                    "issues",
+                    "postalCode",
+                    "attribution"
                   ],
                   "additionalProperties": false
                 }
@@ -123575,6 +124212,7 @@
           },
           "location": {
             "default": null,
+            "description": "Owned by the server: coordinates for maps, from an address lookup or the postal code.",
             "anyOf": [
               {
                 "type": "object",
@@ -123588,6 +124226,14 @@
                     "type": "number",
                     "minimum": -180,
                     "maximum": 180
+                  },
+                  "precision": {
+                    "description": "address: the building, from an address lookup; postcode: the centre of the postal code. Missing on locations stored before it existed, which are buildings.",
+                    "type": "string",
+                    "enum": [
+                      "address",
+                      "postcode"
+                    ]
                   }
                 },
                 "required": [
@@ -123743,6 +124389,9 @@
                         "addressLookupUnavailable",
                         "addressLookupRateLimited",
                         "recordAddressCandidateInvalid",
+                        "recordAddressCountryInvalid",
+                        "recordAddressPostalCodeInvalid",
+                        "recordAddressRegionInvalid",
                         "recordFileUnavailable",
                         "recordFileContentInvalid",
                         "recordFileLinkInvalid",

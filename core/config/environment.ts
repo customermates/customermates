@@ -91,6 +91,15 @@ export function resolveOptionalHttpUrl(name: string, value: string | undefined):
   return normalized.replace(/\/+$/u, "");
 }
 
+export const DEFAULT_POSTAL_CODE_DATA_URL = "https://download.geonames.org/export/zip";
+
+export function resolvePostalCodeDataUrl(value: string | undefined): string | null {
+  const normalized = value?.trim();
+  if (!normalized) return DEFAULT_POSTAL_CODE_DATA_URL;
+  if (normalized.toLowerCase() === "off") return null;
+  return resolveOptionalHttpUrl("POSTAL_CODE_DATA_URL", normalized) ?? null;
+}
+
 export function resolveAppMode(source: Environment): AppMode {
   const appMode = source.APP_MODE?.trim();
   if (!appMode) throw new Error("APP_MODE must be configured as self-hosted, cloud, or demo");

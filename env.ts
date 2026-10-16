@@ -6,6 +6,7 @@ import {
   resolveFileStorageDriver,
   resolveOptionalBigInt,
   resolveOptionalHttpUrl,
+  resolvePostalCodeDataUrl,
   resolvePositiveInteger,
   resolveStrictBoolean,
 } from "@/core/config/environment";
@@ -81,4 +82,5 @@ export const env = {
   S3_SECRET_ACCESS_KEY: process.env.S3_SECRET_ACCESS_KEY,
   S3_FORCE_PATH_STYLE: resolveStrictBoolean("S3_FORCE_PATH_STYLE", process.env.S3_FORCE_PATH_STYLE),
   ADDRESS_LOOKUP_URL: resolveOptionalHttpUrl("ADDRESS_LOOKUP_URL", process.env.ADDRESS_LOOKUP_URL),
+  POSTAL_CODE_DATA_URL: resolvePostalCodeDataUrl(process.env.POSTAL_CODE_DATA_URL),
 };

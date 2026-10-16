@@ -2,14 +2,15 @@ import { z } from "zod";
 
 import type { AddressLookupResult } from "@/features/addresses/address-lookup.schema";
 
-import { getLookupAddressInteractor } from "@/core/di";
+import { getCheckAddressInteractor, getLookupAddressInteractor } from "@/core/di";
+import { AddressCheckResultSchema, CheckAddressSchema } from "@/features/addresses/address-check.schema";
 import {
   AddressCandidateSchema,
   AddressLookupResultSchema,
   LookupAddressSchema,
 } from "@/features/addresses/address-lookup.schema";
 import { untrustedText } from "./untrusted-record-content";
-import { runInteractor, untrustedToonResult } from "./utils";
+import { runInteractor, toonResult, untrustedToonResult } from "./utils";
 
 const MarkedAddressLookupResultSchema = AddressLookupResultSchema.extend({
   candidates: z.array(
@@ -45,4 +46,19 @@ export const lookupAddressTool = {
   annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: true },
   execute: (input: z.infer<typeof LookupAddressSchema>) =>
     runInteractor(getLookupAddressInteractor().invoke(input), markedLookupResult),
+};
+
+export const checkAddressTool = {
+  name: "check_address",
+  title: "Check an address",
+  description:
+    "Use this before writing an address field from parts the user gave, or to fill a missing city or region from a postal code. Pass street, line2, postalCode, city, region and countryCode (ISO 3166-1 alpha-2 in lowercase, such as de) as far as known. " +
+    "Returns address (the parts as a write stores them: the postal code in the country's format, a region name turned into the country's region code), issues, and postalCode.places: the cities and regions the postal code directory lists for the postal code, most likely first. " +
+    "An issue with severity error means mutate_crm_record would refuse this address: correct that part with the user. Warnings do not stop a write: tell the user instead of changing their data silently. Fill a missing city or region from places only when postalCode.match is exact and one place fits; otherwise let the user choose. " +
+    "Nothing leaves the server. postalCode.status loading means the country's postal codes are being loaded: check again a minute later. Show attribution with places you present.",
+  inputSchema: CheckAddressSchema,
+  outputSchema: AddressCheckResultSchema,
+  annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
+  execute: (input: z.infer<typeof CheckAddressSchema>) =>
+    runInteractor(getCheckAddressInteractor().invoke(input), (data) => toonResult(data)),
 };

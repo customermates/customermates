@@ -162,7 +162,7 @@ Customermates exposes [[derived.mcp.tools.total]] MCP tools, all enabled by defa
 **Read-only** means the tool does not write. **Can delete data** marks a tool that includes destructive operations; not every action on it deletes (a configuration preview, for example, writes nothing). Tools that send messages, invitations or support requests, move email or change provider data have real effects even without the destructive flag. Set client approval for the actual operation: the server enforces authorization and validation, but an external MCP call does not open the hosted assistant's approval dialog.
 
 {/* mcp-catalog:flags */}
-**Read-only:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `lookup_address`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `export_crm_records`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
+**Read-only:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `lookup_address`, `check_address`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `export_crm_records`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
 
 **Can delete data:** `mutate_crm_record`, `manage_trash`, `import_crm_records`, `manage_data_views`, `manage_wiki_pages`, `discard_message_draft`, `manage_connected_accounts`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_roles`
 {/* /mcp-catalog */}
@@ -215,6 +215,12 @@ Resolve up to 1,000 exact email, phone or supported profile identifiers through 
 Look up postal addresses for free text, such as a street with house number and city, through the server's address service. Each candidate carries a candidateToken: writing `{kind: "address", candidateToken}` with mutate_crm_record within 24 hours stores that address as verified, while address parts written directly stay unverified. available false means address lookup is off on this server. Place names arrive between untrusted-content markers.
 
 **Read-only.** Required: `query`. Optional: `countryCode`, `limit`.
+
+#### `check_address`
+
+Check address parts offline before writing them: returns the parts as a write stores them (the postal code in the country's format, a region name as the country's region code), the errors that would refuse the write, the warnings that would come back with it, and the cities and regions the postal code directory lists for the postal code, with its centre. Nothing leaves the server; status loading means the country's postal codes are still being loaded.
+
+**Read-only.** Optional: `street`, `line2`, `postalCode`, `city`, `region`, `countryCode`.
 
 #### `read_crm_record`
 
@@ -350,14 +356,24 @@ Two calls update records you know only by email addresses or profile identifiers
 
 The patch applies to every target atomically; a large recalculation can return `status: "pending"` with an operationId to read through `read_crm_operation`. If any target or the schema changed after the lookup, the whole batch is rejected with a `conflict` and nothing is written: resolve again and retry with a new idempotency key. Retrying the identical request with the same key returns the original result without writing twice.
 
+### Addresses [#addresses]
+
+An address field stores one postal address. Write the parts the user gave as `{"kind": "address", "value": {"street": "Hauptstraße 5", "postalCode": "68259", "city": "Mannheim", "countryCode": "de"}}`. The server checks every address against the address format of its country before it saves, the same way in the app, over REST and MCP, on import and for Mate:
+
+- **Refused** with `validation`: a country code that is not an ISO 3166-1 alpha-2 code (`recordAddressCountryInvalid`), a postal code that does not fit the country's format (`recordAddressPostalCodeInvalid`; the message shows an example such as 68259), and a region given as a code the country does not have, such as `XX` in the US (`recordAddressRegionInvalid`). The issue path ends with the part, for example `mutation.fields.0.value.postalCode`.
+- **Saved with a warning:** the result carries `warnings`, each with `code`, `fieldId`, `recordIds`, `part`, an English `message` and, where it helps, `expected`. The codes are `countryMissing` (a postal code or region without a country, so neither was checked), `partMissing` (an address with a street lacks a part its country's postal format needs, such as the postal code in Germany), `regionUnknown`, `postalCodeRegionMismatch` and `cityMismatch` (the city does not belong to the postal code; `expected` lists the cities that do). Tell the user about a warning instead of changing their data on your own.
+- **Normalised:** the postal code is stored in the country's format (`sw1a1aa` becomes `SW1A 1AA`, `D-68259` becomes `68259`), a region name or ISO code as the country's region code (`California` becomes `CA`), and `location` holds the centre of the postal code with `precision: "postcode"` when the postal code directory knows it. Street and city keep the case they were written in. An address that a write leaves unchanged is not checked again.
+
+To check parts before writing them, or to fill a missing city or region from the postal code, call `check_address` (REST: `POST /api/v1/addresses/check`) with the parts. It returns the normalised `address`, the `issues` with their `severity`, and `postalCode.places`, the cities and regions of the postal code, most likely first. Fill a part from `places` only when `postalCode.match` is `exact` and one place fits; otherwise let the user choose. Nothing leaves the server: the country formats ship with Customermates, and the postal codes come from a GeoNames directory in the server's own database, which loads a country the first time someone enters one of its postal codes (`postalCode.status` is `loading` until then). Show `attribution` with places you present.
+
 ### Verified addresses [#verified-addresses]
 
-An address field stores one postal address. Write the parts the user gave as `{"kind": "address", "value": {"street": "Hauptstraße 5", "postalCode": "68259", "city": "Mannheim", "countryCode": "de"}}`: the server formats the address line and stores the address as unverified, whatever `formatted` or `verification` you send. To store a verified address, look it up first:
+A self-hosted server can add an address search through its own Photon service (`ADDRESS_LOOKUP_URL`, see [Self-hosting](/docs/self-hosting#address-lookup)); Customermates Cloud has none. With a service configured, store a verified address like this:
 
-1. Call `lookup_address` (REST: `POST /api/v1/addresses/lookup`) with the address as `query`, for example `{"query": "Hauptstraße 5, Mannheim", "countryCode": "de"}`. Each candidate holds the formatted parts, the map location and a `candidateToken`.
+1. Call `lookup_address` (REST: `POST /api/v1/addresses/lookup`) with the address as `query`, for example `{"query": "Hauptstraße 5, Mannheim", "countryCode": "de"}`. Each candidate holds the formatted parts, the location of the building and a `candidateToken`.
 2. Write the token instead of a value in `mutate_crm_record`: `{"fieldId": "<address field id>", "value": {"kind": "address", "candidateToken": "<candidateToken>"}}`. The server stores the candidate as verified, with the provider and the time of the lookup.
 
-A token works for 24 hours and only in the workspace that looked it up; otherwise the write is refused with `recordAddressCandidateInvalid`, and a new lookup helps. When several candidates fit, ask the user; when none does, write the parts. `available: false` means the server has no address service configured: write the parts. Show `attribution` (© OpenStreetMap contributors) with candidates you present. Each person can look up 30 addresses in 10 seconds (`rate_limit` with `addressLookupRateLimited`); a service that does not answer returns `unavailable` with `addressLookupUnavailable`. To check parts a person typed, `POST /api/v1/addresses/verify` returns the matching address with a token, or `match: null`.
+A token works for 24 hours and only in the workspace that looked it up; otherwise the write is refused with `recordAddressCandidateInvalid`, and a new lookup helps. When several candidates fit, ask the user; when none does, write the parts. `available: false` means the server has no address service configured: write the parts, which are checked as described above. Show `attribution` (© OpenStreetMap contributors) with candidates you present. Each person can look up 30 addresses in 10 seconds (`rate_limit` with `addressLookupRateLimited`); a service that does not answer returns `unavailable` with `addressLookupUnavailable`. To match parts a person typed against the service, `POST /api/v1/addresses/verify` returns the matching address with a token, or `match: null`.
 
 ### Workspace
 

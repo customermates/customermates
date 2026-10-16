@@ -29,7 +29,7 @@ const CANDIDATE: AddressCandidate = {
     region: "Baden-Württemberg",
     countryCode: "de",
     formatted: "Hauptstraße 5, 68259 Mannheim",
-    location: { lat: 49.4857901, lon: 8.5370071 },
+    location: { lat: 49.4857901, lon: 8.5370071, precision: "address" },
     verification: { status: "verified", provider: "photon", checkedAt: "2026-10-15T08:00:00.000Z" },
   },
 };
