@@ -101,6 +101,7 @@ const initialState: RootStoreInitialState = {
     currentPeriodEnd: null,
     hasBillingPortal: false,
     hasActiveSubscription: true,
+    checkout: "none",
   },
   sidebarLayout: { sections: [] } as unknown as NonNullable<RootStoreInitialState["sidebarLayout"]>,
   workspaces: [

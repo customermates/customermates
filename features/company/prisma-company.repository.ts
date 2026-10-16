@@ -2,6 +2,7 @@ import type { WorkspaceSetup } from "@/features/user/register/register-user-comp
 import type { RepoArgs } from "@/core/utils/types";
 import type { CreateAuthLinkSubscriptionRepo } from "@/ee/messaging/connect/create-auth-link-subscription.repo";
 import type { UpsertRoutineSubscriptionRepo } from "@/ee/routines/upsert-routine-subscription.repo";
+import type { AbandonCheckoutRepo } from "@/ee/subscription/abandon-checkout.repo";
 import type { CreateCheckoutCompanyRepo } from "@/ee/subscription/create-checkout-session.repo";
 import type { EntitlementSubscriptionRepo } from "@/ee/subscription/entitlement-subscription.repo";
 import type { WorkspacePlanRepo } from "@/ee/subscription/workspace-plan.repo";
@@ -37,6 +38,7 @@ export class PrismaCompanyRepo
     GetSubscriptionRepo,
     RefreshSubscriptionRepo,
     CreateCheckoutCompanyRepo,
+    AbandonCheckoutRepo,
     GetBillingPortalUrlRepo,
     AdminUpdateUserSubscriptionRepo,
     RouteGuardCompanyRepo,
@@ -116,6 +118,7 @@ export class PrismaCompanyRepo
       quantity: data.quantity,
       trialEndDate: data.trialEndDate,
       currentPeriodEnd: data.currentPeriodEnd,
+      checkoutStartedAt: data.checkoutStartedAt,
       agentCreditAnchorAt: data.agentCreditAnchorAt,
     };
 
@@ -151,6 +154,32 @@ export class PrismaCompanyRepo
   async getSubscriptionOrThrow() {
     return this.prisma.subscription.findUniqueOrThrow({
       where: { companyId: this.companyId },
+    });
+  }
+
+  async claimCheckoutStart(startedAt: Date, pendingSince: Date) {
+    const { count } = await this.prisma.subscription.updateMany({
+      where: {
+        companyId: this.companyId,
+        OR: [{ checkoutStartedAt: null }, { checkoutStartedAt: { lte: pendingSince } }],
+      },
+      data: { checkoutStartedAt: startedAt },
+    });
+
+    return count === 1;
+  }
+
+  async releaseCheckoutStart(startedAt: Date, previous: Date | null) {
+    await this.prisma.subscription.updateMany({
+      where: { companyId: this.companyId, checkoutStartedAt: startedAt },
+      data: { checkoutStartedAt: previous },
+    });
+  }
+
+  async clearCheckoutStart() {
+    await this.prisma.subscription.updateMany({
+      where: { companyId: this.companyId },
+      data: { checkoutStartedAt: null },
     });
   }
 

@@ -661,6 +661,7 @@ model Subscription {
   quantity                      Int?
   trialEndDate                  DateTime?
   currentPeriodEnd              DateTime?
+  checkoutStartedAt             DateTime?
   agentCreditAnchorAt           DateTime?
   enterpriseAgentCreditsPerUser Int?
   createdAt                     DateTime           @default(now())

@@ -18,6 +18,7 @@ import { getCommercialOfferOrThrow } from "@/core/commercial/plan-catalog";
 import { failUnavailable } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { CreateCheckoutCompanyRepo } from "./create-checkout-session.repo";
+import { checkoutPendingSince } from "./checkout-state";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 const Schema = z.object({
@@ -25,6 +26,10 @@ const Schema = z.object({
   cadence: z.literal("monthly"),
 });
 export type CreateCheckoutSessionData = Data<typeof Schema>;
+
+export type CheckoutPending = { ok: true; data: { checkout: "pending" } };
+
+const CHECKOUT_PENDING: CheckoutPending = { ok: true, data: { checkout: "pending" } };
 
 @TenantInteractor({ resource: Resource.company, manage: "update" })
 export class CreateCheckoutSessionInteractor extends UserAccessor {
@@ -37,27 +42,37 @@ export class CreateCheckoutSessionInteractor extends UserAccessor {
   }
 
   @Validate(Schema)
-  async invoke(data: CreateCheckoutSessionData): Promise<Redirect | { ok: false; error: z.ZodError }> {
+  async invoke(
+    data: CreateCheckoutSessionData,
+  ): Promise<Redirect | CheckoutPending | { ok: false; error: z.ZodError }> {
     const subscription = await this.repo.getSubscriptionOrThrow();
 
     if (subscription.plan === SubscriptionPlan.enterprise)
       return failUnavailable(CustomErrorCode.enterpriseCheckoutUnavailable, ["plan"]);
 
     const offer = getCommercialOfferOrThrow(data.plan, data.cadence);
-    const activeUsersCount = await this.userRepo.countActiveUsers();
+    const startedAt = new Date();
+    if (!(await this.repo.claimCheckoutStart(startedAt, checkoutPendingSince(startedAt)))) return CHECKOUT_PENDING;
 
-    const requestOrigin = (await headers()).get("origin") ?? env.BASE_URL;
-    const baseUrl = resolveRequestOrigin(requestOrigin, env.AUTH_ALLOWED_HOSTS, env.BASE_URL);
-    const redirectUrl = `${baseUrl}${settingsHref("billing")}`;
-    const checkout = await this.lemonSqueezyService.createCheckoutOrThrow({
-      offer,
-      quantity: activeUsersCount,
-      custom: {
-        company_id: this.companyId,
-      },
-      redirectUrl,
-    });
+    try {
+      const activeUsersCount = await this.userRepo.countActiveUsers();
 
-    return redirectTo(checkout.data.attributes.url);
+      const requestOrigin = (await headers()).get("origin") ?? env.BASE_URL;
+      const baseUrl = resolveRequestOrigin(requestOrigin, env.AUTH_ALLOWED_HOSTS, env.BASE_URL);
+      const redirectUrl = `${baseUrl}${settingsHref("billing")}`;
+      const checkout = await this.lemonSqueezyService.createCheckoutOrThrow({
+        offer,
+        quantity: activeUsersCount,
+        custom: {
+          company_id: this.companyId,
+        },
+        redirectUrl,
+      });
+
+      return redirectTo(checkout.data.attributes.url);
+    } catch (error) {
+      await this.repo.releaseCheckoutStart(startedAt, subscription.checkoutStartedAt);
+      throw error;
+    }
   }
 }

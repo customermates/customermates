@@ -111,6 +111,10 @@ export class SubscriptionService {
     const variantId = attributes.variant_id?.toString();
 
     const syncedPlan = variantId ? (variantToOffer(variantId)?.plan ?? null) : null;
+    const settlesCheckout =
+      existing.lemonSqueezyId !== subscription.data.id ||
+      status === SubscriptionStatus.active ||
+      status === SubscriptionStatus.trial;
 
     await this.subscriptionRepo.upsertSubscriptionUnscoped({
       companyId,
@@ -121,6 +125,7 @@ export class SubscriptionService {
       quantity,
       trialEndDate: trialEndsAt,
       currentPeriodEnd: renewsAt || endsAt,
+      checkoutStartedAt: settlesCheckout ? null : undefined,
     });
 
     return {

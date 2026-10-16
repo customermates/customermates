@@ -6,6 +6,7 @@ import type { SelectableOffer } from "./plan-picker";
 import { action, makeObservable, observable } from "mobx";
 
 import {
+  abandonCheckoutAction,
   createCheckoutSessionAction,
   refreshSubscriptionAction,
   getSubscriptionAction,
@@ -21,6 +22,7 @@ export class SubscriptionStore extends BaseStore {
     makeObservable(this, {
       subscription: observable,
       handleSubscribe: action,
+      handleAbandon: action,
       handleManageBilling: action,
       handleRefresh: action,
       setSubscription: action,
@@ -31,7 +33,7 @@ export class SubscriptionStore extends BaseStore {
     this.subscription = subscription;
   };
 
-  private reloadSubscription = async (): Promise<void> => {
+  reloadSubscription = async (): Promise<void> => {
     const subscription = await getSubscriptionAction();
     this.setSubscription(subscription);
   };
@@ -43,7 +45,22 @@ export class SubscriptionStore extends BaseStore {
         toastZodErrorTree(res.error);
         return;
       }
+      if (res.data.checkout === "pending") {
+        await this.reloadSubscription();
+        return;
+      }
       window.location.assign(res.data.url);
+    });
+  };
+
+  handleAbandon = async (): Promise<void> => {
+    await this.rootStore.loadingOverlayStore.withLoading(async () => {
+      const res = await abandonCheckoutAction();
+      if (!res.ok) {
+        toastZodErrorTree(res.error);
+        return;
+      }
+      await this.reloadSubscription();
     });
   };
 

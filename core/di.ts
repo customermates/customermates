@@ -372,6 +372,7 @@ import { AuthorizeMcpConnectionInteractor } from "@/features/auth/authorize-mcp-
 import { GetApiKeysInteractor } from "@/features/api-key/get-api-keys.interactor";
 // EE Subscription interactors
 import { CreateCheckoutSessionInteractor } from "@/ee/subscription/create-checkout-session.interactor";
+import { AbandonCheckoutInteractor } from "@/ee/subscription/abandon-checkout.interactor";
 import { GetBillingPortalUrlInteractor } from "@/ee/subscription/get-billing-portal-url.interactor";
 import { GetSubscriptionInteractor } from "@/ee/subscription/get-subscription.interactor";
 import { RefreshSubscriptionInteractor } from "@/ee/subscription/refresh-subscription.interactor";
@@ -1705,6 +1706,8 @@ export const getAuthorizeMcpConnectionInteractor = () => new AuthorizeMcpConnect
 
 export const getCreateCheckoutSessionInteractor = () =>
   new CreateCheckoutSessionInteractor(getSubscriptionService(), getCompanyRepo(), getUserRepo());
+
+export const getAbandonCheckoutInteractor = () => new AbandonCheckoutInteractor(getCompanyRepo());
 
 export const getGetSubscriptionInteractor = () => new GetSubscriptionInteractor(getCompanyRepo(), getUserRepo());
 

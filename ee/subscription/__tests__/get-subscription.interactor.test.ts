@@ -104,6 +104,33 @@ describe("GetSubscriptionInteractor", () => {
 
     expect(result.data.hasBillingPortal).toBe(false);
   });
+
+  it("reports no checkout when the workspace has not started one", async () => {
+    const result = await runWithTenant(readOnlyMember(), () =>
+      makeSubscription({ lemonSqueezyId: null, checkoutStartedAt: null }).invoke(),
+    );
+
+    expect(result.data.checkout).toBe("none");
+  });
+
+  it("reports a checkout started minutes ago as pending to every member who can read the company", async () => {
+    const startedAt = new Date(Date.now() - 5 * 60_000);
+
+    for (const member of [readOnlyMember(), billingManager()]) {
+      const result = await runWithTenant(member, () =>
+        makeSubscription({ lemonSqueezyId: null, checkoutStartedAt: startedAt }).invoke(),
+      );
+      expect(result.data.checkout).toBe("pending");
+    }
+  });
+
+  it("reports a checkout started more than fifteen minutes ago as overdue", async () => {
+    const result = await runWithTenant(billingManager(), () =>
+      makeSubscription({ lemonSqueezyId: null, checkoutStartedAt: new Date(Date.now() - 16 * 60_000) }).invoke(),
+    );
+
+    expect(result.data.checkout).toBe("overdue");
+  });
 });
 
 describe("GetBillingPortalUrlInteractor", () => {

@@ -1,7 +1,9 @@
 import type { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
 export abstract class SubscriptionRepo {
-  abstract findWorkspacePlanUnscoped(companyId: string): Promise<{ plan: SubscriptionPlan } | null>;
+  abstract findWorkspacePlanUnscoped(
+    companyId: string,
+  ): Promise<{ plan: SubscriptionPlan; lemonSqueezyId: string | null } | null>;
 
   abstract upsertSubscriptionUnscoped(data: {
     companyId: string;
@@ -12,6 +14,7 @@ export abstract class SubscriptionRepo {
     quantity?: number;
     trialEndDate?: Date;
     currentPeriodEnd?: Date;
+    checkoutStartedAt?: null;
     agentCreditAnchorAt?: Date;
   }): Promise<void>;
 

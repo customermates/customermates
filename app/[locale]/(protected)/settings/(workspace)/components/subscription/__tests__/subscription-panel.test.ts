@@ -16,6 +16,8 @@ const harness = vi.hoisted(() => ({
 const subscriptionStore = vi.hoisted(() => ({
   subscription: null as SubscriptionDto | null,
   handleSubscribe: vi.fn(),
+  handleAbandon: vi.fn(),
+  reloadSubscription: vi.fn(),
   setSubscription: vi.fn(),
 }));
 
@@ -76,6 +78,7 @@ describe("SubscriptionPanel read-only fields", () => {
       currentPeriodEnd: new Date("2026-09-30T00:00:00.000Z"),
       hasBillingPortal: true,
       hasActiveSubscription: true,
+      checkout: "none",
       plan: SubscriptionPlan.pro,
       quantity: 4,
       status: SubscriptionStatus.trial,
@@ -142,6 +145,7 @@ describe("SubscriptionPanel read-only fields", () => {
           currentPeriodEnd: new Date("2026-09-30T00:00:00.000Z"),
           hasBillingPortal: true,
           hasActiveSubscription: true,
+          checkout: "none",
           plan: SubscriptionPlan.pro,
           quantity: 4,
           status: SubscriptionStatus.active,
@@ -168,6 +172,7 @@ describe("SubscriptionPanel read-only fields", () => {
           currentPeriodEnd: new Date("2026-09-30T00:00:00.000Z"),
           hasBillingPortal: false,
           hasActiveSubscription: false,
+          checkout: "none",
           plan: SubscriptionPlan.pro,
           quantity: 4,
           status: SubscriptionStatus.expired,

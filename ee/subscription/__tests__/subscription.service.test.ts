@@ -283,9 +283,59 @@ describe("SubscriptionService.syncSubscription", () => {
       quantity: 1,
       trialEndDate: undefined,
       currentPeriodEnd: new Date("2026-11-16T09:12:34.000Z"),
+      checkoutStartedAt: null,
     });
     expect(result).toEqual({ companyId: "company-1", changedPlan: "business" });
   });
+
+  it("settles a started checkout when the sync binds a subscription the workspace did not hold", async () => {
+    const repo = makeRepo({
+      findWorkspacePlanUnscoped: vi.fn().mockResolvedValue({ plan: "pro", lemonSqueezyId: null }),
+    });
+    const service = new SubscriptionService(repo as never);
+    mockGetSubscription.mockResolvedValue(providerSubscription({ status: "past_due", variant_id: 2002 }));
+
+    await service.syncSubscription("sub-1", "company-1");
+
+    expect(repo.upsertSubscriptionUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({ lemonSqueezyId: "sub-1", status: "pastDue", checkoutStartedAt: null }),
+    );
+  });
+
+  it.each(["active", "on_trial"])(
+    "settles a started checkout when the workspace's own subscription becomes %s",
+    async (status) => {
+      const repo = makeRepo({
+        findWorkspacePlanUnscoped: vi.fn().mockResolvedValue({ plan: "pro", lemonSqueezyId: "sub-1" }),
+        findCompanyIdBySubscriptionIdUnscoped: vi.fn().mockResolvedValue("company-1"),
+      });
+      const service = new SubscriptionService(repo as never);
+      mockGetSubscription.mockResolvedValue(providerSubscription({ status, variant_id: 2002 }));
+
+      await service.syncSubscription("sub-1");
+
+      expect(repo.upsertSubscriptionUnscoped).toHaveBeenCalledWith(
+        expect.objectContaining({ companyId: "company-1", checkoutStartedAt: null }),
+      );
+    },
+  );
+
+  it.each(["expired", "cancelled", "past_due", "unpaid"])(
+    "keeps a started checkout when the workspace's own subscription syncs as %s",
+    async (status) => {
+      const repo = makeRepo({
+        findWorkspacePlanUnscoped: vi.fn().mockResolvedValue({ plan: "pro", lemonSqueezyId: "sub-1" }),
+        findCompanyIdBySubscriptionIdUnscoped: vi.fn().mockResolvedValue("company-1"),
+      });
+      const service = new SubscriptionService(repo as never);
+      mockGetSubscription.mockResolvedValue(providerSubscription({ status, variant_id: 2002 }));
+
+      await service.syncSubscription("sub-1");
+
+      expect(repo.upsertSubscriptionUnscoped).toHaveBeenCalledOnce();
+      expect(repo.upsertSubscriptionUnscoped.mock.calls[0][0].checkoutStartedAt).toBeUndefined();
+    },
+  );
 });
 
 describe("SubscriptionService.updateSubscriptionQuantityOrThrow", () => {

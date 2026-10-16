@@ -30,6 +30,7 @@ import {
   getUpsertRoleInteractor,
   getDeleteRoleInteractor,
   getCreateCheckoutSessionInteractor,
+  getAbandonCheckoutInteractor,
   getRefreshSubscriptionInteractor,
   getGetSubscriptionInteractor,
   getGetBillingPortalUrlInteractor,
@@ -49,8 +50,13 @@ import { activeUsersQuery } from "@/features/user/get/active-users-query";
 
 export async function createCheckoutSessionAction(data: CreateCheckoutSessionData) {
   const result = await getCreateCheckoutSessionInteractor().invoke(data);
-  if (isRedirect(result)) return { ok: true as const, data: { url: result.redirect } };
+  if (isRedirect(result)) return { ok: true as const, data: { checkout: "started" as const, url: result.redirect } };
+  if (result.ok) return result;
   return { ok: false as const, error: z.treeifyError(result.error) };
+}
+
+export async function abandonCheckoutAction() {
+  return serializeResult(getAbandonCheckoutInteractor().invoke());
 }
 
 export async function refreshSubscriptionAction() {

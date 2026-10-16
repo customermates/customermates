@@ -13,6 +13,7 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import type { GetSubscriptionRepo } from "./get-subscription.repo";
+import { CHECKOUT_STATES, checkoutStateOf, type CheckoutState } from "./checkout-state";
 
 const OutputSchema = z.object({
   status: z.enum(SubscriptionStatusEnum),
@@ -23,6 +24,7 @@ const OutputSchema = z.object({
   currentPeriodEnd: z.date().nullable(),
   hasBillingPortal: z.boolean(),
   hasActiveSubscription: z.boolean(),
+  checkout: z.enum(CHECKOUT_STATES),
 });
 
 export type SubscriptionDto = {
@@ -34,6 +36,7 @@ export type SubscriptionDto = {
   currentPeriodEnd: Date | null;
   hasBillingPortal: boolean;
   hasActiveSubscription: boolean;
+  checkout: CheckoutState;
 };
 
 @AllowInDemoMode
@@ -64,6 +67,7 @@ export class GetSubscriptionInteractor extends AuthenticatedInteractor<void, Sub
         currentPeriodEnd: subscription.currentPeriodEnd,
         hasBillingPortal: subscription.plan !== SubscriptionPlanEnum.enterprise && Boolean(subscription.lemonSqueezyId),
         hasActiveSubscription: Boolean(subscription.lemonSqueezyId),
+        checkout: checkoutStateOf(subscription.checkoutStartedAt),
       },
     };
   }
