@@ -277,6 +277,14 @@ describeRoundTrip("XLSX export and import round trip", () => {
         assignedTo: englishMessages.RecordModel.assignedTo,
         rangeStart: englishMessages.RecordModel.rangeStart,
         rangeEnd: englishMessages.RecordModel.rangeEnd,
+        addressParts: {
+          street: englishMessages.RecordModel.addressParts.street,
+          line2: englishMessages.RecordModel.addressParts.line2,
+          postalCode: englishMessages.RecordModel.addressParts.postalCode,
+          city: englishMessages.RecordModel.addressParts.city,
+          region: englishMessages.RecordModel.addressParts.region,
+          countryCode: englishMessages.RecordModel.addressParts.country,
+        },
       },
       ports,
     );
@@ -302,7 +310,7 @@ describeRoundTrip("XLSX export and import round trip", () => {
     store.setMode("update");
     expect(store.matchKey).toBe("recordId");
     await store.advance((issue) => `${issue.code}:${issue.value ?? ""}`);
-    expect(store.summary).toEqual({ created: 0, updated: 1, skipped: 0, failed: [] });
+    expect(store.summary).toEqual({ created: 0, updated: 1, skipped: 0, failed: [], warned: [] });
 
     const after = await record(original);
     for (const field of before.fields) {

@@ -2022,6 +2022,13 @@
       "update": "Aggiorna gli ID corrispondenti"
     },
     "xlsxImport": {
+      "addressWarnings": {
+        "cityMismatch": "{field}: la città non corrisponde al codice postale ({expected}).",
+        "countryMissing": "{field}: senza paese non è stato possibile controllare codice postale e regione.",
+        "partMissing": "{field}: manca {part}.",
+        "postalCodeRegionMismatch": "{field}: il codice postale appartiene a un’altra regione ({expected}).",
+        "regionUnknown": "{field}: la regione non è una delle regioni del paese."
+      },
       "assignedTo": "Assegnato a",
       "column": "Colonna {name}",
       "create": "Nuovi record",
@@ -2054,6 +2061,7 @@
         "required": "{value} è obbligatorio.",
         "restricted": "Non puoi leggere tutti i campi del record corrispondente.",
         "tooManyValues": "Una cella può contenere al massimo 100 valori.",
+        "unknownCountry": "«{value}» non è un paese.",
         "unknownMember": "Nessun membro corrisponde a «{value}».",
         "unknownOption": "«{value}» non è un'opzione di questo campo.",
         "unknownRecord": "Nessun record collegato si chiama «{value}»."
@@ -2091,7 +2099,8 @@
       },
       "stepsLabel": "Passaggi dell'importazione",
       "update": "Record esistenti",
-      "updated": "{count, plural, one {# record aggiornato} other {# record aggiornati}}"
+      "updated": "{count, plural, one {# record aggiornato} other {# record aggiornati}}",
+      "warned": "{count, plural, one {# riga importata con un avviso sull’indirizzo} other {# righe importate con avvisi sull’indirizzo}}"
     }
   },
   "DataView": {

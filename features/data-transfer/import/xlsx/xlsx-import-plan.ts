@@ -11,17 +11,26 @@ import type {
   RecordExportLink,
 } from "@/features/data-transfer/record-transfer.schema";
 import type { RecordIdentity, RecordIdentityInput } from "@/features/records/record-identity.schema";
+import type { RecordWriteWarning } from "@/features/records/record-query.schema";
 import type { XlsxTargetOption } from "./xlsx-mapping";
 import type { XlsxIssueCode, XlsxMember, XlsxRecordIndex } from "./xlsx-values";
 import type { XlsxRow } from "./xlsx-workbook";
 
 import { RECORD_IMPORT_LIMIT, RECORD_IMPORT_LINK_LIMIT } from "@/features/data-transfer/record-transfer.schema";
 import { channelClass } from "@/ee/messaging/provider";
-import { addressDisplayText, cleanAddressPart } from "@/features/records/record-address-value";
+import { addressDisplayText, cleanAddressPart, UNVERIFIED_ADDRESS } from "@/features/records/record-address-value";
 import { REGISTERED_LOCALES } from "@/i18n/locale-registry";
 
-import { normalizeXlsxHeader, xlsxImportFields, XLSX_CHANNELS_KEY, XLSX_SKIP_KEY } from "./xlsx-mapping";
 import {
+  normalizeXlsxHeader,
+  xlsxImportFields,
+  XLSX_ADDRESS_PARTS,
+  XLSX_CHANNELS_KEY,
+  XLSX_SKIP_KEY,
+  type XlsxAddressPart,
+} from "./xlsx-mapping";
+import {
+  parseXlsxAddressPart,
   parseXlsxChannelsCell,
   parseXlsxFieldCell,
   parseXlsxMembersCell,
@@ -68,7 +77,13 @@ export type XlsxPlanInput = {
 
 type XlsxRowFailure = { sheetRow: number; reasons: string[] };
 
-export type XlsxImportSummary = { created: number; updated: number; skipped: number; failed: XlsxRowFailure[] };
+export type XlsxImportSummary = {
+  created: number;
+  updated: number;
+  skipped: number;
+  failed: XlsxRowFailure[];
+  warned: XlsxRowFailure[];
+};
 
 export type XlsxImportPort = (
   input: ImportRecordsInput,
@@ -88,6 +103,24 @@ const MISSING: CalculatedValue = { state: "missing" };
 
 function valueResult(value: RecordScalar | null): CalculatedValue {
   return value ? { state: "value", value } : MISSING;
+}
+
+function addressScalar(parts: Partial<Record<XlsxAddressPart, string | null>>): RecordScalar | null {
+  if (!XLSX_ADDRESS_PARTS.some((part) => parts[part])) return null;
+  return {
+    kind: "address",
+    value: {
+      street: parts.street ?? null,
+      line2: parts.line2 ?? null,
+      postalCode: parts.postalCode ?? null,
+      city: parts.city ?? null,
+      region: parts.region ?? null,
+      countryCode: parts.countryCode ?? null,
+      formatted: "",
+      location: null,
+      verification: UNVERIFIED_ADDRESS,
+    },
+  };
 }
 
 function repeatsStoredAddress(value: RecordScalar, stored: CalculatedValue): boolean {
@@ -140,6 +173,7 @@ export function parseXlsxRows(input: XlsxPlanInput, rows: XlsxRow[] = input.rows
       issues: [],
     };
     const ranges = new Map<string, { start: string | null; end: string | null }>();
+    const addresses = new Map<string, Partial<Record<XlsxAddressPart, string | null>>>();
     input.mapping.forEach((key, column) => {
       if (key === XLSX_SKIP_KEY) return;
       const target = options.get(key)?.target;
@@ -170,6 +204,13 @@ export function parseXlsxRows(input: XlsxPlanInput, rows: XlsxRow[] = input.rows
         }
         const current = ranges.get(field.id) ?? { start: null, end: null };
         ranges.set(field.id, { ...current, [target.part]: result.value });
+      } else if (target.kind === "addressPart") {
+        const result = parseXlsxAddressPart(cell, target.part);
+        if (!result.ok) {
+          report(result.code, result.value);
+          return;
+        }
+        addresses.set(target.fieldId, { ...addresses.get(target.fieldId), [target.part]: result.value });
       } else if (target.kind === "relationship") {
         const result = parseXlsxRelationshipCell(cell, input.lookups.relations.get(target.relationId) ?? null);
         if (result.ok) {
@@ -196,6 +237,7 @@ export function parseXlsxRows(input: XlsxPlanInput, rows: XlsxRow[] = input.rows
       if (!parsed.values.has(fieldId))
         parsed.values.set(fieldId, range.start || range.end ? { kind: "range", ...range } : null);
     }
+    for (const [fieldId, address] of addresses) parsed.values.set(fieldId, addressScalar(address));
     return parsed;
   });
 }
@@ -372,9 +414,11 @@ export async function runXlsxImport(options: {
   now: string;
   importRecords: XlsxImportPort;
   describeIssue: (issue: XlsxIssue) => string;
+  describeWarning?: (warning: RecordWriteWarning) => string;
   onProgress?: (processed: number, total: number) => void;
 }): Promise<XlsxImportSummary> {
-  const summary: XlsxImportSummary = { created: 0, updated: 0, skipped: 0, failed: [] };
+  const summary: XlsxImportSummary = { created: 0, updated: 0, skipped: 0, failed: [], warned: [] };
+  const warned = new Map<number, string[]>();
   for (const row of options.rows) {
     if (row.skipped) summary.skipped += 1;
     else if (!row.record)
@@ -395,6 +439,16 @@ export async function runXlsxImport(options: {
       summary.created += result.data.created;
       summary.updated += result.data.updated;
       summary.skipped += options.mode === "update" ? rows.length - result.data.updated : 0;
+      const sheetRows = new Map(rows.flatMap((row) => (row.record ? [[row.record.ref.recordId, row.sheetRow]] : [])));
+      for (const warning of result.data.warnings ?? []) {
+        for (const recordId of warning.recordIds) {
+          const sheetRow = sheetRows.get(recordId);
+          if (sheetRow === undefined) continue;
+          const reasons = warned.get(sheetRow) ?? [];
+          reasons.push(options.describeWarning?.(warning) ?? warning.message);
+          warned.set(sheetRow, reasons);
+        }
+      }
     }
     return result;
   };
@@ -435,5 +489,8 @@ export async function runXlsxImport(options: {
     options.onProgress?.(processed, total);
   }
   summary.failed.sort((left, right) => left.sheetRow - right.sheetRow);
+  summary.warned = [...warned.entries()]
+    .sort(([left], [right]) => left - right)
+    .map(([sheetRow, reasons]) => ({ sheetRow, reasons }));
   return summary;
 }

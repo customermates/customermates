@@ -5,9 +5,10 @@ import type { XlsxCell } from "./xlsx-workbook";
 import { channelClass } from "@/ee/messaging/provider";
 import { inferChannelProviders, normalizeChannelValue } from "@/features/records/channel-value";
 import { scalarMatchesType } from "@/features/records/record-model-validation";
-import { addressFromText } from "@/features/records/record-address-value";
+import { addressFromText, cleanAddressPart } from "@/features/records/record-address-value";
+import { countryCodeFromText } from "@/features/addresses/address-country-name";
 
-import { normalizeXlsxHeader } from "./xlsx-mapping";
+import { normalizeXlsxHeader, type XlsxAddressPart } from "./xlsx-mapping";
 import { xlsxCellText } from "./xlsx-workbook";
 
 export type XlsxIssueCode =
@@ -33,7 +34,8 @@ export type XlsxIssueCode =
   | "missingMatchValue"
   | "restricted"
   | "lookupUnavailable"
-  | "fileNotImportable";
+  | "fileNotImportable"
+  | "unknownCountry";
 
 type XlsxParsed<T> = { ok: true; value: T } | { ok: false; code: XlsxIssueCode; value?: string };
 
@@ -219,6 +221,16 @@ function dateScalar(cell: XlsxCell, kind: "date" | "dateTime"): XlsxParsed<strin
   const parsed = parseXlsxDate(cell);
   if (!parsed) return issue("invalidDate", xlsxCellText(cell));
   return ok(kind === "date" ? utcDate(parsed.date) : parsed.date.toISOString());
+}
+
+const ADDRESS_PART_LIMITS = { street: 200, line2: 200, postalCode: 20, city: 200, region: 200 } as const;
+
+export function parseXlsxAddressPart(cell: XlsxCell, part: XlsxAddressPart): XlsxParsed<string | null> {
+  const text = xlsxCellText(cell).trim();
+  if (!text) return ok(null);
+  if (part !== "countryCode") return ok(cleanAddressPart(text, ADDRESS_PART_LIMITS[part]));
+  const code = countryCodeFromText(text);
+  return code ? ok(code) : issue("unknownCountry", text);
 }
 
 export function parseXlsxRangePart(cell: XlsxCell, field: RecordFieldView): XlsxParsed<string | null> {

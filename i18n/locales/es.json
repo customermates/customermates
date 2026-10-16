@@ -2022,6 +2022,13 @@
       "update": "Actualizar los ID coincidentes"
     },
     "xlsxImport": {
+      "addressWarnings": {
+        "cityMismatch": "{field}: la ciudad no corresponde al código postal ({expected}).",
+        "countryMissing": "{field}: sin país no se pudieron comprobar el código postal ni la región.",
+        "partMissing": "{field}: falta {part}.",
+        "postalCodeRegionMismatch": "{field}: el código postal pertenece a otra región ({expected}).",
+        "regionUnknown": "{field}: la región no es una de las regiones del país."
+      },
       "assignedTo": "Asignado a",
       "column": "Columna {name}",
       "create": "Registros nuevos",
@@ -2054,6 +2061,7 @@
         "required": "{value} es obligatorio.",
         "restricted": "No puedes leer todos los campos del registro coincidente.",
         "tooManyValues": "Una celda puede contener como máximo 100 valores.",
+        "unknownCountry": "«{value}» no es un país.",
         "unknownMember": "Ningún miembro coincide con «{value}».",
         "unknownOption": "«{value}» no es una opción de este campo.",
         "unknownRecord": "Ningún registro vinculado se llama «{value}»."
@@ -2091,7 +2099,8 @@
       },
       "stepsLabel": "Pasos de la importación",
       "update": "Registros existentes",
-      "updated": "{count, plural, one {# registro actualizado} other {# registros actualizados}}"
+      "updated": "{count, plural, one {# registro actualizado} other {# registros actualizados}}",
+      "warned": "{count, plural, one {# fila importada con un aviso de dirección} other {# filas importadas con avisos de dirección}}"
     }
   },
   "DataView": {

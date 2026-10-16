@@ -8,7 +8,7 @@ import { RecordExportSchema } from "@/features/data-transfer/record-transfer.sch
 
 import { planXlsxImport, runXlsxImport, xlsxImportBatches } from "../xlsx-import-plan";
 import { xlsxTargetOptions, XLSX_CHANNELS_KEY } from "../xlsx-mapping";
-import { COMPANY, fields, labels, model, PROJECT, PROJECT_COMPANY } from "./xlsx-fixture";
+import { addressField, COMPANY, fields, labels, model, PROJECT, PROJECT_COMPANY } from "./xlsx-fixture";
 
 const acme = { typeId: COMPANY, recordId: "40000000-0000-4000-8000-000000000001" };
 const now = "2026-10-12T10:00:00.000Z";
@@ -285,6 +285,7 @@ describe("xlsx import planning", () => {
         { sheetRow: 3, reasons: ["Name must be unique"] },
         { sheetRow: 9, reasons: ["required"] },
       ],
+      warned: [],
     });
     expect(calls.map((call) => call.idempotencyKey)).toEqual([
       "session-key:0",
@@ -308,5 +309,109 @@ describe("xlsx import planning", () => {
       ["No permission"],
       ["No permission"],
     ]);
+  });
+
+  it("joins address part columns into one address value and refuses an unknown country", () => {
+    const withAddress = { ...model, fields: [...model.fields, addressField] };
+    const options = xlsxTargetOptions(withAddress, PROJECT, labels);
+    const part = (name: string) => `field:${addressField.id}:${name}`;
+    const plan = planXlsxImport(
+      {
+        ...input([], [], []),
+        model: withAddress,
+        options,
+        headers: ["Name", "Street", "ZIP", "City", "Country"],
+        mapping: [`field:${fields.name.id}`, part("street"), part("postalCode"), part("city"), part("countryCode")],
+        rows: [
+          { sheetRow: 2, cells: ["Atlas", "Hauptstraße 5", "68259", "Mannheim", "Deutschland"] },
+          { sheetRow: 3, cells: ["Borealis", null, null, null, null] },
+          { sheetRow: 4, cells: ["Cygnus", "1 Infinite Loop", "95014", "Cupertino", "Atlantis"] },
+        ],
+      },
+      "create",
+      null,
+      null,
+      newId,
+      now,
+    );
+    expect(plan[0].record?.fields).toContainEqual({
+      fieldId: addressField.id,
+      result: {
+        state: "value",
+        value: {
+          kind: "address",
+          value: {
+            street: "Hauptstraße 5",
+            line2: null,
+            postalCode: "68259",
+            city: "Mannheim",
+            region: null,
+            countryCode: "de",
+            formatted: "",
+            location: null,
+            verification: { status: "unverified", provider: null, checkedAt: null },
+          },
+        },
+      },
+    });
+    expect(plan[1].record?.fields).toContainEqual({ fieldId: addressField.id, result: { state: "missing" } });
+    expect(plan[2]).toMatchObject({
+      record: null,
+      issues: [{ sheetRow: 4, column: "Country", code: "unknownCountry", value: "Atlantis" }],
+    });
+  });
+
+  it("reports the address warnings of imported rows by sheet row", async () => {
+    const plan = planXlsxImport(
+      input(
+        ["Name"],
+        [`field:${fields.name.id}`],
+        [
+          { sheetRow: 2, cells: ["Atlas"] },
+          { sheetRow: 3, cells: ["Borealis"] },
+        ],
+      ),
+      "create",
+      null,
+      null,
+      newId,
+      now,
+    );
+    const second = plan[1].record?.ref.recordId ?? "";
+    const summary = await runXlsxImport({
+      rows: plan,
+      mode: "create",
+      typeId: PROJECT,
+      schemaRevision: 7,
+      sessionKey: "warnings",
+      now,
+      importRecords: () =>
+        Promise.resolve({
+          ok: true,
+          data: {
+            created: 2,
+            updated: 0,
+            linked: 0,
+            schemaRevision: 7,
+            warnings: [
+              {
+                code: "cityMismatch",
+                fieldId: "office",
+                recordIds: [second],
+                part: "city",
+                expected: ["Mannheim"],
+                message: "Office: the city does not match the postal code, which belongs to Mannheim.",
+              },
+            ],
+          },
+        }),
+      describeIssue,
+      describeWarning: (warning) => `${warning.code}:${(warning.expected ?? []).join(",")}`,
+    });
+    expect(summary).toMatchObject({
+      created: 2,
+      failed: [],
+      warned: [{ sheetRow: 3, reasons: ["cityMismatch:Mannheim"] }],
+    });
   });
 });

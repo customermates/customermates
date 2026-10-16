@@ -1,5 +1,5 @@
 import type { CalculatedValue, RecordDto, RecordModelView, RecordRef } from "@/features/records/record-model.schema";
-import type { RecordQuery } from "@/features/records/record-query.schema";
+import type { RecordQuery, RecordWriteWarning } from "@/features/records/record-query.schema";
 import type { RecordQueryResult } from "@/features/records/record-query-result.schema";
 import type { XlsxTargetLabels, XlsxTargetOption } from "@/features/data-transfer/import/xlsx/xlsx-mapping";
 import type {
@@ -266,7 +266,10 @@ export class XlsxImportWizardStore {
     if (index > 0 && this.step !== "result") this.step = XLSX_WIZARD_STEPS[index - 1];
   }
 
-  async advance(describeIssue: (issue: XlsxIssue) => string) {
+  async advance(
+    describeIssue: (issue: XlsxIssue) => string,
+    describeWarning?: (warning: RecordWriteWarning) => string,
+  ) {
     if (!this.canAdvance) return;
     if (this.step === "file") {
       runInAction(() => (this.step = "mapping"));
@@ -294,7 +297,7 @@ export class XlsxImportWizardStore {
       });
       return;
     }
-    if (this.step === "mode") await this.run(describeIssue);
+    if (this.step === "mode") await this.run(describeIssue, describeWarning);
   }
 
   private defaultMatchKey() {
@@ -373,7 +376,10 @@ export class XlsxImportWizardStore {
     return index;
   }
 
-  private async run(describeIssue: (issue: XlsxIssue) => string) {
+  private async run(
+    describeIssue: (issue: XlsxIssue) => string,
+    describeWarning?: (warning: RecordWriteWarning) => string,
+  ) {
     const sheet = this.sheet;
     const lookups = this.lookups;
     if (!sheet || !lookups) return;
@@ -420,6 +426,7 @@ export class XlsxImportWizardStore {
         now,
         importRecords: this.ports.importRecords,
         describeIssue,
+        describeWarning,
         onProgress: (processed, total) => {
           if (generation !== this.generation) return;
           runInAction(() => {

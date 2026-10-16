@@ -2022,6 +2022,13 @@
       "update": "Mettre à jour les ID correspondants"
     },
     "xlsxImport": {
+      "addressWarnings": {
+        "cityMismatch": "{field} : la ville ne correspond pas au code postal ({expected}).",
+        "countryMissing": "{field} : sans pays, le code postal et la région n’ont pas pu être vérifiés.",
+        "partMissing": "{field} : {part} manque.",
+        "postalCodeRegionMismatch": "{field} : le code postal appartient à une autre région ({expected}).",
+        "regionUnknown": "{field} : la région ne fait pas partie des régions du pays."
+      },
       "assignedTo": "Attribué à",
       "column": "Colonne {name}",
       "create": "Nouvelles fiches",
@@ -2054,6 +2061,7 @@
         "required": "{value} est obligatoire.",
         "restricted": "Vous ne pouvez pas lire tous les champs de la fiche correspondante.",
         "tooManyValues": "Une cellule peut contenir au plus 100 valeurs.",
+        "unknownCountry": "« {value} » n’est pas un pays.",
         "unknownMember": "Aucun membre ne correspond à « {value} ».",
         "unknownOption": "« {value} » n’est pas une option de ce champ.",
         "unknownRecord": "Aucune fiche liée ne s’appelle « {value} »."
@@ -2091,7 +2099,8 @@
       },
       "stepsLabel": "Étapes de l’importation",
       "update": "Fiches existantes",
-      "updated": "{count, plural, one {# fiche mise à jour} other {# fiches mises à jour}}"
+      "updated": "{count, plural, one {# fiche mise à jour} other {# fiches mises à jour}}",
+      "warned": "{count, plural, one {# ligne importée avec un avertissement d’adresse} other {# lignes importées avec des avertissements d’adresse}}"
     }
   },
   "DataView": {

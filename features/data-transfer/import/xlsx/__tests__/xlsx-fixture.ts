@@ -116,4 +116,19 @@ export const model: RecordModelView = {
   capabilities: [],
 };
 
-export const labels = { recordId: "Record ID", assignedTo: "Assigned to", rangeStart: "From", rangeEnd: "Until" };
+export const labels = {
+  recordId: "Record ID",
+  assignedTo: "Assigned to",
+  rangeStart: "From",
+  rangeEnd: "Until",
+  addressParts: {
+    street: "Street and number",
+    line2: "Address line 2",
+    postalCode: "Postal code",
+    city: "City",
+    region: "State or region",
+    countryCode: "Country",
+  },
+};
+
+export const addressField = field("Office", "address");

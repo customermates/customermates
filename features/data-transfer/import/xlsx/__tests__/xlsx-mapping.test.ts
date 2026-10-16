@@ -8,7 +8,7 @@ import {
   XLSX_CHANNELS_KEY,
   XLSX_SKIP_KEY,
 } from "../xlsx-mapping";
-import { fields, labels, model, PROJECT, PROJECT_COMPANY } from "./xlsx-fixture";
+import { addressField, fields, labels, model, PROJECT, PROJECT_COMPANY } from "./xlsx-fixture";
 
 const options = xlsxTargetOptions(model, PROJECT, labels);
 
@@ -96,5 +96,38 @@ describe("xlsx column auto-mapping", () => {
     const plain = xlsxTargetOptions({ ...model, fields: [...trashed, phone] }, PROJECT, labels);
     expect(plain.some((option) => option.key === XLSX_CHANNELS_KEY)).toBe(false);
     expect(autoMapXlsxColumns(["Telefon", "Mobile"], plain)).toEqual([`field:${phone.id}`, XLSX_SKIP_KEY]);
+  });
+
+  it("offers each address part as a column target and maps common address headers to it", () => {
+    const withAddress = { ...model, fields: [...model.fields, addressField] };
+    const addressOptions = xlsxTargetOptions(withAddress, PROJECT, labels);
+    expect(
+      addressOptions
+        .filter((option) => option.key.startsWith(`field:${addressField.id}`))
+        .map((option) => option.label),
+    ).toEqual([
+      "Office",
+      "Office (Street and number)",
+      "Office (Address line 2)",
+      "Office (Postal code)",
+      "Office (City)",
+      "Office (State or region)",
+      "Office (Country)",
+    ]);
+    expect(
+      autoMapXlsxColumns(["Office", "Straße", "PLZ", "Ort", "Land", "Office (Postal code)"], addressOptions),
+    ).toEqual([
+      `field:${addressField.id}`,
+      `field:${addressField.id}:street`,
+      XLSX_SKIP_KEY,
+      `field:${addressField.id}:city`,
+      `field:${addressField.id}:countryCode`,
+      `field:${addressField.id}:postalCode`,
+    ]);
+    const twoAddresses = {
+      ...withAddress,
+      fields: [...withAddress.fields, { ...addressField, id: "second-address", label: "Home" }],
+    };
+    expect(autoMapXlsxColumns(["City"], xlsxTargetOptions(twoAddresses, PROJECT, labels))).toEqual([XLSX_SKIP_KEY]);
   });
 });

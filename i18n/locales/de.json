@@ -2022,6 +2022,13 @@
       "update": "Übereinstimmende IDs aktualisieren"
     },
     "xlsxImport": {
+      "addressWarnings": {
+        "cityMismatch": "{field}: Der Ort gehört nicht zur Postleitzahl ({expected}).",
+        "countryMissing": "{field}: Ohne Land konnten Postleitzahl und Region nicht geprüft werden.",
+        "partMissing": "{field}: {part} fehlt.",
+        "postalCodeRegionMismatch": "{field}: Die Postleitzahl gehört zu einer anderen Region ({expected}).",
+        "regionUnknown": "{field}: Die Region ist keine der Regionen des Landes."
+      },
       "assignedTo": "Zugewiesen an",
       "column": "Spalte {name}",
       "create": "Neue Datensätze",
@@ -2054,6 +2061,7 @@
         "required": "{value} ist ein Pflichtfeld.",
         "restricted": "Du kannst nicht alle Felder des passenden Datensatzes lesen.",
         "tooManyValues": "Eine Zelle kann höchstens 100 Werte enthalten.",
+        "unknownCountry": "„{value}“ ist kein Land.",
         "unknownMember": "Kein Mitglied passt zu „{value}“.",
         "unknownOption": "„{value}“ ist keine Option dieses Felds.",
         "unknownRecord": "Kein verknüpfbarer Datensatz heißt „{value}“."
@@ -2091,7 +2099,8 @@
       },
       "stepsLabel": "Importschritte",
       "update": "Vorhandene Datensätze",
-      "updated": "{count, plural, one {# Datensatz aktualisiert} other {# Datensätze aktualisiert}}"
+      "updated": "{count, plural, one {# Datensatz aktualisiert} other {# Datensätze aktualisiert}}",
+      "warned": "{count, plural, one {# Zeile mit Adresshinweis importiert} other {# Zeilen mit Adresshinweisen importiert}}"
     }
   },
   "DataView": {

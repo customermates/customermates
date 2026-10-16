@@ -3,12 +3,16 @@ import type { RecordFieldView, RecordModelView } from "@/features/records/record
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
 import { recordChannelsEnabled, recordChannelsField } from "@/features/records/record-channels";
 
+export const XLSX_ADDRESS_PARTS = ["street", "line2", "postalCode", "city", "region", "countryCode"] as const;
+export type XlsxAddressPart = (typeof XLSX_ADDRESS_PARTS)[number];
+
 type XlsxTarget =
   | { kind: "skip" }
   | { kind: "recordId" }
   | { kind: "assignedTo" }
   | { kind: "field"; fieldId: string }
   | { kind: "rangePart"; fieldId: string; part: "start" | "end" }
+  | { kind: "addressPart"; fieldId: string; part: XlsxAddressPart }
   | { kind: "relationship"; relationId: string; targetTypeId: string }
   | { kind: "channels" };
 
@@ -18,7 +22,13 @@ export const XLSX_SKIP_KEY = "skip";
 
 export const XLSX_CHANNELS_KEY = "channels";
 
-export type XlsxTargetLabels = { recordId: string; assignedTo: string; rangeStart: string; rangeEnd: string };
+export type XlsxTargetLabels = {
+  recordId: string;
+  assignedTo: string;
+  rangeStart: string;
+  rangeEnd: string;
+  addressParts: Readonly<Record<XlsxAddressPart, string>>;
+};
 
 const PHONE_SYNONYMS = [
   "phone",
@@ -67,6 +77,27 @@ const ASSIGNED_SYNONYMS = [
 
 const RECORD_ID_SYNONYMS = ["id", "recordid", "customermatesid"];
 
+const ADDRESS_PART_SYNONYMS: Readonly<Record<XlsxAddressPart, readonly string[]>> = {
+  street: [
+    "street",
+    "streetaddress",
+    "addressline1",
+    "address1",
+    "strasse",
+    "straße",
+    "anschrift",
+    "calle",
+    "direccion",
+    "rue",
+    "via",
+  ],
+  line2: ["addressline2", "address2", "line2", "adresszusatz", "zusatz"],
+  postalCode: ["postalcode", "postcode", "zip", "zipcode", "plz", "postleitzahl", "codigopostal", "codepostal", "cap"],
+  city: ["city", "town", "ort", "stadt", "ciudad", "localidad", "ville", "citta", "comune"],
+  region: ["region", "state", "province", "county", "bundesland", "provincia", "estado", "departement"],
+  countryCode: ["country", "countrycode", "land", "pais", "pays", "paese", "nazione"],
+};
+
 export function normalizeXlsxHeader(header: string): string {
   return header
     .normalize("NFKD")
@@ -114,6 +145,13 @@ export function xlsxTargetOptions(
           target: { kind: "rangePart", fieldId: field.id, part },
         }))
       : []),
+    ...(field.valueType === "address"
+      ? XLSX_ADDRESS_PARTS.map<XlsxTargetOption>((part) => ({
+          key: `field:${field.id}:${part}`,
+          label: `${field.label} (${labels.addressParts[part]})`,
+          target: { kind: "addressPart", fieldId: field.id, part },
+        }))
+      : []),
   ]);
   const relationships = model.relationships
     .filter((relation) => !relation.archived && relation.id !== parent && relation.sourceTypeId === typeId)
@@ -138,6 +176,10 @@ function matchScore(header: string, option: XlsxTargetOption): number {
   if (option.target.kind === "recordId" && RECORD_ID_SYNONYMS.includes(header)) return 100;
   if (option.target.kind === "assignedTo" && ASSIGNED_SYNONYMS.some((word) => sameWord(word, header))) return 95;
   if (label && sameWord(label, header)) return 100;
+  if (option.target.kind === "addressPart") {
+    const part = option.target.part;
+    return ADDRESS_PART_SYNONYMS[part].some((word) => sameWord(word, header)) ? 70 : 0;
+  }
   if (label && synonymMatch(header, label)) return 80;
   return 0;
 }

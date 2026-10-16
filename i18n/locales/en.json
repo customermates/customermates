@@ -2022,6 +2022,13 @@
       "update": "Update matching IDs"
     },
     "xlsxImport": {
+      "addressWarnings": {
+        "cityMismatch": "{field}: the city does not belong to the postal code ({expected}).",
+        "countryMissing": "{field}: without a country, the postal code and region could not be checked.",
+        "partMissing": "{field}: {part} is missing.",
+        "postalCodeRegionMismatch": "{field}: the postal code belongs to another region ({expected}).",
+        "regionUnknown": "{field}: the region is not one of the country's regions."
+      },
       "assignedTo": "Assigned to",
       "column": "Column {name}",
       "create": "New records",
@@ -2054,6 +2061,7 @@
         "required": "{value} is required.",
         "restricted": "You cannot read every field of the matching record.",
         "tooManyValues": "A cell can hold at most 100 values.",
+        "unknownCountry": "“{value}” is not a country.",
         "unknownMember": "No member matches “{value}”.",
         "unknownOption": "“{value}” is not an option of this field.",
         "unknownRecord": "No linked record is named “{value}”."
@@ -2091,7 +2099,8 @@
       },
       "stepsLabel": "Import steps",
       "update": "Existing records",
-      "updated": "{count, plural, one {# record updated} other {# records updated}}"
+      "updated": "{count, plural, one {# record updated} other {# records updated}}",
+      "warned": "{count, plural, one {# row imported with an address warning} other {# rows imported with address warnings}}"
     }
   },
   "DataView": {

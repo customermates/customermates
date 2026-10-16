@@ -101,7 +101,11 @@ const MANNHEIM: RecordAddress = verifiedRecordAddress(
     region: null,
     countryCode: "de",
   },
-  { provider: "photon", checkedAt: "2026-10-14T12:00:00.000Z", location: { lat: 49.48, lon: 8.46 } },
+  {
+    provider: "photon",
+    checkedAt: "2026-10-14T12:00:00.000Z",
+    location: { lat: 49.48, lon: 8.46, precision: "address" },
+  },
 );
 
 describe("file and address scalars", () => {
@@ -507,7 +511,20 @@ describe("workbooks and history", () => {
       memberUsers: [],
       relationships: [],
     };
-    const labels = { assignedTo: "Assigned", recordId: "ID", rangeStart: "Start", rangeEnd: "End" };
+    const labels = {
+      assignedTo: "Assigned",
+      recordId: "ID",
+      rangeStart: "Start",
+      rangeEnd: "End",
+      addressParts: {
+        street: "Street and number",
+        line2: "Address line 2",
+        postalCode: "Postal code",
+        city: "City",
+        region: "State or region",
+        countryCode: "Country",
+      },
+    };
     const exported = (locale: string) => {
       const [sheet] = recordWorkbookSheets(model(fields), TYPE, [stored], {
         ...labels,

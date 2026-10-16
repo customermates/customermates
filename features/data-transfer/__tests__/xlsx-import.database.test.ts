@@ -173,7 +173,20 @@ describeDatabase("XLSX import through the generic record import", () => {
       typeId: f.id("organization"),
       fields: [{ fieldId: f.id("organization.name"), value: text("Acme GmbH") }],
     });
-    const labels = { recordId: "Record ID", assignedTo: "Assigned to", rangeStart: "From", rangeEnd: "Until" };
+    const labels = {
+      recordId: "Record ID",
+      assignedTo: "Assigned to",
+      rangeStart: "From",
+      rangeEnd: "Until",
+      addressParts: {
+        street: "Street and number",
+        line2: "Address line 2",
+        postalCode: "Postal code",
+        city: "City",
+        region: "State or region",
+        countryCode: "Country",
+      },
+    };
     const file = await workbook([
       ["Name", "Stage", "Organizations", "Notes", "Assigned to"],
       ["Atlas", "qualified", "ACME GmbH", "First line\nSecond line", f.seed.admin.email],
@@ -201,6 +214,7 @@ describeDatabase("XLSX import through the generic record import", () => {
       updated: 0,
       skipped: 0,
       failed: [{ sheetRow: 4, reasons: ["unknownOption:Unknown", "unknownRecord:Initech"] }],
+      warned: [],
     });
 
     const result = await runWithTenant(f.admin, () =>
@@ -250,7 +264,7 @@ describeDatabase("XLSX import through the generic record import", () => {
       "update",
     );
     expect(update.matchKey).toBe(`field:${f.id("deal.name")}`);
-    expect(updated).toEqual({ created: 0, updated: 1, skipped: 1, failed: [] });
+    expect(updated).toEqual({ created: 0, updated: 1, skipped: 1, failed: [], warned: [] });
     expect(await f.deals()).toHaveLength(2);
     const after = await runWithTenant(f.admin, () =>
       f.query.invoke({
@@ -279,7 +293,20 @@ describeDatabase("XLSX import through the generic record import", () => {
       fields: [{ fieldId: f.id("contact.firstName"), value: text("Ada") }],
       identities: [{ provider: "mail", value: "ada@example.test" }],
     });
-    const labels = { recordId: "Record ID", assignedTo: "Assigned to", rangeStart: "From", rangeEnd: "Until" };
+    const labels = {
+      recordId: "Record ID",
+      assignedTo: "Assigned to",
+      rangeStart: "From",
+      rangeEnd: "Until",
+      addressParts: {
+        street: "Street and number",
+        line2: "Address line 2",
+        postalCode: "Postal code",
+        city: "City",
+        region: "State or region",
+        countryCode: "Country",
+      },
+    };
     const channels = async (recordId: string) =>
       (
         await runWithoutTenant(() =>
@@ -302,7 +329,13 @@ describeDatabase("XLSX import through the generic record import", () => {
           ["Linus", "12", ""],
         ]),
       ),
-    ).toEqual({ created: 1, updated: 0, skipped: 0, failed: [{ sheetRow: 3, reasons: ["invalidChannel:12"] }] });
+    ).toEqual({
+      created: 1,
+      updated: 0,
+      skipped: 0,
+      failed: [{ sheetRow: 3, reasons: ["invalidChannel:12"] }],
+      warned: [],
+    });
     expect(created.mapping).toEqual([`field:${f.id("contact.firstName")}`, "channels", "channels"]);
     const grace = await runWithoutTenant(() =>
       prisma.recordValue.findFirstOrThrow({
@@ -321,7 +354,7 @@ describeDatabase("XLSX import through the generic record import", () => {
         ]),
         "update",
       ),
-    ).toEqual({ created: 0, updated: 1, skipped: 0, failed: [] });
+    ).toEqual({ created: 0, updated: 1, skipped: 0, failed: [], warned: [] });
     expect(await channels(ada.recordId)).toEqual(["mail:ada@example.test", "phone:+49621123456"]);
   }, 120_000);
 });
