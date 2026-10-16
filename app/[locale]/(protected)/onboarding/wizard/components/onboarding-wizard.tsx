@@ -167,9 +167,9 @@ const OnboardingWizardContent = observer(
           currentStep !== "setup" ? "max-w-2xl" : planStage ? "max-w-5xl" : "max-w-3xl",
         )}
       >
-        {currentStep !== "setup" ? <OnboardingArtwork step={currentStep} /> : null}
-
         <AppCardBody>
+          {currentStep !== "setup" ? <OnboardingArtwork step={currentStep} /> : null}
+
           <div className="flex flex-col gap-1">
             {!isInvited && (
               <div className="text-xs text-muted-foreground">

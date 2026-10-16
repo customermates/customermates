@@ -1,20 +1,30 @@
+"use client";
+
 import type { ReactNode } from "react";
 
 import {
-  ArrowRight,
+  AtSign,
   Blocks,
   BookOpen,
-  Building2,
   Check,
   Globe2,
+  Link2,
+  ListChecks,
   Mail,
   MapPin,
-  MessageSquare,
+  Plus,
   Sparkles,
   UserRound,
   UsersRound,
 } from "lucide-react";
 
+import { AiClientLogo } from "@/components/ai-connection/ai-client-logo";
+import { NativeAgentProviderIdentity } from "@/components/marketing/visuals/native-visual-primitives";
+import { COMPOUND_CONNECTOR_STROKE } from "@/components/marketing/visuals/story-visual-layout";
+import { VisualArtboard } from "@/components/marketing/visuals/visual-artboard";
+import { GridPattern } from "@/components/shared/grid-pattern";
+import { OverlappingStack } from "@/components/shared/overlapping-stack";
+import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/core/utils/cn";
 
 import type { WizardStep } from "./onboarding-wizard.store";
@@ -22,154 +32,211 @@ import type { WizardStep } from "./onboarding-wizard.store";
 type Step = WizardStep;
 const STEP_ICONS = { profile: UserRound, setup: Blocks, invite: UsersRound, ai: Sparkles };
 
-function PaperLines() {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <span className="h-1.5 w-full rounded-full bg-primary/20" />
+const NARROW_CONNECTOR = "M40 32C68 32 68 56 96 56";
+const SOURCE_PAIR_CONNECTOR = "M40 32C76 32 76 64 112 64M40 96C76 96 76 64 112 64M112 64H144";
+const AGENT_PAIR_CONNECTOR = "M96 32C136 32 136 64 176 64M96 96C136 96 136 64 176 64M176 64H208";
+const WIDE_SCENE_CLASS = { 320: "sm:w-80", 384: "sm:w-96" } as const;
 
-      <span className="h-1.5 w-2/3 rounded-full bg-muted-foreground/20" />
+function Scene({
+  children,
+  connector,
+  width,
+}: {
+  children: ReactNode;
+  connector: string;
+  width: keyof typeof WIDE_SCENE_CLASS;
+}) {
+  const placements = [
+    { className: "sm:hidden", d: NARROW_CONNECTOR, viewBox: "0 0 256 112" },
+    { className: "hidden sm:block", d: connector, viewBox: `0 0 ${width} 128` },
+  ];
+
+  return (
+    <div className={cn("relative h-28 w-64 sm:h-32", WIDE_SCENE_CLASS[width])}>
+      {placements.map(({ className, d, viewBox }) => (
+        <svg key={viewBox} className={cn("absolute inset-0 size-full", className)} fill="none" viewBox={viewBox}>
+          <path
+            d={d}
+            stroke={COMPOUND_CONNECTOR_STROKE}
+            strokeLinecap="butt"
+            strokeWidth="1.25"
+            vectorEffect="non-scaling-stroke"
+          />
+        </svg>
+      ))}
+
+      {children}
     </div>
   );
 }
 
-function ArtTile({ children, className }: { children?: ReactNode; className?: string }) {
+function SourceMark({ children, className }: { children: ReactNode; className: string }) {
   return (
-    <div className={cn("relative rounded-xl border border-border bg-card text-primary shadow-sm", className)}>
+    <span
+      className={cn(
+        "absolute z-10 grid size-10 place-items-center rounded-full border border-border bg-card shadow-sm",
+        className,
+      )}
+    >
+      <span className="grid size-8 place-items-center rounded-full border border-border bg-background text-muted-foreground">
+        {children}
+      </span>
+    </span>
+  );
+}
+
+function SourcePair({ first, second }: { first: ReactNode; second: ReactNode }) {
+  return (
+    <>
+      <SourceMark className="top-3 left-0">{first}</SourceMark>
+
+      <SourceMark className="bottom-3 left-0 hidden sm:grid">{second}</SourceMark>
+    </>
+  );
+}
+
+function FocalCard({ children }: { children: ReactNode }) {
+  return (
+    <div className="absolute top-1/2 right-0 z-20 w-40 -translate-y-1/2 product-card rounded-card p-4 sm:w-44">
       {children}
     </div>
+  );
+}
+
+function TextLines() {
+  return (
+    <div className="flex min-w-0 flex-1 flex-col gap-2">
+      <div className="h-2 w-full rounded-full bg-placeholder" />
+
+      <div className="h-2 w-3/5 rounded-full bg-muted" />
+    </div>
+  );
+}
+
+function FocalIdentity({ children }: { children: ReactNode }) {
+  return (
+    <FocalCard>
+      <div className="flex items-center gap-3">
+        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/12 text-primary">
+          {children}
+        </span>
+
+        <TextLines />
+      </div>
+    </FocalCard>
+  );
+}
+
+function ProfileScene() {
+  return (
+    <Scene connector={SOURCE_PAIR_CONNECTOR} width={320}>
+      <SourcePair first={<MapPin className="size-4" />} second={<AtSign className="size-4" />} />
+
+      <FocalIdentity>
+        <UserRound className="size-5" />
+      </FocalIdentity>
+    </Scene>
+  );
+}
+
+function SetupScene() {
+  return (
+    <Scene connector={SOURCE_PAIR_CONNECTOR} width={320}>
+      <SourcePair first={<Globe2 className="size-4" />} second={<ListChecks className="size-4" />} />
+
+      <FocalCard>
+        <div className="grid grid-cols-2 gap-2">
+          {[0, 1, 2].map((block) => (
+            <div key={block} className="h-7 rounded-lg bg-placeholder" />
+          ))}
+
+          <div className="grid h-7 place-items-center rounded-lg border border-primary/25 bg-primary/6 text-primary">
+            <Plus className="size-3.5" />
+          </div>
+        </div>
+      </FocalCard>
+    </Scene>
+  );
+}
+
+function InviteScene() {
+  return (
+    <Scene connector={SOURCE_PAIR_CONNECTOR} width={320}>
+      <SourcePair first={<Link2 className="size-4" />} second={<Mail className="size-4" />} />
+
+      <FocalCard>
+        <div className="flex items-center gap-2">
+          <OverlappingStack
+            badgeKey={(member) => member}
+            badges={["first", "second", "third"]}
+            renderBadge={() => <Avatar fallback="" />}
+            renderOverflow={() => null}
+          />
+
+          <span className="grid size-6 place-items-center rounded-full border border-primary/25 bg-primary/6 text-primary">
+            <Plus className="size-3.5" />
+          </span>
+        </div>
+
+        <div className="mt-3">
+          <TextLines />
+        </div>
+      </FocalCard>
+    </Scene>
+  );
+}
+
+function AiScene() {
+  return (
+    <Scene connector={AGENT_PAIR_CONNECTOR} width={384}>
+      <SourceMark className="top-3 left-0 sm:hidden">
+        <AiClientLogo className="size-4" provider="claude" />
+      </SourceMark>
+
+      <NativeAgentProviderIdentity
+        className="absolute top-3 left-0 z-10 hidden h-10 w-24 justify-center rounded-full border border-border bg-card text-xs shadow-sm sm:inline-flex"
+        iconSize={16}
+        provider="claude"
+      />
+
+      <span className="absolute bottom-3 left-0 z-10 hidden h-10 w-24 items-center justify-center gap-2.5 rounded-full border border-border bg-card shadow-sm sm:flex">
+        {(["chatgpt", "cursor", "gemini"] as const).map((provider) => (
+          <AiClientLogo key={provider} className="size-3.5 opacity-75" provider={provider} />
+        ))}
+      </span>
+
+      <FocalIdentity>
+        <BookOpen className="size-5" />
+      </FocalIdentity>
+    </Scene>
   );
 }
 
 function StepScene({ step }: { step: Step }) {
   switch (step) {
     case "profile":
-      return (
-        <div className="relative flex w-64 items-center justify-center">
-          <ArtTile className="absolute -top-3 right-4 flex size-10 rotate-12 items-center justify-center">
-            <Mail className="size-5" />
-          </ArtTile>
-
-          <ArtTile className="w-44 -rotate-3 p-3.5">
-            <div className="mb-3 flex items-center gap-3">
-              <span className="flex size-10 items-center justify-center rounded-full bg-primary/10">
-                <UserRound className="size-6" strokeWidth={1.5} />
-              </span>
-
-              <span className="h-2 w-16 rounded-full bg-primary/25" />
-            </div>
-
-            <PaperLines />
-          </ArtTile>
-
-          <ArtTile className="absolute -bottom-3 left-3 flex size-10 -rotate-12 items-center justify-center">
-            <MapPin className="size-5" />
-          </ArtTile>
-        </div>
-      );
+      return <ProfileScene />;
     case "setup":
-      return (
-        <div className="flex items-center gap-4">
-          <ArtTile className="w-24 -rotate-6 overflow-hidden">
-            <div className="flex gap-1 border-b border-border p-2">
-              <span className="size-1 rounded-full bg-primary/40" />
-
-              <span className="size-1 rounded-full bg-primary/25" />
-
-              <span className="size-1 rounded-full bg-primary/15" />
-            </div>
-
-            <div className="flex flex-col gap-2 p-3">
-              <Globe2 className="size-6" strokeWidth={1.5} />
-
-              <PaperLines />
-            </div>
-          </ArtTile>
-
-          <ArrowRight className="size-5 text-primary/60" strokeWidth={1.5} />
-
-          <ArtTile className="flex w-24 rotate-6 flex-col gap-3 p-3">
-            <Blocks className="size-7" strokeWidth={1.5} />
-
-            <PaperLines />
-          </ArtTile>
-        </div>
-      );
+      return <SetupScene />;
     case "invite":
-      return (
-        <div className="relative flex h-28 w-64 items-center justify-center">
-          <svg className="absolute inset-0 size-full text-primary/35" fill="none" viewBox="0 0 256 112">
-            <path d="M45 30L128 60L211 30M128 60v38" stroke="currentColor" strokeDasharray="4 4" strokeWidth="1.5" />
-          </svg>
-
-          <ArtTile className="absolute top-0 left-6 flex size-11 -rotate-12 items-center justify-center rounded-full">
-            <UserRound className="size-5" />
-          </ArtTile>
-
-          <ArtTile className="absolute top-0 right-6 flex size-11 rotate-12 items-center justify-center rounded-full">
-            <UserRound className="size-5" />
-          </ArtTile>
-
-          <ArtTile className="flex size-16 items-center justify-center border-primary/25 shadow-lg shadow-primary/10">
-            <Building2 className="size-8" strokeWidth={1.5} />
-          </ArtTile>
-
-          <ArtTile className="absolute -bottom-1 flex h-8 w-14 items-center justify-center rounded-full">
-            <UsersRound className="size-5" />
-          </ArtTile>
-        </div>
-      );
+      return <InviteScene />;
     case "ai":
-      return (
-        <div className="relative flex h-28 w-64 items-center justify-center">
-          <svg className="absolute inset-0 size-full text-primary/35" fill="none" viewBox="0 0 256 112">
-            <path
-              d="M38 28C90 28 78 56 128 56S170 84 218 84M38 84C90 84 78 56 128 56S170 28 218 28"
-              stroke="currentColor"
-              strokeWidth="1.5"
-            />
-          </svg>
-
-          <ArtTile className="absolute top-1 left-4 flex size-11 -rotate-6 items-center justify-center">
-            <BookOpen className="size-5" />
-          </ArtTile>
-
-          <ArtTile className="absolute bottom-1 left-4 flex size-11 rotate-6 items-center justify-center">
-            <Building2 className="size-5" />
-          </ArtTile>
-
-          <ArtTile className="flex size-16 items-center justify-center rounded-2xl border-primary/30 shadow-lg shadow-primary/10">
-            <Sparkles className="size-8" strokeWidth={1.5} />
-          </ArtTile>
-
-          <ArtTile className="absolute top-1 right-4 flex size-11 rotate-6 items-center justify-center">
-            <MessageSquare className="size-5" />
-          </ArtTile>
-
-          <ArtTile className="absolute right-4 bottom-1 flex size-11 -rotate-6 items-center justify-center">
-            <UserRound className="size-5" />
-          </ArtTile>
-        </div>
-      );
+      return <AiScene />;
   }
 }
 
 export function OnboardingArtwork({ step }: { step: Step }) {
   return (
-    <div aria-hidden="true" className="relative flex h-36 items-center justify-center overflow-hidden sm:h-40">
-      <div className="absolute h-28 w-64 rounded-full bg-primary/10 blur-3xl" />
+    <VisualArtboard aria-hidden="true" className="h-36 shrink-0 rounded-xl sm:h-40" role="presentation">
+      <GridPattern className="opacity-45" density="compact" />
 
-      <svg className="absolute h-32 w-80 text-primary/20" fill="none" viewBox="0 0 320 128">
-        <ellipse cx="160" cy="64" rx="140" ry="48" stroke="currentColor" strokeDasharray="3 7" />
-
-        <circle cx="20" cy="64" fill="currentColor" r="3" />
-
-        <circle cx="300" cy="64" fill="currentColor" r="3" />
-      </svg>
-
-      <div key={step} className="relative animate-page-result-in motion-reduce:animate-none">
+      <div
+        key={step}
+        className="absolute inset-0 grid place-items-center animate-page-result-in motion-reduce:animate-none"
+      >
         <StepScene step={step} />
       </div>
-    </div>
+    </VisualArtboard>
   );
 }
 export function OnboardingMilestones({
