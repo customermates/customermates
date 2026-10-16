@@ -6,6 +6,7 @@ import type { MessagingProvider } from "@/generated/prisma";
 import { compileMessagingRecordQuery } from "./messaging-record-query";
 
 import {
+  MessagingDraftSendState,
   MessagingMessageDirection,
   MessagingMessageOrigin,
   MessagingThreadState,
@@ -13,13 +14,7 @@ import {
   Prisma,
 } from "@/generated/prisma";
 
-import type {
-  AttachmentMeta,
-  IngestMessage,
-  MessagingAttendee,
-  MessagingMessage,
-  MessagingThread,
-} from "../messaging.schema";
+import type { AttachmentMeta, IngestMessage, MessagingAttendee, MessagingMessage } from "../messaging.schema";
 
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { RepoArgs } from "@/core/utils/types";
@@ -52,7 +47,15 @@ import type { PreviewKind } from "../attachment-kind";
 import { identifierKey } from "@/features/records/record-identity";
 import { classifyAttachment } from "../attachment-kind";
 import { draftRevisionMatches, normalizeDraftThreadRecipients, type DraftDeleteResult } from "../draft-thread";
-import { draftThreadProviderId } from "../draft-thread-id";
+import {
+  decideDraftSend,
+  decideMissingDraftSend,
+  effectiveDraftSendState,
+  type DraftSendClaim,
+  type DraftSendRecord,
+  type DraftSendStart,
+} from "../draft-send";
+import { newDraftThreadProviderId } from "../draft-thread-id";
 import { htmlToPlainText } from "../email-body-text";
 import { identityLookupValue } from "../identity-lookup";
 import {
@@ -904,61 +907,57 @@ export class PrismaMessagingRepo
     };
   }
 
-  async findOrCreateDraftThread(args: {
+  private async createDraftThread(args: {
     connectedAccountId: string;
     provider: MessagingProvider;
     recipients: string[];
-    cc?: string[];
-    bcc?: string[];
   }) {
-    const normalizedRecipients = normalizeDraftThreadRecipients(args.provider, args.recipients);
-    if (!normalizedRecipients) throw new Error("Cannot create a draft thread for an invalid recipient");
-    const recipients = normalizedRecipients;
-    const unipileThreadId = draftThreadProviderId(args.provider, recipients, { cc: args.cc, bcc: args.bcc });
-    let row: MessagingThread;
-    try {
-      row = (await this.prisma.messagingThread.upsert({
-        where: {
-          companyId: this.companyId,
-          connectedAccountId_unipileThreadId: {
-            connectedAccountId: args.connectedAccountId,
-            unipileThreadId,
-          },
+    const recipients = normalizeDraftThreadRecipients(args.provider, args.recipients);
+    if (!recipients) throw new Error("Cannot create a draft thread for an invalid recipient");
+    const row = await this.prisma.messagingThread.create({
+      data: {
+        companyId: this.companyId,
+        connectedAccountId: args.connectedAccountId,
+        provider: args.provider,
+        unipileThreadId: newDraftThreadProviderId(),
+        type: recipients.length > 1 ? MessagingThreadType.group : MessagingThreadType.single,
+        state: MessagingThreadState.open,
+        participants: {
+          create: recipients.map((identifier) => ({
+            companyId: this.companyId,
+            provider: args.provider,
+            providerUserId: identifier,
+            identifier,
+            identityLookupValue: identityLookupValue(args.provider, identifier),
+          })),
         },
-        update: { companyId: this.companyId },
-        create: {
-          companyId: this.companyId,
-          connectedAccountId: args.connectedAccountId,
-          provider: args.provider,
-          unipileThreadId,
-          type: recipients.length > 1 ? MessagingThreadType.group : MessagingThreadType.single,
-          state: MessagingThreadState.open,
-          participants: {
-            create: recipients.map((identifier) => ({
-              companyId: this.companyId,
-              provider: args.provider,
-              providerUserId: identifier,
-              identifier,
-              identityLookupValue: identityLookupValue(args.provider, identifier),
-            })),
-          },
-        },
-      })) as unknown as MessagingThread;
-    } catch (error) {
-      if ((error as { code?: unknown }).code !== "P2002") throw error;
-      const raced = await this.prisma.messagingThread.findFirst({
-        where: {
-          companyId: this.companyId,
-          connectedAccountId: args.connectedAccountId,
-          unipileThreadId,
-        },
-      });
-      if (!raced) throw error;
-      row = raced as unknown as MessagingThread;
-    }
+      },
+      select: { id: true },
+    });
+    return row.id;
+  }
 
-    await this.withCompanyTransaction(this.companyId, () => this.refreshDraftParticipantKeys(row.id, args.provider));
-    return row;
+  async createConversationDraftOrThrow(args: {
+    connectedAccountId: string;
+    provider: MessagingProvider;
+    sender: MessagingAttendee;
+    subject: string | null;
+    bodyText: string;
+    bodyHtml?: string | null;
+    recipients: {
+      to: MessagingAttendee[];
+      cc: MessagingAttendee[];
+      bcc: MessagingAttendee[];
+    };
+  }) {
+    return this.withCompanyTransaction(this.companyId, async () => {
+      const threadId = await this.createDraftThread({
+        connectedAccountId: args.connectedAccountId,
+        provider: args.provider,
+        recipients: args.recipients.to.map((recipient) => recipient.identifier),
+      });
+      return this.upsertThreadDraftOrThrow({ ...args, threadId });
+    });
   }
 
   private async refreshDraftParticipantKeys(threadId: string, provider: MessagingProvider): Promise<void> {
@@ -1023,6 +1022,14 @@ export class PrismaMessagingRepo
         select: { id: true, unipileMessageId: true },
       });
       const existing = existingDrafts.find((draft) => draft.unipileMessageId === unipileMessageId) ?? existingDrafts[0];
+      const sending = existing
+        ? await this.prisma.messagingDraftSend.findFirst({
+            where: { companyId: this.companyId, draftMessageId: existing.id },
+            select: { state: true, updatedAt: true },
+          })
+        : null;
+      if (sending && effectiveDraftSendState(sending) === "sending")
+        throw unwindFailure(CustomErrorCode.draftSendInProgress, "conflict");
       const row = existing
         ? await this.prisma.messagingMessage.update({
             where: { id: existing.id, companyId: this.companyId },
@@ -1071,16 +1078,6 @@ export class PrismaMessagingRepo
           ),
           lastMessageIsSender: true,
           ...(isDraftThreadId(thread.unipileThreadId) ? { subject: args.subject } : {}),
-          ...(isDraftThreadId(thread.unipileThreadId) &&
-          isEmailProvider(args.provider) &&
-          args.recipients.to.length === 0
-            ? {
-                unipileThreadId: draftThreadProviderId(args.provider, [], {
-                  cc: args.recipients.cc.map((recipient) => recipient.identifier),
-                  bcc: args.recipients.bcc.map((recipient) => recipient.identifier),
-                }),
-              }
-            : {}),
         },
       });
 
@@ -1240,12 +1237,225 @@ export class PrismaMessagingRepo
     return row as unknown as MessagingMessage;
   }
 
-  async deleteDraft(args: { messageId: string; expectedUpdatedAt: Date }) {
-    return this.withCompanyTransaction(this.companyId, () => this.deleteDraftInCurrentTransaction(args));
+  private get draftSendSelect() {
+    return {
+      id: true,
+      draftMessageId: true,
+      draftRevision: true,
+      connectedAccountId: true,
+      state: true,
+      unipileMessageId: true,
+      providerMessageId: true,
+      sentMessageId: true,
+      sentThreadId: true,
+      updatedAt: true,
+    } as const;
   }
 
-  async discardDraftAfterSend(args: { messageId: string; expectedUpdatedAt: Date }) {
-    await this.withCompanyTransaction(this.companyId, () => this.deleteDraftInCurrentTransaction(args));
+  async findDraftSend(args: { draftMessageId: string }): Promise<DraftSendRecord | null> {
+    return this.prisma.messagingDraftSend.findFirst({
+      where: {
+        companyId: this.companyId,
+        draftMessageId: args.draftMessageId,
+        connectedAccount: { is: accessibleConnectedAccountWhere(this.companyId, this.userId) },
+      },
+      select: this.draftSendSelect,
+    });
+  }
+
+  async beginDraftSend(args: {
+    draftMessageId: string;
+    draftRevision: Date;
+    connectedAccountId: string;
+  }): Promise<DraftSendStart> {
+    return this.withCompanyTransaction(this.companyId, async () => {
+      const draft = await this.prisma.messagingMessage.findFirst({
+        where: {
+          id: args.draftMessageId,
+          companyId: this.companyId,
+          isDraft: true,
+          thread: threadAccessWhere(this.companyId, this.userId),
+        },
+        select: { updatedAt: true },
+      });
+      const record = await this.prisma.messagingDraftSend.findFirst({
+        where: { companyId: this.companyId, draftMessageId: args.draftMessageId },
+        select: this.draftSendSelect,
+      });
+
+      if (!draft) {
+        const missing = decideMissingDraftSend(record, args.draftRevision);
+        if (missing === "replay" && record) return { status: "replay" as const, record };
+        return { status: missing === "replay" ? ("not_found" as const) : missing };
+      }
+      if (draft.updatedAt.getTime() !== args.draftRevision.getTime()) return { status: "changed" as const };
+
+      const decision = decideDraftSend(record, args.draftRevision);
+      if (decision === "replay" && record) {
+        await this.deleteDraftInCurrentTransaction({
+          messageId: args.draftMessageId,
+          expectedUpdatedAt: args.draftRevision,
+        });
+        return { status: "replay" as const, record };
+      }
+      if (decision === "in_progress") return { status: "in_progress" as const };
+      if (decision === "outcome_unknown") return { status: "outcome_unknown" as const };
+      if (decision === "already_sent") return { status: "already_sent" as const };
+
+      if (decision === "take_over" && record) {
+        const taken = await this.prisma.messagingDraftSend.updateMany({
+          where: {
+            id: record.id,
+            companyId: this.companyId,
+            state: record.state,
+            draftRevision: record.draftRevision,
+          },
+          data: {
+            state: MessagingDraftSendState.sending,
+            draftRevision: args.draftRevision,
+            unipileMessageId: null,
+            providerMessageId: null,
+            sentMessageId: null,
+            sentThreadId: null,
+          },
+        });
+        return taken.count === 1
+          ? { status: "claimed" as const, claim: { id: record.id, draftRevision: args.draftRevision } }
+          : { status: "in_progress" as const };
+      }
+
+      const created = await this.prisma.messagingDraftSend.create({
+        data: {
+          companyId: this.companyId,
+          connectedAccountId: args.connectedAccountId,
+          draftMessageId: args.draftMessageId,
+          draftRevision: args.draftRevision,
+          state: MessagingDraftSendState.sending,
+        },
+        select: { id: true },
+      });
+      return { status: "claimed" as const, claim: { id: created.id, draftRevision: args.draftRevision } };
+    });
+  }
+
+  async settleDraftSend(args: {
+    claim: DraftSendClaim;
+    state: "sent" | "unknown";
+    unipileMessageId?: string | null;
+    providerMessageId?: string | null;
+  }) {
+    await this.prisma.messagingDraftSend.updateMany({
+      where: {
+        id: args.claim.id,
+        companyId: this.companyId,
+        draftRevision: args.claim.draftRevision,
+        state: MessagingDraftSendState.sending,
+      },
+      data: {
+        state: args.state,
+        ...(args.unipileMessageId !== undefined ? { unipileMessageId: args.unipileMessageId } : {}),
+        ...(args.providerMessageId !== undefined ? { providerMessageId: args.providerMessageId } : {}),
+      },
+    });
+  }
+
+  async recordDraftSendResult(args: { claim: DraftSendClaim; sentMessageId: string; sentThreadId: string }) {
+    await this.prisma.messagingDraftSend.updateMany({
+      where: {
+        id: args.claim.id,
+        companyId: this.companyId,
+        draftRevision: args.claim.draftRevision,
+        state: MessagingDraftSendState.sent,
+      },
+      data: { sentMessageId: args.sentMessageId, sentThreadId: args.sentThreadId },
+    });
+  }
+
+  async releaseDraftSend(args: { claim: DraftSendClaim }) {
+    await this.prisma.messagingDraftSend.deleteMany({
+      where: {
+        id: args.claim.id,
+        companyId: this.companyId,
+        draftRevision: args.claim.draftRevision,
+        state: MessagingDraftSendState.sending,
+      },
+    });
+  }
+
+  async completeDraftSendRemovingDraft(args: {
+    claim: DraftSendClaim;
+    draftMessageId: string;
+    unipileMessageId: string | null;
+    providerMessageId: string | null;
+  }) {
+    await this.withCompanyTransaction(this.companyId, async () => {
+      await this.settleDraftSend({
+        claim: args.claim,
+        state: "sent",
+        unipileMessageId: args.unipileMessageId,
+        providerMessageId: args.providerMessageId,
+      });
+      await this.deleteDraftInCurrentTransaction({
+        messageId: args.draftMessageId,
+        expectedUpdatedAt: args.claim.draftRevision,
+      });
+    });
+  }
+
+  async completeReplyDraftSend(args: Omit<ConvertDraftToSentArgs, "expectedUpdatedAt"> & { claim: DraftSendClaim }) {
+    const conversion = { ...args, expectedUpdatedAt: args.claim.draftRevision };
+    const complete = () =>
+      this.withCompanyTransaction(this.companyId, async () => {
+        await this.settleDraftSend({
+          claim: args.claim,
+          state: "sent",
+          unipileMessageId: args.unipileMessageId,
+          providerMessageId: args.providerMessageId,
+        });
+        const converted = await this.convertDraftToSentInCurrentTransaction(conversion);
+        if (converted) {
+          await this.recordDraftSendResult({
+            claim: args.claim,
+            sentMessageId: converted.id,
+            sentThreadId: converted.messagingThreadId,
+          });
+        }
+        return converted;
+      });
+    try {
+      return await complete();
+    } catch (error) {
+      if ((error as { code?: unknown }).code !== "P2002") throw error;
+      return complete();
+    }
+  }
+
+  async findDraftSendMessage(args: { record: DraftSendRecord; connectedAccountId: string }) {
+    const { record } = args;
+    const references: Prisma.MessagingMessageWhereInput[] = [
+      ...(record.sentMessageId ? [{ id: record.sentMessageId }] : []),
+      ...(record.unipileMessageId
+        ? [{ connectedAccountId: args.connectedAccountId, unipileMessageId: record.unipileMessageId }]
+        : []),
+      ...(record.providerMessageId
+        ? [{ connectedAccountId: args.connectedAccountId, providerMessageId: record.providerMessageId }]
+        : []),
+    ];
+    if (references.length === 0) return null;
+    const row = await this.prisma.messagingMessage.findFirst({
+      where: {
+        companyId: this.companyId,
+        isDraft: false,
+        OR: references,
+        thread: threadAccessWhere(this.companyId, this.userId),
+      },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+    });
+    return row as unknown as MessagingMessage | null;
+  }
+
+  async deleteDraft(args: { messageId: string; expectedUpdatedAt: Date }) {
+    return this.withCompanyTransaction(this.companyId, () => this.deleteDraftInCurrentTransaction(args));
   }
 
   async restoreDraftSummaryIfPresent(args: { messageId: string }) {

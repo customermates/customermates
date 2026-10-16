@@ -10,7 +10,7 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { DraftRevisionSchema, draftUpdatedAtFromRevision } from "../draft-thread";
-import { failNotFound } from "@/core/validation/interactor-failure-server";
+import { failConflict } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { DiscardDraftRepo } from "./discard-draft.repo";
 
@@ -36,7 +36,7 @@ export class DiscardDraftInteractor extends AuthenticatedInteractor<DiscardDraft
       messageId: data.messageId,
       expectedUpdatedAt: draftUpdatedAtFromRevision(data.draftRevision),
     });
-    if (result.status === "revision_mismatch") return failNotFound(CustomErrorCode.draftMessageNotFound);
+    if (result.status === "revision_mismatch") return failConflict(CustomErrorCode.draftChanged);
 
     return { ok: true as const, data: { threadId: result.status === "deleted" ? result.messagingThreadId : null } };
   }

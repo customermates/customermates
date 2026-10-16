@@ -3,6 +3,7 @@ import type * as InboxSchemaModule from "../../inbox/inbox.schema";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { mockEntitlementService } from "@/tests/helpers/mock-entitlement-service";
+import { MOCK_DRAFT_SEND_CLAIM_ID, mockDraftSendRepo } from "@/tests/helpers/mock-draft-send-repo";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import {
   MOCK_ENV_MODULE,
@@ -33,7 +34,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { MessagingMessageDirection, MessagingProvider, MessagingThreadType } from "@/generated/prisma";
 
 import { draftThreadRecipientSetsMatch } from "../../draft-thread";
-import { draftThreadProviderId } from "../../draft-thread-id";
+import { newDraftThreadProviderId } from "../../draft-thread-id";
 import { SaveDraftInteractor } from "../save-draft.interactor";
 import { SendEmailInteractor } from "../send-email.interactor";
 import { StartChatInteractor } from "../start-chat.interactor";
@@ -49,11 +50,13 @@ const EMAIL_DRAFT_ID = "00000000-0000-4000-8000-000000000006";
 const EMAIL_RECIPIENT = "recipient@example.com";
 const DRAFT_REVISION = "2026-09-04T09:59:00.000Z";
 const DRAFT_UPDATED_AT = new Date(DRAFT_REVISION);
+const CLAIM = { id: MOCK_DRAFT_SEND_CLAIM_ID, draftRevision: DRAFT_UPDATED_AT };
 
 const CHAT_ACCOUNT_ID = "00000000-0000-4000-8000-000000000011";
 const CHAT_DRAFT_THREAD_ID = "00000000-0000-4000-8000-000000000012";
 const CHAT_DRAFT_ID = "00000000-0000-4000-8000-000000000013";
 const PERSISTED_CHAT_THREAD_ID = "00000000-0000-4000-8000-000000000014";
+const PERSISTED_CHAT_MESSAGE_ID = "00000000-0000-4000-8000-000000000015";
 const WHATSAPP_NUMBER = "+49 176 56945421";
 
 const NORMALIZED_WHATSAPP_NUMBER = "+4917656945421";
@@ -136,13 +139,14 @@ const coldEmailInput = {
 function emailRepo(overrides: Record<string, unknown> = {}) {
   return {
     findThreadByIdOrThrow: vi.fn().mockResolvedValue(emailReplyThread),
+    findThreadById: vi.fn().mockResolvedValue(emailReplyThread),
     findLatestEmailReplyReferenceForThread: vi.fn().mockResolvedValue(null),
     findDraftById: vi.fn().mockResolvedValue(emailDraft),
-    discardDraftAfterSend: vi.fn().mockResolvedValue(undefined),
     findRecentOutboundDuplicate: vi.fn().mockResolvedValue(null),
     persistOutboundMessageOrThrow: vi.fn().mockResolvedValue(persistedEmail),
-    convertDraftToSent: vi.fn().mockResolvedValue(null),
+    completeReplyDraftSend: vi.fn().mockResolvedValue(null),
     restoreDraftSummaryIfPresent: vi.fn().mockResolvedValue(undefined),
+    ...mockDraftSendRepo(),
     ...overrides,
   };
 }
@@ -168,14 +172,12 @@ function emailService() {
   };
 }
 
-function expectDraftNotFound(result: any) {
+function expectDraftConflict(result: any, code: CustomErrorCode) {
   expect(result.ok).toBe(false);
   expect(result.error.issues).toEqual(
     expect.arrayContaining([
       expect.objectContaining({
-        params: expect.objectContaining({
-          error: CustomErrorCode.draftMessageNotFound,
-        }),
+        params: expect.objectContaining({ error: code, kind: "conflict" }),
       }),
     ]),
   );
@@ -211,9 +213,9 @@ describe("SendEmailInteractor draft target binding", () => {
 
   it.each([
     { to: [], bcc: ["other@example.com"] },
-    { to: [], cc: ["hidden@example.com"] },
-    { to: [{ identifier: "hidden@example.com" }] },
-  ])("rejects a changed Bcc-only target or a hidden recipient promoted to another field: %j", async (groups) => {
+    { to: [], cc: ["copy@example.com"], bcc: ["hidden@example.com"] },
+    { to: [], cc: ["copy@example.com"] },
+  ])("sends a To-less draft after its Cc or Bcc recipients were edited: %j", async (groups) => {
     const repo = emailRepo({
       findDraftById: vi.fn().mockResolvedValue({
         ...emailDraft,
@@ -224,10 +226,29 @@ describe("SendEmailInteractor draft target binding", () => {
     });
     const service = emailService();
     const result = await emailInteractor(repo, service).invoke({ ...coldEmailInput, ...groups });
-    expectDraftNotFound(result);
-    expect(service.sendEmail).not.toHaveBeenCalled();
-    expect(repo.discardDraftAfterSend).not.toHaveBeenCalled();
+    expect(result.ok).toBe(true);
+    expect(service.sendEmail).toHaveBeenCalledOnce();
+    expect(repo.completeDraftSendRemovingDraft).toHaveBeenCalledOnce();
   });
+
+  it.each([{ to: [], cc: ["Hidden@Example.com"] }, { to: [{ identifier: "hidden@example.com" }] }])(
+    "refuses to move a saved Bcc recipient into To or Cc: %j",
+    async (groups) => {
+      const repo = emailRepo({
+        findDraftById: vi.fn().mockResolvedValue({
+          ...emailDraft,
+          recipientIdentifiers: [],
+          ccIdentifiers: [],
+          bccIdentifiers: ["hidden@example.com"],
+        }),
+      });
+      const service = emailService();
+      const result = await emailInteractor(repo, service).invoke({ ...coldEmailInput, ...groups });
+      expectDraftConflict(result, CustomErrorCode.draftRecipientsChanged);
+      expect(service.sendEmail).not.toHaveBeenCalled();
+      expect(repo.beginDraftSend).not.toHaveBeenCalled();
+    },
+  );
 
   it.each([
     ["another account", { connectedAccountId: OTHER_ACCOUNT_ID, unipileThreadId: "draft_email" }],
@@ -240,10 +261,10 @@ describe("SendEmailInteractor draft target binding", () => {
 
     const result = await emailInteractor(repo, service).invoke(coldEmailInput);
 
-    expectDraftNotFound(result);
+    expectDraftConflict(result, CustomErrorCode.draftTargetMismatch);
     expect(service.sendEmail).not.toHaveBeenCalled();
     expect(service.getEmail).not.toHaveBeenCalled();
-    expect(repo.discardDraftAfterSend).not.toHaveBeenCalled();
+    expect(repo.beginDraftSend).not.toHaveBeenCalled();
   });
 
   it("rejects a reply draft bound to another thread before provider send", async () => {
@@ -262,9 +283,9 @@ describe("SendEmailInteractor draft target binding", () => {
       threadId: REPLY_THREAD_ID,
     });
 
-    expectDraftNotFound(result);
+    expectDraftConflict(result, CustomErrorCode.draftTargetMismatch);
     expect(service.sendEmail).not.toHaveBeenCalled();
-    expect(repo.convertDraftToSent).not.toHaveBeenCalled();
+    expect(repo.completeReplyDraftSend).not.toHaveBeenCalled();
   });
 
   it("rejects a same-account cold draft when the send targets another recipient", async () => {
@@ -276,10 +297,10 @@ describe("SendEmailInteractor draft target binding", () => {
       to: [{ identifier: "another@example.com" }],
     });
 
-    expectDraftNotFound(result);
+    expectDraftConflict(result, CustomErrorCode.draftRecipientsChanged);
     expect(service.sendEmail).not.toHaveBeenCalled();
     expect(service.getEmail).not.toHaveBeenCalled();
-    expect(repo.discardDraftAfterSend).not.toHaveBeenCalled();
+    expect(repo.beginDraftSend).not.toHaveBeenCalled();
   });
 
   it("accepts a same-account cold draft after email target normalization", async () => {
@@ -293,32 +314,43 @@ describe("SendEmailInteractor draft target binding", () => {
 
     expect(result.ok).toBe(true);
     expect(service.sendEmail).toHaveBeenCalledTimes(1);
-    expect(repo.discardDraftAfterSend).toHaveBeenCalledWith({
-      messageId: EMAIL_DRAFT_ID,
-      expectedUpdatedAt: DRAFT_UPDATED_AT,
+    expect(repo.completeDraftSendRemovingDraft).toHaveBeenCalledWith({
+      claim: CLAIM,
+      draftMessageId: EMAIL_DRAFT_ID,
+      unipileMessageId: "unipile-email",
+      providerMessageId: "provider-email",
     });
   });
 
-  it("adopts a successful cold send before durably discarding its draft shell", async () => {
+  it("claims the revision before sending and settles it with the draft before adopting the sent copy", async () => {
     const repo = emailRepo();
     const service = emailService();
 
     const result = await emailInteractor(repo, service).invoke(coldEmailInput);
 
     expect(result.ok).toBe(true);
+    expect(repo.beginDraftSend).toHaveBeenCalledWith({
+      draftMessageId: EMAIL_DRAFT_ID,
+      draftRevision: DRAFT_UPDATED_AT,
+      connectedAccountId: EMAIL_ACCOUNT_ID,
+    });
     expect(service.getEmail).toHaveBeenCalledWith({
       accountId: "email-account",
       emailId: "unipile-email",
       timeoutMs: 5000,
     });
     expect(repo.persistOutboundMessageOrThrow).toHaveBeenCalledTimes(1);
-    expect(repo.discardDraftAfterSend).toHaveBeenCalledWith({
-      messageId: EMAIL_DRAFT_ID,
-      expectedUpdatedAt: DRAFT_UPDATED_AT,
+    expect(repo.recordDraftSendResult).toHaveBeenCalledWith({
+      claim: CLAIM,
+      sentMessageId: persistedEmail.id,
+      sentThreadId: persistedEmail.messagingThreadId,
     });
-    expect(service.sendEmail.mock.invocationCallOrder[0]).toBeLessThan(service.getEmail.mock.invocationCallOrder[0]);
-    expect(service.getEmail.mock.invocationCallOrder[0]).toBeLessThan(
-      repo.discardDraftAfterSend.mock.invocationCallOrder[0],
+    expect(repo.beginDraftSend.mock.invocationCallOrder[0]).toBeLessThan(service.sendEmail.mock.invocationCallOrder[0]);
+    expect(service.sendEmail.mock.invocationCallOrder[0]).toBeLessThan(
+      repo.completeDraftSendRemovingDraft.mock.invocationCallOrder[0],
+    );
+    expect(repo.completeDraftSendRemovingDraft.mock.invocationCallOrder[0]).toBeLessThan(
+      service.getEmail.mock.invocationCallOrder[0],
     );
   });
 
@@ -331,17 +363,19 @@ describe("SendEmailInteractor draft target binding", () => {
 
     const result = await emailInteractor(repo, service).invoke(coldEmailInput);
 
-    expect(result).toEqual({ ok: true, data: null });
-    expect(repo.persistOutboundMessageOrThrow).not.toHaveBeenCalled();
-    expect(repo.discardDraftAfterSend).toHaveBeenCalledWith({
-      messageId: EMAIL_DRAFT_ID,
-      expectedUpdatedAt: DRAFT_UPDATED_AT,
+    expect(result).toEqual({
+      ok: true,
+      data: { message: null, messageId: null, threadId: null, providerMessageId: "provider-email", repeated: false },
     });
+    expect(repo.persistOutboundMessageOrThrow).not.toHaveBeenCalled();
+    expect(repo.completeDraftSendRemovingDraft).toHaveBeenCalledWith(
+      expect.objectContaining({ claim: CLAIM, draftMessageId: EMAIL_DRAFT_ID }),
+    );
   });
 
-  it("reports a delivered cold send as sent when its draft shell cannot be discarded", async () => {
+  it("reports a delivered cold send as sent and still settles the claim when its draft shell cannot be discarded", async () => {
     const repo = emailRepo({
-      discardDraftAfterSend: vi.fn().mockRejectedValue(new Error("database unavailable")),
+      completeDraftSendRemovingDraft: vi.fn().mockRejectedValue(new Error("database unavailable")),
     });
     const service = emailService();
 
@@ -349,10 +383,61 @@ describe("SendEmailInteractor draft target binding", () => {
 
     expect(result.ok).toBe(true);
     expect(service.sendEmail).toHaveBeenCalledTimes(1);
-    expect(repo.discardDraftAfterSend).toHaveBeenCalledTimes(1);
+    expect(repo.settleDraftSend).toHaveBeenCalledWith({
+      claim: CLAIM,
+      state: "sent",
+      unipileMessageId: "unipile-email",
+      providerMessageId: "provider-email",
+    });
   });
 
-  it("rejects a stale client revision before provider send", async () => {
+  it("reports draftMessageNotFound only when the draft is gone and was never sent", async () => {
+    const repo = emailRepo({ findDraftById: vi.fn().mockResolvedValue(null) });
+    const service = emailService();
+
+    const result: any = await emailInteractor(repo, service).invoke(coldEmailInput);
+
+    expect(result.ok).toBe(false);
+    expect(result.error.issues[0].params).toEqual(
+      expect.objectContaining({ error: CustomErrorCode.draftMessageNotFound, kind: "not_found" }),
+    );
+    expect(repo.findDraftSend).toHaveBeenCalledWith({ draftMessageId: EMAIL_DRAFT_ID });
+    expect(service.sendEmail).not.toHaveBeenCalled();
+  });
+
+  it("replays the first result for a draft that was already sent with this revision", async () => {
+    const record = {
+      id: MOCK_DRAFT_SEND_CLAIM_ID,
+      draftMessageId: EMAIL_DRAFT_ID,
+      draftRevision: DRAFT_UPDATED_AT,
+      connectedAccountId: EMAIL_ACCOUNT_ID,
+      state: "sent",
+      unipileMessageId: "unipile-email",
+      providerMessageId: "provider-email",
+      sentMessageId: persistedEmail.id,
+      sentThreadId: persistedEmail.messagingThreadId,
+      updatedAt: new Date(),
+    };
+    const repo = emailRepo({
+      findDraftById: vi.fn().mockResolvedValue(null),
+      findDraftSend: vi.fn().mockResolvedValue(record),
+      findDraftSendMessage: vi.fn().mockResolvedValue(persistedEmail),
+    });
+    const service = emailService();
+
+    const result: any = await emailInteractor(repo, service).invoke(coldEmailInput);
+
+    expect(result.ok).toBe(true);
+    expect(result.data).toMatchObject({
+      messageId: persistedEmail.id,
+      threadId: persistedEmail.messagingThreadId,
+      providerMessageId: "provider-email",
+      repeated: true,
+    });
+    expect(service.sendEmail).not.toHaveBeenCalled();
+  });
+
+  it("reports a stale client revision as a changed draft before provider send", async () => {
     const repo = emailRepo();
     const service = emailService();
 
@@ -361,9 +446,9 @@ describe("SendEmailInteractor draft target binding", () => {
       draftRevision: "2026-09-04T09:58:00.000Z",
     });
 
-    expectDraftNotFound(result);
+    expectDraftConflict(result, CustomErrorCode.draftChanged);
     expect(service.sendEmail).not.toHaveBeenCalled();
-    expect(repo.discardDraftAfterSend).not.toHaveBeenCalled();
+    expect(repo.beginDraftSend).not.toHaveBeenCalled();
   });
 
   it("passes the client-observed revision into reply-draft conversion", async () => {
@@ -373,7 +458,7 @@ describe("SendEmailInteractor draft target binding", () => {
         messagingThreadId: REPLY_THREAD_ID,
         unipileThreadId: "email-thread",
       }),
-      convertDraftToSent: vi.fn().mockResolvedValue(persistedEmail),
+      completeReplyDraftSend: vi.fn().mockResolvedValue(persistedEmail),
     });
     const service = emailService();
 
@@ -384,12 +469,13 @@ describe("SendEmailInteractor draft target binding", () => {
     });
 
     expect(result.ok).toBe(true);
-    expect(repo.convertDraftToSent).toHaveBeenCalledWith(
+    expect(repo.completeReplyDraftSend).toHaveBeenCalledWith(
       expect.objectContaining({
+        claim: CLAIM,
         messageId: EMAIL_DRAFT_ID,
-        expectedUpdatedAt: DRAFT_UPDATED_AT,
       }),
     );
+    expect(repo.persistOutboundMessageOrThrow).not.toHaveBeenCalled();
   });
 });
 
@@ -421,8 +507,10 @@ const coldChatInput = {
 function chatRepo(overrides: Record<string, unknown> = {}) {
   return {
     findDraftById: vi.fn().mockResolvedValue(chatDraft),
-    discardDraftAfterSend: vi.fn().mockResolvedValue(undefined),
-    persistOutboundMessageOrThrow: vi.fn().mockResolvedValue({ messagingThreadId: PERSISTED_CHAT_THREAD_ID }),
+    persistOutboundMessageOrThrow: vi
+      .fn()
+      .mockResolvedValue({ id: PERSISTED_CHAT_MESSAGE_ID, messagingThreadId: PERSISTED_CHAT_THREAD_ID }),
+    ...mockDraftSendRepo(),
     ...overrides,
   };
 }
@@ -436,10 +524,10 @@ function chatService(
   return { listInboxes: vi.fn(), startChat: vi.fn().mockResolvedValue(result) };
 }
 
-function chatInteractor(repo: any, service: any) {
+function chatInteractor(repo: any, service: any, account: unknown = chatAccount) {
   return new StartChatInteractor(
     {
-      findUsableAccountByIdOrThrow: vi.fn().mockResolvedValue(chatAccount),
+      findUsableAccountByIdOrThrow: vi.fn().mockResolvedValue(account),
     } as never,
     {
       findIdentityChannelsCompanyWide: vi.fn().mockResolvedValue([]),
@@ -469,13 +557,13 @@ describe("StartChatInteractor cold-draft target binding", () => {
 
     const result = await chatInteractor(repo, service).invoke(coldChatInput);
 
-    expectDraftNotFound(result);
+    expectDraftConflict(result, CustomErrorCode.draftTargetMismatch);
     expect(service.startChat).not.toHaveBeenCalled();
     expect(repo.persistOutboundMessageOrThrow).not.toHaveBeenCalled();
-    expect(repo.discardDraftAfterSend).not.toHaveBeenCalled();
+    expect(repo.beginDraftSend).not.toHaveBeenCalled();
   });
 
-  it("normalizes a matching phone target and discards its draft only after send and persistence", async () => {
+  it("normalizes a matching phone target, claims the revision and settles it with the draft after the send", async () => {
     const repo = chatRepo();
     const service = chatService();
 
@@ -483,31 +571,44 @@ describe("StartChatInteractor cold-draft target binding", () => {
 
     expect(result).toEqual({
       ok: true,
-      data: { threadId: PERSISTED_CHAT_THREAD_ID },
+      data: { threadId: PERSISTED_CHAT_THREAD_ID, messageId: PERSISTED_CHAT_MESSAGE_ID, repeated: false },
     });
-    expect(repo.discardDraftAfterSend).toHaveBeenCalledWith({
-      messageId: CHAT_DRAFT_ID,
-      expectedUpdatedAt: DRAFT_UPDATED_AT,
+    expect(repo.completeDraftSendRemovingDraft).toHaveBeenCalledWith({
+      claim: CLAIM,
+      draftMessageId: CHAT_DRAFT_ID,
+      unipileMessageId: "provider-message",
+      providerMessageId: null,
     });
+    expect(repo.beginDraftSend.mock.invocationCallOrder[0]).toBeLessThan(service.startChat.mock.invocationCallOrder[0]);
     expect(service.startChat.mock.invocationCallOrder[0]).toBeLessThan(
-      repo.persistOutboundMessageOrThrow.mock.invocationCallOrder[0],
+      repo.completeDraftSendRemovingDraft.mock.invocationCallOrder[0],
     );
-    expect(repo.persistOutboundMessageOrThrow.mock.invocationCallOrder[0]).toBeLessThan(
-      repo.discardDraftAfterSend.mock.invocationCallOrder[0],
-    );
+    expect(repo.recordDraftSendResult).toHaveBeenCalledWith({
+      claim: CLAIM,
+      sentMessageId: PERSISTED_CHAT_MESSAGE_ID,
+      sentThreadId: PERSISTED_CHAT_THREAD_ID,
+    });
   });
 
-  it("reports a delivered cold chat as sent when its draft shell cannot be discarded", async () => {
+  it("reports a delivered cold chat as sent and still settles the claim when its draft shell cannot be discarded", async () => {
     const repo = chatRepo({
-      discardDraftAfterSend: vi.fn().mockRejectedValue(new Error("database unavailable")),
+      completeDraftSendRemovingDraft: vi.fn().mockRejectedValue(new Error("database unavailable")),
     });
     const service = chatService();
 
     const result = await chatInteractor(repo, service).invoke(coldChatInput);
 
-    expect(result).toEqual({ ok: true, data: { threadId: PERSISTED_CHAT_THREAD_ID } });
+    expect(result).toEqual({
+      ok: true,
+      data: { threadId: PERSISTED_CHAT_THREAD_ID, messageId: PERSISTED_CHAT_MESSAGE_ID, repeated: false },
+    });
     expect(service.startChat).toHaveBeenCalledTimes(1);
-    expect(repo.discardDraftAfterSend).toHaveBeenCalledTimes(1);
+    expect(repo.settleDraftSend).toHaveBeenCalledWith({
+      claim: CLAIM,
+      state: "sent",
+      unipileMessageId: "provider-message",
+      providerMessageId: null,
+    });
   });
 
   it("rejects a same-account cold draft when the chat targets another recipient", async () => {
@@ -519,13 +620,13 @@ describe("StartChatInteractor cold-draft target binding", () => {
       attendeeIdentifiers: ["+49 176 11111111"],
     });
 
-    expectDraftNotFound(result);
+    expectDraftConflict(result, CustomErrorCode.draftRecipientsChanged);
     expect(service.startChat).not.toHaveBeenCalled();
     expect(repo.persistOutboundMessageOrThrow).not.toHaveBeenCalled();
-    expect(repo.discardDraftAfterSend).not.toHaveBeenCalled();
+    expect(repo.beginDraftSend).not.toHaveBeenCalled();
   });
 
-  it("rejects a stale cold-chat revision before provider send", async () => {
+  it("reports a stale cold-chat revision as a changed draft before provider send", async () => {
     const repo = chatRepo();
     const service = chatService();
 
@@ -534,28 +635,66 @@ describe("StartChatInteractor cold-draft target binding", () => {
       draftRevision: "2026-09-04T09:58:00.000Z",
     });
 
-    expectDraftNotFound(result);
+    expectDraftConflict(result, CustomErrorCode.draftChanged);
     expect(service.startChat).not.toHaveBeenCalled();
-    expect(repo.discardDraftAfterSend).not.toHaveBeenCalled();
+    expect(repo.beginDraftSend).not.toHaveBeenCalled();
   });
 
-  it("keeps the cold chat draft when the provider send fails", async () => {
+  it("keeps the cold chat draft and releases its claim when the provider refuses the send", async () => {
     const repo = chatRepo();
     const service = chatService({
       ok: false,
-      error: CustomErrorCode.unipileServiceUnavailable,
+      error: CustomErrorCode.unipileProviderRejected,
     });
 
     const result = await chatInteractor(repo, service).invoke(coldChatInput);
 
     expect(result.ok).toBe(false);
     expect(repo.persistOutboundMessageOrThrow).not.toHaveBeenCalled();
-    expect(repo.discardDraftAfterSend).not.toHaveBeenCalled();
+    expect(repo.completeDraftSendRemovingDraft).not.toHaveBeenCalled();
+    expect(repo.releaseDraftSend).toHaveBeenCalledWith({ claim: CLAIM });
+  });
+
+  it("releases the claim when the chat recipient cannot be resolved, before anything is sent", async () => {
+    const repo = chatRepo({
+      findDraftById: vi.fn().mockResolvedValue({ ...chatDraft, recipientIdentifiers: ["ada-lovelace"] }),
+    });
+    const service = {
+      ...chatService(),
+      getProviderProfile: vi.fn().mockResolvedValue({ ok: false, error: CustomErrorCode.unipileProviderRejected }),
+    };
+    const linkedinAccount = { ...(chatAccount as object), provider: MessagingProvider.linkedin, linkedinProducts: [] };
+
+    const result = await chatInteractor(repo, service, linkedinAccount).invoke({
+      ...coldChatInput,
+      attendeeIdentifiers: ["ada-lovelace"],
+    });
+
+    expect(result.ok).toBe(false);
+    expect(repo.beginDraftSend).toHaveBeenCalledOnce();
+    expect(service.startChat).not.toHaveBeenCalled();
+    expect(repo.releaseDraftSend).toHaveBeenCalledWith({ claim: CLAIM });
+    expect(repo.settleDraftSend).not.toHaveBeenCalled();
+  });
+
+  it("keeps the cold chat draft but blocks a resend when the provider outcome is unknown", async () => {
+    const repo = chatRepo();
+    const service = chatService({
+      ok: false,
+      error: CustomErrorCode.unipileSendOutcomeUnknown,
+    });
+
+    const result = await chatInteractor(repo, service).invoke(coldChatInput);
+
+    expect(result.ok).toBe(false);
+    expect(repo.completeDraftSendRemovingDraft).not.toHaveBeenCalled();
+    expect(repo.releaseDraftSend).not.toHaveBeenCalled();
+    expect(repo.settleDraftSend).toHaveBeenCalledWith({ claim: CLAIM, state: "unknown" });
   });
 });
 
 describe("DiscardDraftInteractor revision binding", () => {
-  it("reports a stale revision as a failure so optimistic UI removal can roll back", async () => {
+  it("reports a stale revision as a changed draft so optimistic UI removal can roll back", async () => {
     const repo = {
       deleteDraft: vi.fn().mockResolvedValue({ status: "revision_mismatch" }),
     };
@@ -565,7 +704,7 @@ describe("DiscardDraftInteractor revision binding", () => {
       draftRevision: DRAFT_REVISION,
     });
 
-    expectDraftNotFound(result);
+    expectDraftConflict(result, CustomErrorCode.draftChanged);
     expect(repo.deleteDraft).toHaveBeenCalledWith({
       messageId: EMAIL_DRAFT_ID,
       expectedUpdatedAt: DRAFT_UPDATED_AT,
@@ -576,7 +715,7 @@ describe("DiscardDraftInteractor revision binding", () => {
 const emailDraftThread = {
   id: EMAIL_DRAFT_THREAD_ID,
   connectedAccountId: EMAIL_ACCOUNT_ID,
-  unipileThreadId: draftThreadProviderId(MessagingProvider.google, [EMAIL_RECIPIENT]),
+  unipileThreadId: `draft_${EMAIL_DRAFT_THREAD_ID}`,
   provider: MessagingProvider.google,
   type: MessagingThreadType.single,
   participants: [
@@ -597,7 +736,7 @@ const emailDraftThread = {
 function saveDraftRepo(overrides: Record<string, unknown> = {}) {
   return {
     findThreadByIdOrThrow: vi.fn().mockResolvedValue(emailDraftThread),
-    findOrCreateDraftThread: vi.fn(),
+    createConversationDraftOrThrow: vi.fn().mockResolvedValue(persistedEmail),
     findSelfAttendeeForThread: vi.fn(),
     upsertThreadDraftOrThrow: vi.fn().mockResolvedValue(persistedEmail),
     ...overrides,
@@ -632,7 +771,7 @@ describe("SaveDraftInteractor cold-draft target binding", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("checks the sending account once when saving a new conversation draft", async () => {
-    const repo = saveDraftRepo({ findOrCreateDraftThread: vi.fn().mockResolvedValue(emailDraftThread) });
+    const repo = saveDraftRepo();
     const accountRepo = { findUsableAccountByIdOrThrow: vi.fn().mockResolvedValue(emailAccount) };
     const interactor = new SaveDraftInteractor(repo as never, accountRepo as never, mockEntitlementService());
 
@@ -644,6 +783,13 @@ describe("SaveDraftInteractor cold-draft target binding", () => {
 
     expect(result.ok).toBe(true);
     expect(accountRepo.findUsableAccountByIdOrThrow).toHaveBeenCalledOnce();
+    expect(repo.createConversationDraftOrThrow).toHaveBeenCalledWith(
+      expect.objectContaining({
+        connectedAccountId: EMAIL_ACCOUNT_ID,
+        recipients: expect.objectContaining({ to: [expect.objectContaining({ identifier: EMAIL_RECIPIENT })] }),
+      }),
+    );
+    expect(repo.upsertThreadDraftOrThrow).not.toHaveBeenCalled();
   });
 
   it("never saves a chat draft for a teammate without access to the sending account", async () => {
@@ -693,7 +839,7 @@ describe("SaveDraftInteractor cold-draft target binding", () => {
     });
 
     expectLockedToRecipients(result);
-    expect(repo.findOrCreateDraftThread).not.toHaveBeenCalled();
+    expect(repo.createConversationDraftOrThrow).not.toHaveBeenCalled();
     expect(repo.upsertThreadDraftOrThrow).not.toHaveBeenCalled();
   });
 
@@ -723,7 +869,7 @@ describe("SaveDraftInteractor cold-draft target binding", () => {
     const repo = saveDraftRepo({
       findThreadByIdOrThrow: vi.fn().mockResolvedValue({
         ...emailDraftThread,
-        unipileThreadId: draftThreadProviderId(MessagingProvider.google, [EMAIL_RECIPIENT, otherRecipient]),
+        unipileThreadId: `draft_${EMAIL_DRAFT_THREAD_ID}`,
         type: MessagingThreadType.group,
         participants: [
           emailDraftThread.participants[0],
@@ -782,10 +928,12 @@ describe("SaveDraftInteractor cold-draft target binding", () => {
 });
 
 describe("draft-thread target normalization", () => {
-  it("canonicalizes email whitespace and case before deriving an identity", () => {
-    expect(draftThreadProviderId(MessagingProvider.google, [" Recipient@Example.com "])).toBe(
-      draftThreadProviderId(MessagingProvider.google, [EMAIL_RECIPIENT]),
-    );
+  it("gives every new conversation draft its own local thread id", () => {
+    const first = newDraftThreadProviderId();
+    const second = newDraftThreadProviderId();
+    expect(first).toMatch(/^draft_/);
+    expect(second).toMatch(/^draft_/);
+    expect(first).not.toBe(second);
   });
 
   it("matches a LinkedIn profile URL to a persisted participant handle", () => {

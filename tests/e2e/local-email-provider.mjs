@@ -1,8 +1,22 @@
 import { randomUUID } from "node:crypto";
+import { appendFileSync, mkdirSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 
 export const localProviderKey = "e2e-local-provider-no-network";
+export const responseLostAfterAcceptance = "[response lost after acceptance]";
+export const sentCopyUnavailable = "[sent copy unavailable]";
 const emails = new Map();
 const syntheticEmail = (value) => typeof value === "string" && /^[^@\s]+@[^@\s]+\.test$/.test(value);
+
+export function localEmailLedgerFile(databaseUrl = process.env.DATABASE_URL) {
+  return resolve(".runs", "e2e", new URL(databaseUrl).pathname.slice(1), "local-email-ledger.jsonl");
+}
+
+function recordAcceptedEmail(entry) {
+  const file = localEmailLedgerFile();
+  mkdirSync(dirname(file), { recursive: true });
+  appendFileSync(file, `${JSON.stringify(entry)}\n`);
+}
 
 export function localEmailRequest(input, init) {
   const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
@@ -15,6 +29,8 @@ export function localEmailRequest(input, init) {
   if (path[2] !== "send" && request.method === "GET") {
     const email = emails.get(`${path[1]}:${path[2]}`);
     if (!email) throw new Error("Local email transport requires its own accepted delivery");
+    if (email.subject.includes(sentCopyUnavailable))
+      return Promise.resolve(Response.json({ type: "errors/resource_not_found", status: 404 }, { status: 404 }));
     return Promise.resolve(Response.json(email));
   }
   return null;
@@ -48,5 +64,8 @@ async function sendEmail(request, accountId) {
     bcc: body.bcc ?? [],
     folders: ["e2e_sent"],
   });
+  recordAcceptedEmail({ accountId, id, subject: body.subject });
+  if (body.subject.includes(responseLostAfterAcceptance))
+    return Response.json({ type: "api/proxy_timeout", status: 504, title: "Gateway timeout" }, { status: 504 });
   return Response.json({ id, message_id: id });
 }

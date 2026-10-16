@@ -3,14 +3,14 @@ import { describe, it, expect } from "vitest";
 import type { SendChatMessageRepo } from "../send-chat-message.repo";
 import type { SendEmailRepo } from "../send-email.repo";
 
-type ChatArgs = Parameters<SendChatMessageRepo["convertDraftToSent"]>[0];
-type EmailArgs = Parameters<SendEmailRepo["convertDraftToSent"]>[0];
+type ChatArgs = Parameters<SendChatMessageRepo["completeReplyDraftSend"]>[0];
+type EmailArgs = Parameters<SendEmailRepo["completeReplyDraftSend"]>[0];
 
 describe("draft conversion contracts", () => {
   it("declares attachmentsMeta on the chat side, because one implementation serves both", () => {
     const chat: ChatArgs = {
+      claim: { id: "c1", draftRevision: new Date() },
       messageId: "m1",
-      expectedUpdatedAt: new Date(),
       unipileMessageId: "u1",
       providerMessageId: null,
       sender: { attendeeId: "a", displayName: "a", identifier: "a", isSelf: true } as never,
@@ -27,8 +27,8 @@ describe("draft conversion contracts", () => {
 
   it("keeps the two contracts aligned on the fields the shared implementation reads", () => {
     const email: EmailArgs = {
+      claim: { id: "c1", draftRevision: new Date() },
       messageId: "m1",
-      expectedUpdatedAt: new Date(),
       unipileMessageId: "u1",
       providerMessageId: null,
       sender: { attendeeId: "a", displayName: "a", identifier: "a", isSelf: true } as never,

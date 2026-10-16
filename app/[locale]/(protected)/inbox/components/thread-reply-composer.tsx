@@ -254,6 +254,36 @@ export const ThreadReplyComposer = observer(
         store={threadComposeStore}
         onSubmit={() => (senderUnavailable ? Promise.resolve() : threadComposeStore.send())}
       >
+        {threadComposeStore.draftConflict && (
+          <div
+            className="border-border flex flex-wrap items-center justify-between gap-2 border-b px-3 py-1.5 text-sm"
+            role="alert"
+          >
+            <span>{t("Inbox.compose.draftChangedNotice")}</span>
+
+            <span className="flex items-center gap-2">
+              <Button
+                disabled={isLoading}
+                size="xs"
+                type="button"
+                variant="secondary"
+                onClick={() => runUserAction(threadComposeStore.loadLatestDraft)}
+              >
+                {t("Inbox.compose.loadLatestDraft")}
+              </Button>
+
+              <Button
+                disabled={isLoading || senderUnavailable}
+                size="xs"
+                type="button"
+                onClick={() => runUserAction(threadComposeStore.sendMine)}
+              >
+                {t("Inbox.compose.sendMyDraft")}
+              </Button>
+            </span>
+          </div>
+        )}
+
         {isNewThread && (senders.length > 1 || senderUnavailable) && (
           <div className="border-border flex items-center gap-2 border-b px-3 py-1">
             <span className="text-muted-foreground w-8 shrink-0 text-xs font-medium">{t("Inbox.compose.from")}</span>

@@ -60,6 +60,7 @@ function makeChatInteractor(repo: any, service: any) {
     service,
     new ValidateThreadIdsInteractor(getMessagingRepo()),
     mockEntitlementService(),
+    { invoke: vi.fn() },
   );
 }
 

@@ -28,6 +28,7 @@ import { MessagingProvider, MessagingMessageDirection } from "@/generated/prisma
 
 const ACCOUNT_ID = "00000000-0000-4000-8000-000000000002";
 const THREAD_ID = "00000000-0000-4000-8000-000000000003";
+const MESSAGE_ID = "00000000-0000-4000-8000-000000000004";
 const WHATSAPP_NUMBER = "+49 176 56945421";
 const NORMALIZED_NUMBER = "+4917656945421";
 
@@ -94,7 +95,7 @@ describe("StartChatInteractor inbox routing", () => {
       text: "hello there",
     });
 
-    expect(result).toEqual({ ok: true, data: { threadId: null } });
+    expect(result).toEqual({ ok: true, data: { threadId: null, messageId: null, repeated: false } });
     expect(service.startChat).toHaveBeenCalledWith(expect.objectContaining({ inboxId: "CLASSIC_PRIMARY" }));
   });
 
@@ -332,7 +333,7 @@ describe("StartChatInteractor persistence", () => {
       startChat: vi.fn().mockResolvedValue({ ok: true, data: { chatId: "chat_1", messageId: "msg_1" } }),
     };
     const threadRepo = {
-      persistOutboundMessageOrThrow: vi.fn().mockResolvedValue({ messagingThreadId: THREAD_ID }),
+      persistOutboundMessageOrThrow: vi.fn().mockResolvedValue({ id: MESSAGE_ID, messagingThreadId: THREAD_ID }),
     };
 
     const result: any = await makeInteractor(whatsappAccount, service, threadRepo).invoke({
@@ -341,7 +342,7 @@ describe("StartChatInteractor persistence", () => {
       text: "hello there",
     });
 
-    expect(result).toEqual({ ok: true, data: { threadId: THREAD_ID } });
+    expect(result).toEqual({ ok: true, data: { threadId: THREAD_ID, messageId: MESSAGE_ID, repeated: false } });
     const call = threadRepo.persistOutboundMessageOrThrow.mock.calls[0][0];
     expect(call.connectedAccountId).toBe(ACCOUNT_ID);
     expect(call.message.unipileThreadId).toBe("chat_1");
@@ -357,7 +358,7 @@ describe("StartChatInteractor persistence", () => {
       startChat: vi.fn().mockResolvedValue({ ok: true, data: { chatId: "chat_1", messageId: "msg_1" } }),
     };
     const threadRepo = {
-      persistOutboundMessageOrThrow: vi.fn().mockResolvedValue({ messagingThreadId: THREAD_ID }),
+      persistOutboundMessageOrThrow: vi.fn().mockResolvedValue({ id: MESSAGE_ID, messagingThreadId: THREAD_ID }),
     };
 
     const result: any = await makeInteractor(linkedinAccount, service, threadRepo).invoke({
@@ -385,7 +386,7 @@ describe("StartChatInteractor persistence", () => {
       text: "hello there",
     });
 
-    expect(result).toEqual({ ok: true, data: { threadId: null } });
+    expect(result).toEqual({ ok: true, data: { threadId: null, messageId: null, repeated: false } });
     expect(threadRepo.persistOutboundMessageOrThrow).not.toHaveBeenCalled();
   });
 
@@ -402,7 +403,7 @@ describe("StartChatInteractor persistence", () => {
       text: "hello there",
     });
 
-    expect(result).toEqual({ ok: true, data: { threadId: null } });
+    expect(result).toEqual({ ok: true, data: { threadId: null, messageId: null, repeated: false } });
     expect(threadRepo.persistOutboundMessageOrThrow).toHaveBeenCalledTimes(1);
   });
 

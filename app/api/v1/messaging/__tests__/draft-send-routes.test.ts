@@ -58,7 +58,16 @@ function discardRequest(revision?: string) {
 
 beforeEach(() => {
   vi.resetAllMocks();
-  interactors.send.mockResolvedValue({ ok: true, data: { id: "sent-message", messagingThreadId: THREAD_ID } });
+  interactors.send.mockResolvedValue({
+    ok: true,
+    data: {
+      message: { id: "sent-message", messagingThreadId: THREAD_ID },
+      messageId: "sent-message",
+      threadId: THREAD_ID,
+      providerMessageId: null,
+      repeated: false,
+    },
+  });
   interactors.save.mockResolvedValue({ ok: true, data: draftDto });
   interactors.reply.mockResolvedValue({ ok: true, data: draftDto });
   interactors.discard.mockResolvedValue({ ok: true, data: { threadId: THREAD_ID } });
@@ -74,13 +83,51 @@ describe("messaging REST draft/send adapters", () => {
     expect(await response.json()).toEqual({ id: "sent-message", messagingThreadId: THREAD_ID });
   });
 
-  it("returns a successful unresolved sent copy as null without a resend", async () => {
-    interactors.send.mockResolvedValue({ ok: true, data: null });
+  it("answers an accepted but unrecorded email with 202 and its reference, without a resend", async () => {
+    interactors.send.mockResolvedValue({
+      ok: true,
+      data: {
+        message: null,
+        messageId: null,
+        threadId: null,
+        providerMessageId: "<sent@example.com>",
+        repeated: false,
+      },
+    });
     const response = await sendEmail(request("send-email", email));
 
-    expect(response.status).toBe(200);
-    expect(await response.json()).toBeNull();
+    expect(response.status).toBe(202);
+    expect(await response.json()).toEqual({
+      sent: true,
+      messageId: null,
+      threadId: null,
+      providerMessageId: "<sent@example.com>",
+      repeated: false,
+    });
     expect(interactors.send).toHaveBeenCalledOnce();
+  });
+
+  it("answers a repeated draft send with 202 and repeated true, although the first copy is recorded", async () => {
+    interactors.send.mockResolvedValue({
+      ok: true,
+      data: {
+        message: { id: "sent-message", messagingThreadId: THREAD_ID },
+        messageId: "sent-message",
+        threadId: THREAD_ID,
+        providerMessageId: "<sent@example.com>",
+        repeated: true,
+      },
+    });
+    const response = await sendEmail(request("send-email", email));
+
+    expect(response.status).toBe(202);
+    expect(await response.json()).toEqual({
+      sent: true,
+      messageId: "sent-message",
+      threadId: THREAD_ID,
+      providerMessageId: "<sent@example.com>",
+      repeated: true,
+    });
   });
 
   it("maps repeated new-draft saves to the same contract and returns each current revision", async () => {

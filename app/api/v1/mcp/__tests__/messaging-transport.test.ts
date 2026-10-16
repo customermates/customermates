@@ -103,10 +103,20 @@ async function call(name: string, args: Record<string, unknown>) {
   return rpc({ jsonrpc: "2.0", id: 2, method: "tools/call", params: { name, arguments: args } }, sessionId);
 }
 
+function sendResult(overrides: { threadId?: string | null; messageId?: string | null; repeated?: boolean } = {}) {
+  return {
+    message: null,
+    messageId: overrides.messageId ?? null,
+    threadId: overrides.threadId ?? null,
+    providerMessageId: null,
+    repeated: overrides.repeated ?? false,
+  };
+}
+
 beforeEach(() => {
   vi.resetAllMocks();
   handler = createMcpRoute({ messaging: [sendEmailTool, saveMessageDraftTool, discardMessageDraftTool] });
-  interactors.send.mockResolvedValue({ ok: true, data: { messagingThreadId: THREAD_ID } });
+  interactors.send.mockResolvedValue({ ok: true, data: sendResult({ threadId: THREAD_ID, messageId: DRAFT_ID }) });
   interactors.save.mockResolvedValue({
     ok: true,
     data: { id: DRAFT_ID, draftRevision: REVISION, messagingThreadId: THREAD_ID },
@@ -127,25 +137,52 @@ describe("messaging MCP HTTP transport", () => {
 
     expect(response.status).toBe(200);
     expect(interactors.send).toHaveBeenCalledExactlyOnceWith(args);
-    expect(data?.result?.structuredContent).toEqual({ sent: true, threadId: THREAD_ID });
+    expect(data?.result?.structuredContent).toEqual({
+      sent: true,
+      threadId: THREAD_ID,
+      messageId: DRAFT_ID,
+      repeated: false,
+    });
     expect(data?.result?.isError).not.toBe(true);
   });
 
-  it("maps a reply result to the requested thread even when sent-copy adoption is pending", async () => {
-    interactors.send.mockResolvedValue({ ok: true, data: null });
+  it("maps a reply result to its thread even when the sent copy is not recorded yet", async () => {
+    interactors.send.mockResolvedValue({ ok: true, data: sendResult({ threadId: THREAD_ID }) });
     const args = { ...email, threadId: THREAD_ID };
     const { data } = await call("send_email", args);
 
     expect(interactors.send).toHaveBeenCalledExactlyOnceWith(args);
-    expect(data?.result?.structuredContent).toEqual({ sent: true, threadId: THREAD_ID });
+    expect(data?.result?.structuredContent).toEqual({
+      sent: true,
+      threadId: THREAD_ID,
+      messageId: null,
+      repeated: false,
+    });
   });
 
   it("reports a successful unresolved new email without retrying the interactor", async () => {
-    interactors.send.mockResolvedValue({ ok: true, data: null });
+    interactors.send.mockResolvedValue({ ok: true, data: sendResult() });
     const { data } = await call("send_email", email);
 
     expect(interactors.send).toHaveBeenCalledOnce();
-    expect(data?.result?.structuredContent).toEqual({ sent: true, threadId: null });
+    expect(data?.result?.structuredContent).toEqual({ sent: true, threadId: null, messageId: null, repeated: false });
+  });
+
+  it("reports a repeated draft revision as already sent", async () => {
+    interactors.send.mockResolvedValue({
+      ok: true,
+      data: sendResult({ threadId: THREAD_ID, messageId: DRAFT_ID, repeated: true }),
+    });
+    const { data } = await call("send_email", { ...email, draftMessageId: DRAFT_ID, draftRevision: REVISION });
+
+    expect(interactors.send).toHaveBeenCalledOnce();
+    expect(data?.result?.structuredContent).toEqual({
+      sent: true,
+      threadId: THREAD_ID,
+      messageId: DRAFT_ID,
+      repeated: true,
+    });
+    expect(JSON.stringify(data?.result?.content)).toContain("already sent; nothing was sent again");
   });
 
   it.each([{ draftMessageId: DRAFT_ID }, { draftRevision: REVISION }, { bodyFormat: "rich_text" }])(

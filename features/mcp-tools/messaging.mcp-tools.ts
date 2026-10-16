@@ -217,8 +217,16 @@ const GetCalendarsOutputSchema = z
     "List modes return items with total, page and pageSize; eventId returns the event fields at the top level.",
   );
 
-const SendChatMessageOutputSchema = z.object({ sent: z.literal(true), threadId: z.string().nullable() });
-const SendEmailOutputSchema = z.object({ sent: z.literal(true), threadId: z.string().nullable() });
+const SentOutputSchema = z.object({
+  sent: z.literal(true),
+  threadId: z.string().nullable(),
+  messageId: z.string().nullable(),
+  repeated: z.boolean(),
+});
+const SendChatMessageOutputSchema = SentOutputSchema;
+const SendEmailOutputSchema = SentOutputSchema;
+const ACCEPTED_NOTE = "the provider accepted it, delivery to the recipient is not confirmed";
+const REPEATED_NOTE = "This draft revision was already sent; nothing was sent again";
 const SaveDraftOutputSchema = z.object({ draftMessageId: z.string(), draftRevision: z.string(), threadId: z.string() });
 const DiscardDraftOutputSchema = z.object({ discarded: z.boolean(), threadId: z.string().nullable() });
 const UpdateMessagingThreadOutputSchema = z.object({ threadId: z.string(), state: z.string() });
@@ -507,7 +515,8 @@ export const sendChatMessageTool = {
     "(requires inmailSubject; recruiter also inmailSignature), or set inmail true on classic to InMail someone outside the network. " +
     "Only use a linkedinProduct listed in the account's linkedinProducts from get_workspace_context; an unavailable product is rejected. " +
     "An identical text sent into the same thread within about a minute is rejected as a duplicate. " +
-    "When sending a saved draft, pass both draftMessageId and its opaque draftRevision from save_message_draft or get_messaging_threads. " +
+    "When sending a saved draft, pass both draftMessageId and its opaque draftRevision from save_message_draft or get_messaging_threads; threadId may be the draft's own conversation. " +
+    "Each draft revision is sent at most once: repeating the call returns the first result with repeated true. A refused draft (changed, still sending, outcome unknown, or another version already sent) was not sent by that call; never retry an unknown outcome blindly. " +
     "For email use send_email.",
   annotations: {
     readOnlyHint: false,
@@ -522,9 +531,11 @@ export const sendChatMessageTool = {
     if (threadId) {
       return runInteractor(
         getSendChatMessageInteractor().invoke({ ...params, threadId }),
-        () =>
-          `Message sent in thread ${threadId}; the provider accepted it, delivery to the recipient is not confirmed`,
-        () => ({ sent: true, threadId }),
+        (data) =>
+          data.repeated
+            ? `${REPEATED_NOTE}${data.threadId ? `; thread ${data.threadId}` : ""}`
+            : `Message sent in thread ${data.threadId ?? threadId}; ${ACCEPTED_NOTE}`,
+        (data) => ({ sent: true, threadId: data.threadId, messageId: data.messageId, repeated: data.repeated }),
       );
     }
     const startChat = StartChatInputSchema.safeParse(params);
@@ -532,8 +543,10 @@ export const sendChatMessageTool = {
     return runInteractor(
       getStartChatInteractor().invoke(startChat.data),
       (data) =>
-        `${data.threadId ? `Chat started, thread ${data.threadId}` : "Chat started"}; the provider accepted the message, delivery is not confirmed`,
-      (data) => ({ sent: true, threadId: data.threadId ?? null }),
+        data.repeated
+          ? `${REPEATED_NOTE}${data.threadId ? `; thread ${data.threadId}` : ""}`
+          : `${data.threadId ? `Chat started, thread ${data.threadId}` : "Chat started"}; ${ACCEPTED_NOTE}`,
+      (data) => ({ sent: true, threadId: data.threadId, messageId: data.messageId, repeated: data.repeated }),
     );
   },
 };
@@ -543,9 +556,10 @@ export const sendEmailTool = {
   title: "Send email",
   description:
     "SIDE EFFECT: sends a real email that cannot be recalled. Show recipients and exact text; get approval first, otherwise use save_message_draft. " +
-    "Requires to, subject, body and threadId (reply, takes precedence) or connectedAccountId (new email). " +
+    "Requires to, subject, body and threadId (reply, takes precedence; a draft-only conversation sends its draft) or connectedAccountId (new email). " +
     "to uses {identifier} objects; cc/bcc use email strings. At least one recipient across these groups; to: [] allows Cc-only or Bcc-only email. Never promote Bcc into To/Cc. " +
-    "Saved drafts require draftMessageId and draftRevision from save_message_draft or get_messaging_threads. " +
+    "Saved drafts require draftMessageId and draftRevision from save_message_draft or get_messaging_threads; each revision is sent at most once and repeating the call returns the first result with repeated true. " +
+    "A refused draft (changed, recipients differ, still sending, outcome unknown, or another version already sent) was not sent by that call; after an unknown outcome check the conversation and Sent folder, never resend blindly. " +
     "The enabled account signature and appearance apply automatically; never add a sign-off/signature to body. Duplicate reply bodies within a minute are rejected. " +
     "Use connectedAccountId from get_workspace_context.connectedAccounts[].id (status ok); threadId from get_messaging_threads.items[].id.",
   annotations: {
@@ -561,12 +575,12 @@ export const sendEmailTool = {
       getSendEmailInteractor().invoke(params),
       (data) => {
         const accepted = "the provider accepted it for sending; delivery to recipients is not confirmed";
-        if (params.threadId) return `Reply sent in thread ${params.threadId}; ${accepted}`;
-        return data?.messagingThreadId
-          ? `Email sent, thread ${data.messagingThreadId}; ${accepted}`
+        if (data.repeated) return `${REPEATED_NOTE}${data.threadId ? `; thread ${data.threadId}` : ""}`;
+        return data.threadId
+          ? `Email sent, thread ${data.threadId}; ${accepted}`
           : `Email sent; ${accepted}. It appears in the inbox once the provider syncs the Sent copy`;
       },
-      (data) => ({ sent: true, threadId: params.threadId ?? data?.messagingThreadId ?? null }),
+      (data) => ({ sent: true, threadId: data.threadId, messageId: data.messageId, repeated: data.repeated }),
     ),
 };
 
@@ -574,14 +588,14 @@ export const saveMessageDraftTool = {
   name: "save_message_draft",
   title: "Save message draft",
   description:
-    "Prepare a message for inbox review without sending. Use threadId for a reply, or connectedAccountId plus recipients for a new local draft thread. " +
+    "Prepare a message for inbox review without sending. Use threadId for a reply or to update a saved draft conversation; connectedAccountId plus recipients always creates a new draft conversation, even for recipients that already have one. " +
     "recipients are email addresses or one chat handle. Email-only subject/cc/bcc are supported; recipients: [] allows Cc-only or Bcc-only email with at least one cc/bcc address. Explicit recipients also sets reply To. " +
-    "Saving replaces the thread's one draft. The enabled signature is appended at send time; never add a sign-off/signature to body. " +
+    "Saving on a threadId replaces that thread's one draft. The enabled signature is appended at send time; never add a sign-off/signature to body. " +
     "Use get_messaging_threads with the draft filter to find drafts. Returns draftMessageId, draftRevision and threadId for later send/discard. " +
     "Never use send_email/send_chat_message when asked to draft; they send immediately.",
   annotations: {
     readOnlyHint: false,
-    idempotentHint: true,
+    idempotentHint: false,
     destructiveHint: false,
     openWorldHint: false,
   },

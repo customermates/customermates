@@ -114,7 +114,13 @@ describe("SendEmailInteractor new-thread adoption", () => {
     const result: any = await makeInteractor(repo, service).invoke(input);
 
     expect(result.ok).toBe(true);
-    expect(result.data.messagingThreadId).toBe(PERSISTED_THREAD_ID);
+    expect(result.data.message.messagingThreadId).toBe(PERSISTED_THREAD_ID);
+    expect(result.data).toMatchObject({
+      threadId: PERSISTED_THREAD_ID,
+      messageId: persistedRow.id,
+      providerMessageId: "m-1",
+      repeated: false,
+    });
     expect(service.getEmail).toHaveBeenCalledWith({ accountId: "acc-1", emailId: "u-1", timeoutMs: 5000 });
     const call = repo.persistOutboundMessageOrThrow.mock.calls[0][0];
     expect(call.connectedAccountId).toBe(ACCOUNT_ID);
@@ -172,7 +178,7 @@ describe("SendEmailInteractor new-thread adoption", () => {
     expect(service.sendEmail).not.toHaveBeenCalled();
   });
 
-  it("tells the caller the send is unconfirmed when the provider accepted it but recording it failed", async () => {
+  it("reports an accepted reply as sent with its thread when recording the sent copy failed", async () => {
     const service = {
       sendEmail: vi.fn().mockResolvedValue({ ok: true, data: { id: "u-1", messageId: "m-1" } }),
       getEmail: vi.fn(),
@@ -192,11 +198,19 @@ describe("SendEmailInteractor new-thread adoption", () => {
     const result: any = await makeInteractor(repo, service).invoke({ ...input, threadId: PERSISTED_THREAD_ID });
 
     expect(service.sendEmail).toHaveBeenCalledOnce();
-    expect(result.ok).toBe(false);
-    expect(JSON.stringify(result.error.issues)).toContain("unipileSendUnconfirmed");
+    expect(result).toEqual({
+      ok: true,
+      data: {
+        message: null,
+        messageId: null,
+        threadId: PERSISTED_THREAD_ID,
+        providerMessageId: "m-1",
+        repeated: false,
+      },
+    });
   });
 
-  it("returns null without a retry when fetching the sent email fails", async () => {
+  it("reports the accepted send without a reference and without a retry when fetching the sent email fails", async () => {
     const service = {
       sendEmail: vi.fn().mockResolvedValue({ ok: true, data: { id: "u-1", messageId: "m-1" } }),
       getEmail: vi.fn().mockRejectedValue(new Error("fetch failed")),
@@ -205,12 +219,15 @@ describe("SendEmailInteractor new-thread adoption", () => {
 
     const result: any = await makeInteractor(repo, service).invoke(input);
 
-    expect(result).toEqual({ ok: true, data: null });
+    expect(result).toEqual({
+      ok: true,
+      data: { message: null, messageId: null, threadId: null, providerMessageId: "m-1", repeated: false },
+    });
     expect(service.getEmail).toHaveBeenCalledTimes(1);
     expect(repo.persistOutboundMessageOrThrow).not.toHaveBeenCalled();
   });
 
-  it("returns null when the sent email does not parse", async () => {
+  it("reports the accepted send without a reference when the sent email does not parse", async () => {
     const service = {
       sendEmail: vi.fn().mockResolvedValue({ ok: true, data: { id: "u-1", messageId: "m-1" } }),
       getEmail: vi.fn().mockResolvedValue({ object: "Email" }),
@@ -219,7 +236,10 @@ describe("SendEmailInteractor new-thread adoption", () => {
 
     const result: any = await makeInteractor(repo, service).invoke(input);
 
-    expect(result).toEqual({ ok: true, data: null });
+    expect(result).toEqual({
+      ok: true,
+      data: { message: null, messageId: null, threadId: null, providerMessageId: "m-1", repeated: false },
+    });
     expect(service.getEmail).toHaveBeenCalledTimes(1);
     expect(repo.persistOutboundMessageOrThrow).not.toHaveBeenCalled();
   });

@@ -1429,6 +1429,7 @@ export const getSendChatMessageInteractor = () =>
     getMessagingService(),
     getThreadIdsValidator(),
     getEntitlementService(),
+    getStartChatInteractor(),
   );
 
 export const getSendEmailInteractor = () =>

@@ -1,9 +1,10 @@
 import type { IngestMessage, MessagingMessage } from "../messaging.schema";
 import type { DraftThreadTarget } from "../draft-thread";
 
-export abstract class StartChatThreadRepo {
+import { DraftSendRepo } from "./draft-send.repo";
+
+export abstract class StartChatThreadRepo extends DraftSendRepo {
   abstract findDraftById(args: { messageId: string }): Promise<DraftThreadTarget | null>;
-  abstract discardDraftAfterSend(args: { messageId: string; expectedUpdatedAt: Date }): Promise<void>;
   abstract persistOutboundMessageOrThrow(args: {
     connectedAccountId: string;
     message: IngestMessage;

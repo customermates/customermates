@@ -6,9 +6,13 @@ import type {
   AttachmentMeta,
 } from "../messaging.schema";
 import type { DraftThreadTarget } from "../draft-thread";
+import type { DraftSendClaim } from "../draft-send";
 
-export abstract class SendChatMessageRepo {
+import { DraftSendRepo } from "./draft-send.repo";
+
+export abstract class SendChatMessageRepo extends DraftSendRepo {
   abstract findThreadByIdOrThrow(threadId: string): Promise<MessagingThread>;
+  abstract findThreadById(threadId: string): Promise<MessagingThread | null>;
   abstract findSelfAttendeeForThread(threadId: string): Promise<MessagingAttendee | null>;
   abstract findDraftById(args: { messageId: string }): Promise<DraftThreadTarget | null>;
   abstract restoreDraftSummaryIfPresent(args: { messageId: string }): Promise<void>;
@@ -21,9 +25,9 @@ export abstract class SendChatMessageRepo {
     connectedAccountId: string;
     message: IngestMessage;
   }): Promise<MessagingMessage>;
-  abstract convertDraftToSent(args: {
+  abstract completeReplyDraftSend(args: {
+    claim: DraftSendClaim;
     messageId: string;
-    expectedUpdatedAt: Date;
     unipileMessageId: string;
     providerMessageId: string | null;
     sender: MessagingAttendee;
