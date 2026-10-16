@@ -18,7 +18,7 @@ const LEGAL_COPY_MESSAGES = [
   ["SignInForm", "agreeToTerms"],
 ] as const;
 
-const REMOVED_SUBJECTS = ["newsletter", "zoom", "supabase"];
+const REMOVED_SUBJECTS = ["newsletter", "zoom", "supabase", "komoot"];
 
 const EXTERNAL_IMAGE_HOSTS = [
   "flagcdn.com",
