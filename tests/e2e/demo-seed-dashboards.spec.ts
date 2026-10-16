@@ -38,11 +38,11 @@ for (const dashboard of DEMO_DASHBOARDS) {
       dashboard.id ? `/en/dashboard?view=${dashboard.id}` : "/en/dashboard",
     );
     const rail = page.locator("[data-joins-top-bar]");
-    await expect(
-      rail.getByText(dashboard.id ? dashboard.name : "Main", { exact: true }),
-    ).toBeVisible();
     for (const other of DEMO_DASHBOARDS.filter(({ id }) => id))
       await expect(rail.getByText(other.name, { exact: true })).toBeVisible();
+    const active = rail.locator('[data-focus-target^="view:"][aria-current="page"]');
+    if (dashboard.id) await expect(active).toHaveText(dashboard.name);
+    else await expect(active).toHaveCount(0);
 
     for (const widget of widgets) {
       const card = page.locator(`[data-focus-target="widget:${widget.id}"]`);

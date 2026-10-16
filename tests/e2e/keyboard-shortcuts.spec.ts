@@ -89,10 +89,20 @@ test("global shortcuts, G navigation, the shortcuts dialog and the single-key pr
   await expect(page.locator("#filter-palette-search")).toHaveCount(0);
 
   await page.keyboard.press("v");
+  await expect(viewPicker(page)).toHaveCount(0);
+  await page.locator("#global-data-views-new").click();
+  await page.locator("#view-editor-name").fill("Shortcut view");
+  await page.locator('button[form="view-editor-form"]').click();
+  await expect(page.locator("#view-editor-name")).toHaveCount(0);
+  const shortcutView = page.locator("#global-data-views").getByRole("link", { name: "Shortcut view", exact: true });
+  await expect(shortcutView).toHaveAttribute("aria-current", "page");
+
+  await page.keyboard.press("v");
   await expect(viewPicker(page)).toBeVisible();
-  await page.keyboard.type("All");
+  await page.keyboard.type("Shortcut");
   await page.keyboard.press("Enter");
   await expect(viewPicker(page)).toHaveCount(0);
+  await expect(shortcutView).not.toHaveAttribute("aria-current", "page");
   await expect.poll(() => new URL(page.url()).pathname).toBe(new URL(firstList).pathname);
 
   await page.keyboard.press(`${mod.key}+k`);
