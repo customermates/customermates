@@ -10,6 +10,7 @@ import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
 const requestContext = vi.hoisted(() => ({ headers: new Headers() }));
 const seats = vi.hoisted(() => ({ updates: [] as Array<[string, number]> }));
+const mails = vi.hoisted(() => ({ sent: [] as Array<{ to: string; subject: string }> }));
 
 vi.mock("next/headers", () => ({
   headers: () => Promise.resolve(requestContext.headers),
@@ -22,6 +23,16 @@ vi.mock("next-intl/server", () => ({
     const translate = (key: string) => key;
     return Promise.resolve(Object.assign(translate, { raw: translate }));
   },
+}));
+vi.mock("@/features/email/email.service", () => ({
+  EmailService: vi.fn(function () {
+    return {
+      send: (args: { to: string; subject: string }) => {
+        mails.sent.push({ to: args.to, subject: args.subject });
+        return Promise.resolve(true);
+      },
+    };
+  }),
 }));
 vi.mock("@/ee/subscription/subscription.service", () => ({
   SubscriptionService: class {
@@ -217,6 +228,7 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
         [userId, email, companyId, roleId, status],
       );
     }
+    await client.query('UPDATE "User" SET "displayLanguage" = \'de\' WHERE id = $1', [people.ben.teamMemberId]);
     for (const person of Object.keys(people) as Person[]) {
       await client.query(
         'INSERT INTO "AuthUser" ("id", "name", "email", "emailVerified", "companyId", "updatedAt") VALUES ($1, $2, $3, TRUE, $4, CURRENT_TIMESTAMP)',
@@ -322,6 +334,7 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
     expect(remainingTokens.rows).toEqual([{ companyId: companies.bensOwn }]);
     expect(await lastUsed("ben")).toBe(companies.bensOwn);
     expect(seats.updates).toEqual([[lemonSqueezyId, 2]]);
+    expect(mails.sent).toEqual([{ to: people.ben.email, subject: "Du wurdest aus „Hoffmann Consulting“ entfernt" }]);
   });
 
   it("refuses the removed login's open pages and opens its own workspace on the next page load", async () => {
@@ -360,6 +373,7 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
     expect(await approvalTasks("cleo")).toBe(0);
     expect(await lastUsed("cleo")).toBe(companies.cleosOwn);
     expect(seats.updates).toHaveLength(1);
+    expect(mails.sent).toHaveLength(1);
   });
 
   it("refuses a platform operator, then removes an inactive member over REST", async () => {
@@ -379,6 +393,9 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
     });
     expect(await teamMembership("dana")).toMatchObject({ status: "inactive", left: true });
     expect(seats.updates).toHaveLength(1);
+    expect(mails.sent.slice(1)).toEqual([
+      { to: people.dana.email, subject: "You were removed from “Hoffmann Consulting”" },
+    ]);
   });
 
   it("never removes the actor, the last active admin or a member who already left", async () => {
@@ -401,6 +418,7 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
       [people.ada.teamMemberId],
     );
     expect(admin.rows).toEqual([{ status: "active", left: false }]);
+    expect(mails.sent).toHaveLength(2);
   });
 
   it("revives the removed member as pending with a new invitation, and removing again declines it", async () => {
@@ -421,6 +439,7 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
     expect(await teamMembership("ben")).toMatchObject({ status: "inactive", left: true });
     expect(await approvalTasks("ben")).toBe(0);
     expect(await lastUsed("ben")).toBe(companies.bensOwn);
+    expect(mails.sent).toHaveLength(2);
   });
 
   it("removes the approval task when the person withdraws the request", async () => {
@@ -441,5 +460,6 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
     expect(await teamMembership("cleo")).toMatchObject({ status: "inactive", left: true });
     expect(await approvalTasks("cleo")).toBe(0);
     expect(await lastUsed("cleo")).toBe(companies.cleosOwn);
+    expect(mails.sent).toHaveLength(2);
   });
 });
