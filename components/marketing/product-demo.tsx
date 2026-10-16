@@ -1,15 +1,22 @@
 import { useLocale } from "next-intl";
 
 import { BrowserFrame } from "./browser-frame";
-import { localProductDemoSrc } from "./product-demo-src";
+import { PUBLIC_DEMO_ORIGIN, localProductDemoSrc } from "./product-demo-src";
 import { cn } from "@/core/utils/cn";
 import { type ContentLocale, contentLocaleOrDefault } from "@/i18n/locale-registry";
 
+export const DEMO_RECORD_TYPE_IDS = {
+  deals: "3ba14418-0840-8ae7-8c7e-52a2a79a481d",
+  contacts: "be3cd172-da59-82bd-8ad7-23ef34431a27",
+  organizations: "9d9707c5-d1a2-8048-803b-a501301e2bc3",
+  tasks: "7fee95c9-d304-8b5e-8c96-4c0e1019f331",
+} as const;
+
 export const DEMO_RECORD_LIST_PATHS = {
-  deals: "/records/3ba14418-0840-8ae7-8c7e-52a2a79a481d",
-  contacts: "/records/be3cd172-da59-82bd-8ad7-23ef34431a27",
-  organizations: "/records/9d9707c5-d1a2-8048-803b-a501301e2bc3",
-  tasks: "/records/7fee95c9-d304-8b5e-8c96-4c0e1019f331",
+  deals: `/records/${DEMO_RECORD_TYPE_IDS.deals}`,
+  contacts: `/records/${DEMO_RECORD_TYPE_IDS.contacts}`,
+  organizations: `/records/${DEMO_RECORD_TYPE_IDS.organizations}`,
+  tasks: `/records/${DEMO_RECORD_TYPE_IDS.tasks}`,
 } as const;
 
 export const PRODUCT_DEMO_PATHS = [
@@ -174,7 +181,9 @@ function isProductDemoPath(path: string): path is ProductDemoPath {
 export function buildProductDemoUrl(locale: ContentLocale, path: string): string {
   if (!isProductDemoPath(path)) throw new Error(`Unsupported product demo path: ${path}`);
 
-  return `https://demo.customermates.com/${locale}${path}?agentChat=closed`;
+  const query = path === "/inbox" ? "threadId=latest&agentChat=closed" : "agentChat=closed";
+
+  return `${PUBLIC_DEMO_ORIGIN}/${locale}${path}?${query}`;
 }
 
 type Props = {
@@ -225,7 +234,6 @@ export function ProductDemo({ hostedBoundary = false, path, presentation = "arti
 
       <BrowserFrame
         fallbackMessage={copy.fallback}
-        size={presentation === "standalone" ? "full" : "article"}
         src={localProductDemoSrc(buildProductDemoUrl(locale, path))}
         title={copy.titles[path]}
       />

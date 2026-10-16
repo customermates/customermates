@@ -1,33 +1,47 @@
 import type { ContentLocale } from "@/i18n/locale-registry";
-import type { HomepageVisualLabels } from "@/core/fumadocs/schemas/homepage";
 
 import { MarketingSection } from "@/components/marketing/marketing-section";
 import { Step, Steps } from "@/components/marketing/process-steps";
 
-import { HomepageHandoffVisual } from "./homepage-story-visuals";
+import { HomepageCaptureImage } from "./homepage-capture-image";
+import { HomepageMcpSnippet } from "./homepage-mcp-snippet";
+import { ProductPanel, ProductWindow } from "@/components/marketing/product-window";
+import { HomepageStageLink } from "./homepage-stage-link";
 
 type StepItem = { description: string; n: string; title: string };
 
 type Props = {
   eyebrow: string;
   handoff: {
+    alt: string;
     description: string;
     eyebrow: string;
     title: string;
   };
+  liveLabel: string;
   locale: ContentLocale;
   steps: StepItem[];
   title: string;
-  visualLabels: HomepageVisualLabels;
 };
 
-export function HomepageHowItWorks({ eyebrow, handoff, locale, steps, title, visualLabels }: Props) {
+export function HomepageHowItWorks({ eyebrow, handoff, liveLabel, locale, steps, title }: Props) {
   return (
     <>
       <MarketingSection id="human-handoff">
         <div className="marketing-grid items-center gap-y-10">
           <div className="col-span-12 lg:col-span-7 lg:row-start-1">
-            <HomepageHandoffVisual labels={visualLabels} locale={locale} />
+            <ProductPanel className="p-5 sm:p-10 lg:p-12">
+              <ProductWindow>
+                <HomepageStageLink area="inbox" label={liveLabel}>
+                  <HomepageCaptureImage
+                    alt={handoff.alt}
+                    locale={locale}
+                    name="homepage-draft"
+                    sizes="(min-width: 1024px) 50vw, 92vw"
+                  />
+                </HomepageStageLink>
+              </ProductWindow>
+            </ProductPanel>
           </div>
 
           <div className="col-span-12 lg:col-start-9 lg:col-end-13 lg:row-start-1">
@@ -40,16 +54,18 @@ export function HomepageHowItWorks({ eyebrow, handoff, locale, steps, title, vis
         </div>
       </MarketingSection>
 
-      <MarketingSection id="how-it-works" tone="canvas">
+      <MarketingSection id="connect-ai" tone="canvas">
         <div className="marketing-grid gap-y-10">
           <div className="col-span-12 lg:col-span-4">
             <p className="text-eyebrow">{eyebrow}</p>
 
             <h2 className="text-display-sm mt-5">{title}</h2>
+
+            <HomepageMcpSnippet className="mt-10 max-w-md" />
           </div>
 
           <div className="col-span-12 lg:col-start-7 lg:col-end-13">
-            <Steps className="my-0">
+            <Steps data-step-progress className="my-0">
               {steps.map((step) => (
                 <Step key={step.n} title={step.title}>
                   <p>{step.description}</p>

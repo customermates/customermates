@@ -4,7 +4,7 @@ import { NotFoundPageView } from "@/components/shared/not-found-page-view";
 export default function LocaleNotFoundPage() {
   return (
     <MarketingShell>
-      <NotFoundPageView />
+      <NotFoundPageView variant="marketing" />
     </MarketingShell>
   );
 }

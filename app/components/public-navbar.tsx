@@ -1,20 +1,21 @@
 "use client";
 
-import type { AccountState } from "@/features/auth/account-state";
+import type { AccountState, MarketingAccountProfile } from "@/features/auth/account-state";
 
-import { ChevronDown, CircleDollarSign, Menu, X } from "lucide-react";
+import { ChevronDown, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { IntlLink, usePathname } from "@/i18n/navigation";
 import { AppLink } from "@/components/shared/app-link";
 import { AppImage } from "@/components/shared/app-image";
+import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/shared/icon";
 import { LocaleMenu } from "@/components/shared/locale-menu";
 import {
   Sheet,
-  SheetBody,
+  SheetClose,
   SheetContent,
   SheetDescription,
   SheetHeader,
@@ -24,13 +25,9 @@ import {
 import { ThemeSwitcher } from "@/components/shared/theme-switcher";
 import { cn } from "@/core/utils/cn";
 import { resolvePublicNavbarActions, resolvePublicNavGroups } from "./navigation/public-navbar-model";
+import { PublicNavbarAccountMenu } from "./navigation/public-navbar-account-menu";
 import { PublicNavbarSignOutButton } from "./navigation/public-navbar-sign-out-button";
-import {
-  isPrimaryPublicNavLink,
-  PublicNavLinkIcon,
-  PublicNavLinkMark,
-  PublicNavbarMenu,
-} from "./navigation/public-navbar-menu";
+import { isPrimaryPublicNavLink, PublicNavbarMenu } from "./navigation/public-navbar-menu";
 import { MarketingContainer } from "@/components/marketing/marketing-container";
 
 type Props = {
@@ -38,15 +35,21 @@ type Props = {
   hasValidSession: boolean;
   onboardingIntent?: string;
   onSignedOut?: () => void;
+  profile?: MarketingAccountProfile | null;
 };
 
 const mobileOverviewRowClassName =
-  "flex min-h-14 w-full items-center justify-between gap-4 rounded-md py-4 text-left text-base font-medium text-sidebar-foreground no-underline transition-all outline-none hover:no-underline focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50";
+  "flex min-h-14 w-full items-center justify-between gap-4 py-4 text-left text-lg font-medium text-foreground no-underline outline-none hover:no-underline focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50";
 
-export function PublicNavbar({ accountState, hasValidSession, onboardingIntent, onSignedOut }: Props) {
+export function PublicNavbar({ accountState, hasValidSession, onboardingIntent, onSignedOut, profile }: Props) {
   const t = useTranslations();
   const pathname = usePathname();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [menuOpenedAt, setMenuOpenedAt] = useState<string | null>(null);
+  const isMenuOpen = menuOpenedAt === pathname;
+
+  function setIsMenuOpen(open: boolean) {
+    setMenuOpenedAt(open ? pathname : null);
+  }
 
   function closeMenu() {
     setIsMenuOpen(false);
@@ -134,6 +137,38 @@ export function PublicNavbar({ accountState, hasValidSession, onboardingIntent, 
     );
   }
 
+  function renderAccountMenu() {
+    if (!hasValidSession || !profile) return null;
+
+    return (
+      <PublicNavbarAccountMenu
+        cta={cta && ctaLabel && pathname !== cta.href ? { href: cta.href, label: ctaLabel } : null}
+        onboardingIntent={onboardingIntent}
+        profile={profile}
+        showContact={actions.showContact}
+        onSignedOut={onSignedOut}
+      />
+    );
+  }
+
+  function renderMobileProfile() {
+    if (!hasValidSession || !profile) return null;
+
+    return (
+      <div className="flex items-center gap-2.5">
+        <Avatar className="rounded-lg" name={profile.name || profile.email} size="lg" src={profile.avatarUrl} />
+
+        <span className="grid min-w-0 text-sm leading-tight">
+          {profile.name ? <span className="truncate font-medium">{profile.name}</span> : null}
+
+          <span className="truncate text-xs text-muted-foreground">{profile.email}</span>
+        </span>
+      </div>
+    );
+  }
+
+  const showAccountMenu = hasValidSession && Boolean(profile);
+
   function renderPreferenceButtons() {
     return (
       <div className="flex items-center gap-2">
@@ -160,11 +195,24 @@ export function PublicNavbar({ accountState, hasValidSession, onboardingIntent, 
         <div className="hidden items-center gap-2 justify-self-end xl:flex">
           {renderPreferenceButtons()}
 
-          {renderContactButton()}
+          {showAccountMenu ? (
+            renderAccountMenu()
+          ) : (
+            <>
+              <span
+                aria-hidden
+                className="hidden size-8 animate-pulse rounded-lg bg-muted [[data-session-hint]_&]:block"
+              />
 
-          {renderCtaButton(undefined, true)}
+              <div className="flex items-center gap-2 [[data-session-hint]_&]:hidden">
+                {renderContactButton()}
 
-          {renderSignOutButton()}
+                {renderCtaButton(undefined, true)}
+
+                {renderSignOutButton()}
+              </div>
+            </>
+          )}
         </div>
 
         <div className="col-span-3 flex w-full items-center justify-between xl:hidden">
@@ -177,15 +225,35 @@ export function PublicNavbar({ accountState, hasValidSession, onboardingIntent, 
               </Button>
             </SheetTrigger>
 
-            <SheetContent className="w-80 max-w-[85vw] gap-0 bg-sidebar text-sidebar-foreground" side="right">
-              <SheetHeader>
-                <SheetTitle className="sr-only">{logoAlt}</SheetTitle>
+            <SheetContent
+              className="inset-0 h-dvh max-h-none gap-0 border-0 bg-background text-foreground shadow-none data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+              showCloseButton={false}
+              side="top"
+            >
+              <SheetHeader className="sr-only">
+                <SheetTitle>{logoAlt}</SheetTitle>
 
-                <SheetDescription className="sr-only">{t("Common.sidebar.description")}</SheetDescription>
+                <SheetDescription>{t("Common.sidebar.description")}</SheetDescription>
               </SheetHeader>
 
-              <SheetBody className="flex flex-col gap-3 pb-6">
-                <div className="w-full">
+              <div className="shrink-0 border-b border-border pt-(--safe-top)">
+                <MarketingContainer className="flex h-16 items-center justify-between">
+                  {renderHomeButton()}
+
+                  <SheetClose asChild>
+                    <Button aria-label={t("Common.actions.close")} size="icon" variant="ghost">
+                      <Icon aria-hidden icon={X} />
+                    </Button>
+                  </SheetClose>
+                </MarketingContainer>
+              </div>
+
+              <nav
+                data-public-nav-mobile
+                aria-label={t("NavigationBar.public.primaryNavigation")}
+                className="min-h-0 flex-1 overflow-y-auto overscroll-contain"
+              >
+                <MarketingContainer className="divide-y divide-border">
                   {publicNavGroups.map((group) => (
                     <details key={group.id} className="group" name="public-nav-mobile">
                       <summary
@@ -194,73 +262,67 @@ export function PublicNavbar({ accountState, hasValidSession, onboardingIntent, 
                           "cursor-pointer list-none [&::-webkit-details-marker]:hidden",
                         )}
                       >
-                        <span className="flex items-center gap-2.5">
-                          <Icon aria-hidden icon={group.icon} size="md" />
-
-                          {group.title}
-                        </span>
+                        {group.title}
 
                         <ChevronDown
                           aria-hidden
-                          className="pointer-events-none size-4 shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none"
+                          className="pointer-events-none size-5 shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none"
                         />
                       </summary>
 
-                      <div className="pb-2">
-                        <div className="flex flex-col gap-1 pt-1">
-                          {group.links.map((link) => {
-                            const linkActive =
-                              isNavItemActive(link.href) && isPrimaryPublicNavLink(publicNavGroups, link);
+                      <ul className="flex flex-col pb-4">
+                        {group.links.map((link) => {
+                          const linkActive =
+                            isNavItemActive(link.href) && isPrimaryPublicNavLink(publicNavGroups, link);
 
-                            return (
+                          return (
+                            <li key={`${link.href}-${link.title}`}>
                               <AppLink
-                                key={`${link.href}-${link.title}`}
+                                appearance="unstyled"
                                 aria-current={linkActive ? "page" : undefined}
                                 className={cn(
-                                  "flex min-h-10 items-center gap-2.5 rounded-md p-2 text-sm",
-                                  !linkActive && "text-subdued",
+                                  "flex min-h-11 items-center text-base transition-colors duration-200 hover:text-foreground motion-reduce:transition-none",
+                                  linkActive ? "font-semibold text-foreground" : "text-subdued",
                                 )}
                                 href={link.href}
                                 onNavigate={closeMenu}
                               >
-                                {link.mark ? (
-                                  <PublicNavLinkMark mark={link.mark} />
-                                ) : (
-                                  <PublicNavLinkIcon icon={link.icon} />
-                                )}
-
                                 {link.title}
                               </AppLink>
-                            );
-                          })}
-                        </div>
-                      </div>
+                            </li>
+                          );
+                        })}
+                      </ul>
                     </details>
                   ))}
 
                   <AppLink
                     appearance="unstyled"
                     aria-current={isNavItemActive("/pricing") ? "page" : undefined}
-                    className={cn(mobileOverviewRowClassName, isNavItemActive("/pricing") && "bg-accent")}
+                    className={cn(mobileOverviewRowClassName, isNavItemActive("/pricing") && "font-semibold")}
                     href="/pricing"
                     onNavigate={closeMenu}
                   >
-                    <span className="flex items-center gap-2.5">
-                      <Icon aria-hidden icon={CircleDollarSign} size="md" />
-
-                      {t("NavigationBar.pricing")}
-                    </span>
+                    {t("NavigationBar.pricing")}
                   </AppLink>
-                </div>
+                </MarketingContainer>
+              </nav>
 
-                <div className="my-1 py-3">{renderPreferenceButtons()}</div>
+              <div className="shrink-0 border-t border-border pb-(--safe-bottom)">
+                <MarketingContainer className="flex flex-col gap-3 py-4">
+                  {renderPreferenceButtons()}
 
-                {renderContactButton("w-full")}
+                  {renderMobileProfile()}
 
-                {renderCtaButton("w-full")}
+                  <div className="flex gap-2 empty:hidden">
+                    {renderContactButton("flex-1")}
 
-                {renderSignOutButton("w-full")}
-              </SheetBody>
+                    {renderCtaButton("flex-1", true)}
+                  </div>
+
+                  {renderSignOutButton("w-full")}
+                </MarketingContainer>
+              </div>
             </SheetContent>
           </Sheet>
         </div>

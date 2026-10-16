@@ -6,18 +6,18 @@ import {
   Bot,
   Boxes,
   BriefcaseBusiness,
-  Building2,
   Cable,
   CheckCircle2,
   GitCompareArrows,
   Github,
-  HeartPulse,
+  Laptop,
   Inbox,
   LayoutGrid,
   Megaphone,
   Plug,
   Presentation,
   Rocket,
+  Scale,
   Server,
   Store,
   TrendingUp,
@@ -86,7 +86,7 @@ describe("public navigation preferences", () => {
     expect(navbar).toContain(
       'className="col-span-3 flex w-full items-center justify-between xl:hidden"',
     );
-    expect(navbar).toContain('className="my-1 py-3"');
+    expect(navbar).toContain('<MarketingContainer className="flex flex-col gap-3 py-4">');
     expect(navbar).not.toContain("border-y");
     expect(navbar).not.toContain("github.com/customermates/customermates");
 
@@ -179,7 +179,7 @@ describe("public navigation preferences", () => {
       ["/features/unified-inbox", Inbox],
       ["/features/contact-management", Users],
       ["/features/pipeline", TrendingUp],
-      ["/features/sales-tracking", TrendingUp],
+      ["/features/sales", TrendingUp],
       ["/features/task-management", CheckCircle2],
       ["/features/cloud-crm", LayoutGrid],
       ["/features/self-hosted", Server],
@@ -191,8 +191,8 @@ describe("public navigation preferences", () => {
       ["/for/agencies", Megaphone],
       ["/for/consultants", Presentation],
       ["/for/recruiting", UserRoundSearch],
-      ["/for/healthcare", HeartPulse],
-      ["/for/property-management", Building2],
+      ["/for/freelancers", Laptop],
+      ["/for/law-firms", Scale],
       ["/for/startups", Rocket],
       ["/for/smb", Store],
       ["/for", UsersRound],
@@ -229,7 +229,7 @@ describe("public navigation preferences", () => {
   it("shares the marketing map between the desktop menu and the mobile sheet", () => {
     const navbar = read(HEADER_SHELLS.navbar);
     const menu = read("app/components/navigation/public-navbar-menu.tsx");
-    const mobile = navbar.slice(navbar.indexOf("<SheetBody"), navbar.indexOf("</SheetBody>"));
+    const mobile = navbar.slice(navbar.indexOf("<SheetContent"), navbar.indexOf("</SheetContent>"));
 
     expect(navbar.match(/publicNavGroups\.map/gu)).toHaveLength(1);
     // A native disclosure ships its links in the server HTML whether or not it is open, and
@@ -281,11 +281,11 @@ describe("public navigation preferences", () => {
     expect(menu).toContain('data-public-nav-icon="true"');
     expect(menu).toContain('<span className="min-w-0 truncate">{link.title}</span>');
     expect(menu).not.toContain("group.featured");
-    expect(menu).toContain(
-      '"overflow-hidden rounded-lg border border-border bg-popover shadow-md"',
-    );
-    expect(menu).toContain('"grid gap-px bg-border"');
-    expect(menu).toContain('"flex h-full min-h-11 items-center gap-2.5 bg-popover');
+    expect(menu).toContain('"floating-panel overflow-hidden rounded-2xl p-1.5"');
+    expect(menu).toContain('"grid gap-0.5"');
+    expect(menu).toContain('"flex h-full min-h-11 items-center gap-2.5 rounded-xl');
+    expect(menu).toContain('linkActive && "bg-foreground/[0.07]"');
+    expect(menu).not.toContain("mark-glow");
     expect(menu).toContain('href="/docs"');
 
     expect(mobile.match(/mobileOverviewRowClassName/gu)).toHaveLength(2);
@@ -300,9 +300,13 @@ describe("public navigation preferences", () => {
       expect(mobile.slice(linkStart, hrefIndex)).toContain("mobileOverviewRowClassName");
       expect(mobile.slice(linkStart, hrefIndex)).not.toContain("border-t border-border");
     }
-    expect(mobile).toContain("icon={CircleDollarSign}");
+    expect(mobile, "the mobile menu is text only, like the reference sites").not.toMatch(
+      /CircleDollarSign|PublicNavLinkIcon|PublicNavLinkMark|floating-panel|mark-glow/u,
+    );
     expect(mobile).not.toContain('href="/docs"');
-    expect(mobile).toContain("<PublicNavLinkIcon icon={link.icon} />");
+    expect(mobile, "the mobile menu covers the screen below its own header").toContain('side="top"');
+    expect(mobile).toContain("showCloseButton={false}");
+    expect(mobile).toContain('linkActive ? "font-semibold text-foreground" : "text-subdued"');
     expect(mobile).not.toContain('cn("py-3 text-base"');
 
     const groupsEnd = mobile.lastIndexOf("</details>");

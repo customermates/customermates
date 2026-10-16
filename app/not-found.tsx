@@ -12,7 +12,7 @@ export default async function NotFoundPage() {
   return (
     <RootDocument displayLanguage={DEFAULT_LOCALE} messages={messages}>
       <MarketingShell>
-        <NotFoundPageView locale={DEFAULT_LOCALE} />
+        <NotFoundPageView locale={DEFAULT_LOCALE} variant="marketing" />
       </MarketingShell>
     </RootDocument>
   );

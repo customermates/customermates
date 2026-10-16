@@ -3,7 +3,7 @@
 import type { RefObject } from "react";
 
 import { observer } from "mobx-react-lite";
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { ArrowUp, Loader2, Square } from "lucide-react";
 
@@ -24,6 +24,26 @@ import { CreditBlockedNotice } from "./credit-blocked-notice";
 import { QueuedPrompt } from "./queued-prompt";
 import { UsageRing } from "./usage-ring";
 import { useAgentChatStore, useAgentChatUiTargets } from "./agent-chat-store-context";
+
+type ItemDayGroup = { key: string; date?: Date; indices: number[] };
+
+function groupItemsByDay(items: readonly { id: string; at?: Date }[], withDates: boolean): ItemDayGroup[] {
+  const groups: ItemDayGroup[] = [];
+
+  items.forEach((item, index) => {
+    const currentGroup = groups.at(-1);
+    const startsDay = withDates && item.at && !(currentGroup?.date && isSameDay(currentGroup.date, item.at));
+
+    if (currentGroup && !startsDay) {
+      currentGroup.indices.push(index);
+      return;
+    }
+
+    groups.push({ key: item.id, date: startsDay ? item.at : undefined, indices: [index] });
+  });
+
+  return groups;
+}
 
 export const AgentConversationLog = observer(function AgentConversationLog({
   className = "px-3",
@@ -67,26 +87,25 @@ export const AgentConversationLog = observer(function AgentConversationLog({
           </div>
         )}
 
-        {store.items.map((item, index) => {
-          const prev = store.items[index - 1];
-          const showSeparator = intlStore.rendersZonedValues && item.at && (!prev?.at || !isSameDay(prev.at, item.at));
+        {groupItemsByDay(store.items, intlStore.rendersZonedValues).map((group) => (
+          <section key={group.key} className="space-y-3">
+            {group.date && (
+              <MessageDateSeparator date={group.date} hideToday={!store.olderMessagesCursor && !hasMultipleDays} />
+            )}
 
-          return (
-            <Fragment key={item.id}>
-              {showSeparator && item.at && (
-                <MessageDateSeparator date={item.at} hideToday={!store.olderMessagesCursor && !hasMultipleDays} />
-              )}
+            {group.indices.map((index) => {
+              const item = store.items[index];
 
-              {item.kind === "activity" ? (
-                prev?.kind === "activity" ? null : (
-                  <ActivityGroup index={index} />
-                )
-              ) : (
-                <AgentChatItemView item={item} readOnly={readOnly} userLabel={userLabel} />
-              )}
-            </Fragment>
-          );
-        })}
+              if (item.kind === "activity") {
+                return store.items[index - 1]?.kind === "activity" ? null : (
+                  <ActivityGroup key={item.id} index={index} />
+                );
+              }
+
+              return <AgentChatItemView key={item.id} item={item} readOnly={readOnly} userLabel={userLabel} />;
+            })}
+          </section>
+        ))}
 
         <AgentInitialProgress />
       </div>

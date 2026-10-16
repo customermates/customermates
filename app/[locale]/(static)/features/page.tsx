@@ -33,7 +33,7 @@ export default async function FeaturesPage({ params }: StaticLocaleProps) {
   const why = page.data.why;
 
   return (
-    <div className="flex flex-col items-center justify-center">
+    <div className="flex flex-col items-center justify-center" data-marketing-flow="continuous">
       <FeaturesHero {...hero} />
 
       <ProductDemoSection hostedBoundary path="/dashboard" />

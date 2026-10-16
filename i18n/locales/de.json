@@ -839,8 +839,6 @@
     "userInfoIsMissing": "Der Anbieter hat dein Profil nicht übermittelt. Bitte versuche es erneut."
   },
   "BrowserFrame": {
-    "live": "Live-Vorschau",
-    "liveDemoTitle": "Customermates-Live-Demo",
     "open": "In neuem Tab öffnen"
   },
   "CommandPalette": {
@@ -1655,6 +1653,7 @@
     },
     "unnamed": "Unbenannt",
     "unsavedChanges": "Ungespeicherte Änderungen",
+    "updatedOn": "Aktualisiert am {date}",
     "userStatuses": {
       "active": "Aktiv",
       "inactive": "Inaktiv",
@@ -2371,6 +2370,7 @@
     "success": "Feedback erhalten. Du bist offiziell Teil der Build-Crew."
   },
   "Footer": {
+    "about": "Über uns",
     "company": "Unternehmen",
     "copyrightText": "© {year} Customermates. Alle Rechte vorbehalten.",
     "dpa": "AVV",
@@ -2777,8 +2777,9 @@
       "consultants": "Beratungen",
       "contactManagement": "Kontaktverwaltung",
       "emailAndGmail": "E-Mail und Gmail",
-      "healthcare": "Gesundheitswesen",
+      "freelancers": "Freelancer",
       "integrations": "Integrationen",
+      "lawFirms": "Kanzleien",
       "mcp": "MCP",
       "n8n": "n8n-Automatisierung",
       "openSourceCrm": "Open-Source-CRM",
@@ -2786,7 +2787,6 @@
       "primaryNavigation": "Hauptnavigation",
       "product": "Produkt",
       "professionalServices": "Professionelle Dienstleistungen",
-      "propertyManagement": "Immobilienverwaltung",
       "providerChatGPT": "ChatGPT",
       "providerClaude": "Claude",
       "providerCodex": "Codex",

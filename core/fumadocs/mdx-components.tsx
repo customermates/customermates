@@ -13,10 +13,15 @@ import {
 import { Faq, FaqItem } from "@/components/marketing/faq";
 import { ProductDemo } from "@/components/marketing/product-demo";
 import { Step, Steps } from "@/components/marketing/process-steps";
+
 import { markdownBaseComponents } from "./markdown-base-components";
 import { McpInstallSnippet } from "./mcp-install-snippet";
 import { APP_LINK_SCHEME, publicAppLinkHref } from "@/features/docs/app-links";
 import { StatusAvailable, StatusPartial, StatusUnavailable } from "./status-icon";
+
+function ProgressSteps(props: ComponentProps<typeof Steps>) {
+  return <Steps data-step-progress {...props} />;
+}
 
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
@@ -30,7 +35,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     ProofItem,
     ProofRail,
     Step,
-    Steps,
+    Steps: ProgressSteps,
     SummaryItem,
     StatusAvailable,
     StatusPartial,

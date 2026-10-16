@@ -12,6 +12,17 @@ export const ACCOUNT_STATES = [
 
 export type AccountState = (typeof ACCOUNT_STATES)[number];
 
+export type MarketingAccountProfile = {
+  avatarUrl: string | null;
+  email: string;
+  name: string;
+};
+
+export type MarketingAccount = {
+  profile: MarketingAccountProfile | null;
+  state: AccountState;
+};
+
 const ACCOUNT_STATE_REDIRECTS: Record<AccountState, string | null> = {
   unauthenticated: "/auth/signin",
   overdueVerification: "/auth/verify-email",
