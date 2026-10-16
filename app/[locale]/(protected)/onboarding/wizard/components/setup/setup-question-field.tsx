@@ -22,7 +22,7 @@ import { getCurrencyLabel } from "@/constants/currencies";
 import { cn } from "@/core/utils/cn";
 import { APP_LOCALES } from "@/i18n/locale-registry";
 
-import { SETUP_CHIP_CLASS, SetupChip, SetupCustomEntry, SetupRemovableChip } from "./setup-choice-chips";
+import { SETUP_CHIP_CLASS, SetupChip, SetupCustomEntry } from "./setup-choice-chips";
 
 type FieldProps<F extends SetupQuestionDescriptor["format"]> = {
   descriptor: Extract<SetupQuestionDescriptor, { format: F }>;
@@ -110,12 +110,17 @@ function MultipleChoiceField({ descriptor, value, onChange, disabled }: FieldPro
       ))}
 
       {custom.map((entry) => (
-        <SetupRemovableChip
+        <SetupChip
           key={entry}
+          pressed
           disabled={disabled}
-          label={entry}
-          onRemove={() => update({ custom: custom.filter((candidate) => candidate !== entry) })}
-        />
+          role="checkbox"
+          onPressedChange={(pressed) => {
+            if (!pressed) update({ custom: custom.filter((candidate) => candidate !== entry) });
+          }}
+        >
+          {entry}
+        </SetupChip>
       ))}
 
       {descriptor.allowCustom && custom.length < 10 ? (

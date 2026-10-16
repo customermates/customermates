@@ -2,13 +2,11 @@
 
 import type { ReactNode } from "react";
 
-import { Check, Plus, X } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
-import { AppChip } from "@/components/chip/app-chip";
 import { Button } from "@/components/ui/button";
-import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
 
@@ -96,28 +94,5 @@ export function SetupCustomEntry({ disabled, maxLength = 80, onAdd }: CustomEntr
         {t("Common.actions.add")}
       </Button>
     </div>
-  );
-}
-
-type RemovableChipProps = { label: string; disabled?: boolean; onRemove: () => void };
-
-export function SetupRemovableChip({ label, disabled, onRemove }: RemovableChipProps) {
-  const t = useTranslations();
-  return (
-    <AppChip
-      className="animate-page-result-in motion-reduce:animate-none"
-      endContent={
-        <IconButton
-          fieldAction
-          disabled={disabled}
-          icon={X}
-          label={`${t("Common.actions.remove")}: ${label}`}
-          onClick={onRemove}
-        />
-      }
-      startContent={<Check aria-hidden />}
-    >
-      {label}
-    </AppChip>
   );
 }

@@ -31,8 +31,6 @@ vi.mock("@/components/forms/form-autocomplete-currency", () => ({
     createElement("span", { "data-autocomplete": "currency", "data-value": props.value }),
 }));
 
-import { AppChip } from "@/components/chip/app-chip";
-
 import { followUpDescriptor, partDescriptor } from "../setup-question-descriptor";
 import { SetupQuestionField } from "../setup-question-field";
 import { setupPart } from "@/features/workspace-setup/setup-interview";
@@ -126,22 +124,15 @@ describe("SetupQuestionField", () => {
     expect(onChange).toHaveBeenLastCalledWith({ format: "multipleChoice", values: ["website"], custom: ["Podcast"] });
   });
 
-  it("shows own entries as standard value chips that remove themselves", () => {
+  it("shows own entries as selected toggles like the offered options and removes one when deselected", () => {
     render(descriptorOf("leadSources"), { format: "multipleChoice", values: ["website"], custom: ["Podcast"] });
 
-    const custom = [...container.querySelectorAll<HTMLElement>('[data-slot="badge"]')].find((chip) =>
-      chip.textContent?.includes("Podcast"),
-    );
-    if (!custom) throw new Error("The own entry did not render.");
-    const reference = document.createElement("div");
-    const referenceRoot = createRoot(reference);
-    act(() => referenceRoot.render(createElement(AppChip, null, "Reference")));
-    const standard = reference.querySelector('[data-slot="badge"]')?.className.split(" ") ?? [];
-    act(() => referenceRoot.unmount());
-    expect(standard.length).toBeGreaterThan(0);
-    expect(custom.className.split(" ")).toEqual(expect.arrayContaining(standard));
-    expect(custom.querySelector("button")?.getAttribute("aria-label")).toBe("Common.actions.remove: Podcast");
-    act(() => button("Common.actions.remove: Podcast").click());
+    const custom = button("Podcast");
+    const offered = button("WorkspaceSetup.options.leadSources.website");
+    expect(custom.getAttribute("role")).toBe("checkbox");
+    expect(custom.getAttribute("aria-checked")).toBe("true");
+    expect(custom.className).toBe(offered.className);
+    act(() => custom.click());
     expect(onChange).toHaveBeenLastCalledWith({ format: "multipleChoice", values: ["website"], custom: [] });
   });
 
