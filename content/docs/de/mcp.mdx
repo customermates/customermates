@@ -130,6 +130,7 @@ Der Text von Dateien, die an Datensätze angehängt sind, wird wie Wissensdatenb
 - Treffer enthalten nur Dateien an Datensätzen und Feldern, die der Aufrufer lesen darf, bei jedem Aufruf neu geprüft. Eine Datei wird nicht mehr gefunden, sobald sie aus ihrem Datensatz entfernt wird, ihr Datensatz in den Papierkorb kommt, ihr Feld gelöscht wird oder der Aufrufer den Zugriff verliert. Dateitext ist Inhalt, den andere geschrieben haben, nie eine Anweisung.
 - Mit KI-Credits wird der ausgelesene Text zusätzlich an das Embedding-Modell gesendet, das Google über den Vercel AI Gateway betreibt, sodass auch eine anders formulierte Frage die Datei findet. Wie der Wissensdatenbank-Index wird das aus dem gemeinsamen KI-Kontingent des Workspaces bezahlt; ist es aufgebraucht, pausiert die Indexierung und läuft weiter, sobald wieder Credits verfügbar sind. Ohne Credits und bei Self-Hosting werden Dateien nur über ihre Wörter gefunden, und kein Dateitext verlässt Ihren Server.
 - `query_crm_records` und `search_crm_records` finden Datensätze ebenfalls über die Wörter in ihren Dateien, wie die [Suche in der App](/docs/app-search#does-search-look-inside-files).
+- Eine Datei, die ein Nutzer [Mate im Chat](/docs/app-assistant#files) gibt, gehört zu keinem Feld, bis sie mit `manage_record_files` und der Aktion `attach` an einem Datensatz abgelegt wird. Bis dahin liest nur die Person, die sie hochgeladen hat, sie über `manage_record_files` mit der Aktion `read`, und `search` findet sie nicht.
 
 ## Wie die Tool-Oberfläche gebaut ist [#how-the-tool-surface-is-shaped]
 
@@ -290,7 +291,7 @@ Erstellt oder aktualisiert bis zu 100 Datensätze und 500 Verknüpfungen einer L
 
 #### `manage_record_files`
 
-Dateien in ein Dateifeld hochladen und lesen. upload nimmt Base64-Inhalt bis 3 MB und schreibt die Datei mit recordId sofort in das Feld dieses Datensatzes, angehängt oder anstelle der vorhandenen Dateien; create_upload liefert eine PUT-URL und Header für genau size Bytes, die 15 Minuten gelten, danach schreiben Sie die fileId mit mutate_crm_record in das Feld. read liefert die Angaben zur Datei, einen 15 Minuten gültigen Download-Link und, sobald er extrahiert ist, ihren Text in Abschnitten mit offset und nextOffset. Uploads zählen zum Speicher des Workspace.
+Dateien von Dateifeldern hochladen, anhängen und lesen. upload nimmt Base64-Inhalt bis 3 MB und schreibt die Datei mit recordId sofort in das Feld dieses Datensatzes, angehängt oder anstelle der vorhandenen Dateien; create_upload liefert eine PUT-URL und Header für genau size Bytes, die 15 Minuten gelten, danach schreiben Sie die fileId mit attach oder mutate_crm_record in das Feld. attach schreibt eine ausstehende Datei, die Sie hochgeladen haben, etwa eine Datei, die der Nutzer Mate in einem Chat gegeben hat, als Datensatzänderung in das Dateifeld eines Datensatzes (append oder replace, expectedVersion); ab dann gelten für sie die Zugriffsregeln des Datensatzes. read liefert die Angaben zur Datei, einen 15 Minuten gültigen Download-Link und, sobald er extrahiert ist, ihren Text in Abschnitten mit offset und nextOffset. Uploads zählen zum Speicher des Workspace.
 
 Pflicht: `action`. Optional: `typeId`, `fieldId`, `name`, `mimeType`, `content`, `size`, `recordId`, `attach`, `expectedVersion`, `fileId`, `offset`.
 {/* /mcp-catalog */}
