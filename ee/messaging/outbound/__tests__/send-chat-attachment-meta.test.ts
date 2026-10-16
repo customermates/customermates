@@ -3,6 +3,8 @@ import type * as InboxSchemaModule from "../../inbox/inbox.schema";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mockEntitlementService } from "@/tests/helpers/mock-entitlement-service";
 import { createMockUser } from "@/tests/helpers/mock-user";
+import { mockDraftSendRepo } from "@/tests/helpers/mock-draft-send-repo";
+import { recordedMessage } from "@/tests/helpers/recorded-message";
 import {
   MOCK_ENV_MODULE,
   createMockDiModule,
@@ -28,6 +30,7 @@ vi.mock("../../inbox/inbox.schema", async (importActual) => ({
   toMessagingMessageDto: (message: unknown) => message,
 }));
 
+import { DraftSendGate } from "../draft-send-gate";
 import { SendChatMessageInteractor } from "../send-chat-message.interactor";
 import { ValidateThreadIdsInteractor } from "@/core/validation/validators/validate-thread-ids.interactor";
 import { getMessagingRepo } from "@/core/di";
@@ -66,18 +69,28 @@ function makeInteractor(repo: any, service: any) {
     service,
     new ValidateThreadIdsInteractor(getMessagingRepo()),
     mockEntitlementService(),
+    { invoke: vi.fn() },
+    new DraftSendGate(repo),
   );
 }
 
 function baseRepo(overrides: Record<string, unknown> = {}) {
   return {
     findThreadByIdOrThrow: vi.fn().mockResolvedValue(thread),
+    findThreadById: vi.fn().mockResolvedValue(thread),
     findDraftById: vi.fn().mockResolvedValue(null),
     findRecentOutboundDuplicate: vi.fn().mockResolvedValue(null),
     findSelfAttendeeForThread: vi.fn().mockResolvedValue(null),
-    persistOutboundMessageOrThrow: vi.fn().mockResolvedValue({ id: "new-1", attachmentsMeta: [] }),
-    convertDraftToSent: vi.fn().mockResolvedValue({ id: "converted-1", attachmentsMeta: [] }),
+    persistOutboundMessageOrThrow: vi
+      .fn()
+      .mockResolvedValue(recordedMessage({ messagingThreadId: THREAD_ID, connectedAccountId: ACCOUNT_ID })),
     restoreDraftSummaryIfPresent: vi.fn().mockResolvedValue(undefined),
+    ...mockDraftSendRepo(),
+    completeReplyDraftSend: vi
+      .fn()
+      .mockResolvedValue(
+        recordedMessage({ id: DRAFT_ID, messagingThreadId: THREAD_ID, connectedAccountId: ACCOUNT_ID }),
+      ),
     ...overrides,
   };
 }
@@ -131,10 +144,10 @@ describe("outbound chat attachment metadata", () => {
     });
 
     expect(result.ok).toBe(true);
-    expect(repo.convertDraftToSent).toHaveBeenCalledTimes(1);
-    expect(repo.convertDraftToSent.mock.calls[0][0].attachmentsMeta).toEqual([]);
-    expect(repo.convertDraftToSent).toHaveBeenCalledWith(
-      expect.objectContaining({ expectedUpdatedAt: new Date(DRAFT_REVISION) }),
+    expect(repo.completeReplyDraftSend).toHaveBeenCalledTimes(1);
+    expect(repo.completeReplyDraftSend.mock.calls[0][0].attachmentsMeta).toEqual([]);
+    expect(repo.completeReplyDraftSend).toHaveBeenCalledWith(
+      expect.objectContaining({ claim: expect.objectContaining({ draftRevision: new Date(DRAFT_REVISION) }) }),
     );
   });
 
@@ -162,7 +175,8 @@ describe("outbound chat attachment metadata", () => {
 
     expect(result.ok).toBe(false);
     expect(service.sendChatMessage).not.toHaveBeenCalled();
-    expect(repo.convertDraftToSent).not.toHaveBeenCalled();
+    expect(repo.beginDraftSend).not.toHaveBeenCalled();
+    expect(repo.completeReplyDraftSend).not.toHaveBeenCalled();
   });
 
   it("still forwards the attachments to the provider", async () => {

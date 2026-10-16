@@ -119,6 +119,11 @@ export const RecordChannels = observer(
           onDone: () => {
             if (ownsInitializedCompose() && isCurrentRecord() && actorId === userStore.user?.id) setComposeKey(null);
           },
+          onRestore: () => {
+            if (!ownsInitializedCompose() || !isCurrentRecord() || actorId !== userStore.user?.id) return false;
+            setComposeKey(key);
+            return true;
+          },
         });
         ownsInitializedCompose = threadComposeStore.captureContext();
         composeOwner.current = ownsInitializedCompose;

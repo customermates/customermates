@@ -37,7 +37,7 @@ function harness() {
   const core = new SaveDraftInteractor(
     {
       findThreadByIdOrThrow: vi.fn(),
-      findOrCreateDraftThread: vi.fn(),
+      createConversationDraftOrThrow: vi.fn(),
       findSelfAttendeeForThread: vi.fn(),
       upsertThreadDraftOrThrow: vi.fn(),
     },
@@ -145,7 +145,7 @@ describe("draft interactor entry boundaries", () => {
           unipileThreadId: `draft_${THREAD_ID}`,
           participants: [],
         }),
-        findOrCreateDraftThread: vi.fn(),
+        createConversationDraftOrThrow: vi.fn(),
         findSelfAttendeeForThread: vi.fn(),
         upsertThreadDraftOrThrow: persist,
       },

@@ -274,8 +274,19 @@ export function requestedTimeoutMs(input: RequestInfo | URL): number {
   return header;
 }
 
-const fetchWithTimeout: typeof fetch = (input, init) =>
-  fetch(input, { ...init, signal: init?.signal ?? AbortSignal.timeout(requestedTimeoutMs(input)) });
+export const fetchWithTimeout: typeof fetch = async (input, init) => {
+  const signal = init?.signal ?? AbortSignal.timeout(requestedTimeoutMs(input));
+  if (!(input instanceof Request)) return fetch(input, { ...init, signal });
+
+  return fetch(input.url, {
+    method: input.method,
+    headers: input.headers,
+    body: input.body ? await input.arrayBuffer() : undefined,
+    redirect: input.redirect,
+    ...init,
+    signal,
+  });
+};
 
 function isMessageFile(value: unknown): value is MessageFile {
   return (

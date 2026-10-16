@@ -20,6 +20,7 @@ import {
   SignatureTemplate,
   defaultEmailSettings,
 } from "../../email-settings";
+import { DraftSendGate } from "../draft-send-gate";
 import { SendEmailInteractor } from "../send-email.interactor";
 import { composeEmailBodies } from "../email-signature";
 
@@ -118,7 +119,6 @@ function makeRepo() {
     findDraftById: vi.fn().mockResolvedValue(null),
     findRecentOutboundDuplicate: vi.fn().mockResolvedValue(null),
     persistOutboundMessageOrThrow: vi.fn().mockResolvedValue(persistedRow),
-    convertDraftToSent: vi.fn(),
   };
 }
 
@@ -140,6 +140,7 @@ async function send(
     } as never,
     service as never,
     mockEntitlementService(),
+    new DraftSendGate(repo as never),
   );
 
   await interactor.invoke({

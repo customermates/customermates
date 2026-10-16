@@ -5,6 +5,7 @@ import { resolve } from "node:path";
 
 import { NextRequest } from "next/server";
 
+import { localWebhookSecret } from "./local-email-provider.mjs";
 import { localE2eEnvironment } from "./local-environment";
 
 const environment = localE2eEnvironment();
@@ -37,6 +38,8 @@ const child = spawn(
       WORKFLOW_LOCAL_QUEUE_CONCURRENCY: "32",
       CRM_LOCAL_TEST_TRANSPORT: "true",
       UNIPILE_API_KEY: "e2e-local-provider-no-network",
+      UNIPILE_WEBHOOK_SECRET: localWebhookSecret,
+      CRM_E2E_EMAIL_LEDGER: environment.emailLedgerFile,
       HOSTED_AI_OPERATOR_CONTROLS_ENABLED: "true",
       HOSTED_AI_PROVIDER_WORK_PAUSED: "true",
       NEXT_TELEMETRY_DISABLED: "1",

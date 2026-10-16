@@ -3,6 +3,7 @@ import type { MessagingProvider } from "@/generated/prisma";
 import { z } from "zod";
 
 import { normalizeChannelValue } from "@/features/records/channel-value";
+import { isDraftThreadId } from "./provider";
 
 export type DraftThreadTarget = {
   id: string;
@@ -18,7 +19,8 @@ export type DraftThreadTarget = {
 export type DraftDeleteResult =
   | { status: "deleted"; messagingThreadId: string }
   | { status: "not_found" }
-  | { status: "revision_mismatch" };
+  | { status: "revision_mismatch" }
+  | { status: "send_in_progress" };
 
 export const DraftRevisionSchema = z.iso
   .datetime({ offset: true, precision: 3 })
@@ -65,6 +67,42 @@ export function draftThreadRecipientSetsMatch(
   const canonicalLeft = [...normalizedLeft].sort();
   const canonicalRight = [...normalizedRight].sort();
   return canonicalLeft.every((recipient, index) => recipient === canonicalRight[index]);
+}
+
+export type DraftBindingConflict = "target" | "revision" | "recipients";
+
+function revealsHiddenRecipient(
+  provider: MessagingProvider,
+  draft: DraftThreadTarget,
+  visible: readonly string[],
+): boolean {
+  const normalize = (value: string) => normalizeChannelValue(provider, value);
+  const shown = new Set([...draft.recipientIdentifiers, ...(draft.ccIdentifiers ?? [])].map(normalize));
+  const hidden = new Set((draft.bccIdentifiers ?? []).map(normalize).filter((value) => value && !shown.has(value)));
+  return visible.some((value) => hidden.has(normalize(value)));
+}
+
+export function draftBindingConflict(args: {
+  provider: MessagingProvider;
+  draft: DraftThreadTarget;
+  connectedAccountId: string;
+  draftRevision: string;
+  replyThreadId: string | null;
+  to: readonly string[];
+  cc?: readonly string[];
+}): DraftBindingConflict | null {
+  if (args.draft.connectedAccountId !== args.connectedAccountId) return "target";
+  if (
+    args.replyThreadId
+      ? args.draft.messagingThreadId !== args.replyThreadId
+      : !isDraftThreadId(args.draft.unipileThreadId)
+  )
+    return "target";
+  if (!draftRevisionMatches(args.draft.updatedAt, args.draftRevision)) return "revision";
+  if (args.replyThreadId) return null;
+  if (!draftThreadRecipientSetsMatch(args.provider, args.draft.recipientIdentifiers, args.to)) return "recipients";
+  if (revealsHiddenRecipient(args.provider, args.draft, [...args.to, ...(args.cc ?? [])])) return "recipients";
+  return null;
 }
 
 export function canManageThreadDrafts(thread: { isOwner: boolean; accountShared: boolean } | null): boolean {

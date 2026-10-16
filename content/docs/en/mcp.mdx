@@ -396,19 +396,19 @@ Three modes: list: "calendars" (default) lists the calendars of accessible conne
 
 #### `send_chat_message`
 
-Delivers immediately. With threadId replies in an existing chat; with connectedAccountId plus attendeeIdentifiers starts a new one (optional chatName names a group). To send a saved draft, pass both draftMessageId and draftRevision. New LinkedIn chats default to Classic; set linkedinProduct to sales_navigator or recruiter to send an InMail (needs inmailSubject), or inmail:true to InMail someone outside your network on Classic.
+Delivers immediately. With threadId replies in an existing chat or sends the draft of a conversation that exists only as a draft; with connectedAccountId plus attendeeIdentifiers starts a new one (optional chatName names a group). To send a saved draft, pass both draftMessageId and draftRevision; each draft revision is sent at most once, and repeating the call returns the first result with `repeated: true`. New LinkedIn chats default to Classic; set linkedinProduct to sales_navigator or recruiter to send an InMail (needs inmailSubject), or inmail:true to InMail someone outside your network on Classic.
 
 Required: `text`. Optional: `threadId`, `draftMessageId`, `draftRevision`, `connectedAccountId`, `attendeeIdentifiers`, `chatName`, `linkedinProduct`, `inmail`, `inmailSubject`, `inmailSignature`.
 
 #### `send_email`
 
-Delivers immediately. Send or reply from a connected email account; sending a saved draft requires both draftMessageId and draftRevision. The account's enabled signature is appended automatically, so never write a sign-off into the body.
+Delivers immediately. Send or reply from a connected email account; sending a saved draft requires both draftMessageId and draftRevision, and threadId may be the draft's own conversation. Each draft revision is sent at most once: repeating the call returns the first result with `repeated: true`, and a draft that changed or whose earlier send could not be confirmed is refused without sending. The account's enabled signature is appended automatically, so never write a sign-off into the body.
 
 Required: `to`, `subject`, `body`. Optional: `threadId`, `connectedAccountId`, `cc`, `bcc`, `bodyFormat`, `attachments`, `draftMessageId`, `draftRevision`.
 
 #### `save_message_draft`
 
-Prepare a message for review: the draft shows up in the inbox and the user sends it. With `threadId` it drafts a reply; with `connectedAccountId` plus `recipients` it prepares a brand-new conversation that exists only as a draft. Returns the message id and opaque revision token; saving again updates the thread's one draft. The signature is appended when the draft is sent, so never write a sign-off into the body.
+Prepare a message for review: the draft shows up in the inbox and the user sends it. With `threadId` it drafts a reply or updates that conversation's one draft; with `connectedAccountId` plus `recipients` every call prepares another brand-new conversation that exists only as a draft. Returns the message id, opaque revision token and thread id. The signature is appended when the draft is sent, so never write a sign-off into the body.
 
 Required: `body`. Optional: `threadId`, `connectedAccountId`, `recipients`, `subject`, `cc`, `bcc`.
 

@@ -44,6 +44,7 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
     threadParticipantsStore,
     connectedAccountsStore,
     userStore,
+    navigationGuard,
   } = useRootStore();
   const intlStore = useHydratedIntlStore();
   const [showRemoteImages, setShowRemoteImages] = useState(false);
@@ -56,6 +57,7 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
   const status = compose.getDeliveryStatus(message.id) ?? detail.messageStatus[message.id];
   const isSending = status === "sending";
   const isFailed = status === "failed";
+  const canEditRefused = isFailed && compose.canEditRefused(message.id);
   const pendingFiles = isDraft ? compose.draftAttachments : (compose.pendingAttachments[message.id] ?? []);
 
   if (message.isEvent) {
@@ -200,7 +202,7 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
             </div>
           )}
 
-          {((isDraft && canManageDraft) || (isFailed && compose.canRetry(message.id))) && (
+          {((isDraft && canManageDraft) || (isFailed && compose.canRetry(message.id)) || canEditRefused) && (
             <div
               data-message-actions
               className={cn("flex flex-wrap items-center gap-2", isEmail ? "px-3.5 pt-1 pb-3" : "px-3 py-1.5")}
@@ -260,6 +262,21 @@ export const MessageItem = observer(({ message, accountOwner, senderAvatarUrl, i
                     {t("Inbox.compose.draftSendNow")}
                   </Button>
                 </span>
+              ) : canEditRefused ? (
+                <Button
+                  size="xs"
+                  type="button"
+                  variant="secondary"
+                  onClick={() => {
+                    const edit = () => compose.editRefused(message.id);
+                    if (compose.hasUnsavedChanges) navigationGuard.tryNavigate(edit);
+                    else edit();
+                  }}
+                >
+                  <Pencil />
+
+                  {t("Inbox.compose.draftEdit")}
+                </Button>
               ) : isFailed && compose.canRetry(message.id) ? (
                 <Button
                   size="xs"
