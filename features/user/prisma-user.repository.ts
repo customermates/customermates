@@ -100,7 +100,7 @@ export class PrismaUserRepo
       where: { id: userId, companyId },
       data: { status, ...(agentCreditActivatedAt === undefined ? {} : { agentCreditActivatedAt }) },
     });
-    await this.billingUsage.recordSeats(companyId);
+    await this.billingUsage.recordSeats(companyId, [userId]);
   }
 
   async setPlatformOperatorCompanyWide(companyId: string, userId: string, isPlatformOperator: boolean): Promise<void> {
@@ -282,7 +282,7 @@ export class PrismaUserRepo
       },
       where: { id: userId, companyId },
     });
-    await this.billingUsage.recordSeats(companyId);
+    await this.billingUsage.recordSeats(companyId, []);
 
     return this.prisma.user.findUniqueOrThrow({
       where: { id: userId, companyId },
@@ -362,7 +362,7 @@ export class PrismaUserRepo
       },
       where: { id: args.userId, companyId },
     });
-    await this.billingUsage.recordSeats(companyId);
+    await this.billingUsage.recordSeats(companyId, [args.userId]);
   }
 
   async createCompanyOwnerOrThrow(args: RepoArgs<RegisterUserRepo, "createCompanyOwnerOrThrow">) {
@@ -383,7 +383,7 @@ export class PrismaUserRepo
         agentCreditActivatedAt: new Date(),
       },
     });
-    await this.billingUsage.recordSeats(args.companyId);
+    await this.billingUsage.recordSeats(args.companyId, [user.id]);
 
     for (const attribution of args.adAttribution ?? []) {
       await this.prisma.adAttribution.create({
@@ -713,7 +713,7 @@ export class PrismaUserRepo
         where: { id: userId, companyId },
         data: { status: Status.inactive, agentCreditActivatedAt: null },
       });
-      await this.billingUsage.recordSeats(companyId);
+      await this.billingUsage.recordSeats(companyId, [userId]);
     });
   }
 

@@ -11,7 +11,6 @@ import {
   getSendLegalDocumentNoticesInteractor,
   getPruneRoutineRunsInteractor,
   getPurgeExpiredTrashInteractor,
-  getReconcileBillingUsageInteractor,
 } from "@/core/di";
 import { env } from "@/env";
 
@@ -41,7 +40,6 @@ export async function GET(req: Request) {
   ]);
 
   await getDeleteOrphanedUnipileAccountsInteractor().invoke();
-  await getReconcileBillingUsageInteractor().invoke();
 
   return Response.json({ ok: true });
 }

@@ -205,13 +205,13 @@ export class PrismaCompanyRepo
 
   @BypassTenantGuard
   async deleteCompanyUnscoped(companyId: string): Promise<void> {
-    await this.billingUsage.recordWorkspaceDeleted(companyId);
+    await this.billingUsage.recordWorkspaceDeleted(companyId, "deleted");
     await this.prisma.company.delete({ where: { id: companyId } });
   }
 
   async createRegisteredCompany() {
     const company = await this.prisma.company.create({ data: {} });
-    await this.billingUsage.recordWorkspace(company.id);
+    await this.billingUsage.recordWorkspaceCreated(company.id);
 
     const trialEndDate = new Date();
     trialEndDate.setDate(trialEndDate.getDate() + CLOUD_TRIAL.days);

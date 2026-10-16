@@ -27,7 +27,11 @@ export function OperatorUsageCoverageNote({ coverage, kind, monthStart }: Props)
         </span>
       ) : null}
 
-      {coverage.inexactTimes ? <span>{t("OperatorUsage.coverage.inexactTimes")}</span> : null}
+      {coverage.inexactTimes ? (
+        <span>
+          {kind === "seats" ? t("OperatorUsage.coverage.seatsInexactTimes") : t("OperatorUsage.coverage.inexactTimes")}
+        </span>
+      ) : null}
     </div>
   );
 }

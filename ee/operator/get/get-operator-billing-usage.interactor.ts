@@ -63,6 +63,7 @@ export class GetOperatorBillingUsageInteractor {
         from: window.from,
         to: window.to,
         monthComplete: window.to.getTime() <= Date.now(),
+        recordingStartedAt: ledger.recordingStartedAt,
         workspaces,
       },
     };

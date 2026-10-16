@@ -57,8 +57,13 @@ export function OperatorWorkspaceUsageSection({ companyId, createdAt }: Props) {
 
   const workspace = usage?.workspaces[0] ?? null;
   const dateTime = (value: Date) => intlStore.formatNumericalShortDateTime(value, { timeZone: "UTC" });
-  const estimated = (value: Date, exact: boolean) =>
-    exact ? dateTime(value) : t("OperatorUsage.estimated", { date: dateTime(value) });
+  const estimated = (value: Date, exact: boolean) => (
+    <div className="flex flex-col">
+      <span>{dateTime(value)}</span>
+
+      {exact ? null : <span className="text-xs text-muted-foreground">{t("OperatorUsage.estimated")}</span>}
+    </div>
+  );
 
   return (
     <div data-operator-workspace-usage className="flex flex-col gap-3">

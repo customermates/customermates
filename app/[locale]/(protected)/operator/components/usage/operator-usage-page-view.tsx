@@ -90,6 +90,12 @@ export function OperatorUsagePageView({ usage }: Props) {
           <p className="text-xs text-muted-foreground">{t("OperatorUsage.monthInProgress")}</p>
         ) : null}
 
+        {usage.recordingStartedAt && usage.from < usage.recordingStartedAt ? (
+          <p className="text-xs text-warning">
+            {t("OperatorUsage.deletedBeforeRecording", { date: dateTime(usage.recordingStartedAt) })}
+          </p>
+        ) : null}
+
         {usage.workspaces.length === 0 ? (
           <p className="text-xs text-muted-foreground">{t("OperatorUsage.empty")}</p>
         ) : (

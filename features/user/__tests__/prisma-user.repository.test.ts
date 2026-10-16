@@ -89,7 +89,7 @@ describe("WorkspaceRegistrationService.createCompanyAndUser", () => {
       expect.objectContaining({ data: expect.objectContaining({ isSystemRole: true }) }),
     );
     expect(prismaMock.billingUsageWorkspace.createMany).toHaveBeenCalledWith({
-      data: [expect.objectContaining({ companyId: "company-1", seatsRecordedFrom: null, channelsRecordedFrom: null })],
+      data: [{ companyId: "company-1", createdAt: expect.any(Date) }],
       skipDuplicates: true,
     });
   });

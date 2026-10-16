@@ -43,7 +43,7 @@ CREATE INDEX "BillingUsageInterval_kind_endedAt_idx" ON "BillingUsageInterval"("
 
 -- At most one open interval per subject. The application keeps the ledger
 -- (features/billing-usage/billing-usage-ledger.ts).
-CREATE UNIQUE INDEX "BillingUsageInterval_open_subject_key" ON "BillingUsageInterval"("kind", "subjectId") WHERE "endedAt" IS NULL;
+CREATE UNIQUE INDEX "BillingUsageInterval_open_subject_key" ON "BillingUsageInterval"("companyId", "kind", "subjectId") WHERE "endedAt" IS NULL;
 
 -- Backfill the workspaces that exist now. Their earlier seat changes are unknown;
 -- connected-account history is known from the event log since the messaging

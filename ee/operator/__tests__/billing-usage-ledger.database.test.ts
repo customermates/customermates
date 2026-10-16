@@ -20,7 +20,6 @@ const { PrismaCompanyRepo } = await import("@/features/company/prisma-company.re
 const { PrismaConnectedAccountRepo } = await import("@/ee/messaging/persistence/prisma-connected-account.repository");
 const { PrismaUnipileWebhookRepo } = await import("@/ee/messaging/persistence/prisma-unipile-webhook.repository");
 const { BillingUsageLedger } = await import("@/features/billing-usage/billing-usage-ledger");
-const { ReconcileBillingUsageInteractor } = await import("@/features/billing-usage/reconcile-billing-usage.interactor");
 const { PrismaReconcileBillingUsageRepo } = await import(
   "@/features/billing-usage/prisma-reconcile-billing-usage.repository"
 );
@@ -69,8 +68,8 @@ function ledgerWorkspace(companyId: string) {
   return runWithoutTenant(() => prisma.billingUsageWorkspace.findFirst({ where: { companyId } }));
 }
 
-function recordSeats(companyId: string) {
-  return runWithoutTenant(() => new BillingUsageLedger().recordSeats(companyId));
+function recordSeats(companyId: string, changed: string[] = []) {
+  return runWithoutTenant(() => new BillingUsageLedger().recordSeats(companyId, changed));
 }
 
 afterAll(async () => {
@@ -84,23 +83,52 @@ afterAll(async () => {
 });
 
 describeDatabase("billing usage ledger", { timeout: 120_000 }, () => {
-  it("records a new workspace as covered since creation and an older one from the first observation", async () => {
+  it("records a workspace as covered since creation only when it is registered on creation", async () => {
     const fresh = await workspace();
-    const old = await workspace({ createdAt: new Date("2026-01-05T00:00:00.000Z") });
+    const unseen = await workspace();
 
+    await runWithoutTenant(() => new BillingUsageLedger().recordWorkspaceCreated(fresh.companyId));
     await recordSeats(fresh.companyId);
-    await recordSeats(old.companyId);
+    await recordSeats(unseen.companyId);
 
     expect(await ledgerWorkspace(fresh.companyId)).toMatchObject({
       seatsRecordedFrom: null,
       channelsRecordedFrom: null,
     });
-    expect((await ledgerWorkspace(old.companyId))?.seatsRecordedFrom).toBeInstanceOf(Date);
+    expect((await ledgerWorkspace(unseen.companyId))?.seatsRecordedFrom).toBeInstanceOf(Date);
+  });
+
+  it("marks only the subject a write changed as exact and every other repaired mismatch as estimated", async () => {
+    const { companyId, userId, roleId } = await workspace();
+    const otherId = randomUUID();
+    await runWithoutTenant(() =>
+      prisma.user.create({
+        data: {
+          id: otherId,
+          companyId,
+          roleId,
+          email: `ledger-${randomUUID()}@ledger.example.invalid`,
+          firstName: "Other",
+          lastName: "Probe",
+          status: "active",
+        },
+      }),
+    );
+    await recordSeats(companyId, [userId, otherId]);
+
+    await runWithoutTenant(() =>
+      prisma.user.update({ where: { id: otherId, companyId }, data: { status: "inactive" } }),
+    );
+    await runWithoutTenant(() => users().deactivateUserOrThrow(userId));
+
+    const rows = await intervals(companyId);
+    expect(rows.find((row) => row.subjectId === userId)).toMatchObject({ endExact: true });
+    expect(rows.find((row) => row.subjectId === otherId)).toMatchObject({ endExact: false });
   });
 
   it("opens a seat for an active user, closes it when the user repository deactivates them and opens a new one on reactivation", async () => {
     const { companyId, userId } = await workspace();
-    await recordSeats(companyId);
+    await recordSeats(companyId, [userId]);
 
     await runWithoutTenant(() => users().deactivateUserOrThrow(userId));
     await runWithoutTenant(() => users().setOperatorStatusCompanyWide(companyId, userId, "active"));
@@ -188,7 +216,7 @@ describeDatabase("billing usage ledger", { timeout: 120_000 }, () => {
     await runWithoutTenant(() => repo.markAccountDeletedUnscoped(softRow.id));
     await runWithoutTenant(async () => {
       await prisma.connectedAccount.delete({ where: { id: hardRow.id, companyId } });
-      await new BillingUsageLedger().recordChannels(companyId);
+      await new BillingUsageLedger().recordChannels(companyId, [hardRow.id]);
     });
 
     const channels = (await intervals(companyId)).filter((row) => row.kind === "channel");
@@ -242,18 +270,21 @@ describeDatabase("billing usage ledger", { timeout: 120_000 }, () => {
     expect(usage.current).toEqual({ activeSeats: 0, connectedChannels: 0 });
   });
 
-  it("lets the daily sweep pick up changes no write path recorded and mark their times inexact", async () => {
+  it("lets the daily sweep pick up changes no write path recorded and mark their times estimated", async () => {
     const kept = await workspace();
     const vanished = await workspace();
-    await recordSeats(kept.companyId);
-    await recordSeats(vanished.companyId);
+    await recordSeats(kept.companyId, [kept.userId]);
+    await recordSeats(vanished.companyId, [vanished.userId]);
 
     await runWithoutTenant(async () => {
       await prisma.user.update({ where: { id: kept.userId, companyId: kept.companyId }, data: { status: "inactive" } });
       await prisma.company.delete({ where: { id: vanished.companyId } });
     });
 
-    await new ReconcileBillingUsageInteractor(new PrismaReconcileBillingUsageRepo()).invoke();
+    const repo = new PrismaReconcileBillingUsageRepo();
+    expect(await repo.listRecordedWorkspacesWithoutCompanyUnscoped()).toContain(vanished.companyId);
+    await repo.reconcileCompanyUnscoped(kept.companyId);
+    await repo.closeMissingWorkspaceUnscoped(vanished.companyId);
 
     expect(await intervals(kept.companyId)).toMatchObject([{ endExact: false }]);
     expect((await intervals(kept.companyId))[0].endedAt).toBeInstanceOf(Date);

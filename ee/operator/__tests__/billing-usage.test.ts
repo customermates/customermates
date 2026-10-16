@@ -239,6 +239,29 @@ describe("workspace billing usage", () => {
     expect(usage.channels.items?.[0]).toMatchObject({ disconnectedAtExact: false });
   });
 
+  it("flags seat times the sweep inferred in or just after the month, but not inferred starts long before it", () => {
+    const usage = (intervals: BillingUsageIntervalRow[]) =>
+      workspaceBillingUsage({ workspace: workspace(), intervals, window: SEPTEMBER, includeDetails: false }).seats
+        .coverage.complete;
+
+    expect(usage([seat("old", "2026-05-01T00:00:00.000Z", null, { startExact: false })])).toBe(true);
+    expect(usage([seat("late-end", "2026-05-01T00:00:00.000Z", "2026-09-01T09:00:00.000Z", { endExact: false })])).toBe(
+      false,
+    );
+    expect(usage([seat("late-start", "2026-10-01T05:00:00.000Z", null, { startExact: false })])).toBe(false);
+  });
+
+  it("flags a channel the sweep picked up just after the month", () => {
+    const usage = workspaceBillingUsage({
+      workspace: workspace(),
+      intervals: [channel("late", "2026-10-01T03:30:00.000Z", null, { startExact: false })],
+      window: SEPTEMBER,
+      includeDetails: true,
+    });
+
+    expect(usage.channels).toMatchObject({ peak: 0, coverage: { complete: false, inexactTimes: true }, items: [] });
+  });
+
   it("is complete for a month after recording started", () => {
     const usage = workspaceBillingUsage({
       workspace: workspace({ seatsRecordedFrom: at("2026-10-16T09:00:00.000Z") }),
@@ -256,6 +279,7 @@ describe("workspace billing usage", () => {
       from: SEPTEMBER.from,
       to: SEPTEMBER.to,
       monthComplete: true,
+      recordingStartedAt: null,
       workspaces: [
         workspaceBillingUsage({
           workspace: workspace({ workspaceLabel: "=cmd" }),

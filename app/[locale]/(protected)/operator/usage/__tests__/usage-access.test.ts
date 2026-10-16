@@ -35,7 +35,7 @@ const COMPANY_ID = "00000000-0000-4000-8000-000000000020";
 
 beforeEach(() => {
   state.authorizeRead.mockReset().mockRejectedValue(new ForbiddenError("Platform operator access required"));
-  state.ledgerReads.mockReset().mockResolvedValue({ workspaces: [], intervals: [] });
+  state.ledgerReads.mockReset().mockResolvedValue({ workspaces: [], intervals: [], recordingStartedAt: null });
   state.notFound.mockClear();
 });
 

@@ -90,6 +90,10 @@ export class PrismaConnectedAccountRepo
 
   @BypassTenantGuard
   async createAccountUnscoped(args: RepoArgs<AccountWebhookRepo, "createAccountUnscoped">) {
+    return this.withCompanyTransaction(args.companyId, () => this.createAccountWithUsage(args));
+  }
+
+  private async createAccountWithUsage(args: RepoArgs<AccountWebhookRepo, "createAccountUnscoped">) {
     const row = await this.prisma.connectedAccount.upsert({
       where: { unipileAccountId: args.unipileAccountId },
       update: {},
@@ -106,7 +110,7 @@ export class PrismaConnectedAccountRepo
         syncing: true,
       },
     });
-    await this.billingUsage.recordChannels(row.companyId);
+    await this.billingUsage.recordChannels(row.companyId, [row.id]);
 
     return row;
   }
@@ -163,9 +167,28 @@ export class PrismaConnectedAccountRepo
     selectedFolderIds?: string[];
     linkedinProducts?: string[];
   }) {
+    const changesUsage = [args.status, args.displayName, args.emailAddress, args.provider].some(
+      (value) => value !== undefined,
+    );
+    if (!changesUsage) return this.writeAccountUpdate(args);
+
+    const owner = await this.prisma.connectedAccount.findUnique({
+      where: { unipileAccountId: args.unipileAccountId },
+      select: { companyId: true },
+    });
+    if (!owner) return this.writeAccountUpdate(args);
+
+    return this.withCompanyTransaction(owner.companyId, async () => {
+      const row = await this.writeAccountUpdate(args);
+      await this.billingUsage.recordChannels(row.companyId, [row.id]);
+      return row;
+    });
+  }
+
+  private writeAccountUpdate(args: Parameters<PrismaConnectedAccountRepo["updateAccountUnscoped"]>[0]) {
     const { unipileAccountId } = args;
 
-    const row = await this.prisma.connectedAccount.update({
+    return this.prisma.connectedAccount.update({
       where: { unipileAccountId },
       data: {
         status: args.status,
@@ -184,10 +207,6 @@ export class PrismaConnectedAccountRepo
         linkedinProducts: args.linkedinProducts,
       },
     });
-    if ([args.status, args.displayName, args.emailAddress, args.provider].some((value) => value !== undefined))
-      await this.billingUsage.recordChannels(row.companyId);
-
-    return row;
   }
 
   @BypassTenantGuard
@@ -279,12 +298,18 @@ export class PrismaConnectedAccountRepo
 
   @BypassTenantGuard
   async markAccountDeletedUnscoped(id: string) {
-    const row = await this.prisma.connectedAccount.update({
-      where: { id },
-      data: { status: ConnectedAccountStatus.deleted, syncing: false },
-      select: { companyId: true },
+    const owner = await this.prisma.connectedAccount.findUnique({ where: { id }, select: { companyId: true } });
+    const data = { status: ConnectedAccountStatus.deleted, syncing: false };
+    if (!owner) {
+      await this.prisma.connectedAccount.update({ where: { id }, data });
+      return;
+    }
+    const { companyId } = owner;
+
+    await this.withCompanyTransaction(companyId, async () => {
+      await this.prisma.connectedAccount.update({ where: { id, companyId }, data });
+      await this.billingUsage.recordChannels(companyId, [id]);
     });
-    await this.billingUsage.recordChannels(row.companyId);
   }
 
   @BypassTenantGuard
@@ -701,9 +726,11 @@ export class PrismaConnectedAccountRepo
   }
 
   async deleteAccount(id: string) {
-    await this.prisma.connectedAccount.deleteMany({
-      where: { id, companyId: this.companyId, userId: this.userId },
+    const { companyId, userId } = this;
+
+    await this.withCompanyTransaction(companyId, async () => {
+      await this.prisma.connectedAccount.deleteMany({ where: { id, companyId, userId } });
+      await this.billingUsage.recordChannels(companyId, [id]);
     });
-    await this.billingUsage.recordChannels(this.companyId);
   }
 }

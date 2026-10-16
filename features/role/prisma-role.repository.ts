@@ -150,7 +150,7 @@ export class PrismaRoleRepo
       create: roleData,
       update: roleData,
     });
-    if (args.id) await this.billingUsage.recordSeats(companyId);
+    if (args.id) await this.billingUsage.recordSeats(companyId, []);
 
     for (const { resource, actions } of args.permissions) {
       const stored = new Set(actions);
@@ -245,7 +245,7 @@ export class PrismaRoleRepo
     await this.prisma.userRole.deleteMany({
       where: { id, companyId },
     });
-    await this.billingUsage.recordSeats(companyId);
+    await this.billingUsage.recordSeats(companyId, []);
 
     return roleDto(role);
   }

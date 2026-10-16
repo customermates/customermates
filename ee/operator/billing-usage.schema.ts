@@ -66,6 +66,7 @@ export const OperatorBillingUsageDtoSchema = z.object({
   from: z.date(),
   to: z.date(),
   monthComplete: z.boolean(),
+  recordingStartedAt: z.date().nullable(),
   workspaces: z.array(WorkspaceBillingUsageSchema),
 });
 

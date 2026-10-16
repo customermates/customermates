@@ -30,6 +30,7 @@ function workspace(companyId: string, createdAt: string, deletedAt: string | nul
 }
 
 const ledger: BillingUsageLedger = {
+  recordingStartedAt: null,
   workspaces: [
     workspace(LIVE, "2026-01-01T00:00:00.000Z", null, "b.example.invalid"),
     workspace(DELETED_IN_MONTH, "2026-01-01T00:00:00.000Z", "2026-09-10T00:00:00.000Z", "a.example.invalid"),
@@ -94,7 +95,9 @@ describe("GetOperatorBillingUsageInteractor", () => {
   });
 
   it("fails with not found for an unknown workspace", async () => {
-    const { interactor: subject } = interactor(vi.fn(() => Promise.resolve({ workspaces: [], intervals: [] })));
+    const { interactor: subject } = interactor(
+      vi.fn(() => Promise.resolve({ workspaces: [], intervals: [], recordingStartedAt: null })),
+    );
 
     const result = await subject.invoke({ month: "2026-09", companyId: "00000000-0000-4000-8000-000000000099" });
 

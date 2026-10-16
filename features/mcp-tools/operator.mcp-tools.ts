@@ -35,7 +35,7 @@ export const getOperatorUsageTool = {
     "seats.count counts every user who was active at any time in the month, for the full month; channels.peak is the highest number of messaging channels connected at the same time, reached at channels.peakAt; current holds active seats and connected channels right now. " +
     "With a workspaceId, seats.users lists each user with name, email, role, addedAt and deactivatedAt, and channels.items lists each channel with provider, identifier, connectedAt and disconnectedAt. " +
     "coverage.complete is false when the month predates the recorded history (coverage.recordedFrom) or some times are inexact (coverage.inexactTimes, *Exact false); report such numbers as incomplete. " +
-    "Deleted workspaces keep their history and carry deletedAt. Read-only.",
+    "Workspaces deleted after recording started keep their history and carry deletedAt; those deleted before recordingStartedAt are missing. Read-only.",
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: GetOperatorUsageSchema,
   outputSchema: GetOperatorUsageOutputSchema,

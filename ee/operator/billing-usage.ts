@@ -177,6 +177,23 @@ export function billedChannels(
     }));
 }
 
+export const OBSERVATION_LAG_MS = 24 * 60 * 60 * 1000;
+
+function startsJustAfter(interval: BillingUsageIntervalRow, window: BillingUsageWindow): boolean {
+  return interval.startedAt >= window.to && interval.startedAt.getTime() < window.to.getTime() + OBSERVATION_LAG_MS;
+}
+
+function inexactSeatTimes(intervals: readonly BillingUsageIntervalRow[], window: BillingUsageWindow): boolean {
+  const until = window.to.getTime() + OBSERVATION_LAG_MS;
+  const near = (time: Date | null) => time !== null && time >= window.from && time.getTime() < until;
+
+  return intervals.some(
+    (interval) =>
+      interval.kind === "seat" &&
+      ((!interval.startExact && near(interval.startedAt)) || (!interval.endExact && near(interval.endedAt))),
+  );
+}
+
 export function workspaceBillingUsage(args: {
   workspace: BillingUsageWorkspaceRow;
   intervals: readonly BillingUsageIntervalRow[];
@@ -187,7 +204,11 @@ export function workspaceBillingUsage(args: {
   const seats = billedSeats(intervals, window);
   const channels = billedChannels(intervals, window);
   const { peak, peakAt } = peakChannels(intervals, window);
-  const inexactChannelTimes = channels.some((channel) => !channel.connectedAtExact || !channel.disconnectedAtExact);
+  const inexactChannelTimes =
+    channels.some((channel) => !channel.connectedAtExact || !channel.disconnectedAtExact) ||
+    intervals.some(
+      (interval) => interval.kind === "channel" && !interval.startExact && startsJustAfter(interval, window),
+    );
   const deleted = workspace.deletedAt !== null;
 
   return {
@@ -197,7 +218,7 @@ export function workspaceBillingUsage(args: {
     deletedAt: workspace.deletedAt,
     seats: {
       count: seats.length,
-      coverage: coverage(workspace.seatsRecordedFrom, window, false),
+      coverage: coverage(workspace.seatsRecordedFrom, window, inexactSeatTimes(intervals, window)),
       ...(includeDetails ? { users: seats } : {}),
     },
     channels: {

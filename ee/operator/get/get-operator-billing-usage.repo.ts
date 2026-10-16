@@ -3,6 +3,7 @@ import type { BillingUsageIntervalRow, BillingUsageWorkspaceRow } from "../billi
 export type BillingUsageLedger = {
   workspaces: BillingUsageWorkspaceRow[];
   intervals: Array<BillingUsageIntervalRow & { companyId: string }>;
+  recordingStartedAt: Date | null;
 };
 
 export abstract class GetOperatorBillingUsageRepo {

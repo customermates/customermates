@@ -1,10 +1,9 @@
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BillingUsageKind, ConnectedAccountStatus, Status } from "@/generated/prisma";
 
-export type BillingUsageObservation = "change" | "sweep";
+export type BillingUsageChanges = readonly string[] | "sweep";
 
-type Subject = {
-  subjectId: string;
+type Snapshot = {
   firstName: string | null;
   lastName: string | null;
   email: string | null;
@@ -13,12 +12,20 @@ type Subject = {
   identifier: string | null;
 };
 
-const SNAPSHOT_FIELDS = ["firstName", "lastName", "email", "roleName", "provider", "identifier"] as const;
+type Subject = Snapshot & { subjectId: string };
 
-const NEW_WORKSPACE_WINDOW_MS = 10 * 60 * 1000;
+function sameIdentity(a: Snapshot, b: Snapshot): boolean {
+  return (
+    a.firstName === b.firstName &&
+    a.lastName === b.lastName &&
+    a.email === b.email &&
+    a.provider === b.provider &&
+    a.identifier === b.identifier
+  );
+}
 
 export class BillingUsageLedger extends TenantRepository {
-  async recordSeats(companyId: string, observation: BillingUsageObservation = "change"): Promise<void> {
+  async recordSeats(companyId: string, changed: BillingUsageChanges): Promise<void> {
     const users = await this.prisma.user.findMany({
       where: { companyId, status: Status.active },
       select: { id: true, firstName: true, lastName: true, email: true, role: { select: { name: true } } },
@@ -36,11 +43,11 @@ export class BillingUsageLedger extends TenantRepository {
         provider: null,
         identifier: null,
       })),
-      observation,
+      changed,
     );
   }
 
-  async recordChannels(companyId: string, observation: BillingUsageObservation = "change"): Promise<void> {
+  async recordChannels(companyId: string, changed: BillingUsageChanges): Promise<void> {
     const accounts = await this.prisma.connectedAccount.findMany({
       where: { companyId, status: { not: ConnectedAccountStatus.deleted } },
       select: { id: true, provider: true, emailAddress: true, displayName: true, unipileAccountId: true },
@@ -58,22 +65,26 @@ export class BillingUsageLedger extends TenantRepository {
         provider: account.provider,
         identifier: account.emailAddress || account.displayName || account.unipileAccountId,
       })),
-      observation,
+      changed,
     );
   }
 
-  async recordWorkspace(companyId: string): Promise<void> {
-    await this.ensureWorkspace(companyId, new Date());
+  async recordWorkspaceCreated(companyId: string): Promise<void> {
+    const company = await this.prisma.company.findFirst({ where: { id: companyId }, select: { createdAt: true } });
+
+    await this.prisma.billingUsageWorkspace.createMany({
+      data: [{ companyId, createdAt: company?.createdAt ?? new Date() }],
+      skipDuplicates: true,
+    });
   }
 
-  async recordWorkspaceDeleted(companyId: string, observation: BillingUsageObservation = "change"): Promise<void> {
+  async recordWorkspaceDeleted(companyId: string, changed: "deleted" | "sweep"): Promise<void> {
     const now = new Date();
-    const exact = observation === "change";
-
     await this.ensureWorkspace(companyId, now);
+
     await this.prisma.billingUsageInterval.updateMany({
       where: { companyId, endedAt: null },
-      data: { endedAt: now, endExact: exact },
+      data: { endedAt: now, endExact: changed === "deleted" },
     });
     await this.prisma.billingUsageWorkspace.updateMany({
       where: { companyId, deletedAt: null },
@@ -85,10 +96,10 @@ export class BillingUsageLedger extends TenantRepository {
     companyId: string,
     kind: BillingUsageKind,
     current: Subject[],
-    observation: BillingUsageObservation,
+    changed: BillingUsageChanges,
   ): Promise<void> {
     const now = new Date();
-    const exact = observation === "change";
+    const exact = (subjectId: string) => changed !== "sweep" && changed.includes(subjectId);
     await this.ensureWorkspace(companyId, now);
 
     const open = await this.prisma.billingUsageInterval.findMany({
@@ -107,37 +118,52 @@ export class BillingUsageLedger extends TenantRepository {
     const currentById = new Map(current.map((subject) => [subject.subjectId, subject]));
     const openById = new Map(open.map((interval) => [interval.subjectId, interval]));
 
-    const ended = open.filter((interval) => !currentById.has(interval.subjectId)).map((interval) => interval.id);
-    if (ended.length > 0) {
-      await this.prisma.billingUsageInterval.updateMany({
-        where: { companyId, id: { in: ended } },
-        data: { endedAt: now, endExact: exact },
-      });
+    const ended = open.filter((interval) => !currentById.has(interval.subjectId));
+    for (const endExact of [true, false]) {
+      const ids = ended.filter((interval) => exact(interval.subjectId) === endExact).map((interval) => interval.id);
+      if (ids.length > 0) {
+        await this.prisma.billingUsageInterval.updateMany({
+          where: { companyId, id: { in: ids }, endedAt: null },
+          data: { endedAt: now, endExact },
+        });
+      }
     }
 
     const started = current.filter((subject) => !openById.has(subject.subjectId));
     if (started.length > 0) {
       await this.prisma.billingUsageInterval.createMany({
-        data: started.map((subject) => ({ companyId, kind, startedAt: now, startExact: exact, ...subject })),
+        data: started.map((subject) => ({
+          companyId,
+          kind,
+          startedAt: now,
+          startExact: exact(subject.subjectId),
+          ...subject,
+        })),
         skipDuplicates: true,
       });
     }
 
+    const renamed = new Map<string | null, string[]>();
     for (const subject of current) {
       const interval = openById.get(subject.subjectId);
-      if (!interval || SNAPSHOT_FIELDS.every((field) => interval[field] === subject[field])) continue;
-      await this.prisma.billingUsageInterval.updateMany({
-        where: { companyId, id: interval.id },
-        data: {
-          firstName: subject.firstName,
-          lastName: subject.lastName,
-          email: subject.email,
-          roleName: subject.roleName,
-          provider: subject.provider,
-          identifier: subject.identifier,
-        },
-      });
+      if (!interval) continue;
+      if (!sameIdentity(interval, subject)) {
+        await this.prisma.billingUsageInterval.updateMany({
+          where: { companyId, id: interval.id },
+          data: {
+            firstName: subject.firstName,
+            lastName: subject.lastName,
+            email: subject.email,
+            provider: subject.provider,
+            identifier: subject.identifier,
+          },
+        });
+      }
+      if (interval.roleName !== subject.roleName)
+        renamed.set(subject.roleName, [...(renamed.get(subject.roleName) ?? []), interval.id]);
     }
+    for (const [roleName, ids] of renamed)
+      await this.prisma.billingUsageInterval.updateMany({ where: { companyId, id: { in: ids } }, data: { roleName } });
   }
 
   private async ensureWorkspace(companyId: string, now: Date): Promise<void> {
@@ -148,12 +174,16 @@ export class BillingUsageLedger extends TenantRepository {
     if (existing) return;
 
     const company = await this.prisma.company.findFirst({ where: { id: companyId }, select: { createdAt: true } });
-    const createdAt = company?.createdAt ?? now;
-    const recordedSinceCreation = now.getTime() - createdAt.getTime() <= NEW_WORKSPACE_WINDOW_MS;
-    const recordedFrom = recordedSinceCreation ? null : now;
 
     await this.prisma.billingUsageWorkspace.createMany({
-      data: [{ companyId, createdAt, seatsRecordedFrom: recordedFrom, channelsRecordedFrom: recordedFrom }],
+      data: [
+        {
+          companyId,
+          createdAt: company?.createdAt ?? now,
+          seatsRecordedFrom: now,
+          channelsRecordedFrom: now,
+        },
+      ],
       skipDuplicates: true,
     });
   }

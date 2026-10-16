@@ -88,7 +88,7 @@ function handler() {
 beforeEach(() => {
   state.integrationActor.mockReset().mockResolvedValue(null);
   state.interactiveActor.mockReset().mockResolvedValue(null);
-  state.ledgerReads.mockReset().mockResolvedValue({ workspaces: [], intervals: [] });
+  state.ledgerReads.mockReset().mockResolvedValue({ workspaces: [], intervals: [], recordingStartedAt: null });
 });
 
 describe("operator MCP tools", () => {

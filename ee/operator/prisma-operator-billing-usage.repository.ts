@@ -4,6 +4,7 @@ import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { ConnectedAccountStatus, Status } from "@/generated/prisma";
 
+import { OBSERVATION_LAG_MS } from "./billing-usage";
 import { OPERATOR_AUDIT_ACTION } from "./operator.schema";
 import { workspaceLabelFor } from "./workspace-label";
 
@@ -38,7 +39,7 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
     before: Date;
   }): Promise<BillingUsageLedger> {
     const scope = args.companyId ? { companyId: args.companyId } : {};
-    const [recorded, companies, intervals] = await Promise.all([
+    const [recorded, companies, intervals, recording] = await Promise.all([
       this.prisma.billingUsageWorkspace.findMany({
         where: args.companyId ? { companyId: args.companyId } : { createdAt: { lt: args.before } },
       }),
@@ -47,9 +48,14 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
         select: { id: true, createdAt: true },
       }),
       this.prisma.billingUsageInterval.findMany({
-        where: { ...scope, startedAt: { lt: args.before }, OR: [{ endedAt: null }, { endedAt: { gt: args.from } }] },
+        where: {
+          ...scope,
+          startedAt: { lt: new Date(args.before.getTime() + OBSERVATION_LAG_MS) },
+          OR: [{ endedAt: null }, { endedAt: { gt: args.from } }],
+        },
         select: INTERVAL_SELECT,
       }),
+      this.prisma.billingUsageWorkspace.aggregate({ _min: { seatsRecordedFrom: true } }),
     ]);
 
     const seatIds = [...new Set(intervals.filter((row) => row.kind === "seat").map((row) => row.subjectId))];
@@ -132,6 +138,7 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
         connectedChannels: channelCounts.get(workspace.companyId) ?? 0,
       })),
       intervals: [...intervals, ...firstSeats],
+      recordingStartedAt: recording._min.seatsRecordedFrom,
     };
   }
 }
