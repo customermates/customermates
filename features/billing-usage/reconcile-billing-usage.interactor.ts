@@ -13,9 +13,11 @@ export class ReconcileBillingUsageInteractor {
     const attempt = async (companyId: string, run: () => Promise<void>) => {
       try {
         await run();
+        return true;
       } catch (error) {
         failed += 1;
         Sentry.captureException(error, { tags: { kind: "billing-usage-reconcile" }, extra: { companyId } });
+        return false;
       }
     };
 
@@ -23,8 +25,10 @@ export class ReconcileBillingUsageInteractor {
     for (const companyId of companyIds) await attempt(companyId, () => this.repo.reconcileCompanyUnscoped(companyId));
 
     const missing = await this.repo.listRecordedWorkspacesWithoutCompanyUnscoped();
-    for (const companyId of missing) await attempt(companyId, () => this.repo.closeMissingWorkspaceUnscoped(companyId));
+    let closed = 0;
+    for (const companyId of missing)
+      if (await attempt(companyId, () => this.repo.closeMissingWorkspaceUnscoped(companyId))) closed += 1;
 
-    return { workspaces: companyIds.length, closed: missing.length, failed };
+    return { workspaces: companyIds.length, closed, failed };
   }
 }

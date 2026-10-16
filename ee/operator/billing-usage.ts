@@ -177,7 +177,7 @@ export function billedChannels(
     }));
 }
 
-export const OBSERVATION_LAG_MS = 24 * 60 * 60 * 1000;
+export const OBSERVATION_LAG_MS = 72 * 60 * 60 * 1000;
 
 function startsJustAfter(interval: BillingUsageIntervalRow, window: BillingUsageWindow): boolean {
   return interval.startedAt >= window.to && interval.startedAt.getTime() < window.to.getTime() + OBSERVATION_LAG_MS;

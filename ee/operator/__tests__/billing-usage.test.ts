@@ -291,8 +291,8 @@ describe("workspace billing usage", () => {
     });
 
     expect(csv.split("\n")).toEqual([
-      "month,workspace_id,workspace,workspace_deleted_at,seats,seats_complete,peak_channels,peak_channels_at,channels_complete,active_seats_now,connected_channels_now",
-      "2026-09,00000000-0000-4000-8000-000000000010,'=cmd,,1,true,1,2026-09-03T00:00:00.000Z,true,3,2",
+      "month,workspace_id,workspace,workspace_deleted_at,seats,seats_complete,peak_channels,peak_channels_at,channels_complete,active_seats_now,connected_channels_now,recording_started_at",
+      "2026-09,00000000-0000-4000-8000-000000000010,'=cmd,,1,true,1,2026-09-03T00:00:00.000Z,true,3,2,",
       "",
     ]);
   });

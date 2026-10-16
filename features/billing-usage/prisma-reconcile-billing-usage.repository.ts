@@ -36,6 +36,9 @@ export class PrismaReconcileBillingUsageRepo extends TenantRepository implements
 
   @BypassTenantGuard
   async closeMissingWorkspaceUnscoped(companyId: string): Promise<void> {
-    await this.ledger.recordWorkspaceDeleted(companyId, "sweep");
+    await this.withCompanyTransaction(companyId, async () => {
+      if (await this.prisma.company.findFirst({ where: { id: companyId }, select: { id: true } })) return;
+      await this.ledger.recordWorkspaceDeleted(companyId, "sweep");
+    });
   }
 }

@@ -126,6 +126,33 @@ describeDatabase("billing usage ledger", { timeout: 120_000 }, () => {
     expect(rows.find((row) => row.subjectId === otherId)).toMatchObject({ endExact: false });
   });
 
+  it("keeps a repaired interval estimated when a write touches a subject without changing whether it counts", async () => {
+    const { companyId, userId } = await workspace();
+    const accountId = randomUUID();
+    await runWithoutTenant(() =>
+      prisma.connectedAccount.create({
+        data: {
+          id: accountId,
+          companyId,
+          userId,
+          unipileAccountId: `u-${accountId}`,
+          provider: "google",
+          status: "connecting",
+          emailAddress: "drift@ledger.example.invalid",
+        },
+      }),
+    );
+
+    await runWithoutTenant(() => users().setOperatorStatusCompanyWide(companyId, userId, "active"));
+    await runWithoutTenant(() =>
+      accounts().updateAccountUnscoped({ unipileAccountId: `u-${accountId}`, status: "ok" }),
+    );
+
+    const rows = await intervals(companyId);
+    expect(rows.find((row) => row.subjectId === userId)).toMatchObject({ startExact: false });
+    expect(rows.find((row) => row.subjectId === accountId)).toMatchObject({ startExact: false });
+  });
+
   it("opens a seat for an active user, closes it when the user repository deactivates them and opens a new one on reactivation", async () => {
     const { companyId, userId } = await workspace();
     await recordSeats(companyId, [userId]);
@@ -283,6 +310,8 @@ describeDatabase("billing usage ledger", { timeout: 120_000 }, () => {
 
     const repo = new PrismaReconcileBillingUsageRepo();
     expect(await repo.listRecordedWorkspacesWithoutCompanyUnscoped()).toContain(vanished.companyId);
+    await repo.closeMissingWorkspaceUnscoped(kept.companyId);
+    expect((await ledgerWorkspace(kept.companyId))?.deletedAt).toBeNull();
     await repo.reconcileCompanyUnscoped(kept.companyId);
     await repo.closeMissingWorkspaceUnscoped(vanished.companyId);
 

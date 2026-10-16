@@ -38,7 +38,7 @@ import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
-import { BillingUsageLedger } from "@/features/billing-usage/billing-usage-ledger";
+import { BillingUsageLedger, seatChange } from "@/features/billing-usage/billing-usage-ledger";
 
 function recordActorSelect(companyId: string) {
   return {
@@ -96,11 +96,12 @@ export class PrismaUserRepo
     status: Status,
     agentCreditActivatedAt?: Date | null,
   ): Promise<void> {
+    const before = await this.prisma.user.findFirst({ where: { id: userId, companyId }, select: { status: true } });
     await this.prisma.user.update({
       where: { id: userId, companyId },
       data: { status, ...(agentCreditActivatedAt === undefined ? {} : { agentCreditActivatedAt }) },
     });
-    await this.billingUsage.recordSeats(companyId, [userId]);
+    await this.billingUsage.recordSeats(companyId, seatChange(userId, before?.status, status));
   }
 
   async setPlatformOperatorCompanyWide(companyId: string, userId: string, isPlatformOperator: boolean): Promise<void> {
@@ -350,6 +351,10 @@ export class PrismaUserRepo
   @Transaction
   async adminUpdateDetailsOrThrow(args: RepoArgs<AdminUpdateUserDetailsRepo, "adminUpdateDetailsOrThrow">) {
     const { companyId } = this.user;
+    const before = await this.prisma.user.findFirst({
+      where: { id: args.userId, companyId },
+      select: { status: true },
+    });
 
     await this.prisma.user.update({
       data: {
@@ -362,7 +367,7 @@ export class PrismaUserRepo
       },
       where: { id: args.userId, companyId },
     });
-    await this.billingUsage.recordSeats(companyId, [args.userId]);
+    await this.billingUsage.recordSeats(companyId, seatChange(args.userId, before?.status, args.status));
   }
 
   async createCompanyOwnerOrThrow(args: RepoArgs<RegisterUserRepo, "createCompanyOwnerOrThrow">) {
@@ -703,9 +708,9 @@ export class PrismaUserRepo
   }
 
   async deactivateUserOrThrow(userId: string) {
-    const { companyId } = await this.prisma.user.findUniqueOrThrow({
+    const { companyId, status } = await this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
-      select: { companyId: true },
+      select: { companyId: true, status: true },
     });
 
     await this.withCompanyTransaction(companyId, async () => {
@@ -713,7 +718,7 @@ export class PrismaUserRepo
         where: { id: userId, companyId },
         data: { status: Status.inactive, agentCreditActivatedAt: null },
       });
-      await this.billingUsage.recordSeats(companyId, [userId]);
+      await this.billingUsage.recordSeats(companyId, seatChange(userId, status, Status.inactive));
     });
   }
 

@@ -12,6 +12,7 @@ const COLUMNS = [
   "channels_complete",
   "active_seats_now",
   "connected_channels_now",
+  "recording_started_at",
 ] as const;
 
 function csvCell(raw: string): string {
@@ -39,6 +40,7 @@ export function billingUsageSummaryCsv(usage: OperatorBillingUsageDto): string {
         String(workspace.channels.coverage.complete),
         String(workspace.current.activeSeats),
         String(workspace.current.connectedChannels),
+        iso(usage.recordingStartedAt),
       ]
         .map(csvCell)
         .join(","),
