@@ -177,14 +177,14 @@ describe("hosted AI pricing contract", () => {
       `reserves ${shares.reservePerSearch}% of a Starter allowance per search still allowed (up to ${shares.chatSearches}% in a chat, ${shares.routineSearches}% in a routine run)`,
     );
     expect(assistantEn).toContain(
-      `with the default model that is at most about ${shares.round}% of a Starter allowance.`,
+      `with Mate's chat model that is at most about ${shares.round}% of a Starter allowance.`,
     );
     expect(assistantDe).toContain(`Eine Suche kostet etwa ${shares.search} % eines Starter-Kontingents zusätzlich`);
     expect(assistantDe).toContain(
       `reserviert Mate ${de(shares.reservePerSearch)} % eines Starter-Kontingents je noch erlaubter Suche (bis zu ${de(shares.chatSearches)} % im Chat, ${de(shares.routineSearches)} % in einem Routinenlauf)`,
     );
     expect(assistantDe).toContain(
-      `mit dem Standardmodell sind das höchstens etwa ${de(shares.round)} % eines Starter-Kontingents.`,
+      `mit dem Chat-Modell von Mate sind das höchstens etwa ${de(shares.round)} % eines Starter-Kontingents.`,
     );
   });
 
