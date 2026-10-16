@@ -24,6 +24,8 @@ vi.mock("@/components/shared/app-image", () => ({ AppImage: () => null }));
 import { McpConsentCard } from "../mcp-consent-card";
 import { McpConsentStore } from "../mcp-consent.store";
 
+import { workspaceAvatarStyle } from "@/app/components/workspaces/workspace-identity";
+
 const crm: McpConsentWorkspace = { companyId: "company-a", name: "CRM", isCurrent: true, unavailableReason: null };
 const taxes: McpConsentWorkspace = { companyId: "company-b", name: "Taxes", isCurrent: false, unavailableReason: null };
 const waiting: McpConsentWorkspace = {
@@ -57,6 +59,14 @@ function headline() {
 
 function workspaceOption(companyId: string) {
   return container.querySelector<HTMLButtonElement>(`[id="mcp-consent-workspace-${companyId}"]`);
+}
+
+function optionLabel(companyId: string) {
+  return container.querySelector<HTMLLabelElement>(`label[for="mcp-consent-workspace-${companyId}"]`);
+}
+
+function optionAvatar(companyId: string) {
+  return optionLabel(companyId)?.querySelector<HTMLElement>("[data-slot='avatar-fallback']");
 }
 
 function button(name: string) {
@@ -97,18 +107,31 @@ describe("McpConsentCard", () => {
     render([crm, taxes, waiting]);
 
     expect(headline()).toBe(`McpConsentWorkspace.title ${JSON.stringify({ client: "Claude", workspace: "CRM" })}`);
-    expect(container.querySelector(`label[for="mcp-consent-workspace-company-a"]`)?.textContent).toBe(
-      "CRMMcpConsentWorkspace.current",
-    );
+    expect(optionLabel("company-a")?.textContent).toBe("CCRMMcpConsentWorkspace.current");
     expect(workspaceOption("company-c")?.disabled).toBe(true);
-    expect(container.querySelector(`label[for="mcp-consent-workspace-company-c"]`)?.textContent).toBe(
-      "Workspaces.fallbackNameCommon.userStatuses.pendingAuthorization",
+    expect(optionLabel("company-c")?.textContent).toBe(
+      "WWorkspaces.fallbackNameCommon.userStatuses.pendingAuthorization",
     );
 
     act(() => workspaceOption("company-b")?.click());
 
     expect(store.selectedCompanyId).toBe("company-b");
     expect(headline()).toBe(`McpConsentWorkspace.title ${JSON.stringify({ client: "Claude", workspace: "Taxes" })}`);
+  });
+
+  it("marks every workspace with the switcher's initial and colour, unavailable ones included", () => {
+    render([crm, taxes, waiting]);
+
+    for (const workspace of [crm, taxes, waiting]) {
+      const avatar = optionAvatar(workspace.companyId);
+      const { backgroundColor, color } = workspaceAvatarStyle(workspace.companyId);
+
+      expect(avatar?.closest("[data-slot='avatar']")?.getAttribute("data-size")).toBe("sm");
+      expect(avatar?.style.backgroundColor).toBe(backgroundColor);
+      expect(avatar?.style.color).toBe(color);
+    }
+    expect(optionAvatar("company-b")?.textContent).toBe("T");
+    expect(optionAvatar("company-c")?.textContent).toBe("W");
   });
 
   it("approves the connection for the chosen workspace", async () => {

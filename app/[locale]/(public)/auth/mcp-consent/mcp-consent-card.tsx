@@ -6,6 +6,8 @@ import { useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
+import { WorkspaceAvatar } from "@/app/components/workspaces/workspace-avatar";
+import { workspaceDisplayName } from "@/app/components/workspaces/workspace-identity";
 import { Button } from "@/components/ui/button";
 import { RadioGroup } from "@/components/ui/radio-group";
 import { AppCard } from "@/components/card/app-card";
@@ -95,20 +97,25 @@ const McpConsentCardContent = observer(({ clientName, consentCode, redirectHost,
               value={selectedCompanyId ?? ""}
               onValueChange={mcpConsentStore.select}
             >
-              {workspaces.map((workspace) => (
-                <SelectableCard
-                  key={workspace.companyId}
-                  description={
-                    unavailableLabel(workspace.unavailableReason) ??
-                    (workspace.isCurrent ? t("McpConsentWorkspace.current") : undefined)
-                  }
-                  disabled={isSubmitting || workspace.unavailableReason !== null}
-                  id={`mcp-consent-workspace-${workspace.companyId}`}
-                  label={workspace.name ?? t("Workspaces.fallbackName")}
-                  selectionMode="single"
-                  value={workspace.companyId}
-                />
-              ))}
+              {workspaces.map((workspace) => {
+                const name = workspaceDisplayName(workspace.name, t("Workspaces.fallbackName"));
+
+                return (
+                  <SelectableCard
+                    key={workspace.companyId}
+                    description={
+                      unavailableLabel(workspace.unavailableReason) ??
+                      (workspace.isCurrent ? t("McpConsentWorkspace.current") : undefined)
+                    }
+                    disabled={isSubmitting || workspace.unavailableReason !== null}
+                    id={`mcp-consent-workspace-${workspace.companyId}`}
+                    label={name}
+                    leading={<WorkspaceAvatar companyId={workspace.companyId} name={name} size="sm" />}
+                    selectionMode="single"
+                    value={workspace.companyId}
+                  />
+                );
+              })}
             </RadioGroup>
           </fieldset>
         ) : null}
