@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { mockEntitlementService } from "@/tests/helpers/mock-entitlement-service";
 import { MOCK_DRAFT_SEND_CLAIM_ID, mockDraftSendRepo } from "@/tests/helpers/mock-draft-send-repo";
+import { recordedMessage } from "@/tests/helpers/recorded-message";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import {
   MOCK_ENV_MODULE,
@@ -36,11 +37,11 @@ import { MessagingMessageDirection, MessagingProvider, MessagingThreadType } fro
 import { draftThreadRecipientSetsMatch } from "../../draft-thread";
 import { newDraftThreadProviderId } from "../../draft-thread-id";
 import { SaveDraftInteractor } from "../save-draft.interactor";
+import { DraftSendGate } from "../draft-send-gate";
 import { SendEmailInteractor } from "../send-email.interactor";
 import { StartChatInteractor } from "../start-chat.interactor";
 import { DiscardDraftInteractor } from "../discard-draft.interactor";
-import { chatSendContentHash, emailSendContentHash } from "../draft-send-gate";
-import { syncedEmailCopyHash } from "../../draft-send-copy";
+import { chatSendContentHash, emailSendContentHash, syncedEmailCopyHash } from "../../draft-send-copy";
 import { buildEmailMessage } from "../../unipile.mappers";
 import { UnipileEmailSchema } from "../../unipile.schema";
 
@@ -149,7 +150,6 @@ function emailRepo(overrides: Record<string, unknown> = {}) {
     findDraftById: vi.fn().mockResolvedValue(emailDraft),
     findRecentOutboundDuplicate: vi.fn().mockResolvedValue(null),
     persistOutboundMessageOrThrow: vi.fn().mockResolvedValue(persistedEmail),
-    completeReplyDraftSend: vi.fn().mockResolvedValue(null),
     restoreDraftSummaryIfPresent: vi.fn().mockResolvedValue(undefined),
     ...mockDraftSendRepo(),
     ...overrides,
@@ -164,6 +164,7 @@ function emailInteractor(repo: any, service: any) {
     } as never,
     service,
     mockEntitlementService(),
+    new DraftSendGate(repo),
   );
 }
 
@@ -650,9 +651,13 @@ const coldChatInput = {
 function chatRepo(overrides: Record<string, unknown> = {}) {
   return {
     findDraftById: vi.fn().mockResolvedValue(chatDraft),
-    persistOutboundMessageOrThrow: vi
-      .fn()
-      .mockResolvedValue({ id: PERSISTED_CHAT_MESSAGE_ID, messagingThreadId: PERSISTED_CHAT_THREAD_ID }),
+    persistOutboundMessageOrThrow: vi.fn().mockResolvedValue(
+      recordedMessage({
+        id: PERSISTED_CHAT_MESSAGE_ID,
+        messagingThreadId: PERSISTED_CHAT_THREAD_ID,
+        connectedAccountId: CHAT_ACCOUNT_ID,
+      }),
+    ),
     ...mockDraftSendRepo(),
     ...overrides,
   };
@@ -683,6 +688,7 @@ function chatInteractor(repo: any, service: any, account: unknown = chatAccount)
     repo,
     mockEntitlementService(),
     { resolve: vi.fn().mockResolvedValue([]) } as never,
+    new DraftSendGate(repo),
   );
 }
 
@@ -712,7 +718,7 @@ describe("StartChatInteractor cold-draft target binding", () => {
 
     const result = await chatInteractor(repo, service).invoke(coldChatInput);
 
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       ok: true,
       data: { threadId: PERSISTED_CHAT_THREAD_ID, messageId: PERSISTED_CHAT_MESSAGE_ID, repeated: false },
     });
@@ -741,7 +747,7 @@ describe("StartChatInteractor cold-draft target binding", () => {
 
     const result = await chatInteractor(repo, service).invoke(coldChatInput);
 
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       ok: true,
       data: { threadId: PERSISTED_CHAT_THREAD_ID, messageId: PERSISTED_CHAT_MESSAGE_ID, repeated: false },
     });

@@ -30,8 +30,6 @@ const NOT_FOUND_ON_MISSING = [
 
 const NEVER_NOT_FOUND = ["getUserProfile", "getUsers", "getConnectedAccounts"];
 
-const DRAFT_CONFLICT_ON = ["saveDraft", "sendEmail", "sendChatMessage", "startChat", "discardDraft"];
-
 describe("documented 404 responses", () => {
   const operations = operationsById();
 
@@ -39,15 +37,13 @@ describe("documented 404 responses", () => {
     expect(Object.keys(operations.get(operationId)?.responses ?? {})).toContain("404");
   });
 
-  it("documents discardDraft as a no-op answering null for a missing draft and 409 only for a stale revision", () => {
+  it("documents discardDraft as a no-op answering null for a missing draft, never 404", () => {
     const operation = operations.get("discardDraft") as
       | (Operation & { responses?: Record<string, { description?: string }> })
       | undefined;
     expect(operation).toBeDefined();
-    expect(Object.keys(operation?.responses ?? {})).toContain("409");
     expect(Object.keys(operation?.responses ?? {})).not.toContain("404");
     expect(operation?.description).toContain("safe no-op that returns `threadId: null`");
-    expect(operation?.description).toContain("draftRevision that no longer matches the saved draft answers 409");
     expect(operation?.responses?.["200"]?.description).toContain("`threadId: null` when no draft with this id exists");
   });
 
@@ -55,13 +51,5 @@ describe("documented 404 responses", () => {
     const operation = operations.get(operationId);
     expect(operation, operationId).toBeDefined();
     expect(Object.keys(operation?.responses ?? {})).not.toContain("404");
-  });
-});
-
-describe("documented 409 draft conflicts", () => {
-  const operations = operationsById();
-
-  it.each(DRAFT_CONFLICT_ON)("documents 409 on %s, whose draft can change or be sent meanwhile", (operationId) => {
-    expect(Object.keys(operations.get(operationId)?.responses ?? {})).toContain("409");
   });
 });

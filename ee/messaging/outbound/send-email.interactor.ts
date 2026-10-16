@@ -6,8 +6,9 @@ import type { ConnectedAccount } from "@/generated/prisma";
 import type { MessagingService } from "../messaging.service";
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
-import type { DraftSendClaim, DraftSendRecord } from "../draft-send";
+import type { DraftSendClaim } from "../draft-send";
 import type { DraftThreadTarget } from "../draft-thread";
+import type { DraftSendGate } from "./draft-send-gate";
 
 import { z } from "zod";
 import * as Sentry from "@sentry/node";
@@ -29,23 +30,13 @@ import {
   draftUpdatedAtFromRevision,
   hasCompleteDraftBinding,
 } from "../draft-thread";
-import { DRAFT_CONFLICT_CODES, providerSendOutcome } from "../draft-send";
-import { emailSendCopyHashes } from "../draft-send-copy";
+import { providerSendOutcome } from "../draft-send";
+import { emailSendContentHash, emailSendCopyHashes } from "../draft-send-copy";
 import { composeEmailBodies } from "./email-signature";
 import { resolveStoredEmailSettings } from "../email-settings";
 import { EMPTY_ATTENDEE, buildEmailMessage, toAttachmentsMeta } from "../unipile.mappers";
 import { UnipileEmailSchema } from "../unipile.schema";
-import { SentMessageResultSchema, sentMessageResult, type SentMessageResult } from "./sent-message-result";
-import {
-  completeDraftSendQuietly,
-  emailSendContentHash,
-  gateMissingDraft,
-  openDraftSend,
-  recordDraftSendQuietly,
-  releaseDraftSendOnFailure,
-  releaseDraftSendQuietly,
-  settleDraftSendQuietly,
-} from "./draft-send-gate";
+import { SentMessageResultSchema, toSentMessageResult, type SentMessageResult } from "./sent-message.schema";
 import type { SendEmailRepo } from "./send-email.repo";
 
 const DUPLICATE_OUTBOUND_WINDOW_MS = 60_000;
@@ -146,6 +137,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
     private accountRepo: FindUsableAccountRepo,
     private messagingService: MessagingService,
     private entitlements: EntitlementService,
+    private draftSends: DraftSendGate,
   ) {
     super();
   }
@@ -204,16 +196,17 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
       const revision = draftUpdatedAtFromRevision(data.draftRevision);
       draft = await this.repo.findDraftById({ messageId: data.draftMessageId });
       if (!draft) {
-        const missing = await gateMissingDraft(this.repo, {
+        const missing = await this.draftSends.openMissing({
           draftMessageId: data.draftMessageId,
           draftRevision: revision,
           connectedAccountId: account.id,
           contentHash,
         });
-        return "replay" in missing ? this.replay(missing.replay, account, thread?.id ?? null) : missing.failure;
+        return "replay" in missing
+          ? this.draftSends.replay(missing.replay, { connectedAccountId: account.id, threadId: thread?.id ?? null })
+          : missing.failure;
       }
-      if (draftThreadId && draft.messagingThreadId !== draftThreadId)
-        return failConflict(CustomErrorCode.draftTargetMismatch);
+      if (draftThreadId && draft.messagingThreadId !== draftThreadId) return this.draftSends.refuseBinding("target");
       const conflict = draftBindingConflict({
         provider: account.provider,
         draft,
@@ -223,7 +216,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
         to: data.to.map((recipient) => recipient.identifier),
         cc: data.cc,
       });
-      if (conflict) return failConflict(DRAFT_CONFLICT_CODES[conflict]);
+      if (conflict) return this.draftSends.refuseBinding(conflict);
     }
 
     const email = resolveStoredEmailSettings(account.signature, account.signatureFields);
@@ -236,7 +229,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
 
     let claim: DraftSendClaim | null = null;
     if (draft && data.draftRevision) {
-      const gate = await openDraftSend(this.repo, {
+      const gate = await this.draftSends.open({
         draftMessageId: draft.id,
         draftRevision: draftUpdatedAtFromRevision(data.draftRevision),
         connectedAccountId: account.id,
@@ -250,7 +243,8 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
           attachments: data.attachments,
         }),
       });
-      if ("replay" in gate) return this.replay(gate.replay, account, thread?.id ?? null);
+      if ("replay" in gate)
+        return this.draftSends.replay(gate.replay, { connectedAccountId: account.id, threadId: thread?.id ?? null });
       if ("failure" in gate) return gate.failure;
       claim = gate.claim;
     }
@@ -258,7 +252,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
     const duplicateThreadId = thread && outgoingBody.trim() ? thread.id : null;
     if (
       duplicateThreadId &&
-      (await releaseDraftSendOnFailure(this.repo, claim, () =>
+      (await this.draftSends.releaseOnFailure(claim, () =>
         this.repo.findRecentOutboundDuplicate({
           messagingThreadId: duplicateThreadId,
           bodyText: outgoingBody,
@@ -266,7 +260,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
         }),
       ))
     ) {
-      if (claim) await releaseDraftSendQuietly(this.repo, claim);
+      if (claim) await this.draftSends.release(claim);
       return failConflict(CustomErrorCode.duplicateOutboundSuppressed);
     }
 
@@ -294,7 +288,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
         attachments: data.attachments,
       });
     } catch (err) {
-      if (claim) await settleDraftSendQuietly(this.repo, { claim, state: "unknown" });
+      if (claim) await this.draftSends.settle({ claim, state: "unknown" });
       throw err;
     }
 
@@ -305,10 +299,16 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
     else {
       if (claim && draft) {
         if (providerSendOutcome(res.error) === "unknown") {
-          await settleDraftSendQuietly(this.repo, { claim, state: "unknown" });
-          const confirmed = await this.confirmedBySyncedCopy(claim, draft.id, account, thread?.id ?? null);
-          if (confirmed) return confirmed;
-        } else await releaseDraftSendQuietly(this.repo, claim);
+          await this.draftSends.settle({ claim, state: "unknown" });
+          const confirmed = await this.draftSends.confirmedBySyncedCopy(claim, draft.id);
+          if (confirmed) {
+            return this.draftSends.replay(confirmed, {
+              connectedAccountId: account.id,
+              threadId: thread?.id ?? null,
+              repeated: false,
+            });
+          }
+        } else await this.draftSends.release(claim);
       }
       return fail(res.error, [], {
         retryAfter: await retryAfterPhrase(res.retryAfterSeconds),
@@ -316,15 +316,15 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
     }
 
     if (!thread || !accepted.unipileMessageId) {
-      if (claim && draft) await completeDraftSendQuietly(this.repo, { claim, draftMessageId: draft.id, ...accepted });
+      if (claim && draft) await this.draftSends.completeRemovingDraft({ claim, draftMessageId: draft.id, ...accepted });
       const adopted =
         !thread && accepted.unipileMessageId
           ? await this.adoptSentEmail(account, accepted.unipileMessageId, data.bcc ?? [])
           : null;
-      if (adopted && claim) await recordDraftSendQuietly(this.repo, claim, adopted);
+      if (adopted && claim) await this.draftSends.record(claim, adopted);
       return {
         ok: true as const,
-        data: sentMessageResult({
+        data: toSentMessageResult({
           message: adopted,
           threadId: thread?.id ?? null,
           providerMessageId: accepted.providerMessageId,
@@ -363,24 +363,19 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
 
     let recorded: MessagingMessage | null = null;
     if (claim && draft) {
-      try {
-        recorded = await this.repo.completeReplyDraftSend({
-          claim,
-          messageId: draft.id,
-          unipileMessageId: sentEmailId,
-          providerMessageId: accepted.providerMessageId,
-          sender,
-          recipients,
-          subject: data.subject,
-          bodyText: outgoingBody,
-          bodyHtml: outgoingHtml,
-          attachmentsMeta,
-          sentAt,
-        });
-      } catch (err) {
-        Sentry.captureException(err, { tags: { kind: "draft-send-completion-failure" } });
-        await settleDraftSendQuietly(this.repo, { claim, state: "sent", ...accepted });
-      }
+      recorded = await this.draftSends.completeReply({
+        claim,
+        messageId: draft.id,
+        unipileMessageId: sentEmailId,
+        providerMessageId: accepted.providerMessageId,
+        sender,
+        recipients,
+        subject: data.subject,
+        bodyText: outgoingBody,
+        bodyHtml: outgoingHtml,
+        attachmentsMeta,
+        sentAt,
+      });
     }
 
     if (!recorded) {
@@ -408,7 +403,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
             threadType: thread.type,
           },
         });
-        if (claim) await recordDraftSendQuietly(this.repo, claim, recorded);
+        if (claim) await this.draftSends.record(claim, recorded);
       } catch (err) {
         Sentry.captureException(err, { tags: { kind: "sent-message-not-recorded" } });
       }
@@ -417,7 +412,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
 
     return {
       ok: true as const,
-      data: sentMessageResult({
+      data: toSentMessageResult({
         message: recorded,
         threadId: thread.id,
         providerMessageId: accepted.providerMessageId,
@@ -430,51 +425,18 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
     draftRevision: string,
     contentHash: string,
   ): Promise<Awaited<Validated<SentMessageResult>> | null> {
-    const record = await this.repo.findDraftSend({ draftMessageId });
+    const record = await this.draftSends.findSettled(draftMessageId);
     if (!record) return null;
     const account = await this.accountRepo.findUsableAccountByIdOrThrow(record.connectedAccountId);
-    const missing = await gateMissingDraft(this.repo, {
+    const missing = await this.draftSends.openMissing({
       draftMessageId,
       draftRevision: draftUpdatedAtFromRevision(draftRevision),
       connectedAccountId: account.id,
       contentHash,
     });
-    return "replay" in missing ? this.replay(missing.replay, account, null) : missing.failure;
-  }
-
-  private async confirmedBySyncedCopy(
-    claim: DraftSendClaim,
-    draftMessageId: string,
-    account: ConnectedAccount,
-    replyThreadId: string | null,
-  ): Promise<Awaited<Validated<SentMessageResult>> | null> {
-    let record: DraftSendRecord | null = null;
-    try {
-      record = await this.repo.reconcileDraftSend({ draftMessageId });
-    } catch (err) {
-      Sentry.captureException(err, { tags: { kind: "draft-send-reconcile-failure" } });
-    }
-    if (record?.state !== "sent" || record.draftRevision.getTime() !== claim.draftRevision.getTime()) return null;
-    return this.replay(record, account, replyThreadId, false);
-  }
-
-  private async replay(
-    record: DraftSendRecord,
-    account: ConnectedAccount,
-    replyThreadId: string | null,
-    repeated = true,
-  ): Validated<SentMessageResult> {
-    const message = await this.repo.findDraftSendMessage({ record, connectedAccountId: account.id });
-    return {
-      ok: true as const,
-      data: sentMessageResult({
-        message,
-        messageId: record.sentMessageId,
-        threadId: record.sentThreadId ?? replyThreadId,
-        providerMessageId: record.providerMessageId,
-        repeated,
-      }),
-    };
+    return "replay" in missing
+      ? this.draftSends.replay(missing.replay, { connectedAccountId: account.id, threadId: null })
+      : missing.failure;
   }
 
   private async restoreDraftSummary(messageId: string) {

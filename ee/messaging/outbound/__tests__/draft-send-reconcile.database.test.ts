@@ -21,6 +21,7 @@ import { UnipileEmailSchema } from "../../unipile.schema";
 import { PrismaConnectedAccountRepo } from "../../persistence/prisma-connected-account.repository";
 import { PrismaUnipileWebhookRepo } from "../../persistence/prisma-unipile-webhook.repository";
 import { SaveDraftInteractor, type SaveDraftData } from "../save-draft.interactor";
+import { DraftSendGate } from "../draft-send-gate";
 import { SendEmailInteractor, type SendEmailData } from "../send-email.interactor";
 
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
@@ -94,14 +95,16 @@ describeDatabase("settling an unknown draft send from its synced sent copy", () 
     return { id: result.data.id, threadId: result.data.messagingThreadId, revision: result.data.draftRevision };
   };
   const sendEmail = (data: SendEmailData, provider: ReturnType<typeof emailProvider>) =>
-    runWithTenant(tenant, () =>
-      new SendEmailInteractor(
-        createTestMessagingRepo(),
+    runWithTenant(tenant, () => {
+      const repo = createTestMessagingRepo();
+      return new SendEmailInteractor(
+        repo,
         accounts(),
         provider as unknown as MessagingService,
         mockEntitlementService(),
-      ).invoke(data),
-    );
+        new DraftSendGate(repo),
+      ).invoke(data);
+    });
 
   function emailProvider(outcomes: Outcome[]) {
     const accepted: ProviderEmail[] = [];
@@ -259,7 +262,7 @@ describeDatabase("settling an unknown draft send from its synced sent copy", () 
   it("settles a send that never finished once its copy is ingested", async () => {
     const { draft, copy } = await unknownSend("stale");
     await client.query(
-      `UPDATE "MessagingDraftSend" SET "state" = 'sending', "updatedAt" = NOW() - INTERVAL '6 minutes' WHERE "companyId" = $1 AND "draftMessageId" = $2`,
+      `UPDATE "MessagingDraftSend" SET "state" = 'sending', "claimedAt" = NOW() - INTERVAL '6 minutes' WHERE "companyId" = $1 AND "draftMessageId" = $2`,
       [companyId, draft.id],
     );
 

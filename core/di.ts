@@ -273,6 +273,7 @@ import { ClaimBackfillInteractor } from "@/ee/messaging/ingest/claim-backfill.in
 import { ReleaseBackfillClaimInteractor } from "@/ee/messaging/ingest/release-backfill-claim.interactor";
 import { ReprocessStuckWebhookEventsInteractor } from "@/ee/messaging/ingest/reprocess-stuck-webhook-events.interactor";
 import { DiscardDraftInteractor } from "@/ee/messaging/outbound/discard-draft.interactor";
+import { DraftSendGate } from "@/ee/messaging/outbound/draft-send-gate";
 import { PruneDraftSendsInteractor } from "@/ee/messaging/outbound/prune-draft-sends.interactor";
 import { ResolveProviderProfileInteractor } from "@/ee/messaging/outbound/resolve-provider-profile.interactor";
 import { SaveDraftInteractor } from "@/ee/messaging/outbound/save-draft.interactor";
@@ -927,6 +928,7 @@ export const getEventService = () => {
 export const getSubscriptionService = () => new SubscriptionService(getCompanyRepo());
 export const getEntitlementService = () => new EntitlementService(getCompanyRepo());
 export const getMessagingService = () => new MessagingService();
+export const getDraftSendGate = () => new DraftSendGate(getMessagingRepo());
 export const getDeleteAccountForBillingService = () =>
   new DeleteAccountForBillingService(getConnectedAccountRepo(), getMessagingService(), getEventService());
 export const getIngestUnipileWebhookInteractor = () =>
@@ -1431,6 +1433,7 @@ export const getSendChatMessageInteractor = () =>
     getThreadIdsValidator(),
     getEntitlementService(),
     getStartChatInteractor(),
+    getDraftSendGate(),
   );
 
 export const getSendEmailInteractor = () =>
@@ -1439,6 +1442,7 @@ export const getSendEmailInteractor = () =>
     getConnectedAccountRepo(),
     getMessagingService(),
     getEntitlementService(),
+    getDraftSendGate(),
   );
 
 export const getSetConnectedAccountSignatureInteractor = () =>
@@ -1463,6 +1467,7 @@ export const getStartChatInteractor = () =>
     getMessagingRepo(),
     getEntitlementService(),
     getRecordIdentityReader(),
+    getDraftSendGate(),
   );
 
 export const getResolveProviderProfileInteractor = () =>

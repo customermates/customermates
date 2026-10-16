@@ -2,7 +2,7 @@ import type { PruneDraftSendsRepo } from "./prune-draft-sends.repo";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 
-import { DRAFT_SEND_PRUNE_BATCH_LIMIT, DRAFT_SEND_RETENTION_DAYS } from "../draft-send";
+import { DRAFT_SEND_PRUNE_BATCH_LIMIT, DRAFT_SEND_PRUNE_MAX_BATCHES, DRAFT_SEND_RETENTION_DAYS } from "../draft-send";
 
 @SystemInteractor
 export class PruneDraftSendsInteractor {
@@ -14,15 +14,16 @@ export class PruneDraftSendsInteractor {
     let pruned = 0;
     let after: string | null = null;
 
-    do {
-      const batch: { pruned: number; next: string | null } = await this.repo.pruneDraftSendsUnscoped({
+    for (let batch = 0; batch < DRAFT_SEND_PRUNE_MAX_BATCHES; batch++) {
+      const page: { pruned: number; next: string | null } = await this.repo.pruneDraftSendsUnscoped({
         before,
         after,
         limit: DRAFT_SEND_PRUNE_BATCH_LIMIT,
       });
-      pruned += batch.pruned;
-      after = batch.next;
-    } while (after);
+      pruned += page.pruned;
+      after = page.next;
+      if (!after) break;
+    }
 
     return { pruned };
   }

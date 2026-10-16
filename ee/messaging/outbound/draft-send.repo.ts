@@ -1,5 +1,23 @@
-import type { MessagingMessage } from "../messaging.schema";
+import type { AttachmentMeta, MessagingAttendee, MessagingMessage } from "../messaging.schema";
 import type { DraftSendClaim, DraftSendRecord, DraftSendStart } from "../draft-send";
+
+export type CompleteReplyDraftSendArgs = {
+  claim: DraftSendClaim;
+  messageId: string;
+  unipileMessageId: string;
+  providerMessageId: string | null;
+  sender: MessagingAttendee;
+  recipients: {
+    to: MessagingAttendee[];
+    cc: MessagingAttendee[];
+    bcc: MessagingAttendee[];
+  };
+  subject: string | null;
+  bodyText: string | null;
+  bodyHtml: string | null;
+  attachmentsMeta: AttachmentMeta[];
+  sentAt: Date;
+};
 
 export abstract class DraftSendRepo {
   abstract findDraftSend(args: { draftMessageId: string }): Promise<DraftSendRecord | null>;
@@ -29,6 +47,7 @@ export abstract class DraftSendRepo {
     unipileMessageId: string | null;
     providerMessageId: string | null;
   }): Promise<void>;
+  abstract completeReplyDraftSend(args: CompleteReplyDraftSendArgs): Promise<MessagingMessage | null>;
   abstract findDraftSendMessage(args: {
     record: DraftSendRecord;
     connectedAccountId: string;

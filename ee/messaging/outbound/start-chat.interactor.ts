@@ -1,13 +1,15 @@
 import type { StartChatThreadRepo } from "./start-chat-thread.repo";
 import type { StartChatContactChannel, StartChatContactRepo } from "./start-chat-contact.repo";
 import type { RecordIdentityReader } from "@/features/records/record-identity-reader";
-import { fail, failConflict } from "@/core/validation/interactor-failure-server";
+import { fail } from "@/core/validation/interactor-failure-server";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { ConnectedAccount } from "@/generated/prisma";
-import type { MessagingAttendee } from "../messaging.schema";
+import type { MessagingAttendee, MessagingMessage } from "../messaging.schema";
 import type { MessagingService, StartChatSpecifics } from "../messaging.service";
+import type { DraftSendClaim } from "../draft-send";
+import type { DraftSendGate } from "./draft-send-gate";
 
 import * as Sentry from "@sentry/node";
 import { randomUUID } from "node:crypto";
@@ -32,21 +34,14 @@ import {
   draftUpdatedAtFromRevision,
   hasCompleteDraftBinding,
 } from "../draft-thread";
-import { DRAFT_CONFLICT_CODES, providerSendOutcome, type DraftSendClaim } from "../draft-send";
+import { providerSendOutcome } from "../draft-send";
+import { chatSendContentHash } from "../draft-send-copy";
 import { LINKEDIN_PRODUCTS, LINKEDIN_PRODUCT_PRIMARY_INBOX, isHandleProvider, type LinkedinProduct } from "../provider";
 import { retryAfterPhrase } from "../retry-after.server";
 import { EMPTY_ATTENDEE, buildChatAttendee } from "../unipile.mappers";
 import { UnipileInboxSchema } from "../unipile.schema";
 import { SendAttachmentSchema } from "./send-email.interactor";
-import {
-  chatSendContentHash,
-  completeDraftSendQuietly,
-  gateMissingDraft,
-  openDraftSend,
-  recordDraftSendQuietly,
-  releaseDraftSendQuietly,
-  settleDraftSendQuietly,
-} from "./draft-send-gate";
+import { SentMessageResultSchema, toSentMessageResult, type SentMessageResult } from "./sent-message.schema";
 
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
 import { accountNeedsReconnect } from "../account-health";
@@ -117,8 +112,6 @@ export const StartChatInputSchema = BaseStartChatInputSchema.superRefine((d, ctx
 
 export type StartChatData = Data<typeof StartChatInputSchema>;
 
-export type StartChatResult = { threadId: string | null; messageId: string | null; repeated: boolean };
-
 type ResolvedAttendees =
   | { ok: true; ids: string[]; attendees: MessagingAttendee[] }
   | { ok: false; error: CustomErrorCode; retryAfterSeconds?: number };
@@ -130,7 +123,7 @@ const PRODUCT_LABEL: Record<LinkedinProduct, string> = {
 };
 
 @TenantInteractor({ resource: Resource.inboxMessages, manage: "create" })
-export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, StartChatResult> {
+export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, SentMessageResult> {
   constructor(
     private accountRepo: FindUsableAccountRepo,
     private contactRepo: StartChatContactRepo,
@@ -138,16 +131,18 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
     private threadRepo: StartChatThreadRepo,
     private entitlements: EntitlementService,
     private identities: Pick<RecordIdentityReader, "resolve">,
+    private draftSends: DraftSendGate,
   ) {
     super();
   }
 
   @Write({
     input: StartChatInputSchema,
+    output: SentMessageResultSchema,
     precheck: (self, data, ctx) => self.precheck(data, ctx),
     tx: false,
   })
-  async invoke(data: StartChatData): Validated<StartChatResult> {
+  async invoke(data: StartChatData): Validated<SentMessageResult> {
     const denied = await this.entitlements.require("messaging");
     if (denied) return denied;
 
@@ -163,17 +158,15 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
       : "";
     if (data.draftMessageId && data.draftRevision) {
       if (!draft) {
-        const missing = await gateMissingDraft(this.threadRepo, {
+        const missing = await this.draftSends.openMissing({
           draftMessageId: data.draftMessageId,
           draftRevision: draftUpdatedAtFromRevision(data.draftRevision),
           connectedAccountId: account.id,
           contentHash,
         });
-        if ("failure" in missing) return missing.failure;
-        return {
-          ok: true as const,
-          data: { threadId: missing.replay.sentThreadId, messageId: missing.replay.sentMessageId, repeated: true },
-        };
+        return "replay" in missing
+          ? this.draftSends.replay(missing.replay, { connectedAccountId: account.id, threadId: null })
+          : missing.failure;
       }
       const conflict = draftBindingConflict({
         provider: account.provider,
@@ -183,23 +176,19 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
         replyThreadId: null,
         to: data.attendeeIdentifiers,
       });
-      if (conflict) return failConflict(DRAFT_CONFLICT_CODES[conflict]);
+      if (conflict) return this.draftSends.refuseBinding(conflict, "attendeeIdentifiers");
     }
 
     let claim: DraftSendClaim | null = null;
     if (draft && data.draftRevision) {
-      const gate = await openDraftSend(this.threadRepo, {
+      const gate = await this.draftSends.open({
         draftMessageId: draft.id,
         draftRevision: draftUpdatedAtFromRevision(data.draftRevision),
         connectedAccountId: account.id,
         contentHash,
       });
-      if ("replay" in gate) {
-        return {
-          ok: true as const,
-          data: { threadId: gate.replay.sentThreadId, messageId: gate.replay.sentMessageId, repeated: true },
-        };
-      }
+      if ("replay" in gate)
+        return this.draftSends.replay(gate.replay, { connectedAccountId: account.id, threadId: null });
       if ("failure" in gate) return gate.failure;
       claim = gate.claim;
     }
@@ -213,19 +202,19 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
         : this.plainAttendees(data.attendeeIdentifiers);
       inboxId = attendees.ok ? await this.resolveInboxId(account, product) : undefined;
     } catch (err) {
-      if (claim) await releaseDraftSendQuietly(this.threadRepo, claim);
+      if (claim) await this.draftSends.release(claim);
       throw err;
     }
 
     if (!attendees.ok) {
-      if (claim) await releaseDraftSendQuietly(this.threadRepo, claim);
+      if (claim) await this.draftSends.release(claim);
       return fail(attendees.error, [], {
         retryAfter: await retryAfterPhrase(attendees.retryAfterSeconds),
       });
     }
 
     if (account.provider === MessagingProvider.linkedin && product !== "classic" && !inboxId) {
-      if (claim) await releaseDraftSendQuietly(this.threadRepo, claim);
+      if (claim) await this.draftSends.release(claim);
       return fail(CustomErrorCode.linkedinInboxUnavailable, [], { product: PRODUCT_LABEL[product] });
     }
 
@@ -241,22 +230,21 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
         specifics: this.buildSpecifics(data),
       });
     } catch (err) {
-      if (claim) await settleDraftSendQuietly(this.threadRepo, { claim, state: "unknown" });
+      if (claim) await this.draftSends.settle({ claim, state: "unknown" });
       throw err;
     }
 
     const started = res.ok ? res.data : null;
     if (!res.ok && providerSendOutcome(res.error) !== "accepted") {
       if (claim) {
-        if (providerSendOutcome(res.error) === "unknown")
-          await settleDraftSendQuietly(this.threadRepo, { claim, state: "unknown" });
-        else await releaseDraftSendQuietly(this.threadRepo, claim);
+        if (providerSendOutcome(res.error) === "unknown") await this.draftSends.settle({ claim, state: "unknown" });
+        else await this.draftSends.release(claim);
       }
       return fail(res.error, [], { retryAfter: await retryAfterPhrase(res.retryAfterSeconds) });
     }
 
     if (claim && draft) {
-      await completeDraftSendQuietly(this.threadRepo, {
+      await this.draftSends.completeRemovingDraft({
         claim,
         draftMessageId: draft.id,
         unipileMessageId: started?.messageId ?? null,
@@ -264,12 +252,10 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
       });
     }
 
-    let threadId: string | null = null;
-    let messageId: string | null = null;
-
+    let persisted: MessagingMessage | null = null;
     if (started?.chatId) {
       try {
-        const persisted = await this.threadRepo.persistOutboundMessageOrThrow({
+        persisted = await this.threadRepo.persistOutboundMessageOrThrow({
           connectedAccountId: account.id,
           message: {
             unipileMessageId: started.messageId ?? `sent_${randomUUID()}`,
@@ -292,15 +278,13 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
             threadType: attendees.attendees.length > 1 ? MessagingThreadType.group : MessagingThreadType.single,
           },
         });
-        threadId = persisted.messagingThreadId;
-        messageId = persisted.id;
-        if (claim) await recordDraftSendQuietly(this.threadRepo, claim, persisted);
+        if (claim) await this.draftSends.record(claim, persisted);
       } catch (err) {
         Sentry.captureException(err);
       }
     }
 
-    return { ok: true as const, data: { threadId, messageId, repeated: false } };
+    return { ok: true as const, data: toSentMessageResult({ message: persisted }) };
   }
 
   private async precheck(data: StartChatData, ctx: z.RefinementCtx) {

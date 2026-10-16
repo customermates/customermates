@@ -95451,7 +95451,7 @@
       "post": {
         "operationId": "sendChatMessage",
         "summary": "Send a chat message",
-        "description": "Sends a real message into an existing chat thread (LinkedIn, WhatsApp, etc.). This delivers a real message as a side effect. When delivering a saved draft, pass both draftMessageId and its opaque draftRevision so a newer edit cannot be consumed. The id may also be a conversation that exists only as a saved draft; the chat is then started with the draft's recipients. Each draft revision is sent at most once: repeating the request answers 202 with the first result and repeated true and sends nothing. A draft that changed, whose other version was already sent, or whose earlier send is still running or could not be confirmed answers 409 and sends nothing. Compared with earlier versions of this endpoint, a send whose message is not recorded yet answers 202 with a receipt instead of 201, and a stale draftRevision answers 409 instead of 404 with customCode draftMessageNotFound.",
+        "description": "Sends a real message into an existing chat thread (LinkedIn, WhatsApp, etc.). This delivers a real message as a side effect. When delivering a saved draft, pass both draftMessageId and its opaque draftRevision so a newer edit cannot be consumed. The id may also be a conversation that exists only as a saved draft; the chat is then started with the draft's recipients. Each draft revision is sent at most once: repeating the request returns the first result with repeated true and sends nothing. A draft that cannot be sent answers 409 conflict, sends nothing and names the reason in customCode: draftChanged when the draft was saved again after this draftRevision; draftTargetMismatch when the draft belongs to another conversation or account; draftSendInProgress while an earlier send of this draft is still running, which counts as draftSendOutcomeUnknown after five minutes; draftSendOutcomeUnknown when an earlier send could not be confirmed and may have been delivered, so the draft is sent again only after an edit changes its content; draftAlreadySent when this draft was already sent and the request carries other content or another draftRevision. An unknown thread answers 404 not_found, and a draft that no longer exists and was never sent answers 404 with customCode draftMessageNotFound.",
         "tags": [
           "messaging"
         ],
@@ -95534,7 +95534,7 @@
         },
         "responses": {
           "201": {
-            "description": "The provider accepted the message. Returns the recorded message.",
+            "description": "The provider accepted the message and it is recorded. Returns the recorded message; repeated is true when an earlier send of this draft revision is answered.",
             "content": {
               "application/json": {
                 "schema": {
@@ -96374,6 +96374,10 @@
                           "type": "null"
                         }
                       ]
+                    },
+                    "repeated": {
+                      "type": "boolean",
+                      "description": "true when this answers an earlier accepted send of the same draft revision; nothing was sent again"
                     }
                   },
                   "required": [
@@ -96395,7 +96399,8 @@
                     "sentAt",
                     "editedAt",
                     "reactions",
-                    "draftRevision"
+                    "draftRevision",
+                    "repeated"
                   ],
                   "additionalProperties": false
                 }
@@ -96403,7 +96408,7 @@
             }
           },
           "202": {
-            "description": "The provider accepted the message, but it is not recorded yet, or a draft conversation started a new chat. threadId is the new chat when known. Also answered when this draft revision was already sent and nothing was sent again (repeated true).",
+            "description": "The provider accepted the message, but it is not recorded yet. threadId is the chat when known. Also answered for a repeat while the message is still not recorded (repeated true).",
             "content": {
               "application/json": {
                 "schema": {
@@ -96444,7 +96449,8 @@
                       ]
                     },
                     "repeated": {
-                      "type": "boolean"
+                      "type": "boolean",
+                      "description": "true when this answers an earlier accepted send of the same draft revision; nothing was sent again"
                     },
                     "sent": {
                       "type": "boolean",
@@ -96459,7 +96465,7 @@
                     "sent"
                   ],
                   "additionalProperties": false,
-                  "description": "The provider accepted the message. messageId and threadId stay null until the sent copy is recorded; repeated is true when this answers an earlier accepted send of the same draft revision and nothing was sent again."
+                  "description": "The provider accepted the message. messageId and threadId are null while the sent copy is not recorded yet."
                 }
               }
             }
@@ -96495,7 +96501,7 @@
             }
           },
           "404": {
-            "description": "Not found: no thread with this id, or customCode draftMessageNotFound when the draft no longer exists and this draft revision was never sent.",
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -96505,7 +96511,7 @@
             }
           },
           "409": {
-            "description": "Conflict; nothing was sent. Draft conflicts carry a customCode: draftChanged when the draft was saved again after this draftRevision; draftTargetMismatch when the draft belongs to another conversation or account; draftSendInProgress while an earlier send of this draft is still running, which counts as unconfirmed (draftSendOutcomeUnknown) after five minutes; draftSendOutcomeUnknown when an earlier send could not be confirmed and may have been delivered, so the draft is sent again only after an edit changes its content; draftAlreadySent when this draft was already sent and the request carries other content or another draftRevision. Other conflicts, such as a provider rejection or a disconnected or restricted channel, carry their own customCode.",
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
             "content": {
               "application/json": {
                 "schema": {
@@ -99173,7 +99179,7 @@
       "post": {
         "operationId": "sendEmail",
         "summary": "Send an email",
-        "description": "Sends a real email (or reply) from a connected email account. Provide either threadId (reply; takes precedence if both are given) or connectedAccountId (new email). At least one recipient is required across to, cc and bcc; use to: [] for Cc-only or Bcc-only email. cc and bcc are plain email strings, unlike `to` which uses the `{ identifier }` object form. Never promote hidden Bcc recipients into To or Cc. The connected account's enabled signature is appended automatically, and its email appearance is applied to plain-text and Markdown bodies. Explicit HTML remains caller-controlled. Set bodyFormat when the body is explicitly plain text, Markdown, or HTML. When delivering a saved draft, pass both draftMessageId and its opaque draftRevision so a newer edit cannot be consumed. threadId may also be the id of a conversation that exists only as a saved draft; it then sends that draft like connectedAccountId does. Each draft revision is sent at most once: repeating the request answers 202 with the first result and repeated true and sends nothing. A draft that changed, whose recipients differ, whose other version was already sent, or whose earlier send is still running or could not be confirmed answers 409 and sends nothing. Compared with earlier versions of this endpoint, an accepted send whose sent copy is not recorded yet answers 202 with a receipt instead of 200 with null, and a stale draftRevision or changed recipients answer 409 instead of 404 with customCode draftMessageNotFound.",
+        "description": "Sends a real email (or reply) from a connected email account. Provide either threadId (reply; takes precedence if both are given) or connectedAccountId (new email). At least one recipient is required across to, cc and bcc; use to: [] for Cc-only or Bcc-only email. cc and bcc are plain email strings, unlike `to` which uses the `{ identifier }` object form. Never promote hidden Bcc recipients into To or Cc. The connected account's enabled signature is appended automatically, and its email appearance is applied to plain-text and Markdown bodies. Explicit HTML remains caller-controlled. Set bodyFormat when the body is explicitly plain text, Markdown, or HTML. When delivering a saved draft, pass both draftMessageId and its opaque draftRevision so a newer edit cannot be consumed. threadId may also be the id of a conversation that exists only as a saved draft; it then sends that draft like connectedAccountId does. Each draft revision is sent at most once: repeating the request returns the first result with repeated true and sends nothing. A draft that cannot be sent answers 409 conflict, sends nothing and names the reason in customCode: draftChanged when the draft was saved again after this draftRevision; draftRecipientsChanged when To differs from the saved draft or a saved Bcc recipient was moved into To or Cc; draftTargetMismatch when the draft belongs to another conversation or account; draftSendInProgress while an earlier send of this draft is still running, which counts as draftSendOutcomeUnknown after five minutes; draftSendOutcomeUnknown when an earlier send could not be confirmed and may have been delivered, so the draft is sent again only after an edit changes its content, and once the sent copy of that send syncs from the mailbox the draft counts as sent; draftAlreadySent when this draft was already sent and the request carries other content or another draftRevision. A draft that no longer exists and was never sent answers 404 not_found with customCode draftMessageNotFound.",
         "tags": [
           "messaging"
         ],
@@ -99194,7 +99200,7 @@
         },
         "responses": {
           "200": {
-            "description": "The provider accepted the email. Returns the recorded message, including its thread id.",
+            "description": "The provider accepted the email and its sent copy is recorded. Returns the recorded message, including its thread id; repeated is true when an earlier send of this draft revision is answered.",
             "content": {
               "application/json": {
                 "schema": {
@@ -100034,6 +100040,10 @@
                           "type": "null"
                         }
                       ]
+                    },
+                    "repeated": {
+                      "type": "boolean",
+                      "description": "true when this answers an earlier accepted send of the same draft revision; nothing was sent again"
                     }
                   },
                   "required": [
@@ -100055,7 +100065,8 @@
                     "sentAt",
                     "editedAt",
                     "reactions",
-                    "draftRevision"
+                    "draftRevision",
+                    "repeated"
                   ],
                   "additionalProperties": false
                 }
@@ -100063,7 +100074,7 @@
             }
           },
           "202": {
-            "description": "The provider accepted the email, but its sent copy is not recorded yet (it appears in the inbox once the mailbox syncs it), or this draft revision was already sent and nothing was sent again (repeated true).",
+            "description": "The provider accepted the email, but its sent copy is not recorded yet; it appears in the inbox once the mailbox syncs it. Also answered for a repeat while that copy is still missing (repeated true).",
             "content": {
               "application/json": {
                 "schema": {
@@ -100104,7 +100115,8 @@
                       ]
                     },
                     "repeated": {
-                      "type": "boolean"
+                      "type": "boolean",
+                      "description": "true when this answers an earlier accepted send of the same draft revision; nothing was sent again"
                     },
                     "sent": {
                       "type": "boolean",
@@ -100119,7 +100131,7 @@
                     "sent"
                   ],
                   "additionalProperties": false,
-                  "description": "The provider accepted the message. messageId and threadId stay null until the sent copy is recorded; repeated is true when this answers an earlier accepted send of the same draft revision and nothing was sent again."
+                  "description": "The provider accepted the message. messageId and threadId are null while the sent copy is not recorded yet."
                 }
               }
             }
@@ -100155,7 +100167,7 @@
             }
           },
           "404": {
-            "description": "Not found: no thread or connected account with this id, or customCode draftMessageNotFound when the draft no longer exists and this draft revision was never sent.",
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -100165,7 +100177,7 @@
             }
           },
           "409": {
-            "description": "Conflict; nothing was sent. Draft conflicts carry a customCode: draftChanged when the draft was saved again after this draftRevision; draftRecipientsChanged when To differs from the saved draft or a saved Bcc recipient was moved into To or Cc; draftTargetMismatch when the draft belongs to another conversation or account; draftSendInProgress while an earlier send of this draft is still running, which counts as unconfirmed (draftSendOutcomeUnknown) after five minutes; draftSendOutcomeUnknown when an earlier send could not be confirmed and may have been delivered, so the draft is sent again only after an edit changes its content; once the sent copy of that earlier send syncs from the mailbox, the draft counts as sent, so a repeat answers 202 with the first result and other content answers draftAlreadySent; draftAlreadySent when this draft was already sent and the request carries other content or another draftRevision. Other conflicts, such as a provider rejection or a disconnected or restricted channel, carry their own customCode.",
+            "description": "Conflict, such as a provider rejection or a disconnected or restricted channel",
             "content": {
               "application/json": {
                 "schema": {
@@ -100213,7 +100225,7 @@
       "post": {
         "operationId": "startChat",
         "summary": "Start a chat",
-        "description": "Starts a new chat thread (LinkedIn, WhatsApp, etc.) with one or more attendees from a connected account and sends the first message. This delivers a real message as a side effect. When delivering a saved draft, pass both draftMessageId and its opaque draftRevision so a newer edit cannot be consumed. Each draft revision is sent at most once: repeating the request returns the first result with repeated true and sends nothing. A draft that changed, whose recipients differ, whose other version was already sent, or whose earlier send is still running or could not be confirmed answers 409 and sends nothing.",
+        "description": "Starts a new chat thread (LinkedIn, WhatsApp, etc.) with one or more attendees from a connected account and sends the first message. This delivers a real message as a side effect. When delivering a saved draft, pass both draftMessageId and its opaque draftRevision so a newer edit cannot be consumed. Each draft revision is sent at most once: repeating the request returns the first result with repeated true and sends nothing. A draft that cannot be sent answers 409 conflict, sends nothing and names the reason in customCode: draftChanged when the draft was saved again after this draftRevision; draftRecipientsChanged when attendeeIdentifiers differ from the saved draft's recipients; draftTargetMismatch when the draft belongs to another conversation or account; draftSendInProgress while an earlier send of this draft is still running, which counts as draftSendOutcomeUnknown after five minutes; draftSendOutcomeUnknown when an earlier send could not be confirmed and may have been delivered, so the draft is sent again only after an edit changes its content; draftAlreadySent when this draft was already sent and the request carries other content or another draftRevision. A draft that no longer exists and was never sent answers 404 not_found with customCode draftMessageNotFound.",
         "tags": [
           "messaging"
         ],
@@ -100234,24 +100246,12 @@
         },
         "responses": {
           "201": {
-            "description": "The chat was started and the provider accepted the first message. Returns the app thread and message ids of the started chat, or null when they could not be resolved yet; repeated is true when this answers an earlier accepted send of the same draft revision.",
+            "description": "The chat was started, the provider accepted the first message and it is recorded. Returns the app thread and message ids of the started chat; repeated is true when an earlier send of this draft revision is answered.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "threadId": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "format": "uuid",
-                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
                     "messageId": {
                       "anyOf": [
                         {
@@ -100264,16 +100264,109 @@
                         }
                       ]
                     },
+                    "threadId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "providerMessageId": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "repeated": {
-                      "type": "boolean"
+                      "type": "boolean",
+                      "description": "true when this answers an earlier accepted send of the same draft revision; nothing was sent again"
+                    },
+                    "sent": {
+                      "type": "boolean",
+                      "const": true
                     }
                   },
                   "required": [
-                    "threadId",
                     "messageId",
-                    "repeated"
+                    "threadId",
+                    "providerMessageId",
+                    "repeated",
+                    "sent"
                   ],
-                  "additionalProperties": false
+                  "additionalProperties": false,
+                  "description": "The provider accepted the message. messageId and threadId are null while the sent copy is not recorded yet."
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "The provider accepted the first message, but the started chat is not recorded yet, so threadId and messageId are null. Also answered for a repeat while the chat is still not recorded (repeated true).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "messageId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "threadId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "providerMessageId": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "repeated": {
+                      "type": "boolean",
+                      "description": "true when this answers an earlier accepted send of the same draft revision; nothing was sent again"
+                    },
+                    "sent": {
+                      "type": "boolean",
+                      "const": true
+                    }
+                  },
+                  "required": [
+                    "messageId",
+                    "threadId",
+                    "providerMessageId",
+                    "repeated",
+                    "sent"
+                  ],
+                  "additionalProperties": false,
+                  "description": "The provider accepted the message. messageId and threadId are null while the sent copy is not recorded yet."
                 }
               }
             }

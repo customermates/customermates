@@ -30,6 +30,7 @@ import type { ChannelCandidateDto } from "../inbox/search-channel-candidates.int
 import type { SearchChannelCandidatesRepo } from "../inbox/search-channel-candidates.repo";
 import type { MessagingIngestRepo } from "../ingest/messaging-ingest.repo";
 import type { DiscardDraftRepo } from "../outbound/discard-draft.repo";
+import type { CompleteReplyDraftSendArgs, DraftSendRepo } from "../outbound/draft-send.repo";
 import type { PruneDraftSendsRepo } from "../outbound/prune-draft-sends.repo";
 import type { SaveDraftRepo } from "../outbound/save-draft.repo";
 import type { SendChatMessageRepo } from "../outbound/send-chat-message.repo";
@@ -128,6 +129,7 @@ export class PrismaMessagingRepo
     SendChatMessageRepo,
     SendEmailRepo,
     StartChatThreadRepo,
+    DraftSendRepo,
     SaveDraftRepo,
     DiscardDraftRepo,
     PruneDraftSendsRepo,
@@ -1046,12 +1048,12 @@ export class PrismaMessagingRepo
       const sends = existingDrafts.length
         ? await this.prisma.messagingDraftSend.findMany({
             where: { companyId: this.companyId, draftMessageId: { in: existingDrafts.map((draft) => draft.id) } },
-            select: { draftMessageId: true, state: true, updatedAt: true },
+            select: { draftMessageId: true, state: true, claimedAt: true },
           })
         : [];
       const sendStates = new Map(sends.map((send) => [send.draftMessageId, effectiveDraftSendState(send)]));
       if (existingDrafts.some((draft) => sendStates.get(draft.id) === "sending"))
-        throw unwindFailure(CustomErrorCode.draftSendInProgress, "conflict");
+        throw unwindFailure(CustomErrorCode.draftSendInProgress, "conflict", ["threadId"]);
       const sentDraftIds = existingDrafts
         .filter((draft) => sendStates.get(draft.id) === "sent")
         .map((draft) => draft.id);
@@ -1257,14 +1259,14 @@ export class PrismaMessagingRepo
         },
       });
       if (deleted.count === 0) {
-        await this.refreshThreadSummaryAfterCommit(draft.messagingThreadId);
+        await this.refreshThreadSummaryAfterCommit(draft.messagingThreadId, this.companyId);
         return row as unknown as MessagingMessage;
       }
-      await this.deleteEmptyDraftThreadShell(draft.messagingThreadId);
+      await this.deleteEmptyDraftThreadShell(draft.messagingThreadId, this.companyId);
     }
 
     const affectedThreadIds = new Set([draft.messagingThreadId, row.messagingThreadId]);
-    for (const threadId of affectedThreadIds) await this.refreshThreadSummaryAfterCommit(threadId);
+    for (const threadId of affectedThreadIds) await this.refreshThreadSummaryAfterCommit(threadId, this.companyId);
 
     return row as unknown as MessagingMessage;
   }
@@ -1303,26 +1305,23 @@ export class PrismaMessagingRepo
     } as const;
   }
 
-  async findDraftSend(args: { draftMessageId: string }): Promise<DraftSendRecord | null> {
+  private findAccessibleDraftSend(draftMessageId: string): Promise<DraftSendRecord | null> {
     return this.prisma.messagingDraftSend.findFirst({
       where: {
         companyId: this.companyId,
-        draftMessageId: args.draftMessageId,
+        draftMessageId,
         connectedAccount: { is: accessibleConnectedAccountWhere(this.companyId, this.userId) },
       },
       select: this.draftSendSelect,
     });
   }
 
+  async findDraftSend(args: { draftMessageId: string }): Promise<DraftSendRecord | null> {
+    return this.findAccessibleDraftSend(args.draftMessageId);
+  }
+
   async reconcileDraftSend(args: { draftMessageId: string }): Promise<DraftSendRecord | null> {
-    const record = await this.prisma.messagingDraftSend.findFirst({
-      where: {
-        companyId: this.companyId,
-        draftMessageId: args.draftMessageId,
-        connectedAccount: { is: accessibleConnectedAccountWhere(this.companyId, this.userId) },
-      },
-      select: this.draftSendSelect,
-    });
+    const record = await this.findAccessibleDraftSend(args.draftMessageId);
     return record ? this.reconcileFoundDraftSend(record) : null;
   }
 
@@ -1333,10 +1332,7 @@ export class PrismaMessagingRepo
     contentHash: string;
     matchHashes?: string[];
   }): Promise<DraftSendStart> {
-    const earlier = await this.prisma.messagingDraftSend.findFirst({
-      where: { companyId: this.companyId, draftMessageId: args.draftMessageId },
-      select: this.draftSendSelect,
-    });
+    const earlier = await this.findAccessibleDraftSend(args.draftMessageId);
     if (earlier) await this.reconcileFoundDraftSend(earlier);
 
     return this.withCompanyTransaction(this.companyId, async () => {
@@ -1349,10 +1345,7 @@ export class PrismaMessagingRepo
         },
         select: { updatedAt: true },
       });
-      const record = await this.prisma.messagingDraftSend.findFirst({
-        where: { companyId: this.companyId, draftMessageId: args.draftMessageId },
-        select: this.draftSendSelect,
-      });
+      const record = await this.findAccessibleDraftSend(args.draftMessageId);
 
       if (!draft) {
         const missing = decideMissingDraftSend(record, args.draftRevision, args.contentHash);
@@ -1440,7 +1433,7 @@ export class PrismaMessagingRepo
       { state: MessagingDraftSendState.unknown },
       {
         state: MessagingDraftSendState.sending,
-        updatedAt: { lt: new Date(now.getTime() - DRAFT_SEND_STALE_AFTER_MS) },
+        claimedAt: { lt: new Date(now.getTime() - DRAFT_SEND_STALE_AFTER_MS) },
       },
       {
         state: MessagingDraftSendState.sent,
@@ -1493,9 +1486,11 @@ export class PrismaMessagingRepo
           ...(copy.providerMessageId ? [{ providerMessageId: copy.providerMessageId }] : []),
           {
             state: MessagingDraftSendState.sending,
-            updatedAt: { gte: new Date(Date.now() - DRAFT_SEND_STALE_AFTER_MS) },
             matchHashes: { has: copyHash },
-            claimedAt: { gte: earliest, lte: latest },
+            claimedAt: {
+              gte: new Date(Math.max(earliest.getTime(), Date.now() - DRAFT_SEND_STALE_AFTER_MS)),
+              lte: latest,
+            },
           },
         ],
       },
@@ -1700,7 +1695,7 @@ export class PrismaMessagingRepo
     });
   }
 
-  async completeReplyDraftSend(args: Omit<ConvertDraftToSentArgs, "expectedUpdatedAt"> & { claim: DraftSendClaim }) {
+  async completeReplyDraftSend(args: CompleteReplyDraftSendArgs) {
     const conversion = { ...args, expectedUpdatedAt: args.claim.draftRevision };
     const complete = () =>
       this.withCompanyTransaction(this.companyId, async () => {
@@ -1754,14 +1749,7 @@ export class PrismaMessagingRepo
 
   async deleteDraft(args: { messageId: string; expectedUpdatedAt: Date }): Promise<DraftDeleteResult> {
     return this.withCompanyTransaction(this.companyId, async () => {
-      const send = await this.prisma.messagingDraftSend.findFirst({
-        where: {
-          companyId: this.companyId,
-          draftMessageId: args.messageId,
-          connectedAccount: { is: accessibleConnectedAccountWhere(this.companyId, this.userId) },
-        },
-        select: { state: true, updatedAt: true },
-      });
+      const send = await this.findAccessibleDraftSend(args.messageId);
       if (send && effectiveDraftSendState(send) === "sending") return { status: "send_in_progress" as const };
       return this.deleteDraftInCurrentTransaction(args);
     });
@@ -1779,7 +1767,7 @@ export class PrismaMessagingRepo
         select: { messagingThreadId: true },
       });
 
-      if (draft) await this.refreshThreadSummary(draft.messagingThreadId, true);
+      if (draft) await this.refreshThreadSummary(draft.messagingThreadId, this.companyId, true);
     });
   }
 
@@ -1817,13 +1805,13 @@ export class PrismaMessagingRepo
       return { status: current ? "revision_mismatch" : "not_found" };
     }
 
-    await this.deleteEmptyDraftThreadShell(draft.messagingThreadId);
-    await this.refreshThreadSummaryAfterCommit(draft.messagingThreadId);
+    await this.deleteEmptyDraftThreadShell(draft.messagingThreadId, this.companyId);
+    await this.refreshThreadSummaryAfterCommit(draft.messagingThreadId, this.companyId);
 
     return { status: "deleted", messagingThreadId: draft.messagingThreadId };
   }
 
-  private async deleteEmptyDraftThreadShell(threadId: string, companyId: string = this.companyId) {
+  private async deleteEmptyDraftThreadShell(threadId: string, companyId: string) {
     const thread = await this.prisma.messagingThread.findFirst({
       where: {
         id: threadId,
@@ -1840,7 +1828,7 @@ export class PrismaMessagingRepo
     });
   }
 
-  private async refreshThreadSummary(threadId: string, preferDraft = false, companyId: string = this.companyId) {
+  private async refreshThreadSummary(threadId: string, companyId: string, preferDraft = false) {
     const thread = await this.prisma.messagingThread.findFirst({
       where: { id: threadId, companyId },
       select: { id: true },
@@ -1897,9 +1885,9 @@ export class PrismaMessagingRepo
     });
   }
 
-  private async refreshThreadSummaryAfterCommit(threadId: string, companyId: string = this.companyId) {
+  private async refreshThreadSummaryAfterCommit(threadId: string, companyId: string) {
     await this.runAfterCommit(() =>
-      this.withCompanyTransaction(companyId, () => this.refreshThreadSummary(threadId, true, companyId)),
+      this.withCompanyTransaction(companyId, () => this.refreshThreadSummary(threadId, companyId, true)),
     );
   }
 

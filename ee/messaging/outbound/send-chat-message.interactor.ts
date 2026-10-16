@@ -6,8 +6,9 @@ import type { MessagingAttendee, MessagingMessage, MessagingThread } from "../me
 import type { MessagingService } from "../messaging.service";
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
-import type { DraftSendClaim, DraftSendRecord } from "../draft-send";
+import type { DraftSendClaim } from "../draft-send";
 import type { DraftThreadTarget } from "../draft-thread";
+import type { DraftSendGate } from "./draft-send-gate";
 import type { StartChatInteractor } from "./start-chat.interactor";
 
 import { z } from "zod";
@@ -28,20 +29,12 @@ import {
   draftUpdatedAtFromRevision,
   hasCompleteDraftBinding,
 } from "../draft-thread";
-import { DRAFT_CONFLICT_CODES, providerSendOutcome } from "../draft-send";
+import { providerSendOutcome } from "../draft-send";
+import { chatSendContentHash } from "../draft-send-copy";
 import { retryAfterPhrase } from "../retry-after.server";
 import { EMPTY_ATTENDEE } from "../unipile.mappers";
 import { SendAttachmentSchema } from "./send-email.interactor";
-import { sentMessageResult, type SentMessageResult } from "./sent-message-result";
-import {
-  chatSendContentHash,
-  gateMissingDraft,
-  openDraftSend,
-  recordDraftSendQuietly,
-  releaseDraftSendOnFailure,
-  releaseDraftSendQuietly,
-  settleDraftSendQuietly,
-} from "./draft-send-gate";
+import { SentMessageResultSchema, toSentMessageResult, type SentMessageResult } from "./sent-message.schema";
 import type { SendChatMessageRepo } from "./send-chat-message.repo";
 
 export const DUPLICATE_OUTBOUND_WINDOW_MS = 60_000;
@@ -88,12 +81,14 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
     private validator: ValidateThreadIdsInteractor,
     private entitlements: EntitlementService,
     private startChat: Pick<StartChatInteractor, "invoke">,
+    private draftSends: DraftSendGate,
   ) {
     super();
   }
 
   @Write({
     input: SendChatMessageSchema,
+    output: SentMessageResultSchema,
     tx: false,
     precheck: (self, data, ctx) =>
       data.draftMessageId ? undefined : self.validator.invoke([{ ids: data.threadId, path: ["threadId"] }], ctx),
@@ -125,13 +120,15 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
       const revision = draftUpdatedAtFromRevision(data.draftRevision);
       draft = await this.repo.findDraftById({ messageId: data.draftMessageId });
       if (!draft) {
-        const missing = await gateMissingDraft(this.repo, {
+        const missing = await this.draftSends.openMissing({
           draftMessageId: data.draftMessageId,
           draftRevision: revision,
           connectedAccountId: account.id,
           contentHash,
         });
-        return "replay" in missing ? this.replay(missing.replay, account.id, thread.id) : missing.failure;
+        return "replay" in missing
+          ? this.draftSends.replay(missing.replay, { connectedAccountId: account.id, threadId: thread.id })
+          : missing.failure;
       }
       const conflict = draftBindingConflict({
         provider: account.provider,
@@ -141,25 +138,26 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
         replyThreadId: thread.id,
         to: [],
       });
-      if (conflict) return failConflict(DRAFT_CONFLICT_CODES[conflict]);
+      if (conflict) return this.draftSends.refuseBinding(conflict);
     }
 
     let claim: DraftSendClaim | null = null;
     if (draft && data.draftRevision) {
-      const gate = await openDraftSend(this.repo, {
+      const gate = await this.draftSends.open({
         draftMessageId: draft.id,
         draftRevision: draftUpdatedAtFromRevision(data.draftRevision),
         connectedAccountId: account.id,
         contentHash,
       });
-      if ("replay" in gate) return this.replay(gate.replay, account.id, thread.id);
+      if ("replay" in gate)
+        return this.draftSends.replay(gate.replay, { connectedAccountId: account.id, threadId: thread.id });
       if ("failure" in gate) return gate.failure;
       claim = gate.claim;
     }
 
     if (
       data.text.trim() &&
-      (await releaseDraftSendOnFailure(this.repo, claim, () =>
+      (await this.draftSends.releaseOnFailure(claim, () =>
         this.repo.findRecentOutboundDuplicate({
           messagingThreadId: thread.id,
           bodyText: data.text,
@@ -167,7 +165,7 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
         }),
       ))
     ) {
-      if (claim) await releaseDraftSendQuietly(this.repo, claim);
+      if (claim) await this.draftSends.release(claim);
       return failConflict(CustomErrorCode.duplicateOutboundSuppressed);
     }
 
@@ -181,7 +179,7 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
         attachments: data.attachments,
       });
     } catch (err) {
-      if (claim) await settleDraftSendQuietly(this.repo, { claim, state: "unknown" });
+      if (claim) await this.draftSends.settle({ claim, state: "unknown" });
       throw err;
     }
 
@@ -189,9 +187,8 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
     if (res.ok) providerMessageId = res.data.messageId ?? null;
     else if (providerSendOutcome(res.error) !== "accepted") {
       if (claim) {
-        if (providerSendOutcome(res.error) === "unknown")
-          await settleDraftSendQuietly(this.repo, { claim, state: "unknown" });
-        else await releaseDraftSendQuietly(this.repo, claim);
+        if (providerSendOutcome(res.error) === "unknown") await this.draftSends.settle({ claim, state: "unknown" });
+        else await this.draftSends.release(claim);
       }
       return fail(res.error, [], { retryAfter: await retryAfterPhrase(res.retryAfterSeconds) });
     }
@@ -207,24 +204,19 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
       const sender = (await this.repo.findSelfAttendeeForThread(thread.id)) ?? { ...EMPTY_ATTENDEE, isSelf: true };
 
       if (claim && draft) {
-        try {
-          recorded = await this.repo.completeReplyDraftSend({
-            claim,
-            messageId: draft.id,
-            unipileMessageId,
-            providerMessageId: null,
-            sender,
-            recipients,
-            subject: null,
-            bodyText: data.text,
-            bodyHtml: null,
-            attachmentsMeta: [],
-            sentAt,
-          });
-        } catch (err) {
-          Sentry.captureException(err, { tags: { kind: "draft-send-completion-failure" } });
-          await settleDraftSendQuietly(this.repo, { claim, state: "sent", unipileMessageId });
-        }
+        recorded = await this.draftSends.completeReply({
+          claim,
+          messageId: draft.id,
+          unipileMessageId,
+          providerMessageId: null,
+          sender,
+          recipients,
+          subject: null,
+          bodyText: data.text,
+          bodyHtml: null,
+          attachmentsMeta: [],
+          sentAt,
+        });
       }
 
       if (!recorded) {
@@ -251,11 +243,11 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
             threadType: thread.type,
           },
         });
-        if (claim) await recordDraftSendQuietly(this.repo, claim, recorded);
+        if (claim) await this.draftSends.record(claim, recorded);
       }
     } catch (err) {
       Sentry.captureException(err, { tags: { kind: "sent-message-not-recorded" } });
-      if (claim) await settleDraftSendQuietly(this.repo, { claim, state: "sent", unipileMessageId });
+      if (claim) await this.draftSends.settle({ claim, state: "sent", unipileMessageId });
     }
     if (draft) {
       try {
@@ -265,15 +257,15 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
       }
     }
 
-    return { ok: true as const, data: sentMessageResult({ message: recorded, threadId: thread.id }) };
+    return { ok: true as const, data: toSentMessageResult({ message: recorded, threadId: thread.id }) };
   }
 
   private async startDraftChat(thread: MessagingThread, data: SendChatMessageData): Validated<SentMessageResult> {
     if (!data.draftMessageId || !data.draftRevision) return fail(CustomErrorCode.draftThreadNotSent, ["threadId"]);
     const draft = await this.repo.findDraftById({ messageId: data.draftMessageId });
-    if (draft && draft.messagingThreadId !== thread.id) return failConflict(CustomErrorCode.draftTargetMismatch);
+    if (draft && draft.messagingThreadId !== thread.id) return this.draftSends.refuseBinding("target");
 
-    const started = await this.startChat.invoke({
+    return this.startChat.invoke({
       connectedAccountId: thread.connectedAccountId,
       attendeeIdentifiers: thread.participants
         .filter((participant) => !participant.isSelf && participant.identifier)
@@ -283,17 +275,6 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
       draftMessageId: data.draftMessageId,
       draftRevision: data.draftRevision,
     });
-    if (!started.ok) return started;
-
-    return {
-      ok: true as const,
-      data: sentMessageResult({
-        message: null,
-        messageId: started.data.messageId,
-        threadId: started.data.threadId,
-        repeated: started.data.repeated,
-      }),
-    };
   }
 
   private async settledDraftConversation(
@@ -301,44 +282,16 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
     draftRevision: string,
     contentHash: string,
   ): Promise<Awaited<Validated<SentMessageResult>> | null> {
-    const record = await this.repo.findDraftSend({ draftMessageId });
+    const record = await this.draftSends.findSettled(draftMessageId);
     if (!record) return null;
-    const missing = await gateMissingDraft(this.repo, {
+    const missing = await this.draftSends.openMissing({
       draftMessageId,
       draftRevision: draftUpdatedAtFromRevision(draftRevision),
       connectedAccountId: record.connectedAccountId,
       contentHash,
     });
-    if ("failure" in missing) return missing.failure;
-    const message = await this.repo.findDraftSendMessage({
-      record: missing.replay,
-      connectedAccountId: record.connectedAccountId,
-    });
-    return {
-      ok: true as const,
-      data: sentMessageResult({
-        message,
-        messageId: missing.replay.sentMessageId,
-        threadId: missing.replay.sentThreadId,
-        repeated: true,
-      }),
-    };
-  }
-
-  private async replay(
-    record: DraftSendRecord,
-    connectedAccountId: string,
-    threadId: string,
-  ): Validated<SentMessageResult> {
-    const message = await this.repo.findDraftSendMessage({ record, connectedAccountId });
-    return {
-      ok: true as const,
-      data: sentMessageResult({
-        message,
-        messageId: record.sentMessageId,
-        threadId: record.sentThreadId ?? threadId,
-        repeated: true,
-      }),
-    };
+    return "replay" in missing
+      ? this.draftSends.replay(missing.replay, { connectedAccountId: record.connectedAccountId, threadId: null })
+      : missing.failure;
   }
 }

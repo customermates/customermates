@@ -1,14 +1,10 @@
 import { describe, it, expect } from "vitest";
 
-import type { SendChatMessageRepo } from "../send-chat-message.repo";
-import type { SendEmailRepo } from "../send-email.repo";
+import type { CompleteReplyDraftSendArgs } from "../draft-send.repo";
 
-type ChatArgs = Parameters<SendChatMessageRepo["completeReplyDraftSend"]>[0];
-type EmailArgs = Parameters<SendEmailRepo["completeReplyDraftSend"]>[0];
-
-describe("draft conversion contracts", () => {
-  it("declares attachmentsMeta on the chat side, because one implementation serves both", () => {
-    const chat: ChatArgs = {
+describe("draft conversion contract", () => {
+  it("declares one completion contract that carries what both the email and the chat send record", () => {
+    const completion: CompleteReplyDraftSendArgs = {
       claim: { id: "c1", draftRevision: new Date() },
       messageId: "m1",
       unipileMessageId: "u1",
@@ -22,25 +18,7 @@ describe("draft conversion contracts", () => {
       sentAt: new Date(),
     };
 
-    expect(Array.isArray(chat.attachmentsMeta)).toBe(true);
-  });
-
-  it("keeps the two contracts aligned on the fields the shared implementation reads", () => {
-    const email: EmailArgs = {
-      claim: { id: "c1", draftRevision: new Date() },
-      messageId: "m1",
-      unipileMessageId: "u1",
-      providerMessageId: null,
-      sender: { attendeeId: "a", displayName: "a", identifier: "a", isSelf: true } as never,
-      recipients: { to: [], cc: [], bcc: [] },
-      subject: null,
-      bodyText: "hi",
-      bodyHtml: null,
-      attachmentsMeta: [],
-      sentAt: new Date(),
-    };
-
-    const chatKeys = new Set(Object.keys(email));
-    for (const key of ["attachmentsMeta", "sender", "recipients", "sentAt"]) expect(chatKeys.has(key)).toBe(true);
+    const keys = new Set(Object.keys(completion));
+    for (const key of ["claim", "attachmentsMeta", "sender", "recipients", "sentAt"]) expect(keys.has(key)).toBe(true);
   });
 });

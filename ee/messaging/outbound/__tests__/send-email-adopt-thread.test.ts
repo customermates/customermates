@@ -25,6 +25,7 @@ vi.mock("../../inbox/inbox.schema", async (importActual) => ({
   toMessagingMessageDto: (message: unknown) => message,
 }));
 
+import { DraftSendGate } from "../draft-send-gate";
 import { SendEmailInteractor } from "../send-email.interactor";
 import { MessagingProvider, MessagingMessageDirection } from "@/generated/prisma";
 
@@ -87,7 +88,6 @@ function makeRepo() {
     findDraftById: vi.fn().mockResolvedValue(null),
     findRecentOutboundDuplicate: vi.fn(),
     persistOutboundMessageOrThrow: vi.fn().mockResolvedValue(persistedRow),
-    convertDraftToSent: vi.fn(),
   };
 }
 
@@ -97,6 +97,7 @@ function makeInteractor(repo: any, service: any) {
     { findUsableAccountByIdOrThrow: vi.fn().mockResolvedValue(account) } as never,
     service,
     mockEntitlementService(),
+    new DraftSendGate(repo),
   );
 }
 
@@ -162,13 +163,15 @@ describe("SendEmailInteractor new-thread adoption", () => {
 
   it("asks for a reconnect instead of contacting the provider when the account lost its credentials", async () => {
     const service = { sendEmail: vi.fn(), getEmail: vi.fn() };
+    const repo = makeRepo() as never;
     const interactor = new SendEmailInteractor(
-      makeRepo() as never,
+      repo,
       {
         findUsableAccountByIdOrThrow: vi.fn().mockResolvedValue({ ...(account as object), status: "credentials" }),
       } as never,
       service as never,
       mockEntitlementService(),
+      new DraftSendGate(repo),
     );
 
     const result: any = await interactor.invoke(input);

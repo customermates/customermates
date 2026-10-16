@@ -1,3 +1,5 @@
+import type { MessagingDraftSendState } from "@/generated/prisma";
+
 import { describe, expect, it } from "vitest";
 
 import { MessagingProvider } from "@/generated/prisma";
@@ -15,7 +17,6 @@ import {
   effectiveDraftSendState,
   providerSendOutcome,
   type DraftSendRecord,
-  type DraftSendState,
 } from "../draft-send";
 import { draftBindingConflict, type DraftThreadTarget } from "../draft-thread";
 
@@ -25,7 +26,7 @@ const OTHER_REVISION = new Date("2026-10-16T09:59:30.000Z");
 const CONTENT = "content-sent-first";
 const OTHER_CONTENT = "content-edited-later";
 
-function record(state: DraftSendState, overrides: Partial<DraftSendRecord> = {}): DraftSendRecord {
+function record(state: MessagingDraftSendState, overrides: Partial<DraftSendRecord> = {}): DraftSendRecord {
   return {
     id: "claim",
     draftMessageId: "draft",
@@ -44,7 +45,7 @@ function record(state: DraftSendState, overrides: Partial<DraftSendRecord> = {})
   };
 }
 
-const stale = { updatedAt: new Date(NOW.getTime() - DRAFT_SEND_STALE_AFTER_MS - 1) };
+const stale = { claimedAt: new Date(NOW.getTime() - DRAFT_SEND_STALE_AFTER_MS - 1) };
 
 describe("effectiveDraftSendState", () => {
   it("treats a send that is still running as sending", () => {
@@ -58,6 +59,11 @@ describe("effectiveDraftSendState", () => {
   it("keeps settled states", () => {
     expect(effectiveDraftSendState(record("sent", stale), NOW)).toBe("sent");
     expect(effectiveDraftSendState(record("unknown"), NOW)).toBe("unknown");
+  });
+
+  it("measures a running send from its claim, not from its last update", () => {
+    expect(effectiveDraftSendState(record("sending", { ...stale, updatedAt: NOW }), NOW)).toBe("unknown");
+    expect(effectiveDraftSendState(record("sending", { updatedAt: stale.claimedAt }), NOW)).toBe("sending");
   });
 });
 
@@ -108,6 +114,17 @@ describe("decideDraftSend", () => {
     ],
   ] as const)("answers %s with %s", (_label, existing, revision, content, decision) => {
     expect(decideDraftSend(existing, revision, content, NOW)).toBe(decision);
+  });
+
+  it("never lets a claim recorded without a content hash be taken over by a newer revision", () => {
+    const legacy = (state: MessagingDraftSendState, overrides: Partial<DraftSendRecord> = {}) =>
+      record(state, { contentHash: "", ...overrides });
+
+    expect(decideDraftSend(legacy("unknown"), OTHER_REVISION, OTHER_CONTENT, NOW)).toBe("outcome_unknown");
+    expect(decideDraftSend(legacy("sending", stale), OTHER_REVISION, OTHER_CONTENT, NOW)).toBe("outcome_unknown");
+    expect(decideDraftSend(legacy("sent"), REVISION, OTHER_CONTENT, NOW)).toBe("replay");
+    expect(decideDraftSend(legacy("sent"), OTHER_REVISION, OTHER_CONTENT, NOW)).toBe("already_sent");
+    expect(decideMissingDraftSend(legacy("sent"), REVISION, OTHER_CONTENT, NOW)).toBe("replay");
   });
 });
 

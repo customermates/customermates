@@ -1,11 +1,13 @@
 import type { AttachmentMeta, MessagingAttendee } from "./messaging.schema";
 
-import { createHash } from "node:crypto";
+import { recordRequestHash } from "@/features/records/record-request-hash";
 
 import { htmlToPlainText } from "./email-body-text";
 import { isPlainTextEmailBody } from "./email-quote";
 
 const INVISIBLE = /[\s\u00ad\u200b-\u200d\u2060\ufeff]+/gu;
+
+type SentAttachment = { filename: string; content_type: string; content: string };
 
 type EmailCopy = {
   to: readonly (string | null | undefined)[];
@@ -27,8 +29,16 @@ function compact(value: string | null | undefined): string {
   return (value ?? "").normalize("NFC").replace(INVISIBLE, "");
 }
 
-function addressKeys(values: readonly (string | null | undefined)[]): string[] {
-  return [...new Set(values.map((value) => (value ?? "").trim().toLowerCase()).filter(Boolean))].sort();
+function addressKeys(values: readonly (string | null | undefined)[] | undefined): string[] {
+  return [...new Set((values ?? []).map((value) => (value ?? "").trim().toLowerCase()).filter(Boolean))].sort();
+}
+
+function attachmentDigests(attachments: readonly SentAttachment[] | undefined) {
+  return (attachments ?? []).map((attachment) => [
+    attachment.filename,
+    attachment.content_type,
+    recordRequestHash(attachment.content),
+  ]);
 }
 
 function emailBodyText(body: string | null | undefined): string | null {
@@ -37,18 +47,37 @@ function emailBodyText(body: string | null | undefined): string | null {
 }
 
 function emailCopyKey(copy: EmailCopy): string {
-  return createHash("sha256")
-    .update(
-      JSON.stringify([
-        "email-copy",
-        addressKeys(copy.to),
-        addressKeys(copy.cc),
-        compact(copy.subject),
-        compact(copy.text),
-        copy.attachmentNames.map((name) => compact(name).toLowerCase()).sort(),
-      ]),
-    )
-    .digest("hex");
+  return recordRequestHash([
+    "email-copy",
+    addressKeys(copy.to),
+    addressKeys(copy.cc),
+    compact(copy.subject),
+    compact(copy.text),
+    copy.attachmentNames.map((name) => compact(name).toLowerCase()).sort(),
+  ]);
+}
+
+export function emailSendContentHash(content: {
+  to: readonly string[];
+  cc?: readonly string[];
+  bcc?: readonly string[];
+  subject: string;
+  body: string;
+  attachments?: readonly SentAttachment[];
+}): string {
+  return recordRequestHash([
+    "email",
+    addressKeys(content.to),
+    addressKeys(content.cc),
+    addressKeys(content.bcc),
+    content.subject,
+    content.body,
+    attachmentDigests(content.attachments),
+  ]);
+}
+
+export function chatSendContentHash(content: { text: string; attachments?: readonly SentAttachment[] }): string {
+  return recordRequestHash(["chat", content.text, attachmentDigests(content.attachments)]);
 }
 
 export function emailSendCopyHashes(send: {

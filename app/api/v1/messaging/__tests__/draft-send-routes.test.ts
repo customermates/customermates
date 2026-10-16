@@ -4,17 +4,33 @@ import { z } from "zod";
 
 import { AuthError, ForbiddenError } from "@/core/errors/app-errors";
 import { StructuredErrorResponseSchema } from "@/core/api/structured-interactor-handler";
+import { createZodError } from "@/core/validation/validation.utils";
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { MessagingProvider } from "@/generated/prisma";
+import { recordedMessage } from "@/tests/helpers/recorded-message";
 
-const interactors = vi.hoisted(() => ({ send: vi.fn(), save: vi.fn(), reply: vi.fn(), discard: vi.fn() }));
+const interactors = vi.hoisted(() => ({
+  send: vi.fn(),
+  chat: vi.fn(),
+  startChat: vi.fn(),
+  save: vi.fn(),
+  reply: vi.fn(),
+  discard: vi.fn(),
+}));
 
 vi.mock("@/core/di", () => ({
   getSendEmailInteractor: () => ({ invoke: interactors.send }),
+  getSendChatMessageInteractor: () => ({ invoke: interactors.chat }),
+  getStartChatInteractor: () => ({ invoke: interactors.startChat }),
   getSaveNewThreadDraftInteractor: () => ({ invoke: interactors.save }),
   getSaveReplyDraftInteractor: () => ({ invoke: interactors.reply }),
   getDiscardDraftInteractor: () => ({ invoke: interactors.discard }),
 }));
 
+import { toSentMessageResult } from "@/ee/messaging/outbound/sent-message.schema";
 import { POST as sendEmail } from "../send-email/route";
+import { POST as sendChatMessage } from "../threads/[id]/messages/route";
+import { POST as startChat } from "../start-chat/route";
 import { POST as saveNewDraft } from "../drafts/route";
 import { POST as saveReplyDraft } from "../threads/[id]/drafts/route";
 import { DELETE as discardDraft } from "../drafts/[id]/route";
@@ -41,6 +57,25 @@ const newDraft = {
 };
 const replyDraft = { subject: "Reply subject", body: BODY, cc: ["copy@example.com"], bcc: ["blind@example.com"] };
 const draftDto = { id: DRAFT_ID, draftRevision: REVISION, messagingThreadId: THREAD_ID, isDraft: true };
+const MESSAGE_ID = "00000000-0000-4000-8000-000000000004";
+const sentEmail = recordedMessage({
+  id: MESSAGE_ID,
+  messagingThreadId: THREAD_ID,
+  connectedAccountId: ACCOUNT_ID,
+  provider: MessagingProvider.google,
+  providerMessageId: "<sent@example.com>",
+});
+const sentChat = recordedMessage({ id: MESSAGE_ID, messagingThreadId: THREAD_ID, connectedAccountId: ACCOUNT_ID });
+const chat = { text: "Chat reply", draftMessageId: DRAFT_ID, draftRevision: REVISION };
+const startedChat = { connectedAccountId: ACCOUNT_ID, attendeeIdentifiers: ["+4915112345678"], text: "Hello" };
+
+function json(value: unknown) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function sentAs(message: ReturnType<typeof recordedMessage>, repeated = false) {
+  return json({ ...toSentMessageResult({ message }).message, repeated });
+}
 
 function request(path: string, body: unknown) {
   return new NextRequest(`http://localhost:4105/api/v1/messaging/${path}`, {
@@ -58,16 +93,7 @@ function discardRequest(revision?: string) {
 
 beforeEach(() => {
   vi.resetAllMocks();
-  interactors.send.mockResolvedValue({
-    ok: true,
-    data: {
-      message: { id: "sent-message", messagingThreadId: THREAD_ID },
-      messageId: "sent-message",
-      threadId: THREAD_ID,
-      providerMessageId: null,
-      repeated: false,
-    },
-  });
+  interactors.send.mockResolvedValue({ ok: true, data: toSentMessageResult({ message: sentEmail }) });
   interactors.save.mockResolvedValue({ ok: true, data: draftDto });
   interactors.reply.mockResolvedValue({ ok: true, data: draftDto });
   interactors.discard.mockResolvedValue({ ok: true, data: { threadId: THREAD_ID } });
@@ -80,19 +106,13 @@ describe("messaging REST draft/send adapters", () => {
 
     expect(interactors.send).toHaveBeenCalledExactlyOnceWith(body);
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ id: "sent-message", messagingThreadId: THREAD_ID });
+    expect(await response.json()).toEqual(sentAs(sentEmail));
   });
 
   it("answers an accepted but unrecorded email with 202 and its reference, without a resend", async () => {
     interactors.send.mockResolvedValue({
       ok: true,
-      data: {
-        message: null,
-        messageId: null,
-        threadId: null,
-        providerMessageId: "<sent@example.com>",
-        repeated: false,
-      },
+      data: toSentMessageResult({ message: null, providerMessageId: "<sent@example.com>" }),
     });
     const response = await sendEmail(request("send-email", email));
 
@@ -107,28 +127,75 @@ describe("messaging REST draft/send adapters", () => {
     expect(interactors.send).toHaveBeenCalledOnce();
   });
 
-  it("answers a repeated draft send with 202 and repeated true, although the first copy is recorded", async () => {
+  it("answers a repeated draft send whose sent copy is recorded with 200, the message and repeated true", async () => {
     interactors.send.mockResolvedValue({
       ok: true,
-      data: {
-        message: { id: "sent-message", messagingThreadId: THREAD_ID },
-        messageId: "sent-message",
-        threadId: THREAD_ID,
-        providerMessageId: "<sent@example.com>",
-        repeated: true,
-      },
+      data: toSentMessageResult({ message: sentEmail, repeated: true }),
+    });
+    const response = await sendEmail(request("send-email", email));
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual(sentAs(sentEmail, true));
+  });
+
+  it("answers a repeated draft send whose sent copy is not recorded yet with 202 and repeated true", async () => {
+    interactors.send.mockResolvedValue({
+      ok: true,
+      data: toSentMessageResult({ message: null, threadId: THREAD_ID, repeated: true }),
     });
     const response = await sendEmail(request("send-email", email));
 
     expect(response.status).toBe(202);
     expect(await response.json()).toEqual({
       sent: true,
-      messageId: "sent-message",
+      messageId: null,
       threadId: THREAD_ID,
-      providerMessageId: "<sent@example.com>",
+      providerMessageId: null,
       repeated: true,
     });
   });
+
+  it.each([false, true])("answers a recorded chat message with 201 and the message (repeated %s)", async (repeated) => {
+    interactors.chat.mockResolvedValue({ ok: true, data: toSentMessageResult({ message: sentChat, repeated }) });
+    const response = await sendChatMessage(request(`threads/${THREAD_ID}/messages`, chat), {
+      params: Promise.resolve({ id: THREAD_ID }),
+    });
+
+    expect(interactors.chat).toHaveBeenCalledExactlyOnceWith({ ...chat, threadId: THREAD_ID });
+    expect(response.status).toBe(201);
+    expect(await response.json()).toEqual(sentAs(sentChat, repeated));
+  });
+
+  it("answers an accepted chat message that is not recorded yet with 202 and a receipt", async () => {
+    interactors.chat.mockResolvedValue({ ok: true, data: toSentMessageResult({ message: null, threadId: THREAD_ID }) });
+    const response = await sendChatMessage(request(`threads/${THREAD_ID}/messages`, chat), {
+      params: Promise.resolve({ id: THREAD_ID }),
+    });
+
+    expect(response.status).toBe(202);
+    expect(await response.json()).toEqual({
+      sent: true,
+      messageId: null,
+      threadId: THREAD_ID,
+      providerMessageId: null,
+      repeated: false,
+    });
+  });
+
+  it.each([
+    ["recorded", sentChat, 201, { messageId: MESSAGE_ID, threadId: THREAD_ID }],
+    ["not recorded yet", null, 202, { messageId: null, threadId: null }],
+  ] as const)(
+    "answers a started chat that is %s with %s and the shared receipt",
+    async (_label, message, status, ids) => {
+      interactors.startChat.mockResolvedValue({ ok: true, data: toSentMessageResult({ message }) });
+      const response = await startChat(request("start-chat", startedChat));
+
+      expect(interactors.startChat).toHaveBeenCalledExactlyOnceWith(startedChat);
+      expect(response.status).toBe(status);
+      expect(await response.json()).toEqual({ sent: true, providerMessageId: null, repeated: false, ...ids });
+    },
+  );
 
   it("maps repeated new-draft saves to the same contract and returns each current revision", async () => {
     const first = await saveNewDraft(request("drafts", newDraft));
@@ -253,17 +320,20 @@ describe.each(routes)("$name REST failure mapping", ({ invoke, spy }) => {
     expect(spy).toHaveBeenCalledOnce();
   });
 
-  it("returns the interactor failure without swallowing it or repeating the operation", async () => {
+  it("returns a stale-draft conflict as 409 with its code, without swallowing it or repeating the operation", async () => {
     spy.mockResolvedValue({
       ok: false,
-      error: new z.ZodError([{ code: "custom", path: ["draftRevision"], message: "Draft revision no longer exists" }]),
+      error: createZodError("This draft changed after you opened it", ["draftRevision"], {
+        error: CustomErrorCode.draftChanged,
+        kind: "conflict",
+      }),
     });
     const response = await invoke();
 
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(409);
     expect(StructuredErrorResponseSchema.parse(await response.json()).error).toMatchObject({
-      kind: "validation",
-      issues: [{ path: ["draftRevision"], message: "Draft revision no longer exists" }],
+      kind: "conflict",
+      issues: [{ path: ["draftRevision"], customCode: CustomErrorCode.draftChanged }],
     });
     expect(spy).toHaveBeenCalledOnce();
   });

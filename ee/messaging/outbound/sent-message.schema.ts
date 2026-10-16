@@ -1,9 +1,14 @@
 import type { Data } from "@/core/validation/validation.utils";
 import type { MessagingMessage } from "../messaging.schema";
+import type { MessagingMessageDto } from "../inbox/inbox.schema";
 
 import { z } from "zod";
 
 import { MessagingMessageDtoSchema, toMessagingMessageDto } from "../inbox/inbox.schema";
+
+const RepeatedSchema = z
+  .boolean()
+  .describe("true when this answers an earlier accepted send of the same draft revision; nothing was sent again");
 
 export const SentMessageResultSchema = z.object({
   message: MessagingMessageDtoSchema.nullable(),
@@ -14,14 +19,17 @@ export const SentMessageResultSchema = z.object({
 });
 export type SentMessageResult = Data<typeof SentMessageResultSchema>;
 
+export const SentMessageSchema = MessagingMessageDtoSchema.extend({ repeated: RepeatedSchema });
+export type SentMessage = Data<typeof SentMessageSchema>;
+
 export const SentMessageReceiptSchema = SentMessageResultSchema.omit({ message: true })
-  .extend({ sent: z.literal(true) })
+  .extend({ sent: z.literal(true), repeated: RepeatedSchema })
   .describe(
-    "The provider accepted the message. messageId and threadId stay null until the sent copy is recorded; repeated is true when this answers an earlier accepted send of the same draft revision and nothing was sent again.",
+    "The provider accepted the message. messageId and threadId are null while the sent copy is not recorded yet.",
   );
 export type SentMessageReceipt = Data<typeof SentMessageReceiptSchema>;
 
-export function sentMessageResult(args: {
+export function toSentMessageResult(args: {
   message: MessagingMessage | null;
   messageId?: string | null;
   threadId?: string | null;
@@ -37,7 +45,11 @@ export function sentMessageResult(args: {
   };
 }
 
-export function sentMessageReceipt(result: SentMessageResult): SentMessageReceipt {
+export function toSentMessage(message: MessagingMessageDto, repeated: boolean): SentMessage {
+  return { ...message, repeated };
+}
+
+export function toSentMessageReceipt(result: SentMessageResult): SentMessageReceipt {
   return {
     sent: true,
     messageId: result.messageId,

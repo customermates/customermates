@@ -36,8 +36,8 @@ export class DiscardDraftInteractor extends AuthenticatedInteractor<DiscardDraft
       messageId: data.messageId,
       expectedUpdatedAt: draftUpdatedAtFromRevision(data.draftRevision),
     });
-    if (result.status === "revision_mismatch") return failConflict(CustomErrorCode.draftChanged);
-    if (result.status === "send_in_progress") return failConflict(CustomErrorCode.draftSendInProgress);
+    if (result.status === "revision_mismatch") return failConflict(CustomErrorCode.draftChanged, ["draftRevision"]);
+    if (result.status === "send_in_progress") return failConflict(CustomErrorCode.draftSendInProgress, ["messageId"]);
 
     return { ok: true as const, data: { threadId: result.status === "deleted" ? result.messagingThreadId : null } };
   }

@@ -22,6 +22,7 @@ import { PrismaUnipileWebhookRepo } from "../../persistence/prisma-unipile-webho
 import { DiscardDraftInteractor } from "../discard-draft.interactor";
 import { SaveDraftInteractor, type SaveDraftData } from "../save-draft.interactor";
 import { SendChatMessageInteractor, type SendChatMessageData } from "../send-chat-message.interactor";
+import { DraftSendGate } from "../draft-send-gate";
 import { SendEmailInteractor, type SendEmailData } from "../send-email.interactor";
 import { StartChatInteractor } from "../start-chat.interactor";
 
@@ -97,11 +98,13 @@ describeDatabase("sending a saved draft revision at most once", () => {
         accounts(),
         provider as unknown as MessagingService,
         mockEntitlementService(),
+        new DraftSendGate(repo),
       ).invoke(data),
     );
   const sendChat = (data: SendChatMessageData, provider: ReturnType<typeof chatProvider>) =>
     runWithTenant(tenant, () => {
       const service = provider as unknown as MessagingService;
+      const repo = createTestMessagingRepo();
       const startChat = new StartChatInteractor(
         accounts(),
         {
@@ -112,17 +115,19 @@ describeDatabase("sending a saved draft revision at most once", () => {
           setIdentityResolutionCompanyWide: vi.fn(),
         } as never,
         service,
-        createTestMessagingRepo(),
+        repo,
         mockEntitlementService(),
         { resolve: vi.fn().mockResolvedValue([]) } as never,
+        new DraftSendGate(repo),
       );
       return new SendChatMessageInteractor(
-        createTestMessagingRepo(),
+        repo,
         accounts(),
         service,
-        new ValidateThreadIdsInteractor(createTestMessagingRepo()),
+        new ValidateThreadIdsInteractor(repo),
         mockEntitlementService(),
         startChat,
+        new DraftSendGate(repo),
       ).invoke(data);
     });
 

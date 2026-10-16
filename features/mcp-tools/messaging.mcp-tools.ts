@@ -30,6 +30,7 @@ import {
   RecordActivitiesInputSchema,
   RecordActivityCursorSchema,
 } from "@/ee/messaging/activities/record-activities.schema";
+import type { SentMessageResult } from "@/ee/messaging/outbound/sent-message.schema";
 import { SendEmailSchema } from "@/ee/messaging/outbound/send-email.interactor";
 import { BaseSendChatMessageSchema } from "@/ee/messaging/outbound/send-chat-message.interactor";
 import { BaseStartChatInputSchema, StartChatInputSchema } from "@/ee/messaging/outbound/start-chat.interactor";
@@ -217,16 +218,25 @@ const GetCalendarsOutputSchema = z
     "List modes return items with total, page and pageSize; eventId returns the event fields at the top level.",
   );
 
-const SentOutputSchema = z.object({
+const sentMessageOutput = z.object({
   sent: z.literal(true),
   threadId: z.string().nullable(),
   messageId: z.string().nullable(),
   repeated: z.boolean(),
 });
-const SendChatMessageOutputSchema = SentOutputSchema;
-const SendEmailOutputSchema = SentOutputSchema;
-const ACCEPTED_NOTE = "the provider accepted it, delivery to the recipient is not confirmed";
+const SendChatMessageOutputSchema = sentMessageOutput;
+const SendEmailOutputSchema = sentMessageOutput;
+const ACCEPTED_NOTE = "the provider accepted it; delivery to the recipient is not confirmed";
 const REPEATED_NOTE = "This draft revision was already sent; nothing was sent again";
+
+function toSentMessageOutput(data: SentMessageResult): z.infer<typeof sentMessageOutput> {
+  return { sent: true, threadId: data.threadId, messageId: data.messageId, repeated: data.repeated };
+}
+
+function repeatedNote(data: SentMessageResult): string {
+  return `${REPEATED_NOTE}${data.threadId ? `; thread ${data.threadId}` : ""}`;
+}
+
 const SaveDraftOutputSchema = z.object({ draftMessageId: z.string(), draftRevision: z.string(), threadId: z.string() });
 const DiscardDraftOutputSchema = z.object({ discarded: z.boolean(), threadId: z.string().nullable() });
 const UpdateMessagingThreadOutputSchema = z.object({ threadId: z.string(), state: z.string() });
@@ -533,9 +543,9 @@ export const sendChatMessageTool = {
         getSendChatMessageInteractor().invoke({ ...params, threadId }),
         (data) =>
           data.repeated
-            ? `${REPEATED_NOTE}${data.threadId ? `; thread ${data.threadId}` : ""}`
+            ? repeatedNote(data)
             : `${data.threadId ? `Message sent in thread ${data.threadId}` : "Message sent"}; ${ACCEPTED_NOTE}`,
-        (data) => ({ sent: true, threadId: data.threadId, messageId: data.messageId, repeated: data.repeated }),
+        toSentMessageOutput,
       );
     }
     const startChat = StartChatInputSchema.safeParse(params);
@@ -544,9 +554,9 @@ export const sendChatMessageTool = {
       getStartChatInteractor().invoke(startChat.data),
       (data) =>
         data.repeated
-          ? `${REPEATED_NOTE}${data.threadId ? `; thread ${data.threadId}` : ""}`
+          ? repeatedNote(data)
           : `${data.threadId ? `Chat started, thread ${data.threadId}` : "Chat started"}; ${ACCEPTED_NOTE}`,
-      (data) => ({ sent: true, threadId: data.threadId, messageId: data.messageId, repeated: data.repeated }),
+      toSentMessageOutput,
     );
   },
 };
@@ -574,13 +584,11 @@ export const sendEmailTool = {
     runInteractor(
       getSendEmailInteractor().invoke(params),
       (data) => {
-        const accepted = "the provider accepted it for sending; delivery to recipients is not confirmed";
-        if (data.repeated) return `${REPEATED_NOTE}${data.threadId ? `; thread ${data.threadId}` : ""}`;
-        return data.threadId
-          ? `Email sent, thread ${data.threadId}; ${accepted}`
-          : `Email sent; ${accepted}. It appears in the inbox once the provider syncs the Sent copy`;
+        if (data.repeated) return repeatedNote(data);
+        const sent = `${data.threadId ? `Email sent, thread ${data.threadId}` : "Email sent"}; ${ACCEPTED_NOTE}`;
+        return data.messageId ? sent : `${sent}. It appears in the inbox once the provider syncs the Sent copy`;
       },
-      (data) => ({ sent: true, threadId: data.threadId, messageId: data.messageId, repeated: data.repeated }),
+      toSentMessageOutput,
     ),
 };
 

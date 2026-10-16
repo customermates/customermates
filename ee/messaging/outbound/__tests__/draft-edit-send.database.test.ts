@@ -19,6 +19,7 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 import { PrismaConnectedAccountRepo } from "../../persistence/prisma-connected-account.repository";
 import { PrismaUnipileWebhookRepo } from "../../persistence/prisma-unipile-webhook.repository";
 import { SaveDraftInteractor, type SaveDraftData } from "../save-draft.interactor";
+import { DraftSendGate } from "../draft-send-gate";
 import { SendEmailInteractor, type SendEmailData } from "../send-email.interactor";
 
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
@@ -64,14 +65,16 @@ describeDatabase("sending an email draft after editing it", () => {
       new SaveDraftInteractor(createTestMessagingRepo(), accounts(), mockEntitlementService()).invoke(data),
     );
   const send = (data: SendEmailData, provider: ReturnType<typeof providerStub>) =>
-    runWithTenant(tenant, () =>
-      new SendEmailInteractor(
-        createTestMessagingRepo(),
+    runWithTenant(tenant, () => {
+      const repo = createTestMessagingRepo();
+      return new SendEmailInteractor(
+        repo,
         accounts(),
         provider as unknown as MessagingService,
         mockEntitlementService(),
-      ).invoke(data),
-    );
+        new DraftSendGate(repo),
+      ).invoke(data);
+    });
   const saved = async (data: SaveDraftData) => {
     const result = await save(data);
     if (!result.ok || !result.data.draftRevision) throw new Error("draft was not saved");

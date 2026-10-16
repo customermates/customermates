@@ -51,7 +51,7 @@ function sameValues(left: readonly string[], right: readonly string[]): boolean 
   return left.length === right.length && left.every((value, index) => value === right[index]);
 }
 
-type DeliveryResult = Awaited<ReturnType<typeof sendEmailAction>> | Awaited<ReturnType<typeof startChatAction>>;
+type DeliveryResult = Awaited<ReturnType<typeof sendEmailAction>>;
 
 type PendingDelivery = {
   message: MessagingMessageDto;
@@ -562,7 +562,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
         return;
       }
 
-      const sent = "message" in result.data ? result.data.message : null;
+      const sent = result.data.message;
       const sentThreadId = result.data.threadId;
       const repeated = result.data.repeated;
       runInAction(() => {

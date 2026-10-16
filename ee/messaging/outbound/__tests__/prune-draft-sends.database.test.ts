@@ -22,6 +22,7 @@ import { PrismaUnipileWebhookRepo } from "../../persistence/prisma-unipile-webho
 import { DiscardDraftInteractor } from "../discard-draft.interactor";
 import { PruneDraftSendsInteractor } from "../prune-draft-sends.interactor";
 import { SaveDraftInteractor } from "../save-draft.interactor";
+import { DraftSendGate } from "../draft-send-gate";
 import { SendEmailInteractor, type SendEmailData } from "../send-email.interactor";
 
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
@@ -97,6 +98,7 @@ describeDatabase("pruning draft send records", () => {
         accounts(),
         provider as unknown as MessagingService,
         mockEntitlementService(),
+        new DraftSendGate(repo),
       ).invoke(data),
     );
 

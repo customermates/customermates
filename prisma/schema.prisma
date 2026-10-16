@@ -1115,6 +1115,7 @@ model MessagingDraftSend {
 
   @@unique([companyId, draftMessageId])
   @@index([connectedAccountId, claimedAt])
+  @@index([updatedAt])
 }
 
 model AccountActivity {
