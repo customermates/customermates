@@ -842,6 +842,15 @@
   "BrowserFrame": {
     "open": "Abrir en una nueva pestaña"
   },
+  "CheckoutPending": {
+    "abandon": "No terminé de pagar – elegir un plan",
+    "checking": "Comprobando el pago",
+    "contactSupport": "Contactar con soporte",
+    "description": "Lemon Squeezy está confirmando el pago de este espacio de trabajo. Esta página continuará sola en cuanto llegue.",
+    "overdue": "¿Todavía no ha llegado el pago?",
+    "supportEmailSubject": "Pago no recibido",
+    "title": "Estamos procesando el pago"
+  },
   "CommandPalette": {
     "fieldOf": "Campo de {list}",
     "groups": {

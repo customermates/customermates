@@ -1,9 +1,11 @@
 "use client";
 
 import type { SubscriptionRecoveryPath } from "@/features/auth/subscription-recovery";
+import type { CheckoutState } from "@/ee/subscription/checkout-state";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
+import { useEffect, useLayoutEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 import { AppCard } from "@/components/card/app-card";
@@ -12,30 +14,46 @@ import { AppCardFooter } from "@/components/card/app-card-footer";
 import { CardHeroHeader } from "@/components/card/card-hero-header";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
-import { PlanPicker } from "@/app/[locale]/(protected)/settings/(workspace)/components/subscription/plan-picker";
-import { runUserAction } from "@/core/errors/report-application-error";
+import { PlanSelection } from "@/app/[locale]/(protected)/settings/(workspace)/components/subscription/plan-selection";
+import { supportMailHref } from "@/app/[locale]/(protected)/settings/(workspace)/components/subscription/support-mail-href";
+import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
+import { startBackgroundPoll } from "@/core/utils/background-poll";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
-import { contactHref } from "@/core/utils/contact-href";
+import { CHECKOUT_POLL_INTERVAL_MS } from "@/ee/subscription/checkout-state";
 import { workspaceDisplayName } from "@/app/components/workspaces/workspace-identity";
 
 type Props = {
   recoveryPath: SubscriptionRecoveryPath;
   firstPlan: boolean;
+  checkout: CheckoutState;
 };
 
-const SubscriptionExpiredViewContent = observer(({ recoveryPath, firstPlan }: Props) => {
+const SubscriptionExpiredViewContent = observer(({ recoveryPath, firstPlan, checkout }: Props) => {
   const t = useTranslations();
   const { subscriptionExpiredStore, loadingOverlayStore, workspacesStore } = useRootStore();
   const workspaceName = workspaceDisplayName(workspacesStore.current?.name, t("Workspaces.fallbackName"));
-  const choosingFirstPlan = firstPlan && recoveryPath === "selfServiceCheckout";
-  const description =
-    recoveryPath === "selfServiceCheckout"
-      ? choosingFirstPlan
-        ? t("Workspaces.firstPlan.description", { name: workspaceName })
-        : t("SubscriptionExpiredView.selfServiceCheckoutDescription")
-      : recoveryPath === "manualEnterpriseBilling"
-        ? t("SubscriptionExpiredView.manualEnterpriseBillingDescription")
-        : t("SubscriptionExpiredView.administratorRequiredDescription");
+  const selfServiceCheckout = recoveryPath === "selfServiceCheckout";
+  const choosingFirstPlan = firstPlan && selfServiceCheckout;
+  const checkoutState = subscriptionExpiredStore.checkout ?? checkout;
+  const awaitingPayment = selfServiceCheckout && checkoutState === "pending" && !subscriptionExpiredStore.activated;
+  const description = selfServiceCheckout
+    ? choosingFirstPlan
+      ? t("Workspaces.firstPlan.description", { name: workspaceName })
+      : t("SubscriptionExpiredView.selfServiceCheckoutDescription")
+    : recoveryPath === "manualEnterpriseBilling"
+      ? t("SubscriptionExpiredView.manualEnterpriseBillingDescription")
+      : t("SubscriptionExpiredView.administratorRequiredDescription");
+
+  useLayoutEffect(() => subscriptionExpiredStore.setCheckout(checkout), [checkout, subscriptionExpiredStore]);
+
+  useEffect(() => {
+    if (!awaitingPayment) return;
+    return startBackgroundPoll({
+      refresh: () => subscriptionExpiredStore.refreshCheckout(),
+      onError: reportApplicationError,
+      intervalMs: CHECKOUT_POLL_INTERVAL_MS,
+    });
+  }, [awaitingPayment, subscriptionExpiredStore]);
 
   return (
     <AppCard className="max-w-3xl">
@@ -51,9 +69,11 @@ const SubscriptionExpiredViewContent = observer(({ recoveryPath, firstPlan }: Pr
       <AppCardBody>
         <p className="text-x-sm text-center text-subdued">{description}</p>
 
-        {recoveryPath === "selfServiceCheckout" ? (
-          <PlanPicker
+        {selfServiceCheckout ? (
+          <PlanSelection
+            checkout={checkoutState}
             isLoading={loadingOverlayStore.isLoading}
+            onAbandon={() => runUserAction(() => subscriptionExpiredStore.handleAbandon())}
             onSelect={(plan) => runUserAction(() => subscriptionExpiredStore.handleSubscribe(plan))}
           />
         ) : null}
@@ -64,15 +84,14 @@ const SubscriptionExpiredViewContent = observer(({ recoveryPath, firstPlan }: Pr
           className="w-full"
           variant="secondary"
           onClick={() => {
-            const supportHref = contactHref("email", "mail@customermates.com");
-            if (supportHref)
-              window.location.href = `${supportHref}?subject=${encodeURIComponent(t("SubscriptionExpiredView.supportEmailSubject"))}`;
+            const supportHref = supportMailHref(t("SubscriptionExpiredView.supportEmailSubject"));
+            if (supportHref) window.location.href = supportHref;
           }}
         >
           {t("SubscriptionExpiredView.contactSupportCta")}
         </Button>
 
-        {recoveryPath !== "selfServiceCheckout" ? (
+        {!selfServiceCheckout ? (
           <Button className="w-full" onClick={() => window.location.reload()}>
             {t("SubscriptionExpiredView.retry")}
           </Button>
