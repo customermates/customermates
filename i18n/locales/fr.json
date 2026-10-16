@@ -3063,6 +3063,51 @@
       "label": "Espaces de travail"
     }
   },
+  "OperatorUsage": {
+    "channels": {
+      "none": "Aucun canal n'était connecté ce mois-ci.",
+      "peak": "{count} le {date}",
+      "title": "Canaux"
+    },
+    "columns": {
+      "account": "Compte",
+      "added": "Ajouté",
+      "channel": "Canal",
+      "connected": "Connecté",
+      "currentChannels": "Canaux connectés maintenant",
+      "currentSeats": "Postes actifs maintenant",
+      "deactivated": "Désactivé",
+      "disconnected": "Déconnecté",
+      "email": "E-mail",
+      "name": "Nom",
+      "peakAt": "Maximum atteint",
+      "peakChannels": "Maximum de canaux",
+      "role": "Rôle",
+      "seats": "Postes",
+      "workspace": "Espace de travail"
+    },
+    "coverage": {
+      "channelsRecordedFrom": "Les changements de canaux sont enregistrés depuis le {date}. Les canaux retirés avant cette date manquent, ce maximum peut donc être trop bas.",
+      "footnote": "* Historique incomplet pour ce mois. Ouvrez l'espace de travail pour les détails.",
+      "inexactTimes": "Certaines heures de connexion ou de déconnexion sont estimées, ce maximum peut donc être légèrement élevé.",
+      "seatsRecordedFrom": "Les changements de postes sont enregistrés depuis le {date}. Les utilisateurs désactivés avant cette date manquent, ce nombre peut donc être trop bas."
+    },
+    "deleted": "Supprimé le {date}",
+    "description": "Par mois civil en UTC. Chaque utilisateur actif à un moment quelconque du mois compte comme un poste pour tout le mois. Les canaux comptent à leur nombre maximal connecté en même temps.",
+    "empty": "Aucun espace de travail n'existait ce mois-ci.",
+    "estimated": "{date} (estimé)",
+    "export": "Fichier CSV",
+    "month": "Mois",
+    "monthInProgress": "Ce mois est en cours, les chiffres peuvent donc encore augmenter.",
+    "navigation": "Utilisation",
+    "seats": {
+      "none": "Aucun utilisateur n'était actif ce mois-ci.",
+      "title": "Postes"
+    },
+    "stillActive": "Toujours actif",
+    "stillConnected": "Toujours connecté",
+    "title": "Utilisation facturable"
+  },
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Correction de crédits signée",
@@ -3119,14 +3164,6 @@
       "notSet": "Non défini",
       "title": "Allocation Enterprise",
       "warningDescription": "L’allocation est accordée par utilisateur sur tout l’espace et prend effet sur la période en cours."
-    },
-    "channels": {
-      "approximate": "Au moins une heure de déconnexion est estimée, ce maximum peut donc être légèrement élevé.",
-      "description": "Nombre maximal de canaux connectés simultanément par mois, reconstitué à partir du journal d'audit de l'espace de travail.",
-      "monthLabel": "Mois",
-      "monthOption": "{month} · {count} au maximum",
-      "none": "Aucun canal n'a jamais été connecté.",
-      "title": "Canaux connectés"
     },
     "delete": {
       "action": "Supprimer l'espace de travail",

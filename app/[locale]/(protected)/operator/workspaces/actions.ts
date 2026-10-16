@@ -7,6 +7,7 @@ import type {
   GetOperatorWorkspaceStatsData,
   UpdateOperatorWorkspaceTagsData,
 } from "@/ee/operator/operator.schema";
+import type { GetOperatorBillingUsageData } from "@/ee/operator/billing-usage.schema";
 
 import {
   getDeleteOperatorWorkspaceInteractor,
@@ -14,6 +15,7 @@ import {
   getUpdateOperatorSubscriptionTermsInteractor,
   getGetOperatorWorkspaceStatsInteractor,
   getUpdateOperatorWorkspaceTagsInteractor,
+  getGetOperatorBillingUsageInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 
@@ -35,4 +37,8 @@ export async function getOperatorWorkspaceStatsAction(data: GetOperatorWorkspace
 
 export async function updateOperatorWorkspaceTagsAction(data: UpdateOperatorWorkspaceTagsData) {
   return serializeResult(getUpdateOperatorWorkspaceTagsInteractor().invoke(data));
+}
+
+export async function getOperatorBillingUsageAction(data: GetOperatorBillingUsageData) {
+  return serializeResult(getGetOperatorBillingUsageInteractor().invoke(data));
 }

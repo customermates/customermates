@@ -25,7 +25,6 @@ import { FormIsoDatePicker } from "@/components/forms/form-iso-date-picker";
 import { FormLabel } from "@/components/forms/form-label";
 import { FormNumberInput } from "@/components/forms/form-number-input";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
@@ -37,6 +36,7 @@ import { OperatorChipSelect } from "../operator-chip-select";
 import { useOperatorChipOptions } from "../use-operator-chip-options";
 import { getOperatorWorkspaceStatsAction } from "../../workspaces/actions";
 import { getOperatorWorkspaceTagsAction } from "../../actions";
+import { OperatorWorkspaceUsageSection } from "../usage/operator-workspace-usage-section";
 
 type Props = { workspace: OperatorWorkspaceRowDto | null; onClose: () => void };
 
@@ -59,18 +59,12 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
   const [allowance, setAllowance] = useState<number | undefined>(undefined);
   const [trialEnd, setTrialEnd] = useState("");
   const [billingId, setBillingId] = useState("");
-  const [channelMonth, setChannelMonth] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [knownTags, setKnownTags] = useState<string[]>([]);
   const [deleting, setDeleting] = useState(false);
   const [reason, setReason] = useState("");
 
   const companyId = workspace?.id ?? null;
-
-  function formatChannelMonth(month: string) {
-    const parsed = new Date(`${month}-01T00:00:00`);
-    return Number.isFinite(parsed.getTime()) ? intlStore.formatMonthYear(parsed) : month;
-  }
 
   const workspaceRef = useRef(workspace);
   workspaceRef.current = workspace;
@@ -80,7 +74,6 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
     if (!workspace) return;
 
     setStats(null);
-    setChannelMonth("");
     setAllowance(workspace.enterpriseCreditsPerUser ?? undefined);
     setTrialEnd(toDateInput(workspace.trialEndDate));
     setBillingId(workspace.lemonSqueezyId ?? "");
@@ -102,10 +95,8 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
     void getOperatorWorkspaceStatsAction({ companyId: workspace.id })
       .then((res) => {
         if (cancelled) return;
-        if (res.ok) {
-          setStats(res.data);
-          setChannelMonth(res.data.channelMonths[0]?.month ?? "");
-        } else toastZodErrorTree(res.error);
+        if (res.ok) setStats(res.data);
+        else toastZodErrorTree(res.error);
       })
       .finally(() => {
         if (!cancelled) setIsLoadingStats(false);
@@ -126,7 +117,6 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
     : workspace.workspaceLabel;
   const isEnterprise = workspace.plan === SubscriptionPlanEnum.enterprise;
   const clearingBinding = Boolean(workspace.lemonSqueezyId) && billingId.trim().length === 0;
-  const selectedChannelMonth = stats?.channelMonths.find((entry) => entry.month === channelMonth) ?? null;
   const tagsDirty = tags.join("\u0000") !== workspace.tags.join("\u0000");
   const termsDirty = trialEnd !== toDateInput(workspace.trialEndDate) || billingId !== (workspace.lemonSqueezyId ?? "");
   const allowanceDirty = isEnterprise && allowance !== (workspace.enterpriseCreditsPerUser ?? undefined);
@@ -451,61 +441,7 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
 
           <Separator />
 
-          <div className="flex flex-col gap-3">
-            <div className="space-y-1">
-              <h3 className="text-x-sm font-medium">{t("OperatorWorkspaces.channels.title")}</h3>
-
-              <p className="text-xs text-muted-foreground">{t("OperatorWorkspaces.channels.description")}</p>
-            </div>
-
-            {isLoadingStats ? <Skeleton className="h-24 w-full" /> : null}
-
-            {stats && stats.channelMonths.length === 0 ? (
-              <p className="text-xs text-muted-foreground">{t("OperatorWorkspaces.channels.none")}</p>
-            ) : null}
-
-            {stats && stats.channelMonths.length > 0 ? (
-              <>
-                <Select value={channelMonth} onValueChange={setChannelMonth}>
-                  <SelectTrigger aria-label={t("OperatorWorkspaces.channels.monthLabel")} id="operator-channel-month">
-                    <SelectValue placeholder={t("OperatorWorkspaces.channels.monthLabel")} />
-                  </SelectTrigger>
-
-                  <SelectContent>
-                    {stats.channelMonths.map((entry) => (
-                      <SelectItem key={entry.month} textValue={entry.month} value={entry.month}>
-                        {t("OperatorWorkspaces.channels.monthOption", {
-                          month: formatChannelMonth(entry.month),
-                          count: entry.peakConcurrent,
-                        })}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {selectedChannelMonth ? (
-                  <div className="flex flex-col gap-1.5 rounded-md bg-foreground/5 p-3">
-                    <div className="flex flex-col gap-1">
-                      {selectedChannelMonth.channels.map((channel) => (
-                        <span
-                          key={`${channel.provider}-${channel.identifier}`}
-                          className="text-xs text-muted-foreground"
-                        >
-                          {`${t(`Common.providers.${channel.provider}`)} \u00b7 ${channel.identifier}`}
-                        </span>
-                      ))}
-                    </div>
-
-                    {selectedChannelMonth.approximate ? (
-                      <span className="text-xs text-muted-foreground">
-                        {t("OperatorWorkspaces.channels.approximate")}
-                      </span>
-                    ) : null}
-                  </div>
-                ) : null}
-              </>
-            ) : null}
-          </div>
+          <OperatorWorkspaceUsageSection key={workspace.id} companyId={workspace.id} createdAt={workspace.createdAt} />
         </AppCardBody>
 
         <FormFooterActions

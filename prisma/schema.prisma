@@ -684,6 +684,44 @@ model OperatorAuditEvent {
   @@index([targetCompanyId, createdAt])
 }
 
+// Billing usage ledger, written only by database triggers on User, ConnectedAccount
+// and Company. No foreign key: the history outlives a deleted workspace.
+model BillingUsageInterval {
+  id         String           @id @default(uuid())
+  companyId  String
+  kind       BillingUsageKind
+  subjectId  String
+  startedAt  DateTime
+  endedAt    DateTime?
+  startExact Boolean          @default(true)
+  endExact   Boolean          @default(true)
+  firstName  String?
+  lastName   String?
+  email      String?
+  roleName   String?
+  provider   String?
+  identifier String?
+
+  @@index([companyId, kind, startedAt])
+  @@index([kind, startedAt])
+  @@index([kind, endedAt])
+}
+
+// One row per workspace ever created. recordedFrom is null when the ledger has
+// recorded the workspace since its creation; otherwise changes before it are unknown.
+model BillingUsageWorkspace {
+  companyId            String    @id
+  createdAt            DateTime
+  deletedAt            DateTime?
+  seatsRecordedFrom    DateTime?
+  channelsRecordedFrom DateTime?
+}
+
+enum BillingUsageKind {
+  seat
+  channel
+}
+
 enum Resource {
   dataModel
   users

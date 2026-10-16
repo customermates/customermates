@@ -3063,6 +3063,51 @@
       "label": "Workspaces"
     }
   },
+  "OperatorUsage": {
+    "channels": {
+      "none": "No channel was connected in this month.",
+      "peak": "{count} at {date}",
+      "title": "Channels"
+    },
+    "columns": {
+      "account": "Account",
+      "added": "Added",
+      "channel": "Channel",
+      "connected": "Connected",
+      "currentChannels": "Connected channels now",
+      "currentSeats": "Active seats now",
+      "deactivated": "Deactivated",
+      "disconnected": "Disconnected",
+      "email": "Email",
+      "name": "Name",
+      "peakAt": "Peak reached",
+      "peakChannels": "Peak channels",
+      "role": "Role",
+      "seats": "Seats",
+      "workspace": "Workspace"
+    },
+    "coverage": {
+      "channelsRecordedFrom": "Channel changes are recorded from {date}. Channels removed before then are missing, so this peak may be too low.",
+      "footnote": "* Incomplete history for this month. Open the workspace for details.",
+      "inexactTimes": "Some connect or disconnect times are estimated, so this peak may be slightly high.",
+      "seatsRecordedFrom": "Seat changes are recorded from {date}. Users deactivated before then are missing, so this count may be too low."
+    },
+    "deleted": "Deleted {date}",
+    "description": "Per calendar month in UTC. Every user who was active at any time in the month counts as one seat for the whole month. Channels count at their highest number connected at the same time.",
+    "empty": "No workspace existed in this month.",
+    "estimated": "{date} (estimated)",
+    "export": "CSV file",
+    "month": "Month",
+    "monthInProgress": "This month is still running, so the numbers can still rise.",
+    "navigation": "Usage",
+    "seats": {
+      "none": "No user was active in this month.",
+      "title": "Seats"
+    },
+    "stillActive": "Still active",
+    "stillConnected": "Still connected",
+    "title": "Billing usage"
+  },
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Signed credit correction",
@@ -3119,14 +3164,6 @@
       "notSet": "Not set",
       "title": "Enterprise allowance",
       "warningDescription": "The allowance is granted per user across the whole workspace and takes effect on the current period."
-    },
-    "channels": {
-      "approximate": "One or more disconnect times are estimated, so this peak may be slightly high.",
-      "description": "Peak simultaneously connected channels per month, reconstructed from the workspace audit trail.",
-      "monthLabel": "Month",
-      "monthOption": "{month} · {count} at peak",
-      "none": "No channels have ever been connected.",
-      "title": "Connected channels"
     },
     "delete": {
       "action": "Delete workspace",

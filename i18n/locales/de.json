@@ -3063,6 +3063,51 @@
       "label": "Arbeitsbereiche"
     }
   },
+  "OperatorUsage": {
+    "channels": {
+      "none": "In diesem Monat war kein Kanal verbunden.",
+      "peak": "{count} am {date}",
+      "title": "Kanäle"
+    },
+    "columns": {
+      "account": "Konto",
+      "added": "Hinzugefügt",
+      "channel": "Kanal",
+      "connected": "Verbunden",
+      "currentChannels": "Jetzt verbundene Kanäle",
+      "currentSeats": "Jetzt aktive Nutzerplätze",
+      "deactivated": "Deaktiviert",
+      "disconnected": "Getrennt",
+      "email": "E-Mail",
+      "name": "Name",
+      "peakAt": "Höchstwert erreicht",
+      "peakChannels": "Höchstzahl Kanäle",
+      "role": "Rolle",
+      "seats": "Nutzerplätze",
+      "workspace": "Workspace"
+    },
+    "coverage": {
+      "channelsRecordedFrom": "Kanaländerungen werden seit {date} erfasst. Vorher entfernte Kanäle fehlen, daher kann dieser Höchstwert zu niedrig sein.",
+      "footnote": "* Unvollständiger Verlauf für diesen Monat. Details im Workspace.",
+      "inexactTimes": "Einige Verbindungs- oder Trennzeitpunkte sind geschätzt, daher kann dieser Höchstwert leicht zu hoch sein.",
+      "seatsRecordedFrom": "Änderungen an Nutzerplätzen werden seit {date} erfasst. Vorher deaktivierte Benutzer fehlen, daher kann diese Zahl zu niedrig sein."
+    },
+    "deleted": "Gelöscht am {date}",
+    "description": "Pro Kalendermonat in UTC. Jeder Benutzer, der im Monat zu irgendeinem Zeitpunkt aktiv war, zählt für den ganzen Monat als ein Nutzerplatz. Kanäle zählen mit ihrer höchsten Zahl gleichzeitig verbundener Kanäle.",
+    "empty": "In diesem Monat gab es keinen Workspace.",
+    "estimated": "{date} (geschätzt)",
+    "export": "CSV-Datei",
+    "month": "Monat",
+    "monthInProgress": "Dieser Monat läuft noch, die Zahlen können also noch steigen.",
+    "navigation": "Nutzung",
+    "seats": {
+      "none": "In diesem Monat war kein Benutzer aktiv.",
+      "title": "Nutzerplätze"
+    },
+    "stillActive": "Noch aktiv",
+    "stillConnected": "Noch verbunden",
+    "title": "Abrechnungsrelevante Nutzung"
+  },
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Vorzeichenbehaftete Credit-Korrektur",
@@ -3119,14 +3164,6 @@
       "notSet": "Nicht gesetzt",
       "title": "Enterprise-Kontingent",
       "warningDescription": "Das Kontingent gilt pro Benutzer im gesamten Arbeitsbereich und wirkt sich auf die aktuelle Periode aus."
-    },
-    "channels": {
-      "approximate": "Mindestens ein Trennzeitpunkt ist geschätzt, daher kann dieser Höchstwert leicht zu hoch sein.",
-      "description": "Höchstzahl gleichzeitig verbundener Kanäle pro Monat, rekonstruiert aus dem Audit-Verlauf des Workspace.",
-      "monthLabel": "Monat",
-      "monthOption": "{month} · {count} im Maximum",
-      "none": "Es waren nie Kanäle verbunden.",
-      "title": "Verbundene Kanäle"
     },
     "delete": {
       "action": "Workspace löschen",

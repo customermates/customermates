@@ -406,11 +406,13 @@ import { GetOperatorUserDetailInteractor } from "@/ee/operator/get/get-operator-
 import { GetOperatorUserSummaryInteractor } from "@/ee/operator/get/get-operator-user-summary.interactor";
 import { GetOperatorUsersInteractor } from "@/ee/operator/get/get-operator-users.interactor";
 import { GetOperatorWorkspaceStatsInteractor } from "@/ee/operator/get/get-operator-workspace-stats.interactor";
+import { GetOperatorBillingUsageInteractor } from "@/ee/operator/get/get-operator-billing-usage.interactor";
 import { GetOperatorWorkspaceTagsInteractor } from "@/ee/operator/get/get-operator-workspace-tags.interactor";
 import { GetOperatorWorkspacesInteractor } from "@/ee/operator/get/get-operator-workspaces.interactor";
 import { OperatorAccessService } from "@/ee/operator/operator-access.service";
 import { PrismaAdConversionExportRepo } from "@/ee/operator/prisma-ad-conversion-export.repository";
 import { PrismaOperatorAccessRepo } from "@/ee/operator/prisma-operator-access.repository";
+import { PrismaOperatorBillingUsageRepo } from "@/ee/operator/prisma-operator-billing-usage.repository";
 import { PrismaOperatorAuditRepo } from "@/ee/operator/prisma-operator-audit.repository";
 import { PrismaOperatorRiskSummaryRepo } from "@/ee/operator/prisma-operator-risk-summary.repository";
 import { PrismaOperatorUsersRepo } from "@/ee/operator/prisma-operator-users.repository";
@@ -1848,6 +1850,11 @@ export const getAdConversionExportRepo = () => new PrismaAdConversionExportRepo(
 
 export const getGetAdConversionExportInteractor = () =>
   new GetAdConversionExportInteractor(getAdConversionExportRepo());
+
+export const getOperatorBillingUsageRepo = () => new PrismaOperatorBillingUsageRepo();
+
+export const getGetOperatorBillingUsageInteractor = () =>
+  new GetOperatorBillingUsageInteractor(getOperatorBillingUsageRepo());
 
 export const getUpdateOperatorUserPlatformAccessInteractor = () =>
   new UpdateOperatorUserPlatformAccessInteractor(getOperatorRepo());

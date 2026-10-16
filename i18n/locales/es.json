@@ -3063,6 +3063,51 @@
       "label": "Espacios de trabajo"
     }
   },
+  "OperatorUsage": {
+    "channels": {
+      "none": "Ningún canal estuvo conectado este mes.",
+      "peak": "{count} el {date}",
+      "title": "Canales"
+    },
+    "columns": {
+      "account": "Cuenta",
+      "added": "Añadido",
+      "channel": "Canal",
+      "connected": "Conectado",
+      "currentChannels": "Canales conectados ahora",
+      "currentSeats": "Puestos activos ahora",
+      "deactivated": "Desactivado",
+      "disconnected": "Desconectado",
+      "email": "Correo electrónico",
+      "name": "Nombre",
+      "peakAt": "Máximo alcanzado",
+      "peakChannels": "Máximo de canales",
+      "role": "Rol",
+      "seats": "Puestos",
+      "workspace": "Espacio de trabajo"
+    },
+    "coverage": {
+      "channelsRecordedFrom": "Los cambios de canales se registran desde el {date}. Faltan los canales eliminados antes, por lo que este máximo puede ser demasiado bajo.",
+      "footnote": "* Historial incompleto para este mes. Abre el espacio de trabajo para ver los detalles.",
+      "inexactTimes": "Algunas horas de conexión o desconexión son estimadas, por lo que este máximo puede ser algo alto.",
+      "seatsRecordedFrom": "Los cambios de puestos se registran desde el {date}. Faltan los usuarios desactivados antes, por lo que este número puede ser demasiado bajo."
+    },
+    "deleted": "Eliminado el {date}",
+    "description": "Por mes natural en UTC. Cada usuario activo en algún momento del mes cuenta como un puesto durante todo el mes. Los canales cuentan con su número máximo conectado a la vez.",
+    "empty": "No existía ningún espacio de trabajo este mes.",
+    "estimated": "{date} (estimado)",
+    "export": "Archivo CSV",
+    "month": "Mes",
+    "monthInProgress": "Este mes sigue en curso, así que los números aún pueden subir.",
+    "navigation": "Uso",
+    "seats": {
+      "none": "Ningún usuario estuvo activo este mes.",
+      "title": "Puestos"
+    },
+    "stillActive": "Sigue activo",
+    "stillConnected": "Sigue conectado",
+    "title": "Uso facturable"
+  },
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Corrección de créditos con signo",
@@ -3119,14 +3164,6 @@
       "notSet": "Sin definir",
       "title": "Asignación Enterprise",
       "warningDescription": "La asignación se concede por usuario en todo el espacio y afecta al periodo actual."
-    },
-    "channels": {
-      "approximate": "Al menos una hora de desconexión es estimada, por lo que este máximo puede ser algo alto.",
-      "description": "Máximo de canales conectados simultáneamente por mes, reconstruido a partir del registro de auditoría del espacio de trabajo.",
-      "monthLabel": "Mes",
-      "monthOption": "{month} · {count} en el pico",
-      "none": "Nunca se han conectado canales.",
-      "title": "Canales conectados"
     },
     "delete": {
       "action": "Eliminar espacio de trabajo",

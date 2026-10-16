@@ -3063,6 +3063,51 @@
       "label": "Aree di lavoro"
     }
   },
+  "OperatorUsage": {
+    "channels": {
+      "none": "Nessun canale era collegato in questo mese.",
+      "peak": "{count} il {date}",
+      "title": "Canali"
+    },
+    "columns": {
+      "account": "Account",
+      "added": "Aggiunto",
+      "channel": "Canale",
+      "connected": "Collegato",
+      "currentChannels": "Canali collegati ora",
+      "currentSeats": "Postazioni attive ora",
+      "deactivated": "Disattivato",
+      "disconnected": "Scollegato",
+      "email": "Email",
+      "name": "Nome",
+      "peakAt": "Picco raggiunto",
+      "peakChannels": "Picco di canali",
+      "role": "Ruolo",
+      "seats": "Postazioni",
+      "workspace": "Area di lavoro"
+    },
+    "coverage": {
+      "channelsRecordedFrom": "Le modifiche ai canali sono registrate dal {date}. Mancano i canali rimossi prima, quindi questo picco potrebbe essere troppo basso.",
+      "footnote": "* Cronologia incompleta per questo mese. Apri l'area di lavoro per i dettagli.",
+      "inexactTimes": "Alcuni orari di collegamento o scollegamento sono stimati, quindi questo picco potrebbe essere leggermente alto.",
+      "seatsRecordedFrom": "Le modifiche alle postazioni sono registrate dal {date}. Mancano gli utenti disattivati prima, quindi questo numero potrebbe essere troppo basso."
+    },
+    "deleted": "Eliminata il {date}",
+    "description": "Per mese di calendario in UTC. Ogni utente attivo in qualsiasi momento del mese conta come una postazione per l'intero mese. I canali contano al loro numero massimo collegato contemporaneamente.",
+    "empty": "In questo mese non esisteva alcuna area di lavoro.",
+    "estimated": "{date} (stimato)",
+    "export": "File CSV",
+    "month": "Mese",
+    "monthInProgress": "Questo mese è ancora in corso, quindi i numeri possono ancora salire.",
+    "navigation": "Utilizzo",
+    "seats": {
+      "none": "Nessun utente era attivo in questo mese.",
+      "title": "Postazioni"
+    },
+    "stillActive": "Ancora attivo",
+    "stillConnected": "Ancora collegato",
+    "title": "Utilizzo fatturabile"
+  },
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Correzione crediti con segno",
@@ -3119,14 +3164,6 @@
       "notSet": "Non impostato",
       "title": "Dotazione Enterprise",
       "warningDescription": "La dotazione è concessa per utente su tutta l’area e ha effetto sul periodo corrente."
-    },
-    "channels": {
-      "approximate": "Almeno un orario di disconnessione è stimato, quindi questo picco potrebbe essere leggermente alto.",
-      "description": "Numero massimo di canali collegati contemporaneamente per mese, ricostruito dal registro di audit dello spazio di lavoro.",
-      "monthLabel": "Mese",
-      "monthOption": "{month} · {count} al picco",
-      "none": "Non è mai stato collegato alcun canale.",
-      "title": "Canali collegati"
     },
     "delete": {
       "action": "Elimina spazio di lavoro",

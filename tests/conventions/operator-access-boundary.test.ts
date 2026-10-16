@@ -18,10 +18,23 @@ function operatorInteractors() {
 describe("operator access boundary", () => {
   it("authorizes every operator interactor through the operator decorator", () => {
     const undecorated = operatorInteractors().filter(
-      (path) => !UNDECORATED_ALLOWLIST.has(path) && !read(path).includes("@OperatorInteractor"),
+      (path) =>
+        !UNDECORATED_ALLOWLIST.has(path) &&
+        !/@OperatorInteractor\b/.test(read(path)) &&
+        !/@OperatorReadInteractor\b/.test(read(path)),
     );
 
     expect(undecorated).toEqual([]);
+  });
+
+  it("admits integration credentials only on read interactors", () => {
+    const readable = operatorInteractors().filter((path) => /@OperatorReadInteractor\b/.test(read(path)));
+
+    expect(readable.length).toBeGreaterThan(0);
+    for (const path of readable) {
+      expect(path, path).toMatch(/^ee\/operator\/get\/get-[a-z-]+\.interactor\.ts$/);
+      expect(read(path), path).not.toMatch(/@OperatorInteractor\b|\.(create|update|upsert|delete)[A-Za-z]*\(/);
+    }
   });
 
   it("keeps the deliberately undecorated visibility interactor reduced to an eligibility boolean", () => {
@@ -52,7 +65,9 @@ describe("operator access boundary", () => {
     expect(context).toContain('AsyncLocalStorage } from "node:async_hooks"');
     expect(context).toContain("new AsyncLocalStorage<OperatorActor>()");
     expect(context).toContain('throw new Error("Operator context missing")');
-    expect(decorator).toContain("authorizeFresh()");
+    expect(decorator).toContain('return operatorInteractor(constructor, "authorizeFresh");');
+    expect(decorator).toContain('return operatorInteractor(constructor, "authorizeRead");');
+    expect(decorator).toContain("const actor = await getOperatorAccessService()[authorization]();");
     expect(decorator).toContain("runWithOperator(actor, () => originalInvoke.apply(this, args))");
   });
 
