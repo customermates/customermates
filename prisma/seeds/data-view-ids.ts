@@ -46,6 +46,9 @@ export const SYNTHETIC_DATA_VIEW_IDS = {
   inboxDrafts: view(11),
   inboxUnread: view(12),
   inboxWhatsApp: view(19),
+  dealsCloseCalendar: view(43),
+  tasksDueCalendar: view(44),
+  campaignCalendar: view(45),
 } as const;
 
 /**
