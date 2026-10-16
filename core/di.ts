@@ -180,6 +180,10 @@ import { DownloadRecordFileInteractor } from "@/features/record-files/download-r
 import { DownloadRecordFileByGrantInteractor } from "@/features/record-files/download-record-file-by-grant.interactor";
 import { UploadRecordFileInteractor } from "@/features/record-files/upload-record-file.interactor";
 import { AttachRecordFileInteractor } from "@/features/record-files/attach-record-file.interactor";
+import { AgentChatFileService } from "@/ee/agent-chat/agent-chat-files.service";
+import { AgentNativeFileLoader } from "@/ee/agent-chat/agent-native-file-loader";
+import { CompleteAgentChatFileUploadInteractor } from "@/ee/agent-chat/complete-agent-chat-file-upload.interactor";
+import { CreateAgentChatFileUploadInteractor } from "@/ee/agent-chat/create-agent-chat-file-upload.interactor";
 import { GetFileStorageUsageInteractor } from "@/features/record-files/get-file-storage-usage.interactor";
 import { PurgeExpiredRecordFilesInteractor } from "@/features/record-files/purge-expired-record-files.interactor";
 import { PurgeCompanyRecordFilesInteractor } from "@/features/record-files/purge-company-record-files.interactor";
@@ -640,6 +644,25 @@ export const getAttachRecordFileInteractor = () =>
     records: getRecordRepo(),
     mutate: getMutateRecordInteractor(),
   });
+export const getAgentChatFileService = () =>
+  new AgentChatFileService(getRecordFileAccessService(), getRecordFileRepo(), getBackgroundTaskService());
+export const getAgentNativeFileLoader = () =>
+  new AgentNativeFileLoader(getRecordFileAccessService(), getFileStorageDriver);
+export const getCreateAgentChatFileUploadInteractor = () =>
+  new CreateAgentChatFileUploadInteractor(
+    getEntitlementService(),
+    getRecordFileUploadService(),
+    getFileStorageDriver,
+    getRecordFileLinks(),
+  );
+export const getCompleteAgentChatFileUploadInteractor = () =>
+  new CompleteAgentChatFileUploadInteractor(
+    getEntitlementService(),
+    getRecordFileRepo(),
+    getFileStorageDriver,
+    getRecordFileIndexService,
+    recordFileMaxUploadBytes(env.APP_MODE, env.FILE_MAX_UPLOAD_BYTES),
+  );
 export const getRecordFileTextReader = (): RecordFileTextReader => getExtractedRecordFileTextReader();
 export const getReadRecordFileInteractor = () =>
   new ReadRecordFileInteractor(getGetRecordFileInteractor(), getRecordFileTextReader());
@@ -1892,6 +1915,7 @@ export const getSendAgentMessageInteractor = () =>
     getGetWikiCatalogInteractor(),
     getUserService(),
     getWikiWebsiteCrawlRepo(),
+    getAgentChatFileService(),
   );
 
 export const getGetRoutinesInteractor = () =>
@@ -1962,7 +1986,7 @@ export const getListAgentConversationsInteractor = () =>
   new ListAgentConversationsInteractor(getAgentChatRepo(), getEntitlementService());
 
 export const getDeleteAgentConversationInteractor = () =>
-  new DeleteAgentConversationInteractor(getAgentChatRepo(), getEntitlementService());
+  new DeleteAgentConversationInteractor(getAgentChatRepo(), getEntitlementService(), getAgentChatFileService());
 
 export const getArchiveAgentConversationInteractor = () =>
   new ArchiveAgentConversationInteractor(getAgentChatRepo(), getEntitlementService());

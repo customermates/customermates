@@ -1,8 +1,8 @@
-import type { CreateRecordFileUploadResult } from "@/features/record-files/record-file.schema";
+import type { CreateRecordFileUploadResult, RecordFileDto } from "@/features/record-files/record-file.schema";
 
-export type RecordFileUploadStart =
-  | { ok: true; data: CreateRecordFileUploadResult }
-  | { ok: false; message: string | null };
+export type RecordFileRequest<T> = { ok: true; data: T } | { ok: false; message: string | null };
+
+export type RecordFileUploadStart = RecordFileRequest<CreateRecordFileUploadResult>;
 
 export type RecordFileTransfer = {
   done: Promise<{ ok: true } | { ok: false; message: string | null; aborted: boolean }>;
@@ -24,26 +24,36 @@ function parsed(text: string): unknown {
   }
 }
 
-export async function startRecordFileUpload(input: {
-  typeId: string;
-  fieldId: string;
-  file: File;
-}): Promise<RecordFileUploadStart> {
-  const response = await fetch("/api/v1/files/uploads", {
+async function postRecordFileRequest<T>(url: string, input: unknown): Promise<RecordFileRequest<T>> {
+  const response = await fetch(url, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      typeId: input.typeId,
-      fieldId: input.fieldId,
-      name: input.file.name,
-      size: input.file.size,
-      mimeType: input.file.type,
-    }),
+    body: JSON.stringify(input),
   });
   const body = parsed(await response.text());
-  return response.ok
-    ? { ok: true, data: body as CreateRecordFileUploadResult }
-    : { ok: false, message: failureMessage(body) };
+  return response.ok ? { ok: true, data: body as T } : { ok: false, message: failureMessage(body) };
+}
+
+export function startRecordFileUpload(input: { typeId: string; fieldId: string; file: File }) {
+  return postRecordFileRequest<CreateRecordFileUploadResult>("/api/v1/files/uploads", {
+    typeId: input.typeId,
+    fieldId: input.fieldId,
+    name: input.file.name,
+    size: input.file.size,
+    mimeType: input.file.type,
+  });
+}
+
+export function startChatFileUpload(file: File) {
+  return postRecordFileRequest<CreateRecordFileUploadResult>("/api/agent/files", {
+    name: file.name,
+    size: file.size,
+    mimeType: file.type,
+  });
+}
+
+export function completeChatFileUpload(fileId: string) {
+  return postRecordFileRequest<RecordFileDto>(`/api/agent/files/${encodeURIComponent(fileId)}/complete`, {});
 }
 
 export function sendRecordFileBytes(

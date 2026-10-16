@@ -455,6 +455,13 @@
       "stopFailed": "Mate n’a pas pu être arrêté. La reconnexion est en cours pour vous permettre de réessayer.",
       "turnFailed": "Mate a rencontré une erreur."
     },
+    "files": {
+      "attach": "Joindre des fichiers",
+      "dropHint": "Déposez des fichiers pour les joindre",
+      "failed": "{name} : {message}",
+      "limit": "Vous pouvez joindre au maximum {count, plural, one {# fichier} other {# fichiers}} à un message.",
+      "reading": "Lecture…"
+    },
     "greeting": {
       "headline": "Bonjour, je suis Mate",
       "subtitle": "Posez-moi toutes vos questions sur votre espace de travail, ou dites-moi quoi faire et je m'en occupe.",

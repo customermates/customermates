@@ -2,7 +2,7 @@
 
 import type { DragEvent } from "react";
 import type { RecordFieldView, RecordFileSummary } from "@/features/records/record-model.schema";
-import type { RecordFileTransfer } from "./record-file-upload";
+import type { RecordFileTransfer } from "@/components/records/record-file-upload";
 
 import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
@@ -20,7 +20,7 @@ import { MAX_RECORD_FILES } from "@/features/records/record-model.schema";
 import { cn } from "@/core/utils/cn";
 import { runUserAction } from "@/core/errors/report-application-error";
 
-import { sendRecordFileBytes, startRecordFileUpload } from "./record-file-upload";
+import { sendRecordFileBytes, startRecordFileUpload } from "@/components/records/record-file-upload";
 
 type KnownFile = Pick<RecordFileSummary, "id" | "name" | "mimeType" | "size">;
 

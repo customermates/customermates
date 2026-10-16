@@ -455,6 +455,13 @@
       "stopFailed": "Non è stato possibile fermare Mate. La connessione viene ripristinata per consentirti di riprovare.",
       "turnFailed": "Mate ha riscontrato un errore."
     },
+    "files": {
+      "attach": "Allega file",
+      "dropHint": "Rilascia i file per allegarli",
+      "failed": "{name}: {message}",
+      "limit": "Puoi allegare al massimo {count, plural, one {# file} other {# file}} a un messaggio.",
+      "reading": "Lettura…"
+    },
     "greeting": {
       "headline": "Ciao, sono Mate",
       "subtitle": "Chiedimi qualsiasi cosa sul tuo workspace, oppure dimmi cosa fare e me ne occupo io.",

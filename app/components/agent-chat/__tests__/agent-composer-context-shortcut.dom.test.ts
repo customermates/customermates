@@ -65,6 +65,10 @@ vi.mock("../agent-chat-items", () => ({
 vi.mock("../agent-status-announcer", () => ({
   AgentInitialProgress: () => null,
 }));
+vi.mock("../agent-composer-uploads", () => ({
+  AgentComposerUploadErrors: () => null,
+  AgentComposerUploads: () => null,
+}));
 vi.mock("../agent-composer-contexts", () => ({
   AgentComposerContexts: () => null,
 }));
@@ -86,8 +90,11 @@ beforeEach(() => {
   root = createRoot(container);
   harness.pickerProps = null;
   harness.store = {
+    addComposerFiles: vi.fn(),
     composerContexts: [],
     composerDraft: "Keep my draft ",
+    composerUploads: [],
+    hasPendingComposerUploads: false,
     dismissComposerStarter: vi.fn(),
     isWorking: false,
     queuedPrompt: null,

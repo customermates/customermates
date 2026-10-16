@@ -27,6 +27,14 @@ import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
 
 import { BaseStore } from "@/core/base/base.store";
 
+import type { RecordFileTransfer } from "@/components/records/record-file-upload";
+
+import {
+  completeChatFileUpload,
+  sendRecordFileBytes,
+  startChatFileUpload,
+} from "@/components/records/record-file-upload";
+
 import {
   getAgentConfigAction,
   getAgentConversationAction,
@@ -42,9 +50,11 @@ import { appLocaleOrDefault } from "@/i18n/locale-registry";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 import {
   AGENT_CONTEXT_ATTACHMENT_LIMIT,
+  AGENT_FILE_ATTACHMENT_LIMIT,
   AgentContextAttachmentSchema,
   agentContextAttachmentKey,
   agentContextsFromMessageParts,
+  isAgentFileContext,
   type AgentContextAttachment,
 } from "@/ee/agent-chat/agent-context";
 import { AgentViewContext, type AgentViewChange } from "./agent-view-context";
@@ -100,6 +110,16 @@ export type AgentChatItem =
       retryDecision: "approve" | "reject" | null;
       at?: Date;
     };
+
+export type AgentComposerUpload = {
+  key: string;
+  name: string;
+  size: number;
+  mimeType: string;
+  progress: number;
+  phase: "uploading" | "reading" | "failed";
+  failure: string | null;
+};
 
 type AgentStreamStepCheckpoint = {
   anchorItemId: string | null;
@@ -290,6 +310,7 @@ export class AgentChatStore extends BaseStore {
   composerDraft = "";
   private composerStarterDraft: string | null = null;
   composerContexts: AgentContextAttachment[] = [];
+  composerUploads: AgentComposerUpload[] = [];
   queuedPrompt: string | null = null;
   queuedPromptNeedsAttention = false;
   routeRefreshRevision = 0;
@@ -326,6 +347,8 @@ export class AgentChatStore extends BaseStore {
   private queuedPromptPageRoute: string | null = null;
   private queuedPromptContexts: AgentContextAttachment[] = [];
   private composerContextPageRoute: string | null = null;
+  private composerUploadTransfers = new Map<string, RecordFileTransfer>();
+  private composerUploadGeneration = 0;
   private activeStreamKey = "stream-0";
   private streamSequence = 0;
   private activeTurnClientRequestId: string | null = null;
@@ -375,6 +398,7 @@ export class AgentChatStore extends BaseStore {
       items: observable,
       composerDraft: observable,
       composerContexts: observable,
+      composerUploads: observable,
       queuedPrompt: observable,
       queuedPromptNeedsAttention: observable,
       routeRefreshRevision: observable,
@@ -390,6 +414,7 @@ export class AgentChatStore extends BaseStore {
       conversationTitle: computed,
       isAwaitingAssistantResponse: computed,
       isContinuingAfterApproval: computed,
+      hasPendingComposerUploads: computed,
       canApplyRouteReload: computed,
       canInterrupt: computed,
       hasPendingRouteReload: computed,
@@ -405,6 +430,8 @@ export class AgentChatStore extends BaseStore {
       addComposerContext: action,
       removeComposerContext: action,
       removeLastComposerContext: action,
+      addComposerFiles: action,
+      removeComposerUpload: action,
       submitDraft: action,
       editQueuedPrompt: action,
       removeQueuedPrompt: action,
@@ -473,6 +500,10 @@ export class AgentChatStore extends BaseStore {
 
   get isAwaitingAssistantResponse() {
     return this.isWorking && this.items.at(-1)?.kind === "user";
+  }
+
+  get hasPendingComposerUploads() {
+    return this.composerUploads.some((upload) => upload.phase !== "failed");
   }
 
   get isContinuingAfterApproval() {
@@ -561,7 +592,15 @@ export class AgentChatStore extends BaseStore {
     this.composerDraft = "";
     this.composerContexts = [];
     this.composerContextPageRoute = null;
+    this.clearComposerUploads();
     this.isHistoryOpen = false;
+  }
+
+  private clearComposerUploads() {
+    this.composerUploadGeneration += 1;
+    for (const transfer of this.composerUploadTransfers.values()) transfer.abort();
+    this.composerUploadTransfers.clear();
+    this.composerUploads = [];
   }
 
   private setOpenState(isOpen: boolean) {
@@ -610,9 +649,11 @@ export class AgentChatStore extends BaseStore {
       normalizedContext.reference.kind === "dataView"
         ? [...withoutSame.filter((candidate) => candidate.reference.kind !== "dataView"), normalizedContext]
         : [...withoutSame, normalizedContext];
-    if (next.length > AGENT_CONTEXT_ATTACHMENT_LIMIT) {
+    const others = next.filter((candidate) => !isAgentFileContext(candidate));
+    if (others.length > AGENT_CONTEXT_ATTACHMENT_LIMIT) {
       if (!options.replaceOldestAtLimit) return;
-      next = next.slice(-AGENT_CONTEXT_ATTACHMENT_LIMIT);
+      const dropped = new Set(others.slice(0, others.length - AGENT_CONTEXT_ATTACHMENT_LIMIT));
+      next = next.filter((candidate) => !dropped.has(candidate));
     }
     this.composerContexts = next;
     if (normalizedContext.reference.kind === "dataView") this.composerContextPageRoute = pageRoute ?? null;
@@ -637,10 +678,94 @@ export class AgentChatStore extends BaseStore {
     return true;
   };
 
+  addComposerFiles = (files: readonly File[]) => {
+    const attached = this.composerContexts.filter(isAgentFileContext).length;
+    let room = Math.max(
+      0,
+      AGENT_FILE_ATTACHMENT_LIMIT -
+        attached -
+        this.composerUploads.filter((upload) => upload.phase !== "failed").length,
+    );
+    const generation = this.composerUploadGeneration;
+    for (const file of files) {
+      const accepted = room > 0;
+      room -= 1;
+      const upload: AgentComposerUpload = {
+        key: globalThis.crypto.randomUUID(),
+        name: file.name,
+        size: file.size,
+        mimeType: file.type || "application/octet-stream",
+        progress: 0,
+        phase: accepted ? "uploading" : "failed",
+        failure: accepted ? null : this.t("AgentChat.files.limit", { count: AGENT_FILE_ATTACHMENT_LIMIT }),
+      };
+      this.composerUploads = [...this.composerUploads, upload];
+      if (accepted) void this.uploadComposerFile(upload.key, file, generation);
+    }
+  };
+
+  removeComposerUpload = (key: string) => {
+    const transfer = this.composerUploadTransfers.get(key);
+    this.composerUploadTransfers.delete(key);
+    this.composerUploads = this.composerUploads.filter((upload) => upload.key !== key);
+    transfer?.abort();
+  };
+
+  private updateComposerUpload(key: string, change: Partial<AgentComposerUpload>) {
+    runInAction(() => {
+      this.composerUploads = this.composerUploads.map((upload) =>
+        upload.key === key ? { ...upload, ...change } : upload,
+      );
+    });
+  }
+
+  private failComposerUpload(key: string, failure: string | null | undefined) {
+    this.updateComposerUpload(key, { phase: "failed", failure: failure || this.t("RecordModel.fileUploadFailed") });
+  }
+
+  private uploadComposerFile = async (key: string, file: File, generation: number) => {
+    const current = () =>
+      generation === this.composerUploadGeneration && this.composerUploads.some((upload) => upload.key === key);
+    try {
+      const started = await startChatFileUpload(file);
+      if (!current()) return;
+      if (!started.ok) return this.failComposerUpload(key, started.message);
+      const transfer = sendRecordFileBytes(started.data.upload, file, (loaded, total) =>
+        this.updateComposerUpload(key, { progress: total ? loaded / total : 0 }),
+      );
+      this.composerUploadTransfers.set(key, transfer);
+      const sent = await transfer.done;
+      this.composerUploadTransfers.delete(key);
+      if (!current()) return;
+      if (!sent.ok) return sent.aborted ? undefined : this.failComposerUpload(key, sent.message);
+      this.updateComposerUpload(key, { phase: "reading", progress: 1 });
+      const completed = await completeChatFileUpload(started.data.fileId);
+      if (!current()) return;
+      if (!completed.ok) return this.failComposerUpload(key, completed.message);
+      const context = AgentContextAttachmentSchema.safeParse({
+        reference: {
+          kind: "file",
+          fileId: completed.data.id,
+          mimeType: completed.data.mimeType,
+          size: completed.data.size,
+        },
+        label: completed.data.name,
+      });
+      if (!context.success) return this.failComposerUpload(key, null);
+      runInAction(() => {
+        this.composerUploads = this.composerUploads.filter((upload) => upload.key !== key);
+        this.composerContexts = [...this.composerContexts, context.data];
+      });
+    } catch {
+      if (current()) this.failComposerUpload(key, null);
+    }
+  };
+
   submitDraft = () => {
     const text = this.composerDraft.trim();
-    if (!text || this.usage?.blockedReason || this.queuedPrompt) return;
+    if (!text || this.usage?.blockedReason || this.queuedPrompt || this.hasPendingComposerUploads) return;
     const contexts = [...this.composerContexts];
+    this.composerUploads = [];
     const pageRoute = this.composerContextPageRoute ?? this.currentPageRoute();
     if (this.isWorking) {
       if (this.queuedPrompt) return;

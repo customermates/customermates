@@ -22,8 +22,9 @@ const withMDX = createMDX({
 });
 
 // The record file text parser runs in a worker thread that loads these packages from node_modules at run time,
-// so the workflow function has to ship them and everything they depend on. Turbopack keeps every file an include
-// glob matches, so folders a package never loads in Node (the browser bundles of exceljs) are left out here.
+// so the workflow function and the route that reads a file given to Mate have to ship them and everything they
+// depend on. Turbopack keeps every file an include glob matches, so folders a package never loads in Node (the
+// browser bundles of exceljs) are left out here.
 function packageTrees(names: string[], skipped: Record<string, string[]>, root = process.cwd()): string[] {
   const found = new Map<string, string>();
   const visit = (name: string, from: string) => {
@@ -54,6 +55,8 @@ function packageTrees(names: string[], skipped: Record<string, string[]>, root =
   });
 }
 
+const recordFileParserTrees = packageTrees(recordFileParserPackages(), { exceljs: ["dist"] });
+
 const agentBenchmarkBuildSource = resolveBenchmarkBuildSource();
 if (process.env.LOCAL_AGENT_BENCHMARK === "true") configureBenchmarkWorkflowWorld();
 
@@ -76,8 +79,9 @@ const nextConfig: NextConfig = {
       "./node_modules/quickjs-wasi/package.json",
       "./node_modules/quickjs-wasi/dist/*.js",
       "./node_modules/quickjs-wasi/quickjs.wasm",
-      ...packageTrees(recordFileParserPackages(), { exceljs: ["dist"] }),
+      ...recordFileParserTrees,
     ],
+    "/api/agent/files/*/complete": recordFileParserTrees,
   },
 
   images: {

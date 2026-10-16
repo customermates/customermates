@@ -80,7 +80,7 @@ vi.mock("@/app/[locale]/(protected)/records/actions", () => ({
   lookupAddressAction: vi.fn(),
   verifyAddressAction: vi.fn(),
 }));
-vi.mock("../record-file-upload", () => ({
+vi.mock("@/components/records/record-file-upload", () => ({
   startRecordFileUpload: (input: { typeId: string; fieldId: string; file: File }) => {
     uploads.started.push(input);
     if (uploads.refusal) return Promise.resolve({ ok: false, message: uploads.refusal });

@@ -455,6 +455,13 @@
       "stopFailed": "Mate konnte nicht gestoppt werden. Die Verbindung wird wiederhergestellt, damit du es erneut versuchen kannst.",
       "turnFailed": "Bei Mate ist ein Fehler aufgetreten."
     },
+    "files": {
+      "attach": "Dateien anhängen",
+      "dropHint": "Dateien zum Anhängen hier ablegen",
+      "failed": "{name}: {message}",
+      "limit": "Du kannst höchstens {count, plural, one {# Datei} other {# Dateien}} an eine Nachricht anhängen.",
+      "reading": "Wird gelesen …"
+    },
     "greeting": {
       "headline": "Hey, ich bin Mate",
       "subtitle": "Frag mich alles zu deinem Workspace, oder sag mir, was ich für dich erledigen soll.",

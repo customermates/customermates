@@ -455,6 +455,13 @@
       "stopFailed": "No se pudo detener a Mate. Se está reconectando para que puedas intentarlo de nuevo.",
       "turnFailed": "Se ha producido un error en Mate."
     },
+    "files": {
+      "attach": "Adjuntar archivos",
+      "dropHint": "Suelta archivos para adjuntarlos",
+      "failed": "{name}: {message}",
+      "limit": "Puedes adjuntar como máximo {count, plural, one {# archivo} other {# archivos}} a un mensaje.",
+      "reading": "Leyendo…"
+    },
     "greeting": {
       "headline": "Hola, soy Mate",
       "subtitle": "Pregúnteme lo que quiera sobre su espacio de trabajo o dígame qué hacer y me encargo.",

@@ -455,6 +455,13 @@
       "stopFailed": "Mate could not be stopped. It is reconnecting so you can try again.",
       "turnFailed": "Mate ran into an error."
     },
+    "files": {
+      "attach": "Attach files",
+      "dropHint": "Drop files to attach them",
+      "failed": "{name}: {message}",
+      "limit": "You can attach up to {count, plural, one {# file} other {# files}} to one message.",
+      "reading": "Reading…"
+    },
     "greeting": {
       "headline": "Hey, I'm Mate",
       "subtitle": "Ask me anything about your workspace, or tell me what to do and I'll take care of it.",

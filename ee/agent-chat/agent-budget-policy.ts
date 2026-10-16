@@ -7,6 +7,7 @@ import {
   isAgentModelWithinBudgetEnvelope,
 } from "./model-catalog";
 import { resolveModelPricing } from "./model-pricing";
+import { agentNativeFileContextBytes } from "./agent-native-files";
 import { AGENT_WEB_SEARCH_WORST_CASE_MICROCENTS } from "./agent-web-search";
 import { AGENT_MICROCENTS_PER_USD } from "@/core/commercial/agent-credits";
 
@@ -196,9 +197,16 @@ export function resolveAgentTurnBudget(args: {
   };
 }
 
+function contextJsonValue(_key: string, value: unknown): unknown {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return value;
+  const part = value as { type?: unknown; mediaType?: unknown; data?: unknown };
+  if (part.type !== "file" || typeof part.mediaType !== "string" || part.data === undefined) return value;
+  return { ...part, data: "#".repeat(agentNativeFileContextBytes(part.mediaType)) };
+}
+
 export function serializedAgentContextBytes(value: unknown): number | null {
   try {
-    return new TextEncoder().encode(JSON.stringify(value)).byteLength;
+    return new TextEncoder().encode(JSON.stringify(value, contextJsonValue)).byteLength;
   } catch {
     return null;
   }

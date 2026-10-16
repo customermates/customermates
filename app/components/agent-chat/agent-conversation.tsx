@@ -3,9 +3,9 @@
 import type { RefObject } from "react";
 
 import { observer } from "mobx-react-lite";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { ArrowUp, Loader2, Square } from "lucide-react";
+import { ArrowUp, Loader2, Paperclip, Square } from "lucide-react";
 
 import { MessageDateSeparator, isSameDay } from "@/app/[locale]/(protected)/inbox/components/message-date-separator";
 import { MessagesScrollContainer } from "@/components/scroll/messages-scroll-container";
@@ -19,6 +19,7 @@ import { AgentActivity, AgentChatItemView, consecutiveActivityItems, isWorkingAc
 import { AgentInitialProgress } from "./agent-status-announcer";
 import { AgentComposerContexts } from "./agent-composer-contexts";
 import { AgentComposerTextInput } from "./agent-composer-text-input";
+import { AgentComposerUploadErrors, AgentComposerUploads } from "./agent-composer-uploads";
 import { AgentContextPicker } from "./agent-context-picker";
 import { CreditBlockedNotice } from "./credit-blocked-notice";
 import { QueuedPrompt } from "./queued-prompt";
@@ -119,6 +120,7 @@ export const AgentComposer = observer(function AgentComposer() {
   const t = useTranslations();
   const [contextPickerOpen, setContextPickerOpen] = useState(false);
   const [contextPickerOpenedBySlash, setContextPickerOpenedBySlash] = useState(false);
+  const filePicker = useRef<HTMLInputElement>(null);
   const usage = store.usage;
   const blocked = usage?.blockedReason ?? null;
 
@@ -149,20 +151,53 @@ export const AgentComposer = observer(function AgentComposer() {
                 }}
                 onInputFocus={store.dismissComposerStarter}
                 onInputPointerDown={store.dismissComposerStarter}
+                onPasteFiles={store.addComposerFiles}
                 onRemovePreviousContext={store.removeLastComposerContext}
                 onSubmit={submit}
               >
                 <AgentComposerContexts contexts={store.composerContexts} onRemove={store.removeComposerContext} />
+
+                <AgentComposerUploads />
               </AgentComposerTextInput>
 
-              <AgentContextPicker
-                open={contextPickerOpen}
-                restoreComposerFocusOnEscape={contextPickerOpenedBySlash}
-                onOpenChange={(open) => {
-                  if (open) setContextPickerOpenedBySlash(false);
-                  setContextPickerOpen(open);
-                }}
-              />
+              <div className="flex items-center gap-0.5">
+                <AgentContextPicker
+                  open={contextPickerOpen}
+                  restoreComposerFocusOnEscape={contextPickerOpenedBySlash}
+                  onOpenChange={(open) => {
+                    if (open) setContextPickerOpenedBySlash(false);
+                    setContextPickerOpen(open);
+                  }}
+                />
+
+                <input
+                  ref={filePicker}
+                  multiple
+                  aria-hidden="true"
+                  className="hidden"
+                  data-testid="agent-file-input"
+                  tabIndex={-1}
+                  type="file"
+                  onChange={(event) => {
+                    const picked = Array.from(event.target.files ?? []);
+                    event.target.value = "";
+                    store.addComposerFiles(picked);
+                  }}
+                />
+
+                <ActionTooltip label={t("AgentChat.files.attach")}>
+                  <Button
+                    aria-label={t("AgentChat.files.attach")}
+                    className="shrink-0"
+                    data-testid="agent-file-attach"
+                    size="icon-sm"
+                    variant="ghost"
+                    onClick={() => filePicker.current?.click()}
+                  >
+                    <Paperclip aria-hidden className="size-4" />
+                  </Button>
+                </ActionTooltip>
+              </div>
             </div>
 
             <UsageRing />
@@ -185,7 +220,9 @@ export const AgentComposer = observer(function AgentComposer() {
                 <Button
                   aria-label={t("AgentChat.send")}
                   className="size-9 shrink-0 rounded-full"
-                  disabled={!store.composerDraft.trim() || Boolean(store.queuedPrompt)}
+                  disabled={
+                    !store.composerDraft.trim() || Boolean(store.queuedPrompt) || store.hasPendingComposerUploads
+                  }
                   size="icon"
                   onClick={submit}
                 >
@@ -195,6 +232,8 @@ export const AgentComposer = observer(function AgentComposer() {
             )}
           </div>
         )}
+
+        {!blocked && <AgentComposerUploadErrors />}
       </div>
     </div>
   );
