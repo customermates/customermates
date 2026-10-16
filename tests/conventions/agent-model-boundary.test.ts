@@ -78,6 +78,7 @@ describe("agent model budget boundary", () => {
   it("meters every Wiki embedding call and pins it to one zero-retention serving provider", () => {
     const embeddings = readFileSync(`${REPO_ROOT}/ee/wiki-retrieval/wiki-embedding-model.ts`, "utf8");
     const service = readFileSync(`${REPO_ROOT}/ee/wiki-retrieval/wiki-embedding.service.ts`, "utf8");
+    const spend = readFileSync(`${REPO_ROOT}/ee/wiki-retrieval/wiki-index-spend.ts`, "utf8");
 
     expect(embeddings).toContain("only: [WIKI_EMBEDDING_SERVING_PROVIDER]");
     expect(embeddings).toContain("zeroDataRetention: true");
@@ -85,10 +86,11 @@ describe("agent model budget boundary", () => {
     expect(embeddings).toContain("readAgentProviderCharge(metadata, WIKI_EMBEDDING_SERVING_PROVIDER)");
     expect(service).toContain("this.usage.prepareRetrieval(payer.id)");
     expect(service).toContain("this.usage.prepareWorkspaceIndexing(companyId)");
-    expect(service).toContain("await this.usage.reserveRetrieval(");
-    expect(service).toContain(
-      'await this.usage.settleRetrieval({ reservation, charge: embedded.charge, payer: used() ? "grant" : "platform" })',
-    );
-    expect(service).toContain('await this.usage.settleRetrieval({ reservation, charge: attemptedCharge, payer: "platform" })');
+    expect(service).toContain("await reserveWikiIndexSpend(this.usage, {");
+    expect(service).toContain('await spend.settle(embedded.charge, used() ? "grant" : "platform")');
+    expect(service).toContain('await spend.settle(attemptedCharge, "platform")');
+    expect(spend).toContain("await usage.reserveRetrieval(");
+    expect(spend).toContain("usage.settleRetrieval({ reservation, charge, payer })");
+    expect(spend).toContain('purpose: "wikiReindex"');
   });
 });

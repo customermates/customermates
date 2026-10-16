@@ -13,6 +13,7 @@ export const WIKI_SEMANTIC_INDEX_BATCH_PAGES = 8;
 export const WIKI_SECTION_SYNC_BATCH_PAGES = 200;
 
 export type WikiIndexPage = WikiSummaryState & { id: string };
+export type WikiIndexClaim = WikiIndexPage & { rebuild: boolean };
 
 export class WikiSemanticIndexService extends UserAccessor {
   constructor(
@@ -40,7 +41,7 @@ export class WikiSemanticIndexService extends UserAccessor {
 
         let summary = currentWikiSummary(page);
         if (wikiSummaryNeeded(page)) {
-          const generated = await this.summaries.summarize(grant, page);
+          const generated = await this.summaries.summarize(grant, page, page.rebuild);
           if (generated.status === "unavailable") return { indexed, remaining: false };
           summary = generated.status === "generated" ? generated.summary : null;
           const stored = await this.repo.storeSummary({
@@ -67,6 +68,8 @@ export class WikiSemanticIndexService extends UserAccessor {
             grant,
             batch.map((row) => row.embeddingText),
             "document",
+            undefined,
+            page.rebuild,
           );
           if (!vectors) return { indexed, remaining: false };
           batch.forEach((row, index) => known.set(row.contentHash, embeddingVectorLiteral(vectors[index])));

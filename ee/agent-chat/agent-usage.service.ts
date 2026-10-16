@@ -54,7 +54,7 @@ export type AgentRetrievalGrant = {
 };
 
 export type PlatformRetrievalPurpose = "docsIndexing" | "commandCatalogIndexing";
-export type PlatformWorkspacePurpose = "workspaceSetup" | "workspaceSetupBuild";
+export type PlatformWorkspacePurpose = "workspaceSetup" | "workspaceSetupBuild" | "wikiReindex";
 export type WorkspacePlatformReservation = { status: "reserved"; id: string } | { status: "cap" | "unavailable" };
 
 export type AgentRetrievalCharge = {

@@ -7,7 +7,7 @@ import type {
   WikiSectionSync,
 } from "@/features/wiki/search-wiki-pages.repo";
 import type { WikiSemanticIndexRepo } from "@/ee/wiki-retrieval/wiki-semantic-index.repo";
-import type { WikiIndexPage } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
+import type { WikiIndexClaim, WikiIndexPage } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
 import type { WikiIndexClaimRepo } from "./wiki-index-claim.repo";
 import type { WikiSectionRow } from "./wiki-sections";
 import type { SyncStaleWikiSectionsRepo } from "./sync-stale-wiki-sections.repo";
@@ -362,7 +362,7 @@ export class PrismaWikiSectionRepo
     });
   }
 
-  claimStaleIndexPages(version: string, limit: number): Promise<WikiIndexPage[]> {
+  claimStaleIndexPages(version: string, limit: number): Promise<WikiIndexClaim[]> {
     return this.pages.claimStaleIndexPages(version, limit);
   }
 

@@ -55,7 +55,10 @@ const GRANT_PERIOD = {
 } as const;
 
 function fakeEmbeddings(authorized = true) {
-  const embedTexts = vi.fn((_grant: unknown, texts: string[]) => Promise.resolve(texts.map(conceptVector)));
+  const embedTexts = vi.fn(
+    (_grant: unknown, texts: string[], _kind?: string, _used?: () => boolean, _rebuild?: boolean) =>
+      Promise.resolve(texts.map(conceptVector)),
+  );
   const service = {
     authorizeQuery: vi.fn(() => Promise.resolve(authorized ? GRANT_PERIOD : null)),
     authorizeIndexing: vi.fn(() => Promise.resolve(authorized ? GRANT_PERIOD : null)),
@@ -65,7 +68,7 @@ function fakeEmbeddings(authorized = true) {
 }
 
 function fakeSummaries(summary = (title: string) => `${title} in one sentence.`) {
-  const summarize = vi.fn((_grant: unknown, page: { title: string }) =>
+  const summarize = vi.fn((_grant: unknown, page: { title: string }, _rebuild?: boolean) =>
     Promise.resolve({
       status: "generated" as const,
       summary: summary(page.title),
@@ -387,6 +390,40 @@ describeDatabase("Workspace Wiki semantic retrieval on PostgreSQL with pgvector"
       20 - 2 * WIKI_SEMANTIC_INDEX_BATCH_PAGES,
     ]);
     expect(results.map(({ remaining }) => remaining)).toEqual([true, true, false]);
+  });
+
+  it("charges the first rebuild of a page from the previous search index to the platform and later edits to the workspace", async () => {
+    const legacy = await insert(user, "Refunds", "Money back within 30 days.", 0);
+    await insert(user, "Holidays", "Vacation rules for the team.", 1);
+    await client.query(
+      `INSERT INTO "WikiPageChunk" ("id", "companyId", "pageId", "ordinal", "offset", "contentHash", "model", "pageUpdatedAt", "embedding")
+       SELECT $1, "companyId", "id", 0, 0, 'legacy', 'google/gemini-embedding-001', "updatedAt",
+         array_fill(0.1::real, ARRAY[${WIKI_EMBEDDING_DIMENSIONS}])::vector
+       FROM "WikiPage" WHERE "id" = $2`,
+      [randomUUID(), legacy],
+    );
+    const embeddings = fakeEmbeddings();
+    const summaries = fakeSummaries();
+
+    await indexAll(user, embeddings.service, summaries);
+
+    expect(summaries.summarize.mock.calls.map(([, page, rebuild]) => [page.title, rebuild])).toEqual([
+      ["Holidays", false],
+      ["Refunds", true],
+    ]);
+    expect(embeddings.embed.mock.calls.map((call) => call[4])).toEqual([false, true]);
+
+    await client.query('UPDATE "WikiPage" SET "markdown" = $2, "updatedAt" = CURRENT_TIMESTAMP WHERE "id" = $1', [
+      legacy,
+      WikiMarkdownSchema.parse("Money back within 60 days."),
+    ]);
+    await indexAll(user, embeddings.service, summaries);
+
+    expect(summaries.summarize.mock.calls.at(-1)?.slice(1)).toEqual([
+      expect.objectContaining({ title: "Refunds" }),
+      false,
+    ]);
+    expect(embeddings.embed.mock.calls.at(-1)?.[4]).toBe(false);
   });
 
   it("ranks by meaning, returns the matching section, pins identifiers and never crosses tenants", async () => {

@@ -16,6 +16,7 @@ import {
   wikiEmbeddingAttemptCharge,
   wikiEmbeddingWorstCaseMicrocents,
 } from "./wiki-embedding-model";
+import { reserveWikiIndexSpend } from "./wiki-index-spend";
 
 type WikiEmbeddingPayer = { id: string; companyId: string };
 
@@ -77,13 +78,15 @@ export class WikiEmbeddingService {
     texts: string[],
     kind: WikiEmbeddingKind,
     used: () => boolean = () => true,
+    rebuild = false,
   ): Promise<number[][] | null> {
-    const reservation = await this.usage.reserveRetrieval({
+    const spend = await reserveWikiIndexSpend(this.usage, {
       grant,
       worstCaseMicrocents: wikiEmbeddingWorstCaseMicrocents(texts),
       model: WIKI_EMBEDDING_MODEL,
+      rebuild,
     });
-    if (!reservation) return null;
+    if (!spend) return null;
     let attemptedCharge = wikiEmbeddingAttemptCharge(texts);
     let embedded: Awaited<ReturnType<typeof embedWikiTexts>>;
     try {
@@ -94,10 +97,10 @@ export class WikiEmbeddingService {
         },
       });
     } catch (error) {
-      await this.usage.settleRetrieval({ reservation, charge: attemptedCharge, payer: "platform" });
+      await spend.settle(attemptedCharge, "platform");
       throw error;
     }
-    await this.usage.settleRetrieval({ reservation, charge: embedded.charge, payer: used() ? "grant" : "platform" });
+    await spend.settle(embedded.charge, used() ? "grant" : "platform");
     return embedded.vectors;
   }
 }

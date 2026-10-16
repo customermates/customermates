@@ -25,6 +25,16 @@ export function unembeddedWikiPage(version: string) {
   ))`;
 }
 
+export function legacyIndexedWikiPage() {
+  return Prisma.sql`(EXISTS (
+    SELECT 1 FROM "WikiPageChunk" c
+    WHERE c."pageId" = p."id" AND c."companyId" = p."companyId" AND c."embedding" IS NOT NULL
+  ) AND NOT EXISTS (
+    SELECT 1 FROM "WikiPageSection" s
+    WHERE s."pageId" = p."id" AND s."companyId" = p."companyId" AND s."embeddingVersion" IS NOT NULL
+  ))`;
+}
+
 export function staleWikiIndexPage(version: string) {
   return Prisma.sql`(${unembeddedWikiPage(version)}
     OR (NOT ${UNTOUCHED_IMPORT} AND p."summaryContentHash" IS DISTINCT FROM ${WIKI_CONTENT_HASH}))`;

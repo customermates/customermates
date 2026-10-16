@@ -14,14 +14,14 @@ import type { WikiImportPageRepo, WikiImportProvenance } from "./wiki-import-pag
 import type { GetWikiSuggestionSignalRepo } from "./get-wiki-suggestion-signal.repo";
 import type { WikiIndexClaimRepo } from "./wiki-index-claim.repo";
 import type { PurgeWikiPageProposalsRepo } from "./purge-wiki-page-proposals.repo";
-import type { WikiIndexPage } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
+import type { WikiIndexClaim } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
 
 import { Prisma, Resource } from "@/generated/prisma";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { WIKI_CATALOG_PAGE_SIZE, wikiPageKindFields, wikiPageKindIssue } from "./wiki.schema";
 import { promptWikiSummary } from "./wiki-summary";
-import { UNCLAIMED_WIKI_INDEX_PAGE, staleWikiIndexPage } from "./wiki-index-sql";
+import { UNCLAIMED_WIKI_INDEX_PAGE, legacyIndexedWikiPage, staleWikiIndexPage } from "./wiki-index-sql";
 
 type WikiCatalogSummaryFields = {
   summary: string | null;
@@ -197,10 +197,10 @@ export class PrismaWikiPageRepo
     });
   }
 
-  async claimStaleIndexPages(version: string, limit: number): Promise<WikiIndexPage[]> {
-    return this.prisma.$queryRaw<WikiIndexPage[]>(Prisma.sql`
+  async claimStaleIndexPages(version: string, limit: number): Promise<WikiIndexClaim[]> {
+    return this.prisma.$queryRaw<WikiIndexClaim[]>(Prisma.sql`
       WITH claimable AS MATERIALIZED (
-        SELECT p."id" FROM "WikiPage" p
+        SELECT p."id", ${legacyIndexedWikiPage()} AS "rebuild" FROM "WikiPage" p
         WHERE p."companyId" = ${this.companyId} AND p."deletedAt" IS NULL
           AND ${UNCLAIMED_WIKI_INDEX_PAGE}
           AND ${staleWikiIndexPage(version)}
@@ -212,7 +212,7 @@ export class PrismaWikiPageRepo
       FROM claimable c
       WHERE w."id" = c."id" AND w."companyId" = ${this.companyId}
       RETURNING w."id", w."title", w."markdown", w."updatedAt", w."summary", w."summaryContentHash",
-        w."sourceImportedUpdatedAt"
+        w."sourceImportedUpdatedAt", c."rebuild"
     `);
   }
 

@@ -1,7 +1,7 @@
-import type { WikiIndexPage } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
+import type { WikiIndexClaim } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
 
 export abstract class WikiIndexClaimRepo {
-  abstract claimStaleIndexPages(version: string, limit: number): Promise<WikiIndexPage[]>;
+  abstract claimStaleIndexPages(version: string, limit: number): Promise<WikiIndexClaim[]>;
   abstract storeSummary(args: {
     pageId: string;
     pageUpdatedAt: Date;
