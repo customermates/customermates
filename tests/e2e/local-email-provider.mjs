@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { appendFileSync, mkdirSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { dirname } from "node:path";
 
 export const localProviderKey = "e2e-local-provider-no-network";
 export const localWebhookSecret = "e2e-local-unipile-webhook-secret";
@@ -9,12 +9,9 @@ export const sentCopyUnavailable = "[sent copy unavailable]";
 const emails = new Map();
 const syntheticEmail = (value) => typeof value === "string" && /^[^@\s]+@[^@\s]+\.test$/.test(value);
 
-export function localEmailLedgerFile(databaseUrl = process.env.DATABASE_URL) {
-  return resolve(".runs", "e2e", new URL(databaseUrl).pathname.slice(1), "local-email-ledger.jsonl");
-}
-
 function recordAcceptedEmail(entry) {
-  const file = localEmailLedgerFile();
+  const file = process.env.CRM_E2E_EMAIL_LEDGER;
+  if (!file) return;
   mkdirSync(dirname(file), { recursive: true });
   appendFileSync(file, `${JSON.stringify(entry)}\n`);
 }

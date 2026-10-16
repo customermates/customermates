@@ -5,15 +5,11 @@ import { createHmac, randomUUID } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 
 import { assertPublishedResponse } from "../helpers/openapi-validator";
+import { postOk } from "./api";
 import { expectBlockedEmailScripts } from "./browser-diagnostics";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { localE2eEnvironment } from "./local-environment";
-import {
-  localEmailLedgerFile,
-  localWebhookSecret,
-  responseLostAfterAcceptance,
-  sentCopyUnavailable,
-} from "./local-email-provider.mjs";
+import { localWebhookSecret, responseLostAfterAcceptance, sentCopyUnavailable } from "./local-email-provider.mjs";
 
 const RECIPIENT = "draft-recipient@example.test";
 
@@ -22,7 +18,7 @@ type SavedDraft = { id: string; messagingThreadId: string; draftRevision: string
 type AcceptedEmail = { accountId: string; id: string; subject: string; email: Record<string, unknown> };
 
 function acceptedEmails(subject: string): AcceptedEmail[] {
-  const ledger = localEmailLedgerFile(localE2eEnvironment().databaseUrl);
+  const ledger = localE2eEnvironment().emailLedgerFile;
   if (!existsSync(ledger)) return [];
   return readFileSync(ledger, "utf8")
     .split("\n")
@@ -65,12 +61,23 @@ async function connectSender(database: Client, workspace: { companyId: string; u
   return accountId;
 }
 
-async function saveNewEmailDraft(page: Page, connectedAccountId: string, subject: string): Promise<SavedDraft> {
-  const response = await page.request.post("/api/v1/messaging/drafts", {
-    data: { connectedAccountId, recipients: [RECIPIENT], subject, body: "Draft prepared by an agent" },
+function saveNewEmailDraft(page: Page, connectedAccountId: string, subject: string): Promise<SavedDraft> {
+  return postOk(page, "/api/v1/messaging/drafts", {
+    connectedAccountId,
+    recipients: [RECIPIENT],
+    subject,
+    body: "Draft prepared by an agent",
+  });
+}
+
+async function reviseDraft(page: Page, draft: SavedDraft, subject: string, body: string): Promise<SavedDraft> {
+  const response = await page.request.post(`/api/v1/messaging/threads/${draft.messagingThreadId}/drafts`, {
+    data: { recipients: [RECIPIENT], subject, body },
   });
   expect(response.status(), await response.text()).toBe(200);
-  return response.json();
+  const revised = await response.json();
+  assertPublishedResponse("/v1/messaging/threads/{id}/drafts", "post", 200, revised);
+  return revised;
 }
 
 type SendTarget = { connectedAccountId: string } | { threadId: string };
@@ -223,16 +230,62 @@ test("shows a draft as sent once its copy syncs after the provider accepted it a
   const targets: SendTarget[] = [{ connectedAccountId: accountId }, { threadId: draft.messagingThreadId }];
   for (const target of targets) {
     const repeated = await sendAgain(page, draft, subject, target);
-    expect(repeated.status(), await repeated.text()).toBe(202);
+    expect(repeated.status(), await repeated.text()).toBe(200);
     const body = await repeated.json();
-    assertPublishedResponse("/v1/messaging/send-email", "post", 202, body);
+    assertPublishedResponse("/v1/messaging/send-email", "post", 200, body);
     expect(body).toMatchObject({
-      sent: true,
+      id: copy.rows[0].id,
+      messagingThreadId: copy.rows[0].messagingThreadId,
       repeated: true,
-      messageId: copy.rows[0].id,
-      threadId: copy.rows[0].messagingThreadId,
     });
   }
   expect(acceptedSends(subject)).toBe(1);
+  expect(errors).toEqual([]);
+});
+
+test("lets the user load the agent's latest version or send their own after the draft changed meanwhile", async ({
+  page,
+  database,
+  workspace,
+}) => {
+  const errors = collectPageErrors(page);
+  expectBlockedEmailScripts(page);
+  const accountId = await connectSender(database, workspace);
+  const subject = `Agent draft ${randomUUID()}`;
+  const draft = await saveNewEmailDraft(page, accountId, subject);
+  const conversation = page.getByRole("region", { name: "Conversation", exact: true });
+  const reply = page.getByRole("textbox", { name: "Write a reply...", exact: true });
+  const send = page.locator("#inbox-reply-send");
+  const conflict = page.getByRole("status").filter({ hasText: "This draft changed after you opened it." });
+
+  await openDraftConversation(page, draft);
+  await conversation.getByRole("button", { name: "Edit", exact: true }).click();
+  await expect(reply).toHaveText("Draft prepared by an agent");
+  await reply.fill("My first version");
+  await reviseDraft(page, draft, subject, "Agent revision one");
+  await send.click();
+
+  await expect(conflict).toBeVisible();
+  await expect(reply).toHaveText("My first version");
+  await expect(send).toBeDisabled();
+  await conflict.getByRole("button", { name: "Load latest version", exact: true }).click();
+  await expect(conflict).toBeHidden();
+  await expect(reply).toHaveText("Agent revision one");
+  expect(acceptedSends(subject)).toBe(0);
+
+  await reply.fill("My final version");
+  await reviseDraft(page, draft, subject, "Agent revision two");
+  await send.click();
+  await expect(conflict).toBeVisible();
+  await conflict.getByRole("button", { name: "Send mine", exact: true }).click();
+
+  await expect(page.getByText(/^Message sent\./)).toBeVisible();
+  await expect.poll(() => acceptedSends(subject)).toBe(1);
+  const [accepted] = acceptedEmails(subject);
+  expect(JSON.stringify(accepted.email)).toContain("My final version");
+  expect(JSON.stringify(accepted.email)).not.toContain("Agent revision");
+  await expect
+    .poll(async () => (await database.query('SELECT 1 FROM "MessagingMessage" WHERE id=$1', [draft.id])).rowCount)
+    .toBe(0);
   expect(errors).toEqual([]);
 });
