@@ -165,7 +165,7 @@ function temporalFilter(filter: RecordQuery["filters"][number], start: Prisma.Sq
     if (!from || !until) throw new Error("Date window requires two endpoints");
     return filter.operator === "between"
       ? Prisma.sql`(${start} >= ${scalarParameter(from)} AND ${end} <= ${scalarParameter(until)})`
-      : Prisma.sql`(${start} <= ${scalarParameter(until)} AND ${end} >= ${scalarParameter(from)})`;
+      : Prisma.sql`(COALESCE(${start}, ${end}) <= ${scalarParameter(until)} AND COALESCE(${end}, ${start}) >= ${scalarParameter(from)})`;
   }
   if (filter.operator === "in" || filter.operator === "notIn") {
     const choices = filter.values ?? [];
