@@ -8,10 +8,10 @@ import {
   BookOpen,
   Check,
   Globe2,
+  Languages,
   Link2,
   ListChecks,
   Mail,
-  MapPin,
   Plus,
   Sparkles,
   UserRound,
@@ -130,7 +130,7 @@ function FocalIdentity({ children }: { children: ReactNode }) {
 function ProfileScene() {
   return (
     <Scene connector={SOURCE_PAIR_CONNECTOR} width={320}>
-      <SourcePair first={<MapPin className="size-4" />} second={<AtSign className="size-4" />} />
+      <SourcePair first={<Languages className="size-4" />} second={<AtSign className="size-4" />} />
 
       <FocalIdentity>
         <UserRound className="size-5" />
