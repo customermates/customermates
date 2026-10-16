@@ -15,6 +15,14 @@ import { recordGroupableFields, resolveRecordGrouping } from "./record-grouping"
 import type { Grouping } from "@/core/base/grouping/grouping.schema";
 import type { Filter } from "@/core/base/base-get.schema";
 import { presentationFiltersAreValid, recordFilterableFields } from "./record-presentation";
+import type { CalendarViewConfig } from "@/core/data-view/calendar-view-config.schema";
+import {
+  isCalendarColorField,
+  isCalendarDateField,
+  isCalendarEndField,
+  isCalendarRangeField,
+  resolveCalendarFields,
+} from "@/features/record-calendar/record-calendar-query";
 
 export class RecordViewPolicy implements DataViewPolicy {
   constructor(
@@ -88,6 +96,27 @@ export class RecordViewPolicy implements DataViewPolicy {
       };
     }
     return null;
+  }
+  async invalidCalendar(
+    surfaceKey: string,
+    calendar: CalendarViewConfig,
+  ): Promise<{ key: "dateFieldId" | "endDateFieldId" | "colorFieldId"; validValues: string[] } | null> {
+    if (!RecordSurfaceKeySchema.safeParse(surfaceKey).success) return null;
+    const typeId = surfaceKey.slice(8);
+    const model = await this.records.getModel();
+    const fields = model.fields.filter((field) => field.typeId === typeId && !field.archived);
+    if (resolveCalendarFields(typeId, calendar, fields)) return null;
+    const start = fields.find((field) => field.id === calendar.dateFieldId && isCalendarDateField(field));
+    if (!start) return { key: "dateFieldId", validValues: fields.filter(isCalendarDateField).map((field) => field.id) };
+    const color = fields.find((field) => field.id === calendar.colorFieldId);
+    if (calendar.colorFieldId && !(color && isCalendarColorField(color)))
+      return { key: "colorFieldId", validValues: fields.filter(isCalendarColorField).map((field) => field.id) };
+    return {
+      key: "endDateFieldId",
+      validValues: isCalendarRangeField(start)
+        ? []
+        : fields.filter((field) => field.id !== start.id && isCalendarEndField(field, start)).map((field) => field.id),
+    };
   }
   async liveState(surfaceKey: string, state: DataViewState): Promise<DataViewState> {
     if (!state.filters || !RecordSurfaceKeySchema.safeParse(surfaceKey).success) return state;

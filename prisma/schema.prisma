@@ -480,6 +480,7 @@ model P13n {
   viewMode         String?  @default("table")
   groupingColumnId String?
   grouping         Json?
+  calendar         Json?
   detailOptions    Json?
   settings         Json?
   activeViewKey    String?
@@ -509,6 +510,7 @@ model DataView {
   columnOrder      Json?
   columnWidths     Json?
   hiddenColumns    Json?
+  calendar         Json?
   pageSize         Int?
   deletedAt        DateTime?
   createdAt        DateTime  @default(now())

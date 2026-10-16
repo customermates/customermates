@@ -9,6 +9,14 @@ import { presentationFiltersAreValid, presentationQuery } from "./record-present
 import { invalidRecordQueryPart } from "./record-query-validation";
 import { recordColumns } from "./record-columns";
 import { liveGroupSummaries, resolveRecordGrouping } from "./record-grouping";
+import {
+  isCalendarColorField,
+  isCalendarDateField,
+  isCalendarEndField,
+  isCalendarRangeField,
+  resolveCalendarFields,
+} from "@/features/record-calendar/record-calendar-query";
+import type { CalendarViewConfig } from "@/core/data-view/calendar-view-config.schema";
 
 export function recordViewStateIsValid(typeId: string, state: DataViewState, model: RecordModel): boolean {
   if (!model.types.some((type) => type.id === typeId && !type.archived)) return false;
@@ -21,6 +29,7 @@ export function recordViewStateIsValid(typeId: string, state: DataViewState, mod
   )
     return false;
   if (state.grouping && !resolveRecordGrouping(typeId, state.grouping, model)) return false;
+  if (state.calendar && !resolveCalendarFields(typeId, state.calendar, fields)) return false;
   if (
     state.grouping?.summaries &&
     liveGroupSummaries(typeId, state.grouping.summaries, fields).length !== state.grouping.summaries.length
@@ -128,6 +137,11 @@ export function invalidRecordViewReference(
     Object.keys(state.columnWidths ?? {}).find((id) => !isPersistedColumnWidthKey(id, ids)) ??
     (state.grouping && !resolveRecordGrouping(typeId, state.grouping, model) ? state.grouping.field : undefined) ??
     state.grouping?.summaries?.find((summary) => !liveGroupSummaries(typeId, [summary], fields).length)?.fieldId ??
+    (state.calendar && !resolveCalendarFields(typeId, state.calendar, fields)
+      ? ([state.calendar.endDateFieldId, state.calendar.colorFieldId].find(
+          (id) => id && !fields.some((field) => field.id === id),
+        ) ?? state.calendar.dateFieldId)
+      : undefined) ??
     filter?.field ??
     state.sortDescriptor?.field;
   if (!columnId) return null;
@@ -139,10 +153,24 @@ export function invalidRecordViewReference(
   return { columnId, columnLabel: label ?? columnId };
 }
 
+function cleanCalendarConfig(config: CalendarViewConfig, fields: RecordField[]): CalendarViewConfig | null {
+  const start = fields.find((field) => field.id === config.dateFieldId);
+  if (!start || !isCalendarDateField(start)) return null;
+  const end = fields.find((field) => field.id === config.endDateFieldId);
+  const color = fields.find((field) => field.id === config.colorFieldId);
+  return {
+    ...config,
+    endDateFieldId: end && !isCalendarRangeField(start) && isCalendarEndField(end, start) ? end.id : null,
+    colorFieldId: color && isCalendarColorField(color) ? color.id : null,
+  };
+}
+
 export function cleanRecordViewState(typeId: string, state: DataViewState, model: RecordModel): DataViewState | null {
   if (!model.types.some((type) => type.id === typeId && !type.archived)) return null;
   const fields = model.fields.filter((field) => field.typeId === typeId && !field.archived);
   const cleaned = staleColumnCleanup(state, new Set(recordColumns(typeId, model).map((column) => column.id)));
+  if (state.calendar && !resolveCalendarFields(typeId, state.calendar, fields))
+    cleaned.calendar = cleanCalendarConfig(state.calendar, fields);
   if (state.grouping && !resolveRecordGrouping(typeId, state.grouping, model)) cleaned.grouping = null;
   else if (state.grouping?.summaries) {
     const summaries = liveGroupSummaries(typeId, state.grouping.summaries, fields);

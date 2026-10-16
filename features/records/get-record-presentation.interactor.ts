@@ -42,6 +42,15 @@ import { liveGroupSummaries, recordGroupableFields, resolveRecordGrouping } from
 import { parseRelationshipColumnKey } from "./record-column.schema";
 import { resolveRecordPath } from "./record-relationship-path";
 import { liveRecordFilters } from "./record-view-state";
+import { ViewMode } from "@/core/base/base-query-builder";
+import { CALENDAR_RECORD_LIMIT, type CalendarWindow } from "@/core/data-view/calendar-view-config.schema";
+import {
+  calendarWindowFilters,
+  resolveCalendarFields,
+  type CalendarFields,
+} from "@/features/record-calendar/record-calendar-query";
+import { isRecordSortField } from "./record-query-validation";
+import type { RecordQueryResult } from "./record-query-result.schema";
 
 const GetRecordPresentationSchema = z.object({ typeId: z.uuid(), params: GetQueryParamsSchema.default({}) }).strict();
 export type RecordPresentationResult = {
@@ -171,12 +180,29 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
         query.grouping = state.grouping ? queryGrouping : undefined;
         query.groupSummaries = state.grouping && groupSummaries.length ? groupSummaries : undefined;
         query.groupPage = state.grouping ? input.params.groupPage : undefined;
-        const queried = await this.query.invoke(query);
+        const calendarWindow = input.params.calendarWindow;
+        const calendarFields =
+          state.viewMode === ViewMode.calendar && state.calendar && calendarWindow
+            ? resolveCalendarFields(type.id, state.calendar, fields)
+            : null;
+        const queried =
+          calendarFields && calendarWindow
+            ? await this.queryCalendar(query, calendarFields, calendarWindow)
+            : await this.query.invoke(query);
         if (!queried.ok) return queried;
         const items = queried.data.records.map((record) => ({
           ...record,
           id: record.ref.recordId,
         }));
+        const calendarRange =
+          calendarFields && calendarWindow
+            ? {
+                from: calendarWindow.from,
+                to: calendarWindow.to,
+                total: queried.data.total,
+                truncated: queried.data.total > queried.data.records.length,
+              }
+            : undefined;
         const grouping =
           queried.data.grouping && summaries !== undefined
             ? {
@@ -245,11 +271,56 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
               activeViewKey: viewKey,
               allState,
               viewPersistable: true,
+              ...(calendarRange ? { calendarRange } : {}),
             },
           },
         };
       },
       { readOnly: true, timeout: 30000 },
     ).catch(unwoundFailure);
+  }
+
+  private async queryCalendar(
+    query: RecordQuery,
+    fields: CalendarFields,
+    window: CalendarWindow,
+  ): Validated<RecordQueryResult> {
+    const filters = calendarWindowFilters(fields, window);
+    const calendarQuery: RecordQuery = {
+      ...query,
+      grouping: undefined,
+      groupSummaries: undefined,
+      groupPage: undefined,
+      page: 1,
+      pageSize: CALENDAR_RECORD_LIMIT,
+      ...(query.fields
+        ? {
+            fields: [
+              ...new Set([
+                ...query.fields,
+                ...[fields.start, fields.end, fields.color].flatMap((field) => field?.id ?? []),
+              ]),
+            ],
+          }
+        : {}),
+      sort: isRecordSortField(fields.start)
+        ? [
+            { fieldId: fields.start.id, direction: "asc" as const },
+            ...query.sort.filter((sort) => sort.fieldId !== fields.start.id),
+          ].slice(0, 5)
+        : query.sort,
+    };
+    const starting = await this.query.invoke({ ...calendarQuery, filters: [...query.filters, ...filters.starting] });
+    if (!starting.ok || !filters.spanning) return starting;
+    const spanning = await this.query.invoke({ ...calendarQuery, filters: [...query.filters, ...filters.spanning] });
+    if (!spanning.ok) return spanning;
+    return {
+      ok: true as const,
+      data: {
+        ...starting.data,
+        records: [...spanning.data.records, ...starting.data.records].slice(0, CALENDAR_RECORD_LIMIT),
+        total: starting.data.total + spanning.data.total,
+      },
+    };
   }
 }

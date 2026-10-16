@@ -7,6 +7,7 @@ import { FilterOperatorKey, ViewMode } from "./base-query-builder";
 import { normalizeFilterInput } from "./filter-value";
 
 import { GroupPageRequestSchema, GroupingSchema } from "@/core/base/grouping/grouping.schema";
+import { CalendarViewConfigSchema, CalendarWindowSchema } from "@/core/data-view/calendar-view-config.schema";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
 
@@ -146,6 +147,8 @@ export const GetQueryParamsSchema = GetQueryParamsApiSchema.extend({
   viewMode: z.enum(ViewMode).optional(),
   grouping: GroupingSchema.nullish(),
   groupPage: GroupPageRequestSchema.optional(),
+  calendar: CalendarViewConfigSchema.nullish(),
+  calendarWindow: CalendarWindowSchema.optional(),
 });
 export type GetQueryParams = Data<typeof GetQueryParamsSchema> & {
   take?: number;

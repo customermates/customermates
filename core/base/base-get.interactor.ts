@@ -1,4 +1,5 @@
 import type { GroupAxis, GroupCountRow, ResolvedGrouping } from "@/core/base/grouping/group-axis";
+import type { CalendarRange, CalendarViewConfig } from "@/core/data-view/calendar-view-config.schema";
 import type { DataViewGroup, GroupPageRequest, Grouping, GroupingResult } from "@/core/base/grouping/grouping.schema";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-state.schema";
@@ -54,6 +55,8 @@ export interface GetResult<T> {
   activeViewKey?: string;
   allState?: DataViewState;
   viewPersistable?: boolean;
+  calendar?: CalendarViewConfig;
+  calendarRange?: CalendarRange;
 }
 
 type BaseQuery = {

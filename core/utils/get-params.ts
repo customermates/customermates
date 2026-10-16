@@ -141,7 +141,7 @@ export function decodeGetParams(
         ? (parsedPageSize as 5 | 10 | 25 | 100)
         : undefined,
     viewId: source.get("view") || undefined,
-    viewMode: decodedViewMode === ViewMode.card || decodedViewMode === ViewMode.table ? decodedViewMode : undefined,
+    viewMode: Object.values(ViewMode).find((mode) => mode === decodedViewMode),
     grouping: decodeGroupingToken(decodedGroupBy),
   };
 }
