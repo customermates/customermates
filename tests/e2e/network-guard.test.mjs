@@ -166,6 +166,60 @@ test("answers Lemon Squeezy checkout, subscription and seat calls locally only w
   }
 });
 
+test("captures Resend e-mails locally only with the local key and a message Resend would accept", async () => {
+  const { mkdtempSync, rmSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const { Resend } = await import("resend");
+  const provider = await import("./local-resend-provider.mjs");
+  const directory = mkdtempSync(join(tmpdir(), "resend-guard-"));
+  const message = {
+    from: `Customermates <${provider.localResendSender}>`,
+    to: "person@example.test",
+    subject: "Local notice",
+    html: "<p>Local only</p>",
+  };
+  const post = (authorization, path = "/emails") =>
+    fetch(`https://api.resend.com${path}`, {
+      method: "POST",
+      headers: { Authorization: authorization, "Content-Type": "application/json" },
+      body: JSON.stringify(message),
+    });
+  process.env.CRM_E2E_PROVIDER_DIRECTORY = directory;
+  try {
+    assert.throws(() => post(`Bearer ${provider.localResendKey}`), /blocked a non-loopback connection/);
+    Object.assign(process.env, provider.localResendEnvironment());
+    const sent = await new Resend(provider.localResendKey).emails.send(message);
+    assert.equal(sent.error, null);
+    assert.deepEqual(
+      provider.readLocalEmails(directory).map(({ id, from, to, subject, html }) => ({ id, from, to, subject, html })),
+      [
+        {
+          id: sent.data.id,
+          from: message.from,
+          to: ["person@example.test"],
+          subject: "Local notice",
+          html: message.html,
+        },
+      ],
+    );
+    const refused = await new Resend(provider.localResendKey).emails.send({ ...message, from: "XXX" });
+    assert.equal(refused.error?.name, "validation_error");
+    assert.throws(() => post("Bearer another-key"), /blocked a non-loopback connection/);
+    assert.throws(
+      () => post(`Bearer ${provider.localResendKey}`, "/emails/batch"),
+      /blocked a non-loopback connection/,
+    );
+    assert.throws(() => post(`Bearer ${provider.localResendKey}`, "/domains"), /blocked a non-loopback connection/);
+    assert.equal(provider.readLocalEmails(directory).length, 1);
+  } finally {
+    delete process.env.RESEND_API_KEY;
+    delete process.env.RESEND_OPERATOR_EMAIL;
+    delete process.env.CRM_E2E_PROVIDER_DIRECTORY;
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
 test("issues local OAuth tokens only to the local clients and only for the PKCE verifier of the code", async () => {
   const { createHash } = await import("node:crypto");
   const provider = await import("./local-oauth-provider.mjs");
