@@ -3,6 +3,7 @@ import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 import type { WidgetLayout } from "./widget-display.schema";
 import type { DisplayType } from "./widget-display.schema";
 import type { WidgetPlacement } from "./widget-grid";
+import type { RecordWidgetKind } from "./record-widget-store.repo";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { SURFACE } from "@/core/data-view/data-view-keys";
@@ -10,7 +11,7 @@ import { WidgetLayoutSchema } from "./widget-display.schema";
 import { placeWidget, withLargePlacement } from "./widget-grid";
 import { LIVE_WIDGET } from "./live-widget";
 
-export type WidgetPlacementRow = { id: string; kind: "chart" | "activityTimeline"; layout: WidgetLayout | null };
+export type WidgetPlacementRow = { id: string; kind: RecordWidgetKind; layout: WidgetLayout | null };
 
 export async function listWidgetPlacements(
   prisma: Pick<AppPrismaClient, "widget">,
@@ -31,7 +32,7 @@ export async function listWidgetPlacements(
 
 export function resolveWidgetLayout(args: {
   id: string;
-  kind: "chart" | "activityTimeline";
+  kind: RecordWidgetKind;
   displayType?: DisplayType;
   requested?: WidgetPlacement;
   needsPlacement: boolean;

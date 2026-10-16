@@ -1,3 +1,5 @@
+import { CalendarWidgetQuerySchema } from "@/features/widget/record-calendar-widget.schema";
+import { MapWidgetQuerySchema } from "@/features/widget/record-map-widget.schema";
 import { unwindFailure } from "@/core/validation/failure-unwind";
 import { channelClass } from "@/ee/messaging/provider";
 import { RecordRevisionChangeSchema, type RecordRevisionChange } from "./record-revision.schema";
@@ -557,6 +559,19 @@ export class PrismaRecordRepo
       trashed: row.deletedAt !== null || Boolean(row.view?.deletedAt),
     }));
   }
+  async getRecordWidgetQueriesCompanyWide(afterId?: string) {
+    const rows = await this.owners.widgets.getRecordWidgetQueriesCompanyWide(this.companyId, afterId);
+    return rows.map((row) => {
+      const common = {
+        id: row.id,
+        name: row.name,
+        trashed: row.deletedAt !== null || Boolean(row.view?.deletedAt),
+      };
+      return row.kind === "map"
+        ? { ...common, kind: "map" as const, query: MapWidgetQuerySchema.parse(row.definition) }
+        : { ...common, kind: "calendar" as const, query: CalendarWidgetQuerySchema.parse(row.definition) };
+    });
+  }
   async getEventSubscriptionsCompanyWide(afterId?: string) {
     const rows = await this.owners.subscriptions.getPageCompanyWide(this.companyId, afterId);
     const ids = rows.map((row) => row.id);
@@ -621,6 +636,13 @@ export class PrismaRecordRepo
           companyId,
           cleanup.id,
           cleanup.measure as Prisma.InputJsonValue,
+        );
+      } else if (cleanup.kind === "calendarWidget" || cleanup.kind === "mapWidget") {
+        await this.owners.widgets.rewriteRecordWidgetQueryCompanyWide(
+          companyId,
+          cleanup.id,
+          cleanup.kind === "mapWidget" ? "map" : "calendar",
+          cleanup.query as Prisma.InputJsonValue,
         );
       } else if (cleanup.kind === "webhookSubscription") {
         const { id, events } = cleanup.subscription;

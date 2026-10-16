@@ -542,6 +542,8 @@ model InviteToken {
 
 model Widget {
   activityQuery  Json?
+  calendarQuery  Json?
+  mapQuery       Json?
   measure        Json?
   version        Int        @default(1)
   id             String     @id @default(uuid())
@@ -969,6 +971,8 @@ enum CountryCode {
 enum WidgetKind {
   chart
   activityTimeline
+  calendar
+  map
 }
 
 enum SubscriptionStatus {

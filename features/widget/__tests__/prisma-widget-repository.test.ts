@@ -59,7 +59,12 @@ const row = (overrides: Record<string, unknown> = {}) => ({
   updatedAt: new Date(0),
   ...overrides,
 });
-const readers = () => ({ chart: { read: mocks.chart }, activityTimeline: { read: mocks.activity } });
+const readers = () => ({
+  chart: { read: mocks.chart },
+  activityTimeline: { read: mocks.activity },
+  calendar: { read: vi.fn() },
+  map: { read: vi.fn() },
+});
 const scoped = <T>(fn: (repo: PrismaWidgetRepo) => Promise<T>) => runWithTenant(user, () => fn(new PrismaWidgetRepo()));
 
 describe("generic widget repository", () => {

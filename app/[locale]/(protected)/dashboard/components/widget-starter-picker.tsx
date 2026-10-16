@@ -115,6 +115,8 @@ function ChooserSection({
 const KIND_PREVIEW: Record<WidgetKind, ReactNode> = {
   [WidgetKind.chart]: <ChartTypeIllustration className="size-full" type={DisplayType.verticalBarChart} />,
   [WidgetKind.activityTimeline]: <ActivityTimelineIllustration className="size-full" />,
+  [WidgetKind.calendar]: <ActivityTimelineIllustration className="size-full" />,
+  [WidgetKind.map]: <ActivityTimelineIllustration className="size-full" />,
 };
 
 export function WidgetStarterPicker({ availableKinds, disabled, templates, onSelectKind, onSelectTemplate }: Props) {

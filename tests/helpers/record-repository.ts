@@ -46,6 +46,10 @@ const widgets: RecordWidgetConfigurationRepo & ViewWidgetPurgeRepo = {
   getMeasuresCompanyWide: async (companyId, afterId) => (await widgetRepo()).getMeasuresCompanyWide(companyId, afterId),
   rewriteMeasureCompanyWide: async (companyId, id, measure) =>
     (await widgetRepo()).rewriteMeasureCompanyWide(companyId, id, measure),
+  getRecordWidgetQueriesCompanyWide: async (companyId, afterId) =>
+    (await widgetRepo()).getRecordWidgetQueriesCompanyWide(companyId, afterId),
+  rewriteRecordWidgetQueryCompanyWide: async (companyId, id, kind, query) =>
+    (await widgetRepo()).rewriteRecordWidgetQueryCompanyWide(companyId, id, kind, query),
   purgeOnTrashedViewsCompanyWide: async (companyId, viewIds) =>
     (await widgetRepo()).purgeOnTrashedViewsCompanyWide(companyId, viewIds),
 };

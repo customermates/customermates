@@ -1,3 +1,5 @@
+import type { CalendarWidgetQuery } from "@/features/widget/record-calendar-widget.schema";
+import type { MapWidgetQuery } from "@/features/widget/record-map-widget.schema";
 import type { RecordIdentityProvider } from "@/generated/prisma";
 import type { RecordActivityQuery } from "@/ee/messaging/activities/record-activities.schema";
 import type { DataViewState } from "@/core/data-view/data-view-state.schema";
@@ -70,6 +72,8 @@ export type ConfigurationConsumerCleanup =
   | { kind: "view" | "personalLayout"; id: string; state: DataViewState }
   | { kind: "detailLayout"; id: string; layout: RecordDetailLayout }
   | { kind: "widget"; id: string; measure: RecordMeasure }
+  | { kind: "calendarWidget"; id: string; query: CalendarWidgetQuery }
+  | { kind: "mapWidget"; id: string; query: MapWidgetQuery }
   | { kind: "webhookSubscription"; subscription: RecordEventSubscriptionDefinition; paused: boolean };
 
 export type RecordTrashItem = {
@@ -157,6 +161,16 @@ export interface RecordRepo {
   getWidgetMeasuresCompanyWide(
     afterId?: string,
   ): Promise<Array<{ id: string; name: string; measure: RecordMeasure; trashed: boolean }>>;
+  getRecordWidgetQueriesCompanyWide(
+    afterId?: string,
+  ): Promise<
+    Array<
+      { id: string; name: string; trashed: boolean } & (
+        | { kind: "calendar"; query: CalendarWidgetQuery }
+        | { kind: "map"; query: MapWidgetQuery }
+      )
+    >
+  >;
   getConfigurationDeletions(targets?: ConfigurationTarget[]): Promise<Map<string, ConfigurationDeletionRecord>>;
   applyConsumerCleanups(cleanups: ConfigurationConsumerCleanup[]): Promise<{ pausedWebhookIds: string[] }>;
   getState(): Promise<RecordSchemaState | null>;

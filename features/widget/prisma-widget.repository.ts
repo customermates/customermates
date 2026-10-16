@@ -8,15 +8,23 @@ import type { GetWidgetByIdRepo } from "./get-widget-by-id.repo";
 import type { GetWidgetsRepo } from "./get-widgets.repo";
 import type { FindOwnedWidgetKindRepo } from "./find-owned-widget-kind.repo";
 import { RecordActivityWidgetDtoSchema } from "./record-activity-widget.schema";
+import { RecordCalendarWidgetDtoSchema } from "./record-calendar-widget.schema";
+import { RecordMapWidgetDtoSchema } from "./record-map-widget.schema";
 import { RecordWidgetDtoSchema } from "./record-widget.schema";
 import type { UpdateWidgetLayoutsRepo, WidgetLayoutTarget, WidgetLayoutWrite } from "./update-widget-layouts.repo";
 import type { SavedWidgetLayout } from "./update-widget-layouts.interactor";
 import type { WidgetPlacementRow } from "./widget-placement";
 import { listWidgetPlacements } from "./widget-placement";
 import { WidgetLayoutSchema } from "./widget-display.schema";
-import type { RecordWidgetConfigurationRepo, RecordWidgetConfigurationRow } from "./record-widget-configuration.repo";
+import type {
+  RecordWidgetConfigurationRepo,
+  RecordWidgetConfigurationRow,
+  RecordWidgetQueryKind,
+} from "./record-widget-configuration.repo";
 import type { ViewWidgetPurgeRepo } from "./view-widget-purge.repo";
 import type { SavedRecordActivityWidgetInput } from "./record-activity-widget.schema";
+import type { SavedRecordCalendarWidgetInput } from "./record-calendar-widget.schema";
+import type { SavedRecordMapWidgetInput } from "./record-map-widget.schema";
 import type { SavedRecordWidgetInput } from "./record-widget.schema";
 import type { WidgetLayout } from "./widget-display.schema";
 import type {
@@ -41,6 +49,8 @@ type OwnedWidgetWrite = {
     kind: WidgetKind;
     measure?: Prisma.InputJsonValue;
     activityQuery?: Prisma.InputJsonValue;
+    calendarQuery?: Prisma.InputJsonValue;
+    mapQuery?: Prisma.InputJsonValue;
     displayOptions: Prisma.InputJsonValue;
     isTemplate: boolean;
     viewId: string | null;
@@ -51,11 +61,15 @@ type OwnedWidgetWrite = {
 const STORED_RECORD_WIDGET = {
   chart: RecordWidgetDtoSchema.omit({ data: true, status: true, groupOptions: true, decimalPlaces: true }).strip(),
   activityTimeline: RecordActivityWidgetDtoSchema.omit({ schemaRevision: true, data: true, status: true }).strip(),
+  calendar: RecordCalendarWidgetDtoSchema.omit({ data: true, status: true, fields: true }).strip(),
+  map: RecordMapWidgetDtoSchema.omit({ data: true, status: true, fields: true }).strip(),
 };
 
 const RECORD_WIDGET_WHERE = {
-  chart: { measure: { not: Prisma.AnyNull } },
+  chart: { kind: WidgetKind.chart, measure: { not: Prisma.AnyNull } },
   activityTimeline: { kind: WidgetKind.activityTimeline, activityQuery: { not: Prisma.AnyNull } },
+  calendar: { kind: WidgetKind.calendar, calendarQuery: { not: Prisma.AnyNull } },
+  map: { kind: WidgetKind.map, mapQuery: { not: Prisma.AnyNull } },
 } satisfies Record<RecordWidgetKind, Prisma.WidgetWhereInput>;
 
 export class PrismaWidgetRepo
@@ -89,6 +103,8 @@ export class PrismaWidgetRepo
       kind: true,
       measure: true,
       activityQuery: true,
+      calendarQuery: true,
+      mapQuery: true,
       version: true,
       displayOptions: true,
       layout: true,
@@ -102,6 +118,10 @@ export class PrismaWidgetRepo
   private storedWidget(row: Prisma.WidgetGetPayload<{ select: PrismaWidgetRepo["dtoSelect"] }>): StoredWidget {
     if (row.kind === WidgetKind.activityTimeline && row.activityQuery)
       return { kind: "activityTimeline", widget: this.storedRecordWidget("activityTimeline", row) };
+    if (row.kind === WidgetKind.calendar && row.calendarQuery)
+      return { kind: "calendar", widget: this.storedRecordWidget("calendar", row) };
+    if (row.kind === WidgetKind.map && row.mapQuery)
+      return { kind: "map", widget: this.storedRecordWidget("map", row) };
     if (row.measure !== null && row.measure !== undefined)
       return { kind: "chart", widget: this.storedRecordWidget("chart", row) };
     throw new Error(`Widget ${row.id} has no record definition`);
@@ -207,6 +227,14 @@ export class PrismaWidgetRepo
     }));
   }
 
+  async findReadableWidgetKind(id: string): Promise<RecordWidgetKind | null> {
+    const row = await this.prisma.widget.findFirst({
+      where: { id, companyId: this.companyId, OR: [{ userId: this.userId }, { isTemplate: true }], ...LIVE_WIDGET },
+      select: { kind: true },
+    });
+    return row?.kind ?? null;
+  }
+
   async findOwnedWidgetKind(id: string): Promise<WidgetKind | null> {
     const row = await this.prisma.widget.findFirst({
       where: { id, companyId: this.companyId, userId: this.user.id, ...LIVE_WIDGET },
@@ -300,13 +328,7 @@ export class PrismaWidgetRepo
     viewId: string | null,
     layout?: WidgetLayout,
   ) {
-    const definition =
-      kind === "chart"
-        ? { kind: "chart" as const, measure: recordJson((input as SavedRecordWidgetInput).measure) }
-        : {
-            kind: "activityTimeline" as const,
-            activityQuery: recordJson((input as SavedRecordActivityWidgetInput).activityQuery),
-          };
+    const definition = this.widgetDefinition(kind, input);
     const row = await this.saveOwnedWidget({
       id,
       update: input.id ? { expectedVersion: input.expectedVersion } : null,
@@ -320,6 +342,24 @@ export class PrismaWidgetRepo
       },
     });
     return this.storedRecordWidget(kind, row);
+  }
+
+  private widgetDefinition<K extends RecordWidgetKind>(kind: K, input: SavedRecordWidgetOf[K]) {
+    if (kind === "activityTimeline") {
+      return {
+        kind: WidgetKind.activityTimeline,
+        activityQuery: recordJson((input as SavedRecordActivityWidgetInput).activityQuery),
+      };
+    }
+    if (kind === "calendar") {
+      return {
+        kind: WidgetKind.calendar,
+        calendarQuery: recordJson((input as SavedRecordCalendarWidgetInput).calendarQuery),
+      };
+    }
+    if (kind === "map")
+      return { kind: WidgetKind.map, mapQuery: recordJson((input as SavedRecordMapWidgetInput).mapQuery) };
+    return { kind: WidgetKind.chart, measure: recordJson((input as SavedRecordWidgetInput).measure) };
   }
 
   private async saveOwnedWidget({ id, update, data }: OwnedWidgetWrite) {
@@ -356,6 +396,47 @@ export class PrismaWidgetRepo
       take: CONFIGURATION_CONSUMER_PAGE,
     });
     return rows.map(({ measure, ...row }) => ({ ...row, definition: measure }));
+  }
+
+  async getRecordWidgetQueriesCompanyWide(companyId: string, afterId?: string) {
+    const rows = await this.prisma.widget.findMany({
+      where: {
+        companyId,
+        OR: [
+          { kind: WidgetKind.calendar, calendarQuery: { not: Prisma.AnyNull } },
+          { kind: WidgetKind.map, mapQuery: { not: Prisma.AnyNull } },
+        ],
+        ...(afterId ? { id: { gt: afterId } } : {}),
+      },
+      select: {
+        id: true,
+        name: true,
+        kind: true,
+        calendarQuery: true,
+        mapQuery: true,
+        deletedAt: true,
+        view: { select: { deletedAt: true } },
+      },
+      orderBy: { id: "asc" },
+      take: CONFIGURATION_CONSUMER_PAGE,
+    });
+    return rows.map(({ calendarQuery, mapQuery, kind, ...row }) => ({
+      ...row,
+      kind: (kind === WidgetKind.map ? "map" : "calendar") as RecordWidgetQueryKind,
+      definition: kind === WidgetKind.map ? mapQuery : calendarQuery,
+    }));
+  }
+
+  async rewriteRecordWidgetQueryCompanyWide(
+    companyId: string,
+    id: string,
+    kind: RecordWidgetQueryKind,
+    query: Prisma.InputJsonValue,
+  ): Promise<void> {
+    await this.prisma.widget.updateMany({
+      where: { companyId, id, kind },
+      data: { ...(kind === "map" ? { mapQuery: query } : { calendarQuery: query }), version: { increment: 1 } },
+    });
   }
 
   async rewriteMeasureCompanyWide(companyId: string, id: string, measure: Prisma.InputJsonValue): Promise<void> {

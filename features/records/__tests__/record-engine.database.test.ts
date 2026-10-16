@@ -15578,7 +15578,13 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
 
   it("merges partial widget updates in the interactors and keeps each saved widget's kind", async () => {
     const f = await fixture();
-    const save = new SaveWidgetInteractor(new PrismaWidgetRepo(), f.writeWidget, f.writeActivityWidget);
+    const save = new SaveWidgetInteractor(
+      new PrismaWidgetRepo(),
+      f.writeWidget,
+      f.writeActivityWidget,
+      { invoke: vi.fn() } as never,
+      { invoke: vi.fn() } as never,
+    );
     const measure = RecordMeasureSchema.parse({
       source: { typeId: f.id("service") },
       aggregation: "count",

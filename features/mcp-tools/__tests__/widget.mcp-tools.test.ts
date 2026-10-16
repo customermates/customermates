@@ -60,6 +60,8 @@ vi.mock("@/core/di", async () => {
         },
         validated(RecordWidgetInputSchema, spies.upsertRecordWidget) as never,
         validated(RecordActivityWidgetInputSchema, spies.upsertRecordActivityWidget) as never,
+        { invoke: vi.fn() } as never,
+        { invoke: vi.fn() } as never,
       ),
     getDeleteWidgetInteractor: () => ({ invoke: spies.deleteWidget }),
     getGetWidgetByIdInteractor: () => ({ invoke: spies.getWidgetById }),
