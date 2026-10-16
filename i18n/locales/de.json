@@ -4642,6 +4642,15 @@
     "workspaceNameDescription": "Optional. Damit unterscheidest du deine Workspaces; du kannst ihn später ändern.",
     "workspaceNamePlaceholder": "z. B. Acme Vertrieb"
   },
+  "WorkspaceRemovalNotice": {
+    "body": "Du wurdest aus dem Workspace „{workspace}“ auf Customermates entfernt. Dein Zugriff ist beendet, und deine API-Schlüssel und KI-Verbindungen für diesen Workspace funktionieren nicht mehr.",
+    "cta": "Anmelden",
+    "greeting": "Hallo {firstName},",
+    "otherWorkspaces": "Dein Konto und deine anderen Workspaces bleiben unverändert. Du kannst dich wie gewohnt anmelden.",
+    "rejoin": "Wenn du wieder Zugriff brauchst, bitte einen Admin von „{workspace}“ um eine neue Einladung.",
+    "subject": "Du wurdest aus „{workspace}“ entfernt",
+    "title": "Zugriff auf Workspace beendet"
+  },
   "Workspaces": {
     "apiKeysScope": "Diese Schlüssel greifen nur auf diesen Workspace zu.",
     "apiKeysScopeNamed": "Diese Schlüssel greifen nur auf den Workspace {name} zu.",

@@ -4642,6 +4642,15 @@
     "workspaceNameDescription": "Facultatif. Il vous aide à distinguer vos espaces de travail ; vous pourrez le modifier plus tard.",
     "workspaceNamePlaceholder": "p. ex. Acme Ventes"
   },
+  "WorkspaceRemovalNotice": {
+    "body": "Vous ne faites plus partie de l’espace de travail « {workspace} » sur Customermates. Votre accès a pris fin, et vos clés API et connexions IA pour cet espace de travail ne fonctionnent plus.",
+    "cta": "Se connecter",
+    "greeting": "Bonjour {firstName},",
+    "otherWorkspaces": "Votre compte et vos autres espaces de travail restent inchangés : vous pouvez continuer à vous connecter comme d’habitude.",
+    "rejoin": "Si vous avez de nouveau besoin d’un accès, demandez une nouvelle invitation à un administrateur de « {workspace} ».",
+    "subject": "Vous ne faites plus partie de « {workspace} »",
+    "title": "Accès à l’espace de travail terminé"
+  },
   "Workspaces": {
     "apiKeysScope": "Ces clés n'accèdent qu'à cet espace de travail.",
     "apiKeysScopeNamed": "Ces clés n'accèdent qu'à l'espace de travail {name}.",

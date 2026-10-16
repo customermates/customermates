@@ -1,7 +1,8 @@
 import type { RemovableWorkspaceMember } from "../remove-workspace-member.repo";
 
+import { render } from "@react-email/render";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { Status, SubscriptionPlan } from "@/generated/prisma";
+import { Locale, Status, SubscriptionPlan } from "@/generated/prisma";
 
 import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import { MOCK_ENV_MODULE, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
@@ -69,6 +70,8 @@ describe("RemoveWorkspaceMemberInteractor", () => {
   let subscriptionService: { updateSubscriptionQuantityOrThrow: ReturnType<typeof vi.fn> };
   let routines: { invoke: ReturnType<typeof vi.fn> };
   let channelRemoval: { deleteForBillingOrThrow: ReturnType<typeof vi.fn> };
+  let companyRepo: { findCompanyOrThrow: ReturnType<typeof vi.fn> };
+  let emailService: { send: ReturnType<typeof vi.fn> };
 
   function interactor() {
     const departure = new WorkspaceDepartureService(
@@ -84,7 +87,14 @@ describe("RemoveWorkspaceMemberInteractor", () => {
       { findOwnedConnectedAccountIdsCompanyWide: vi.fn().mockResolvedValue(["mailbox-1"]) } as never,
       channelRemoval as never,
     );
-    return new RemoveWorkspaceMemberInteractor(repo as never, roleRepo as never, memberships as never, departure);
+    return new RemoveWorkspaceMemberInteractor(
+      repo as never,
+      roleRepo as never,
+      memberships as never,
+      departure,
+      companyRepo as never,
+      emailService as never,
+    );
   }
 
   function track<T>(label: string, value?: T) {
@@ -123,7 +133,17 @@ describe("RemoveWorkspaceMemberInteractor", () => {
     subscriptionService = { updateSubscriptionQuantityOrThrow: track("seats") };
     routines = { invoke: track("routines", { blocked: 0, disabled: 1 }) };
     channelRemoval = { deleteForBillingOrThrow: track("disconnected") };
+    companyRepo = { findCompanyOrThrow: vi.fn().mockResolvedValue({ id: COMPANY_ID, name: "Hoffmann Consulting" }) };
+    emailService = { send: track("mailed", true) };
   });
+
+  function sentMail() {
+    expect(emailService.send).toHaveBeenCalledTimes(1);
+    const [mail] = emailService.send.mock.calls[0] as [
+      { to: string; subject: string; react: Parameters<typeof render>[0] },
+    ];
+    return mail;
+  }
 
   it("removes an active member and ends every access the login had to this workspace", async () => {
     const result = await removeAs();
@@ -132,7 +152,7 @@ describe("RemoveWorkspaceMemberInteractor", () => {
       ok: true,
       data: { userId: member.id, email: "nora@example.com", previousStatus: Status.active },
     });
-    expect(order).toEqual(["left", "announced", "revoked", "disconnected", "moved", "routines", "seats"]);
+    expect(order).toEqual(["left", "announced", "revoked", "disconnected", "moved", "routines", "seats", "mailed"]);
     expect(repo.leaveCompanyWide).toHaveBeenCalledWith(member.id);
     expect(events.publish).toHaveBeenCalledWith("user.updated", {
       entityId: member.id,
@@ -143,6 +163,69 @@ describe("RemoveWorkspaceMemberInteractor", () => {
     expect(memberships.setLastUsedCompanyUnscoped).toHaveBeenCalledWith("login-nora", "own-company");
     expect(routines.invoke).toHaveBeenCalledWith({ companyId: COMPANY_ID, ownerUserId: member.id });
     expect(subscriptionService.updateSubscriptionQuantityOrThrow).toHaveBeenCalledWith("ls-1", 3);
+  });
+
+  it("e-mails the removed member in their language which workspace removed them and how to sign in", async () => {
+    member = memberRow({ displayLanguage: Locale.de });
+
+    expect(await removeAs()).toMatchObject({ ok: true });
+
+    const mail = sentMail();
+    expect(mail.to).toBe("nora@example.com");
+    expect(mail.subject).toBe("Du wurdest aus „Hoffmann Consulting“ entfernt");
+    const html = await render(mail.react);
+    const text = await render(mail.react, { plainText: true });
+    expect(html).toMatch(/<html[^>]*\blang="de"/);
+    expect(html).toContain('href="http://localhost:4000/auth/signin"');
+    expect(text).toContain("Hallo Nora,");
+    expect(text).toContain("Du wurdest aus dem Workspace „Hoffmann Consulting“ auf Customermates entfernt.");
+    expect(text).toContain("API-Schlüssel und KI-Verbindungen für diesen Workspace funktionieren nicht mehr");
+    expect(text).toContain("deine anderen Workspaces bleiben unverändert");
+    expect(text).toContain("bitte einen Admin von „Hoffmann Consulting“ um eine neue Einladung");
+  });
+
+  it("names a workspace without a name by the localized fallback", async () => {
+    member = memberRow({ displayLanguage: Locale.fr });
+    companyRepo.findCompanyOrThrow.mockResolvedValue({ id: COMPANY_ID, name: null });
+
+    expect(await removeAs()).toMatchObject({ ok: true });
+
+    expect(sentMail().subject).toBe("Vous ne faites plus partie de « Espace de travail »");
+  });
+
+  it("e-mails a member without a display language in English", async () => {
+    member = memberRow({ displayLanguage: Locale.system });
+
+    expect(await removeAs()).toMatchObject({ ok: true });
+
+    const mail = sentMail();
+    expect(mail.subject).toBe("You were removed from “Hoffmann Consulting”");
+    expect(await render(mail.react, { plainText: true })).toContain(
+      "Your account and your other workspaces stay as they are, so you can keep signing in as usual.",
+    );
+  });
+
+  it.each([
+    ["the mail provider rejects the e-mail", () => emailService.send.mockResolvedValue(false), false],
+    ["sending the e-mail fails", () => emailService.send.mockRejectedValue(new Error("mail is down")), true],
+    [
+      "the workspace cannot be read for the e-mail",
+      () => companyRepo.findCompanyOrThrow.mockRejectedValue(new Error("company is gone")),
+      true,
+    ],
+  ])("keeps the removal when %s", async (_label, breakMail, reported) => {
+    breakMail();
+
+    const result = await removeAs();
+
+    expect(result).toEqual({
+      ok: true,
+      data: { userId: member.id, email: "nora@example.com", previousStatus: Status.active },
+    });
+    expect(order).toEqual(expect.arrayContaining(["left", "announced", "revoked", "disconnected", "moved", "seats"]));
+    expect(sentry.captureException.mock.calls).toEqual(
+      reported ? [[expect.any(Error), { tags: { kind: "workspace-removal-email" } }]] : [],
+    );
   });
 
   it("declines a pending request without touching seats or routines", async () => {
@@ -159,6 +242,7 @@ describe("RemoveWorkspaceMemberInteractor", () => {
     expect(authService.revokeMembershipCredentials).toHaveBeenCalledWith("login-nora", COMPANY_ID);
     expect(routines.invoke).not.toHaveBeenCalled();
     expect(subscriptionService.updateSubscriptionQuantityOrThrow).not.toHaveBeenCalled();
+    expect(emailService.send).not.toHaveBeenCalled();
   });
 
   it("removes an inactive member without announcing a status change", async () => {
@@ -166,14 +250,16 @@ describe("RemoveWorkspaceMemberInteractor", () => {
 
     expect(await removeAs()).toMatchObject({ ok: true, data: { previousStatus: Status.inactive } });
 
-    expect(order).toEqual(["left", "revoked", "disconnected", "moved"]);
+    expect(order).toEqual(["left", "revoked", "disconnected", "moved", "mailed"]);
     expect(events.publish).not.toHaveBeenCalled();
+    expect(sentMail().to).toBe("nora@example.com");
   });
 
   it("keeps the last used workspace of a login that is somewhere else and skips a member without a login", async () => {
     memberships.findAuthUserCompanyIdUnscoped.mockResolvedValue("own-company");
     expect(await removeAs()).toMatchObject({ ok: true });
     expect(memberships.setLastUsedCompanyUnscoped).not.toHaveBeenCalled();
+    expect(emailService.send).toHaveBeenCalledTimes(1);
 
     vi.clearAllMocks();
     memberships.findLoginIdUnscoped.mockResolvedValue(null);
@@ -181,6 +267,7 @@ describe("RemoveWorkspaceMemberInteractor", () => {
     expect(repo.leaveCompanyWide).toHaveBeenCalledTimes(1);
     expect(authService.revokeMembershipCredentials).not.toHaveBeenCalled();
     expect(memberships.setLastUsedCompanyUnscoped).not.toHaveBeenCalled();
+    expect(emailService.send).not.toHaveBeenCalled();
   });
 
   it.each([
@@ -247,6 +334,7 @@ describe("RemoveWorkspaceMemberInteractor", () => {
     if (!result.ok) expect(interactorFailureCodes(result.error)).toEqual([CustomErrorCode.recordWritePaused]);
     expect(authService.revokeMembershipCredentials).not.toHaveBeenCalled();
     expect(channelRemoval.deleteForBillingOrThrow).not.toHaveBeenCalled();
+    expect(emailService.send).not.toHaveBeenCalled();
   });
 
   it("is refused in the demo", async () => {

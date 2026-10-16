@@ -4642,6 +4642,15 @@
     "workspaceNameDescription": "Facoltativo. Ti aiuta a distinguere i tuoi workspace; puoi cambiarlo in seguito.",
     "workspaceNamePlaceholder": "ad es. Acme Vendite"
   },
+  "WorkspaceRemovalNotice": {
+    "body": "Non fai più parte del workspace “{workspace}” su Customermates. Il tuo accesso è terminato e le tue chiavi API e connessioni IA per questo workspace non funzionano più.",
+    "cta": "Accedi",
+    "greeting": "Ciao {firstName},",
+    "otherWorkspaces": "Il tuo account e gli altri tuoi workspace restano invariati, quindi puoi continuare ad accedere come sempre.",
+    "rejoin": "Se ti serve di nuovo l’accesso, chiedi un nuovo invito a un amministratore di “{workspace}”.",
+    "subject": "Non fai più parte di “{workspace}”",
+    "title": "Accesso al workspace terminato"
+  },
   "Workspaces": {
     "apiKeysScope": "Queste chiavi accedono solo a questo workspace.",
     "apiKeysScopeNamed": "Queste chiavi accedono solo al workspace {name}.",

@@ -1018,7 +1018,14 @@ export const getLeaveWorkspaceInteractor = () =>
   new LeaveWorkspaceInteractor(getAuthService(), getUserRepo(), getRoleRepo(), getWorkspaceDepartureService());
 
 export const getRemoveWorkspaceMemberInteractor = () =>
-  new RemoveWorkspaceMemberInteractor(getUserRepo(), getRoleRepo(), getUserRepo(), getWorkspaceDepartureService());
+  new RemoveWorkspaceMemberInteractor(
+    getUserRepo(),
+    getRoleRepo(),
+    getUserRepo(),
+    getWorkspaceDepartureService(),
+    getCompanyRepo(),
+    getEmailService(),
+  );
 
 export const getGetMemberRemovalInteractor = () => new GetMemberRemovalInteractor(getUserRepo(), getRoleRepo());
 

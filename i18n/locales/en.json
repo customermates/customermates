@@ -4642,6 +4642,15 @@
     "workspaceNameDescription": "Optional. Helps you tell your workspaces apart; you can change it later.",
     "workspaceNamePlaceholder": "e.g. Acme Sales"
   },
+  "WorkspaceRemovalNotice": {
+    "body": "You were removed from the workspace “{workspace}” on Customermates. Your access has ended, and your API keys and AI connections for this workspace no longer work.",
+    "cta": "Sign in",
+    "greeting": "Hi {firstName},",
+    "otherWorkspaces": "Your account and your other workspaces stay as they are, so you can keep signing in as usual.",
+    "rejoin": "If you need access again, ask an admin of “{workspace}” for a new invitation.",
+    "subject": "You were removed from “{workspace}”",
+    "title": "Workspace access ended"
+  },
   "Workspaces": {
     "apiKeysScope": "These keys only access this workspace.",
     "apiKeysScopeNamed": "These keys only access the {name} workspace.",

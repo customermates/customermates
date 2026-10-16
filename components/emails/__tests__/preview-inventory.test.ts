@@ -24,6 +24,7 @@ import TrialInactivationNotice from "../trial-inactivation-notice";
 import TrialInactivationReminder from "../trial-inactivation-reminder";
 import TrialWelcome from "../trial-welcome";
 import VerifyEmail from "../verify-email";
+import WorkspaceRemovalNotice from "../workspace-removal-notice";
 import { EmailLayout } from "../base/email-layout";
 import { EMAIL_PREVIEW_LOGO_URL } from "../preview-layout-props";
 
@@ -87,6 +88,10 @@ function withFirstName(value: string): string {
 
 function withInviter(value: string): string {
   return value.replace("{inviterName}", "Anna Müller");
+}
+
+function withWorkspace(value: string): string {
+  return value.replace("{workspace}", "Hoffmann Consulting");
 }
 
 function localizedDate(locale: AppLocale, isoDate: string): string {
@@ -344,6 +349,27 @@ const EMAIL_PREVIEW_CASES = [
     },
   },
   {
+    key: "workspace-removal-notice",
+    sendSite: "workspace-removal-notice",
+    audience: "recipient-localized",
+    sourcePath: "features/workspace/remove-workspace-member.interactor.ts",
+    templatePath: "components/emails/workspace-removal-notice.tsx",
+    template: WorkspaceRemovalNotice,
+    expectedText: (locale) => catalog(locale).WorkspaceRemovalNotice.title,
+    render: (locale) => {
+      const copy = catalog(locale).WorkspaceRemovalNotice;
+      return createElement(WorkspaceRemovalNotice, {
+        ...previewLayoutProps(locale),
+        ...copy,
+        greeting: withFirstName(copy.greeting),
+        body: withWorkspace(copy.body),
+        rejoin: withWorkspace(copy.rejoin),
+        subject: withWorkspace(copy.subject),
+        href: `${PREVIEW_BASE_URL}/auth/signin`,
+      });
+    },
+  },
+  {
     key: "legal-document-notice-contract",
     sendSite: "legal-document-notice",
     audience: "recipient-localized",
@@ -447,11 +473,11 @@ const LOCALIZED_PREVIEW_CASES = EMAIL_PREVIEW_CASES.flatMap((definition) =>
 );
 
 describe("transactional email preview inventory", () => {
-  it("maps all 14 production send sites onto 15 production templates", () => {
-    expect(EMAIL_PREVIEW_CASES).toHaveLength(15);
-    expect(new Set(EMAIL_PREVIEW_CASES.map(({ key }) => key)).size).toBe(15);
-    expect(new Set(EMAIL_PREVIEW_CASES.map(({ sendSite }) => sendSite)).size).toBe(14);
-    expect(new Set(EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath)).size).toBe(15);
+  it("maps all 15 production send sites onto 16 production templates", () => {
+    expect(EMAIL_PREVIEW_CASES).toHaveLength(16);
+    expect(new Set(EMAIL_PREVIEW_CASES.map(({ key }) => key)).size).toBe(16);
+    expect(new Set(EMAIL_PREVIEW_CASES.map(({ sendSite }) => sendSite)).size).toBe(15);
+    expect(new Set(EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath)).size).toBe(16);
     expect(EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath).sort()).toEqual(topLevelTemplates());
   });
 
@@ -480,11 +506,11 @@ describe("transactional email preview inventory", () => {
   });
 
   it("keeps recipient localization and internal English explicit", () => {
-    expect(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "recipient-localized")).toHaveLength(12);
+    expect(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "recipient-localized")).toHaveLength(13);
     expect(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "operator-english")).toHaveLength(3);
   });
 
-  it("discovers all 14 top-level production templates", () => {
+  it("discovers all 16 top-level production templates", () => {
     expect(discoveredPreviewEntries()).toEqual(
       EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath.replace("components/emails/", "")).sort(),
     );
@@ -504,13 +530,13 @@ describe("transactional email preview inventory", () => {
     expect(actual, definition.templatePath).toMatch(/<html[^>]*\blang="en"/i);
     expect(actual).toContain("/static/customermates-icon.svg");
     expect(actual).not.toContain("/images/email/customermates-icon@2x.png");
-    expect(actual).not.toMatch(/\{(?:firstName|inviterName|accounts|plan|deadline)\}/);
+    expect(actual).not.toMatch(/\{(?:firstName|inviterName|accounts|plan|deadline|workspace)\}/);
   });
 });
 
 describe("transactional email preview rendering", () => {
   it("covers every behavior in each of its locales", () => {
-    expect(LOCALIZED_PREVIEW_CASES).toHaveLength(63);
+    expect(LOCALIZED_PREVIEW_CASES).toHaveLength(68);
   });
 
   it.each(LOCALIZED_PREVIEW_CASES)(
@@ -523,7 +549,7 @@ describe("transactional email preview rendering", () => {
       expect(html, `${definition.key}/${locale}`).toMatch(new RegExp(`<html[^>]*\\blang="${locale}"`, "i"));
       expect(html).toContain("/static/customermates-icon.svg");
       expect(html).not.toContain("/images/email/customermates-icon@2x.png");
-      expect(html).not.toMatch(/\{(?:firstName|inviterName|accounts|plan|deadline)\}/);
+      expect(html).not.toMatch(/\{(?:firstName|inviterName|accounts|plan|deadline|workspace)\}/);
       expect(html).not.toContain("jane@example.com");
       expect(plainText.toLocaleLowerCase()).toContain(definition.expectedText(locale).toLocaleLowerCase());
 
