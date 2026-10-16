@@ -53,6 +53,7 @@ export type LocalCheckout = {
   redirectUrl: string | null;
   enabledVariants: number[];
   skipTrial: boolean | null;
+  expiresAt: string | null;
   url: string;
 };
 

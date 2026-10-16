@@ -90,6 +90,7 @@ async function createCheckout(request, providerDirectory) {
     redirectUrl: attributes.product_options?.redirect_url ?? null,
     enabledVariants: attributes.product_options?.enabled_variants ?? [],
     skipTrial: attributes.checkout_options?.skip_trial ?? null,
+    expiresAt: attributes.expires_at ?? null,
     url: `${localCheckoutOrigin}/checkout/custom/${id}?signature=${createHmac("sha256", localLemonSqueezyKey).update(id).digest("hex")}`,
   };
   writeJson(join(storeDirectory(providerDirectory, "checkouts"), `${id}.json`), checkout);

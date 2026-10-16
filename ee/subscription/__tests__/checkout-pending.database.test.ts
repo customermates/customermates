@@ -103,9 +103,12 @@ describeDatabase("a pending checkout of a workspace on PostgreSQL", { timeout: 1
   }
 
   function checkoutsOf(workspace: Workspace) {
-    return (readLocalCheckouts(providerDirectory) as Array<{ custom: { company_id?: string } | null }>).filter(
-      (checkout) => checkout.custom?.company_id === companies[workspace],
-    );
+    return (
+      readLocalCheckouts(providerDirectory) as Array<{
+        custom: { company_id?: string } | null;
+        expiresAt: string | null;
+      }>
+    ).filter((checkout) => checkout.custom?.company_id === companies[workspace]);
   }
 
   function providerSubscription(workspace: Workspace, status: LemonSqueezySubscriptionStatus) {
@@ -207,6 +210,9 @@ describeDatabase("a pending checkout of a workspace on PostgreSQL", { timeout: 1
     const recorded = await startedAt("first");
     expect(recorded?.getTime()).toBeGreaterThanOrEqual(before - 1000);
     expect(recorded?.getTime()).toBeLessThanOrEqual(Date.now());
+    expect(checkoutsOf("first")[0].expiresAt).toBe(
+      new Date((recorded?.getTime() ?? 0) + 24 * 60 * MINUTE_MS).toISOString(),
+    );
     expect(await checkoutState("owner")).toBe("pending");
   });
 

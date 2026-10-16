@@ -18,7 +18,7 @@ import { getCommercialOfferOrThrow } from "@/core/commercial/plan-catalog";
 import { failUnavailable } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { CreateCheckoutCompanyRepo } from "./create-checkout-session.repo";
-import { checkoutPendingSince } from "./checkout-state";
+import { checkoutExpiresAt, checkoutPendingSince } from "./checkout-state";
 import { hasLiveSubscription } from "./live-subscription";
 import { isSubscriptionExpired } from "./entitlements";
 import { signCheckoutWorkspace } from "./checkout-workspace-signature";
@@ -78,6 +78,7 @@ export class CreateCheckoutSessionInteractor extends UserAccessor {
           company_signature: signCheckoutWorkspace(this.companyId, env.BETTER_AUTH_SECRET),
         },
         redirectUrl,
+        expiresAt: checkoutExpiresAt(startedAt),
       });
 
       return redirectTo(checkout.data.attributes.url);

@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { CHECKOUT_OVERDUE_MS, CHECKOUT_PENDING_MS, checkoutPendingSince, checkoutStateOf } from "../checkout-state";
+import {
+  CHECKOUT_OVERDUE_MS,
+  CHECKOUT_PENDING_MS,
+  checkoutExpiresAt,
+  checkoutPendingSince,
+  checkoutStateOf,
+} from "../checkout-state";
 
 const NOW = new Date("2026-10-16T12:00:00.000Z");
 
@@ -38,5 +44,15 @@ describe("checkoutPendingSince", () => {
     expect(since).toEqual(new Date("2026-10-16T11:45:00.000Z"));
     expect(checkoutStateOf(since, NOW)).toBe("overdue");
     expect(checkoutStateOf(new Date(since.getTime() + 1), NOW)).toBe("pending");
+  });
+});
+
+describe("checkoutExpiresAt", () => {
+  it("lets the checkout link expire a day after the start, when the contact hint disappears", () => {
+    const expiresAt = checkoutExpiresAt(NOW);
+
+    expect(expiresAt).toEqual(new Date("2026-10-17T12:00:00.000Z"));
+    expect(checkoutStateOf(NOW, new Date(expiresAt.getTime() - 1))).toBe("overdue");
+    expect(checkoutStateOf(NOW, expiresAt)).toBe("none");
   });
 });

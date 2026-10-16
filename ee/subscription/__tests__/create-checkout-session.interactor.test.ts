@@ -92,7 +92,24 @@ describe("CreateCheckoutSessionInteractor", () => {
       quantity: 4,
       custom: { company_id: COMPANY_ID, company_signature: expect.stringMatching(/^[0-9a-f]{64}$/) },
       redirectUrl: "https://feat-inbox.customermates.com/settings/billing",
+      expiresAt: expect.any(Date),
     });
+  });
+
+  it("lets the checkout link expire a day after the start it records", async () => {
+    const repo = makeCheckoutRepo();
+    const subscriptionService = makeSubscriptionService();
+    const interactor = new CreateCheckoutSessionInteractor(
+      subscriptionService as never,
+      repo as never,
+      makeUserRepo() as never,
+    );
+
+    await interactor.invoke({ plan: "pro", cadence: "monthly" } as never);
+
+    const [startedAt] = repo.claimCheckoutStart.mock.calls[0] as [Date];
+    const { expiresAt } = subscriptionService.createCheckoutOrThrow.mock.calls[0][0] as { expiresAt: Date };
+    expect(expiresAt.getTime() - startedAt.getTime()).toBe(24 * 60 * 60 * 1000);
   });
 
   it("signs the workspace id it puts into the checkout with the server secret", async () => {

@@ -68,7 +68,7 @@ describe("commercial offer bindings", () => {
 });
 
 describe("SubscriptionService.createCheckoutOrThrow", () => {
-  it("locks checkout to the selected monthly variant and skips the provider trial", async () => {
+  it("locks checkout to the selected monthly variant, skips the provider trial and expires the link", async () => {
     const service = new SubscriptionService(makeRepo() as never);
     mockCreateCheckout.mockResolvedValue({
       error: null,
@@ -80,6 +80,7 @@ describe("SubscriptionService.createCheckoutOrThrow", () => {
       quantity: 4,
       redirectUrl: "https://customermates.example/settings/billing",
       custom: { company_id: "company-1" },
+      expiresAt: new Date("2026-10-17T12:00:00.000Z"),
     });
 
     expect(mockCreateCheckout).toHaveBeenCalledWith("store-1", "2002", {
@@ -92,6 +93,7 @@ describe("SubscriptionService.createCheckoutOrThrow", () => {
         enabledVariants: [2002],
       },
       checkoutOptions: { skipTrial: true },
+      expiresAt: "2026-10-17T12:00:00.000Z",
     });
   });
 });

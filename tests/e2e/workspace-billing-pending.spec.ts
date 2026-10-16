@@ -102,9 +102,9 @@ test("an admin back from checkout sees the payment being processed, and the page
   await expect(page).toHaveURL(checkout.url);
   expect(checkout.custom).toEqual(signedCustomData(second.companyId));
   expect(checkout.custom?.company_signature).toMatch(/^[0-9a-f]{64}$/);
-  expect((await billing(database, second.companyId)).checkoutStartedAt?.getTime()).toBeGreaterThanOrEqual(
-    before - 5_000,
-  );
+  const startedAt = (await billing(database, second.companyId)).checkoutStartedAt;
+  expect(startedAt?.getTime()).toBeGreaterThanOrEqual(before - 5_000);
+  expect(checkout.expiresAt).toBe(new Date((startedAt?.getTime() ?? 0) + 24 * 60 * 60 * 1000).toISOString());
 
   await page.goto(checkout.redirectUrl as string);
   await expect(page).toHaveURL(/\/en\/subscription-expired$/);

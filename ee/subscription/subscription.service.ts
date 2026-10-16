@@ -36,6 +36,7 @@ export class SubscriptionService {
     quantity: number;
     custom?: Record<string, unknown>;
     redirectUrl?: string;
+    expiresAt: Date;
   }) {
     this.ensureConfigured();
 
@@ -55,6 +56,7 @@ export class SubscriptionService {
       checkoutOptions: {
         skipTrial: CLOUD_TRIAL.owner === "application",
       },
+      expiresAt: options.expiresAt.toISOString(),
     });
 
     if (result.error) throw new Error(result.error.message || "Failed to create checkout");

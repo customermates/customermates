@@ -16,3 +16,7 @@ export function checkoutStateOf(startedAt: Date | null, now = new Date()): Check
 export function checkoutPendingSince(now: Date): Date {
   return new Date(now.getTime() - CHECKOUT_PENDING_MS);
 }
+
+export function checkoutExpiresAt(startedAt: Date): Date {
+  return new Date(startedAt.getTime() + CHECKOUT_OVERDUE_MS);
+}
