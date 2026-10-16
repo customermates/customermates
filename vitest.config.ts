@@ -121,6 +121,7 @@ export const domTestFiles = [
   "app/[locale]/(protected)/inbox/components/__tests__/thread-reply-composer-navigation.test.ts",
   "app/[locale]/(protected)/inbox/components/__tests__/email-message-header.test.ts",
   "app/[locale]/(protected)/inbox/components/__tests__/thread-compose-send-toast.dom.test.ts",
+  "app/[locale]/(protected)/inbox/components/__tests__/draft-conflict-bar.dom.test.ts",
   "app/components/navigation/__tests__/use-marketing-account-state.test.ts",
   "components/ui/__tests__/tooltip.dom.test.ts",
   "components/keyboard/__tests__/key-matching-context.dom.test.ts",

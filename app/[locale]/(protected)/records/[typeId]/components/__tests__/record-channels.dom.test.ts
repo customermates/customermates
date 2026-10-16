@@ -54,7 +54,7 @@ async function harness() {
   let generation = 0;
   let current = true;
   let canCompose = true;
-  const initializeNewThread = vi.fn((_input: { onDone?: () => void }) => {
+  const initializeNewThread = vi.fn((_input: { onDone?: () => void; onRestore?: () => boolean }) => {
     generation += 1;
   });
   const root = {
@@ -196,6 +196,32 @@ describe("record channel compose request ownership", () => {
     });
     expect(trigger.getAttribute("aria-expanded")).toBe("false");
     expect(h.root.threadComposeStore.initializeNewThread).toHaveBeenCalledTimes(2);
+  });
+
+  it("reopens the closed compose popover when a refused send puts its text back, unless the record moved on", async () => {
+    context.composeBody = true;
+    const h = await harness();
+    const trigger = h.container.querySelector<HTMLButtonElement>('[aria-label="EntityChannels.ariaStartThread"]');
+    if (!trigger) throw new Error("Missing channel compose button");
+    await h.start();
+    await h.finish();
+    const input = h.root.threadComposeStore.initializeNewThread.mock.calls[0][0];
+    await act(async () => {
+      input.onDone?.();
+      await Promise.resolve();
+    });
+    expect(trigger.getAttribute("aria-expanded")).toBe("false");
+
+    let reopened: boolean | undefined;
+    await act(async () => {
+      reopened = input.onRestore?.();
+      await Promise.resolve();
+    });
+
+    expect(reopened).toBe(true);
+    expect(trigger.getAttribute("aria-expanded")).toBe("true");
+    h.invalidate();
+    expect(input.onRestore?.()).toBe(false);
   });
 
   it("guards detached drafts even when permission or sender loss leaves no mounted compose form", () => {

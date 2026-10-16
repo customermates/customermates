@@ -74,7 +74,7 @@ const paths = [
   {
     path: "an email reply",
     action: actions.sendEmailAction,
-    result: { ok: true, data: sent },
+    result: { ok: true, data: { ...sent, threadId: THREAD_ID } },
     shown: "Inbox.compose.messageSentPendingSync",
     compose: (store: ThreadComposeStore) => {
       store.initialize({ provider: MessagingProvider.google, threadId: THREAD_ID, defaultRecipients: [RECIPIENT] });

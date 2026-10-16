@@ -61,6 +61,7 @@ type PendingDelivery = {
   send: (attachments: SendAttachment[] | undefined) => Promise<DeliveryResult>;
   onSent?: (threadId: string | null) => void;
   onRefused?: (code: CustomErrorCode) => boolean;
+  refused?: boolean;
 };
 
 type ComposedSnapshot = {
@@ -95,7 +96,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   showCcBcc = false;
   editingDraftId: string | null = null;
   editingDraftRevision: string | null = null;
-  draftConflict: CustomErrorCode | null = null;
+  draftConflict = false;
   attachments: File[] = [];
   draftAttachments: File[] = [];
   pendingAttachments: Record<string, File[]> = {};
@@ -106,9 +107,11 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   submissionVersion = 0;
   private pendingDeliveries = new Map<string, PendingDelivery>();
   private sendToastIds = new Map<string, string>();
+  private refusalToastId: string | null = null;
 
   private onNewThreadDone: (() => void) | null = null;
   private onNewThreadSent: ((threadId: string | null) => void) | null = null;
+  private onNewThreadRestore: (() => boolean) | null = null;
   private composeGeneration = 0;
 
   constructor(rootStore: RootStore) {
@@ -156,8 +159,8 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       loadDraft: action,
       discardDraft: action,
       retrySend: action,
-      loadLatestDraft: action,
-      sendMine: action,
+      resolveDraftConflict: action,
+      editRefused: action,
     });
   }
 
@@ -211,9 +214,11 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     this.detachedNewThread = false;
     this.onNewThreadDone = null;
     this.onNewThreadSent = null;
+    this.onNewThreadRestore = null;
     this.editingDraftId = null;
     this.editingDraftRevision = null;
-    this.draftConflict = null;
+    this.draftConflict = false;
+    this.dismissRefusal();
     this.attachments = [];
     this.draftAttachments = [];
     this.showCcBcc = false;
@@ -341,7 +346,8 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     this.showCcBcc = (init.defaultCc?.length ?? 0) > 0;
     this.editingDraftId = null;
     this.editingDraftRevision = null;
-    this.draftConflict = null;
+    this.draftConflict = false;
+    this.dismissRefusal();
     this.attachments = [];
     this.draftAttachments = [];
     this.newThreadTarget = null;
@@ -350,6 +356,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     this.detachedNewThread = false;
     this.onNewThreadDone = null;
     this.onNewThreadSent = null;
+    this.onNewThreadRestore = null;
     this.onInitOrRefresh({
       provider: init.provider,
       threadId: init.threadId,
@@ -379,12 +386,14 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     draftThreadId?: string;
     onDone?: () => void;
     onSent?: (threadId: string | null) => void;
+    onRestore?: () => boolean;
   }) => {
     this.composeGeneration += 1;
     this.showCcBcc = false;
     this.editingDraftId = null;
     this.editingDraftRevision = null;
-    this.draftConflict = null;
+    this.draftConflict = false;
+    this.dismissRefusal();
     this.attachments = [];
     this.draftAttachments = [];
     this.detachedNewThread = false;
@@ -398,6 +407,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       init.onDone?.();
     };
     this.onNewThreadSent = init.onSent ?? null;
+    this.onNewThreadRestore = init.onRestore ?? null;
     this.newThreadTarget = {
       connectedAccountId: init.connectedAccountId,
       recipients: init.recipients,
@@ -540,17 +550,17 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
             const detail = this.rootStore.messagingThreadDetailStore;
             if (detail.thread?.id === delivery.message.messagingThreadId) detail.removeMessageById(id);
           });
-          const { finalOptions } = resultToast();
-          if (!toastZodErrorTree(result.error, finalOptions))
-            toast.error(this.t("ErrorCard.unexpectedError"), finalOptions);
-          this.sendToastIds.delete(id);
+          this.dismissSendToast(id);
           const onRefused = delivery.onRefused;
+          let restored = false;
           runUserAction(() =>
             runInAction(() => {
-              if (onRefused(code)) this.clearPending(id);
+              restored = onRefused(code);
+              if (restored) this.clearPending(id);
               else this.keepRefusedText(delivery);
             }),
           );
+          if (!restored || !this.draftConflict) this.showRefusal(result.error);
           return;
         }
         const retryable = "retryable" in result && result.retryable === true;
@@ -579,7 +589,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       this.rootStore.messagingThreadsStore.refreshInBackground();
       const sentNotice = repeated
         ? this.t("Inbox.compose.draftSentEarlier")
-        : sent || sentThreadId || !isEmailProvider(delivery.message.provider)
+        : sent || result.data.messageId || !isEmailProvider(delivery.message.provider)
           ? this.t("Inbox.compose.messageSent")
           : this.t("Inbox.compose.messageSentPendingSync");
       toast.success(sentNotice, {
@@ -605,11 +615,33 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   };
 
   private nextSendToastId = (messageId: string): string => {
-    const previous = this.sendToastIds.get(messageId);
-    if (previous) toast.dismiss(previous);
+    this.dismissSendToast(messageId);
     const next = `send:${messageId}:${crypto.randomUUID()}`;
     this.sendToastIds.set(messageId, next);
     return next;
+  };
+
+  private dismissSendToast = (messageId: string) => {
+    const previous = this.sendToastIds.get(messageId);
+    if (previous) toast.dismiss(previous);
+    this.sendToastIds.delete(messageId);
+  };
+
+  private showRefusal = (error: unknown) => {
+    this.dismissRefusal();
+    const options = {
+      id: `draft-refusal:${crypto.randomUUID()}`,
+      duration: Infinity,
+      description: undefined,
+      action: undefined,
+    };
+    this.refusalToastId = options.id;
+    if (!toastZodErrorTree(error, options)) toast.error(this.t("ErrorCard.unexpectedError"), options);
+  };
+
+  private dismissRefusal = () => {
+    if (this.refusalToastId) toast.dismiss(this.refusalToastId);
+    this.refusalToastId = null;
   };
 
   private keepRefusedText = (delivery: PendingDelivery) => {
@@ -620,6 +652,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       status: "failed" as const,
       retryable: false,
       onRefused: undefined,
+      refused: true,
     };
     this.pendingDeliveries.set(id, kept);
     this.clearPending(delivery.message.id);
@@ -635,17 +668,28 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     snapshot: ComposedSnapshot;
     files: File[];
     editing: { id: string; revision: string };
+    reopen?: (() => boolean) | null;
+    source?: { contextKey: string | null; actorId: string | null };
   }) => {
     const detail = this.rootStore.messagingThreadDetailStore;
     const sameTarget = args.target
       ? !this.form.threadId && this.newThreadTarget?.connectedAccountId === args.target.connectedAccountId
       : this.form.threadId === args.threadId;
-    if (args.generation !== this.composeGeneration || !sameTarget || this.hasComposedContent) {
+    if (
+      args.generation !== this.composeGeneration ||
+      !sameTarget ||
+      this.hasComposedContent ||
+      (args.reopen && !args.reopen())
+    ) {
       void detail.refresh();
       return false;
     }
     const keepBinding = !DRAFT_BINDING_LOST.has(args.code);
     if (args.target) this.newThreadTarget = keepBinding ? args.target : { ...args.target, draftThreadId: undefined };
+    if (args.source) {
+      this.sourceContextKey = args.source.contextKey;
+      this.sourceActorId = args.source.actorId;
+    }
     this.form.body = args.snapshot.body;
     this.form.subject = args.snapshot.subject;
     this.form.recipients = args.snapshot.recipients;
@@ -654,7 +698,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     this.attachments = args.files;
     this.editingDraftId = keepBinding ? args.editing.id : null;
     this.editingDraftRevision = keepBinding ? args.editing.revision : null;
-    this.draftConflict = args.code === CustomErrorCode.draftChanged ? args.code : null;
+    this.draftConflict = args.code === CustomErrorCode.draftChanged;
     this.showCcBcc = this.isEmail && (this.form.cc.length > 0 || this.form.bcc.length > 0);
     return true;
   };
@@ -669,34 +713,32 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
 
   private forgetLostDraft = () => {
     runInAction(() => {
-      this.draftConflict = null;
+      this.draftConflict = false;
       this.editingDraftId = null;
       this.editingDraftRevision = null;
+      if (this.newThreadTarget?.draftThreadId)
+        this.newThreadTarget = { ...this.newThreadTarget, draftThreadId: undefined };
     });
     this.toastError("Common.errors.draftMessageNotFound");
   };
 
-  loadLatestDraft = async (): Promise<void> => {
+  resolveDraftConflict = async (choice: "mine" | "latest"): Promise<void> => {
     if (this.isLoading || !this.draftConflict) return;
     const generation = this.composeGeneration;
-    const latest = await this.latestEditedDraft();
+    this.dismissRefusal();
+    this.setIsLoading(true);
+    let latest: MessagingMessageDto | null = null;
+    try {
+      latest = await this.latestEditedDraft();
+    } finally {
+      if (generation === this.composeGeneration) this.setIsLoading(false);
+    }
     if (generation !== this.composeGeneration) return;
     if (!latest?.draftRevision) return this.forgetLostDraft();
-    runInAction(() => {
-      this.draftConflict = null;
-    });
-    this.loadDraft(latest);
-  };
-
-  sendMine = async (): Promise<void> => {
-    if (this.isLoading || !this.draftConflict) return;
-    const generation = this.composeGeneration;
-    const latest = await this.latestEditedDraft();
-    if (generation !== this.composeGeneration) return;
-    if (!latest?.draftRevision) return this.forgetLostDraft();
+    if (choice === "latest") return this.loadDraft(latest);
     const draftRevision = latest.draftRevision;
     runInAction(() => {
-      this.draftConflict = null;
+      this.draftConflict = false;
       this.editingDraftRevision = draftRevision;
     });
     await this.send();
@@ -704,11 +746,28 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
 
   canRetry = (messageId: string): boolean => this.pendingDeliveries.get(messageId)?.retryable !== false;
 
+  canEditRefused = (messageId: string): boolean => this.pendingDeliveries.get(messageId)?.refused === true;
+
+  editRefused = (messageId: string) => {
+    const kept = this.pendingDeliveries.get(messageId);
+    if (this.isLoading || !kept?.refused) return;
+    this.dismissRefusal();
+    this.fillFromMessage(kept.message);
+    this.attachments = [...kept.files];
+    this.editingDraftId = null;
+    this.editingDraftRevision = null;
+    this.draftConflict = false;
+    this.pendingDeliveries.delete(messageId);
+    this.clearPending(messageId);
+    this.rootStore.messagingThreadDetailStore.removeMessageById(messageId);
+  };
+
   send = async (): Promise<void> => {
-    if (this.isLoading) return;
+    if (this.isLoading || this.draftConflict) return;
     if (this.isNewThread) return this.sendNewThread();
     if (!this.form.threadId || (!this.form.body.trim() && this.attachments.length === 0)) return;
     if (!this.validateSend()) return;
+    this.dismissRefusal();
 
     const isEmail = this.isEmail;
     const threadId = this.form.threadId;
@@ -735,7 +794,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       this.draftAttachments = [];
       this.editingDraftId = null;
       this.editingDraftRevision = null;
-      this.draftConflict = null;
+      this.draftConflict = false;
       this.submissionVersion += 1;
       this.onInitOrRefresh(this.form);
     });
@@ -767,9 +826,12 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     const target = this.newThreadTarget;
     if (!target || !this.validateSend()) return;
     if (!this.form.body.trim() && this.attachments.length === 0) return;
+    this.dismissRefusal();
     const generation = this.composeGeneration;
     const onDone = this.onNewThreadDone;
     const onSent = this.onNewThreadSent;
+    const onRestore = this.onNewThreadRestore;
+    const source = { contextKey: this.sourceContextKey, actorId: this.sourceActorId };
     const editing =
       this.editingDraftId && this.editingDraftRevision
         ? { id: this.editingDraftId, revision: this.editingDraftRevision }
@@ -800,7 +862,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       this.draftAttachments = [];
       this.editingDraftId = null;
       this.editingDraftRevision = null;
-      this.draftConflict = null;
+      this.draftConflict = false;
       this.submissionVersion += 1;
       if (target.draftThreadId) this.newThreadTarget = { ...target, draftThreadId: undefined };
       this.onInitOrRefresh(this.form);
@@ -819,6 +881,8 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
               snapshot,
               files: snapshot.files,
               editing,
+              reopen: onRestore,
+              source,
             })
         : undefined,
       send: (attachments) =>
@@ -867,10 +931,12 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
 
   sendDraft = async (draft: MessagingMessageDto): Promise<void> => {
     if (!draft.draftRevision || this.pendingDeliveries.get(draft.id)?.status === "sending") return;
+    if (this.draftConflict && draft.id === this.editingDraftId) return;
     if (isEmailProvider(draft.provider) && !draft.subject?.trim()) {
       this.toastError("Common.errors.subjectRequired");
       return;
     }
+    this.dismissRefusal();
     const detail = this.rootStore.messagingThreadDetailStore;
     const newThread = detail.thread?.id === draft.messagingThreadId && isDraftThreadId(detail.thread.unipileThreadId);
     const generation = this.composeGeneration;
@@ -933,7 +999,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   };
 
   saveDraft = async (): Promise<void> => {
-    if (this.isLoading) return;
+    if (this.isLoading || this.draftConflict) return;
     if (!this.form.body.trim()) return;
     if (this.isLinkedin && this.isNewThread && this.form.linkedinProduct !== "classic") return;
     if (this.attachments.length > 0) {
@@ -991,6 +1057,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
         sameValues(this.form.cc, snapshot.cc) &&
         sameValues(this.form.bcc, snapshot.bcc);
       runInAction(() => {
+        this.draftConflict = false;
         if (!draftUnchanged) {
           detail.removeMessageById(draft.id);
           this.editingDraftId = draft.id;
@@ -1022,20 +1089,25 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     }
   };
 
+  private fillFromMessage = (message: MessagingMessageDto) => {
+    this.form.subject = message.subject ?? this.form.subject;
+    this.form.body = message.bodyText ?? "";
+    const recipients = message.recipients.to.map((attendee) => attendee.identifier).filter(Boolean);
+    if (this.isEmail || recipients.length > 0) this.form.recipients = recipients;
+    this.form.cc = message.recipients.cc.map((attendee) => attendee.identifier).filter(Boolean);
+    this.form.bcc = message.recipients.bcc.map((attendee) => attendee.identifier).filter(Boolean);
+    this.showCcBcc = this.isEmail && (this.form.cc.length > 0 || this.form.bcc.length > 0);
+  };
+
   loadDraft = (draft: MessagingMessageDto) => {
     if (this.isLoading || this.pendingDeliveries.get(draft.id)?.status === "sending") return;
+    this.dismissRefusal();
     runInAction(() => {
-      this.form.subject = draft.subject ?? this.form.subject;
-      this.form.body = draft.bodyText ?? "";
-      const recipients = draft.recipients.to.map((attendee) => attendee.identifier).filter(Boolean);
-      if (this.isEmail || recipients.length > 0) this.form.recipients = recipients;
-      this.form.cc = draft.recipients.cc.map((attendee) => attendee.identifier).filter(Boolean);
-      this.form.bcc = draft.recipients.bcc.map((attendee) => attendee.identifier).filter(Boolean);
+      this.fillFromMessage(draft);
       this.attachments = [...this.draftAttachments];
       this.editingDraftId = draft.id;
       this.editingDraftRevision = draft.draftRevision;
-      this.draftConflict = null;
-      this.showCcBcc = this.isEmail && (this.form.cc.length > 0 || this.form.bcc.length > 0);
+      this.draftConflict = false;
       this.rootStore.messagingThreadDetailStore.removeMessageById(draft.id);
     });
   };
