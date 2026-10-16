@@ -17,7 +17,7 @@ Ihre Rolle bestimmt, was Sie sehen. Eine Seite, die Ihre Rolle nicht lesen darf,
 |---|---|
 | Mitglieder, Rollen | **Benutzer & Rollen** mit Leserecht **Alle** (**Zugewiesen** zeigt Mitglieder nur mit Ihrer eigenen Zeile) |
 | Abrechnung | Jedes Mitglied; die Abrechnungs-Controls erfordern **Unternehmen** **Bearbeiten** |
-| Aktivität | **Audit-Log** mit Leserecht **Alle** |
+| Aktivität | **Aktivitätsprotokoll** mit Leserecht **Alle** |
 | Webhooks | **API & Webhooks** mit Leserecht **Alle** |
 
 Ändern sich in der Cloud die AGB oder der AVV, sehen Mitglieder **Rechtsdokumente aktualisiert** mit **AGB und AVV prüfen** und dem Datum, bis zu dem zugestimmt werden muss. Zustimmen kann nur ein Mitglied mit der Rolle **Admin**, indem es das Kontrollkästchen setzt und **Akzeptieren und fortfahren** klickt; alle anderen sehen, dass ein Unternehmensadministrator bis zu diesem Datum zustimmen muss. Stimmt niemand rechtzeitig zu, öffnet jede Seite diesen Bildschirm, bis ein Admin zustimmt.
@@ -67,7 +67,7 @@ Jede Zeile hat die Kontrollkästchen **Erstellen**, **Bearbeiten** und **Lösche
 | **Unternehmen** | Nur **Bearbeiten**: nutzt die Abrechnung unter [Abrechnung](app:settings/billing). |
 | **Datenmodell** | Nur **Bearbeiten**: konfiguriert Listen, Felder, Verknüpfungen und Berechnungen, ohne Datensatzzugriff oder Rollenverwaltung. |
 | **Wissensdatenbank** | **Erstellen**, **Bearbeiten** (und Verschieben), **Löschen** von Seiten; jedes davon erzwingt **Alle**. |
-| **Audit-Log** | Nur Lesen: [Aktivität](app:settings/activity) und der Änderungsverlauf an Datensätzen. |
+| **Aktivitätsprotokoll** | Nur Lesen: [Aktivität](app:settings/activity) und der Änderungsverlauf an Datensätzen. |
 | **Inbox-Nachrichten** (Cloud) | **Erstellen** verbindet Konten und sendet, entwirft und beginnt Unterhaltungen; **Bearbeiten** ändert Konten, Threads, Unterhaltungsstatus und Datensatzverknüpfungen; **Löschen** trennt Konten und verwirft Entwürfe. Zusätzlich durch den Plan begrenzt. |
 | **Routinen** (Cloud) | **Erstellen**, **Bearbeiten** (und jetzt ausführen oder testen), **Löschen**; eine Routine löschen oder die eines anderen pausieren erfordert zusätzlich die Rolle **Admin**. **Alle** oder **Zugewiesen** (eigene Routinen). |
 
@@ -173,7 +173,7 @@ Bei Starter zeigen der [Posteingang](app:inbox) und [Kanäle](app:settings/chann
 - **Verwaltung und System**: Mitglieder, Rollen, Webhooks, Routinen, verbundene Konten, Seiten der Wissensdatenbank, rechtliche Hinweise und Exporte. Webhook-Secrets und Header-Werte werden unkenntlich gemacht.
 - **Konfiguration**: Listen, Felder, Verknüpfungen und Datensatzzugriff je Rolle. Nur Rollen mit **Datenmodell** **Bearbeiten** oder **Benutzer & Rollen** **Bearbeiten** sehen diese Einträge.
 
-Lesen erfordert **Audit-Log** mit Leserecht **Alle**. Datensatzänderungen folgen Ihrem Datensatzzugriff, und Einträge der Wissensdatenbank erfordern Leserecht auf die Wissensdatenbank. Klicken Sie auf einen Eintrag für Details; persönliche Ansichten speichern Sie wie bei Listen. Einträge werden unbegrenzt aufbewahrt, Nachrichten erscheinen hier nie, und der Verlauf beginnt mit dem Upgrade auf konfigurierbare Datensätze. Verfügbar in jedem Tarif und selbst gehostet.
+Lesen erfordert **Aktivitätsprotokoll** mit Leserecht **Alle**. Datensatzänderungen folgen Ihrem Datensatzzugriff, und Einträge der Wissensdatenbank erfordern Leserecht auf die Wissensdatenbank. Klicken Sie auf einen Eintrag für Details; persönliche Ansichten speichern Sie wie bei Listen. Einträge werden unbegrenzt aufbewahrt, Nachrichten erscheinen hier nie, und der Verlauf beginnt mit dem Upgrade auf konfigurierbare Datensätze. Verfügbar in jedem Tarif und selbst gehostet.
 
 ## Webhooks [#webhooks-tab]
 
@@ -199,7 +199,7 @@ Es gibt keine Workspace-Währung: Jedes Geldfeld hat seine eigene. Öffnen Sie [
 
 ## Für Agents [#tips-for-agents]
 
-Nutzen Sie bevorzugt die [MCP](/docs/mcp)-Tools: `manage_team` lädt per E-Mail ein oder gibt den Einladungslink zurück (`invite_link`), beides mit Freigabe, und ändert Mitglieder (`update_member`, Mitglied per `userId` oder `email` nennen (beide müssen übereinstimmen); mit Freigabe, wenn sich Rolle oder Status ändern; bei **Wartet auf Genehmigung** eine `roleId` und den Status `active` übergeben), `list_users` liest Mitglieder, `manage_roles` liest und speichert Rollen mit der aktuellen Revision (Ressourcen `api`, `users`, `company`, `dataModel`, `wiki`, `auditLog`, `inboxMessages`, `routines`; Aktionen `create`, `update`, `delete`, `readAll`, `readOwn`), `manage_webhooks` verwaltet Webhooks und Zustellungen, `get_activities` mit leerem Scope liest das Aktivitätsprotokoll, und `get_record_model` und `configure_record_model` ändern Listen, Währungen und Berechnungen. Über REST verschickt `POST /api/v1/members/invite` Einladungen (1 bis 20 Adressen), `POST /api/v1/members/invite-link` gibt den Einladungslink mit Ablaufdatum zurück, und `POST /api/v1/members/update` ändert Rolle und Status eines anderen Mitglieds; nennen Sie das Mitglied per `userId` oder `email` und senden Sie die zu ändernden Felder; ausgelassene Felder behalten ihren Wert. `POST /api/v1/roles/list` listet die Rollen mit ihren Berechtigungen; ohne **Benutzer & Rollen** **Bearbeiten** liefert es nur Ihre eigene Rolle. Abrechnung und API-Keys bleiben bewusst in der App: Kein Tool liest oder ändert den Plan; verweisen Sie auf [Abrechnung](app:settings/billing).
+Nutzen Sie bevorzugt die [MCP](/docs/mcp)-Tools: `manage_team` lädt per E-Mail ein oder gibt den Einladungslink zurück (`invite_link`), beides mit Freigabe, und ändert Mitglieder (`update_member`, Mitglied per `userId` oder `email` nennen (beide müssen übereinstimmen); mit Freigabe, wenn sich Rolle oder Status ändern; bei **Wartet auf Genehmigung** eine `roleId` und den Status `active` übergeben), `list_users` liest Mitglieder, `manage_roles` liest und speichert Rollen mit der aktuellen Revision (Ressourcen `api`, `users`, `company`, `dataModel`, `wiki`, `activityLog`, `inboxMessages`, `routines`; Aktionen `create`, `update`, `delete`, `readAll`, `readOwn`), `manage_webhooks` verwaltet Webhooks und Zustellungen, `get_activities` mit leerem Scope liest das Aktivitätsprotokoll, und `get_record_model` und `configure_record_model` ändern Listen, Währungen und Berechnungen. Über REST verschickt `POST /api/v1/members/invite` Einladungen (1 bis 20 Adressen), `POST /api/v1/members/invite-link` gibt den Einladungslink mit Ablaufdatum zurück, und `POST /api/v1/members/update` ändert Rolle und Status eines anderen Mitglieds; nennen Sie das Mitglied per `userId` oder `email` und senden Sie die zu ändernden Felder; ausgelassene Felder behalten ihren Wert. `POST /api/v1/roles/list` listet die Rollen mit ihren Berechtigungen; ohne **Benutzer & Rollen** **Bearbeiten** liefert es nur Ihre eigene Rolle. Abrechnung und API-Keys bleiben bewusst in der App: Kein Tool liest oder ändert den Plan; verweisen Sie auf [Abrechnung](app:settings/billing).
 
 ## Verwandt [#related]
 

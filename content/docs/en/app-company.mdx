@@ -17,7 +17,7 @@ Your role decides what you see. A page your role cannot read is missing from the
 |---|---|
 | Members, Roles | **Users & Roles** read access **All** (**Assigned** shows Members with only your own row) |
 | Billing | Every member; billing controls need **Company** **Edit** |
-| Activity | **Audit Log** read access **All** |
+| Activity | **Activity log** read access **All** |
 | Webhooks | **API & Webhooks** read access **All** |
 
 On Cloud, when the Terms or the DPA change, members see **Legal documents updated** with **Review Terms and DPA** and the date by which to accept. Only a member with the **Admin** role can accept, by ticking the checkbox and clicking **Accept and continue**; everyone else sees "A company administrator must accept by" that date. If nobody accepts in time, every page opens this screen until an Admin accepts.
@@ -67,7 +67,7 @@ Every row has **Create**, **Edit** and **Delete** checkboxes (under **Manage** o
 | **Company** | **Edit** only: uses billing on [Billing](app:settings/billing). |
 | **Data model** | **Edit** only: configures lists, fields, relationships and calculations, without record access or role administration. |
 | **Knowledge Base** | **Create**, **Edit** (and move), **Delete** pages; ticking any of them forces **All**. |
-| **Audit Log** | Read only: [Activity](app:settings/activity) and the change history on records. |
+| **Activity log** | Read only: [Activity](app:settings/activity) and the change history on records. |
 | **Inbox messages** (Cloud) | **Create** connects accounts and sends, drafts and starts conversations; **Edit** changes accounts, threads, conversation state and record links; **Delete** disconnects accounts and discards drafts. Also limited by the plan. |
 | **Routines** (Cloud) | **Create**, **Edit** (and run or test now), **Delete**; deleting a routine or pausing someone else's also needs the **Admin** role. **All** or **Assigned** (own routines). |
 
@@ -173,7 +173,7 @@ On Starter, the [Inbox](app:inbox) and [Channels](app:settings/channels) show **
 - **Admin and system**: members, roles, webhooks, routines, connected accounts, Knowledge Base pages, legal notices and exports. Webhook secrets and header values are redacted.
 - **Configuration**: lists, fields, relationships and record access by role. Only roles with **Data model** **Edit** or **Users & Roles** **Edit** see these entries.
 
-Reading it needs **Audit Log** read access **All**. Record changes follow your record access, and Knowledge Base entries need Knowledge Base read access. Click an entry for details; save personal views as on lists. Entries are kept indefinitely, messages never appear here, and history starts at the upgrade to configurable records. Available on every plan and self-hosted.
+Reading it needs **Activity log** read access **All**. Record changes follow your record access, and Knowledge Base entries need Knowledge Base read access. Click an entry for details; save personal views as on lists. Entries are kept indefinitely, messages never appear here, and history starts at the upgrade to configurable records. Available on every plan and self-hosted.
 
 ## Webhooks [#webhooks-tab]
 
@@ -199,7 +199,7 @@ Open the list in [Configure](app:configure/deal), change **Name** and **Plural n
 
 ## For agents [#tips-for-agents]
 
-Prefer [MCP](/docs/mcp) tools: `manage_team` invites by email or returns the invitation link (`invite_link`), both with approval, and updates members (`update_member`, identify by `userId` or `email` (both must match if supplied); with approval when it changes the role or status; for **Waiting for approval** pass a `roleId` and status `active`), `list_users` reads members, `manage_roles` reads and saves roles with the current revision (resources `api`, `users`, `company`, `dataModel`, `wiki`, `auditLog`, `inboxMessages`, `routines`; actions `create`, `update`, `delete`, `readAll`, `readOwn`), `manage_webhooks` manages webhooks and deliveries, `get_activities` with an empty scope reads the activity log, and `get_record_model` and `configure_record_model` change lists, currencies and calculations. Over REST, `POST /api/v1/members/invite` sends invitations (1 to 20 addresses), `POST /api/v1/members/invite-link` returns the invitation link and its expiry, and `POST /api/v1/members/update` changes another member's role and status; name the member by `userId` or `email` and send the fields to change; omitted fields keep their values. `POST /api/v1/roles/list` lists the roles with their permissions; without **Users & Roles** **Edit** it returns only your own role. Billing and API keys stay in the app by design: no tool reads or changes the plan; send the user to [Billing](app:settings/billing).
+Prefer [MCP](/docs/mcp) tools: `manage_team` invites by email or returns the invitation link (`invite_link`), both with approval, and updates members (`update_member`, identify by `userId` or `email` (both must match if supplied); with approval when it changes the role or status; for **Waiting for approval** pass a `roleId` and status `active`), `list_users` reads members, `manage_roles` reads and saves roles with the current revision (resources `api`, `users`, `company`, `dataModel`, `wiki`, `activityLog`, `inboxMessages`, `routines`; actions `create`, `update`, `delete`, `readAll`, `readOwn`), `manage_webhooks` manages webhooks and deliveries, `get_activities` with an empty scope reads the activity log, and `get_record_model` and `configure_record_model` change lists, currencies and calculations. Over REST, `POST /api/v1/members/invite` sends invitations (1 to 20 addresses), `POST /api/v1/members/invite-link` returns the invitation link and its expiry, and `POST /api/v1/members/update` changes another member's role and status; name the member by `userId` or `email` and send the fields to change; omitted fields keep their values. `POST /api/v1/roles/list` lists the roles with their permissions; without **Users & Roles** **Edit** it returns only your own role. Billing and API keys stay in the app by design: no tool reads or changes the plan; send the user to [Billing](app:settings/billing).
 
 ## Related [#related]
 

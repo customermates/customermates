@@ -269,7 +269,7 @@ export const TimelineDetailModal = observer(() => {
       : entry.kind === "calendar_event"
         ? calendarEventTitle(entry.event.title, t("ContactHistory.calendarNoTitle"))
         : entry.kind === "audit" || entry.kind === "configuration" || entry.kind === "record"
-          ? t("AuditLogModal.eventAt", {
+          ? t("ActivityDetail.eventAt", {
               event: eventLabel(t, entry.event),
               date: intlStore.formatNumericalShortDateTime(entry.at),
             })

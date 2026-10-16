@@ -36,6 +36,41 @@
     "privacyLink": "Datenschutzdetails",
     "title": "Hilf uns zu verstehen, was funktioniert"
   },
+  "ActivityDetail": {
+    "eventAt": "{event} am {date}",
+    "fields": {
+      "acceptanceType": "Art der Zustimmung",
+      "acceptingEmail": "Zugestimmt von",
+      "changedDocuments": "Geänderte Dokumente",
+      "country": "Land",
+      "createType": "Neuer Typ",
+      "cronExpression": "Zeitplan",
+      "debounceSeconds": "Verzögerung",
+      "delete": "In den Papierkorb verschoben",
+      "deletePermanently": "Endgültig gelöscht",
+      "disabledReason": "Deaktivierungsgrund",
+      "effectiveAt": "Gültig ab",
+      "isNewCompany": "Erste Person im Workspace",
+      "markdown": "Markdown",
+      "prompt": "Anweisungen",
+      "publishSummary": "Veröffentlichte Zusammenfassung",
+      "putAccessPreset": "Zugriffsvorlage",
+      "putCapability": "Funktion",
+      "putField": "Feld",
+      "putRelationship": "Beziehung",
+      "putType": "Typ",
+      "recipientEmail": "Gesendet an",
+      "removalReason": "Entfernungsgrund",
+      "restore": "Wiederhergestellt",
+      "timezone": "Zeitzone",
+      "triggerEvents": "Auslöser-Ereignisse",
+      "triggerFilters": "Auslöser-Filter",
+      "triggerKind": "Auslöser",
+      "versions": "Dokumentversionen",
+      "visibility": "Sichtbarkeit"
+    },
+    "unchangedLines": "{count, plural, one {# unveränderte Zeile} other {# unveränderte Zeilen}}"
+  },
   "AgentChat": {
     "activity": {
       "approval": {
@@ -769,41 +804,6 @@
   },
   "ApiKeysCard": {
     "unnamed": "Unbenannt"
-  },
-  "AuditLogModal": {
-    "eventAt": "{event} am {date}",
-    "fields": {
-      "acceptanceType": "Art der Zustimmung",
-      "acceptingEmail": "Zugestimmt von",
-      "changedDocuments": "Geänderte Dokumente",
-      "country": "Land",
-      "createType": "Neuer Typ",
-      "cronExpression": "Zeitplan",
-      "debounceSeconds": "Verzögerung",
-      "delete": "In den Papierkorb verschoben",
-      "deletePermanently": "Endgültig gelöscht",
-      "disabledReason": "Deaktivierungsgrund",
-      "effectiveAt": "Gültig ab",
-      "isNewCompany": "Erste Person im Workspace",
-      "markdown": "Markdown",
-      "prompt": "Anweisungen",
-      "publishSummary": "Veröffentlichte Zusammenfassung",
-      "putAccessPreset": "Zugriffsvorlage",
-      "putCapability": "Funktion",
-      "putField": "Feld",
-      "putRelationship": "Beziehung",
-      "putType": "Typ",
-      "recipientEmail": "Gesendet an",
-      "removalReason": "Entfernungsgrund",
-      "restore": "Wiederhergestellt",
-      "timezone": "Zeitzone",
-      "triggerEvents": "Auslöser-Ereignisse",
-      "triggerFilters": "Auslöser-Filter",
-      "triggerKind": "Auslöser",
-      "versions": "Dokumentversionen",
-      "visibility": "Sichtbarkeit"
-    },
-    "unchangedLines": "{count, plural, one {# unveränderte Zeile} other {# unveränderte Zeilen}}"
   },
   "AuthSocialErrors": {
     "accessDenied": "Die Anmeldung wurde beim Anbieter abgebrochen.",
@@ -3921,8 +3921,8 @@
     "recordTypesHint": "Neue Typen sind zunächst nicht zugänglich. Eingebettete Einträge übernehmen den Zugriff ihres übergeordneten Datensatzes.",
     "resourceHeader": "Ressource",
     "resources": {
+      "activityLog": "Aktivitätsprotokoll",
       "api": "API & Webhooks",
-      "auditLog": "Audit-Log",
       "company": "Unternehmen",
       "dataModel": "Datenmodell",
       "inboxMessages": "Inbox-Nachrichten",

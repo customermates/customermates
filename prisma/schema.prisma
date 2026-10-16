@@ -689,7 +689,7 @@ enum Resource {
   users
   company
   api
-  auditLog
+  activityLog
   inboxMessages
   wiki
   routines

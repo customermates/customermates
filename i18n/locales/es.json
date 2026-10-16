@@ -36,6 +36,41 @@
     "privacyLink": "Detalles de privacidad",
     "title": "Ayúdanos a saber qué funciona"
   },
+  "ActivityDetail": {
+    "eventAt": "{event} el {date}",
+    "fields": {
+      "acceptanceType": "Tipo de aceptación",
+      "acceptingEmail": "Aceptado por",
+      "changedDocuments": "Documentos modificados",
+      "country": "País",
+      "createType": "Nuevo tipo",
+      "cronExpression": "Programación",
+      "debounceSeconds": "Retardo",
+      "delete": "Movido a la papelera",
+      "deletePermanently": "Eliminado definitivamente",
+      "disabledReason": "Motivo de desactivación",
+      "effectiveAt": "Vigente desde",
+      "isNewCompany": "Primera persona del espacio",
+      "markdown": "Markdown",
+      "prompt": "Instrucciones",
+      "publishSummary": "Resumen publicado",
+      "putAccessPreset": "Plantilla de acceso",
+      "putCapability": "Funcionalidad",
+      "putField": "Campo",
+      "putRelationship": "Relación",
+      "putType": "Tipo",
+      "recipientEmail": "Enviado a",
+      "removalReason": "Motivo de eliminación",
+      "restore": "Restaurado",
+      "timezone": "Zona horaria",
+      "triggerEvents": "Eventos del disparador",
+      "triggerFilters": "Filtros del disparador",
+      "triggerKind": "Disparador",
+      "versions": "Versiones de documentos",
+      "visibility": "Visibilidad"
+    },
+    "unchangedLines": "{count, plural, one {# línea sin cambios} other {# líneas sin cambios}}"
+  },
   "AgentChat": {
     "activity": {
       "approval": {
@@ -769,41 +804,6 @@
   },
   "ApiKeysCard": {
     "unnamed": "Sin nombre"
-  },
-  "AuditLogModal": {
-    "eventAt": "{event} el {date}",
-    "fields": {
-      "acceptanceType": "Tipo de aceptación",
-      "acceptingEmail": "Aceptado por",
-      "changedDocuments": "Documentos modificados",
-      "country": "País",
-      "createType": "Nuevo tipo",
-      "cronExpression": "Programación",
-      "debounceSeconds": "Retardo",
-      "delete": "Movido a la papelera",
-      "deletePermanently": "Eliminado definitivamente",
-      "disabledReason": "Motivo de desactivación",
-      "effectiveAt": "Vigente desde",
-      "isNewCompany": "Primera persona del espacio",
-      "markdown": "Markdown",
-      "prompt": "Instrucciones",
-      "publishSummary": "Resumen publicado",
-      "putAccessPreset": "Plantilla de acceso",
-      "putCapability": "Funcionalidad",
-      "putField": "Campo",
-      "putRelationship": "Relación",
-      "putType": "Tipo",
-      "recipientEmail": "Enviado a",
-      "removalReason": "Motivo de eliminación",
-      "restore": "Restaurado",
-      "timezone": "Zona horaria",
-      "triggerEvents": "Eventos del disparador",
-      "triggerFilters": "Filtros del disparador",
-      "triggerKind": "Disparador",
-      "versions": "Versiones de documentos",
-      "visibility": "Visibilidad"
-    },
-    "unchangedLines": "{count, plural, one {# línea sin cambios} other {# líneas sin cambios}}"
   },
   "AuthSocialErrors": {
     "accessDenied": "El inicio de sesión se canceló en el proveedor.",
@@ -3921,8 +3921,8 @@
     "recordTypesHint": "Los tipos nuevos empiezan sin acceso. Los elementos integrados heredan el acceso de su registro principal.",
     "resourceHeader": "Recurso",
     "resources": {
+      "activityLog": "Registro de actividad",
       "api": "API y webhooks",
-      "auditLog": "Registro de auditoría",
       "company": "Empresa",
       "dataModel": "Modelo de datos",
       "inboxMessages": "Mensajes de la bandeja de entrada",

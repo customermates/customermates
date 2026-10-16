@@ -12,7 +12,7 @@ import type { ServiceSeedData } from "./services";
 import type { TaskSeedData } from "./tasks";
 
 import { seedAgentConversations } from "./agent-chat";
-import { seedSyntheticAuditLogs } from "./audit-logs";
+import { seedSyntheticAuditEvents } from "./audit-events";
 import { seedContacts } from "./contacts";
 import { seedCustomFields } from "./custom-fields";
 import { seedDataViews } from "./data-views";
@@ -81,7 +81,7 @@ export async function runSyntheticSeed(
   await seedRecordHistory(context, entities);
   await seedWebhooks(context);
   await seedTrash(context);
-  await seedSyntheticAuditLogs(context);
+  await seedSyntheticAuditEvents(context);
   await seedWikiPages(context);
   await seedAgentConversations(context);
   await seedRoutines(context);

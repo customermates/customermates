@@ -377,7 +377,6 @@ import { AcceptLegalDocumentsInteractor } from "@/features/legal/accept-legal-do
 import { GetLegalStatusInteractor } from "@/features/legal/get-legal-status.interactor";
 // Webhook delivery interactor (workflow task consumer)
 import { DeliverWebhookInteractor } from "@/features/webhook/deliver-webhook.interactor";
-// Audit log interactors
 import { AgentUsageService } from "@/ee/agent-chat/agent-usage.service";
 import { ArchiveAgentConversationInteractor } from "@/ee/agent-chat/archive-agent-conversation.interactor";
 import { ReconcileRetrievalReservationsInteractor } from "@/ee/agent-chat/reconcile-retrieval-reservations.interactor";
@@ -1631,8 +1630,6 @@ export const getGetBillingPortalUrlInteractor = () =>
 
 export const getRefreshSubscriptionInteractor = () =>
   new RefreshSubscriptionInteractor(getCompanyRepo(), getSubscriptionService(), getDeleteAccountsForPlanInteractor());
-
-// --- Audit log ---
 
 // --- EE Lifecycle (workflow cron) ---
 

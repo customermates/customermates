@@ -87,7 +87,7 @@ Ein **Standard-API-Key** läuft nur ab, wenn Sie unter **Läuft ab** ein Datum w
 
 Klicken Sie unter [API-Schlüssel](app:settings/api-keys) auf die Karte des Keys und wählen Sie **Löschen**; nach der Bestätigung ist er sofort ungültig. Zum Löschen brauchen Sie **Löschen** auf **API & Webhooks**. Eine eigene Rotate- oder Revoke-Aktion fehlt: Zum Rotieren legen Sie einen neuen Key an, stellen jeden Client darauf um und löschen den alten.
 
-Rotieren Sie, wenn ein Gerät mit dem Key verloren oder kompromittiert ist, ein Teammitglied mit Zugriff geht oder Sie einen Leak vermuten. Mit einem Key pro Client löschen Sie einen Client, ohne die anderen zu brechen; im Audit-Log steht aber der Nutzer, nicht der Key. Speichern Sie Keys in einer Umgebungsvariable oder einem Passwort-Manager, nie in einer committeten Datei.
+Rotieren Sie, wenn ein Gerät mit dem Key verloren oder kompromittiert ist, ein Teammitglied mit Zugriff geht oder Sie einen Leak vermuten. Mit einem Key pro Client löschen Sie einen Client, ohne die anderen zu brechen; im Aktivitätsprotokoll steht aber der Nutzer, nicht der Key. Speichern Sie Keys in einer Umgebungsvariable oder einem Passwort-Manager, nie in einer committeten Datei.
 
 Nur der Besitzer kann einen Key löschen. Um die Keys eines ausscheidenden Mitglieds zu stoppen, setzen Sie unter [Mitglieder](app:settings/members) seinen **Status** auf **Inaktiv** und klicken auf **Speichern**. Dafür brauchen Sie **Bearbeiten** und Leserecht **Alle** auf **Benutzer & Rollen**. Danach wird jeder Aufruf mit seinen Keys abgelehnt, der Daten liest oder ändert. Auch der Entzug von **Lesen** **Alle** auf **API & Webhooks** stoppt seine Keys für MCP und REST, siehe [Welche Berechtigungen hat ein Key](#what-permissions-does-a-key-have).
 

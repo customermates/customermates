@@ -1420,7 +1420,7 @@
                                     "users",
                                     "company",
                                     "api",
-                                    "auditLog",
+                                    "activityLog",
                                     "inboxMessages",
                                     "wiki",
                                     "routines"
@@ -1789,7 +1789,7 @@
                                       "users",
                                       "company",
                                       "api",
-                                      "auditLog",
+                                      "activityLog",
                                       "inboxMessages",
                                       "wiki",
                                       "routines"
@@ -2027,7 +2027,7 @@
                             "users",
                             "company",
                             "api",
-                            "auditLog",
+                            "activityLog",
                             "inboxMessages",
                             "wiki",
                             "routines"
@@ -2054,7 +2054,7 @@
                       ],
                       "additionalProperties": false
                     },
-                    "description": "Only listed resources change; each listed resource's actions replace its current actions and an empty actions array removes its access. Applicable actions per resource: api, users, wiki, inboxMessages and routines take create, update and delete; company and dataModel take update only; auditLog takes none. Read: readAll for every resource except company and dataModel, plus readOwn for users and routines. Any wiki manage action also grants readAll. Company and dataModel always keep their read rows, which make Settings and Subscription visible; readAll and readOwn returned by a read are accepted there and change nothing."
+                    "description": "Only listed resources change; each listed resource's actions replace its current actions and an empty actions array removes its access. Applicable actions per resource: api, users, wiki, inboxMessages and routines take create, update and delete; company and dataModel take update only; activityLog takes none. Read: readAll for every resource except company and dataModel, plus readOwn for users and routines. Any wiki manage action also grants readAll. Company and dataModel always keep their read rows, which make Settings and Subscription visible; readAll and readOwn returned by a read are accepted there and change nothing."
                   },
                   "recordGrants": {
                     "maxItems": 1000,
@@ -2171,7 +2171,7 @@
                                   "users",
                                   "company",
                                   "api",
-                                  "auditLog",
+                                  "activityLog",
                                   "inboxMessages",
                                   "wiki",
                                   "routines"
@@ -3252,7 +3252,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Reads change nothing and return only what the caller may read.\n\nRequires: read access to the record's list; change history also requires read access to the audit log.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Reads change nothing and return only what the caller may read.\n\nRequires: read access to the record's list; change history also requires read all on activityLog.",
         "requestBody": {
           "required": true,
           "content": {
@@ -52932,7 +52932,7 @@
       "post": {
         "operationId": "listDataViewSurfaces",
         "summary": "List the pages that support saved views",
-        "description": "Returns every surface the caller may manage views on, with its label and app path. Surfaces are the record lists (`records:<typeId>`), the Members, Roles, Webhooks, Webhook deliveries, Inbox, Activity and Routines lists, record activity timelines and the dashboard (`dashboard`); operator-console surfaces are not available. Timeline views accept only filters and sortDescriptor. Send an empty object.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on auditLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
+        "description": "Returns every surface the caller may manage views on, with its label and app path. Surfaces are the record lists (`records:<typeId>`), the Members, Roles, Webhooks, Webhook deliveries, Inbox, Activity and Routines lists, record activity timelines and the dashboard (`dashboard`); operator-console surfaces are not available. Timeline views accept only filters and sortDescriptor. Send an empty object.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on activityLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
         "tags": [
           "data-views"
         ],
@@ -54439,7 +54439,7 @@
       "post": {
         "operationId": "readDataViewConfiguration",
         "summary": "Read what a surface's views can filter, sort, group and show",
-        "description": "Returns one section of a surface's view capabilities. overview (the default) reports totals, whether search is supported, the view modes and the writable state keys. filters lists filterable fields with their operators and valid values (select filters use stable option IDs), sorting the sortable fields, grouping the groupable fields, and appearance the columns available for columnOrder, columnWidths and hiddenColumns. Sections are paged with page and pageSize (1 to 25, default 10) and can be narrowed with query.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on auditLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
+        "description": "Returns one section of a surface's view capabilities. overview (the default) reports totals, whether search is supported, the view modes and the writable state keys. filters lists filterable fields with their operators and valid values (select filters use stable option IDs), sorting the sortable fields, grouping the groupable fields, and appearance the columns available for columnOrder, columnWidths and hiddenColumns. Sections are paged with page and pageSize (1 to 25, default 10) and can be narrowed with query.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on activityLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
         "tags": [
           "data-views"
         ],
@@ -56002,7 +56002,7 @@
       "post": {
         "operationId": "listDataViews",
         "summary": "List saved views of a surface",
-        "description": "Returns the caller's saved views of one surface as paged summaries (id, name, position) with the active view key. The All view (`__all__`) is the surface's own personalization and is not listed; read it with viewKey `__all__`. Narrow with query by view id or name.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on auditLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
+        "description": "Returns the caller's saved views of one surface as paged summaries (id, name, position) with the active view key. The All view (`__all__`) is the surface's own personalization and is not listed; read it with viewKey `__all__`. Narrow with query by view id or name.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on activityLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
         "tags": [
           "data-views"
         ],
@@ -57554,7 +57554,7 @@
       "post": {
         "operationId": "readDataView",
         "summary": "Read one saved view's state",
-        "description": "Returns one view with its complete state: filters, search term, sort, page size, view mode (table or card), grouping with its group summaries, column order, column widths and hidden columns. viewKey `__all__` reads the All view. Read immediately before an update.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on auditLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
+        "description": "Returns one view with its complete state: filters, search term, sort, page size, view mode (table or card), grouping with its group summaries, column order, column widths and hidden columns. viewKey `__all__` reads the All view. Read immediately before an update.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on activityLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
         "tags": [
           "data-views"
         ],
@@ -59104,7 +59104,7 @@
       "post": {
         "operationId": "createDataView",
         "summary": "Create a saved view",
-        "description": "Creates a named view with its initial state and selects it. The state is validated against the surface's configuration: fields, operators, sort and grouping keys and columns must come from /v1/data-views/config. Dashboard views hold no list state; create them with an empty state and place widgets on them with viewId.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on auditLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
+        "description": "Creates a named view with its initial state and selects it. The state is validated against the surface's configuration: fields, operators, sort and grouping keys and columns must come from /v1/data-views/config. Dashboard views hold no list state; create them with an empty state and place widgets on them with viewId.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on activityLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
         "tags": [
           "data-views"
         ],
@@ -61035,7 +61035,7 @@
       "post": {
         "operationId": "updateDataView",
         "summary": "Update a saved view",
-        "description": "Patches a view: send only the keys to change. Omitted state keys keep their value, arrays replace the previous value, an empty filters array clears filters, an empty searchTerm clears search, and null clears sortDescriptor or grouping. name renames a named view; the All view cannot be renamed. A request that changes nothing returns the current view unchanged.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on auditLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
+        "description": "Patches a view: send only the keys to change. Omitted state keys keep their value, arrays replace the previous value, an empty filters array clears filters, an empty searchTerm clears search, and null clears sortDescriptor or grouping. name renames a named view; the All view cannot be renamed. A request that changes nothing returns the current view unchanged.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on activityLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
         "tags": [
           "data-views"
         ],
@@ -62976,7 +62976,7 @@
       "post": {
         "operationId": "selectDataView",
         "summary": "Select a saved view",
-        "description": "Remembers the view as the caller's active view of the surface, as choosing it in the app does.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on auditLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
+        "description": "Remembers the view as the caller's active view of the surface, as choosing it in the app does.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on activityLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
         "tags": [
           "data-views"
         ],
@@ -64526,7 +64526,7 @@
       "post": {
         "operationId": "resetDataView",
         "summary": "Reset saved view settings",
-        "description": "Removes the caller's overrides for the given state keys so the list falls back to every field in its configured order, ungrouped and unsorted. Only `records:<typeId>` surfaces support reset.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on auditLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
+        "description": "Removes the caller's overrides for the given state keys so the list falls back to every field in its configured order, ungrouped and unsorted. Only `records:<typeId>` surfaces support reset.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on activityLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
         "tags": [
           "data-views"
         ],
@@ -66082,7 +66082,7 @@
       "post": {
         "operationId": "deleteDataView",
         "summary": "Delete a saved view",
-        "description": "Moves a named view to Trash; when it was the active view, the surface falls back to All. Deleting a dashboard view moves its widgets to Trash with it, and restoring the view brings them back. The view is deleted permanently after 30 days unless /v1/trash/restore restores it with the returned trashBatchId. Records are never deleted, and the All view cannot be deleted.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on auditLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
+        "description": "Moves a named view to Trash; when it was the active view, the surface falls back to All. Deleting a dashboard view moves its widgets to Trash with it, and restoring the view brings them back. The view is deleted permanently after 30 days unless /v1/trash/restore restores it with the returned trashBatchId. Records are never deleted, and the All view cannot be deleted.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on activityLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
         "tags": [
           "data-views"
         ],

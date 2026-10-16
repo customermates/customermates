@@ -401,7 +401,7 @@ export const recordApiPaths = {
       RecordActivitiesResultSchema,
       {
         read: true,
-        requires: "read access to the record's list; change history also requires read access to the audit log.",
+        requires: "read access to the record's list; change history also requires read all on activityLog.",
       },
     ),
   },

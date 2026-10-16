@@ -7,12 +7,12 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { subjectKindOf } from "@/features/event/event-envelope";
 
 import {
-  buildSyntheticAuditLogFixtures,
-  persistSyntheticAuditLogFixtures,
-  SYNTHETIC_AUDIT_LOG_ID_PREFIX,
+  buildSyntheticAuditEventFixtures,
+  persistSyntheticAuditEventFixtures,
+  SYNTHETIC_AUDIT_EVENT_ID_PREFIX,
   type SyntheticAuditFixture,
   type SyntheticAuditSnapshot,
-} from "../seeds/audit-logs";
+} from "../seeds/audit-events";
 import { SEED_IDS } from "../seeds/context";
 import { fixtureId } from "../seeds/helpers";
 import { SYNTHETIC_CUSTOM_ROLES } from "../seeds/roles";
@@ -95,7 +95,7 @@ function syntheticSnapshot(): SyntheticAuditSnapshot {
 }
 
 function buildFixtures(snapshot = syntheticSnapshot()): SyntheticAuditFixture[] {
-  return buildSyntheticAuditLogFixtures({
+  return buildSyntheticAuditEventFixtures({
     companyId: SEED_IDS.company,
     primaryUserId: SEED_IDS.user,
     snapshot,
@@ -120,7 +120,7 @@ function fixtureForEntity(
   return fixture;
 }
 
-describe("synthetic audit-log fixtures", () => {
+describe("synthetic audit event fixtures", () => {
   it("contains only system events EventService would persist and keeps the database actor honest", () => {
     const snapshot = syntheticSnapshot();
     const fixtures = buildFixtures(snapshot);
@@ -134,12 +134,12 @@ describe("synthetic audit-log fixtures", () => {
       webhookCreated: 2,
       webhookUpdated: 1,
     };
-    const expectedAuditLogCount = Object.values(expectedCountsByEvent).reduce((total, count) => total + count, 0);
+    const expectedAuditEventCount = Object.values(expectedCountsByEvent).reduce((total, count) => total + count, 0);
 
-    expect(expectedAuditLogCount).toBe(24);
-    expect(fixtures).toHaveLength(expectedAuditLogCount);
+    expect(expectedAuditEventCount).toBe(24);
+    expect(fixtures).toHaveLength(expectedAuditEventCount);
     expect(new Set(fixtures.map(({ id }) => id))).toHaveLength(fixtures.length);
-    expect(fixtures.every(({ id }) => id.startsWith(`${SYNTHETIC_AUDIT_LOG_ID_PREFIX}-`))).toBe(true);
+    expect(fixtures.every(({ id }) => id.startsWith(`${SYNTHETIC_AUDIT_EVENT_ID_PREFIX}-`))).toBe(true);
     expect(fixtures.some(({ kind }) => kind.startsWith("messaging."))).toBe(false);
     expect(buildFixtures(snapshot)).toEqual(fixtures);
     expect(Math.max(...fixtures.map(({ createdAt }) => createdAt.getTime()))).toBeLessThan(messagingSyncAt.getTime());
@@ -212,8 +212,8 @@ describe("synthetic audit-log fixtures", () => {
     const rows = new Map<string, SyntheticAuditFixture | { id: string; companyId: string }>([
       ["unrelated-audit-row", { id: "unrelated-audit-row", companyId: SEED_IDS.company }],
       [
-        fixtureId(SYNTHETIC_AUDIT_LOG_ID_PREFIX, 999),
-        { id: fixtureId(SYNTHETIC_AUDIT_LOG_ID_PREFIX, 999), companyId: SEED_IDS.company },
+        fixtureId(SYNTHETIC_AUDIT_EVENT_ID_PREFIX, 999),
+        { id: fixtureId(SYNTHETIC_AUDIT_EVENT_ID_PREFIX, 999), companyId: SEED_IDS.company },
       ],
     ]);
     const prisma = {
@@ -236,14 +236,14 @@ describe("synthetic audit-log fixtures", () => {
       },
     } as unknown as Pick<PrismaClient, "eventLog">;
 
-    await persistSyntheticAuditLogFixtures(prisma, SEED_IDS.company, fixtures);
-    await persistSyntheticAuditLogFixtures(prisma, SEED_IDS.company, fixtures);
+    await persistSyntheticAuditEventFixtures(prisma, SEED_IDS.company, fixtures);
+    await persistSyntheticAuditEventFixtures(prisma, SEED_IDS.company, fixtures);
 
     expect(rows).toHaveLength(fixtures.length + 1);
     expect(rows.has("unrelated-audit-row")).toBe(true);
-    expect(rows.has(fixtureId(SYNTHETIC_AUDIT_LOG_ID_PREFIX, 999))).toBe(false);
+    expect(rows.has(fixtureId(SYNTHETIC_AUDIT_EVENT_ID_PREFIX, 999))).toBe(false);
 
-    await persistSyntheticAuditLogFixtures(prisma, SEED_IDS.company, fixtures.slice(0, -1));
+    await persistSyntheticAuditEventFixtures(prisma, SEED_IDS.company, fixtures.slice(0, -1));
     expect(rows).toHaveLength(fixtures.length);
     expect(rows.has(fixtures.at(-1)?.id ?? "")).toBe(false);
     expect(rows.has("unrelated-audit-row")).toBe(true);

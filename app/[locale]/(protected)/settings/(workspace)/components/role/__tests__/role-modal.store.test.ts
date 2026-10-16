@@ -370,13 +370,13 @@ describe("RoleModalStore unified system permissions", () => {
     store.onChange("name", "Support");
     store.onChange("description", "Support desk");
     store.onChange("permissions.company.update", true);
-    store.onChange("permissions.auditLog.readAccess", "all");
+    store.onChange("permissions.activityLog.readAccess", "all");
     companyActions.upsertRoleAction.mockResolvedValue({ ok: true, data: { role: makeRole(), schemaRevision: 2 } });
     await store.onSubmit();
 
     const permissions = companyActions.upsertRoleAction.mock.calls[0]?.[0].permissions;
     expect(permissions).toContainEqual({ resource: "company", actions: ["update"] });
-    expect(permissions).toContainEqual({ resource: "auditLog", actions: ["readAll"] });
+    expect(permissions).toContainEqual({ resource: "activityLog", actions: ["readAll"] });
     expect(permissions).toContainEqual({ resource: "users", actions: ["readOwn"] });
     expect(permissions).toHaveLength(8);
   });
