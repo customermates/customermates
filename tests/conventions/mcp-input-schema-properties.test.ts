@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { normalizeObjectSchema } from "@modelcontextprotocol/sdk/server/zod-compat.js";
 import { toJsonSchemaCompat } from "@modelcontextprotocol/sdk/server/zod-json-schema-compat.js";
 
-import { ALL_MCP_TOOLS } from "@/features/mcp-tools/tool-registry";
+import { ALL_MCP_TOOLS, MCP_OPERATOR_TOOLS } from "@/features/mcp-tools/tool-registry";
 
 const NO_INPUT_TOOLS = new Set<string>();
 
@@ -20,7 +20,7 @@ function advertisedInputSchema(schema: z.ZodType) {
 }
 
 describe("MCP tool input schemas", () => {
-  it.each(ALL_MCP_TOOLS.map((tool) => [tool.name, tool] as const))(
+  it.each([...ALL_MCP_TOOLS, ...MCP_OPERATOR_TOOLS].map((tool) => [tool.name, tool] as const))(
     "%s advertises its inputs to schema-driven clients",
     (name, tool) => {
       const properties = Object.keys(

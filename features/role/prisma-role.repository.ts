@@ -21,6 +21,7 @@ import {
 } from "@/features/role/resource-access";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
+import { BillingUsageLedger } from "@/features/billing-usage/billing-usage-ledger";
 
 function roleDto<T extends { recordTypeGrants: Array<{ typeId: string; actions: Action[] }> }>(role: T) {
   const { recordTypeGrants, ...rest } = role;
@@ -44,6 +45,8 @@ export class PrismaRoleRepo
     RecordRoleRepo,
     RegisterUserRoleRepo
 {
+  private readonly billingUsage = new BillingUsageLedger();
+
   async createAdminRole(companyId: string) {
     const role = await this.prisma.userRole.create({
       data: {
@@ -147,6 +150,7 @@ export class PrismaRoleRepo
       create: roleData,
       update: roleData,
     });
+    if (args.id) await this.billingUsage.recordSeats(companyId);
 
     for (const { resource, actions } of args.permissions) {
       const stored = new Set(actions);
@@ -241,6 +245,7 @@ export class PrismaRoleRepo
     await this.prisma.userRole.deleteMany({
       where: { id, companyId },
     });
+    await this.billingUsage.recordSeats(companyId);
 
     return roleDto(role);
   }

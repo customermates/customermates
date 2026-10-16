@@ -6,5 +6,9 @@ export type BillingUsageLedger = {
 };
 
 export abstract class GetOperatorBillingUsageRepo {
-  abstract readBillingUsageLedgerUnscoped(args: { companyId?: string; before: Date }): Promise<BillingUsageLedger>;
+  abstract readBillingUsageLedgerUnscoped(args: {
+    companyId?: string;
+    from: Date;
+    before: Date;
+  }): Promise<BillingUsageLedger>;
 }

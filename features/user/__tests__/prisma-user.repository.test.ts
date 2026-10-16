@@ -23,6 +23,16 @@ const prismaMock = {
   company: {
     create: vi.fn().mockResolvedValue({ id: "company-1" }),
     update: vi.fn().mockResolvedValue({ id: "company-1" }),
+    findFirst: vi.fn().mockResolvedValue({ createdAt: new Date() }),
+  },
+  billingUsageWorkspace: {
+    findFirst: vi.fn().mockResolvedValue(null),
+    createMany: vi.fn().mockResolvedValue({ count: 1 }),
+  },
+  billingUsageInterval: {
+    findMany: vi.fn().mockResolvedValue([]),
+    createMany: vi.fn().mockResolvedValue({ count: 0 }),
+    updateMany: vi.fn().mockResolvedValue({ count: 0 }),
   },
   userRole: { create: vi.fn().mockResolvedValue({ id: "role-1" }) },
   subscription: { create: vi.fn().mockResolvedValue({ id: "subscription-1" }) },
@@ -78,6 +88,10 @@ describe("WorkspaceRegistrationService.createCompanyAndUser", () => {
     expect(prismaMock.userRole.create).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ isSystemRole: true }) }),
     );
+    expect(prismaMock.billingUsageWorkspace.createMany).toHaveBeenCalledWith({
+      data: [expect.objectContaining({ companyId: "company-1", seatsRecordedFrom: null, channelsRecordedFrom: null })],
+      skipDuplicates: true,
+    });
   });
 
   it("stores one consented ad attribution row per provider on the initial owner", async () => {

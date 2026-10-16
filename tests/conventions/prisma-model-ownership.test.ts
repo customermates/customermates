@@ -41,6 +41,8 @@ const OWNERS: Record<string, string> = {
   AuthSession: "core/auth/better-auth.ts",
   AuthUser: "features/user/prisma-user.repository.ts",
   AuthVerification: "features/auth/auth.service.ts",
+  BillingUsageInterval: "features/billing-usage/billing-usage-ledger.ts",
+  BillingUsageWorkspace: "features/billing-usage/billing-usage-ledger.ts",
   Calendar: "ee/calendar/prisma-calendar.repository.ts",
   CalendarEvent: "ee/calendar/prisma-calendar.repository.ts",
   Company: "features/company/prisma-company.repository.ts",

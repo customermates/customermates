@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const invokes = vi.hoisted(() => Array.from({ length: 12 }, () => vi.fn()));
+const invokes = vi.hoisted(() => Array.from({ length: 13 }, () => vi.fn()));
 const mockEnv = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "demo",
   CRON_SECRET: "test-cron-secret",
@@ -30,6 +30,7 @@ vi.mock("@/core/di", () => ({
   getSendLegalDocumentNoticesInteractor: () => ({ invoke: invokes[9] }),
   getPruneRoutineRunsInteractor: () => ({ invoke: invokes[10] }),
   getPurgeExpiredTrashInteractor: () => ({ invoke: invokes[11] }),
+  getReconcileBillingUsageInteractor: () => ({ invoke: invokes[12] }),
 }));
 
 import { GET } from "../route";
@@ -65,5 +66,6 @@ describe("lifecycle cron", () => {
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ ok: true });
     expect(invokes.every((invoke) => invoke.mock.calls.length === 1)).toBe(true);
+    expect(invokes[12].mock.invocationCallOrder[0]).toBeGreaterThan(invokes[7].mock.invocationCallOrder[0]);
   });
 });

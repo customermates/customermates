@@ -3070,7 +3070,6 @@
       "title": "Canaux"
     },
     "columns": {
-      "account": "Compte",
       "added": "Ajouté",
       "channel": "Canal",
       "connected": "Connecté",
@@ -3078,7 +3077,6 @@
       "currentSeats": "Postes actifs maintenant",
       "deactivated": "Désactivé",
       "disconnected": "Déconnecté",
-      "email": "E-mail",
       "name": "Nom",
       "peakAt": "Maximum atteint",
       "peakChannels": "Maximum de canaux",
@@ -3089,8 +3087,9 @@
     "coverage": {
       "channelsRecordedFrom": "Les changements de canaux sont enregistrés depuis le {date}. Les canaux retirés avant cette date manquent, ce maximum peut donc être trop bas.",
       "footnote": "* Historique incomplet pour ce mois. Ouvrez l'espace de travail pour les détails.",
+      "incomplete": "Historique incomplet",
       "inexactTimes": "Certaines heures de connexion ou de déconnexion sont estimées, ce maximum peut donc être légèrement élevé.",
-      "seatsRecordedFrom": "Les changements de postes sont enregistrés depuis le {date}. Les utilisateurs désactivés avant cette date manquent, ce nombre peut donc être trop bas."
+      "seatsRecordedFrom": "Les changements de postes sont enregistrés depuis le {date}. Les activations et désactivations antérieures sont reconstituées ou manquantes, ce nombre peut donc différer du nombre réel."
     },
     "deleted": "Supprimé le {date}",
     "description": "Par mois civil en UTC. Chaque utilisateur actif à un moment quelconque du mois compte comme un poste pour tout le mois. Les canaux comptent à leur nombre maximal connecté en même temps.",

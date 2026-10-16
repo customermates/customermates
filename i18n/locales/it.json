@@ -3070,7 +3070,6 @@
       "title": "Canali"
     },
     "columns": {
-      "account": "Account",
       "added": "Aggiunto",
       "channel": "Canale",
       "connected": "Collegato",
@@ -3078,7 +3077,6 @@
       "currentSeats": "Postazioni attive ora",
       "deactivated": "Disattivato",
       "disconnected": "Scollegato",
-      "email": "Email",
       "name": "Nome",
       "peakAt": "Picco raggiunto",
       "peakChannels": "Picco di canali",
@@ -3089,8 +3087,9 @@
     "coverage": {
       "channelsRecordedFrom": "Le modifiche ai canali sono registrate dal {date}. Mancano i canali rimossi prima, quindi questo picco potrebbe essere troppo basso.",
       "footnote": "* Cronologia incompleta per questo mese. Apri l'area di lavoro per i dettagli.",
+      "incomplete": "Cronologia incompleta",
       "inexactTimes": "Alcuni orari di collegamento o scollegamento sono stimati, quindi questo picco potrebbe essere leggermente alto.",
-      "seatsRecordedFrom": "Le modifiche alle postazioni sono registrate dal {date}. Mancano gli utenti disattivati prima, quindi questo numero potrebbe essere troppo basso."
+      "seatsRecordedFrom": "Le modifiche alle postazioni sono registrate dal {date}. Attivazioni e disattivazioni precedenti sono ricostruite o mancanti, quindi questo numero può differire da quello reale."
     },
     "deleted": "Eliminata il {date}",
     "description": "Per mese di calendario in UTC. Ogni utente attivo in qualsiasi momento del mese conta come una postazione per l'intero mese. I canali contano al loro numero massimo collegato contemporaneamente.",

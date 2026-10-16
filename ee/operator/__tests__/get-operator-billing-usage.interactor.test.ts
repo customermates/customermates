@@ -68,7 +68,11 @@ describe("GetOperatorBillingUsageInteractor", () => {
 
     const result = await subject.invoke({ month: "2026-09" });
 
-    expect(read).toHaveBeenCalledWith({ companyId: undefined, before: new Date("2026-10-01T00:00:00.000Z") });
+    expect(read).toHaveBeenCalledWith({
+      companyId: undefined,
+      from: new Date("2026-09-01T00:00:00.000Z"),
+      before: new Date("2026-10-01T00:00:00.000Z"),
+    });
     if (!result.ok) throw new Error("expected usage");
     expect(result.data.workspaces.map((entry) => entry.companyId)).toEqual([DELETED_IN_MONTH, LIVE]);
     expect(result.data.workspaces[0]).toMatchObject({ seats: { count: 1 }, current: { activeSeats: 0 } });

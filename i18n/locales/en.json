@@ -3070,7 +3070,6 @@
       "title": "Channels"
     },
     "columns": {
-      "account": "Account",
       "added": "Added",
       "channel": "Channel",
       "connected": "Connected",
@@ -3078,7 +3077,6 @@
       "currentSeats": "Active seats now",
       "deactivated": "Deactivated",
       "disconnected": "Disconnected",
-      "email": "Email",
       "name": "Name",
       "peakAt": "Peak reached",
       "peakChannels": "Peak channels",
@@ -3089,8 +3087,9 @@
     "coverage": {
       "channelsRecordedFrom": "Channel changes are recorded from {date}. Channels removed before then are missing, so this peak may be too low.",
       "footnote": "* Incomplete history for this month. Open the workspace for details.",
+      "incomplete": "Incomplete history",
       "inexactTimes": "Some connect or disconnect times are estimated, so this peak may be slightly high.",
-      "seatsRecordedFrom": "Seat changes are recorded from {date}. Users deactivated before then are missing, so this count may be too low."
+      "seatsRecordedFrom": "Seat changes are recorded from {date}. Earlier activations and deactivations are reconstructed or missing, so this count can differ from the true number."
     },
     "deleted": "Deleted {date}",
     "description": "Per calendar month in UTC. Every user who was active at any time in the month counts as one seat for the whole month. Channels count at their highest number connected at the same time.",

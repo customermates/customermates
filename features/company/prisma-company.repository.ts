@@ -22,6 +22,7 @@ import { env } from "@/env";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
+import { BillingUsageLedger } from "@/features/billing-usage/billing-usage-ledger";
 
 export class PrismaCompanyRepo
   extends TenantRepository
@@ -41,6 +42,8 @@ export class PrismaCompanyRepo
     UpsertRoutineSubscriptionRepo,
     RegisterUserCompanyRepo
 {
+  private readonly billingUsage = new BillingUsageLedger();
+
   async findCompanyOrThrow() {
     const { companyId } = this.user;
     return await this.prisma.company.findUniqueOrThrow({
@@ -202,11 +205,13 @@ export class PrismaCompanyRepo
 
   @BypassTenantGuard
   async deleteCompanyUnscoped(companyId: string): Promise<void> {
+    await this.billingUsage.recordWorkspaceDeleted(companyId);
     await this.prisma.company.delete({ where: { id: companyId } });
   }
 
   async createRegisteredCompany() {
     const company = await this.prisma.company.create({ data: {} });
+    await this.billingUsage.recordWorkspace(company.id);
 
     const trialEndDate = new Date();
     trialEndDate.setDate(trialEndDate.getDate() + CLOUD_TRIAL.days);

@@ -155,7 +155,9 @@ async function isOperatorRequest(operatorTools: McpTool[]): Promise<boolean> {
   if (operatorTools.length === 0) return false;
   const { getOperatorAccessService } = await import("@/core/di");
 
-  return getOperatorAccessService().isReadEligible();
+  return getOperatorAccessService()
+    .isReadEligible()
+    .catch(() => false);
 }
 
 function resolveToolsetKey(request: Request, knownKeys: string[]): { key: string } | { unknown: string[] } {

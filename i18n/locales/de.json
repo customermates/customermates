@@ -3070,7 +3070,6 @@
       "title": "Kanäle"
     },
     "columns": {
-      "account": "Konto",
       "added": "Hinzugefügt",
       "channel": "Kanal",
       "connected": "Verbunden",
@@ -3078,7 +3077,6 @@
       "currentSeats": "Jetzt aktive Nutzerplätze",
       "deactivated": "Deaktiviert",
       "disconnected": "Getrennt",
-      "email": "E-Mail",
       "name": "Name",
       "peakAt": "Höchstwert erreicht",
       "peakChannels": "Höchstzahl Kanäle",
@@ -3089,8 +3087,9 @@
     "coverage": {
       "channelsRecordedFrom": "Kanaländerungen werden seit {date} erfasst. Vorher entfernte Kanäle fehlen, daher kann dieser Höchstwert zu niedrig sein.",
       "footnote": "* Unvollständiger Verlauf für diesen Monat. Details im Workspace.",
+      "incomplete": "Unvollständiger Verlauf",
       "inexactTimes": "Einige Verbindungs- oder Trennzeitpunkte sind geschätzt, daher kann dieser Höchstwert leicht zu hoch sein.",
-      "seatsRecordedFrom": "Änderungen an Nutzerplätzen werden seit {date} erfasst. Vorher deaktivierte Benutzer fehlen, daher kann diese Zahl zu niedrig sein."
+      "seatsRecordedFrom": "Änderungen an Nutzerplätzen werden seit {date} erfasst. Frühere Aktivierungen und Deaktivierungen sind rekonstruiert oder fehlen, daher kann diese Zahl vom tatsächlichen Wert abweichen."
     },
     "deleted": "Gelöscht am {date}",
     "description": "Pro Kalendermonat in UTC. Jeder Benutzer, der im Monat zu irgendeinem Zeitpunkt aktiv war, zählt für den ganzen Monat als ein Nutzerplatz. Kanäle zählen mit ihrer höchsten Zahl gleichzeitig verbundener Kanäle.",

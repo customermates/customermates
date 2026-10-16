@@ -19,7 +19,11 @@ export class GetOperatorBillingUsageInteractor {
   @ValidateOutput(OperatorBillingUsageDtoSchema)
   async invoke(data: GetOperatorBillingUsageData): Validated<OperatorBillingUsageDto> {
     const window = billingUsageWindow(data.month);
-    const ledger = await this.repo.readBillingUsageLedgerUnscoped({ companyId: data.companyId, before: window.to });
+    const ledger = await this.repo.readBillingUsageLedgerUnscoped({
+      companyId: data.companyId,
+      from: window.from,
+      before: window.to,
+    });
 
     if (data.companyId && !ledger.workspaces.some((workspace) => workspace.companyId === data.companyId))
       return failNotFound(CustomErrorCode.userNotFound);

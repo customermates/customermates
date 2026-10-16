@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const BILLING_USAGE_MONTH_PATTERN = /^\d{4}-(0[1-9]|1[0-2])$/;
+export const BILLING_USAGE_MONTH_PATTERN = /^20\d{2}-(0[1-9]|1[0-2])$/;
 
 export const BillingUsageMonthSchema = z.string().regex(BILLING_USAGE_MONTH_PATTERN);
 

@@ -45,6 +45,7 @@ import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { accessibleConnectedAccountWhere, messageVisibilityWhere, threadAccessWhere } from "../messaging-access";
 import { accountNeedsAction, isEmailProvider } from "../provider";
 import { emailFolderFilterValue } from "../inbox/messaging-filter-options.schema";
+import { BillingUsageLedger } from "@/features/billing-usage/billing-usage-ledger";
 
 const BACKFILL_CLAIM_STALE_MS = 15 * 60 * 1000;
 
@@ -78,6 +79,8 @@ export class PrismaConnectedAccountRepo
     FindConnectedAccountsByIdsRepo,
     MessagingFilterOptionsRepo
 {
+  private readonly billingUsage = new BillingUsageLedger();
+
   constructor(
     private readonly permissions: PermissionService,
     private readonly diagnostics: UnusableProviderItemRepo,
@@ -103,6 +106,7 @@ export class PrismaConnectedAccountRepo
         syncing: true,
       },
     });
+    await this.billingUsage.recordChannels(row.companyId);
 
     return row;
   }
@@ -180,6 +184,8 @@ export class PrismaConnectedAccountRepo
         linkedinProducts: args.linkedinProducts,
       },
     });
+    if ([args.status, args.displayName, args.emailAddress, args.provider].some((value) => value !== undefined))
+      await this.billingUsage.recordChannels(row.companyId);
 
     return row;
   }
@@ -273,10 +279,12 @@ export class PrismaConnectedAccountRepo
 
   @BypassTenantGuard
   async markAccountDeletedUnscoped(id: string) {
-    await this.prisma.connectedAccount.update({
+    const row = await this.prisma.connectedAccount.update({
       where: { id },
       data: { status: ConnectedAccountStatus.deleted, syncing: false },
+      select: { companyId: true },
     });
+    await this.billingUsage.recordChannels(row.companyId);
   }
 
   @BypassTenantGuard
@@ -696,5 +704,6 @@ export class PrismaConnectedAccountRepo
     await this.prisma.connectedAccount.deleteMany({
       where: { id, companyId: this.companyId, userId: this.userId },
     });
+    await this.billingUsage.recordChannels(this.companyId);
   }
 }

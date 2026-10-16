@@ -684,8 +684,8 @@ model OperatorAuditEvent {
   @@index([targetCompanyId, createdAt])
 }
 
-// Billing usage ledger, written only by database triggers on User, ConnectedAccount
-// and Company. No foreign key: the history outlives a deleted workspace.
+// Billing usage ledger, kept by features/billing-usage/billing-usage-ledger.ts on every
+// user, channel and workspace change. No foreign key: the history outlives a deleted workspace.
 model BillingUsageInterval {
   id         String           @id @default(uuid())
   companyId  String

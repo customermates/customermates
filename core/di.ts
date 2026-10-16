@@ -413,6 +413,8 @@ import { OperatorAccessService } from "@/ee/operator/operator-access.service";
 import { PrismaAdConversionExportRepo } from "@/ee/operator/prisma-ad-conversion-export.repository";
 import { PrismaOperatorAccessRepo } from "@/ee/operator/prisma-operator-access.repository";
 import { PrismaOperatorBillingUsageRepo } from "@/ee/operator/prisma-operator-billing-usage.repository";
+import { PrismaReconcileBillingUsageRepo } from "@/features/billing-usage/prisma-reconcile-billing-usage.repository";
+import { ReconcileBillingUsageInteractor } from "@/features/billing-usage/reconcile-billing-usage.interactor";
 import { PrismaOperatorAuditRepo } from "@/ee/operator/prisma-operator-audit.repository";
 import { PrismaOperatorRiskSummaryRepo } from "@/ee/operator/prisma-operator-risk-summary.repository";
 import { PrismaOperatorUsersRepo } from "@/ee/operator/prisma-operator-users.repository";
@@ -1855,6 +1857,11 @@ export const getOperatorBillingUsageRepo = () => new PrismaOperatorBillingUsageR
 
 export const getGetOperatorBillingUsageInteractor = () =>
   new GetOperatorBillingUsageInteractor(getOperatorBillingUsageRepo());
+
+export const getReconcileBillingUsageRepo = () => new PrismaReconcileBillingUsageRepo();
+
+export const getReconcileBillingUsageInteractor = () =>
+  new ReconcileBillingUsageInteractor(getReconcileBillingUsageRepo());
 
 export const getUpdateOperatorUserPlatformAccessInteractor = () =>
   new UpdateOperatorUserPlatformAccessInteractor(getOperatorRepo());

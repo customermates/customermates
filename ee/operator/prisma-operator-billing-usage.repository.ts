@@ -14,32 +14,69 @@ function deletedWorkspaceLabel(metadata: unknown): string | null {
   return typeof label === "string" && label.length > 0 ? label : null;
 }
 
+const INTERVAL_SELECT = {
+  companyId: true,
+  kind: true,
+  subjectId: true,
+  startedAt: true,
+  endedAt: true,
+  startExact: true,
+  endExact: true,
+  firstName: true,
+  lastName: true,
+  email: true,
+  roleName: true,
+  provider: true,
+  identifier: true,
+} as const;
+
 export class PrismaOperatorBillingUsageRepo extends TenantRepository implements GetOperatorBillingUsageRepo {
   @BypassTenantGuard
-  async readBillingUsageLedgerUnscoped(args: { companyId?: string; before: Date }): Promise<BillingUsageLedger> {
-    const [workspaces, intervals] = await Promise.all([
+  async readBillingUsageLedgerUnscoped(args: {
+    companyId?: string;
+    from: Date;
+    before: Date;
+  }): Promise<BillingUsageLedger> {
+    const scope = args.companyId ? { companyId: args.companyId } : {};
+    const [recorded, companies, intervals] = await Promise.all([
       this.prisma.billingUsageWorkspace.findMany({
         where: args.companyId ? { companyId: args.companyId } : { createdAt: { lt: args.before } },
       }),
+      this.prisma.company.findMany({
+        where: args.companyId ? { id: args.companyId } : { createdAt: { lt: args.before } },
+        select: { id: true, createdAt: true },
+      }),
       this.prisma.billingUsageInterval.findMany({
-        where: { ...(args.companyId ? { companyId: args.companyId } : {}), startedAt: { lt: args.before } },
-        select: {
-          companyId: true,
-          kind: true,
-          subjectId: true,
-          startedAt: true,
-          endedAt: true,
-          startExact: true,
-          endExact: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-          roleName: true,
-          provider: true,
-          identifier: true,
-        },
+        where: { ...scope, startedAt: { lt: args.before }, OR: [{ endedAt: null }, { endedAt: { gt: args.from } }] },
+        select: INTERVAL_SELECT,
       }),
     ]);
+
+    const seatIds = [...new Set(intervals.filter((row) => row.kind === "seat").map((row) => row.subjectId))];
+    const firstSeats =
+      seatIds.length === 0
+        ? []
+        : await this.prisma.billingUsageInterval.findMany({
+            where: { ...scope, kind: "seat", subjectId: { in: seatIds }, startedAt: { lt: args.from } },
+            orderBy: { startedAt: "asc" },
+            distinct: ["subjectId"],
+            select: INTERVAL_SELECT,
+          });
+
+    const recordedIds = new Set(recorded.map((workspace) => workspace.companyId));
+    const observedAt = new Date();
+    const workspaces = [
+      ...recorded,
+      ...companies
+        .filter((company) => !recordedIds.has(company.id))
+        .map((company) => ({
+          companyId: company.id,
+          createdAt: company.createdAt,
+          deletedAt: null,
+          seatsRecordedFrom: observedAt,
+          channelsRecordedFrom: observedAt,
+        })),
+    ];
 
     const liveIds = workspaces.filter((workspace) => workspace.deletedAt === null).map((w) => w.companyId);
     const deletedIds = workspaces.filter((workspace) => workspace.deletedAt !== null).map((w) => w.companyId);
@@ -94,7 +131,7 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
         activeSeats: seatCounts.get(workspace.companyId) ?? 0,
         connectedChannels: channelCounts.get(workspace.companyId) ?? 0,
       })),
-      intervals,
+      intervals: [...intervals, ...firstSeats],
     };
   }
 }

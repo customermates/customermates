@@ -43,7 +43,14 @@ export function OperatorUsagePageView({ usage }: Props) {
   }, []);
   const csv = useMemo(() => billingUsageSummaryCsv(usage), [usage]);
   const dateTime = (value: Date) => intlStore.formatNumericalShortDateTime(value, { timeZone: "UTC" });
-  const incomplete = (complete: boolean) => (complete ? null : <span className="text-warning"> *</span>);
+  const incomplete = (complete: boolean) =>
+    complete ? null : (
+      <span className="text-warning">
+        <span aria-hidden="true"> *</span>
+
+        <span className="sr-only">{t("OperatorUsage.coverage.incomplete")}</span>
+      </span>
+    );
   const hasIncomplete = usage.workspaces.some(
     (workspace) => !workspace.seats.coverage.complete || !workspace.channels.coverage.complete,
   );
