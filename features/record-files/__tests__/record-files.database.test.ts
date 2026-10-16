@@ -96,6 +96,11 @@ function data<T>(outcome: InteractorOutcome<T>): T {
   return outcome.data;
 }
 
+function tampered(token: string): string {
+  const index = token.length - 5;
+  return `${token.slice(0, index)}${token[index] === "A" ? "B" : "A"}${token.slice(index + 1)}`;
+}
+
 function failure(outcome: InteractorOutcome<unknown>) {
   if (outcome.ok) throw new Error("Expected a failure");
   const [issue] = outcome.error.issues;
@@ -387,7 +392,7 @@ describeDatabase("record files", () => {
     const other = await w.uploaded(10);
     for (const attempt of [
       { fileId: other.fileId, token: signed },
-      { fileId: started.fileId, token: `${signed.slice(0, -1)}0` },
+      { fileId: started.fileId, token: tampered(signed) },
       { fileId: started.fileId, token },
     ]) {
       expect(failure(await w.interactors.readByGrant.invoke(attempt))).toMatchObject({
