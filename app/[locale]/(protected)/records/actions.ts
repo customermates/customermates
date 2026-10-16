@@ -15,6 +15,7 @@ import type { CheckRecordIdentityInput } from "@/features/records/check-record-i
 import type { SearchChannelCandidatesData } from "@/ee/messaging/inbox/search-channel-candidates.interactor";
 import type { ImportRecordsInput } from "@/features/data-transfer/record-transfer.schema";
 import type { LookupAddressInput, VerifyAddressInput } from "@/features/addresses/address-lookup.schema";
+import type { CheckAddressInput } from "@/features/addresses/address-check.schema";
 
 import {
   getGetRecordPresentationInteractor,
@@ -44,6 +45,7 @@ import {
   getImportRecordsInteractor,
   getLookupAddressInteractor,
   getVerifyAddressInteractor,
+  getCheckAddressInteractor,
 } from "@/core/di";
 import { serializeResult, settleActionResult } from "@/core/utils/action-result";
 import { redirect } from "next/navigation";
@@ -62,6 +64,9 @@ export async function lookupAddressAction(input: LookupAddressInput) {
 }
 export async function verifyAddressAction(input: VerifyAddressInput) {
   return serializeResult(getVerifyAddressInteractor().invoke(input));
+}
+export async function checkAddressAction(input: CheckAddressInput) {
+  return serializeResult(getCheckAddressInteractor().invoke(input));
 }
 
 export async function readRecordDetailLayoutAction(typeId: string) {

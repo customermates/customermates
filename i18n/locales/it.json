@@ -3255,6 +3255,35 @@
       "use": "Usa l'indirizzo suggerito"
     },
     "addressDetails": "Dettagli dell'indirizzo",
+    "addressIssues": {
+      "cityMismatch": "Questa città non corrisponde al codice postale {postalCode}.",
+      "countryMissing": "Scegli un paese per controllare il codice postale e la regione.",
+      "countryUnknown": "Scegli un paese dall’elenco.",
+      "partMissing": "Manca {part}. Gli indirizzi in {country} ne hanno bisogno.",
+      "postalCodeInvalid": "Non è un codice postale di {country}. Lì i codici postali sono così: {example}.",
+      "postalCodeRegionMismatch": "Il codice postale {postalCode} appartiene a un’altra regione.",
+      "regionInvalid": "{region} non è un codice regione di {country}.",
+      "regionUnknown": "{region} non è una delle regioni di {country}."
+    },
+    "addressLabels": {
+      "area": "Zona",
+      "county": "Contea",
+      "department": "Dipartimento",
+      "district": "Distretto",
+      "doSi": "Provincia o città",
+      "eircode": "Eircode",
+      "emirate": "Emirato",
+      "island": "Isola",
+      "oblast": "Oblast",
+      "parish": "Parrocchia",
+      "pin": "Codice PIN",
+      "postTown": "Città postale",
+      "prefecture": "Prefettura",
+      "province": "Provincia",
+      "state": "Stato o territorio",
+      "suburb": "Quartiere",
+      "zip": "Codice ZIP"
+    },
     "addressParts": {
       "city": "Città",
       "country": "Paese",
@@ -3262,6 +3291,11 @@
       "postalCode": "CAP",
       "region": "Stato o regione",
       "street": "Via e numero civico"
+    },
+    "addressPlaces": {
+      "attribution": "Codici postali: GeoNames (CC BY 4.0)",
+      "choose": "Città con questo codice postale:",
+      "use": "Usa {value}"
     },
     "addressSearch": {
       "empty": "Nessun indirizzo corrispondente trovato.",

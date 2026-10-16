@@ -3255,6 +3255,35 @@
       "use": "Vorschlag übernehmen"
     },
     "addressDetails": "Adressdetails",
+    "addressIssues": {
+      "cityMismatch": "Dieser Ort gehört nicht zur Postleitzahl {postalCode}.",
+      "countryMissing": "Wähle ein Land, damit Postleitzahl und Region geprüft werden können.",
+      "countryUnknown": "Wähle ein Land aus der Liste.",
+      "partMissing": "{part} fehlt. Adressen in {country} brauchen diese Angabe.",
+      "postalCodeInvalid": "Das ist keine Postleitzahl von {country}. Postleitzahlen sehen dort so aus: {example}.",
+      "postalCodeRegionMismatch": "Die Postleitzahl {postalCode} gehört zu einer anderen Region.",
+      "regionInvalid": "{region} ist kein Regionscode von {country}.",
+      "regionUnknown": "{region} ist keine der Regionen von {country}."
+    },
+    "addressLabels": {
+      "area": "Gebiet",
+      "county": "Grafschaft",
+      "department": "Département",
+      "district": "Bezirk",
+      "doSi": "Provinz oder Stadt",
+      "eircode": "Eircode",
+      "emirate": "Emirat",
+      "island": "Insel",
+      "oblast": "Oblast",
+      "parish": "Verwaltungsbezirk",
+      "pin": "PIN-Code",
+      "postTown": "Poststadt",
+      "prefecture": "Präfektur",
+      "province": "Provinz",
+      "state": "Bundesstaat oder Territorium",
+      "suburb": "Ortsteil",
+      "zip": "ZIP-Code"
+    },
     "addressParts": {
       "city": "Ort",
       "country": "Land",
@@ -3262,6 +3291,11 @@
       "postalCode": "Postleitzahl",
       "region": "Bundesland oder Region",
       "street": "Straße und Hausnummer"
+    },
+    "addressPlaces": {
+      "attribution": "Postleitzahlen: GeoNames (CC BY 4.0)",
+      "choose": "Orte mit dieser Postleitzahl:",
+      "use": "{value} übernehmen"
     },
     "addressSearch": {
       "empty": "Keine passende Adresse gefunden.",

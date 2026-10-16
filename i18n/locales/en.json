@@ -3255,6 +3255,35 @@
       "use": "Use suggested address"
     },
     "addressDetails": "Address details",
+    "addressIssues": {
+      "cityMismatch": "This city does not belong to postal code {postalCode}.",
+      "countryMissing": "Choose a country to check the postal code and region.",
+      "countryUnknown": "Choose a country from the list.",
+      "partMissing": "{part} is missing. Addresses in {country} need it.",
+      "postalCodeInvalid": "This is not a postal code of {country}. Postal codes there look like {example}.",
+      "postalCodeRegionMismatch": "Postal code {postalCode} belongs to another region.",
+      "regionInvalid": "{region} is not a region code of {country}.",
+      "regionUnknown": "{region} is not one of the regions of {country}."
+    },
+    "addressLabels": {
+      "area": "Area",
+      "county": "County",
+      "department": "Department",
+      "district": "District",
+      "doSi": "Do or si",
+      "eircode": "Eircode",
+      "emirate": "Emirate",
+      "island": "Island",
+      "oblast": "Oblast",
+      "parish": "Parish",
+      "pin": "PIN code",
+      "postTown": "Post town",
+      "prefecture": "Prefecture",
+      "province": "Province",
+      "state": "State or territory",
+      "suburb": "Suburb",
+      "zip": "ZIP code"
+    },
     "addressParts": {
       "city": "City",
       "country": "Country",
@@ -3262,6 +3291,11 @@
       "postalCode": "Postal code",
       "region": "State or region",
       "street": "Street and number"
+    },
+    "addressPlaces": {
+      "attribution": "Postal codes: GeoNames (CC BY 4.0)",
+      "choose": "Cities with this postal code:",
+      "use": "Use {value}"
     },
     "addressSearch": {
       "empty": "No matching address found.",
