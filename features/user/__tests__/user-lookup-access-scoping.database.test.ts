@@ -12,6 +12,7 @@ import { runWithTenant } from "@/core/decorators/tenant-context";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import { PrismaUserRepo } from "../prisma-user.repository";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -53,7 +54,7 @@ describeDatabase("user lookup access scoping on PostgreSQL", () => {
 
   it("returns null when a readOwn viewer asks for a colleague", async () => {
     const user = await runWithTenant(viewer(Action.readOwn), () =>
-      new PrismaUserRepo(new PermissionService()).getUserById(colleagueId),
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()).getUserById(colleagueId),
     );
 
     expect(user).toBeNull();
@@ -61,7 +62,7 @@ describeDatabase("user lookup access scoping on PostgreSQL", () => {
 
   it("returns the viewer's own record to a readOwn viewer", async () => {
     const user = await runWithTenant(viewer(Action.readOwn), () =>
-      new PrismaUserRepo(new PermissionService()).getUserById(viewerId),
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()).getUserById(viewerId),
     );
 
     expect(user?.id).toBe(viewerId);
@@ -69,7 +70,7 @@ describeDatabase("user lookup access scoping on PostgreSQL", () => {
 
   it("returns the colleague to a readAll viewer", async () => {
     const user = await runWithTenant(viewer(Action.readAll), () =>
-      new PrismaUserRepo(new PermissionService()).getUserById(colleagueId),
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()).getUserById(colleagueId),
     );
 
     expect(user?.id).toBe(colleagueId);
@@ -78,11 +79,11 @@ describeDatabase("user lookup access scoping on PostgreSQL", () => {
   it("resolves selected member labels in one bounded, access-scoped query", async () => {
     const ids = [viewerId, colleagueId, randomUUID()];
     const own = await runWithTenant(viewer(Action.readOwn), () =>
-      new PrismaUserRepo(new PermissionService()).resolveUserOptions(ids),
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()).resolveUserOptions(ids),
     );
     expect(own.map((user) => user.id)).toEqual([viewerId]);
     const all = await runWithTenant(viewer(Action.readAll), () =>
-      new PrismaUserRepo(new PermissionService()).resolveUserOptions(ids),
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()).resolveUserOptions(ids),
     );
     expect(all.map((user) => user.id).sort()).toEqual([viewerId, colleagueId].sort());
     expect(Object.keys(all[0]).sort()).toEqual(["avatarUrl", "firstName", "id", "lastName"]);
@@ -90,7 +91,7 @@ describeDatabase("user lookup access scoping on PostgreSQL", () => {
 
   it("resolves only the requested ids for a readOwn viewer", async () => {
     const found = await runWithTenant(viewer(Action.readOwn), () =>
-      new PrismaUserRepo(new PermissionService()).findIds(new Set([colleagueId])),
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()).findIds(new Set([colleagueId])),
     );
 
     expect(found).toEqual(new Set());

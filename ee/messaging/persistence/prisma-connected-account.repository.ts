@@ -35,6 +35,7 @@ import type { FindConnectedAccountsByIdsRepo } from "../find-connected-accounts-
 import type { RepoArgs } from "@/core/utils/types";
 import type { MessagingFilterOptionsRepo } from "../inbox/messaging-filter-options.repo";
 import type { MessagingFilterOptions } from "../inbox/messaging-filter-options.schema";
+import type { BillingUsageRepo } from "@/features/billing-usage/billing-usage.repo";
 
 import { randomUUID } from "node:crypto";
 
@@ -45,6 +46,7 @@ import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { accessibleConnectedAccountWhere, messageVisibilityWhere, threadAccessWhere } from "../messaging-access";
 import { accountNeedsAction, isEmailProvider } from "../provider";
 import { emailFolderFilterValue } from "../inbox/messaging-filter-options.schema";
+import { channelChange } from "@/features/billing-usage/billing-usage-changes";
 
 const BACKFILL_CLAIM_STALE_MS = 15 * 60 * 1000;
 
@@ -81,12 +83,21 @@ export class PrismaConnectedAccountRepo
   constructor(
     private readonly permissions: PermissionService,
     private readonly diagnostics: UnusableProviderItemRepo,
+    private readonly billingUsage: BillingUsageRepo,
   ) {
     super();
   }
 
   @BypassTenantGuard
   async createAccountUnscoped(args: RepoArgs<AccountWebhookRepo, "createAccountUnscoped">) {
+    return this.withCompanyTransaction(args.companyId, () => this.createAccountWithUsage(args));
+  }
+
+  private async createAccountWithUsage(args: RepoArgs<AccountWebhookRepo, "createAccountUnscoped">) {
+    const existing = await this.prisma.connectedAccount.findUnique({
+      where: { unipileAccountId: args.unipileAccountId },
+      select: { id: true },
+    });
     const row = await this.prisma.connectedAccount.upsert({
       where: { unipileAccountId: args.unipileAccountId },
       update: {},
@@ -103,6 +114,7 @@ export class PrismaConnectedAccountRepo
         syncing: true,
       },
     });
+    await this.billingUsage.recordChannels(row.companyId, existing ? [] : channelChange(row.id, null, row.status));
 
     return row;
   }
@@ -159,9 +171,33 @@ export class PrismaConnectedAccountRepo
     selectedFolderIds?: string[];
     linkedinProducts?: string[];
   }) {
+    const changesUsage = [args.status, args.displayName, args.emailAddress, args.provider].some(
+      (value) => value !== undefined,
+    );
+    if (!changesUsage) return this.writeAccountUpdate(args);
+
+    const owner = await this.prisma.connectedAccount.findUnique({
+      where: { unipileAccountId: args.unipileAccountId },
+      select: { companyId: true },
+    });
+    if (!owner) return this.writeAccountUpdate(args);
+
+    return this.withCompanyTransaction(owner.companyId, async () => {
+      const before = await this.prisma.connectedAccount.findUnique({
+        where: { unipileAccountId: args.unipileAccountId },
+        select: { status: true },
+      });
+      if (before?.status === ConnectedAccountStatus.deleted) return null;
+      const row = await this.writeAccountUpdate(args);
+      await this.billingUsage.recordChannels(row.companyId, channelChange(row.id, before?.status, row.status));
+      return row;
+    });
+  }
+
+  private writeAccountUpdate(args: Parameters<PrismaConnectedAccountRepo["updateAccountUnscoped"]>[0]) {
     const { unipileAccountId } = args;
 
-    const row = await this.prisma.connectedAccount.update({
+    return this.prisma.connectedAccount.update({
       where: { unipileAccountId },
       data: {
         status: args.status,
@@ -180,8 +216,6 @@ export class PrismaConnectedAccountRepo
         linkedinProducts: args.linkedinProducts,
       },
     });
-
-    return row;
   }
 
   @BypassTenantGuard
@@ -273,9 +307,21 @@ export class PrismaConnectedAccountRepo
 
   @BypassTenantGuard
   async markAccountDeletedUnscoped(id: string) {
-    await this.prisma.connectedAccount.update({
-      where: { id },
-      data: { status: ConnectedAccountStatus.deleted, syncing: false },
+    const owner = await this.prisma.connectedAccount.findUnique({ where: { id }, select: { companyId: true } });
+    const data = { status: ConnectedAccountStatus.deleted, syncing: false };
+    if (!owner) {
+      await this.prisma.connectedAccount.update({ where: { id }, data });
+      return;
+    }
+    const { companyId } = owner;
+
+    await this.withCompanyTransaction(companyId, async () => {
+      const before = await this.prisma.connectedAccount.findFirst({
+        where: { id, companyId },
+        select: { status: true },
+      });
+      await this.prisma.connectedAccount.update({ where: { id, companyId }, data });
+      await this.billingUsage.recordChannels(companyId, channelChange(id, before?.status, data.status));
     });
   }
 
@@ -693,8 +739,23 @@ export class PrismaConnectedAccountRepo
   }
 
   async deleteAccount(id: string) {
-    await this.prisma.connectedAccount.deleteMany({
-      where: { id, companyId: this.companyId, userId: this.userId },
+    const { companyId, userId } = this;
+
+    await this.withCompanyTransaction(companyId, async () => {
+      const before = await this.prisma.connectedAccount.findFirst({
+        where: { id, companyId, userId },
+        select: { status: true },
+      });
+      if (!before) return;
+      await this.prisma.connectedAccount.updateMany({
+        where: { id, companyId, userId },
+        data: { status: ConnectedAccountStatus.deleted, syncing: false },
+      });
+      await this.billingUsage.recordChannels(
+        companyId,
+        channelChange(id, before.status, ConnectedAccountStatus.deleted),
+      );
     });
+    await this.prisma.connectedAccount.deleteMany({ where: { id, companyId, userId } });
   }
 }

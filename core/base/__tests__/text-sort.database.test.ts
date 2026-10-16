@@ -15,6 +15,7 @@ import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import { createTestRoutineRepo, createTestWebhookRepo } from "@/tests/helpers/record-delivery";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -105,10 +106,14 @@ describeDatabase("built-in text sorts on PostgreSQL follow the user's locale", (
     const params = { sortDescriptor: { field: "name", direction } };
 
     const routines = await read(() => createTestRoutineRepo().getItems(params));
-    const members = await read(() => new PrismaUserRepo(new PermissionService()).getItems(params));
+    const members = await read(() =>
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()).getItems(params),
+    );
     const webhooks = await read(() => createTestWebhookRepo().getItems(params));
     const roles = await runWithTenant(roleManager, () =>
-      new PrismaRoleRepo().getItems({ sortDescriptor: { field: "type", direction: "asc" } }),
+      new PrismaRoleRepo(new PrismaBillingUsageRepo()).getItems({
+        sortDescriptor: { field: "type", direction: "asc" },
+      }),
     );
 
     expect(routines.map((routine) => routine.name)).toEqual(expected);

@@ -32,6 +32,7 @@ const { prisma } = await import("@/prisma/db");
 const { createTestOperatorRepo } = await import("@/tests/helpers/prisma-operator-repo");
 const { PrismaCompanyRepo } = await import("@/features/company/prisma-company.repository");
 
+const BILLING_USAGE_LEDGER_TABLES = new Set(["BillingUsageInterval", "BillingUsageWorkspace"]);
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 
 async function workflowSchemaInstalled(): Promise<boolean> {
@@ -471,7 +472,12 @@ describeDatabase("operator workspace deletion against a real database", { timeou
       }
     });
 
-    expect(survivors, `tables still holding rows for the deleted workspace:\n${survivors.join("\n")}`).toEqual([]);
+    const unexpected = survivors.filter((table) => !BILLING_USAGE_LEDGER_TABLES.has(table));
+    expect(unexpected, `tables still holding rows for the deleted workspace:\n${unexpected.join("\n")}`).toEqual([]);
+    const ledgerWorkspace = await runWithoutTenant(() =>
+      prisma.billingUsageWorkspace.findFirst({ where: { companyId } }),
+    );
+    expect(ledgerWorkspace?.deletedAt).toBeInstanceOf(Date);
 
     await runWithoutTenant(async () => {
       const emails = members.map((member) => member.email);

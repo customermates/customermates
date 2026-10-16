@@ -21,6 +21,7 @@ import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import { Action, Resource } from "@/generated/prisma";
 import messages from "@/i18n/locales/en.json";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
@@ -674,7 +675,7 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
   });
 
   it("persists Wiki manage actions with Read, supports Read-only, partial manage and revocation", async () => {
-    const repo = new PrismaRoleRepo();
+    const repo = new PrismaRoleRepo(new PrismaBillingUsageRepo());
     const roleName = `Wiki permissions ${randomUUID()}`;
     const save = (id: string | undefined, wiki: UpsertRoleData["permissions"][number]["actions"]) =>
       runWithTenant(user, () =>

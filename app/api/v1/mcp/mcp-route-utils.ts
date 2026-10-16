@@ -151,6 +151,13 @@ async function mcpAccessRefusal(): Promise<Response | null> {
   }
 }
 
+async function isOperatorRequest(operatorTools: McpTool[]): Promise<boolean> {
+  if (operatorTools.length === 0) return false;
+  const { getOperatorAccessService } = await import("@/core/di");
+
+  return getOperatorAccessService().isReadEligible();
+}
+
 function resolveToolsetKey(request: Request, knownKeys: string[]): { key: string } | { unknown: string[] } {
   const raw = new URL(request.url).searchParams.get("toolsets");
   if (!raw) return { key: "" };
@@ -186,16 +193,18 @@ export function createMcpRoute(
   alwaysOn: McpTool[] = [],
   endpoint = "/api/v1/mcp",
   registerFeatures?: (server: McpServer, tools: McpTool[]) => void,
+  operatorTools: McpTool[] = [],
 ) {
   const knownKeys = Object.keys(toolGroups);
   const handlers = new Map<string, (request: Request) => Promise<Response>>();
 
-  function handlerFor(toolsetKey: string) {
-    const existing = handlers.get(toolsetKey);
+  function handlerFor(toolsetKey: string, operator: boolean) {
+    const handlerKey = operator ? `${toolsetKey}#operator` : toolsetKey;
+    const existing = handlers.get(handlerKey);
     if (existing) return existing;
 
     const activeKeys = toolsetKey === "" ? knownKeys : toolsetKey.split(",");
-    const tools = mcpToolsForToolsets(toolGroups, activeKeys, alwaysOn);
+    const tools = [...mcpToolsForToolsets(toolGroups, activeKeys, alwaysOn), ...(operator ? operatorTools : [])];
     const handler = createMcpHandler(
       (server) => {
         registerAllTools(server, tools);
@@ -207,7 +216,7 @@ export function createMcpRoute(
       },
       { streamableHttpEndpoint: endpoint },
     );
-    handlers.set(toolsetKey, handler);
+    handlers.set(handlerKey, handler);
     return handler;
   }
 
@@ -217,6 +226,6 @@ export function createMcpRoute(
     if (refused) return refused;
     const toolsets = resolveToolsetKey(request, knownKeys);
     if ("unknown" in toolsets) return unknownToolsets(toolsets.unknown, knownKeys);
-    return handlerFor(toolsets.key)(request);
+    return handlerFor(toolsets.key, await isOperatorRequest(operatorTools))(request);
   };
 }

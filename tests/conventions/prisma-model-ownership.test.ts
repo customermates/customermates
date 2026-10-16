@@ -41,6 +41,8 @@ const OWNERS: Record<string, string> = {
   AuthSession: "core/auth/better-auth.ts",
   AuthUser: "features/user/prisma-user.repository.ts",
   AuthVerification: "features/auth/auth.service.ts",
+  BillingUsageInterval: "features/billing-usage/prisma-billing-usage.repository.ts",
+  BillingUsageWorkspace: "features/billing-usage/prisma-billing-usage.repository.ts",
   Calendar: "ee/calendar/prisma-calendar.repository.ts",
   CalendarEvent: "ee/calendar/prisma-calendar.repository.ts",
   Company: "features/company/prisma-company.repository.ts",
@@ -166,9 +168,10 @@ describe("Prisma model ownership", () => {
       const used = new Set(sites.map((site) => `${site.model} ${site.file}`));
       const stale = Object.keys(ALLOWLIST).filter((entry) => !used.has(entry));
       expect(stale, "The allowlist only shrinks: remove entries whose write moved to the owner").toEqual([]);
-      expect(Object.keys(ALLOWLIST).length, "The allowlist only shrinks: lower the ceiling with it").toBeLessThanOrEqual(
-        ALLOWLIST_CEILING,
-      );
+      expect(
+        Object.keys(ALLOWLIST).length,
+        "The allowlist only shrinks: lower the ceiling with it",
+      ).toBeLessThanOrEqual(ALLOWLIST_CEILING);
       for (const [entry, reason] of Object.entries(ALLOWLIST)) expect(reason.length, entry).toBeGreaterThan(40);
 
       const known = new Set(models());

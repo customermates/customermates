@@ -3063,6 +3063,49 @@
       "label": "Espacios de trabajo"
     }
   },
+  "OperatorUsage": {
+    "channels": {
+      "none": "Ningún canal estuvo conectado este mes.",
+      "peak": "{count} el {date}",
+      "title": "Canales"
+    },
+    "columns": {
+      "added": "Añadido",
+      "channel": "Canal",
+      "connected": "Conectado",
+      "currentChannels": "Canales conectados ahora",
+      "currentSeats": "Plazas activas ahora",
+      "deactivated": "Desactivado",
+      "disconnected": "Desconectado",
+      "peakAt": "Máximo alcanzado",
+      "peakChannels": "Máximo de canales",
+      "seats": "Plazas"
+    },
+    "coverage": {
+      "channelsInexactTimes": "Algunas horas de conexión o desconexión son estimadas, por lo que este máximo puede diferir del real.",
+      "channelsRecordedFrom": "Los cambios de canales se registran desde el {date}. Faltan los canales eliminados antes, por lo que este máximo puede ser demasiado bajo.",
+      "footnote": "* Historial incompleto para este mes. Abre el espacio de trabajo para ver los detalles.",
+      "incomplete": "Historial incompleto",
+      "seatsInexactTimes": "Algunas horas de activación o desactivación son estimadas, por lo que este número puede diferir del real.",
+      "seatsRecordedFrom": "Los cambios de plazas se registran desde el {date}. Las activaciones y desactivaciones anteriores están reconstruidas o faltan, por lo que este número puede diferir del real."
+    },
+    "deleted": "Eliminado el {date}",
+    "deletedBeforeRecording": "No se incluyen los espacios de trabajo eliminados antes del {date}; su historial no se registró.",
+    "description": "Por mes natural en UTC. Cada usuario activo en algún momento del mes cuenta como una plaza durante todo el mes. Los canales se cuentan por el número máximo conectado a la vez.",
+    "empty": "No existía ningún espacio de trabajo este mes.",
+    "estimated": "Estimado",
+    "export": "Archivo CSV",
+    "month": "Mes",
+    "monthInProgress": "Este mes sigue en curso, así que los números aún pueden subir.",
+    "navigation": "Uso",
+    "seats": {
+      "none": "Ningún usuario estuvo activo este mes.",
+      "title": "Plazas"
+    },
+    "stillActive": "Sigue activo",
+    "stillConnected": "Sigue conectado",
+    "title": "Uso facturable"
+  },
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Corrección de créditos con signo",
@@ -3120,19 +3163,11 @@
       "title": "Asignación Enterprise",
       "warningDescription": "La asignación se concede por usuario en todo el espacio y afecta al periodo actual."
     },
-    "channels": {
-      "approximate": "Al menos una hora de desconexión es estimada, por lo que este máximo puede ser algo alto.",
-      "description": "Máximo de canales conectados simultáneamente por mes, reconstruido a partir del registro de auditoría del espacio de trabajo.",
-      "monthLabel": "Mes",
-      "monthOption": "{month} · {count} en el pico",
-      "none": "Nunca se han conectado canales.",
-      "title": "Canales conectados"
-    },
     "delete": {
       "action": "Eliminar espacio de trabajo",
       "confirmTitle": "Eliminar permanentemente este espacio de trabajo",
       "reasonLabel": "Motivo",
-      "warningDescription": "Al eliminar {name} se borran de forma permanente el espacio de trabajo y {members, plural, =1 {su única cuenta de miembro} other {todas sus # cuentas de miembro}}, junto con sus contactos, negocios, mensajes, credenciales de acceso y registros de facturación. Esta acción no se puede deshacer."
+      "warningDescription": "Al eliminar {name} se borran de forma permanente el espacio de trabajo y {members, plural, =1 {su única cuenta de miembro} other {todas sus # cuentas de miembro}}, junto con sus contactos, negocios, mensajes, credenciales de acceso y registros de facturación. Las cifras de uso mensuales se conservan para la facturación, sin nombres, direcciones de correo electrónico ni identificadores de cuenta. Esta acción no se puede deshacer."
     },
     "emptyBody": "Ajusta la búsqueda o los filtros para ampliar la lista.",
     "emptyTitle": "Ningún espacio coincide con estos filtros",

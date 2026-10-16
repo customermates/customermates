@@ -3063,6 +3063,49 @@
       "label": "Aree di lavoro"
     }
   },
+  "OperatorUsage": {
+    "channels": {
+      "none": "Nessun canale era collegato in questo mese.",
+      "peak": "{count} il {date}",
+      "title": "Canali"
+    },
+    "columns": {
+      "added": "Aggiunto",
+      "channel": "Canale",
+      "connected": "Collegato",
+      "currentChannels": "Canali collegati ora",
+      "currentSeats": "Postazioni attive ora",
+      "deactivated": "Disattivato",
+      "disconnected": "Scollegato",
+      "peakAt": "Picco raggiunto",
+      "peakChannels": "Picco di canali",
+      "seats": "Postazioni"
+    },
+    "coverage": {
+      "channelsInexactTimes": "Alcuni orari di collegamento o scollegamento sono stimati, quindi questo picco può differire da quello reale.",
+      "channelsRecordedFrom": "Le modifiche ai canali sono registrate dal {date}. Mancano i canali rimossi prima, quindi questo picco potrebbe essere troppo basso.",
+      "footnote": "* Cronologia incompleta per questo mese. Apri lo spazio di lavoro per i dettagli.",
+      "incomplete": "Cronologia incompleta",
+      "seatsInexactTimes": "Alcuni orari di attivazione o disattivazione sono stimati, quindi questo numero può differire da quello reale.",
+      "seatsRecordedFrom": "Le modifiche alle postazioni sono registrate dal {date}. Attivazioni e disattivazioni precedenti sono ricostruite o mancanti, quindi questo numero può differire da quello reale."
+    },
+    "deleted": "Eliminato il {date}",
+    "deletedBeforeRecording": "Gli spazi di lavoro eliminati prima del {date} non sono inclusi; la loro cronologia non è stata registrata.",
+    "description": "Per mese di calendario in UTC. Ogni utente attivo in qualsiasi momento del mese conta come una postazione per l'intero mese. I canali sono conteggiati in base al numero massimo collegato contemporaneamente.",
+    "empty": "In questo mese non esisteva alcuno spazio di lavoro.",
+    "estimated": "Stimato",
+    "export": "File CSV",
+    "month": "Mese",
+    "monthInProgress": "Questo mese è ancora in corso, quindi i numeri possono ancora salire.",
+    "navigation": "Utilizzo",
+    "seats": {
+      "none": "Nessun utente era attivo in questo mese.",
+      "title": "Postazioni"
+    },
+    "stillActive": "Ancora attivo",
+    "stillConnected": "Ancora collegato",
+    "title": "Utilizzo fatturabile"
+  },
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Correzione crediti con segno",
@@ -3120,19 +3163,11 @@
       "title": "Dotazione Enterprise",
       "warningDescription": "La dotazione è concessa per utente su tutta l’area e ha effetto sul periodo corrente."
     },
-    "channels": {
-      "approximate": "Almeno un orario di disconnessione è stimato, quindi questo picco potrebbe essere leggermente alto.",
-      "description": "Numero massimo di canali collegati contemporaneamente per mese, ricostruito dal registro di audit dello spazio di lavoro.",
-      "monthLabel": "Mese",
-      "monthOption": "{month} · {count} al picco",
-      "none": "Non è mai stato collegato alcun canale.",
-      "title": "Canali collegati"
-    },
     "delete": {
       "action": "Elimina spazio di lavoro",
       "confirmTitle": "Elimina definitivamente questo spazio di lavoro",
       "reasonLabel": "Motivo",
-      "warningDescription": "L'eliminazione di {name} rimuove definitivamente lo spazio di lavoro e {members, plural, =1 {il suo unico account membro} other {tutti i suoi # account membri}}, insieme a contatti, trattative, messaggi, credenziali di accesso e dati di fatturazione. L'operazione non è reversibile."
+      "warningDescription": "L'eliminazione di {name} rimuove definitivamente lo spazio di lavoro e {members, plural, =1 {il suo unico account membro} other {tutti i suoi # account membri}}, insieme a contatti, trattative, messaggi, credenziali di accesso e dati di fatturazione. I dati di utilizzo mensili restano conservati per la fatturazione, senza nomi, indirizzi email o identificativi degli account. L'operazione non è reversibile."
     },
     "emptyBody": "Modifica la ricerca o i filtri per ampliare l’elenco.",
     "emptyTitle": "Nessuna area corrisponde a questi filtri",

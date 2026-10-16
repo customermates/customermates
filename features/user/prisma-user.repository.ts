@@ -26,6 +26,7 @@ import type { Prisma } from "@/generated/prisma";
 import type { CountActiveUsersRepo } from "./count-active-users.repo";
 import type { ResolveUserOptionsRepo } from "./get/resolve-user-options.repo";
 import type { FindUserRepo } from "./find-user.repo";
+import type { BillingUsageRepo } from "@/features/billing-usage/billing-usage.repo";
 
 import { Status, SubscriptionStatus } from "@/generated/prisma";
 
@@ -38,6 +39,7 @@ import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
+import { seatChange } from "@/features/billing-usage/billing-usage-changes";
 
 function recordActorSelect(companyId: string) {
   return {
@@ -83,7 +85,10 @@ export class PrismaUserRepo
     WithdrawAdAttributionRepo,
     RecordMemberRepo
 {
-  constructor(private readonly permissions: PermissionService) {
+  constructor(
+    private readonly permissions: PermissionService,
+    private readonly billingUsage: BillingUsageRepo,
+  ) {
     super();
   }
 
@@ -93,10 +98,12 @@ export class PrismaUserRepo
     status: Status,
     agentCreditActivatedAt?: Date | null,
   ): Promise<void> {
+    const before = await this.prisma.user.findFirst({ where: { id: userId, companyId }, select: { status: true } });
     await this.prisma.user.update({
       where: { id: userId, companyId },
       data: { status, ...(agentCreditActivatedAt === undefined ? {} : { agentCreditActivatedAt }) },
     });
+    await this.billingUsage.recordSeats(companyId, seatChange(userId, before?.status, status));
   }
 
   async setPlatformOperatorCompanyWide(companyId: string, userId: string, isPlatformOperator: boolean): Promise<void> {
@@ -278,6 +285,7 @@ export class PrismaUserRepo
       },
       where: { id: userId, companyId },
     });
+    await this.billingUsage.recordSeats(companyId, []);
 
     return this.prisma.user.findUniqueOrThrow({
       where: { id: userId, companyId },
@@ -345,6 +353,10 @@ export class PrismaUserRepo
   @Transaction
   async adminUpdateDetailsOrThrow(args: RepoArgs<AdminUpdateUserDetailsRepo, "adminUpdateDetailsOrThrow">) {
     const { companyId } = this.user;
+    const before = await this.prisma.user.findFirst({
+      where: { id: args.userId, companyId },
+      select: { status: true },
+    });
 
     await this.prisma.user.update({
       data: {
@@ -357,6 +369,7 @@ export class PrismaUserRepo
       },
       where: { id: args.userId, companyId },
     });
+    await this.billingUsage.recordSeats(companyId, seatChange(args.userId, before?.status, args.status));
   }
 
   async createCompanyOwnerOrThrow(args: RepoArgs<RegisterUserRepo, "createCompanyOwnerOrThrow">) {
@@ -377,6 +390,7 @@ export class PrismaUserRepo
         agentCreditActivatedAt: new Date(),
       },
     });
+    await this.billingUsage.recordSeats(args.companyId, [user.id]);
 
     for (const attribution of args.adAttribution ?? []) {
       await this.prisma.adAttribution.create({
@@ -702,10 +716,12 @@ export class PrismaUserRepo
     });
 
     await this.withCompanyTransaction(companyId, async () => {
+      const before = await this.prisma.user.findFirst({ where: { id: userId, companyId }, select: { status: true } });
       await this.prisma.user.update({
         where: { id: userId, companyId },
         data: { status: Status.inactive, agentCreditActivatedAt: null },
       });
+      await this.billingUsage.recordSeats(companyId, seatChange(userId, before?.status, Status.inactive));
     });
   }
 

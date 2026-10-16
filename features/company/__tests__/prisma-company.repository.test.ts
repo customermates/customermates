@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 const prismaMock = vi.hoisted(() => {
   const transactionClient = {
@@ -30,7 +31,7 @@ describe("PrismaCompanyRepo subscription synchronization", () => {
     const companyId = "00000000-0000-4000-8000-000000000001";
     const agentCreditAnchorAt = new Date("2026-08-06T10:00:00.000Z");
 
-    await new PrismaCompanyRepo().upsertSubscriptionUnscoped({
+    await new PrismaCompanyRepo(new PrismaBillingUsageRepo()).upsertSubscriptionUnscoped({
       companyId,
       lemonSqueezyId: "subscription-1",
       lemonSqueezyVariantId: "variant-1",
@@ -54,9 +55,9 @@ describe("PrismaCompanyRepo subscription synchronization", () => {
     const companyId = "00000000-0000-4000-8000-000000000001";
     const callback = vi.fn().mockResolvedValue("complete");
 
-    await expect(new PrismaCompanyRepo().withSubscriptionCompanyLockUnscoped(companyId, callback)).resolves.toBe(
-      "complete",
-    );
+    await expect(
+      new PrismaCompanyRepo(new PrismaBillingUsageRepo()).withSubscriptionCompanyLockUnscoped(companyId, callback),
+    ).resolves.toBe("complete");
 
     expect(prismaMock.prisma.$transaction).toHaveBeenCalledTimes(1);
     expect(prismaMock.transactionClient.$executeRaw).toHaveBeenCalledWith(expect.any(Array), companyId);
@@ -68,7 +69,7 @@ describe("PrismaCompanyRepo subscription synchronization", () => {
     const companyId = "00000000-0000-4000-8000-000000000002";
     prismaMock.transactionClient.adAttribution.count.mockResolvedValueOnce(1);
 
-    await new PrismaCompanyRepo().upsertSubscriptionUnscoped({
+    await new PrismaCompanyRepo(new PrismaBillingUsageRepo()).upsertSubscriptionUnscoped({
       companyId,
       lemonSqueezyId: "subscription-2",
       lemonSqueezyVariantId: "variant-1",
@@ -88,7 +89,7 @@ describe("PrismaCompanyRepo subscription synchronization", () => {
   it("records no paid conversion for a trial or an unattributed workspace", async () => {
     const companyId = "00000000-0000-4000-8000-000000000003";
 
-    await new PrismaCompanyRepo().upsertSubscriptionUnscoped({
+    await new PrismaCompanyRepo(new PrismaBillingUsageRepo()).upsertSubscriptionUnscoped({
       companyId,
       lemonSqueezyId: "subscription-3",
       lemonSqueezyVariantId: "variant-1",
@@ -100,7 +101,7 @@ describe("PrismaCompanyRepo subscription synchronization", () => {
     });
     expect(prismaMock.transactionClient.adAttribution.count).not.toHaveBeenCalled();
 
-    await new PrismaCompanyRepo().upsertSubscriptionUnscoped({
+    await new PrismaCompanyRepo(new PrismaBillingUsageRepo()).upsertSubscriptionUnscoped({
       companyId,
       lemonSqueezyId: "subscription-3",
       lemonSqueezyVariantId: "variant-1",

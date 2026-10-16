@@ -14,12 +14,9 @@ import {
 } from "@/features/mcp-tools/server-instructions";
 import { requiresApproval } from "@/ee/agent-chat/gated-tools";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
-import { ALL_MCP_TOOLS } from "@/features/mcp-tools/tool-registry";
+import { ALL_MCP_TOOLS, ALL_MCP_TOOLS_WITH_OPERATOR } from "@/features/mcp-tools/tool-registry";
 import { CONTENT_LOCALES } from "@/i18n/locale-registry";
-import {
-  UNTRUSTED_RECORD_TEXT_CLOSE,
-  UNTRUSTED_RECORD_TEXT_OPEN,
-} from "@/features/mcp-tools/untrusted-record-content";
+import { UNTRUSTED_RECORD_TEXT_CLOSE, UNTRUSTED_RECORD_TEXT_OPEN } from "@/features/mcp-tools/untrusted-record-content";
 
 const MCP_SERVER_INSTRUCTIONS = buildMcpServerInstructions(ALL_MCP_TOOLS.map(({ name }) => name));
 const EXTERNAL_TEXTS = { MCP_SERVER_INSTRUCTIONS, GET_STARTED_PROMPT };
@@ -41,7 +38,7 @@ describe("what an external MCP client is told", () => {
       return Array.isArray(options) ? options.filter((o): o is string => typeof o === "string") : [undefined];
     };
     const gatedNames = new Set<string>();
-    for (const tool of ALL_MCP_TOOLS)
+    for (const tool of ALL_MCP_TOOLS_WITH_OPERATOR)
       for (const action of declaredActions(tool))
         if (requiresApproval(internalToolIdentity(tool.name), tool, action ? { action } : undefined))
           gatedNames.add(tool.name);
@@ -100,7 +97,7 @@ describe("what an external MCP client is told", () => {
     const texts = [
       MCP_SERVER_INSTRUCTIONS,
       GET_STARTED_PROMPT,
-      ...ALL_MCP_TOOLS.map(({ name, description }) => `${name}: ${description}`),
+      ...ALL_MCP_TOOLS_WITH_OPERATOR.map(({ name, description }) => `${name}: ${description}`),
       ...summaries,
     ];
     expect(texts.filter((text) => /\u2014|\s\u2013\s/u.test(text))).toEqual([]);

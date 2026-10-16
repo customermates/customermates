@@ -6,6 +6,7 @@ import { Action, Resource } from "@/generated/prisma";
 import { DomainEvent } from "@/features/event/domain-events";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 vi.mock("@/env", () => ({
   env: {
@@ -105,7 +106,10 @@ describeDatabase("Knowledge Base audit entries in workspace activity", () => {
     const visibleAudit = async (wiki: boolean) =>
       runWithTenant(auditor(wiki), () =>
         runInTransaction(async () => {
-          const policy = await new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo).load();
+          const policy = await new RecordAccessPolicy(
+            new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+            repo,
+          ).load();
           const model = await repo.getModel();
           const activities = new PrismaRecordActivitiesRepo(new PermissionService());
           const index = await activities.index(input, model, policy.access(model.types.map((type) => type.id)), [

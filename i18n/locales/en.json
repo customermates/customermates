@@ -3063,6 +3063,49 @@
       "label": "Workspaces"
     }
   },
+  "OperatorUsage": {
+    "channels": {
+      "none": "No channel was connected in this month.",
+      "peak": "{count} at {date}",
+      "title": "Channels"
+    },
+    "columns": {
+      "added": "Added",
+      "channel": "Channel",
+      "connected": "Connected",
+      "currentChannels": "Connected channels now",
+      "currentSeats": "Active seats now",
+      "deactivated": "Deactivated",
+      "disconnected": "Disconnected",
+      "peakAt": "Peak reached",
+      "peakChannels": "Peak channels",
+      "seats": "Seats"
+    },
+    "coverage": {
+      "channelsInexactTimes": "Some connect or disconnect times are estimated, so this peak can differ from the true number.",
+      "channelsRecordedFrom": "Channel changes are recorded from {date}. Channels removed before then are missing, so this peak may be too low.",
+      "footnote": "* Incomplete history for this month. Open the workspace for details.",
+      "incomplete": "Incomplete history",
+      "seatsInexactTimes": "Some activation or deactivation times are estimated, so this count can differ from the true number.",
+      "seatsRecordedFrom": "Seat changes are recorded from {date}. Earlier activations and deactivations are reconstructed or missing, so this count can differ from the true number."
+    },
+    "deleted": "Deleted {date}",
+    "deletedBeforeRecording": "Workspaces deleted before {date} are not included; their history was not recorded.",
+    "description": "Per calendar month in UTC. Every user who was active at any time in the month counts as one seat for the whole month. Channels are counted at the highest number connected at the same time.",
+    "empty": "No workspace existed in this month.",
+    "estimated": "Estimated",
+    "export": "CSV file",
+    "month": "Month",
+    "monthInProgress": "This month is still running, so the numbers can still rise.",
+    "navigation": "Usage",
+    "seats": {
+      "none": "No user was active in this month.",
+      "title": "Seats"
+    },
+    "stillActive": "Still active",
+    "stillConnected": "Still connected",
+    "title": "Billing usage"
+  },
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Signed credit correction",
@@ -3120,19 +3163,11 @@
       "title": "Enterprise allowance",
       "warningDescription": "The allowance is granted per user across the whole workspace and takes effect on the current period."
     },
-    "channels": {
-      "approximate": "One or more disconnect times are estimated, so this peak may be slightly high.",
-      "description": "Peak simultaneously connected channels per month, reconstructed from the workspace audit trail.",
-      "monthLabel": "Month",
-      "monthOption": "{month} · {count} at peak",
-      "none": "No channels have ever been connected.",
-      "title": "Connected channels"
-    },
     "delete": {
       "action": "Delete workspace",
       "confirmTitle": "Delete this workspace permanently",
       "reasonLabel": "Reason",
-      "warningDescription": "Deleting {name} permanently removes the workspace and {members, plural, =1 {its one member account} other {all # member accounts}}, together with their contacts, deals, messages, sign-in credentials and billing records. This cannot be undone."
+      "warningDescription": "Deleting {name} permanently removes the workspace and {members, plural, =1 {its one member account} other {all # member accounts}}, together with their contacts, deals, messages, sign-in credentials and billing records. Monthly usage counts are kept for billing, without names, email addresses or account identifiers. This cannot be undone."
     },
     "emptyBody": "Adjust the search or filters to widen the list.",
     "emptyTitle": "No workspaces match these filters",

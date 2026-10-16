@@ -7,6 +7,7 @@ import type { GetBillingPortalUrlRepo } from "@/ee/subscription/get-billing-port
 import type { GetSubscriptionRepo } from "@/ee/subscription/get-subscription.repo";
 import type { RefreshSubscriptionRepo } from "@/ee/subscription/refresh-subscription.repo";
 import type { SubscriptionRepo } from "@/ee/subscription/subscription.service";
+import type { BillingUsageRepo } from "@/features/billing-usage/billing-usage.repo";
 import type { RouteGuardCompanyRepo } from "@/features/auth/route-guard-company.repo";
 import type { InviteTokenRepo } from "@/features/company/invite-token-validation.interactor";
 import type { RegisterUserCompanyRepo } from "@/features/user/register/register-user-company.repo";
@@ -41,6 +42,10 @@ export class PrismaCompanyRepo
     UpsertRoutineSubscriptionRepo,
     RegisterUserCompanyRepo
 {
+  constructor(private readonly billingUsage: BillingUsageRepo) {
+    super();
+  }
+
   async findCompanyOrThrow() {
     const { companyId } = this.user;
     return await this.prisma.company.findUniqueOrThrow({
@@ -202,11 +207,13 @@ export class PrismaCompanyRepo
 
   @BypassTenantGuard
   async deleteCompanyUnscoped(companyId: string): Promise<void> {
+    await this.billingUsage.recordWorkspaceDeleted(companyId, "deleted");
     await this.prisma.company.delete({ where: { id: companyId } });
   }
 
   async createRegisteredCompany() {
     const company = await this.prisma.company.create({ data: {} });
+    await this.billingUsage.recordWorkspaceCreated(company.id);
 
     const trialEndDate = new Date();
     trialEndDate.setDate(trialEndDate.getDate() + CLOUD_TRIAL.days);

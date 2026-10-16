@@ -5,6 +5,7 @@ import { Action, Resource } from "@/generated/prisma";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 const { fake } = vi.hoisted(() => {
   const calls: { op: string; args: any }[] = [];
@@ -63,28 +64,32 @@ beforeEach(() => {
 describe("PrismaUserRepo.getUserById keeps the requested id under readOwn scoping", () => {
   it("returns null for a colleague instead of substituting the caller", async () => {
     const user = await runWithTenant(readOwn(), () =>
-      new PrismaUserRepo(new PermissionService()).getUserById(COLLEAGUE),
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()).getUserById(COLLEAGUE),
     );
 
     expect(user).toBeNull();
   });
 
   it("still returns the caller's own record", async () => {
-    const user = await runWithTenant(readOwn(), () => new PrismaUserRepo(new PermissionService()).getUserById(SELF));
+    const user = await runWithTenant(readOwn(), () =>
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()).getUserById(SELF),
+    );
 
     expect(user?.id).toBe(SELF);
   });
 
   it("returns the requested colleague for a readAll viewer", async () => {
     const user = await runWithTenant(readAll(), () =>
-      new PrismaUserRepo(new PermissionService()).getUserById(COLLEAGUE),
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()).getUserById(COLLEAGUE),
     );
 
     expect(user?.id).toBe(COLLEAGUE);
   });
 
   it("keeps companyId at the top level of the where so the tenant guard can read it", async () => {
-    await runWithTenant(readOwn(), () => new PrismaUserRepo(new PermissionService()).getUserById(COLLEAGUE));
+    await runWithTenant(readOwn(), () =>
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()).getUserById(COLLEAGUE),
+    );
 
     expect(fake.calls.at(-1)?.args.where.companyId).toBe(COMPANY);
   });
@@ -93,7 +98,7 @@ describe("PrismaUserRepo.getUserById keeps the requested id under readOwn scopin
 describe("PrismaUserRepo.findIds keeps the requested id set under readOwn scoping", () => {
   it("does not report an id that was never requested", async () => {
     const found = await runWithTenant(readOwn(), () =>
-      new PrismaUserRepo(new PermissionService()).findIds(new Set([COLLEAGUE])),
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()).findIds(new Set([COLLEAGUE])),
     );
 
     expect(found).toEqual(new Set());
@@ -101,14 +106,16 @@ describe("PrismaUserRepo.findIds keeps the requested id set under readOwn scopin
 
   it("resolves the caller's own id when it is requested", async () => {
     const found = await runWithTenant(readOwn(), () =>
-      new PrismaUserRepo(new PermissionService()).findIds(new Set([SELF, COLLEAGUE])),
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()).findIds(new Set([SELF, COLLEAGUE])),
     );
 
     expect(found).toEqual(new Set([SELF]));
   });
 
   it("keeps companyId at the top level of the where so the tenant guard can read it", async () => {
-    await runWithTenant(readOwn(), () => new PrismaUserRepo(new PermissionService()).findIds(new Set([COLLEAGUE])));
+    await runWithTenant(readOwn(), () =>
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()).findIds(new Set([COLLEAGUE])),
+    );
 
     expect(fake.calls.at(-1)?.args.where.companyId).toBe(COMPANY);
   });

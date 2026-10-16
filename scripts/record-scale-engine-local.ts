@@ -96,7 +96,11 @@ try {
   const repo = repository.createTestRecordRepo();
   const { PermissionService } = await import("../core/base/permission.service");
   const { WebhookPauseNotifier } = await import("../features/webhook/webhook-pause-notifier");
-  const policy = new access.RecordAccessPolicy(new users.PrismaUserRepo(new PermissionService()), repo);
+  const { PrismaBillingUsageRepo } = await import("../features/billing-usage/prisma-billing-usage.repository");
+  const policy = new access.RecordAccessPolicy(
+    new users.PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+    repo,
+  );
   const calculator = new calculations.RecordCalculationService(repo);
   const writer = new writes.RecordWriteService(repo, policy, calculator);
   const { RecordTrashService } = await import("../features/records/record-trash.service");
@@ -266,7 +270,14 @@ try {
       repo,
       policy,
       configurations,
-      new RecordConfigurationWriter(repo, calculator, new WebhookPauseNotifier({ getWebhookByIdOrThrow: () => Promise.reject(new Error("No webhook expected")) }, { publish: () => Promise.resolve() })),
+      new RecordConfigurationWriter(
+        repo,
+        calculator,
+        new WebhookPauseNotifier(
+          { getWebhookByIdOrThrow: () => Promise.reject(new Error("No webhook expected")) },
+          { publish: () => Promise.resolve() },
+        ),
+      ),
       {
         dispatch: () => {
           throw new Error("Creating empty benchmark types unexpectedly required staging");
@@ -455,7 +466,17 @@ try {
     for (; advances < 1000; advances += 1) {
       await assertValues("10");
       const step = await run(() =>
-        repository.createTestRecordOperationService(repo, policy, configurations, new WebhookPauseNotifier({ getWebhookByIdOrThrow: () => Promise.reject(new Error("No webhook expected")) }, { publish: () => Promise.resolve() })).advance(pending.operationId),
+        repository
+          .createTestRecordOperationService(
+            repo,
+            policy,
+            configurations,
+            new WebhookPauseNotifier(
+              { getWebhookByIdOrThrow: () => Promise.reject(new Error("No webhook expected")) },
+              { publish: () => Promise.resolve() },
+            ),
+          )
+          .advance(pending.operationId),
       );
       if (step.done) break;
     }

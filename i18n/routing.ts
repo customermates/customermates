@@ -90,6 +90,7 @@ export const PROTECTED_ROUTES = [
   "/open/:area/:preset",
   "/operator/audit",
   "/operator/overview",
+  "/operator/usage",
   "/operator/users",
   "/operator/workspaces",
   "/records/:typeId",

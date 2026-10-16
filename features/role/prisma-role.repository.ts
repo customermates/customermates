@@ -6,6 +6,7 @@ import type { GetRolesRepo } from "@/features/role/get-roles.repo";
 import type { DeleteRoleRepo } from "./delete-role.repo";
 import type { UpdateUserRoleRepo } from "@/features/user/upsert/update-user-role.repo";
 import type { FindRolesByIdsRepo } from "./find-roles-by-ids.repo";
+import type { BillingUsageRepo } from "@/features/billing-usage/billing-usage.repo";
 
 import { Action, Resource } from "@/generated/prisma";
 
@@ -44,6 +45,10 @@ export class PrismaRoleRepo
     RecordRoleRepo,
     RegisterUserRoleRepo
 {
+  constructor(private readonly billingUsage: BillingUsageRepo) {
+    super();
+  }
+
   async createAdminRole(companyId: string) {
     const role = await this.prisma.userRole.create({
       data: {
@@ -147,6 +152,7 @@ export class PrismaRoleRepo
       create: roleData,
       update: roleData,
     });
+    if (args.id) await this.billingUsage.recordSeats(companyId, []);
 
     for (const { resource, actions } of args.permissions) {
       const stored = new Set(actions);
@@ -241,6 +247,7 @@ export class PrismaRoleRepo
     await this.prisma.userRole.deleteMany({
       where: { id, companyId },
     });
+    await this.billingUsage.recordSeats(companyId, []);
 
     return roleDto(role);
   }

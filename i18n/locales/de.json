@@ -3063,6 +3063,49 @@
       "label": "Arbeitsbereiche"
     }
   },
+  "OperatorUsage": {
+    "channels": {
+      "none": "In diesem Monat war kein Kanal verbunden.",
+      "peak": "{count} am {date}",
+      "title": "Kanäle"
+    },
+    "columns": {
+      "added": "Hinzugefügt",
+      "channel": "Kanal",
+      "connected": "Verbunden",
+      "currentChannels": "Jetzt verbundene Kanäle",
+      "currentSeats": "Jetzt aktive Nutzerplätze",
+      "deactivated": "Deaktiviert",
+      "disconnected": "Getrennt",
+      "peakAt": "Höchstwert erreicht",
+      "peakChannels": "Höchstzahl Kanäle",
+      "seats": "Nutzerplätze"
+    },
+    "coverage": {
+      "channelsInexactTimes": "Einige Verbindungs- oder Trennzeitpunkte sind geschätzt, daher kann dieser Höchstwert vom tatsächlichen Wert abweichen.",
+      "channelsRecordedFrom": "Kanaländerungen werden seit {date} erfasst. Vorher entfernte Kanäle fehlen, daher kann dieser Höchstwert zu niedrig sein.",
+      "footnote": "* Unvollständiger Verlauf für diesen Monat. Details im Workspace.",
+      "incomplete": "Unvollständiger Verlauf",
+      "seatsInexactTimes": "Einige Aktivierungs- oder Deaktivierungszeitpunkte sind geschätzt, daher kann diese Zahl vom tatsächlichen Wert abweichen.",
+      "seatsRecordedFrom": "Änderungen an Nutzerplätzen werden seit {date} erfasst. Frühere Aktivierungen und Deaktivierungen sind rekonstruiert oder fehlen, daher kann diese Zahl vom tatsächlichen Wert abweichen."
+    },
+    "deleted": "Gelöscht am {date}",
+    "deletedBeforeRecording": "Workspaces, die vor dem {date} gelöscht wurden, fehlen; ihr Verlauf wurde nicht erfasst.",
+    "description": "Pro Kalendermonat in UTC. Jeder Nutzer, der im Monat zu irgendeinem Zeitpunkt aktiv war, zählt für den ganzen Monat als ein Nutzerplatz. Kanäle werden nach der höchsten Zahl gleichzeitig verbundener Kanäle gezählt.",
+    "empty": "In diesem Monat gab es keinen Workspace.",
+    "estimated": "Geschätzt",
+    "export": "CSV-Datei",
+    "month": "Monat",
+    "monthInProgress": "Dieser Monat läuft noch, die Zahlen können also noch steigen.",
+    "navigation": "Nutzung",
+    "seats": {
+      "none": "In diesem Monat war kein Nutzer aktiv.",
+      "title": "Nutzerplätze"
+    },
+    "stillActive": "Noch aktiv",
+    "stillConnected": "Noch verbunden",
+    "title": "Abrechnungsrelevante Nutzung"
+  },
   "OperatorUsers": {
     "adjustment": {
       "deltaLabel": "Vorzeichenbehaftete Credit-Korrektur",
@@ -3120,19 +3163,11 @@
       "title": "Enterprise-Kontingent",
       "warningDescription": "Das Kontingent gilt pro Benutzer im gesamten Arbeitsbereich und wirkt sich auf die aktuelle Periode aus."
     },
-    "channels": {
-      "approximate": "Mindestens ein Trennzeitpunkt ist geschätzt, daher kann dieser Höchstwert leicht zu hoch sein.",
-      "description": "Höchstzahl gleichzeitig verbundener Kanäle pro Monat, rekonstruiert aus dem Audit-Verlauf des Workspace.",
-      "monthLabel": "Monat",
-      "monthOption": "{month} · {count} im Maximum",
-      "none": "Es waren nie Kanäle verbunden.",
-      "title": "Verbundene Kanäle"
-    },
     "delete": {
       "action": "Workspace löschen",
       "confirmTitle": "Diesen Workspace dauerhaft löschen",
       "reasonLabel": "Grund",
-      "warningDescription": "Beim Löschen von {name} werden der Workspace und {members, plural, =1 {sein einziges Mitgliedskonto} other {alle # Mitgliedskonten}} dauerhaft entfernt, samt Kontakten, Deals, Nachrichten, Anmeldedaten und Abrechnungsdaten. Dies kann nicht rückgängig gemacht werden."
+      "warningDescription": "Beim Löschen von {name} werden der Workspace und {members, plural, =1 {sein einziges Mitgliedskonto} other {alle # Mitgliedskonten}} dauerhaft entfernt, samt Kontakten, Deals, Nachrichten, Anmeldedaten und Abrechnungsdaten. Die monatlichen Nutzungszahlen bleiben für die Abrechnung erhalten, ohne Namen, E-Mail-Adressen oder Kontokennungen. Dies kann nicht rückgängig gemacht werden."
     },
     "emptyBody": "Passe Suche oder Filter an, um die Liste zu erweitern.",
     "emptyTitle": "Keine Arbeitsbereiche passen zu diesen Filtern",

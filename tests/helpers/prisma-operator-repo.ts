@@ -7,6 +7,7 @@ import { PrismaCompanyRepo } from "@/features/company/prisma-company.repository"
 import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
 import { prismaAgentChatRepoDependencies } from "./prisma-agent-chat-repo";
 import { createTestRecordRepo } from "./record-repository";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 const authService = async () => {
   const [{ AuthService }, { EmailService }] = await Promise.all([
@@ -23,9 +24,9 @@ const identities: OperatorWriteOwners["identities"] = {
 
 export const createTestOperatorRepo = () =>
   new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()), {
-    users: new PrismaUserRepo(new PermissionService()),
+    users: new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
     records: createTestRecordRepo(),
-    companies: new PrismaCompanyRepo(),
+    companies: new PrismaCompanyRepo(new PrismaBillingUsageRepo()),
     identities,
     inboundEvents: new PrismaUnipileWebhookRepo(),
   });
