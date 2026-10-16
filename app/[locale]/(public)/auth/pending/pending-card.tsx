@@ -50,7 +50,7 @@ const PendingCardContent = observer(() => {
 
       <ConfirmDialog
         anchorScope="pending-withdraw-confirm"
-        confirmLabel={t("PendingCard.withdraw")}
+        confirmLabel={t("PendingCard.withdrawShort")}
         description={t("PendingCard.withdrawConfirmDescription")}
         open={confirmingWithdraw}
         title={t("PendingCard.withdrawConfirmTitle", { name })}

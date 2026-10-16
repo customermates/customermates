@@ -67,7 +67,7 @@ test("a member who cannot manage the workspace sees its name read-only and can s
 
   await clickHydrated(page.locator("#settings-general-leave"));
   const confirm = page.getByRole("alertdialog", { name: "Leave Bergmann Steuern?" });
-  await confirm.getByRole("button", { name: "Leave workspace", exact: true }).click();
+  await confirm.getByRole("button", { name: "Leave", exact: true }).click();
   await expect(page).toHaveURL(/\/en\/dashboard$/);
   await expectCurrentWorkspace(page, "Browser workspace");
   expect(errors).toEqual([]);
@@ -114,7 +114,7 @@ test("leaving the current workspace lands in another one and revokes the API key
   await clickHydrated(page.locator("#settings-workspaces-leave"));
   const confirm = page.getByRole("alertdialog", { name: "Leave Bergmann Steuern?" });
   await expect(confirm).toContainText(englishMessages.Workspaces.leaveConfirmDescription);
-  await confirm.getByRole("button", { name: "Leave workspace", exact: true }).click();
+  await confirm.getByRole("button", { name: "Leave", exact: true }).click();
 
   await expect(page).toHaveURL(/\/en\/dashboard$/);
   await expectCurrentWorkspace(page, "Browser workspace");
@@ -181,7 +181,7 @@ test("the only admin of a workspace cannot leave it", async ({ page, database, w
   await expect(page.locator("#settings-general-name")).toHaveValue("Browser workspace");
   await clickHydrated(page.locator("#settings-general-leave"));
   const confirm = page.getByRole("alertdialog", { name: "Leave Browser workspace?" });
-  await confirm.getByRole("button", { name: "Leave workspace", exact: true }).click();
+  await confirm.getByRole("button", { name: "Leave", exact: true }).click();
 
   await expect(page.getByText(englishMessages.Common.errors.workspaceLastAdmin, { exact: true })).toBeVisible();
   await expect(confirm).toHaveCount(0);

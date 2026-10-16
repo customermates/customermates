@@ -295,7 +295,7 @@ test("one person is invited, signs in, pays for a second workspace, keeps every 
       await clickHydrated(page.locator("#pending-withdraw"));
       await page
         .getByRole("alertdialog", { name: `Withdraw your request to join ${INVITER}?` })
-        .getByRole("button", { name: englishMessages.PendingCard.withdraw, exact: true })
+        .getByRole("button", { name: englishMessages.PendingCard.withdrawShort, exact: true })
         .click();
       await expect(page).toHaveURL(/\/en\/dashboard$/);
       await expectCurrentWorkspace(page, "Browser workspace");
@@ -341,7 +341,7 @@ test("one person is invited, signs in, pays for a second workspace, keeps every 
       await expect(confirm).toContainText(`${MEMBER} loses access to this workspace on every device.`);
       await expect(confirm).toContainText(englishMessages.MemberRemoval.consequences.notified);
       await shot(admin.page, "remove-active-confirm");
-      await confirm.getByRole("button", { name: englishMessages.MemberRemoval.action, exact: true }).click();
+      await confirm.getByRole("button", { name: englishMessages.Common.actions.remove, exact: true }).click();
       await expect(confirm).toHaveCount(0);
       await expect(memberItem(admin.page, MEMBER)).toContainText(englishMessages.WorkspaceMembership.left);
       expect(await membership()).toMatchObject({ status: "inactive", left: true });
@@ -398,7 +398,7 @@ test("one person is invited, signs in, pays for a second workspace, keeps every 
       await clickHydrated(page.locator("#settings-general-leave"));
       await page
         .getByRole("alertdialog", { name: `Leave ${INVITER}?` })
-        .getByRole("button", { name: englishMessages.Workspaces.leave, exact: true })
+        .getByRole("button", { name: englishMessages.Workspaces.leaveShort, exact: true })
         .click();
       await expect(page).toHaveURL(/\/en\/dashboard$/);
       expect(await membership()).toMatchObject({ status: "inactive", left: true });

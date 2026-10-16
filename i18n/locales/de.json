@@ -3247,7 +3247,8 @@
     "title": "Warten auf Genehmigung",
     "withdraw": "Anfrage zurückziehen",
     "withdrawConfirmDescription": "Die Admins sehen deine Anfrage nicht mehr. Um später beizutreten, muss dich ein Admin erneut einladen.",
-    "withdrawConfirmTitle": "Anfrage für {name} zurückziehen?"
+    "withdrawConfirmTitle": "Anfrage für {name} zurückziehen?",
+    "withdrawShort": "Zurückziehen"
   },
   "ProfileSections": {
     "apiKeysDescription": "Langlebige API-Schlüssel für den programmatischen Zugriff."

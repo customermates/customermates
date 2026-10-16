@@ -3247,7 +3247,8 @@
     "title": "A la espera de aprobación",
     "withdraw": "Retirar solicitud",
     "withdrawConfirmDescription": "Los administradores ya no ven tu solicitud. Para unirte más tarde, un administrador tiene que invitarte de nuevo.",
-    "withdrawConfirmTitle": "¿Retirar tu solicitud para unirte a {name}?"
+    "withdrawConfirmTitle": "¿Retirar tu solicitud para unirte a {name}?",
+    "withdrawShort": "Retirar"
   },
   "ProfileSections": {
     "apiKeysDescription": "Claves de API de larga duración para el acceso programático."

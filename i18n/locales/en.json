@@ -3247,7 +3247,8 @@
     "title": "Waiting for Approval",
     "withdraw": "Withdraw request",
     "withdrawConfirmDescription": "The administrators no longer see your request. To join later, an admin has to invite you again.",
-    "withdrawConfirmTitle": "Withdraw your request to join {name}?"
+    "withdrawConfirmTitle": "Withdraw your request to join {name}?",
+    "withdrawShort": "Withdraw"
   },
   "ProfileSections": {
     "apiKeysDescription": "Long-lived API keys for programmatic access."

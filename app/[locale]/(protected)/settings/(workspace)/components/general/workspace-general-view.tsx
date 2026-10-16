@@ -104,7 +104,7 @@ const WorkspaceGeneralViewContent = observer(({ workspace }: Props) => {
 
       <ConfirmDialog
         anchorScope="settings-general-leave-confirm"
-        confirmLabel={t("Workspaces.leave")}
+        confirmLabel={t("Workspaces.leaveShort")}
         description={t("Workspaces.leaveConfirmDescription")}
         open={confirmingLeave}
         title={t("Workspaces.leaveConfirmTitle", { name })}

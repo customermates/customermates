@@ -54,7 +54,7 @@ test("a person withdraws a pending request from the waiting screen and the admin
       const confirm = page.getByRole("alertdialog", { name: "Withdraw your request to join Hoffmann Consulting?" });
       await expect(confirm).toContainText(englishMessages.PendingCard.withdrawConfirmDescription);
       await page.screenshot({ path: testInfo.outputPath(`ws-withdraw-confirm-${testInfo.project.name}.png`) });
-      await confirm.getByRole("button", { name: englishMessages.PendingCard.withdraw, exact: true }).click();
+      await confirm.getByRole("button", { name: englishMessages.PendingCard.withdrawShort, exact: true }).click();
 
       await expect(page).toHaveURL(/\/en\/dashboard$/);
       await expectCurrentWorkspace(page, "Browser workspace");

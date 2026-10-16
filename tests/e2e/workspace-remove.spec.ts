@@ -31,6 +31,7 @@ import {
 test.skip(e2eAppMode() === "demo", "Demo mode signs every visitor in as the shared demo account");
 
 const REMOVE = "Remove from workspace";
+const CONFIRM_REMOVE = "Remove";
 
 test("the member dialog never offers removing yourself and explains why the last admin stays", async ({
   browser,
@@ -128,7 +129,7 @@ test("removing a member who waits for approval declines the request and clears t
       await expect(confirm).toContainText("Petra Wolf is waiting for approval. Removing them declines the request.");
       await expect(confirm).toContainText(englishMessages.MemberRemoval.consequences.rejoin);
       await page.screenshot({ path: testInfo.outputPath(`ws-remove-pending-confirm-${testInfo.project.name}.png`) });
-      await confirm.getByRole("button", { name: REMOVE, exact: true }).click();
+      await confirm.getByRole("button", { name: CONFIRM_REMOVE, exact: true }).click();
       await expect(confirm).toHaveCount(0);
       await expect(row).toContainText(englishMessages.WorkspaceMembership.left);
       expect(await membershipIn(database, workspace.companyId, email)).toMatchObject({
@@ -182,7 +183,7 @@ test("a removed member's API key for the workspace stops working while the key o
     for (const consequence of Object.values(englishMessages.MemberRemoval.consequences))
       await expect(confirm).toContainText(consequence);
     await page.screenshot({ path: testInfo.outputPath(`ws-remove-active-confirm-${testInfo.project.name}.png`) });
-    await confirm.getByRole("button", { name: REMOVE, exact: true }).click();
+    await confirm.getByRole("button", { name: CONFIRM_REMOVE, exact: true }).click();
     await expect(confirm).toHaveCount(0);
     await expect(member).toHaveCount(0);
     await expect(memberItem(page, "Rita Vogel")).toContainText(englishMessages.WorkspaceMembership.left);
@@ -217,7 +218,7 @@ test("a removed member gets one removal e-mail in their own language with a sign
     await runRowAction(page, memberItem(page, "Rita Vogel"), "Rita Vogel", REMOVE);
     const confirm = page.getByRole("alertdialog", { name: "Remove Rita Vogel from Browser workspace?" });
     await expect(confirm).toContainText(englishMessages.MemberRemoval.consequences.notified);
-    await confirm.getByRole("button", { name: REMOVE, exact: true }).click();
+    await confirm.getByRole("button", { name: CONFIRM_REMOVE, exact: true }).click();
     await expect(confirm).toHaveCount(0);
     await expect(memberItem(page, "Rita Vogel")).toContainText(englishMessages.WorkspaceMembership.left);
 
@@ -272,7 +273,7 @@ test("a member removed while a page is open meets the workspace-changed dialog a
       await runRowAction(page, memberItem(page, "Rita Vogel"), "Rita Vogel", REMOVE);
       await page
         .getByRole("alertdialog", { name: "Remove Rita Vogel from Browser workspace?" })
-        .getByRole("button", { name: REMOVE, exact: true })
+        .getByRole("button", { name: CONFIRM_REMOVE, exact: true })
         .click();
       await expect(memberItem(page, "Rita Vogel")).toContainText(englishMessages.WorkspaceMembership.left);
 

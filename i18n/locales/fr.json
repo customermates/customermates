@@ -3247,7 +3247,8 @@
     "title": "En attente d'approbation",
     "withdraw": "Retirer la demande",
     "withdrawConfirmDescription": "Les administrateurs ne voient plus votre demande. Pour rejoindre plus tard, un administrateur doit vous inviter à nouveau.",
-    "withdrawConfirmTitle": "Retirer votre demande pour rejoindre {name} ?"
+    "withdrawConfirmTitle": "Retirer votre demande pour rejoindre {name} ?",
+    "withdrawShort": "Retirer"
   },
   "ProfileSections": {
     "apiKeysDescription": "Clés API de longue durée pour un accès programmatique."

@@ -79,7 +79,7 @@ test("a member joins, withdraws, rejoins, works, leaves and is removed across th
       await clickHydrated(page.locator("#pending-withdraw"));
       await page
         .getByRole("alertdialog", { name: "Withdraw your request to join Hoffmann Consulting?" })
-        .getByRole("button", { name: englishMessages.PendingCard.withdraw, exact: true })
+        .getByRole("button", { name: englishMessages.PendingCard.withdrawShort, exact: true })
         .click();
       await expect(page).toHaveURL(/\/en\/dashboard$/);
       await expectCurrentWorkspace(page, "Browser workspace");
@@ -140,7 +140,7 @@ test("a member joins, withdraws, rejoins, works, leaves and is removed across th
       await clickHydrated(page.locator("#settings-general-leave"));
       await page
         .getByRole("alertdialog", { name: "Leave Hoffmann Consulting?" })
-        .getByRole("button", { name: englishMessages.Workspaces.leave, exact: true })
+        .getByRole("button", { name: englishMessages.Workspaces.leaveShort, exact: true })
         .click();
       await expect(page).toHaveURL(/\/en\/dashboard$/);
       await expectCurrentWorkspace(page, "Browser workspace");
@@ -163,7 +163,7 @@ test("a member joins, withdraws, rejoins, works, leaves and is removed across th
       const confirm = admin.page.getByRole("alertdialog", { name: "Remove Jonas Keller from Hoffmann Consulting?" });
       await expect(confirm).toContainText("Jonas Keller is waiting for approval. Removing them declines the request.");
       await shot(admin.page, "remove-confirm");
-      await confirm.getByRole("button", { name: "Remove from workspace", exact: true }).click();
+      await confirm.getByRole("button", { name: englishMessages.Common.actions.remove, exact: true }).click();
       await expect(confirm).toHaveCount(0);
       await expect(row).toContainText(englishMessages.WorkspaceMembership.left);
       expect(await membership()).toMatchObject({ status: "inactive", left: true });

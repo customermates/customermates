@@ -49,7 +49,7 @@ export function useMemberRemovalConfirmation() {
             t("MemberRemoval.consequences.rejoin"),
             t("MemberRemoval.consequences.notified"),
           ],
-      confirmLabel: t("MemberRemoval.action"),
+      confirmLabel: t("Common.actions.remove"),
       confirmVariant: "destructive",
       successKey: "MemberRemoval.removed",
       onConfirm: () => userModalStore.remove(memberId),
