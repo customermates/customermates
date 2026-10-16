@@ -2,6 +2,7 @@ import type { Locator, Page } from "@playwright/test";
 import { createServer, type Server } from "node:http";
 import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
+import { geonamesLine, zipFixture } from "../../features/addresses/postal-codes/__tests__/zip-fixture";
 import { addFromConfigure, openConfigure, saveDrawer } from "./configure";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { openRecordDetails } from "./record-rows";
@@ -9,6 +10,41 @@ import { openRecordDetails } from "./record-rows";
 const lookupUrl = process.env.ADDRESS_LOOKUP_URL ? new URL(process.env.ADDRESS_LOOKUP_URL) : null;
 if (lookupUrl && (!["127.0.0.1", "localhost"].includes(lookupUrl.hostname) || !lookupUrl.port))
   throw new Error("The browser suite only serves address lookups from a loopback mock with an explicit port.");
+const postalUrl =
+  process.env.POSTAL_CODE_DATA_URL && process.env.POSTAL_CODE_DATA_URL !== "off"
+    ? new URL(process.env.POSTAL_CODE_DATA_URL)
+    : null;
+if (postalUrl && (!["127.0.0.1", "localhost"].includes(postalUrl.hostname) || !postalUrl.port))
+  throw new Error("The browser suite only serves postal codes from a loopback mock with an explicit port.");
+const POSTAL_FILES: Record<string, Buffer> = {
+  "/DE.zip": zipFixture([
+    {
+      name: "DE.txt",
+      content: [
+        geonamesLine(
+          "DE",
+          "68259",
+          "Mannheim",
+          { name1: "Baden-Württemberg", code1: "BW", name3: "Mannheim" },
+          49.4903,
+          8.5339,
+        ),
+        geonamesLine(
+          "DE",
+          "69117",
+          "Heidelberg",
+          { name1: "Baden-Württemberg", code1: "BW", name3: "Heidelberg" },
+          49.4093,
+          8.6936,
+        ),
+        geonamesLine("DE", "01945", "Ruhland", { name1: "Brandenburg", code1: "BB" }, 51.4576, 13.8664),
+        geonamesLine("DE", "01945", "Tettau", { name1: "Brandenburg", code1: "BB" }, 51.4333, 13.7333),
+      ].join("\n"),
+    },
+  ]),
+};
+const postalRequests: string[] = [];
+let postal: Server | null = null;
 
 const PHOTON_FEATURES = [
   {
@@ -43,6 +79,24 @@ const PHOTON_FEATURES = [
 const MANNHEIM = "Hauptstraße 5, 68259 Mannheim, Germany";
 const photonRequests: URL[] = [];
 let photon: Server | null = null;
+
+test.beforeAll(async () => {
+  if (!postalUrl) return;
+  postal = createServer((request, response) => {
+    const path = new URL(request.url ?? "/", postalUrl).pathname;
+    postalRequests.push(path);
+    const body = POSTAL_FILES[path];
+    response.writeHead(body ? 200 : 404, { "content-type": body ? "application/zip" : "text/plain" });
+    response.end(body ?? "");
+  });
+  await new Promise<void>((resolve) => postal?.listen(Number(postalUrl.port), postalUrl.hostname, resolve));
+});
+
+test.afterAll(async () => {
+  if (!postal) return;
+  postal.closeAllConnections();
+  await new Promise<void>((resolve) => postal?.close(() => resolve()));
+});
 
 test.beforeAll(async () => {
   if (!lookupUrl) return;
@@ -108,6 +162,16 @@ async function fillParts(address: Locator, parts: { street: string; postalCode: 
   await addressPart(address, "City").fill(parts.city);
 }
 
+function addressChoice(address: Locator, label: string) {
+  return address.getByRole("combobox", { name: new RegExp(`(^|\\s)${label}$`) });
+}
+
+async function chooseOption(page: Page, address: Locator, label: string, option: string) {
+  await addressChoice(address, label).click();
+  await page.getByPlaceholder("Search...", { exact: true }).fill(option);
+  await page.getByRole("option", { name: new RegExp(`(^|\\s)${option}$`) }).click();
+}
+
 async function storedAddresses(database: Client, companyId: string) {
   const result = await database.query(
     `SELECT first."textValue" AS name, value."jsonValue" AS address
@@ -124,7 +188,12 @@ async function storedAddresses(database: Client, companyId: string) {
     address: {
       street: string;
       line2: string | null;
+      postalCode: string | null;
+      city: string | null;
+      region: string | null;
+      countryCode: string | null;
       formatted: string;
+      location: { lat: number; lon: number; precision: string } | null;
       verification: { status: string; provider: string | null };
     };
   }>;
@@ -281,7 +350,7 @@ test("enters addresses by hand when no address service is configured", async ({ 
     postalCode: "68259",
     city: "Mannheim",
   });
-  await expect(address.locator('[data-address-status="unverified"]')).toHaveText("Unverified");
+  await expect(address.locator("[data-address-status]")).toHaveCount(0);
   await expect(address.getByRole("button", { name: "Check address", exact: true })).toHaveCount(0);
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
@@ -334,5 +403,134 @@ test("sets one address on several selected records", async ({ page, database, co
       ["Ada", "Hauptstraße 5"],
       ["Grace", "Hauptstraße 5"],
     ]);
+  expect(errors).toEqual([]);
+});
+
+test("checks an address while it is typed and completes it from the postal code", async ({
+  page,
+  database,
+  companyId,
+}) => {
+  test.setTimeout(240000);
+  const errors = collectPageErrors(page);
+  await addAddressField(page, companyId);
+  const drawer = await newContact(page, companyId, "Ada");
+  const address = drawer.locator("[data-address-input]");
+  await chooseOption(page, address, "Country", "Germany");
+  await expect(addressPart(address, "Postal code")).toBeVisible();
+  await expect(addressChoice(address, "State or region")).toHaveCount(0);
+  await addressPart(address, "Street and number").fill("Hauptstraße 5");
+  await addressPart(address, "Postal code").fill("6825");
+  await expect(address.locator('[data-address-issue="postalCodeInvalid"]')).toHaveText(
+    "This is not a postal code of Germany. Postal codes there look like 26133.",
+  );
+  await addressPart(address, "Postal code").fill("68259");
+  await expect(address.locator('[data-address-issue="postalCodeInvalid"]')).toHaveCount(0);
+  if (postalUrl) {
+    await expect(addressPart(address, "City")).toHaveValue("Mannheim", { timeout: 60000 });
+    await expect(
+      address.getByRole("link", { name: "Postal codes: GeoNames (CC BY 4.0)", exact: true }),
+    ).toHaveAttribute("href", "https://www.geonames.org/");
+    expect(postalRequests).toContain("/DE.zip");
+  } else {
+    await expect(address.locator('[data-address-issue="partMissing"]')).toHaveText(
+      "City is missing. Addresses in Germany need it.",
+    );
+    await addressPart(address, "City").fill("Mannheim");
+  }
+  await drawer.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(drawer).not.toBeVisible();
+  await expect
+    .poll(async () => (await storedAddresses(database, companyId)).map((row) => row.address))
+    .toEqual([
+      expect.objectContaining({
+        street: "Hauptstraße 5",
+        postalCode: "68259",
+        city: "Mannheim",
+        countryCode: "de",
+        formatted: "Hauptstraße 5, 68259 Mannheim",
+        location: postalUrl ? { lat: 49.4903, lon: 8.5339, precision: "postcode" } : null,
+        verification: expect.objectContaining({ status: "unverified" }),
+      }),
+    ]);
+  expect(errors).toEqual([]);
+});
+
+test("offers the cities of a postal code and corrects a city that does not belong to it", async ({
+  page,
+  database,
+  companyId,
+}) => {
+  test.skip(!postalUrl, "Needs the mock postal code directory; start the suite with POSTAL_CODE_DATA_URL set");
+  test.setTimeout(240000);
+  const errors = collectPageErrors(page);
+  await addAddressField(page, companyId);
+  const drawer = await newContact(page, companyId, "Grace");
+  const address = drawer.locator("[data-address-input]");
+  await chooseOption(page, address, "Country", "Germany");
+  await addressPart(address, "Street and number").fill("Bahnhofstraße 1");
+  await addressPart(address, "Postal code").fill("01945");
+  const places = address.locator("[data-address-places]");
+  await expect(places).toContainText("Cities with this postal code:", { timeout: 60000 });
+  await expect(places.getByRole("button")).toHaveText(["Use Ruhland", "Use Tettau"]);
+  await expect(addressPart(address, "City")).toHaveValue("");
+  await places.getByRole("button", { name: "Use Tettau", exact: true }).click();
+  await expect(addressPart(address, "City")).toHaveValue("Tettau");
+  await expect(places).toHaveCount(0);
+
+  await addressPart(address, "Postal code").fill("68259");
+  const mismatch = address.locator('[data-address-issue="cityMismatch"]');
+  await expect(mismatch).toContainText("This city does not belong to postal code 68259.");
+  await mismatch.getByRole("button", { name: "Use Mannheim", exact: true }).click();
+  await expect(addressPart(address, "City")).toHaveValue("Mannheim");
+  await expect(mismatch).toHaveCount(0);
+  await drawer.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(drawer).not.toBeVisible();
+  await expect
+    .poll(async () =>
+      (await storedAddresses(database, companyId)).map((row) => [row.address.postalCode, row.address.city]),
+    )
+    .toEqual([["68259", "Mannheim"]]);
+  expect(errors).toEqual([]);
+});
+
+test("refuses to save a postal code that does not fit the country", async ({ page, database, companyId }) => {
+  test.setTimeout(240000);
+  const errors = collectPageErrors(page);
+  await addAddressField(page, companyId);
+  const drawer = await newContact(page, companyId, "Ada");
+  const address = drawer.locator("[data-address-input]");
+  await chooseOption(page, address, "Country", "Germany");
+  await addressPart(address, "Postal code").fill("682591");
+  await addressPart(address, "City").fill("Mannheim");
+  await drawer.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(
+    page.getByText(
+      "In Address, 682591 is not a postal code of the chosen country. Postal codes there look like 26133.",
+      { exact: true },
+    ),
+  ).toBeVisible();
+  await expect(addressPart(address, "Postal code")).toHaveAttribute("aria-invalid", "true");
+  await expect(addressPart(address, "City")).not.toHaveAttribute("aria-invalid", "true");
+  await expect(drawer).toBeVisible();
+  expect(await storedAddresses(database, companyId)).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
+test("lays an address out the way its country writes it", async ({ page, companyId }) => {
+  test.setTimeout(240000);
+  const errors = collectPageErrors(page);
+  await addAddressField(page, companyId);
+  const drawer = await newContact(page, companyId, "Ada");
+  const address = drawer.locator("[data-address-input]");
+  await chooseOption(page, address, "Country", "United States");
+  await expect(addressPart(address, "ZIP code")).toBeVisible();
+  await expect(addressPart(address, "Postal code")).toHaveCount(0);
+  await chooseOption(page, address, "State or territory", "California");
+  await expect(addressChoice(address, "State or territory")).toContainText("California");
+  await chooseOption(page, address, "Country", "Japan");
+  await expect(addressChoice(address, "Prefecture")).toBeVisible();
+  await chooseOption(page, address, "Country", "United Kingdom");
+  await expect(addressPart(address, "Post town")).toBeVisible();
   expect(errors).toEqual([]);
 });
