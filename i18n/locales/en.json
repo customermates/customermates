@@ -4565,6 +4565,7 @@
         "informal": "Address customers informally: use their first name and a friendly, direct tone.",
         "source": "The owner set this during the workspace setup."
       },
+      "answersSource": "Answers given during the workspace setup ({date})",
       "competitor": {
         "heading": "To complete by your team",
         "losses": "Where {competitor} is the better fit",

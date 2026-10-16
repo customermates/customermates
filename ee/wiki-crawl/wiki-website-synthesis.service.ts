@@ -115,7 +115,7 @@ function pageKind(role: WikiSynthesisRole, whenToUse: string): WikiSynthesisCand
   return role === "procedure" && whenToUse ? "procedure" : "knowledge";
 }
 
-type Translate = (key: string, values?: Record<string, string>) => string;
+export type WikiSynthesisTranslate = (key: string, values?: Record<string, string>) => string;
 
 function homepageSource(crawl: WikiCrawlRecord, sources: Sources) {
   const homeKey = crawlDedupeKey(crawl.homepageUrl);
@@ -128,7 +128,10 @@ function savedTopicPages(crawl: WikiCrawlRecord) {
   );
 }
 
-function ownerSections(topic: StoredWikiSynthesisTopic, t: Translate) {
+export function wikiOwnerSections(
+  topic: Pick<StoredWikiSynthesisTopic, "addressForm" | "competitor">,
+  t: WikiSynthesisTranslate,
+) {
   const address = topic.addressForm === "formal" ? t("address.formal") : t("address.informal");
   const lead = topic.addressForm ? [`## ${t("address.heading")}\n\n${address} ${t("address.source")}`] : [];
   const competitor = topic.competitor;
@@ -149,7 +152,7 @@ function ownerSections(topic: StoredWikiSynthesisTopic, t: Translate) {
 function guideLinkSections(
   topic: StoredWikiSynthesisTopic,
   savedPages: Array<{ title: string; pageId: string }>,
-  t: Translate,
+  t: WikiSynthesisTranslate,
 ): string[] {
   if (topic.role !== "operating_guide" || savedPages.length === 0) return [];
   return [
@@ -651,7 +654,7 @@ export class WikiWebsiteSynthesisService extends UserAccessor {
     }
 
     const t = await getTranslator(locale, "WikiSetup.generated");
-    const owner = ownerSections(topic, t);
+    const owner = wikiOwnerSections(topic, t);
     const markdown = [
       ...owner.lead,
       ...candidate.sections.map(({ heading, content }) => `## ${heading}\n\n${wikiSynthesisSectionMarkdown(content)}`),
@@ -681,7 +684,7 @@ export class WikiWebsiteSynthesisService extends UserAccessor {
 
   private async ownerPage(crawl: WikiCrawlRecord, topic: StoredWikiSynthesisTopic): Promise<SynthesizedPage | null> {
     const t = await getTranslator(appLocaleOrDefault(crawl.locale), "WikiSetup.generated");
-    const owner = ownerSections(topic, t);
+    const owner = wikiOwnerSections(topic, t);
     const markdown = [...owner.lead, ...owner.tail, ...guideLinkSections(topic, savedTopicPages(crawl), t)].join(
       "\n\n",
     );

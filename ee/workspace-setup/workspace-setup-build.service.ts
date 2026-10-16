@@ -23,8 +23,12 @@ import type {
   WorkspaceSetupPhase,
   WorkspaceSetupRecord,
 } from "./workspace-setup.schema";
-import type { WorkspaceSetupModelService } from "./workspace-setup-model.service";
+import type { SetupModelOutcome, WorkspaceSetupModelService } from "./workspace-setup-model.service";
 import type { GeneratedSampleList, SampleListSpec } from "./workspace-setup-samples";
+import type { CreateWikiPagesInteractor } from "@/features/wiki/create-wiki-pages.interactor";
+import type { WikiPageInput } from "@/features/wiki/wiki.schema";
+import type { SetupAnswerPages, SetupAnswerTopic } from "./workspace-setup-answer-pages";
+import type { WikiSynthesisDraft } from "@/ee/wiki-crawl/wiki-synthesis.schema";
 
 import { UserAccessor } from "@/core/base/user-accessor";
 import { interactorFailureCodes } from "@/core/validation/validation.utils";
@@ -75,7 +79,22 @@ import {
   setupLanguage,
 } from "./workspace-setup-inputs";
 import { MappingWireSchema, sampleRecordsWireSchema } from "./workspace-setup-wire";
+import { WikiSynthesisDraftSchema } from "@/ee/wiki-crawl/wiki-synthesis.schema";
 import {
+  SETUP_ANSWERS_SOURCE_KEY,
+  SETUP_ANSWER_GUIDE_KEY,
+  SetupAnswerPagesSchema,
+  setupAnswerDraftIssues,
+  setupAnswerGuide,
+  setupAnswerPage,
+  setupAnswerTopics,
+  setupAnswersSourceText,
+} from "./workspace-setup-answer-pages";
+import { setupAddressForm } from "./workspace-setup-knowledge";
+import { setupPageTitles } from "./workspace-setup-knowledge-brief";
+import {
+  SETUP_ANSWER_PAGE_GUIDANCE,
+  SETUP_ANSWER_PAGE_INSTRUCTION,
   SETUP_MAPPING_INSTRUCTION,
   SETUP_SAMPLE_RECORDS_INSTRUCTION,
   encodePromptJson,
@@ -102,6 +121,7 @@ import {
 export const SETUP_PHASE_STALE_MS = 20 * 60 * 1_000;
 const OPERATION_POLL_MS = 2_000;
 const OPERATION_WAIT_MS = 4 * 60 * 1_000;
+const ANSWER_PAGES_STEP_MS = 90 * 1_000;
 const CRAWL_ACTIVE = new Set(["queued", "discovering", "fetching", "importing", "synthesizing"]);
 const SETTLED: ReadonlySet<StoredSetupPhase["status"]> = new Set(["completed", "failed", "skipped", "stopped"]);
 
@@ -198,6 +218,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     private brandFetch: (scope: { registrableDomain: string }) => BrandFetch,
     private settings: Pick<UpdateUserDetailsInteractor, "invoke">,
     private mutateRecord: Pick<MutateRecordInteractor, "invoke">,
+    private createPages: Pick<CreateWikiPagesInteractor, "invoke">,
   ) {
     super();
   }
@@ -348,7 +369,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
   }
 
   private async knowledgeBase(setup: WorkspaceSetupRecord, giveUp: boolean): Promise<PhaseOutcome> {
-    if (!setup.crawlId) return { status: "skipped" };
+    if (!setup.crawlId) return this.answerPages(setup);
     let crawl = await this.repo.crawlState(setup.crawlId);
     if (!crawl) return { status: "failed", error: "crawlFailed" };
     if (CRAWL_ACTIVE.has(crawl.status)) {
@@ -365,6 +386,99 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     if (crawl.failureReason === "credits") return { status: "stopped", error: "spendCap", patch };
     if (crawl.failureReason === "aiUnavailable") return { status: "failed", error: "aiUnavailable", patch };
     return { status: "failed", error: "crawlFailed", patch };
+  }
+
+  private async answerPages(setup: WorkspaceSetupRecord): Promise<PhaseOutcome> {
+    const language = setupLanguage(setup.answers);
+    const copy = await setupPageTitles(language);
+    const topics = setupAnswerTopics(setup.plan, setup.answers, copy.title);
+    if (topics.length === 0) return { status: "skipped" };
+    const source = setupAnswersSourceText(setup.answers, await setupInterviewCatalog());
+    const cited = copy.answersSource(new Date().toISOString().slice(0, 10));
+    let done = artifact(setup, "answerPages", SetupAnswerPagesSchema) ?? { planned: topics.length + 1, pages: [] };
+    const record = async (entry: SetupAnswerPages["pages"][number]) => {
+      const next = { planned: done.planned, pages: [...done.pages.filter(({ key }) => key !== entry.key), entry] };
+      const stored = await this.repo.mutate(setup.id, (current) => ({
+        artifacts: { ...current.artifacts, answerPages: next },
+      }));
+      if (!stored) throw phaseFailure("error");
+      done = next;
+    };
+    const create = async (key: string, page: WikiPageInput) => {
+      const created = await this.createPages.invoke({ requireEmpty: false, pages: [page] });
+      await record({ key, title: page.title, pageId: created.ok ? created.data[0].id : null });
+    };
+    const patch = (current: WorkspaceSetupRecord): WorkspaceSetupPatch => {
+      const pages = done.pages.flatMap(({ title: pageTitle, pageId }) =>
+        pageId ? [{ id: pageId, title: pageTitle }] : [],
+      );
+      return {
+        created: { ...current.created, pages: pages.map((page) => page.id) },
+        results: { ...current.results, pages },
+      };
+    };
+    const deadline = Date.now() + ANSWER_PAGES_STEP_MS;
+    let unwritten = 0;
+    for (const topic of topics) {
+      if (done.pages.some(({ key }) => key === topic.key)) continue;
+      if (Date.now() > deadline) return { status: "wait" };
+      const draft = await this.answerDraft(topic, source, language);
+      if (draft === "spendCap") return { status: "stopped", error: "spendCap", patch };
+      if (draft === "aiUnavailable") return { status: "failed", error: "aiUnavailable", patch };
+      if (draft === null) {
+        unwritten += 1;
+        continue;
+      }
+      const page = setupAnswerPage({ topic, draft, copy, source: cited });
+      if (page) await create(topic.key, page);
+      else await record({ key: topic.key, title: topic.title, pageId: null });
+    }
+    if (unwritten === 0 && !done.pages.some(({ key, pageId }) => key === SETUP_ANSWER_GUIDE_KEY && pageId)) {
+      const guide = setupAnswerGuide({
+        addressForm: setupAddressForm(setup.answers),
+        pages: done.pages.flatMap(({ key, title: pageTitle, pageId }) =>
+          key !== SETUP_ANSWER_GUIDE_KEY && pageId ? [{ title: pageTitle, pageId }] : [],
+        ),
+        copy,
+      });
+      if (guide) await create(SETUP_ANSWER_GUIDE_KEY, guide);
+    }
+    if (unwritten > 0) return { status: "failed", error: "generation", patch };
+    return { status: "completed", patch };
+  }
+
+  private async answerDraft(
+    topic: SetupAnswerTopic,
+    source: string,
+    language: string,
+  ): Promise<WikiSynthesisDraft | "spendCap" | "aiUnavailable" | null> {
+    const prompt = [
+      `Knowledge Base language: ${setupLanguageName(language)}.`,
+      `Page title: ${topic.title}`,
+      ...(topic.competitor ? [`Competitor: ${encodePromptJson(topic.competitor)}`] : []),
+      ...(topic.outline.length
+        ? [`Planned sections: ${encodePromptJson(topic.outline)}. Use them where the answers support them.`]
+        : []),
+      `Answers (source "${SETUP_ANSWERS_SOURCE_KEY}"):`,
+      untrustedText(source),
+    ].join("\n\n");
+    let feedback: string | null = null;
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const result: SetupModelOutcome<WikiSynthesisDraft> = await this.models.generate({
+        label: "Workspace setup Knowledge Base page",
+        purpose: "setupDrafting",
+        schema: WikiSynthesisDraftSchema,
+        system: `${SETUP_ANSWER_PAGE_INSTRUCTION} ${SETUP_ANSWER_PAGE_GUIDANCE[topic.role]}`,
+        prompt: feedback ? `${prompt}\n\n${feedback}` : prompt,
+      });
+      if (!result.ok)
+        return result.failure === "spendCap" || result.failure === "aiUnavailable" ? result.failure : null;
+      const invalid = setupAnswerDraftIssues(result.value, source);
+      if (invalid.length === 0 || attempt === 1)
+        return { ...result.value, sections: result.value.sections.filter((_, index) => !invalid.includes(index)) };
+      feedback = `Your previous draft was rejected. Rewrite the whole page and copy every evidence quote exactly from one complete answer line in these sections: ${invalid.map((index) => encodePromptJson(result.value.sections[index].heading)).join(", ")}.`;
+    }
+    return null;
   }
 
   private async brand(setup: WorkspaceSetupRecord): Promise<BrandMapping | null> {

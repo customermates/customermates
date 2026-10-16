@@ -4565,6 +4565,7 @@
         "informal": "A los clientes se les tutea: nombre de pila y tono cercano y directo.",
         "source": "Lo definió el propietario durante la configuración del espacio de trabajo."
       },
+      "answersSource": "Respuestas dadas durante la configuración del espacio de trabajo ({date})",
       "competitor": {
         "heading": "Para completar por tu equipo",
         "losses": "Cuándo {competitor} encaja mejor",

@@ -4565,6 +4565,7 @@
         "informal": "Kundinnen und Kunden werden geduzt: Anrede mit „du“ und Vornamen, freundlich und direkt.",
         "source": "Festgelegt von der Inhaberin oder dem Inhaber bei der Einrichtung des Arbeitsbereichs."
       },
+      "answersSource": "Antworten aus der Einrichtung des Arbeitsbereichs ({date})",
       "competitor": {
         "heading": "Vom Team zu ergänzen",
         "losses": "Wo {competitor} besser passt",

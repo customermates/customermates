@@ -2025,6 +2025,7 @@ export const getWorkspaceSetupBuildService = () =>
     websiteBrandFetch,
     getUpdateUserDetailsInteractor(),
     getMutateRecordInteractor(),
+    getCreateWikiPagesInteractor(),
   );
 export const getStartWorkspaceSetupInteractor = () =>
   new StartWorkspaceSetupInteractor(

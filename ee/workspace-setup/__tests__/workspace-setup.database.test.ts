@@ -138,6 +138,13 @@ function modelReplies() {
       if (args.label === "Workspace setup follow-ups") return Promise.resolve({ output: { questions: [] }, charge });
       const part = planPartFor(args.label, (state.plan ?? agencyPlan) as typeof agencyPlan);
       if (part) return Promise.resolve({ output: part, charge });
+      if (args.label === "Workspace setup Knowledge Base page") {
+        const quote = args.prompt.split("\n").find((line) => line.startsWith("- ")) ?? "";
+        const sections = args.prompt.includes("Page title: About the agency")
+          ? [{ heading: "Who we are", evidence: [{ source: "answers", quote }], content: "Studio Example." }]
+          : [];
+        return Promise.resolve({ output: { whenToUse: "", sections, gaps: [] }, charge });
+      }
       if (args.label === "Workspace setup sample records") {
         const records = (
           args.schema as unknown as { shape: { records: { element: { shape: Record<string, unknown> } } } }
@@ -319,12 +326,20 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     const view = await status(ws);
     expect(view.status).toBe("completed");
     expect(view.phases.map((phase) => [phase.key, phase.status, phase.attempts])).toEqual([
-      ["knowledgeBase", "skipped", 1],
+      ["knowledgeBase", "completed", 1],
       ["dataModel", "completed", 1],
       ["views", "completed", 1],
       ["records", "completed", 1],
       ["dashboard", "completed", 1],
     ]);
+    expect(view.results.pages.map((page) => page.title)).toEqual(["About the agency", "Operating Guide"]);
+    expect(view.knowledgeBase).toMatchObject({ crawlStatus: null, pagesPlanned: 7, pagesWritten: 2 });
+    const [about, guide] = await runWithoutTenant(() =>
+      Promise.all(view.results.pages.map((page) => prisma.wikiPage.findUniqueOrThrow({ where: { id: page.id } }))),
+    );
+    expect(about).toMatchObject({ kind: "knowledge" });
+    expect(JSON.stringify(about)).toContain("Answers given during the workspace setup");
+    expect(guide).toMatchObject({ kind: "guide" });
     expect(view.results.lists.map((list) => list.key)).toEqual([
       "contact",
       "organization",
@@ -513,6 +528,14 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(await ws.run(() => service.runPhase(setupId, "records"))).toBe("wait");
     modelReplies();
     expect(await ws.run(() => service.runPhase(setupId, "records"))).toBe("settled");
+    expect(view.phases.find((phase) => phase.key === "knowledgeBase")).toMatchObject({
+      status: "failed",
+      error: "generation",
+    });
+    expect(
+      await ws.run(() => di.getRetryWorkspaceSetupPhaseInteractor().invoke({ setupId, phase: "knowledgeBase" })),
+    ).toEqual({ ok: true, data: { setupId } });
+    expect(await ws.run(() => service.runPhase(setupId, "knowledgeBase"))).toBe("settled");
     await ws.run(() => service.finish(setupId));
     view = await status(ws);
     expect(view.status).toBe("completed");

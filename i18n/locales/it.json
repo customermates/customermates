@@ -4565,6 +4565,7 @@
         "informal": "Ai clienti si dà del tu: nome di battesimo e tono cordiale e diretto.",
         "source": "Impostato dal titolare durante la configurazione dello spazio di lavoro."
       },
+      "answersSource": "Risposte date durante la configurazione dello spazio di lavoro ({date})",
       "competitor": {
         "heading": "Da completare dal tuo team",
         "losses": "Quando {competitor} è la scelta migliore",

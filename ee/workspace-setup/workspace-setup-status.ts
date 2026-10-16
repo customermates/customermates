@@ -15,6 +15,7 @@ import type {
 import { WORKSPACE_SETUP_PHASES } from "./workspace-setup.schema";
 import { emptySetupPhase, setupPhaseStalled } from "./workspace-setup-build.service";
 import { setupPlanStalled } from "./workspace-setup-interview.service";
+import { SetupAnswerPagesSchema } from "./workspace-setup-answer-pages";
 
 export type WorkspaceSetupPhaseView = {
   key: WorkspaceSetupPhase;
@@ -84,6 +85,8 @@ export function workspaceSetupView(
     };
   });
   const planStalled = setupPlanStalled(setup, now);
+  const storedAnswerPages = SetupAnswerPagesSchema.safeParse(setup.artifacts.answerPages);
+  const answerPages = storedAnswerPages.success ? storedAnswerPages.data : null;
   return {
     id: setup.id,
     status: planStalled ? "interview" : setup.status,
@@ -94,8 +97,10 @@ export function workspaceSetupView(
     knowledgeBase: {
       crawlStatus: crawl?.status ?? null,
       failureReason: crawl?.failureReason ?? null,
-      pagesPlanned: crawl?.topics.length ?? 0,
-      pagesWritten: crawl?.topics.filter((topic) => topic.status === "created").length ?? 0,
+      pagesPlanned: crawl ? crawl.topics.length : (answerPages?.planned ?? 0),
+      pagesWritten: crawl
+        ? crawl.topics.filter((topic) => topic.status === "created").length
+        : (answerPages?.pages.filter((page) => page.pageId).length ?? 0),
     },
     interview: {
       answers: setup.answers,

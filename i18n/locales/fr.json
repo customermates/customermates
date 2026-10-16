@@ -4569,6 +4569,7 @@
         "informal": "Les clients sont tutoyés : « tu » et prénom, sur un ton amical et direct.",
         "source": "Défini par le propriétaire lors de la configuration de l’espace de travail."
       },
+      "answersSource": "Réponses données lors de la configuration de l’espace de travail ({date})",
       "competitor": {
         "heading": "À compléter par votre équipe",
         "losses": "Quand {competitor} convient mieux",

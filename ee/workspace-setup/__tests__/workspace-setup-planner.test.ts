@@ -19,7 +19,7 @@ import {
 import { SetupPlanSchema } from "@/features/workspace-setup/setup-plan.schema";
 import { createMockUser } from "@/tests/helpers/mock-user";
 
-import { SETUP_REPAIR_INSTRUCTION } from "../workspace-setup-prompts";
+import { SETUP_PLAN_KNOWLEDGE_WITHOUT_WEBSITE, SETUP_REPAIR_INSTRUCTION } from "../workspace-setup-prompts";
 import { SETUP_PLAN_PART_ATTEMPTS, WorkspaceSetupPlanner, emptySetupPlanPart } from "../workspace-setup-planner";
 import { PLAN_PART_LABELS, planPartFor, planToWireParts } from "./setup-wire-fixtures";
 
@@ -109,12 +109,21 @@ describe("workspace setup planner", () => {
     expect(calls()[0].prompt).not.toContain("Answers drafted from the website");
   });
 
-  it("plans no Knowledge Base pages without a website and spends no model call on them", async () => {
+  it("plans Knowledge Base pages from the answers alone without a website, but no FAQ page", async () => {
     const { answer, calls, plan } = harness();
-    answer();
+    const knowledge = planPartFor(PLAN_PART_LABELS.knowledge, agencyPlan) as PlanKnowledgeWire;
+    answer({
+      [PLAN_PART_LABELS.knowledge]: {
+        pages: [...knowledge.pages, { key: "faq", kind: "faq", title: "Questions", sections: ["Prices"] }],
+      },
+    });
     const planned = await plan({ ...input, sources: [], website: false });
-    expect(planned.ok && planned.plan.knowledgeBase.pages).toEqual([]);
-    expect(calls().map(({ label }) => label)).toEqual([PLAN_PART_LABELS.model, PLAN_PART_LABELS.views]);
+    expect(planned.ok && planned.plan.knowledgeBase.pages.map((page) => page.kind)).toEqual(
+      knowledge.pages.map((page) => page.kind),
+    );
+    const prompt = calls().find(({ label }) => label === PLAN_PART_LABELS.knowledge)?.prompt;
+    expect(prompt).toContain(SETUP_PLAN_KNOWLEDGE_WITHOUT_WEBSITE);
+    expect(prompt).not.toContain("Website:");
   });
 
   it("names the website language when the answers were drafted in another language", async () => {

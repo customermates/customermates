@@ -1,5 +1,6 @@
 import type { SetupAnswers } from "@/features/workspace-setup/setup-answers.schema";
 import type { SetupQuestionPart } from "@/features/workspace-setup/setup-interview";
+import type { WikiSynthesisRole } from "@/ee/wiki-crawl/wiki-synthesis.schema";
 
 import { SETUP_PARTS } from "@/features/workspace-setup/setup-interview";
 import { getTranslator } from "@/i18n/get-translator";
@@ -51,6 +52,32 @@ export const SETUP_PLAN_VIEWS_INSTRUCTION = [
   SETUP_PLAN_LANGUAGE,
   SETUP_UNTRUSTED_HANDLING,
 ].join(" ");
+
+export const SETUP_PLAN_KNOWLEDGE_WITHOUT_WEBSITE =
+  "The company has no website, so its pages are written from these answers alone: plan no faq page, and give each page only the section headings the answers can fill.";
+
+export const SETUP_ANSWER_PAGE_INSTRUCTION = [
+  "You write one Knowledge Base page for a company from the answers it gave while setting up its CRM workspace; it has no website.",
+  'Use only the answers below, one per line starting with "- ". For every section, first copy into evidence each complete answer line that supports it, exactly as written, with source "answers"; then write a short paraphrase of only what those lines say.',
+  "Leave out every section the answers do not support. Never add facts, figures, customers, prices or policies from general knowledge.",
+  "Turn the facts the page still needs into neutral questions in gaps. Write headings, content and gaps in the Knowledge Base language. whenToUse stays empty unless the page is a procedure.",
+  SETUP_UNTRUSTED_HANDLING,
+].join(" ");
+
+export const SETUP_ANSWER_PAGE_GUIDANCE: Record<WikiSynthesisRole, string> = {
+  company_overview: "Describe what the company offers, to whom, and how it works with its customers.",
+  customers_and_use_cases: "Describe the customers the company serves and the needs it meets for them.",
+  sales_messaging:
+    "Describe how deals move forward: the sales steps, what the company sells and what wins or loses deals.",
+  voice_and_tone: "Describe how the company addresses its customers and the language it writes in.",
+  offering: "Describe the offerings, packages and price levels the answers name.",
+  faq: "Answer only questions the answers settle.",
+  competitor:
+    "Describe only what the answers say about this company where buyers compare it with the named competitor; never describe the competitor from general knowledge.",
+  procedure:
+    "Describe the steps the company follows after a sale as numbered steps, one per line, and set whenToUse to the situation they apply to.",
+  operating_guide: "Describe how the sales assistant should work for this company.",
+};
 
 export const SETUP_PLAN_KNOWLEDGE_INSTRUCTION = [
   "You outline the Knowledge Base pages of a CRM workspace for one company from its onboarding answers and website.",

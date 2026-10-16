@@ -36,6 +36,7 @@ import {
 } from "./workspace-setup-wire";
 import {
   SETUP_PLAN_KNOWLEDGE_INSTRUCTION,
+  SETUP_PLAN_KNOWLEDGE_WITHOUT_WEBSITE,
   SETUP_PLAN_MODEL_INSTRUCTION,
   SETUP_REPAIR_INSTRUCTION,
   SETUP_PLAN_VIEWS_INSTRUCTION,
@@ -162,9 +163,7 @@ export class WorkspaceSetupPlanner extends UserAccessor {
       case "model":
         return this.run(this.modelPart(input, context), state);
       case "knowledge":
-        return input.website
-          ? this.run(this.knowledgePart(input, context), state)
-          : { ...state, attempts: state.attempts + 1, value: EMPTY_PLAN_KNOWLEDGE_WIRE };
+        return this.run(this.knowledgePart(input, context), state);
       case "views":
         return drafts.model
           ? this.run(this.viewsPart(input, context, drafts.model, drafts.knowledge), state)
@@ -235,13 +234,19 @@ export class WorkspaceSetupPlanner extends UserAccessor {
       purpose: "setupDrafting",
       schema: PlanKnowledgeWireSchema,
       system: SETUP_PLAN_KNOWLEDGE_INSTRUCTION,
-      prompt: [...context, ...this.website(input, KNOWLEDGE_WEBSITE)],
-      check: async (value) => ({
-        value,
-        issues: await this.wireIssues(input, planWireFromParts(EMPTY_PLAN_MODEL_WIRE, EMPTY_PLAN_VIEWS_WIRE, value), [
-          "knowledgeBase",
-        ]),
-      }),
+      prompt: [
+        ...context,
+        ...(input.website ? this.website(input, KNOWLEDGE_WEBSITE) : [SETUP_PLAN_KNOWLEDGE_WITHOUT_WEBSITE]),
+      ],
+      check: async (planned) => {
+        const value = input.website ? planned : { pages: planned.pages.filter((page) => page.kind !== "faq") };
+        return {
+          value,
+          issues: await this.wireIssues(input, planWireFromParts(EMPTY_PLAN_MODEL_WIRE, EMPTY_PLAN_VIEWS_WIRE, value), [
+            "knowledgeBase",
+          ]),
+        };
+      },
     };
   }
 
