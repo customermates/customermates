@@ -456,6 +456,33 @@ describe("workspace setup compiler", () => {
     ]);
   });
 
+  it("creates the widgets in layout order so a lone chart is never placed below a later wide one", async () => {
+    const chart = agencyPlan.dashboard.widgets[2];
+    const { plan, prepared, resolver } = await build({
+      ...agencyPlan,
+      dashboard: {
+        ...agencyPlan.dashboard,
+        widgets: [
+          ...agencyPlan.dashboard.widgets,
+          { ...chart, key: "secondChart", title: "Second chart" },
+          { ...chart, key: "thirdChart", title: "Third chart" },
+          { ...chart, key: "trend", title: "Trend", size: "wide" as const },
+        ],
+      },
+    });
+    const widgets = compileSetupDashboard(plan, resolver, prepared.model, {
+      setupId: SETUP_ID,
+      expectedRevision: prepared.model.revision,
+    });
+    if (!widgets.ok) throw new Error(JSON.stringify(widgets.issues));
+    const layouts = widgets.data.map((widget) => widget.layout ?? { x: 0, y: 0, w: 0, h: 0 });
+    expect(layouts).toEqual([...layouts].sort((a, b) => a.y - b.y || a.x - b.x));
+    expect(widgets.data.map((widget) => widget.name).sort()).toEqual(
+      plan.dashboard.widgets.map((widget) => widget.title).sort(),
+    );
+    expect(layouts.at(-1)).toMatchObject({ x: 0, w: 12 });
+  });
+
   it("puts the first ranked numbers on the top row", async () => {
     const { plan, prepared, resolver } = await build(agencyPlan);
     const widgets = compileSetupDashboard(plan, resolver, prepared.model, {

@@ -47,7 +47,7 @@ import {
   setupLineItems,
   setupRoleList,
 } from "@/features/workspace-setup/setup-anchors";
-import { compileSetupDashboard } from "@/features/workspace-setup/setup-dashboard-compiler";
+import { compileSetupDashboard, setupWidgetCreationOrder } from "@/features/workspace-setup/setup-dashboard-compiler";
 import {
   compileSetupImportMapping,
   setupImportList,
@@ -625,8 +625,13 @@ export class WorkspaceSetupBuildService extends UserAccessor {
       if (!compiled.ok) throw phaseFailure("invalidPlan");
       widgets = await this.storeArtifact(setup.id, "widgets", compiled.data, SetupWidgetInputsSchema);
     }
+    const displays = new Map(
+      plan.dashboard.widgets.map((entry) => [setupIdempotencyKey(setup.id, `widget:${entry.key}`), entry.display]),
+    );
     const created: StoredSetupResults["widgets"] = [];
-    for (const widget of widgets) {
+    for (const widget of setupWidgetCreationOrder(widgets)) {
+      const display = displays.get(widget.idempotencyKey);
+      if (!display) throw phaseFailure("invalidPlan");
       const saved = await this.upsertWidget.invoke(widget);
       if (!saved.ok) {
         const failure = failureOf(saved.error);
@@ -636,7 +641,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
       created.push({
         id: saved.data.id,
         title: saved.data.name,
-        display: plan.dashboard.widgets[created.length].display,
+        display,
       });
     }
     return {

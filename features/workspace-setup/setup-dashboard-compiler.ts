@@ -47,6 +47,12 @@ export function setupDashboardLayouts(widgets: readonly SetupWidget[], occupied:
   return layouts;
 }
 
+export function setupWidgetCreationOrder<T extends { layout?: { x: number; y: number } }>(widgets: readonly T[]): T[] {
+  return [...widgets].sort(
+    (a, b) => (a.layout?.y ?? 0) - (b.layout?.y ?? 0) || (a.layout?.x ?? 0) - (b.layout?.x ?? 0),
+  );
+}
+
 export type SetupDashboardContext = {
   setupId: string;
   expectedRevision: number;
@@ -140,5 +146,10 @@ export function compileSetupDashboard(
     if (!parsed.success) return missing("invalid_widget", "key");
     widgets.push(parsed.data);
   });
-  return issues.length ? { ok: false, issues } : { ok: true, data: widgets };
+  return issues.length
+    ? { ok: false, issues }
+    : {
+        ok: true,
+        data: setupWidgetCreationOrder(widgets),
+      };
 }
