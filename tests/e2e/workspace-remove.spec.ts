@@ -1,9 +1,12 @@
+import germanMessages from "../../i18n/locales/de.json" with { type: "json" };
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { mintApiKey } from "./api-key";
 import { expectNotFoundDocuments } from "./browser-diagnostics";
 import { collectPageErrors, expect, test } from "./fixtures";
+import { localE2eEnvironment } from "./local-environment";
 import { rowActionLabels, runRowAction } from "./record-rows";
 import { openSidebar } from "./sidebar";
+import { emailLanguage, emailLinks, emailText, sentEmailsTo } from "./transactional-mail";
 import { removeBrowserWorkspace } from "./workspace";
 import {
   addMembership,
@@ -133,6 +136,7 @@ test("removing a member who waits for approval declines the request and clears t
         left: true,
       });
       expect(await approvalTaskCount(database, workspace.companyId, email)).toBe(0);
+      expect(sentEmailsTo(email)).toEqual([]);
 
       await clickHydrated(
         requester.page.getByRole("button", { name: englishMessages.Common.actions.refresh, exact: true }),
@@ -190,6 +194,53 @@ test("a removed member's API key for the workspace stops working while the key o
       rita.authUserId,
     ]);
     expect(keys.rows).toEqual([{ id: ownKey.id }]);
+  } finally {
+    await removeBrowserWorkspace(database, rita);
+  }
+  expect(errors).toEqual([]);
+});
+
+test("a removed member gets one removal e-mail in their own language with a sign-in link", async ({
+  page,
+  database,
+  workspace,
+}, testInfo) => {
+  test.skip(process.env.CRM_E2E_SERVER_MODE === "development", "next dev logs e-mails instead of sending them");
+  const errors = collectPageErrors(page);
+  const { baseUrl } = localE2eEnvironment();
+  const rita = await createNamedLogin(database, "Rita Labs", "Rita", "Vogel");
+  try {
+    const email = await loginEmail(database, rita);
+    await database.query('UPDATE "User" SET "displayLanguage"=\'de\' WHERE email=$1', [email]);
+    await addMembership(database, rita, workspace.companyId, { admin: true });
+    await page.goto("/en/settings/members");
+    await runRowAction(page, memberItem(page, "Rita Vogel"), "Rita Vogel", REMOVE);
+    const confirm = page.getByRole("alertdialog", { name: "Remove Rita Vogel from Browser workspace?" });
+    await expect(confirm).toContainText(englishMessages.MemberRemoval.consequences.notified);
+    await confirm.getByRole("button", { name: REMOVE, exact: true }).click();
+    await expect(confirm).toHaveCount(0);
+    await expect(memberItem(page, "Rita Vogel")).toContainText(englishMessages.WorkspaceMembership.left);
+
+    await expect.poll(() => sentEmailsTo(email).length).toBe(1);
+    const [notice] = sentEmailsTo(email);
+    const german = germanMessages.WorkspaceRemovalNotice;
+    expect(notice).toMatchObject({
+      to: [email],
+      from: "Customermates <mail@customermates.test>",
+      subject: german.subject.replace("{workspace}", "Browser workspace"),
+    });
+    expect(emailLanguage(notice)).toBe("de");
+    const text = emailText(notice);
+    for (const line of [
+      german.greeting.replace("{firstName}", "Rita"),
+      german.body.replace("{workspace}", "Browser workspace"),
+      german.otherWorkspaces,
+      german.rejoin.replace("{workspace}", "Browser workspace"),
+    ])
+      expect(text).toContain(line);
+    expect(emailLinks(notice)).toContain(`${baseUrl}/auth/signin`);
+    await page.screenshot({ path: testInfo.outputPath(`ws-remove-mail-${testInfo.project.name}.png`) });
+    expect(sentEmailsTo(await loginEmail(database, workspace))).toEqual([]);
   } finally {
     await removeBrowserWorkspace(database, rita);
   }
