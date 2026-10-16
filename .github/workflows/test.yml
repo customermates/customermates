@@ -84,10 +84,11 @@ jobs:
         run: yarn workflow:setup
       - run: yarn openapi:generate
       - run: yarn raw-docs:generate
+      - run: yarn address-metadata:generate
       - name: Verify generated files are committed
         run: |
           if ! git diff --quiet; then
-            echo "::error::Generated files are out of date. Run 'yarn openapi:generate' and commit the result."
+            echo "::error::Generated files are out of date. Run 'yarn openapi:generate' and 'yarn address-metadata:generate' and commit the result."
             git diff --stat
             exit 1
           fi

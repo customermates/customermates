@@ -1,6 +1,10 @@
 import type { RecordFieldView, RecordModelView } from "@/features/records/record-model.schema";
 
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
+import { recordChannelsEnabled, recordChannelsField } from "@/features/records/record-channels";
+
+export const XLSX_ADDRESS_PARTS = ["street", "line2", "postalCode", "city", "region", "countryCode"] as const;
+export type XlsxAddressPart = (typeof XLSX_ADDRESS_PARTS)[number];
 
 type XlsxTarget =
   | { kind: "skip" }
@@ -8,13 +12,39 @@ type XlsxTarget =
   | { kind: "assignedTo" }
   | { kind: "field"; fieldId: string }
   | { kind: "rangePart"; fieldId: string; part: "start" | "end" }
-  | { kind: "relationship"; relationId: string; targetTypeId: string };
+  | { kind: "addressPart"; fieldId: string; part: XlsxAddressPart }
+  | { kind: "relationship"; relationId: string; targetTypeId: string }
+  | { kind: "channels" };
 
 export type XlsxTargetOption = { key: string; label: string; target: XlsxTarget };
 
 export const XLSX_SKIP_KEY = "skip";
 
-export type XlsxTargetLabels = { recordId: string; assignedTo: string; rangeStart: string; rangeEnd: string };
+export const XLSX_CHANNELS_KEY = "channels";
+
+export type XlsxTargetLabels = {
+  recordId: string;
+  assignedTo: string;
+  rangeStart: string;
+  rangeEnd: string;
+  addressParts: Readonly<Record<XlsxAddressPart, string>>;
+};
+
+const PHONE_SYNONYMS = [
+  "phone",
+  "phonenumber",
+  "telephone",
+  "telefon",
+  "telefonnummer",
+  "telefono",
+  "mobile",
+  "mobil",
+  "mobilnummer",
+  "handy",
+  "cellphone",
+  "cellulare",
+  "movil",
+];
 
 const SYNONYM_GROUPS: string[][] = [
   ["amount", "price", "value", "betrag", "preis", "montant", "importe", "prezzo"],
@@ -28,7 +58,7 @@ const SYNONYM_GROUPS: string[][] = [
   ["services", "products", "leistungen", "servicios", "servizi", "produkte"],
   ["tasks", "todos", "aufgaben", "tareas", "attivita", "taches"],
   ["email", "emailaddress", "mail", "emailadresse", "correo", "courriel"],
-  ["phone", "phonenumber", "telephone", "telefon", "telefono", "mobile", "handy"],
+  PHONE_SYNONYMS,
   ["website", "url", "homepage", "webseite", "sitioweb", "siteweb", "sitoweb"],
   ["stage", "phase", "status", "etape", "etapa", "fase"],
 ];
@@ -46,6 +76,27 @@ const ASSIGNED_SYNONYMS = [
 ];
 
 const RECORD_ID_SYNONYMS = ["id", "recordid", "customermatesid"];
+
+const ADDRESS_PART_SYNONYMS: Readonly<Record<XlsxAddressPart, readonly string[]>> = {
+  street: [
+    "street",
+    "streetaddress",
+    "addressline1",
+    "address1",
+    "strasse",
+    "straße",
+    "anschrift",
+    "calle",
+    "direccion",
+    "rue",
+    "via",
+  ],
+  line2: ["addressline2", "address2", "line2", "adresszusatz", "zusatz"],
+  postalCode: ["postalcode", "postcode", "zip", "zipcode", "plz", "postleitzahl", "codigopostal", "codepostal", "cap"],
+  city: ["city", "town", "ort", "stadt", "ciudad", "localidad", "ville", "citta", "comune"],
+  region: ["region", "state", "province", "county", "bundesland", "provincia", "estado", "departement"],
+  countryCode: ["country", "countrycode", "land", "pais", "pays", "paese", "nazione"],
+};
 
 export function normalizeXlsxHeader(header: string): string {
   return header
@@ -72,7 +123,10 @@ function synonymMatch(header: string, label: string): boolean {
 
 export function xlsxImportFields(model: RecordModelView, typeId: string): RecordFieldView[] {
   return model.fields
-    .filter((field) => field.typeId === typeId && !field.archived && isRecordFieldWritable(field))
+    .filter(
+      (field) =>
+        field.typeId === typeId && !field.archived && field.valueType !== "file" && isRecordFieldWritable(field),
+    )
     .sort((left, right) => left.position - right.position);
 }
 
@@ -91,6 +145,13 @@ export function xlsxTargetOptions(
           target: { kind: "rangePart", fieldId: field.id, part },
         }))
       : []),
+    ...(field.valueType === "address"
+      ? XLSX_ADDRESS_PARTS.map<XlsxTargetOption>((part) => ({
+          key: `field:${field.id}:${part}`,
+          label: `${field.label} (${labels.addressParts[part]})`,
+          target: { kind: "addressPart", fieldId: field.id, part },
+        }))
+      : []),
   ]);
   const relationships = model.relationships
     .filter((relation) => !relation.archived && relation.id !== parent && relation.sourceTypeId === typeId)
@@ -99,8 +160,10 @@ export function xlsxTargetOptions(
       label: relation.sourceLabel,
       target: { kind: "relationship", relationId: relation.id, targetTypeId: relation.targetTypeId },
     }));
+  const channels = recordChannelsEnabled(model, typeId) ? recordChannelsField(model, typeId) : undefined;
   return [
     ...fields,
+    ...(channels ? [{ key: XLSX_CHANNELS_KEY, label: channels.label, target: { kind: "channels" as const } }] : []),
     ...relationships,
     { key: "assignedTo", label: labels.assignedTo, target: { kind: "assignedTo" } },
     { key: "recordId", label: labels.recordId, target: { kind: "recordId" } },
@@ -108,10 +171,15 @@ export function xlsxTargetOptions(
 }
 
 function matchScore(header: string, option: XlsxTargetOption): number {
+  if (option.target.kind === "channels") return PHONE_SYNONYMS.some((word) => sameWord(word, header)) ? 90 : 0;
   const label = normalizeXlsxHeader(option.label);
   if (option.target.kind === "recordId" && RECORD_ID_SYNONYMS.includes(header)) return 100;
   if (option.target.kind === "assignedTo" && ASSIGNED_SYNONYMS.some((word) => sameWord(word, header))) return 95;
   if (label && sameWord(label, header)) return 100;
+  if (option.target.kind === "addressPart") {
+    const part = option.target.part;
+    return ADDRESS_PART_SYNONYMS[part].some((word) => sameWord(word, header)) ? 70 : 0;
+  }
   if (label && synonymMatch(header, label)) return 80;
   return 0;
 }
@@ -139,7 +207,7 @@ export function autoMapXlsxColumns(headers: string[], options: XlsxTargetOption[
     const best = list[0];
     if (!best) continue;
     if (list.filter((candidate) => candidate.score === best.score).length > 1) continue;
-    taken.add(best.option.key);
+    if (best.option.key !== XLSX_CHANNELS_KEY) taken.add(best.option.key);
     result[index] = best.option.key;
   }
   return result;
@@ -149,7 +217,7 @@ export function duplicateXlsxTargets(mapping: string[]): string[] {
   const seen = new Set<string>();
   const duplicates = new Set<string>();
   for (const key of mapping) {
-    if (key === XLSX_SKIP_KEY) continue;
+    if (key === XLSX_SKIP_KEY || key === XLSX_CHANNELS_KEY) continue;
     if (seen.has(key)) duplicates.add(key);
     seen.add(key);
   }

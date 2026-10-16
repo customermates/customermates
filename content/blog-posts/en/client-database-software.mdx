@@ -105,8 +105,8 @@ Customermates is an open-source, AI-native CRM built in Germany for small client
 
 <Steps>
   <Step title="Name the records the way you talk">In Configure, open a list and change its **Name** and **Plural name** under **General**: rename Contacts to Clients and Organizations to Companies. Deals can become Projects, and Tasks can become Follow-ups. Any name works, and it applies to the whole workspace.</Step>
-  <Step title="Add the fields you will filter on">On Companies, add "Segment" as a Single choice field with Retainer, Project and Former, and "Client since" as a Date field. On Clients, add "Phone" as a Phone field and "Billing address" as a Text field. There is no built-in address field, so the address lives in that field.</Step>
-  <Step title="Import companies first, then people">Use More actions › Add from file with an .xlsx workbook, one list per import. Import the companies, then the people sheet with a column that holds each person's company name: the wizard matches link columns by record name, and an email column can be matched to the client's email channel. The importer does not accept CSV, so save those files as .xlsx first. One workbook currently takes up to 5,000 rows.</Step>
+  <Step title="Add the fields you will filter on">On Companies, add "Segment" as a Single choice field with Retainer, Project and Former, and "Client since" as a Date field. On Clients, add "Billing address" as an Address field. Phone numbers go into the Channels field, which the Clients list has from the start.</Step>
+  <Step title="Import companies first, then people">Use More actions › Add from file with an .xlsx workbook, one list per import. Import the companies, then the people sheet with a column that holds each person's company name: the wizard matches link columns by record name, and email and phone columns can be matched to the client's channels. The importer does not accept CSV, so save those files as .xlsx first. One workbook currently takes up to 5,000 rows.</Step>
   <Step title="Save three views">On Companies, "Retainer clients" filters Segment to Retainer. On Clients, "Untouched for 90 days" filters Updated at with Older than… 90 days. "Clients without a company" filters for clients with no linked company. Saved views are personal, so each colleague sets the same filters and saves their own view.</Step>
   <Step title="Connect conversations (Pro)">On Pro, each user connects [[commercial.entitlement.pro.includedAccountsPerUser]] account, such as Gmail, Outlook, LinkedIn or WhatsApp, and the [unified inbox](/features/unified-inbox) shows those threads next to the client. Starter has no inbox.</Step>
 </Steps>
@@ -122,7 +122,6 @@ The last two sentences matter. Mate can send messages when an instruction asks f
 ## When Customermates is the wrong client database
 
 - **You only need names and addresses for invoicing.** The customer list in your accounting software is enough, and Customermates has no quotes or invoicing.
-- **You want contracts and scans on the client record.** Customermates has no file attachments on records. Notes can embed images and tables; documents stay in your file storage.
 - **You send newsletters.** There is no mass email in Customermates. Use an email marketing tool.
 - **You take bookings or appointments.** Customermates has no booking. Look at industry software for your trade.
 - **You mostly work from your phone.** There is no native mobile app.
@@ -155,7 +154,7 @@ A client database stores who your clients are. A CRM adds what is happening with
 </FaqItem>
 
 <FaqItem question="What is the best software to record customers' names and addresses?">
-If names and addresses are all you need, the customer list in your invoicing software or a shared spreadsheet is enough. Choose a CRM when you also track conversations and work per client. In Customermates the address goes into a Text custom field, because there is no built-in address field.
+If names and addresses are all you need, the customer list in your invoicing software or a shared spreadsheet is enough. Choose a CRM when you also track conversations and work per client. In Customermates the address goes into an Address field, which holds one postal address and opens it in maps.
 </FaqItem>
 
 <FaqItem question="Can I host a client database on my own server?">

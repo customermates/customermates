@@ -2,7 +2,7 @@
 
 import type { ContactKind } from "@/core/utils/contact-href";
 
-import { Copy, ExternalLink, Mail, Phone } from "lucide-react";
+import { Copy, ExternalLink, Mail, MapPin, Phone } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { IconButton } from "@/components/ui/icon-button";
@@ -33,7 +33,12 @@ export function ContactValue({ value, kind, action = "open", label, className, w
   const href = contactHref(kind, value);
   const text = label ?? value;
   const copyValue = () => runUserAction(() => copy(value));
-  const textClass = wrap ? "break-all whitespace-normal" : "truncate";
+  const textClass = wrap
+    ? kind === "address"
+      ? "whitespace-pre-line break-words"
+      : "break-all whitespace-normal"
+    : "truncate";
+  const external = kind === "url" || kind === "address";
 
   return (
     <span
@@ -50,8 +55,8 @@ export function ContactValue({ value, kind, action = "open", label, className, w
           <a
             className={cn(valueClass, textClass)}
             href={href}
-            rel={kind === "url" ? "noopener noreferrer" : undefined}
-            target={kind === "url" ? "_blank" : undefined}
+            rel={external ? "noopener noreferrer" : undefined}
+            target={external ? "_blank" : undefined}
             onClick={(event) => event.stopPropagation()}
             onKeyDown={(event) => {
               if (event.key === "Enter") event.stopPropagation();
@@ -105,7 +110,7 @@ export function ContactValue({ value, kind, action = "open", label, className, w
   );
 }
 
-const OPEN_ICONS = { email: Mail, phone: Phone, url: ExternalLink } as const;
+const OPEN_ICONS = { email: Mail, phone: Phone, url: ExternalLink, address: MapPin } as const;
 
 export function ContactValueActions({ value, kind, action = "open" }: Omit<Props, "label" | "className" | "wrap">) {
   const t = useTranslations();

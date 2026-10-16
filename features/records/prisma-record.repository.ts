@@ -33,7 +33,13 @@ import type {
 } from "./record.repo";
 import { CONFIGURATION_CONSUMER_PAGE } from "./record.repo";
 import { rankBetween, recordManualOrderKey } from "./record-rank";
-import type { CalculatedValue, RecordModel, RecordRef, RecordRelationshipSummary } from "./record-model.schema";
+import type {
+  CalculatedValue,
+  RecordModel,
+  RecordRef,
+  RecordRelationshipSummary,
+  RecordFileSummary,
+} from "./record-model.schema";
 import type { RecordRelationshipSelection } from "./record-column.schema";
 import type { RecordPathSelection } from "./record-relationship-path.schema";
 import type { RecordMember, RecordPathSummary } from "./record-model.schema";
@@ -72,6 +78,12 @@ import { EntityDetailOptionsSchema } from "@/features/p13n/p13n.schema";
 import { configurationTrashBatchId } from "./configuration-trash-batch";
 import type { ProviderAvatarRecordRepo, RecordOperationUpdate } from "./provider-avatar-record.repo";
 import type { DueRecordOperation, RecordOperationQueueRepo } from "./record-operation-queue.repo";
+import type {
+  PhoneIdentityRename,
+  PhoneIdentityRepair,
+  PhoneIdentityValue,
+  RecordPhoneIdentityRepo,
+} from "./record-phone-identity.repo";
 
 const CONFIGURATION_DELETION_PAGE = 200;
 const STAGED_EVENT_PAGE = 1000;
@@ -80,7 +92,7 @@ const VIEW_KEY = "view:";
 
 export class PrismaRecordRepo
   extends TenantRepository
-  implements RecordRepo, ProviderAvatarRecordRepo, RecordOperationQueueRepo
+  implements RecordRepo, ProviderAvatarRecordRepo, RecordOperationQueueRepo, RecordPhoneIdentityRepo
 {
   private resolvedOwners?: RecordRepoOwners;
 
@@ -104,6 +116,15 @@ export class PrismaRecordRepo
 
   private async wakeRecordEvents(): Promise<void> {
     if (this.background) await wakeEventOutbox(this.background, this.companyId);
+  }
+
+  private async purgeReleasedFiles(released: number): Promise<void> {
+    if (released && this.background) {
+      await this.background.dispatch("purge-record-files", {
+        companyId: this.companyId,
+        now: new Date().toISOString(),
+      });
+    }
   }
 
   override get companyId(): string {
@@ -427,6 +448,91 @@ export class PrismaRecordRepo
       data,
     });
   }
+
+  @BypassTenantGuard
+  async findPhoneIdentityCompaniesUnscoped(after: string | null, limit: number): Promise<string[]> {
+    const groups = await this.prisma.recordIdentity.groupBy({
+      by: ["companyId"],
+      where: { channelClass: "phone", ...(after ? { companyId: { gt: after } } : {}) },
+      orderBy: { companyId: "asc" },
+      take: limit,
+    });
+    return groups.map((group) => group.companyId);
+  }
+
+  findPhoneIdentityValuesCompanyWide(after: string | null, limit: number): Promise<PhoneIdentityValue[]> {
+    return this.prisma.recordIdentity.findMany({
+      where: { companyId: this.companyId, channelClass: "phone", ...(after ? { id: { gt: after } } : {}) },
+      orderBy: { id: "asc" },
+      take: limit,
+      select: { id: true, value: true },
+    });
+  }
+
+  async hasActiveOperationCompanyWide(): Promise<boolean> {
+    const state = await this.prisma.recordSchemaState.findUnique({
+      where: { companyId: this.companyId },
+      select: { activeOperationId: true },
+    });
+    return Boolean(state?.activeOperationId);
+  }
+
+  async renamePhoneIdentitiesCompanyWide(renames: PhoneIdentityRename[]): Promise<PhoneIdentityRepair> {
+    const companyId = this.companyId;
+    const repair: PhoneIdentityRepair = { renamed: 0, merged: 0 };
+    for (const rename of renames) {
+      const source = await this.prisma.recordIdentity.findUnique({
+        where: { companyId, companyId_id: { companyId, id: rename.id } },
+      });
+      if (!source || source.channelClass !== "phone" || source.value === rename.value) continue;
+      const holder = await this.prisma.recordIdentityKey.findUnique({
+        where: { companyId, companyId_channelClass_value: { companyId, channelClass: "phone", value: rename.value } },
+        select: { identityId: true },
+      });
+      if (!holder || holder.identityId === source.id) {
+        if (!holder) {
+          await this.prisma.recordIdentityKey.create({
+            data: { companyId, channelClass: "phone", value: rename.value, identityId: source.id },
+          });
+        }
+        await this.prisma.recordIdentity.update({
+          where: { companyId, companyId_id: { companyId, id: source.id } },
+          data: { value: rename.value },
+        });
+        repair.renamed += 1;
+        continue;
+      }
+      const target = await this.prisma.recordIdentity.findUnique({
+        where: { companyId, companyId_id: { companyId, id: holder.identityId } },
+      });
+      if (!target) continue;
+      const links = await this.prisma.recordIdentityLink.findMany({
+        where: { companyId, identityId: source.id },
+        select: { typeId: true, recordId: true, createdAt: true },
+      });
+      await this.prisma.recordIdentityLink.createMany({
+        data: links.map((link) => ({ ...link, companyId, identityId: target.id })),
+        skipDuplicates: true,
+      });
+      await this.prisma.recordIdentityKey.updateMany({
+        where: { companyId, identityId: source.id },
+        data: { identityId: target.id },
+      });
+      await this.prisma.recordIdentity.update({
+        where: { companyId, companyId_id: { companyId, id: target.id } },
+        data: {
+          provider: source.provider === "whatsapp" ? "whatsapp" : target.provider,
+          messagingId: target.messagingId ?? source.messagingId,
+          displayName: target.displayName ?? source.displayName,
+          profileUrl: target.profileUrl ?? source.profileUrl,
+        },
+      });
+      await this.prisma.recordIdentity.delete({ where: { companyId, companyId_id: { companyId, id: source.id } } });
+      repair.merged += 1;
+    }
+    return repair;
+  }
+
   private readonly assignmentSelect = {
     userId: true,
     user: {
@@ -730,6 +836,9 @@ export class PrismaRecordRepo
     });
     await this.prisma.recordIdentityLink.deleteMany({ where: { companyId, typeId: { in: channelTypeIds } } });
     await this.prisma.recordRelationshipDefinition.deleteMany({ where: { companyId, id: { in: relationIds } } });
+    await this.purgeReleasedFiles(
+      await this.owners.files.expireDefinitionFilesCompanyWide(companyId, { typeIds, fieldIds }),
+    );
     await this.prisma.recordFieldDefinition.deleteMany({ where: { companyId, id: { in: fieldIds } } });
     await this.prisma.recordTypeDefinition.deleteMany({ where: { companyId, id: { in: typeIds } } });
     await this.deleteOrphanedIdentities(identities.map((row) => row.identityId));
@@ -1451,6 +1560,7 @@ export class PrismaRecordRepo
     const refs = purged.map((row) => ({ typeId: row.typeId, recordId: row.id }));
     if (refs.length) {
       await this.owners.events.eraseTrashedRecordPayloadsCompanyWide(companyId, ids);
+      await this.purgeReleasedFiles(await this.owners.files.expireRecordFilesCompanyWide(companyId, refs));
       const identities = await this.prisma.recordIdentityLink.findMany({
         where: { companyId, record: { is: { companyId, trashItemId: { in: ids }, deletedAt: { not: null } } } },
         select: { identityId: true },
@@ -1467,6 +1577,22 @@ export class PrismaRecordRepo
   async getMembersCompanyWide(userIds: string[]): Promise<RecordMember[]> {
     if (!userIds.length) return [];
     return this.owners.members.getRecordMembersCompanyWide(this.companyId, userIds);
+  }
+
+  async getRecordFilesCompanyWide(fileIds: string[]): Promise<RecordFileSummary[]> {
+    if (!fileIds.length) return [];
+    const files = await this.prisma.recordFile.findMany({
+      where: { companyId: this.companyId, id: { in: [...new Set(fileIds)] } },
+      select: { id: true, name: true, mimeType: true, size: true, createdAt: true, uploadedById: true },
+    });
+    return files.map((file) => ({
+      id: file.id,
+      name: file.name,
+      mimeType: file.mimeType,
+      size: Number(file.size),
+      uploadedAt: file.createdAt.toISOString(),
+      uploadedById: file.uploadedById,
+    }));
   }
 
   async setAssignments(ref: RecordRef, userIds: string[]): Promise<void> {
@@ -2059,7 +2185,7 @@ export class PrismaRecordRepo
     `);
     await this.prisma.$executeRaw(Prisma.sql`
       INSERT INTO "RecordIdentity" ("companyId", id, provider, "channelClass", value, "messagingId", "displayName", "profileUrl", "createdAt", "updatedAt")
-      SELECT DISTINCT ON (item.data->>'id') ${companyId}, item.data->>'id', (item.data->>'provider')::"MessagingProvider",
+      SELECT DISTINCT ON (item.data->>'id') ${companyId}, item.data->>'id', (item.data->>'provider')::"RecordIdentityProvider",
         item.data->>'channelClass', item.data->>'value', item.data->>'messagingId', item.data->>'displayName', item.data->>'profileUrl',
         (item.data->>'createdAt')::timestamp, (item.data->>'updatedAt')::timestamp
       FROM "RecordStageRow" stage CROSS JOIN LATERAL jsonb_array_elements(stage.payload->'identities') AS item(data)
@@ -2099,14 +2225,14 @@ export class PrismaRecordRepo
     await this.prisma
       .$executeRaw(Prisma.sql`INSERT INTO "RecordValue" ("companyId", "typeId", "recordId", "fieldId", state, "textValue", "decimalValue", currency, "booleanValue", "instantValue", "jsonValue", "errorCode", "schemaRevision", "createdAt", "updatedAt", "textListValue", "lexicalValue", "rangeStart", "rangeEnd")
       SELECT ${companyId}, stage.payload->'ref'->>'typeId', stage.payload->'ref'->>'recordId', stage.payload->>'fieldId', stage.payload->'result'->>'state',
-        CASE WHEN stage.payload->'result'->'value'->>'kind' IN ('text', 'select', 'member') THEN stage.payload->'result'->'value'->>'value' END,
+        CASE WHEN stage.payload->'result'->'value'->>'kind' IN ('text', 'select', 'member') THEN stage.payload->'result'->'value'->>'value' WHEN stage.payload->'result'->'value'->>'kind' = 'address' THEN stage.payload->'result'->'value'->'value'->>'formatted' END,
         CASE WHEN stage.payload->'result'->'value'->>'kind' = 'decimal' THEN (stage.payload->'result'->'value'->>'value')::numeric END,
         stage.payload->'result'->'value'->>'currency',
         CASE WHEN stage.payload->'result'->'value'->>'kind' = 'boolean' THEN (stage.payload->'result'->'value'->>'value')::boolean END,
         CASE WHEN stage.payload->'result'->'value'->>'kind' IN ('date', 'dateTime') THEN (stage.payload->'result'->'value'->>'value')::timestamptz AT TIME ZONE 'UTC' END,
-        CASE WHEN stage.payload->'result'->'value'->>'kind' = 'richText' THEN (stage.payload->'result'->'value'->>'documentJson')::jsonb WHEN stage.payload->'result'->'value'->>'kind' = 'range' THEN (stage.payload->'result'->'value') - 'kind' END,
+        CASE WHEN stage.payload->'result'->'value'->>'kind' = 'richText' THEN (stage.payload->'result'->'value'->>'documentJson')::jsonb WHEN stage.payload->'result'->'value'->>'kind' = 'range' THEN (stage.payload->'result'->'value') - 'kind' WHEN stage.payload->'result'->'value'->>'kind' = 'address' THEN stage.payload->'result'->'value'->'value' END,
         stage.payload->'result'->>'code', ${revision}, NOW(), NOW(),
-        CASE WHEN stage.payload->'result'->'value'->>'kind' IN ('textList', 'selectList') THEN ARRAY(SELECT jsonb_array_elements_text(stage.payload->'result'->'value'->'value')) ELSE ARRAY[]::text[] END,
+        CASE WHEN stage.payload->'result'->'value'->>'kind' IN ('textList', 'selectList', 'file') THEN ARRAY(SELECT jsonb_array_elements_text(stage.payload->'result'->'value'->'value')) ELSE ARRAY[]::text[] END,
         CASE WHEN stage.payload->'result'->'value'->>'kind' IN ('date', 'dateTime') THEN stage.payload->'result'->'value'->>'value' END,
         CASE WHEN stage.payload->'result'->'value'->>'kind' = 'range' THEN (stage.payload->'result'->'value'->>'start')::timestamptz AT TIME ZONE 'UTC' END,
         CASE WHEN stage.payload->'result'->'value'->>'kind' = 'range' THEN (stage.payload->'result'->'value'->>'end')::timestamptz AT TIME ZONE 'UTC' END FROM "RecordStageRow" stage JOIN "CrmRecord" record ON record."companyId" = ${companyId} AND record."typeId" = stage.payload->'ref'->>'typeId' AND record.id = stage.payload->'ref'->>'recordId' WHERE ${stage("value")}
@@ -2155,6 +2281,7 @@ export class PrismaRecordRepo
     await this.prisma.recordStageRow.deleteMany({
       where: { companyId, operationId: id },
     });
+    await this.owners.files.reattachListedFilesCompanyWide(companyId);
   }
 
   @BypassTenantGuard

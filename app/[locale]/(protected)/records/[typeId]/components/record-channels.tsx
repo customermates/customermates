@@ -16,7 +16,13 @@ import { FormControlRow } from "@/components/forms/form-control-row";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { channelLabelKey, isHandleProvider } from "@/ee/messaging/provider";
+import {
+  CHANNEL_GROUPS,
+  channelGroup,
+  channelLabelKey,
+  isHandleProvider,
+  messagingProviderFor,
+} from "@/ee/messaging/provider";
 import { getChannelIcon } from "@/ee/messaging/provider-icon";
 import { channelContact } from "@/ee/messaging/thread-display";
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -59,6 +65,12 @@ export const RecordChannels = observer(
       userStore.can(Resource.inboxMessages, Action.create) &&
       rootStore.appMode !== "self-hosted";
     const identifiers = recordChannels.channels;
+    const groups = CHANNEL_GROUPS.map((group) => ({
+      group,
+      entries: identifiers
+        .map((identifier, index) => ({ identifier, index }))
+        .filter(({ identifier }) => channelGroup(identifier.provider, identifier.value) === group),
+    })).filter(({ entries }) => entries.length > 0);
     const inboxHref = recordChannels.inboxHref;
     const canOpenInbox = Boolean(
       inboxHref &&
@@ -104,11 +116,12 @@ export const RecordChannels = observer(
       if (!current()) return;
       const initialize = () => {
         if (!current()) return;
-        const [first] = connectedAccountsStore.usableSendersFor(identifier.provider);
+        const provider = messagingProviderFor(identifier.provider);
+        const [first] = connectedAccountsStore.usableSendersFor(provider);
         let ownsInitializedCompose = () => false;
         threadComposeStore.initializeNewThread({
           sourceContextKey: recordChannels.contextKey,
-          provider: identifier.provider,
+          provider,
           connectedAccountId: first?.id ?? "",
           recipients: [
             {
@@ -163,121 +176,136 @@ export const RecordChannels = observer(
           )}
 
           <div className="flex flex-col gap-2">
-            {identifiers.map((identifier, index) => {
-              const ProviderIcon = getChannelIcon(identifier.provider);
-              const providerLabel = t(`Common.providers.${channelLabelKey(identifier.provider)}`);
-              const contact = channelContact(identifier.provider, identifier.value, identifier.profileUrl);
-              const isUnverified = isHandleProvider(identifier.provider) && !identifier.messagingId;
-              const channelKey = `${identifier.provider}:${identifier.value}`;
-              const composing = composeKey === channelKey;
+            {groups.map(({ group, entries }) => (
+              <div key={group} className="flex flex-col gap-2" data-record-channel-group={group}>
+                <span className="text-muted-foreground text-[11px] font-medium">
+                  {t(`EntityChannels.groups.${group}`)}
+                </span>
 
-              return (
-                <Popover
-                  key={channelKey}
-                  open={composing}
-                  onOpenChange={(next) => {
-                    if (next) runUserAction(() => openCompose(identifier, channelKey));
-                    else closeCompose();
-                  }}
-                >
-                  <PopoverAnchor asChild>
-                    <div
-                      className="border-border bg-card flex items-center gap-3 rounded-md border px-3 py-2"
-                      data-record-channel-key={channelKey}
+                {entries.map(({ identifier, index }) => {
+                  const ProviderIcon = getChannelIcon(identifier.provider);
+                  const providerLabel = t(`Common.providers.${channelLabelKey(identifier.provider)}`);
+                  const composeProvider = messagingProviderFor(identifier.provider);
+                  const composeLabel = t(`Common.providers.${channelLabelKey(composeProvider)}`);
+                  const canCompose =
+                    canStartThread &&
+                    (identifier.provider !== "phone" ||
+                      connectedAccountsStore.usableSendersFor(composeProvider).length > 0);
+                  const contact = channelContact(identifier.provider, identifier.value, identifier.profileUrl);
+                  const isUnverified = isHandleProvider(identifier.provider) && !identifier.messagingId;
+                  const channelKey = `${identifier.provider}:${identifier.value}`;
+                  const composing = composeKey === channelKey;
+
+                  return (
+                    <Popover
+                      key={channelKey}
+                      open={composing}
+                      onOpenChange={(next) => {
+                        if (next) runUserAction(() => openCompose(identifier, channelKey));
+                        else closeCompose();
+                      }}
                     >
-                      <ProviderIcon className="size-6 shrink-0" />
+                      <PopoverAnchor asChild>
+                        <div
+                          className="border-border bg-card flex items-center gap-3 rounded-md border px-3 py-2"
+                          data-record-channel-key={channelKey}
+                        >
+                          <ProviderIcon className="size-6 shrink-0" />
 
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-muted-foreground text-[11px] font-medium">{providerLabel}</span>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-muted-foreground text-[11px] font-medium">{providerLabel}</span>
+                            </div>
+
+                            <ContactValue
+                              action={action}
+                              className="max-w-[18rem] text-sm font-medium"
+                              kind={contact.kind}
+                              label={contact.label || identifier.displayName || providerLabel}
+                              value={contact.value}
+                            />
+                          </div>
+
+                          <div className="flex shrink-0 items-center gap-1">
+                            {isUnverified && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="inline-flex shrink-0">
+                                    <AppChip variant="secondary">{t("EntityChannels.unverified")}</AppChip>
+                                  </span>
+                                </TooltipTrigger>
+
+                                <TooltipContent className="max-w-64">
+                                  {t("EntityChannels.tooltipUnverified")}
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
+
+                            {canCompose && (
+                              <Tooltip>
+                                <PopoverTrigger asChild>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      aria-expanded={composing}
+                                      aria-label={t("EntityChannels.ariaStartThread", {
+                                        provider: composeLabel,
+                                      })}
+                                      className={cn(
+                                        "text-muted-foreground hover:text-foreground",
+                                        composing && "bg-accent text-foreground",
+                                      )}
+                                      size="icon-sm"
+                                      type="button"
+                                      variant="ghost"
+                                    >
+                                      <Send aria-hidden />
+                                    </Button>
+                                  </TooltipTrigger>
+                                </PopoverTrigger>
+
+                                <TooltipContent>{t("EntityChannels.tooltipStartNewThread")}</TooltipContent>
+                              </Tooltip>
+                            )}
+
+                            {canEditChannels && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    aria-label={t("EntityChannels.ariaUnlink", {
+                                      provider: providerLabel,
+                                    })}
+                                    className="text-muted-foreground hover:text-destructive"
+                                    size="icon-sm"
+                                    type="button"
+                                    variant="ghost"
+                                    onClick={() => recordChannels.remove(index)}
+                                  >
+                                    <X aria-hidden />
+                                  </Button>
+                                </TooltipTrigger>
+
+                                <TooltipContent>{t("EntityChannels.tooltipUnlinkChannel")}</TooltipContent>
+                              </Tooltip>
+                            )}
+                          </div>
                         </div>
+                      </PopoverAnchor>
 
-                        <ContactValue
-                          action={action}
-                          className="max-w-[18rem] text-sm font-medium"
-                          kind={contact.kind}
-                          label={contact.label || identifier.displayName || providerLabel}
-                          value={contact.value}
-                        />
-                      </div>
-
-                      <div className="flex shrink-0 items-center gap-1">
-                        {isUnverified && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="inline-flex shrink-0">
-                                <AppChip variant="secondary">{t("EntityChannels.unverified")}</AppChip>
-                              </span>
-                            </TooltipTrigger>
-
-                            <TooltipContent className="max-w-64">
-                              {t("EntityChannels.tooltipUnverified")}
-                            </TooltipContent>
-                          </Tooltip>
-                        )}
-
-                        {canStartThread && (
-                          <Tooltip>
-                            <PopoverTrigger asChild>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  aria-expanded={composing}
-                                  aria-label={t("EntityChannels.ariaStartThread", {
-                                    provider: providerLabel,
-                                  })}
-                                  className={cn(
-                                    "text-muted-foreground hover:text-foreground",
-                                    composing && "bg-accent text-foreground",
-                                  )}
-                                  size="icon-sm"
-                                  type="button"
-                                  variant="ghost"
-                                >
-                                  <Send aria-hidden />
-                                </Button>
-                              </TooltipTrigger>
-                            </PopoverTrigger>
-
-                            <TooltipContent>{t("EntityChannels.tooltipStartNewThread")}</TooltipContent>
-                          </Tooltip>
-                        )}
-
-                        {canEditChannels && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                aria-label={t("EntityChannels.ariaUnlink", {
-                                  provider: providerLabel,
-                                })}
-                                className="text-muted-foreground hover:text-destructive"
-                                size="icon-sm"
-                                type="button"
-                                variant="ghost"
-                                onClick={() => recordChannels.remove(index)}
-                              >
-                                <X aria-hidden />
-                              </Button>
-                            </TooltipTrigger>
-
-                            <TooltipContent>{t("EntityChannels.tooltipUnlinkChannel")}</TooltipContent>
-                          </Tooltip>
-                        )}
-                      </div>
-                    </div>
-                  </PopoverAnchor>
-
-                  <PopoverContent
-                    align="start"
-                    className="w-(--radix-popover-trigger-width) overflow-hidden p-0"
-                    onInteractOutside={(event) => {
-                      if (threadComposeStore.hasUnsavedChanges || threadComposeStore.isLoading) event.preventDefault();
-                    }}
-                  >
-                    <ContactComposePopover provider={identifier.provider} />
-                  </PopoverContent>
-                </Popover>
-              );
-            })}
+                      <PopoverContent
+                        align="start"
+                        className="w-(--radix-popover-trigger-width) overflow-hidden p-0"
+                        onInteractOutside={(event) => {
+                          if (threadComposeStore.hasUnsavedChanges || threadComposeStore.isLoading)
+                            event.preventDefault();
+                        }}
+                      >
+                        <ContactComposePopover provider={composeProvider} />
+                      </PopoverContent>
+                    </Popover>
+                  );
+                })}
+              </div>
+            ))}
 
             {canEditChannels && recordChannels.addControl}
           </div>

@@ -19,6 +19,16 @@ describe("commercial content tokens", () => {
     );
   });
 
+  it("resolves the file storage each active user adds per plan", () => {
+    expect(resolveCommercialTokens("[[commercial.storage.starter]]", "en")).toBe("1 GB");
+    expect(resolveCommercialTokens("[[commercial.storage.pro]]", "en")).toBe("5 GB");
+    expect(resolveCommercialTokens("[[commercial.storage.business]]", "de")).toBe("20 GB");
+    expect(resolveCommercialTokens("[[commercial.storage.enterprise]]", "en")).toBe("custom");
+    expect(resolveCommercialTokens("[[commercial.storage.enterprise]]", "de")).toBe("individuell");
+    expect(() => resolveCommercialTokens("[[commercial.storage.team]]", "en")).toThrow("Invalid");
+    expect(() => resolveCommercialTokens("[[commercial.storage.pro.extra]]", "en")).toThrow("Invalid");
+  });
+
   it("localizes amounts and unlimited allowances in German", () => {
     expect(resolveCommercialTokens("[[commercial.price.pro.monthly]]", "de")).toMatch(/^29(?:\u00a0| )€$/);
     expect(resolveCommercialTokens("[[commercial.entitlement.enterprise.includedAccountsPerUser]]", "de")).toBe(

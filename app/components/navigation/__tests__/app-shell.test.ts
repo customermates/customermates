@@ -19,6 +19,7 @@ vi.mock("@/core/di", () => ({
   getGetSubscriptionInteractor: vi.fn(),
   getGetUnreadThreadCountInteractor: vi.fn(),
   getCountChannelsNeedingActionInteractor: vi.fn(),
+  getAddressLookupService: () => ({ enabled: false }),
 }));
 vi.mock("../navigation-data", () => ({
   loadNavigationData: () =>

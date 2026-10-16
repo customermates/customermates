@@ -71,6 +71,9 @@ Register, choose **Create a new workspace** and complete the wizard; your accoun
 - `APP_MODE`: leave it at `self-hosted`; the Compose file sets this value for the app itself.
 - `CRON_SECRET`: optional, commented out in the template; the secret for the scheduled maintenance calls, see [Which scheduled jobs must I run?](#scheduled-jobs).
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AZURE_AD_CLIENT_ID`, `AZURE_AD_CLIENT_SECRET`: optional, commented out in the template, see [Can users sign in with Google or Microsoft?](#can-users-sign-in-with-google-or-microsoft).
+- `ADDRESS_LOOKUP_URL`: optional, commented out in the template; adds address search from a Photon service you run yourself, see [How are addresses checked, and how do I add address search?](#address-lookup).
+- `POSTAL_CODE_DATA_URL`: optional, commented out in the template; the source of the postal codes for city and region suggestions: GeoNames when unset, the URL of a mirror, or `off`, see [How are addresses checked, and how do I add address search?](#address-lookup).
+- `FILE_STORAGE_DRIVER`, `FILE_MAX_UPLOAD_BYTES` and the `S3_` variables: optional, commented out in the template; where file fields keep their files and how large one may be, see [Where are files stored when I self-host?](#file-storage).
 
 Keep `.env` out of source control. Apply changes with `docker compose up -d`.
 
@@ -144,6 +147,32 @@ The MCP endpoint is `<BASE_URL>/api/v1/mcp`, for example `https://crm.example.co
 
 The hosted in-app Assistant is cloud-only: Mate is not available on self-hosted instances. External MCP uses your own AI provider. Enterprise SSO and white-labeling are not implemented in either deployment model.
 
+## How are addresses checked, and how do I add address search? [#address-lookup]
+
+Address checks need no setup. Every server checks addresses against the address format of their country, which ships with the app, and fills in city and region from the postal code, see [How do I enter an address?](/docs/app-records#how-do-i-enter-an-address). Nothing about a record leaves your server for this.
+
+The postal codes are loaded from [GeoNames](https://www.geonames.org). The first time someone enters an address in a country, a background job downloads that country's public file from `https://download.geonames.org/export/zip`, checks it and keeps the postal codes in your PostgreSQL database; after 90 days it downloads the file again. Only the public file is downloaded: no record data, search text or IP address of your users is sent. Until a country is loaded, or while its download fails, the format checks still run, and only the city and region suggestions and the city check are missing. `POSTAL_CODE_DATA_URL` sets the source of the files:
+
+- Unset: GeoNames. The server needs outbound HTTPS access to `download.geonames.org`.
+- `off`: no downloads. The format checks still run, but nothing suggests a city or region, and the city is not checked.
+- The URL of a mirror, for example `https://mirror.example.com/geonames`: a server that offers the GeoNames files under the same names, such as `DE.zip`, `US.zip` or `CA_full.csv.zip`.
+
+As with `ADDRESS_LOOKUP_URL` below, Customermates never follows a redirect, and a host name that resolves to a private address is accepted only when the configured host is itself private.
+
+A self-hosted server can also search addresses while people type, with a [Photon](https://github.com/komoot/photon) service that you run yourself on OpenStreetMap data. Set `ADDRESS_LOOKUP_URL` to it, and address fields get **Search address** and **Check address**: an address picked or matched there is stored as verified, with the position of the building. Your server sends Photon only the search text or the address being checked, the person's language and the chosen country, so Photon never sees people's IP addresses or sessions. Each app container allows each person 30 lookups in 10 seconds and answers identical lookups from its own cache for 10 minutes. Without `ADDRESS_LOOKUP_URL`, the default, people type the address themselves; Customermates Cloud has no address search.
+
+To run Photon, download the Photon jar from its [releases](https://github.com/komoot/photon/releases/latest), save it as `photon.jar`, and download a search index for the whole planet or one country from [download1.graphhopper.com/public](https://download1.graphhopper.com/public/) that matches the Photon version. Photon needs Java 21 or later and memory to match the index: for the planet index, about 95 GB on disk, Photon recommends at least 64 GB of RAM, while a country index needs far less. Unpack the index so that `photon_data` sits next to the jar in `/srv/photon`, then start Photon in the network of the Compose project, which is named after its folder, here `customermates`, with a Java heap (`-Xmx`) that fits your index:
+
+```bash
+docker run -d --name photon --restart unless-stopped \
+  --network customermates_default \
+  -v /srv/photon:/photon -w /photon \
+  eclipse-temurin:21-jre \
+  java -Xmx4g -jar photon.jar serve -listen-ip 0.0.0.0
+```
+
+Then set `ADDRESS_LOOKUP_URL=http://photon:2322` in `.env` and run `docker compose up -d`. Customermates calls only the configured host and never follows a redirect. A host name that resolves to a private address is accepted only when the configured host is itself private: an IP address in a private range, `localhost`, a name without a dot such as `photon`, or a name under `.local`, `.internal`, `.lan` or `.home.arpa`. When the service does not answer within 2 seconds, people see that address search is unavailable and can still type the address. Unset `ADDRESS_LOOKUP_URL` to turn the search off again; stored addresses keep their verification.
+
 ## How do I update a self-hosted installation? [#how-do-i-update-a-self-hosted-installation]
 
 Take a backup first, then pull the new images and recreate the containers:
@@ -171,11 +200,21 @@ docker compose ps
 docker compose exec app sh
 ```
 
-The app writes its logs to the container output. Background jobs such as webhook deliveries run inside the app container through a PostgreSQL-backed queue in the same database; there is no separate worker service. The published image turns off Next.js telemetry and sets no error-reporting address. Errors the app writes to its output appear only in these logs. Errors it only reports to an error-reporting service, such as an email Resend rejected, are not recorded anywhere, so check the Resend dashboard for failed sends.
+On a self-hosted instance, the app writes its logs to the container output. Background jobs such as webhook deliveries run inside the app container through a PostgreSQL-backed queue in the same database; there is no separate worker service. The published image turns off Next.js telemetry and sets no error-reporting address. Errors the app writes to its output appear only in these logs. Errors it only reports to an error-reporting service, such as an email Resend rejected, are not recorded anywhere, so check the Resend dashboard for failed sends.
+
+## Where are files stored when I self-host? [#file-storage]
+
+File fields keep their files in the PostgreSQL database by default, so the `pg_dump` backup includes them. A file can be at most `FILE_MAX_UPLOAD_BYTES` bytes, 26214400 (25 MB) when unset; beyond that, a self-hosted workspace has no storage limit other than your disk. For many or large files, keep them in an S3-compatible bucket such as AWS S3, MinIO, Cloudflare R2 or the object storage of Hetzner or OVH:
+
+- `FILE_STORAGE_DRIVER=s3`, plus `S3_BUCKET`, `S3_ACCESS_KEY_ID` and `S3_SECRET_ACCESS_KEY` of a private bucket.
+- `S3_ENDPOINT` for every provider other than AWS, for example `https://fsn1.your-objectstorage.com`, and `S3_REGION` when the provider needs one (`us-east-1` when unset).
+- `S3_FORCE_PATH_STYLE=true` for MinIO and other servers that address the bucket in the path instead of the host name.
+
+Browsers send new files straight to the bucket, so its CORS rules must allow `PUT` with the `Content-Type` and `If-None-Match` headers from your `BASE_URL`. An upload link writes a file only once: the bucket refuses a second upload to it, so a file cannot be replaced after it was saved. AWS S3, MinIO and Cloudflare R2 support this; a store that ignores `If-None-Match` accepts a second upload until the link expires after 15 minutes. Downloads always pass through the app, which checks access first. A file stays where it was uploaded: after a switch to `s3`, earlier files remain in the database and still open, and the S3 variables must stay set as long as the bucket holds files. Back up the bucket together with the database. The daily `/api/cron/lifecycle` call deletes files that were removed from records 30 days ago and uploads that were never saved, see [Which scheduled jobs must I run?](#scheduled-jobs).
 
 ## How do I create and restore database backups? [#backups]
 
-All data lives in the PostgreSQL database: records, users, settings, the Activity log and the background job queue. The app container keeps no data. Back up the database with `pg_dump` through the Postgres container, whose port the Compose file does not publish:
+All data lives in the PostgreSQL database: records, users, settings, the Activity log and the background job queue, and the files of file fields unless `FILE_STORAGE_DRIVER` is `s3` (then back up the bucket as well). The app container keeps no data. Back up the database with `pg_dump` through the Postgres container, whose port the Compose file does not publish:
 
 ```bash
 mkdir -p backups
@@ -201,8 +240,8 @@ Test the restore regularly on a separate machine. Moving to a new PostgreSQL maj
 
 The cloud calls two maintenance endpoints on a schedule; a self-hosted instance runs them only when you call them. Without the daily one, items in [Trash](/docs/app-trash) are never deleted permanently after their 30 days.
 
-- `/api/cron/lifecycle`, once a day: deletes Trash items whose 30 days have passed and runs the other daily housekeeping. Its jobs for cloud trials and subscriptions find nothing on a self-hosted instance.
-- `/api/cron/record-deliveries`, every 5 minutes (optional): starts due webhook deliveries, event processing and background record work that no running job picked up, for example after a container restart.
+- `/api/cron/lifecycle`, once a day: deletes Trash items whose 30 days have passed, files removed from records 30 days ago and uploads that were never saved, and runs the other daily housekeeping. Its jobs for cloud trials and subscriptions find nothing on a self-hosted instance.
+- `/api/cron/record-deliveries`, every 5 minutes (optional): starts due webhook deliveries, event processing, text extraction of attached files and other background record work that no running job picked up, for example after a container restart.
 
 Both answer HTTP `401` unless the app has a `CRON_SECRET` and the request sends it as `Authorization: Bearer <secret>`. The template has a commented `CRON_SECRET` line next to `BETTER_AUTH_SECRET`, and the Compose file passes it to the app; if your `docker-compose.yml` does not list `CRON_SECRET` yet, download it again with the `curl` command from the installation steps. Uncomment the line, or add it to an `.env` created before it existed, set a long random value, for example from `openssl rand -hex 32`, run `docker compose up -d`, and schedule the calls on the host, for example with `crontab -e`:
 

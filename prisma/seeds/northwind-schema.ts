@@ -336,6 +336,8 @@ export function applyNorthwindModel(model: RecordModel, companyId: string): Reco
   add("organization", "organization.companySize", "Company size", "number", { format: { decimalPlaces: 0 } });
   choice("organization", "organization.segment", "Segment");
   add("organization", "organization.channels", "Channels", "channels", { format: { onClick: "open" } });
+  add("organization", "organization.address", "Address", "address", { format: { onClick: "open" } });
+  add("organization", "organization.documents", "Documents", "file", { multiple: true });
   add("organization", "organization.arr", "ARR", "currency", {
     behavior: {
       kind: "rollup",

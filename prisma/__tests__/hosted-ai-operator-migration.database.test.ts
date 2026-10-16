@@ -197,7 +197,10 @@ describeDatabase("hosted AI operator migration", { timeout: 120_000 }, () => {
           prisma.user.findUniqueOrThrow({ where: { id: SEED_IDS.user } }),
           prisma.user.findUniqueOrThrow({ where: { id: SEED_IDS.hostedAiOrdinaryUser } }),
           prisma.authUser.findUniqueOrThrow({ where: { id: SEED_IDS.hostedAiOrdinaryUser } }),
-          prisma.subscription.findUniqueOrThrow({ where: { companyId: SEED_IDS.hostedAiFixtureCompany } }),
+          prisma.subscription.findUniqueOrThrow({
+            where: { companyId: SEED_IDS.hostedAiFixtureCompany },
+            select: { enterpriseAgentCreditsPerUser: true, plan: true },
+          }),
           prisma.agentUsageEvent.findMany({ orderBy: { id: "asc" } }),
         ]);
 

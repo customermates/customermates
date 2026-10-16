@@ -455,6 +455,13 @@
       "stopFailed": "Mate konnte nicht gestoppt werden. Die Verbindung wird wiederhergestellt, damit du es erneut versuchen kannst.",
       "turnFailed": "Bei Mate ist ein Fehler aufgetreten."
     },
+    "files": {
+      "attach": "Dateien anhängen",
+      "dropHint": "Dateien zum Anhängen hier ablegen",
+      "failed": "{name}: {message}",
+      "limit": "Du kannst höchstens {count, plural, one {# Datei} other {# Dateien}} an eine Nachricht anhängen.",
+      "reading": "Wird gelesen …"
+    },
     "greeting": {
       "headline": "Hey, ich bin Mate",
       "subtitle": "Frag mich alles zu deinem Workspace, oder sag mir, was ich für dich erledigen soll.",
@@ -1058,6 +1065,8 @@
       "title": "Noch keine {plural}"
     },
     "errors": {
+      "addressLookupRateLimited": "Zu viele Adresssuchen in kurzer Zeit. Warte ein paar Sekunden und versuche es dann erneut.",
+      "addressLookupUnavailable": "Die Adresssuche ist gerade nicht verfügbar. Gib die Adresse selbst ein oder versuche es später erneut.",
       "agentApprovalUnavailable": "Diese Freigabeanfrage ist nicht verfügbar oder abgelaufen.",
       "agentConversationNotFound": "Diese Unterhaltung wurde nicht gefunden oder ist nicht mehr zugänglich.",
       "agentLimitReached": "Es sind nicht genügend KI-Credits übrig, um eine weitere Anfrage zu starten.",
@@ -1109,7 +1118,6 @@
       "invalidFilterValue": "Ungültiger Filterwert. Der Wert muss zum Typ und Operator des Felds passen (z. B. eine Zahl für gt/lt, ein ISO-Datum für Datumsfelder oder eine ID für in/notIn).",
       "invalidGroupingField": "Nach diesem Feld kann die Ansicht nicht gruppiert werden. Mehrfachauswahlfelder und Felder ohne feste Werte können keine Liste gruppieren. Gruppierbare Felder: {validValues}.",
       "invalidJsonBody": "Der Request-Body ist kein gültiges JSON.",
-      "invalidPhone": "Gib eine Telefonnummer im internationalen Format ein, zum Beispiel +4930123456.",
       "invalidSortField": "Sortierfeld nicht gefunden oder nicht zugänglich. Verfügbare Felder: {validValues}.",
       "invalidUrl": "Gib eine gültige URL ein.",
       "legalNoticeNotDelivered": "Die aktuelle rechtliche Änderung wurde diesem Workspace noch nicht zugestellt.",
@@ -1136,11 +1144,22 @@
       "passwordMismatch": "Passwörter müssen übereinstimmen.",
       "permissionDenied": "Diese Aktion ist mit deinen aktuellen Berechtigungen nicht verfügbar.",
       "privacyAcknowledgementRequired": "Bitte bestätigen Sie, dass Sie die Datenschutzerklärung gelesen haben.",
+      "recordAddressCandidateInvalid": "Dieser Adressvorschlag ist nicht mehr gültig. Suche die Adresse erneut.",
+      "recordAddressCountryInvalid": "In {field} ist {country} kein Ländercode.",
+      "recordAddressPostalCodeInvalid": "In {field} ist {postalCode} keine Postleitzahl des gewählten Landes. Postleitzahlen sehen dort so aus: {example}.",
+      "recordAddressRegionInvalid": "In {field} ist {region} keine Region des gewählten Landes.",
       "recordCalculationBudget": "Diese Änderung erfordert eine Neuberechnung im Hintergrund.",
       "recordConfigurationInvalid": "Prüfe die Felder und Verknüpfungen dieser Konfiguration.",
       "recordDateInvalid": "Gib ein gültiges Datum ein.",
       "recordDateRangeInvalid": "Gib einen gültigen Zeitraum ein, dessen Ende nicht vor dem Beginn liegt.",
       "recordDependencies": "Aktualisiere zuerst die abhängigen Felder, Ansichten, Widgets oder Zuordnungen.",
+      "recordFileContentInvalid": "Sende den Dateiinhalt als Base64.",
+      "recordFileLinkInvalid": "Dieser Dateilink ist ungültig oder abgelaufen. Öffne die Datei erneut, um einen neuen Link zu erhalten.",
+      "recordFileNameInvalid": "Gib einen Dateinamen ein.",
+      "recordFileNotFound": "Diese Datei ist nicht verfügbar.",
+      "recordFileTooLarge": "Eine Datei darf höchstens {limit} groß sein.",
+      "recordFileUnavailable": "Eine Datei in diesem Wert ist nicht verfügbar oder gehört zu einem anderen Datensatz. Lade sie erneut hoch.",
+      "recordFileUploadIncomplete": "Der Upload enthielt nicht genau die angekündigten {size} Bytes. Lade die Datei erneut hoch.",
       "recordIdempotencyConflict": "Dieser Anfrageschlüssel wurde für eine andere Änderung verwendet. Starte eine neue Anfrage.",
       "recordIdUnavailable": "Diese Datensatz-ID gehörte bereits zu einem früheren Datensatz. Importiere den Datensatz mit einer neuen ID.",
       "recordMarkedTextChanged": "Markierter formatierter Text lässt sich nur unverändert aus dem gespeicherten Datensatz importieren; senden Sie neuen oder geänderten formatierten Text als richText-Wert mit documentJson.",
@@ -1195,6 +1214,7 @@
       "serviceBusy": "Der Workspace ist gerade mit einer anderen Änderung beschäftigt, etwa einem Import. Versuche es gleich noch einmal.",
       "socialActionRequiresSocialAccount": "Diese Aktion braucht ein verbundenes LinkedIn- oder Instagram-Konto, dieses Konto ist aber {provider}.",
       "socialPostsRequireSocialAccount": "Für Social-Posts brauchst du ein verbundenes LinkedIn- oder Instagram-Konto, dieses Konto ist aber {provider}.",
+      "storageQuotaExceeded": "Dein Workspace nutzt {used} von {limit} Dateispeicher. Entferne Dateien oder wechsle deinen Tarif, um mehr hochzuladen.",
       "subjectRequired": "Bitte einen Betreff hinzufügen.",
       "termsNotAgreed": "Du musst den Allgemeinen Geschäftsbedingungen zustimmen.",
       "threadNotFound": "Konversations-ID nicht gefunden oder nicht zugänglich.",
@@ -1542,6 +1562,7 @@
       "linkedin": "LinkedIn",
       "mail": "E-Mail",
       "outlook": "Outlook",
+      "phone": "Telefon",
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
@@ -2008,6 +2029,13 @@
       "update": "Übereinstimmende IDs aktualisieren"
     },
     "xlsxImport": {
+      "addressWarnings": {
+        "cityMismatch": "{field}: Der Ort gehört nicht zur Postleitzahl ({expected}).",
+        "countryMissing": "{field}: Ohne Land konnten Postleitzahl und Region nicht geprüft werden.",
+        "partMissing": "{field}: {part} fehlt.",
+        "postalCodeRegionMismatch": "{field}: Die Postleitzahl gehört zu einer anderen Region ({expected}).",
+        "regionUnknown": "{field}: Die Region ist keine der Regionen des Landes."
+      },
       "assignedTo": "Zugewiesen an",
       "column": "Spalte {name}",
       "create": "Neue Datensätze",
@@ -2025,11 +2053,12 @@
         "ambiguousRecord": "Mehrere Datensätze heißen „{value}“.",
         "currencyMismatch": "„{value}“ nutzt eine andere Währung als dieses Feld.",
         "duplicateMatch": "Eine andere Zeile aktualisiert bereits denselben Datensatz.",
+        "fileNotImportable": "Dateien lassen sich nicht aus einer Tabelle importieren. Lade sie stattdessen im Datensatz hoch.",
         "invalidBoolean": "„{value}“ ist weder Ja noch Nein.",
+        "invalidChannel": "„{value}“ ist keine E-Mail-Adresse, keine Telefonnummer und kein Profil-Link.",
         "invalidDate": "„{value}“ ist kein Datum.",
         "invalidEmail": "„{value}“ ist keine E-Mail-Adresse.",
         "invalidNumber": "„{value}“ ist keine Zahl.",
-        "invalidPhone": "„{value}“ ist keine Telefonnummer im internationalen Format.",
         "invalidRecordId": "„{value}“ ist keine Datensatz-ID.",
         "invalidUrl": "„{value}“ ist keine Webadresse mit http:// oder https://.",
         "invalidValue": "„{value}“ ist kein gültiger Wert.",
@@ -2039,6 +2068,7 @@
         "required": "{value} ist ein Pflichtfeld.",
         "restricted": "Du kannst nicht alle Felder des passenden Datensatzes lesen.",
         "tooManyValues": "Eine Zelle kann höchstens 100 Werte enthalten.",
+        "unknownCountry": "„{value}“ ist kein Land.",
         "unknownMember": "Kein Mitglied passt zu „{value}“.",
         "unknownOption": "„{value}“ ist keine Option dieses Felds.",
         "unknownRecord": "Kein verknüpfbarer Datensatz heißt „{value}“."
@@ -2049,7 +2079,7 @@
       "matchHint": "Zeilen ohne passenden Datensatz werden übersprungen. Leere Zellen behalten den aktuellen Wert.",
       "moreFailures": "{count, plural, one {# weitere fehlgeschlagene Zeile wird} other {# weitere fehlgeschlagene Zeilen werden}} nicht angezeigt.",
       "next": "Weiter",
-      "noMatchColumn": "Ordne die Datensatz-ID oder ein Text-, E-Mail-, Telefon-, URL- oder Zahlenfeld zu, um vorhandene Datensätze abzugleichen.",
+      "noMatchColumn": "Ordne die Datensatz-ID oder ein Text-, E-Mail-, URL- oder Zahlenfeld zu, um vorhandene Datensätze abzugleichen.",
       "other": "Weitere",
       "previewHint": "{count, plural, =0 {Die ersten {rows} Zeilen haben keine Probleme.} one {# der ersten {rows} Zeilen hat ein Problem.} other {# der ersten {rows} Zeilen haben Probleme.}} Zeilen mit Problemen werden nicht importiert.",
       "problems": {
@@ -2076,7 +2106,8 @@
       },
       "stepsLabel": "Importschritte",
       "update": "Vorhandene Datensätze",
-      "updated": "{count, plural, one {# Datensatz aktualisiert} other {# Datensätze aktualisiert}}"
+      "updated": "{count, plural, one {# Datensatz aktualisiert} other {# Datensätze aktualisiert}}",
+      "warned": "{count, plural, one {# Zeile mit Adresshinweis importiert} other {# Zeilen mit Adresshinweisen importiert}}"
     }
   },
   "DataView": {
@@ -2256,7 +2287,7 @@
       "addAsLabel": "Hinzufügen als",
       "noResults": "Keine Treffer.",
       "searching": "Suche…",
-      "searchPlaceholder": "Suchen oder E-Mail, Telefon oder Handle einfügen…",
+      "searchPlaceholder": "Suchen oder E-Mail, Telefonnummer oder Social-Media-Konto einfügen…",
       "sourceConversations": "Aus deinen Konversationen",
       "sourceLookup": "Per Suche gefunden",
       "trigger": "Kanal hinzufügen"
@@ -2266,7 +2297,12 @@
     "compose": {
       "noAccount": "Kein nutzbares {provider} Konto verbunden. Verbinde eines unter Einstellungen › Kanäle."
     },
-    "emptyHint": "Noch keine Kanäle. E-Mail-Adressen, WhatsApp-Telefonnummern und soziale Konten, über die Nachrichten diesem Datensatz zugeordnet werden.",
+    "emptyHint": "Noch keine Kanäle. E-Mail-Adressen, Telefonnummern und Social-Media-Konten, über die Nachrichten diesem Datensatz zugeordnet werden.",
+    "groups": {
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "social": "Social Media"
+    },
     "tooltipOpenInbox": "Zum Posteingang",
     "tooltipStartNewThread": "Neue Nachricht",
     "tooltipUnlinkChannel": "Kanal entfernen",
@@ -2985,6 +3021,7 @@
         "creditAdjustmentCreate": "Guthabenkorrektur erfasst",
         "creditBalanceReset": "Guthaben zurückgesetzt",
         "enterpriseAllowanceUpdate": "Enterprise-Kontingent aktualisiert",
+        "enterpriseFileStorageUpdate": "Enterprise-Dateispeicher aktualisiert",
         "overviewRead": "Hosted-AI-Übersicht gelesen",
         "subscriptionSnapshotCorrect": "Workspace-Abonnement korrigiert",
         "subscriptionTermsUpdate": "Abonnementkonditionen aktualisiert",
@@ -3006,6 +3043,7 @@
     "confirm": {
       "allowance": "Enterprise-Kontingent für {name} auf {value} Credits pro Nutzer setzen? Das gilt für den gesamten Workspace.",
       "changes": "Diese Änderungen für {name} speichern? Sie gelten für den gesamten Arbeitsbereich.",
+      "fileStorage": "Enterprise-Dateispeicher für {name} auf {value} GB pro Nutzer setzen? Das gilt für den gesamten Workspace.",
       "plan": "Den Tarif für {name} auf {value} setzen? Das gilt für den gesamten Workspace.",
       "subscription": "Den Abonnementstatus für {name} auf {value} setzen? Das gilt für den gesamten Workspace und kontaktiert keinen Zahlungsanbieter.",
       "tags": "Schlagwörter für {name} auf {value} setzen? Das gilt für den gesamten Arbeitsbereich.",
@@ -3136,6 +3174,11 @@
     },
     "emptyBody": "Passe Suche oder Filter an, um die Liste zu erweitern.",
     "emptyTitle": "Keine Arbeitsbereiche passen zu diesen Filtern",
+    "fileStorage": {
+      "description": "Der Speicher, den jeder aktive Benutzer zum gemeinsamen Dateispeicher des Workspace beiträgt. Ohne Wert trägt jeder Benutzer 50 GB bei.",
+      "label": "Dateispeicher pro Benutzer (GB)",
+      "title": "Enterprise-Dateispeicher"
+    },
     "modal": {
       "identity": "{domain} · {owner}",
       "subscription": "Abonnement",
@@ -3219,6 +3262,65 @@
     "addPathStep": "Beziehungsschritt hinzufügen",
     "addProperty": "Eigenschaft hinzufügen",
     "addRelationship": "Beziehung hinzufügen",
+    "addressCheck": {
+      "action": "Adresse prüfen",
+      "checking": "Adresse wird geprüft",
+      "keep": "Wie eingegeben behalten",
+      "noMatch": "Keine passende Adresse gefunden.",
+      "suggestion": "Vorgeschlagene Adresse",
+      "use": "Vorschlag übernehmen"
+    },
+    "addressDetails": "Adressdetails",
+    "addressIssues": {
+      "cityMismatch": "Dieser Ort gehört nicht zur Postleitzahl {postalCode}.",
+      "countryMissing": "Wähle ein Land, damit Postleitzahl und Region geprüft werden können.",
+      "countryUnknown": "Wähle ein Land aus der Liste.",
+      "partMissing": "{part} fehlt. Adressen in {country} brauchen diese Angabe.",
+      "postalCodeInvalid": "Das ist keine Postleitzahl von {country}. Postleitzahlen sehen dort so aus: {example}.",
+      "postalCodeRegionMismatch": "Die Postleitzahl {postalCode} gehört zu einer anderen Region.",
+      "regionInvalid": "{region} ist kein Regionscode von {country}.",
+      "regionUnknown": "{region} ist keine der Regionen von {country}."
+    },
+    "addressLabels": {
+      "area": "Gebiet",
+      "county": "Grafschaft",
+      "department": "Département",
+      "district": "Bezirk",
+      "doSi": "Provinz oder Stadt",
+      "eircode": "Eircode",
+      "emirate": "Emirat",
+      "island": "Insel",
+      "oblast": "Oblast",
+      "parish": "Verwaltungsbezirk",
+      "pin": "PIN-Code",
+      "postTown": "Poststadt",
+      "prefecture": "Präfektur",
+      "province": "Provinz",
+      "state": "Bundesstaat oder Territorium",
+      "suburb": "Ortsteil",
+      "zip": "ZIP-Code"
+    },
+    "addressParts": {
+      "city": "Ort",
+      "country": "Land",
+      "line2": "Adresszeile 2",
+      "postalCode": "Postleitzahl",
+      "region": "Bundesland oder Region",
+      "street": "Straße und Hausnummer"
+    },
+    "addressPlaces": {
+      "attribution": "Postleitzahlen: GeoNames (CC BY 4.0)",
+      "choose": "Orte mit dieser Postleitzahl:",
+      "use": "{value} übernehmen"
+    },
+    "addressSearch": {
+      "empty": "Keine passende Adresse gefunden.",
+      "hint": "Gib mindestens {count} Zeichen ein, um zu suchen.",
+      "placeholder": "Straße und Hausnummer, Postleitzahl oder Ort",
+      "trigger": "Adresse suchen"
+    },
+    "addressUnverified": "Unbestätigt",
+    "addressVerified": "Bestätigte Adresse",
     "addValue": "{field} hinzufügen",
     "aggregation": "Zusammenfassung",
     "assignedTo": "Zugewiesen an",
@@ -3369,10 +3471,14 @@
       "oneToOne": "Eins zu eins"
     },
     "changeBlocked": "Diese Änderung kann noch nicht übernommen werden",
-    "channelsHelp": "E-Mail-Adressen, WhatsApp-Telefonnummern und soziale Konten, über die Nachrichten diesem Datensatz zugeordnet werden. Telefonnummern werden nur bei WhatsApp-Chats zugeordnet. Eine Kennung kann mit mehreren Datensätzen verknüpft sein.",
+    "channelsHelp": "E-Mail-Adressen, Telefonnummern und Social-Media-Konten, über die Nachrichten diesem Datensatz zugeordnet werden. Eine Telefonnummer ordnet auch WhatsApp-Chats derselben Nummer zu. Eine Kennung kann mit mehreren Datensätzen verknüpft sein.",
     "chooseOption": "Wähle eine der Optionen des Felds.",
     "clickAction": "Beim Klicken",
     "clickActions": {
+      "address": {
+        "copy": "Adresse kopieren",
+        "open": "In Karten öffnen"
+      },
       "channels": {
         "copy": "Kopieren",
         "open": "E-Mail, Anruf oder Profil öffnen"
@@ -3491,6 +3597,15 @@
     "fieldTabs": {
       "calculation": "Berechnung"
     },
+    "fileAdd": "{mode, select, many {Dateien hinzufügen} other {Datei hinzufügen}}",
+    "fileCancelUpload": "Upload von {name} abbrechen",
+    "fileDropHint": "{mode, select, many {oder Dateien hierher ziehen} other {oder eine Datei hierher ziehen}}",
+    "fileLimit": "Dieses Feld fasst höchstens {count, plural, one {# Datei} other {# Dateien}}.",
+    "fileOpen": "{name} öffnen ({size})",
+    "fileRemove": "{name} entfernen",
+    "fileUnavailable": "Nicht verfügbare Datei",
+    "fileUploadFailed": "Der Upload ist fehlgeschlagen. Versuche es erneut.",
+    "fileUploading": "Wird hochgeladen … {progress, number, percent}",
     "general": "Allgemein",
     "graph": {
       "accountEdge": "Synchronisiert Unterhaltungen in {list}",
@@ -3796,9 +3911,13 @@
     "triggerField": "Wenn sich dieses Feld ändert",
     "triggerValue": "Auf diesen Wert",
     "typeHints": {
+      "address": "Postanschriften mit Land",
+      "channels": "E-Mail-Adressen, Telefonnummern und Social-Media-Konten",
+      "file": "Dokumente, Bilder, Verträge",
       "richText": "Notizen, Beschreibungen, Zusammenfassungen"
     },
     "types": {
+      "address": "Adresse",
       "boolean": "Ja oder nein",
       "channels": "Kanäle",
       "currency": "Geldbetrag",
@@ -3807,10 +3926,10 @@
       "dateTime": "Datum und Uhrzeit",
       "dateTimeRange": "Datums- und Zeitbereich",
       "email": "E-Mail",
+      "file": "Datei",
       "member": "Mitglied",
       "multiSelect": "Mehrfachauswahl",
       "number": "Zahl",
-      "phone": "Telefon",
       "richText": "Formatierter Text",
       "select": "Einzelauswahl",
       "text": "Text",
@@ -4188,6 +4307,7 @@
       "currentPeriodEndManage": "Wird durch den aktuellen Abrechnungszeitraum festgelegt. Verwende „{billing}“ für Änderungen am Abonnement.",
       "currentPeriodEndReadOnly": "Wird durch den aktuellen Abrechnungszeitraum festgelegt. Bitte eine Workspace-Administration um Änderungen.",
       "currentPeriodEndUnavailable": "Wird durch den aktuellen Abrechnungszeitraum festgelegt. Wende dich für Änderungen an den Support.",
+      "fileStorage": "Hier zählen alle Dateien in Dateifeldern, entfernte Dateien noch 30 Tage lang. Jeder aktive Benutzer erweitert den Speicher des Workspace; ist das Limit erreicht, werden neue Uploads abgelehnt und nichts wird gelöscht.",
       "planManage": "Wird mit der Abrechnung synchronisiert. Verwende „{billing}“ für Änderungen.",
       "planPicker": "Wähle unten einen Tarif, um das Abonnement zu starten oder zu ändern.",
       "planReadOnly": "Wird mit der Abrechnung synchronisiert. Bitte eine Workspace-Administration um Änderungen.",
@@ -4196,6 +4316,8 @@
       "trialEndsPicker": "Wird durch den Testzeitraum festgelegt. Wähle vor diesem Datum einen Tarif, um Unterbrechungen zu vermeiden.",
       "trialEndsReadOnly": "Wird durch den Testzeitraum festgelegt. Bitte eine Workspace-Administration, das Abonnement zu verwalten."
     },
+    "fileStorage": "Dateispeicher",
+    "fileStorageUsage": "{used} von {limit}",
     "managedExternallyNote": "Dieser Workspace nutzt einen Enterprise-Tarif mit Rechnungsstellung. Wende dich an deinen Ansprechpartner, um Änderungen vorzunehmen.",
     "manageWithLemonSqueezy": "Verwalten mit Lemon Squeezy",
     "picker": {

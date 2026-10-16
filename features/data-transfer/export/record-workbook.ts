@@ -10,6 +10,8 @@ import type {
 
 import { PassThrough } from "node:stream";
 
+import { addressDisplayText } from "@/features/records/record-address-value";
+
 export const SPREADSHEET_CONTENT_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
 export const DATE_NUMBER_FORMAT = "yyyy-mm-dd";
@@ -49,6 +51,7 @@ type RecordWorkbookLabels = {
   rangeStart: string;
   rangeEnd: string;
   recordId: string;
+  locale?: string;
 };
 
 type ColumnSpec = RecordWorkbookColumn & {
@@ -128,6 +131,7 @@ function scalarCell(
   field: RecordField,
   record: RecordDto,
   part?: "start" | "end",
+  locale = "en",
 ): RecordWorkbookCell {
   switch (value.kind) {
     case "text":
@@ -170,6 +174,10 @@ function scalarCell(
     }
     case "richText":
       return text(richTextToPlainText(value.documentJson));
+    case "file":
+      return joined(value.value.map((id) => record.files?.find((file) => file.id === id)?.name ?? id));
+    case "address":
+      return text(addressDisplayText(value.value, locale));
   }
 }
 
@@ -178,8 +186,9 @@ function resultCell(
   field: RecordField,
   record: RecordDto,
   part?: "start" | "end",
+  locale?: string,
 ): RecordWorkbookCell {
-  return result?.state === "value" ? scalarCell(result.value, field, record, part) : null;
+  return result?.state === "value" ? scalarCell(result.value, field, record, part, locale) : null;
 }
 
 function columnFormat(field: RecordField): string | undefined {
@@ -222,7 +231,7 @@ function fieldColumns(field: RecordField, labels: RecordWorkbookLabels): ColumnS
       header: currency ? `${field.label} (${currency})` : field.label,
       numFmt: columnFormat(field),
       restricted,
-      cell: (record) => resultCell(result(record), field, record),
+      cell: (record) => resultCell(result(record), field, record, undefined, labels.locale),
     },
   ];
 }

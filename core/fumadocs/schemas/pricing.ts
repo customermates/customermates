@@ -20,6 +20,7 @@ const catalogPricingRowSchema = z.object({
     "includedAccountsPerUser",
     "includedRoutinesPerUser",
     "sharedAccounts",
+    "fileStoragePerActiveUser",
   ]),
 });
 

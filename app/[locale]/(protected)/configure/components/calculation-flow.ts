@@ -38,7 +38,7 @@ const TEXT_OPERATORS: Operator[] = ["concat", "lower", "upper", "trim"];
 const UNARY: Operator[] = ["not", "lower", "upper", "trim"];
 const NUMERIC: RecordValueType[] = ["number", "currency"];
 const ORDERED: RecordValueType[] = ["number", "currency", "date", "dateTime"];
-const TEXTUAL: RecordValueType[] = ["text", "email", "phone", "url"];
+const TEXTUAL: RecordValueType[] = ["text", "email", "url"];
 
 export const isUnset = (expression: CalculationExpression) =>
   expression.kind === "literal" && expression.value === null;
@@ -297,6 +297,7 @@ export function calculableFields(
       field.id !== excludeFieldId &&
       field.valueType !== "richText" &&
       field.valueType !== "channels" &&
+      field.valueType !== "file" &&
       !(field.valueType === "select" && field.multiple) &&
       (!types || types.includes(field.valueType)),
   );

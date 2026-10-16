@@ -37,8 +37,10 @@ export type AgentRetrievalReservation = {
   reservedAt: Date;
 };
 
+export type WorkspaceIndexingPurpose = "wikiIndexing" | "fileIndexing";
+
 export type AgentRetrievalGrant = {
-  purpose: "wikiRetrieval" | "wikiIndexing" | "wikiSynthesis" | "calculationDraft" | "commandResolve";
+  purpose: "wikiRetrieval" | WorkspaceIndexingPurpose | "wikiSynthesis" | "calculationDraft" | "commandResolve";
   companyId: string;
   userId: string | null;
   planSnapshot: SubscriptionPlan;
@@ -98,6 +100,10 @@ type ResolvedUsageState = {
 function usagePct(used: number, limit: number) {
   if (limit <= 0) return 0;
   return Math.min(100, Math.round((used / limit) * 100));
+}
+
+function isWorkspaceIndexing(purpose: AgentRetrievalGrant["purpose"]) {
+  return purpose === "wikiIndexing" || purpose === "fileIndexing";
 }
 
 function assertMicrocentCount(value: number, description: string) {
@@ -369,7 +375,7 @@ export class AgentUsageService {
     now?: Date;
   }): Promise<AgentRetrievalReservation | null> {
     assertMicrocentCount(args.worstCaseMicrocents, "Retrieval reservation");
-    if ((args.grant.purpose === "wikiIndexing") !== (args.grant.userId === null))
+    if (isWorkspaceIndexing(args.grant.purpose) !== (args.grant.userId === null))
       throw new Error("Retrieval grant payer is invalid.");
     const reservedMicrocents = Math.max(1, args.worstCaseMicrocents);
     const reservedAt = args.now ?? new Date();

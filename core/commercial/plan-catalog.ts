@@ -19,7 +19,10 @@ export type PlanEntitlements = {
   includedRoutinesPerUser: number | "unlimited";
   sharedAccounts: boolean;
   hostedAiCreditsPerActiveUser: number | "contract" | null;
+  fileStorageBytesPerActiveUser: number | "contract" | null;
 };
+
+const GIB = 1024 ** 3;
 
 export type CommercialOffer = {
   id: OfferId;
@@ -71,6 +74,7 @@ export const PLAN_CATALOG = {
       includedRoutinesPerUser: 1,
       sharedAccounts: false,
       hostedAiCreditsPerActiveUser: 200,
+      fileStorageBytesPerActiveUser: Number(GIB),
     },
     offers: {
       monthly: {
@@ -95,6 +99,7 @@ export const PLAN_CATALOG = {
       includedRoutinesPerUser: 5,
       sharedAccounts: false,
       hostedAiCreditsPerActiveUser: 500,
+      fileStorageBytesPerActiveUser: 5 * GIB,
     },
     offers: {
       monthly: {
@@ -119,6 +124,7 @@ export const PLAN_CATALOG = {
       includedRoutinesPerUser: "unlimited",
       sharedAccounts: true,
       hostedAiCreditsPerActiveUser: 1_200,
+      fileStorageBytesPerActiveUser: 20 * GIB,
     },
     offers: {
       monthly: {
@@ -143,6 +149,7 @@ export const PLAN_CATALOG = {
       includedRoutinesPerUser: "unlimited",
       sharedAccounts: true,
       hostedAiCreditsPerActiveUser: "contract",
+      fileStorageBytesPerActiveUser: "contract",
     },
     offers: {},
   },

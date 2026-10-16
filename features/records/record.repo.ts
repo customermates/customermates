@@ -1,4 +1,4 @@
-import type { MessagingProvider } from "@/generated/prisma";
+import type { RecordIdentityProvider } from "@/generated/prisma";
 import type { RecordActivityQuery } from "@/ee/messaging/activities/record-activities.schema";
 import type { DataViewState } from "@/core/data-view/data-view-state.schema";
 import type {
@@ -17,6 +17,7 @@ import type {
   RecordMember,
   RecordRelationshipSummary,
   RecordPathSummary,
+  RecordFileSummary,
 } from "./record-model.schema";
 import type { RecordPathSelection } from "./record-relationship-path.schema";
 import type { RecordRelationshipSelection } from "./record-column.schema";
@@ -41,6 +42,7 @@ import type { RecordWebhookConfigurationRepo } from "@/features/webhook/record-w
 import type { RoutineLabelRepo } from "@/ee/routines/routine-label.repo";
 import type { RecordMemberRepo } from "@/features/user/record-member.repo";
 import type { RecordRoleRepo } from "@/features/role/record-role.repo";
+import type { RecordFilePurgeRepo } from "./record-file-purge.repo";
 
 export const CONFIGURATION_CONSUMER_PAGE = 200;
 
@@ -55,6 +57,7 @@ export type RecordRepoOwners = {
   members: RecordMemberRepo;
   roles: RecordRoleRepo;
   subscriptions: RecordSubscriptionConfigurationRepo;
+  files: RecordFilePurgeRepo;
 };
 
 export type RecordDefinitionDeletion = {
@@ -91,6 +94,7 @@ export type StoredRecord = CrmRecord & {
 export type RecordActor = {
   id: string;
   status: string;
+  country?: string;
   role: {
     id: string;
     companyId: string;
@@ -110,7 +114,7 @@ export interface RecordRepo {
   hasRecordHistoryCompanyWide(ref: RecordRef): Promise<boolean>;
   getRecordIdentitiesCompanyWide(typeId: string, recordIds: string[]): Promise<Map<string, RecordIdentity[]>>;
   getIdentityChannelsCompanyWide(keys: Array<{ channelClass: string; value: string }>): Promise<RecordIdentity[]>;
-  getIdentityProviderValueCompanyWide(id: string): Promise<{ provider: MessagingProvider; value: string } | null>;
+  getIdentityProviderValueCompanyWide(id: string): Promise<{ provider: RecordIdentityProvider; value: string } | null>;
   getStagedIdentityChannelsCompanyWide(
     operationId: string,
     keys: Array<{ channelClass: string; value: string }>,
@@ -238,6 +242,7 @@ export interface RecordRepo {
   ): Promise<{ records: Array<{ typeId: string; count: number }>; links: number }>;
   setAssignments(ref: RecordRef, userIds: string[]): Promise<void>;
   getMembersCompanyWide(userIds: string[]): Promise<RecordMember[]>;
+  getRecordFilesCompanyWide(fileIds: string[]): Promise<RecordFileSummary[]>;
   setValue(ref: RecordRef, fieldId: string, result: CalculatedValue, revision: number): Promise<void>;
   setValueDependencies(ref: RecordRef, fieldId: string, sources: RecordRef[]): Promise<void>;
   getValueDependencies(ref: RecordRef, fieldId: string): Promise<RecordRef[]>;

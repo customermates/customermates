@@ -14,7 +14,7 @@ import { fail, failAuthorization, failNotFound, unwoundFailure } from "@/core/va
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordQuerySchema } from "./record-query.schema";
 import { invalidRecordQueryPart } from "./record-query-validation";
-import { recordDto, withMemberUsers } from "./record-dto";
+import { recordDto, withMemberUsers, withRecordFiles } from "./record-dto";
 import type { RecordQueryResult } from "./record-query-result.schema";
 import { recordGroupableFields } from "./record-grouping";
 
@@ -83,21 +83,24 @@ export class QueryRecordsInteractor extends AuthenticatedInteractor<RecordQuery,
         return {
           ok: true as const,
           data: {
-            records: await withMemberUsers(
-              result.records.map((record) => ({
-                ...recordDto(
-                  record,
-                  model,
-                  result.visibleFields.get(record.id) ?? new Set(),
-                  policy.memberScope,
-                  query.fields,
-                ),
-                ...(identities ? { identities: identities.get(record.id) ?? [] } : {}),
-                relationships: relationships.get(record.id) ?? [],
-                relationshipPaths: paths.get(record.id) ?? [],
-              })),
+            records: await withRecordFiles(
+              await withMemberUsers(
+                result.records.map((record) => ({
+                  ...recordDto(
+                    record,
+                    model,
+                    result.visibleFields.get(record.id) ?? new Set(),
+                    policy.memberScope,
+                    query.fields,
+                  ),
+                  ...(identities ? { identities: identities.get(record.id) ?? [] } : {}),
+                  relationships: relationships.get(record.id) ?? [],
+                  relationshipPaths: paths.get(record.id) ?? [],
+                })),
+                this.records,
+                policy.memberScope,
+              ),
               this.records,
-              policy.memberScope,
             ),
             total: result.total,
             page: query.page,

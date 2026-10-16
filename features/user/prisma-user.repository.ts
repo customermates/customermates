@@ -43,6 +43,7 @@ function recordActorSelect(companyId: string) {
   return {
     id: true,
     status: true,
+    country: true,
     role: {
       select: {
         id: true,

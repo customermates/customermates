@@ -111,7 +111,10 @@ export function resolveFilterValueClass(
       case "plain":
       case "email":
       case "phone":
+      case "address":
         return "text";
+      case "file":
+        return "none";
     }
 
     return "text";

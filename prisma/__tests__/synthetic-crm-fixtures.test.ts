@@ -8,6 +8,7 @@ import {
   SYNTHETIC_SHARED_USER_PASSWORD,
 } from "@/core/config/synthetic-seed-user";
 import { presetId } from "@/features/records/crm-preset";
+import { normalizedIdentity } from "@/features/records/record-identity";
 
 import { SYNTHETIC_AVATAR_ORIGIN, SYNTHETIC_AVATAR_URLS, SYNTHETIC_CONTACT_AVATAR_URLS } from "../seeds/avatars";
 import { SYNTHETIC_CONTACT_EMAIL_ADDRESSES, SYNTHETIC_CONTACT_NAMES, seedContacts } from "../seeds/contacts";
@@ -34,7 +35,9 @@ import {
   NORTHWIND_MODEL_IDS,
   NORTHWIND_ROLE_IDS,
 } from "../seeds/northwind-model";
-import { buildNorthwindRecords } from "../seeds/northwind-records";
+import { buildNorthwindIdentities, buildNorthwindRecords } from "../seeds/northwind-records";
+import { NORTHWIND_FILE_ID_PREFIX, northwindRecordFiles } from "../seeds/northwind-files";
+import { people } from "../seeds/messaging/fixtures";
 import { NORTHWIND_OPTION_LABELS } from "../seeds/northwind-schema";
 import { seedOrganizations, SYNTHETIC_ORGANIZATION_DEFINITIONS } from "../seeds/organizations";
 import { syntheticRecordModel } from "../seeds/records";
@@ -307,10 +310,11 @@ describe("Northwind Labs demo fixture contract", () => {
         "dateRange",
         "select",
         "email",
-        "phone",
         "url",
         "member",
         "channels",
+        "address",
+        "file",
       ]),
     );
     expect(new Set(configured.fields.map(({ behavior }) => behavior.kind))).toEqual(
@@ -333,7 +337,48 @@ describe("Northwind Labs demo fixture contract", () => {
       fixtureId("17000000", 27),
       ...Array.from({ length: 22 }, (_, index) => fixtureId("17000000", index + 5)),
     ]);
-    expect(SYNTHETIC_CUSTOM_FIELD_DEFINITIONS).toHaveLength(10);
+    expect(SYNTHETIC_CUSTOM_FIELD_DEFINITIONS).toHaveLength(9);
+  });
+
+  it("keeps every demo contact's number in Channels as one phone identity, never as a phone field", () => {
+    const phones = buildNorthwindIdentities().filter((identity) => identity.provider === "phone");
+    expect(phones.map((identity) => identity.recordId)).toEqual(data.contacts.map((contact) => contact.id));
+    for (const identity of phones) expect(normalizedIdentity(identity)?.value).toBe(identity.value);
+    const whatsapp = Object.values(people).flatMap((person) => (person.phone ? [person.phone] : []));
+    expect(whatsapp.length).toBeGreaterThan(0);
+    expect(phones.filter((identity) => whatsapp.includes(identity.value))).toEqual([]);
+    expect(SYNTHETIC_CUSTOM_FIELD_DEFINITIONS.map((definition) => definition.label)).not.toContain("Phones");
+  });
+
+  it("gives every organization a hand-entered office address and two customers their Documents files", () => {
+    const { values } = buildNorthwindRecords(SEED_IDS.company);
+    const addresses = values.filter(({ fieldKey }) => fieldKey === "organization.address");
+    expect(addresses.map(({ recordId }) => recordId)).toEqual(data.organizations.map(({ id }) => id));
+    for (const { value } of addresses) {
+      if (value.kind !== "address") throw new Error("Organization address is not an address value");
+      expect(value.value).toMatchObject({
+        location: null,
+        verification: { status: "unverified", provider: null, checkedAt: null },
+      });
+      expect(value.value.street && value.value.postalCode && value.value.city && value.value.countryCode).toBeTruthy();
+      expect(value.value.formatted).toContain(value.value.city);
+    }
+    expect(new Set(addresses.map(({ value }) => (value.kind === "address" ? value.value.formatted : ""))).size).toBe(
+      addresses.length,
+    );
+
+    const files = northwindRecordFiles();
+    const documents = values.filter(({ fieldKey }) => fieldKey === "organization.documents");
+    expect(documents.flatMap(({ value }) => (value.kind === "file" ? value.value : [])).sort()).toEqual(
+      files.map(({ id }) => id).sort(),
+    );
+    expect(new Set(files.map(({ organizationIndex }) => organizationIndex)).size).toBe(documents.length);
+    for (const file of files) {
+      expect(file.id.startsWith(`${NORTHWIND_FILE_ID_PREFIX}-`)).toBe(true);
+      expect(new TextEncoder().encode(file.content).byteLength).toBeLessThan(4096);
+      expect(file.uploadedAtMs).toBeLessThan(NORTHWIND_STORY_END_MS);
+      expect(file.content).toContain(data.organizations[file.organizationIndex].name);
+    }
   });
 
   it("links every generated record to existing records", () => {

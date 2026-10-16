@@ -129,6 +129,7 @@ export class RootStore {
 
   readonly appMode: AppMode;
   readonly agentChatEnabled: boolean;
+  addressLookupAvailable = false;
 
   constructor(appMode: AppMode, agentChatEnabled: boolean) {
     this.appMode = appMode;

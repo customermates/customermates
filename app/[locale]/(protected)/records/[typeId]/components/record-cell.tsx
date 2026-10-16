@@ -59,6 +59,7 @@ export function RecordCell({
 
           <RecordValue
             field={column.field}
+            files={record.files}
             identities={record.identities}
             members={record.memberUsers}
             result={result}
@@ -69,6 +70,7 @@ export function RecordCell({
     return (
       <RecordValue
         field={column.field}
+        files={record.files}
         identities={record.identities}
         members={record.memberUsers}
         overflowMenu={!inTrigger}

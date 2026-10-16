@@ -39,6 +39,8 @@ import {
   type ResetOperatorUserCreditsData,
   type ResetOperatorUserCreditsResultDto,
   type UpdateHostedAiEnterpriseAllowanceData,
+  type UpdateEnterpriseFileStorageData,
+  type EnterpriseFileStorageDto,
   type UpdateOperatorSubscriptionTermsData,
   type UpdateOperatorUserPlatformAccessData,
   type UpdateOperatorUserStatusData,
@@ -894,6 +896,38 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
         const result = await this.companySnapshot(data.companyId, now);
         if (!result) throw new Error("Updated Enterprise subscription could not be read.");
         return result;
+      },
+      { companyId: data.companyId },
+    );
+  }
+
+  @BypassTenantGuard
+  async updateEnterpriseFileStorageUnscoped(
+    data: UpdateEnterpriseFileStorageData,
+  ): Promise<EnterpriseFileStorageDto | OperatorRefusal> {
+    return runInTransaction(
+      async () => {
+        const subscription = await this.prisma.subscription.findUnique({
+          where: { companyId: data.companyId },
+          select: { plan: true, enterpriseFileStorageBytesPerUser: true },
+        });
+        if (!subscription) return "notFound";
+        if (subscription.plan !== SubscriptionPlan.enterprise) return "conflict";
+        const bytesPerUser = data.gigabytesPerUser * 1024 ** 3;
+        await this.owners.companies.setEnterpriseFileStorageUnscoped(data.companyId, bytesPerUser);
+        await this.createAudit({
+          action: OPERATOR_AUDIT_ACTION.enterpriseFileStorageUpdate,
+          targetCompanyId: data.companyId,
+          reason: data.reason ?? null,
+          metadata: {
+            bytesPerUser,
+            previousBytesPerUser:
+              subscription.enterpriseFileStorageBytesPerUser === null
+                ? null
+                : Number(subscription.enterpriseFileStorageBytesPerUser),
+          },
+        });
+        return { companyId: data.companyId, enterpriseFileStorageBytesPerUser: bytesPerUser };
       },
       { companyId: data.companyId },
     );

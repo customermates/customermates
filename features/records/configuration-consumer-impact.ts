@@ -82,6 +82,13 @@ export function configurationTypeChanges(
         typeId: field.typeId,
       });
     }
+    if (before && (before.valueType === "file") !== (field.valueType === "file")) {
+      issues.push({
+        code: "file_type_change",
+        fieldId: field.id,
+        typeId: field.typeId,
+      });
+    }
     if (fieldValueDefinition(before) === fieldValueDefinition(field)) continue;
     if (field.valueType === "channels") {
       channelTypes.add(field.typeId);

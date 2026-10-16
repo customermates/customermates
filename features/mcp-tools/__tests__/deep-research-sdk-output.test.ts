@@ -9,6 +9,9 @@ vi.mock("@/env", () => ({ env: { BASE_URL: "http://localhost:4105" } }));
 vi.mock("@/core/di", () => ({
   getSearchExternalizedWikiPagesInteractor: () => ({ invoke: searchWiki }),
   getSearchRecordsInteractor: () => ({ invoke: () => Promise.resolve({ ok: true, data: { results: [] } }) }),
+  getSearchRecordFilesInteractor: () => ({
+    invoke: () => Promise.resolve({ ok: true, data: { items: [], retrieval: "keyword" } }),
+  }),
 }));
 vi.mock("../docs.mcp-tools", () => ({ searchDocsHits: () => Promise.resolve([]) }));
 

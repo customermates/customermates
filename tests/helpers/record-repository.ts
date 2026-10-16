@@ -2,6 +2,7 @@ import type { BackgroundTaskService } from "@/core/utils/background-task.service
 import type { RecordRepo, RecordRepoOwners } from "@/features/records/record.repo";
 import { RecordAccessPolicy } from "@/features/records/record-access";
 import type { RecordConfigurationService } from "@/features/records/configuration.service";
+import type { RecordFileAttacher } from "@/features/records/record-file-attacher";
 import type { WebhookPauseNotifier } from "@/features/webhook/webhook-pause-notifier";
 import type { RecordWidgetConfigurationRepo } from "@/features/widget/record-widget-configuration.repo";
 import type { ViewWidgetPurgeRepo } from "@/features/widget/view-widget-purge.repo";
@@ -22,6 +23,7 @@ import { PrismaWikiPageRepo } from "@/features/wiki/prisma-wiki-page.repository"
 import { PrismaRoutineEventAccess } from "@/ee/routines/prisma-routine-event-access.repository";
 import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
 import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
+import { PrismaRecordFileRepo } from "@/features/records/prisma-record-file.repository";
 import { RecordCalculationService } from "@/features/records/record-calculation.service";
 import { RecordConfigurationWriter } from "@/features/records/record-configuration-writer";
 import { RecordOperationService } from "@/features/records/record-operation.service";
@@ -83,6 +85,7 @@ export function createTestRecordRepoOwners(): RecordRepoOwners {
     members: new PrismaUserRepo(new PermissionService()),
     roles: new PrismaRoleRepo(),
     subscriptions,
+    files: new PrismaRecordFileRepo(),
   };
 }
 
@@ -92,6 +95,7 @@ export const createTestRecordOperationService = (
   configurations: RecordConfigurationService,
   webhooks: WebhookPauseNotifier,
   systemCompanyId?: string,
+  files?: RecordFileAttacher,
 ) =>
   new RecordOperationService(
     records,
@@ -99,7 +103,7 @@ export const createTestRecordOperationService = (
     configurations,
     webhooks,
     new RecordCalculationService(records),
-    new RecordWriteService(records, policy, new RecordCalculationService(records)),
+    new RecordWriteService(records, policy, new RecordCalculationService(records), undefined, files),
     new RecordConfigurationWriter(records, new RecordCalculationService(records), webhooks),
     new RecordTrashService(records, new RecordCalculationService(records)),
     systemCompanyId,

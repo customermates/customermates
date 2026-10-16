@@ -16,6 +16,7 @@ import {
   getGetUnreadThreadCountInteractor,
   getCountChannelsNeedingActionInteractor,
   getGetOperatorConsoleVisibilityInteractor,
+  getAddressLookupService,
 } from "@/core/di";
 import { env } from "@/env";
 import { resolveRequestAccountState } from "@/features/auth/next/resolve-account-state";
@@ -91,6 +92,7 @@ export async function AppShell({ children, displayLanguage }: Props) {
           subscription: accountAllowed ? navigation.subscription : null,
           recordNavigation: accountAllowed ? navigation.records : null,
           sidebarLayout: accountAllowed ? navigation.sidebarLayout : null,
+          addressLookupAvailable: getAddressLookupService().enabled,
         }}
       >
         <NavigationSwitch

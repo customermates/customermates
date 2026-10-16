@@ -21,6 +21,7 @@ type Props = {
   onContextShortcut: () => void;
   onInputFocus?: () => void;
   onInputPointerDown?: () => void;
+  onPasteFiles?: (files: File[]) => void;
   onRemovePreviousContext?: () => boolean;
   onSubmit: () => void;
 };
@@ -53,6 +54,7 @@ export function AgentComposerTextInput({
   onContextShortcut,
   onInputFocus,
   onInputPointerDown,
+  onPasteFiles,
   onRemovePreviousContext,
   onSubmit,
 }: Props) {
@@ -124,6 +126,12 @@ export function AgentComposerTextInput({
       },
       handlePaste: (view, event) => {
         const text = event.clipboardData?.getData("text/plain");
+        const files = Array.from(event.clipboardData?.files ?? []);
+        if (files.length && onPasteFiles && !(text && event.clipboardData?.types.includes("text/html"))) {
+          event.preventDefault();
+          onPasteFiles(files);
+          return true;
+        }
         if (text === undefined) return false;
         event.preventDefault();
         if (text === "") return true;

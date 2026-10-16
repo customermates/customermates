@@ -8,7 +8,7 @@ import type {
   RecordScalar,
   RecordValueType,
 } from "@/features/records/record-model.schema";
-import type { MessagingProvider } from "@/generated/prisma";
+import type { RecordIdentityProvider } from "@/generated/prisma";
 
 import { isEmpty } from "@/features/event/audit-changes";
 import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
@@ -16,7 +16,7 @@ import { serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 
 type RecordHistoryDisplayValue = z.infer<typeof RecordHistoryDisplayValueSchema>;
 
-type ChangeChoice = { id: string; label: string; color?: ChipColor; provider?: MessagingProvider };
+type ChangeChoice = { id: string; label: string; color?: ChipColor; provider?: RecordIdentityProvider };
 
 type ChangeLinkedRecord = { id: string; label: string; icon: string; color: ChipColor | null };
 
@@ -186,6 +186,10 @@ export function recordValueDescriptor(
   if (!side || side.value.state === "missing") return EMPTY;
   if (side.value.state === "value" && side.value.value.kind === "member")
     return { kind: "members", members: [memberOrFormer(side.value.value.value, members, formerMember)] };
+  if (side.value.state === "value" && side.value.value.kind === "file") {
+    const files = side.files ?? [];
+    return choices(side.value.value.value, (id) => files.find((file) => file.id === id)?.name ?? id);
+  }
   if (side.value.state === "value" && side.value.value.kind === "richText") {
     let markdown = "";
     try {
@@ -196,7 +200,7 @@ export function recordValueDescriptor(
     return markdown ? { kind: "richText", markdown } : EMPTY;
   }
   const field = {
-    ...scalarField(side.fieldId, side.label, side.valueType),
+    ...scalarField(side.fieldId, side.label, side.valueType === "phone" ? "text" : side.valueType),
     typeId,
     format: side.format,
     options: side.options,

@@ -80,7 +80,7 @@ test("drags the Channels field in Configure and renames it like any field", asyn
   const drawer = page.getByRole("dialog");
   await expect(drawer.getByRole("combobox", { name: "Value type", exact: true })).toBeDisabled();
   await expect(drawer).toContainText(
-    "Email addresses, WhatsApp phone numbers and social accounts that match messages to this record.",
+    "Email addresses, phone numbers and social accounts that match messages to this record.",
   );
   await expect(drawer.getByRole("switch", { name: "Required", exact: true })).toHaveCount(0);
   await drawer.getByRole("textbox", { name: "Name", exact: false }).fill("Reach");

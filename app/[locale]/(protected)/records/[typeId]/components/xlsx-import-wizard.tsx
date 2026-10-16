@@ -374,6 +374,34 @@ const XlsxResultStep = observer(function XlsxResultStep({ store }: { store: Xlsx
           {t("DataTransfer.xlsxImport.moreFailures", { count: summary.failed.length - FAILURE_DISPLAY_LIMIT })}
         </p>
       )}
+
+      {summary.warned.length > 0 && (
+        <div className="space-y-2" data-testid="xlsx-import-warnings">
+          <p className="text-sm text-warning">
+            {t("DataTransfer.xlsxImport.warned", { count: summary.warned.length })}
+          </p>
+
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("DataTransfer.xlsxImport.row")}</TableHead>
+
+                <TableHead>{t("DataTransfer.xlsxImport.reason")}</TableHead>
+              </TableRow>
+            </TableHeader>
+
+            <TableBody>
+              {summary.warned.slice(0, FAILURE_DISPLAY_LIMIT).map((warning) => (
+                <TableRow key={warning.sheetRow}>
+                  <TableCell className="align-top text-muted-foreground">{warning.sheetRow}</TableCell>
+
+                  <TableCell className="whitespace-normal">{warning.reasons.join(" ")}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </div>
   );
 });

@@ -29,7 +29,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { recordColumns } from "@/features/records/record-columns";
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
-import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
+import { CLICK_ACTION_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { getActiveUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import { type RecordChipColumn, type RecordChipEntry, recordChipRowModel } from "./record-chip-row-model";
 import {
@@ -251,7 +251,8 @@ function editsInChip(store: RecordEditorStore, column: RecordChipColumn) {
     return (
       isRecordFieldWritable(column.field) &&
       column.field.valueType !== "richText" &&
-      !CONTACT_VALUE_TYPES.includes(column.field.valueType)
+      column.field.valueType !== "file" &&
+      !CLICK_ACTION_VALUE_TYPES.includes(column.field.valueType)
     );
   }
   if (column.kind === "relationship") {

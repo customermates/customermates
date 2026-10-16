@@ -53,6 +53,28 @@ function memberIds(record: RecordDto) {
   );
 }
 
+function fileIds(record: RecordDto) {
+  return record.fields.flatMap(({ result }) =>
+    result.state === "value" && result.value.kind === "file" ? result.value.value : [],
+  );
+}
+
+export async function withRecordFiles<T extends RecordDto>(
+  records: T[],
+  repo: Pick<RecordRepo, "getRecordFilesCompanyWide">,
+): Promise<T[]> {
+  const ids = [...new Set(records.flatMap(fileIds))];
+  if (!ids.length) return records;
+  const files = new Map((await repo.getRecordFilesCompanyWide(ids)).map((file) => [file.id, file]));
+  return records.map((record) => {
+    const own = [...new Set(fileIds(record))].flatMap((id) => {
+      const file = files.get(id);
+      return file ? [file] : [];
+    });
+    return own.length ? { ...record, files: own } : record;
+  });
+}
+
 export async function withMemberUsers<T extends RecordDto>(
   records: T[],
   repo: Pick<RecordRepo, "getMembersCompanyWide">,

@@ -2,7 +2,7 @@
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import type { RecordFieldView, RecordMember } from "@/features/records/record-model.schema";
+import type { RecordFieldView, RecordFileSummary, RecordMember } from "@/features/records/record-model.schema";
 import { useAppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { FormDecimalInput } from "@/components/forms/form-decimal-input";
@@ -20,6 +20,9 @@ import { toChipColor } from "@/constants/chip-colors";
 import { FormattedTextField } from "@/components/editor/formatted-text-field";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { getActiveUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
+import { RecordAddressInput } from "./record-address-input";
+
+import { RecordFileInput } from "./record-file-input";
 
 type KnownMember = Pick<RecordMember, "id" | "firstName" | "lastName"> & { avatarUrl?: string | null };
 
@@ -41,6 +44,7 @@ export const RecordInputField = observer(function RecordInputField({
   inputId,
   label = field.label,
   members = [],
+  files,
   onDatePicked,
 }: {
   field: RecordFieldView;
@@ -48,6 +52,7 @@ export const RecordInputField = observer(function RecordInputField({
   inputId?: string;
   label?: string | null;
   members?: RecordMember[];
+  files?: RecordFileSummary[];
   onDatePicked?: () => void;
 }) {
   const t = useTranslations();
@@ -131,6 +136,8 @@ export const RecordInputField = observer(function RecordInputField({
   if (field.valueType === "dateRange" || field.valueType === "dateTimeRange")
     return <FormIsoDateRangePicker {...shared} dateOnly={field.valueType === "dateRange"} />;
 
+  if (field.valueType === "file")
+    return <RecordFileInput field={field} files={files} id={id} inputId={inputId} label={label} />;
   if (field.multiple) return <FormTextarea {...shared} placeholder={t("RecordModel.onePerLine")} />;
   if (field.valueType === "number" || field.valueType === "currency") {
     return (
@@ -140,7 +147,9 @@ export const RecordInputField = observer(function RecordInputField({
       />
     );
   }
-  if (field.valueType === "email" || field.valueType === "phone" || field.valueType === "url") {
+  if (field.valueType === "address")
+    return <RecordAddressInput field={field} id={id} inputId={inputId} label={label} />;
+  if (field.valueType === "email" || field.valueType === "url") {
     const value = store?.getValue(id);
     return (
       <FormInput

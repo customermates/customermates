@@ -1,6 +1,7 @@
 "use client";
 
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
+import type { FileStorageUsageDto } from "@/features/record-files/record-file.schema";
 import type { ChipColor } from "@/constants/chip-colors";
 
 import { observer } from "mobx-react-lite";
@@ -17,8 +18,11 @@ import { runUserAction } from "@/core/errors/report-application-error";
 
 import { PlanPicker } from "./plan-picker";
 
+import { storageSizeLabel } from "@/features/record-files/storage-size";
+
 type Props = {
   initialSubscription: SubscriptionDto | null;
+  storage?: FileStorageUsageDto | null;
 };
 
 export const SUBSCRIPTION_STATUS_COLOR_MAP: Record<SubscriptionStatus, ChipColor> = {
@@ -30,7 +34,7 @@ export const SUBSCRIPTION_STATUS_COLOR_MAP: Record<SubscriptionStatus, ChipColor
   [SubscriptionStatus.cancelled]: "secondary",
 };
 
-export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
+export const SubscriptionPanel = observer(({ initialSubscription, storage }: Props) => {
   const t = useTranslations();
   const { subscriptionStore, loadingOverlayStore, userStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
@@ -55,6 +59,7 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
     : hasBillingPortal
       ? t("Subscription.fieldHelp.currentPeriodEndManage", { billing: t("Subscription.manageWithLemonSqueezy") })
       : t("Subscription.fieldHelp.currentPeriodEndUnavailable");
+  const sizeLabel = (bytes: number) => storageSizeLabel(bytes, intlStore.formattingLocale);
   const trialEndHelp = !hasActiveSubscription
     ? canManageCompany
       ? t("Subscription.fieldHelp.trialEndsPicker")
@@ -113,6 +118,15 @@ export const SubscriptionPanel = observer(({ initialSubscription }: Props) => {
           )}
         </>
       )}
+
+      {storage?.limitBytes ? (
+        <FormOutputField help={t("Subscription.fieldHelp.fileStorage")} label={t("Subscription.fileStorage")}>
+          {t("Subscription.fileStorageUsage", {
+            used: sizeLabel(storage.usedBytes),
+            limit: sizeLabel(storage.limitBytes),
+          })}
+        </FormOutputField>
+      ) : null}
     </section>
   );
 });

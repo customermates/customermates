@@ -7,7 +7,7 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { RecordPresentationResult } from "@/features/records/get-record-presentation.interactor";
 import type { RecordRow } from "@/features/records/record-presentation";
 import type { MutateRecordInput, RecordLinkChange } from "@/features/records/record-query.schema";
-import type { RecordFieldView, RecordScalar } from "@/features/records/record-model.schema";
+import type { RecordFieldView, RecordScalarInput } from "@/features/records/record-model.schema";
 import type { RecordFieldSaveOutcome } from "./record-field-value-editor";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
@@ -166,7 +166,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       this.setBulkState(false);
     }
   };
-  bulkUpdateField = async (fieldId: string, value: RecordScalar | null) =>
+  bulkUpdateField = async (fieldId: string, value: RecordScalarInput | null) =>
     Boolean(
       await this.bulkMutation({
         action: "updateMany",
@@ -183,13 +183,13 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       !this.pendingBoardOperation
     );
   }
-  updateRecordField = (record: RecordRow, fieldId: string, value: RecordScalar | null) =>
+  updateRecordField = (record: RecordRow, fieldId: string, value: RecordScalarInput | null) =>
     this.updateRecord(record, { fields: [{ fieldId, value }] });
   updateRecordLinks = (record: RecordRow, linkChanges: RecordLinkChange[]) =>
     this.updateRecord(record, { fields: [], linkChanges });
   private updateRecord = async (
     record: RecordRow,
-    changes: { fields: { fieldId: string; value: RecordScalar | null }[]; linkChanges?: RecordLinkChange[] },
+    changes: { fields: { fieldId: string; value: RecordScalarInput | null }[]; linkChanges?: RecordLinkChange[] },
   ): Promise<RecordFieldSaveOutcome> => {
     if (!this.canUpdateRecord(record) || this.movingRecords.has(record.id)) return { saved: false };
     this.movingRecords.add(record.id);

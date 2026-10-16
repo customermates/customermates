@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { RecordDtoSchema, RecordRefSchema } from "@/features/records/record-model.schema";
+import { RecordWriteWarningSchema } from "@/features/records/record-query.schema";
 import { MarkedRecordDtoSchema } from "@/features/mcp-tools/untrusted-record-content";
 
 export const RECORD_EXPORT_LIMIT = 5_000;
@@ -49,6 +50,10 @@ export const ImportRecordsResultSchema = z
     updated: z.number().int().nonnegative(),
     linked: z.number().int().nonnegative(),
     schemaRevision: z.number().int().nonnegative(),
+    warnings: z
+      .array(RecordWriteWarningSchema)
+      .optional()
+      .describe("Address values that were imported but look incomplete or implausible, with the records concerned."),
   })
   .strict();
 export type ImportRecordsResult = z.infer<typeof ImportRecordsResultSchema>;

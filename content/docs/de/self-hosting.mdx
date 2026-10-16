@@ -71,6 +71,9 @@ Registrieren Sie sich, wählen Sie **Neuen Workspace erstellen** und schließen 
 - `APP_MODE`: bleibt `self-hosted`; die Compose-Datei setzt diesen Wert für die App selbst.
 - `CRON_SECRET`: optional und in der Vorlage auskommentiert; das Secret für die geplanten Wartungsaufrufe, siehe [Welche geplanten Aufgaben muss ich ausführen?](#scheduled-jobs).
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AZURE_AD_CLIENT_ID`, `AZURE_AD_CLIENT_SECRET`: optional und in der Vorlage auskommentiert, siehe [Können sich Nutzer mit Google oder Microsoft anmelden?](#can-users-sign-in-with-google-or-microsoft).
+- `ADDRESS_LOOKUP_URL`: optional und in der Vorlage auskommentiert; schaltet die Adresssuche über einen selbst betriebenen Photon-Dienst ein, siehe [Wie werden Adressen geprüft, und wie schalte ich die Adresssuche ein?](#address-lookup).
+- `POSTAL_CODE_DATA_URL`: optional und in der Vorlage auskommentiert; woher die Postleitzahlen für die Vorschläge von Ort und Region kommen: ohne Wert von GeoNames, sonst von der URL eines Mirrors, oder `off`, siehe [Wie werden Adressen geprüft, und wie schalte ich die Adresssuche ein?](#address-lookup).
+- `FILE_STORAGE_DRIVER`, `FILE_MAX_UPLOAD_BYTES` und die `S3_`-Variablen: optional und in der Vorlage auskommentiert; wo Dateifelder ihre Dateien ablegen und wie groß eine sein darf, siehe [Wo werden Dateien beim Self-Hosting gespeichert?](#file-storage).
 
 Halten Sie `.env` aus der Versionsverwaltung heraus. Änderungen wenden Sie mit `docker compose up -d` an.
 
@@ -144,6 +147,32 @@ Der MCP-Endpunkt ist `<BASE_URL>/api/v1/mcp`, zum Beispiel `https://crm.example.
 
 Der gehostete In-App-Assistent ist nur in der Cloud verfügbar: Mate gibt es auf Self-Hosted-Instanzen nicht. Externes MCP nutzt Ihren eigenen KI-Anbieter. Enterprise-SSO und White-Labeling sind in keiner Variante implementiert.
 
+## Wie werden Adressen geprüft, und wie schalte ich die Adresssuche ein? [#address-lookup]
+
+Die Adressprüfung braucht keine Einrichtung. Jeder Server prüft Adressen gegen das Adressformat ihres Landes, das die App mitbringt, und füllt Ort und Region aus der Postleitzahl aus, siehe [Wie gebe ich eine Adresse ein?](/docs/app-records#how-do-i-enter-an-address). Dafür verlässt nichts aus einem Datensatz Ihren Server.
+
+Die Postleitzahlen stammen von [GeoNames](https://www.geonames.org). Gibt jemand zum ersten Mal eine Adresse in einem Land ein, lädt ein Hintergrund-Job die öffentliche Datei dieses Landes von `https://download.geonames.org/export/zip` herunter, prüft sie und legt die Postleitzahlen in Ihrer PostgreSQL-Datenbank ab; nach 90 Tagen lädt er die Datei erneut. Heruntergeladen wird nur die öffentliche Datei: Daten aus Datensätzen, Suchtexte oder IP-Adressen Ihrer Nutzer werden nicht übermittelt. Solange ein Land noch nicht geladen ist oder sein Download fehlschlägt, laufen die Formatprüfungen weiter, und es fehlen nur die Vorschläge für Ort und Region und die Prüfung des Orts. `POSTAL_CODE_DATA_URL` legt fest, woher die Dateien kommen:
+
+- Ohne Wert: von GeoNames. Der Server braucht dafür ausgehenden HTTPS-Zugriff auf `download.geonames.org`.
+- `off`: keine Downloads. Die Formatprüfungen laufen weiter, aber Ort und Region werden nicht vorgeschlagen, und der Ort wird nicht geprüft.
+- Die URL eines Mirrors, etwa `https://mirror.example.com/geonames`: ein Server, der die Dateien von GeoNames unter denselben Namen anbietet, etwa `DE.zip`, `US.zip` oder `CA_full.csv.zip`.
+
+Wie bei `ADDRESS_LOOKUP_URL` weiter unten folgt Customermates keiner Weiterleitung, und ein Hostname, der auf eine private Adresse zeigt, wird nur angenommen, wenn der eingetragene Host selbst privat ist.
+
+Ein selbst gehosteter Server kann Adressen außerdem schon beim Tippen suchen, mit einem [Photon](https://github.com/komoot/photon)-Dienst, den Sie selbst mit Daten von OpenStreetMap betreiben. Setzen Sie `ADDRESS_LOOKUP_URL` auf diesen Dienst, bekommen Adressfelder **Adresse suchen** und **Adresse prüfen**: Eine dort gewählte oder gefundene Adresse wird als bestätigt gespeichert, mit der Position des Gebäudes. Ihr Server schickt Photon nur den Suchtext oder die zu prüfende Adresse, die Sprache der Person und das gewählte Land, Photon sieht also weder IP-Adressen noch Sitzungen. Jeder App-Container erlaubt jeder Person 30 Suchen in 10 Sekunden und beantwortet gleiche Suchen 10 Minuten lang aus seinem eigenen Zwischenspeicher. Ohne `ADDRESS_LOOKUP_URL` (Standard) geben die Personen die Adresse selbst ein; Customermates Cloud hat keine Adresssuche.
+
+Um Photon zu betreiben, laden Sie das Photon-Jar aus den [Releases](https://github.com/komoot/photon/releases/latest), speichern Sie es als `photon.jar`, und laden Sie von [download1.graphhopper.com/public](https://download1.graphhopper.com/public/) einen Suchindex für die ganze Welt oder ein Land, der zur Photon-Version passt. Photon braucht Java 21 oder neuer und Arbeitsspeicher passend zum Index: Für den Index der ganzen Welt, rund 95 GB auf der Festplatte, empfiehlt Photon mindestens 64 GB RAM, ein Länderindex braucht deutlich weniger. Entpacken Sie den Index so, dass `photon_data` neben dem Jar in `/srv/photon` liegt, und starten Sie Photon im Netzwerk des Compose-Projekts, das nach seinem Ordner heißt, hier `customermates`, mit einem Java-Heap (`-Xmx`), der zu Ihrem Index passt:
+
+```bash
+docker run -d --name photon --restart unless-stopped \
+  --network customermates_default \
+  -v /srv/photon:/photon -w /photon \
+  eclipse-temurin:21-jre \
+  java -Xmx4g -jar photon.jar serve -listen-ip 0.0.0.0
+```
+
+Setzen Sie dann `ADDRESS_LOOKUP_URL=http://photon:2322` in `.env` und führen Sie `docker compose up -d` aus. Customermates ruft nur den eingetragenen Host auf und folgt keiner Weiterleitung. Ein Hostname, der auf eine private Adresse zeigt, wird nur angenommen, wenn der eingetragene Host selbst privat ist: eine IP-Adresse aus einem privaten Bereich, `localhost`, ein Name ohne Punkt wie `photon` oder ein Name unter `.local`, `.internal`, `.lan` oder `.home.arpa`. Antwortet der Dienst nicht innerhalb von 2 Sekunden, sehen die Personen, dass die Adresssuche nicht verfügbar ist, und können die Adresse weiter selbst eingeben. Entfernen Sie `ADDRESS_LOOKUP_URL` wieder, ist die Suche aus; gespeicherte Adressen behalten ihre Bestätigung.
+
 ## Wie spiele ich ein Update der Self-Hosted-Installation ein? [#how-do-i-update-a-self-hosted-installation]
 
 Erstellen Sie zuerst ein Backup, laden Sie dann die neuen Images und erstellen Sie die Container neu:
@@ -171,11 +200,21 @@ docker compose ps
 docker compose exec app sh
 ```
 
-Die App schreibt ihre Logs in die Container-Ausgabe. Hintergrund-Jobs wie Webhook-Zustellungen laufen im App-Container über eine PostgreSQL-gestützte Warteschlange in derselben Datenbank; einen separaten Worker-Dienst gibt es nicht. Das veröffentlichte Image schaltet die Next.js-Telemetrie ab und setzt keine Adresse für Fehlerberichte. Fehler, die die App in ihre Ausgabe schreibt, erscheinen nur in diesen Logs. Fehler, die die App nur an einen Dienst für Fehlerberichte meldet, etwa eine von Resend abgelehnte E-Mail, werden nirgends festgehalten; prüfen Sie abgelehnte Sendungen im Resend-Dashboard.
+Auf einer selbst gehosteten Instanz schreibt die App ihre Logs in die Container-Ausgabe. Hintergrund-Jobs wie Webhook-Zustellungen laufen im App-Container über eine PostgreSQL-gestützte Warteschlange in derselben Datenbank; einen separaten Worker-Dienst gibt es nicht. Das veröffentlichte Image schaltet die Next.js-Telemetrie ab und setzt keine Adresse für Fehlerberichte. Fehler, die die App in ihre Ausgabe schreibt, erscheinen nur in diesen Logs. Fehler, die die App nur an einen Dienst für Fehlerberichte meldet, etwa eine von Resend abgelehnte E-Mail, werden nirgends festgehalten; prüfen Sie abgelehnte Sendungen im Resend-Dashboard.
+
+## Wo werden Dateien beim Self-Hosting gespeichert? [#file-storage]
+
+Dateifelder speichern ihre Dateien standardmäßig in der PostgreSQL-Datenbank, sodass das Backup mit `pg_dump` sie enthält. Eine Datei darf höchstens `FILE_MAX_UPLOAD_BYTES` Bytes groß sein, ohne Angabe 26214400 (25 MB); darüber hinaus hat ein selbst gehosteter Workspace kein Speicherlimit außer Ihrem Speicherplatz. Für viele oder große Dateien legen Sie sie in einem S3-kompatiblen Bucket ab, etwa bei AWS S3, MinIO, Cloudflare R2 oder im Object Storage von Hetzner oder OVH:
+
+- `FILE_STORAGE_DRIVER=s3` sowie `S3_BUCKET`, `S3_ACCESS_KEY_ID` und `S3_SECRET_ACCESS_KEY` eines privaten Buckets.
+- `S3_ENDPOINT` für jeden Anbieter außer AWS, zum Beispiel `https://fsn1.your-objectstorage.com`, und `S3_REGION`, wenn der Anbieter eine verlangt (ohne Angabe `us-east-1`).
+- `S3_FORCE_PATH_STYLE=true` für MinIO und andere Server, die den Bucket im Pfad statt im Hostnamen adressieren.
+
+Browser senden neue Dateien direkt an den Bucket, deshalb müssen seine CORS-Regeln `PUT` mit den Headern `Content-Type` und `If-None-Match` von Ihrer `BASE_URL` erlauben. Ein Upload-Link schreibt eine Datei nur einmal: Der Bucket lehnt einen zweiten Upload darüber ab, sodass sich eine Datei nach dem Speichern nicht ersetzen lässt. AWS S3, MinIO und Cloudflare R2 unterstützen das; ein Speicher, der `If-None-Match` ignoriert, nimmt einen zweiten Upload an, bis der Link nach 15 Minuten abläuft. Downloads laufen immer über die App, die zuerst den Zugriff prüft. Eine Datei bleibt dort, wo sie hochgeladen wurde: Nach einem Wechsel zu `s3` bleiben frühere Dateien in der Datenbank und lassen sich weiter öffnen, und die S3-Variablen müssen gesetzt bleiben, solange der Bucket Dateien enthält. Sichern Sie den Bucket zusammen mit der Datenbank. Der tägliche Aufruf von `/api/cron/lifecycle` löscht Dateien, die vor 30 Tagen aus Datensätzen entfernt wurden, und Uploads, die nie gespeichert wurden, siehe [Welche geplanten Aufgaben muss ich ausführen?](#scheduled-jobs).
 
 ## Wie erstelle ich Datenbank-Backups und stelle sie wieder her? [#backups]
 
-Alle Daten liegen in der PostgreSQL-Datenbank: Datensätze, Nutzer, Einstellungen, das Aktivitätsprotokoll und die Warteschlange der Hintergrund-Jobs. Der App-Container speichert keine Daten. Sichern Sie die Datenbank mit `pg_dump` über den Postgres-Container, dessen Port die Compose-Datei nicht veröffentlicht:
+Alle Daten liegen in der PostgreSQL-Datenbank: Datensätze, Nutzer, Einstellungen, das Aktivitätsprotokoll und die Warteschlange der Hintergrund-Jobs, dazu die Dateien der Dateifelder, sofern `FILE_STORAGE_DRIVER` nicht `s3` ist (dann sichern Sie auch den Bucket). Der App-Container speichert keine Daten. Sichern Sie die Datenbank mit `pg_dump` über den Postgres-Container, dessen Port die Compose-Datei nicht veröffentlicht:
 
 ```bash
 mkdir -p backups
@@ -201,8 +240,8 @@ Testen Sie die Wiederherstellung regelmäßig auf einem separaten Rechner. Auch 
 
 Die Cloud ruft zwei Wartungs-Endpunkte nach Zeitplan auf; eine Self-Hosted-Instanz führt sie nur aus, wenn Sie sie aufrufen. Ohne den täglichen Aufruf werden Elemente im [Papierkorb](/docs/app-trash) nach ihren 30 Tagen nie endgültig gelöscht.
 
-- `/api/cron/lifecycle`, einmal täglich: löscht Papierkorb-Elemente, deren 30 Tage abgelaufen sind, und erledigt die übrigen täglichen Wartungsaufgaben. Die Aufgaben für Cloud-Testphasen und Abonnements finden auf einer Self-Hosted-Instanz nichts.
-- `/api/cron/record-deliveries`, alle 5 Minuten (optional): startet fällige Webhook-Zustellungen, Ereignisverarbeitung und Hintergrundarbeit an Datensätzen, die kein laufender Job übernommen hat, etwa nach einem Neustart des Containers.
+- `/api/cron/lifecycle`, einmal täglich: löscht Papierkorb-Elemente, deren 30 Tage abgelaufen sind, Dateien, die vor 30 Tagen aus Datensätzen entfernt wurden, und nie gespeicherte Uploads, und erledigt die übrigen täglichen Wartungsaufgaben. Die Aufgaben für Cloud-Testphasen und Abonnements finden auf einer Self-Hosted-Instanz nichts.
+- `/api/cron/record-deliveries`, alle 5 Minuten (optional): startet fällige Webhook-Zustellungen, Ereignisverarbeitung, das Auslesen von Text aus angehängten Dateien und andere Hintergrundarbeit an Datensätzen, die kein laufender Job übernommen hat, etwa nach einem Neustart des Containers.
 
 Beide antworten mit HTTP `401`, außer die App hat ein `CRON_SECRET` und die Anfrage sendet es als `Authorization: Bearer <secret>`. Die Vorlage enthält neben `BETTER_AUTH_SECRET` eine auskommentierte Zeile `CRON_SECRET`, und die Compose-Datei reicht den Wert an die App weiter; listet Ihre `docker-compose.yml` `CRON_SECRET` noch nicht auf, holen Sie die Datei erneut mit dem `curl`-Befehl aus den Installationsschritten. Entfernen Sie das Kommentarzeichen oder ergänzen Sie die Zeile in einer älteren `.env`, setzen Sie einen langen Zufallswert, etwa aus `openssl rand -hex 32`, führen Sie `docker compose up -d` aus und planen Sie die Aufrufe auf dem Host, etwa mit `crontab -e`:
 

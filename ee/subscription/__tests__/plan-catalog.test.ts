@@ -56,6 +56,7 @@ describe("commercial plan catalog", () => {
       includedRoutinesPerUser: 1,
       sharedAccounts: false,
       hostedAiCreditsPerActiveUser: 200,
+      fileStorageBytesPerActiveUser: 1024 ** 3,
     });
     expect(getPlanDefinition("pro").entitlements.includedAccountsPerUser).toBe(1);
     expect(getPlanDefinition("business").entitlements.includedAccountsPerUser).toBe(3);
@@ -66,6 +67,9 @@ describe("commercial plan catalog", () => {
     expect(getPlanDefinition("pro").entitlements.hostedAiCreditsPerActiveUser).toBe(500);
     expect(getPlanDefinition("business").entitlements.hostedAiCreditsPerActiveUser).toBe(1_200);
     expect(getPlanDefinition("enterprise").entitlements.hostedAiCreditsPerActiveUser).toBe("contract");
+    expect(getPlanDefinition("pro").entitlements.fileStorageBytesPerActiveUser).toBe(5 * 1024 ** 3);
+    expect(getPlanDefinition("business").entitlements.fileStorageBytesPerActiveUser).toBe(20 * 1024 ** 3);
+    expect(getPlanDefinition("enterprise").entitlements.fileStorageBytesPerActiveUser).toBe("contract");
   });
 
   it("formats and totals integer minor-unit amounts at the presentation boundary", () => {

@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
-import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
+import { CLICK_ACTION_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { formattedTextExcerpt, RecordValue } from "@/components/records/record-value";
 import { ITEM_REVEAL_CLASS } from "@/components/ui/item-actions";
 import { cn } from "@/core/utils/cn";
@@ -55,7 +55,7 @@ const PropertyChip = observer(function PropertyChip({
   if (column.kind === "field") {
     const field = column.field;
     if (!canEditInline(records, record, field) || field.valueType === "boolean") return chip;
-    if (CONTACT_VALUE_TYPES.includes(field.valueType)) return chip;
+    if (CLICK_ACTION_VALUE_TYPES.includes(field.valueType)) return chip;
     return (
       <RecordInlineField field={field} record={record} records={records}>
         {chip}
@@ -92,7 +92,7 @@ function editableAddColumns(
       if (!canEditInline(records, record, column.field)) return false;
       return (
         emptyIds.has(column.id) ||
-        CONTACT_VALUE_TYPES.includes(column.field.valueType) ||
+        CLICK_ACTION_VALUE_TYPES.includes(column.field.valueType) ||
         column.field.valueType === "boolean"
       );
     }

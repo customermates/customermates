@@ -1,7 +1,12 @@
 "use client";
 
 import type { RootStore } from "@/core/stores/root.store";
-import type { RecordFieldView, RecordMember, RecordScalar } from "@/features/records/record-model.schema";
+import type {
+  RecordFieldView,
+  RecordMember,
+  RecordScalar,
+  RecordScalarInput,
+} from "@/features/records/record-model.schema";
 
 import { observer } from "mobx-react-lite";
 import { toJS } from "mobx";
@@ -14,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { RecordScalarSchema } from "@/features/records/record-model.schema";
-import { recordInputValue } from "@/features/records/record-input-value";
+import { recordInputValue, recordWriteValue } from "@/features/records/record-input-value";
 import { recordValueIssue } from "@/features/records/record-model-validation";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordInputField } from "./record-input-field";
@@ -38,7 +43,7 @@ export class RecordFieldValueStore extends BaseFormStore<{ value: unknown }> {
     rootStore: RootStore,
     readonly field: RecordFieldView,
     initialValue: unknown,
-    private readonly save: (value: RecordScalar | null) => Promise<RecordFieldSaveOutcome>,
+    private readonly save: (value: RecordScalarInput | null) => Promise<RecordFieldSaveOutcome>,
     private readonly done: () => void,
   ) {
     super(rootStore, { value: initialValue });
@@ -61,7 +66,7 @@ export class RecordFieldValueStore extends BaseFormStore<{ value: unknown }> {
     }
     this.setIsLoading(true);
     try {
-      const outcome = await this.save(value);
+      const outcome = await this.save(clear ? null : recordWriteValue(toJS(this.form.value), this.field));
       if (outcome.saved) this.done();
       else if (outcome.invalid?.length) this.showInvalid(outcome.invalid);
     } finally {

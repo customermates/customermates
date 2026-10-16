@@ -19,6 +19,7 @@ import { RecordValue, useRecordValueFormat } from "@/components/records/record-v
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toChipColor } from "@/constants/chip-colors";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { byChannelGroup } from "@/ee/messaging/provider";
 import { getChannelIcon } from "@/ee/messaging/provider-icon";
 import { channelContact, channelDisplayLabel } from "@/ee/messaging/thread-display";
 import { withFormulaReferences } from "@/features/records/formula-references";
@@ -109,7 +110,7 @@ function FieldTooltip({ label, children }: { label: string; children: ReactNode 
 export function IdentityChips({ record, field }: { record: RecordRow; field: RecordFieldView }) {
   return (
     <span className="inline-flex max-w-full min-w-0 flex-wrap items-center gap-1">
-      {(record.identities ?? []).map((identity) => {
+      {byChannelGroup(record.identities ?? []).map((identity) => {
         const Icon = getChannelIcon(identity.provider);
         const contact = channelContact(identity.provider, identity.value, identity.profileUrl);
         const label =
@@ -185,12 +186,18 @@ export const RecordPropertyChipView = observer(function RecordPropertyChipView({
       );
     }
     if (field.valueType === "channels") return <IdentityChips field={field} record={record} />;
-    if (result?.state === "value" && result.value.kind === "selectList") {
+    if (result?.state === "value" && (result.value.kind === "selectList" || result.value.kind === "file")) {
       return (
         <FieldTooltip label={field.label}>
           {icon}
 
-          <RecordValue field={field} members={record.memberUsers} overflowMenu={false} result={result} />
+          <RecordValue
+            field={field}
+            files={record.files}
+            members={record.memberUsers}
+            overflowMenu={false}
+            result={result}
+          />
         </FieldTooltip>
       );
     }
@@ -211,7 +218,7 @@ export const RecordPropertyChipView = observer(function RecordPropertyChipView({
         }
       >
         <ChipLabel name={name}>
-          <RecordValue compact field={field} members={record.memberUsers} result={result} />
+          <RecordValue compact field={field} files={record.files} members={record.memberUsers} result={result} />
         </ChipLabel>
       </AppChip>
     );

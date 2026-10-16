@@ -117,7 +117,7 @@ export function RecordWidgetChart({
         ...(String(value.value).length === 10 ? { timeZone: "UTC" } : {}),
       });
     }
-    if (["text", "email", "phone", "url"].includes(value.kind) && "value" in value) return String(value.value);
+    if (["text", "email", "url"].includes(value.kind) && "value" in value) return String(value.value);
     return t("RecordModel.missing");
   };
   const infoNotes = [

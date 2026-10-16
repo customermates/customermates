@@ -47,6 +47,18 @@ async function snapshot(
     (await records.getRecordDependenciesCompanyWide(ref)).map((entry) => [entry.fieldId, entry.sources]),
   );
   const identities = recordChannelsField(model, ref.typeId) ? await records.getIdentitiesCompanyWide(ref) : [];
+  const fileFieldIds = new Set(
+    model.fields.filter((field) => field.typeId === ref.typeId && field.valueType === "file").map((field) => field.id),
+  );
+  const fileNames = new Map(
+    (
+      await records.getRecordFilesCompanyWide(
+        row.values.flatMap((value) =>
+          fileFieldIds.has(value.fieldId) && value.state === "value" ? value.textListValue : [],
+        ),
+      )
+    ).map((file) => [file.id, file.name]),
+  );
   return {
     version: row.version,
     assignedUserIds: row.assignments.map((assignment) => assignment.userId).sort(),
@@ -63,6 +75,14 @@ async function snapshot(
           row.values.find((value) => value.fieldId === field.id),
           field,
         ),
+        ...(fileFieldIds.has(field.id)
+          ? {
+              files: (row.values.find((value) => value.fieldId === field.id)?.textListValue ?? []).map((id) => ({
+                id,
+                name: fileNames.get(id) ?? id,
+              })),
+            }
+          : {}),
         sources: (dependencies.get(field.id) ?? []).sort((a, b) => compareRecordKey(recordKey(a), recordKey(b))),
         publications: historyPublications(field, model),
         dependencyHash: calculationDependencyHash(field, model),

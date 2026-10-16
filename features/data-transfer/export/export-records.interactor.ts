@@ -15,7 +15,7 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { fail, failAuthorization, failNotFound, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { recordDto } from "@/features/records/record-dto";
+import { recordDto, withRecordFiles } from "@/features/records/record-dto";
 import { RECORD_EXPORT_LIMIT, RECORD_EXPORT_LINK_LIMIT } from "@/features/data-transfer/record-transfer.schema";
 import { RecordQuerySchema } from "@/features/records/record-query.schema";
 import { invalidRecordQueryPart } from "@/features/records/record-query-validation";
@@ -120,12 +120,15 @@ export async function collectRecordExport(
           pageRows.map((record) => record.id),
         )
       : null;
-    for (const row of pageRows) {
-      records.push({
-        ...recordDto(row, model, visibleFields.get(row.id) ?? new Set(), policy.memberScope),
-        ...(identities ? { identities: identities.get(row.id) ?? [] } : {}),
-      });
-    }
+    records.push(
+      ...(await withRecordFiles(
+        pageRows.map((row) => ({
+          ...recordDto(row, model, visibleFields.get(row.id) ?? new Set(), policy.memberScope),
+          ...(identities ? { identities: identities.get(row.id) ?? [] } : {}),
+        })),
+        repo,
+      )),
+    );
     const candidateLinks = await repo.getOutgoingLinksCompanyWide(
       pageTypeId,
       pageRows.map((record) => record.id),

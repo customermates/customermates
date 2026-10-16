@@ -26,6 +26,17 @@ describe("hosted AI plan entitlements", () => {
         .hostedAiCreditsPerActiveUser,
     ).toBeNull();
   });
+
+  it("pools file storage per active user in the cloud and leaves self-hosted storage unlimited", () => {
+    expect(getEntitlements(SubscriptionPlan.starter).fileStorageBytesPerActiveUser).toBe(1024 ** 3);
+    expect(getEntitlements(SubscriptionPlan.pro).fileStorageBytesPerActiveUser).toBe(5 * 1024 ** 3);
+    expect(getEntitlements(SubscriptionPlan.business).fileStorageBytesPerActiveUser).toBe(20 * 1024 ** 3);
+    expect(getEntitlements(SubscriptionPlan.enterprise).fileStorageBytesPerActiveUser).toBe("contract");
+    expect(
+      getEffectiveEntitlements({ appMode: "self-hosted", plan: SubscriptionPlan.business })
+        .fileStorageBytesPerActiveUser,
+    ).toBeNull();
+  });
 });
 
 describe("isSubscriptionExpired", () => {

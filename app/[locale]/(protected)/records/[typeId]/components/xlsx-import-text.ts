@@ -1,6 +1,7 @@
 "use client";
 
 import type { XlsxIssue } from "@/features/data-transfer/import/xlsx/xlsx-import-plan";
+import type { RecordWriteWarning } from "@/features/records/record-query.schema";
 import type { XlsxFileProblem } from "@/features/data-transfer/import/xlsx/xlsx-workbook";
 import type { XlsxWizardStep } from "./xlsx-import-wizard.store";
 
@@ -26,8 +27,8 @@ export function useXlsxImportText() {
         return t("DataTransfer.xlsxImport.issues.invalidEmail", values);
       case "invalidUrl":
         return t("DataTransfer.xlsxImport.issues.invalidUrl", values);
-      case "invalidPhone":
-        return t("DataTransfer.xlsxImport.issues.invalidPhone", values);
+      case "invalidChannel":
+        return t("DataTransfer.xlsxImport.issues.invalidChannel", values);
       case "invalidValue":
         return t("DataTransfer.xlsxImport.issues.invalidValue", values);
       case "unknownOption":
@@ -56,6 +57,41 @@ export function useXlsxImportText() {
         return t("DataTransfer.xlsxImport.issues.restricted");
       case "lookupUnavailable":
         return t("DataTransfer.xlsxImport.issues.lookupUnavailable", values);
+      case "fileNotImportable":
+        return t("DataTransfer.xlsxImport.issues.fileNotImportable");
+      case "unknownCountry":
+        return t("DataTransfer.xlsxImport.issues.unknownCountry", values);
+    }
+  };
+
+  const addressPart = (part: RecordWriteWarning["part"]): string => {
+    switch (part) {
+      case "street":
+        return t("RecordModel.addressParts.street");
+      case "postalCode":
+        return t("RecordModel.addressParts.postalCode");
+      case "city":
+        return t("RecordModel.addressParts.city");
+      case "region":
+        return t("RecordModel.addressParts.region");
+      case "countryCode":
+        return t("RecordModel.addressParts.country");
+    }
+  };
+
+  const warning = (entry: RecordWriteWarning, field: string): string => {
+    const expected = (entry.expected ?? []).join(", ");
+    switch (entry.code) {
+      case "cityMismatch":
+        return t("DataTransfer.xlsxImport.addressWarnings.cityMismatch", { field, expected });
+      case "countryMissing":
+        return t("DataTransfer.xlsxImport.addressWarnings.countryMissing", { field });
+      case "partMissing":
+        return t("DataTransfer.xlsxImport.addressWarnings.partMissing", { field, part: addressPart(entry.part) });
+      case "postalCodeRegionMismatch":
+        return t("DataTransfer.xlsxImport.addressWarnings.postalCodeRegionMismatch", { field, expected });
+      case "regionUnknown":
+        return t("DataTransfer.xlsxImport.addressWarnings.regionUnknown", { field });
     }
   };
 
@@ -87,5 +123,5 @@ export function useXlsxImportText() {
     }
   };
 
-  return { issue, step, problem };
+  return { issue, step, problem, warning };
 }

@@ -118,13 +118,15 @@ describeDatabase("channels field migration", { timeout: 240000 }, () => {
         archived: false,
         publishedSummary: false,
         options: [],
-        position:
-          Math.max(
-            ...model.fields
-              .filter((field) => field.typeId === contact && field !== channels)
-              .map((field) => field.position),
-          ) + 1,
+        position: expect.any(Number),
       });
+      expect(channels?.position).toBeGreaterThan(
+        Math.max(
+          ...model.fields
+            .filter((field) => field.typeId === contact && field !== channels)
+            .map((field) => field.position),
+        ),
+      );
       expect(model.fields.filter((field) => field.valueType === "channels")).toEqual([channels]);
       expect(recordDefaults(contact, model.fields).columnOrder).toContain(channels?.id);
       expect(

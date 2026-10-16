@@ -7,10 +7,11 @@ import { useTranslations } from "next-intl";
 import { useRef } from "react";
 
 import { AppChip } from "@/components/chip/app-chip";
-import { agentContextAttachmentKey } from "@/ee/agent-chat/agent-context";
+import { agentContextAttachmentKey, isAgentFileContext } from "@/ee/agent-chat/agent-context";
 
 import { focusAgentComposer } from "./chat-ui";
 import { useAgentChatUiTargets } from "./agent-chat-store-context";
+import { AgentComposerFileChip } from "./agent-composer-file-chip";
 
 export function AgentComposerContexts({
   contexts,
@@ -43,42 +44,44 @@ export function AgentComposerContexts({
             else focusAgentComposer(uiTargets);
           });
         };
+        const removeButton = onRemove ? (
+          <button
+            aria-label={t("AgentChat.context.remove", {
+              label: context.label,
+            })}
+            className="-mr-0.5 grid size-3.5 shrink-0 place-items-center rounded-sm text-current/60 outline-hidden transition-colors hover:bg-foreground/10 hover:text-current focus-visible:ring-2 focus-visible:ring-ring"
+            data-agent-context-remove="true"
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              removeContext("next");
+            }}
+            onKeyDown={(event) => {
+              if (
+                (event.key !== "Backspace" && event.key !== "Delete") ||
+                event.nativeEvent.isComposing ||
+                event.altKey ||
+                event.ctrlKey ||
+                event.metaKey ||
+                event.shiftKey
+              )
+                return;
+              event.preventDefault();
+              event.stopPropagation();
+              removeContext(event.key === "Backspace" ? "previous" : "next");
+            }}
+            onMouseDown={(event) => event.preventDefault()}
+          >
+            <X aria-hidden className="size-2.5" />
+          </button>
+        ) : undefined;
+        if (isAgentFileContext(context))
+          return <AgentComposerFileChip key={key} context={context} removeButton={removeButton} />;
         return (
           <AppChip
             key={key}
             className="me-1.5 my-px h-5 max-w-full px-[5px] py-0 align-middle text-sm leading-5 font-normal"
-            endContent={
-              onRemove ? (
-                <button
-                  aria-label={t("AgentChat.context.remove", {
-                    label: context.label,
-                  })}
-                  className="-mr-0.5 grid size-3.5 shrink-0 place-items-center rounded-sm text-current/60 outline-hidden transition-colors hover:bg-foreground/10 hover:text-current focus-visible:ring-2 focus-visible:ring-ring"
-                  data-agent-context-remove="true"
-                  type="button"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    removeContext("next");
-                  }}
-                  onKeyDown={(event) => {
-                    if (
-                      (event.key !== "Backspace" && event.key !== "Delete") ||
-                      event.nativeEvent.isComposing ||
-                      event.altKey ||
-                      event.ctrlKey ||
-                      event.metaKey ||
-                      event.shiftKey
-                    )
-                      return;
-                    event.preventDefault();
-                    event.stopPropagation();
-                    removeContext(event.key === "Backspace" ? "previous" : "next");
-                  }}
-                >
-                  <X aria-hidden className="size-2.5" />
-                </button>
-              ) : undefined
-            }
+            endContent={removeButton}
             size="sm"
             variant="default"
           >

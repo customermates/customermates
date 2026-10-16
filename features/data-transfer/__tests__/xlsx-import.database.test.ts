@@ -136,7 +136,7 @@ async function fixture() {
     runWithoutTenant(() =>
       prisma.crmRecord.findMany({ where: { companyId: seed.company.id, typeId: id("deal") }, select: { id: true } }),
     );
-  return { seed, admin, member, id, model, create, ports, query, deals };
+  return { seed, admin, member, id, model, full: stored, create, ports, query, deals };
 }
 
 async function workbook(rows: unknown[][]): Promise<ArrayBuffer> {
@@ -173,7 +173,20 @@ describeDatabase("XLSX import through the generic record import", () => {
       typeId: f.id("organization"),
       fields: [{ fieldId: f.id("organization.name"), value: text("Acme GmbH") }],
     });
-    const labels = { recordId: "Record ID", assignedTo: "Assigned to", rangeStart: "From", rangeEnd: "Until" };
+    const labels = {
+      recordId: "Record ID",
+      assignedTo: "Assigned to",
+      rangeStart: "From",
+      rangeEnd: "Until",
+      addressParts: {
+        street: "Street and number",
+        line2: "Address line 2",
+        postalCode: "Postal code",
+        city: "City",
+        region: "State or region",
+        countryCode: "Country",
+      },
+    };
     const file = await workbook([
       ["Name", "Stage", "Organizations", "Notes", "Assigned to"],
       ["Atlas", "qualified", "ACME GmbH", "First line\nSecond line", f.seed.admin.email],
@@ -201,6 +214,7 @@ describeDatabase("XLSX import through the generic record import", () => {
       updated: 0,
       skipped: 0,
       failed: [{ sheetRow: 4, reasons: ["unknownOption:Unknown", "unknownRecord:Initech"] }],
+      warned: [],
     });
 
     const result = await runWithTenant(f.admin, () =>
@@ -250,7 +264,7 @@ describeDatabase("XLSX import through the generic record import", () => {
       "update",
     );
     expect(update.matchKey).toBe(`field:${f.id("deal.name")}`);
-    expect(updated).toEqual({ created: 0, updated: 1, skipped: 1, failed: [] });
+    expect(updated).toEqual({ created: 0, updated: 1, skipped: 1, failed: [], warned: [] });
     expect(await f.deals()).toHaveLength(2);
     const after = await runWithTenant(f.admin, () =>
       f.query.invoke({
@@ -268,5 +282,79 @@ describeDatabase("XLSX import through the generic record import", () => {
       value: { kind: "select", value: f.id("deal.stage.won") },
     });
     expect(value(after.data.records[0], "deal.notes")).toEqual(value(atlas, "deal.notes"));
+  }, 120_000);
+
+  it("imports phone columns into Channels in the importer's country and keeps a record's other channels", async () => {
+    const f = await fixture();
+    const contact = f.id("contact");
+    const ada = await f.create({
+      action: "create",
+      typeId: contact,
+      fields: [{ fieldId: f.id("contact.firstName"), value: text("Ada") }],
+      identities: [{ provider: "mail", value: "ada@example.test" }],
+    });
+    const labels = {
+      recordId: "Record ID",
+      assignedTo: "Assigned to",
+      rangeStart: "From",
+      rangeEnd: "Until",
+      addressParts: {
+        street: "Street and number",
+        line2: "Address line 2",
+        postalCode: "Postal code",
+        city: "City",
+        region: "State or region",
+        countryCode: "Country",
+      },
+    };
+    const channels = async (recordId: string) =>
+      (
+        await runWithoutTenant(() =>
+          prisma.recordIdentityLink.findMany({
+            where: { companyId: f.seed.company.id, typeId: contact, recordId },
+            include: { identity: true },
+          }),
+        )
+      )
+        .map(({ identity }) => `${identity.provider}:${identity.value}`)
+        .sort();
+
+    const created = new XlsxImportWizardStore(f.full, contact, labels, f.ports(f.admin), "de");
+    expect(
+      await runWizard(
+        created,
+        await workbook([
+          ["First name", "Telefon", "Mobile"],
+          ["Grace", "0621 123456", "0049 170 1234567; 0621 123456"],
+          ["Linus", "12", ""],
+        ]),
+      ),
+    ).toEqual({
+      created: 1,
+      updated: 0,
+      skipped: 0,
+      failed: [{ sheetRow: 3, reasons: ["invalidChannel:12"] }],
+      warned: [],
+    });
+    expect(created.mapping).toEqual([`field:${f.id("contact.firstName")}`, "channels", "channels"]);
+    const grace = await runWithoutTenant(() =>
+      prisma.recordValue.findFirstOrThrow({
+        where: { companyId: f.seed.company.id, fieldId: f.id("contact.firstName"), textValue: "Grace" },
+      }),
+    );
+    expect(await channels(grace.recordId)).toEqual(["phone:+491701234567", "phone:+49621123456"]);
+
+    const updated = new XlsxImportWizardStore(f.full, contact, labels, f.ports(f.admin), "de");
+    expect(
+      await runWizard(
+        updated,
+        await workbook([
+          ["Record ID", "Phone"],
+          [ada.recordId, "0621 123456"],
+        ]),
+        "update",
+      ),
+    ).toEqual({ created: 0, updated: 1, skipped: 0, failed: [], warned: [] });
+    expect(await channels(ada.recordId)).toEqual(["mail:ada@example.test", "phone:+49621123456"]);
   }, 120_000);
 });

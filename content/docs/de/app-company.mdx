@@ -93,6 +93,7 @@ Jeder Workspace startet mit einer eingebauten Rolle, **Admin**, die die Person e
 | **Testphase endet** | Das Ende der kostenlosen Testphase, nur im Status **Testphase** |
 | **Ende des aktuellen Abrechnungszeitraums** | Das Verlängerungsdatum, nach einer Kündigung das Enddatum des Abonnements |
 | **Aktive Nutzerplätze** | Abgerechnete Nutzerplätze; vor dem ersten Checkout die Zahl der **Aktiven** Mitglieder |
+| **Dateispeicher** | Der Speicher, den Dateien in Dateifeldern belegen, gemessen am Limit des Workspace, etwa **1,2 GB von 20 GB** |
 
 Der Eintrag **Abrechnung** im Workspace-Menü zeigt den Tarif mit seinem Status, etwa **Pro · Testphase · noch 3 Tage** (bei Status **Aktiv** nur den Tarifnamen), und öffnet Abrechnung.
 
@@ -122,7 +123,7 @@ Eine Testphase nach ihrem Enddatum ohne Checkout gilt ebenfalls als abgelaufen. 
 | Business | [[commercial.price.business.monthly]] | [[commercial.entitlement.business.includedAccountsPerUser]] | [[commercial.entitlement.business.includedRoutinesPerUser]] | Ja | Ja |
 | Enterprise | Auf Anfrage | [[commercial.entitlement.enterprise.includedAccountsPerUser]] | [[commercial.entitlement.enterprise.includedRoutinesPerUser]] | Ja | Ja |
 
-Jeder Tarif enthält das vollständige CRM, das Aktivitätsprotokoll, die API, den MCP-Server und den gehosteten Assistenten. Starter, Pro und Business werden monatlich pro Nutzerplatz in Euro abgerechnet; einen anderen Abrechnungszeitraum gibt es nicht. Gehostete KI-Credits pro aktivem Nutzer und Monat: Starter 200, Pro 500, Business 1.200, Enterprise laut Vertrag, 500 in der Testphase; siehe [Tarife und Credits](/docs/app-assistant#plans-and-credits).
+Jeder Tarif enthält das vollständige CRM, das Aktivitätsprotokoll, die API, den MCP-Server und den gehosteten Assistenten. Starter, Pro und Business werden monatlich pro Nutzerplatz in Euro abgerechnet; einen anderen Abrechnungszeitraum gibt es nicht. Gehostete KI-Credits pro aktivem Nutzer und Monat: Starter 200, Pro 500, Business 1.200, Enterprise laut Vertrag, 500 in der Testphase; siehe [Tarife und Credits](/docs/app-assistant#plans-and-credits). Dateispeicher pro aktivem Nutzer, gemeinsam im Workspace: Starter [[commercial.storage.starter]], Pro [[commercial.storage.pro]], Business [[commercial.storage.business]], Enterprise laut Vertrag, [[commercial.storage.pro]] in der Testphase. Über dem Limit, etwa nach einem Tarifwechsel nach unten, werden neue Uploads abgelehnt, und keine Datei wird gelöscht; siehe [Wie hänge ich Dateien an einen Datensatz an?](/docs/app-records#how-do-i-attach-files-to-a-record).
 
 ### Wie wähle oder wechsle ich einen Tarif? [#how-do-i-choose-or-change-a-plan]
 

@@ -150,6 +150,16 @@ export class PrismaCompanyRepo
     });
   }
 
+  async findFileStoragePlan() {
+    const subscription = await this.prisma.subscription.findUnique({
+      where: { companyId: this.companyId },
+      select: { plan: true, enterpriseFileStorageBytesPerUser: true },
+    });
+    if (!subscription) return null;
+    const bytes = subscription.enterpriseFileStorageBytesPerUser;
+    return { plan: subscription.plan, enterpriseFileStorageBytesPerUser: bytes === null ? null : Number(bytes) };
+  }
+
   @BypassTenantGuard
   async getSubscriptionOrThrowUnscoped(companyId: string) {
     const subscription = await this.prisma.subscription.findUniqueOrThrow({
@@ -172,6 +182,14 @@ export class PrismaCompanyRepo
     await this.prisma.subscription.update({
       where: { companyId },
       data: { enterpriseAgentCreditsPerUser: creditsPerUser },
+    });
+  }
+
+  @BypassTenantGuard
+  async setEnterpriseFileStorageUnscoped(companyId: string, bytesPerUser: number | null): Promise<void> {
+    await this.prisma.subscription.update({
+      where: { companyId },
+      data: { enterpriseFileStorageBytesPerUser: bytesPerUser === null ? null : BigInt(bytesPerUser) },
     });
   }
 

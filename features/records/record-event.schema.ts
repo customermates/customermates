@@ -20,14 +20,22 @@ export type RecordEventKind = z.infer<typeof RecordEventKindSchema>;
 
 const RecordHistoryPublicationSchema = z.object({ fieldId: z.uuid(), dependencyHash: z.string() }).strict();
 
+export const RecordHistoryValueTypeSchema = z
+  .enum([...RecordValueTypeSchema.options, "phone"])
+  .describe("The field's value type when the change happened; phone only in history of retired phone fields.");
+
 const RecordHistoryValueSchema = z
   .object({
     fieldId: z.uuid(),
     label: z.string(),
-    valueType: RecordValueTypeSchema,
+    valueType: RecordHistoryValueTypeSchema,
     format: RecordFieldSchema.shape.format,
     options: RecordFieldSchema.shape.options.default([]),
     value: CalculatedValueSchema,
+    files: z
+      .array(z.object({ id: z.uuid(), name: z.string() }).strict())
+      .optional()
+      .describe("Names of the files a file value held when the change happened."),
     sources: z.array(RecordRefSchema),
     publications: z.array(RecordHistoryPublicationSchema),
     publishedSummary: z.boolean(),
@@ -112,6 +120,7 @@ export const RecordHistoryDisplayValueSchema = RecordHistoryValueSchema.pick({
   format: true,
   options: true,
   value: true,
+  files: true,
 });
 export const RecordHistoryChangesSchema = RecordEventPayloadSchema.pick({
   ref: true,

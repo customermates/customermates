@@ -50,6 +50,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   useHydratedIntlStore: () => ({
     formatDescriptiveLongDate: (value: Date) => `date:${value.toISOString()}`,
+    formattingLocale: "en-GB",
   }),
 }));
 vi.mock("../plan-picker", () => ({
@@ -109,6 +110,34 @@ describe("SubscriptionPanel read-only fields", () => {
       values: { members: "SettingsNav.members" },
     });
     expect(harness.outputs.at(-1)?.description).toBe("Subscription.seatBillingNote");
+  });
+
+  it("shows the workspace file storage against its limit and hides it without one", () => {
+    const initialSubscription: SubscriptionDto = {
+      activeUsers: 3,
+      currentPeriodEnd: null,
+      hasBillingPortal: false,
+      hasActiveSubscription: true,
+      plan: SubscriptionPlan.business,
+      quantity: 3,
+      status: SubscriptionStatus.active,
+      trialEndDate: null,
+    };
+    const storage = { usedBytes: 1.25 * 1024 ** 3, limitBytes: 60 * 1024 ** 3 };
+
+    renderToStaticMarkup(createElement(SubscriptionPanel, { initialSubscription, storage }));
+
+    expect(harness.outputs.at(-1)?.label).toBe("Subscription.fileStorage");
+    expect(harness.translationCalls).toContainEqual({
+      key: "Subscription.fileStorageUsage",
+      values: { used: "1.3 GB", limit: "60 GB" },
+    });
+
+    harness.outputs.length = 0;
+    renderToStaticMarkup(
+      createElement(SubscriptionPanel, { initialSubscription, storage: { usedBytes: 10, limitBytes: null } }),
+    );
+    expect(harness.outputs.map(({ label }) => label)).not.toContain("Subscription.fileStorage");
   });
 
   it("only references the plan picker when it is available", () => {

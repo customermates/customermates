@@ -18,6 +18,7 @@ type ChipColumnOptions = { color: ChipColor; allowMultiple: boolean };
 export type CustomColumnDto = ColumnField &
   (
     | { type: "plain" }
+    | { type: "file" | "address" }
     | {
         type: "date" | "dateTime" | "dateRange" | "dateTimeRange";
         options?: { displayFormat: DateDisplayFormat } | null;

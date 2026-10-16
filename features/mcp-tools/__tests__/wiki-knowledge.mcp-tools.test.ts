@@ -30,6 +30,9 @@ vi.mock("@/core/di", () => ({
   getGetWikiPageInteractor: () => ({ invoke: calls.get }),
   getGetWikiCatalogInteractor: () => ({ invoke: calls.catalog }),
   getSearchRecordsInteractor: () => ({ invoke: calls.records }),
+  getSearchRecordFilesInteractor: () => ({
+    invoke: () => Promise.resolve({ ok: true, data: { items: [], retrieval: "keyword" } }),
+  }),
   getGetRecordInteractor: () => ({ invoke: calls.fetchRecord }),
   getGetUserDetailsInteractor: () => ({
     invoke: () => Promise.resolve({ ok: true, data: { id: "user" } }),
@@ -416,7 +419,7 @@ describe("read-only Wiki search and fetch compatibility", () => {
 
   it("refuses a Wiki offset for a CRM record without reading the record", async () => {
     const withOffset = await fetchTool.execute({ id: `record:${contactType}:${id}`, offset: 5 });
-    expect(mcpToolResultText(withOffset)).toContain("offset is supported only for Knowledge Base results.");
+    expect(mcpToolResultText(withOffset)).toContain("offset is supported only for Knowledge Base and file results.");
     expect(calls.fetchRecord).not.toHaveBeenCalled();
     expect(calls.get).not.toHaveBeenCalled();
   });

@@ -7,6 +7,7 @@ import { RefreshCw } from "lucide-react";
 import { Action, Resource, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
+import type { FileStorageUsageDto } from "@/features/record-files/record-file.schema";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
@@ -18,9 +19,10 @@ import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = {
   initialSubscription: SubscriptionDto | null;
+  storage?: FileStorageUsageDto | null;
 };
 
-const SubscriptionViewContent = observer(({ initialSubscription }: Props) => {
+const SubscriptionViewContent = observer(({ initialSubscription, storage }: Props) => {
   const t = useTranslations();
   const { subscriptionStore, userStore } = useRootStore();
 
@@ -57,7 +59,7 @@ const SubscriptionViewContent = observer(({ initialSubscription }: Props) => {
 
   return (
     <div className="animate-page-result-in flex w-full max-w-3xl flex-col gap-4 motion-reduce:animate-none">
-      <SubscriptionPanel initialSubscription={initialSubscription} />
+      <SubscriptionPanel initialSubscription={initialSubscription} storage={storage} />
     </div>
   );
 });

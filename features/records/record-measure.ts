@@ -25,6 +25,8 @@ export type MeasureRow = {
 };
 
 function scalarJson(field: RecordField, value: Prisma.Sql): Prisma.Sql {
+  if (field.valueType === "file" || field.valueType === "address")
+    throw unwindFailure(CustomErrorCode.recordValueInvalid);
   if (field.multiple)
     return Prisma.sql`jsonb_build_object('kind', 'textList', 'value', to_jsonb(${value}."textListValue"))`;
   if (field.valueType === "currency" || field.valueType === "number")

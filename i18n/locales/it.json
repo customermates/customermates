@@ -455,6 +455,13 @@
       "stopFailed": "Non è stato possibile fermare Mate. La connessione viene ripristinata per consentirti di riprovare.",
       "turnFailed": "Mate ha riscontrato un errore."
     },
+    "files": {
+      "attach": "Allega file",
+      "dropHint": "Rilascia i file per allegarli",
+      "failed": "{name}: {message}",
+      "limit": "Puoi allegare al massimo {count, plural, one {# file} other {# file}} a un messaggio.",
+      "reading": "Lettura…"
+    },
     "greeting": {
       "headline": "Ciao, sono Mate",
       "subtitle": "Chiedimi qualsiasi cosa sul tuo workspace, oppure dimmi cosa fare e me ne occupo io.",
@@ -1058,6 +1065,8 @@
       "title": "Ancora nessuna voce «{plural}»"
     },
     "errors": {
+      "addressLookupRateLimited": "Troppe ricerche di indirizzi in poco tempo. Attendi qualche secondo e riprova.",
+      "addressLookupUnavailable": "La ricerca degli indirizzi non è disponibile al momento. Inserisci l'indirizzo manualmente o riprova più tardi.",
       "agentApprovalUnavailable": "Questa richiesta di approvazione non è disponibile o è scaduta.",
       "agentConversationNotFound": "Questa conversazione non è stata trovata o non è più accessibile.",
       "agentLimitReached": "Non restano abbastanza crediti IA per avviare un'altra richiesta.",
@@ -1109,7 +1118,6 @@
       "invalidFilterValue": "Valore del filtro non valido. Il valore deve corrispondere al tipo del campo e all'operatore (ad esempio un numero per gt/lt, una data ISO per i campi data, o un id per in/notIn).",
       "invalidGroupingField": "Questo campo non può raggruppare la vista. I campi a scelta multipla e i campi senza valori fissi non possono raggruppare un elenco. Campi raggruppabili: {validValues}.",
       "invalidJsonBody": "Il corpo della richiesta non è un JSON valido.",
-      "invalidPhone": "Inserisci un numero di telefono in formato internazionale, ad esempio +4930123456.",
       "invalidSortField": "Campo di ordinamento non trovato o non accessibile. Campi disponibili: {validValues}.",
       "invalidUrl": "Inserisci un URL valido.",
       "legalNoticeNotDelivered": "L’aggiornamento legale corrente non è ancora stato consegnato a questo spazio di lavoro.",
@@ -1136,11 +1144,22 @@
       "passwordMismatch": "Le password devono coincidere.",
       "permissionDenied": "Questa azione non è disponibile con le tue autorizzazioni attuali.",
       "privacyAcknowledgementRequired": "Conferma di aver letto l’Informativa sulla privacy.",
+      "recordAddressCandidateInvalid": "Questo suggerimento di indirizzo non è più valido. Cerca di nuovo l'indirizzo.",
+      "recordAddressCountryInvalid": "In {field}, {country} non è un codice paese.",
+      "recordAddressPostalCodeInvalid": "In {field}, {postalCode} non è un codice postale del paese scelto. Lì i codici postali sono così: {example}.",
+      "recordAddressRegionInvalid": "In {field}, {region} non è una regione del paese scelto.",
       "recordCalculationBudget": "Questa modifica richiede un ricalcolo in background.",
       "recordConfigurationInvalid": "Controlla i campi e le relazioni di questa configurazione.",
       "recordDateInvalid": "Inserisci una data valida.",
       "recordDateRangeInvalid": "Inserisci un intervallo valido la cui fine non preceda l’inizio.",
       "recordDependencies": "Aggiorna prima i campi, le viste, i widget o le associazioni dipendenti.",
+      "recordFileContentInvalid": "Invia il contenuto del file in base64.",
+      "recordFileLinkInvalid": "Questo link al file non è valido o è scaduto. Apri di nuovo il file per ottenere un nuovo link.",
+      "recordFileNameInvalid": "Inserisci un nome file.",
+      "recordFileNotFound": "Questo file non è disponibile.",
+      "recordFileTooLarge": "Un file può essere al massimo di {limit}.",
+      "recordFileUnavailable": "Un file di questo valore non è disponibile o appartiene a un altro record. Caricalo di nuovo.",
+      "recordFileUploadIncomplete": "Il caricamento non conteneva esattamente i {size} byte annunciati. Carica di nuovo il file.",
       "recordIdempotencyConflict": "Questa chiave di richiesta è stata usata per un’altra modifica. Crea una nuova richiesta.",
       "recordIdUnavailable": "Questo ID apparteneva già a un record precedente. Importa il record con un nuovo ID.",
       "recordMarkedTextChanged": "Il testo formattato contrassegnato può essere importato solo invariato dal record salvato; invia il testo formattato nuovo o modificato come valore richText con documentJson.",
@@ -1195,6 +1214,7 @@
       "serviceBusy": "L'area di lavoro è occupata da un'altra modifica, ad esempio un'importazione. Riprova tra un momento.",
       "socialActionRequiresSocialAccount": "Questa azione richiede un account LinkedIn o Instagram collegato, ma questo account è {provider}.",
       "socialPostsRequireSocialAccount": "I post social richiedono un account LinkedIn o Instagram collegato, ma questo account è {provider}.",
+      "storageQuotaExceeded": "Il tuo workspace usa {used} di {limit} di spazio per i file. Rimuovi dei file o passa a un piano superiore per caricarne altri.",
       "subjectRequired": "Aggiungi un oggetto.",
       "termsNotAgreed": "Devi accettare i termini e le condizioni.",
       "threadNotFound": "ID conversazione non trovato o non accessibile.",
@@ -1542,6 +1562,7 @@
       "linkedin": "LinkedIn",
       "mail": "E-mail",
       "outlook": "Outlook",
+      "phone": "Telefono",
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
@@ -2008,6 +2029,13 @@
       "update": "Aggiorna gli ID corrispondenti"
     },
     "xlsxImport": {
+      "addressWarnings": {
+        "cityMismatch": "{field}: la città non corrisponde al codice postale ({expected}).",
+        "countryMissing": "{field}: senza paese non è stato possibile controllare codice postale e regione.",
+        "partMissing": "{field}: manca {part}.",
+        "postalCodeRegionMismatch": "{field}: il codice postale appartiene a un’altra regione ({expected}).",
+        "regionUnknown": "{field}: la regione non è una delle regioni del paese."
+      },
       "assignedTo": "Assegnato a",
       "column": "Colonna {name}",
       "create": "Nuovi record",
@@ -2025,11 +2053,12 @@
         "ambiguousRecord": "Più record si chiamano «{value}».",
         "currencyMismatch": "«{value}» usa una valuta diversa da quella del campo.",
         "duplicateMatch": "Un'altra riga aggiorna già lo stesso record.",
+        "fileNotImportable": "I file non si possono importare da un foglio di calcolo. Caricali invece nel record.",
         "invalidBoolean": "«{value}» non è né sì né no.",
+        "invalidChannel": "«{value}» non è un indirizzo email, un numero di telefono né un link a un profilo.",
         "invalidDate": "«{value}» non è una data.",
         "invalidEmail": "«{value}» non è un indirizzo email.",
         "invalidNumber": "«{value}» non è un numero.",
-        "invalidPhone": "«{value}» non è un numero di telefono in formato internazionale.",
         "invalidRecordId": "«{value}» non è un ID record.",
         "invalidUrl": "«{value}» non è un indirizzo web che inizia con http:// o https://.",
         "invalidValue": "«{value}» non è un valore valido.",
@@ -2039,6 +2068,7 @@
         "required": "{value} è obbligatorio.",
         "restricted": "Non puoi leggere tutti i campi del record corrispondente.",
         "tooManyValues": "Una cella può contenere al massimo 100 valori.",
+        "unknownCountry": "«{value}» non è un paese.",
         "unknownMember": "Nessun membro corrisponde a «{value}».",
         "unknownOption": "«{value}» non è un'opzione di questo campo.",
         "unknownRecord": "Nessun record collegato si chiama «{value}»."
@@ -2049,7 +2079,7 @@
       "matchHint": "Le righe senza record corrispondente vengono saltate. Le celle vuote mantengono il valore attuale.",
       "moreFailures": "{count, plural, one {# altra riga non riuscita non è mostrata} other {Altre # righe non riuscite non sono mostrate}}.",
       "next": "Avanti",
-      "noMatchColumn": "Abbina l'ID record o un campo di testo, email, telefono, URL o numero per trovare i record esistenti.",
+      "noMatchColumn": "Abbina l'ID record o un campo di testo, email, URL o numero per trovare i record esistenti.",
       "other": "Altro",
       "previewHint": "{count, plural, =0 {Le prime {rows} righe non hanno problemi.} one {# delle prime {rows} righe ha un problema.} other {# delle prime {rows} righe hanno problemi.}} Le righe con problemi non vengono importate.",
       "problems": {
@@ -2076,7 +2106,8 @@
       },
       "stepsLabel": "Passaggi dell'importazione",
       "update": "Record esistenti",
-      "updated": "{count, plural, one {# record aggiornato} other {# record aggiornati}}"
+      "updated": "{count, plural, one {# record aggiornato} other {# record aggiornati}}",
+      "warned": "{count, plural, one {# riga importata con un avviso sull’indirizzo} other {# righe importate con avvisi sull’indirizzo}}"
     }
   },
   "DataView": {
@@ -2256,7 +2287,7 @@
       "addAsLabel": "Aggiungi come",
       "noResults": "Nessuna corrispondenza.",
       "searching": "Ricerca…",
-      "searchPlaceholder": "Cerca o incolla un'e-mail, un telefono o un identificativo…",
+      "searchPlaceholder": "Cerca o incolla un'e-mail, un numero di telefono o un account social…",
       "sourceConversations": "Dalle tue conversazioni",
       "sourceLookup": "Trovato tramite ricerca",
       "trigger": "Aggiungi canale"
@@ -2266,7 +2297,12 @@
     "compose": {
       "noAccount": "Nessun account {provider} utilizzabile è collegato. Collegane uno nella sezione Il mio profilo."
     },
-    "emptyHint": "Ancora nessun canale. Indirizzi e-mail, numeri di telefono WhatsApp e account social che associano i messaggi a questo record.",
+    "emptyHint": "Ancora nessun canale. Indirizzi e-mail, numeri di telefono e account social che associano i messaggi a questo record.",
+    "groups": {
+      "email": "E-mail",
+      "phone": "Telefono",
+      "social": "Social"
+    },
     "tooltipOpenInbox": "Vai alla posta in arrivo",
     "tooltipStartNewThread": "Nuovo messaggio",
     "tooltipUnlinkChannel": "Scollega il canale",
@@ -2985,6 +3021,7 @@
         "creditAdjustmentCreate": "Correzione di crediti registrata",
         "creditBalanceReset": "Saldo crediti azzerato",
         "enterpriseAllowanceUpdate": "Assegnazione Enterprise aggiornata",
+        "enterpriseFileStorageUpdate": "Spazio per i file Enterprise aggiornato",
         "overviewRead": "Panoramica Hosted-AI letta",
         "subscriptionSnapshotCorrect": "Abbonamento dello spazio di lavoro corretto",
         "subscriptionTermsUpdate": "Condizioni di abbonamento aggiornate",
@@ -3006,6 +3043,7 @@
     "confirm": {
       "allowance": "Impostare l'allocazione Enterprise di {name} su {value} crediti per utente? Si applica all'intero spazio di lavoro.",
       "changes": "Salvare queste modifiche per {name}? Si applicano all'intera area di lavoro.",
+      "fileStorage": "Impostare lo spazio file Enterprise di {name} su {value} GB per utente? Si applica all'intero spazio di lavoro.",
       "plan": "Impostare il piano di {name} su {value}? Si applica all’intero spazio di lavoro.",
       "subscription": "Impostare lo stato dell’abbonamento di {name} su {value}? Si applica all’intero spazio di lavoro e non contatta alcun fornitore di fatturazione.",
       "tags": "Impostare le etichette di {name} su {value}? Si applica all'intera area di lavoro.",
@@ -3136,6 +3174,11 @@
     },
     "emptyBody": "Modifica la ricerca o i filtri per ampliare l’elenco.",
     "emptyTitle": "Nessuna area corrisponde a questi filtri",
+    "fileStorage": {
+      "description": "Lo spazio che ogni utente attivo aggiunge allo spazio file condiviso dell’area. Senza un valore, ogni utente aggiunge 50 GB.",
+      "label": "Spazio file per utente (GB)",
+      "title": "Spazio file Enterprise"
+    },
     "modal": {
       "identity": "{domain} · {owner}",
       "subscription": "Abbonamento",
@@ -3219,6 +3262,65 @@
     "addPathStep": "Aggiungi un passaggio di relazione",
     "addProperty": "Aggiungi proprietà",
     "addRelationship": "Aggiungi relazione",
+    "addressCheck": {
+      "action": "Verifica indirizzo",
+      "checking": "Verifica dell'indirizzo in corso",
+      "keep": "Mantieni come inserito",
+      "noMatch": "Nessun indirizzo corrispondente trovato.",
+      "suggestion": "Indirizzo suggerito",
+      "use": "Usa l'indirizzo suggerito"
+    },
+    "addressDetails": "Dettagli dell'indirizzo",
+    "addressIssues": {
+      "cityMismatch": "Questa città non corrisponde al codice postale {postalCode}.",
+      "countryMissing": "Scegli un paese per controllare il codice postale e la regione.",
+      "countryUnknown": "Scegli un paese dall’elenco.",
+      "partMissing": "Manca {part}. Gli indirizzi in {country} ne hanno bisogno.",
+      "postalCodeInvalid": "Non è un codice postale di {country}. Lì i codici postali sono così: {example}.",
+      "postalCodeRegionMismatch": "Il codice postale {postalCode} appartiene a un’altra regione.",
+      "regionInvalid": "{region} non è un codice regione di {country}.",
+      "regionUnknown": "{region} non è una delle regioni di {country}."
+    },
+    "addressLabels": {
+      "area": "Zona",
+      "county": "Contea",
+      "department": "Dipartimento",
+      "district": "Distretto",
+      "doSi": "Provincia o città",
+      "eircode": "Eircode",
+      "emirate": "Emirato",
+      "island": "Isola",
+      "oblast": "Oblast",
+      "parish": "Parrocchia",
+      "pin": "Codice PIN",
+      "postTown": "Città postale",
+      "prefecture": "Prefettura",
+      "province": "Provincia",
+      "state": "Stato o territorio",
+      "suburb": "Quartiere",
+      "zip": "Codice ZIP"
+    },
+    "addressParts": {
+      "city": "Città",
+      "country": "Paese",
+      "line2": "Riga indirizzo 2",
+      "postalCode": "CAP",
+      "region": "Stato o regione",
+      "street": "Via e numero civico"
+    },
+    "addressPlaces": {
+      "attribution": "Codici postali: GeoNames (CC BY 4.0)",
+      "choose": "Città con questo codice postale:",
+      "use": "Usa {value}"
+    },
+    "addressSearch": {
+      "empty": "Nessun indirizzo corrispondente trovato.",
+      "hint": "Digita almeno {count} caratteri per cercare.",
+      "placeholder": "Via e numero civico, CAP o città",
+      "trigger": "Cerca indirizzo"
+    },
+    "addressUnverified": "Non verificato",
+    "addressVerified": "Indirizzo verificato",
     "addValue": "Aggiungi {field}",
     "aggregation": "Aggregazione",
     "assignedTo": "Assegnato a",
@@ -3369,10 +3471,14 @@
       "oneToOne": "Uno a uno"
     },
     "changeBlocked": "Questa modifica non può ancora essere applicata",
-    "channelsHelp": "Indirizzi e-mail, numeri di telefono WhatsApp e account social che associano i messaggi a questo record. I numeri di telefono vengono associati solo per le chat WhatsApp. Un identificatore può essere collegato a più record.",
+    "channelsHelp": "Indirizzi e-mail, numeri di telefono e account social che associano i messaggi a questo record. Un numero di telefono associa anche le chat WhatsApp dello stesso numero. Un identificatore può essere collegato a più record.",
     "chooseOption": "Scegli una delle opzioni del campo.",
     "clickAction": "Al clic",
     "clickActions": {
+      "address": {
+        "copy": "Copia indirizzo",
+        "open": "Apri nelle mappe"
+      },
       "channels": {
         "copy": "Copia",
         "open": "Apri e-mail, chiamata o profilo"
@@ -3491,6 +3597,15 @@
     "fieldTabs": {
       "calculation": "Calcolo"
     },
+    "fileAdd": "{mode, select, many {Aggiungi file} other {Aggiungi un file}}",
+    "fileCancelUpload": "Annulla il caricamento di {name}",
+    "fileDropHint": "{mode, select, many {oppure trascina qui i file} other {oppure trascina qui un file}}",
+    "fileLimit": "Questo campo contiene al massimo {count, plural, one {# file} other {# file}}.",
+    "fileOpen": "Apri {name} ({size})",
+    "fileRemove": "Rimuovi {name}",
+    "fileUnavailable": "File non disponibile",
+    "fileUploadFailed": "Il caricamento non è riuscito. Riprova.",
+    "fileUploading": "Caricamento… {progress, number, percent}",
     "general": "Generale",
     "graph": {
       "accountEdge": "Sincronizza le conversazioni in {list}",
@@ -3796,9 +3911,13 @@
     "triggerField": "Quando questo campo cambia",
     "triggerValue": "A questo valore",
     "typeHints": {
+      "address": "Indirizzi postali con paese",
+      "channels": "Indirizzi e-mail, numeri di telefono e account social",
+      "file": "Documenti, immagini, contratti",
       "richText": "Note, descrizioni, riepiloghi"
     },
     "types": {
+      "address": "Indirizzo",
       "boolean": "Sì o no",
       "channels": "Canali",
       "currency": "Importo",
@@ -3807,10 +3926,10 @@
       "dateTime": "Data e ora",
       "dateTimeRange": "Intervallo di date e ore",
       "email": "Email",
+      "file": "File",
       "member": "Membro",
       "multiSelect": "Scelta multipla",
       "number": "Numero",
-      "phone": "Telefono",
       "richText": "Testo formattato",
       "select": "Scelta singola",
       "text": "Testo",
@@ -4188,6 +4307,7 @@
       "currentPeriodEndManage": "Definita dal ciclo di fatturazione attuale. Usa «{billing}» per modificare l’abbonamento.",
       "currentPeriodEndReadOnly": "Definita dal ciclo di fatturazione attuale. Chiedi le modifiche a un amministratore dell’area di lavoro.",
       "currentPeriodEndUnavailable": "Definita dal ciclo di fatturazione attuale. Contatta l’assistenza per apportare modifiche.",
+      "fileStorage": "Qui contano tutti i file dei campi file, i file rimossi per altri 30 giorni. Ogni utente attivo aggiunge spazio all’area; al limite i nuovi caricamenti vengono rifiutati e non viene eliminato nulla.",
       "planManage": "Sincronizzato con la fatturazione. Usa «{billing}» per apportare modifiche.",
       "planPicker": "Scegli un piano qui sotto per avviare o modificare l’abbonamento.",
       "planReadOnly": "Sincronizzato con la fatturazione. Chiedi le modifiche a un amministratore dell’area di lavoro.",
@@ -4196,6 +4316,8 @@
       "trialEndsPicker": "Definita dal periodo di prova. Scegli un piano prima di questa data per continuare senza interruzioni.",
       "trialEndsReadOnly": "Definita dal periodo di prova. Chiedi a un amministratore dell’area di lavoro di gestire l’abbonamento."
     },
+    "fileStorage": "Spazio per i file",
+    "fileStorageUsage": "{used} di {limit}",
     "managedExternallyNote": "Questa area di lavoro usa un piano Enterprise con pagamento tramite fattura. Contatta il tuo account manager per apportare modifiche.",
     "manageWithLemonSqueezy": "Gestisci con Lemon Squeezy",
     "picker": {

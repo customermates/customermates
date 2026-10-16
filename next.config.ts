@@ -1,5 +1,8 @@
 import type { NextConfig } from "next";
 
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+
 import { PHASE_DEVELOPMENT_SERVER, PHASE_PRODUCTION_BUILD } from "next/constants";
 import createNextIntlPlugin from "next-intl/plugin";
 import { createMDX } from "fumadocs-mdx/next";
@@ -10,12 +13,49 @@ import { env } from "@/env";
 import { permanentAliasRedirects } from "@/core/seo/route-aliases";
 import { resolveBenchmarkBuildSource } from "@/scripts/agent-benchmark/build-source";
 import { configureBenchmarkWorkflowWorld } from "@/scripts/agent-benchmark/workflow-world";
+import { recordFileParserPackages } from "@/features/record-file-index/record-file-parser-packages";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 const withMDX = createMDX({
   configPath: "./core/fumadocs/source.config.ts",
 });
+
+// The record file text parser runs in a worker thread that loads these packages from node_modules at run time,
+// so the workflow function and the route that reads a file given to Mate have to ship them and everything they
+// depend on. Turbopack keeps every file an include glob matches, so folders a package never loads in Node (the
+// browser bundles of exceljs) are left out here.
+function packageTrees(names: string[], skipped: Record<string, string[]>, root = process.cwd()): string[] {
+  const found = new Map<string, string>();
+  const visit = (name: string, from: string) => {
+    for (let directory = from; ; directory = dirname(directory)) {
+      const candidate = join(directory, "node_modules", name);
+      if (existsSync(join(candidate, "package.json"))) {
+        const path = relative(root, candidate);
+        if (path.startsWith("..") || found.has(path)) return;
+        found.set(path, name);
+        const manifest = JSON.parse(readFileSync(join(candidate, "package.json"), "utf8")) as {
+          dependencies?: Record<string, string>;
+          optionalDependencies?: Record<string, string>;
+        };
+        for (const dependency of Object.keys({ ...manifest.dependencies, ...manifest.optionalDependencies }))
+          visit(dependency, candidate);
+        return;
+      }
+      if (dirname(directory) === directory) return;
+    }
+  };
+  for (const name of names) visit(name, root);
+  return [...found].flatMap(([path, name]) => {
+    const skip = skipped[name];
+    if (!skip) return [`./${path}/**/*`];
+    return readdirSync(join(root, path), { withFileTypes: true })
+      .filter((entry) => !skip.includes(entry.name))
+      .map((entry) => (entry.isDirectory() ? `./${path}/${entry.name}/**/*` : `./${path}/${entry.name}`));
+  });
+}
+
+const recordFileParserTrees = packageTrees(recordFileParserPackages(), { exceljs: ["dist"] });
 
 const agentBenchmarkBuildSource = resolveBenchmarkBuildSource();
 if (process.env.LOCAL_AGENT_BENCHMARK === "true") configureBenchmarkWorkflowWorld();
@@ -39,7 +79,9 @@ const nextConfig: NextConfig = {
       "./node_modules/quickjs-wasi/package.json",
       "./node_modules/quickjs-wasi/dist/*.js",
       "./node_modules/quickjs-wasi/quickjs.wasm",
+      ...recordFileParserTrees,
     ],
+    "/api/agent/files/*/complete": recordFileParserTrees,
   },
 
   images: {
@@ -52,6 +94,7 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: "25mb",
     },
+    proxyClientMaxBodySize: Math.max(10 * 1024 * 1024, env.FILE_MAX_UPLOAD_BYTES + 1024 * 1024),
     optimizePackageImports: [
       "lucide-react",
       "recharts",
@@ -75,7 +118,7 @@ const nextConfig: NextConfig = {
   headers() {
     return Promise.resolve([
       {
-        source: "/:path*",
+        source: "/:path((?!api/v1/files/[^/]+/content$).*)",
         headers: [
           {
             key: "Content-Security-Policy",

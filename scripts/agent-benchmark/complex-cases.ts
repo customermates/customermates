@@ -172,7 +172,7 @@ export function isComplexCaseId(value: string): value is ComplexCaseId {
 }
 
 type Entity = "contact" | "organization" | "deal" | "service" | "task";
-type FieldType = "singleSelect" | "phone" | "email" | "dateTime" | "plain" | "currency";
+type FieldType = "singleSelect" | "email" | "dateTime" | "plain" | "currency";
 
 export type SeedHelpers = {
   tx: BenchmarkFixtureWriter;
@@ -182,6 +182,7 @@ export type SeedHelpers = {
   organization: (key: string, name: string, notes?: string) => Promise<unknown>;
   contact: (key: string, firstName: string, lastName: string, organizationKey?: string) => Promise<void>;
   field: (key: string, entity: Entity, column: string, type: FieldType, value: string) => Promise<void>;
+  phone: (contactKey: string, value: string) => Promise<unknown>;
   deal: (key: string, name: string, value: number, owner?: string, status?: string, notes?: string, linked?: boolean) => Promise<void>;
   task: (key: string, name: string, dealKey: string | null, due: string, owner: string, status?: string) => Promise<void>;
   dealContactLink: (key: string, contactKey: string) => Promise<unknown>;

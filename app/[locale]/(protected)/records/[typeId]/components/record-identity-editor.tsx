@@ -5,7 +5,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Plus, Search } from "lucide-react";
 
-import type { MessagingProvider } from "@/generated/prisma";
+import type { RecordIdentityProvider } from "@/generated/prisma";
 
 import {
   CommandEmpty,
@@ -26,7 +26,7 @@ import { RecordChannels } from "./record-channels";
 import { EntityDetailField } from "@/components/entity-detail/entity-detail-field";
 import { EntityDetailFieldActions } from "@/components/entity-detail/entity-detail-field-actions";
 import { EntityDetailFieldDragHandle } from "@/components/entity-detail/entity-detail-fields";
-import { channelLabelKey } from "@/ee/messaging/provider";
+import { CHANNEL_GROUPS, channelGroup, channelLabelKey } from "@/ee/messaging/provider";
 import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useClientReady } from "@/hooks/use-client-ready";
@@ -97,7 +97,7 @@ export const RecordChannelPopover = observer(({ editor }: { editor: RecordEditor
   const showList = store.open && (busy || hasResults || value.length >= 2);
   const showEmpty = !busy && !store.searchError && value.length >= 2 && !hasResults;
 
-  const providerLabel = (provider: MessagingProvider) => t(`Common.providers.${channelLabelKey(provider)}`);
+  const providerLabel = (provider: RecordIdentityProvider) => t(`Common.providers.${channelLabelKey(provider)}`);
 
   return (
     <CommandPrimitive label={t("EntityChannels.addChannel.trigger")} shouldFilter={false}>
@@ -129,36 +129,47 @@ export const RecordChannelPopover = observer(({ editor }: { editor: RecordEditor
 
             {showEmpty && <CommandEmpty>{t("EntityChannels.addChannel.noResults")}</CommandEmpty>}
 
-            {!busy && candidates.length > 0 && (
-              <CommandGroup>
-                {candidates.map(({ candidate, source }) => {
-                  const ProviderIcon = getProviderIcon(candidate.provider);
-                  const channelLabel = channelDisplayLabel(candidate.provider, candidate.value, candidate.profileUrl);
-                  const primary = candidate.displayName || channelLabel;
-                  const showLabel = Boolean(
-                    candidate.displayName && channelLabel && channelLabel !== candidate.displayName,
-                  );
-                  return (
-                    <CommandItem
-                      key={`${candidate.provider}:${candidate.value}`}
-                      disabled={store.isAdding || editor.isDisabled}
-                      value={`${candidate.provider}:${candidate.value}`}
-                      onSelect={() => runUserAction(() => store.selectCandidate(candidate))}
-                    >
-                      <ProviderIcon className="size-5 shrink-0" />
+            {!busy &&
+              CHANNEL_GROUPS.map((group) => {
+                const entries = candidates.filter(
+                  ({ candidate }) => channelGroup(candidate.provider, candidate.value) === group,
+                );
+                if (!entries.length) return null;
+                return (
+                  <CommandGroup key={group} heading={t(`EntityChannels.groups.${group}`)}>
+                    {entries.map(({ candidate, source }) => {
+                      const ProviderIcon = getProviderIcon(candidate.provider);
+                      const channelLabel = channelDisplayLabel(
+                        candidate.provider,
+                        candidate.value,
+                        candidate.profileUrl,
+                      );
+                      const primary = candidate.displayName || channelLabel;
+                      const showLabel = Boolean(
+                        candidate.displayName && channelLabel && channelLabel !== candidate.displayName,
+                      );
+                      return (
+                        <CommandItem
+                          key={`${candidate.provider}:${candidate.value}`}
+                          disabled={store.isAdding || editor.isDisabled}
+                          value={`${candidate.provider}:${candidate.value}`}
+                          onSelect={() => runUserAction(() => store.selectCandidate(candidate))}
+                        >
+                          <ProviderIcon className="size-5 shrink-0" />
 
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium">{primary}</p>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-medium">{primary}</p>
 
-                        <p className="text-muted-foreground truncate text-xs">
-                          {showLabel ? channelLabel : t(SOURCE_HINT_KEYS[source])}
-                        </p>
-                      </div>
-                    </CommandItem>
-                  );
-                })}
-              </CommandGroup>
-            )}
+                            <p className="text-muted-foreground truncate text-xs">
+                              {showLabel ? channelLabel : t(SOURCE_HINT_KEYS[source])}
+                            </p>
+                          </div>
+                        </CommandItem>
+                      );
+                    })}
+                  </CommandGroup>
+                );
+              })}
 
             {!busy && addAsNewOptions.length === 1 && (
               <CommandGroup>

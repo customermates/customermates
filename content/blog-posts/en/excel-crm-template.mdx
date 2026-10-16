@@ -181,8 +181,7 @@ Customermates imports Excel workbooks (.xlsx), one list at a time. CSV files are
 | First name, Last name | First name and Last name |
 | A contact's or deal's Company | Organizations, matched by name |
 | A deal's Contact | Contacts, matched by full name |
-| Email, LinkedIn | Channels on the contact |
-| Phone | Phone custom field, or the WhatsApp channel if it is a WhatsApp number |
+| Email, Phone, LinkedIn | Channels on the contact |
 | Industry, Contact type, Source, Loss reason | Single choice custom fields |
 | Website; City, Country, Next step | Web address custom field; Text custom fields |
 | Last contact, Expected close, Next step date, Closed on | Date custom fields |
@@ -197,7 +196,7 @@ Customermates imports Excel workbooks (.xlsx), one list at a time. CSV files are
   <Step title="Create the custom fields first">In **Configure**, open the list and choose **Add**, then **Field**. For each dropdown column, create a Single choice field whose option labels match your Lists sheet exactly; the import flags any cell that is not an option. The deal Stage field already exists with the stages above. If you changed them, rename the options and set **Probability %** on each one in Configure for Deals.</Step>
   <Step title="Decide how deal values come in">A deal's value in Customermates is the sum of its line items, each a service price times quantity. Import your price list into **Services** first (Name and Price are required), then add line items with their quantities on each deal. If every deal has its own price, a Money custom field keeps the number, but it does not feed the deal value or the weighted pipeline.</Step>
   <Step title="Import in dependency order">Services, then companies into Organizations, then contacts, then deals. Links are matched by name, ignoring case, so a company must exist before a contact can point to it, and a name that matches no record or several is flagged. A comma separates names within a cell, so a firm called "Hale, Brook and Partners" needs a rename before the import or a link set by hand afterwards.</Step>
-  <Step title="Run the wizard">On each list, open **More actions**, choose **Add from file** and pick the file. The wizard asks which sheet to import, so the workbook can keep its other sheets; save it as .xlsx. A file can currently hold up to 10 MB and 5,000 rows. Match each column to a field; email addresses and LinkedIn profiles go into the contact's Channels field.</Step>
+  <Step title="Run the wizard">On each list, open **More actions**, choose **Add from file** and pick the file. The wizard asks which sheet to import, so the workbook can keep its other sheets; save it as .xlsx. A file can currently hold up to 10 MB and 5,000 rows. Match each column to a field; email addresses, phone numbers and LinkedIn profiles go into the contact's Channels field.</Step>
   <Step title="Fix or skip problem rows">The check lists every problem by row before anything is added. Fix the cells in Excel and check again, or import the rest and skip those rows. An import has no undo, so run ten rows first.</Step>
   <Step title="Turn open next steps into tasks">From Activities, bring over only open next steps, as tasks linked to the deal and contact and assigned to the owner. Tasks have no due date field, so add a Date custom field for the date. Older history can go into the deal's Notes or stay in the archived workbook.</Step>
 </Steps>

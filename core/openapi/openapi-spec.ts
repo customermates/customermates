@@ -1,6 +1,10 @@
 import { createDocument } from "zod-openapi";
 
-import { CalculationExpressionShapeSchema } from "@/features/records/record-model.schema";
+import {
+  CalculationExpressionShapeSchema,
+  RecordAddressPartsInputSchema,
+  RecordAddressSchema,
+} from "@/features/records/record-model.schema";
 import { CalculationExpressionInputSchema } from "@/features/records/configuration.schema";
 
 import { StructuredErrorResponseSchema } from "@/core/api/structured-interactor-handler";
@@ -108,6 +112,8 @@ import { recordModelApiPaths } from "@/features/records/record-model.openapi";
 import { dataViewApiPaths } from "@/features/data-view/data-view.openapi";
 import { widgetApiPaths } from "@/features/widget/widget.openapi";
 import { trashApiPaths } from "@/features/trash/trash.openapi";
+import { addressApiPaths } from "@/features/addresses/addresses.openapi";
+import { recordFileApiPaths } from "@/features/record-files/record-files.openapi";
 
 export function generateOpenApiSpec() {
   const document = createDocument({
@@ -131,6 +137,8 @@ export function generateOpenApiSpec() {
       ...dataViewApiPaths,
       ...widgetApiPaths,
       ...trashApiPaths,
+      ...addressApiPaths,
+      ...recordFileApiPaths,
       ...connectedAccountSettingsApiPaths,
       "/v1/users/search": {
         post: getUsersOperation,
@@ -289,6 +297,8 @@ export function generateOpenApiSpec() {
       schemas: {
         CalculationExpression: CalculationExpressionShapeSchema,
         CalculationExpressionInput: CalculationExpressionInputSchema,
+        RecordAddress: RecordAddressSchema,
+        RecordAddressPartsInput: RecordAddressPartsInputSchema,
         StructuredErrorResponseSchema,
         WebhookMessagingMessageReceivedSchema,
         WebhookMessagingMessageUpdatedSchema,
@@ -318,6 +328,13 @@ export function generateOpenApiSpec() {
           name: "x-api-key",
           description:
             "API key authentication. Create an API key in your user profile and include it in the x-api-key header.",
+        },
+        fileLinkToken: {
+          type: "apiKey",
+          in: "query",
+          name: "token",
+          description:
+            "Signed token of one file, part of an upload URL or a downloadUrl. It acts for the person who requested it for 15 minutes.",
         },
       },
     },

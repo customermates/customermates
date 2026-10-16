@@ -174,7 +174,7 @@ export const DOCS_EMBEDDING_HELDOUT: readonly DocsHeldoutItem[] = [
     slug: "concepts",
     anchors: ["concepts#what-are-custom-columns"],
     alternatives: ["concepts#how-do-i-add-change-or-delete-a-custom-column"],
-    fact: "Fourteen field value types: text, rich text, number, currency, boolean, date, date and time, date range, date and time range, select, email, phone, URL and member; a dropdown is the select type.",
+    fact: "Seventeen field types: Text, Formatted text, Number, Money, Yes or no, Date, Date and time, Date range, Date and time range, Single choice, Multiple choice, Email, Web address, Member, Address, File and Channels; a dropdown is a Single choice field, and phone numbers go into Channels.",
   },
   {
     id: "de-de-06",

@@ -7,6 +7,7 @@ import { AGENT_REPLAY_COUNT, agentReplayWorstCaseMessageChars } from "./agent-re
 import { agentWikiSystemPrompt, type AgentSystemPromptParts } from "./agent-wiki-context";
 import { agentPageContextPrefix } from "./agent-page-context";
 import { agentContextProviderPrefix, type AgentContextAttachment } from "./agent-context";
+import type { AgentAttachmentPlan } from "./agent-attachments";
 
 export type AgentProviderContext = {
   system: string;
@@ -39,6 +40,7 @@ export function conservativeAgentInitialContextBytes(args: {
   systemPrompt: string | AgentSystemPromptParts;
   currentText: string;
   contexts?: readonly AgentContextAttachment[];
+  attachments?: AgentAttachmentPlan;
   pageRoute: string | null;
   toolDefinitions: AgentAiToolDefinition[];
   wikiCatalog?: string | null;
@@ -52,7 +54,17 @@ export function conservativeAgentInitialContextBytes(args: {
   const selectedContexts = agentContextProviderPrefix(args.contexts ?? []);
   const context = buildAgentProviderContext(
     args.systemPrompt,
-    [...priorMessages, { role: "user", text: `${pageContext}${selectedContexts}${args.currentText}` }],
+    [
+      ...priorMessages,
+      {
+        role: "user",
+        text: `${pageContext}${selectedContexts}${args.currentText}`,
+        ...(args.attachments?.attachedText ? { attachedText: args.attachments.attachedText } : {}),
+        ...(args.attachments?.nativeFiles.length
+          ? { files: args.attachments.nativeFiles.map((file) => ({ ...file, data: "#" })) }
+          : {}),
+      },
+    ],
     args.toolDefinitions,
     args.wikiCatalog,
   );

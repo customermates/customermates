@@ -455,6 +455,13 @@
       "stopFailed": "Mate could not be stopped. It is reconnecting so you can try again.",
       "turnFailed": "Mate ran into an error."
     },
+    "files": {
+      "attach": "Attach files",
+      "dropHint": "Drop files to attach them",
+      "failed": "{name}: {message}",
+      "limit": "You can attach up to {count, plural, one {# file} other {# files}} to one message.",
+      "reading": "Reading…"
+    },
     "greeting": {
       "headline": "Hey, I'm Mate",
       "subtitle": "Ask me anything about your workspace, or tell me what to do and I'll take care of it.",
@@ -1058,6 +1065,8 @@
       "title": "No {plural} yet"
     },
     "errors": {
+      "addressLookupRateLimited": "Too many address searches in a short time. Wait a few seconds and try again.",
+      "addressLookupUnavailable": "Address search is not available right now. Enter the address yourself or try again later.",
       "agentApprovalUnavailable": "This approval request is unavailable or has expired.",
       "agentConversationNotFound": "This conversation was not found or is no longer accessible.",
       "agentLimitReached": "Not enough AI credits remain to start another request.",
@@ -1109,7 +1118,6 @@
       "invalidFilterValue": "Invalid filter value. The value must match the field's type and operator (e.g. a number for gt/lt, an ISO date for date fields, or an id for in/notIn).",
       "invalidGroupingField": "This field cannot group the view. Multiple choice fields and fields without fixed values cannot group a list. Groupable fields: {validValues}.",
       "invalidJsonBody": "The request body is not valid JSON.",
-      "invalidPhone": "Enter a phone number in international format, for example +4930123456.",
       "invalidSortField": "Sort field not found or not accessible. Available fields: {validValues}.",
       "invalidUrl": "Enter a valid URL.",
       "legalNoticeNotDelivered": "The current legal update has not been delivered to this workspace yet.",
@@ -1136,11 +1144,22 @@
       "passwordMismatch": "Passwords must match.",
       "permissionDenied": "This action is not available with your current permissions.",
       "privacyAcknowledgementRequired": "Please confirm that you have read the Privacy Policy.",
+      "recordAddressCandidateInvalid": "This address suggestion is no longer valid. Look up the address again.",
+      "recordAddressCountryInvalid": "In {field}, {country} is not a country code.",
+      "recordAddressPostalCodeInvalid": "In {field}, {postalCode} is not a postal code of the chosen country. Postal codes there look like {example}.",
+      "recordAddressRegionInvalid": "In {field}, {region} is not a region of the chosen country.",
       "recordCalculationBudget": "This change requires a background recalculation.",
       "recordConfigurationInvalid": "Review the fields and relationships in this configuration.",
       "recordDateInvalid": "Enter a valid date.",
       "recordDateRangeInvalid": "Enter a valid range whose end is not before its start.",
       "recordDependencies": "Update the dependent fields, views, widgets, or bindings first.",
+      "recordFileContentInvalid": "Send the file content as base64.",
+      "recordFileLinkInvalid": "This file link is invalid or has expired. Open the file again to get a new link.",
+      "recordFileNameInvalid": "Enter a file name.",
+      "recordFileNotFound": "This file is unavailable.",
+      "recordFileTooLarge": "A file can be at most {limit}.",
+      "recordFileUnavailable": "A file in this value is unavailable or belongs to another record. Upload it again.",
+      "recordFileUploadIncomplete": "The upload did not contain exactly the announced {size} bytes. Upload the file again.",
       "recordIdempotencyConflict": "This request key was used for another change. Start a new request.",
       "recordIdUnavailable": "This record ID belongs to an earlier record. Import the record with a new ID.",
       "recordMarkedTextChanged": "Marked Formatted text can only be imported unchanged from the stored record; send new or changed Formatted text as a richText value with documentJson.",
@@ -1195,6 +1214,7 @@
       "serviceBusy": "The workspace is busy with another change, such as an import. Try again in a moment.",
       "socialActionRequiresSocialAccount": "This action requires a LinkedIn or Instagram connected account, but this account is {provider}.",
       "socialPostsRequireSocialAccount": "Social posts require a LinkedIn or Instagram connected account, but this account is {provider}.",
+      "storageQuotaExceeded": "Your workspace uses {used} of its {limit} file storage. Remove files or upgrade your plan to upload more.",
       "subjectRequired": "Add a subject.",
       "termsNotAgreed": "You must agree to the terms and conditions.",
       "threadNotFound": "Thread ID not found or not accessible.",
@@ -1542,6 +1562,7 @@
       "linkedin": "LinkedIn",
       "mail": "Email",
       "outlook": "Outlook",
+      "phone": "Phone",
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
@@ -2008,6 +2029,13 @@
       "update": "Update matching IDs"
     },
     "xlsxImport": {
+      "addressWarnings": {
+        "cityMismatch": "{field}: the city does not belong to the postal code ({expected}).",
+        "countryMissing": "{field}: without a country, the postal code and region could not be checked.",
+        "partMissing": "{field}: {part} is missing.",
+        "postalCodeRegionMismatch": "{field}: the postal code belongs to another region ({expected}).",
+        "regionUnknown": "{field}: the region is not one of the country's regions."
+      },
       "assignedTo": "Assigned to",
       "column": "Column {name}",
       "create": "New records",
@@ -2025,11 +2053,12 @@
         "ambiguousRecord": "Several records are named “{value}”.",
         "currencyMismatch": "“{value}” uses a different currency than this field.",
         "duplicateMatch": "Another row already updates the same record.",
+        "fileNotImportable": "Files can't be imported from a spreadsheet. Upload them on the record instead.",
         "invalidBoolean": "“{value}” is not yes or no.",
+        "invalidChannel": "“{value}” is not an email address, phone number or profile link.",
         "invalidDate": "“{value}” is not a date.",
         "invalidEmail": "“{value}” is not an email address.",
         "invalidNumber": "“{value}” is not a number.",
-        "invalidPhone": "“{value}” is not a phone number in international format.",
         "invalidRecordId": "“{value}” is not a record ID.",
         "invalidUrl": "“{value}” is not a web address starting with http:// or https://.",
         "invalidValue": "“{value}” is not a valid value.",
@@ -2039,6 +2068,7 @@
         "required": "{value} is required.",
         "restricted": "You cannot read every field of the matching record.",
         "tooManyValues": "A cell can hold at most 100 values.",
+        "unknownCountry": "“{value}” is not a country.",
         "unknownMember": "No member matches “{value}”.",
         "unknownOption": "“{value}” is not an option of this field.",
         "unknownRecord": "No linked record is named “{value}”."
@@ -2049,7 +2079,7 @@
       "matchHint": "Rows without a matching record are skipped. Empty cells keep the current value.",
       "moreFailures": "{count, plural, one {# more failed row is} other {# more failed rows are}} not shown.",
       "next": "Next",
-      "noMatchColumn": "Map the record ID or a text, email, phone, URL or number field to match existing records.",
+      "noMatchColumn": "Map the record ID or a text, email, URL or number field to match existing records.",
       "other": "More",
       "previewHint": "{count, plural, =0 {The first {rows} rows have no problems.} one {# of the first {rows} rows has a problem.} other {# of the first {rows} rows have problems.}} Rows with problems are not imported.",
       "problems": {
@@ -2076,7 +2106,8 @@
       },
       "stepsLabel": "Import steps",
       "update": "Existing records",
-      "updated": "{count, plural, one {# record updated} other {# records updated}}"
+      "updated": "{count, plural, one {# record updated} other {# records updated}}",
+      "warned": "{count, plural, one {# row imported with an address warning} other {# rows imported with address warnings}}"
     }
   },
   "DataView": {
@@ -2256,7 +2287,7 @@
       "addAsLabel": "Add as",
       "noResults": "No matches found.",
       "searching": "Searching…",
-      "searchPlaceholder": "Search or paste an email, phone or handle…",
+      "searchPlaceholder": "Search or paste an email, phone number or social account…",
       "sourceConversations": "From your conversations",
       "sourceLookup": "Found by lookup",
       "trigger": "Add channel"
@@ -2266,7 +2297,12 @@
     "compose": {
       "noAccount": "No usable {provider} account is connected. Connect one under Settings › Channels."
     },
-    "emptyHint": "No channels yet. Email addresses, WhatsApp phone numbers and social accounts that match messages to this record.",
+    "emptyHint": "No channels yet. Email addresses, phone numbers and social accounts that match messages to this record.",
+    "groups": {
+      "email": "Email",
+      "phone": "Phone",
+      "social": "Social"
+    },
     "tooltipOpenInbox": "Go to inbox",
     "tooltipStartNewThread": "New message",
     "tooltipUnlinkChannel": "Unlink channel",
@@ -2985,6 +3021,7 @@
         "creditAdjustmentCreate": "Credit correction recorded",
         "creditBalanceReset": "Credit balance reset",
         "enterpriseAllowanceUpdate": "Enterprise allowance updated",
+        "enterpriseFileStorageUpdate": "Enterprise file storage updated",
         "overviewRead": "Hosted-AI overview read",
         "subscriptionSnapshotCorrect": "Workspace subscription corrected",
         "subscriptionTermsUpdate": "Subscription terms updated",
@@ -3006,6 +3043,7 @@
     "confirm": {
       "allowance": "Set the Enterprise allowance for {name} to {value} credits per user? This applies to the whole workspace.",
       "changes": "Save these changes to {name}? They apply to the whole workspace.",
+      "fileStorage": "Set the Enterprise file storage for {name} to {value} GB per user? This applies to the whole workspace.",
       "plan": "Set the plan for {name} to {value}? This applies to the whole workspace.",
       "subscription": "Set the subscription status for {name} to {value}? This applies to the whole workspace and contacts no billing provider.",
       "tags": "Set the tags for {name} to {value}? This applies to the whole workspace.",
@@ -3136,6 +3174,11 @@
     },
     "emptyBody": "Adjust the search or filters to widen the list.",
     "emptyTitle": "No workspaces match these filters",
+    "fileStorage": {
+      "description": "The storage each active user adds to the workspace's shared file storage. Without a value, each user adds 50 GB.",
+      "label": "File storage per user (GB)",
+      "title": "Enterprise file storage"
+    },
     "modal": {
       "identity": "{domain} · {owner}",
       "subscription": "Subscription",
@@ -3219,6 +3262,65 @@
     "addPathStep": "Add a relationship step",
     "addProperty": "Add property",
     "addRelationship": "Add relationship",
+    "addressCheck": {
+      "action": "Check address",
+      "checking": "Checking address",
+      "keep": "Keep as entered",
+      "noMatch": "No matching address found.",
+      "suggestion": "Suggested address",
+      "use": "Use suggested address"
+    },
+    "addressDetails": "Address details",
+    "addressIssues": {
+      "cityMismatch": "This city does not belong to postal code {postalCode}.",
+      "countryMissing": "Choose a country to check the postal code and region.",
+      "countryUnknown": "Choose a country from the list.",
+      "partMissing": "{part} is missing. Addresses in {country} need it.",
+      "postalCodeInvalid": "This is not a postal code of {country}. Postal codes there look like {example}.",
+      "postalCodeRegionMismatch": "Postal code {postalCode} belongs to another region.",
+      "regionInvalid": "{region} is not a region code of {country}.",
+      "regionUnknown": "{region} is not one of the regions of {country}."
+    },
+    "addressLabels": {
+      "area": "Area",
+      "county": "County",
+      "department": "Department",
+      "district": "District",
+      "doSi": "Do or si",
+      "eircode": "Eircode",
+      "emirate": "Emirate",
+      "island": "Island",
+      "oblast": "Oblast",
+      "parish": "Parish",
+      "pin": "PIN code",
+      "postTown": "Post town",
+      "prefecture": "Prefecture",
+      "province": "Province",
+      "state": "State or territory",
+      "suburb": "Suburb",
+      "zip": "ZIP code"
+    },
+    "addressParts": {
+      "city": "City",
+      "country": "Country",
+      "line2": "Address line 2",
+      "postalCode": "Postal code",
+      "region": "State or region",
+      "street": "Street and number"
+    },
+    "addressPlaces": {
+      "attribution": "Postal codes: GeoNames (CC BY 4.0)",
+      "choose": "Cities with this postal code:",
+      "use": "Use {value}"
+    },
+    "addressSearch": {
+      "empty": "No matching address found.",
+      "hint": "Type at least {count} characters to search.",
+      "placeholder": "Street and number, postal code or city",
+      "trigger": "Search address"
+    },
+    "addressUnverified": "Unverified",
+    "addressVerified": "Verified address",
     "addValue": "Add {field}",
     "aggregation": "Aggregation",
     "assignedTo": "Assigned to",
@@ -3369,10 +3471,14 @@
       "oneToOne": "One to one"
     },
     "changeBlocked": "This change can't be applied yet",
-    "channelsHelp": "Email addresses, WhatsApp phone numbers and social accounts that match messages to this record. Phone numbers are only matched for WhatsApp chats. An identifier can link to several records.",
+    "channelsHelp": "Email addresses, phone numbers and social accounts that match messages to this record. A phone number also matches WhatsApp chats from the same number. An identifier can link to several records.",
     "chooseOption": "Choose one of the field's options.",
     "clickAction": "On click",
     "clickActions": {
+      "address": {
+        "copy": "Copy address",
+        "open": "Open in maps"
+      },
       "channels": {
         "copy": "Copy",
         "open": "Open email, call or profile"
@@ -3491,6 +3597,15 @@
     "fieldTabs": {
       "calculation": "Calculation"
     },
+    "fileAdd": "{mode, select, many {Add files} other {Add file}}",
+    "fileCancelUpload": "Cancel uploading {name}",
+    "fileDropHint": "{mode, select, many {or drop files here} other {or drop a file here}}",
+    "fileLimit": "This field holds up to {count, plural, one {# file} other {# files}}.",
+    "fileOpen": "Open {name} ({size})",
+    "fileRemove": "Remove {name}",
+    "fileUnavailable": "Unavailable file",
+    "fileUploadFailed": "The upload failed. Try again.",
+    "fileUploading": "Uploading… {progress, number, percent}",
     "general": "General",
     "graph": {
       "accountEdge": "Syncs conversations into {list}",
@@ -3796,9 +3911,13 @@
     "triggerField": "When this field changes",
     "triggerValue": "To this value",
     "typeHints": {
+      "address": "Postal addresses with country",
+      "channels": "Email addresses, phone numbers and social accounts",
+      "file": "Documents, images, contracts",
       "richText": "Notes, descriptions, summaries"
     },
     "types": {
+      "address": "Address",
       "boolean": "Yes or no",
       "channels": "Channels",
       "currency": "Money",
@@ -3807,10 +3926,10 @@
       "dateTime": "Date and time",
       "dateTimeRange": "Date and time range",
       "email": "Email",
+      "file": "File",
       "member": "Member",
       "multiSelect": "Multiple choice",
       "number": "Number",
-      "phone": "Phone",
       "richText": "Formatted text",
       "select": "Single choice",
       "text": "Text",
@@ -4188,6 +4307,7 @@
       "currentPeriodEndManage": "Set by the current billing cycle. Use {billing} to make subscription changes.",
       "currentPeriodEndReadOnly": "Set by the current billing cycle. Ask a workspace administrator to make changes.",
       "currentPeriodEndUnavailable": "Set by the current billing cycle. Contact support to make changes.",
+      "fileStorage": "All files in file fields count here, removed files for 30 more days. Each active user adds storage to the workspace; at the limit, new uploads are refused and nothing is deleted.",
       "planManage": "Synced from billing. Use {billing} to make changes.",
       "planPicker": "Choose a plan below to start or change the subscription.",
       "planReadOnly": "Synced from billing. Ask a workspace administrator to make changes.",
@@ -4196,6 +4316,8 @@
       "trialEndsPicker": "Set by the trial period. Choose a plan before this date to continue without interruption.",
       "trialEndsReadOnly": "Set by the trial period. Ask a workspace administrator to manage the subscription."
     },
+    "fileStorage": "File storage",
+    "fileStorageUsage": "{used} of {limit}",
     "managedExternallyNote": "This workspace is on an Enterprise plan billed by invoice. Contact your account manager to make changes.",
     "manageWithLemonSqueezy": "Manage with Lemon Squeezy",
     "picker": {

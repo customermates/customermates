@@ -35,7 +35,7 @@ These records and links work on every plan, self-hosted included. The conversati
 <ArticleSummary title="At a glance">
   <SummaryItem label="Every plan">Contacts and organizations, typed custom fields, filters, personal saved views, table or board, roles, Excel import and export, REST, webhooks and MCP.</SummaryItem>
   <SummaryItem label="Pro and higher">Email, LinkedIn, WhatsApp, Instagram and Telegram conversations on the contact. Cloud only.</SummaryItem>
-  <SummaryItem label="Not included">No address-book sync, no merge function, no tags, no file attachments on records, no reminders.</SummaryItem>
+  <SummaryItem label="Not included">No address-book sync, no merge function, no tags, no reminders.</SummaryItem>
 </ArticleSummary>
 
 ## What a contact and an organization hold
@@ -43,11 +43,11 @@ These records and links work on every plan, self-hosted included. The conversati
 | | Contact | Organization |
 |---|---|---|
 | Built-in fields | Name, notes | Name, notes |
-| Channels | Email addresses, WhatsApp number, LinkedIn, Instagram and Telegram handles | None at first; a Channels field can be added |
+| Channels | Email addresses, phone numbers, LinkedIn, Instagram and Telegram handles | None at first; a Channels field can be added |
 | Links | Organizations (several allowed), deals, tasks, assigned users | Contacts, deals, tasks, assigned users |
 | Your own fields | Custom fields of any type | Custom fields of any type |
 
-The field types are Text, Formatted text, Number, Money, Yes or no, Date, Date and time, Date range, Date and time range, Single choice, Multiple choice, Email, Phone, Web address and Member. A landline or a mobile number without WhatsApp goes into a Phone field. Notes are a Formatted text field and can hold tables and images.
+The field types are Text, Formatted text, Number, Money, Yes or no, Date, Date and time, Date range, Date and time range, Single choice, Multiple choice, Email, Web address, Member, Address, File and Channels. Phone numbers, landline or mobile, go into the Channels field; a number there can be called and also matches WhatsApp chats from the same number. An Address field holds one postal address: Customermates checks it against the address format of its country, suggests city and region for the postal code and opens the address in maps on click; a File field holds up to 20 files of up to 25 MB each. Notes are a Formatted text field and can hold tables and images.
 
 One email address or handle can belong to several records, for example a contact and an organization. Global search (Cmd/Ctrl+K) finds contacts by name, channel value or linked organization; custom fields are reached through filters.
 
@@ -55,7 +55,7 @@ One email address or handle can belong to several records, for example a contact
 
 If you manage accounts rather than single people, the organization is the account. In **Configure** you can rename any list for the whole workspace: open it, change **Name** and **Plural name** under **General** and save, for example Organizations to Accounts and Contacts to Clients.
 
-An account setup needs three pieces. A Single choice field **Role** on contacts says who decides, who handles the day-to-day work and who sits in accounting. A Date field **Contract end** on organizations holds the renewal date. And the deals board, grouped by organization, shows each account's number of deals and their total value. Customermates calculates no account health, churn risk or score; if your team rates accounts, keep the rating in a Single Select field.
+An account setup needs three pieces. A Single choice field **Role** on contacts says who decides, who handles the day-to-day work and who sits in accounting. A Date field **Contract end** on organizations holds the renewal date. And the deals board, grouped by organization, shows each account's number of deals and their total value. Customermates calculates no account health, churn risk or score; if your team rates accounts, keep the rating in a Single choice field.
 
 ## A worked setup for a five-person consultancy
 
@@ -75,7 +75,7 @@ An account setup needs three pieces. A Single choice field **Role** on contacts 
   <Step title="Export and convert">Outlook and Google Contacts deliver their download as a comma-separated text file (Google also as vCard). Open it in Excel and save it as an .xlsx workbook, because Customermates does not import CSV files.</Step>
   <Step title="Clean up first">Remove duplicate rows and split the list into one workbook for organizations and one for contacts. An import cannot be undone.</Step>
   <Step title="Import organizations">On **Organizations**, open **More actions › Add from file**, choose the workbook, map the columns and import.</Step>
-  <Step title="Import contacts">Map the name, the email column to the **Channels** field, the company column to **Organizations** and the rest to your fields. Failed rows are listed with their reason.</Step>
+  <Step title="Import contacts">Map the name, the email and phone columns to the **Channels** field, the company column to **Organizations** and the rest to your fields. Failed rows are listed with their reason.</Step>
   <Step title="Correct in bulk">Export the list, edit it in Excel and import it again as **Existing records**, so it updates them instead of adding new ones.</Step>
 </Steps>
 
@@ -110,7 +110,7 @@ In Customermates Cloud, the production database is configured in the AWS Frankfu
 - No sync with Outlook, Google or phone address books in either direction.
 - No merge function. Clean duplicates before importing.
 - No tags. For several values per record, use a Multiple choice field.
-- No file attachments on records. Message attachments stay in their inbox thread, not on the contact.
+- Message attachments stay in their inbox thread, not on the contact. Files you want on the record go into a File field.
 - No reminders, due dates or birthday alerts. Store dates in custom fields and let a Cloud routine list the ones that have passed.
 - No newsletters, mass email, sequences or data enrichment.
 - No mobile app. Customermates runs in the browser.

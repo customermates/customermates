@@ -23,6 +23,23 @@ export const UpdateHostedAiEnterpriseAllowanceSchema = z
   })
   .strict();
 
+export const MAX_ENTERPRISE_FILE_STORAGE_GB_PER_USER = 1024;
+
+export const UpdateEnterpriseFileStorageSchema = z
+  .object({
+    companyId: z.uuid(),
+    gigabytesPerUser: z.number().int().min(1).max(MAX_ENTERPRISE_FILE_STORAGE_GB_PER_USER),
+    reason: OptionalReasonSchema,
+  })
+  .strict();
+
+export const EnterpriseFileStorageDtoSchema = z.object({
+  companyId: z.uuid(),
+  enterpriseFileStorageBytesPerUser: z.number().int().positive(),
+});
+
+export type EnterpriseFileStorageDto = z.infer<typeof EnterpriseFileStorageDtoSchema>;
+
 export const CreateAgentCreditAdjustmentSchema = z
   .object({
     companyId: z.uuid(),
@@ -118,6 +135,7 @@ export const DeleteOperatorWorkspaceSchema = z
   .strict();
 
 export type UpdateHostedAiEnterpriseAllowanceData = z.infer<typeof UpdateHostedAiEnterpriseAllowanceSchema>;
+export type UpdateEnterpriseFileStorageData = z.infer<typeof UpdateEnterpriseFileStorageSchema>;
 export type CreateAgentCreditAdjustmentData = z.infer<typeof CreateAgentCreditAdjustmentSchema>;
 export type GetOperatorUserDetailData = z.infer<typeof GetOperatorUserDetailSchema>;
 export type UpdateOperatorUserStatusData = z.infer<typeof UpdateOperatorUserStatusSchema>;
@@ -325,6 +343,7 @@ export const OPERATOR_AUDIT_ACTION = {
   companyRead: "hosted_ai.company.read",
   auditRead: "hosted_ai.audit.read",
   enterpriseAllowanceUpdate: "hosted_ai.enterprise_allowance.update",
+  enterpriseFileStorageUpdate: "operator.enterprise_file_storage.update",
   creditAdjustmentCreate: "hosted_ai.credit_adjustment.create",
   userListRead: "operator.users.list",
   userSummaryRead: "operator.users.summary",

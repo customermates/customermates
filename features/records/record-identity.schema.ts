@@ -2,7 +2,11 @@ import { z } from "zod";
 
 export const RecordIdentityInputSchema = z
   .object({
-    provider: z.enum(["google", "outlook", "mail", "linkedin", "whatsapp", "instagram", "telegram"]),
+    provider: z
+      .enum(["google", "outlook", "mail", "linkedin", "whatsapp", "instagram", "telegram", "phone"])
+      .describe(
+        "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send.",
+      ),
     value: z.string().trim().min(1).max(2000),
     messagingId: z.string().trim().min(1).max(2000).nullable().optional(),
     displayName: z.string().max(500).nullable().optional(),

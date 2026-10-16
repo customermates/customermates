@@ -132,6 +132,25 @@ describe("StartChatInteractor inbox routing", () => {
     expect(service.startChat).toHaveBeenCalledWith(expect.objectContaining({ usersIds: [NORMALIZED_NUMBER] }));
     expect(service.startChat.mock.calls[0][0].inboxId).toBeUndefined();
   });
+
+  it.each(["0049 176 56945421", "+49 (0) 176 56945421", NORMALIZED_NUMBER])(
+    "starts a whatsapp chat with the number of a phone channel written as %s",
+    async (number) => {
+      const service = {
+        listInboxes: vi.fn(),
+        startChat: vi.fn().mockResolvedValue({ ok: true, data: { chatId: null, messageId: null } }),
+      };
+
+      const result: any = await makeInteractor(whatsappAccount, service).invoke({
+        connectedAccountId: ACCOUNT_ID,
+        attendeeIdentifiers: [number],
+        text: "hello there",
+      });
+
+      expect(result.ok).toBe(true);
+      expect(service.startChat).toHaveBeenCalledWith(expect.objectContaining({ usersIds: [NORMALIZED_NUMBER] }));
+    },
+  );
 });
 
 describe("StartChatInteractor linkedin products", () => {

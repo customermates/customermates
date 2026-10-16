@@ -42,7 +42,7 @@ import { useDataViewItemLayout } from "@/components/data-view/data-view-item-lay
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { cn } from "@/core/utils/cn";
 import { ITEM_REVEAL_CLASS } from "@/components/ui/item-actions";
-import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
+import { CLICK_ACTION_VALUE_TYPES, CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
@@ -73,7 +73,8 @@ export function focusFirstControl(event: Event) {
 
 export function canEditInline(store: RecordsStore, record: RecordRow, field: RecordFieldView) {
   if (!store.canUpdateRecord(record) || !isRecordFieldWritable(field)) return false;
-  if (field.id === store.type?.primaryFieldId || field.valueType === "richText") return false;
+  if (field.id === store.type?.primaryFieldId || field.valueType === "richText" || field.valueType === "file")
+    return false;
   const result = record.fields.find((value) => value.fieldId === field.id)?.result;
   return result?.state !== "restricted" && result?.state !== "error";
 }
@@ -190,7 +191,7 @@ function useFieldValueStore(records: RecordsStore, record: RecordRow, field: Rec
     return new RecordFieldValueStore(
       records.rootStore,
       field,
-      recordDraftValue(result?.state === "value" ? result.value : null),
+      recordDraftValue(result?.state === "value" ? result.value : null, field),
       (value) => records.updateRecordField(latestRow(records, record), field.id, value),
       onDone,
     );
@@ -466,7 +467,7 @@ const PopoverField = observer(function PopoverField({
   const layout = useDataViewItemLayout();
   const [open, setOpen] = useState(false);
   const empty = isEmptyResult(fieldResult(record, field));
-  const contact = CONTACT_VALUE_TYPES.includes(field.valueType) && !empty;
+  const contact = CLICK_ACTION_VALUE_TYPES.includes(field.valueType) && !empty;
   const label = t("RecordModel.editValue", { field: field.label });
   const trigger = (
     <button

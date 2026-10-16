@@ -4,47 +4,15 @@ import type { TcpSocketConnectOpts } from "node:net";
 import { lookup as lookupAddress } from "node:dns";
 import { lookup } from "node:dns/promises";
 import { request as httpsRequest } from "node:https";
-import { BlockList, isIP } from "node:net";
+import { isIP } from "node:net";
 
 import { parsePublicPageUrl } from "@/features/wiki/wiki-homepage";
+import { isPublicIpAddress } from "@/core/network/public-ip-address";
 
 const MAX_BODY_BYTES = 512_000;
 const MAX_REDIRECTS = 3;
 const MAX_READ_MS = 15_000;
 const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
-const IPV4_RESERVED = new BlockList();
-const IPV6_GLOBAL = new BlockList();
-const IPV6_RESERVED = new BlockList();
-
-for (const [address, prefix] of [
-  ["0.0.0.0", 8],
-  ["10.0.0.0", 8],
-  ["100.64.0.0", 10],
-  ["127.0.0.0", 8],
-  ["169.254.0.0", 16],
-  ["172.16.0.0", 12],
-  ["192.0.0.0", 24],
-  ["192.0.2.0", 24],
-  ["192.88.99.0", 24],
-  ["192.168.0.0", 16],
-  ["198.18.0.0", 15],
-  ["198.51.100.0", 24],
-  ["203.0.113.0", 24],
-  ["224.0.0.0", 4],
-  ["240.0.0.0", 4],
-] as const)
-  IPV4_RESERVED.addSubnet(address, prefix, "ipv4");
-
-IPV4_RESERVED.addAddress("168.63.129.16", "ipv4");
-IPV6_GLOBAL.addSubnet("2000::", 3, "ipv6");
-for (const [address, prefix] of [
-  ["2001::", 23],
-  ["2001:db8::", 32],
-  ["2002::", 16],
-  ["3ffe::", 16],
-  ["3fff::", 20],
-] as const)
-  IPV6_RESERVED.addSubnet(address, prefix, "ipv6");
 
 type WebsiteFetchFailure =
   | "invalid_url"
@@ -85,12 +53,6 @@ function websiteFetchFailureReason(error: unknown): WebsiteFetchFailure | null {
   }
 }
 
-export function isPublicWebsiteAddress(address: string): boolean {
-  const family = isIP(address);
-  if (family === 4) return !IPV4_RESERVED.check(address, "ipv4");
-  return family === 6 && IPV6_GLOBAL.check(address, "ipv6") && !IPV6_RESERVED.check(address, "ipv6");
-}
-
 function abortable<T>(operation: Promise<T>, signal: AbortSignal): Promise<T> {
   return new Promise((resolve, reject) => {
     const onAbort = () => reject(websiteFetchError("timeout"));
@@ -110,7 +72,7 @@ async function requestPage(
   const addresses = await abortable(lookup(url.hostname, { all: true, verbatim: true }), signal);
   if (
     !addresses.length ||
-    addresses.some(({ address, family }) => isIP(address) !== family || !isPublicWebsiteAddress(address))
+    addresses.some(({ address, family }) => isIP(address) !== family || !isPublicIpAddress(address))
   )
     throw websiteFetchError("blocked_address");
   if (signal.aborted) throw websiteFetchError("timeout");
