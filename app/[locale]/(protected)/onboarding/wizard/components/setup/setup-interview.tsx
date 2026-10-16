@@ -2,15 +2,15 @@
 
 import type { SetupQuestion } from "@/features/workspace-setup/setup-interview";
 
-import { Loader2 } from "lucide-react";
+import { Globe, Loader2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { Fragment, useEffect, useRef } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { Alert } from "@/components/shared/alert";
 import { WizardProgress } from "@/components/shared/wizard-progress";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { SETUP_SCREEN_DEFINITIONS, SETUP_SCREENS } from "@/features/workspace-setup/setup-interview";
@@ -67,15 +67,84 @@ const SetupQuestionBlock = observer(function SetupQuestionBlock({ question }: { 
     );
   });
 
-  if (question.confirmationCard) {
+  return <div className="flex flex-col gap-6">{fields}</div>;
+});
+
+const SetupWebsiteContext = observer(function SetupWebsiteContext() {
+  const t = useTranslations();
+  const { workspaceSetupStore: store } = useRootStore();
+  const website = store.setup?.websiteUrl ?? null;
+  const editable = store.setup?.status === "interview" && !store.adjusting;
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState("");
+  const reading = store.pending === "website";
+
+  if (website && !editing) {
     return (
-      <Card>
-        <CardContent className="grid gap-5 sm:grid-cols-2">{fields}</CardContent>
-      </Card>
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border px-3 py-2">
+        <span className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
+          <Globe aria-hidden className="size-4 shrink-0" />
+
+          <span className="truncate">{t("WorkspaceSetup.website.from", { website: new URL(website).host })}</span>
+        </span>
+
+        {editable ? (
+          <Button
+            disabled={store.isBusy}
+            size="sm"
+            type="button"
+            variant="ghost"
+            onClick={() => {
+              setDraft(new URL(website).host);
+              setEditing(true);
+            }}
+          >
+            {t("WorkspaceSetup.website.change")}
+          </Button>
+        ) : null}
+      </div>
     );
   }
+  if (!editable) return null;
 
-  return <div className="flex flex-col gap-6">{fields}</div>;
+  const submit = () => {
+    const value = draft.trim();
+    if (!value) return;
+    runUserAction(async () => {
+      if (await store.setWebsite(value)) setEditing(false);
+    });
+  };
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <Input
+          aria-label={t("Common.inputs.websiteUrl")}
+          autoComplete="url"
+          className="sm:flex-1"
+          disabled={store.isBusy}
+          inputMode="url"
+          placeholder={t("OnboardingWizard.profile.websitePlaceholder")}
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              submit();
+            }
+          }}
+        />
+
+        <Button disabled={store.isBusy || !draft.trim()} type="button" variant="secondary" onClick={submit}>
+          {reading ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : <Globe aria-hidden />}
+
+          {t("WorkspaceSetup.website.read")}
+        </Button>
+      </div>
+
+      <p className="text-xs text-muted-foreground">{t("OnboardingWizard.profile.websiteDescription")}</p>
+    </div>
+  );
 });
 
 export const SetupInterview = observer(function SetupInterview() {
@@ -96,6 +165,8 @@ export const SetupInterview = observer(function SetupInterview() {
   return (
     <section aria-busy={store.isBusy} className="flex flex-col gap-6">
       <SetupScreenSteps current={store.screenIndex} titles={titles} />
+
+      <SetupWebsiteContext />
 
       {store.adjusting ? <Alert color="primary" description={t("WorkspaceSetup.interview.adjusting")} /> : null}
 
@@ -121,7 +192,7 @@ export const SetupInterview = observer(function SetupInterview() {
         ))}
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         {store.screenIndex > 0 || store.adjusting ? (
           <Button disabled={store.isBusy} type="button" variant="secondary" onClick={store.previousScreen}>
             {t("Common.actions.back")}

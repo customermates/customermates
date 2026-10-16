@@ -474,11 +474,11 @@ export function SetupQuestionField({ descriptor, fromWebsite = false, ...props }
   return (
     <div aria-labelledby={labelId} className="flex flex-col gap-1.5" role="group">
       <div className="flex flex-wrap items-center gap-1.5">
-        <FormLabel id={labelId}>{descriptor.label}</FormLabel>
+        <FormLabel id={labelId}>
+          {descriptor.label}
 
-        {descriptor.optional ? (
-          <span className="text-xs text-muted-foreground">{t("WorkspaceSetup.interview.optional")}</span>
-        ) : null}
+          {descriptor.optional ? null : <span className="text-destructive"> *</span>}
+        </FormLabel>
 
         {fromWebsite ? (
           <AppChip

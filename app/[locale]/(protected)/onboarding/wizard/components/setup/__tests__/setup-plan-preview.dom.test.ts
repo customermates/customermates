@@ -35,7 +35,7 @@ import { WorkspaceSetupStore } from "../workspace-setup.store";
 import { SetupPlanFailed, SetupPlanPreview } from "../setup-plan-preview";
 import { setupPlan, setupView } from "./setup-view-fixture";
 
-const FOOTER_CLASSES = ["flex-col-reverse", "border-t", "pt-4", "sm:flex-row", "sm:justify-end"];
+const FOOTER_CLASSES = ["flex-col-reverse", "sm:flex-row", "sm:justify-end"];
 
 let container: HTMLDivElement;
 let root: Root;

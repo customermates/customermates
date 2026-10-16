@@ -163,6 +163,7 @@ export const StoredSetupInterviewSchema = z
     plan: GenerationStateSchema.default("idle"),
     planError: z.enum(WORKSPACE_SETUP_FAILURES).nullable().default(null),
     planClaimedAt: IsoDateSchema.nullable().default(null),
+    confirmedScreens: z.number().int().min(0).default(0),
   })
   .strict();
 export type StoredSetupInterview = z.infer<typeof StoredSetupInterviewSchema>;

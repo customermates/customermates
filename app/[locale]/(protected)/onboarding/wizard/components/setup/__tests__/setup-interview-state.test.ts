@@ -94,8 +94,14 @@ describe("resumeScreenIndex", () => {
     expect(resumeScreenIndex({ companyName: website({ format: "shortText", value: "Acme" }) })).toBe(0);
   });
 
-  it("lands on the first screen the owner has not confirmed yet", () => {
-    expect(resumeScreenIndex(COMPANY_SCREEN)).toBe(1);
+  it("lands on the screen after the last one the owner confirmed", () => {
+    expect(resumeScreenIndex(COMPANY_SCREEN, 1)).toBe(1);
+    expect(resumeScreenIndex(COMPANY_SCREEN, 4)).toBe(4);
+    expect(resumeScreenIndex(COMPANY_SCREEN, 9)).toBe(5);
+  });
+
+  it("goes back to a confirmed screen whose required answer is only a website suggestion", () => {
+    expect(resumeScreenIndex({ companyName: website({ format: "shortText", value: "Acme" }) }, 4)).toBe(0);
   });
 });
 

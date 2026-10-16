@@ -1982,6 +1982,7 @@ import { WorkspaceSetupBuildService } from "@/ee/workspace-setup/workspace-setup
 import { WorkspaceSetupCrawlStarter } from "@/ee/workspace-setup/workspace-setup-crawl-starter";
 import { WorkspaceSetupKnowledgeBrief } from "@/ee/workspace-setup/workspace-setup-knowledge-brief";
 import { websiteBrandFetch } from "@/ee/workspace-setup/workspace-setup-brand";
+import { SetWorkspaceSetupWebsiteInteractor } from "@/ee/workspace-setup/set-workspace-setup-website.interactor";
 import { StartWorkspaceSetupInteractor } from "@/ee/workspace-setup/start-workspace-setup.interactor";
 import { GetWorkspaceSetupStatusInteractor } from "@/ee/workspace-setup/get-workspace-setup-status.interactor";
 import { SaveWorkspaceSetupAnswersInteractor } from "@/ee/workspace-setup/save-workspace-setup-answers.interactor";
@@ -2027,6 +2028,12 @@ export const getWorkspaceSetupBuildService = () =>
   );
 export const getStartWorkspaceSetupInteractor = () =>
   new StartWorkspaceSetupInteractor(
+    getWorkspaceSetupRepo(),
+    getWorkspaceSetupCrawlStarter(),
+    getBackgroundTaskService(),
+  );
+export const getSetWorkspaceSetupWebsiteInteractor = () =>
+  new SetWorkspaceSetupWebsiteInteractor(
     getWorkspaceSetupRepo(),
     getWorkspaceSetupCrawlStarter(),
     getBackgroundTaskService(),

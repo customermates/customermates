@@ -322,6 +322,7 @@ describe("WorkspaceSetupStore", () => {
             teamSize: { ...confirmed, value: { format: "singleChoice", value: "solo" } },
             teamRoles: { ...confirmed, value: { format: "multipleChoice", values: [], custom: [] } },
           },
+          confirmedScreens: 1,
         },
       }),
     );

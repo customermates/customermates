@@ -54,7 +54,15 @@ export class SaveWorkspaceSetupAnswersInteractor extends AuthenticatedInteractor
         ),
         ...data.followUpAnswers,
       ];
-      return { status: "interview", answers: parsed.data, interview: { ...current.interview, followUpAnswers } };
+      const confirmedScreens =
+        data.confirmedScreen === undefined
+          ? current.interview.confirmedScreens
+          : Math.max(current.interview.confirmedScreens, data.confirmedScreen + 1);
+      return {
+        status: "interview",
+        answers: parsed.data,
+        interview: { ...current.interview, followUpAnswers, confirmedScreens },
+      };
     });
     if (!saved?.changed) return failConflict(CustomErrorCode.workspaceSetupConflict);
     return { ok: true, data: { answers: saved.setup.answers } };

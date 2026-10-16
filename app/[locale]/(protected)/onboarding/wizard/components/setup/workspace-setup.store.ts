@@ -22,6 +22,7 @@ import {
   planWorkspaceSetupAction,
   retryWorkspaceSetupPhaseAction,
   saveWorkspaceSetupAnswersAction,
+  setWorkspaceSetupWebsiteAction,
   startWorkspaceSetupAction,
   uploadWorkspaceSetupSpreadsheetAction,
 } from "../../workspace-setup-actions";
@@ -39,7 +40,16 @@ import {
   unansweredFollowUps,
 } from "./setup-interview-state";
 
-export type SetupCommand = "start" | "save" | "plan" | "followUps" | "build" | "retry" | "upload" | "refresh";
+export type SetupCommand =
+  | "start"
+  | "website"
+  | "save"
+  | "plan"
+  | "followUps"
+  | "build"
+  | "retry"
+  | "upload"
+  | "refresh";
 
 export type SpreadsheetRejection = { fileName: string; failure: SpreadsheetReadFailureCode };
 
@@ -138,7 +148,7 @@ export class WorkspaceSetupStore {
       this.followUpDrafts = {};
       this.adjusting = false;
       this.spreadsheetRejection = null;
-      this.screenIndex = resumeScreenIndex(this.answers);
+      this.screenIndex = resumeScreenIndex(this.answers, setup?.interview.confirmedScreens ?? 0);
       return;
     }
     if (setup) this.answers = mergeServerAnswers(this.answers, this.touched, setup.interview.answers);
@@ -174,6 +184,15 @@ export class WorkspaceSetupStore {
     return result.ok;
   };
 
+  setWebsite = (websiteUrl: string) =>
+    this.run("website", async () => {
+      const setup = this.setup;
+      if (!setup) return null;
+      const result = await setWorkspaceSetupWebsiteAction({ setupId: setup.id, websiteUrl, locale: this.appLocale });
+      if (result.ok) await this.refresh();
+      return result;
+    });
+
   start = (websiteUrl: string | null) =>
     this.run("start", async () => {
       const result = await startWorkspaceSetupAction({ websiteUrl, locale: this.appLocale });
@@ -188,7 +207,12 @@ export class WorkspaceSetupStore {
       if (!setup || !this.canConfirmScreen) return null;
       if (this.adjusting) return this.submitAdjustment(setup);
       const answers = toJS(screenAnswersPayload(this.screen, toJS(this.answers), this.locale));
-      const saved = await saveWorkspaceSetupAnswersAction({ setupId: setup.id, answers, followUpAnswers: [] });
+      const saved = await saveWorkspaceSetupAnswersAction({
+        setupId: setup.id,
+        answers,
+        followUpAnswers: [],
+        confirmedScreen: this.screenIndex,
+      });
       if (!saved.ok) return saved;
       if (!this.isLastScreen) {
         runInAction(() => {

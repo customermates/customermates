@@ -219,7 +219,12 @@ describe("SetupQuestionField", () => {
   it("renders a long short-text answer as a text area", () => {
     render(descriptorOf("anythingMissed"), null);
     expect(container.querySelector("textarea")).not.toBeNull();
-    expect(container.textContent).toContain("WorkspaceSetup.interview.optional");
+    expect(container.querySelector(".text-destructive")).toBeNull();
+  });
+
+  it("marks a required question with the form asterisk", () => {
+    render(descriptorOf("companyName"), null);
+    expect(container.querySelector("label .text-destructive")?.textContent).toBe(" *");
   });
 
   it("marks confident website answers", () => {

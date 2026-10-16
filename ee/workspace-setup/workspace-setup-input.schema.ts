@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { SPREADSHEET_MAX_FILE_BYTES } from "@/features/data-transfer/spreadsheet/spreadsheet.schema";
 import { SetupAnswerValueSchema } from "@/features/workspace-setup/setup-answers.schema";
-import { SETUP_PART_IDS } from "@/features/workspace-setup/setup-interview";
+import { SETUP_PART_IDS, SETUP_SCREENS } from "@/features/workspace-setup/setup-interview";
 import { APP_LOCALES } from "@/i18n/locale-registry";
 
 import { SETUP_FOLLOW_UP_IDS, WORKSPACE_SETUP_PHASES } from "./workspace-setup.schema";
@@ -19,6 +19,15 @@ export const StartWorkspaceSetupSchema = z
   .strict();
 export type StartWorkspaceSetupData = Data<typeof StartWorkspaceSetupSchema>;
 
+export const SetWorkspaceSetupWebsiteSchema = z
+  .object({
+    setupId: z.uuid(),
+    websiteUrl: z.string().trim().min(1).max(2_000),
+    locale: z.enum([firstLocale, ...otherLocales]).optional(),
+  })
+  .strict();
+export type SetWorkspaceSetupWebsiteData = Data<typeof SetWorkspaceSetupWebsiteSchema>;
+
 export const SaveWorkspaceSetupAnswersSchema = z
   .object({
     setupId: z.uuid(),
@@ -27,6 +36,12 @@ export const SaveWorkspaceSetupAnswersSchema = z
       .array(z.object({ id: z.enum(SETUP_FOLLOW_UP_IDS), value: SetupAnswerValueSchema }).strict())
       .max(SETUP_FOLLOW_UP_IDS.length)
       .default([]),
+    confirmedScreen: z
+      .number()
+      .int()
+      .min(0)
+      .max(SETUP_SCREENS.length - 1)
+      .optional(),
   })
   .strict();
 export type SaveWorkspaceSetupAnswersData = Data<typeof SaveWorkspaceSetupAnswersSchema>;

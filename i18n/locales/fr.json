@@ -4692,7 +4692,6 @@
       "followUpsTitle": "Quelques précisions",
       "moveDown": "Descendre",
       "moveUp": "Monter",
-      "optional": "Facultatif",
       "optionalPlaceholder": "Laissez vide si rien ne vous vient à l’esprit",
       "prefillFailed": "Nous n’avons pas pu lire votre site, rien n’est donc prérempli. Les questions ne prennent que quelques minutes.",
       "prefillRunning": "Lecture de {website} pour suggérer des réponses…",
@@ -4957,6 +4956,11 @@
     "start": {
       "start": "Lancer la configuration",
       "withoutWebsite": "Continuer sans site web"
+    },
+    "website": {
+      "change": "Modifier",
+      "from": "Réponses suggérées à partir de {website}",
+      "read": "Lire le site web"
     }
   }
 }

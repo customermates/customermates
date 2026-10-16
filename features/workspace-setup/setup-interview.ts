@@ -46,7 +46,6 @@ export type SetupQuestion = {
   id: string;
   number: number;
   screen: SetupScreen;
-  confirmationCard?: boolean;
   parts: SetupQuestionPart[];
 };
 
@@ -74,7 +73,6 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
     id: "company",
     number: 1,
     screen: "company",
-    confirmationCard: true,
     parts: [
       {
         id: "companyName",
@@ -85,6 +83,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
       },
       {
         id: "country",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.country.label",
         format: "singleChoice",
         options: [],
@@ -116,6 +115,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
     parts: [
       {
         id: "offeringKinds",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.offeringKinds.label",
         format: "multipleChoice",
         allowCustom: true,
@@ -129,6 +129,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
       },
       {
         id: "offerings",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.offerings.label",
         format: "orderedList",
         winChance: false,
@@ -155,6 +156,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
       },
       {
         id: "industries",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.industries.label",
         format: "multipleChoice",
         allowCustom: true,
@@ -163,6 +165,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
       },
       {
         id: "customerSize",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.customerSize.label",
         format: "singleChoice",
         prefill: "partly",
@@ -183,6 +186,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
     parts: [
       {
         id: "teamSize",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.teamSize.label",
         format: "singleChoice",
         prefill: "partly",
@@ -195,6 +199,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
       },
       {
         id: "teamRoles",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.teamRoles.label",
         format: "multipleChoice",
         allowCustom: false,
@@ -216,6 +221,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
     parts: [
       {
         id: "leadSources",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.leadSources.label",
         format: "multipleChoice",
         allowCustom: true,
@@ -239,6 +245,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
     parts: [
       {
         id: "salesSteps",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.salesSteps.label",
         format: "orderedList",
         winChance: true,
@@ -254,6 +261,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
     parts: [
       {
         id: "dealSize",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.dealSize.label",
         format: "range",
         unit: "currency",
@@ -264,6 +272,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
       },
       {
         id: "salesCycle",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.salesCycle.label",
         format: "range",
         unit: "days",
@@ -274,6 +283,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
       },
       {
         id: "revenueModel",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.revenueModel.label",
         format: "singleChoice",
         prefill: "partly",
@@ -292,6 +302,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
     parts: [
       {
         id: "dealDetails",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.dealDetails.label",
         format: "multipleChoice",
         allowCustom: true,
@@ -315,6 +326,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
     parts: [
       {
         id: "afterSale",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.afterSale.label",
         format: "multipleChoice",
         allowCustom: false,
@@ -337,6 +349,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
     parts: [
       {
         id: "projectPhases",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.projectPhases.label",
         format: "orderedList",
         winChance: false,
@@ -346,6 +359,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
       },
       {
         id: "orderStatuses",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.orderStatuses.label",
         format: "orderedList",
         winChance: false,
@@ -355,6 +369,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
       },
       {
         id: "renewalPeriod",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.renewalPeriod.label",
         format: "singleChoice",
         prefill: "suggested",
@@ -368,6 +383,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
       },
       {
         id: "ticketPriorities",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.ticketPriorities.label",
         format: "orderedList",
         winChance: false,
@@ -377,6 +393,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
       },
       {
         id: "appointmentTypes",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.appointmentTypes.label",
         format: "orderedList",
         winChance: false,
@@ -393,6 +410,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
     parts: [
       {
         id: "taskOrganisation",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.taskOrganisation.label",
         format: "multipleChoice",
         allowCustom: false,
@@ -413,6 +431,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
     parts: [
       {
         id: "weeklyNumbers",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.weeklyNumbers.label",
         format: "rankedPick",
         maxPicks: SETUP_MAX_RANKED_PICKS,
@@ -438,6 +457,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
     parts: [
       {
         id: "dashboardAudience",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.dashboardAudience.label",
         format: "singleChoice",
         prefill: "no",
@@ -456,6 +476,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
     parts: [
       {
         id: "knowledgePages",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.knowledgePages.label",
         format: "multipleChoice",
         allowCustom: false,
@@ -482,6 +503,7 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
     parts: [
       {
         id: "addressForm",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.addressForm.label",
         format: "singleChoice",
         prefill: "yes",
@@ -499,11 +521,11 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
     parts: [
       {
         id: "competitors",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.competitors.label",
         format: "orderedList",
         winChance: false,
         maxItems: 10,
-        optional: true,
         prefill: "suggested",
       },
     ],
@@ -527,10 +549,10 @@ export const SETUP_QUESTIONS: SetupQuestion[] = [
       },
       {
         id: "anythingMissed",
+        optional: true,
         labelKey: "WorkspaceSetup.questions.anythingMissed.label",
         format: "shortText",
         maxLength: 1_000,
-        optional: true,
         prefill: "no",
       },
     ],

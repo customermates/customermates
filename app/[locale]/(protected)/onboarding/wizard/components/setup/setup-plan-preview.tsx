@@ -97,7 +97,7 @@ export const SetupPlanFailed = observer(function SetupPlanFailed() {
     <section className="flex flex-col gap-5">
       <Alert color="danger" description={failureMessage(error)} title={t("WorkspaceSetup.plan.failedTitle")} />
 
-      <div className="flex flex-col-reverse gap-2 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-end">
+      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end">
         {error === "spendCap" ? (
           <SetupSupportButton />
         ) : (
@@ -213,7 +213,7 @@ export const SetupPlanPreview = observer(function SetupPlanPreview() {
         </p>
       ) : null}
 
-      <div className="flex flex-col-reverse gap-2 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-end">
+      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end">
         <Button disabled={store.isBusy} type="button" variant="secondary" onClick={store.adjust}>
           {t("WorkspaceSetup.plan.adjust")}
         </Button>

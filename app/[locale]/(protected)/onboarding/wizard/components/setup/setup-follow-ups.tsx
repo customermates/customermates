@@ -38,7 +38,7 @@ export const SetupFollowUps = observer(function SetupFollowUps() {
         />
       ))}
 
-      <div className="flex justify-end border-t border-border pt-4">
+      <div className="flex justify-end">
         <Button
           disabled={!store.canConfirmFollowUps || store.isBusy}
           type="button"

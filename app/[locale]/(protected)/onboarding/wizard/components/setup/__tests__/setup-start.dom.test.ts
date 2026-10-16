@@ -28,7 +28,7 @@ vi.mock("../../../workspace-setup-actions", () => ({
 import { WorkspaceSetupStore } from "../workspace-setup.store";
 import { SetupStart } from "../setup-start";
 
-const FOOTER_CLASSES = ["flex-col-reverse", "border-t", "pt-4", "sm:flex-row", "sm:justify-end"];
+const FOOTER_CLASSES = ["flex-col-reverse", "sm:flex-row", "sm:justify-end"];
 
 let container: HTMLDivElement;
 let root: Root;

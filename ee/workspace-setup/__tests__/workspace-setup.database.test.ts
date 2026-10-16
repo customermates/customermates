@@ -1075,6 +1075,51 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(await owner()).toEqual({ country: "at", formattingLocale: "de" });
   });
 
+  it("reads a website named later in the interview and keeps the owner's own answers", async () => {
+    const ws = await workspace();
+    const started = await ws.run(() => di.getStartWorkspaceSetupInteractor().invoke({ websiteUrl: null }));
+    if (!started.ok) throw new Error(JSON.stringify(started.error));
+    const setupId = started.data.setupId;
+    const saved = await ws.run(() =>
+      di.getSaveWorkspaceSetupAnswersInteractor().invoke({
+        setupId,
+        answers: { companyName: { format: "shortText", value: "Typed by owner" } },
+        followUpAnswers: [],
+        confirmedScreen: 0,
+      }),
+    );
+    expect(saved.ok).toBe(true);
+    await ws.run(() =>
+      di.getWorkspaceSetupRepo().mutate(setupId, (current) => ({
+        answers: {
+          ...current.answers,
+          teamSize: { source: "website", confidence: 0.9, value: { format: "singleChoice", value: "small" } },
+        },
+        interview: { ...current.interview, prefill: "skipped" },
+      })),
+    );
+    state.dispatch.mockClear();
+
+    const set = await ws.run(() =>
+      di.getSetWorkspaceSetupWebsiteInteractor().invoke({ setupId, websiteUrl: "studio-example.com", locale: "en" }),
+    );
+
+    expect(set).toEqual({ ok: true, data: { websiteUrl: "https://studio-example.com/" } });
+    const setup = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
+    expect(setup).toMatchObject({
+      websiteUrl: "https://studio-example.com/",
+      interview: { prefill: "idle", confirmedScreens: 1 },
+    });
+    expect(setup?.crawlId).toEqual(expect.any(String));
+    expect(Object.keys(setup?.answers ?? {})).toEqual(["companyName"]);
+    expect(state.dispatch).toHaveBeenCalledWith("prepare-workspace-setup", { setupId, userId: ws.owner.id });
+    expect(
+      await ws.run(() =>
+        di.getSetWorkspaceSetupWebsiteInteractor().invoke({ setupId, websiteUrl: "not a website", locale: "en" }),
+      ),
+    ).toMatchObject({ ok: false });
+  });
+
   it("stops the website import of a setup that starts over, so it spends nothing more", async () => {
     const ws = await workspace();
     const { setupId } = await planned(ws);

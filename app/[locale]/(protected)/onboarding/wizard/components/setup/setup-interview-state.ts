@@ -171,11 +171,12 @@ export function interviewAnswersPayload(
   );
 }
 
-export function resumeScreenIndex(answers: SetupAnswers): number {
-  const index = SETUP_SCREENS.findIndex((screen) =>
+export function resumeScreenIndex(answers: SetupAnswers, confirmedScreens = 0): number {
+  const unconfirmed = SETUP_SCREENS.findIndex((screen) =>
     visibleScreenParts(screen, answers).some((part) => !part.optional && answers[part.id]?.source !== "user"),
   );
-  return index === -1 ? SETUP_SCREENS.length - 1 : index;
+  const last = SETUP_SCREENS.length - 1;
+  return Math.min(unconfirmed === -1 ? last : unconfirmed, confirmedScreens, last);
 }
 
 export function mergeServerAnswers(

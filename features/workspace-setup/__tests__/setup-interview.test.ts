@@ -43,7 +43,11 @@ describe("workspace setup interview", () => {
     expect(byNumber(7).map((part) => part.format)).toEqual(["range", "range", "singleChoice"]);
     expect(byNumber(17)[0]).toMatchObject({ format: "singleChoice", upload: true, prefill: "no" });
     expect(byNumber(14)[0]).toMatchObject({ format: "multipleChoice", prefill: "yes" });
-    expect(SETUP_QUESTIONS[0].confirmationCard).toBe(true);
+    expect(
+      SETUP_QUESTIONS.flatMap((question) => question.parts)
+        .filter((part) => !part.optional)
+        .map((part) => part.id),
+    ).toEqual(["companyName", "language", "currency", "customerKind", "existingData"]);
     for (const part of byNumber(10)) expect(part.visibleWhen?.part).toBe("afterSale");
     for (const number of [11, 12, 13, 17]) for (const part of byNumber(number)) expect(part.prefill).toBe("no");
   });

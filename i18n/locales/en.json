@@ -4688,7 +4688,6 @@
       "followUpsTitle": "A few more details",
       "moveDown": "Move down",
       "moveUp": "Move up",
-      "optional": "Optional",
       "optionalPlaceholder": "Leave empty if nothing comes to mind",
       "prefillFailed": "We could not read your website, so nothing is filled in. The questions still take only a few minutes.",
       "prefillRunning": "Reading {website} to suggest answers…",
@@ -4953,6 +4952,11 @@
     "start": {
       "start": "Start the setup",
       "withoutWebsite": "Continue without a website"
+    },
+    "website": {
+      "change": "Change",
+      "from": "Answers suggested from {website}",
+      "read": "Read website"
     }
   }
 }

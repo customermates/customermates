@@ -106,6 +106,7 @@ export function setupView(overrides: Partial<WorkspaceSetupView> = {}): Workspac
       prefill: "completed",
       prefillError: null,
       followUps: "idle",
+      confirmedScreens: 0,
       followUpQuestions: [],
       followUpAnswers: [],
     },

@@ -4,6 +4,7 @@ import type {
   ConfirmWorkspaceSetupData,
   RetryWorkspaceSetupPhaseData,
   SaveWorkspaceSetupAnswersData,
+  SetWorkspaceSetupWebsiteData,
   StartWorkspaceSetupData,
   WorkspaceSetupIdData,
 } from "@/ee/workspace-setup/workspace-setup-input.schema";
@@ -15,6 +16,7 @@ import {
   getPlanWorkspaceSetupInteractor,
   getRetryWorkspaceSetupPhaseInteractor,
   getSaveWorkspaceSetupAnswersInteractor,
+  getSetWorkspaceSetupWebsiteInteractor,
   getStartWorkspaceSetupInteractor,
   getUploadWorkspaceSetupSpreadsheetInteractor,
 } from "@/core/di";
@@ -22,6 +24,10 @@ import { serializeTypedResult } from "@/core/utils/action-result";
 
 export async function startWorkspaceSetupAction(data: StartWorkspaceSetupData) {
   return serializeTypedResult(getStartWorkspaceSetupInteractor().invoke(data));
+}
+
+export async function setWorkspaceSetupWebsiteAction(data: SetWorkspaceSetupWebsiteData) {
+  return serializeTypedResult(getSetWorkspaceSetupWebsiteInteractor().invoke(data));
 }
 
 export async function getWorkspaceSetupStatusAction() {
