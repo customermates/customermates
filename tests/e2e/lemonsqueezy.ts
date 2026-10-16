@@ -1,28 +1,33 @@
 import { createHmac } from "node:crypto";
 
 import type { APIRequestContext, Page } from "@playwright/test";
+import type {
+  LemonSqueezySubscriptionAttributes,
+  LemonSqueezySubscriptionEventName,
+  LemonSqueezySubscriptionResource,
+} from "../helpers/lemonsqueezy-subscription";
 
 import { expect } from "@playwright/test";
 
+import {
+  lemonSqueezyStatusFormatted,
+  lemonSqueezySubscriptionAttributes,
+  lemonSqueezySubscriptionEvent,
+  lemonSqueezyTimestamp,
+} from "../helpers/lemonsqueezy-subscription";
 import { localE2eEnvironment } from "./local-environment";
 import {
   localCheckoutOrigin,
+  localLemonSqueezyStoreId,
   localLemonSqueezyVariants,
   localLemonSqueezyWebhookSecret,
+  localSubscriptionResource,
   newLocalSubscriptionIds,
   readLocalCheckouts,
   readLocalSubscription,
   writeLocalSubscription,
 } from "./local-lemonsqueezy-provider.mjs";
 
-export type ProviderSubscriptionStatus =
-  | "on_trial"
-  | "active"
-  | "paused"
-  | "past_due"
-  | "unpaid"
-  | "cancelled"
-  | "expired";
 export type ProviderPlan = keyof typeof localLemonSqueezyVariants;
 
 export type ProviderSubscription = {
@@ -31,15 +36,10 @@ export type ProviderSubscription = {
   companyId: string;
   quantity: number;
   quantityUpdates?: number[];
-  attributes: {
-    status: ProviderSubscriptionStatus;
-    variant_id: number;
-    renews_at: string | null;
-    ends_at: string | null;
-    trial_ends_at: string | null;
-    urls: { customer_portal: string };
-  };
+  attributes: LemonSqueezySubscriptionAttributes;
 };
+
+export type ProviderCustomer = { name: string; email: string };
 
 export type LocalCheckout = {
   id: string;
@@ -54,7 +54,8 @@ export type LocalCheckout = {
   url: string;
 };
 
-const DAY_MS = 24 * 60 * 60 * 1000;
+const PLAN_NAMES: Record<ProviderPlan, string> = { starter: "Starter", pro: "Pro", business: "Business" };
+const SYNTHETIC_CUSTOMER: ProviderCustomer = { name: "Browser Administrator", email: "billing@example.test" };
 
 function providerDirectory() {
   return localE2eEnvironment().providerDirectory;
@@ -72,21 +73,28 @@ export function providerSubscription(subscriptionId: string): ProviderSubscripti
   return stored;
 }
 
-export function startProviderSubscription(companyId: string, plan: ProviderPlan, quantity: number) {
+export function startProviderSubscription(
+  companyId: string,
+  plan: ProviderPlan,
+  quantity: number,
+  customer: ProviderCustomer = SYNTHETIC_CUSTOMER,
+) {
   const { id, itemId } = newLocalSubscriptionIds();
   const subscription: ProviderSubscription = {
     id,
     itemId,
     companyId,
     quantity,
-    attributes: {
-      status: "active",
-      variant_id: Number(localLemonSqueezyVariants[plan]),
-      renews_at: new Date(Date.now() + 30 * DAY_MS).toISOString(),
-      ends_at: null,
-      trial_ends_at: null,
-      urls: { customer_portal: `${localCheckoutOrigin}/billing?subscription=${id}` },
-    },
+    attributes: lemonSqueezySubscriptionAttributes({
+      subscriptionId: id,
+      itemId,
+      storeId: Number(localLemonSqueezyStoreId),
+      storeOrigin: localCheckoutOrigin,
+      variantId: Number(localLemonSqueezyVariants[plan]),
+      variantName: PLAN_NAMES[plan],
+      quantity,
+      customer,
+    }),
   };
   writeLocalSubscription(providerDirectory(), subscription);
   return subscription;
@@ -94,16 +102,22 @@ export function startProviderSubscription(companyId: string, plan: ProviderPlan,
 
 export function changeProviderSubscription(
   subscriptionId: string,
-  change: Partial<ProviderSubscription["attributes"]> & { plan?: ProviderPlan },
+  change: Partial<Pick<LemonSqueezySubscriptionAttributes, "status" | "renews_at" | "ends_at" | "trial_ends_at">> & {
+    plan?: ProviderPlan;
+  },
 ) {
   const current = providerSubscription(subscriptionId);
   const { plan, ...attributes } = change;
+  const status = attributes.status ?? current.attributes.status;
   const next: ProviderSubscription = {
     ...current,
     attributes: {
       ...current.attributes,
       ...attributes,
-      ...(plan ? { variant_id: Number(localLemonSqueezyVariants[plan]) } : {}),
+      status_formatted: lemonSqueezyStatusFormatted(status),
+      cancelled: current.attributes.cancelled || status === "cancelled",
+      updated_at: lemonSqueezyTimestamp(new Date()),
+      ...(plan ? { variant_id: Number(localLemonSqueezyVariants[plan]), variant_name: PLAN_NAMES[plan] } : {}),
     },
   };
   writeLocalSubscription(providerDirectory(), next);
@@ -115,24 +129,12 @@ export function webhookSecret() {
 }
 
 export function subscriptionWebhookBody(
-  event: "subscription_created" | "subscription_updated" | "subscription_expired" | "subscription_payment_success",
+  event: LemonSqueezySubscriptionEventName,
   subscription: ProviderSubscription,
+  companyId = subscription.companyId,
 ) {
-  return JSON.stringify({
-    meta: { event_name: event, test_mode: true, custom_data: { company_id: subscription.companyId } },
-    data: {
-      type: "subscriptions",
-      id: subscription.id,
-      attributes: {
-        ...subscription.attributes,
-        first_subscription_item: {
-          id: subscription.itemId,
-          subscription_id: Number(subscription.id),
-          quantity: subscription.quantity,
-        },
-      },
-    },
-  });
+  const resource = localSubscriptionResource(subscription) as LemonSqueezySubscriptionResource;
+  return JSON.stringify(lemonSqueezySubscriptionEvent(event, resource, companyId));
 }
 
 export async function postSignedWebhook(request: APIRequestContext, body: string, secret = webhookSecret()) {
@@ -146,14 +148,19 @@ export async function postSignedWebhook(request: APIRequestContext, body: string
   });
 }
 
-export async function deliverSubscriptionWebhook(
-  request: APIRequestContext,
-  event: Parameters<typeof subscriptionWebhookBody>[0],
-  subscription: ProviderSubscription,
-) {
-  const response = await postSignedWebhook(request, subscriptionWebhookBody(event, subscription));
+export async function deliverWebhookBody(request: APIRequestContext, body: string) {
+  const response = await postSignedWebhook(request, body);
   expect(response.status(), await response.text()).toBe(200);
   expect(await response.json()).toEqual({ success: true });
+  return body;
+}
+
+export async function deliverSubscriptionWebhook(
+  request: APIRequestContext,
+  event: LemonSqueezySubscriptionEventName,
+  subscription: ProviderSubscription,
+) {
+  return deliverWebhookBody(request, subscriptionWebhookBody(event, subscription));
 }
 
 export async function stubCheckoutPage(page: Page) {

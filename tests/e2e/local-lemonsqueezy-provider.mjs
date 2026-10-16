@@ -96,13 +96,14 @@ async function createCheckout(request, providerDirectory) {
   return jsonApi(201, { data: { type: "checkouts", id, attributes: { url: checkout.url } } });
 }
 
-function subscriptionResource(subscription) {
+export function localSubscriptionResource(subscription) {
   return {
     type: "subscriptions",
     id: subscription.id,
     attributes: {
       ...subscription.attributes,
       first_subscription_item: {
+        ...subscription.attributes.first_subscription_item,
         id: subscription.itemId,
         subscription_id: Number(subscription.id),
         quantity: subscription.quantity,
@@ -149,7 +150,7 @@ export function localLemonSqueezyRequest(input, init) {
   const subscription = url.pathname.match(/^\/v1\/subscriptions\/([1-9]\d{0,15})$/);
   if (request.method === "GET" && subscription && !url.search) {
     const stored = readLocalSubscription(providerDirectory, subscription[1]);
-    return stored ? jsonApi(200, { data: subscriptionResource(stored) }) : notFound();
+    return stored ? jsonApi(200, { data: localSubscriptionResource(stored) }) : notFound();
   }
   if (request.method === "GET" && url.pathname === "/v1/subscription-items") {
     const subscriptionId = url.searchParams.get("filter[subscription_id]");

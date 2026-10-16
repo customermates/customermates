@@ -247,7 +247,7 @@ test("paying for an extra workspace activates only that workspace, then its onbo
     quantity: 1,
     trialEndDate: null,
   });
-  expect(activated.currentPeriodEnd?.toISOString()).toBe(paid.attributes.renews_at);
+  expect(activated.currentPeriodEnd).toEqual(new Date(paid.attributes.renews_at as string));
   expect(await subscriptionOf(database, workspace.companyId)).toEqual(firstBefore);
 
   await page.goto(checkout.redirectUrl as string);

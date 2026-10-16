@@ -11,9 +11,20 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import {
+  type LemonSqueezySubscriptionAttributes,
+  type LemonSqueezySubscriptionEventName,
+  type LemonSqueezySubscriptionResource,
+  lemonSqueezySubscriptionAttributes,
+  lemonSqueezySubscriptionEvent,
+  lemonSqueezyTimestamp,
+} from "@/tests/helpers/lemonsqueezy-subscription";
+import {
+  localCheckoutOrigin,
   localLemonSqueezyEnvironment,
   localLemonSqueezyRequest,
+  localLemonSqueezyStoreId,
   localLemonSqueezyVariants,
+  localSubscriptionResource,
   newLocalSubscriptionIds,
   readLocalCheckouts,
   readLocalSubscription,
@@ -52,8 +63,27 @@ type ProviderSubscription = {
   companyId: string;
   quantity: number;
   quantityUpdates?: number[];
-  attributes: Record<string, unknown>;
+  attributes: LemonSqueezySubscriptionAttributes;
 };
+
+function providerSubscriptionFor(companyId: string, quantity: number): ProviderSubscription {
+  const ids = newLocalSubscriptionIds();
+  return {
+    ...ids,
+    companyId,
+    quantity,
+    attributes: lemonSqueezySubscriptionAttributes({
+      subscriptionId: ids.id,
+      itemId: ids.itemId,
+      storeId: Number(localLemonSqueezyStoreId),
+      storeOrigin: localCheckoutOrigin,
+      variantId: Number(localLemonSqueezyVariants.pro),
+      variantName: "Pro",
+      quantity,
+      customer: { name: "Paid Member", email: "billing@example.invalid" },
+    }),
+  };
+}
 
 describeDatabase("paying for an extra workspace of one login on PostgreSQL", { timeout: 180_000 }, () => {
   const client = new Client({ connectionString: databaseUrl ?? undefined });
@@ -110,11 +140,20 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
     return Object.fromEntries(rows.map((row) => [row.id, row.status]));
   }
 
-  function webhook(event: string, body: ProviderSubscription, secret = lemonSqueezy.LEMONSQUEEZY_WEBHOOK_SECRET) {
-    const raw = JSON.stringify({
-      meta: { event_name: event, custom_data: { company_id: body.companyId } },
-      data: { type: "subscriptions", id: body.id, attributes: body.attributes },
-    });
+  function webhookBody(
+    event: LemonSqueezySubscriptionEventName,
+    body: ProviderSubscription,
+    companyId = body.companyId,
+  ) {
+    const resource = localSubscriptionResource(body) as LemonSqueezySubscriptionResource;
+    return JSON.stringify(lemonSqueezySubscriptionEvent(event, resource, companyId));
+  }
+
+  function webhook(event: LemonSqueezySubscriptionEventName, body: ProviderSubscription, secret?: string) {
+    return deliver(webhookBody(event, body), secret);
+  }
+
+  function deliver(raw: string, secret = lemonSqueezy.LEMONSQUEEZY_WEBHOOK_SECRET) {
     return lemonSqueezyWebhook(
       new NextRequest("http://localhost:4000/api/webhooks/lemonsqueezy", {
         method: "POST",
@@ -131,7 +170,7 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
     return readLocalSubscription(providerDirectory, subscription.id) as ProviderSubscription;
   }
 
-  function changeProvider(attributes: Record<string, unknown>) {
+  function changeProvider(attributes: Partial<LemonSqueezySubscriptionAttributes>) {
     subscription = { ...providerSubscription(), attributes: { ...providerSubscription().attributes, ...attributes } };
     writeLocalSubscription(providerDirectory, subscription);
     return subscription;
@@ -259,37 +298,31 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
     expect(await storedSubscription("paid")).toMatchObject({ status: "expired", lemonSqueezyId: null });
   });
 
-  it("refuses a forged webhook and activates only the paid workspace on the signed one", async () => {
-    const ids = newLocalSubscriptionIds();
-    subscription = {
-      ...ids,
-      companyId: companies.paid,
-      quantity: 2,
-      attributes: {
-        status: "active",
-        variant_id: Number(localLemonSqueezyVariants.pro),
-        renews_at: new Date(Date.now() + 30 * DAY_MS).toISOString(),
-        ends_at: null,
-        trial_ends_at: null,
-        urls: { customer_portal: "https://customermates.lemonsqueezy.com/billing" },
-      },
-    };
+  it("refuses a forged webhook and activates only the paid workspace on the signed ones, replayed", async () => {
+    subscription = providerSubscriptionFor(companies.paid, 2);
     writeLocalSubscription(providerDirectory, subscription);
+    const created = webhookBody("subscription_created", subscription);
+    const updated = webhookBody("subscription_updated", subscription);
 
-    expect((await webhook("subscription_created", subscription, "forged")).status).toBe(401);
+    expect((await deliver(created, "forged")).status).toBe(401);
     expect(await storedSubscription("paid")).toMatchObject({ status: "expired", lemonSqueezyId: null });
 
-    const response = await webhook("subscription_created", subscription);
+    const response = await deliver(created);
 
     expect(response.status).toBe(200);
-    expect(await storedSubscription("paid")).toEqual({
+    const activated = {
       status: "active",
       plan: "pro",
       lemonSqueezyId: subscription.id,
       quantity: 2,
       trialEndDate: null,
       currentPeriodEnd: new Date(subscription.attributes.renews_at as string),
-    });
+    };
+    expect(await storedSubscription("paid")).toEqual(activated);
+    for (const replay of [updated, created, updated]) {
+      expect((await deliver(replay)).status).toBe(200);
+      expect(await storedSubscription("paid")).toEqual(activated);
+    }
     expect(await storedSubscription("first")).toEqual({
       status: "trial",
       plan: "pro",
@@ -319,12 +352,13 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
   });
 
   it("trusts the provider over a stale webhook payload for the paid workspace", async () => {
-    const stale = {
+    const stale: ProviderSubscription = {
       ...subscription,
       attributes: {
         ...subscription.attributes,
         status: "expired",
-        ends_at: new Date(Date.now() - DAY_MS).toISOString(),
+        status_formatted: "Expired",
+        ends_at: lemonSqueezyTimestamp(new Date(Date.now() - DAY_MS)),
       },
     };
 
@@ -366,11 +400,11 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
     const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
     const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
     const { EmailService } = await import("@/features/email/email.service");
-    const lapsedAt = new Date(Date.now() - 60_000).toISOString();
+    const lapsedAt = lemonSqueezyTimestamp(new Date(Date.now() - 60_000));
 
     const lapsed = await webhook(
       "subscription_expired",
-      changeProvider({ status: "expired", renews_at: null, ends_at: lapsedAt }),
+      changeProvider({ status: "expired", status_formatted: "Expired", renews_at: null, ends_at: lapsedAt }),
     );
 
     expect(lapsed.status).toBe(200);
