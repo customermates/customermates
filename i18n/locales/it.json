@@ -2998,7 +2998,8 @@
       "setup": {
         "planningSubtitle": "Le tue risposte sono salvate. Mate le trasforma in un piano per il tuo workspace, che controlli prima che venga creato qualcosa.",
         "subtitle": "Alcune brevi domande su come vendi. Quello che abbiamo potuto leggere sul tuo sito è già compilato: per lo più devi solo confermare.",
-        "title": "Configura il tuo workspace"
+        "title": "Configura il tuo workspace",
+        "withoutWebsiteSubtitle": "Alcune brevi domande su come vendi. Quasi tutte si risolvono con una scelta rapida: bastano pochi minuti."
       }
     }
   },

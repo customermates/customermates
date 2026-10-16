@@ -11,6 +11,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const testContext = vi.hoisted(() => ({
   rootStore: null as RootStore | null,
   stage: "interview" as SetupStage,
+  websiteUrl: null as string | null,
   hydrated: [] as unknown[],
   completeSetupStep: vi.fn(),
 }));
@@ -51,7 +52,7 @@ vi.mock("../setup/step-setup", () => ({
   StepSetup: () => createElement("div", { "data-step": "setup", "data-stage": testContext.stage }),
   useHydratedSetupStore: (status: unknown) => {
     testContext.hydrated.push(status);
-    return { store: { stage: testContext.stage }, ready: true };
+    return { store: { stage: testContext.stage, setup: { websiteUrl: testContext.websiteUrl } }, ready: true };
   },
 }));
 
@@ -89,6 +90,7 @@ beforeEach(() => {
   testContext.completeSetupStep.mockResolvedValue({ ok: true, data: { completed: true } });
   testContext.rootStore = null;
   testContext.stage = "interview";
+  testContext.websiteUrl = null;
   testContext.hydrated = [];
 });
 
@@ -151,6 +153,17 @@ describe("OnboardingWizard", () => {
     expect(html).toContain("OnboardingWizard.steps.setup.title");
     expect(html).toContain("max-w-3xl");
     expect(testContext.hydrated).toEqual([AVAILABLE]);
+  });
+
+  it("mentions answers read from the website only when the setup has a website", () => {
+    const without = renderWizard({ profileCompleted: true, setupStatus: AVAILABLE });
+    expect(without).toContain("OnboardingWizard.steps.setup.withoutWebsiteSubtitle");
+    expect(without).not.toContain("OnboardingWizard.steps.setup.subtitle");
+
+    testContext.websiteUrl = "https://example.com";
+    const withWebsite = renderWizard({ profileCompleted: true, setupStatus: AVAILABLE });
+    expect(withWebsite).toContain("OnboardingWizard.steps.setup.subtitle");
+    expect(withWebsite).not.toContain("OnboardingWizard.steps.setup.withoutWebsiteSubtitle");
   });
 
   it("goes from profile straight to invitations on a self-hosted instance", () => {

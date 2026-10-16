@@ -2998,7 +2998,8 @@
       "setup": {
         "planningSubtitle": "Your answers are saved. Mate turns them into a plan for your workspace that you review before anything is built.",
         "subtitle": "A few short questions about how you sell. What we could read on your website is already filled in, so you mostly confirm.",
-        "title": "Set up your workspace"
+        "title": "Set up your workspace",
+        "withoutWebsiteSubtitle": "A few short questions about how you sell. Most are a quick choice, so this takes only a few minutes."
       }
     }
   },

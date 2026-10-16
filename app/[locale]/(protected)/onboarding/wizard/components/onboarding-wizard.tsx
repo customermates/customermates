@@ -156,7 +156,9 @@ const OnboardingWizardContent = observer(
         ? t("OnboardingWizard.steps.setup.planningSubtitle")
         : currentStep === "profile" && isInvited
           ? t("OnboardingWizard.steps.profile.invitedSubtitle")
-          : t(`OnboardingWizard.steps.${currentStep}.subtitle`);
+          : currentStep === "setup" && setupReady && !setupStore.setup?.websiteUrl
+            ? t("OnboardingWizard.steps.setup.withoutWebsiteSubtitle")
+            : t(`OnboardingWizard.steps.${currentStep}.subtitle`);
 
     return (
       <AppCard
