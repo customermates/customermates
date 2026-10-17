@@ -18,11 +18,13 @@ type Props = {
   email: string;
   invitationIntent: string;
   inviterName: string;
+  workspaceName: string | null;
 };
 
-export function InvitationCard({ email, invitationIntent, inviterName }: Props) {
+export function InvitationCard({ email, invitationIntent, inviterName, workspaceName }: Props) {
   const t = useTranslations();
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const workspace = workspaceName?.trim() ?? "";
 
   async function handleSignOut() {
     if (isSigningOut) return;
@@ -40,7 +42,7 @@ export function InvitationCard({ email, invitationIntent, inviterName }: Props) 
       <CardHeroHeader
         alt=""
         subtitle={t("InvitationCard.joinSubtitle", { email })}
-        title={t("InvitationCard.joinTitle")}
+        title={workspace ? t("InvitationCard.joinTitleNamed", { workspace }) : t("InvitationCard.joinTitle")}
       />
 
       <AppCardBody>

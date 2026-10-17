@@ -2621,7 +2621,8 @@
     "joinAction": "Continue",
     "joinBody": "Continue to set up your profile and request access. A workspace administrator must approve you before you can join.",
     "joinSubtitle": "You are signed in as {email}",
-    "joinTitle": "Accept your invitation"
+    "joinTitle": "Accept your invitation",
+    "joinTitleNamed": "Join {workspace}"
   },
   "JoinWorkspace": {
     "backAction": "Back to choices",
@@ -3028,6 +3029,7 @@
       },
       "profile": {
         "invitedSubtitle": "Complete your profile to request access to the workspace you were invited to.",
+        "invitedSubtitleNamed": "Complete your profile to request access to {workspace}.",
         "subtitle": "Add your name and country so your teammates can recognize you. These details become your profile and can be updated later.",
         "title": "Make this workspace yours"
       },

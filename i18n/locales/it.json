@@ -2621,7 +2621,8 @@
     "joinAction": "Continua",
     "joinBody": "Completa il tuo profilo e richiedi l'accesso. Un amministratore deve approvarti prima che tu possa entrare nello spazio di lavoro.",
     "joinSubtitle": "Hai effettuato l'accesso come {email}",
-    "joinTitle": "Accetta l'invito"
+    "joinTitle": "Accetta l'invito",
+    "joinTitleNamed": "Unisciti a {workspace}"
   },
   "JoinWorkspace": {
     "backAction": "Torna alle opzioni",
@@ -3028,6 +3029,7 @@
       },
       "profile": {
         "invitedSubtitle": "Completa il profilo per richiedere l’accesso allo spazio di lavoro a cui sei stato invitato.",
+        "invitedSubtitleNamed": "Completa il profilo per richiedere l’accesso a {workspace}.",
         "subtitle": "Aggiungi il tuo nome e il paese per farti riconoscere dal team. Questi dati faranno parte del tuo profilo e potrai modificarli in seguito.",
         "title": "Rendi tuo questo spazio di lavoro"
       },

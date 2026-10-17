@@ -59,6 +59,7 @@ export default async function InvitationPage({ searchParams }: Props) {
         email={resolution.sessionUser.email}
         invitationIntent={invitation.intent}
         inviterName={invitation.inviterName}
+        workspaceName={invitation.companyName}
       />
     </CenteredCardPage>
   );

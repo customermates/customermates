@@ -119,7 +119,11 @@ test("a new Google login from an invitation gets the invitation flow and waits f
 
     await expect(page).toHaveURL(/\/en\/auth\/invitation\?intent=/);
     await expect(
-      page.getByRole("heading", { level: 1, name: englishMessages.InvitationCard.joinTitle, exact: true }),
+      page.getByRole("heading", {
+        level: 1,
+        name: englishMessages.InvitationCard.joinTitleNamed.replace("{workspace}", "Hoffmann Consulting"),
+        exact: true,
+      }),
     ).toBeVisible();
     await expect(page.getByText(`You are signed in as ${email}`, { exact: true })).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath("ws-social-new-login-invitation.png"), fullPage: true });
@@ -132,6 +136,12 @@ test("a new Google login from an invitation gets the invitation flow and waits f
 
     await clickHydrated(page.getByRole("link", { name: englishMessages.InvitationCard.joinAction, exact: true }));
     await expect(page).toHaveURL(/\/en\/onboarding\/wizard\?intent=/);
+    await expect(
+      page.getByText(
+        englishMessages.OnboardingWizard.steps.profile.invitedSubtitleNamed.replace("{workspace}", "Hoffmann Consulting"),
+        { exact: true },
+      ),
+    ).toBeVisible();
     await expectHydrated(page.locator("#firstName"));
     await page.locator("#firstName").fill("Lea");
     await page.locator("#lastName").fill("Brandt");

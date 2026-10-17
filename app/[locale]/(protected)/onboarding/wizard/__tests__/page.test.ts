@@ -150,6 +150,29 @@ describe("OnboardingWizardPage authentication detours", () => {
     });
   });
 
+  it("names the invited workspace for a new login that follows an invitation", async () => {
+    mocks.resolveOnboardingIntent.mockResolvedValue({
+      companyId: "company-a",
+      companyName: "Bergmann Steuern",
+      intent: "signed.invite",
+      inviterName: "Invite Admin",
+      status: "valid",
+      type: "invitation",
+    });
+    mocks.requireAccountState.mockResolvedValue({
+      sessionUser: { id: "user-a", email: "new@example.com", companyId: null },
+      user: null,
+    });
+
+    const page = await OnboardingWizardPage({ searchParams: Promise.resolve({ intent: "signed.invite" }) });
+
+    expect(page.props.children.props).toMatchObject({
+      inviterName: "Invite Admin",
+      isInvited: true,
+      workspaceName: "Bergmann Steuern",
+    });
+  });
+
   it("skips the Wiki step only after the owner explicitly completed it", async () => {
     mocks.resolveOnboardingIntent.mockResolvedValue({ status: "absent" });
     mocks.requireAccountState.mockResolvedValue({

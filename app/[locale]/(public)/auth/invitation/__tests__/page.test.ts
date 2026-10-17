@@ -143,6 +143,7 @@ describe("InvitationPage", () => {
       email: "new@example.com",
       invitationIntent: "signed-intent",
       inviterName: "Invite Admin",
+      workspaceName: "Bergmann Steuern",
     });
     expect(mocks.listMyWorkspaces).not.toHaveBeenCalled();
   });

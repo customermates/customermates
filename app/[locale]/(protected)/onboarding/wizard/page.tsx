@@ -97,6 +97,7 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
         userId={user?.role?.isSystemRole ? user.id : undefined}
         wikiSetupState={wikiSetupState}
         wikiStepCompleted={wikiStepCompleted}
+        workspaceName={invitation?.companyName}
       />
     </CenteredCardPage>
   );

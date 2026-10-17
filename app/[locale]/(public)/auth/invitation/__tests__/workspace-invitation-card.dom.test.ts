@@ -37,7 +37,11 @@ vi.mock("@/components/shared/app-image", () => ({ AppImage: () => null }));
 vi.mock("@/components/shared/app-link", () => ({
   AppLink: ({ href, children }: { href: string; children?: ReactNode }) => createElement("a", { href }, children),
 }));
+vi.mock("@/i18n/navigation", () => ({
+  IntlLink: ({ href, children }: { href: string; children?: ReactNode }) => createElement("a", { href }, children),
+}));
 
+import { InvitationCard } from "../invitation-card";
 import { WorkspaceInvitationCard } from "../workspace-invitation-card";
 
 let container: HTMLDivElement;
@@ -189,5 +193,37 @@ describe("WorkspaceInvitationCard", () => {
     await click(button("WorkspaceInvitation.otherAccount"));
 
     expect(harness.signOutWithOnboardingIntentAction).toHaveBeenCalledExactlyOnceWith("signed-intent");
+  });
+});
+
+describe("InvitationCard", () => {
+  function renderNewLogin(workspaceName: string | null) {
+    act(() =>
+      root.render(
+        createElement(InvitationCard, {
+          email: "new@example.com",
+          invitationIntent: "signed-intent",
+          inviterName: "Invite Admin",
+          workspaceName,
+        }),
+      ),
+    );
+  }
+
+  it("names the invited workspace with the wording of the join card", () => {
+    renderNewLogin("Bergmann Steuern");
+
+    expect(container.querySelector("h1")?.textContent).toBe(
+      `InvitationCard.joinTitleNamed ${JSON.stringify({ workspace: "Bergmann Steuern" })}`,
+    );
+    expect(container.textContent).toContain(
+      `InvitationCard.inviter ${JSON.stringify({ inviterName: "Invite Admin" })}`,
+    );
+  });
+
+  it.each([null, "  "])("keeps the generic title when the workspace has no name (%j)", (workspaceName) => {
+    renderNewLogin(workspaceName);
+
+    expect(container.querySelector("h1")?.textContent).toBe("InvitationCard.joinTitle");
   });
 });

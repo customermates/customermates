@@ -2621,7 +2621,8 @@
     "joinAction": "Weiter",
     "joinBody": "Richte dein Profil ein und beantrage den Zugang. Ein Workspace-Administrator muss dich freigeben, bevor du beitreten kannst.",
     "joinSubtitle": "Du bist als {email} angemeldet",
-    "joinTitle": "Einladung annehmen"
+    "joinTitle": "Einladung annehmen",
+    "joinTitleNamed": "{workspace} beitreten"
   },
   "JoinWorkspace": {
     "backAction": "Zurück zur Auswahl",
@@ -3028,6 +3029,7 @@
       },
       "profile": {
         "invitedSubtitle": "Vervollständige dein Profil, um Zugang zum Workspace anzufragen, zu dem du eingeladen wurdest.",
+        "invitedSubtitleNamed": "Vervollständige dein Profil, um Zugang zu {workspace} anzufragen.",
         "subtitle": "Ergänze deinen Namen und dein Land, damit dein Team dich erkennt. Diese Angaben gehören zu deinem Profil und lassen sich später ändern.",
         "title": "Mach diesen Workspace zu deinem"
       },
