@@ -55,6 +55,12 @@ export const FORM_PAGES: FormAnchorPage[] = [
     discard: "unsavedChangesBar",
   },
   {
+    scope: "settings-general",
+    route: settingsHref("general"),
+    label: "workspace name form (roles with company Manage)",
+    discard: "unsavedChangesBar",
+  },
+  {
     scope: "member-modal",
     route: settingsHref("members"),
     label: "member dialog (roles with Manage only)",
@@ -153,6 +159,35 @@ export const CONTROL_PAGES: ControlPage[] = [
       {
         control: "theme",
         description: "Theme select for light, dark or system appearance",
+      },
+    ],
+  },
+  {
+    scope: "settings-workspaces",
+    route: settingsHref("workspaces"),
+    controls: [
+      {
+        control: "create",
+        description: "Top bar button that opens the Create workspace dialog (not in the demo)",
+      },
+      {
+        control: "leave",
+        description:
+          "Leave button on the current workspace's row, which asks for confirmation (active members, not in the demo)",
+      },
+    ],
+  },
+  {
+    scope: "settings-general",
+    route: settingsHref("general"),
+    controls: [
+      {
+        control: "name",
+        description: "Workspace name input; editable for roles with company Manage, read-only otherwise",
+      },
+      {
+        control: "leave",
+        description: "Leave workspace button in the danger zone, which asks for confirmation (not in the demo)",
       },
     ],
   },
