@@ -127,13 +127,10 @@ describe("RefreshSubscriptionInteractor", () => {
     expect(deleteAccountsForPlan.invoke).not.toHaveBeenCalled();
   });
 
-  it("reports the subscription as unavailable when the workspace's binding changed during the sync", async () => {
+  it("keeps the newer binding another sync stored meanwhile and reports no error", async () => {
     const { interactor, deleteAccountsForPlan } = make({ updateResult: null });
 
-    await expect(interactor.invoke()).resolves.toMatchObject({
-      ok: false,
-      error: { issues: [{ params: { error: "billingPortalUnavailable" } }] },
-    });
+    await expect(interactor.invoke()).resolves.toEqual({ ok: true, data: null });
     expect(deleteAccountsForPlan.invoke).not.toHaveBeenCalled();
   });
 

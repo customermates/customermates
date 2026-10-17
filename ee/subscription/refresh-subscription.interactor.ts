@@ -31,7 +31,7 @@ export class RefreshSubscriptionInteractor extends AuthenticatedInteractor<void,
       { companyId: this.companyId, plan: subscription.plan, lemonSqueezyId: subscription.lemonSqueezyId },
       provider,
     );
-    if (!synced) return failUnavailable(CustomErrorCode.billingPortalUnavailable);
+    if (!synced) return { ok: true as const, data: null };
 
     if (synced.changedPlan)
       await this.deleteAccountsForPlan.invoke({ companyId: synced.companyId, plan: synced.changedPlan });
