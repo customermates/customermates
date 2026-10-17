@@ -928,7 +928,7 @@ const emailDraftThread = {
 
 function saveDraftRepo(overrides: Record<string, unknown> = {}) {
   return {
-    findThreadByIdOrThrow: vi.fn().mockResolvedValue(emailDraftThread),
+    findThreadById: vi.fn().mockResolvedValue(emailDraftThread),
     createConversationDraftOrThrow: vi.fn().mockResolvedValue(persistedEmail),
     findSelfAttendeeForThread: vi.fn(),
     upsertThreadDraftOrThrow: vi.fn().mockResolvedValue(persistedEmail),
@@ -992,7 +992,7 @@ describe("SaveDraftInteractor cold-draft target binding", () => {
       unipileThreadId: "provider-chat-thread",
       participants: [{ ...emailDraftThread.participants[0], attendeeId: "handle", identifier: "handle" }],
     };
-    const repo = saveDraftRepo({ findThreadByIdOrThrow: vi.fn().mockResolvedValue(chatThread) });
+    const repo = saveDraftRepo({ findThreadById: vi.fn().mockResolvedValue(chatThread) });
     const interactor = new SaveDraftInteractor(
       repo as never,
       { findUsableAccountByIdOrThrow: vi.fn().mockRejectedValue(new Error("not found")) } as never,
@@ -1057,10 +1057,32 @@ describe("SaveDraftInteractor cold-draft target binding", () => {
     );
   });
 
+  it("answers threadNotFound when the draft conversation is gone before the save", async () => {
+    const repo = saveDraftRepo({ findThreadById: vi.fn().mockResolvedValue(null) });
+
+    const result = await saveDraftInteractor(repo).invoke({
+      threadId: EMAIL_DRAFT_THREAD_ID,
+      recipients: [EMAIL_RECIPIENT],
+      subject: "Cold email",
+      body: "Edited after the send",
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("Expected a not found outcome");
+    expect(result.error.issues).toEqual([
+      expect.objectContaining({
+        path: ["threadId"],
+        params: expect.objectContaining({ error: CustomErrorCode.threadNotFound }),
+      }),
+    ]);
+    expect(repo.upsertThreadDraftOrThrow).not.toHaveBeenCalled();
+    expect(repo.createConversationDraftOrThrow).not.toHaveBeenCalled();
+  });
+
   it("keeps the submitted To order while matching a canonical multi-recipient shell", async () => {
     const otherRecipient = "other@example.com";
     const repo = saveDraftRepo({
-      findThreadByIdOrThrow: vi.fn().mockResolvedValue({
+      findThreadById: vi.fn().mockResolvedValue({
         ...emailDraftThread,
         unipileThreadId: `draft_${EMAIL_DRAFT_THREAD_ID}`,
         type: MessagingThreadType.group,
@@ -1091,7 +1113,7 @@ describe("SaveDraftInteractor cold-draft target binding", () => {
   it("preserves a normalized handle's case in the stored draft target", async () => {
     const handle = "JohnDoe";
     const repo = saveDraftRepo({
-      findThreadByIdOrThrow: vi.fn().mockResolvedValue({
+      findThreadById: vi.fn().mockResolvedValue({
         ...emailDraftThread,
         unipileThreadId: "draft_legacy-linkedin-shell",
         provider: MessagingProvider.linkedin,

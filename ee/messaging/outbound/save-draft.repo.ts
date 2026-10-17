@@ -16,7 +16,7 @@ type DraftContent = {
 };
 
 export abstract class SaveDraftRepo {
-  abstract findThreadByIdOrThrow(threadId: string): Promise<MessagingThread>;
+  abstract findThreadById(threadId: string): Promise<MessagingThread | null>;
   abstract findSelfAttendeeForThread(threadId: string): Promise<MessagingAttendee | null>;
   abstract upsertThreadDraftOrThrow(args: DraftContent & { threadId: string }): Promise<MessagingMessage>;
   abstract createConversationDraftOrThrow(args: DraftContent): Promise<MessagingMessage>;

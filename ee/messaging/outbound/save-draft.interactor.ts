@@ -9,7 +9,7 @@ import { z } from "zod";
 
 import { Resource } from "@/generated/prisma";
 
-import { fail, unwoundFailure } from "@/core/validation/interactor-failure-server";
+import { fail, failNotFound, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { isInteractorFailure } from "@/core/validation/validation.utils";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -175,7 +175,8 @@ export class SaveDraftInteractor extends AuthenticatedInteractor<SaveDraftData, 
 
   private async resolveThread(data: SaveDraftData): Promise<ResolvedDraftThread> {
     if (data.threadId) {
-      const thread = await this.repo.findThreadByIdOrThrow(data.threadId);
+      const thread = await this.repo.findThreadById(data.threadId);
+      if (!thread) return { ok: false, failure: failNotFound(CustomErrorCode.threadNotFound, ["threadId"]) };
       const fallbackRecipients = thread.participants
         .filter((participant) => !participant.isSelf && participant.identifier)
         .map((participant) => participant.identifier);

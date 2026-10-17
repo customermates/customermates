@@ -1045,6 +1045,8 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       if (!activeContext) return;
 
       if (!result.ok) {
+        if (result.code === CustomErrorCode.threadNotFound && draftThreadId === target?.draftThreadId)
+          return this.forgetLostDraft();
         this.setError(result.error);
         return;
       }

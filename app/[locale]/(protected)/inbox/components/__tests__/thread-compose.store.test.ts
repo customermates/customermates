@@ -1785,6 +1785,28 @@ describe("ThreadComposeStore draft refusals", () => {
     expect(actions.sendEmailAction).toHaveBeenCalledOnce();
   });
 
+  it("forgets a new email's draft conversation that vanished before Update draft and keeps the text", async () => {
+    const draft = message({ provider: MessagingProvider.google, messagingThreadId: DRAFT_THREAD_ID });
+    const { store } = makeHarness([draft]);
+    store.initializeNewThread({
+      provider: MessagingProvider.google,
+      connectedAccountId: ACCOUNT_ID,
+      recipients: [{ identifier: RECIPIENT, displayName: null }],
+      draftThreadId: DRAFT_THREAD_ID,
+    });
+    store.loadDraft(draft);
+    store.onChange("body", "Edited new email");
+    actions.saveDraftAction.mockResolvedValueOnce(refusal("threadNotFound"));
+
+    await store.saveDraft();
+
+    expect(actions.saveDraftAction).toHaveBeenCalledWith(expect.objectContaining({ threadId: DRAFT_THREAD_ID }));
+    expect(store.form.body).toBe("Edited new email");
+    expect(store.editingDraftId).toBeNull();
+    expect(store.newThreadTarget).toMatchObject({ connectedAccountId: ACCOUNT_ID, draftThreadId: undefined });
+    expect(toast.error).toHaveBeenCalledWith("Common.errors.draftMessageNotFound", expect.anything());
+  });
+
   it.each([true, false])(
     "puts a refused new email back only when its composer can be shown again (%s)",
     async (reopened) => {
