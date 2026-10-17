@@ -25,7 +25,7 @@ const PendingCardContent = observer(() => {
 
   return (
     <AppCard className="max-w-md">
-      <CardHeroHeader subtitle={t("PendingCard.subtitle")} title={t("PendingCard.title")} />
+      <CardHeroHeader subtitle={t("PendingCard.subtitle", { workspace: name })} title={t("PendingCard.title")} />
 
       <AppCardBody>
         <p className="text-x-sm text-center">{t("PendingCard.body")}</p>

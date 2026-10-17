@@ -28,6 +28,9 @@ test("a pending membership waits on its approval screen and leaves the way to th
 
   await expect(page).toHaveURL(/\/en\/auth\/pending$/);
   await expect(page.getByRole("heading", { level: 1, name: englishMessages.PendingCard.title })).toBeVisible();
+  await expect(
+    page.getByText(englishMessages.PendingCard.subtitle.replace("{workspace}", "Bergmann Steuern"), { exact: true }),
+  ).toBeVisible();
   await expect(page.getByRole("heading", { name: "Switch workspace", exact: true })).toHaveCount(0);
   await page.screenshot({ path: testInfo.outputPath("ws-restricted-pending.png"), fullPage: true });
   const restricted = await openBlockedPageSwitcher(page);
@@ -60,7 +63,14 @@ test("a deactivated membership explains itself and leaves the way to the other w
   await page.goto("/en/dashboard");
 
   await expect(page).toHaveURL(/\/en\/auth\/error\?type=inactiveUser$/);
-  await expect(page.getByText(englishMessages.ErrorCard.inactiveUser, { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      level: 1,
+      name: englishMessages.InactiveCard.title.replace("{workspace}", "Bergmann Steuern"),
+    }),
+  ).toBeVisible();
+  await expect(page.getByText(englishMessages.InactiveCard.otherWorkspaces, { exact: true })).toBeVisible();
+  await expect(page.getByText(englishMessages.ErrorCard.subtitle)).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Switch workspace", exact: true })).toHaveCount(0);
   await page.screenshot({ path: testInfo.outputPath("ws-restricted-inactive.png"), fullPage: true });
   await switchFromBlockedPage(page, workspace.companyId);

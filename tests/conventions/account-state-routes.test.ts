@@ -73,7 +73,7 @@ describe("guarded account-state route contract", () => {
     expect(errorPage).toContain('requestedErrorKey === "inactiveUser"');
     expect(errorPage).toContain("isRestrictedAccountState(resolution.state)");
     expect(errorPage).toContain('requireAccountState("inactive")');
-    expect(errorPage).toContain('? "inactiveUser"');
+    expect(errorPage).toContain("<InactiveCard />");
   });
 
   it("revalidates the whole blocker decision during recovery transitions", () => {

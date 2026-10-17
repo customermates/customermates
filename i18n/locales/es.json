@@ -1270,7 +1270,7 @@
       "workspaceLastAdmin": "Eres el único administrador de este espacio de trabajo. Nombra administrador a otro miembro activo antes de salir.",
       "workspaceLimitReached": "Puedes crear hasta {limit} espacios de trabajo. Contacta con soporte si necesitas más.",
       "workspaceMemberLastAdmin": "Este miembro es el único administrador activo de este espacio de trabajo. Nombra administrador a otro miembro activo antes de quitarlo.",
-      "workspaceMemberLeft": "Este miembro salió del espacio de trabajo. Vuelve a invitarlo para darle acceso.",
+      "workspaceMemberLeft": "Este miembro salió del espacio de trabajo. Puede pedir unirse de nuevo con un enlace de invitación y un administrador tiene que aprobar la solicitud.",
       "workspaceMemberPlatformOperator": "Esta cuenta pertenece a un operador de plataforma y no se puede quitar aquí. Usa la consola de operador.",
       "workspaceMemberRemoveSelf": "No puedes quitarte a ti mismo de un espacio de trabajo. Sal de él en su lugar.",
       "workspaceNotFound": "No se encontró este espacio de trabajo o no eres miembro.",
@@ -2339,7 +2339,6 @@
     "contactSupport": "Tranquilo, se nos ha avisado automáticamente de este problema y ya lo estamos revisando. Si necesitas ayuda inmediata, no dudes en contactar con nuestro equipo de soporte.",
     "ctaLabel": "Volver al inicio",
     "demoModeError": "En el modo demo no se puede guardar, eliminar ni modificar datos. <link>Empieza gratis ahora</link> para acceder a todas las funciones.",
-    "inactiveUser": "Tu acceso a este espacio de trabajo está inactivo. Pide a un administrador del espacio de trabajo que lo reactive.",
     "invalidInviteLink": "El enlace de invitación que has usado no es válido o puede haber sido alterado. Contacta con tu administrador para solicitar un enlace nuevo y válido y continuar con tu registro.",
     "invalidOnboardingIntent": "Este enlace de incorporación no es válido. Vuelve a la incorporación o abre de nuevo el enlace de invitación original.",
     "inviteLinkExpired": "El enlace de invitación que has intentado usar ha caducado y ya no se puede utilizar. Contacta con tu administrador y pídele que genere uno nuevo para completar la configuración de tu cuenta.",
@@ -2464,6 +2463,12 @@
     "taglineMcp": "MCP",
     "taglinePost": " o el navegador. Automatizaciones mediante REST, webhooks y tu instancia de n8n.",
     "taglinePre": "IA externa mediante"
+  },
+  "InactiveCard": {
+    "body": "Cuando tu acceso vuelva a estar activo, actualiza esta página para continuar.",
+    "otherWorkspaces": "Tus otros espacios de trabajo no cambian. Cambia a uno de ellos desde el menú del espacio de trabajo.",
+    "subtitle": "Un administrador de este espacio de trabajo puede reactivarlo",
+    "title": "Tu acceso a {workspace} está inactivo"
   },
   "Inbox": {
     "attachmentCount": "{count, plural, one {# archivo adjunto:} other {# archivos adjuntos:}}",
@@ -2785,7 +2790,7 @@
       "credentials": "Sus claves de API y conexiones MCP para este espacio de trabajo dejan de funcionar.",
       "notified": "Se le avisa por correo.",
       "records": "Sus registros y su historial se conservan.",
-      "rejoin": "Para volver, necesita una nueva invitación."
+      "rejoin": "Para volver, puede pedir unirse de nuevo con un enlace de invitación. Un administrador tiene que aprobar la solicitud."
     },
     "ownHint": "Para salir de este espacio de trabajo, usa «Salir del espacio de trabajo» en <generalLink>General</generalLink>.",
     "pendingDescription": "{name} está esperando aprobación. Quitarlo rechaza la solicitud.",
@@ -3243,10 +3248,10 @@
   },
   "PendingCard": {
     "body": "Podrás trabajar en este espacio de trabajo en cuanto un administrador apruebe tu solicitud.",
-    "subtitle": "Un administrador está revisando tu solicitud para unirte a este espacio de trabajo",
+    "subtitle": "Un administrador está revisando tu solicitud para unirte a {workspace}",
     "title": "A la espera de aprobación",
     "withdraw": "Retirar solicitud",
-    "withdrawConfirmDescription": "Los administradores ya no ven tu solicitud. Para unirte más tarde, un administrador tiene que invitarte de nuevo.",
+    "withdrawConfirmDescription": "Los administradores ya no ven tu solicitud. Para unirte más tarde, puedes volver a solicitarlo con un enlace de invitación y un administrador tendrá que aprobar la solicitud.",
     "withdrawConfirmTitle": "¿Retirar tu solicitud para unirte a {name}?",
     "withdrawShort": "Retirar"
   },
@@ -4221,7 +4226,8 @@
     "agreeToTerms": "Al continuar, aceptas nuestros <termsOfServiceLink>Términos</termsOfServiceLink> y reconoces haber leído nuestra <dataPrivacyLink>Política de privacidad</dataPrivacyLink>. Consulta nuestro <dpaLink>DPA</dpaLink>.",
     "buttonLabel": "Continuar con {provider}",
     "forgotPassword": "¿Has olvidado tu contraseña?",
-    "inviteSubtitle": "{inviterName} te ha invitado a unirte a su espacio de trabajo. Inicia sesión para revisar la invitación.",
+    "inviteSubtitle": "{inviterName} te ha invitado a unirte a un espacio de trabajo. Inicia sesión para revisar la invitación.",
+    "inviteSubtitleNamed": "{inviterName} te ha invitado a unirte a {workspace}. Inicia sesión para revisar la invitación.",
     "or": "O",
     "rememberMe": "Recordarme",
     "signInCta": "Iniciar sesión",
@@ -4233,7 +4239,8 @@
     "accountSubtitle": "Crea primero tu cuenta. Después elige si quieres crear un espacio de trabajo nuevo o unirte a uno existente.",
     "agreeToTerms": "Al continuar, aceptas nuestros <termsOfServiceLink>Términos</termsOfServiceLink> y reconoces haber leído nuestra <dataPrivacyLink>Política de privacidad</dataPrivacyLink>. Consulta nuestro <dpaLink>DPA</dpaLink>.",
     "buttonLabel": "Regístrate con {provider}",
-    "inviteSubtitle": "{inviterName} te ha invitado a unirte a su espacio de trabajo en Customermates. Elige cómo quieres crear tu cuenta.",
+    "inviteSubtitle": "{inviterName} te ha invitado a unirte a un espacio de trabajo en Customermates. Elige cómo quieres crear tu cuenta.",
+    "inviteSubtitleNamed": "{inviterName} te ha invitado a unirte a {workspace} en Customermates. Elige cómo quieres crear tu cuenta.",
     "inviteTitle": "Aceptar la invitación de la empresa",
     "or": "O",
     "signUpCta": "Crear una cuenta",
@@ -4622,7 +4629,6 @@
     "join": {
       "action": "Unirse al espacio de trabajo",
       "body": "Un administrador aprueba tu solicitud antes de que obtengas acceso. Tus otros espacios de trabajo no cambian.",
-      "terms": "Al unirte, aceptas cumplir los <termsOfServiceLink>Términos</termsOfServiceLink> y confirmas que has leído el <dpaLink>DPA</dpaLink> y la <dataPrivacyLink>Política de privacidad</dataPrivacyLink>.",
       "title": "Unirte a este espacio de trabajo",
       "titleNamed": "Unirte a {workspace}"
     },
@@ -4642,7 +4648,7 @@
   },
   "WorkspaceMembership": {
     "left": "Ya no es miembro",
-    "leftNotice": "{name} salió de este espacio de trabajo. Para darle acceso de nuevo, envía una nueva invitación."
+    "leftNotice": "{name} salió de este espacio de trabajo. Puede pedir unirse de nuevo con un enlace de invitación y un administrador tiene que aprobar la solicitud."
   },
   "WorkspaceMenu": {
     "inviteMembers": "Invitar miembros",
@@ -4657,7 +4663,7 @@
     "cta": "Iniciar sesión",
     "greeting": "Hola {firstName}:",
     "otherWorkspaces": "Tu cuenta y tus otros espacios de trabajo no cambian, así que puedes seguir iniciando sesión como siempre.",
-    "rejoin": "Si necesitas acceso de nuevo, pide una nueva invitación a un administrador de «{workspace}».",
+    "rejoin": "Si necesitas acceso de nuevo, puedes volver a pedir unirte a «{workspace}» con un enlace de invitación. Un administrador tiene que aprobar tu solicitud.",
     "subject": "Ya no formas parte de «{workspace}»",
     "title": "Acceso al espacio de trabajo finalizado"
   },
@@ -4676,7 +4682,7 @@
       "title": "Elige un plan para {name}"
     },
     "leave": "Salir del espacio de trabajo",
-    "leaveConfirmDescription": "Pierdes el acceso a sus registros, su base de conocimientos y sus conexiones, y tus claves de API y conexiones MCP asociadas dejan de funcionar. Para volver, un administrador tendrá que invitarte de nuevo.",
+    "leaveConfirmDescription": "Pierdes el acceso a sus registros, su base de conocimientos y sus conexiones, y tus claves de API y conexiones MCP asociadas dejan de funcionar. Para volver, puedes pedir unirte de nuevo con un enlace de invitación y un administrador tendrá que aprobar tu solicitud.",
     "leaveConfirmTitle": "¿Salir de {name}?",
     "leaveDescription": "Sal de este espacio de trabajo. Tus otros espacios de trabajo no cambian.",
     "leaveShort": "Salir",

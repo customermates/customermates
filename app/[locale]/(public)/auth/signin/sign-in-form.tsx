@@ -31,9 +31,11 @@ type Props = {
   inviterName?: string;
   onboardingIntent?: string;
   socialProviders: { google: boolean; microsoft: boolean };
+  workspaceName?: string | null;
 };
 
-const SignInFormContent = observer(({ callbackURL, inviterName, onboardingIntent, socialProviders }: Props) => {
+const SignInFormContent = observer((props: Props) => {
+  const { callbackURL, inviterName, onboardingIntent, socialProviders, workspaceName } = props;
   const searchParams = useSearchParams();
 
   const t = useTranslations();
@@ -46,6 +48,7 @@ const SignInFormContent = observer(({ callbackURL, inviterName, onboardingIntent
   });
   const { isLoading } = signInStore;
   const isInvited = Boolean(onboardingIntent && inviterName);
+  const workspace = workspaceName?.trim() ?? "";
 
   useEffect(() => {
     if (signInStore.form.callbackURL !== resolvedCallbackURL)
@@ -80,7 +83,11 @@ const SignInFormContent = observer(({ callbackURL, inviterName, onboardingIntent
 
           {isInvited ? (
             <Alert className="mb-4" role="note">
-              <p className="text-x-sm">{t("SignInForm.inviteSubtitle", { inviterName: inviterName ?? "" })}</p>
+              <p className="text-x-sm">
+                {workspace
+                  ? t("SignInForm.inviteSubtitleNamed", { inviterName: inviterName ?? "", workspace })
+                  : t("SignInForm.inviteSubtitle", { inviterName: inviterName ?? "" })}
+              </p>
             </Alert>
           ) : null}
 

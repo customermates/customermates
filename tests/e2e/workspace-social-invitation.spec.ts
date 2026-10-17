@@ -8,7 +8,7 @@ import { collectPageErrors, expect, test } from "./fixtures";
 import { localE2eEnvironment } from "./local-environment";
 import { expectedAuthorization, routeSocialProvider } from "./social-sign-in";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
-import { inviteToken } from "./workspace-membership";
+import { inviteToken, joinFromInvitation } from "./workspace-membership";
 import { activeWorkspaceOf, clickHydrated, e2eAppMode, expectHydrated } from "./workspace-switching";
 
 test.skip(e2eAppMode() !== "cloud", "The local OAuth provider stands in for the cloud's Google and Microsoft clients");
@@ -67,7 +67,12 @@ test("an existing login signs in with Google from an invitation, lands on the jo
 
     await openInvitationSignedOut(page, token, "signin");
     await expect(
-      page.getByText("Browser Administrator invited you to join their workspace.", { exact: false }),
+      page.getByText(
+        englishMessages.SignInForm.inviteSubtitleNamed
+          .replace("{inviterName}", "Browser Administrator")
+          .replace("{workspace}", "Hoffmann Consulting"),
+        { exact: true },
+      ),
     ).toBeVisible();
     await clickHydrated(page.getByRole("button", { name: "Continue with Google", exact: true }));
 
@@ -80,7 +85,7 @@ test("an existing login signs in with Google from an invitation, lands on the jo
       { authUserId: workspace.authUserId, providerId: "google", accountId: identity.sub },
     ]);
 
-    await clickHydrated(page.getByRole("button", { name: "Join workspace", exact: true }));
+    await joinFromInvitation(page);
     await expect(page).toHaveURL(/\/en\/auth\/pending$/);
     expect(await membershipsIn(database, inviter.companyId, email)).toEqual([
       { status: "pendingAuthorization", roleId: null },
@@ -198,7 +203,7 @@ test("a Google login with another e-mail than the invited person sees whom it is
     await clickHydrated(page.getByRole("button", { name: "Continue with Google", exact: true }));
     await expect(page).toHaveURL(/\/en\/auth\/invitation\?intent=/);
     await expect(page.getByText(`Signed in as ${invitedEmail}`, { exact: false })).toBeVisible();
-    await clickHydrated(page.getByRole("button", { name: "Join workspace", exact: true }));
+    await joinFromInvitation(page);
     await expect(page).toHaveURL(/\/en\/auth\/pending$/);
     expect(await membershipsIn(database, inviter.companyId, invitedEmail)).toEqual([
       { status: "pendingAuthorization", roleId: null },
@@ -238,7 +243,7 @@ test("an existing login signs in with Microsoft from an invitation and joins the
     expect(await socialAccounts(database, email)).toEqual([
       { authUserId: workspace.authUserId, providerId: "microsoft", accountId: identity.sub },
     ]);
-    await clickHydrated(page.getByRole("button", { name: "Join workspace", exact: true }));
+    await joinFromInvitation(page);
     await expect(page).toHaveURL(/\/en\/auth\/pending$/);
     expect(await membershipsIn(database, inviter.companyId, email)).toEqual([
       { status: "pendingAuthorization", roleId: null },

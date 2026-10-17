@@ -181,7 +181,7 @@ describe("RemoveWorkspaceMemberInteractor", () => {
     expect(text).toContain("Du wurdest aus dem Workspace „Hoffmann Consulting“ auf Customermates entfernt.");
     expect(text).toContain("API-Schlüssel und MCP-Verbindungen für diesen Workspace funktionieren nicht mehr");
     expect(text).toContain("deine anderen Workspaces bleiben unverändert");
-    expect(text).toContain("bitte einen Admin von „Hoffmann Consulting“ um eine neue Einladung");
+    expect(text).toContain("über einen Einladungslink erneut den Beitritt zu „Hoffmann Consulting“ anfragen");
   });
 
   it("names a workspace without a name by the localized fallback", async () => {

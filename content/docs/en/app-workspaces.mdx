@@ -21,7 +21,7 @@ You get the built-in **Admin** role in the new workspace, and this browser sessi
 
 ## How do I switch between workspaces? [#how-do-i-switch-workspaces]
 
-The workspace menu at the top of the sidebar lists every workspace you belong to; choose one to switch to it. The command palette offers the same list under **Switch workspace…**. The choice applies to this browser session, so another browser or device can be in a different workspace at the same time. Other tabs of the same browser show "You switched workspaces in another tab" with **Reload**, so nothing is saved to the wrong workspace. The workspace you switched to is remembered as your last used one and opens at your next sign-in.
+The workspace menu at the top of the sidebar lists every workspace you belong to; choose one to switch to it. The command palette offers the same list under **Switch workspace…**. The choice applies to this browser session, so another browser or device can be in a different workspace at the same time. Other tabs of the same browser show "You switched workspaces in another tab" with **Reload**, so nothing is saved to the wrong workspace. The workspace you switched to is remembered as your last used one and opens at your next sign-in. While a workspace waits for your approval or your access to it is inactive, its page names the workspace, and the workspace menu still lists your other workspaces to switch to.
 
 [Workspaces](app:settings/workspaces) under **Account** in Settings lists the same workspaces with your role, your status and the plan of each, with **Switch** for the others, **Leave** for the current one and **Create workspace**.
 
@@ -31,9 +31,9 @@ Open [General](app:settings/general) under **Workspace** in Settings and change 
 
 ## How do I join a workspace with my existing account? [#how-do-i-join-with-an-existing-account]
 
-Invitations work as for new people: a member shares the invitation link or sends it by email, see [How do I invite people?](/docs/app-company#how-do-invitations-work). Open the link while you are signed in to Customermates: **Join …** shows who invited you, with **Join workspace** and **Use another account**. On Customermates Cloud, joining accepts the Terms. You join with the profile you already have and land on **Waiting for Approval** until someone with **Edit** on **Users & Roles** approves you on [Members](app:settings/members). Meanwhile the workspace menu switches back to your other workspaces, and **Withdraw request** takes the request back.
+Invitations work as for new people: a member shares the invitation link or sends it by email, see [How do I invite people?](/docs/app-company#how-do-invitations-work). Open the link while you are signed in to Customermates: **Join …** shows who invited you, with **Join workspace** and **Use another account**. On Customermates Cloud, first tick the checkbox to agree to the Terms and confirm that you have read the DPA and the Privacy Policy, then click **Join workspace**. You join with the profile you already have and land on **Waiting for Approval**, which names the workspace, until someone with **Edit** on **Users & Roles** approves you on [Members](app:settings/members). Meanwhile the workspace menu switches back to your other workspaces, and **Withdraw request** takes the request back; to join later, ask again with an invitation link.
 
-If you already belong to that workspace, the page offers **Open workspace**, which switches to it; if you were set to **Inactive** there, it says **Your access is deactivated**. If you left the workspace or were removed from it, a new invitation lets you rejoin, and you need approval again.
+If you already belong to that workspace, the page offers **Open workspace**, which switches to it; if you were set to **Inactive** there, it says **Your access is deactivated**. If you left the workspace, were removed from it or withdrew your request, open an invitation link of that workspace again to ask to join: the page offers **Join workspace** again, and someone with **Edit** on **Users & Roles** has to approve the new request.
 
 ## How do I leave a workspace? [#how-do-i-leave-a-workspace]
 
@@ -45,11 +45,11 @@ Open [General](app:settings/general) under **Workspace** in Settings and click *
 - pauses your routines in it,
 - on Cloud, removes your seat from that workspace's billing.
 
-Pages of that workspace still open in another tab or on another device stop saving and ask you to reload, which opens your last used workspace. Your account and your other workspaces stay untouched. The last active member with the **Admin** role cannot leave: make another active member an admin first, otherwise leaving fails with "You are the only admin of this workspace. Make another active member an admin before you leave." Customermates platform operators cannot leave a workspace. To come back you need a new invitation and approval. The app offers no way to delete a workspace.
+Pages of that workspace still open in another tab or on another device stop saving and ask you to reload, which opens your last used workspace. Your account and your other workspaces stay untouched. The last active member with the **Admin** role cannot leave: both buttons are disabled, and pointing at one shows "You are the only admin of this workspace. Make another active member an admin before you leave." Make another active member an admin first. Customermates platform operators cannot leave a workspace. To come back, open an invitation link of the workspace and ask to join again; someone with **Edit** on **Users & Roles** has to approve the request. The app offers no way to delete a workspace.
 
 ## What happens when someone removes me from a workspace? [#what-happens-when-removed]
 
-A member with **Edit** on **Users & Roles** can remove you on [Members](app:settings/members), see [How do I approve, edit, deactivate or remove a member?](/docs/app-company#how-do-i-approve-deactivate-or-edit-a-member). For you it works like leaving: your API keys and MCP connections for that workspace stop working, the channels you connected in it are disconnected, and the workspace disappears from your workspace menu. You get an email that names the workspace and links to sign in. Pages of that workspace still open in a tab or on another device stop saving and ask you to reload, which opens your last used other workspace. If you were waiting for approval, the removal declines your request without an email. To come back you need a new invitation and approval.
+A member with **Edit** on **Users & Roles** can remove you on [Members](app:settings/members), see [How do I approve, edit, deactivate or remove a member?](/docs/app-company#how-do-i-approve-deactivate-or-edit-a-member). For you it works like leaving: your API keys and MCP connections for that workspace stop working, the channels you connected in it are disconnected, and the workspace disappears from your workspace menu. You get an email that names the workspace and links to sign in. Pages of that workspace still open in a tab or on another device stop saving and ask you to reload, which opens your last used other workspace. If you were waiting for approval, the removal declines your request without an email. To come back, open an invitation link of the workspace and ask to join again; someone with **Edit** on **Users & Roles** has to approve the request.
 
 ## Which workspace do API keys and MCP connections use? [#which-workspace-do-api-keys-and-connections-use]
 
@@ -61,7 +61,7 @@ Channels you connect in [Channels](app:settings/channels), such as a mailbox or 
 
 ## How is each workspace billed, and how are seats counted? [#how-is-each-workspace-billed]
 
-On Customermates Cloud, each workspace has its own plan, subscription, invoices and hosted AI credit pool on [Billing](app:settings/billing), managed by its members with **Edit** on **Company**. A person who is **Active** in several workspaces is a billed seat in each of them; see [How are seats counted and billed?](/docs/app-company#how-are-seats-counted-and-billed).
+On Customermates Cloud, each workspace has its own plan, subscription, invoices and hosted AI credit pool on [Billing](app:settings/billing), managed by its members with **Edit** on **Company**; plan changes, invoices and cancelling are open only to the admin who pays for the workspace, see [How do I cancel, change the payment method or get invoices?](/docs/app-company#how-do-i-cancel-change-the-payment-method-or-get-invoices). A person who is **Active** in several workspaces is a billed seat in each of them; see [How are seats counted and billed?](/docs/app-company#how-are-seats-counted-and-billed).
 
 ### Which workspace gets the free trial? [#which-workspace-gets-the-free-trial]
 
