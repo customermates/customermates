@@ -196,6 +196,10 @@ test("the only admin of a workspace cannot leave it, which both pages say before
     await expect(blocked).toBeVisible();
     await blocked.focus();
     await expect(page.getByRole("tooltip")).toContainText(englishMessages.Common.errors.workspaceLastAdmin);
+    const reason = page.locator(`${id}-reason`);
+    await expect(reason).toHaveText(englishMessages.Common.errors.workspaceLastAdmin);
+    if (testInfo.project.use.isMobile) await expect(reason).toBeVisible();
+    else await expect(reason).toBeHidden();
     await page.screenshot({ path: testInfo.outputPath(`ws-settings-leave-blocked${id.replace("#", "-")}.png`) });
     await leave.click({ force: true });
     await expect(page.getByRole("alertdialog")).toHaveCount(0);

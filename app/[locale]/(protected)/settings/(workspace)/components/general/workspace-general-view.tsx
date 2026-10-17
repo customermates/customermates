@@ -7,7 +7,11 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
-import { LeaveWorkspaceButton, LeaveWorkspaceDialog } from "@/app/components/workspaces/leave-workspace-dialog";
+import {
+  LeaveWorkspaceButton,
+  LeaveWorkspaceDialog,
+  LeaveWorkspaceReason,
+} from "@/app/components/workspaces/leave-workspace-dialog";
 import { WorkspaceAvatar } from "@/app/components/workspaces/workspace-avatar";
 import { workspaceDisplayName } from "@/app/components/workspaces/workspace-identity";
 import { AppForm } from "@/components/forms/form-context";
@@ -94,6 +98,8 @@ const WorkspaceGeneralViewContent = observer(({ leaveRefusal, workspace }: Props
                   refusal={leaveRefusal}
                   onClick={() => setConfirmingLeave(true)}
                 />
+
+                <LeaveWorkspaceReason className="mt-1" id="settings-general-leave" refusal={leaveRefusal} />
               </Alert>
             </section>
           )}

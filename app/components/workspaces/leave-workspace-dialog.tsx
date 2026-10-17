@@ -9,6 +9,7 @@ import { ConfirmDialog } from "@/components/modal/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { cn } from "@/core/utils/cn";
 
 type Props = {
   anchorScope: string;
@@ -25,14 +26,40 @@ type ButtonProps = {
   onClick: () => void;
 };
 
-export function LeaveWorkspaceButton({ className, id, label, refusal, onClick }: ButtonProps) {
+type ReasonProps = {
+  className?: string;
+  id: string;
+  refusal: WorkspaceLeaveRefusal | null;
+};
+
+function useLeaveBlocker(refusal: WorkspaceLeaveRefusal | null): string | null {
   const t = useTranslations();
-  const blocker =
-    refusal === "lastAdmin"
-      ? t("Common.errors.workspaceLastAdmin")
-      : refusal === "platformOperator"
-        ? t("MemberRemoval.blocked.platformOperator")
-        : null;
+  if (refusal === "lastAdmin") return t("Common.errors.workspaceLastAdmin");
+  if (refusal === "platformOperator") return t("MemberRemoval.blocked.platformOperator");
+  return null;
+}
+
+function leaveReasonId(id: string): string {
+  return `${id}-reason`;
+}
+
+export function LeaveWorkspaceReason({ className, id, refusal }: ReasonProps) {
+  const blocker = useLeaveBlocker(refusal);
+  if (!blocker) return null;
+
+  return (
+    <p
+      className={cn("hidden text-xs text-subdued max-sm:block pointer-coarse:block", className)}
+      data-slot="leave-workspace-reason"
+      id={leaveReasonId(id)}
+    >
+      {blocker}
+    </p>
+  );
+}
+
+export function LeaveWorkspaceButton({ className, id, label, refusal, onClick }: ButtonProps) {
+  const blocker = useLeaveBlocker(refusal);
   const button = (
     <Button
       className={className}
@@ -52,6 +79,7 @@ export function LeaveWorkspaceButton({ className, id, label, refusal, onClick }:
     <Tooltip>
       <TooltipTrigger asChild>
         <span
+          aria-describedby={leaveReasonId(id)}
           aria-disabled="true"
           aria-label={label}
           className="inline-flex w-fit"

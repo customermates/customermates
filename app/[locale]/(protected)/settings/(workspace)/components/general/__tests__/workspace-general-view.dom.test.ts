@@ -138,6 +138,25 @@ describe("WorkspaceGeneralView", () => {
     expect(trigger?.contains(leave ?? null)).toBe(true);
   });
 
+  it("shows the leave blocker as text next to the button on small and touch screens, where tooltips cannot open", () => {
+    freshRootStore(true);
+    container = document.createElement("div");
+    document.body.append(container);
+    container.innerHTML = renderToString(createElement(WorkspaceGeneralView, { leaveRefusal: "lastAdmin", workspace }));
+
+    const alert = container.querySelector<HTMLElement>("[data-slot='alert']");
+    const trigger = container.querySelector<HTMLElement>("[data-slot='leave-workspace-blocked']");
+    const reason = container.querySelector<HTMLElement>("[data-slot='leave-workspace-reason']");
+
+    expect(reason?.textContent).toBe("Common.errors.workspaceLastAdmin");
+    expect(alert?.contains(reason ?? null)).toBe(true);
+    expect(reason?.id).toBe("settings-general-leave-reason");
+    expect(trigger?.getAttribute("aria-describedby")).toBe(reason?.id);
+    expect(reason?.classList).toContain("hidden");
+    expect(reason?.classList).toContain("max-sm:block");
+    expect(reason?.classList).toContain("pointer-coarse:block");
+  });
+
   it("offers leaving to an admin who is not the last one", () => {
     freshRootStore(true);
     container = document.createElement("div");
@@ -145,5 +164,6 @@ describe("WorkspaceGeneralView", () => {
 
     expect(container.querySelector<HTMLButtonElement>("#settings-general-leave")?.disabled).toBe(false);
     expect(container.querySelector("[data-slot='leave-workspace-blocked']")).toBeNull();
+    expect(container.querySelector("[data-slot='leave-workspace-reason']")).toBeNull();
   });
 });

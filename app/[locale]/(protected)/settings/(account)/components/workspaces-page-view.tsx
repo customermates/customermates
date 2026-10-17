@@ -9,7 +9,11 @@ import { useMemo, useState } from "react";
 import { Status } from "@/generated/prisma";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
-import { LeaveWorkspaceButton, LeaveWorkspaceDialog } from "@/app/components/workspaces/leave-workspace-dialog";
+import {
+  LeaveWorkspaceButton,
+  LeaveWorkspaceDialog,
+  LeaveWorkspaceReason,
+} from "@/app/components/workspaces/leave-workspace-dialog";
 import { WorkspaceAvatar } from "@/app/components/workspaces/workspace-avatar";
 import { workspaceDisplayName } from "@/app/components/workspaces/workspace-identity";
 import { workspacePlanChip } from "@/app/components/workspaces/workspace-plan-chip";
@@ -128,6 +132,14 @@ const WorkspacesPageViewContent = observer(({ leaveRefusal, workspaces }: Props)
                         </Button>
                       )}
                     </div>
+
+                    {workspace.isCurrent && canLeaveCurrent ? (
+                      <LeaveWorkspaceReason
+                        className="basis-full"
+                        id="settings-workspaces-leave"
+                        refusal={leaveRefusal}
+                      />
+                    ) : null}
                   </li>
                 );
               })}
