@@ -906,6 +906,7 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
       di.getAdjustWorkspaceSetupInteractor().invoke({
         setupId,
         answers: {
+          purpose: { format: "multipleChoice", values: ["clients"], custom: [] },
           knowledgePages: { format: "multipleChoice", values: ["overview"], custom: [] },
           addressForm: { format: "singleChoice", value: "informal" },
           competitors: { format: "orderedList", items: [{ label: "Studio North" }] },
@@ -1266,7 +1267,7 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
       .map((args) => args.prompt);
     expect(samplePrompts.length).toBeGreaterThan(0);
     for (const prompt of samplePrompts) {
-      expect(prompt).toContain("Company facts:");
+      expect(prompt).toContain("Workspace facts:");
       expect(prompt).not.toContain("Relaunch");
     }
 

@@ -813,14 +813,14 @@ export class WorkspaceSetupBuildService extends UserAccessor {
       schema: sampleRecordsWireSchema(headers),
       system: SETUP_SAMPLE_RECORDS_INSTRUCTION,
       prompt: [
-        `Workspace language: ${setupLanguageName(setupLanguage(setup.answers))}. Currency: ${setupCurrency(setup.answers) ?? "EUR"}.`,
+        `Workspace language: ${setupLanguageName(setupLanguage(setup.answers))}. Currency: ${setupCurrency(setup.answers) ?? "EUR"}. Today: ${new Date().toISOString().slice(0, 10)}.`,
         `List: ${spec.label}. Write ${spec.count} records${spec.kinds.length ? ` covering: ${spec.kinds.join(", ")}` : ""}.`,
         `Columns: ${encodePromptJson(spec.columns.map(({ column, label, valueType, multiple, options, required }) => ({ column, label, valueType, multiple, required, ...(options.length ? { options } : {}) })))}`,
         ...spec.links.map(
           (link) =>
             `Link column ${link.column} (${link.label}, ${link.many ? "several names separated by ;" : "one name"}${link.unique ? ", each name in at most one record" : ""}): ${encodePromptJson(titles.get(link.targetList) ?? [])}`,
         ),
-        "Company facts:",
+        "Workspace facts:",
         untrustedText(encodePromptJson(facts)),
       ].join("\n"),
     });
