@@ -283,7 +283,7 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
     rmSync(providerDirectory, { recursive: true, force: true });
   });
 
-  it("starts the checkout of the extra workspace with its own company id and only its active members as seats", async () => {
+  it("starts the checkout of the extra workspace with its own company id and name and only its active members as seats", async () => {
     const { getCreateCheckoutSessionInteractor } = await import("@/core/di");
     const { isRedirect } = await import("@/features/auth/auth-outcome");
     const { env } = await import("@/env");
@@ -298,6 +298,7 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
       variantId: localLemonSqueezyVariants.pro,
       custom: signed(companies.paid),
       variantQuantities: [{ variant_id: Number(localLemonSqueezyVariants.pro), quantity: 2 }],
+      productName: "Paid plan paid",
       redirectUrl: `${env.BASE_URL}/settings/billing`,
       skipTrial: true,
     });

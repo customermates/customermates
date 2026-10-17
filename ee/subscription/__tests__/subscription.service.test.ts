@@ -95,6 +95,29 @@ describe("SubscriptionService.createCheckoutOrThrow", () => {
       checkoutOptions: { skipTrial: true },
       expiresAt: "2026-10-17T12:00:00.000Z",
     });
+    expect(mockCreateCheckout.mock.calls[0][2].productOptions).not.toHaveProperty("name");
+  });
+
+  it("gives the checkout's product the name it is asked for", async () => {
+    const service = new SubscriptionService(makeRepo() as never);
+    mockCreateCheckout.mockResolvedValue({
+      error: null,
+      data: { data: { attributes: { url: "https://checkout.example.com" } } },
+    });
+
+    await service.createCheckoutOrThrow({
+      offer: getCommercialOfferOrThrow("business", "monthly"),
+      quantity: 1,
+      productName: "Steuern 2026",
+      redirectUrl: "https://customermates.example/settings/billing",
+      expiresAt: new Date("2026-10-17T12:00:00.000Z"),
+    });
+
+    expect(mockCreateCheckout.mock.calls[0][2].productOptions).toEqual({
+      name: "Steuern 2026",
+      redirectUrl: "https://customermates.example/settings/billing",
+      enabledVariants: [2003],
+    });
   });
 });
 
@@ -108,6 +131,32 @@ describe("SubscriptionService.getSubscriptionOrThrowUnscoped", () => {
     const subscription = await service.getSubscriptionOrThrowUnscoped("sub-1");
 
     expect(subscription.data.attributes.created_at).toBe("2026-10-16T09:12:34.000000Z");
+  });
+
+  it("reads the payer's e-mail and both signed billing links of a real-shaped subscription", async () => {
+    const service = new SubscriptionService(makeRepo() as never);
+    const attributes = lemonSqueezySubscriptionAttributes({
+      subscriptionId: "123456789",
+      itemId: 987654321,
+      storeId: 1,
+      storeOrigin: "https://customermates.lemonsqueezy.com",
+      variantId: 2003,
+      variantName: "Business",
+      quantity: 1,
+      customer: { name: "Test Customer", email: "customer@example.invalid" },
+    });
+    mockGetSubscription.mockResolvedValue({
+      error: null,
+      data: { data: { type: "subscriptions", id: "123456789", attributes } },
+    });
+
+    const { user_email: payerEmail, urls } = (await service.getSubscriptionOrThrowUnscoped("123456789")).data
+      .attributes;
+
+    expect(payerEmail).toBe("customer@example.invalid");
+    expect(urls?.customer_portal).toBe(attributes.urls.customer_portal);
+    expect(urls?.update_payment_method).toBe(attributes.urls.update_payment_method);
+    expect(new URL(urls?.update_payment_method ?? "").pathname).toBe("/subscription/123456789/payment-details");
   });
 });
 

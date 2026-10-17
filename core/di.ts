@@ -1709,7 +1709,7 @@ export const getAuthorizeMcpConnectionInteractor = () => new AuthorizeMcpConnect
 // --- EE Subscription ---
 
 export const getCreateCheckoutSessionInteractor = () =>
-  new CreateCheckoutSessionInteractor(getSubscriptionService(), getCompanyRepo(), getUserRepo());
+  new CreateCheckoutSessionInteractor(getSubscriptionService(), getCompanyRepo(), getUserRepo(), getCompanyRepo());
 
 export const getAbandonCheckoutInteractor = () => new AbandonCheckoutInteractor(getCompanyRepo());
 

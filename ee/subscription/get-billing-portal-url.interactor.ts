@@ -11,6 +11,11 @@ import { failUnavailable } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { GetBillingPortalUrlRepo } from "./get-billing-portal-url.repo";
 
+function isPayer(payerEmail: string | null | undefined, memberEmail: string) {
+  const payer = payerEmail?.trim().toLowerCase();
+  return Boolean(payer) && payer === memberEmail.trim().toLowerCase();
+}
+
 @TenantInteractor({ resource: Resource.company, manage: "update" })
 export class GetBillingPortalUrlInteractor extends UserAccessor {
   constructor(
@@ -29,7 +34,8 @@ export class GetBillingPortalUrlInteractor extends UserAccessor {
     const lemonSqueezySubscription = await this.lemonSqueezyService.getSubscriptionOrThrowUnscoped(
       subscription.lemonSqueezyId,
     );
-    const portalUrl = lemonSqueezySubscription.data.attributes.urls?.customer_portal;
+    const { user_email: payerEmail, urls } = lemonSqueezySubscription.data.attributes;
+    const portalUrl = isPayer(payerEmail, this.user.email) ? urls?.customer_portal : urls?.update_payment_method;
 
     if (!portalUrl) return failUnavailable(CustomErrorCode.billingPortalUnavailable);
 

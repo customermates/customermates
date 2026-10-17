@@ -64,6 +64,17 @@ function makeUserRepo() {
   return { countActiveUsers: vi.fn().mockResolvedValue(4) };
 }
 
+function makeCompanyRepo(name: string | null = "Bergmann Steuern") {
+  return {
+    findCompanyOrThrow: vi.fn().mockResolvedValue({
+      id: COMPANY_ID,
+      name,
+      createdAt: new Date(0),
+      updatedAt: new Date(0),
+    }),
+  };
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
   request.origin = "https://feat-inbox.customermates.com";
@@ -78,6 +89,7 @@ describe("CreateCheckoutSessionInteractor", () => {
       subscriptionService as never,
       repo as never,
       userRepo as never,
+      makeCompanyRepo() as never,
     );
 
     const result = await interactor.invoke({
@@ -90,10 +102,42 @@ describe("CreateCheckoutSessionInteractor", () => {
     expect(subscriptionService.createCheckoutOrThrow).toHaveBeenCalledWith({
       offer: expect.objectContaining({ id: "business:monthly" }),
       quantity: 4,
+      productName: "Bergmann Steuern",
       custom: { company_id: COMPANY_ID, company_signature: expect.stringMatching(/^[0-9a-f]{64}$/) },
       redirectUrl: "https://feat-inbox.customermates.com/settings/billing",
       expiresAt: expect.any(Date),
     });
+  });
+
+  it("names the checkout after the workspace so the payer can tell its subscriptions apart", async () => {
+    const subscriptionService = makeSubscriptionService();
+    const companyRepo = makeCompanyRepo("  Steuern 2026 ");
+    const interactor = new CreateCheckoutSessionInteractor(
+      subscriptionService as never,
+      makeCheckoutRepo() as never,
+      makeUserRepo() as never,
+      companyRepo as never,
+    );
+
+    await interactor.invoke({ plan: "pro", cadence: "monthly" } as never);
+
+    expect(companyRepo.findCompanyOrThrow).toHaveBeenCalledOnce();
+    expect(subscriptionService.createCheckoutOrThrow.mock.calls[0][0]).toMatchObject({ productName: "Steuern 2026" });
+  });
+
+  it.each([null, "", "   "])("keeps the product's own name on the checkout of a workspace named %j", async (name) => {
+    const subscriptionService = makeSubscriptionService();
+    const interactor = new CreateCheckoutSessionInteractor(
+      subscriptionService as never,
+      makeCheckoutRepo() as never,
+      makeUserRepo() as never,
+      makeCompanyRepo(name) as never,
+    );
+
+    expect(await interactor.invoke({ plan: "pro", cadence: "monthly" } as never)).toMatchObject({
+      redirect: "https://checkout.example.com",
+    });
+    expect(subscriptionService.createCheckoutOrThrow.mock.calls[0][0]).not.toHaveProperty("productName");
   });
 
   it("lets the checkout link expire a day after the start it records", async () => {
@@ -103,6 +147,7 @@ describe("CreateCheckoutSessionInteractor", () => {
       subscriptionService as never,
       repo as never,
       makeUserRepo() as never,
+      makeCompanyRepo() as never,
     );
 
     await interactor.invoke({ plan: "pro", cadence: "monthly" } as never);
@@ -118,6 +163,7 @@ describe("CreateCheckoutSessionInteractor", () => {
       subscriptionService as never,
       makeCheckoutRepo() as never,
       makeUserRepo() as never,
+      makeCompanyRepo() as never,
     );
 
     await interactor.invoke({ plan: "pro", cadence: "monthly" } as never);
@@ -140,6 +186,7 @@ describe("CreateCheckoutSessionInteractor", () => {
       subscriptionService as never,
       makeCheckoutRepo() as never,
       makeUserRepo() as never,
+      makeCompanyRepo() as never,
     );
 
     await interactor.invoke({ plan: "business", cadence: "monthly" } as never);
@@ -156,6 +203,7 @@ describe("CreateCheckoutSessionInteractor", () => {
       subscriptionService as never,
       repo as never,
       makeUserRepo() as never,
+      makeCompanyRepo() as never,
     );
 
     await expect(interactor.invoke({ plan: "pro", cadence: "monthly" } as never)).resolves.toMatchObject({
@@ -173,6 +221,7 @@ describe("CreateCheckoutSessionInteractor", () => {
       subscriptionService as never,
       repo as never,
       makeUserRepo() as never,
+      makeCompanyRepo() as never,
     );
 
     const result = await interactor.invoke({
@@ -192,6 +241,7 @@ describe("CreateCheckoutSessionInteractor", () => {
       subscriptionService as never,
       repo as never,
       makeUserRepo() as never,
+      makeCompanyRepo() as never,
     );
     const before = Date.now();
 
@@ -218,6 +268,7 @@ describe("CreateCheckoutSessionInteractor", () => {
       subscriptionService as never,
       repo as never,
       userRepo as never,
+      makeCompanyRepo() as never,
     );
 
     const result = await interactor.invoke({ plan: "business", cadence: "monthly" } as never);
@@ -237,6 +288,7 @@ describe("CreateCheckoutSessionInteractor", () => {
       subscriptionService as never,
       repo as never,
       makeUserRepo() as never,
+      makeCompanyRepo() as never,
     );
 
     await expect(interactor.invoke({ plan: "pro", cadence: "monthly" } as never)).rejects.toThrow(
@@ -256,6 +308,7 @@ describe("CreateCheckoutSessionInteractor", () => {
         subscriptionService as never,
         repo as never,
         makeUserRepo() as never,
+        makeCompanyRepo() as never,
       );
 
       const result = await interactor.invoke({ plan: "business", cadence: "monthly" } as never);
@@ -275,6 +328,7 @@ describe("CreateCheckoutSessionInteractor", () => {
         subscriptionService as never,
         repo as never,
         makeUserRepo() as never,
+        makeCompanyRepo() as never,
       );
 
       expect(await interactor.invoke({ plan: "business", cadence: "monthly" } as never)).toMatchObject({
@@ -294,6 +348,7 @@ describe("CreateCheckoutSessionInteractor", () => {
       subscriptionService as never,
       repo as never,
       makeUserRepo() as never,
+      makeCompanyRepo() as never,
     );
 
     expect(await interactor.invoke({ plan: "pro", cadence: "monthly" } as never)).toMatchObject({

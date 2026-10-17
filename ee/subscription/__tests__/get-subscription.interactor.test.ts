@@ -24,7 +24,8 @@ const { GetSubscriptionInteractor } = await import("../get-subscription.interact
 const { GetBillingPortalUrlInteractor } = await import("../get-billing-portal-url.interactor");
 const { runWithTenant } = await import("@/core/decorators/tenant-context");
 
-const PORTAL_URL = "https://billing.example/portal/abc";
+const PORTAL_URL = "https://billing.example/billing?signature=abc";
+const PAYMENT_DETAILS_URL = "https://billing.example/subscription/1/payment-details?signature=def";
 
 function subscriptionRow(overrides: Record<string, unknown> = {}) {
   return {
@@ -45,12 +46,18 @@ function makeSubscription(overrides: Record<string, unknown> = {}) {
   return new GetSubscriptionInteractor(repo as never, userRepo as never);
 }
 
-function makePortal(overrides: Record<string, unknown> = {}) {
+function providerAttributes(overrides: Record<string, unknown> = {}) {
+  return {
+    user_email: "payer@example.invalid",
+    urls: { customer_portal: PORTAL_URL, update_payment_method: PAYMENT_DETAILS_URL },
+    ...overrides,
+  };
+}
+
+function makePortal(overrides: Record<string, unknown> = {}, attributes = providerAttributes()) {
   const repo = { getSubscriptionOrThrow: vi.fn().mockResolvedValue(subscriptionRow(overrides)) };
   const lemonSqueezyService = {
-    getSubscriptionOrThrowUnscoped: vi.fn().mockResolvedValue({
-      data: { attributes: { urls: { customer_portal: PORTAL_URL } } },
-    }),
+    getSubscriptionOrThrowUnscoped: vi.fn().mockResolvedValue({ data: { attributes } }),
   };
 
   return {
@@ -141,13 +148,73 @@ describe("GetBillingPortalUrlInteractor", () => {
     expect(lemonSqueezyService.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
   });
 
-  it("redirects a member who can act on the company to the billing portal", async () => {
+  it("redirects the admin who pays the subscription to their own Lemon Squeezy portal", async () => {
+    const { interactor, lemonSqueezyService } = makePortal(
+      {},
+      providerAttributes({ user_email: billingManager().email }),
+    );
+
+    const result = await runWithTenant(billingManager(), () => interactor.invoke());
+
+    expect(result).toEqual({ redirect: PORTAL_URL });
+    expect(lemonSqueezyService.getSubscriptionOrThrowUnscoped).toHaveBeenCalledExactlyOnceWith("ls-1");
+  });
+
+  it("redirects another admin only to the payment details of this subscription, never to the payer's portal", async () => {
     const { interactor, lemonSqueezyService } = makePortal();
 
     const result = await runWithTenant(billingManager(), () => interactor.invoke());
 
-    expect(result).toMatchObject({ redirect: PORTAL_URL });
-    expect(lemonSqueezyService.getSubscriptionOrThrowUnscoped).toHaveBeenCalledOnce();
+    expect(result).toEqual({ redirect: PAYMENT_DETAILS_URL });
+    expect(lemonSqueezyService.getSubscriptionOrThrowUnscoped).toHaveBeenCalledExactlyOnceWith("ls-1");
+  });
+
+  it("recognises the payer whatever the case and the spaces around the e-mail", async () => {
+    const payer = { ...billingManager(), email: "Clara.Admin@Example.com" };
+    const { interactor } = makePortal({}, providerAttributes({ user_email: " clara.admin@EXAMPLE.com " }));
+
+    await expect(runWithTenant(payer, () => interactor.invoke())).resolves.toEqual({ redirect: PORTAL_URL });
+  });
+
+  it.each([null, undefined, "", "  "])(
+    "treats a subscription whose payer e-mail is %j as paid by someone else",
+    async (payerEmail) => {
+      const { interactor } = makePortal({}, providerAttributes({ user_email: payerEmail }));
+
+      await expect(runWithTenant(billingManager(), () => interactor.invoke())).resolves.toEqual({
+        redirect: PAYMENT_DETAILS_URL,
+      });
+    },
+  );
+
+  it("rejects the payer when the billing provider returns no portal url, instead of another link", async () => {
+    const { interactor } = makePortal(
+      {},
+      providerAttributes({
+        user_email: billingManager().email,
+        urls: { customer_portal: null, update_payment_method: PAYMENT_DETAILS_URL },
+      }),
+    );
+
+    await expect(runWithTenant(billingManager(), () => interactor.invoke())).resolves.toMatchObject({
+      ok: false,
+      error: { issues: [{ params: { error: "billingPortalUnavailable" } }] },
+    });
+  });
+
+  it("rejects another admin when the billing provider returns no payment details url, instead of the portal", async () => {
+    const { interactor } = makePortal(
+      {},
+      providerAttributes({ urls: { customer_portal: PORTAL_URL, update_payment_method: "" } }),
+    );
+
+    const result = await runWithTenant(billingManager(), () => interactor.invoke());
+
+    expect(result).toMatchObject({
+      ok: false,
+      error: { issues: [{ params: { error: "billingPortalUnavailable" } }] },
+    });
+    expect(result).not.toHaveProperty("redirect");
   });
 
   it("rejects an enterprise plan before calling the billing provider", async () => {

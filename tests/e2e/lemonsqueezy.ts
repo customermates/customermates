@@ -51,6 +51,7 @@ export type LocalCheckout = {
   variantId: string;
   custom: LemonSqueezyCustomData | null;
   variantQuantities: Array<{ variant_id: number; quantity: number }>;
+  productName: string | null;
   redirectUrl: string | null;
   enabledVariants: number[];
   skipTrial: boolean | null;

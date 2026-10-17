@@ -21,6 +21,7 @@ import {
 } from "./lemonsqueezy";
 import { localE2eEnvironment } from "./local-environment";
 import { localLemonSqueezyStoreId, localLemonSqueezyVariants } from "./local-lemonsqueezy-provider.mjs";
+import { secondUser } from "./second-user";
 import { addBrowserWorkspace } from "./workspace";
 import { mcpWorkspaceName } from "./workspace-credentials";
 import { choosePlan, createApiKeyInSettings, createWorkspaceFromSettings, finishOnboarding } from "./workspace-setup";
@@ -144,6 +145,7 @@ async function approveMember(page: Page, name: string, status: "Active" | "Inact
 
 test("paying Business for an extra workspace activates only it in the real event order, replayed, then its onboarding, API key and MCP work", async ({
   page,
+  browser,
   request,
   database,
   workspace,
@@ -192,6 +194,7 @@ test("paying Business for an extra workspace activates only it in the real event
     custom: signedCustomData(steuern.companyId),
     variantQuantities: [{ variant_id: Number(localLemonSqueezyVariants.business), quantity: 1 }],
     enabledVariants: [Number(localLemonSqueezyVariants.business)],
+    productName: "Steuern 2026",
     redirectUrl: `${baseUrl}/settings/billing`,
     skipTrial: true,
   });
@@ -305,6 +308,18 @@ test("paying Business for an extra workspace activates only it in the real event
   await clickHydrated(page.locator("#settings-billing-manage"));
   await expect(page).toHaveURL(paid.attributes.urls.customer_portal);
   expect(checkoutPages.at(-1)).toBe(paid.attributes.urls.customer_portal);
+
+  const coAdmin = await secondUser(browser, database, steuern.companyId, testInfo);
+  try {
+    const coAdminPages = await stubCheckoutPage(coAdmin.page);
+    await coAdmin.page.goto("/en/settings/billing");
+    await clickHydrated(coAdmin.page.locator("#settings-billing-manage"));
+    await expect(coAdmin.page).toHaveURL(paid.attributes.urls.update_payment_method);
+    expect(coAdminPages).toEqual([paid.attributes.urls.update_payment_method]);
+    expect(coAdmin.errors).toEqual([]);
+  } finally {
+    await coAdmin.close();
+  }
 
   await page.goto("/en/settings/workspaces");
   await expect(page.locator(`li[data-workspace-id="${steuern.companyId}"]`)).toContainText("Business");

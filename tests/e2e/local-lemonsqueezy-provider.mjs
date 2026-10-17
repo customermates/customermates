@@ -87,6 +87,7 @@ async function createCheckout(request, providerDirectory) {
     variantId,
     custom: attributes.checkout_data?.custom ?? null,
     variantQuantities: attributes.checkout_data?.variant_quantities ?? [],
+    productName: attributes.product_options?.name ?? null,
     redirectUrl: attributes.product_options?.redirect_url ?? null,
     enabledVariants: attributes.product_options?.enabled_variants ?? [],
     skipTrial: attributes.checkout_options?.skip_trial ?? null,

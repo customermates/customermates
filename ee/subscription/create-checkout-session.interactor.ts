@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { Resource, SubscriptionPlan } from "@/generated/prisma";
 
 import type { Data } from "@/core/validation/validation.utils";
+import type { GetCompanyRepo } from "@/features/company/get-company.repo";
 import type { CountActiveUsersRepo } from "@/features/user/count-active-users.repo";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -40,6 +41,7 @@ export class CreateCheckoutSessionInteractor extends UserAccessor {
     private lemonSqueezyService: SubscriptionService,
     private repo: CreateCheckoutCompanyRepo,
     private userRepo: CountActiveUsersRepo,
+    private companyRepo: GetCompanyRepo,
   ) {
     super();
   }
@@ -65,6 +67,7 @@ export class CreateCheckoutSessionInteractor extends UserAccessor {
 
     try {
       const activeUsersCount = await this.userRepo.countActiveUsers();
+      const workspaceName = (await this.companyRepo.findCompanyOrThrow()).name?.trim();
 
       const requestOrigin = (await headers()).get("origin") ?? env.BASE_URL;
       const baseUrl = resolveRequestOrigin(requestOrigin, env.AUTH_ALLOWED_HOSTS, env.BASE_URL);
@@ -72,6 +75,7 @@ export class CreateCheckoutSessionInteractor extends UserAccessor {
       const checkout = await this.lemonSqueezyService.createCheckoutOrThrow({
         offer,
         quantity: activeUsersCount,
+        ...(workspaceName ? { productName: workspaceName } : {}),
         custom: {
           company_id: this.companyId,
           company_signature: signCheckoutWorkspace(this.companyId, env.BETTER_AUTH_SECRET),

@@ -113,27 +113,39 @@ test("answers Lemon Squeezy checkout, subscription and seat calls locally only w
   try {
     assert.throws(() => fetch("https://api.lemonsqueezy.com/v1/checkouts", { method: "POST", headers }), /blocked/);
     process.env.LEMONSQUEEZY_API_KEY = provider.localLemonSqueezyKey;
-    const checkout = await fetch("https://api.lemonsqueezy.com/v1/checkouts", {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        data: {
-          attributes: { checkout_data: { custom: { company_id: "company-1" } } },
-          relationships: {
-            store: { data: { id: provider.localLemonSqueezyStoreId } },
-            variant: { data: { id: provider.localLemonSqueezyVariants.pro } },
+    const createCheckout = (attributes) =>
+      fetch("https://api.lemonsqueezy.com/v1/checkouts", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          data: {
+            attributes,
+            relationships: {
+              store: { data: { id: provider.localLemonSqueezyStoreId } },
+              variant: { data: { id: provider.localLemonSqueezyVariants.pro } },
+            },
           },
-        },
-      }),
+        }),
+      });
+    const checkout = await createCheckout({
+      checkout_data: { custom: { company_id: "company-1" } },
+      product_options: { name: "Bergmann Steuern" },
     });
     assert.equal(checkout.status, 201);
     assert.match(
       (await checkout.json()).data.attributes.url,
       /^https:\/\/customermates\.lemonsqueezy\.com\/checkout\/custom\//,
     );
+    assert.equal((await createCheckout({ checkout_data: { custom: { company_id: "company-2" } } })).status, 201);
     assert.deepEqual(
-      provider.readLocalCheckouts(directory).map((stored) => stored.custom),
-      [{ company_id: "company-1" }],
+      provider
+        .readLocalCheckouts(directory)
+        .map(({ custom, productName }) => ({ custom, productName }))
+        .sort((left, right) => left.custom.company_id.localeCompare(right.custom.company_id)),
+      [
+        { custom: { company_id: "company-1" }, productName: "Bergmann Steuern" },
+        { custom: { company_id: "company-2" }, productName: null },
+      ],
     );
     const { id, itemId } = provider.newLocalSubscriptionIds();
     provider.writeLocalSubscription(directory, {

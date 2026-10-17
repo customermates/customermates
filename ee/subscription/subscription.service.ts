@@ -34,6 +34,7 @@ export class SubscriptionService {
   async createCheckoutOrThrow(options: {
     offer: CommercialOffer;
     quantity: number;
+    productName?: string;
     custom?: Record<string, unknown>;
     redirectUrl?: string;
     expiresAt: Date;
@@ -50,6 +51,7 @@ export class SubscriptionService {
         variantQuantities: [{ variantId: Number(variantId), quantity: options.quantity }],
       },
       productOptions: {
+        ...(options.productName ? { name: options.productName } : {}),
         redirectUrl: options.redirectUrl,
         enabledVariants: [Number(variantId)],
       },
@@ -89,7 +91,10 @@ export class SubscriptionService {
             trial_ends_at: z.string().nullish(),
             variant_id: z.number().nullish(),
             first_subscription_item: z.looseObject({ quantity: z.number().nullish() }).nullish(),
-            urls: z.looseObject({ customer_portal: z.string().nullish() }).nullish(),
+            user_email: z.string().nullish(),
+            urls: z
+              .looseObject({ customer_portal: z.string().nullish(), update_payment_method: z.string().nullish() })
+              .nullish(),
           }),
         }),
       })

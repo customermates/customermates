@@ -119,7 +119,7 @@ export const CONTROL_PAGES: ControlPage[] = [
       {
         control: "manage",
         description:
-          "Manage with Lemon Squeezy button: billing portal for plan, payment method, invoices, cancel (roles with company Manage once the workspace has a Lemon Squeezy subscription; not on Enterprise)",
+          "Manage with Lemon Squeezy button: the admin who pays opens the billing portal for plan, payment method, invoices, cancel; other admins update this subscription's payment method only (roles with company Manage once the workspace has a Lemon Squeezy subscription; not on Enterprise)",
       },
       {
         control: "refresh",
