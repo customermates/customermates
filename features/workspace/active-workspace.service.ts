@@ -31,10 +31,10 @@ export class ActiveWorkspaceService {
       memberships.find((membership) => membership.companyId === lastUsedCompanyId) ??
       memberships.find((membership) => membership.status === Status.active) ??
       memberships[0];
-    if (!fallback) return null;
+    const membership = fallback ? await this.users.findMembershipUnscoped(email, fallback.companyId) : null;
 
-    const membership = await this.users.findMembershipUnscoped(email, fallback.companyId);
     if (membership) await this.authService.setSessionActiveCompany(binding.sessionId, membership.companyId);
+    else if (binding.companyId) await this.authService.setSessionActiveCompany(binding.sessionId, null);
 
     return membership;
   }

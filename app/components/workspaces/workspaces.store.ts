@@ -84,7 +84,13 @@ export class WorkspacesStore extends BaseStore {
   };
 
   refresh = async (): Promise<void> => {
-    this.setWorkspaces(await listMyWorkspacesAction());
+    const result = await listMyWorkspacesAction();
+    if (!result.ok) {
+      toastZodErrorTree(result.error);
+      return;
+    }
+
+    this.setWorkspaces(result.data);
   };
 
   connectTabs = (): (() => void) =>

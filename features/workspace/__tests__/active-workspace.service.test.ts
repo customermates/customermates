@@ -62,6 +62,26 @@ describe("ActiveWorkspaceService", () => {
     expect(authService.setSessionActiveCompany).toHaveBeenCalledWith("session-1", "company-a");
   });
 
+  it("clears the workspace of a session whose only membership ended, on the next full page load", async () => {
+    binding = stored("company-left", true);
+    users.listMembershipsUnscoped.mockResolvedValue([]);
+
+    await expect(service().resolveMembership(session)).resolves.toBeNull();
+    expect(authService.setSessionActiveCompany).toHaveBeenCalledWith("session-1", null);
+
+    binding = stored(null, false);
+    await expect(service().resolveMembership(session)).resolves.toBeNull();
+    expect(authService.setSessionActiveCompany).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps refusing the stale page's actions until that page load, so the tab reloads first", async () => {
+    binding = stored("company-left", false);
+    users.listMembershipsUnscoped.mockResolvedValue([]);
+
+    await expect(service().resolveMembership(session)).rejects.toBeInstanceOf(WorkspaceChangedError);
+    expect(authService.setSessionActiveCompany).not.toHaveBeenCalled();
+  });
+
   it("opens the last used workspace for a new session whatever the request", async () => {
     binding = stored(null, false);
 

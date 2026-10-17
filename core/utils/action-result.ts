@@ -11,8 +11,14 @@ import { z } from "zod";
 import { isRedirect } from "@/features/auth/auth-outcome";
 import { isBusyDatabaseError } from "@/core/errors/prisma-client-error";
 import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
+import { markWorkspaceChanged } from "@/core/errors/workspace-changed";
 import { WorkspaceChangedError } from "@/core/errors/workspace-changed-error";
-import { failAuthorization, failRateLimit, failUnavailable } from "@/core/validation/interactor-failure-server";
+import {
+  failAuthorization,
+  failConflict,
+  failRateLimit,
+  failUnavailable,
+} from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { interactorFailureCodes, isRetryableFailure, serializeInteractorFailure } from "../validation/validation.utils";
 
@@ -29,7 +35,7 @@ export async function settleActionResult<T>(result: ActionInput<T>): Promise<Awa
     return await result;
   } catch (error) {
     if (isBusyDatabaseError(error)) return failRateLimit(CustomErrorCode.serviceBusy);
-    if (error instanceof WorkspaceChangedError) throw error;
+    if (error instanceof WorkspaceChangedError) return failConflict(CustomErrorCode.workspaceChanged);
     if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied)
       return failAuthorization(CustomErrorCode.permissionDenied);
     if ((error as { code?: unknown } | null)?.code === "P2028")
@@ -50,9 +56,10 @@ export async function serializeResult<T>(result: ActionInput<T>): Promise<Action
   if (resolved.ok) return resolved;
 
   const [code] = interactorFailureCodes(resolved.error);
+  const error = z.treeifyError(resolved.error);
   return {
     ok: false,
-    error: z.treeifyError(resolved.error),
+    error: code === CustomErrorCode.workspaceChanged ? markWorkspaceChanged(error) : error,
     ...(code ? { code } : {}),
     ...(isRetryableFailure(resolved.error) ? { retryable: true } : {}),
   };

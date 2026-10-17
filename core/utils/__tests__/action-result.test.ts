@@ -63,13 +63,22 @@ describe("serializeResult", () => {
     });
   });
 
-  it("lets a changed workspace reach the browser as an error carrying its digest instead of a permission refusal", async () => {
-    await expect(serializeTypedResult(Promise.reject(new WorkspaceChangedError()))).rejects.toMatchObject({
-      digest: WORKSPACE_CHANGED_DIGEST,
+  it("answers a changed workspace with a conflict that carries its digest instead of failing the request", async () => {
+    const result = await serializeResult(Promise.reject(new WorkspaceChangedError()));
+
+    expect(result).toMatchObject({ ok: false, code: CustomErrorCode.workspaceChanged });
+    expect(result).not.toHaveProperty("retryable");
+    expect(!result.ok && result.error).toMatchObject({ digest: WORKSPACE_CHANGED_DIGEST });
+    expect(await serializeTypedResult(Promise.reject(new WorkspaceChangedError()))).toMatchObject({
+      ok: false,
+      failure: { kind: "conflict", issues: [{ customCode: CustomErrorCode.workspaceChanged }] },
     });
-    await expect(serializeResult(Promise.reject(new WorkspaceChangedError()))).rejects.toBeInstanceOf(
-      WorkspaceChangedError,
-    );
+  });
+
+  it("keeps the digest off every other failure", async () => {
+    const result = await serializeResult(failure(CustomErrorCode.unipileRateLimit));
+
+    expect(!result.ok && result.error).not.toHaveProperty("digest");
   });
 
   it("reports an expired transaction as unavailable without a retry hint", async () => {

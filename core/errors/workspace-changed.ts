@@ -8,6 +8,10 @@ export function isWorkspaceChangedError(error: unknown): boolean {
   return errorDigest(error) === WORKSPACE_CHANGED_DIGEST;
 }
 
+export function markWorkspaceChanged<T extends object>(tree: T): T & { digest: string } {
+  return Object.assign(tree, { digest: WORKSPACE_CHANGED_DIGEST });
+}
+
 export function isWorkspaceChangedFailure(body: unknown): boolean {
   const issues = (body as { error?: { issues?: unknown } } | null)?.error?.issues;
   return (

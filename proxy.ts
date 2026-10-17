@@ -30,6 +30,8 @@ const intlContentMiddleware = createMiddleware(contentRouting);
 
 const NEXT_INTL_LOCALE_HEADER = "X-NEXT-INTL-LOCALE";
 
+const PAGE_METHODS = "GET, HEAD, POST";
+
 const LOCALE_SHAPED_SEGMENT = /^[a-z]{2}(?:-[a-z0-9]{2,8})*$/i;
 
 function preferredAppLocale(req: NextRequest) {
@@ -174,6 +176,8 @@ export default async function proxy(req: NextRequest) {
   }
 
   if (isApiRoute) return malformedRequestPathResponse(pathname) ?? NextResponse.next();
+
+  if (req.method === "OPTIONS") return new NextResponse(null, { status: 204, headers: { allow: PAGE_METHODS } });
 
   if (isUnprefixedContentPath(req)) return defaultLocaleContentRedirect(req, base);
 

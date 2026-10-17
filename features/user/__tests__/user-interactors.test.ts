@@ -14,6 +14,9 @@ vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
+vi.mock("next-intl/server", () => ({
+  getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
+}));
 
 import { RegisterUserInteractor } from "../register/register-user.interactor";
 import { UpdateUserDetailsInteractor, UpdateUserDetailsSchema } from "../upsert/update-user-details.interactor";
@@ -25,6 +28,8 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { DemoModeError, ForbiddenError } from "@/core/errors/app-errors";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { ACCOUNT_STATES, accountStateRedirect } from "@/features/auth/account-state";
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { interactorFailureCodes } from "@/core/validation/validation.utils";
 
 const USER_ID = "test-user-id";
 const mutableEnv = MOCK_ENV_MODULE.env as unknown as {
@@ -60,6 +65,7 @@ describe("RegisterUserInteractor", () => {
       findAuthUserCompanyIdForUpdateUnscoped: vi.fn().mockResolvedValue(null),
       findAuthUserCompanyIdUnscoped: vi.fn().mockResolvedValue(null),
       hasCreatedWorkspaceUnscoped: vi.fn().mockResolvedValue(false),
+      countCreatedWorkspacesUnscoped: vi.fn().mockResolvedValue(0),
       hasLeftMembershipUnscoped: vi.fn().mockResolvedValue(false),
       registerExistingCompany: vi.fn().mockResolvedValue(mockTenantUser),
     };
@@ -711,6 +717,54 @@ describe("RegisterUserInteractor", () => {
     expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(
       expect.objectContaining({ workspace: { name: null, createdByAuthUserId: USER_ID, trial: false } }),
     );
+  });
+
+  it("refuses a further cloud workspace on onboarding once the login created the limit", async () => {
+    mutableEnv.APP_MODE = "cloud";
+    mockRepo.countCreatedWorkspacesUnscoped.mockResolvedValue(20);
+
+    const result = await createInteractor().invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        country: "de",
+        avatarUrl: null,
+        agreeToTerms: true,
+        workspaceName: "One too many",
+      },
+      { target: { type: "createCompany" } },
+    );
+
+    expect("ok" in result && !result.ok && interactorFailureCodes(result.error)).toEqual([
+      CustomErrorCode.workspaceLimitReached,
+    ]);
+    expect(mockRepo.findAuthUserCompanyIdForUpdateUnscoped).toHaveBeenCalledBefore(
+      mockRepo.countCreatedWorkspacesUnscoped,
+    );
+    expect(mockRepo.countCreatedWorkspacesUnscoped).toHaveBeenCalledWith(USER_ID);
+    expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(mockRepo.bindAuthUserToCompanyOrThrowUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("does not count created workspaces when the profile joins an invited workspace", async () => {
+    mutableEnv.APP_MODE = "cloud";
+    mockRepo.countCreatedWorkspacesUnscoped.mockResolvedValue(20);
+
+    await createInteractor().invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        country: "de",
+        avatarUrl: null,
+        agreeToTerms: true,
+      },
+      { target: { type: "invitation", companyId: "invited-company-id" } },
+    );
+
+    expect(mockRepo.countCreatedWorkspacesUnscoped).not.toHaveBeenCalled();
+    expect(mockRepo.registerExistingCompany).toHaveBeenCalledOnce();
   });
 
   it("keeps a blank workspace name unnamed", async () => {

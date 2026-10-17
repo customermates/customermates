@@ -1,4 +1,4 @@
-import { unwoundFailure } from "@/core/validation/interactor-failure-server";
+import { failConflict, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import type { RegisterUserCompanyRepo } from "./register-user-company.repo";
 import type { RegisterUserRepo } from "./register-user.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
@@ -31,6 +31,7 @@ import {
   type RegistrationAdAttribution,
 } from "@/features/acquisition/ad-attribution.schema";
 import { startsWithTrial } from "@/features/workspace/workspace-trial-policy";
+import { workspaceCreationLimit } from "@/features/workspace/workspace-creation-limit";
 import { WorkspaceNameSchema } from "@/features/workspace/workspace.schema";
 
 const RegisterUserSchema = z
@@ -156,6 +157,9 @@ export class RegisterUserInteractor {
           ? authUserCompanyId
           : null;
     if (!companyId && target.type !== "createCompany") return redirectTo("/onboarding");
+    const limit = workspaceCreationLimit();
+    if (!companyId && limit !== null && (await this.repo.countCreatedWorkspacesUnscoped(sessionUserId)) >= limit)
+      return failConflict(CustomErrorCode.workspaceLimitReached, [], { limit });
     if (
       companyId &&
       target.type === "existingAuthUserCompanyBinding" &&

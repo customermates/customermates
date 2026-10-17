@@ -13,10 +13,9 @@ import {
   getWithdrawWorkspaceRequestInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
-import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export async function listMyWorkspacesAction() {
-  return unwrapValidated(getListMyWorkspacesInteractor().invoke());
+  return serializeResult(getListMyWorkspacesInteractor().invoke());
 }
 
 export async function switchWorkspaceAction(data: SwitchWorkspaceData) {

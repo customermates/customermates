@@ -185,3 +185,137 @@ describeDatabase("a browser session whose workspace was left on another device",
     expect(await activeCompanyId(sessions.leaving.id)).toBe(companies.kept);
   });
 });
+
+describeDatabase("a browser session whose only workspace ended", { timeout: 120_000 }, () => {
+  const client = new Client({ connectionString: databaseUrl ?? undefined });
+  const authUserId = randomUUID();
+  const email = `solo-${randomUUID()}@example.invalid`;
+  const companyId = randomUUID();
+  const members = { solo: randomUUID(), admin: randomUUID() };
+  const sessions = { stale: { id: randomUUID(), cookie: "" }, leaving: { id: randomUUID(), cookie: "" } };
+
+  function as(session: { cookie: string }, kind: Record<string, string> = {}) {
+    requestContext.headers = new Headers({ cookie: session.cookie, ...kind });
+  }
+
+  async function activeCompanyId(sessionId: string) {
+    const result = await client.query<{ activeCompanyId: string | null }>(
+      'SELECT "activeCompanyId" FROM "AuthSession" WHERE "id" = $1',
+      [sessionId],
+    );
+    return result.rows[0]?.activeCompanyId ?? null;
+  }
+
+  beforeAll(async () => {
+    await client.connect();
+    const roles = { admin: randomUUID(), member: randomUUID() };
+    await client.query('INSERT INTO "Company" ("id", "name", "updatedAt") VALUES ($1, \'Solo\', CURRENT_TIMESTAMP)', [
+      companyId,
+    ]);
+    await client.query(
+      'INSERT INTO "Subscription" ("id", "companyId", "status", "updatedAt") VALUES ($1, $2, \'active\', CURRENT_TIMESTAMP)',
+      [randomUUID(), companyId],
+    );
+    for (const [roleId, isSystemRole] of [
+      [roles.admin, true],
+      [roles.member, false],
+    ] as const) {
+      await client.query(
+        'INSERT INTO "UserRole" ("id", "name", "isSystemRole", "companyId", "updatedAt") VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)',
+        [roleId, isSystemRole ? "Admin" : "Member", isSystemRole, companyId],
+      );
+    }
+    for (const [userId, userEmail, roleId] of [
+      [members.solo, email, roles.member],
+      [members.admin, `admin-${email}`, roles.admin],
+    ]) {
+      await client.query(
+        'INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "roleId", "status", "lastActiveAt", "onboardingWizardCompletedAt", "updatedAt") VALUES ($1, $2, \'Only\', \'Workspace\', $3, $4, \'active\', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)',
+        [userId, userEmail, companyId, roleId],
+      );
+    }
+    await client.query(
+      'INSERT INTO "AuthUser" ("id", "name", "email", "emailVerified", "companyId", "updatedAt") VALUES ($1, \'Only Workspace\', $2, TRUE, $3, CURRENT_TIMESTAMP)',
+      [authUserId, email, companyId],
+    );
+
+    const { runWithTenant } = await import("@/core/decorators/tenant-context");
+    const { InitializeRecordModelService } = await import("@/features/records/initialize-record-model.service");
+    const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
+    const { createMockUser } = await import("@/tests/helpers/mock-user");
+    const owner = createMockUser({ id: members.admin, companyId, roleId: roles.admin });
+    await runWithTenant(owner, () => new InitializeRecordModelService(createTestRecordRepo()).initialize());
+
+    const { auth } = await import("@/core/auth/better-auth");
+    const secret = (await auth.$context).secret;
+    for (const session of Object.values(sessions)) {
+      const token = randomUUID().replaceAll("-", "");
+      await client.query(
+        'INSERT INTO "AuthSession" ("id", "token", "userId", "expiresAt", "activeCompanyId", "updatedAt") VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)',
+        [session.id, token, authUserId, new Date(Date.now() + 60 * 60 * 1000), companyId],
+      );
+      session.cookie = (await serializeSignedCookie("app.session_token", token, secret)).split(";")[0];
+    }
+
+    const { getLeaveWorkspaceInteractor } = await import("@/core/di");
+    as(sessions.leaving, SERVER_ACTION);
+    expect(await getLeaveWorkspaceInteractor().invoke({ companyId })).toEqual({ ok: true, data: { companyId } });
+  });
+
+  afterAll(async () => {
+    await client.query('DELETE FROM "Company" WHERE "id" = $1 OR "createdByAuthUserId" = $2', [companyId, authUserId]);
+    await client.query('DELETE FROM "AuthUser" WHERE "id" = $1', [authUserId]);
+    await client.end();
+  });
+
+  it("still refuses the stale page's actions, so that tab reloads first", async () => {
+    const { getGetUserDetailsInteractor } = await import("@/core/di");
+    const { WorkspaceChangedError } = await import("@/core/errors/workspace-changed-error");
+    as(sessions.stale, SERVER_ACTION);
+
+    await expect(getGetUserDetailsInteractor().invoke()).rejects.toBeInstanceOf(WorkspaceChangedError);
+    expect(await activeCompanyId(sessions.stale.id)).toBe(companyId);
+  });
+
+  it("clears the session's workspace on the next page load and opens onboarding", async () => {
+    const { getRouteGuardService } = await import("@/core/di");
+    as(sessions.stale, PAGE_LOAD);
+
+    const resolution = await getRouteGuardService().resolveAccountState();
+
+    expect(resolution).toMatchObject({ state: "unregistered", user: null });
+    expect(await activeCompanyId(sessions.stale.id)).toBeNull();
+  });
+
+  it("lets onboarding ask to join the old workspace again without signing out", async () => {
+    const { getRegisterUserInteractor } = await import("@/core/di");
+    as(sessions.stale, SERVER_ACTION);
+
+    const registered = await getRegisterUserInteractor().invoke(
+      { email, firstName: "Only", lastName: "Workspace", country: "de", avatarUrl: null, agreeToTerms: true },
+      { target: { type: "invitation", companyId } },
+    );
+
+    expect(registered).toEqual({ ok: true, data: { redirectTo: "/auth/pending" } });
+    const membership = await client.query<{ status: string; leftAt: Date | null }>(
+      'SELECT "status"::text AS status, "leftAt" FROM "User" WHERE "id" = $1',
+      [members.solo],
+    );
+    expect(membership.rows).toEqual([{ status: "pendingAuthorization", leftAt: null }]);
+  });
+
+  it("lets the same session create a new workspace and work in it", async () => {
+    const { getCreateWorkspaceInteractor, getGetUserDetailsInteractor } = await import("@/core/di");
+    as(sessions.stale, SERVER_ACTION);
+
+    const created = await getCreateWorkspaceInteractor().invoke({ name: "Fresh Start", agreeToTerms: true });
+
+    expect(created.ok).toBe(true);
+    if (!created.ok) return;
+    expect(await activeCompanyId(sessions.stale.id)).toBe(created.data.companyId);
+    await expect(getGetUserDetailsInteractor().invoke()).resolves.toMatchObject({
+      ok: true,
+      data: { email },
+    });
+  });
+});

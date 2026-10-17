@@ -4,8 +4,8 @@ import type { Page, PlaywrightWorkerArgs } from "@playwright/test";
 import type { Client } from "pg";
 import type { BrowserWorkspace } from "./workspace";
 
+import { WORKSPACE_CHANGED_DIGEST } from "../../core/errors/workspace-changed";
 import { presetId } from "../../features/records/crm-preset";
-import { BrowserDiagnostics } from "./browser-diagnostics";
 import { expect } from "./fixtures";
 import { localE2eEnvironment } from "./local-environment";
 import { createBrowserWorkspace } from "./workspace";
@@ -141,17 +141,11 @@ export async function addOrganization(page: Page, name: string) {
 }
 
 export function expectRefusedPageAction(page: Page, path: string) {
-  BrowserDiagnostics.ofPage(page).expect({
-    kind: "console",
-    text: /^Failed to load resource: the server responded with a status of 500/,
-    source: (url) => url.pathname === path,
-    page,
-    limit: Number.POSITIVE_INFINITY,
-  });
-  const refusals: number[] = [];
-  page.on("response", (response) => {
-    if (new URL(response.url()).pathname === path && response.request().method() === "POST")
-      refusals.push(response.status());
+  const refusals: Array<{ status: number; workspaceChanged: boolean }> = [];
+  page.on("response", async (response) => {
+    if (new URL(response.url()).pathname !== path || response.request().method() !== "POST") return;
+    const body = await response.text().catch(() => "");
+    refusals.push({ status: response.status(), workspaceChanged: body.includes(WORKSPACE_CHANGED_DIGEST) });
   });
   return refusals;
 }

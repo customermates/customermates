@@ -21,9 +21,11 @@ import {
   organizationList,
 } from "./workspace-membership";
 import {
+  activeWorkspaceOf,
   clickHydrated,
   e2eAppMode,
   expectCurrentWorkspace,
+  expectHydrated,
   setActiveWorkspace,
   signInLogin,
 } from "./workspace-switching";
@@ -283,7 +285,10 @@ test("a member removed while a page is open meets the workspace-changed dialog a
       await removed.page.screenshot({
         path: testInfo.outputPath(`ws-remove-stale-page-${testInfo.project.name}.png`),
       });
-      await expect.poll(() => refused.some((status) => status >= 400)).toBe(true);
+      await expect
+        .poll(() => refused.some(({ status, workspaceChanged }) => status === 200 && workspaceChanged))
+        .toBe(true);
+      expect(refused.filter(({ status }) => status >= 500)).toEqual([]);
       await notice.getByRole("button", { name: englishMessages.Workspaces.otherTab.reload, exact: true }).click();
 
       await expect(removed.page).toHaveURL(/\/en\/dashboard$/);
@@ -298,6 +303,72 @@ test("a member removed while a page is open meets the workspace-changed dialog a
     }
   } finally {
     await removeBrowserWorkspace(database, rita);
+  }
+  expect(errors).toEqual([]);
+});
+
+test("a member removed from their only workspace starts over on onboarding and creates a workspace without signing out", async ({
+  browser,
+  page,
+  database,
+  workspace,
+}, testInfo) => {
+  test.setTimeout(180_000);
+  const errors = collectPageErrors(page);
+  const tom = await createNamedLogin(database, "Tom Solo", "Tom", "Solo");
+  try {
+    await addMembership(database, tom, workspace.companyId, { admin: true });
+    await database.query('DELETE FROM "Company" WHERE id=$1', [tom.companyId]);
+    const removed = await signInLogin(browser, database, tom, testInfo);
+    await setActiveWorkspace(database, tom, workspace.companyId);
+    try {
+      await removed.page.goto("/en/dashboard");
+      await expectCurrentWorkspace(removed.page, "Browser workspace");
+
+      await page.goto("/en/settings/members");
+      await runRowAction(page, memberItem(page, "Tom Solo"), "Tom Solo", REMOVE);
+      await page
+        .getByRole("alertdialog", { name: "Remove Tom Solo from Browser workspace?" })
+        .getByRole("button", { name: CONFIRM_REMOVE, exact: true })
+        .click();
+      await expect(memberItem(page, "Tom Solo")).toContainText(englishMessages.WorkspaceMembership.left);
+
+      await removed.page.goto("/en/dashboard");
+      await expect(removed.page).toHaveURL(/\/en\/onboarding$/);
+      expect(await activeWorkspaceOf(database, tom)).toMatchObject({ session: null });
+
+      await clickHydrated(
+        removed.page.getByRole("button", { name: new RegExp(englishMessages.OnboardingChoice.create.title) }),
+      );
+      await expect(removed.page).toHaveURL(/\/en\/onboarding\/wizard\?intent=/);
+      await expectHydrated(removed.page.locator("#firstName"));
+      await removed.page.locator("#firstName").fill("Tom");
+      await removed.page.locator("#lastName").fill("Solo");
+      await removed.page.locator("#workspaceName").fill("Tom Fresh Start");
+      if (e2eAppMode() === "cloud") await removed.page.locator("#agreeToTerms").click();
+      await removed.page.screenshot({
+        path: testInfo.outputPath(`ws-remove-only-workspace-onboarding-${testInfo.project.name}.png`),
+      });
+      await clickHydrated(
+        removed.page.getByRole("button", { name: englishMessages.OnboardingWizard.continue, exact: true }),
+      );
+
+      await expect(removed.page).toHaveURL(/\/en\/onboarding\/wizard$/);
+      const created = await database.query<{ id: string }>(
+        'SELECT id FROM "Company" WHERE name=$1 AND "createdByAuthUserId"=$2',
+        ["Tom Fresh Start", tom.authUserId],
+      );
+      expect(created.rows).toHaveLength(1);
+      expect(await activeWorkspaceOf(database, tom)).toEqual({
+        session: created.rows[0].id,
+        lastUsed: created.rows[0].id,
+      });
+      expect(removed.errors).toEqual([]);
+    } finally {
+      await removed.close();
+    }
+  } finally {
+    await removeBrowserWorkspace(database, tom);
   }
   expect(errors).toEqual([]);
 });

@@ -177,7 +177,10 @@ describe("WorkspacesStore", () => {
   it("refreshes the list, for example with a membership approved in the meantime", async () => {
     const { store } = storeFor();
     store.setWorkspaces([workspace("a", { isCurrent: true }), workspace("b", { status: "pendingAuthorization" })]);
-    actions.listMyWorkspacesAction.mockResolvedValue([workspace("a", { isCurrent: true }), workspace("b")]);
+    actions.listMyWorkspacesAction.mockResolvedValue({
+      ok: true,
+      data: [workspace("a", { isCurrent: true }), workspace("b")],
+    });
 
     await store.refresh();
 
@@ -188,15 +191,27 @@ describe("WorkspacesStore", () => {
   it("blocks the page instead of mixing workspaces when fresh data shows another active workspace", async () => {
     const { store } = storeFor();
     store.setWorkspaces([workspace("a", { isCurrent: true }), workspace("b", { name: "Taxes" })]);
-    actions.listMyWorkspacesAction.mockResolvedValue([
-      workspace("a"),
-      workspace("b", { isCurrent: true, name: "Taxes" }),
-    ]);
+    actions.listMyWorkspacesAction.mockResolvedValue({
+      ok: true,
+      data: [workspace("a"), workspace("b", { isCurrent: true, name: "Taxes" })],
+    });
 
     await store.refresh();
 
     expect(store.current?.companyId).toBe("a");
     expect(store.foreignNotice).toEqual({ companyId: "b", name: "Taxes" });
+  });
+
+  it("keeps the shown list and hands a refused refresh to the error display, which asks to reload", async () => {
+    const { store } = storeFor();
+    store.setWorkspaces([workspace("a", { isCurrent: true })]);
+    const error = { errors: ["Common.errors.workspaceChanged"], digest: "CUSTOMERMATES_WORKSPACE_CHANGED" };
+    actions.listMyWorkspacesAction.mockResolvedValue({ ok: false, error, code: "workspaceChanged" });
+
+    await store.refresh();
+
+    expect(toastZodErrorTree).toHaveBeenCalledWith(error);
+    expect(store.current?.companyId).toBe("a");
   });
 
   it("blocks the page when the server reports that this session's workspace changed, unless it is already leaving", () => {
