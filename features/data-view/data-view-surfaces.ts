@@ -46,7 +46,7 @@ export const DATA_VIEW_SURFACES: Record<BuiltinDataViewSurfaceKey, SurfaceDescri
   [SURFACE.activity]: {
     label: "Activity",
     path: DATA_VIEW_PATHS[SURFACE.activity],
-    resource: Resource.auditLog,
+    resource: Resource.activityLog,
     readAllOnly: true,
   },
   [SURFACE.operatorUsers]: {

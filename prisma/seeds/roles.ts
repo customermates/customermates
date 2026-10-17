@@ -62,7 +62,7 @@ const salesManagerRecordGrants = [
 const salesManagerGrants = [
   [Resource.inboxMessages, manageAll],
   [Resource.users, [Action.readAll]],
-  [Resource.auditLog, [Action.readAll]],
+  [Resource.activityLog, [Action.readAll]],
   [Resource.wiki, [Action.readAll]],
   [Resource.routines, manageAll],
   [Resource.company, companyVisibility],

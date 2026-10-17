@@ -4073,7 +4073,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         { resource: "dataModel", actions: [] },
         { resource: "api", actions: [] },
         { resource: "inboxMessages", actions: [] },
-        { resource: "auditLog", actions: [] },
+        { resource: "activityLog", actions: [] },
         { resource: "routines", actions: [] },
       ],
       ...overrides,
@@ -6166,7 +6166,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           data: {
             companyId: f.company.id,
             roleId: f.memberRole.id,
-            resource: "auditLog",
+            resource: "activityLog",
             action: "readAll",
           },
         });
@@ -6353,7 +6353,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         data: {
           companyId: f.company.id,
           roleId: f.memberRole.id,
-          resource: "auditLog",
+          resource: "activityLog",
           action: "readAll",
         },
       }),
@@ -14969,7 +14969,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         data: {
           companyId: f.company.id,
           roleId: f.memberRole.id,
-          resource: "auditLog",
+          resource: "activityLog",
           action: "readAll",
         },
       }),
@@ -15013,7 +15013,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         where: {
           companyId: f.company.id,
           roleId: f.memberRole.id,
-          resource: "auditLog",
+          resource: "activityLog",
         },
       }),
     );
