@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { AppCard } from "@/components/card/app-card";
@@ -59,6 +59,7 @@ export function ConfirmDialog({
   const t = useTranslations();
   const focusReturn = useOverlayFocusReturn(open);
   const confirmationId = useId();
+  const confirmRef = useRef<HTMLButtonElement>(null);
   const [pending, setPending] = useState(false);
   const [typed, setTyped] = useState({ open, value: "" });
   if (typed.open !== open) setTyped({ open, value: "" });
@@ -95,6 +96,12 @@ export function ConfirmDialog({
         onCloseAutoFocus={(event) => {
           onCloseAutoFocus?.(event);
           if (!event.defaultPrevented) focusReturn.onCloseAutoFocus(event);
+        }}
+        onOpenAutoFocus={(event) => {
+          focusReturn.onOpenAutoFocus();
+          if (onCancel) return;
+          event.preventDefault();
+          confirmRef.current?.focus({ preventScroll: true });
         }}
       >
         <AppCard>
@@ -136,6 +143,7 @@ export function ConfirmDialog({
 
             {onConfirm ? (
               <AlertDialogAction
+                ref={confirmRef}
                 aria-busy={busy || undefined}
                 disabled={busy || confirmDisabled || confirmationMissing}
                 id={anchorScope}
