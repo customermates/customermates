@@ -100,8 +100,18 @@ describe("BrowserFrame", () => {
   });
 
   it.each([
-    ["homepage", <HeroDemoIframe key="homepage" src="https://demo.customermates.com/en/dashboard?agentChat=open" />],
+    [
+      "load-ahead",
+      <BrowserFrame
+        key="load-ahead"
+        loadAhead
+        embed={false}
+        src="https://demo.customermates.com/en/dashboard?agentChat=open"
+        title="Demo"
+      />,
+    ],
     ["article", <ProductDemo key="article" path={DEMO_RECORD_LIST_PATHS.contacts} />],
+    ["standalone", <ProductDemo key="standalone" path={DEMO_RECORD_LIST_PATHS.contacts} presentation="standalone" />],
     ["docs", <DocsDemo key="docs" src="https://demo.customermates.com/en/dashboard" title="Demo" />],
   ])("links to the hosted demo instead of loading it on a self-hosted instance (%s)", (_, component) => {
     appEnv.APP_MODE = "self-hosted";
@@ -116,7 +126,7 @@ describe("BrowserFrame", () => {
         (link) =>
           link.textContent?.includes("BrowserFrame.open") && link.href.startsWith("https://demo.customermates.com/"),
       ),
-    ).toHaveLength(2);
+    ).toHaveLength(1);
   });
 
   it("routes product previews locally only during development", () => {
