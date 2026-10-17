@@ -176,7 +176,8 @@ export class PrismaCompanyRepo
     });
   }
 
-  async claimCheckoutStart(startedAt: Date, pendingSince: Date, lemonSqueezyId: string | null) {
+  async claimCheckoutStart(args: RepoArgs<CreateCheckoutCompanyRepo, "claimCheckoutStart">) {
+    const { startedAt, pendingSince, lemonSqueezyId } = args;
     const { count } = await this.prisma.subscription.updateMany({
       where: {
         companyId: this.companyId,
@@ -189,16 +190,16 @@ export class PrismaCompanyRepo
     return count === 1;
   }
 
-  async releaseCheckoutStart(startedAt: Date, previous: Date | null) {
+  async releaseCheckoutStart(args: RepoArgs<CreateCheckoutCompanyRepo, "releaseCheckoutStart">) {
     await this.prisma.subscription.updateMany({
-      where: { companyId: this.companyId, checkoutStartedAt: startedAt },
-      data: { checkoutStartedAt: previous },
+      where: { companyId: this.companyId, checkoutStartedAt: args.startedAt },
+      data: { checkoutStartedAt: args.previous },
     });
   }
 
   async clearCheckoutStart() {
     await this.prisma.subscription.updateMany({
-      where: { companyId: this.companyId },
+      where: { companyId: this.companyId, checkoutStartedAt: { not: null } },
       data: { checkoutStartedAt: null },
     });
   }

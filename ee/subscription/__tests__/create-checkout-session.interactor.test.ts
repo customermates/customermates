@@ -107,7 +107,7 @@ describe("CreateCheckoutSessionInteractor", () => {
 
     await interactor.invoke({ plan: "pro", cadence: "monthly" } as never);
 
-    const [startedAt] = repo.claimCheckoutStart.mock.calls[0] as [Date];
+    const [{ startedAt }] = repo.claimCheckoutStart.mock.calls[0] as [{ startedAt: Date }];
     const { expiresAt } = subscriptionService.createCheckoutOrThrow.mock.calls[0][0] as { expiresAt: Date };
     expect(expiresAt.getTime() - startedAt.getTime()).toBe(24 * 60 * 60 * 1000);
   });
@@ -198,7 +198,9 @@ describe("CreateCheckoutSessionInteractor", () => {
     await interactor.invoke({ plan: "pro", cadence: "monthly" } as never);
 
     expect(repo.claimCheckoutStart).toHaveBeenCalledOnce();
-    const [startedAt, pendingSince, binding] = repo.claimCheckoutStart.mock.calls[0] as [Date, Date, string | null];
+    const [{ startedAt, pendingSince, lemonSqueezyId: binding }] = repo.claimCheckoutStart.mock.calls[0] as [
+      { startedAt: Date; pendingSince: Date; lemonSqueezyId: string | null },
+    ];
     expect(binding).toBeNull();
     expect(startedAt.getTime()).toBeGreaterThanOrEqual(before);
     expect(startedAt.getTime()).toBeLessThanOrEqual(Date.now());
@@ -241,8 +243,8 @@ describe("CreateCheckoutSessionInteractor", () => {
       "Failed to create checkout",
     );
 
-    const [startedAt] = repo.claimCheckoutStart.mock.calls[0] as [Date];
-    expect(repo.releaseCheckoutStart).toHaveBeenCalledExactlyOnceWith(startedAt, previous);
+    const [{ startedAt }] = repo.claimCheckoutStart.mock.calls[0] as [{ startedAt: Date }];
+    expect(repo.releaseCheckoutStart).toHaveBeenCalledExactlyOnceWith({ startedAt, previous });
   });
 
   it.each(["active", "trial", "pastDue"])(
@@ -297,6 +299,6 @@ describe("CreateCheckoutSessionInteractor", () => {
     expect(await interactor.invoke({ plan: "pro", cadence: "monthly" } as never)).toMatchObject({
       redirect: "https://checkout.example.com",
     });
-    expect(repo.claimCheckoutStart.mock.calls[0][2]).toBe("sub-1");
+    expect(repo.claimCheckoutStart.mock.calls[0][0]).toMatchObject({ lemonSqueezyId: "sub-1" });
   });
 });

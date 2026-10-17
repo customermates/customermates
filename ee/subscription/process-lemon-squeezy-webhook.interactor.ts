@@ -17,7 +17,7 @@ import { env } from "@/env";
 import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
 import { isCheckoutWorkspaceSignature } from "./checkout-workspace-signature";
-import { hasLiveSubscription } from "./live-subscription";
+import { hasLiveSubscription } from "./entitlements";
 import { acceptsUnsignedCheckoutClaim } from "./unsigned-checkout-claims";
 
 type WorkspaceClaim = { companyId: string; signature: string | null };
@@ -112,7 +112,7 @@ export class ProcessLemonSqueezyWebhookInteractor {
 
     Sentry.captureMessage("Lemon Squeezy event for a missing workspace acknowledged without changes", {
       level: "info",
-      tags: { eventName: event.eventName, subscriptionId: event.subscriptionId, workspaceId: claim.companyId },
+      tags: { eventName: event.eventName, subscriptionId: event.subscriptionId, companyId: claim.companyId },
     });
     return "ignored" as const;
   }

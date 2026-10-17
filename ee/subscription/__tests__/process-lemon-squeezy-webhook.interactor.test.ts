@@ -536,7 +536,7 @@ describe("an event for a workspace that no longer exists", () => {
       expect(mails()).toEqual([]);
       expect(Sentry.captureMessage).toHaveBeenCalledExactlyOnceWith(
         "Lemon Squeezy event for a missing workspace acknowledged without changes",
-        { level: "info", tags: { eventName, subscriptionId: "sub-1", workspaceId: "deleted-company" } },
+        { level: "info", tags: { eventName, subscriptionId: "sub-1", companyId: "deleted-company" } },
       );
     },
   );

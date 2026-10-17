@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { Action, Resource, SubscriptionPlan } from "@/generated/prisma";
 
-import { isFirstPlanChoice, resolveSubscriptionRecoveryPath } from "../subscription-recovery";
+import { resolveSubscriptionRecoveryPath } from "../subscription-recovery";
 
 function user(role: TenantUser["role"]): TenantUser {
   return { role } as TenantUser;
@@ -60,13 +60,5 @@ describe("resolveSubscriptionRecoveryPath", () => {
         SubscriptionPlan.enterprise,
       ),
     ).toBe("manualEnterpriseBilling");
-  });
-});
-
-describe("isFirstPlanChoice", () => {
-  it("recognizes a workspace that never had a trial or a paid subscription", () => {
-    expect(isFirstPlanChoice({ trialEndDate: null, lemonSqueezyId: null })).toBe(true);
-    expect(isFirstPlanChoice({ trialEndDate: new Date("2026-10-01T00:00:00.000Z"), lemonSqueezyId: null })).toBe(false);
-    expect(isFirstPlanChoice({ trialEndDate: null, lemonSqueezyId: "ls-1" })).toBe(false);
   });
 });
