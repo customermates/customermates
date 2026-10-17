@@ -19,6 +19,8 @@ export default function ErrorPage({ error, reset }: Props) {
     if (isWorkspaceChangedError(error)) notifyWorkspaceChanged();
   }, [error]);
 
+  if (isWorkspaceChangedError(error)) return null;
+
   return (
     <ErrorPageView
       backHref="/"

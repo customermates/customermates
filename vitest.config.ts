@@ -30,6 +30,7 @@ export const domTestFiles = [
   "features/messaging/activities/__tests__/record-activities-panel.test.ts",
   "components/ai-elements/__tests__/message-links.test.ts",
   "app/[locale]/(public)/auth/reset-password/__tests__/reset-password-form.test.ts",
+  "app/[locale]/__tests__/error.dom.test.ts",
   "app/[locale]/(public)/auth/invitation/__tests__/workspace-invitation-card.dom.test.ts",
   "app/[locale]/(public)/auth/mcp-consent/__tests__/mcp-consent-card.dom.test.ts",
   "app/[locale]/(static)/contact/__tests__/contact-form.test.ts",
