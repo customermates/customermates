@@ -98,9 +98,7 @@ const ApiKeysPageViewContent = observer(({ apiKeys }: Props) => {
     case "content":
       body = (
         <div className="animate-page-result-in flex w-full max-w-3xl flex-col gap-4 motion-reduce:animate-none">
-          <Alert color="primary" description={t("ProfileSections.apiKeysDescription")}>
-            <p>{workspaceScope}</p>
-          </Alert>
+          <Alert color="primary" description={`${t("ProfileSections.apiKeysDescription")} ${workspaceScope}`} />
 
           <div className={PROFILE_RESOURCE_CARD_GRID_CLASS_NAME}>
             {apiKeysStore.items.map((key) => (

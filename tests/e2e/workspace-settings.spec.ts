@@ -145,7 +145,7 @@ test("the API keys page lists only the keys of the current workspace and names i
   await mintApiKey(database, { authUserId: workspace.authUserId, companyId: second.companyId }, "Bergmann bookkeeping");
 
   await page.goto("/en/settings/api-keys");
-  await expect(page.getByText("These keys only access the Bergmann Steuern workspace.", { exact: true })).toBeVisible();
+  await expect(page.getByText("These keys only access the Bergmann Steuern workspace.", { exact: false })).toBeVisible();
   await expect(page.getByText("Bergmann bookkeeping", { exact: true })).toBeVisible();
   await expect(page.getByText("Browser bookkeeping", { exact: true })).toHaveCount(0);
 
@@ -154,7 +154,7 @@ test("the API keys page lists only the keys of the current workspace and names i
   await expect(page).toHaveURL(/\/en\/dashboard$/);
   await page.goto("/en/settings/api-keys");
   await expect(
-    page.getByText("These keys only access the Browser workspace workspace.", { exact: true }),
+    page.getByText("These keys only access the Browser workspace workspace.", { exact: false }),
   ).toBeVisible();
   await expect(page.getByText("Browser bookkeeping", { exact: true })).toBeVisible();
   await expect(page.getByText("Bergmann bookkeeping", { exact: true })).toHaveCount(0);

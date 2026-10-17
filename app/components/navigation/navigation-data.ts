@@ -5,6 +5,8 @@ import type { SidebarLayout } from "@/features/p13n/sidebar-layout.schema";
 import type { KeyboardPreferences } from "@/features/p13n/keyboard-preferences.schema";
 import type { WorkspaceSummary } from "@/features/workspace/workspace.schema";
 
+import { isRestrictedAccountState } from "@/features/auth/account-state";
+
 import { trialDaysLeft } from "./plan-subtitle";
 
 type NavigationData = {
@@ -42,19 +44,11 @@ const EMPTY_NAVIGATION_DATA: NavigationData = {
   workspaces: [],
 };
 
-const RESTRICTED_MEMBERSHIP_STATES = new Set<AccountState>([
-  "inactive",
-  "pending",
-  "onboarding",
-  "legal",
-  "subscription",
-]);
-
 export async function loadNavigationData(
   accountState: AccountState,
   loaders: NavigationDataLoaders,
 ): Promise<NavigationData> {
-  if (RESTRICTED_MEMBERSHIP_STATES.has(accountState))
+  if (isRestrictedAccountState(accountState) && accountState !== "overdueVerification")
     return { ...EMPTY_NAVIGATION_DATA, workspaces: await loaders.workspaces() };
   if (accountState !== "allowed") return { ...EMPTY_NAVIGATION_DATA };
 

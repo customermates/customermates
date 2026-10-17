@@ -538,7 +538,7 @@ export class PrismaUserRepo
     return this.prisma.user.findMany({
       where: { email, leftAt: null },
       orderBy: [{ lastActiveAt: { sort: "desc", nulls: "last" } }, { createdAt: "asc" }],
-      select: { companyId: true, status: true, lastActiveAt: true },
+      select: { companyId: true, status: true },
     });
   }
 

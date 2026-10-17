@@ -50,7 +50,7 @@ export type CommandActionId =
   | "sendFeedback"
   | "signOut";
 
-export type CommandLevelId = "workspaces";
+type CommandLevelId = "workspaces";
 
 type CommandTarget = { href: string } | { control: string } | { action: CommandActionId } | { level: CommandLevelId };
 

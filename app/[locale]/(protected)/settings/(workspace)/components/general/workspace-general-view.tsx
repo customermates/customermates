@@ -6,12 +6,12 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
+import { LeaveWorkspaceDialog } from "@/app/components/workspaces/leave-workspace-dialog";
 import { WorkspaceAvatar } from "@/app/components/workspaces/workspace-avatar";
 import { workspaceDisplayName } from "@/app/components/workspaces/workspace-identity";
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { UnsavedChangesBar, unsavedChangesMode } from "@/components/forms/unsaved-changes-bar";
-import { ConfirmDialog } from "@/components/modal/confirm-dialog";
 import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -24,7 +24,7 @@ type Props = {
 
 const WorkspaceGeneralViewContent = observer(({ workspace }: Props) => {
   const t = useTranslations();
-  const { appMode, workspaceGeneralStore: store, workspacesStore } = useRootStore();
+  const { appMode, workspaceGeneralStore: store } = useRootStore();
   const [confirmingLeave, setConfirmingLeave] = useState(false);
 
   useState(() => {
@@ -102,16 +102,11 @@ const WorkspaceGeneralViewContent = observer(({ workspace }: Props) => {
         </div>
       </AppForm>
 
-      <ConfirmDialog
+      <LeaveWorkspaceDialog
         anchorScope="settings-general-leave-confirm"
-        confirmLabel={t("Workspaces.leaveShort")}
-        description={t("Workspaces.leaveConfirmDescription")}
+        name={name}
         open={confirmingLeave}
-        title={t("Workspaces.leaveConfirmTitle", { name })}
-        onCancel={() => setConfirmingLeave(false)}
-        onConfirm={async () => {
-          if (!(await workspacesStore.leaveCurrent())) setConfirmingLeave(false);
-        }}
+        onClose={() => setConfirmingLeave(false)}
       />
     </>
   );

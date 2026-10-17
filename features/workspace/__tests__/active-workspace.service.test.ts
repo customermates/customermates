@@ -36,9 +36,7 @@ describe("ActiveWorkspaceService", () => {
     users.findMembershipUnscoped.mockImplementation((_email: string, companyId: string) =>
       Promise.resolve(companyId === "company-a" ? memberA : null),
     );
-    users.listMembershipsUnscoped.mockResolvedValue([
-      { companyId: "company-a", status: Status.active, lastActiveAt: null },
-    ]);
+    users.listMembershipsUnscoped.mockResolvedValue([{ companyId: "company-a", status: Status.active }]);
     users.findAuthUserCompanyIdUnscoped.mockResolvedValue("company-a");
   });
 

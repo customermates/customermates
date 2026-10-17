@@ -8,6 +8,7 @@ import { useMemo, useState } from "react";
 import { Status } from "@/generated/prisma";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
+import { LeaveWorkspaceDialog } from "@/app/components/workspaces/leave-workspace-dialog";
 import { WorkspaceAvatar } from "@/app/components/workspaces/workspace-avatar";
 import { workspaceDisplayName } from "@/app/components/workspaces/workspace-identity";
 import { workspacePlanChip } from "@/app/components/workspaces/workspace-plan-chip";
@@ -15,12 +16,12 @@ import { WorkspaceStatusChip } from "@/app/components/workspaces/workspace-statu
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppChip } from "@/components/chip/app-chip";
-import { ConfirmDialog } from "@/components/modal/confirm-dialog";
 import { TopBarPrimaryButton } from "@/components/shared/top-bar-action-buttons";
 import { Button } from "@/components/ui/button";
 import { SectionRows } from "@/components/ui/section-rows";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
+import { roleDisplayName } from "@/features/role/role-display-name";
 
 type Props = {
   workspaces: WorkspaceSummary[];
@@ -59,7 +60,13 @@ const WorkspacesPageViewContent = observer(({ workspaces }: Props) => {
             <ul className="flex flex-col">
               {workspaces.map((workspace) => {
                 const name = workspaceDisplayName(workspace.name, fallback);
-                const role = workspace.isAdmin ? t("RoleModal.systemName") : workspace.roleName;
+                const role =
+                  workspace.roleName === null
+                    ? null
+                    : roleDisplayName(
+                        { isSystemRole: workspace.isAdmin, name: workspace.roleName },
+                        t("RoleModal.systemName"),
+                      );
                 const members =
                   workspace.activeMemberCount === null
                     ? null
@@ -130,16 +137,11 @@ const WorkspacesPageViewContent = observer(({ workspaces }: Props) => {
         </AppCardBody>
       </AppCard>
 
-      <ConfirmDialog
+      <LeaveWorkspaceDialog
         anchorScope="settings-workspaces-leave-confirm"
-        confirmLabel={t("Workspaces.leaveShort")}
-        description={t("Workspaces.leaveConfirmDescription")}
+        name={currentName}
         open={confirmingLeave}
-        title={t("Workspaces.leaveConfirmTitle", { name: currentName })}
-        onCancel={() => setConfirmingLeave(false)}
-        onConfirm={async () => {
-          if (!(await workspacesStore.leaveCurrent())) setConfirmingLeave(false);
-        }}
+        onClose={() => setConfirmingLeave(false)}
       />
     </div>
   );

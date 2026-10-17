@@ -1,5 +1,7 @@
 import type { CSSProperties } from "react";
 
+import { getChartColors, getChartTextColors } from "@/constants/chart-colors";
+
 const AVATAR_HUES = ["primary", "secondary", "success", "warning", "danger"] as const;
 
 export function workspaceAvatarHue(companyId: string): (typeof AVATAR_HUES)[number] {
@@ -9,8 +11,8 @@ export function workspaceAvatarHue(companyId: string): (typeof AVATAR_HUES)[numb
 }
 
 export function workspaceAvatarStyle(companyId: string): CSSProperties {
-  const hue = workspaceAvatarHue(companyId);
-  return { backgroundColor: `var(--chart-${hue}-3)`, color: `var(--chart-${hue}-text)` };
+  const color = `${workspaceAvatarHue(companyId)}3` as const;
+  return { backgroundColor: getChartColors()[color], color: getChartTextColors()[color] };
 }
 
 export function workspaceDisplayName(name: string | null | undefined, fallback: string): string {

@@ -9,7 +9,6 @@ export type AuthUserAccountState = {
 export type MembershipSummary = {
   companyId: string;
   status: Status;
-  lastActiveAt: Date | null;
 };
 
 export abstract class FindUserRepo {
