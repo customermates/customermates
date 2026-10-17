@@ -43,7 +43,7 @@ describe("PlanSelection", () => {
 
     expect(harness.planPickerRenders).toBe(0);
     expect(markup).toContain('id="settings-billing-payment-pending"');
-    expect(markup).toContain('aria-live="polite"');
+    expect(markup).toContain('role="status"');
     expect(markup).toContain("CheckoutPending.title");
     expect(markup).toContain("CheckoutPending.description");
     expect(markup).toContain('id="settings-billing-payment-abandon"');

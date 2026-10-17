@@ -15,7 +15,6 @@ export function PaymentPendingNotice({ isLoading, onAbandon }: Props) {
 
   return (
     <div
-      aria-live="polite"
       className="flex w-full flex-col items-center gap-2 rounded-xl border border-border bg-card px-4 py-6 text-center"
       id="settings-billing-payment-pending"
     >

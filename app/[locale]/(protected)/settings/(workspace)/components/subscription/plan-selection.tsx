@@ -31,11 +31,7 @@ export function PlanSelection({ checkout, isLoading, onSelect, onAbandon }: Prop
           <p className="text-x-sm flex flex-wrap gap-x-1">
             <span>{t("CheckoutPending.overdue")}</span>
 
-            {supportHref ? (
-              <a className="font-medium underline underline-offset-4" href={supportHref}>
-                {t("CheckoutPending.contactSupport")}
-              </a>
-            ) : null}
+            {supportHref ? <a href={supportHref}>{t("CheckoutPending.contactSupport")}</a> : null}
           </p>
         </Alert>
       ) : null}
