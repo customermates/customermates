@@ -247,7 +247,7 @@ export class PrismaCompanyRepo
   @BypassTenantGuard
   async setSubscriptionTermsUnscoped(
     companyId: string,
-    terms: { trialEndDate: Date | null; lemonSqueezyId: string | null },
+    terms: { trialEndDate: Date | null; lemonSqueezyId: string | null; status?: SubscriptionStatus },
   ): Promise<void> {
     await this.prisma.subscription.update({
       where: { companyId },
@@ -255,6 +255,7 @@ export class PrismaCompanyRepo
         trialEndDate: terms.trialEndDate,
         lemonSqueezyId: terms.lemonSqueezyId,
         ...(terms.lemonSqueezyId === null ? { lemonSqueezyVariantId: null } : {}),
+        ...(terms.status ? { status: terms.status } : {}),
       },
     });
   }

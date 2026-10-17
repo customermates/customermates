@@ -983,6 +983,30 @@ describeDatabase("operator user administration against a real database", { timeo
     });
   });
 
+  it("starts the trial an operator grants to a workspace that is still waiting for its first plan", async () => {
+    const repo = createTestOperatorRepo();
+    const companyId = await createCompany({ plan: "pro", status: "expired" });
+    await runWithoutTenant(() =>
+      prisma.subscription.update({ where: { companyId }, data: { trialEndDate: null, currentPeriodEnd: null } }),
+    );
+    const trialEnd = new Date("2026-11-20T22:59:59.999Z");
+
+    const updated = await runWithOperator(operatorActor(), () =>
+      repo.updateSubscriptionTermsUnscoped(
+        { companyId, trialEndDate: trialEnd.toISOString(), lemonSqueezyId: null },
+        now,
+      ),
+    );
+    assertAdmitted(updated);
+
+    await runWithoutTenant(async () => {
+      expect(await prisma.subscription.findUniqueOrThrow({ where: { companyId } })).toMatchObject({
+        status: "trial",
+        trialEndDate: trialEnd,
+      });
+    });
+  });
+
   it("refuses to clear a trial end date that is already set, and leaves an absent one writable", async () => {
     const repo = createTestOperatorRepo();
     const companyId = await createCompany({ plan: "pro", status: "trial" });

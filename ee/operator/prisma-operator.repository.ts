@@ -17,6 +17,7 @@ import {
 } from "@/ee/agent-chat/agent-credit-policy";
 import { env } from "@/env";
 import type { AgentUsageRepo } from "@/ee/agent-chat/agent-usage.repo";
+import { isAwaitingFirstPlan } from "@/ee/subscription/entitlements";
 
 import { normalizeOperatorEmail } from "./operator-access.service";
 import type { OperatorRefusal, OperatorRepo } from "./operator.repo";
@@ -1265,18 +1266,23 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
         if (trialEndDate && !Number.isFinite(trialEndDate.getTime())) return "conflict";
         if (trialEndDate === null && subscription.trialEndDate !== null) return "trialEndRequired";
 
+        const status =
+          trialEndDate !== null && isAwaitingFirstPlan(subscription) ? SubscriptionStatus.trial : subscription.status;
         const previous = {
           trialEndDate: subscription.trialEndDate?.toISOString() ?? null,
           lemonSqueezyId: subscription.lemonSqueezyId,
+          status: subscription.status,
         };
         const next = {
           trialEndDate: trialEndDate?.toISOString() ?? null,
           lemonSqueezyId: data.lemonSqueezyId,
+          status,
         };
 
         await this.owners.companies.setSubscriptionTermsUnscoped(data.companyId, {
           trialEndDate,
           lemonSqueezyId: data.lemonSqueezyId,
+          ...(status !== subscription.status ? { status } : {}),
         });
         await this.createAudit({
           action: OPERATOR_AUDIT_ACTION.subscriptionTermsUpdate,
