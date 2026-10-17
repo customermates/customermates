@@ -13,7 +13,7 @@ import { canConnectMcp, isMcpConsentMemberState } from "./mcp-access";
 const Schema = z.object({
   consentCode: z.string().min(1),
   accept: z.boolean(),
-  companyId: z.string().min(1).optional(),
+  companyId: z.uuid().optional(),
 });
 export type DecideMcpConsentData = Data<typeof Schema>;
 

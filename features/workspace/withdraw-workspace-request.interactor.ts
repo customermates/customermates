@@ -14,7 +14,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { failAuthorization, failNotFound, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-const Schema = z.object({ companyId: z.string().min(1) });
+const Schema = z.object({ companyId: z.uuid() });
 export type WithdrawWorkspaceRequestData = Data<typeof Schema>;
 
 const OutputSchema = z.object({ companyId: z.string() });
