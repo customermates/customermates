@@ -154,6 +154,7 @@ export interface RecordRepo {
     afterId?: string,
   ): Promise<Array<{ id: string; name: string; measure: RecordMeasure; trashed: boolean }>>;
   getConfigurationDeletions(targets?: ConfigurationTarget[]): Promise<Map<string, ConfigurationDeletionRecord>>;
+  getConfigurationTrashTargetIds(): Promise<Set<string>>;
   applyConsumerCleanups(cleanups: ConfigurationConsumerCleanup[]): Promise<{ pausedWebhookIds: string[] }>;
   getState(): Promise<RecordSchemaState | null>;
   getGrants(): Promise<RecordTypeGrant[]>;
@@ -228,13 +229,23 @@ export interface RecordRepo {
   getTrashedRecordRefsCompanyWide(trashItemIds: string[], take: number): Promise<RecordRef[]>;
   getTrashedLinksCompanyWide(refs: RecordRef[], take: number): Promise<TrashedRecordLink[]>;
   getTrashedParentCompanyWide(ref: RecordRef, relationId: string): Promise<RecordRef | null>;
+  getTrashPurgedAlongCompanyWide(
+    trashItemIds: string[],
+    relationIds: string[],
+  ): Promise<{ itemIds: string[]; refs: RecordRef[] }>;
+  getTrashedSubListRowsCompanyWide(
+    trashItemId: string,
+    subLists: Array<{ typeId: string; relationId: string }>,
+  ): Promise<Array<{ ref: RecordRef; parent: { ref: RecordRef; trashItemId: string | null } | null }>>;
+  reassignTrashedRecordsCompanyWide(refs: RecordRef[], trashItemId: string): Promise<void>;
   restoreRecords(refs: RecordRef[]): Promise<void>;
-  restoreLink(id: string): Promise<void>;
-  dropTrashedLink(id: string): Promise<void>;
+  restoreLink(relationId: string, id: string): Promise<void>;
+  dropTrashedLink(relationId: string, id: string): Promise<void>;
   removeTrashItems(ids: string[]): Promise<void>;
   purgeTrashItems(ids: string[]): Promise<RecordRef[]>;
   countTrashedRecordsCompanyWide(
     trashItemIds: string[],
+    refs?: RecordRef[],
   ): Promise<{ records: Array<{ typeId: string; count: number }>; links: number }>;
   setAssignments(ref: RecordRef, userIds: string[]): Promise<void>;
   getMembersCompanyWide(userIds: string[]): Promise<RecordMember[]>;
@@ -248,7 +259,7 @@ export interface RecordRepo {
   ): Promise<Array<{ relationId: string; source: RecordRef; target: RecordRef }>>;
   getLinksCompanyWidePage(
     ref: RecordRef,
-    afterId: string | undefined,
+    after: { id: string; relationId: string } | undefined,
     take: number,
   ): Promise<
     Array<{

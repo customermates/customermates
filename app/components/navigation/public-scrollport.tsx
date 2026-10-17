@@ -1,6 +1,7 @@
 "use client";
 
 import type { AccountState, MarketingAccountProfile } from "@/features/auth/account-state";
+import type { AppMode } from "@/core/config/environment";
 
 import { useLayoutEffect, useRef } from "react";
 
@@ -10,6 +11,7 @@ import { usePathname } from "@/i18n/navigation";
 
 type Props = {
   accountState: AccountState;
+  appMode: AppMode;
   children: React.ReactNode;
   hasValidSession: boolean;
   onboardingIntent?: string;
@@ -19,6 +21,7 @@ type Props = {
 
 export function PublicScrollport({
   accountState,
+  appMode,
   children,
   hasValidSession,
   onboardingIntent,
@@ -41,6 +44,7 @@ export function PublicScrollport({
       <header className="sticky top-0 z-50 flex shrink-0 flex-col bg-background/90 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-background/92">
         <PublicNavbar
           accountState={accountState}
+          appMode={appMode}
           hasValidSession={hasValidSession}
           onboardingIntent={onboardingIntent}
           profile={profile}

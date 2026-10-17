@@ -88,7 +88,16 @@ export type RestoreTrashData = z.infer<typeof RestoreTrashSchema>;
 const TrashRestoreBlockerSchema = z
   .object({
     itemId: z.uuid(),
-    reason: z.enum(["listDeleted", "parentDeleted", "notFound", "requiresRestore", "nameTaken", "routineLimitReached"]),
+    reason: z.enum([
+      "listDeleted",
+      "parentDeleted",
+      "notFound",
+      "requiresRestore",
+      "nameTaken",
+      "routineLimitReached",
+      "incompatible",
+      "operationPending",
+    ]),
     typeId: z.uuid().nullable(),
     parent: RecordRefSchema.optional(),
     limit: z
@@ -122,6 +131,10 @@ export const TrashRestoreResultSchema = z.discriminatedUnion("status", [
     .object({
       status: z.literal("pending"),
       operationId: z.uuid(),
+      blocked: z
+        .array(TrashRestoreBlockerSchema)
+        .optional()
+        .describe("Items that stay in Trash; the rest are restored by the operation."),
       droppedViewReferences: z.array(DroppedViewReferencesSchema).optional(),
     })
     .strict(),

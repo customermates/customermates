@@ -9,6 +9,7 @@ import { buildMcpServerInstructions, GET_STARTED_PROMPT } from "@/features/mcp-t
 import { mcpToolsForToolsets } from "@/features/mcp-tools/toolsets";
 import { env } from "@/env";
 import { AppErrorCode, AuthError, ForbiddenError } from "@/core/errors/app-errors";
+import { EmailVerificationRequiredError } from "@/core/auth/email-verification-required-error";
 import type { SerializedInteractorFailure } from "@/core/validation/validation.utils";
 
 export type { McpTool, McpToolResult } from "@/features/mcp-tools/mcp-tool";
@@ -137,6 +138,13 @@ function inactiveUser(message: string) {
   });
 }
 
+function emailNotVerified(message: string) {
+  return new Response(JSON.stringify({ error: "email_not_verified", message }), {
+    status: 403,
+    headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+  });
+}
+
 async function mcpAccessRefusal(): Promise<Response | null> {
   const { getAuthorizeMcpConnectionInteractor } = await import("@/core/di");
   try {
@@ -146,6 +154,7 @@ async function mcpAccessRefusal(): Promise<Response | null> {
     if (error instanceof AuthError) return unauthorizedChallenge();
     if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied)
       return insufficientPermissions();
+    if (error instanceof EmailVerificationRequiredError) return emailNotVerified(error.message);
     if (error instanceof ForbiddenError && error.code === AppErrorCode.inactiveUser) return inactiveUser(error.message);
     throw error;
   }
@@ -203,6 +212,7 @@ export function createMcpRoute(
         registerFeatures?.(server, tools);
       },
       {
+        serverInfo: { name: "Customermates", version: "1.0.0" },
         instructions: buildMcpServerInstructions(tools.map((tool) => tool.name)),
       },
       { streamableHttpEndpoint: endpoint },

@@ -75,7 +75,7 @@ Die vollständige Liste finden Sie im [MCP-Tool-Katalog](/docs/mcp#tool-catalog)
 
 Die Anwendung schreibt einfache Logs in ihre Standardausgabe. Umgebungswerte wie die Secrets aus `.env` werden nicht geloggt, einen Filter, der Secrets in Logzeilen maskiert, gibt es aber nicht. Ist ein Dienst für Fehlerberichte eingerichtet, wie in der gehosteten Cloud, werden Ereignisse ohne Cookies, Header und Bodys der Anfrage gesendet. Unerwartete Fehler in MCP- und Assistenten-Tools erreichen den Client und den Fehlerbericht nur als allgemeine Meldung wie „The operation could not be completed“.
 
-Das veröffentlichte Self-Hosted-Image setzt keine Adresse für Fehlerberichte und schaltet die Next.js-Telemetrie ab. Auf einer Self-Hosted-Instanz erscheinen Fehler, die die App in ihre Ausgabe schreibt, nur in `docker compose logs app`. Fehler, die die App nur an einen Dienst für Fehlerberichte meldet, etwa eine von Resend abgelehnte E-Mail, werden nirgends festgehalten; prüfen Sie abgelehnte Sendungen im Resend-Dashboard.
+Das veröffentlichte Self-Hosted-Image setzt keine Adresse für Fehlerberichte und schaltet die Telemetrie von Next.js und Prisma ab. Auf einer Self-Hosted-Instanz erscheinen Fehler, die die App in ihre Ausgabe schreibt, nur in `docker compose logs app`; Fehler, die die App nur an einen Dienst für Fehlerberichte meldet, werden nirgends festgehalten. Eine E-Mail, die der Anbieter abgelehnt oder nicht rechtzeitig beantwortet hat, wird mit Betreff, Domain des Empfängers und dem Grund des Anbieters geloggt, nie mit der vollständigen Adresse.
 
 ## Wie sind Webhook-Secrets und Webhook-Ziele abgesichert? [#how-are-webhook-secrets-and-destinations-secured]
 

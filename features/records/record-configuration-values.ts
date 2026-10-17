@@ -34,17 +34,17 @@ export function fieldValueDefinition(field: RecordField | undefined): string {
 }
 
 export function configurationInputFields(previous: RecordModel, next: RecordModel): RecordField[] {
-  return next.fields.filter(
-    (field) =>
+  return next.fields.filter((field) => {
+    const before = previous.fields.find((candidate) => candidate.id === field.id);
+    return (
       !field.archived &&
       field.valueType !== "channels" &&
-      (previous.fields.some((before) => before.id === field.id) ||
-        field.required ||
-        (field.behavior.kind === "input" && field.behavior.defaultValue !== undefined)) &&
-      (field.behavior.kind === "input" ||
-        (field.behavior.kind === "snapshot" && previous.fields.some((before) => before.id === field.id))) &&
-      fieldValueDefinition(previous.fields.find((before) => before.id === field.id)) !== fieldValueDefinition(field),
-  );
+      (before || field.required || (field.behavior.kind === "input" && field.behavior.defaultValue !== undefined)) &&
+      (field.behavior.kind === "input" || (field.behavior.kind === "snapshot" && before)) &&
+      fieldValueDefinition(before && field.behavior.kind === "snapshot" ? { ...before, archived: false } : before) !==
+        fieldValueDefinition(field)
+    );
+  });
 }
 
 export function configurationInputValue(

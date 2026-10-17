@@ -426,6 +426,24 @@ describe("RunRoutineNowInteractor", () => {
     expect(background.dispatch).not.toHaveBeenCalled();
   });
 
+  it("tells a self-hosted instance that routines run on cloud instead of reporting an outage", async () => {
+    const { repo, background, usage } = fixtures();
+    usage.getUsageSummary.mockResolvedValue({ blockedReason: "self_hosted" });
+
+    const result = await new RunRoutineNowInteractor(repo as never, background as never, usage as never).invoke({
+      id: ROUTINE_ID,
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("Expected a self-hosted instance to refuse the manual run");
+    expect(result.error.issues[0]).toMatchObject({
+      path: ["id"],
+      params: { error: CustomErrorCode.routinesRequireCloud, kind: "unavailable" },
+    });
+    expect(repo.createManualRoutineRunOrThrow).not.toHaveBeenCalled();
+    expect(background.dispatch).not.toHaveBeenCalled();
+  });
+
   it("refuses a manual run owned by an inactive member", async () => {
     const { repo, background, usage } = fixtures({
       owner: { ...routineFixture().owner, status: "inactive" },

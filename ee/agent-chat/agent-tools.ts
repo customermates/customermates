@@ -90,11 +90,12 @@ const NON_TRANSACTIONAL_TOOL_GROUPS = ["messaging", "social", "support"] as cons
 
 let nonTransactionalToolNames: ReadonlySet<string> | undefined;
 
-export function hasNonTransactionalEffect(toolName: string) {
+export function hasNonTransactionalEffect(toolName: string, input?: unknown) {
   nonTransactionalToolNames ??= new Set(
     NON_TRANSACTIONAL_TOOL_GROUPS.flatMap((group) => (MCP_TOOL_GROUPS?.[group] ?? []).map((mcp) => mcp.name)),
   );
 
+  if (toolName === "manage_team") return (input as { action?: unknown } | undefined)?.action === "invite";
   return nonTransactionalToolNames.has(toolName);
 }
 
@@ -630,7 +631,9 @@ function crmTool(
         });
       };
       const enrollable =
-        !isReadOnlyTool(mcp) && recordToolRisk(mcp.name, input) !== "read" && !hasNonTransactionalEffect(mcp.name);
+        !isReadOnlyTool(mcp) &&
+        recordToolRisk(mcp.name, input) !== "read" &&
+        !hasNonTransactionalEffect(mcp.name, input);
       const run = enrollable ? () => deps.runExactlyOnce(toolCallId, mcp.name, execute) : execute;
       const complete = async () => {
         const result = await run();

@@ -17,6 +17,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { PageContainer } from "@/components/shared/page-container";
 import { LockedFeatureOverlay } from "@/components/shared/locked-feature-overlay";
 import { env } from "@/env";
+import { buildLocalePath } from "@/i18n/locale-registry";
 import { cn } from "@/core/utils/cn";
 import { unwrapPage } from "@/core/validation/next/unwrap-page";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
@@ -31,7 +32,7 @@ type Props = {
 export default async function InboxPage({ searchParams }: Props) {
   await requireAccess({ resource: Resource.inboxMessages });
 
-  if (env.APP_MODE === "self-hosted") redirect("/dashboard");
+  if (env.APP_MODE === "self-hosted") redirect(buildLocalePath(await getLocale(), "/dashboard"));
 
   const messaging = await unwrapPage(getGetMessagingAccountsStateInteractor().invoke());
   const locked = messaging.state !== "available";

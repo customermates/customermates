@@ -19,6 +19,7 @@ import { DomainEvent } from "@/features/event/domain-events";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
+import { runAfterResponse } from "@/core/utils/after-response";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
@@ -199,10 +200,12 @@ export class RegisterUserInteractor {
         },
       });
 
-      await this.authService.sendNewUserNotificationEmail({
-        email: tenantUser.email,
-        name: `${tenantUser.firstName} ${tenantUser.lastName}`,
-      });
+      runAfterResponse(() =>
+        this.authService.sendNewUserNotificationEmail({
+          email: tenantUser.email,
+          name: `${tenantUser.firstName} ${tenantUser.lastName}`,
+        }),
+      );
     });
 
     return {
