@@ -7,6 +7,7 @@ import { action, computed, makeObservable, observable, toJS } from "mobx";
 import { Action, CountryCode, Resource, Status } from "@/generated/prisma";
 
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 
 import {
   adminUpdateUserDetailsAction,
@@ -124,7 +125,7 @@ export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
         this.offersRemovalFor({ id, leftAt: null }) ? getMemberRemovalAction({ userId: id }) : null,
       ]);
 
-      if (sequence !== this.loadSequence) return;
+      if (sequence !== this.loadSequence || notifyIfWorkspaceChanged(removal)) return;
 
       this.rootStore.rolesStore.setItems(roles);
 

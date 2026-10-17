@@ -37,4 +37,30 @@ describe("WorkspaceChangedError", () => {
     expect(isWorkspaceChangedFailure("limit")).toBe(false);
     expect(isWorkspaceChangedFailure(null)).toBe(false);
   });
+
+  it("is recognised in every failure shape a server action returns", () => {
+    const issue = (customCode: string) => ({ code: "custom", path: [], message: "", customCode });
+
+    expect(
+      isWorkspaceChangedFailure({
+        ok: false,
+        code: "workspaceChanged",
+        error: { errors: [], digest: WORKSPACE_CHANGED_DIGEST },
+      }),
+    ).toBe(true);
+    expect(isWorkspaceChangedFailure({ ok: false, error: { errors: [], digest: WORKSPACE_CHANGED_DIGEST } })).toBe(
+      true,
+    );
+    expect(
+      isWorkspaceChangedFailure({ ok: false, failure: { kind: "conflict", issues: [issue("workspaceChanged")] } }),
+    ).toBe(true);
+    expect(isWorkspaceChangedFailure({ kind: "conflict", issues: [issue("workspaceChanged")] })).toBe(true);
+    expect(isWorkspaceChangedFailure({ ok: false, code: "permissionDenied", error: { errors: ["Forbidden"] } })).toBe(
+      false,
+    );
+    expect(
+      isWorkspaceChangedFailure({ ok: false, failure: { kind: "conflict", issues: [issue("recordVersionChanged")] } }),
+    ).toBe(false);
+    expect(isWorkspaceChangedFailure({ ok: true, data: { code: "workspaceChanged" } })).toBe(false);
+  });
 });

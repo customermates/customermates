@@ -5,12 +5,8 @@ import { toast, type ExternalToast } from "sonner";
 import { useTranslations } from "next-intl";
 
 import { AppLink } from "@/components/shared/app-link";
-import {
-  registerApplicationErrorHandler,
-  isDemoEnvironment,
-  notifyWorkspaceChanged,
-} from "@/core/errors/report-application-error";
-import { isWorkspaceChangedError } from "@/core/errors/workspace-changed";
+import { registerApplicationErrorHandler, isDemoEnvironment } from "@/core/errors/report-application-error";
+import { hasWorkspaceChanged, notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { isClientTransportError } from "@/core/errors/client-transport-error";
 
 function containsString(error: unknown, searchString: string): boolean {
@@ -35,11 +31,7 @@ function useApplicationErrorHandler(): (error: unknown, options?: ExternalToast)
 
   return useCallback(
     (error: unknown, options?: ExternalToast) => {
-      if (isNoise(error)) return;
-      if (isWorkspaceChangedError(error)) {
-        notifyWorkspaceChanged();
-        return;
-      }
+      if (isNoise(error) || notifyIfWorkspaceChanged(error) || hasWorkspaceChanged()) return;
       if (isClientTransportError(error)) {
         toast.warning(t("ErrorCard.transportInterrupted"), ...(options ? [options] : []));
         return;

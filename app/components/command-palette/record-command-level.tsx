@@ -17,6 +17,7 @@ import { recordDisplayName } from "@/features/records/record-display-name";
 import { toChipColor } from "@/constants/chip-colors";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { getActiveUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import { useRecordChoices } from "@/components/records/use-record-choices";
 import { foldText } from "./command-palette-search";
@@ -44,7 +45,8 @@ function useMembers(query: string, enabled: boolean) {
       .then((result) => {
         if (active) setState({ key, members: result.items ?? [] });
       })
-      .catch(() => {
+      .catch((error: unknown) => {
+        if (notifyIfWorkspaceChanged(error)) return;
         if (active) setState({ key, members: [] });
       });
     return () => {

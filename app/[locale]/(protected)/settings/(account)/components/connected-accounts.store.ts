@@ -10,6 +10,8 @@ import { action, computed, makeObservable } from "mobx";
 import { accountNeedsAction, isUsableSenderFor } from "@/ee/messaging/provider";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { ForbiddenError } from "@/core/errors/app-errors";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
+import { WorkspaceChangedError } from "@/core/errors/workspace-changed-error";
 
 import {
   disconnectConnectedAccountAction,
@@ -108,7 +110,8 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
       await this.refreshGuarded(() => this.ownsSyncPoll(generation));
       if (!this.ownsSyncPoll(generation)) return;
       this.syncPollFailureNotified = false;
-    } catch {
+    } catch (error) {
+      if (notifyIfWorkspaceChanged(error)) this.stopSyncPolling();
       if (!this.ownsSyncPoll(generation)) return;
       if (!this.syncPollFailureNotified) {
         this.syncPollFailureNotified = true;
@@ -145,7 +148,7 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
         });
         await this.refresh();
         this.startSyncPolling();
-      } else {
+      } else if (!notifyIfWorkspaceChanged(res)) {
         this.toastError("ConnectedAccountsCard.resyncFailedTitle", {
           descriptionKey: "ConnectedAccountsCard.resyncFailedDescription",
         });
@@ -187,7 +190,7 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
     const res = await setConnectedAccountVisibilityAction(id, shared);
 
     if (!res.ok) {
-      this.toastError("ConnectedAccountsCard.visibilityUpdateFailed");
+      if (!notifyIfWorkspaceChanged(res)) this.toastError("ConnectedAccountsCard.visibilityUpdateFailed");
       return null;
     }
 
@@ -208,7 +211,7 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
 
     if (!res.ok) {
       if (existing) this.upsertItemLocal(existing);
-      this.toastError("ConnectedAccountsCard.foldersUpdateFailed");
+      if (!notifyIfWorkspaceChanged(res)) this.toastError("ConnectedAccountsCard.foldersUpdateFailed");
       return null;
     }
 
@@ -226,6 +229,7 @@ export class ConnectedAccountsStore extends BaseDataViewStore<ConnectedAccountDt
   protected async refreshAction(_params?: GetQueryParams) {
     const result = await refreshConnectedAccountsAction();
     if (!result.ok) {
+      if (notifyIfWorkspaceChanged(result)) throw new WorkspaceChangedError();
       if (result.failure.kind === "authorization") throw new ForbiddenError();
       throw new Error("Connected accounts could not be loaded");
     }

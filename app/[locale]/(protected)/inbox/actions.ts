@@ -42,8 +42,7 @@ export async function getUnreadThreadCountAction() {
 }
 
 export async function getMessagingThreadAction(threadId: string) {
-  const result = await serializeTypedResult(getGetMessagingThreadInteractor().invoke({ threadId }));
-  return result.ok ? result.data : null;
+  return serializeTypedResult(getGetMessagingThreadInteractor().invoke({ threadId }));
 }
 
 export async function refreshInboxAction() {

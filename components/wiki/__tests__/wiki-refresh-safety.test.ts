@@ -31,6 +31,26 @@ vi.mock("@/components/editor/editor.utils", () => ({
   serializeJSONToMarkdown: () => "",
 }));
 
+const notice = vi.hoisted(() => ({ changed: false, notify: vi.fn() }));
+
+vi.mock("@/core/errors/workspace-changed-notice", async () => {
+  const { isWorkspaceChangedError, isWorkspaceChangedFailure } = await import("@/core/errors/workspace-changed");
+  const notifyWorkspaceChanged = () => {
+    notice.changed = true;
+    notice.notify();
+  };
+  return {
+    hasWorkspaceChanged: () => notice.changed,
+    notifyWorkspaceChanged,
+    notifyIfWorkspaceChanged: (value: unknown) => {
+      const changed = isWorkspaceChangedFailure(value) || isWorkspaceChangedError(value);
+      if (changed) notifyWorkspaceChanged();
+      return changed;
+    },
+    registerWorkspaceChangedHandler: () => () => undefined,
+  };
+});
+
 import { useRefreshWhileWikiSetupWorks } from "../wiki-homepage-setup";
 
 const workingState = {
@@ -48,6 +68,7 @@ function Poller({ working }: { working: boolean }) {
 beforeEach(() => {
   vi.useFakeTimers();
   vi.clearAllMocks();
+  notice.changed = false;
   harness.getState.mockResolvedValue({ ok: true, data: { ...workingState, progress: { fetched: 1, total: 2 } } });
   vi.spyOn(document, "visibilityState", "get").mockReturnValue("visible");
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -84,6 +105,26 @@ describe("Wiki polling safety", () => {
       await act(() => vi.advanceTimersByTimeAsync(7500));
       expect(harness.getState).toHaveBeenCalledTimes(3);
       expect(harness.refresh).not.toHaveBeenCalled();
+    } finally {
+      act(() => root.unmount());
+    }
+  });
+
+  it("opens the reload dialog and stops polling when the workspace changed", async () => {
+    harness.rootStore = { navigationGuard: new NavigationGuardController() };
+    harness.getState.mockResolvedValue({
+      ok: false,
+      code: "workspaceChanged",
+      error: { errors: [], digest: "CUSTOMERMATES_WORKSPACE_CHANGED" },
+    });
+    const root = createRoot(document.createElement("div"));
+    try {
+      act(() => root.render(createElement(Poller, { working: true })));
+      await act(() => vi.advanceTimersByTimeAsync(10_000));
+      expect(harness.getState).toHaveBeenCalledOnce();
+      expect(notice.notify).toHaveBeenCalledOnce();
+      expect(harness.refresh).not.toHaveBeenCalled();
+      expect(harness.report).not.toHaveBeenCalled();
     } finally {
       act(() => root.unmount());
     }

@@ -6,6 +6,7 @@ import { action, computed, makeObservable, observable, runInAction } from "mobx"
 import { decideMcpConsentAction } from "../actions";
 
 import { BaseStore } from "@/core/base/base.store";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 
 function defaultWorkspace(workspaces: McpConsentWorkspace[]): McpConsentWorkspace | null {
   const current = workspaces.find((workspace) => workspace.isCurrent);
@@ -68,6 +69,7 @@ export class McpConsentStore extends BaseStore {
     );
 
     if (result?.ok && result.data?.redirectURI) return result.data.redirectURI;
+    if (notifyIfWorkspaceChanged(result)) return null;
 
     this.toastError("McpConsentCard.error");
     runInAction(() => {

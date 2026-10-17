@@ -5,9 +5,11 @@ import type { Client } from "pg";
 import type { BrowserWorkspace } from "./workspace";
 
 import { WORKSPACE_CHANGED_DIGEST } from "../../core/errors/workspace-changed";
+import { CustomErrorCode } from "../../core/validation/validation.types";
 import { presetId } from "../../features/records/crm-preset";
 import { expect } from "./fixtures";
 import { localE2eEnvironment } from "./local-environment";
+import { invokesServerAction, serverActionIds } from "./server-actions";
 import { createBrowserWorkspace } from "./workspace";
 import { clickHydrated, e2eAppMode } from "./workspace-switching";
 
@@ -140,14 +142,52 @@ export async function addOrganization(page: Page, name: string) {
   await expect(page.getByText(name, { exact: true }).first()).toBeVisible();
 }
 
+function refusesChangedWorkspace(body: string) {
+  return body.includes(WORKSPACE_CHANGED_DIGEST) || body.includes(`"${CustomErrorCode.workspaceChanged}"`);
+}
+
 export function expectRefusedPageAction(page: Page, path: string) {
   const refusals: Array<{ status: number; workspaceChanged: boolean }> = [];
   page.on("response", async (response) => {
     if (new URL(response.url()).pathname !== path || response.request().method() !== "POST") return;
     const body = await response.text().catch(() => "");
-    refusals.push({ status: response.status(), workspaceChanged: body.includes(WORKSPACE_CHANGED_DIGEST) });
+    refusals.push({ status: response.status(), workspaceChanged: refusesChangedWorkspace(body) });
   });
   return refusals;
+}
+
+export function recordUnreadCountPolls(page: Page) {
+  const actionIds = serverActionIds("app/[locale]/(protected)/inbox/actions.ts", "getUnreadThreadCountAction");
+  const sentAt: number[] = [];
+  page.on("request", (request) => {
+    if (invokesServerAction(request, actionIds)) sentAt.push(Date.now());
+  });
+  return sentAt;
+}
+
+export function recordSentryRequests(page: Page) {
+  const requests: string[] = [];
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (url.pathname.startsWith("/monitoring") || url.hostname.endsWith("sentry.io")) requests.push(url.href);
+  });
+  return requests;
+}
+
+export async function recordToasts(page: Page) {
+  await page.addInitScript(() => {
+    const toasts: string[] = [];
+    Object.assign(window, { recordedToasts: toasts });
+    document.addEventListener("DOMContentLoaded", () => {
+      new MutationObserver(() => {
+        for (const toast of document.querySelectorAll("[data-sonner-toast]")) {
+          const entry = `${toast.getAttribute("data-type") ?? "toast"}: ${toast.textContent ?? ""}`;
+          if (!toasts.includes(entry)) toasts.push(entry);
+        }
+      }).observe(document.documentElement, { childList: true, subtree: true, characterData: true });
+    });
+  });
+  return () => page.evaluate(() => (window as Window & { recordedToasts?: string[] }).recordedToasts ?? []);
 }
 
 export async function joinFromInvitation(page: Page) {

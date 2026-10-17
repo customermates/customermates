@@ -3,6 +3,8 @@ import { observable, runInAction } from "mobx";
 import { recordSearchHit } from "@/tests/helpers/record-search";
 import type { RecordSearchResult } from "@/features/records/record-search.schema";
 
+const notifyWorkspaceChangedMock = vi.hoisted(() => vi.fn());
+
 vi.mock("@/app/[locale]/(protected)/search/actions", () => ({
   resolveSearchReferencesAction: vi.fn(),
   globalSearchAction: vi.fn(),
@@ -10,6 +12,17 @@ vi.mock("@/app/[locale]/(protected)/search/actions", () => ({
   commandSearchAction: vi.fn(),
   resolveCommandAction: vi.fn(),
 }));
+vi.mock("@/core/errors/workspace-changed-notice", async () => {
+  const { isWorkspaceChangedError, isWorkspaceChangedFailure } = await import("@/core/errors/workspace-changed");
+  return {
+    hasWorkspaceChanged: () => notifyWorkspaceChangedMock.mock.calls.length > 0,
+    notifyIfWorkspaceChanged: (value: unknown) => {
+      const changed = isWorkspaceChangedFailure(value) || isWorkspaceChangedError(value);
+      if (changed) notifyWorkspaceChangedMock();
+      return changed;
+    },
+  };
+});
 import {
   commandCatalogAction,
   commandSearchAction,
@@ -33,6 +46,11 @@ const combined = (records = page(), semantic: { key: string; similarity: number 
   ok: true as const,
   data: { records: records.data, semantic, docs: [], degraded: false },
 });
+const WORKSPACE_CHANGED = {
+  ok: false as const,
+  code: "workspaceChanged",
+  error: { errors: [], digest: "CUSTOMERMATES_WORKSPACE_CHANGED" },
+};
 
 function browser(initial: Record<string, unknown> = {}) {
   const values = new Map(Object.entries(initial).map(([key, value]) => [key, JSON.stringify(value)]));
@@ -130,6 +148,21 @@ describe("generic search state and recent references", () => {
     expect(await store.verifyRecentItem(hit)).toBe(false);
     expect(store.recentItems).toEqual([other]);
     expect(JSON.parse(values.get(FIRST_KEY) ?? "null")).toEqual([other.ref]);
+  });
+  it("keeps recent items and their stored references when the workspace changed", async () => {
+    const other = recordSearchHit(SECOND_TYPE, ID, "Other type");
+    const values = browser({ [FIRST_KEY]: [hit.ref] });
+    const { store } = setup();
+    store.setRecentItems([hit]);
+    vi.mocked(resolveSearchReferencesAction).mockResolvedValue(WORKSPACE_CHANGED as never);
+
+    store.pushRecentItem(other);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(await store.verifyRecentItem(hit)).toBe(false);
+
+    expect(notifyWorkspaceChangedMock).toHaveBeenCalledTimes(2);
+    expect(store.recentItems).toEqual([hit]);
+    expect(JSON.parse(values.get(FIRST_KEY) ?? "null")).toEqual([hit.ref]);
   });
   it("rejects stale results while typing a new query and after closing or switching user", async () => {
     browser();
@@ -319,5 +352,17 @@ describe("command palette state", () => {
     expect(store.resolveNotice).toBeNull();
     pending.finish({ ok: true, data: { kind: "none" } });
     expect(await cancelled).toEqual({ status: "stale" });
+  });
+
+  it("answers a changed workspace without a notice or a fallback to the assistant", async () => {
+    browser();
+    const { store } = setup();
+    store.open();
+    store.onChange("searchTerm", "deals over 10k");
+    vi.mocked(resolveCommandAction).mockResolvedValueOnce(WORKSPACE_CHANGED as never);
+
+    expect(await store.resolveCommand("deals over 10k")).toEqual({ status: "unavailable" });
+    expect(store.resolveNotice).toBeNull();
+    expect(notifyWorkspaceChangedMock).toHaveBeenCalledOnce();
   });
 });

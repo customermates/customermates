@@ -12,8 +12,18 @@ export function markWorkspaceChanged<T extends object>(tree: T): T & { digest: s
   return Object.assign(tree, { digest: WORKSPACE_CHANGED_DIGEST });
 }
 
+type FailureShape = {
+  code?: unknown;
+  error?: { issues?: unknown } | null;
+  failure?: { issues?: unknown } | null;
+  issues?: unknown;
+} | null;
+
 export function isWorkspaceChangedFailure(body: unknown): boolean {
-  const issues = (body as { error?: { issues?: unknown } } | null)?.error?.issues;
+  const failure = body as FailureShape;
+  if (failure?.code === CustomErrorCode.workspaceChanged || isWorkspaceChangedError(failure?.error)) return true;
+
+  const issues = failure?.issues ?? failure?.failure?.issues ?? failure?.error?.issues;
   return (
     Array.isArray(issues) &&
     issues.some((issue) => (issue as { customCode?: unknown } | null)?.customCode === CustomErrorCode.workspaceChanged)

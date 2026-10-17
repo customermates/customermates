@@ -1,3 +1,5 @@
+import { hasWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
+
 type BackgroundPollOptions = {
   refresh: () => Promise<unknown>;
   onError: (error: unknown) => void;
@@ -19,7 +21,7 @@ export function startBackgroundPoll({
   let pending = false;
   let leaving = false;
   const run = async () => {
-    if (stopped || leaving || pending || document.visibilityState !== "visible") return;
+    if (stopped || leaving || pending || hasWorkspaceChanged() || document.visibilityState !== "visible") return;
     pending = true;
     try {
       await refresh();

@@ -19,6 +19,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { recordSearchKey } from "@/features/records/record-search.schema";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { cn } from "@/core/utils/cn";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { AGENT_CONTEXT_ATTACHMENT_LIMIT, agentContextAttachmentKey } from "@/ee/agent-chat/agent-context";
@@ -101,7 +102,7 @@ export const AgentContextPicker = observer(function AgentContextPicker({
 
     void globalSearchAction({ searchTerm: debouncedQuery, limit: 40, cursor: null })
       .then((result) => {
-        if (!active) return;
+        if (!active || notifyIfWorkspaceChanged(result)) return;
         setSearchState({
           query: debouncedQuery,
           scope,
@@ -141,6 +142,7 @@ export const AgentContextPicker = observer(function AgentContextPicker({
       });
       if (generation !== request.current) return;
       if (!result.ok) {
+        if (notifyIfWorkspaceChanged(result)) return;
         setSearchState({ ...matchingSearch, status: "error" });
         return;
       }

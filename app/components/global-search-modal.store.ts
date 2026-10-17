@@ -10,6 +10,7 @@ import { action, makeObservable, observable, reaction } from "mobx";
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { Debouncer } from "@/core/utils/debounce";
 import { reportApplicationError } from "@/core/errors/report-application-error";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import type { CommandCatalog } from "@/features/command-palette/command-catalog.schema";
 import {
@@ -222,6 +223,7 @@ export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string 
       if (!current()) return { status: "stale" };
       if (result.ok)
         return result.data.kind === "none" ? { status: "none" } : { status: "resolved", resolution: result.data };
+      if (notifyIfWorkspaceChanged(result)) return { status: "unavailable" };
       if (
         result.code === CustomErrorCode.agentLimitReached ||
         result.code === CustomErrorCode.agentServiceUnavailable
@@ -304,6 +306,7 @@ export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string 
       const result = await commandCatalogAction();
       if (scope !== this.scope || request !== this.catalogRequest) return;
       if (result.ok) this.setCatalog(result.data);
+      else notifyIfWorkspaceChanged(result);
     } catch (error) {
       reportApplicationError(error);
     }
@@ -326,6 +329,7 @@ export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string 
       const result = await resolveSearchReferencesAction({ refs });
       if (scope !== this.scope || request !== this.recentRequest) return;
       if (!result.ok) {
+        if (notifyIfWorkspaceChanged(result)) return;
         this.setRecentItems([]);
         return;
       }
@@ -366,6 +370,7 @@ export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string 
     const result = await resolveSearchReferencesAction({ refs: [item.ref] });
     if (scope !== this.scope) return false;
     if (!result.ok || !result.data.results.length) {
+      if (notifyIfWorkspaceChanged(result)) return false;
       this.setRecentItems(this.recentItems.filter((recent) => recordSearchKey(recent) !== recordSearchKey(item)));
       persist(
         scope,

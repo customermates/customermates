@@ -4,6 +4,7 @@ import type { RecordChoicesInput, RecordChoicesResult } from "@/features/records
 
 import { getRecordChoicesAction } from "@/app/[locale]/(protected)/records/actions";
 import { reportApplicationError } from "@/core/errors/report-application-error";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 
 type RecordChoicesResponse = { key: string; data: RecordChoicesResult | null; failed: boolean };
 
@@ -28,11 +29,12 @@ export class RecordChoicesStore {
     this.requestKey = key;
     try {
       const result = await getRecordChoicesAction(JSON.parse(JSON.stringify(input)) as RecordChoicesInput);
+      if (notifyIfWorkspaceChanged(result)) return;
       runInAction(() => {
         if (this.requestKey === key) this.response = { key, data: result.ok ? result.data : null, failed: !result.ok };
       });
     } catch (error) {
-      if (this.requestKey !== key) return;
+      if (notifyIfWorkspaceChanged(error) || this.requestKey !== key) return;
       reportApplicationError(error);
       runInAction(() => {
         this.response = { key, data: null, failed: true };

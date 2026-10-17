@@ -20,6 +20,9 @@ import {
   memberItem,
   membershipIn,
   organizationList,
+  recordSentryRequests,
+  recordToasts,
+  recordUnreadCountPolls,
 } from "./workspace-membership";
 import {
   activeWorkspaceOf,
@@ -266,11 +269,15 @@ test("a member removed while a page is open meets the workspace-changed dialog a
     const removed = await signInLogin(browser, database, rita, testInfo);
     expectNotFoundDocuments(removed.page);
     const refused = expectRefusedPageAction(removed.page, organizationList(workspace.companyId));
+    const unreadPolls = recordUnreadCountPolls(removed.page);
+    const sentryRequests = recordSentryRequests(removed.page);
+    const recordedToasts = await recordToasts(removed.page);
     try {
       await removed.page.goto(organizationList(workspace.companyId));
       await expect(removed.page.getByText("Example organization", { exact: true }).first()).toBeVisible();
       await openSidebar(removed.page);
       await removed.page.waitForLoadState("networkidle");
+      if (e2eAppMode() === "cloud") await expect.poll(() => unreadPolls.length).toBeGreaterThan(0);
 
       await page.goto("/en/settings/members");
       await runRowAction(page, memberItem(page, "Rita Vogel"), "Rita Vogel", REMOVE);
@@ -279,10 +286,21 @@ test("a member removed while a page is open meets the workspace-changed dialog a
         .getByRole("button", { name: CONFIRM_REMOVE, exact: true })
         .click();
       await expect(memberItem(page, "Rita Vogel")).toContainText(englishMessages.WorkspaceMembership.left);
+      const removedAt = Date.now();
 
-      await clickHydrated(removed.page.locator("#nav-workspace-menu"));
       const notice = removed.page.getByRole("alertdialog", { name: englishMessages.Workspaces.otherTab.titleChanged });
+      if (e2eAppMode() === "cloud") {
+        await expect(notice).toBeVisible({ timeout: 20_000 });
+        const shownAt = Date.now();
+        await removed.page.waitForTimeout(Math.max(12_000, removedAt + 25_000 - shownAt));
+        expect(unreadPolls.filter((sentAt) => sentAt > shownAt)).toEqual([]);
+      } else {
+        await clickHydrated(removed.page.locator("#nav-workspace-menu"));
+      }
       await expect(notice).toBeVisible();
+      expect(await recordedToasts()).toEqual([]);
+      expect(sentryRequests).toEqual([]);
+      expect(removed.errors).toEqual([]);
       await removed.page.screenshot({
         path: testInfo.outputPath(`ws-remove-stale-page-${testInfo.project.name}.png`),
       });
