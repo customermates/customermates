@@ -16,8 +16,8 @@ vi.mock("next-intl", () => ({
     values ? `${key}:${Object.values(values).join(",")}` : key,
 }));
 vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
+vi.mock("../../../actions", () => ({ renameWorkspaceAction: vi.fn() }));
 vi.mock("@/app/[locale]/(protected)/settings/(account)/workspaces/actions", () => ({
-  renameWorkspaceAction: vi.fn(),
   leaveWorkspaceAction: vi.fn(),
   listMyWorkspacesAction: vi.fn(),
   switchWorkspaceAction: vi.fn(),

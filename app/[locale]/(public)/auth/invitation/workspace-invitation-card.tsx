@@ -7,8 +7,8 @@ import { LogOut } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Status } from "@/generated/prisma";
 
-import { joinWorkspaceAction } from "./actions";
 import { joinedWorkspacePath } from "./joined-workspace-path";
+import { joinWorkspaceAction } from "../actions";
 
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -46,7 +46,7 @@ export function WorkspaceInvitationCard({
     let isNavigating = false;
 
     try {
-      const result = await joinWorkspaceAction(invitationIntent);
+      const result = await joinWorkspaceAction({ intent: invitationIntent });
       if (result.ok) {
         workspacesStore.enter(
           { companyId: result.data.companyId, name: workspaceName },

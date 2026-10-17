@@ -6,7 +6,7 @@ import { Action, Resource } from "@/generated/prisma";
 const renameWorkspaceAction = vi.hoisted(() => vi.fn());
 const toastZodErrorTree = vi.hoisted(() => vi.fn());
 
-vi.mock("@/app/[locale]/(protected)/settings/(account)/workspaces/actions", () => ({ renameWorkspaceAction }));
+vi.mock("../../../actions", () => ({ renameWorkspaceAction }));
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree }));
 
 import { WorkspaceGeneralStore } from "../workspace-general.store";

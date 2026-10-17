@@ -14,7 +14,7 @@ const harness = vi.hoisted(() => ({
   toastZodErrorTree: vi.fn(),
 }));
 
-vi.mock("../actions", () => ({ joinWorkspaceAction: harness.joinWorkspaceAction }));
+vi.mock("../../actions", () => ({ joinWorkspaceAction: harness.joinWorkspaceAction }));
 vi.mock("@/app/[locale]/actions", () => ({
   signOutWithOnboardingIntentAction: harness.signOutWithOnboardingIntentAction,
 }));
@@ -97,7 +97,7 @@ describe("WorkspaceInvitationCard", () => {
 
     await click(button("WorkspaceInvitation.join.action"));
 
-    expect(harness.joinWorkspaceAction).toHaveBeenCalledExactlyOnceWith("signed-intent");
+    expect(harness.joinWorkspaceAction).toHaveBeenCalledExactlyOnceWith({ intent: "signed-intent" });
     expect(harness.enter).toHaveBeenCalledExactlyOnceWith(
       { companyId: "invited-company", name: "Bergmann Steuern" },
       "/auth/pending",

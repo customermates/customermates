@@ -6,8 +6,9 @@ import type { RenameWorkspaceData } from "@/features/workspace/rename-workspace.
 import { action, makeObservable, toJS } from "mobx";
 import { Action, Resource } from "@/generated/prisma";
 
-import { renameWorkspaceAction } from "@/app/[locale]/(protected)/settings/(account)/workspaces/actions";
 import { BaseFormStore } from "@/core/base/base-form.store";
+
+import { renameWorkspaceAction } from "../../actions";
 
 export class WorkspaceGeneralStore extends BaseFormStore<RenameWorkspaceData> {
   constructor(rootStore: RootStore) {

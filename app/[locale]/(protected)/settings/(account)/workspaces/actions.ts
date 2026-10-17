@@ -1,7 +1,6 @@
 "use server";
 
 import type { CreateWorkspaceData } from "@/features/workspace/create-workspace.interactor";
-import type { RenameWorkspaceData } from "@/features/workspace/rename-workspace.interactor";
 import type { SwitchWorkspaceData } from "@/features/workspace/switch-workspace.interactor";
 import type { WithdrawWorkspaceRequestData } from "@/features/workspace/withdraw-workspace-request.interactor";
 
@@ -9,7 +8,6 @@ import {
   getCreateWorkspaceInteractor,
   getLeaveWorkspaceInteractor,
   getListMyWorkspacesInteractor,
-  getRenameWorkspaceInteractor,
   getSwitchWorkspaceInteractor,
   getWithdrawWorkspaceRequestInteractor,
 } from "@/core/di";
@@ -26,10 +24,6 @@ export async function switchWorkspaceAction(data: SwitchWorkspaceData) {
 
 export async function createWorkspaceAction(data: CreateWorkspaceData) {
   return serializeResult(getCreateWorkspaceInteractor().invoke(data));
-}
-
-export async function renameWorkspaceAction(data: RenameWorkspaceData) {
-  return serializeResult(getRenameWorkspaceInteractor().invoke(data));
 }
 
 export async function leaveWorkspaceAction() {

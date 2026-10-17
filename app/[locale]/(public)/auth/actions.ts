@@ -6,6 +6,7 @@ import type { RequestPasswordResetData } from "@/features/auth/request-password-
 import type { ResetPasswordData } from "@/features/auth/reset-password.interactor";
 import type { ResendVerificationEmailData } from "@/features/auth/resend-verification-email.interactor";
 import type { DecideMcpConsentData } from "@/features/auth/decide-mcp-consent.interactor";
+import type { JoinWorkspaceData } from "@/features/workspace/join-workspace.interactor";
 
 import {
   getSignInWithEmailInteractor,
@@ -15,6 +16,7 @@ import {
   getResetPasswordInteractor,
   getResendVerificationEmailInteractor,
   getDecideMcpConsentInteractor,
+  getJoinWorkspaceInteractor,
 } from "@/core/di";
 import { redirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
@@ -89,4 +91,8 @@ export async function resendVerificationEmailFromAuthAction(data: ResendVerifica
 
 export async function decideMcpConsentAction(data: DecideMcpConsentData) {
   return serializeResult(getDecideMcpConsentInteractor().invoke(data));
+}
+
+export async function joinWorkspaceAction(data: JoinWorkspaceData) {
+  return serializeResult(getJoinWorkspaceInteractor().invoke(data));
 }
