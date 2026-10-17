@@ -354,7 +354,7 @@ test("a member removed from their only workspace starts over on onboarding and c
         removed.page.getByRole("button", { name: englishMessages.OnboardingWizard.continue, exact: true }),
       );
 
-      await expect(removed.page).toHaveURL(/\/en\/onboarding\/wizard$/);
+      await expect(removed.page).toHaveURL(/\/onboarding\/wizard$/);
       const created = await database.query<{ id: string }>(
         'SELECT id FROM "Company" WHERE name=$1 AND "createdByAuthUserId"=$2',
         ["Tom Fresh Start", tom.authUserId],
