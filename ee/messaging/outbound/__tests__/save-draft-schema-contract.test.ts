@@ -71,7 +71,7 @@ describe("SaveReplyDraftBodySchema", () => {
 describe("SendEmailSchema OpenAPI metadata", () => {
   it("describes body format and draft reconciliation for generated API clients", () => {
     expect(SendEmailSchema.shape.bodyFormat.description).toMatch(/interpret body/i);
-    expect(SendEmailSchema.shape.draftMessageId.description).toMatch(/draft.+delivery succeeds/i);
+    expect(SendEmailSchema.shape.draftMessageId.description).toMatch(/draft revision is sent at most once/i);
     expect(SendEmailSchema.shape.draftRevision.description).toMatch(/opaque revision/i);
   });
 });

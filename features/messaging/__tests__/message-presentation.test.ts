@@ -18,6 +18,10 @@ const harness = vi.hoisted(() => ({
   getDeliveryStatus: () => undefined,
   retrySend: vi.fn(),
   canRetry: vi.fn((_id: string) => true),
+  canEditRefused: vi.fn((_id: string) => false),
+  editRefused: vi.fn(),
+  hasUnsavedChanges: false,
+  tryNavigate: vi.fn((navigate: () => void) => navigate()),
   messageStatus: {} as Record<string, string>,
   thread: { isOwner: true, accountShared: false } as { isOwner: boolean; accountShared: boolean } | null,
   timelineEntry: null as ActivityEntryDto | null,
@@ -48,6 +52,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
     threadParticipantsStore: { setOpen: vi.fn() },
     connectedAccountsStore: { items: harness.accounts },
     userStore: { can: () => true },
+    navigationGuard: { tryNavigate: harness.tryNavigate },
     timelineDetailModalStore: {
       isOpen: true,
       form: { entry: harness.timelineEntry, customColumns: [] },
@@ -166,6 +171,9 @@ function button(label: string): HTMLButtonElement {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  harness.canRetry.mockReset();
+  harness.canEditRefused.mockReset();
+  harness.hasUnsavedChanges = false;
   harness.messageStatus = {};
   harness.thread = { isOwner: true, accountShared: false };
   harness.timelineEntry = null;
@@ -555,5 +563,22 @@ describe("Inbox and activity consumers", () => {
 
     expect(container.querySelector("iframe")?.closest(".ring-destructive\\/50")).not.toBeNull();
     expect(container.textContent).not.toContain("Inbox.compose.retry");
+  });
+
+  it.each([
+    ["an empty composer", false],
+    ["unsaved text in the composer, behind the unsaved changes guard", true],
+  ])("offers the draft's Edit action for refused text kept as a failed message, with %s", (_label, unsaved) => {
+    harness.messageStatus[BASE.id] = "failed";
+    harness.canRetry.mockReturnValue(false);
+    harness.canEditRefused.mockReturnValue(true);
+    harness.hasUnsavedChanges = unsaved;
+    render(createElement(MessageItem, { message: BASE, isMine: true, accountOwner: null }));
+
+    expect(container.textContent).not.toContain("Inbox.compose.retry");
+    act(() => button("Inbox.compose.draftEdit").click());
+
+    expect(harness.editRefused).toHaveBeenCalledExactlyOnceWith(BASE.id);
+    expect(harness.tryNavigate).toHaveBeenCalledTimes(unsaved ? 1 : 0);
   });
 });

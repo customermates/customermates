@@ -6,7 +6,6 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
-import { draftThreadProviderId } from "../../draft-thread-id";
 import { isDraftThreadId } from "../../provider";
 
 import { getConnectedAccountRepo, getRecordAccessPolicy, getRecordIdentityReader, getRecordRepo } from "@/core/di";
@@ -149,17 +148,8 @@ describeDatabase("Bcc visibility on PostgreSQL", () => {
       getConnectedAccountRepo(),
     );
     const hidden = "private-draft@example.invalid";
-    const cold = await runWithTenant(owner, () =>
-      repo.findOrCreateDraftThread({
-        connectedAccountId: accountId,
-        provider: "google",
-        recipients: [],
-        bcc: [hidden],
-      }),
-    );
-    await runWithTenant(owner, () =>
-      repo.upsertThreadDraftOrThrow({
-        threadId: cold.id,
+    const coldDraft = await runWithTenant(owner, () =>
+      repo.createConversationDraftOrThrow({
         connectedAccountId: accountId,
         provider: "google",
         sender: attendee("owner@example.invalid"),
@@ -168,9 +158,12 @@ describeDatabase("Bcc visibility on PostgreSQL", () => {
         recipients: { to: [], cc: [], bcc: [attendee(hidden)] },
       }),
     );
+    const cold = { id: coldDraft.messagingThreadId };
     await runWithTenant(owner, () => repo.setThreadSharedToCrm({ threadId: cold.id, shared: true }));
-    const privateId = draftThreadProviderId("google", [], { bcc: [hidden] });
-    expect(cold.unipileThreadId).toBe(privateId);
+    const stored = await client.query('SELECT "unipileThreadId" FROM "MessagingThread" WHERE "id" = $1', [cold.id]);
+    const privateId: string = stored.rows[0].unipileThreadId;
+    expect(isDraftThreadId(privateId)).toBe(true);
+    expect(privateId).not.toBe(`draft_${cold.id}`);
     for (const user of [owner, colleague]) {
       const [detail, requiredDetail, items] = await runWithTenant(user, () =>
         Promise.all([repo.findThreadById(cold.id), repo.findThreadByIdOrThrow(cold.id), repo.getItems({ take: 100 })]),

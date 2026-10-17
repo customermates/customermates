@@ -3,6 +3,7 @@ import type * as InboxSchemaModule from "../../inbox/inbox.schema";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mockEntitlementService } from "@/tests/helpers/mock-entitlement-service";
 import { createMockUser } from "@/tests/helpers/mock-user";
+import { recordedMessage } from "@/tests/helpers/recorded-message";
 import {
   MOCK_ENV_MODULE,
   createMockDiModule,
@@ -28,6 +29,7 @@ vi.mock("../../inbox/inbox.schema", async (importActual) => ({
   toMessagingMessageDto: (message: unknown) => message,
 }));
 
+import { DraftSendGate } from "../draft-send-gate";
 import { SendChatMessageInteractor } from "../send-chat-message.interactor";
 import { SendEmailInteractor } from "../send-email.interactor";
 import { ValidateThreadIdsInteractor } from "@/core/validation/validators/validate-thread-ids.interactor";
@@ -60,6 +62,8 @@ function makeChatInteractor(repo: any, service: any) {
     service,
     new ValidateThreadIdsInteractor(getMessagingRepo()),
     mockEntitlementService(),
+    { invoke: vi.fn() },
+    new DraftSendGate(repo),
   );
 }
 
@@ -69,6 +73,7 @@ function makeEmailInteractor(repo: any, service: any) {
     { findUsableAccountByIdOrThrow: vi.fn().mockResolvedValue(account) } as never,
     service,
     mockEntitlementService(),
+    new DraftSendGate(repo),
   );
 }
 
@@ -99,7 +104,9 @@ describe("SendChatMessageInteractor duplicate guard", () => {
       findDraftById: vi.fn().mockResolvedValue(null),
       findRecentOutboundDuplicate: vi.fn().mockResolvedValue(null),
       findSelfAttendeeForThread: vi.fn().mockResolvedValue(null),
-      persistOutboundMessageOrThrow: vi.fn().mockResolvedValue({ id: "new-1", attachmentsMeta: [] }),
+      persistOutboundMessageOrThrow: vi
+        .fn()
+        .mockResolvedValue(recordedMessage({ messagingThreadId: THREAD_ID, connectedAccountId: ACCOUNT_ID })),
     };
 
     const result: any = await makeChatInteractor(repo, service).invoke({ threadId: THREAD_ID, text: "hello there" });

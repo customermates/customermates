@@ -10,6 +10,7 @@ import {
   getExpireAdAttributionInteractor,
   getSendLegalDocumentNoticesInteractor,
   getPruneRoutineRunsInteractor,
+  getPruneDraftSendsInteractor,
   getPurgeExpiredTrashInteractor,
 } from "@/core/di";
 import { env } from "@/env";
@@ -36,6 +37,7 @@ export async function GET(req: Request) {
     getExpireAdAttributionInteractor().invoke(),
     getSendLegalDocumentNoticesInteractor().invoke(),
     getPruneRoutineRunsInteractor().invoke(),
+    getPruneDraftSendsInteractor().invoke(),
     getPurgeExpiredTrashInteractor().invoke(),
   ]);
 

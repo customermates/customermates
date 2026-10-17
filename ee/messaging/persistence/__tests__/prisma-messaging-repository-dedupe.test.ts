@@ -93,6 +93,7 @@ const { fakeDb } = vi.hoisted(() => {
   };
 
   const messagingThreadParticipant = { findMany: () => Promise.resolve([]) };
+  const messagingDraftSend = { findFirst: () => Promise.resolve(null) };
 
   return {
     fakeDb: {
@@ -103,7 +104,7 @@ const { fakeDb } = vi.hoisted(() => {
         threads.length = 0;
         counter = 0;
       },
-      prisma: { messagingMessage, messagingThread, messagingThreadParticipant },
+      prisma: { messagingMessage, messagingThread, messagingThreadParticipant, messagingDraftSend },
     },
   };
 });
