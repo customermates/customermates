@@ -4,6 +4,7 @@ export type BillingWebhookAlertReason =
   | "forged"
   | "workspaceMissing"
   | "duplicate"
+  | "olderLive"
   | "replaced";
 
 type AlertCopy = { subject: string; summary: string; action: string; subscription: string; other: string };
@@ -53,6 +54,15 @@ export const BILLING_WEBHOOK_ALERT_COPY: Record<BillingWebhookAlertReason, Alert
     action: "Cancel this subscription in Lemon Squeezy and refund it. Nothing was cancelled automatically.",
     subscription: "Subscription to cancel or refund",
     other: "Subscription the workspace keeps",
+  },
+  olderLive: {
+    subject: "Older subscription still live for a workspace",
+    summary:
+      "The workspace is bound to a newer subscription that is no longer live, while this older subscription still is. A workspace never moves back to an older subscription by itself, so nothing changed.",
+    action:
+      "Ask the customer which subscription they want. Bind this one in the operator console if they keep paying for it, otherwise cancel it in Lemon Squeezy and refund it. Nothing was cancelled automatically.",
+    subscription: "Older subscription, still live",
+    other: "Newer bound subscription, no longer live",
   },
   replaced: {
     subject: "Workspace moved to its newest subscription",

@@ -366,7 +366,7 @@ describe("a second subscription for a workspace with a live one", () => {
 
       expect(await stillPaying.interactor.invoke(event("sub-old", signed("company-1")))).toBe("refused");
       expect(stillPaying.subscriptionService.syncSubscription).not.toHaveBeenCalled();
-      expect(stillPaying.mails().map((mail) => mail.props.reason)).toEqual(["duplicate"]);
+      expect(stillPaying.mails().map((mail) => mail.props.reason)).toEqual(["olderLive"]);
     },
   );
 

@@ -89,7 +89,8 @@ export class ProcessLemonSqueezyWebhookInteractor {
     if (newer && isLive(incoming))
       return this.apply(workspace, incoming, () => this.alert("replaced", event, workspace, workspace.lemonSqueezyId));
 
-    return this.refuse("duplicate", event, workspace, workspace.lemonSqueezyId);
+    const keepsLiveSubscription = newer || (current !== null && isLive(current));
+    return this.refuse(keepsLiveSubscription ? "duplicate" : "olderLive", event, workspace, workspace.lemonSqueezyId);
   }
 
   private provider(subscriptionId: string) {
