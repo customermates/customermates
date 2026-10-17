@@ -8,12 +8,19 @@ const toastZodErrorTree = vi.hoisted(() => vi.fn());
 vi.mock("@/app/[locale]/(protected)/settings/(account)/workspaces/actions", () => ({ createWorkspaceAction }));
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree }));
 
+import { NavigationGuardController } from "@/core/stores/navigation-guard.controller";
+
 import { CreateWorkspaceModalStore } from "../create-workspace-modal.store";
 
 function storeFor(canCreate = true) {
   const workspacesStore = { canCreate, enter: vi.fn() };
-  const rootStore = { workspacesStore, userStore: { user: null, can: () => true } };
-  return { store: new CreateWorkspaceModalStore(rootStore as unknown as RootStore), workspacesStore };
+  const navigationGuard = new NavigationGuardController();
+  const rootStore = { workspacesStore, navigationGuard, userStore: { user: null, can: () => true } };
+  return {
+    store: new CreateWorkspaceModalStore(rootStore as unknown as RootStore),
+    workspacesStore,
+    navigationGuard,
+  };
 }
 
 beforeEach(() => {
@@ -32,6 +39,19 @@ describe("CreateWorkspaceModalStore", () => {
     const demo = storeFor(false).store;
     demo.start();
     expect(demo.isOpen).toBe(false);
+  });
+
+  it("asks to discard unsaved changes elsewhere before it opens, because creating reloads the page", () => {
+    const { store, navigationGuard } = storeFor();
+    const dirtyForm = { withUnsavedChangesGuard: true, hasUnsavedChanges: true, isLoading: false };
+    navigationGuard.register(dirtyForm);
+
+    store.start();
+    expect(store.isOpen).toBe(false);
+    expect(navigationGuard.isPending).toBe(true);
+
+    navigationGuard.confirm();
+    expect(store.isOpen).toBe(true);
   });
 
   it("creates the workspace and enters it through a full reload of the root", async () => {

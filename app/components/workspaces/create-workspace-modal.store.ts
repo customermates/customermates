@@ -20,9 +20,11 @@ export class CreateWorkspaceModalStore extends BaseModalStore<CreateWorkspaceDat
   start = (invoker?: HTMLElement | null, fallback?: HTMLElement | null) => {
     if (!this.rootStore.workspacesStore.canCreate) return;
 
-    this.onInitOrRefresh({ name: "", agreeToTerms: false });
-    if (invoker) this.openFrom(invoker, fallback);
-    else this.open();
+    this.rootStore.navigationGuard.tryNavigate(() => {
+      this.onInitOrRefresh({ name: "", agreeToTerms: false });
+      if (invoker) this.openFrom(invoker, fallback);
+      else this.open();
+    });
   };
 
   protected override prepareToClose(): boolean {
