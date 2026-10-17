@@ -228,7 +228,7 @@ describe("LemonSqueezy webhook route", () => {
     expect(await response.json()).toEqual({ ignored: true });
   });
 
-  it("answers 404 when the interactor refused the event", async () => {
+  it("acknowledges an event the interactor refused, so the provider does not retry it and alert again", async () => {
     mockProcess.mockResolvedValueOnce("refused");
     const request = makeRequest({
       meta: { event_name: "subscription_updated", custom_data: { company_id: "unknown-company" } },
@@ -237,8 +237,8 @@ describe("LemonSqueezy webhook route", () => {
 
     const response = await POST(request);
 
-    expect(response.status).toBe(404);
-    expect(await response.json()).toEqual({ error: "Unknown workspace" });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ refused: true });
   });
 
   it("reads the subscription id, creation time and workspace from a real-shaped subscription_created event", async () => {

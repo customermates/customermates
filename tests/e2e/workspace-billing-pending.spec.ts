@@ -292,8 +292,8 @@ test.describe("workspace claims of the webhook", () => {
       request,
       subscriptionWebhookBody("subscription_created", late, { company_id: second.companyId }),
     );
-    expect(unsigned.status()).toBe(404);
-    expect(await unsigned.json()).toEqual({ error: "Unknown workspace" });
+    expect(unsigned.status()).toBe(200);
+    expect(await unsigned.json()).toEqual({ refused: true });
 
     const forged = startProviderSubscription(second.companyId, "pro", 1);
     const forgedResponse = await postSignedWebhook(
@@ -303,7 +303,8 @@ test.describe("workspace claims of the webhook", () => {
         company_signature: signedCustomData(workspace.companyId).company_signature,
       }),
     );
-    expect(forgedResponse.status()).toBe(404);
+    expect(forgedResponse.status()).toBe(200);
+    expect(await forgedResponse.json()).toEqual({ refused: true });
 
     expect(await billing(database, second.companyId)).toEqual(before);
     const [unsignedMail, ...moreUnsigned] = operatorMailsAbout(late.id);
@@ -384,7 +385,8 @@ test.describe("workspace claims of the webhook", () => {
     expect(emailText(replaced)).toContain(`Bergmann Steuern (${second.companyId})`);
 
     const stale = await postSignedWebhook(request, subscriptionWebhookBody("subscription_updated", first));
-    expect(stale.status()).toBe(404);
+    expect(stale.status()).toBe(200);
+    expect(await stale.json()).toEqual({ refused: true });
     expect(await billing(database, second.companyId)).toMatchObject({ plan: "business", lemonSqueezyId: newest.id });
     expect(operatorMailsAbout(first.id).map((email) => email.subject)).toEqual([
       "Workspace moved to its newest subscription",

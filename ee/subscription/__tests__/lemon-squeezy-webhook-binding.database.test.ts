@@ -251,8 +251,8 @@ describeDatabase("which workspace a Lemon Squeezy subscription binds to, on Post
     );
 
     expect(await deliver("subscription_created", late, { company_id: companies.transition })).toEqual({
-      status: 404,
-      body: { error: "Unknown workspace" },
+      status: 200,
+      body: { refused: true },
     });
 
     expect(await stored("transition")).toMatchObject({ status: "expired", lemonSqueezyId: null });
@@ -295,7 +295,9 @@ describeDatabase("which workspace a Lemon Squeezy subscription binds to, on Post
       }),
     );
 
-    expect((await deliver("subscription_created", second, { company_id: companies.liveTransition })).status).toBe(404);
+    expect((await deliver("subscription_created", second, { company_id: companies.liveTransition })).body).toEqual({
+      refused: true,
+    });
 
     expect(await stored("liveTransition")).toEqual({ status: "active", plan: "pro", lemonSqueezyId: live.id });
     expect(mails().map((mail) => mail.props.reason)).toEqual(["unsigned"]);
@@ -307,8 +309,8 @@ describeDatabase("which workspace a Lemon Squeezy subscription binds to, on Post
     for (const signature of [signed(companies.signed).company_signature, "f".repeat(64), "not-hex"]) {
       expect(
         (await deliver("subscription_created", forged, { company_id: companies.forged, company_signature: signature }))
-          .status,
-      ).toBe(404);
+          .body,
+      ).toEqual({ refused: true });
     }
 
     expect(await stored("forged")).toMatchObject({ status: "expired", lemonSqueezyId: null });
@@ -344,7 +346,7 @@ describeDatabase("which workspace a Lemon Squeezy subscription binds to, on Post
     ]);
 
     sent.mockClear();
-    expect((await deliver("subscription_updated", first, signed(companies.twice))).status).toBe(404);
+    expect((await deliver("subscription_updated", first, signed(companies.twice))).body).toEqual({ refused: true });
     expect((await deliver("subscription_updated", newest, signed(companies.twice))).status).toBe(200);
 
     expect(await stored("twice")).toEqual({ status: "active", plan: "business", lemonSqueezyId: newest.id });
@@ -436,7 +438,7 @@ describeDatabase("which workspace a Lemon Squeezy subscription binds to, on Post
 
     expect(await deliverPayment(subscription, signed(companies.deleted))).toEqual(acknowledged);
     expect(await deliver("subscription_created", subscription, signed(companies.deleted))).toEqual(acknowledged);
-    expect((await deliver("subscription_updated", subscription, null)).status).toBe(404);
+    expect(await deliver("subscription_updated", subscription, null)).toEqual({ status: 200, body: { refused: true } });
 
     expect(mails().map((mail) => [mail.props.reason, mail.props.eventName, mail.props.workspaceId])).toEqual([
       ["workspaceMissing", "subscription_payment_success", companies.deleted],
