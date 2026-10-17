@@ -101,6 +101,19 @@ describe("McpConsentStore", () => {
     expect(store.canApprove).toBe(false);
   });
 
+  it("keeps the chosen workspace when the list refreshes and moves off it once it becomes unavailable", () => {
+    const store = new McpConsentStore(rootStore);
+    store.initialize([crm, taxes]);
+    store.select("company-b");
+
+    store.initialize([crm, { ...taxes }, waiting]);
+    expect(store.selectedCompanyId).toBe("company-b");
+
+    store.initialize([crm, { ...taxes, unavailableReason: "permission" }]);
+    expect(store.selectedCompanyId).toBe("company-a");
+    expect(store.workspaces).toHaveLength(2);
+  });
+
   it("does not change the workspace while a decision is submitting", async () => {
     let resolveDecision: (value: unknown) => void = () => undefined;
     authActions.decideMcpConsentAction.mockReturnValue(

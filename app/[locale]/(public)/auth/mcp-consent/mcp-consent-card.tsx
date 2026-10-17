@@ -2,7 +2,7 @@
 
 import type { McpConsentWorkspace } from "@/features/auth/list-mcp-consent-workspaces.interactor";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
@@ -31,6 +31,7 @@ const McpConsentCardContent = observer(({ clientName, consentCode, redirectHost,
   const t = useTranslations();
   const { mcpConsentStore, navigationGuard } = useRootStore();
   useState(() => mcpConsentStore.initialize(workspaces));
+  useEffect(() => mcpConsentStore.initialize(workspaces), [mcpConsentStore, workspaces]);
   const { canApprove, isSubmitting, selectedCompanyId, selectedWorkspace } = mcpConsentStore;
 
   const decide = async (accept: boolean) => {
@@ -74,8 +75,9 @@ const McpConsentCardContent = observer(({ clientName, consentCode, redirectHost,
     }
   };
 
-  const title = selectedWorkspace?.name
-    ? t("McpConsentWorkspace.title", { client: clientName, workspace: selectedWorkspace.name })
+  const selectedName = selectedWorkspace?.name?.trim();
+  const title = selectedName
+    ? t("McpConsentWorkspace.title", { client: clientName, workspace: selectedName })
     : t("McpConsentWorkspace.titleUnnamed", { client: clientName });
 
   return (
@@ -85,7 +87,7 @@ const McpConsentCardContent = observer(({ clientName, consentCode, redirectHost,
       <AppCardBody>
         <p className="text-x-sm">{t("McpConsentCard.body", { client: clientName })}</p>
 
-        {workspaces.length > 1 ? (
+        {mcpConsentStore.workspaces.length > 1 ? (
           <fieldset className="min-w-0">
             <legend className="text-muted-foreground mb-1.5 text-xs leading-none font-normal">
               {t("McpConsentWorkspace.pickerLabel")}
@@ -97,7 +99,7 @@ const McpConsentCardContent = observer(({ clientName, consentCode, redirectHost,
               value={selectedCompanyId ?? ""}
               onValueChange={mcpConsentStore.select}
             >
-              {workspaces.map((workspace) => {
+              {mcpConsentStore.workspaces.map((workspace) => {
                 const name = workspaceDisplayName(workspace.name, t("Workspaces.fallbackName"));
 
                 return (

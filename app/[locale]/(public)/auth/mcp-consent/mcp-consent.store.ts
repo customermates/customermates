@@ -43,9 +43,11 @@ export class McpConsentStore extends BaseStore {
   }
 
   initialize = (workspaces: McpConsentWorkspace[]) => {
+    const kept = workspaces.find(
+      (workspace) => workspace.companyId === this.selectedCompanyId && workspace.unavailableReason === null,
+    );
     this.workspaces = workspaces;
-    this.selectedCompanyId = defaultWorkspace(workspaces)?.companyId ?? null;
-    this.isSubmitting = false;
+    this.selectedCompanyId = kept?.companyId ?? defaultWorkspace(workspaces)?.companyId ?? null;
   };
 
   select = (companyId: string) => {
