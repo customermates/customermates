@@ -120,9 +120,12 @@ const MembersPageViewContent = observer(function MembersPageView({ initialRoles,
                 userModalStore.offersRemovalFor(user)
                   ? async () => {
                       await userModalStore.loadById(user.id);
-                      if (userModalStore.loadedUserId === user.id && userModalStore.canRemove) {
+                      if (userModalStore.loadedUserId === user.id && userModalStore.showsRemoval) {
                         confirmRemoval(
-                          { name: memberName(user), pending: user.status === Status.pendingAuthorization },
+                          {
+                            name: memberName(user),
+                            pending: userModalStore.loadedStatus === Status.pendingAuthorization,
+                          },
                           user.id,
                         );
                       }

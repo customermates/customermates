@@ -1,5 +1,7 @@
 "use client";
 
+import type { MemberRemovalBlock } from "./user-modal.store";
+
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { UserMinus } from "lucide-react";
@@ -26,6 +28,16 @@ import { settingsHref } from "@/app/components/navigation/settings-routes";
 import { workspaceDisplayName } from "@/app/components/workspaces/workspace-identity";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 
+function memberRemovalBlocker(
+  t: ReturnType<typeof useTranslations>,
+  block: MemberRemovalBlock | null,
+  name: string,
+): string | undefined {
+  if (block === "lastAdmin") return t("MemberRemoval.blocked.lastAdmin", { name });
+  if (block === "platformOperator") return t("MemberRemoval.blocked.platformOperator");
+  return undefined;
+}
+
 export function useMemberRemovalConfirmation() {
   const t = useTranslations();
   const { userModalStore, workspacesStore } = useRootStore();
@@ -34,21 +46,25 @@ export function useMemberRemovalConfirmation() {
   return (member: { name: string; pending: boolean }, memberId: string) => {
     const { name, pending } = member;
     const workspace = workspaceDisplayName(workspacesStore.current?.name, t("Workspaces.fallbackName"));
+    const blocker = memberRemovalBlocker(t, userModalStore.removalBlockedBy, name);
 
     showConfirmation({
       title: t("MemberRemoval.confirmTitle", { name, workspace }),
       message: pending
         ? t("MemberRemoval.pendingDescription", { name })
         : t("MemberRemoval.confirmDescription", { name }),
-      details: pending
-        ? [t("MemberRemoval.consequences.rejoin")]
-        : [
-            t("MemberRemoval.consequences.credentials"),
-            t("MemberRemoval.consequences.channels"),
-            t("MemberRemoval.consequences.records"),
-            t("MemberRemoval.consequences.rejoin"),
-            t("MemberRemoval.consequences.notified"),
-          ],
+      details: blocker
+        ? undefined
+        : pending
+          ? [t("MemberRemoval.consequences.rejoin")]
+          : [
+              t("MemberRemoval.consequences.credentials"),
+              t("MemberRemoval.consequences.channels"),
+              t("MemberRemoval.consequences.records"),
+              t("MemberRemoval.consequences.rejoin"),
+              t("MemberRemoval.consequences.notified"),
+            ],
+      blockers: blocker ? [blocker] : undefined,
       confirmLabel: t("Common.actions.remove"),
       confirmVariant: "destructive",
       successKey: "MemberRemoval.removed",
@@ -68,12 +84,7 @@ export const CompanyUserModal = observer(() => {
     store;
   const confirmRemoval = useMemberRemovalConfirmation();
   const name = memberName({ ...savedState, email: form.email });
-  const blockedReason =
-    removalBlockedBy === "lastAdmin"
-      ? t("MemberRemoval.blocked.lastAdmin", { name })
-      : removalBlockedBy === "platformOperator"
-        ? t("MemberRemoval.blocked.platformOperator")
-        : undefined;
+  const blockedReason = memberRemovalBlocker(t, removalBlockedBy, name);
 
   return (
     <AppModal
