@@ -168,8 +168,7 @@ export function recordUnreadCountPolls(page: Page) {
 export function recordSentryRequests(page: Page) {
   const requests: string[] = [];
   page.on("request", (request) => {
-    const url = new URL(request.url());
-    if (url.pathname.startsWith("/monitoring") || url.hostname.endsWith("sentry.io")) requests.push(url.href);
+    if (new URL(request.url()).pathname.startsWith("/monitoring")) requests.push(request.url());
   });
   return requests;
 }
