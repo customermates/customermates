@@ -12,10 +12,16 @@ export async function reconcileAuthUserId(context: SeedContext, id: string, emai
   else await context.prisma.authUser.update({ where: { id: existingByEmail.id }, data: { id } });
 }
 
-export async function reconcileDomainUserId(context: SeedContext, id: string, email: string): Promise<void> {
+export type SeedMembershipKey = Readonly<{ companyId: string; email: string }>;
+
+export async function reconcileDomainUserId(
+  context: SeedContext,
+  id: string,
+  { companyId, email }: SeedMembershipKey,
+): Promise<void> {
   const [existingById, existingByEmail] = await Promise.all([
     context.prisma.user.findUnique({ where: { id }, select: { id: true } }),
-    context.prisma.user.findUnique({ where: { email }, select: { id: true } }),
+    context.prisma.user.findUnique({ where: { companyId_email: { companyId, email } }, select: { id: true } }),
   ]);
 
   if (!existingByEmail || existingByEmail.id === id) return;

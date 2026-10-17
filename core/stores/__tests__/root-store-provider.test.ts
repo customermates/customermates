@@ -37,6 +37,12 @@ vi.mock("../root.store", () => ({
         this.sidebarLayoutStore.layout = layout;
       },
     };
+    readonly workspacesStore = {
+      items: [] as NonNullable<RootStoreInitialState["workspaces"]>,
+      setWorkspaces: (items: NonNullable<RootStoreInitialState["workspaces"]>) => {
+        this.workspacesStore.items = items;
+      },
+    };
     readonly subscriptionStore = {
       subscription: null as RootStoreInitialState["subscription"],
       setSubscription: (subscription: RootStoreInitialState["subscription"]) => {
@@ -95,8 +101,22 @@ const initialState: RootStoreInitialState = {
     currentPeriodEnd: null,
     hasBillingPortal: false,
     hasActiveSubscription: true,
+    checkout: "none",
   },
   sidebarLayout: { sections: [] } as unknown as NonNullable<RootStoreInitialState["sidebarLayout"]>,
+  workspaces: [
+    {
+      companyId: "company-1",
+      name: "Acme",
+      status: Status.active,
+      roleName: "Admin",
+      isAdmin: true,
+      isCurrent: true,
+      activeMemberCount: 1,
+      subscription: null,
+      joinedAt: new Date("2025-01-01T00:00:00.000Z"),
+    },
+  ],
 };
 
 function DelayedBoundary({ children }: { children: ReactNode }) {
@@ -111,6 +131,7 @@ function InitialStateProbe() {
     rootStore.subscriptionStore.subscription?.plan,
     rootStore.intlStore.formatNumber(1234.5),
     rootStore.sidebarLayoutStore.layout ? "sidebar" : "default-sidebar",
+    rootStore.workspacesStore.items[0]?.name ?? "no-workspace",
   ];
   return createElement("span", { "data-initial-state": true }, values.join("|"));
 }
@@ -140,9 +161,9 @@ afterEach(() => {
 });
 
 describe("RootStoreProvider initial state", () => {
-  it("seeds permission, subscription, locale and the sidebar layout before a delayed child hydrates", async () => {
+  it("seeds permission, subscription, locale, the sidebar layout and the workspaces before a delayed child hydrates", async () => {
     const html = renderToString(createElement(TestApp));
-    expect(html).toContain("allowed|pro|1.234,5|sidebar");
+    expect(html).toContain("allowed|pro|1.234,5|sidebar|Acme");
 
     hydrationDelay = new Promise<void>((resolve) => {
       releaseHydration = resolve;
@@ -169,7 +190,7 @@ describe("RootStoreProvider initial state", () => {
       __customermatesHistory: { session: expect.any(String), index: expect.any(Number) },
     });
 
-    expect(container.querySelector("[data-initial-state]")?.textContent).toBe("allowed|pro|1.234,5|sidebar");
+    expect(container.querySelector("[data-initial-state]")?.textContent).toBe("allowed|pro|1.234,5|sidebar|Acme");
 
     await act(async () => {
       delayHydration = false;
@@ -178,7 +199,7 @@ describe("RootStoreProvider initial state", () => {
     });
 
     await vi.waitFor(() => {
-      expect(container.querySelector("[data-initial-state]")?.textContent).toBe("allowed|pro|1.234,5|sidebar");
+      expect(container.querySelector("[data-initial-state]")?.textContent).toBe("allowed|pro|1.234,5|sidebar|Acme");
     });
     expect(recoverableErrors).toEqual([]);
   });

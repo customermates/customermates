@@ -1,8 +1,7 @@
 import type { PlanEntitlements } from "@/core/commercial/plan-catalog";
-import type { SubscriptionPlan } from "@/generated/prisma";
 import type { AppMode } from "@/core/config/environment";
 
-import { SubscriptionStatus } from "@/generated/prisma";
+import { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 import { PLAN_CATALOG } from "@/core/commercial/plan-catalog";
 
 export type { PlanEntitlements } from "@/core/commercial/plan-catalog";
@@ -10,6 +9,12 @@ export type { PlanEntitlements } from "@/core/commercial/plan-catalog";
 export type EntitlementFeature = "agentChat" | "messaging" | "sharedAccounts";
 
 export const TRIAL_HOSTED_AI_CREDITS_PER_ACTIVE_USER = 500;
+
+const LIVE_SUBSCRIPTION_STATUSES = new Set<SubscriptionStatus>([
+  SubscriptionStatus.active,
+  SubscriptionStatus.trial,
+  SubscriptionStatus.pastDue,
+]);
 
 export function getEntitlements(plan: SubscriptionPlan): PlanEntitlements {
   return PLAN_CATALOG[plan].entitlements;
@@ -41,5 +46,27 @@ export function isSubscriptionUsable(subscription: { status: SubscriptionStatus;
   return (
     subscription.status === SubscriptionStatus.trial &&
     (subscription.trialEndDate === null || subscription.trialEndDate >= new Date())
+  );
+}
+
+export function hasLiveSubscription<T extends { lemonSqueezyId: string | null; status: SubscriptionStatus }>(
+  subscription: T,
+): subscription is T & { lemonSqueezyId: string } {
+  return subscription.lemonSqueezyId !== null && LIVE_SUBSCRIPTION_STATUSES.has(subscription.status);
+}
+
+export function isAwaitingFirstPlan(subscription: {
+  status: SubscriptionStatus;
+  plan: SubscriptionPlan;
+  lemonSqueezyId: string | null;
+  trialEndDate: Date | null;
+  currentPeriodEnd: Date | null;
+}): boolean {
+  return (
+    subscription.status === SubscriptionStatus.expired &&
+    subscription.plan !== SubscriptionPlan.enterprise &&
+    !subscription.lemonSqueezyId &&
+    subscription.trialEndDate === null &&
+    subscription.currentPeriodEnd === null
   );
 }

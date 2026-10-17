@@ -1,6 +1,7 @@
 import type { XlsxWizardPorts } from "./xlsx-import-wizard.store";
 
 import { getUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { getRecordChoicesAction, importRecordsAction, queryRecordsAction } from "../../actions";
 
 const FATAL_CODES = new Set([
@@ -30,7 +31,9 @@ export function xlsxImportPorts(fallbackMessage: string): XlsxWizardPorts {
   return {
     queryRecords: async (query) => {
       const result = await queryRecordsAction(query);
-      return result.ok ? { ok: true, data: result.data } : { ok: false };
+      if (result.ok) return { ok: true, data: result.data };
+      notifyIfWorkspaceChanged(result);
+      return { ok: false };
     },
     listMembers: async (page, pageSize) => {
       const result = await getUsersAction({ pagination: { page, pageSize } });
@@ -45,7 +48,9 @@ export function xlsxImportPorts(fallbackMessage: string): XlsxWizardPorts {
     },
     listChoices: async (typeId, page, pageSize) => {
       const result = await getRecordChoicesAction({ typeId, page, pageSize });
-      return result.ok ? { ok: true, data: { records: result.data.records, total: result.data.total } } : { ok: false };
+      if (result.ok) return { ok: true, data: { records: result.data.records, total: result.data.total } };
+      notifyIfWorkspaceChanged(result);
+      return { ok: false };
     },
     importRecords: async (input) => {
       try {
@@ -54,9 +59,10 @@ export function xlsxImportPorts(fallbackMessage: string): XlsxWizardPorts {
         return {
           ok: false,
           message: firstErrorMessage(result.error) ?? fallbackMessage,
-          fatal: FATAL_CODES.has(result.code ?? ""),
+          fatal: notifyIfWorkspaceChanged(result) || FATAL_CODES.has(result.code ?? ""),
         };
-      } catch {
+      } catch (error) {
+        notifyIfWorkspaceChanged(error);
         return { ok: false, message: fallbackMessage, fatal: true };
       }
     },

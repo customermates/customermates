@@ -29,7 +29,7 @@ Um Claude mit Ihrem CRM zu verbinden, fügen Sie Customermates in Claude als Cus
 Authentifizierung auf der Voreinstellung (OAuth) lassen. Kein Header, kein Key.
 </Step>
 <Step title="Anmelden und zulassen">
-Ein Customermates-Fenster öffnet sich. Anmelden, dann auf dem Screen **Zugriff autorisieren** auf **Zulassen** klicken.
+Ein Customermates-Fenster öffnet sich. Anmelden, dann auf dem Zustimmungsbildschirm auf **Zulassen** klicken.
 </Step>
 <Step title="Tools prüfen">
 Zurück in Claude erscheint Customermates mit seinen Tools.
@@ -48,7 +48,7 @@ Um ChatGPT zu verbinden, öffnen Sie in ChatGPT: **Settings → Connectors → A
 - **URL:** `<BASE_URL>/api/v1/mcp`
 - **Authentication:** OAuth
 
-Speichern. ChatGPT öffnet ein Customermates-Fenster. Anmelden, dann auf dem Screen **Zugriff autorisieren** auf **Zulassen** klicken. Jedes Customermates-Tool wird gelistet, und es gibt keinen Key zu speichern oder zu rotieren.
+Speichern. ChatGPT öffnet ein Customermates-Fenster. Anmelden, dann auf dem Zustimmungsbildschirm auf **Zulassen** klicken. Jedes Customermates-Tool wird gelistet, und es gibt keinen Key zu speichern oder zu rotieren.
 
 ### Kann ChatGPT statt OAuth einen API-Key nutzen? [#chatgpt-with-an-api-key]
 
@@ -65,7 +65,7 @@ Im Connector-Formular **Authentication: Header**, **Header name: `x-api-key`**, 
 
 Speichern. ChatGPT erreicht den Server und listet jedes Tool. Customermates prüft den Key bei jeder Anfrage: Mit einem falschen, abgeschnittenen, abgelaufenen oder gelöschten Key antwortet der Server mit HTTP `401` und einem `WWW-Authenticate`-Header, und nichts wird gelistet; legen Sie dann einen neuen Key an.
 
-## Was zeigt der Screen Zugriff autorisieren? [#sign-in-and-approve]
+## Was zeigt der Zustimmungsbildschirm? [#sign-in-and-approve]
 
 Der Connector öffnet ein Customermates-Fenster:
 
@@ -74,7 +74,7 @@ Der Connector öffnet ein Customermates-Fenster:
 Oder Sie sind schon angemeldet.
 </Step>
 <Step title="Lesen, was autorisiert wird">
-Der Screen **Zugriff autorisieren** nennt die App, die sich verbindet, listet, was sie anfordert (etwa **Deine Identität bestätigen**, **Dein Basisprofil lesen**, **Deine E-Mail-Adresse lesen** und **Verbunden bleiben, während du abwesend bist**), und zeigt unter **Verbindungsziel** den Host, an den der Zugriff geht.
+Der Zustimmungsbildschirm mit dem Titel **… mit … verbinden** nennt die App, die sich verbindet, listet, was sie anfordert (etwa **Deine Identität bestätigen**, **Dein Basisprofil lesen**, **Deine E-Mail-Adresse lesen** und **Verbunden bleiben, während du abwesend bist**), und zeigt unter **Verbindungsziel** den Host, an den der Zugriff geht. Gehören Sie zu mehreren Workspaces, fragt er außerdem, welchen Workspace die Verbindung erhält; Ihr aktueller Workspace ist vorausgewählt.
 </Step>
 <Step title="Zulassen">
 Klicken Sie auf **Zulassen**, oder auf **Ablehnen**, um abzulehnen.
@@ -83,13 +83,14 @@ Klicken Sie auf **Zulassen**, oder auf **Ablehnen**, um abzulehnen.
 
 Sie landen zurück in Ihrer KI, verbunden, mit allen [[derived.mcp.tools.total]] Tools in der Liste.
 
-Der Connector akzeptiert jeden Client, daher ist der Screen **Zugriff autorisieren** die Kontrolle. Geben Sie nur eine Verbindung frei, die Sie selbst gestartet haben, und klicken Sie bei allem, was Sie nicht gestartet haben, auf **Ablehnen**. Die Verbindung per OAuth braucht keinen API-Key, Ihre Rolle braucht aber wie für jede MCP-Verbindung **Lesen** **Alle** auf **API & Webhooks**; ohne sie lehnt der Screen die Verbindung ab.
+Der Connector akzeptiert jeden Client, daher ist der Zustimmungsbildschirm die Kontrolle. Geben Sie nur eine Verbindung frei, die Sie selbst gestartet haben, und klicken Sie bei allem, was Sie nicht gestartet haben, auf **Ablehnen**. Die Verbindung per OAuth braucht keinen API-Key, Ihre Rolle braucht aber wie für jede MCP-Verbindung **Lesen** **Alle** auf **API & Webhooks**; ohne sie lehnt der Screen die Verbindung ab.
 
 ## Wie lange bleibt die Verbindung gültig? [#it-syncs-and-stays-connected]
 
 - Einmal in Claude Web hinzufügen, und es erscheint auch auf **Desktop und Mobile**. Die Verbindung hängt an Ihrem Claude-Konto, nicht an einem Gerät.
 - Sie erneuert sich im Hintergrund. Nutzen Sie sie innerhalb von 30 Tagen, und Sie autorisieren nie neu; bleiben Sie länger untätig, und Sie geben einmal mehr frei.
-- Jeder Aufruf läuft als der Customermates-User, der freigegeben hat, innerhalb der Daten dieses Kontos und mit den Rechten seiner Rolle. API-Keys funktionieren genauso: Sie erben die Berechtigungen des besitzenden Users, und es gibt kein Scoping pro Key.
+- Jeder Aufruf läuft als der Customermates-User, der freigegeben hat, innerhalb des auf dem Zustimmungsbildschirm gewählten Workspace und mit den Rechten seiner Rolle dort. API-Keys funktionieren genauso: Sie erben die Berechtigungen des besitzenden Users in dem Workspace, in dem sie erstellt wurden, und es gibt kein Scoping pro Key.
+- Eine Verbindung bleibt samt erneuerter Tokens in ihrem Workspace. Um in mehreren Workspaces zu arbeiten, verbinden Sie sich einmal pro Workspace, zum Beispiel mit einem eigenen Claude-Konto je Workspace; siehe [Workspaces](/docs/app-workspaces#which-workspace-do-api-keys-and-connections-use).
 - Wird dieser User auf **Inaktiv** gesetzt, scheitert jeder Aufruf, der Workspace-Daten liest oder ändert, mit „Your user account is inactive. Contact a workspace administrator.“, bis ein Mitglied mit **Bearbeiten** auf **Benutzer & Rollen** ihn wieder auf **Aktiv** setzt.
 
 ## Was probiere ich zuerst? [#try-your-first-prompt]
@@ -108,7 +109,7 @@ Customermates hält einen Tool-Aufruf nie an, um nachzufragen; das tut Ihr Clien
 
 - Lesende Tools (`get_*`, `list_*`, `search_*`) tragen das Read-only-Flag und lassen sich ohne Risiko erlauben.
 - Tools, die löschen können, tragen das destruktive Flag und nennen `IRREVERSIBLE`.
-- Tools, die nur anlegen, ändern oder versenden, tragen keines der beiden Flags; zusammengeführte Tools mit einer Delete-Action, etwa `manage_webhooks`, tragen das destruktive Flag. Zu den Tools ohne Flag gehören `send_email`, `send_chat_message`, `request_support`, die Einladungen von `manage_team` und das Tool `manage_social_relations`, die echte Menschen erreichen, sowie `move_email_thread`, das E-Mails im echten Postfach verschiebt.
+- Tools, die nur anlegen, ändern oder versenden, tragen keines der beiden Flags; zusammengeführte Tools mit einer Delete-Action, etwa `manage_webhooks`, tragen das destruktive Flag, ebenso `manage_team`, dessen `remove_member` einem Mitglied den Zugriff entzieht. Zu den Tools ohne Flag gehören `send_email`, `send_chat_message`, `request_support` und `manage_social_relations`, die echte Menschen erreichen, sowie `move_email_thread`, das E-Mails im echten Postfach verschiebt.
 
 Lassen Sie jedes Tool, das nicht read-only ist, auf *Ask*. Die vollständige Liste steht im [MCP-Tool-Katalog](/docs/mcp#tool-catalog).
 

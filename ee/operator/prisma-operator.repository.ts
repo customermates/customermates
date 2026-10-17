@@ -17,6 +17,7 @@ import {
 } from "@/ee/agent-chat/agent-credit-policy";
 import { env } from "@/env";
 import type { AgentUsageRepo } from "@/ee/agent-chat/agent-usage.repo";
+import { isAwaitingFirstPlan } from "@/ee/subscription/entitlements";
 
 import { normalizeOperatorEmail } from "./operator-access.service";
 import type { OperatorRefusal, OperatorRepo } from "./operator.repo";
@@ -45,7 +46,9 @@ import {
   type UpdateOperatorWorkspaceTagsData,
 } from "./operator.schema";
 
-function workspaceLabelFor(companyId: string, members: { email: string }[]): string {
+function workspaceLabelFor(company: { id: string; name: string | null }, members: { email: string }[]): string {
+  if (company.name) return company.name;
+
   const counts = new Map<string, number>();
   for (const member of members) {
     const domain = member.email.split("@")[1];
@@ -54,7 +57,7 @@ function workspaceLabelFor(companyId: string, members: { email: string }[]): str
 
   const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
 
-  return ranked[0]?.[0] ?? companyId.slice(0, 8);
+  return ranked[0]?.[0] ?? company.id.slice(0, 8);
 }
 
 function normalizeWorkspaceTags(tags: string[]): string[] {
@@ -562,66 +565,80 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
 
   @BypassTenantGuard
   async getUserSummaryUnscoped(): Promise<OperatorUserSummaryDto> {
-    const plans = Object.values(SubscriptionPlan);
-    const subscriptionStatuses = Object.values(SubscriptionStatus);
-    const [
-      statusCounts,
-      totalCompanies,
-      platformOperators,
-      verifiedRows,
-      planCounts,
-      subscriptionStatusCounts,
-      missing,
-    ] = await Promise.all([
-      this.prisma.user.groupBy({ by: ["status"], _count: { _all: true } }),
-      this.prisma.company.count(),
-      this.prisma.user.count({ where: { isPlatformOperator: true } }),
+    const [loginRows, verifiedRows, subscriptions, companiesWithoutSubscription, totalCompanies] = await Promise.all([
+      this.prisma.$queryRaw<
+        Array<{
+          totalUsers: bigint;
+          active: bigint;
+          inactive: bigint;
+          pendingAuthorization: bigint;
+          platformOperators: bigint;
+        }>
+      >`
+        SELECT
+          COUNT(DISTINCT lower(member."email"))::bigint AS "totalUsers",
+          COUNT(DISTINCT lower(member."email")) FILTER (WHERE member."status"::text = 'active')::bigint AS "active",
+          COUNT(DISTINCT lower(member."email")) FILTER (WHERE member."status"::text = 'inactive')::bigint AS "inactive",
+          COUNT(DISTINCT lower(member."email"))
+            FILTER (WHERE member."status"::text = 'pendingAuthorization')::bigint AS "pendingAuthorization",
+          COUNT(DISTINCT lower(member."email")) FILTER (WHERE member."isPlatformOperator")::bigint AS "platformOperators"
+        FROM "User" AS member
+      `,
       this.prisma.$queryRaw<Array<{ count: bigint }>>`
-          SELECT COUNT(*)::bigint AS "count"
-          FROM "User" AS domain_user
-          JOIN "AuthUser" AS auth_user
-            ON lower(auth_user."email") = lower(domain_user."email")
-            AND auth_user."emailVerified" = true
-          WHERE (
+        SELECT COUNT(*)::bigint AS "count"
+        FROM "AuthUser" AS login
+        WHERE login."emailVerified" = true
+          AND EXISTS (
+            SELECT 1
+            FROM "User" AS member
+            WHERE lower(member."email") = lower(login."email")
+          )
+          AND (
             SELECT COUNT(*)
             FROM "AuthUser" AS candidate
-            WHERE lower(candidate."email") = lower(domain_user."email")
+            WHERE lower(candidate."email") = lower(login."email")
           ) = 1
-        `,
-      Promise.all(
-        plans.map((plan) =>
-          this.prisma.user.count({
-            where: { company: { subscription: { plan } } },
-          }),
-        ),
-      ),
-      Promise.all(
-        subscriptionStatuses.map((status) =>
-          this.prisma.user.count({
-            where: { company: { subscription: { status } } },
-          }),
-        ),
-      ),
-      this.prisma.user.count({
-        where: { company: { subscription: { is: null } } },
-      }),
+      `,
+      this.prisma.subscription.findMany({ select: { companyId: true, plan: true, status: true } }),
+      this.prisma.company.findMany({ where: { subscription: { is: null } }, select: { id: true } }),
+      this.prisma.company.count(),
     ]);
+    const buckets = [
+      ...subscriptions.flatMap(({ companyId, plan, status }) => [
+        { companyId, key: `plan:${plan}` },
+        { companyId, key: `status:${status}` },
+      ]),
+      ...companiesWithoutSubscription.map((company) => ({ companyId: company.id, key: "missing" })),
+    ];
+    const bucketRows =
+      buckets.length === 0
+        ? []
+        : await this.prisma.$queryRaw<Array<{ key: string; count: bigint }>>`
+            SELECT bucket."key", COUNT(DISTINCT lower(member."email"))::bigint AS "count"
+            FROM unnest(
+              ${buckets.map((bucket) => bucket.companyId)}::text[],
+              ${buckets.map((bucket) => bucket.key)}::text[]
+            ) AS bucket("companyId", "key")
+            JOIN "User" AS member ON member."companyId" = bucket."companyId"
+            GROUP BY bucket."key"
+          `;
+    const loginsByBucket = new Map(
+      bucketRows.map((row) => [row.key, asSafeBigIntCount(row.count, `Login count for ${row.key}`)]),
+    );
+    const logins = loginRows[0];
     const summary = emptyUserSummary();
-    for (const row of statusCounts) {
-      summary.byStatus[row.status] = row._count._all;
-      summary.totalUsers += row._count._all;
-    }
+    summary.totalUsers = asSafeBigIntCount(logins?.totalUsers, "Login count");
+    summary.byStatus.active = asSafeBigIntCount(logins?.active, "Active login count");
+    summary.byStatus.inactive = asSafeBigIntCount(logins?.inactive, "Inactive login count");
+    summary.byStatus.pendingAuthorization = asSafeBigIntCount(logins?.pendingAuthorization, "Pending login count");
     summary.totalCompanies = totalCompanies;
-    summary.platformOperators = platformOperators;
+    summary.platformOperators = asSafeBigIntCount(logins?.platformOperators, "Platform operator count");
     summary.verifiedAuthUsers = asSafeBigIntCount(verifiedRows[0]?.count, "Verified auth-user count");
-    plans.forEach((plan, index) => {
-      summary.byPlan[plan] = planCounts[index];
-    });
-    subscriptionStatuses.forEach((status, index) => {
-      summary.bySubscriptionStatus[status] = subscriptionStatusCounts[index];
-    });
-    summary.byPlan.missing = missing;
-    summary.bySubscriptionStatus.missing = missing;
+    for (const plan of Object.values(SubscriptionPlan)) summary.byPlan[plan] = loginsByBucket.get(`plan:${plan}`) ?? 0;
+    for (const status of Object.values(SubscriptionStatus))
+      summary.bySubscriptionStatus[status] = loginsByBucket.get(`status:${status}`) ?? 0;
+    summary.byPlan.missing = loginsByBucket.get("missing") ?? 0;
+    summary.bySubscriptionStatus.missing = loginsByBucket.get("missing") ?? 0;
 
     return summary;
   }
@@ -781,8 +798,8 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
           if (target.status !== Status.active) return "conflict";
 
           const email = normalizeOperatorEmail(target.email);
-          const resolvedMember = await this.prisma.user.findUnique({
-            where: { email },
+          const resolvedMember = await this.prisma.user.findFirst({
+            where: { email, id: data.userId, leftAt: null },
             select: { id: true },
           });
           if (resolvedMember?.id !== data.userId) return "conflict";
@@ -1124,6 +1141,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
           where: { id: data.companyId },
           select: {
             id: true,
+            name: true,
             users: {
               select: {
                 id: true,
@@ -1139,7 +1157,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
         });
         if (!company) return "notFound";
 
-        const workspaceLabel = workspaceLabelFor(company.id, company.users);
+        const workspaceLabel = workspaceLabelFor(company, company.users);
         if (data.confirmWorkspaceLabel !== workspaceLabel) return "conflict";
         if (company.users.some((member) => member.isPlatformOperator && member.status === Status.active))
           return "conflict";
@@ -1157,13 +1175,19 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
 
         await this.owners.companies.deleteInviteTokensByCreatorsUnscoped(memberIds);
 
+        const membershipsElsewhere = await this.prisma.user.findMany({
+          where: { email: { in: memberEmails, mode: "insensitive" }, companyId: { not: data.companyId } },
+          select: { email: true },
+        });
+        const sharedEmails = new Set(membershipsElsewhere.map((member) => member.email.toLowerCase()));
+        const soleEmails = memberEmails.filter((email) => !sharedEmails.has(email.toLowerCase()));
         const identities = await this.prisma.authUser.findMany({
-          where: { email: { in: memberEmails, mode: "insensitive" } },
+          where: { email: { in: soleEmails, mode: "insensitive" } },
           select: { id: true },
         });
         const identityIds = identities.map((identity) => identity.id);
         await this.owners.identities.deleteApiKeysForIdentities(identityIds);
-        await this.owners.identities.deleteVerificationsForEmails(memberEmails);
+        await this.owners.identities.deleteVerificationsForEmails(soleEmails);
         await this.owners.users.deleteAuthIdentitiesUnscoped(identityIds);
         await this.owners.inboundEvents.deleteCompanyInboundEventsUnscoped(data.companyId);
 
@@ -1242,18 +1266,23 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
         if (trialEndDate && !Number.isFinite(trialEndDate.getTime())) return "conflict";
         if (trialEndDate === null && subscription.trialEndDate !== null) return "trialEndRequired";
 
+        const status =
+          trialEndDate !== null && isAwaitingFirstPlan(subscription) ? SubscriptionStatus.trial : subscription.status;
         const previous = {
           trialEndDate: subscription.trialEndDate?.toISOString() ?? null,
           lemonSqueezyId: subscription.lemonSqueezyId,
+          status: subscription.status,
         };
         const next = {
           trialEndDate: trialEndDate?.toISOString() ?? null,
           lemonSqueezyId: data.lemonSqueezyId,
+          status,
         };
 
         await this.owners.companies.setSubscriptionTermsUnscoped(data.companyId, {
           trialEndDate,
           lemonSqueezyId: data.lemonSqueezyId,
+          ...(status !== subscription.status ? { status } : {}),
         });
         await this.createAudit({
           action: OPERATOR_AUDIT_ACTION.subscriptionTermsUpdate,

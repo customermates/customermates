@@ -13,6 +13,7 @@ const INFORMAL_RECIPIENT_EMAIL_NAMESPACES = [
   "TrialInactivationReminder",
   "TrialWelcome",
   "VerifyEmail",
+  "WorkspaceRemovalNotice",
 ] as const;
 
 const FORMAL_ADDRESS = /\b(?:Sie|Ihnen|Ihr(?:e|en|em|er|es)?)\b/u;

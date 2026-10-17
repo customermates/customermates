@@ -131,7 +131,10 @@ function connectedAccount(): ConnectedAccountDto {
   };
 }
 
-function renderApiKeys(status: RequestStatus, options: { canManage?: boolean; withItem?: boolean } = {}) {
+function renderApiKeys(
+  status: RequestStatus,
+  options: { canManage?: boolean; withItem?: boolean; workspaceName?: string | null } = {},
+) {
   const items = options.withItem ? [apiKey()] : [];
   const apiKeysStore = {
     canManage: options.canManage ?? true,
@@ -144,6 +147,7 @@ function renderApiKeys(status: RequestStatus, options: { canManage?: boolean; wi
     apiKeyModalStore: { add: harness.addApiKey, view: harness.viewApiKey },
     apiKeysStore,
     intlStore: { formatNumericalShortDateTime: () => "date" },
+    workspacesStore: { current: { name: options.workspaceName === undefined ? "Acme" : options.workspaceName } },
   });
 
   return renderToStaticMarkup(createElement(ApiKeysPageView, { apiKeys: items }));
@@ -234,6 +238,7 @@ describe("profile resource page views", () => {
 
     const empty = renderApiKeys("ready");
     expect(empty).toContain('data-page-state="empty"');
+    expect(empty).toContain("Workspaces.apiKeysScopeNamed");
     expect(empty).toContain('data-page-skeleton-empty="true"');
     expect(empty).toContain('data-variant="secondary"');
     expect(renderToStaticMarkup(latestTopBar())).toContain('data-variant="default"');
@@ -244,6 +249,11 @@ describe("profile resource page views", () => {
 
     const content = renderApiKeys("ready", { withItem: true });
     expect(content).toContain("Integration");
+    expect(content).toContain("Workspaces.apiKeysScopeNamed");
+
+    const unnamed = renderApiKeys("ready", { withItem: true, workspaceName: null });
+    expect(unnamed).toContain("Workspaces.apiKeysScope");
+    expect(unnamed).not.toContain("Workspaces.apiKeysScopeNamed");
     expect(content).toContain("animate-page-result-in");
     expect(content).not.toContain("data-page-state");
   });

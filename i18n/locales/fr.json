@@ -105,6 +105,7 @@
         "socialInviteTarget": "Envoyer une demande de connexion à {target}",
         "teamInvite": "Envoyer des e-mails d’invitation aux personnes sélectionnées",
         "teamInviteTarget": "Envoyer {count} e-mail(s) d’invitation à : {target}",
+        "teamRemove": "Retirer le membre de l’équipe sélectionné de cet espace de travail",
         "teamUpdate": "Modifier le rôle ou le statut du membre de l’équipe sélectionné",
         "threadMove": "Déplacer la conversation vers un autre dossier de la boîte mail",
         "threadUpdate": "Modifier l’état de la conversation sélectionnée",
@@ -841,6 +842,15 @@
   "BrowserFrame": {
     "open": "Ouvrir dans un nouvel onglet"
   },
+  "CheckoutPending": {
+    "abandon": "Je n'ai pas fini de payer",
+    "checking": "Vérification du paiement",
+    "contactSupport": "Contacter l'assistance",
+    "description": "Lemon Squeezy confirme le paiement de cet espace de travail. Cette page continue d'elle-même dès qu'il arrive.",
+    "overdue": "Paiement pas encore reçu ?",
+    "supportEmailSubject": "Paiement non reçu",
+    "title": "Paiement en cours de traitement"
+  },
   "CommandPalette": {
     "fieldOf": "Champ de {list}",
     "groups": {
@@ -857,6 +867,7 @@
       "addWebhook": "Ajouter un webhook",
       "connectChannel": "Connecter un canal",
       "createApiKey": "Créer une clé API",
+      "switchWorkspace": "Changer d'espace de travail…",
       "themeDark": "Passer au thème sombre",
       "themeLight": "Passer au thème clair",
       "themeSystem": "Utiliser le thème du système"
@@ -874,11 +885,13 @@
     "synonyms": {
       "action": {
         "add": "nouveau, créer, nouvel enregistrement",
+        "createWorkspace": "nouvel espace de travail, ajouter un espace de travail, nouvelle entreprise",
         "inviteMembers": "ajouter un utilisateur, inviter un collègue, équipe",
         "sendFeedback": "signaler un problème, suggestion, support",
         "shortcuts": "raccourcis, touches, clavier",
         "signOut": "déconnexion, logout, quitter",
         "switchView": "changer de vue, vues enregistrées",
+        "switchWorkspace": "autre espace de travail, changer d'entreprise, changer de compte, aller à l'espace de travail",
         "themeDark": "mode sombre, mode nuit",
         "themeLight": "mode clair",
         "themeSystem": "thème automatique, suivre le système"
@@ -921,11 +934,13 @@
         "api-keys": "jetons, API, MCP, développeur, clés d'accès",
         "billing": "forfait, abonnement, factures, paiement, tarifs",
         "channels": "comptes connectés, comptes e-mail, LinkedIn, WhatsApp, intégrations",
+        "general": "nom de l'espace de travail, renommer l'espace de travail, quitter l'espace de travail",
         "members": "équipe, utilisateurs, personnes, collègues",
         "profile": "mon profil, compte, préférences, personnel",
         "roles": "permissions, accès, droits",
         "webhook-deliveries": "livraisons de webhook, journal des webhooks, événements envoyés",
-        "webhooks": "intégrations, rappels, événements, HTTP"
+        "webhooks": "intégrations, rappels, événements, HTTP",
+        "workspaces": "mes espaces de travail, adhésions, entreprises, changer d'espace de travail, quitter un espace de travail"
       }
     }
   },
@@ -1067,6 +1082,7 @@
       "apiKeyMaxExpiration": "L'expiration d'une clé API ne peut pas dépasser 365 jours.",
       "apiKeyMinExpiration": "L'expiration d'une clé API doit être d'au moins 1 jour.",
       "apiKeyNameLength": "Le nom d'une clé API doit comporter entre 1 et 255 caractères.",
+      "apiKeyNotFound": "Cette clé API est introuvable dans cet espace de travail.",
       "billingPortalUnavailable": "Le portail de facturation n’est pas disponible pour cet espace de travail. Contactez l’assistance pour effectuer des modifications.",
       "calendarEventNotFound": "ID d'évènement d'agenda introuvable ou inaccessible.",
       "calendarNotFound": "ID d'agenda introuvable ou inaccessible.",
@@ -1247,7 +1263,18 @@
       "wikiPagePinned": "Le guide opérationnel reste en première position. Déplacez une autre page.",
       "wikiPageUpdateEmpty": "Renseignez au moins un champ pour modifier la page.",
       "wikiProcedureNeedsSteps": "Une procédure doit contenir des étapes numérotées.",
-      "wikiWhenToUseRequired": "Une procédure doit indiquer brièvement quand l'utiliser."
+      "wikiWhenToUseRequired": "Une procédure doit indiquer brièvement quand l'utiliser.",
+      "workspaceChanged": "Votre espace de travail a changé dans un autre onglet ou sur un autre appareil. Rechargez la page avant de continuer.",
+      "workspaceCreationUnavailable": "Impossible de créer de nouveaux espaces de travail ici.",
+      "workspaceInvitationInvalid": "Ce lien d'invitation n'est pas valide ou a expiré. Demandez un nouveau lien.",
+      "workspaceLastAdmin": "Vous êtes le seul administrateur de cet espace de travail. Nommez un autre membre actif administrateur avant de partir.",
+      "workspaceLimitReached": "Vous pouvez créer jusqu'à {limit} espaces de travail. Contactez le support si vous avez besoin de plus.",
+      "workspaceMemberLastAdmin": "Ce membre est le seul administrateur actif de cet espace de travail. Nommez un autre membre actif administrateur avant de le retirer.",
+      "workspaceMemberLeft": "Ce membre a quitté l'espace de travail. Il peut redemander à le rejoindre avec un lien d'invitation, et un administrateur doit approuver la demande.",
+      "workspaceMemberPlatformOperator": "Ce compte appartient à un opérateur de la plateforme et ne peut pas être retiré ici. Utilisez la console opérateur.",
+      "workspaceMemberRemoveSelf": "Vous ne pouvez pas vous retirer vous-même d'un espace de travail. Quittez-le plutôt.",
+      "workspaceNotFound": "Cet espace de travail est introuvable ou vous n'en êtes pas membre.",
+      "workspacePlanRequired": "Les clés API et les connexions MCP nécessitent une offre active pour cet espace de travail. Choisissez une offre pour les utiliser."
     },
     "events": {
       "connected_account": {
@@ -1653,8 +1680,11 @@
     "cta": "Accepter l'invitation",
     "fallback": "Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur : ",
     "intro": "{inviterName} vous invite à rejoindre son équipe sur Customermates. Cliquez sur le bouton ci-dessous pour accepter l'invitation et créer votre compte.",
+    "introNamed": "{inviterName} vous invite à rejoindre {workspace} sur Customermates. Cliquez sur le bouton ci-dessous pour accepter l'invitation et vous connecter ou créer votre compte.",
     "preview": "{inviterName} vous invite à rejoindre son équipe sur Customermates",
-    "subject": "Rejoignez votre équipe sur Customermates"
+    "previewNamed": "{inviterName} vous invite à rejoindre {workspace} sur Customermates",
+    "subject": "Rejoignez votre équipe sur Customermates",
+    "subjectNamed": "Rejoignez {workspace} sur Customermates"
   },
   "CompanyInviteModal": {
     "description": "Partagez ce lien avec les utilisateurs que vous souhaitez inviter dans votre entreprise.",
@@ -1665,7 +1695,6 @@
   },
   "CompanyUserModal": {
     "activeUserWarning": "Vous pouvez modifier votre propre compte dans vos <settingsLink>paramètres</settingsLink>.",
-    "deleteMessage": "{name} est désactivé et perd l'accès à cet espace de travail. Ses enregistrements et son historique sont conservés, et vous pouvez le réactiver depuis ses détails.",
     "title": "Utilisateur"
   },
   "ComparePage": {
@@ -2187,6 +2216,7 @@
     "appRoutines": "Routines",
     "appSearch": "Recherche globale",
     "appTrash": "Corbeille",
+    "appWorkspaces": "Espaces de travail",
     "architectureSecurity": "Architecture et sécurité",
     "concepts": "Concepts clés",
     "connectCli": "CLI et éditeurs",
@@ -2309,7 +2339,6 @@
     "contactSupport": "Rassurez-vous, nous avons été automatiquement informés de ce problème et nous nous en occupons déjà. Si vous avez besoin d'aide immédiatement, n'hésitez pas à contacter notre assistance.",
     "ctaLabel": "Retour à l'accueil",
     "demoModeError": "L'enregistrement, la suppression et la modification de données ne sont pas disponibles en mode démo. <link>Commencez gratuitement</link> pour accéder à toutes les fonctionnalités.",
-    "inactiveUser": "Votre compte est actuellement inactif. Contactez votre administrateur pour le réactiver.",
     "invalidInviteLink": "Le lien d'invitation utilisé n'est pas valide ou a peut-être été modifié. Contactez votre administrateur pour obtenir un nouveau lien valide et poursuivre votre inscription.",
     "invalidOnboardingIntent": "Ce lien d'intégration n'est pas valide. Revenez à l'intégration ou rouvrez le lien d'invitation d'origine.",
     "inviteLinkExpired": "Le lien d'invitation que vous avez utilisé a expiré et ne peut plus servir. Contactez votre administrateur pour qu'il vous génère un nouveau lien et terminez la configuration de votre compte.",
@@ -2434,6 +2463,12 @@
     "taglineMcp": "MCP",
     "taglinePost": " ou le navigateur. Automatisations via REST, webhooks et votre instance n8n.",
     "taglinePre": "IA externe via"
+  },
+  "InactiveCard": {
+    "body": "Une fois votre accès réactivé, actualisez cette page pour continuer.",
+    "otherWorkspaces": "Vos autres espaces de travail restent inchangés. Passez à l'un d'eux depuis le menu de l'espace de travail.",
+    "subtitle": "Un administrateur de cet espace de travail peut le réactiver",
+    "title": "Votre accès à {workspace} est inactif"
   },
   "Inbox": {
     "attachmentCount": "{count, plural, one {# pièce jointe :} other {# pièces jointes :}}",
@@ -2587,9 +2622,7 @@
     "joinBody": "Configurez votre profil et demandez l'accès. Un administrateur doit vous approuver avant que vous puissiez rejoindre l'espace de travail.",
     "joinSubtitle": "Vous êtes connecté en tant que {email}",
     "joinTitle": "Accepter votre invitation",
-    "switchBody": "Ce compte appartient déjà à un espace de travail. Déconnectez-vous pour continuer avec un autre compte.",
-    "switchSubtitle": "Vous êtes connecté en tant que {email}",
-    "switchTitle": "Vous êtes déjà connecté"
+    "joinTitleNamed": "Rejoindre {workspace}"
   },
   "JoinWorkspace": {
     "backAction": "Retour aux choix",
@@ -2655,9 +2688,11 @@
   },
   "LegalDocumentNotice": {
     "contractBody": "Nous avons mis à jour les documents juridiques indiqués ci-dessous. Veuillez les examiner pour le client professionnel et faire procéder à leur acceptation électronique par un administrateur système habilité.",
+    "contractBodyNamed": "Nous avons mis à jour les documents juridiques indiqués ci-dessous pour l’espace de travail « {workspace} ». Veuillez les examiner pour le client professionnel et faire procéder à leur acceptation électronique par un administrateur système habilité.",
     "contractDeadlineLabel": "Date limite d’opposition et d’acceptation",
     "contractObjection": "Veuillez envoyer toute opposition avant la date limite indiquée en répondant à cet e-mail. Le silence ou l’inactivité ne vaut pas acceptation. Si les documents contractuels mis à jour ne sont pas acceptés avant la date limite, l’accès à l’interface utilisateur du service géré peut être restreint jusqu’à leur acceptation par un administrateur habilité.",
     "contractSubject": "Action requise : documents juridiques de Customermates mis à jour",
+    "contractSubjectNamed": "Action requise pour « {workspace} » : documents juridiques de Customermates mis à jour",
     "contractTitle": "Documents juridiques mis à jour",
     "documents": {
       "dpa": "Accord de traitement des données",
@@ -2667,7 +2702,9 @@
     },
     "greeting": "Bonjour {firstName},",
     "informationBody": "Nous avons mis à jour les informations juridiques indiquées ci-dessous. Cette notification ne nécessite aucune acceptation, sauf si l’e-mail mentionne également des conditions générales ou un accord de traitement des données mis à jour.",
+    "informationBodyNamed": "Nous avons mis à jour les informations juridiques indiquées ci-dessous pour l’espace de travail « {workspace} ». Cette notification ne nécessite aucune acceptation, sauf si l’e-mail mentionne également des conditions générales ou un accord de traitement des données mis à jour.",
     "informationSubject": "Informations juridiques de Customermates mises à jour",
+    "informationSubjectNamed": "Informations juridiques de Customermates mises à jour pour « {workspace} »",
     "informationTitle": "Informations juridiques mises à jour",
     "signoff": "Cordialement,\nBen",
     "subprocessorDeadlineLabel": "Date limite d’opposition au sous-traitant",
@@ -2726,8 +2763,39 @@
       "openid": "Confirmer votre identité",
       "profile": "Lire votre profil de base"
     },
-    "subtitle": "{client} souhaite se connecter à votre compte.",
-    "title": "Autoriser l'accès"
+    "subtitle": "{client} souhaite se connecter à votre compte."
+  },
+  "McpConsentWorkspace": {
+    "current": "Espace de travail actuel",
+    "pickerLabel": "Choisissez un espace de travail",
+    "scopeHint": "{client} n'accède qu'à l'espace de travail que vous choisissez. Pour en utiliser un autre, connectez-vous à nouveau.",
+    "title": "Connecter {client} à cet espace de travail",
+    "titleNamed": "Connecter {client} à {workspace}",
+    "unavailable": {
+      "inactive": "Votre accès est désactivé",
+      "permission": "Votre rôle n'a pas d'accès à l'API",
+      "plan": "Aucun abonnement actif",
+      "terms": "Les nouvelles conditions doivent être acceptées"
+    }
+  },
+  "MemberRemoval": {
+    "action": "Retirer de l'espace de travail",
+    "blocked": {
+      "lastAdmin": "{name} est le seul administrateur actif de cet espace de travail. Nommez d'abord un autre membre actif administrateur.",
+      "platformOperator": "Les opérateurs de la plateforme ne peuvent pas être retirés ici. Utilisez la console opérateur."
+    },
+    "confirmDescription": "{name} perd l'accès à cet espace de travail sur tous ses appareils.",
+    "confirmTitle": "Retirer {name} de {workspace} ?",
+    "consequences": {
+      "channels": "Les boîtes mail et comptes LinkedIn connectés ici par cette personne sont déconnectés.",
+      "credentials": "Ses clés API et connexions MCP pour cet espace de travail cessent de fonctionner.",
+      "notified": "Cette personne en est informée par e-mail.",
+      "records": "Ses enregistrements et son historique sont conservés.",
+      "rejoin": "Pour revenir, cette personne peut redemander à rejoindre l'espace de travail avec un lien d'invitation. Un administrateur doit approuver la demande."
+    },
+    "ownHint": "Pour quitter cet espace de travail, utilisez « Quitter l'espace de travail » dans <generalLink>Général</generalLink>.",
+    "pendingDescription": "{name} attend une approbation. Le retirer refuse la demande.",
+    "removed": "Membre retiré de l'espace de travail"
   },
   "MessagingUpsell": {
     "cta": "Passer à une formule supérieure",
@@ -2961,6 +3029,7 @@
       },
       "profile": {
         "invitedSubtitle": "Complétez votre profil pour demander l’accès à l’espace de travail auquel vous avez été invité.",
+        "invitedSubtitleNamed": "Complétez votre profil pour demander l’accès à {workspace}.",
         "subtitle": "Ajoutez votre nom et votre pays pour que votre équipe vous reconnaisse. Ces informations feront partie de votre profil et pourront être modifiées plus tard.",
         "title": "Personnalisez votre espace de travail"
       },
@@ -3180,9 +3249,13 @@
     "loading": "Chargement de la page"
   },
   "PendingCard": {
-    "body": "Vous pourrez vous connecter dès que votre compte aura été approuvé par l'administrateur de votre entreprise.",
-    "subtitle": "Votre compte est en cours d'examen par l'administrateur de votre entreprise",
-    "title": "En attente d'approbation"
+    "body": "Vous pourrez travailler dans cet espace de travail dès qu'un administrateur aura approuvé votre demande.",
+    "subtitle": "Un administrateur examine votre demande pour rejoindre {workspace}",
+    "title": "En attente d'approbation",
+    "withdraw": "Retirer la demande",
+    "withdrawConfirmDescription": "Les administrateurs ne voient plus votre demande. Pour rejoindre l'espace de travail plus tard, vous pourrez refaire une demande avec un lien d'invitation, qu'un administrateur devra approuver.",
+    "withdrawConfirmTitle": "Retirer votre demande pour rejoindre {name} ?",
+    "withdrawShort": "Retirer"
   },
   "ProfileSections": {
     "apiKeysDescription": "Clés API de longue durée pour un accès programmatique."
@@ -4115,11 +4188,13 @@
     "billing": "Facturation",
     "channels": "Canaux",
     "deliveries": "Livraisons",
+    "general": "Général",
     "members": "Membres",
     "profile": "Profil et préférences",
     "roles": "Rôles",
     "webhooks": "Webhooks",
-    "workspace": "Espace de travail"
+    "workspace": "Espace de travail",
+    "workspaces": "Espaces de travail"
   },
   "SidebarCustomize": {
     "deleteSection": "Supprimer la section",
@@ -4153,7 +4228,8 @@
     "agreeToTerms": "En continuant, vous acceptez nos <termsOfServiceLink>conditions générales</termsOfServiceLink> et reconnaissez avoir lu notre <dataPrivacyLink>politique de confidentialité</dataPrivacyLink>. Consultez notre <dpaLink>DPA</dpaLink>.",
     "buttonLabel": "Continuer avec {provider}",
     "forgotPassword": "Mot de passe oublié ?",
-    "inviteSubtitle": "{inviterName} vous invite à rejoindre son espace de travail. Connectez-vous pour consulter l'invitation.",
+    "inviteSubtitle": "{inviterName} vous invite à rejoindre un espace de travail. Connectez-vous pour consulter l'invitation.",
+    "inviteSubtitleNamed": "{inviterName} vous invite à rejoindre {workspace}. Connectez-vous pour consulter l'invitation.",
     "or": "OU",
     "rememberMe": "Se souvenir de moi",
     "signInCta": "Se connecter",
@@ -4165,7 +4241,8 @@
     "accountSubtitle": "Créez d'abord votre compte. Vous choisirez ensuite de créer un nouvel espace de travail ou d'en rejoindre un existant.",
     "agreeToTerms": "En continuant, vous acceptez nos <termsOfServiceLink>conditions générales</termsOfServiceLink> et reconnaissez avoir lu notre <dataPrivacyLink>politique de confidentialité</dataPrivacyLink>. Consultez notre <dpaLink>DPA</dpaLink>.",
     "buttonLabel": "S'inscrire avec {provider}",
-    "inviteSubtitle": "{inviterName} vous invite à rejoindre son espace de travail sur Customermates. Choisissez comment créer votre compte.",
+    "inviteSubtitle": "{inviterName} vous invite à rejoindre un espace de travail sur Customermates. Choisissez comment créer votre compte.",
+    "inviteSubtitleNamed": "{inviterName} vous invite à rejoindre {workspace} sur Customermates. Choisissez comment créer votre compte.",
     "inviteTitle": "Accepter l'invitation de l'entreprise",
     "or": "OU",
     "signUpCta": "Créer un compte",
@@ -4199,6 +4276,7 @@
     "managedExternallyNote": "Cet espace de travail utilise une formule Enterprise réglée sur facture. Contactez votre gestionnaire de compte pour toute modification.",
     "manageWithLemonSqueezy": "Gérer avec Lemon Squeezy",
     "picker": {
+      "choose": "Choisir {plan}",
       "connectedAccountsPerUser": "{accounts, plural, one {# compte connecté par utilisateur} other {# comptes connectés par utilisateur}}",
       "creditNote": "Les crédits IA hébergés sont renouvelés chaque mois ; les crédits non utilisés ne sont pas reportés. Chaque demande est facturée à son coût exact chez le fournisseur, affiché avec une décimale. Les clients MCP externes facturent les modèles via votre propre fournisseur d'IA. Les recherches sémantiques côté serveur peuvent consommer des crédits IA hébergés.",
       "features": {
@@ -4251,12 +4329,14 @@
   },
   "SubscriptionInactivationNotice": {
     "body": "Votre compte est désormais inactif car votre abonnement est impayé ou expiré depuis plus de 3 jours. Si vous souhaitez continuer, je peux vous aider à rétablir rapidement votre accès.",
+    "bodyNamed": "Votre accès à l’espace de travail « {workspace} » est désormais inactif car son abonnement est impayé ou expiré depuis plus de 3 jours. Si vous souhaitez continuer, je peux vous aider à rétablir rapidement votre accès.",
     "cta": "Prendre contact",
     "dismiss": "Si cet e-mail vous parvient à un mauvais moment, répondez simplement quand vous serez disponible et je vous aiderai pour la suite.",
     "greeting": "Bonjour {firstName},",
     "scheduleFallback": "Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur : ",
     "signoff": "Cordialement,\nBen",
     "subject": "Votre compte est inactif : nous pouvons vous aider à rétablir l'accès",
+    "subjectNamed": "Votre accès à « {workspace} » est inactif : nous pouvons vous aider à le rétablir",
     "title": "Abonnement désactivé"
   },
   "Trash": {
@@ -4318,31 +4398,37 @@
   },
   "TrialExpiredOffer": {
     "body": "Votre essai s’est terminé récemment, mais j’aimerais vous aider à tirer pleinement parti de Customermates. Si vous le souhaitez, je peux prolonger votre essai et passer en revue votre configuration avec vous.",
+    "bodyNamed": "L’essai de votre espace de travail « {workspace} » s’est terminé récemment, mais j’aimerais vous aider à tirer pleinement parti de Customermates. Si vous le souhaitez, je peux prolonger l’essai et passer en revue votre configuration avec vous.",
     "cta": "Prendre contact",
     "greeting": "Bonjour {firstName},",
     "scheduleFallback": "Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur : ",
     "signoff": "Cordialement,\nBen",
     "subject": "Besoin de plus de temps ? Continuons ensemble",
+    "subjectNamed": "Besoin de plus de temps pour « {workspace} » ? Continuons ensemble",
     "title": "Offre de prolongation d'essai"
   },
   "TrialInactivationNotice": {
     "body": "Votre compte est désormais inactif car votre essai s'est terminé il y a plus de 6 jours. Si vous souhaitez toujours continuer, je peux vous aider à réactiver rapidement votre compte et vous guider pour la suite.",
+    "bodyNamed": "Votre accès à l’espace de travail « {workspace} » est désormais inactif car son essai s’est terminé il y a plus de 6 jours. Si vous souhaitez toujours continuer, je peux vous aider à le réactiver rapidement et vous guider pour la suite.",
     "cta": "Prendre contact",
     "dismiss": "Si cet e-mail vous parvient à un mauvais moment, aucun problème. Vous pouvez revenir quand vous voulez et je vous aiderai personnellement.",
     "greeting": "Bonjour {firstName},",
     "scheduleFallback": "Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur : ",
     "signoff": "Cordialement,\nBen",
     "subject": "Votre compte est inactif : nous pouvons vous aider à repartir",
+    "subjectNamed": "Votre accès à « {workspace} » est inactif : nous pouvons vous aider à repartir",
     "title": "Compte désactivé"
   },
   "TrialInactivationReminder": {
     "body": "Votre essai s'est terminé il y a quelques jours et votre compte deviendra inactif dans 3 jours. Si vous le souhaitez, je peux vous aider rapidement à finaliser la configuration et à tout garder actif.",
+    "bodyNamed": "L’essai de votre espace de travail « {workspace} » s’est terminé il y a quelques jours et votre accès deviendra inactif dans 3 jours. Si vous le souhaitez, je peux vous aider rapidement à finaliser la configuration et à tout garder actif.",
     "cta": "Prendre contact",
     "dismiss": "Si vous n'avez plus besoin de votre compte, aucune action n'est nécessaire.",
     "greeting": "Bonjour {firstName},",
     "scheduleFallback": "Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur : ",
     "signoff": "Cordialement,\nBen",
     "subject": "3 jours avant la désactivation de votre compte",
+    "subjectNamed": "3 jours avant la désactivation de votre accès à « {workspace} »",
     "title": "Rappel de désactivation de l'essai"
   },
   "TrialWelcome": {
@@ -4536,8 +4622,86 @@
     "tryAnother": "Essayer un autre site",
     "unavailable": "La configuration avec Mate n’est pas disponible pour le moment. Vous pourrez créer des pages plus tard depuis la base de connaissances."
   },
+  "WorkspaceInvitation": {
+    "inactive": {
+      "body": "Un administrateur a désactivé votre accès à cet espace de travail. Demandez-lui de le réactiver.",
+      "bodyNamed": "Un administrateur a désactivé votre accès à {workspace}. Demandez-lui de le réactiver.",
+      "title": "Votre accès est désactivé"
+    },
+    "join": {
+      "action": "Rejoindre l'espace de travail",
+      "body": "Un administrateur approuve votre demande avant que vous obteniez l'accès. Vos autres espaces de travail ne changent pas.",
+      "title": "Rejoindre cet espace de travail",
+      "titleNamed": "Rejoindre {workspace}"
+    },
+    "member": {
+      "action": "Ouvrir l'espace de travail",
+      "body": "Ouvrez-le pour continuer à y travailler.",
+      "title": "Vous êtes déjà membre de cet espace de travail",
+      "titleNamed": "Vous êtes déjà membre de {workspace}"
+    },
+    "otherAccount": "Utiliser un autre compte",
+    "pending": {
+      "action": "Voir le statut",
+      "body": "Un administrateur de cet espace de travail doit encore approuver votre demande.",
+      "bodyNamed": "Un administrateur de {workspace} doit encore approuver votre demande.",
+      "title": "Votre demande attend une approbation"
+    }
+  },
+  "WorkspaceMembership": {
+    "left": "Plus membre",
+    "leftNotice": "{name} a quitté cet espace de travail. Cette personne peut redemander à le rejoindre avec un lien d'invitation, et un administrateur doit approuver la demande."
+  },
   "WorkspaceMenu": {
     "inviteMembers": "Inviter des membres",
     "label": "Menu de l'espace de travail"
+  },
+  "WorkspaceOnboarding": {
+    "workspaceNameDescription": "Facultatif. Il vous aide à distinguer vos espaces de travail ; vous pourrez le modifier plus tard.",
+    "workspaceNamePlaceholder": "p. ex. Acme Ventes"
+  },
+  "WorkspaceRemovalNotice": {
+    "body": "Vous ne faites plus partie de l’espace de travail « {workspace} » sur Customermates. Votre accès a pris fin, et vos clés API et connexions MCP pour cet espace de travail ne fonctionnent plus.",
+    "cta": "Se connecter",
+    "greeting": "Bonjour {firstName},",
+    "otherWorkspaces": "Votre compte et vos autres espaces de travail restent inchangés : vous pouvez continuer à vous connecter comme d’habitude.",
+    "rejoin": "Si vous avez de nouveau besoin d’un accès, vous pouvez redemander à rejoindre « {workspace} » avec un lien d’invitation. Un administrateur doit approuver votre demande.",
+    "subject": "Vous ne faites plus partie de « {workspace} »",
+    "title": "Accès à l’espace de travail terminé"
+  },
+  "Workspaces": {
+    "apiKeysScope": "Ces clés n'accèdent qu'à cet espace de travail.",
+    "apiKeysScopeNamed": "Ces clés n'accèdent qu'à l'espace de travail {name}.",
+    "billingNote": "Chaque espace de travail a sa propre offre et ses propres sièges. Le premier espace de travail que vous créez inclut l'essai gratuit ; les suivants commencent par le choix d'une offre.",
+    "create": "Créer un espace de travail",
+    "createDescription": "Un nouvel espace de travail démarre vide, avec ses propres fiches, sa base de connaissances, ses membres et ses connexions.",
+    "current": "Actuel",
+    "dangerZone": "Zone de danger",
+    "fallbackName": "Espace de travail",
+    "firstPlan": {
+      "description": "{name} n'a pas encore d'offre. L'essai gratuit ne concerne que votre premier espace de travail : choisissez une offre pour commencer ici.",
+      "subtitle": "Chaque espace de travail a sa propre offre",
+      "title": "Choisissez une offre pour {name}"
+    },
+    "leave": "Quitter l'espace de travail",
+    "leaveConfirmDescription": "Vous perdez l'accès à ses fiches, à sa base de connaissances et à ses connexions, et vos clés API et connexions MCP associées cessent de fonctionner. Pour revenir, vous pourrez redemander à le rejoindre avec un lien d'invitation, et un administrateur devra approuver votre demande.",
+    "leaveConfirmTitle": "Quitter {name} ?",
+    "leaveDescription": "Retirez-vous de cet espace de travail. Vos autres espaces de travail restent inchangés.",
+    "leaveShort": "Quitter",
+    "listDescription": "Tous les espaces de travail dont vous êtes membre. Chacun a ses propres fiches, membres, clés API et connexions.",
+    "memberCount": "{count, plural, one {# membre} other {# membres}}",
+    "nameDescription": "Tous les membres voient ce nom dans le menu de l'espace de travail.",
+    "nameLabel": "Nom de l'espace de travail",
+    "noPlan": "Aucune offre",
+    "otherTab": {
+      "description": "Cet onglet affiche encore {current}. Rechargez-le pour ne rien enregistrer dans le mauvais espace de travail.",
+      "reload": "Recharger",
+      "title": "Vous avez changé d'espace de travail dans un autre onglet",
+      "titleChanged": "Votre espace de travail a changé",
+      "titleNamed": "Vous avez basculé vers {name} dans un autre onglet"
+    },
+    "renameReadOnly": "Seuls les membres autorisés à gérer l'espace de travail peuvent modifier son nom.",
+    "switch": "Changer",
+    "switchTo": "Passer à {name}"
   }
 }

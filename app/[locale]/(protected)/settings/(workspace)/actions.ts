@@ -13,6 +13,9 @@ import type { DeleteWebhookData } from "@/features/webhook/delete-webhook.intera
 import type { ResendWebhookDeliveryData } from "@/features/webhook/resend-webhook-delivery.interactor";
 import type { InviteUsersByEmailData } from "@/features/company/invite-users-by-email.interactor";
 import type { CreateCheckoutSessionData } from "@/ee/subscription/create-checkout-session.interactor";
+import type { GetMemberRemovalData } from "@/features/workspace/get-member-removal.interactor";
+import type { RemoveWorkspaceMemberData } from "@/features/workspace/remove-workspace-member.interactor";
+import type { RenameWorkspaceData } from "@/features/workspace/rename-workspace.interactor";
 
 import { z } from "zod";
 
@@ -28,6 +31,7 @@ import {
   getUpsertRoleInteractor,
   getDeleteRoleInteractor,
   getCreateCheckoutSessionInteractor,
+  getAbandonCheckoutInteractor,
   getRefreshSubscriptionInteractor,
   getGetSubscriptionInteractor,
   getGetBillingPortalUrlInteractor,
@@ -37,6 +41,9 @@ import {
   getDeleteWebhookInteractor,
   getGetWebhookDeliveriesInteractor,
   getResendWebhookDeliveryInteractor,
+  getRemoveWorkspaceMemberInteractor,
+  getGetMemberRemovalInteractor,
+  getRenameWorkspaceInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
@@ -45,8 +52,13 @@ import { activeUsersQuery } from "@/features/user/get/active-users-query";
 
 export async function createCheckoutSessionAction(data: CreateCheckoutSessionData) {
   const result = await getCreateCheckoutSessionInteractor().invoke(data);
-  if (isRedirect(result)) return { ok: true as const, data: { url: result.redirect } };
+  if (isRedirect(result)) return { ok: true as const, data: { checkout: "started" as const, url: result.redirect } };
+  if (result.ok) return result;
   return { ok: false as const, error: z.treeifyError(result.error) };
+}
+
+export async function abandonCheckoutAction() {
+  return serializeResult(getAbandonCheckoutInteractor().invoke());
 }
 
 export async function refreshSubscriptionAction() {
@@ -70,6 +82,18 @@ export async function sendFeedbackAction(data: SendFeedbackData) {
 
 export async function adminUpdateUserDetailsAction(data: AdminUpdateUserDetailsData) {
   return serializeResult(getAdminUpdateUserDetailsInteractor().invoke(data));
+}
+
+export async function removeWorkspaceMemberAction(data: RemoveWorkspaceMemberData) {
+  return serializeResult(getRemoveWorkspaceMemberInteractor().invoke(data));
+}
+
+export async function getMemberRemovalAction(data: GetMemberRemovalData) {
+  return serializeResult(getGetMemberRemovalInteractor().invoke(data));
+}
+
+export async function renameWorkspaceAction(data: RenameWorkspaceData) {
+  return serializeResult(getRenameWorkspaceInteractor().invoke(data));
 }
 
 export async function getOrCreateInviteTokenAction() {

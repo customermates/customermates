@@ -14,6 +14,7 @@ import { getRecordAction, mutateRecordAction } from "../../records/actions";
 import { getIdentityRecordChoicesAction } from "../actions";
 
 import { reportApplicationError } from "@/core/errors/report-application-error";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { Debouncer } from "@/core/utils/debounce";
 import { isHandleProvider } from "@/ee/messaging/provider";
 
@@ -161,7 +162,10 @@ export class ThreadParticipantsStore extends BaseStore {
     await this.mutate((session) =>
       this.executeMutation(session, `link:${JSON.stringify([ref, linked])}`, async () => {
         const loaded = await getRecordAction(toJS(ref));
-        if (!loaded.ok) return null;
+        if (!loaded.ok) {
+          notifyIfWorkspaceChanged(loaded);
+          return null;
+        }
         const previous = loaded.data.identities?.map(identityInput) ?? [];
         if (
           !previous.some(
@@ -190,7 +194,10 @@ export class ThreadParticipantsStore extends BaseStore {
     await this.mutate((session) =>
       this.executeMutation(session, `unlink:${JSON.stringify([ref, thread.provider, identifier])}`, async () => {
         const loaded = await getRecordAction(toJS(ref));
-        if (!loaded.ok) return null;
+        if (!loaded.ok) {
+          notifyIfWorkspaceChanged(loaded);
+          return null;
+        }
         const normalized = normalizeChannelValue(thread.provider, identifier) ?? identifier;
         const identities =
           loaded.data.identities
@@ -286,6 +293,7 @@ export class ThreadParticipantsStore extends BaseStore {
     if (session !== this.sessionGeneration) return { ok: false };
     const result = await mutateRecordAction(toJS(request.input));
     if (session === this.sessionGeneration && this.retryMutation === request) this.retryMutation = null;
+    if (notifyIfWorkspaceChanged(result)) return { ok: false };
     return result.ok ? this.acceptOperation(result.data, session) : { ok: false };
   }
 
@@ -329,7 +337,8 @@ export class ThreadParticipantsStore extends BaseStore {
         if (session === this.sessionGeneration) await this.operationCompleted().catch(reportApplicationError);
         else await this.rootStore.recordWorkspaceStore.invalidate().catch(reportApplicationError);
       }
-    } catch {
+    } catch (error) {
+      notifyIfWorkspaceChanged(error);
       succeeded = false;
     } finally {
       if (session === this.sessionGeneration) {

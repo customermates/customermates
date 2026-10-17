@@ -2,7 +2,9 @@ import { redirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
 
 import { ErrorPageContent } from "./error-page-content";
+import { InactiveCard } from "./inactive-card";
 
+import { CenteredCardPage } from "@/components/shared/centered-card-page";
 import { isCanonicalInactiveErrorType, isRestrictedAccountState } from "@/features/auth/account-state";
 import { requireAccountState } from "@/features/auth/next/require";
 import { resolveRequestAccountState } from "@/features/auth/next/resolve-account-state";
@@ -41,7 +43,13 @@ export default async function ErrorPage({ searchParams }: Props) {
   )
     await requireAccountState("inactive");
 
-  const errorKey = isInactive ? "inactiveUser" : isOnboardingError ? (requestedErrorKey as ErrorPageKey) : null;
+  if (isInactive) {
+    return (
+      <CenteredCardPage>
+        <InactiveCard />
+      </CenteredCardPage>
+    );
+  }
 
-  return <ErrorPageContent errorKey={errorKey} isInactive={isInactive} />;
+  return <ErrorPageContent errorKey={isOnboardingError ? (requestedErrorKey as ErrorPageKey) : null} />;
 }

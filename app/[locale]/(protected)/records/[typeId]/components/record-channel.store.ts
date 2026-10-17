@@ -4,6 +4,7 @@ import type { MessagingProvider } from "@/generated/prisma";
 import type { RecordEditorStore } from "./record-editor.store";
 
 import { action, computed, makeObservable, observable, runInAction } from "mobx";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { Debouncer, SEARCH_DEBOUNCE_MS } from "@/core/utils/debounce";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { channelClass, isHandleProvider } from "@/ee/messaging/provider";
@@ -109,12 +110,14 @@ export class RecordChannelStore {
       generation = this.generation;
     try {
       const result = await searchRecordChannelsAction({ query });
+      if (notifyIfWorkspaceChanged(result)) return;
       runInAction(() => {
         if (!this.current(generation, query)) return;
         if (result.ok) this.candidates = result.data.map((candidate) => ({ candidate, source: "conversation" }));
         else this.searchError = true;
       });
-    } catch {
+    } catch (error) {
+      if (notifyIfWorkspaceChanged(error)) return;
       runInAction(() => {
         if (this.current(generation, query)) this.searchError = true;
       });
@@ -140,6 +143,7 @@ export class RecordChannelStore {
     const provider = this.handleProvider(query);
     try {
       const result = provider ? await this.resolve(provider, query) : null;
+      if (notifyIfWorkspaceChanged(result)) return;
       runInAction(() => {
         if (!this.current(generation, query) || !result) return;
         if (!result.ok) {
@@ -157,7 +161,8 @@ export class RecordChannelStore {
           },
         };
       });
-    } catch {
+    } catch (error) {
+      if (notifyIfWorkspaceChanged(error)) return;
       runInAction(() => {
         if (this.current(generation, query)) this.searchError = true;
       });
@@ -182,7 +187,7 @@ export class RecordChannelStore {
     let identity: RecordIdentityInput = { provider, value };
     if (isHandleProvider(provider) && this.editor.rootStore.userStore.can("inboxMessages", "create")) {
       const resolved = await this.resolve(provider, query);
-      if (!this.current(generation, query)) return;
+      if (notifyIfWorkspaceChanged(resolved) || !this.current(generation, query)) return;
       if (resolved?.ok) {
         identity = {
           provider,

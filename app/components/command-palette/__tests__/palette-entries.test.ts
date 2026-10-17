@@ -44,6 +44,7 @@ describe("static palette entries", () => {
       appMode: "cloud",
       canManageSchema: false,
       onListPage: false,
+      otherWorkspaces: false,
       can: () => true,
     };
     const entries = staticEntries(t, environment);
@@ -56,6 +57,25 @@ describe("static palette entries", () => {
     });
     expect(entries.some((entry) => entry.key === "cmd:page.configure")).toBe(false);
     expect(entries.find((entry) => entry.key === "cmd:action.add")?.shortcut).toBe("add");
+    expect(entries.some((entry) => entry.key === "cmd:action.switchWorkspace")).toBe(false);
+    expect(entries.find((entry) => entry.key === "cmd:action.createWorkspace")?.run).toEqual({
+      kind: "action",
+      action: "createWorkspace",
+    });
+  });
+
+  it("opens the list of other workspaces as a level of its own", () => {
+    const entries = staticEntries(t, {
+      appMode: "cloud",
+      canManageSchema: false,
+      onListPage: false,
+      otherWorkspaces: true,
+      can: () => true,
+    });
+    expect(entries.find((entry) => entry.key === "cmd:action.switchWorkspace")?.run).toEqual({
+      kind: "level",
+      level: { kind: "workspaces", label: "CommandPalette.labels.switchWorkspace" },
+    });
   });
 });
 

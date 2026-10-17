@@ -1,0 +1,84 @@
+---
+title: "Workspaces: erstellen, wechseln, beitreten und verlassen"
+description: "Ein Login, mehrere getrennte Workspaces: erstellen, wechseln, beitreten und verlassen, und wie API-Keys, MCP, Abrechnung und Testphase je Workspace gelten."
+---
+
+Ein Workspace ist das CRM eines Unternehmens in Customermates. Ein Login, also Ihre E-Mail-Adresse, kann zu mehreren Workspaces gehören, so wie Sie Mitglied in mehreren Unternehmen sein können, und Sie wechseln in der App zwischen ihnen. Jeder Workspace ist vollständig von den anderen getrennt.
+
+## Was ist ein Workspace, und was hält er getrennt? [#what-is-a-workspace]
+
+Ein Workspace ist ein eigenes CRM mit eigenen Listen und eigenem Datenmodell, Datensätzen, eigener [Wissensdatenbank](app:wiki), Mitgliedern, Rollen, Tarif und Abrechnung, API-Keys, MCP-Verbindungen (Claude, ChatGPT und jeder andere Connector), Webhooks, Routinen, Mate-Chats und gehosteten KI-Credits. Nichts davon wird zwischen Workspaces geteilt oder ist workspaceübergreifend durchsuchbar: Suche, Mate, MCP und die REST-API arbeiten immer in genau einem Workspace, und eine ID aus einem anderen Workspace gilt als nicht gefunden.
+
+### Was ist in jedem Workspace gleich? [#what-is-the-same-in-every-workspace]
+
+Ihr persönliches Profil: Vor- und Nachname, Avatar, Anzeigesprache, regionales Format, Darstellung und Land. Ändern Sie es unter [Profil & Einstellungen](app:settings/profile), gilt die Änderung in jedem Workspace, zu dem Sie gehören; eine Änderung über einen API-Key oder eine MCP-Verbindung gilt nur im Workspace dieses Keys oder dieser Verbindung. Rolle, Status und Nutzerplatz gelten dagegen je Workspace: Sie können in einem Workspace die Rolle **Admin** haben und im nächsten eine eingeschränkte Rolle. Ändert ein Mitglied mit **Bearbeiten** bei **Benutzer & Rollen** ein anderes Mitglied unter [Mitglieder](app:settings/members), gilt die Änderung nur in diesem Workspace.
+
+## Wie erstelle ich einen Workspace? [#how-do-i-create-a-workspace]
+
+Öffnen Sie das Workspace-Menü oben in der Seitenleiste und wählen Sie **Workspace erstellen**. Geben Sie einen Namen mit 1 bis 80 Zeichen ein und stimmen Sie in Customermates Cloud den AGB zu. Jede angemeldete Person kann Workspaces erstellen, unabhängig von ihrer Rolle im aktuellen Workspace; in der öffentlichen Demo ist das nicht möglich. In Customermates Cloud kann ein Login bis zu [[commercial.workspaces.creationLimit]] Workspaces erstellen; wenden Sie sich an den Support, wenn Sie mehr brauchen.
+
+Sie erhalten im neuen Workspace die eingebaute Rolle **Admin**, und diese Browsersitzung wechselt in ihn. Er startet mit denselben Listen wie jeder neue Workspace ([mit welchen Datensatztypen ein Workspace startet](/docs/concepts#which-five-record-types-exist)) und ohne Daten aus Ihren anderen Workspaces. Der [Onboarding-Wizard](/docs/app-onboarding) öffnet sich für ihn ohne den Profilschritt, weil Ihr Profil schon existiert: Es bleiben die Schritte Wissensdatenbank, Einladen und KI. In der Cloud hat nur der erste Workspace, den Sie erstellen, eine kostenlose Testphase; siehe [Welcher Workspace erhält die kostenlose Testphase?](#which-workspace-gets-the-free-trial).
+
+## Wie wechsle ich zwischen Workspaces? [#how-do-i-switch-workspaces]
+
+Das Workspace-Menü oben in der Seitenleiste listet jeden Workspace, zu dem Sie gehören; wählen Sie einen, um in ihn zu wechseln. Die Befehlspalette bietet dieselbe Liste unter **Workspace wechseln…**. Die Wahl gilt für diese Browsersitzung, ein anderer Browser oder ein anderes Gerät kann also gleichzeitig in einem anderen Workspace sein. Andere Tabs desselben Browsers zeigen "Du hast in einem anderen Tab den Workspace gewechselt" mit **Neu laden**, damit nichts im falschen Workspace gespeichert wird. Der gewählte Workspace wird als zuletzt genutzter gespeichert und öffnet sich bei Ihrer nächsten Anmeldung. Wartet ein Workspace noch auf Ihre Genehmigung oder ist Ihr Zugriff darauf inaktiv, nennt seine Seite den Workspace, und das Workspace-Menü listet weiterhin Ihre anderen Workspaces zum Wechseln.
+
+[Workspaces](app:settings/workspaces) unter **Konto** in den Einstellungen listet dieselben Workspaces mit Ihrer Rolle, Ihrem Status und dem Tarif jedes Workspace, mit **Wechseln** für die anderen, **Verlassen** für den aktuellen und **Workspace erstellen**.
+
+## Wie benenne ich einen Workspace um? [#how-do-i-rename-a-workspace]
+
+Öffnen Sie in den Einstellungen unter **Workspace** die Seite [Allgemein](app:settings/general) und ändern Sie den Namen des Workspace, 1 bis 80 Zeichen. Umbenennen erfordert **Bearbeiten** in der Zeile **Unternehmen** Ihrer Rolle; die Rolle **Admin** hat es. Ein Workspace ohne Namen, weil er angelegt wurde, bevor Workspaces Namen hatten, oder weil der Name im Onboarding-Wizard leer blieb, erscheint als **Workspace**, bis ihn jemand umbenennt.
+
+## Wie trete ich mit meinem bestehenden Konto einem Workspace bei? [#how-do-i-join-with-an-existing-account]
+
+Einladungen funktionieren wie für neue Personen: Ein Mitglied teilt den Einladungslink oder schickt ihn per E-Mail, siehe [Wie lade ich Personen ein?](/docs/app-company#how-do-invitations-work). Öffnen Sie den Link, während Sie bei Customermates angemeldet sind: **… beitreten** zeigt, wer Sie eingeladen hat, mit **Workspace beitreten** und **Anderes Konto verwenden**. In der Customermates Cloud setzen Sie zuerst das Kontrollkästchen, mit dem Sie den AGB zustimmen und bestätigen, dass Sie den AVV und die Datenschutzerklärung gelesen haben, und klicken dann auf **Workspace beitreten**. Sie treten mit dem Profil bei, das Sie schon haben, und landen auf der Seite **Warten auf Genehmigung**, die den Workspace nennt, bis jemand mit **Bearbeiten** bei **Benutzer & Rollen** Sie unter [Mitglieder](app:settings/members) genehmigt. In der Zwischenzeit wechselt das Workspace-Menü zurück in Ihre anderen Workspaces, und **Anfrage zurückziehen** nimmt die Anfrage zurück; um später beizutreten, fragen Sie mit einem Einladungslink erneut an.
+
+Gehören Sie bereits zu diesem Workspace, bietet die Seite **Workspace öffnen**, das in ihn wechselt; wurden Sie dort auf **Inaktiv** gesetzt, zeigt sie **Dein Zugriff ist deaktiviert**. Haben Sie den Workspace verlassen, wurden Sie daraus entfernt oder haben Sie Ihre Anfrage zurückgezogen, öffnen Sie erneut einen Einladungslink dieses Workspace, um den Beitritt anzufragen: Die Seite bietet wieder **Workspace beitreten**, und jemand mit **Bearbeiten** bei **Benutzer & Rollen** muss die neue Anfrage genehmigen.
+
+## Wie verlasse ich einen Workspace? [#how-do-i-leave-a-workspace]
+
+Öffnen Sie in den Einstellungen unter **Workspace** die Seite [Allgemein](app:settings/general) und klicken Sie auf **Workspace verlassen**, oder klicken Sie in [Workspaces](app:settings/workspaces) beim aktuellen Workspace auf **Verlassen**. Das Verlassen:
+
+- setzt Ihren Status in diesem Workspace auf **Inaktiv**,
+- widerruft Ihre API-Keys und MCP-Verbindungen für diesen Workspace,
+- trennt die Kanäle, die Sie darin verbunden haben, etwa Postfächer und LinkedIn-Konten,
+- pausiert Ihre Routinen darin,
+- entfernt in der Cloud Ihren Nutzerplatz aus der Abrechnung dieses Workspace.
+
+Seiten dieses Workspace, die noch in einem anderen Tab oder auf einem anderen Gerät offen sind, speichern nichts mehr und bitten Sie, neu zu laden; danach öffnet sich Ihr zuletzt genutzter Workspace. Ihr Konto und Ihre anderen Workspaces bleiben unberührt. Das letzte aktive Mitglied mit der Rolle **Admin** kann nicht gehen: Beide Buttons sind deaktiviert, und wenn Sie auf einen zeigen, erscheint "Du bist der einzige Admin dieses Workspaces. Mache vor dem Verlassen ein anderes aktives Mitglied zum Admin." Machen Sie zuerst ein anderes aktives Mitglied zum Admin. Customermates-Plattform-Operatoren können einen Workspace nicht verlassen. Um zurückzukehren, öffnen Sie einen Einladungslink des Workspace und fragen den Beitritt erneut an; jemand mit **Bearbeiten** bei **Benutzer & Rollen** muss die Anfrage genehmigen. Einen Workspace zu löschen, bietet die App nicht an.
+
+## Was passiert, wenn mich jemand aus einem Workspace entfernt? [#what-happens-when-removed]
+
+Ein Mitglied mit **Bearbeiten** bei **Benutzer & Rollen** kann Sie unter [Mitglieder](app:settings/members) entfernen, siehe [Wie genehmige, bearbeite, deaktiviere oder entferne ich ein Mitglied?](/docs/app-company#how-do-i-approve-deactivate-or-edit-a-member). Für Sie wirkt das wie Verlassen: Ihre API-Keys und MCP-Verbindungen für diesen Workspace funktionieren nicht mehr, die Kanäle, die Sie darin verbunden haben, werden getrennt, und der Workspace verschwindet aus Ihrem Workspace-Menü. Sie bekommen eine E-Mail, die den Workspace nennt und zur Anmeldung verlinkt. Seiten dieses Workspace, die noch in einem Tab oder auf einem anderen Gerät offen sind, speichern nichts mehr und bitten Sie, neu zu laden; danach öffnet sich Ihr zuletzt genutzter anderer Workspace. Haben Sie auf eine Genehmigung gewartet, lehnt das Entfernen Ihre Anfrage ohne E-Mail ab. Um zurückzukehren, öffnen Sie einen Einladungslink des Workspace und fragen den Beitritt erneut an; jemand mit **Bearbeiten** bei **Benutzer & Rollen** muss die Anfrage genehmigen.
+
+## Welchen Workspace nutzen API-Keys und MCP-Verbindungen? [#which-workspace-do-api-keys-and-connections-use]
+
+Ein API-Key gehört zu genau einem Workspace: Ein Key, der in einem Workspace erstellt wurde, handelt nur in diesem Workspace, mit Ihrer Rolle dort. [API-Schlüssel](app:settings/api-keys) listet und löscht nur die Keys des aktuellen Workspace; wechseln Sie in einen anderen Workspace, um dessen Keys zu sehen oder zu löschen. Keys, die angelegt wurden, bevor ein Login zu mehreren Workspaces gehören konnte, bleiben an den Workspace gebunden, in dem sie erstellt wurden.
+
+Auch eine MCP-Verbindung per OAuth, etwa der Connector für Claude oder ChatGPT, erhält genau einen Workspace. Gehören Sie zu mehreren, lässt der Zustimmungsbildschirm Sie unter **Workspace auswählen** festlegen, welchen Workspace die Verbindung erhält: Ihr aktueller Workspace ist vorausgewählt, und Sie können einen anderen wählen, in dem Sie **Aktiv** sind, Ihre Rolle **Lesen** **Alle** auf **API & Webhooks** hat, der Workspace einen nutzbaren Tarif hat und keine aktualisierten Bedingungen auf Zustimmung warten. Workspaces, die Sie nicht wählen können, sind ausgegraut und nennen den Grund. Die Verbindung bleibt samt der später erneuerten Tokens an diesen Workspace gebunden. Um aus KI-Clients mit mehreren Workspaces zu arbeiten, verbinden Sie sich einmal pro Workspace, zum Beispiel mit einem eigenen Claude-Konto je Workspace; siehe [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
+
+Kanäle, die Sie unter [Kanäle](app:settings/channels) verbinden, etwa ein Postfach oder ein LinkedIn-Konto, gehören zu dem Workspace, in dem Sie sie verbunden haben.
+
+## Wie wird jeder Workspace abgerechnet, und wie zählen Nutzerplätze? [#how-is-each-workspace-billed]
+
+In Customermates Cloud hat jeder Workspace unter [Abrechnung](app:settings/billing) seinen eigenen Tarif, sein eigenes Abonnement, eigene Rechnungen und einen eigenen Pool gehosteter KI-Credits, verwaltet von seinen Mitgliedern mit **Bearbeiten** bei **Unternehmen**; Tarifwechsel, Rechnungen und Kündigung stehen nur dem Admin offen, der den Workspace bezahlt, siehe [Wie kündige ich, ändere die Zahlungsmethode oder erhalte Rechnungen?](/docs/app-company#how-do-i-cancel-change-the-payment-method-or-get-invoices). Wer in mehreren Workspaces **Aktiv** ist, ist in jedem davon ein abgerechneter Nutzerplatz; siehe [Wie werden Nutzerplätze gezählt und abgerechnet?](/docs/app-company#how-are-seats-counted-and-billed).
+
+### Welcher Workspace erhält die kostenlose Testphase? [#which-workspace-gets-the-free-trial]
+
+Nur der erste Workspace, den ein Login erstellt, erhält die kostenlose Testphase von [[commercial.trial.days]] Tagen. Jeder weitere Workspace startet ohne Testphase: Sein Admin wählt auf dem Bildschirm **Wähle einen Tarif für …** einen Tarif, bevor sich der Workspace nutzen lässt (die Liste Workspaces zeigt bis dahin **Kein Tarif**), und bis dahin werden auch seine API-Keys und MCP-Verbindungen abgelehnt, siehe [Was passiert, wenn die Testphase endet?](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails). Wer dem Workspace einer anderen Person beitritt, verbraucht dadurch keine Testphase und erhält auch keine.
+
+## Wie funktionieren Workspaces auf einer Self-Hosted-Instanz? [#how-do-workspaces-work-when-self-hosting]
+
+Eine Self-Hosted-Instanz fasst beliebig viele Workspaces, ohne Abrechnung und ohne Testphase: Jeder Workspace startet aktiv. Jede registrierte Person kann auf der Instanz weitere Workspaces erstellen, und die App bietet keine Möglichkeit, einen Workspace zu löschen. Siehe [Wer kann sich auf meiner Instanz registrieren?](/docs/self-hosting#who-can-sign-up-on-my-instance).
+
+## Für Agents [#for-agents]
+
+Jeder MCP- und REST-Aufruf handelt in genau einem Workspace: in dem, in dem der API-Key erstellt oder für den die OAuth-Verbindung freigegeben wurde. `get_workspace_context` liefert diesen Workspace als `company` (ID und Name), und eine ID aus einem anderen Workspace antwortet mit `not_found`. Kein MCP-Tool und kein REST-Endpunkt kann Workspaces auflisten, erstellen, wechseln, umbenennen oder verlassen; verweisen Sie die Person auf das Workspace-Menü. Ein anderes Mitglied entfernen Sie mit `manage_team` und `remove_member` oder mit `POST /api/v1/members/remove`. Um in einem anderen Workspace zu arbeiten, verbindet die Person dort einen eigenen Key oder eine eigene Verbindung.
+
+## Verwandt [#related]
+
+- [App-Guide, Unternehmen](/docs/app-company): Mitglieder, Rollen und Abrechnung eines Workspace.
+- [App-Guide, Profil](/docs/app-profile): das Profil, das in jedem Workspace gleich ist.
+- [API-Keys](/docs/api-keys): Keys erstellen, nutzen und löschen.
+- [Mit einem Custom Connector verbinden](/docs/connect-custom-connector): Claude und ChatGPT per OAuth verbinden.
+- [Onboarding-Wizard](/docs/app-onboarding): die Schritte, nachdem Sie einen Workspace erstellt haben.

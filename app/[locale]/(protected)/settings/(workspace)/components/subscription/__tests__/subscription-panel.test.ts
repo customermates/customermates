@@ -16,6 +16,8 @@ const harness = vi.hoisted(() => ({
 const subscriptionStore = vi.hoisted(() => ({
   subscription: null as SubscriptionDto | null,
   handleSubscribe: vi.fn(),
+  handleAbandon: vi.fn(),
+  reloadSubscription: vi.fn(),
   setSubscription: vi.fn(),
 }));
 
@@ -76,6 +78,7 @@ describe("SubscriptionPanel read-only fields", () => {
       currentPeriodEnd: new Date("2026-09-30T00:00:00.000Z"),
       hasBillingPortal: true,
       hasActiveSubscription: true,
+      checkout: "none",
       plan: SubscriptionPlan.pro,
       quantity: 4,
       status: SubscriptionStatus.trial,
@@ -142,6 +145,7 @@ describe("SubscriptionPanel read-only fields", () => {
           currentPeriodEnd: new Date("2026-09-30T00:00:00.000Z"),
           hasBillingPortal: true,
           hasActiveSubscription: true,
+          checkout: "none",
           plan: SubscriptionPlan.pro,
           quantity: 4,
           status: SubscriptionStatus.active,
@@ -168,6 +172,7 @@ describe("SubscriptionPanel read-only fields", () => {
           currentPeriodEnd: new Date("2026-09-30T00:00:00.000Z"),
           hasBillingPortal: false,
           hasActiveSubscription: false,
+          checkout: "none",
           plan: SubscriptionPlan.pro,
           quantity: 4,
           status: SubscriptionStatus.expired,
@@ -184,5 +189,49 @@ describe("SubscriptionPanel read-only fields", () => {
       key: "Subscription.fieldHelp.currentPeriodEndUnavailable",
       values: undefined,
     });
+  });
+});
+
+describe("SubscriptionPanel plan selection", () => {
+  const unpaid = (checkout: SubscriptionDto["checkout"]): SubscriptionDto => ({
+    activeUsers: 2,
+    currentPeriodEnd: null,
+    hasBillingPortal: false,
+    hasActiveSubscription: false,
+    checkout,
+    plan: SubscriptionPlan.pro,
+    quantity: null,
+    status: SubscriptionStatus.trial,
+    trialEndDate: new Date("2026-10-20T00:00:00.000Z"),
+  });
+
+  it("offers the plans to a billing manager when no checkout was started", () => {
+    renderToStaticMarkup(createElement(SubscriptionPanel, { initialSubscription: unpaid("none") }));
+
+    expect(harness.planPickerRenders).toBe(1);
+  });
+
+  it("shows that the payment is being processed instead of the plans while a checkout is pending", () => {
+    const markup = renderToStaticMarkup(createElement(SubscriptionPanel, { initialSubscription: unpaid("pending") }));
+
+    expect(harness.planPickerRenders).toBe(0);
+    expect(markup).toContain("CheckoutPending.title");
+    expect(markup).toContain("CheckoutPending.abandon");
+  });
+
+  it("brings the plans back once the pending payment is overdue", () => {
+    const markup = renderToStaticMarkup(createElement(SubscriptionPanel, { initialSubscription: unpaid("overdue") }));
+
+    expect(harness.planPickerRenders).toBe(1);
+    expect(markup).not.toContain("CheckoutPending.title");
+  });
+
+  it("shows neither the plans nor the notice to a member who cannot manage billing", () => {
+    harness.userCanManage = false;
+
+    const markup = renderToStaticMarkup(createElement(SubscriptionPanel, { initialSubscription: unpaid("pending") }));
+
+    expect(harness.planPickerRenders).toBe(0);
+    expect(markup).not.toContain("CheckoutPending.title");
   });
 });

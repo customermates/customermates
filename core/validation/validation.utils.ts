@@ -2,6 +2,8 @@ import type { $ZodIssue, $ZodRawIssue } from "zod/v4/core";
 
 import { z } from "zod";
 
+import { markWorkspaceChanged } from "@/core/errors/workspace-changed";
+
 import { CustomErrorCode } from "./validation.types";
 
 export type Data<T> = T extends z.ZodSchema<infer U> ? U : never;
@@ -53,7 +55,7 @@ export const SerializedInteractorFailureSchema = z.object({
 export type SerializedInteractorFailure = z.infer<typeof SerializedInteractorFailureSchema>;
 
 export function serializedFailureErrorTree(failure: SerializedInteractorFailure) {
-  return z.treeifyError(
+  const tree = z.treeifyError(
     new z.ZodError(
       failure.issues.map(({ path, message }) => ({
         code: "custom" as const,
@@ -62,6 +64,9 @@ export function serializedFailureErrorTree(failure: SerializedInteractorFailure)
       })),
     ),
   );
+  return failure.issues.some((issue) => issue.customCode === CustomErrorCode.workspaceChanged)
+    ? markWorkspaceChanged(tree)
+    : tree;
 }
 
 const AUTHENTICATION_FAILURE_CODES = new Set<CustomErrorCode>([CustomErrorCode.notAuthenticated]);

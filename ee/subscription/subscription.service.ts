@@ -7,7 +7,8 @@ import {
 } from "@lemonsqueezy/lemonsqueezy.js";
 import { SubscriptionStatus } from "@/generated/prisma";
 
-import type { Subscription, SubscriptionPlan } from "@/generated/prisma";
+import type { SubscriptionPlan } from "@/generated/prisma";
+import type { SubscriptionRepo } from "./subscription.repo";
 
 import { z } from "zod";
 
@@ -16,23 +17,9 @@ import { CLOUD_TRIAL, type CommercialOffer } from "@/core/commercial/plan-catalo
 
 import { offerToVariant, variantToOffer } from "./lemon-squeezy-bindings";
 
-export abstract class SubscriptionRepo {
-  abstract getSubscriptionOrThrowUnscoped(companyId: string): Promise<Subscription>;
+export type LemonSqueezySubscription = Awaited<ReturnType<SubscriptionService["getSubscriptionOrThrowUnscoped"]>>;
 
-  abstract upsertSubscriptionUnscoped(data: {
-    companyId: string;
-    lemonSqueezyId?: string;
-    lemonSqueezyVariantId?: string;
-    status?: SubscriptionStatus;
-    plan?: SubscriptionPlan;
-    quantity?: number;
-    trialEndDate?: Date;
-    currentPeriodEnd?: Date;
-    agentCreditAnchorAt?: Date;
-  }): Promise<void>;
-
-  abstract findCompanyIdBySubscriptionIdOrThrowUnscoped(subscriptionId: string): Promise<string>;
-}
+export type SyncedWorkspace = { companyId: string; plan: SubscriptionPlan; lemonSqueezyId: string | null };
 
 export class SubscriptionService {
   private isConfigured = false;
@@ -47,8 +34,10 @@ export class SubscriptionService {
   async createCheckoutOrThrow(options: {
     offer: CommercialOffer;
     quantity: number;
+    productName?: string;
     custom?: Record<string, unknown>;
     redirectUrl?: string;
+    expiresAt: Date;
   }) {
     this.ensureConfigured();
 
@@ -62,12 +51,14 @@ export class SubscriptionService {
         variantQuantities: [{ variantId: Number(variantId), quantity: options.quantity }],
       },
       productOptions: {
+        ...(options.productName ? { name: options.productName } : {}),
         redirectUrl: options.redirectUrl,
         enabledVariants: [Number(variantId)],
       },
       checkoutOptions: {
         skipTrial: CLOUD_TRIAL.owner === "application",
       },
+      expiresAt: options.expiresAt.toISOString(),
     });
 
     if (result.error) throw new Error(result.error.message || "Failed to create checkout");
@@ -94,29 +85,26 @@ export class SubscriptionService {
           id: z.string().min(1),
           attributes: z.looseObject({
             status: z.enum(["on_trial", "active", "paused", "past_due", "unpaid", "cancelled", "expired"]),
+            created_at: z.string().nullish(),
             renews_at: z.string().nullish(),
             ends_at: z.string().nullish(),
             trial_ends_at: z.string().nullish(),
             variant_id: z.number().nullish(),
             first_subscription_item: z.looseObject({ quantity: z.number().nullish() }).nullish(),
-            urls: z.looseObject({ customer_portal: z.string().nullish() }).nullish(),
+            user_email: z.string().nullish(),
+            urls: z
+              .looseObject({ customer_portal: z.string().nullish(), update_payment_method: z.string().nullish() })
+              .nullish(),
           }),
         }),
       })
       .parse(result.data);
   }
 
-  async updateSubscriptionOrThrow(
-    subscriptionId: string,
-    companyId?: string,
-  ): Promise<{ companyId: string; changedPlan: SubscriptionPlan | null }> {
-    this.ensureConfigured();
-
-    const resolvedCompanyId =
-      companyId ?? (await this.subscriptionRepo.findCompanyIdBySubscriptionIdOrThrowUnscoped(subscriptionId));
-
-    const subscription = await this.getSubscriptionOrThrowUnscoped(subscriptionId);
-
+  async syncSubscription(
+    workspace: SyncedWorkspace,
+    subscription: LemonSqueezySubscription,
+  ): Promise<{ companyId: string; changedPlan: SubscriptionPlan | null } | null> {
     const attributes = subscription.data.attributes;
     const status = this.mapLemonSqueezyStatusToSubscriptionStatus(attributes.status);
     const renewsAt = attributes.renews_at ? new Date(attributes.renews_at) : undefined;
@@ -125,23 +113,29 @@ export class SubscriptionService {
     const quantity = attributes.first_subscription_item?.quantity ?? undefined;
     const variantId = attributes.variant_id?.toString();
 
-    const existing = await this.subscriptionRepo.getSubscriptionOrThrowUnscoped(resolvedCompanyId);
     const syncedPlan = variantId ? (variantToOffer(variantId)?.plan ?? null) : null;
+    const settlesCheckout =
+      workspace.lemonSqueezyId !== subscription.data.id ||
+      status === SubscriptionStatus.active ||
+      status === SubscriptionStatus.trial;
 
-    await this.subscriptionRepo.upsertSubscriptionUnscoped({
-      companyId: resolvedCompanyId,
+    const written = await this.subscriptionRepo.writeSubscriptionUnscoped({
+      companyId: workspace.companyId,
+      expectedLemonSqueezyId: workspace.lemonSqueezyId,
       lemonSqueezyId: subscription.data.id,
       lemonSqueezyVariantId: variantId,
       status,
-      plan: syncedPlan ?? existing.plan,
+      plan: syncedPlan ?? workspace.plan,
       quantity,
       trialEndDate: trialEndsAt,
       currentPeriodEnd: renewsAt || endsAt,
+      checkoutStartedAt: settlesCheckout ? null : undefined,
     });
+    if (!written) return null;
 
     return {
-      companyId: resolvedCompanyId,
-      changedPlan: syncedPlan !== null && syncedPlan !== existing.plan ? syncedPlan : null,
+      companyId: workspace.companyId,
+      changedPlan: syncedPlan !== null && syncedPlan !== workspace.plan ? syncedPlan : null,
     };
   }
 

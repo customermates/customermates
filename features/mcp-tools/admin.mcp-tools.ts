@@ -6,11 +6,13 @@ import {
   getAdminUpdateUserDetailsInteractor,
   getGetInvitationLinkInteractor,
   getInviteUsersByEmailInteractor,
+  getRemoveWorkspaceMemberInteractor,
   getUpdateUserDetailsInteractor,
 } from "@/core/di";
 import { UpdateUserDetailsSchema } from "@/features/user/upsert/update-user-details.interactor";
 import { UpdateMemberSchema } from "@/features/user/upsert/admin-update-user-details.interactor";
 import { InviteUsersByEmailSchema } from "@/features/company/invite-users-by-email.interactor";
+import { RemoveWorkspaceMemberSchema } from "@/features/workspace/remove-workspace-member.interactor";
 
 const UpdateMyProfileSchema = z
   .object({
@@ -54,10 +56,12 @@ const ManageTeamOutputSchema = z
     email: z.string().optional(),
     roleId: z.string().nullable().optional(),
     status: z.string().optional(),
+    userId: z.string().optional(),
+    previousStatus: z.string().optional(),
     message: z.string(),
   })
   .describe(
-    "action invite returns sent and message; invite_link returns link, expiresAt and message; update_member returns email, roleId, status and message.",
+    "action invite returns sent and message; invite_link returns link, expiresAt and message; update_member returns email, roleId, status and message; remove_member returns userId, email, previousStatus and message.",
   );
 
 export const updateMyProfileTool = {
@@ -96,20 +100,25 @@ const ManageTeamMemberSchema = UpdateMemberSchema.pick({
   status: true,
 }).refine(({ userId, email }) => Boolean(userId || email), { path: ["userId"], message: "Provide userId or email" });
 
+const RemoveTeamMemberSchema = RemoveWorkspaceMemberSchema.refine(({ userId, email }) => Boolean(userId || email), {
+  path: ["userId"],
+  message: "Provide userId or email",
+});
+
 const ManageTeamSchema = z.object({
   action: z
-    .enum(["invite", "invite_link", "update_member"])
+    .enum(["invite", "invite_link", "update_member", "remove_member"])
     .describe(
-      "invite = send invitation emails (emails); invite_link = return the workspace invitation link to share yourself; update_member = change an existing member's role or status (userId or email plus roleId and/or status).",
+      "invite = send invitation emails (emails); invite_link = return the workspace invitation link to share yourself; update_member = change an existing member's role or status (userId or email plus roleId and/or status); remove_member = remove another member from this workspace (userId or email).",
     ),
   emails: InviteUsersByEmailSchema.shape.emails
     .optional()
     .describe("invite action: required, 1 to 20 email addresses, each receives a real invitation email"),
   userId: UpdateMemberSchema.shape.userId.describe(
-    "update_member action: user id from list_users; provide userId or email",
+    "update_member and remove_member actions: user id from list_users; provide userId or email",
   ),
   email: UpdateMemberSchema.shape.email.describe(
-    "update_member action: member email; provide email or userId, and both must match when supplied",
+    "update_member and remove_member actions: member email; provide email or userId, and both must match when supplied",
   ),
   roleId: UpdateMemberSchema.shape.roleId.describe(
     "update_member action: new role id from get_workspace_context roles. Omit to keep the current role.",
@@ -128,11 +137,12 @@ export const manageTeamTool = {
     "action invite_link returns the workspace invitation link and its expiresAt, as the Invite modal shows it, creating one valid for 7 days when none is active; anyone who opens it can request to join, so hand it only to the people the user names. " +
     "action update_member changes an existing member's role or status: identify the member by userId from list_users.items[].id or email (both must match if supplied), plus roleId from get_workspace_context.roles[].id and/or status; omitted fields keep their current values; " +
     "a member who has no role assigned yet (e.g. a still pending invite) has no role to keep, so you must pass roleId together with the change or the call is rejected. " +
+    "action remove_member removes another member from this workspace (userId or email, both must match if supplied): their status becomes inactive and they show as left (a declined request leaves the list instead), it permanently revokes their API keys and MCP connections for this workspace, disconnects the mailboxes and LinkedIn accounts they connected here, pauses their routines and frees an active member's seat; for a member waiting for approval it declines the request. It SENDS A REAL EMAIL telling the removed member that their access ended (none for a declined request). Records they own stay. To return they ask to join again with an invitation link, and an admin has to approve the request; you cannot remove yourself, a platform operator, a member who already left or the last active admin. " +
     "last-admin protection is enforced server-side, the workspace can never lose its last active admin. " +
-    "invite requires create permission on users, as does invite_link; update_member requires update permission on users (Edit on Users & Roles), the same check as REST POST /v1/members/update.",
+    "invite requires create permission on users, as does invite_link; update_member requires update permission on users (Edit on Users & Roles), the same check as REST POST /v1/members/update, and remove_member requires the same permission as REST POST /v1/members/remove.",
   annotations: {
     readOnlyHint: false,
-    destructiveHint: false,
+    destructiveHint: true,
     idempotentHint: false,
     openWorldHint: true,
   },
@@ -149,6 +159,18 @@ export const manageTeamTool = {
       if (!parsed.success) return mcpValidationFailure(parsed.error);
       return runInteractor(getInviteUsersByEmailInteractor().invoke(parsed.data), (data) =>
         toonResult({ sent: data.sent, message: "Invitation emails sent" }),
+      );
+    }
+    if (params.action === "remove_member") {
+      const parsed = RemoveTeamMemberSchema.safeParse(params);
+      if (!parsed.success) return mcpValidationFailure(parsed.error);
+      return runInteractor(getRemoveWorkspaceMemberInteractor().invoke(parsed.data), (data) =>
+        toonResult({
+          userId: data.userId,
+          email: data.email,
+          previousStatus: data.previousStatus,
+          message: "Member removed from the workspace",
+        }),
       );
     }
     const parsed = ManageTeamMemberSchema.safeParse(params);

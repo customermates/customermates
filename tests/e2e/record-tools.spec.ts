@@ -12,6 +12,7 @@ import { RecordOperationResultSchema } from "../../features/records/record-query
 import { RecordMeasureResultSchema } from "../../features/records/record-measure.schema";
 import { ConfigurationPreviewSchema } from "../../features/records/configuration.schema";
 import { ManageDataViewsResultSchema } from "../../features/data-view/manage-data-views.schema";
+import { mintApiKey } from "./api-key";
 import { localE2eEnvironment } from "./local-environment";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { invokesServerAction, serverActionIds } from "./server-actions";
@@ -24,23 +25,13 @@ const DiscoverySchema = z.object({
 });
 
 test("configures a type, formula, saved view and widget over authenticated MCP and opens the persisted result in the UI", async ({
-  context,
   page,
   database,
+  workspace,
   companyId,
 }, testInfo) => {
   const { baseUrl } = localE2eEnvironment();
-  const keyResponse = await context.request.post(
-    `${baseUrl}/api/auth/api-key/create`,
-    {
-      headers: { origin: baseUrl },
-      data: { name: "Local record tool verification", expiresIn: 86400 },
-    },
-  );
-  expect(keyResponse.ok()).toBe(true);
-  const credential = z
-    .object({ id: z.string(), key: z.string() })
-    .parse(await keyResponse.json());
+  const credential = await mintApiKey(database, workspace, "Local record tool verification");
   const client = new Client({
     name: "local-record-verification",
     version: "2.0.0",

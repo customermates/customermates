@@ -18,6 +18,7 @@ import {
   getTrashedRecordActivitiesAction,
 } from "@/app/[locale]/(protected)/records/actions";
 import { activityViewFilters } from "@/ee/messaging/activities/record-activity-view";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { activityEntryKey } from "./activity-entry-key";
 
 export class RecordActivityViewsStore extends BaseDataViewStore<ActivityEntryDto> {
@@ -111,6 +112,7 @@ export class RecordActivityViewsStore extends BaseDataViewStore<ActivityEntryDto
         cursor: this.cursor,
         limit: 25,
       });
+      if (notifyIfWorkspaceChanged(result)) return;
       if (!result.ok) throw new Error("Record activity request failed");
       if (generation !== this.generation) return;
       runInAction(() => {
@@ -120,7 +122,8 @@ export class RecordActivityViewsStore extends BaseDataViewStore<ActivityEntryDto
         this.cursor = result.data.nextCursor;
         this.hasMore = Boolean(this.cursor);
       });
-    } catch {
+    } catch (error) {
+      if (notifyIfWorkspaceChanged(error)) return;
       runInAction(() => {
         if (!this.disposed && request === this.loadGeneration) this.error = true;
       });

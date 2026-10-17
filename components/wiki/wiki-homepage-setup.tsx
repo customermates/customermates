@@ -20,6 +20,7 @@ import { FormInput } from "@/components/forms/form-input";
 import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
+import { hasWorkspaceChanged, notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { isClientTransportError } from "@/core/errors/client-transport-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useRouter } from "@/i18n/navigation";
@@ -73,7 +74,7 @@ export function useRefreshWhileWikiSetupWorks(state: WikiHomepageSetupState) {
       try {
         const result = await getWikiHomepageSetupStateAction();
         reportedFailure = false;
-        if (!active || !result.ok) return;
+        if (notifyIfWorkspaceChanged(result) || !active || !result.ok) return;
         const nextSignature = JSON.stringify(result.data);
         if (nextSignature === lastSignature.current) return;
         lastSignature.current = nextSignature;
@@ -85,6 +86,10 @@ export function useRefreshWhileWikiSetupWorks(state: WikiHomepageSetupState) {
       }
     };
     const interval = globalThis.setInterval(() => {
+      if (hasWorkspaceChanged()) {
+        globalThis.clearInterval(interval);
+        return;
+      }
       void poll().catch((error: unknown) => {
         if (!active || isClientTransportError(error) || reportedFailure) return;
         reportedFailure = true;

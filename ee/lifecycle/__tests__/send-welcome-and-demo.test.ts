@@ -13,7 +13,7 @@ describe("SendWelcomeAndDemoInteractor (e2e translation + send)", () => {
   beforeEach(() => {
     repo = {
       findProspectUsers: vi.fn(),
-      claimWelcomeEmailSent: vi.fn().mockResolvedValue(true),
+      claimWelcomeEmailForLoginUnscoped: vi.fn().mockResolvedValue(true),
     };
     emailService = { send: vi.fn().mockResolvedValue(undefined) };
   });
@@ -72,7 +72,7 @@ describe("SendWelcomeAndDemoInteractor (e2e translation + send)", () => {
   it("skips users whose claim returned false (already sent by a parallel worker)", async () => {
     const user = createMockUser({ id: "u4", displayLanguage: "en" as never });
     repo.findProspectUsers.mockResolvedValue([user]);
-    repo.claimWelcomeEmailSent.mockResolvedValueOnce(false);
+    repo.claimWelcomeEmailForLoginUnscoped.mockResolvedValueOnce(false);
 
     const { SendWelcomeAndDemoInteractor } = await import("../send-welcome-and-demo.interactor");
     const interactor = new SendWelcomeAndDemoInteractor(repo, emailService);
@@ -91,7 +91,45 @@ describe("SendWelcomeAndDemoInteractor (e2e translation + send)", () => {
 
     await interactor.invoke();
 
-    expect(repo.claimWelcomeEmailSent).not.toHaveBeenCalled();
+    expect(repo.claimWelcomeEmailForLoginUnscoped).not.toHaveBeenCalled();
+    expect(emailService.send).not.toHaveBeenCalled();
+  });
+
+  it("claims every new membership of one login together and sends a single welcome email", async () => {
+    const first = createMockUser({ id: "m1", email: "multi@example.com", companyId: "company-1" });
+    const second = createMockUser({ id: "m2", email: "Multi@Example.com", companyId: "company-2" });
+    const other = createMockUser({ id: "m3", email: "other@example.com", companyId: "company-2" });
+    repo.findProspectUsers.mockResolvedValue([first, other, second]);
+
+    const { SendWelcomeAndDemoInteractor } = await import("../send-welcome-and-demo.interactor");
+    await new SendWelcomeAndDemoInteractor(repo, emailService).invoke();
+
+    expect(repo.claimWelcomeEmailForLoginUnscoped).toHaveBeenCalledTimes(2);
+    expect(repo.claimWelcomeEmailForLoginUnscoped.mock.calls[0][0]).toMatchObject({
+      email: "multi@example.com",
+      userIds: ["m1", "m2"],
+    });
+    expect(repo.claimWelcomeEmailForLoginUnscoped.mock.calls[1][0]).toMatchObject({
+      email: "other@example.com",
+      userIds: ["m3"],
+    });
+    expect(emailService.send.mock.calls.map(([email]: [{ to: string }]) => email.to)).toEqual([
+      "multi@example.com",
+      "other@example.com",
+    ]);
+  });
+
+  it("marks a membership without sending when the login was already welcomed in another workspace", async () => {
+    const joined = createMockUser({ id: "m4", email: "returning@example.com", companyId: "company-3" });
+    repo.findProspectUsers.mockResolvedValue([joined]);
+    repo.claimWelcomeEmailForLoginUnscoped.mockResolvedValueOnce(false);
+
+    const { SendWelcomeAndDemoInteractor } = await import("../send-welcome-and-demo.interactor");
+    await new SendWelcomeAndDemoInteractor(repo, emailService).invoke();
+
+    expect(repo.claimWelcomeEmailForLoginUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({ email: "returning@example.com", userIds: ["m4"], sentAt: expect.any(Date) }),
+    );
     expect(emailService.send).not.toHaveBeenCalled();
   });
 });

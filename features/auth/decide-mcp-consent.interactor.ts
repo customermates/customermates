@@ -8,11 +8,12 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { canConnectMcp } from "./mcp-access";
+import { canConnectMcp, isMcpConsentMemberState } from "./mcp-access";
 
 const Schema = z.object({
   consentCode: z.string().min(1),
   accept: z.boolean(),
+  companyId: z.uuid().optional(),
 });
 export type DecideMcpConsentData = Data<typeof Schema>;
 
@@ -32,9 +33,20 @@ export class DecideMcpConsentInteractor {
   async invoke(data: DecideMcpConsentData): Promise<Awaited<Validated<DecideMcpConsentResult>>> {
     const resolution = await this.routeGuardService.resolveAccountState();
     const state = await this.routeGuardService.resolveMcpConsentState(resolution);
-    if (state !== "allowed" && state !== "onboarding") return { ok: true, data: null };
+    const current = state === "allowed" || state === "onboarding" ? resolution.user : null;
+    const { companyId } = data;
+    const choosesOther = companyId !== undefined && companyId !== resolution.user?.companyId;
+    if (!current && !(choosesOther && isMcpConsentMemberState(resolution.state))) return { ok: true, data: null };
 
-    const accept = data.accept && canConnectMcp(resolution.user?.role);
-    return { ok: true, data: await this.authService.decideMcpConsent({ ...data, accept }) };
+    const target = choosesOther ? await this.routeGuardService.resolveMembershipForConsent(companyId) : current;
+    const accept = data.accept && target !== null && canConnectMcp(target.role);
+    return {
+      ok: true,
+      data: await this.authService.decideMcpConsent({
+        consentCode: data.consentCode,
+        accept,
+        companyId: target?.companyId ?? null,
+      }),
+    };
   }
 }

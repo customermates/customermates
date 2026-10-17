@@ -1,6 +1,7 @@
 import type { Validated, Data } from "@/core/validation/validation.utils";
 import type { EmailService } from "@/features/email/email.service";
 import type { GetOrCreateInviteTokenInteractor } from "@/features/company/get-or-create-invite-token.interactor";
+import type { GetCompanyRepo } from "@/features/company/get-company.repo";
 
 import { z } from "zod";
 
@@ -36,6 +37,7 @@ export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
   constructor(
     private readonly emailService: EmailService,
     private readonly getOrCreateInviteToken: GetOrCreateInviteTokenInteractor,
+    private readonly companyRepo: GetCompanyRepo,
   ) {
     super();
   }
@@ -48,12 +50,17 @@ export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
 
     const inviteLink = await invitationLink(tokenResult.data.token);
     const inviterName = `${user.firstName} ${user.lastName}`.trim();
+    const { name: workspace } = await this.companyRepo.findCompanyOrThrow();
 
     const t = await getTranslations();
     const locale = await getRequestAppLocale();
-    const subject = t("CompanyInvite.subject");
-    const preview = t("CompanyInvite.preview", { inviterName });
-    const intro = t("CompanyInvite.intro", { inviterName });
+    const subject = workspace ? t("CompanyInvite.subjectNamed", { workspace }) : t("CompanyInvite.subject");
+    const preview = workspace
+      ? t("CompanyInvite.previewNamed", { inviterName, workspace })
+      : t("CompanyInvite.preview", { inviterName });
+    const intro = workspace
+      ? t("CompanyInvite.introNamed", { inviterName, workspace })
+      : t("CompanyInvite.intro", { inviterName });
     const cta = t("CompanyInvite.cta");
     const fallback = t("CompanyInvite.fallback");
     const layoutCopy = await getEmailLayoutCopy(locale);

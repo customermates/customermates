@@ -15,15 +15,16 @@ import { signOutWithOnboardingIntentAction } from "@/app/[locale]/actions";
 import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
 
 type Props = {
-  canJoin: boolean;
   email: string;
   invitationIntent: string;
   inviterName: string;
+  workspaceName: string | null;
 };
 
-export function InvitationCard({ canJoin, email, invitationIntent, inviterName }: Props) {
+export function InvitationCard({ email, invitationIntent, inviterName, workspaceName }: Props) {
   const t = useTranslations();
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const workspace = workspaceName?.trim() ?? "";
 
   async function handleSignOut() {
     if (isSigningOut) return;
@@ -36,47 +37,12 @@ export function InvitationCard({ canJoin, email, invitationIntent, inviterName }
     }
   }
 
-  const signOutButton = (
-    <Button
-      className="w-full"
-      disabled={isSigningOut}
-      variant={canJoin ? "ghost" : "default"}
-      onClick={() => runUserAction(handleSignOut)}
-    >
-      <LogOut aria-hidden className="size-4" />
-
-      {t("UserAvatar.signOut")}
-    </Button>
-  );
-
-  if (!canJoin) {
-    return (
-      <AppCard className="max-w-md">
-        <CardHeroHeader
-          alt=""
-          subtitle={t("InvitationCard.switchSubtitle", { email })}
-          title={t("InvitationCard.switchTitle")}
-        />
-
-        <AppCardBody>
-          <p className="text-center text-sm font-medium [overflow-wrap:anywhere]">
-            {t("InvitationCard.inviter", { inviterName })}
-          </p>
-
-          <p className="text-x-sm text-center">{t("InvitationCard.switchBody")}</p>
-        </AppCardBody>
-
-        <AppCardFooter>{signOutButton}</AppCardFooter>
-      </AppCard>
-    );
-  }
-
   return (
     <AppCard className="max-w-md">
       <CardHeroHeader
         alt=""
         subtitle={t("InvitationCard.joinSubtitle", { email })}
-        title={t("InvitationCard.joinTitle")}
+        title={workspace ? t("InvitationCard.joinTitleNamed", { workspace }) : t("InvitationCard.joinTitle")}
       />
 
       <AppCardBody>
@@ -94,7 +60,11 @@ export function InvitationCard({ canJoin, email, invitationIntent, inviterName }
           </IntlLink>
         </Button>
 
-        {signOutButton}
+        <Button className="w-full" disabled={isSigningOut} variant="ghost" onClick={() => runUserAction(handleSignOut)}>
+          <LogOut aria-hidden className="size-4" />
+
+          {t("UserAvatar.signOut")}
+        </Button>
       </AppCardFooter>
     </AppCard>
   );

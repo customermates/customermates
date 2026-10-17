@@ -2,14 +2,18 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const harness = vi.hoisted(() => ({
   portalUrl: vi.fn(),
+  checkout: vi.fn(),
+  abandon: vi.fn(),
+  subscription: vi.fn(),
   toastZodErrorTree: vi.fn(),
   assign: vi.fn(),
 }));
 
 vi.mock("../../../actions", () => ({
-  createCheckoutSessionAction: vi.fn(),
+  createCheckoutSessionAction: harness.checkout,
+  abandonCheckoutAction: harness.abandon,
   refreshSubscriptionAction: vi.fn(),
-  getSubscriptionAction: vi.fn(),
+  getSubscriptionAction: harness.subscription,
   getBillingPortalUrlAction: harness.portalUrl,
 }));
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: harness.toastZodErrorTree }));
@@ -46,5 +50,67 @@ describe("handleManageBilling", () => {
 
     expect(harness.toastZodErrorTree).toHaveBeenCalledWith(error);
     expect(harness.assign).not.toHaveBeenCalled();
+  });
+});
+
+describe("handleSubscribe", () => {
+  it("opens the checkout the server started", async () => {
+    harness.checkout.mockResolvedValue({ ok: true, data: { checkout: "started", url: "https://checkout.example/1" } });
+
+    await store().handleSubscribe({ plan: "business", cadence: "monthly" });
+
+    expect(harness.assign).toHaveBeenCalledWith("https://checkout.example/1");
+    expect(harness.subscription).not.toHaveBeenCalled();
+  });
+
+  it("stays on the page and shows the pending payment when the server refuses a second checkout", async () => {
+    const pending = { plan: "pro", status: "trial", checkout: "pending" };
+    harness.checkout.mockResolvedValue({ ok: true, data: { checkout: "pending" } });
+    harness.subscription.mockResolvedValue(pending);
+    const subscriptions = store();
+
+    await subscriptions.handleSubscribe({ plan: "business", cadence: "monthly" });
+
+    expect(harness.assign).not.toHaveBeenCalled();
+    expect(subscriptions.subscription).toEqual(pending);
+    expect(harness.toastZodErrorTree).not.toHaveBeenCalled();
+  });
+});
+
+describe("handleSubscribe when the workspace was paid meanwhile", () => {
+  it("shows the paid plan instead of opening a second checkout", async () => {
+    const paid = { plan: "business", status: "active", hasActiveSubscription: true, checkout: "none" };
+    harness.checkout.mockResolvedValue({ ok: true, data: { checkout: "active" } });
+    harness.subscription.mockResolvedValue(paid);
+    const subscriptions = store();
+
+    await subscriptions.handleSubscribe({ plan: "pro", cadence: "monthly" });
+
+    expect(harness.assign).not.toHaveBeenCalled();
+    expect(subscriptions.subscription).toEqual(paid);
+  });
+});
+
+describe("handleAbandon", () => {
+  it("clears the pending payment and shows the plans again", async () => {
+    const cleared = { plan: "pro", status: "trial", checkout: "none" };
+    harness.abandon.mockResolvedValue({ ok: true, data: null });
+    harness.subscription.mockResolvedValue(cleared);
+    const subscriptions = store();
+
+    await subscriptions.handleAbandon();
+
+    expect(harness.abandon).toHaveBeenCalledOnce();
+    expect(subscriptions.subscription).toEqual(cleared);
+  });
+
+  it("reports the server's reason and keeps the notice when clearing fails", async () => {
+    const error = { errors: ["Access denied"], properties: {} };
+    harness.abandon.mockResolvedValue({ ok: false, error });
+
+    await store().handleAbandon();
+
+    expect(harness.toastZodErrorTree).toHaveBeenCalledWith(error);
+    expect(harness.subscription).not.toHaveBeenCalled();
   });
 });

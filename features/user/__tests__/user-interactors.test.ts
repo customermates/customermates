@@ -14,6 +14,9 @@ vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
+vi.mock("next-intl/server", () => ({
+  getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
+}));
 
 import { RegisterUserInteractor } from "../register/register-user.interactor";
 import { UpdateUserDetailsInteractor, UpdateUserDetailsSchema } from "../upsert/update-user-details.interactor";
@@ -25,6 +28,8 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { DemoModeError, ForbiddenError } from "@/core/errors/app-errors";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { ACCOUNT_STATES, accountStateRedirect } from "@/features/auth/account-state";
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { interactorFailureCodes } from "@/core/validation/validation.utils";
 
 const USER_ID = "test-user-id";
 const mutableEnv = MOCK_ENV_MODULE.env as unknown as {
@@ -56,9 +61,12 @@ describe("RegisterUserInteractor", () => {
     };
     mockRepo = {
       bindAuthUserToCompanyOrThrowUnscoped: vi.fn().mockResolvedValue(undefined),
-      findCurrentUserUnscoped: vi.fn().mockResolvedValue(null),
+      findAnyMembershipUnscoped: vi.fn().mockResolvedValue(null),
       findAuthUserCompanyIdForUpdateUnscoped: vi.fn().mockResolvedValue(null),
       findAuthUserCompanyIdUnscoped: vi.fn().mockResolvedValue(null),
+      hasCreatedWorkspaceUnscoped: vi.fn().mockResolvedValue(false),
+      countCreatedWorkspacesUnscoped: vi.fn().mockResolvedValue(0),
+      hasLeftMembershipUnscoped: vi.fn().mockResolvedValue(false),
       registerExistingCompany: vi.fn().mockResolvedValue(mockTenantUser),
     };
     mockEventService = {
@@ -528,7 +536,7 @@ describe("RegisterUserInteractor", () => {
     ["active", "/onboarding/wizard"],
     ["inactive", "/auth/error?type=inactiveUser"],
   ] as const)("makes a repeated registration for an existing %s user idempotent", async (status, redirect) => {
-    mockRepo.findCurrentUserUnscoped.mockResolvedValue({ ...mockTenantUser, status });
+    mockRepo.findAnyMembershipUnscoped.mockResolvedValue({ ...mockTenantUser, status });
 
     await expect(
       createInteractor().invoke(
@@ -666,11 +674,182 @@ describe("RegisterUserInteractor", () => {
       expect(mockAuthService.sendNewUserNotificationEmail).not.toHaveBeenCalled();
     },
   );
+
+  it("names the first cloud workspace, records its creator and grants the trial", async () => {
+    mutableEnv.APP_MODE = "cloud";
+
+    await createInteractor().invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        country: "de",
+        avatarUrl: null,
+        agreeToTerms: true,
+        workspaceName: "  Acme Sales  ",
+      },
+      { target: { type: "createCompany" } },
+    );
+
+    expect(mockRepo.hasCreatedWorkspaceUnscoped).toHaveBeenCalledWith(USER_ID);
+    expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(
+      expect.objectContaining({ workspace: { name: "Acme Sales", createdByAuthUserId: USER_ID, trial: true } }),
+    );
+    expect(mockRegistration.createCompanyAndUser.mock.calls[0]?.[0]).not.toHaveProperty("workspaceName");
+  });
+
+  it("starts a later cloud workspace of the same login without a trial", async () => {
+    mutableEnv.APP_MODE = "cloud";
+    mockRepo.hasCreatedWorkspaceUnscoped.mockResolvedValue(true);
+
+    await createInteractor().invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        country: "de",
+        avatarUrl: null,
+        agreeToTerms: true,
+      },
+      { target: { type: "createCompany" } },
+    );
+
+    expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(
+      expect.objectContaining({ workspace: { name: null, createdByAuthUserId: USER_ID, trial: false } }),
+    );
+  });
+
+  it("refuses a further cloud workspace on onboarding once the login created the limit", async () => {
+    mutableEnv.APP_MODE = "cloud";
+    mockRepo.countCreatedWorkspacesUnscoped.mockResolvedValue(20);
+
+    const result = await createInteractor().invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        country: "de",
+        avatarUrl: null,
+        agreeToTerms: true,
+        workspaceName: "One too many",
+      },
+      { target: { type: "createCompany" } },
+    );
+
+    expect("ok" in result && !result.ok && interactorFailureCodes(result.error)).toEqual([
+      CustomErrorCode.workspaceLimitReached,
+    ]);
+    expect(mockRepo.findAuthUserCompanyIdForUpdateUnscoped).toHaveBeenCalledBefore(
+      mockRepo.countCreatedWorkspacesUnscoped,
+    );
+    expect(mockRepo.countCreatedWorkspacesUnscoped).toHaveBeenCalledWith(USER_ID);
+    expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(mockRepo.bindAuthUserToCompanyOrThrowUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("does not count created workspaces when the profile joins an invited workspace", async () => {
+    mutableEnv.APP_MODE = "cloud";
+    mockRepo.countCreatedWorkspacesUnscoped.mockResolvedValue(20);
+
+    await createInteractor().invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        country: "de",
+        avatarUrl: null,
+        agreeToTerms: true,
+      },
+      { target: { type: "invitation", companyId: "invited-company-id" } },
+    );
+
+    expect(mockRepo.countCreatedWorkspacesUnscoped).not.toHaveBeenCalled();
+    expect(mockRepo.registerExistingCompany).toHaveBeenCalledOnce();
+  });
+
+  it("keeps a blank workspace name unnamed", async () => {
+    await createInteractor().invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        country: "de",
+        avatarUrl: null,
+        agreeToTerms: true,
+        workspaceName: "   ",
+      },
+      { target: { type: "createCompany" } },
+    );
+
+    expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(
+      expect.objectContaining({ workspace: expect.objectContaining({ name: null }) }),
+    );
+  });
+
+  it("rejects a workspace name longer than the limit", async () => {
+    const result = await createInteractor().invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        country: "de",
+        avatarUrl: null,
+        agreeToTerms: true,
+        workspaceName: "x".repeat(81),
+      },
+      { target: { type: "createCompany" } },
+    );
+
+    expect("ok" in result && result.ok).toBe(false);
+    expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
+  });
+
+  it("ignores a workspace name when the profile joins an invited workspace", async () => {
+    await createInteractor().invoke(
+      {
+        email: "jane@example.com",
+        firstName: "Jane",
+        lastName: "Doe",
+        country: "de",
+        avatarUrl: null,
+        agreeToTerms: true,
+        workspaceName: "Not mine",
+      },
+      { target: { type: "invitation", companyId: "invited-company-id" } },
+    );
+
+    expect(mockRepo.registerExistingCompany.mock.calls[0]?.[0]).not.toHaveProperty("workspaceName");
+    expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
+  });
+
+  it("does not revive a membership the login left through its last-used workspace", async () => {
+    mockRepo.findAuthUserCompanyIdForUpdateUnscoped.mockResolvedValue("left-company-id");
+    mockRepo.findAuthUserCompanyIdUnscoped.mockResolvedValue("left-company-id");
+    mockRepo.hasLeftMembershipUnscoped.mockResolvedValue(true);
+
+    await expect(
+      createInteractor().invoke(
+        {
+          email: "jane@example.com",
+          firstName: "Jane",
+          lastName: "Doe",
+          country: "de",
+          avatarUrl: null,
+          agreeToTerms: true,
+        },
+        { target: { type: "existingAuthUserCompanyBinding" } },
+      ),
+    ).resolves.toEqual({ redirect: "/onboarding" });
+    expect(mockRepo.hasLeftMembershipUnscoped).toHaveBeenCalledWith("jane@example.com", "left-company-id");
+    expect(mockRepo.registerExistingCompany).not.toHaveBeenCalled();
+    expect(mockRepo.bindAuthUserToCompanyOrThrowUnscoped).not.toHaveBeenCalled();
+  });
 });
 
 describe("UpdateUserDetailsInteractor", () => {
   let mockRepo: any;
   let mockEventService: any;
+  let mockAuthService: { getInteractiveSession: ReturnType<typeof vi.fn> };
 
   const detailsData = {
     firstName: "Janet",
@@ -691,15 +870,97 @@ describe("UpdateUserDetailsInteractor", () => {
 
     mockRepo = {
       updateDetails: vi.fn().mockResolvedValue(profileResult),
+      applyPersonalProfileToOtherMembershipsUnscoped: vi.fn().mockResolvedValue([]),
     };
     mockEventService = {
       publish: vi.fn().mockResolvedValue(undefined),
     };
+    mockAuthService = {
+      getInteractiveSession: vi.fn().mockResolvedValue({ user: { email: mockUser.email } }),
+    };
   });
 
   function createInteractor() {
-    return new UpdateUserDetailsInteractor(mockRepo, mockEventService);
+    return new UpdateUserDetailsInteractor(mockRepo, mockEventService, mockAuthService as never);
   }
+
+  it("keeps a change made with an API key or MCP connection inside the current workspace", async () => {
+    mockAuthService.getInteractiveSession.mockResolvedValue(null);
+
+    const saved = await createInteractor().invoke({ firstName: "Janet", avatarUrl: "https://example.com/a.png" });
+
+    expect(saved.ok).toBe(true);
+    expect(mockRepo.updateDetails).toHaveBeenCalledOnce();
+    expect(mockRepo.applyPersonalProfileToOtherMembershipsUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("keeps a change made outside a request, such as by the assistant, inside the current workspace", async () => {
+    mockAuthService.getInteractiveSession.mockRejectedValue(new Error("headers was called outside a request scope"));
+
+    await expect(createInteractor().invoke({ theme: "dark" })).resolves.toMatchObject({ ok: true });
+    expect(mockRepo.applyPersonalProfileToOtherMembershipsUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("ignores a browser session of another login", async () => {
+    mockAuthService.getInteractiveSession.mockResolvedValue({ user: { email: "someone-else@example.com" } });
+
+    await createInteractor().invoke({ theme: "dark" });
+
+    expect(mockRepo.applyPersonalProfileToOtherMembershipsUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("applies exactly the submitted personal fields to the login's other memberships", async () => {
+    mockRepo.updateDetails.mockResolvedValue({ ...profileResult, theme: "dark", displayLanguage: "de" });
+
+    await createInteractor().invoke({ theme: "dark", displayLanguage: "de" } as never);
+
+    expect(mockRepo.applyPersonalProfileToOtherMembershipsUnscoped).toHaveBeenCalledExactlyOnceWith({
+      email: mockUser.email,
+      exceptUserId: USER_ID,
+      profile: { theme: "dark", displayLanguage: "de" },
+    });
+  });
+
+  it("propagates the stored values of every profile field, including a cleared avatar", async () => {
+    mockRepo.updateDetails.mockResolvedValue({ ...profileResult, formattingLocale: "fr", theme: "light" });
+
+    await createInteractor().invoke({ ...detailsData, formattingLocale: "fr", theme: "light" } as never);
+
+    expect(mockRepo.applyPersonalProfileToOtherMembershipsUnscoped.mock.calls[0][0].profile).toEqual({
+      firstName: "Janet",
+      lastName: "Doe",
+      country: "de",
+      avatarUrl: null,
+      theme: "light",
+      formattingLocale: "fr",
+    });
+  });
+
+  it("records a name change in the activity of each other workspace as that member", async () => {
+    mockRepo.applyPersonalProfileToOtherMembershipsUnscoped.mockResolvedValue([
+      { id: "membership-2", companyId: "company-2", firstName: "Jan", lastName: "Doe", country: "de" },
+    ]);
+
+    await createInteractor().invoke({ firstName: "Janet" } as never);
+
+    expect(mockEventService.publish).toHaveBeenCalledWith(
+      DomainEvent.USER_UPDATED,
+      { entityId: "membership-2", payload: { changes: { firstName: { previous: "Jan", current: "Janet" } } } },
+      { systemCompanyId: "company-2", systemUserId: "membership-2" },
+    );
+  });
+
+  it("records nothing in other workspaces when only preferences change", async () => {
+    mockRepo.updateDetails.mockResolvedValue({ ...profileResult, firstName: "Test", lastName: "User" });
+    mockRepo.applyPersonalProfileToOtherMembershipsUnscoped.mockResolvedValue([
+      { id: "membership-2", companyId: "company-2", firstName: "Someone", lastName: "Else", country: "it" },
+    ]);
+
+    await createInteractor().invoke({ theme: "dark" } as never);
+
+    expect(mockRepo.applyPersonalProfileToOtherMembershipsUnscoped).toHaveBeenCalledOnce();
+    expect(mockEventService.publish).not.toHaveBeenCalled();
+  });
 
   it("publishes USER_UPDATED event", async () => {
     const interactor = createInteractor();

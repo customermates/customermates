@@ -85,6 +85,22 @@ vi.mock("@/core/utils/toast-zod-error-tree", () => ({
   toastZodErrorTree: vi.fn(),
 }));
 
+const workspace = vi.hoisted(() => ({ notify: vi.fn() }));
+
+vi.mock("@/core/errors/workspace-changed-notice", async () => {
+  const { isWorkspaceChangedError, isWorkspaceChangedFailure } = await import("@/core/errors/workspace-changed");
+  return {
+    hasWorkspaceChanged: () => false,
+    notifyIfWorkspaceChanged: (value: unknown) => {
+      const changed = isWorkspaceChangedFailure(value) || isWorkspaceChangedError(value);
+      if (changed) workspace.notify();
+      return changed;
+    },
+    notifyWorkspaceChanged: workspace.notify,
+    registerWorkspaceChangedHandler: () => () => undefined,
+  };
+});
+
 import { FilterChipValue } from "@/components/data-view/filter-modal/filter-chip-display";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FormAutocomplete } from "../form-autocomplete";
@@ -168,6 +184,7 @@ function autocomplete(props: Partial<React.ComponentProps<typeof FormAutocomplet
 }
 
 beforeEach(() => {
+  workspace.notify.mockReset();
   testContext.formIsLoading = false;
   testContext.formIsReadOnly = false;
   testContext.formValue = undefined;
@@ -270,6 +287,23 @@ describe("FormAutocomplete command behavior", () => {
 
     expect(document.querySelector('[role="alert"]')?.textContent).toContain("Something went wrong");
     expect(document.body.textContent).not.toContain("Add ");
+  });
+
+  it("opens the reload dialog instead of an inline error when the option loader hits a workspace change", async () => {
+    const getItems = vi
+      .fn()
+      .mockRejectedValue(Object.assign(new Error("x"), { digest: "CUSTOMERMATES_WORKSPACE_CHANGED" }));
+    const container = mount(autocomplete({ getItems, onCreate: vi.fn() }));
+    await flush();
+
+    await click(requiredElement(container.querySelector("#people")));
+    await flush();
+
+    expect(getItems).toHaveBeenCalledOnce();
+    expect(workspace.notify).toHaveBeenCalledOnce();
+    expect(document.querySelector('[role="alert"]')).toBeNull();
+    expect(document.body.textContent).not.toContain("Something went wrong");
+    expect(document.body.textContent).not.toContain("Retry");
   });
 
   it("creates the typed option when Enter is pressed and nothing matches", async () => {

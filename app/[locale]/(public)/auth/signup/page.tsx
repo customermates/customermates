@@ -43,6 +43,7 @@ export default async function SignUpPage({ searchParams }: Props) {
         invitationIntent={invitation?.intent}
         inviterName={invitation?.inviterName}
         socialProviders={enabledSocialProviders}
+        workspaceName={invitation?.companyName}
       />
     </CenteredCardPage>
   );

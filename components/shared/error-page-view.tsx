@@ -55,7 +55,7 @@ export function ErrorPageView({ title, subtitle, body, backHref, backLabel, retr
         {showRetry || showBack ? (
           <AppCardFooter className="flex-col">
             {showRetry && (
-              <Button className="w-full" variant="secondary" onClick={onRetry}>
+              <Button className="w-full" variant={showBack ? "secondary" : "default"} onClick={onRetry}>
                 {retryLabel}
               </Button>
             )}

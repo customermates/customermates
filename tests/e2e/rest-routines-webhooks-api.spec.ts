@@ -12,30 +12,21 @@ import {
   createOpenApiValidator,
   type OpenApiDocument,
 } from "../helpers/openapi-validator";
+import { mintApiKey } from "./api-key";
 import { localE2eEnvironment } from "./local-environment";
 import { test, expect } from "./fixtures";
 
 type Method = "get" | "post" | "patch";
 
 test("drives routines and webhooks through the public REST API with an API key and its OpenAPI contract", async ({
-  context,
   playwright,
   database,
+  workspace,
   companyId,
 }) => {
   test.setTimeout(240000);
   const { baseUrl } = localE2eEnvironment();
-  const keyResponse = await context.request.post(
-    `${baseUrl}/api/auth/api-key/create`,
-    {
-      headers: { origin: baseUrl },
-      data: { name: "Local REST parity verification", expiresIn: 86400 },
-    },
-  );
-  expect(keyResponse.ok()).toBe(true);
-  const credential = z
-    .object({ key: z.string() })
-    .parse(await keyResponse.json());
+  const credential = await mintApiKey(database, workspace, "Local REST parity verification");
   const api = await playwright.request.newContext({
     baseURL: baseUrl,
     extraHTTPHeaders: { "x-api-key": credential.key },
@@ -481,18 +472,13 @@ test("drives routines and webhooks through the public REST API with an API key a
 });
 
 test("rejects undeliverable webhook endpoints through REST and MCP", async ({
-  context,
   playwright,
   database,
+  workspace,
   companyId,
 }) => {
   const { baseUrl } = localE2eEnvironment();
-  const keyResponse = await context.request.post(`${baseUrl}/api/auth/api-key/create`, {
-    headers: { origin: baseUrl },
-    data: { name: "Webhook endpoint validation", expiresIn: 86400 },
-  });
-  expect(keyResponse.status()).toBe(200);
-  const { key } = z.object({ key: z.string() }).parse(await keyResponse.json());
+  const { key } = await mintApiKey(database, workspace, "Webhook endpoint validation");
   const api = await playwright.request.newContext({ baseURL: baseUrl, extraHTTPHeaders: { "x-api-key": key } });
   const client = new McpClient({ name: "webhook-endpoint-validation", version: "1.0.0" });
   const transport = new StreamableHTTPClientTransport(new URL(`${baseUrl}/api/v1/mcp`), {

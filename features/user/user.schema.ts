@@ -20,8 +20,14 @@ export const UserDtoSchema = z.object({
 
 export type UserDto = Data<typeof UserDtoSchema>;
 
+export const MemberDtoSchema = UserDtoSchema.extend({
+  leftAt: z.date().nullable(),
+});
+
+export type MemberDto = Data<typeof MemberDtoSchema>;
+
 export const UserByIdResponseSchema = z.object({
-  user: UserDtoSchema.nullable(),
+  user: MemberDtoSchema.nullable(),
 });
 
 export const TenantUserSchema = UserDtoSchema.extend({

@@ -1,4 +1,4 @@
-import { unwoundFailure } from "@/core/validation/interactor-failure-server";
+import { failConflict, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import type { RegisterUserCompanyRepo } from "./register-user-company.repo";
 import type { RegisterUserRepo } from "./register-user.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
@@ -30,6 +30,9 @@ import {
   RegistrationAdAttributionSchema,
   type RegistrationAdAttribution,
 } from "@/features/acquisition/ad-attribution.schema";
+import { startsWithTrial } from "@/features/workspace/workspace-trial-policy";
+import { workspaceCreationLimit } from "@/features/workspace/workspace-creation-limit";
+import { WorkspaceNameSchema } from "@/features/workspace/workspace.schema";
 
 const RegisterUserSchema = z
   .object({
@@ -39,6 +42,10 @@ const RegisterUserSchema = z
     country: z.enum(CountryCode),
     avatarUrl: zx.secureUrl().or(z.literal("")).nullable(),
     agreeToTerms: z.boolean(),
+    workspaceName: z.preprocess(
+      (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+      WorkspaceNameSchema.optional(),
+    ),
   })
   .superRefine((data, ctx) => {
     if (env.APP_MODE === "cloud" && data.agreeToTerms !== true) {
@@ -124,13 +131,13 @@ export class RegisterUserInteractor {
     data: RegistrationData,
     plannedCompanyId: string | null | undefined,
   ): Promise<Awaited<Validated<RegisterUserResult>> | Redirect> {
-    const { sessionUserId, adAttribution, target, ...registrationData } = data;
+    const { sessionUserId, adAttribution, target, workspaceName, ...registrationData } = data;
     if (plannedCompanyId && !(await this.companyRepo.existsUnscoped(plannedCompanyId)))
       return redirectTo(target.type === "invitation" ? "/auth/error?type=invalidInviteLink" : "/onboarding");
 
     const authUserCompanyId = await this.repo.findAuthUserCompanyIdForUpdateUnscoped(sessionUserId);
     if (authUserCompanyId === undefined) return redirectTo("/auth/signup");
-    const existingUser = await this.repo.findCurrentUserUnscoped(registrationData.email);
+    const existingUser = await this.repo.findAnyMembershipUnscoped(registrationData.email);
     if (existingUser) {
       return redirectTo(
         existingUser.status === Status.pendingAuthorization
@@ -150,6 +157,15 @@ export class RegisterUserInteractor {
           ? authUserCompanyId
           : null;
     if (!companyId && target.type !== "createCompany") return redirectTo("/onboarding");
+    const limit = workspaceCreationLimit();
+    if (!companyId && limit !== null && (await this.repo.countCreatedWorkspacesUnscoped(sessionUserId)) >= limit)
+      return failConflict(CustomErrorCode.workspaceLimitReached, [], { limit });
+    if (
+      companyId &&
+      target.type === "existingAuthUserCompanyBinding" &&
+      (await this.repo.hasLeftMembershipUnscoped(registrationData.email, companyId))
+    )
+      return redirectTo("/onboarding");
 
     const isNewCloudCompany = env.APP_MODE === "cloud" && target.type === "createCompany";
     const eligibleAdAttribution =
@@ -165,6 +181,11 @@ export class RegisterUserInteractor {
       : await this.registration.createCompanyAndUser({
           ...registrationData,
           adAttribution: eligibleAdAttribution,
+          workspace: {
+            name: workspaceName ?? null,
+            createdByAuthUserId: sessionUserId,
+            trial: await startsWithTrial(sessionUserId, this.repo),
+          },
         });
 
     await this.repo.bindAuthUserToCompanyOrThrowUnscoped({

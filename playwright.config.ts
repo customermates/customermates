@@ -33,7 +33,7 @@ export default defineConfig({
   },
   webServer: {
     command: "yarn tsx tests/e2e/start-server.ts",
-    url: `${environment.baseUrl}/en/auth/signin`,
+    url: `${environment.baseUrl}${process.env.APP_MODE === "demo" ? "/api/v1/openapi" : "/en/auth/signin"}`,
     timeout: 600000,
     reuseExistingServer: false,
     stdout: "pipe",

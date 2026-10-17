@@ -8,6 +8,8 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { failNotFound } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const Schema = z.object({
   id: z.string(),
@@ -24,7 +26,8 @@ export class DeleteApiKeyInteractor extends AuthenticatedInteractor<DeleteApiKey
   @Validate(Schema)
   @ValidateOutput(z.string())
   async invoke(data: DeleteApiKeyData): Validated<string> {
-    await this.authService.deleteApiKey(data.id);
+    if (!(await this.authService.deleteApiKey(data.id, this.companyId)))
+      return failNotFound(CustomErrorCode.apiKeyNotFound, ["id"]);
 
     return { ok: true as const, data: data.id };
   }

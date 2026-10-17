@@ -1,10 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
-import { z } from "zod";
 
+import { mintApiKey } from "./api-key";
 import { localE2eEnvironment } from "./local-environment";
-import { DEMO_COMPANY_ID, demoId, expect, test } from "./demo-seed";
+import { DEMO_COMPANY_ID, DEMO_MEMBERS, demoId, expect, test } from "./demo-seed";
 
 test("adds an optional choice field to the Northwind model through REST and MCP", async ({
   page,
@@ -50,12 +50,15 @@ test("adds an optional choice field to the Northwind model through REST and MCP"
   expect(preview.ok(), await preview.text()).toBe(true);
   expect(await preview.json()).toMatchObject({ valid: true, execution: "synchronous", affectedRecords: 0 });
 
-  const keyResponse = await page.request.post(`${baseUrl}/api/auth/api-key/create`, {
-    headers: { origin: baseUrl },
-    data: { name: "Northwind model field verification", expiresIn: 86400 },
-  });
-  expect(keyResponse.ok(), await keyResponse.text()).toBe(true);
-  const credential = z.object({ key: z.string() }).parse(await keyResponse.json());
+  const owner = await database.query<{ id: string }>(
+    'SELECT a.id FROM "AuthUser" a JOIN "User" u ON u.email=a.email WHERE u.id=$1 AND u."companyId"=$2',
+    [DEMO_MEMBERS.maxBergmann.userId, DEMO_COMPANY_ID],
+  );
+  const credential = await mintApiKey(
+    database,
+    { authUserId: owner.rows[0].id, companyId: DEMO_COMPANY_ID },
+    "Northwind model field verification",
+  );
   const client = new Client({ name: "northwind-model-field-verification", version: "1.0.0" });
   const transport = new StreamableHTTPClientTransport(new URL(`${baseUrl}/api/v1/mcp`), {
     requestInit: { headers: { "x-api-key": credential.key } },

@@ -7,8 +7,11 @@ const now = new Date("2026-09-04T12:00:00.000Z");
 const inviteExpiresAt = new Date(now.getTime() + 60 * 60_000);
 const validateInvite = vi.fn();
 
-function validInvitation(companyId = "company-a") {
-  return { ok: true, data: { companyId, expiresAt: inviteExpiresAt, inviterName: `${companyId} Admin`, valid: true } };
+function validInvitation(companyId = "company-a", companyName: string | null = null) {
+  return {
+    ok: true,
+    data: { companyId, companyName, expiresAt: inviteExpiresAt, inviterName: `${companyId} Admin`, valid: true },
+  };
 }
 
 describe("OnboardingIntentService", () => {
@@ -39,6 +42,20 @@ describe("OnboardingIntentService", () => {
       type: "invitation",
     });
     expect(validateInvite).toHaveBeenCalledExactlyOnceWith({ token: "invite-a" });
+  });
+
+  it("carries the invited workspace name for the join card", async () => {
+    validateInvite.mockResolvedValue(validInvitation("company-a", "Bergmann Steuern"));
+    const intent = service.issueInvitation("invite-a", inviteExpiresAt);
+    if (!intent) throw new Error("Expected invitation intent");
+
+    await expect(service.resolve(intent)).resolves.toMatchObject({
+      companyId: "company-a",
+      companyName: "Bergmann Steuern",
+      inviterName: "company-a Admin",
+      status: "valid",
+      type: "invitation",
+    });
   });
 
   it.each(["", ["one", "two"]] as const)("fails closed for an invalid explicit value", async (value) => {

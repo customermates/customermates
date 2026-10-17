@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { APIResponse } from "@playwright/test";
 import { z } from "zod";
+import { mintApiKey } from "./api-key";
 import { localE2eEnvironment } from "./local-environment";
 import { test, expect } from "./fixtures";
 import { createOpenApiValidator, type OpenApiDocument } from "../helpers/openapi-validator";
@@ -22,21 +23,12 @@ const Page = z.object({
 });
 
 test("serves the Knowledge Base, member and profile REST endpoints to an API key as documented", async ({
-  context,
   playwright,
   database,
   workspace,
 }) => {
   const { baseUrl } = localE2eEnvironment();
-  const keyResponse = await context.request.post(
-    `${baseUrl}/api/auth/api-key/create`,
-    {
-      headers: { origin: baseUrl },
-      data: { name: "Local REST parity verification", expiresIn: 86400 },
-    },
-  );
-  expect(keyResponse.ok()).toBe(true);
-  const { key } = z.object({ key: z.string() }).parse(await keyResponse.json());
+  const { key } = await mintApiKey(database, workspace, "Local REST parity verification");
   const api = await playwright.request.newContext({
     baseURL: baseUrl,
     extraHTTPHeaders: { "x-api-key": key },

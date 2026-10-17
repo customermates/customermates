@@ -27,6 +27,7 @@ vi.mock("next-intl/server", () => ({
 }));
 
 import { POST } from "../route";
+import { bindFixtureCredentials } from "@/tests/helpers/bind-fixture-credentials";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -208,6 +209,7 @@ describeDatabase("Workspace Wiki authenticated MCP transport", () => {
         "foreign-tenant-only-phrase",
       ],
     );
+    await bindFixtureCredentials(client, [companyId, foreignCompanyId]);
   });
 
   beforeAll(async () => {
@@ -245,6 +247,7 @@ describeDatabase("Workspace Wiki authenticated MCP transport", () => {
         [randomUUID(), token, randomUUID(), oauthClientId, authUserId],
       );
     }
+    await bindFixtureCredentials(client, [companyId, foreignCompanyId]);
   });
 
   afterAll(async () => {

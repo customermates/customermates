@@ -9,6 +9,7 @@ import { buildMcpServerInstructions, GET_STARTED_PROMPT } from "@/features/mcp-t
 import { mcpToolsForToolsets } from "@/features/mcp-tools/toolsets";
 import { env } from "@/env";
 import { AppErrorCode, AuthError, ForbiddenError } from "@/core/errors/app-errors";
+import { WorkspacePlanRequiredError } from "@/core/auth/workspace-plan-required-error";
 import type { SerializedInteractorFailure } from "@/core/validation/validation.utils";
 
 export type { McpTool, McpToolResult } from "@/features/mcp-tools/mcp-tool";
@@ -130,6 +131,13 @@ function insufficientPermissions() {
   );
 }
 
+function planRequired(message: string) {
+  return new Response(JSON.stringify({ error: "plan_required", message }), {
+    status: 403,
+    headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+  });
+}
+
 function inactiveUser(message: string) {
   return new Response(JSON.stringify({ error: "inactive_user", message }), {
     status: 403,
@@ -144,6 +152,7 @@ async function mcpAccessRefusal(): Promise<Response | null> {
     return null;
   } catch (error) {
     if (error instanceof AuthError) return unauthorizedChallenge();
+    if (error instanceof WorkspacePlanRequiredError) return planRequired(error.message);
     if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied)
       return insufficientPermissions();
     if (error instanceof ForbiddenError && error.code === AppErrorCode.inactiveUser) return inactiveUser(error.message);

@@ -2,6 +2,8 @@ import type { RootStore } from "../stores/root.store";
 
 import { toast } from "sonner";
 
+import { hasWorkspaceChanged } from "../errors/workspace-changed-notice";
+
 type ToastOptions = {
   values?: Record<string, unknown>;
   descriptionKey?: string;
@@ -29,6 +31,7 @@ export abstract class BaseStore {
   };
 
   protected toastError = (key: string, options?: ToastOptions): void => {
+    if (hasWorkspaceChanged()) return;
     toast.error(this.t(key, options?.values), this.toastData(options));
   };
 

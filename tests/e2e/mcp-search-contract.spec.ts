@@ -3,13 +3,14 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { z } from "zod";
 
+import { mintApiKey } from "./api-key";
 import { localE2eEnvironment } from "./local-environment";
 import { test, expect, collectPageErrors } from "./fixtures";
 
 test("unified MCP search validates guide, procedure and knowledge results in the SDK client", async ({
-  context,
   page,
   database,
+  workspace,
   companyId,
 }) => {
   const errors = collectPageErrors(page);
@@ -25,12 +26,7 @@ test("unified MCP search validates guide, procedure and knowledge results in the
     );
   }
 
-  const keyResponse = await context.request.post(`${baseUrl}/api/auth/api-key/create`, {
-    headers: { origin: baseUrl },
-    data: { name: "Unified search output contract", expiresIn: 86400 },
-  });
-  expect(keyResponse.ok()).toBe(true);
-  const { key } = z.object({ key: z.string() }).parse(await keyResponse.json());
+  const { key } = await mintApiKey(database, workspace, "Unified search output contract");
   const client = new Client({ name: "unified-search-contract", version: "1.0.0" });
   const transport = new StreamableHTTPClientTransport(new URL(`${baseUrl}/api/v1/mcp`), {
     requestInit: { headers: { "x-api-key": key } },

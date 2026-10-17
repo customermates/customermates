@@ -9,7 +9,11 @@ const harness = vi.hoisted(() => ({
 
 vi.mock("../../actions", () => ({
   moveEmailThreadAction: harness.move,
-  getMessagingThreadAction: harness.getThread,
+  getMessagingThreadAction: async (threadId: string) => {
+    const detail = await harness.getThread(threadId);
+    if (detail && typeof detail === "object" && "ok" in detail) return detail;
+    return detail ? { ok: true, data: detail } : { ok: false, failure: { kind: "not_found", issues: [] } };
+  },
   updateThreadAction: vi.fn(),
   resyncThreadAction: vi.fn(),
 }));
