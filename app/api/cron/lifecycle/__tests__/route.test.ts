@@ -36,7 +36,7 @@ vi.mock("@/core/di", () => ({
 
 import { GET } from "../route";
 
-const RETENTION_STEPS = [8, 10, 11];
+const RETENTION_STEPS = [8, 10, 11, 12];
 const UNIPILE_STEPS = [5, 6, 7];
 
 function callLifecycle() {
