@@ -373,7 +373,7 @@ test("one person is invited, signs in, pays for a second workspace, keeps every 
       } finally {
         await visitor.dispose();
       }
-      expect([401, 403]).toContain((await apiKeyRequest(playwright, hoffmannKey)).status);
+      expect((await apiKeyRequest(playwright, hoffmannKey)).status).toBe(401);
       expect(await apiKeyRequest(playwright, kellerKey)).toEqual({ status: 200, id: kellerMember?.id });
 
       await page.goto("/en/dashboard");

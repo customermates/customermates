@@ -1,4 +1,4 @@
-import { randomBytes, randomInt, randomUUID } from "node:crypto";
+import { randomInt, randomUUID } from "node:crypto";
 
 import type { Page } from "@playwright/test";
 import type { Client } from "pg";
@@ -8,18 +8,10 @@ import { collectPageErrors, expect, test } from "./fixtures";
 import { localE2eEnvironment } from "./local-environment";
 import { expectedAuthorization, routeSocialProvider } from "./social-sign-in";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
+import { inviteToken } from "./workspace-membership";
 import { activeWorkspaceOf, clickHydrated, e2eAppMode, expectHydrated } from "./workspace-switching";
 
 test.skip(e2eAppMode() !== "cloud", "The local OAuth provider stands in for the cloud's Google and Microsoft clients");
-
-async function inviteToken(database: Client, invitation: { companyId: string; createdById: string }) {
-  const token = randomBytes(24).toString("base64url");
-  await database.query(
-    'INSERT INTO "InviteToken" (id,token,"companyId","createdById","expiresAt","updatedAt") VALUES ($1,$2,$3,$4,NOW()+interval \'7 days\',NOW())',
-    [randomUUID(), token, invitation.companyId, invitation.createdById],
-  );
-  return token;
-}
 
 async function loginEmail(database: Client, authUserId: string) {
   const { rows } = await database.query<{ email: string }>('SELECT email FROM "AuthUser" WHERE id=$1', [authUserId]);

@@ -30,8 +30,8 @@ const owner = {
   id: "owner-1",
   companyId: "company-new",
   email: "ben@example.com",
-  firstName: "Ben",
-  lastName: "Wagner",
+  firstName: "Max",
+  lastName: "Bergmann",
   country: "de",
   status: "active",
   avatarUrl: null,
@@ -77,8 +77,8 @@ describe("CreateWorkspaceInteractor", () => {
     };
     repo = {
       findMembershipProfileUnscoped: vi.fn().mockResolvedValue({
-        firstName: "Ben",
-        lastName: "Wagner",
+        firstName: "Max",
+        lastName: "Bergmann",
         avatarUrl: null,
         country: "de",
         displayLanguage: "de",

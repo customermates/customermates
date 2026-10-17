@@ -189,7 +189,7 @@ test("a removed member's API key for the workspace stops working while the key o
     await expect(memberItem(page, "Rita Vogel")).toContainText(englishMessages.WorkspaceMembership.left);
 
     const refused = await apiKeyRequest(playwright, teamKey.key);
-    expect([401, 403]).toContain(refused.status);
+    expect(refused.status).toBe(401);
     expect(await apiKeyRequest(playwright, ownKey.key)).toEqual({ status: 200, id: rita.userId });
     const keys = await database.query<{ id: string }>('SELECT id FROM "Apikey" WHERE "referenceId"=$1', [
       rita.authUserId,
@@ -277,7 +277,7 @@ test("a member removed while a page is open meets the workspace-changed dialog a
         .click();
       await expect(memberItem(page, "Rita Vogel")).toContainText(englishMessages.WorkspaceMembership.left);
 
-      await removed.page.locator("#nav-workspace-menu").click();
+      await clickHydrated(removed.page.locator("#nav-workspace-menu"));
       const notice = removed.page.getByRole("alertdialog", { name: englishMessages.Workspaces.otherTab.titleChanged });
       await expect(notice).toBeVisible();
       await removed.page.screenshot({

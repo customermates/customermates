@@ -156,7 +156,7 @@ test("opening the switcher blocks a tab whose workspace changed without an annou
   await setActiveWorkspace(database, workspace, second.companyId);
 
   const refreshed = workspaceListRefreshed(page);
-  await page.locator("#nav-workspace-menu").click();
+  await clickHydrated(page.locator("#nav-workspace-menu"));
   await refreshed;
   const notice = page.getByRole("alertdialog", { name: "You switched to Bergmann Steuern in another tab" });
   await expect(notice).toBeVisible();

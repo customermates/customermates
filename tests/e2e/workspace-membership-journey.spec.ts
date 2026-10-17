@@ -145,7 +145,7 @@ test("a member joins, withdraws, rejoins, works, leaves and is removed across th
       await expect(page).toHaveURL(/\/en\/dashboard$/);
       await expectCurrentWorkspace(page, "Browser workspace");
       expect(await membership()).toMatchObject({ status: "inactive", left: true });
-      expect([401, 403]).toContain((await apiKeyRequest(playwright, key)).status);
+      expect((await apiKeyRequest(playwright, key)).status).toBe(401);
       const keys = await database.query('SELECT id FROM "Apikey" WHERE "referenceId"=$1 AND name=$2', [
         workspace.authUserId,
         "Keller laptop",

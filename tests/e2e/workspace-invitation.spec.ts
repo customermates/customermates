@@ -1,12 +1,11 @@
 import { randomBytes, randomUUID } from "node:crypto";
 
-import type { Client } from "pg";
-
 import { hashPassword } from "better-auth/crypto";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { collectPageErrors, expect, test } from "./fixtures";
 import { addBrowserWorkspace, createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
+import { inviteToken } from "./workspace-membership";
 import {
   activeWorkspaceOf,
   clickHydrated,
@@ -20,15 +19,6 @@ import {
 } from "./workspace-switching";
 
 test.skip(e2eAppMode() === "demo", "Demo mode signs every visitor in as the shared demo account");
-
-async function inviteToken(database: Client, invitation: { companyId: string; createdById: string }) {
-  const token = randomBytes(24).toString("base64url");
-  await database.query(
-    'INSERT INTO "InviteToken" (id,token,"companyId","createdById","expiresAt","updatedAt") VALUES ($1,$2,$3,$4,NOW()+interval \'7 days\',NOW())',
-    [randomUUID(), token, invitation.companyId, invitation.createdById],
-  );
-  return token;
-}
 
 test("an existing login joins another workspace by invitation, waits for approval and then switches into it", async ({
   browser,

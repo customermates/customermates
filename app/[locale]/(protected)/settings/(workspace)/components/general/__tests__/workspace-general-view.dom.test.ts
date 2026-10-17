@@ -28,7 +28,7 @@ import { WorkspaceGeneralStore } from "../workspace-general.store";
 import { WorkspaceGeneralView } from "../workspace-general-view";
 
 const workspace: WorkspaceSummary = {
-  companyId: "54024d1c-9115-4405-8de0-691b825bf386",
+  companyId: "00000000-0000-4000-8000-000000000001",
   name: "Bergmann Steuern",
   status: "active",
   roleName: "Admin",
