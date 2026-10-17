@@ -63,7 +63,7 @@ test("the members row menu removes another member from the workspace after a con
 
   const confirm = page.getByRole("alertdialog", { name: "Remove Nora Second from Browser workspace?" });
   await expect(confirm).toContainText("Nora Second loses access to this workspace on every device.");
-  await expect(confirm).toContainText("Their API keys and AI connections for this workspace stop working.");
+  await expect(confirm).toContainText("Their API keys and MCP connections for this workspace stop working.");
   await confirm.getByRole("button", { name: "Remove", exact: true }).click();
   await expect(confirm).toHaveCount(0);
   await expect

@@ -54,12 +54,12 @@ export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
 
     const t = await getTranslations();
     const locale = await getRequestAppLocale();
-    const subject = workspace ? t("CompanyInvite.workspaceSubject", { workspace }) : t("CompanyInvite.subject");
+    const subject = workspace ? t("CompanyInvite.subjectNamed", { workspace }) : t("CompanyInvite.subject");
     const preview = workspace
-      ? t("CompanyInvite.workspacePreview", { inviterName, workspace })
+      ? t("CompanyInvite.previewNamed", { inviterName, workspace })
       : t("CompanyInvite.preview", { inviterName });
     const intro = workspace
-      ? t("CompanyInvite.workspaceIntro", { inviterName, workspace })
+      ? t("CompanyInvite.introNamed", { inviterName, workspace })
       : t("CompanyInvite.intro", { inviterName });
     const cta = t("CompanyInvite.cta");
     const fallback = t("CompanyInvite.fallback");

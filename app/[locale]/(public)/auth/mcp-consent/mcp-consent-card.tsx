@@ -77,8 +77,8 @@ const McpConsentCardContent = observer(({ clientName, consentCode, redirectHost,
 
   const selectedName = selectedWorkspace?.name?.trim();
   const title = selectedName
-    ? t("McpConsentWorkspace.title", { client: clientName, workspace: selectedName })
-    : t("McpConsentWorkspace.titleUnnamed", { client: clientName });
+    ? t("McpConsentWorkspace.titleNamed", { client: clientName, workspace: selectedName })
+    : t("McpConsentWorkspace.title", { client: clientName });
 
   return (
     <AppCard className="max-w-md">

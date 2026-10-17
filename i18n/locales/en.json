@@ -843,7 +843,7 @@
     "open": "Open in new tab"
   },
   "CheckoutPending": {
-    "abandon": "I didn't finish paying – choose a plan",
+    "abandon": "I didn't finish paying",
     "checking": "Checking the payment",
     "contactSupport": "Contact support",
     "description": "Lemon Squeezy is confirming the payment for this workspace. This page moves on by itself as soon as it arrives.",
@@ -1680,11 +1680,11 @@
     "cta": "Accept invitation",
     "fallback": "If the button does not work, copy and paste this link into your browser: ",
     "intro": "{inviterName} invited you to join their team on Customermates. Click the button below to accept the invitation and create your account.",
+    "introNamed": "{inviterName} invited you to join {workspace} on Customermates. Click the button below to accept the invitation and sign in or create your account.",
     "preview": "{inviterName} invited you to their team on Customermates",
+    "previewNamed": "{inviterName} invited you to {workspace} on Customermates",
     "subject": "Join your team on Customermates",
-    "workspaceIntro": "{inviterName} invited you to join {workspace} on Customermates. Click the button below to accept the invitation and sign in or create your account.",
-    "workspacePreview": "{inviterName} invited you to {workspace} on Customermates",
-    "workspaceSubject": "Join {workspace} on Customermates"
+    "subjectNamed": "Join {workspace} on Customermates"
   },
   "CompanyInviteModal": {
     "description": "Share this link with users you want to invite to your company.",
@@ -2339,7 +2339,7 @@
     "contactSupport": "Don't worry, we've been automatically notified about this issue and are already looking into it. If you need immediate assistance, feel free to reach out to our support team.",
     "ctaLabel": "Back to home",
     "demoModeError": "Saving, deleting and changing data is not available in demo mode. <link>Start for free now</link> to access all features.",
-    "inactiveUser": "Your account is currently inactive. Please contact your administrator to reactivate your account.",
+    "inactiveUser": "Your access to this workspace is inactive. Ask a workspace administrator to reactivate it.",
     "invalidInviteLink": "The invitation link you used is not valid or may have been altered. Please reach out to your administrator to request a new, valid invitation link so you can proceed with your registration.",
     "invalidOnboardingIntent": "This onboarding link is not valid. Return to onboarding or reopen the original invitation link.",
     "inviteLinkExpired": "The invitation link you tried to use has expired and can no longer be used. Please contact your administrator and ask them to generate a fresh invitation link for you to complete your account setup.",
@@ -2763,8 +2763,8 @@
     "current": "Current workspace",
     "pickerLabel": "Choose a workspace",
     "scopeHint": "{client} only reaches the workspace you choose. To use another workspace, connect again.",
-    "title": "Connect {client} to {workspace}",
-    "titleUnnamed": "Connect {client} to this workspace",
+    "title": "Connect {client} to this workspace",
+    "titleNamed": "Connect {client} to {workspace}",
     "unavailable": {
       "inactive": "Your access is deactivated",
       "permission": "Your role has no API access",
@@ -2782,7 +2782,7 @@
     "confirmTitle": "Remove {name} from {workspace}?",
     "consequences": {
       "channels": "Mailboxes and LinkedIn accounts they connected here are disconnected.",
-      "credentials": "Their API keys and AI connections for this workspace stop working.",
+      "credentials": "Their API keys and MCP connections for this workspace stop working.",
       "notified": "They get an email about the removal.",
       "records": "Records they own and their history stay.",
       "rejoin": "To come back, they need a new invitation."
@@ -3242,8 +3242,8 @@
     "loading": "Loading page"
   },
   "PendingCard": {
-    "body": "You can sign in once your account has been approved by your company's administrator.",
-    "subtitle": "Your account is currently being reviewed by your company's administrator",
+    "body": "You can work in this workspace once an administrator approves your request.",
+    "subtitle": "An administrator is reviewing your request to join this workspace",
     "title": "Waiting for Approval",
     "withdraw": "Withdraw request",
     "withdrawConfirmDescription": "The administrators no longer see your request. To join later, an admin has to invite you again.",
@@ -4615,31 +4615,30 @@
   },
   "WorkspaceInvitation": {
     "inactive": {
-      "body": "An administrator deactivated your access to {workspace}. Ask them to reactivate it.",
-      "bodyUnnamed": "An administrator deactivated your access to this workspace. Ask them to reactivate it.",
+      "body": "An administrator deactivated your access to this workspace. Ask them to reactivate it.",
+      "bodyNamed": "An administrator deactivated your access to {workspace}. Ask them to reactivate it.",
       "title": "Your access is deactivated"
     },
     "join": {
       "action": "Join workspace",
       "body": "An administrator approves your request before you get access. Your other workspaces stay as they are.",
       "terms": "By joining, you agree to comply with the <termsOfServiceLink>Terms</termsOfServiceLink> and confirm that you have read the <dpaLink>DPA</dpaLink> and <dataPrivacyLink>Privacy Policy</dataPrivacyLink>.",
-      "title": "Join {workspace}",
-      "titleUnnamed": "Join this workspace"
+      "title": "Join this workspace",
+      "titleNamed": "Join {workspace}"
     },
     "member": {
       "action": "Open workspace",
       "body": "Open it to continue working there.",
-      "title": "You already belong to {workspace}",
-      "titleUnnamed": "You already belong to this workspace"
+      "title": "You already belong to this workspace",
+      "titleNamed": "You already belong to {workspace}"
     },
     "otherAccount": "Use another account",
     "pending": {
       "action": "Show status",
-      "body": "An administrator of {workspace} still has to approve your request.",
-      "bodyUnnamed": "An administrator of this workspace still has to approve your request.",
+      "body": "An administrator of this workspace still has to approve your request.",
+      "bodyNamed": "An administrator of {workspace} still has to approve your request.",
       "title": "Your request is waiting for approval"
-    },
-    "signedInAs": "Signed in as {email}"
+    }
   },
   "WorkspaceMembership": {
     "left": "Left",
@@ -4650,12 +4649,11 @@
     "label": "Workspace menu"
   },
   "WorkspaceOnboarding": {
-    "workspaceName": "Workspace name",
     "workspaceNameDescription": "Optional. Helps you tell your workspaces apart; you can change it later.",
     "workspaceNamePlaceholder": "e.g. Acme Sales"
   },
   "WorkspaceRemovalNotice": {
-    "body": "You were removed from the workspace “{workspace}” on Customermates. Your access has ended, and your API keys and AI connections for this workspace no longer work.",
+    "body": "You were removed from the workspace “{workspace}” on Customermates. Your access has ended, and your API keys and MCP connections for this workspace no longer work.",
     "cta": "Sign in",
     "greeting": "Hi {firstName},",
     "otherWorkspaces": "Your account and your other workspaces stay as they are, so you can keep signing in as usual.",
@@ -4678,13 +4676,13 @@
       "title": "Choose a plan for {name}"
     },
     "leave": "Leave workspace",
-    "leaveConfirmDescription": "You lose access to its records, Knowledge Base and connections, and your API keys and AI connections for it stop working. To come back, an admin has to invite you again.",
+    "leaveConfirmDescription": "You lose access to its records, Knowledge Base and connections, and your API keys and MCP connections for it stop working. To come back, an admin has to invite you again.",
     "leaveConfirmTitle": "Leave {name}?",
     "leaveDescription": "Remove yourself from this workspace. Your other workspaces stay as they are.",
     "leaveShort": "Leave",
     "listDescription": "Every workspace you belong to. Each one keeps its own records, members, API keys and connections.",
     "memberCount": "{count, plural, one {# member} other {# members}}",
-    "nameDescription": "Everyone in this workspace sees this name in the workspace switcher.",
+    "nameDescription": "Everyone in this workspace sees this name in the workspace menu.",
     "nameLabel": "Workspace name",
     "noPlan": "No plan",
     "otherTab": {
@@ -4695,9 +4693,6 @@
       "titleNamed": "You switched to {name} in another tab"
     },
     "renameReadOnly": "Only members who can manage the workspace can change its name.",
-    "status": {
-      "pending": "Pending"
-    },
     "switch": "Switch",
     "switchTo": "Switch to {name}"
   }

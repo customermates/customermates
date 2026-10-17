@@ -843,7 +843,7 @@
     "open": "Abrir en una nueva pestaña"
   },
   "CheckoutPending": {
-    "abandon": "No terminé de pagar – elegir un plan",
+    "abandon": "No terminé de pagar",
     "checking": "Comprobando el pago",
     "contactSupport": "Contactar con soporte",
     "description": "Lemon Squeezy está confirmando el pago de este espacio de trabajo. Esta página continuará sola en cuanto llegue.",
@@ -1680,11 +1680,11 @@
     "cta": "Aceptar la invitación",
     "fallback": "Si el botón no funciona, copia y pega este enlace en tu navegador: ",
     "intro": "{inviterName} te ha invitado a unirte a su equipo en Customermates. Haz clic en el botón de abajo para aceptar la invitación y crear tu cuenta.",
+    "introNamed": "{inviterName} te ha invitado a unirte a {workspace} en Customermates. Haz clic en el botón de abajo para aceptar la invitación e iniciar sesión o crear tu cuenta.",
     "preview": "{inviterName} te ha invitado a su equipo en Customermates",
+    "previewNamed": "{inviterName} te ha invitado a {workspace} en Customermates",
     "subject": "Únete a tu equipo en Customermates",
-    "workspaceIntro": "{inviterName} te ha invitado a unirte a {workspace} en Customermates. Haz clic en el botón de abajo para aceptar la invitación e iniciar sesión o crear tu cuenta.",
-    "workspacePreview": "{inviterName} te ha invitado a {workspace} en Customermates",
-    "workspaceSubject": "Únete a {workspace} en Customermates"
+    "subjectNamed": "Únete a {workspace} en Customermates"
   },
   "CompanyInviteModal": {
     "description": "Comparte este enlace con los usuarios que quieras invitar a tu empresa.",
@@ -2339,7 +2339,7 @@
     "contactSupport": "Tranquilo, se nos ha avisado automáticamente de este problema y ya lo estamos revisando. Si necesitas ayuda inmediata, no dudes en contactar con nuestro equipo de soporte.",
     "ctaLabel": "Volver al inicio",
     "demoModeError": "En el modo demo no se puede guardar, eliminar ni modificar datos. <link>Empieza gratis ahora</link> para acceder a todas las funciones.",
-    "inactiveUser": "Tu cuenta está inactiva actualmente. Contacta con tu administrador para reactivarla.",
+    "inactiveUser": "Tu acceso a este espacio de trabajo está inactivo. Pide a un administrador del espacio de trabajo que lo reactive.",
     "invalidInviteLink": "El enlace de invitación que has usado no es válido o puede haber sido alterado. Contacta con tu administrador para solicitar un enlace nuevo y válido y continuar con tu registro.",
     "invalidOnboardingIntent": "Este enlace de incorporación no es válido. Vuelve a la incorporación o abre de nuevo el enlace de invitación original.",
     "inviteLinkExpired": "El enlace de invitación que has intentado usar ha caducado y ya no se puede utilizar. Contacta con tu administrador y pídele que genere uno nuevo para completar la configuración de tu cuenta.",
@@ -2763,8 +2763,8 @@
     "current": "Espacio de trabajo actual",
     "pickerLabel": "Elige un espacio de trabajo",
     "scopeHint": "{client} solo accede al espacio de trabajo que elijas. Para usar otro, vuelve a conectarlo.",
-    "title": "Conectar {client} con {workspace}",
-    "titleUnnamed": "Conectar {client} con este espacio de trabajo",
+    "title": "Conectar {client} con este espacio de trabajo",
+    "titleNamed": "Conectar {client} con {workspace}",
     "unavailable": {
       "inactive": "Tu acceso está desactivado",
       "permission": "Tu rol no tiene acceso a la API",
@@ -2782,7 +2782,7 @@
     "confirmTitle": "¿Quitar a {name} de {workspace}?",
     "consequences": {
       "channels": "Los buzones y las cuentas de LinkedIn que conectó aquí se desconectan.",
-      "credentials": "Sus claves de API y conexiones de IA para este espacio de trabajo dejan de funcionar.",
+      "credentials": "Sus claves de API y conexiones MCP para este espacio de trabajo dejan de funcionar.",
       "notified": "Se le avisa por correo.",
       "records": "Sus registros y su historial se conservan.",
       "rejoin": "Para volver, necesita una nueva invitación."
@@ -3242,8 +3242,8 @@
     "loading": "Cargando la página"
   },
   "PendingCard": {
-    "body": "Podrás iniciar sesión en cuanto el administrador de tu empresa apruebe tu cuenta.",
-    "subtitle": "El administrador de tu empresa está revisando tu cuenta",
+    "body": "Podrás trabajar en este espacio de trabajo en cuanto un administrador apruebe tu solicitud.",
+    "subtitle": "Un administrador está revisando tu solicitud para unirte a este espacio de trabajo",
     "title": "A la espera de aprobación",
     "withdraw": "Retirar solicitud",
     "withdrawConfirmDescription": "Los administradores ya no ven tu solicitud. Para unirte más tarde, un administrador tiene que invitarte de nuevo.",
@@ -4615,34 +4615,33 @@
   },
   "WorkspaceInvitation": {
     "inactive": {
-      "body": "Un administrador desactivó tu acceso a {workspace}. Pídele que lo reactive.",
-      "bodyUnnamed": "Un administrador desactivó tu acceso a este espacio de trabajo. Pídele que lo reactive.",
+      "body": "Un administrador desactivó tu acceso a este espacio de trabajo. Pídele que lo reactive.",
+      "bodyNamed": "Un administrador desactivó tu acceso a {workspace}. Pídele que lo reactive.",
       "title": "Tu acceso está desactivado"
     },
     "join": {
-      "action": "Unirme al espacio de trabajo",
+      "action": "Unirse al espacio de trabajo",
       "body": "Un administrador aprueba tu solicitud antes de que obtengas acceso. Tus otros espacios de trabajo no cambian.",
       "terms": "Al unirte, aceptas cumplir los <termsOfServiceLink>Términos</termsOfServiceLink> y confirmas que has leído el <dpaLink>DPA</dpaLink> y la <dataPrivacyLink>Política de privacidad</dataPrivacyLink>.",
-      "title": "Unirte a {workspace}",
-      "titleUnnamed": "Unirte a este espacio de trabajo"
+      "title": "Unirte a este espacio de trabajo",
+      "titleNamed": "Unirte a {workspace}"
     },
     "member": {
       "action": "Abrir el espacio de trabajo",
       "body": "Ábrelo para seguir trabajando allí.",
-      "title": "Ya eres miembro de {workspace}",
-      "titleUnnamed": "Ya eres miembro de este espacio de trabajo"
+      "title": "Ya eres miembro de este espacio de trabajo",
+      "titleNamed": "Ya eres miembro de {workspace}"
     },
     "otherAccount": "Usar otra cuenta",
     "pending": {
       "action": "Ver el estado",
-      "body": "Un administrador de {workspace} todavía tiene que aprobar tu solicitud.",
-      "bodyUnnamed": "Un administrador de este espacio de trabajo todavía tiene que aprobar tu solicitud.",
+      "body": "Un administrador de este espacio de trabajo todavía tiene que aprobar tu solicitud.",
+      "bodyNamed": "Un administrador de {workspace} todavía tiene que aprobar tu solicitud.",
       "title": "Tu solicitud está pendiente de aprobación"
-    },
-    "signedInAs": "Sesión iniciada como {email}"
+    }
   },
   "WorkspaceMembership": {
-    "left": "Salió",
+    "left": "Ya no es miembro",
     "leftNotice": "{name} salió de este espacio de trabajo. Para darle acceso de nuevo, envía una nueva invitación."
   },
   "WorkspaceMenu": {
@@ -4650,12 +4649,11 @@
     "label": "Menú del espacio de trabajo"
   },
   "WorkspaceOnboarding": {
-    "workspaceName": "Nombre del espacio de trabajo",
     "workspaceNameDescription": "Opcional. Te ayuda a distinguir tus espacios de trabajo; puedes cambiarlo más tarde.",
     "workspaceNamePlaceholder": "p. ej., Acme Ventas"
   },
   "WorkspaceRemovalNotice": {
-    "body": "Ya no formas parte del espacio de trabajo «{workspace}» en Customermates. Tu acceso ha terminado y tus claves de API y conexiones de IA para este espacio de trabajo ya no funcionan.",
+    "body": "Ya no formas parte del espacio de trabajo «{workspace}» en Customermates. Tu acceso ha terminado y tus claves de API y conexiones MCP para este espacio de trabajo ya no funcionan.",
     "cta": "Iniciar sesión",
     "greeting": "Hola {firstName}:",
     "otherWorkspaces": "Tu cuenta y tus otros espacios de trabajo no cambian, así que puedes seguir iniciando sesión como siempre.",
@@ -4678,13 +4676,13 @@
       "title": "Elige un plan para {name}"
     },
     "leave": "Salir del espacio de trabajo",
-    "leaveConfirmDescription": "Pierdes el acceso a sus registros, su base de conocimientos y sus conexiones, y tus claves de API y conexiones de IA asociadas dejan de funcionar. Para volver, un administrador tendrá que invitarte de nuevo.",
+    "leaveConfirmDescription": "Pierdes el acceso a sus registros, su base de conocimientos y sus conexiones, y tus claves de API y conexiones MCP asociadas dejan de funcionar. Para volver, un administrador tendrá que invitarte de nuevo.",
     "leaveConfirmTitle": "¿Salir de {name}?",
     "leaveDescription": "Sal de este espacio de trabajo. Tus otros espacios de trabajo no cambian.",
     "leaveShort": "Salir",
     "listDescription": "Todos los espacios de trabajo a los que perteneces. Cada uno tiene sus propios registros, miembros, claves de API y conexiones.",
     "memberCount": "{count, plural, one {# miembro} other {# miembros}}",
-    "nameDescription": "Todos los miembros ven este nombre en el selector de espacios de trabajo.",
+    "nameDescription": "Todos los miembros ven este nombre en el menú del espacio de trabajo.",
     "nameLabel": "Nombre del espacio de trabajo",
     "noPlan": "Sin plan",
     "otherTab": {
@@ -4695,9 +4693,6 @@
       "titleNamed": "Has cambiado a {name} en otra pestaña"
     },
     "renameReadOnly": "Solo los miembros que pueden gestionar el espacio de trabajo pueden cambiar su nombre.",
-    "status": {
-      "pending": "Pendiente"
-    },
     "switch": "Cambiar",
     "switchTo": "Cambiar a {name}"
   }

@@ -43,7 +43,7 @@ test("a pending membership waits on its approval screen and leaves the way to th
   });
   const menu = await openWorkspaceSwitcher(page);
   await expect(menu.locator(`[data-workspace-id="${second.companyId}"]`)).toContainText(
-    englishMessages.Workspaces.status.pending,
+    englishMessages.Common.userStatuses.pendingAuthorization,
   );
   expect(errors).toEqual([]);
 });

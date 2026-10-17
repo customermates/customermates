@@ -843,7 +843,7 @@
     "open": "In neuem Tab öffnen"
   },
   "CheckoutPending": {
-    "abandon": "Ich habe die Zahlung nicht abgeschlossen – Tarif wählen",
+    "abandon": "Ich habe die Zahlung nicht abgeschlossen",
     "checking": "Zahlung wird geprüft",
     "contactSupport": "Support kontaktieren",
     "description": "Lemon Squeezy bestätigt gerade die Zahlung für diesen Workspace. Die Seite geht von selbst weiter, sobald die Zahlung bestätigt ist.",
@@ -1267,7 +1267,7 @@
       "workspaceChanged": "Dein Workspace hat sich in einem anderen Tab oder auf einem anderen Gerät geändert. Lade die Seite neu, bevor du weitermachst.",
       "workspaceCreationUnavailable": "Hier können keine neuen Workspaces erstellt werden.",
       "workspaceInvitationInvalid": "Dieser Einladungslink ist ungültig oder abgelaufen. Bitte um einen neuen Link.",
-      "workspaceLastAdmin": "Du bist der einzige Admin dieses Workspaces. Mache vor dem Verlassen ein anderes aktives Mitglied zum Admin.",
+      "workspaceLastAdmin": "Du bist der einzige Admin dieses Workspaces. Mach vor dem Verlassen ein anderes aktives Mitglied zum Admin.",
       "workspaceLimitReached": "Du kannst bis zu {limit} Workspaces erstellen. Wende dich an den Support, wenn du mehr brauchst.",
       "workspaceMemberLastAdmin": "Dieses Mitglied ist der einzige aktive Admin dieses Workspaces. Mach vor dem Entfernen ein anderes aktives Mitglied zum Admin.",
       "workspaceMemberLeft": "Dieses Mitglied hat den Workspace verlassen. Lade es erneut ein, um ihm wieder Zugriff zu geben.",
@@ -1680,11 +1680,11 @@
     "cta": "Einladung annehmen",
     "fallback": "Falls der Button nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein: ",
     "intro": "{inviterName} hat dich eingeladen, dem Team auf Customermates beizutreten. Klicke auf den Button unten, um die Einladung anzunehmen und dein Konto zu erstellen.",
+    "introNamed": "{inviterName} hat dich eingeladen, {workspace} auf Customermates beizutreten. Klicke auf den Button unten, um die Einladung anzunehmen und dich anzumelden oder dein Konto zu erstellen.",
     "preview": "{inviterName} hat dich zu seinem Team auf Customermates eingeladen",
+    "previewNamed": "{inviterName} hat dich zu {workspace} auf Customermates eingeladen",
     "subject": "Tritt deinem Team auf Customermates bei",
-    "workspaceIntro": "{inviterName} hat dich eingeladen, {workspace} auf Customermates beizutreten. Klicke auf den Button unten, um die Einladung anzunehmen und dich anzumelden oder dein Konto zu erstellen.",
-    "workspacePreview": "{inviterName} hat dich zu {workspace} auf Customermates eingeladen",
-    "workspaceSubject": "Tritt {workspace} auf Customermates bei"
+    "subjectNamed": "Tritt {workspace} auf Customermates bei"
   },
   "CompanyInviteModal": {
     "description": "Teile diesen Link mit Benutzern, die du zu deinem Unternehmen einladen möchtest.",
@@ -2339,7 +2339,7 @@
     "contactSupport": "Keine Sorge, wir wurden automatisch über dieses Problem benachrichtigt und kümmern uns bereits darum. Wenn du sofortige Hilfe benötigst, kannst du dich gerne an unser Support-Team wenden.",
     "ctaLabel": "Zurück zur Startseite",
     "demoModeError": "Speichern, Löschen und Ändern von Daten ist im Demo-Modus nicht verfügbar. <link>Jetzt kostenlos starten</link>, um auf alle Funktionen zuzugreifen.",
-    "inactiveUser": "Dein Konto ist derzeit inaktiv. Kontaktiere deinen Administrator, um dein Konto zu reaktivieren.",
+    "inactiveUser": "Dein Zugang zu diesem Workspace ist inaktiv. Bitte einen Administrator des Workspace, ihn zu reaktivieren.",
     "invalidInviteLink": "Der Einladungslink, den du verwendet hast, ist ungültig oder wurde möglicherweise manipuliert. Kontaktiere deinen Administrator, um einen neuen, gültigen Einladungslink zu erhalten und deine Registrierung fortzusetzen.",
     "invalidOnboardingIntent": "Dieser Onboarding-Link ist ungültig. Kehre zum Onboarding zurück oder öffne den ursprünglichen Einladungslink erneut.",
     "inviteLinkExpired": "Der Einladungslink, den du verwendet hast, ist abgelaufen und kann nicht mehr verwendet werden. Kontaktiere deinen Administrator und bitte ihn, einen neuen Einladungslink für dich zu erstellen, damit du deine Kontoeinrichtung abschließen kannst.",
@@ -2763,8 +2763,8 @@
     "current": "Aktueller Workspace",
     "pickerLabel": "Workspace auswählen",
     "scopeHint": "{client} erreicht nur den Workspace, den du auswählst. Für einen anderen Workspace verbindest du erneut.",
-    "title": "{client} mit {workspace} verbinden",
-    "titleUnnamed": "{client} mit diesem Workspace verbinden",
+    "title": "{client} mit diesem Workspace verbinden",
+    "titleNamed": "{client} mit {workspace} verbinden",
     "unavailable": {
       "inactive": "Dein Zugriff ist deaktiviert",
       "permission": "Deine Rolle hat keinen API-Zugriff",
@@ -2782,7 +2782,7 @@
     "confirmTitle": "{name} aus {workspace} entfernen?",
     "consequences": {
       "channels": "Hier verbundene Postfächer und LinkedIn-Konten werden getrennt.",
-      "credentials": "API-Schlüssel und KI-Verbindungen für diesen Workspace funktionieren nicht mehr.",
+      "credentials": "API-Schlüssel und MCP-Verbindungen für diesen Workspace funktionieren nicht mehr.",
       "notified": "Die Person bekommt dazu eine E-Mail.",
       "records": "Eigene Datensätze und der Verlauf bleiben erhalten.",
       "rejoin": "Für eine Rückkehr ist eine neue Einladung nötig."
@@ -3014,7 +3014,7 @@
     "progressLabel": "Fortschritt der Einrichtung",
     "steps": {
       "ai": {
-        "subtitle": "Wähle ein KI-Tool und verbinde es mit deinem Arbeitsbereich und eurem Unternehmenswissen. Verbinde jetzt eines, ergänze später weitere oder überspringe diesen Schritt.",
+        "subtitle": "Wähle ein KI-Tool und verbinde es mit deinem Workspace und eurem Unternehmenswissen. Verbinde jetzt eines, ergänze später weitere oder überspringe diesen Schritt.",
         "title": "Verbinde die KI, die du schon nutzt"
       },
       "invite": {
@@ -3022,9 +3022,9 @@
         "title": "Hol dein Team dazu"
       },
       "profile": {
-        "invitedSubtitle": "Vervollständige dein Profil, um Zugang zum Arbeitsbereich anzufragen, zu dem du eingeladen wurdest.",
+        "invitedSubtitle": "Vervollständige dein Profil, um Zugang zum Workspace anzufragen, zu dem du eingeladen wurdest.",
         "subtitle": "Ergänze deinen Namen und dein Land, damit dein Team dich erkennt. Diese Angaben gehören zu deinem Profil und lassen sich später ändern.",
-        "title": "Mach diesen Arbeitsbereich zu deinem"
+        "title": "Mach diesen Workspace zu deinem"
       },
       "wiki": {
         "subtitle": "Starte mit eurer Unternehmenswebsite. Mate erstellt aus überprüfbaren Informationen gemeinsame, bearbeitbare Seiten in der Wissensdatenbank – mit Quellen und offenen Fragen zur Prüfung.",
@@ -3242,8 +3242,8 @@
     "loading": "Seite wird geladen"
   },
   "PendingCard": {
-    "body": "Du kannst dich anmelden, sobald dein Konto von einem Administrator deines Unternehmens genehmigt wurde.",
-    "subtitle": "Dein Konto wird derzeit von einem Administrator deines Unternehmens geprüft",
+    "body": "Du kannst in diesem Workspace arbeiten, sobald ein Administrator deine Anfrage genehmigt.",
+    "subtitle": "Ein Administrator prüft deine Anfrage, diesem Workspace beizutreten",
     "title": "Warten auf Genehmigung",
     "withdraw": "Anfrage zurückziehen",
     "withdrawConfirmDescription": "Die Admins sehen deine Anfrage nicht mehr. Um später beizutreten, muss dich ein Admin erneut einladen.",
@@ -4311,10 +4311,10 @@
   "SubscriptionExpiredView": {
     "administratorRequiredDescription": "Ein Unternehmensadministrator muss das Abonnement wiederherstellen. Versuche es danach erneut oder kontaktiere unser Support-Team.",
     "contactSupportCta": "Support kontaktieren",
-    "manualEnterpriseBillingDescription": "Dein Enterprise-Arbeitsbereich wird manuell abgerechnet. Kontaktiere unser Support-Team, um den Zugang wiederherzustellen, und versuche es danach erneut.",
+    "manualEnterpriseBillingDescription": "Dein Enterprise-Workspace wird manuell abgerechnet. Kontaktiere unser Support-Team, um den Zugang wiederherzustellen, und versuche es danach erneut.",
     "retry": "Erneut versuchen",
-    "selfServiceCheckoutDescription": "Dein Arbeitsbereich hat kein aktives Abonnement mehr. Wähle einen Tarif, um Customermates weiter zu nutzen, oder kontaktiere bei Fragen unser Support-Team.",
-    "subtitle": "Der Zugriff auf den Arbeitsbereich ist pausiert",
+    "selfServiceCheckoutDescription": "Dein Workspace hat kein aktives Abonnement mehr. Wähle einen Tarif, um Customermates weiter zu nutzen, oder kontaktiere bei Fragen unser Support-Team.",
+    "subtitle": "Der Zugriff auf den Workspace ist pausiert",
     "supportEmailSubject": "Abonnement-Anfrage",
     "title": "Abonnement erforderlich"
   },
@@ -4615,31 +4615,30 @@
   },
   "WorkspaceInvitation": {
     "inactive": {
-      "body": "Ein Admin hat deinen Zugriff auf {workspace} deaktiviert. Bitte einen Admin, ihn wieder zu aktivieren.",
-      "bodyUnnamed": "Ein Admin hat deinen Zugriff auf diesen Workspace deaktiviert. Bitte einen Admin, ihn wieder zu aktivieren.",
+      "body": "Ein Admin hat deinen Zugriff auf diesen Workspace deaktiviert. Bitte einen Admin, ihn wieder zu aktivieren.",
+      "bodyNamed": "Ein Admin hat deinen Zugriff auf {workspace} deaktiviert. Bitte einen Admin, ihn wieder zu aktivieren.",
       "title": "Dein Zugriff ist deaktiviert"
     },
     "join": {
       "action": "Workspace beitreten",
       "body": "Ein Admin gibt deine Anfrage frei, bevor du Zugriff bekommst. Deine anderen Workspaces bleiben unverändert.",
       "terms": "Mit dem Beitritt verpflichtest du dich, die <termsOfServiceLink>AGB</termsOfServiceLink> einzuhalten, und bestätigst, dass du den <dpaLink>AVV</dpaLink> sowie die <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> gelesen hast.",
-      "title": "{workspace} beitreten",
-      "titleUnnamed": "Diesem Workspace beitreten"
+      "title": "Diesem Workspace beitreten",
+      "titleNamed": "{workspace} beitreten"
     },
     "member": {
       "action": "Workspace öffnen",
       "body": "Öffne ihn, um dort weiterzuarbeiten.",
-      "title": "Du bist bereits Mitglied von {workspace}",
-      "titleUnnamed": "Du bist bereits Mitglied dieses Workspaces"
+      "title": "Du bist bereits Mitglied dieses Workspaces",
+      "titleNamed": "Du bist bereits Mitglied von {workspace}"
     },
     "otherAccount": "Anderes Konto verwenden",
     "pending": {
       "action": "Status anzeigen",
-      "body": "Ein Admin von {workspace} muss deine Anfrage noch freigeben.",
-      "bodyUnnamed": "Ein Admin dieses Workspaces muss deine Anfrage noch freigeben.",
+      "body": "Ein Admin dieses Workspaces muss deine Anfrage noch freigeben.",
+      "bodyNamed": "Ein Admin von {workspace} muss deine Anfrage noch freigeben.",
       "title": "Deine Anfrage wartet auf Freigabe"
-    },
-    "signedInAs": "Angemeldet als {email}"
+    }
   },
   "WorkspaceMembership": {
     "left": "Ausgetreten",
@@ -4650,12 +4649,11 @@
     "label": "Workspace-Menü"
   },
   "WorkspaceOnboarding": {
-    "workspaceName": "Workspace-Name",
     "workspaceNameDescription": "Optional. Damit unterscheidest du deine Workspaces; du kannst ihn später ändern.",
     "workspaceNamePlaceholder": "z. B. Acme Vertrieb"
   },
   "WorkspaceRemovalNotice": {
-    "body": "Du wurdest aus dem Workspace „{workspace}“ auf Customermates entfernt. Dein Zugriff ist beendet, und deine API-Schlüssel und KI-Verbindungen für diesen Workspace funktionieren nicht mehr.",
+    "body": "Du wurdest aus dem Workspace „{workspace}“ auf Customermates entfernt. Dein Zugriff ist beendet, und deine API-Schlüssel und MCP-Verbindungen für diesen Workspace funktionieren nicht mehr.",
     "cta": "Anmelden",
     "greeting": "Hallo {firstName},",
     "otherWorkspaces": "Dein Konto und deine anderen Workspaces bleiben unverändert. Du kannst dich wie gewohnt anmelden.",
@@ -4678,13 +4676,13 @@
       "title": "Wähle einen Tarif für {name}"
     },
     "leave": "Workspace verlassen",
-    "leaveConfirmDescription": "Du verlierst den Zugriff auf seine Datensätze, die Wissensdatenbank und Verbindungen, und deine API-Schlüssel und KI-Verbindungen dafür funktionieren nicht mehr. Um zurückzukommen, muss dich ein Admin erneut einladen.",
+    "leaveConfirmDescription": "Du verlierst den Zugriff auf seine Datensätze, die Wissensdatenbank und Verbindungen, und deine API-Schlüssel und MCP-Verbindungen dafür funktionieren nicht mehr. Um zurückzukommen, muss dich ein Admin erneut einladen.",
     "leaveConfirmTitle": "{name} verlassen?",
     "leaveDescription": "Entferne dich aus diesem Workspace. Deine anderen Workspaces bleiben unverändert.",
     "leaveShort": "Verlassen",
     "listDescription": "Alle Workspaces, zu denen du gehörst. Jeder hat eigene Datensätze, Mitglieder, API-Schlüssel und Verbindungen.",
     "memberCount": "{count, plural, one {# Mitglied} other {# Mitglieder}}",
-    "nameDescription": "Alle Mitglieder sehen diesen Namen im Workspace-Wechsler.",
+    "nameDescription": "Alle Mitglieder sehen diesen Namen im Workspace-Menü.",
     "nameLabel": "Workspace-Name",
     "noPlan": "Kein Tarif",
     "otherTab": {
@@ -4695,9 +4693,6 @@
       "titleNamed": "Du hast in einem anderen Tab zu {name} gewechselt"
     },
     "renameReadOnly": "Nur Mitglieder, die den Workspace verwalten dürfen, können den Namen ändern.",
-    "status": {
-      "pending": "Ausstehend"
-    },
     "switch": "Wechseln",
     "switchTo": "Zu {name} wechseln"
   }

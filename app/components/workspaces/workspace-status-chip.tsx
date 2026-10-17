@@ -11,7 +11,9 @@ export function WorkspaceStatusChip({ status }: { status: Status }) {
 
   return (
     <AppChip className="shrink-0" size="sm" variant={USER_STATUS_COLORS_MAP[status]}>
-      {status === Status.pendingAuthorization ? t("Workspaces.status.pending") : t("Common.userStatuses.inactive")}
+      {status === Status.pendingAuthorization
+        ? t("Common.userStatuses.pendingAuthorization")
+        : t("Common.userStatuses.inactive")}
     </AppChip>
   );
 }

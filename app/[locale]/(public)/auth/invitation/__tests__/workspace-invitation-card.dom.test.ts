@@ -91,7 +91,7 @@ describe("WorkspaceInvitationCard", () => {
     render(null);
 
     expect(container.querySelector("h1")?.textContent).toBe(
-      `WorkspaceInvitation.join.title ${JSON.stringify({ workspace: "Bergmann Steuern" })}`,
+      `WorkspaceInvitation.join.titleNamed ${JSON.stringify({ workspace: "Bergmann Steuern" })}`,
     );
     expect(container.textContent).toContain("WorkspaceInvitation.join.terms");
 
@@ -126,7 +126,7 @@ describe("WorkspaceInvitationCard", () => {
     harness.joinWorkspaceAction.mockResolvedValue({ ok: false, error });
     render(null, null);
 
-    expect(container.querySelector("h1")?.textContent).toBe("WorkspaceInvitation.join.titleUnnamed");
+    expect(container.querySelector("h1")?.textContent).toBe("WorkspaceInvitation.join.title");
 
     await click(button("WorkspaceInvitation.join.action"));
 

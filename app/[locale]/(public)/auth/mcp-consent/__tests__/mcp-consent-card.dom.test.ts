@@ -106,7 +106,7 @@ describe("McpConsentCard", () => {
   it("names the selected workspace and lets the person pick another available one", () => {
     render([crm, taxes, waiting]);
 
-    expect(headline()).toBe(`McpConsentWorkspace.title ${JSON.stringify({ client: "Claude", workspace: "CRM" })}`);
+    expect(headline()).toBe(`McpConsentWorkspace.titleNamed ${JSON.stringify({ client: "Claude", workspace: "CRM" })}`);
     expect(optionLabel("company-a")?.textContent).toBe("CCRMMcpConsentWorkspace.current");
     expect(workspaceOption("company-c")?.disabled).toBe(true);
     expect(optionLabel("company-c")?.textContent).toBe(
@@ -116,7 +116,9 @@ describe("McpConsentCard", () => {
     act(() => workspaceOption("company-b")?.click());
 
     expect(store.selectedCompanyId).toBe("company-b");
-    expect(headline()).toBe(`McpConsentWorkspace.title ${JSON.stringify({ client: "Claude", workspace: "Taxes" })}`);
+    expect(headline()).toBe(
+      `McpConsentWorkspace.titleNamed ${JSON.stringify({ client: "Claude", workspace: "Taxes" })}`,
+    );
   });
 
   it("marks every workspace with the switcher's initial and colour, unavailable ones included", () => {
@@ -152,7 +154,7 @@ describe("McpConsentCard", () => {
     render([{ ...crm, name: null }]);
 
     expect(workspaceOption("company-a")).toBeNull();
-    expect(headline()).toBe(`McpConsentWorkspace.titleUnnamed ${JSON.stringify({ client: "Claude" })}`);
+    expect(headline()).toBe(`McpConsentWorkspace.title ${JSON.stringify({ client: "Claude" })}`);
     expect(button("McpConsentCard.approve")).toBeDefined();
   });
 

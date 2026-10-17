@@ -101,12 +101,12 @@ describe("InviteUsersByEmailInteractor", () => {
 
     const message = emailService.send.mock.calls[0][0];
     const inviterName = `${mockUser.firstName} ${mockUser.lastName}`.trim();
-    expect(message.subject).toBe(`CompanyInvite.workspaceSubject ${JSON.stringify({ workspace: "Taxes" })}`);
+    expect(message.subject).toBe(`CompanyInvite.subjectNamed ${JSON.stringify({ workspace: "Taxes" })}`);
     expect(message.react.props.preview).toBe(
-      `CompanyInvite.workspacePreview ${JSON.stringify({ inviterName, workspace: "Taxes" })}`,
+      `CompanyInvite.previewNamed ${JSON.stringify({ inviterName, workspace: "Taxes" })}`,
     );
     expect(message.react.props.intro).toBe(
-      `CompanyInvite.workspaceIntro ${JSON.stringify({ inviterName, workspace: "Taxes" })}`,
+      `CompanyInvite.introNamed ${JSON.stringify({ inviterName, workspace: "Taxes" })}`,
     );
   });
 

@@ -94,7 +94,7 @@ describe("WorkspaceSwitcherItems", () => {
     expect(current?.querySelector("svg")).not.toBeNull();
     expect(item("company-b")?.textContent).toContain("Workspaces.fallbackName");
     expect(item("company-b")?.getAttribute("aria-current")).toBeNull();
-    expect(item("company-c")?.textContent).toContain("Workspaces.status.pending");
+    expect(item("company-c")?.textContent).toContain("Common.userStatuses.pendingAuthorization");
     expect(document.getElementById("workspace-menu-create")?.textContent).toContain("Workspaces.create");
   });
 

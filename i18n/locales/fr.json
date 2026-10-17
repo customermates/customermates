@@ -843,7 +843,7 @@
     "open": "Ouvrir dans un nouvel onglet"
   },
   "CheckoutPending": {
-    "abandon": "Je n'ai pas fini de payer – choisir une offre",
+    "abandon": "Je n'ai pas fini de payer",
     "checking": "Vérification du paiement",
     "contactSupport": "Contacter l'assistance",
     "description": "Lemon Squeezy confirme le paiement de cet espace de travail. Cette page continue d'elle-même dès qu'il arrive.",
@@ -1680,11 +1680,11 @@
     "cta": "Accepter l'invitation",
     "fallback": "Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur : ",
     "intro": "{inviterName} vous invite à rejoindre son équipe sur Customermates. Cliquez sur le bouton ci-dessous pour accepter l'invitation et créer votre compte.",
+    "introNamed": "{inviterName} vous invite à rejoindre {workspace} sur Customermates. Cliquez sur le bouton ci-dessous pour accepter l'invitation et vous connecter ou créer votre compte.",
     "preview": "{inviterName} vous invite à rejoindre son équipe sur Customermates",
+    "previewNamed": "{inviterName} vous invite à rejoindre {workspace} sur Customermates",
     "subject": "Rejoignez votre équipe sur Customermates",
-    "workspaceIntro": "{inviterName} vous invite à rejoindre {workspace} sur Customermates. Cliquez sur le bouton ci-dessous pour accepter l'invitation et vous connecter ou créer votre compte.",
-    "workspacePreview": "{inviterName} vous invite à rejoindre {workspace} sur Customermates",
-    "workspaceSubject": "Rejoignez {workspace} sur Customermates"
+    "subjectNamed": "Rejoignez {workspace} sur Customermates"
   },
   "CompanyInviteModal": {
     "description": "Partagez ce lien avec les utilisateurs que vous souhaitez inviter dans votre entreprise.",
@@ -2339,7 +2339,7 @@
     "contactSupport": "Rassurez-vous, nous avons été automatiquement informés de ce problème et nous nous en occupons déjà. Si vous avez besoin d'aide immédiatement, n'hésitez pas à contacter notre assistance.",
     "ctaLabel": "Retour à l'accueil",
     "demoModeError": "L'enregistrement, la suppression et la modification de données ne sont pas disponibles en mode démo. <link>Commencez gratuitement</link> pour accéder à toutes les fonctionnalités.",
-    "inactiveUser": "Votre compte est actuellement inactif. Contactez votre administrateur pour le réactiver.",
+    "inactiveUser": "Votre accès à cet espace de travail est inactif. Demandez à un administrateur de l'espace de travail de le réactiver.",
     "invalidInviteLink": "Le lien d'invitation utilisé n'est pas valide ou a peut-être été modifié. Contactez votre administrateur pour obtenir un nouveau lien valide et poursuivre votre inscription.",
     "invalidOnboardingIntent": "Ce lien d'intégration n'est pas valide. Revenez à l'intégration ou rouvrez le lien d'invitation d'origine.",
     "inviteLinkExpired": "Le lien d'invitation que vous avez utilisé a expiré et ne peut plus servir. Contactez votre administrateur pour qu'il vous génère un nouveau lien et terminez la configuration de votre compte.",
@@ -2763,8 +2763,8 @@
     "current": "Espace de travail actuel",
     "pickerLabel": "Choisissez un espace de travail",
     "scopeHint": "{client} n'accède qu'à l'espace de travail que vous choisissez. Pour en utiliser un autre, connectez-vous à nouveau.",
-    "title": "Connecter {client} à {workspace}",
-    "titleUnnamed": "Connecter {client} à cet espace de travail",
+    "title": "Connecter {client} à cet espace de travail",
+    "titleNamed": "Connecter {client} à {workspace}",
     "unavailable": {
       "inactive": "Votre accès est désactivé",
       "permission": "Votre rôle n'a pas d'accès à l'API",
@@ -2782,7 +2782,7 @@
     "confirmTitle": "Retirer {name} de {workspace} ?",
     "consequences": {
       "channels": "Les boîtes mail et comptes LinkedIn connectés ici par cette personne sont déconnectés.",
-      "credentials": "Ses clés API et connexions IA pour cet espace de travail cessent de fonctionner.",
+      "credentials": "Ses clés API et connexions MCP pour cet espace de travail cessent de fonctionner.",
       "notified": "Cette personne en est informée par e-mail.",
       "records": "Ses enregistrements et son historique sont conservés.",
       "rejoin": "Pour revenir, une nouvelle invitation est nécessaire."
@@ -3242,8 +3242,8 @@
     "loading": "Chargement de la page"
   },
   "PendingCard": {
-    "body": "Vous pourrez vous connecter dès que votre compte aura été approuvé par l'administrateur de votre entreprise.",
-    "subtitle": "Votre compte est en cours d'examen par l'administrateur de votre entreprise",
+    "body": "Vous pourrez travailler dans cet espace de travail dès qu'un administrateur aura approuvé votre demande.",
+    "subtitle": "Un administrateur examine votre demande pour rejoindre cet espace de travail",
     "title": "En attente d'approbation",
     "withdraw": "Retirer la demande",
     "withdrawConfirmDescription": "Les administrateurs ne voient plus votre demande. Pour rejoindre plus tard, un administrateur doit vous inviter à nouveau.",
@@ -4615,34 +4615,33 @@
   },
   "WorkspaceInvitation": {
     "inactive": {
-      "body": "Un administrateur a désactivé votre accès à {workspace}. Demandez-lui de le réactiver.",
-      "bodyUnnamed": "Un administrateur a désactivé votre accès à cet espace de travail. Demandez-lui de le réactiver.",
+      "body": "Un administrateur a désactivé votre accès à cet espace de travail. Demandez-lui de le réactiver.",
+      "bodyNamed": "Un administrateur a désactivé votre accès à {workspace}. Demandez-lui de le réactiver.",
       "title": "Votre accès est désactivé"
     },
     "join": {
       "action": "Rejoindre l'espace de travail",
       "body": "Un administrateur approuve votre demande avant que vous obteniez l'accès. Vos autres espaces de travail ne changent pas.",
       "terms": "En rejoignant l'espace de travail, vous acceptez de respecter les <termsOfServiceLink>conditions générales</termsOfServiceLink> et confirmez avoir lu le <dpaLink>DPA</dpaLink> ainsi que la <dataPrivacyLink>politique de confidentialité</dataPrivacyLink>.",
-      "title": "Rejoindre {workspace}",
-      "titleUnnamed": "Rejoindre cet espace de travail"
+      "title": "Rejoindre cet espace de travail",
+      "titleNamed": "Rejoindre {workspace}"
     },
     "member": {
       "action": "Ouvrir l'espace de travail",
       "body": "Ouvrez-le pour continuer à y travailler.",
-      "title": "Vous êtes déjà membre de {workspace}",
-      "titleUnnamed": "Vous êtes déjà membre de cet espace de travail"
+      "title": "Vous êtes déjà membre de cet espace de travail",
+      "titleNamed": "Vous êtes déjà membre de {workspace}"
     },
     "otherAccount": "Utiliser un autre compte",
     "pending": {
       "action": "Voir le statut",
-      "body": "Un administrateur de {workspace} doit encore approuver votre demande.",
-      "bodyUnnamed": "Un administrateur de cet espace de travail doit encore approuver votre demande.",
+      "body": "Un administrateur de cet espace de travail doit encore approuver votre demande.",
+      "bodyNamed": "Un administrateur de {workspace} doit encore approuver votre demande.",
       "title": "Votre demande attend une approbation"
-    },
-    "signedInAs": "Connecté en tant que {email}"
+    }
   },
   "WorkspaceMembership": {
-    "left": "A quitté",
+    "left": "Plus membre",
     "leftNotice": "{name} a quitté cet espace de travail. Pour lui redonner accès, envoyez une nouvelle invitation."
   },
   "WorkspaceMenu": {
@@ -4650,12 +4649,11 @@
     "label": "Menu de l'espace de travail"
   },
   "WorkspaceOnboarding": {
-    "workspaceName": "Nom de l'espace de travail",
     "workspaceNameDescription": "Facultatif. Il vous aide à distinguer vos espaces de travail ; vous pourrez le modifier plus tard.",
     "workspaceNamePlaceholder": "p. ex. Acme Ventes"
   },
   "WorkspaceRemovalNotice": {
-    "body": "Vous ne faites plus partie de l’espace de travail « {workspace} » sur Customermates. Votre accès a pris fin, et vos clés API et connexions IA pour cet espace de travail ne fonctionnent plus.",
+    "body": "Vous ne faites plus partie de l’espace de travail « {workspace} » sur Customermates. Votre accès a pris fin, et vos clés API et connexions MCP pour cet espace de travail ne fonctionnent plus.",
     "cta": "Se connecter",
     "greeting": "Bonjour {firstName},",
     "otherWorkspaces": "Votre compte et vos autres espaces de travail restent inchangés : vous pouvez continuer à vous connecter comme d’habitude.",
@@ -4678,13 +4676,13 @@
       "title": "Choisissez une offre pour {name}"
     },
     "leave": "Quitter l'espace de travail",
-    "leaveConfirmDescription": "Vous perdez l'accès à ses fiches, à sa base de connaissances et à ses connexions, et vos clés API et connexions IA associées cessent de fonctionner. Pour revenir, un administrateur doit vous inviter à nouveau.",
+    "leaveConfirmDescription": "Vous perdez l'accès à ses fiches, à sa base de connaissances et à ses connexions, et vos clés API et connexions MCP associées cessent de fonctionner. Pour revenir, un administrateur doit vous inviter à nouveau.",
     "leaveConfirmTitle": "Quitter {name} ?",
     "leaveDescription": "Retirez-vous de cet espace de travail. Vos autres espaces de travail restent inchangés.",
     "leaveShort": "Quitter",
     "listDescription": "Tous les espaces de travail dont vous êtes membre. Chacun a ses propres fiches, membres, clés API et connexions.",
     "memberCount": "{count, plural, one {# membre} other {# membres}}",
-    "nameDescription": "Tous les membres voient ce nom dans le sélecteur d'espace de travail.",
+    "nameDescription": "Tous les membres voient ce nom dans le menu de l'espace de travail.",
     "nameLabel": "Nom de l'espace de travail",
     "noPlan": "Aucune offre",
     "otherTab": {
@@ -4695,9 +4693,6 @@
       "titleNamed": "Vous avez basculé vers {name} dans un autre onglet"
     },
     "renameReadOnly": "Seuls les membres autorisés à gérer l'espace de travail peuvent modifier son nom.",
-    "status": {
-      "pending": "En attente"
-    },
     "switch": "Changer",
     "switchTo": "Passer à {name}"
   }

@@ -70,14 +70,14 @@ export function WorkspaceInvitationCard({
     }
   }
 
-  const named = Boolean(workspaceName);
-  const workspace = workspaceName ?? "";
+  const workspace = workspaceName?.trim() ?? "";
+  const named = Boolean(workspace);
   const content =
     membershipStatus === Status.active
       ? {
           title: named
-            ? t("WorkspaceInvitation.member.title", { workspace })
-            : t("WorkspaceInvitation.member.titleUnnamed"),
+            ? t("WorkspaceInvitation.member.titleNamed", { workspace })
+            : t("WorkspaceInvitation.member.title"),
           body: t("WorkspaceInvitation.member.body"),
           action: t("WorkspaceInvitation.member.action"),
         }
@@ -85,22 +85,22 @@ export function WorkspaceInvitationCard({
         ? {
             title: t("WorkspaceInvitation.pending.title"),
             body: named
-              ? t("WorkspaceInvitation.pending.body", { workspace })
-              : t("WorkspaceInvitation.pending.bodyUnnamed"),
+              ? t("WorkspaceInvitation.pending.bodyNamed", { workspace })
+              : t("WorkspaceInvitation.pending.body"),
             action: t("WorkspaceInvitation.pending.action"),
           }
         : membershipStatus === Status.inactive
           ? {
               title: t("WorkspaceInvitation.inactive.title"),
               body: named
-                ? t("WorkspaceInvitation.inactive.body", { workspace })
-                : t("WorkspaceInvitation.inactive.bodyUnnamed"),
+                ? t("WorkspaceInvitation.inactive.bodyNamed", { workspace })
+                : t("WorkspaceInvitation.inactive.body"),
               action: null,
             }
           : {
               title: named
-                ? t("WorkspaceInvitation.join.title", { workspace })
-                : t("WorkspaceInvitation.join.titleUnnamed"),
+                ? t("WorkspaceInvitation.join.titleNamed", { workspace })
+                : t("WorkspaceInvitation.join.title"),
               body: t("WorkspaceInvitation.join.body"),
               action: t("WorkspaceInvitation.join.action"),
             };
@@ -125,7 +125,7 @@ export function WorkspaceInvitationCard({
 
   return (
     <AppCard className="max-w-md">
-      <CardHeroHeader alt="" subtitle={t("WorkspaceInvitation.signedInAs", { email })} title={content.title} />
+      <CardHeroHeader alt="" subtitle={t("InvitationCard.joinSubtitle", { email })} title={content.title} />
 
       <AppCardBody>
         <p className="text-center text-sm font-medium [overflow-wrap:anywhere]">
