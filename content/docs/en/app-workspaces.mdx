@@ -21,23 +21,23 @@ You get the built-in **Admin** role in the new workspace, and this browser sessi
 
 ## How do I switch between workspaces? [#how-do-i-switch-workspaces]
 
-The workspace menu at the top of the sidebar lists every workspace you belong to; choose one to switch to it. The choice applies to this browser session, so another browser or device can be in a different workspace at the same time. The workspace you switched to is remembered as your last used one and opens at your next sign-in.
+The workspace menu at the top of the sidebar lists every workspace you belong to; choose one to switch to it. The command palette offers the same list under **Switch workspace…**. The choice applies to this browser session, so another browser or device can be in a different workspace at the same time. Other tabs of the same browser show "You switched workspaces in another tab" with **Reload**, so nothing is saved to the wrong workspace. The workspace you switched to is remembered as your last used one and opens at your next sign-in.
 
-**Workspaces** under **Account** in Settings lists the same workspaces with your role, your status and the plan of each.
+[Workspaces](app:settings/workspaces) under **Account** in Settings lists the same workspaces with your role, your status and the plan of each, with **Switch** for the others, **Leave** for the current one and **Create workspace**.
 
 ## How do I rename a workspace? [#how-do-i-rename-a-workspace]
 
-Open Settings, choose **General** under **Workspace** and change the workspace name, 1 to 80 characters. Renaming needs **Edit** on the **Company** row of your role; the **Admin** role has it. A workspace created before workspaces had names stays unnamed until someone renames it.
+Open [General](app:settings/general) under **Workspace** in Settings and change the workspace name, 1 to 80 characters. Renaming needs **Edit** on the **Company** row of your role; the **Admin** role has it. A workspace without a name, because it was created before workspaces had names or the name was left empty in the onboarding wizard, shows as **Workspace** until someone renames it.
 
 ## How do I join a workspace with my existing account? [#how-do-i-join-with-an-existing-account]
 
-Invitations work as for new people: a member shares the invitation link or sends it by email, see [How do I invite people](/docs/app-company#how-do-invitations-work). Open the link while you are signed in to Customermates, and you join with the profile you already have. The workspace appears in your workspace menu, and as for a new user your status is **Waiting for approval** until someone with **Edit** on **Users & Roles** approves you on [Members](app:settings/members).
+Invitations work as for new people: a member shares the invitation link or sends it by email, see [How do I invite people?](/docs/app-company#how-do-invitations-work). Open the link while you are signed in to Customermates: **Join …** shows who invited you, with **Join workspace** and **Use another account**. On Customermates Cloud, joining accepts the Terms. You join with the profile you already have and land on **Waiting for Approval** until someone with **Edit** on **Users & Roles** approves you on [Members](app:settings/members). Meanwhile the workspace menu switches back to your other workspaces, and **Withdraw request** takes the request back.
 
-If you are already a member of that workspace, the link just switches you to it. If you left the workspace or were removed from it, a new invitation lets you rejoin, and you need approval again.
+If you already belong to that workspace, the page offers **Open workspace**, which switches to it; if you were set to **Inactive** there, it says **Your access is deactivated**. If you left the workspace or were removed from it, a new invitation lets you rejoin, and you need approval again.
 
 ## How do I leave a workspace? [#how-do-i-leave-a-workspace]
 
-Open Settings, choose **General** under **Workspace** and click **Leave workspace**. Leaving:
+Open [General](app:settings/general) under **Workspace** in Settings and click **Leave workspace**, or click **Leave** on the current workspace in [Workspaces](app:settings/workspaces). Leaving:
 
 - sets your status in that workspace to **Inactive**,
 - revokes your API keys and MCP connections for that workspace,
@@ -51,11 +51,11 @@ Pages of that workspace still open in another tab or on another device stop savi
 
 A member with **Edit** on **Users & Roles** can remove you on [Members](app:settings/members), see [How do I approve, edit, deactivate or remove a member?](/docs/app-company#how-do-i-approve-deactivate-or-edit-a-member). For you it works like leaving: your API keys and MCP connections for that workspace stop working, the channels you connected in it are disconnected, and the workspace disappears from your workspace menu. You get an email that names the workspace and links to sign in. Pages of that workspace still open in a tab or on another device stop saving and ask you to reload, which opens your last used other workspace. If you were waiting for approval, the removal declines your request without an email. To come back you need a new invitation and approval.
 
-## Which workspace do API keys and AI connections use? [#which-workspace-do-api-keys-and-connections-use]
+## Which workspace do API keys and MCP connections use? [#which-workspace-do-api-keys-and-connections-use]
 
 An API key belongs to exactly one workspace: a key created in a workspace only ever acts in that workspace, with your role there. [API keys](app:settings/api-keys) lists and deletes only the keys of the current workspace, so switch to another workspace to see or delete its keys. Keys created before a login could belong to several workspaces stay bound to the workspace they were created in.
 
-An MCP connection over OAuth, such as the Claude or ChatGPT connector, also gets exactly one workspace. If you belong to several, the **Authorize access** screen asks which workspace the connection gets: your current workspace is preselected, and you can pick another one where you are **Active** and your role has **Read access** **All** on **API & Webhooks**. The connection, including the tokens it refreshes later, stays bound to that workspace. To work in several workspaces from AI clients, connect once per workspace, for example with a different Claude account per workspace; see [Connect with a custom connector](/docs/connect-custom-connector).
+An MCP connection over OAuth, such as the Claude or ChatGPT connector, also gets exactly one workspace. If you belong to several, the consent screen asks you to **Choose a workspace** for the connection: your current workspace is preselected, and you can pick another one where you are **Active**, your role has **Read access** **All** on **API & Webhooks**, the workspace has a usable plan and no updated terms are waiting for acceptance. Workspaces you cannot pick are greyed out with the reason. The connection, including the tokens it refreshes later, stays bound to that workspace. To work in several workspaces from AI clients, connect once per workspace, for example with a different Claude account per workspace; see [Connect with a custom connector](/docs/connect-custom-connector).
 
 Channels you connect in [Channels](app:settings/channels), such as a mailbox or a LinkedIn account, belong to the workspace you connected them in.
 
@@ -65,7 +65,7 @@ On Customermates Cloud, each workspace has its own plan, subscription, invoices 
 
 ### Which workspace gets the free trial? [#which-workspace-gets-the-free-trial]
 
-Only the first workspace a login creates gets the free trial of [[commercial.trial.days]] days. Every additional workspace starts without a trial: its admin chooses a plan on the **Subscription Required** screen before the workspace can be used, and until then its API keys and MCP connections are refused as well, see [What happens when the trial ends?](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails). Joining someone else's workspace neither uses up nor grants a trial.
+Only the first workspace a login creates gets the free trial of [[commercial.trial.days]] days. Every additional workspace starts without a trial: its admin chooses a plan on the **Choose a plan for …** screen before the workspace can be used (the Workspaces list shows **No plan** until then), and until then its API keys and MCP connections are refused as well, see [What happens when the trial ends?](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails). Joining someone else's workspace neither uses up nor grants a trial.
 
 ## How do workspaces work when you self-host? [#how-do-workspaces-work-when-self-hosting]
 

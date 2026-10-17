@@ -7,7 +7,7 @@ Workspace settings cover everything that affects the whole workspace rather than
 
 ## Where are the workspace settings? [#what-lives-on-the-company-screen]
 
-Click **Customermates** at the top of the sidebar to open the workspace menu and choose **Settings**, or press G then S. Settings opens on [Profile & preferences](app:settings/profile), and the sidebar switches to the settings nav: your own pages under **Account**, the workspace pages under **Workspace**: [Members](app:settings/members), [Roles](app:settings/roles), [Billing](app:settings/billing) (Cloud only), [Activity](app:settings/activity) and [Webhooks](app:settings/webhooks). **Back** at the top of the nav returns to the page you came from.
+Click the workspace name at the top of the sidebar to open the workspace menu and choose **Settings**, or press G then S. Settings opens on [Profile & preferences](app:settings/profile), and the sidebar switches to the settings nav: your own pages under **Account**, the workspace pages under **Workspace**: [General](app:settings/general), [Members](app:settings/members), [Roles](app:settings/roles), [Billing](app:settings/billing) (Cloud only), [Activity](app:settings/activity) and [Webhooks](app:settings/webhooks). **Back** at the top of the nav returns to the page you came from.
 
 The workspace menu lists the workspaces you belong to, to switch between them, and offers **Create workspace** ([Workspaces](/docs/app-workspaces)). It also holds **Invite members** (needs **Users & Roles** **Create**), **Members**, **Settings**, **Billing** with the plan chip (Cloud only) and, for Customermates operators only, **Operator Console**.
 
@@ -40,7 +40,7 @@ People who register join with status **Waiting for approval** and no role, and s
 In [Members](app:settings/members), click the member's row to open the **User** dialog: **Email** (read-only), **First Name**, **Last Name**, **Country** and **Role** (required), **Avatar URL** (optional, a publicly accessible image) and **Status**.
 
 - **Approve:** choose a **Role**, set **Status** to **Active** and click **Save**. The member can sign in right away and counts as a billed seat.
-- **Deactivate:** set **Status** to **Inactive**. That blocks their sign-in ("Your account is currently inactive. Please contact your administrator to reactivate your account."), their API keys and MCP connections, removes their seat from billing, pauses their routines, and the daily job deletes their connected messaging accounts. Setting **Active** again reactivates them. **Waiting for approval** cannot be chosen; only an invitation sets it.
+- **Deactivate:** set **Status** to **Inactive**. That blocks their access to this workspace ("Your access to this workspace is inactive. Ask a workspace administrator to reactivate it."), their API keys and MCP connections for it, removes their seat from billing, pauses their routines, and the daily job deletes their connected messaging accounts. Setting **Active** again reactivates them. **Waiting for approval** cannot be chosen; only an invitation sets it.
 - **Remove from workspace:** click **Remove from workspace** at the top of the dialog, or in the row's **More actions** menu, and confirm. It works for **Active**, **Inactive** and **Waiting for approval** members; for a member waiting for approval it declines the request. The member shows as **Left** and loses access on every device: their API keys and MCP connections for this workspace are revoked, the mailboxes and LinkedIn accounts they connected here are disconnected, their routines pause, and an active member's seat is freed. They get an email that they were removed; a declined request sends none. Records they own and their history stay. A member who left cannot be reactivated; to come back they need a new invitation and approval. You cannot remove yourself (leave the workspace instead), a platform operator or the last active member with the **Admin** role: the action is then missing or disabled with the reason.
 - Your own row opens read-only: change your name in [Profile & preferences](app:settings/profile) and ask another member with **Users & Roles** **Edit** to change your role or status.
 - Edits you make here apply to the member in this workspace only; what members change in their own Profile & preferences applies in every workspace they belong to. Members can also leave a workspace themselves, see [How do I leave a workspace?](/docs/app-workspaces#how-do-i-leave-a-workspace).
@@ -104,7 +104,7 @@ On [Billing](app:settings/billing), roles with **Company** **Edit** and the **Ad
 
 ### What does each subscription status mean? [#what-does-each-subscription-status-mean]
 
-The app sets **Trial** when a login creates its first Cloud workspace. Every additional workspace that login creates starts without a trial and shows **Subscription Required** until a plan is chosen ([which workspace gets the free trial](/docs/app-workspaces#which-workspace-gets-the-free-trial)). Every other status comes from Lemon Squeezy or from Customermates support.
+The app sets **Trial** when a login creates its first Cloud workspace. Every additional workspace that login creates starts without a trial and shows **Choose a plan for …** until a plan is chosen ([which workspace gets the free trial](/docs/app-workspaces#which-workspace-gets-the-free-trial)). Every other status comes from Lemon Squeezy or from Customermates support.
 
 | Status | Effect |
 |---|---|
@@ -151,7 +151,7 @@ After a trial ends without checkout, a daily job at 09:00 UTC:
 1. within the first day emails an offer to extend the trial,
 2. after one day deletes every connected messaging account,
 3. after 3 to 4 days sends a reminder,
-4. after 6 to 7 days sets every member, admins included, to **Inactive** and emails them. Nobody can sign in afterwards, so restoring access goes through Customermates support.
+4. after 6 to 7 days sets every member, admins included, to **Inactive** and emails them. Nobody can work in this workspace afterwards, so restoring access goes through Customermates support.
 
 A paid workspace that stays **Unpaid** or **Expired** for 3 days has all members set **Inactive**, and their connected accounts are deleted. Until then only the web app is paused: API keys and MCP connections keep working and webhooks keep firing, while messaging, channels and the hosted assistant stop immediately.
 

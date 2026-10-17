@@ -29,7 +29,7 @@ To connect Claude to your CRM, add Customermates as a custom connector in Claude
 Leave authentication on the default (OAuth). No header, no key.
 </Step>
 <Step title="Sign in and approve">
-A Customermates window opens. Sign in, then click **Approve** on the **Authorize access** screen.
+A Customermates window opens. Sign in, then click **Approve** on the consent screen.
 </Step>
 <Step title="Confirm the tools arrived">
 Back in Claude, Customermates appears with its tools listed.
@@ -48,7 +48,7 @@ To connect ChatGPT, open in ChatGPT: **Settings → Connectors → Add connector
 - **URL:** `<BASE_URL>/api/v1/mcp`
 - **Authentication:** OAuth
 
-Save. ChatGPT opens a Customermates window. Sign in, then click **Approve** on the **Authorize access** screen. Every Customermates tool is listed, with no key to store or rotate.
+Save. ChatGPT opens a Customermates window. Sign in, then click **Approve** on the consent screen. Every Customermates tool is listed, with no key to store or rotate.
 
 ### Can ChatGPT use an API key instead of OAuth? [#chatgpt-with-an-api-key]
 
@@ -65,7 +65,7 @@ In the connector form set **Authentication: Header**, **Header name: `x-api-key`
 
 Save. ChatGPT reaches the server and lists every tool. Customermates checks the key on every request: with a wrong, truncated, expired or deleted key the server answers HTTP `401` with a `WWW-Authenticate` header and nothing is listed, so create a new key.
 
-## What does the Authorize access screen show? [#sign-in-and-approve]
+## What does the consent screen show? [#sign-in-and-approve]
 
 The connector opens a Customermates window:
 
@@ -74,7 +74,7 @@ The connector opens a Customermates window:
 Or you are already signed in.
 </Step>
 <Step title="Read what is being authorized">
-The **Authorize access** screen names the app that is connecting, lists what it asks for (such as **Confirm your identity**, **Read your basic profile**, **Read your email address** and **Stay connected while you are away**), and shows **Connection destination** with the host it will send access to. If you belong to several workspaces, it also asks which workspace the connection gets; your current workspace is preselected.
+The consent screen, titled **Connect … to …**, names the app that is connecting, lists what it asks for (such as **Confirm your identity**, **Read your basic profile**, **Read your email address** and **Stay connected while you are away**), and shows **Connection destination** with the host it will send access to. If you belong to several workspaces, it also asks which workspace the connection gets; your current workspace is preselected.
 </Step>
 <Step title="Approve">
 Click **Approve**, or **Deny** to refuse.
@@ -83,13 +83,13 @@ Click **Approve**, or **Deny** to refuse.
 
 You return to your AI, connected, with all [[derived.mcp.tools.total]] tools listed.
 
-The connector accepts any client, so the **Authorize access** screen is the gate. Approve only a connection you started yourself, and click **Deny** for anything you did not start. Connecting over OAuth needs no API key, but your role needs **Read access** **All** on **API & Webhooks**, as for every MCP connection; without it the screen refuses the connection.
+The connector accepts any client, so the consent screen is the gate. Approve only a connection you started yourself, and click **Deny** for anything you did not start. Connecting over OAuth needs no API key, but your role needs **Read access** **All** on **API & Webhooks**, as for every MCP connection; without it the screen refuses the connection.
 
 ## How long does the connection stay valid? [#it-syncs-and-stays-connected]
 
 - Add it once on Claude web and it appears on **desktop and mobile** too. The connection is tied to your Claude account, not one device.
 - It refreshes in the background. Use it within any 30-day window and you never re-authorize; go idle longer and you approve once more.
-- Every call runs as the Customermates user who approved, inside the workspace chosen on **Authorize access** and with that user's role permissions there. API keys work the same way: they inherit the owning user's permissions in the workspace they were created in, and there is no per-key scoping.
+- Every call runs as the Customermates user who approved, inside the workspace chosen on the consent screen and with that user's role permissions there. API keys work the same way: they inherit the owning user's permissions in the workspace they were created in, and there is no per-key scoping.
 - A connection stays in its workspace, refreshed tokens included. To work in several workspaces, connect once per workspace, for example with a different Claude account per workspace; see [Workspaces](/docs/app-workspaces#which-workspace-do-api-keys-and-connections-use).
 - If that user is set to **Inactive**, every call that reads or changes workspace data fails with "Your user account is inactive. Contact a workspace administrator." until a member with **Edit** on **Users & Roles** sets them back to **Active**.
 
