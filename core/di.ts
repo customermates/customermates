@@ -273,6 +273,8 @@ import { ClaimBackfillInteractor } from "@/ee/messaging/ingest/claim-backfill.in
 import { ReleaseBackfillClaimInteractor } from "@/ee/messaging/ingest/release-backfill-claim.interactor";
 import { ReprocessStuckWebhookEventsInteractor } from "@/ee/messaging/ingest/reprocess-stuck-webhook-events.interactor";
 import { DiscardDraftInteractor } from "@/ee/messaging/outbound/discard-draft.interactor";
+import { DraftSendGate } from "@/ee/messaging/outbound/draft-send-gate";
+import { PruneDraftSendsInteractor } from "@/ee/messaging/outbound/prune-draft-sends.interactor";
 import { ResolveProviderProfileInteractor } from "@/ee/messaging/outbound/resolve-provider-profile.interactor";
 import { SaveDraftInteractor } from "@/ee/messaging/outbound/save-draft.interactor";
 import { SaveNewThreadDraftInteractor } from "@/ee/messaging/outbound/save-new-thread-draft.interactor";
@@ -377,7 +379,6 @@ import { AcceptLegalDocumentsInteractor } from "@/features/legal/accept-legal-do
 import { GetLegalStatusInteractor } from "@/features/legal/get-legal-status.interactor";
 // Webhook delivery interactor (workflow task consumer)
 import { DeliverWebhookInteractor } from "@/features/webhook/deliver-webhook.interactor";
-// Audit log interactors
 import { AgentUsageService } from "@/ee/agent-chat/agent-usage.service";
 import { ArchiveAgentConversationInteractor } from "@/ee/agent-chat/archive-agent-conversation.interactor";
 import { ReconcileRetrievalReservationsInteractor } from "@/ee/agent-chat/reconcile-retrieval-reservations.interactor";
@@ -626,6 +627,7 @@ const entityTrashHandlers = (companyId?: string) => {
         visibility: visibility.owned("view"),
         blockers: viewBlockers,
         restoreReferences: (ids) => viewBlockers.restoreReferences(ids),
+        dependents: (ids) => trash.widgetItemIdsOnTrashedViews(ids),
       },
       createPrismaDataViewRepo(companyId),
       trash,
@@ -926,6 +928,7 @@ export const getEventService = () => {
 export const getSubscriptionService = () => new SubscriptionService(getCompanyRepo());
 export const getEntitlementService = () => new EntitlementService(getCompanyRepo());
 export const getMessagingService = () => new MessagingService();
+export const getDraftSendGate = () => new DraftSendGate(getMessagingRepo());
 export const getDeleteAccountForBillingService = () =>
   new DeleteAccountForBillingService(getConnectedAccountRepo(), getMessagingService(), getEventService());
 export const getIngestUnipileWebhookInteractor = () =>
@@ -1429,6 +1432,8 @@ export const getSendChatMessageInteractor = () =>
     getMessagingService(),
     getThreadIdsValidator(),
     getEntitlementService(),
+    getStartChatInteractor(),
+    getDraftSendGate(),
   );
 
 export const getSendEmailInteractor = () =>
@@ -1437,6 +1442,7 @@ export const getSendEmailInteractor = () =>
     getConnectedAccountRepo(),
     getMessagingService(),
     getEntitlementService(),
+    getDraftSendGate(),
   );
 
 export const getSetConnectedAccountSignatureInteractor = () =>
@@ -1451,6 +1457,8 @@ export const getSaveReplyDraftInteractor = () => new SaveReplyDraftInteractor(ge
 
 export const getDiscardDraftInteractor = () => new DiscardDraftInteractor(getMessagingRepo(), getEntitlementService());
 
+export const getPruneDraftSendsInteractor = () => new PruneDraftSendsInteractor(getMessagingRepo());
+
 export const getStartChatInteractor = () =>
   new StartChatInteractor(
     getConnectedAccountRepo(),
@@ -1459,6 +1467,7 @@ export const getStartChatInteractor = () =>
     getMessagingRepo(),
     getEntitlementService(),
     getRecordIdentityReader(),
+    getDraftSendGate(),
   );
 
 export const getResolveProviderProfileInteractor = () =>
@@ -1631,8 +1640,6 @@ export const getGetBillingPortalUrlInteractor = () =>
 
 export const getRefreshSubscriptionInteractor = () =>
   new RefreshSubscriptionInteractor(getCompanyRepo(), getSubscriptionService(), getDeleteAccountsForPlanInteractor());
-
-// --- Audit log ---
 
 // --- EE Lifecycle (workflow cron) ---
 

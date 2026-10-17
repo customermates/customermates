@@ -1,6 +1,7 @@
 "use client";
 
 import type { MarketingAccount } from "@/features/auth/account-state";
+import type { AppMode } from "@/core/config/environment";
 
 import dynamic from "next/dynamic";
 
@@ -14,20 +15,22 @@ const DocsShell = dynamic(() => import("./docs-shell").then((mod) => ({ default:
 
 type Props = {
   account?: MarketingAccount;
+  appMode: AppMode;
   children: React.ReactNode;
 };
 
-export function MarketingShell({ account: knownAccount, children }: Props) {
+export function MarketingShell({ account: knownAccount, appMode, children }: Props) {
   const pathname = usePathname();
   const isDocs = pathname === "/docs" || pathname.startsWith("/docs/");
   const { accountState, markSignedOut, profile } = useMarketingAccountState(knownAccount, !isDocs, pathname);
   const onboardingIntent = useOnboardingIntentFromLocation(pathname);
 
-  if (isDocs) return <DocsShell>{children}</DocsShell>;
+  if (isDocs) return <DocsShell appMode={appMode}>{children}</DocsShell>;
 
   return (
     <PublicScrollport
       accountState={accountState}
+      appMode={appMode}
       hasValidSession={accountState !== "unauthenticated"}
       onboardingIntent={onboardingIntent}
       profile={profile}

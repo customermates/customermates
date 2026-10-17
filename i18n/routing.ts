@@ -88,6 +88,7 @@ export const PROTECTED_ROUTES = [
   "/onboarding/join",
   "/onboarding/wizard",
   "/open/:area/:preset",
+  "/open/:area/:preset/:recordId",
   "/operator/audit",
   "/operator/overview",
   "/operator/users",

@@ -9,6 +9,7 @@ import { omit } from "lodash";
 
 import { afterAll, describe, expect, it, vi } from "vitest";
 
+import type * as NextServer from "next/server";
 import type { RecordActivitiesInput } from "@/ee/messaging/activities/record-activities.schema";
 import type { ConfigurationChange } from "../configuration.schema";
 import type { RecordEventSubscriptionDefinition } from "../record-event-subscription.schema";
@@ -23,6 +24,8 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { interactorFailureStatus } from "@/core/validation/validation.utils";
 import { recordChannelsEnabled, recordChannelsField } from "../record-channels";
 
+const afterResponseTasks = vi.hoisted(() => [] as (() => Promise<unknown>)[]);
+
 vi.mock("@/env", () => ({
   env: {
     APP_MODE: "cloud",
@@ -34,6 +37,12 @@ vi.mock("@/env", () => ({
 vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
   getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
+}));
+vi.mock("next/server", async (importOriginal) => ({
+  ...(await importOriginal<typeof NextServer>()),
+  after: (task: () => Promise<unknown>) => {
+    afterResponseTasks.push(task);
+  },
 }));
 
 const failureStatus = (result: { ok: true } | { ok: false; error: Parameters<typeof interactorFailureStatus>[0] }) =>
@@ -4064,7 +4073,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         { resource: "dataModel", actions: [] },
         { resource: "api", actions: [] },
         { resource: "inboxMessages", actions: [] },
-        { resource: "auditLog", actions: [] },
+        { resource: "activityLog", actions: [] },
         { resource: "routines", actions: [] },
       ],
       ...overrides,
@@ -5534,6 +5543,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       }),
     );
     const notify = vi.fn().mockResolvedValue(undefined);
+    afterResponseTasks.length = 0;
     const register = new RegisterUserInteractor(
       { sendNewUserNotificationEmail: notify } as never,
       new PrismaUserRepo(new PermissionService()),
@@ -5582,6 +5592,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         companyId: null,
       });
       expect(notify).not.toHaveBeenCalled();
+      expect(afterResponseTasks).toEqual([]);
       await f.run(() =>
         prisma.recordSchemaState.update({
           where: { companyId: f.company.id },
@@ -5595,6 +5606,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       expect(await register.invoke(data, target)).toEqual({
         redirect: "/auth/pending",
       });
+      expect(notify).not.toHaveBeenCalled();
+      for (const task of afterResponseTasks.splice(0)) await task();
       expect(notify).toHaveBeenCalledTimes(1);
       const member = await runWithoutTenant(() => prisma.user.findUniqueOrThrow({ where: { email } }));
       expect(
@@ -6153,7 +6166,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           data: {
             companyId: f.company.id,
             roleId: f.memberRole.id,
-            resource: "auditLog",
+            resource: "activityLog",
             action: "readAll",
           },
         });
@@ -6340,7 +6353,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         data: {
           companyId: f.company.id,
           roleId: f.memberRole.id,
-          resource: "auditLog",
+          resource: "activityLog",
           action: "readAll",
         },
       }),
@@ -14956,7 +14969,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         data: {
           companyId: f.company.id,
           roleId: f.memberRole.id,
-          resource: "auditLog",
+          resource: "activityLog",
           action: "readAll",
         },
       }),
@@ -15000,7 +15013,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         where: {
           companyId: f.company.id,
           roleId: f.memberRole.id,
-          resource: "auditLog",
+          resource: "activityLog",
         },
       }),
     );

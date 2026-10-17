@@ -36,6 +36,41 @@
     "privacyLink": "Datenschutzdetails",
     "title": "Hilf uns zu verstehen, was funktioniert"
   },
+  "ActivityDetail": {
+    "eventAt": "{event} am {date}",
+    "fields": {
+      "acceptanceType": "Art der Zustimmung",
+      "acceptingEmail": "Zugestimmt von",
+      "changedDocuments": "Geänderte Dokumente",
+      "country": "Land",
+      "createType": "Neuer Typ",
+      "cronExpression": "Zeitplan",
+      "debounceSeconds": "Verzögerung",
+      "delete": "In den Papierkorb verschoben",
+      "deletePermanently": "Endgültig gelöscht",
+      "disabledReason": "Deaktivierungsgrund",
+      "effectiveAt": "Gültig ab",
+      "isNewCompany": "Erste Person im Workspace",
+      "markdown": "Markdown",
+      "prompt": "Anweisungen",
+      "publishSummary": "Veröffentlichte Zusammenfassung",
+      "putAccessPreset": "Zugriffsvorlage",
+      "putCapability": "Funktion",
+      "putField": "Feld",
+      "putRelationship": "Beziehung",
+      "putType": "Typ",
+      "recipientEmail": "Gesendet an",
+      "removalReason": "Entfernungsgrund",
+      "restore": "Wiederhergestellt",
+      "timezone": "Zeitzone",
+      "triggerEvents": "Auslöser-Ereignisse",
+      "triggerFilters": "Auslöser-Filter",
+      "triggerKind": "Auslöser",
+      "versions": "Dokumentversionen",
+      "visibility": "Sichtbarkeit"
+    },
+    "unchangedLines": "{count, plural, one {# unveränderte Zeile} other {# unveränderte Zeilen}}"
+  },
   "AgentChat": {
     "activity": {
       "approval": {
@@ -770,41 +805,6 @@
   "ApiKeysCard": {
     "unnamed": "Unbenannt"
   },
-  "AuditLogModal": {
-    "eventAt": "{event} am {date}",
-    "fields": {
-      "acceptanceType": "Art der Zustimmung",
-      "acceptingEmail": "Zugestimmt von",
-      "changedDocuments": "Geänderte Dokumente",
-      "country": "Land",
-      "createType": "Neuer Typ",
-      "cronExpression": "Zeitplan",
-      "debounceSeconds": "Verzögerung",
-      "delete": "In den Papierkorb verschoben",
-      "deletePermanently": "Endgültig gelöscht",
-      "disabledReason": "Deaktivierungsgrund",
-      "effectiveAt": "Gültig ab",
-      "isNewCompany": "Erste Person im Workspace",
-      "markdown": "Markdown",
-      "prompt": "Anweisungen",
-      "publishSummary": "Veröffentlichte Zusammenfassung",
-      "putAccessPreset": "Zugriffsvorlage",
-      "putCapability": "Funktion",
-      "putField": "Feld",
-      "putRelationship": "Beziehung",
-      "putType": "Typ",
-      "recipientEmail": "Gesendet an",
-      "removalReason": "Entfernungsgrund",
-      "restore": "Wiederhergestellt",
-      "timezone": "Zeitzone",
-      "triggerEvents": "Auslöser-Ereignisse",
-      "triggerFilters": "Auslöser-Filter",
-      "triggerKind": "Auslöser",
-      "versions": "Dokumentversionen",
-      "visibility": "Sichtbarkeit"
-    },
-    "unchangedLines": "{count, plural, one {# unveränderte Zeile} other {# unveränderte Zeilen}}"
-  },
   "AuthSocialErrors": {
     "accessDenied": "Die Anmeldung wurde beim Anbieter abgebrochen.",
     "accountAlreadyLinkedToDifferentUser": "Dieses Social-Konto ist bereits mit einem anderen Benutzer verknüpft.",
@@ -1080,8 +1080,14 @@
       "dataViewNotFound": "Diese gespeicherte Ansicht wurde nicht gefunden.",
       "dataViewUpdateEmpty": "Gib einen Namen oder mindestens eine Ansichtseinstellung an, die aktualisiert werden soll.",
       "demoMode": "Diese Aktion ist im Demo-Modus nicht verfügbar. Melde dich an, um alle Funktionen zu nutzen.",
+      "draftAlreadySent": "Dieser Entwurf wurde bereits gesendet.",
+      "draftChanged": "Dieser Entwurf wurde geändert, nachdem du ihn geöffnet hast.",
       "draftMessageNotFound": "Dieser Entwurf wurde nicht gefunden. Möglicherweise wurde er bereits gesendet oder verworfen.",
-      "draftThreadNotSent": "Dieser Entwurf hat noch keine Unterhaltung. Sende ihn über den Posteingang.",
+      "draftRecipientsChanged": "Diese Empfänger passen nicht zum gespeicherten Entwurf. Eine neue Nachricht behält ihre An-Empfänger, und Bcc-Empfänger lassen sich nicht nach An oder Cc verschieben.",
+      "draftSendInProgress": "Dieser Entwurf wird gerade gesendet. Prüfe die Unterhaltung gleich noch einmal.",
+      "draftSendOutcomeUnknown": "Dieser Entwurf wurde möglicherweise schon gesendet, das ließ sich aber nicht bestätigen. Prüfe die Unterhaltung und deinen Gesendet-Ordner. Um ihn trotzdem zu senden, bearbeite und aktualisiere zuerst den Entwurf.",
+      "draftTargetMismatch": "Dieser Entwurf gehört zu einer anderen Unterhaltung oder einem anderen Kanal.",
+      "draftThreadNotSent": "Diese Unterhaltung existiert nur als gespeicherter Entwurf. Sende ihn mit seiner draftMessageId und draftRevision.",
       "draftToRecipientsLocked": "Eine gespeicherte neue Nachricht behält ihre An-Empfänger. Verwirf den Entwurf und beginne eine neue Nachricht, um jemand anderen anzuschreiben.",
       "duplicateOutboundSuppressed": "Eine identische Nachricht wurde gerade eben in dieser Konversation gesendet. Ändere den Text oder warte eine Minute, bevor du es erneut versuchst.",
       "duplicateWebhookEvents": "Doppelte Ereignisse sind nicht erlaubt.",
@@ -1094,6 +1100,7 @@
       "emailMismatch": "E-Mail-Adressen müssen übereinstimmen.",
       "emailNotVerified": "E-Mail nicht verifiziert.",
       "emailRecipientsRequired": "Füge mindestens einen Empfänger unter An, Cc oder Bcc hinzu.",
+      "emailVerificationRequired": "Bestätige deine E-Mail-Adresse, um dieses Konto weiter zu nutzen. Melde dich in der App an und fordere einen neuen Bestätigungslink an.",
       "enterpriseCheckoutUnavailable": "Enterprise-Workspaces werden manuell abgerechnet und können keinen Self-Service-Checkout starten.",
       "filterBetweenInvalidArrayLength": "Der 'between'-Operator erfordert ein Array mit genau 2 Elementen.",
       "generic": "Ein Fehler ist aufgetreten.",
@@ -1186,6 +1193,7 @@
       "routineScheduleInvalid": "Dieser Zeitplan ist kein gültiger Cron-Ausdruck.",
       "routineScheduleRequired": "Wähle einen Zeitplan oder ein einmaliges Datum für diese Routine.",
       "routineScheduleTooFrequent": "Dieser Zeitplan läuft zu häufig. Routinen können höchstens alle 15 Minuten laufen.",
+      "routinesRequireCloud": "Routinen laufen in Customermates Cloud. Eine selbst gehostete Instanz kann sie nicht ausführen.",
       "routineTestRequiresEnabled": "Aktiviere die Routine, bevor du sie testest.",
       "routineTimeZoneInvalid": "Diese Zeitzone wird nicht unterstützt.",
       "routineTriggerEventsRequired": "Wähle mindestens ein Ereignis für diese Routine aus.",
@@ -2453,17 +2461,21 @@
       "ccLabel": "Cc",
       "createContact": "„{query}“ erstellen",
       "draftAttachmentsUnsupported": "Entferne Anhänge, bevor du diesen Entwurf speicherst.",
+      "draftChangedNotice": "Dieser Entwurf wurde geändert, nachdem du ihn geöffnet hast. Dein Text ist noch da: Lade die neueste Version oder sende deine.",
       "draftDiscardFailed": "Entwurf konnte nicht verworfen werden",
       "draftEdit": "Bearbeiten",
       "draftSaved": "Entwurf gespeichert. Du findest ihn im Posteingang.",
       "draftSendNow": "Entwurf senden",
+      "draftSentEarlier": "Dieser Entwurf wurde bereits gesendet. Es wurde nichts erneut gesendet.",
       "emailContent": "E-Mail-Inhalt",
       "emojiPicker": "Emoji einfügen",
       "from": "Von",
       "inmailSignaturePlaceholder": "Signatur",
       "inmailSubjectPlaceholder": "InMail-Betreff",
+      "loadLatestDraft": "Neueste Version laden",
       "loadRemoteImages": "Externe Bilder laden",
       "messageSent": "Nachricht gesendet.",
+      "messageSentPendingSync": "Nachricht gesendet. Sie erscheint im Posteingang, sobald dein Postfach sie synchronisiert hat.",
       "moreSendOptions": "Weitere Sendeoptionen",
       "noContacts": "Keine Datensätze.",
       "retry": "Erneut versuchen",
@@ -2471,6 +2483,7 @@
       "send": "Senden",
       "sendAs": "Senden als",
       "sendInBackground": "Du kannst weiterarbeiten. Wir benachrichtigen dich, sobald die Nachricht gesendet wurde.",
+      "sendMyDraft": "Meine Version senden",
       "sendOutcomeUnknown": "Sie wurde möglicherweise gesendet. Prüfe die Unterhaltung, bevor du sie erneut sendest.",
       "sendStarted": "Nachricht wird gesendet",
       "subjectPlaceholder": "Betreff",
@@ -2935,6 +2948,9 @@
       "linkFailed": "Einladungslink konnte nicht erstellt werden.",
       "loadingLink": "Link wird generiert…",
       "send": "Einladungen senden",
+      "sendFailed": "{failed, plural, one {Die Einladung konnte nicht gesendet werden.} other {Die # Einladungen konnten nicht gesendet werden.}}",
+      "sendFailedDescription": "Der E-Mail-Dienst hat sie nicht angenommen. Teile stattdessen den Einladungslink.",
+      "sendPartlyFailed": "{sent, plural, one {# Einladung gesendet} other {# Einladungen gesendet}}, {failed, plural, one {# konnte nicht gesendet werden.} other {# konnten nicht gesendet werden.}}",
       "sentSuccess": "{count, plural, one {# Einladung gesendet.} other {# Einladungen gesendet.}}",
       "tabs": {
         "email": "E-Mails senden",
@@ -3921,8 +3937,8 @@
     "recordTypesHint": "Neue Typen sind zunächst nicht zugänglich. Eingebettete Einträge übernehmen den Zugriff ihres übergeordneten Datensatzes.",
     "resourceHeader": "Ressource",
     "resources": {
+      "activityLog": "Aktivitätsprotokoll",
       "api": "API & Webhooks",
-      "auditLog": "Audit-Log",
       "company": "Unternehmen",
       "dataModel": "Datenmodell",
       "inboxMessages": "Inbox-Nachrichten",
@@ -4301,9 +4317,11 @@
     "permanentViewWidgets": "Bei einer Dashboard-Ansicht werden auch ihre Widgets endgültig gelöscht.",
     "restore": "Wiederherstellen",
     "restoreBlocked": {
+      "incompatible": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil sie nicht mehr zur aktuellen Einrichtung oder zu den Daten passen.",
       "listDeleted": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil ihre Liste im Papierkorb liegt. Stelle zuerst die Liste wieder her.",
       "nameTaken": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil ein anderes Element jetzt ihren Namen oder Platz hat.",
       "notFound": "{count, plural, one {# Element existiert} other {# Elemente existieren}} nicht mehr und wurden aus dem Papierkorb entfernt.",
+      "operationPending": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, bis die Wiederherstellung im Hintergrund fertig ist. Stelle sie danach erneut wieder her.",
       "parentDeleted": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil das, wozu sie gehören, im Papierkorb liegt. Stelle das zuerst wieder her.",
       "requiresRestore": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil etwas, das sie brauchen, im Papierkorb liegt. Stelle das zuerst wieder her.",
       "routineLimitReached": "{count, plural, one {# Routine bleibt} other {# Routinen bleiben}} im Papierkorb, weil die Person bereits alle Routinen ihres Tarifs nutzt."
@@ -4535,6 +4553,15 @@
     },
     "tryAnother": "Andere Website versuchen",
     "unavailable": "Die Einrichtung mit Mate ist derzeit nicht verfügbar. Du kannst später in der Wissensdatenbank Seiten erstellen."
+  },
+  "WithoutErrorReporting": {
+    "ErrorCard": {
+      "contactSupport": "Bitte versuche es erneut. Wenn das Problem bleibt, wende dich an die Person, die diese Customermates-Instanz betreibt.",
+      "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut."
+    },
+    "NotFoundPage": {
+      "body": "Diese Seite gibt es nicht oder sie wurde verschoben. Prüfe die Adresse oder gehe zurück zur Startseite."
+    }
   },
   "WorkspaceMenu": {
     "inviteMembers": "Mitglieder einladen",

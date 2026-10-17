@@ -27,7 +27,7 @@ test("an expected 404 document and sandboxed requests leave unrelated API and ch
     const errors = collectPageErrors(page);
     const notFound = expectNotFoundDocuments(page);
 
-    const response = await page.goto(`/en/contacts/${randomUUID()}`);
+    const response = await page.goto(`/en/diagnostics-probe-missing/${randomUUID()}`);
     expect(response?.status()).toBe(404);
     await page.evaluate(async () => {
       await fetch("/api/v1/diagnostics-probe-missing", { method: "POST", body: "{}" });

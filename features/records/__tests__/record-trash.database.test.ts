@@ -233,7 +233,12 @@ describeDatabase("record trash", () => {
     const f = await fixture();
     const outsider = await runWithoutTenant(async () => {
       await prisma.rolePermission.create({
-        data: { companyId: f.seed.company.id, roleId: f.seed.memberRole.id, resource: "auditLog", action: "readAll" },
+        data: {
+          companyId: f.seed.company.id,
+          roleId: f.seed.memberRole.id,
+          resource: "activityLog",
+          action: "readAll",
+        },
       });
       return prisma.user.create({
         data: {

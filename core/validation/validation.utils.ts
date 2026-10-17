@@ -67,6 +67,7 @@ export function serializedFailureErrorTree(failure: SerializedInteractorFailure)
 const AUTHENTICATION_FAILURE_CODES = new Set<CustomErrorCode>([CustomErrorCode.notAuthenticated]);
 const AUTHORIZATION_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.userInactive,
+  CustomErrorCode.emailVerificationRequired,
   CustomErrorCode.permissionDenied,
   CustomErrorCode.insufficientPermissions,
   CustomErrorCode.demoMode,
@@ -89,6 +90,12 @@ const NOT_FOUND_FAILURE_CODES = new Set<CustomErrorCode>([
 ]);
 const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.channelAlreadyLinked,
+  CustomErrorCode.draftAlreadySent,
+  CustomErrorCode.draftChanged,
+  CustomErrorCode.draftRecipientsChanged,
+  CustomErrorCode.draftSendInProgress,
+  CustomErrorCode.draftSendOutcomeUnknown,
+  CustomErrorCode.draftTargetMismatch,
   CustomErrorCode.operatorConflict,
   CustomErrorCode.roleNameTaken,
   CustomErrorCode.roleSystemImmutable,

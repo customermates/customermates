@@ -120,8 +120,23 @@ describeDatabase("draft discard access on PostgreSQL", () => {
     await setAccountShared(true);
     const draftId = await insertDraft();
 
+    const repo = createTestMessagingRepo();
+    const claim = await runWithTenant(colleague, () =>
+      repo.beginDraftSend({
+        draftMessageId: draftId,
+        draftRevision: revision,
+        connectedAccountId: accountId,
+        contentHash: "teammate-send",
+      }),
+    );
+    if (claim.status !== "claimed") throw new Error(`Expected a claim, got ${claim.status}`);
     await runWithTenant(colleague, () =>
-      createTestMessagingRepo().discardDraftAfterSend({ messageId: draftId, expectedUpdatedAt: revision }),
+      repo.completeDraftSendRemovingDraft({
+        claim: claim.claim,
+        draftMessageId: draftId,
+        unipileMessageId: `sent-${draftId}`,
+        providerMessageId: null,
+      }),
     );
 
     expect(await draftExists(draftId)).toBe(false);

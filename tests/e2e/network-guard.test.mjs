@@ -1,10 +1,15 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
 import { spawnSync } from "node:child_process";
+import { existsSync, mkdtempSync, readFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import http from "node:http";
 import https from "node:https";
 import net from "node:net";
+
+import { responseLostAfterAcceptance, sentCopyUnavailable } from "./local-email-provider.mjs";
 
 Object.assign(process.env, {
   CRM_LOCAL_TEST_TRANSPORT: "true",
@@ -96,5 +101,49 @@ test("intercepts synthetic email delivery and adoption without accepting other p
     );
   } finally {
     delete process.env.UNIPILE_API_KEY;
+  }
+});
+
+test("records accepted synthetic mail only in the ledger the run names and fakes a lost answer and a missing copy", async () => {
+  process.env.UNIPILE_API_KEY = "e2e-local-provider-no-network";
+  const ledger = join(mkdtempSync(join(tmpdir(), "crm-e2e-ledger-")), "local-email-ledger.jsonl");
+  const account = "e2e_local_00000000-0000-4000-8000-000000000002";
+  const headers = { "X-API-KEY": process.env.UNIPILE_API_KEY, "Content-Type": "application/json" };
+  const send = (subject) =>
+    fetch(`https://api.unipile.com/v2/${account}/emails/send`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        from: { email: "sender@example.test" },
+        to: [{ email: "recipient@example.test" }],
+        subject,
+        html: "<p>Local only</p>",
+      }),
+    });
+  const subjects = () =>
+    existsSync(ledger)
+      ? readFileSync(ledger, "utf8")
+          .split("\n")
+          .filter(Boolean)
+          .map((line) => JSON.parse(line).subject)
+      : [];
+  try {
+    await send("Delivery without a ledger");
+    assert.deepEqual(subjects(), []);
+
+    process.env.CRM_E2E_EMAIL_LEDGER = ledger;
+    const lost = await send(`Lost answer ${responseLostAfterAcceptance}`);
+    assert.equal(lost.status, 504);
+    const unreadable = await send(`Unreadable copy ${sentCopyUnavailable}`);
+    const { id } = await unreadable.json();
+    const copy = await fetch(`https://api.unipile.com/v2/${account}/emails/${id}`, { headers });
+    assert.equal(copy.status, 404);
+    assert.deepEqual(subjects(), [
+      `Lost answer ${responseLostAfterAcceptance}`,
+      `Unreadable copy ${sentCopyUnavailable}`,
+    ]);
+  } finally {
+    delete process.env.UNIPILE_API_KEY;
+    delete process.env.CRM_E2E_EMAIL_LEDGER;
   }
 });

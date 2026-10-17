@@ -301,7 +301,7 @@ export function FooterContent({ appMode, blogPosts = [], className, featureLinks
           </div>
         </div>
 
-        <FooterBadges />
+        {appMode === "self-hosted" ? null : <FooterBadges />}
 
         <div className="border-t border-border pt-8 text-center text-xs text-subdued">
           <p>{t("Footer.copyrightText", { year: new Date().getFullYear() })}</p>

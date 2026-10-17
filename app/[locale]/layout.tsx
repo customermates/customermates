@@ -16,6 +16,8 @@ type Props = {
 };
 
 export function generateStaticParams() {
+  if (env.APP_MODE === "self-hosted") return [];
+
   return ROUTING_LOCALES.map((locale) => ({ locale }));
 }
 

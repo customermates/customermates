@@ -76,9 +76,16 @@ test("settings live in one area reached from the workspace menu, with Back to th
     await expect(page.locator("[data-area-nav]")).toHaveCount(0);
   });
 
-  await test.step("the old profile and company routes are gone", async () => {
-    for (const removed of ["profile/settings", "company/members", "company/webhook-deliveries"])
-      expect((await page.request.get(`/en/${removed}`)).status(), removed).toBe(404);
+  await test.step("the old profile and company routes lead to their Settings pages", async () => {
+    for (const [removed, current] of [
+      ["profile/settings", "settings/profile"],
+      ["company/members", "settings/members"],
+      ["company/webhook-deliveries", "settings/webhook-deliveries"],
+    ] as const) {
+      const response = await page.request.get(`/en/${removed}`, { maxRedirects: 0 });
+      expect(response.status(), removed).toBe(308);
+      expect(response.headers().location, removed).toBe(`/en/${current}`);
+    }
   });
 
   expect(errors).toEqual([]);

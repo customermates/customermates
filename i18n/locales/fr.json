@@ -36,6 +36,41 @@
     "privacyLink": "Détails de confidentialité",
     "title": "Aidez-nous à comprendre ce qui fonctionne"
   },
+  "ActivityDetail": {
+    "eventAt": "{event} le {date}",
+    "fields": {
+      "acceptanceType": "Type d'acceptation",
+      "acceptingEmail": "Accepté par",
+      "changedDocuments": "Documents modifiés",
+      "country": "Pays",
+      "createType": "Nouveau type",
+      "cronExpression": "Planification",
+      "debounceSeconds": "Délai d’attente",
+      "delete": "Placé dans la corbeille",
+      "deletePermanently": "Supprimé définitivement",
+      "disabledReason": "Motif de désactivation",
+      "effectiveAt": "En vigueur à partir du",
+      "isNewCompany": "Première personne de l'espace",
+      "markdown": "Markdown",
+      "prompt": "Consignes",
+      "publishSummary": "Résumé publié",
+      "putAccessPreset": "Modèle d’accès",
+      "putCapability": "Fonctionnalité",
+      "putField": "Champ",
+      "putRelationship": "Relation",
+      "putType": "Type",
+      "recipientEmail": "Envoyé à",
+      "removalReason": "Motif de suppression",
+      "restore": "Restauré",
+      "timezone": "Fuseau horaire",
+      "triggerEvents": "Évènements déclencheurs",
+      "triggerFilters": "Filtres du déclencheur",
+      "triggerKind": "Déclencheur",
+      "versions": "Versions des documents",
+      "visibility": "Visibilité"
+    },
+    "unchangedLines": "{count, plural, one {# ligne inchangée} other {# lignes inchangées}}"
+  },
   "AgentChat": {
     "activity": {
       "approval": {
@@ -770,41 +805,6 @@
   "ApiKeysCard": {
     "unnamed": "Sans nom"
   },
-  "AuditLogModal": {
-    "eventAt": "{event} le {date}",
-    "fields": {
-      "acceptanceType": "Type d'acceptation",
-      "acceptingEmail": "Accepté par",
-      "changedDocuments": "Documents modifiés",
-      "country": "Pays",
-      "createType": "Nouveau type",
-      "cronExpression": "Planification",
-      "debounceSeconds": "Délai d’attente",
-      "delete": "Placé dans la corbeille",
-      "deletePermanently": "Supprimé définitivement",
-      "disabledReason": "Motif de désactivation",
-      "effectiveAt": "En vigueur à partir du",
-      "isNewCompany": "Première personne de l'espace",
-      "markdown": "Markdown",
-      "prompt": "Consignes",
-      "publishSummary": "Résumé publié",
-      "putAccessPreset": "Modèle d’accès",
-      "putCapability": "Fonctionnalité",
-      "putField": "Champ",
-      "putRelationship": "Relation",
-      "putType": "Type",
-      "recipientEmail": "Envoyé à",
-      "removalReason": "Motif de suppression",
-      "restore": "Restauré",
-      "timezone": "Fuseau horaire",
-      "triggerEvents": "Évènements déclencheurs",
-      "triggerFilters": "Filtres du déclencheur",
-      "triggerKind": "Déclencheur",
-      "versions": "Versions des documents",
-      "visibility": "Visibilité"
-    },
-    "unchangedLines": "{count, plural, one {# ligne inchangée} other {# lignes inchangées}}"
-  },
   "AuthSocialErrors": {
     "accessDenied": "La connexion a été annulée chez le fournisseur.",
     "accountAlreadyLinkedToDifferentUser": "Ce compte social est déjà lié à un autre utilisateur.",
@@ -1080,8 +1080,14 @@
       "dataViewNotFound": "Cette vue enregistrée est introuvable.",
       "dataViewUpdateEmpty": "Indiquez un nom ou au moins un paramètre de vue à mettre à jour.",
       "demoMode": "Cette action n’est pas disponible en mode démo. Connectez-vous pour accéder à toutes les fonctionnalités.",
+      "draftAlreadySent": "Ce brouillon a déjà été envoyé.",
+      "draftChanged": "Ce brouillon a été modifié après son ouverture.",
       "draftMessageNotFound": "Ce brouillon est introuvable. Il a peut-être déjà été envoyé ou supprimé.",
-      "draftThreadNotSent": "Ce brouillon n'a pas encore de conversation. Envoyez-le depuis la boîte de réception.",
+      "draftRecipientsChanged": "Ces destinataires ne correspondent pas au brouillon enregistré. Un nouveau message conserve ses destinataires À, et les destinataires Cci ne peuvent pas passer en À ou Cc.",
+      "draftSendInProgress": "Ce brouillon est déjà en cours d'envoi. Vérifiez la conversation dans un instant.",
+      "draftSendOutcomeUnknown": "Ce brouillon a peut-être déjà été envoyé, sans que cela ait pu être confirmé. Vérifiez la conversation et votre dossier Envoyés. Pour l'envoyer quand même, modifiez puis mettez à jour le brouillon.",
+      "draftTargetMismatch": "Ce brouillon appartient à une autre conversation ou à un autre canal.",
+      "draftThreadNotSent": "Cette conversation n'existe que sous forme de brouillon enregistré. Envoyez-le avec son draftMessageId et son draftRevision.",
       "draftToRecipientsLocked": "Un nouveau message enregistré conserve ses destinataires À. Supprimez le brouillon et commencez un nouveau message pour écrire à quelqu’un d’autre.",
       "duplicateOutboundSuppressed": "Un message identique vient d'être envoyé dans cette conversation. Modifiez le texte ou attendez une minute avant de réessayer.",
       "duplicateWebhookEvents": "Les évènements en double ne sont pas autorisés.",
@@ -1094,6 +1100,7 @@
       "emailMismatch": "Les adresses e-mail doivent correspondre.",
       "emailNotVerified": "Adresse e-mail non vérifiée.",
       "emailRecipientsRequired": "Ajoutez au moins un destinataire dans À, Cc ou Cci.",
+      "emailVerificationRequired": "Vérifiez votre adresse e-mail pour continuer à utiliser ce compte. Connectez-vous à l'application et demandez un nouveau lien de vérification.",
       "enterpriseCheckoutUnavailable": "Les espaces de travail Enterprise sont facturés manuellement et ne peuvent pas lancer le paiement en libre-service.",
       "filterBetweenInvalidArrayLength": "L'opérateur 'between' requiert un tableau contenant exactement 2 éléments.",
       "generic": "Une erreur est survenue.",
@@ -1186,6 +1193,7 @@
       "routineScheduleInvalid": "Cette planification n'est pas une expression cron valide.",
       "routineScheduleRequired": "Choisissez une planification ou une date unique pour cette routine.",
       "routineScheduleTooFrequent": "Cette planification s'exécute trop souvent. Les routines peuvent s'exécuter au maximum toutes les 15 minutes.",
+      "routinesRequireCloud": "Les routines s'exécutent sur Customermates Cloud. Une instance auto-hébergée ne peut pas les exécuter.",
       "routineTestRequiresEnabled": "Activez la routine avant de la tester.",
       "routineTimeZoneInvalid": "Ce fuseau horaire n'est pas pris en charge.",
       "routineTriggerEventsRequired": "Sélectionnez au moins un évènement pour cette routine.",
@@ -2453,17 +2461,21 @@
       "ccLabel": "Cc",
       "createContact": "Créer \"{query}\"",
       "draftAttachmentsUnsupported": "Supprimez les pièces jointes avant d'enregistrer ce brouillon.",
+      "draftChangedNotice": "Ce brouillon a été modifié après son ouverture. Votre texte est toujours là : chargez la dernière version ou envoyez la vôtre.",
       "draftDiscardFailed": "Impossible d'abandonner le brouillon",
       "draftEdit": "Modifier",
       "draftSaved": "Brouillon enregistré. Vous le trouverez dans la boîte de réception.",
       "draftSendNow": "Envoyer le brouillon",
+      "draftSentEarlier": "Ce brouillon a déjà été envoyé. Rien n'a été renvoyé.",
       "emailContent": "Contenu de l'e-mail",
       "emojiPicker": "Insérer un émoji",
       "from": "De",
       "inmailSignaturePlaceholder": "Signature",
       "inmailSubjectPlaceholder": "Objet de l'InMail",
+      "loadLatestDraft": "Charger la dernière version",
       "loadRemoteImages": "Charger les images distantes",
       "messageSent": "Message envoyé.",
+      "messageSentPendingSync": "Message envoyé. Il apparaîtra dans la boîte de réception une fois synchronisé par votre messagerie.",
       "moreSendOptions": "Plus d'options d'envoi",
       "noContacts": "Aucun enregistrement.",
       "retry": "Réessayer",
@@ -2471,6 +2483,7 @@
       "send": "Envoyer",
       "sendAs": "Envoyer en tant que",
       "sendInBackground": "Vous pouvez continuer à travailler. Nous vous informerons lorsque le message aura été envoyé.",
+      "sendMyDraft": "Envoyer la mienne",
       "sendOutcomeUnknown": "Il a peut-être été envoyé. Vérifiez la conversation avant de le renvoyer.",
       "sendStarted": "Envoi du message",
       "subjectPlaceholder": "Objet",
@@ -2935,6 +2948,9 @@
       "linkFailed": "Impossible de créer le lien d'invitation.",
       "loadingLink": "Génération du lien…",
       "send": "Envoyer les invitations",
+      "sendFailed": "{failed, plural, one {L'invitation n'a pas pu être envoyée.} other {Les # invitations n'ont pas pu être envoyées.}}",
+      "sendFailedDescription": "Le service d'e-mail ne les a pas acceptées. Partagez plutôt le lien d'invitation.",
+      "sendPartlyFailed": "{sent, plural, one {# invitation envoyée} other {# invitations envoyées}}, {failed, plural, one {# n'a pas pu être envoyée.} other {# n'ont pas pu être envoyées.}}",
       "sentSuccess": "{count, plural, one {# invitation envoyée.} other {# invitations envoyées.}}",
       "tabs": {
         "email": "Envoyer des e-mails",
@@ -3921,8 +3937,8 @@
     "recordTypesHint": "Les nouveaux types sont sans accès par défaut. Les éléments intégrés héritent des droits de leur fiche parente.",
     "resourceHeader": "Ressource",
     "resources": {
+      "activityLog": "Journal d'activité",
       "api": "API et webhooks",
-      "auditLog": "Journal d'audit",
       "company": "Entreprise",
       "dataModel": "Modèle de données",
       "inboxMessages": "Messages de la boîte de réception",
@@ -4301,9 +4317,11 @@
     "permanentViewWidgets": "Pour une vue de tableau de bord, ses widgets sont aussi supprimés définitivement.",
     "restore": "Restaurer",
     "restoreBlocked": {
+      "incompatible": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car ils ne correspondent plus à la configuration ou aux données actuelles.",
       "listDeleted": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car leur liste est dans la corbeille. Restaurez d'abord la liste.",
       "nameTaken": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car un autre élément utilise désormais leur nom ou leur place.",
       "notFound": "{count, plural, one {# élément n'existe plus et a quitté} other {# éléments n'existent plus et ont quitté}} la corbeille.",
+      "operationPending": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille jusqu'à la fin de la restauration en arrière-plan. Restaurez-les ensuite à nouveau.",
       "parentDeleted": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car ce à quoi ils appartiennent est dans la corbeille. Restaurez-le d'abord.",
       "requiresRestore": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car un élément dont ils ont besoin est dans la corbeille. Restaurez-le d'abord.",
       "routineLimitReached": "{count, plural, one {# routine reste} other {# routines restent}} dans la corbeille car son propriétaire a déjà toutes les routines incluses dans son forfait."
@@ -4535,6 +4553,15 @@
     },
     "tryAnother": "Essayer un autre site",
     "unavailable": "La configuration avec Mate n’est pas disponible pour le moment. Vous pourrez créer des pages plus tard depuis la base de connaissances."
+  },
+  "WithoutErrorReporting": {
+    "ErrorCard": {
+      "contactSupport": "Veuillez réessayer. Si le problème persiste, contactez la personne qui gère cette instance de Customermates.",
+      "unexpectedError": "Une erreur inattendue s'est produite. Veuillez réessayer."
+    },
+    "NotFoundPage": {
+      "body": "Cette page n'existe pas ou a été déplacée. Vérifiez l'adresse ou revenez à la page d'accueil."
+    }
   },
   "WorkspaceMenu": {
     "inviteMembers": "Inviter des membres",

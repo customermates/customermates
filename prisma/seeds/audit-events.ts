@@ -15,7 +15,7 @@ import type { SeedContext } from "./context";
 import { fixtureId } from "./helpers";
 import { NORTHWIND_MEMBER_IDS, NORTHWIND_ROLE_IDS } from "./northwind-model";
 
-export const SYNTHETIC_AUDIT_LOG_ID_PREFIX = "1e000000";
+export const SYNTHETIC_AUDIT_EVENT_ID_PREFIX = "1e000000";
 
 type RegisteredUserSnapshot = {
   avatarUrl: string | null;
@@ -78,7 +78,7 @@ function auditFixture<E extends DomainEvent>(args: {
   if (Number.isNaN(createdAt.getTime())) throw new Error(`Invalid timestamp for synthetic audit fixture ${index}`);
 
   return {
-    id: fixtureId(SYNTHETIC_AUDIT_LOG_ID_PREFIX, index),
+    id: fixtureId(SYNTHETIC_AUDIT_EVENT_ID_PREFIX, index),
     companyId,
     createdAt,
     subjectKind: subjectKindOf(event),
@@ -100,7 +100,7 @@ function updateState<T extends { createdAt: Date; updatedAt: Date }>(entity: T, 
   return { ...entity, ...changes };
 }
 
-export function buildSyntheticAuditLogFixtures(args: {
+export function buildSyntheticAuditEventFixtures(args: {
   companyId: string;
   primaryUserId: string;
   snapshot: SyntheticAuditSnapshot;
@@ -218,7 +218,7 @@ export function buildSyntheticAuditLogFixtures(args: {
   return fixtures;
 }
 
-export async function persistSyntheticAuditLogFixtures(
+export async function persistSyntheticAuditEventFixtures(
   prisma: Pick<PrismaClient, "eventLog">,
   companyId: string,
   fixtures: SyntheticAuditFixture[],
@@ -237,7 +237,7 @@ export async function persistSyntheticAuditLogFixtures(
     where: {
       companyId,
       id: {
-        startsWith: `${SYNTHETIC_AUDIT_LOG_ID_PREFIX}-`,
+        startsWith: `${SYNTHETIC_AUDIT_EVENT_ID_PREFIX}-`,
         notIn: fixtures.map(({ id }) => id),
       },
     },
@@ -336,12 +336,12 @@ async function loadSyntheticAuditSnapshot(prisma: PrismaClient, context: SeedCon
   };
 }
 
-export async function seedSyntheticAuditLogs(context: SeedContext): Promise<void> {
+export async function seedSyntheticAuditEvents(context: SeedContext): Promise<void> {
   const snapshot = await loadSyntheticAuditSnapshot(context.prisma, context);
-  const fixtures = buildSyntheticAuditLogFixtures({
+  const fixtures = buildSyntheticAuditEventFixtures({
     companyId: context.ids.company,
     primaryUserId: context.ids.user,
     snapshot,
   });
-  await persistSyntheticAuditLogFixtures(context.prisma, context.ids.company, fixtures);
+  await persistSyntheticAuditEventFixtures(context.prisma, context.ids.company, fixtures);
 }

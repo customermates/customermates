@@ -21,7 +21,7 @@ vi.mock("resend", () => ({
   },
 }));
 
-import { EmailService } from "../email.service";
+import { EMAIL_SEND_TIMEOUT_MS, EmailService } from "../email.service";
 
 const email: Parameters<EmailService["send"]>[0] = {
   to: "recipient@example.com",
@@ -32,14 +32,17 @@ const email: Parameters<EmailService["send"]>[0] = {
 describe("EmailService", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useRealTimers();
     mockEnv.NODE_ENV = "production";
     mockEnv.RESEND_API_KEY = "test-key";
   });
 
   it("returns true when the provider accepts the email without exposing provider metadata", async () => {
+    vi.useFakeTimers();
     resendSend.mockResolvedValue({ data: { id: "message-123" }, error: null });
 
     await expect(new EmailService().send(email)).resolves.toBe(true);
+    expect(vi.getTimerCount()).toBe(0);
     expect(resendConstructor).toHaveBeenCalledWith("test-key");
     expect(resendSend).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -48,16 +51,51 @@ describe("EmailService", () => {
         subject: email.subject,
         to: email.to,
       }),
+      undefined,
     );
   });
 
-  it("returns false when the provider rejects the email", async () => {
+  it("sends the deduplication key as Resend's Idempotency-Key, so sending again does not deliver twice", async () => {
+    resendSend.mockResolvedValue({ data: { id: "message-123" }, error: null });
+
+    await expect(new EmailService().send({ ...email, deduplicationKey: "company-invite/abc" })).resolves.toBe(true);
+    expect(resendSend).toHaveBeenCalledWith(expect.objectContaining({ to: email.to }), {
+      headers: { "Idempotency-Key": "company-invite/abc" },
+    });
+  });
+
+  it("returns false and logs the reason when the provider rejects the email", async () => {
+    const consoleLog = vi.spyOn(console, "log").mockImplementation(() => {});
     resendSend.mockResolvedValue({
       data: null,
-      error: { message: "provider rejected request" },
+      error: { name: "invalid_api_Key", message: "API key is invalid" },
     });
 
     await expect(new EmailService().send(email)).resolves.toBe(false);
+    expect(consoleLog).toHaveBeenCalledExactlyOnceWith("[EmailService] Email not sent", {
+      subject: "Legal update",
+      recipientDomain: "example.com",
+      reason: "invalid_api_Key: API key is invalid",
+    });
+    consoleLog.mockRestore();
+  });
+
+  it("gives up and logs when the provider does not answer in time", async () => {
+    vi.useFakeTimers();
+    const consoleLog = vi.spyOn(console, "log").mockImplementation(() => {});
+    resendSend.mockReturnValue(new Promise(() => {}));
+
+    const sent = new EmailService().send(email);
+    await vi.advanceTimersByTimeAsync(EMAIL_SEND_TIMEOUT_MS);
+
+    await expect(sent).resolves.toBe(false);
+    expect(consoleLog).toHaveBeenCalledExactlyOnceWith("[EmailService] Email not sent", {
+      subject: "Legal update",
+      recipientDomain: "example.com",
+      reason: `timeout: no answer within ${EMAIL_SEND_TIMEOUT_MS} ms`,
+    });
+    expect(vi.getTimerCount()).toBe(0);
+    consoleLog.mockRestore();
   });
 
   it("does not require a provider message ID", async () => {

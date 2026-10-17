@@ -36,8 +36,8 @@ const replyDraft = { subject: "Re: Subject", body: "**Reply**", cc: ["copy@examp
 function harness() {
   const core = new SaveDraftInteractor(
     {
-      findThreadByIdOrThrow: vi.fn(),
-      findOrCreateDraftThread: vi.fn(),
+      findThreadById: vi.fn(),
+      createConversationDraftOrThrow: vi.fn(),
       findSelfAttendeeForThread: vi.fn(),
       upsertThreadDraftOrThrow: vi.fn(),
     },
@@ -138,14 +138,14 @@ describe("draft interactor entry boundaries", () => {
     const persist = vi.fn();
     const core = new SaveDraftInteractor(
       {
-        findThreadByIdOrThrow: vi.fn().mockResolvedValue({
+        findThreadById: vi.fn().mockResolvedValue({
           id: THREAD_ID,
           connectedAccountId: ACCOUNT_ID,
           provider: "google",
           unipileThreadId: `draft_${THREAD_ID}`,
           participants: [],
         }),
-        findOrCreateDraftThread: vi.fn(),
+        createConversationDraftOrThrow: vi.fn(),
         findSelfAttendeeForThread: vi.fn(),
         upsertThreadDraftOrThrow: persist,
       },

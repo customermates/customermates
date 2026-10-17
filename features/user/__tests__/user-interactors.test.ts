@@ -9,8 +9,12 @@ import {
 } from "@/tests/helpers/interactor-test-setup";
 
 const mockUser = createMockUser();
+const afterResponseTasks = vi.hoisted(() => [] as (() => Promise<unknown>)[]);
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
+vi.mock("@/core/utils/after-response", () => ({
+  runAfterResponse: (task: () => Promise<unknown>) => afterResponseTasks.push(task),
+}));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
@@ -50,6 +54,7 @@ describe("RegisterUserInteractor", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mutableEnv.APP_MODE = "self-hosted";
+    afterResponseTasks.length = 0;
 
     mockAuthService = {
       sendNewUserNotificationEmail: vi.fn().mockResolvedValue(undefined),
@@ -398,7 +403,7 @@ describe("RegisterUserInteractor", () => {
     expect(mockEventService.publish).not.toHaveBeenCalledWith(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, expect.anything());
   });
 
-  it("calls authService.sendNewUserNotificationEmail", async () => {
+  it("sends the operator notification after the response", async () => {
     const interactor = createInteractor();
     await interactor.invoke(
       {
@@ -412,9 +417,37 @@ describe("RegisterUserInteractor", () => {
       { target: { type: "createCompany" } },
     );
 
+    expect(mockAuthService.sendNewUserNotificationEmail).not.toHaveBeenCalled();
+    expect(afterResponseTasks).toHaveLength(1);
+
+    for (const task of afterResponseTasks) await task();
+
     expect(mockAuthService.sendNewUserNotificationEmail).toHaveBeenCalledWith({
       email: "jane@example.com",
       name: "Jane Doe",
+    });
+  });
+
+  it("finishes registration while the operator notification hangs or fails", async () => {
+    const data = {
+      email: "jane@example.com",
+      firstName: "Jane",
+      lastName: "Doe",
+      country: "de" as const,
+      avatarUrl: null,
+      agreeToTerms: true,
+    };
+
+    mockAuthService.sendNewUserNotificationEmail.mockReturnValue(new Promise(() => {}));
+    await expect(createInteractor().invoke(data, { target: { type: "createCompany" } })).resolves.toEqual({
+      ok: true,
+      data: { redirectTo: "/onboarding/wizard" },
+    });
+
+    mockAuthService.sendNewUserNotificationEmail.mockRejectedValue(new Error("RESEND_API_KEY is not configured"));
+    await expect(createInteractor().invoke(data, { target: { type: "createCompany" } })).resolves.toEqual({
+      ok: true,
+      data: { redirectTo: "/onboarding/wizard" },
     });
   });
 

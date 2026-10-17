@@ -11,7 +11,7 @@ import { Inbox, KanbanSquare, LayoutDashboard, Repeat, Settings2, UserRound } fr
 import { cn } from "@/core/utils/cn";
 
 import { HomepageCaptureImage } from "./homepage-capture-image";
-import { DEMO_RECORD_LIST_PATHS, DEMO_RECORD_TYPE_IDS } from "@/components/marketing/product-demo";
+import { DEMO_RECORD_LIST_PATHS, DEMO_RECORD_TYPE_IDS } from "@/components/marketing/product-demo-src";
 import { ProductWindow } from "@/components/marketing/product-window";
 import { useHomepageMotion } from "./homepage-motion";
 import {
@@ -77,6 +77,7 @@ const STAGE_MIN_SCALE = 0.94;
 
 type Props = {
   demoBaseUrl: string;
+  embed?: boolean;
   label: string;
   live: { prompt: string };
   locale: ContentLocale;
@@ -104,7 +105,7 @@ function StageProgressRing() {
   );
 }
 
-export function HomepageProductStage({ demoBaseUrl, label, live: liveCopy, locale, tabs }: Props) {
+export function HomepageProductStage({ demoBaseUrl, embed = true, label, live: liveCopy, locale, tabs }: Props) {
   const { ref, shouldAnimate, shouldReduceMotion } = useHomepageMotion<HTMLDivElement>();
   const frameRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -115,11 +116,12 @@ export function HomepageProductStage({ demoBaseUrl, label, live: liveCopy, local
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const baseId = useId();
   const [liveRequested, setLive] = useState(false);
-  const liveAllowed = useSyncExternalStore(
+  const liveViewport = useSyncExternalStore(
     subscribeToLiveStageMedia,
     getLiveStageMediaSnapshot,
     getServerLiveStageMediaSnapshot,
   );
+  const liveAllowed = embed && liveViewport;
   const live = liveRequested && liveAllowed;
   const [liveMounted, setLiveMounted] = useState<ReadonlySet<number>>(() => new Set());
   const [liveShown, setLiveShown] = useState<ReadonlySet<number>>(() => new Set());
@@ -130,7 +132,7 @@ export function HomepageProductStage({ demoBaseUrl, label, live: liveCopy, local
   const liveReady = live && liveShown.has(activeIndex);
   const autoAdvance = shouldAnimate && !stopped && !hovered;
 
-  preconnect(demoBaseUrl);
+  if (embed) preconnect(demoBaseUrl);
 
   useEffect(() => {
     if (liveAllowed) setLive(true);

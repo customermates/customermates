@@ -87,7 +87,7 @@ A **Standard API key** expires only if you pick a date under **Expires in**; the
 
 On [API keys](app:settings/api-keys), click the key's card and choose **Delete**; after you confirm, the key stops working immediately. Deleting needs **Delete** on **API & Webhooks**. There is no separate rotate or revoke action: to rotate, create a new key, update every client that used the old one, then delete the old key.
 
-Rotate when a device that held the key is lost or compromised, when a teammate with access leaves, or when you suspect the key leaked. One key per client lets you delete one client without breaking the others; the audit log still names the user, not the key. Keep keys in an environment variable or a password manager, never in a config file you commit.
+Rotate when a device that held the key is lost or compromised, when a teammate with access leaves, or when you suspect the key leaked. One key per client lets you delete one client without breaking the others; the activity log still names the user, not the key. Keep keys in an environment variable or a password manager, never in a config file you commit.
 
 Only the owner can delete a key. To stop the keys of a member who leaves, open [Members](app:settings/members), open the member, set **Status** to **Inactive** and click **Save**. This needs **Edit** and read access **All** on **Users & Roles**; you cannot deactivate yourself or the last active **Admin**. Every call with that member's keys that reads or changes workspace data is then refused. Taking **Read access** **All** on **API & Webhooks** away from their role also stops their keys, for MCP and REST alike; see [What permissions does a key have](#what-permissions-does-a-key-have).
 

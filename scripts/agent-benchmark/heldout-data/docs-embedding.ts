@@ -84,7 +84,7 @@ export const DOCS_EMBEDDING_HELDOUT: readonly DocsHeldoutItem[] = [
     slug: "architecture-security",
     anchors: ["architecture-security#how-long-are-audit-entries-kept-and-can-i-export-them"],
     alternatives: [],
-    fact: "Entries are kept as long as the workspace exists; the Audit Logs page has no export, but the activity timeline, its REST endpoint and get_activities return the same entries.",
+    fact: "Entries are kept as long as the workspace exists; the Activity page has no export, but the activity timeline, its REST endpoint and get_activities return the same entries.",
   },
   {
     id: "de-en-09",
@@ -606,7 +606,7 @@ export const DOCS_EMBEDDING_HELDOUT: readonly DocsHeldoutItem[] = [
     slug: "app-dashboard",
     anchors: ["app-dashboard#who-sees-what-in-a-timeline"],
     alternatives: [],
-    fact: "It depends on the role's Read access All on the Audit Log row (changes) and on the Inbox messages row (messages, account activity and calendar events, on a plan with messaging); with neither the timeline shows an unavailable state.",
+    fact: "It depends on the role's Read access All on the Activity log row (changes) and on the Inbox messages row (messages, account activity and calendar events, on a plan with messaging); with neither the timeline shows an unavailable state.",
   },
 ];
 

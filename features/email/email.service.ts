@@ -10,14 +10,23 @@ type SendArgs = {
   subject: string;
   react: React.ReactElement<Record<string, unknown>>;
   from?: string;
+  deduplicationKey?: string;
 };
 
+type SendFailure = { name: string; message: string };
+
 const defaultSender = `Customermates <${env.RESEND_OPERATOR_EMAIL}>`;
+
+export const EMAIL_SEND_TIMEOUT_MS = 10_000;
+
+function log(message: string, details: Record<string, unknown>) {
+  console.log(`[EmailService] ${message}`, details);
+}
 
 export class EmailService {
   async send(args: SendArgs): Promise<boolean> {
     if (env.NODE_ENV !== "production") {
-      console.log("[EmailService] EMAIL (local only)", {
+      log("EMAIL (local only)", {
         from: args.from ?? defaultSender,
         to: args.to,
         subject: args.subject,
@@ -30,17 +39,36 @@ export class EmailService {
     if (!env.RESEND_API_KEY) throw new Error("RESEND_API_KEY is not configured");
 
     const resend = new Resend(env.RESEND_API_KEY);
-
-    const { error } = await resend.emails.send({
-      from: args.from ?? defaultSender,
-      to: args.to,
-      subject: args.subject,
-      react: args.react,
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timedOut = new Promise<{ error: SendFailure }>((resolve) => {
+      timer = setTimeout(
+        () => resolve({ error: { name: "timeout", message: `no answer within ${EMAIL_SEND_TIMEOUT_MS} ms` } }),
+        EMAIL_SEND_TIMEOUT_MS,
+      );
     });
 
+    const { error } = await Promise.race([
+      resend.emails.send(
+        {
+          from: args.from ?? defaultSender,
+          to: args.to,
+          subject: args.subject,
+          react: args.react,
+        },
+        args.deduplicationKey ? { headers: { "Idempotency-Key": args.deduplicationKey } } : undefined,
+      ),
+      timedOut,
+    ]).finally(() => clearTimeout(timer));
+
     if (error) {
+      const recipientDomain = args.to.split("@").at(-1);
+      log("Email not sent", {
+        subject: args.subject,
+        recipientDomain,
+        reason: `${error.name}: ${error.message}`,
+      });
       Sentry.captureException(new Error(`Resend rejected an email: ${error.name}`), {
-        extra: { subject: args.subject, recipientDomain: args.to.split("@").at(-1) },
+        extra: { subject: args.subject, recipientDomain },
       });
       return false;
     }

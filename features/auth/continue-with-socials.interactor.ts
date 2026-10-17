@@ -6,6 +6,7 @@ import type { Redirect } from "./auth-outcome";
 import { z } from "zod";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
+import { runAfterResponse } from "@/core/utils/after-response";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { redirectTo } from "./auth-outcome";
 import { callbackUrlSchema } from "./callback-url.schema";
@@ -35,11 +36,8 @@ export class ContinueWithSocialsInteractor {
       const userExists = (await this.findUserRepo.findCurrentUserUnscoped(res.user.email)) !== null;
 
       if (!userExists) {
-        await this.authService.sendNewUserNotificationEmail({
-          email: res.user.email,
-          name: res.user.name,
-          provider: data.provider,
-        });
+        const { email, name } = res.user;
+        runAfterResponse(() => this.authService.sendNewUserNotificationEmail({ email, name, provider: data.provider }));
       }
 
       if (mustVerifyEmail(res.user)) {

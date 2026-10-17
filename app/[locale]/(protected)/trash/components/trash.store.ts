@@ -38,6 +38,8 @@ const RESTORE_BLOCKED_KEYS: Record<TrashRestoreBlocker["reason"], string> = {
   requiresRestore: "Trash.restoreBlocked.requiresRestore",
   nameTaken: "Trash.restoreBlocked.nameTaken",
   routineLimitReached: "Trash.restoreBlocked.routineLimitReached",
+  incompatible: "Trash.restoreBlocked.incompatible",
+  operationPending: "Trash.restoreBlocked.operationPending",
 };
 
 const countBy = <T>(values: T[]) =>
@@ -191,9 +193,11 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
       }
       const outcome = result.data;
       if (outcome.status === "pending") {
+        const blocked = outcome.blocked ?? [];
+        this.toastBlocked(blocked);
         this.awaitBackgroundRestore(
           outcome.operationId,
-          "itemIds" in data ? data.itemIds : [],
+          ("itemIds" in data ? data.itemIds : []).filter((itemId) => !blocked.some((entry) => entry.itemId === itemId)),
           onRestored,
           outcome.droppedViewReferences ?? [],
         );
@@ -211,8 +215,7 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
         });
       }
       if (viewReferences.length) this.showDroppedViewReferences(viewReferences);
-      for (const [reason, count] of countBy(outcome.blocked.map((blocker) => blocker.reason)))
-        this.toastError(RESTORE_BLOCKED_KEYS[reason], { values: { count } });
+      this.toastBlocked(outcome.blocked);
       if (restoredCount === 0 && outcome.blocked.length === 0) this.toastError("Trash.restoreFailed");
       if (restoredCount === 0) return false;
       await this.afterRestore();
@@ -222,6 +225,11 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
       this.setMutating(false);
     }
   };
+
+  private toastBlocked(blocked: TrashRestoreBlocker[]) {
+    for (const [reason, count] of countBy(blocked.map((blocker) => blocker.reason)))
+      this.toastError(RESTORE_BLOCKED_KEYS[reason], { values: { count } });
+  }
 
   private showDroppedViewReferences(viewReferences: DroppedViewReferences[]) {
     this.toastSuccess("Trash.restoredWithDroppedViewReferences", {

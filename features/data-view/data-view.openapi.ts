@@ -17,7 +17,7 @@ const TAG = "data-views";
 const VIEW_ID = "6f1c2d3e-4b5a-4c6d-8e7f-1a2b3c4d5e6f";
 const RECORD_SURFACE = "records:0b8c7d6e-5f4a-4b3c-9d2e-1f0a9b8c7d6e";
 const ACCESS =
-  "read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on auditLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.";
+  "read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on activityLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.";
 const SURFACES =
   "Surfaces are the record lists (`records:<typeId>`), the Members, Roles, Webhooks, Webhook deliveries, Inbox, Activity and Routines lists, record activity timelines and the dashboard (`dashboard`); operator-console surfaces are not available. Timeline views accept only filters and sortDescriptor.";
 

@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { AppErrorCode, appErrorDetails } from "@/core/errors/app-errors";
 import { ApiKeyAccessDeniedError } from "@/core/auth/api-key-access-denied-error";
+import { EmailVerificationRequiredError } from "@/core/auth/email-verification-required-error";
 import { prismaClientError } from "@/core/errors/prisma-client-error";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import {
@@ -104,7 +105,9 @@ export function handleError(source: unknown): NextResponse {
     const [kind, customCode] =
       source instanceof ApiKeyAccessDeniedError
         ? (["authorization", CustomErrorCode.insufficientPermissions] as const)
-        : APP_ERROR_FAILURES[appError.code];
+        : source instanceof EmailVerificationRequiredError
+          ? (["authorization", CustomErrorCode.emailVerificationRequired] as const)
+          : APP_ERROR_FAILURES[appError.code];
     return failure(
       { kind, issues: [{ code: "custom", path: [], message: appError.message, customCode }] },
       appError.statusCode,
