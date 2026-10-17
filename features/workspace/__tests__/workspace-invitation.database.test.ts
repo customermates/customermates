@@ -241,7 +241,7 @@ describeDatabase("joining another workspace by invitation with an existing login
     const { getJoinWorkspaceInteractor, getRouteGuardService } = await import("@/core/di");
     asSession();
 
-    const joined = await getJoinWorkspaceInteractor().invoke({ intent: fixture.intent });
+    const joined = await getJoinWorkspaceInteractor().invoke({ intent: fixture.intent, agreeToTerms: true });
 
     expect(joined).toEqual({
       ok: true,
@@ -332,7 +332,7 @@ describeDatabase("joining another workspace by invitation with an existing login
     expect(await whoAmI()).toEqual({ status: 200, userId: fixture.members.own });
 
     asSession();
-    expect(await getJoinWorkspaceInteractor().invoke({ intent: fixture.intent })).toEqual({
+    expect(await getJoinWorkspaceInteractor().invoke({ intent: fixture.intent, agreeToTerms: true })).toEqual({
       ok: true,
       data: { companyId: fixture.companies.invited, status: "active", alreadyMember: true },
     });
@@ -366,7 +366,7 @@ describeDatabase("joining another workspace by invitation with an existing login
     expect(await membership(fixture.companies.invited)).toMatchObject({ status: "inactive" });
 
     asSession();
-    expect(await getJoinWorkspaceInteractor().invoke({ intent: fixture.intent })).toEqual({
+    expect(await getJoinWorkspaceInteractor().invoke({ intent: fixture.intent, agreeToTerms: true })).toEqual({
       ok: true,
       data: { companyId: fixture.companies.invited, status: "pendingAuthorization", alreadyMember: false },
     });

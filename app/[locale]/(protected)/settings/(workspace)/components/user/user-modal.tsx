@@ -165,6 +165,7 @@ export const CompanyUserModal = observer(() => {
 
             <FormSelect
               required
+              showErrorMessage
               disabled={isOwnProfile}
               id="roleId"
               inputId="member-modal-role"

@@ -1,28 +1,29 @@
 "use client";
 
+import type { WorkspaceLeaveRefusal } from "@/features/workspace/member-removal-refusal";
 import type { WorkspaceSummary } from "@/features/workspace/workspace.schema";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
-import { LeaveWorkspaceDialog } from "@/app/components/workspaces/leave-workspace-dialog";
+import { LeaveWorkspaceButton, LeaveWorkspaceDialog } from "@/app/components/workspaces/leave-workspace-dialog";
 import { WorkspaceAvatar } from "@/app/components/workspaces/workspace-avatar";
 import { workspaceDisplayName } from "@/app/components/workspaces/workspace-identity";
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { UnsavedChangesBar, unsavedChangesMode } from "@/components/forms/unsaved-changes-bar";
 import { Alert } from "@/components/shared/alert";
-import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 import { WORKSPACE_NAME_MAX_LENGTH } from "@/features/workspace/workspace.schema";
 
 type Props = {
+  leaveRefusal: WorkspaceLeaveRefusal | null;
   workspace: WorkspaceSummary;
 };
 
-const WorkspaceGeneralViewContent = observer(({ workspace }: Props) => {
+const WorkspaceGeneralViewContent = observer(({ leaveRefusal, workspace }: Props) => {
   const t = useTranslations();
   const { appMode, workspaceGeneralStore: store } = useRootStore();
   const [confirmingLeave, setConfirmingLeave] = useState(false);
@@ -86,16 +87,13 @@ const WorkspaceGeneralViewContent = observer(({ workspace }: Props) => {
                 role="note"
                 title={t("Workspaces.leave")}
               >
-                <Button
+                <LeaveWorkspaceButton
                   className="mt-2"
                   id="settings-general-leave"
-                  size="sm"
-                  type="button"
-                  variant="secondary"
+                  label={t("Workspaces.leave")}
+                  refusal={leaveRefusal}
                   onClick={() => setConfirmingLeave(true)}
-                >
-                  {t("Workspaces.leave")}
-                </Button>
+                />
               </Alert>
             </section>
           )}

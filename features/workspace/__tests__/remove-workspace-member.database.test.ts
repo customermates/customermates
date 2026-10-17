@@ -425,7 +425,7 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
     const { getJoinWorkspaceInteractor } = await import("@/core/di");
     as(benSessions.stale);
 
-    expect(await getJoinWorkspaceInteractor().invoke({ intent })).toEqual({
+    expect(await getJoinWorkspaceInteractor().invoke({ intent, agreeToTerms: true })).toEqual({
       ok: true,
       data: { companyId: companies.team, status: "pendingAuthorization", alreadyMember: false },
     });
@@ -445,7 +445,7 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
   it("removes the approval task when the person withdraws the request", async () => {
     const { getJoinWorkspaceInteractor, getWithdrawWorkspaceRequestInteractor } = await import("@/core/di");
     as(cleoSession);
-    expect(await getJoinWorkspaceInteractor().invoke({ intent })).toMatchObject({
+    expect(await getJoinWorkspaceInteractor().invoke({ intent, agreeToTerms: true })).toMatchObject({
       ok: true,
       data: { status: "pendingAuthorization" },
     });
@@ -461,5 +461,21 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
     expect(await approvalTasks("cleo")).toBe(0);
     expect(await lastUsed("cleo")).toBe(companies.cleosOwn);
     expect(mails.sent).toHaveLength(2);
+  });
+  it("keeps declined and withdrawn requests out of Members while a removed member stays listed as a former member", async () => {
+    const { runWithTenant } = await import("@/core/decorators/tenant-context");
+    const { getGetUsersInteractor } = await import("@/core/di");
+    const membership = await membershipOf("ada");
+
+    const listed = await runWithTenant(membership, () => getGetUsersInteractor().invoke({}));
+
+    expect(listed.ok).toBe(true);
+    if (!listed.ok) return;
+    const emails = listed.data.items.map((member) => member.email);
+    expect(emails).toEqual(expect.arrayContaining([people.ada.email, people.max.email, people.dana.email]));
+    expect(emails).not.toContain(people.ben.email);
+    expect(emails).not.toContain(people.cleo.email);
+    expect(listed.data.items.find((member) => member.email === people.dana.email)?.leftAt).toBeInstanceOf(Date);
+    expect(listed.data.pagination?.total).toBe(listed.data.items.length);
   });
 });

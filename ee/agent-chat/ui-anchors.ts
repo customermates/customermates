@@ -173,7 +173,7 @@ export const CONTROL_PAGES: ControlPage[] = [
       {
         control: "leave",
         description:
-          "Leave button on the current workspace's row, which asks for confirmation (active members, not in the demo)",
+          "Leave button on the current workspace's row, which asks for confirmation; disabled with the reason for the only active admin (active members, not in the demo)",
       },
     ],
   },
@@ -187,7 +187,8 @@ export const CONTROL_PAGES: ControlPage[] = [
       },
       {
         control: "leave",
-        description: "Leave workspace button in the danger zone, which asks for confirmation (not in the demo)",
+        description:
+          "Leave workspace button in the danger zone, which asks for confirmation; disabled with the reason for the only active admin (not in the demo)",
       },
     ],
   },

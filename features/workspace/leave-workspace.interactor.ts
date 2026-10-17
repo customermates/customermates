@@ -5,7 +5,6 @@ import type { LeaveWorkspaceRepo } from "./leave-workspace.repo";
 import type { WorkspaceDepartureService } from "./workspace-departure.service";
 
 import { z } from "zod";
-import { Status } from "@/generated/prisma";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -14,6 +13,7 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { fail, failAuthorization, failConflict, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { workspaceLeaveRefusal } from "./member-removal-refusal";
 
 const Schema = z.object({ companyId: z.uuid() });
 export type LeaveWorkspaceData = Data<typeof Schema>;
@@ -41,14 +41,13 @@ export class LeaveWorkspaceInteractor extends AuthenticatedInteractor<LeaveWorks
     if (!session || session.user.email !== this.user.email) return failAuthorization(CustomErrorCode.permissionDenied);
 
     const { companyId, userId } = this;
-    const wasActive = this.user.status === Status.active;
 
     const refusal = await runInTransaction(
       async () => {
-        if (await this.repo.isPlatformOperatorCompanyWide(userId))
+        const blocked = await workspaceLeaveRefusal(this.user, { members: this.repo, roles: this.roleRepo });
+        if (blocked === "platformOperator")
           return failAuthorization(CustomErrorCode.userPlatformOperatorStatusForbidden);
-        if (wasActive && this.user.role?.isSystemRole && !(await this.roleRepo.hasAnotherActiveSystemRoleUser(userId)))
-          return fail(CustomErrorCode.workspaceLastAdmin);
+        if (blocked === "lastAdmin") return fail(CustomErrorCode.workspaceLastAdmin);
 
         await this.repo.leaveCompanyWide(userId);
         try {

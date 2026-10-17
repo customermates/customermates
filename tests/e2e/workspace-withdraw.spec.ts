@@ -1,10 +1,10 @@
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { collectPageErrors, expect, test } from "./fixtures";
-import { rowActionLabels, runRowAction } from "./record-rows";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
 import {
   approvalTaskCount,
   inviteToken,
+  joinFromInvitation,
   loginEmail,
   memberItem,
   membershipIn,
@@ -37,7 +37,7 @@ test("a person withdraws a pending request from the waiting screen and the admin
   try {
     const token = await inviteToken(database, { companyId: inviter.companyId, createdById: inviter.userId });
     await page.goto(`/en/invitation/${token}`);
-    await clickHydrated(page.getByRole("button", { name: "Join workspace", exact: true }));
+    await joinFromInvitation(page);
     await expect(page).toHaveURL(/\/en\/auth\/pending$/);
     await expect.poll(() => approvalTaskCount(database, inviter.companyId, email)).toBe(1);
 
@@ -69,21 +69,11 @@ test("a person withdraws a pending request from the waiting screen and the admin
       await page.keyboard.press("Escape");
 
       await admin.page.reload();
-      const row = memberItem(admin.page, "Jonas Keller");
-      await expect(row).toContainText(englishMessages.WorkspaceMembership.left);
-      await expect(row).not.toContainText(englishMessages.Common.userStatuses.pendingAuthorization);
-      expect(await rowActionLabels(admin.page, row, "Jonas Keller")).toEqual(["Open details"]);
-      await runRowAction(admin.page, row, "Jonas Keller", "Open details");
-      const member = admin.page.getByRole("dialog", { name: "User", exact: true });
-      await expect(member).toContainText(
-        "Jonas Keller left this workspace. To give them access again, send a new invitation.",
-      );
-      await expect(member.locator("#member-modal-remove")).toHaveCount(0);
+      await expect(memberItem(admin.page, "Browser Administrator")).toBeVisible();
+      await expect(memberItem(admin.page, "Jonas Keller")).toHaveCount(0);
       await admin.page.screenshot({
-        path: testInfo.outputPath(`ws-withdraw-admin-left-${testInfo.project.name}.png`),
+        path: testInfo.outputPath(`ws-withdraw-admin-members-${testInfo.project.name}.png`),
       });
-      await admin.page.keyboard.press("Escape");
-      await expect(member).toHaveCount(0);
 
       await admin.page.goto(taskList(inviter.companyId));
       await admin.page.waitForLoadState("networkidle");

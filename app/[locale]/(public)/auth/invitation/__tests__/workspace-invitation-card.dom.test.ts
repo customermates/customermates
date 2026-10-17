@@ -32,6 +32,7 @@ vi.mock("@/core/errors/report-application-error", () => ({
   runUserAction: (action: () => unknown) => void action(),
 }));
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: harness.toastZodErrorTree }));
+vi.mock("@/components/modal/use-navigation-guard", () => ({ useNavigationGuard: vi.fn() }));
 vi.mock("@/components/shared/app-image", () => ({ AppImage: () => null }));
 vi.mock("@/components/shared/app-link", () => ({
   AppLink: ({ href, children }: { href: string; children?: ReactNode }) => createElement("a", { href }, children),
@@ -54,6 +55,10 @@ function render(membershipStatus: Status | null, workspaceName: string | null = 
       }),
     ),
   );
+}
+
+function terms() {
+  return container.querySelector<HTMLButtonElement>("#workspace-invitation-terms");
 }
 
 function button(name: string) {
@@ -93,11 +98,16 @@ describe("WorkspaceInvitationCard", () => {
     expect(container.querySelector("h1")?.textContent).toBe(
       `WorkspaceInvitation.join.titleNamed ${JSON.stringify({ workspace: "Bergmann Steuern" })}`,
     );
-    expect(container.textContent).toContain("WorkspaceInvitation.join.terms");
+    expect(container.textContent).toContain("OnboardingForm.invitedAgreeToTerms");
+    expect(terms()?.getAttribute("aria-required")).toBe("true");
 
+    await click(terms());
     await click(button("WorkspaceInvitation.join.action"));
 
-    expect(harness.joinWorkspaceAction).toHaveBeenCalledExactlyOnceWith({ intent: "signed-intent" });
+    expect(harness.joinWorkspaceAction).toHaveBeenCalledExactlyOnceWith({
+      intent: "signed-intent",
+      agreeToTerms: true,
+    });
     expect(harness.enter).toHaveBeenCalledExactlyOnceWith(
       { companyId: "invited-company", name: "Bergmann Steuern" },
       "/auth/pending",
@@ -111,10 +121,14 @@ describe("WorkspaceInvitationCard", () => {
     });
     render(Status.active);
 
-    expect(container.textContent).not.toContain("WorkspaceInvitation.join.terms");
+    expect(terms()).toBeNull();
 
     await click(button("WorkspaceInvitation.member.action"));
 
+    expect(harness.joinWorkspaceAction).toHaveBeenCalledExactlyOnceWith({
+      intent: "signed-intent",
+      agreeToTerms: false,
+    });
     expect(harness.enter).toHaveBeenCalledExactlyOnceWith(
       { companyId: "invited-company", name: "Bergmann Steuern" },
       "/",
@@ -135,6 +149,22 @@ describe("WorkspaceInvitationCard", () => {
     expect(button("WorkspaceInvitation.join.action")?.disabled).toBe(false);
   });
 
+  it("shows the refusal under the unticked terms and joins nothing", async () => {
+    const error = { errors: [], properties: { agreeToTerms: { errors: ["Common.errors.termsNotAgreed"] } } };
+    harness.joinWorkspaceAction.mockResolvedValue({ ok: false, error, code: "termsNotAgreed" });
+    render(null);
+
+    await click(button("WorkspaceInvitation.join.action"));
+
+    expect(harness.joinWorkspaceAction).toHaveBeenCalledExactlyOnceWith({
+      intent: "signed-intent",
+      agreeToTerms: false,
+    });
+    expect(container.querySelector("#agreeToTerms-error")?.textContent).toBe("Common.errors.termsNotAgreed");
+    expect(terms()?.getAttribute("aria-invalid")).toBe("true");
+    expect(harness.enter).not.toHaveBeenCalled();
+  });
+
   it("offers only another account for a deactivated membership", () => {
     render(Status.inactive);
 
@@ -148,7 +178,8 @@ describe("WorkspaceInvitationCard", () => {
     harness.appMode = "self-hosted";
     render(null);
 
-    expect(container.textContent).not.toContain("WorkspaceInvitation.join.terms");
+    expect(terms()).toBeNull();
+    expect(container.textContent).not.toContain("OnboardingForm.invitedAgreeToTerms");
   });
 
   it("signs out with the invitation kept for another account", async () => {

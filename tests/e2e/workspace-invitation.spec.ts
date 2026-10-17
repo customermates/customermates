@@ -5,7 +5,7 @@ import { hashPassword } from "better-auth/crypto";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { collectPageErrors, expect, test } from "./fixtures";
 import { addBrowserWorkspace, createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
-import { inviteToken } from "./workspace-membership";
+import { inviteToken, joinFromInvitation } from "./workspace-membership";
 import {
   activeWorkspaceOf,
   clickHydrated,
@@ -46,7 +46,13 @@ test("an existing login joins another workspace by invitation, waits for approva
     await expect(page.getByText("Invitation from Browser Administrator", { exact: true })).toBeVisible();
     await expect(page.getByText(englishMessages.WorkspaceInvitation.join.body, { exact: true })).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath("ws-join-card.png"), fullPage: true });
-    await clickHydrated(page.getByRole("button", { name: "Join workspace", exact: true }));
+    if (e2eAppMode() === "cloud") {
+      await clickHydrated(page.getByRole("button", { name: "Join workspace", exact: true }));
+      await expect(page.locator("#agreeToTerms-error")).toHaveText(englishMessages.Common.errors.termsNotAgreed);
+      await expect(page).toHaveURL(/\/en\/auth\/invitation\?intent=/);
+      expect(await joined()).toEqual([]);
+    }
+    await joinFromInvitation(page);
 
     await expect(page).toHaveURL(/\/en\/auth\/pending$/);
     await expect(page.getByRole("heading", { level: 1, name: englishMessages.PendingCard.title })).toBeVisible();
@@ -72,10 +78,13 @@ test("an existing login joins another workspace by invitation, waits for approva
       await admin.page.goto("/en/settings/members");
       await clickHydrated(admin.page.locator('[data-slot="data-row-open"]').filter({ hasText: "Jonas Keller" }));
       const member = admin.page.getByRole("dialog", { name: "User", exact: true });
-      await member.locator("#member-modal-role").click();
-      await admin.page.getByRole("option", { name: "Admin", exact: true }).click();
       await member.locator("#member-modal-status").click();
       await admin.page.getByRole("option", { name: "Active", exact: true }).click();
+      await member.getByRole("button", { name: "Save", exact: true }).click();
+      await expect(member.locator("#member-modal-role-error")).toHaveText(englishMessages.Common.errors.mustNotBeBlank);
+      await expect.poll(async () => (await joined())[0]?.status).toBe("pendingAuthorization");
+      await member.locator("#member-modal-role").click();
+      await admin.page.getByRole("option", { name: "Admin", exact: true }).click();
       await member.getByRole("button", { name: "Save", exact: true }).click();
       await expect(member).not.toBeVisible();
       await expect.poll(async () => (await joined())[0]?.status).toBe("active");
@@ -128,7 +137,7 @@ test("a signed-out person opens an invitation, signs in with the existing login 
 
     await expect(page).toHaveURL(/\/en\/auth\/invitation\?intent=/);
     await expect(page.getByRole("heading", { level: 1, name: "Join Hoffmann Consulting", exact: true })).toBeVisible();
-    await clickHydrated(page.getByRole("button", { name: "Join workspace", exact: true }));
+    await joinFromInvitation(page);
     await expect(page).toHaveURL(/\/en\/auth\/pending$/);
     const joined = await database.query<{ status: string }>(
       'SELECT status::text FROM "User" WHERE "companyId"=$1 AND email=$2',

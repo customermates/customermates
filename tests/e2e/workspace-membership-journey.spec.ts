@@ -11,6 +11,7 @@ import {
   apiKeyRequest,
   approvalTaskCount,
   createNamedLogin,
+  joinFromInvitation,
   loginEmail,
   memberItem,
   membershipIn,
@@ -35,7 +36,7 @@ const MEMBER = "Jonas Keller";
 async function joinByLink(page: Page, link: string) {
   await page.goto(link);
   await expect(page.getByRole("heading", { level: 1, name: "Join Hoffmann Consulting", exact: true })).toBeVisible();
-  await clickHydrated(page.getByRole("button", { name: "Join workspace", exact: true }));
+  await joinFromInvitation(page);
   await expect(page).toHaveURL(/\/en\/auth\/pending$/);
 }
 
@@ -87,7 +88,8 @@ test("a member joins, withdraws, rejoins, works, leaves and is removed across th
       expect(await approvalTaskCount(database, hoffmann.companyId, email)).toBe(0);
 
       expect(await readInvitationLink(admin.page)).toBe(link);
-      await expect(memberItem(admin.page, MEMBER)).toContainText(englishMessages.WorkspaceMembership.left);
+      await expect(memberItem(admin.page, "Anna Hoffmann")).toBeVisible();
+      await expect(memberItem(admin.page, MEMBER)).toHaveCount(0);
       await joinByLink(page, link);
       expect(await membership()).toMatchObject({ status: "pendingAuthorization", left: false });
 
@@ -165,7 +167,7 @@ test("a member joins, withdraws, rejoins, works, leaves and is removed across th
       await shot(admin.page, "remove-confirm");
       await confirm.getByRole("button", { name: englishMessages.Common.actions.remove, exact: true }).click();
       await expect(confirm).toHaveCount(0);
-      await expect(row).toContainText(englishMessages.WorkspaceMembership.left);
+      await expect(row).toHaveCount(0);
       expect(await membership()).toMatchObject({ status: "inactive", left: true });
       expect(await approvalTaskCount(database, hoffmann.companyId, email)).toBe(0);
       await shot(admin.page, "removed-left");
@@ -185,7 +187,8 @@ test("a member joins, withdraws, rejoins, works, leaves and is removed across th
       await shot(page, "after-removal");
 
       await colleague.page.goto("/en/settings/members");
-      await expect(memberItem(colleague.page, MEMBER)).toContainText(englishMessages.WorkspaceMembership.left);
+      await expect(memberItem(colleague.page, "Anna Hoffmann")).toBeVisible();
+      await expect(memberItem(colleague.page, MEMBER)).toHaveCount(0);
       await colleague.page.goto(organizationList(hoffmann.companyId));
       await expect(colleague.page.getByText("Keller Logistik", { exact: true }).first()).toBeVisible();
       expect(admin.errors).toEqual([]);

@@ -243,7 +243,7 @@ describeDatabase("credentials and invitations at the edges of a login's membersh
     const { getJoinWorkspaceInteractor, getListMyWorkspacesInteractor } = await import("@/core/di");
     asSession();
 
-    expect(await getJoinWorkspaceInteractor().invoke({ intent })).toEqual({
+    expect(await getJoinWorkspaceInteractor().invoke({ intent, agreeToTerms: true })).toEqual({
       ok: true,
       data: { companyId: companies.deactivated, status: "inactive", alreadyMember: true },
     });

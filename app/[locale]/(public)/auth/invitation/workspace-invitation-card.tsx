@@ -8,17 +8,19 @@ import { useTranslations } from "next-intl";
 import { Status } from "@/generated/prisma";
 
 import { joinedWorkspacePath } from "./joined-workspace-path";
+import { WorkspaceInvitationStore } from "./workspace-invitation.store";
 import { joinWorkspaceAction } from "../actions";
 
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { CardHeroHeader } from "@/components/card/card-hero-header";
+import { FormCheckbox } from "@/components/forms/form-checkbox";
+import { AppFormProvider } from "@/components/forms/form-context";
 import { AppLink } from "@/components/shared/app-link";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
-import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { signOutWithOnboardingIntentAction } from "@/app/[locale]/actions";
 
 type Props = {
@@ -37,7 +39,9 @@ export function WorkspaceInvitationCard({
   workspaceName,
 }: Props) {
   const t = useTranslations();
-  const { appMode, workspacesStore } = useRootStore();
+  const rootStore = useRootStore();
+  const { appMode, workspacesStore } = rootStore;
+  const [termsStore] = useState(() => new WorkspaceInvitationStore(rootStore));
   const [pendingAction, setPendingAction] = useState<"join" | "signOut" | null>(null);
 
   async function handleJoin() {
@@ -46,14 +50,17 @@ export function WorkspaceInvitationCard({
     let isNavigating = false;
 
     try {
-      const result = await joinWorkspaceAction({ intent: invitationIntent });
+      const result = await joinWorkspaceAction({
+        intent: invitationIntent,
+        agreeToTerms: termsStore.form.agreeToTerms,
+      });
       if (result.ok) {
         workspacesStore.enter(
           { companyId: result.data.companyId, name: workspaceName },
           joinedWorkspacePath(result.data),
         );
         isNavigating = true;
-      } else toastZodErrorTree(result.error);
+      } else termsStore.setError(result.error);
     } finally {
       if (!isNavigating) setPendingAction(null);
     }
@@ -133,6 +140,17 @@ export function WorkspaceInvitationCard({
         </p>
 
         <p className="text-x-sm text-center">{content.body}</p>
+
+        {showsTerms ? (
+          <AppFormProvider store={termsStore}>
+            <FormCheckbox
+              required
+              id="agreeToTerms"
+              inputId="workspace-invitation-terms"
+              label={t.rich("OnboardingForm.invitedAgreeToTerms", legalDocumentLinks)}
+            />
+          </AppFormProvider>
+        ) : null}
       </AppCardBody>
 
       <AppCardFooter className="flex-col gap-2">
@@ -152,12 +170,6 @@ export function WorkspaceInvitationCard({
 
           {t("WorkspaceInvitation.otherAccount")}
         </Button>
-
-        {showsTerms ? (
-          <p className="text-x-xs text-subdued mt-1 max-w-sm text-center">
-            {t.rich("WorkspaceInvitation.join.terms", legalDocumentLinks)}
-          </p>
-        ) : null}
       </AppCardFooter>
     </AppCard>
   );

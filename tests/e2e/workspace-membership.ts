@@ -9,7 +9,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { expect } from "./fixtures";
 import { localE2eEnvironment } from "./local-environment";
 import { createBrowserWorkspace } from "./workspace";
-import { clickHydrated } from "./workspace-switching";
+import { clickHydrated, e2eAppMode } from "./workspace-switching";
 
 type Permission = { resource: string; action: string };
 
@@ -148,4 +148,9 @@ export function expectRefusedPageAction(page: Page, path: string) {
     refusals.push({ status: response.status(), workspaceChanged: body.includes(WORKSPACE_CHANGED_DIGEST) });
   });
   return refusals;
+}
+
+export async function joinFromInvitation(page: Page) {
+  if (e2eAppMode() === "cloud") await clickHydrated(page.locator("#workspace-invitation-terms"));
+  await clickHydrated(page.getByRole("button", { name: "Join workspace", exact: true }));
 }

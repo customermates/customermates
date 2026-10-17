@@ -8,6 +8,9 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 export const MEMBER_REMOVAL_REFUSALS = ["self", "left", "platformOperator", "lastAdmin"] as const;
 export type MemberRemovalRefusal = (typeof MEMBER_REMOVAL_REFUSALS)[number];
 
+export const WORKSPACE_LEAVE_REFUSALS = ["platformOperator", "lastAdmin"] as const;
+export type WorkspaceLeaveRefusal = (typeof WORKSPACE_LEAVE_REFUSALS)[number];
+
 export const MEMBER_REMOVAL_REFUSAL_CODES = {
   self: CustomErrorCode.workspaceMemberRemoveSelf,
   left: CustomErrorCode.workspaceMemberLeft,
@@ -20,13 +23,10 @@ type RefusalChecks = {
   roles: Pick<UpdateUserRoleRepo, "hasAnotherActiveSystemRoleUser">;
 };
 
-export async function memberRemovalRefusal(
-  member: Pick<RemovableWorkspaceMember, "id" | "status" | "role" | "leftAt">,
-  actorUserId: string,
+export async function workspaceLeaveRefusal(
+  member: Pick<RemovableWorkspaceMember, "id" | "status" | "role">,
   checks: RefusalChecks,
-): Promise<MemberRemovalRefusal | null> {
-  if (member.id === actorUserId) return "self";
-  if (member.leftAt) return "left";
+): Promise<WorkspaceLeaveRefusal | null> {
   if (await checks.members.isPlatformOperatorCompanyWide(member.id)) return "platformOperator";
   if (
     member.status === Status.active &&
@@ -36,4 +36,15 @@ export async function memberRemovalRefusal(
     return "lastAdmin";
 
   return null;
+}
+
+export async function memberRemovalRefusal(
+  member: Pick<RemovableWorkspaceMember, "id" | "status" | "role" | "leftAt">,
+  actorUserId: string,
+  checks: RefusalChecks,
+): Promise<MemberRemovalRefusal | null> {
+  if (member.id === actorUserId) return "self";
+  if (member.leftAt) return "left";
+
+  return workspaceLeaveRefusal(member, checks);
 }

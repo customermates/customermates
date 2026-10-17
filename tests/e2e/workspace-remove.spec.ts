@@ -15,6 +15,7 @@ import {
   createNamedLogin,
   expectRefusedPageAction,
   inviteToken,
+  joinFromInvitation,
   loginEmail,
   memberItem,
   membershipIn,
@@ -119,7 +120,7 @@ test("removing a member who waits for approval declines the request and clears t
     const requester = await signInLogin(browser, database, petra, testInfo);
     try {
       await requester.page.goto(`/en/invitation/${token}`);
-      await clickHydrated(requester.page.getByRole("button", { name: "Join workspace", exact: true }));
+      await joinFromInvitation(requester.page);
       await expect(requester.page).toHaveURL(/\/en\/auth\/pending$/);
       await expect.poll(() => approvalTaskCount(database, workspace.companyId, email)).toBe(1);
 
@@ -133,7 +134,7 @@ test("removing a member who waits for approval declines the request and clears t
       await page.screenshot({ path: testInfo.outputPath(`ws-remove-pending-confirm-${testInfo.project.name}.png`) });
       await confirm.getByRole("button", { name: CONFIRM_REMOVE, exact: true }).click();
       await expect(confirm).toHaveCount(0);
-      await expect(row).toContainText(englishMessages.WorkspaceMembership.left);
+      await expect(row).toHaveCount(0);
       expect(await membershipIn(database, workspace.companyId, email)).toMatchObject({
         status: "inactive",
         left: true,

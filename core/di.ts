@@ -220,6 +220,7 @@ import { CreateWorkspaceInteractor } from "@/features/workspace/create-workspace
 import { GetMemberRemovalInteractor } from "@/features/workspace/get-member-removal.interactor";
 import { JoinWorkspaceInteractor } from "@/features/workspace/join-workspace.interactor";
 import { LeaveWorkspaceInteractor } from "@/features/workspace/leave-workspace.interactor";
+import { GetWorkspaceLeaveInteractor } from "@/features/workspace/get-workspace-leave.interactor";
 import { ListMyWorkspacesInteractor } from "@/features/workspace/list-my-workspaces.interactor";
 import { RemoveWorkspaceMemberInteractor } from "@/features/workspace/remove-workspace-member.interactor";
 import { RenameWorkspaceInteractor } from "@/features/workspace/rename-workspace.interactor";
@@ -1078,6 +1079,8 @@ export const getWorkspaceDepartureService = () =>
 
 export const getLeaveWorkspaceInteractor = () =>
   new LeaveWorkspaceInteractor(getAuthService(), getUserRepo(), getRoleRepo(), getWorkspaceDepartureService());
+
+export const getGetWorkspaceLeaveInteractor = () => new GetWorkspaceLeaveInteractor(getUserRepo(), getRoleRepo());
 
 export const getRemoveWorkspaceMemberInteractor = () =>
   new RemoveWorkspaceMemberInteractor(

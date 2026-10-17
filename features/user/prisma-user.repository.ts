@@ -37,7 +37,7 @@ import { type MemberDto } from "./user.schema";
 
 import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { QueryRepository } from "@/core/base/query-repository";
-import { userAccessWhere } from "./user-access";
+import { memberListWhere, userAccessWhere } from "./user-access";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
@@ -235,7 +235,7 @@ export class PrismaUserRepo
   async getItems(params: GetQueryParams) {
     return this.list({
       model: "user",
-      baseWhere: userAccessWhere(this.permissions),
+      baseWhere: memberListWhere(this.permissions),
       select: this.userSelect,
       params,
       map: (user: Prisma.UserGetPayload<{ select: PrismaUserRepo["userSelect"] }>) => user,
@@ -243,7 +243,7 @@ export class PrismaUserRepo
   }
 
   async getCount(params: GetQueryParams) {
-    const { where } = await this.buildQueryArgs(params, userAccessWhere(this.permissions));
+    const { where } = await this.buildQueryArgs(params, memberListWhere(this.permissions));
 
     return await this.prisma.user.count({ where });
   }

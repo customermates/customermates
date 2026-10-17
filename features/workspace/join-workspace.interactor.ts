@@ -19,7 +19,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { fail, failAuthorization } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-const Schema = z.object({ intent: z.string().min(1) });
+const Schema = z.object({ intent: z.string().min(1), agreeToTerms: z.boolean() });
 export type JoinWorkspaceData = Data<typeof Schema>;
 
 const OutputSchema = z.object({
@@ -59,6 +59,8 @@ export class JoinWorkspaceInteractor {
       };
     }
 
+    if (env.APP_MODE === "cloud" && !data.agreeToTerms) return fail(CustomErrorCode.termsNotAgreed, ["agreeToTerms"]);
+
     const profile = await this.memberships.findMembershipProfileUnscoped(email);
     if (!profile) return fail(CustomErrorCode.workspaceCreationUnavailable);
 
@@ -70,7 +72,7 @@ export class JoinWorkspaceInteractor {
           lastName: profile.lastName,
           country: profile.country,
           avatarUrl: profile.avatarUrl,
-          agreeToTerms: env.APP_MODE === "cloud",
+          agreeToTerms: data.agreeToTerms,
           companyId: intent.companyId,
         }),
       { companyId: intent.companyId },

@@ -192,7 +192,7 @@ describeDatabase("Google sign-in from an invitation link on PostgreSQL", { timeo
 
     const { getJoinWorkspaceInteractor } = await import("@/core/di");
     requestContext.headers = new Headers({ cookie: signedIn.cookie as string });
-    expect(await getJoinWorkspaceInteractor().invoke({ intent })).toEqual({
+    expect(await getJoinWorkspaceInteractor().invoke({ intent, agreeToTerms: true })).toEqual({
       ok: true,
       data: { companyId: companies.invited, status: "pendingAuthorization", alreadyMember: false },
     });

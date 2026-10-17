@@ -145,7 +145,9 @@ test("the API keys page lists only the keys of the current workspace and names i
   await mintApiKey(database, { authUserId: workspace.authUserId, companyId: second.companyId }, "Bergmann bookkeeping");
 
   await page.goto("/en/settings/api-keys");
-  await expect(page.getByText("These keys only access the Bergmann Steuern workspace.", { exact: false })).toBeVisible();
+  await expect(
+    page.getByText("These keys only access the Bergmann Steuern workspace.", { exact: false }),
+  ).toBeVisible();
   await expect(page.getByText("Bergmann bookkeeping", { exact: true })).toBeVisible();
   await expect(page.getByText("Browser bookkeeping", { exact: true })).toHaveCount(0);
 
@@ -174,18 +176,30 @@ test("the API keys page lists only the keys of the current workspace and names i
   expect(errors).toEqual([]);
 });
 
-test("the only admin of a workspace cannot leave it", async ({ page, database, workspace }) => {
+test("the only admin of a workspace cannot leave it, which both pages say before the dialog opens", async ({
+  page,
+  database,
+  workspace,
+}, testInfo) => {
   const errors = collectPageErrors(page);
   await addBrowserWorkspace(database, workspace, "Bergmann Steuern");
   await page.goto("/en/settings/general");
   await expect(page.locator("#settings-general-name")).toHaveValue("Browser workspace");
-  await clickHydrated(page.locator("#settings-general-leave"));
-  const confirm = page.getByRole("alertdialog", { name: "Leave Browser workspace?" });
-  await confirm.getByRole("button", { name: "Leave", exact: true }).click();
-
-  await expect(page.getByText(englishMessages.Common.errors.workspaceLastAdmin, { exact: true })).toBeVisible();
-  await expect(confirm).toHaveCount(0);
-  await expect(page).toHaveURL(/\/en\/settings\/general$/);
+  for (const [path, id, label] of [
+    ["/en/settings/general", "#settings-general-leave", englishMessages.Workspaces.leave],
+    ["/en/settings/workspaces", "#settings-workspaces-leave", englishMessages.Workspaces.leaveShort],
+  ]) {
+    await page.goto(path);
+    const leave = page.locator(id);
+    await expect(leave).toBeDisabled();
+    const blocked = page.getByRole("button", { name: label, exact: true }).and(page.locator("[aria-disabled='true']"));
+    await expect(blocked).toBeVisible();
+    await blocked.focus();
+    await expect(page.getByRole("tooltip")).toContainText(englishMessages.Common.errors.workspaceLastAdmin);
+    await page.screenshot({ path: testInfo.outputPath(`ws-settings-leave-blocked${id.replace("#", "-")}.png`) });
+    await leave.click({ force: true });
+    await expect(page.getByRole("alertdialog")).toHaveCount(0);
+  }
   const membership = await database.query<{ status: string; left: boolean }>(
     'SELECT status::text,"leftAt" IS NOT NULL AS left FROM "User" WHERE id=$1',
     [workspace.userId],

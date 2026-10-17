@@ -70,7 +70,7 @@ afterEach(() => {
 describe("WorkspaceGeneralView", () => {
   it("renders the workspace on the server and hydrates it without a mismatch", async () => {
     freshRootStore(true);
-    const html = renderToString(createElement(WorkspaceGeneralView, { workspace }));
+    const html = renderToString(createElement(WorkspaceGeneralView, { leaveRefusal: null, workspace }));
     expect(html).toContain(">BS<");
     expect(html).not.toContain("Workspaces.fallbackName");
 
@@ -82,7 +82,7 @@ describe("WorkspaceGeneralView", () => {
     await act(async () => {
       root = hydrateRoot(
         container as HTMLDivElement,
-        createElement(StrictMode, null, createElement(WorkspaceGeneralView, { workspace })),
+        createElement(StrictMode, null, createElement(WorkspaceGeneralView, { leaveRefusal: null, workspace })),
         {
           onRecoverableError: (error) => recoverableErrors.push(error),
         },
@@ -96,7 +96,7 @@ describe("WorkspaceGeneralView", () => {
 
   it("shows the name read-only and without a required marker to members who may not rename", () => {
     freshRootStore(false);
-    const html = renderToString(createElement(WorkspaceGeneralView, { workspace }));
+    const html = renderToString(createElement(WorkspaceGeneralView, { leaveRefusal: null, workspace }));
     container = document.createElement("div");
     container.innerHTML = html;
 
@@ -110,7 +110,7 @@ describe("WorkspaceGeneralView", () => {
   it("puts leaving into the shared danger alert with its secondary action, like the app's other alert actions", () => {
     freshRootStore(true);
     container = document.createElement("div");
-    container.innerHTML = renderToString(createElement(WorkspaceGeneralView, { workspace }));
+    container.innerHTML = renderToString(createElement(WorkspaceGeneralView, { leaveRefusal: null, workspace }));
 
     const zone = container.querySelector("section[aria-labelledby='settings-general-danger-zone']");
     const alert = zone?.querySelector<HTMLElement>("[data-slot='alert']");
@@ -122,5 +122,28 @@ describe("WorkspaceGeneralView", () => {
     expect(alert?.querySelector("[data-slot='alert-description']")?.textContent).toBe("Workspaces.leaveDescription");
     expect(leave?.dataset.variant).toBe("secondary");
     expect(leave?.dataset.size).toBe("sm");
+  });
+  it("blocks leaving up front for the only admin and names the reason, like removing the last admin", () => {
+    freshRootStore(true);
+    container = document.createElement("div");
+    document.body.append(container);
+    container.innerHTML = renderToString(createElement(WorkspaceGeneralView, { leaveRefusal: "lastAdmin", workspace }));
+
+    const leave = container.querySelector<HTMLButtonElement>("#settings-general-leave");
+    const trigger = container.querySelector<HTMLElement>("[data-slot='leave-workspace-blocked']");
+
+    expect(leave?.disabled).toBe(true);
+    expect(trigger?.getAttribute("aria-disabled")).toBe("true");
+    expect(trigger?.getAttribute("aria-label")).toBe("Workspaces.leave");
+    expect(trigger?.contains(leave ?? null)).toBe(true);
+  });
+
+  it("offers leaving to an admin who is not the last one", () => {
+    freshRootStore(true);
+    container = document.createElement("div");
+    container.innerHTML = renderToString(createElement(WorkspaceGeneralView, { leaveRefusal: null, workspace }));
+
+    expect(container.querySelector<HTMLButtonElement>("#settings-general-leave")?.disabled).toBe(false);
+    expect(container.querySelector("[data-slot='leave-workspace-blocked']")).toBeNull();
   });
 });

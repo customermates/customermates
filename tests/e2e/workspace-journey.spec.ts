@@ -29,6 +29,7 @@ import {
   apiKeyRequest,
   approvalTaskCount,
   createNamedLogin,
+  joinFromInvitation,
   loginEmail,
   memberItem,
   membershipIn,
@@ -151,7 +152,7 @@ async function switchTo(page: Page, companyId: string, name: string) {
 async function joinByLink(page: Page, link: string) {
   await page.goto(link);
   await expect(page.getByRole("heading", { level: 1, name: `Join ${INVITER}`, exact: true })).toBeVisible();
-  await clickHydrated(page.getByRole("button", { name: englishMessages.WorkspaceInvitation.join.action, exact: true }));
+  await joinFromInvitation(page);
   await expect(page).toHaveURL(/\/en\/auth\/pending$/);
 }
 
@@ -302,7 +303,8 @@ test("one person is invited, signs in, pays for a second workspace, keeps every 
       expect(await membership()).toMatchObject({ status: "inactive", left: true });
       expect(await approvalTaskCount(database, hoffmann.companyId, email)).toBe(0);
       await admin.page.goto("/en/settings/members");
-      await expect(memberItem(admin.page, MEMBER)).toContainText(englishMessages.WorkspaceMembership.left);
+      await expect(memberItem(admin.page, "Anna Hoffmann")).toBeVisible();
+      await expect(memberItem(admin.page, MEMBER)).toHaveCount(0);
 
       await joinByLink(page, link);
       await approve(admin.page, email);
