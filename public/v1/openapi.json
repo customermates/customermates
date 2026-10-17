@@ -3665,7 +3665,8 @@
                                 "enum": [
                                   "record.created",
                                   "record.updated",
-                                  "record.deleted"
+                                  "record.deleted",
+                                  "record.restored"
                                 ]
                               },
                               "changes": {
@@ -19601,7 +19602,8 @@
                                             "enum": [
                                               "record.created",
                                               "record.updated",
-                                              "record.deleted"
+                                              "record.deleted",
+                                              "record.restored"
                                             ]
                                           },
                                           "changes": {
@@ -29098,7 +29100,8 @@
                                             "enum": [
                                               "record.created",
                                               "record.updated",
-                                              "record.deleted"
+                                              "record.deleted",
+                                              "record.restored"
                                             ]
                                           },
                                           "changes": {
@@ -72773,7 +72776,8 @@
                                                   "enum": [
                                                     "record.created",
                                                     "record.updated",
-                                                    "record.deleted"
+                                                    "record.deleted",
+                                                    "record.restored"
                                                   ]
                                                 },
                                                 "changes": {
