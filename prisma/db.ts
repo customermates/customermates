@@ -8,7 +8,7 @@ const adapter = serializedPgAdapter(env.DATABASE_URL);
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
-const basePrisma = globalForPrisma.prisma || new PrismaClient({ adapter, omit: { user: { country: true } } });
+const basePrisma = globalForPrisma.prisma || new PrismaClient({ adapter });
 
 const COMPANY_MODEL = "Company";
 
