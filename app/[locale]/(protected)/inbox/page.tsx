@@ -17,7 +17,6 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { PageContainer } from "@/components/shared/page-container";
 import { LockedFeatureOverlay } from "@/components/shared/locked-feature-overlay";
 import { env } from "@/env";
-import { buildLocalePath } from "@/i18n/locale-registry";
 import { cn } from "@/core/utils/cn";
 import { unwrapPage } from "@/core/validation/next/unwrap-page";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
