@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CountryCode as CountryCodeEnum, Status, Theme } from "@/generated/prisma";
+import { Status, Theme } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
@@ -18,7 +18,6 @@ export const UserDetailsDtoSchema = z.object({
   lastName: z.string(),
   email: z.string(),
   status: z.enum(Status),
-  country: z.enum(CountryCodeEnum),
   avatarUrl: z.string().nullable(),
   theme: z.enum(Theme),
   displayLanguage: StoredDisplayLanguageSchema,
@@ -42,7 +41,6 @@ export class GetUserDetailsInteractor extends AuthenticatedInteractor<void, User
       lastName,
       email,
       status,
-      country,
       avatarUrl,
       roleId,
       role,
@@ -59,7 +57,6 @@ export class GetUserDetailsInteractor extends AuthenticatedInteractor<void, User
         lastName,
         email,
         status,
-        country,
         avatarUrl,
         theme,
         displayLanguage: normalizeStoredDisplayLanguage(displayLanguage),

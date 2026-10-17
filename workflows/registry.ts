@@ -12,6 +12,7 @@ import { recordOperation } from "./record-operation";
 import { processEvents } from "./process-events";
 import { purgeTrash } from "./purge-trash";
 import { triggerTestError } from "./trigger-test-error";
+import { buildWorkspaceSetup, planWorkspaceSetup, prepareWorkspaceSetup } from "./workspace-setup";
 
 export const WORKFLOW_REGISTRY = {
   "agent-turn": runAgentTurn,
@@ -28,6 +29,9 @@ export const WORKFLOW_REGISTRY = {
   "process-events": processEvents,
   "purge-trash": purgeTrash,
   "trigger-test-error": triggerTestError,
+  "prepare-workspace-setup": prepareWorkspaceSetup,
+  "plan-workspace-setup": planWorkspaceSetup,
+  "build-workspace-setup": buildWorkspaceSetup,
 } as const;
 
 export type WorkflowId = keyof typeof WORKFLOW_REGISTRY;

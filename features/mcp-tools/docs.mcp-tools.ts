@@ -48,7 +48,11 @@ const DocsSearchOutputSchema = z.object({
 
 export type DocsSearchHit = z.infer<typeof DocsSearchHitSchema>;
 
-function compactDocsSearchText(results: DocsSearchHit[], total: number): string {
+export const DOCS_NO_ADEQUATE_SECTION =
+  "no_adequate_section: No documentation section adequately answers this query. Do not guess an answer: say the documentation does not cover it, or search again with different terms.";
+
+function compactDocsSearchText(results: DocsSearchHit[], total: number, abstained = false): string {
+  if (results.length === 0 && abstained) return `matches: none\ntotal=0\n${DOCS_NO_ADEQUATE_SECTION}`;
   if (results.length === 0) return "matches: none\ntotal=0\nhint: Try broader terms or source=all.";
 
   const best = results[0];
@@ -110,7 +114,12 @@ export const searchDocsTool = {
     "Returns ranked pages with the best section of each (slug#anchor), then the best page's url and its snippet in text, plus up to 5 full matches as structured content. " +
     "Links into the app in the docs are full URLs on this instance and open the reader's own workspace; pass them on unchanged. " +
     "Then read the best page with get_docs_page, passing its nonempty returned anchor as anchor and the original question as query to preserve both the section and the requested detail; omit anchor and query for an empty anchor. If it does not answer, read the next page.",
-  annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
+  annotations: {
+    readOnlyHint: true,
+    idempotentHint: true,
+    destructiveHint: false,
+    openWorldHint: false,
+  },
   inputSchema: z.object({
     query: z.string().min(2).describe("Free-text search, e.g. 'webhook signature' or 'filter operators'"),
     locale: docsLocaleSchema,
@@ -139,7 +148,12 @@ export const getDocsPageTool = {
     `Required: slug (from search_docs). Optional: locale (one of: ${docsLocaleList}; default ${DEFAULT_LOCALE}), source (one of: docs, api; default docs). ` +
     "Pass the nonempty anchor returned by search_docs as anchor and the original question as query to read the selected section without losing the requested detail. For an empty anchor, omit anchor and query to read the full page. Otherwise pass query with the exact detail you need to get a bounded excerpt. " +
     "An unknown slug returns the valid slugs.",
-  annotations: { readOnlyHint: true, idempotentHint: true, destructiveHint: false, openWorldHint: false },
+  annotations: {
+    readOnlyHint: true,
+    idempotentHint: true,
+    destructiveHint: false,
+    openWorldHint: false,
+  },
   outputSchema: GetDocsPageOutputSchema,
   inputSchema: z.object({
     slug: z.string().min(1).describe("Docs page slug, e.g. 'quickstart' or 'mcp' (the MCP tool catalog is on 'mcp')"),
@@ -189,13 +203,19 @@ export function docsPageResult({ slug, anchor, query, locale, source }: GetDocsP
     );
     if (!section)
       return mcpMessageFailure(`Unknown section "${anchor}" in ${source} page "${slug}" for locale "${locale}"`);
+
     excerpt = docsRerankExcerpt(section, DOCS_RERANK_EXCERPT_CHARS, query ?? "", locale);
   }
 
   if (excerpt !== undefined) {
     return {
       text: [excerpt, "", `Source: ${page.title}`, `URL: ${page.url}`].join("\n"),
-      structuredContent: { title: page.title, url: page.url, markdown: excerpt, excerpt: true },
+      structuredContent: {
+        title: page.title,
+        url: page.url,
+        markdown: excerpt,
+        excerpt: true,
+      },
     };
   }
 
@@ -203,7 +223,12 @@ export function docsPageResult({ slug, anchor, query, locale, source }: GetDocsP
     text: [`# ${page.title}`, "", `> ${page.description}`, "", `Canonical URL: ${page.url}`, "", page.markdown].join(
       "\n",
     ),
-    structuredContent: { title: page.title, url: page.url, markdown: page.markdown, excerpt: false },
+    structuredContent: {
+      title: page.title,
+      url: page.url,
+      markdown: page.markdown,
+      excerpt: false,
+    },
   };
 }
 
@@ -220,10 +245,10 @@ function docsSearchHit(section: DocsSection, locale: DocsLocale, snippet: string
 }
 
 async function unifiedDocsDeps(): Promise<UnifiedDocsDeps> {
-  const { getDocsChunkRepo, getDocsSemanticIndexDispatcher, getRetrievalQueryEmbedder } = await import("@/core/di");
+  const { getDocsSectionRepo, getDocsSemanticIndexDispatcher, getRetrievalQueryEmbedder } = await import("@/core/di");
   const dispatcher = getDocsSemanticIndexDispatcher();
   return {
-    repo: getDocsChunkRepo(),
+    repo: getDocsSectionRepo(),
     embed: getRetrievalQueryEmbedder(),
     ranker: env.APP_MODE === "demo" ? undefined : currentSectionRanker("docs"),
     scheduleIndexing: (buildHash, seeded) => dispatcher.schedule(buildHash, seeded),
@@ -231,12 +256,12 @@ async function unifiedDocsDeps(): Promise<UnifiedDocsDeps> {
 }
 
 export async function unifiedDocsSearchResult(input: SearchDocsInput, deps: UnifiedDocsDeps) {
-  const { pages, total, chosen } = await unifiedDocsSearch(input, deps);
+  const { pages, total, chosen, abstained } = await unifiedDocsSearch(input, deps);
   const results = pages.map(({ section, snippet }) => docsSearchHit(section, input.locale, snippet));
   const text =
     chosen && results.length > 0
       ? rankedDocsSearchText(results, total, chosen, input.query, input.locale)
-      : compactDocsSearchText(results, total);
+      : compactDocsSearchText(results, total, abstained);
   return { text, structuredContent: { results, total } };
 }
 

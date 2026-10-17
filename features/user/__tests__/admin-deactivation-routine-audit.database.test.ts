@@ -1,4 +1,3 @@
-import { InitializeRecordModelService } from "@/features/records/initialize-record-model.service";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import type { TenantUser } from "@/features/user/user.schema";
 
@@ -6,7 +5,7 @@ import { randomUUID } from "node:crypto";
 
 import { createTranslator } from "next-intl";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import { Action, CountryCode, Resource, Status } from "@/generated/prisma";
+import { Action, Resource, Status } from "@/generated/prisma";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
@@ -55,7 +54,7 @@ vi.mock("@/features/user/user.service", () => ({
 const { getAdminUpdateUserDetailsInteractor } = await import("@/core/di");
 const { prisma } = await import("@/prisma/db");
 const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
-const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
+const { initializeStarterRecordModel } = await import("@/tests/helpers/record-repository");
 
 const company = randomUUID();
 const admin = randomUUID();
@@ -137,7 +136,7 @@ describeDatabase("deactivating a teammate and the routines it disables", { timeo
         data: [seedRoutine(routineA, "Daily digest"), seedRoutine(routineB, "Stale deal sweep")],
       });
     });
-    await runWithTenant(actingAdmin, () => new InitializeRecordModelService(createTestRecordRepo()).initialize());
+    await runWithTenant(actingAdmin, () => initializeStarterRecordModel());
   });
 
   afterAll(async () => {
@@ -149,7 +148,6 @@ describeDatabase("deactivating a teammate and the routines it disables", { timeo
       email: teammateEmail,
       firstName: "Tom",
       lastName: "Teammate",
-      country: CountryCode.de,
       status: Status.inactive,
       avatarUrl: null,
       roleId: memberRole,

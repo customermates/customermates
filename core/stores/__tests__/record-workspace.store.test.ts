@@ -32,6 +32,7 @@ function fixture() {
     companyId,
     schemaRevision: 1,
     canManageSchema: true,
+    hasLists: false,
     types: [],
   };
   const model = createCrmPreset(companyId);

@@ -215,7 +215,7 @@ const XlsxMappingStep = observer(function XlsxMappingStep({ store }: { store: Xl
   const t = useTranslations();
   const sheet = store.sheet;
   if (!sheet) return null;
-  const fields = store.options.filter((option) => option.target.kind === "field");
+  const fields = store.options.filter((option) => option.target.kind === "field" || option.target.kind === "nameParts");
   const relationships = store.options.filter((option) => option.target.kind === "relationship");
   const other = store.options.filter(
     (option) => option.target.kind === "assignedTo" || option.target.kind === "recordId",

@@ -1,9 +1,9 @@
 import type { FormEvent } from "react";
-import type { RegisterOnboardingProfileData } from "@/features/user/register/register-onboarding-profile.interactor";
 import type { RootStore } from "@/core/stores/root.store";
+import type { RegisterOnboardingProfileData } from "@/features/user/register/register-onboarding-profile.interactor";
 
 import { action, makeObservable, toJS } from "mobx";
-import { CountryCode } from "@/generated/prisma";
+import { Locale } from "@/generated/prisma";
 
 import { registerProfileAction } from "../actions";
 
@@ -14,7 +14,7 @@ export class StepProfileStore extends BaseFormStore<RegisterOnboardingProfileDat
     super(rootStore, {
       firstName: "",
       lastName: "",
-      country: CountryCode.de,
+      displayLanguage: Locale.system,
       avatarUrl: null,
       email: "",
       agreeToTerms: false,
@@ -31,7 +31,18 @@ export class StepProfileStore extends BaseFormStore<RegisterOnboardingProfileDat
     this.setIsLoading(true);
 
     try {
-      const res = await registerProfileAction(toJS(this.form));
+      const { firstName, lastName, displayLanguage, avatarUrl, email, agreeToTerms, onboardingIntent } = toJS(
+        this.form,
+      );
+      const res = await registerProfileAction({
+        firstName,
+        lastName,
+        displayLanguage,
+        avatarUrl,
+        email,
+        agreeToTerms,
+        onboardingIntent,
+      });
 
       if (!res.ok) this.setError(res.error);
       else this.setError(undefined);

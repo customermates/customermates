@@ -7,6 +7,7 @@ import { APP_LOCALES, LOCALE_REGISTRY } from "@/i18n/locale-registry";
 export const WIKI_LANGUAGE_SAMPLE_CHARACTERS = 6_000;
 const MIN_LANGUAGE_LETTERS = 120;
 const MIN_LANGUAGE_DISTANCE = 0.05;
+const LANGUAGE_CHUNK_CHARACTERS = 300;
 
 function languageSample(markdown: string): string {
   return markdown
@@ -22,12 +23,27 @@ function languageSample(markdown: string): string {
     .trim();
 }
 
-export function detectedWikiLanguage(markdown: string): string | null {
-  const text = languageSample(markdown);
+function chunkLanguage(text: string): string | null {
   if ((text.match(/\p{L}/gu)?.length ?? 0) < MIN_LANGUAGE_LETTERS) return null;
   const [first, second] = francAll(text, { minLength: MIN_LANGUAGE_LETTERS });
   if (!first || first[0] === "und" || (second && first[1] - second[1] < MIN_LANGUAGE_DISTANCE)) return null;
   return first[0];
+}
+
+function leadingLanguage(counts: ReadonlyMap<string, number>): string | null {
+  const ranked = [...counts.entries()].sort((left, right) => right[1] - left[1]);
+  if (!ranked[0] || ranked[0][1] === ranked[1]?.[1]) return null;
+  return ranked[0][0];
+}
+
+export function detectedWikiLanguage(markdown: string): string | null {
+  const text = languageSample(markdown);
+  const counts = new Map<string, number>();
+  for (let start = 0; start < text.length; start += LANGUAGE_CHUNK_CHARACTERS) {
+    const language = chunkLanguage(text.slice(start, start + LANGUAGE_CHUNK_CHARACTERS));
+    if (language) counts.set(language, (counts.get(language) ?? 0) + 1);
+  }
+  return leadingLanguage(counts);
 }
 
 export function wikiLanguageMatches(markdown: string, locale: AppLocale): boolean {

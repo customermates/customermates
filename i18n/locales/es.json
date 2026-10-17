@@ -225,6 +225,23 @@
             "running": "Actualizando el perfil"
           }
         },
+        "proposals": {
+          "create": {
+            "done": "{count, plural, one {Página nueva propuesta} other {# páginas nuevas propuestas}}",
+            "error": "{count, plural, one {Error al proponer una página nueva} other {Error al proponer # páginas nuevas}}",
+            "running": "{count, plural, one {Proponiendo una página nueva} other {Proponiendo # páginas nuevas}}"
+          },
+          "delete": {
+            "done": "Eliminación de página propuesta",
+            "error": "Error al proponer la eliminación de la página",
+            "running": "Proponiendo la eliminación de la página"
+          },
+          "update": {
+            "done": "Edición de página propuesta",
+            "error": "Error al proponer la edición de la página",
+            "running": "Proponiendo la edición de la página"
+          }
+        },
         "records": {
           "analyze": {
             "done": "Análisis de {resource} completado",
@@ -436,16 +453,16 @@
     "credits": {
       "blocked": {
         "configuration_unavailable": "El Asistente alojado no está disponible temporalmente. El historial sigue estando accesible.",
-        "credits_exhausted": "Ha agotado los créditos de IA alojada de este mes. Las nuevas solicitudes se reanudarán el {resetAt}; su historial sigue disponible.",
+        "credits_exhausted": "Ha agotado el uso de Mate de este mes. Las nuevas solicitudes se reanudarán el {resetAt}; su historial sigue disponible.",
         "self_hosted": "El Asistente alojado solo está disponible en la nube. Los espacios de trabajo autoalojados pueden seguir utilizando clientes MCP externos con su propio proveedor de IA.",
         "subscription_unavailable": "Para realizar nuevas solicitudes al Asistente alojado se necesita una suscripción cloud vigente. Su historial sigue disponible."
       },
       "contact": "Contactar con nosotros",
-      "planAndReset": "Plan {plan} · se restablece {resetAt}",
-      "recentTurn": "{credits, plural, one {Última consulta: {amount} crédito} other {Última consulta: {amount} créditos}}",
-      "remaining": "{credits, plural, one {Queda {remaining} de {limit} créditos} other {Quedan {remaining} de {limit} créditos}}",
-      "resetShort": "Se restablece {resetAt}",
-      "usage": "{pct} % de los créditos mensuales de IA alojada consumidos",
+      "plan": "Plan {plan}",
+      "planWithMultiplier": "Plan {plan} · {multiplier}x uso de Mate",
+      "recentTurn": "Última consulta: {used}",
+      "usage": "{used} del uso mensual de Mate consumido",
+      "usedOfMonthly": "{used} del uso mensual de Mate consumido · se restablece {resetAt}",
       "viewPlans": "Ver planes"
     },
     "errors": {
@@ -474,8 +491,8 @@
       "interruptedTurn": "Este turno terminó antes de que pudiera confirmar el resultado. Revisa la actividad anterior y los registros actuales antes de volver a intentarlo.",
       "policyBreach": "El proveedor de IA superó el presupuesto de créditos reservado, por lo que se detuvo la ejecución. No se inició ningún trabajo adicional del proveedor.",
       "providerError": "El proveedor de IA devolvió un error antes de que pudiera terminar. No se cambió nada más. Inténtalo de nuevo.",
-      "runCreditLimit": "He completado parte de esta ejecución de la rutina, pero me he detenido en su límite de {credits, number} créditos por ejecución. El trabajo completado se mantiene.",
-      "runCreditLimitNoWrite": "Me he detenido antes de hacer ningún cambio porque esta ejecución de la rutina alcanzó su límite de {credits, number} créditos por ejecución. No se ha creado, actualizado ni enviado nada.",
+      "runCreditLimit": "He completado parte de esta ejecución de la rutina, pero me he detenido en su límite de {share, number, percent} de una asignación Starter por ejecución. El trabajo completado se mantiene.",
+      "runCreditLimitNoWrite": "Me he detenido antes de hacer ningún cambio porque esta ejecución de la rutina alcanzó su límite de {share, number, percent} de una asignación Starter por ejecución. No se ha creado, actualizado ni enviado nada.",
       "sourcesHeading": "Fuentes",
       "streamInterrupted": "Tuve que detenerme porque se interrumpió la respuesta del modelo. No se hizo ninguna otra acción; revisa la actividad anterior antes de volver a intentarlo.",
       "turnError": "No he podido completar esa solicitud. Inténtalo de nuevo.",
@@ -547,13 +564,13 @@
         },
         "default": {
           "data": {
-            "default-contact-count": {
-              "label": "¿Cuántos contactos tenemos?",
-              "prompt": "Dime cuántos contactos tenemos y cómo ha evolucionado esa cifra."
+            "default-needs-attention": {
+              "label": "¿Qué necesita mi atención?",
+              "prompt": "Resume los registros abiertos que necesitan mi atención ahora mismo y en qué punto está cada uno."
             },
-            "default-open-deals": {
-              "label": "¿Qué oportunidades están abiertas?",
-              "prompt": "Resume las oportunidades abiertas ahora mismo y en qué punto está cada una."
+            "default-record-overview": {
+              "label": "¿Qué hay en mi espacio de trabajo?",
+              "prompt": "Dime qué listas tiene mi espacio de trabajo, cuántos registros contiene cada una y cómo ha evolucionado esa cifra."
             },
             "default-tour": {
               "label": "Enséñame la aplicación",
@@ -566,8 +583,8 @@
               "prompt": "Explícame qué puedes hacer por mí en Customermates y en qué eres más útil."
             },
             "default-import": {
-              "label": "¿Cómo importo mis contactos?",
-              "prompt": "Guíame para importar a Customermates los contactos que ya tengo."
+              "label": "¿Cómo importo mis datos?",
+              "prompt": "Guíame para importar a Customermates los registros que ya tengo, por ejemplo desde una hoja de cálculo."
             },
             "default-setup": {
               "label": "Ayúdame a configurar mi CRM",
@@ -902,7 +919,6 @@
         },
         "profile": {
           "avatarUrl": "foto de perfil, foto, imagen",
-          "country": "ubicación, región",
           "displayLanguage": "idioma, lengua, traducción",
           "firstName": "nombre, nombre de pila",
           "formattingLocale": "formato de fecha, formato de número, región",
@@ -1048,6 +1064,7 @@
       "clearFilters": "Borrar filtros",
       "cta": "Añade tu primer elemento «{singular}»",
       "dashboardBody": "Los widgets aparecerán aquí a medida que añadas datos.",
+      "dashboardNoListsBody": "Tu espacio de trabajo aún no tiene listas. Crea una lista para empezar a añadir registros y widgets.",
       "dashboardTitle": "Aún no hay nada que mostrar",
       "filteredBody": "Ningún elemento «{plural}» coincide con tus filtros.",
       "filteredTitle": "No hay coincidencias",
@@ -1135,6 +1152,7 @@
       "passwordInvalid": "La contraseña debe tener entre 8 y 128 caracteres e incluir al menos una mayúscula, una minúscula, un número y un carácter especial.",
       "passwordMismatch": "Las contraseñas deben coincidir.",
       "permissionDenied": "Esta acción no está disponible con tus permisos actuales.",
+      "planCheckoutUnavailable": "El pago de este plan aún no está disponible. Contáctanos para cambiar a él.",
       "privacyAcknowledgementRequired": "Confirma que has leído la Política de privacidad.",
       "recordCalculationBudget": "Este cambio requiere un recálculo en segundo plano.",
       "recordConfigurationInvalid": "Revisa los campos y las relaciones de esta configuración.",
@@ -1247,7 +1265,14 @@
       "wikiPagePinned": "La guía operativa permanece en primer lugar. Mueva otra página.",
       "wikiPageUpdateEmpty": "Indica al menos un campo para actualizar la página.",
       "wikiProcedureNeedsSteps": "Un procedimiento necesita pasos numerados.",
-      "wikiWhenToUseRequired": "Un procedimiento necesita una breve descripción de cuándo usarlo."
+      "wikiProposalNotFound": "Esta propuesta ya no existe.",
+      "wikiProposalReviewed": "Alguien ya revisó esta propuesta.",
+      "wikiProposalStale": "La página cambió después de que Mate hiciera esta propuesta. Recházala o pide a Mate que vuelva a proponer el cambio.",
+      "wikiWhenToUseRequired": "Un procedimiento necesita una breve descripción de cuándo usarlo.",
+      "workspaceSetupAnswerInvalid": "Esta respuesta no corresponde a la pregunta. Revísala e inténtalo de nuevo.",
+      "workspaceSetupConflict": "La configuración del espacio de trabajo está ocupada con otro paso. Vuelve a cargarla e inténtalo de nuevo.",
+      "workspaceSetupNotFound": "No se encontró ninguna configuración para este espacio de trabajo.",
+      "workspaceSetupUnavailable": "La configuración del espacio de trabajo con IA no está disponible aquí."
     },
     "events": {
       "connected_account": {
@@ -1484,7 +1509,8 @@
       "triggerFilters": "Filtros de registro",
       "triggerKind": "Disparador",
       "unavailableSelection": "Selección no disponible",
-      "url": "URL"
+      "url": "URL",
+      "websiteUrl": "Sitio web de la empresa"
     },
     "language": "Idioma",
     "legacyEvents": {
@@ -2809,7 +2835,7 @@
   },
   "OnboardingChoice": {
     "create": {
-      "description": "Configura un espacio de trabajo independiente para una empresa que poseas o gestiones.",
+      "description": "Configura un espacio de trabajo nuevo para tu negocio, un proyecto o tu propio trabajo.",
       "note": "Gratis durante {days} días",
       "title": "Crear un espacio de trabajo nuevo"
     },
@@ -2820,8 +2846,8 @@
       "title": "Unirte a un espacio de trabajo existente"
     },
     "optionsLabel": "Opciones de configuración del espacio de trabajo",
-    "signedInAs": "Sesión iniciada como {email}",
-    "subtitle": "Crea un espacio de trabajo para tu empresa o únete a un equipo que ya usa Customermates.",
+    "signedInAs": "Sesión iniciada como",
+    "subtitle": "Crea un espacio de trabajo para tu negocio, un proyecto o tu propio trabajo, o únete a un equipo que ya usa Customermates.",
     "title": "¿Cómo quieres empezar?"
   },
   "OnboardingForm": {
@@ -2945,14 +2971,18 @@
       "ai": "Herramientas IA",
       "invite": "Equipo",
       "profile": "Tú",
-      "wiki": "Conocimiento"
+      "setup": "Espacio"
     },
     "next": "Siguiente",
+    "profile": {
+      "websiteDescription": "Opcional. Leemos tu sitio web público para sugerir respuestas al configurar tu espacio de trabajo.",
+      "websitePlaceholder": "ejemplo.es"
+    },
     "progress": "Paso {current} de {total}",
     "progressLabel": "Progreso de la configuración inicial",
     "steps": {
       "ai": {
-        "subtitle": "Elige una herramienta de IA para conectarla a tu espacio de trabajo y al conocimiento de tu empresa. Conecta una ahora, añade otras más adelante o salta este paso.",
+        "subtitle": "Elige una herramienta de IA para conectarla a tu espacio de trabajo y a su conocimiento. Conecta una ahora, añade otras más adelante o salta este paso.",
         "title": "Conecta la IA que ya utilizas"
       },
       "invite": {
@@ -2961,16 +2991,15 @@
       },
       "profile": {
         "invitedSubtitle": "Completa tu perfil para solicitar acceso al espacio de trabajo al que te han invitado.",
-        "subtitle": "Añade tu nombre y país para que tu equipo te reconozca. Estos datos formarán parte de tu perfil y podrás modificarlos más adelante.",
+        "subtitle": "Añade tu nombre para que tu equipo te reconozca y elige el idioma que quieres usar. Podrás cambiar ambos más adelante en tu perfil.",
         "title": "Haz tuyo este espacio de trabajo"
       },
-      "wiki": {
-        "subtitle": "Empieza por el sitio web de tu empresa. Mate convierte la información verificable en páginas compartidas y editables de la base de conocimientos, con fuentes y aspectos por aclarar.",
-        "title": "Comparte con Mate el conocimiento de tu empresa"
+      "setup": {
+        "planningSubtitle": "Tus respuestas están guardadas. Mate las convierte en un plan para tu espacio de trabajo que revisas antes de crear nada.",
+        "subtitle": "Unas preguntas breves sobre para qué es este espacio de trabajo. Lo que pudimos leer en tu sitio web ya está rellenado, así que casi solo tienes que confirmar.",
+        "title": "Configura tu espacio de trabajo",
+        "withoutWebsiteSubtitle": "Unas preguntas breves sobre para qué es este espacio de trabajo. La mayoría se responde con una elección rápida, así que solo te llevará unos minutos."
       }
-    },
-    "wiki": {
-      "skip": "Ahora no"
     }
   },
   "OperatorAudit": {
@@ -3145,15 +3174,12 @@
     "stats": {
       "assistantConversations": "Chats del asistente",
       "connectedAccounts": "Cuentas conectadas",
-      "contacts": "Contactos",
-      "deals": "Negocios",
       "lastActive": "Último inicio de sesión",
       "lastActivity": "Último cambio registrado",
+      "lists": "Listas",
       "messages": "Mensajes",
       "never": "Nunca",
-      "organizations": "Organizaciones",
-      "services": "Servicios",
-      "tasks": "Tareas",
+      "records": "Registros",
       "threads": "Conversaciones",
       "title": "Estadísticas del espacio"
     },
@@ -3948,8 +3974,6 @@
     "title": "Controles de administración"
   },
   "RoutineDetail": {
-    "credits": "Créditos",
-    "creditsAmount": "Créditos: {amount}",
     "empty": {
       "event": {
         "actions": {
@@ -3996,6 +4020,7 @@
     "ownerUnavailableReadOnly": "Esta rutina ya no tiene un propietario disponible, por lo que permanece en pausa y en modo de solo lectura. Un administrador de la empresa puede eliminarla.",
     "ranAs": "Ejecutada como {owner}",
     "readOnlyTitle": "Acceso de solo lectura",
+    "reviewWikiProposals": "Revisar",
     "runDetails": "Detalles de la ejecución",
     "runNoTranscript": "No hay ninguna transcripción disponible para esta ejecución.",
     "runQueued": "Esta ejecución está en cola. La transcripción aparecerá cuando se inicie el asistente.",
@@ -4014,7 +4039,9 @@
     "triggerChangedFields": "Campos modificados",
     "triggerChangedFieldsMore": "y más",
     "triggerRecord": "Registro",
-    "triggerThread": "Conversación"
+    "triggerThread": "Conversación",
+    "usageShare": "{used} del uso mensual de Mate",
+    "wikiProposals": "{count, plural, one {Propuso # cambio en la base de conocimientos para revisión} other {Propuso # cambios en la base de conocimientos para revisión}}"
   },
   "RoutineModal": {
     "at": "a las",
@@ -4069,7 +4096,7 @@
     "hostedAiUnavailable": "La IA alojada dejó de estar disponible antes de que terminara la ejecución.",
     "policyBreach": "El proveedor de IA superó el presupuesto de créditos reservado, por lo que se detuvo la ejecución.",
     "providerError": "El proveedor de IA devolvió un error antes de que terminara la ejecución.",
-    "runCreditLimit": "La ejecución se detuvo en su límite de {credits, number} créditos por ejecución.",
+    "runCreditLimit": "La ejecución se detuvo en su límite de {share, number, percent} de una asignación Starter por ejecución.",
     "turnError": "El asistente no pudo completar esta ejecución."
   },
   "RoutinesCard": {
@@ -4199,10 +4226,12 @@
     "managedExternallyNote": "El plan Enterprise de este espacio de trabajo se abona mediante factura. Contacta con tu gestor de cuenta para hacer cambios.",
     "manageWithLemonSqueezy": "Gestionar con Lemon Squeezy",
     "picker": {
+      "checkoutUnavailable": "Aún no disponible",
       "connectedAccountsPerUser": "{accounts, plural, one {# cuenta conectada por usuario} other {# cuentas conectadas por usuario}}",
-      "creditNote": "Los créditos de IA alojada se renuevan cada mes; los créditos no utilizados no se acumulan. Cada consulta se cobra por su coste exacto del proveedor y se muestra con un decimal. Los clientes MCP externos facturan el uso del modelo a través de tu propio proveedor de IA. Las búsquedas semánticas del servidor pueden consumir créditos de IA alojada.",
+      "creditNote": "El uso de Mate se indica como múltiplo de la asignación de Starter (Starter 1x, Pro 3x, Business 10x, Max 20x) y se renueva cada mes; el uso no consumido no se acumula. Cada consulta cuenta su coste exacto del proveedor. Los clientes MCP externos facturan el uso del modelo a través de tu propio proveedor de IA. Las búsquedas semánticas del servidor pueden contar para el uso de Mate.",
       "features": {
         "business": ["Todo lo de Pro", "Cuentas compartidas y soporte prioritario"],
+        "max": ["Todo lo de Business", "Soporte prioritario", "Acceso anticipado a funciones beta"],
         "pro": ["Todo lo de Starter", "Bandeja de entrada unificada"],
         "starter": [
           "CRM completo: contactos, oportunidades, organizaciones y tareas",
@@ -4211,9 +4240,9 @@
           "Acceso al servidor MCP"
         ]
       },
-      "hostedAiCredits": "{credits, number} créditos de IA alojada por usuario activo / mes",
-      "mostPopular": "El más popular",
+      "hostedAiUsage": "{multiplier}x uso de Mate por usuario activo / mes",
       "perUserMonth": "por usuario / mes",
+      "recommended": "Recomendado",
       "routinesPerUser": "{routines, plural, one {# rutina por usuario} other {# rutinas por usuario}}",
       "unlimitedRoutinesPerUser": "Rutinas ilimitadas por usuario"
     },
@@ -4221,6 +4250,7 @@
     "planNames": {
       "business": "Business",
       "enterprise": "Enterprise",
+      "max": "Max",
       "pro": "Pro",
       "starter": "Starter"
     },
@@ -4459,6 +4489,33 @@
     "pagesLabel": "Páginas de la base de conocimientos",
     "pageTitle": "Título de la página",
     "previous": "Anterior",
+    "proposals": {
+      "action": {
+        "create": "Página nueva",
+        "delete": "Eliminación",
+        "update": "Edición"
+      },
+      "approve": "Aprobar",
+      "approved": "Propuesta aprobada",
+      "back": "Todas las propuestas",
+      "current": "Actual",
+      "deleteNotice": "Si la apruebas, esta página se eliminará de forma permanente.",
+      "description": "Cambios que Mate sugirió al ejecutar rutinas. La base de conocimientos solo cambia cuando apruebas uno.",
+      "empty": "No hay propuestas pendientes de revisión.",
+      "entry": "Propuestas",
+      "fromRoutine": "De {routine}",
+      "fromRoutineDeleted": "De una rutina eliminada",
+      "loadFailed": "No se pudieron cargar las propuestas.",
+      "needsPermission": "Tu rol no puede aplicar este cambio.",
+      "notYetCreated": "Esta página aún no existe.",
+      "pageMissing": "Esta página ya no existe.",
+      "proposed": "Propuesta",
+      "reject": "Rechazar",
+      "rejected": "Propuesta rechazada",
+      "stale": "Esta página cambió después de que Mate hiciera la propuesta. Recházala o pide a Mate que vuelva a proponer el cambio.",
+      "staleShort": "Página cambiada",
+      "title": "Propuestas"
+    },
     "reload": "Recargar página",
     "search": "Buscar páginas…",
     "unavailableBody": "Esta página se eliminó o no tienes acceso. Elige otra página.",
@@ -4474,8 +4531,6 @@
     }
   },
   "WikiSetup": {
-    "continue": "Continuar",
-    "continueBackground": "Continuar mientras Mate trabaja",
     "crawlProgress": {
       "created": "Creada",
       "discovering": "Buscando páginas del sitio",
@@ -4485,7 +4540,9 @@
       "read": "Leída",
       "reading": "Leyendo",
       "readingCount": "Leyendo páginas · {fetched}/{total}",
+      "readingStep": "Leyendo páginas del sitio",
       "skipped": {
+        "aiUnavailable": "Mate no disponible temporalmente",
         "credits": "Sin créditos de IA",
         "error": "No redactada",
         "evidence": "Pruebas insuficientes en las fuentes",
@@ -4501,6 +4558,20 @@
       "writingStep": "Redactando páginas de la base de conocimiento"
     },
     "generated": {
+      "address": {
+        "formal": "A los clientes se les trata de usted: apellido y tono cortés y profesional.",
+        "heading": "Tratamiento",
+        "informal": "A los clientes se les tutea: nombre de pila y tono cercano y directo.",
+        "source": "Lo definió el propietario durante la configuración del espacio de trabajo."
+      },
+      "answersSource": "Respuestas dadas durante la configuración del espacio de trabajo ({date})",
+      "competitor": {
+        "heading": "Para completar por tu equipo",
+        "losses": "Cuándo {competitor} encaja mejor",
+        "offer": "Qué ofrece {competitor} y a qué precio",
+        "response": "Cómo responder cuando un cliente potencial menciona {competitor}",
+        "wins": "Por qué los clientes nos eligen a nosotros en lugar de {competitor}"
+      },
       "gapsHeading": "Aspectos por confirmar",
       "pagesHeading": "Páginas de la base de conocimiento",
       "roles": {
@@ -4510,34 +4581,402 @@
         "sales_messaging": "Mensajes de venta y preguntas frecuentes",
         "voice_and_tone": "Voz y tono"
       },
+      "setupPages": {
+        "competitor": "Comparación con {competitor}",
+        "faq": "Preguntas frecuentes",
+        "processes": "Procesos",
+        "productsPricing": "Productos y precios"
+      },
       "sourcesHeading": "Fuentes"
     },
-    "homepageLabel": "Sitio web de la empresa",
-    "homepagePlaceholder": "https://ejemplo.com",
-    "languageDescription": "Se usa el idioma del navegador de forma predeterminada. Si la base de conocimientos ya contiene páginas, su idioma determina la selección.",
-    "languageLabel": "Idioma de la base de conocimientos",
-    "start": "Crear mi base de conocimientos",
     "status": {
-      "completedBodyOnboarding": "Mate ha creado tus páginas iniciales con datos respaldados por el sitio web. Podrás revisarlas más tarde en la base de conocimientos y confirmar lo que esté marcado como pendiente de confirmar.",
-      "completedExistingBody": "Tu base de conocimientos ya contiene páginas. Continúa la incorporación o revisa el contenido existente.",
-      "completedTitle": "Tu base de conocimientos inicial está lista",
+      "backgroundBanner": "Mate sigue creando páginas de la base de conocimientos en segundo plano. Las nuevas páginas aparecen aquí en cuanto están listas.",
       "failedBody": "La configuración se detuvo antes de que todas las páginas estuvieran listas. Las páginas ya creadas siguen disponibles. Puedes continuar y revisarlas en la base de conocimientos.",
       "failedBodyBlocked": "{domain} no permite la lectura automática en su robots.txt, así que no se importó nada. Puedes crear las páginas tú mismo.",
       "failedBodySynthesis": "Se leyó el sitio web, pero Mate no pudo escribir las páginas. Inténtalo de nuevo. Las páginas ya creadas siguen disponibles.",
       "failedBodyUnavailable": "Mate no pudo leer {domain}. Revisa la dirección o continúa y añade páginas más tarde.",
       "failedTitle": "La configuración no terminó",
-      "noContentBody": "Mate no encontró información útil para páginas de la base de conocimiento. Puedes probar con otro sitio web o continuar y añadir páginas más tarde.",
-      "noContentTitle": "No se crearon páginas de la base de conocimientos",
-      "readingBody": "Mate ha leído {fetched} de {total} páginas de {domain}.",
-      "workingBody": "Mate está leyendo {domain} e incorporando información con fuentes a tu base de conocimientos. Puedes continuar con el siguiente paso mientras trabaja.",
       "workingBodyWiki": "Mate está leyendo {domain} y creando la base de conocimientos. Puedes volver más tarde para ver las páginas terminadas.",
       "workingTitle": "Mate está conociendo tu empresa"
-    },
-    "tryAnother": "Probar otro sitio",
-    "unavailable": "La configuración con Mate no está disponible ahora. Puedes crear páginas más adelante desde la base de conocimientos."
+    }
   },
   "WorkspaceMenu": {
     "inviteMembers": "Invitar miembros",
     "label": "Menú del espacio de trabajo"
+  },
+  "WorkspaceSetup": {
+    "actions": {
+      "addOwn": "Añadir otro",
+      "fromWebsite": "Sugerido a partir de tu sitio web",
+      "looksRight": "Es correcto",
+      "upload": "Subir una hoja de cálculo",
+      "winChance": "Probabilidad de cierre"
+    },
+    "anchors": {
+      "price": "Precio",
+      "value": "Valor"
+    },
+    "build": {
+      "actions": {
+        "dashboard": "Creando tu panel",
+        "dataModel": "Creando tus listas y campos",
+        "importing": "Importando {fileName}",
+        "knowledgeBase": "Escribiendo tus páginas de la base de conocimiento ({written} de {planned})",
+        "pipeline": "Creando tu pipeline de {list}: {stages}",
+        "preparing": "Preparando la siguiente parte",
+        "readingWebsite": "Leyendo {website}",
+        "records": "Añadiendo registros de ejemplo",
+        "views": "Organizando tus listas"
+      },
+      "completedBody": "Todo está listo. Ahora, invita a tu equipo.",
+      "completedTitle": "Tu espacio de trabajo está listo",
+      "continue": "Continuar con las invitaciones",
+      "failedBody": "Todo lo terminado se conserva. Reintenta la parte que no terminó para completar tu espacio.",
+      "failedTitle": "Una parte de la configuración no terminó",
+      "frameTitle": "Tu espacio de trabajo",
+      "keepsRunning": "Sigue en marcha aunque cierres la pestaña. Puedes volver cuando quieras.",
+      "nameColumn": "Nombre",
+      "phases": {
+        "dashboard": "Panel",
+        "dataModel": "Listas y campos",
+        "knowledgeBase": "Base de conocimiento",
+        "records": "Registros",
+        "views": "Vistas de listas"
+      },
+      "phasesLabel": "Progreso de la configuración",
+      "previewLabel": "Vista previa de tu espacio de trabajo",
+      "records": "Registros",
+      "retry": "Reintentar",
+      "sidebarLabel": "Vista previa de la navegación",
+      "states": {
+        "active": "En curso",
+        "done": "Hecho",
+        "failed": "Sin terminar",
+        "skipped": "Omitido",
+        "waiting": "En espera"
+      },
+      "summaries": {
+        "dashboard": "{count, plural, =0 {Ningún widget añadido} one {# widget añadido} other {# widgets añadidos}}",
+        "dataModel": "{count, plural, =0 {No se crearon listas} one {# lista lista} other {# listas listas}}",
+        "knowledgeBase": "{count, plural, =0 {Ninguna página escrita} one {# página escrita} other {# páginas escritas}}",
+        "records": "{count, plural, =0 {Ningún registro añadido} one {# registro añadido} other {# registros añadidos}}",
+        "views": "{count, plural, =0 {No se organizaron vistas} one {# vista organizada} other {# vistas organizadas}}"
+      },
+      "title": "Configurando tu espacio de trabajo"
+    },
+    "failures": {
+      "aiUnavailable": "El servicio de IA no está disponible ahora mismo. Vuelve a intentarlo en unos minutos.",
+      "contactSupport": "Contactar con soporte",
+      "crawlFailed": "No se pudo leer tu sitio web.",
+      "dependency": "Esta parte espera a una parte anterior que no terminó.",
+      "error": "Algo salió mal en esta parte.",
+      "generation": "Esta vez la IA no pudo generar un resultado útil.",
+      "invalidPlan": "El plan no encajaba con tu espacio de trabajo.",
+      "permission": "Tu rol no permite este cambio.",
+      "schemaChanged": "Tu espacio de trabajo cambió mientras se ejecutaba esta parte.",
+      "spendCap": "Se agotó el presupuesto de configuración de este espacio, así que esta parte se detuvo. Todo lo terminado se conserva. Escríbenos y te ayudaremos a terminar la configuración.",
+      "spreadsheet": "No se pudo importar la hoja de cálculo.",
+      "supportSubject": "Presupuesto de configuración del espacio"
+    },
+    "interview": {
+      "addEntry": "Añadir una entrada",
+      "adjusting": "Cambia las respuestas que quieras y confirma la última pantalla para preparar un plan nuevo.",
+      "customPlaceholder": "Tu propia respuesta",
+      "days": "días",
+      "entryLabel": "Entrada {index}",
+      "followUpsSubtitle": "Algunas respuestas pueden entenderse de varias formas. Estas preguntas lo aclaran.",
+      "followUpsTitle": "Unos detalles más",
+      "moveDown": "Bajar",
+      "moveUp": "Subir",
+      "optionalPlaceholder": "Déjalo vacío si no se te ocurre nada",
+      "prefillFailed": "No pudimos leer tu sitio web, así que no hay nada rellenado. Las preguntas solo llevan unos minutos.",
+      "rangeFrom": "Desde",
+      "rangeTo": "Hasta",
+      "rankedHint": "{count} de {max} elegidos, por orden de importancia",
+      "rankedOption": "Puesto {rank}: {label}",
+      "stepProgress": "Parte {current} de {total}",
+      "stepsLabel": "Preguntas de configuración",
+      "uploadChoose": "Elegir archivo",
+      "uploadFailures": {
+        "cellTooLong": "Una celda tiene más de {maxCharacters, number} caracteres.",
+        "fileTooLarge": "Supera los {maxMegabytes} MB.",
+        "macroWorkbook": "Contiene macros. Guárdalo como libro de Excel sin macros (.xlsx) y vuelve a elegirlo.",
+        "noHeader": "No contiene datos. La primera fila lleva los nombres de las columnas y las siguientes, los registros.",
+        "sheetNotFound": "El libro no tiene ninguna hoja que importar.",
+        "tooManyColumns": "Tiene más de {maxColumns, number} columnas.",
+        "tooManyRows": "Tiene más de {maxRows, number} filas.",
+        "unreadableFile": "No se pudo leer el archivo. Puede que esté dañado.",
+        "unsupportedFormat": "Guárdalo como CSV o como libro de Excel (.xlsx) y vuelve a elegirlo."
+      },
+      "uploadHint": "CSV o Excel, hasta {maxMegabytes} MB y {maxRows, number} filas.",
+      "uploadKept": "La configuración sigue usando {fileName}.",
+      "uploadReady": "Listo para importar en tus nuevas listas.",
+      "uploadRejected": "No se puede importar {fileName}. {reason}",
+      "uploadReplace": "Elegir otro archivo",
+      "winChanceFor": "Probabilidad de cierre de la entrada {index}"
+    },
+    "options": {
+      "addressForm": {
+        "formal": "Formal (usted)",
+        "informal": "Cercano (tú)"
+      },
+      "afterSale": {
+        "appointments": "Citas",
+        "contractsRenewals": "Contratos y renovaciones",
+        "nothing": "Nada más",
+        "ordersInvoices": "Pedidos y facturas",
+        "projects": "Proyectos",
+        "supportTickets": "Incidencias de soporte"
+      },
+      "customerKind": {
+        "both": "Ambos",
+        "businesses": "Empresas",
+        "consumers": "Particulares"
+      },
+      "customerSize": {
+        "large": "Grandes empresas",
+        "medium": "Medianas empresas",
+        "mixed": "Tamaños variados",
+        "small": "Pequeñas empresas"
+      },
+      "dashboardAudience": {
+        "management": "Dirección",
+        "me": "Solo yo",
+        "team": "Todo el equipo"
+      },
+      "dealDetails": {
+        "budget": "Presupuesto",
+        "closeDate": "Fecha de cierre prevista",
+        "contractEnd": "Fin del contrato",
+        "decisionMaker": "Responsable de la decisión",
+        "lostReason": "Motivo de la pérdida",
+        "nextStep": "Siguiente paso",
+        "vatId": "NIF intracomunitario"
+      },
+      "existingData": {
+        "empty": "Empezar vacío",
+        "sampleData": "Empezar con datos de ejemplo",
+        "spreadsheet": "Importar una hoja de cálculo"
+      },
+      "knowledgePages": {
+        "faq": "Preguntas frecuentes",
+        "idealCustomer": "Cliente ideal",
+        "overview": "Resumen",
+        "processes": "Procesos",
+        "productsPricing": "Productos y precios",
+        "salesPlaybook": "Guía de ventas y objeciones"
+      },
+      "leadSources": {
+        "ads": "Publicidad",
+        "events": "Eventos y ferias",
+        "outbound": "Prospección activa",
+        "partners": "Socios",
+        "referrals": "Recomendaciones",
+        "socialMedia": "Redes sociales",
+        "website": "Sitio web"
+      },
+      "offeringKinds": {
+        "products": "Productos",
+        "projects": "Proyectos",
+        "services": "Servicios",
+        "subscriptions": "Suscripciones"
+      },
+      "purpose": {
+        "clients": "Clientes y ventas",
+        "finances": "Finanzas e impuestos",
+        "hiring": "Contratación",
+        "marketing": "Marketing y contenido",
+        "projects": "Proyectos",
+        "support": "Atención al cliente"
+      },
+      "renewalPeriod": {
+        "monthly": "Mensual",
+        "multiYear": "Cada varios años",
+        "quarterly": "Trimestral",
+        "yearly": "Anual"
+      },
+      "revenueModel": {
+        "both": "Ambos",
+        "oneOff": "Pagos únicos",
+        "recurring": "Pagos periódicos"
+      },
+      "taskOrganisation": {
+        "perCustomer": "Por cliente",
+        "perDeal": "Por oportunidad",
+        "perProject": "Por proyecto",
+        "recurring": "Tareas periódicas"
+      },
+      "teamRoles": {
+        "accountManagement": "Gestión de cuentas",
+        "delivery": "Ejecución",
+        "finance": "Finanzas",
+        "sales": "Ventas",
+        "support": "Soporte"
+      },
+      "teamSize": {
+        "large": "Más de 20 personas",
+        "medium": "De 6 a 20 personas",
+        "small": "De 2 a 5 personas",
+        "solo": "Solo yo"
+      },
+      "weeklyNumbers": {
+        "conversionByStage": "Conversión por etapa",
+        "forecast": "Previsión",
+        "newLeads": "Nuevos contactos",
+        "openTickets": "Incidencias abiertas",
+        "overdueTasks": "Tareas vencidas",
+        "pipelineValue": "Valor del embudo",
+        "recurringRevenue": "Ingresos recurrentes",
+        "renewalsDue": "Renovaciones pendientes",
+        "wonThisMonth": "Ganado este mes"
+      }
+    },
+    "plan": {
+      "adjust": "Ajustar respuestas",
+      "build": "Construir mi espacio",
+      "dashboard": "Panel",
+      "failedTitle": "No se pudo preparar el plan",
+      "importSummary": "Importa {fileName} en {list}.",
+      "keyFields": "Campos clave de {list}",
+      "knowledgeBase": "Base de conocimiento",
+      "lists": "Listas",
+      "morePages": "{count, plural, one {y # página más} other {y # páginas más}}",
+      "noDashboard": "No hay widgets de panel previstos.",
+      "noPages": "No hay páginas de la base de conocimiento previstas.",
+      "noPipeline": "No hay ningún pipeline previsto.",
+      "pipeline": "Pipeline",
+      "planningBody": "Convertimos tus respuestas en listas, un pipeline, un panel y páginas de la base de conocimiento.",
+      "planningTitle": "Preparando tu plan",
+      "sampleSummary": "{count, plural, one {Añade # registro de ejemplo para que puedas probar enseguida.} other {Añade # registros de ejemplo para que puedas probar enseguida.}}",
+      "subtitle": "Esto es lo que construiremos en cuanto confirmes.",
+      "title": "El plan de tu espacio de trabajo",
+      "tryAgain": "Reintentar",
+      "winChanceValue": "{value} %"
+    },
+    "questions": {
+      "addressForm": {
+        "label": "¿Cómo te diriges a la gente por escrito?"
+      },
+      "afterSale": {
+        "label": "¿Qué sigue a una venta ganada?"
+      },
+      "anythingMissed": {
+        "label": "¿Se nos ha escapado algo?"
+      },
+      "appointmentTypes": {
+        "label": "Tus tipos de cita"
+      },
+      "companyName": {
+        "label": "Nombre de tu negocio o proyecto"
+      },
+      "competitors": {
+        "label": "Tus principales competidores"
+      },
+      "country": {
+        "label": "País"
+      },
+      "currency": {
+        "label": "Moneda"
+      },
+      "customerKind": {
+        "label": "¿Quiénes son tus clientes?"
+      },
+      "customerSize": {
+        "label": "¿Qué tamaño tienen tus clientes?"
+      },
+      "dashboardAudience": {
+        "label": "¿Quién consulta el panel?"
+      },
+      "dealDetails": {
+        "label": "¿Qué necesitas saber de una oportunidad o un cliente?"
+      },
+      "dealSize": {
+        "label": "Importe habitual de una oportunidad"
+      },
+      "existingData": {
+        "label": "¿Cómo quieres empezar?"
+      },
+      "industries": {
+        "label": "¿En qué sectores trabajan?"
+      },
+      "knowledgePages": {
+        "label": "¿Qué páginas de la base de conocimientos escribimos?"
+      },
+      "language": {
+        "label": "Idioma"
+      },
+      "leadSources": {
+        "label": "¿De dónde vienen tus contactos potenciales?"
+      },
+      "offeringKinds": {
+        "label": "¿Qué vendes?"
+      },
+      "offerings": {
+        "label": "Tu oferta"
+      },
+      "orderStatuses": {
+        "label": "Tus pasos de pedido"
+      },
+      "projectPhases": {
+        "label": "Tus fases de proyecto"
+      },
+      "purpose": {
+        "label": "¿Para qué usarás este espacio de trabajo?"
+      },
+      "purposeDetails": {
+        "label": "Descríbelo en una frase",
+        "placeholder": "Por ejemplo: mis clientes como freelance, facturas y plazos de impuestos"
+      },
+      "renewalPeriod": {
+        "label": "¿Cada cuánto se renuevan los contratos?"
+      },
+      "revenueModel": {
+        "label": "¿Tus clientes pagan una vez o de forma periódica?"
+      },
+      "salesCycle": {
+        "label": "Ciclo de venta habitual en días"
+      },
+      "salesSteps": {
+        "label": "¿Cuáles son tus etapas de venta?"
+      },
+      "taskOrganisation": {
+        "label": "¿Cómo organizas tus tareas?"
+      },
+      "teamRoles": {
+        "label": "¿Quién hace qué en tu equipo?"
+      },
+      "teamSize": {
+        "label": "¿Qué tamaño tiene tu equipo?"
+      },
+      "ticketPriorities": {
+        "label": "Tus prioridades de incidencias"
+      },
+      "weeklyNumbers": {
+        "label": "¿Qué cifras revisas cada semana? Elige hasta tres."
+      }
+    },
+    "screens": {
+      "afterSale": "Después de la venta",
+      "dashboard": "Tu panel",
+      "data": "Tus datos",
+      "knowledge": "Conocimiento",
+      "winning": "Ganar clientes",
+      "workspace": "Sobre este espacio de trabajo"
+    },
+    "start": {
+      "start": "Iniciar la configuración",
+      "withoutWebsite": "Continuar sin sitio web"
+    },
+    "website": {
+      "change": "Cambiar",
+      "eta": "Suele tardar de 1 a 2 minutos. Mientras tanto, ya puedes empezar a responder.",
+      "finding": "Buscando páginas en {website}",
+      "hint": "Opcional. Leemos tu sitio web público y sugerimos respuestas, así que casi solo tienes que confirmarlas.",
+      "read": "Leer el sitio web",
+      "reading": "Leyendo {website}: {read} de {total} páginas",
+      "suggestedHint": "Revisa las respuestas marcadas y cambia lo que no encaje.",
+      "suggesting": "Sugiriendo respuestas a partir de {website}",
+      "title": "Rellena las respuestas desde tu sitio web"
+    }
   }
 }

@@ -19,7 +19,7 @@ import {
   clearRegisteredAdClicksFromCookie,
   readRegistrationAdAttribution,
 } from "@/features/acquisition/next/ad-attribution-cookie";
-import { buildLocalePath } from "@/i18n/locale-registry";
+import { appLocaleOrDefault, buildLocalePath } from "@/i18n/locale-registry";
 
 export async function registerProfileAction(data: RegisterOnboardingProfileData) {
   const adAttribution = await readRegistrationAdAttribution();
@@ -29,6 +29,9 @@ export async function registerProfileAction(data: RegisterOnboardingProfileData)
   if (result.ok) {
     await clearRegisteredAdClicksFromCookie();
     refresh();
+    const chosen =
+      data.displayLanguage && data.displayLanguage !== "system" ? appLocaleOrDefault(data.displayLanguage) : null;
+    if (chosen && chosen !== (await getLocale())) redirect(buildLocalePath(chosen, result.data.redirectTo));
     redirect(result.data.redirectTo);
   }
   return result;
@@ -44,7 +47,6 @@ export async function saveOnboardingWizardProgressAction(data: SaveOnboardingWiz
   return serializeResult(getSaveOnboardingWizardProgressInteractor().invoke(data));
 }
 
-export async function completeOnboardingWikiStepAction() {
-  const result = await serializeResult(getCompleteOnboardingWikiStepInteractor().invoke());
-  return result;
+export async function completeOnboardingSetupStepAction() {
+  return serializeResult(getCompleteOnboardingWikiStepInteractor().invoke());
 }

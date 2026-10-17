@@ -1592,7 +1592,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         providerStartedAt: startedAt,
         planSnapshot: "pro",
         subscriptionStatusSnapshot: "active",
-        allowanceMicrocentsSnapshot: 500_000_000,
+        allowanceMicrocentsSnapshot: 300_000_000,
         periodStart: new Date("2026-07-15T10:30:00.000Z"),
         periodEnd: new Date("2026-08-15T10:30:00.000Z"),
       },
@@ -2271,7 +2271,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       {
         state: "settled",
         reservedMicrocents: 0n,
-        chargedMicrocents: 495_000_000n,
+        chargedMicrocents: 595_000_000n,
       },
     ]);
 

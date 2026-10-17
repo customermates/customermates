@@ -203,9 +203,10 @@ test("paginates and retries record and widget history, restores a personal timel
   if (!(await history.isVisible())) await page.getByRole("tab", { name: "Activities", exact: true }).click();
   await expect(view).toHaveAttribute("aria-current", "page");
   await expect(history.getByText(english.Common.emptyState.genericFilteredBody, { exact: true })).toBeVisible();
-  await history.locator("#global-data-views-all").click();
-  await expect(history.locator("#global-data-views-all")).toHaveAttribute("aria-current", "page");
-  await expect(history.locator("#global-data-views-all")).not.toHaveAttribute("data-view-modified");
+  await view.click();
+  await expect(view).not.toHaveAttribute("aria-current", "page");
+  await expect(history.locator('[data-focus-target^="view:"][aria-current="page"]')).toHaveCount(0);
+  await expect(history.locator("#global-data-views-menu[data-view-modified]")).toHaveCount(0);
   await expect(rows).toHaveCount(25);
   await expect(older).toBeVisible();
   expect(await storedView()).toEqual([savedView]);
@@ -302,8 +303,9 @@ test("paginates and retries record and widget history, restores a personal timel
   );
   await page.getByRole("alertdialog").locator("#confirm-delete").click();
   await expect(page.getByRole("alertdialog")).toHaveCount(0);
-  await expect(drawerHistory.locator("#global-data-views-all")).toHaveAttribute("aria-current", "page");
-  await expect(drawerHistory.locator("#global-data-views-all")).toBeFocused();
+  await expect(drawerHistory.getByRole("link", { name: temporaryViewName, exact: true })).toHaveCount(0);
+  await expect(drawerHistory.locator('[data-focus-target^="view:"][aria-current="page"]')).toHaveCount(0);
+  await expect(drawerHistory.locator("#global-data-views-new")).toBeFocused();
   await expect(page).toHaveURL(parentUrl);
   expect(await storedView()).toEqual([savedView]);
   expect(await parentPresentation()).toEqual(beforeParentPresentation);
@@ -1207,7 +1209,7 @@ test("retains readable list content after a failed refresh and retries the empty
   await expect(error).toHaveCount(0);
   expect(matchingReads).toBe(2);
   expect((await values()).rows).toEqual(before);
-  await expect(page.locator("#global-data-views-all")).not.toHaveAttribute("data-view-modified");
+  await expect(page.locator("#global-data-views-menu[data-view-modified]")).toHaveCount(0);
   await page.unrouteAll({ behavior: "wait" });
   await expect(page).toHaveURL((url) => url.searchParams.get("searchTerm") === name);
   await page.reload();

@@ -26,6 +26,12 @@ describe("Wiki content language", () => {
       expect(wikiLanguageConflicts(samples[locale], other)).toBe(true);
   });
 
+  it.each(APP_LOCALES)("classifies a long %s page, whose overall scores sit too close together", (locale) => {
+    const page = Array.from({ length: 20 }, () => samples[locale]).join("\n\n");
+    expect(detectedWikiLanguage(page)).toBe(LOCALE_REGISTRY[locale].iso6393);
+    expect(detectedWikiLanguage(`${page}\n\n${samples.de}`)).toBe(LOCALE_REGISTRY[locale].iso6393);
+  });
+
   it("uses a unique leading count of classified pages, rather than bytes or ordering", () => {
     expect(dominantWikiLanguage([samples.de, samples.en.repeat(20), samples.de])).toBe("de");
     expect(dominantWikiLanguage([samples.en.repeat(20), samples.de, samples.de])).toBe("de");

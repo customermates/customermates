@@ -33,11 +33,22 @@ describe("StepProfileStore", () => {
     expect(actions.registerProfileAction).toHaveBeenCalledExactlyOnceWith({
       agreeToTerms: true,
       avatarUrl: null,
-      country: "de",
+      displayLanguage: "system",
       email: "owner@example.com",
       firstName: "Owner",
       lastName: "Example",
       onboardingIntent: "signed.create.intent",
     });
+  });
+
+  it("sends the chosen display language and no country to registration", async () => {
+    const store = new StepProfileStore(rootStore);
+    store.onInitOrRefresh({ email: "owner@example.com", firstName: "Owner", lastName: "Example" });
+    store.onChange("displayLanguage", "de");
+
+    await store.onSubmit();
+
+    expect(actions.registerProfileAction.mock.calls[0][0]).toMatchObject({ displayLanguage: "de" });
+    expect(actions.registerProfileAction.mock.calls[0][0]).not.toHaveProperty("country");
   });
 });

@@ -18,13 +18,12 @@ Profil & Einstellungen sieht jedes Mitglied. Kanäle braucht **Lesen** **Alle** 
 | Feld | Regeln und Wirkung |
 |---|---|
 | **Vorname**, **Nachname** | Pflicht, bis zu 255 Zeichen; Ihr Name im ganzen Workspace |
-| **Land** | Pflicht; wird mit dem Profil gespeichert und ändert keine Formate |
 | **Avatar-URL** | Optionaler Link auf ein öffentliches Bild (kein Upload; `https://` wird ergänzt); leer zeigt Ihre Initialen |
 | [Anzeigesprache](app:settings/profile?focus=display-language) | **Englisch**, **Deutsch**, **Französisch**, **Italienisch**, **Spanisch** oder **System** (Browsersprache, sonst Englisch). Oberfläche und Mate nutzen sie, ebenso Benachrichtigungs-E-Mails (bei **System** auf Englisch). Speichern lädt die App neu |
 | [Regionales Format](app:settings/profile?focus=formatting-locale) | Dieselbe Auswahl; wie Zahlen, Datumsangaben und Beträge geschrieben werden, unabhängig von der Anzeigesprache. **System** folgt der Anzeigesprache |
 | [Darstellung](app:settings/profile?focus=theme) | **System**, **Dunkel** oder **Hell** |
 
-**Darstellung** und **Sprache** lassen sich auch im persönlichen Menü umschalten. Der Kopfbereich über dem Formular zeigt E-Mail, Verifizierungsstatus, Mitgliedsstatus und Rolle; hier sind sie nur lesbar. Rolle und Status, aber auch Name, Land und Avatar, kann ein Mitglied mit **Bearbeiten** bei **Benutzer & Rollen** unter [Mitglieder](app:settings/members) setzen.
+**Darstellung** und **Sprache** lassen sich auch im persönlichen Menü umschalten. Der Kopfbereich über dem Formular zeigt E-Mail, Verifizierungsstatus, Mitgliedsstatus und Rolle; hier sind sie nur lesbar. Rolle und Status, aber auch Name und Avatar, kann ein Mitglied mit **Bearbeiten** bei **Benutzer & Rollen** unter [Mitglieder](app:settings/members) setzen.
 
 ### Wie schalte ich Einzeltasten-Kürzel aus? [#keyboard-shortcut-preferences]
 
@@ -53,7 +52,7 @@ Eine Key-Karte zeigt **Erstellt am**, **Läuft ab** und **Zuletzt verwendet**; �
 
 ### Wer kann Kanäle nutzen? [#who-can-use-channels]
 
-Die Seite zu sehen braucht **Lesen** **Alle** bei **Inbox-Nachrichten**; verbinden braucht **Erstellen**, ändern, reaktivieren oder neu synchronisieren **Bearbeiten**, trennen **Löschen**. Der Tarif muss Messaging enthalten (Pro, Business, Enterprise oder eine Testphase); in Starter zeigt die Seite **Tarif upgraden**, das [Abrechnung](app:settings/billing) öffnet. Jede Aktion außer dem Trennen braucht außerdem ein aktives Abonnement oder eine laufende Testphase. Self-Hosted-Installationen haben keine Seite Kanäle.
+Die Seite zu sehen braucht **Lesen** **Alle** bei **Inbox-Nachrichten**; verbinden braucht **Erstellen**, ändern, reaktivieren oder neu synchronisieren **Bearbeiten**, trennen **Löschen**. Der Tarif muss Messaging enthalten (Pro, Business, Max, Enterprise oder eine Testphase); in Starter zeigt die Seite **Tarif upgraden**, das [Abrechnung](app:settings/billing) öffnet. Jede Aktion außer dem Trennen braucht außerdem ein aktives Abonnement oder eine laufende Testphase. Self-Hosted-Installationen haben keine Seite Kanäle.
 
 ### Wie verbinde ich einen Kanal? [#how-do-i-connect-a-channel]
 
@@ -71,7 +70,7 @@ Der aktuelle Tab wechselt auf eine sichere Verbindungsseite (30 Minuten Zeit) un
 
 ### Wie viele Kanäle kann ich verbinden? [#how-many-channels-can-i-connect]
 
-Pro Mitglied: Starter [[commercial.entitlement.starter.includedAccountsPerUser]], Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]; eine Testphase zählt als Pro. Jeder eigene Kanal zählt, bis Sie ihn trennen, außer Kanälen mit **Gelöscht**; geteilte Kanäle anderer zählen nie. Ist das Limit in Pro erreicht, bietet **Kanal verbinden** **Tarife ansehen** an, das [Abrechnung](app:settings/billing) öffnet. Nach einem Downgrade werden bei jedem Mitglied die neuesten Kanäle oberhalb des Kontingents **Gelöscht**, und Mitglieder mit der Rolle **Admin** erhalten eine E-Mail.
+Pro Mitglied: Starter [[commercial.entitlement.starter.includedAccountsPerUser]], Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Max [[commercial.entitlement.max.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]; eine Testphase zählt als Pro. Jeder eigene Kanal zählt, bis Sie ihn trennen, außer Kanälen mit **Gelöscht**; geteilte Kanäle anderer zählen nie. Ist das Limit in Pro erreicht, bietet **Kanal verbinden** **Tarife ansehen** an, das [Abrechnung](app:settings/billing) öffnet. Nach einem Downgrade werden bei jedem Mitglied die neuesten Kanäle oberhalb des Kontingents **Gelöscht**, und Mitglieder mit der Rolle **Admin** erhalten eine E-Mail.
 
 ### Was bedeutet welcher Kanalstatus? [#what-does-each-status-mean]
 
@@ -84,7 +83,7 @@ Pro Mitglied: Starter [[commercial.entitlement.starter.includedAccountsPerUser]]
 
 ### Wie teile ich einen Kanal mit Teammitgliedern oder halte ihn privat? [#private-or-shared]
 
-Ein neuer Kanal ist **Privat**. Der Besitzer stellt **Sichtbarkeit** auf dem Tab **Details** auf **Geteilt**; dann sieht ihn mit allen Unterhaltungen jedes Mitglied mit Lesezugriff bei **Inbox-Nachrichten**, und Mitglieder mit **Erstellen** können darüber antworten. Teilen braucht den Business- oder Enterprise-Tarif, **Bearbeiten** bei **Inbox-Nachrichten** und ein aktives Abonnement. Teammitglieder können Details und Ordner eines geteilten Kanals öffnen, ihn aber nicht ändern. Einzelne Unterhaltungen lassen sich im [Posteingang](/docs/app-inbox) teilen.
+Ein neuer Kanal, etwa ein E-Mail-Postfach, ist **Privat**. Der Besitzer stellt **Sichtbarkeit** auf dem Tab **Details** auf **Geteilt**; dann sieht ihn mit allen Unterhaltungen jedes Mitglied mit Lesezugriff bei **Inbox-Nachrichten**, und Mitglieder mit **Erstellen** können darüber antworten. Teilen braucht den Business-, Max- oder Enterprise-Tarif, **Bearbeiten** bei **Inbox-Nachrichten** und ein aktives Abonnement. Teammitglieder können Details und Ordner eines geteilten Kanals öffnen, ihn aber nicht ändern. Einzelne Unterhaltungen lassen sich im [Posteingang](/docs/app-inbox) teilen.
 
 ### Was steuert der Tab Ordner? [#what-does-the-folders-tab-control]
 
@@ -115,7 +114,7 @@ Die Darstellung gilt für E-Mails in Klartext oder Markdown, also alles, was Sie
 
 ## Für Agents [#tips-for-agents]
 
-Über MCP und in Mate ändert `update_my_profile` nur Ihren eigenen Vornamen, Nachnamen, Ihr Land, Ihre Avatar-URL, Ihr Farbschema, Ihre Anzeigesprache und Ihr regionales Format; `connect_messaging_account` (REST `POST /api/v1/messaging/connected-accounts/connect-link`) erstellt einen Verbindungslink nach denselben Regeln zu Tarif, Berechtigung und Kontingent. `manage_connected_accounts` listet Ihre Kanäle und setzt für einen eigenen Kanal Ordner, Signatur und E-Mail-Darstellung, Sichtbarkeit (mit Freigabe), synchronisiert ihn neu oder trennt ihn (mit Freigabe); REST nutzt `/api/v1/messaging/connected-accounts/{id}` (`DELETE`) und dessen Operationen `folders`, `signature`, `sharing` und `resync`. Eine ID, die kein eigener Kanal ist, antwortet vor jeder Tarifprüfung mit `not_found` (REST `404`). Tastenkürzel, Reaktivieren und API-Keys stellen Sie nur in der App ein. Wiederholen Sie die Signatur eines Kanals nicht im Nachrichtentext. Ein neuer API-Key wird einmal angezeigt. Über REST liest `GET /api/v1/users/me` Ihr Profil, und `PATCH /api/v1/users/me` ändert dieselben Felder wie `update_my_profile`; weggelassene Felder behalten ihren Wert.
+Über MCP und in Mate ändert `update_my_profile` nur Ihren eigenen Vornamen, Nachnamen, Ihre Avatar-URL, Ihr Farbschema, Ihre Anzeigesprache und Ihr regionales Format; `connect_messaging_account` (REST `POST /api/v1/messaging/connected-accounts/connect-link`) erstellt einen Verbindungslink nach denselben Regeln zu Tarif, Berechtigung und Kontingent. `manage_connected_accounts` listet Ihre Kanäle und setzt für einen eigenen Kanal Ordner, Signatur und E-Mail-Darstellung, Sichtbarkeit (mit Freigabe), synchronisiert ihn neu oder trennt ihn (mit Freigabe); REST nutzt `/api/v1/messaging/connected-accounts/{id}` (`DELETE`) und dessen Operationen `folders`, `signature`, `sharing` und `resync`. Eine ID, die kein eigener Kanal ist, antwortet vor jeder Tarifprüfung mit `not_found` (REST `404`). Tastenkürzel, Reaktivieren und API-Keys stellen Sie nur in der App ein. Wiederholen Sie die Signatur eines Kanals nicht im Nachrichtentext. Ein neuer API-Key wird einmal angezeigt. Über REST liest `GET /api/v1/users/me` Ihr Profil, und `PATCH /api/v1/users/me` ändert dieselben Felder wie `update_my_profile`; weggelassene Felder behalten ihren Wert.
 
 ## Verwandt [#related]
 

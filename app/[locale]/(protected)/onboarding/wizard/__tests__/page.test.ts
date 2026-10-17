@@ -1,8 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-  requireAgentEntitlement: vi.fn(),
-  getWikiHomepageSetupState: vi.fn(),
+  getSetupStatus: vi.fn(),
   requireAccountState: vi.fn(),
   resolveOnboardingIntent: vi.fn(),
   getProgress: vi.fn(),
@@ -20,13 +19,9 @@ vi.mock("@/features/auth/next/require", () => ({
   requireAccountState: mocks.requireAccountState,
 }));
 vi.mock("@/core/di", () => ({
-  getEntitlementService: () => ({ require: mocks.requireAgentEntitlement }),
   getGetOnboardingWizardProgressInteractor: () => ({ invoke: mocks.getProgress }),
-  getGetWikiHomepageSetupStateInteractor: () => ({
-    invoke: mocks.getWikiHomepageSetupState,
-  }),
+  getGetWorkspaceSetupStatusInteractor: () => ({ invoke: mocks.getSetupStatus }),
 }));
-vi.mock("@/env", () => ({ env: { APP_MODE: "cloud" } }));
 vi.mock("@/features/company/next/onboarding-intent", () => ({
   resolveOnboardingIntent: mocks.resolveOnboardingIntent,
 }));
@@ -42,16 +37,7 @@ import OnboardingWizardPage from "../page";
 describe("OnboardingWizardPage authentication detours", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.getWikiHomepageSetupState.mockResolvedValue({
-      ok: true,
-      data: {
-        status: "idle",
-        homepage: null,
-        domain: null,
-        pages: [],
-      },
-    });
-    mocks.requireAgentEntitlement.mockResolvedValue(null);
+    mocks.getSetupStatus.mockResolvedValue({ ok: true, data: { available: true, setup: null } });
     mocks.getProgress.mockResolvedValue({ ok: true, data: { step: "invite", inviteTab: "link" } });
   });
 
@@ -144,94 +130,57 @@ describe("OnboardingWizardPage authentication detours", () => {
     });
 
     expect(page.props.children.props).toMatchObject({
-      canSetupWithMate: Boolean(user?.role?.isSystemRole),
+      setupStatus: user?.role?.isSystemRole ? { available: true, setup: null } : undefined,
       isInvited,
       profileCompleted: Boolean(user),
     });
   });
 
-  it("skips the Wiki step only after the owner explicitly completed it", async () => {
+  function registeredOwner(onboardingWikiStepCompletedAt: Date | null) {
     mocks.resolveOnboardingIntent.mockResolvedValue({ status: "absent" });
     mocks.requireAccountState.mockResolvedValue({
-      sessionUser: {
-        id: "user-a",
-        email: "owner@example.com",
-        companyId: "company-a",
-      },
-      user: {
-        companyId: "company-a",
-        role: { isSystemRole: true },
-        onboardingWikiStepCompletedAt: new Date("2026-01-01T00:00:00.000Z"),
-      },
+      sessionUser: { id: "user-a", email: "owner@example.com", companyId: "company-a" },
+      user: { companyId: "company-a", role: { isSystemRole: true }, onboardingWikiStepCompletedAt },
     });
+  }
 
-    const page = await OnboardingWizardPage({
-      searchParams: Promise.resolve({}),
-    });
+  it("skips the setup step only after the owner completed it", async () => {
+    registeredOwner(new Date("2026-01-01T00:00:00.000Z"));
+
+    const page = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+
+    expect(page.props.children.props).toMatchObject({ profileCompleted: true, setupStepCompleted: true });
+  });
+
+  it.each(["selfHosted", "configured"])(
+    "never waits on the setup step where it is unavailable (%s)",
+    async (reason) => {
+      registeredOwner(null);
+      const unavailable = { available: false, reason, setup: null };
+      mocks.getSetupStatus.mockResolvedValue({ ok: true, data: unavailable });
+
+      const page = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+
+      expect(page.props.children.props).toMatchObject({
+        profileCompleted: true,
+        setupStatus: unavailable,
+        setupStepCompleted: true,
+      });
+    },
+  );
+
+  it("restores a running setup from its persisted status after a refresh", async () => {
+    registeredOwner(null);
+    const building = { available: true, setup: { id: "setup-a", status: "building" } };
+    mocks.getSetupStatus.mockResolvedValue({ ok: true, data: building });
+
+    const page = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
 
     expect(page.props.children.props).toMatchObject({
       profileCompleted: true,
-      wikiStepCompleted: true,
+      setupStepCompleted: false,
+      setupStatus: building,
     });
-  });
-
-  it("restores an accepted setup turn on the Wiki step after refresh", async () => {
-    mocks.resolveOnboardingIntent.mockResolvedValue({ status: "absent" });
-    mocks.requireAccountState.mockResolvedValue({
-      sessionUser: {
-        id: "user-a",
-        email: "owner@example.com",
-        companyId: "company-a",
-      },
-      user: {
-        companyId: "company-a",
-        role: { isSystemRole: true },
-        onboardingWikiStepCompletedAt: null,
-      },
-    });
-    const working = {
-      status: "working",
-      homepage: "https://example.com/",
-      domain: "example.com",
-      pages: [],
-    };
-    mocks.getWikiHomepageSetupState.mockResolvedValue({
-      ok: true,
-      data: working,
-    });
-
-    const page = await OnboardingWizardPage({
-      searchParams: Promise.resolve({}),
-    });
-
-    expect(page.props.children.props).toMatchObject({
-      profileCompleted: true,
-      wikiStepCompleted: false,
-      wikiSetupState: working,
-    });
-  });
-
-  it("does not offer setup when the owner's Agent entitlement is unavailable", async () => {
-    mocks.resolveOnboardingIntent.mockResolvedValue({ status: "absent" });
-    mocks.requireAccountState.mockResolvedValue({
-      sessionUser: {
-        id: "user-a",
-        email: "owner@example.com",
-        companyId: "company-a",
-      },
-      user: {
-        companyId: "company-a",
-        role: { isSystemRole: true },
-        onboardingWikiStepCompletedAt: null,
-      },
-    });
-    mocks.requireAgentEntitlement.mockResolvedValue({ ok: false });
-
-    const page = await OnboardingWizardPage({
-      searchParams: Promise.resolve({}),
-    });
-
-    expect(page.props.children.props.canSetupWithMate).toBe(false);
   });
 
   it("preserves an invitation when a cached session loses its identity", async () => {

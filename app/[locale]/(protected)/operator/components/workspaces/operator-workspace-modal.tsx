@@ -402,21 +402,9 @@ export const OperatorWorkspaceModal = observer(function OperatorWorkspaceModal({
 
             {stats ? (
               <div className="flex flex-col gap-1.5">
-                <InfoRow label={t("OperatorWorkspaces.stats.contacts")}>
-                  {intlStore.formatNumber(stats.contacts)}
-                </InfoRow>
+                <InfoRow label={t("OperatorWorkspaces.stats.lists")}>{intlStore.formatNumber(stats.lists)}</InfoRow>
 
-                <InfoRow label={t("OperatorWorkspaces.stats.organizations")}>
-                  {intlStore.formatNumber(stats.organizations)}
-                </InfoRow>
-
-                <InfoRow label={t("OperatorWorkspaces.stats.deals")}>{intlStore.formatNumber(stats.deals)}</InfoRow>
-
-                <InfoRow label={t("OperatorWorkspaces.stats.services")}>
-                  {intlStore.formatNumber(stats.services)}
-                </InfoRow>
-
-                <InfoRow label={t("OperatorWorkspaces.stats.tasks")}>{intlStore.formatNumber(stats.tasks)}</InfoRow>
+                <InfoRow label={t("OperatorWorkspaces.stats.records")}>{intlStore.formatNumber(stats.records)}</InfoRow>
 
                 <InfoRow label={t("OperatorWorkspaces.stats.threads")}>
                   {intlStore.formatNumber(stats.messagingThreads)}

@@ -6,11 +6,13 @@ export const LEMON_SQUEEZY_VARIANT_ENV_KEYS = {
   "starter:monthly": "LEMONSQUEEZY_VARIANT_ID_STARTER",
   "pro:monthly": "LEMONSQUEEZY_VARIANT_ID_PRO",
   "business:monthly": "LEMONSQUEEZY_VARIANT_ID_BUSINESS",
+  "max:monthly": "LEMONSQUEEZY_VARIANT_ID_MAX",
 } as const satisfies Record<OfferId, string>;
 
-export type LemonSqueezyBindingEnvironment = Record<
-  (typeof LEMON_SQUEEZY_VARIANT_ENV_KEYS)[OfferId],
-  string | undefined
+export const OPTIONAL_CHECKOUT_OFFER_IDS = ["max:monthly"] as const satisfies readonly OfferId[];
+
+export type LemonSqueezyBindingEnvironment = Partial<
+  Record<(typeof LEMON_SQUEEZY_VARIANT_ENV_KEYS)[OfferId], string | undefined>
 >;
 
 export type LemonSqueezyBindings = {
@@ -18,10 +20,14 @@ export type LemonSqueezyBindings = {
     OfferId,
     {
       checkoutVariantId: string;
-    }
+    } | null
   >;
   byVariant: ReadonlyMap<string, CommercialOffer>;
 };
+
+function isOptionalCheckoutOffer(offerId: OfferId): boolean {
+  return (OPTIONAL_CHECKOUT_OFFER_IDS as readonly OfferId[]).includes(offerId);
+}
 
 function parseVariantId(value: string, envKey: string): string {
   const variantId = value.trim();
@@ -29,6 +35,12 @@ function parseVariantId(value: string, envKey: string): string {
     throw new Error(`${envKey} must contain positive safe-integer Lemon Squeezy variant IDs`);
 
   return variantId;
+}
+
+export function unboundOptionalCheckoutOffers(input: LemonSqueezyBindingEnvironment): CommercialOffer[] {
+  return COMMERCIAL_OFFERS.filter(
+    (offer) => isOptionalCheckoutOffer(offer.id) && !input[LEMON_SQUEEZY_VARIANT_ENV_KEYS[offer.id]]?.trim(),
+  );
 }
 
 export function parseLemonSqueezyBindings(input: LemonSqueezyBindingEnvironment): LemonSqueezyBindings {
@@ -46,7 +58,11 @@ export function parseLemonSqueezyBindings(input: LemonSqueezyBindingEnvironment)
     const envKey = LEMON_SQUEEZY_VARIANT_ENV_KEYS[offer.id];
     const configuredVariantId = input[envKey]?.trim();
 
-    if (!configuredVariantId) throw new Error(`${envKey} is not configured for ${offer.id}`);
+    if (!configuredVariantId) {
+      if (!isOptionalCheckoutOffer(offer.id)) throw new Error(`${envKey} is not configured for ${offer.id}`);
+      byOffer[offer.id] = null;
+      continue;
+    }
     const checkoutVariantId = parseVariantId(configuredVariantId, envKey);
     if (byVariant.has(checkoutVariantId)) throw new Error("Lemon Squeezy variant bindings must be globally unique");
     byVariant.set(checkoutVariantId, offer);

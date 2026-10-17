@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { CountryCode } from "@/generated/prisma";
 import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import {
   MOCK_ENV_MODULE,
@@ -35,7 +34,6 @@ const mockTenantUser = createMockUser({
   email: "jane@example.com",
   firstName: "Jane",
   lastName: "Doe",
-  country: CountryCode.de,
 });
 
 describe("RegisterUserInteractor", () => {
@@ -45,7 +43,6 @@ describe("RegisterUserInteractor", () => {
   let mockRouteGuardService: any;
   let mockCompanyRepo: any;
   let mockRegistration: any;
-  let mockRecordModel: { initialize: ReturnType<typeof vi.fn<() => Promise<void>>> };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -79,7 +76,6 @@ describe("RegisterUserInteractor", () => {
         subscription: null,
       }),
     };
-    mockRecordModel = { initialize: vi.fn<() => Promise<void>>().mockResolvedValue(undefined) };
     mockCompanyRepo = { existsUnscoped: vi.fn().mockResolvedValue(true) };
     mockRegistration = { createCompanyAndUser: vi.fn().mockResolvedValue(mockTenantUser) };
   });
@@ -91,7 +87,6 @@ describe("RegisterUserInteractor", () => {
       mockEventService,
       mockRouteGuardService,
       mockCompanyRepo,
-      mockRecordModel,
       mockRegistration,
     );
   }
@@ -103,7 +98,6 @@ describe("RegisterUserInteractor", () => {
         email: "jane@example.com",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: true,
       },
@@ -125,7 +119,6 @@ describe("RegisterUserInteractor", () => {
       authUserId: USER_ID,
       companyId: mockTenantUser.companyId,
     });
-    expect(mockRecordModel.initialize).toHaveBeenCalledOnce();
   });
 
   it("records current company-wide legal acceptance for a new cloud company", async () => {
@@ -136,7 +129,6 @@ describe("RegisterUserInteractor", () => {
         email: "jane@example.com",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: true,
       },
@@ -186,7 +178,6 @@ describe("RegisterUserInteractor", () => {
       email: "jane@example.com",
       firstName: "Jane",
       lastName: "Doe",
-      country: "de" as const,
       avatarUrl: null,
       agreeToTerms: true,
     };
@@ -214,7 +205,6 @@ describe("RegisterUserInteractor", () => {
         email: "jane@example.com",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: true,
       },
@@ -246,7 +236,6 @@ describe("RegisterUserInteractor", () => {
         email: "jane@example.com",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: false,
       },
@@ -255,7 +244,6 @@ describe("RegisterUserInteractor", () => {
 
     expect("ok" in result && result.ok).toBe(false);
     expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
-    expect(mockRecordModel.initialize).not.toHaveBeenCalled();
     expect(mockEventService.publish).not.toHaveBeenCalled();
   });
 
@@ -269,7 +257,6 @@ describe("RegisterUserInteractor", () => {
         email: "jane@example.com",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: false,
       },
@@ -301,7 +288,6 @@ describe("RegisterUserInteractor", () => {
         email: "jane@example.com",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: false,
       },
@@ -324,7 +310,6 @@ describe("RegisterUserInteractor", () => {
         email: "jane@example.com",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: true,
       },
@@ -347,7 +332,6 @@ describe("RegisterUserInteractor", () => {
         email: "jane@example.com",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: false,
       },
@@ -366,7 +350,6 @@ describe("RegisterUserInteractor", () => {
         email: "jane@example.com",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: true,
       },
@@ -386,7 +369,6 @@ describe("RegisterUserInteractor", () => {
           email: "jane@example.com",
           firstName: "Jane",
           lastName: "Doe",
-          country: "de",
           avatarUrl: null,
           agreeToTerms: true,
         },
@@ -405,7 +387,6 @@ describe("RegisterUserInteractor", () => {
         email: "jane@example.com",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: true,
       },
@@ -425,7 +406,6 @@ describe("RegisterUserInteractor", () => {
         email: "jane@example.com",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: true,
       },
@@ -442,7 +422,6 @@ describe("RegisterUserInteractor", () => {
         email: "not-an-email",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: true,
       },
@@ -471,7 +450,6 @@ describe("RegisterUserInteractor", () => {
         email: "jane@example.com",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: true,
       },
@@ -488,7 +466,6 @@ describe("RegisterUserInteractor", () => {
           email: "jane@example.com",
           firstName: "Jane",
           lastName: "Doe",
-          country: "de",
           avatarUrl: null,
           agreeToTerms: true,
         },
@@ -510,7 +487,6 @@ describe("RegisterUserInteractor", () => {
           email: "jane@example.com",
           firstName: "Jane",
           lastName: "Doe",
-          country: "de",
           avatarUrl: null,
           agreeToTerms: true,
         },
@@ -536,7 +512,6 @@ describe("RegisterUserInteractor", () => {
           email: "jane@example.com",
           firstName: "Jane",
           lastName: "Doe",
-          country: "de",
           avatarUrl: null,
           agreeToTerms: true,
         },
@@ -561,7 +536,6 @@ describe("RegisterUserInteractor", () => {
         email: "jane@example.com",
         firstName: "Jane",
         lastName: "Doe",
-        country: "de",
         avatarUrl: null,
         agreeToTerms: true,
       },
@@ -587,7 +561,6 @@ describe("RegisterUserInteractor", () => {
           email: "jane@example.com",
           firstName: "Jane",
           lastName: "Doe",
-          country: "de",
           avatarUrl: null,
           agreeToTerms: true,
         },
@@ -615,7 +588,6 @@ describe("RegisterUserInteractor", () => {
           email: "jane@example.com",
           firstName: "Jane",
           lastName: "Doe",
-          country: "de",
           avatarUrl: null,
           agreeToTerms: true,
         },
@@ -652,7 +624,6 @@ describe("RegisterUserInteractor", () => {
             email: "jane@example.com",
             firstName: "Jane",
             lastName: "Doe",
-            country: "de",
             avatarUrl: null,
             agreeToTerms: true,
           },
@@ -675,7 +646,6 @@ describe("UpdateUserDetailsInteractor", () => {
   const detailsData = {
     firstName: "Janet",
     lastName: "Doe",
-    country: "de" as const,
     avatarUrl: null,
   };
 
@@ -740,8 +710,8 @@ describe("UpdateUserDetailsInteractor", () => {
     );
   });
 
-  it("publishes nothing when the saved profile keeps its name and country", async () => {
-    mockRepo.updateDetails.mockResolvedValue({ ...profileResult, firstName: "Test", lastName: "User", country: "de" });
+  it("publishes nothing when the saved profile keeps its name", async () => {
+    mockRepo.updateDetails.mockResolvedValue({ ...profileResult, firstName: "Test", lastName: "User" });
     const result: any = await createInteractor().invoke({ theme: "dark" } as never);
 
     expect(result.ok).toBe(true);
@@ -812,7 +782,6 @@ describe("avatar schemas require an absolute URL", () => {
       email: "max.bergmann@customermates.com",
       firstName: "Max",
       lastName: "Bergmann",
-      country: CountryCode.de,
       status: "active",
       avatarUrl: SEEDED_AVATAR,
       roleId: "00000000-0000-4000-8000-000000000001",

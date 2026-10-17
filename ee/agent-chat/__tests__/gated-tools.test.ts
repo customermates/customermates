@@ -18,6 +18,7 @@ import {
   isReadOnlyAgentToolCall,
   isReadOnlyTool,
   requiresApproval,
+  requiresApprovalOnSurface,
   AGENT_DESTRUCTIVE_APPROVAL_FREE_TOOL_NAMES,
 } from "../gated-tools";
 import { agentToolIdentityKey, internalToolIdentity, parseAgentToolIdentityKey } from "../tool-identity";
@@ -356,6 +357,36 @@ describe("gated-tools", () => {
     }
   });
 
+  it("lets every read-only action of a multiplexed tool run without approval", () => {
+    for (const name of AGENT_APPROVAL_POLICY_TOOL_NAMES) {
+      const identity = internalToolIdentity(name);
+      const tool = ALL_MCP_TOOLS.find((candidate) => candidate.name === name) ?? { name, annotations: {} };
+      for (const action of readOnlyActionsForTool(identity) ?? []) {
+        expect(`${name} ${action} ${approvalFreeActionsForTool(identity)?.includes(action)}`).toBe(
+          `${name} ${action} true`,
+        );
+        expect(`${name} ${action} ${approvalNeeded(tool, { action })}`).toBe(`${name} ${action} false`);
+        expect(`${name} ${action} ${isReadOnlyAgentToolCall(name, tool, { action })}`).toBe(`${name} ${action} true`);
+        expect(`${name} ${action} ${describeInternalTool(name, { action }).risk}`).toBe(`${name} ${action} read`);
+      }
+    }
+  });
+
+  it("treats Knowledge Base gaps as an approval-free read", () => {
+    const wiki = ALL_MCP_TOOLS.find((tool) => tool.name === "manage_wiki_pages");
+    if (!wiki) throw new Error("manage_wiki_pages is not registered.");
+    expect(approvalNeeded(wiki, { action: "gaps" })).toBe(false);
+    expect(isReadOnlyAgentToolCall("manage_wiki_pages", wiki, { action: "gaps" })).toBe(true);
+    expect(describeInternalTool("manage_wiki_pages", { action: "gaps" })).toMatchObject({
+      kind: "records.read",
+      resource: "wiki",
+      risk: "read",
+    });
+    expect(
+      requiresApprovalOnSurface(internalToolIdentity("manage_wiki_pages"), wiki, { action: "gaps" }, "routine"),
+    ).toBe(false);
+  });
+
   it("keeps known read tools ungated", () => {
     const readOnly = new Set(readOnlyNames());
 
@@ -484,5 +515,22 @@ describe("tool identity", () => {
 
     expect(parseAgentToolIdentityKey("not-a-source::acme::search")).toBeNull();
     expect(parseAgentToolIdentityKey("external-mcp::acme")).toBeNull();
+  });
+});
+
+describe("Knowledge Base proposals on the routine surface", () => {
+  const wiki = ALL_MCP_TOOLS.find((tool) => tool.name === "manage_wiki_pages");
+
+  it("lets routine Knowledge Base writes reach the proposal path instead of an approval that cannot be answered", () => {
+    if (!wiki) throw new Error("manage_wiki_pages is not registered");
+    const identity = internalToolIdentity("manage_wiki_pages");
+    expect(requiresApprovalOnSurface(identity, wiki, { action: "delete" }, "chat")).toBe(true);
+    expect(requiresApprovalOnSurface(identity, wiki, { action: "delete" }, undefined)).toBe(true);
+    for (const action of ["create", "update", "delete"])
+      expect(requiresApprovalOnSurface(identity, wiki, { action }, "routine")).toBe(false);
+    expect(requiresApprovalOnSurface(identity, wiki, { action: "unknown" }, "routine")).toBe(true);
+    expect(
+      requiresApprovalOnSurface(internalToolIdentity("manage_routines"), wiki, { action: "delete" }, "routine"),
+    ).toBe(true);
   });
 });

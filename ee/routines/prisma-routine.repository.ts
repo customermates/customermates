@@ -119,6 +119,7 @@ const ROUTINE_RUN_SELECT = {
   error: true,
   createdAt: true,
   updatedAt: true,
+  _count: { select: { wikiProposals: true } },
 } as const;
 
 function ownerName(owner: { firstName: string; lastName: string }): string {
@@ -132,19 +133,36 @@ function storedRoutineFilters(value: unknown): Filter[] {
   return parsed.data;
 }
 
-type RoutineRunRow = Omit<RoutineRunDto, "triggerContext" | "stopReason" | "chargedCredits"> & {
+type RoutineRunRow = Omit<
+  RoutineRunDto,
+  "triggerContext" | "stopReason" | "chargedCredits" | "chargedPct" | "wikiProposalCount"
+> & {
   triggerPayload: unknown;
   chargedMicrocents: bigint;
+  _count: { wikiProposals: number };
 };
 
-function routineRunDto(row: RoutineRunRow, storedStopReason: string | null): RoutineRunDto {
-  const { triggerPayload, chargedMicrocents, ...run } = row;
+function routineRunChargedPct(chargedMicrocents: number, allowanceMicrocents: number | null): number | null {
+  if (allowanceMicrocents === null || allowanceMicrocents <= 0) return null;
+  if (chargedMicrocents <= 0) return 0;
+  return Math.max(0.01, Math.round((chargedMicrocents / allowanceMicrocents) * 10_000) / 100);
+}
+
+function routineRunDto(
+  row: RoutineRunRow,
+  storedStopReason: string | null,
+  allowanceMicrocents: number | null = null,
+): RoutineRunDto {
+  const { triggerPayload, chargedMicrocents, _count, ...run } = row;
   if (storedStopReason !== null && !isAgentTurnStopReason(storedStopReason))
     throw new Error("Stored agent turn stop reason is invalid.");
+  const charged = agentMicrocentsFromStorage(chargedMicrocents, "Routine run charge");
 
   return {
     ...run,
-    chargedCredits: agentMicrocentsToCredits(agentMicrocentsFromStorage(chargedMicrocents, "Routine run charge")),
+    chargedCredits: agentMicrocentsToCredits(charged),
+    chargedPct: routineRunChargedPct(charged, allowanceMicrocents),
+    wikiProposalCount: _count.wikiProposals,
     stopReason: storedStopReason,
     triggerContext: routineRunTriggerContext(run.triggerEvent, triggerPayload),
   };
@@ -489,6 +507,25 @@ export class PrismaRoutineRepo
             select: { id: true, conversationId: true, userId: true, stopReason: true },
           });
     const linkedTurnsById = new Map(linkedTurns.map((turn) => [turn.id, turn]));
+    const turnAllowances =
+      turnRequestIds.length === 0
+        ? []
+        : await this.prisma.agentUsageEvent.findMany({
+            where: { turnRequestId: { in: turnRequestIds }, companyId: this.companyId, purpose: "turn" },
+            select: { turnRequestId: true, allowanceMicrocentsSnapshot: true },
+          });
+    const allowanceByTurnId = new Map(
+      turnAllowances.flatMap((event) =>
+        event.turnRequestId === null
+          ? []
+          : [
+              [
+                event.turnRequestId,
+                agentMicrocentsFromStorage(event.allowanceMicrocentsSnapshot, "Routine run allowance snapshot"),
+              ] as const,
+            ],
+      ),
+    );
     const runs = pageRows.map((row) => {
       const linkedTurn = row.turnRequestId === null ? null : linkedTurnsById.get(row.turnRequestId);
       const storedStopReason =
@@ -496,7 +533,11 @@ export class PrismaRoutineRepo
           ? linkedTurn.stopReason
           : null;
 
-      return routineRunDto(row as RoutineRunRow, storedStopReason);
+      return routineRunDto(
+        row as RoutineRunRow,
+        storedStopReason,
+        row.turnRequestId === null ? null : (allowanceByTurnId.get(row.turnRequestId) ?? null),
+      );
     });
     const last = runs.at(-1);
 

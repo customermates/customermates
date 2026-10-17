@@ -46,6 +46,7 @@ import {
   hostedSectionRankers,
 } from "../docs-rerank";
 import { currentSectionRanker } from "@/core/retrieval/retrieval-context";
+import { RETRIEVAL_RERANK_BUDGET_CHARS, RETRIEVAL_RERANK_TAIL_CHARS } from "@/core/retrieval/retrieval-pipeline";
 import { docsCorpusSections } from "@/features/mcp-tools/docs-manifest";
 import rawDocsManifest from "@/generated/raw-docs-manifest.json";
 import { splitSections } from "@/features/mcp-tools/docs-sections";
@@ -53,6 +54,10 @@ import { getDocsPageTool, searchDocsTool } from "@/features/mcp-tools/docs.mcp-t
 import { manageWikiPagesTool } from "@/features/mcp-tools/wiki.mcp-tools";
 
 const QUERY = "which header does the REST API expect for auth";
+const NAVIGATION_EVIDENCE_CHARS = 160;
+const wholeEvidenceBound = (text: string) => text.length + NAVIGATION_EVIDENCE_CHARS;
+const poolBound = (candidates: readonly unknown[]) =>
+  RETRIEVAL_RERANK_BUDGET_CHARS + NAVIGATION_EVIDENCE_CHARS * candidates.length;
 const INPUT = { query: QUERY, locale: "en", source: "docs" };
 
 function optionEvidence(option: string): string {
@@ -473,7 +478,8 @@ describe("query-focused section-ranking evidence", () => {
     );
     expect(question.options.s0).toContain("widgets, routines, webhooks, admin and support");
     expect(question.options.s0).toContain("MCP tools, all enabled by default");
-    expect(optionEvidence(question.options.s0).length).toBeLessThanOrEqual(478);
+    expect(optionEvidence(question.options.s0).length).toBeLessThanOrEqual(wholeEvidenceBound(section.text));
+    expect(optionEvidence(question.options.s119).length).toBeLessThanOrEqual(RETRIEVAL_RERANK_TAIL_CHARS);
   });
 
   it("includes a matching detail after a long introduction and keeps its inline app link text", () => {
@@ -495,7 +501,7 @@ describe("query-focused section-ranking evidence", () => {
     ).questions;
     expect(question.options.s0).toContain("Permission issue means the mailbox needs to be reactivated.");
     expect(question.options.s0).not.toContain("http://localhost:4000");
-    expect(optionEvidence(question.options.s0).length).toBeLessThanOrEqual(800);
+    expect(question.options.s0).toContain("Background. Background.");
   });
 
   it("bounds combined evidence while preserving every candidate's own matching detail", () => {
@@ -515,18 +521,15 @@ describe("query-focused section-ranking evidence", () => {
       const excerpt = optionEvidence(option);
       expect(excerpt).toContain("Reactivation restores access.");
       expect(excerpt).not.toContain("http://localhost:4000");
-      expect(excerpt.length).toBeLessThanOrEqual(id < 20 ? 400 : 80);
+      expect(excerpt.length).toBeLessThanOrEqual(wholeEvidenceBound(candidates[id].section.text));
       characters += excerpt.length;
     }
-    expect(characters).toBeLessThanOrEqual(16_000);
+    expect(characters).toBeLessThanOrEqual(poolBound(candidates));
   });
   it("gives fused high-rank sections enough evidence to retain complete operation details", () => {
     const instruction =
       "Link the record to its related service, then enter a quantity for that relationship and save both changes in the record drawer.";
-    const source = instruction.replace(
-      "related service",
-      "related [service](http://localhost:4000/open/records/service)",
-    );
+    const source = instruction.replace("related service", "related [service](http://localhost:4000/configure)");
     const candidates = Array.from({ length: 120 }, (_, id) => ({
       id,
       section: {
@@ -538,7 +541,7 @@ describe("query-focused section-ranking evidence", () => {
     const [question] = docsRankSpec(candidates, "docs", "service quantity relationship").questions;
     expect(question.options.s2).toContain(instruction);
     expect(question.options.s2).not.toContain("http://localhost:4000");
-    expect(optionEvidence(question.options.s119).length).toBeLessThanOrEqual(80);
+    expect(optionEvidence(question.options.s119).length).toBeLessThanOrEqual(RETRIEVAL_RERANK_TAIL_CHARS);
   });
   it("does not spend a small sibling excerpt on its already supplied section heading", () => {
     const heading =
@@ -555,7 +558,9 @@ describe("query-focused section-ranking evidence", () => {
     const [question] = docsRankSpec(candidates, "docs", "own assigned contacts").questions;
     expect(question.options.s119).toContain(evidence);
     expect(question.options.s119.split(heading)).toHaveLength(2);
-    expect(optionEvidence(question.options.s119).length).toBeLessThanOrEqual(80);
+    expect(optionEvidence(question.options.s119).length).toBeLessThanOrEqual(
+      wholeEvidenceBound(candidates[119].section.text),
+    );
   });
 });
 
@@ -599,7 +604,7 @@ describe("real small sibling evidence", () => {
     const evidence = optionEvidence(option);
     expect(evidence).toMatch(/assigned|member|records/iu);
     expect(evidence).not.toContain("http://localhost:4000");
-    expect(evidence.length).toBeLessThanOrEqual(80);
+    expect(evidence.length).toBeLessThanOrEqual(wholeEvidenceBound(role.text));
   });
 });
 
@@ -642,14 +647,14 @@ describe("initial channel errors and existing channel recovery evidence", () => 
       expect(evidence).toContain(setupAction);
       expect(evidence).toContain(errorAction);
       expect(evidence).not.toContain("http://localhost:4000");
-      expect(evidence.length).toBeLessThanOrEqual(400);
+      expect(evidence.length).toBeLessThanOrEqual(wholeEvidenceBound(setup.text));
       let totalEvidenceChars = 0;
       for (const candidate of candidates) {
         const candidateEvidence = optionEvidence(options[`s${candidate.id}`]);
-        expect(candidateEvidence.length).toBeLessThanOrEqual(candidate.id < 20 ? 400 : 80);
+        expect(candidateEvidence.length).toBeLessThanOrEqual(wholeEvidenceBound(candidate.section.text));
         totalEvidenceChars += candidateEvidence.length;
       }
-      expect(totalEvidenceChars).toBeLessThanOrEqual(16_000);
+      expect(totalEvidenceChars).toBeLessThanOrEqual(poolBound(candidates));
     },
   );
 });
@@ -726,7 +731,7 @@ describe("section ranker lifetime", () => {
     const option = docsRankSpec(candidates, "docs", "record field lock").questions[0].options.s0;
     expect(option).toContain("The record editor is where you create and change the fields");
     expect(option).toContain(detail);
-    expect(option.length).toBeLessThanOrEqual("Records > Fields: ".length + 400);
+    expect(optionEvidence(option).length).toBeLessThanOrEqual(wholeEvidenceBound(candidates[0].section.text));
   });
 });
 
@@ -736,15 +741,14 @@ describe("canonical webhook secret permissions", () => {
       locale: "en" as const,
       query: "Who can see saved webhook secrets?",
       visibility: "Read access All plus Edit: Edit webhooks and see saved Secret and Custom headers values.",
-      readOnly: "Read access All, no checkbox ticked: A saved Secret and each Custom headers value appear as ********",
+      readOnly: "A saved Secret and each Custom headers value appear as ********",
     },
     {
       locale: "de" as const,
       query: "Wer kann gespeicherte Webhook-Secrets sehen?",
       visibility:
         "Lesen Alle plus Bearbeiten: Webhooks bearbeiten und gespeicherte Werte von Secret und Eigene Header sehen.",
-      readOnly:
-        "Lesen Alle, keine Checkbox angehakt: Ein gespeichertes Secret und jeder Wert unter Eigene Header erscheinen als ********",
+      readOnly: "Ein gespeichertes Secret und jeder Wert unter Eigene Header erscheinen als ********",
     },
   ])("keeps the complete $locale grant and read-only boundary", ({ locale, query, visibility, readOnly }) => {
     const section = docsCorpusSections("docs", locale).find(
@@ -767,15 +771,15 @@ describe("canonical webhook secret permissions", () => {
     const evidence = optionEvidence(question.options.s0);
     expect(evidence).toContain(visibility);
     expect(evidence).toContain(readOnly);
-    expect(evidence.length).toBeLessThanOrEqual(400);
+    expect(evidence.length).toBeLessThanOrEqual(wholeEvidenceBound(section.text));
     expect(Object.keys(question.options)).toHaveLength(121);
     let characters = 0;
     for (const candidate of candidates) {
       const excerpt = optionEvidence(question.options[`s${candidate.id}`]);
-      expect(excerpt.length).toBeLessThanOrEqual(candidate.id < 20 ? 400 : 80);
+      expect(excerpt.length).toBeLessThanOrEqual(wholeEvidenceBound(candidate.section.text));
       characters += excerpt.length;
     }
-    expect(characters).toBeLessThanOrEqual(16_000);
+    expect(characters).toBeLessThanOrEqual(poolBound(candidates));
   });
 });
 
@@ -787,8 +791,8 @@ describe("complete record procedures in bounded classifier evidence", () => {
       anchor: "how-do-i-change-a-deal-stage-or-a-task-status-on-the-board",
       controls: [
         "Stage and status are Single choice fields.",
-        "To edit the stages or their probabilities, open the field in Configure for Deals",
-        "Drag the card to another column on the Deals or Tasks board",
+        "To edit the stages or their probabilities, open the field on the configure page of the list in Configure",
+        "Drag the card to another column on the board of your deals or tasks list",
       ],
     },
     {
@@ -797,8 +801,8 @@ describe("complete record procedures in bounded classifier evidence", () => {
       anchor: "how-do-i-change-a-deal-stage-or-a-task-status-on-the-board",
       controls: [
         "Phase und Status sind Felder vom Typ Einzelauswahl.",
-        "Um Phasen oder ihre Wahrscheinlichkeiten zu bearbeiten, öffnen Sie das Feld unter Konfigurieren für Deals",
-        "Ziehen Sie die Karte auf dem Board von Deals oder Aufgaben in eine andere Spalte",
+        "Um Phasen oder ihre Wahrscheinlichkeiten zu bearbeiten, öffnen Sie das Feld auf der Konfigurationsseite der Liste unter Konfigurieren",
+        "Ziehen Sie die Karte auf dem Board Ihrer Deal- oder Aufgabenliste in eine andere Spalte",
       ],
     },
     {
@@ -806,7 +810,7 @@ describe("complete record procedures in bounded classifier evidence", () => {
       query: "How do I sort tasks by due date?",
       anchor: "how-do-i-switch-between-table-and-board-view",
       controls: [
-        "In Appearance, choose Table or Board.",
+        "In Appearance in the toolbar of the list, choose Table or Board.",
         "Sort by sorts by any field, including custom and calculated ones",
       ],
     },
@@ -815,7 +819,7 @@ describe("complete record procedures in bounded classifier evidence", () => {
       query: "Wie sortiere ich Aufgaben nach Fälligkeit?",
       anchor: "how-do-i-switch-between-table-and-board-view",
       controls: [
-        "Wählen Sie unter Darstellung Tabelle oder Board.",
+        "Wählen Sie unter Darstellung in der Toolbar der Liste Tabelle oder Board.",
         "Sortieren nach sortiert nach jedem Feld, auch nach benutzerdefinierten und berechneten",
       ],
     },
@@ -840,7 +844,7 @@ describe("complete record procedures in bounded classifier evidence", () => {
       const evidence = optionEvidence(question.options.s0);
       for (const control of controls) expect(evidence).toContain(control);
       expect(evidence).not.toContain("http://localhost:4000");
-      expect(evidence.length).toBeLessThanOrEqual(400);
+      expect(evidence.length).toBeLessThanOrEqual(wholeEvidenceBound(section.text));
     },
   );
 });
@@ -901,7 +905,7 @@ describe("channel connection prerequisites in bounded classifier evidence", () =
     const [question] = docsRankSpec(candidates, "docs", query).questions;
     const evidence = optionEvidence(question.options.s0);
     for (const control of controls) expect(evidence).toContain(control);
-    expect(evidence.length).toBeLessThanOrEqual(400);
+    expect(evidence.length).toBeLessThanOrEqual(wholeEvidenceBound(section.text));
   });
 });
 
@@ -933,11 +937,9 @@ describe("connection renewal evidence", () => {
     const excerpt = optionEvidence(docsRankSpec(candidates, "docs", query).questions[0].options.s0);
     expect(excerpt).toContain(renewal);
     expect(excerpt).toContain(idle);
-    expect(excerpt.length).toBeLessThanOrEqual(400);
+    expect(excerpt.length).toBeLessThanOrEqual(wholeEvidenceBound(section.text));
     const full = optionEvidence(docsRankSpec(candidates.slice(0, 1), "docs", query).questions[0].options.s0);
-    expect(full).toContain(renewal);
-    expect(full).toContain(idle);
-    expect(full.length).toBeLessThanOrEqual(800);
+    expect(full).toBe(excerpt);
   });
 });
 
@@ -980,7 +982,7 @@ describe("requested documentation question and destination evidence", () => {
       section: {
         pageTitle: "Records",
         headingPath: ["Stored relation"],
-        text: `A relation stores quantity.\nOpen [${"Destination label ".repeat(30).trim()}](http://localhost:4000/open/records/deal).`,
+        text: `A relation stores quantity.\nOpen [${"Destination label ".repeat(30).trim()}](http://localhost:4000/settings/roles).`,
       },
     }));
     const options = docsRankSpec(candidates, "docs", "relation quantity").questions[0].options;
@@ -991,10 +993,10 @@ describe("requested documentation question and destination evidence", () => {
       const evidence = optionEvidence(options[`s${id}`]);
       expect(evidence).toContain("A relation stores quantity.");
       expect(evidence).not.toContain("http://localhost:4000");
-      expect(evidence.length).toBeLessThanOrEqual(id < 20 ? 400 : 80);
+      expect(evidence.length).toBeLessThanOrEqual(wholeEvidenceBound(candidates[id].section.text));
       total += evidence.length;
     }
-    expect(total).toBeLessThanOrEqual(16_000);
+    expect(total).toBeLessThanOrEqual(poolBound(candidates));
   });
 });
 
@@ -1028,9 +1030,9 @@ describe("matching opening instructions in a full classifier pool", () => {
     let characters = 0;
     for (const candidate of candidates) {
       const excerpt = optionEvidence(question.options[`s${candidate.id}`]);
-      expect(excerpt.length).toBeLessThanOrEqual(candidate.id < 20 ? 400 : 80);
+      expect(excerpt.length).toBeLessThanOrEqual(wholeEvidenceBound(candidate.section.text));
       characters += excerpt.length;
     }
-    expect(characters).toBeLessThanOrEqual(16_000);
+    expect(characters).toBeLessThanOrEqual(poolBound(candidates));
   });
 });

@@ -1,4 +1,5 @@
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
+import type { AppLocale } from "@/i18n/locale-registry";
 import type { RecordRepo, RecordRepoOwners } from "@/features/records/record.repo";
 import { RecordAccessPolicy } from "@/features/records/record-access";
 import type { RecordConfigurationService } from "@/features/records/configuration.service";
@@ -27,6 +28,11 @@ import { RecordConfigurationWriter } from "@/features/records/record-configurati
 import { RecordOperationService } from "@/features/records/record-operation.service";
 import { RecordTrashService } from "@/features/records/record-trash.service";
 import { RecordWriteService } from "@/features/records/record-write.service";
+import { UserAccessor } from "@/core/base/user-accessor";
+import { runInTransaction } from "@/core/decorators/transaction-runner";
+import { createWorkspaceRecordPreset } from "@/features/records/workspace-record-preset";
+import { validateRecordModel } from "@/features/records/record-model-validation";
+import { getTranslator } from "@/i18n/get-translator";
 
 const idleBackground: Pick<BackgroundTaskService, "dispatch"> = { dispatch: () => Promise.resolve() };
 
@@ -104,3 +110,24 @@ export const createTestRecordOperationService = (
     new RecordTrashService(records, new RecordCalculationService(records)),
     systemCompanyId,
   );
+
+export async function initializeStarterRecordModel(
+  records: RecordRepo = createTestRecordRepo(),
+  locale: AppLocale = "en",
+): Promise<void> {
+  const tenant = new UserAccessor();
+  const translate = await getTranslator(locale);
+  await runInTransaction(async () => {
+    if ((await records.getState())?.revision) return;
+    const model = createWorkspaceRecordPreset(tenant.companyId, translate);
+    if (validateRecordModel(model).issues.length) throw new Error("The workspace record preset is invalid.");
+    await records.saveModel(model, tenant.userId, {
+      version: 1,
+      source: { kind: "initialization" },
+      causeId: "workspace-record-preset",
+      expectedRevision: 0,
+      references: [],
+      grants: [],
+    });
+  });
+}

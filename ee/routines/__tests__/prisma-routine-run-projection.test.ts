@@ -6,6 +6,7 @@ import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 const prismaMock = vi.hoisted(() => ({
   routineRun: { findMany: vi.fn() },
   agentTurnRequest: { findMany: vi.fn() },
+  agentUsageEvent: { findMany: vi.fn() },
 }));
 
 vi.mock("@/prisma/db", () => ({ prisma: prismaMock }));
@@ -17,9 +18,16 @@ import { createTestRoutineRepo } from "@/tests/helpers/record-delivery";
 const user = createMockUserWithPermissions([{ resource: Resource.routines, action: Action.readAll }]);
 const createdAt = new Date("2026-09-08T16:00:00.000Z");
 
-function storedRun(args: { id: string; conversationId: string | null; turnRequestId: string | null }) {
+function storedRun(args: {
+  id: string;
+  conversationId: string | null;
+  turnRequestId: string | null;
+  wikiProposals?: number;
+}) {
+  const { wikiProposals = 0, ...run } = args;
   return {
-    ...args,
+    ...run,
+    _count: { wikiProposals },
     routineId: "routine-1",
     executedByUserId: user.id,
     executedByName: "Routine Owner",
@@ -32,6 +40,7 @@ function storedRun(args: { id: string; conversationId: string | null; turnReques
     startedAt: createdAt,
     finishedAt: createdAt,
     terminalCode: "partial",
+    chargedMicrocents: 5_000_000n,
     summary: "The initial run stopped early.",
     error: null,
     createdAt,
@@ -42,6 +51,7 @@ function storedRun(args: { id: string; conversationId: string | null; turnReques
 describe("PrismaRoutineRepo run projection", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    prismaMock.agentUsageEvent.findMany.mockResolvedValue([]);
   });
 
   it("bulk-loads only the visible runs' linked turn requests", async () => {
@@ -51,7 +61,7 @@ describe("PrismaRoutineRepo run projection", () => {
         conversationId: "conversation-1",
         turnRequestId: "turn-original",
       }),
-      storedRun({ id: "run-2", conversationId: null, turnRequestId: null }),
+      storedRun({ id: "run-2", conversationId: null, turnRequestId: null, wikiProposals: 2 }),
       storedRun({
         id: "run-lookahead",
         conversationId: "conversation-2",
@@ -85,6 +95,11 @@ describe("PrismaRoutineRepo run projection", () => {
       { id: "run-2", stopReason: null },
     ]);
     expect(result.nextCursor).toEqual(expect.any(String));
+    expect(routineRunQuery?.select).toMatchObject({ _count: { select: { wikiProposals: true } } });
+    expect(result.runs.map(({ id, wikiProposalCount }) => ({ id, wikiProposalCount }))).toEqual([
+      { id: "run-1", wikiProposalCount: 0 },
+      { id: "run-2", wikiProposalCount: 2 },
+    ]);
   });
 
   it("ignores a linked turn whose owner or conversation does not match the run", async () => {
@@ -107,5 +122,33 @@ describe("PrismaRoutineRepo run projection", () => {
     const result = await runWithTenant(user, () => createTestRoutineRepo().getRoutineRuns("routine-1", 10, null));
 
     expect(result.runs[0]?.stopReason).toBeNull();
+  });
+
+  it("reports each run's charge as a share of the allowance it ran against", async () => {
+    prismaMock.routineRun.findMany.mockResolvedValue([
+      storedRun({ id: "run-1", conversationId: "conversation-1", turnRequestId: "turn-1" }),
+      {
+        ...storedRun({ id: "run-2", conversationId: "conversation-2", turnRequestId: "turn-2" }),
+        chargedMicrocents: 1n,
+      },
+      storedRun({ id: "run-3", conversationId: null, turnRequestId: null }),
+    ]);
+    prismaMock.agentTurnRequest.findMany.mockResolvedValue([]);
+    prismaMock.agentUsageEvent.findMany.mockResolvedValue([
+      { turnRequestId: "turn-1", allowanceMicrocentsSnapshot: 200_000_000n },
+      { turnRequestId: "turn-2", allowanceMicrocentsSnapshot: 4_000_000_000n },
+    ]);
+
+    const result = await runWithTenant(user, () => createTestRoutineRepo().getRoutineRuns("routine-1", 10, null));
+
+    expect(prismaMock.agentUsageEvent.findMany).toHaveBeenCalledWith({
+      where: { turnRequestId: { in: ["turn-1", "turn-2"] }, companyId: user.companyId, purpose: "turn" },
+      select: { turnRequestId: true, allowanceMicrocentsSnapshot: true },
+    });
+    expect(result.runs.map(({ id, chargedCredits, chargedPct }) => ({ id, chargedCredits, chargedPct }))).toEqual([
+      { id: "run-1", chargedCredits: 5, chargedPct: 2.5 },
+      { id: "run-2", chargedCredits: 0.000001, chargedPct: 0.01 },
+      { id: "run-3", chargedCredits: 5, chargedPct: null },
+    ]);
   });
 });

@@ -26,7 +26,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const requestedStartIndex = Number(request.nextUrl.searchParams.get("startIndex") ?? "0");
     const startIndex = Number.isFinite(requestedStartIndex) ? requestedStartIndex : 0;
 
-    return new Response(agentTurnSseStream(result.data.externalRunId, startIndex), {
+    return new Response(agentTurnSseStream(result.data.externalRunId, startIndex, result.data.surface), {
       status: 200,
       headers: { ...SSE_HEADERS, "x-external-run-id": result.data.externalRunId },
     });

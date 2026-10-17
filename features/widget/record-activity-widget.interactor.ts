@@ -72,7 +72,7 @@ export class UpsertRecordActivityWidgetInteractor extends AuthenticatedInteracto
         }
         const state = await this.records.getState();
         if (state?.activeOperationId) return failConflict(CustomErrorCode.recordWritePaused);
-        if (state?.revision !== input.expectedRevision) return failConflict(CustomErrorCode.recordSchemaChanged);
+        if ((state?.revision ?? 0) !== input.expectedRevision) return failConflict(CustomErrorCode.recordSchemaChanged);
         const current = input.id ? await this.widgets.findOwnedRecordWidget("activityTimeline", input.id) : null;
         if (input.id) {
           if (!current) return failNotFound(CustomErrorCode.widgetNotFound);
@@ -97,7 +97,7 @@ export class UpsertRecordActivityWidgetInteractor extends AuthenticatedInteracto
         await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, { widgetId: row.id });
         return {
           ok: true as const,
-          data: { ...row, schemaRevision: state.revision, data: result.data, status: "ready" as const },
+          data: { ...row, schemaRevision: state?.revision ?? 0, data: result.data, status: "ready" as const },
         };
       },
       { timeout: 30000 },

@@ -6,7 +6,6 @@ import { Client } from "pg";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
-import { InitializeRecordModelService } from "@/features/records/initialize-record-model.service";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 
@@ -45,7 +44,7 @@ vi.mock("@/features/email/email.service", () => ({
 import { POST as inviteMembers } from "../invite/route";
 import { POST as updateMember } from "../update/route";
 import { PATCH as updateProfile } from "../../users/me/route";
-import { createTestRecordRepo } from "@/tests/helpers/record-repository";
+import { initializeStarterRecordModel } from "@/tests/helpers/record-repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -82,7 +81,6 @@ describeDatabase("member and profile REST routes", () => {
     email: email("target", targetUserId),
     firstName: "Target",
     lastName: "Member",
-    country: "de",
     avatarUrl: null,
     roleId: memberRoleId,
     status: "active",
@@ -107,7 +105,7 @@ describeDatabase("member and profile REST routes", () => {
       [randomUUID(), memberRoleId, companyId, randomUUID()],
     );
     await client.query(
-      "INSERT INTO \"User\" (\"id\", \"email\", \"firstName\", \"lastName\", \"companyId\", \"roleId\", \"status\", \"country\", \"updatedAt\") VALUES ($1, $2, 'REST', 'Admin', $3, $4, 'active', 'de', CURRENT_TIMESTAMP), ($5, $6, 'REST', 'Member', $3, $7, 'active', 'de', CURRENT_TIMESTAMP), ($8, $9, 'Target', 'Member', $3, $7, 'active', 'de', CURRENT_TIMESTAMP), ($10, $11, 'Foreign', 'Admin', $12, $13, 'active', 'de', CURRENT_TIMESTAMP)",
+      "INSERT INTO \"User\" (\"id\", \"email\", \"firstName\", \"lastName\", \"companyId\", \"roleId\", \"status\", \"updatedAt\") VALUES ($1, $2, 'REST', 'Admin', $3, $4, 'active', CURRENT_TIMESTAMP), ($5, $6, 'REST', 'Member', $3, $7, 'active', CURRENT_TIMESTAMP), ($8, $9, 'Target', 'Member', $3, $7, 'active', CURRENT_TIMESTAMP), ($10, $11, 'Foreign', 'Admin', $12, $13, 'active', CURRENT_TIMESTAMP)",
       [
         adminUserId,
         email("admin", adminUserId),
@@ -140,7 +138,7 @@ describeDatabase("member and profile REST routes", () => {
       ],
     );
     const owner = createMockUser({ id: adminUserId, companyId, roleId: adminRoleId });
-    await runWithTenant(owner, () => new InitializeRecordModelService(createTestRecordRepo()).initialize());
+    await runWithTenant(owner, () => initializeStarterRecordModel());
   });
 
   beforeEach(() => {
@@ -242,14 +240,13 @@ describeDatabase("member and profile REST routes", () => {
       updateProfile,
       memberKey,
       "users/me",
-      { firstName: "Renamed", country: "gb", theme: "dark", displayLanguage: "de", formattingLocale: "en" },
+      { firstName: "Renamed", theme: "dark", displayLanguage: "de", formattingLocale: "en" },
       "PATCH",
     );
     expect(updated.status, JSON.stringify(updated.body)).toBe(200);
     expect(updated.body).toMatchObject({
       firstName: "Renamed",
       lastName: "Member",
-      country: "gb",
       theme: "dark",
       displayLanguage: "de",
       formattingLocale: "en",

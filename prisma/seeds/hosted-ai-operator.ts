@@ -1,12 +1,9 @@
 import { hashPassword } from "better-auth/crypto";
 
-import type { CountryCode, Prisma } from "@/generated/prisma";
-import type { AppLocale } from "@/i18n/locale-registry";
+import type { Prisma } from "@/generated/prisma";
 
-import { COUNTRY_CODES } from "@/constants/countries";
 import { agentCreditPeriodForAnchor } from "@/ee/agent-chat/agent-credit-policy";
-import { SHIPPED_AGENT_MODEL } from "@/ee/agent-chat/model-catalog";
-import { APP_LOCALES } from "@/i18n/locale-registry";
+import { AGENT_MODELS } from "@/ee/agent-chat/model-catalog";
 
 import type { SeedContext } from "./context";
 import { fixtureId, reconcileAuthUserId, reconcileDomainUserId } from "./helpers";
@@ -22,9 +19,6 @@ const OPERATOR_TABLE_CURRENT_PERIOD_END = new Date("2026-09-01T08:00:00.000Z");
 const OPERATOR_TABLE_PLANS = ["starter", "pro", "business", "enterprise"] as const;
 const OPERATOR_TABLE_SUBSCRIPTION_STATUSES = ["trial", "active", "cancelled", "expired", "pastDue", "unPaid"] as const;
 const OPERATOR_TABLE_USER_STATUSES = ["active", "inactive", "pendingAuthorization"] as const;
-const OPERATOR_TABLE_COUNTRIES = APP_LOCALES.filter((locale): locale is AppLocale & CountryCode =>
-  COUNTRY_CODES.some((country) => country === locale),
-);
 const OPERATOR_TABLE_COMBINATION_COUNT = OPERATOR_TABLE_PLANS.length * OPERATOR_TABLE_SUBSCRIPTION_STATUSES.length;
 
 type OperatorTablePlan = (typeof OPERATOR_TABLE_PLANS)[number];
@@ -200,7 +194,6 @@ export async function seedHostedAiOperatorFixtures(context: SeedContext, now = n
     agentCreditActivatedAt: FIXTURE_CREATED_AT,
     agreeToTerms: true,
     companyId: ids.hostedAiFixtureCompany,
-    country: "de" as const,
     createdAt: FIXTURE_CREATED_AT,
     email: SYNTHETIC_HOSTED_AI_ORDINARY_USER.email,
     firstName: SYNTHETIC_HOSTED_AI_ORDINARY_USER.firstName,
@@ -256,7 +249,7 @@ export async function seedHostedAiOperatorFixtures(context: SeedContext, now = n
   const commonUsage = {
     allowanceMicrocentsSnapshot: 500_000_000n,
     companyId: ids.hostedAiFixtureCompany,
-    model: SHIPPED_AGENT_MODEL.modelId,
+    model: AGENT_MODELS.chat.modelId,
     periodEnd,
     periodStart,
     planSnapshot: "enterprise" as const,
@@ -316,7 +309,7 @@ export async function seedHostedAiOperatorUserTableFixtures(
 ): Promise<void> {
   const { prisma } = context;
 
-  for (const [index, definition] of SYNTHETIC_HOSTED_AI_OPERATOR_USER_DEFINITIONS.entries()) {
+  for (const definition of SYNTHETIC_HOSTED_AI_OPERATOR_USER_DEFINITIONS) {
     const company = {
       createdAt: new Date(definition.createdAt.getTime() - HOUR),
       updatedAt: definition.createdAt,
@@ -348,7 +341,6 @@ export async function seedHostedAiOperatorUserTableFixtures(
       agentCreditActivatedAt: definition.status === "active" ? definition.createdAt : null,
       agreeToTerms: definition.status !== "pendingAuthorization",
       companyId: definition.companyId,
-      country: OPERATOR_TABLE_COUNTRIES[index % OPERATOR_TABLE_COUNTRIES.length],
       createdAt: definition.createdAt,
       email: definition.email,
       firstName: definition.firstName,

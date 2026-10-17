@@ -6,9 +6,13 @@ import type { DeleteWikiPageData } from "@/features/wiki/delete-wiki-page.intera
 import type { MoveWikiPageData } from "@/features/wiki/move-wiki-page.interactor";
 import type { UpdateWikiPageData } from "@/features/wiki/update-wiki-page.interactor";
 import type { WikiPageListData, WikiPageSearchData } from "@/features/wiki/wiki.schema";
+import type { WikiPageProposalIdData } from "@/features/wiki/wiki-page-proposal.schema";
 
 import {
+  getApproveWikiPageProposalInteractor,
   getCreateWikiPagesInteractor,
+  getGetWikiPageProposalsInteractor,
+  getRejectWikiPageProposalInteractor,
   getDeleteWikiPageInteractor,
   getGetWikiPageInteractor,
   getGetWikiPagesInteractor,
@@ -54,4 +58,16 @@ export async function searchWikiPagesAction(data: WikiPageSearchData) {
 
 export async function startWikiHomepageSetupAction(data: StartWikiHomepageSetupData) {
   return serializeResult(getStartWikiHomepageSetupInteractor().invoke(data));
+}
+
+export async function getWikiPageProposalsAction() {
+  return serializeResult(getGetWikiPageProposalsInteractor().invoke());
+}
+
+export async function approveWikiPageProposalAction(data: WikiPageProposalIdData) {
+  return serializeTypedResult(getApproveWikiPageProposalInteractor().invoke(data));
+}
+
+export async function rejectWikiPageProposalAction(data: WikiPageProposalIdData) {
+  return serializeTypedResult(getRejectWikiPageProposalInteractor().invoke(data));
 }

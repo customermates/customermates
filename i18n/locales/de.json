@@ -225,6 +225,23 @@
             "running": "Profil wird aktualisiert"
           }
         },
+        "proposals": {
+          "create": {
+            "done": "{count, plural, one {Neue Seite vorgeschlagen} other {# neue Seiten vorgeschlagen}}",
+            "error": "{count, plural, one {Neue Seite konnte nicht vorgeschlagen werden} other {# neue Seiten konnten nicht vorgeschlagen werden}}",
+            "running": "{count, plural, one {Neue Seite wird vorgeschlagen} other {# neue Seiten werden vorgeschlagen}}"
+          },
+          "delete": {
+            "done": "Seitenlöschung vorgeschlagen",
+            "error": "Seitenlöschung konnte nicht vorgeschlagen werden",
+            "running": "Seitenlöschung wird vorgeschlagen"
+          },
+          "update": {
+            "done": "Seitenbearbeitung vorgeschlagen",
+            "error": "Seitenbearbeitung konnte nicht vorgeschlagen werden",
+            "running": "Seitenbearbeitung wird vorgeschlagen"
+          }
+        },
         "records": {
           "analyze": {
             "done": "{resource} wurden ausgewertet",
@@ -436,16 +453,16 @@
     "credits": {
       "blocked": {
         "configuration_unavailable": "Der gehostete Assistent ist vorübergehend nicht verfügbar. Dein Verlauf bleibt zugänglich.",
-        "credits_exhausted": "Du hast die gehosteten KI-Credits dieses Monats verbraucht. Neue Anfragen sind ab {resetAt} wieder möglich; dein Verlauf bleibt zugänglich.",
+        "credits_exhausted": "Du hast die Mate-Nutzung dieses Monats aufgebraucht. Neue Anfragen sind ab {resetAt} wieder möglich; dein Verlauf bleibt zugänglich.",
         "self_hosted": "Der gehostete Assistent ist nur in der Cloud verfügbar. Self-Hosted-Workspaces können externe MCP-Clients mit dem eigenen KI-Anbieter verwenden.",
         "subscription_unavailable": "Für neue Anfragen an den gehosteten Assistenten ist ein aktives Cloud-Abonnement erforderlich. Dein Verlauf bleibt zugänglich."
       },
       "contact": "Kontakt aufnehmen",
-      "planAndReset": "{plan}-Tarif · Zurücksetzung am {resetAt}",
-      "recentTurn": "{credits, plural, one {Letzte Anfrage: {amount} Credit} other {Letzte Anfrage: {amount} Credits}}",
-      "remaining": "{credits, plural, one {{remaining} von {limit} Credits verbleibend} other {{remaining} von {limit} Credits verbleibend}}",
-      "resetShort": "Zurücksetzung am {resetAt}",
-      "usage": "{pct} % der monatlichen gehosteten KI-Credits verbraucht",
+      "plan": "{plan}-Tarif",
+      "planWithMultiplier": "{plan}-Tarif · {multiplier}x Mate-Nutzung",
+      "recentTurn": "Letzte Anfrage: {used}",
+      "usage": "{used} der monatlichen Mate-Nutzung verbraucht",
+      "usedOfMonthly": "{used} der monatlichen Mate-Nutzung verbraucht · Zurücksetzung am {resetAt}",
       "viewPlans": "Tarife ansehen"
     },
     "errors": {
@@ -474,8 +491,8 @@
       "interruptedTurn": "Dieser Durchlauf wurde beendet, bevor ich das Ergebnis bestätigen konnte. Prüfe die Aktivitäten oben und die aktuellen Datensätze, bevor du es erneut versuchst.",
       "policyBreach": "Der KI-Anbieter hat das reservierte Credit-Budget überschritten, daher wurde der Lauf gestoppt. Es wurde keine weitere Anbieterarbeit gestartet.",
       "providerError": "Der KI-Anbieter hat einen Fehler zurückgegeben, bevor ich fertig war. Es wurde nichts weiter geändert. Bitte versuche es erneut.",
-      "runCreditLimit": "Ich habe einen Teil dieses Routinenlaufs erledigt, dann aber an seiner Obergrenze von {credits, number} Credits pro Lauf gestoppt. Erledigte Arbeit bleibt bestehen.",
-      "runCreditLimitNoWrite": "Ich habe gestoppt, bevor etwas geändert wurde, weil dieser Routinenlauf seine Obergrenze von {credits, number} Credits pro Lauf erreicht hat. Es wurde nichts erstellt, geändert oder gesendet.",
+      "runCreditLimit": "Ich habe einen Teil dieses Routinenlaufs erledigt, dann aber an seiner Obergrenze von {share, number, percent} eines Starter-Kontingents pro Lauf gestoppt. Erledigte Arbeit bleibt bestehen.",
+      "runCreditLimitNoWrite": "Ich habe gestoppt, bevor etwas geändert wurde, weil dieser Routinenlauf seine Obergrenze von {share, number, percent} eines Starter-Kontingents pro Lauf erreicht hat. Es wurde nichts erstellt, geändert oder gesendet.",
       "sourcesHeading": "Quellen",
       "streamInterrupted": "Ich musste stoppen, weil die Modellantwort unterbrochen wurde. Es wurde nichts Weiteres geändert; prüfe die Aktivitäten oben, bevor du es erneut versuchst.",
       "turnError": "Ich konnte diese Anfrage nicht abschließen. Bitte versuche es erneut.",
@@ -547,13 +564,13 @@
         },
         "default": {
           "data": {
-            "default-contact-count": {
-              "label": "Wie viele Kontakte haben wir?",
-              "prompt": "Nenne mir die Anzahl unserer Kontakte und wie sich diese zuletzt entwickelt hat."
+            "default-needs-attention": {
+              "label": "Was braucht meine Aufmerksamkeit?",
+              "prompt": "Fasse zusammen, welche offenen Datensätze gerade meine Aufmerksamkeit brauchen und wo jeder davon steht."
             },
-            "default-open-deals": {
-              "label": "Welche Deals sind offen?",
-              "prompt": "Fasse zusammen, welche Deals aktuell offen sind und wo jeder davon steht."
+            "default-record-overview": {
+              "label": "Was steckt in meinem Arbeitsbereich?",
+              "prompt": "Nenne mir die Listen in meinem Arbeitsbereich, wie viele Datensätze jede enthält und wie sich das zuletzt entwickelt hat."
             },
             "default-tour": {
               "label": "Zeig mir die App",
@@ -566,8 +583,8 @@
               "prompt": "Erkläre, was du in Customermates für mich tun kannst und wo du am nützlichsten bist."
             },
             "default-import": {
-              "label": "Wie importiere ich meine Kontakte?",
-              "prompt": "Führe mich durch den Import meiner bestehenden Kontakte in Customermates."
+              "label": "Wie importiere ich meine Daten?",
+              "prompt": "Führe mich durch den Import meiner bestehenden Datensätze in Customermates, zum Beispiel aus einer Tabelle."
             },
             "default-setup": {
               "label": "Hilf mir bei der Einrichtung",
@@ -902,7 +919,6 @@
         },
         "profile": {
           "avatarUrl": "Profilbild, Foto, Bild",
-          "country": "Standort, Region",
           "displayLanguage": "Sprache, Oberflächensprache, Übersetzung",
           "firstName": "Name, Vorname",
           "formattingLocale": "Datumsformat, Zahlenformat, Region, Währungsformat",
@@ -1048,6 +1064,7 @@
       "clearFilters": "Filter zurücksetzen",
       "cta": "Ersten Datensatz vom Typ „{singular}“ hinzufügen",
       "dashboardBody": "Widgets erscheinen hier, sobald du Daten hinzufügst.",
+      "dashboardNoListsBody": "Dein Arbeitsbereich hat noch keine Listen. Lege eine Liste an, um Datensätze und Widgets hinzuzufügen.",
       "dashboardTitle": "Noch nichts zu sehen",
       "filteredBody": "Keine {plural} entsprechen deinen Filtern.",
       "filteredTitle": "Keine Treffer",
@@ -1135,6 +1152,7 @@
       "passwordInvalid": "Das Passwort muss zwischen 8 und 128 Zeichen lang sein und mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Zahl und ein Sonderzeichen enthalten.",
       "passwordMismatch": "Passwörter müssen übereinstimmen.",
       "permissionDenied": "Diese Aktion ist mit deinen aktuellen Berechtigungen nicht verfügbar.",
+      "planCheckoutUnavailable": "Der Checkout für diesen Tarif ist noch nicht verfügbar. Kontaktiere uns, um zu wechseln.",
       "privacyAcknowledgementRequired": "Bitte bestätigen Sie, dass Sie die Datenschutzerklärung gelesen haben.",
       "recordCalculationBudget": "Diese Änderung erfordert eine Neuberechnung im Hintergrund.",
       "recordConfigurationInvalid": "Prüfe die Felder und Verknüpfungen dieser Konfiguration.",
@@ -1247,7 +1265,14 @@
       "wikiPagePinned": "Der Betriebsleitfaden bleibt an erster Stelle. Verschiebe eine andere Seite.",
       "wikiPageUpdateEmpty": "Gib mindestens ein Feld an, um die Seite zu aktualisieren.",
       "wikiProcedureNeedsSteps": "Ein Verfahren braucht nummerierte Schritte.",
-      "wikiWhenToUseRequired": "Ein Verfahren braucht eine kurze Beschreibung, wann es gilt."
+      "wikiProposalNotFound": "Diesen Vorschlag gibt es nicht mehr.",
+      "wikiProposalReviewed": "Dieser Vorschlag wurde bereits geprüft.",
+      "wikiProposalStale": "Die Seite wurde geändert, nachdem Mate diesen Vorschlag gemacht hat. Lehne ihn ab oder bitte Mate, die Änderung neu vorzuschlagen.",
+      "wikiWhenToUseRequired": "Ein Verfahren braucht eine kurze Beschreibung, wann es gilt.",
+      "workspaceSetupAnswerInvalid": "Diese Antwort passt nicht zur Frage. Prüfe sie und versuche es erneut.",
+      "workspaceSetupConflict": "Die Workspace-Einrichtung ist gerade mit einem anderen Schritt beschäftigt. Lade sie neu und versuche es erneut.",
+      "workspaceSetupNotFound": "Für diesen Workspace wurde keine Einrichtung gefunden.",
+      "workspaceSetupUnavailable": "Die KI-Einrichtung des Workspace ist hier nicht verfügbar."
     },
     "events": {
       "connected_account": {
@@ -1484,7 +1509,8 @@
       "triggerFilters": "Datensatzfilter",
       "triggerKind": "Auslöser",
       "unavailableSelection": "Auswahl nicht verfügbar",
-      "url": "URL"
+      "url": "URL",
+      "websiteUrl": "Unternehmenswebsite"
     },
     "language": "Sprache",
     "legacyEvents": {
@@ -2809,7 +2835,7 @@
   },
   "OnboardingChoice": {
     "create": {
-      "description": "Richte einen eigenen Workspace für ein Unternehmen ein, das du führst oder verwaltest.",
+      "description": "Richte einen neuen Workspace für dein Unternehmen, ein Projekt oder deine eigene Arbeit ein.",
       "note": "{days} Tage kostenlos testen",
       "title": "Neuen Workspace erstellen"
     },
@@ -2820,8 +2846,8 @@
       "title": "Bestehendem Workspace beitreten"
     },
     "optionsLabel": "Auswahl für die Workspace-Einrichtung",
-    "signedInAs": "Angemeldet als {email}",
-    "subtitle": "Erstelle einen Workspace für dein Unternehmen oder tritt einem Team bei, das Customermates bereits nutzt.",
+    "signedInAs": "Angemeldet als",
+    "subtitle": "Erstelle einen Workspace für dein Unternehmen, ein Projekt oder deine eigene Arbeit, oder tritt einem Team bei, das Customermates bereits nutzt.",
     "title": "Wie möchtest du starten?"
   },
   "OnboardingForm": {
@@ -2945,14 +2971,18 @@
       "ai": "KI-Tools",
       "invite": "Team",
       "profile": "Du",
-      "wiki": "Wissen"
+      "setup": "Workspace"
     },
     "next": "Weiter",
+    "profile": {
+      "websiteDescription": "Optional. Wir lesen deine öffentliche Website und schlagen damit Antworten für die Einrichtung deines Workspace vor.",
+      "websitePlaceholder": "beispiel.de"
+    },
     "progress": "Schritt {current} von {total}",
     "progressLabel": "Fortschritt der Einrichtung",
     "steps": {
       "ai": {
-        "subtitle": "Wähle ein KI-Tool und verbinde es mit deinem Arbeitsbereich und eurem Unternehmenswissen. Verbinde jetzt eines, ergänze später weitere oder überspringe diesen Schritt.",
+        "subtitle": "Wähle ein KI-Tool und verbinde es mit deinem Arbeitsbereich und seinem Wissen. Verbinde jetzt eines, ergänze später weitere oder überspringe diesen Schritt.",
         "title": "Verbinde die KI, die du schon nutzt"
       },
       "invite": {
@@ -2961,16 +2991,15 @@
       },
       "profile": {
         "invitedSubtitle": "Vervollständige dein Profil, um Zugang zum Arbeitsbereich anzufragen, zu dem du eingeladen wurdest.",
-        "subtitle": "Ergänze deinen Namen und dein Land, damit dein Team dich erkennt. Diese Angaben gehören zu deinem Profil und lassen sich später ändern.",
+        "subtitle": "Ergänze deinen Namen, damit dein Team dich erkennt, und wähle die Sprache, die du nutzen möchtest. Beides lässt sich später in deinem Profil ändern.",
         "title": "Mach diesen Arbeitsbereich zu deinem"
       },
-      "wiki": {
-        "subtitle": "Starte mit eurer Unternehmenswebsite. Mate erstellt aus überprüfbaren Informationen gemeinsame, bearbeitbare Seiten in der Wissensdatenbank – mit Quellen und offenen Fragen zur Prüfung.",
-        "title": "Gib Mate dein Unternehmenswissen"
+      "setup": {
+        "planningSubtitle": "Deine Antworten sind gespeichert. Mate macht daraus einen Plan für deinen Workspace, den du prüfst, bevor etwas angelegt wird.",
+        "subtitle": "Ein paar kurze Fragen dazu, wofür du diesen Workspace nutzt. Was wir auf deiner Website lesen konnten, ist schon ausgefüllt – meist musst du nur bestätigen.",
+        "title": "Richte deinen Workspace ein",
+        "withoutWebsiteSubtitle": "Ein paar kurze Fragen dazu, wofür du diesen Workspace nutzt. Die meisten sind eine schnelle Auswahl, das dauert nur wenige Minuten."
       }
-    },
-    "wiki": {
-      "skip": "Nicht jetzt"
     }
   },
   "OperatorAudit": {
@@ -3145,15 +3174,12 @@
     "stats": {
       "assistantConversations": "Assistent-Chats",
       "connectedAccounts": "Verbundene Konten",
-      "contacts": "Kontakte",
-      "deals": "Deals",
       "lastActive": "Letzte Anmeldung",
       "lastActivity": "Letzte erfasste Änderung",
+      "lists": "Listen",
       "messages": "Nachrichten",
       "never": "Nie",
-      "organizations": "Organisationen",
-      "services": "Leistungen",
-      "tasks": "Aufgaben",
+      "records": "Datensätze",
       "threads": "Unterhaltungen",
       "title": "Workspace-Statistiken"
     },
@@ -3948,8 +3974,6 @@
     "title": "Admin-Steuerung"
   },
   "RoutineDetail": {
-    "credits": "Guthaben",
-    "creditsAmount": "Guthaben: {amount}",
     "empty": {
       "event": {
         "actions": {
@@ -3996,6 +4020,7 @@
     "ownerUnavailableReadOnly": "Für diese Routine ist keine Eigentümerin und kein Eigentümer mehr verfügbar. Sie bleibt pausiert und schreibgeschützt; ein Unternehmensadmin kann sie löschen.",
     "ranAs": "Ausgeführt als {owner}",
     "readOnlyTitle": "Schreibgeschützter Zugriff",
+    "reviewWikiProposals": "Prüfen",
     "runDetails": "Details zum Lauf",
     "runNoTranscript": "Für diesen Lauf ist kein Protokoll verfügbar.",
     "runQueued": "Dieser Lauf wartet in der Warteschlange. Das Protokoll erscheint, sobald der Assistent beginnt.",
@@ -4014,7 +4039,9 @@
     "triggerChangedFields": "Geänderte Felder",
     "triggerChangedFieldsMore": "und weitere",
     "triggerRecord": "Datensatz",
-    "triggerThread": "Unterhaltung"
+    "triggerThread": "Unterhaltung",
+    "usageShare": "{used} der monatlichen Mate-Nutzung",
+    "wikiProposals": "{count, plural, one {# Änderung an der Wissensdatenbank zur Prüfung vorgeschlagen} other {# Änderungen an der Wissensdatenbank zur Prüfung vorgeschlagen}}"
   },
   "RoutineModal": {
     "at": "um",
@@ -4069,7 +4096,7 @@
     "hostedAiUnavailable": "Die gehostete KI war nicht mehr verfügbar, bevor der Lauf abgeschlossen werden konnte.",
     "policyBreach": "Der KI-Anbieter hat das reservierte Guthabenbudget überschritten; deshalb wurde der Lauf beendet.",
     "providerError": "Der KI-Anbieter hat vor Abschluss des Laufs einen Fehler zurückgegeben.",
-    "runCreditLimit": "Der Lauf wurde an seiner Obergrenze von {credits, number} Credits pro Lauf beendet.",
+    "runCreditLimit": "Der Lauf wurde an seiner Obergrenze von {share, number, percent} eines Starter-Kontingents pro Lauf beendet.",
     "turnError": "Der Assistent konnte diesen Lauf nicht abschließen."
   },
   "RoutinesCard": {
@@ -4199,10 +4226,12 @@
     "managedExternallyNote": "Dieser Workspace nutzt einen Enterprise-Tarif mit Rechnungsstellung. Wende dich an deinen Ansprechpartner, um Änderungen vorzunehmen.",
     "manageWithLemonSqueezy": "Verwalten mit Lemon Squeezy",
     "picker": {
+      "checkoutUnavailable": "Noch nicht verfügbar",
       "connectedAccountsPerUser": "{accounts, plural, one {# verbundenes Konto pro Nutzer} other {# verbundene Konten pro Nutzer}}",
-      "creditNote": "Credits für den gehosteten KI-Assistenten werden monatlich erneuert; nicht genutzte Credits werden nicht übertragen. Jede Anfrage wird mit ihren genauen Anbieterkosten berechnet und auf eine Nachkommastelle angezeigt. Externe MCP-Clients rechnen die Modellnutzung über deinen eigenen KI-Anbieter ab. Serverseitige semantische Suchen können gehostete KI-Credits verbrauchen.",
+      "creditNote": "Die Mate-Nutzung wird als Vielfaches des Starter-Kontingents angegeben (Starter 1x, Pro 3x, Business 10x, Max 20x) und monatlich erneuert; nicht genutzte Nutzung wird nicht übertragen. Jede Anfrage zählt mit ihren genauen Anbieterkosten. Externe MCP-Clients rechnen die Modellnutzung über deinen eigenen KI-Anbieter ab. Serverseitige semantische Suchen können zur Mate-Nutzung zählen.",
       "features": {
         "business": ["Alles aus Pro", "Geteilte Konten und priorisierter Support"],
+        "max": ["Alles aus Business", "Priorisierter Support", "Früher Zugang zu Beta-Funktionen"],
         "pro": ["Alles aus Starter", "Einheitlicher Posteingang"],
         "starter": [
           "Vollständiges CRM: Kontakte, Deals, Organisationen, Aufgaben",
@@ -4211,9 +4240,9 @@
           "MCP-Server-Zugriff"
         ]
       },
-      "hostedAiCredits": "{credits, number} Credits für den gehosteten KI-Assistenten pro aktivem Nutzer / Monat",
-      "mostPopular": "Am beliebtesten",
+      "hostedAiUsage": "{multiplier}x Mate-Nutzung pro aktivem Nutzer / Monat",
       "perUserMonth": "pro Nutzer / Monat",
+      "recommended": "Empfohlen",
       "routinesPerUser": "{routines, plural, one {# Routine pro Nutzer} other {# Routinen pro Nutzer}}",
       "unlimitedRoutinesPerUser": "Unbegrenzte Routinen pro Nutzer"
     },
@@ -4221,6 +4250,7 @@
     "planNames": {
       "business": "Business",
       "enterprise": "Enterprise",
+      "max": "Max",
       "pro": "Pro",
       "starter": "Starter"
     },
@@ -4459,6 +4489,33 @@
     "pagesLabel": "Wissensdatenbank-Seiten",
     "pageTitle": "Seitentitel",
     "previous": "Zurück",
+    "proposals": {
+      "action": {
+        "create": "Neue Seite",
+        "delete": "Löschung",
+        "update": "Bearbeitung"
+      },
+      "approve": "Zulassen",
+      "approved": "Vorschlag angenommen",
+      "back": "Alle Vorschläge",
+      "current": "Aktuell",
+      "deleteNotice": "Wenn du annimmst, wird diese Seite endgültig gelöscht.",
+      "description": "Änderungen, die Mate in Routinen vorgeschlagen hat. Die Wissensdatenbank ändert sich erst, wenn du einen Vorschlag annimmst.",
+      "empty": "Keine Vorschläge warten auf Prüfung.",
+      "entry": "Vorschläge",
+      "fromRoutine": "Aus {routine}",
+      "fromRoutineDeleted": "Aus einer gelöschten Routine",
+      "loadFailed": "Die Vorschläge konnten nicht geladen werden.",
+      "needsPermission": "Deine Rolle kann diese Änderung nicht übernehmen.",
+      "notYetCreated": "Diese Seite gibt es noch nicht.",
+      "pageMissing": "Diese Seite gibt es nicht mehr.",
+      "proposed": "Vorgeschlagen",
+      "reject": "Ablehnen",
+      "rejected": "Vorschlag abgelehnt",
+      "stale": "Diese Seite wurde geändert, nachdem Mate den Vorschlag gemacht hat. Lehne ihn ab oder bitte Mate, die Änderung neu vorzuschlagen.",
+      "staleShort": "Seite geändert",
+      "title": "Vorschläge"
+    },
     "reload": "Seite neu laden",
     "search": "Seiten suchen…",
     "unavailableBody": "Diese Seite wurde gelöscht oder du hast keinen Zugriff. Wähle eine andere Seite.",
@@ -4474,8 +4531,6 @@
     }
   },
   "WikiSetup": {
-    "continue": "Weiter",
-    "continueBackground": "Weiter, während Mate arbeitet",
     "crawlProgress": {
       "created": "Erstellt",
       "discovering": "Website-Seiten werden gesucht",
@@ -4485,7 +4540,9 @@
       "read": "Gelesen",
       "reading": "Wird gelesen",
       "readingCount": "Seiten lesen · {fetched}/{total}",
+      "readingStep": "Website-Seiten lesen",
       "skipped": {
+        "aiUnavailable": "Mate vorübergehend nicht verfügbar",
         "credits": "Keine KI-Credits mehr",
         "error": "Nicht geschrieben",
         "evidence": "Zu wenig Belege in den Quellen",
@@ -4501,6 +4558,20 @@
       "writingStep": "Wissensdatenbank-Seiten schreiben"
     },
     "generated": {
+      "address": {
+        "formal": "Kundinnen und Kunden werden gesiezt: Anrede mit „Sie“ und Nachnamen, höflich und professionell.",
+        "heading": "Anrede",
+        "informal": "Kundinnen und Kunden werden geduzt: Anrede mit „du“ und Vornamen, freundlich und direkt.",
+        "source": "Festgelegt von der Inhaberin oder dem Inhaber bei der Einrichtung des Arbeitsbereichs."
+      },
+      "answersSource": "Antworten aus der Einrichtung des Arbeitsbereichs ({date})",
+      "competitor": {
+        "heading": "Vom Team zu ergänzen",
+        "losses": "Wo {competitor} besser passt",
+        "offer": "Was {competitor} anbietet und zu welchem Preis",
+        "response": "Wie wir reagieren, wenn Interessenten {competitor} erwähnen",
+        "wins": "Warum sich Kunden für uns statt für {competitor} entscheiden"
+      },
       "gapsHeading": "Noch zu klären",
       "pagesHeading": "Wissensdatenbank-Seiten",
       "roles": {
@@ -4510,34 +4581,402 @@
         "sales_messaging": "Verkaufsargumente und FAQ",
         "voice_and_tone": "Sprache und Tonalität"
       },
+      "setupPages": {
+        "competitor": "Im Vergleich: {competitor}",
+        "faq": "Häufig gestellte Fragen",
+        "processes": "Abläufe",
+        "productsPricing": "Produkte und Preise"
+      },
       "sourcesHeading": "Quellen"
     },
-    "homepageLabel": "Unternehmenswebsite",
-    "homepagePlaceholder": "https://beispiel.de",
-    "languageDescription": "Standardmäßig wird die Browsersprache verwendet. Wenn Wissensdatenbank-Seiten vorhanden sind, bestimmt deren Sprache die Auswahl.",
-    "languageLabel": "Wissensdatenbank-Sprache",
-    "start": "Wissensdatenbank erstellen",
     "status": {
-      "completedBodyOnboarding": "Mate hat deine Startseiten mit belegten Website-Fakten erstellt. Du kannst sie später in der Wissensdatenbank prüfen und alles bestätigen, was als noch zu klären markiert ist.",
-      "completedExistingBody": "Deine Wissensdatenbank enthält bereits Seiten. Fahre mit dem Onboarding fort oder prüfe die vorhandenen Inhalte.",
-      "completedTitle": "Deine erste Wissensdatenbank ist bereit",
+      "backgroundBanner": "Mate erstellt im Hintergrund weitere Wissensdatenbank-Seiten. Neue Seiten erscheinen hier, sobald sie fertig sind.",
       "failedBody": "Die Einrichtung wurde beendet, bevor alle Seiten fertig waren. Bereits erstellte Seiten bleiben erhalten. Du kannst fortfahren und sie in der Wissensdatenbank prüfen.",
       "failedBodyBlocked": "{domain} erlaubt in der robots.txt kein automatisches Lesen, daher wurde nichts importiert. Du kannst Seiten stattdessen selbst anlegen.",
       "failedBodySynthesis": "Die Website wurde gelesen, aber Mate konnte die Seiten nicht schreiben. Versuche es erneut. Bereits erstellte Seiten bleiben verfügbar.",
       "failedBodyUnavailable": "Mate konnte {domain} nicht lesen. Prüfe die Adresse oder fahre fort und lege Seiten später an.",
       "failedTitle": "Einrichtung nicht abgeschlossen",
-      "noContentBody": "Mate hat keine verwertbaren Informationen für Wissensdatenbank-Seiten gefunden. Du kannst eine andere Website versuchen oder fortfahren und später Seiten hinzufügen.",
-      "noContentTitle": "Es wurden keine Wissensdatenbank-Seiten erstellt",
-      "readingBody": "Mate hat {fetched} von {total} Seiten auf {domain} gelesen.",
-      "workingBody": "Mate liest {domain} und überträgt Informationen aus diesen Quellen in deine Wissensdatenbank. Du kannst mit dem nächsten Schritt fortfahren, während Mate arbeitet.",
       "workingBodyWiki": "Mate liest {domain} und erstellt die Wissensdatenbank. Du kannst später zurückkehren, um die fertigen Seiten zu sehen.",
       "workingTitle": "Mate lernt dein Unternehmen kennen"
-    },
-    "tryAnother": "Andere Website versuchen",
-    "unavailable": "Die Einrichtung mit Mate ist derzeit nicht verfügbar. Du kannst später in der Wissensdatenbank Seiten erstellen."
+    }
   },
   "WorkspaceMenu": {
     "inviteMembers": "Mitglieder einladen",
     "label": "Workspace-Menü"
+  },
+  "WorkspaceSetup": {
+    "actions": {
+      "addOwn": "Eigenen Eintrag hinzufügen",
+      "fromWebsite": "Von deiner Website vorgeschlagen",
+      "looksRight": "Passt so",
+      "upload": "Tabelle hochladen",
+      "winChance": "Abschlusschance"
+    },
+    "anchors": {
+      "price": "Preis",
+      "value": "Wert"
+    },
+    "build": {
+      "actions": {
+        "dashboard": "Wir bauen dein Dashboard",
+        "dataModel": "Wir legen deine Listen und Felder an",
+        "importing": "Wir importieren {fileName}",
+        "knowledgeBase": "Wir schreiben deine Seiten für die Wissensdatenbank ({written} von {planned})",
+        "pipeline": "Wir legen deine Pipeline für {list} an: {stages}",
+        "preparing": "Wir bereiten den nächsten Teil vor",
+        "readingWebsite": "Wir lesen {website}",
+        "records": "Wir legen Beispieldatensätze an",
+        "views": "Wir ordnen deine Listen an"
+      },
+      "completedBody": "Alles ist eingerichtet. Als Nächstes holst du dein Team dazu.",
+      "completedTitle": "Dein Workspace ist bereit",
+      "continue": "Weiter zu den Einladungen",
+      "failedBody": "Alles Fertige bleibt erhalten. Versuch den unfertigen Teil erneut, um deinen Workspace fertigzustellen.",
+      "failedTitle": "Ein Teil der Einrichtung wurde nicht fertig",
+      "frameTitle": "Dein Workspace",
+      "keepsRunning": "Das läuft weiter, auch wenn du den Tab schließt. Du kannst jederzeit zurückkommen.",
+      "nameColumn": "Name",
+      "phases": {
+        "dashboard": "Dashboard",
+        "dataModel": "Listen und Felder",
+        "knowledgeBase": "Wissensdatenbank",
+        "records": "Datensätze",
+        "views": "Listenansichten"
+      },
+      "phasesLabel": "Fortschritt der Einrichtung",
+      "previewLabel": "Vorschau deines Workspace",
+      "records": "Datensätze",
+      "retry": "Erneut versuchen",
+      "sidebarLabel": "Vorschau der Navigation",
+      "states": {
+        "active": "Läuft",
+        "done": "Fertig",
+        "failed": "Nicht fertig",
+        "skipped": "Übersprungen",
+        "waiting": "Wartet"
+      },
+      "summaries": {
+        "dashboard": "{count, plural, =0 {Keine Widgets angelegt} one {# Widget angelegt} other {# Widgets angelegt}}",
+        "dataModel": "{count, plural, =0 {Keine Listen angelegt} one {# Liste bereit} other {# Listen bereit}}",
+        "knowledgeBase": "{count, plural, =0 {Keine Seiten geschrieben} one {# Seite geschrieben} other {# Seiten geschrieben}}",
+        "records": "{count, plural, =0 {Keine Datensätze angelegt} one {# Datensatz angelegt} other {# Datensätze angelegt}}",
+        "views": "{count, plural, =0 {Keine Ansichten angeordnet} one {# Ansicht angeordnet} other {# Ansichten angeordnet}}"
+      },
+      "title": "Wir richten deinen Workspace ein"
+    },
+    "failures": {
+      "aiUnavailable": "Der KI-Dienst ist gerade nicht erreichbar. Versuch es in ein paar Minuten noch einmal.",
+      "contactSupport": "Support kontaktieren",
+      "crawlFailed": "Deine Website konnte nicht gelesen werden.",
+      "dependency": "Dieser Teil wartet auf einen früheren Teil, der nicht fertig wurde.",
+      "error": "In diesem Teil ist etwas schiefgegangen.",
+      "generation": "Die KI konnte diesmal kein brauchbares Ergebnis liefern.",
+      "invalidPlan": "Der Plan passt nicht zu deinem Workspace.",
+      "permission": "Deine Rolle erlaubt diese Änderung nicht.",
+      "schemaChanged": "Dein Workspace hat sich geändert, während dieser Teil lief.",
+      "spendCap": "Das Budget für die Einrichtung dieses Workspace ist aufgebraucht, deshalb wurde dieser Teil angehalten. Alles bisher Fertige bleibt erhalten. Schreib uns, dann helfen wir dir, die Einrichtung abzuschließen.",
+      "spreadsheet": "Die Tabelle konnte nicht importiert werden.",
+      "supportSubject": "Budget für die Workspace-Einrichtung"
+    },
+    "interview": {
+      "addEntry": "Eintrag hinzufügen",
+      "adjusting": "Ändere beliebige Antworten und bestätige dann den letzten Schritt, um einen neuen Plan zu erstellen.",
+      "customPlaceholder": "Deine eigene Antwort",
+      "days": "Tage",
+      "entryLabel": "Eintrag {index}",
+      "followUpsSubtitle": "Manche Antworten lassen sich unterschiedlich verstehen. Diese Fragen klären das.",
+      "followUpsTitle": "Noch ein paar Details",
+      "moveDown": "Nach unten",
+      "moveUp": "Nach oben",
+      "optionalPlaceholder": "Leer lassen, wenn dir nichts einfällt",
+      "prefillFailed": "Wir konnten deine Website nicht lesen, deshalb ist nichts ausgefüllt. Die Fragen dauern trotzdem nur wenige Minuten.",
+      "rangeFrom": "Von",
+      "rangeTo": "Bis",
+      "rankedHint": "{count} von {max} gewählt, nach Wichtigkeit geordnet",
+      "rankedOption": "Platz {rank}: {label}",
+      "stepProgress": "Teil {current} von {total}",
+      "stepsLabel": "Fragen zur Einrichtung",
+      "uploadChoose": "Datei wählen",
+      "uploadFailures": {
+        "cellTooLong": "Eine Zelle enthält mehr als {maxCharacters, number} Zeichen.",
+        "fileTooLarge": "Sie ist größer als {maxMegabytes} MB.",
+        "macroWorkbook": "Sie enthält Makros. Speichere sie als Excel-Arbeitsmappe ohne Makros (.xlsx) und wähle sie erneut.",
+        "noHeader": "Sie enthält keine Daten. In die erste Zeile gehören die Spaltennamen, darunter die Datensätze.",
+        "sheetNotFound": "Die Arbeitsmappe hat kein Tabellenblatt zum Importieren.",
+        "tooManyColumns": "Sie hat mehr als {maxColumns, number} Spalten.",
+        "tooManyRows": "Sie hat mehr als {maxRows, number} Zeilen.",
+        "unreadableFile": "Die Datei konnte nicht gelesen werden. Sie ist vielleicht beschädigt.",
+        "unsupportedFormat": "Speichere sie als CSV oder als Excel-Arbeitsmappe (.xlsx) und wähle sie erneut."
+      },
+      "uploadHint": "CSV oder Excel, bis {maxMegabytes} MB und {maxRows, number} Zeilen.",
+      "uploadKept": "Die Einrichtung verwendet weiter {fileName}.",
+      "uploadReady": "Bereit für den Import in deine neuen Listen.",
+      "uploadRejected": "{fileName} kann nicht importiert werden. {reason}",
+      "uploadReplace": "Andere Datei wählen",
+      "winChanceFor": "Abschlusschance von Eintrag {index}"
+    },
+    "options": {
+      "addressForm": {
+        "formal": "Förmlich (Sie)",
+        "informal": "Locker (du)"
+      },
+      "afterSale": {
+        "appointments": "Termine",
+        "contractsRenewals": "Verträge und Verlängerungen",
+        "nothing": "Nichts weiter",
+        "ordersInvoices": "Bestellungen und Rechnungen",
+        "projects": "Projekte",
+        "supportTickets": "Support-Tickets"
+      },
+      "customerKind": {
+        "both": "Beides",
+        "businesses": "Unternehmen",
+        "consumers": "Privatkunden"
+      },
+      "customerSize": {
+        "large": "Großunternehmen",
+        "medium": "Mittelständische Unternehmen",
+        "mixed": "Gemischt",
+        "small": "Kleine Unternehmen"
+      },
+      "dashboardAudience": {
+        "management": "Geschäftsführung",
+        "me": "Nur ich",
+        "team": "Das ganze Team"
+      },
+      "dealDetails": {
+        "budget": "Budget",
+        "closeDate": "Voraussichtlicher Abschluss",
+        "contractEnd": "Vertragsende",
+        "decisionMaker": "Entscheider",
+        "lostReason": "Verlustgrund",
+        "nextStep": "Nächster Schritt",
+        "vatId": "USt-IdNr."
+      },
+      "existingData": {
+        "empty": "Leer starten",
+        "sampleData": "Mit Beispieldaten starten",
+        "spreadsheet": "Tabelle importieren"
+      },
+      "knowledgePages": {
+        "faq": "Häufig gestellte Fragen",
+        "idealCustomer": "Idealer Kunde",
+        "overview": "Übersicht",
+        "processes": "Abläufe",
+        "productsPricing": "Produkte und Preise",
+        "salesPlaybook": "Vertriebsleitfaden und Einwände"
+      },
+      "leadSources": {
+        "ads": "Werbung",
+        "events": "Messen und Veranstaltungen",
+        "outbound": "Kaltakquise",
+        "partners": "Partner",
+        "referrals": "Empfehlungen",
+        "socialMedia": "Social Media",
+        "website": "Website"
+      },
+      "offeringKinds": {
+        "products": "Produkte",
+        "projects": "Projekte",
+        "services": "Dienstleistungen",
+        "subscriptions": "Abonnements"
+      },
+      "purpose": {
+        "clients": "Kunden und Vertrieb",
+        "finances": "Finanzen und Steuern",
+        "hiring": "Recruiting",
+        "marketing": "Marketing und Content",
+        "projects": "Projekte",
+        "support": "Kundensupport"
+      },
+      "renewalPeriod": {
+        "monthly": "Monatlich",
+        "multiYear": "Alle paar Jahre",
+        "quarterly": "Vierteljährlich",
+        "yearly": "Jährlich"
+      },
+      "revenueModel": {
+        "both": "Beides",
+        "oneOff": "Einmalzahlungen",
+        "recurring": "Wiederkehrende Zahlungen"
+      },
+      "taskOrganisation": {
+        "perCustomer": "Pro Kunde",
+        "perDeal": "Pro Auftrag",
+        "perProject": "Pro Projekt",
+        "recurring": "Wiederkehrende Aufgaben"
+      },
+      "teamRoles": {
+        "accountManagement": "Kundenbetreuung",
+        "delivery": "Umsetzung",
+        "finance": "Finanzen",
+        "sales": "Vertrieb",
+        "support": "Support"
+      },
+      "teamSize": {
+        "large": "Mehr als 20 Personen",
+        "medium": "6 bis 20 Personen",
+        "small": "2 bis 5 Personen",
+        "solo": "Nur ich"
+      },
+      "weeklyNumbers": {
+        "conversionByStage": "Konversion je Phase",
+        "forecast": "Prognose",
+        "newLeads": "Neue Leads",
+        "openTickets": "Offene Tickets",
+        "overdueTasks": "Überfällige Aufgaben",
+        "pipelineValue": "Pipeline-Wert",
+        "recurringRevenue": "Wiederkehrender Umsatz",
+        "renewalsDue": "Fällige Verlängerungen",
+        "wonThisMonth": "Diesen Monat gewonnen"
+      }
+    },
+    "plan": {
+      "adjust": "Antworten anpassen",
+      "build": "Workspace aufbauen",
+      "dashboard": "Dashboard",
+      "failedTitle": "Der Plan konnte nicht erstellt werden",
+      "importSummary": "Importiert {fileName} in {list}.",
+      "keyFields": "Wichtige Felder in {list}",
+      "knowledgeBase": "Wissensdatenbank",
+      "lists": "Listen",
+      "morePages": "{count, plural, one {und # weitere Seite} other {und # weitere Seiten}}",
+      "noDashboard": "Es sind keine Dashboard-Widgets geplant.",
+      "noPages": "Es sind keine Seiten für die Wissensdatenbank geplant.",
+      "noPipeline": "Es ist keine Pipeline geplant.",
+      "pipeline": "Pipeline",
+      "planningBody": "Aus deinen Antworten entstehen Listen, eine Pipeline, ein Dashboard und Seiten für die Wissensdatenbank.",
+      "planningTitle": "Wir erstellen deinen Plan",
+      "sampleSummary": "{count, plural, one {Legt # Beispieldatensatz an, damit du gleich loslegen kannst.} other {Legt # Beispieldatensätze an, damit du gleich loslegen kannst.}}",
+      "subtitle": "Das bauen wir für dich, sobald du bestätigst.",
+      "title": "Dein Plan für den Workspace",
+      "tryAgain": "Erneut versuchen",
+      "winChanceValue": "{value} %"
+    },
+    "questions": {
+      "addressForm": {
+        "label": "Wie sprichst du andere schriftlich an?"
+      },
+      "afterSale": {
+        "label": "Was folgt auf einen gewonnenen Auftrag?"
+      },
+      "anythingMissed": {
+        "label": "Haben wir etwas vergessen?"
+      },
+      "appointmentTypes": {
+        "label": "Deine Terminarten"
+      },
+      "companyName": {
+        "label": "Name deines Unternehmens oder Projekts"
+      },
+      "competitors": {
+        "label": "Deine wichtigsten Wettbewerber"
+      },
+      "country": {
+        "label": "Land"
+      },
+      "currency": {
+        "label": "Währung"
+      },
+      "customerKind": {
+        "label": "Wer sind deine Kunden?"
+      },
+      "customerSize": {
+        "label": "Wie groß sind deine Kunden?"
+      },
+      "dashboardAudience": {
+        "label": "Wer schaut auf das Dashboard?"
+      },
+      "dealDetails": {
+        "label": "Was musst du über einen Auftrag oder Kunden wissen?"
+      },
+      "dealSize": {
+        "label": "Typische Auftragsgröße"
+      },
+      "existingData": {
+        "label": "Wie möchtest du starten?"
+      },
+      "industries": {
+        "label": "In welchen Branchen sind sie tätig?"
+      },
+      "knowledgePages": {
+        "label": "Welche Seiten der Wissensdatenbank sollen wir schreiben?"
+      },
+      "language": {
+        "label": "Sprache"
+      },
+      "leadSources": {
+        "label": "Woher kommen deine Leads?"
+      },
+      "offeringKinds": {
+        "label": "Was verkaufst du?"
+      },
+      "offerings": {
+        "label": "Deine Angebote"
+      },
+      "orderStatuses": {
+        "label": "Deine Bestellschritte"
+      },
+      "projectPhases": {
+        "label": "Deine Projektphasen"
+      },
+      "purpose": {
+        "label": "Wofür nutzt du diesen Workspace?"
+      },
+      "purposeDetails": {
+        "label": "Beschreib ihn in einem Satz",
+        "placeholder": "Zum Beispiel: meine Freelance-Kunden, Rechnungen und Steuerfristen"
+      },
+      "renewalPeriod": {
+        "label": "Wie oft verlängern sich Verträge?"
+      },
+      "revenueModel": {
+        "label": "Zahlen Kunden einmalig oder regelmäßig?"
+      },
+      "salesCycle": {
+        "label": "Typische Verkaufsdauer in Tagen"
+      },
+      "salesSteps": {
+        "label": "Was sind deine Vertriebsschritte?"
+      },
+      "taskOrganisation": {
+        "label": "Wie sind deine Aufgaben organisiert?"
+      },
+      "teamRoles": {
+        "label": "Wer macht was in deinem Team?"
+      },
+      "teamSize": {
+        "label": "Wie groß ist dein Team?"
+      },
+      "ticketPriorities": {
+        "label": "Deine Ticket-Prioritäten"
+      },
+      "weeklyNumbers": {
+        "label": "Welche Zahlen prüfst du jede Woche? Wähle bis zu drei."
+      }
+    },
+    "screens": {
+      "afterSale": "Nach dem Verkauf",
+      "dashboard": "Dein Dashboard",
+      "data": "Deine Daten",
+      "knowledge": "Wissen",
+      "winning": "Kunden gewinnen",
+      "workspace": "Über diesen Workspace"
+    },
+    "start": {
+      "start": "Einrichtung starten",
+      "withoutWebsite": "Ohne Website weiter"
+    },
+    "website": {
+      "change": "Ändern",
+      "eta": "Dauert meist 1 bis 2 Minuten. Du kannst schon anfangen zu antworten.",
+      "finding": "Wir suchen Seiten auf {website}",
+      "hint": "Optional. Wir lesen deine öffentliche Website und schlagen Antworten vor, die du meist nur noch bestätigst.",
+      "read": "Website lesen",
+      "reading": "Wir lesen {website}: {read} von {total} Seiten",
+      "suggestedHint": "Prüf die markierten Antworten und ändere, was nicht passt.",
+      "suggesting": "Wir schlagen Antworten aus {website} vor",
+      "title": "Antworten aus deiner Website vorschlagen lassen"
+    }
   }
 }

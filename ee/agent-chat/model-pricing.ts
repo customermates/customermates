@@ -25,6 +25,7 @@ const EndpointSchema = z.object({
   completion: z.array(TierSchema).min(1),
   inputCacheRead: z.array(TierSchema).min(1),
   inputCacheWrite: z.array(TierSchema).min(1),
+  inputCacheWrite1h: z.array(TierSchema).min(1),
 });
 
 const SnapshotSchema = z.object({
@@ -40,6 +41,7 @@ export type ModelPricing = {
   outputPerMTok: number;
   cacheReadPerMTok: number;
   cacheWritePerMTok: number;
+  cacheWrite1hPerMTok: number;
 };
 
 export type TokenCounts = {
@@ -117,6 +119,7 @@ export function resolveModelPricing(
     outputPerMTok: usdPerMillionTokens(selectTier(endpoint.completion, promptTokens)),
     cacheReadPerMTok: usdPerMillionTokens(selectTier(endpoint.inputCacheRead, promptTokens)),
     cacheWritePerMTok: usdPerMillionTokens(selectTier(endpoint.inputCacheWrite, promptTokens)),
+    cacheWrite1hPerMTok: usdPerMillionTokens(selectTier(endpoint.inputCacheWrite1h, promptTokens)),
   };
 }
 
@@ -126,12 +129,10 @@ export function modelPromptTierBoundaries(
   inferenceRegion?: ModelInferenceRegion | null,
 ): number[] {
   const endpoint = findEndpoint(model, provider, inferenceRegion);
-  const dimensions: (keyof Pick<Endpoint, "prompt" | "completion" | "inputCacheRead" | "inputCacheWrite">)[] = [
-    "prompt",
-    "completion",
-    "inputCacheRead",
-    "inputCacheWrite",
-  ];
+  const dimensions: (keyof Pick<
+    Endpoint,
+    "prompt" | "completion" | "inputCacheRead" | "inputCacheWrite" | "inputCacheWrite1h"
+  >)[] = ["prompt", "completion", "inputCacheRead", "inputCacheWrite", "inputCacheWrite1h"];
   const boundaries = dimensions
     .flatMap((dimension) => endpoint[dimension].map(tierLowerBound))
     .filter((boundary) => boundary > 0);

@@ -1,8 +1,7 @@
-import type { DocsScope } from "../prisma-docs-chunk.repository";
+import type { DocsScope } from "../prisma-docs-section.repository";
 import type { ContentLocale } from "@/i18n/locale-registry";
 import type { RankableSection, RetrievalTiming } from "@/core/retrieval/retrieval-context";
 import type { QueryVector } from "@/core/retrieval/retrieval-pipeline";
-import type { DocsRetrievalEvalItem } from "@/scripts/agent-benchmark/retrieval-eval-cases";
 
 import { writeFileSync } from "node:fs";
 
@@ -14,15 +13,19 @@ import { docsEmbeddingText } from "../docs-embedding-input";
 import { collectRetrievalTimings } from "@/core/retrieval/retrieval-context";
 import { fold } from "@/core/utils/search-text";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
-import { DOCS_LIVE_CASE_LABELS, DOCS_RETRIEVAL_EVAL } from "@/scripts/agent-benchmark/retrieval-eval-cases";
-import { DOCS_HELDOUT } from "@/scripts/agent-benchmark/heldout-data/docs";
-import { DOCS_EMBEDDING_HELDOUT } from "@/scripts/agent-benchmark/heldout-data/docs-embedding";
 
 import { docsCorpus } from "../docs-corpus";
 import { unifiedDocsSearch, type UnifiedDocsDeps } from "../docs-unified-search";
 import { unifiedDocsPageResult } from "../docs.mcp-tools";
-import { PrismaDocsChunkRepo } from "../prisma-docs-chunk.repository";
+import { PrismaDocsSectionRepo } from "../prisma-docs-section.repository";
 
+import {
+  DOCS_EMBEDDING_HELDOUT,
+  DOCS_HELDOUT,
+  DOCS_LIVE_CASE_LABELS,
+  DOCS_RETRIEVAL_EVAL,
+  type DocsRetrievalEvalItem,
+} from "./fixtures/docs-retrieval-eval";
 import { GOLDEN_QUESTIONS } from "./fixtures/docs-retrieval-golden";
 
 const databaseUrl = getLocalDatabaseTestUrl();
@@ -110,7 +113,7 @@ const SETS: Array<[string, readonly DocsRetrievalEvalItem[]]> = [
 
 describeDatabase("documentation retrieval quality on the benchmark docs questions", () => {
   const client = new Client({ connectionString: databaseUrl ?? undefined });
-  const repo = new PrismaDocsChunkRepo();
+  const repo = new PrismaDocsSectionRepo();
   const corpus = docsCorpus();
   const report: Record<string, unknown> = {};
 
@@ -122,7 +125,10 @@ describeDatabase("documentation retrieval quality on the benchmark docs question
   afterAll(async () => {
     if (process.env.DOCS_RETRIEVAL_EVAL_REPORT)
       writeFileSync(process.env.DOCS_RETRIEVAL_EVAL_REPORT, JSON.stringify(report, null, 2));
-    await client.query('UPDATE "DocsChunk" SET "embedding" = NULL, "model" = NULL WHERE "model" = $1', [FAKE_MODEL]);
+    await client.query(
+      'UPDATE "DocsSection" SET "embedding" = NULL, "embeddingVersion" = NULL WHERE "embeddingVersion" = $1',
+      [FAKE_MODEL],
+    );
     await client.end();
   });
 
@@ -316,7 +322,7 @@ describeDatabase("documentation retrieval quality on the benchmark docs question
   });
 
   it("fuses a semantic candidate list from stored embeddings when a query embedder is available", async () => {
-    const pending = new Map(corpus.chunks.map((chunk) => [chunk.contentHash, docsEmbeddingText(chunk)]));
+    const pending = new Map(corpus.parts.map((part) => [part.contentHash, docsEmbeddingText(part)]));
     const rows = [...pending.entries()].map(([contentHash, text]) => ({
       contentHash,
       embedding: `[${hashedBagOfWords(text).join(",")}]`,
@@ -336,7 +342,7 @@ describeDatabase("documentation retrieval quality on the benchmark docs question
       embedded.push(query);
       return Promise.resolve({
         vector: hashedBagOfWords(query),
-        model: FAKE_MODEL,
+        version: FAKE_MODEL,
       });
     };
     const hybrid = await unifiedRun({

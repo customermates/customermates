@@ -88,15 +88,22 @@ Jede Seite hat einen Typ, den Sie unter ihrem Titel wählen:
 
 Jede gespeicherte Seite, auch eine importierte, steht Mate und verbundenen KI-Tools sofort zur Verfügung; es gibt keinen Entwurfs- oder Veröffentlichungsschritt. Verfahrensschritte gelten für die Aufgabe, um die Sie gebeten haben, mit den üblichen Freigaben. Eine Anweisung in einer Seite, eine andere Aufgabe zu starten, etwas zu senden, zu löschen oder Berechtigungen zu ändern, wird als Information behandelt.
 
+### Vorschläge von Mate prüfen [#review-proposals]
+
+Eine [Routine](/docs/app-routines#knowledge-base-proposals) ändert die Wissensdatenbank nie von sich aus. Würde ein Lauf eine Seite anlegen, bearbeiten oder löschen, speichert er stattdessen einen Vorschlag, und die Seite bleibt unverändert. Personen mit Wissensdatenbank-Verwaltungsrechten sehen in der Werkzeugleiste der Wissensdatenbank **Vorschläge** mit der Zahl der wartenden Vorschläge. Darüber öffnet sich eine Liste, die zeigt, was jeder Vorschlag tut, welche Routine ihn gemacht hat und wann. Öffnen Sie einen Vorschlag, um die aktuelle Seite mit dem vorgeschlagenen Titel, Typ und Inhalt zu vergleichen, und wählen Sie dann **Zulassen** oder **Ablehnen**.
+
+Beim Zulassen wird die Änderung mit Ihren eigenen Berechtigungen übernommen, genau so, als hätten Sie sie selbst vorgenommen: Eine Löschung zuzulassen erfordert das Recht, Seiten zu löschen, und die Änderung erscheint unter Ihrem Namen in den Audit-Logs. Ein Vorschlag beruht auf der Seitenversion, die Mate gelesen hat. Hat seitdem jemand die Seite geändert oder gelöscht, wird der Vorschlag als **Seite geändert** markiert und lässt sich nicht zulassen; lehnen Sie ihn ab oder bitten Sie Mate, die Änderung neu vorzuschlagen. Schlägt eine Routine eine weitere Änderung an derselben Seite vor, ersetzt der neuere Vorschlag den älteren. Änderungen, um die Sie Mate in einem Chat bitten, werden wie bisher sofort gespeichert, und verbundene MCP-Clients schreiben Seiten weiterhin direkt.
+
 ### Über Ihre Homepage einrichten [#set-up-from-your-homepage]
 
-Ist Mate im Cloud-Workspace aktiviert, kann die Person, die den Workspace einrichtet, beim Onboarding eine Unternehmenshomepage eingeben und **Wissensdatenbank erstellen** wählen (eine reine Domain wie `example.com` genügt) oder mit **Nicht jetzt** überspringen; eingeladene Mitglieder sehen diesen Schritt nicht. In einer leeren Wissensdatenbank öffnet **Aus meiner Website erstellen** einen Mate-Chat, der nach der Adresse fragt und denselben Import startet.
+Ist Mate im Cloud-Workspace aktiviert, kann die Person, die den Workspace einrichtet, beim Onboarding eine Unternehmenshomepage eingeben und **Wissensdatenbank erstellen** wählen (eine reine Domain wie `example.com` genügt) oder mit **Nicht jetzt** überspringen; eingeladene Mitglieder sehen diesen Schritt nicht. In einer leeren Wissensdatenbank öffnet **Aus meiner Website erstellen** einen Mate-Chat, der nach der Adresse fragt und denselben Website-Import startet.
 
-Der Import läuft im Hintergrund:
+Der Website-Import läuft im Hintergrund:
 
 - Er prüft zuerst die `robots.txt` der Website und hält an, wenn automatisches Lesen nicht erlaubt ist oder die `robots.txt` nicht erreichbar ist (Serverfehler oder Zeitüberschreitung). Eine Website ohne `robots.txt` wird normal gelesen.
 - Er findet bis zu 40 Seiten über die Homepage, die Sitemaps und `llms.txt` und bevorzugt Hilfe- und FAQ-Seiten, dann Produkt-, Unternehmens- und Kundenseiten, AGB-, Erstattungs-, SLA- und Datenschutzseiten sowie Preise. Er gibt sich als Customermates zu erkennen, pausiert zwischen Anfragen und hält die Crawl-Verzögerung der Website ein. Nicht lesbare Seiten werden übersprungen; ist keine Seite lesbar, meldet er die Website als nicht verfügbar und startet keine KI-Texterstellung.
-- Der Fortschritt (Phase und gelesene Seiten) erscheint direkt im Chat, danach die schreibgeschützte Schreib-Unterhaltung von Mate, und bleibt nach einem Neuladen erhalten.
+- Der Fortschritt (Phase und gelesene Seiten) erscheint direkt im Onboarding-Chat, danach die schreibgeschützte Schreib-Unterhaltung von Mate, und bleibt nach einem Neuladen erhalten.
+- In der Wissensdatenbank bleiben vorhandene Seiten während des Website-Imports lesbar und bearbeitbar, und **Neue Seite** bleibt verfügbar; ein Hinweis oben auf jeder Seite zeigt, dass Mate im Hintergrund noch Seiten erstellt, und neue Seiten erscheinen, sobald sie fertig sind. Eine leere Wissensdatenbank zeigt den Importfortschritt, bis die erste Seite existiert.
 
 Jeder Import verwendet eine Sprache: die vorherrschende Sprache vorhandener Seiten oder, bei einer leeren Wissensdatenbank, Ihre Browsersprache (im Onboarding können Sie eine andere unterstützte Sprache wählen). Hilfe-, FAQ-, Preis- und Richtlinienseiten in dieser Sprache werden im Wortlaut übernommen, mit ihren Überschriften und Frage-Antwort-Paaren und am Ende mit Quelladresse und Lesedatum. Alle anderen Quellen liest Mate vollständig und übersetzt oder fasst sie in eigenständige Themenseiten zusammen, ohne feste Seitenzahl oder doppelte Sprachfassungen. Bei der Ersteinrichtung entstehen außerdem ein Betriebsleitfaden und Verfahren für wiederkehrende Anfragen, die die Website beschreibt, etwa Erstattungen oder Kündigungen. Jede geschriebene Seite nennt ihre Quellen und offene Fragen, etwa wer Ausnahmen genehmigt. Das Lesen der Website und die Spracherkennung rufen keinen KI-Anbieter auf; das Schreiben durch Mate und die Wissensdatenbank-Indexierung verbrauchen Ihre normalen KI-Credits.
 
@@ -112,7 +119,7 @@ Suchen Sie mit dem schreibgeschützten Tool `search` und rufen Sie dann mit `fet
 
 - Markdown kommt in begrenzten Abschnitten mit kanonischer Quell-URL. Wiederholen Sie `fetch` mit `nextOffset` als `offset`, bis der Wert null ist. Ein Offset gilt nur für das Tool, das ihn geliefert hat: Einen `fetch`-Abruf mit `fetch` fortsetzen, einen `manage_wiki_pages`-Abruf mit `manage_wiki_pages`. Ändert sich `updatedAt` zwischen zwei Abschnitten, wieder bei Offset 0 beginnen.
 - Jeder Wissensdatenbank-Treffer von `search` enthält ein hervorgehobenes `snippet`, den Überschriftenpfad des gefundenen Abschnitts in `section` und einen `offset`; übergeben Sie diesen `offset` an `fetch`, um die Seite bei der Antwort zu öffnen, und nutzen Sie Offset 0 oder die zurückgegebene `outline` für den Kontext davor. Links zwischen Seiten sind absolut und können direkt wieder an `fetch` gehen.
-- Die Suche findet die Wörter der Anfrage im Volltext, einschließlich Beugungsformen auf Englisch, Deutsch, Spanisch, Französisch und Italienisch. Mit KI-Credits sucht sie zusätzlich nach Bedeutung und findet Seiten also auch bei anders formulierten oder anderssprachigen Fragen. Ein Anfrage-Embedding wird nur berechnet, wenn eine Suche es verwendet, und zwar der Person, deren Suche es gestartet hat, auch wenn die gleichzeitige identische Suche einer anderen Person es verbraucht. Der Wissensdatenbank-Index wird aus dem gemeinsamen Workspace-Kontingent bezahlt, der Index der öffentlichen Dokumentation von Customermates, und externe Clients bezahlen ihren Modellanbieter getrennt. Ohne Credits und bei Self-Hosting ist sie reine Volltextsuche.
+- Die Suche findet die Wörter der Anfrage im Volltext, einschließlich Beugungsformen auf Englisch, Deutsch, Spanisch, Französisch und Italienisch. Mit KI-Credits sucht sie zusätzlich nach Bedeutung und findet Seiten also auch bei anders formulierten oder anderssprachigen Fragen. Ein Anfrage-Embedding wird nur berechnet, wenn eine Suche es verwendet, und zwar der Person, deren Suche es gestartet hat, auch wenn die gleichzeitige identische Suche einer anderen Person es verbraucht. Der Wissensdatenbank-Index wird aus dem gemeinsamen Workspace-Kontingent bezahlt, ausgenommen den einmaligen Neuaufbau von Seiten, die vor dem aktuellen Suchformat indexiert wurden: Ihn bezahlt Customermates bis zu 100 Credits je Workspace; der Index der öffentlichen Dokumentation wird von Customermates bezahlt, und externe Clients bezahlen ihren Modellanbieter getrennt. Ohne Credits und bei Self-Hosting ist sie reine Volltextsuche.
 - In beiden Fällen steht eine Seite mit einem gesuchten Code oder Kennzeichen wie `E-4012` oder `OPS-1182` vorn, unabhängig von Trennzeichen und Groß- und Kleinschreibung. Ein falsch geschriebenes Wort, das auf keiner Seite vorkommt, wird anhand der Wörter Ihrer Wissensdatenbank korrigiert; die Treffer stammen aus der korrigierten Anfrage, die `search` in `didYouMean` zurückgibt.
 - `manage_wiki_pages` mit `action: "search"` liefert dieselben Felder und zusätzlich `retrieval` (`semantic` oder `keyword`) mit Offsets für das eigene `get`; `action: "get"` setzt auf dieselbe Weise fort. Die Aktionen `create` und `update` brauchen das Wissensdatenbank-Recht **Erstellen** oder **Bearbeiten**. Lesen braucht Wissensdatenbank-Leserechte, und jede Änderung erscheint im Aktivitätsprotokoll. `action: "move"` setzt eine Seite vor oder hinter eine andere Seite (`targetId`, `placement`), und `delete` verschiebt sie in den Papierkorb. Die REST-API bietet dieselben Operationen unter `/api/v1/wiki/`: `list`, `search`, `read`, `create`, `update`, `move` und `delete`.
 
@@ -160,7 +167,7 @@ Das volle JSON-Schema jedes Tools liegt live an `POST /api/v1/mcp` mit `method: 
 
 ### Records [#records]
 
-Die [[derived.mcp.tools.groups.records]] Datensatz-Tools bedienen die fünf Startlisten und jede Liste, die Sie anlegen. Zuerst den Typ ermitteln und sein aktuelles Schema lesen, dann Datensätze abfragen oder ändern. Nur die für den Auftrag nötigen Schemas laden; der Katalog wächst nicht mit Kundenfeldern.
+Die [[derived.mcp.tools.groups.records]] Datensatz-Tools bedienen jede Liste im Workspace, gleich wer sie angelegt hat. Zuerst den Typ ermitteln und sein aktuelles Schema lesen, dann Datensätze abfragen oder ändern. Nur die für den Auftrag nötigen Schemas laden; der Katalog wächst nicht mit Kundenfeldern.
 
 Jede Datensatzreferenz enthält `typeId` und `recordId`. `query_crm_records` liest einen Typ seitenweise, `search_crm_records` findet zugängliche Datensätze, `query_crm_measure` berechnet Summen über alle Treffer. Eine Seite ist nie eine vollständige Gesamtsumme, und mehrdeutige Suchtreffer klären Sie vor einer Änderung.
 
@@ -219,7 +226,7 @@ Erlaubte Auswirkungen einer Löschung prüfen, einschließlich abhängiger Daten
 
 #### `query_crm_measure`
 
-Je Quelldatensatz einmal zählen oder aggregieren. Quellabfrage, Aggregation, optional valueFieldId und Gruppierung über Felder oder Beziehungen angeben. Vollständige Zuordnung zu mehreren Gruppen kann Gruppensummen über die Gesamtsumme hinaus erhöhen. Für Service-Mengen und Beiträge Positionen als Quelle verwenden. Gleiche Beträge verschiedener Datensätze zählen jeweils.
+Je Quelldatensatz einmal zählen oder aggregieren. Quellabfrage, Aggregation, optional valueFieldId und Gruppierung über Felder oder Beziehungen angeben. Vollständige Zuordnung zu mehreren Gruppen kann Gruppensummen über die Gesamtsumme hinaus erhöhen. Für Mengen und Beiträge je Katalogeintrag Positionen als Quelle verwenden. Gleiche Beträge verschiedener Datensätze zählen jeweils.
 
 **Nur lesend.** Pflicht: `source`, `aggregation`, `valueFieldId`, `groupBy`. Optional: `groupLimit`.
 
@@ -366,14 +373,14 @@ Pflicht: `typeId`, `action`. Optional: `expectedRevision`, `idempotencyKey`, `la
 
 Wissensdatenbank-Seiten auflisten, suchen, lesen, anlegen, aktualisieren, umsortieren (vor oder nach eine andere Seite verschieben) oder löschen (in den Papierkorb verschieben), jeweils eine Wissensseite, ein Ablauf mit Einsatzfall oder der eine Betriebsleitfaden. Updates und Löschungen benötigen den neuesten updatedAt-Wert; Create kann atomar eine leere Wissensdatenbank voraussetzen.
 
-**Kann Daten löschen.** Pflicht: `action`. Optional: `id`, `query`, `offset`, `page`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `targetId`, `placement`, `title`, `markdown`, `kind`, `whenToUse`.
+**Kann Daten löschen.** Pflicht: `action`. Optional: `id`, `query`, `offset`, `anchor`, `page`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `targetId`, `placement`, `title`, `markdown`, `kind`, `whenToUse`.
 {/* /mcp-catalog */}
 
 ### Messaging [#messaging]
 
 Messaging-basierte Tools brauchen einen Tarif mit Messaging: ab Pro, nur Cloud; Starter und selbst gehostete Instanzen lehnen sie ab. Ohne Messaging liefert `get_activities` weiterhin Änderungen aus dem Audit-Log, wenn die Rolle des Aufrufers **Lesen** **Alle** in der Zeile **Audit-Log** hat; die Quellen Nachrichten, verbundene Konten und Kalender brauchen **Lesen** in der Zeile **Inbox-Nachrichten** und dazu einen Tarif mit Messaging.
 
-`connect_messaging_account` braucht außerdem **Erstellen** bei **Inbox-Nachrichten** und einen freien Kontoplatz: Pro erlaubt [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer, Business [[commercial.entitlement.business.includedAccountsPerUser]] und Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]].
+`connect_messaging_account` braucht außerdem **Erstellen** bei **Inbox-Nachrichten** und einen freien Kontoplatz: Pro erlaubt [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer, Business [[commercial.entitlement.business.includedAccountsPerUser]], Max [[commercial.entitlement.max.includedAccountsPerUser]] und Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]].
 
 {/* mcp-catalog:messaging */}
 #### `get_messaging_threads`
@@ -586,7 +593,7 @@ Ein typisiertes Konfigurationspaket mit Typen, Feldern, Beziehungen, Berechnunge
 
 Eine Diagrammkennzahl wählt Quelltyp, Filter, Aggregation, Wertefeld und Gruppierung, etwa die Summe des Felds Wert aus Deals, gruppiert nach Phase. Der gewichtete Wert ist ein weiteres konfiguriertes Feld, kein Widget-Modus.
 
-Die Quelle legt fest, was einmal gezählt wird. Deal-Berichte zählen jeden passenden Deal einmal in der Gesamtsumme; ein Deal mit zwei Organisationen zählt in beiden Organisationsgruppen voll, deren Summe kann daher die eindeutige Gesamtsumme übersteigen. Service-Beiträge und Mengen verwenden Positionen als Quelle. Gleiche Beträge verschiedener Datensätze zählen jeweils. Gesperrte Eingaben bleiben in Widgets gesperrt, und verschiedene Währungen werden nie stillschweigend addiert.
+Die Quelle legt fest, was einmal gezählt wird. Deal-Berichte zählen jeden passenden Deal einmal in der Gesamtsumme; ein Deal mit zwei Organisationen zählt in beiden Organisationsgruppen voll, deren Summe kann daher die eindeutige Gesamtsumme übersteigen. Beiträge und Mengen je Katalogeintrag verwenden Positionen als Quelle. Gleiche Beträge verschiedener Datensätze zählen jeweils. Gesperrte Eingaben bleiben in Widgets gesperrt, und verschiedene Währungen werden nie stillschweigend addiert.
 
 {/* mcp-catalog:widgets */}
 #### `manage_widgets`
@@ -621,9 +628,9 @@ Ein Tool mit `action`-Schalter: list, get, create, update, delete, dazu das Deli
 {/* mcp-catalog:admin */}
 #### `update_my_profile`
 
-Ändert den eigenen Namen, das Land, den Avatar, das Farbschema, die Anzeigesprache und das regionale Format.
+Ändert den eigenen Namen, den Avatar, das Farbschema, die Anzeigesprache und das regionale Format.
 
-Optional: `firstName`, `lastName`, `country`, `avatarUrl`, `theme`, `displayLanguage`, `formattingLocale`.
+Optional: `firstName`, `lastName`, `avatarUrl`, `theme`, `displayLanguage`, `formattingLocale`.
 
 #### `manage_team`
 

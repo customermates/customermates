@@ -1,6 +1,6 @@
 import type { WorkflowTenant } from "./workflow-tenant";
 
-import { getWorkflowMetadata } from "workflow";
+import { getWorkflowMetadata, sleep } from "workflow";
 
 import {
   getFailWikiWebsiteCrawlInteractor,
@@ -12,6 +12,8 @@ import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
 import { reportFailure, reportWarning, toWorkflowFailure } from "./capture-failure";
 
 const WORKFLOW_NAME = "crawl-wiki-website";
+const BRIEF_WAIT_ROUNDS = 360;
+const BRIEF_WAIT = "1m";
 
 export type CrawlWikiWebsiteWorkflowPayload = {
   crawlId: string;
@@ -48,10 +50,11 @@ async function finishWikiWebsiteStep(payload: CrawlWikiWebsiteWorkflowPayload): 
 
 async function planWikiWebsiteStep(
   payload: CrawlWikiWebsiteWorkflowPayload,
-): Promise<{ topics: number; warnings: string[] }> {
+  giveUp: boolean,
+): Promise<{ topics: number | "wait"; warnings: string[] }> {
   "use step";
   const service = getWikiWebsiteSynthesisService();
-  const topics = await runAsBackgroundTenant(payload.userId, () => service.plan(payload.crawlId));
+  const topics = await runAsBackgroundTenant(payload.userId, () => service.plan(payload.crawlId, giveUp));
   return { topics, warnings: service.drainWarnings() };
 }
 
@@ -89,9 +92,17 @@ export async function crawlWikiWebsite(payload: CrawlWikiWebsiteWorkflowPayload)
     for (let batch = 0; batch < batches; batch += 1) await fetchWikiWebsiteBatchStep(payload, batch);
     await importWikiWebsiteStep(payload);
     await finishWikiWebsiteStep(payload);
-    const planned = await planWikiWebsiteStep(payload);
-    for (const warning of planned.warnings) await reportWarning(WORKFLOW_NAME, warning, payload.tenant);
-    for (let index = 0; index < planned.topics; index += 1) {
+    let topics = 0;
+    for (let round = 0; round <= BRIEF_WAIT_ROUNDS; round += 1) {
+      const planned = await planWikiWebsiteStep(payload, round === BRIEF_WAIT_ROUNDS);
+      for (const warning of planned.warnings) await reportWarning(WORKFLOW_NAME, warning, payload.tenant);
+      if (planned.topics !== "wait") {
+        topics = planned.topics;
+        break;
+      }
+      await sleep(BRIEF_WAIT);
+    }
+    for (let index = 0; index < topics; index += 1) {
       for (const warning of await writeWikiTopicStep(payload, index))
         await reportWarning(WORKFLOW_NAME, warning, payload.tenant);
     }

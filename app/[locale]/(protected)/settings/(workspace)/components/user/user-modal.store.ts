@@ -3,7 +3,7 @@ import type { AdminUpdateUserDetailsData } from "@/features/user/upsert/admin-up
 import type { RootStore } from "@/core/stores/root.store";
 
 import { action, computed, makeObservable, observable, toJS } from "mobx";
-import { Action, CountryCode, Resource, Status } from "@/generated/prisma";
+import { Action, Resource, Status } from "@/generated/prisma";
 
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
@@ -28,7 +28,6 @@ export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
         email: "",
         firstName: "",
         lastName: "",
-        country: CountryCode.de,
         status: Status.active,
         avatarUrl: null,
         roleId: "",
@@ -89,7 +88,6 @@ export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        country: user.country,
         status: user.status as typeof Status.active | typeof Status.inactive,
         avatarUrl: user.avatarUrl,
         roleId: user.roleId ?? "",

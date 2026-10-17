@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 
 import { chooseWorkspaceAction } from "./actions";
+import { SignedInIdentity } from "./signed-in-identity";
 
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -57,9 +58,7 @@ export function OnboardingChoiceCard({ email, trialDays }: Props) {
       <CardHeroHeader alt="" subtitle={t("OnboardingChoice.subtitle")} title={t("OnboardingChoice.title")} />
 
       <AppCardBody className="gap-5 pt-2">
-        <p className="mx-auto max-w-full rounded-full border border-border bg-muted/40 px-3 py-1.5 text-center text-xs text-muted-foreground [overflow-wrap:anywhere]">
-          {t("OnboardingChoice.signedInAs", { email })}
-        </p>
+        <SignedInIdentity className="mx-auto w-fit max-w-full" email={email} />
 
         <form action={formAction} aria-busy={isPending}>
           <div

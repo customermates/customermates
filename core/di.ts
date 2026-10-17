@@ -111,7 +111,6 @@ import { DiscoverRecordTypesInteractor } from "@/features/records/discover-recor
 import { GetRecordChoicesInteractor } from "@/features/records/get-record-choices.interactor";
 import { GetRecordEditorInteractor } from "@/features/records/get-record-editor.interactor";
 import { EmbeddedSublistReader } from "@/features/records/embedded-sublist-reader";
-import { InitializeRecordModelService } from "@/features/records/initialize-record-model.service";
 import { MembershipTaskService } from "@/features/records/membership-task.service";
 import { MutateRecordInteractor } from "@/features/records/mutate-record.interactor";
 import { PreviewRecordDeletionInteractor } from "@/features/records/preview-record-deletion.interactor";
@@ -161,6 +160,9 @@ import { PrismaWebhookDeliveryRepo } from "@/features/webhook/prisma-webhook-del
 import { PrismaWebhookRepo } from "@/features/webhook/prisma-webhook.repository";
 import { PrismaWidgetRepo } from "@/features/widget/prisma-widget.repository";
 import { PrismaWikiPageRepo } from "@/features/wiki/prisma-wiki-page.repository";
+import { PrismaWikiPageProposalRepo } from "@/features/wiki/prisma-wiki-page-proposal.repository";
+import { PrismaWikiSectionRepo } from "@/features/wiki/prisma-wiki-section.repository";
+import { PrismaWikiKnowledgeGapRepo } from "@/features/wiki/prisma-wiki-knowledge-gap.repository";
 // Services
 import { BackgroundTaskService } from "@/core/utils/background-task.service";
 import { MessagingService } from "@/ee/messaging/messaging.service";
@@ -194,6 +196,7 @@ import { ValidateWidgetIdsInteractor } from "@/core/validation/validators/valida
 import { ExportRecordsInteractor } from "@/features/data-transfer/export/export-records.interactor";
 import { ExportRecordWorkbookInteractor } from "@/features/data-transfer/export/export-record-workbook.interactor";
 import { ImportRecordsInteractor } from "@/features/data-transfer/import/import-records.interactor";
+import { ImportSpreadsheetInteractor } from "@/features/data-transfer/spreadsheet/import-spreadsheet.interactor";
 // Organizations interactors
 // Deals interactors
 // Services interactors
@@ -335,6 +338,13 @@ import { CreateWikiPagesInteractor } from "@/features/wiki/create-wiki-pages.int
 import { MoveWikiPageInteractor } from "@/features/wiki/move-wiki-page.interactor";
 import { UpdateWikiPageInteractor } from "@/features/wiki/update-wiki-page.interactor";
 import { DeleteWikiPageInteractor } from "@/features/wiki/delete-wiki-page.interactor";
+import { ProposeWikiPageChangesInteractor } from "@/features/wiki/propose-wiki-page-changes.interactor";
+import { GetWikiPageProposalsInteractor } from "@/features/wiki/get-wiki-page-proposals.interactor";
+import { ApproveWikiPageProposalInteractor } from "@/features/wiki/approve-wiki-page-proposal.interactor";
+import { RejectWikiPageProposalInteractor } from "@/features/wiki/reject-wiki-page-proposal.interactor";
+import { GetWikiKnowledgeGapsInteractor } from "@/features/wiki/get-wiki-knowledge-gaps.interactor";
+import { PruneWikiKnowledgeGapsInteractor } from "@/features/wiki/prune-wiki-knowledge-gaps.interactor";
+import { SyncStaleWikiSectionsInteractor } from "@/features/wiki/sync-stale-wiki-sections.interactor";
 import { StartWikiHomepageSetupInteractor } from "@/features/wiki/start-wiki-homepage-setup.interactor";
 import { GetWikiHomepageSetupStateInteractor } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 import { FailWikiWebsiteCrawlInteractor } from "@/ee/wiki-crawl/fail-wiki-website-crawl.interactor";
@@ -427,7 +437,7 @@ import { CreateSupportTicketInteractor } from "@/features/support/create-support
 import { WikiEmbeddingService } from "@/ee/wiki-retrieval/wiki-embedding.service";
 import { DocsSemanticIndexDispatcher } from "@/ee/wiki-retrieval/docs-semantic-index-dispatcher";
 import { DocsSemanticIndexService } from "@/ee/wiki-retrieval/docs-semantic-index.service";
-import { PrismaDocsChunkRepo } from "@/features/mcp-tools/prisma-docs-chunk.repository";
+import { PrismaDocsSectionRepo } from "@/features/mcp-tools/prisma-docs-section.repository";
 import { tenantStorage } from "@/core/decorators/tenant-context";
 import type { QueryEmbedding } from "@/core/retrieval/retrieval-pipeline";
 import { PrismaWikiWebsiteCrawlRepo } from "@/ee/wiki-crawl/prisma-wiki-website-crawl.repository";
@@ -435,6 +445,7 @@ import { WikiWebsiteCrawlService } from "@/ee/wiki-crawl/wiki-website-crawl.serv
 import { WikiWebsiteSynthesisService } from "@/ee/wiki-crawl/wiki-website-synthesis.service";
 import { WikiSemanticQueryEmbedder } from "@/ee/wiki-retrieval/wiki-query-embedder";
 import { WikiSemanticIndexService } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
+import { WikiSummaryService } from "@/ee/wiki-retrieval/wiki-summary.service";
 import { WikiSemanticIndexDispatcher } from "@/ee/wiki-retrieval/wiki-semantic-index-scheduler";
 import { WikiSemanticIndexListener } from "@/ee/wiki-retrieval/wiki-semantic-index-listener";
 export const getProviderAvatarService = (companyId: string) => {
@@ -540,6 +551,8 @@ export const getExportRecordWorkbookInteractor = () =>
   new ExportRecordWorkbookInteractor(getRecordRepo(), getRecordAccessPolicy(), getEventService());
 export const getImportRecordsInteractor = () =>
   new ImportRecordsInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordWriteService());
+export const getImportSpreadsheetInteractor = () =>
+  new ImportSpreadsheetInteractor(getRecordRepo(), getQueryRecordsInteractor(), getImportRecordsInteractor());
 export const getGetRecordInteractor = () => new GetRecordInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getEmbeddedSublistReader = () => new EmbeddedSublistReader(getQueryRecordsInteractor(), getP13nRepo());
 export const getGetRecordEditorInteractor = () =>
@@ -806,7 +819,10 @@ export const getRoutineRepo = (companyId?: string) =>
 export const getRoutineEventAccess = () => new PrismaRoutineEventAccess(getRecordRecipientReader());
 export const getWebhookDeliveryRepo = () => new PrismaWebhookDeliveryRepo(getRecordRecipientReader());
 export const getEventLogRepo = () => new PrismaEventLogRepo(getBackgroundTaskService());
-export const getWikiPageRepo = (companyId?: string) => new PrismaWikiPageRepo(getPermissionService(), companyId);
+export const getWikiPageRepo = (companyId?: string) =>
+  new PrismaWikiPageRepo(getPermissionService(), companyId, new PrismaWikiPageProposalRepo(companyId));
+export const getWikiSectionRepo = () => new PrismaWikiSectionRepo(getWikiPageRepo());
+export const getWikiKnowledgeGapRepo = () => new PrismaWikiKnowledgeGapRepo();
 export const getMessagingRepo = () =>
   new PrismaMessagingRepo(
     getRecordRepo(),
@@ -855,17 +871,18 @@ export const getCountSystemTasksInteractor = () => new CountSystemTasksInteracto
 export const getUserPendingAuthorizationTaskListener = () =>
   new UserPendingAuthorizationTaskListener(getMembershipTaskService());
 export const getWikiEmbeddingService = () => new WikiEmbeddingService(getAgentUsageService());
+export const getWikiSummaryService = () => new WikiSummaryService(getAgentUsageService());
 export const getWikiSemanticIndexService = () =>
-  new WikiSemanticIndexService(getWikiPageRepo(), getWikiEmbeddingService());
+  new WikiSemanticIndexService(getWikiSectionRepo(), getWikiEmbeddingService(), getWikiSummaryService());
 const getWikiSemanticIndexDispatcher = (trigger: "write" | "search") =>
-  new WikiSemanticIndexDispatcher(getWikiPageRepo(), getWikiEmbeddingService(), getBackgroundTaskService(), trigger);
+  new WikiSemanticIndexDispatcher(getWikiSectionRepo(), getWikiEmbeddingService(), getBackgroundTaskService(), trigger);
 export const getWikiSemanticIndexListener = () =>
   new WikiSemanticIndexListener(getWikiSemanticIndexDispatcher("write"));
-export const getDocsChunkRepo = () => new PrismaDocsChunkRepo();
+export const getDocsSectionRepo = () => new PrismaDocsSectionRepo();
 export const getDocsSemanticIndexService = () =>
-  new DocsSemanticIndexService(getDocsChunkRepo(), getAgentUsageService());
+  new DocsSemanticIndexService(getDocsSectionRepo(), getAgentUsageService());
 export const getDocsSemanticIndexDispatcher = () =>
-  new DocsSemanticIndexDispatcher(getDocsChunkRepo(), getBackgroundTaskService());
+  new DocsSemanticIndexDispatcher(getDocsSectionRepo(), getBackgroundTaskService());
 export const getRetrievalQueryEmbedder = (): QueryEmbedding | null => {
   const tenant = tenantStorage.getStore();
   if (!tenant?.user || tenant.bypass) return null;
@@ -887,13 +904,14 @@ export const getSearchCommandCatalogInteractor = () =>
     getRecordAccessPolicy(),
     getDataViewRepo(),
     getSearchCatalogRepo(),
-    getDocsChunkRepo(),
+    getDocsSectionRepo(),
     getRetrievalQueryEmbedder(),
     new SearchCatalogIndexDispatcher(getBackgroundTaskService()),
   );
 const getWikiSemanticRetrieval = () => ({
   embedder: new WikiSemanticQueryEmbedder(getWikiEmbeddingService()),
   scheduler: getWikiSemanticIndexDispatcher("search"),
+  gaps: getWikiKnowledgeGapRepo(),
 });
 
 const EXPECTED_EVENT_LISTENERS = [
@@ -948,7 +966,6 @@ export const getConnectedAccountIdsValidator = () =>
 
 // --- User ---
 
-export const getInitializeRecordModelService = () => new InitializeRecordModelService(getRecordRepo());
 export const getRegisterUserInteractor = () =>
   new RegisterUserInteractor(
     getAuthService(),
@@ -956,7 +973,6 @@ export const getRegisterUserInteractor = () =>
     getEventService(),
     getRouteGuardService(),
     getCompanyRepo(),
-    getInitializeRecordModelService(),
     new WorkspaceRegistrationService(getCompanyRepo(), getRoleRepo(), getUserRepo()),
   );
 
@@ -1105,17 +1121,39 @@ export const getGetWidgetByIdInteractor = () => new GetWidgetByIdInteractor(getW
 export const getGetWikiPagesInteractor = () => new GetWikiPagesInteractor(getWikiPageRepo());
 export const getGetWikiCatalogInteractor = () => new GetWikiCatalogInteractor(getWikiPageRepo());
 export const getSearchWikiPagesInteractor = () =>
-  new SearchWikiPagesInteractor(getWikiPageRepo(), "stored", null, sharedWikiSearchOrders);
+  new SearchWikiPagesInteractor(getWikiSectionRepo(), "stored", null, sharedWikiSearchOrders);
 export const getSearchWikiKnowledgeInteractor = () =>
-  new SearchWikiPagesInteractor(getWikiPageRepo(), "stored", getWikiSemanticRetrieval(), sharedWikiSearchOrders);
+  new SearchWikiPagesInteractor(getWikiSectionRepo(), "stored", getWikiSemanticRetrieval(), sharedWikiSearchOrders);
 export const getSearchExternalizedWikiPagesInteractor = () =>
-  new SearchWikiPagesInteractor(getWikiPageRepo(), "externalized", getWikiSemanticRetrieval(), sharedWikiSearchOrders);
+  new SearchWikiPagesInteractor(
+    getWikiSectionRepo(),
+    "externalized",
+    getWikiSemanticRetrieval(),
+    sharedWikiSearchOrders,
+  );
+export const getGetWikiKnowledgeGapsInteractor = () => new GetWikiKnowledgeGapsInteractor(getWikiKnowledgeGapRepo());
+export const getPruneWikiKnowledgeGapsInteractor = () =>
+  new PruneWikiKnowledgeGapsInteractor(getWikiKnowledgeGapRepo());
+export const getSyncStaleWikiSectionsInteractor = () => new SyncStaleWikiSectionsInteractor(getWikiSectionRepo());
 export const getGetWikiPageInteractor = () => new GetWikiPageInteractor(getWikiPageRepo());
 export const getCreateWikiPagesInteractor = () => new CreateWikiPagesInteractor(getWikiPageRepo(), getEventService());
 export const getMoveWikiPageInteractor = () => new MoveWikiPageInteractor(getWikiPageRepo());
 export const getUpdateWikiPageInteractor = () => new UpdateWikiPageInteractor(getWikiPageRepo(), getEventService());
 export const getDeleteWikiPageInteractor = () =>
   new DeleteWikiPageInteractor(getWikiPageRepo(), getEventService(), getTrashRepo());
+const getWikiPageProposalRepo = () => new PrismaWikiPageProposalRepo();
+export const getProposeWikiPageChangesInteractor = () =>
+  new ProposeWikiPageChangesInteractor(getWikiPageProposalRepo());
+export const getGetWikiPageProposalsInteractor = () => new GetWikiPageProposalsInteractor(getWikiPageProposalRepo());
+export const getApproveWikiPageProposalInteractor = () =>
+  new ApproveWikiPageProposalInteractor(
+    getWikiPageProposalRepo(),
+    getCreateWikiPagesInteractor(),
+    getUpdateWikiPageInteractor(),
+    getDeleteWikiPageInteractor(),
+  );
+export const getRejectWikiPageProposalInteractor = () =>
+  new RejectWikiPageProposalInteractor(getWikiPageProposalRepo());
 export const getWikiWebsiteCrawlRepo = (): PrismaWikiWebsiteCrawlRepo =>
   new PrismaWikiWebsiteCrawlRepo(getWikiPageRepo());
 export const getFailWikiWebsiteCrawlInteractor = () => new FailWikiWebsiteCrawlInteractor(getWikiWebsiteCrawlRepo());
@@ -1131,7 +1169,12 @@ export const getWikiWebsiteCrawlService = () =>
     wikiWebsiteNetwork(),
   );
 export const getWikiWebsiteSynthesisService = () =>
-  new WikiWebsiteSynthesisService(getWikiWebsiteCrawlRepo(), getAgentUsageService(), getCreateWikiPagesInteractor());
+  new WikiWebsiteSynthesisService(
+    getWikiWebsiteCrawlRepo(),
+    getAgentUsageService(),
+    getCreateWikiPagesInteractor(),
+    getWorkspaceSetupKnowledgeBrief(),
+  );
 
 // --- Webhook ---
 
@@ -1929,3 +1972,92 @@ export const getManageDataViewsInteractor = () =>
 import { MutateThreadRecordsInteractor } from "@/ee/messaging/thread-records/thread-records.interactor";
 import { ReadThreadRecordsInteractor } from "@/ee/messaging/thread-records/read-thread-records.interactor";
 import { PrismaThreadRecordsRepo } from "@/ee/messaging/thread-records/prisma-thread-records.repository";
+
+import { PrismaWorkspaceSetupRepo } from "@/ee/workspace-setup/prisma-workspace-setup.repository";
+import { WorkspaceSetupModelService } from "@/ee/workspace-setup/workspace-setup-model.service";
+import { WORKSPACE_SETUP_BUDGETS, type WorkspaceSetupBudgetKind } from "@/ee/workspace-setup/workspace-setup-spend";
+import { WorkspaceSetupInterviewService } from "@/ee/workspace-setup/workspace-setup-interview.service";
+import { WorkspaceSetupPlanner } from "@/ee/workspace-setup/workspace-setup-planner";
+import { WorkspaceSetupBuildService } from "@/ee/workspace-setup/workspace-setup-build.service";
+import { WorkspaceSetupCrawlStarter } from "@/ee/workspace-setup/workspace-setup-crawl-starter";
+import { WorkspaceSetupKnowledgeBrief } from "@/ee/workspace-setup/workspace-setup-knowledge-brief";
+import { websiteBrandFetch } from "@/ee/workspace-setup/workspace-setup-brand";
+import { SetWorkspaceSetupWebsiteInteractor } from "@/ee/workspace-setup/set-workspace-setup-website.interactor";
+import { StartWorkspaceSetupInteractor } from "@/ee/workspace-setup/start-workspace-setup.interactor";
+import { GetWorkspaceSetupStatusInteractor } from "@/ee/workspace-setup/get-workspace-setup-status.interactor";
+import { SaveWorkspaceSetupAnswersInteractor } from "@/ee/workspace-setup/save-workspace-setup-answers.interactor";
+import { UploadWorkspaceSetupSpreadsheetInteractor } from "@/ee/workspace-setup/upload-workspace-setup-spreadsheet.interactor";
+import { PlanWorkspaceSetupInteractor } from "@/ee/workspace-setup/plan-workspace-setup.interactor";
+import { AdjustWorkspaceSetupInteractor } from "@/ee/workspace-setup/adjust-workspace-setup.interactor";
+import { ConfirmWorkspaceSetupInteractor } from "@/ee/workspace-setup/confirm-workspace-setup.interactor";
+import { RetryWorkspaceSetupPhaseInteractor } from "@/ee/workspace-setup/retry-workspace-setup-phase.interactor";
+
+export const getWorkspaceSetupRepo = () => new PrismaWorkspaceSetupRepo(getWikiWebsiteCrawlRepo());
+export const getWorkspaceSetupKnowledgeBrief = () => new WorkspaceSetupKnowledgeBrief(getWorkspaceSetupRepo());
+export const getWorkspaceSetupModelService = (budget: WorkspaceSetupBudgetKind = "plan") =>
+  new WorkspaceSetupModelService(getAgentUsageService(), WORKSPACE_SETUP_BUDGETS[budget]);
+export const getWorkspaceSetupCrawlStarter = () =>
+  new WorkspaceSetupCrawlStarter(getWikiPageRepo(), getWikiWebsiteCrawlRepo(), getBackgroundTaskService());
+export const getWorkspaceSetupInterviewService = () => {
+  const models = getWorkspaceSetupModelService();
+  return new WorkspaceSetupInterviewService(
+    getWorkspaceSetupRepo(),
+    models,
+    new WorkspaceSetupPlanner(
+      models,
+      getRecordRepo(),
+      getPreviewRecordConfigurationInteractor(),
+      getRecordConfigurationService(),
+      getRecordAccessPolicy(),
+    ),
+  );
+};
+export const getWorkspaceSetupBuildService = () =>
+  new WorkspaceSetupBuildService(
+    getWorkspaceSetupRepo(),
+    getWorkspaceSetupModelService("build"),
+    getRecordRepo(),
+    getPreviewRecordConfigurationInteractor(),
+    getApplyRecordConfigurationInteractor(),
+    getUpsertDataViewInteractor(),
+    getUpsertRecordWidgetInteractor(),
+    getImportSpreadsheetInteractor(),
+    websiteBrandFetch,
+    getUpdateUserDetailsInteractor(),
+    getMutateRecordInteractor(),
+    getCreateWikiPagesInteractor(),
+  );
+export const getStartWorkspaceSetupInteractor = () =>
+  new StartWorkspaceSetupInteractor(
+    getWorkspaceSetupRepo(),
+    getWorkspaceSetupCrawlStarter(),
+    getBackgroundTaskService(),
+  );
+export const getSetWorkspaceSetupWebsiteInteractor = () =>
+  new SetWorkspaceSetupWebsiteInteractor(
+    getWorkspaceSetupRepo(),
+    getWorkspaceSetupCrawlStarter(),
+    getBackgroundTaskService(),
+  );
+export const getGetWorkspaceSetupStatusInteractor = () =>
+  new GetWorkspaceSetupStatusInteractor(getWorkspaceSetupRepo(), getAgentUsageService(), getRecordRepo());
+export const getSaveWorkspaceSetupAnswersInteractor = () =>
+  new SaveWorkspaceSetupAnswersInteractor(getWorkspaceSetupRepo());
+export const getUploadWorkspaceSetupSpreadsheetInteractor = () =>
+  new UploadWorkspaceSetupSpreadsheetInteractor(getWorkspaceSetupRepo());
+export const getPlanWorkspaceSetupInteractor = () =>
+  new PlanWorkspaceSetupInteractor(getWorkspaceSetupRepo(), getBackgroundTaskService());
+export const getAdjustWorkspaceSetupInteractor = () =>
+  new AdjustWorkspaceSetupInteractor(
+    getWorkspaceSetupRepo(),
+    getSaveWorkspaceSetupAnswersInteractor(),
+    getPlanWorkspaceSetupInteractor(),
+  );
+export const getConfirmWorkspaceSetupInteractor = () =>
+  new ConfirmWorkspaceSetupInteractor(getWorkspaceSetupRepo(), getBackgroundTaskService());
+export const getRetryWorkspaceSetupPhaseInteractor = () =>
+  new RetryWorkspaceSetupPhaseInteractor(
+    getWorkspaceSetupRepo(),
+    getWorkspaceSetupCrawlStarter(),
+    getBackgroundTaskService(),
+  );

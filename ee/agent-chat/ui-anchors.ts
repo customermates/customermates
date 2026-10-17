@@ -137,7 +137,6 @@ export const CONTROL_PAGES: ControlPage[] = [
       },
       { control: "first-name", description: "Your first name input" },
       { control: "last-name", description: "Your last name input" },
-      { control: "country", description: "Your country select" },
       {
         control: "avatar-url",
         description: "Avatar URL input for your profile picture",
@@ -173,11 +172,6 @@ export const CONTROL_PAGES: ControlPage[] = [
       {
         control: "last-name",
         description: "Last name input in the member dialog; editable for roles with Manage, read-only on your own row",
-        prerequisite: "a member row",
-      },
-      {
-        control: "country",
-        description: "Country select in the member dialog; editable for roles with Manage, read-only on your own row",
         prerequisite: "a member row",
       },
       {
