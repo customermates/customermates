@@ -125,7 +125,10 @@ describeDatabase("a browser session whose workspace was left on another device",
     const { getLeaveWorkspaceInteractor } = await import("@/core/di");
     as(sessions.leaving, SERVER_ACTION);
 
-    expect(await getLeaveWorkspaceInteractor().invoke()).toEqual({ ok: true, data: { companyId: companies.left } });
+    expect(await getLeaveWorkspaceInteractor().invoke({ companyId: companies.left })).toEqual({
+      ok: true,
+      data: { companyId: companies.left },
+    });
 
     expect(await activeCompanyId(sessions.stale.id)).toBe(companies.left);
   });

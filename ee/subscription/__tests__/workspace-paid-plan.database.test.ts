@@ -437,7 +437,10 @@ describeDatabase("paying for an extra workspace of one login on PostgreSQL", { t
     expect((await getAdminUpdateUserDetailsInteractor().invoke({ userId: pendingId, status: "active" })).ok).toBe(true);
     expect(providerSubscription()).toMatchObject({ quantity: 3, quantityUpdates: [3, 2, 3] });
     requestContext.headers = new Headers({ cookie: pendingCookie, "content-type": "application/json" });
-    expect(await getLeaveWorkspaceInteractor().invoke()).toEqual({ ok: true, data: { companyId: companies.paid } });
+    expect(await getLeaveWorkspaceInteractor().invoke({ companyId: companies.paid })).toEqual({
+      ok: true,
+      data: { companyId: companies.paid },
+    });
     expect(providerSubscription()).toMatchObject({ quantity: 2, quantityUpdates: [3, 2, 3, 2] });
     expect(readLocalCheckouts(providerDirectory)).toHaveLength(1);
   });

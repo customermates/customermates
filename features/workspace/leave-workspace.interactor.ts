@@ -1,4 +1,4 @@
-import type { Validated } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { AuthService } from "@/features/auth/auth.service";
 import type { UpdateUserRoleRepo } from "@/features/user/upsert/update-user-role.repo";
 import type { LeaveWorkspaceRepo } from "./leave-workspace.repo";
@@ -10,15 +10,19 @@ import { Status } from "@/generated/prisma";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
+import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { fail, failAuthorization, unwoundFailure } from "@/core/validation/interactor-failure-server";
+import { fail, failAuthorization, failConflict, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
+const Schema = z.object({ companyId: z.uuid() });
+export type LeaveWorkspaceData = Data<typeof Schema>;
+
 const OutputSchema = z.object({ companyId: z.string() });
-type LeaveWorkspaceResult = z.infer<typeof OutputSchema>;
+type LeaveWorkspaceResult = Data<typeof OutputSchema>;
 
 @TenantInteractor()
-export class LeaveWorkspaceInteractor extends AuthenticatedInteractor<void, LeaveWorkspaceResult> {
+export class LeaveWorkspaceInteractor extends AuthenticatedInteractor<LeaveWorkspaceData, LeaveWorkspaceResult> {
   constructor(
     private readonly authService: AuthService,
     private readonly repo: LeaveWorkspaceRepo,
@@ -28,8 +32,11 @@ export class LeaveWorkspaceInteractor extends AuthenticatedInteractor<void, Leav
     super();
   }
 
+  @Validate(Schema)
   @ValidateOutput(OutputSchema)
-  async invoke(): Validated<LeaveWorkspaceResult> {
+  async invoke(data: LeaveWorkspaceData): Validated<LeaveWorkspaceResult> {
+    if (data.companyId !== this.companyId) return failConflict(CustomErrorCode.workspaceChanged, ["companyId"]);
+
     const session = await this.authService.getInteractiveSession();
     if (!session || session.user.email !== this.user.email) return failAuthorization(CustomErrorCode.permissionDenied);
 

@@ -352,7 +352,7 @@ describeDatabase("joining another workspace by invitation with an existing login
     const { interactorFailureCodes } = await import("@/core/validation/validation.utils");
     asSession();
 
-    expect(await getLeaveWorkspaceInteractor().invoke()).toEqual({
+    expect(await getLeaveWorkspaceInteractor().invoke({ companyId: fixture.companies.invited })).toEqual({
       ok: true,
       data: { companyId: fixture.companies.invited },
     });

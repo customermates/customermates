@@ -17,13 +17,16 @@ vi.mock("next-intl/server", () => ({
 }));
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { interactorFailureCodes } from "@/core/validation/validation.utils";
 import { LeaveWorkspaceInteractor } from "../leave-workspace.interactor";
 import { WorkspaceDepartureService } from "../workspace-departure.service";
 
+const COMPANY_ID = "00000000-0000-4000-8000-000000000001";
 const adminRole = createMockUser().role;
 const member = createMockUser({
   id: "member-1",
-  companyId: "company-1",
+  companyId: COMPANY_ID,
   email: "ben@example.com",
   status: Status.active,
   role: adminRole ? { ...adminRole, isSystemRole: false } : null,
@@ -96,9 +99,9 @@ describe("LeaveWorkspaceInteractor", () => {
   });
 
   it("disconnects the leaver's own channels in the workspace right after leaving", async () => {
-    const result = await runWithTenant(member, () => interactor().invoke());
+    const result = await runWithTenant(member, () => interactor().invoke({ companyId: COMPANY_ID }));
 
-    expect(result).toEqual({ ok: true, data: { companyId: "company-1" } });
+    expect(result).toEqual({ ok: true, data: { companyId: COMPANY_ID } });
     expect(channels.findOwnedConnectedAccountIdsCompanyWide).toHaveBeenCalledWith("member-1");
     expect(channelRemoval.deleteForBillingOrThrow.mock.calls).toEqual([
       ["account-1", "ownerInactive"],
@@ -115,7 +118,9 @@ describe("LeaveWorkspaceInteractor", () => {
     const failure = new Error("provider unavailable");
     channelRemoval.deleteForBillingOrThrow.mockRejectedValueOnce(failure);
 
-    await expect(runWithTenant(member, () => interactor().invoke())).resolves.toMatchObject({ ok: true });
+    await expect(runWithTenant(member, () => interactor().invoke({ companyId: COMPANY_ID }))).resolves.toMatchObject({
+      ok: true,
+    });
 
     expect(channelRemoval.deleteForBillingOrThrow).toHaveBeenCalledTimes(2);
     expect(sentry.captureException).toHaveBeenCalledWith(failure, { tags: { kind: "workspace-departure-channel" } });
@@ -125,11 +130,24 @@ describe("LeaveWorkspaceInteractor", () => {
     const lastAdmin = createMockUser({ ...member, role: adminRole });
     roleRepo.hasAnotherActiveSystemRoleUser.mockResolvedValue(false);
 
-    const result = await runWithTenant(lastAdmin, () => interactor().invoke());
+    const result = await runWithTenant(lastAdmin, () => interactor().invoke({ companyId: COMPANY_ID }));
 
     expect(result.ok).toBe(false);
     expect(channels.findOwnedConnectedAccountIdsCompanyWide).not.toHaveBeenCalled();
     expect(channelRemoval.deleteForBillingOrThrow).not.toHaveBeenCalled();
+    expect(events.publish).not.toHaveBeenCalled();
+  });
+
+  it("refuses to leave when the page shows another workspace than the session's", async () => {
+    const otherWorkspace = "00000000-0000-4000-8000-000000000002";
+
+    const result = await runWithTenant(member, () => interactor().invoke({ companyId: otherWorkspace }));
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(interactorFailureCodes(result.error)).toEqual([CustomErrorCode.workspaceChanged]);
+
+    expect(repo.leaveCompanyWide).not.toHaveBeenCalled();
+    expect(authService.revokeMembershipCredentials).not.toHaveBeenCalled();
     expect(events.publish).not.toHaveBeenCalled();
   });
 });

@@ -13,6 +13,7 @@ import {
 import { BaseStore } from "@/core/base/base.store";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import { buildLocalePath } from "@/i18n/locale-registry";
 
 import { WorkspaceTabChannel } from "./workspace-tab-channel";
@@ -117,11 +118,13 @@ export class WorkspacesStore extends BaseStore {
   };
 
   leaveCurrent = async (): Promise<boolean> => {
-    if (this.isNavigating) return false;
+    const current = this.current;
+    if (this.isNavigating || !current) return false;
 
-    const result = await this.whileLoading(() => leaveWorkspaceAction());
+    const result = await this.whileLoading(() => leaveWorkspaceAction({ companyId: current.companyId }));
     if (!result.ok) {
-      toastZodErrorTree(result.error);
+      if (result.code === CustomErrorCode.workspaceChanged) this.showWorkspaceChanged();
+      else toastZodErrorTree(result.error);
       return false;
     }
 

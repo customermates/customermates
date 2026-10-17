@@ -245,12 +245,12 @@ describeDatabase("one login in several isolated workspaces", { timeout: 120_000 
     await client.query('UPDATE "User" SET "status" = \'inactive\' WHERE "id" = $1', [fixture.members.bSecondAdmin]);
 
     asSession(fixture);
-    const refused = await getLeaveWorkspaceInteractor().invoke();
+    const refused = await getLeaveWorkspaceInteractor().invoke({ companyId: fixture.companies.b });
     expect(refused.ok).toBe(false);
 
     await client.query('UPDATE "User" SET "status" = \'active\' WHERE "id" = $1', [fixture.members.bSecondAdmin]);
     asSession(fixture);
-    expect(await getLeaveWorkspaceInteractor().invoke()).toEqual({
+    expect(await getLeaveWorkspaceInteractor().invoke({ companyId: fixture.companies.b })).toEqual({
       ok: true,
       data: { companyId: fixture.companies.b },
     });

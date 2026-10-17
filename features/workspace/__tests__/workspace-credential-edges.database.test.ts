@@ -202,7 +202,10 @@ describeDatabase("credentials and invitations at the edges of a login's membersh
     const { getLeaveWorkspaceInteractor } = await import("@/core/di");
     asSession();
 
-    expect(await getLeaveWorkspaceInteractor().invoke()).toEqual({ ok: true, data: { companyId: companies.left } });
+    expect(await getLeaveWorkspaceInteractor().invoke({ companyId: companies.left })).toEqual({
+      ok: true,
+      data: { companyId: companies.left },
+    });
 
     expect(await refresh(refreshTokens.left)).toMatchObject({ status: 401, body: { error: "invalid_grant" } });
     const kept = await refresh(refreshTokens.kept);

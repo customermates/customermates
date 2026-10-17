@@ -129,6 +129,7 @@ describe("WorkspacesStore", () => {
 
     await expect(store.leaveCurrent()).resolves.toBe(true);
 
+    expect(actions.leaveWorkspaceAction).toHaveBeenCalledWith({ companyId: "a" });
     expect(navigationGuard.navigateDocument).toHaveBeenCalledWith("/de");
   });
 
@@ -141,6 +142,19 @@ describe("WorkspacesStore", () => {
     await expect(store.leaveCurrent()).resolves.toBe(false);
 
     expect(toastZodErrorTree).toHaveBeenCalledWith(error);
+    expect(navigationGuard.navigateDocument).not.toHaveBeenCalled();
+  });
+
+  it("asks to reload instead of leaving when the session moved to another workspace meanwhile", async () => {
+    const { store, navigationGuard } = storeFor();
+    store.setWorkspaces([workspace("a", { isCurrent: true })]);
+    const error = { errors: ["Common.errors.workspaceChanged"] };
+    actions.leaveWorkspaceAction.mockResolvedValue({ ok: false, error, code: "workspaceChanged" });
+
+    await expect(store.leaveCurrent()).resolves.toBe(false);
+
+    expect(store.foreignNotice).toEqual({ companyId: null, name: null });
+    expect(toastZodErrorTree).not.toHaveBeenCalled();
     expect(navigationGuard.navigateDocument).not.toHaveBeenCalled();
   });
 
