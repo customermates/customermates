@@ -4,10 +4,14 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main]
+    branches: [main, chore/faster-test-pipeline] # TEMP: drop the second branch before merging into #222
 
 permissions:
   contents: read
+
+concurrency:
+  group: page-shipping-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   rendered-hubs:
@@ -24,8 +28,13 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
-          cache: yarn
-      - run: yarn install --frozen-lockfile
+      - uses: ./.github/actions/setup
+      - name: Restore the Next.js build cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .next/cache
+          key: next-cache-hubs-${{ hashFiles('yarn.lock') }}-${{ github.sha }}
+          restore-keys: next-cache-hubs-${{ hashFiles('yarn.lock') }}-
       - name: Build the production application
         run: yarn build
       - name: Crawl rendered landing hubs and every sitemap URL

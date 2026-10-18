@@ -7,6 +7,8 @@ const aliases = {
   "@api": path.resolve(__dirname, "./app/api"),
   "server-only": path.resolve(__dirname, "./tests/helpers/server-only.ts"),
 };
+// CI and scripts/verify set VITEST_RETRY=1; the flaky reporter there lists every test that passed only on a retry.
+const retry = Number(process.env.VITEST_RETRY ?? 0);
 const testEnvironment = {
   APP_MODE: "self-hosted",
   BASE_URL: "http://localhost:4000",
@@ -149,6 +151,7 @@ export default defineConfig({
         test: {
           name: "node",
           globals: true,
+          retry,
           environment: "node",
           env: testEnvironment,
           include: nodeTestInclude,
@@ -161,6 +164,7 @@ export default defineConfig({
         test: {
           name: "dom",
           globals: true,
+          retry,
           environment: "jsdom",
           env: testEnvironment,
           server: { deps: { inline: [/next-intl/] } },

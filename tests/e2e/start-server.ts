@@ -15,7 +15,20 @@ const environment = localE2eEnvironment();
 const mode = process.env.CRM_E2E_SERVER_MODE === "development" ? "dev" : "start";
 // Match Next's production rewrite origin so missing pages stay internal; keep dev's HMR origin.
 const hostname = mode === "dev" ? "127.0.0.1" : new NextRequest(environment.baseUrl).nextUrl.hostname;
-const guard = resolve("tests/e2e/network-guard.mjs");
+// Live checks (scripts/verify/live-checks.mjs) replace the offline transport with a guard that lets only sends between
+// the designated Unipile test inboxes leave the machine; everything else keeps the loopback-only network guard.
+const live = process.env.CRM_E2E_LIVE_UNIPILE === "true";
+if (live && (!process.env.UNIPILE_API_KEY || !process.env.CRM_LIVE_WEBHOOK_SECRET))
+  throw new Error("Live checks need UNIPILE_API_KEY and CRM_LIVE_WEBHOOK_SECRET");
+const guard = resolve(live ? "tests/e2e/live/live-egress-guard.mjs" : "tests/e2e/network-guard.mjs");
+const transport = live
+  ? { UNIPILE_API_KEY: process.env.UNIPILE_API_KEY, UNIPILE_WEBHOOK_SECRET: process.env.CRM_LIVE_WEBHOOK_SECRET }
+  : {
+      CRM_LOCAL_TEST_TRANSPORT: "true",
+      UNIPILE_API_KEY: "e2e-local-provider-no-network",
+      UNIPILE_WEBHOOK_SECRET: localWebhookSecret,
+      CRM_E2E_EMAIL_LEDGER: environment.emailLedgerFile,
+    };
 const child = spawn(
   process.execPath,
   [
@@ -39,18 +52,15 @@ const child = spawn(
       WORKFLOW_LOCAL_BASE_URL: environment.baseUrl,
       WORKFLOW_LOCAL_DATA_DIR: environment.workflowDirectory,
       WORKFLOW_LOCAL_QUEUE_CONCURRENCY: "32",
-      CRM_LOCAL_TEST_TRANSPORT: "true",
-      UNIPILE_API_KEY: "e2e-local-provider-no-network",
-      UNIPILE_WEBHOOK_SECRET: localWebhookSecret,
-      CRM_E2E_EMAIL_LEDGER: environment.emailLedgerFile,
+      ...transport,
       HOSTED_AI_OPERATOR_CONTROLS_ENABLED: "true",
       HOSTED_AI_PROVIDER_WORK_PAUSED: "true",
       NEXT_TELEMETRY_DISABLED: "1",
       CRM_E2E_PROVIDER_DIRECTORY: environment.providerDirectory,
-      ...(process.env.LEMONSQUEEZY_API_KEY ? localLemonSqueezyEnvironment(process.env.BETTER_AUTH_SECRET) : {}),
-      ...(process.env.GOOGLE_CLIENT_ID ? localOAuthEnvironment("google") : {}),
-      ...(process.env.AZURE_AD_CLIENT_ID ? localOAuthEnvironment("microsoft") : {}),
-      ...(process.env.RESEND_API_KEY ? localResendEnvironment() : {}),
+      ...(process.env.LEMONSQUEEZY_API_KEY && !live ? localLemonSqueezyEnvironment(process.env.BETTER_AUTH_SECRET) : {}),
+      ...(process.env.GOOGLE_CLIENT_ID && !live ? localOAuthEnvironment("google") : {}),
+      ...(process.env.AZURE_AD_CLIENT_ID && !live ? localOAuthEnvironment("microsoft") : {}),
+      ...(process.env.RESEND_API_KEY && !live ? localResendEnvironment() : {}),
       NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ""} --import ${guard}`.trim(),
     },
   },

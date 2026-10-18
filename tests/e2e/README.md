@@ -94,6 +94,20 @@ NODE
 
 Unset inherited `DATABASE_URL`, `DIRECT_URL`, `RUN_DATABASE_TESTS`, `CRM_E2E_DATABASE_URL`, `CRM_E2E_BASE_URL`, `CRM_E2E_SERVER_MODE`, `WORKFLOW_LOCAL_DATA_DIR` and provider-pause flags before the commands below if the surrounding shell sets them. Existing process variables take precedence over Node's `--env-file` values. Unset libpq routing overrides; do not bypass a safety rejection. Validate the resolved environment before every migration or verification run.
 
+## Fast path: verification scripts
+
+The manual steps below remain the reference. For everyday verification use the scripts in [scripts/verify](../../scripts/verify), which create their own PostgreSQL containers, databases and builds inside `.runs/verify/` of the worktree and never touch another checkout:
+
+| Command | What it runs |
+| --- | --- |
+| `yarn verify:fast` | generated files, typecheck, lint, i18n audit, the Vitest files affected since `origin/main` (with database tests), Playwright on Cloud Chromium and self-hosted Chromium, and the migration matrix when `prisma/` changed |
+| `yarn verify:full` | the same with the whole Vitest suite, the migration matrix, all five Playwright targets (self-hosted, WebKit and mobile offloaded to ws-test) and the live draft-send checks |
+| `yarn test:shards` | the Vitest suite in parallel shards, each with its own copy of a migrated and seeded template database |
+| `yarn test:e2e:matrix --targets all --offload self-hosted-chromium` | the Playwright matrix: one production build per mode reused across browsers and runs, parallel shards with their own server and database, one retry (reported as flaky) and a comparison with [known-failures.json](known-failures.json) |
+| `yarn test:e2e:baseline compare <outcomes.json>` | prints only new failures, flaky tests and baseline entries that now pass |
+| `yarn test:migrations` | fresh database on PostgreSQL 17 and 16 (migrate, seed twice, status, schema diff) and an upgrade from `origin/main` |
+| `yarn verify:live` | real draft sends between the two Unipile test inboxes only; [the guard](live/live-egress-guard.mjs) refuses any other recipient, account, host or provider write |
+
 ## Application and database gates
 
 Stop only servers owned by this verification session before database tests and scale measurements. Never reset a database used by another server or the human review app. Run gates sequentially; check the exit code and inspect the generated reports.
@@ -121,7 +135,7 @@ Repeat migration deployment and seed twice on a separate loopback PostgreSQL 16 
 
 ## Production-build browser matrix
 
-Prepare the separate browser database. The checked-in [Playwright config](../../playwright.config.ts) launches the actual production application automatically with a dedicated workflow directory, paused hosted AI and the [loopback network guard](network-guard.mjs). It refuses a shared running server, uses one worker and has zero retries. Fixtures authenticate synthetic users, invoke production adapters/interactors and verify persistence rather than replacing CRM with browser mocks.
+Prepare the separate browser database. The checked-in [Playwright config](../../playwright.config.ts) launches the actual production application automatically with a dedicated workflow directory, paused hosted AI and the [loopback network guard](network-guard.mjs). It refuses a shared running server and uses one worker per server; `CRM_E2E_RETRIES` (1 in CI and in the verification scripts, 0 by default) retries a failed test once and reports it as flaky. Fixtures authenticate synthetic users, invoke production adapters/interactors and verify persistence rather than replacing CRM with browser mocks.
 
 ```sh
 node --env-file=.env --env-file=.runs/record-review/browser.env node_modules/.bin/tsx scripts/assert-local-database-url.ts
