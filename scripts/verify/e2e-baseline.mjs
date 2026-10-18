@@ -66,6 +66,10 @@ let newFailures = 0;
 for (const [target, outcomes] of Object.entries(byTarget)) {
   const comparison = compareWithBaseline(outcomes, baseline.targets?.[target]);
   newFailures += comparison.newFailures.length;
+  if (comparison.passed + comparison.failed + comparison.flaky === 0) {
+    newFailures += 1;
+    lines.push(`- **NO TESTS RAN** for \`${target}\`: the shards produced no results (see their logs).`);
+  }
   rows.push({
     target,
     passed: comparison.passed,
@@ -83,5 +87,5 @@ const output = `${table(rows, Object.keys(rows[0] ?? { target: "" }))}\n\n${line
 console.log(output);
 if (options.markdown) appendFileSync(resolve(options.markdown), `### Playwright compared with the known-failure baseline\n\n${output}\n`);
 if (process.env.GITHUB_ACTIONS)
-  for (const line of lines.filter((entry) => entry.includes("NEW FAILURE"))) console.log(`::error::${line.replace(/\*\*/g, "")}`);
+  for (const line of lines.filter((entry) => entry.includes("NEW FAILURE") || entry.includes("NO TESTS RAN"))) console.log(`::error::${line.replace(/\*\*/g, "")}`);
 process.exit(newFailures > 0 ? 1 : 0);

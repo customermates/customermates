@@ -56,7 +56,8 @@ async function receiverCopies(marker: string) {
 
 /** Waits until the receiver inbox has the marked email, then checks that it arrived exactly once. */
 async function expectDeliveredOnce(marker: string) {
-  await expect.poll(() => receiverCopies(marker), { timeout: 180000, intervals: [5000, 10000, 15000] }).toBeGreaterThanOrEqual(1);
+  await expect.poll(() => receiverCopies(marker), { timeout: 420000, intervals: [5000, 10000, 15000] }).toBeGreaterThanOrEqual(1);
+  // The provider lists a delivered email up to a few minutes late; wait a little more before counting copies.
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 20000));
   expect(await receiverCopies(marker)).toBe(1);
 }

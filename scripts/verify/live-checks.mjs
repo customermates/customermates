@@ -66,8 +66,8 @@ if (options.preflight) process.exit(0);
 const cluster = await ensureCluster(17);
 const templateUrl = await recreateDatabase(cluster, "crm_e2e_live_template");
 const digest = await sourceDigest();
-const { copy, database, build } = await withCopyLock("cloud", async () => {
-  const synced = await syncAppCopy("cloud", { databaseUrl: templateUrl, log: resolve(directory, "build.log") });
+const { copy, database, build } = await withCopyLock("cloud", digest, async () => {
+  const synced = await syncAppCopy("cloud", { digest, databaseUrl: templateUrl, log: resolve(directory, "build.log") });
   const [prepared, built] = await Promise.all([
     prepareDatabase(templateUrl, { mode: "cloud", log: resolve(directory, "database.log") }),
     buildAppCopy("cloud", { digest, databaseUrl: templateUrl, secret: synced.secret, log: resolve(directory, "build.log"), force: options.rebuild }),
@@ -98,7 +98,8 @@ const result = await run(
 );
 await recreateDatabase(cluster, "crm_e2e_live").catch(() => undefined);
 
-const reportFile = resolve(copy.directory, ".runs/e2e", runId, "results.json");
+// The live config sits in tests/e2e/live, and Playwright resolves the base config's report paths from there.
+const reportFile = resolve(copy.directory, "tests/e2e/live/.runs/e2e", runId, "results.json");
 const outcomes = existsSync(reportFile) ? testOutcomes(JSON.parse(readFileSync(reportFile, "utf8"))) : [];
 const entries = existsSync(ledger) ? readFileSync(ledger, "utf8").split("\n").filter(Boolean).map((line) => JSON.parse(line)) : [];
 console.log(`\nLive checks (${runId})`);

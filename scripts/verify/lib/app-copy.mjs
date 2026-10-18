@@ -1,30 +1,55 @@
 import { createHash, randomBytes } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { basename, resolve } from "node:path";
 
 import { capture, cleanEnvironment, REPO_ROOT, run } from "./process.mjs";
 
 /**
- * A production build per APP_MODE lives in its own copy of the worktree (~/.cache/customermates-verify/<worktree>/<mode>), so a cloud and a
- * self-hosted build exist side by side, build at the same time, and the worktree stays free for edits while tests run.
- * node_modules is hard-linked from the worktree; the build is skipped when the copied sources are unchanged.
+ * A production build lives in its own copy of the worktree per APP_MODE and source digest
+ * (~/.cache/customermates-verify/<worktree>/<mode>-<digest>). Cloud and self-hosted builds exist side by side and build
+ * at the same time, the worktree stays free for edits while tests run, and a run never rebuilds a copy that another
+ * run's servers are using: changed sources get a new copy (its build cache seeded from the newest older one), and
+ * copies unused for two hours beyond the newest two per mode are removed. node_modules is hard-linked from the worktree.
  */
-export function appDirectory(mode) {
+const OWNER_DIRECTORY = resolve(
+  homedir(),
+  ".cache/customermates-verify",
   // Outside the worktree: nested inside it, Next.js would take the worktree's lockfile as the project root and record
   // server action and trace paths relative to it.
-  const owner = `${basename(REPO_ROOT)}-${createHash("sha256").update(REPO_ROOT).digest("hex").slice(0, 8)}`;
-  return resolve(homedir(), ".cache/customermates-verify", owner, mode);
+  `${basename(REPO_ROOT)}-${createHash("sha256").update(REPO_ROOT).digest("hex").slice(0, 8)}`,
+);
+
+export function appDirectory(mode, digest = "<digest>") {
+  return resolve(OWNER_DIRECTORY, `${mode}-${digest}`);
+}
+
+function copiesOf(mode) {
+  if (!existsSync(OWNER_DIRECTORY)) return [];
+  return readdirSync(OWNER_DIRECTORY)
+    .filter((name) => name.startsWith(`${mode}-`) && !name.endsWith(".lock"))
+    .map((name) => {
+      const directory = resolve(OWNER_DIRECTORY, name);
+      const used = resolve(directory, ".verify-last-used");
+      return { directory, used: existsSync(used) ? statSync(used).mtimeMs : statSync(directory).mtimeMs };
+    })
+    .sort((a, b) => b.used - a.used);
+}
+
+function pruneCopies(mode, keep) {
+  for (const copy of copiesOf(mode).slice(2))
+    if (copy.directory !== keep && Date.now() - copy.used > 2 * 60 * 60 * 1000) rmSync(copy.directory, { recursive: true, force: true });
 }
 
 /**
  * A digest of the files the production build reads: every file except dependencies, generated output, run evidence,
- * tests and CI configuration (path, size and modification time), so editing a spec or a unit test reuses the build.
+ * tests and CI configuration, so editing a spec or a unit test reuses the build.
  */
 export async function sourceDigest() {
+  // File contents, not modification times: generators rewrite unchanged files (openapi:generate, raw-docs:generate).
   const listing = await capture("bash", [
     "-c",
-    "find . \\( -name node_modules -o -path ./.runs -o -path ./.next -o -path ./generated -o -path ./.source -o -path ./.git -o -path ./tests -o -path ./.github -o -path ./scripts/verify -o -name __tests__ \\) -prune -o -type f ! -name '*.test.ts' ! -name '*.test.tsx' ! -name '.env' ! -name '*.tsbuildinfo' ! -name '.eslintcache' -printf '%P %s %T@\\n' | sort",
+    "find . \\( -name node_modules -o -path ./.runs -o -path ./.next -o -path ./generated -o -path ./.source -o -path ./.git -o -path ./tests -o -path ./.github -o -path ./scripts/verify -o -name __tests__ \\) -prune -o -type f ! -name '*.test.ts' ! -name '*.test.tsx' ! -name '.env' ! -name '*.tsbuildinfo' ! -name '.eslintcache' -print0 | sort -z | xargs -0 sha1sum",
   ]);
   return createHash("sha256").update(listing).digest("hex").slice(0, 16);
 }
@@ -78,8 +103,8 @@ export function writeEnvFile(directory, mode, { databaseUrl, secret }) {
  * Serialises preparation of one copy across runs (several agents may verify the same worktree at once): an atomic
  * mkdir lock next to the copy, considered stale after 45 minutes.
  */
-export async function withCopyLock(mode, task) {
-  const lock = `${appDirectory(mode)}.lock`;
+export async function withCopyLock(mode, digest, task) {
+  const lock = `${appDirectory(mode, digest)}.lock`;
   mkdirSync(resolve(lock, ".."), { recursive: true });
   for (;;) {
     try {
@@ -100,9 +125,18 @@ export async function withCopyLock(mode, task) {
 }
 
 /** Mirrors the worktree into the mode's copy and writes its private .env; returns the copy's directory and secret. */
-export async function syncAppCopy(mode, { databaseUrl, log }) {
-  const directory = appDirectory(mode);
-  mkdirSync(directory, { recursive: true });
+export async function syncAppCopy(mode, { digest, databaseUrl, log }) {
+  const directory = appDirectory(mode, digest);
+  if (!existsSync(directory)) {
+    mkdirSync(directory, { recursive: true });
+    const previous = copiesOf(mode).find((copy) => copy.directory !== directory && existsSync(resolve(copy.directory, ".next/cache")));
+    if (previous) {
+      mkdirSync(resolve(directory, ".next"), { recursive: true });
+      await run("cp", ["-a", resolve(previous.directory, ".next/cache"), resolve(directory, ".next/cache")], { log });
+    }
+  }
+  writeFileSync(resolve(directory, ".verify-last-used"), new Date().toISOString());
+  pruneCopies(mode, directory);
   const sync = await run(
     "rsync",
     ["-a", "--delete", "--filter=:- .gitignore", "--exclude=.git", "--exclude=.env", "--exclude=.env.*", "--exclude=/.runs", "--exclude=/.verify-*", `${REPO_ROOT}/`, `${directory}/`],
@@ -126,7 +160,7 @@ export async function syncAppCopy(mode, { databaseUrl, log }) {
 
 /** Builds the copy unless its last successful build used the same sources. */
 export async function buildAppCopy(mode, { digest, databaseUrl, secret, log, force = false }) {
-  const directory = appDirectory(mode);
+  const directory = appDirectory(mode, digest);
   const stampFile = resolve(directory, ".verify-build-stamp");
   if (!force && existsSync(stampFile) && existsSync(resolve(directory, ".next/BUILD_ID")) && readFileSync(stampFile, "utf8") === digest)
     return { code: 0, seconds: 0, reused: true };

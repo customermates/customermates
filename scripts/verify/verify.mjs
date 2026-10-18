@@ -100,7 +100,10 @@ const e2eLane = async () => {
     "--run-id",
     `${runId}-e2e`,
     ...(offloadTargets ? ["--offload", offloadTargets] : []),
-    ...(options.shards ? ["--shards", options.shards] : []),
+    "--shards",
+    options.shards || "4",
+    // Vitest runs beside the browsers on this machine; leave it room.
+    ...(options.vitest ? ["--parallel", "6"] : []),
   ], { echo: true });
 };
 

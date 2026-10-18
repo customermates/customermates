@@ -9,7 +9,7 @@ export default defineConfig({
   ...base,
   testDir: ".",
   testMatch: "**/*.live.ts",
-  timeout: 300000,
+  timeout: 600000,
   retries: 0,
   workers: 1,
   projects: [{ name: "chromium", use: { ...(base.projects?.[0]?.use ?? {}) } }],

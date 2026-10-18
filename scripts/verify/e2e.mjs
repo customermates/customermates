@@ -141,7 +141,7 @@ async function runLocal() {
       const prepare = async () => {
         const copy = options.prebuilt
           ? { directory: REPO_ROOT, secret: process.env.BETTER_AUTH_SECRET || "synthetic-ci-e2e-auth-secret-0123456789abcdef" }
-          : await syncAppCopy(mode, { databaseUrl: templateUrl, log: resolve(directory, `build-${mode}.log`) });
+          : await syncAppCopy(mode, { digest, databaseUrl: templateUrl, log: resolve(directory, `build-${mode}.log`) });
         if (options.prebuilt) writeEnvFile(REPO_ROOT, mode, { databaseUrl: templateUrl, secret: copy.secret });
         const [database, build] = await Promise.all([
           prepareDatabase(templateUrl, { seedTimes: 2, mode, log: resolve(directory, `database-${mode}.log`) }),
@@ -151,7 +151,7 @@ async function runLocal() {
         ]);
         return { copy, database, build };
       };
-      const { copy, database, build } = options.prebuilt ? await prepare() : await withCopyLock(mode, prepare);
+      const { copy, database, build } = options.prebuilt ? await prepare() : await withCopyLock(mode, digest, prepare);
       log(`${mode}: build ${build.reused ? "reused (sources unchanged)" : `${build.code === 0 ? "done" : "FAILED"} in ${formatDuration(build.seconds)}`}, database ${database.ok ? "ready" : `FAILED at ${database.failedStep}`} in ${formatDuration(database.seconds)}`);
       return { mode, template, copy, ok: build.code === 0 && database.ok, buildSeconds: build.seconds, buildReused: build.reused };
     }),
@@ -203,7 +203,7 @@ async function runLocal() {
     const started = Date.now();
     const result = await run(
       "node",
-      ["node_modules/.bin/playwright", "test", "--project", project, ...(files ? files : ["--shard", `${shard}/${shardsPerTarget}`, ...playwrightArgs])],
+      ["node_modules/.bin/playwright", "test", `--project=${project}`, ...(files ? files : ["--shard", `${shard}/${shardsPerTarget}`, ...playwrightArgs])],
       { cwd: setup.copy.directory, env, log: shardLog },
     );
     const reportFile = resolve(setup.copy.directory, ".runs/e2e", shardRunId, "results.json");
