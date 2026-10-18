@@ -50,7 +50,7 @@ describe("guarded account-state route contract", () => {
     expect(actions).toContain("getCompleteOnboardingWikiStepInteractor().invoke()");
     expect(actions).toContain("getSaveOnboardingWizardProgressInteractor().invoke(data)");
     expect(page).toContain("getGetOnboardingWizardProgressInteractor().invoke()");
-    expect(actions).toContain("redirect(result.data.redirectTo)");
+    expect(actions).toContain("redirect(buildLocalePath(await getLocale(), result.data.redirectTo))");
     expect(actions).not.toContain('redirect("/")');
     expect(actions).not.toContain("requireAccountState");
     expect(actions).not.toContain("getUserService");
