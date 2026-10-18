@@ -62,7 +62,7 @@ function renderStep(store: AiConnectionStore, isSubmitting = false): string {
       isSubmitting,
     },
     stepAiStore: store,
-    userStore: { user: { companyId: WORKSPACE_ID } },
+    userStore: { user: null },
     workspacesStore: { current: { companyId: WORKSPACE_ID, name: "Atlas CRM" } },
   } as unknown as RootStore;
 
@@ -137,6 +137,19 @@ describe("StepAi provider chooser", () => {
 
     expect(claudeButton).not.toContain("aria-pressed");
     expect(claudeButton).not.toContain("lucide-check");
+  });
+});
+
+describe("StepAi workspace MCP URL", () => {
+  it("uses the current workspace while the onboarding user is not hydrated yet", () => {
+    const store = makeStore();
+    store.selectProvider("openai");
+    store.selectOpenAiMethod("chatgpt");
+
+    const html = renderStep(store);
+
+    expect(html).toContain(WORKSPACE_MCP_URL);
+    expect(html).not.toMatch(/\/api\/v1\/mcp(?!\/w\/)/);
   });
 });
 

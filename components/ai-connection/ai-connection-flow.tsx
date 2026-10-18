@@ -39,7 +39,7 @@ export const AiConnectionFlow = observer(
     onKeyCreated,
   }: Props) => {
     const t = useTranslations();
-    const { userStore, workspacesStore } = useRootStore();
+    const { workspacesStore } = useRootStore();
     const providerRefs = useRef<Partial<Record<AiConnectionProvider, HTMLButtonElement | null>>>({});
     const screenHeadingRef = useRef<HTMLHeadingElement>(null);
     const resultHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -47,7 +47,7 @@ export const AiConnectionFlow = observer(
     const previousApiKey = useRef(store.apiKey);
 
     const baseUrl = typeof window === "undefined" ? "" : window.location.origin;
-    const workspaceId = userStore.user?.companyId;
+    const workspaceId = workspacesStore.current?.companyId;
     const mcpUrl = baseUrl && (workspaceId ? mcpWorkspaceUrl(baseUrl, workspaceId) : `${baseUrl}${MCP_ENDPOINT_PATH}`);
     const workspaceName = workspaceDisplayName(workspacesStore.current?.name, t("Workspaces.fallbackName"));
     const interactionDisabled = disabled || store.isCreating;
