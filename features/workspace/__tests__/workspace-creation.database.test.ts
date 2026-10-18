@@ -151,9 +151,10 @@ describeDatabase("creating workspaces under one login on PostgreSQL", { timeout:
     };
 
     try {
-      await client.query('INSERT INTO "Company" ("id", "name", "updatedAt") VALUES ($1, \'Legacy\', CURRENT_TIMESTAMP)', [
-        legacyCompanyId,
-      ]);
+      await client.query(
+        'INSERT INTO "Company" ("id", "name", "updatedAt") VALUES ($1, \'Legacy\', CURRENT_TIMESTAMP)',
+        [legacyCompanyId],
+      );
       await client.query(
         'INSERT INTO "UserRole" ("id", "name", "isSystemRole", "companyId", "updatedAt") VALUES ($1, \'Admin\', TRUE, $2, CURRENT_TIMESTAMP)',
         [roleId, legacyCompanyId],

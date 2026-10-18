@@ -86,10 +86,11 @@ export class ProcessLemonSqueezyWebhookInteractor {
     const live = hasLiveSubscription(workspace);
     if (newer && !live) return this.apply(workspace, incoming);
     if (!signed) return this.refuse("unsigned", event, workspace);
-    if (newer && isLive(incoming))
+    if (newer && isLive(incoming)) {
       return this.apply(workspace, incoming, () =>
         this.alertAfterChange("replaced", event, workspace, workspace.lemonSqueezyId),
       );
+    }
 
     const keepsLiveSubscription = newer || (current !== null && isLive(current));
     return this.refuse(keepsLiveSubscription ? "duplicate" : "olderLive", event, workspace, workspace.lemonSqueezyId);

@@ -417,18 +417,17 @@ describeDatabase("operator user administration against a real database", { timeo
       roleId: role.id,
       status: "inactive",
     });
-    await runWithoutTenant(() =>
-      prisma.user.update({ where: { id: departed.userId }, data: { leftAt: now } }),
-    );
+    await runWithoutTenant(() => prisma.user.update({ where: { id: departed.userId }, data: { leftAt: now } }));
     const repo = createTestOperatorRepo();
     const actor = operatorActor();
 
-    for (const status of ["active", "pendingAuthorization"] as const)
+    for (const status of ["active", "pendingAuthorization"] as const) {
       await expect(
         runWithOperator(actor, () =>
           repo.updateUserStatusUnscoped({ userId: departed.userId, status, reason: "Revive a departed member" }, now),
         ),
       ).resolves.toBe("conflict");
+    }
     await expect(
       runWithoutTenant(() => prisma.user.findUnique({ where: { id: departed.userId } })),
     ).resolves.toMatchObject({ status: "inactive", leftAt: now });
@@ -436,7 +435,10 @@ describeDatabase("operator user administration against a real database", { timeo
     await runWithoutTenant(() => prisma.user.update({ where: { id: departed.userId }, data: { status: "active" } }));
     await expect(
       runWithOperator(actor, () =>
-        repo.updateUserStatusUnscoped({ userId: admin.userId, status: "inactive", reason: "Remove the last admin" }, now),
+        repo.updateUserStatusUnscoped(
+          { userId: admin.userId, status: "inactive", reason: "Remove the last admin" },
+          now,
+        ),
       ),
     ).resolves.toBe("conflict");
     const { PrismaRoleRepo } = await import("@/features/role/prisma-role.repository");

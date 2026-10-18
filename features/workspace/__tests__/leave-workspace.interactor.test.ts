@@ -157,11 +157,10 @@ describe("LeaveWorkspaceInteractor", () => {
   });
 
   it("judges the last-admin rule on the membership re-read under the workspace lock", async () => {
-    const staleMember = createMockUser({ ...member, role: { ...adminRole!, isSystemRole: false } });
-    repo.findMemberCompanyWide.mockResolvedValue({ ...staleMember, role: adminRole, leftAt: null });
+    repo.findMemberCompanyWide.mockResolvedValue({ ...member, role: adminRole, leftAt: null });
     roleRepo.hasAnotherActiveSystemRoleUser.mockResolvedValue(false);
 
-    const result = await runWithTenant(staleMember, () => interactor().invoke({ companyId: COMPANY_ID }));
+    const result = await runWithTenant(member, () => interactor().invoke({ companyId: COMPANY_ID }));
 
     expect(result.ok).toBe(false);
     if (!result.ok) expect(interactorFailureCodes(result.error)).toEqual([CustomErrorCode.workspaceLastAdmin]);

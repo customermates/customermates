@@ -344,34 +344,28 @@ describe("a second subscription for a workspace with a live one", () => {
   it.each([
     ["rejected", () => Promise.resolve(false)],
     ["threw", () => Promise.reject(new Error("resend unavailable"))],
-  ])(
-    "still applies a replacement and reports it with both subscription ids when the alert %s",
-    async (_case, send) => {
-      const live = { ...unbound, status: "active", lemonSqueezyId: "sub-old" };
-      const { interactor, emailService, deleteAccountsForPlan } = setup({
-        workspaces: [live],
-        provider: [
-          providerSubscription("sub-old", "active", "2026-10-01T00:00:00.000000Z"),
-          providerSubscription("sub-new", "active", "2026-10-16T09:00:00.000000Z"),
-        ],
-        synced: { companyId: "company-1", changedPlan: "starter" },
-      });
-      emailService.send.mockImplementation(send);
+  ])("still applies a replacement and reports it with both subscription ids when the alert %s", async (_case, send) => {
+    const live = { ...unbound, status: "active", lemonSqueezyId: "sub-old" };
+    const { interactor, emailService, deleteAccountsForPlan } = setup({
+      workspaces: [live],
+      provider: [
+        providerSubscription("sub-old", "active", "2026-10-01T00:00:00.000000Z"),
+        providerSubscription("sub-new", "active", "2026-10-16T09:00:00.000000Z"),
+      ],
+      synced: { companyId: "company-1", changedPlan: "starter" },
+    });
+    emailService.send.mockImplementation(send);
 
-      expect(await interactor.invoke(event("sub-new", signed("company-1")))).toBe("applied");
+    expect(await interactor.invoke(event("sub-new", signed("company-1")))).toBe("applied");
 
-      expect(deleteAccountsForPlan.invoke).toHaveBeenCalledOnce();
-      const context = expect.objectContaining({
-        tags: expect.objectContaining({ reason: "replaced", subscriptionId: "sub-new" }),
-        extra: { companyId: "company-1", otherSubscriptionId: "sub-old" },
-      });
-      const reported = [
-        ...vi.mocked(Sentry.captureMessage).mock.calls,
-        ...vi.mocked(Sentry.captureException).mock.calls,
-      ];
-      expect(reported).toContainEqual([expect.anything(), context]);
-    },
-  );
+    expect(deleteAccountsForPlan.invoke).toHaveBeenCalledOnce();
+    const context = expect.objectContaining({
+      tags: expect.objectContaining({ reason: "replaced", subscriptionId: "sub-new" }),
+      extra: { companyId: "company-1", otherSubscriptionId: "sub-old" },
+    });
+    const reported = [...vi.mocked(Sentry.captureMessage).mock.calls, ...vi.mocked(Sentry.captureException).mock.calls];
+    expect(reported).toContainEqual([expect.anything(), context]);
+  });
 
   it("sends no e-mail when another delivery moved the binding first and the provider retries", async () => {
     const live = { ...unbound, status: "active", lemonSqueezyId: "sub-old" };
