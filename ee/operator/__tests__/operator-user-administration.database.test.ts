@@ -405,6 +405,50 @@ describeDatabase("operator user administration against a real database", { timeo
     expect(statusAudits.every(({ reason }) => reason === null)).toBe(true);
   });
 
+  it("never reactivates a member who left and never counts one as the remaining administrator", async () => {
+    const companyId = await createCompany();
+    const role = await runWithoutTenant(() =>
+      prisma.userRole.create({ data: { companyId, name: `System ${randomUUID()}`, isSystemRole: true } }),
+    );
+    const admin = await createUser({ companyId, email: `left-admin-${randomUUID()}@example.invalid`, roleId: role.id });
+    const departed = await createUser({
+      companyId,
+      email: `left-departed-${randomUUID()}@example.invalid`,
+      roleId: role.id,
+      status: "inactive",
+    });
+    await runWithoutTenant(() =>
+      prisma.user.update({ where: { id: departed.userId }, data: { leftAt: now } }),
+    );
+    const repo = createTestOperatorRepo();
+    const actor = operatorActor();
+
+    for (const status of ["active", "pendingAuthorization"] as const)
+      await expect(
+        runWithOperator(actor, () =>
+          repo.updateUserStatusUnscoped({ userId: departed.userId, status, reason: "Revive a departed member" }, now),
+        ),
+      ).resolves.toBe("conflict");
+    await expect(
+      runWithoutTenant(() => prisma.user.findUnique({ where: { id: departed.userId } })),
+    ).resolves.toMatchObject({ status: "inactive", leftAt: now });
+
+    await runWithoutTenant(() => prisma.user.update({ where: { id: departed.userId }, data: { status: "active" } }));
+    await expect(
+      runWithOperator(actor, () =>
+        repo.updateUserStatusUnscoped({ userId: admin.userId, status: "inactive", reason: "Remove the last admin" }, now),
+      ),
+    ).resolves.toBe("conflict");
+    const { PrismaRoleRepo } = await import("@/features/role/prisma-role.repository");
+    const { runWithTenant } = await import("@/core/decorators/tenant-context");
+    const { createMockUser } = await import("@/tests/helpers/mock-user");
+    await expect(
+      runWithTenant(createMockUser({ id: admin.userId, companyId, roleId: role.id }), () =>
+        new PrismaRoleRepo().hasAnotherActiveSystemRoleUser(admin.userId),
+      ),
+    ).resolves.toBe(false);
+  });
+
   it("corrects provider-backed local snapshots without touching provider or period fields", async () => {
     const providerId = `provider-${randomUUID()}`;
     const companyId = await createCompany({

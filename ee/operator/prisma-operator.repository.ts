@@ -678,6 +678,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
           where: { id: data.userId, companyId },
           select: {
             status: true,
+            leftAt: true,
             isPlatformOperator: true,
             role: { select: { isSystemRole: true } },
             company: {
@@ -692,6 +693,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
         if (!target) return "notFound";
 
         if (actor.userId === data.userId && data.status !== Status.active) return "conflict";
+        if (target.leftAt && data.status !== Status.inactive) return "conflict";
 
         const statusChanged = target.status !== data.status;
         const subscription = target.company.subscription;
@@ -708,6 +710,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
               companyId,
               id: { not: data.userId },
               status: Status.active,
+              leftAt: null,
               role: { isSystemRole: true },
             },
           });
