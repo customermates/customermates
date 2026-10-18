@@ -43,7 +43,13 @@ export class PlanWorkspaceSetupInteractor extends AuthenticatedInteractor<
       return {
         status: "planning",
         planRevision: setup.planRevision + 1,
-        interview: { ...setup.interview, plan: "queued", planError: null, planClaimedAt: null },
+        interview: {
+          ...setup.interview,
+          plan: "queued",
+          planError: null,
+          planClaimedAt: null,
+          planQueuedAt: new Date().toISOString(),
+        },
       };
     });
     if (!queued) return failNotFound(CustomErrorCode.workspaceSetupNotFound, ["setupId"]);
@@ -55,11 +61,11 @@ export class PlanWorkspaceSetupInteractor extends AuthenticatedInteractor<
         const before = previous.setup;
         if (!before || setup.status !== "planning" || setup.planRevision !== queued.setup.planRevision) return null;
         if (setup.interview.plan !== "queued" || setup.interview.followUps !== before.interview.followUps) return null;
-        const { plan, planError, planClaimedAt } = before.interview;
+        const { plan, planError, planClaimedAt, planQueuedAt } = before.interview;
         return {
           status: before.status,
           planRevision: before.planRevision,
-          interview: { ...setup.interview, plan, planError, planClaimedAt },
+          interview: { ...setup.interview, plan, planError, planClaimedAt, planQueuedAt },
         };
       });
       throw error;

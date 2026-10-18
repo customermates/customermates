@@ -4634,7 +4634,7 @@
       "failedBody": "Alles Fertige bleibt erhalten. Versuch den unfertigen Teil erneut, um deinen Workspace fertigzustellen.",
       "failedTitle": "Ein Teil der Einrichtung wurde nicht fertig",
       "frameTitle": "Dein Workspace",
-      "keepsRunning": "Das läuft weiter, auch wenn du den Tab schließt. Du kannst jederzeit zurückkommen.",
+      "keepsRunning": "Das läuft weiter, auch wenn du den Tab schließt. Wir schreiben dir eine E-Mail, sobald dein Workspace fertig ist.",
       "nameColumn": "Name",
       "phases": {
         "dashboard": "Dashboard",
@@ -4845,8 +4845,23 @@
       "noPages": "Es sind keine Seiten für die Wissensdatenbank geplant.",
       "noPipeline": "Es ist keine Pipeline geplant.",
       "pipeline": "Pipeline",
-      "planningBody": "Aus deinen Antworten entstehen Listen, eine Pipeline, ein Dashboard und Seiten für die Wissensdatenbank.",
       "planningTitle": "Wir erstellen deinen Plan",
+      "progress": {
+        "label": "Fortschritt des Plans",
+        "leave": "Du kannst diese Seite schließen. Wir schreiben an <strong>{email}</strong>, sobald dein Plan fertig ist.",
+        "leaveWithoutEmail": "Du kannst diese Seite schließen. Wir schreiben dir eine E-Mail, sobald dein Plan fertig ist.",
+        "minutesLeft": "{minutes, plural, one {Noch etwa # Minute} other {Noch etwa # Minuten}}",
+        "overdue": "Dauert etwas länger als sonst. Gleich geschafft.",
+        "steps": {
+          "answers": "Deine Antworten lesen",
+          "knowledge": "Seiten der Wissensdatenbank gliedern",
+          "model": "Listen, Felder und Pipeline entwerfen",
+          "views": "Ansichten, Dashboard und Beispieldatensätze planen"
+        },
+        "stepsLabel": "Woran Mate gerade arbeitet",
+        "typical": "Mate entwirft deinen Workspace aus deinen Antworten. Das dauert meist 1 bis 2 Minuten.",
+        "underMinute": "Noch weniger als eine Minute"
+      },
       "sampleSummary": "{count, plural, one {Legt # Beispieldatensatz an, damit du gleich loslegen kannst.} other {Legt # Beispieldatensätze an, damit du gleich loslegen kannst.}}",
       "subtitle": "Das bauen wir für dich, sobald du bestätigst.",
       "title": "Dein Plan für den Workspace",
@@ -4977,6 +4992,34 @@
       "suggestedHint": "Prüf die markierten Antworten und ändere, was nicht passt.",
       "suggesting": "Wir schlagen Antworten aus {website} vor",
       "title": "Antworten aus deiner Website vorschlagen lassen"
+    }
+  },
+  "WorkspaceSetupNotice": {
+    "fallback": "Falls der Button nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein: ",
+    "greeting": "Hallo {firstName},",
+    "planFailed": {
+      "body": "Mate konnte den Plan für deinen Workspace nicht fertigstellen. Deine Antworten sind gespeichert: Öffne die Einrichtung, um es erneut zu versuchen oder sie anzupassen.",
+      "cta": "Einrichtung öffnen",
+      "subject": "Der Plan für deinen Workspace braucht einen neuen Versuch",
+      "title": "Dein Plan braucht einen neuen Versuch"
+    },
+    "planReady": {
+      "body": "Mate hat Listen, Pipeline, Dashboard und Wissensdatenbank-Seiten für deinen Workspace entworfen. Prüfe den Plan und richte deinen Workspace in einem Schritt ein.",
+      "cta": "Plan prüfen",
+      "subject": "Der Plan für deinen Workspace ist fertig",
+      "title": "Dein Plan ist fertig"
+    },
+    "workspaceFailed": {
+      "body": "Mate hat den Großteil deines Workspaces eingerichtet, aber einige Teile konnten nicht abgeschlossen werden. Öffne die Einrichtung, um sie erneut zu versuchen.",
+      "cta": "Einrichtung öffnen",
+      "subject": "Deine Workspace-Einrichtung braucht einen Blick",
+      "title": "Einige Teile brauchen einen Blick"
+    },
+    "workspaceReady": {
+      "body": "Mate hat deinen Workspace eingerichtet. Deine Listen, Ansichten, dein Dashboard und deine Wissensdatenbank-Seiten warten auf dich.",
+      "cta": "Workspace öffnen",
+      "subject": "Dein Workspace ist fertig",
+      "title": "Dein Workspace ist fertig"
     }
   }
 }

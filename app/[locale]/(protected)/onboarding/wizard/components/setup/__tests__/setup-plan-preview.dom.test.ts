@@ -33,7 +33,7 @@ vi.mock("../../../workspace-setup-actions", () => ({
 
 import { WorkspaceSetupStore } from "../workspace-setup.store";
 import { SetupPlanFailed, SetupPlanPreview } from "../setup-plan-preview";
-import { setupPlan, setupView } from "./setup-view-fixture";
+import { PLAN_PROGRESS, setupPlan, setupView } from "./setup-view-fixture";
 
 const FOOTER_CLASSES = ["flex-col-reverse", "sm:flex-row", "sm:justify-end"];
 
@@ -70,7 +70,7 @@ function labels(footer: HTMLElement) {
 }
 
 function failedPlan(error: WorkspaceSetupView["plan"]["error"]) {
-  return setupView({ plan: { status: "failed", error, revision: 0, plan: null } });
+  return setupView({ plan: { status: "failed", error, revision: 0, plan: null, ...PLAN_PROGRESS } });
 }
 
 beforeEach(() => {
@@ -92,7 +92,10 @@ describe("SetupPlanFailed", () => {
   it("lays out Adjust answers and Try again like the plan preview footer, Try again on top on phones", () => {
     render(
       SetupPlanPreview,
-      setupView({ status: "planned", plan: { status: "completed", error: null, revision: 1, plan: setupPlan() } }),
+      setupView({
+        status: "planned",
+        plan: { status: "completed", error: null, revision: 1, plan: setupPlan(), ...PLAN_PROGRESS },
+      }),
     );
     const previewFooter = footerOf("WorkspaceSetup.plan.build");
     expect(labels(previewFooter)).toEqual(["WorkspaceSetup.plan.adjust", "WorkspaceSetup.plan.build"]);

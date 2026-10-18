@@ -2,23 +2,40 @@
 
 import type { WorkspaceSetupFailure } from "@/ee/workspace-setup/workspace-setup.schema";
 
-import { BookOpen, Kanban, LayoutDashboard, List, Loader2, Mail, RotateCcw, Sparkles } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import type { PlanStep, PlanStepState } from "./setup-plan-progress";
+
+import {
+  BookOpen,
+  Check,
+  Circle,
+  Kanban,
+  LayoutDashboard,
+  List,
+  Loader2,
+  Mail,
+  RotateCcw,
+  Sparkles,
+} from "lucide-react";
 import { observer } from "mobx-react-lite";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { Alert } from "@/components/shared/alert";
 import { IconContainer } from "@/components/shared/icon-container";
+import { WizardProgress } from "@/components/shared/wizard-progress";
 import { Button } from "@/components/ui/button";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { cn } from "@/core/utils/cn";
 import { contactHref } from "@/core/utils/contact-href";
 
+import { planProgress } from "./setup-plan-progress";
 import { planBoards, planLists } from "./setup-plan-summary";
 import {
   DashboardSketch,
   KnowledgePageList,
   PipelineBoard,
-  PlaceholderLine,
   PreviewListChip,
   PreviewPanel,
 } from "./setup-preview-parts";
@@ -61,28 +78,122 @@ export function SetupSupportButton({ size }: { size?: "xs" }) {
   );
 }
 
-export const SetupPlanPending = observer(function SetupPlanPending() {
+const PLAN_STEP_ICONS: Record<PlanStepState, LucideIcon> = { done: Check, active: Loader2, waiting: Circle };
+
+function usePlanClock() {
+  const [seenAt] = useState(() => Date.now());
+  const [now, setNow] = useState(seenAt);
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1_000);
+    return () => window.clearInterval(timer);
+  }, []);
+  return { now, seenAt };
+}
+
+export const SetupPlanPending = observer(function SetupPlanPending({ email }: { email: string | null }) {
   const t = useTranslations();
+  const { workspaceSetupStore: store } = useRootStore();
+  const { now, seenAt } = usePlanClock();
+  const setup = store.setup;
+  if (!setup) return null;
+  const progress = planProgress(setup, now, seenAt);
+  const labels: Record<PlanStep, string> = {
+    answers: t("WorkspaceSetup.plan.progress.steps.answers"),
+    model: t("WorkspaceSetup.plan.progress.steps.model"),
+    knowledge: t("WorkspaceSetup.plan.progress.steps.knowledge"),
+    views: t("WorkspaceSetup.plan.progress.steps.views"),
+  };
+  const states: Record<PlanStepState, string> = {
+    done: t("WorkspaceSetup.build.states.done"),
+    active: t("WorkspaceSetup.build.states.active"),
+    waiting: t("WorkspaceSetup.build.states.waiting"),
+  };
+  const remaining = progress.overdue
+    ? t("WorkspaceSetup.plan.progress.overdue")
+    : progress.remainingMs > 60_000
+      ? t("WorkspaceSetup.plan.progress.minutesLeft", { minutes: Math.round(progress.remainingMs / 60_000) })
+      : t("WorkspaceSetup.plan.progress.underMinute");
+
   return (
-    <section
-      aria-live="polite"
-      className="flex animate-page-empty-in flex-col items-center gap-5 py-10 text-center motion-reduce:animate-none"
-      role="status"
-    >
-      <IconContainer icon={Sparkles} size="md" />
+    <section className="flex animate-page-empty-in flex-col gap-6 py-4 motion-reduce:animate-none">
+      <div className="flex items-start gap-4">
+        <IconContainer icon={Sparkles} size="md" />
 
-      <div className="flex max-w-md flex-col gap-2">
-        <h2 className="text-base font-medium text-foreground">{t("WorkspaceSetup.plan.planningTitle")}</h2>
+        <div className="flex min-w-0 flex-col gap-1">
+          <h2 className="text-base font-medium text-foreground">{t("WorkspaceSetup.plan.planningTitle")}</h2>
 
-        <p className="text-sm leading-relaxed text-muted-foreground">{t("WorkspaceSetup.plan.planningBody")}</p>
+          <p className="text-sm leading-relaxed text-muted-foreground">{t("WorkspaceSetup.plan.progress.typical")}</p>
+        </div>
       </div>
 
-      <div aria-hidden className="grid w-full max-w-md gap-2">
-        <PlaceholderLine pulse className="w-full" />
+      <div className="flex flex-col gap-2">
+        <WizardProgress
+          current={progress.percent}
+          label={t("WorkspaceSetup.plan.progress.label")}
+          total={100}
+          valueText={remaining}
+        />
 
-        <PlaceholderLine pulse className="w-5/6" />
+        <div aria-live="polite" className="flex justify-between gap-3 text-xs text-muted-foreground" role="status">
+          <span>{remaining}</span>
 
-        <PlaceholderLine pulse className="w-2/3" />
+          <span className="tabular-nums">{progress.percent} %</span>
+        </div>
+      </div>
+
+      <ol aria-label={t("WorkspaceSetup.plan.progress.stepsLabel")} className="flex flex-col gap-3">
+        {progress.steps.map((step) => {
+          const Icon = PLAN_STEP_ICONS[step.state];
+          return (
+            <li
+              key={step.key}
+              aria-current={step.state === "active" ? "step" : undefined}
+              className="flex items-center gap-3"
+            >
+              <span
+                aria-hidden
+                className={cn(
+                  "flex size-6 shrink-0 items-center justify-center rounded-full",
+                  step.state === "done" && "bg-primary text-primary-foreground",
+                  step.state === "active" && "bg-primary/10 text-primary",
+                  step.state === "waiting" && "border border-border text-muted-foreground",
+                )}
+              >
+                <Icon
+                  className={cn(
+                    "size-3.5",
+                    step.state === "active" && "animate-spin motion-reduce:animate-none",
+                    step.state === "waiting" && "size-2",
+                  )}
+                />
+              </span>
+
+              <span
+                className={cn(
+                  "min-w-0 flex-1 text-sm",
+                  step.state === "waiting" ? "text-muted-foreground" : "text-foreground",
+                )}
+              >
+                {labels[step.key]}
+              </span>
+
+              <span className="sr-only">{states[step.state]}</span>
+            </li>
+          );
+        })}
+      </ol>
+
+      <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/40 p-3">
+        <Mail aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+
+        <p className="text-sm text-muted-foreground">
+          {email
+            ? t.rich("WorkspaceSetup.plan.progress.leave", {
+                email,
+                strong: (chunks) => <span className="font-medium text-foreground">{chunks}</span>,
+              })
+            : t("WorkspaceSetup.plan.progress.leaveWithoutEmail")}
+        </p>
       </div>
     </section>
   );
@@ -126,7 +237,7 @@ export const SetupPlanPreview = observer(function SetupPlanPreview() {
   const t = useTranslations();
   const { workspaceSetupStore: store } = useRootStore();
   const plan = store.setup?.plan.plan;
-  if (!plan) return <SetupPlanPending />;
+  if (!plan) return <SetupPlanPending email={null} />;
   const lists = planLists(plan);
   const boards = planBoards(plan);
   const listName = (key: string) => lists.find((candidate) => candidate.key === key)?.label ?? key;

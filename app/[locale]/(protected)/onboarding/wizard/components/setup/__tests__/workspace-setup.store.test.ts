@@ -18,7 +18,7 @@ vi.mock("../../../workspace-setup-actions", () => actions);
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: toast }));
 
 import { WorkspaceSetupStore } from "../workspace-setup.store";
-import { SETUP_ID, setupPlan, setupView } from "./setup-view-fixture";
+import { PLAN_PROGRESS, SETUP_ID, setupPlan, setupView } from "./setup-view-fixture";
 
 const website = { source: "website" as const, confidence: 0.9 };
 
@@ -31,7 +31,7 @@ function storeWith(view = setupView()) {
 function plannedView(overrides: Parameters<typeof setupView>[0] = {}) {
   return setupView({
     status: "planned",
-    plan: { status: "completed", error: null, revision: 1, plan: setupPlan() },
+    plan: { status: "completed", error: null, revision: 1, plan: setupPlan(), ...PLAN_PROGRESS },
     ...overrides,
   });
 }
@@ -210,7 +210,9 @@ describe("WorkspaceSetupStore", () => {
   });
 
   it("reopens the questions of a failed plan and drafts a new plan from the changed answers", async () => {
-    const store = storeWith(setupView({ plan: { status: "failed", error: "invalidPlan", revision: 2, plan: null } }));
+    const store = storeWith(
+      setupView({ plan: { status: "failed", error: "invalidPlan", revision: 2, plan: null, ...PLAN_PROGRESS } }),
+    );
     expect(store.stage).toBe("planFailed");
 
     store.adjust();
@@ -237,7 +239,10 @@ describe("WorkspaceSetupStore", () => {
   it("confirms the build with the previewed plan revision", async () => {
     actions.confirmWorkspaceSetupAction.mockResolvedValue({ ok: true, data: { setupId: SETUP_ID } });
     const store = storeWith(
-      setupView({ status: "planned", plan: { status: "completed", error: null, revision: 3, plan: setupPlan() } }),
+      setupView({
+        status: "planned",
+        plan: { status: "completed", error: null, revision: 3, plan: setupPlan(), ...PLAN_PROGRESS },
+      }),
     );
 
     await store.build();

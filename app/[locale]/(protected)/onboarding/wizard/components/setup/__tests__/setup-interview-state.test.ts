@@ -15,7 +15,7 @@ import {
   screenComplete,
   visibleScreenIndexes,
 } from "../setup-interview-state";
-import { setupView } from "./setup-view-fixture";
+import { PLAN_PROGRESS, setupView } from "./setup-view-fixture";
 
 function part(id: string) {
   const found = setupPart(id);
@@ -88,7 +88,9 @@ describe("resolveSetupStage", () => {
     });
     expect(resolveSetupStage({ available: true, setup: answered })).toBe("interview");
 
-    const failed = setupView({ plan: { status: "failed", error: "generation", revision: 1, plan: null } });
+    const failed = setupView({
+      plan: { status: "failed", error: "generation", revision: 1, plan: null, ...PLAN_PROGRESS },
+    });
     expect(resolveSetupStage({ available: true, setup: failed })).toBe("planFailed");
   });
 });

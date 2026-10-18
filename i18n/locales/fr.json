@@ -4638,7 +4638,7 @@
       "failedBody": "Tout ce qui est terminé est conservé. Relancez la partie inachevée pour terminer votre espace.",
       "failedTitle": "Une partie de la configuration n’a pas abouti",
       "frameTitle": "Votre espace de travail",
-      "keepsRunning": "La configuration continue même si vous fermez l’onglet. Vous pouvez revenir à tout moment.",
+      "keepsRunning": "Cela continue même si vous fermez l’onglet. Nous vous enverrons un e-mail quand votre espace de travail sera prêt.",
       "nameColumn": "Nom",
       "phases": {
         "dashboard": "Tableau de bord",
@@ -4849,8 +4849,23 @@
       "noPages": "Aucune page de base de connaissances n’est prévue.",
       "noPipeline": "Aucun pipeline n’est prévu.",
       "pipeline": "Pipeline",
-      "planningBody": "Nous transformons vos réponses en listes, en pipeline, en tableau de bord et en pages de base de connaissances.",
       "planningTitle": "Préparation de votre plan",
+      "progress": {
+        "label": "Avancement du plan",
+        "leave": "Vous pouvez fermer cette page. Nous écrirons à <strong>{email}</strong> dès que votre plan sera prêt.",
+        "leaveWithoutEmail": "Vous pouvez fermer cette page. Nous vous enverrons un e-mail dès que votre plan sera prêt.",
+        "minutesLeft": "{minutes, plural, one {Environ # minute restante} other {Environ # minutes restantes}}",
+        "overdue": "Cela prend un peu plus de temps que d’habitude. C’est presque fini.",
+        "steps": {
+          "answers": "Lecture de vos réponses",
+          "knowledge": "Structure des pages de votre base de connaissances",
+          "model": "Conception de vos listes, champs et pipeline",
+          "views": "Préparation des vues, du tableau de bord et des exemples"
+        },
+        "stepsLabel": "Ce que Mate prépare",
+        "typical": "Mate conçoit votre espace de travail à partir de vos réponses. Cela prend généralement 1 à 2 minutes.",
+        "underMinute": "Moins d’une minute restante"
+      },
       "sampleSummary": "{count, plural, one {Ajoute # exemple d’enregistrement pour essayer tout de suite.} other {Ajoute # exemples d’enregistrements pour essayer tout de suite.}}",
       "subtitle": "Voici ce que nous construirons dès votre confirmation.",
       "title": "Le plan de votre espace de travail",
@@ -4981,6 +4996,34 @@
       "suggestedHint": "Vérifiez les réponses marquées et modifiez ce qui ne convient pas.",
       "suggesting": "Suggestion de réponses à partir de {website}",
       "title": "Pré-remplir les réponses à partir de votre site web"
+    }
+  },
+  "WorkspaceSetupNotice": {
+    "fallback": "Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur : ",
+    "greeting": "Bonjour {firstName},",
+    "planFailed": {
+      "body": "Mate n’a pas pu préparer le plan de votre espace de travail. Vos réponses sont enregistrées : ouvrez la configuration pour réessayer ou les modifier.",
+      "cta": "Ouvrir la configuration",
+      "subject": "Le plan de votre espace de travail doit être relancé",
+      "title": "Votre plan doit être relancé"
+    },
+    "planReady": {
+      "body": "Mate a préparé les listes, le pipeline, le tableau de bord et les pages de la base de connaissances de votre espace de travail. Vérifiez le plan et créez votre espace de travail en une étape.",
+      "cta": "Vérifier votre plan",
+      "subject": "Le plan de votre espace de travail est prêt",
+      "title": "Votre plan est prêt"
+    },
+    "workspaceFailed": {
+      "body": "Mate a créé la plus grande partie de votre espace de travail, mais certaines parties n’ont pas pu être terminées. Ouvrez la configuration pour les relancer.",
+      "cta": "Ouvrir la configuration",
+      "subject": "La configuration de votre espace de travail demande votre attention",
+      "title": "Certaines parties demandent votre attention"
+    },
+    "workspaceReady": {
+      "body": "Mate a créé votre espace de travail. Vos listes, vues, tableau de bord et pages de la base de connaissances vous attendent.",
+      "cta": "Ouvrir votre espace de travail",
+      "subject": "Votre espace de travail est prêt",
+      "title": "Votre espace de travail est prêt"
     }
   }
 }

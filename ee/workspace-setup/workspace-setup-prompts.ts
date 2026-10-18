@@ -3,6 +3,7 @@ import type { SetupQuestionPart } from "@/features/workspace-setup/setup-intervi
 import type { WikiSynthesisRole } from "@/ee/wiki-crawl/wiki-synthesis.schema";
 
 import { SETUP_PARTS } from "@/features/workspace-setup/setup-interview";
+import { SETUP_PLAN_LIMITS } from "@/features/workspace-setup/setup-plan.schema";
 import { getTranslator } from "@/i18n/get-translator";
 
 export const SETUP_UNTRUSTED_HANDLING =
@@ -38,6 +39,7 @@ export const SETUP_PLAN_MODEL_INSTRUCTION = [
   "You design the complete record model of a new, empty workspace from its owner's onboarding answers: workspace settings, lists, fields, relationships and calculations.",
   SETUP_PURPOSE_GUIDANCE,
   "Plan every list the workspace needs for its purposes. Mark exactly one list of individual people with role people and exactly one list of to-dos with role tasks. A workspace for clients and sales also needs a list of organizations and a list of deals or orders with role deals whose stage choice follows the answer to the sales steps, with win chances as weights and ending with one won and one lost outcome. For other purposes, plan the lists they need, such as documents, deadlines, campaigns or candidates, with a stage or status choice where work moves through steps. Only the deals stage choice carries win chances; other choices have weight null unless a calculation reads them with optionWeight. When the owner sells products, services, subscriptions or packages, add a catalog of them with role offerings. Add lists for what follows a sale only when the answers need them. Every other list has role null.",
+  `Keep the model focused: at most ${SETUP_PLAN_LIMITS.lists} lists including the people and tasks lists, ${SETUP_PLAN_LIMITS.fields} fields, ${SETUP_PLAN_LIMITS.relationships} relationships and ${SETUP_PLAN_LIMITS.calculations} calculations. When the purposes need more, merge related work into one list with a type or status choice, such as one list of projects instead of one per kind of project.`,
   "Some fields are added automatically, so never declare them: <people>.channels for email addresses and phone numbers, <people>.avatar, the money value <deals>.value and the price <offerings>.price. Use them in calculations, for example a weighted value that divides <deals>.value times the stage win chance by 100. With an offerings list, every deal gets line items with quantity and unit price that add up to <deals>.value.",
   "Relate lists whose records belong together, for example people to their organization, deals to people and organizations, and tasks to what they are about. targetsPerSource counts the targets one source record links to and sourcesPerTarget the sources that may link to one target: a deal that belongs to one organization has targetsPerSource one and sourcesPerTarget many, because an organization has many deals.",
   "Keys are lowerCamelCase. A field key is <listKey>.<fieldName>. Every list gets its name field <listKey>.name automatically, so never declare it. The list key lineItem is reserved.",

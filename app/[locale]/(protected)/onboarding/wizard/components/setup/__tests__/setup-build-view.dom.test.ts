@@ -37,7 +37,7 @@ import { DisplayType } from "@/features/widget/widget-display.schema";
 
 import { WorkspaceSetupStore } from "../workspace-setup.store";
 import { SetupBuildView } from "../setup-build-view";
-import { phaseView, setupPlan, setupView } from "./setup-view-fixture";
+import { PLAN_PROGRESS, phaseView, setupPlan, setupView } from "./setup-view-fixture";
 
 let container: HTMLDivElement;
 let root: Root;
@@ -48,7 +48,7 @@ const LIST_ID = "4a1c4b8f-4f75-4d0b-9a3e-1b5f0a2c6d71";
 function building(overrides: Partial<WorkspaceSetupView>): WorkspaceSetupView {
   return setupView({
     status: "building",
-    plan: { status: "completed", error: null, revision: 1, plan: setupPlan() },
+    plan: { status: "completed", error: null, revision: 1, plan: setupPlan(), ...PLAN_PROGRESS },
     ...overrides,
   });
 }

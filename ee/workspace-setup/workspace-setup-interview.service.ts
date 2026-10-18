@@ -90,6 +90,19 @@ export function setupPlanStalled(setup: Pick<WorkspaceSetupRecord, "status" | "i
   return setup.status === "planning" && setup.interview.plan === "running" && stale(setup.interview.planClaimedAt, now);
 }
 
+export type SetupPlanPartProgress = "waiting" | "running" | "done";
+
+export function setupPlanProgress(setup: WorkspaceSetupRecord): Record<SetupPlanPart, SetupPlanPartProgress> {
+  const done = (part: SetupPlanPart) => {
+    const value = planPartState(setup, part).value;
+    return value !== null && value !== undefined;
+  };
+  const running = setup.status === "planning" && setup.interview.plan === "running";
+  const state = (part: SetupPlanPart, ready: boolean): SetupPlanPartProgress =>
+    done(part) || setup.status === "planned" ? "done" : running && ready ? "running" : "waiting";
+  return { model: state("model", true), knowledge: state("knowledge", true), views: state("views", done("model")) };
+}
+
 export class WorkspaceSetupInterviewService extends UserAccessor {
   constructor(
     private repo: WorkspaceSetupRepo,

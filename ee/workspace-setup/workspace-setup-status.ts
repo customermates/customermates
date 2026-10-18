@@ -1,6 +1,8 @@
 import type { SetupAnswerValue, SetupAnswers } from "@/features/workspace-setup/setup-answers.schema";
 import type { SetupPlan } from "@/features/workspace-setup/setup-plan.schema";
 import type { SetupCrawlState } from "./workspace-setup.repo";
+import type { SetupPlanPartProgress } from "./workspace-setup-interview.service";
+import type { SetupPlanPart } from "./workspace-setup-planner";
 import type {
   SetupFollowUpQuestion,
   SetupGenerationState,
@@ -16,7 +18,7 @@ import { WIKI_CRAWL_MAX_PAGES } from "@/ee/wiki-crawl/website-discovery";
 
 import { WORKSPACE_SETUP_PHASES } from "./workspace-setup.schema";
 import { emptySetupPhase, setupPhaseStalled } from "./workspace-setup-build.service";
-import { setupPlanStalled } from "./workspace-setup-interview.service";
+import { setupPlanProgress, setupPlanStalled } from "./workspace-setup-interview.service";
 import { SetupAnswerPagesSchema } from "./workspace-setup-answer-pages";
 
 export type WorkspaceSetupPhaseView = {
@@ -61,6 +63,8 @@ export type WorkspaceSetupView = {
     error: WorkspaceSetupFailure | null;
     revision: number;
     plan: SetupPlan | null;
+    queuedAt: string | null;
+    parts: Record<SetupPlanPart, SetupPlanPartProgress>;
   };
   spreadsheet: { fileName: string } | null;
   phases: WorkspaceSetupPhaseView[];
@@ -122,6 +126,8 @@ export function workspaceSetupView(
       error: planStalled ? "error" : setup.interview.planError,
       revision: setup.planRevision,
       plan: setup.plan,
+      queuedAt: setup.interview.planQueuedAt,
+      parts: setupPlanProgress(setup),
     },
     spreadsheet: setup.hasSpreadsheet && setup.spreadsheetName ? { fileName: setup.spreadsheetName } : null,
     phases,

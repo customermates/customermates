@@ -2,40 +2,43 @@
 
 import type { SetupQuestion } from "@/features/workspace-setup/setup-interview";
 
-import { Globe, Loader2 } from "lucide-react";
+import { Check, Globe, Loader2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { Alert } from "@/components/shared/alert";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { IconContainer } from "@/components/shared/icon-container";
 import { WizardProgress } from "@/components/shared/wizard-progress";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { cn } from "@/core/utils/cn";
 import { SETUP_SCREEN_DEFINITIONS, SETUP_SCREENS } from "@/features/workspace-setup/setup-interview";
 
 import { answerFromWebsite, displayedAnswerValue, partVisible, screenQuestions } from "./setup-interview-state";
 import { partDescriptor } from "./setup-question-descriptor";
 import { SetupQuestionField } from "./setup-question-field";
+import { screenSummary } from "./setup-screen-summary";
 import { SetupSpreadsheetUpload } from "./setup-spreadsheet-upload";
 
-export function SetupScreenSteps({ current, titles }: { current: number; titles: string[] }) {
-  const t = useTranslations();
-  return (
-    <div className="flex flex-col gap-2">
-      <p className="text-xs text-muted-foreground">
-        {t("WorkspaceSetup.interview.stepProgress", { current: current + 1, total: titles.length })}
-      </p>
+type ScreenState = "done" | "current" | "upcoming";
 
-      <WizardProgress
-        current={current + 1}
-        label={t("WorkspaceSetup.interview.stepsLabel")}
-        total={titles.length}
-        valueText={titles[current] ?? ""}
-      />
-    </div>
+function ScreenMarker({ state, number }: { state: ScreenState; number: number }) {
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        "flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-medium transition-colors motion-reduce:transition-none",
+        state === "done" && "bg-primary text-primary-foreground",
+        state === "current" && "bg-primary/10 text-primary ring-1 ring-primary",
+        state === "upcoming" && "border border-border text-muted-foreground",
+      )}
+    >
+      {state === "done" ? <Check className="size-3.5" /> : number}
+    </span>
   );
 }
 
@@ -182,7 +185,7 @@ const SetupWebsiteContext = observer(function SetupWebsiteContext() {
 export const SetupInterview = observer(function SetupInterview() {
   const t = useTranslations();
   const { workspaceSetupStore: store } = useRootStore();
-  const heading = useRef<HTMLHeadingElement>(null);
+  const triggers = useRef(new Map<number, HTMLButtonElement>());
   const previous = useRef(store.screenIndex);
   const titles = SETUP_SCREEN_DEFINITIONS.map((screen) => t(screen.titleKey));
   const visibleScreens = store.visibleScreens;
@@ -192,14 +195,15 @@ export const SetupInterview = observer(function SetupInterview() {
   const saving = store.pending === "save";
 
   useEffect(() => {
-    if (previous.current !== store.screenIndex) heading.current?.focus();
+    if (previous.current !== store.screenIndex) triggers.current.get(store.screenIndex)?.focus();
     previous.current = store.screenIndex;
   }, [store.screenIndex]);
 
+  const stateOf = (index: number): ScreenState =>
+    index === store.screenIndex ? "current" : index <= store.furthestScreen ? "done" : "upcoming";
+
   return (
     <section aria-busy={store.isBusy} className="flex flex-col gap-6">
-      <SetupScreenSteps current={position} titles={visibleScreens.map((index) => titles[index])} />
-
       <SetupWebsiteContext />
 
       {store.adjusting ? <Alert color="primary" description={t("WorkspaceSetup.interview.adjusting")} /> : null}
@@ -208,35 +212,83 @@ export const SetupInterview = observer(function SetupInterview() {
         <Alert color="warning" description={t("WorkspaceSetup.interview.prefillFailed")} />
       ) : null}
 
-      <div key={store.screen} className="flex animate-page-result-in flex-col gap-6 motion-reduce:animate-none">
-        <h2 ref={heading} className="text-lg font-semibold outline-none" tabIndex={-1}>
-          {titles[store.screenIndex]}
-        </h2>
+      <Accordion
+        aria-label={t("WorkspaceSetup.interview.stepsLabel")}
+        className="rounded-xl border border-border"
+        type="single"
+        value={String(store.screenIndex)}
+        onValueChange={(value) => {
+          if (value) store.goToScreen(Number(value));
+        }}
+      >
+        {visibleScreens.map((index, order) => {
+          const state = stateOf(index);
+          const summary = state === "done" ? screenSummary(SETUP_SCREENS[index], store.answers, store.locale, t) : "";
+          return (
+            <AccordionItem
+              key={index}
+              className="px-4"
+              disabled={state === "upcoming" || store.isBusy}
+              value={String(index)}
+            >
+              <AccordionTrigger
+                ref={(node) => {
+                  if (node) triggers.current.set(index, node);
+                  else triggers.current.delete(index);
+                }}
+                aria-label={`${t("WorkspaceSetup.interview.stepProgress", { current: order + 1, total: visibleScreens.length })}: ${titles[index]}`}
+                className="min-w-0 items-center gap-3 py-3.5 hover:no-underline disabled:opacity-100 [&[data-disabled]>svg]:hidden [&[data-state=open]>svg]:hidden"
+              >
+                <span className="flex min-w-0 flex-1 items-center gap-3">
+                  <ScreenMarker number={order + 1} state={state} />
 
-        {screenQuestions(SETUP_SCREENS[store.screenIndex]).map((question) => (
-          <SetupQuestionBlock key={question.id} question={question} />
-        ))}
-      </div>
+                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                    <span
+                      className={cn(
+                        "text-sm",
+                        state === "current" ? "text-base font-semibold" : "font-medium",
+                        state === "upcoming" && "text-muted-foreground",
+                      )}
+                    >
+                      {titles[index]}
+                    </span>
 
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        {position > 0 || store.adjusting ? (
-          <Button disabled={store.isBusy} type="button" variant="secondary" onClick={store.previousScreen}>
-            {t("Common.actions.back")}
-          </Button>
-        ) : (
-          <span />
-        )}
+                    {summary ? (
+                      <span className="truncate text-xs font-normal text-muted-foreground">{summary}</span>
+                    ) : null}
+                  </span>
+                </span>
+              </AccordionTrigger>
 
-        <Button
-          disabled={!store.canConfirmScreen || store.isBusy}
-          type="button"
-          onClick={() => runUserAction(store.confirmScreen)}
-        >
-          {saving ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : null}
+              <AccordionContent className="flex flex-col gap-6 pt-1 pb-5 sm:pl-9">
+                {screenQuestions(SETUP_SCREENS[index]).map((question) => (
+                  <SetupQuestionBlock key={question.id} question={question} />
+                ))}
 
-          {t("WorkspaceSetup.actions.looksRight")}
-        </Button>
-      </div>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  {position > 0 || store.adjusting ? (
+                    <Button disabled={store.isBusy} type="button" variant="secondary" onClick={store.previousScreen}>
+                      {t("Common.actions.back")}
+                    </Button>
+                  ) : (
+                    <span />
+                  )}
+
+                  <Button
+                    disabled={!store.canConfirmScreen || store.isBusy}
+                    type="button"
+                    onClick={() => runUserAction(store.confirmScreen)}
+                  >
+                    {saving ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : null}
+
+                    {t("WorkspaceSetup.actions.looksRight")}
+                  </Button>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          );
+        })}
+      </Accordion>
     </section>
   );
 });

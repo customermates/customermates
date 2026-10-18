@@ -73,6 +73,7 @@ export class WorkspaceSetupStore {
   touched = observable.set<string>();
   followUpDrafts: Record<string, SetupAnswerValue> = {};
   screenIndex = 0;
+  furthestScreen = 0;
   adjusting = false;
   spreadsheetRejection: SpreadsheetRejection | null = null;
   pending: SetupCommand | null = null;
@@ -177,6 +178,7 @@ export class WorkspaceSetupStore {
       this.adjusting = false;
       this.spreadsheetRejection = null;
       this.screenIndex = resumeScreenIndex(this.answers, setup?.interview.confirmedScreens ?? 0);
+      this.furthestScreen = this.screenIndex;
       return;
     }
     if (setup) this.answers = mergeServerAnswers(this.answers, this.touched, setup.interview.answers);
@@ -205,6 +207,12 @@ export class WorkspaceSetupStore {
     if (this.isBusy) return;
     this.adjusting = true;
     this.screenIndex = 0;
+    this.furthestScreen = this.visibleScreens.at(-1) ?? 0;
+  };
+
+  goToScreen = (index: number) => {
+    if (this.isBusy || index > this.furthestScreen || !this.visibleScreens.includes(index)) return;
+    this.screenIndex = index;
   };
 
   refresh = async () => {
@@ -244,9 +252,7 @@ export class WorkspaceSetupStore {
       });
       if (!saved.ok) return saved;
       if (!this.isLastScreen) {
-        runInAction(() => {
-          this.screenIndex = adjacentScreenIndex(this.screenIndex, this.answers, 1) ?? this.screenIndex;
-        });
+        runInAction(() => this.advanceScreen());
         return saved;
       }
       return this.requestPlan(setup.id);
@@ -327,8 +333,13 @@ export class WorkspaceSetupStore {
 
   private nextAdjustedScreen(): boolean {
     if (this.isBusy || !this.setup || !this.canConfirmScreen) return false;
-    this.screenIndex = adjacentScreenIndex(this.screenIndex, this.answers, 1) ?? this.screenIndex;
+    this.advanceScreen();
     return true;
+  }
+
+  private advanceScreen() {
+    this.screenIndex = adjacentScreenIndex(this.screenIndex, this.answers, 1) ?? this.screenIndex;
+    this.furthestScreen = Math.max(this.furthestScreen, this.screenIndex);
   }
 
   private discardAdjustment() {

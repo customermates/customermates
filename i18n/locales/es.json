@@ -4634,7 +4634,7 @@
       "failedBody": "Todo lo terminado se conserva. Reintenta la parte que no terminó para completar tu espacio.",
       "failedTitle": "Una parte de la configuración no terminó",
       "frameTitle": "Tu espacio de trabajo",
-      "keepsRunning": "Sigue en marcha aunque cierres la pestaña. Puedes volver cuando quieras.",
+      "keepsRunning": "Esto sigue en marcha aunque cierres la pestaña. Te enviaremos un correo cuando tu espacio de trabajo esté listo.",
       "nameColumn": "Nombre",
       "phases": {
         "dashboard": "Panel",
@@ -4845,8 +4845,23 @@
       "noPages": "No hay páginas de la base de conocimiento previstas.",
       "noPipeline": "No hay ningún pipeline previsto.",
       "pipeline": "Pipeline",
-      "planningBody": "Convertimos tus respuestas en listas, un pipeline, un panel y páginas de la base de conocimiento.",
       "planningTitle": "Preparando tu plan",
+      "progress": {
+        "label": "Progreso del plan",
+        "leave": "Puedes cerrar esta página. Escribiremos a <strong>{email}</strong> en cuanto tu plan esté listo.",
+        "leaveWithoutEmail": "Puedes cerrar esta página. Te enviaremos un correo en cuanto tu plan esté listo.",
+        "minutesLeft": "{minutes, plural, one {Queda aproximadamente # minuto} other {Quedan aproximadamente # minutos}}",
+        "overdue": "Está tardando un poco más de lo habitual. Ya casi está.",
+        "steps": {
+          "answers": "Leyendo tus respuestas",
+          "knowledge": "Estructurando las páginas de tu base de conocimientos",
+          "model": "Diseñando tus listas, campos y pipeline",
+          "views": "Planificando vistas, el panel y registros de ejemplo"
+        },
+        "stepsLabel": "En qué está trabajando Mate",
+        "typical": "Mate está diseñando tu espacio de trabajo a partir de tus respuestas. Suele tardar entre 1 y 2 minutos.",
+        "underMinute": "Queda menos de un minuto"
+      },
       "sampleSummary": "{count, plural, one {Añade # registro de ejemplo para que puedas probar enseguida.} other {Añade # registros de ejemplo para que puedas probar enseguida.}}",
       "subtitle": "Esto es lo que construiremos en cuanto confirmes.",
       "title": "El plan de tu espacio de trabajo",
@@ -4977,6 +4992,34 @@
       "suggestedHint": "Revisa las respuestas marcadas y cambia lo que no encaje.",
       "suggesting": "Sugiriendo respuestas a partir de {website}",
       "title": "Rellena las respuestas desde tu sitio web"
+    }
+  },
+  "WorkspaceSetupNotice": {
+    "fallback": "Si el botón no funciona, copia y pega este enlace en tu navegador: ",
+    "greeting": "Hola {firstName}:",
+    "planFailed": {
+      "body": "Mate no pudo terminar el plan de tu espacio de trabajo. Tus respuestas están guardadas: abre la configuración para volver a intentarlo o ajustarlas.",
+      "cta": "Abrir la configuración",
+      "subject": "El plan de tu espacio de trabajo necesita otro intento",
+      "title": "Tu plan necesita otro intento"
+    },
+    "planReady": {
+      "body": "Mate ha preparado las listas, el pipeline, el panel y las páginas de la base de conocimientos de tu espacio de trabajo. Revisa el plan y crea tu espacio de trabajo en un solo paso.",
+      "cta": "Revisar tu plan",
+      "subject": "El plan de tu espacio de trabajo está listo",
+      "title": "Tu plan está listo"
+    },
+    "workspaceFailed": {
+      "body": "Mate creó la mayor parte de tu espacio de trabajo, pero algunas partes no se pudieron terminar. Abre la configuración para volver a intentarlas.",
+      "cta": "Abrir la configuración",
+      "subject": "La configuración de tu espacio de trabajo necesita una revisión",
+      "title": "Algunas partes necesitan una revisión"
+    },
+    "workspaceReady": {
+      "body": "Mate ha creado tu espacio de trabajo. Tus listas, vistas, panel y páginas de la base de conocimientos te están esperando.",
+      "cta": "Abrir tu espacio de trabajo",
+      "subject": "Tu espacio de trabajo está listo",
+      "title": "Tu espacio de trabajo está listo"
     }
   }
 }

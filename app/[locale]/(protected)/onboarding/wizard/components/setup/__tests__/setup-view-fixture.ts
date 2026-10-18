@@ -4,6 +4,11 @@ import type { SetupPlan } from "@/features/workspace-setup/setup-plan.schema";
 
 const PHASES: WorkspaceSetupPhase[] = ["knowledgeBase", "dataModel", "views", "records", "dashboard"];
 
+export const PLAN_PROGRESS: Pick<WorkspaceSetupView["plan"], "queuedAt" | "parts"> = {
+  queuedAt: null,
+  parts: { model: "waiting", knowledge: "waiting", views: "waiting" },
+};
+
 export const SETUP_ID = "7d0f8a62-55c4-4d55-9a4c-0c2f1d1b9f10";
 
 export function setupPlan(): SetupPlan {
@@ -117,7 +122,7 @@ export function setupView(overrides: Partial<WorkspaceSetupView> = {}): Workspac
       followUpQuestions: [],
       followUpAnswers: [],
     },
-    plan: { status: "idle", error: null, revision: 0, plan: null },
+    plan: { status: "idle", error: null, revision: 0, plan: null, ...PLAN_PROGRESS },
     spreadsheet: null,
     phases: PHASES.map((key) => phaseView(key)),
     currentPhase: null,

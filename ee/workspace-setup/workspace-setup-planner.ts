@@ -15,6 +15,7 @@ import { z } from "zod";
 
 import { UserAccessor } from "@/core/base/user-accessor";
 import { setupAnchorFields } from "@/features/workspace-setup/setup-anchors";
+import { SETUP_PLAN_LIMITS } from "@/features/workspace-setup/setup-plan.schema";
 import { createSetupResolver } from "@/features/workspace-setup/setup-references";
 import { compileSetupDashboard } from "@/features/workspace-setup/setup-dashboard-compiler";
 import { compileSetupImportMapping } from "@/features/workspace-setup/setup-import-compiler";
@@ -141,6 +142,29 @@ function withoutInvalidCalculations(model: PlanModelWire, issues: SetupPlanIssue
   return { ...model, calculations: model.calculations.filter((_calculation, index) => !invalid.has(index)) };
 }
 
+function withinPlanLimits(model: PlanModelWire): PlanModelWire {
+  const { lists, fields, relationships, calculations } = SETUP_PLAN_LIMITS;
+  if (
+    model.lists.length <= lists &&
+    model.fields.length <= fields &&
+    model.relationships.length <= relationships &&
+    model.calculations.length <= calculations
+  )
+    return model;
+  const ranked = [...model.lists.filter((list) => list.role), ...model.lists.filter((list) => !list.role)];
+  const dropped = new Set(ranked.slice(lists).map((list) => list.key));
+  const kept = (key: string) => !dropped.has(key.split(".")[0] ?? key);
+  return {
+    ...model,
+    lists: model.lists.filter((list) => kept(list.key)),
+    fields: model.fields.filter((field) => kept(field.key)).slice(0, fields),
+    relationships: model.relationships
+      .filter((relationship) => kept(relationship.source) && kept(relationship.target))
+      .slice(0, relationships),
+    calculations: model.calculations.filter((calculation) => kept(calculation.key)).slice(0, calculations),
+  };
+}
+
 export class WorkspaceSetupPlanner extends UserAccessor {
   constructor(
     private models: Pick<WorkspaceSetupModelService, "generate">,
@@ -216,10 +240,11 @@ export class WorkspaceSetupPlanner extends UserAccessor {
       schema: PlanModelWireSchema,
       system: SETUP_PLAN_MODEL_INSTRUCTION,
       prompt: [...context, ...this.website(input, MODEL_WEBSITE), ...this.sheet(input)],
-      check: async (value) => {
+      check: async (planned) => {
         const owned = ["workspace", "recordModel"];
         const wire = (model: PlanModelWire) =>
           planWireFromParts(model, EMPTY_PLAN_VIEWS_WIRE, EMPTY_PLAN_KNOWLEDGE_WIRE);
+        const value = withinPlanLimits(planned);
         const issues = await this.wireIssues(input, wire(value), owned);
         const pruned = withoutInvalidCalculations(value, issues);
         if (pruned === value) return { value, issues };

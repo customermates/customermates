@@ -53,7 +53,7 @@ export function useHydratedSetupStore(initialStatus: WorkspaceSetupStatusView) {
   return { store, ready: hydratedSignature === signature };
 }
 
-export const StepSetup = observer(function StepSetup() {
+export const StepSetup = observer(function StepSetup({ email = null }: { email?: string | null }) {
   const t = useTranslations();
   const { workspaceSetupStore: store, onboardingWizardStore: wizard } = useRootStore();
   const stage = store.stage;
@@ -66,7 +66,7 @@ export const StepSetup = observer(function StepSetup() {
     case "followUps":
       return <SetupFollowUps />;
     case "planning":
-      return <SetupPlanPending />;
+      return <SetupPlanPending email={email} />;
     case "planFailed":
       return <SetupPlanFailed />;
     case "plan":

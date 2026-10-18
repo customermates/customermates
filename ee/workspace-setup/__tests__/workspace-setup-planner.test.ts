@@ -204,6 +204,57 @@ describe("workspace setup planner", () => {
     expect(calls()).toHaveLength(3);
   });
 
+  it("trims a model over the plan limits instead of spending a repair on it", async () => {
+    const { answer, calls, plan } = harness();
+    const model = planToWireParts(agencyPlan).model;
+    const extra = ["campaign", "content", "event", "channel", "invoice", "ticket"];
+    model.lists.push(
+      ...extra.map((key) => ({
+        key,
+        label: key,
+        pluralLabel: `${key}s`,
+        description: "",
+        icon: "folder",
+        color: null,
+        role: null,
+      })),
+    );
+    model.fields.push(
+      ...extra.map((key) => ({
+        key: `${key}.note`,
+        label: "Note",
+        valueType: "text" as const,
+        required: false,
+        multiple: false,
+        options: [],
+      })),
+    );
+    model.relationships.push(
+      ...extra.map((key) => ({
+        key: `${key}Contact`,
+        source: key,
+        target: "contact",
+        sourceLabel: "Contact",
+        targetLabel: key,
+        targetsPerSource: "one" as const,
+        sourcesPerTarget: "many" as const,
+      })),
+    );
+    answer({ [PLAN_PART_LABELS.model]: model });
+    const result = await plan();
+    expect(result.ok && result.plan.recordModel.lists.map((list) => list.key)).toEqual([
+      ...agencyPlan.recordModel.lists.map((list) => list.key),
+      "campaign",
+      "content",
+      "event",
+      "channel",
+    ]);
+    expect(result.ok && result.plan.recordModel.relationships.map((relationship) => relationship.key)).not.toContain(
+      "ticketContact",
+    );
+    expect(calls()).toHaveLength(3);
+  });
+
   it("drops view columns that name no field of the planned model", async () => {
     const { answer, calls, plan } = harness();
     const views = planToWireParts(agencyPlan).views;
