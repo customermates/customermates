@@ -15,6 +15,9 @@ ADD COLUMN     "name" TEXT;
 ALTER TABLE "OauthAccessToken" ADD COLUMN     "companyId" TEXT;
 
 -- AlterTable
+ALTER TABLE "Subscription" ADD COLUMN     "checkoutStartedAt" TIMESTAMP(3);
+
+-- AlterTable
 ALTER TABLE "User" ADD COLUMN     "leftAt" TIMESTAMP(3);
 
 -- CreateIndex
