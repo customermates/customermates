@@ -16,7 +16,7 @@ vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
 }));
 
-import { runWithTenant } from "@/core/decorators/tenant-context";
+import { getTenantUser, runWithTenant } from "@/core/decorators/tenant-context";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { interactorFailureCodes } from "@/core/validation/validation.utils";
 import { LeaveWorkspaceInteractor } from "../leave-workspace.interactor";
@@ -36,7 +36,11 @@ describe("LeaveWorkspaceInteractor", () => {
   const order: string[] = [];
   let channels: { findOwnedConnectedAccountIdsCompanyWide: ReturnType<typeof vi.fn> };
   let channelRemoval: { deleteForBillingOrThrow: ReturnType<typeof vi.fn> };
-  let repo: { isPlatformOperatorCompanyWide: ReturnType<typeof vi.fn>; leaveCompanyWide: ReturnType<typeof vi.fn> };
+  let repo: {
+    findMemberCompanyWide: ReturnType<typeof vi.fn>;
+    isPlatformOperatorCompanyWide: ReturnType<typeof vi.fn>;
+    leaveCompanyWide: ReturnType<typeof vi.fn>;
+  };
   let roleRepo: { hasAnotherActiveSystemRoleUser: ReturnType<typeof vi.fn> };
   let events: { publish: ReturnType<typeof vi.fn> };
   let authService: {
@@ -76,10 +80,11 @@ describe("LeaveWorkspaceInteractor", () => {
       }),
     };
     repo = {
+      findMemberCompanyWide: vi.fn(() => Promise.resolve({ ...getTenantUser(), leftAt: null })),
       isPlatformOperatorCompanyWide: vi.fn().mockResolvedValue(false),
       leaveCompanyWide: vi.fn(() => {
         order.push("left");
-        return Promise.resolve();
+        return Promise.resolve(true);
       }),
     };
     roleRepo = { hasAnotherActiveSystemRoleUser: vi.fn().mockResolvedValue(true) };
@@ -149,5 +154,43 @@ describe("LeaveWorkspaceInteractor", () => {
     expect(repo.leaveCompanyWide).not.toHaveBeenCalled();
     expect(authService.revokeMembershipCredentials).not.toHaveBeenCalled();
     expect(events.publish).not.toHaveBeenCalled();
+  });
+
+  it("judges the last-admin rule on the membership re-read under the workspace lock", async () => {
+    const staleMember = createMockUser({ ...member, role: { ...adminRole!, isSystemRole: false } });
+    repo.findMemberCompanyWide.mockResolvedValue({ ...staleMember, role: adminRole, leftAt: null });
+    roleRepo.hasAnotherActiveSystemRoleUser.mockResolvedValue(false);
+
+    const result = await runWithTenant(staleMember, () => interactor().invoke({ companyId: COMPANY_ID }));
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(interactorFailureCodes(result.error)).toEqual([CustomErrorCode.workspaceLastAdmin]);
+    expect(repo.leaveCompanyWide).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["already left", { status: Status.active, leftAt: new Date("2026-10-18T08:00:00.000Z") }],
+    ["no longer active", { status: Status.inactive, leftAt: null }],
+  ])("refuses as a changed workspace when the membership is %s by the time the lock is held", async (_case, row) => {
+    repo.findMemberCompanyWide.mockResolvedValue({ ...member, ...row });
+
+    const result = await runWithTenant(member, () => interactor().invoke({ companyId: COMPANY_ID }));
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(interactorFailureCodes(result.error)).toEqual([CustomErrorCode.workspaceChanged]);
+    expect(repo.leaveCompanyWide).not.toHaveBeenCalled();
+    expect(events.publish).not.toHaveBeenCalled();
+    expect(authService.revokeMembershipCredentials).not.toHaveBeenCalled();
+  });
+
+  it("does not complete a departure when another request marked the membership left first", async () => {
+    repo.leaveCompanyWide.mockResolvedValue(false);
+
+    const result = await runWithTenant(member, () => interactor().invoke({ companyId: COMPANY_ID }));
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(interactorFailureCodes(result.error)).toEqual([CustomErrorCode.workspaceChanged]);
+    expect(events.publish).not.toHaveBeenCalled();
+    expect(authService.revokeMembershipCredentials).not.toHaveBeenCalled();
   });
 });

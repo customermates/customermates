@@ -598,11 +598,12 @@ export class PrismaUserRepo
     });
   }
 
-  async leaveCompanyWide(userId: string): Promise<void> {
-    await this.prisma.user.update({
-      where: { id: userId, companyId: this.user.companyId },
+  async leaveCompanyWide(userId: string): Promise<boolean> {
+    const { count } = await this.prisma.user.updateMany({
+      where: { id: userId, companyId: this.user.companyId, leftAt: null },
       data: { status: Status.inactive, leftAt: new Date(), agentCreditActivatedAt: null },
     });
+    return count > 0;
   }
 
   @BypassTenantGuard

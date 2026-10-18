@@ -5,6 +5,7 @@ import type { LeaveWorkspaceRepo } from "./leave-workspace.repo";
 import type { WorkspaceDepartureService } from "./workspace-departure.service";
 
 import { z } from "zod";
+import { Status } from "@/generated/prisma";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -42,28 +43,34 @@ export class LeaveWorkspaceInteractor extends AuthenticatedInteractor<LeaveWorks
 
     const { companyId, userId } = this;
 
-    const refusal = await runInTransaction(
+    const left = await runInTransaction(
       async () => {
-        const blocked = await workspaceLeaveRefusal(this.user, { members: this.repo, roles: this.roleRepo });
+        const member = await this.repo.findMemberCompanyWide({ id: userId });
+        if (!member || member.leftAt || member.status !== Status.active)
+          return failConflict(CustomErrorCode.workspaceChanged, ["companyId"]);
+
+        const blocked = await workspaceLeaveRefusal(member, { members: this.repo, roles: this.roleRepo });
         if (blocked === "platformOperator")
           return failAuthorization(CustomErrorCode.userPlatformOperatorStatusForbidden);
         if (blocked === "lastAdmin") return fail(CustomErrorCode.workspaceLastAdmin);
 
-        await this.repo.leaveCompanyWide(userId);
+        if (!(await this.repo.leaveCompanyWide(userId)))
+          return failConflict(CustomErrorCode.workspaceChanged, ["companyId"]);
         try {
-          await this.departure.announce({ id: userId, status: this.user.status });
+          await this.departure.announce(member);
         } catch (error) {
           return unwoundFailure(error);
         }
-        return null;
+        return { ok: true as const, data: member };
       },
       { companyId },
     );
-    if (refusal) return refusal;
+    if (!left.ok) return left;
 
+    const member = left.data;
     await this.departure.complete({
       companyId,
-      member: { id: userId, email: this.user.email, status: this.user.status },
+      member: { id: member.id, email: member.email, status: member.status },
       loginId: session.user.id,
     });
 

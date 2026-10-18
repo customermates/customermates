@@ -84,7 +84,7 @@ export class RemoveWorkspaceMemberInteractor extends AuthenticatedInteractor<
         const refusal = await memberRemovalRefusal(member, this.userId, { members: this.repo, roles: this.roleRepo });
         if (refusal) return refuse(refusal, path);
 
-        await this.repo.leaveCompanyWide(member.id);
+        if (!(await this.repo.leaveCompanyWide(member.id))) return refuse("left", path);
         try {
           await this.departure.announce(member);
         } catch (error) {

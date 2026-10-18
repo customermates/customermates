@@ -115,7 +115,7 @@ describe("RemoveWorkspaceMemberInteractor", () => {
     repo = {
       findMemberCompanyWide: vi.fn(() => Promise.resolve(member)),
       isPlatformOperatorCompanyWide: vi.fn().mockResolvedValue(false),
-      leaveCompanyWide: track("left"),
+      leaveCompanyWide: track("left", true),
     };
     roleRepo = { hasAnotherActiveSystemRoleUser: vi.fn().mockResolvedValue(true) };
     memberships = {
