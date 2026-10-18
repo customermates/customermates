@@ -16,7 +16,7 @@ import { resolveRequestOrigin } from "@/core/config/environment";
 import { redirectTo } from "@/features/auth/auth-outcome";
 import { env } from "@/env";
 import { getCommercialOfferOrThrow } from "@/core/commercial/plan-catalog";
-import { failUnavailable } from "@/core/validation/interactor-failure-server";
+import { failConflict, failUnavailable } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { CreateCheckoutCompanyRepo } from "./create-checkout-session.repo";
 import { checkoutExpiresAt, checkoutPendingSince } from "./checkout-state";
@@ -65,7 +65,8 @@ export class CreateCheckoutSessionInteractor extends UserAccessor {
       pendingSince: checkoutPendingSince(startedAt),
       lemonSqueezyId: subscription.lemonSqueezyId,
     });
-    if (!claimed) return CHECKOUT_PENDING;
+    if (claimed === "deleting") return failConflict(CustomErrorCode.workspaceChanged);
+    if (claimed === "pending") return CHECKOUT_PENDING;
 
     try {
       const activeUsersCount = await this.userRepo.countActiveUsers();

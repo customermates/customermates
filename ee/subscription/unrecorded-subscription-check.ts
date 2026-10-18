@@ -39,7 +39,9 @@ export class UnrecordedSubscriptionCheck {
     if (unrecorded.length === 0) return "none";
 
     const [newest] = unrecorded.sort((left, right) => createdAt(right) - createdAt(left));
-    const synced = await this.provider.syncSubscription({ ...workspace, lemonSqueezyId: null }, newest);
+    const synced = await this.provider.syncSubscription({ ...workspace, lemonSqueezyId: null }, newest, {
+      whileDeleting: true,
+    });
     if (!synced) return "unverified";
 
     if (synced.changedPlan) await this.planAccounts.invoke({ companyId: synced.companyId, plan: synced.changedPlan });

@@ -530,6 +530,89 @@ describeDatabase("deleting a workspace on PostgreSQL", { timeout: 240_000 }, () 
     }
   });
 
+  async function deletingAt(companyId: string) {
+    const result = await client.query<{ deletingAt: Date | null }>(
+      'SELECT "deletingAt" FROM "Company" WHERE "id" = $1',
+      [companyId],
+    );
+    return result.rows[0]?.deletingAt ?? null;
+  }
+
+  async function activeAccounts(companyId: string) {
+    const result = await client.query('SELECT 1 FROM "ConnectedAccount" WHERE "companyId" = $1', [companyId]);
+    return result.rowCount;
+  }
+
+  it("keeps the connected accounts when billing activates while the delete waits for the workspace lock", async () => {
+    const creator = await createLogin("channel-racer");
+    const doomed = await createWorkspace({ name: "Channel race", createdBy: creator, admins: [creator] });
+    await open(creator, doomed.companyId);
+    await populate(doomed.companyId, creator, doomed.users.get(creator.id) ?? "");
+    const { MessagingService } = await import("@/ee/messaging/messaging.service");
+    const disconnected = vi.spyOn(MessagingService.prototype, "deleteAccount").mockResolvedValue(undefined as never);
+    const webhook = new Client({ connectionString: databaseUrl ?? undefined });
+    await webhook.connect();
+    const { CustomErrorCode } = await import("@/core/validation/validation.types");
+
+    try {
+      await webhook.query("BEGIN");
+      await webhook.query("SELECT pg_advisory_xact_lock(hashtextextended($1, 0))", [doomed.companyId]);
+      const pending = remove(creator, doomed.companyId);
+      await new Promise((resolve) => setTimeout(resolve, 750));
+      await webhook.query(
+        'UPDATE "Subscription" SET "status" = \'active\', "lemonSqueezyId" = $2, "currentPeriodEnd" = $3 WHERE "companyId" = $1',
+        [doomed.companyId, `ls-channel-race-${randomUUID()}`, new Date(Date.now() + 30 * 86_400_000)],
+      );
+      await webhook.query("COMMIT");
+
+      expect(await codes(await pending)).toEqual([CustomErrorCode.workspaceDeleteBillingActive]);
+      expect(disconnected).not.toHaveBeenCalled();
+      expect(await activeAccounts(doomed.companyId)).toBe(1);
+      expect(await exists(doomed.companyId)).toBe(true);
+      expect(await deletingAt(doomed.companyId)).toBeNull();
+    } finally {
+      await webhook.end();
+    }
+  });
+
+  it("holds billing writes and new checkouts while the workspace is being deleted", async () => {
+    const creator = await createLogin("marked");
+    const doomed = await createWorkspace({ name: "Marked", createdBy: creator, admins: [creator] });
+    await client.query('UPDATE "Company" SET "deletingAt" = NOW() WHERE "id" = $1', [doomed.companyId]);
+    const { PrismaCompanyRepo } = await import("@/features/company/prisma-company.repository");
+    const { runWithTenant } = await import("@/core/decorators/tenant-context");
+    const { createMockUser } = await import("@/tests/helpers/mock-user");
+    const repo = new PrismaCompanyRepo();
+    const lemonSqueezyId = `ls-marked-${randomUUID()}`;
+    const write = (whileDeleting?: true) =>
+      repo.writeSubscriptionUnscoped({
+        companyId: doomed.companyId,
+        expectedLemonSqueezyId: null,
+        lemonSqueezyId,
+        status: "active",
+        plan: "pro",
+        ...(whileDeleting ? { whileDeleting } : {}),
+      });
+    const user = createMockUser({
+      id: doomed.users.get(creator.id),
+      companyId: doomed.companyId,
+      roleId: doomed.roles.admin,
+    });
+    const claim = () =>
+      runWithTenant(user, () =>
+        repo.claimCheckoutStart({ startedAt: new Date(), pendingSince: new Date(0), lemonSqueezyId: null }),
+      );
+
+    expect(await write()).toBe(false);
+    expect(await claim()).toBe("deleting");
+    expect(await write(true)).toBe(true);
+
+    await client.query('UPDATE "Company" SET "deletingAt" = NOW() - interval \'1 hour\' WHERE "id" = $1', [
+      doomed.companyId,
+    ]);
+    expect(await claim()).toBe("pending");
+  });
+
   it("lets a webhook that arrives after the delete find no subscription to update", async () => {
     const creator = await createLogin("late");
     const lemonSqueezyId = `ls-late-${randomUUID()}`;
@@ -687,6 +770,7 @@ describeDatabase("deleting a workspace on PostgreSQL", { timeout: 240_000 }, () 
       CustomErrorCode.workspaceDeleteChannelsFailed,
     ]);
     expect(await exists(doomed.companyId)).toBe(true);
+    expect(await deletingAt(doomed.companyId)).toBeNull();
   });
 
   it("lets any self-hosted admin delete, without billing checks", async () => {

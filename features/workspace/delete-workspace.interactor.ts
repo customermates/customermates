@@ -28,7 +28,12 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { logAuditEvent } from "@/core/utils/audit-log";
 import { env } from "@/env";
 import { nextLastUsedCompanyId } from "./next-last-used-workspace";
-import { WORKSPACE_DELETE_REFUSAL_CODES, workspaceDeleteRefusal } from "./workspace-deletion-refusal";
+import { isWorkspaceDeleting } from "./workspace-deletion-marker";
+import {
+  WORKSPACE_DELETE_REFUSAL_CODES,
+  workspaceBillingRefusal,
+  workspaceDeleteRefusal,
+} from "./workspace-deletion-refusal";
 
 const Schema = z.object({ companyId: z.uuid() });
 export type DeleteWorkspaceData = Data<typeof Schema>;
@@ -72,7 +77,50 @@ export class DeleteWorkspaceInteractor extends AuthenticatedInteractor<DeleteWor
     const admitted = await this.admit(login);
     if (!admitted.ok) return admitted;
 
-    const unrecorded = await this.recordProviderSubscription(admitted.data);
+    const markedAt = new Date();
+    const marked = await runInTransaction(
+      async (): Validated<WorkspaceDeletionSubject> => {
+        const current = await this.admit(login);
+        if (!current.ok) return current;
+        if (isWorkspaceDeleting(current.data.deletingAt, markedAt))
+          return failConflict(CustomErrorCode.workspaceChanged, ["companyId"]);
+
+        await this.repo.markDeletingUnscoped(companyId, markedAt);
+        return current;
+      },
+      { companyId },
+    ).catch(unwoundFailure);
+    if (!marked.ok) return marked;
+
+    const deleted = await this.deleteMarked(login, marked.data, markedAt).catch(async (error: unknown) => {
+      await this.repo.clearDeletingUnscoped(companyId, markedAt);
+      throw error;
+    });
+    if (!deleted.ok) {
+      await this.repo.clearDeletingUnscoped(companyId, markedAt);
+      return deleted;
+    }
+
+    await this.authService.setSessionActiveCompany(session.session.id, deleted.data.nextCompanyId);
+    logAuditEvent("workspace-deleted", {
+      companyId,
+      appMode: env.APP_MODE,
+      plan: marked.data.subscription?.plan ?? null,
+      subscriptionStatus: marked.data.subscription?.status ?? null,
+      memberCount: deleted.data.memberCount,
+      workflowRunCount: deleted.data.workflowRunCount,
+    });
+
+    return { ok: true as const, data: { companyId, nextCompanyId: deleted.data.nextCompanyId } };
+  }
+
+  private async deleteMarked(
+    login: Login,
+    subject: WorkspaceDeletionSubject,
+    markedAt: Date,
+  ): Validated<DeleteWorkspaceResult & { memberCount: number; workflowRunCount: number }> {
+    const { companyId } = this;
+    const unrecorded = await this.recordProviderSubscription(subject);
     if (unrecorded) return unrecorded;
 
     try {
@@ -82,19 +130,20 @@ export class DeleteWorkspaceInteractor extends AuthenticatedInteractor<DeleteWor
       return failUnavailable(CustomErrorCode.workspaceDeleteChannelsFailed);
     }
 
-    const deleted = await runInTransaction(
+    return runInTransaction(
       async (): Validated<DeleteWorkspaceResult & { memberCount: number; workflowRunCount: number }> => {
-        const current = await this.admit(login);
-        if (!current.ok) return current;
+        const current = await this.repo.findDeletionSubjectUnscoped(companyId);
+        if (!current || current.deletingAt?.getTime() !== markedAt.getTime())
+          return failConflict(CustomErrorCode.workspaceChanged, ["companyId"]);
+        const billing = env.APP_MODE === "cloud" ? workspaceBillingRefusal(current.subscription) : null;
+        if (billing) return fail(WORKSPACE_DELETE_REFUSAL_CODES[billing]);
         if ((await this.accounts.listActiveAccountsForCompanyUnscoped(companyId)).length > 0)
           return failConflict(CustomErrorCode.workspaceChanged, ["companyId"]);
 
         const members = await this.memberships.listCompanyMembersUnscoped(companyId);
         const creatorLoginId =
-          current.data.createdByAuthUserId ??
-          (current.data.earliestAdminEmail
-            ? await this.memberships.findLoginIdUnscoped(current.data.earliestAdminEmail)
-            : null);
+          current.createdByAuthUserId ??
+          (current.earliestAdminEmail ? await this.memberships.findLoginIdUnscoped(current.earliestAdminEmail) : null);
         if (creatorLoginId) await this.memberships.markTrialConsumedUnscoped(creatorLoginId);
 
         await this.repo.deleteInviteTokensByCreatorsUnscoped(members.map((member) => member.id));
@@ -122,19 +171,6 @@ export class DeleteWorkspaceInteractor extends AuthenticatedInteractor<DeleteWor
       },
       { ...BULK_WRITE_TRANSACTION, companyId },
     ).catch(unwoundFailure);
-    if (!deleted.ok) return deleted;
-
-    await this.authService.setSessionActiveCompany(session.session.id, deleted.data.nextCompanyId);
-    logAuditEvent("workspace-deleted", {
-      companyId,
-      appMode: env.APP_MODE,
-      plan: admitted.data.subscription?.plan ?? null,
-      subscriptionStatus: admitted.data.subscription?.status ?? null,
-      memberCount: deleted.data.memberCount,
-      workflowRunCount: deleted.data.workflowRunCount,
-    });
-
-    return { ok: true as const, data: { companyId, nextCompanyId: deleted.data.nextCompanyId } };
   }
 
   private async admit(login: Login): Promise<Admitted | InteractorFailure> {

@@ -217,6 +217,7 @@ model Company {
   id                          String                         @id @default(uuid())
   name                        String?
   createdByAuthUserId         String?
+  deletingAt                  DateTime?
   createdAt                   DateTime                       @default(now())
   updatedAt                   DateTime                       @updatedAt
   tags                        String[]                       @default([])

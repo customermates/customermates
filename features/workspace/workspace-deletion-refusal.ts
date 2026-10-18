@@ -34,6 +34,7 @@ export type WorkspaceDeletionBilling = {
 
 export type WorkspaceDeletionSubject = {
   createdByAuthUserId: string | null;
+  deletingAt: Date | null;
   earliestAdminEmail: string | null;
   hasActivePlatformOperator: boolean;
   subscription: WorkspaceDeletionBilling | null;

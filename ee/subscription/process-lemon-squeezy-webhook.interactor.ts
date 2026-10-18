@@ -19,6 +19,7 @@ import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 import { isCheckoutWorkspaceSignature } from "./checkout-workspace-signature";
 import { hasLiveSubscription } from "./entitlements";
 import { acceptsUnsignedCheckoutClaim } from "./unsigned-checkout-claims";
+import { isWorkspaceDeleting } from "@/features/workspace/workspace-deletion-marker";
 
 type WorkspaceClaim = { companyId: string; signature: string | null };
 
@@ -30,7 +31,7 @@ export type LemonSqueezyWebhookEvent = {
   claim: WorkspaceClaim | null;
 };
 
-export type LemonSqueezyWebhookOutcome = "applied" | "ignored" | "refused";
+export type LemonSqueezyWebhookOutcome = "applied" | "ignored" | "refused" | "deferred";
 
 const LIVE_PROVIDER_STATUSES = new Set(["active", "on_trial", "past_due"]);
 const PAYMENT_EVENTS = new Set(["subscription_created", "subscription_payment_success"]);
@@ -63,16 +64,17 @@ export class ProcessLemonSqueezyWebhookInteractor {
   async invoke(event: LemonSqueezyWebhookEvent): Promise<LemonSqueezyWebhookOutcome> {
     const bound = await this.repo.findWorkspaceBillingBySubscriptionIdUnscoped(event.subscriptionId);
     if (event.kind === "payment") return bound ? "ignored" : this.notePayment(event);
-    if (bound) return this.apply(bound, await this.provider(event.subscriptionId));
+    if (bound) return this.apply(event, bound, () => this.provider(event.subscriptionId));
 
     const { claim } = event;
     if (!claim) return this.refuse("unclaimed", event, null);
 
     const workspace = await this.repo.findWorkspaceBillingUnscoped(claim.companyId);
     if (workspace?.lemonSqueezyId === event.subscriptionId)
-      return this.apply(workspace, await this.provider(event.subscriptionId));
+      return this.apply(event, workspace, () => this.provider(event.subscriptionId));
     if (isForged(claim)) return this.refuse("forged", event, workspace);
     if (!workspace) return this.acknowledgeMissingWorkspace(event, claim);
+    if (isWorkspaceDeleting(workspace.deletingAt)) return "deferred";
     const signed = claim.signature !== null;
     if (!signed && !acceptsUnsignedCheckoutClaim(event.subscriptionCreatedAt))
       return this.refuse("unsigned", event, workspace);
@@ -84,11 +86,14 @@ export class ProcessLemonSqueezyWebhookInteractor {
     const newer = !current || createdAt(incoming) > createdAt(current);
     if (!newer && !isLive(incoming)) return "ignored";
     const live = hasLiveSubscription(workspace);
-    if (newer && !live) return this.apply(workspace, incoming);
+    if (newer && !live) return this.apply(event, workspace, () => Promise.resolve(incoming));
     if (!signed) return this.refuse("unsigned", event, workspace);
     if (newer && isLive(incoming)) {
-      return this.apply(workspace, incoming, () =>
-        this.alertAfterChange("replaced", event, workspace, workspace.lemonSqueezyId),
+      return this.apply(
+        event,
+        workspace,
+        () => Promise.resolve(incoming),
+        () => this.alertAfterChange("replaced", event, workspace, workspace.lemonSqueezyId),
       );
     }
 
@@ -122,12 +127,25 @@ export class ProcessLemonSqueezyWebhookInteractor {
   }
 
   private async apply(
+    event: LemonSqueezyWebhookEvent,
     workspace: WorkspaceBilling,
-    subscription: LemonSqueezySubscription,
+    subscription: () => Promise<LemonSqueezySubscription>,
     announce?: () => Promise<void>,
-  ) {
-    const synced = await this.subscriptionService.syncSubscription(workspace, subscription);
-    if (!synced) throw new Error("The workspace's billing binding changed while the event was processed");
+  ): Promise<LemonSqueezyWebhookOutcome> {
+    if (isWorkspaceDeleting(workspace.deletingAt)) return "deferred";
+
+    const synced = await this.subscriptionService.syncSubscription(workspace, await subscription());
+    if (!synced) {
+      const current = await this.repo.findWorkspaceBillingUnscoped(workspace.companyId);
+      if (!current) {
+        return this.acknowledgeMissingWorkspace(event, {
+          companyId: workspace.companyId,
+          signature: event.claim?.signature ?? null,
+        });
+      }
+      if (isWorkspaceDeleting(current.deletingAt)) return "deferred";
+      throw new Error("The workspace's billing binding changed while the event was processed");
+    }
 
     await announce?.();
     if (synced.changedPlan)

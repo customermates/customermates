@@ -28,6 +28,7 @@ function billing(overrides: Partial<WorkspaceDeletionBilling> = {}): WorkspaceDe
 function subject(overrides: Partial<WorkspaceDeletionSubject> = {}): WorkspaceDeletionSubject {
   return {
     createdByAuthUserId: creator.id,
+    deletingAt: null,
     earliestAdminEmail: creator.email,
     hasActivePlatformOperator: false,
     subscription: billing(),

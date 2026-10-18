@@ -49,7 +49,7 @@ function makeCheckoutRepo(
 ) {
   return {
     getSubscriptionOrThrow: vi.fn().mockResolvedValue({ plan, checkoutStartedAt, trialEndDate: null, ...binding }),
-    claimCheckoutStart: vi.fn().mockResolvedValue(true),
+    claimCheckoutStart: vi.fn().mockResolvedValue("claimed"),
     releaseCheckoutStart: vi.fn().mockResolvedValue(undefined),
   };
 }
@@ -157,7 +157,7 @@ describe("CreateCheckoutSessionInteractor", () => {
 
     const [{ startedAt }] = repo.claimCheckoutStart.mock.calls[0] as [{ startedAt: Date }];
     const { expiresAt } = subscriptionService.createCheckoutOrThrow.mock.calls[0][0] as { expiresAt: Date };
-    expect(expiresAt.getTime() - startedAt.getTime()).toBe(24 * 60 * 60 * 1000);
+    expect(expiresAt.getTime() - startedAt.getTime()).toBe(15 * 60 * 1000);
   });
 
   it("signs the workspace id it puts into the checkout with the server secret", async () => {
@@ -285,7 +285,7 @@ describe("CreateCheckoutSessionInteractor", () => {
 
   it("returns the pending state instead of a second checkout while a payment is being processed", async () => {
     const repo = makeCheckoutRepo("pro", new Date(Date.now() - 60_000));
-    repo.claimCheckoutStart.mockResolvedValue(false);
+    repo.claimCheckoutStart.mockResolvedValue("pending");
     const subscriptionService = makeSubscriptionService();
     const userRepo = makeUserRepo();
     const interactor = new CreateCheckoutSessionInteractor(
@@ -300,6 +300,24 @@ describe("CreateCheckoutSessionInteractor", () => {
     expect(result).toEqual({ ok: true, data: { checkout: "pending" } });
     expect(subscriptionService.createCheckoutOrThrow).not.toHaveBeenCalled();
     expect(userRepo.countActiveUsers).not.toHaveBeenCalled();
+    expect(repo.releaseCheckoutStart).not.toHaveBeenCalled();
+  });
+
+  it("refuses a checkout while the workspace is being deleted", async () => {
+    const repo = makeCheckoutRepo("pro", null);
+    repo.claimCheckoutStart.mockResolvedValue("deleting");
+    const subscriptionService = makeSubscriptionService();
+    const interactor = new CreateCheckoutSessionInteractor(
+      subscriptionService as never,
+      repo as never,
+      makeUserRepo() as never,
+      makeCompanyRepo() as never,
+    );
+
+    const result = await interactor.invoke({ plan: "pro", cadence: "monthly" } as never);
+
+    expect(result).toMatchObject({ ok: false });
+    expect(subscriptionService.createCheckoutOrThrow).not.toHaveBeenCalled();
     expect(repo.releaseCheckoutStart).not.toHaveBeenCalled();
   });
 

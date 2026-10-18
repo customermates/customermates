@@ -65,6 +65,7 @@ describe("UnrecordedSubscriptionCheck", () => {
     expect(provider.syncSubscription).toHaveBeenCalledExactlyOnceWith(
       { companyId: "company-1", plan: "pro", lemonSqueezyId: null },
       newer,
+      { whileDeleting: true },
     );
     expect(planAccounts.invoke).toHaveBeenCalledWith({ companyId: "company-1", plan: "starter" });
   });
