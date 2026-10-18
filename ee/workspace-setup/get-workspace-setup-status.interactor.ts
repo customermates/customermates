@@ -17,7 +17,7 @@ import { workspaceSetupView } from "./workspace-setup-status";
 
 const BUILD_STATUSES: ReadonlySet<WorkspaceSetupStatus> = new Set(["building", "completed", "failed"]);
 const WATCHED_STATUSES: ReadonlySet<WorkspaceSetupStatus> = new Set(["planning", "building"]);
-export const SETUP_WATCH_INTERVAL_MS = 15_000;
+export const SETUP_WATCH_INTERVAL_MS = 5_000;
 
 function watchDue(setup: WorkspaceSetupRecord, now: Date) {
   if (!WATCHED_STATUSES.has(setup.status)) return false;

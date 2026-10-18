@@ -11,7 +11,7 @@ import { env } from "@/env";
 import { getTranslator } from "@/i18n/get-translator";
 import { resolveUserLocale } from "@/i18n/user-locale";
 
-export const SETUP_AWAY_MS = 45_000;
+export const SETUP_AWAY_MS = 12_000;
 
 export type SetupNoticeStage = "plan" | "build";
 export type SetupNotice = "planReady" | "planFailed" | "workspaceReady" | "workspaceFailed";
