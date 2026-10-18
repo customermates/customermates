@@ -1,24 +1,37 @@
 import type { FormEvent } from "react";
 import type { AdminUpdateUserDetailsData } from "@/features/user/upsert/admin-update-user-details.interactor";
+import type { MemberRemovalRefusal } from "@/features/workspace/member-removal-refusal";
 import type { RootStore } from "@/core/stores/root.store";
 
 import { action, computed, makeObservable, observable, toJS } from "mobx";
 import { Action, CountryCode, Resource, Status } from "@/generated/prisma";
 
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 
-import { adminUpdateUserDetailsAction, getRolesAction, getUserByIdAction } from "../../actions";
+import {
+  adminUpdateUserDetailsAction,
+  getMemberRemovalAction,
+  getRolesAction,
+  getUserByIdAction,
+  removeWorkspaceMemberAction,
+} from "../../actions";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
 
-type RemovableMember = { status: Status; roleId: string | null; firstName: string; lastName: string };
+type RemovalCandidate = { id: string; leftAt: Date | null };
 
-export function isRemovableMember(member: RemovableMember) {
-  return member.status === Status.active && Boolean(member.roleId && member.firstName && member.lastName);
+export type MemberRemovalBlock = Extract<MemberRemovalRefusal, "lastAdmin" | "platformOperator">;
+
+function removalBlock(refusal: MemberRemovalRefusal | null | undefined): MemberRemovalBlock | null {
+  return refusal === "lastAdmin" || refusal === "platformOperator" ? refusal : null;
 }
 
 export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
   public loadedUserId: string | null = null;
+  public loadedLeftAt: Date | null = null;
+  public loadedStatus: Status | null = null;
+  public removalRefusal: MemberRemovalRefusal | null | undefined = undefined;
   private loadSequence = 0;
 
   constructor(rootStore: RootStore) {
@@ -43,7 +56,12 @@ export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
       setLoadedUserId: action,
 
       loadedUserId: observable,
+      loadedLeftAt: observable,
+      loadedStatus: observable,
+      removalRefusal: observable,
       isOwnProfile: computed,
+      showsRemoval: computed,
+      removalBlockedBy: computed,
       canRemove: computed,
     });
   }
@@ -58,14 +76,41 @@ export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
     return this.isOwnProfile || super.isReadOnly;
   }
 
-  get canRemove() {
-    return Boolean(
-      this.loadedUserId && !this.isOwnProfile && this.allows(Action.update) && isRemovableMember(this.savedState),
+  offersRemovalFor(member: RemovalCandidate) {
+    return (
+      this.rootStore.appMode !== "demo" &&
+      this.allows(Action.update) &&
+      member.id !== this.rootStore.userStore.user?.id &&
+      !member.leftAt
     );
   }
 
-  setLoadedUserId = (loadedUserId: string | null) => {
+  get showsRemoval() {
+    const { loadedUserId, removalRefusal } = this;
+    if (!loadedUserId || removalRefusal === undefined || removalRefusal === "self" || removalRefusal === "left")
+      return false;
+
+    return this.offersRemovalFor({ id: loadedUserId, leftAt: this.loadedLeftAt });
+  }
+
+  get removalBlockedBy(): MemberRemovalBlock | null {
+    return this.showsRemoval ? removalBlock(this.removalRefusal) : null;
+  }
+
+  get canRemove() {
+    return this.showsRemoval && this.removalRefusal === null;
+  }
+
+  setLoadedUserId = (
+    loadedUserId: string | null,
+    loadedLeftAt: Date | null = null,
+    loadedStatus: Status | null = null,
+    removalRefusal: MemberRemovalRefusal | null | undefined = undefined,
+  ) => {
     this.loadedUserId = loadedUserId;
+    this.loadedLeftAt = loadedLeftAt;
+    this.loadedStatus = loadedStatus;
+    this.removalRefusal = removalRefusal;
   };
 
   loadById = async (id: string) => {
@@ -74,16 +119,20 @@ export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
     this.setLoadedUserId(null);
 
     try {
-      const [{ user }, roles] = await Promise.all([getUserByIdAction({ id }), getRolesAction()]);
+      const [{ user }, roles, removal] = await Promise.all([
+        getUserByIdAction({ id }),
+        getRolesAction(),
+        this.offersRemovalFor({ id, leftAt: null }) ? getMemberRemovalAction({ userId: id }) : null,
+      ]);
 
-      if (sequence !== this.loadSequence) return;
+      if (sequence !== this.loadSequence || notifyIfWorkspaceChanged(removal)) return;
 
       this.rootStore.rolesStore.setItems(roles);
 
       if (!user) return;
 
       this.setError(undefined);
-      this.setLoadedUserId(user.id);
+      this.setLoadedUserId(user.id, user.leftAt, user.status, removal?.ok ? removal.data.refusal : undefined);
 
       this.openWith({
         email: user.email,
@@ -105,7 +154,7 @@ export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
     this.setIsLoading(true);
 
     try {
-      const res = await adminUpdateUserDetailsAction({ ...toJS(this.savedState), status: Status.inactive });
+      const res = await removeWorkspaceMemberAction({ userId: memberId });
 
       if (!res.ok) {
         toastZodErrorTree(res.error);

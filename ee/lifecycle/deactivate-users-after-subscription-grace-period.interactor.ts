@@ -1,7 +1,7 @@
 import type { EmailService } from "@/features/email/email.service";
 import type { ReleaseOwnerRoutinesInteractor } from "@/ee/routines/release-owner-routines.interactor";
 
-import type { User } from "@/generated/prisma";
+import type { DeactivateUsersAfterSubscriptionGracePeriodRepo } from "./deactivate-users-after-subscription-grace-period.repo";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 
@@ -10,11 +10,6 @@ import { getEmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
 import { getTranslator } from "@/i18n/get-translator";
 import { resolveUserLocale } from "@/i18n/user-locale";
 import { env } from "@/env";
-
-export abstract class DeactivateUsersAfterSubscriptionGracePeriodRepo {
-  abstract findUsersPastSubscriptionGracePeriod(): Promise<User[]>;
-  abstract deactivateUserOrThrow(userId: string): Promise<void>;
-}
 
 @SystemInteractor
 export class DeactivateUsersAfterSubscriptionGracePeriodInteractor {
@@ -35,20 +30,22 @@ export class DeactivateUsersAfterSubscriptionGracePeriodInteractor {
       const contactHref = `${env.BASE_URL}/contact`;
       const t = await getTranslator(locale, "SubscriptionInactivationNotice");
       const layoutCopy = await getEmailLayoutCopy(locale);
+      const workspace = user.company.name;
+      const subject = workspace ? t("subjectNamed", { workspace }) : t("subject");
 
       await this.emailService.send({
         to: user.email,
-        subject: t("subject"),
+        subject,
         react: SubscriptionInactivationNotice({
           locale,
           layoutCopy,
           greeting: t("greeting", { firstName: user.firstName }),
-          body: t("body"),
+          body: workspace ? t("bodyNamed", { workspace }) : t("body"),
           cta: t("cta"),
           dismiss: t("dismiss"),
           scheduleFallback: t("scheduleFallback"),
           signoff: t("signoff"),
-          subject: t("subject"),
+          subject,
           title: t("title"),
           href: contactHref,
         }),

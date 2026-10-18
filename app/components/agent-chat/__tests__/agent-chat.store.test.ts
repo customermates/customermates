@@ -24,6 +24,7 @@ const actionsMock = vi.hoisted(() => ({
 }));
 const toastMock = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn() }));
 const reportApplicationErrorMock = vi.hoisted(() => vi.fn());
+const notifyWorkspaceChangedMock = vi.hoisted(() => vi.fn());
 
 vi.mock("../actions", () => actionsMock);
 vi.mock("sonner", () => ({ toast: toastMock }));
@@ -31,7 +32,19 @@ vi.mock("@/core/errors/report-application-error", () => ({
   isDemoEnvironment: () =>
     typeof window !== "undefined" && window.location.hostname.toLocaleLowerCase().includes("demo"),
   reportApplicationError: reportApplicationErrorMock,
+  notifyWorkspaceChanged: notifyWorkspaceChangedMock,
 }));
+vi.mock("@/core/errors/workspace-changed-notice", async () => {
+  const { isWorkspaceChangedError, isWorkspaceChangedFailure } = await import("@/core/errors/workspace-changed");
+  return {
+    hasWorkspaceChanged: () => notifyWorkspaceChangedMock.mock.calls.length > 0,
+    notifyIfWorkspaceChanged: (value: unknown) => {
+      const changed = isWorkspaceChangedFailure(value) || isWorkspaceChangedError(value);
+      if (changed) notifyWorkspaceChangedMock();
+      return changed;
+    },
+  };
+});
 
 import { AgentChatStore, type AgentChatItem } from "../agent-chat.store";
 import { AgentUiControlStore } from "../ui-control.store";
@@ -66,6 +79,13 @@ const CONFIG = {
   conversationNextCursor: null,
   archivedConversationNextCursor: null,
 };
+
+const WORKSPACE_CHANGED = {
+  ok: false as const,
+  code: "workspaceChanged",
+  error: { errors: [], digest: "CUSTOMERMATES_WORKSPACE_CHANGED" },
+};
+const WORKSPACE_CHANGED_ERROR = Object.assign(new Error("redacted"), { digest: "CUSTOMERMATES_WORKSPACE_CHANGED" });
 
 const CONTACTS_VIEW_CONTEXT = {
   reference: {
@@ -825,6 +845,17 @@ describe("AgentChatStore", () => {
     expect(store.enabled).toBe(true);
     await expect(store.loadConfig()).resolves.toBe("disabled");
     expect(store.enabled).toBe(false);
+  });
+
+  it("ends the config load instead of retrying when the session's workspace changed", async () => {
+    actionsMock.getAgentConfigAction.mockResolvedValueOnce(WORKSPACE_CHANGED);
+    const store = new AgentChatStore(root() as never);
+
+    await expect(store.loadConfig()).resolves.toBe("workspaceChanged");
+
+    expect(notifyWorkspaceChangedMock).toHaveBeenCalledOnce();
+    expect(store.enabled).toBeNull();
+    expect(reportApplicationErrorMock).not.toHaveBeenCalled();
   });
 
   it("coalesces concurrent config loads", async () => {
@@ -2437,6 +2468,31 @@ describe("AgentChatStore", () => {
     expect(reportApplicationErrorMock).not.toHaveBeenCalled();
   });
 
+  it("stops delivering a browser-command result once the workspace changed and reports nothing", async () => {
+    vi.useFakeTimers();
+    actionsMock.respondToUiCommandAction.mockResolvedValue(WORKSPACE_CHANGED);
+    const store = new AgentChatStore(root() as never);
+    store.conversationId = "00000000-0000-4000-8000-000000000001";
+
+    (
+      store as unknown as {
+        handleEvent: (event: Record<string, unknown>) => void;
+      }
+    ).handleEvent({
+      seq: 1,
+      type: "ui_command",
+      commandId: "command-stale",
+      name: "navigate",
+      input: { targetId: "nav-routines" },
+    });
+    await vi.advanceTimersByTimeAsync(10_000);
+
+    expect(actionsMock.respondToUiCommandAction).toHaveBeenCalledOnce();
+    expect(notifyWorkspaceChangedMock).toHaveBeenCalledOnce();
+    expect(reportApplicationErrorMock).not.toHaveBeenCalled();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
   it("keeps an awaited browser outcome bound to the conversation that requested it", async () => {
     const originalConversationId = "00000000-0000-4000-8000-000000000001";
     let resolveNavigation!: (value: { ok: true; result: string }) => void;
@@ -2851,6 +2907,21 @@ describe("AgentChatStore", () => {
     expect(store.items.map((item) => ("text" in item ? item.text : null))).toEqual(["Older message", "Newer message"]);
   });
 
+  it("opens the reload dialog instead of a toast when older messages fail in a changed workspace", async () => {
+    const conversationId = "00000000-0000-4000-8000-000000000001";
+    actionsMock.getAgentConversationAction
+      .mockResolvedValueOnce({ id: conversationId, title: "Long chat", messages: [], nextCursor: "50" })
+      .mockRejectedValueOnce(WORKSPACE_CHANGED_ERROR);
+    const store = new AgentChatStore(root() as never);
+
+    await store.selectConversation(conversationId);
+    await store.loadOlderMessages();
+
+    expect(actionsMock.getAgentConversationAction).toHaveBeenCalledTimes(2);
+    expect(notifyWorkspaceChangedMock).toHaveBeenCalledOnce();
+    expect(toastMock.error).not.toHaveBeenCalled();
+  });
+
   it("serializes history mutations so overlapping archive, restore, and delete requests cannot race", async () => {
     const conversationId = "00000000-0000-4000-8000-000000000001";
     let resolveArchive!: (value: unknown) => void;
@@ -3216,6 +3287,42 @@ describe("AgentChatStore", () => {
     vi.useRealTimers();
   });
 
+  it("stops resuming an approval once the workspace changed, without a retry state or toast", async () => {
+    vi.useFakeTimers();
+    actionsMock.respondToApprovalAction
+      .mockResolvedValueOnce({ ok: true, data: { resolved: true, resumed: false } })
+      .mockResolvedValue(WORKSPACE_CHANGED);
+    const store = new AgentChatStore(root() as never);
+    store.conversationId = "00000000-0000-4000-8000-000000000001";
+    (
+      store as unknown as {
+        handleEvent: (event: Record<string, unknown>) => void;
+      }
+    ).handleEvent({
+      seq: 0,
+      type: "approval_request",
+      requestId: "request-stale",
+      activity: {
+        kind: "records.delete",
+        resource: "wiki",
+        risk: "sensitive",
+        affectedResources: ["wiki"],
+      },
+    });
+    const approval = store.items.find(
+      (item): item is Extract<(typeof store.items)[number], { kind: "approval" }> => item.kind === "approval",
+    );
+    if (!approval) throw new Error("expected approval");
+
+    await store.respondToApproval(approval, "approve");
+    await vi.advanceTimersByTimeAsync(6000);
+
+    expect(actionsMock.respondToApprovalAction).toHaveBeenCalledTimes(2);
+    expect(notifyWorkspaceChangedMock).toHaveBeenCalledOnce();
+    expect(approval).toMatchObject({ submittedDecision: "approve", retryDecision: null, resolution: null });
+    expect(toastMock.error).not.toHaveBeenCalled();
+  });
+
   it("refreshes usage after a rejected send, including a 429 response", async () => {
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
@@ -3233,6 +3340,30 @@ describe("AgentChatStore", () => {
         messageId: expect.any(String),
       }),
     );
+    fetchMock.mockRestore();
+  });
+
+  it("blocks the page instead of failing the turn when this session's workspace changed elsewhere", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          error: {
+            kind: "conflict",
+            issues: [{ code: "custom", path: [], message: "Reload the page", customCode: "workspaceChanged" }],
+          },
+        }),
+        { status: 409, headers: { "content-type": "application/json" } },
+      ),
+    );
+    const store = new AgentChatStore(root() as never);
+
+    await store.sendMessage("Create a contact for Anna");
+
+    expect(notifyWorkspaceChangedMock).toHaveBeenCalledOnce();
+    expect(toastMock.error).not.toHaveBeenCalled();
+    expect(store.items.some((item) => item.kind === "user" || item.kind === "turn_error")).toBe(false);
+    expect(store.composerDraft).toBe("Create a contact for Anna");
+    expect(store.isWorking).toBe(false);
     fetchMock.mockRestore();
   });
 
@@ -5009,6 +5140,95 @@ describe("AgentChatStore", () => {
     fetchMock.mockRestore();
   });
 
+  it("stops recovering a broken stream once the workspace changed, without a recovery error or report", async () => {
+    vi.useFakeTimers();
+    const conversationId = "00000000-0000-4000-8000-0000000000c5";
+    actionsMock.getAgentConversationAction.mockRejectedValue(WORKSPACE_CHANGED_ERROR);
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response("", {
+        headers: { "content-type": "text/event-stream", "x-conversation-id": conversationId },
+      }),
+    );
+    const store = new AgentChatStore(root() as never);
+
+    const sending = store.sendMessage("Recover in a changed workspace");
+    await vi.advanceTimersByTimeAsync(10_000);
+    await sending;
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect(actionsMock.getAgentConversationAction).toHaveBeenCalledOnce();
+    expect(notifyWorkspaceChangedMock).toHaveBeenCalledOnce();
+    expect(reportApplicationErrorMock).not.toHaveBeenCalled();
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+    fetchMock.mockRestore();
+  });
+
+  it("stops rejoining a stream that answers with a changed workspace and reports nothing", async () => {
+    vi.useFakeTimers();
+    const conversationId = "00000000-0000-4000-8000-0000000000c6";
+    actionsMock.getAgentConversationAction.mockResolvedValueOnce({ activeTurn: true, messages: [], nextCursor: null });
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(
+        new Response("", {
+          headers: { "content-type": "text/event-stream", "x-conversation-id": conversationId },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            error: {
+              kind: "conflict",
+              issues: [{ code: "custom", path: [], message: "Reload the page", customCode: "workspaceChanged" }],
+            },
+          }),
+          { status: 409, headers: { "content-type": "application/json" } },
+        ),
+      );
+    const store = new AgentChatStore(root() as never);
+
+    const sending = store.sendMessage("Rejoin in a changed workspace");
+    await vi.advanceTimersByTimeAsync(10_000);
+    await sending;
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(notifyWorkspaceChangedMock).toHaveBeenCalledOnce();
+    expect(reportApplicationErrorMock).not.toHaveBeenCalled();
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+    fetchMock.mockRestore();
+  });
+
+  it("stops reconciling a finished turn once the workspace changed, without a recovery error", async () => {
+    vi.useFakeTimers();
+    const conversationId = "00000000-0000-4000-8000-0000000000c7";
+    actionsMock.getAgentConversationAction.mockRejectedValue(WORKSPACE_CHANGED_ERROR);
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(
+        `data: ${JSON.stringify({
+          seq: 0,
+          type: "turn_done",
+          isError: false,
+          terminalCode: "completed",
+          assistantMessageId: "unseen-terminal-answer",
+          affectedResources: [],
+        })}\n\n`,
+        {
+          headers: { "content-type": "text/event-stream", "x-conversation-id": conversationId },
+        },
+      ),
+    );
+    const store = new AgentChatStore(root() as never);
+
+    const sending = store.sendMessage("Finish in a changed workspace");
+    await vi.advanceTimersByTimeAsync(10_000);
+    await sending;
+
+    expect(actionsMock.getAgentConversationAction).toHaveBeenCalledOnce();
+    expect(notifyWorkspaceChangedMock).toHaveBeenCalledOnce();
+    expect(store.items).not.toContainEqual(expect.objectContaining({ kind: "turn_error" }));
+    fetchMock.mockRestore();
+  });
+
   it("bounds a hung recovery snapshot and rejoins the still-running durable turn", async () => {
     vi.useFakeTimers();
     const conversationId = "00000000-0000-4000-8000-000000000057";
@@ -6195,6 +6415,24 @@ describe("AgentChatStore", () => {
       expect.objectContaining({ kind: "assistant", text: "This response was stopped." }),
     );
     expect(toastMock.error).toHaveBeenCalled();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("stops retrying Stop at a workspace-changed refusal and shows no failure", async () => {
+    vi.useFakeTimers();
+    actionsMock.cancelAgentTurnAction.mockResolvedValue(WORKSPACE_CHANGED);
+    const store = new AgentChatStore(root() as never);
+    store.conversationId = "00000000-0000-4000-8000-000000000091";
+    store.isWorking = true;
+    (store as unknown as { activeTurnAdmissionConfirmed: boolean }).activeTurnAdmissionConfirmed = true;
+
+    store.interrupt();
+    await vi.advanceTimersByTimeAsync(26000);
+
+    expect(actionsMock.cancelAgentTurnAction).toHaveBeenCalledOnce();
+    expect(notifyWorkspaceChangedMock).toHaveBeenCalledOnce();
+    expect(store.streamStatus).toBe("stopping");
+    expect(toastMock.error).not.toHaveBeenCalled();
     expect(vi.getTimerCount()).toBe(0);
   });
 

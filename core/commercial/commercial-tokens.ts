@@ -2,6 +2,7 @@ import { CONTENT_LOCALES, isContentLocale, type ContentLocale } from "@/i18n/loc
 
 import {
   CLOUD_TRIAL,
+  CLOUD_WORKSPACE_CREATION_LIMIT,
   formatCommercialAmount,
   getCommercialOfferOrThrow,
   getPlanDefinition,
@@ -77,6 +78,7 @@ function resolveCommercialToken(token: string, locale: string): string {
   const parts = token.split(".");
   if (parts[0] === "price") return resolvePriceToken(parts, locale);
   if (token === "trial.days") return String(CLOUD_TRIAL.days);
+  if (token === "workspaces.creationLimit") return String(CLOUD_WORKSPACE_CREATION_LIMIT);
   if (parts[0] === "entitlement") return resolveEntitlementToken(parts, locale);
   throw new Error(`Unknown commercial token: ${token}`);
 }

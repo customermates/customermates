@@ -215,4 +215,18 @@ describe("NavigationGuardController", () => {
     expect(() => controller.confirm()).not.toThrow();
     expect(controller.pendingNavigation).toBeNull();
   });
+
+  it("leaves the document without asking again once a full navigation has started", () => {
+    const assign = vi.fn();
+    vi.stubGlobal("window", { location: { assign } });
+    controller.register(makeStore({ dirty: true }));
+    expect(controller.isGuarding).toBe(true);
+
+    controller.navigateDocument("/de/dashboard");
+
+    expect(assign).toHaveBeenCalledWith("/de/dashboard");
+    expect(controller.isGuarding).toBe(false);
+    expect(controller.isPending).toBe(false);
+    vi.unstubAllGlobals();
+  });
 });

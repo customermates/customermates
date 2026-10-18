@@ -10,6 +10,8 @@ import { RecordActivityQuerySchema } from "@/ee/messaging/activities/record-acti
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { recordDisplayName } from "@/features/records/record-display-name";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
+import { WorkspaceChangedError } from "@/core/errors/workspace-changed-error";
 import { getRecordChoicesAction } from "../../records/actions";
 import { discoverWidgetRecordTypesAction } from "../actions";
 import { isRecordActivityWidgetForm } from "./record-widget-form";
@@ -54,6 +56,7 @@ const RecordSelection = observer(function RecordSelection({
   const getItems = useCallback(
     async ({ searchTerm }: { searchTerm?: string }) => {
       const result = await getRecordChoicesAction({ typeId, search: searchTerm, page: 1, pageSize: 50 });
+      if (notifyIfWorkspaceChanged(result)) throw new WorkspaceChangedError();
       if (!result.ok) throw new Error("Record choices unavailable");
       return {
         items: result.data.records.map((record) => ({

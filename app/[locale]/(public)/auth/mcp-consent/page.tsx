@@ -3,10 +3,10 @@ import { getLocale } from "next-intl/server";
 
 import { McpConsentCard } from "./mcp-consent-card";
 
-import { getAuthService, getRouteGuardService } from "@/core/di";
+import { getAuthService, getListMcpConsentWorkspacesInteractor, getRouteGuardService } from "@/core/di";
 import { requireAccountState } from "@/features/auth/next/require";
 import { accountStateRedirect } from "@/features/auth/account-state";
-import { canConnectMcp } from "@/features/auth/mcp-access";
+import { MCP_CONSENT_MEMBER_STATES } from "@/features/auth/mcp-access";
 import { buildLocalePath } from "@/i18n/locale-registry";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 import { NOINDEX_METADATA } from "@/core/seo/noindex-metadata";
@@ -18,9 +18,10 @@ type Props = {
 };
 
 export default async function McpConsentPage({ searchParams }: Props) {
-  const resolution = await requireAccountState(["allowed", "onboarding"]);
-  if ((await getRouteGuardService().resolveMcpConsentState(resolution)) !== resolution.state)
-    redirect(buildLocalePath(await getLocale(), accountStateRedirect(resolution.state) ?? "/"));
+  const resolution = await requireAccountState(MCP_CONSENT_MEMBER_STATES);
+  const consentState = await getRouteGuardService().resolveMcpConsentState(resolution);
+  const currentCanConsent =
+    consentState === resolution.state && (consentState === "allowed" || consentState === "onboarding");
 
   const params = await searchParams;
   const consentCode = typeof params.consent_code === "string" ? params.consent_code : undefined;
@@ -28,10 +29,14 @@ export default async function McpConsentPage({ searchParams }: Props) {
 
   if (!consentCode || !clientId) redirect("/");
 
+  const { data: workspaces } = await getListMcpConsentWorkspacesInteractor().invoke();
   const prompt = await getAuthService().getMcpConsentPrompt({
     consentCode,
     clientId,
   });
+  const fixedWorkspaceId = prompt?.workspaceId ?? null;
+  if (!fixedWorkspaceId && !currentCanConsent && !workspaces.some((workspace) => workspace.unavailableReason === null))
+    redirect(buildLocalePath(await getLocale(), accountStateRedirect(resolution.state) ?? "/"));
   if (!prompt) redirect("/");
 
   return (
@@ -39,9 +44,12 @@ export default async function McpConsentPage({ searchParams }: Props) {
       <McpConsentCard
         clientName={prompt.clientName}
         consentCode={consentCode}
-        permitted={canConnectMcp(resolution.user?.role)}
+        fixedWorkspace={fixedWorkspaceId !== null}
         redirectHost={prompt.redirectHost}
         scopes={prompt.scopes}
+        workspaces={
+          fixedWorkspaceId ? workspaces.filter((workspace) => workspace.companyId === fixedWorkspaceId) : workspaces
+        }
       />
     </CenteredCardPage>
   );

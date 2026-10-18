@@ -81,6 +81,7 @@ export default async function SignInPage({ searchParams }: Props) {
         inviterName={invitation?.inviterName}
         onboardingIntent={activeIntent?.intent}
         socialProviders={enabledSocialProviders}
+        workspaceName={invitation?.companyName}
       />
     </CenteredCardPage>
   );

@@ -1,6 +1,9 @@
 import { createElement } from "react";
 import { toast, type ExternalToast } from "sonner";
 
+import { notifyWorkspaceChanged } from "@/core/errors/report-application-error";
+import { isWorkspaceChangedError } from "@/core/errors/workspace-changed";
+
 type ErrorNode = { errors?: string[]; properties?: Record<string, unknown>; items?: unknown[] };
 
 type FlattenedError = { message: string };
@@ -20,6 +23,11 @@ function flattenZodErrorTree(tree: unknown): FlattenedError[] {
 }
 
 export function toastZodErrorTree(tree: unknown, options?: ExternalToast): boolean {
+  if (isWorkspaceChangedError(tree)) {
+    notifyWorkspaceChanged();
+    return true;
+  }
+
   const messages = flattenZodErrorTree(tree);
   if (messages.length === 0) return false;
 

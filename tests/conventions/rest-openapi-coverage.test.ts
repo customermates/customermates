@@ -9,7 +9,7 @@ import { REPO_ROOT, REPO_SCAN_TIMEOUT_MS, walkFiles } from "./walk";
 
 const ENFORCED = true;
 
-const SPEC_EXEMPT_PATHS = new Set(["/v1/mcp", "/v1/openapi"]);
+const SPEC_EXEMPT_PATHS = new Set(["/v1/mcp", "/v1/mcp/w/{workspaceId}", "/v1/openapi"]);
 const HTTP_VERBS = new Set(["get", "post", "put", "patch", "delete", "head", "options"]);
 const HTTP_HANDLER_NAMES = new Set(["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]);
 const SCHEMA_PARSE_METHOD_NAMES = new Set(["parse", "safeParse", "parseAsync", "safeParseAsync"]);

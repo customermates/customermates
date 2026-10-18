@@ -22,6 +22,7 @@ import type { Resource } from "@/generated/prisma";
 import { Action } from "@/generated/prisma";
 
 import { reportApplicationError } from "../errors/report-application-error";
+import { notifyIfWorkspaceChanged } from "../errors/workspace-changed-notice";
 import { ForbiddenError } from "../errors/app-errors";
 import { toastZodErrorTree } from "../utils/toast-zod-error-tree";
 
@@ -1511,7 +1512,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     try {
       await this.executeRefresh("visible");
     } catch (error) {
-      this.toastError("Common.notifications.unexpectedError");
+      if (!notifyIfWorkspaceChanged(error)) this.toastError("Common.notifications.unexpectedError");
       throw error;
     }
   }
@@ -1546,7 +1547,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
         try {
           await this.executeRefresh("background", () => !this.backgroundRefreshQueued);
         } catch (error) {
-          if (!(error instanceof ForbiddenError)) this.toastError("Common.notifications.unexpectedError");
+          if (!notifyIfWorkspaceChanged(error) && !(error instanceof ForbiddenError))
+            this.toastError("Common.notifications.unexpectedError");
         }
       } while (this.backgroundRefreshQueued);
     } finally {

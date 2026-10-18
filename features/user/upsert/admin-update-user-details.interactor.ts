@@ -76,6 +76,8 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
       status: change.status ?? targetUser.status,
     };
     if (next.status === Status.pendingAuthorization) return fail(CustomErrorCode.userStatusRequired, ["status"]);
+    if (targetUser.leftAt && next.status === Status.active)
+      return fail(CustomErrorCode.workspaceMemberLeft, ["status"]);
     const data: AdminUpdateUserDetailsData = { ...next, status: next.status };
 
     const leavingActive = targetUser.status === Status.active && data.status !== Status.active;

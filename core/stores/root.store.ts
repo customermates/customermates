@@ -17,6 +17,7 @@ import { WebhookDeliveriesStore } from "@/app/[locale]/(protected)/settings/(wor
 import { WebhookDeliveryModalStore } from "@/app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-delivery-modal.store";
 import { WebhookModalStore } from "@/app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-modal.store";
 import { WebhooksStore } from "@/app/[locale]/(protected)/settings/(workspace)/components/webhook/webhooks.store";
+import { WorkspaceGeneralStore } from "@/app/[locale]/(protected)/settings/(workspace)/components/general/workspace-general.store";
 import { WidgetModalStore } from "@/app/[locale]/(protected)/dashboard/components/widget-modal.store";
 import { WidgetsStore } from "@/app/[locale]/(protected)/dashboard/components/widgets.store";
 import { MessagingThreadDetailStore } from "@/app/[locale]/(protected)/inbox/components/messaging-thread-detail.store";
@@ -57,6 +58,8 @@ import { LocaleStore } from "@/core/stores/locale.store";
 import { TimelineDetailModalStore } from "@/features/messaging/activities/activities-detail-modal.store";
 import { RecordWorkspaceStore } from "./record-workspace.store";
 import { WikiPageStore } from "@/app/[locale]/(protected)/wiki/components/wiki-page.store";
+import { CreateWorkspaceModalStore } from "@/app/components/workspaces/create-workspace-modal.store";
+import { WorkspacesStore } from "@/app/components/workspaces/workspaces.store";
 
 import { AgentChatStore } from "@/app/components/agent-chat/agent-chat.store";
 import { AgentUiControlStore } from "@/app/components/agent-chat/ui-control.store";
@@ -109,8 +112,11 @@ export class RootStore {
   private _subscriptionExpiredStore?: SubscriptionExpiredStore;
   private _legalUpdateStore?: LegalUpdateStore;
   private _profileSettingsStore?: ProfileSettingsStore;
+  private _workspacesStore?: WorkspacesStore;
+  private _workspaceGeneralStore?: WorkspaceGeneralStore;
 
   private _companyInviteModalStore?: CompanyInviteModalStore;
+  private _createWorkspaceModalStore?: CreateWorkspaceModalStore;
   private _createApiKeyModalStore?: ApiKeyModalStore;
   private _deleteConfirmationModalStore?: DeleteConfirmationModalStore;
   private _globalSearchModalStore?: GlobalSearchModalStore;
@@ -189,6 +195,18 @@ export class RootStore {
 
   get profileSettingsStore() {
     return (this._profileSettingsStore ??= new ProfileSettingsStore(this));
+  }
+
+  get workspacesStore() {
+    return (this._workspacesStore ??= new WorkspacesStore(this));
+  }
+
+  get createWorkspaceModalStore() {
+    return (this._createWorkspaceModalStore ??= new CreateWorkspaceModalStore(this));
+  }
+
+  get workspaceGeneralStore() {
+    return (this._workspaceGeneralStore ??= new WorkspaceGeneralStore(this));
   }
 
   get apiKeyModalStore() {

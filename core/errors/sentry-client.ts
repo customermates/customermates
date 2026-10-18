@@ -1,6 +1,7 @@
 import type * as SentrySdk from "./sentry-sdk";
 
 import { isExpectedError } from "./app-errors";
+import { isWorkspaceChangedError } from "./workspace-changed";
 import { errorDigest } from "./error-digest";
 import { scrubAdIdentifiersFromEvent } from "./scrub-ad-identifiers";
 
@@ -16,7 +17,7 @@ export function loadSentry(): Promise<typeof SentrySdk> {
         replaysSessionSampleRate: 0,
         replaysOnErrorSampleRate: 0,
         beforeSend(event, hint) {
-          if (isExpectedError(hint?.originalException)) return null;
+          if (isExpectedError(hint?.originalException) || isWorkspaceChangedError(hint?.originalException)) return null;
 
           if (process.env.NODE_ENV !== "production") {
             console.error(hint?.originalException ?? event);

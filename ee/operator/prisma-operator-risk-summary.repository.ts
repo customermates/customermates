@@ -30,9 +30,13 @@ export class PrismaOperatorRiskSummaryRepo extends TenantRepository implements G
       this.prisma.subscription.count({
         where: { status: SubscriptionStatusEnum.trial, trialEndDate: { gte: now, lte: sevenDaysAhead } },
       }),
-      this.prisma.user.count({ where: { lastActiveAt: { gte: sevenDaysAgo } } }),
+      this.prisma.user.groupBy({ by: ["email"], where: { lastActiveAt: { gte: sevenDaysAgo } } }),
       this.prisma.company.count({ where: { createdAt: { gte: thirtyDaysAgo } } }),
-      this.prisma.user.count({ where: { createdAt: { gte: thirtyDaysAgo } } }),
+      this.prisma.user.groupBy({
+        by: ["email"],
+        _min: { createdAt: true },
+        having: { createdAt: { _min: { gte: thirtyDaysAgo } } },
+      }),
       this.prisma.company.count({ where: { adAttributions: { some: {} } } }),
       this.prisma.company.count({
         where: { adAttributions: { some: {} }, conversionEvents: { some: { type: ConversionEventType.paid } } },
@@ -44,9 +48,9 @@ export class PrismaOperatorRiskSummaryRepo extends TenantRepository implements G
       subscriptionsUnpaid: unpaid,
       subscriptionsExpired: expired,
       trialsEndingWithinSevenDays: trialsEnding,
-      activeUsersLastSevenDays: activeUsers,
+      activeUsersLastSevenDays: activeUsers.length,
       newWorkspacesLastThirtyDays: newWorkspaces,
-      newUsersLastThirtyDays: newUsers,
+      newUsersLastThirtyDays: newUsers.length,
       attributedWorkspaces,
       attributedPaidWorkspaces,
     };

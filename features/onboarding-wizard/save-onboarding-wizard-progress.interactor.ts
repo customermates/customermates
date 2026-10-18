@@ -38,6 +38,7 @@ export class SaveOnboardingWizardProgressInteractor {
     if (resolution.state !== "onboarding") return redirectTo(accountStateRedirect(resolution.state) ?? "/");
     if (!resolution.user || !resolution.sessionUser) return redirectTo("/auth/signin");
     const ownerAuthUserId = resolution.sessionUser.id;
+    const ownerCompanyId = resolution.user.companyId;
     if (resolution.user.id !== data.userId) return failAuthorization(CustomErrorCode.permissionDenied);
 
     return runWithTenant(resolution.user, async () => {
@@ -45,6 +46,7 @@ export class SaveOnboardingWizardProgressInteractor {
       const { active, foreign } = await this.authService.resolveApiKeyReferences(
         ownerAuthUserId,
         references.map(([, id]) => id),
+        ownerCompanyId,
       );
       if (references.some(([, id]) => foreign.has(id)))
         return failAuthorization(CustomErrorCode.permissionDenied, ["progress", "ai", "apiKeyIds"]);

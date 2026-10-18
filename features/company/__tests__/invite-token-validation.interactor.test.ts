@@ -48,10 +48,11 @@ describe("InviteTokenValidationInteractor", () => {
     expect(result).toEqual({ ok: true, data: { valid: false, errorMessage: "invalidInviteLink" } });
   });
 
-  it("looks up a well-formed token", async () => {
+  it("looks up a well-formed token and names the invited workspace", async () => {
     const expiresAt = new Date(Date.now() + 60_000);
     repo.findTokenUnscoped.mockResolvedValue({
       companyId: "00000000-0000-4000-8000-000000000001",
+      company: { name: "Bergmann Steuern" },
       createdBy: { email: "admin@example.com", firstName: "Invite", lastName: "Admin" },
       expiresAt,
     });
@@ -63,6 +64,7 @@ describe("InviteTokenValidationInteractor", () => {
       ok: true,
       data: {
         companyId: "00000000-0000-4000-8000-000000000001",
+        companyName: "Bergmann Steuern",
         expiresAt,
         inviterName: "Invite Admin",
         valid: true,
@@ -101,6 +103,7 @@ describe("InviteTokenValidationInteractor", () => {
     const expiresAt = new Date(Date.now() + 60_000);
     repo.findTokenUnscoped.mockResolvedValue({
       companyId: "00000000-0000-4000-8000-000000000001",
+      company: { name: null },
       createdBy: { email: "admin@example.com", firstName: "", lastName: "" },
       expiresAt,
     });
@@ -109,6 +112,7 @@ describe("InviteTokenValidationInteractor", () => {
       ok: true,
       data: {
         companyId: "00000000-0000-4000-8000-000000000001",
+        companyName: null,
         expiresAt,
         inviterName: "admin@example.com",
         valid: true,

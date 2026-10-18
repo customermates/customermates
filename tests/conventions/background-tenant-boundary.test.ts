@@ -21,7 +21,11 @@ const AUTHENTICATED_TENANT_ENTRYPOINTS = [
   "features/onboarding-wizard/complete-onboarding-wizard.interactor.ts",
   "features/onboarding-wizard/get-onboarding-wizard-progress.interactor.ts",
   "features/onboarding-wizard/save-onboarding-wizard-progress.interactor.ts",
+  "features/auth/route-guard.service.ts",
   "features/user/register/register-user.interactor.ts",
+  "features/workspace/create-workspace.interactor.ts",
+  "features/workspace/join-workspace.interactor.ts",
+  "features/workspace/withdraw-workspace-request.interactor.ts",
 ];
 
 const THROWAWAY_WORKSPACE_ENTRYPOINTS = [

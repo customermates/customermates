@@ -7,6 +7,7 @@ import type {
 import { readRecordDetailLayoutAction, saveRecordDetailLayoutAction } from "@/app/[locale]/(protected)/records/actions";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { reportApplicationError } from "@/core/errors/report-application-error";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 
 export type RecordDetailLayoutNotifications = {
   saveFailed: (store: RecordDetailLayoutStore) => void;
@@ -106,6 +107,7 @@ export class RecordDetailLayoutStore {
       const result = await readRecordDetailLayoutAction(this.state.typeId);
       if (this.disposed || generation !== this.generation || request !== this.readRequest) return;
       if (!result.ok) {
+        if (notifyIfWorkspaceChanged(result)) return;
         runInAction(() => {
           this.readFailed = true;
         });
@@ -121,6 +123,7 @@ export class RecordDetailLayoutStore {
         }
       });
     } catch (error) {
+      if (notifyIfWorkspaceChanged(error)) return;
       if (this.disposed || generation !== this.generation || request !== this.readRequest) return;
       runInAction(() => {
         this.readFailed = true;
@@ -184,6 +187,7 @@ export class RecordDetailLayoutStore {
         if (this.disposed) return;
         this.unconfirmed = null;
         if (!result.ok) {
+          if (notifyIfWorkspaceChanged(result)) return;
           runInAction(() => {
             this.saveFailed = true;
           });
@@ -203,6 +207,7 @@ export class RecordDetailLayoutStore {
       }
       if (!this.disposed) this.notifications?.saveRecovered(this);
     } catch (error) {
+      if (notifyIfWorkspaceChanged(error)) return;
       if (!this.disposed) {
         runInAction(() => {
           this.saveFailed = true;

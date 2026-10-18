@@ -4,13 +4,13 @@ import type { RepoArgs } from "@/core/utils/types";
 import type { GetOnboardingWizardProgressRepo } from "@/features/onboarding-wizard/get-onboarding-wizard-progress.repo";
 import type { SaveOnboardingWizardProgressRepo } from "@/features/onboarding-wizard/save-onboarding-wizard-progress.repo";
 import type { CompleteOnboardingWikiStepRepo } from "@/features/onboarding-wizard/complete-onboarding-wiki-step.repo";
-import type { DeactivateTrialUsersAndSendNoticeRepo } from "@/ee/lifecycle/deactivate-trial-users-and-send-notice.interactor";
-import type { DeactivateUsersAfterSubscriptionGracePeriodRepo } from "@/ee/lifecycle/deactivate-users-after-subscription-grace-period.interactor";
+import type { DeactivateTrialUsersAndSendNoticeRepo } from "@/ee/lifecycle/deactivate-trial-users-and-send-notice.repo";
+import type { DeactivateUsersAfterSubscriptionGracePeriodRepo } from "@/ee/lifecycle/deactivate-users-after-subscription-grace-period.repo";
 import type { ExpireAdAttributionRepo } from "@/ee/lifecycle/expire-ad-attribution.interactor";
-import type { SendLegalDocumentNoticesRepo } from "@/ee/lifecycle/send-legal-document-notices.interactor";
-import type { SendTrialExtensionOfferActionRepo } from "@/ee/lifecycle/send-trial-extension-offer.interactor";
-import type { SendTrialInactivationReminderActionRepo } from "@/ee/lifecycle/send-trial-inactivation-reminder.interactor";
-import type { SendWelcomeAndDemoActionRepo } from "@/ee/lifecycle/send-welcome-and-demo.interactor";
+import type { SendLegalDocumentNoticesRepo } from "@/ee/lifecycle/send-legal-document-notices.repo";
+import type { SendTrialExtensionOfferActionRepo } from "@/ee/lifecycle/send-trial-extension-offer.repo";
+import type { SendTrialInactivationReminderActionRepo } from "@/ee/lifecycle/send-trial-inactivation-reminder.repo";
+import type { SendWelcomeAndDemoActionRepo } from "@/ee/lifecycle/send-welcome-and-demo.repo";
 import type { DeleteAccountsForPlanUserRepo } from "@/ee/messaging/connect/delete-accounts-for-plan-user.repo";
 import type { WebhookUserRepo } from "@/ee/messaging/webhooks/account/account-webhook.repo";
 import type { WithdrawAdAttributionRepo } from "@/features/acquisition/withdraw-ad-attribution.interactor";
@@ -26,14 +26,18 @@ import type { Prisma } from "@/generated/prisma";
 import type { CountActiveUsersRepo } from "./count-active-users.repo";
 import type { ResolveUserOptionsRepo } from "./get/resolve-user-options.repo";
 import type { FindUserRepo } from "./find-user.repo";
+import type { WorkspaceMembershipRepo } from "@/features/workspace/workspace-membership.repo";
+import type { LeaveWorkspaceRepo } from "@/features/workspace/leave-workspace.repo";
+import type { JoinWorkspaceRepo } from "@/features/workspace/join-workspace.repo";
+import type { RemoveWorkspaceMemberRepo } from "@/features/workspace/remove-workspace-member.repo";
 
-import { Status, SubscriptionStatus } from "@/generated/prisma";
+import { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
-import { type UserDto } from "./user.schema";
+import { type MemberDto } from "./user.schema";
 
 import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { QueryRepository } from "@/core/base/query-repository";
-import { userAccessWhere } from "./user-access";
+import { memberListWhere, userAccessWhere } from "./user-access";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
@@ -81,7 +85,11 @@ export class PrismaUserRepo
     SendLegalDocumentNoticesRepo,
     ExpireAdAttributionRepo,
     WithdrawAdAttributionRepo,
-    RecordMemberRepo
+    RecordMemberRepo,
+    WorkspaceMembershipRepo,
+    LeaveWorkspaceRepo,
+    JoinWorkspaceRepo,
+    RemoveWorkspaceMemberRepo
 {
   constructor(private readonly permissions: PermissionService) {
     super();
@@ -115,8 +123,20 @@ export class PrismaUserRepo
   }
 
   @BypassTenantGuard
-  async markActiveByEmailUnscoped(email: string): Promise<void> {
-    await this.prisma.user.updateMany({ where: { email }, data: { lastActiveAt: new Date() } });
+  async markMembershipActiveUnscoped(email: string, companyId: string): Promise<void> {
+    await this.prisma.user.updateMany({
+      where: { email, companyId, leftAt: null },
+      data: { lastActiveAt: new Date() },
+    });
+  }
+
+  @BypassTenantGuard
+  async withdrawPendingMembershipUnscoped(email: string, companyId: string): Promise<boolean> {
+    const { count } = await this.prisma.user.updateMany({
+      where: { email, companyId, leftAt: null, status: Status.pendingAuthorization },
+      data: { status: Status.inactive, leftAt: new Date() },
+    });
+    return count > 0;
   }
 
   @BypassTenantGuard
@@ -177,6 +197,7 @@ export class PrismaUserRepo
       status: true,
       country: true,
       avatarUrl: true,
+      leftAt: true,
       createdAt: true,
       updatedAt: true,
     } as const;
@@ -214,7 +235,7 @@ export class PrismaUserRepo
   async getItems(params: GetQueryParams) {
     return this.list({
       model: "user",
-      baseWhere: userAccessWhere(this.permissions),
+      baseWhere: memberListWhere(this.permissions),
       select: this.userSelect,
       params,
       map: (user: Prisma.UserGetPayload<{ select: PrismaUserRepo["userSelect"] }>) => user,
@@ -222,7 +243,7 @@ export class PrismaUserRepo
   }
 
   async getCount(params: GetQueryParams) {
-    const { where } = await this.buildQueryArgs(params, userAccessWhere(this.permissions));
+    const { where } = await this.buildQueryArgs(params, memberListWhere(this.permissions));
 
     return await this.prisma.user.count({ where });
   }
@@ -259,7 +280,7 @@ export class PrismaUserRepo
       select: this.userSelect,
     });
 
-    return user satisfies UserDto | null;
+    return user satisfies MemberDto | null;
   }
 
   @Transaction
@@ -291,6 +312,24 @@ export class PrismaUserRepo
         formattingLocale: true,
       },
     });
+  }
+
+  @BypassTenantGuard
+  async applyPersonalProfileToOtherMembershipsUnscoped(
+    args: RepoArgs<UpdateUserDetailsRepo, "applyPersonalProfileToOtherMembershipsUnscoped">,
+  ) {
+    const memberships = await this.prisma.user.findMany({
+      where: { email: args.email, id: { not: args.exceptUserId }, leftAt: null },
+      select: { id: true, companyId: true, firstName: true, lastName: true, country: true },
+    });
+    if (memberships.length === 0) return [];
+
+    await this.prisma.user.updateMany({
+      where: { id: { in: memberships.map((membership) => membership.id) }, email: args.email },
+      data: args.profile,
+    });
+
+    return memberships;
   }
 
   @Transaction
@@ -360,8 +399,6 @@ export class PrismaUserRepo
   }
 
   async createCompanyOwnerOrThrow(args: RepoArgs<RegisterUserRepo, "createCompanyOwnerOrThrow">) {
-    if (await this.prisma.user.findFirst({ where: { email: args.email } })) throw new Error("User already exists.");
-
     const user = await this.prisma.user.create({
       data: {
         agreeToTerms: args.agreeToTerms,
@@ -375,6 +412,7 @@ export class PrismaUserRepo
         roleId: args.roleId,
         lastActiveAt: new Date(),
         agentCreditActivatedAt: new Date(),
+        ...args.preferences,
       },
     });
 
@@ -418,26 +456,29 @@ export class PrismaUserRepo
 
   @Transaction
   async registerExistingCompany(args: RepoArgs<RegisterUserRepo, "registerExistingCompany">) {
-    if (
-      await this.prisma.user.findFirst({
-        where: { email: args.email, companyId: args.companyId },
-      })
-    )
-      throw new Error("User already exists.");
-
-    const user = await this.prisma.user.create({
-      data: {
-        agreeToTerms: args.agreeToTerms,
-        firstName: args.firstName,
-        lastName: args.lastName,
-        email: args.email,
-        avatarUrl: args.avatarUrl,
-        country: args.country,
-        status: Status.pendingAuthorization,
-        companyId: args.companyId,
-        onboardingWizardCompletedAt: new Date(),
-      },
+    const existing = await this.prisma.user.findFirst({
+      where: { email: args.email, companyId: args.companyId },
+      select: { id: true, leftAt: true },
     });
+    if (existing && !existing.leftAt) throw new Error("User already exists.");
+
+    const profile = {
+      agreeToTerms: args.agreeToTerms,
+      firstName: args.firstName,
+      lastName: args.lastName,
+      avatarUrl: args.avatarUrl,
+      country: args.country,
+      status: Status.pendingAuthorization,
+      onboardingWizardCompletedAt: new Date(),
+    };
+    const user = existing
+      ? await this.prisma.user.update({
+          where: { id: existing.id, companyId: args.companyId },
+          data: { ...profile, leftAt: null, roleId: null, agentCreditActivatedAt: null },
+        })
+      : await this.prisma.user.create({
+          data: { ...profile, email: args.email, companyId: args.companyId },
+        });
 
     const tenantUser = await this.prisma.user.findUniqueOrThrow({
       where: { id: user.id },
@@ -471,28 +512,124 @@ export class PrismaUserRepo
   async findMemberCompanyWide(reference: { id: string } | { email: string }) {
     return this.prisma.user.findFirst({
       where: { ...reference, companyId: this.user.companyId },
+      select: { ...this.tenantUserSelect, leftAt: true },
+    });
+  }
+
+  @BypassTenantGuard
+  async findMembershipUnscoped(email: string, companyId: string) {
+    return this.prisma.user.findFirst({
+      where: { email, companyId, leftAt: null },
       select: this.tenantUserSelect,
     });
   }
 
   @BypassTenantGuard
-  async findCurrentUserOrThrowUnscoped(email: string) {
-    const user = await this.prisma.user.findUniqueOrThrow({
-      where: { email },
+  async findAnyMembershipUnscoped(email: string) {
+    return this.prisma.user.findFirst({
+      where: { email, leftAt: null },
+      orderBy: [{ lastActiveAt: { sort: "desc", nulls: "last" } }, { createdAt: "asc" }],
       select: this.tenantUserSelect,
     });
-
-    return user;
   }
 
   @BypassTenantGuard
-  async findCurrentUserUnscoped(email: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-      select: this.tenantUserSelect,
+  async listMembershipsUnscoped(email: string) {
+    return this.prisma.user.findMany({
+      where: { email, leftAt: null },
+      orderBy: [{ lastActiveAt: { sort: "desc", nulls: "last" } }, { createdAt: "asc" }],
+      select: { companyId: true, status: true },
     });
+  }
 
-    return user;
+  @BypassTenantGuard
+  async listWorkspaceMembershipsUnscoped(email: string) {
+    return this.prisma.user.findMany({
+      where: { email, leftAt: null },
+      orderBy: { createdAt: "asc" },
+      select: {
+        id: true,
+        companyId: true,
+        status: true,
+        createdAt: true,
+        role: { select: { name: true, isSystemRole: true } },
+        company: {
+          select: {
+            name: true,
+            createdAt: true,
+            subscription: { select: { status: true, plan: true, trialEndDate: true } },
+            _count: { select: { users: { where: { status: Status.active } } } },
+          },
+        },
+      },
+    });
+  }
+
+  @BypassTenantGuard
+  async hasLeftMembershipUnscoped(email: string, companyId: string) {
+    const count = await this.prisma.user.count({ where: { email, companyId, leftAt: { not: null } } });
+    return count > 0;
+  }
+
+  @BypassTenantGuard
+  async hasCreatedWorkspaceUnscoped(authUserId: string) {
+    return (await this.countCreatedWorkspacesUnscoped(authUserId)) > 0;
+  }
+
+  @BypassTenantGuard
+  async countCreatedWorkspacesUnscoped(authUserId: string) {
+    const created = await this.prisma.company.count({ where: { createdByAuthUserId: authUserId } });
+    const login = await this.prisma.authUser.findUnique({ where: { id: authUserId }, select: { email: true } });
+    if (!login) return created;
+
+    const unattributed = await this.prisma.company.findMany({
+      where: { createdByAuthUserId: null, users: { some: { email: login.email, role: { isSystemRole: true } } } },
+      select: {
+        users: {
+          where: { role: { isSystemRole: true } },
+          orderBy: { createdAt: "asc" },
+          take: 1,
+          select: { email: true },
+        },
+      },
+    });
+    return created + unattributed.filter((company) => company.users[0]?.email === login.email).length;
+  }
+
+  @BypassTenantGuard
+  async findMembershipProfileUnscoped(email: string) {
+    return this.prisma.user.findFirst({
+      where: { email },
+      orderBy: [{ leftAt: { sort: "desc", nulls: "first" } }, { lastActiveAt: { sort: "desc", nulls: "last" } }],
+      select: {
+        firstName: true,
+        lastName: true,
+        avatarUrl: true,
+        country: true,
+        displayLanguage: true,
+        formattingLocale: true,
+        theme: true,
+      },
+    });
+  }
+
+  async leaveCompanyWide(userId: string): Promise<boolean> {
+    const { count } = await this.prisma.user.updateMany({
+      where: { id: userId, companyId: this.user.companyId, leftAt: null },
+      data: { status: Status.inactive, leftAt: new Date(), agentCreditActivatedAt: null },
+    });
+    return count > 0;
+  }
+
+  @BypassTenantGuard
+  async setLastUsedCompanyUnscoped(authUserId: string, companyId: string | null) {
+    await this.prisma.authUser.update({ where: { id: authUserId }, data: { companyId } });
+  }
+
+  @BypassTenantGuard
+  async findLoginIdUnscoped(email: string) {
+    const authUser = await this.prisma.authUser.findUnique({ where: { email }, select: { id: true } });
+    return authUser?.id ?? null;
   }
 
   @BypassTenantGuard
@@ -540,12 +677,14 @@ export class PrismaUserRepo
         displayLanguage: true,
         formattingLocale: true,
         role: { select: { isSystemRole: true } },
+        company: { select: { name: true } },
       },
     });
 
     return users.map((user) => ({
       id: user.id,
       companyId: user.companyId,
+      companyName: user.company.name,
       createdAt: user.createdAt,
       email: user.email,
       firstName: user.firstName,
@@ -615,9 +754,17 @@ export class PrismaUserRepo
               in: [SubscriptionStatus.unPaid, SubscriptionStatus.expired],
             },
             updatedAt: { lte: before },
+            NOT: {
+              status: SubscriptionStatus.expired,
+              plan: { not: SubscriptionPlan.enterprise },
+              lemonSqueezyId: null,
+              trialEndDate: null,
+              currentPeriodEnd: null,
+            },
           },
         },
       },
+      include: { company: { select: { name: true } } },
     });
   }
 
@@ -632,17 +779,24 @@ export class PrismaUserRepo
           },
         },
       },
+      include: { company: { select: { name: true } } },
     });
   }
 
-  async claimWelcomeEmailSent(args: { userId: string; sentAt: Date }) {
-    const { userId, sentAt } = args;
-    const result = await this.prisma.user.updateMany({
-      where: { id: userId, welcomeEmailSentAt: null },
+  @BypassTenantGuard
+  async claimWelcomeEmailForLoginUnscoped(args: { email: string; userIds: string[]; sentAt: Date }) {
+    const { email, userIds, sentAt } = args;
+    const claimed = await this.prisma.user.updateMany({
+      where: { id: { in: userIds }, welcomeEmailSentAt: null },
       data: { welcomeEmailSentAt: sentAt },
     });
+    if (claimed.count === 0) return false;
 
-    return result.count > 0;
+    const welcomedEarlier = await this.prisma.user.count({
+      where: { email: { equals: email, mode: "insensitive" }, welcomeEmailSentAt: { lt: sentAt } },
+    });
+
+    return welcomedEarlier === 0;
   }
 
   async claimTrialExpiredOfferSent(args: { userId: string; sentAt: Date }) {

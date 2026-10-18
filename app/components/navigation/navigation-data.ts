@@ -3,6 +3,11 @@ import type { AccountState } from "@/features/auth/account-state";
 import type { RecordNavigation } from "@/features/records/record-navigation.schema";
 import type { SidebarLayout } from "@/features/p13n/sidebar-layout.schema";
 import type { KeyboardPreferences } from "@/features/p13n/keyboard-preferences.schema";
+import type { WorkspaceSummary } from "@/features/workspace/workspace.schema";
+
+import { isRestrictedAccountState } from "@/features/auth/account-state";
+
+import { trialDaysLeft } from "./plan-subtitle";
 
 type NavigationData = {
   records: RecordNavigation | null;
@@ -13,6 +18,7 @@ type NavigationData = {
   systemTaskCount: number;
   unreadThreadCount: number;
   channelsNeedingActionCount: number;
+  workspaces: WorkspaceSummary[];
 };
 
 export type NavigationDataLoaders = {
@@ -23,6 +29,7 @@ export type NavigationDataLoaders = {
   systemTaskCount: () => Promise<number>;
   unreadThreadCount: () => Promise<number>;
   channelsNeedingActionCount: () => Promise<number>;
+  workspaces: () => Promise<WorkspaceSummary[]>;
 };
 
 const EMPTY_NAVIGATION_DATA: NavigationData = {
@@ -34,12 +41,15 @@ const EMPTY_NAVIGATION_DATA: NavigationData = {
   systemTaskCount: 0,
   unreadThreadCount: 0,
   channelsNeedingActionCount: 0,
+  workspaces: [],
 };
 
 export async function loadNavigationData(
   accountState: AccountState,
   loaders: NavigationDataLoaders,
 ): Promise<NavigationData> {
+  if (isRestrictedAccountState(accountState) && accountState !== "overdueVerification")
+    return { ...EMPTY_NAVIGATION_DATA, workspaces: await loaders.workspaces() };
   if (accountState !== "allowed") return { ...EMPTY_NAVIGATION_DATA };
 
   const [
@@ -50,6 +60,7 @@ export async function loadNavigationData(
     records,
     sidebarLayout,
     keyboardPreferences,
+    workspaces,
   ] = await Promise.all([
     loaders.subscription(),
     loaders.systemTaskCount(),
@@ -58,20 +69,17 @@ export async function loadNavigationData(
     loaders.records(),
     loaders.sidebarLayout(),
     loaders.keyboardPreferences(),
+    loaders.workspaces(),
   ]);
-  const trialEndDate = subscription?.trialEndDate ?? null;
-  const trialDaysLeft = trialEndDate
-    ? Math.max(0, Math.ceil((trialEndDate.getTime() - Date.now()) / 86_400_000))
-    : null;
-
   return {
     records,
     sidebarLayout,
     keyboardPreferences,
     subscription,
-    trialDaysLeft,
+    trialDaysLeft: trialDaysLeft(subscription?.trialEndDate ?? null),
     systemTaskCount,
     unreadThreadCount,
     channelsNeedingActionCount,
+    workspaces,
   };
 }

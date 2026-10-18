@@ -1,8 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { beforeEach, describe, it, expect, vi } from "vitest";
 
 import { Action, Resource, Status } from "@/generated/prisma";
 import { ForbiddenError, isExpectedError, appErrorResponse } from "@/core/errors/app-errors";
 import { ApiKeyAccessDeniedError } from "@/core/auth/api-key-access-denied-error";
+import { WorkspacePlanRequiredError } from "@/core/auth/workspace-plan-required-error";
 import { UserService } from "../user.service";
 import type { FindUserRepo } from "../find-user.repo";
 import type { AuthService } from "@/features/auth/auth.service";
@@ -13,10 +14,13 @@ type TestRole = { isSystemRole: boolean; permissions: { resource: Resource; acti
 const API_READER: TestRole = { isSystemRole: false, permissions: [{ resource: Resource.api, action: Action.readAll }] };
 const NO_API_ROLE: TestRole = { isSystemRole: false, permissions: [] };
 
-function serviceFor(status: Status, options: { apiKey?: boolean; role?: TestRole } = {}) {
+const plans = { canUseIntegrations: vi.fn() };
+
+function serviceFor(status: Status, options: { apiKey?: boolean; role?: TestRole; planUsable?: boolean } = {}) {
   const user = {
     id: "user-1",
     email: "someone@example.com",
+    companyId: "company-1",
     status,
     role: options.role ?? NO_API_ROLE,
   } as unknown as TenantUser;
@@ -29,10 +33,31 @@ function serviceFor(status: Status, options: { apiKey?: boolean; role?: TestRole
     findCurrentUserOrThrowUnscoped: () => Promise.resolve(user),
   } as unknown as FindUserRepo;
 
-  return new UserService(authService, repo);
+  plans.canUseIntegrations.mockResolvedValue(options.planUsable ?? true);
+
+  return new UserService(authService, repo, { resolveMembership: () => Promise.resolve(user) } as never, plans);
 }
 
 describe("UserService.getActiveUserOrThrow", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("refuses an API key or MCP token of a workspace that has no plan yet", async () => {
+    const error = await serviceFor(Status.active, { apiKey: true, role: API_READER, planUsable: false })
+      .getActiveUserOrThrow()
+      .catch((thrown: unknown) => thrown);
+
+    expect(error).toBeInstanceOf(WorkspacePlanRequiredError);
+    expect(appErrorResponse(error)?.statusCode).toBe(403);
+    expect(plans.canUseIntegrations).toHaveBeenCalledWith("company-1");
+  });
+
+  it("does not check the plan for the browser session, which the page guard covers", async () => {
+    await expect(serviceFor(Status.active, { planUsable: false }).getActiveUserOrThrow()).resolves.toMatchObject({
+      id: "user-1",
+    });
+    expect(plans.canUseIntegrations).not.toHaveBeenCalled();
+  });
+
   it("returns the user when the account is active", async () => {
     await expect(serviceFor(Status.active).getActiveUserOrThrow()).resolves.toMatchObject({ id: "user-1" });
   });

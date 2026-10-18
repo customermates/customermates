@@ -17,11 +17,18 @@ import { API_KEY_NAME_MAX_LENGTH, API_KEY_NAME_MIN_LENGTH } from "@/features/api
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from "@/core/validation/validation.utils";
 import { apiKeyRouteAction, decideApiKeyRoute } from "@/core/auth/api-key-route-guard";
 import {
+  MCP_AUTHORIZE_PATH,
+  MCP_CONSENT_PAGE_PATH,
   MCP_LIBRARY_CONSENT_PATH,
   MCP_TOKEN_PATH,
   authorizationCodeFromTokenRequest,
+  consentCodeFromAuthorizeRedirect,
   isApprovedMcpAuthorizationCodeValue,
+  issuedAccessToken,
+  resourceFromTokenRequest,
+  tokenGrantFromRequest,
 } from "@/features/auth/mcp-authorization-code";
+import { MCP_ENDPOINT_PATH, mcpWorkspaceIdFromResource } from "@/features/auth/mcp-resource";
 
 const socialProviders = {
   ...(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
@@ -78,20 +85,14 @@ export const auth = betterAuth({
     before: createAuthMiddleware(async (ctx) => {
       const apiKeyAction = apiKeyRouteAction(ctx.path);
       if (apiKeyAction) {
-        const session = await getSessionFromCtx(ctx, { disableCookieCache: true });
-        if (!session) {
-          if (ctx.request) throw new APIError("UNAUTHORIZED", { code: "UNAUTHORIZED", message: "Sign in required" });
-          return;
-        }
+        if (ctx.request) throw new APIError("NOT_FOUND", { code: "NOT_FOUND", message: "Not found" });
 
+        const session = await getSessionFromCtx(ctx, { disableCookieCache: true });
+        if (!session) return;
+
+        const { getActiveWorkspaceService } = await import("@/core/di");
         const member = await runWithoutTenant(() =>
-          prisma.user.findUnique({
-            where: { email: session.user.email },
-            select: {
-              status: true,
-              role: { select: { isSystemRole: true, permissions: { select: { resource: true, action: true } } } },
-            },
-          }),
+          getActiveWorkspaceService().resolveMembership(session, ctx.headers ?? new Headers()),
         );
         const decision = decideApiKeyRoute(apiKeyAction, member);
         if (decision === "inactive")
@@ -120,6 +121,58 @@ export const auth = betterAuth({
         error_description: "authorization code was not approved",
       });
     }),
+    after: createAuthMiddleware(async (ctx) => {
+      if (ctx.path === MCP_AUTHORIZE_PATH) {
+        const resourceCompanyId = mcpWorkspaceIdFromResource(ctx.query?.resource, env.BASE_URL);
+        const consentCode = consentCodeFromAuthorizeRedirect(
+          ctx.context.responseHeaders?.get("location"),
+          env.BASE_URL,
+        );
+        if (!resourceCompanyId || !consentCode) return;
+
+        const { getAuthService } = await import("@/core/di");
+        await getAuthService().bindMcpAuthorizationResource(consentCode, resourceCompanyId);
+        return;
+      }
+
+      if (ctx.path !== MCP_TOKEN_PATH) return;
+
+      const accessToken = issuedAccessToken(ctx.context.returned);
+      if (!accessToken) return;
+
+      const grant = tokenGrantFromRequest(ctx.body);
+      const { getAuthService } = await import("@/core/di");
+      const companyId =
+        grant?.type === "authorization_code"
+          ? await getAuthService().consumeMcpAuthorizationCodeWorkspace(grant.code)
+          : grant?.type === "refresh_token"
+            ? ((
+                await prisma.oauthAccessToken.findUnique({
+                  where: { refreshToken: grant.refreshToken },
+                  select: { companyId: true },
+                })
+              )?.companyId ?? null)
+            : null;
+
+      if (!companyId) {
+        await prisma.oauthAccessToken.deleteMany({ where: { accessToken } });
+        throw new APIError("UNAUTHORIZED", {
+          error: "invalid_grant",
+          error_description: "the grant is not bound to a workspace",
+        });
+      }
+
+      const requestedCompanyId = mcpWorkspaceIdFromResource(resourceFromTokenRequest(ctx.body), env.BASE_URL);
+      if (requestedCompanyId && requestedCompanyId !== companyId) {
+        await prisma.oauthAccessToken.deleteMany({ where: { accessToken } });
+        throw new APIError("BAD_REQUEST", {
+          error: "invalid_target",
+          error_description: "the grant is bound to another workspace than the requested resource",
+        });
+      }
+
+      await prisma.oauthAccessToken.update({ where: { accessToken }, data: { companyId } });
+    }),
   },
 
   rateLimit: {
@@ -139,9 +192,9 @@ export const auth = betterAuth({
         after: async (session) => {
           try {
             const authUser = await prisma.authUser.findUnique({ where: { id: session.userId } });
-            if (authUser) {
+            if (authUser?.companyId) {
               const { getUserRepo } = await import("@/core/di");
-              await getUserRepo().markActiveByEmailUnscoped(authUser.email);
+              await getUserRepo().markMembershipActiveUnscoped(authUser.email, authUser.companyId);
             }
           } catch (error) {
             Sentry.captureException(error);
@@ -261,10 +314,10 @@ export const auth = betterAuth({
     }),
     mcp({
       loginPage: "/auth/signin",
-      resource: `${env.BASE_URL}/api/v1/mcp`,
+      resource: `${env.BASE_URL}${MCP_ENDPOINT_PATH}`,
       oidcConfig: {
         loginPage: "/auth/signin",
-        consentPage: "/auth/mcp-consent",
+        consentPage: MCP_CONSENT_PAGE_PATH,
         requirePKCE: true,
         allowPlainCodeChallengeMethod: false,
         accessTokenExpiresIn: 3600,
@@ -274,6 +327,28 @@ export const auth = betterAuth({
     nextCookies(),
   ],
 });
+
+export async function setSessionActiveCompany(sessionId: string, companyId: string | null): Promise<void> {
+  await prisma.authSession.updateMany({ where: { id: sessionId }, data: { activeCompanyId: companyId } });
+}
+
+export async function bindApiKeyToCompany(keyId: string, authUserId: string, companyId: string): Promise<boolean> {
+  const bound = await prisma.apikey.updateMany({
+    where: { id: keyId, referenceId: authUserId, companyId: null },
+    data: { companyId },
+  });
+  return bound.count === 1;
+}
+
+export async function revokeMembershipCredentials(authUserId: string, companyId: string): Promise<number> {
+  const apiKeys = await (getTransactionClient<typeof prisma>() ?? prisma).apikey.deleteMany({
+    where: { referenceId: authUserId, companyId },
+  });
+  const tokens = await (getTransactionClient<typeof prisma>() ?? prisma).oauthAccessToken.deleteMany({
+    where: { userId: authUserId, companyId },
+  });
+  return apiKeys.count + tokens.count;
+}
 
 export async function deleteApiKeysForIdentities(identityIds: string[]): Promise<void> {
   await (getTransactionClient<typeof prisma>() ?? prisma).apikey.deleteMany({

@@ -171,6 +171,8 @@ export const REVIEWED_EXCEPTION_ALLOWLIST: Readonly<Record<string, string>> = {
     "unresolved C09: valid cognate identical to English (policy conflict)",
   "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: fr:EntityTimeline.types.configuration":
     "unresolved C09: valid cognate identical to English (policy conflict)",
+  "rest-openapi-coverage.test.ts#SPEC_EXEMPT_PATHS: /v1/mcp/w/{workspaceId}":
+    "unresolved C11: a workspace's MCP URL serves the MCP JSON-RPC transport of /v1/mcp, not a REST operation",
 };
 
 const git = (...args: string[]) =>

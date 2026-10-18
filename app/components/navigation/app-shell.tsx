@@ -16,6 +16,7 @@ import {
   getGetUnreadThreadCountInteractor,
   getCountChannelsNeedingActionInteractor,
   getGetOperatorConsoleVisibilityInteractor,
+  getListMyWorkspacesInteractor,
 } from "@/core/di";
 import { env } from "@/env";
 import { resolveRequestAccountState } from "@/features/auth/next/resolve-account-state";
@@ -73,6 +74,7 @@ export async function AppShell({ children, displayLanguage }: Props) {
       }
     },
     channelsNeedingActionCount: async () => (await getCountChannelsNeedingActionInteractor().invoke()).data,
+    workspaces: async () => (await getListMyWorkspacesInteractor().invoke()).data,
   });
 
   const initialSidebarOpen = parseSidebarOpen(cookiesStore.get(SIDEBAR_OPEN_COOKIE_NAME)?.value);
@@ -91,6 +93,7 @@ export async function AppShell({ children, displayLanguage }: Props) {
           subscription: accountAllowed ? navigation.subscription : null,
           recordNavigation: accountAllowed ? navigation.records : null,
           sidebarLayout: accountAllowed ? navigation.sidebarLayout : null,
+          workspaces: navigation.workspaces,
         }}
       >
         <NavigationSwitch
@@ -111,6 +114,7 @@ export async function AppShell({ children, displayLanguage }: Props) {
           trialDaysLeft={navigation.trialDaysLeft}
           unreadThreadCount={navigation.unreadThreadCount}
           userDisplayLanguage={account.user?.displayLanguage}
+          workspaces={navigation.workspaces}
         >
           {children}
         </NavigationSwitch>

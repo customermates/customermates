@@ -5596,7 +5596,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         redirect: "/auth/pending",
       });
       expect(notify).toHaveBeenCalledTimes(1);
-      const member = await runWithoutTenant(() => prisma.user.findUniqueOrThrow({ where: { email } }));
+      const member = await runWithoutTenant(() => prisma.user.findFirstOrThrow({ where: { email } }));
       expect(
         await f.run(() =>
           prisma.crmRecord.findMany({

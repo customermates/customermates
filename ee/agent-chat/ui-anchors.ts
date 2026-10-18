@@ -55,6 +55,12 @@ export const FORM_PAGES: FormAnchorPage[] = [
     discard: "unsavedChangesBar",
   },
   {
+    scope: "settings-general",
+    route: settingsHref("general"),
+    label: "workspace name form (roles with company Manage)",
+    discard: "unsavedChangesBar",
+  },
+  {
     scope: "member-modal",
     route: settingsHref("members"),
     label: "member dialog (roles with Manage only)",
@@ -113,7 +119,7 @@ export const CONTROL_PAGES: ControlPage[] = [
       {
         control: "manage",
         description:
-          "Manage with Lemon Squeezy button: billing portal for plan, payment method, invoices, cancel (roles with company Manage once the workspace has a Lemon Squeezy subscription; not on Enterprise)",
+          "Manage with Lemon Squeezy button: the admin who pays opens the billing portal for plan, payment method, invoices, cancel; other admins update this subscription's payment method only (roles with company Manage once the workspace has a Lemon Squeezy subscription; not on Enterprise)",
       },
       {
         control: "refresh",
@@ -157,6 +163,36 @@ export const CONTROL_PAGES: ControlPage[] = [
     ],
   },
   {
+    scope: "settings-workspaces",
+    route: settingsHref("workspaces"),
+    controls: [
+      {
+        control: "create",
+        description: "Top bar button that opens the Create workspace dialog (not in the demo)",
+      },
+      {
+        control: "leave",
+        description:
+          "Leave button on the current workspace's row, which asks for confirmation; disabled with the reason for the only active admin (active members, not in the demo)",
+      },
+    ],
+  },
+  {
+    scope: "settings-general",
+    route: settingsHref("general"),
+    controls: [
+      {
+        control: "name",
+        description: "Workspace name input; editable for roles with company Manage, read-only otherwise",
+      },
+      {
+        control: "leave",
+        description:
+          "Leave workspace button in the danger zone, which asks for confirmation; disabled with the reason for the only active admin (not in the demo)",
+      },
+    ],
+  },
+  {
     scope: "member-modal",
     route: settingsHref("members"),
     controls: [
@@ -195,6 +231,12 @@ export const CONTROL_PAGES: ControlPage[] = [
         control: "status",
         description:
           "Status select that activates or deactivates the member; editable for roles with Manage, read-only on your own row",
+        prerequisite: "a member row",
+      },
+      {
+        control: "remove",
+        description:
+          "Remove from workspace action in the member dialog header; for roles with Manage, absent on your own row and for members who left",
         prerequisite: "a member row",
       },
     ],
@@ -464,7 +506,7 @@ export const MENU_NAV_TARGETS: {
   {
     key: "workspace-menu",
     description:
-      "Workspace menu on the workspace name at the top of the sidebar: Invite members, Members, Settings, Billing and, for operators, the Operator console",
+      "Workspace menu on the workspace name at the top of the sidebar: the person's workspaces to switch between, Create workspace, Invite members, Members, Settings, Billing and, for operators, the Operator console",
     labelKey: "WorkspaceMenu.label",
   },
   {
@@ -477,8 +519,11 @@ export const MENU_NAV_TARGETS: {
 
 export const SETTINGS_NAV_DESCRIPTIONS: Record<SettingsSlug, string> = {
   profile: "Settings link to Profile & preferences: name, avatar, language, theme and email verification",
+  workspaces:
+    "Settings link to Workspaces, every workspace the person belongs to with role, status and plan, and Switch, Leave and Create workspace",
   channels: "Settings link to Channels, the connected accounts for email, LinkedIn, WhatsApp, Instagram and Telegram",
   "api-keys": "Settings link to API keys for the REST API, MCP clients and connectors",
+  general: "Settings link to General, the workspace name and Leave workspace",
   members: "Settings link to Members, the team members of the workspace and their roles",
   roles: "Settings link to Roles and their permissions",
   billing: "Settings link to Billing, the plan, subscription, trial status and invoices",

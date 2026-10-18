@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
@@ -10,6 +10,7 @@ const describeDatabase = databaseUrl ? describe : describe.skip;
 const REDIRECT_URI = "https://client.example.test/callback";
 const createdUserIds: string[] = [];
 const createdClientIds: string[] = [];
+let workspaceId = "";
 
 async function db() {
   const { prisma } = await import("@/prisma/db");
@@ -109,6 +110,19 @@ async function codeExists(code: string) {
 }
 
 describeDatabase("MCP authorization codes against the database", { timeout: 120_000 }, () => {
+  beforeAll(async () => {
+    const prisma = await db();
+    const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
+    workspaceId = (await runWithoutTenant(() => prisma.company.create({ data: {} }))).id;
+  });
+
+  afterAll(async () => {
+    const prisma = await db();
+    const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
+    await prisma.authVerification.deleteMany({ where: { value: workspaceId } });
+    await runWithoutTenant(() => prisma.company.deleteMany({ where: { id: workspaceId } }));
+  });
+
   afterEach(async () => {
     const prisma = await db();
     while (createdUserIds.length) {
@@ -159,7 +173,7 @@ describeDatabase("MCP authorization codes against the database", { timeout: 120_
     const consentCode = await seedAuthorizationCode({ userId, clientId, verifier, requireConsent: true });
     const service = await serviceSignedInAs(userId);
 
-    const decision = await service.decideMcpConsent({ consentCode, accept: true });
+    const decision = await service.decideMcpConsent({ consentCode, accept: true, companyId: workspaceId });
     const callback = new URL(decision?.redirectURI ?? "");
     const code = callback.searchParams.get("code") ?? "";
 
@@ -171,7 +185,11 @@ describeDatabase("MCP authorization codes against the database", { timeout: 120_
     expect(wrongVerifier.status).toBe(401);
 
     const secondConsentCode = await seedAuthorizationCode({ userId, clientId, verifier, requireConsent: true });
-    const secondDecision = await service.decideMcpConsent({ consentCode: secondConsentCode, accept: true });
+    const secondDecision = await service.decideMcpConsent({
+      consentCode: secondConsentCode,
+      accept: true,
+      companyId: workspaceId,
+    });
     const secondCode = new URL(secondDecision?.redirectURI ?? "").searchParams.get("code") ?? "";
 
     const first = await exchange({ code: secondCode, clientId, verifier }, "json");
@@ -192,6 +210,67 @@ describeDatabase("MCP authorization codes against the database", { timeout: 120_
     const prisma = await db();
     expect(await prisma.oauthConsent.count({ where: { userId, clientId, consentGiven: true } })).toBe(1);
     expect(await prisma.oauthAccessToken.count({ where: { userId, clientId } })).toBe(2);
+    expect(await prisma.oauthAccessToken.count({ where: { userId, clientId, companyId: workspaceId } })).toBe(2);
+  });
+
+  it("binds every issued token to the workspace chosen at consent", async () => {
+    const userId = await seedUser();
+    const clientId = await seedClient();
+    const verifier = randomUUID() + randomUUID();
+    const consentCode = await seedAuthorizationCode({ userId, clientId, verifier, requireConsent: true });
+    const service = await serviceSignedInAs(userId);
+
+    const decision = await service.decideMcpConsent({ consentCode, accept: true, companyId: workspaceId });
+    const code = new URL(decision?.redirectURI ?? "").searchParams.get("code") ?? "";
+    const issued = await exchange({ code, clientId, verifier });
+    expect(issued.status).toBe(200);
+    const tokens = await issued.json();
+
+    const prisma = await db();
+    const stored = await prisma.oauthAccessToken.findUnique({ where: { accessToken: tokens.access_token } });
+    expect(stored?.companyId).toBe(workspaceId);
+
+    const refreshed = await postToken({
+      grant_type: "refresh_token",
+      refresh_token: tokens.refresh_token,
+      client_id: clientId,
+    });
+    const refreshedTokens = await refreshed.json();
+    const refreshedStored = await prisma.oauthAccessToken.findUnique({
+      where: { accessToken: refreshedTokens.access_token },
+    });
+    expect(refreshedStored?.companyId).toBe(workspaceId);
+  });
+
+  it("refuses an approved code whose workspace binding is gone and keeps no token", async () => {
+    const userId = await seedUser();
+    const clientId = await seedClient();
+    const verifier = randomUUID() + randomUUID();
+    const consentCode = await seedAuthorizationCode({ userId, clientId, verifier, requireConsent: true });
+    const service = await serviceSignedInAs(userId);
+
+    const decision = await service.decideMcpConsent({ consentCode, accept: true, companyId: workspaceId });
+    const code = new URL(decision?.redirectURI ?? "").searchParams.get("code") ?? "";
+    const prisma = await db();
+    await prisma.authVerification.deleteMany({ where: { identifier: `mcp-code-workspace:${code}` } });
+
+    const response = await exchange({ code, clientId, verifier });
+
+    expect(response.status).toBe(401);
+    expect(await response.json()).toMatchObject({ error: "invalid_grant" });
+    expect(await prisma.oauthAccessToken.count({ where: { userId, clientId } })).toBe(0);
+  });
+
+  it("denies a consent that names no workspace", async () => {
+    const userId = await seedUser();
+    const clientId = await seedClient();
+    const verifier = randomUUID() + randomUUID();
+    const consentCode = await seedAuthorizationCode({ userId, clientId, verifier, requireConsent: true });
+    const service = await serviceSignedInAs(userId);
+
+    const decision = await service.decideMcpConsent({ consentCode, accept: true, companyId: null });
+
+    expect(new URL(decision?.redirectURI ?? "").searchParams.get("error")).toBe("access_denied");
   });
 
   it("does not let another user see or decide a pending consent", async () => {
@@ -208,8 +287,8 @@ describeDatabase("MCP authorization codes against the database", { timeout: 120_
     const signedOut = await serviceSignedInAs(null);
 
     expect(await other.getMcpConsentPrompt({ consentCode, clientId })).toBeNull();
-    expect(await other.decideMcpConsent({ consentCode, accept: true })).toBeNull();
-    expect(await signedOut.decideMcpConsent({ consentCode, accept: true })).toBeNull();
+    expect(await other.decideMcpConsent({ consentCode, accept: true, companyId: workspaceId })).toBeNull();
+    expect(await signedOut.decideMcpConsent({ consentCode, accept: true, companyId: workspaceId })).toBeNull();
     expect(await codeExists(consentCode)).toBe(true);
 
     const owner = await serviceSignedInAs(ownerId);
@@ -229,7 +308,7 @@ describeDatabase("MCP authorization codes against the database", { timeout: 120_
     });
     const service = await serviceSignedInAs(userId);
 
-    expect(await service.decideMcpConsent({ consentCode, accept: true })).toBeNull();
+    expect(await service.decideMcpConsent({ consentCode, accept: true, companyId: workspaceId })).toBeNull();
     expect(await codeExists(consentCode)).toBe(false);
   });
 
@@ -244,7 +323,7 @@ describeDatabase("MCP authorization codes against the database", { timeout: 120_
     });
     const service = await serviceSignedInAs(userId);
 
-    const decision = await service.decideMcpConsent({ consentCode, accept: false });
+    const decision = await service.decideMcpConsent({ consentCode, accept: false, companyId: workspaceId });
     const callback = new URL(decision?.redirectURI ?? "");
 
     expect(callback.searchParams.get("error")).toBe("access_denied");

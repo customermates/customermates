@@ -50,6 +50,7 @@ import {
 import { encodeGetParams } from "@/core/utils/get-params";
 import { recordEntries, staticEntries, workspaceEntries } from "./command-palette/palette-entries";
 import { RecordCommandLevel } from "./command-palette/record-command-level";
+import { WorkspaceCommandLevel } from "./command-palette/workspace-command-level";
 import { useAccountActions } from "./navigation/use-account-actions";
 
 const SECTION_LIMIT = 8;
@@ -95,12 +96,14 @@ export const GlobalSearchModal = observer(() => {
     addPickerStore,
     agentChatEnabled,
     agentChatStore,
+    createWorkspaceModalStore,
     globalSearchModalStore,
     keyboardShortcutsStore,
     navigationGuard,
     recordWorkspaceStore,
     userStore,
     viewPickerStore,
+    workspacesStore,
   } = rootStore;
   const router = useRouter();
   const pathname = usePathname();
@@ -127,6 +130,7 @@ export const GlobalSearchModal = observer(() => {
     appMode: rootStore.appMode,
     canManageSchema: navigation?.canManageSchema ?? false,
     onListPage: viewPickerStore.surface !== null,
+    otherWorkspaces: workspacesStore.others.length > 0,
     can: (resource, action) => userStore.can(resource, action),
   };
   const recordContext: PaletteRecordContext | null =
@@ -175,6 +179,7 @@ export const GlobalSearchModal = observer(() => {
     themeDark: () => changeTheme("dark"),
     themeSystem: () => changeTheme("system"),
     inviteMembers,
+    createWorkspace: (target) => createWorkspaceModalStore.start(target),
     sendFeedback: (target) => sendFeedback(target ?? document.body),
     signOut,
   };
@@ -440,7 +445,7 @@ export const GlobalSearchModal = observer(() => {
           <ChevronLeft aria-hidden className="size-3.5" />
 
           <span className="min-w-0 truncate">
-            {editor?.record
+            {level.kind !== "workspaces" && editor?.record
               ? `${recordDisplayName(editor.titleResult, editor.type?.label, t)} · ${level.label}`
               : level.label}
           </span>
@@ -483,7 +488,14 @@ export const GlobalSearchModal = observer(() => {
       )}
 
       <CommandList>
-        {level && editor && (
+        {level?.kind === "workspaces" ? (
+          <WorkspaceCommandLevel
+            query={searchTerm}
+            onSwitch={(companyId) => closeThen(() => workspacesStore.requestSwitch(companyId))}
+          />
+        ) : null}
+
+        {level && level.kind !== "workspaces" && editor && (
           <RecordCommandLevel
             editor={editor}
             level={level}

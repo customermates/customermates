@@ -3,7 +3,9 @@ import type { AppMode } from "@/core/config/environment";
 import type { ShortcutId } from "./shortcut-registry";
 
 import {
+  ArrowLeftRight,
   BookOpen,
+  Building2,
   Repeat,
   Settings,
   Contrast,
@@ -44,10 +46,13 @@ export type CommandActionId =
   | "themeDark"
   | "themeSystem"
   | "inviteMembers"
+  | "createWorkspace"
   | "sendFeedback"
   | "signOut";
 
-type CommandTarget = { href: string } | { control: string } | { action: CommandActionId };
+type CommandLevelId = "workspaces";
+
+type CommandTarget = { href: string } | { control: string } | { action: CommandActionId } | { level: CommandLevelId };
 
 type CommandRequirement = {
   resource?: Resource;
@@ -55,6 +60,8 @@ type CommandRequirement = {
   cloudOnly?: boolean;
   schemaManager?: boolean;
   listPage?: boolean;
+  otherWorkspaces?: boolean;
+  workspaceCreation?: boolean;
 };
 
 type StaticCommand = {
@@ -72,6 +79,7 @@ export type CommandEnvironment = {
   appMode: AppMode;
   canManageSchema: boolean;
   onListPage: boolean;
+  otherWorkspaces: boolean;
   can: (resource: Resource, action: Action) => boolean;
 };
 
@@ -263,6 +271,22 @@ export const STATIC_COMMANDS: readonly StaticCommand[] = [
     requires: { resource: Resource.users, action: Action.create },
   },
   {
+    id: "action.switchWorkspace",
+    labelKey: "CommandPalette.labels.switchWorkspace",
+    kind: "action",
+    icon: ArrowLeftRight,
+    target: { level: "workspaces" },
+    requires: { otherWorkspaces: true },
+  },
+  {
+    id: "action.createWorkspace",
+    labelKey: "Workspaces.create",
+    kind: "action",
+    icon: Building2,
+    target: { action: "createWorkspace" },
+    requires: { workspaceCreation: true },
+  },
+  {
     id: "action.sendFeedback",
     labelKey: "UserAvatar.sendFeedback",
     kind: "action",
@@ -295,6 +319,8 @@ export function commandAvailable(entry: StaticCommand, environment: CommandEnvir
   if (requires.cloudOnly && environment.appMode === "self-hosted") return false;
   if (requires.schemaManager && !environment.canManageSchema) return false;
   if (requires.listPage && !environment.onListPage) return false;
+  if (requires.otherWorkspaces && !environment.otherWorkspaces) return false;
+  if (requires.workspaceCreation && environment.appMode === "demo") return false;
   if (!requires.resource) return true;
   if (requires.action) return environment.can(requires.resource, requires.action);
   return environment.can(requires.resource, Action.readOwn) || environment.can(requires.resource, Action.readAll);

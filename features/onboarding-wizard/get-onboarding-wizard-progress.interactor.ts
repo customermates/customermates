@@ -25,6 +25,7 @@ export class GetOnboardingWizardProgressInteractor {
     if (resolution.state !== "onboarding") return redirectTo(accountStateRedirect(resolution.state) ?? "/");
     if (!resolution.user || !resolution.sessionUser) return redirectTo("/auth/signin");
     const ownerAuthUserId = resolution.sessionUser.id;
+    const ownerCompanyId = resolution.user.companyId;
 
     return runWithTenant(resolution.user, async () => {
       const progress = readOnboardingWizardProgress(await this.repo.findOnboardingWizardProgressOrThrow());
@@ -32,6 +33,7 @@ export class GetOnboardingWizardProgressInteractor {
       const { active } = await this.authService.resolveApiKeyReferences(
         ownerAuthUserId,
         references.map(([, id]) => id),
+        ownerCompanyId,
       );
       progress.ai.apiKeyIds = Object.fromEntries(references.filter(([, id]) => active.has(id)));
       return { ok: true as const, data: progress };

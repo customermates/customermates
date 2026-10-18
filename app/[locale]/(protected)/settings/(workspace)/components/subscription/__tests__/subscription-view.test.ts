@@ -43,6 +43,7 @@ const subscription = (overrides: Partial<SubscriptionDto> = {}): SubscriptionDto
   currentPeriodEnd: null,
   hasBillingPortal: true,
   hasActiveSubscription: true,
+  checkout: "none",
   plan: SubscriptionPlan.pro,
   quantity: 3,
   status: SubscriptionStatus.active,

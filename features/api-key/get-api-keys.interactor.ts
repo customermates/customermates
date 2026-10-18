@@ -27,7 +27,7 @@ export class GetApiKeysInteractor extends AuthenticatedInteractor<void, ApiKey[]
 
   @ValidateOutput(ApiKeyDtoSchema)
   async invoke(): Promise<{ ok: true; data: ApiKey[] }> {
-    const keys = await this.authService.listApiKeys();
+    const keys = await this.authService.listApiKeys(this.companyId);
 
     return {
       ok: true,

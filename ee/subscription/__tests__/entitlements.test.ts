@@ -5,6 +5,7 @@ import { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 import {
   getEffectiveEntitlements,
   getEntitlements,
+  isAwaitingFirstPlan,
   isSubscriptionExpired,
   isSubscriptionUsable,
 } from "../entitlements";
@@ -56,5 +57,27 @@ describe("isSubscriptionUsable", () => {
     expect(isSubscriptionUsable({ status: SubscriptionStatus.trial, trialEndDate: PAST })).toBe(false);
     expect(isSubscriptionUsable({ status: SubscriptionStatus.unPaid, trialEndDate: null })).toBe(false);
     expect(isSubscriptionUsable({ status: SubscriptionStatus.expired, trialEndDate: null })).toBe(false);
+  });
+});
+
+describe("isAwaitingFirstPlan", () => {
+  const awaiting = {
+    status: SubscriptionStatus.expired,
+    plan: SubscriptionPlan.pro,
+    lemonSqueezyId: null,
+    trialEndDate: null,
+    currentPeriodEnd: null,
+  };
+
+  it("recognises an additional workspace that never had a trial or a subscription", () => {
+    expect(isAwaitingFirstPlan(awaiting)).toBe(true);
+  });
+
+  it("does not treat a workspace that had a trial, a subscription or an Enterprise plan as awaiting its first plan", () => {
+    expect(isAwaitingFirstPlan({ ...awaiting, trialEndDate: PAST })).toBe(false);
+    expect(isAwaitingFirstPlan({ ...awaiting, lemonSqueezyId: "ls-1" })).toBe(false);
+    expect(isAwaitingFirstPlan({ ...awaiting, currentPeriodEnd: PAST })).toBe(false);
+    expect(isAwaitingFirstPlan({ ...awaiting, plan: SubscriptionPlan.enterprise })).toBe(false);
+    expect(isAwaitingFirstPlan({ ...awaiting, status: SubscriptionStatus.unPaid })).toBe(false);
   });
 });

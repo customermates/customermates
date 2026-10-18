@@ -11,6 +11,8 @@ import type { ColumnPresentation } from "@/core/data-view/column-presentation.sc
 import type { RecordRef } from "@/features/records/record-model.schema";
 import { parseRecordReferenceKey, recordReferenceKey } from "@/features/records/record-reference-key";
 import { recordDisplayName } from "@/features/records/record-display-name";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
+import { WorkspaceChangedError } from "@/core/errors/workspace-changed-error";
 
 import {
   ConnectedAccountStatus,
@@ -195,6 +197,7 @@ export function filterOptionSources(
       getItems: async (params) => {
         const result = await getMessagingThreadsAction(params);
         if (!result.ok) {
+          if (notifyIfWorkspaceChanged(result)) throw new WorkspaceChangedError();
           if (result.failure.kind === "authorization") return { items: [] };
           throw new Error("Inbox thread choices could not be loaded");
         }
@@ -468,6 +471,7 @@ export function useFilterSelectItems(
             page: params.page ?? params.pagination?.page ?? 1,
             pageSize: params.pageSize ?? params.pagination?.pageSize ?? 25,
           });
+          if (notifyIfWorkspaceChanged(result)) throw new WorkspaceChangedError();
           if (!result.ok) throw new Error("Record choices unavailable");
           const data = result.data;
           return {
@@ -524,6 +528,7 @@ export function useFilterSelectItems(
           const result = await resolveSearchReferencesAction({
             refs: unique.slice(offset, offset + 50).map((recordId) => ({ typeId: referenceTypeId, recordId })),
           });
+          if (notifyIfWorkspaceChanged(result)) throw new WorkspaceChangedError();
           if (!result.ok) throw new Error("Selected records unavailable");
           items.push(
             ...result.data.results.map((record) => ({
@@ -562,7 +567,9 @@ export function useFilterSelectItems(
           0,
           ACTIVITY_FILTER_VALUE_MAX,
         );
-        const results = await Promise.all(selected.map((id) => getMessagingThreadAction(id)));
+        const responses = await Promise.all(selected.map((id) => getMessagingThreadAction(id)));
+        if (responses.some((response) => notifyIfWorkspaceChanged(response))) throw new WorkspaceChangedError();
+        const results = responses.map((response) => (response.ok ? response.data : null));
         return results.flatMap((result) =>
           result
             ? [
@@ -648,7 +655,8 @@ export function useFilterSelectItems(
           });
         }
       })
-      .catch(() => {
+      .catch((error: unknown) => {
+        if (notifyIfWorkspaceChanged(error)) return;
         if (active) {
           setSelectionResult({
             key: selectionRequestKey,

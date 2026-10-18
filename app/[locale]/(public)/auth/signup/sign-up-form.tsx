@@ -28,9 +28,10 @@ type Props = {
   invitationIntent?: string;
   inviterName?: string;
   socialProviders: { google: boolean; microsoft: boolean };
+  workspaceName?: string | null;
 };
 
-const SignUpFormContent = observer(({ invitationIntent, inviterName, socialProviders }: Props) => {
+const SignUpFormContent = observer(({ invitationIntent, inviterName, socialProviders, workspaceName }: Props) => {
   const t = useTranslations();
   const { signUpStore, appMode } = useRootStore();
   useState(() => {
@@ -39,6 +40,7 @@ const SignUpFormContent = observer(({ invitationIntent, inviterName, socialProvi
   });
   const { isLoading, form } = signUpStore;
   const isInvited = Boolean(invitationIntent && inviterName);
+  const workspace = workspaceName?.trim() ?? "";
 
   useEffect(() => {
     if (signUpStore.form.onboardingIntent !== invitationIntent)
@@ -69,7 +71,11 @@ const SignUpFormContent = observer(({ invitationIntent, inviterName, socialProvi
 
           {isInvited ? (
             <Alert className="mb-4" role="note">
-              <p className="text-x-sm">{t("SignUpForm.inviteSubtitle", { inviterName: inviterName ?? "" })}</p>
+              <p className="text-x-sm">
+                {workspace
+                  ? t("SignUpForm.inviteSubtitleNamed", { inviterName: inviterName ?? "", workspace })
+                  : t("SignUpForm.inviteSubtitle", { inviterName: inviterName ?? "" })}
+              </p>
             </Alert>
           ) : appMode === "cloud" ? (
             <Alert className="mb-4" color="primary">
