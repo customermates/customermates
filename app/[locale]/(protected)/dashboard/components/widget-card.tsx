@@ -65,7 +65,10 @@ export const WidgetCard = observer(({ widget }: Props) => {
       onOpenFilters={() => runUserAction(() => widgetModalStore.openWithFilter(widget.id, "filters"))}
     />
   ) : isRecordWidget(widget) ? (
-    <RecordWidgetCard {...widget} listLabels={listLabels(widget.measure.source.typeId)} />
+    <RecordWidgetCard
+      {...widget}
+      listLabels={recordWorkspaceStore.navigation?.types.find((type) => type.id === widget.measure.source.typeId)}
+    />
   ) : null;
 
   return (
