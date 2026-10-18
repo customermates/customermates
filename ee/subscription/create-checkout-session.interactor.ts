@@ -75,6 +75,7 @@ export class CreateCheckoutSessionInteractor extends UserAccessor {
       const checkout = await this.lemonSqueezyService.createCheckoutOrThrow({
         offer,
         quantity: activeUsersCount,
+        email: this.user.email,
         ...(workspaceName ? { productName: workspaceName } : {}),
         custom: {
           company_id: this.companyId,

@@ -102,6 +102,7 @@ describe("CreateCheckoutSessionInteractor", () => {
     expect(subscriptionService.createCheckoutOrThrow).toHaveBeenCalledWith({
       offer: expect.objectContaining({ id: "business:monthly" }),
       quantity: 4,
+      email: mockUser.email,
       productName: "Bergmann Steuern",
       custom: { company_id: COMPANY_ID, company_signature: expect.stringMatching(/^[0-9a-f]{64}$/) },
       redirectUrl: "https://feat-inbox.customermates.com/settings/billing",

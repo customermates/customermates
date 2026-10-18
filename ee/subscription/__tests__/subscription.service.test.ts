@@ -96,6 +96,24 @@ describe("SubscriptionService.createCheckoutOrThrow", () => {
       expiresAt: "2026-10-17T12:00:00.000Z",
     });
     expect(mockCreateCheckout.mock.calls[0][2].productOptions).not.toHaveProperty("name");
+    expect(mockCreateCheckout.mock.calls[0][2].checkoutData).not.toHaveProperty("email");
+  });
+
+  it("prefills the payer e-mail it is given", async () => {
+    const service = new SubscriptionService(makeRepo() as never);
+    mockCreateCheckout.mockResolvedValue({
+      error: null,
+      data: { data: { attributes: { url: "https://checkout.example.com" } } },
+    });
+
+    await service.createCheckoutOrThrow({
+      offer: getCommercialOfferOrThrow("pro", "monthly"),
+      quantity: 1,
+      email: "admin@example.invalid",
+      expiresAt: new Date("2026-10-17T12:00:00.000Z"),
+    });
+
+    expect(mockCreateCheckout.mock.calls[0][2].checkoutData).toMatchObject({ email: "admin@example.invalid" });
   });
 
   it("gives the checkout's product the name it is asked for", async () => {

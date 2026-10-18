@@ -34,6 +34,7 @@ export class SubscriptionService {
   async createCheckoutOrThrow(options: {
     offer: CommercialOffer;
     quantity: number;
+    email?: string;
     productName?: string;
     custom?: Record<string, unknown>;
     redirectUrl?: string;
@@ -47,6 +48,7 @@ export class SubscriptionService {
 
     const result = await createCheckout(storeId, variantId, {
       checkoutData: {
+        ...(options.email ? { email: options.email } : {}),
         custom: options.custom,
         variantQuantities: [{ variantId: Number(variantId), quantity: options.quantity }],
       },
