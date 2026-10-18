@@ -87,7 +87,9 @@ export class ProcessLemonSqueezyWebhookInteractor {
     if (newer && !live) return this.apply(workspace, incoming);
     if (!signed) return this.refuse("unsigned", event, workspace);
     if (newer && isLive(incoming))
-      return this.apply(workspace, incoming, () => this.alert("replaced", event, workspace, workspace.lemonSqueezyId));
+      return this.apply(workspace, incoming, () =>
+        this.alertAfterChange("replaced", event, workspace, workspace.lemonSqueezyId),
+      );
 
     const keepsLiveSubscription = newer || (current !== null && isLive(current));
     return this.refuse(keepsLiveSubscription ? "duplicate" : "olderLive", event, workspace, workspace.lemonSqueezyId);
@@ -107,7 +109,7 @@ export class ProcessLemonSqueezyWebhookInteractor {
 
   private async acknowledgeMissingWorkspace(event: LemonSqueezyWebhookEvent, claim: WorkspaceClaim) {
     if (PAYMENT_EVENTS.has(event.eventName)) {
-      await this.alert("workspaceMissing", event, null, null);
+      await this.alertOrThrow("workspaceMissing", event, null, null);
       return "ignored" as const;
     }
 
@@ -139,8 +141,27 @@ export class ProcessLemonSqueezyWebhookInteractor {
     workspace: WorkspaceBilling | null,
     otherSubscriptionId: string | null = null,
   ) {
-    await this.alert(reason, event, workspace, otherSubscriptionId);
+    await this.alertOrThrow(reason, event, workspace, otherSubscriptionId);
     return "refused" as const;
+  }
+
+  private async alertOrThrow(...args: Parameters<ProcessLemonSqueezyWebhookInteractor["alert"]>) {
+    if (!(await this.alert(...args)))
+      throw new Error("The billing webhook alert could not be sent; the provider retries the event");
+  }
+
+  private async alertAfterChange(...args: Parameters<ProcessLemonSqueezyWebhookInteractor["alert"]>) {
+    const [reason, event, workspace, otherSubscriptionId] = args;
+    const context = {
+      level: "error" as const,
+      tags: { reason, eventName: event.eventName, subscriptionId: event.subscriptionId },
+      extra: { companyId: workspace?.companyId ?? null, otherSubscriptionId },
+    };
+    try {
+      if (!(await this.alert(...args))) Sentry.captureMessage("Billing webhook alert could not be sent", context);
+    } catch (error) {
+      Sentry.captureException(error, context);
+    }
   }
 
   private async alert(
@@ -148,8 +169,8 @@ export class ProcessLemonSqueezyWebhookInteractor {
     event: LemonSqueezyWebhookEvent,
     workspace: WorkspaceBilling | null,
     otherSubscriptionId: string | null,
-  ) {
-    await this.emailService.send({
+  ): Promise<boolean> {
+    return this.emailService.send({
       to: env.RESEND_OPERATOR_EMAIL,
       subject: BILLING_WEBHOOK_ALERT_COPY[reason].subject,
       react: React.createElement(BillingWebhookAlert, {
