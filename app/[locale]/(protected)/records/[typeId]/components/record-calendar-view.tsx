@@ -581,7 +581,10 @@ export const RecordCalendarView = observer(function RecordCalendarView({ store, 
     week: t("DataView.calendar.modes.week"),
     agenda: t("DataView.calendar.modes.agenda"),
   };
-  const stepLabel = mode === "week" ? "Week" : "Month";
+  const stepLabels =
+    mode === "week"
+      ? { previous: t("DataView.calendar.previousWeek"), next: t("DataView.calendar.nextWeek") }
+      : { previous: t("DataView.calendar.previousMonth"), next: t("DataView.calendar.nextMonth") };
 
   async function handleDragEnd(event: DragEndEvent) {
     setDragging(null);
@@ -720,7 +723,7 @@ export const RecordCalendarView = observer(function RecordCalendarView({ store, 
           <div className="flex items-center">
             <IconButton
               icon={ChevronLeft}
-              label={t(`DataView.calendar.previous${stepLabel}`)}
+              label={stepLabels.previous}
               onClick={() => store.setCalendarAnchor(shiftCalendarAnchor(mode, anchor, -1))}
             />
 
@@ -730,7 +733,7 @@ export const RecordCalendarView = observer(function RecordCalendarView({ store, 
 
             <IconButton
               icon={ChevronRight}
-              label={t(`DataView.calendar.next${stepLabel}`)}
+              label={stepLabels.next}
               onClick={() => store.setCalendarAnchor(shiftCalendarAnchor(mode, anchor, 1))}
             />
           </div>

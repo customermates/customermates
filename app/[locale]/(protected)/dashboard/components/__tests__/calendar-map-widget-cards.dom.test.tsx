@@ -235,7 +235,6 @@ describe("month overview widget", () => {
       must(host.querySelector<HTMLElement>('[data-calendar-day="2026-10-12"]')).click();
       await Promise.resolve();
     });
-    // The popover opens on its trigger; the records of the day come from the loaded month without another request.
     const records = host.querySelector('[data-calendar-day-records="2026-10-12"]');
     expect(records?.querySelector("a")?.getAttribute("href")).toBe("/records/deal/a");
     expect(loadWindow).not.toHaveBeenCalled();
