@@ -3,20 +3,54 @@ import { ACTIVITY_KINDS } from "@/ee/messaging/activities/activities.schema";
 import { recordActivityFilterCount } from "@/ee/messaging/activities/record-activity-sources";
 import type { DiscoveredRecordTypes } from "@/features/records/discover-record-types.interactor";
 import { RecordActivityWidgetInputSchema } from "@/features/widget/record-activity-widget.schema";
+import {
+  CALENDAR_WIDGET_DEFAULT_DAYS,
+  CalendarWidgetQuerySchema,
+  RecordCalendarWidgetInputSchema,
+  type CalendarWidgetLayout,
+} from "@/features/widget/record-calendar-widget.schema";
+import { MapWidgetQuerySchema, RecordMapWidgetInputSchema } from "@/features/widget/record-map-widget.schema";
 import { RecordWidgetInputSchema } from "@/features/widget/record-widget.schema";
 import type { CompanyWidget, WidgetDto } from "@/features/widget/widget.schema";
-import { isRecordActivityWidget, isRecordWidget } from "@/features/widget/widget.schema";
+import {
+  isRecordActivityWidget,
+  isRecordCalendarWidget,
+  isRecordMapWidget,
+  isRecordWidget,
+} from "@/features/widget/widget.schema";
+import type { CalendarWidgetPreview } from "@/features/widget/preview-record-calendar-widget.interactor";
+import type { MapWidgetPreview } from "@/features/widget/preview-record-map-widget.interactor";
 import type { FormEvent } from "react";
 import { z } from "zod";
-import { previewRecordWidgetAction, upsertRecordActivityWidgetAction, upsertRecordWidgetAction } from "../actions";
+import {
+  previewCalendarWidgetAction,
+  previewMapWidgetAction,
+  previewRecordWidgetAction,
+  upsertRecordActivityWidgetAction,
+  upsertRecordCalendarWidgetAction,
+  upsertRecordMapWidgetAction,
+  upsertRecordWidgetAction,
+} from "../actions";
 import { getRecordModelAction } from "../../records/actions";
 import { resolveSearchReferencesAction } from "../../search/actions";
 import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { RecordSearchHit } from "@/features/records/record-search.schema";
 import type { RecordWidgetPreview } from "@/features/widget/record-widget-reader";
 import { RecordMeasureSchema } from "@/features/records/record-measure.schema";
-import type { RecordActivityWidgetForm, RecordWidgetForm } from "./record-widget-form";
-import { isRecordActivityWidgetForm, isRecordWidgetForm } from "./record-widget-form";
+import type {
+  RecordActivityWidgetForm,
+  RecordCalendarWidgetForm,
+  RecordMapWidgetForm,
+  RecordWidgetForm,
+} from "./record-widget-form";
+import {
+  isRecordActivityWidgetForm,
+  isRecordCalendarWidgetForm,
+  isRecordMapWidgetForm,
+  isRecordWidgetForm,
+  recordWidgetSourceTypeId,
+} from "./record-widget-form";
+import { calendarDateFieldsOf, mapAddressFieldsOf } from "./calendar-map-widget-fields";
 
 import { Resource, WidgetKind } from "@/generated/prisma";
 import { cloneDeep, omit } from "lodash";
@@ -30,11 +64,18 @@ import { type WidgetLayoutGeometry, widgetDefaultSize, widgetLayoutGeometry } fr
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { browserTimeZone } from "@/core/utils/time-zone";
 import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
 
 type WidgetModalSection = "config" | "filters" | "activityFilters" | "display";
 type WidgetCreationStep = "choose" | "configure";
-export type WidgetModalForm = RecordWidgetForm | RecordActivityWidgetForm;
+export type WidgetModalForm =
+  | RecordWidgetForm
+  | RecordActivityWidgetForm
+  | RecordCalendarWidgetForm
+  | RecordMapWidgetForm;
+type ActionOutcome<T> = { ok: true; data: T } | { ok: false };
+type WidgetStartOptions = { activityName?: string; displayType?: DisplayType; calendarLayout?: CalendarWidgetLayout };
 
 type WidgetFormCommon = { id?: string; name: string; isTemplate: boolean };
 
@@ -64,6 +105,8 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
   private previewGeneration = 0;
   public recordModel: RecordModelView | null | undefined = undefined;
   public recordPreview: ({ key: string } & RecordWidgetPreview) | null = null;
+  public calendarPreview: ({ key: string } & CalendarWidgetPreview) | null = null;
+  public mapPreview: ({ key: string } & MapWidgetPreview) | null = null;
   public recordPreviewLoading = false;
   public recordPreviewFailed = false;
   public scopeRecordHits: RecordSearchHit[] = [];
@@ -97,13 +140,18 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       isHydrating: observable,
       recordModel: observable.ref,
       recordPreview: observable.ref,
+      calendarPreview: observable.ref,
+      mapPreview: observable.ref,
       recordPreviewLoading: observable,
       recordPreviewFailed: observable,
       scopeRecordHits: observable.ref,
       loadRecordModel: action,
       runRecordPreview: action,
+      runCalendarPreview: action,
+      runMapPreview: action,
       loadScopeRecords: action,
       recordMeasureKey: computed,
+      recordQueryKey: computed,
 
       add: action,
       delete: action,
@@ -118,6 +166,8 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
 
       activeTimelineFiltersCount: computed,
       availableKinds: computed,
+      calendarDateFieldMissing: computed,
+      mapAddressFieldMissing: computed,
       previewGeometry: computed,
     });
 
@@ -144,7 +194,21 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       },
     );
     reaction(
-      () => (this.isOpen && isRecordWidgetForm(this.form) ? this.form.measure.source.typeId : null),
+      () => {
+        const form = this.form;
+        return isRecordCalendarWidgetForm(form)
+          ? form.calendarQuery.source.typeId
+          : isRecordMapWidgetForm(form)
+            ? form.mapQuery.source.typeId
+            : undefined;
+      },
+      (typeId, previous) => {
+        if (this.skipReactions || !previous || !typeId || typeId === previous) return;
+        runInAction(() => this.resetSourceFields(typeId));
+      },
+    );
+    reaction(
+      () => (this.isOpen ? (recordWidgetSourceTypeId(this.form) ?? null) : null),
       (typeId) => {
         if (typeId) void this.loadRecordModel();
         else {
@@ -156,7 +220,14 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       },
     );
     reaction(
-      () => [this.form, this.recordMeasureKey, this.recordModel?.revision, this.isOpen],
+      () => [this.recordModel, this.isOpen, this.form, this.recordQueryKey],
+      () => {
+        if (!this.skipReactions) runInAction(() => this.applyFieldDefaults());
+      },
+      { equals: comparer.shallow },
+    );
+    reaction(
+      () => [this.form, this.recordQueryKey, this.recordModel?.revision, this.isOpen],
       () =>
         runInAction(() => {
           this.recordPreviewRequest += 1;
@@ -179,6 +250,14 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
 
   get recordMeasureKey() {
     return isRecordWidgetForm(this.form) ? JSON.stringify(this.form.measure) : null;
+  }
+
+  get recordQueryKey() {
+    const form = this.form;
+    if (isRecordWidgetForm(form)) return JSON.stringify(form.measure);
+    if (isRecordCalendarWidgetForm(form)) return JSON.stringify(form.calendarQuery);
+    if (isRecordMapWidgetForm(form)) return JSON.stringify(form.mapQuery);
+    return null;
   }
 
   loadRecordModel = async () => {
@@ -243,6 +322,79 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     }
   };
 
+  runCalendarPreview = async () => {
+    const form = this.form;
+    if (!isRecordCalendarWidgetForm(form)) return;
+    const parsed = CalendarWidgetQuerySchema.safeParse(form.calendarQuery);
+    await this.runQueryPreview(
+      JSON.stringify(form.calendarQuery),
+      parsed.success ? () => previewCalendarWidgetAction(parsed.data) : null,
+      (preview) => preview.data.schemaRevision,
+      (key, preview) => {
+        this.calendarPreview = { key, ...preview };
+      },
+    );
+  };
+
+  runMapPreview = async () => {
+    const form = this.form;
+    if (!isRecordMapWidgetForm(form)) return;
+    const parsed = MapWidgetQuerySchema.safeParse(form.mapQuery);
+    await this.runQueryPreview(
+      JSON.stringify(form.mapQuery),
+      parsed.success ? () => previewMapWidgetAction(parsed.data) : null,
+      (preview) => preview.data.schemaRevision,
+      (key, preview) => {
+        this.mapPreview = { key, ...preview };
+      },
+    );
+  };
+
+  private runQueryPreview = async <T>(
+    previewed: string,
+    call: (() => Promise<ActionOutcome<T>>) | null,
+    revisionOf: (preview: T) => number,
+    apply: (key: string, preview: T) => void,
+  ) => {
+    const request = ++this.recordPreviewRequest;
+    const isCurrent = () => request === this.recordPreviewRequest;
+    this.recordPreviewLoading = true;
+    this.recordPreviewFailed = false;
+    try {
+      if (!call) {
+        runInAction(() => {
+          this.recordPreviewFailed = true;
+        });
+        return;
+      }
+      const result = await this.runPreview(call);
+      if (!result || !isCurrent()) return;
+      if (!result.ok) {
+        runInAction(() => {
+          this.recordPreviewFailed = true;
+        });
+        return;
+      }
+      const revision = revisionOf(result.data);
+      if (this.recordModel && revision !== this.recordModel.revision) {
+        void this.loadRecordModel();
+        return;
+      }
+      runInAction(() => apply(previewed, result.data));
+      if (this.hasUnsavedChanges) this.onChange("expectedRevision", revision);
+    } catch (error) {
+      if (!isCurrent()) return;
+      reportApplicationError(error);
+      runInAction(() => {
+        this.recordPreviewFailed = true;
+      });
+    } finally {
+      runInAction(() => {
+        if (isCurrent()) this.recordPreviewLoading = false;
+      });
+    }
+  };
+
   loadScopeRecords = async (refs: RecordActivityWidgetForm["activityQuery"]["scope"]["records"]) => {
     const request = ++this.scopeRecordsRequest;
     if (refs.length === 0) {
@@ -261,6 +413,24 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
   get activeTimelineFiltersCount() {
     return isRecordActivityWidgetForm(this.form) ? recordActivityFilterCount(this.form.activityQuery) : 0;
   }
+  get calendarDateFieldMissing() {
+    const form = this.form;
+    return (
+      isRecordCalendarWidgetForm(form) &&
+      Boolean(this.recordModel) &&
+      calendarDateFieldsOf(this.recordModel, form.calendarQuery.source.typeId).length === 0
+    );
+  }
+
+  get mapAddressFieldMissing() {
+    const form = this.form;
+    return (
+      isRecordMapWidgetForm(form) &&
+      Boolean(this.recordModel) &&
+      mapAddressFieldsOf(this.recordModel, form.mapQuery.source.typeId).length === 0
+    );
+  }
+
   get previewGeometry(): WidgetLayoutGeometry {
     const displayType = isRecordWidgetForm(this.form) ? this.form.displayOptions.displayType : undefined;
     if (this.form.id) {
@@ -282,7 +452,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
         type.permittedActions.some((action) => action === "readAll" || action === "readOwn"),
       )
     )
-      kinds.push(WidgetKind.chart);
+      kinds.push(WidgetKind.chart, WidgetKind.calendar, WidgetKind.map);
     if (
       this.recordTypes &&
       (this.rootStore.userStore.canAccess(Resource.auditLog) ||
@@ -292,13 +462,13 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     return kinds;
   }
 
-  startFromKind = (kind: WidgetKind, options: { activityName?: string; displayType?: DisplayType } = {}) => {
+  startFromKind = (kind: WidgetKind, options: WidgetStartOptions = {}) => {
     if (this.form.id || !this.availableKinds.includes(kind)) return;
 
     this.invalidateLoads();
     this.withSuppressedReactions(() => {
       this.expandedSection = "config";
-      const form = this.buildNewForm(kind, options.activityName);
+      const form = this.buildNewForm(kind, options.activityName, options.calendarLayout);
       this.replaceForm(
         isRecordWidgetForm(form) && options.displayType
           ? { ...form, displayOptions: { ...form.displayOptions, displayType: options.displayType } }
@@ -489,6 +659,51 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       }
       return;
     }
+    if (isRecordCalendarWidgetForm(form)) {
+      try {
+        const input = { ...omit(form, ["kind", "idempotencyKey"]), ...this.targetView(form.id) };
+        const parsed = RecordCalendarWidgetInputSchema.safeParse({
+          ...input,
+          idempotencyKey: this.submissionKey(input),
+        });
+        if (!parsed.success) {
+          this.setError(z.treeifyError(parsed.error));
+          return;
+        }
+        const result = await upsertRecordCalendarWidgetAction(parsed.data);
+        if (!result.ok) {
+          if (session === this.sessionGeneration && this.isOpen) this.setError(result.error);
+          return;
+        }
+        if (session === this.sessionGeneration && this.isOpen) this.hydrateWidget(result.data, false);
+        await this.rootStore.widgetsStore.refresh();
+        if (session === this.sessionGeneration && this.isOpen) this.close();
+      } finally {
+        if (session === this.sessionGeneration) this.setIsLoading(false);
+      }
+      return;
+    }
+    if (isRecordMapWidgetForm(form)) {
+      try {
+        const input = { ...omit(form, ["kind", "idempotencyKey"]), ...this.targetView(form.id) };
+        const parsed = RecordMapWidgetInputSchema.safeParse({ ...input, idempotencyKey: this.submissionKey(input) });
+        if (!parsed.success) {
+          this.setError(z.treeifyError(parsed.error));
+          return;
+        }
+        const result = await upsertRecordMapWidgetAction(parsed.data);
+        if (!result.ok) {
+          if (session === this.sessionGeneration && this.isOpen) this.setError(result.error);
+          return;
+        }
+        if (session === this.sessionGeneration && this.isOpen) this.hydrateWidget(result.data, false);
+        await this.rootStore.widgetsStore.refresh();
+        if (session === this.sessionGeneration && this.isOpen) this.close();
+      } finally {
+        if (session === this.sessionGeneration) this.setIsLoading(false);
+      }
+      return;
+    }
     if (isRecordWidgetForm(form)) {
       try {
         const input = { ...omit(form, ["kind", "idempotencyKey"]), ...this.targetView(form.id) };
@@ -533,15 +748,73 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
   };
 
   private previewQuery = () =>
-    JSON.stringify(
-      isRecordWidgetForm(this.form)
-        ? this.form.measure
-        : isRecordActivityWidgetForm(this.form)
-          ? this.form.activityQuery
-          : null,
-    );
+    isRecordActivityWidgetForm(this.form) ? JSON.stringify(this.form.activityQuery) : (this.recordQueryKey ?? "null");
 
-  private buildNewForm = (kind: WidgetKind, defaultActivityName?: string): WidgetModalForm => {
+  private readableTypeIds = () =>
+    (this.recordTypes?.types ?? [])
+      .filter(
+        (type) =>
+          !type.embedded && type.permittedActions.some((action) => action === "readAll" || action === "readOwn"),
+      )
+      .map((type) => type.id);
+
+  private resetSourceFields = (typeId: string) => {
+    const form = this.form;
+    const source = { typeId, filters: [], relationships: [] };
+    if (isRecordCalendarWidgetForm(form)) {
+      form.calendarQuery = {
+        ...form.calendarQuery,
+        source,
+        dateFieldId: calendarDateFieldsOf(this.recordModel, typeId)[0]?.id ?? "",
+        amountFieldId: null,
+        aggregation: "count",
+      };
+    }
+    if (isRecordMapWidgetForm(form)) {
+      form.mapQuery = {
+        ...form.mapQuery,
+        source,
+        addressFieldId: mapAddressFieldsOf(this.recordModel, typeId)[0]?.id ?? "",
+        colorFieldId: null,
+        sizeFieldId: null,
+        detailFieldId: null,
+      };
+    }
+  };
+
+  private applyFieldDefaults = () => {
+    const model = this.recordModel;
+    const form = this.form;
+    if (!model || !this.isOpen) return;
+    const query = isRecordCalendarWidgetForm(form)
+      ? {
+          typeId: form.calendarQuery.source.typeId,
+          fieldId: form.calendarQuery.dateFieldId,
+          fieldsOf: calendarDateFieldsOf,
+        }
+      : isRecordMapWidgetForm(form)
+        ? { typeId: form.mapQuery.source.typeId, fieldId: form.mapQuery.addressFieldId, fieldsOf: mapAddressFieldsOf }
+        : null;
+    if (!query || query.fieldId) return;
+    const pristine = !form.id && !this.hasUnsavedChanges;
+    const typeId =
+      query.fieldsOf(model, query.typeId).length > 0 || !pristine
+        ? query.typeId
+        : (this.readableTypeIds().find((candidate) => query.fieldsOf(model, candidate).length > 0) ?? query.typeId);
+    if (query.fieldsOf(model, typeId).length === 0) return;
+    if (typeId !== query.typeId) this.resetSourceFields(typeId);
+    else if (isRecordCalendarWidgetForm(form))
+      form.calendarQuery = { ...form.calendarQuery, dateFieldId: calendarDateFieldsOf(model, typeId)[0].id };
+    else if (isRecordMapWidgetForm(form))
+      form.mapQuery = { ...form.mapQuery, addressFieldId: mapAddressFieldsOf(model, typeId)[0].id };
+    if (pristine) this.savedState = cloneDeep(this.form);
+  };
+
+  private buildNewForm = (
+    kind: WidgetKind,
+    defaultActivityName?: string,
+    calendarLayout: CalendarWidgetLayout = "upcoming",
+  ): WidgetModalForm => {
     const common = {
       name: "",
       isTemplate: false,
@@ -560,6 +833,34 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     const type = this.recordTypes?.types.find((type) =>
       type.permittedActions.some((action) => action === "readAll" || action === "readOwn"),
     );
+    if (kind === WidgetKind.calendar || kind === WidgetKind.map) {
+      const typeId = this.readableTypeIds()[0] ?? type?.id ?? "";
+      const source = { typeId, filters: [], relationships: [] };
+      const fieldsOf = kind === WidgetKind.calendar ? calendarDateFieldsOf : mapAddressFieldsOf;
+      const fieldId = fieldsOf(this.recordModel, typeId)[0]?.id ?? "";
+      return kind === WidgetKind.calendar
+        ? {
+            ...common,
+            kind,
+            displayOptions: { showFilters: true },
+            calendarQuery: {
+              source,
+              dateFieldId: fieldId,
+              layout: calendarLayout,
+              timeZone: browserTimeZone(),
+              days: CALENDAR_WIDGET_DEFAULT_DAYS,
+              showOverdue: true,
+              amountFieldId: null,
+              aggregation: "count",
+            },
+          }
+        : {
+            ...common,
+            kind,
+            displayOptions: { showFilters: true },
+            mapQuery: { source, addressFieldId: fieldId, colorFieldId: null, sizeFieldId: null, detailFieldId: null },
+          };
+    }
     return {
       ...common,
       kind: "chart",
@@ -592,6 +893,38 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
           expectedRevision: widget.schemaRevision,
           idempotencyKey: crypto.randomUUID(),
           activityQuery: cloneDeep(widget.activityQuery),
+          displayOptions: cloneDeep(widget.displayOptions),
+        },
+      };
+    }
+    if (isRecordCalendarWidget(widget)) {
+      return {
+        form: {
+          kind: "calendar",
+          ...common,
+          name: widget.name,
+          isTemplate: common.isTemplate ?? false,
+          expectedVersion: asTemplate ? undefined : widget.version,
+          expectedRevision: widget.data?.schemaRevision ?? this.recordTypes?.schemaRevision ?? 0,
+          idempotencyKey: crypto.randomUUID(),
+          calendarQuery: asTemplate
+            ? { ...cloneDeep(widget.calendarQuery), timeZone: browserTimeZone() }
+            : cloneDeep(widget.calendarQuery),
+          displayOptions: cloneDeep(widget.displayOptions),
+        },
+      };
+    }
+    if (isRecordMapWidget(widget)) {
+      return {
+        form: {
+          kind: "map",
+          ...common,
+          name: widget.name,
+          isTemplate: common.isTemplate ?? false,
+          expectedVersion: asTemplate ? undefined : widget.version,
+          expectedRevision: widget.data?.schemaRevision ?? this.recordTypes?.schemaRevision ?? 0,
+          idempotencyKey: crypto.randomUUID(),
+          mapQuery: cloneDeep(widget.mapQuery),
           displayOptions: cloneDeep(widget.displayOptions),
         },
       };
@@ -631,8 +964,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
   };
 
   protected override afterChange(id: string): void {
-    if (id === "measure" || id.startsWith("measure.") || id === "activityQuery" || id.startsWith("activityQuery."))
-      this.previewGeneration += 1;
+    if (/^(?:measure|activityQuery|calendarQuery|mapQuery)(?:\.|$)/.test(id)) this.previewGeneration += 1;
     if (id === "measure.groupBy") this.initializeGroupFilter(this.form);
   }
 
@@ -661,6 +993,8 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
   private advanceSession = () => {
     this.sessionGeneration += 1;
     this.recordPreview = null;
+    this.calendarPreview = null;
+    this.mapPreview = null;
     this.recordSubmission = null;
     this.companyWidgetsGeneration += 1;
     this.invalidateLoads();

@@ -139,7 +139,7 @@ describe("generic widget modal", () => {
   });
   it("offers chart and activity creation from accessible metadata", () => {
     const { store } = setup();
-    expect(store.availableKinds).toEqual(["chart", "activityTimeline"]);
+    expect(store.availableKinds).toEqual(["chart", "calendar", "map", "activityTimeline"]);
   });
   it("does not offer creation without accessible records or activity sources", () => {
     const { store } = setup();
