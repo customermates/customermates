@@ -116,3 +116,17 @@ SELECT gen_random_uuid()::text, a."companyId", 'channel', a."accountId", a."conn
 FROM accounts a
 LEFT JOIN "ConnectedAccount" r ON r."id" = a."accountId" AND r."companyId" = a."companyId"
 WHERE a."connectedAt" IS NOT NULL;
+
+-- An account still connected without a logged connect counts from its row's creation,
+-- marked inexact.
+INSERT INTO "BillingUsageInterval" (
+    "id", "companyId", "kind", "subjectId", "startedAt", "startExact", "provider", "identifier"
+)
+SELECT gen_random_uuid()::text, r."companyId", 'channel', r."id", r."createdAt", FALSE, r."provider"::text,
+       COALESCE(NULLIF(r."emailAddress", ''), NULLIF(r."displayName", ''), r."unipileAccountId")
+FROM "ConnectedAccount" r
+WHERE r."status" <> 'deleted'
+  AND NOT EXISTS (
+      SELECT 1 FROM "BillingUsageInterval" i
+      WHERE i."companyId" = r."companyId" AND i."kind" = 'channel' AND i."subjectId" = r."id" AND i."endedAt" IS NULL
+  );

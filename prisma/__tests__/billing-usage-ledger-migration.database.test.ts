@@ -63,7 +63,9 @@ async function legacyHistory(client: Client) {
     INSERT INTO "ConnectedAccount" (id, "companyId", "userId", "unipileAccountId", provider, status, "emailAddress", "createdAt", "updatedAt") VALUES
       ('a-live', 'c-old', 'u-reactivated', 'x1', 'google', 'ok', 'live@old.example.invalid', '2026-07-10', '2026-09-01'),
       ('a-soft-no-event', 'c-old', 'u-reactivated', 'x2', 'outlook', 'deleted', 'soft@old.example.invalid', '2026-07-12', '2026-09-15'),
-      ('a-soft-event', 'c-old', 'u-reactivated', 'x3', 'mail', 'deleted', 'event@old.example.invalid', '2026-07-15', '2026-09-30');
+      ('a-soft-event', 'c-old', 'u-reactivated', 'x3', 'mail', 'deleted', 'event@old.example.invalid', '2026-07-15', '2026-09-30'),
+      ('a-unlogged', 'c-old', 'u-reactivated', 'x4', 'google', 'ok', 'unlogged@old.example.invalid', '2026-09-03', '2026-09-03'),
+      ('a-unlogged-gone', 'c-old', 'u-reactivated', 'x5', 'google', 'deleted', 'gone@old.example.invalid', '2026-09-04', '2026-09-05');
     INSERT INTO "EventLog" ("companyId", id, "subjectKind", "subjectId", kind, payload, "createdAt") VALUES
       ('c-old', 'e1', 'connected_account', 'a-live', 'connected_account.created', '{"provider":"google","emailAddress":"live@old.example.invalid"}', '2026-07-10'),
       ('c-old', 'e8', 'connected_account', 'a-soft-no-event', 'connected_account.created', '{"provider":"outlook","emailAddress":"soft@old.example.invalid"}', '2026-07-12'),
@@ -181,6 +183,15 @@ describeDatabase("billing usage ledger migration", { timeout: 240_000 }, () => {
         endedAt: new Date("2026-08-25T00:00:00.000Z"),
         endExact: false,
       });
+
+      expect(intervals.get("a-unlogged")).toMatchObject({
+        kind: "channel",
+        startedAt: new Date("2026-09-03T00:00:00.000Z"),
+        endedAt: null,
+        startExact: false,
+        who: "unlogged@old.example.invalid",
+      });
+      expect(intervals.has("a-unlogged-gone")).toBe(false);
 
       const [newer, older] = workspaces;
       expect(newer).toMatchObject({ companyId: "c-new", channelsRecordedFrom: null });
