@@ -36,6 +36,17 @@ describe("error wording without error reporting", () => {
     expect(messages).not.toHaveProperty("WithoutErrorReporting");
   });
 
+  it.each(APP_LOCALES)("keeps the array messages that t.raw reads as arrays in %s", (locale) => {
+    const source = catalog(locale) as unknown as { Subscription: { picker: { features: Record<string, string[]> } } };
+    const messages = messagesForErrorReporting(
+      source as unknown as AbstractIntlMessages,
+      false,
+    ) as unknown as typeof source;
+
+    for (const [plan, features] of Object.entries(source.Subscription.picker.features))
+      expect(messages.Subscription.picker.features[plan], plan).toEqual(features);
+  });
+
   it("never claims that anyone was notified in English", () => {
     const messages = messagesForErrorReporting(
       catalog("en") as unknown as AbstractIntlMessages,

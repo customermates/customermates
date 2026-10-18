@@ -3,7 +3,7 @@ import type { AbstractIntlMessages } from "next-intl";
 const UNREPORTED_ERROR_MESSAGES = "WithoutErrorReporting";
 
 function isMessages(value: unknown): value is AbstractIntlMessages {
-  return typeof value === "object" && value !== null;
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function overlay(base: AbstractIntlMessages, override: AbstractIntlMessages): AbstractIntlMessages {
