@@ -11,11 +11,19 @@ This is the recommended path for **Claude** (web, desktop, and mobile) and **Cha
 
 ## Which URL do I paste? [#the-url]
 
+Every workspace has its own MCP URL:
+
 ```
-<BASE_URL>/api/v1/mcp
+<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>
 ```
 
-`<BASE_URL>` is the address you open Customermates at, in the cloud or on your own instance. The connector works on every Customermates plan and on self-hosted instances; only the messaging, calendar and social tools need a plan with messaging, Pro or higher in the cloud.
+`<BASE_URL>` is the address you open Customermates at, in the cloud or on your own instance, and `<WORKSPACE_ID>` names the workspace. You do not have to put it together: Customermates shows the URL of your current workspace with a copy button under [API keys](app:settings/api-keys) when you click [Add](app:settings/api-keys?focus=generate) and choose **Claude** and then **Claude account** (or **ChatGPT & Codex** and then **ChatGPT App**), and in the onboarding step **Connect your AI**. Switch workspaces to copy another one's URL.
+
+Because each workspace has its own URL, you can add several workspaces to Claude at the same time, one connector per workspace. Claude refuses a second connector with a URL it already has ("A connector with this URL already exists in your organization"), so a second workspace needs its own URL.
+
+`<BASE_URL>/api/v1/mcp` keeps working: it serves the same tools, and the consent screen asks which workspace the connection gets. Connections you added with it before stay as they are.
+
+The connector works on every Customermates plan and on self-hosted instances; only the messaging, calendar and social tools need a plan with messaging, Pro or higher in the cloud.
 
 ## How do I connect Claude to the Customermates CRM? [#claude]
 
@@ -38,14 +46,14 @@ Back in Claude, Customermates appears with its tools listed.
 
 Add it once and it syncs to Claude on web, desktop, and mobile. The connection is tied to your Claude account, not one device, and refreshes in the background.
 
-One click instead: in Customermates, open [API keys](app:settings/api-keys), click [Add](app:settings/api-keys?focus=generate), choose **Claude** under **Quick connections**, then **Claude account**, and click **Add to Claude**. It opens Claude's add-connector dialog pre-filled with your `<BASE_URL>/api/v1/mcp` (Claude web and Teams only). The onboarding step **Connect your AI** offers the same button. **Add** needs **Create** on **API & Webhooks**; without it, paste the URL as above.
+One click instead: in Customermates, open [API keys](app:settings/api-keys), click [Add](app:settings/api-keys?focus=generate), choose **Claude** under **Quick connections**, then **Claude account**, and click **Add to Claude**. It opens Claude's add-connector dialog pre-filled with the current workspace's URL and a connector name that includes the workspace name (Claude web and Teams only). The onboarding step **Connect your AI** offers the same button. **Add** needs **Create** on **API & Webhooks**; without it, paste the URL as above.
 
 ## How do I connect ChatGPT? [#chatgpt]
 
 To connect ChatGPT, open in ChatGPT: **Settings → Connectors → Add connector → Custom connector (MCP)**.
 
 - **Name:** Customermates
-- **URL:** `<BASE_URL>/api/v1/mcp`
+- **URL:** your workspace's URL, `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>` ([which URL](#the-url))
 - **Authentication:** OAuth
 
 Save. ChatGPT opens a Customermates window. Sign in, then click **Approve** on the consent screen. Every Customermates tool is listed, with no key to store or rotate.
@@ -74,7 +82,7 @@ The connector opens a Customermates window:
 Or you are already signed in.
 </Step>
 <Step title="Read what is being authorized">
-The consent screen, titled **Connect … to …**, names the app that is connecting, lists what it asks for (such as **Confirm your identity**, **Read your basic profile**, **Read your email address** and **Stay connected while you are away**), and shows **Connection destination** with the host it will send access to. If you belong to several workspaces, it also asks which workspace the connection gets; your current workspace is preselected.
+The consent screen, titled **Connect … to …**, names the app that is connecting, lists what it asks for (such as **Confirm your identity**, **Read your basic profile**, **Read your email address** and **Stay connected while you are away**), and shows **Connection destination** with the host it will send access to. With a workspace's URL, it shows that workspace with its avatar, and the connection gets exactly that workspace. With `<BASE_URL>/api/v1/mcp` and several workspaces, it asks which workspace the connection gets; your current workspace is preselected.
 </Step>
 <Step title="Approve">
 Click **Approve**, or **Deny** to refuse.
@@ -83,6 +91,8 @@ Click **Approve**, or **Deny** to refuse.
 
 You return to your AI, connected, with all [[derived.mcp.tools.total]] tools listed.
 
+If you cannot connect the workspace of the URL, the screen says why and offers only **Deny**: you are not a member of it (sign in with the account you use there), your request to join is waiting for approval, your access is deactivated, your role has no **Read access** **All** on **API & Webhooks**, the workspace has no active subscription, or updated terms need to be accepted.
+
 The connector accepts any client, so the consent screen is the gate. Approve only a connection you started yourself, and click **Deny** for anything you did not start. Connecting over OAuth needs no API key, but your role needs **Read access** **All** on **API & Webhooks**, as for every MCP connection; without it the screen refuses the connection.
 
 ## How long does the connection stay valid? [#it-syncs-and-stays-connected]
@@ -90,7 +100,7 @@ The connector accepts any client, so the consent screen is the gate. Approve onl
 - Add it once on Claude web and it appears on **desktop and mobile** too. The connection is tied to your Claude account, not one device.
 - It refreshes in the background. Use it within any 30-day window and you never re-authorize; go idle longer and you approve once more.
 - Every call runs as the Customermates user who approved, inside the workspace chosen on the consent screen and with that user's role permissions there. API keys work the same way: they inherit the owning user's permissions in the workspace they were created in, and there is no per-key scoping.
-- A connection stays in its workspace, refreshed tokens included. To work in several workspaces, connect once per workspace, for example with a different Claude account per workspace; see [Workspaces](/docs/app-workspaces#which-workspace-do-api-keys-and-connections-use).
+- A connection stays in its workspace, refreshed tokens included. To work in several workspaces, add one connector per workspace with that workspace's URL; they work side by side in the same Claude account. See [Workspaces](/docs/app-workspaces#which-workspace-do-api-keys-and-connections-use).
 - If that user is set to **Inactive**, every call that reads or changes workspace data fails with "Your user account is inactive. Contact a workspace administrator." until a member with **Edit** on **Users & Roles** sets them back to **Active**.
 
 ## What should I try first? [#try-your-first-prompt]
@@ -117,7 +127,10 @@ Leave every tool that is not read-only on *Ask*. The full list is in the [MCP to
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| "Couldn't register with the sign-in service" (Claude) or "Connector verification failed" (ChatGPT) | Server URL wrong or unreachable | Confirm it is exactly `<BASE_URL>/api/v1/mcp`, with the address you open Customermates at as `<BASE_URL>` |
+| "Couldn't register with the sign-in service" (Claude) or "Connector verification failed" (ChatGPT) | Server URL wrong or unreachable | Copy the URL again from Customermates ([which URL](#the-url)), or use exactly `<BASE_URL>/api/v1/mcp`, with the address you open Customermates at as `<BASE_URL>` |
+| "A connector with this URL already exists in your organization" (Claude) | That URL is already connected, possibly for another workspace | Add the other workspace with its own URL, copied while that workspace is open |
+| A workspace's URL answers HTTP `401` with `error="invalid_token"` | The connection was approved for another workspace | Reconnect; the client signs in again for the workspace of the URL |
+| A workspace's URL answers HTTP `403` with `error: workspace_mismatch` (header key) | The API key belongs to another workspace | Use the URL of the key's workspace, or create a key in this workspace |
 | The connector lists no tools and the server answers HTTP `401` (ChatGPT with a header) | The `x-api-key` value is wrong, truncated, expired or deleted | Create a new key under [API keys](app:settings/api-keys) and paste the full 64 characters |
 | Every call that reads or changes workspace data says "Your user account is inactive. Contact a workspace administrator." | Your Customermates user was set to **Inactive** | A member with **Edit** on **Users & Roles** sets you back to **Active** under [Members](app:settings/members) |
 | No "Add custom connector" option | Free plan | Custom connectors need a paid Claude or ChatGPT plan. See [the CLI method](/docs/connect-cli) |

@@ -19,7 +19,7 @@ Fügen Sie einen Custom Connector hinzu:
 - **Claude** (Web, Desktop, Mobile): **Settings → Connectors → Add custom connector**.
 - **ChatGPT**: **Settings → Connectors → Add connector → Custom connector (MCP)**, mit **Authentication** auf OAuth.
 
-Fügen Sie die Adresse, unter der Sie Customermates öffnen, gefolgt von `/api/v1/mcp` ein, melden Sie sich an und klicken Sie auf dem Zustimmungsbildschirm auf **Zulassen**. Alle Schritte: [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
+Fügen Sie die MCP-URL Ihres Workspace ein, die Customermates im Onboarding-Schritt **KI verbinden** und unter [API-Schlüssel](app:settings/api-keys) mit einer Kopierschaltfläche zeigt, melden Sie sich an und klicken Sie auf dem Zustimmungsbildschirm auf **Zulassen**. Die Adresse, unter der Sie Customermates öffnen, gefolgt von `/api/v1/mcp` funktioniert ebenfalls und fragt auf dem Zustimmungsbildschirm nach dem Workspace. Alle Schritte: [Mit einem Custom Connector verbinden](/docs/connect-custom-connector#the-url).
 
 Beim Verbinden brieft der Server den Client über seine Tools und Ihren Workspace. In Clients mit MCP-Prompts, etwa Claude, ergänzt der eingebaute `get-started`-Prompt einen persönlichen Start: Ihr Name, Ihre Rolle und eine erste Zusammenfassung Ihres Workspace.
 
