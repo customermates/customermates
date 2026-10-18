@@ -129,6 +129,8 @@ export const domTestFiles = [
   "app/components/keyboard-shortcuts/__tests__/global-keyboard-shortcuts.dom.test.ts",
   "components/ui/__tests__/overlay-focus-return.dom.test.ts",
   "components/map/__tests__/map-view.dom.test.tsx",
+  "app/**/records/**/components/__tests__/record-calendar-view.dom.test.tsx",
+  "app/**/dashboard/components/__tests__/calendar-map-widget-cards.dom.test.tsx",
 ];
 
 export default defineConfig({
