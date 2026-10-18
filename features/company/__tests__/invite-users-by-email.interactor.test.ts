@@ -115,6 +115,18 @@ describe("InviteUsersByEmailInteractor", () => {
     expect(keys[2]).toBe(keys[0]);
   });
 
+  it("sends an invitation again under a new deduplication key once the workspace is renamed", async () => {
+    const before = makeInteractor("Taxes");
+    const after = makeInteractor("Tax office");
+
+    await before.interactor.invoke({ emails: ["first@example.com"] });
+    await after.interactor.invoke({ emails: ["first@example.com"] });
+
+    expect(after.emailService.send.mock.calls[0][0].deduplicationKey).not.toBe(
+      before.emailService.send.mock.calls[0][0].deduplicationKey,
+    );
+  });
+
   it("names the workspace in the subject, preview and introduction when it has a name", async () => {
     const { emailService, interactor } = makeInteractor("Taxes");
 

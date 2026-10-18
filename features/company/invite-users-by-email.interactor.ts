@@ -86,7 +86,7 @@ export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
             fallback,
           }),
           deduplicationKey: `company-invite/${createHash("sha256")
-            .update(JSON.stringify([inviteLink, email, locale, inviterName]))
+            .update(JSON.stringify([inviteLink, email, locale, inviterName, subject]))
             .digest("hex")}`,
         }),
       ),
