@@ -587,7 +587,22 @@ export class PrismaUserRepo
 
   @BypassTenantGuard
   async countCreatedWorkspacesUnscoped(authUserId: string) {
-    return this.prisma.company.count({ where: { createdByAuthUserId: authUserId } });
+    const [row] = await this.prisma.$queryRaw<Array<{ count: number }>>`
+      SELECT COUNT(*)::int AS count
+      FROM "Company" AS c
+      WHERE c."createdByAuthUserId" = ${authUserId}
+        OR (
+          c."createdByAuthUserId" IS NULL
+          AND (
+            SELECT u."email"
+            FROM "User" AS u
+            JOIN "UserRole" AS r ON r."id" = u."roleId" AND r."isSystemRole" = true
+            WHERE u."companyId" = c."id"
+            ORDER BY u."createdAt" ASC
+            LIMIT 1
+          ) = (SELECT au."email" FROM "AuthUser" AS au WHERE au."id" = ${authUserId})
+        )`;
+    return row?.count ?? 0;
   }
 
   @BypassTenantGuard

@@ -39,9 +39,10 @@ describeDatabase("creating workspaces under one login on PostgreSQL", { timeout:
 
     const email = `creator-${randomUUID()}@example.invalid`;
     const roleId = randomUUID();
-    await client.query('INSERT INTO "Company" ("id", "name", "updatedAt") VALUES ($1, \'Home\', CURRENT_TIMESTAMP)', [
-      companyId,
-    ]);
+    await client.query(
+      'INSERT INTO "Company" ("id", "name", "createdByAuthUserId", "updatedAt") VALUES ($1, \'Home\', $2, CURRENT_TIMESTAMP)',
+      [companyId, randomUUID()],
+    );
     await client.query(
       'INSERT INTO "Subscription" ("id", "companyId", "status", "updatedAt") VALUES ($1, $2, \'active\', CURRENT_TIMESTAMP)',
       [randomUUID(), companyId],
@@ -135,5 +136,48 @@ describeDatabase("creating workspaces under one login on PostgreSQL", { timeout:
     if (!refused.ok) expect(interactorFailureCodes(refused.error)).toEqual([CustomErrorCode.workspaceLimitReached]);
     expect(await state()).toEqual(before);
     expect(before.created).toBe(CLOUD_WORKSPACE_CREATION_LIMIT);
+  });
+
+  it("counts a workspace the old deployment created without a creator for its earliest administrator only", async () => {
+    const { PermissionService } = await import("@/core/base/permission.service");
+    const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
+    const repo = new PrismaUserRepo(new PermissionService());
+    const legacyCompanyId = randomUUID();
+    const roleId = randomUUID();
+    const logins = { founder: randomUUID(), laterAdmin: randomUUID() };
+    const emails = {
+      founder: `legacy-founder-${randomUUID()}@example.invalid`,
+      laterAdmin: `legacy-admin-${randomUUID()}@example.invalid`,
+    };
+
+    try {
+      await client.query('INSERT INTO "Company" ("id", "name", "updatedAt") VALUES ($1, \'Legacy\', CURRENT_TIMESTAMP)', [
+        legacyCompanyId,
+      ]);
+      await client.query(
+        'INSERT INTO "UserRole" ("id", "name", "isSystemRole", "companyId", "updatedAt") VALUES ($1, \'Admin\', TRUE, $2, CURRENT_TIMESTAMP)',
+        [roleId, legacyCompanyId],
+      );
+      for (const [login, createdAt] of [
+        ["founder", "2026-10-18T08:00:00.000Z"],
+        ["laterAdmin", "2026-10-18T09:00:00.000Z"],
+      ] as const) {
+        await client.query(
+          'INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "roleId", "status", "createdAt", "updatedAt") VALUES ($1, $2, \'Leg\', \'Acy\', $3, $4, \'active\', $5, CURRENT_TIMESTAMP)',
+          [randomUUID(), emails[login], legacyCompanyId, roleId, new Date(createdAt)],
+        );
+        await client.query(
+          'INSERT INTO "AuthUser" ("id", "name", "email", "emailVerified", "companyId", "updatedAt") VALUES ($1, \'Leg Acy\', $2, TRUE, $3, CURRENT_TIMESTAMP)',
+          [logins[login], emails[login], legacyCompanyId],
+        );
+      }
+
+      expect(await repo.countCreatedWorkspacesUnscoped(logins.founder)).toBe(1);
+      expect(await repo.hasCreatedWorkspaceUnscoped(logins.founder)).toBe(true);
+      expect(await repo.countCreatedWorkspacesUnscoped(logins.laterAdmin)).toBe(0);
+    } finally {
+      await client.query('DELETE FROM "AuthUser" WHERE "id" = ANY($1)', [Object.values(logins)]);
+      await client.query('DELETE FROM "Company" WHERE "id" = $1', [legacyCompanyId]);
+    }
   });
 });
