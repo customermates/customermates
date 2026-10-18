@@ -810,6 +810,33 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     });
   });
 
+  it("claims and settles different topics at the same time", async () => {
+    const crawlId = await startCrawl();
+    const topic = { title: "Scheduling", role: "offering", sourceIds: [randomUUID()], status: "pending" };
+    await client.query(
+      `UPDATE "WikiWebsiteCrawl" SET "status" = 'synthesizing', "targets" = '[{"url":"https://example.com/","category":"about","status":"read"}]'::jsonb WHERE "id" = $1`,
+      [crawlId],
+    );
+    await runWithTenant(user, async () => {
+      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService()));
+      const titles = ["Scheduling", "Dispatch", "Pricing", "Support", "Team"];
+      await repo.storePlannedTopics(crawlId, titles.map((title) => ({ ...topic, title })) as never, null);
+      const past = new Date(Date.now() - 60_000);
+      expect(await Promise.all(titles.map((_title, index) => repo.claimSynthesisTopic(crawlId, index, past)))).toEqual(
+        titles.map(() => true),
+      );
+      const pageIds = titles.map(() => randomUUID());
+      expect(
+        await Promise.all(
+          pageIds.map((pageId, index) => repo.settleSynthesisTopic(crawlId, index, { status: "created", pageId })),
+        ),
+      ).toEqual(titles.map(() => true));
+      expect((await repo.getCrawl(crawlId))?.topics?.map(({ status, pageId }) => [status, pageId])).toEqual(
+        pageIds.map((pageId) => ["created", pageId]),
+      );
+    });
+  });
+
   it("allows only one active crawl per workspace", async () => {
     await startCrawl();
     await expect(

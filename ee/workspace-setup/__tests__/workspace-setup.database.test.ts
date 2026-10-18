@@ -661,7 +661,17 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(queued).toEqual({ ok: true, data: { planRevision: planRevision + 1 } });
     const claim = await ws.run(() => di.getWorkspaceSetupInterviewService().claimPlan(setupId));
     expect(claim).toEqual({ status: "claimed", revision: planRevision + 1 });
-    expect(await status(ws)).toMatchObject({ status: "planning", plan: { status: "running" } });
+    expect(await status(ws)).toMatchObject({
+      status: "planning",
+      plan: { status: "running", parts: { model: "running", knowledge: "running", views: "waiting" } },
+    });
+    const watched = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
+    expect(watched?.interview.watchedAt).toEqual(expect.any(String));
+    expect(watched?.interview.planQueuedAt).toEqual(expect.any(String));
+    await status(ws);
+    expect((await ws.run(() => di.getWorkspaceSetupRepo().get(setupId)))?.interview.watchedAt).toBe(
+      watched?.interview.watchedAt,
+    );
     expect((await ws.run(() => di.getPlanWorkspaceSetupInteractor().invoke({ setupId }))).ok).toBe(false);
 
     await ws.run(() =>

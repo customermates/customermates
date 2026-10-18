@@ -13,7 +13,10 @@ import { reportFailure, reportWarning, toWorkflowFailure } from "./capture-failu
 
 const WORKFLOW_NAME = "crawl-wiki-website";
 const BRIEF_WAIT_ROUNDS = 360;
+const BRIEF_FAST_ROUNDS = 40;
+const BRIEF_FAST_WAIT = "15s";
 const BRIEF_WAIT = "1m";
+const TOPIC_LANES = 5;
 
 export type CrawlWikiWebsiteWorkflowPayload = {
   crawlId: string;
@@ -100,12 +103,16 @@ export async function crawlWikiWebsite(payload: CrawlWikiWebsiteWorkflowPayload)
         topics = planned.topics;
         break;
       }
-      await sleep(BRIEF_WAIT);
+      await sleep(round < BRIEF_FAST_ROUNDS ? BRIEF_FAST_WAIT : BRIEF_WAIT);
     }
-    for (let index = 0; index < topics; index += 1) {
-      for (const warning of await writeWikiTopicStep(payload, index))
-        await reportWarning(WORKFLOW_NAME, warning, payload.tenant);
-    }
+    await Promise.all(
+      Array.from({ length: Math.min(TOPIC_LANES, topics) }, async (_lane, lane) => {
+        for (let index = lane; index < topics; index += TOPIC_LANES) {
+          for (const warning of await writeWikiTopicStep(payload, index))
+            await reportWarning(WORKFLOW_NAME, warning, payload.tenant);
+        }
+      }),
+    );
     await settleWikiWebsiteStep(payload);
   } catch (err) {
     try {

@@ -105,6 +105,8 @@ function crawlPatch({
   };
 }
 
+const TOPIC_UPDATE_ATTEMPTS = 5;
+
 export class PrismaWikiWebsiteCrawlRepo
   extends TenantRepository
   implements
@@ -468,19 +470,22 @@ export class PrismaWikiWebsiteCrawlRepo
     index: number,
     update: (topic: StoredWikiSynthesisTopic) => StoredWikiSynthesisTopic | null,
   ) {
-    const crawl = await this.prisma.wikiWebsiteCrawl.findFirst({
-      where: { id: crawlId, companyId: this.companyId, status: "synthesizing" },
-      select: { topics: true, updatedAt: true },
-    });
-    const topics = parseStoredWikiSynthesisTopics(crawl?.topics);
-    const next = topics?.[index] ? update(topics[index]) : null;
-    if (!crawl || !topics || !next) return false;
-    topics[index] = next;
-    const { count } = await this.prisma.wikiWebsiteCrawl.updateMany({
-      where: { id: crawlId, companyId: this.companyId, updatedAt: crawl.updatedAt },
-      data: { topics: topics as Prisma.InputJsonValue },
-    });
-    return count === 1;
+    for (let attempt = 0; attempt < TOPIC_UPDATE_ATTEMPTS; attempt += 1) {
+      const crawl = await this.prisma.wikiWebsiteCrawl.findFirst({
+        where: { id: crawlId, companyId: this.companyId, status: "synthesizing" },
+        select: { topics: true, updatedAt: true },
+      });
+      const topics = parseStoredWikiSynthesisTopics(crawl?.topics);
+      const next = topics?.[index] ? update(topics[index]) : null;
+      if (!crawl || !topics || !next) return false;
+      topics[index] = next;
+      const { count } = await this.prisma.wikiWebsiteCrawl.updateMany({
+        where: { id: crawlId, companyId: this.companyId, updatedAt: crawl.updatedAt },
+        data: { topics: topics as Prisma.InputJsonValue },
+      });
+      if (count === 1) return true;
+    }
+    return false;
   }
 
   async markImported(pageId: string, source: WikiImportProvenance) {
