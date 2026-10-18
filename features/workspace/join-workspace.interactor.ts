@@ -69,6 +69,8 @@ export class JoinWorkspaceInteractor {
         const current = await this.memberships.findMembershipUnscoped(email, intent.companyId);
         if (current) return { member: current, alreadyMember: true };
 
+        if (await this.repo.hasLeftMembershipUnscoped(email, intent.companyId))
+          await this.authService.revokeMembershipCredentials(session.user.id, intent.companyId);
         const member = await this.repo.registerExistingCompany({
           email,
           firstName: profile.firstName,

@@ -471,7 +471,6 @@ export class PrismaUserRepo
       status: Status.pendingAuthorization,
       onboardingWizardCompletedAt: new Date(),
     };
-    if (existing) await this.revokeLeftMembershipCredentials(args.email, args.companyId);
     const user = existing
       ? await this.prisma.user.update({
           where: { id: existing.id, companyId: args.companyId },
@@ -487,14 +486,6 @@ export class PrismaUserRepo
     });
 
     return tenantUser;
-  }
-
-  private async revokeLeftMembershipCredentials(email: string, companyId: string) {
-    const login = await this.prisma.authUser.findUnique({ where: { email }, select: { id: true } });
-    if (!login) return;
-
-    await this.prisma.apikey.deleteMany({ where: { referenceId: login.id, companyId } });
-    await this.prisma.oauthAccessToken.deleteMany({ where: { userId: login.id, companyId } });
   }
 
   async isPlatformOperatorCompanyWide(userId: string) {
@@ -587,22 +578,22 @@ export class PrismaUserRepo
 
   @BypassTenantGuard
   async countCreatedWorkspacesUnscoped(authUserId: string) {
-    const [row] = await this.prisma.$queryRaw<Array<{ count: number }>>`
-      SELECT COUNT(*)::int AS count
-      FROM "Company" AS c
-      WHERE c."createdByAuthUserId" = ${authUserId}
-        OR (
-          c."createdByAuthUserId" IS NULL
-          AND (
-            SELECT u."email"
-            FROM "User" AS u
-            JOIN "UserRole" AS r ON r."id" = u."roleId" AND r."isSystemRole" = true
-            WHERE u."companyId" = c."id"
-            ORDER BY u."createdAt" ASC
-            LIMIT 1
-          ) = (SELECT au."email" FROM "AuthUser" AS au WHERE au."id" = ${authUserId})
-        )`;
-    return row?.count ?? 0;
+    const created = await this.prisma.company.count({ where: { createdByAuthUserId: authUserId } });
+    const login = await this.prisma.authUser.findUnique({ where: { id: authUserId }, select: { email: true } });
+    if (!login) return created;
+
+    const unattributed = await this.prisma.company.findMany({
+      where: { createdByAuthUserId: null, users: { some: { email: login.email, role: { isSystemRole: true } } } },
+      select: {
+        users: {
+          where: { role: { isSystemRole: true } },
+          orderBy: { createdAt: "asc" },
+          take: 1,
+          select: { email: true },
+        },
+      },
+    });
+    return created + unattributed.filter((company) => company.users[0]?.email === login.email).length;
   }
 
   @BypassTenantGuard

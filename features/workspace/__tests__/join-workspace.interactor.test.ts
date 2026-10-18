@@ -34,9 +34,10 @@ describe("JoinWorkspaceInteractor", () => {
   let authService: {
     getInteractiveSession: ReturnType<typeof vi.fn>;
     setSessionActiveCompany: ReturnType<typeof vi.fn>;
+    revokeMembershipCredentials: ReturnType<typeof vi.fn>;
   };
   let memberships: Record<string, ReturnType<typeof vi.fn>>;
-  let repo: { registerExistingCompany: ReturnType<typeof vi.fn> };
+  let repo: { hasLeftMembershipUnscoped: ReturnType<typeof vi.fn>; registerExistingCompany: ReturnType<typeof vi.fn> };
   let eventService: { publish: ReturnType<typeof vi.fn> };
 
   function interactor() {
@@ -60,6 +61,7 @@ describe("JoinWorkspaceInteractor", () => {
         user: { id: "login-1", email: "ben@example.com", emailVerified: true, createdAt: new Date() },
       }),
       setSessionActiveCompany: vi.fn().mockResolvedValue(undefined),
+      revokeMembershipCredentials: vi.fn().mockResolvedValue(0),
     };
     memberships = {
       findMembershipUnscoped: vi.fn().mockResolvedValue(null),
@@ -69,7 +71,10 @@ describe("JoinWorkspaceInteractor", () => {
       setLastUsedCompanyUnscoped: vi.fn().mockResolvedValue(undefined),
       markMembershipActiveUnscoped: vi.fn().mockResolvedValue(undefined),
     };
-    repo = { registerExistingCompany: vi.fn().mockResolvedValue(member) };
+    repo = {
+      hasLeftMembershipUnscoped: vi.fn().mockResolvedValue(false),
+      registerExistingCompany: vi.fn().mockResolvedValue(member),
+    };
     eventService = { publish: vi.fn().mockResolvedValue(undefined) };
   });
 
@@ -134,5 +139,21 @@ describe("JoinWorkspaceInteractor", () => {
     expect(repo.registerExistingCompany).not.toHaveBeenCalled();
     expect(eventService.publish).not.toHaveBeenCalled();
     expect(authService.setSessionActiveCompany).toHaveBeenCalledWith("session-1", "company-invited");
+  });
+
+  it("revokes credentials bound to the workspace after leaving before it revives the left membership", async () => {
+    repo.hasLeftMembershipUnscoped.mockResolvedValue(true);
+
+    const result = await interactor().invoke({ intent: "signed-intent", agreeToTerms: true });
+
+    expect(result.ok).toBe(true);
+    expect(authService.revokeMembershipCredentials).toHaveBeenCalledWith("login-1", "company-invited");
+    expect(authService.revokeMembershipCredentials).toHaveBeenCalledBefore(repo.registerExistingCompany);
+  });
+
+  it("revokes nothing when the login never belonged to the workspace", async () => {
+    await interactor().invoke({ intent: "signed-intent", agreeToTerms: true });
+
+    expect(authService.revokeMembershipCredentials).not.toHaveBeenCalled();
   });
 });

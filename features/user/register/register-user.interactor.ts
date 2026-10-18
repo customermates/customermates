@@ -173,6 +173,8 @@ export class RegisterUserInteractor {
         ? adAttribution.filter((attribution) => attribution.expiresAt.getTime() > Date.now())
         : [];
 
+    if (companyId && (await this.repo.hasLeftMembershipUnscoped(registrationData.email, companyId)))
+      await this.authService.revokeMembershipCredentials(sessionUserId, companyId);
     const tenantUser = companyId
       ? await this.repo.registerExistingCompany({
           ...registrationData,
