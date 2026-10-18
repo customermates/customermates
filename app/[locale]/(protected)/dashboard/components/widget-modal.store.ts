@@ -106,6 +106,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
   public recordModel: RecordModelView | null | undefined = undefined;
   public recordPreview: ({ key: string } & RecordWidgetPreview) | null = null;
   public calendarPreview: ({ key: string } & CalendarWidgetPreview) | null = null;
+  private automaticSourceTypeId: string | null = null;
   public mapPreview: ({ key: string } & MapWidgetPreview) | null = null;
   public recordPreviewLoading = false;
   public recordPreviewFailed = false;
@@ -797,17 +798,29 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
         : null;
     if (!query || query.fieldId) return;
     const pristine = !form.id && !this.hasUnsavedChanges;
+    const automaticSource = !form.id && query.typeId === this.automaticSourceTypeId;
     const typeId =
-      query.fieldsOf(model, query.typeId).length > 0 || !pristine
+      query.fieldsOf(model, query.typeId).length > 0 || !automaticSource
         ? query.typeId
         : (this.readableTypeIds().find((candidate) => query.fieldsOf(model, candidate).length > 0) ?? query.typeId);
     if (query.fieldsOf(model, typeId).length === 0) return;
-    if (typeId !== query.typeId) this.resetSourceFields(typeId);
-    else if (isRecordCalendarWidgetForm(form))
+    if (typeId !== query.typeId) {
+      this.automaticSourceTypeId = typeId;
+      this.resetSourceFields(typeId);
+    } else if (isRecordCalendarWidgetForm(form))
       form.calendarQuery = { ...form.calendarQuery, dateFieldId: calendarDateFieldsOf(model, typeId)[0].id };
     else if (isRecordMapWidgetForm(form))
       form.mapQuery = { ...form.mapQuery, addressFieldId: mapAddressFieldsOf(model, typeId)[0].id };
     if (pristine) this.savedState = cloneDeep(this.form);
+    else if (automaticSource && this.savedState) {
+      const current = this.form;
+      const query = isRecordCalendarWidgetForm(current)
+        ? { calendarQuery: cloneDeep(current.calendarQuery) }
+        : isRecordMapWidgetForm(current)
+          ? { mapQuery: cloneDeep(current.mapQuery) }
+          : {};
+      this.savedState = { ...this.savedState, ...query } as WidgetModalForm;
+    }
   };
 
   private buildNewForm = (
@@ -835,6 +848,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     );
     if (kind === WidgetKind.calendar || kind === WidgetKind.map) {
       const typeId = this.readableTypeIds()[0] ?? type?.id ?? "";
+      this.automaticSourceTypeId = typeId;
       const source = { typeId, filters: [], relationships: [] };
       const fieldsOf = kind === WidgetKind.calendar ? calendarDateFieldsOf : mapAddressFieldsOf;
       const fieldId = fieldsOf(this.recordModel, typeId)[0]?.id ?? "";

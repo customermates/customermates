@@ -5,6 +5,7 @@ import { RecordActivityWidgetDtoSchema } from "@/features/widget/record-activity
 import { ChartColor, DisplayType, type WidgetDto } from "@/features/widget/widget.schema";
 import { WidgetKind } from "@/generated/prisma";
 import { randomUUID } from "node:crypto";
+import { runInAction } from "mobx";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { isRecordWidgetForm } from "../record-widget-form";
 import { WidgetModalStore } from "../widget-modal.store";
@@ -472,5 +473,64 @@ describe("display type starters", () => {
     store.add();
     store.startFromKind(WidgetKind.activityTimeline, { activityName: "Activity", displayType: DisplayType.number });
     expect(store.form).toMatchObject({ kind: "activityTimeline", name: "Activity" });
+  });
+});
+
+describe("calendar and map starters", () => {
+  const dealType = model.types.find((type) => type.label === "Deal") ?? model.types[1];
+  const dealField = model.fields.find((field) => field.typeId === dealType.id);
+  if (!dealField) throw new Error("The CRM preset has deal fields");
+  const dateField = {
+    ...dealField,
+    id: randomUUID(),
+    label: "Close date",
+    valueType: "date" as const,
+    multiple: false,
+    archived: false,
+    options: [],
+  };
+  const withDate = { ...model, fields: [...model.fields, dateField] };
+
+  it("starts an upcoming calendar on the first list with a date field, even after the name was typed", async () => {
+    const { store } = setup();
+    store.add();
+    store.startFromKind(WidgetKind.calendar, { calendarLayout: "upcoming" });
+    store.onChange("name", "Closing soon");
+    expect(store.form).toMatchObject({ kind: "calendar", calendarQuery: { layout: "upcoming", dateFieldId: "" } });
+    runInAction(() => {
+      store.recordModel = withDate;
+    });
+    await Promise.resolve();
+    expect(store.form).toMatchObject({
+      kind: "calendar",
+      name: "Closing soon",
+      calendarQuery: { source: { typeId: dealType.id }, dateFieldId: dateField.id, timeZone: expect.any(String) },
+    });
+  });
+
+  it("keeps a list the user chose even when it has no date field", async () => {
+    const { store } = setup();
+    store.add();
+    store.startFromKind(WidgetKind.calendar, { calendarLayout: "month" });
+    const other = discovery.types.find((type) => type.id !== dealType.id && type.id !== discovery.types[0].id);
+    if (!other) throw new Error("The CRM preset has a third list");
+    store.onChange("calendarQuery.source.typeId", other.id);
+    runInAction(() => {
+      store.recordModel = withDate;
+    });
+    await Promise.resolve();
+    expect(store.form).toMatchObject({ calendarQuery: { source: { typeId: other.id }, dateFieldId: "" } });
+    expect(store.calendarDateFieldMissing).toBe(true);
+  });
+
+  it("offers the map only with the record kinds and starts without optional fields", () => {
+    const { store } = setup();
+    store.add();
+    store.startFromKind(WidgetKind.map);
+    expect(store.form).toMatchObject({
+      kind: "map",
+      mapQuery: { colorFieldId: null, sizeFieldId: null, detailFieldId: null },
+      displayOptions: { showFilters: true },
+    });
   });
 });

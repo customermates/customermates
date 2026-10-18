@@ -214,7 +214,11 @@ export const RecordMapWidgetCard = observer(function RecordMapWidgetCard({
             {legend.length > 0 && (
               <ul aria-label={colorField?.label} className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
                 {legend.map((entry) => (
-                  <li key={entry.id ?? "none"} className="flex min-w-0 items-center gap-1.5" data-map-legend={entry.id}>
+                  <li
+                    key={entry.id ?? "none"}
+                    className="flex min-w-0 items-center gap-1.5"
+                    data-map-legend={entry.id ?? ""}
+                  >
                     <span
                       aria-hidden
                       className="size-2.5 shrink-0 rounded-full"
