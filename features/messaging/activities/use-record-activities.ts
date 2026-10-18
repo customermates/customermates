@@ -5,6 +5,7 @@ import type { ActivityEntryDto, ActivityKind } from "@/ee/messaging/activities/a
 import type { RecordActivitiesInput, RecordActivityQuery } from "@/ee/messaging/activities/record-activities.schema";
 import { ACTIVITY_KINDS } from "@/ee/messaging/activities/activities.schema";
 import { getRecordActivitiesAction } from "@/app/[locale]/(protected)/records/actions";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { activityEntryKey } from "./activity-entry-key";
 
@@ -34,7 +35,7 @@ export function useRecordActivities(query: RecordActivityQuery) {
           cursor: older ? cursor.current : null,
           limit: 25,
         });
-        if (request !== generation.current) return;
+        if (notifyIfWorkspaceChanged(result) || request !== generation.current) return;
         if (!result.ok) throw new Error("Record activity request failed");
         setItems((previous) =>
           older
@@ -49,7 +50,8 @@ export function useRecordActivities(query: RecordActivityQuery) {
         setHasMore(Boolean(result.data.nextCursor));
         setAvailable(result.data.availableSources);
         setLoaded(true);
-      } catch {
+      } catch (error) {
+        if (notifyIfWorkspaceChanged(error)) return;
         if (request === generation.current) setError(true);
       } finally {
         if (request === generation.current) {

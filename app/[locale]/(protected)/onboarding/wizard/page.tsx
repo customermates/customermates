@@ -83,6 +83,7 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
   return (
     <CenteredCardPage>
       <OnboardingWizard
+        canNameWorkspace={canCreateCompany}
         canSetupWithMate={canSetupWithMate}
         inviterName={invitation?.inviterName}
         isInvited={isInvited}
@@ -96,6 +97,7 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
         userId={user?.role?.isSystemRole ? user.id : undefined}
         wikiSetupState={wikiSetupState}
         wikiStepCompleted={wikiStepCompleted}
+        workspaceName={invitation?.companyName}
       />
     </CenteredCardPage>
   );

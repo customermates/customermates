@@ -2,8 +2,30 @@ import type { $ZodRawIssue } from "zod/v4/core";
 
 import { describe, expect, it } from "vitest";
 
-import { createErrorHandler, zx } from "../validation.utils";
+import { WORKSPACE_CHANGED_DIGEST } from "@/core/errors/workspace-changed";
+
+import { createErrorHandler, serializedFailureErrorTree, zx } from "../validation.utils";
 import { CustomErrorCode } from "../validation.types";
+
+describe("serializedFailureErrorTree", () => {
+  it("marks a typed workspace-changed conflict so the browser asks to reload", () => {
+    const tree = serializedFailureErrorTree({
+      kind: "conflict",
+      issues: [{ code: "custom", path: [], message: "Reload", customCode: CustomErrorCode.workspaceChanged }],
+    });
+
+    expect(tree).toMatchObject({ errors: ["Reload"], digest: WORKSPACE_CHANGED_DIGEST });
+  });
+
+  it("leaves every other failure unmarked", () => {
+    const tree = serializedFailureErrorTree({
+      kind: "conflict",
+      issues: [{ code: "custom", path: ["name"], message: "Taken", customCode: CustomErrorCode.permissionDenied }],
+    });
+
+    expect(tree).not.toHaveProperty("digest");
+  });
+});
 
 describe("createErrorHandler", () => {
   it("interpolates every occurrence of a repeated placeholder", () => {

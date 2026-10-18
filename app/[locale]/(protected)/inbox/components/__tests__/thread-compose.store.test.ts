@@ -22,7 +22,13 @@ const attachmentInputs = vi.hoisted(() => ({
 }));
 const errors = vi.hoisted(() => ({ reportApplicationError: vi.fn(), runUserAction: (run: () => unknown) => run() }));
 
+const workspaceNotice = vi.hoisted(() => ({ notifyIfWorkspaceChanged: vi.fn((_failure: unknown) => false) }));
+
 vi.mock("../../actions", () => actions);
+vi.mock("@/core/errors/workspace-changed-notice", async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  ...workspaceNotice,
+}));
 vi.mock("@/core/errors/report-application-error", () => errors);
 vi.mock("../attachment-input", () => ({
   MAX_ATTACHMENTS_BYTES: 25 * 1024 * 1024,
@@ -143,6 +149,10 @@ function chatStarted(threadId: string | null) {
 }
 
 type SentResult = ReturnType<typeof sentResult>;
+
+function threadDetail(messages: MessagingMessageDto[]) {
+  return { ok: true as const, data: { messages } };
+}
 
 function deferred<Value>() {
   let resolve!: (value: Value) => void;
@@ -1476,11 +1486,11 @@ describe("ThreadComposeStore draft refusals", () => {
   it("loads the latest saved version when the user chooses it", async () => {
     const { store } = editReply("draftChanged");
     await store.send();
-    actions.getMessagingThreadAction.mockResolvedValue({
-      messages: [
+    actions.getMessagingThreadAction.mockResolvedValue(
+      threadDetail([
         message({ provider: MessagingProvider.google, bodyText: "Agent version", draftRevision: NEWER_REVISION }),
-      ],
-    });
+      ]),
+    );
 
     await store.resolveDraftConflict("latest");
 
@@ -1491,14 +1501,37 @@ describe("ThreadComposeStore draft refusals", () => {
     expect(actions.sendEmailAction).toHaveBeenCalledOnce();
   });
 
+  it("leaves the draft conflict to the reload dialog when the workspace changed while reading the latest version", async () => {
+    const { store } = editReply("draftChanged");
+    await store.send();
+    const workspaceChanged = {
+      ok: false as const,
+      failure: {
+        kind: "conflict",
+        issues: [{ code: "custom", path: [], message: "", customCode: "workspaceChanged" }],
+      },
+    };
+    actions.getMessagingThreadAction.mockResolvedValue(workspaceChanged);
+    workspaceNotice.notifyIfWorkspaceChanged.mockReturnValueOnce(true);
+
+    await store.resolveDraftConflict("mine");
+
+    expect(workspaceNotice.notifyIfWorkspaceChanged).toHaveBeenCalledWith(workspaceChanged);
+    expect(store.draftConflict).toBe(true);
+    expect(store.editingDraftId).toBe(DRAFT_ID);
+    expect(store.form.body).toBe("My edited reply");
+    expect(toast.error).not.toHaveBeenCalledWith("Common.errors.draftMessageNotFound", expect.anything());
+    expect(actions.sendEmailAction).toHaveBeenCalledOnce();
+  });
+
   it("sends the user's version against the latest revision when the user chooses it", async () => {
     const { store } = editReply("draftChanged");
     await store.send();
-    actions.getMessagingThreadAction.mockResolvedValue({
-      messages: [
+    actions.getMessagingThreadAction.mockResolvedValue(
+      threadDetail([
         message({ provider: MessagingProvider.google, bodyText: "Agent version", draftRevision: NEWER_REVISION }),
-      ],
-    });
+      ]),
+    );
     actions.sendEmailAction.mockResolvedValueOnce({
       ok: true,
       data: sentResult(message({ provider: MessagingProvider.google, isDraft: false, bodyText: "My edited reply" })),
@@ -1594,15 +1627,15 @@ describe("ThreadComposeStore draft refusals", () => {
     expect(store.newThreadTarget?.draftThreadId).toBe(DRAFT_THREAD_ID);
     expect(store.form.body).toBe("Edited new email");
     expect(store.draftConflict).toBe(true);
-    actions.getMessagingThreadAction.mockResolvedValue({
-      messages: [
+    actions.getMessagingThreadAction.mockResolvedValue(
+      threadDetail([
         message({
           provider: MessagingProvider.google,
           messagingThreadId: DRAFT_THREAD_ID,
           draftRevision: NEWER_REVISION,
         }),
-      ],
-    });
+      ]),
+    );
     actions.sendEmailAction.mockResolvedValueOnce({ ok: true, data: sentResult(null) });
 
     await store.resolveDraftConflict("mine");
@@ -1744,14 +1777,14 @@ describe("ThreadComposeStore draft refusals", () => {
   it("shows a loading state while it reads the latest version and drops the answer for an older compose", async () => {
     const { store } = editReply("draftChanged");
     await store.send();
-    const latest = deferred<{ messages: MessagingMessageDto[] }>();
+    const latest = deferred<ReturnType<typeof threadDetail>>();
     actions.getMessagingThreadAction.mockReturnValueOnce(latest.promise);
 
     const resolving = store.resolveDraftConflict("mine");
     expect(store.isLoading).toBe(true);
     await store.resolveDraftConflict("latest");
     store.initialize({ provider: MessagingProvider.google, threadId: OTHER_THREAD_ID, defaultRecipients: [RECIPIENT] });
-    latest.resolve({ messages: [message({ provider: MessagingProvider.google, draftRevision: NEWER_REVISION })] });
+    latest.resolve(threadDetail([message({ provider: MessagingProvider.google, draftRevision: NEWER_REVISION })]));
     await resolving;
 
     expect(actions.getMessagingThreadAction).toHaveBeenCalledOnce();
@@ -1773,7 +1806,7 @@ describe("ThreadComposeStore draft refusals", () => {
     store.onChange("body", "Edited new email");
     actions.sendEmailAction.mockResolvedValueOnce(refusal("draftChanged"));
     await store.send();
-    actions.getMessagingThreadAction.mockResolvedValue({ messages: [] });
+    actions.getMessagingThreadAction.mockResolvedValue(threadDetail([]));
 
     await store.resolveDraftConflict("mine");
 

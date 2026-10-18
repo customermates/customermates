@@ -30,7 +30,7 @@ describe("ContinueWithSocialsInteractor callback validation", () => {
       const continueWithSocials = vi.fn();
       const interactor = new ContinueWithSocialsInteractor(
         { continueWithSocials } as unknown as AuthService,
-        { findCurrentUserUnscoped: vi.fn() } as unknown as FindUserRepo,
+        { listMembershipsUnscoped: vi.fn().mockResolvedValue([]) } as unknown as FindUserRepo,
       );
 
       const result = await interactor.invoke({
@@ -49,7 +49,7 @@ describe("ContinueWithSocialsInteractor callback validation", () => {
     const continueWithSocials = vi.fn();
     const interactor = new ContinueWithSocialsInteractor(
       { continueWithSocials } as unknown as AuthService,
-      { findCurrentUserUnscoped: vi.fn() } as unknown as FindUserRepo,
+      { listMembershipsUnscoped: vi.fn().mockResolvedValue([]) } as unknown as FindUserRepo,
     );
 
     const result = await interactor.invoke({ provider: "github" } as never);
@@ -62,7 +62,7 @@ describe("ContinueWithSocialsInteractor callback validation", () => {
     const continueWithSocials = vi.fn().mockResolvedValue({ redirect: false });
     const interactor = new ContinueWithSocialsInteractor(
       { continueWithSocials } as unknown as AuthService,
-      { findCurrentUserUnscoped: vi.fn() } as unknown as FindUserRepo,
+      { listMembershipsUnscoped: vi.fn().mockResolvedValue([]) } as unknown as FindUserRepo,
     );
 
     await expect(interactor.invoke({ provider })).resolves.toEqual({ ok: true, data: null });
@@ -74,7 +74,7 @@ describe("ContinueWithSocialsInteractor callback validation", () => {
       {
         continueWithSocials: vi.fn().mockResolvedValue({ redirect: true, url: "/it/inbox" }),
       } as unknown as AuthService,
-      { findCurrentUserUnscoped: vi.fn() } as unknown as FindUserRepo,
+      { listMembershipsUnscoped: vi.fn().mockResolvedValue([]) } as unknown as FindUserRepo,
     );
 
     await expect(interactor.invoke({ provider: "google" })).resolves.toEqual({ redirect: "/it/inbox" });
@@ -95,7 +95,7 @@ describe("ContinueWithSocialsInteractor callback validation", () => {
         }),
         sendNewUserNotificationEmail,
       } as unknown as AuthService,
-      { findCurrentUserUnscoped: vi.fn().mockResolvedValue(null) } as unknown as FindUserRepo,
+      { listMembershipsUnscoped: vi.fn().mockResolvedValue([]) } as unknown as FindUserRepo,
     );
 
     await expect(interactor.invoke({ provider: "microsoft" })).resolves.toEqual({ ok: true, data: null });
@@ -127,7 +127,7 @@ describe("ContinueWithSocialsInteractor callback validation", () => {
         }),
         sendNewUserNotificationEmail,
       } as unknown as AuthService,
-      { findCurrentUserUnscoped: vi.fn().mockResolvedValue({ id: "user-id" }) } as unknown as FindUserRepo,
+      { listMembershipsUnscoped: vi.fn().mockResolvedValue([{ companyId: "company-id" }]) } as unknown as FindUserRepo,
     );
 
     await interactor.invoke({ provider: "google" });
@@ -150,7 +150,7 @@ describe("ContinueWithSocialsInteractor callback validation", () => {
         }),
         sendNewUserNotificationEmail: vi.fn(),
       } as unknown as AuthService,
-      { findCurrentUserUnscoped: vi.fn().mockResolvedValue({ id: "user-id" }) } as unknown as FindUserRepo,
+      { listMembershipsUnscoped: vi.fn().mockResolvedValue([{ companyId: "company-id" }]) } as unknown as FindUserRepo,
     );
 
     await expect(interactor.invoke({ provider: "google" })).resolves.toEqual({ redirect: "/auth/verify-email" });
@@ -170,7 +170,7 @@ describe("ContinueWithSocialsInteractor callback validation", () => {
         }),
         sendNewUserNotificationEmail: vi.fn(),
       } as unknown as AuthService,
-      { findCurrentUserUnscoped: vi.fn().mockResolvedValue({ id: "user-id" }) } as unknown as FindUserRepo,
+      { listMembershipsUnscoped: vi.fn().mockResolvedValue([{ companyId: "company-id" }]) } as unknown as FindUserRepo,
     );
 
     await expect(
@@ -195,7 +195,7 @@ describe("ContinueWithSocialsInteractor callback validation", () => {
         }),
         sendNewUserNotificationEmail: vi.fn(),
       } as unknown as AuthService,
-      { findCurrentUserUnscoped: vi.fn().mockResolvedValue({ id: "user-id" }) } as unknown as FindUserRepo,
+      { listMembershipsUnscoped: vi.fn().mockResolvedValue([{ companyId: "company-id" }]) } as unknown as FindUserRepo,
     );
 
     await expect(

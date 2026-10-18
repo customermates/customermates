@@ -22,7 +22,7 @@ Datensätze wandern als Excel-Arbeitsmappen zwischen Cloud und Self-Hosting, jew
 
 ## Ist Self-Hosting kostenlos, und brauche ich eine Lizenz? [#is-self-hosting-free-and-do-i-need-a-license]
 
-Ein Self-Hosted-Workspace hat weder Abonnement noch Testphase: Er startet aktiv, zählt keine Nutzerplätze und rechnet nichts ab. Sie zahlen nur für Ihre eigene Infrastruktur und Ihre Anbieter.
+Eine Self-Hosted-Instanz fasst beliebig viele Workspaces, und ein Login kann zu mehreren davon gehören ([Workspaces](/docs/app-workspaces#how-do-workspaces-work-when-self-hosting)). Kein Workspace hat Abonnement oder Testphase: Jeder startet aktiv, zählt keine Nutzerplätze und rechnet nichts ab. Sie zahlen nur für Ihre eigene Infrastruktur und Ihre Anbieter.
 
 Customermates ist Open Core. Code außerhalb von `ee/` und Material in `ee/`, das an den Browser ausgeliefert wird, stehen unter AGPL-3.0-only. Der serverseitige Code in `ee/` steht unter der Customermates Commercial License, die den Betrieb des offiziellen Images mit `APP_MODE=self-hosted` als Community Build erlaubt, auch produktiv, solange die Cloud-Funktionen ausgeschaltet bleiben. Die genauen Bedingungen stehen in `LICENSE` und `ee/LICENSE.md`. Ein gekaufter Cloud-Tarif schaltet in einer Self-Hosted-Installation nichts frei.
 
@@ -128,7 +128,7 @@ Klicken Sie den Bestätigungslink in der E-Mail innerhalb von 24 Stunden an. Ein
 
 ## Wer kann sich auf meiner Instanz registrieren? [#who-can-sign-up-on-my-instance]
 
-Jede Person, die Ihre `BASE_URL` erreicht, kann sich registrieren; die Registrierung lässt sich nicht abschalten. Wer **Neuen Workspace erstellen** wählt, erhält einen eigenen Workspace mit eigenem **Admin**, getrennt von Ihrem, aber in Ihrer Datenbank gespeichert, und die App bietet keine Möglichkeit, einen Workspace zu löschen. Eine E-Mail „New User Registration“ geht an `RESEND_OPERATOR_EMAIL`, wenn jemand den Profilschritt des Wizards speichert, und bei einer Anmeldung mit Google oder Microsoft auch dann, wenn sich jemand vorher anmeldet. Wer sich mit E-Mail und Passwort registriert, diesen Schritt aber nie speichert, löst keine aus, und die Benachrichtigung kommt nur an, wenn Resend sie annimmt; sie ist also kein vollständiges Verzeichnis der Registrierungen.
+Jede Person, die Ihre `BASE_URL` erreicht, kann sich registrieren; die Registrierung lässt sich nicht abschalten. Wer **Neuen Workspace erstellen** wählt, erhält einen eigenen Workspace mit eigenem **Admin**, getrennt von Ihrem, aber in Ihrer Datenbank gespeichert, und die App bietet keine Möglichkeit, einen Workspace zu löschen. Jede angemeldete Person kann außerdem jederzeit mit **Workspace erstellen** im Workspace-Menü weitere Workspaces anlegen. Eine E-Mail „New User Registration“ geht an `RESEND_OPERATOR_EMAIL`, wenn jemand den Profilschritt des Wizards speichert, und bei einer Anmeldung mit Google oder Microsoft auch dann, wenn sich jemand vorher anmeldet. Wer sich mit E-Mail und Passwort registriert, diesen Schritt aber nie speichert, löst keine aus, und die Benachrichtigung kommt nur an, wenn Resend sie annimmt; sie ist also kein vollständiges Verzeichnis der Registrierungen.
 
 Soll die Instanz nur einem Team dienen, beschränken Sie den Zugang, zum Beispiel mit einem VPN, einer IP-Allowlist oder einer Authentifizierung am Reverse-Proxy; MCP- und REST-Clients brauchen dann denselben Zugang.
 

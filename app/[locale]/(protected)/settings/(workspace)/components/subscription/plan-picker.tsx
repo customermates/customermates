@@ -5,6 +5,7 @@ import { Check } from "lucide-react";
 import { observer } from "mobx-react-lite";
 
 import { AppChip } from "@/components/chip/app-chip";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import {
@@ -30,7 +31,7 @@ export const PlanPicker = observer(function PlanPicker({ isLoading, onSelect }: 
   const intlStore = useHydratedIntlStore();
   const locale = intlStore.resolvedFormattingLanguageTag;
 
-  function handleCardClick(offer: SelectableOffer) {
+  function handleSelect(offer: SelectableOffer) {
     if (!isLoading) onSelect(offer);
   }
 
@@ -38,6 +39,7 @@ export const PlanPicker = observer(function PlanPicker({ isLoading, onSelect }: 
     <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-3" id="settings-billing-plan-picker">
       {PURCHASABLE_PLAN_IDS.map((plan) => {
         const featured = plan === "business";
+        const planName = t(`Subscription.planNames.${plan}`);
         const offer = PLAN_CATALOG[plan].offers.monthly;
         const selection: SelectableOffer = { plan, cadence: offer.cadence };
         const accountAllowance = PLAN_CATALOG[plan].entitlements.includedAccountsPerUser;
@@ -56,18 +58,16 @@ export const PlanPicker = observer(function PlanPicker({ isLoading, onSelect }: 
         ];
 
         return (
-          <button
+          <div
             key={plan}
             className={cn(
-              "interactive-surface flex flex-col gap-3 rounded-xl border bg-card p-4 text-left disabled:pointer-events-none disabled:opacity-50",
+              "flex flex-col gap-3 rounded-xl border bg-card p-4",
               featured ? "border-2 border-primary" : "border-border",
             )}
-            disabled={isLoading}
-            type="button"
-            onClick={() => handleCardClick(selection)}
+            data-plan={plan}
           >
             <span className="flex items-center justify-between gap-2">
-              <span className="text-sm font-semibold">{t(`Subscription.planNames.${plan}`)}</span>
+              <span className="text-sm font-semibold">{planName}</span>
 
               {featured && <AppChip variant="info">{t("Subscription.picker.mostPopular")}</AppChip>}
             </span>
@@ -80,6 +80,16 @@ export const PlanPicker = observer(function PlanPicker({ isLoading, onSelect }: 
               <span className="text-xs text-muted-foreground">{t("Subscription.picker.perUserMonth")}</span>
             </span>
 
+            <Button
+              className="w-full"
+              disabled={isLoading}
+              type="button"
+              variant={featured ? "default" : "secondary"}
+              onClick={() => handleSelect(selection)}
+            >
+              {t("Subscription.picker.choose", { plan: planName })}
+            </Button>
+
             <span className="flex flex-col gap-1.5" role="list">
               {renderedFeatures.map((feature, index) => (
                 <span key={index} className="flex items-start gap-1.5 text-xs text-muted-foreground" role="listitem">
@@ -89,7 +99,7 @@ export const PlanPicker = observer(function PlanPicker({ isLoading, onSelect }: 
                 </span>
               ))}
             </span>
-          </button>
+          </div>
         );
       })}
 

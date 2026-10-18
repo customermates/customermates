@@ -635,7 +635,12 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
   it("offers chat website setup only to a Wiki creator while the local Wiki is empty", async () => {
     const available = (tenant: TenantUser) =>
       runWithTenant(tenant, async () => {
-        if (!(await new UserService({} as never, {} as never).hasPermission(Resource.wiki, Action.create)))
+        if (
+          !(await new UserService({} as never, {} as never, {} as never, {} as never).hasPermission(
+            Resource.wiki,
+            Action.create,
+          ))
+        )
           return false;
         const pages = await new GetWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService())).invoke({
           page: 1,

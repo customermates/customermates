@@ -1,6 +1,6 @@
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { RootStore } from "@/core/stores/root.store";
-import type { UserDto } from "@/features/user/user.schema";
+import type { MemberDto } from "@/features/user/user.schema";
 
 import { Resource } from "@/generated/prisma";
 
@@ -8,7 +8,7 @@ import { getUsersAction } from "../../actions";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 
-export class UsersStore extends BaseDataViewStore<UserDto> {
+export class UsersStore extends BaseDataViewStore<MemberDto> {
   constructor(rootStore: RootStore) {
     super(rootStore, Resource.users);
   }

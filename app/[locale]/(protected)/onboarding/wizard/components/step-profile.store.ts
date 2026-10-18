@@ -18,6 +18,7 @@ export class StepProfileStore extends BaseFormStore<RegisterOnboardingProfileDat
       avatarUrl: null,
       email: "",
       agreeToTerms: false,
+      workspaceName: "",
       onboardingIntent: undefined,
     });
 

@@ -112,6 +112,7 @@ export class SearchCommandCatalogInteractor extends AuthenticatedInteractor<
       appMode: env.APP_MODE,
       canManageSchema: policy.canManageSchema,
       onListPage: true,
+      otherWorkspaces: true,
       can: policy.allowedSystem,
     };
     const allowed = new Set([

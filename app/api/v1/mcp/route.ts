@@ -1,16 +1,7 @@
-import { MCP_ALWAYS_ON_TOOLS, mcpToolGroupsForAppMode } from "@/features/mcp-tools/tool-registry";
-import { env } from "@/env";
-
-import { createMcpRoute } from "./mcp-route-utils";
-import { registerWikiMcpResources } from "@/features/mcp-tools/wiki.mcp-resources";
+import { mcpRoute } from "./mcp-route";
 
 export const maxDuration = 60;
 
-const handler = createMcpRoute(
-  mcpToolGroupsForAppMode(env.APP_MODE),
-  MCP_ALWAYS_ON_TOOLS,
-  "/api/v1/mcp",
-  registerWikiMcpResources,
-);
+const handler = (request: Request) => mcpRoute(request);
 
 export { handler as GET, handler as POST, handler as DELETE };

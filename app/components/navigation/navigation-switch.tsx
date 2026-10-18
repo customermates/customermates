@@ -8,6 +8,7 @@ import type { SidebarUser } from "./sidebar-user";
 import type { RecordNavigation } from "@/features/records/record-navigation.schema";
 import type { SidebarLayout } from "@/features/p13n/sidebar-layout.schema";
 import type { KeyboardPreferences } from "@/features/p13n/keyboard-preferences.schema";
+import type { WorkspaceSummary } from "@/features/workspace/workspace.schema";
 
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
@@ -28,10 +29,13 @@ import { accountStateForPath } from "./account-state-for-path";
 import { resolveNavigationShell } from "./navigation-shell";
 import { PublicScrollport } from "./public-scrollport";
 import { ControlFocus } from "@/components/focus/control-focus";
+import { WorkspaceTabGuard } from "@/app/components/workspaces/workspace-tab-guard";
 
 const AppSidebar = dynamic(() => import("../app-sidebar").then((mod) => ({ default: mod.AppSidebar })));
 const AppTopBar = dynamic(() => import("../app-topbar").then((mod) => ({ default: mod.AppTopBar })));
 const ShellHeader = dynamic(() => import("../shell-header").then((mod) => ({ default: mod.ShellHeader })));
+
+const NO_WORKSPACES: WorkspaceSummary[] = [];
 
 type NavigationSwitchProps = {
   recordNavigation?: RecordNavigation | null;
@@ -51,6 +55,7 @@ type NavigationSwitchProps = {
   defaultSidebarWidth?: number;
   legalStatus: LegalUpdateStatus | null;
   operatorConsoleVisible: boolean;
+  workspaces?: WorkspaceSummary[];
   children: React.ReactNode;
 };
 
@@ -72,6 +77,7 @@ export function NavigationSwitch({
   defaultSidebarWidth,
   legalStatus,
   operatorConsoleVisible,
+  workspaces = NO_WORKSPACES,
   children,
 }: NavigationSwitchProps) {
   const pathname = usePathname();
@@ -128,6 +134,7 @@ export function NavigationSwitch({
     rootStore.sidebarLayoutStore.setLayout(accountAllowed ? sidebarLayout : null);
     rootStore.keyboardShortcutsStore.setPreferences(accountAllowed ? keyboardPreferences : null);
     subscriptionStore.setSubscription(accountAllowed ? subscription : null);
+    rootStore.workspacesStore.setWorkspaces(workspaces);
 
     if (!protectedEnhancementsAllowed) rootStore.closeAllModals();
   }, [
@@ -139,6 +146,7 @@ export function NavigationSwitch({
     recordNavigation,
     sidebarLayout,
     keyboardPreferences,
+    workspaces,
   ]);
 
   let shell: React.ReactNode;
@@ -203,6 +211,8 @@ export function NavigationSwitch({
       {rootStore.appMode === "demo" ? null : <AppLocalePreferenceSync displayLanguage={userDisplayLanguage} />}
 
       {shell}
+
+      <WorkspaceTabGuard />
     </ProtectedEnhancementsProvider>
   );
 }

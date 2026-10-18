@@ -25,6 +25,7 @@ import { defaultEmailSettings } from "@/ee/messaging/email-settings";
 import { composeEmailBodies } from "@/ee/messaging/outbound/email-signature";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 
 import { formatBytes } from "./attachment-classify";
 import { MAX_ATTACHMENTS_BYTES, toAttachmentInput } from "./attachment-input";
@@ -703,12 +704,13 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     return true;
   };
 
-  private latestEditedDraft = async (): Promise<MessagingMessageDto | null> => {
+  private latestEditedDraft = async (): Promise<MessagingMessageDto | null | undefined> => {
     const draftId = this.editingDraftId;
     const threadId = this.form.threadId || this.newThreadTarget?.draftThreadId;
     if (!draftId || !threadId) return null;
     const detail = await getMessagingThreadAction(threadId);
-    return detail?.messages.find((message) => message.id === draftId && message.isDraft) ?? null;
+    if (!detail.ok) return notifyIfWorkspaceChanged(detail) ? undefined : null;
+    return detail.data.messages.find((message) => message.id === draftId && message.isDraft) ?? null;
   };
 
   private forgetLostDraft = () => {
@@ -727,13 +729,13 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     const generation = this.composeGeneration;
     this.dismissRefusal();
     this.setIsLoading(true);
-    let latest: MessagingMessageDto | null = null;
+    let latest: MessagingMessageDto | null | undefined = null;
     try {
       latest = await this.latestEditedDraft();
     } finally {
       if (generation === this.composeGeneration) this.setIsLoading(false);
     }
-    if (generation !== this.composeGeneration) return;
+    if (generation !== this.composeGeneration || latest === undefined) return;
     if (!latest?.draftRevision) return this.forgetLostDraft();
     if (choice === "latest") return this.loadDraft(latest);
     const draftRevision = latest.draftRevision;
@@ -1140,7 +1142,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
         runInAction(() => {
           if (removed) detail.appendMessage(removed);
         });
-        this.toastError("Inbox.compose.draftDiscardFailed");
+        if (!notifyIfWorkspaceChanged(result)) this.toastError("Inbox.compose.draftDiscardFailed");
       }
     } catch (error) {
       if (generation === this.composeGeneration) {

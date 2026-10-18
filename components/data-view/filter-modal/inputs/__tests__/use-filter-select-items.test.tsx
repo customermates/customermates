@@ -12,6 +12,28 @@ vi.mock("@/app/[locale]/(protected)/settings/(workspace)/actions", () => ({
   resolveWebhookOptionsAction,
 }));
 
+const inbox = vi.hoisted(() => ({ getMessagingThreadsAction: vi.fn() }));
+
+vi.mock("@/app/[locale]/(protected)/inbox/actions", () => ({
+  getMessagingThreadsAction: inbox.getMessagingThreadsAction,
+}));
+
+const workspace = vi.hoisted(() => ({ notify: vi.fn() }));
+
+vi.mock("@/core/errors/workspace-changed-notice", async () => {
+  const { isWorkspaceChangedError, isWorkspaceChangedFailure } = await import("@/core/errors/workspace-changed");
+  return {
+    hasWorkspaceChanged: () => false,
+    notifyIfWorkspaceChanged: (value: unknown) => {
+      const changed = isWorkspaceChangedFailure(value) || isWorkspaceChangedError(value);
+      if (changed) workspace.notify();
+      return changed;
+    },
+    notifyWorkspaceChanged: workspace.notify,
+    registerWorkspaceChangedHandler: () => () => undefined,
+  };
+});
+
 import { filterOptionSources } from "../use-filter-select-items";
 
 beforeEach(() => vi.clearAllMocks());
@@ -51,5 +73,36 @@ describe("paged filter options", () => {
     ]);
     expect(resolveWebhookOptionsAction).toHaveBeenCalledWith([ids[0]]);
     expect(getWebhooksAction).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("thread filter options after a workspace change", () => {
+  it("opens the reload dialog instead of failing the thread choices", async () => {
+    inbox.getMessagingThreadsAction.mockResolvedValue({
+      ok: false,
+      failure: {
+        kind: "conflict",
+        issues: [{ code: "custom", path: [], message: "", customCode: "workspaceChanged" }],
+      },
+    });
+    const translate = ((key: string) => key) as unknown as Parameters<typeof filterOptionSources>[0];
+    const source = filterOptionSources(translate, { current: null } as never)[FilterFieldKey.timelineThreadId];
+    if (!source || !("getItems" in source)) throw new Error("Missing thread source");
+
+    await expect(source.getItems({})).rejects.toMatchObject({ digest: "CUSTOMERMATES_WORKSPACE_CHANGED" });
+    expect(workspace.notify).toHaveBeenCalledOnce();
+  });
+
+  it("keeps an authorization failure as an empty thread list", async () => {
+    inbox.getMessagingThreadsAction.mockResolvedValue({
+      ok: false,
+      failure: { kind: "authorization", issues: [{ code: "custom", path: [], message: "" }] },
+    });
+    const translate = ((key: string) => key) as unknown as Parameters<typeof filterOptionSources>[0];
+    const source = filterOptionSources(translate, { current: null } as never)[FilterFieldKey.timelineThreadId];
+    if (!source || !("getItems" in source)) throw new Error("Missing thread source");
+
+    expect(await source.getItems({})).toEqual({ items: [] });
+    expect(workspace.notify).not.toHaveBeenCalled();
   });
 });

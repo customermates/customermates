@@ -15,6 +15,7 @@ import { AppLink } from "@/components/shared/app-link";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { Alert } from "@/components/shared/alert";
+import { WORKSPACE_NAME_MAX_LENGTH } from "@/features/workspace/workspace.schema";
 
 type Props = {
   email: string;
@@ -24,10 +25,20 @@ type Props = {
   onboardingIntent?: string;
   inviterName?: string;
   isInvited?: boolean;
+  canNameWorkspace?: boolean;
 };
 
 export const StepProfile = observer(
-  ({ email, firstName, lastName, avatarUrl, onboardingIntent, inviterName, isInvited = false }: Props) => {
+  ({
+    email,
+    firstName,
+    lastName,
+    avatarUrl,
+    onboardingIntent,
+    inviterName,
+    isInvited = false,
+    canNameWorkspace = false,
+  }: Props) => {
     const t = useTranslations();
     const { stepProfileStore: store, appMode } = useRootStore();
     useState(() => {
@@ -77,6 +88,18 @@ export const StepProfile = observer(
           </div>
 
           <FormAutocompleteCountry required id="country" />
+
+          {canNameWorkspace ? (
+            <FormInput
+              autoComplete="organization"
+              description={t("WorkspaceOnboarding.workspaceNameDescription")}
+              id="workspaceName"
+              label={t("Workspaces.nameLabel")}
+              maxLength={WORKSPACE_NAME_MAX_LENGTH}
+              name="organization"
+              placeholder={t("WorkspaceOnboarding.workspaceNamePlaceholder")}
+            />
+          ) : null}
 
           {appMode === "cloud" ? (
             <FormCheckbox

@@ -18,6 +18,7 @@ import { toast } from "sonner";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
+import { hasWorkspaceChanged, notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { getRecordOperationAction } from "@/app/[locale]/(protected)/records/actions";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
@@ -138,8 +139,9 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
   private async finishedOperation(operationId: string) {
     for (;;) {
       const result = await getRecordOperationAction(operationId);
-      if (!result.ok) return null;
+      if (notifyIfWorkspaceChanged(result) || !result.ok) return null;
       if (FINISHED_OPERATION_STATES.has(result.data.state)) return result.data;
+      if (hasWorkspaceChanged()) return null;
       await new Promise((resolve) => setTimeout(resolve, OPERATION_POLL_MS));
     }
   }
@@ -166,6 +168,7 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
         const completed = status?.state === "completed" ? status.result : null;
         if (completed?.status === "completed" && completed.trashBatchId)
           this.offerUndo(completed.trashBatchId, onRestored, toastId);
+        else if (hasWorkspaceChanged()) toast.dismiss(toastId);
         else toast.error(this.t("RecordModel.operationFailed"), { id: toastId });
       })
       .catch(reportApplicationError);
@@ -254,7 +257,8 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
       .then(async (status) => {
         this.setRestoring(itemIds, false);
         if (status?.state !== "completed") {
-          toast.error(this.t("RecordModel.operationFailed"), { id: toastId });
+          if (hasWorkspaceChanged()) toast.dismiss(toastId);
+          else toast.error(this.t("RecordModel.operationFailed"), { id: toastId });
           return;
         }
         toast.success(this.t("Trash.restoredInBackground"), { id: toastId });

@@ -9,7 +9,14 @@ const inboxActions = vi.hoisted(() => ({
   updateThreadAction: vi.fn(),
 }));
 
-vi.mock("../../actions", () => inboxActions);
+vi.mock("../../actions", () => ({
+  ...inboxActions,
+  getMessagingThreadAction: async (threadId: string) => {
+    const detail = await inboxActions.getMessagingThreadAction(threadId);
+    if (detail && typeof detail === "object" && "ok" in detail) return detail;
+    return detail ? { ok: true, data: detail } : { ok: false, failure: { kind: "not_found", issues: [] } };
+  },
+}));
 
 import { MessagingThreadDetailStore } from "../messaging-thread-detail.store";
 

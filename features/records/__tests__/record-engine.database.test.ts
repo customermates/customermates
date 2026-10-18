@@ -5609,7 +5609,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       expect(notify).not.toHaveBeenCalled();
       for (const task of afterResponseTasks.splice(0)) await task();
       expect(notify).toHaveBeenCalledTimes(1);
-      const member = await runWithoutTenant(() => prisma.user.findUniqueOrThrow({ where: { email } }));
+      const member = await runWithoutTenant(() => prisma.user.findFirstOrThrow({ where: { email } }));
       expect(
         await f.run(() =>
           prisma.crmRecord.findMany({

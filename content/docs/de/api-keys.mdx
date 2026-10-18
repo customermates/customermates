@@ -14,7 +14,7 @@ API-Keys authentifizieren Clients für das Model Context Protocol (MCP) und die 
 
 Ein Key aus den **Schnellverbindungen** trägt den Namen seines Clients (`Claude Code`, `Claude Desktop`, `Codex`, `Cursor` oder `Gemini`) und läuft 365 Tage nach der Erstellung ab; einen anderen Namen oder ein anderes Datum können Sie dort nicht wählen. Der Dialog zeigt den Ablaufzeitpunkt unter dem Setup-Snippet. Der KI-Schritt des Onboarding-Assistenten legt seine Keys genauso an. Name und Ablaufdatum eines Keys lassen sich nach der Erstellung nicht mehr ändern.
 
-Keys gehören dem Nutzer, der sie angelegt hat, und erben dessen Berechtigungen.
+Keys gehören dem Nutzer, der sie angelegt hat, und erben dessen Berechtigungen. Jeder Key gehört außerdem zu dem Workspace, in dem er erstellt wurde, und handelt nur dort, auch Keys aus der Zeit, bevor ein Login zu mehreren Workspaces gehören konnte; siehe [Workspaces](/docs/app-workspaces#which-workspace-do-api-keys-and-connections-use).
 
 ## Wer kann API-Keys anlegen und sehen? [#who-can-create-and-see-api-keys]
 
@@ -25,13 +25,13 @@ Die Seite API-Keys richtet sich nach der Zeile **API & Webhooks** Ihrer Rolle. D
 
 Eine neue Rolle startet ohne angehakte Checkbox und mit **Lesen** **Keine**; ohne Anpassung können also nur Mitglieder mit der eingebauten Rolle **Admin** API-Keys anlegen. Dieselbe Zeile öffnet auch [Webhooks](app:settings/webhooks) und deren Zustellungen. Wer sie für API-Keys vergibt, lässt das Mitglied also auch jeden Webhook des Workspace sehen und mit **Erstellen**, **Bearbeiten** oder **Löschen** ändern.
 
-Jede Person sieht nur ihre eigenen Keys. Niemand, auch nicht die Rolle **Admin**, kann die Keys eines anderen Mitglieds auflisten oder löschen. Kein Assistenten- oder MCP-Tool legt API-Keys an, listet oder löscht sie; verwaltet werden sie nur auf der Seite API-Keys, und der gehostete Assistent kann Ihnen höchstens diese Seite öffnen.
+Jede Person sieht nur ihre eigenen Keys, und nur die des aktuellen Workspace; um einen Key eines anderen Workspace zu sehen oder zu löschen, wechseln Sie in diesen Workspace. Niemand, auch nicht die Rolle **Admin**, kann die Keys eines anderen Mitglieds auflisten oder löschen. Kein Assistenten- oder MCP-Tool legt API-Keys an, listet oder löscht sie; verwaltet werden sie nur auf der Seite API-Keys, und der gehostete Assistent kann Ihnen höchstens diese Seite öffnen.
 
 Der Custom Connector für Claude und ChatGPT meldet sich per OAuth an und braucht keinen API-Key. Wie jede MCP-Verbindung braucht er **Lesen** **Alle** auf **API & Webhooks** ([MCP-Endpoint](/docs/mcp#the-endpoint)). Siehe [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
 
 ## Welche Berechtigung braucht jede Aktion mit API-Keys? [#which-permission-does-each-api-key-action-need]
 
-Jede Verwaltung von Keys prüft die Zeile **API & Webhooks** Ihrer Rolle, auch die Anfragen, die die Seite API-Keys an `/api/auth/api-key/` sendet: Einen Key anzulegen braucht **Erstellen**, ihn zu ändern **Bearbeiten**, ihn zu löschen **Löschen**, und Ihre Keys zu lesen oder aufzulisten **Lesen** **Alle**. Eine nicht angemeldete Anfrage erhält `401`, eine Rolle ohne die Berechtigung `403` mit `PERMISSION_DENIED`, und ein Mitglied mit **Status** **Inaktiv** `403` mit `USER_INACTIVE`. Diese Prüfungen gelten nur für die Verwaltung von Keys; was ein Aufruf mit einem Key darf, richtet sich nach der Rolle seines Eigentümers, siehe [Welche Berechtigungen hat ein Key](#what-permissions-does-a-key-have).
+Jede Verwaltung von Keys prüft die Zeile **API & Webhooks** Ihrer Rolle: Einen Key anzulegen braucht **Erstellen**, ihn zu ändern **Bearbeiten**, ihn zu löschen **Löschen**, und Ihre Keys zu lesen oder aufzulisten **Lesen** **Alle**. Ein Mitglied mit **Status** **Inaktiv** kann keine Keys verwalten. Keys verwalten Sie nur auf der Seite API-Keys; die zugrunde liegenden Endpunkte unter `/api/auth/api-key/` beantworten direkte Anfragen mit `404`, sodass jeder Key zu dem Workspace gehört, in dem er angelegt wurde. Diese Prüfungen gelten nur für die Verwaltung von Keys; was ein Aufruf mit einem Key darf, richtet sich nach der Rolle seines Eigentümers, siehe [Welche Berechtigungen hat ein Key](#what-permissions-does-a-key-have).
 
 ## Wie kann ich einen Key nutzen, und in welchen Header gehört er? [#how-do-i-use-a-key]
 
@@ -89,7 +89,7 @@ Klicken Sie unter [API-Schlüssel](app:settings/api-keys) auf die Karte des Keys
 
 Rotieren Sie, wenn ein Gerät mit dem Key verloren oder kompromittiert ist, ein Teammitglied mit Zugriff geht oder Sie einen Leak vermuten. Mit einem Key pro Client löschen Sie einen Client, ohne die anderen zu brechen; im Aktivitätsprotokoll steht aber der Nutzer, nicht der Key. Speichern Sie Keys in einer Umgebungsvariable oder einem Passwort-Manager, nie in einer committeten Datei.
 
-Nur der Besitzer kann einen Key löschen. Um die Keys eines ausscheidenden Mitglieds zu stoppen, setzen Sie unter [Mitglieder](app:settings/members) seinen **Status** auf **Inaktiv** und klicken auf **Speichern**. Dafür brauchen Sie **Bearbeiten** und Leserecht **Alle** auf **Benutzer & Rollen**. Danach wird jeder Aufruf mit seinen Keys abgelehnt, der Daten liest oder ändert. Auch der Entzug von **Lesen** **Alle** auf **API & Webhooks** stoppt seine Keys für MCP und REST, siehe [Welche Berechtigungen hat ein Key](#what-permissions-does-a-key-have).
+Nur der Besitzer kann einen Key löschen. Um die Keys eines ausscheidenden Mitglieds zu stoppen, setzen Sie unter [Mitglieder](app:settings/members) seinen **Status** auf **Inaktiv** und klicken auf **Speichern**. Dafür brauchen Sie **Bearbeiten** und Leserecht **Alle** auf **Benutzer & Rollen**. Danach wird jeder Aufruf mit seinen Keys abgelehnt, der Daten liest oder ändert. Auch der Entzug von **Lesen** **Alle** auf **API & Webhooks** stoppt seine Keys für MCP und REST, siehe [Welche Berechtigungen hat ein Key](#what-permissions-does-a-key-have). **Aus Workspace entfernen** unter [Mitglieder](app:settings/members) widerruft die Keys und MCP-Verbindungen des Mitglieds für diesen Workspace ebenfalls sofort ([Wie genehmige, bearbeite, deaktiviere oder entferne ich ein Mitglied?](/docs/app-company#how-do-i-approve-deactivate-or-edit-a-member)), und verlässt ein Mitglied einen Workspace selbst, verliert es seine Keys für diesen Workspace sofort ([einen Workspace verlassen](/docs/app-workspaces#how-do-i-leave-a-workspace)).
 
 ## Welches Format hat ein Key, und wie lang darf sein Name sein? [#what-is-the-key-format]
 
@@ -97,9 +97,11 @@ Der **Name** eines Keys ist 1 bis 255 Zeichen lang. Keys bestehen aus 64 ASCII-B
 
 ## Welche Berechtigungen hat ein Key, und kann ich ihn auf Lesezugriff beschränken? [#what-permissions-does-a-key-have]
 
-Alles, was sein Besitzer darf, und nicht mehr. Ein Berechtigungs-Scoping pro Key gibt es nicht, ein Key lässt sich also nicht auf Lesezugriff beschränken. Jeder Aufruf wird gegen die aktuelle Rolle des Besitzers geprüft. Eine Änderung dieser Rolle, etwa wenn das Mitglied von der Rolle **Admin** in eine eigene Rolle mit weniger Rechten wechselt, gilt für seine Keys also ab dem nächsten Aufruf. Steht der **Status** des Besitzers auf **Inaktiv**, wird jeder Aufruf mit seinen Keys abgelehnt, der Workspace-Daten liest oder ändert.
+Alles, was sein Besitzer im Workspace des Keys darf, und nicht mehr. Ein Berechtigungs-Scoping pro Key gibt es nicht, ein Key lässt sich also nicht auf Lesezugriff beschränken. Jeder Aufruf wird gegen die aktuelle Rolle des Besitzers geprüft. Eine Änderung dieser Rolle, etwa wenn das Mitglied von der Rolle **Admin** in eine eigene Rolle mit weniger Rechten wechselt, gilt für seine Keys also ab dem nächsten Aufruf. Steht der **Status** des Besitzers auf **Inaktiv**, wird jeder Aufruf mit seinen Keys abgelehnt, der Workspace-Daten liest oder ändert.
 
 Ein Key funktioniert, wie ein MCP-OAuth-Token, außerdem nur, solange die Rolle seines Besitzers **Lesen** **Alle** auf **API & Webhooks** hat; das wird bei jedem Aufruf geprüft, auch für später erneuerte Tokens. Ohne diese Berechtigung antwortet MCP mit `403` und `error: insufficient_permissions`, REST mit `403`, `kind` `authorization` und `customCode` `insufficientPermissions`. Die angemeldete Nutzung der Web-App bleibt davon unberührt.
+
+In Customermates Cloud lehnt ein Workspace, der noch auf seinen ersten Tarif wartet, etwa ein zusätzlicher Workspace ohne Testphase, seine Keys und OAuth-Tokens ab: MCP antwortet mit `403` und `error: plan_required`, REST mit `403`, `kind` `authorization` und `customCode` `workspacePlanRequired`. Auch das Anlegen eines Keys braucht einen nutzbaren Tarif. Sobald ein Admin einen Tarif wählt, funktionieren die vorhandenen Keys wieder. Ein Workspace, dessen Testphase endete oder dessen bezahltes Abonnement ausgelaufen ist, behält seine vorhandenen Keys und Verbindungen, bis seine Mitglieder auf **Inaktiv** gesetzt werden, siehe [Was passiert, wenn die Testphase endet?](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails).
 
 ## Weiter [#next]
 

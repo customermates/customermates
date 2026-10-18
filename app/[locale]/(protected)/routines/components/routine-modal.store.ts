@@ -20,6 +20,7 @@ import {
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { reportApplicationError } from "@/core/errors/report-application-error";
+import { hasWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { isRecordChangeEvent } from "@/ee/routines/routine-event-filter";
 import { isRoutineTriggerEvent } from "@/ee/routines/routine-trigger-events";
@@ -497,7 +498,11 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     if (!this.ownsRunsPoll(routineId, generation, pollGeneration)) return;
 
     const now = Date.now();
-    if (now >= this.runsPollDeadline || (!this.hasActiveRuns && now >= this.runsPollGraceDeadline)) {
+    if (
+      hasWorkspaceChanged() ||
+      now >= this.runsPollDeadline ||
+      (!this.hasActiveRuns && now >= this.runsPollGraceDeadline)
+    ) {
       this.stopRunsPolling();
       return;
     }

@@ -52,6 +52,7 @@ Docs entry points:
 - Audit logging
 - Single Sign-On and Whitelabeling on the Enterprise plan (self-hosted Enterprise deployments by agreement)
 - Role-based access control for teams
+- Several isolated workspaces per login, each with its own data model, members, billing, API keys and MCP connections
 - Self-hosted deployment with Docker Compose and PostgreSQL
 - Cloud uses monthly per-seat pricing; see the [current plans](https://customermates.com/pricing)
 
@@ -70,6 +71,7 @@ Customermates supports both cloud and self-hosted deployment models.
 | API and integrations | ✅ | ✅ |
 | Unlimited Users | ✅ | ✅ |
 | Unlimited Records | ✅ | ✅ |
+| Several workspaces per login | ✅ (each with its own plan) | ✅ |
 | n8n and automation workflows | ✅ | ✅ |
 | Unified inbox and calendar sync | from the Pro plan | ❌ (Cloud feature) |
 | Audit log | Included | Included |

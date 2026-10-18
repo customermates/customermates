@@ -3,11 +3,12 @@
 import type { ReactNode } from "react";
 import type { GetResult } from "@/core/base/base-get.interactor";
 import type { RoleDto } from "@/features/role/get-roles.interactor";
-import type { UserDto } from "@/features/user/user.schema";
+import type { MemberDto } from "@/features/user/user.schema";
 
 import { observer } from "mobx-react-lite";
 import { useCallback, useLayoutEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
+import { UserMinus } from "lucide-react";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { DataViewContent } from "@/components/data-view/data-view-content";
@@ -20,23 +21,22 @@ import { useDataViewSync } from "@/components/data-view/use-data-view-sync";
 import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { Action } from "@/generated/prisma";
+import { Status } from "@/generated/prisma";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 import { MembersPageSkeleton } from "./members-page-skeleton";
-import { memberName, useMemberDeleteConfirmation } from "./user-modal";
-import { isRemovableMember } from "./user-modal.store";
+import { memberName, useMemberRemovalConfirmation } from "./user-modal";
 import { useMemberColumns } from "./use-member-columns";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = {
   initialRoles: GetResult<RoleDto>;
-  initialUsers: GetResult<UserDto>;
+  initialUsers: GetResult<MemberDto>;
 };
 
 const MembersPageViewContent = observer(function MembersPageView({ initialRoles, initialUsers }: Props) {
-  const { companyInviteModalStore, rolesStore, userModalStore, usersStore, userStore } = useRootStore();
-  const confirmDelete = useMemberDeleteConfirmation();
+  const { companyInviteModalStore, rolesStore, userModalStore, usersStore } = useRootStore();
+  const confirmRemoval = useMemberRemovalConfirmation();
 
   useDataViewSync(usersStore, initialUsers);
   const columns = useMemberColumns();
@@ -113,13 +113,22 @@ const MembersPageViewContent = observer(function MembersPageView({ initialRoles,
           columns={columns}
           rowActions={(user) => (
             <RowActions
+              deleteIcon={UserMinus}
+              deleteLabel={t("MemberRemoval.action")}
               name={memberName(user)}
               onDelete={
-                userModalStore.allows(Action.update) && user.id !== userStore.user?.id && isRemovableMember(user)
+                userModalStore.offersRemovalFor(user)
                   ? async () => {
                       await userModalStore.loadById(user.id);
-                      if (userModalStore.loadedUserId === user.id && userModalStore.canRemove)
-                        confirmDelete(memberName(user), user.id);
+                      if (userModalStore.loadedUserId === user.id && userModalStore.showsRemoval) {
+                        confirmRemoval(
+                          {
+                            name: memberName(user),
+                            pending: userModalStore.loadedStatus === Status.pendingAuthorization,
+                          },
+                          user.id,
+                        );
+                      }
                     }
                   : undefined
               }

@@ -88,11 +88,13 @@ const SETTINGS_NAVIGATION = {
   billing: "Billing",
   channels: "Channels",
   deliveries: "Deliveries",
+  general: "General",
   members: "Members",
   profile: "Profile & preferences",
   roles: "Roles",
   webhooks: "Webhooks",
   workspace: "Workspace",
+  workspaces: "Workspaces",
 };
 
 const NAVIGATION_NAMESPACES = ["NavigationBar", "SettingsNav", "WorkspaceMenu"];

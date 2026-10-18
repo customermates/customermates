@@ -11,11 +11,19 @@ Das ist der empfohlene Weg für **Claude** (Web, Desktop und Mobile) und **ChatG
 
 ## Welche URL füge ich ein? [#the-url]
 
+Jeder Workspace hat eine eigene MCP-URL:
+
 ```
-<BASE_URL>/api/v1/mcp
+<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>
 ```
 
-`<BASE_URL>` ist die Adresse, unter der Sie Customermates öffnen, in der Cloud oder auf Ihrer eigenen Instanz. Der Connector funktioniert in jedem Customermates-Tarif und auf selbst gehosteten Instanzen; nur die Messaging-, Kalender- und Social-Tools brauchen einen Tarif mit Messaging, ab Pro in der Cloud.
+`<BASE_URL>` ist die Adresse, unter der Sie Customermates öffnen, in der Cloud oder auf Ihrer eigenen Instanz, und `<WORKSPACE_ID>` benennt den Workspace. Zusammensetzen müssen Sie sie nicht: Customermates zeigt die URL Ihres aktuellen Workspace mit einer Kopierschaltfläche unter [API-Schlüssel](app:settings/api-keys), wenn Sie auf [Hinzufügen](app:settings/api-keys?focus=generate) klicken und **Claude** und dann **Claude-Konto** wählen (oder **ChatGPT & Codex** und dann **ChatGPT-App**), sowie im Onboarding-Schritt **KI verbinden**. Wechseln Sie den Workspace, um die URL eines anderen zu kopieren.
+
+Weil jeder Workspace seine eigene URL hat, können Sie mehrere Workspaces gleichzeitig zu Claude hinzufügen, einen Connector pro Workspace. Claude lehnt einen zweiten Connector mit einer URL ab, die es schon kennt ("A connector with this URL already exists in your organization"), daher braucht ein zweiter Workspace seine eigene URL.
+
+`<BASE_URL>/api/v1/mcp` funktioniert weiterhin: Die Adresse bietet dieselben Tools, und der Zustimmungsbildschirm fragt, welchen Workspace die Verbindung erhält. Verbindungen, die Sie damit früher hinzugefügt haben, bleiben, wie sie sind.
+
+Der Connector funktioniert in jedem Customermates-Tarif und auf selbst gehosteten Instanzen; nur die Messaging-, Kalender- und Social-Tools brauchen einen Tarif mit Messaging, ab Pro in der Cloud.
 
 ## Wie verbinde ich Claude mit dem Customermates-CRM? [#claude]
 
@@ -29,7 +37,7 @@ Um Claude mit Ihrem CRM zu verbinden, fügen Sie Customermates in Claude als Cus
 Authentifizierung auf der Voreinstellung (OAuth) lassen. Kein Header, kein Key.
 </Step>
 <Step title="Anmelden und zulassen">
-Ein Customermates-Fenster öffnet sich. Anmelden, dann auf dem Screen **Zugriff autorisieren** auf **Zulassen** klicken.
+Ein Customermates-Fenster öffnet sich. Anmelden, dann auf dem Zustimmungsbildschirm auf **Zulassen** klicken.
 </Step>
 <Step title="Tools prüfen">
 Zurück in Claude erscheint Customermates mit seinen Tools.
@@ -38,17 +46,17 @@ Zurück in Claude erscheint Customermates mit seinen Tools.
 
 Einmal hinzufügen, und es synchronisiert zu Claude auf Web, Desktop und Mobile. Die Verbindung hängt an Ihrem Claude-Konto, nicht an einem Gerät, und erneuert sich im Hintergrund.
 
-Noch schneller: Öffnen Sie in Customermates [API-Schlüssel](app:settings/api-keys), klicken Sie auf [Hinzufügen](app:settings/api-keys?focus=generate), wählen Sie unter **Schnellverbindungen** **Claude** und dann **Claude-Konto**, und klicken Sie auf **Zu Claude hinzufügen**. Das öffnet den Add-Connector-Dialog von Claude, vorausgefüllt mit Ihrer `<BASE_URL>/api/v1/mcp` (nur Claude Web und Teams). Der Onboarding-Schritt **KI verbinden** bietet dieselbe Schaltfläche. **Hinzufügen** braucht **Erstellen** auf **API & Webhooks**; ohne diese Berechtigung fügen Sie die URL wie oben ein.
+Noch schneller: Öffnen Sie in Customermates [API-Schlüssel](app:settings/api-keys), klicken Sie auf [Hinzufügen](app:settings/api-keys?focus=generate), wählen Sie unter **Schnellverbindungen** **Claude** und dann **Claude-Konto**, und klicken Sie auf **Zu Claude hinzufügen**. Das öffnet den Add-Connector-Dialog von Claude, vorausgefüllt mit der URL des aktuellen Workspace und einem Connector-Namen, der den Workspace-Namen enthält (nur Claude Web und Teams). Der Onboarding-Schritt **KI verbinden** bietet dieselbe Schaltfläche. **Hinzufügen** braucht **Erstellen** auf **API & Webhooks**; ohne diese Berechtigung fügen Sie die URL wie oben ein.
 
 ## Wie verbinde ich ChatGPT? [#chatgpt]
 
 Um ChatGPT zu verbinden, öffnen Sie in ChatGPT: **Settings → Connectors → Add connector → Custom connector (MCP)**.
 
 - **Name:** Customermates
-- **URL:** `<BASE_URL>/api/v1/mcp`
+- **URL:** die URL Ihres Workspace, `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>` ([welche URL](#the-url))
 - **Authentication:** OAuth
 
-Speichern. ChatGPT öffnet ein Customermates-Fenster. Anmelden, dann auf dem Screen **Zugriff autorisieren** auf **Zulassen** klicken. Jedes Customermates-Tool wird gelistet, und es gibt keinen Key zu speichern oder zu rotieren.
+Speichern. ChatGPT öffnet ein Customermates-Fenster. Anmelden, dann auf dem Zustimmungsbildschirm auf **Zulassen** klicken. Jedes Customermates-Tool wird gelistet, und es gibt keinen Key zu speichern oder zu rotieren.
 
 ### Kann ChatGPT statt OAuth einen API-Key nutzen? [#chatgpt-with-an-api-key]
 
@@ -65,7 +73,7 @@ Im Connector-Formular **Authentication: Header**, **Header name: `x-api-key`**, 
 
 Speichern. ChatGPT erreicht den Server und listet jedes Tool. Customermates prüft den Key bei jeder Anfrage: Mit einem falschen, abgeschnittenen, abgelaufenen oder gelöschten Key antwortet der Server mit HTTP `401` und einem `WWW-Authenticate`-Header, und nichts wird gelistet; legen Sie dann einen neuen Key an.
 
-## Was zeigt der Screen Zugriff autorisieren? [#sign-in-and-approve]
+## Was zeigt der Zustimmungsbildschirm? [#sign-in-and-approve]
 
 Der Connector öffnet ein Customermates-Fenster:
 
@@ -74,7 +82,7 @@ Der Connector öffnet ein Customermates-Fenster:
 Oder Sie sind schon angemeldet.
 </Step>
 <Step title="Lesen, was autorisiert wird">
-Der Screen **Zugriff autorisieren** nennt die App, die sich verbindet, listet, was sie anfordert (etwa **Deine Identität bestätigen**, **Dein Basisprofil lesen**, **Deine E-Mail-Adresse lesen** und **Verbunden bleiben, während du abwesend bist**), und zeigt unter **Verbindungsziel** den Host, an den der Zugriff geht.
+Der Zustimmungsbildschirm mit dem Titel **… mit … verbinden** nennt die App, die sich verbindet, listet, was sie anfordert (etwa **Deine Identität bestätigen**, **Dein Basisprofil lesen**, **Deine E-Mail-Adresse lesen** und **Verbunden bleiben, während du abwesend bist**), und zeigt unter **Verbindungsziel** den Host, an den der Zugriff geht. Mit der URL eines Workspace zeigt er diesen Workspace mit seinem Avatar, und die Verbindung erhält genau diesen Workspace. Mit `<BASE_URL>/api/v1/mcp` und mehreren Workspaces fragt er, welchen Workspace die Verbindung erhält; Ihr aktueller Workspace ist vorausgewählt.
 </Step>
 <Step title="Zulassen">
 Klicken Sie auf **Zulassen**, oder auf **Ablehnen**, um abzulehnen.
@@ -83,13 +91,16 @@ Klicken Sie auf **Zulassen**, oder auf **Ablehnen**, um abzulehnen.
 
 Sie landen zurück in Ihrer KI, verbunden, mit allen [[derived.mcp.tools.total]] Tools in der Liste.
 
-Der Connector akzeptiert jeden Client, daher ist der Screen **Zugriff autorisieren** die Kontrolle. Geben Sie nur eine Verbindung frei, die Sie selbst gestartet haben, und klicken Sie bei allem, was Sie nicht gestartet haben, auf **Ablehnen**. Die Verbindung per OAuth braucht keinen API-Key, Ihre Rolle braucht aber wie für jede MCP-Verbindung **Lesen** **Alle** auf **API & Webhooks**; ohne sie lehnt der Screen die Verbindung ab.
+Können Sie den Workspace der URL nicht verbinden, nennt der Bildschirm den Grund und bietet nur **Ablehnen**: Sie sind kein Mitglied (melden Sie sich mit dem Konto an, das Sie dort nutzen), Ihre Anfrage wartet noch auf Genehmigung, Ihr Zugriff ist deaktiviert, Ihre Rolle hat kein **Lesen** **Alle** auf **API & Webhooks**, der Workspace hat kein aktives Abonnement, oder neue Bedingungen müssen akzeptiert werden.
+
+Der Connector akzeptiert jeden Client, daher ist der Zustimmungsbildschirm die Kontrolle. Geben Sie nur eine Verbindung frei, die Sie selbst gestartet haben, und klicken Sie bei allem, was Sie nicht gestartet haben, auf **Ablehnen**. Die Verbindung per OAuth braucht keinen API-Key, Ihre Rolle braucht aber wie für jede MCP-Verbindung **Lesen** **Alle** auf **API & Webhooks**; ohne sie lehnt der Screen die Verbindung ab.
 
 ## Wie lange bleibt die Verbindung gültig? [#it-syncs-and-stays-connected]
 
 - Einmal in Claude Web hinzufügen, und es erscheint auch auf **Desktop und Mobile**. Die Verbindung hängt an Ihrem Claude-Konto, nicht an einem Gerät.
 - Sie erneuert sich im Hintergrund. Nutzen Sie sie innerhalb von 30 Tagen, und Sie autorisieren nie neu; bleiben Sie länger untätig, und Sie geben einmal mehr frei.
-- Jeder Aufruf läuft als der Customermates-User, der freigegeben hat, innerhalb der Daten dieses Kontos und mit den Rechten seiner Rolle. API-Keys funktionieren genauso: Sie erben die Berechtigungen des besitzenden Users, und es gibt kein Scoping pro Key.
+- Jeder Aufruf läuft als der Customermates-User, der freigegeben hat, innerhalb des auf dem Zustimmungsbildschirm gewählten Workspace und mit den Rechten seiner Rolle dort. API-Keys funktionieren genauso: Sie erben die Berechtigungen des besitzenden Users in dem Workspace, in dem sie erstellt wurden, und es gibt kein Scoping pro Key.
+- Eine Verbindung bleibt samt erneuerter Tokens in ihrem Workspace. Um in mehreren Workspaces zu arbeiten, fügen Sie pro Workspace einen Connector mit der URL dieses Workspace hinzu; sie arbeiten nebeneinander im selben Claude-Konto. Siehe [Workspaces](/docs/app-workspaces#which-workspace-do-api-keys-and-connections-use).
 - Wird dieser User auf **Inaktiv** gesetzt, scheitert jeder Aufruf, der Workspace-Daten liest oder ändert, mit „Your user account is inactive. Contact a workspace administrator.“, bis ein Mitglied mit **Bearbeiten** auf **Benutzer & Rollen** ihn wieder auf **Aktiv** setzt.
 
 ## Was probiere ich zuerst? [#try-your-first-prompt]
@@ -108,7 +119,7 @@ Customermates hält einen Tool-Aufruf nie an, um nachzufragen; das tut Ihr Clien
 
 - Lesende Tools (`get_*`, `list_*`, `search_*`) tragen das Read-only-Flag und lassen sich ohne Risiko erlauben.
 - Tools, die löschen können, tragen das destruktive Flag und nennen `IRREVERSIBLE`.
-- Tools, die nur anlegen, ändern oder versenden, tragen keines der beiden Flags; zusammengeführte Tools mit einer Delete-Action, etwa `manage_webhooks`, tragen das destruktive Flag. Zu den Tools ohne Flag gehören `send_email`, `send_chat_message`, `request_support`, die Einladungen von `manage_team` und das Tool `manage_social_relations`, die echte Menschen erreichen, sowie `move_email_thread`, das E-Mails im echten Postfach verschiebt.
+- Tools, die nur anlegen, ändern oder versenden, tragen keines der beiden Flags; zusammengeführte Tools mit einer Delete-Action, etwa `manage_webhooks`, tragen das destruktive Flag, ebenso `manage_team`, dessen `remove_member` einem Mitglied den Zugriff entzieht. Zu den Tools ohne Flag gehören `send_email`, `send_chat_message`, `request_support` und `manage_social_relations`, die echte Menschen erreichen, sowie `move_email_thread`, das E-Mails im echten Postfach verschiebt.
 
 Lassen Sie jedes Tool, das nicht read-only ist, auf *Ask*. Die vollständige Liste steht im [MCP-Tool-Katalog](/docs/mcp#tool-catalog).
 
@@ -116,7 +127,10 @@ Lassen Sie jedes Tool, das nicht read-only ist, auf *Ask*. Die vollständige Lis
 
 | Symptom | Ursache | Lösung |
 |---|---|---|
-| "Couldn't register with the sign-in service" (Claude) oder "Connector verification failed" (ChatGPT) | URL falsch oder nicht erreichbar | Prüfen Sie, dass sie exakt `<BASE_URL>/api/v1/mcp` lautet, mit der Adresse, unter der Sie Customermates öffnen, als `<BASE_URL>` |
+| "Couldn't register with the sign-in service" (Claude) oder "Connector verification failed" (ChatGPT) | URL falsch oder nicht erreichbar | Kopieren Sie die URL erneut aus Customermates ([welche URL](#the-url)), oder nutzen Sie exakt `<BASE_URL>/api/v1/mcp`, mit der Adresse, unter der Sie Customermates öffnen, als `<BASE_URL>` |
+| "A connector with this URL already exists in your organization" (Claude) | Diese URL ist schon verbunden, eventuell für einen anderen Workspace | Fügen Sie den anderen Workspace mit seiner eigenen URL hinzu, kopiert, während dieser Workspace geöffnet ist |
+| Die URL eines Workspace antwortet mit HTTP `401` und `error="invalid_token"` | Die Verbindung wurde für einen anderen Workspace freigegeben | Neu verbinden; der Client meldet sich erneut für den Workspace der URL an |
+| Die URL eines Workspace antwortet mit HTTP `403` und `error: workspace_mismatch` (Key im Header) | Der API-Key gehört zu einem anderen Workspace | Nutzen Sie die URL des Workspace, zu dem der Key gehört, oder legen Sie in diesem Workspace einen Key an |
 | Der Connector listet keine Tools, und der Server antwortet mit HTTP `401` (ChatGPT mit Header) | Der Wert von `x-api-key` ist falsch, abgeschnitten, abgelaufen oder gelöscht | Unter [API-Schlüssel](app:settings/api-keys) einen neuen Key anlegen und die vollständigen 64 Zeichen einfügen |
 | Jeder Aufruf, der Workspace-Daten liest oder ändert, meldet „Your user account is inactive. Contact a workspace administrator.“ | Ihr Customermates-User steht auf **Inaktiv** | Ein Mitglied mit **Bearbeiten** auf **Benutzer & Rollen** setzt Sie unter [Mitglieder](app:settings/members) wieder auf **Aktiv** |
 | Kein "Add custom connector"-Eintrag | Free-Plan | Custom Connectors brauchen einen bezahlten Claude- oder ChatGPT-Plan. Siehe [die CLI-Methode](/docs/connect-cli) |

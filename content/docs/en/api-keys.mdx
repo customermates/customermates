@@ -14,7 +14,7 @@ Open [API keys](app:settings/api-keys) in Settings and click [Add](app:settings/
 
 A key created by **Quick connections** is named after its client (`Claude Code`, `Claude Desktop`, `Codex`, `Cursor` or `Gemini`) and expires 365 days after creation; you cannot choose another name or date there. The dialog shows the expiry below the setup snippet. The AI step of the onboarding wizard creates its keys the same way. A key's name and expiry cannot be changed after it is created.
 
-Keys belong to the user who created them and inherit that user's permissions.
+Keys belong to the user who created them and inherit that user's permissions. Each key also belongs to the workspace it was created in and only ever acts there, including keys created before one login could belong to several workspaces; see [Workspaces](/docs/app-workspaces#which-workspace-do-api-keys-and-connections-use).
 
 ## Who can create and see API keys? [#who-can-create-and-see-api-keys]
 
@@ -25,13 +25,13 @@ The API keys page follows the **API & Webhooks** row of your role, which a membe
 
 A new role starts with no checkbox ticked and **Read access** **None**, so out of the box only members with the built-in **Admin** role can create API keys. The same row also opens [Webhooks](app:settings/webhooks) and its deliveries, so granting it for API keys also lets the member see every webhook of the workspace and, with **Create**, **Edit** or **Delete**, change them.
 
-Everyone sees only their own keys. Nobody, including the **Admin** role, can list or delete another member's keys. No assistant or MCP tool creates, lists or deletes API keys; they are managed only on the API keys page, and the hosted assistant can at most open it for you.
+Everyone sees only their own keys, and only those of the current workspace; switch workspaces to see or delete a key of another one. Nobody, including the **Admin** role, can list or delete another member's keys. No assistant or MCP tool creates, lists or deletes API keys; they are managed only on the API keys page, and the hosted assistant can at most open it for you.
 
 The custom connector for Claude and ChatGPT signs in over OAuth and needs no API key. Like every MCP connection, it needs **Read access** **All** on **API & Webhooks** ([MCP endpoint](/docs/mcp#the-endpoint)). See [Connect with a custom connector](/docs/connect-custom-connector).
 
 ## Which permission does each API key action need? [#which-permission-does-each-api-key-action-need]
 
-Every way of managing keys checks the **API & Webhooks** row of your role, including the requests the API keys page sends to `/api/auth/api-key/`: creating a key needs **Create**, changing one **Edit**, deleting one **Delete**, and reading or listing your keys **Read access** **All**. A request that is not signed in answers `401`, a role without the permission answers `403` with `PERMISSION_DENIED`, and a member whose **Status** is **Inactive** gets `403` with `USER_INACTIVE`. These checks cover managing keys only; what a call made with a key may do follows its owner's role, see [What permissions does a key have](#what-permissions-does-a-key-have).
+Every way of managing keys checks the **API & Webhooks** row of your role: creating a key needs **Create**, changing one **Edit**, deleting one **Delete**, and reading or listing your keys **Read access** **All**. A member whose **Status** is **Inactive** cannot manage keys. Keys are managed only on the API keys page; the underlying `/api/auth/api-key/` endpoints answer `404` to direct requests, so every key belongs to the workspace it was created in. These checks cover managing keys only; what a call made with a key may do follows its owner's role, see [What permissions does a key have](#what-permissions-does-a-key-have).
 
 ## How do I use a key, and which header does it go in? [#how-do-i-use-a-key]
 
@@ -89,7 +89,7 @@ On [API keys](app:settings/api-keys), click the key's card and choose **Delete**
 
 Rotate when a device that held the key is lost or compromised, when a teammate with access leaves, or when you suspect the key leaked. One key per client lets you delete one client without breaking the others; the activity log still names the user, not the key. Keep keys in an environment variable or a password manager, never in a config file you commit.
 
-Only the owner can delete a key. To stop the keys of a member who leaves, open [Members](app:settings/members), open the member, set **Status** to **Inactive** and click **Save**. This needs **Edit** and read access **All** on **Users & Roles**; you cannot deactivate yourself or the last active **Admin**. Every call with that member's keys that reads or changes workspace data is then refused. Taking **Read access** **All** on **API & Webhooks** away from their role also stops their keys, for MCP and REST alike; see [What permissions does a key have](#what-permissions-does-a-key-have).
+Only the owner can delete a key. To stop the keys of a member who leaves, open [Members](app:settings/members), open the member, set **Status** to **Inactive** and click **Save**. This needs **Edit** and read access **All** on **Users & Roles**; you cannot deactivate yourself or the last active **Admin**. Every call with that member's keys that reads or changes workspace data is then refused. Taking **Read access** **All** on **API & Webhooks** away from their role also stops their keys, for MCP and REST alike; see [What permissions does a key have](#what-permissions-does-a-key-have). **Remove from workspace** on [Members](app:settings/members) also revokes the member's keys and MCP connections for this workspace at once ([How do I approve, edit, deactivate or remove a member?](/docs/app-company#how-do-i-approve-deactivate-or-edit-a-member)), and a member who leaves a workspace themselves loses their keys for it at once ([leaving a workspace](/docs/app-workspaces#how-do-i-leave-a-workspace)).
 
 ## What is the key format, and how long can a key name be? [#what-is-the-key-format]
 
@@ -97,9 +97,11 @@ A key's **Name** is 1 to 255 characters long. Keys are 64 characters of ASCII le
 
 ## What permissions does a key have, and can I restrict its scope to read-only? [#what-permissions-does-a-key-have]
 
-Everything its owner can do, and nothing more. There is no per-key permission scoping, so a key cannot be limited to read-only access. Every call is checked against the owner's current role, so a change to that role, for example moving the member from the **Admin** role to a custom role with fewer rights, applies to their keys on the next call. If the owner's **Status** is **Inactive**, every call with their keys that reads or changes workspace data is refused.
+Everything its owner can do in the key's workspace, and nothing more. There is no per-key permission scoping, so a key cannot be limited to read-only access. Every call is checked against the owner's current role, so a change to that role, for example moving the member from the **Admin** role to a custom role with fewer rights, applies to their keys on the next call. If the owner's **Status** is **Inactive**, every call with their keys that reads or changes workspace data is refused.
 
 A key, like an MCP OAuth token, also works only while its owner's role has **Read access** **All** on **API & Webhooks**, checked on every call, including for tokens refreshed later. Without it, MCP answers `403` with `error: insufficient_permissions`, and REST answers `403` with `kind` `authorization` and `customCode` `insufficientPermissions`. Signed-in use of the web app is not affected.
+
+On Customermates Cloud, a workspace that is still waiting for its first plan, such as an additional workspace created without a trial, refuses its keys and OAuth tokens: MCP answers `403` with `error: plan_required`, and REST answers `403` with `kind` `authorization` and `customCode` `workspacePlanRequired`. Creating a key needs a usable plan as well. Once an admin chooses a plan, the existing keys work again. A workspace whose trial ended or whose paid subscription lapsed keeps its existing keys and connections working until its members are set **Inactive**, see [What happens when the trial ends?](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails).
 
 ## Next [#next]
 

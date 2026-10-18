@@ -4,6 +4,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { secondUser } from "./second-user";
 import { openMenu, openSidebar } from "./sidebar";
+import { e2eAppMode } from "./workspace-switching";
 
 test("settings live in one area reached from the workspace menu, with Back to the work page", async ({
   page,
@@ -30,13 +31,12 @@ test("settings live in one area reached from the workspace menu, with Back to th
 
   await test.step("the workspace menu opens Settings on Profile & preferences", async () => {
     const menu = await openMenu(page, "#nav-workspace-menu");
-    await expect(menu.getByRole("menuitem").first()).toHaveText("Invite members");
-    expect((await menu.getByRole("menuitem").allTextContents()).slice(0, 4)).toEqual([
-      "Invite members",
-      "Members",
-      "Settings",
-      expect.stringMatching(/^Billing/),
-    ]);
+    await expect(menu.locator("[data-workspace-id]")).toHaveText([/Browser workspace$/]);
+    await expect(menu.getByRole("menuitem").nth(2)).toHaveText("Invite members");
+    const items = [expect.stringMatching(/Browser workspace$/), "Create workspace", "Invite members", "Members", "Settings"];
+    expect((await menu.getByRole("menuitem").allTextContents()).slice(0, 6)).toEqual(
+      e2eAppMode() === "self-hosted" ? items : [...items, expect.stringMatching(/^Billing/)],
+    );
     await menu.getByRole("menuitem", { name: "Settings", exact: true }).click();
     await expect(page).toHaveURL(/\/en\/settings\/profile$/);
     await openSidebar(page);

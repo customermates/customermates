@@ -18,9 +18,14 @@ vi.mock("next-intl/server", () => ({
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/core/di", () => ({
   ...createMockDiModule(() => mockUser),
-  getAuthService: () => ({ isMcpApiKeyValid: () => Promise.resolve(true) }),
+  getAuthService: () => ({
+    isMcpApiKeyValid: () => Promise.resolve(true),
+    resolveMcpCredentialWorkspace: () => Promise.resolve({ companyId: WORKSPACE_ID, credential: "apiKey" }),
+  }),
   getAuthorizeMcpConnectionInteractor: () => ({ invoke: () => Promise.resolve({ ok: true, data: true }) }),
 }));
+
+const WORKSPACE_ID = "0b7c8e9a-1d2e-4f30-8a4b-5c6d7e8f9a0b";
 
 const CLOUD_ONLY_TOOLS = [
   "get_messaging_threads",
@@ -102,6 +107,17 @@ describe("the MCP endpoint", () => {
 
     const called = await rpc(POST, requestBody("tools/call", 3, { name: "manage_routines", arguments: {} }));
     expect(JSON.stringify(called)).toContain("Tool manage_routines not found");
+  }, 60_000);
+
+  it("does not list the cloud-only tools on a workspace's own MCP address on a self-hosted instance", async () => {
+    mockEnv.APP_MODE = "self-hosted";
+    const { POST } = await import("../w/[workspaceId]/route");
+    const scoped = (request: Request) => POST(request, { params: Promise.resolve({ workspaceId: WORKSPACE_ID }) });
+
+    const names = await listedToolNames(scoped);
+
+    expect(names).toEqual(expect.arrayContaining(["get_activities", "query_crm_records"]));
+    for (const name of CLOUD_ONLY_TOOLS) expect(names, name).not.toContain(name);
   }, 60_000);
 
   it("introduces itself as Customermates", async () => {

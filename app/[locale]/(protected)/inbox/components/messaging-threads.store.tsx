@@ -8,6 +8,8 @@ import { makeObservable, observable, runInAction } from "mobx";
 
 import { getMessagingThreadsAction, getUnreadThreadCountAction, refreshInboxAction } from "../actions";
 import { ForbiddenError } from "@/core/errors/app-errors";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
+import { WorkspaceChangedError } from "@/core/errors/workspace-changed-error";
 import { MESSAGING_RATE_LIMITS_DOCS_PATH } from "./lazy-media";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
@@ -44,6 +46,7 @@ export class MessagingThreadsStore extends BaseDataViewStore<MessagingThread> {
   protected async refreshAction(params?: GetQueryParams) {
     const [threads] = await Promise.all([getMessagingThreadsAction(params), this.refreshUnreadCount()]);
     if (!threads.ok) {
+      if (notifyIfWorkspaceChanged(threads)) throw new WorkspaceChangedError();
       if (isExpectedInboxRefusal(threads.failure)) throw new ForbiddenError();
       throw new Error("Inbox threads could not be loaded");
     }
@@ -55,6 +58,7 @@ export class MessagingThreadsStore extends BaseDataViewStore<MessagingThread> {
     const count = await getUnreadThreadCountAction();
     if (generation !== this.unreadCountGeneration) return;
     if (!count.ok) {
+      if (notifyIfWorkspaceChanged(count)) return;
       if (isExpectedInboxRefusal(count.failure)) {
         runInAction(() => (this.unreadThreadCount = null));
         return;
@@ -107,6 +111,7 @@ export class MessagingThreadsStore extends BaseDataViewStore<MessagingThread> {
       if (!result.data.rateLimited && reconnectAccounts === 0 && failedAccounts === 0)
         this.toastSuccess("Inbox.refreshDone");
     } catch (error) {
+      if (notifyIfWorkspaceChanged(error)) return;
       this.toastError(
         error instanceof ForbiddenError ? "Inbox.shareToCrmPermissionDenied" : "Common.notifications.unexpectedError",
       );

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import type { UserDto } from "@/features/user/user.schema";
+import type { MemberDto } from "@/features/user/user.schema";
 
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
@@ -13,13 +13,13 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { roleDisplayName } from "@/features/role/role-display-name";
 
-export function useMemberColumns(): ColumnDef<UserDto>[] {
+export function useMemberColumns(): ColumnDef<MemberDto>[] {
   const { rolesStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
   const t = useTranslations();
   const roles = rolesStore.items;
 
-  return useMemo<ColumnDef<UserDto>[]>(
+  return useMemo<ColumnDef<MemberDto>[]>(
     () => [
       {
         accessorKey: "firstName",
@@ -56,11 +56,14 @@ export function useMemberColumns(): ColumnDef<UserDto>[] {
       {
         id: "status",
         header: t("Common.table.columns.status"),
-        cell: ({ row }) => (
-          <AppChip variant={USER_STATUS_COLORS_MAP[row.original.status]}>
-            {t(`Common.userStatuses.${row.original.status}`)}
-          </AppChip>
-        ),
+        cell: ({ row }) =>
+          row.original.leftAt ? (
+            <AppChip variant="secondary">{t("WorkspaceMembership.left")}</AppChip>
+          ) : (
+            <AppChip variant={USER_STATUS_COLORS_MAP[row.original.status]}>
+              {t(`Common.userStatuses.${row.original.status}`)}
+            </AppChip>
+          ),
       },
       {
         accessorKey: "updatedAt",

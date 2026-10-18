@@ -16,9 +16,31 @@ const recordActions = vi.hoisted(() => ({ getRecordOperationAction: vi.fn() }));
 
 vi.mock("@/app/[locale]/(protected)/records/actions", () => recordActions);
 
-const sonner = vi.hoisted(() => ({ toast: { success: vi.fn(), error: vi.fn(), loading: vi.fn(() => "toast-1") } }));
+const sonner = vi.hoisted(() => ({
+  toast: { success: vi.fn(), error: vi.fn(), loading: vi.fn(() => "toast-1"), dismiss: vi.fn() },
+}));
 
 vi.mock("sonner", () => sonner);
+
+const notice = vi.hoisted(() => ({ changed: false, notify: vi.fn() }));
+
+vi.mock("@/core/errors/workspace-changed-notice", async () => {
+  const { isWorkspaceChangedError, isWorkspaceChangedFailure } = await import("@/core/errors/workspace-changed");
+  const notifyWorkspaceChanged = () => {
+    notice.changed = true;
+    notice.notify();
+  };
+  return {
+    hasWorkspaceChanged: () => notice.changed,
+    notifyWorkspaceChanged,
+    notifyIfWorkspaceChanged: (value: unknown) => {
+      const changed = isWorkspaceChangedFailure(value) || isWorkspaceChangedError(value);
+      if (changed) notifyWorkspaceChanged();
+      return changed;
+    },
+    registerWorkspaceChangedHandler: () => () => undefined,
+  };
+});
 
 import { TrashStore } from "../trash.store";
 
@@ -26,6 +48,11 @@ const BATCH_ID = "40000000-0000-4000-8000-000000000001";
 const ITEM_ID = "40000000-0000-4000-8000-000000000002";
 const SECOND_ITEM_ID = "40000000-0000-4000-8000-000000000003";
 const TYPE_ID = "40000000-0000-4000-8000-000000000004";
+const WORKSPACE_CHANGED = {
+  ok: false,
+  code: "workspaceChanged",
+  error: { errors: [], digest: "CUSTOMERMATES_WORKSPACE_CHANGED" },
+};
 
 function makeStore({ isSystemRole = true } = {}) {
   const invalidate = vi.fn(() => Promise.resolve());
@@ -45,6 +72,7 @@ function makeStore({ isSystemRole = true } = {}) {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  notice.changed = false;
 });
 
 describe("TrashStore", () => {
@@ -362,6 +390,70 @@ describe("TrashStore", () => {
           expect.anything(),
         ),
       );
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("closes the moving toast without an error toast when the workspace changed during a background delete", async () => {
+    const { store } = makeStore();
+    recordActions.getRecordOperationAction.mockResolvedValue(WORKSPACE_CHANGED);
+
+    store.announceMovedToTrash({ trashOperationId: BATCH_ID, count: 2 });
+
+    await vi.waitFor(() => expect(sonner.toast.dismiss).toHaveBeenCalledExactlyOnceWith("toast-1"));
+    expect(notice.notify).toHaveBeenCalledOnce();
+    expect(recordActions.getRecordOperationAction).toHaveBeenCalledOnce();
+    expect(sonner.toast.error).not.toHaveBeenCalled();
+    expect(sonner.toast.success).not.toHaveBeenCalled();
+  });
+
+  it("stops polling a background restore without an error toast when the workspace changed", async () => {
+    vi.useFakeTimers();
+    try {
+      const { store, invalidate } = makeStore();
+      trashActions.restoreTrashAction.mockResolvedValue({
+        ok: true,
+        data: { status: "pending", operationId: BATCH_ID },
+      });
+      recordActions.getRecordOperationAction
+        .mockResolvedValueOnce({ ok: true, data: { state: "staging", result: null } })
+        .mockResolvedValue(WORKSPACE_CHANGED);
+
+      expect(await store.restore({ itemIds: [ITEM_ID] })).toBe("pending");
+      await vi.advanceTimersByTimeAsync(2500);
+      await vi.waitFor(() => expect(sonner.toast.dismiss).toHaveBeenCalledExactlyOnceWith("toast-1"));
+      await vi.advanceTimersByTimeAsync(10_000);
+
+      expect(recordActions.getRecordOperationAction).toHaveBeenCalledTimes(2);
+      expect(notice.notify).toHaveBeenCalledOnce();
+      expect(store.isRestoring(ITEM_ID)).toBe(false);
+      expect(invalidate).not.toHaveBeenCalled();
+      expect(sonner.toast.error).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("stops polling an operation once another request found the workspace changed", async () => {
+    vi.useFakeTimers();
+    try {
+      const { store } = makeStore();
+      trashActions.restoreTrashAction.mockResolvedValue({
+        ok: true,
+        data: { status: "pending", operationId: BATCH_ID },
+      });
+      recordActions.getRecordOperationAction.mockImplementation(() => {
+        notice.changed = true;
+        return Promise.resolve({ ok: true, data: { state: "staging", result: null } });
+      });
+
+      expect(await store.restore({ itemIds: [ITEM_ID] })).toBe("pending");
+      await vi.advanceTimersByTimeAsync(10_000);
+
+      expect(recordActions.getRecordOperationAction).toHaveBeenCalledOnce();
+      expect(sonner.toast.dismiss).toHaveBeenCalledExactlyOnceWith("toast-1");
+      expect(sonner.toast.error).not.toHaveBeenCalled();
     } finally {
       vi.useRealTimers();
     }

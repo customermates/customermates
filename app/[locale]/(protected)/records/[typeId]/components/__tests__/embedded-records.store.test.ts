@@ -17,6 +17,20 @@ const p13n = vi.hoisted(() => ({ getP13nAction: vi.fn(), upsertP13nAction: vi.fn
 vi.mock("../../../actions", () => mocks);
 vi.mock("@/app/actions", () => p13n);
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn() }));
+const workspace = vi.hoisted(() => ({ notify: vi.fn() }));
+vi.mock("@/core/errors/workspace-changed-notice", async () => {
+  const { isWorkspaceChangedError, isWorkspaceChangedFailure } = await import("@/core/errors/workspace-changed");
+  return {
+    hasWorkspaceChanged: () => false,
+    notifyIfWorkspaceChanged: (value: unknown) => {
+      const changed = isWorkspaceChangedFailure(value) || isWorkspaceChangedError(value);
+      if (changed) workspace.notify();
+      return changed;
+    },
+    notifyWorkspaceChanged: workspace.notify,
+    registerWorkspaceChangedHandler: () => () => undefined,
+  };
+});
 
 import { embeddedColumnLayout } from "@/features/records/embedded-sublist";
 
@@ -57,19 +71,19 @@ const layout = (chosen: string[] | null, columns = recordColumns(id("lineItem"),
 const visibleOf = ({ columnOrder, hiddenColumns }: ReturnType<typeof layout>) =>
   columnOrder.filter((column) => !hiddenColumns.includes(column));
 
-function createStore() {
+const WORKSPACE_CHANGED = {
+  ok: false,
+  code: "workspaceChanged",
+  error: { errors: [], digest: "CUSTOMERMATES_WORKSPACE_CHANGED" },
+};
+
+function createStore(onChanged = async () => {}) {
   const presentation = embeddedPresentation(editor, id("lineItem"), {
     "system:createdAt": "Created at",
     "system:updatedAt": "Updated at",
     "system:assignedTo": "Assigned to",
   });
-  const store = new EmbeddedRecordsStore(
-    root,
-    presentation,
-    id("lineItem.deal"),
-    () => true,
-    async () => {},
-  );
+  const store = new EmbeddedRecordsStore(root, presentation, id("lineItem.deal"), () => true, onChanged);
   store.setParent({ typeId: id("deal"), recordId: randomUUID() });
   return store;
 }
@@ -177,5 +191,32 @@ describe("sub-list columns", () => {
       ...ownFields,
       serviceColumnId,
     ]);
+  });
+});
+
+describe("sub-list after a workspace change", () => {
+  it("opens the reload dialog instead of marking the sub-list as failed", async () => {
+    mocks.queryRecordsAction.mockResolvedValue(WORKSPACE_CHANGED);
+    const store = createStore();
+    await store.load();
+    expect(workspace.notify).toHaveBeenCalled();
+    expect(store.loadFailed).toBe(false);
+  });
+
+  it("does not fall back to the full editor when an inline add hits a workspace change", async () => {
+    mocks.mutateRecordAction.mockResolvedValue({
+      ...WORKSPACE_CHANGED,
+      failure: {
+        kind: "conflict",
+        issues: [{ code: "custom", path: [], message: "", customCode: "workspaceChanged" }],
+      },
+    });
+    const onChanged = vi.fn(() => Promise.resolve());
+    const store = createStore(onChanged);
+    await expect(store.createChild(id("lineItem.name"), "Setup")).rejects.toMatchObject({
+      digest: "CUSTOMERMATES_WORKSPACE_CHANGED",
+    });
+    expect(workspace.notify).toHaveBeenCalledOnce();
+    expect(onChanged).not.toHaveBeenCalled();
   });
 });

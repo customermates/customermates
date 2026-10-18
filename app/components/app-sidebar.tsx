@@ -40,6 +40,8 @@ import { Icon } from "@/components/shared/icon";
 import { recordNavigationKey } from "@/features/records/record-navigation.schema";
 import { assistantEntryVisible } from "./navigation/assistant-entry-visibility";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
+import { workspaceDisplayName } from "@/app/components/workspaces/workspace-identity";
+import { WorkspaceSwitcherItems } from "@/app/components/workspaces/workspace-switcher-items";
 
 import { NavHeader } from "./navigation/nav-header";
 import { resolvePlanChip } from "./navigation/plan-subtitle";
@@ -132,8 +134,15 @@ const FullAppSidebar = observer(
     const intlPathname = useIntlPathname();
     const router = useRouter();
     const rootStore = useRootStore();
-    const { addPickerStore, globalSearchModalStore, keyboardShortcutsStore, recordWorkspaceStore, userStore } =
-      rootStore;
+    const {
+      addPickerStore,
+      createWorkspaceModalStore,
+      globalSearchModalStore,
+      keyboardShortcutsStore,
+      recordWorkspaceStore,
+      userStore,
+      workspacesStore,
+    } = rootStore;
     const { messagingThreadsStore } = rootStore;
     const isDocsRoute = pathname.split("/")[2] === "docs";
     const inboxVisible =
@@ -366,8 +375,29 @@ const FullAppSidebar = observer(
     const workspaceRoutes = visibleSubroutes("workspace", rootStore.appMode, canAccess).map(
       (subroute) => subroute.slug,
     );
-    const workspaceMenu = restricted ? null : (
+    const currentWorkspace = workspacesStore.current;
+    const switcherItems =
+      workspacesStore.items.length > 0 ? (
+        <WorkspaceSwitcherItems
+          onCreate={() =>
+            closeMobileSidebar(() =>
+              createWorkspaceModalStore.start(
+                document.getElementById("nav-workspace-menu"),
+                document.getElementById("sidebar-trigger"),
+              ),
+            )
+          }
+          onSwitch={(companyId) => closeMobileSidebar(() => workspacesStore.requestSwitch(companyId))}
+        />
+      ) : null;
+    const workspaceMenu = restricted ? (
+      switcherItems
+    ) : (
       <>
+        {switcherItems}
+
+        {switcherItems ? <DropdownMenuSeparator /> : null}
+
         {userStore.can(Resource.users, Action.create) && (
           <DropdownMenuItem
             id="workspace-menu-invite"
@@ -471,6 +501,14 @@ const FullAppSidebar = observer(
             overlaysDisabled={!restricted && !recordWorkspaceStore.routeReady(intlPathname)}
             quickActions={!area}
             searchLabel={t("NavigationBar.search")}
+            workspace={
+              currentWorkspace
+                ? {
+                    companyId: currentWorkspace.companyId,
+                    name: workspaceDisplayName(currentWorkspace.name, t("Workspaces.fallbackName")),
+                  }
+                : null
+            }
             workspaceMenu={workspaceMenu}
             workspaceMenuLabel={t("WorkspaceMenu.label")}
             onAdd={(invoker) => {
@@ -499,6 +537,7 @@ const FullAppSidebar = observer(
                 globalSearchModalStore.openFrom(invoker, sidebarTrigger);
               });
             }}
+            onWorkspaceMenuOpen={() => runUserAction(workspacesStore.refresh)}
           />
 
           <SidebarContent>

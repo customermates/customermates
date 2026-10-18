@@ -2,6 +2,8 @@ import { rolePermits } from "@/core/base/permission.service";
 import type { TenantUser } from "./user.schema";
 import type { FindUserRepo } from "./find-user.repo";
 import type { AuthService } from "@/features/auth/auth.service";
+import type { ActiveWorkspaceService } from "@/features/workspace/active-workspace.service";
+import type { WorkspacePlanService } from "@/ee/subscription/workspace-plan.service";
 
 import { Status } from "@/generated/prisma";
 
@@ -13,6 +15,7 @@ import { canUseApiKeys } from "@/core/auth/api-key-route-guard";
 import { ApiKeyAccessDeniedError } from "@/core/auth/api-key-access-denied-error";
 import { EmailVerificationRequiredError } from "@/core/auth/email-verification-required-error";
 import { mustVerifyEmail } from "@/features/auth/email-verification-grace";
+import { WorkspacePlanRequiredError } from "@/core/auth/workspace-plan-required-error";
 
 export type { TenantUser } from "./user.schema";
 export type { FindUserRepo } from "./find-user.repo";
@@ -21,14 +24,14 @@ export class UserService {
   constructor(
     private authService: AuthService,
     private repo: FindUserRepo,
+    private workspaces: ActiveWorkspaceService,
+    private plans: Pick<WorkspacePlanService, "canUseIntegrations">,
   ) {}
 
   async getUserOrThrow() {
     const session = await this.authService.getSession();
 
-    const email = session?.user?.email;
-
-    if (!email) throw new AuthError();
+    if (!session?.user?.email) throw new AuthError();
 
     const account = await this.repo.findAuthUserAccountStateUnscoped(session.user.id);
 
@@ -37,7 +40,10 @@ export class UserService {
     if (mustVerifyEmail({ createdAt: session.user.createdAt, emailVerified: account.emailVerified }))
       throw new EmailVerificationRequiredError();
 
-    return await this.repo.findCurrentUserOrThrowUnscoped(email);
+    const user = await this.workspaces.resolveMembership(session);
+    if (!user) throw new AuthError();
+
+    return user;
   }
 
   async getActiveUserOrThrow() {
@@ -45,8 +51,10 @@ export class UserService {
 
     if (user.status !== Status.active) throw new ForbiddenError("User is not active", AppErrorCode.inactiveUser);
 
-    if (!canUseApiKeys(user.role) && (await this.authService.isIntegrationCredentialRequest()))
-      throw new ApiKeyAccessDeniedError();
+    if (!(await this.authService.isIntegrationCredentialRequest())) return user;
+
+    if (!canUseApiKeys(user.role)) throw new ApiKeyAccessDeniedError();
+    if (!(await this.plans.canUseIntegrations(user.companyId))) throw new WorkspacePlanRequiredError();
 
     return user;
   }

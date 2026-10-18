@@ -7,6 +7,9 @@ import { NextRequest } from "next/server";
 
 import { localWebhookSecret } from "./local-email-provider.mjs";
 import { localE2eEnvironment } from "./local-environment";
+import { localLemonSqueezyEnvironment } from "./local-lemonsqueezy-provider.mjs";
+import { localOAuthEnvironment } from "./local-oauth-provider.mjs";
+import { localResendEnvironment } from "./local-resend-provider.mjs";
 
 const environment = localE2eEnvironment();
 const mode = process.env.CRM_E2E_SERVER_MODE === "development" ? "dev" : "start";
@@ -43,6 +46,11 @@ const child = spawn(
       HOSTED_AI_OPERATOR_CONTROLS_ENABLED: "true",
       HOSTED_AI_PROVIDER_WORK_PAUSED: "true",
       NEXT_TELEMETRY_DISABLED: "1",
+      CRM_E2E_PROVIDER_DIRECTORY: environment.providerDirectory,
+      ...(process.env.LEMONSQUEEZY_API_KEY ? localLemonSqueezyEnvironment(process.env.BETTER_AUTH_SECRET) : {}),
+      ...(process.env.GOOGLE_CLIENT_ID ? localOAuthEnvironment("google") : {}),
+      ...(process.env.AZURE_AD_CLIENT_ID ? localOAuthEnvironment("microsoft") : {}),
+      ...(process.env.RESEND_API_KEY ? localResendEnvironment() : {}),
       NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ""} --import ${guard}`.trim(),
     },
   },

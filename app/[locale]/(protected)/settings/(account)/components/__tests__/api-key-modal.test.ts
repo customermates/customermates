@@ -94,6 +94,7 @@ function renderModal(
       canAccess: vi.fn().mockReturnValue(true),
       user: null,
     },
+    workspacesStore: { current: null },
   } as unknown as RootStore;
   const store = new ApiKeyModalStore(rootStore);
   Object.assign(rootStore, { apiKeyModalStore: store });
@@ -120,6 +121,7 @@ function renderViewModal(name = "Gemini", canManage = true) {
       canAccess: vi.fn().mockReturnValue(true),
       user: null,
     },
+    workspacesStore: { current: null },
   } as unknown as RootStore;
   const store = new ApiKeyModalStore(rootStore);
   const key: ApiKey = {

@@ -9,8 +9,10 @@ vi.mock("next-intl/server", () => ({
 }));
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { ForbiddenError } from "@/core/errors/app-errors";
+import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
 import { EmailVerificationRequiredError } from "@/core/auth/email-verification-required-error";
+import { WORKSPACE_CHANGED_DIGEST } from "@/core/errors/workspace-changed";
+import { WorkspaceChangedError } from "@/core/errors/workspace-changed-error";
 import { createZodError, serializeInteractorFailure } from "@/core/validation/validation.utils";
 
 import { serializeResult, serializeTypedResult } from "../action-result";
@@ -68,11 +70,53 @@ describe("serializeResult", () => {
     expect(redirect).toHaveBeenCalledWith("/auth/verify-email");
   });
 
+  it("redirects a held session to verification instead of treating it as an inactive membership", async () => {
+    redirect.mockImplementation(() => {
+      throw new Error("NEXT_REDIRECT");
+    });
+
+    await expect(serializeTypedResult(Promise.reject(new EmailVerificationRequiredError()))).rejects.toThrow(
+      "NEXT_REDIRECT",
+    );
+    expect(redirect).toHaveBeenLastCalledWith("/auth/verify-email");
+    redirect.mockReset();
+  });
+
   it("serializes a permission refusal as a typed authorization failure", async () => {
     expect(await serializeTypedResult(Promise.reject(new ForbiddenError()))).toMatchObject({
       ok: false,
       failure: { kind: "authorization", issues: [{ customCode: CustomErrorCode.permissionDenied }] },
     });
+  });
+
+  it("answers a membership that is no longer active with a typed refusal the tab treats as a changed workspace", async () => {
+    const inactive = () => Promise.reject(new ForbiddenError("User is not active", AppErrorCode.inactiveUser));
+
+    expect(await serializeTypedResult(inactive())).toMatchObject({
+      ok: false,
+      failure: { kind: "authorization", issues: [{ customCode: CustomErrorCode.userInactive }] },
+    });
+    const result = await serializeResult(inactive());
+    expect(result).toMatchObject({ ok: false, code: CustomErrorCode.userInactive });
+    expect(!result.ok && result.error).toMatchObject({ digest: WORKSPACE_CHANGED_DIGEST });
+  });
+
+  it("answers a changed workspace with a conflict that carries its digest instead of failing the request", async () => {
+    const result = await serializeResult(Promise.reject(new WorkspaceChangedError()));
+
+    expect(result).toMatchObject({ ok: false, code: CustomErrorCode.workspaceChanged });
+    expect(result).not.toHaveProperty("retryable");
+    expect(!result.ok && result.error).toMatchObject({ digest: WORKSPACE_CHANGED_DIGEST });
+    expect(await serializeTypedResult(Promise.reject(new WorkspaceChangedError()))).toMatchObject({
+      ok: false,
+      failure: { kind: "conflict", issues: [{ customCode: CustomErrorCode.workspaceChanged }] },
+    });
+  });
+
+  it("keeps the digest off every other failure", async () => {
+    const result = await serializeResult(failure(CustomErrorCode.unipileRateLimit));
+
+    expect(!result.ok && result.error).not.toHaveProperty("digest");
   });
 
   it("reports an expired transaction as unavailable without a retry hint", async () => {

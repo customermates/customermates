@@ -17,7 +17,9 @@ vi.mock("@/features/auth/next/require", () => ({
 vi.mock("@/features/auth/next/resolve-account-state", () => ({
   resolveRequestAccountState: mocks.resolveAccountState,
 }));
+vi.mock("@/components/shared/centered-card-page", () => ({ CenteredCardPage: "centered-card-page" }));
 vi.mock("../error-page-content", () => ({ ErrorPageContent: "error-page-content" }));
+vi.mock("../inactive-card", () => ({ InactiveCard: "inactive-card" }));
 
 import ErrorPage from "../page";
 
@@ -33,7 +35,8 @@ describe("ErrorPage restricted account handling", () => {
       const result = await ErrorPage({ searchParams: Promise.resolve({ type: errorKey }) });
 
       expect(mocks.requireAccountState).not.toHaveBeenCalled();
-      expect(result.props).toMatchObject({ errorKey, isInactive: false });
+      expect(result.type).toBe("error-page-content");
+      expect(result.props).toEqual({ errorKey });
     },
   );
 
@@ -43,5 +46,24 @@ describe("ErrorPage restricted account handling", () => {
     await expect(ErrorPage({ searchParams: Promise.resolve({ type: "inviteLinkExpired" }) })).rejects.toThrow(
       "REDIRECT:/en/auth/error?type=inactiveUser",
     );
+  });
+
+  it("shows a deactivated membership its own card instead of the error card", async () => {
+    mocks.resolveAccountState.mockResolvedValue({ state: "inactive" });
+
+    const result = await ErrorPage({ searchParams: Promise.resolve({ type: "inactiveUser" }) });
+
+    expect(result.type).toBe("centered-card-page");
+    expect(result.props.children.type).toBe("inactive-card");
+    expect(mocks.requireAccountState).not.toHaveBeenCalled();
+  });
+
+  it("falls back to the support message for an unknown error type", async () => {
+    mocks.resolveAccountState.mockResolvedValue({ state: "allowed" });
+
+    const result = await ErrorPage({ searchParams: Promise.resolve({ type: "somethingElse" }) });
+
+    expect(result.type).toBe("error-page-content");
+    expect(result.props).toEqual({ errorKey: null });
   });
 });

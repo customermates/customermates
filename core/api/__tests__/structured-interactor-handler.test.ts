@@ -23,6 +23,8 @@ import {
   EMAIL_VERIFICATION_REQUIRED_MESSAGE,
   EmailVerificationRequiredError,
 } from "@/core/auth/email-verification-required-error";
+import { WorkspacePlanRequiredError } from "@/core/auth/workspace-plan-required-error";
+import { WorkspaceChangedError } from "@/core/errors/workspace-changed-error";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { createZodError, serializeInteractorFailure } from "@/core/validation/validation.utils";
 
@@ -61,6 +63,22 @@ describe("handleError", () => {
     expect(result.error.issues).toHaveLength(1);
     expect(result.error.issues[0]).toMatchObject({ path: [], customCode });
     if (message) expect(result.error.issues[0]?.message).toBe(message);
+  });
+
+  it("returns a credential of a workspace without a plan as an authorization failure naming the plan", () => {
+    const result = structured(handleError(new WorkspacePlanRequiredError()));
+
+    expect(result.status).toBe(403);
+    expect(result.error.kind).toBe("authorization");
+    expect(result.error.issues[0]).toMatchObject({ path: [], customCode: CustomErrorCode.workspacePlanRequired });
+  });
+
+  it("returns a browser session whose workspace changed elsewhere as a 409 conflict instead of a permission refusal", () => {
+    const result = structured(handleError(new WorkspaceChangedError()));
+
+    expect(result.status).toBe(409);
+    expect(result.error.kind).toBe("conflict");
+    expect(result.error.issues[0]).toMatchObject({ path: [], customCode: CustomErrorCode.workspaceChanged });
   });
 
   it.each([

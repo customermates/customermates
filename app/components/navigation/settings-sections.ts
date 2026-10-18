@@ -1,6 +1,18 @@
 import type { LucideIcon } from "lucide-react";
 
-import { CreditCard, History, KeyRound, Mail, Send, Shield, UserCircle, Users, Webhook } from "lucide-react";
+import {
+  Building2,
+  CreditCard,
+  History,
+  KeyRound,
+  Mail,
+  Send,
+  Shield,
+  SlidersHorizontal,
+  UserCircle,
+  Users,
+  Webhook,
+} from "lucide-react";
 
 import { Resource } from "@/generated/prisma";
 
@@ -20,6 +32,7 @@ type SettingsSubroute = {
 export const SETTINGS_SECTIONS: Record<SettingsSection, SettingsSubroute[]> = {
   account: [
     { slug: "profile", icon: UserCircle, labelKey: "SettingsNav.profile" },
+    { slug: "workspaces", icon: Building2, labelKey: "SettingsNav.workspaces" },
     {
       slug: "channels",
       icon: Mail,
@@ -30,6 +43,7 @@ export const SETTINGS_SECTIONS: Record<SettingsSection, SettingsSubroute[]> = {
     { slug: "api-keys", icon: KeyRound, labelKey: "SettingsNav.apiKeys", resource: Resource.api },
   ],
   workspace: [
+    { slug: "general", icon: SlidersHorizontal, labelKey: "SettingsNav.general" },
     { slug: "members", icon: Users, labelKey: "SettingsNav.members", resource: Resource.users },
     { slug: "roles", icon: Shield, labelKey: "SettingsNav.roles", resource: Resource.users },
     { slug: "billing", icon: CreditCard, labelKey: "SettingsNav.billing", resource: Resource.company, cloudOnly: true },

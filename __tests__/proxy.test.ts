@@ -311,6 +311,22 @@ describe("automatic demo authentication proxy", () => {
     );
   });
 
+  it("answers an OPTIONS request for a page with its methods instead of rendering the page", async () => {
+    mockEnv.APP_MODE = "cloud";
+
+    const response = await proxy(
+      new NextRequestValue("http://localhost:4000/en/dashboard", {
+        method: "OPTIONS",
+        headers: { cookie: "app.session_token=member", "sec-fetch-mode": "cors" },
+      }),
+    );
+
+    expect(response.status).toBe(204);
+    expect(response.headers.get("allow")).toBe("GET, HEAD, POST");
+    expect(mocks.getSession).not.toHaveBeenCalled();
+    expect(mocks.intlMiddleware).not.toHaveBeenCalled();
+  });
+
   it("never asks whether a signed-in request is protected, so signed-in routing is unchanged", async () => {
     mockEnv.APP_MODE = "cloud";
     mocks.getSession.mockResolvedValue({

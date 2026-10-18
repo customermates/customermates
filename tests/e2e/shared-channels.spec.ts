@@ -2,12 +2,13 @@ import { randomUUID } from "node:crypto";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { presetId } from "../../features/records/crm-preset";
+import { mintApiKey } from "./api-key";
 import { localE2eEnvironment } from "./local-environment";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { postOk } from "./api";
 
 test("shares an indexed identifier across lists, unlinks one association and links only one conversation", async ({
-  page, context, database, companyId, workspace,
+  page, database, companyId, workspace,
 }, testInfo) => {
   test.setTimeout(240000);
   const errors = collectPageErrors(page);
@@ -99,9 +100,7 @@ test("shares an indexed identifier across lists, unlinks one association and lin
   expect((await postOk(page, "/api/v1/messaging/record-links/read", { threadId: threadIds[1] })).records).toEqual([]);
 
   const { baseUrl } = localE2eEnvironment();
-  const credentialResponse = await context.request.post(`${baseUrl}/api/auth/api-key/create`, { headers: { origin: baseUrl }, data: { name: "Shared identifier local verification", expiresIn: 86400 } });
-  expect(credentialResponse.ok()).toBe(true);
-  const credential = await credentialResponse.json();
+  const credential = await mintApiKey(database, workspace, "Shared identifier local verification");
   const client = new Client({ name: "local-shared-channel-verification", version: "2.0.0" });
   const transport = new StreamableHTTPClientTransport(new URL(`${baseUrl}/api/v1/mcp`), { requestInit: { headers: { "x-api-key": credential.key } } });
   try {
@@ -131,7 +130,7 @@ test("shares an indexed identifier across lists, unlinks one association and lin
     }
   } finally {
     await client.close();
-    await context.request.post(`${baseUrl}/api/auth/api-key/delete`, { headers: { origin: baseUrl }, data: { keyId: credential.id } });
+    await database.query('DELETE FROM "Apikey" WHERE id=$1', [credential.id]);
   }
   await page.screenshot({ path: testInfo.outputPath("shared-channel-links.png"), animations: "disabled" });
   expect(errors).toEqual([]);

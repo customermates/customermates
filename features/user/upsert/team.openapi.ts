@@ -11,6 +11,10 @@ import {
   UpdateMemberSchema,
 } from "@/features/user/upsert/admin-update-user-details.interactor";
 import { UpdateUserDetailsSchema, UserProfileSchema } from "@/features/user/upsert/update-user-details.interactor";
+import {
+  RemovedWorkspaceMemberSchema,
+  RemoveWorkspaceMemberSchema,
+} from "@/features/workspace/remove-workspace-member.interactor";
 
 export const updateUserProfileOperation: ZodOpenApiOperationObject = {
   operationId: "updateUserProfile",
@@ -118,6 +122,35 @@ export const memberApiPaths = {
         "200": {
           description: "The saved member.",
           content: { "application/json": { schema: AdminUpdateUserDetailsSchema } },
+        },
+        ...StructuredApiResponses,
+      },
+    },
+  },
+  "/v1/members/remove": {
+    post: {
+      operationId: "removeMember",
+      summary: "Remove a member from the workspace",
+      description:
+        "Removes another member from this workspace, as Remove from workspace in the members settings and the MCP remove_member action do. Name the member by userId or email (both must match when you send both). Works for active, inactive and waiting-for-approval members; removing a member waiting for approval declines the request. The member's status becomes inactive and they are shown as left (a declined request is no longer listed), their API keys and MCP connections for this workspace stop working, the mailboxes and LinkedIn accounts they connected here are disconnected, their routines pause, and an active member's seat is freed. The member gets an email that they were removed; a declined request sends none. Records they own and their history stay. To come back they ask to join again with an invitation link, and an admin has to approve the request. Returns the removed member and the status they had. You cannot remove yourself (leave the workspace in the app instead), a platform operator, a member who already left, or the last active member with the Admin role. Requires: Users & Roles Edit.",
+      tags: ["members"],
+      security: [{ apiKeyAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: RemoveWorkspaceMemberSchema,
+            examples: {
+              default: { value: { userId: "00000000-0000-4000-8000-000000000002" } },
+              byEmail: { value: { email: "former.colleague@example.com" } },
+            },
+          },
+        },
+      },
+      responses: {
+        "200": {
+          description: "The member was removed.",
+          content: { "application/json": { schema: RemovedWorkspaceMemberSchema } },
         },
         ...StructuredApiResponses,
       },

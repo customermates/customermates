@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   resolveAccountState: vi.fn(),
   getMcpConsentPrompt: vi.fn(),
+  listMcpConsentWorkspaces: vi.fn(),
   resolveMcpConsentState: vi.fn(),
 }));
 
@@ -15,6 +16,7 @@ vi.mock("next-intl/server", () => ({ getLocale: () => Promise.resolve("en") }));
 vi.mock("@sentry/nextjs", () => ({}));
 vi.mock("@/core/di", () => ({
   getAuthService: () => ({ getMcpConsentPrompt: mocks.getMcpConsentPrompt }),
+  getListMcpConsentWorkspacesInteractor: () => ({ invoke: mocks.listMcpConsentWorkspaces }),
   getRouteGuardService: () => ({ resolveMcpConsentState: mocks.resolveMcpConsentState }),
 }));
 vi.mock("@/features/auth/next/resolve-account-state", () => ({
@@ -27,7 +29,15 @@ import McpConsentPage from "../page";
 import { ACCOUNT_STATES, accountStateRedirect } from "@/features/auth/account-state";
 
 const params = { consent_code: "consent-code", client_id: "client-id" };
-const prompt = { clientName: "Claude", redirectHost: "client.example", scopes: ["openid", "profile"] };
+const prompt = {
+  clientName: "Claude",
+  redirectHost: "client.example",
+  scopes: ["openid", "profile"],
+  workspaceId: null,
+};
+const card = { clientName: "Claude", redirectHost: "client.example", scopes: ["openid", "profile"] };
+const current = { companyId: "company-a", name: "CRM", isCurrent: true, unavailableReason: null };
+const taxes = { companyId: "company-b", name: "Taxes", isCurrent: false, unavailableReason: null };
 
 describe("McpConsentPage", () => {
   beforeEach(() => {
@@ -37,6 +47,7 @@ describe("McpConsentPage", () => {
     mocks.resolveMcpConsentState.mockImplementation((resolution: { state: string }) =>
       Promise.resolve(resolution.state),
     );
+    mocks.listMcpConsentWorkspaces.mockResolvedValue({ ok: true, data: [current, taxes] });
   });
 
   it.each(["allowed", "onboarding"])("renders the validated consent prompt for %s", async (state) => {
@@ -44,34 +55,71 @@ describe("McpConsentPage", () => {
 
     const result = await McpConsentPage({ searchParams: Promise.resolve(params) });
 
-    expect(result.props.children.props).toEqual({ ...prompt, consentCode: params.consent_code, permitted: false });
+    expect(result.props.children.props).toEqual({
+      ...card,
+      consentCode: params.consent_code,
+      fixedWorkspace: false,
+      workspaces: [current, taxes],
+    });
     expect(mocks.getMcpConsentPrompt).toHaveBeenCalledWith({
       consentCode: params.consent_code,
       clientId: params.client_id,
     });
   });
 
-  it.each([
-    [{ isSystemRole: true, permissions: [] }, true],
-    [{ isSystemRole: false, permissions: [{ resource: "api", action: "readAll" }] }, true],
-    [{ isSystemRole: false, permissions: [{ resource: "wiki", action: "readAll" }] }, false],
-  ])("offers approval only to roles with Read access All on API & Webhooks", async (role, permitted) => {
-    mocks.resolveAccountState.mockResolvedValue({ state: "allowed", user: { role } });
+  it("still lets a member without API access deny the request for the current workspace", async () => {
+    mocks.resolveAccountState.mockResolvedValue({ state: "allowed" });
+    mocks.listMcpConsentWorkspaces.mockResolvedValue({
+      ok: true,
+      data: [{ ...current, unavailableReason: "permission" }],
+    });
 
     const result = await McpConsentPage({ searchParams: Promise.resolve(params) });
 
-    expect(result.props.children.props.permitted).toBe(permitted);
+    expect(result.props.children.props.workspaces).toEqual([{ ...current, unavailableReason: "permission" }]);
   });
 
+  it.each(["inactive", "pending", "legal", "subscription"])(
+    "offers the other workspaces when the current workspace is %s",
+    async (state) => {
+      const restricted = { ...current, unavailableReason: state === "subscription" ? "plan" : "pending" };
+      mocks.resolveAccountState.mockResolvedValue({ state });
+      mocks.listMcpConsentWorkspaces.mockResolvedValue({ ok: true, data: [restricted, taxes] });
+
+      const result = await McpConsentPage({ searchParams: Promise.resolve(params) });
+
+      expect(result.props.children.props.workspaces).toEqual([restricted, taxes]);
+      expect(mocks.getMcpConsentPrompt).toHaveBeenCalledOnce();
+    },
+  );
+
   it.each(ACCOUNT_STATES.filter((state) => state !== "allowed" && state !== "onboarding"))(
-    "keeps the canonical redirect for %s",
+    "keeps the canonical redirect for %s when no other workspace can be connected",
+    async (state) => {
+      mocks.resolveAccountState.mockResolvedValue({ state });
+      mocks.listMcpConsentWorkspaces.mockResolvedValue({
+        ok: true,
+        data: [
+          { ...current, unavailableReason: "pending" },
+          { ...taxes, unavailableReason: "permission" },
+        ],
+      });
+
+      await expect(McpConsentPage({ searchParams: Promise.resolve(params) })).rejects.toThrow(
+        `REDIRECT:/en${accountStateRedirect(state)}`,
+      );
+    },
+  );
+
+  it.each(["unauthenticated", "overdueVerification", "unregistered"] as const)(
+    "redirects the %s state before listing workspaces",
     async (state) => {
       mocks.resolveAccountState.mockResolvedValue({ state });
 
       await expect(McpConsentPage({ searchParams: Promise.resolve(params) })).rejects.toThrow(
         `REDIRECT:/en${accountStateRedirect(state)}`,
       );
-      expect(mocks.getMcpConsentPrompt).not.toHaveBeenCalled();
+      expect(mocks.listMcpConsentWorkspaces).not.toHaveBeenCalled();
     },
   );
 
@@ -79,13 +127,28 @@ describe("McpConsentPage", () => {
     "sends onboarding back to the wizard when the workspace would otherwise be in the %s state",
     async (blocked) => {
       mocks.resolveMcpConsentState.mockResolvedValue(blocked);
+      mocks.listMcpConsentWorkspaces.mockResolvedValue({
+        ok: true,
+        data: [{ ...current, unavailableReason: blocked === "legal" ? "terms" : "plan" }],
+      });
 
       await expect(McpConsentPage({ searchParams: Promise.resolve(params) })).rejects.toThrow(
         `REDIRECT:/en${accountStateRedirect("onboarding")}`,
       );
-      expect(mocks.getMcpConsentPrompt).not.toHaveBeenCalled();
     },
   );
+
+  it("lets blocked onboarding connect another workspace", async () => {
+    mocks.resolveMcpConsentState.mockResolvedValue("subscription");
+    mocks.listMcpConsentWorkspaces.mockResolvedValue({
+      ok: true,
+      data: [{ ...current, unavailableReason: "plan" }, taxes],
+    });
+
+    const result = await McpConsentPage({ searchParams: Promise.resolve(params) });
+
+    expect(result.props.children.props.workspaces).toEqual([{ ...current, unavailableReason: "plan" }, taxes]);
+  });
 
   it.each([
     {},
@@ -102,5 +165,45 @@ describe("McpConsentPage", () => {
     mocks.getMcpConsentPrompt.mockResolvedValue(null);
 
     await expect(McpConsentPage({ searchParams: Promise.resolve(params) })).rejects.toThrow("REDIRECT:/");
+  });
+
+  it("fixes the consent to the workspace named by a per-workspace MCP URL", async () => {
+    mocks.resolveAccountState.mockResolvedValue({ state: "allowed" });
+    mocks.getMcpConsentPrompt.mockResolvedValue({ ...prompt, workspaceId: taxes.companyId });
+
+    const result = await McpConsentPage({ searchParams: Promise.resolve(params) });
+
+    expect(result.props.children.props).toEqual({
+      ...card,
+      consentCode: params.consent_code,
+      fixedWorkspace: true,
+      workspaces: [taxes],
+    });
+  });
+
+  it.each(["inactive", "pending", "legal", "subscription"])(
+    "explains a per-workspace MCP URL on the consent card instead of redirecting for %s",
+    async (state) => {
+      const blocked = { ...current, unavailableReason: "permission" };
+      mocks.resolveAccountState.mockResolvedValue({ state });
+      mocks.listMcpConsentWorkspaces.mockResolvedValue({
+        ok: true,
+        data: [blocked, { ...taxes, unavailableReason: "plan" }],
+      });
+      mocks.getMcpConsentPrompt.mockResolvedValue({ ...prompt, workspaceId: current.companyId });
+
+      const result = await McpConsentPage({ searchParams: Promise.resolve(params) });
+
+      expect(result.props.children.props).toMatchObject({ fixedWorkspace: true, workspaces: [blocked] });
+    },
+  );
+
+  it("passes no workspace for a per-workspace MCP URL of a workspace the login does not belong to", async () => {
+    mocks.resolveAccountState.mockResolvedValue({ state: "allowed" });
+    mocks.getMcpConsentPrompt.mockResolvedValue({ ...prompt, workspaceId: "company-x" });
+
+    const result = await McpConsentPage({ searchParams: Promise.resolve(params) });
+
+    expect(result.props.children.props).toMatchObject({ fixedWorkspace: true, workspaces: [] });
   });
 });

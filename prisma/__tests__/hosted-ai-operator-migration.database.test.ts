@@ -9,7 +9,10 @@ import { describe, expect, it } from "vitest";
 import { SYNTHETIC_SEED_USER } from "@/core/config/synthetic-seed-user";
 import { PrismaClient } from "@/generated/prisma";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
-import { DYNAMIC_RECORD_MODEL_MIGRATION, migrationDirectories } from "@/tests/helpers/legacy-migration-database";
+import {
+  applyConfigurableRecordsMigration,
+  DYNAMIC_RECORD_MODEL_MIGRATION,
+} from "@/tests/helpers/legacy-migration-database";
 
 import { createSeedContext, SEED_IDS } from "../seeds/context";
 import { seedHostedAiOperatorFixtures, seedLocalHostedAiOperatorAccess } from "../seeds/hosted-ai-operator";
@@ -172,7 +175,8 @@ describeDatabase("hosted AI operator migration", { timeout: 120_000 }, () => {
 
   it("converges the real two-company local identity and ledger fixtures across two runs", async () => {
     await withTemporaryDatabase(requiredDatabaseUrl(), async (client, isolatedUrl) => {
-      await applyMigrations(client, await migrationDirectories());
+      await applyMigrations(client, migrationNames());
+      await applyConfigurableRecordsMigration(client);
       const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: isolatedUrl }) });
       const context = createSeedContext(prisma, {
         seedUserEmail: SYNTHETIC_SEED_USER.email,

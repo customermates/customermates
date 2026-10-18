@@ -67,6 +67,8 @@ const { PlanPicker } = await import(
 );
 const { HomepagePricing } = await import("@/app/[locale]/(static)/components/homepage-pricing");
 
+type PlanAction = { onClick: () => void; type?: string; variant?: string; children?: ReactNode };
+
 const pricingCards = ["starter", "pro", "business", "enterprise"].map((plan) => ({
   plan,
   title: plan,
@@ -145,23 +147,33 @@ describe("catalog-backed pricing rendering", () => {
     ]);
   });
 
-  it("renders localized picker prices and submits an explicit monthly offer", () => {
+  it("renders localized picker prices and submits an explicit monthly offer from each plan's own button", () => {
     const onSelect = vi.fn();
     const element = (PlanPicker as unknown as (props: ComponentProps<typeof PlanPicker>) => ReactElement)({
       onSelect,
     });
     const cards = Children.toArray(element.props.children).filter(isValidElement) as ReactElement<{
-      onClick: () => void;
+      children: ReactNode;
+      "data-plan"?: string;
     }>[];
+    const actions = cards.flatMap((card) =>
+      (Children.toArray(card.props.children).filter(isValidElement) as ReactElement<PlanAction>[])
+        .filter((child) => typeof child.props.onClick === "function")
+        .map((child) => ({ plan: card.props["data-plan"], ...child.props })),
+    );
     const html = renderToStaticMarkup(element);
 
     expect(html).toMatch(/12(?:&nbsp;|\u00a0| )€/);
     expect(html).toMatch(/29(?:&nbsp;|\u00a0| )€/);
     expect(html).toMatch(/69(?:&nbsp;|\u00a0| )€/);
-    expect(html.match(/<button/g)).toHaveLength(3);
     expect(html).not.toContain('role="button"');
+    expect(actions.map(({ plan, type, variant, children }) => ({ plan, type, variant, children }))).toEqual([
+      { plan: "starter", type: "button", variant: "secondary", children: "Subscription.picker.choose" },
+      { plan: "pro", type: "button", variant: "secondary", children: "Subscription.picker.choose" },
+      { plan: "business", type: "button", variant: "default", children: "Subscription.picker.choose" },
+    ]);
 
-    cards[2]?.props.onClick();
+    actions[2]?.onClick();
     expect(onSelect).toHaveBeenCalledWith({
       plan: "business",
       cadence: "monthly",

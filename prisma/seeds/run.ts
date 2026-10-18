@@ -29,6 +29,7 @@ import { seedPersonalization } from "./personalization";
 import { seedRecordHistory } from "./record-history";
 import { seedRelationships } from "./relationships";
 import { seedRoutines } from "./routines";
+import { seedSecondWorkspace } from "./second-workspace";
 import { seedServices } from "./services";
 import { seedSidebars } from "./sidebar";
 import { seedSublistColumns } from "./sublist-columns";
@@ -60,6 +61,7 @@ export async function runSyntheticSeed(
   await resetOutdatedSyntheticWorkspace(context, syntheticRecordModel(context, customFieldData));
 
   await seedIdentity(context);
+  await seedSecondWorkspace(context);
   await seedHostedAiOperatorFixtures(context);
   if (options.includeLocalOperatorAccess) await seedLocalHostedAiOperatorAccess(context);
   await seedHostedAiOperatorUserTableFixtures(context, options);

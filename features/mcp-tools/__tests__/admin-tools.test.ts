@@ -8,6 +8,7 @@ const spies = vi.hoisted(() => ({
   inviteUsers: vi.fn(),
   updateTeamMember: vi.fn(),
   updateUserDetails: vi.fn(),
+  removeTeamMember: vi.fn(),
 }));
 
 vi.mock("next-intl/server", () => ({
@@ -21,6 +22,7 @@ vi.mock("@/core/di", () => ({
   getAdminUpdateUserDetailsInteractor: () => ({ invoke: spies.updateTeamMember }),
   getInviteUsersByEmailInteractor: () => ({ invoke: spies.inviteUsers }),
   getUpdateUserDetailsInteractor: () => ({ invoke: spies.updateUserDetails }),
+  getRemoveWorkspaceMemberInteractor: () => ({ invoke: spies.removeTeamMember }),
 }));
 
 import { ForbiddenError } from "@/core/errors/app-errors";
@@ -232,6 +234,46 @@ describe("manage_team update_member", () => {
 
     expect(outcome).toMatchObject({ ok: false, failure: { kind: "validation" } });
     expect(spies.updateTeamMember).not.toHaveBeenCalled();
+  });
+});
+
+describe("manage_team remove_member", () => {
+  it("removes the named member through the remove interactor and reports the status they had", async () => {
+    spies.removeTeamMember.mockResolvedValue({
+      ok: true,
+      data: { userId: MEMBER_ID, email: "member@example.test", previousStatus: "pendingAuthorization" },
+    });
+
+    const outcome = await executeMcpTool(manageTeamTool, [
+      manageTeamTool.inputSchema.parse({ action: "remove_member", email: "member@example.test" }),
+    ]);
+
+    expect(spies.removeTeamMember).toHaveBeenCalledWith({ email: "member@example.test" });
+    expect(spies.updateTeamMember).not.toHaveBeenCalled();
+    expect(outcome).toMatchObject({
+      ok: true,
+      structuredContent: {
+        userId: MEMBER_ID,
+        email: "member@example.test",
+        previousStatus: "pendingAuthorization",
+        message: "Member removed from the workspace",
+      },
+    });
+  });
+
+  it("rejects a remove_member call without userId or email before reaching the interactor", async () => {
+    const outcome = await executeMcpTool(manageTeamTool, [
+      manageTeamTool.inputSchema.parse({ action: "remove_member" }),
+    ]);
+
+    expect(outcome).toMatchObject({ ok: false, failure: { kind: "validation" } });
+    expect(spies.removeTeamMember).not.toHaveBeenCalled();
+  });
+
+  it("marks the tool destructive and names what a removal revokes", () => {
+    expect(manageTeamTool.annotations.destructiveHint).toBe(true);
+    expect(manageTeamTool.description).toContain("permanently revokes their API keys and MCP connections");
+    expect(manageTeamTool.description).toContain("remove_member requires the same permission");
   });
 });
 

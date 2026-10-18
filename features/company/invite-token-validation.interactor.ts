@@ -1,4 +1,5 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { InviteTokenRepo } from "./invite-token-validation.repo";
 
 import { z } from "zod";
 
@@ -10,6 +11,7 @@ const OutputSchema = z.discriminatedUnion("valid", [
   z.object({
     valid: z.literal(true),
     companyId: z.string(),
+    companyName: z.string().nullable(),
     expiresAt: z.date(),
     inviterName: z.string().min(1),
   }),
@@ -28,14 +30,6 @@ const Schema = z.object({
 type InviteTokenData = Data<typeof Schema>;
 
 type ValidatedInviteToken = z.infer<typeof OutputSchema>;
-
-export abstract class InviteTokenRepo {
-  abstract findTokenUnscoped(token: string): Promise<{
-    companyId: string;
-    createdBy: { email: string; firstName: string; lastName: string };
-    expiresAt: Date;
-  } | null>;
-}
 
 @SystemInteractor
 export class InviteTokenValidationInteractor {
@@ -81,6 +75,7 @@ export class InviteTokenValidationInteractor {
       data: {
         valid: true,
         companyId: inviteToken.companyId,
+        companyName: inviteToken.company.name,
         expiresAt: inviteToken.expiresAt,
         inviterName:
           `${inviteToken.createdBy.firstName} ${inviteToken.createdBy.lastName}`.trim() || inviteToken.createdBy.email,

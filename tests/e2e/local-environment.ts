@@ -33,5 +33,6 @@ export function localE2eEnvironment() {
     databaseUrl,
     workflowDirectory: resolve(".runs", "e2e", database.pathname.slice(1), "workflow"),
     emailLedgerFile: resolve(".runs", "e2e", database.pathname.slice(1), "local-email-ledger.jsonl"),
+    providerDirectory: resolve(".runs", "e2e", database.pathname.slice(1), "providers"),
   };
 }

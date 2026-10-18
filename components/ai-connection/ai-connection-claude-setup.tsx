@@ -22,6 +22,7 @@ type Props = {
   disabled: boolean;
   mcpUrl: string;
   resultHeadingRef: Ref<HTMLHeadingElement>;
+  workspaceName: string;
   onCreate: () => void;
 };
 
@@ -31,6 +32,7 @@ export const AiConnectionClaudeSetup = observer(function AiConnectionClaudeSetup
   disabled,
   mcpUrl,
   resultHeadingRef,
+  workspaceName,
   onCreate,
 }: Props) {
   const t = useTranslations();
@@ -83,7 +85,12 @@ export const AiConnectionClaudeSetup = observer(function AiConnectionClaudeSetup
 
       {method === "account" ? (
         <div id="claude-account-details">
-          <AiConnectionConnectorSetup disabled={disabled} mcpUrl={mcpUrl} provider="claude" />
+          <AiConnectionConnectorSetup
+            disabled={disabled}
+            mcpUrl={mcpUrl}
+            provider="claude"
+            workspaceName={workspaceName}
+          />
         </div>
       ) : null}
 

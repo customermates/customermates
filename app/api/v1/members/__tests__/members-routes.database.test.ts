@@ -46,6 +46,7 @@ import { POST as inviteMembers } from "../invite/route";
 import { POST as updateMember } from "../update/route";
 import { PATCH as updateProfile } from "../../users/me/route";
 import { createTestRecordRepo } from "@/tests/helpers/record-repository";
+import { bindFixtureCredentials } from "@/tests/helpers/bind-fixture-credentials";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -141,6 +142,7 @@ describeDatabase("member and profile REST routes", () => {
     );
     const owner = createMockUser({ id: adminUserId, companyId, roleId: adminRoleId });
     await runWithTenant(owner, () => new InitializeRecordModelService(createTestRecordRepo()).initialize());
+    await bindFixtureCredentials(client, [companyId, foreignCompanyId]);
   });
 
   beforeEach(() => {

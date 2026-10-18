@@ -15,7 +15,24 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@/app/[locale]/(protected)/records/actions", () => mocks);
 vi.mock("@/core/errors/report-application-error", () => ({ reportApplicationError: mocks.report }));
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: mocks.toast }));
+const workspace = vi.hoisted(() => ({ notify: vi.fn() }));
+vi.mock("@/core/errors/workspace-changed-notice", async () => {
+  const { isWorkspaceChangedError, isWorkspaceChangedFailure } = await import("@/core/errors/workspace-changed");
+  return {
+    notifyIfWorkspaceChanged: (value: unknown) => {
+      const changed = isWorkspaceChangedFailure(value) || isWorkspaceChangedError(value);
+      if (changed) workspace.notify();
+      return changed;
+    },
+  };
+});
 import { RecordDetailLayoutStore } from "../record-detail-layout.store";
+
+const WORKSPACE_CHANGED = {
+  ok: false,
+  code: "workspaceChanged",
+  error: { errors: [], digest: "CUSTOMERMATES_WORKSPACE_CHANGED" },
+};
 
 const stores: RecordDetailLayoutStore[] = [];
 function fixture() {
@@ -279,5 +296,30 @@ describe("record detail personalization saves", () => {
     await store.retry();
     expect(store.dirty).toBe(false);
     expect(notifications.saveRecovered).toHaveBeenCalledOnce();
+  });
+
+  it("opens the reload dialog instead of a save failure when the workspace changed", async () => {
+    const { state } = fixture();
+    const notifications = { saveFailed: vi.fn(), saveRecovered: vi.fn() };
+    const store = new RecordDetailLayoutStore(state, notifications);
+    stores.push(store);
+    mocks.saveRecordDetailLayoutAction.mockResolvedValueOnce(WORKSPACE_CHANGED);
+    store.togglePinned("system:createdAt");
+    await store.flush();
+    expect(workspace.notify).toHaveBeenCalledOnce();
+    expect(store.saveFailed).toBe(false);
+    expect(store.isSaving).toBe(false);
+    expect(mocks.toast).not.toHaveBeenCalled();
+    expect(notifications.saveFailed).not.toHaveBeenCalled();
+    expect(notifications.saveRecovered).not.toHaveBeenCalled();
+  });
+
+  it("does not mark the layout read as failed when the workspace changed", async () => {
+    const { store } = fixture();
+    mocks.readRecordDetailLayoutAction.mockResolvedValueOnce(WORKSPACE_CHANGED);
+    await store.refresh();
+    expect(workspace.notify).toHaveBeenCalledOnce();
+    expect(store.readFailed).toBe(false);
+    expect(mocks.report).not.toHaveBeenCalled();
   });
 });
