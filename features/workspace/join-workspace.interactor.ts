@@ -64,9 +64,12 @@ export class JoinWorkspaceInteractor {
     const profile = await this.memberships.findMembershipProfileUnscoped(email);
     if (!profile) return fail(CustomErrorCode.workspaceCreationUnavailable);
 
-    const member = await runInTransaction(
-      () =>
-        this.repo.registerExistingCompany({
+    const joined = await runInTransaction(
+      async () => {
+        const current = await this.memberships.findMembershipUnscoped(email, intent.companyId);
+        if (current) return { member: current, alreadyMember: true };
+
+        const member = await this.repo.registerExistingCompany({
           email,
           firstName: profile.firstName,
           lastName: profile.lastName,
@@ -74,11 +77,15 @@ export class JoinWorkspaceInteractor {
           avatarUrl: profile.avatarUrl,
           agreeToTerms: data.agreeToTerms,
           companyId: intent.companyId,
-        }),
+        });
+        return { member, alreadyMember: false };
+      },
       { companyId: intent.companyId },
     );
-
+    const { member, alreadyMember } = joined;
     await this.activate(session.session.id, session.user.id, email, member.companyId);
+    if (alreadyMember)
+      return { ok: true as const, data: { companyId: member.companyId, status: member.status, alreadyMember } };
 
     await runWithTenant(member, () =>
       this.eventService.publish(DomainEvent.USER_REGISTERED, {

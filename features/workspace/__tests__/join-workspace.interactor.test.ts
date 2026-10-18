@@ -119,4 +119,20 @@ describe("JoinWorkspaceInteractor", () => {
     expect(result.ok).toBe(true);
     expect(repo.registerExistingCompany).toHaveBeenCalledWith(expect.objectContaining({ agreeToTerms: false }));
   });
+
+  it("answers alreadyMember when a parallel request created the membership while this one waited for the lock", async () => {
+    memberships.findMembershipUnscoped
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({ ...member, status: "pendingAuthorization" });
+
+    const result = await interactor().invoke({ intent: "signed-intent", agreeToTerms: true });
+
+    expect(result).toEqual({
+      ok: true,
+      data: { companyId: "company-invited", status: "pendingAuthorization", alreadyMember: true },
+    });
+    expect(repo.registerExistingCompany).not.toHaveBeenCalled();
+    expect(eventService.publish).not.toHaveBeenCalled();
+    expect(authService.setSessionActiveCompany).toHaveBeenCalledWith("session-1", "company-invited");
+  });
 });
