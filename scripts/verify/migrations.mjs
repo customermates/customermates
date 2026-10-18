@@ -15,6 +15,10 @@ import { relative, resolve } from "node:path";
 import { databaseEnvironment, prepareDatabase } from "./lib/database.mjs";
 import { ensureCluster, recreateDatabase, serverVersion } from "./lib/postgres.mjs";
 import { capture, formatDuration, parseArguments, REPO_ROOT, run, seconds, table } from "./lib/process.mjs";
+if (process.argv.includes("--help") || process.argv.includes("-h")) {
+  console.log(readFileSync(new URL(import.meta.url), "utf8").split("*/")[0].replace(/^#!.*\n/, "").replace(/^\/\*\*?|^ \* ?/gm, ""));
+  process.exit(0);
+}
 
 const options = parseArguments(process.argv.slice(2), { from: "origin/main", skipPg16: false, skipUpgrade: false, runId: "" });
 const startedAt = Date.now();

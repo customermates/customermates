@@ -5,6 +5,7 @@ import { calculationChip, calculationFlow, chooseValueSource, pickOption } from 
 import { addFromConfigure, openConfigure, openConfigureRow, openDrawerTab, saveDrawer } from "./configure";
 import { expect, test, collectPageErrors } from "./fixtures";
 import { readModel } from "./api";
+import { e2eAppMode } from "./workspace-switching";
 
 async function selectOption(page: Page, label: string, option: string) {
   await page.getByRole("dialog").getByRole("combobox", { name: label, exact: true }).click();
@@ -315,11 +316,16 @@ test("hides the composer and keeps the flow unchanged when drafting isn't availa
   const flow = calculationFlow(page);
   const sentence = await flow.locator("[data-calculation-sentence]").textContent();
   const composer = dialog.getByRole("textbox", { name: "Describe the calculation", exact: true });
-  await expect(composer).toBeVisible();
-  await composer.fill("Weighted value is the value times the stage probability");
-  await composer.press("Enter");
-  await expect(dialog.getByText("Drafting isn't available right now.", { exact: true })).toBeVisible();
-  await expect(composer).toHaveCount(0);
+  if (e2eAppMode() === "self-hosted") {
+    // Drafting runs on the cloud-only assistant Mate, so self-hosted never shows the composer.
+    await expect(composer).toHaveCount(0);
+  } else {
+    await expect(composer).toBeVisible();
+    await composer.fill("Weighted value is the value times the stage probability");
+    await composer.press("Enter");
+    await expect(dialog.getByText("Drafting isn't available right now.", { exact: true })).toBeVisible();
+    await expect(composer).toHaveCount(0);
+  }
   await expect(flow.locator("[data-calculation-sentence]")).toHaveText(sentence ?? "");
   await expect(dialog.getByRole("button", { name: "Save", exact: true }).first()).toBeDisabled();
   expect(errors).toEqual([]);

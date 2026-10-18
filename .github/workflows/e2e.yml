@@ -65,7 +65,8 @@ jobs:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - uses: ./.github/actions/setup
       - name: Write the synthetic E2E environment
-        run: node --input-type=module -e "import { writeEnvFile } from './scripts/verify/lib/app-copy.mjs'; writeEnvFile(process.cwd(), process.env.APP_MODE, { databaseUrl: 'postgresql://postgres:postgres@127.0.0.1:5432/crm_e2e_build', secret: process.env.BETTER_AUTH_SECRET });"
+        run: |
+          node --input-type=module -e "import { writeEnvFile } from './scripts/verify/lib/app-copy.mjs'; writeEnvFile(process.cwd(), process.env.APP_MODE, { databaseUrl: 'postgresql://postgres:postgres@127.0.0.1:5432/crm_e2e_build', secret: process.env.BETTER_AUTH_SECRET });"
       - name: Restore the Next.js build cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:

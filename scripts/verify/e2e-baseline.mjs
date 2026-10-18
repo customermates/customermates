@@ -14,6 +14,10 @@ import { dirname, resolve } from "node:path";
 
 import { compareWithBaseline, mergeOutcomes, parseTarget, testOutcomes, updateBaseline } from "./lib/e2e-results.mjs";
 import { parseArguments, REPO_ROOT, table } from "./lib/process.mjs";
+if (process.argv.includes("--help") || process.argv.includes("-h")) {
+  console.log(readFileSync(new URL(import.meta.url), "utf8").split("*/")[0].replace(/^#!.*\n/, "").replace(/^\/\*\*?|^ \* ?/gm, ""));
+  process.exit(0);
+}
 
 const options = parseArguments(process.argv.slice(2), {
   target: "",

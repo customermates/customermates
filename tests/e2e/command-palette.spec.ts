@@ -4,6 +4,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { collectPageErrors, test, expect } from "./fixtures";
 import { invokesServerAction, serverActionIds } from "./server-actions";
+import { e2eAppMode } from "./workspace-switching";
 
 async function api(page: Page, path: string, data: unknown) {
   const response = await page.request.post(path, { data, timeout: 60000 });
@@ -207,10 +208,12 @@ async function answerResolver(route: Route, resolution: unknown) {
 }
 
 test.describe("Ask Mate fallback", () => {
+  test.skip(e2eAppMode() === "self-hosted", "The palette resolver and Ask Mate need the cloud-only assistant Mate");
   test("resolves a request with conditions to a filtered list and falls back to Ask Mate", async ({
     page,
     companyId,
     diagnostics,
+    browserName,
   }) => {
     test.setTimeout(180000);
     const id = (key: string) => presetId(companyId, key);
@@ -296,7 +299,9 @@ test.describe("Ask Mate fallback", () => {
     });
     // The offline e2e server has no hosted AI, so Mate answers the handed-over question with a 422.
     expect(mateResponse.status()).toBe(422);
-    await expect.poll(() => offlineMate.events.length).toBe(1);
+    // Chromium and WebKit log a response with an HTTP error status as "Failed to load resource"; Firefox writes no
+    // console message for it, so there is nothing to expect there.
+    await expect.poll(() => offlineMate.events.length).toBe(browserName === "firefox" ? 0 : 1);
     expect(errors).toEqual([]);
   });
 });

@@ -12,10 +12,15 @@
  * [targets] / --no-offload, --no-e2e, --no-vitest, --no-static, --live / --no-live, --shards N (Playwright shards per
  * target). Use the full tier for auth, roles and permissions, migrations, sending, billing, and before a release.
  */
+import { readFileSync as readSource } from "node:fs";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import { capture, cleanEnvironment, formatDuration, parseArguments, REPO_ROOT, run, seconds, table } from "./lib/process.mjs";
+if (process.argv.includes("--help") || process.argv.includes("-h")) {
+  console.log(readSource(new URL(import.meta.url), "utf8").split("*/")[0].replace(/^#!.*\n/, "").replace(/^\/\*\*?|^ \* ?/gm, ""));
+  process.exit(0);
+}
 
 const RISKY = [
   [/^prisma\//, "database schema or migrations"],

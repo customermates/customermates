@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
 import { followConfigureLink, saveGeneral } from "./configure";
 import { expect, test, collectPageErrors } from "./fixtures";
+import { e2eAppMode } from "./workspace-switching";
 
 test("sends the removed fixed-entity routes to the pages of their type", async ({ page, companyId }) => {
   const errors = collectPageErrors(page);
@@ -94,7 +95,8 @@ test("uses configured navigation, quick creation, rename-safe routes, and hidden
   await page.goto(`/en/records/${typeId}`);
   await expect(page.locator("#records-add")).toBeVisible();
   await openSidebar();
-  await expect(page.locator("#nav-assistant")).toBeVisible();
+  if (e2eAppMode() === "self-hosted") await expect(page.locator("#nav-assistant")).toHaveCount(0);
+  else await expect(page.locator("#nav-assistant")).toBeVisible();
   await page.waitForLoadState("networkidle");
   await page.reload();
   await openSidebar();

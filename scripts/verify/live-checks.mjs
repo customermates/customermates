@@ -14,15 +14,19 @@ import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { relative, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 
-import { buildAppCopy, e2eEnvironment, sourceDigest, syncAppCopy } from "./lib/app-copy.mjs";
+import { buildAppCopy, e2eEnvironment, sourceDigest, syncAppCopy, withCopyLock } from "./lib/app-copy.mjs";
 import { prepareDatabase } from "./lib/database.mjs";
 import { testOutcomes } from "./lib/e2e-results.mjs";
 import { ensureCluster, recreateDatabase } from "./lib/postgres.mjs";
 import { cleanEnvironment, formatDuration, parseArguments, REPO_ROOT, run, seconds, table } from "./lib/process.mjs";
 import { isTestInbox, TEST_ACCOUNT_IDS } from "../../tests/e2e/live/live-allowlist.mjs";
+if (process.argv.includes("--help") || process.argv.includes("-h")) {
+  console.log(readFileSync(new URL(import.meta.url), "utf8").split("*/")[0].replace(/^#!.*\n/, "").replace(/^\/\*\*?|^ \* ?/gm, ""));
+  process.exit(0);
+}
 
 const SECRETS = ["UNIPILE_API_KEY", "UNIPILE_TEST_SENDER_EMAIL", "UNIPILE_TEST_RECEIVER_EMAIL"];
-const options = parseArguments(process.argv.slice(2), { runId: "", rebuild: false, grep: "" });
+const options = parseArguments(process.argv.slice(2), { runId: "", rebuild: false, grep: "", preflight: false });
 
 if (SECRETS.some((name) => !process.env[name])) {
   if (process.env.CRM_LIVE_SECRETS_LOADED) {
@@ -56,15 +60,20 @@ for (const account of TEST_ACCOUNT_IDS) {
     process.exit(2);
   }
 }
-log("both fixture accounts are reachable");
+log("both fixture accounts are reachable and both addresses are the designated test inboxes");
+if (options.preflight) process.exit(0);
 
 const cluster = await ensureCluster(17);
 const templateUrl = await recreateDatabase(cluster, "crm_e2e_live_template");
-const copy = await syncAppCopy("cloud", { databaseUrl: templateUrl, log: resolve(directory, "build.log") });
-const [database, build] = await Promise.all([
-  prepareDatabase(templateUrl, { mode: "cloud", log: resolve(directory, "database.log") }),
-  buildAppCopy("cloud", { digest: await sourceDigest(), databaseUrl: templateUrl, secret: copy.secret, log: resolve(directory, "build.log"), force: options.rebuild }),
-]);
+const digest = await sourceDigest();
+const { copy, database, build } = await withCopyLock("cloud", async () => {
+  const synced = await syncAppCopy("cloud", { databaseUrl: templateUrl, log: resolve(directory, "build.log") });
+  const [prepared, built] = await Promise.all([
+    prepareDatabase(templateUrl, { mode: "cloud", log: resolve(directory, "database.log") }),
+    buildAppCopy("cloud", { digest, databaseUrl: templateUrl, secret: synced.secret, log: resolve(directory, "build.log"), force: options.rebuild }),
+  ]);
+  return { copy: synced, database: prepared, build: built };
+});
 if (!database.ok || build.code !== 0) {
   console.error(`live-checks: ${database.ok ? "the cloud build" : `database ${database.failedStep}`} failed; see ${relative(REPO_ROOT, directory)}/`);
   process.exit(1);

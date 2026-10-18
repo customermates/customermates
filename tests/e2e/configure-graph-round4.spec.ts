@@ -103,6 +103,10 @@ test("creates a sub-list from the parent's Add menu and groups it with the paren
     messagesOnSource: false,
     messagesOnTarget: false,
   });
+  // Saving a new list opens it: a sub-list, which has no record page of its own, opens in Configure. A navigation
+  // started before that one lands is cancelled by it.
+  await expect(page).toHaveURL(new RegExp(`/en/configure\\?typeId=${milestone?.id}$`));
+  await expect(page.locator("[data-configure-list-pane]")).toBeVisible();
 
   await openConfigure(page);
   const node = page.locator(`[data-configure-node="${milestone?.id}"]`);

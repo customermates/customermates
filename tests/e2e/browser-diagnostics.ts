@@ -93,7 +93,9 @@ export class BrowserDiagnostics {
   private readonly rules: Array<{ rule: ExpectedDiagnosticRule; events: BrowserDiagnostic[] }> = [];
   private readonly views = new Map<Page, string[][]>();
   private readonly cancelledChunks = new Map<Page, Set<string>>();
+  private readonly settledChunks = new Map<Page, { chunks: Set<string>; at: number }>();
   private readonly abortedLoads = new Set<Page>();
+  private readonly navigations = new Map<Page, { requested: Set<string>; loadedAt?: number }>();
   private readonly sinceLoad = new Map<Page, BrowserDiagnostic[]>();
 
   watch(context: BrowserContext) {
@@ -108,12 +110,15 @@ export class BrowserDiagnostics {
       if (isAppConsoleError(message))
         this.record({ kind: "console", text: message.text(), source: message.location().url, page: message.page() });
     });
+    context.on("request", (request: Request) => this.noteRequest(request));
     context.on("requestfailed", (request: Request) => {
       this.noteCancelledChunk(request);
       this.noteAbortedLoad(request);
     });
     const watchPage = (page: Page) =>
       page.on("domcontentloaded", () => {
+        const navigation = this.navigations.get(page);
+        if (navigation && navigation.loadedAt === undefined) navigation.loadedAt = Date.now();
         this.dropCancelledChunkErrors(page);
         this.dropAbortedLoadReports(page);
         this.sinceLoad.delete(page);
@@ -159,6 +164,9 @@ export class BrowserDiagnostics {
 
   private record(diagnostic: BrowserDiagnostic) {
     if (isSandboxedResourceFailure(diagnostic)) return;
+    const settled = diagnostic.page ? this.settledChunks.get(diagnostic.page) : undefined;
+    if (settled && Date.now() - settled.at < 3000 && settled.chunks.has(chunkLoadErrorChunk(diagnostic.text) ?? "")) return;
+    if (this.isRefusedChunk(diagnostic)) return;
     const owner = this.rules.find(
       ({ rule, events }) => events.length < (rule.limit ?? 1) && matchesExpectedDiagnostic(rule, diagnostic),
     );
@@ -170,6 +178,31 @@ export class BrowserDiagnostics {
     if (!diagnostic.page) return;
     this.sinceLoad.set(diagnostic.page, [...(this.sinceLoad.get(diagnostic.page) ?? []), diagnostic]);
     for (const texts of this.views.get(diagnostic.page) ?? []) texts.push(diagnostic.text);
+  }
+
+  /** Notes each document navigation of a page's main frame and the chunks the page requested since it started. */
+  private noteRequest(request: Request) {
+    const page = requestPage(request);
+    if (!page) return;
+    if (request.isNavigationRequest() && request.frame() === page.mainFrame()) {
+      if (!request.redirectedFrom()) this.navigations.set(page, { requested: new Set() });
+      return;
+    }
+    const { pathname } = new URL(request.url());
+    if (pathname.startsWith("/_next/static/chunks/")) this.navigations.get(page)?.requested.add(pathname);
+  }
+
+  /**
+   * Once a document navigation has started, WebKit refuses the chunk loads the old document still starts (a dynamic
+   * import its hydration reaches only then) without sending a request, and the old document reports a ChunkLoadError,
+   * at the latest just after the next page loaded. A chunk that really failed was requested, so its error stays.
+   */
+  private isRefusedChunk(diagnostic: BrowserDiagnostic) {
+    const chunk = chunkLoadErrorChunk(diagnostic.text);
+    const navigation = chunk && diagnostic.page ? this.navigations.get(diagnostic.page) : undefined;
+    if (!chunk || !navigation) return false;
+    if (navigation.loadedAt !== undefined && Date.now() - navigation.loadedAt >= 3000) return false;
+    return !navigation.requested.has(chunk);
   }
 
   private noteCancelledChunk(request: Request) {
@@ -203,6 +236,9 @@ export class BrowserDiagnostics {
     const chunks = this.cancelledChunks.get(page);
     if (!chunks) return;
     this.cancelledChunks.delete(page);
+    // WebKit can report the ChunkLoadError of a chunk it cancelled just after the next page has loaded; it is the same
+    // noise. A failure of that chunk seconds later is the new page's own and stays unexpected.
+    this.settledChunks.set(page, { chunks, at: Date.now() });
     const cancelled = (text: string) => chunks.has(chunkLoadErrorChunk(text) ?? "");
     const kept = this.unexpected.filter((diagnostic) => diagnostic.page !== page || !cancelled(diagnostic.text));
     this.unexpected.splice(0, this.unexpected.length, ...kept);

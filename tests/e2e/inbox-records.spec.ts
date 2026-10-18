@@ -1,6 +1,9 @@
 import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
 import { expect, test, collectPageErrors } from "./fixtures";
+import { e2eAppMode } from "./workspace-switching";
+
+test.skip(e2eAppMode() === "self-hosted", "The Inbox, where conversation records are linked, is available on Customermates Cloud only");
 
 test("creates, unlinks and relinks a generic person from the inbox", async ({
   page,

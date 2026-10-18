@@ -146,13 +146,23 @@ function refusesChangedWorkspace(body: string) {
   return body.includes(WORKSPACE_CHANGED_DIGEST) || body.includes(`"${CustomErrorCode.workspaceChanged}"`);
 }
 
-export function expectRefusedPageAction(page: Page, path: string) {
+/**
+ * Records the page's server-action POSTs to `path`. The body is read through a route because Chromium often drops the
+ * body of a streamed action response before `response.text()` can fetch it ("No data found for resource").
+ */
+export async function expectRefusedPageAction(page: Page, path: string) {
   const refusals: Array<{ status: number; workspaceChanged: boolean }> = [];
-  page.on("response", async (response) => {
-    if (new URL(response.url()).pathname !== path || response.request().method() !== "POST") return;
-    const body = await response.text().catch(() => "");
-    refusals.push({ status: response.status(), workspaceChanged: refusesChangedWorkspace(body) });
-  });
+  await page.route(
+    (url) => url.pathname === path,
+    async (route) => {
+      if (route.request().method() !== "POST") return route.fallback();
+      const response = await route.fetch().catch(() => null);
+      if (!response) return route.abort().catch(() => undefined);
+      const body = await response.text();
+      refusals.push({ status: response.status(), workspaceChanged: refusesChangedWorkspace(body) });
+      await route.fulfill({ response, body });
+    },
+  );
   return refusals;
 }
 

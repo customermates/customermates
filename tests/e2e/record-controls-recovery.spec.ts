@@ -15,6 +15,7 @@ import { test, expect, collectPageErrors } from "./fixtures";
 import { postOk } from "./api";
 import { openRecordDetails, openRecordLink, recordRows } from "./record-rows";
 import { invokesServerAction, serverActionIds } from "./server-actions";
+import { e2eAppMode } from "./workspace-switching";
 import { presetId } from "../../features/records/crm-preset";
 import {
   RecordModelSchema,
@@ -274,18 +275,23 @@ test("paginates and retries record and widget history, restores a personal timel
     )
     .toBe(savedView.id);
   await drawerHistory.locator("#global-data-views-menu").click();
-  await page.locator("#global-data-views-ai").click();
-  const contexts = page.getByTestId("agent-composer-contexts");
-  await expect(contexts.getByText(name, { exact: true })).toBeVisible();
-  await expect(contexts).toContainText(viewName);
-  await expect(drawer).toBeVisible();
-  await expect(drawerHistory.getByRole("link", { name: viewName, exact: true })).toHaveAttribute(
-    "aria-current",
-    "page",
-  );
-  await expect(page).toHaveURL(parentUrl);
-  await page.getByTestId("agent-panel").getByRole("button", { name: "Close", exact: true }).click();
-  await drawerHistory.locator("#global-data-views-menu").click();
+  if (e2eAppMode() === "self-hosted") {
+    await expect(page.getByRole("menuitem", { name: english.DataView.views.duplicate, exact: true })).toBeVisible();
+    await expect(page.locator("#global-data-views-ai")).toHaveCount(0);
+  } else {
+    await page.locator("#global-data-views-ai").click();
+    const contexts = page.getByTestId("agent-composer-contexts");
+    await expect(contexts.getByText(name, { exact: true })).toBeVisible();
+    await expect(contexts).toContainText(viewName);
+    await expect(drawer).toBeVisible();
+    await expect(drawerHistory.getByRole("link", { name: viewName, exact: true })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    await expect(page).toHaveURL(parentUrl);
+    await page.getByTestId("agent-panel").getByRole("button", { name: "Close", exact: true }).click();
+    await drawerHistory.locator("#global-data-views-menu").click();
+  }
   await page.getByRole("menuitem", { name: english.DataView.views.duplicate, exact: true }).click();
   const temporaryViewName = "Drawer history copy";
   await page.locator("#view-editor-name").fill(temporaryViewName);
@@ -814,6 +820,7 @@ test("uses explicit activity record scope, event kinds, positive and negative re
   companyId,
   workspace,
 }, testInfo) => {
+  test.skip(e2eAppMode() === "self-hosted", "Message activities need the cloud-only messaging entitlement");
   test.setTimeout(300000);
   const evidence = transportEvidence(page);
   const id = (key: string) => presetId(companyId, key);
@@ -993,97 +1000,100 @@ test("retries failed participant and conversation searches and deletes a real re
       },
     ],
   });
-  const threads = await messageFixtures(database, companyId, workspace.userId, [
-    {
-      email: "retry-sender@example.test",
-      name: "Retry Sender",
-      body: "Unlinked retry conversation",
-    },
-  ]);
-  await page.goto(`/en/inbox?threadId=${threads[0]}`);
-  await page
-    .getByRole("button", { name: english.Inbox.settings.title, exact: true })
-    .and(page.locator('[data-slot="badge"]'))
-    .click();
-  const settings = page.getByRole("dialog", {
-    name: english.Inbox.settings.title,
-    exact: true,
-  });
-  await settings.getByRole("button", { name: english.Inbox.participants.link, exact: true }).click();
-  await expect(settings.getByRole("combobox")).toBeVisible();
-  let personFault = true;
-  let conversationFault = false;
-  await page.route("**/*", async (route) => {
-    const args = nextArguments(route.request());
-    if (personFault && JSON.stringify(args) === JSON.stringify(["Retry Person"])) {
-      personFault = false;
-      await evidence.failResponse(route, "participant search");
-    } else if (
-      conversationFault &&
-      args?.length === 1 &&
-      typeof args[0] === "object" &&
-      args[0] !== null &&
-      "searchTerm" in args[0] &&
-      args[0].searchTerm === "Retry conversation deal"
-    ) {
-      conversationFault = false;
-      await evidence.failResponse(route, "conversation search");
-    } else await route.fallback();
-  });
-  await settings.getByRole("combobox").fill("Retry Person");
-  await expect(settings.getByRole("alert")).toBeVisible();
-  await settings.getByRole("button", { name: english.ErrorCard.retry, exact: true }).click();
-  await expect(settings.getByRole("option", { name: "Retry Person", exact: true })).toBeVisible();
-  await expect(settings.getByRole("alert")).toHaveCount(0);
-  await settings.getByRole("option", { name: "Retry Person", exact: true }).click();
-  await expect(
-    settings.getByRole("button", {
-      name: "Open record: Retry Person",
+  const inbox = e2eAppMode() !== "self-hosted";
+  if (inbox) {
+    const threads = await messageFixtures(database, companyId, workspace.userId, [
+      {
+        email: "retry-sender@example.test",
+        name: "Retry Sender",
+        body: "Unlinked retry conversation",
+      },
+    ]);
+    await page.goto(`/en/inbox?threadId=${threads[0]}`);
+    await page
+      .getByRole("button", { name: english.Inbox.settings.title, exact: true })
+      .and(page.locator('[data-slot="badge"]'))
+      .click();
+    const settings = page.getByRole("dialog", {
+      name: english.Inbox.settings.title,
       exact: true,
-    }),
-  ).toBeVisible();
-  expect(
-    (
-      await database.query(
-        'SELECT "recordId" FROM "RecordIdentityLink" WHERE "companyId"=$1 AND "typeId"=$2 ORDER BY "identityId"',
-        [companyId, id("contact")],
-      )
-    ).rows,
-  ).toEqual([{ recordId: person.recordId }, { recordId: person.recordId }]);
-  const conversation = settings.getByRole("region", {
-    name: english.Inbox.participants.conversationRecords,
-    exact: true,
-  });
-  await conversation
-    .getByRole("button", {
-      name: english.Inbox.participants.linkRecord,
+    });
+    await settings.getByRole("button", { name: english.Inbox.participants.link, exact: true }).click();
+    await expect(settings.getByRole("combobox")).toBeVisible();
+    let personFault = true;
+    let conversationFault = false;
+    await page.route("**/*", async (route) => {
+      const args = nextArguments(route.request());
+      if (personFault && JSON.stringify(args) === JSON.stringify(["Retry Person"])) {
+        personFault = false;
+        await evidence.failResponse(route, "participant search");
+      } else if (
+        conversationFault &&
+        args?.length === 1 &&
+        typeof args[0] === "object" &&
+        args[0] !== null &&
+        "searchTerm" in args[0] &&
+        args[0].searchTerm === "Retry conversation deal"
+      ) {
+        conversationFault = false;
+        await evidence.failResponse(route, "conversation search");
+      } else await route.fallback();
+    });
+    await settings.getByRole("combobox").fill("Retry Person");
+    await expect(settings.getByRole("alert")).toBeVisible();
+    await settings.getByRole("button", { name: english.ErrorCard.retry, exact: true }).click();
+    await expect(settings.getByRole("option", { name: "Retry Person", exact: true })).toBeVisible();
+    await expect(settings.getByRole("alert")).toHaveCount(0);
+    await settings.getByRole("option", { name: "Retry Person", exact: true }).click();
+    await expect(
+      settings.getByRole("button", {
+        name: "Open record: Retry Person",
+        exact: true,
+      }),
+    ).toBeVisible();
+    expect(
+      (
+        await database.query(
+          'SELECT "recordId" FROM "RecordIdentityLink" WHERE "companyId"=$1 AND "typeId"=$2 ORDER BY "identityId"',
+          [companyId, id("contact")],
+        )
+      ).rows,
+    ).toEqual([{ recordId: person.recordId }, { recordId: person.recordId }]);
+    const conversation = settings.getByRole("region", {
+      name: english.Inbox.participants.conversationRecords,
       exact: true,
-    })
-    .click();
-  conversationFault = true;
-  await conversation.getByRole("combobox").fill("Retry conversation deal");
-  await expect(conversation.getByRole("alert")).toBeVisible();
-  await conversation.getByRole("button", { name: english.ErrorCard.retry, exact: true }).click();
-  await expect(conversation.getByRole("option").filter({ hasText: "Retry conversation deal" })).toBeVisible();
-  await expect(conversation.getByRole("alert")).toHaveCount(0);
-  await conversation.getByRole("option").filter({ hasText: "Retry conversation deal" }).click();
-  await expect(
-    conversation.getByRole("button", {
-      name: "Open record: Retry conversation deal",
-      exact: true,
-    }),
-  ).toBeVisible();
-  expect(
-    (
-      await database.query(
-        'SELECT "threadId","typeId","recordId" FROM "MessagingThreadRecordLink" WHERE "companyId"=$1',
-        [companyId],
-      )
-    ).rows,
-  ).toEqual([{ threadId: threads[0], typeId: deal.typeId, recordId: deal.recordId }]);
-  await page.keyboard.press("Escape");
-  await expect(settings).not.toBeVisible();
-  await page.unrouteAll({ behavior: "wait" });
+    });
+    await conversation
+      .getByRole("button", {
+        name: english.Inbox.participants.linkRecord,
+        exact: true,
+      })
+      .click();
+    conversationFault = true;
+    await conversation.getByRole("combobox").fill("Retry conversation deal");
+    await expect(conversation.getByRole("alert")).toBeVisible();
+    await conversation.getByRole("button", { name: english.ErrorCard.retry, exact: true }).click();
+    await expect(conversation.getByRole("option").filter({ hasText: "Retry conversation deal" })).toBeVisible();
+    await expect(conversation.getByRole("alert")).toHaveCount(0);
+    await conversation.getByRole("option").filter({ hasText: "Retry conversation deal" }).click();
+    await expect(
+      conversation.getByRole("button", {
+        name: "Open record: Retry conversation deal",
+        exact: true,
+      }),
+    ).toBeVisible();
+    expect(
+      (
+        await database.query(
+          'SELECT "threadId","typeId","recordId" FROM "MessagingThreadRecordLink" WHERE "companyId"=$1',
+          [companyId],
+        )
+      ).rows,
+    ).toEqual([{ threadId: threads[0], typeId: deal.typeId, recordId: deal.recordId }]);
+    await page.keyboard.press("Escape");
+    await expect(settings).not.toBeVisible();
+    await page.unrouteAll({ behavior: "wait" });
+  }
   await page.goto(`/en/records/${service.typeId}/${service.recordId}`);
   const projection = page.getByRole("region", { name: "Deals", exact: true });
   await projection
@@ -1122,7 +1132,7 @@ test("retries failed participant and conversation searches and deletes a real re
   ).toEqual([{ count: 2 }]);
   await page.goto(`/en/records/${service.typeId}/${service.recordId}`);
   await expect(page.getByRole("region", { name: "Deals", exact: true })).toHaveCount(0);
-  await evidence.verify(testInfo, ["participant search", "conversation search"]);
+  await evidence.verify(testInfo, inbox ? ["participant search", "conversation search"] : []);
 });
 
 test("retains readable list content after a failed refresh and retries the empty-list error without changing persisted records", async ({

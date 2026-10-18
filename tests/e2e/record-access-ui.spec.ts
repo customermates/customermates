@@ -38,6 +38,7 @@ import { postOk, readModel as readStoredModel } from "./api";
 import { saveViewChanges } from "./view-changes";
 import { openRecordDetails, recordItem, runRowAction } from "./record-rows";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
+import { e2eAppMode } from "./workspace-switching";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { RecordIdentityReferenceSchema } from "../../features/records/record-identity-reference.schema";
 import { recordInvariant } from "../../features/records/record-invariant";
@@ -477,7 +478,9 @@ test("admits an assigned-record writer and separately delegates schema configura
     const configure = member.page.locator("#nav-configure-records");
     if (!(await configure.isVisible()))
       await member.page.locator("#sidebar-trigger").click();
-    await expect(member.page.locator("#nav-assistant")).toBeVisible();
+    if (e2eAppMode() === "self-hosted")
+      await expect(member.page.locator("#nav-assistant")).toHaveCount(0);
+    else await expect(member.page.locator("#nav-assistant")).toBeVisible();
     await expect(configure).toHaveAttribute("href", "/en/configure");
     await configure.click();
     await expect(member.page).toHaveURL(
@@ -1007,168 +1010,171 @@ test("keeps shared Inbox participants permission-scoped across genuine readers a
         })
       ).status(),
     ).toBe(403);
-    for (const member of [noAccess, reader])
-      expect(
-        (
-          await member.page.request.get(`/api/v1/messaging/threads/${threadId}`)
-        ).status(),
-      ).toBe(404);
+    const inbox = e2eAppMode() !== "self-hosted";
+    if (inbox) {
+      for (const member of [noAccess, reader])
+        expect(
+          (
+            await member.page.request.get(`/api/v1/messaging/threads/${threadId}`)
+          ).status(),
+        ).toBe(404);
 
-    const settingsName = englishMessages.Inbox.settings.title;
-    const adminSettings = page.getByRole("dialog", {
-      name: settingsName,
-      exact: true,
-    });
-    const openSettings = async (actorPage: Page) => {
-      await actorPage.goto(`/en/inbox?threadId=${threadId}`);
-      await actorPage
-        .getByRole("button", { name: settingsName, exact: true })
-        .and(actorPage.locator('[data-slot="badge"]'))
-        .click();
-      const settings = actorPage.getByRole("dialog", {
+      const settingsName = englishMessages.Inbox.settings.title;
+      const adminSettings = page.getByRole("dialog", {
         name: settingsName,
         exact: true,
       });
-      await expect(settings).toBeVisible();
-      return settings;
-    };
-    await openSettings(page);
-    await adminSettings.locator("#thread-shared").click();
-    await expect(adminSettings.locator("#thread-shared")).toBeChecked();
-    await expect
-      .poll(
-        async () =>
-          (
-            await database.query(
-              'SELECT "sharedToCrm" FROM "MessagingThread" WHERE "companyId"=$1 AND id=$2',
-              [companyId, threadId],
-            )
-          ).rows,
-      )
-      .toEqual([{ sharedToCrm: true }]);
-    for (const [member, readable] of [
-      [noAccess, false],
-      [reader, true],
-    ] as const) {
-      const response = await member.page.request.get(
-        `/api/v1/messaging/threads/${threadId}`,
-      );
-      expect(response.status(), await response.text()).toBe(200);
-      const detail = z
-        .object({
-          thread: z.object({
-            participants: z.array(
-              z.object({
-                records: z.array(
-                  z.object({
-                    ref: z.object({ typeId: z.uuid(), recordId: z.uuid() }),
-                    canEdit: z.boolean(),
-                  }),
-                ),
-              }),
-            ),
-          }),
-        })
-        .parse(await response.json());
-      expect(
-        detail.thread.participants.flatMap((participant) =>
-          participant.records.map((record) => record.ref),
-        ),
-      ).toEqual(readable ? [contact] : []);
-      for (const participant of detail.thread.participants)
-        expect(participant.records.every((record) => !record.canEdit)).toBe(
-          true,
-        );
-      const settings = await openSettings(member.page);
-      await expect(settings.locator("#thread-shared")).toBeChecked();
-      await expect(settings.locator("#thread-shared")).toBeDisabled();
-      await expect(
-        settings.getByRole("button", {
-          name: "Open record: Private CRM Ada",
+      const openSettings = async (actorPage: Page) => {
+        await actorPage.goto(`/en/inbox?threadId=${threadId}`);
+        await actorPage
+          .getByRole("button", { name: settingsName, exact: true })
+          .and(actorPage.locator('[data-slot="badge"]'))
+          .click();
+        const settings = actorPage.getByRole("dialog", {
+          name: settingsName,
           exact: true,
-        }),
-      ).toHaveCount(readable ? 1 : 0);
-      await expect(
-        settings.getByRole("button", { name: /^Unlink record:/ }),
-      ).toHaveCount(0);
-      await expect(
-        settings.getByRole("button", { name: "Link", exact: true }),
-      ).toHaveCount(0);
-      await expect(
-        settings
-          .getByRole("region", { name: "Conversation records", exact: true })
-          .getByRole("button", { name: "Link record", exact: true }),
-      ).toHaveCount(0);
-      if (!readable)
+        });
+        await expect(settings).toBeVisible();
+        return settings;
+      };
+      await openSettings(page);
+      await adminSettings.locator("#thread-shared").click();
+      await expect(adminSettings.locator("#thread-shared")).toBeChecked();
+      await expect
+        .poll(
+          async () =>
+            (
+              await database.query(
+                'SELECT "sharedToCrm" FROM "MessagingThread" WHERE "companyId"=$1 AND id=$2',
+                [companyId, threadId],
+              )
+            ).rows,
+        )
+        .toEqual([{ sharedToCrm: true }]);
+      for (const [member, readable] of [
+        [noAccess, false],
+        [reader, true],
+      ] as const) {
+        const response = await member.page.request.get(
+          `/api/v1/messaging/threads/${threadId}`,
+        );
+        expect(response.status(), await response.text()).toBe(200);
+        const detail = z
+          .object({
+            thread: z.object({
+              participants: z.array(
+                z.object({
+                  records: z.array(
+                    z.object({
+                      ref: z.object({ typeId: z.uuid(), recordId: z.uuid() }),
+                      canEdit: z.boolean(),
+                    }),
+                  ),
+                }),
+              ),
+            }),
+          })
+          .parse(await response.json());
+        expect(
+          detail.thread.participants.flatMap((participant) =>
+            participant.records.map((record) => record.ref),
+          ),
+        ).toEqual(readable ? [contact] : []);
+        for (const participant of detail.thread.participants)
+          expect(participant.records.every((record) => !record.canEdit)).toBe(
+            true,
+          );
+        const settings = await openSettings(member.page);
+        await expect(settings.locator("#thread-shared")).toBeChecked();
+        await expect(settings.locator("#thread-shared")).toBeDisabled();
         await expect(
-          settings.getByText("Private CRM Ada", { exact: true }),
-        ).toHaveCount(0);
-      await member.page.screenshot({
-        path: testInfo.outputPath(
-          readable
-            ? "reader-inbox-association.png"
-            : "inbox-without-record-access.png",
-        ),
-        animations: "disabled",
-      });
-      await member.page.keyboard.press("Escape");
-      await expect(member.page.locator("#sidebar-trigger")).toHaveAttribute(
-        "aria-disabled",
-        "false",
-      );
-      if (!(await member.page.locator("#nav-assistant").isVisible()))
-        await member.page.locator("#sidebar-trigger").click();
-      await expect(member.page.locator("#nav-assistant")).toBeVisible();
-      await expect(
-        member.page.locator(`[id="nav-records:${contactTypeId}"]`),
-      ).toHaveCount(readable ? 1 : 0);
-      await expect(member.page.locator("#nav-configure-records")).toHaveCount(
-        0,
-      );
-      await member.page.goto(`/en/inbox?threadId=${threadId}`);
-      await expect(
-        member.page.getByText(body, { exact: true }).last(),
-      ).toBeVisible();
-    }
-    await adminSettings.locator("#thread-shared").click();
-    await expect(adminSettings.locator("#thread-shared")).not.toBeChecked();
-    await expect
-      .poll(
-        async () =>
-          (
-            await database.query(
-              'SELECT "sharedToCrm" FROM "MessagingThread" WHERE "companyId"=$1 AND id=$2',
-              [companyId, threadId],
-            )
-          ).rows,
-      )
-      .toEqual([{ sharedToCrm: false }]);
-    for (const member of [noAccess, reader]) {
-      await member.page.goto("/en/inbox");
-      await expect(
-        member.page
-          .locator("#inbox-thread-list")
-          .getByText(englishMessages.Common.emptyState.genericTitle, {
+          settings.getByRole("button", {
+            name: "Open record: Private CRM Ada",
             exact: true,
           }),
-      ).toBeVisible();
-      await expect(
-        member.page.locator(`[data-thread-id="${threadId}"]`),
-      ).toHaveCount(0);
-      await expect(member.page.getByText(body, { exact: true })).toHaveCount(0);
-      expect(
-        (
-          await member.page.request.get(`/api/v1/messaging/threads/${threadId}`)
-        ).status(),
-      ).toBe(404);
-      expect(
-        (
-          await member.page.request.post(
-            "/api/v1/messaging/record-links/read",
-            { data: { threadId } },
-          )
-        ).status(),
-      ).toBe(404);
+        ).toHaveCount(readable ? 1 : 0);
+        await expect(
+          settings.getByRole("button", { name: /^Unlink record:/ }),
+        ).toHaveCount(0);
+        await expect(
+          settings.getByRole("button", { name: "Link", exact: true }),
+        ).toHaveCount(0);
+        await expect(
+          settings
+            .getByRole("region", { name: "Conversation records", exact: true })
+            .getByRole("button", { name: "Link record", exact: true }),
+        ).toHaveCount(0);
+        if (!readable)
+          await expect(
+            settings.getByText("Private CRM Ada", { exact: true }),
+          ).toHaveCount(0);
+        await member.page.screenshot({
+          path: testInfo.outputPath(
+            readable
+              ? "reader-inbox-association.png"
+              : "inbox-without-record-access.png",
+          ),
+          animations: "disabled",
+        });
+        await member.page.keyboard.press("Escape");
+        await expect(member.page.locator("#sidebar-trigger")).toHaveAttribute(
+          "aria-disabled",
+          "false",
+        );
+        if (!(await member.page.locator("#nav-assistant").isVisible()))
+          await member.page.locator("#sidebar-trigger").click();
+        await expect(member.page.locator("#nav-assistant")).toBeVisible();
+        await expect(
+          member.page.locator(`[id="nav-records:${contactTypeId}"]`),
+        ).toHaveCount(readable ? 1 : 0);
+        await expect(member.page.locator("#nav-configure-records")).toHaveCount(
+          0,
+        );
+        await member.page.goto(`/en/inbox?threadId=${threadId}`);
+        await expect(
+          member.page.getByText(body, { exact: true }).last(),
+        ).toBeVisible();
+      }
+      await adminSettings.locator("#thread-shared").click();
+      await expect(adminSettings.locator("#thread-shared")).not.toBeChecked();
+      await expect
+        .poll(
+          async () =>
+            (
+              await database.query(
+                'SELECT "sharedToCrm" FROM "MessagingThread" WHERE "companyId"=$1 AND id=$2',
+                [companyId, threadId],
+              )
+            ).rows,
+        )
+        .toEqual([{ sharedToCrm: false }]);
+      for (const member of [noAccess, reader]) {
+        await member.page.goto("/en/inbox");
+        await expect(
+          member.page
+            .locator("#inbox-thread-list")
+            .getByText(englishMessages.Common.emptyState.genericTitle, {
+              exact: true,
+            }),
+        ).toBeVisible();
+        await expect(
+          member.page.locator(`[data-thread-id="${threadId}"]`),
+        ).toHaveCount(0);
+        await expect(member.page.getByText(body, { exact: true })).toHaveCount(0);
+        expect(
+          (
+            await member.page.request.get(`/api/v1/messaging/threads/${threadId}`)
+          ).status(),
+        ).toBe(404);
+        expect(
+          (
+            await member.page.request.post(
+              "/api/v1/messaging/record-links/read",
+              { data: { threadId } },
+            )
+          ).status(),
+        ).toBe(404);
+      }
     }
     expect(
       (await readIdentities(reader.page)).matches[0]?.records.map(
@@ -1225,13 +1231,14 @@ test("keeps shared Inbox participants permission-scoped across genuine readers a
         })
       ).status(),
     ).toBe(404);
-    expect(
-      (
-        await foreign.page.request.post("/api/v1/messaging/record-links/read", {
-          data: { threadId },
-        })
-      ).status(),
-    ).toBe(404);
+    if (inbox)
+      expect(
+        (
+          await foreign.page.request.post("/api/v1/messaging/record-links/read", {
+            data: { threadId },
+          })
+        ).status(),
+      ).toBe(404);
     await foreign.page.goto(`/en/records/${foreignContactTypeId}`);
     await expect(
       foreign.page.getByRole("link", {
@@ -2031,6 +2038,12 @@ test("configures a two-hop relationship path and lets a genuine read-only user n
 });
 
 async function presentationAppearanceUi(page: Page) {
+  // A closing view menu returns focus to its trigger when its exit animation ends, which dismisses a just-opened popover.
+  await expect(
+    page.locator(
+      '[data-slot="dropdown-menu-content"][aria-labelledby="global-data-views-menu"]',
+    ),
+  ).toHaveCount(0);
   await page
     .getByRole("button", {
       name: englishMessages.Common.ariaLabels.tooltipFields,

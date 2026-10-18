@@ -80,22 +80,22 @@ test("each person customizes their own sidebar and others keep the default", asy
     .getByRole("button", { name: "Accounts", exact: true })
     .click();
   await expect(sidebarItem(page, "Contacts")).toBeHidden();
-  await (await itemMenu(page, "Inbox")).getByRole("menuitem", { name: "Hide from sidebar", exact: true }).click();
-  await expect(sidebarItem(page, "Inbox")).toHaveCount(0);
+  await (await itemMenu(page, "Knowledge Base")).getByRole("menuitem", { name: "Hide from sidebar", exact: true }).click();
+  await expect(sidebarItem(page, "Knowledge Base")).toHaveCount(0);
 
-  await expect.poll(() => storedLayout(database, workspace.userId)).toMatchObject({ hidden: ["inbox"] });
+  await expect.poll(() => storedLayout(database, workspace.userId)).toMatchObject({ hidden: ["wiki"] });
   await page.reload();
   await page.waitForLoadState("networkidle");
   await openSidebar(page);
   await expect(page.locator('[data-sidebar-section-label="Accounts"]')).toBeVisible();
   await expect(sidebarItem(page, "Contacts")).toBeHidden();
-  await expect(sidebarItem(page, "Inbox")).toHaveCount(0);
+  await expect(sidebarItem(page, "Knowledge Base")).toHaveCount(0);
 
   await openCustomize(page);
-  await page.getByRole("switch", { name: "Show Inbox" }).click();
+  await page.getByRole("switch", { name: "Show Knowledge Base" }).click();
   await page.keyboard.press("Escape");
   await openSidebar(page);
-  await expect(sidebarItem(page, "Inbox")).toBeVisible();
+  await expect(sidebarItem(page, "Knowledge Base")).toBeVisible();
 
   await (await sectionMenu(page, "Accounts")).getByRole("menuitem", { name: "Delete section", exact: true }).click();
   const confirm = page.getByRole("alertdialog");

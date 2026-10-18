@@ -10,6 +10,9 @@ import { expectBlockedEmailScripts } from "./browser-diagnostics";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { localE2eEnvironment } from "./local-environment";
 import { localWebhookSecret, responseLostAfterAcceptance, sentCopyUnavailable } from "./local-email-provider.mjs";
+import { e2eAppMode } from "./workspace-switching";
+
+test.skip(e2eAppMode() === "self-hosted", "Messaging (Inbox drafts and sending) is available on Customermates Cloud only");
 
 const RECIPIENT = "draft-recipient@example.test";
 

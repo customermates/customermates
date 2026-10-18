@@ -487,6 +487,7 @@ test("each paid workspace bills its own seats when members are approved or deact
   await expect(page).toHaveURL(/\/en\/subscription-expired$/);
   await choosePlan(page, "Business");
   await expect.poll(() => checkoutsFor(second.companyId).length).toBe(1);
+  await expect(page).toHaveURL(checkoutsFor(second.companyId)[0].url);
   expect(checkoutsFor(second.companyId)[0].variantQuantities).toEqual([
     { variant_id: Number(localLemonSqueezyVariants.business), quantity: 2 },
   ]);

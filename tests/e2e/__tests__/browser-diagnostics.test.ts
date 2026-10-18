@@ -17,7 +17,8 @@ function fakeEmitter() {
 function fakeBrowser() {
   const contextEvents = fakeEmitter();
   const pageEvents = fakeEmitter();
-  const page = { on: pageEvents.on, context: () => context } as unknown as Page;
+  const mainFrame = { page: () => page };
+  const page = { on: pageEvents.on, context: () => context, mainFrame: () => mainFrame } as unknown as Page;
   const context = { on: contextEvents.on, pages: () => [page] } as unknown as BrowserContext;
   return {
     context,
@@ -45,6 +46,15 @@ function fakeBrowser() {
         resourceType: () => resourceType,
         frame: () => ({ page: () => page }),
       }),
+    navigation: (url: string) =>
+      contextEvents.emit("request", {
+        url: () => url,
+        isNavigationRequest: () => true,
+        redirectedFrom: () => null,
+        frame: () => mainFrame,
+      }),
+    requested: (url: string) =>
+      contextEvents.emit("request", { url: () => url, isNavigationRequest: () => false, frame: () => mainFrame }),
     loaded: () => pageEvents.emit("domcontentloaded"),
   };
 }
@@ -128,6 +138,56 @@ describe("browser diagnostics", () => {
     expect(diagnostics.unexpected).toHaveLength(2);
     browser.loaded();
     expect(diagnostics.unexpected.map(({ text }) => text)).toEqual([missing]);
+  });
+
+  it("also forgets the cancelled chunk's error when WebKit reports it just after the next page loaded, not later", () => {
+    vi.useFakeTimers();
+    try {
+      const browser = fakeBrowser();
+      const diagnostics = new BrowserDiagnostics().watch(browser.context);
+      const cancelled = "ChunkLoadError: Failed to load chunk /_next/static/chunks/a1.js from module 1";
+      browser.cancelledChunk(`${BASE}/_next/static/chunks/a1.js`);
+      browser.loaded();
+      browser.pageError(cancelled);
+      browser.pageError("ChunkLoadError: Failed to load chunk /_next/static/chunks/b2.js from module 2");
+      expect(diagnostics.unexpected.map(({ text }) => text)).toEqual([
+        "ChunkLoadError: Failed to load chunk /_next/static/chunks/b2.js from module 2",
+      ]);
+      vi.advanceTimersByTime(5000);
+      browser.pageError(cancelled);
+      expect(diagnostics.unexpected).toHaveLength(2);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("forgets the error of a chunk WebKit refused to request because the page was navigating, but no other", () => {
+    vi.useFakeTimers();
+    try {
+      const browser = fakeBrowser();
+      const diagnostics = new BrowserDiagnostics().watch(browser.context);
+      const chunkError = (name: string) => `ChunkLoadError: Failed to load chunk /_next/static/chunks/${name}.js from module 1`;
+      browser.navigation(`${BASE}/en/settings/webhooks`);
+      browser.loaded();
+      vi.advanceTimersByTime(5000);
+      // Without a pending navigation a chunk error is the page's own, requested or not.
+      browser.console(chunkError("idle"), `${BASE}/_next/static/chunks/runtime.js`);
+      browser.navigation(`${BASE}/en/settings/webhook-deliveries`);
+      browser.console(chunkError("refused"), `${BASE}/_next/static/chunks/runtime.js`);
+      browser.requested(`${BASE}/_next/static/chunks/missing.js`);
+      browser.console(chunkError("missing"), `${BASE}/_next/static/chunks/runtime.js`);
+      browser.loaded();
+      browser.console(chunkError("late"), `${BASE}/_next/static/chunks/runtime.js`);
+      vi.advanceTimersByTime(5000);
+      browser.console(chunkError("later"), `${BASE}/_next/static/chunks/runtime.js`);
+      expect(diagnostics.unexpected.map(({ text }) => text)).toEqual([
+        chunkError("idle"),
+        chunkError("missing"),
+        chunkError("later"),
+      ]);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("forgets a framework report of a fetch or chunk the browser cancelled only once the next page loaded", () => {

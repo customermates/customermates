@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { addFromConfigure, openConfigure } from "./configure";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
+import { e2eAppMode } from "./workspace-switching";
 
 test("searches custom records across pages, opens generic drawers, and attaches AI context", async ({
   page,
@@ -64,16 +65,20 @@ test("searches custom records across pages, opens generic drawers, and attaches 
   await dialog.getByRole("link", { name: "Open page", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/records/${typeId}/[a-f0-9-]+$`));
   await expect(dialog).not.toBeVisible();
-  await page.getByRole("main").getByRole("button", { name: "Ask Mate", exact: true }).click();
-  await expect(
-    page.getByTestId("agent-composer-contexts").getByText("Searchable project", { exact: true }),
-  ).toBeVisible();
-  await page.getByRole("button", { name: "Add context", exact: true }).click();
-  await page.getByPlaceholder("Search records…", { exact: true }).fill("Searchable service 40");
-  await page.getByRole("option").filter({ hasText: "Searchable service 40" }).click();
-  await expect(
-    page.getByTestId("agent-composer-contexts").getByText("Searchable service 40", { exact: true }),
-  ).toBeVisible();
+  if (e2eAppMode() === "self-hosted") {
+    await expect(page.getByRole("main").getByRole("button", { name: "Ask Mate", exact: true })).toHaveCount(0);
+  } else {
+    await page.getByRole("main").getByRole("button", { name: "Ask Mate", exact: true }).click();
+    await expect(
+      page.getByTestId("agent-composer-contexts").getByText("Searchable project", { exact: true }),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Add context", exact: true }).click();
+    await page.getByPlaceholder("Search records…", { exact: true }).fill("Searchable service 40");
+    await page.getByRole("option").filter({ hasText: "Searchable service 40" }).click();
+    await expect(
+      page.getByTestId("agent-composer-contexts").getByText("Searchable service 40", { exact: true }),
+    ).toBeVisible();
+  }
   const persisted = await database.query(
     'SELECT COUNT(*)::integer AS count FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2',
     [companyId, presetId(companyId, "service")],
