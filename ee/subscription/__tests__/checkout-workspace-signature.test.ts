@@ -40,14 +40,15 @@ describe("the workspace signature of a checkout", () => {
 
 describe("unsigned workspace claims of older checkouts", () => {
   it("ends the transition at a fixed instant", () => {
-    expect(UNSIGNED_CHECKOUT_CLAIMS_END.toISOString()).toBe("2026-10-20T00:00:00.000Z");
+    expect(UNSIGNED_CHECKOUT_CLAIMS_END.toISOString()).toBe("2026-11-15T00:00:00.000Z");
   });
 
   it("accepts only subscriptions created before the transition ended", () => {
-    expect(acceptsUnsignedCheckoutClaim(new Date("2026-10-19T23:59:59.999Z"))).toBe(true);
+    expect(acceptsUnsignedCheckoutClaim(new Date("2026-11-14T23:59:59.999Z"))).toBe(true);
+    expect(acceptsUnsignedCheckoutClaim(new Date("2026-10-25T12:00:00.000Z"))).toBe(true);
     expect(acceptsUnsignedCheckoutClaim(new Date("2026-09-01T00:00:00.000Z"))).toBe(true);
     expect(acceptsUnsignedCheckoutClaim(UNSIGNED_CHECKOUT_CLAIMS_END)).toBe(false);
-    expect(acceptsUnsignedCheckoutClaim(new Date("2026-10-21T00:00:00.000Z"))).toBe(false);
+    expect(acceptsUnsignedCheckoutClaim(new Date("2026-11-16T00:00:00.000Z"))).toBe(false);
     expect(acceptsUnsignedCheckoutClaim(null)).toBe(false);
   });
 });
