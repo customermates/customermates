@@ -1921,7 +1921,8 @@
         "colorOption": "Color {number}",
         "colors": "Colors",
         "showFilters": "Show activity count and filters",
-        "showMetricAndFilters": "Show metric and filters"
+        "showMetricAndFilters": "Show metric and filters",
+        "showSourceAndFilters": "Show source and filters"
       },
       "danger": {
         "deleteLabel": "Delete widget {name}"
@@ -1954,6 +1955,16 @@
           "description": "Show how a value develops over time.",
           "title": "Area over time"
         },
+        "calendar": {
+          "month": {
+            "description": "See how many records fall on each day of a month.",
+            "title": "Month overview"
+          },
+          "upcoming": {
+            "description": "List the records of the next days, overdue ones first.",
+            "title": "Upcoming"
+          }
+        },
         "doughnutChart": {
           "description": "Show how a total splits into parts.",
           "title": "Doughnut"
@@ -1965,6 +1976,10 @@
         "horizontalBarChart": {
           "description": "Compare groups with longer names.",
           "title": "Horizontal bars"
+        },
+        "map": {
+          "description": "Place records on a map by their address.",
+          "title": "Map"
         },
         "number": {
           "description": "One total, such as a count or a sum.",
@@ -3241,6 +3256,66 @@
     "savedFilters": "Saved scope filters",
     "scopeHelp": "Leave the scope empty for all accessible activity. Selected types and records are combined; additional filters must all match.",
     "types": "Record types"
+  },
+  "RecordCalendarWidgets": {
+    "amountColumn": "Amount column",
+    "countPerDay": "Records per day",
+    "dateField": "Date field",
+    "dayCount": "{count, plural, one {# day} other {# days}}",
+    "dayEmpty": "No records on this day.",
+    "dayFailed": "The records of this day could not be loaded.",
+    "dayLabel": "{date}: {count, plural, =0 {no records} one {# record} other {# records}}",
+    "dayLabelWithSum": "{date}: {count, plural, one {# record} other {# records}}, {sum}",
+    "days": "Days ahead",
+    "daySummary": "{count, plural, =0 {No records} one {# record} other {# records}}",
+    "daySummaryWithSum": "{count, plural, one {# record} other {# records}} · {sum}",
+    "dayTruncated": "Showing the first {count} records of this day.",
+    "itemLabel": "{name}, {date}",
+    "layout": "Layout",
+    "layouts": {
+      "month": "Month overview",
+      "upcoming": "Upcoming"
+    },
+    "monthFailed": "This month could not be loaded.",
+    "moreOverdue": "{count, plural, one {# more overdue record} other {# more overdue records}}",
+    "nextDays": "{count, plural, one {Today} other {Next # days}}",
+    "nextMonth": "Show next month",
+    "noDateField": "{list} does not have a Date or Date and time field yet. Add one in Configure or choose another list.",
+    "noUpcoming": "{count, plural, one {No records today.} other {No records in the next # days.}}",
+    "overdue": "Overdue",
+    "overdueBy": "{count, plural, one {Overdue # day} other {Overdue # days}}",
+    "overdueCount": "{count, plural, one {# overdue} other {# overdue}}",
+    "previousMonth": "Show previous month",
+    "recordCount": "{count, plural, one {# record} other {# records}}",
+    "scale": "Fewer <swatches></swatches> more",
+    "scaleSum": "Less <swatches></swatches> more",
+    "showOverdue": "Show overdue records",
+    "showOverdueHelp": "Records dated before today appear first. Filter out finished records, for example by a done status, so only open ones count.",
+    "sumOf": "Sum of {field}",
+    "sumTotal": "Σ {value}",
+    "truncated": "Showing the first {count} records. Narrow the filters to see all of them.",
+    "unavailable": "This calendar is unavailable. Review its configuration or access."
+  },
+  "RecordMapWidgets": {
+    "addressField": "Address field",
+    "attribution": "Map data: Natural Earth",
+    "cluster": "{count, plural, one {# record, zoom in} other {# records, zoom in}}",
+    "colorBy": "Color by",
+    "colorSummary": "colored by {field}",
+    "detailField": "Detail field",
+    "failed": "The map could not be loaded.",
+    "label": "Map of {name}",
+    "loading": "Loading map…",
+    "noAddressField": "{list} does not have an Address field yet. Add one in Configure or choose another list.",
+    "noPoints": "No records with a location yet.",
+    "openRecord": "Open record",
+    "point": "{name}, {address}",
+    "postcodePrecision": "Placed at the centre of its postal code",
+    "sizeBy": "Size by",
+    "sizeSummary": "size by {field}",
+    "truncated": "{count, plural, other {Showing the first # records with a location.}}",
+    "unavailable": "This map is unavailable. Review its configuration or access.",
+    "withoutLocation": "{count, plural, one {# record without location} other {# records without location}}"
   },
   "RecordModel": {
     "access": "Access",

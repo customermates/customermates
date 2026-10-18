@@ -1921,7 +1921,8 @@
         "colorOption": "Farbe {number}",
         "colors": "Farben",
         "showFilters": "Aktivitätsanzahl und Filter anzeigen",
-        "showMetricAndFilters": "Kennzahl und Filter anzeigen"
+        "showMetricAndFilters": "Kennzahl und Filter anzeigen",
+        "showSourceAndFilters": "Quelle und Filter anzeigen"
       },
       "danger": {
         "deleteLabel": "Widget löschen: {name}"
@@ -1954,6 +1955,16 @@
           "description": "Zeigen, wie sich ein Wert über die Zeit entwickelt.",
           "title": "Fläche im Zeitverlauf"
         },
+        "calendar": {
+          "month": {
+            "description": "Sehen, wie viele Datensätze auf jeden Tag eines Monats fallen.",
+            "title": "Monatsübersicht"
+          },
+          "upcoming": {
+            "description": "Datensätze der nächsten Tage auflisten, überfällige zuerst.",
+            "title": "Anstehend"
+          }
+        },
         "doughnutChart": {
           "description": "Zeigen, wie sich eine Summe auf Teile verteilt.",
           "title": "Ring"
@@ -1965,6 +1976,10 @@
         "horizontalBarChart": {
           "description": "Gruppen mit längeren Namen vergleichen.",
           "title": "Horizontale Balken"
+        },
+        "map": {
+          "description": "Datensätze nach ihrer Adresse auf einer Karte zeigen.",
+          "title": "Karte"
         },
         "number": {
           "description": "Ein Gesamtwert, etwa eine Anzahl oder Summe.",
@@ -3241,6 +3256,66 @@
     "savedFilters": "Gespeicherte Bereichsfilter",
     "scopeHelp": "Ohne Auswahl werden alle zugänglichen Aktivitäten angezeigt. Ausgewählte Typen und Datensätze werden zusammengefasst; zusätzliche Filter müssen alle zutreffen.",
     "types": "Datensatztypen"
+  },
+  "RecordCalendarWidgets": {
+    "amountColumn": "Betragsspalte",
+    "countPerDay": "Datensätze pro Tag",
+    "dateField": "Datumsfeld",
+    "dayCount": "{count, plural, one {# Tag} other {# Tage}}",
+    "dayEmpty": "An diesem Tag gibt es keine Datensätze.",
+    "dayFailed": "Die Datensätze dieses Tages konnten nicht geladen werden.",
+    "dayLabel": "{date}: {count, plural, =0 {keine Datensätze} one {# Datensatz} other {# Datensätze}}",
+    "dayLabelWithSum": "{date}: {count, plural, one {# Datensatz} other {# Datensätze}}, {sum}",
+    "days": "Tage im Voraus",
+    "daySummary": "{count, plural, =0 {Keine Datensätze} one {# Datensatz} other {# Datensätze}}",
+    "daySummaryWithSum": "{count, plural, one {# Datensatz} other {# Datensätze}} · {sum}",
+    "dayTruncated": "Es werden die ersten {count} Datensätze dieses Tages angezeigt.",
+    "itemLabel": "{name}, {date}",
+    "layout": "Ansicht",
+    "layouts": {
+      "month": "Monatsübersicht",
+      "upcoming": "Anstehend"
+    },
+    "monthFailed": "Dieser Monat konnte nicht geladen werden.",
+    "moreOverdue": "{count, plural, one {# weiterer überfälliger Datensatz} other {# weitere überfällige Datensätze}}",
+    "nextDays": "{count, plural, one {Heute} other {Nächste # Tage}}",
+    "nextMonth": "Nächsten Monat anzeigen",
+    "noDateField": "{list} hat noch kein Feld vom Typ Datum oder Datum und Uhrzeit. Lege eines in Konfigurieren an oder wähle eine andere Liste.",
+    "noUpcoming": "{count, plural, one {Heute gibt es keine Datensätze.} other {In den nächsten # Tagen gibt es keine Datensätze.}}",
+    "overdue": "Überfällig",
+    "overdueBy": "{count, plural, one {# Tag überfällig} other {# Tage überfällig}}",
+    "overdueCount": "{count, plural, one {# überfällig} other {# überfällig}}",
+    "previousMonth": "Vorherigen Monat anzeigen",
+    "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}",
+    "scale": "Weniger <swatches></swatches> mehr",
+    "scaleSum": "Weniger <swatches></swatches> mehr",
+    "showOverdue": "Überfällige Datensätze anzeigen",
+    "showOverdueHelp": "Datensätze mit einem Datum vor heute erscheinen zuerst. Filtere erledigte Datensätze heraus, etwa über einen Erledigt-Status, damit nur offene zählen.",
+    "sumOf": "Summe von {field}",
+    "sumTotal": "Σ {value}",
+    "truncated": "Es werden die ersten {count} Datensätze angezeigt. Grenze die Filter ein, um alle zu sehen.",
+    "unavailable": "Dieser Kalender ist nicht verfügbar. Prüfe Konfiguration und Zugriff."
+  },
+  "RecordMapWidgets": {
+    "addressField": "Adressfeld",
+    "attribution": "Kartendaten: Natural Earth",
+    "cluster": "{count, plural, one {# Datensatz, vergrößern} other {# Datensätze, vergrößern}}",
+    "colorBy": "Einfärben nach",
+    "colorSummary": "eingefärbt nach {field}",
+    "detailField": "Detailfeld",
+    "failed": "Die Karte konnte nicht geladen werden.",
+    "label": "Karte von {name}",
+    "loading": "Karte wird geladen…",
+    "noAddressField": "{list} hat noch kein Feld vom Typ Adresse. Lege eines in Konfigurieren an oder wähle eine andere Liste.",
+    "noPoints": "Noch keine Datensätze mit Standort.",
+    "openRecord": "Datensatz öffnen",
+    "point": "{name}, {address}",
+    "postcodePrecision": "Am Mittelpunkt der Postleitzahl platziert",
+    "sizeBy": "Größe nach",
+    "sizeSummary": "Größe nach {field}",
+    "truncated": "{count, plural, other {Es werden die ersten # Datensätze mit Standort angezeigt.}}",
+    "unavailable": "Diese Karte ist nicht verfügbar. Prüfe Konfiguration und Zugriff.",
+    "withoutLocation": "{count, plural, one {# Datensatz ohne Standort} other {# Datensätze ohne Standort}}"
   },
   "RecordModel": {
     "access": "Zugriff",

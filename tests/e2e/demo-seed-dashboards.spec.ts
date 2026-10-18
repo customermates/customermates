@@ -15,6 +15,7 @@ type SeededWidget = {
   name: string;
   kind: string;
   displayType: string | null;
+  calendarLayout: string | null;
 };
 
 for (const dashboard of DEMO_DASHBOARDS) {
@@ -24,7 +25,8 @@ for (const dashboard of DEMO_DASHBOARDS) {
     errors,
   }, testInfo) => {
     const { rows: widgets } = await database.query<SeededWidget>(
-      `SELECT id, name, kind::text AS kind, "displayOptions"->>'displayType' AS "displayType" FROM "Widget"
+      `SELECT id, name, kind::text AS kind, "displayOptions"->>'displayType' AS "displayType",
+       "calendarQuery"->>'layout' AS "calendarLayout" FROM "Widget"
        WHERE "companyId"=$1 AND "userId"=$2 AND id LIKE '15000000-%' AND "viewId" IS NOT DISTINCT FROM $3
        AND "deletedAt" IS NULL ORDER BY id`,
       [DEMO_COMPANY_ID, DEMO_MEMBERS.maxBergmann.userId, dashboard.id],
@@ -52,7 +54,7 @@ for (const dashboard of DEMO_DASHBOARDS) {
       ).toBeVisible();
       await expect(
         card.getByText(
-          /measure is unavailable|Calculation unavailable|could not be loaded/,
+          /is unavailable|Calculation unavailable|could not be loaded/,
         ),
       ).toHaveCount(0);
       await expect(card.locator('[data-slot="widget-empty"]')).toHaveCount(0);
@@ -65,6 +67,22 @@ for (const dashboard of DEMO_DASHBOARDS) {
         await expect(
           card.getByText(/No activity|Connect a messaging/),
         ).toHaveCount(0);
+        continue;
+      }
+      if (widget.kind === "calendar") {
+        // Upcoming lists record rows; the month overview colours the days that have records.
+        const data =
+          widget.calendarLayout === "upcoming"
+            ? card.locator("[data-calendar-item]")
+            : card.locator('[data-calendar-day]:not([data-heat="0"])');
+        await expect(data.first(), `${widget.name} shows its records`).toBeVisible();
+        continue;
+      }
+      if (widget.kind === "map") {
+        await expect(
+          card.locator("[data-map-marker]").first(),
+          `${widget.name} places pins or clusters`,
+        ).toBeVisible();
         continue;
       }
       if (widget.displayType === "number") {

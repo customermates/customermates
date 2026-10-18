@@ -1921,7 +1921,8 @@
         "colorOption": "Color {number}",
         "colors": "Colores",
         "showFilters": "Mostrar el número de actividades y los filtros",
-        "showMetricAndFilters": "Mostrar la métrica y los filtros"
+        "showMetricAndFilters": "Mostrar la métrica y los filtros",
+        "showSourceAndFilters": "Mostrar el origen y los filtros"
       },
       "danger": {
         "deleteLabel": "Eliminar el widget {name}"
@@ -1954,6 +1955,16 @@
           "description": "Muestra cómo evoluciona un valor con el tiempo.",
           "title": "Área en el tiempo"
         },
+        "calendar": {
+          "month": {
+            "description": "Mira cuántos registros caen en cada día de un mes.",
+            "title": "Resumen del mes"
+          },
+          "upcoming": {
+            "description": "Lista los registros de los próximos días, primero los vencidos.",
+            "title": "Próximos"
+          }
+        },
         "doughnutChart": {
           "description": "Muestra cómo se reparte un total en partes.",
           "title": "Anillo"
@@ -1965,6 +1976,10 @@
         "horizontalBarChart": {
           "description": "Compara grupos con nombres más largos.",
           "title": "Barras horizontales"
+        },
+        "map": {
+          "description": "Sitúa los registros en un mapa según su dirección.",
+          "title": "Mapa"
         },
         "number": {
           "description": "Un total, como un recuento o una suma.",
@@ -3241,6 +3256,66 @@
     "savedFilters": "Filtros de alcance guardados",
     "scopeHelp": "Sin selección se muestran todas las actividades accesibles. Los tipos y registros seleccionados se combinan; todos los filtros adicionales deben coincidir.",
     "types": "Tipos de registro"
+  },
+  "RecordCalendarWidgets": {
+    "amountColumn": "Columna de importe",
+    "countPerDay": "Registros por día",
+    "dateField": "Campo de fecha",
+    "dayCount": "{count, plural, one {# día} other {# días}}",
+    "dayEmpty": "No hay registros este día.",
+    "dayFailed": "No se pudieron cargar los registros de este día.",
+    "dayLabel": "{date}: {count, plural, =0 {ningún registro} one {# registro} other {# registros}}",
+    "dayLabelWithSum": "{date}: {count, plural, one {# registro} other {# registros}}, {sum}",
+    "days": "Próximos días",
+    "daySummary": "{count, plural, =0 {Ningún registro} one {# registro} other {# registros}}",
+    "daySummaryWithSum": "{count, plural, one {# registro} other {# registros}} · {sum}",
+    "dayTruncated": "Se muestran los primeros {count} registros de este día.",
+    "itemLabel": "{name}, {date}",
+    "layout": "Disposición",
+    "layouts": {
+      "month": "Resumen del mes",
+      "upcoming": "Próximos"
+    },
+    "monthFailed": "No se pudo cargar este mes.",
+    "moreOverdue": "{count, plural, one {# registro vencido más} other {# registros vencidos más}}",
+    "nextDays": "{count, plural, one {Hoy} other {Próximos # días}}",
+    "nextMonth": "Mostrar el mes siguiente",
+    "noDateField": "{list} todavía no tiene un campo de tipo Fecha o Fecha y hora. Añade uno en Configurar o elige otra lista.",
+    "noUpcoming": "{count, plural, one {No hay registros hoy.} other {No hay registros en los próximos # días.}}",
+    "overdue": "Vencidos",
+    "overdueBy": "{count, plural, one {Vencido hace # día} other {Vencido hace # días}}",
+    "overdueCount": "{count, plural, one {# vencido} other {# vencidos}}",
+    "previousMonth": "Mostrar el mes anterior",
+    "recordCount": "{count, plural, one {# registro} other {# registros}}",
+    "scale": "Menos <swatches></swatches> más",
+    "scaleSum": "Menos <swatches></swatches> más",
+    "showOverdue": "Mostrar los registros vencidos",
+    "showOverdueHelp": "Los registros con fecha anterior a hoy aparecen primero. Excluye los registros terminados, por ejemplo con un estado de completado, para que solo cuenten los abiertos.",
+    "sumOf": "Suma de {field}",
+    "sumTotal": "Σ {value}",
+    "truncated": "Se muestran los primeros {count} registros. Ajusta los filtros para verlos todos.",
+    "unavailable": "Este calendario no está disponible. Revisa su configuración o los permisos."
+  },
+  "RecordMapWidgets": {
+    "addressField": "Campo de dirección",
+    "attribution": "Datos del mapa: Natural Earth",
+    "cluster": "{count, plural, one {# registro, acercar} other {# registros, acercar}}",
+    "colorBy": "Colorear por",
+    "colorSummary": "coloreado por {field}",
+    "detailField": "Campo de detalle",
+    "failed": "No se pudo cargar el mapa.",
+    "label": "Mapa de {name}",
+    "loading": "Cargando el mapa…",
+    "noAddressField": "{list} todavía no tiene un campo de tipo Dirección. Añade uno en Configurar o elige otra lista.",
+    "noPoints": "Todavía no hay registros con ubicación.",
+    "openRecord": "Abrir el registro",
+    "point": "{name}, {address}",
+    "postcodePrecision": "Situado en el centro de su código postal",
+    "sizeBy": "Tamaño según",
+    "sizeSummary": "tamaño según {field}",
+    "truncated": "{count, plural, other {Se muestran los primeros # registros con ubicación.}}",
+    "unavailable": "Este mapa no está disponible. Revisa su configuración o los permisos.",
+    "withoutLocation": "{count, plural, one {# registro sin ubicación} other {# registros sin ubicación}}"
   },
   "RecordModel": {
     "access": "Acceso",

@@ -1,3 +1,5 @@
+import type { PointerEvent } from "react";
+
 export const WIDGET_INTERACTIVE_ATTRIBUTE = "data-widget-interactive";
 
 export const WIDGET_INTERACTIVE_SELECTOR = `[${WIDGET_INTERACTIVE_ATTRIBUTE}]`;
@@ -12,6 +14,10 @@ type WidgetEditorStore = {
 export function openWidgetEditor(store: WidgetEditorStore, id: string): Promise<void> {
   store.setExpandedSection("config");
   return Promise.resolve(store.loadById(id));
+}
+
+export function stopPortalPointerDown(event: PointerEvent<HTMLElement>) {
+  if (event.target instanceof Node && !event.currentTarget.contains(event.target)) event.stopPropagation();
 }
 
 export function isInteractiveTarget(target: EventTarget | null): boolean {

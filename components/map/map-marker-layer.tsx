@@ -31,7 +31,7 @@ export function markerBox(marker: MapMarker, camera: Camera, size: MapSize): Scr
 }
 
 const MARKER_CLASS =
-  "pointer-events-auto absolute top-0 left-0 rounded-full border-2 border-card outline-none transition-[scale] duration-150 hover:scale-110 focus-visible:ring-[3px] focus-visible:ring-ring/60 motion-reduce:transition-none";
+  "pointer-events-auto absolute top-0 left-0 rounded-full border-2 border-card outline-none transition-[box-shadow] duration-150 hover:ring-2 hover:ring-ring/40 focus-visible:ring-[3px] focus-visible:ring-ring/60 motion-reduce:transition-none";
 
 type Props = {
   markers: readonly MapMarker[];

@@ -1921,7 +1921,8 @@
         "colorOption": "Couleur {number}",
         "colors": "Couleurs",
         "showFilters": "Afficher le nombre d'activités et les filtres",
-        "showMetricAndFilters": "Afficher l'indicateur et les filtres"
+        "showMetricAndFilters": "Afficher l'indicateur et les filtres",
+        "showSourceAndFilters": "Afficher la source et les filtres"
       },
       "danger": {
         "deleteLabel": "Supprimer le widget {name}"
@@ -1954,6 +1955,16 @@
           "description": "Montrer l’évolution d’une valeur dans le temps.",
           "title": "Aire dans le temps"
         },
+        "calendar": {
+          "month": {
+            "description": "Voir combien d’enregistrements tombent sur chaque jour d’un mois.",
+            "title": "Vue du mois"
+          },
+          "upcoming": {
+            "description": "Lister les enregistrements des prochains jours, ceux en retard d’abord.",
+            "title": "À venir"
+          }
+        },
         "doughnutChart": {
           "description": "Montrer comment un total se répartit.",
           "title": "Anneau"
@@ -1965,6 +1976,10 @@
         "horizontalBarChart": {
           "description": "Comparer des groupes aux noms plus longs.",
           "title": "Barres horizontales"
+        },
+        "map": {
+          "description": "Placer les enregistrements sur une carte selon leur adresse.",
+          "title": "Carte"
         },
         "number": {
           "description": "Un total, comme un décompte ou une somme.",
@@ -3241,6 +3256,66 @@
     "savedFilters": "Filtres de périmètre enregistrés",
     "scopeHelp": "Sans sélection, toutes les activités accessibles sont affichées. Les types et enregistrements sélectionnés sont réunis ; tous les filtres supplémentaires doivent correspondre.",
     "types": "Types d’enregistrements"
+  },
+  "RecordCalendarWidgets": {
+    "amountColumn": "Colonne de montant",
+    "countPerDay": "Enregistrements par jour",
+    "dateField": "Champ de date",
+    "dayCount": "{count, plural, one {# jour} other {# jours}}",
+    "dayEmpty": "Aucun enregistrement ce jour-là.",
+    "dayFailed": "Les enregistrements de ce jour n’ont pas pu être chargés.",
+    "dayLabel": "{date} : {count, plural, =0 {aucun enregistrement} one {# enregistrement} other {# enregistrements}}",
+    "dayLabelWithSum": "{date} : {count, plural, one {# enregistrement} other {# enregistrements}}, {sum}",
+    "days": "Jours à venir",
+    "daySummary": "{count, plural, =0 {Aucun enregistrement} one {# enregistrement} other {# enregistrements}}",
+    "daySummaryWithSum": "{count, plural, one {# enregistrement} other {# enregistrements}} · {sum}",
+    "dayTruncated": "Affichage des {count} premiers enregistrements de ce jour.",
+    "itemLabel": "{name}, {date}",
+    "layout": "Disposition",
+    "layouts": {
+      "month": "Vue du mois",
+      "upcoming": "À venir"
+    },
+    "monthFailed": "Ce mois n’a pas pu être chargé.",
+    "moreOverdue": "{count, plural, one {# autre enregistrement en retard} other {# autres enregistrements en retard}}",
+    "nextDays": "{count, plural, one {Aujourd’hui} other {# prochains jours}}",
+    "nextMonth": "Afficher le mois suivant",
+    "noDateField": "{list} n’a pas encore de champ de type Date ou Date et heure. Ajoutez-en un dans Configurer ou choisissez une autre liste.",
+    "noUpcoming": "{count, plural, one {Aucun enregistrement aujourd’hui.} other {Aucun enregistrement dans les # prochains jours.}}",
+    "overdue": "En retard",
+    "overdueBy": "{count, plural, one {En retard de # jour} other {En retard de # jours}}",
+    "overdueCount": "{count, plural, one {# en retard} other {# en retard}}",
+    "previousMonth": "Afficher le mois précédent",
+    "recordCount": "{count, plural, one {# enregistrement} other {# enregistrements}}",
+    "scale": "Moins <swatches></swatches> plus",
+    "scaleSum": "Moins <swatches></swatches> plus",
+    "showOverdue": "Afficher les enregistrements en retard",
+    "showOverdueHelp": "Les enregistrements datés d’avant aujourd’hui apparaissent en premier. Excluez les enregistrements terminés, par exemple par un statut terminé, pour ne compter que ceux encore ouverts.",
+    "sumOf": "Somme de {field}",
+    "sumTotal": "Σ {value}",
+    "truncated": "Affichage des {count} premiers enregistrements. Affinez les filtres pour tous les voir.",
+    "unavailable": "Ce calendrier est indisponible. Vérifiez sa configuration ou vos accès."
+  },
+  "RecordMapWidgets": {
+    "addressField": "Champ d’adresse",
+    "attribution": "Données cartographiques : Natural Earth",
+    "cluster": "{count, plural, one {# enregistrement, zoomer} other {# enregistrements, zoomer}}",
+    "colorBy": "Colorer par",
+    "colorSummary": "coloré par {field}",
+    "detailField": "Champ de détail",
+    "failed": "La carte n’a pas pu être chargée.",
+    "label": "Carte de {name}",
+    "loading": "Chargement de la carte…",
+    "noAddressField": "{list} n’a pas encore de champ de type Adresse. Ajoutez-en un dans Configurer ou choisissez une autre liste.",
+    "noPoints": "Aucun enregistrement localisé pour le moment.",
+    "openRecord": "Ouvrir l’enregistrement",
+    "point": "{name}, {address}",
+    "postcodePrecision": "Placé au centre de son code postal",
+    "sizeBy": "Taille selon",
+    "sizeSummary": "taille selon {field}",
+    "truncated": "{count, plural, other {Affichage des # premiers enregistrements localisés.}}",
+    "unavailable": "Cette carte est indisponible. Vérifiez sa configuration ou vos accès.",
+    "withoutLocation": "{count, plural, one {# enregistrement sans localisation} other {# enregistrements sans localisation}}"
   },
   "RecordModel": {
     "access": "Accès",
