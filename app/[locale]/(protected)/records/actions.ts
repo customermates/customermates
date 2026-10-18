@@ -45,7 +45,6 @@ import {
 import { serializeResult, settleActionResult } from "@/core/utils/action-result";
 import { redirect } from "next/navigation";
 import { isRedirect, type Redirect } from "@/features/auth/auth-outcome";
-import { z } from "zod";
 import { serializeInteractorFailure, unwrapValidated, type Validated } from "@/core/validation/validation.utils";
 
 export async function checkRecordIdentityAction(input: CheckRecordIdentityInput) {
@@ -94,13 +93,10 @@ export async function getRecordModelAction(typeIds?: string[]) {
 async function serializeResultWithFailure<T>(result: Validated<T> | Promise<Awaited<Validated<T>> | Redirect>) {
   const resolved = await settleActionResult(result);
   if (isRedirect(resolved)) redirect(resolved.redirect);
-  return resolved.ok
-    ? resolved
-    : {
-        ok: false as const,
-        error: z.treeifyError(resolved.error),
-        failure: serializeInteractorFailure(resolved.error),
-      };
+  if (resolved.ok) return resolved;
+
+  const serialized = await serializeResult<T>(resolved);
+  return serialized.ok ? serialized : { ...serialized, failure: serializeInteractorFailure(resolved.error) };
 }
 export async function previewRecordConfigurationAction(change: ConfigurationChange) {
   return serializeResultWithFailure(getPreviewRecordConfigurationInteractor().invoke(change));

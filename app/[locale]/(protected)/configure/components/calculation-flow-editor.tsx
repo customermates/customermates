@@ -44,6 +44,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { cn } from "@/core/utils/cn";
 import { calculationResultType } from "@/features/records/record-model-validation";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { previewCalculationAction } from "@/app/[locale]/(protected)/records/actions";
 import { RowActions } from "@/components/data-view/row-actions";
 import { ConfirmationSentenceView, referenceSentence } from "@/components/modal/confirmation-sentence";
@@ -231,6 +232,7 @@ function useCalculationExample(store: FieldModalStore) {
       previewCalculationAction({ typeId, expression, ...(id ? { recordId: id } : {}) })
         .then((result) => {
           if (current && result.ok) setPreview({ key, data: result.data });
+          else notifyIfWorkspaceChanged(result);
         })
         .catch(reportApplicationError);
     }, 300);
@@ -289,6 +291,7 @@ const CalculationComposer = observer(function CalculationComposer({ store }: { s
           description: text,
           ...(target ? { fieldId: target } : {}),
         });
+        if (notifyIfWorkspaceChanged(result)) return;
         if (id !== request.current || !store.isOpen || (store.original?.id ?? null) !== target) return;
         if (!result.ok) {
           setFailure(

@@ -28,7 +28,12 @@ const users = () => new PrismaUserRepo(new PermissionService(), new PrismaBillin
 const accounts = () =>
   new PrismaConnectedAccountRepo(new PermissionService(), new PrismaUnipileWebhookRepo(), new PrismaBillingUsageRepo());
 
-async function workspace(options: { createdAt?: Date; status?: "active" | "pendingAuthorization" } = {}) {
+async function workspace(
+  options: {
+    createdAt?: Date;
+    status?: "active" | "pendingAuthorization";
+  } = {},
+) {
   const companyId = randomUUID();
   const userId = randomUUID();
   const roleId = randomUUID();
@@ -36,9 +41,14 @@ async function workspace(options: { createdAt?: Date; status?: "active" | "pendi
 
   await runWithoutTenant(async () => {
     await prisma.company.create({
-      data: { id: companyId, ...(options.createdAt ? { createdAt: options.createdAt } : {}) },
+      data: {
+        id: companyId,
+        ...(options.createdAt ? { createdAt: options.createdAt } : {}),
+      },
     });
-    await prisma.userRole.create({ data: { id: roleId, companyId, name: "Member" } });
+    await prisma.userRole.create({
+      data: { id: roleId, companyId, name: "Member" },
+    });
     await prisma.user.create({
       data: {
         id: userId,
@@ -57,7 +67,10 @@ async function workspace(options: { createdAt?: Date; status?: "active" | "pendi
 
 function intervals(companyId: string) {
   return runWithoutTenant(() =>
-    prisma.billingUsageInterval.findMany({ where: { companyId }, orderBy: [{ kind: "asc" }, { startedAt: "asc" }] }),
+    prisma.billingUsageInterval.findMany({
+      where: { companyId },
+      orderBy: [{ kind: "asc" }, { startedAt: "asc" }],
+    }),
   );
 }
 
@@ -113,13 +126,20 @@ describeDatabase("billing usage ledger", { timeout: 120_000 }, () => {
     await recordSeats(companyId, [userId, otherId]);
 
     await runWithoutTenant(() =>
-      prisma.user.update({ where: { id: otherId, companyId }, data: { status: "inactive" } }),
+      prisma.user.update({
+        where: { id: otherId, companyId },
+        data: { status: "inactive" },
+      }),
     );
     await runWithoutTenant(() => users().deactivateUserOrThrow(userId));
 
     const rows = await intervals(companyId);
-    expect(rows.find((row) => row.subjectId === userId)).toMatchObject({ endExact: true });
-    expect(rows.find((row) => row.subjectId === otherId)).toMatchObject({ endExact: false });
+    expect(rows.find((row) => row.subjectId === userId)).toMatchObject({
+      endExact: true,
+    });
+    expect(rows.find((row) => row.subjectId === otherId)).toMatchObject({
+      endExact: false,
+    });
   });
 
   it("keeps a repaired interval estimated when a write touches a subject without changing whether it counts", async () => {
@@ -141,12 +161,19 @@ describeDatabase("billing usage ledger", { timeout: 120_000 }, () => {
 
     await runWithoutTenant(() => users().setOperatorStatusCompanyWide(companyId, userId, "active"));
     await runWithoutTenant(() =>
-      accounts().updateAccountUnscoped({ unipileAccountId: `u-${accountId}`, status: "ok" }),
+      accounts().updateAccountUnscoped({
+        unipileAccountId: `u-${accountId}`,
+        status: "ok",
+      }),
     );
 
     const rows = await intervals(companyId);
-    expect(rows.find((row) => row.subjectId === userId)).toMatchObject({ startExact: false });
-    expect(rows.find((row) => row.subjectId === accountId)).toMatchObject({ startExact: false });
+    expect(rows.find((row) => row.subjectId === userId)).toMatchObject({
+      startExact: false,
+    });
+    expect(rows.find((row) => row.subjectId === accountId)).toMatchObject({
+      startExact: false,
+    });
   });
 
   it("opens a seat for an active user, closes it when the user repository deactivates them and opens a new one on reactivation", async () => {
@@ -170,7 +197,9 @@ describeDatabase("billing usage ledger", { timeout: 120_000 }, () => {
   });
 
   it("never counts a pending invitation until the user is activated", async () => {
-    const { companyId, userId } = await workspace({ status: "pendingAuthorization" });
+    const { companyId, userId } = await workspace({
+      status: "pendingAuthorization",
+    });
 
     await recordSeats(companyId);
     expect(await intervals(companyId)).toEqual([]);
@@ -186,7 +215,9 @@ describeDatabase("billing usage ledger", { timeout: 120_000 }, () => {
     await recordSeats(companyId);
 
     await runWithoutTenant(async () => {
-      await prisma.userRole.create({ data: { id: adminRoleId, companyId, name: "Admin" } });
+      await prisma.userRole.create({
+        data: { id: adminRoleId, companyId, name: "Admin" },
+      });
       await prisma.user.update({
         where: { id: userId, companyId },
         data: { roleId: adminRoleId, firstName: "Renamed" },
@@ -196,7 +227,11 @@ describeDatabase("billing usage ledger", { timeout: 120_000 }, () => {
 
     const rows = await intervals(companyId);
     expect(rows).toHaveLength(1);
-    expect(rows[0]).toMatchObject({ roleName: "Admin", firstName: "Renamed", endedAt: null });
+    expect(rows[0]).toMatchObject({
+      roleName: "Admin",
+      firstName: "Renamed",
+      endedAt: null,
+    });
   });
 
   it("counts a channel while it is not deleted, through outages, until a soft or hard removal", async () => {
@@ -231,14 +266,21 @@ describeDatabase("billing usage ledger", { timeout: 120_000 }, () => {
         hasCalendar: false,
       }),
     );
-    await runWithoutTenant(() => repo.updateAccountUnscoped({ unipileAccountId: soft, status: "credentials" }));
+    await runWithoutTenant(() =>
+      repo.updateAccountUnscoped({
+        unipileAccountId: soft,
+        status: "credentials",
+      }),
+    );
     expect((await intervals(companyId)).filter((row) => row.kind === "channel" && row.endedAt === null)).toHaveLength(
       2,
     );
 
     await runWithoutTenant(() => repo.markAccountDeletedUnscoped(softRow.id));
     await runWithoutTenant(async () => {
-      await prisma.connectedAccount.delete({ where: { id: hardRow.id, companyId } });
+      await prisma.connectedAccount.delete({
+        where: { id: hardRow.id, companyId },
+      });
       await new PrismaBillingUsageRepo().recordChannels(companyId, [hardRow.id]);
     });
 
@@ -249,7 +291,9 @@ describeDatabase("billing usage ledger", { timeout: 120_000 }, () => {
       identifier: "inbox@ledger.example.invalid",
       endExact: true,
     });
-    expect(channels.find((row) => row.subjectId === hardRow.id)).toMatchObject({ identifier: "+4917600000009" });
+    expect(channels.find((row) => row.subjectId === hardRow.id)).toMatchObject({
+      identifier: "+4917600000009",
+    });
     expect(channels.every((row) => row.endedAt instanceof Date)).toBe(true);
   });
 
@@ -270,7 +314,11 @@ describeDatabase("billing usage ledger", { timeout: 120_000 }, () => {
     };
     const row = await runWithoutTenant(() => repo.createAccountUnscoped(input));
 
-    await runWithoutTenant(() => prisma.billingUsageInterval.deleteMany({ where: { companyId, subjectId: row.id } }));
+    await runWithoutTenant(() =>
+      prisma.billingUsageInterval.deleteMany({
+        where: { companyId, subjectId: row.id },
+      }),
+    );
     await runWithoutTenant(() => repo.createAccountUnscoped(input));
     expect((await intervals(companyId)).find((interval) => interval.subjectId === row.id)).toMatchObject({
       startExact: false,
@@ -283,12 +331,22 @@ describeDatabase("billing usage ledger", { timeout: 120_000 }, () => {
     expect(closed?.endedAt).toBeInstanceOf(Date);
 
     const softId = (
-      await runWithoutTenant(() => repo.createAccountUnscoped({ ...input, unipileAccountId: `u-${randomUUID()}` }))
+      await runWithoutTenant(() =>
+        repo.createAccountUnscoped({
+          ...input,
+          unipileAccountId: `u-${randomUUID()}`,
+        }),
+      )
     ).id;
     await runWithoutTenant(() => repo.markAccountDeletedUnscoped(softId));
     const soft = await runWithoutTenant(() => prisma.connectedAccount.findFirstOrThrow({ where: { id: softId } }));
     await expect(
-      runWithoutTenant(() => repo.updateAccountUnscoped({ unipileAccountId: soft.unipileAccountId, status: "ok" })),
+      runWithoutTenant(() =>
+        repo.updateAccountUnscoped({
+          unipileAccountId: soft.unipileAccountId,
+          status: "ok",
+        }),
+      ),
     ).resolves.toBeNull();
     expect(
       (await runWithoutTenant(() => prisma.connectedAccount.findFirstOrThrow({ where: { id: softId } }))).status,
@@ -318,6 +376,35 @@ describeDatabase("billing usage ledger", { timeout: 120_000 }, () => {
     expect(await intervals(companyId)).toMatchObject([{ subjectId: userId, endExact: true }]);
   });
 
+  it("counts one login once per workspace and closes only the seat of the workspace it leaves", async () => {
+    const first = await workspace();
+    const second = await workspace();
+    const email = `multi-${randomUUID()}@ledger.example.invalid`;
+    await runWithoutTenant(() =>
+      prisma.user.updateMany({
+        where: { id: { in: [first.userId, second.userId] } },
+        data: { email },
+      }),
+    );
+    await recordSeats(first.companyId, [first.userId]);
+    await recordSeats(second.companyId, [second.userId]);
+
+    await expect(
+      runWithTenant(createMockUser({ id: first.userId, companyId: first.companyId, email }), () =>
+        users().leaveCompanyWide(first.userId),
+      ),
+    ).resolves.toBe(true);
+
+    const [left] = await intervals(first.companyId);
+    expect(left).toMatchObject({
+      subjectId: first.userId,
+      email,
+      endExact: true,
+    });
+    expect(left.endedAt).toBeInstanceOf(Date);
+    expect(await intervals(second.companyId)).toMatchObject([{ subjectId: second.userId, email, endedAt: null }]);
+  });
+
   it("keeps one open interval per subject", async () => {
     const { companyId, userId } = await workspace();
     await recordSeats(companyId, [userId]);
@@ -325,7 +412,12 @@ describeDatabase("billing usage ledger", { timeout: 120_000 }, () => {
     await expect(
       runWithoutTenant(() =>
         prisma.billingUsageInterval.create({
-          data: { companyId, kind: "seat", subjectId: userId, startedAt: new Date() },
+          data: {
+            companyId,
+            kind: "seat",
+            subjectId: userId,
+            startedAt: new Date(),
+          },
         }),
       ),
     ).rejects.toThrow();
@@ -338,7 +430,14 @@ describeDatabase("billing usage ledger", { timeout: 120_000 }, () => {
     await runWithoutTenant(() => new PrismaCompanyRepo(new PrismaBillingUsageRepo()).deleteCompanyUnscoped(companyId));
 
     expect(await intervals(companyId)).toMatchObject([
-      { subjectId: userId, endExact: true, firstName: null, lastName: null, email: null, roleName: "Member" },
+      {
+        subjectId: userId,
+        endExact: true,
+        firstName: null,
+        lastName: null,
+        email: null,
+        roleName: "Member",
+      },
     ]);
     expect((await intervals(companyId))[0].endedAt).toBeInstanceOf(Date);
     expect((await ledgerWorkspace(companyId))?.deletedAt).toBeInstanceOf(Date);
@@ -351,7 +450,10 @@ describeDatabase("billing usage ledger", { timeout: 120_000 }, () => {
     await recordSeats(vanished.companyId, [vanished.userId]);
 
     await runWithoutTenant(async () => {
-      await prisma.user.update({ where: { id: kept.userId, companyId: kept.companyId }, data: { status: "inactive" } });
+      await prisma.user.update({
+        where: { id: kept.userId, companyId: kept.companyId },
+        data: { status: "inactive" },
+      });
       await prisma.company.delete({ where: { id: vanished.companyId } });
     });
 

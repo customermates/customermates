@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import type { AgentChatStore } from "./agent-chat.store";
 
 import { reportApplicationError } from "@/core/errors/report-application-error";
+import { hasWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 
 export function useAgentChatConfig(store: AgentChatStore, active = true): void {
   useEffect(() => {
@@ -15,7 +16,7 @@ export function useAgentChatConfig(store: AgentChatStore, active = true): void {
     let attempt = 0;
     const load = async () => {
       const status = await store.loadConfig();
-      if (cancelled || status !== "retry") return;
+      if (cancelled || status !== "retry" || hasWorkspaceChanged()) return;
 
       const wait = Math.min(30_000, 1_000 * 2 ** attempt++);
       timer = setTimeout(() => void load().catch(reportApplicationError), wait);

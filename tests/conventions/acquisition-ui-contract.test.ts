@@ -382,12 +382,6 @@ describe("public acquisition UI contract", () => {
       "app/[locale]/(static)/features/components/why-features-section.tsx",
     );
     expect(whyFeatures).toContain("<Icon aria-hidden icon={IconComponent} />");
-
-    const hero = source("app/[locale]/(static)/components/homepage-hero-visual.tsx");
-    expect(hero).toContain("<ProviderMark");
-    expect(hero).not.toMatch(
-      /<ProviderMark[^>]*className=.*(?:grayscale|text-primary)/u,
-    );
   });
 
   it("keeps the founder contact on every long-form detail page", () => {

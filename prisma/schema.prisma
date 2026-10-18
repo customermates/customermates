@@ -28,15 +28,17 @@ model AuthUser {
 }
 
 model AuthSession {
-  id        String   @id
-  expiresAt DateTime
-  token     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  ipAddress String?
-  userAgent String?
-  userId    String
-  authuser  AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id              String   @id
+  expiresAt       DateTime
+  token           String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  ipAddress       String?
+  userAgent       String?
+  userId          String
+  authuser        AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activeCompanyId String?
+  activeCompany   Company? @relation(fields: [activeCompanyId], references: [id], onDelete: SetNull)
 
   @@unique([token])
   @@index([userId])
@@ -96,9 +98,12 @@ model Apikey {
   updatedAt           DateTime
   permissions         String?
   metadata            String?
+  companyId           String?
+  company             Company?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   @@index([key])
   @@index([referenceId])
+  @@index([companyId, referenceId])
 }
 
 model OauthApplication {
@@ -132,11 +137,14 @@ model OauthAccessToken {
   userId                String?
   authuser              AuthUser?        @relation(fields: [userId], references: [id], onDelete: Cascade)
   scopes                String
+  companyId             String?
+  company               Company?         @relation(fields: [companyId], references: [id], onDelete: Cascade)
   createdAt             DateTime         @default(now())
   updatedAt             DateTime         @updatedAt
 
   @@index([clientId])
   @@index([userId])
+  @@index([companyId])
 }
 
 model OauthConsent {
@@ -157,7 +165,7 @@ model OauthConsent {
 
 model User {
   id                              String                    @id @default(uuid())
-  email                           String                    @unique
+  email                           String
   firstName                       String
   lastName                        String
   companyId                       String
@@ -180,6 +188,7 @@ model User {
   onboardingWikiStepCompletedAt   DateTime?
   agentCreditActivatedAt          DateTime?
   isPlatformOperator              Boolean                   @default(false)
+  leftAt                          DateTime?
   createdAt                       DateTime                  @default(now())
   updatedAt                       DateTime                  @updatedAt
   company                         Company                   @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -197,6 +206,8 @@ model User {
   recordEventSubscriptions        RecordEventSubscription[]
 
   @@unique([companyId, id])
+  @@unique([companyId, email])
+  @@index([email])
   @@index([companyId])
   @@index([companyId, status])
   @@index([roleId])
@@ -204,10 +215,15 @@ model User {
 
 model Company {
   id                          String                         @id @default(uuid())
+  name                        String?
+  createdByAuthUserId         String?
   createdAt                   DateTime                       @default(now())
   updatedAt                   DateTime                       @updatedAt
   tags                        String[]                       @default([])
   users                       User[]
+  activeSessions              AuthSession[]
+  apiKeys                     Apikey[]
+  oauthAccessTokens           OauthAccessToken[]
   adAttributions              AdAttribution[]
   conversionEvents            ConversionEvent[]
   inviteTokens                InviteToken[]
@@ -261,6 +277,8 @@ model Company {
   wikiWebsiteCrawls           WikiWebsiteCrawl[]
   wikiSourceDocuments         WikiSourceDocument[]
   trashItems                  TrashItem[]
+
+  @@index([createdByAuthUserId])
 }
 
 enum WikiPageKind {
@@ -643,6 +661,7 @@ model Subscription {
   quantity                      Int?
   trialEndDate                  DateTime?
   currentPeriodEnd              DateTime?
+  checkoutStartedAt             DateTime?
   agentCreditAnchorAt           DateTime?
   enterpriseAgentCreditsPerUser Int?
   createdAt                     DateTime           @default(now())

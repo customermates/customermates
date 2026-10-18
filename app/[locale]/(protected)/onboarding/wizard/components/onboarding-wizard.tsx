@@ -34,10 +34,12 @@ type Props = {
   onboardingIntent?: string;
   inviterName?: string;
   isInvited?: boolean;
+  canNameWorkspace?: boolean;
   sessionEmail?: string;
   sessionFirstName?: string;
   sessionLastName?: string;
   sessionAvatarUrl?: string;
+  workspaceName?: string | null;
 };
 
 const OnboardingWizardContent = observer(
@@ -51,12 +53,15 @@ const OnboardingWizardContent = observer(
     onboardingIntent,
     inviterName,
     isInvited = false,
+    canNameWorkspace = false,
     sessionEmail = "",
     sessionFirstName,
     sessionLastName,
     sessionAvatarUrl,
+    workspaceName,
   }: Props) => {
     const t = useTranslations();
+    const workspace = workspaceName?.trim() ?? "";
     const { onboardingWizardStore } = useRootStore();
     const resumeStepIndex = profileCompleted ? (isInvited || wikiStepCompleted ? 2 : 1) : 0;
     const resumesSavedStep = resumeStepIndex === 2;
@@ -100,6 +105,7 @@ const OnboardingWizardContent = observer(
           return (
             <StepProfile
               avatarUrl={sessionAvatarUrl}
+              canNameWorkspace={canNameWorkspace}
               email={sessionEmail}
               firstName={sessionFirstName}
               inviterName={inviterName}
@@ -144,7 +150,9 @@ const OnboardingWizardContent = observer(
 
             <p className="text-sm text-muted-foreground">
               {currentStep === "profile" && isInvited
-                ? t("OnboardingWizard.steps.profile.invitedSubtitle")
+                ? workspace
+                  ? t("OnboardingWizard.steps.profile.invitedSubtitleNamed", { workspace })
+                  : t("OnboardingWizard.steps.profile.invitedSubtitle")
                 : t(`OnboardingWizard.steps.${currentStep}.subtitle`)}
             </p>
           </div>

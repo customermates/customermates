@@ -60,6 +60,8 @@ export const CLOUD_TRIAL = {
   providerTrialDays: number;
 };
 
+export const CLOUD_WORKSPACE_CREATION_LIMIT = 20;
+
 export const PLAN_CATALOG = {
   starter: {
     plan: "starter",

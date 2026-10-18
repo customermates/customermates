@@ -30,7 +30,10 @@ export class PrismaBillingUsageRepo extends TenantRepository implements BillingU
   @BypassTenantGuard
   async findRecordedWorkspacesUnscoped(after: string | null, limit: number): Promise<string[]> {
     const workspaces = await this.prisma.billingUsageWorkspace.findMany({
-      where: { deletedAt: null, ...(after ? { companyId: { gt: after } } : {}) },
+      where: {
+        deletedAt: null,
+        ...(after ? { companyId: { gt: after } } : {}),
+      },
       orderBy: { companyId: "asc" },
       take: limit,
       select: { companyId: true },
@@ -42,7 +45,12 @@ export class PrismaBillingUsageRepo extends TenantRepository implements BillingU
   @BypassTenantGuard
   async reconcileWorkspaceUnscoped(companyId: string): Promise<void> {
     await this.withCompanyTransaction(companyId, async () => {
-      if (!(await this.prisma.company.findFirst({ where: { id: companyId }, select: { id: true } })))
+      if (
+        !(await this.prisma.company.findFirst({
+          where: { id: companyId },
+          select: { id: true },
+        }))
+      )
         return this.recordWorkspaceDeleted(companyId, "sweep");
       await this.recordSeats(companyId, "sweep");
       await this.recordChannels(companyId, "sweep");
@@ -51,8 +59,14 @@ export class PrismaBillingUsageRepo extends TenantRepository implements BillingU
 
   async recordSeats(companyId: string, changed: BillingUsageChanges): Promise<void> {
     const users = await this.prisma.user.findMany({
-      where: { companyId, status: Status.active },
-      select: { id: true, firstName: true, lastName: true, email: true, role: { select: { name: true } } },
+      where: { companyId, status: Status.active, leftAt: null },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        role: { select: { name: true } },
+      },
     });
 
     await this.reconcile(
@@ -74,7 +88,13 @@ export class PrismaBillingUsageRepo extends TenantRepository implements BillingU
   async recordChannels(companyId: string, changed: BillingUsageChanges): Promise<void> {
     const accounts = await this.prisma.connectedAccount.findMany({
       where: { companyId, status: { not: ConnectedAccountStatus.deleted } },
-      select: { id: true, provider: true, emailAddress: true, displayName: true, unipileAccountId: true },
+      select: {
+        id: true,
+        provider: true,
+        emailAddress: true,
+        displayName: true,
+        unipileAccountId: true,
+      },
     });
 
     await this.reconcile(
@@ -94,7 +114,10 @@ export class PrismaBillingUsageRepo extends TenantRepository implements BillingU
   }
 
   async recordWorkspaceCreated(companyId: string): Promise<void> {
-    const company = await this.prisma.company.findFirst({ where: { id: companyId }, select: { createdAt: true } });
+    const company = await this.prisma.company.findFirst({
+      where: { id: companyId },
+      select: { createdAt: true },
+    });
 
     await this.prisma.billingUsageWorkspace.createMany({
       data: [{ companyId, workspaceCreatedAt: company?.createdAt ?? new Date() }],
@@ -194,8 +217,12 @@ export class PrismaBillingUsageRepo extends TenantRepository implements BillingU
       if (interval.roleName !== subject.roleName)
         renamed.set(subject.roleName, [...(renamed.get(subject.roleName) ?? []), interval.id]);
     }
-    for (const [roleName, ids] of renamed)
-      await this.prisma.billingUsageInterval.updateMany({ where: { companyId, id: { in: ids } }, data: { roleName } });
+    for (const [roleName, ids] of renamed) {
+      await this.prisma.billingUsageInterval.updateMany({
+        where: { companyId, id: { in: ids } },
+        data: { roleName },
+      });
+    }
   }
 
   private async ensureWorkspace(companyId: string, now: Date): Promise<void> {
@@ -205,7 +232,10 @@ export class PrismaBillingUsageRepo extends TenantRepository implements BillingU
     });
     if (existing) return;
 
-    const company = await this.prisma.company.findFirst({ where: { id: companyId }, select: { createdAt: true } });
+    const company = await this.prisma.company.findFirst({
+      where: { id: companyId },
+      select: { createdAt: true },
+    });
 
     await this.prisma.billingUsageWorkspace.createMany({
       data: [

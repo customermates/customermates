@@ -1,8 +1,8 @@
 import type { RegistrationAdAttribution } from "@/features/acquisition/ad-attribution.schema";
 import type { TenantUser } from "@/features/user/user.service";
-import type { RegisterUserCompanyRepo } from "./register-user-company.repo";
+import type { RegisterUserCompanyRepo, WorkspaceSetup } from "./register-user-company.repo";
 import type { RegisterUserData } from "./register-user.interactor";
-import type { RegisterUserRepo } from "./register-user.repo";
+import type { OwnerPreferences, RegisterUserRepo } from "./register-user.repo";
 import type { RegisterUserRoleRepo } from "./register-user-role.repo";
 
 import { runInTransaction } from "@/core/decorators/transaction-runner";
@@ -14,12 +14,19 @@ export class WorkspaceRegistrationService {
     private readonly users: RegisterUserRepo,
   ) {}
 
-  createCompanyAndUser(args: RegisterUserData & { adAttribution?: RegistrationAdAttribution[] }): Promise<TenantUser> {
+  createCompanyAndUser(
+    args: RegisterUserData & {
+      adAttribution?: RegistrationAdAttribution[];
+      workspace?: WorkspaceSetup;
+      preferences?: OwnerPreferences;
+    },
+  ): Promise<TenantUser> {
+    const { workspace, ...owner } = args;
     return runInTransaction(async () => {
-      const companyId = await this.companies.createRegisteredCompany();
+      const companyId = await this.companies.createRegisteredCompany(workspace);
       const roleId = await this.roles.createAdminRole(companyId);
-      const { user, createdAt } = await this.users.createCompanyOwnerOrThrow({ ...args, companyId, roleId });
-      if (args.adAttribution?.length) await this.companies.recordSignupConversion(companyId, createdAt);
+      const { user, createdAt } = await this.users.createCompanyOwnerOrThrow({ ...owner, companyId, roleId });
+      if (owner.adAttribution?.length) await this.companies.recordSignupConversion(companyId, createdAt);
       return user;
     });
   }

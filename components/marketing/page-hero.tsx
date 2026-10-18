@@ -9,6 +9,7 @@ import { cn } from "@/core/utils/cn";
 import { IntlLink } from "@/i18n/navigation";
 
 import { AgplGithubBadge } from "./agpl-github-badge";
+import { HeadingText } from "./heading-text";
 import { MarketingContainer } from "./marketing-container";
 import { contentLinkPrefetch } from "@/i18n/content-links";
 
@@ -53,7 +54,12 @@ function HeroAction({ href, label, variant }: { href: string; label: string; var
   );
 
   return (
-    <Button asChild className="w-full sm:w-auto" size="lg" variant={variant}>
+    <Button
+      asChild
+      className={cn("w-full sm:w-auto", variant === "secondary" && "glass-surface")}
+      size="lg"
+      variant={variant === "secondary" ? "ghost" : variant}
+    >
       {isExternalHref(href) ? (
         <a href={href} rel="noopener noreferrer" target="_blank">
           {content}
@@ -76,7 +82,7 @@ export function PageHero(props: Props) {
   const actions = hasHeroActions(props) ? props : null;
 
   return (
-    <section className="relative isolate w-full overflow-hidden border-b border-border bg-background">
+    <section className="relative isolate w-full overflow-hidden bg-background">
       <GridPattern className="z-0" fade="bottom" />
 
       <MarketingContainer className="relative z-10">
@@ -101,7 +107,9 @@ export function PageHero(props: Props) {
             ) : null}
 
             <div className={cn("m-0", visual ? "text-display-sm" : "text-display max-w-5xl")}>
-              <h1 className="inline">{title}</h1>
+              <h1 className="inline">
+                <HeadingText text={title} />
+              </h1>
 
               {titleAccent ? <span> {titleAccent}</span> : null}
             </div>

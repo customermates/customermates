@@ -32,7 +32,7 @@ export class ContinueWithSocialsInteractor {
     const res = await this.authService.continueWithSocials(data);
 
     if ("user" in res && res.user) {
-      const userExists = (await this.findUserRepo.findCurrentUserUnscoped(res.user.email)) !== null;
+      const userExists = (await this.findUserRepo.listMembershipsUnscoped(res.user.email)).length > 0;
 
       if (!userExists) {
         await this.authService.sendNewUserNotificationEmail({

@@ -65,7 +65,7 @@ SELECT gen_random_uuid()::text, u."companyId", 'seat', u."id",
        u."firstName", u."lastName", u."email", r."name"
 FROM "User" u
 LEFT JOIN "UserRole" r ON r."id" = u."roleId"
-WHERE u."status" = 'active';
+WHERE u."status" = 'active' AND u."leftAt" IS NULL;
 
 -- Legal notices go only to active users, so each one proves a seat at that moment.
 -- Notices before a user's current seat become one closed seat from the first to

@@ -12,6 +12,7 @@ import { globalSearchAction } from "../../search/actions";
 import { Debouncer } from "@/core/utils/debounce";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { reportApplicationError } from "@/core/errors/report-application-error";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 
 export class ThreadRecordsStore extends BaseStore {
   detail: ThreadRecordsResult | null = null;
@@ -82,6 +83,7 @@ export class ThreadRecordsStore extends BaseStore {
     this.error = false;
     try {
       const result = await readThreadRecordsAction(threadId);
+      if (notifyIfWorkspaceChanged(result)) return;
       runInAction(() => {
         if (threadId !== this.threadId || generation !== this.generation) return;
         if (result.ok) this.detail = result.data;
@@ -143,6 +145,7 @@ export class ThreadRecordsStore extends BaseStore {
         limit: 25,
         cursor: null,
       });
+      if (notifyIfWorkspaceChanged(result)) return;
       runInAction(() => {
         if (generation !== this.searchGeneration) return;
         if (result.ok) {

@@ -97,6 +97,9 @@ vi.mock("@/app/components/agent-chat/agent-chat", () => ({
 vi.mock("@/features/messaging/activities/activities-detail-modal", () => ({
   TimelineDetailModal: () => "timeline-detail-modal",
 }));
+vi.mock("@/app/components/workspaces/create-workspace-modal", () => ({
+  CreateWorkspaceModal: () => "create-workspace-modal",
+}));
 
 import { ProtectedShell as ProtectedLayout } from "../protected-shell";
 
@@ -154,6 +157,7 @@ describe("ProtectedLayout account-state boundary", () => {
     expect(container.textContent).toContain("loading-overlay");
     expect(container.textContent).toContain("unexpected-error-toaster");
     expect(container.textContent).toContain("translation-sync");
+    expect(container.textContent).toContain("create-workspace-modal");
     expect(container.textContent).not.toContain("global-keyboard-shortcuts");
     expect(container.textContent).not.toContain("keyboard-shortcuts-dialog");
     expect(container.textContent).not.toContain("global-search-modal");

@@ -28,6 +28,7 @@ import type { DeleteAccountForBillingRepo } from "../connect/delete-account-for-
 import type { DeleteAccountsForPlanConnectedAccountRepo } from "../connect/delete-accounts-for-plan-connected-account.repo";
 import type { DeleteConnectedAccountsForExpiredTrialsRepo } from "@/ee/lifecycle/delete-connected-accounts-for-expired-trials.interactor";
 import type { DeleteConnectedAccountsForInactiveOwnersRepo } from "@/ee/lifecycle/delete-connected-accounts-for-inactive-owners.interactor";
+import type { LeaveWorkspaceChannelsRepo } from "@/features/workspace/leave-workspace-channels.repo";
 import type { DeleteOrphanedUnipileAccountsRepo } from "@/ee/lifecycle/delete-orphaned-unipile-accounts.interactor";
 import type { RefreshInboxRepo } from "../inbox/refresh-inbox.repo";
 import type { SetSelectedFoldersRepo } from "../connect/set-selected-folders.repo";
@@ -74,6 +75,7 @@ export class PrismaConnectedAccountRepo
     DeleteAccountsForPlanConnectedAccountRepo,
     DeleteConnectedAccountsForExpiredTrialsRepo,
     DeleteConnectedAccountsForInactiveOwnersRepo,
+    LeaveWorkspaceChannelsRepo,
     DeleteOrphanedUnipileAccountsRepo,
     RefreshInboxRepo,
     SetSelectedFoldersRepo,
@@ -323,6 +325,15 @@ export class PrismaConnectedAccountRepo
       await this.prisma.connectedAccount.update({ where: { id, companyId }, data });
       await this.billingUsage.recordChannels(companyId, channelChange(id, before?.status, data.status));
     });
+  }
+
+  async findOwnedConnectedAccountIdsCompanyWide(userId: string) {
+    const rows = await this.prisma.connectedAccount.findMany({
+      where: { companyId: this.companyId, userId, status: { not: ConnectedAccountStatus.deleted } },
+      select: { id: true },
+    });
+
+    return rows.map((row) => row.id);
   }
 
   @BypassTenantGuard

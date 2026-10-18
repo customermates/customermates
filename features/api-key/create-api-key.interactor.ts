@@ -1,7 +1,8 @@
-import { fail } from "@/core/validation/interactor-failure-server";
+import { fail, failAuthorization } from "@/core/validation/interactor-failure-server";
 import type { ApiKey } from "./get-api-keys.interactor";
 import type { Data } from "@/core/validation/validation.utils";
 import type { AuthService } from "@/features/auth/auth.service";
+import type { WorkspacePlanService } from "@/ee/subscription/workspace-plan.service";
 
 import { z } from "zod";
 import { Resource } from "@/generated/prisma";
@@ -50,16 +51,23 @@ type CreateApiKeyResult = ApiKey & { key: string };
 
 @TenantInteractor({ resource: Resource.api, manage: "create" })
 export class CreateApiKeyInteractor extends AuthenticatedInteractor<CreateApiKeyData, CreateApiKeyResult> {
-  constructor(private readonly authService: AuthService) {
+  constructor(
+    private readonly authService: AuthService,
+    private readonly plans: Pick<WorkspacePlanService, "canCreateIntegrations">,
+  ) {
     super();
   }
 
   @Validate(CreateApiKeySchema)
   @ValidateOutput(OutputSchema)
   async invoke(data: CreateApiKeyData): Validated<CreateApiKeyResult> {
+    if (!(await this.plans.canCreateIntegrations(this.companyId)))
+      return failAuthorization(CustomErrorCode.workspacePlanRequired);
+
     const result = await this.authService.createApiKey({
       name: data.name,
       expiresIn: data.expiresIn,
+      companyId: this.companyId,
     });
 
     if (!result.ok)

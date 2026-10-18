@@ -13,8 +13,9 @@ import { HomepageBenefits, HomepageFacts } from "./components/homepage-benefits"
 import { HomepagePricing } from "./components/homepage-pricing";
 import { HomepagePipeline } from "./components/homepage-pipeline";
 import { HomepageClosing, HomepageFaq } from "./components/homepage-closing";
-import { HomepageLiveDemo } from "./components/homepage-live-demo";
 import { HomepageProductProof } from "./components/homepage-product-proof";
+import { HomepageRoutines } from "./components/homepage-routines";
+import { HomepageStory } from "./components/homepage-story";
 import { JsonLd } from "@/components/seo/json-ld";
 import { homepageSource } from "@/core/fumadocs/source";
 import { buildHomepageMetadata } from "@/core/seo/homepage-metadata";
@@ -55,16 +56,18 @@ export default async function HomePage({ params }: StaticLocaleProps) {
   if (!homepagePage) notFound();
 
   const contentLocale = contentLocaleOrDefault(locale);
+  const liveLabel = homepagePage.data.hero.stage.live.prompt;
   const {
     benefits,
     closingEyebrow,
     cta,
     faq,
+    flow,
     hero,
     howItWorks,
     pipelineStory,
     productProof,
-    visualLabels,
+    routines,
     walkthrough,
   } = homepagePage.data;
 
@@ -83,32 +86,34 @@ export default async function HomePage({ params }: StaticLocaleProps) {
         })}
       />
 
-      <HomepageHero heroSection={hero} />
+      <HomepageHero heroSection={hero} locale={contentLocale} />
 
       <HomepageFacts benefitsSection={benefits} />
 
-      <HomepageLiveDemo locale={contentLocale} proof={productProof} />
-
-      <HomepageProductProof proof={productProof} />
+      <HomepageStory flow={flow} />
 
       <HomepageStatsRow />
 
       {walkthrough ? (
-        <HomepageWalkthrough locale={contentLocale} visualLabels={visualLabels} walkthrough={walkthrough} />
+        <HomepageWalkthrough liveLabel={liveLabel} locale={contentLocale} walkthrough={walkthrough} />
       ) : null}
 
       {howItWorks ? (
         <HomepageHowItWorks
           eyebrow={howItWorks.eyebrow}
           handoff={howItWorks.handoff}
+          liveLabel={liveLabel}
           locale={contentLocale}
           steps={howItWorks.steps}
           title={howItWorks.title}
-          visualLabels={visualLabels}
         />
       ) : null}
 
-      <HomepagePipeline locale={contentLocale} story={pipelineStory} visualLabels={visualLabels} />
+      <HomepagePipeline liveLabel={liveLabel} locale={contentLocale} story={pipelineStory} />
+
+      <HomepageRoutines liveLabel={liveLabel} locale={contentLocale} routines={routines} />
+
+      <HomepageProductProof proof={productProof} />
 
       <HomepageBenefits benefitsSection={benefits} />
 

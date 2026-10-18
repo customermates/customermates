@@ -3,14 +3,28 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
 const toast = vi.hoisted(() => ({ error: vi.fn() }));
+const notifyWorkspaceChanged = vi.hoisted(() => vi.fn());
 
 vi.mock("sonner", () => ({ toast }));
+vi.mock("@/core/errors/report-application-error", () => ({ notifyWorkspaceChanged }));
+
+import { markWorkspaceChanged } from "@/core/errors/workspace-changed";
 
 import { toastZodErrorTree } from "../toast-zod-error-tree";
 
 beforeEach(() => vi.clearAllMocks());
 
 describe("toastZodErrorTree", () => {
+  it("asks to reload instead of toasting when the session's workspace changed", () => {
+    const tree = markWorkspaceChanged(
+      z.treeifyError(new z.ZodError([{ code: "custom", message: "Reload the page", path: [] }])),
+    );
+
+    expect(toastZodErrorTree(tree)).toBe(true);
+    expect(notifyWorkspaceChanged).toHaveBeenCalledOnce();
+    expect(toast.error).not.toHaveBeenCalled();
+  });
+
   it("shows localized messages without synthesizing English field names", () => {
     const tree = z.treeifyError(
       new z.ZodError([

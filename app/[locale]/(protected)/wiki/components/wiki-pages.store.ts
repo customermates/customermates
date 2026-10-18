@@ -4,6 +4,7 @@ import { action, computed, makeObservable, observable, runInAction } from "mobx"
 
 import { Debouncer } from "@/core/utils/debounce";
 import { reportApplicationError } from "@/core/errors/report-application-error";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 
 import { getWikiPagesAction, moveWikiPageAction, searchWikiPagesAction } from "../actions";
 
@@ -137,6 +138,7 @@ export class WikiPagesStore {
       const response = await (query
         ? searchWikiPagesAction({ query, page, pageSize: 25 })
         : getWikiPagesAction({ page, pageSize: 25 }));
+      if (notifyIfWorkspaceChanged(response)) return;
       runInAction(() => {
         if (!isCurrent()) return;
         if (response.ok) {
@@ -145,7 +147,7 @@ export class WikiPagesStore {
         } else this.requestState = "failed";
       });
     } catch (error: unknown) {
-      if (!isCurrent()) return;
+      if (notifyIfWorkspaceChanged(error) || !isCurrent()) return;
       reportApplicationError(error);
       runInAction(() => {
         this.requestState = "failed";

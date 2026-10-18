@@ -75,7 +75,7 @@ async function postToken(fields: Record<string, string>) {
   return (await response.json()) as { access_token: string; refresh_token: string };
 }
 
-async function issueOAuthTokens(client: Client, authUserId: string, clientId: string) {
+async function issueOAuthTokens(client: Client, authUserId: string, clientId: string, companyId: string) {
   const verifier = randomUUID() + randomUUID();
   const consentCode = randomUUID();
   await client.query(
@@ -100,7 +100,7 @@ async function issueOAuthTokens(client: Client, authUserId: string, clientId: st
   const { AuthService } = await import("@/features/auth/auth.service");
   const service = new AuthService({ send: vi.fn() } as never);
   vi.spyOn(service, "getSession").mockResolvedValue({ user: { id: authUserId } } as never);
-  const decision = await service.decideMcpConsent({ consentCode, accept: true });
+  const decision = await service.decideMcpConsent({ consentCode, accept: true, companyId });
   const code = new URL(decision?.redirectURI ?? "").searchParams.get("code") ?? "";
   return postToken({
     grant_type: "authorization_code",
@@ -151,7 +151,7 @@ describeDatabase("MCP OAuth tokens after the owner's role loses API & Webhooks r
   });
 
   it("refuses the bearer on REST and MCP once the permission is removed, also after a refresh", async () => {
-    const tokens = await issueOAuthTokens(client, authUserId, clientId);
+    const tokens = await issueOAuthTokens(client, authUserId, clientId, tenant.companyId);
     const bearer = { authorization: `Bearer ${tokens.access_token}` };
     expect((await listOverRest(bearer)).status).toBe(200);
     expect((await connectOverMcp(bearer)).status).toBe(200);

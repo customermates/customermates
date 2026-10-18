@@ -1391,7 +1391,7 @@ describe("agent tools", () => {
     ["Menú personal", "nav-personal-menu"],
     ["Chiavi API", "nav-settings-api-keys"],
     ["Clés API", "nav-settings-api-keys"],
-    ["Menu del workspace", "nav-workspace-menu"],
+    ["Menu dello spazio di lavoro", "nav-workspace-menu"],
   ])("answers the multi-word page name %s with that page instead of most of the catalog", async (query, id) => {
     const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
     const result = String(await execute(tools.list_ui_targets, { query }));

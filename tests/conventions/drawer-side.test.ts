@@ -28,6 +28,8 @@ function sideAttributes(file: string, tagName: string) {
   return found;
 }
 
+const PUBLIC_NAVBAR = "app/components/public-navbar.tsx";
+
 const sources = ["app", "components"].flatMap((folder) =>
   walkFiles(join(REPO_ROOT, folder), (path) => path.endsWith(".tsx")),
 );
@@ -37,6 +39,15 @@ describe("drawer side placement (rule 60: every drawer opens from the right)", (
     expect(sideAttributes(join(REPO_ROOT, "components/modal/app-modal.tsx"), "SheetContent")).toEqual([
       expect.objectContaining({ value: "right" }),
     ]);
+  });
+
+  it("opens the public marketing navbar menu full screen from the top", () => {
+    const source = readSourceText(join(REPO_ROOT, PUBLIC_NAVBAR));
+
+    expect(sideAttributes(join(REPO_ROOT, PUBLIC_NAVBAR), "SheetContent")).toEqual([
+      expect.objectContaining({ value: "top" }),
+    ]);
+    expect(source).toContain("inset-0 h-dvh max-h-none");
   });
 
   it("never lets an AppModal caller choose a drawer side", () => {
@@ -51,6 +62,7 @@ describe("drawer side placement (rule 60: every drawer opens from the right)", (
     const offenders = sources.flatMap((file) =>
       sideAttributes(file, "SheetContent")
         .filter(({ value }) => value !== null && value !== "right")
+        .filter(() => relative(REPO_ROOT, file) !== PUBLIC_NAVBAR)
         .map(({ value, line }) => `${relative(REPO_ROOT, file)}:${line} side="${value}"`),
     );
 

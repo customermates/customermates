@@ -90,6 +90,8 @@ function rootStoreWith(user: TenantUser | null) {
     appMode: "self-hosted",
     agentChatEnabled: false,
     agentChatStore: { enabled: false, isWorking: false, routeSyncStatus: "idle", toggle: vi.fn() },
+    createWorkspaceModalStore: { start: vi.fn() },
+    workspacesStore: { items: [], current: null, canCreate: true, requestSwitch: vi.fn() },
     addPickerStore: {
       isOpen: false,
       focusReturnFallback: null,

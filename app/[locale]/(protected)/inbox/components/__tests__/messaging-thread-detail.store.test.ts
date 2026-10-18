@@ -10,7 +10,14 @@ const actions = vi.hoisted(() => ({
   updateThreadAction: vi.fn(),
   resyncThreadAction: vi.fn(),
 }));
-vi.mock("../../actions", () => actions);
+vi.mock("../../actions", () => ({
+  ...actions,
+  getMessagingThreadAction: async (threadId: string) => {
+    const detail = await actions.getMessagingThreadAction(threadId);
+    if (detail && typeof detail === "object" && "ok" in detail) return detail;
+    return detail ? { ok: true, data: detail } : { ok: false, failure: { kind: "not_found", issues: [] } };
+  },
+}));
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({
   toastZodErrorTree: vi.fn(),
 }));

@@ -256,7 +256,7 @@ const threadFixtures: ThreadFixture[] = [
       {
         draft: true,
         sender: "self",
-        text: "Perfect. I will send the data questions ahead of Tuesday so nobody has to answer them cold in the room. One is about the retention window,",
+        text: "Perfect. I will send the data questions ahead of Tuesday so nobody has to answer them cold in the room.",
       },
     ],
     name: null,

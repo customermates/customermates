@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { AppCard } from "@/components/card/app-card";
@@ -36,7 +36,7 @@ type ConfirmDialogProps = {
   confirmationText?: string;
   busy?: boolean;
   anchorScope?: string;
-  onCancel: () => void;
+  onCancel?: () => void;
   onConfirm?: () => unknown;
   onCloseAutoFocus?: (event: Event) => void;
 };
@@ -59,6 +59,7 @@ export function ConfirmDialog({
   const t = useTranslations();
   const focusReturn = useOverlayFocusReturn(open);
   const confirmationId = useId();
+  const confirmRef = useRef<HTMLButtonElement>(null);
   const [pending, setPending] = useState(false);
   const [typed, setTyped] = useState({ open, value: "" });
   if (typed.open !== open) setTyped({ open, value: "" });
@@ -82,7 +83,7 @@ export function ConfirmDialog({
     <AlertDialog
       open={open}
       onOpenChange={(next) => {
-        if (!next) onCancel();
+        if (!next) onCancel?.();
       }}
     >
       <AlertDialogContent
@@ -90,10 +91,17 @@ export function ConfirmDialog({
         data-slot="confirm-dialog"
         overlayClassName={OVERLAY_TOPMOST_LAYER_CLASS}
         size="sm"
+        onEscapeKeyDown={onCancel ? undefined : (event) => event.preventDefault()}
         {...focusReturn}
         onCloseAutoFocus={(event) => {
           onCloseAutoFocus?.(event);
           if (!event.defaultPrevented) focusReturn.onCloseAutoFocus(event);
+        }}
+        onOpenAutoFocus={(event) => {
+          focusReturn.onOpenAutoFocus();
+          if (onCancel) return;
+          event.preventDefault();
+          confirmRef.current?.focus({ preventScroll: true });
         }}
       >
         <AppCard>
@@ -127,12 +135,15 @@ export function ConfirmDialog({
           </AppCardBody>
 
           <AppCardFooter data-slot="confirm-dialog-actions">
-            <AlertDialogCancel disabled={busy} id={anchorScope ? `${anchorScope}-cancel` : undefined}>
-              {onConfirm ? t("Common.actions.cancel") : t("Common.actions.close")}
-            </AlertDialogCancel>
+            {onCancel ? (
+              <AlertDialogCancel disabled={busy} id={anchorScope ? `${anchorScope}-cancel` : undefined}>
+                {onConfirm ? t("Common.actions.cancel") : t("Common.actions.close")}
+              </AlertDialogCancel>
+            ) : null}
 
             {onConfirm ? (
               <AlertDialogAction
+                ref={confirmRef}
                 aria-busy={busy || undefined}
                 disabled={busy || confirmDisabled || confirmationMissing}
                 id={anchorScope}

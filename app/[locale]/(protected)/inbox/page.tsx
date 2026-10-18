@@ -13,13 +13,16 @@ import { requireAccess } from "@/features/auth/next/require";
 import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { redirect } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { PageContainer } from "@/components/shared/page-container";
 import { LockedFeatureOverlay } from "@/components/shared/locked-feature-overlay";
 import { env } from "@/env";
 import { cn } from "@/core/utils/cn";
 import { unwrapPage } from "@/core/validation/next/unwrap-page";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
+import { buildLocalePath } from "@/i18n/locale-registry";
+
+const LATEST_THREAD_ID = "latest";
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -35,14 +38,25 @@ export default async function InboxPage({ searchParams }: Props) {
   const canConnect = messaging.state === "available" && messaging.canConnect;
 
   const { threadId: threadIdRaw, ...listParams } = await searchParams;
-  const threadId = !locked && typeof threadIdRaw === "string" ? threadIdRaw : null;
+  const requestedThreadId = !locked && typeof threadIdRaw === "string" ? threadIdRaw : null;
   const threadParams = await readSurfaceParams(SURFACE.messagingThreads, listParams);
+
+  const threads = locked ? { items: [] } : await unwrapPage(getGetMessagingThreadsInteractor().invoke(threadParams));
+
+  if (requestedThreadId === LATEST_THREAD_ID) {
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(listParams)) if (typeof value === "string") query.set(key, value);
+    const latestThreadId = threads.items[0]?.id;
+    if (latestThreadId) query.set("threadId", latestThreadId);
+    const search = query.toString();
+    redirect(buildLocalePath(await getLocale(), search ? `/inbox?${search}` : "/inbox"));
+  }
+
+  const threadId = requestedThreadId;
 
   const threadResult = threadId ? await getGetMessagingThreadInteractor().invoke({ threadId }) : null;
 
   if (threadResult && !threadResult.ok) redirect("/inbox");
-
-  const threads = locked ? { items: [] } : await unwrapPage(getGetMessagingThreadsInteractor().invoke(threadParams));
 
   const threadDetail = threadResult?.ok ? threadResult.data : null;
 

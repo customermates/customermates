@@ -6,7 +6,12 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
-const CompanySchema = z.object({ id: z.string(), createdAt: z.date(), updatedAt: z.date() });
+const CompanySchema = z.object({
+  id: z.string(),
+  name: z.string().nullable(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
 type CompanyDto = z.infer<typeof CompanySchema>;
 
 @AllowInDemoMode

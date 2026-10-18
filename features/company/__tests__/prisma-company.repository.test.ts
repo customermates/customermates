@@ -4,7 +4,7 @@ import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-
 const prismaMock = vi.hoisted(() => {
   const transactionClient = {
     $executeRaw: vi.fn().mockResolvedValue(0),
-    subscription: { upsert: vi.fn().mockResolvedValue({}) },
+    subscription: { updateMany: vi.fn().mockResolvedValue({ count: 1 }) },
     adAttribution: { count: vi.fn().mockResolvedValue(0) },
     conversionEvent: { createMany: vi.fn().mockResolvedValue({ count: 1 }) },
   };
@@ -29,26 +29,58 @@ describe("PrismaCompanyRepo subscription synchronization", () => {
 
   it("takes the same company transaction lock used by hosted-AI reservations", async () => {
     const companyId = "00000000-0000-4000-8000-000000000001";
-    const agentCreditAnchorAt = new Date("2026-08-06T10:00:00.000Z");
 
-    await new PrismaCompanyRepo(new PrismaBillingUsageRepo()).upsertSubscriptionUnscoped({
+    const written = await new PrismaCompanyRepo(new PrismaBillingUsageRepo()).writeSubscriptionUnscoped({
       companyId,
+      expectedLemonSqueezyId: null,
       lemonSqueezyId: "subscription-1",
       lemonSqueezyVariantId: "variant-1",
-      status: "active",
+      status: "trial",
       plan: "pro",
       quantity: 3,
       currentPeriodEnd: new Date("2027-08-06T10:00:00.000Z"),
-      agentCreditAnchorAt,
+      checkoutStartedAt: null,
     });
 
+    expect(written).toBe(true);
     expect(prismaMock.prisma.$transaction).toHaveBeenCalledTimes(1);
     expect(prismaMock.transactionClient.$executeRaw).toHaveBeenCalledWith(expect.any(Array), companyId);
-    expect(prismaMock.transactionClient.subscription.upsert).toHaveBeenCalledWith({
-      where: { companyId },
-      create: expect.objectContaining({ companyId, status: "active", plan: "pro", agentCreditAnchorAt }),
-      update: expect.objectContaining({ companyId, status: "active", plan: "pro", agentCreditAnchorAt }),
+    expect(prismaMock.transactionClient.subscription.updateMany).toHaveBeenCalledWith({
+      where: { companyId, lemonSqueezyId: null },
+      data: {
+        lemonSqueezyId: "subscription-1",
+        lemonSqueezyVariantId: "variant-1",
+        status: "trial",
+        plan: "pro",
+        quantity: 3,
+        currentPeriodEnd: new Date("2027-08-06T10:00:00.000Z"),
+        checkoutStartedAt: null,
+      },
     });
+  });
+
+  it("writes nothing more and reports it when the workspace no longer holds the expected binding", async () => {
+    const companyId = "00000000-0000-4000-8000-000000000004";
+    prismaMock.transactionClient.subscription.updateMany.mockResolvedValueOnce({
+      count: 0,
+    });
+
+    const written = await new PrismaCompanyRepo(new PrismaBillingUsageRepo()).writeSubscriptionUnscoped({
+      companyId,
+      expectedLemonSqueezyId: "subscription-old",
+      lemonSqueezyId: "subscription-new",
+      status: "active",
+      plan: "business",
+    });
+
+    expect(written).toBe(false);
+    expect(prismaMock.transactionClient.subscription.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { companyId, lemonSqueezyId: "subscription-old" },
+      }),
+    );
+    expect(prismaMock.transactionClient.adAttribution.count).not.toHaveBeenCalled();
+    expect(prismaMock.transactionClient.conversionEvent.createMany).not.toHaveBeenCalled();
   });
 
   it("holds the company lock around the subscription service read/derive/write callback", async () => {
@@ -69,15 +101,15 @@ describe("PrismaCompanyRepo subscription synchronization", () => {
     const companyId = "00000000-0000-4000-8000-000000000002";
     prismaMock.transactionClient.adAttribution.count.mockResolvedValueOnce(1);
 
-    await new PrismaCompanyRepo(new PrismaBillingUsageRepo()).upsertSubscriptionUnscoped({
+    await new PrismaCompanyRepo(new PrismaBillingUsageRepo()).writeSubscriptionUnscoped({
       companyId,
+      expectedLemonSqueezyId: null,
       lemonSqueezyId: "subscription-2",
       lemonSqueezyVariantId: "variant-1",
       status: "active",
       plan: "pro",
       quantity: 1,
       currentPeriodEnd: new Date("2027-08-06T10:00:00.000Z"),
-      agentCreditAnchorAt: new Date("2026-08-06T10:00:00.000Z"),
     });
 
     expect(prismaMock.transactionClient.conversionEvent.createMany).toHaveBeenCalledWith({
@@ -89,27 +121,27 @@ describe("PrismaCompanyRepo subscription synchronization", () => {
   it("records no paid conversion for a trial or an unattributed workspace", async () => {
     const companyId = "00000000-0000-4000-8000-000000000003";
 
-    await new PrismaCompanyRepo(new PrismaBillingUsageRepo()).upsertSubscriptionUnscoped({
+    await new PrismaCompanyRepo(new PrismaBillingUsageRepo()).writeSubscriptionUnscoped({
       companyId,
+      expectedLemonSqueezyId: null,
       lemonSqueezyId: "subscription-3",
       lemonSqueezyVariantId: "variant-1",
       status: "trial",
       plan: "pro",
       quantity: 1,
       currentPeriodEnd: new Date("2027-08-06T10:00:00.000Z"),
-      agentCreditAnchorAt: new Date("2026-08-06T10:00:00.000Z"),
     });
     expect(prismaMock.transactionClient.adAttribution.count).not.toHaveBeenCalled();
 
-    await new PrismaCompanyRepo(new PrismaBillingUsageRepo()).upsertSubscriptionUnscoped({
+    await new PrismaCompanyRepo(new PrismaBillingUsageRepo()).writeSubscriptionUnscoped({
       companyId,
+      expectedLemonSqueezyId: "subscription-3",
       lemonSqueezyId: "subscription-3",
       lemonSqueezyVariantId: "variant-1",
       status: "active",
       plan: "pro",
       quantity: 1,
       currentPeriodEnd: new Date("2027-08-06T10:00:00.000Z"),
-      agentCreditAnchorAt: new Date("2026-08-06T10:00:00.000Z"),
     });
     expect(prismaMock.transactionClient.conversionEvent.createMany).not.toHaveBeenCalled();
   });

@@ -129,6 +129,18 @@ describe("OnboardingWizard", () => {
     expect(html).not.toContain("OnboardingWizard.progress current=");
   });
 
+  it("names the invited workspace on the profile step", () => {
+    testContext.rootStore = {
+      onboardingWizardStore: new OnboardingWizardStore({} as RootStore),
+    } as unknown as RootStore;
+    const html = renderToStaticMarkup(
+      createElement(OnboardingWizard, { profileCompleted: false, isInvited: true, workspaceName: "Bergmann Steuern" }),
+    );
+
+    expect(html).toContain("OnboardingWizard.steps.profile.invitedSubtitleNamed workspace=Bergmann Steuern");
+    expect(html).not.toContain("OnboardingWizard.steps.profile.invitedSubtitle<");
+  });
+
   it("starts a registered invitee after Wiki and starts an owner with pages after Wiki", () => {
     expect(renderWizard(true, true)).toContain('data-step="invite"');
     expect(renderWizard(true, false, true, true)).toContain('data-step="invite"');

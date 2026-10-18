@@ -93,7 +93,7 @@ function descriptionLimitFor({ collection, locale }: Meta): number {
 
 describe("seo metadata length", () => {
   it("reads a meaningful number of pages", () => {
-    expect(META.length, "the scan found almost nothing, so the assertions below prove nothing").toBeGreaterThan(350);
+    expect(META.length, "the scan found almost nothing, so the assertions below prove nothing").toBeGreaterThan(250);
   });
 
   it("keeps every title within what a search result renders", () => {

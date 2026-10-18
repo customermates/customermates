@@ -53,17 +53,21 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
       }),
       this.prisma.company.findMany({
         where: args.companyId ? { id: args.companyId } : { createdAt: { lt: args.before } },
-        select: { id: true, createdAt: true },
+        select: { id: true, name: true, createdAt: true },
       }),
       this.prisma.billingUsageInterval.findMany({
         where: {
           ...scope,
-          startedAt: { lt: new Date(args.before.getTime() + OBSERVATION_LAG_MS) },
+          startedAt: {
+            lt: new Date(args.before.getTime() + OBSERVATION_LAG_MS),
+          },
           OR: [{ endedAt: null }, { endedAt: { gt: args.from } }],
         },
         select: INTERVAL_SELECT,
       }),
-      this.prisma.billingUsageWorkspace.aggregate({ _min: { seatsRecordedFrom: true } }),
+      this.prisma.billingUsageWorkspace.aggregate({
+        _min: { seatsRecordedFrom: true },
+      }),
     ]);
 
     const seatIds = [...new Set(intervals.filter((row) => row.kind === "seat").map((row) => row.subjectId))];
@@ -71,7 +75,12 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
       seatIds.length === 0
         ? []
         : await this.prisma.billingUsageInterval.findMany({
-            where: { ...scope, kind: "seat", subjectId: { in: seatIds }, startedAt: { lt: args.from } },
+            where: {
+              ...scope,
+              kind: "seat",
+              subjectId: { in: seatIds },
+              startedAt: { lt: args.from },
+            },
             orderBy: { startedAt: "asc" },
             distinct: ["subjectId"],
             select: INTERVAL_SELECT,
@@ -81,7 +90,10 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
     const recordedIds = new Set(recorded.map((workspace) => workspace.companyId));
     const observedAt = new Date();
     const workspaces = [
-      ...recorded.map(({ workspaceCreatedAt, ...workspace }) => ({ ...workspace, createdAt: workspaceCreatedAt })),
+      ...recorded.map(({ workspaceCreatedAt, ...workspace }) => ({
+        ...workspace,
+        createdAt: workspaceCreatedAt,
+      })),
       ...companies
         .filter((company) => !recordedIds.has(company.id))
         .map((company) => ({
@@ -101,21 +113,34 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
       .map((workspace) => workspace.companyId);
 
     const [members, activeSeats, connectedChannels, deletions] = await Promise.all([
-      this.prisma.user.findMany({ where: { companyId: { in: liveIds } }, select: { companyId: true, email: true } }),
+      this.prisma.user.findMany({
+        where: { companyId: { in: liveIds } },
+        select: { companyId: true, email: true },
+      }),
       this.prisma.user.groupBy({
         by: ["companyId"],
-        where: { companyId: { in: liveIds }, status: Status.active },
+        where: {
+          companyId: { in: liveIds },
+          status: Status.active,
+          leftAt: null,
+        },
         _count: { _all: true },
       }),
       this.prisma.connectedAccount.groupBy({
         by: ["companyId"],
-        where: { companyId: { in: liveIds }, status: { not: ConnectedAccountStatus.deleted } },
+        where: {
+          companyId: { in: liveIds },
+          status: { not: ConnectedAccountStatus.deleted },
+        },
         _count: { _all: true },
       }),
       deletedIds.length === 0
         ? Promise.resolve([])
         : this.prisma.operatorAuditEvent.findMany({
-            where: { action: OPERATOR_AUDIT_ACTION.workspaceDelete, targetCompanyId: { in: deletedIds } },
+            where: {
+              action: OPERATOR_AUDIT_ACTION.workspaceDelete,
+              targetCompanyId: { in: deletedIds },
+            },
             select: { targetCompanyId: true, metadata: true },
             orderBy: { createdAt: "desc" },
           }),
@@ -127,6 +152,7 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
       list.push(member);
       membersByCompany.set(member.companyId, list);
     }
+    const companyNames = new Map(companies.map((company) => [company.id, company.name]));
     const seatCounts = new Map(activeSeats.map((row) => [row.companyId, row._count._all]));
     const channelCounts = new Map(connectedChannels.map((row) => [row.companyId, row._count._all]));
     const deletedLabels = new Map<string, string>();
@@ -141,7 +167,13 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
         companyId: workspace.companyId,
         workspaceLabel:
           workspace.deletedAt === null
-            ? workspaceLabelFor(workspace.companyId, membersByCompany.get(workspace.companyId) ?? [])
+            ? workspaceLabelFor(
+                {
+                  id: workspace.companyId,
+                  name: companyNames.get(workspace.companyId) ?? null,
+                },
+                membersByCompany.get(workspace.companyId) ?? [],
+              )
             : (deletedLabels.get(workspace.companyId) ?? workspace.companyId.slice(0, 8)),
         createdAt: workspace.createdAt,
         deletedAt: workspace.deletedAt,

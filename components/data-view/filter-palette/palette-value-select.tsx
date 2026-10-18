@@ -15,6 +15,7 @@ import { useFilterSelectItems } from "@/components/data-view/filter-modal/inputs
 import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
 import { Button } from "@/components/ui/button";
 import { CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { cn } from "@/core/utils/cn";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { TruncatedText } from "@/components/shared/truncated-text";
@@ -69,7 +70,8 @@ export const PaletteValueSelect = observer(function PaletteValueSelect({
         if (active)
           setOptionResult({ key: optionRequestKey, resolver: getItems, status: "success", items: result.items || [] });
       })
-      .catch(() => {
+      .catch((error: unknown) => {
+        if (notifyIfWorkspaceChanged(error)) return;
         if (active) {
           setOptionResult((previous) => ({
             key: optionRequestKey,

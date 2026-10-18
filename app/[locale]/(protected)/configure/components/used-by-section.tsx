@@ -14,6 +14,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { ChipIcon } from "@/components/modal/confirmation-sentence";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { reportApplicationError } from "@/core/errors/report-application-error";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { IntlLink } from "@/i18n/navigation";
 
 import { deletionBlockerSentences, referenceChip } from "./use-configuration-deletion";
@@ -52,6 +53,7 @@ function useDeletionDependents(model: RecordModelView, target: ConfigurationTarg
     })
       .then((result) => {
         if (current && result.ok) setLoaded({ key: `${kind}:${id}`, deletion: result.data.deletion ?? null });
+        else notifyIfWorkspaceChanged(result);
       })
       .catch(reportApplicationError);
     return () => {

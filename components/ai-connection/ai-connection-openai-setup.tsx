@@ -20,6 +20,7 @@ type Props = {
   mcpUrl: string;
   resultHeadingRef: Ref<HTMLHeadingElement>;
   store: AiConnectionStore;
+  workspaceName: string;
   onCreate: () => void;
 };
 
@@ -29,6 +30,7 @@ export const AiConnectionOpenAiSetup = observer(function AiConnectionOpenAiSetup
   mcpUrl,
   resultHeadingRef,
   store,
+  workspaceName,
   onCreate,
 }: Props) {
   const t = useTranslations();
@@ -82,7 +84,12 @@ export const AiConnectionOpenAiSetup = observer(function AiConnectionOpenAiSetup
 
       {method === "chatgpt" ? (
         <div id="openai-chatgpt-details">
-          <AiConnectionConnectorSetup disabled={disabled} mcpUrl={mcpUrl} provider="chatgpt" />
+          <AiConnectionConnectorSetup
+            disabled={disabled}
+            mcpUrl={mcpUrl}
+            provider="chatgpt"
+            workspaceName={workspaceName}
+          />
         </div>
       ) : null}
 

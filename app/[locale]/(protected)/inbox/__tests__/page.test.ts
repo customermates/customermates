@@ -16,7 +16,10 @@ vi.mock("next/navigation", () => ({
     throw new Error(`REDIRECT:${path}`);
   },
 }));
-vi.mock("next-intl/server", () => ({ getTranslations: vi.fn().mockResolvedValue((key: string) => key) }));
+vi.mock("next-intl/server", () => ({
+  getLocale: vi.fn().mockResolvedValue("de"),
+  getTranslations: vi.fn().mockResolvedValue((key: string) => key),
+}));
 vi.mock("@/env", () => ({ env: { APP_MODE: "cloud" } }));
 vi.mock("@/features/auth/next/require", () => ({ requireAccess: mocks.requireAccess }));
 vi.mock("@/core/data-view/next/read-surface-params", () => ({ readSurfaceParams: mocks.readSurfaceParams }));
@@ -86,5 +89,25 @@ describe("InboxPage subscription lock", () => {
     expect(page.props.children.type).toBe("inbox-surface");
     expect(mocks.getThreads).toHaveBeenCalledOnce();
     expect(mocks.getThread).toHaveBeenCalledWith({ threadId });
+  });
+
+  it("redirects a request for the latest thread to the newest thread in the same locale and keeps other parameters", async () => {
+    mocks.getAccountsState.mockResolvedValue(state({ state: "available", canConnect: true, accounts: [] }));
+    mocks.getThreads.mockResolvedValue({ ok: true, data: { items: [{ id: threadId }] } });
+
+    await expect(
+      InboxPage({ searchParams: Promise.resolve({ agentChat: "closed", threadId: "latest" }) }),
+    ).rejects.toThrow(`REDIRECT:/de/inbox?agentChat=closed&threadId=${threadId}`);
+    expect(mocks.getThread).not.toHaveBeenCalled();
+  });
+
+  it("redirects to the plain list when the latest thread is requested but none exist", async () => {
+    mocks.getAccountsState.mockResolvedValue(state({ state: "available", canConnect: true, accounts: [] }));
+    mocks.getThreads.mockResolvedValue({ ok: true, data: { items: [] } });
+
+    await expect(InboxPage({ searchParams: Promise.resolve({ threadId: "latest" }) })).rejects.toThrow(
+      "REDIRECT:/de/inbox",
+    );
+    expect(mocks.getThread).not.toHaveBeenCalled();
   });
 });

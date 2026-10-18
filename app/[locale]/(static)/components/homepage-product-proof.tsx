@@ -4,6 +4,7 @@ import { Clock3, Play } from "lucide-react";
 
 import { MarketingSection } from "@/components/marketing/marketing-section";
 
+import { ProductWindow } from "@/components/marketing/product-window";
 import { HomepageViewportVideo } from "./homepage-viewport-video";
 
 export function HomepageProductProof({ proof }: { proof: HomepageProductProofContent }) {
@@ -28,7 +29,9 @@ export function HomepageProductProof({ proof }: { proof: HomepageProductProofCon
                 </span>
               </p>
 
-              <h2 className="mt-4 text-2xl font-medium tracking-tight sm:text-3xl">{proof.videoHeading}</h2>
+              <h2 className="text-display-gradient mt-4 text-2xl font-medium tracking-tight sm:text-3xl">
+                {proof.videoHeading}
+              </h2>
             </div>
 
             <p className="col-span-12 text-sm leading-relaxed text-muted-foreground lg:col-start-7 lg:col-end-13">
@@ -36,12 +39,16 @@ export function HomepageProductProof({ proof }: { proof: HomepageProductProofCon
             </p>
           </div>
 
-          <div className="relative mt-6 aspect-video w-full overflow-hidden rounded-card border border-border/70 bg-sidebar shadow-xl shadow-black/5">
-            <HomepageViewportVideo
-              ariaLabel={proof.videoTitle}
-              className="absolute inset-0 size-full object-cover"
-              src={proof.videoSrc}
-            />
+          <div data-reveal className="mt-8">
+            <ProductWindow>
+              <div className="relative aspect-video w-full">
+                <HomepageViewportVideo
+                  ariaLabel={proof.videoTitle}
+                  className="absolute inset-0 size-full object-cover"
+                  src={proof.videoSrc}
+                />
+              </div>
+            </ProductWindow>
           </div>
         </div>
       </div>

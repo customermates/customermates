@@ -171,6 +171,8 @@ export const REVIEWED_EXCEPTION_ALLOWLIST: Readonly<Record<string, string>> = {
     "unresolved C09: valid cognate identical to English (policy conflict)",
   "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: fr:EntityTimeline.types.configuration":
     "unresolved C09: valid cognate identical to English (policy conflict)",
+  "rest-openapi-coverage.test.ts#SPEC_EXEMPT_PATHS: /v1/mcp/w/{workspaceId}":
+    "unresolved C11: a workspace's MCP URL serves the MCP JSON-RPC transport of /v1/mcp, not a REST operation",
 };
 
 const git = (...args: string[]) =>
@@ -187,7 +189,7 @@ function verifiedMoves(): [string, string][] {
   const base = reviewBaseSha();
   const cached = movesByBase.get(base);
   if (cached) return cached;
-  const moves = git("diff", "-M", "--name-status", base)
+  const moves = git("diff", "-M", "-l0", "--name-status", base)
     .split("\n")
     .filter((line) => line.startsWith("R"))
     .map((line): [string, string] => {

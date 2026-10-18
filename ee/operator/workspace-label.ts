@@ -1,6 +1,11 @@
 import { operatorCollator } from "./operator-list-filters";
 
-export function workspaceLabelFor(companyId: string, members: readonly { email: string }[]): string {
+export function workspaceLabelFor(
+  company: { id: string; name: string | null },
+  members: readonly { email: string }[],
+): string {
+  if (company.name) return company.name;
+
   const counts = new Map<string, number>();
   for (const member of members) {
     const domain = member.email.split("@")[1];
@@ -9,5 +14,5 @@ export function workspaceLabelFor(companyId: string, members: readonly { email: 
 
   const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1] || operatorCollator().compare(a[0], b[0]));
 
-  return ranked[0]?.[0] ?? companyId.slice(0, 8);
+  return ranked[0]?.[0] ?? company.id.slice(0, 8);
 }

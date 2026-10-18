@@ -6,6 +6,7 @@ import type { z } from "zod";
 import type { RecordOperationStatusSchema } from "@/features/records/record-operation.schema";
 import { Button } from "@/components/ui/button";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import {
   cancelRecordOperationAction,
   getRecordOperationAction,
@@ -30,7 +31,7 @@ export function RecordOperationProgress({
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const fail = (error: unknown) => {
-      if (cancelled) return;
+      if (cancelled || notifyIfWorkspaceChanged(error)) return;
       reportApplicationError(error);
       setFailed(true);
     };
@@ -39,7 +40,7 @@ export function RecordOperationProgress({
         const result = await getRecordOperationAction(operationId);
         if (cancelled) return;
         if (!result.ok) {
-          setFailed(true);
+          if (!notifyIfWorkspaceChanged(result)) setFailed(true);
           return;
         }
         setStatus(result.data);
@@ -70,11 +71,12 @@ export function RecordOperationProgress({
         ? cancelRecordOperationAction(operationId)
         : resumeRecordOperationAction(operationId));
       if (!result.ok) {
-        setFailed(true);
+        if (!notifyIfWorkspaceChanged(result)) setFailed(true);
         return;
       }
       setRetry((value) => value + 1);
     } catch (error) {
+      if (notifyIfWorkspaceChanged(error)) return;
       reportApplicationError(error);
       setFailed(true);
     } finally {

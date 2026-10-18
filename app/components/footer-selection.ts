@@ -1,16 +1,16 @@
 export const FOOTER_COLUMN_SIZE = 6;
 
 export const FOOTER_PREFERRED_SLUGS = {
-  "blog-posts": [
-    "agentic-crm",
-    "open-source-crm",
-    "customer-communication-management",
-    "crm-software",
-    "crm-examples",
-    "customer-retention-management",
+  "blog-posts": ["agentic-crm", "open-source-crm", "ai-crm", "best-crm-startups", "crm-examples", "excel-crm-template"],
+  "feature-pages": [
+    "self-hosted",
+    "unified-inbox",
+    "cloud-crm",
+    "contact-management",
+    "workflow-automation",
+    "pipeline",
   ],
-  "feature-pages": ["self-hosted", "unified-inbox", "cloud-crm", "contact-management", "sales-tracking", "pipeline"],
-  "for-pages": ["professional-services", "agencies", "recruiting", "healthcare", "ecommerce", "property-management"],
+  "for-pages": ["professional-services", "agencies", "consultants", "recruiting", "startups", "freelancers"],
 } as const;
 
 export type FooterCollection = keyof typeof FOOTER_PREFERRED_SLUGS;

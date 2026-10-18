@@ -36,7 +36,7 @@ export class PrismaOperatorWorkspacesRepo
   implements GetOperatorWorkspacesRepo
 {
   getSearchableFields() {
-    return [{ field: "users.email" }];
+    return [{ field: "name" }, { field: "users.email" }];
   }
 
   getSortableFields() {
@@ -152,6 +152,7 @@ export class PrismaOperatorWorkspacesRepo
       ...args,
       select: {
         id: true,
+        name: true,
         createdAt: true,
         tags: true,
         subscription: {
@@ -178,7 +179,7 @@ export class PrismaOperatorWorkspacesRepo
 
       return {
         id: company.id,
-        workspaceLabel: aggregate?.domain ?? company.id.slice(0, 8),
+        workspaceLabel: company.name ?? aggregate?.domain ?? company.id.slice(0, 8),
         ownerEmail: aggregate?.owner ?? null,
         ownerUserId: aggregate?.ownerId ?? null,
         userCount: aggregate?.total ?? 0,

@@ -23,6 +23,7 @@ import { useFormFieldErrors, useResolvedFieldLabel } from "./use-form-field";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { SelectionOptionsSkeleton, SelectionValueSkeleton } from "./selection-loading";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 
 type Identifiable = { id: string } | { key: string } | { value: string };
 
@@ -156,7 +157,8 @@ export const FormAutocomplete = observer(
             });
           }
         })
-        .catch(() => {
+        .catch((error: unknown) => {
+          if (notifyIfWorkspaceChanged(error)) return;
           if (active) {
             setOptionResult((previous) => ({
               key: optionRequestKey,

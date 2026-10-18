@@ -1,5 +1,7 @@
 export const SESSION_HINT_COOKIE_NAME = "app.session_hint";
 
+export const SESSION_HINT_DOCUMENT_ATTRIBUTE = "data-session-hint";
+
 const SESSION_HINT_MAX_AGE = 30 * 24 * 60 * 60;
 
 export function hasSessionHint(cookieHeader: string): boolean {
@@ -12,4 +14,11 @@ export function sessionHintCookie(): string {
 
 export function expiredSessionHintCookie(): string {
   return `${SESSION_HINT_COOKIE_NAME}=; Path=/; Max-Age=0; SameSite=Lax`;
+}
+
+export const sessionHintDocumentScript =
+  'if(document.cookie.split(";").some(function(c){return c.trim().indexOf("app.session_hint=")===0}))document.documentElement.setAttribute("data-session-hint","")';
+
+export function clearSessionHintDocumentAttribute() {
+  document.documentElement.removeAttribute(SESSION_HINT_DOCUMENT_ATTRIBUTE);
 }

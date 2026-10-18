@@ -21,7 +21,7 @@ vi.mock("react-dom", async (importOriginal) => ({
   prefetchDNS: resourceHints.prefetchDNS,
 }));
 
-import { HeroDemoIframe } from "@/app/[locale]/(static)/components/hero-demo-iframe";
+import { BrowserFrame } from "../browser-frame";
 import { DEMO_RECORD_LIST_PATHS, ProductDemo } from "../product-demo";
 import { DocsDemo } from "@/core/fumadocs/docs-demo";
 import { localProductDemoSrc } from "../product-demo-src";
@@ -83,25 +83,16 @@ afterEach(() => {
 
 describe("BrowserFrame", () => {
   it.each([
-    ["homepage", <HeroDemoIframe key="homepage" src="https://demo.customermates.com/en/dashboard" />],
     ["article", <ProductDemo key="article" path={DEMO_RECORD_LIST_PATHS.contacts} />],
     ["standalone", <ProductDemo key="standalone" path={DEMO_RECORD_LIST_PATHS.contacts} presentation="standalone" />],
     ["docs", <DocsDemo key="docs" src="https://demo.customermates.com/en/dashboard" title="Demo" />],
-  ])("discloses an interactive live preview and shares one width cap on %s", (_, component) => {
+  ])("shows the live app in the shared product window with one width cap on %s", (_, component) => {
     const host = mount(component);
     const frame = host.querySelector("[data-live-preview]");
     expect(frame?.classList.contains("max-w-live-preview")).toBe(true);
-    expect(frame?.textContent).toContain("BrowserFrame.live");
-    expect(frame?.textContent).not.toContain("BrowserFrame.interactive");
-    expect(
-      Array.from(frame?.querySelectorAll('a[target="_blank"]') ?? []).some((link) =>
-        link.textContent?.includes("BrowserFrame.open"),
-      ),
-    ).toBe(true);
-    const urlLink = frame?.querySelector<HTMLAnchorElement>("a[title]");
-    expect(urlLink?.getAttribute("href")).toBe(urlLink?.getAttribute("title"));
-    expect(urlLink?.getAttribute("target")).toBe("_blank");
-    expect(urlLink?.textContent).toBe("demo.customermates.com");
+    expect(frame?.querySelector("[data-homepage-window]")).not.toBeNull();
+    expect(frame?.textContent).not.toContain("BrowserFrame.live");
+    expect(frame?.querySelector('a[target="_blank"]')).toBeNull();
   });
 
   it("routes product previews locally only during development", () => {
@@ -133,7 +124,9 @@ describe("BrowserFrame", () => {
   });
 
   it("warms the origin and eagerly mounts a load-ahead frame at the observer boundary", () => {
-    const host = mount(<HeroDemoIframe src="https://demo.customermates.com/en/dashboard?agentChat=open" />);
+    const host = mount(
+      <BrowserFrame loadAhead src="https://demo.customermates.com/en/dashboard?agentChat=open" title="Demo" />,
+    );
 
     expect(observer.options).toStrictEqual({ rootMargin: "400px 0px" });
     expect(resourceHints.prefetchDNS).toHaveBeenCalledWith("https://demo.customermates.com");

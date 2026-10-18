@@ -8,8 +8,15 @@ import { SYNTHETIC_AVATAR_URLS } from "./avatars";
 import { SEED_IDS } from "./context";
 import { seedCompanyMembers } from "./members";
 import { reconcileAuthUserId } from "./helpers";
+import { NORTHWIND_COMPANY_NAME } from "./northwind-model";
 import { seedRoles } from "./roles";
 import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
+
+export const SYNTHETIC_COMPANY = {
+  ...SYNTHETIC_SEED_TIMELINE.company,
+  createdByAuthUserId: SEED_IDS.user,
+  name: NORTHWIND_COMPANY_NAME,
+} as const;
 
 export const SYNTHETIC_SUBSCRIPTION = {
   agentCreditAnchorAt: SYNTHETIC_SEED_TIMELINE.company.createdAt,
@@ -55,13 +62,10 @@ export async function seedIdentity(context: SeedContext): Promise<void> {
 
   const password = await hashPassword(sharedUserPassword);
 
-  const company = {
-    ...SYNTHETIC_SEED_TIMELINE.company,
-  };
   await prisma.company.upsert({
     where: { id: ids.company },
-    update: company,
-    create: { id: ids.company, ...company },
+    update: SYNTHETIC_COMPANY,
+    create: { id: ids.company, ...SYNTHETIC_COMPANY },
   });
 
   await seedRoles(context);

@@ -5,7 +5,7 @@ description: "Ihre persönlichen Customermates-Einstellungen: Name, Sprache, For
 
 ## Was gehört Ihnen statt dem Workspace? [#what-lives-on-the-profile-screen]
 
-Der Bereich Konto in den Einstellungen hat drei Seiten: [Profil & Einstellungen](app:settings/profile) (Name, Avatar, Sprache, Formate, Darstellung), [Kanäle](app:settings/channels) (die Konten, die den [Posteingang](/docs/app-inbox) speisen) und [API-Schlüssel](app:settings/api-keys) (Keys für MCP- und REST-Clients). Klicken Sie unten in der Seitenleiste auf Ihren Avatar und wählen Sie **Profil & Einstellungen**, oder wählen Sie **Einstellungen** im Workspace-Menü (**Customermates** oben in der Seitenleiste) oder drücken Sie G, dann S; jeder Weg öffnet Profil & Einstellungen, und die Einstellungsnavigation listet die übrigen Seiten. **Zurück** oben in dieser Navigation führt dorthin, wo Sie waren. Änderungen hier betreffen nur Sie, außer bei einem Kanal, den Sie mit dem Workspace teilen.
+Der Bereich Konto in den Einstellungen hat vier Seiten: [Profil & Einstellungen](app:settings/profile) (Name, Avatar, Sprache, Formate, Darstellung), [Workspaces](app:settings/workspaces) (die Workspaces, zu denen Sie gehören), [Kanäle](app:settings/channels) (die Konten, die den [Posteingang](/docs/app-inbox) speisen) und [API-Schlüssel](app:settings/api-keys) (Keys für MCP- und REST-Clients). Klicken Sie unten in der Seitenleiste auf Ihren Avatar und wählen Sie **Profil & Einstellungen**, oder wählen Sie **Einstellungen** im Workspace-Menü (der Name des Workspace oben in der Seitenleiste) oder drücken Sie G, dann S; jeder Weg öffnet Profil & Einstellungen, und die Einstellungsnavigation listet die übrigen Seiten. **Zurück** oben in dieser Navigation führt dorthin, wo Sie waren. Änderungen hier betreffen nur Sie, außer bei einem Kanal, den Sie mit dem Workspace teilen. Ihr Profil ist in jedem Workspace gleich, zu dem Sie gehören, während Kanäle und API-Keys zu dem Workspace gehören, in dem Sie sie verbunden oder erstellt haben; siehe [Workspaces](/docs/app-workspaces#what-is-the-same-in-every-workspace).
 
 Profil & Einstellungen sieht jedes Mitglied. Kanäle braucht **Lesen** **Alle** in der Zeile **Inbox-Nachrichten** Ihrer Rolle und gibt es nur in Customermates Cloud. API-Schlüssel braucht **Lesen** **Alle** bei **API & Webhooks**. Eine neue benutzerdefinierte Rolle startet in beiden Zeilen mit **Keine**; Rollen bearbeiten Sie unter [Rollen](app:settings/roles), siehe [App-Guide, Unternehmen](/docs/app-company).
 
@@ -17,14 +17,14 @@ Profil & Einstellungen sieht jedes Mitglied. Kanäle braucht **Lesen** **Alle** 
 
 | Feld | Regeln und Wirkung |
 |---|---|
-| **Vorname**, **Nachname** | Pflicht, bis zu 255 Zeichen; Ihr Name im ganzen Workspace |
+| **Vorname**, **Nachname** | Pflicht, bis zu 255 Zeichen; Ihr Name in jedem Workspace, zu dem Sie gehören |
 | **Land** | Pflicht; wird mit dem Profil gespeichert und ändert keine Formate |
 | **Avatar-URL** | Optionaler Link auf ein öffentliches Bild (kein Upload; `https://` wird ergänzt); leer zeigt Ihre Initialen |
 | [Anzeigesprache](app:settings/profile?focus=display-language) | **Englisch**, **Deutsch**, **Französisch**, **Italienisch**, **Spanisch** oder **System** (Browsersprache, sonst Englisch). Oberfläche und Mate nutzen sie, ebenso Benachrichtigungs-E-Mails (bei **System** auf Englisch). Speichern lädt die App neu |
 | [Regionales Format](app:settings/profile?focus=formatting-locale) | Dieselbe Auswahl; wie Zahlen, Datumsangaben und Beträge geschrieben werden, unabhängig von der Anzeigesprache. **System** folgt der Anzeigesprache |
 | [Darstellung](app:settings/profile?focus=theme) | **System**, **Dunkel** oder **Hell** |
 
-**Darstellung** und **Sprache** lassen sich auch im persönlichen Menü umschalten. Der Kopfbereich über dem Formular zeigt E-Mail, Verifizierungsstatus, Mitgliedsstatus und Rolle; hier sind sie nur lesbar. Rolle und Status, aber auch Name, Land und Avatar, kann ein Mitglied mit **Bearbeiten** bei **Benutzer & Rollen** unter [Mitglieder](app:settings/members) setzen.
+**Darstellung** und **Sprache** lassen sich auch im persönlichen Menü umschalten. Der Kopfbereich über dem Formular zeigt E-Mail, Verifizierungsstatus, Mitgliedsstatus und Rolle; hier sind sie nur lesbar. Rolle und Status, aber auch Name, Land und Avatar, kann ein Mitglied mit **Bearbeiten** bei **Benutzer & Rollen** unter [Mitglieder](app:settings/members) setzen; eine solche Änderung gilt nur in diesem Workspace.
 
 ### Wie schalte ich Einzeltasten-Kürzel aus? [#keyboard-shortcut-preferences]
 
@@ -40,7 +40,7 @@ Es gibt keine Einstellung für Passwort, E-Mail-Adresse, Zeitzone, Benachrichtig
 
 ## API-Keys [#api--connectors-tab]
 
-[API-Schlüssel](app:settings/api-keys) listet nur Ihre eigenen Keys. Klicken Sie auf [Hinzufügen](app:settings/api-keys?focus=generate) (braucht **Erstellen** bei **API & Webhooks**), um **API-Key hinzufügen** zu öffnen:
+[API-Schlüssel](app:settings/api-keys) listet nur Ihre eigenen Keys des aktuellen Workspace, und jeder Key handelt nur in dem Workspace, in dem er erstellt wurde. Klicken Sie auf [Hinzufügen](app:settings/api-keys?focus=generate) (braucht **Erstellen** bei **API & Webhooks**), um **API-Key hinzufügen** zu öffnen:
 
 - **Standard-API-Key**: ein **Name** und optional ein Datum unter **Läuft ab**, 1 bis 365 Tage voraus (Standard **Läuft nie ab**). Der Key wird einmal angezeigt, kopieren Sie ihn sofort.
 - **Schnellverbindungen**: Kacheln für **Claude**, **ChatGPT & Codex**, **Cursor** und **Gemini**. Lokale Einrichtungen (Claude Code oder Desktop, Codex, Cursor, Gemini) erstellen einen nach dem Client benannten Key, der nach 365 Tagen abläuft, und zeigen den Einrichtungsausschnitt mit eingetragenem Key. Die Methoden Claude-Konto und ChatGPT-App nutzen den gehosteten Konnektor und erstellen keinen Key.
@@ -49,7 +49,7 @@ Eine Key-Karte zeigt **Erstellt am**, **Läuft ab** und **Zuletzt verwendet**; �
 
 ## Kanäle [#channels-tab]
 
-[Kanäle](app:settings/channels) listet zuerst Ihre E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Konten, danach jeden Kanal, den ein Teammitglied geteilt hat. Zeigen Kanäle **Erneute Verbindung nötig**, **Berechtigungsproblem** oder **Fehler**, zeigt der Eintrag Kanäle ihre Anzahl. Ein Klick auf eine Karte öffnet den Kanal-Dialog mit den Tabs **Details** (Anbieter, Status, **Sichtbarkeit**, Besitzer, Ordner, verbunden und zuletzt synchronisiert), **E-Mail** und **Ordner**. Unabhängig von Ihrer Rolle ändern Sie nur Kanäle, die Ihnen gehören.
+[Kanäle](app:settings/channels) listet zuerst Ihre E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Konten, danach jeden Kanal, den ein Teammitglied geteilt hat. Zeigen Kanäle **Erneute Verbindung nötig**, **Berechtigungsproblem** oder **Fehler**, zeigt der Eintrag Kanäle ihre Anzahl. Ein Klick auf eine Karte öffnet den Kanal-Dialog mit den Tabs **Details** (Anbieter, Status, **Sichtbarkeit**, Besitzer, Ordner, verbunden und zuletzt synchronisiert), **E-Mail** und **Ordner**. Unabhängig von Ihrer Rolle ändern Sie nur Kanäle, die Ihnen gehören. Jeder Kanal gehört zu dem Workspace, in dem Sie ihn verbunden haben.
 
 ### Wer kann Kanäle nutzen? [#who-can-use-channels]
 
@@ -122,4 +122,5 @@ Die Darstellung gilt für E-Mails in Klartext oder Markdown, also alles, was Sie
 - [API-Keys](/docs/api-keys): Keys erstellen, nutzen, ablaufen lassen und löschen.
 - [App-Guide, Posteingang](/docs/app-inbox): der Screen, den Ihre Kanäle speisen.
 - [App-Guide, Unternehmen](/docs/app-company): Mitglieder, Rollen und die Abrechnung.
+- [Workspaces](/docs/app-workspaces): was in jedem Workspace gleich ist und was getrennt bleibt.
 - [CLI und Editoren](/docs/connect-cli): wohin ein generierter Key für Claude Code, Codex und Cursor gehört.

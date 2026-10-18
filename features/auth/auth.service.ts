@@ -13,12 +13,24 @@ import ResetPassword from "@/components/emails/reset-password";
 import VerifyEmail from "@/components/emails/verify-email";
 import NewUserNotification from "@/components/emails/new-user-notification";
 import { DEFAULT_EMAIL_LAYOUT_COPY, getEmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
-import { auth, deleteApiKeysForIdentities } from "@/core/auth/better-auth";
+import {
+  auth,
+  bindApiKeyToCompany,
+  deleteApiKeysForIdentities,
+  revokeMembershipCredentials,
+  setSessionActiveCompany,
+} from "@/core/auth/better-auth";
 import { getTransactionClient } from "@/core/decorators/transaction-context";
 import { prisma } from "@/prisma/db";
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
 import { redirectTo } from "./auth-outcome";
-import { approveMcpAuthorizationCodeValue } from "./mcp-authorization-code";
+import {
+  approveMcpAuthorizationCodeValue,
+  mcpAuthorizationCodeWorkspaceIdentifier,
+  mcpResourceWorkspaceOf,
+  withMcpResourceWorkspace,
+} from "./mcp-authorization-code";
+import { isDocumentRequest } from "./document-request";
 import { SESSION_HINT_COOKIE_NAME } from "./session-hint";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { env } from "@/env";
@@ -35,6 +47,11 @@ type AuthResult = { ok: true; user: AuthUser } | { ok: false; error: CustomError
 
 type Session = NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>;
 export type InteractiveSession = Session;
+export type AuthenticatedSession = Pick<Session, "session" | "user">;
+export type CredentialWorkspace =
+  | { kind: "integration"; companyId: string | null }
+  | { kind: "session"; sessionId: string; companyId: string | null; documentRequest: boolean };
+export type McpCredentialWorkspace = { credential: "apiKey" | "bearer"; companyId: string | null };
 type CreateApiKeyError =
   | CustomErrorCode.apiKeyMinExpiration
   | CustomErrorCode.apiKeyMaxExpiration
@@ -50,6 +67,8 @@ type McpConsentValue = {
   requireConsent?: boolean;
   state?: string | null;
 };
+
+const MCP_CODE_WORKSPACE_TTL_MS = 10 * 60 * 1000;
 
 export class AuthService {
   constructor(private emailService: EmailService) {}
@@ -101,6 +120,45 @@ export class AuthService {
     } catch {
       return null;
     }
+  }
+
+  async getCredentialWorkspace(session: AuthenticatedSession, headersList?: Headers): Promise<CredentialWorkspace> {
+    const requestHeaders = headersList ?? (await headers());
+
+    if (requestHeaders.has("x-api-key")) {
+      const key = await prisma.apikey.findUnique({
+        where: { id: session.session.id },
+        select: { referenceId: true, companyId: true },
+      });
+      return { kind: "integration", companyId: key?.referenceId === session.user.id ? key.companyId : null };
+    }
+
+    if (this.hasBearerToken(requestHeaders)) {
+      const token = await prisma.oauthAccessToken.findUnique({
+        where: { accessToken: session.session.token },
+        select: { userId: true, companyId: true },
+      });
+      return { kind: "integration", companyId: token?.userId === session.user.id ? token.companyId : null };
+    }
+
+    const stored = await prisma.authSession.findUnique({
+      where: { id: session.session.id },
+      select: { userId: true, activeCompanyId: true },
+    });
+    return {
+      kind: "session",
+      sessionId: session.session.id,
+      companyId: stored?.userId === session.user.id ? stored.activeCompanyId : null,
+      documentRequest: isDocumentRequest(requestHeaders),
+    };
+  }
+
+  async setSessionActiveCompany(sessionId: string, companyId: string | null): Promise<void> {
+    await setSessionActiveCompany(sessionId, companyId);
+  }
+
+  async revokeMembershipCredentials(authUserId: string, companyId: string): Promise<number> {
+    return revokeMembershipCredentials(authUserId, companyId);
   }
 
   async signInWithEmail(args: {
@@ -288,12 +346,19 @@ export class AuthService {
     });
   }
 
-  async createApiKey(args: { name: string; expiresIn?: number }): Promise<CreateApiKeyResult> {
+  async createApiKey(args: { name: string; expiresIn?: number; companyId: string }): Promise<CreateApiKeyResult> {
+    const { companyId, ...body } = args;
     try {
+      const requestHeaders = await headers();
       const data = await auth.api.createApiKey({
-        body: args,
-        headers: await headers(),
+        body,
+        headers: requestHeaders,
       });
+
+      if (!(await bindApiKeyToCompany(data.id, data.referenceId, companyId))) {
+        await auth.api.deleteApiKey({ body: { keyId: data.id }, headers: requestHeaders });
+        throw new Error("API key could not be bound to its workspace");
+      }
 
       return { ok: true, data };
     } catch (error) {
@@ -308,28 +373,38 @@ export class AuthService {
     }
   }
 
-  async deleteApiKey(keyId: string): Promise<void> {
+  async deleteApiKey(keyId: string, companyId: string): Promise<boolean> {
+    const key = await prisma.apikey.findUnique({ where: { id: keyId }, select: { companyId: true } });
+    if (!key || key.companyId !== companyId) return false;
+
     await auth.api.deleteApiKey({
       body: { keyId },
       headers: await headers(),
     });
+    return true;
   }
 
-  async listApiKeys() {
+  async listApiKeys(companyId: string) {
     const result = await auth.api.listApiKeys({
       headers: await headers(),
     });
-    return result.apiKeys;
+    const ids = result.apiKeys.map((key) => key.id);
+    const bound = ids.length
+      ? await prisma.apikey.findMany({ where: { id: { in: ids }, companyId }, select: { id: true } })
+      : [];
+    const boundIds = new Set(bound.map((key) => key.id));
+    return result.apiKeys.filter((key) => boundIds.has(key.id));
   }
 
   async resolveApiKeyReferences(
     ownerAuthUserId: string,
     ids: string[],
+    companyId: string,
   ): Promise<{ active: Set<string>; foreign: Set<string> }> {
     const keys = ids.length
       ? await prisma.apikey.findMany({
           where: { id: { in: ids } },
-          select: { id: true, referenceId: true, enabled: true, expiresAt: true },
+          select: { id: true, referenceId: true, companyId: true, enabled: true, expiresAt: true },
         })
       : [];
     const now = Date.now();
@@ -337,7 +412,7 @@ export class AuthService {
     const foreign = new Set<string>();
 
     for (const key of keys) {
-      if (key.referenceId !== ownerAuthUserId) foreign.add(key.id);
+      if (key.referenceId !== ownerAuthUserId || key.companyId !== companyId) foreign.add(key.id);
       else if (key.enabled !== false && (!key.expiresAt || key.expiresAt.getTime() > now)) active.add(key.id);
     }
 
@@ -347,7 +422,7 @@ export class AuthService {
   async getMcpConsentPrompt(args: {
     consentCode: string;
     clientId: string;
-  }): Promise<{ clientName: string; scopes: string[]; redirectHost: string } | null> {
+  }): Promise<{ clientName: string; scopes: string[]; redirectHost: string; workspaceId: string | null } | null> {
     const resolved = await this.resolvePendingConsent(args.consentCode);
     if (!resolved) return null;
     if (resolved.value.clientId !== args.clientId) return null;
@@ -359,17 +434,39 @@ export class AuthService {
       clientName: application.name,
       scopes: this.consentScopeList(resolved.value.scope),
       redirectHost: this.redirectHost(resolved.value.redirectURI),
+      workspaceId: mcpResourceWorkspaceOf(resolved.value),
     };
   }
 
-  async decideMcpConsent(args: { consentCode: string; accept: boolean }): Promise<{ redirectURI: string } | null> {
+  async getMcpConsentWorkspace(consentCode: string): Promise<string | null> {
+    const resolved = await this.resolvePendingConsent(consentCode);
+    return resolved ? mcpResourceWorkspaceOf(resolved.value) : null;
+  }
+
+  async bindMcpAuthorizationResource(consentCode: string, companyId: string): Promise<void> {
+    const verification = await prisma.authVerification.findFirst({ where: { identifier: consentCode } });
+    const value = verification ? this.parseConsentValue(verification.value) : null;
+    if (!verification || !value) throw new Error("The MCP authorization request could not be bound to its workspace");
+
+    await prisma.authVerification.update({
+      where: { id: verification.id },
+      data: { value: JSON.stringify(withMcpResourceWorkspace(value, companyId)) },
+    });
+  }
+
+  async decideMcpConsent(args: {
+    consentCode: string;
+    accept: boolean;
+    companyId: string | null;
+  }): Promise<{ redirectURI: string } | null> {
     const resolved = await this.resolvePendingConsent(args.consentCode);
     if (!resolved) return null;
 
     const { verification, value } = resolved;
     const redirectUrl = new URL(value.redirectURI);
+    const resourceCompanyId = mcpResourceWorkspaceOf(value);
 
-    if (!args.accept) {
+    if (!args.accept || !args.companyId || (resourceCompanyId !== null && resourceCompanyId !== args.companyId)) {
       await prisma.authVerification.delete({ where: { id: verification.id } });
       redirectUrl.searchParams.set("error", "access_denied");
       if (value.state) redirectUrl.searchParams.set("state", value.state);
@@ -384,6 +481,14 @@ export class AuthService {
       where: { id: verification.id },
       data: { identifier: code, value: JSON.stringify(approveMcpAuthorizationCodeValue(value)) },
     });
+    await prisma.authVerification.create({
+      data: {
+        id: crypto.randomUUID(),
+        identifier: mcpAuthorizationCodeWorkspaceIdentifier(code),
+        value: args.companyId,
+        expiresAt: new Date(Date.now() + MCP_CODE_WORKSPACE_TTL_MS),
+      },
+    });
 
     await prisma.oauthConsent.upsert({
       where: { userId_clientId: { userId: value.userId, clientId: value.clientId } },
@@ -395,6 +500,15 @@ export class AuthService {
     if (value.state) redirectUrl.searchParams.set("state", value.state);
 
     return { redirectURI: redirectUrl.toString() };
+  }
+
+  async consumeMcpAuthorizationCodeWorkspace(code: string): Promise<string | null> {
+    const identifier = mcpAuthorizationCodeWorkspaceIdentifier(code);
+    const binding = await prisma.authVerification.findFirst({ where: { identifier } });
+    if (!binding) return null;
+
+    await prisma.authVerification.deleteMany({ where: { identifier } });
+    return binding.expiresAt.getTime() > Date.now() ? binding.value : null;
   }
 
   private handleError(source: unknown): AuthResult {
@@ -455,6 +569,21 @@ export class AuthService {
       return (await this.resolveMcpBearerSession(headersList)) !== null;
     } catch {
       return false;
+    }
+  }
+
+  async resolveMcpCredentialWorkspace(headersList: Headers): Promise<McpCredentialWorkspace | null> {
+    const key = headersList.get("x-api-key");
+    try {
+      const session = key
+        ? await auth.api.getSession({ headers: new Headers({ "x-api-key": key }) })
+        : await this.resolveMcpBearerSession(headersList);
+      if (!session) return null;
+
+      const { companyId } = await this.getCredentialWorkspace(session, headersList);
+      return { credential: key ? "apiKey" : "bearer", companyId };
+    } catch {
+      return null;
     }
   }
 

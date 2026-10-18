@@ -187,7 +187,7 @@ export class PrismaRoleRepo
     if (!systemRole) return false;
 
     const count = await this.prisma.user.count({
-      where: { companyId, id: { not: excludeUserId }, status: "active", roleId: systemRole.id },
+      where: { companyId, id: { not: excludeUserId }, status: "active", leftAt: null, roleId: systemRole.id },
     });
 
     return count > 0;

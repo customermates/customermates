@@ -25,6 +25,7 @@ import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repositor
 import { PrismaOperatorUsersRepo } from "../prisma-operator-users.repository";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 const OPERATOR_REFUSALS: OperatorRefusal[] = [
   "conflict",
@@ -278,7 +279,9 @@ describeDatabase("operator user administration against a real database", { timeo
           definition: taskType,
         },
       });
-      await prisma.recordSchemaState.create({ data: { companyId, revision: 1 } });
+      await prisma.recordSchemaState.create({
+        data: { companyId, revision: 1 },
+      });
       return prisma.crmRecord.create({
         data: {
           companyId,
@@ -331,7 +334,11 @@ describeDatabase("operator user administration against a real database", { timeo
     await expect(
       runWithOperator(actor, () =>
         repo.updateUserStatusUnscoped(
-          { userId: backup.userId, status: "active", reason: "Linked protected task must remain intact" },
+          {
+            userId: backup.userId,
+            status: "active",
+            reason: "Linked protected task must remain intact",
+          },
           now,
         ),
       ),
@@ -343,7 +350,13 @@ describeDatabase("operator user administration against a real database", { timeo
     });
     await runWithoutTenant(() =>
       prisma.recordLink.delete({
-        where: { companyId_relationId_id: { companyId, relationId, id: protectedLink.id } },
+        where: {
+          companyId_relationId_id: {
+            companyId,
+            relationId,
+            id: protectedLink.id,
+          },
+        },
       }),
     );
     await expect(
@@ -376,7 +389,11 @@ describeDatabase("operator user administration against a real database", { timeo
       runWithoutTenant(() =>
         prisma.crmRecord.findUnique({
           where: {
-            companyId_typeId_id: { companyId, typeId: taskType.id, id: protectedTask.id },
+            companyId_typeId_id: {
+              companyId,
+              typeId: taskType.id,
+              id: protectedTask.id,
+            },
           },
         }),
       ),
@@ -403,6 +420,83 @@ describeDatabase("operator user administration against a real database", { timeo
     );
     expect(statusAudits).toHaveLength(2);
     expect(statusAudits.every(({ reason }) => reason === null)).toBe(true);
+  });
+
+  it("never reactivates a member who left and never counts one as the remaining administrator", async () => {
+    const companyId = await createCompany();
+    const role = await runWithoutTenant(() =>
+      prisma.userRole.create({
+        data: {
+          companyId,
+          name: `System ${randomUUID()}`,
+          isSystemRole: true,
+        },
+      }),
+    );
+    const admin = await createUser({
+      companyId,
+      email: `left-admin-${randomUUID()}@example.invalid`,
+      roleId: role.id,
+    });
+    const departed = await createUser({
+      companyId,
+      email: `left-departed-${randomUUID()}@example.invalid`,
+      roleId: role.id,
+      status: "inactive",
+    });
+    await runWithoutTenant(() =>
+      prisma.user.update({
+        where: { id: departed.userId },
+        data: { leftAt: now },
+      }),
+    );
+    const repo = createTestOperatorRepo();
+    const actor = operatorActor();
+
+    for (const status of ["active", "pendingAuthorization"] as const) {
+      await expect(
+        runWithOperator(actor, () =>
+          repo.updateUserStatusUnscoped(
+            {
+              userId: departed.userId,
+              status,
+              reason: "Revive a departed member",
+            },
+            now,
+          ),
+        ),
+      ).resolves.toBe("conflict");
+    }
+    await expect(
+      runWithoutTenant(() => prisma.user.findUnique({ where: { id: departed.userId } })),
+    ).resolves.toMatchObject({ status: "inactive", leftAt: now });
+
+    await runWithoutTenant(() =>
+      prisma.user.update({
+        where: { id: departed.userId },
+        data: { status: "active" },
+      }),
+    );
+    await expect(
+      runWithOperator(actor, () =>
+        repo.updateUserStatusUnscoped(
+          {
+            userId: admin.userId,
+            status: "inactive",
+            reason: "Remove the last admin",
+          },
+          now,
+        ),
+      ),
+    ).resolves.toBe("conflict");
+    const { PrismaRoleRepo } = await import("@/features/role/prisma-role.repository");
+    const { runWithTenant } = await import("@/core/decorators/tenant-context");
+    const { createMockUser } = await import("@/tests/helpers/mock-user");
+    await expect(
+      runWithTenant(createMockUser({ id: admin.userId, companyId, roleId: role.id }), () =>
+        new PrismaRoleRepo(new PrismaBillingUsageRepo()).hasAnotherActiveSystemRoleUser(admin.userId),
+      ),
+    ).resolves.toBe(false);
   });
 
   it("corrects provider-backed local snapshots without touching provider or period fields", async () => {
@@ -561,7 +655,13 @@ describeDatabase("operator user administration against a real database", { timeo
       try {
         const rows = await runWithoutTenant(() =>
           listRepo.getItems({
-            filters: [{ field: FilterFieldKey.workspaceId, operator: FilterOperatorKey.in, value: [companyId] }],
+            filters: [
+              {
+                field: FilterFieldKey.workspaceId,
+                operator: FilterOperatorKey.in,
+                value: [companyId],
+              },
+            ],
           }),
         );
         expect(rows).toHaveLength(2);
@@ -980,6 +1080,37 @@ describeDatabase("operator user administration against a real database", { timeo
       expect(second.previous?.lemonSqueezyId).toBe(providerId);
       expect(second.next?.lemonSqueezyId).toBeNull();
       expect(second.billingBindingCleared).toBe(true);
+    });
+  });
+
+  it("starts the trial an operator grants to a workspace that is still waiting for its first plan", async () => {
+    const repo = createTestOperatorRepo();
+    const companyId = await createCompany({ plan: "pro", status: "expired" });
+    await runWithoutTenant(() =>
+      prisma.subscription.update({
+        where: { companyId },
+        data: { trialEndDate: null, currentPeriodEnd: null },
+      }),
+    );
+    const trialEnd = new Date("2026-11-20T22:59:59.999Z");
+
+    const updated = await runWithOperator(operatorActor(), () =>
+      repo.updateSubscriptionTermsUnscoped(
+        {
+          companyId,
+          trialEndDate: trialEnd.toISOString(),
+          lemonSqueezyId: null,
+        },
+        now,
+      ),
+    );
+    assertAdmitted(updated);
+
+    await runWithoutTenant(async () => {
+      expect(await prisma.subscription.findUniqueOrThrow({ where: { companyId } })).toMatchObject({
+        status: "trial",
+        trialEndDate: trialEnd,
+      });
     });
   });
 
