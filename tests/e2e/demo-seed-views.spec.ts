@@ -47,6 +47,11 @@ async function expectViewShowsData(
   await expect(
     page.getByText(/^No records yet$|^No records match/),
   ).toHaveCount(0);
+  if (view.viewMode === "calendar") {
+    // A calendar opens on this month, which may hold none of the list's records.
+    await expect(page.locator('[data-slot="calendar-root"]'), `${view.name} shows a calendar`).toBeVisible();
+    return;
+  }
   const records = page.locator("[data-row-id], [data-item-id]");
   await expect(records.first(), `${view.name} shows records`).toBeVisible();
   // Phone rows show no group bands or group summaries (an accepted gap), so the phone checks stop at the records.
@@ -127,9 +132,9 @@ for (const list of LISTS) {
     );
     expect(
       views.length,
-      `${list} has two to four saved views`,
+      `${list} has two to five saved views`,
     ).toBeGreaterThanOrEqual(2);
-    expect(views.length).toBeLessThanOrEqual(4);
+    expect(views.length).toBeLessThanOrEqual(5);
     for (const view of views)
       await expectViewShowsData(
         page,
@@ -297,7 +302,7 @@ test("opening a list and switching its views updates no component while another 
     .poll(() => new URL(page.url()).pathname)
     .toBe(`/en/records/${deals}`);
   const rail = page.locator("#global-data-views");
-  const records = page.locator("[data-row-id], [data-item-id]");
+  const records = page.locator("[data-row-id], [data-item-id], [data-calendar-entry]");
   await expect(records.first()).toBeVisible();
   for (const view of views) {
     const chip = rail
