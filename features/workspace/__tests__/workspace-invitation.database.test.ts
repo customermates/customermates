@@ -365,6 +365,23 @@ describeDatabase("joining another workspace by invitation with an existing login
       expect(interactorFailureCodes(reactivation.error)).toEqual([CustomErrorCode.workspaceMemberLeft]);
     expect(await membership(fixture.companies.invited)).toMatchObject({ status: "inactive" });
 
+    await client.query(
+      'INSERT INTO "OauthAccessToken" ("id","accessToken","refreshToken","accessTokenExpiresAt","refreshTokenExpiresAt","clientId","userId","scopes","companyId","createdAt","updatedAt") VALUES ($1,$2,$3,CURRENT_TIMESTAMP + INTERVAL \'1 hour\',CURRENT_TIMESTAMP + INTERVAL \'1 day\',$4,$5,\'openid offline_access\',$6,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)',
+      [randomUUID(), randomUUID(), randomUUID(), fixture.clientId, fixture.authUserId, fixture.companies.invited],
+    );
+    await client.query(
+      'INSERT INTO "Apikey" ("id","name","key","referenceId","companyId","configId","enabled","rateLimitEnabled","requestCount","createdAt","updatedAt") VALUES ($1,\'Late\',$2,$3,$4,\'default\',TRUE,FALSE,0,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)',
+      [randomUUID(), randomUUID(), fixture.authUserId, fixture.companies.invited],
+    );
+    const lateCredentials = async () =>
+      (
+        await client.query<{ count: string }>(
+          'SELECT ((SELECT COUNT(*) FROM "Apikey" WHERE "referenceId"=$1 AND "companyId"=$2) + (SELECT COUNT(*) FROM "OauthAccessToken" WHERE "userId"=$1 AND "companyId"=$2))::text AS count',
+          [fixture.authUserId, fixture.companies.invited],
+        )
+      ).rows[0]?.count;
+    expect(await lateCredentials()).toBe("2");
+
     asSession();
     expect(await getJoinWorkspaceInteractor().invoke({ intent: fixture.intent, agreeToTerms: true })).toEqual({
       ok: true,
@@ -377,6 +394,7 @@ describeDatabase("joining another workspace by invitation with an existing login
       leftAt: null,
       firstName: "Ben",
     });
+    expect(await lateCredentials()).toBe("0");
   });
 
   it("withdraws a pending request and returns the login to its own workspace", async () => {

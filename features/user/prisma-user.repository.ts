@@ -471,6 +471,7 @@ export class PrismaUserRepo
       status: Status.pendingAuthorization,
       onboardingWizardCompletedAt: new Date(),
     };
+    if (existing) await this.revokeLeftMembershipCredentials(args.email, args.companyId);
     const user = existing
       ? await this.prisma.user.update({
           where: { id: existing.id, companyId: args.companyId },
@@ -486,6 +487,14 @@ export class PrismaUserRepo
     });
 
     return tenantUser;
+  }
+
+  private async revokeLeftMembershipCredentials(email: string, companyId: string) {
+    const login = await this.prisma.authUser.findUnique({ where: { email }, select: { id: true } });
+    if (!login) return;
+
+    await this.prisma.apikey.deleteMany({ where: { referenceId: login.id, companyId } });
+    await this.prisma.oauthAccessToken.deleteMany({ where: { userId: login.id, companyId } });
   }
 
   async isPlatformOperatorCompanyWide(userId: string) {
