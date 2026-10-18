@@ -5,6 +5,7 @@ import type { WorkspaceTabNotice } from "./workspace-tab-channel";
 import { action, computed, makeObservable, observable } from "mobx";
 
 import {
+  deleteWorkspaceAction,
   leaveWorkspaceAction,
   listMyWorkspacesAction,
   switchWorkspaceAction,
@@ -128,6 +129,21 @@ export class WorkspacesStore extends BaseStore {
     if (this.isNavigating || !current) return false;
 
     const result = await this.whileLoading(() => leaveWorkspaceAction({ companyId: current.companyId }));
+    if (!result.ok) {
+      if (result.code === CustomErrorCode.workspaceChanged) this.showWorkspaceChanged();
+      else toastZodErrorTree(result.error);
+      return false;
+    }
+
+    this.enter({ companyId: null, name: null }, "/");
+    return true;
+  };
+
+  deleteCurrent = async (): Promise<boolean> => {
+    const current = this.current;
+    if (this.isNavigating || !current) return false;
+
+    const result = await this.whileLoading(() => deleteWorkspaceAction({ companyId: current.companyId }));
     if (!result.ok) {
       if (result.code === CustomErrorCode.workspaceChanged) this.showWorkspaceChanged();
       else toastZodErrorTree(result.error);

@@ -24,12 +24,12 @@ const ALLOWLIST: Record<string, string> = {
     "Platform-wide hosted AI spend admission sums every workspace's reservations under the global admission lock",
   "ee/agent-chat/prisma-agent-chat.repository.ts:PrismaAgentChatRepo.releaseStaleRetrievalReservations on AgentUsageEvent":
     "The stale retrieval sweep releases expired reservations of every workspace when no companyId is given",
-  "ee/operator/prisma-operator.repository.ts:PrismaOperatorRepo.deleteWorkspaceUnscoped on workflow.${table}, workflow.workflow_runs":
-    "Operator workspace deletion removes workflow engine runs whose input names the deleted companyId",
   "ee/operator/prisma-operator.repository.ts:PrismaOperatorRepo.getUserSummaryUnscoped on AuthUser, User":
     "Operator console platform summary counts verified members across all workspaces",
   "ee/operator/prisma-operator.repository.ts:PrismaOperatorRepo.listWorkspaceTagsUnscoped on Company":
     "Operator console lists the distinct workspace tags of all companies",
+  "features/company/prisma-company.repository.ts:PrismaCompanyRepo.deleteWorkflowRunsUnscoped on workflow.${table}, workflow.workflow_runs":
+    "Workspace deletion removes workflow engine runs whose input names the deleted companyId",
   "features/records/prisma-record.repository.ts:PrismaRecordRepo.claimDueUnscoped on RecordOperation, RecordSchemaState":
     "The record operation sweep leases due operations across workspaces with one FOR UPDATE SKIP LOCKED claim",
   "features/user/prisma-user.repository.ts:PrismaUserRepo.findAuthUserCompanyIdForUpdateUnscoped on AuthUser":

@@ -143,8 +143,8 @@ export const REVIEWED_EXCEPTION_ALLOWLIST: Readonly<Record<string, string>> = {
     "unresolved C06: platform-wide hosted AI spend admission sums every workspace's reservations under the global admission lock",
   "raw-sql-tenancy.test.ts#ALLOWLIST: ee/agent-chat/prisma-agent-chat.repository.ts:PrismaAgentChatRepo.releaseStaleRetrievalReservations on AgentUsageEvent":
     "unresolved C06: the stale retrieval sweep releases expired reservations of every workspace when no companyId is given",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/operator/prisma-operator.repository.ts:PrismaOperatorRepo.deleteWorkspaceUnscoped on workflow.${table}, workflow.workflow_runs":
-    "unresolved C06: operator workspace deletion removes workflow engine runs whose input names the deleted companyId",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: features/company/prisma-company.repository.ts:PrismaCompanyRepo.deleteWorkflowRunsUnscoped on workflow.${table}, workflow.workflow_runs":
+    "unresolved C06: workspace deletion removes workflow engine runs whose input names the deleted companyId",
   "raw-sql-tenancy.test.ts#ALLOWLIST: ee/operator/prisma-operator.repository.ts:PrismaOperatorRepo.getUserSummaryUnscoped on AuthUser, User":
     "unresolved C06: operator console platform summary counts verified members across all workspaces",
   "raw-sql-tenancy.test.ts#ALLOWLIST: ee/operator/prisma-operator.repository.ts:PrismaOperatorRepo.listWorkspaceTagsUnscoped on Company":

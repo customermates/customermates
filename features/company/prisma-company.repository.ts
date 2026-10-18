@@ -17,9 +17,10 @@ import type { RegisterUserCompanyRepo } from "@/features/user/register/register-
 import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/admin-update-user-subscription.repo";
 import type { GetCompanyRepo } from "./get-company.repo";
 import type { RenameWorkspaceRepo } from "@/features/workspace/rename-workspace.repo";
+import type { WorkspaceDeletionRepo } from "@/features/workspace/workspace-deletion.repo";
 import type { GetOrCreateInviteTokenRepo } from "./get-or-create-invite-token.repo";
 
-import { ConversionEventType, SubscriptionStatus, type Prisma, type Subscription } from "@/generated/prisma";
+import { ConversionEventType, Status, SubscriptionStatus, type Prisma, type Subscription } from "@/generated/prisma";
 
 import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
 import { env } from "@/env";
@@ -27,6 +28,15 @@ import { env } from "@/env";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
+
+const WORKFLOW_RUN_CHILD_TABLES = [
+  "workflow_event_slots",
+  "workflow_events",
+  "workflow_hooks",
+  "workflow_steps",
+  "workflow_stream_chunks",
+  "workflow_waits",
+] as const;
 
 export class PrismaCompanyRepo
   extends TenantRepository
@@ -48,7 +58,8 @@ export class PrismaCompanyRepo
     WorkspacePlanRepo,
     CreateAuthLinkSubscriptionRepo,
     UpsertRoutineSubscriptionRepo,
-    RegisterUserCompanyRepo
+    RegisterUserCompanyRepo,
+    WorkspaceDeletionRepo
 {
   async findCompanyOrThrow() {
     const { companyId } = this.user;
@@ -273,6 +284,61 @@ export class PrismaCompanyRepo
   @BypassTenantGuard
   async deleteCompanyUnscoped(companyId: string): Promise<void> {
     await this.prisma.company.delete({ where: { id: companyId } });
+  }
+
+  @BypassTenantGuard
+  async findDeletionSubjectUnscoped(companyId: string) {
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+      select: {
+        createdByAuthUserId: true,
+        subscription: {
+          select: { status: true, plan: true, lemonSqueezyId: true, currentPeriodEnd: true, checkoutStartedAt: true },
+        },
+        users: {
+          where: { role: { isSystemRole: true } },
+          orderBy: { createdAt: "asc" },
+          take: 1,
+          select: { email: true },
+        },
+        _count: { select: { users: { where: { isPlatformOperator: true, status: Status.active } } } },
+      },
+    });
+    if (!company) return null;
+
+    return {
+      createdByAuthUserId: company.createdByAuthUserId,
+      earliestAdminEmail: company.users[0]?.email ?? null,
+      hasActivePlatformOperator: company._count.users > 0,
+      subscription: company.subscription,
+    };
+  }
+
+  @BypassTenantGuard
+  async deleteWorkflowRunsUnscoped(companyId: string): Promise<number> {
+    const [workflowSchema] = await this.prisma.$queryRaw<Array<{ installed: boolean }>>`
+      SELECT to_regclass('workflow.workflow_runs') IS NOT NULL AS installed
+    `;
+    if (!workflowSchema?.installed) return 0;
+
+    const workflowRuns = await this.prisma.$queryRaw<Array<{ id: string }>>`
+      SELECT "id" FROM "workflow"."workflow_runs"
+      WHERE "input"->>'companyId' = ${companyId}
+         OR "input"->'tenant'->>'companyId' = ${companyId}
+    `;
+    const workflowRunIds = workflowRuns.map((run) => run.id);
+    if (workflowRunIds.length === 0) return 0;
+
+    for (const table of WORKFLOW_RUN_CHILD_TABLES) {
+      await this.prisma.$executeRawUnsafe(
+        `DELETE FROM "workflow"."${table}" WHERE "run_id" = ANY($1::text[])`,
+        workflowRunIds,
+      );
+    }
+    await this.prisma.$executeRaw`
+      DELETE FROM "workflow"."workflow_runs" WHERE "id" = ANY(${workflowRunIds}::text[])
+    `;
+    return workflowRunIds.length;
   }
 
   async createRegisteredCompany(setup: WorkspaceSetup = {}) {

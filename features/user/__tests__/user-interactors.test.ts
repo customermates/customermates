@@ -64,6 +64,7 @@ describe("RegisterUserInteractor", () => {
       findAnyMembershipUnscoped: vi.fn().mockResolvedValue(null),
       findAuthUserCompanyIdForUpdateUnscoped: vi.fn().mockResolvedValue(null),
       findAuthUserCompanyIdUnscoped: vi.fn().mockResolvedValue(null),
+      hasConsumedTrialUnscoped: vi.fn().mockResolvedValue(false),
       hasCreatedWorkspaceUnscoped: vi.fn().mockResolvedValue(false),
       countCreatedWorkspacesUnscoped: vi.fn().mockResolvedValue(0),
       hasLeftMembershipUnscoped: vi.fn().mockResolvedValue(false),

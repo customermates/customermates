@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { workspaceAvatarHue, workspaceAvatarStyle, workspaceDisplayName } from "../workspace-identity";
+import {
+  workspaceAvatarHue,
+  workspaceAvatarStyle,
+  workspaceDisplayName,
+  workspaceListName,
+} from "../workspace-identity";
 import { workspacePlanChip } from "../workspace-plan-chip";
 
 const t = (key: string, values?: Record<string, string | number>) =>
@@ -26,6 +31,18 @@ describe("workspace identity", () => {
     expect(workspaceDisplayName("  Taxes  ", "Workspace")).toBe("Taxes");
     expect(workspaceDisplayName(null, "Workspace")).toBe("Workspace");
     expect(workspaceDisplayName("   ", "Workspace")).toBe("Workspace");
+  });
+
+  it("adds the creation day only when several listed workspaces have no name", () => {
+    const dated = (date: string) => `Workspace (created ${date})`;
+    const unnamed = { name: null, createdAt: new Date("2026-03-04T23:30:00.000Z") };
+    const named = { name: " Taxes ", createdAt: new Date("2026-01-01T00:00:00.000Z") };
+
+    expect(workspaceListName(named, [named, unnamed], "Workspace", dated)).toBe("Taxes");
+    expect(workspaceListName(unnamed, [named, unnamed], "Workspace", dated)).toBe("Workspace");
+    expect(workspaceListName(unnamed, [unnamed, { name: "" }], "Workspace", dated)).toBe(
+      "Workspace (created 2026-03-04)",
+    );
   });
 });
 

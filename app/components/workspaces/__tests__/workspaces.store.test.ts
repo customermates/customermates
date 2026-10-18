@@ -4,6 +4,7 @@ import type { WorkspaceSummary } from "@/features/workspace/workspace.schema";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const actions = vi.hoisted(() => ({
+  deleteWorkspaceAction: vi.fn(),
   leaveWorkspaceAction: vi.fn(),
   listMyWorkspacesAction: vi.fn(),
   switchWorkspaceAction: vi.fn(),
@@ -27,6 +28,7 @@ function workspace(companyId: string, overrides: Partial<WorkspaceSummary> = {})
     activeMemberCount: 1,
     subscription: null,
     joinedAt: new Date("2026-01-01T00:00:00.000Z"),
+    createdAt: new Date("2026-01-01T00:00:00.000Z"),
     ...overrides,
   };
 }
@@ -152,6 +154,46 @@ describe("WorkspacesStore", () => {
     actions.leaveWorkspaceAction.mockResolvedValue({ ok: false, error, code: "workspaceChanged" });
 
     await expect(store.leaveCurrent()).resolves.toBe(false);
+
+    expect(store.foreignNotice).toEqual({ companyId: null, name: null });
+    expect(toastZodErrorTree).not.toHaveBeenCalled();
+    expect(navigationGuard.navigateDocument).not.toHaveBeenCalled();
+  });
+
+  it("deletes the current workspace, tells the other tabs and reloads at the localized root", async () => {
+    const { store, navigationGuard } = storeFor();
+    store.setWorkspaces([workspace("a", { isCurrent: true }), workspace("b")]);
+    const post = vi.spyOn(WorkspaceTabChannel.prototype, "post");
+    actions.deleteWorkspaceAction.mockResolvedValue({ ok: true, data: { companyId: "a", nextCompanyId: "b" } });
+
+    await expect(store.deleteCurrent()).resolves.toBe(true);
+
+    expect(actions.deleteWorkspaceAction).toHaveBeenCalledWith({ companyId: "a" });
+    expect(post).toHaveBeenCalledWith({ companyId: null, name: null });
+    expect(navigationGuard.navigateDocument).toHaveBeenCalledWith("/de");
+    await expect(store.deleteCurrent()).resolves.toBe(false);
+    expect(actions.deleteWorkspaceAction).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the workspace and shows the reason when deleting is refused", async () => {
+    const { store, navigationGuard } = storeFor();
+    store.setWorkspaces([workspace("a", { isCurrent: true })]);
+    const error = { errors: ["Common.errors.workspaceDeleteBillingActive"] };
+    actions.deleteWorkspaceAction.mockResolvedValue({ ok: false, error, code: "workspaceDeleteBillingActive" });
+
+    await expect(store.deleteCurrent()).resolves.toBe(false);
+
+    expect(toastZodErrorTree).toHaveBeenCalledWith(error);
+    expect(navigationGuard.navigateDocument).not.toHaveBeenCalled();
+  });
+
+  it("asks to reload when another tab already deleted the workspace", async () => {
+    const { store, navigationGuard } = storeFor();
+    store.setWorkspaces([workspace("a", { isCurrent: true })]);
+    const error = { errors: ["Common.errors.workspaceChanged"] };
+    actions.deleteWorkspaceAction.mockResolvedValue({ ok: false, error, code: "workspaceChanged" });
+
+    await expect(store.deleteCurrent()).resolves.toBe(false);
 
     expect(store.foreignNotice).toEqual({ companyId: null, name: null });
     expect(toastZodErrorTree).not.toHaveBeenCalled();

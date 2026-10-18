@@ -4,7 +4,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
 import { WorkspaceAvatar } from "@/app/components/workspaces/workspace-avatar";
-import { workspaceDisplayName } from "@/app/components/workspaces/workspace-identity";
+import { workspaceListName } from "@/app/components/workspaces/workspace-identity";
 import { WorkspaceStatusChip } from "@/app/components/workspaces/workspace-status-chip";
 import { CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -22,7 +22,12 @@ export const WorkspaceCommandLevel = observer(function WorkspaceCommandLevel({ q
   const fallback = t("Workspaces.fallbackName");
   const folded = foldText(query);
   const matches = workspacesStore.others
-    .map((workspace) => ({ workspace, name: workspaceDisplayName(workspace.name, fallback) }))
+    .map((workspace) => ({
+      workspace,
+      name: workspaceListName(workspace, workspacesStore.items, fallback, (date) =>
+        t("Workspaces.unnamedCreated", { name: fallback, date }),
+      ),
+    }))
     .filter(({ name }) => !folded || foldText(name).includes(folded));
 
   if (matches.length === 0) return <CommandEmpty persistent>{t("GlobalSearch.noResults")}</CommandEmpty>;

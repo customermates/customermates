@@ -1,12 +1,18 @@
 "use client";
 
 import type { WorkspaceLeaveRefusal } from "@/features/workspace/member-removal-refusal";
+import type { WorkspaceDeleteRefusal } from "@/features/workspace/workspace-deletion-refusal";
 import type { WorkspaceSummary } from "@/features/workspace/workspace.schema";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
+import {
+  DeleteWorkspaceButton,
+  DeleteWorkspaceDialog,
+  DeleteWorkspaceReason,
+} from "@/app/components/workspaces/delete-workspace-dialog";
 import {
   LeaveWorkspaceButton,
   LeaveWorkspaceDialog,
@@ -23,14 +29,16 @@ import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 import { WORKSPACE_NAME_MAX_LENGTH } from "@/features/workspace/workspace.schema";
 
 type Props = {
+  deleteRefusal: WorkspaceDeleteRefusal | null;
   leaveRefusal: WorkspaceLeaveRefusal | null;
   workspace: WorkspaceSummary;
 };
 
-const WorkspaceGeneralViewContent = observer(({ leaveRefusal, workspace }: Props) => {
+const WorkspaceGeneralViewContent = observer(({ deleteRefusal, leaveRefusal, workspace }: Props) => {
   const t = useTranslations();
   const { appMode, workspaceGeneralStore: store } = useRootStore();
   const [confirmingLeave, setConfirmingLeave] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   useState(() => {
     store.onInitOrRefresh({ name: workspace.name ?? "" });
@@ -41,6 +49,7 @@ const WorkspaceGeneralViewContent = observer(({ leaveRefusal, workspace }: Props
   const demo = appMode === "demo";
   const name = workspaceDisplayName(store.savedState.name, t("Workspaces.fallbackName"));
   const editable = store.canManage && !store.isReadOnly && !demo;
+  const unnamed = !store.savedState.name.trim();
 
   return (
     <>
@@ -59,6 +68,15 @@ const WorkspaceGeneralViewContent = observer(({ leaveRefusal, workspace }: Props
               )}
             </div>
           </div>
+
+          {unnamed && editable ? (
+            <Alert
+              description={t("Workspaces.unnamedPrompt.description")}
+              id="settings-general-unnamed"
+              role="note"
+              title={t("Workspaces.unnamedPrompt.title")}
+            />
+          ) : null}
 
           <FormInput
             description={editable ? t("Workspaces.nameDescription") : t("Workspaces.renameReadOnly")}
@@ -101,6 +119,24 @@ const WorkspaceGeneralViewContent = observer(({ leaveRefusal, workspace }: Props
 
                 <LeaveWorkspaceReason className="mt-1" id="settings-general-leave" refusal={leaveRefusal} />
               </Alert>
+
+              {workspace.isAdmin ? (
+                <Alert
+                  color="danger"
+                  description={t("Workspaces.deleteDescription")}
+                  role="note"
+                  title={t("Workspaces.delete")}
+                >
+                  <DeleteWorkspaceButton
+                    className="mt-2"
+                    id="settings-general-delete"
+                    refusal={deleteRefusal}
+                    onClick={() => setConfirmingDelete(true)}
+                  />
+
+                  <DeleteWorkspaceReason className="mt-1" id="settings-general-delete" refusal={deleteRefusal} />
+                </Alert>
+              ) : null}
             </section>
           )}
         </div>
@@ -111,6 +147,13 @@ const WorkspaceGeneralViewContent = observer(({ leaveRefusal, workspace }: Props
         name={name}
         open={confirmingLeave}
         onClose={() => setConfirmingLeave(false)}
+      />
+
+      <DeleteWorkspaceDialog
+        anchorScope="settings-general-delete-confirm"
+        name={name}
+        open={confirmingDelete}
+        onClose={() => setConfirmingDelete(false)}
       />
     </>
   );

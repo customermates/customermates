@@ -18,6 +18,7 @@ vi.mock("next-intl", () => ({
 vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
 vi.mock("../../../actions", () => ({ renameWorkspaceAction: vi.fn() }));
 vi.mock("@/app/[locale]/(protected)/settings/(account)/workspaces/actions", () => ({
+  deleteWorkspaceAction: vi.fn(),
   leaveWorkspaceAction: vi.fn(),
   listMyWorkspacesAction: vi.fn(),
   switchWorkspaceAction: vi.fn(),
@@ -37,6 +38,7 @@ const workspace: WorkspaceSummary = {
   activeMemberCount: 2,
   subscription: null,
   joinedAt: new Date("2026-01-01T00:00:00.000Z"),
+  createdAt: new Date("2026-01-01T00:00:00.000Z"),
 };
 
 function freshRootStore(canUpdate: boolean) {
@@ -48,7 +50,7 @@ function freshRootStore(canUpdate: boolean) {
       can: (resource: Resource, action: Action) =>
         canUpdate && resource === Resource.company && action === Action.update,
     },
-    workspacesStore: { leaveCurrent: vi.fn(), renameCurrent: vi.fn() },
+    workspacesStore: { deleteCurrent: vi.fn(), leaveCurrent: vi.fn(), renameCurrent: vi.fn() },
   };
   Object.assign(rootStore, { workspaceGeneralStore: new WorkspaceGeneralStore(rootStore as unknown as RootStore) });
   harness.rootStore = rootStore;
@@ -70,7 +72,9 @@ afterEach(() => {
 describe("WorkspaceGeneralView", () => {
   it("renders the workspace on the server and hydrates it without a mismatch", async () => {
     freshRootStore(true);
-    const html = renderToString(createElement(WorkspaceGeneralView, { leaveRefusal: null, workspace }));
+    const html = renderToString(
+      createElement(WorkspaceGeneralView, { deleteRefusal: null, leaveRefusal: null, workspace }),
+    );
     expect(html).toContain(">BS<");
     expect(html).not.toContain("Workspaces.fallbackName");
 
@@ -82,7 +86,11 @@ describe("WorkspaceGeneralView", () => {
     await act(async () => {
       root = hydrateRoot(
         container as HTMLDivElement,
-        createElement(StrictMode, null, createElement(WorkspaceGeneralView, { leaveRefusal: null, workspace })),
+        createElement(
+          StrictMode,
+          null,
+          createElement(WorkspaceGeneralView, { deleteRefusal: null, leaveRefusal: null, workspace }),
+        ),
         {
           onRecoverableError: (error) => recoverableErrors.push(error),
         },
@@ -96,7 +104,9 @@ describe("WorkspaceGeneralView", () => {
 
   it("shows the name read-only and without a required marker to members who may not rename", () => {
     freshRootStore(false);
-    const html = renderToString(createElement(WorkspaceGeneralView, { leaveRefusal: null, workspace }));
+    const html = renderToString(
+      createElement(WorkspaceGeneralView, { deleteRefusal: null, leaveRefusal: null, workspace }),
+    );
     container = document.createElement("div");
     container.innerHTML = html;
 
@@ -110,7 +120,9 @@ describe("WorkspaceGeneralView", () => {
   it("puts leaving into the shared danger alert with its secondary action, like the app's other alert actions", () => {
     freshRootStore(true);
     container = document.createElement("div");
-    container.innerHTML = renderToString(createElement(WorkspaceGeneralView, { leaveRefusal: null, workspace }));
+    container.innerHTML = renderToString(
+      createElement(WorkspaceGeneralView, { deleteRefusal: null, leaveRefusal: null, workspace }),
+    );
 
     const zone = container.querySelector("section[aria-labelledby='settings-general-danger-zone']");
     const alert = zone?.querySelector<HTMLElement>("[data-slot='alert']");
@@ -127,7 +139,9 @@ describe("WorkspaceGeneralView", () => {
     freshRootStore(true);
     container = document.createElement("div");
     document.body.append(container);
-    container.innerHTML = renderToString(createElement(WorkspaceGeneralView, { leaveRefusal: "lastAdmin", workspace }));
+    container.innerHTML = renderToString(
+      createElement(WorkspaceGeneralView, { deleteRefusal: null, leaveRefusal: "lastAdmin", workspace }),
+    );
 
     const leave = container.querySelector<HTMLButtonElement>("#settings-general-leave");
     const trigger = container.querySelector<HTMLElement>("[data-slot='leave-workspace-blocked']");
@@ -142,7 +156,9 @@ describe("WorkspaceGeneralView", () => {
     freshRootStore(true);
     container = document.createElement("div");
     document.body.append(container);
-    container.innerHTML = renderToString(createElement(WorkspaceGeneralView, { leaveRefusal: "lastAdmin", workspace }));
+    container.innerHTML = renderToString(
+      createElement(WorkspaceGeneralView, { deleteRefusal: null, leaveRefusal: "lastAdmin", workspace }),
+    );
 
     const alert = container.querySelector<HTMLElement>("[data-slot='alert']");
     const trigger = container.querySelector<HTMLElement>("[data-slot='leave-workspace-blocked']");
@@ -160,10 +176,95 @@ describe("WorkspaceGeneralView", () => {
   it("offers leaving to an admin who is not the last one", () => {
     freshRootStore(true);
     container = document.createElement("div");
-    container.innerHTML = renderToString(createElement(WorkspaceGeneralView, { leaveRefusal: null, workspace }));
+    container.innerHTML = renderToString(
+      createElement(WorkspaceGeneralView, { deleteRefusal: null, leaveRefusal: null, workspace }),
+    );
 
     expect(container.querySelector<HTMLButtonElement>("#settings-general-leave")?.disabled).toBe(false);
     expect(container.querySelector("[data-slot='leave-workspace-blocked']")).toBeNull();
     expect(container.querySelector("[data-slot='leave-workspace-reason']")).toBeNull();
+  });
+
+  it("offers deleting next to leaving to an admin the workspace allows to delete it", () => {
+    freshRootStore(true);
+    container = document.createElement("div");
+    container.innerHTML = renderToString(
+      createElement(WorkspaceGeneralView, { deleteRefusal: null, leaveRefusal: null, workspace }),
+    );
+
+    const zone = container.querySelector("section[aria-labelledby='settings-general-danger-zone']");
+    const alerts = zone?.querySelectorAll<HTMLElement>("[data-slot='alert']");
+    const remove = zone?.querySelector<HTMLButtonElement>("#settings-general-delete");
+
+    expect(alerts?.length).toBe(2);
+    expect(alerts?.[1]?.querySelector("[data-slot='alert-title']")?.textContent).toBe("Workspaces.delete");
+    expect(remove?.disabled).toBe(false);
+    expect(zone?.querySelector("[data-slot='delete-workspace-blocked']")).toBeNull();
+  });
+
+  it("disables deleting with the reason as a tooltip trigger and as text on touch screens", () => {
+    freshRootStore(true);
+    container = document.createElement("div");
+    document.body.append(container);
+    container.innerHTML = renderToString(
+      createElement(WorkspaceGeneralView, { deleteRefusal: "billingActive", leaveRefusal: null, workspace }),
+    );
+
+    const remove = container.querySelector<HTMLButtonElement>("#settings-general-delete");
+    const trigger = container.querySelector<HTMLElement>("[data-slot='delete-workspace-blocked']");
+    const reason = container.querySelector<HTMLElement>("[data-slot='delete-workspace-reason']");
+
+    expect(remove?.disabled).toBe(true);
+    expect(trigger?.getAttribute("aria-label")).toBe("Workspaces.delete");
+    expect(trigger?.getAttribute("aria-describedby")).toBe("settings-general-delete-reason");
+    expect(reason?.textContent).toBe("Workspaces.deleteBlocked.billingActive");
+    expect(reason?.classList).toContain("max-sm:block");
+    expect(reason?.classList).toContain("pointer-coarse:block");
+  });
+
+  it("does not offer deleting to a member who is not an admin", () => {
+    freshRootStore(false);
+    container = document.createElement("div");
+    container.innerHTML = renderToString(
+      createElement(WorkspaceGeneralView, {
+        deleteRefusal: "notAdmin",
+        leaveRefusal: null,
+        workspace: { ...workspace, isAdmin: false, roleName: "Member" },
+      }),
+    );
+
+    expect(container.querySelector("#settings-general-delete")).toBeNull();
+    expect(container.querySelector("#settings-general-leave")).not.toBeNull();
+  });
+
+  it("asks admins to name an unnamed workspace, and only them", () => {
+    freshRootStore(true);
+    container = document.createElement("div");
+    container.innerHTML = renderToString(
+      createElement(WorkspaceGeneralView, {
+        deleteRefusal: null,
+        leaveRefusal: null,
+        workspace: { ...workspace, name: null },
+      }),
+    );
+    expect(container.querySelector("#settings-general-unnamed")?.textContent).toContain(
+      "Workspaces.unnamedPrompt.title",
+    );
+
+    freshRootStore(false);
+    container.innerHTML = renderToString(
+      createElement(WorkspaceGeneralView, {
+        deleteRefusal: null,
+        leaveRefusal: null,
+        workspace: { ...workspace, name: null },
+      }),
+    );
+    expect(container.querySelector("#settings-general-unnamed")).toBeNull();
+
+    freshRootStore(true);
+    container.innerHTML = renderToString(
+      createElement(WorkspaceGeneralView, { deleteRefusal: null, leaveRefusal: null, workspace }),
+    );
+    expect(container.querySelector("#settings-general-unnamed")).toBeNull();
   });
 });

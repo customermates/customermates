@@ -220,6 +220,8 @@ import { CreateWorkspaceInteractor } from "@/features/workspace/create-workspace
 import { GetMemberRemovalInteractor } from "@/features/workspace/get-member-removal.interactor";
 import { JoinWorkspaceInteractor } from "@/features/workspace/join-workspace.interactor";
 import { LeaveWorkspaceInteractor } from "@/features/workspace/leave-workspace.interactor";
+import { DeleteWorkspaceInteractor } from "@/features/workspace/delete-workspace.interactor";
+import { GetWorkspaceDeletionInteractor } from "@/features/workspace/get-workspace-deletion.interactor";
 import { GetWorkspaceLeaveInteractor } from "@/features/workspace/get-workspace-leave.interactor";
 import { ListMyWorkspacesInteractor } from "@/features/workspace/list-my-workspaces.interactor";
 import { RemoveWorkspaceMemberInteractor } from "@/features/workspace/remove-workspace-member.interactor";
@@ -1081,6 +1083,19 @@ export const getLeaveWorkspaceInteractor = () =>
   new LeaveWorkspaceInteractor(getAuthService(), getUserRepo(), getRoleRepo(), getWorkspaceDepartureService());
 
 export const getGetWorkspaceLeaveInteractor = () => new GetWorkspaceLeaveInteractor(getUserRepo(), getRoleRepo());
+
+export const getDeleteWorkspaceInteractor = () =>
+  new DeleteWorkspaceInteractor(
+    getAuthService(),
+    getCompanyRepo(),
+    getUserRepo(),
+    getConnectedAccountRepo(),
+    getDeleteAccountForBillingService(),
+    getUnipileWebhookRepo(),
+  );
+
+export const getGetWorkspaceDeletionInteractor = () =>
+  new GetWorkspaceDeletionInteractor(getAuthService(), getCompanyRepo());
 
 export const getRemoveWorkspaceMemberInteractor = () =>
   new RemoveWorkspaceMemberInteractor(

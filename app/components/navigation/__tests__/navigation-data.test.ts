@@ -16,6 +16,7 @@ const WORKSPACE: WorkspaceSummary = {
   activeMemberCount: 3,
   subscription: null,
   joinedAt: new Date("2026-01-01T00:00:00Z"),
+  createdAt: new Date("2026-01-01T00:00:00Z"),
 };
 
 const MEMBERSHIP_STATES: AccountState[] = ["inactive", "pending", "onboarding", "legal", "subscription"];

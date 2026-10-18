@@ -1,12 +1,14 @@
 "use server";
 
 import type { CreateWorkspaceData } from "@/features/workspace/create-workspace.interactor";
+import type { DeleteWorkspaceData } from "@/features/workspace/delete-workspace.interactor";
 import type { LeaveWorkspaceData } from "@/features/workspace/leave-workspace.interactor";
 import type { SwitchWorkspaceData } from "@/features/workspace/switch-workspace.interactor";
 import type { WithdrawWorkspaceRequestData } from "@/features/workspace/withdraw-workspace-request.interactor";
 
 import {
   getCreateWorkspaceInteractor,
+  getDeleteWorkspaceInteractor,
   getLeaveWorkspaceInteractor,
   getListMyWorkspacesInteractor,
   getSwitchWorkspaceInteractor,
@@ -32,4 +34,8 @@ export async function leaveWorkspaceAction(data: LeaveWorkspaceData) {
 
 export async function withdrawWorkspaceRequestAction(data: WithdrawWorkspaceRequestData) {
   return serializeResult(getWithdrawWorkspaceRequestInteractor().invoke(data));
+}
+
+export async function deleteWorkspaceAction(data: DeleteWorkspaceData) {
+  return serializeResult(getDeleteWorkspaceInteractor().invoke(data));
 }

@@ -25,7 +25,9 @@ vi.mock("@/env", () => ({
   },
 }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
+const locale = vi.hoisted(() => ({ value: "en" }));
 vi.mock("next-intl/server", () => ({
+  getLocale: () => Promise.resolve(locale.value),
   getTranslations: () => Promise.resolve({ raw: (key: string) => key }),
 }));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
@@ -105,7 +107,7 @@ describe("CreateCheckoutSessionInteractor", () => {
       email: mockUser.email,
       productName: "Bergmann Steuern",
       custom: { company_id: COMPANY_ID, company_signature: expect.stringMatching(/^[0-9a-f]{64}$/) },
-      redirectUrl: "https://feat-inbox.customermates.com/settings/billing",
+      redirectUrl: "https://feat-inbox.customermates.com/en/settings/billing",
       expiresAt: expect.any(Date),
     });
   });
@@ -193,7 +195,28 @@ describe("CreateCheckoutSessionInteractor", () => {
     await interactor.invoke({ plan: "business", cadence: "monthly" } as never);
 
     expect(subscriptionService.createCheckoutOrThrow.mock.calls[0][0].redirectUrl).toBe(
-      "https://customermates-git-feat-inbox-customermates.vercel.app/settings/billing",
+      "https://customermates-git-feat-inbox-customermates.vercel.app/en/settings/billing",
+    );
+  });
+
+  it("returns the payer to the billing page in the locale the checkout was started from", async () => {
+    locale.value = "de";
+    const subscriptionService = makeSubscriptionService();
+    const interactor = new CreateCheckoutSessionInteractor(
+      subscriptionService as never,
+      makeCheckoutRepo() as never,
+      makeUserRepo() as never,
+      makeCompanyRepo() as never,
+    );
+
+    try {
+      await interactor.invoke({ plan: "business", cadence: "monthly" } as never);
+    } finally {
+      locale.value = "en";
+    }
+
+    expect(subscriptionService.createCheckoutOrThrow.mock.calls[0][0].redirectUrl).toBe(
+      "https://feat-inbox.customermates.com/de/settings/billing",
     );
   });
 

@@ -27,6 +27,7 @@ function workspace(companyId: string, overrides: Partial<WorkspaceSummary> = {})
     activeMemberCount: 1,
     subscription: { status: SubscriptionStatus.active, plan: SubscriptionPlan.starter, trialEndDate: null },
     joinedAt: new Date("2026-01-01T00:00:00.000Z"),
+    createdAt: new Date("2026-01-01T00:00:00.000Z"),
     ...overrides,
   };
 }

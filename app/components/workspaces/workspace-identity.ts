@@ -18,3 +18,17 @@ export function workspaceAvatarStyle(companyId: string): CSSProperties {
 export function workspaceDisplayName(name: string | null | undefined, fallback: string): string {
   return name?.trim() || fallback;
 }
+
+type ListedWorkspace = { name: string | null; createdAt: Date };
+
+export function workspaceListName(
+  workspace: ListedWorkspace,
+  workspaces: readonly Pick<ListedWorkspace, "name">[],
+  fallback: string,
+  withCreationDate: (date: string) => string,
+): string {
+  if (workspace.name?.trim()) return workspace.name.trim();
+  if (workspaces.filter((candidate) => !candidate.name?.trim()).length < 2) return fallback;
+
+  return withCreationDate(workspace.createdAt.toISOString().slice(0, 10));
+}

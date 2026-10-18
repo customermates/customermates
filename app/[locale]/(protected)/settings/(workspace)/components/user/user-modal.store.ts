@@ -23,6 +23,11 @@ type RemovalCandidate = { id: string; leftAt: Date | null };
 
 export type MemberRemovalBlock = Extract<MemberRemovalRefusal, "lastAdmin" | "platformOperator">;
 
+function defaultRoleId(roles: { items: { id: string }[]; pagination?: { total: number } }): string {
+  const total = roles.pagination?.total ?? roles.items.length;
+  return total === 1 && roles.items.length === 1 ? roles.items[0].id : "";
+}
+
 function removalBlock(refusal: MemberRemovalRefusal | null | undefined): MemberRemovalBlock | null {
   return refusal === "lastAdmin" || refusal === "platformOperator" ? refusal : null;
 }
@@ -141,7 +146,7 @@ export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
         country: user.country,
         status: user.status as typeof Status.active | typeof Status.inactive,
         avatarUrl: user.avatarUrl,
-        roleId: user.roleId ?? "",
+        roleId: user.roleId ?? defaultRoleId(roles),
       });
     } finally {
       if (sequence === this.loadSequence) this.setIsLoading(false);

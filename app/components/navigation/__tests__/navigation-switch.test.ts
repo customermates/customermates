@@ -250,6 +250,7 @@ describe("NavigationSwitch account-state refresh", () => {
         activeMemberCount: 2,
         subscription: null,
         joinedAt: new Date("2026-01-01T00:00:00.000Z"),
+        createdAt: new Date("2026-01-01T00:00:00.000Z"),
       },
     ] satisfies NonNullable<NavigationSwitchProps["workspaces"]>;
 

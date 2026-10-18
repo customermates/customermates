@@ -37,6 +37,7 @@ import {
   organizationList,
   readInvitationLink,
 } from "./workspace-membership";
+import { uniqueWorkspaceName } from "./workspace-names";
 import { choosePlan, createApiKeyInSettings, createWorkspaceFromSettings, finishOnboarding } from "./workspace-setup";
 import {
   clickHydrated,
@@ -53,7 +54,7 @@ test.skip(process.env.CRM_E2E_SERVER_MODE === "development", "next dev logs e-ma
 
 const MEMBER = "Jonas Keller";
 const INVITER = "Hoffmann Consulting";
-const SECOND = "Keller Steuern";
+const SECOND = uniqueWorkspaceName("Keller Steuern");
 const WikiPages = z.array(z.looseObject({ id: z.uuid(), title: z.string() }));
 const WikiItems = z.looseObject({ items: z.array(z.looseObject({ id: z.string() })) });
 
