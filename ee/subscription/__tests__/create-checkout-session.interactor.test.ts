@@ -337,7 +337,7 @@ describe("CreateCheckoutSessionInteractor", () => {
     },
   );
 
-  it("opens a checkout for a workspace that holds a subscription but is paused because its trial date passed", async () => {
+  it("opens a checkout for a workspace that holds a subscription whose trial date passed", async () => {
     const repo = makeCheckoutRepo("pro", null, {
       lemonSqueezyId: "sub-1",
       status: "trial",
@@ -355,5 +355,20 @@ describe("CreateCheckoutSessionInteractor", () => {
       redirect: "https://checkout.example.com",
     });
     expect(repo.claimCheckoutStart.mock.calls[0][0]).toMatchObject({ lemonSqueezyId: "sub-1" });
+  });
+
+  it("opens a checkout for a workspace whose paid subscription was paused and synced as unpaid without a trial end", async () => {
+    const repo = makeCheckoutRepo("pro", null, { lemonSqueezyId: "sub-1", status: "unPaid", trialEndDate: null });
+    const subscriptionService = makeSubscriptionService();
+    const interactor = new CreateCheckoutSessionInteractor(
+      subscriptionService as never,
+      repo as never,
+      makeUserRepo() as never,
+      makeCompanyRepo() as never,
+    );
+
+    expect(await interactor.invoke({ plan: "pro", cadence: "monthly" } as never)).toMatchObject({
+      redirect: "https://checkout.example.com",
+    });
   });
 });

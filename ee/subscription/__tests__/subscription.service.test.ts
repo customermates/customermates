@@ -294,7 +294,24 @@ describe("SubscriptionService.syncSubscription", () => {
     },
   );
 
-  it.each(["expired", "cancelled", "past_due", "unpaid"])(
+  it.each(["paused", "unpaid"])(
+    "stores a %s subscription as unpaid so the workspace is routed to billing",
+    async (status) => {
+      const repo = makeRepo();
+      const service = new SubscriptionService(repo as never);
+
+      await service.syncSubscription(
+        workspace({ lemonSqueezyId: "sub-1" }),
+        syncedSubscription({ status, trial_ends_at: null, variant_id: 2002 }),
+      );
+
+      expect(repo.writeSubscriptionUnscoped).toHaveBeenCalledWith(
+        expect.objectContaining({ lemonSqueezyId: "sub-1", status: "unPaid", trialEndDate: undefined }),
+      );
+    },
+  );
+
+  it.each(["expired", "cancelled", "past_due", "paused", "unpaid"])(
     "keeps a started checkout when the workspace's own subscription syncs as %s",
     async (status) => {
       const repo = makeRepo();

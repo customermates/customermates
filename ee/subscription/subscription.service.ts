@@ -166,7 +166,9 @@ export class SubscriptionService {
     if (updateResult.error) throw new Error(updateResult.error.message || "Failed to update subscription quantity");
   }
 
-  private mapLemonSqueezyStatusToSubscriptionStatus(lemonSqueezyStatus: string): SubscriptionStatus {
+  private mapLemonSqueezyStatusToSubscriptionStatus(
+    lemonSqueezyStatus: LemonSqueezySubscription["data"]["attributes"]["status"],
+  ): SubscriptionStatus {
     switch (lemonSqueezyStatus) {
       case "active":
         return SubscriptionStatus.active;
@@ -178,10 +180,9 @@ export class SubscriptionService {
         return SubscriptionStatus.expired;
       case "past_due":
         return SubscriptionStatus.pastDue;
+      case "paused":
       case "unpaid":
         return SubscriptionStatus.unPaid;
-      default:
-        return SubscriptionStatus.trial;
     }
   }
 
