@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { registerWorkspaceChangedHandler } from "@/core/errors/workspace-changed-notice";
+
 const harness = vi.hoisted(() => ({
   checkout: vi.fn(),
   abandon: vi.fn(),
@@ -7,6 +9,7 @@ const harness = vi.hoisted(() => ({
   toastZodErrorTree: vi.fn(),
   assign: vi.fn(),
   navigateDocument: vi.fn(),
+  notifyWorkspaceChanged: vi.fn(),
 }));
 
 vi.mock("@/app/[locale]/(protected)/settings/(workspace)/actions", () => ({
@@ -27,11 +30,12 @@ function store() {
 }
 
 function subscription(overrides: Record<string, unknown>) {
-  return { status: "expired", plan: "pro", trialEndDate: null, checkout: "pending", ...overrides };
+  return { ok: true, data: { status: "expired", plan: "pro", trialEndDate: null, checkout: "pending", ...overrides } };
 }
 
 beforeEach(() => {
   vi.clearAllMocks();
+  registerWorkspaceChangedHandler(harness.notifyWorkspaceChanged);
   vi.stubGlobal("window", { location: { assign: harness.assign } });
 });
 
@@ -126,5 +130,33 @@ describe("SubscriptionExpiredStore", () => {
 
     expect(expired.activated).toBe(false);
     expect(harness.navigateDocument).not.toHaveBeenCalled();
+  });
+
+  it("shows the changed-workspace notice instead of failing when the membership is no longer active", async () => {
+    harness.subscription.mockResolvedValue({
+      ok: false,
+      failure: {
+        kind: "authorization",
+        issues: [{ code: "custom", path: [], message: "Inactive", customCode: "userInactive" }],
+      },
+    });
+    const expired = store();
+    expired.setCheckout("pending");
+
+    await expect(expired.refreshCheckout()).resolves.toBeUndefined();
+
+    expect(harness.notifyWorkspaceChanged).toHaveBeenCalledOnce();
+    expect(expired.checkout).toBe("pending");
+    expect(harness.navigateDocument).not.toHaveBeenCalled();
+  });
+
+  it("reports any other failure to load the subscription", async () => {
+    harness.subscription.mockResolvedValue({
+      ok: false,
+      failure: { kind: "unavailable", issues: [{ code: "custom", path: [], message: "Down" }] },
+    });
+
+    await expect(store().refreshCheckout()).rejects.toThrow("Subscription could not be loaded");
+    expect(harness.notifyWorkspaceChanged).not.toHaveBeenCalled();
   });
 });

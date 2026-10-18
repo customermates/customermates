@@ -12,6 +12,7 @@ import {
 } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
 import { isSubscriptionExpired } from "@/ee/subscription/entitlements";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { buildLocalePath } from "@/i18n/locale-registry";
 
@@ -68,7 +69,12 @@ export class SubscriptionExpiredStore extends BaseStore {
 
   refreshCheckout = async (): Promise<void> => {
     if (this.activated) return;
-    const subscription = await getSubscriptionAction();
+    const result = await getSubscriptionAction();
+    if (!result.ok) {
+      if (notifyIfWorkspaceChanged(result)) return;
+      throw new Error("Subscription could not be loaded");
+    }
+    const subscription = result.data;
     if (isSubscriptionExpired(subscription)) {
       this.setCheckout(subscription.checkout);
       return;

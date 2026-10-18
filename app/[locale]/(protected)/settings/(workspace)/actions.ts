@@ -45,7 +45,7 @@ import {
   getGetMemberRemovalInteractor,
   getRenameWorkspaceInteractor,
 } from "@/core/di";
-import { serializeResult } from "@/core/utils/action-result";
+import { serializeResult, serializeTypedResult } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 import { activeUsersQuery } from "@/features/user/get/active-users-query";
@@ -66,8 +66,7 @@ export async function refreshSubscriptionAction() {
 }
 
 export async function getSubscriptionAction() {
-  const result = await getGetSubscriptionInteractor().invoke();
-  return result.data;
+  return serializeTypedResult(getGetSubscriptionInteractor().invoke());
 }
 
 export async function getBillingPortalUrlAction() {

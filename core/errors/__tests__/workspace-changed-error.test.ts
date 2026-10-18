@@ -33,6 +33,7 @@ describe("WorkspaceChangedError", () => {
     });
 
     expect(isWorkspaceChangedFailure(failure("workspaceChanged"))).toBe(true);
+    expect(isWorkspaceChangedFailure(failure("userInactive"))).toBe(true);
     expect(isWorkspaceChangedFailure(failure("permissionDenied"))).toBe(false);
     expect(isWorkspaceChangedFailure("limit")).toBe(false);
     expect(isWorkspaceChangedFailure(null)).toBe(false);

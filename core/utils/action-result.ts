@@ -11,7 +11,7 @@ import { z } from "zod";
 import { isRedirect } from "@/features/auth/auth-outcome";
 import { isBusyDatabaseError } from "@/core/errors/prisma-client-error";
 import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
-import { markWorkspaceChanged } from "@/core/errors/workspace-changed";
+import { isWorkspaceChangedCode, markWorkspaceChanged } from "@/core/errors/workspace-changed";
 import { WorkspaceChangedError } from "@/core/errors/workspace-changed-error";
 import {
   failAuthorization,
@@ -38,6 +38,8 @@ export async function settleActionResult<T>(result: ActionInput<T>): Promise<Awa
     if (error instanceof WorkspaceChangedError) return failConflict(CustomErrorCode.workspaceChanged);
     if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied)
       return failAuthorization(CustomErrorCode.permissionDenied);
+    if (error instanceof ForbiddenError && error.code === AppErrorCode.inactiveUser)
+      return failAuthorization(CustomErrorCode.userInactive);
     if ((error as { code?: unknown } | null)?.code === "P2028")
       return failUnavailable(CustomErrorCode.recordTransactionEnded);
     throw error;
@@ -59,7 +61,7 @@ export async function serializeResult<T>(result: ActionInput<T>): Promise<Action
   const error = z.treeifyError(resolved.error);
   return {
     ok: false,
-    error: code === CustomErrorCode.workspaceChanged ? markWorkspaceChanged(error) : error,
+    error: isWorkspaceChangedCode(code) ? markWorkspaceChanged(error) : error,
     ...(code ? { code } : {}),
     ...(isRetryableFailure(resolved.error) ? { retryable: true } : {}),
   };

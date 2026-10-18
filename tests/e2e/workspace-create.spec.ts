@@ -1,5 +1,8 @@
+import { randomUUID } from "node:crypto";
+
 import type { Page } from "@playwright/test";
 import type { Client } from "pg";
+import type { BrowserWorkspace } from "./workspace";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { collectPageErrors, expect, test } from "./fixtures";
@@ -28,6 +31,13 @@ async function createdWorkspace(database: Client, name: string) {
     [name],
   );
   return rows;
+}
+
+async function addEarlierAdministrator(database: Client, workspace: BrowserWorkspace) {
+  await database.query(
+    'INSERT INTO "User" (id,"companyId","roleId",email,"firstName","lastName",status,"agreeToTerms","onboardingWizardCompletedAt","createdAt","updatedAt") SELECT $1,"companyId","roleId",$2,\'Clara\',\'Founder\',\'active\',true,NOW(),"createdAt" - interval \'1 day\',NOW() FROM "User" WHERE id=$3',
+    [randomUUID(), `clara-${randomUUID()}@example.test`, workspace.userId],
+  );
 }
 
 async function fillCreateWorkspace(page: Page, name: string) {
@@ -82,7 +92,7 @@ test("an extra cloud workspace asks for a plan before its onboarding and the pla
   expect(errors).toEqual([]);
 });
 
-test("the first workspace a cloud login creates starts its trial in the onboarding wizard", async ({
+test("a legacy workspace another administrator set up leaves the login its trial for the first workspace it creates", async ({
   page,
   database,
   workspace,
@@ -90,6 +100,7 @@ test("the first workspace a cloud login creates starts its trial in the onboardi
   test.skip(e2eAppMode() !== "cloud", "Plans and the trial exist in the cloud only");
   const errors = collectPageErrors(page);
   await database.query('UPDATE "Company" SET "createdByAuthUserId"=NULL WHERE id=$1', [workspace.companyId]);
+  await addEarlierAdministrator(database, workspace);
   await page.goto("/en/settings/workspaces");
   await clickHydrated(page.getByRole("button", { name: "Create workspace", exact: true }));
   const dialog = await fillCreateWorkspace(page, "Hoffmann Beratung");
@@ -109,6 +120,37 @@ test("the first workspace a cloud login creates starts its trial in the onboardi
     isSystemRole: true,
   });
   expect(created.trialEndDate?.getTime()).toBeGreaterThan(Date.now() + 6 * 24 * 60 * 60 * 1000);
+  expect((await activeWorkspaceOf(database, workspace)).session).toBe(created.id);
+  expect(errors).toEqual([]);
+});
+
+test("a legacy workspace the login set up as its first administrator counts as its trial", async ({
+  page,
+  database,
+  workspace,
+}) => {
+  test.skip(e2eAppMode() !== "cloud", "Plans and the trial exist in the cloud only");
+  const errors = collectPageErrors(page);
+  await database.query('UPDATE "Company" SET "createdByAuthUserId"=NULL WHERE id=$1', [workspace.companyId]);
+  await page.goto("/en/settings/workspaces");
+  await clickHydrated(page.getByRole("button", { name: "Create workspace", exact: true }));
+  const dialog = await fillCreateWorkspace(page, "Kraus Planung");
+  await expect(dialog).toContainText(englishMessages.Workspaces.billingNote);
+  await dialog.locator("#create-workspace-terms").click();
+  await dialog.getByRole("button", { name: "Create workspace", exact: true }).click();
+
+  await expect(page).toHaveURL(/\/en\/subscription-expired$/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Choose a plan for Kraus Planung", exact: true }),
+  ).toBeVisible();
+  const [created] = await createdWorkspace(database, "Kraus Planung");
+  expect(created).toMatchObject({
+    createdByAuthUserId: workspace.authUserId,
+    subscription: "expired",
+    trialEndDate: null,
+    memberStatus: "active",
+    isSystemRole: true,
+  });
   expect((await activeWorkspaceOf(database, workspace)).session).toBe(created.id);
   expect(errors).toEqual([]);
 });

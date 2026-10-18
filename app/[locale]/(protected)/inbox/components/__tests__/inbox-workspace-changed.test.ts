@@ -31,6 +31,14 @@ const WORKSPACE_CHANGED = {
   },
 };
 
+const MEMBERSHIP_INACTIVE = {
+  ok: false,
+  failure: {
+    kind: "authorization",
+    issues: [{ code: "custom", path: [], message: "", customCode: "userInactive" }],
+  },
+};
+
 async function staleTab() {
   vi.resetModules();
   const errors = {
@@ -86,6 +94,18 @@ describe("Inbox in a tab whose workspace changed", () => {
     expect(errors.hasWorkspaceChanged()).toBe(true);
     expect(threads.unreadThreadCount).toBe(4);
     expect(harness.toastError).not.toHaveBeenCalled();
+    expect(toast).not.toHaveBeenCalled();
+    expect(harness.captureError).not.toHaveBeenCalled();
+  });
+
+  it("answers the unread badge poll of a membership that is no longer active with the reload dialog", async () => {
+    const { errors, showDialog, threads, toast } = await staleTab();
+    harness.getUnreadThreadCountAction.mockResolvedValue(MEMBERSHIP_INACTIVE);
+
+    await expect(threads.refreshUnreadCount()).resolves.toBeUndefined();
+
+    expect(showDialog).toHaveBeenCalledOnce();
+    expect(errors.hasWorkspaceChanged()).toBe(true);
     expect(toast).not.toHaveBeenCalled();
     expect(harness.captureError).not.toHaveBeenCalled();
   });

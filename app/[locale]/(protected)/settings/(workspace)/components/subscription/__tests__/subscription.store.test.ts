@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { registerWorkspaceChangedHandler } from "@/core/errors/workspace-changed-notice";
+
 const harness = vi.hoisted(() => ({
   portalUrl: vi.fn(),
   checkout: vi.fn(),
@@ -7,6 +9,7 @@ const harness = vi.hoisted(() => ({
   subscription: vi.fn(),
   toastZodErrorTree: vi.fn(),
   assign: vi.fn(),
+  notifyWorkspaceChanged: vi.fn(),
 }));
 
 vi.mock("../../../actions", () => ({
@@ -29,6 +32,7 @@ function store() {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  registerWorkspaceChangedHandler(harness.notifyWorkspaceChanged);
   vi.stubGlobal("window", { location: { assign: harness.assign } });
 });
 
@@ -66,7 +70,7 @@ describe("handleSubscribe", () => {
   it("stays on the page and shows the pending payment when the server refuses a second checkout", async () => {
     const pending = { plan: "pro", status: "trial", checkout: "pending" };
     harness.checkout.mockResolvedValue({ ok: true, data: { checkout: "pending" } });
-    harness.subscription.mockResolvedValue(pending);
+    harness.subscription.mockResolvedValue({ ok: true, data: pending });
     const subscriptions = store();
 
     await subscriptions.handleSubscribe({ plan: "business", cadence: "monthly" });
@@ -81,7 +85,7 @@ describe("handleSubscribe when the workspace was paid meanwhile", () => {
   it("shows the paid plan instead of opening a second checkout", async () => {
     const paid = { plan: "business", status: "active", hasActiveSubscription: true, checkout: "none" };
     harness.checkout.mockResolvedValue({ ok: true, data: { checkout: "active" } });
-    harness.subscription.mockResolvedValue(paid);
+    harness.subscription.mockResolvedValue({ ok: true, data: paid });
     const subscriptions = store();
 
     await subscriptions.handleSubscribe({ plan: "pro", cadence: "monthly" });
@@ -95,7 +99,7 @@ describe("handleAbandon", () => {
   it("clears the pending payment and shows the plans again", async () => {
     const cleared = { plan: "pro", status: "trial", checkout: "none" };
     harness.abandon.mockResolvedValue({ ok: true, data: null });
-    harness.subscription.mockResolvedValue(cleared);
+    harness.subscription.mockResolvedValue({ ok: true, data: cleared });
     const subscriptions = store();
 
     await subscriptions.handleAbandon();
@@ -112,5 +116,23 @@ describe("handleAbandon", () => {
 
     expect(harness.toastZodErrorTree).toHaveBeenCalledWith(error);
     expect(harness.subscription).not.toHaveBeenCalled();
+  });
+});
+
+describe("reloadSubscription", () => {
+  it("shows the changed-workspace notice instead of failing when the membership is no longer active", async () => {
+    harness.subscription.mockResolvedValue({
+      ok: false,
+      failure: {
+        kind: "authorization",
+        issues: [{ code: "custom", path: [], message: "Inactive", customCode: "userInactive" }],
+      },
+    });
+    const subscriptions = store();
+
+    await expect(subscriptions.reloadSubscription()).resolves.toBeUndefined();
+
+    expect(harness.notifyWorkspaceChanged).toHaveBeenCalledOnce();
+    expect(subscriptions.subscription).toBeNull();
   });
 });

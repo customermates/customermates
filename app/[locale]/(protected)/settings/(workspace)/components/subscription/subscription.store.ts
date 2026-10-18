@@ -12,6 +12,7 @@ import {
   getSubscriptionAction,
   getBillingPortalUrlAction,
 } from "../../actions";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 export class SubscriptionStore extends BaseStore {
@@ -35,7 +36,11 @@ export class SubscriptionStore extends BaseStore {
 
   reloadSubscription = async (): Promise<void> => {
     const subscription = await getSubscriptionAction();
-    this.setSubscription(subscription);
+    if (!subscription.ok) {
+      if (notifyIfWorkspaceChanged(subscription)) return;
+      throw new Error("Subscription could not be loaded");
+    }
+    this.setSubscription(subscription.data);
   };
 
   handleSubscribe = async (offer: SelectableOffer): Promise<void> => {

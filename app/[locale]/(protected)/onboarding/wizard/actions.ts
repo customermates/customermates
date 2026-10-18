@@ -13,13 +13,19 @@ import {
   getRegisterOnboardingProfileInteractor,
   getSaveOnboardingWizardProgressInteractor,
 } from "@/core/di";
-import { serializeResult } from "@/core/utils/action-result";
+import { serializeResult, settleActionResult } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
 import {
   clearRegisteredAdClicksFromCookie,
   readRegistrationAdAttribution,
 } from "@/features/acquisition/next/ad-attribution-cookie";
 import { buildLocalePath } from "@/i18n/locale-registry";
+
+async function settleInLocale<T>(outcome: Parameters<typeof settleActionResult<T>>[0]) {
+  const settled = await settleActionResult(outcome);
+  if (isRedirect(settled)) redirect(buildLocalePath(await getLocale(), settled.redirect));
+  return settled;
+}
 
 export async function registerProfileAction(data: RegisterOnboardingProfileData) {
   const adAttribution = await readRegistrationAdAttribution();
@@ -29,22 +35,21 @@ export async function registerProfileAction(data: RegisterOnboardingProfileData)
   if (result.ok) {
     await clearRegisteredAdClicksFromCookie();
     refresh();
-    redirect(result.data.redirectTo);
+    redirect(buildLocalePath(await getLocale(), result.data.redirectTo));
   }
   return result;
 }
 
 export async function completeOnboardingWizardAction() {
-  const result = await serializeResult(getCompleteOnboardingWizardInteractor().invoke());
+  const result = await serializeResult(await settleInLocale(getCompleteOnboardingWizardInteractor().invoke()));
   if (result.ok) refresh();
   return result;
 }
 
 export async function saveOnboardingWizardProgressAction(data: SaveOnboardingWizardProgressData) {
-  return serializeResult(getSaveOnboardingWizardProgressInteractor().invoke(data));
+  return serializeResult(await settleInLocale(getSaveOnboardingWizardProgressInteractor().invoke(data)));
 }
 
 export async function completeOnboardingWikiStepAction() {
-  const result = await serializeResult(getCompleteOnboardingWikiStepInteractor().invoke());
-  return result;
+  return serializeResult(await settleInLocale(getCompleteOnboardingWikiStepInteractor().invoke()));
 }

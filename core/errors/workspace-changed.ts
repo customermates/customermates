@@ -8,6 +8,12 @@ export function isWorkspaceChangedError(error: unknown): boolean {
   return errorDigest(error) === WORKSPACE_CHANGED_DIGEST;
 }
 
+const WORKSPACE_CHANGED_CODES: readonly unknown[] = [CustomErrorCode.workspaceChanged, CustomErrorCode.userInactive];
+
+export function isWorkspaceChangedCode(code: unknown): boolean {
+  return WORKSPACE_CHANGED_CODES.includes(code);
+}
+
 export function markWorkspaceChanged<T extends object>(tree: T): T & { digest: string } {
   return Object.assign(tree, { digest: WORKSPACE_CHANGED_DIGEST });
 }
@@ -21,11 +27,11 @@ type FailureShape = {
 
 export function isWorkspaceChangedFailure(body: unknown): boolean {
   const failure = body as FailureShape;
-  if (failure?.code === CustomErrorCode.workspaceChanged || isWorkspaceChangedError(failure?.error)) return true;
+  if (isWorkspaceChangedCode(failure?.code) || isWorkspaceChangedError(failure?.error)) return true;
 
   const issues = failure?.issues ?? failure?.failure?.issues ?? failure?.error?.issues;
   return (
     Array.isArray(issues) &&
-    issues.some((issue) => (issue as { customCode?: unknown } | null)?.customCode === CustomErrorCode.workspaceChanged)
+    issues.some((issue) => isWorkspaceChangedCode((issue as { customCode?: unknown } | null)?.customCode))
   );
 }

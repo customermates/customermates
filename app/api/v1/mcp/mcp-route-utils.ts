@@ -32,8 +32,14 @@ function createTextContent(text: string, isError = false) {
   };
 }
 
+const strictInputSchemas = new WeakMap<z.ZodType, z.ZodType>();
+
 function strictInputSchema(inputSchema: z.ZodType): z.ZodType {
-  return inputSchema instanceof z.ZodObject ? inputSchema.strict() : inputSchema;
+  const cached = strictInputSchemas.get(inputSchema);
+  if (cached) return cached;
+  const strict = inputSchema instanceof z.ZodObject ? inputSchema.strict() : inputSchema;
+  strictInputSchemas.set(inputSchema, strict);
+  return strict;
 }
 
 function registerAllTools(server: Parameters<Parameters<typeof createMcpHandler>[0]>[0], tools: McpTool[]) {
@@ -253,27 +259,30 @@ export function createMcpRoute(
   registerFeatures?: (server: McpServer, tools: McpTool[]) => void,
 ) {
   const knownKeys = Object.keys(toolGroups);
-  const handlers = new Map<string, (request: Request) => Promise<Response>>();
+  const toolsets = new Map<string, { tools: McpTool[]; instructions: string }>();
 
-  function handlerFor(toolsetKey: string) {
-    const existing = handlers.get(toolsetKey);
+  function toolsetFor(toolsetKey: string) {
+    const existing = toolsets.get(toolsetKey);
     if (existing) return existing;
 
     const activeKeys = toolsetKey === "" ? knownKeys : toolsetKey.split(",");
     const tools = mcpToolsForToolsets(toolGroups, activeKeys, alwaysOn);
-    const handler = createMcpHandler(
+    const toolset = { tools, instructions: buildMcpServerInstructions(tools.map((tool) => tool.name)) };
+    toolsets.set(toolsetKey, toolset);
+    return toolset;
+  }
+
+  function handlerFor(toolsetKey: string) {
+    const { tools, instructions } = toolsetFor(toolsetKey);
+    return createMcpHandler(
       (server) => {
         registerAllTools(server, tools);
         registerPrompts(server, tools);
         registerFeatures?.(server, tools);
       },
-      {
-        instructions: buildMcpServerInstructions(tools.map((tool) => tool.name)),
-      },
+      { instructions },
       { streamableHttpEndpoint: endpoint },
     );
-    handlers.set(toolsetKey, handler);
-    return handler;
   }
 
   return async (request: Request, workspaceId?: string) => {

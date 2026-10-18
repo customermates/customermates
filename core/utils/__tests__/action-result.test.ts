@@ -7,7 +7,7 @@ vi.mock("next-intl/server", () => ({
 }));
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { ForbiddenError } from "@/core/errors/app-errors";
+import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
 import { WORKSPACE_CHANGED_DIGEST } from "@/core/errors/workspace-changed";
 import { WorkspaceChangedError } from "@/core/errors/workspace-changed-error";
 import { createZodError, serializeInteractorFailure } from "@/core/validation/validation.utils";
@@ -61,6 +61,18 @@ describe("serializeResult", () => {
       ok: false,
       failure: { kind: "authorization", issues: [{ customCode: CustomErrorCode.permissionDenied }] },
     });
+  });
+
+  it("answers a membership that is no longer active with a typed refusal the tab treats as a changed workspace", async () => {
+    const inactive = () => Promise.reject(new ForbiddenError("User is not active", AppErrorCode.inactiveUser));
+
+    expect(await serializeTypedResult(inactive())).toMatchObject({
+      ok: false,
+      failure: { kind: "authorization", issues: [{ customCode: CustomErrorCode.userInactive }] },
+    });
+    const result = await serializeResult(inactive());
+    expect(result).toMatchObject({ ok: false, code: CustomErrorCode.userInactive });
+    expect(!result.ok && result.error).toMatchObject({ digest: WORKSPACE_CHANGED_DIGEST });
   });
 
   it("answers a changed workspace with a conflict that carries its digest instead of failing the request", async () => {

@@ -12,7 +12,7 @@ const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
 const apiKeys = vi.hoisted(() => ({
   isMcpApiKeyValid: vi.fn(() => Promise.resolve(true)),
   isMcpBearerValid: vi.fn(() => Promise.resolve(true)),
-  resolveMcpCredentialWorkspace: vi.fn(() =>
+  resolveMcpCredentialWorkspace: vi.fn((_headers: Headers) =>
     Promise.resolve<{ credential: "apiKey" | "bearer"; companyId: string | null } | null>({
       credential: "apiKey",
       companyId: "6f1c2b9e-4d3a-4b8c-9e7f-0a1b2c3d4e5f",
@@ -375,4 +375,57 @@ describe("public MCP execution boundary", () => {
     expect(apiKeys.isMcpApiKeyValid).toHaveBeenCalled();
     expect(apiKeys.resolveMcpCredentialWorkspace).not.toHaveBeenCalled();
   });
+
+  it("answers two parallel connections that number their requests alike, each with its own workspace's data", async () => {
+    let entered = 0;
+    const firstEntered = Promise.withResolvers<null>();
+    const secondEntered = Promise.withResolvers<null>();
+    const workspaceTool: McpTool = {
+      name: "workspace_name",
+      title: "Workspace name",
+      description: "Answers with the workspace of the calling credential.",
+      inputSchema: z.object({}),
+      execute: async (_input: unknown, extra: { requestInfo?: { headers?: Record<string, string> } }) => {
+        const workspace = extra.requestInfo?.headers?.["x-api-key"] ?? "none";
+        entered += 1;
+        if (entered === 1) {
+          firstEntered.resolve(null);
+          await secondEntered.promise;
+        } else secondEntered.resolve(null);
+        return `workspace:${workspace}`;
+      },
+    };
+    apiKeys.resolveMcpCredentialWorkspace.mockImplementation((headers: Headers) =>
+      Promise.resolve({
+        credential: "apiKey",
+        companyId: headers.get("x-api-key"),
+      }),
+    );
+    const handler = createMcpRoute({ test: [workspaceTool] });
+    const call = {
+      jsonrpc: "2.0",
+      id: 0,
+      method: "tools/call",
+      params: { name: "workspace_name", arguments: {} },
+    };
+    const callFrom = (workspaceId: string) =>
+      rpc(handler, call, undefined, {
+        workspaceId,
+        credential: { "x-api-key": workspaceId },
+      });
+
+    const first = callFrom(WORKSPACE);
+    await firstEntered.promise;
+    const second = await callFrom(OTHER_WORKSPACE);
+
+    expect(entered).toBe(2);
+    expect((await first).data).toMatchObject({
+      id: 0,
+      result: { content: [{ text: `workspace:${WORKSPACE}` }] },
+    });
+    expect(second.data).toMatchObject({
+      id: 0,
+      result: { content: [{ text: `workspace:${OTHER_WORKSPACE}` }] },
+    });
+  }, 5_000);
 });
