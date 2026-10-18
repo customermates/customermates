@@ -29,6 +29,8 @@ import { ViewMode } from "@/core/base/base-query-builder";
 import {
   isCalendarColorField,
   isCalendarDateField,
+  isCalendarEndField,
+  isCalendarRangeField,
   resolveCalendarFields,
 } from "@/features/record-calendar/record-calendar-query";
 import { calendarMoveChanges } from "@/features/record-calendar/calendar-entries";
@@ -46,6 +48,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   calendarAnchor: CalendarDate | null = null;
   calendarDisplayMode: CalendarViewMode | null = null;
   calendarRange: CalendarRange | null = null;
+  calendarResultSeq = 0;
   isBulkMutating = false;
   private bulkRefreshGeneration = 0;
   private awaitingBulkRefresh: number | null = null;
@@ -78,11 +81,14 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       calendarAnchor: observable,
       calendarDisplayMode: observable,
       calendarRange: observable.ref,
+      calendarResultSeq: observable,
       calendarFields: computed,
       calendarDateFields: computed,
       calendarColorFields: computed,
       calendarWindow: computed,
       canCalendar: computed,
+      calendarMode: computed,
+      calendarFieldOptions: computed,
       setCalendarAnchor: action,
       setCalendarDisplayMode: action,
       pendingBulkOperation: observable,
@@ -112,8 +118,35 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   get calendarColorFields() {
     return this.fields.filter(isCalendarColorField);
   }
-  get canCalendar() {
+  override get supportsCalendar() {
+    return true;
+  }
+  override get canCalendar() {
     return this.calendarDateFields.length > 0;
+  }
+  override get defaultCalendar() {
+    const dateField = this.calendarDateFields[0];
+    return dateField
+      ? { dateFieldId: dateField.id, endDateFieldId: null, colorFieldId: null, mode: "month" as const }
+      : null;
+  }
+  override get calendarFieldOptions() {
+    const choice = (field: RecordFieldView) => ({ id: field.id, label: field.label });
+    return {
+      dates: this.calendarDateFields.map(choice),
+      endsFor: (dateFieldId: string) => {
+        const start = this.fields.find((field) => field.id === dateFieldId);
+        if (!start || isCalendarRangeField(start)) return [];
+        return this.fields.filter((field) => field.id !== start.id && isCalendarEndField(field, start)).map(choice);
+      },
+      colors: this.calendarColorFields.map(choice),
+    };
+  }
+  get calendarMode(): CalendarViewMode {
+    return this.calendarDisplayMode ?? calendarViewMode(this.calendar);
+  }
+  get calendarFocusDate(): CalendarDate {
+    return this.calendarAnchor ?? zonedDate(new Date(), this.calendarTimeZone);
   }
   override get calendarFieldIds() {
     return new Set([...this.calendarDateFields, ...this.calendarColorFields].map((field) => field.id));
@@ -123,9 +156,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   }
   get calendarWindow(): CalendarWindow | null {
     if (!this.calendarFields) return null;
-    const anchor = this.calendarAnchor ?? zonedDate(new Date(), this.calendarTimeZone);
-    const mode = this.calendarDisplayMode ?? calendarViewMode(this.calendar);
-    return { ...calendarWindowRange(mode, anchor), timeZone: this.calendarTimeZone };
+    return { ...calendarWindowRange(this.calendarMode, this.calendarFocusDate), timeZone: this.calendarTimeZone };
   }
   setCalendarAnchor = (anchor: CalendarDate) => {
     if (anchor === this.calendarAnchor) return;
@@ -558,6 +589,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   }
   protected onRefreshAccepted(result: GetResult<RecordRow>) {
     this.calendarRange = result.calendarRange ?? null;
+    this.calendarResultSeq += 1;
     const loaded = this.loaded.get(result);
     if (loaded) this.setPresentation(loaded.presentation);
     if (loaded?.bulkRefreshGeneration === this.awaitingBulkRefresh && !result.grouping?.partial) {

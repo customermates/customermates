@@ -971,6 +971,7 @@
       "selectOption": "Select an option",
       "showPassword": "Show password",
       "switchToBoardViewDisabled": "This list has no field to group by",
+      "switchToCalendarViewDisabled": "This list has no date field for a calendar",
       "themeSwitcher": "Theme switcher",
       "tooltipFields": "Appearance",
       "tooltipFilters": "Filters"
@@ -1647,6 +1648,7 @@
       "layout": "Layout",
       "layouts": {
         "board": "Board",
+        "calendar": "Calendar",
         "table": "Table"
       },
       "nextPage": "Next page",
@@ -2138,6 +2140,32 @@
     "boardMoveRequested": "Move to {group} requested.",
     "boardMoveTarget": "Move record to {group}.",
     "boardPickedUp": "Record picked up.",
+    "calendar": {
+      "colorField": "Color by",
+      "dateField": "Date field",
+      "emptyRange": "No records in this period.",
+      "endDateField": "End date field",
+      "entryLabel": "{name}, {date}",
+      "keyboardInstructions": "Press Enter to open a record. Press Space to pick it up. Use the arrow keys to choose another day, then press Space to move it there. Press Escape to cancel.",
+      "mode": "Calendar view",
+      "modes": {
+        "agenda": "Agenda",
+        "month": "Month",
+        "week": "Week"
+      },
+      "more": "+{count} more",
+      "moreLabel": "{count, plural, one {# more record} other {# more records}} on {date}",
+      "movableEntry": "movable record",
+      "moveCancelled": "Move cancelled.",
+      "moveRequested": "Move to {date} requested.",
+      "moveTarget": "Move record to {date}.",
+      "nextMonth": "Next month",
+      "nextWeek": "Next week",
+      "pickedUp": "Record picked up.",
+      "previousMonth": "Previous month",
+      "previousWeek": "Previous week",
+      "truncated": "Showing {shown} of {total} records in this period. Narrow the filters to see the rest."
+    },
     "collapseColumn": "Collapse column",
     "collapseGroup": "Collapse group {group}",
     "dragToReorderNamed": "Drag to reorder: {name}",

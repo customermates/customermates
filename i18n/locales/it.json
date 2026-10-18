@@ -971,6 +971,7 @@
       "selectOption": "Seleziona un'opzione",
       "showPassword": "Mostra password",
       "switchToBoardViewDisabled": "Questo elenco non ha alcun campo per cui raggruppare",
+      "switchToCalendarViewDisabled": "Questo elenco non ha alcun campo data per un calendario",
       "themeSwitcher": "Selettore del tema",
       "tooltipFields": "Aspetto",
       "tooltipFilters": "Filtri"
@@ -1647,6 +1648,7 @@
       "layout": "Disposizione",
       "layouts": {
         "board": "Board",
+        "calendar": "Calendario",
         "table": "Tabella"
       },
       "nextPage": "Pagina successiva",
@@ -2138,6 +2140,32 @@
     "boardMoveRequested": "Spostamento in {group} richiesto.",
     "boardMoveTarget": "Sposta il record in {group}.",
     "boardPickedUp": "Record selezionato.",
+    "calendar": {
+      "colorField": "Colore in base a",
+      "dateField": "Campo data",
+      "emptyRange": "Nessun record in questo periodo.",
+      "endDateField": "Campo data di fine",
+      "entryLabel": "{name}, {date}",
+      "keyboardInstructions": "Premi Invio per aprire un record e Spazio per selezionarlo. Scegli un altro giorno con le frecce, poi premi Spazio per spostarlo lì. Premi Esc per annullare.",
+      "mode": "Vista calendario",
+      "modes": {
+        "agenda": "Agenda",
+        "month": "Mese",
+        "week": "Settimana"
+      },
+      "more": "+{count} altri",
+      "moreLabel": "{count, plural, one {# altro record} other {# altri record}} il {date}",
+      "movableEntry": "record spostabile",
+      "moveCancelled": "Spostamento annullato.",
+      "moveRequested": "Spostamento al {date} richiesto.",
+      "moveTarget": "Sposta il record al {date}.",
+      "nextMonth": "Mese successivo",
+      "nextWeek": "Settimana successiva",
+      "pickedUp": "Record selezionato.",
+      "previousMonth": "Mese precedente",
+      "previousWeek": "Settimana precedente",
+      "truncated": "Vengono mostrati {shown} di {total} record di questo periodo. Restringi i filtri per vedere il resto."
+    },
     "collapseColumn": "Comprimi colonna",
     "collapseGroup": "Comprimi il gruppo {group}",
     "dragToReorderNamed": "Trascina per riordinare: {name}",

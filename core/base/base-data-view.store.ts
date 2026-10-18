@@ -92,6 +92,13 @@ function filterSignature(filters: Filter[]): string[] {
   return filters.map(canonicalJson).sort();
 }
 
+export type CalendarFieldChoice = { id: string; label: string };
+export type CalendarFieldOptions = {
+  dates: CalendarFieldChoice[];
+  endsFor: (dateFieldId: string) => CalendarFieldChoice[];
+  colors: CalendarFieldChoice[];
+};
+
 const APPEARANCE_KEYS = [
   "sortDescriptor",
   "pageSize",
@@ -213,6 +220,18 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   }
   get calendarFieldIds(): ReadonlySet<string> | undefined {
     return undefined;
+  }
+  get supportsCalendar(): boolean {
+    return false;
+  }
+  get canCalendar(): boolean {
+    return false;
+  }
+  get defaultCalendar(): CalendarViewConfig | null {
+    return null;
+  }
+  get calendarFieldOptions(): CalendarFieldOptions | null {
+    return null;
   }
   get sharesViewState(): boolean {
     return true;

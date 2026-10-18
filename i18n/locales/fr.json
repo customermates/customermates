@@ -971,6 +971,7 @@
       "selectOption": "Sélectionner une option",
       "showPassword": "Afficher le mot de passe",
       "switchToBoardViewDisabled": "Cette liste ne contient aucun champ de regroupement",
+      "switchToCalendarViewDisabled": "Cette liste ne contient aucun champ de date pour un calendrier",
       "themeSwitcher": "Sélecteur de thème",
       "tooltipFields": "Apparence",
       "tooltipFilters": "Filtres"
@@ -1647,6 +1648,7 @@
       "layout": "Disposition",
       "layouts": {
         "board": "Board",
+        "calendar": "Calendrier",
         "table": "Tableau"
       },
       "nextPage": "Page suivante",
@@ -2138,6 +2140,32 @@
     "boardMoveRequested": "Déplacement vers {group} demandé.",
     "boardMoveTarget": "Déplacer l’enregistrement vers {group}.",
     "boardPickedUp": "Enregistrement saisi.",
+    "calendar": {
+      "colorField": "Couleur selon",
+      "dateField": "Champ de date",
+      "emptyRange": "Aucun enregistrement sur cette période.",
+      "endDateField": "Champ de date de fin",
+      "entryLabel": "{name}, {date}",
+      "keyboardInstructions": "Appuyez sur Entrée pour ouvrir un enregistrement et sur Espace pour le saisir. Choisissez un autre jour avec les flèches, puis appuyez sur Espace pour l'y déplacer. Appuyez sur Échap pour annuler.",
+      "mode": "Vue du calendrier",
+      "modes": {
+        "agenda": "Agenda",
+        "month": "Mois",
+        "week": "Semaine"
+      },
+      "more": "+{count} de plus",
+      "moreLabel": "{count, plural, one {# autre enregistrement} other {# autres enregistrements}} le {date}",
+      "movableEntry": "enregistrement déplaçable",
+      "moveCancelled": "Déplacement annulé.",
+      "moveRequested": "Déplacement au {date} demandé.",
+      "moveTarget": "Déplacer l'enregistrement au {date}.",
+      "nextMonth": "Mois suivant",
+      "nextWeek": "Semaine suivante",
+      "pickedUp": "Enregistrement saisi.",
+      "previousMonth": "Mois précédent",
+      "previousWeek": "Semaine précédente",
+      "truncated": "{shown} enregistrements sur {total} affichés pour cette période. Affinez les filtres pour voir le reste."
+    },
     "collapseColumn": "Réduire la colonne",
     "collapseGroup": "Réduire le groupe {group}",
     "dragToReorderNamed": "Faire glisser pour réorganiser : {name}",

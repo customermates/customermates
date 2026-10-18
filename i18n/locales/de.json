@@ -971,6 +971,7 @@
       "selectOption": "Option auswählen",
       "showPassword": "Passwort anzeigen",
       "switchToBoardViewDisabled": "Diese Liste hat kein Feld zum Gruppieren",
+      "switchToCalendarViewDisabled": "Diese Liste hat kein Datumsfeld für einen Kalender",
       "themeSwitcher": "Darstellungsmodus-Umschalter",
       "tooltipFields": "Darstellung",
       "tooltipFilters": "Filter"
@@ -1647,6 +1648,7 @@
       "layout": "Ansicht",
       "layouts": {
         "board": "Board",
+        "calendar": "Kalender",
         "table": "Tabelle"
       },
       "nextPage": "Nächste Seite",
@@ -2138,6 +2140,32 @@
     "boardMoveRequested": "Verschieben nach {group} angefordert.",
     "boardMoveTarget": "Datensatz nach {group} verschieben.",
     "boardPickedUp": "Datensatz aufgenommen.",
+    "calendar": {
+      "colorField": "Farbe nach",
+      "dateField": "Datumsfeld",
+      "emptyRange": "Keine Datensätze in diesem Zeitraum.",
+      "endDateField": "Enddatumsfeld",
+      "entryLabel": "{name}, {date}",
+      "keyboardInstructions": "Drücke die Eingabetaste, um einen Datensatz zu öffnen, und die Leertaste, um ihn aufzunehmen. Wähle mit den Pfeiltasten einen anderen Tag und drücke die Leertaste, um ihn dorthin zu verschieben. Mit Escape brichst du ab.",
+      "mode": "Kalenderansicht",
+      "modes": {
+        "agenda": "Agenda",
+        "month": "Monat",
+        "week": "Woche"
+      },
+      "more": "+{count} weitere",
+      "moreLabel": "{count, plural, one {# weiterer Datensatz} other {# weitere Datensätze}} am {date}",
+      "movableEntry": "verschiebbarer Datensatz",
+      "moveCancelled": "Verschieben abgebrochen.",
+      "moveRequested": "Verschieben auf {date} angefordert.",
+      "moveTarget": "Datensatz auf {date} verschieben.",
+      "nextMonth": "Nächster Monat",
+      "nextWeek": "Nächste Woche",
+      "pickedUp": "Datensatz aufgenommen.",
+      "previousMonth": "Vorheriger Monat",
+      "previousWeek": "Vorherige Woche",
+      "truncated": "{shown} von {total} Datensätzen in diesem Zeitraum werden angezeigt. Grenze die Filter ein, um den Rest zu sehen."
+    },
     "collapseColumn": "Spalte einklappen",
     "collapseGroup": "Gruppe {group} einklappen",
     "dragToReorderNamed": "Zum Neuanordnen ziehen: {name}",

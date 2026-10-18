@@ -971,6 +971,7 @@
       "selectOption": "Selecciona una opción",
       "showPassword": "Mostrar contraseña",
       "switchToBoardViewDisabled": "Esta lista no tiene ningún campo por el que agrupar",
+      "switchToCalendarViewDisabled": "Esta lista no tiene ningún campo de fecha para un calendario",
       "themeSwitcher": "Selector de tema",
       "tooltipFields": "Apariencia",
       "tooltipFilters": "Filtros"
@@ -1647,6 +1648,7 @@
       "layout": "Disposición",
       "layouts": {
         "board": "Tablero",
+        "calendar": "Calendario",
         "table": "Tabla"
       },
       "nextPage": "Página siguiente",
@@ -2138,6 +2140,32 @@
     "boardMoveRequested": "Movimiento a {group} solicitado.",
     "boardMoveTarget": "Mover registro a {group}.",
     "boardPickedUp": "Registro seleccionado.",
+    "calendar": {
+      "colorField": "Color según",
+      "dateField": "Campo de fecha",
+      "emptyRange": "No hay registros en este periodo.",
+      "endDateField": "Campo de fecha de fin",
+      "entryLabel": "{name}, {date}",
+      "keyboardInstructions": "Pulsa Intro para abrir un registro y Espacio para seleccionarlo. Usa las flechas para elegir otro día y pulsa Espacio para moverlo allí. Pulsa Escape para cancelar.",
+      "mode": "Vista de calendario",
+      "modes": {
+        "agenda": "Agenda",
+        "month": "Mes",
+        "week": "Semana"
+      },
+      "more": "+{count} más",
+      "moreLabel": "{count, plural, one {# registro más} other {# registros más}} el {date}",
+      "movableEntry": "registro movible",
+      "moveCancelled": "Movimiento cancelado.",
+      "moveRequested": "Movimiento al {date} solicitado.",
+      "moveTarget": "Mover el registro al {date}.",
+      "nextMonth": "Mes siguiente",
+      "nextWeek": "Semana siguiente",
+      "pickedUp": "Registro seleccionado.",
+      "previousMonth": "Mes anterior",
+      "previousWeek": "Semana anterior",
+      "truncated": "Se muestran {shown} de {total} registros de este periodo. Acota los filtros para ver el resto."
+    },
     "collapseColumn": "Contraer columna",
     "collapseGroup": "Contraer el grupo {group}",
     "dragToReorderNamed": "Arrastrar para reordenar: {name}",
