@@ -1,4 +1,5 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { AccountState } from "./account-state";
 import type { AuthService } from "./auth.service";
 import type { RouteGuardService } from "./route-guard.service";
 
@@ -32,6 +33,9 @@ export class DecideMcpConsentInteractor {
   @ValidateOutput(OutputSchema)
   async invoke(data: DecideMcpConsentData): Promise<Awaited<Validated<DecideMcpConsentResult>>> {
     const resolution = await this.routeGuardService.resolveAccountState();
+    const resourceCompanyId = await this.authService.getMcpConsentWorkspace(data.consentCode);
+    if (resourceCompanyId) return this.decideForResourceWorkspace(data, resourceCompanyId, resolution.state);
+
     const state = await this.routeGuardService.resolveMcpConsentState(resolution);
     const current = state === "allowed" || state === "onboarding" ? resolution.user : null;
     const { companyId } = data;
@@ -46,6 +50,28 @@ export class DecideMcpConsentInteractor {
         consentCode: data.consentCode,
         accept,
         companyId: target?.companyId ?? null,
+      }),
+    };
+  }
+
+  private async decideForResourceWorkspace(
+    data: DecideMcpConsentData,
+    companyId: string,
+    state: AccountState,
+  ): Promise<Awaited<Validated<DecideMcpConsentResult>>> {
+    if (data.companyId !== undefined && data.companyId !== companyId) return { ok: true, data: null };
+
+    const target =
+      data.accept && isMcpConsentMemberState(state)
+        ? await this.routeGuardService.resolveMembershipForConsent(companyId)
+        : null;
+    const accept = target !== null && canConnectMcp(target.role);
+    return {
+      ok: true,
+      data: await this.authService.decideMcpConsent({
+        consentCode: data.consentCode,
+        accept,
+        companyId: accept ? companyId : null,
       }),
     };
   }

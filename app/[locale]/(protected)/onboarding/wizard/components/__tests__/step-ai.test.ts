@@ -47,6 +47,8 @@ import { AiConnectionStore } from "@/components/ai-connection/ai-connection.stor
 import { StepAi, StepAiFooter } from "../step-ai";
 
 const stubRootStore = {} as RootStore;
+const WORKSPACE_ID = "6f1c2b9e-4d3a-4b8c-9e7f-0a1b2c3d4e5f";
+const WORKSPACE_MCP_URL = `http://localhost:4000/api/v1/mcp/w/${WORKSPACE_ID}`;
 
 function makeStore(): AiConnectionStore {
   return new AiConnectionStore(stubRootStore);
@@ -60,6 +62,8 @@ function renderStep(store: AiConnectionStore, isSubmitting = false): string {
       isSubmitting,
     },
     stepAiStore: store,
+    userStore: { user: { companyId: WORKSPACE_ID } },
+    workspacesStore: { current: { companyId: WORKSPACE_ID, name: "Atlas CRM" } },
   } as unknown as RootStore;
 
   return renderToStaticMarkup(createElement("div", null, createElement(StepAi), createElement(StepAiFooter)));
@@ -172,7 +176,14 @@ describe("StepAi Claude setup", () => {
     expect(html).toContain("OnboardingWizard.ai.connector.claudeButton");
     expect(html).not.toContain("OnboardingWizard.ai.connector.chatgptSteps");
     const connectButton = linkContaining(html, "OnboardingWizard.ai.connector.claudeButton");
+    const connectorLink = new URL(connectButton.match(/href="([^"]*)"/)?.[1]?.replaceAll("&amp;", "&") ?? "");
 
+    expect(connectorLink.searchParams.get("connectorUrl")).toBe(WORKSPACE_MCP_URL);
+    expect(connectorLink.searchParams.get("connectorName")).toBe("Customermates (Atlas CRM)");
+    expect(html).toContain(WORKSPACE_MCP_URL);
+    expect(html).toContain(
+      "OnboardingWizard.ai.connector.workspaceNote client=OnboardingWizard.ai.choices.claude workspace=Atlas CRM",
+    );
     expect(connectButton).toContain('data-size="default"');
     expect(connectButton).toContain('data-variant="secondary"');
     expect(connectButton).toContain("self-start");
@@ -238,7 +249,10 @@ describe("StepAi ChatGPT and Codex setup", () => {
     expect(html).toContain("OnboardingWizard.ai.connector.chatgptTitle");
     expect(html).toContain("OnboardingWizard.ai.connector.chatgptSteps");
     expect(html).not.toContain("OnboardingWizard.ai.connector.claudeButton");
-    expect(html).toContain("http://localhost:4000/api/v1/mcp");
+    expect(html).toContain(WORKSPACE_MCP_URL);
+    expect(html).toContain(
+      "OnboardingWizard.ai.connector.workspaceNote client=OnboardingWizard.ai.choices.chatgpt workspace=Atlas CRM",
+    );
     expect(paragraphContaining(html, "OnboardingWizard.ai.connector.externalNote")).toContain(">guide</a>");
     expect(html).toContain("https://learn.chatgpt.com/docs/extend/mcp");
     expect(html).toContain('class="inline-link');

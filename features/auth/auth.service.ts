@@ -24,7 +24,12 @@ import { getTransactionClient } from "@/core/decorators/transaction-context";
 import { prisma } from "@/prisma/db";
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
 import { redirectTo } from "./auth-outcome";
-import { approveMcpAuthorizationCodeValue, mcpAuthorizationCodeWorkspaceIdentifier } from "./mcp-authorization-code";
+import {
+  approveMcpAuthorizationCodeValue,
+  mcpAuthorizationCodeWorkspaceIdentifier,
+  mcpResourceWorkspaceOf,
+  withMcpResourceWorkspace,
+} from "./mcp-authorization-code";
 import { isDocumentRequest } from "./document-request";
 import { SESSION_HINT_COOKIE_NAME } from "./session-hint";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -46,6 +51,7 @@ export type AuthenticatedSession = Pick<Session, "session" | "user">;
 export type CredentialWorkspace =
   | { kind: "integration"; companyId: string | null }
   | { kind: "session"; sessionId: string; companyId: string | null; documentRequest: boolean };
+export type McpCredentialWorkspace = { credential: "apiKey" | "bearer"; companyId: string | null };
 type CreateApiKeyError =
   | CustomErrorCode.apiKeyMinExpiration
   | CustomErrorCode.apiKeyMaxExpiration
@@ -416,7 +422,7 @@ export class AuthService {
   async getMcpConsentPrompt(args: {
     consentCode: string;
     clientId: string;
-  }): Promise<{ clientName: string; scopes: string[]; redirectHost: string } | null> {
+  }): Promise<{ clientName: string; scopes: string[]; redirectHost: string; workspaceId: string | null } | null> {
     const resolved = await this.resolvePendingConsent(args.consentCode);
     if (!resolved) return null;
     if (resolved.value.clientId !== args.clientId) return null;
@@ -428,7 +434,24 @@ export class AuthService {
       clientName: application.name,
       scopes: this.consentScopeList(resolved.value.scope),
       redirectHost: this.redirectHost(resolved.value.redirectURI),
+      workspaceId: mcpResourceWorkspaceOf(resolved.value),
     };
+  }
+
+  async getMcpConsentWorkspace(consentCode: string): Promise<string | null> {
+    const resolved = await this.resolvePendingConsent(consentCode);
+    return resolved ? mcpResourceWorkspaceOf(resolved.value) : null;
+  }
+
+  async bindMcpAuthorizationResource(consentCode: string, companyId: string): Promise<void> {
+    const verification = await prisma.authVerification.findFirst({ where: { identifier: consentCode } });
+    const value = verification ? this.parseConsentValue(verification.value) : null;
+    if (!verification || !value) throw new Error("The MCP authorization request could not be bound to its workspace");
+
+    await prisma.authVerification.update({
+      where: { id: verification.id },
+      data: { value: JSON.stringify(withMcpResourceWorkspace(value, companyId)) },
+    });
   }
 
   async decideMcpConsent(args: {
@@ -441,8 +464,9 @@ export class AuthService {
 
     const { verification, value } = resolved;
     const redirectUrl = new URL(value.redirectURI);
+    const resourceCompanyId = mcpResourceWorkspaceOf(value);
 
-    if (!args.accept || !args.companyId) {
+    if (!args.accept || !args.companyId || (resourceCompanyId !== null && resourceCompanyId !== args.companyId)) {
       await prisma.authVerification.delete({ where: { id: verification.id } });
       redirectUrl.searchParams.set("error", "access_denied");
       if (value.state) redirectUrl.searchParams.set("state", value.state);
@@ -545,6 +569,21 @@ export class AuthService {
       return (await this.resolveMcpBearerSession(headersList)) !== null;
     } catch {
       return false;
+    }
+  }
+
+  async resolveMcpCredentialWorkspace(headersList: Headers): Promise<McpCredentialWorkspace | null> {
+    const key = headersList.get("x-api-key");
+    try {
+      const session = key
+        ? await auth.api.getSession({ headers: new Headers({ "x-api-key": key }) })
+        : await this.resolveMcpBearerSession(headersList);
+      if (!session) return null;
+
+      const { companyId } = await this.getCredentialWorkspace(session, headersList);
+      return { credential: key ? "apiKey" : "bearer", companyId };
+    } catch {
+      return null;
     }
   }
 

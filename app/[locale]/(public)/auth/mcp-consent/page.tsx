@@ -30,13 +30,13 @@ export default async function McpConsentPage({ searchParams }: Props) {
   if (!consentCode || !clientId) redirect("/");
 
   const { data: workspaces } = await getListMcpConsentWorkspacesInteractor().invoke();
-  if (!currentCanConsent && !workspaces.some((workspace) => workspace.unavailableReason === null))
-    redirect(buildLocalePath(await getLocale(), accountStateRedirect(resolution.state) ?? "/"));
-
   const prompt = await getAuthService().getMcpConsentPrompt({
     consentCode,
     clientId,
   });
+  const fixedWorkspaceId = prompt?.workspaceId ?? null;
+  if (!fixedWorkspaceId && !currentCanConsent && !workspaces.some((workspace) => workspace.unavailableReason === null))
+    redirect(buildLocalePath(await getLocale(), accountStateRedirect(resolution.state) ?? "/"));
   if (!prompt) redirect("/");
 
   return (
@@ -44,9 +44,12 @@ export default async function McpConsentPage({ searchParams }: Props) {
       <McpConsentCard
         clientName={prompt.clientName}
         consentCode={consentCode}
+        fixedWorkspace={fixedWorkspaceId !== null}
         redirectHost={prompt.redirectHost}
         scopes={prompt.scopes}
-        workspaces={workspaces}
+        workspaces={
+          fixedWorkspaceId ? workspaces.filter((workspace) => workspace.companyId === fixedWorkspaceId) : workspaces
+        }
       />
     </CenteredCardPage>
   );

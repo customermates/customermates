@@ -10,11 +10,15 @@ import { mcpToolsForToolsets } from "@/features/mcp-tools/toolsets";
 import { env } from "@/env";
 import { AppErrorCode, AuthError, ForbiddenError } from "@/core/errors/app-errors";
 import { WorkspacePlanRequiredError } from "@/core/auth/workspace-plan-required-error";
+import { MCP_ENDPOINT_PATH, mcpProtectedResourceMetadataUrl } from "@/features/auth/mcp-resource";
 import type { SerializedInteractorFailure } from "@/core/validation/validation.utils";
 
 export type { McpTool, McpToolResult } from "@/features/mcp-tools/mcp-tool";
 
 const UNEXPECTED_FAILURE_MESSAGE = "The operation could not be completed because of an unexpected server error.";
+const FOREIGN_TOKEN_MESSAGE = "The access token belongs to another workspace. Connect again through this MCP URL.";
+const FOREIGN_API_KEY_MESSAGE =
+  "This API key belongs to another workspace. Use the MCP URL of that workspace, or create an API key in this one.";
 
 const UNEXPECTED_FAILURE: SerializedInteractorFailure = {
   kind: "unavailable",
@@ -90,9 +94,7 @@ function registerPrompts(server: McpServer, tools: McpTool[]) {
   );
 }
 
-function unauthorizedChallenge() {
-  const resourceMetadataUrl = `${env.BASE_URL}/.well-known/oauth-protected-resource`;
-
+function unauthorizedChallenge(resourceMetadataUrl: string) {
   return new Response(JSON.stringify({ error: "unauthorized" }), {
     status: 401,
     headers: {
@@ -104,9 +106,34 @@ function unauthorizedChallenge() {
   });
 }
 
+function foreignTokenChallenge(resourceMetadataUrl: string) {
+  return new Response(JSON.stringify({ error: "invalid_token", message: FOREIGN_TOKEN_MESSAGE }), {
+    status: 401,
+    headers: {
+      "Content-Type": "application/json",
+      "WWW-Authenticate": `Bearer error="invalid_token", error_description="${FOREIGN_TOKEN_MESSAGE}", resource_metadata="${resourceMetadataUrl}"`,
+      "Access-Control-Expose-Headers": "WWW-Authenticate",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+}
+
+function foreignApiKey() {
+  return new Response(JSON.stringify({ error: "workspace_mismatch", message: FOREIGN_API_KEY_MESSAGE }), {
+    status: 403,
+    headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+  });
+}
+
+function credentialHeaders(request: Request): { apiKey: boolean; bearer: boolean } {
+  return {
+    apiKey: request.headers.has("x-api-key"),
+    bearer: (request.headers.get("authorization") ?? "").toLowerCase().startsWith("bearer "),
+  };
+}
+
 async function isMcpRequestAuthorized(request: Request): Promise<boolean> {
-  const hasApiKey = request.headers.has("x-api-key");
-  const hasBearer = (request.headers.get("authorization") ?? "").toLowerCase().startsWith("bearer ");
+  const { apiKey: hasApiKey, bearer: hasBearer } = credentialHeaders(request);
   if (!hasApiKey && !hasBearer) return false;
 
   const { getAuthService } = await import("@/core/di");
@@ -114,6 +141,22 @@ async function isMcpRequestAuthorized(request: Request): Promise<boolean> {
   return hasApiKey
     ? getAuthService().isMcpApiKeyValid(request.headers)
     : getAuthService().isMcpBearerValid(request.headers);
+}
+
+async function workspaceCredentialRefusal(
+  request: Request,
+  workspaceId: string,
+  resourceMetadataUrl: string,
+): Promise<Response | null> {
+  const { apiKey, bearer } = credentialHeaders(request);
+  if (!apiKey && !bearer) return unauthorizedChallenge(resourceMetadataUrl);
+
+  const { getAuthService } = await import("@/core/di");
+  const bound = await getAuthService().resolveMcpCredentialWorkspace(request.headers);
+  if (!bound) return unauthorizedChallenge(resourceMetadataUrl);
+  if (bound.companyId === workspaceId) return null;
+
+  return bound.credential === "bearer" ? foreignTokenChallenge(resourceMetadataUrl) : foreignApiKey();
 }
 
 function insufficientPermissions() {
@@ -145,13 +188,13 @@ function inactiveUser(message: string) {
   });
 }
 
-async function mcpAccessRefusal(): Promise<Response | null> {
+async function mcpAccessRefusal(resourceMetadataUrl: string): Promise<Response | null> {
   const { getAuthorizeMcpConnectionInteractor } = await import("@/core/di");
   try {
     await getAuthorizeMcpConnectionInteractor().invoke();
     return null;
   } catch (error) {
-    if (error instanceof AuthError) return unauthorizedChallenge();
+    if (error instanceof AuthError) return unauthorizedChallenge(resourceMetadataUrl);
     if (error instanceof WorkspacePlanRequiredError) return planRequired(error.message);
     if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied)
       return insufficientPermissions();
@@ -190,10 +233,23 @@ function unknownToolsets(unknown: string[], knownKeys: string[]) {
   );
 }
 
+async function atEndpoint(request: Request, endpoint: string): Promise<Request> {
+  const url = new URL(request.url);
+  url.pathname = endpoint;
+  const hasBody = request.method !== "GET" && request.method !== "HEAD";
+
+  return new Request(url, {
+    method: request.method,
+    headers: request.headers,
+    signal: request.signal,
+    ...(hasBody ? { body: await request.arrayBuffer() } : {}),
+  });
+}
+
 export function createMcpRoute(
   toolGroups: Record<string, McpTool[]>,
   alwaysOn: McpTool[] = [],
-  endpoint = "/api/v1/mcp",
+  endpoint = MCP_ENDPOINT_PATH,
   registerFeatures?: (server: McpServer, tools: McpTool[]) => void,
 ) {
   const knownKeys = Object.keys(toolGroups);
@@ -220,12 +276,16 @@ export function createMcpRoute(
     return handler;
   }
 
-  return async (request: Request) => {
-    if (!(await isMcpRequestAuthorized(request))) return unauthorizedChallenge();
-    const refused = await mcpAccessRefusal();
+  return async (request: Request, workspaceId?: string) => {
+    const resourceMetadataUrl = mcpProtectedResourceMetadataUrl(env.BASE_URL, workspaceId);
+    if (workspaceId) {
+      const foreign = await workspaceCredentialRefusal(request, workspaceId, resourceMetadataUrl);
+      if (foreign) return foreign;
+    } else if (!(await isMcpRequestAuthorized(request))) return unauthorizedChallenge(resourceMetadataUrl);
+    const refused = await mcpAccessRefusal(resourceMetadataUrl);
     if (refused) return refused;
     const toolsets = resolveToolsetKey(request, knownKeys);
     if ("unknown" in toolsets) return unknownToolsets(toolsets.unknown, knownKeys);
-    return handlerFor(toolsets.key)(request);
+    return handlerFor(toolsets.key)(workspaceId ? await atEndpoint(request, endpoint) : request);
   };
 }

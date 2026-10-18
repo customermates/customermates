@@ -2767,6 +2767,17 @@
   },
   "McpConsentWorkspace": {
     "current": "Espace de travail actuel",
+    "fixed": {
+      "hint": "{client} n'accède qu'à {workspace}. Chaque espace de travail a sa propre URL MCP : vous pouvez donc en connecter d'autres comme connexions distinctes.",
+      "notMember": "Cette URL MCP appartient à un espace de travail dont vous n'êtes pas membre. Connectez-vous avec le compte que vous y utilisez, ou copiez l'URL MCP de votre propre espace de travail dans Paramètres → Clés API.",
+      "unavailable": {
+        "inactive": "Votre accès à {workspace} est désactivé. Demandez à un administrateur de l'espace de travail de le réactiver.",
+        "pending": "Votre demande pour rejoindre {workspace} est toujours en attente d'approbation. Connectez-vous à nouveau une fois qu'un administrateur l'aura approuvée.",
+        "permission": "Votre rôle dans {workspace} n'autorise pas les connexions MCP. Une connexion via MCP nécessite l'accès en lecture Tous sur API et webhooks. Demandez-le à un administrateur de l'espace de travail.",
+        "plan": "{workspace} n'a pas d'abonnement actif. Connectez-vous à nouveau dès qu'il dispose d'une offre.",
+        "terms": "Les nouvelles conditions doivent être acceptées avant de connecter {workspace}. Ouvrez Customermates, acceptez-les, puis connectez-vous à nouveau."
+      }
+    },
     "pickerLabel": "Choisissez un espace de travail",
     "scopeHint": "{client} n'accède qu'à l'espace de travail que vous choisissez. Pour en utiliser un autre, connectez-vous à nouveau.",
     "title": "Connecter {client} à cet espace de travail",
@@ -2917,7 +2928,8 @@
         "claudeDescription": "Ouvrez la boîte de dialogue préremplie de Claude pour les connecteurs personnalisés, puis connectez-vous à Customermates et autorisez l’accès.",
         "claudeTitle": "Connecter votre compte Claude",
         "externalNote": "Cette configuration s’effectue dans un nouvel onglet ou dans votre IA. Customermates ne vérifie pas automatiquement la connexion externe. <guide>Lire le guide de configuration complet</guide>.",
-        "urlLabel": "URL du serveur MCP"
+        "urlLabel": "URL du serveur MCP",
+        "workspaceNote": "Cette URL connecte {workspace}. Chaque espace de travail a sa propre URL : vous pouvez donc connecter plusieurs espaces de travail à {client} en même temps."
       },
       "createKey": "Créer une clé API",
       "createKeyIntro": "Générez une clé API pour cet agent. La clé n'est affichée qu'une fois et est intégrée à l'extrait d'installation ci-dessous.",

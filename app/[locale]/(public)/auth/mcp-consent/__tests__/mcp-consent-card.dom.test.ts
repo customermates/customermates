@@ -39,18 +39,23 @@ let container: HTMLDivElement;
 let root: Root;
 let store: McpConsentStore;
 
-function render(workspaces: McpConsentWorkspace[]) {
+function render(workspaces: McpConsentWorkspace[], fixedWorkspace = false) {
   act(() =>
     root.render(
       createElement(McpConsentCard, {
         clientName: "Claude",
         consentCode: "consent-code",
+        fixedWorkspace,
         redirectHost: "claude.ai",
         scopes: ["openid"],
         workspaces,
       }),
     ),
   );
+}
+
+function fixedWorkspaceRow(companyId: string) {
+  return container.querySelector<HTMLElement>(`[id="mcp-consent-fixed-workspace-${companyId}"]`);
 }
 
 function headline() {
@@ -171,5 +176,74 @@ describe("McpConsentCard", () => {
       accept: false,
       companyId: "company-a",
     });
+  });
+
+  it("shows the workspace of a per-workspace MCP URL with its avatar and no picker", async () => {
+    render([taxes], true);
+
+    expect(headline()).toBe(
+      `McpConsentWorkspace.titleNamed ${JSON.stringify({ client: "Claude", workspace: "Taxes" })}`,
+    );
+    expect(container.querySelectorAll("[role='radio']")).toHaveLength(0);
+    expect(container.textContent).not.toContain("McpConsentWorkspace.pickerLabel");
+    const row = fixedWorkspaceRow("company-b");
+    expect(row?.textContent).toBe("TTaxes");
+    expect(row?.querySelector<HTMLElement>("[data-slot='avatar-fallback']")?.style.backgroundColor).toBe(
+      workspaceAvatarStyle("company-b").backgroundColor,
+    );
+    expect(container.textContent).toContain(
+      `McpConsentWorkspace.fixed.hint ${JSON.stringify({ client: "Claude", workspace: "Taxes" })}`,
+    );
+    expect(container.textContent).not.toContain("McpConsentWorkspace.scopeHint");
+    expect(container.textContent).not.toContain("McpConsentCard.permissionRequired");
+
+    await click(button("McpConsentCard.approve"));
+
+    expect(harness.decideMcpConsentAction).toHaveBeenCalledWith({
+      consentCode: "consent-code",
+      accept: true,
+      companyId: "company-b",
+    });
+  });
+
+  it.each([
+    ["pending", "Common.userStatuses.pendingAuthorization"],
+    ["inactive", "McpConsentWorkspace.unavailable.inactive"],
+    ["permission", "McpConsentWorkspace.unavailable.permission"],
+    ["plan", "McpConsentWorkspace.unavailable.plan"],
+    ["terms", "McpConsentWorkspace.unavailable.terms"],
+  ] as const)(
+    "explains why the workspace of a per-workspace MCP URL cannot be connected when it is %s",
+    async (reason, label) => {
+      render([{ ...taxes, unavailableReason: reason }], true);
+
+      expect(fixedWorkspaceRow("company-b")?.textContent).toBe(`TTaxes${label}`);
+      expect(container.textContent).toContain(
+        `McpConsentWorkspace.fixed.unavailable.${reason} ${JSON.stringify({ workspace: "Taxes" })}`,
+      );
+      expect(container.textContent).not.toContain("McpConsentWorkspace.fixed.hint");
+      expect(button("McpConsentCard.approve")).toBeUndefined();
+
+      await click(button("McpConsentCard.deny"));
+
+      expect(harness.decideMcpConsentAction).toHaveBeenCalledWith({
+        consentCode: "consent-code",
+        accept: false,
+        companyId: "company-b",
+      });
+    },
+  );
+
+  it("refuses a per-workspace MCP URL of a workspace the login is not a member of without naming it", async () => {
+    render([], true);
+
+    expect(headline()).toBe(`McpConsentWorkspace.title ${JSON.stringify({ client: "Claude" })}`);
+    expect(container.querySelector("[id^='mcp-consent-fixed-workspace-']")).toBeNull();
+    expect(container.textContent).toContain("McpConsentWorkspace.fixed.notMember");
+    expect(button("McpConsentCard.approve")).toBeUndefined();
+
+    await click(button("McpConsentCard.deny"));
+
+    expect(harness.decideMcpConsentAction).toHaveBeenCalledWith({ consentCode: "consent-code", accept: false });
   });
 });

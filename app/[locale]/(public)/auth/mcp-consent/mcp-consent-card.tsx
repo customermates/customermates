@@ -22,12 +22,14 @@ import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 type Props = {
   clientName: string;
   consentCode: string;
+  fixedWorkspace: boolean;
   redirectHost: string;
   scopes: string[];
   workspaces: McpConsentWorkspace[];
 };
 
-const McpConsentCardContent = observer(({ clientName, consentCode, redirectHost, scopes, workspaces }: Props) => {
+const McpConsentCardContent = observer((props: Props) => {
+  const { clientName, consentCode, fixedWorkspace, redirectHost, scopes, workspaces } = props;
   const t = useTranslations();
   const { mcpConsentStore, navigationGuard } = useRootStore();
   useState(() => mcpConsentStore.initialize(workspaces));
@@ -75,10 +77,32 @@ const McpConsentCardContent = observer(({ clientName, consentCode, redirectHost,
     }
   };
 
+  const fixedUnavailableMessage = (reason: McpConsentWorkspace["unavailableReason"], workspace: string) => {
+    switch (reason) {
+      case "pending":
+        return t("McpConsentWorkspace.fixed.unavailable.pending", { workspace });
+      case "inactive":
+        return t("McpConsentWorkspace.fixed.unavailable.inactive", { workspace });
+      case "permission":
+        return t("McpConsentWorkspace.fixed.unavailable.permission", { workspace });
+      case "plan":
+        return t("McpConsentWorkspace.fixed.unavailable.plan", { workspace });
+      case "terms":
+        return t("McpConsentWorkspace.fixed.unavailable.terms", { workspace });
+      default:
+        return undefined;
+    }
+  };
+
   const selectedName = selectedWorkspace?.name?.trim();
   const title = selectedName
     ? t("McpConsentWorkspace.titleNamed", { client: clientName, workspace: selectedName })
     : t("McpConsentWorkspace.title", { client: clientName });
+  const fixedChoice = fixedWorkspace ? (mcpConsentStore.workspaces[0] ?? null) : null;
+  const fixedName = fixedChoice ? workspaceDisplayName(fixedChoice.name, t("Workspaces.fallbackName")) : "";
+  const fixedRefusal = fixedChoice
+    ? fixedUnavailableMessage(fixedChoice.unavailableReason, fixedName)
+    : t("McpConsentWorkspace.fixed.notMember");
 
   return (
     <AppCard className="max-w-md">
@@ -87,7 +111,24 @@ const McpConsentCardContent = observer(({ clientName, consentCode, redirectHost,
       <AppCardBody>
         <p className="text-x-sm">{t("McpConsentCard.body", { client: clientName })}</p>
 
-        {mcpConsentStore.workspaces.length > 1 ? (
+        {fixedChoice ? (
+          <div
+            className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2 gap-y-1 rounded-md border border-input bg-input-background px-3 py-2.5 shadow-xs"
+            id={`mcp-consent-fixed-workspace-${fixedChoice.companyId}`}
+          >
+            <WorkspaceAvatar companyId={fixedChoice.companyId} name={fixedName} size="sm" />
+
+            <span className="truncate text-sm font-medium text-foreground">{fixedName}</span>
+
+            {fixedChoice.unavailableReason ? (
+              <span className="col-start-2 text-xs font-normal leading-relaxed text-muted-foreground">
+                {unavailableLabel(fixedChoice.unavailableReason)}
+              </span>
+            ) : null}
+          </div>
+        ) : null}
+
+        {!fixedWorkspace && mcpConsentStore.workspaces.length > 1 ? (
           <fieldset className="min-w-0">
             <legend className="text-muted-foreground mb-1.5 text-xs leading-none font-normal">
               {t("McpConsentWorkspace.pickerLabel")}
@@ -122,7 +163,9 @@ const McpConsentCardContent = observer(({ clientName, consentCode, redirectHost,
           </fieldset>
         ) : null}
 
-        {!canApprove && <p className="text-x-sm text-destructive">{t("McpConsentCard.permissionRequired")}</p>}
+        {fixedWorkspace
+          ? fixedRefusal && <p className="text-x-sm text-destructive">{fixedRefusal}</p>
+          : !canApprove && <p className="text-x-sm text-destructive">{t("McpConsentCard.permissionRequired")}</p>}
 
         <ul className="text-x-sm text-subdued list-disc space-y-1 pl-5">
           <li>{t("McpConsentCard.access.crmData")}</li>
@@ -134,7 +177,15 @@ const McpConsentCardContent = observer(({ clientName, consentCode, redirectHost,
           ))}
         </ul>
 
-        <p className="text-x-xs text-subdued">{t("McpConsentWorkspace.scopeHint", { client: clientName })}</p>
+        {fixedWorkspace ? (
+          canApprove && (
+            <p className="text-x-xs text-subdued">
+              {t("McpConsentWorkspace.fixed.hint", { client: clientName, workspace: fixedName })}
+            </p>
+          )
+        ) : (
+          <p className="text-x-xs text-subdued">{t("McpConsentWorkspace.scopeHint", { client: clientName })}</p>
+        )}
 
         <p className="text-x-xs text-subdued">{t("McpConsentCard.destination", { host: redirectHost })}</p>
       </AppCardBody>

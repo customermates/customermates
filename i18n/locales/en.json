@@ -2767,6 +2767,17 @@
   },
   "McpConsentWorkspace": {
     "current": "Current workspace",
+    "fixed": {
+      "hint": "{client} only reaches {workspace}. Every workspace has its own MCP URL, so you can connect others as separate connections.",
+      "notMember": "This MCP URL belongs to a workspace you are not a member of. Sign in with the account you use there, or copy your own workspace's MCP URL from Settings → API keys.",
+      "unavailable": {
+        "inactive": "Your access to {workspace} is deactivated. Ask a workspace administrator to reactivate it.",
+        "pending": "Your request to join {workspace} is still waiting for approval. Connect again once an administrator has approved it.",
+        "permission": "Your role in {workspace} does not allow MCP connections. Connecting through MCP requires Read access All on API & Webhooks. Ask a workspace administrator to grant it.",
+        "plan": "{workspace} has no active subscription. Connect again once it has a plan.",
+        "terms": "Updated terms need to be accepted before you can connect {workspace}. Open Customermates, accept them, then connect again."
+      }
+    },
     "pickerLabel": "Choose a workspace",
     "scopeHint": "{client} only reaches the workspace you choose. To use another workspace, connect again.",
     "title": "Connect {client} to this workspace",
@@ -2917,7 +2928,8 @@
         "claudeDescription": "Open Claude's prefilled custom-connector dialog, then sign in to Customermates and approve access.",
         "claudeTitle": "Connect your Claude account",
         "externalNote": "This setup happens in a new tab or in your AI. Customermates does not automatically verify the external connection. <guide>Read the full setup guide</guide>.",
-        "urlLabel": "MCP server URL"
+        "urlLabel": "MCP server URL",
+        "workspaceNote": "This URL connects {workspace}. Every workspace has its own URL, so you can connect several workspaces to {client} at the same time."
       },
       "createKey": "Create API key",
       "createKeyIntro": "Generate an API key for this agent. The key is shown once and embedded in the install snippet below.",

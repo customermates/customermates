@@ -1,7 +1,10 @@
+export const MCP_AUTHORIZE_PATH = "/mcp/authorize";
 export const MCP_TOKEN_PATH = "/mcp/token";
 export const MCP_LIBRARY_CONSENT_PATH = "/oauth2/consent";
+export const MCP_CONSENT_PAGE_PATH = "/auth/mcp-consent";
 
 const APPROVAL_FIELD = "customermatesConsentApproved";
+const RESOURCE_WORKSPACE_FIELD = "customermatesResourceWorkspaceId";
 
 export function approveMcpAuthorizationCodeValue<T extends object>(value: T) {
   return { ...value, requireConsent: false, [APPROVAL_FIELD]: true };
@@ -16,6 +19,22 @@ export function isApprovedMcpAuthorizationCodeValue(raw: string | null | undefin
   } catch {
     return false;
   }
+}
+
+export function withMcpResourceWorkspace<T extends object>(value: T, companyId: string) {
+  return { ...value, [RESOURCE_WORKSPACE_FIELD]: companyId };
+}
+
+export function mcpResourceWorkspaceOf(value: object): string | null {
+  const companyId = (value as Record<string, unknown>)[RESOURCE_WORKSPACE_FIELD];
+  return typeof companyId === "string" && companyId ? companyId : null;
+}
+
+export function consentCodeFromAuthorizeRedirect(location: string | null | undefined, baseUrl: string): string | null {
+  if (!location || !URL.canParse(location, baseUrl)) return null;
+
+  const url = new URL(location, baseUrl);
+  return url.pathname === MCP_CONSENT_PAGE_PATH ? url.searchParams.get("consent_code") || null : null;
 }
 
 export function authorizationCodeFromTokenRequest(body: unknown): string | null {
@@ -42,6 +61,13 @@ export function tokenGrantFromRequest(body: unknown): McpTokenGrant | null {
     return { type: grantType, refreshToken };
 
   return null;
+}
+
+export function resourceFromTokenRequest(body: unknown): unknown {
+  const fields = body instanceof FormData ? Object.fromEntries(body.entries()) : body;
+  if (!fields || typeof fields !== "object") return undefined;
+
+  return (fields as Record<string, unknown>).resource;
 }
 
 export function issuedAccessToken(returned: unknown): string | null {

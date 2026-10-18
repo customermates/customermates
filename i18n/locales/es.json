@@ -2767,6 +2767,17 @@
   },
   "McpConsentWorkspace": {
     "current": "Espacio de trabajo actual",
+    "fixed": {
+      "hint": "{client} solo accede a {workspace}. Cada espacio de trabajo tiene su propia URL de MCP, así que puedes conectar otros como conexiones independientes.",
+      "notMember": "Esta URL de MCP pertenece a un espacio de trabajo del que no eres miembro. Inicia sesión con la cuenta que usas allí o copia la URL de MCP de tu propio espacio de trabajo en Ajustes → Claves de API.",
+      "unavailable": {
+        "inactive": "Tu acceso a {workspace} está desactivado. Pide a un administrador del espacio de trabajo que lo reactive.",
+        "pending": "Tu solicitud para unirte a {workspace} sigue esperando aprobación. Vuelve a conectar cuando un administrador la haya aprobado.",
+        "permission": "Tu rol en {workspace} no permite conexiones MCP. Conectar mediante MCP requiere acceso de lectura Todos en API y webhooks. Pide a un administrador del espacio de trabajo que te lo conceda.",
+        "plan": "{workspace} no tiene una suscripción activa. Vuelve a conectar cuando tenga un plan.",
+        "terms": "Antes de conectar {workspace} hay que aceptar las nuevas condiciones. Abre Customermates, acéptalas y vuelve a conectar."
+      }
+    },
     "pickerLabel": "Elige un espacio de trabajo",
     "scopeHint": "{client} solo accede al espacio de trabajo que elijas. Para usar otro, vuelve a conectarlo.",
     "title": "Conectar {client} con este espacio de trabajo",
@@ -2917,7 +2928,8 @@
         "claudeDescription": "Abre el cuadro de diálogo preconfigurado de Claude para conectores personalizados, inicia sesión en Customermates y aprueba el acceso.",
         "claudeTitle": "Conecta tu cuenta de Claude",
         "externalNote": "Esta configuración se realiza en una pestaña nueva o en tu IA. Customermates no verifica automáticamente la conexión externa. <guide>Lee la guía de configuración completa</guide>.",
-        "urlLabel": "URL del servidor MCP"
+        "urlLabel": "URL del servidor MCP",
+        "workspaceNote": "Esta URL conecta {workspace}. Cada espacio de trabajo tiene su propia URL, así que puedes conectar varios espacios de trabajo a {client} a la vez."
       },
       "createKey": "Crear una clave de API",
       "createKeyIntro": "Genera una clave de API para este agente. La clave se muestra una sola vez y se incluye en el fragmento de instalación de abajo.",

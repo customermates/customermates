@@ -2767,6 +2767,17 @@
   },
   "McpConsentWorkspace": {
     "current": "Aktueller Workspace",
+    "fixed": {
+      "hint": "{client} erreicht nur {workspace}. Jeder Workspace hat eine eigene MCP-URL, so kannst du weitere als separate Verbindungen hinzufügen.",
+      "notMember": "Diese MCP-URL gehört zu einem Workspace, in dem du kein Mitglied bist. Melde dich mit dem Konto an, das du dort nutzt, oder kopiere die MCP-URL deines eigenen Workspaces unter Einstellungen → API-Schlüssel.",
+      "unavailable": {
+        "inactive": "Dein Zugriff auf {workspace} ist deaktiviert. Bitte eine Person mit Admin-Rechten, ihn wieder zu aktivieren.",
+        "pending": "Deine Anfrage für {workspace} wartet noch auf Genehmigung. Verbinde erneut, sobald eine Person mit Admin-Rechten sie genehmigt hat.",
+        "permission": "Deine Rolle in {workspace} erlaubt keine MCP-Verbindungen. Die Verbindung über MCP braucht Lesen Alle bei API & Webhooks. Bitte eine Person mit Admin-Rechten, sie dir zu geben.",
+        "plan": "{workspace} hat kein aktives Abonnement. Verbinde erneut, sobald der Workspace einen Tarif hat.",
+        "terms": "Bevor du {workspace} verbinden kannst, müssen neue Bedingungen akzeptiert werden. Öffne Customermates, akzeptiere sie und verbinde dann erneut."
+      }
+    },
     "pickerLabel": "Workspace auswählen",
     "scopeHint": "{client} erreicht nur den Workspace, den du auswählst. Für einen anderen Workspace verbindest du erneut.",
     "title": "{client} mit diesem Workspace verbinden",
@@ -2917,7 +2928,8 @@
         "claudeDescription": "Öffne den vorausgefüllten Dialog für benutzerdefinierte Connectors in Claude, melde dich bei Customermates an und erteile den Zugriff.",
         "claudeTitle": "Claude-Konto verbinden",
         "externalNote": "Diese Einrichtung erfolgt in einem neuen Tab oder in deiner KI. Customermates prüft die externe Verbindung nicht automatisch. <guide>Vollständige Anleitung lesen</guide>.",
-        "urlLabel": "MCP-Server-URL"
+        "urlLabel": "MCP-Server-URL",
+        "workspaceNote": "Diese URL verbindet {workspace}. Jeder Workspace hat eine eigene URL, so kannst du mehrere Workspaces gleichzeitig mit {client} verbinden."
       },
       "createKey": "API-Key erstellen",
       "createKeyIntro": "Erstelle einen API-Key für diesen Agenten. Der Key wird nur einmal angezeigt und ist im Install-Snippet unten enthalten.",

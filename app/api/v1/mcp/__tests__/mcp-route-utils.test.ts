@@ -1,16 +1,23 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
 import { createZodError } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { mutateRecordV2Tool } from "@/features/mcp-tools/record-model.mcp-tools";
 import { mcpInteractorFailure, type McpTool } from "@/features/mcp-tools/mcp-tool";
-import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
+import { AppErrorCode, AuthError, ForbiddenError } from "@/core/errors/app-errors";
 import { WorkspacePlanRequiredError } from "@/core/auth/workspace-plan-required-error";
 
 const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
 const apiKeys = vi.hoisted(() => ({
   isMcpApiKeyValid: vi.fn(() => Promise.resolve(true)),
+  isMcpBearerValid: vi.fn(() => Promise.resolve(true)),
+  resolveMcpCredentialWorkspace: vi.fn(() =>
+    Promise.resolve<{ credential: "apiKey" | "bearer"; companyId: string | null } | null>({
+      credential: "apiKey",
+      companyId: "6f1c2b9e-4d3a-4b8c-9e7f-0a1b2c3d4e5f",
+    }),
+  ),
   authorize: vi.fn(() => Promise.resolve({ ok: true, data: true })),
 }));
 
@@ -69,22 +76,28 @@ function requestBody(method: string, id?: number) {
   };
 }
 
+const WORKSPACE = "6f1c2b9e-4d3a-4b8c-9e7f-0a1b2c3d4e5f";
+const OTHER_WORKSPACE = "0b7d6c5a-2e1f-4a3b-8c9d-1e2f3a4b5c6d";
+
 async function rpc(
-  handler: (request: Request) => Promise<Response>,
+  handler: (request: Request, workspaceId?: string) => Promise<Response>,
   body: Record<string, unknown>,
   sessionId?: string,
+  options: { workspaceId?: string; credential?: Record<string, string> } = {},
 ) {
+  const path = options.workspaceId ? `/api/v1/mcp/w/${options.workspaceId}` : "/api/v1/mcp";
   const response = await handler(
-    new Request("http://localhost:4105/api/v1/mcp?toolsets=test", {
+    new Request(`http://localhost:4105${path}?toolsets=test`, {
       method: "POST",
       headers: {
         accept: "application/json, text/event-stream",
         "content-type": "application/json",
-        "x-api-key": "test",
+        ...(options.credential ?? { "x-api-key": "test" }),
         ...(sessionId ? { "mcp-session-id": sessionId } : {}),
       },
       body: JSON.stringify(body),
     }),
+    options.workspaceId,
   );
   const text = await response.text();
   const data = response.headers.get("content-type")?.includes("application/json")
@@ -98,6 +111,10 @@ async function rpc(
 }
 
 describe("public MCP execution boundary", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it("round-trips structured expected failures and redacts unexpected failures", async () => {
     const handler = createMcpRoute({
       test: [expectedFailureTool, unexpectedFailureTool, mutateRecordV2Tool],
@@ -251,5 +268,111 @@ describe("public MCP execution boundary", () => {
 
     expect(refused.response.status).toBe(403);
     expect(refused.data).toMatchObject({ error: "plan_required", message: expect.stringContaining("no plan yet") });
+  });
+
+  it("serves the same MCP server at a workspace's URL to a credential of that workspace", async () => {
+    const handler = createMcpRoute({ test: [expectedFailureTool] });
+
+    const initialized = await rpc(handler, requestBody("initialize", 1), undefined, { workspaceId: WORKSPACE });
+    const sessionId = initialized.response.headers.get("mcp-session-id") ?? undefined;
+    const listed = await rpc(handler, requestBody("tools/list", 2), sessionId, { workspaceId: WORKSPACE });
+
+    expect(initialized.response.status).toBe(200);
+    expect(listed.response.status).toBe(200);
+    expect((listed.data?.result as { tools?: Array<{ name: string }> }).tools?.map((tool) => tool.name)).toEqual([
+      "expected_failure",
+    ]);
+    expect(apiKeys.resolveMcpCredentialWorkspace).toHaveBeenCalledWith(expect.any(Headers));
+    expect(apiKeys.isMcpApiKeyValid).not.toHaveBeenCalled();
+    expect(apiKeys.authorize).toHaveBeenCalled();
+  });
+
+  it("asks a client without a credential to authorize for the workspace's own resource", async () => {
+    const handler = createMcpRoute({ test: [expectedFailureTool] });
+
+    const challenged = await rpc(handler, requestBody("initialize", 1), undefined, {
+      workspaceId: WORKSPACE,
+      credential: {},
+    });
+
+    expect(challenged.response.status).toBe(401);
+    expect(challenged.response.headers.get("www-authenticate")).toBe(
+      `Bearer resource_metadata="http://localhost:4105/.well-known/oauth-protected-resource/api/v1/mcp/w/${WORKSPACE}"`,
+    );
+    expect(apiKeys.resolveMcpCredentialWorkspace).not.toHaveBeenCalled();
+    expect(apiKeys.authorize).not.toHaveBeenCalled();
+  });
+
+  it("challenges an invalid credential at a workspace's URL", async () => {
+    const handler = createMcpRoute({ test: [expectedFailureTool] });
+    apiKeys.resolveMcpCredentialWorkspace.mockResolvedValueOnce(null);
+
+    const challenged = await rpc(handler, requestBody("initialize", 1), undefined, { workspaceId: WORKSPACE });
+
+    expect(challenged.response.status).toBe(401);
+    expect(challenged.response.headers.get("www-authenticate")).toContain(
+      `/.well-known/oauth-protected-resource/api/v1/mcp/w/${WORKSPACE}"`,
+    );
+    expect(apiKeys.authorize).not.toHaveBeenCalled();
+  });
+
+  it.each([OTHER_WORKSPACE, null])(
+    "answers an OAuth token bound to %s with invalid_token so the client authorizes for this workspace",
+    async (companyId) => {
+      const handler = createMcpRoute({ test: [expectedFailureTool] });
+      apiKeys.resolveMcpCredentialWorkspace.mockResolvedValueOnce({ credential: "bearer", companyId });
+
+      const refused = await rpc(handler, requestBody("initialize", 1), undefined, {
+        workspaceId: WORKSPACE,
+        credential: { authorization: "Bearer foreign-token" },
+      });
+
+      expect(refused.response.status).toBe(401);
+      expect(refused.response.headers.get("www-authenticate")).toBe(
+        `Bearer error="invalid_token", error_description="The access token belongs to another workspace. Connect again through this MCP URL.", resource_metadata="http://localhost:4105/.well-known/oauth-protected-resource/api/v1/mcp/w/${WORKSPACE}"`,
+      );
+      expect(refused.response.headers.get("access-control-expose-headers")).toBe("WWW-Authenticate");
+      expect(refused.data).toMatchObject({ error: "invalid_token" });
+      expect(apiKeys.authorize).not.toHaveBeenCalled();
+    },
+  );
+
+  it("refuses an API key of another workspace with a structured 403", async () => {
+    const handler = createMcpRoute({ test: [expectedFailureTool] });
+    apiKeys.resolveMcpCredentialWorkspace.mockResolvedValueOnce({ credential: "apiKey", companyId: OTHER_WORKSPACE });
+
+    const refused = await rpc(handler, requestBody("initialize", 1), undefined, { workspaceId: WORKSPACE });
+
+    expect(refused.response.status).toBe(403);
+    expect(refused.response.headers.get("www-authenticate")).toBeNull();
+    expect(refused.data).toMatchObject({
+      error: "workspace_mismatch",
+      message: expect.stringContaining("belongs to another workspace"),
+    });
+    expect(apiKeys.authorize).not.toHaveBeenCalled();
+  });
+
+  it("keeps every membership refusal at a workspace's URL and points its challenge there", async () => {
+    const handler = createMcpRoute({ test: [expectedFailureTool] });
+    apiKeys.authorize.mockRejectedValueOnce(new WorkspacePlanRequiredError());
+    apiKeys.authorize.mockRejectedValueOnce(new AuthError());
+
+    const unpaid = await rpc(handler, requestBody("initialize", 1), undefined, { workspaceId: WORKSPACE });
+    const removed = await rpc(handler, requestBody("initialize", 1), undefined, { workspaceId: WORKSPACE });
+
+    expect(unpaid.response.status).toBe(403);
+    expect(unpaid.data).toMatchObject({ error: "plan_required" });
+    expect(removed.response.status).toBe(401);
+    expect(removed.response.headers.get("www-authenticate")).toContain(`/api/v1/mcp/w/${WORKSPACE}"`);
+  });
+
+  it("does not consult the workspace binding at the bare endpoint", async () => {
+    const handler = createMcpRoute({ test: [expectedFailureTool] });
+
+    const initialized = await rpc(handler, requestBody("initialize", 1));
+
+    expect(initialized.response.status).toBe(200);
+    expect(apiKeys.isMcpApiKeyValid).toHaveBeenCalled();
+    expect(apiKeys.resolveMcpCredentialWorkspace).not.toHaveBeenCalled();
   });
 });

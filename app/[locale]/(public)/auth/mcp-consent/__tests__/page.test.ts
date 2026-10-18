@@ -29,7 +29,13 @@ import McpConsentPage from "../page";
 import { ACCOUNT_STATES, accountStateRedirect } from "@/features/auth/account-state";
 
 const params = { consent_code: "consent-code", client_id: "client-id" };
-const prompt = { clientName: "Claude", redirectHost: "client.example", scopes: ["openid", "profile"] };
+const prompt = {
+  clientName: "Claude",
+  redirectHost: "client.example",
+  scopes: ["openid", "profile"],
+  workspaceId: null,
+};
+const card = { clientName: "Claude", redirectHost: "client.example", scopes: ["openid", "profile"] };
 const current = { companyId: "company-a", name: "CRM", isCurrent: true, unavailableReason: null };
 const taxes = { companyId: "company-b", name: "Taxes", isCurrent: false, unavailableReason: null };
 
@@ -50,8 +56,9 @@ describe("McpConsentPage", () => {
     const result = await McpConsentPage({ searchParams: Promise.resolve(params) });
 
     expect(result.props.children.props).toEqual({
-      ...prompt,
+      ...card,
       consentCode: params.consent_code,
+      fixedWorkspace: false,
       workspaces: [current, taxes],
     });
     expect(mocks.getMcpConsentPrompt).toHaveBeenCalledWith({
@@ -101,7 +108,6 @@ describe("McpConsentPage", () => {
       await expect(McpConsentPage({ searchParams: Promise.resolve(params) })).rejects.toThrow(
         `REDIRECT:/en${accountStateRedirect(state)}`,
       );
-      expect(mocks.getMcpConsentPrompt).not.toHaveBeenCalled();
     },
   );
 
@@ -129,7 +135,6 @@ describe("McpConsentPage", () => {
       await expect(McpConsentPage({ searchParams: Promise.resolve(params) })).rejects.toThrow(
         `REDIRECT:/en${accountStateRedirect("onboarding")}`,
       );
-      expect(mocks.getMcpConsentPrompt).not.toHaveBeenCalled();
     },
   );
 
@@ -160,5 +165,45 @@ describe("McpConsentPage", () => {
     mocks.getMcpConsentPrompt.mockResolvedValue(null);
 
     await expect(McpConsentPage({ searchParams: Promise.resolve(params) })).rejects.toThrow("REDIRECT:/");
+  });
+
+  it("fixes the consent to the workspace named by a per-workspace MCP URL", async () => {
+    mocks.resolveAccountState.mockResolvedValue({ state: "allowed" });
+    mocks.getMcpConsentPrompt.mockResolvedValue({ ...prompt, workspaceId: taxes.companyId });
+
+    const result = await McpConsentPage({ searchParams: Promise.resolve(params) });
+
+    expect(result.props.children.props).toEqual({
+      ...card,
+      consentCode: params.consent_code,
+      fixedWorkspace: true,
+      workspaces: [taxes],
+    });
+  });
+
+  it.each(["inactive", "pending", "legal", "subscription"])(
+    "explains a per-workspace MCP URL on the consent card instead of redirecting for %s",
+    async (state) => {
+      const blocked = { ...current, unavailableReason: "permission" };
+      mocks.resolveAccountState.mockResolvedValue({ state });
+      mocks.listMcpConsentWorkspaces.mockResolvedValue({
+        ok: true,
+        data: [blocked, { ...taxes, unavailableReason: "plan" }],
+      });
+      mocks.getMcpConsentPrompt.mockResolvedValue({ ...prompt, workspaceId: current.companyId });
+
+      const result = await McpConsentPage({ searchParams: Promise.resolve(params) });
+
+      expect(result.props.children.props).toMatchObject({ fixedWorkspace: true, workspaces: [blocked] });
+    },
+  );
+
+  it("passes no workspace for a per-workspace MCP URL of a workspace the login does not belong to", async () => {
+    mocks.resolveAccountState.mockResolvedValue({ state: "allowed" });
+    mocks.getMcpConsentPrompt.mockResolvedValue({ ...prompt, workspaceId: "company-x" });
+
+    const result = await McpConsentPage({ searchParams: Promise.resolve(params) });
+
+    expect(result.props.children.props).toMatchObject({ fixedWorkspace: true, workspaces: [] });
   });
 });

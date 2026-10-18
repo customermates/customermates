@@ -17,13 +17,18 @@ import { API_KEY_NAME_MAX_LENGTH, API_KEY_NAME_MIN_LENGTH } from "@/features/api
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from "@/core/validation/validation.utils";
 import { apiKeyRouteAction, decideApiKeyRoute } from "@/core/auth/api-key-route-guard";
 import {
+  MCP_AUTHORIZE_PATH,
+  MCP_CONSENT_PAGE_PATH,
   MCP_LIBRARY_CONSENT_PATH,
   MCP_TOKEN_PATH,
   authorizationCodeFromTokenRequest,
+  consentCodeFromAuthorizeRedirect,
   isApprovedMcpAuthorizationCodeValue,
   issuedAccessToken,
+  resourceFromTokenRequest,
   tokenGrantFromRequest,
 } from "@/features/auth/mcp-authorization-code";
+import { MCP_ENDPOINT_PATH, mcpWorkspaceIdFromResource } from "@/features/auth/mcp-resource";
 
 const socialProviders = {
   ...(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
@@ -117,6 +122,19 @@ export const auth = betterAuth({
       });
     }),
     after: createAuthMiddleware(async (ctx) => {
+      if (ctx.path === MCP_AUTHORIZE_PATH) {
+        const resourceCompanyId = mcpWorkspaceIdFromResource(ctx.query?.resource, env.BASE_URL);
+        const consentCode = consentCodeFromAuthorizeRedirect(
+          ctx.context.responseHeaders?.get("location"),
+          env.BASE_URL,
+        );
+        if (!resourceCompanyId || !consentCode) return;
+
+        const { getAuthService } = await import("@/core/di");
+        await getAuthService().bindMcpAuthorizationResource(consentCode, resourceCompanyId);
+        return;
+      }
+
       if (ctx.path !== MCP_TOKEN_PATH) return;
 
       const accessToken = issuedAccessToken(ctx.context.returned);
@@ -141,6 +159,15 @@ export const auth = betterAuth({
         throw new APIError("UNAUTHORIZED", {
           error: "invalid_grant",
           error_description: "the grant is not bound to a workspace",
+        });
+      }
+
+      const requestedCompanyId = mcpWorkspaceIdFromResource(resourceFromTokenRequest(ctx.body), env.BASE_URL);
+      if (requestedCompanyId && requestedCompanyId !== companyId) {
+        await prisma.oauthAccessToken.deleteMany({ where: { accessToken } });
+        throw new APIError("BAD_REQUEST", {
+          error: "invalid_target",
+          error_description: "the grant is bound to another workspace than the requested resource",
         });
       }
 
@@ -287,10 +314,10 @@ export const auth = betterAuth({
     }),
     mcp({
       loginPage: "/auth/signin",
-      resource: `${env.BASE_URL}/api/v1/mcp`,
+      resource: `${env.BASE_URL}${MCP_ENDPOINT_PATH}`,
       oidcConfig: {
         loginPage: "/auth/signin",
-        consentPage: "/auth/mcp-consent",
+        consentPage: MCP_CONSENT_PAGE_PATH,
         requirePKCE: true,
         allowPlainCodeChallengeMethod: false,
         accessTokenExpiresIn: 3600,
