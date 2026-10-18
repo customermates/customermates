@@ -118264,6 +118264,7 @@
                         "workspaceChanged",
                         "workspaceDeleteAdminRequired",
                         "workspaceDeleteBillingActive",
+                        "workspaceDeleteBillingUnverified",
                         "workspaceDeleteChannelsFailed",
                         "workspaceDeleteCheckoutPending",
                         "workspaceDeleteInvoiced",

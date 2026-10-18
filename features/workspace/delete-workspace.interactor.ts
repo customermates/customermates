@@ -5,6 +5,7 @@ import type { DeleteAccountsForPlanConnectedAccountRepo } from "@/ee/messaging/c
 import type { WorkspaceDeletionRepo } from "./workspace-deletion.repo";
 import type { WorkspaceDeletionSubject } from "./workspace-deletion-refusal";
 import type { WorkspaceMembershipRepo } from "./workspace-membership.repo";
+import type { UnrecordedSubscriptionCheck } from "@/ee/subscription/unrecorded-subscription-check";
 
 import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
@@ -24,6 +25,7 @@ import {
   unwoundFailure,
 } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { logAuditEvent } from "@/core/utils/audit-log";
 import { env } from "@/env";
 import { nextLastUsedCompanyId } from "./next-last-used-workspace";
 import { WORKSPACE_DELETE_REFUSAL_CODES, workspaceDeleteRefusal } from "./workspace-deletion-refusal";
@@ -40,6 +42,7 @@ type Admitted = { ok: true; data: WorkspaceDeletionSubject };
 type ConnectedAccounts = Pick<DeleteAccountsForPlanConnectedAccountRepo, "listActiveAccountsForCompanyUnscoped">;
 type ChannelRemoval = Pick<DeleteAccountForBillingService, "deleteForBillingOrThrow">;
 type InboundEvents = { deleteCompanyInboundEventsUnscoped(companyId: string): Promise<void> };
+type ProviderBilling = Pick<UnrecordedSubscriptionCheck, "recordUnscoped">;
 
 @TenantInteractor()
 export class DeleteWorkspaceInteractor extends AuthenticatedInteractor<DeleteWorkspaceData, DeleteWorkspaceResult> {
@@ -50,6 +53,7 @@ export class DeleteWorkspaceInteractor extends AuthenticatedInteractor<DeleteWor
     private readonly accounts: ConnectedAccounts,
     private readonly channelRemoval: ChannelRemoval,
     private readonly inboundEvents: InboundEvents,
+    private readonly providerBilling: ProviderBilling,
   ) {
     super();
   }
@@ -67,6 +71,9 @@ export class DeleteWorkspaceInteractor extends AuthenticatedInteractor<DeleteWor
 
     const admitted = await this.admit(login);
     if (!admitted.ok) return admitted;
+
+    const unrecorded = await this.recordProviderSubscription(admitted.data);
+    if (unrecorded) return unrecorded;
 
     try {
       await this.disconnectChannels();
@@ -118,15 +125,13 @@ export class DeleteWorkspaceInteractor extends AuthenticatedInteractor<DeleteWor
     if (!deleted.ok) return deleted;
 
     await this.authService.setSessionActiveCompany(session.session.id, deleted.data.nextCompanyId);
-    Sentry.captureMessage("Workspace deleted by its administrator", {
-      level: "info",
-      tags: { kind: "workspace-deleted", companyId, appMode: env.APP_MODE },
-      extra: {
-        plan: admitted.data.subscription?.plan ?? null,
-        subscriptionStatus: admitted.data.subscription?.status ?? null,
-        memberCount: deleted.data.memberCount,
-        workflowRunCount: deleted.data.workflowRunCount,
-      },
+    logAuditEvent("workspace-deleted", {
+      companyId,
+      appMode: env.APP_MODE,
+      plan: admitted.data.subscription?.plan ?? null,
+      subscriptionStatus: admitted.data.subscription?.status ?? null,
+      memberCount: deleted.data.memberCount,
+      workflowRunCount: deleted.data.workflowRunCount,
     });
 
     return { ok: true as const, data: { companyId, nextCompanyId: deleted.data.nextCompanyId } };
@@ -148,6 +153,20 @@ export class DeleteWorkspaceInteractor extends AuthenticatedInteractor<DeleteWor
     if (refusal) return fail(WORKSPACE_DELETE_REFUSAL_CODES[refusal]);
 
     return { ok: true as const, data: subject };
+  }
+
+  private async recordProviderSubscription(subject: WorkspaceDeletionSubject): Promise<InteractorFailure | null> {
+    const billing = subject.subscription;
+    if (env.APP_MODE !== "cloud" || !billing?.checkoutStartedAt || billing.lemonSqueezyId) return null;
+
+    const members = await this.memberships.listCompanyMembersUnscoped(this.companyId);
+    const outcome = await this.providerBilling.recordUnscoped(
+      { companyId: this.companyId, plan: billing.plan },
+      members.map((member) => member.email),
+    );
+    if (outcome === "recorded") return fail(CustomErrorCode.workspaceDeleteBillingActive);
+    if (outcome === "unverified") return failUnavailable(CustomErrorCode.workspaceDeleteBillingUnverified);
+    return null;
   }
 
   private async disconnectChannels(): Promise<void> {

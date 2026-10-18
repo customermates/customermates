@@ -2,6 +2,7 @@
 
 import type { CreateWorkspaceData } from "@/features/workspace/create-workspace.interactor";
 import type { DeleteWorkspaceData } from "@/features/workspace/delete-workspace.interactor";
+import type { GetWorkspaceTabStateData } from "@/features/workspace/get-workspace-tab-state.interactor";
 import type { LeaveWorkspaceData } from "@/features/workspace/leave-workspace.interactor";
 import type { SwitchWorkspaceData } from "@/features/workspace/switch-workspace.interactor";
 import type { WithdrawWorkspaceRequestData } from "@/features/workspace/withdraw-workspace-request.interactor";
@@ -9,12 +10,13 @@ import type { WithdrawWorkspaceRequestData } from "@/features/workspace/withdraw
 import {
   getCreateWorkspaceInteractor,
   getDeleteWorkspaceInteractor,
+  getGetWorkspaceTabStateInteractor,
   getLeaveWorkspaceInteractor,
   getListMyWorkspacesInteractor,
   getSwitchWorkspaceInteractor,
   getWithdrawWorkspaceRequestInteractor,
 } from "@/core/di";
-import { serializeResult } from "@/core/utils/action-result";
+import { serializeResult, serializeTypedResult } from "@/core/utils/action-result";
 
 export async function listMyWorkspacesAction() {
   return serializeResult(getListMyWorkspacesInteractor().invoke());
@@ -38,4 +40,8 @@ export async function withdrawWorkspaceRequestAction(data: WithdrawWorkspaceRequ
 
 export async function deleteWorkspaceAction(data: DeleteWorkspaceData) {
   return serializeResult(getDeleteWorkspaceInteractor().invoke(data));
+}
+
+export async function getWorkspaceTabStateAction(data: GetWorkspaceTabStateData) {
+  return serializeTypedResult(getGetWorkspaceTabStateInteractor().invoke(data));
 }

@@ -31,7 +31,7 @@ export class UserService {
 
     if (!session?.user?.email) throw new AuthError();
 
-    const user = await this.workspaces.resolveMembership(session);
+    const user = await this.workspaces.requireMembership(session);
     if (!user) throw new AuthError();
 
     return user;

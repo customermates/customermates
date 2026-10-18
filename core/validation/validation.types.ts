@@ -99,6 +99,7 @@ export enum CustomErrorCode {
   workspaceChanged = "workspaceChanged",
   workspaceDeleteAdminRequired = "workspaceDeleteAdminRequired",
   workspaceDeleteBillingActive = "workspaceDeleteBillingActive",
+  workspaceDeleteBillingUnverified = "workspaceDeleteBillingUnverified",
   workspaceDeleteChannelsFailed = "workspaceDeleteChannelsFailed",
   workspaceDeleteCheckoutPending = "workspaceDeleteCheckoutPending",
   workspaceDeleteInvoiced = "workspaceDeleteInvoiced",

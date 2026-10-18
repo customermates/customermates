@@ -1269,6 +1269,7 @@
       "workspaceCreationUnavailable": "Impossible de créer de nouveaux espaces de travail ici.",
       "workspaceDeleteAdminRequired": "Seul un administrateur peut supprimer cet espace de travail.",
       "workspaceDeleteBillingActive": "Cet espace de travail a encore un abonnement qui peut être facturé ou repris. Résiliez-le et attendez qu'il prenne fin, ou contactez le support.",
+      "workspaceDeleteBillingUnverified": "Nous n'avons pas pu vérifier la facturation de cet espace de travail auprès de Lemon Squeezy, rien n'a donc été supprimé. Réessayez dans quelques minutes.",
       "workspaceDeleteChannelsFailed": "Les comptes connectés de l'espace de travail n'ont pas pu être déconnectés, rien n'a donc été supprimé. Réessayez dans un instant.",
       "workspaceDeleteCheckoutPending": "Un paiement est en cours pour cet espace de travail. Annulez-le ou attendez qu'il se termine, puis supprimez l'espace de travail.",
       "workspaceDeleteInvoiced": "Les espaces de travail avec un forfait facturé sont fermés par le support. Contactez le support pour supprimer cet espace de travail.",
@@ -4730,6 +4731,7 @@
       "reload": "Recharger",
       "title": "Vous avez changé d'espace de travail dans un autre onglet",
       "titleChanged": "Votre espace de travail a changé",
+      "titleDeleted": "Cet espace de travail a été supprimé",
       "titleNamed": "Vous avez basculé vers {name} dans un autre onglet"
     },
     "renameReadOnly": "Seuls les membres autorisés à gérer l'espace de travail peuvent modifier son nom.",

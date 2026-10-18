@@ -1269,6 +1269,7 @@
       "workspaceCreationUnavailable": "Hier können keine neuen Workspaces erstellt werden.",
       "workspaceDeleteAdminRequired": "Nur ein Admin kann diesen Workspace löschen.",
       "workspaceDeleteBillingActive": "Dieser Workspace hat noch ein Abo, das abgerechnet oder fortgesetzt werden kann. Kündige es und warte, bis es endet, oder wende dich an den Support.",
+      "workspaceDeleteBillingUnverified": "Die Abrechnung dieses Workspace konnte bei Lemon Squeezy nicht geprüft werden, daher wurde nichts gelöscht. Versuche es in ein paar Minuten noch einmal.",
       "workspaceDeleteChannelsFailed": "Die verbundenen Konten des Workspaces konnten nicht getrennt werden, deshalb wurde nichts gelöscht. Versuch es gleich noch einmal.",
       "workspaceDeleteCheckoutPending": "Für diesen Workspace läuft gerade ein Bezahlvorgang. Brich ihn ab oder warte, bis er abgeschlossen ist, und lösche den Workspace dann.",
       "workspaceDeleteInvoiced": "Workspaces mit einem Tarif auf Rechnung schließt der Support. Wende dich an den Support, um diesen Workspace zu löschen.",
@@ -4730,6 +4731,7 @@
       "reload": "Neu laden",
       "title": "Du hast in einem anderen Tab den Workspace gewechselt",
       "titleChanged": "Dein Workspace hat sich geändert",
+      "titleDeleted": "Dieser Workspace wurde gelöscht",
       "titleNamed": "Du hast in einem anderen Tab zu {name} gewechselt"
     },
     "renameReadOnly": "Nur Mitglieder, die den Workspace verwalten dürfen, können den Namen ändern.",

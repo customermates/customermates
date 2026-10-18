@@ -31,6 +31,25 @@ describe("WorkspaceTabChannel", () => {
     await vi.waitFor(() => expect(listener).toHaveBeenCalledWith({ companyId: null, name: null }));
   });
 
+  it("tells the other tabs which workspace was deleted", async () => {
+    const listener = vi.fn();
+    disposers.push(new WorkspaceTabChannel().open(listener));
+
+    new WorkspaceTabChannel().post({
+      companyId: null,
+      name: null,
+      deletedCompanyId: "company-gone",
+    });
+
+    await vi.waitFor(() =>
+      expect(listener).toHaveBeenCalledWith({
+        companyId: null,
+        name: null,
+        deletedCompanyId: "company-gone",
+      }),
+    );
+  });
+
   it("ignores messages that are not workspace notices", async () => {
     const listener = vi.fn();
     disposers.push(new WorkspaceTabChannel().open(listener));

@@ -22,6 +22,7 @@ const state = vi.hoisted(() => ({
   setUser: vi.fn(),
   setRecordNavigation: vi.fn(),
   setWorkspaces: vi.fn(),
+  verifyCurrent: vi.fn(() => Promise.resolve(true)),
 }));
 
 state.setUser.mockImplementation((user: { id: string } | null) => {
@@ -48,7 +49,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
     recordWorkspaceStore: { setNavigation: state.setRecordNavigation },
     sidebarLayoutStore: { setLayout: () => undefined },
     keyboardShortcutsStore: { setPreferences: () => undefined },
-    workspacesStore: { setWorkspaces: state.setWorkspaces },
+    workspacesStore: { setWorkspaces: state.setWorkspaces, verifyCurrent: state.verifyCurrent },
     userStore: {
       get user() {
         return state.currentUser;
@@ -169,6 +170,8 @@ function allowedProps(): Omit<NavigationSwitchProps, "children"> {
 let container: HTMLDivElement;
 let root: Root;
 
+const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+
 beforeEach(() => {
   vi.clearAllMocks();
   state.pathname = "/dashboard";
@@ -179,6 +182,7 @@ beforeEach(() => {
   state.navigationGuard = new NavigationGuardController();
   state.pathname = "/dashboard";
   state.searchParams = {};
+  state.verifyCurrent.mockResolvedValue(true);
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
@@ -307,7 +311,7 @@ describe("NavigationSwitch account-state refresh", () => {
     expect(container.querySelector("[data-locale-preference-sync]") !== null).toBe(expected);
   });
 
-  it("refreshes when a background tab becomes visible and removes its listener on unmount", () => {
+  it("refreshes when a background tab becomes visible and removes its listener on unmount", async () => {
     const visibility = vi.spyOn(document, "visibilityState", "get");
     const props = allowedProps();
 
@@ -317,20 +321,22 @@ describe("NavigationSwitch account-state refresh", () => {
 
     visibility.mockReturnValue("hidden");
     document.dispatchEvent(new Event("visibilitychange"));
+    await settle();
     expect(state.refresh).not.toHaveBeenCalled();
 
     visibility.mockReturnValue("visible");
     document.dispatchEvent(new Event("visibilitychange"));
-    expect(state.refresh).toHaveBeenCalledOnce();
+    await vi.waitFor(() => expect(state.refresh).toHaveBeenCalledOnce());
 
     act(() => root.render(jsx("div", {})));
     document.dispatchEvent(new Event("visibilitychange"));
+    await settle();
     expect(state.refresh).toHaveBeenCalledOnce();
   });
 
   it.each(["dirty", "saving"] as const)(
     "defers and coalesces visibility refreshes while a registered form is %s",
-    (blockedBy) => {
+    async (blockedBy) => {
       const visibility = vi.spyOn(document, "visibilityState", "get").mockReturnValue("visible");
       const guard = state.navigationGuard;
       if (!guard) throw new Error("Navigation guard was not initialized");
@@ -352,6 +358,7 @@ describe("NavigationSwitch account-state refresh", () => {
       }
 
       expect(guard.isRouteRefreshBlocked).toBe(true);
+      await settle();
       expect(state.refresh).not.toHaveBeenCalled();
       expect(form.title).toBe("Unsaved title");
       expect(form.markdown).toBe("Unsaved body");
@@ -361,15 +368,15 @@ describe("NavigationSwitch account-state refresh", () => {
           form.isLoading = false;
         });
       });
-      expect(state.refresh).toHaveBeenCalledOnce();
+      await vi.waitFor(() => expect(state.refresh).toHaveBeenCalledOnce());
       expect(guard.isRouteRefreshBlocked).toBe(false);
       document.dispatchEvent(new Event("visibilitychange"));
-      expect(state.refresh).toHaveBeenCalledTimes(2);
+      await vi.waitFor(() => expect(state.refresh).toHaveBeenCalledTimes(2));
       guard.unregister(form as unknown as BaseFormStore);
     },
   );
 
-  it("discards a deferred visibility refresh after the navigation shell unmounts", () => {
+  it("discards a deferred visibility refresh after the navigation shell unmounts", async () => {
     vi.spyOn(document, "visibilityState", "get").mockReturnValue("visible");
     const guard = state.navigationGuard;
     if (!guard) throw new Error("Navigation guard was not initialized");
@@ -381,16 +388,19 @@ describe("NavigationSwitch account-state refresh", () => {
     guard.register(form as unknown as BaseFormStore);
     act(() => root.render(jsx(NavigationSwitch, { ...allowedProps(), children: "page" })));
     document.dispatchEvent(new Event("visibilitychange"));
+    await settle();
     expect(state.refresh).not.toHaveBeenCalled();
 
     act(() => root.render(jsx("div", {})));
     act(() => guard.unregister(form as unknown as BaseFormStore));
+    await settle();
     expect(state.refresh).not.toHaveBeenCalled();
     document.dispatchEvent(new Event("visibilitychange"));
+    await settle();
     expect(state.refresh).not.toHaveBeenCalled();
   });
 
-  it("waits for a visible tab if a deferred refresh becomes safe while the tab is hidden", () => {
+  it("waits for a visible tab if a deferred refresh becomes safe while the tab is hidden", async () => {
     const visibility = vi.spyOn(document, "visibilityState", "get").mockReturnValue("visible");
     const guard = state.navigationGuard;
     if (!guard) throw new Error("Navigation guard was not initialized");
@@ -402,6 +412,7 @@ describe("NavigationSwitch account-state refresh", () => {
     guard.register(form as unknown as BaseFormStore);
     act(() => root.render(jsx(NavigationSwitch, { ...allowedProps(), children: "page" })));
     document.dispatchEvent(new Event("visibilitychange"));
+    await settle();
     expect(state.refresh).not.toHaveBeenCalled();
 
     visibility.mockReturnValue("hidden");
@@ -411,11 +422,25 @@ describe("NavigationSwitch account-state refresh", () => {
         form.hasUnsavedChanges = false;
       });
     });
+    await settle();
     expect(state.refresh).not.toHaveBeenCalled();
     visibility.mockReturnValue("visible");
     document.dispatchEvent(new Event("visibilitychange"));
-    expect(state.refresh).toHaveBeenCalledOnce();
+    await vi.waitFor(() => expect(state.refresh).toHaveBeenCalledOnce());
     guard.unregister(form as unknown as BaseFormStore);
+  });
+
+  it("does not refresh a tab that comes back to a workspace that was deleted or changed meanwhile", async () => {
+    const visibility = vi.spyOn(document, "visibilityState", "get");
+    state.verifyCurrent.mockResolvedValue(false);
+    act(() => root.render(jsx(NavigationSwitch, { ...allowedProps(), children: "page" })));
+
+    visibility.mockReturnValue("visible");
+    document.dispatchEvent(new Event("visibilitychange"));
+
+    await vi.waitFor(() => expect(state.verifyCurrent).toHaveBeenCalledOnce());
+    await settle();
+    expect(state.refresh).not.toHaveBeenCalled();
   });
 
   it("keeps the top bar and page content in the same vertical scrollport", () => {

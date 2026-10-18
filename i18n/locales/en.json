@@ -1269,6 +1269,7 @@
       "workspaceCreationUnavailable": "New workspaces cannot be created here.",
       "workspaceDeleteAdminRequired": "Only an admin can delete this workspace.",
       "workspaceDeleteBillingActive": "This workspace still has a subscription that can be billed or resumed. Cancel it and wait until it ends, or contact support.",
+      "workspaceDeleteBillingUnverified": "We couldn't verify this workspace's billing with Lemon Squeezy, so nothing was deleted. Try again in a few minutes.",
       "workspaceDeleteChannelsFailed": "The workspace's connected accounts could not be disconnected, so nothing was deleted. Try again in a moment.",
       "workspaceDeleteCheckoutPending": "A checkout for this workspace is in progress. Cancel it or wait until it finishes, then delete the workspace.",
       "workspaceDeleteInvoiced": "Workspaces on an invoiced plan are closed through support. Contact support to delete this workspace.",
@@ -4730,6 +4731,7 @@
       "reload": "Reload",
       "title": "You switched workspaces in another tab",
       "titleChanged": "Your workspace changed",
+      "titleDeleted": "This workspace was deleted",
       "titleNamed": "You switched to {name} in another tab"
     },
     "renameReadOnly": "Only members who can manage the workspace can change its name.",

@@ -95,4 +95,30 @@ describe("ActiveWorkspaceService", () => {
     await expect(service().resolveMembership(session)).resolves.toBeNull();
     expect(authService.setSessionActiveCompany).not.toHaveBeenCalled();
   });
+
+  it("refuses an action or a client navigation of a session that has no workspace left, so the tab reloads", async () => {
+    binding = stored(null, false);
+    users.listMembershipsUnscoped.mockResolvedValue([]);
+
+    await expect(service().requireMembership(session)).rejects.toBeInstanceOf(WorkspaceChangedError);
+  });
+
+  it("lets a full page load of a session without a workspace continue to onboarding", async () => {
+    binding = stored(null, true);
+    users.listMembershipsUnscoped.mockResolvedValue([]);
+
+    await expect(service().requireMembership(session)).resolves.toBeNull();
+  });
+
+  it("leaves an API key or MCP token without a workspace unauthenticated rather than asking it to reload", async () => {
+    binding = { kind: "integration", companyId: null };
+
+    await expect(service().requireMembership(session)).resolves.toBeNull();
+  });
+
+  it("returns the membership a session still has", async () => {
+    binding = stored("company-a", false);
+
+    await expect(service().requireMembership(session)).resolves.toBe(memberA);
+  });
 });

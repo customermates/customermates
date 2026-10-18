@@ -555,6 +555,102 @@ describeDatabase("deleting a workspace on PostgreSQL", { timeout: 240_000 }, () 
     expect(await repo.findWorkspaceBillingBySubscriptionIdUnscoped(lemonSqueezyId)).toBeNull();
   });
 
+  async function startCheckout(companyId: string, minutesAgo: number) {
+    await client.query(
+      'UPDATE "Subscription" SET "checkoutStartedAt" = NOW() - make_interval(mins => $2) WHERE "companyId" = $1',
+      [companyId, minutesAgo],
+    );
+  }
+
+  async function billing(companyId: string) {
+    const result = await client.query<{
+      status: string;
+      lemonSqueezyId: string | null;
+    }>('SELECT "status"::text AS "status", "lemonSqueezyId" FROM "Subscription" WHERE "companyId" = $1', [companyId]);
+    return result.rows[0];
+  }
+
+  it("records a paid subscription whose webhook never arrived and keeps the workspace", async () => {
+    const creator = await createLogin("unrecorded");
+    const doomed = await createWorkspace({
+      name: "Unrecorded",
+      createdBy: creator,
+      admins: [creator],
+    });
+    await open(creator, doomed.companyId);
+    await startCheckout(doomed.companyId, 45);
+    const providerId = String(900_000_000 + Math.floor(Math.random() * 1_000_000));
+    const { SubscriptionService } = await import("@/ee/subscription/subscription.service");
+    const listed = vi
+      .spyOn(SubscriptionService.prototype, "listStoreSubscriptionsByEmailOrThrowUnscoped")
+      .mockResolvedValue([
+        {
+          data: {
+            id: providerId,
+            attributes: {
+              status: "active",
+              created_at: new Date(Date.now() - 40 * 60_000).toISOString(),
+              renews_at: new Date(Date.now() + 30 * 86_400_000).toISOString(),
+              user_email: creator.email,
+            },
+          },
+        },
+      ]);
+    const { CustomErrorCode } = await import("@/core/validation/validation.types");
+
+    expect(await codes(await remove(creator, doomed.companyId))).toEqual([
+      CustomErrorCode.workspaceDeleteBillingActive,
+    ]);
+    expect(listed).toHaveBeenCalledWith(creator.email.toLowerCase());
+    expect(await exists(doomed.companyId)).toBe(true);
+    expect(await billing(doomed.companyId)).toEqual({
+      status: "active",
+      lemonSqueezyId: providerId,
+    });
+    expect(await refusal(creator)).toBe("billingActive");
+  });
+
+  it("deletes nothing when Lemon Squeezy cannot confirm that a started checkout went unpaid", async () => {
+    const creator = await createLogin("unverified");
+    const doomed = await createWorkspace({
+      name: "Unverified",
+      createdBy: creator,
+      admins: [creator],
+    });
+    await open(creator, doomed.companyId);
+    await startCheckout(doomed.companyId, 45);
+    const { SubscriptionService } = await import("@/ee/subscription/subscription.service");
+    vi.spyOn(SubscriptionService.prototype, "listStoreSubscriptionsByEmailOrThrowUnscoped").mockRejectedValue(
+      new Error("provider unavailable"),
+    );
+    const { CustomErrorCode } = await import("@/core/validation/validation.types");
+
+    expect(await codes(await remove(creator, doomed.companyId))).toEqual([
+      CustomErrorCode.workspaceDeleteBillingUnverified,
+    ]);
+    expect(await exists(doomed.companyId)).toBe(true);
+    expect(await billing(doomed.companyId)).toEqual({
+      status: "expired",
+      lemonSqueezyId: null,
+    });
+  });
+
+  it("deletes a workspace whose started checkout left no subscription at Lemon Squeezy", async () => {
+    const creator = await createLogin("abandoned");
+    const doomed = await createWorkspace({
+      name: "Abandoned",
+      createdBy: creator,
+      admins: [creator],
+    });
+    await open(creator, doomed.companyId);
+    await startCheckout(doomed.companyId, 45);
+    const { SubscriptionService } = await import("@/ee/subscription/subscription.service");
+    vi.spyOn(SubscriptionService.prototype, "listStoreSubscriptionsByEmailOrThrowUnscoped").mockResolvedValue([]);
+
+    expect((await remove(creator, doomed.companyId)).ok).toBe(true);
+    expect(await exists(doomed.companyId)).toBe(false);
+  });
+
   it("deletes once when two tabs confirm at the same time", async () => {
     const creator = await createLogin("tabs");
     const home = await createWorkspace({ name: "Tabs home", createdBy: null, admins: [creator] });
@@ -609,12 +705,16 @@ describeDatabase("deleting a workspace on PostgreSQL", { timeout: 240_000 }, () 
       });
       await open(admin, doomed.companyId);
       await open(member, doomed.companyId);
+      await startCheckout(doomed.companyId, 45);
+      const { SubscriptionService } = await import("@/ee/subscription/subscription.service");
+      const listed = vi.spyOn(SubscriptionService.prototype, "listStoreSubscriptionsByEmailOrThrowUnscoped");
 
       expect(await refusal(member)).toBe("notAdmin");
       expect((await remove(member, doomed.companyId)).ok).toBe(false);
       expect(await refusal(admin)).toBeNull();
       expect((await remove(admin, doomed.companyId)).ok).toBe(true);
       expect(await exists(doomed.companyId)).toBe(false);
+      expect(listed).not.toHaveBeenCalled();
     } finally {
       (env as { APP_MODE: string }).APP_MODE = "cloud";
     }

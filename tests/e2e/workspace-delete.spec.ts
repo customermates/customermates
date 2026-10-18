@@ -14,6 +14,7 @@ import {
   organizationList,
   recordSentryRequests,
   recordToasts,
+  recordUnreadCountPolls,
 } from "./workspace-membership";
 import { uniqueWorkspaceName } from "./workspace-names";
 import { createWorkspaceFromSettings, finishOnboarding } from "./workspace-setup";
@@ -196,7 +197,7 @@ test("a member's open page of a deleted workspace shows the workspace-changed di
       await expect(page).toHaveURL(/\/en\/dashboard$/);
       await expectCurrentWorkspace(page, "Browser workspace");
 
-      const notice = member.page.getByRole("alertdialog", { name: messages.otherTab.titleChanged });
+      const notice = member.page.getByRole("alertdialog", { name: messages.otherTab.titleDeleted });
       await clickHydrated(member.page.locator("#nav-workspace-menu"));
       await expect(notice).toBeVisible({ timeout: 20_000 });
       expect(await toasts()).toEqual([]);
@@ -217,6 +218,65 @@ test("a member's open page of a deleted workspace shows the workspace-changed di
   } finally {
     await removeBrowserWorkspace(database, rita);
   }
+  expect(errors).toEqual([]);
+});
+
+function recordServerFailures(page: Page) {
+  const failures: string[] = [];
+  page.on("response", (response) => {
+    if (response.status() >= 500) failures.push(`${response.status()} ${new URL(response.url()).pathname}`);
+  });
+  return failures;
+}
+
+test("deleting the login's only workspace blocks its other tab, stops its polls and reloads it to onboarding", async ({
+  context,
+  page,
+  database,
+  workspace,
+}, testInfo) => {
+  test.setTimeout(180_000);
+  const errors = collectPageErrors(page);
+  if (e2eAppMode() === "cloud")
+    await database.query(
+      'UPDATE "Subscription" SET status=\'trial\',"trialEndDate"=NOW()+interval \'3 days\' WHERE "companyId"=$1',
+      [workspace.companyId],
+    );
+  const other = await context.newPage();
+  const otherErrors = collectPageErrors(other);
+  const failures = recordServerFailures(other);
+  const unreadPolls = recordUnreadCountPolls(other);
+  const sentry = recordSentryRequests(other);
+  const toasts = await recordToasts(other);
+
+  await other.goto("/en/settings/members");
+  await openSidebar(other);
+  await other.waitForLoadState("networkidle");
+  await page.goto("/en/settings/general");
+  await clickHydrated(page.locator("#settings-general-delete"));
+  await confirmDeletion(page, "settings-general-delete-confirm", "Browser workspace");
+  await expect(page).toHaveURL(/\/en\/onboarding$/);
+  expect(await activeWorkspaceOf(database, workspace)).toMatchObject({ session: null });
+
+  const notice = other.getByRole("alertdialog", { name: messages.otherTab.titleDeleted });
+  await expect(notice).toBeVisible({ timeout: 20_000 });
+  const shownAt = Date.now();
+  await other.waitForTimeout(12_000);
+  expect(unreadPolls.filter((sentAt) => sentAt > shownAt)).toEqual([]);
+  expect(failures).toEqual([]);
+  expect(await toasts()).toEqual([]);
+  expect(sentry).toEqual([]);
+  await other.screenshot({ path: testInfo.outputPath(`ws-delete-last-other-tab-${testInfo.project.name}.png`) });
+
+  await notice.getByRole("button", { name: messages.otherTab.reload, exact: true }).click();
+  await expect(other).toHaveURL(/\/en\/onboarding$/);
+  const create = other.getByRole("button", { name: new RegExp(englishMessages.OnboardingChoice.create.title) });
+  await expect(create).toBeVisible();
+  await expect(create).not.toContainText(
+    new RegExp(englishMessages.OnboardingChoice.create.note.replace("{days}", "\\d+")),
+  );
+  expect(failures).toEqual([]);
+  expect(otherErrors).toEqual([]);
   expect(errors).toEqual([]);
 });
 

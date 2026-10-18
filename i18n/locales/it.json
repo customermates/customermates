@@ -1269,6 +1269,7 @@
       "workspaceCreationUnavailable": "Qui non è possibile creare nuovi spazi di lavoro.",
       "workspaceDeleteAdminRequired": "Solo un amministratore può eliminare questo spazio di lavoro.",
       "workspaceDeleteBillingActive": "Questo spazio di lavoro ha ancora un abbonamento che può essere addebitato o ripreso. Annullalo e attendi che termini, oppure contatta l'assistenza.",
+      "workspaceDeleteBillingUnverified": "Non è stato possibile verificare la fatturazione di questo spazio di lavoro con Lemon Squeezy, quindi non è stato eliminato nulla. Riprova tra qualche minuto.",
       "workspaceDeleteChannelsFailed": "Non è stato possibile scollegare gli account collegati dello spazio di lavoro, quindi non è stato eliminato nulla. Riprova tra un momento.",
       "workspaceDeleteCheckoutPending": "È in corso un pagamento per questo spazio di lavoro. Annullalo o attendi che finisca, poi elimina lo spazio di lavoro.",
       "workspaceDeleteInvoiced": "Gli spazi di lavoro con un piano fatturato vengono chiusi dall'assistenza. Contatta l'assistenza per eliminare questo spazio di lavoro.",
@@ -4730,6 +4731,7 @@
       "reload": "Ricarica",
       "title": "Hai cambiato spazio di lavoro in un'altra scheda",
       "titleChanged": "Il tuo spazio di lavoro è cambiato",
+      "titleDeleted": "Questo spazio di lavoro è stato eliminato",
       "titleNamed": "In un'altra scheda hai aperto {name}"
     },
     "renameReadOnly": "Solo i membri che possono gestire lo spazio di lavoro possono cambiarne il nome.",

@@ -171,6 +171,8 @@ export const REVIEWED_EXCEPTION_ALLOWLIST: Readonly<Record<string, string>> = {
     "unresolved C09: valid cognate identical to English (policy conflict)",
   "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: fr:EntityTimeline.types.configuration":
     "unresolved C09: valid cognate identical to English (policy conflict)",
+  "runtime-console.test.ts#ALLOWED_CALLS: core/utils/audit-log.ts [info]":
+    "unresolved C12: non-error audit events such as a workspace deletion need a structured server log, and the codebase has no logger for them",
   "rest-openapi-coverage.test.ts#SPEC_EXEMPT_PATHS: /v1/mcp/w/{workspaceId}":
     "unresolved C11: a workspace's MCP URL serves the MCP JSON-RPC transport of /v1/mcp, not a REST operation",
 };
