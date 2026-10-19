@@ -6,6 +6,15 @@ import { test, expect, collectPageErrors } from "./fixtures";
 import { openRecordDetails } from "./record-rows";
 import { RecordQueryResultSchema } from "../../features/records/record-query-result.schema";
 
+/**
+ * The update below recalculates the calculated fields of every deal and line item. The test cancels a first run and
+ * reads the application during a second, so both must still run while the browser acts. Batched, the 600 linked deals
+ * and line items alone took 7-11 s on ws-test, and the first run was cancelled only 3-5 s after it started. Unlinked
+ * line items lengthen the runs without showing on any page the test reads: with 10,000, the first run had done 36-39%
+ * of its work when it was cancelled, and the second took 44-49 s while the reads during it took 6-9 s.
+ */
+const SPARE_LINES = 10000;
+
 test("keeps complete application reads, History and a blocked form draft while a high-fan-out update publishes", async ({
   page,
   context,
@@ -13,8 +22,7 @@ test("keeps complete application reads, History and a blocked form draft while a
   companyId,
   diagnostics,
 }, testInfo) => {
-  // The publish below may take up to 420s on a loaded machine (see its poll); the rest of the test takes about 90s.
-  test.setTimeout(600000);
+  test.setTimeout(300000);
   const id = (key: string) => presetId(companyId, key);
   await page.goto(`/en/records/${id("service")}`);
   await page.locator("#records-add").click();
@@ -79,11 +87,29 @@ test("keeps complete application reads, History and a blocked form draft while a
         'INSERT INTO "RecordValueDependency" ("companyId","typeId","recordId","fieldId","sourceTypeId","sourceId") SELECT $1,$2,ref,$4,$5,$6 FROM UNNEST($3::text[]) ref',
         [companyId, id(kind), refs, id(field), id("service"), service],
       );
+    // Line items on no deal and no service. A background update recalculates every record of the types it affects, so
+    // they keep it running while the browser acts (see SPARE_LINES) and appear on none of the pages the test reads.
+    const spare = Array.from({ length: SPARE_LINES }, () => randomUUID());
+    await database.query(
+      'INSERT INTO "CrmRecord" ("companyId","typeId",id,"updatedAt") SELECT $1,$2,ref,NOW() FROM UNNEST($3::text[]) ref',
+      [companyId, id("lineItem"), spare],
+    );
+    await database.query(
+      'INSERT INTO "RecordValue" ("companyId","typeId","recordId","fieldId",state,"textValue","schemaRevision","updatedAt") SELECT $1,$2,ref,$4,\'value\',\'Spare line \' || ordinal,1,NOW() FROM UNNEST($3::text[]) WITH ORDINALITY AS row(ref,ordinal)',
+      [companyId, id("lineItem"), spare, id("lineItem.name")],
+    );
+    await database.query(
+      'INSERT INTO "RecordValue" ("companyId","typeId","recordId","fieldId",state,"decimalValue","schemaRevision","updatedAt") SELECT $1,$2,ref,$4,\'value\',1,1,NOW() FROM UNNEST($3::text[]) ref',
+      [companyId, id("lineItem"), spare, id("lineItem.quantity")],
+    );
     await database.query("COMMIT");
   } catch (error) {
     await database.query("ROLLBACK");
     throw error;
   }
+  // Autovacuum analyzes rows inserted in bulk only a minute or more later; until then PostgreSQL plans the reads of
+  // this workspace as if it were empty.
+  await database.query('ANALYZE "CrmRecord", "RecordValue", "RecordValueDependency", "RecordLink"');
   const snapshot = async () =>
     (
       await database.query(
@@ -309,12 +335,8 @@ test("keeps complete application reads, History and a blocked form draft while a
           });
           return true;
         },
-        // The update recalculates 6 calculated fields x 600 records = 3600 units, one record and field at a time with
-        // about 30 queries each (features/records/record-operation.service.ts, calculations phase), so its duration
-        // follows machine load: 204-211s with the CPU 2x oversubscribed, and 2250 of 3600 units after 180s (about
-        // 290s in total) with 8 shards on one machine. 420s keeps ~40% headroom over the slowest; shrink it once the
-        // calculation phase reads and writes in batches.
-        { timeout: 420000, intervals: [100, 250, 500, 1000] },
+        // The second run finishes and publishes, in under a minute on ws-test (see SPARE_LINES).
+        { timeout: 180000, intervals: [100, 250, 500, 1000] },
       )
       .toBe(true);
     expect(completeReads).toBeGreaterThan(0);
