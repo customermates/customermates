@@ -1081,8 +1081,11 @@ describeDatabase("contact details migration", { timeout: 240000 }, () => {
   it("keeps each workspace's identities apart when one login belongs to several workspaces", async () => {
     const client = await previousRelease();
     const login = `shared-${randomUUID()}@example.test`;
-    const workspaces = [];
-    for (const language of ["en", "it"]) {
+    const workspaces: Array<Awaited<ReturnType<typeof workspace>> & { ref: { typeId: string; recordId: string } }> = [];
+    for (const { language, former } of [
+      { language: "en", former: "Channels" },
+      { language: "it", former: "Canali" },
+    ]) {
       let email: FixtureField = { id: "", typeId: "", archived: false };
       const created = await workspace(
         client,
@@ -1090,13 +1093,13 @@ describeDatabase("contact details migration", { timeout: 240000 }, () => {
           email = emailField(id("contact"), "Email", 40);
           model.fields.push(email);
         },
-        { email: login, language, channelsLabel: language === "it" ? "Canali" : "Channels" },
+        { email: login, language, channelsLabel: former },
       );
       const ref = await created.record(created.id("contact"), { [email.id]: "Partner@Example.test" });
       workspaces.push({ ...created, ref });
     }
     await migrate(client);
-    const identities = [];
+    const identities: Array<string | undefined> = [];
     for (const created of workspaces) {
       const identity = await identityOf(client, created.companyId, "partner@example.test", "email");
       expect(identity?.links).toEqual([created.ref]);
