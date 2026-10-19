@@ -109,6 +109,29 @@ test("the command palette switches to another workspace", async ({ page, databas
   expect(errors).toEqual([]);
 });
 
+test("typing a workspace name in global search offers a switch to each other matching workspace", async ({
+  page,
+  database,
+  workspace,
+}) => {
+  const errors = collectPageErrors(page);
+  const second = await addBrowserWorkspace(database, workspace, "Bergmann Workspace");
+  await page.goto(`/en/records/${presetId(workspace.companyId, "organization")}`);
+  await openSidebar(page);
+  await page.locator("#nav-search").click();
+  const dialog = page.getByRole("dialog");
+  await page.locator("#global-search-input input").fill("workspace");
+  const switchOption = dialog.getByRole("option", { name: "Switch to Bergmann Workspace", exact: true });
+  await expect(switchOption).toBeVisible();
+  await expect(dialog.getByRole("option", { name: "Switch to Browser workspace", exact: true })).toHaveCount(0);
+  await switchOption.click();
+
+  await expect(page).toHaveURL(/\/en\/dashboard$/);
+  await expectCurrentWorkspace(page, "Bergmann Workspace");
+  expect((await activeWorkspaceOf(database, workspace)).session).toBe(second.companyId);
+  expect(errors).toEqual([]);
+});
+
 test("a tab is blocked once another tab of the browser switched workspaces", async ({
   context,
   page,

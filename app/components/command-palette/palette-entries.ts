@@ -7,7 +7,7 @@ import type { RecordFieldView, RecordRelationship } from "@/features/records/rec
 import type { PaletteLevel } from "@/app/components/global-search-modal.store";
 import type { PaletteCandidate } from "./command-palette-search";
 
-import { Layers, Link2, ListChecks, Plus, SquarePen, Trash2, UserRoundCheck } from "lucide-react";
+import { ArrowLeftRight, Layers, Link2, ListChecks, Plus, SquarePen, Trash2, UserRoundCheck } from "lucide-react";
 
 import {
   commandAvailable,
@@ -24,7 +24,8 @@ type PaletteRun =
   | { kind: "action"; action: CommandActionId }
   | { kind: "create"; typeId: string }
   | { kind: "level"; level: PaletteLevel }
-  | { kind: "deleteRecord" };
+  | { kind: "deleteRecord" }
+  | { kind: "switchWorkspace"; companyId: string };
 
 export type PaletteEntry = PaletteCandidate & {
   icon: LucideIcon;
@@ -126,6 +127,20 @@ export function workspaceEntries(
       run: { kind: "create", typeId: type.id },
     }));
   return [...lists, ...views, ...fields, ...creates];
+}
+
+export function workspaceSwitchEntries(
+  t: PaletteTranslator,
+  workspaces: readonly { companyId: string; name: string }[],
+): PaletteEntry[] {
+  return workspaces.map((workspace) => ({
+    key: `workspace:${workspace.companyId}`,
+    kind: "action",
+    label: t("Workspaces.switchTo", { name: workspace.name }),
+    keywords: [workspace.name],
+    icon: ArrowLeftRight,
+    run: { kind: "switchWorkspace", companyId: workspace.companyId },
+  }));
 }
 
 export function recordEntries(t: PaletteTranslator, context: PaletteRecordContext | null): PaletteEntry[] {
