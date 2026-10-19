@@ -44,13 +44,15 @@ test("keeps an email address, a phone number and a social profile in contact det
   await drawer.getByRole("textbox", { name: "First name", exact: false }).fill("Ada");
   await drawer.getByRole("textbox", { name: "Last name", exact: false }).fill("Details");
   const add = drawer.getByRole("combobox", { name: "Add phone, email or profile", exact: true });
-  for (const [value, provider] of [
-    ["Ada@Example.test", "Email"],
-    ["+49 621 123456", "Phone"],
-    ["https://www.linkedin.com/in/ada-details", "LinkedIn"],
+  for (const [value, provider, stored] of [
+    ["Ada@Example.test", "Email", "ada@example.test"],
+    ["+49 621 123456", "Phone", "+49621123456"],
+    ["https://www.linkedin.com/in/ada-details", "LinkedIn", "ada-details"],
   ] as const) {
     await add.fill(value);
     await page.getByRole("option", { name: `Add "${value}" as ${provider}`, exact: true }).click();
+    await expect(add).toHaveValue("");
+    await expect(drawer.getByText(stored, { exact: true }).first()).toBeVisible();
   }
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
