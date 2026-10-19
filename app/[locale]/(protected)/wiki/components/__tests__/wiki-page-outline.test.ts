@@ -1,14 +1,14 @@
 import type { ReactNode } from "react";
 import type { Root } from "react-dom/client";
 
-import { act, createElement, useRef } from "react";
+import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 
-import { WikiPageOutline, wikiDocumentHeadings } from "../wiki-page-outline";
+import { WIKI_HEADING_ID_PREFIX, WikiPageOutline, wikiDocumentHeadings } from "../wiki-page-outline";
 
 const document = {
   type: "doc",
@@ -37,19 +37,22 @@ const document = {
 
 const roots: Root[] = [];
 const containers: HTMLElement[] = [];
-const originalScrollIntoView = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "scrollIntoView");
+
+class ObserverStub {
+  observe = vi.fn();
+  unobserve = vi.fn();
+  disconnect = vi.fn();
+}
 
 function OutlineHarness({ children = null }: { children?: ReactNode }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  return createElement("div", { ref: containerRef }, [
+  return createElement("div", null, [
     createElement("div", { className: "tiptap", key: "document" }, [
-      createElement("h1", { key: "overview" }, "Overview"),
-      createElement("h2", { key: "products" }, "Products"),
-      createElement("h2", { key: "empty" }),
-      createElement("h3", { key: "support" }, "Support process"),
+      createElement("h1", { id: `${WIKI_HEADING_ID_PREFIX}-0`, key: "overview" }, "Overview"),
+      createElement("h2", { id: `${WIKI_HEADING_ID_PREFIX}-1`, key: "products" }, "Products"),
+      createElement("h2", { id: `${WIKI_HEADING_ID_PREFIX}-2`, key: "empty" }),
+      createElement("h3", { id: `${WIKI_HEADING_ID_PREFIX}-3`, key: "support" }, "Support process"),
     ]),
-    createElement(WikiPageOutline, { containerRef, document, key: "outline" }),
+    createElement(WikiPageOutline, { document, key: "outline" }),
     children,
   ]);
 }
@@ -69,11 +72,8 @@ async function mount(node: ReactNode) {
 
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
-  Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {
-    configurable: true,
-    value: vi.fn(),
-    writable: true,
-  });
+  vi.stubGlobal("IntersectionObserver", ObserverStub);
+  vi.stubGlobal("ResizeObserver", ObserverStub);
 });
 
 afterEach(() => {
@@ -82,8 +82,6 @@ afterEach(() => {
   });
   for (const container of containers.splice(0)) container.remove();
   vi.unstubAllGlobals();
-  if (originalScrollIntoView) Object.defineProperty(HTMLElement.prototype, "scrollIntoView", originalScrollIntoView);
-  else Reflect.deleteProperty(HTMLElement.prototype, "scrollIntoView");
 });
 
 describe("Wiki page outline", () => {
@@ -98,7 +96,6 @@ describe("Wiki page outline", () => {
   it("stays hidden when the document has fewer than two nonempty headings", () => {
     const html = renderToStaticMarkup(
       createElement(WikiPageOutline, {
-        containerRef: { current: null },
         document: {
           type: "doc",
           content: [
@@ -115,46 +112,25 @@ describe("Wiki page outline", () => {
     expect(html).toBe("");
   });
 
-  it("renders a document-container-aware hierarchy and scrolls the matching rendered heading smoothly", async () => {
-    vi.stubGlobal(
-      "matchMedia",
-      vi.fn(() => ({ matches: false })),
-    );
-    const container = await mount(createElement(OutlineHarness));
-    const outline = container.querySelector('nav[aria-label="Wiki.onThisPage"]');
-    const buttons = [...container.querySelectorAll<HTMLButtonElement>("nav button")];
-    const headings = container.querySelectorAll<HTMLElement>(".tiptap h1, .tiptap h2, .tiptap h3");
-
-    expect(outline?.className).toContain("hidden");
-    expect(outline?.className).toContain("@min-[68rem]/wiki:block");
-    expect(buttons.map((button) => button.textContent)).toEqual(["Overview", "Products", "Support process"]);
-    expect(buttons[0]?.className).not.toContain("pl-3");
-    expect(buttons[1]?.className).toContain("pl-3");
-    expect(buttons[2]?.className).toContain("pl-6");
-
-    const scrollIntoView = vi.fn();
-    if (headings[3]) headings[3].scrollIntoView = scrollIntoView;
-    act(() => buttons[2]?.click());
-    expect(scrollIntoView).toHaveBeenCalledExactlyOnceWith({
-      behavior: "smooth",
-      block: "start",
-    });
+  it("waits for the rendered headings before it mounts the table of contents", () => {
+    expect(renderToStaticMarkup(createElement(WikiPageOutline, { document }))).toBe("");
   });
 
-  it("disables smooth scrolling when reduced motion is preferred", async () => {
-    vi.stubGlobal(
-      "matchMedia",
-      vi.fn(() => ({ matches: true })),
-    );
+  it("renders the shared table of contents with anchors to the rendered headings inside the wiki container", async () => {
     const container = await mount(createElement(OutlineHarness));
-    const firstHeading = container.querySelector<HTMLElement>(".tiptap h1");
+    const outline = container.querySelector('nav[aria-label="Wiki.onThisPage"]');
+    const links = [...container.querySelectorAll<HTMLAnchorElement>("nav a")];
 
-    const scrollIntoView = vi.fn();
-    if (firstHeading) firstHeading.scrollIntoView = scrollIntoView;
-    act(() => container.querySelector<HTMLButtonElement>("nav button")?.click());
-    expect(scrollIntoView).toHaveBeenCalledExactlyOnceWith({
-      behavior: "auto",
-      block: "start",
-    });
+    expect(outline?.className).toContain("sticky");
+    expect(outline?.className).toContain("hidden");
+    expect(outline?.className).toContain("@min-[68rem]/wiki:flex");
+    expect(links.map((link) => link.textContent)).toEqual(["Overview", "Products", "Support process"]);
+    expect(links.map((link) => link.getAttribute("href"))).toEqual([
+      "#wiki-heading-0",
+      "#wiki-heading-1",
+      "#wiki-heading-3",
+    ]);
+    expect(links.map((link) => link.style.paddingInlineStart)).toEqual(["14px", "26px", "36px"]);
+    for (const link of links) expect(container.querySelector(link.getAttribute("href") ?? "")).not.toBeNull();
   });
 });
