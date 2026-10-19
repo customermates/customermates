@@ -841,7 +841,7 @@
                             "telegram",
                             "phone"
                           ],
-                          "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                         },
                         "value": {
                           "type": "string",
@@ -906,7 +906,7 @@
                               "telegram",
                               "phone"
                             ],
-                            "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                            "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                           },
                           "value": {
                             "type": "string",
@@ -3825,7 +3825,7 @@
                                                     "telegram",
                                                     "phone"
                                                   ],
-                                                  "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                                  "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                                 },
                                                 "value": {
                                                   "type": "string",
@@ -3896,7 +3896,7 @@
                                                     "telegram",
                                                     "phone"
                                                   ],
-                                                  "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                                  "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                                 },
                                                 "value": {
                                                   "type": "string",
@@ -4150,15 +4150,15 @@
                                                     "dateRange",
                                                     "dateTimeRange",
                                                     "select",
-                                                    "email",
                                                     "url",
                                                     "member",
                                                     "channels",
                                                     "file",
                                                     "address",
-                                                    "phone"
+                                                    "phone",
+                                                    "email"
                                                   ],
-                                                  "description": "The field's value type when the change happened; phone only in history of retired phone fields."
+                                                  "description": "The field's value type when the change happened; phone and email only in history of retired phone and email fields."
                                                 },
                                                 "format": {
                                                   "type": "object",
@@ -4211,7 +4211,7 @@
                                                       ]
                                                     },
                                                     "onClick": {
-                                                      "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
+                                                      "description": "Url, address and channels fields only: what clicking a value does. open (default) opens the link, starts an email, calls a phone number, opens a profile or the map; copy copies it.",
                                                       "anyOf": [
                                                         {
                                                           "type": "string",
@@ -4226,7 +4226,7 @@
                                                       ]
                                                     },
                                                     "providerAvatar": {
-                                                      "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                                                      "description": "Channels (contact details) fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
                                                       "type": "boolean"
                                                     }
                                                   },
@@ -5033,15 +5033,15 @@
                                                     "dateRange",
                                                     "dateTimeRange",
                                                     "select",
-                                                    "email",
                                                     "url",
                                                     "member",
                                                     "channels",
                                                     "file",
                                                     "address",
-                                                    "phone"
+                                                    "phone",
+                                                    "email"
                                                   ],
-                                                  "description": "The field's value type when the change happened; phone only in history of retired phone fields."
+                                                  "description": "The field's value type when the change happened; phone and email only in history of retired phone and email fields."
                                                 },
                                                 "format": {
                                                   "type": "object",
@@ -5094,7 +5094,7 @@
                                                       ]
                                                     },
                                                     "onClick": {
-                                                      "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
+                                                      "description": "Url, address and channels fields only: what clicking a value does. open (default) opens the link, starts an email, calls a phone number, opens a profile or the map; copy copies it.",
                                                       "anyOf": [
                                                         {
                                                           "type": "string",
@@ -5109,7 +5109,7 @@
                                                       ]
                                                     },
                                                     "providerAvatar": {
-                                                      "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                                                      "description": "Channels (contact details) fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
                                                       "type": "boolean"
                                                     }
                                                   },
@@ -11258,7 +11258,7 @@
                                     "telegram",
                                     "phone"
                                   ],
-                                  "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                  "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                 },
                                 "value": {
                                   "type": "string",
@@ -12394,7 +12394,7 @@
                                       "telegram",
                                       "phone"
                                     ],
-                                    "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                    "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                   },
                                   "value": {
                                     "type": "string",
@@ -18944,7 +18944,7 @@
                                                                 "telegram",
                                                                 "phone"
                                                               ],
-                                                              "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                                              "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                                             },
                                                             "value": {
                                                               "type": "string",
@@ -19015,7 +19015,7 @@
                                                                 "telegram",
                                                                 "phone"
                                                               ],
-                                                              "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                                              "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                                             },
                                                             "value": {
                                                               "type": "string",
@@ -19269,15 +19269,15 @@
                                                                 "dateRange",
                                                                 "dateTimeRange",
                                                                 "select",
-                                                                "email",
                                                                 "url",
                                                                 "member",
                                                                 "channels",
                                                                 "file",
                                                                 "address",
-                                                                "phone"
+                                                                "phone",
+                                                                "email"
                                                               ],
-                                                              "description": "The field's value type when the change happened; phone only in history of retired phone fields."
+                                                              "description": "The field's value type when the change happened; phone and email only in history of retired phone and email fields."
                                                             },
                                                             "format": {
                                                               "type": "object",
@@ -19330,7 +19330,7 @@
                                                                   ]
                                                                 },
                                                                 "onClick": {
-                                                                  "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
+                                                                  "description": "Url, address and channels fields only: what clicking a value does. open (default) opens the link, starts an email, calls a phone number, opens a profile or the map; copy copies it.",
                                                                   "anyOf": [
                                                                     {
                                                                       "type": "string",
@@ -19345,7 +19345,7 @@
                                                                   ]
                                                                 },
                                                                 "providerAvatar": {
-                                                                  "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                                                                  "description": "Channels (contact details) fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
                                                                   "type": "boolean"
                                                                 }
                                                               },
@@ -20152,15 +20152,15 @@
                                                                 "dateRange",
                                                                 "dateTimeRange",
                                                                 "select",
-                                                                "email",
                                                                 "url",
                                                                 "member",
                                                                 "channels",
                                                                 "file",
                                                                 "address",
-                                                                "phone"
+                                                                "phone",
+                                                                "email"
                                                               ],
-                                                              "description": "The field's value type when the change happened; phone only in history of retired phone fields."
+                                                              "description": "The field's value type when the change happened; phone and email only in history of retired phone and email fields."
                                                             },
                                                             "format": {
                                                               "type": "object",
@@ -20213,7 +20213,7 @@
                                                                   ]
                                                                 },
                                                                 "onClick": {
-                                                                  "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
+                                                                  "description": "Url, address and channels fields only: what clicking a value does. open (default) opens the link, starts an email, calls a phone number, opens a profile or the map; copy copies it.",
                                                                   "anyOf": [
                                                                     {
                                                                       "type": "string",
@@ -20228,7 +20228,7 @@
                                                                   ]
                                                                 },
                                                                 "providerAvatar": {
-                                                                  "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                                                                  "description": "Channels (contact details) fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
                                                                   "type": "boolean"
                                                                 }
                                                               },
@@ -32769,7 +32769,7 @@
                                                                 "telegram",
                                                                 "phone"
                                                               ],
-                                                              "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                                              "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                                             },
                                                             "value": {
                                                               "type": "string",
@@ -32840,7 +32840,7 @@
                                                                 "telegram",
                                                                 "phone"
                                                               ],
-                                                              "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                                              "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                                             },
                                                             "value": {
                                                               "type": "string",
@@ -33094,15 +33094,15 @@
                                                                 "dateRange",
                                                                 "dateTimeRange",
                                                                 "select",
-                                                                "email",
                                                                 "url",
                                                                 "member",
                                                                 "channels",
                                                                 "file",
                                                                 "address",
-                                                                "phone"
+                                                                "phone",
+                                                                "email"
                                                               ],
-                                                              "description": "The field's value type when the change happened; phone only in history of retired phone fields."
+                                                              "description": "The field's value type when the change happened; phone and email only in history of retired phone and email fields."
                                                             },
                                                             "format": {
                                                               "type": "object",
@@ -33155,7 +33155,7 @@
                                                                   ]
                                                                 },
                                                                 "onClick": {
-                                                                  "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
+                                                                  "description": "Url, address and channels fields only: what clicking a value does. open (default) opens the link, starts an email, calls a phone number, opens a profile or the map; copy copies it.",
                                                                   "anyOf": [
                                                                     {
                                                                       "type": "string",
@@ -33170,7 +33170,7 @@
                                                                   ]
                                                                 },
                                                                 "providerAvatar": {
-                                                                  "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                                                                  "description": "Channels (contact details) fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
                                                                   "type": "boolean"
                                                                 }
                                                               },
@@ -33977,15 +33977,15 @@
                                                                 "dateRange",
                                                                 "dateTimeRange",
                                                                 "select",
-                                                                "email",
                                                                 "url",
                                                                 "member",
                                                                 "channels",
                                                                 "file",
                                                                 "address",
-                                                                "phone"
+                                                                "phone",
+                                                                "email"
                                                               ],
-                                                              "description": "The field's value type when the change happened; phone only in history of retired phone fields."
+                                                              "description": "The field's value type when the change happened; phone and email only in history of retired phone and email fields."
                                                             },
                                                             "format": {
                                                               "type": "object",
@@ -34038,7 +34038,7 @@
                                                                   ]
                                                                 },
                                                                 "onClick": {
-                                                                  "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
+                                                                  "description": "Url, address and channels fields only: what clicking a value does. open (default) opens the link, starts an email, calls a phone number, opens a profile or the map; copy copies it.",
                                                                   "anyOf": [
                                                                     {
                                                                       "type": "string",
@@ -34053,7 +34053,7 @@
                                                                   ]
                                                                 },
                                                                 "providerAvatar": {
-                                                                  "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                                                                  "description": "Channels (contact details) fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
                                                                   "type": "boolean"
                                                                 }
                                                               },
@@ -42869,14 +42869,13 @@
                                     "dateRange",
                                     "dateTimeRange",
                                     "select",
-                                    "email",
                                     "url",
                                     "member",
                                     "channels",
                                     "file",
                                     "address"
                                   ],
-                                  "description": "channels: email addresses, phone numbers and social accounts that match messages to the record; a phone number also matches WhatsApp chats from the same number. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). There is no phone type: phone numbers belong in channels. file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value."
+                                  "description": "channels: the contact details field, called Phone, email & social in the app: phone numbers, email addresses and social profiles that match messages to the record; a phone number also matches WhatsApp chats from the same number. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). There are no phone or email types: phone numbers and email addresses belong in channels. file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value."
                                 },
                                 "behavior": {
                                   "type": "object",
@@ -43118,7 +43117,7 @@
                                   "type": "boolean"
                                 },
                                 "multiple": {
-                                  "description": "Allows several values: text, email and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior; a file field holds up to 20 files instead of one.",
+                                  "description": "Allows several values: text and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior; a file field holds up to 20 files instead of one.",
                                   "type": "boolean"
                                 },
                                 "format": {
@@ -43172,7 +43171,7 @@
                                       ]
                                     },
                                     "onClick": {
-                                      "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
+                                      "description": "Url, address and channels fields only: what clicking a value does. open (default) opens the link, starts an email, calls a phone number, opens a profile or the map; copy copies it.",
                                       "anyOf": [
                                         {
                                           "type": "string",
@@ -43187,7 +43186,7 @@
                                       ]
                                     },
                                     "providerAvatar": {
-                                      "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                                      "description": "Channels (contact details) fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
                                       "type": "boolean"
                                     }
                                   },
@@ -43739,7 +43738,7 @@
                             "target"
                           ],
                           "additionalProperties": false,
-                          "description": "Move a list, field (including a Channels field) or relationship to Trash, where it can be restored for 30 days. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion."
+                          "description": "Move a list, field (including a contact details field) or relationship to Trash, where it can be restored for 30 days. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion."
                         },
                         {
                           "type": "object",
@@ -44802,14 +44801,13 @@
                                     "dateRange",
                                     "dateTimeRange",
                                     "select",
-                                    "email",
                                     "url",
                                     "member",
                                     "channels",
                                     "file",
                                     "address"
                                   ],
-                                  "description": "channels: email addresses, phone numbers and social accounts that match messages to the record; a phone number also matches WhatsApp chats from the same number. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). There is no phone type: phone numbers belong in channels. file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value."
+                                  "description": "channels: the contact details field, called Phone, email & social in the app: phone numbers, email addresses and social profiles that match messages to the record; a phone number also matches WhatsApp chats from the same number. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). There are no phone or email types: phone numbers and email addresses belong in channels. file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value."
                                 },
                                 "behavior": {
                                   "type": "object",
@@ -45051,7 +45049,7 @@
                                   "type": "boolean"
                                 },
                                 "multiple": {
-                                  "description": "Allows several values: text, email and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior; a file field holds up to 20 files instead of one.",
+                                  "description": "Allows several values: text and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior; a file field holds up to 20 files instead of one.",
                                   "type": "boolean"
                                 },
                                 "format": {
@@ -45105,7 +45103,7 @@
                                       ]
                                     },
                                     "onClick": {
-                                      "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
+                                      "description": "Url, address and channels fields only: what clicking a value does. open (default) opens the link, starts an email, calls a phone number, opens a profile or the map; copy copies it.",
                                       "anyOf": [
                                         {
                                           "type": "string",
@@ -45120,7 +45118,7 @@
                                       ]
                                     },
                                     "providerAvatar": {
-                                      "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                                      "description": "Channels (contact details) fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
                                       "type": "boolean"
                                     }
                                   },
@@ -45672,7 +45670,7 @@
                             "target"
                           ],
                           "additionalProperties": false,
-                          "description": "Move a list, field (including a Channels field) or relationship to Trash, where it can be restored for 30 days. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion."
+                          "description": "Move a list, field (including a contact details field) or relationship to Trash, where it can be restored for 30 days. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion."
                         },
                         {
                           "type": "object",
@@ -47911,7 +47909,7 @@
                               "telegram",
                               "phone"
                             ],
-                            "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                            "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                           },
                           "value": {
                             "type": "string",
@@ -48242,7 +48240,7 @@
                     }
                   },
                   "includeIdentities": {
-                    "description": "Include registered identifiers for returned records of a list with a Channels field.",
+                    "description": "Include registered identifiers for returned records of a list with a contact details (channels) field.",
                     "type": "boolean"
                   },
                   "search": {
@@ -50541,7 +50539,7 @@
                                     "telegram",
                                     "phone"
                                   ],
-                                  "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                  "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                 },
                                 "value": {
                                   "type": "string",
@@ -51622,7 +51620,7 @@
                                     "telegram",
                                     "phone"
                                   ],
-                                  "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                  "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                 },
                                 "value": {
                                   "type": "string",
@@ -51671,7 +51669,7 @@
                               ],
                               "additionalProperties": false
                             },
-                            "description": "Replaces this record's channel associations on a list with a Channels field. Omit to preserve; [] unlinks this record. Existing shared identities remain unchanged. Ordinary email fields are separate."
+                            "description": "Replaces this record's contact details (phone numbers, email addresses and social profiles) on a list with a channels field. Omit to preserve; [] unlinks this record. Existing shared identities remain unchanged."
                           },
                           "links": {
                             "maxItems": 100,
@@ -51943,7 +51941,7 @@
                                     "telegram",
                                     "phone"
                                   ],
-                                  "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                  "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                 },
                                 "value": {
                                   "type": "string",
@@ -51992,7 +51990,7 @@
                               ],
                               "additionalProperties": false
                             },
-                            "description": "Replaces this record's channel associations on a list with a Channels field. Omit to preserve; [] unlinks this record. Existing shared identities remain unchanged. Ordinary email fields are separate."
+                            "description": "Replaces this record's contact details (phone numbers, email addresses and social profiles) on a list with a channels field. Omit to preserve; [] unlinks this record. Existing shared identities remain unchanged."
                           },
                           "linkChanges": {
                             "maxItems": 100,
@@ -60825,14 +60823,13 @@
                               "dateRange",
                               "dateTimeRange",
                               "select",
-                              "email",
                               "url",
                               "member",
                               "channels",
                               "file",
                               "address"
                             ],
-                            "description": "channels: email addresses, phone numbers and social accounts that match messages to the record; a phone number also matches WhatsApp chats from the same number. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). There is no phone type: phone numbers belong in channels. file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value."
+                            "description": "channels: the contact details field, called Phone, email & social in the app: phone numbers, email addresses and social profiles that match messages to the record; a phone number also matches WhatsApp chats from the same number. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). There are no phone or email types: phone numbers and email addresses belong in channels. file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value."
                           },
                           "behavior": {
                             "oneOf": [
@@ -61555,7 +61552,7 @@
                             "type": "boolean"
                           },
                           "multiple": {
-                            "description": "Allows several values: text, email and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior; a file field holds up to 20 files instead of one.",
+                            "description": "Allows several values: text and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior; a file field holds up to 20 files instead of one.",
                             "type": "boolean"
                           },
                           "format": {
@@ -61609,7 +61606,7 @@
                                 ]
                               },
                               "onClick": {
-                                "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
+                                "description": "Url, address and channels fields only: what clicking a value does. open (default) opens the link, starts an email, calls a phone number, opens a profile or the map; copy copies it.",
                                 "anyOf": [
                                   {
                                     "type": "string",
@@ -61624,7 +61621,7 @@
                                 ]
                               },
                               "providerAvatar": {
-                                "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                                "description": "Channels (contact details) fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
                                 "type": "boolean"
                               }
                             },
@@ -82799,7 +82796,7 @@
                                                                       "telegram",
                                                                       "phone"
                                                                     ],
-                                                                    "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                                                    "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                                                   },
                                                                   "value": {
                                                                     "type": "string",
@@ -82870,7 +82867,7 @@
                                                                       "telegram",
                                                                       "phone"
                                                                     ],
-                                                                    "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                                                    "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                                                   },
                                                                   "value": {
                                                                     "type": "string",
@@ -83124,15 +83121,15 @@
                                                                       "dateRange",
                                                                       "dateTimeRange",
                                                                       "select",
-                                                                      "email",
                                                                       "url",
                                                                       "member",
                                                                       "channels",
                                                                       "file",
                                                                       "address",
-                                                                      "phone"
+                                                                      "phone",
+                                                                      "email"
                                                                     ],
-                                                                    "description": "The field's value type when the change happened; phone only in history of retired phone fields."
+                                                                    "description": "The field's value type when the change happened; phone and email only in history of retired phone and email fields."
                                                                   },
                                                                   "format": {
                                                                     "type": "object",
@@ -83185,7 +83182,7 @@
                                                                         ]
                                                                       },
                                                                       "onClick": {
-                                                                        "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
+                                                                        "description": "Url, address and channels fields only: what clicking a value does. open (default) opens the link, starts an email, calls a phone number, opens a profile or the map; copy copies it.",
                                                                         "anyOf": [
                                                                           {
                                                                             "type": "string",
@@ -83200,7 +83197,7 @@
                                                                         ]
                                                                       },
                                                                       "providerAvatar": {
-                                                                        "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                                                                        "description": "Channels (contact details) fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
                                                                         "type": "boolean"
                                                                       }
                                                                     },
@@ -84007,15 +84004,15 @@
                                                                       "dateRange",
                                                                       "dateTimeRange",
                                                                       "select",
-                                                                      "email",
                                                                       "url",
                                                                       "member",
                                                                       "channels",
                                                                       "file",
                                                                       "address",
-                                                                      "phone"
+                                                                      "phone",
+                                                                      "email"
                                                                     ],
-                                                                    "description": "The field's value type when the change happened; phone only in history of retired phone fields."
+                                                                    "description": "The field's value type when the change happened; phone and email only in history of retired phone and email fields."
                                                                   },
                                                                   "format": {
                                                                     "type": "object",
@@ -84068,7 +84065,7 @@
                                                                         ]
                                                                       },
                                                                       "onClick": {
-                                                                        "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
+                                                                        "description": "Url, address and channels fields only: what clicking a value does. open (default) opens the link, starts an email, calls a phone number, opens a profile or the map; copy copies it.",
                                                                         "anyOf": [
                                                                           {
                                                                             "type": "string",
@@ -84083,7 +84080,7 @@
                                                                         ]
                                                                       },
                                                                       "providerAvatar": {
-                                                                        "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                                                                        "description": "Channels (contact details) fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
                                                                         "type": "boolean"
                                                                       }
                                                                     },
@@ -94779,7 +94776,7 @@
                                       "telegram",
                                       "phone"
                                     ],
-                                    "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                    "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                   },
                                   "value": {
                                     "type": "string",
@@ -95204,14 +95201,13 @@
                                   "dateRange",
                                   "dateTimeRange",
                                   "select",
-                                  "email",
                                   "url",
                                   "member",
                                   "channels",
                                   "file",
                                   "address"
                                 ],
-                                "description": "channels: email addresses, phone numbers and social accounts that match messages to the record; a phone number also matches WhatsApp chats from the same number. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). There is no phone type: phone numbers belong in channels. file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value."
+                                "description": "channels: the contact details field, called Phone, email & social in the app: phone numbers, email addresses and social profiles that match messages to the record; a phone number also matches WhatsApp chats from the same number. At most one per list, input behavior, never required, multiple or calculated; its values are the record's identities (read and written through identities, not fields). There are no phone or email types: phone numbers and email addresses belong in channels. file: uploaded files, input behavior only, multiple allows up to 20. address: a postal address, single value."
                               },
                               "behavior": {
                                 "oneOf": [
@@ -95934,7 +95930,7 @@
                                 "type": "boolean"
                               },
                               "multiple": {
-                                "description": "Allows several values: text, email and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior; a file field holds up to 20 files instead of one.",
+                                "description": "Allows several values: text and url store a textList; a select field becomes a multiple choice storing selectList option ids and must use input behavior; a file field holds up to 20 files instead of one.",
                                 "type": "boolean"
                               },
                               "format": {
@@ -95988,7 +95984,7 @@
                                     ]
                                   },
                                   "onClick": {
-                                    "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
+                                    "description": "Url, address and channels fields only: what clicking a value does. open (default) opens the link, starts an email, calls a phone number, opens a profile or the map; copy copies it.",
                                     "anyOf": [
                                       {
                                         "type": "string",
@@ -96003,7 +95999,7 @@
                                     ]
                                   },
                                   "providerAvatar": {
-                                    "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                                    "description": "Channels (contact details) fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
                                     "type": "boolean"
                                   }
                                 },
@@ -126977,7 +126973,7 @@
                                             "telegram",
                                             "phone"
                                           ],
-                                          "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -127048,7 +127044,7 @@
                                             "telegram",
                                             "phone"
                                           ],
-                                          "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -127301,15 +127297,15 @@
                                             "dateRange",
                                             "dateTimeRange",
                                             "select",
-                                            "email",
                                             "url",
                                             "member",
                                             "channels",
                                             "file",
                                             "address",
-                                            "phone"
+                                            "phone",
+                                            "email"
                                           ],
-                                          "description": "The field's value type when the change happened; phone only in history of retired phone fields."
+                                          "description": "The field's value type when the change happened; phone and email only in history of retired phone and email fields."
                                         },
                                         "format": {
                                           "type": "object",
@@ -127362,7 +127358,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
+                                              "description": "Url, address and channels fields only: what clicking a value does. open (default) opens the link, starts an email, calls a phone number, opens a profile or the map; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -127377,7 +127373,7 @@
                                               ]
                                             },
                                             "providerAvatar": {
-                                              "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                                              "description": "Channels (contact details) fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
                                               "type": "boolean"
                                             }
                                           },
@@ -127755,15 +127751,15 @@
                                             "dateRange",
                                             "dateTimeRange",
                                             "select",
-                                            "email",
                                             "url",
                                             "member",
                                             "channels",
                                             "file",
                                             "address",
-                                            "phone"
+                                            "phone",
+                                            "email"
                                           ],
-                                          "description": "The field's value type when the change happened; phone only in history of retired phone fields."
+                                          "description": "The field's value type when the change happened; phone and email only in history of retired phone and email fields."
                                         },
                                         "format": {
                                           "type": "object",
@@ -127816,7 +127812,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
+                                              "description": "Url, address and channels fields only: what clicking a value does. open (default) opens the link, starts an email, calls a phone number, opens a profile or the map; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -127831,7 +127827,7 @@
                                               ]
                                             },
                                             "providerAvatar": {
-                                              "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                                              "description": "Channels (contact details) fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
                                               "type": "boolean"
                                             }
                                           },
@@ -128430,7 +128426,7 @@
                                             "telegram",
                                             "phone"
                                           ],
-                                          "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -128501,7 +128497,7 @@
                                             "telegram",
                                             "phone"
                                           ],
-                                          "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -128754,15 +128750,15 @@
                                             "dateRange",
                                             "dateTimeRange",
                                             "select",
-                                            "email",
                                             "url",
                                             "member",
                                             "channels",
                                             "file",
                                             "address",
-                                            "phone"
+                                            "phone",
+                                            "email"
                                           ],
-                                          "description": "The field's value type when the change happened; phone only in history of retired phone fields."
+                                          "description": "The field's value type when the change happened; phone and email only in history of retired phone and email fields."
                                         },
                                         "format": {
                                           "type": "object",
@@ -128815,7 +128811,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
+                                              "description": "Url, address and channels fields only: what clicking a value does. open (default) opens the link, starts an email, calls a phone number, opens a profile or the map; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -128830,7 +128826,7 @@
                                               ]
                                             },
                                             "providerAvatar": {
-                                              "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                                              "description": "Channels (contact details) fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
                                               "type": "boolean"
                                             }
                                           },
@@ -129208,15 +129204,15 @@
                                             "dateRange",
                                             "dateTimeRange",
                                             "select",
-                                            "email",
                                             "url",
                                             "member",
                                             "channels",
                                             "file",
                                             "address",
-                                            "phone"
+                                            "phone",
+                                            "email"
                                           ],
-                                          "description": "The field's value type when the change happened; phone only in history of retired phone fields."
+                                          "description": "The field's value type when the change happened; phone and email only in history of retired phone and email fields."
                                         },
                                         "format": {
                                           "type": "object",
@@ -129269,7 +129265,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
+                                              "description": "Url, address and channels fields only: what clicking a value does. open (default) opens the link, starts an email, calls a phone number, opens a profile or the map; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -129284,7 +129280,7 @@
                                               ]
                                             },
                                             "providerAvatar": {
-                                              "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                                              "description": "Channels (contact details) fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
                                               "type": "boolean"
                                             }
                                           },
@@ -129883,7 +129879,7 @@
                                             "telegram",
                                             "phone"
                                           ],
-                                          "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -129954,7 +129950,7 @@
                                             "telegram",
                                             "phone"
                                           ],
-                                          "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -130207,15 +130203,15 @@
                                             "dateRange",
                                             "dateTimeRange",
                                             "select",
-                                            "email",
                                             "url",
                                             "member",
                                             "channels",
                                             "file",
                                             "address",
-                                            "phone"
+                                            "phone",
+                                            "email"
                                           ],
-                                          "description": "The field's value type when the change happened; phone only in history of retired phone fields."
+                                          "description": "The field's value type when the change happened; phone and email only in history of retired phone and email fields."
                                         },
                                         "format": {
                                           "type": "object",
@@ -130268,7 +130264,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
+                                              "description": "Url, address and channels fields only: what clicking a value does. open (default) opens the link, starts an email, calls a phone number, opens a profile or the map; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -130283,7 +130279,7 @@
                                               ]
                                             },
                                             "providerAvatar": {
-                                              "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                                              "description": "Channels (contact details) fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
                                               "type": "boolean"
                                             }
                                           },
@@ -130661,15 +130657,15 @@
                                             "dateRange",
                                             "dateTimeRange",
                                             "select",
-                                            "email",
                                             "url",
                                             "member",
                                             "channels",
                                             "file",
                                             "address",
-                                            "phone"
+                                            "phone",
+                                            "email"
                                           ],
-                                          "description": "The field's value type when the change happened; phone only in history of retired phone fields."
+                                          "description": "The field's value type when the change happened; phone and email only in history of retired phone and email fields."
                                         },
                                         "format": {
                                           "type": "object",
@@ -130722,7 +130718,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
+                                              "description": "Url, address and channels fields only: what clicking a value does. open (default) opens the link, starts an email, calls a phone number, opens a profile or the map; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -130737,7 +130733,7 @@
                                               ]
                                             },
                                             "providerAvatar": {
-                                              "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                                              "description": "Channels (contact details) fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
                                               "type": "boolean"
                                             }
                                           },
@@ -131336,7 +131332,7 @@
                                             "telegram",
                                             "phone"
                                           ],
-                                          "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -131407,7 +131403,7 @@
                                             "telegram",
                                             "phone"
                                           ],
-                                          "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -131660,15 +131656,15 @@
                                             "dateRange",
                                             "dateTimeRange",
                                             "select",
-                                            "email",
                                             "url",
                                             "member",
                                             "channels",
                                             "file",
                                             "address",
-                                            "phone"
+                                            "phone",
+                                            "email"
                                           ],
-                                          "description": "The field's value type when the change happened; phone only in history of retired phone fields."
+                                          "description": "The field's value type when the change happened; phone and email only in history of retired phone and email fields."
                                         },
                                         "format": {
                                           "type": "object",
@@ -131721,7 +131717,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
+                                              "description": "Url, address and channels fields only: what clicking a value does. open (default) opens the link, starts an email, calls a phone number, opens a profile or the map; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -131736,7 +131732,7 @@
                                               ]
                                             },
                                             "providerAvatar": {
-                                              "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                                              "description": "Channels (contact details) fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
                                               "type": "boolean"
                                             }
                                           },
@@ -132114,15 +132110,15 @@
                                             "dateRange",
                                             "dateTimeRange",
                                             "select",
-                                            "email",
                                             "url",
                                             "member",
                                             "channels",
                                             "file",
                                             "address",
-                                            "phone"
+                                            "phone",
+                                            "email"
                                           ],
-                                          "description": "The field's value type when the change happened; phone only in history of retired phone fields."
+                                          "description": "The field's value type when the change happened; phone and email only in history of retired phone and email fields."
                                         },
                                         "format": {
                                           "type": "object",
@@ -132175,7 +132171,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
+                                              "description": "Url, address and channels fields only: what clicking a value does. open (default) opens the link, starts an email, calls a phone number, opens a profile or the map; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -132190,7 +132186,7 @@
                                               ]
                                             },
                                             "providerAvatar": {
-                                              "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                                              "description": "Channels (contact details) fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
                                               "type": "boolean"
                                             }
                                           },
@@ -132789,7 +132785,7 @@
                                             "telegram",
                                             "phone"
                                           ],
-                                          "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -132860,7 +132856,7 @@
                                             "telegram",
                                             "phone"
                                           ],
-                                          "description": "phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
+                                          "description": "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send."
                                         },
                                         "value": {
                                           "type": "string",
@@ -133113,15 +133109,15 @@
                                             "dateRange",
                                             "dateTimeRange",
                                             "select",
-                                            "email",
                                             "url",
                                             "member",
                                             "channels",
                                             "file",
                                             "address",
-                                            "phone"
+                                            "phone",
+                                            "email"
                                           ],
-                                          "description": "The field's value type when the change happened; phone only in history of retired phone fields."
+                                          "description": "The field's value type when the change happened; phone and email only in history of retired phone and email fields."
                                         },
                                         "format": {
                                           "type": "object",
@@ -133174,7 +133170,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
+                                              "description": "Url, address and channels fields only: what clicking a value does. open (default) opens the link, starts an email, calls a phone number, opens a profile or the map; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -133189,7 +133185,7 @@
                                               ]
                                             },
                                             "providerAvatar": {
-                                              "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                                              "description": "Channels (contact details) fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
                                               "type": "boolean"
                                             }
                                           },
@@ -133567,15 +133563,15 @@
                                             "dateRange",
                                             "dateTimeRange",
                                             "select",
-                                            "email",
                                             "url",
                                             "member",
                                             "channels",
                                             "file",
                                             "address",
-                                            "phone"
+                                            "phone",
+                                            "email"
                                           ],
-                                          "description": "The field's value type when the change happened; phone only in history of retired phone fields."
+                                          "description": "The field's value type when the change happened; phone and email only in history of retired phone and email fields."
                                         },
                                         "format": {
                                           "type": "object",
@@ -133628,7 +133624,7 @@
                                               ]
                                             },
                                             "onClick": {
-                                              "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
+                                              "description": "Url, address and channels fields only: what clicking a value does. open (default) opens the link, starts an email, calls a phone number, opens a profile or the map; copy copies it.",
                                               "anyOf": [
                                                 {
                                                   "type": "string",
@@ -133643,7 +133639,7 @@
                                               ]
                                             },
                                             "providerAvatar": {
-                                              "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                                              "description": "Channels (contact details) fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
                                               "type": "boolean"
                                             }
                                           },
@@ -134917,7 +134913,7 @@
             ]
           },
           "includeIdentities": {
-            "description": "Include registered identifiers for returned records of a list with a Channels field.",
+            "description": "Include registered identifiers for returned records of a list with a contact details (channels) field.",
             "type": "boolean"
           },
           "search": {
@@ -137130,7 +137126,6 @@
               "dateRange",
               "dateTimeRange",
               "select",
-              "email",
               "url",
               "member",
               "channels",
@@ -137192,7 +137187,7 @@
                 ]
               },
               "onClick": {
-                "description": "Email, url, address and channels fields only: what clicking a value does. open (default) starts mail, opens the link, calls a phone number, opens a profile or the map; copy copies it.",
+                "description": "Url, address and channels fields only: what clicking a value does. open (default) opens the link, starts an email, calls a phone number, opens a profile or the map; copy copies it.",
                 "anyOf": [
                   {
                     "type": "string",
@@ -137207,7 +137202,7 @@
                 ]
               },
               "providerAvatar": {
-                "description": "Channels fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
+                "description": "Channels (contact details) fields only: use the profile photo from a connected messaging account as the record avatar when the list has an avatar field.",
                 "type": "boolean"
               }
             },
@@ -146903,7 +146898,7 @@
             ]
           },
           "includeIdentities": {
-            "description": "Include registered identifiers for returned records of a list with a Channels field.",
+            "description": "Include registered identifiers for returned records of a list with a contact details (channels) field.",
             "type": "boolean"
           },
           "search": {
