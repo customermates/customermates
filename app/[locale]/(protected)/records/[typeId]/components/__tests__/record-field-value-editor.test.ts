@@ -33,7 +33,6 @@ describe("inline record field validation", () => {
 
   it.each([
     ["url", "not a url", "Common.errors.invalidUrl"],
-    ["email", "still-not-an-email", "Common.errors.invalidEmail"],
   ] as const)("shows one toast for an invalid %s value and keeps it unsaved", async (valueType, value, message) => {
     const save = vi.fn();
     const done = vi.fn();

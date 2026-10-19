@@ -335,7 +335,7 @@ export function applyNorthwindModel(model: RecordModel, companyId: string): Reco
   choice("organization", "organization.industry", "Industry");
   add("organization", "organization.companySize", "Company size", "number", { format: { decimalPlaces: 0 } });
   choice("organization", "organization.segment", "Segment");
-  add("organization", "organization.channels", "Channels", "channels", { format: { onClick: "open" } });
+  add("organization", "organization.channels", "Contact details", "channels", { format: { onClick: "open" } });
   add("organization", "organization.address", "Address", "address", { format: { onClick: "open" } });
   add("organization", "organization.documents", "Documents", "file", { multiple: true });
   add("organization", "organization.arr", "ARR", "currency", {
@@ -607,7 +607,7 @@ export function applyNorthwindModel(model: RecordModel, companyId: string): Reco
   // Candidates
   choice("candidate", "candidate.stage", "Stage");
   choice("candidate", "candidate.source", "Source");
-  add("candidate", "candidate.email", "Email", "email", { format: { onClick: "copy" } });
+  add("candidate", "candidate.channels", "Contact details", "channels", { format: { onClick: "copy" } });
   add("candidate", "candidate.appliedOn", "Applied on", "date");
   add("candidate", "candidate.salaryExpectation", "Salary expectation", "currency");
   add("candidate", "candidate.interviewers", "Interviewer", "member");

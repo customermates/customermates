@@ -23,8 +23,6 @@ export function useXlsxImportText() {
         return t("DataTransfer.xlsxImport.issues.invalidDate", values);
       case "invalidBoolean":
         return t("DataTransfer.xlsxImport.issues.invalidBoolean", values);
-      case "invalidEmail":
-        return t("DataTransfer.xlsxImport.issues.invalidEmail", values);
       case "invalidUrl":
         return t("DataTransfer.xlsxImport.issues.invalidUrl", values);
       case "invalidChannel":

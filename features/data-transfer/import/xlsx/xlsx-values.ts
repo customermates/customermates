@@ -17,7 +17,6 @@ export type XlsxIssueCode =
   | "currencyMismatch"
   | "invalidDate"
   | "invalidBoolean"
-  | "invalidEmail"
   | "invalidUrl"
   | "invalidChannel"
   | "invalidValue"
@@ -204,7 +203,6 @@ export function plainTextDocument(text: string): string {
 
 function textScalar(text: string, field: RecordFieldView): XlsxParsed<string> {
   if (scalarMatchesType({ kind: "text", value: text }, field.valueType)) return ok(text);
-  if (field.valueType === "email") return issue("invalidEmail", text);
   if (field.valueType === "url") return issue("invalidUrl", text);
   return issue("invalidValue", text);
 }
@@ -316,7 +314,6 @@ export function parseXlsxFieldCell(
     case "file":
       return issue("fileNotImportable", text);
     case "text":
-    case "email":
     case "url": {
       if (!field.multiple) {
         const parsed = textScalar(text, field);

@@ -211,7 +211,7 @@ export const NORTHWIND_FIELD_KEYS = {
     notes: "candidate.notes",
     stage: "candidate.stage",
     source: "candidate.source",
-    email: "candidate.email",
+    channels: "candidate.channels",
     appliedOn: "candidate.appliedOn",
     salaryExpectation: "candidate.salaryExpectation",
     interviewers: "candidate.interviewers",

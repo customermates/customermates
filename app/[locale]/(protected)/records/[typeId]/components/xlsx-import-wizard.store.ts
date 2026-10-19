@@ -165,7 +165,7 @@ export class XlsxImportWizardStore {
       if (option.target.kind === "recordId") return true;
       if (option.target.kind !== "field") return false;
       const field = fields.get(option.target.fieldId);
-      return Boolean(field && !field.multiple && ["text", "email", "url", "number"].includes(field.valueType));
+      return Boolean(field && !field.multiple && ["text", "url", "number"].includes(field.valueType));
     });
   }
 

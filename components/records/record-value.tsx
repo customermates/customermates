@@ -151,7 +151,7 @@ export const RecordValue = observer(function RecordValue({
           <ContactValue
             key={`${entry}-${index}`}
             action={field.format?.onClick ?? "open"}
-            kind={field.valueType as "email" | "url"}
+            kind="url"
             value={entry}
             wrap={wrap}
           />

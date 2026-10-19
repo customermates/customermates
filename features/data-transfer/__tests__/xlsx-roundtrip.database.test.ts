@@ -140,7 +140,7 @@ describeRoundTrip("XLSX export and import round trip", () => {
       kickoff: extra("kickoff", "Kickoff", "dateTime"),
       period: extra("period", "Period", "dateRange"),
       signed: extra("signed", "Signed", "boolean"),
-      billing: extra("billing", "Billing email", "email"),
+      billing: extra("billing", "Billing email", "text"),
       site: extra("site", "Website", "url"),
       tags: extra("tags", "Tags", "select", {
         multiple: true,

@@ -154,7 +154,6 @@ function convertText(text: string, field: RecordField): RecordScalar | null {
       return z.iso.date().safeParse(trimmed).success ? { kind: "date", value: trimmed } : null;
     case "dateTime":
       return RecordDateTimeSchema.safeParse(trimmed).success ? { kind: "dateTime", value: trimmed } : null;
-    case "email":
     case "url":
       return { kind: "text", value: trimmed };
     case "address": {

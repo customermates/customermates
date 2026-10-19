@@ -341,7 +341,6 @@ export function buildNorthwindRecords(companyId: string) {
       ["name", text(candidate.name)],
       ["stage", option("candidate.stage", candidate.stage)],
       ["source", option("candidate.source", candidate.source)],
-      ["email", text(candidate.email)],
       ["appliedOn", date(candidate.appliedMs)],
       ["salaryExpectation", money(candidate.salaryExpectation)],
       ["interviewers", candidate.interviewerKey ? member(candidate.interviewerKey) : null],
@@ -371,7 +370,7 @@ export const NORTHWIND_RECORD_PREFIXES: ReadonlyArray<readonly [typeKey: string,
   ...Object.entries(NORTHWIND_RECORD_ID_PREFIXES).map(([typeKey, prefix]) => [typeKey, `${prefix}-`] as const),
 ];
 
-/** Mail, LinkedIn and organization channel identities, as [identity id, type key, record id, provider, value]. */
+/** Contact details of contacts, organizations and candidates: mail, LinkedIn and phone identities. */
 export function buildNorthwindIdentities() {
   const data = northwindDataset();
   const identities: Array<{
@@ -415,5 +414,14 @@ export function buildNorthwindIdentities() {
       value: `service@${organization.domain}`,
     });
   }
+  data.candidates.forEach((candidate, index) => {
+    identities.push({
+      id: fixtureId("b0000000", 4000 + index + 1),
+      typeKey: "candidate",
+      recordId: candidate.id,
+      provider: "mail",
+      value: candidate.email,
+    });
+  });
   return identities;
 }

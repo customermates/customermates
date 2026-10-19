@@ -150,7 +150,7 @@ export const RecordInputField = observer(function RecordInputField({
   }
   if (field.valueType === "address")
     return <RecordAddressInput field={field} id={id} inputId={inputId} label={label} />;
-  if (field.valueType === "email" || field.valueType === "url") {
+  if (field.valueType === "url") {
     const value = store?.getValue(id);
     return (
       <FormInput

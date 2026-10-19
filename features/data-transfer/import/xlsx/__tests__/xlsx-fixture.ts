@@ -36,9 +36,9 @@ export const fields = {
   kickoff: field("Kickoff", "dateTime"),
   period: field("Period", "dateRange"),
   active: field("Active", "boolean"),
-  email: field("Email", "email"),
+  email: field("Email", "text"),
   website: field("Website", "url"),
-  channels: field("Channels", "channels"),
+  channels: field("Contact details", "channels"),
   status: field("Status", "select", {
     options: [
       { id: "open", label: "Open", color: null, attributes: [] },

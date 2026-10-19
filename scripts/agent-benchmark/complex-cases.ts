@@ -172,7 +172,7 @@ export function isComplexCaseId(value: string): value is ComplexCaseId {
 }
 
 type Entity = "contact" | "organization" | "deal" | "service" | "task";
-type FieldType = "singleSelect" | "email" | "dateTime" | "plain" | "currency";
+type FieldType = "singleSelect" | "dateTime" | "plain" | "currency";
 
 export type SeedHelpers = {
   tx: BenchmarkFixtureWriter;
@@ -183,6 +183,7 @@ export type SeedHelpers = {
   contact: (key: string, firstName: string, lastName: string, organizationKey?: string) => Promise<void>;
   field: (key: string, entity: Entity, column: string, type: FieldType, value: string) => Promise<void>;
   phone: (contactKey: string, value: string) => Promise<unknown>;
+  email: (contactKey: string, value: string) => Promise<unknown>;
   deal: (key: string, name: string, value: number, owner?: string, status?: string, notes?: string, linked?: boolean) => Promise<void>;
   task: (key: string, name: string, dealKey: string | null, due: string, owner: string, status?: string) => Promise<void>;
   dealContactLink: (key: string, contactKey: string) => Promise<unknown>;
@@ -291,7 +292,7 @@ async function seedQualityWorkspace(h: SeedHelpers) {
   await h.contact("leo", "Leo", "Voss", "voss-org");
   await h.contact("ana", "Ana", "Sol", "sol-org");
   for (const [key, email] of [["ines", "ines.kohl@kohl.example"], ["jon-a", "jon.berg@berg.example"], ["jon-b", "j.berg@berg.example"], ["leo", "leo.voss@voss.example"], ["ana", "ana.sol@sol.example"]] as const)
-    await h.field(key, "contact", "contact-email", "email", email);
+    await h.email(key, email);
   await h.deal("quality-deal-1", "Kohl Platform", 12_000, "sofia");
   await h.deal("quality-deal-2", "Berg Renewal", 8_000, "max");
   await h.deal("quality-deal-3", "Ruiz Pilot", 15_000, "sofia");
@@ -388,7 +389,7 @@ export async function seedComplexCase(caseId: ComplexCaseId, h: SeedHelpers): Pr
     case "C32": {
       await h.organization("nova-org", "Nova Analytics GmbH", "Maya Chen is the pilot buyer. Agreed pilot budget EUR 24,000. Procurement needs the revised security questionnaire by 2026-09-10.");
       await h.contact("maya", "Maya", "Chen", "nova-org");
-      await h.field("maya", "contact", "contact-email", "email", "maya.chen@nova.example");
+      await h.email("maya", "maya.chen@nova.example");
       await h.deal(
         "nova-deal",
         "Nova Expansion",

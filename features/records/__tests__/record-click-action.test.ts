@@ -27,8 +27,8 @@ const issues = (extra: RecordField) => {
 };
 
 describe("contact value click actions", () => {
-  it("accept open, copy, null and an omitted setting on email and web fields", () => {
-    for (const valueType of ["email", "url"] as const) {
+  it("accept open, copy, null and an omitted setting on web fields", () => {
+    for (const valueType of ["url"] as const) {
       for (const onClick of ["open", "copy", null, undefined] as const) {
         const candidate = field(valueType, onClick);
         expect(RecordFieldSchema.safeParse(candidate).success).toBe(true);
@@ -38,7 +38,7 @@ describe("contact value click actions", () => {
   });
 
   it("reject unknown actions and an action on any other field type", () => {
-    expect(RecordFieldSchema.safeParse({ ...field("email", null), format: { onClick: "call" } }).success).toBe(false);
+    expect(RecordFieldSchema.safeParse({ ...field("url", null), format: { onClick: "call" } }).success).toBe(false);
     const text = field("text", "copy");
     expect(issues(text)).toContainEqual({ code: "invalid_click_action", fieldId: text.id });
   });

@@ -36,6 +36,76 @@ const putPhone = {
   operations: [{ operation: "putField", field: phoneInput }],
 };
 
+describe("retired email value type", () => {
+  it("refuses email everywhere a field type is written, pointing to contact details", () => {
+    const refusal = RecordValueTypeSchema.safeParse("email");
+    expect(refusal.success).toBe(false);
+    expect(refusal.error?.issues[0]?.message).toContain("email addresses are channel identities");
+    expect(RecordValueTypeSchema.options).not.toContain("email");
+    const putEmail = {
+      ...putPhone,
+      operations: [{ operation: "putField", field: { ...phoneInput, label: "Email", valueType: "email" } }],
+    };
+    for (const schema of [
+      PublicConfigurationChangeSchema,
+      ConfigurationChangeSchema,
+      ConfigurationContractSchema,
+      ProviderConfigurationChangeSchema,
+    ]) {
+      expect(schema.safeParse(putEmail).error?.issues).toContainEqual(
+        expect.objectContaining({
+          path: ["operations", 0, "field", "valueType"],
+          message: expect.stringContaining("write each address as an identity with provider mail"),
+        }),
+      );
+    }
+  });
+
+  it("reads configuration and record history of email fields as text", () => {
+    const preset = createCrmPreset(companyId);
+    const email = { ...legacyPhone, label: "Email", valueType: "email" };
+    const snapshot = JSON.parse(JSON.stringify({ ...preset, fields: [...preset.fields, email] }));
+    expect(RecordModelSchema.safeParse(snapshot).success).toBe(false);
+    expect(
+      RecordModelSchema.parse(historicalRecordModel(snapshot)).fields.find((field) => field.id === phoneId),
+    ).toMatchObject({ label: "Email", valueType: "text" });
+    const payload = RecordEventPayloadSchema.parse({
+      ref: { typeId: contact, recordId: "74000000-0000-4000-8000-000000000003" },
+      schemaRevision: 2,
+      cause: { kind: "mutation" },
+      beforeVersion: 1,
+      afterVersion: 2,
+      changedFieldIds: [phoneId],
+      fields: [
+        {
+          fieldId: phoneId,
+          before: null,
+          after: {
+            fieldId: phoneId,
+            label: "Email",
+            valueType: "email",
+            format: { onClick: "copy" },
+            options: [],
+            value: { state: "value", value: { kind: "text", value: "ada@example.test" } },
+            sources: [],
+            publications: [],
+            publishedSummary: false,
+            dependencyHash: "",
+          },
+        },
+      ],
+      assignments: null,
+      identities: null,
+      links: [],
+    });
+    expect(recordValueDescriptor(payload.fields[0].after, contact, [], "Former member")).toMatchObject({
+      kind: "field",
+      field: { label: "Email", valueType: "text" },
+      result: { state: "value", value: { kind: "text", value: "ada@example.test" } },
+    });
+  });
+});
+
 describe("retired phone value type", () => {
   it("refuses phone everywhere a field type is written, pointing to Channels", () => {
     const refusal = RecordValueTypeSchema.safeParse("phone");
@@ -53,7 +123,7 @@ describe("retired phone value type", () => {
       expect(result.error?.issues).toContainEqual(
         expect.objectContaining({
           path: ["operations", 0, "field", "valueType"],
-          message: expect.stringContaining("Add a channels field to the list"),
+          message: expect.stringContaining("Add a channels field (contact details) to the list"),
         }),
       );
     }

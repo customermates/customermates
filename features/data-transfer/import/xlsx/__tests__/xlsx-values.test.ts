@@ -111,12 +111,11 @@ describe("xlsx value parsing", () => {
     expect(parseXlsxFieldCell("maybe", fields.active, null)).toMatchObject({ ok: false, code: "invalidBoolean" });
   });
 
-  it("validates emails and web addresses", () => {
-    expect(parseXlsxFieldCell("ada@example.test", fields.email, null)).toEqual({
+  it("validates web addresses and keeps text as it is", () => {
+    expect(parseXlsxFieldCell("ada at example", fields.email, null)).toEqual({
       ok: true,
-      value: { kind: "text", value: "ada@example.test" },
+      value: { kind: "text", value: "ada at example" },
     });
-    expect(parseXlsxFieldCell("ada at example", fields.email, null)).toMatchObject({ ok: false, code: "invalidEmail" });
     expect(parseXlsxFieldCell("https://example.test", fields.website, null)).toMatchObject({ ok: true });
     expect(parseXlsxFieldCell("example.test", fields.website, null)).toMatchObject({ ok: false, code: "invalidUrl" });
   });

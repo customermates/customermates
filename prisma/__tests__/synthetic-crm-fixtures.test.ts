@@ -309,7 +309,6 @@ describe("Northwind Labs demo fixture contract", () => {
         "date",
         "dateRange",
         "select",
-        "email",
         "url",
         "member",
         "channels",

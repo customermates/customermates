@@ -46,6 +46,18 @@ const PHONE_SYNONYMS = [
   "movil",
 ];
 
+const EMAIL_SYNONYMS = ["email", "emailaddress", "mail", "emailadresse", "correo", "courriel"];
+
+const CHANNEL_SYNONYMS = [
+  ...PHONE_SYNONYMS,
+  ...EMAIL_SYNONYMS,
+  "contactdetails",
+  "kontaktdaten",
+  "datosdecontacto",
+  "coordonnees",
+  "recapiti",
+];
+
 const SYNONYM_GROUPS: string[][] = [
   ["amount", "price", "value", "betrag", "preis", "montant", "importe", "prezzo"],
   ["firstname", "givenname", "vorname", "prenom", "nombre", "nome"],
@@ -57,7 +69,7 @@ const SYNONYM_GROUPS: string[][] = [
   ["organizations", "organisations", "companies", "accounts", "organisationen", "firmen", "empresas", "aziende"],
   ["services", "products", "leistungen", "servicios", "servizi", "produkte"],
   ["tasks", "todos", "aufgaben", "tareas", "attivita", "taches"],
-  ["email", "emailaddress", "mail", "emailadresse", "correo", "courriel"],
+  EMAIL_SYNONYMS,
   PHONE_SYNONYMS,
   ["website", "url", "homepage", "webseite", "sitioweb", "siteweb", "sitoweb"],
   ["stage", "phase", "status", "etape", "etapa", "fase"],
@@ -171,8 +183,9 @@ export function xlsxTargetOptions(
 }
 
 function matchScore(header: string, option: XlsxTargetOption): number {
-  if (option.target.kind === "channels") return PHONE_SYNONYMS.some((word) => sameWord(word, header)) ? 90 : 0;
   const label = normalizeXlsxHeader(option.label);
+  if (option.target.kind === "channels")
+    return (label && sameWord(label, header)) || CHANNEL_SYNONYMS.some((word) => sameWord(word, header)) ? 90 : 0;
   if (option.target.kind === "recordId" && RECORD_ID_SYNONYMS.includes(header)) return 100;
   if (option.target.kind === "assignedTo" && ASSIGNED_SYNONYMS.some((word) => sameWord(word, header))) return 95;
   if (label && sameWord(label, header)) return 100;

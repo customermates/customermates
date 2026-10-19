@@ -679,15 +679,15 @@ export async function seedBenchmarkCase(
     await tx.customColumn.createMany({ data: [
       { id: id("deal-status"), companyId, entityType: "deal", label: "Status", type: "singleSelect", options: selectOptions(["Open", "Won", "Lost"]) },
       { id: id("deal-reference"), companyId, entityType: "deal", label: "Reference", type: "plain" },
-      { id: id("contact-email"), companyId, entityType: "contact", label: "Email", type: "email", options: { allowMultiple: false, color: "secondary" } },
       { id: id("task-due"), companyId, entityType: "task", label: "Due date", type: "dateTime", options: { displayFormat: "numericalShort" } },
       { id: id("task-status"), companyId, entityType: "task", label: "Status", type: "singleSelect", options: selectOptions(["Open", "Done"]) },
       { id: id("deal-committed"), companyId, entityType: "deal", label: "Committed amount", type: "currency", options: { currency: "eur" } },
     ] });
-    const field = async (key: string, entity: Entity, column: string, type: "singleSelect" | "email" | "dateTime" | "plain" | "currency", value: string) => {
+    const field = async (key: string, entity: Entity, column: string, type: "singleSelect" | "dateTime" | "plain" | "currency", value: string) => {
       await tx.customFieldValue.create({ data: { id: id("field:" + key + ":" + column), companyId, entityType: entity, columnId: id(column), type, value, ...(type === "currency" ? { numericValue: Number(value) } : {}), [entity + "Id"]: id(key) } });
     };
     const phone = async (contactKey: string, value: string) => tx.contactIdentifier.create({ data: { id: id("phone:" + contactKey), companyId, contactId: id(contactKey), provider: "phone", channelClass: "phone", value, createdAt: FIXED_CREATED, updatedAt: FIXED_CREATED } });
+    const email = async (contactKey: string, value: string) => tx.contactIdentifier.create({ data: { id: id("email:" + contactKey), companyId, contactId: id(contactKey), provider: "mail", channelClass: "email", value, createdAt: FIXED_CREATED, updatedAt: FIXED_CREATED } });
     const organization = async (key: string, name: string, notes?: string) => tx.organization.create({ data: { id: id(key), companyId, name, ...(notes ? { notes: parseMarkdownToJSON(notes) as JsonObject } : {}), createdAt: FIXED_CREATED, updatedAt: FIXED_CREATED } });
     const contact = async (key: string, firstName: string, lastName: string, organizationKey?: string) => {
       await tx.contact.create({ data: { id: id(key), companyId, firstName, lastName, createdAt: FIXED_CREATED, updatedAt: FIXED_CREATED } });
@@ -728,7 +728,7 @@ export async function seedBenchmarkCase(
     if (["S3", "M5", "M6", "H9", "H11"].includes(caseId)) {
       await organization("nova-org", "Nova Analytics GmbH", "Maya Chen is the pilot buyer. Agreed pilot budget EUR 24,000. Procurement needs the revised security questionnaire by 2026-09-10.");
       await contact("maya", "Maya", "Chen", "nova-org");
-      await field("maya", "contact", "contact-email", "email", "maya.chen@nova.example");
+      await email("maya", "maya.chen@nova.example");
       if (caseId !== "H9") await deal("nova-deal", "Nova Expansion", 24_000, "sofia", "Open", INITIAL_NOTE + (caseId === "H11" ? "\n\n" + INJECTION_NOTE : ""), true);
       if (caseId === "M5") await field("nova-deal", "deal", "deal-reference", "plain", "REF-NOVA-42");
       if (caseId === "H11") await auditNote("nova-deal", "Procurement requested the revised security questionnaire by 2026-09-10. Budget remains EUR 24,000.", "2026-09-04T12:00:00.000Z");
@@ -1138,6 +1138,7 @@ export async function seedBenchmarkCase(
       contact,
       field,
       phone,
+      email,
       deal,
       task,
       dealContactLink,

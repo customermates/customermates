@@ -40,7 +40,6 @@ function unwound(run: () => unknown) {
 
 describe("record value validation", () => {
   it.each([
-    ["email", "bad-email", CustomErrorCode.invalidEmail],
     ["url", "not a url", CustomErrorCode.invalidUrl],
   ] as const)("names the specific %s failure", (valueType, value, code) => {
     expect(recordValueIssue(text(value), field(valueType))).toBe(code);
@@ -64,8 +63,8 @@ describe("record value validation", () => {
 
   it("fails a write with the field path and a specific code", () => {
     const path = ["mutation", "fields", 2, "value"];
-    expect(unwound(() => normalizeRecordScalar(text("bad-email"), field("email"), path))).toMatchObject({
-      code: CustomErrorCode.invalidEmail,
+    expect(unwound(() => normalizeRecordScalar(text("not a url"), field("url"), path))).toMatchObject({
+      code: CustomErrorCode.invalidUrl,
       path,
     });
     expect(unwound(() => normalizeRecordScalar(null, field("text", { required: true }), path))).toMatchObject({

@@ -38,7 +38,7 @@ const TEXT_OPERATORS: Operator[] = ["concat", "lower", "upper", "trim"];
 const UNARY: Operator[] = ["not", "lower", "upper", "trim"];
 const NUMERIC: RecordValueType[] = ["number", "currency"];
 const ORDERED: RecordValueType[] = ["number", "currency", "date", "dateTime"];
-const TEXTUAL: RecordValueType[] = ["text", "email", "url"];
+const TEXTUAL: RecordValueType[] = ["text", "url"];
 
 export const isUnset = (expression: CalculationExpression) =>
   expression.kind === "literal" && expression.value === null;

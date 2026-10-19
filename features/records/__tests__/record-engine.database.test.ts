@@ -9366,7 +9366,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         idempotencyKey: randomUUID(),
         operations: [
           ...[
-            { id: emails, valueType: "email" as const, multiple: true },
+            { id: emails, valueType: "text" as const, multiple: true },
             { id: instant, valueType: "dateTime" as const, multiple: false },
           ].map((entry) => ({
             operation: "putField" as const,

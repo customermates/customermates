@@ -1,6 +1,9 @@
 import type { RecordValueType } from "./record-model.schema";
 
-const RETIRED_VALUE_TYPES = new Map<string, RecordValueType>([["phone", "text"]]);
+const RETIRED_VALUE_TYPES = new Map<string, RecordValueType>([
+  ["phone", "text"],
+  ["email", "text"],
+]);
 
 type JsonObject = Record<string, unknown>;
 

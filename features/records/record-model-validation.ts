@@ -30,8 +30,8 @@ export type ModelIssue = {
   examples?: string[];
 };
 
-export const MULTIPLE_VALUE_TYPES: readonly RecordValueType[] = ["text", "email", "url", "select", "file"];
-export const CONTACT_VALUE_TYPES: readonly RecordValueType[] = ["email", "url"];
+export const MULTIPLE_VALUE_TYPES: readonly RecordValueType[] = ["text", "url", "select", "file"];
+export const CONTACT_VALUE_TYPES: readonly RecordValueType[] = ["url"];
 export const CLICK_ACTION_VALUE_TYPES: readonly RecordValueType[] = [...CONTACT_VALUE_TYPES, "address", "channels"];
 
 export function selectedOptionIds(value: RecordScalar | null): string[] {
@@ -47,7 +47,7 @@ export function scalarMatchesType(value: RecordScalar, type: RecordValueType, mu
   if (multiple) {
     return (
       value.kind === "textList" &&
-      ["text", "email", "url"].includes(type) &&
+      ["text", "url"].includes(type) &&
       value.value.every((text) => scalarMatchesType({ kind: "text", value: text }, type))
     );
   }
@@ -56,8 +56,6 @@ export function scalarMatchesType(value: RecordScalar, type: RecordValueType, mu
       return value.kind === "decimal" && value.currency === null && isRepresentableDecimal(value.value);
     case "currency":
       return value.kind === "decimal" && value.currency !== null && isRepresentableDecimal(value.value);
-    case "email":
-      return value.kind === "text" && z.email().safeParse(value.value.trim()).success;
     case "url": {
       if (value.kind !== "text") return false;
       try {
@@ -80,7 +78,6 @@ export function scalarMatchesType(value: RecordScalar, type: RecordValueType, mu
 }
 
 const TYPE_MISMATCH_CODES: Partial<Record<RecordValueType, CustomErrorCode>> = {
-  email: CustomErrorCode.invalidEmail,
   url: CustomErrorCode.invalidUrl,
   number: CustomErrorCode.recordNumberInvalid,
   currency: CustomErrorCode.recordNumberInvalid,
@@ -143,7 +140,7 @@ function primitiveType(value: RecordScalar | null): RecordValueType | null {
 }
 
 function normalizeType(value: RecordValueType | null): RecordValueType | null {
-  return value && ["email", "url"].includes(value) ? "text" : value;
+  return value === "url" ? "text" : value;
 }
 
 type CalculationInputField = Pick<RecordField, "id" | "typeId" | "archived" | "valueType" | "multiple" | "options">;

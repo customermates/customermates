@@ -72,20 +72,30 @@ describe("xlsx column auto-mapping", () => {
     expect(duplicateXlsxTargets(["a", XLSX_SKIP_KEY, "a", "b", XLSX_SKIP_KEY])).toEqual(["a"]);
   });
 
-  it("maps phone columns to the Channels field, several columns at once", () => {
+  it("maps phone and contact details columns to the contact details field, several columns at once", () => {
     expect(options.find((option) => option.key === XLSX_CHANNELS_KEY)).toEqual({
       key: XLSX_CHANNELS_KEY,
-      label: "Channels",
+      label: "Contact details",
       target: { kind: "channels" },
     });
-    expect(autoMapXlsxColumns(["Phone", "Mobile", "Telefonnummer", "Mobil", "Channels"], options)).toEqual([
-      XLSX_CHANNELS_KEY,
-      XLSX_CHANNELS_KEY,
-      XLSX_CHANNELS_KEY,
-      XLSX_CHANNELS_KEY,
-      XLSX_SKIP_KEY,
-    ]);
+    expect(
+      autoMapXlsxColumns(["Phone", "Mobile", "Telefonnummer", "Mobil", "Contact details", "Kontaktdaten"], options),
+    ).toEqual(Array.from({ length: 6 }, () => XLSX_CHANNELS_KEY));
     expect(duplicateXlsxTargets([XLSX_CHANNELS_KEY, XLSX_CHANNELS_KEY])).toEqual([]);
+  });
+
+  it("maps email columns to the contact details field unless a field has the column's name", () => {
+    const withoutEmail = xlsxTargetOptions(
+      { ...model, fields: model.fields.filter((field) => field.id !== fields.email.id) },
+      PROJECT,
+      labels,
+    );
+    expect(autoMapXlsxColumns(["Email", "E-Mail-Adresse", "Courriel"], withoutEmail)).toEqual([
+      XLSX_CHANNELS_KEY,
+      XLSX_CHANNELS_KEY,
+      XLSX_CHANNELS_KEY,
+    ]);
+    expect(autoMapXlsxColumns(["E-Mail"], options)).toEqual([`field:${fields.email.id}`]);
   });
 
   it("maps phone columns to a text field when the list has no live Channels field", () => {
