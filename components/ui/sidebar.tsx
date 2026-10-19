@@ -726,5 +726,6 @@ export {
   SidebarProvider,
   SidebarResizeHandle,
   SidebarTrigger,
+  sidebarMenuButtonVariants,
   useSidebar,
 };
