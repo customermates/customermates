@@ -5,7 +5,7 @@ import { getGetRecordNavigationInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
 import { unwrapPage } from "@/core/validation/next/unwrap-page";
 import { presetId } from "@/features/records/crm-preset";
-import { appLinkForPlace } from "@/features/docs/app-links";
+import { RECORD_PRESET_KEYS } from "@/features/records/workspace-record-preset";
 import { buildLocalePath } from "@/i18n/locale-registry";
 
 export default async function OpenAppRecordLinkPage({
@@ -15,10 +15,9 @@ export default async function OpenAppRecordLinkPage({
 }) {
   await requireAccess();
   const { area, preset, recordId } = await params;
-  const link = appLinkForPlace(`${area}/${preset}`, null);
-  if (link?.kind !== "records") notFound();
+  if (area !== "records" || !RECORD_PRESET_KEYS.some((key) => key === preset)) notFound();
   const navigation = await unwrapPage(getGetRecordNavigationInteractor().invoke());
-  const typeId = presetId(navigation.companyId, link.preset);
+  const typeId = presetId(navigation.companyId, preset);
   if (!navigation.types.some((type) => type.id === typeId)) notFound();
   redirect(buildLocalePath(await getLocale(), `/records/${typeId}/${encodeURIComponent(recordId)}`));
 }

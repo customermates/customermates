@@ -77,7 +77,7 @@ describe("AgentUiControlStore.navigate", () => {
     expect(navigate).not.toHaveBeenCalled();
     vi.mocked(getRecordNavigationAction).mockResolvedValue({
       ok: true,
-      data: { companyId: "company", schemaRevision: 1, canManageSchema: false, types: [] },
+      data: { companyId: "company", schemaRevision: 1, canManageSchema: false, hasLists: false, types: [] },
     });
     await expect(store.navigate({ targetId: `nav-records:${RECORD_TYPES[0]}` })).resolves.toMatchObject({ ok: false });
     expect(navigate).not.toHaveBeenCalled();
@@ -87,6 +87,7 @@ describe("AgentUiControlStore.navigate", () => {
         companyId: "company",
         schemaRevision: 1,
         canManageSchema: false,
+        hasLists: true,
         types: [
           {
             id: RECORD_TYPES[0],

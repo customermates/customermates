@@ -145,9 +145,6 @@ test("a new Google login from an invitation gets the invitation flow and waits f
     await expectHydrated(page.locator("#firstName"));
     await page.locator("#firstName").fill("Lea");
     await page.locator("#lastName").fill("Brandt");
-    await page.locator("#country").click();
-    await page.getByPlaceholder(englishMessages.Common.table.search).fill("Germany");
-    await page.getByRole("option", { name: /Germany/ }).click();
     await page.locator("#agreeToTerms").click();
     await clickHydrated(page.getByRole("button", { name: englishMessages.OnboardingWizard.continue, exact: true }));
 

@@ -1,5 +1,4 @@
 import { RecordRefSchema } from "./record-model.schema";
-import { presetId } from "./crm-preset";
 import { z } from "zod";
 import type { RecordRepo } from "./record.repo";
 import type { RecordAccessPolicy } from "./record-access";
@@ -62,13 +61,8 @@ export class GetIdentityRecordChoicesInteractor extends AuthenticatedInteractor<
               input.refs
                 ? {
                     refs: input.refs
-                      .map((ref) =>
-                        typeof ref === "string"
-                          ? {
-                              typeId: presetId(this.companyId, "contact"),
-                              recordId: ref,
-                            }
-                          : ref,
+                      .flatMap((ref) =>
+                        typeof ref === "string" ? typeIds.map((typeId) => ({ typeId, recordId: ref })) : [ref],
                       )
                       .filter((ref) => typeIds.includes(ref.typeId)),
                   }

@@ -40,7 +40,6 @@ afterAll(async () => {
 const PROFILE_SELECT = {
   firstName: true,
   lastName: true,
-  country: true,
   avatarUrl: true,
   theme: true,
   displayLanguage: true,
@@ -89,7 +88,6 @@ describeDatabase("personal profile across the workspaces of one login on Postgre
       getUpdateUserDetailsInteractor().invoke({
         firstName: "Renamed",
         lastName: "Person",
-        country: "it",
         avatarUrl: "https://example.com/avatar.png",
         theme: "dark",
         displayLanguage: "de",
@@ -101,7 +99,6 @@ describeDatabase("personal profile across the workspaces of one login on Postgre
     const expected = {
       firstName: "Renamed",
       lastName: "Person",
-      country: "it",
       avatarUrl: "https://example.com/avatar.png",
       theme: "dark",
       displayLanguage: "de",

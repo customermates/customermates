@@ -1,8 +1,6 @@
 import type { DataViewChipDto } from "@/core/data-view/data-view-state.schema";
 
-import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
-
-export type RailChip = { kind: "all"; isActive: boolean } | { kind: "view"; view: DataViewChipDto; isActive: boolean };
+export type RailChip = { view: DataViewChipDto; isActive: boolean };
 
 export type ViewMenuItemId = "copyLink" | "delete" | "duplicate" | "edit" | "moveLeft" | "moveRight";
 
@@ -33,13 +31,7 @@ export function sortViewsByPosition(views: readonly DataViewChipDto[]): DataView
 }
 
 export function orderChips(views: readonly DataViewChipDto[], activeViewKey: string): RailChip[] {
-  const sorted = sortViewsByPosition(views);
-  const activeKey = sorted.some((view) => view.id === activeViewKey) ? activeViewKey : ALL_VIEW_KEY;
-
-  return [
-    { isActive: activeKey === ALL_VIEW_KEY, kind: "all" },
-    ...sorted.map((view): RailChip => ({ isActive: view.id === activeKey, kind: "view", view })),
-  ];
+  return sortViewsByPosition(views).map((view) => ({ isActive: view.id === activeViewKey, view }));
 }
 
 export function viewMenuItems(ctx: ViewMenuContext): ViewMenuItem[] {
@@ -51,8 +43,4 @@ export function viewMenuItems(ctx: ViewMenuContext): ViewMenuItem[] {
     actionItem("copyLink"),
     actionItem("delete", { isDestructive: true }),
   ];
-}
-
-export function allViewMenuItems(): ViewMenuItem[] {
-  return [actionItem("duplicate"), actionItem("copyLink")];
 }

@@ -281,8 +281,7 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
     }
 
     const { runWithTenant } = await import("@/core/decorators/tenant-context");
-    const { InitializeRecordModelService } = await import("@/features/records/initialize-record-model.service");
-    const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
+    const { initializeStarterRecordModel } = await import("@/tests/helpers/record-repository");
     const { createMockUser } = await import("@/tests/helpers/mock-user");
     for (const [companyId, userId, roleId] of [
       [companies.team, people.ada.teamMemberId, roles.teamAdmin],
@@ -290,7 +289,7 @@ describeDatabase("removing a member from a workspace", { timeout: 180_000 }, () 
       [companies.cleosOwn, ownMemberships.cleo, roles.cleosOwnAdmin],
     ]) {
       const owner = createMockUser({ id: userId, companyId, roleId });
-      await runWithTenant(owner, () => new InitializeRecordModelService(createTestRecordRepo()).initialize());
+      await runWithTenant(owner, () => initializeStarterRecordModel());
     }
 
     for (const [key, owner, companyId] of [

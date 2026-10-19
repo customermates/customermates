@@ -42,10 +42,11 @@ import {
   isAgentOnDemandToolset,
 } from "./agent-toolset-routing";
 import { onDemandToolsetOfTool, toolNamesOfToolset } from "./agent-toolsets";
+import { orderAgentToolsForCache } from "./agent-prompt-cache";
 
 import { AgentTourSchema } from "./agent-tours";
 import { AGENT_UI_TOOL_NAMES, toAgentUiCommandInput } from "./agent-ui-command";
-import { isReadOnlyTool, requiresApproval } from "./gated-tools";
+import { isReadOnlyTool, requiresApprovalOnSurface } from "./gated-tools";
 import { importWebsiteTool } from "@/ee/wiki-crawl/wiki-import-tool";
 import { providerWireInputSchema } from "./provider-safe-json-schema";
 import { recordToolRisk } from "./record-tool-risk";
@@ -65,12 +66,11 @@ import { getAgentWebSearchTool } from "./agent-web-search";
 import { hostedWorkspaceContextTool } from "@/features/mcp-tools/workspace.mcp-tools";
 import { localizeWikiPageUrls } from "@/features/wiki/wiki-links";
 import { localizeAppLinks } from "@/features/docs/app-links";
-import { presetId } from "@/features/records/crm-preset";
-import { UserAccessor } from "@/core/base/user-accessor";
 import { hostedSectionRankers } from "./docs-rerank";
 import { DataViewProposalSchema } from "@/core/data-view/data-view-proposal.schema";
 import { proposingManageDataViewsTool } from "@/features/mcp-tools/data-view.mcp-tools";
 import { verifyAgentRecordUpdate } from "./agent-write-verification";
+import { routineManageWikiPagesTool } from "./agent-wiki-proposals";
 
 export type AgentToolOptions = {
   locale?: string;
@@ -109,6 +109,7 @@ export type AgentToolDeps = {
   resultMaxChars: number;
   pageRoute?: string | null;
   latestUserMessage?: string | null;
+  conversationId?: string;
 };
 
 function withCallerContext(tools: ToolSet, deps: AgentToolDeps): ToolSet {
@@ -190,12 +191,6 @@ function agentToolViewProposal(toolName: string | undefined, outcome: McpToolExe
     state: content.state,
   });
   return proposal.success ? proposal.data : null;
-}
-
-function localizeAgentAppLinks(text: string) {
-  return localizeAppLinks(text, env.BASE_URL, {
-    listId: (preset) => presetId(new UserAccessor().companyId, preset),
-  });
 }
 
 export function agentToolResult(
@@ -334,8 +329,9 @@ export function agentToolResult(
       };
     }
   }
-  const text = localizeAgentAppLinks(
+  const text = localizeAppLinks(
     localizeWikiPageUrls(contextualAgentToolResultText(context.toolName, outcome, context.pageRoute), env.BASE_URL),
+    env.BASE_URL,
   );
   if (!outcome.ok) return boundedAgentToolFailure({ result: text, failure: outcome.failure }, maxChars);
   const navigation = contextualAgentToolNavigation(context.toolName, outcome, context.pageRoute);
@@ -650,7 +646,8 @@ function crmTool(
         if (mismatch) return { ok: false, result: mismatch };
         const approvalContext = await deps.resolveApprovalContext(mcp.name, input);
         if (!approvalContext.ok) return { ok: false, result: approvalContext.result };
-        if (!requiresApproval(internalToolIdentity(mcp.name), mcp, approvalContext.input)) return complete();
+        if (!requiresApprovalOnSurface(internalToolIdentity(mcp.name), mcp, approvalContext.input, surface))
+          return complete();
         return runGated(deps, surface, toolCallId, mcp.name, approvalContext.input, complete);
       }, resultMaxChars);
     },
@@ -798,7 +795,12 @@ function wikiWebsiteSetupTools(
 
 export function getAgentAiTools(deps: AgentToolDeps, options: AgentToolOptions = {}): ToolSet {
   const rankers = hostedSectionRankers(deps.latestUserMessage ?? null);
-  const crm = hostedMcpTools().map((mcp) => [mcp.name, crmTool(mcp, deps, options.surface, rankers)] as const);
+  const unattended = options.surface !== undefined && isUnattendedSurface(options.surface);
+  const crm = hostedMcpTools()
+    .map((mcp) =>
+      unattended && mcp.name === manageWikiPagesTool.name ? routineManageWikiPagesTool(deps.conversationId) : mcp,
+    )
+    .map((mcp) => [mcp.name, crmTool(mcp, deps, options.surface, rankers)] as const);
   return withCallerContext(
     {
       ...Object.fromEntries(crm),
@@ -889,12 +891,14 @@ export function agentToolDefinitionsForTurn(args: {
 }): AgentTurnToolDefinition[] {
   const panelToolNames = new Set<string>(AGENT_UI_TOOL_NAMES);
   const unattended = isUnattendedSurface(args.surface);
-  return getAgentAiToolDefinitions(args.servingProvider, args)
-    .filter((definition) => !unattended || !panelToolNames.has(definition.name))
-    .map((definition) => ({
-      ...definition,
-      toolset: onDemandToolsetOfTool(definition.name),
-    }));
+  return orderAgentToolsForCache(
+    getAgentAiToolDefinitions(args.servingProvider, args)
+      .filter((definition) => !unattended || !panelToolNames.has(definition.name))
+      .map((definition) => ({
+        ...definition,
+        toolset: onDemandToolsetOfTool(definition.name),
+      })),
+  );
 }
 
 export function agentToolDefinitionsForToolsets(

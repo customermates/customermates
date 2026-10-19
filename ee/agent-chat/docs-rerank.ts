@@ -8,6 +8,8 @@ import type {
   SectionRanking,
 } from "@/core/retrieval/retrieval-context";
 
+import { rerankEvidenceAllowances } from "@/core/retrieval/retrieval-pipeline";
+
 import { docsRankEvidence } from "./docs-rank-evidence";
 
 import { agentContextFromProviderText } from "./agent-context";
@@ -15,7 +17,7 @@ import { classifyMetered, hostedDocsRerankModel } from "./classifier/metered";
 
 export const DOCS_RERANK_USER_MESSAGE_CHARS = 1_000;
 const DOCS_RERANK_OPTION_CHARS = 800;
-const DOCS_RERANK_EVIDENCE_CHARS = 16_000;
+const DOCS_RERANK_NAVIGATION_CHARS = 160;
 export const DOCS_RERANK_NONE = "none";
 
 export function docsRerankPlainText(value: string): string {
@@ -57,17 +59,11 @@ export function docsRankSpec(
   corpus: RetrievalCorpus = "docs",
   query = "",
 ): ClassifierSpec {
-  const weights = candidates.map((_, index) => (index < 20 ? 5 : 1));
-  const totalWeight = Math.max(
-    1,
-    weights.reduce((total, weight) => total + weight, 0),
-  );
+  const allowances = rerankEvidenceAllowances(candidates.map(({ section }) => section.text.length));
   const options = Object.fromEntries(
     candidates.map(({ id, section, locale }, index) => {
-      const optionChars = Math.min(
-        DOCS_RERANK_OPTION_CHARS,
-        Math.floor((DOCS_RERANK_EVIDENCE_CHARS * weights[index]) / totalWeight),
-      );
+      const allowance = allowances[index];
+      const optionChars = allowance === "whole" ? section.text.length + DOCS_RERANK_NAVIGATION_CHARS : allowance;
       const heading = section.headingPath.at(-1) || section.pageTitle;
       const title = `${section.pageTitle} > ${section.headingPath.slice(0, -1).join(" > ")}`.replace(/ > $/u, "");
       const content = section.text

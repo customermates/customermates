@@ -22,7 +22,7 @@ import { buildLocalePath } from "@/i18n/locale-registry";
 
 import { WorkspaceTabChannel } from "./workspace-tab-channel";
 
-type WorkspaceEntry = "/" | "/dashboard" | "/auth/pending";
+type WorkspaceEntry = "/" | "/dashboard" | "/auth/pending" | "/onboarding/wizard";
 
 export type ForeignWorkspaceNotice = { companyId: string | null; name: string | null; deleted?: true };
 

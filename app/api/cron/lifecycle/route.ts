@@ -1,3 +1,5 @@
+import * as Sentry from "@sentry/nextjs";
+
 import {
   getDeactivateTrialUsersAndSendNoticeInteractor,
   getDeactivateUsersAfterSubscriptionGracePeriodInteractor,
@@ -12,6 +14,8 @@ import {
   getPruneRoutineRunsInteractor,
   getPruneDraftSendsInteractor,
   getPurgeExpiredTrashInteractor,
+  getPruneWikiKnowledgeGapsInteractor,
+  getSyncStaleWikiSectionsInteractor,
 } from "@/core/di";
 import { env } from "@/env";
 
@@ -26,6 +30,16 @@ function concurrentSteps(): LifecycleStep[] {
     ["pruneRoutineRuns", () => getPruneRoutineRunsInteractor().invoke()],
     ["pruneDraftSends", () => getPruneDraftSendsInteractor().invoke()],
     ["purgeExpiredTrash", () => getPurgeExpiredTrashInteractor().invoke()],
+    ["pruneWikiKnowledgeGaps", () => getPruneWikiKnowledgeGapsInteractor().invoke()],
+    [
+      "syncStaleWikiSections",
+      () =>
+        getSyncStaleWikiSectionsInteractor()
+          .invoke()
+          .catch((error: unknown) => {
+            Sentry.captureException(error, { tags: { kind: "wiki-section-cron-sync" } });
+          }),
+    ],
   ];
   if (env.APP_MODE !== "cloud") return retention;
 

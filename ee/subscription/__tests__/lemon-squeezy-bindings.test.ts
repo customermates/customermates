@@ -8,6 +8,7 @@ const VALID_ENV: LemonSqueezyBindingEnvironment = {
   LEMONSQUEEZY_VARIANT_ID_STARTER: "2001",
   LEMONSQUEEZY_VARIANT_ID_PRO: "2002",
   LEMONSQUEEZY_VARIANT_ID_BUSINESS: "2003",
+  LEMONSQUEEZY_VARIANT_ID_MAX: "2004",
 };
 
 describe("Lemon Squeezy offer bindings", () => {
@@ -23,13 +24,19 @@ describe("Lemon Squeezy offer bindings", () => {
       "business:monthly": {
         checkoutVariantId: "2003",
       },
+      "max:monthly": {
+        checkoutVariantId: "2004",
+      },
     });
     expect(offerToVariant(getCommercialOfferOrThrow("pro", "monthly"), VALID_ENV)).toBe("2002");
     expect(variantToOffer("2003", VALID_ENV)?.id).toBe("business:monthly");
+    expect(offerToVariant(getCommercialOfferOrThrow("max", "monthly"), VALID_ENV)).toBe("2004");
+    expect(variantToOffer("2004", VALID_ENV)?.plan).toBe("max");
   });
 
   it.each([
     ["missing", { ...VALID_ENV, LEMONSQUEEZY_VARIANT_ID_PRO: undefined }],
+    ["missing Max", { ...VALID_ENV, LEMONSQUEEZY_VARIANT_ID_MAX: undefined }],
     ["blank", { ...VALID_ENV, LEMONSQUEEZY_VARIANT_ID_PRO: " " }],
     ["non-numeric", { ...VALID_ENV, LEMONSQUEEZY_VARIANT_ID_PRO: "pro" }],
     ["zero", { ...VALID_ENV, LEMONSQUEEZY_VARIANT_ID_PRO: "0" }],
@@ -51,7 +58,7 @@ describe("Lemon Squeezy offer bindings", () => {
     expect(() =>
       parseLemonSqueezyBindings({
         ...VALID_ENV,
-        LEMONSQUEEZY_VARIANT_ID_ENTERPRISE: "2004",
+        LEMONSQUEEZY_VARIANT_ID_ENTERPRISE: "2005",
       } as LemonSqueezyBindingEnvironment),
     ).toThrow("Enterprise and excess variants are not allowed");
   });

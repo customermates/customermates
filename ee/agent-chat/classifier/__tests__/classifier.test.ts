@@ -164,17 +164,20 @@ describe("classifyAttempt", () => {
   });
 
   it.each([
-    ["an error status", replyWith({ error: "overloaded" }, 529)],
-    ["answers missing a question", replyWith({ answers: { intent: JEV_BODY.answers.intent } })],
+    ["an error status", replyWith({ error: "overloaded" }, 529), "unavailable"],
+    ["a rate limit", replyWith({ error: "at capacity" }, 429), "rateLimited"],
+    ["answers missing a question", replyWith({ answers: { intent: JEV_BODY.answers.intent } }), "invalidAnswers"],
     [
       "an unknown option",
       replyWith({ answers: { ...JEV_BODY.answers, intent: { type: "choice", choice: "delete" } } }),
+      "invalidAnswers",
     ],
-    ["a network failure", () => Promise.reject(new TypeError("fetch failed"))],
-  ])("returns null on %s from Jev", async (_label, fetchImpl) => {
+    ["a network failure", () => Promise.reject(new TypeError("fetch failed")), "network"],
+  ] as const)("returns null on %s from Jev and names why", async (_label, fetchImpl, failure) => {
     expect(await classifyAttempt(SPEC, STATE, { apiKey: "k", fetch: fetchImpl })).toEqual({
       result: null,
       requested: true,
+      failure,
     });
   });
 

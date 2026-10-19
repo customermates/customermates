@@ -66,10 +66,11 @@ test("keeps separate widget sets per dashboard view and targets a view through t
   );
   expect(stored.rows).toEqual([{ viewId }]);
 
-  await rail
-    .getByText(englishMessages.Dashboard.mainView, { exact: true })
-    .click();
+  const berlin = rail.getByRole("link", { name: "Site Berlin", exact: true });
+  await expect(berlin).toHaveAttribute("aria-current", "page");
+  await berlin.click();
   await expect(page).not.toHaveURL(/[?&]view=/);
+  await expect(berlin).not.toHaveAttribute("aria-current", "page");
   await expect(card).toHaveCount(0);
 
   const save = (name: string, target: string | null) =>
@@ -213,11 +214,11 @@ test("names the widgets of a view that is not shown and renames it from its chip
     .fill("Hamburg starter");
   await dialog.locator("#widget-modal-save").click();
   await expect(dialog).toHaveCount(0);
-  await rail
-    .getByText(englishMessages.Dashboard.mainView, { exact: true })
-    .click();
-  await expect(page).not.toHaveURL(/[?&]view=/);
   const chip = rail.getByRole("link", { name: "Site Hamburg", exact: true });
+  await expect(chip).toHaveAttribute("aria-current", "page");
+  await chip.click();
+  await expect(page).not.toHaveURL(/[?&]view=/);
+  await expect(chip).not.toHaveAttribute("aria-current", "page");
 
   const deleteMenu = await openItemContextMenu(page, chip);
   await deleteMenu

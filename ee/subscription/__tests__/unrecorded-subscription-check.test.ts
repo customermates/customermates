@@ -9,6 +9,7 @@ vi.mock("@/env", () => ({
     LEMONSQUEEZY_VARIANT_ID_STARTER: "2001",
     LEMONSQUEEZY_VARIANT_ID_PRO: "2002",
     LEMONSQUEEZY_VARIANT_ID_BUSINESS: "2003",
+    LEMONSQUEEZY_VARIANT_ID_MAX: "2004",
   },
 }));
 vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn(), captureMessage: vi.fn() }));

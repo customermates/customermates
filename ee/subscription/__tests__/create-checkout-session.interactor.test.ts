@@ -22,6 +22,7 @@ vi.mock("@/env", () => ({
     LEMONSQUEEZY_VARIANT_ID_STARTER: "2001",
     LEMONSQUEEZY_VARIANT_ID_PRO: "2002",
     LEMONSQUEEZY_VARIANT_ID_BUSINESS: "2003",
+    LEMONSQUEEZY_VARIANT_ID_MAX: "2004",
   },
 }));
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
@@ -236,6 +237,23 @@ describe("CreateCheckoutSessionInteractor", () => {
     });
     expect(subscriptionService.createCheckoutOrThrow).not.toHaveBeenCalled();
     expect(repo.claimCheckoutStart).not.toHaveBeenCalled();
+  });
+
+  it("opens Max checkout like every other plan", async () => {
+    const subscriptionService = makeSubscriptionService();
+    const interactor = new CreateCheckoutSessionInteractor(
+      subscriptionService as never,
+      makeCheckoutRepo() as never,
+      makeUserRepo() as never,
+      makeCompanyRepo() as never,
+    );
+
+    const result = await interactor.invoke({ plan: "max", cadence: "monthly" } as never);
+
+    expect(result).toMatchObject({ redirect: "https://checkout.example.com" });
+    expect(subscriptionService.createCheckoutOrThrow).toHaveBeenCalledWith(
+      expect.objectContaining({ offer: expect.objectContaining({ id: "max:monthly", unitPriceMinor: 14_900 }) }),
+    );
   });
 
   it("rejects annual checkout before calling the provider", async () => {

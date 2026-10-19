@@ -36,7 +36,7 @@ test("renders change values with the shared value renderers on every activity su
     companyId,
   ]);
   await database.query(
-    'INSERT INTO "User" (id,"companyId","roleId",email,"firstName","lastName",status,country,"updatedAt") VALUES ($1,$2,$3,$4,\'Invited\',\'Member\',\'pendingAuthorization\',\'de\',NOW())',
+    'INSERT INTO "User" (id,"companyId","roleId",email,"firstName","lastName",status,"updatedAt") VALUES ($1,$2,$3,$4,\'Invited\',\'Member\',\'pendingAuthorization\',NOW())',
     [memberId, companyId, roleId, `${memberId}@example.test`],
   );
 

@@ -37,28 +37,28 @@ beforeEach(() => {
 });
 
 describe("update_my_profile", () => {
-  it("reports only the profile fields changed in country and avatar updates", async () => {
+  it("reports only the profile fields changed in theme and avatar updates", async () => {
     spies.updateUserDetails.mockResolvedValue({
       ok: true,
       data: {
         firstName: "Ada",
         lastName: "Lovelace",
-        country: "de",
         avatarUrl: "https://example.com/ada.png",
+        theme: "dark",
       },
     });
     const input = updateMyProfileTool.inputSchema.parse({
-      country: "de",
+      theme: "dark",
       avatarUrl: "https://example.com/ada.png",
     });
 
     const result = await updateMyProfileTool.execute(input);
 
     expect(spies.updateUserDetails).toHaveBeenCalledWith({
-      country: "de",
+      theme: "dark",
       avatarUrl: "https://example.com/ada.png",
     });
-    expect(mcpToolResultText(result)).toContain("country: de");
+    expect(mcpToolResultText(result)).toContain("theme: dark");
     expect(mcpToolResultText(result)).toContain("https://example.com/ada.png");
     expect(mcpToolResultText(result)).not.toContain("firstName");
     expect(mcpToolResultText(result)).not.toContain("lastName");
@@ -70,7 +70,6 @@ describe("update_my_profile", () => {
       data: {
         firstName: "Grace",
         lastName: "Hopper",
-        country: "us",
         avatarUrl: null,
       },
     });
@@ -82,7 +81,7 @@ describe("update_my_profile", () => {
 
     expect(mcpToolResultText(result)).toContain("firstName: Grace");
     expect(mcpToolResultText(result)).not.toContain("lastName");
-    expect(mcpToolResultText(result)).not.toContain("country");
+    expect(mcpToolResultText(result)).not.toContain("theme");
     expect(mcpToolResultText(result)).not.toContain("avatarUrl");
   });
 
@@ -92,7 +91,6 @@ describe("update_my_profile", () => {
       data: {
         firstName: "Ada",
         lastName: "Lovelace",
-        country: "de",
         avatarUrl: null,
         theme: "dark",
         displayLanguage: "de",

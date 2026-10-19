@@ -42,7 +42,6 @@ function syntheticSnapshot(): SyntheticAuditSnapshot {
       firstName: member.firstName,
       lastName: member.lastName,
       avatarUrl: member.avatarPath,
-      country: member.country,
       roleId: member.roleId,
       status: member.status,
       createdAt,

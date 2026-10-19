@@ -12,7 +12,7 @@ Der [Posteingang](app:inbox) ist vereinheitlichtes Messaging in Customermates Cl
 Alle vier Bedingungen müssen erfüllt sein:
 
 - **Customermates Cloud.** Self-Hosted-Installationen haben keinen Posteingang: Der Seitenleisten-Eintrag ist ausgeblendet, und wer ihn öffnet, landet auf dem Dashboard.
-- **Ein Tarif mit Messaging:** Pro, Business, Enterprise oder eine Testphase. Im Starter-Tarif bleibt der Posteingang in der Seitenleiste, zeigt aber **Upgrade nötig, um Messaging freizuschalten**, und **Tarif upgraden** öffnet [Abrechnung](app:settings/billing).
+- **Ein Tarif mit Messaging:** Pro, Business, Max, Enterprise oder eine Testphase. Im Starter-Tarif bleibt der Posteingang in der Seitenleiste, zeigt aber **Upgrade nötig, um Messaging freizuschalten**, und **Tarif upgraden** öffnet [Abrechnung](app:settings/billing).
 - **Ein nutzbares Abonnement:** der Status **Aktiv** oder eine noch nicht abgelaufene Testphase. Solange der Status **Überfällig** oder **Gekündigt** ist, ist der Posteingang ebenso gesperrt.
 - **Ihre Rolle:** **Inbox-Nachrichten** mit **Lesen** auf **Alle**. Bei **Keine** ist der Seitenleisten-Eintrag ausgeblendet, und wer den Posteingang öffnet, landet auf dem Dashboard. Die Rolle **Admin** hat immer Zugriff.
 
@@ -54,7 +54,7 @@ Die Kopfleiste des [Posteingangs](app:inbox) enthält:
 
 **E-Mail-Ordner** gruppiert Ordner unter ihrem Konto, sodass gleichnamige Ordner getrennt bleiben; **in** findet Konversationen mit einer sichtbaren Nachricht in einem der gewählten Ordner, **nicht in** schließt sie aus. **Letzte Nachricht** und **Letzte Nachricht am** beziehen sich auf die jüngste tatsächlich gesendete oder empfangene Nachricht; Entwürfe, gelöschte Nachrichten und Systemereignisse zählen nicht. Für E-Mails von vor drei bis sieben Tagen fügen Sie zwei Bedingungen **Letzte Nachricht am** hinzu: **Älter als…** 3 Tage und **7 Tage**. **Letzte Aktivität** berücksichtigt gespeicherte Entwürfe. Alle Filter beachten Kontofreigaben und die eingeschalteten Ordner.
 
-Die Ansichtsleiste bietet **Alle** und Ihre persönlichen gespeicherten Ansichten. Die Liste zeigt 25 Konversationen pro Seite (5, 10, 25 oder 100). Der Seitenleisten-Eintrag zeigt, wie viele der für Sie sichtbaren Konversationen **Ungelesen** sind.
+Die Ansichtsleiste zeigt Ihre persönlichen gespeicherten Ansichten; ein erneuter Klick auf die ausgewählte zeigt den Posteingang wieder ohne Ansicht. Die Liste zeigt 25 Konversationen pro Seite (5, 10, 25 oder 100). Der Seitenleisten-Eintrag zeigt, wie viele der für Sie sichtbaren Konversationen **Ungelesen** sind.
 
 ## Wie öffne ich eine bestimmte Konversation? [#how-do-i-open-a-specific-conversation]
 
@@ -99,7 +99,7 @@ Während das Verschieben läuft, können Sie weiterarbeiten. Nachrichten, die in
 
 Klicken Sie in der Kopfleiste auf **Private Konversation** oder **Geteilte Konversation**, um **Konversationseinstellungen** zu öffnen. Unter **Sichtbarkeitseinstellungen** teilt der Schalter nur diese Konversation mit allen, deren Rolle den Posteingang lesen darf (**Im CRM geteilt**); beim Ausschalten erscheint **Die Konversation ist jetzt privat**. Nur der Besitzer des Kanals kann ihn nutzen, in einem Tarif mit Messaging und mit **Bearbeiten**. Teammitglieder können die Konversation dann lesen, ihren Status ändern und sie neu synchronisieren, aber nicht verschieben, und nur Sie können antworten, solange der Kanal selbst privat ist.
 
-Um jede Konversation eines Kanals zu teilen, schalten Sie **Sichtbarkeit** auf dem Tab **Details** des Kanals unter [Kanäle](app:settings/channels) ein (Business oder Enterprise). Der Schalter pro Konversation bleibt dann eingeschaltet und gesperrt.
+Um jede Konversation eines Kanals zu teilen, schalten Sie **Sichtbarkeit** auf dem Tab **Details** des Kanals unter [Kanäle](app:settings/channels) ein (Business, Max oder Enterprise). Der Schalter pro Konversation bleibt dann eingeschaltet und gesperrt.
 
 ## Wie verknüpfe ich Teilnehmer und Datensätze? [#how-do-i-link-a-participant]
 
@@ -115,7 +115,7 @@ Schlägt das Senden fehl, erscheint **Erneut versuchen** nur, wenn ein neuer Ver
 
 ## Wie starte ich eine neue Konversation oder schreibe einem Kontakt eine neue E-Mail? [#how-do-i-start-a-new-conversation]
 
-Der Posteingang hat keinen Button für eine neue Konversation. Öffnen Sie den Kontakt in [Kontakte](app:records/contact) und klicken Sie in seinen Kanälen auf das Symbol **Neue Nachricht** neben einer E-Mail-Adresse oder einem Handle. Können mehrere Ihrer Kanäle senden, wählen Sie einen unter **Von**; bei LinkedIn mit Sales Navigator oder Recruiter wählt **Senden als** zwischen **Classic**, **Sales Navigator InMail** und **Recruiter InMail**. Nach **Senden** wird die Nachricht im Hintergrund versendet (**Nachricht wird gesendet**, dann **Nachricht gesendet.**). Das erfordert Customermates Cloud und **Erstellen** bei **Inbox-Nachrichten**.
+Der Posteingang hat keinen Button für eine neue Konversation. Öffnen Sie den Datensatz der Person, zum Beispiel in Ihrer Kontaktliste, und klicken Sie in seinen Kanälen auf das Symbol **Neue Nachricht** neben einer E-Mail-Adresse oder einem Handle. Können mehrere Ihrer Kanäle senden, wählen Sie einen unter **Von**; bei LinkedIn mit Sales Navigator oder Recruiter wählt **Senden als** zwischen **Classic**, **Sales Navigator InMail** und **Recruiter InMail**. Nach **Senden** wird die Nachricht im Hintergrund versendet (**Nachricht wird gesendet**, dann **Nachricht gesendet.**). Das erfordert Customermates Cloud und **Erstellen** bei **Inbox-Nachrichten**.
 
 ## Wie funktionieren Entwürfe und Anhänge? [#how-do-drafts-and-attachments-work]
 

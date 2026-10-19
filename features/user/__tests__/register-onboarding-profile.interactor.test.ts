@@ -5,7 +5,6 @@ import { RegisterOnboardingProfileInteractor } from "../register/register-onboar
 const registration = {
   agreeToTerms: true,
   avatarUrl: null,
-  country: "de" as const,
   email: "owner@example.com",
   firstName: "Owner",
   lastName: "Example",

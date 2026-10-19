@@ -128,14 +128,13 @@ test("serves the Knowledge Base, member and profile REST endpoints to an API key
       [workspace.userId],
     );
     await database.query(
-      'INSERT INTO "User" (id,"companyId","roleId",email,"firstName","lastName",status,country,"agreeToTerms","onboardingWizardCompletedAt","displayLanguage","formattingLocale","updatedAt") VALUES ($1,$2,$3,$4,\'Rest\',\'Member\',\'active\',\'de\',true,NOW(),\'en\',\'en\',NOW())',
+      'INSERT INTO "User" (id,"companyId","roleId",email,"firstName","lastName",status,"agreeToTerms","onboardingWizardCompletedAt","displayLanguage","formattingLocale","updatedAt") VALUES ($1,$2,$3,$4,\'Rest\',\'Member\',\'active\',true,NOW(),\'en\',\'en\',NOW())',
       [memberId, workspace.companyId, role.rows[0].roleId, memberEmail],
     );
     const member = {
       email: memberEmail,
       firstName: "Rest",
       lastName: "Member",
-      country: "de",
       avatarUrl: null,
       roleId: role.rows[0].roleId,
     };
@@ -187,7 +186,7 @@ test("serves the Knowledge Base, member and profile REST endpoints to an API key
       theme: "dark",
     });
     await validate(
-      await api.patch("/api/v1/users/me", { data: { country: "atlantis" } }),
+      await api.patch("/api/v1/users/me", { data: { theme: "atlantis" } }),
       "/v1/users/me",
       "patch",
       400,

@@ -94,7 +94,7 @@ export function useViewCommands<E extends HasId>(args: {
         const rail = owningRail();
         const focusAfterConfirm = () => {
           if (!rail || owningRail() !== rail) return false;
-          const target = usableOverlayFocusTarget(rail.querySelector("#global-data-views-all"));
+          const target = usableOverlayFocusTarget(rail.querySelector("#global-data-views-new"));
           if (!target || !rail.contains(target)) return false;
           return focusOverlayTarget(captureOverlayFocusTarget(target));
         };

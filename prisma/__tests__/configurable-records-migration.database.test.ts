@@ -78,8 +78,10 @@ async function legacySnapshot(client: Client) {
 
 const OPTIONAL_VECTOR_COLUMNS = [
   'ALTER TABLE "DocsChunk" ADD COLUMN     "embedding" vector(768);',
+  'ALTER TABLE "DocsSection" ADD COLUMN     "embedding" vector(768);',
   'ALTER TABLE "SearchCatalogEntry" ADD COLUMN     "embedding" vector(768);',
   'ALTER TABLE "WikiPageChunk" ADD COLUMN     "embedding" vector(768);',
+  'ALTER TABLE "WikiPageSection" ADD COLUMN     "embedding" vector(768);',
 ];
 
 async function schemaDrift(url: string) {
@@ -415,7 +417,7 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
       currency: null,
     });
     // Binary legacy prices keep their exact decimals; calculated money is rounded to the cent like the engine
-    // (20261019140000): 3 x 42.18 + 10 x 0.30 instead of 42.175 x 3 + 0.30000000000000004 x 10.
+    // (20261019180000): 3 x 42.18 + 10 x 0.30 instead of 42.175 x 3 + 0.30000000000000004 x 10.
     expect(await decimal(client, f, "service", f.services.binary, "service.amount")).toEqual({
       state: "value",
       value: "0.30000000000000004",
@@ -859,7 +861,9 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
 
     expect(await mateState()).toEqual({
       ...before,
-      pages: before.pages.map((page) => ({ row: { ...(page.row as Record<string, unknown>), deletedAt: null } })),
+      pages: before.pages.map((page) => ({
+        row: { ...(page.row as Record<string, unknown>), deletedAt: null, summary: null, summaryContentHash: null },
+      })),
     });
     expect(await rows(client, 'SELECT count(*)::int AS count FROM "EventLog" WHERE "subjectId"=$1', [pageId])).toEqual([
       { count: 0 },
@@ -896,7 +900,7 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     await client.query('UPDATE "Service" SET amount = 200.01 WHERE id = $1', [f.services.b]);
     await applyConfigurableRecordsMigration(client);
     // (2 x 1000 + 3 x 200.01) x 33.333333333333336 / 100 is exactly 866.6766666666667360008 (rounded division
-    // would give ...736); 20261019140000 stores it rounded to the cent, as the engine does.
+    // would give ...736); 20261019180000 stores it rounded to the cent, as the engine does.
     expect(await decimal(client, f, "deal", f.deals.weighted, "deal.totalValue")).toEqual({
       state: "value",
       value: "2600.03",

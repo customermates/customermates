@@ -109,8 +109,12 @@ test("a legacy workspace another administrator set up leaves the login its trial
   await dialog.getByRole("button", { name: "Create workspace", exact: true }).click();
 
   await expect(page).toHaveURL(/\/en\/onboarding\/wizard$/);
+  // A new cloud workspace continues at the AI setup step, or at the invite step when AI setup is not configured.
+  const stepHeading = (name: string) => page.getByRole("heading", { level: 1, name, exact: true });
   await expect(
-    page.getByRole("heading", { level: 1, name: englishMessages.OnboardingWizard.steps.wiki.title, exact: true }),
+    stepHeading(englishMessages.OnboardingWizard.steps.setup.title).or(
+      stepHeading(englishMessages.OnboardingWizard.steps.invite.title),
+    ),
   ).toBeVisible();
   const [created] = await createdWorkspace(database, name);
   expect(created).toMatchObject({
@@ -174,8 +178,9 @@ test("a self-hosted workspace is ready to use at once and continues in its onboa
   await dialog.getByRole("button", { name: "Create workspace", exact: true }).click();
 
   await expect(page).toHaveURL(/\/en\/onboarding\/wizard$/);
+  // Self-hosted workspaces have no AI setup step: the wizard continues at the invite step.
   await expect(
-    page.getByRole("heading", { level: 1, name: englishMessages.OnboardingWizard.steps.wiki.title, exact: true }),
+    page.getByRole("heading", { level: 1, name: englishMessages.OnboardingWizard.steps.invite.title, exact: true }),
   ).toBeVisible();
   const [created] = await createdWorkspace(database, name);
   expect(created).toMatchObject({

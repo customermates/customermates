@@ -35,7 +35,7 @@ describeDatabase("deleting a workspace on PostgreSQL", { timeout: 240_000 }, () 
   const companies: string[] = [];
   const logins: string[] = [];
   let previousAppMode: string;
-  let previousVariants: Record<"starter" | "pro" | "business", string | undefined>;
+  let previousVariants: Record<"starter" | "pro" | "business" | "max", string | undefined>;
   let secret = "";
 
   beforeAll(async () => {
@@ -47,11 +47,13 @@ describeDatabase("deleting a workspace on PostgreSQL", { timeout: 240_000 }, () 
       starter: env.LEMONSQUEEZY_VARIANT_ID_STARTER,
       pro: env.LEMONSQUEEZY_VARIANT_ID_PRO,
       business: env.LEMONSQUEEZY_VARIANT_ID_BUSINESS,
+      max: env.LEMONSQUEEZY_VARIANT_ID_MAX,
     };
     Object.assign(env, {
       LEMONSQUEEZY_VARIANT_ID_STARTER: "930001",
       LEMONSQUEEZY_VARIANT_ID_PRO: "930002",
       LEMONSQUEEZY_VARIANT_ID_BUSINESS: "930003",
+      LEMONSQUEEZY_VARIANT_ID_MAX: "930004",
     });
     const { auth } = await import("@/core/auth/better-auth");
     secret = (await auth.$context).secret;
@@ -68,6 +70,7 @@ describeDatabase("deleting a workspace on PostgreSQL", { timeout: 240_000 }, () 
       LEMONSQUEEZY_VARIANT_ID_STARTER: previousVariants.starter,
       LEMONSQUEEZY_VARIANT_ID_PRO: previousVariants.pro,
       LEMONSQUEEZY_VARIANT_ID_BUSINESS: previousVariants.business,
+      LEMONSQUEEZY_VARIANT_ID_MAX: previousVariants.max,
     });
     await client.query('DELETE FROM "AuthUser" WHERE "id" = ANY($1)', [logins]);
     await client.query('DELETE FROM "Company" WHERE "id" = ANY($1)', [companies]);
@@ -144,13 +147,12 @@ describeDatabase("deleting a workspace on PostgreSQL", { timeout: 240_000 }, () 
     }
 
     const { runWithTenant } = await import("@/core/decorators/tenant-context");
-    const { InitializeRecordModelService } = await import("@/features/records/initialize-record-model.service");
-    const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
+    const { initializeStarterRecordModel } = await import("@/tests/helpers/record-repository");
     const { createMockUser } = await import("@/tests/helpers/mock-user");
     const owner = args.admins[0];
     if (owner) {
       const user = createMockUser({ id: users.get(owner.id), companyId, roleId: roles.admin });
-      await runWithTenant(user, () => new InitializeRecordModelService(createTestRecordRepo()).initialize());
+      await runWithTenant(user, () => initializeStarterRecordModel());
     }
 
     return { companyId, users, roles };

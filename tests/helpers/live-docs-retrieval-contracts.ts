@@ -1,6 +1,6 @@
 import type { RankableSection, RetrievalTiming, SectionRanker } from "@/core/retrieval/retrieval-context";
 import type { QueryEmbedding, QueryVector } from "@/core/retrieval/retrieval-pipeline";
-import type { DocsChunkRepo } from "@/features/mcp-tools/docs-chunk.repo";
+import type { DocsSectionRepo } from "@/features/mcp-tools/docs-section.repo";
 import type { UnifiedDocsDeps } from "@/features/mcp-tools/docs-unified-search";
 
 import { AsyncLocalStorage } from "node:async_hooks";
@@ -24,12 +24,13 @@ import {
   embedWikiTexts,
   WIKI_EMBEDDING_BATCH_SIZE,
   WIKI_EMBEDDING_MODEL,
+  WIKI_EMBEDDING_VERSION,
   wikiEmbeddingWorstCaseMicrocents,
 } from "@/ee/wiki-retrieval/wiki-embedding-model";
 import { docsCorpus } from "@/features/mcp-tools/docs-corpus";
 import { env } from "@/env";
-import { requireLocalBenchmarkDatabase } from "@/scripts/agent-benchmark/env";
-import { RetrievalBudget } from "@/scripts/agent-benchmark/retrieval-budget";
+import { requireSingleLocalDatabase } from "@/scripts/local-database-safety";
+import { RetrievalBudget } from "@/tests/helpers/retrieval-budget";
 
 const MICROCENTS_PER_USD = 100_000_000;
 
@@ -93,7 +94,7 @@ export function liveDocsRetrievalContractsEnabled(
   return flag === "true";
 }
 
-export function createLiveDocsRetrievalContracts(repo: DocsChunkRepo) {
+export function createLiveDocsRetrievalContracts(repo: DocsSectionRepo) {
   if (!liveDocsRetrievalContractsEnabled()) throw new Error("Live documentation contracts require explicit opt-in.");
   const cap = process.env.LIVE_DOCS_RETRIEVAL_CAP_USD;
   if (cap === undefined) throw new Error("Live documentation contracts require an approved USD cap.");
@@ -152,7 +153,7 @@ export function createLiveDocsRetrievalContracts(repo: DocsChunkRepo) {
     if (!pending) {
       pending = embedded([text], "query")
         .then(({ vectors: found }) => {
-          const vector = { vector: found[0], model: WIKI_EMBEDDING_MODEL };
+          const vector = { vector: found[0], version: WIKI_EMBEDDING_VERSION };
           vectors.set(text, vector);
           return vector;
         })
@@ -292,7 +293,7 @@ export function createLiveDocsRetrievalContracts(repo: DocsChunkRepo) {
     if (!process.env.DATABASE_URL || !process.env.DIRECT_URL)
       throw new Error("Live documentation contracts require both database URLs.");
 
-    const database = new URL(requireLocalBenchmarkDatabase());
+    const database = new URL(requireSingleLocalDatabase(process.env));
     const name = decodeURIComponent(database.pathname.slice(1));
     if (!name || ["customermates", "postgres", "template0", "template1"].includes(name))
       throw new Error("Live documentation contracts require an owned temporary database.");
@@ -304,18 +305,18 @@ export function createLiveDocsRetrievalContracts(repo: DocsChunkRepo) {
     const corpus = docsCorpus();
     await repo.ensureCorpus(corpus);
     for (;;) {
-      const chunks = await repo.pendingEmbeddings(corpus.buildHash, WIKI_EMBEDDING_MODEL, WIKI_EMBEDDING_BATCH_SIZE);
-      if (chunks.length === 0) break;
-      const texts = docsPendingEmbeddingTexts(corpus, chunks);
+      const pending = await repo.pendingEmbeddings(corpus.buildHash, WIKI_EMBEDDING_VERSION, WIKI_EMBEDDING_BATCH_SIZE);
+      if (pending.length === 0) break;
+      const texts = docsPendingEmbeddingTexts(corpus, pending);
       const { vectors: found } = await embedded(texts, "docs-index");
       await repo.storeEmbeddings(
-        WIKI_EMBEDDING_MODEL,
-        chunks.map(({ contentHash }, index) => ({
+        WIKI_EMBEDDING_VERSION,
+        pending.map(({ contentHash }, index) => ({
           contentHash,
           embedding: `[${found[index].join(",")}]`,
         })),
       );
-      indexed += chunks.length;
+      indexed += pending.length;
     }
     prepared = true;
   }

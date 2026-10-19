@@ -276,7 +276,7 @@ test.describe("Ask Mate fallback", () => {
     await expect(page).toHaveURL(new RegExp(`/en/records/${id("deal")}\\?.*filters=`));
     await expect(page.getByText(`Won resolver deal ${suffix}`).first()).toBeVisible({ timeout: 30000 });
     await expect(page.getByText(`Open resolver deal ${suffix}`)).toHaveCount(0);
-    await expect(page.locator("#global-data-views-all")).toHaveAttribute("data-view-modified", "");
+    await expect(page.locator("#global-data-views-menu")).toHaveAttribute("data-view-modified", "");
     await page.locator("#records-filter").click();
     await expect(page.locator("#records-filter-save")).toBeVisible();
     await expect(page.locator("#records-filter-reset")).toBeVisible();

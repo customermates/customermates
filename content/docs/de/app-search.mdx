@@ -21,7 +21,7 @@ Um die Suche einzugrenzen, beginnen Sie mit einem Buchstaben und einem Leerzeich
 
 Ist ein Datensatz im Drawer oder auf seiner Seite geöffnet, bietet die Suche Aktionen für ihn an: ein Auswahl-, Ja/Nein- oder Mitgliedsfeld **ändern**, **Zuweisen an**, **Zu** einer verknüpften Liste **hinzufügen** und **Löschen**. Eine Aktion öffnet ihre Optionen direkt im Suchfeld; Esc geht einen Schritt zurück. Eine Änderung wird sofort gespeichert, Löschen fragt wie gewohnt nach. Diese Aktionen erscheinen nur, wenn Sie den Datensatz bearbeiten dürfen und er keine ungespeicherten Änderungen hat.
 
-Nachrichten werden hier nicht durchsucht; der [Posteingang](app:inbox) hat eine eigene Suche. Für eine gefilterte oder sortierte Liste von Datensätzen nutzen Sie eine Liste, zum Beispiel [Kontakte](app:records/contact) mit [Filter](app:records/contact?focus=filter). Wie Sie einen Datensatz anlegen, steht unter [CRM-Datensätze](/docs/app-records#how-do-i-add-a-record).
+Nachrichten werden hier nicht durchsucht; der [Posteingang](app:inbox) hat eine eigene Suche. Für eine gefilterte oder sortierte Liste von Datensätzen nutzen Sie eine Liste, zum Beispiel Ihre Kontaktliste mit **Filter** in ihrer Toolbar. Wie Sie einen Datensatz anlegen, steht unter [CRM-Datensätze](/docs/app-records#how-do-i-add-a-record).
 
 ## Wie sucht die Suche nach Bedeutung, und was wird gesendet? [#how-does-search-match-by-meaning]
 
@@ -31,7 +31,7 @@ Nach Bedeutung sucht die Suche nur, wenn nichts über den Namen passt: wenn kein
 
 ## Wie öffne ich eine gefilterte Liste, indem ich sie beschreibe? [#how-do-i-describe-what-to-open]
 
-Passt kein Ergebnis eindeutig, steht in der ersten Zeile **Zu „…“ springen** mit Ihren Worten. Drücken Sie Enter, und ein kleines KI-Modell macht aus der Anfrage ein Ziel: eine Liste mit Filtern, eine ihrer Ansichten, eine Seite, eine Einstellung oder eine Aktion. Zum Beispiel öffnet „gewonnene Deals mit Abschluss diesen Monat“ die [Deals](app:records/deal) und zeigt nur gewonnene Deals, die in diesem Monat abschließen. Die Filter werden nicht gespeichert: Die Ansicht ist als geändert markiert, und **Speichern** oder **Zurücksetzen** unter [Filter](app:records/deal?focus=filter) übernimmt oder verwirft sie. Passt die Anfrage zu nichts, geht sie stattdessen an [Mate](/docs/app-assistant).
+Passt kein Ergebnis eindeutig, steht in der ersten Zeile **Zu „…“ springen** mit Ihren Worten. Drücken Sie Enter, und ein kleines KI-Modell macht aus der Anfrage ein Ziel: eine Liste mit Filtern, eine ihrer Ansichten, eine Seite, eine Einstellung oder eine Aktion. Hat Ihr Workspace eine Deal-Liste, öffnet „gewonnene Deals mit Abschluss diesen Monat“ zum Beispiel diese Liste und zeigt nur gewonnene Deals, die in diesem Monat abschließen. Die Filter werden nicht gespeichert: Die Ansicht ist als geändert markiert, und **Speichern** oder **Zurücksetzen** unter **Filter** übernimmt oder verwirft sie. Passt die Anfrage zu nichts, geht sie stattdessen an [Mate](/docs/app-assistant).
 
 Das Modell erhält Ihre Worte und die Namen Ihrer Listen, Ansichten, Felder und Auswahlwerte, nie den Inhalt von Datensätzen, und verbraucht einen kleinen Teil Ihrer KI-Guthaben. Es meldet Sie nie ab und ändert, weist zu oder löscht keinen Datensatz; diese Aktionen bleiben in den Suchergebnissen.
 

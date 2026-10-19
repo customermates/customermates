@@ -19,7 +19,6 @@ export const SYNTHETIC_AUDIT_EVENT_ID_PREFIX = "1e000000";
 
 type RegisteredUserSnapshot = {
   avatarUrl: string | null;
-  country: DomainEventMap[DomainEvent.USER_REGISTERED]["payload"]["country"];
   createdAt: Date;
   email: string;
   firstName: string;
@@ -134,7 +133,6 @@ export function buildSyntheticAuditEventFixtures(args: {
     primaryUser.id,
     {
       avatarUrl: primaryUser.avatarUrl,
-      country: primaryUser.country,
       email: primaryUser.email,
       firstName: primaryUser.firstName,
       isNewCompany: true,
@@ -155,7 +153,6 @@ export function buildSyntheticAuditEventFixtures(args: {
       user.id,
       {
         avatarUrl: user.avatarUrl,
-        country: user.country,
         email: user.email,
         firstName: user.firstName,
         isNewCompany: false,
@@ -259,7 +256,6 @@ async function loadSyntheticAuditSnapshot(prisma: PrismaClient, context: SeedCon
         email: true,
         firstName: true,
         lastName: true,
-        country: true,
         status: true,
         avatarUrl: true,
         roleId: true,

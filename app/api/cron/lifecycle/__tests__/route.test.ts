@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const invokes = vi.hoisted(() => Array.from({ length: 13 }, () => vi.fn()));
+const invokes = vi.hoisted(() => Array.from({ length: 15 }, () => vi.fn(() => Promise.resolve())));
+const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
 const mockEnv = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "demo" | "self-hosted",
   CRON_SECRET: "test-cron-secret",
@@ -9,6 +10,7 @@ const mockEnv = vi.hoisted(() => ({
 }));
 
 vi.mock("@/env", () => ({ env: mockEnv }));
+vi.mock("@sentry/nextjs", () => sentry);
 
 vi.mock("@/core/di", () => ({
   getSendWelcomeAndDemoInteractor: () => ({ invoke: invokes[0] }),
@@ -32,11 +34,13 @@ vi.mock("@/core/di", () => ({
   getPruneRoutineRunsInteractor: () => ({ invoke: invokes[10] }),
   getPurgeExpiredTrashInteractor: () => ({ invoke: invokes[11] }),
   getPruneDraftSendsInteractor: () => ({ invoke: invokes[12] }),
+  getPruneWikiKnowledgeGapsInteractor: () => ({ invoke: invokes[13] }),
+  getSyncStaleWikiSectionsInteractor: () => ({ invoke: invokes[14] }),
 }));
 
 import { GET } from "../route";
 
-const RETENTION_STEPS = [8, 10, 11, 12];
+const RETENTION_STEPS = [8, 10, 11, 12, 13, 14];
 const UNIPILE_STEPS = [5, 6, 7];
 
 function callLifecycle() {
@@ -107,10 +111,10 @@ describe("lifecycle cron", () => {
     mockEnv.VERCEL_ENV = "production";
     const welcomeFailure = new Error("welcome mail template missing");
     const unipileFailure = new Error("UNIPILE_API_KEY env var is not set");
-    invokes[0].mockImplementation(() => {
+    invokes[0].mockImplementationOnce(() => {
       throw welcomeFailure;
     });
-    invokes[7].mockRejectedValue(unipileFailure);
+    invokes[7].mockRejectedValueOnce(unipileFailure);
 
     const error = await callLifecycle().catch((thrown: unknown) => thrown);
 
@@ -120,5 +124,22 @@ describe("lifecycle cron", () => {
     );
     expect((error as AggregateError).errors).toEqual([welcomeFailure, unipileFailure]);
     expect(invokes.every((invoke) => invoke.mock.calls.length === 1)).toBe(true);
+  });
+
+  it("still runs the other lifecycle tasks when the Knowledge Base section sync fails", async () => {
+    mockEnv.VERCEL_ENV = "production";
+    const failure = new Error("canceling statement due to lock timeout");
+    invokes[14].mockRejectedValueOnce(failure);
+
+    const response = await GET(
+      new Request("https://customermates.com/api/cron/lifecycle", {
+        headers: { authorization: "Bearer test-cron-secret" },
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ ok: true });
+    expect(invokes.every((invoke) => invoke.mock.calls.length === 1)).toBe(true);
+    expect(sentry.captureException).toHaveBeenCalledWith(failure, { tags: { kind: "wiki-section-cron-sync" } });
   });
 });

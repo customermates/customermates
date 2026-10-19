@@ -114,9 +114,10 @@ test("falls back to the All view and drops an unknown or foreign view id from th
 
   await page.goto(`/en/dashboard?view=${randomUUID()}`);
   await expect(page.locator("[data-joins-top-bar]")).toBeVisible();
+  await expect(page.locator("#global-data-views-new")).toBeVisible();
   await expect(
-    page.getByText(englishMessages.Dashboard.mainView, { exact: true }).first(),
-  ).toBeVisible();
+    page.locator('#global-data-views [data-focus-target^="view:"][aria-current="page"]'),
+  ).toHaveCount(0);
   await expect(page.getByText(englishMessages.ErrorCard.title)).toHaveCount(0);
 
   expect(errors).toEqual([]);

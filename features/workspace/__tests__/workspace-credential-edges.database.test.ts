@@ -134,8 +134,7 @@ describeDatabase("credentials and invitations at the edges of a login's membersh
     );
 
     const { runWithTenant } = await import("@/core/decorators/tenant-context");
-    const { InitializeRecordModelService } = await import("@/features/records/initialize-record-model.service");
-    const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
+    const { initializeStarterRecordModel } = await import("@/tests/helpers/record-repository");
     const { createMockUser } = await import("@/tests/helpers/mock-user");
     for (const workspace of WORKSPACES) {
       const owner = createMockUser({
@@ -143,7 +142,7 @@ describeDatabase("credentials and invitations at the edges of a login's membersh
         companyId: companies[workspace],
         roleId: roles[workspace],
       });
-      await runWithTenant(owner, () => new InitializeRecordModelService(createTestRecordRepo()).initialize());
+      await runWithTenant(owner, () => initializeStarterRecordModel());
     }
 
     await client.query(

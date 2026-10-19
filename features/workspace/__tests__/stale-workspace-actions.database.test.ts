@@ -45,6 +45,8 @@ async function memberFacingActions() {
   const records = await import("@/app/[locale]/(protected)/records/actions");
   const search = await import("@/app/[locale]/(protected)/search/actions");
   const agentChat = await import("@/app/components/agent-chat/actions");
+  const wiki = await import("@/app/[locale]/(protected)/wiki/actions");
+  const setup = await import("@/app/[locale]/(protected)/onboarding/wizard/workspace-setup-actions");
   const id = randomUUID();
 
   return {
@@ -84,6 +86,8 @@ async function memberFacingActions() {
       search.commandSearchAction({ searchTerm: "deal", scope: null, locale: "en", semantic: false }),
     getAgentConversationAction: () => agentChat.getAgentConversationAction(id),
     listAgentConversationsAction: () => agentChat.listAgentConversationsAction(),
+    getWikiPageProposalsAction: () => wiki.getWikiPageProposalsAction(),
+    getWorkspaceSetupStatusAction: () => setup.getWorkspaceSetupStatusAction(),
   } satisfies Record<string, () => Promise<unknown>>;
 }
 
@@ -124,11 +128,10 @@ describeDatabase("member-facing server actions in a tab whose workspace is gone"
     );
 
     const { runWithTenant } = await import("@/core/decorators/tenant-context");
-    const { InitializeRecordModelService } = await import("@/features/records/initialize-record-model.service");
-    const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
+    const { initializeStarterRecordModel } = await import("@/tests/helpers/record-repository");
     const { createMockUser } = await import("@/tests/helpers/mock-user");
     const owner = createMockUser({ id: userId, companyId, roleId });
-    await runWithTenant(owner, () => new InitializeRecordModelService(createTestRecordRepo()).initialize());
+    await runWithTenant(owner, () => initializeStarterRecordModel());
 
     const token = randomUUID().replaceAll("-", "");
     await client.query(

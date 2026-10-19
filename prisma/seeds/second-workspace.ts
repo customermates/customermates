@@ -134,7 +134,6 @@ export async function seedSecondWorkspace(context: SeedContext): Promise<void> {
     where: { id: ids.user, companyId: ids.company },
     select: {
       avatarUrl: true,
-      country: true,
       displayLanguage: true,
       email: true,
       firstName: true,

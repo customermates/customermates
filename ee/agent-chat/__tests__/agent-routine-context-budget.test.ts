@@ -49,7 +49,7 @@ import {
 import { buildAgentProviderContext } from "@/ee/agent-chat/agent-provider-context";
 import { agentToolDefinitionsForTurn } from "@/ee/agent-chat/agent-tools";
 import { activeAgentToolNames } from "@/ee/agent-chat/agent-toolset-routing";
-import { SHIPPED_AGENT_MODEL, type AgentModelEntry } from "@/ee/agent-chat/model-catalog";
+import { AGENT_MODELS, type AgentModelEntry } from "@/ee/agent-chat/model-catalog";
 import { SendAgentMessageInteractor } from "@/ee/agent-chat/send-agent-message.interactor";
 import { agentSystemPromptParts, routineTriggerEventOf } from "@/ee/agent-chat/system-prompt";
 import type { AgentTurnWorkflowPayload } from "@/workflows/agent-turn";
@@ -311,7 +311,7 @@ describe("routine context budget", () => {
       expect(payload.toolsets).toEqual([]);
       expect(payload.schemaDigest).toContain("Onboarding projects");
       expect(payload.wikiCatalog).toContain("Operating Guide");
-      expect(payload.turnBudget.modelSpec).toBe(SHIPPED_AGENT_MODEL.modelId);
+      expect(payload.turnBudget.modelSpec).toBe(AGENT_MODELS.routine.modelId);
       expect(sent).not.toHaveProperty("system");
       expect(serializedAgentContextBytes(sent)).toBeLessThanOrEqual(admittedBytes);
       expect(isAgentContextWithinBudget(sent, payload.turnBudget.maxContextBytes)).toBe(true);

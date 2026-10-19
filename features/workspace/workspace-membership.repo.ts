@@ -1,4 +1,4 @@
-import type { Locale, SubscriptionPlan, SubscriptionStatus, Status, Theme, CountryCode } from "@/generated/prisma";
+import type { Locale, SubscriptionPlan, SubscriptionStatus, Status, Theme } from "@/generated/prisma";
 import type { TenantUser } from "@/features/user/user.schema";
 
 export type WorkspaceMembershipRow = {
@@ -19,7 +19,6 @@ export type MembershipProfile = {
   firstName: string;
   lastName: string;
   avatarUrl: string | null;
-  country: CountryCode;
   displayLanguage: Locale;
   formattingLocale: Locale;
   theme: Theme;

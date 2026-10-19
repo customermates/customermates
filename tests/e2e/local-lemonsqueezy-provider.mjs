@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 export const localLemonSqueezyKey = "e2e-local-lemonsqueezy-no-network";
 export const localLemonSqueezyStoreId = "910000";
-export const localLemonSqueezyVariants = { starter: "910001", pro: "910002", business: "910003" };
+export const localLemonSqueezyVariants = { starter: "910001", pro: "910002", business: "910003", max: "910004" };
 export const localCheckoutOrigin = "https://customermates.lemonsqueezy.com";
 
 export function localLemonSqueezyWebhookSecret(authSecret) {
@@ -20,6 +20,7 @@ export function localLemonSqueezyEnvironment(authSecret) {
     LEMONSQUEEZY_VARIANT_ID_STARTER: localLemonSqueezyVariants.starter,
     LEMONSQUEEZY_VARIANT_ID_PRO: localLemonSqueezyVariants.pro,
     LEMONSQUEEZY_VARIANT_ID_BUSINESS: localLemonSqueezyVariants.business,
+    LEMONSQUEEZY_VARIANT_ID_MAX: localLemonSqueezyVariants.max,
   };
 }
 

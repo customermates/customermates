@@ -12,7 +12,6 @@ import { UserDetailsAvatar } from "@/app/[locale]/(protected)/settings/(account)
 import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { FormSelect } from "@/components/forms/form-select";
-import { FormAutocompleteCountry } from "@/components/forms/form-autocomplete-country";
 import { FormSelectChip } from "@/components/forms/form-select-chip";
 import { AppModal } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
@@ -160,8 +159,6 @@ export const CompanyUserModal = observer(() => {
 
               <FormInput required id="lastName" inputId="member-modal-last-name" />
             </div>
-
-            <FormAutocompleteCountry required id="country" inputId="member-modal-country" value={form.country} />
 
             <FormSelect
               required

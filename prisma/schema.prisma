@@ -215,13 +215,13 @@ model User {
 }
 
 model Company {
-  id                          String                         @id @default(uuid())
+  id                          String                           @id @default(uuid())
   name                        String?
   createdByAuthUserId         String?
   deletingAt                  DateTime?
-  createdAt                   DateTime                       @default(now())
-  updatedAt                   DateTime                       @updatedAt
-  tags                        String[]                       @default([])
+  createdAt                   DateTime                         @default(now())
+  updatedAt                   DateTime                         @updatedAt
+  tags                        String[]                         @default([])
   users                       User[]
   apiKeys                     Apikey[]
   oauthAccessTokens           OauthAccessToken[]
@@ -273,12 +273,19 @@ model Company {
   recordEventSubscriptions    RecordEventSubscription[]
   recordEventMatches          RecordEventMatch[]
   recordIdentities            RecordIdentity[]
+  wikiPageProposals           WikiPageProposal[]
   wikiPages                   WikiPage[]
-  wikiPageChunks              WikiPageChunk[]
+  wikiPageChunks              WikiPageChunk[]                  @ignore
   searchCatalogEntries        SearchCatalogEntry[]
+  wikiPageSections            WikiPageSection[]
+  wikiKnowledgeGaps           WikiKnowledgeGap[]
+  wikiIndexSchedule           WikiIndexSchedule?
   wikiWebsiteCrawls           WikiWebsiteCrawl[]
   wikiSourceDocuments         WikiSourceDocument[]
   trashItems                  TrashItem[]
+  workspaceSetup              WorkspaceSetup?
+  hostedAiWorkspaceUsage      HostedAiPlatformWorkspaceUsage[]
+  hostedAiWorkspaceHolds      HostedAiPlatformWorkspaceHold[]
 
   @@index([createdByAuthUserId])
 }
@@ -294,8 +301,12 @@ model WikiPage {
   companyId               String
   title                   String
   markdown                String
+  /// Retired by WikiPageSection.searchVector and never read. Kept so the previous deployment works until a later release drops it.
   searchVector            Unsupported("tsvector")? @default(dbgenerated("wiki_search_vector(title, markdown)"))
-  searchCompact           String?                  @default(dbgenerated("wiki_search_compact(title, markdown)"))
+  /// Retired with searchVector and never read. Kept so the previous deployment works until a later release drops it.
+  searchCompact           String?                  @default(dbgenerated("wiki_search_compact(title, markdown)")) @ignore
+  summary                 String?
+  summaryContentHash      String?
   semanticIndexClaimedAt  DateTime?
   kind                    WikiPageKind             @default(knowledge)
   whenToUse               String?
@@ -308,7 +319,8 @@ model WikiPage {
   createdAt               DateTime                 @default(now())
   updatedAt               DateTime                 @updatedAt
   company                 Company                  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  chunks                  WikiPageChunk[]
+  sections                WikiPageSection[]
+  chunks                  WikiPageChunk[]          @ignore
 
   @@index([companyId, createdAt, id])
   @@index([companyId, sortOrder, createdAt, id])
@@ -338,6 +350,7 @@ model WikiWebsiteCrawl {
   registrableDomain String
   locale            String
   mode              String                 @default("initial")
+  payer             String                 @default("requester")
   status            WikiWebsiteCrawlStatus @default(queued)
   extraHosts        String[]
   pendingHosts      String[]
@@ -379,6 +392,57 @@ model WikiSourceDocument {
   @@index([companyId, crawlId])
 }
 
+model WikiPageSection {
+  id               String                      @id @default(uuid())
+  companyId        String
+  pageId           String
+  ordinal          Int
+  offset           Int
+  pageTitle        String
+  headingPath      String[]
+  anchor           String
+  language         String?
+  summary          String?
+  text             String
+  contentHash      String
+  pageUpdatedAt    DateTime
+  searchVector     Unsupported("tsvector")?    @default(dbgenerated("retrieval_section_vector(language, \"pageTitle\", \"headingPath\", summary, text)"))
+  embeddingVersion String?
+  embedding        Unsupported("vector(768)")?
+  createdAt        DateTime                    @default(now())
+  company          Company                     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  page             WikiPage                    @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@unique([pageId, ordinal])
+  @@index([companyId, pageId])
+  @@index([searchVector], type: Gin)
+}
+
+model DocsSection {
+  id               String                      @id @default(uuid())
+  buildHash        String
+  locale           String
+  source           String
+  slug             String
+  sectionOrder     Int
+  partOrdinal      Int
+  anchor           String
+  pageTitle        String
+  headingPath      String[]
+  language         String
+  text             String
+  contentHash      String
+  searchVector     Unsupported("tsvector")?    @default(dbgenerated("retrieval_section_vector(language, \"pageTitle\", \"headingPath\", NULL::text, text)"))
+  embeddingVersion String?
+  embedding        Unsupported("vector(768)")?
+  createdAt        DateTime                    @default(now())
+
+  @@unique([buildHash, locale, source, slug, sectionOrder, partOrdinal], map: "DocsSection_build_part_key")
+  @@index([contentHash])
+  @@index([searchVector], type: Gin)
+}
+
+/// Retired by WikiPageSection and never read or written. Kept so the previous deployment works until a later release drops it.
 model WikiPageChunk {
   id            String                      @id @default(uuid())
   companyId     String
@@ -396,8 +460,10 @@ model WikiPageChunk {
 
   @@unique([pageId, ordinal])
   @@index([companyId, pageId])
+  @@ignore
 }
 
+/// Retired by DocsSection and never read or written. Kept so the previous deployment works until a later release drops it.
 model DocsChunk {
   id           String                      @id @default(uuid())
   buildHash    String
@@ -421,6 +487,7 @@ model DocsChunk {
   @@unique([buildHash, locale, source, slug, sectionOrder, chunkOrdinal], map: "DocsChunk_build_chunk_key")
   @@index([contentHash])
   @@index([searchVector], type: Gin)
+  @@ignore
 }
 
 model SearchCatalogEntry {
@@ -442,6 +509,26 @@ model SearchCatalogEntry {
   @@index([contentHash])
 }
 
+model WikiKnowledgeGap {
+  id          String   @id @default(uuid())
+  companyId   String
+  query       String
+  count       Int      @default(1)
+  firstSeenAt DateTime @default(now())
+  lastSeenAt  DateTime @default(now())
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, query])
+  @@index([companyId, lastSeenAt])
+  @@index([lastSeenAt])
+}
+
+model WikiIndexSchedule {
+  companyId   String   @id
+  scheduledAt DateTime
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
+
 model HostedAiPlatformUsage {
   id             String   @id @default(uuid())
   purpose        String
@@ -453,6 +540,64 @@ model HostedAiPlatformUsage {
   updatedAt      DateTime @default(now()) @updatedAt
 
   @@unique([purpose, accrualMonth])
+}
+
+/// Platform-paid spend attributed to one workspace, lifetime per purpose, so a per-workspace cap can hold.
+model HostedAiPlatformWorkspaceUsage {
+  companyId      String
+  purpose        String
+  inputTokens    Int      @default(0)
+  costMicrocents BigInt   @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now()) @updatedAt
+  company        Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@id([companyId, purpose])
+}
+
+/// The workspace share of one HostedAiPlatformReservation, released or converted to usage when it settles.
+model HostedAiPlatformWorkspaceHold {
+  reservationId      String   @id
+  companyId          String
+  purpose            String
+  reservedMicrocents BigInt
+  createdAt          DateTime @default(now())
+  company            Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, purpose])
+}
+
+enum WorkspaceSetupStatus {
+  interview
+  planning
+  planned
+  building
+  completed
+  failed
+}
+
+model WorkspaceSetup {
+  id               String               @id @default(uuid())
+  companyId        String               @unique
+  userId           String
+  status           WorkspaceSetupStatus @default(interview)
+  websiteUrl       String?
+  crawlId          String?
+  answers          Json                 @default("{}")
+  interview        Json                 @default("{}")
+  plan             Json?
+  planRevision     Int                  @default(0)
+  phases           Json                 @default("{}")
+  artifacts        Json                 @default("{}")
+  created          Json                 @default("{}")
+  results          Json                 @default("{}")
+  spreadsheetName  String?
+  spreadsheetBytes Bytes?
+  startedAt        DateTime             @default(now())
+  confirmedAt      DateTime?
+  finishedAt       DateTime?
+  updatedAt        DateTime             @updatedAt
+  company          Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
 }
 
 model P13n {
@@ -1015,6 +1160,7 @@ enum SubscriptionPlan {
   starter
   pro
   business
+  max
   enterprise
 }
 
@@ -1332,6 +1478,7 @@ model AgentConversation {
   modelKey                String?
   origin                  AgentConversationOrigin @default(user)
   creditCeilingMicrocents BigInt?
+  wikiCatalogSnapshot     String?
   archivedAt              DateTime?
   selectedAt              DateTime?
   createdAt               DateTime                @default(now())
@@ -1643,6 +1790,7 @@ model Routine {
   company         Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
   owner           User?              @relation(fields: [ownerUserId], references: [id], onDelete: SetNull)
   runs            RoutineRun[]
+  wikiProposals   WikiPageProposal[]
 
   @@index([companyId])
   @@index([companyId, enabled])
@@ -1675,6 +1823,7 @@ model RoutineRun {
   company           Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
   routine           Routine                @relation(fields: [routineId], references: [id], onDelete: Cascade)
   conversation      AgentConversation?     @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  wikiProposals     WikiPageProposal[]
 
   @@index([companyId])
   @@index([companyId, routineId, createdAt])
@@ -1682,6 +1831,47 @@ model RoutineRun {
   @@index([routineId, status])
   @@index([executedByUserId, status])
   @@index([conversationId])
+}
+
+enum WikiPageProposalAction {
+  create
+  update
+  delete
+}
+
+enum WikiPageProposalStatus {
+  pending
+  approved
+  rejected
+  superseded
+}
+
+model WikiPageProposal {
+  id               String                 @id @default(uuid())
+  companyId        String
+  pageId           String?
+  action           WikiPageProposalAction
+  status           WikiPageProposalStatus @default(pending)
+  title            String?
+  markdown         String?
+  kind             WikiPageKind?
+  whenToUse        String?
+  baseUpdatedAt    DateTime?
+  routineId        String?
+  routineRunId     String?
+  conversationId   String?
+  proposedByUserId String?
+  reviewedByUserId String?
+  reviewedAt       DateTime?
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  company          Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  routine          Routine?               @relation(fields: [routineId], references: [id], onDelete: SetNull)
+  routineRun       RoutineRun?            @relation(fields: [routineRunId], references: [id], onDelete: SetNull)
+
+  @@index([companyId, status, createdAt])
+  @@index([companyId, pageId, status])
+  @@index([routineRunId])
 }
 
 model AdAttribution {

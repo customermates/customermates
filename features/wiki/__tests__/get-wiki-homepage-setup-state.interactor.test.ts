@@ -15,6 +15,7 @@ import {
   WikiHomepageSetupStateSchema,
 } from "../get-wiki-homepage-setup-state.interactor";
 import type { WikiPageSummary } from "../wiki.schema";
+import type { WikiSynthesisTopicProgress } from "../wiki-crawl-progress.schema";
 
 const PAGE = {
   id: "00000000-0000-4000-8000-000000000001",
@@ -40,15 +41,44 @@ const CRAWL: WikiWebsiteCrawlState = {
 
 beforeEach(() => vi.clearAllMocks());
 
-function state(crawl: WikiWebsiteCrawlState | null, pages: WikiPageSummary[] = []) {
+function state(
+  crawl: WikiWebsiteCrawlState | null,
+  pages: WikiPageSummary[] = [],
+  setupTopics: WikiSynthesisTopicProgress[] | null = null,
+) {
   const pageRepo = {
     listPages: vi.fn().mockResolvedValue({ items: pages, total: pages.length, page: 1, pageSize: 5 }),
   };
   const crawlRepo = { findLatestCrawl: vi.fn().mockResolvedValue(crawl) };
-  return new GetWikiHomepageSetupStateInteractor(pageRepo, crawlRepo).invoke();
+  const setupKnowledge = { findSetupKnowledgeProgress: vi.fn().mockResolvedValue(setupTopics) };
+  return new GetWikiHomepageSetupStateInteractor(pageRepo, crawlRepo, setupKnowledge).invoke();
 }
 
 describe("GetWikiHomepageSetupStateInteractor", () => {
+  it("shows the Knowledge Base pages the workspace setup is still writing from its answers", async () => {
+    const topics: WikiSynthesisTopicProgress[] = [
+      { title: "Company Overview", status: "created" },
+      { title: "Pricing", status: "writing" },
+      { title: "Onboarding", status: "pending" },
+    ];
+
+    const result = await state(null, [PAGE], topics);
+
+    expect(result).toEqual({
+      ok: true,
+      data: {
+        status: "working",
+        crawlPhase: "synthesizing",
+        homepage: null,
+        domain: null,
+        pages: [PAGE],
+        pageCount: 1,
+        progress: { fetched: 0, total: 0, topics },
+      },
+    });
+    expect(WikiHomepageSetupStateSchema.safeParse(result.ok ? result.data : null).success).toBe(true);
+  });
+
   it("is idle without a crawl or pages, and completed for pages created without an import", async () => {
     expect(await state(null)).toEqual({
       ok: true,
