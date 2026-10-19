@@ -6,7 +6,7 @@ import type { Validated } from "@/core/validation/validation.utils";
 
 import { Resource } from "@/generated/prisma";
 
-import { type UserDto } from "../user.schema";
+import { type MemberDto } from "../user.schema";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
@@ -14,11 +14,11 @@ import { BaseGetInteractor } from "@/core/base/base-get.interactor";
 import { GetQueryParamsSchema, type GetQueryParams, createGetResultSchema } from "@/core/base/base-get.schema";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { UserDtoSchema } from "../user.schema";
+import { MemberDtoSchema } from "../user.schema";
 
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.users, read: true })
-export class GetUsersInteractor extends BaseGetInteractor<UserDto> {
+export class GetUsersInteractor extends BaseGetInteractor<MemberDto> {
   constructor(
     repo: GetUsersRepo,
     viewStateRepo: DataViewStateRepo,
@@ -29,8 +29,8 @@ export class GetUsersInteractor extends BaseGetInteractor<UserDto> {
   }
 
   @Validate(GetQueryParamsSchema)
-  @ValidateOutput(createGetResultSchema(UserDtoSchema))
-  async invoke(params: GetQueryParams = {}): Validated<GetResult<UserDto>> {
+  @ValidateOutput(createGetResultSchema(MemberDtoSchema))
+  async invoke(params: GetQueryParams = {}): Validated<GetResult<MemberDto>> {
     return await super.invoke(params);
   }
 }

@@ -27,16 +27,19 @@ const { ForbiddenError } = await import("@/core/errors/app-errors");
 function make(overrides: {
   lemonSqueezyId?: string | null;
   plan?: string;
-  updateResult?: { companyId: string; changedPlan: string | null };
+  updateResult?: { companyId: string; changedPlan: string | null } | null;
 }) {
   const lemonSqueezyId = "lemonSqueezyId" in overrides ? overrides.lemonSqueezyId : "ls-1";
   const repo = {
     getSubscriptionOrThrow: vi.fn().mockResolvedValue({ lemonSqueezyId, plan: overrides.plan ?? "pro" }),
   };
   const subscriptionService = {
-    updateSubscriptionOrThrow: vi
+    getSubscriptionOrThrowUnscoped: vi.fn().mockResolvedValue({ data: { id: lemonSqueezyId, attributes: {} } }),
+    syncSubscription: vi
       .fn()
-      .mockResolvedValue(overrides.updateResult ?? { companyId: "company-1", changedPlan: null }),
+      .mockResolvedValue(
+        "updateResult" in overrides ? overrides.updateResult : { companyId: "company-1", changedPlan: null },
+      ),
   };
   const deleteAccountsForPlan = { invoke: vi.fn().mockResolvedValue(undefined) };
 
@@ -66,7 +69,7 @@ describe("RefreshSubscriptionInteractor authorization", () => {
 
     await expect(runWithTenant(readOnlyMember(), () => interactor.invoke())).rejects.toThrow(ForbiddenError);
 
-    expect(subscriptionService.updateSubscriptionOrThrow).not.toHaveBeenCalled();
+    expect(subscriptionService.syncSubscription).not.toHaveBeenCalled();
     expect(deleteAccountsForPlan.invoke).not.toHaveBeenCalled();
   });
 
@@ -80,7 +83,7 @@ describe("RefreshSubscriptionInteractor authorization", () => {
 
     await expect(runWithTenant(manager, () => interactor.invoke())).resolves.toEqual({ ok: true, data: null });
 
-    expect(subscriptionService.updateSubscriptionOrThrow).toHaveBeenCalledOnce();
+    expect(subscriptionService.syncSubscription).toHaveBeenCalledOnce();
   });
 });
 
@@ -90,16 +93,20 @@ describe("RefreshSubscriptionInteractor", () => {
 
     await interactor.invoke();
 
-    expect(subscriptionService.updateSubscriptionOrThrow).not.toHaveBeenCalled();
+    expect(subscriptionService.syncSubscription).not.toHaveBeenCalled();
     expect(deleteAccountsForPlan.invoke).not.toHaveBeenCalled();
   });
 
-  it("syncs against the stored LemonSqueezy id under the current company", async () => {
+  it("syncs the provider's copy of the stored LemonSqueezy id into the current company", async () => {
     const { interactor, subscriptionService } = make({ updateResult: { companyId: "company-1", changedPlan: null } });
 
     await interactor.invoke();
 
-    expect(subscriptionService.updateSubscriptionOrThrow).toHaveBeenCalledWith("ls-1", mockUser.companyId);
+    expect(subscriptionService.getSubscriptionOrThrowUnscoped).toHaveBeenCalledWith("ls-1");
+    expect(subscriptionService.syncSubscription).toHaveBeenCalledWith(
+      { companyId: mockUser.companyId, plan: "pro", lemonSqueezyId: "ls-1" },
+      { data: { id: "ls-1", attributes: {} } },
+    );
   });
 
   it("enforces plan caps when the sync reports a changed plan", async () => {
@@ -120,13 +127,21 @@ describe("RefreshSubscriptionInteractor", () => {
     expect(deleteAccountsForPlan.invoke).not.toHaveBeenCalled();
   });
 
+  it("keeps the newer binding another sync stored meanwhile and reports no error", async () => {
+    const { interactor, deleteAccountsForPlan } = make({ updateResult: null });
+
+    await expect(interactor.invoke()).resolves.toEqual({ ok: true, data: null });
+    expect(deleteAccountsForPlan.invoke).not.toHaveBeenCalled();
+  });
+
   it("reports the subscription as unavailable when it has no LemonSqueezy id", async () => {
-    const { interactor, deleteAccountsForPlan } = make({ lemonSqueezyId: null });
+    const { interactor, deleteAccountsForPlan, subscriptionService } = make({ lemonSqueezyId: null });
 
     await expect(interactor.invoke()).resolves.toMatchObject({
       ok: false,
       error: { issues: [{ params: { error: "billingPortalUnavailable" } }] },
     });
     expect(deleteAccountsForPlan.invoke).not.toHaveBeenCalled();
+    expect(subscriptionService.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
   });
 });

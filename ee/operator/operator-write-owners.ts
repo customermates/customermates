@@ -1,4 +1,4 @@
-import type { Status, Subscription } from "@/generated/prisma";
+import type { Status, Subscription, SubscriptionStatus } from "@/generated/prisma";
 
 export type OperatorWriteOwners = {
   users: {
@@ -24,7 +24,7 @@ export type OperatorWriteOwners = {
     setEnterpriseFileStorageUnscoped(companyId: string, bytesPerUser: number | null): Promise<void>;
     setSubscriptionTermsUnscoped(
       companyId: string,
-      terms: { trialEndDate: Date | null; lemonSqueezyId: string | null },
+      terms: { trialEndDate: Date | null; lemonSqueezyId: string | null; status?: SubscriptionStatus },
     ): Promise<void>;
     setWorkspaceTagsUnscoped(companyId: string, tags: string[]): Promise<void>;
     deleteInviteTokensByCreatorsUnscoped(creatorIds: string[]): Promise<void>;

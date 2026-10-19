@@ -1,7 +1,9 @@
 export type SettingsSlug =
   | "profile"
+  | "workspaces"
   | "channels"
   | "api-keys"
+  | "general"
   | "members"
   | "roles"
   | "billing"

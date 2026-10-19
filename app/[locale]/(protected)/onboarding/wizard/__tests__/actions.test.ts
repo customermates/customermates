@@ -18,13 +18,16 @@ vi.mock("@/core/di", () => ({
   getCompleteOnboardingWizardInteractor: () => ({ invoke: mocks.complete }),
   getRegisterOnboardingProfileInteractor: () => ({ invoke: mocks.register }),
 }));
-vi.mock("@/core/utils/action-result", () => ({ serializeResult: async (result: unknown) => await result }));
+vi.mock("@/core/utils/action-result", () => ({
+  serializeResult: async (result: unknown) => await result,
+  settleActionResult: async (result: unknown) => await result,
+}));
 vi.mock("@/features/acquisition/next/ad-attribution-cookie", () => ({
   clearRegisteredAdClicksFromCookie: mocks.clearRegisteredClick,
   readRegistrationAdAttribution: mocks.readAttribution,
 }));
 
-import { registerProfileAction } from "../actions";
+import { completeOnboardingWizardAction, registerProfileAction } from "../actions";
 
 const registration = {
   agreeToTerms: true,
@@ -80,9 +83,22 @@ describe("onboarding registration action", () => {
   it("clears consumed ad attribution and refreshes only after registration succeeds", async () => {
     mocks.register.mockResolvedValue({ data: { redirectTo: "/auth/pending" }, ok: true });
 
-    await expect(registerProfileAction(registration)).rejects.toThrow("REDIRECT:/auth/pending");
+    await expect(registerProfileAction(registration)).rejects.toThrow("REDIRECT:/en/auth/pending");
 
     expect(mocks.clearRegisteredClick).toHaveBeenCalledOnce();
     expect(mocks.refresh).toHaveBeenCalledOnce();
+  });
+});
+
+describe("onboarding wizard completion action", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("sends a member whose account state moved on to that state's page in their language", async () => {
+    mocks.complete.mockResolvedValue({ redirect: "/auth/pending" });
+
+    await expect(completeOnboardingWizardAction()).rejects.toThrow("REDIRECT:/en/auth/pending");
+    expect(mocks.refresh).not.toHaveBeenCalled();
   });
 });

@@ -4,6 +4,7 @@ import { makeObservable, observable, action } from "mobx";
 import type { RootStore } from "@/core/stores/root.store";
 
 import { BaseStore } from "@/core/base/base.store";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import {
   agentRouteVisible,
   agentSidebarGroupId,
@@ -191,8 +192,10 @@ export class AgentUiControlStore extends BaseStore {
     const record = NavigateRecordTargetSchema.safeParse(input);
     if (record.success) {
       const result = await getRecordAction(record.data);
-      if (!result.ok)
+      if (!result.ok) {
+        notifyIfWorkspaceChanged(result);
         return { ok: false, result: "The record is unavailable or cannot be read with your current access." };
+      }
     } else if (route.path.startsWith("/records/") || focusTargetOfHref(route.path)?.kind === "list") {
       const navigation = await getRecordNavigationAction();
       const typeId = /[0-9a-f-]{36}/.exec(route.path)?.[0];

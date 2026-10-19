@@ -299,6 +299,41 @@ describe("AdminUpdateUserDetailsInteractor partial member update", () => {
     expect(userRepo.adminUpdateDetailsOrThrow).not.toHaveBeenCalled();
   });
 
+  it("refuses to reactivate a member who left the workspace", async () => {
+    const { interactor, userRepo } = harness(Status.inactive);
+    userRepo.findMemberCompanyWide.mockResolvedValue({
+      ...createMockUser({ id: TARGET_USER_ID, email: TARGET_EMAIL, status: Status.inactive, role: { ...MEMBER_ROLE } }),
+      leftAt: new Date("2026-10-01T00:00:00.000Z"),
+    });
+
+    const result = await interactor.invoke({ userId: TARGET_USER_ID, status: Status.active });
+
+    expect(failure(result)).toEqual({ codes: [CustomErrorCode.workspaceMemberLeft], path: ["status"] });
+    expect(userRepo.adminUpdateDetailsOrThrow).not.toHaveBeenCalled();
+    expect(userRepo.markAgentCreditActivatedOrThrow).not.toHaveBeenCalled();
+  });
+
+  it("still lets an admin edit a member who left without reactivating them", async () => {
+    const { interactor, userRepo } = harness(Status.inactive);
+    userRepo.findMemberCompanyWide.mockResolvedValue({
+      ...createMockUser({
+        id: TARGET_USER_ID,
+        email: TARGET_EMAIL,
+        status: Status.inactive,
+        roleId: MEMBER_ROLE.id,
+        role: { ...MEMBER_ROLE },
+      }),
+      leftAt: new Date("2026-10-01T00:00:00.000Z"),
+    });
+
+    const result = await interactor.invoke({ userId: TARGET_USER_ID, firstName: "Former" });
+
+    expect(result).toMatchObject({ ok: true, data: { status: Status.inactive } });
+    expect(userRepo.adminUpdateDetailsOrThrow).toHaveBeenCalledWith(
+      expect.objectContaining({ firstName: "Former", status: Status.inactive }),
+    );
+  });
+
   it("refuses a caller without Users & Roles Edit before looking the member up", async () => {
     const { interactor, userRepo } = harness(Status.active);
 

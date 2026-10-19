@@ -259,7 +259,8 @@ describe("synthetic Better Auth identities", () => {
     calls.userFindUnique.mockImplementation(({ where } = { where: {} }) => {
       if (where.id === SEED_IDS.sofiaRossiUser)
         return Promise.resolve(reconciled.member ? { id: SEED_IDS.sofiaRossiUser } : null);
-      if (where.email === SYNTHETIC_COMPANY_USERS.sofiaRossi.email)
+      const membership = where.companyId_email as { companyId?: string; email?: string } | undefined;
+      if (membership?.companyId === SEED_IDS.company && membership.email === SYNTHETIC_COMPANY_USERS.sofiaRossi.email)
         return Promise.resolve({ id: reconciled.member ? SEED_IDS.sofiaRossiUser : recreatedIds.member });
       return Promise.resolve(null);
     });

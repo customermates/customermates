@@ -13,6 +13,8 @@ import { action, makeObservable, observable } from "mobx";
 
 import { getP13nAction, upsertP13nAction } from "@/app/actions";
 import { ViewMode } from "@/core/base/base-query-builder";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
+import { WorkspaceChangedError } from "@/core/errors/workspace-changed-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { readSublistColumns, sublistColumnsP13nId } from "@/features/p13n/sublist-columns.schema";
 import { relationshipColumnKey } from "@/features/records/record-column.schema";
@@ -91,7 +93,8 @@ export class EmbeddedRecordsStore extends RecordsStore {
     try {
       await this.refresh();
       this.setLoadFailed(false);
-    } catch {
+    } catch (error) {
+      if (notifyIfWorkspaceChanged(error)) return;
       this.setLoadFailed(true);
     }
   };
@@ -133,7 +136,7 @@ export class EmbeddedRecordsStore extends RecordsStore {
     this.choiceRequest ??= getP13nAction({ p13nId: this.columnChoiceP13nId })
       .then((result) => {
         if (result.ok) this.applyColumnChoice(readSublistColumns(result.data?.settings)?.columns ?? null);
-        else this.choiceRequest = null;
+        else if (!notifyIfWorkspaceChanged(result)) this.choiceRequest = null;
       })
       .catch(() => {
         this.choiceRequest = null;
@@ -212,6 +215,7 @@ export class EmbeddedRecordsStore extends RecordsStore {
         links: [{ relationId: this.parentRelationId, direction: "outgoing", record: this.parent }],
       },
     });
+    if (notifyIfWorkspaceChanged(result)) throw new WorkspaceChangedError();
     if (!result.ok) return { created: false };
     await this.onChanged();
     return { created: true };
@@ -242,6 +246,7 @@ export class EmbeddedRecordsStore extends RecordsStore {
       loaded.ok && !loaded.data.records.length && page > lastPage
         ? await queryRecordsAction(queries.rows(lastPage))
         : loaded;
+    if (notifyIfWorkspaceChanged(rows) || notifyIfWorkspaceChanged(totals)) throw new WorkspaceChangedError();
     if (!rows.ok) throw new Error("The sub-list could not be loaded.");
     this.setTotals(embeddedTotals(totals?.ok ? totals.data : null), rows.data.total);
     return this.rowsResult(rows.data, pageSize, sort);

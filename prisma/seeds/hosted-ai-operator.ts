@@ -195,7 +195,10 @@ export async function seedHostedAiOperatorFixtures(context: SeedContext, now = n
     create: { id: ids.hostedAiOrdinaryUser, ...authUser },
   });
 
-  await reconcileDomainUserId(context, ids.hostedAiOrdinaryUser, SYNTHETIC_HOSTED_AI_ORDINARY_USER.email);
+  await reconcileDomainUserId(context, ids.hostedAiOrdinaryUser, {
+    companyId: ids.hostedAiFixtureCompany,
+    email: SYNTHETIC_HOSTED_AI_ORDINARY_USER.email,
+  });
   const user = {
     agentCreditActivatedAt: FIXTURE_CREATED_AT,
     agreeToTerms: true,
@@ -344,7 +347,7 @@ export async function seedHostedAiOperatorUserTableFixtures(
       create: { id: definition.id, ...authUser },
     });
 
-    await reconcileDomainUserId(context, definition.id, definition.email);
+    await reconcileDomainUserId(context, definition.id, definition);
     const user = {
       agentCreditActivatedAt: definition.status === "active" ? definition.createdAt : null,
       agreeToTerms: definition.status !== "pendingAuthorization",

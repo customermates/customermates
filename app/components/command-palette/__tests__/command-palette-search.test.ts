@@ -197,6 +197,7 @@ describe("reviewer queries (F22r2)", async () => {
     appMode: "cloud",
     canManageSchema: true,
     onListPage: false,
+    otherWorkspaces: false,
     can: () => true,
   });
   const labels = (query: string) => rankCandidates(query, registry, null).map((entry) => entry.label);

@@ -210,6 +210,7 @@ import { MessagingService } from "@/ee/messaging/messaging.service";
 import { IngestUnipileWebhookInteractor } from "@/ee/messaging/webhooks/ingest-unipile-webhook.interactor";
 import { EntitlementService } from "@/ee/subscription/entitlement.service";
 import { SubscriptionService } from "@/ee/subscription/subscription.service";
+import { WorkspacePlanService } from "@/ee/subscription/workspace-plan.service";
 import { CaptureAdClickInteractor } from "@/features/acquisition/capture-ad-click.interactor";
 import { DecideAdAttributionConsentInteractor } from "@/features/acquisition/decide-ad-attribution-consent.interactor";
 import { NextAdAttributionCookieRepo } from "@/features/acquisition/next/ad-attribution-cookie";
@@ -222,6 +223,8 @@ import { OnboardingIntentService } from "@/features/company/onboarding-intent.se
 import { EmailService } from "@/features/email/email.service";
 import { EventService } from "@/features/event/event.service";
 import { UserService } from "@/features/user/user.service";
+import { ActiveWorkspaceService } from "@/features/workspace/active-workspace.service";
+import { WorkspaceDepartureService } from "@/features/workspace/workspace-departure.service";
 // Task Listeners
 import { DomainEvent } from "@/features/event/domain-events";
 import { UserPendingAuthorizationTaskListener } from "@/features/records/membership-task.listener";
@@ -255,9 +258,21 @@ import { WorkspaceRegistrationService } from "@/features/user/register/workspace
 import { RegisterUserInteractor } from "@/features/user/register/register-user.interactor";
 import { AdminUpdateUserDetailsInteractor } from "@/features/user/upsert/admin-update-user-details.interactor";
 import { UpdateUserDetailsInteractor } from "@/features/user/upsert/update-user-details.interactor";
+// Workspace interactors
+import { CreateWorkspaceInteractor } from "@/features/workspace/create-workspace.interactor";
+import { GetMemberRemovalInteractor } from "@/features/workspace/get-member-removal.interactor";
+import { JoinWorkspaceInteractor } from "@/features/workspace/join-workspace.interactor";
+import { LeaveWorkspaceInteractor } from "@/features/workspace/leave-workspace.interactor";
+import { GetWorkspaceLeaveInteractor } from "@/features/workspace/get-workspace-leave.interactor";
+import { ListMyWorkspacesInteractor } from "@/features/workspace/list-my-workspaces.interactor";
+import { RemoveWorkspaceMemberInteractor } from "@/features/workspace/remove-workspace-member.interactor";
+import { RenameWorkspaceInteractor } from "@/features/workspace/rename-workspace.interactor";
+import { SwitchWorkspaceInteractor } from "@/features/workspace/switch-workspace.interactor";
+import { WithdrawWorkspaceRequestInteractor } from "@/features/workspace/withdraw-workspace-request.interactor";
 // Auth interactors
 import { ContinueWithSocialsInteractor } from "@/features/auth/continue-with-socials.interactor";
 import { DecideMcpConsentInteractor } from "@/features/auth/decide-mcp-consent.interactor";
+import { ListMcpConsentWorkspacesInteractor } from "@/features/auth/list-mcp-consent-workspaces.interactor";
 import { RequestPasswordResetInteractor } from "@/features/auth/request-password-reset.interactor";
 import { ResendVerificationEmailInteractor } from "@/features/auth/resend-verification-email.interactor";
 import { ResetPasswordInteractor } from "@/features/auth/reset-password.interactor";
@@ -401,9 +416,11 @@ import { DeleteApiKeyInteractor } from "@/features/api-key/delete-api-key.intera
 import { AuthorizeMcpConnectionInteractor } from "@/features/auth/authorize-mcp-connection.interactor";
 import { GetApiKeysInteractor } from "@/features/api-key/get-api-keys.interactor";
 // EE Subscription interactors
+import { AbandonCheckoutInteractor } from "@/ee/subscription/abandon-checkout.interactor";
 import { CreateCheckoutSessionInteractor } from "@/ee/subscription/create-checkout-session.interactor";
 import { GetBillingPortalUrlInteractor } from "@/ee/subscription/get-billing-portal-url.interactor";
 import { GetSubscriptionInteractor } from "@/ee/subscription/get-subscription.interactor";
+import { ProcessLemonSqueezyWebhookInteractor } from "@/ee/subscription/process-lemon-squeezy-webhook.interactor";
 import { RefreshSubscriptionInteractor } from "@/ee/subscription/refresh-subscription.interactor";
 // EE Lifecycle interactors (cron consumers)
 import { DeactivateTrialUsersAndSendNoticeInteractor } from "@/ee/lifecycle/deactivate-trial-users-and-send-notice.interactor";
@@ -1002,9 +1019,18 @@ export const getOperatorAccessRepo = () => new PrismaOperatorAccessRepo();
 export const getEmailService = () => new EmailService();
 export const getAuthService = () => new AuthService(getEmailService());
 export const getOperatorAccessService = () => new OperatorAccessService(getAuthService(), getOperatorAccessRepo());
-export const getUserService = () => new UserService(getAuthService(), getUserRepo());
+export const getActiveWorkspaceService = () => new ActiveWorkspaceService(getAuthService(), getUserRepo());
+export const getWorkspacePlanService = () => new WorkspacePlanService(getCompanyRepo());
+export const getUserService = () =>
+  new UserService(getAuthService(), getUserRepo(), getActiveWorkspaceService(), getWorkspacePlanService());
 export const getRouteGuardService = () =>
-  new RouteGuardService(getAuthService(), getUserRepo(), getCompanyRepo(), getGetLegalStatusInteractor());
+  new RouteGuardService(
+    getAuthService(),
+    getUserRepo(),
+    getCompanyRepo(),
+    getGetLegalStatusInteractor(),
+    getActiveWorkspaceService(),
+  );
 export const getBackgroundTaskService = () => new BackgroundTaskService();
 export const getInviteTokenCookieRepo = () => new NextInviteTokenCookieRepo();
 export const getOnboardingIntentService = () =>
@@ -1194,7 +1220,8 @@ export const getCaptureAdClickInteractor = () => new CaptureAdClickInteractor(ge
 export const getWithdrawAdAttributionInteractor = () =>
   new WithdrawAdAttributionInteractor(getRouteGuardService(), getUserRepo(), getAdAttributionCookieRepo());
 
-export const getUpdateUserDetailsInteractor = () => new UpdateUserDetailsInteractor(getUserRepo(), getEventService());
+export const getUpdateUserDetailsInteractor = () =>
+  new UpdateUserDetailsInteractor(getUserRepo(), getEventService(), getAuthService());
 
 export const getCompleteOnboardingWizardInteractor = () =>
   new CompleteOnboardingWizardInteractor(getUserRepo(), getRouteGuardService());
@@ -1229,6 +1256,66 @@ export const getGetUsersInteractor = () =>
 export const getGetUsersApiInteractor = () =>
   new GetUsersInteractor(getUserRepo(), getDataViewStateRepo(), "api", getQueryParamsPrecheck());
 
+// --- Workspace ---
+
+export const getListMyWorkspacesInteractor = () =>
+  new ListMyWorkspacesInteractor(getAuthService(), getActiveWorkspaceService(), getUserRepo());
+
+export const getSwitchWorkspaceInteractor = () => new SwitchWorkspaceInteractor(getAuthService(), getUserRepo());
+export const getWithdrawWorkspaceRequestInteractor = () =>
+  new WithdrawWorkspaceRequestInteractor(getAuthService(), getUserRepo(), getWorkspaceDepartureService());
+
+export const getCreateWorkspaceInteractor = () =>
+  new CreateWorkspaceInteractor(
+    getAuthService(),
+    getRouteGuardService(),
+    getUserRepo(),
+    new WorkspaceRegistrationService(getCompanyRepo(), getRoleRepo(), getUserRepo()),
+    getInitializeRecordModelService(),
+    getEventService(),
+  );
+
+export const getRenameWorkspaceInteractor = () => new RenameWorkspaceInteractor(getCompanyRepo());
+
+export const getWorkspaceDepartureService = () =>
+  new WorkspaceDepartureService(
+    getAuthService(),
+    getUserRepo(),
+    getEventService(),
+    getSubscriptionService(),
+    getCompanyRepo(),
+    getUserRepo(),
+    getReleaseOwnerRoutinesInteractor(),
+    getConnectedAccountRepo(),
+    getDeleteAccountForBillingService(),
+  );
+
+export const getLeaveWorkspaceInteractor = () =>
+  new LeaveWorkspaceInteractor(getAuthService(), getUserRepo(), getRoleRepo(), getWorkspaceDepartureService());
+
+export const getGetWorkspaceLeaveInteractor = () => new GetWorkspaceLeaveInteractor(getUserRepo(), getRoleRepo());
+
+export const getRemoveWorkspaceMemberInteractor = () =>
+  new RemoveWorkspaceMemberInteractor(
+    getUserRepo(),
+    getRoleRepo(),
+    getUserRepo(),
+    getWorkspaceDepartureService(),
+    getCompanyRepo(),
+    getEmailService(),
+  );
+
+export const getGetMemberRemovalInteractor = () => new GetMemberRemovalInteractor(getUserRepo(), getRoleRepo());
+
+export const getJoinWorkspaceInteractor = () =>
+  new JoinWorkspaceInteractor(
+    getAuthService(),
+    getOnboardingIntentService(),
+    getUserRepo(),
+    getUserRepo(),
+    getEventService(),
+  );
+
 // --- Auth ---
 
 export const getSignInWithEmailInteractor = () => new SignInWithEmailInteractor(getAuthService());
@@ -1254,6 +1341,9 @@ export const getSignOutInteractor = () =>
 export const getDecideMcpConsentInteractor = () =>
   new DecideMcpConsentInteractor(getAuthService(), getRouteGuardService());
 
+export const getListMcpConsentWorkspacesInteractor = () =>
+  new ListMcpConsentWorkspacesInteractor(getListMyWorkspacesInteractor(), getRouteGuardService());
+
 // --- Company ---
 
 export const getGetCompanyInteractor = () => new GetCompanyInteractor(getCompanyRepo());
@@ -1263,7 +1353,7 @@ export const getGetInvitationLinkInteractor = () =>
   new GetInvitationLinkInteractor(getGetOrCreateInviteTokenInteractor());
 
 export const getInviteUsersByEmailInteractor = () =>
-  new InviteUsersByEmailInteractor(getEmailService(), getGetOrCreateInviteTokenInteractor());
+  new InviteUsersByEmailInteractor(getEmailService(), getGetOrCreateInviteTokenInteractor(), getCompanyRepo());
 
 export const getInviteTokenValidationInteractor = () => new InviteTokenValidationInteractor(getCompanyRepo());
 
@@ -1825,7 +1915,7 @@ export const getSendContactInquiryInteractor = () => new SendContactInquiryInter
 
 // --- API Key ---
 
-export const getCreateApiKeyInteractor = () => new CreateApiKeyInteractor(getAuthService());
+export const getCreateApiKeyInteractor = () => new CreateApiKeyInteractor(getAuthService(), getWorkspacePlanService());
 
 export const getGetApiKeysInteractor = () => new GetApiKeysInteractor(getAuthService());
 
@@ -1835,7 +1925,17 @@ export const getAuthorizeMcpConnectionInteractor = () => new AuthorizeMcpConnect
 // --- EE Subscription ---
 
 export const getCreateCheckoutSessionInteractor = () =>
-  new CreateCheckoutSessionInteractor(getSubscriptionService(), getCompanyRepo(), getUserRepo());
+  new CreateCheckoutSessionInteractor(getSubscriptionService(), getCompanyRepo(), getUserRepo(), getCompanyRepo());
+
+export const getAbandonCheckoutInteractor = () => new AbandonCheckoutInteractor(getCompanyRepo());
+
+export const getProcessLemonSqueezyWebhookInteractor = () =>
+  new ProcessLemonSqueezyWebhookInteractor(
+    getCompanyRepo(),
+    getSubscriptionService(),
+    getDeleteAccountsForPlanInteractor(),
+    getEmailService(),
+  );
 
 export const getGetSubscriptionInteractor = () => new GetSubscriptionInteractor(getCompanyRepo(), getUserRepo());
 

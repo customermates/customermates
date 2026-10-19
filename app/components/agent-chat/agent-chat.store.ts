@@ -22,7 +22,13 @@ import {
   type AgentActivityDescriptor,
 } from "@/ee/agent-chat/agent-activity";
 
-import { isDemoEnvironment, reportApplicationError } from "@/core/errors/report-application-error";
+import {
+  isDemoEnvironment,
+  notifyWorkspaceChanged,
+  reportApplicationError,
+} from "@/core/errors/report-application-error";
+import { isWorkspaceChangedFailure } from "@/core/errors/workspace-changed";
+import { hasWorkspaceChanged, notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
 
 import { BaseStore } from "@/core/base/base.store";
@@ -159,7 +165,7 @@ const AGENT_CANCEL_RETRY_DELAYS_MS = [0, 500, 1500, 4000] as const;
 const AGENT_UI_COMMAND_RETRY_DELAYS_MS = [0, 500, 1500, 3000] as const;
 const AGENT_CHAT_OPEN_STORAGE_PREFIX = "customermates:agentChat:open:v2";
 type UiCommandName = (typeof UI_COMMAND_NAMES)[number];
-type AgentConfigLoadStatus = "ready" | "disabled" | "retry";
+type AgentConfigLoadStatus = "ready" | "disabled" | "retry" | "workspaceChanged";
 
 function agentChatOpenStorageKey(rootStore: RootStore): string | null {
   const user = rootStore.userStore.user;
@@ -991,7 +997,8 @@ export class AgentChatStore extends BaseStore {
         const generation = this.activeTurnGeneration;
         void this.loadConfig().then(() => this.settleQueuedPromptAfterReattach(id, generation, loadVersion));
       }
-    } catch {
+    } catch (error) {
+      if (notifyIfWorkspaceChanged(error)) return;
       if (loadVersion !== this.conversationLoadVersion) return;
       runInAction(() => {
         this.conversationLoadPendingId = null;
@@ -1029,7 +1036,8 @@ export class AgentChatStore extends BaseStore {
         this.items = [...this.items, ...existing];
         this.olderMessagesCursor = data.nextCursor;
       });
-    } catch {
+    } catch (error) {
+      if (notifyIfWorkspaceChanged(error)) return;
       this.toastError("AgentChat.errors.sendFailed");
     } finally {
       if (loadVersion === this.conversationLoadVersion) {
@@ -1194,7 +1202,7 @@ export class AgentChatStore extends BaseStore {
     const generation = this.activeTurnGeneration;
     this.activeTurnStopRequested = true;
     this.activeTurnStopPromise = this.requestActiveTurnCancellation(conversationId, generation).then((outcome) => {
-      if (generation !== this.activeTurnGeneration) return;
+      if (generation !== this.activeTurnGeneration || outcome === "workspaceChanged") return;
       let settledDetachedCancellation = false;
       let resumeDetachedTurn = false;
       let resumeLoadVersion = this.conversationLoadVersion;
@@ -1291,11 +1299,15 @@ export class AgentChatStore extends BaseStore {
   private requestActiveTurnCancellation = async (conversationId: string, generation: number) => {
     for (const delay of AGENT_CANCEL_RETRY_DELAYS_MS) {
       if (delay > 0) await waitFor(delay);
+      if (hasWorkspaceChanged()) return "workspaceChanged" as const;
       if (generation !== this.activeTurnGeneration || this.activeTurnCompleted) return "inactive" as const;
       try {
         const result = await withDeadline(cancelAgentTurnAction({ conversationId }), AGENT_CANCEL_ATTEMPT_TIMEOUT_MS);
         if (result?.ok) return result.data.cancelling ? ("cancelling" as const) : ("inactive" as const);
-      } catch {}
+        if (notifyIfWorkspaceChanged(result)) return "workspaceChanged" as const;
+      } catch (error) {
+        if (notifyIfWorkspaceChanged(error)) return "workspaceChanged" as const;
+      }
     }
     return "failed" as const;
   };
@@ -1346,6 +1358,7 @@ export class AgentChatStore extends BaseStore {
   private loadConfigOnce = async (): Promise<AgentConfigLoadStatus> => {
     try {
       const response = await withDeadline(getAgentConfigAction(), AGENT_CONFIG_LOAD_TIMEOUT_MS);
+      if (notifyIfWorkspaceChanged(response)) return "workspaceChanged";
       if (!response.ok) return "retry";
       if (!response.data.enabled) {
         runInAction(() => {
@@ -1404,7 +1417,8 @@ export class AgentChatStore extends BaseStore {
         });
       }
       return "ready";
-    } catch {
+    } catch (error) {
+      if (notifyIfWorkspaceChanged(error)) return "workspaceChanged";
       return "retry";
     }
   };
@@ -1435,7 +1449,8 @@ export class AgentChatStore extends BaseStore {
         this.historyRefreshError = false;
         this.historyRefreshPending = false;
       });
-    } catch {
+    } catch (error) {
+      if (notifyIfWorkspaceChanged(error)) return;
       if (refreshVersion !== this.historyRefreshVersion) return;
       runInAction(() => {
         this.historyRefreshError = true;
@@ -1472,7 +1487,8 @@ export class AgentChatStore extends BaseStore {
           this.archivedConversationNextCursor = page.nextCursor;
         }
       });
-    } catch {
+    } catch (error) {
+      if (notifyIfWorkspaceChanged(error)) return;
       if (refreshVersion === this.historyRefreshVersion) {
         runInAction(() => {
           this.historyRefreshError = true;
@@ -1497,6 +1513,7 @@ export class AgentChatStore extends BaseStore {
       const result = await archiveAgentConversationAction({
         conversationId: id,
       });
+      if (notifyIfWorkspaceChanged(result)) return false;
       if (!result?.ok) throw new Error();
       this.historyRefreshVersion += 1;
       const conversations = result.data.conversations.map((conversation) => ({
@@ -1550,6 +1567,7 @@ export class AgentChatStore extends BaseStore {
       const result = await restoreAgentConversationAction({
         conversationId: id,
       });
+      if (notifyIfWorkspaceChanged(result)) return false;
       if (!result?.ok) throw new Error();
       this.historyRefreshVersion += 1;
       const conversations = result.data.conversations.map((conversation) => ({
@@ -1585,6 +1603,7 @@ export class AgentChatStore extends BaseStore {
       const result = await deleteAgentConversationAction({
         conversationId: id,
       });
+      if (notifyIfWorkspaceChanged(result)) return false;
       if (!result?.ok) throw new Error();
       this.historyRefreshVersion += 1;
       runInAction(() => {
@@ -1681,7 +1700,9 @@ export class AgentChatStore extends BaseStore {
       }
 
       if (!response.ok || !response.body) {
-        if (response.status === 403 && isDemoEnvironment()) {
+        const message = await response.json().catch(() => null);
+        const workspaceChanged = response.status === 409 && isWorkspaceChangedFailure(message);
+        if (workspaceChanged || (response.status === 403 && isDemoEnvironment())) {
           runInAction(() => {
             if (options.appendUser !== false)
               this.items = this.items.filter((item) => !(item.kind === "user" && item.messageId === messageId));
@@ -1695,10 +1716,10 @@ export class AgentChatStore extends BaseStore {
                 : null;
             }
           });
-          reportApplicationError(new Error("The assistant cannot send messages in demo mode."));
+          if (workspaceChanged) notifyWorkspaceChanged();
+          else reportApplicationError(new Error("The assistant cannot send messages in demo mode."));
           return;
         }
-        const message = await response.json().catch(() => null);
         const bodyConversationId =
           message &&
           typeof message === "object" &&
@@ -2125,8 +2146,9 @@ export class AgentChatStore extends BaseStore {
           snapshot = loadedSnapshot;
           reconnectSnapshotFailures = 0;
           reconnectSnapshotRetryAt = 0;
-        } catch {
+        } catch (error) {
           reconnectSnapshotRequest = null;
+          if (notifyIfWorkspaceChanged(error)) return;
           reconnectSnapshotFailures += 1;
           if (reconnectSnapshotFailures >= AGENT_RECONNECT_SNAPSHOT_FAILURE_LIMIT) {
             runInAction(() => this.markActiveTurnRecoveryFailed(clientRequestId));
@@ -2210,6 +2232,7 @@ export class AgentChatStore extends BaseStore {
           controller,
           AGENT_RECONNECT_TIMEOUT_MS,
         );
+        if (response.status === 409 && notifyIfWorkspaceChanged(await response.json().catch(() => null))) return;
         if (!response.ok || !response.body) throw new Error("The assistant run could not be rejoined.");
         runInAction(() => {
           this.conversationLoadError = false;
@@ -2337,8 +2360,12 @@ export class AgentChatStore extends BaseStore {
       const snapshot = await withDeadline(
         getAgentConversationAction(conversationId),
         AGENT_TERMINAL_RECONCILE_TIMEOUT_MS,
-      ).catch(() => null);
+      ).catch((error: unknown) => {
+        notifyIfWorkspaceChanged(error);
+        return null;
+      });
       if (
+        hasWorkspaceChanged() ||
         generation !== this.activeTurnGeneration ||
         loadVersion !== this.conversationLoadVersion ||
         conversationId !== this.conversationId
@@ -2427,6 +2454,7 @@ export class AgentChatStore extends BaseStore {
         AGENT_APPROVAL_ATTEMPT_TIMEOUT_MS,
       );
       if (!result?.ok) {
+        if (notifyIfWorkspaceChanged(result)) return;
         runInAction(() => {
           item.pendingDecision = null;
         });
@@ -2471,6 +2499,7 @@ export class AgentChatStore extends BaseStore {
       for (const delay of [500, 1500, 4000]) {
         await waitFor(delay);
         if (
+          hasWorkspaceChanged() ||
           !conversationId ||
           this.conversationId !== conversationId ||
           item.resolution ||
@@ -2487,7 +2516,10 @@ export class AgentChatStore extends BaseStore {
             AGENT_APPROVAL_ATTEMPT_TIMEOUT_MS,
           );
           if (result?.ok && result.data.resumed) return;
-        } catch {}
+          if (notifyIfWorkspaceChanged(result)) return;
+        } catch (error) {
+          if (notifyIfWorkspaceChanged(error)) return;
+        }
       }
       if (!item.resolution && item.submittedDecision === decision) {
         runInAction(() => {
@@ -2878,6 +2910,7 @@ export class AgentChatStore extends BaseStore {
       let lastError: unknown = null;
       for (const delay of AGENT_UI_COMMAND_RETRY_DELAYS_MS) {
         if (delay > 0) await waitFor(delay);
+        if (hasWorkspaceChanged()) return;
         try {
           const result = await withDeadline(
             respondToUiCommandAction({
@@ -2892,7 +2925,9 @@ export class AgentChatStore extends BaseStore {
             delivered = true;
             break;
           }
+          if (notifyIfWorkspaceChanged(result)) return;
         } catch (error) {
+          if (notifyIfWorkspaceChanged(error)) return;
           lastError = error;
         }
       }

@@ -1,12 +1,13 @@
 import { randomUUID } from "node:crypto";
 
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 const createdUserIds: string[] = [];
+const createdCompanyIds: string[] = [];
 
 async function db() {
   const { prisma } = await import("@/prisma/db");
@@ -23,7 +24,20 @@ async function seedAuthUser() {
   return id;
 }
 
-async function seedKey(referenceId: string, overrides: { enabled?: boolean; expiresAt?: Date | null } = {}) {
+async function seedCompany() {
+  const prisma = await db();
+  const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
+  const company = await runWithoutTenant(() => prisma.company.create({ data: {} }));
+  createdCompanyIds.push(company.id);
+  return company.id;
+}
+
+let workspaceId = "";
+
+async function seedKey(
+  referenceId: string,
+  overrides: { enabled?: boolean; expiresAt?: Date | null; companyId?: string } = {},
+) {
   const prisma = await db();
   const id = randomUUID();
   const now = new Date();
@@ -32,6 +46,7 @@ async function seedKey(referenceId: string, overrides: { enabled?: boolean; expi
       id,
       key: `hashed-${id}`,
       referenceId,
+      companyId: overrides.companyId ?? workspaceId,
       enabled: overrides.enabled ?? true,
       expiresAt: overrides.expiresAt === undefined ? new Date(Date.now() + 60 * 60 * 1000) : overrides.expiresAt,
       createdAt: now,
@@ -47,12 +62,21 @@ async function service() {
 }
 
 describeDatabase("API key references against the database", { timeout: 120_000 }, () => {
+  beforeEach(async () => {
+    workspaceId = await seedCompany();
+  });
+
   afterEach(async () => {
     const prisma = await db();
     while (createdUserIds.length) {
       const id = createdUserIds.pop() as string;
       await prisma.apikey.deleteMany({ where: { referenceId: id } });
       await prisma.authUser.deleteMany({ where: { id } });
+    }
+    const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
+    while (createdCompanyIds.length) {
+      const id = createdCompanyIds.pop() as string;
+      await runWithoutTenant(() => prisma.company.deleteMany({ where: { id } }));
     }
   });
 
@@ -68,7 +92,7 @@ describeDatabase("API key references against the database", { timeout: 120_000 }
 
     const result = await (
       await service()
-    ).resolveApiKeyReferences(ownerId, [active, disabled, expired, unlimited, foreign, missing]);
+    ).resolveApiKeyReferences(ownerId, [active, disabled, expired, unlimited, foreign, missing], workspaceId);
 
     expect([...result.active].sort()).toEqual([active, unlimited].sort());
     expect([...result.foreign]).toEqual([foreign]);
@@ -81,12 +105,20 @@ describeDatabase("API key references against the database", { timeout: 120_000 }
     await prisma.apikey.createMany({
       data: Array.from({ length: 120 }, () => {
         const id = randomUUID();
-        return { id, key: `hashed-${id}`, referenceId: ownerId, enabled: true, createdAt: now, updatedAt: now };
+        return {
+          id,
+          key: `hashed-${id}`,
+          referenceId: ownerId,
+          companyId: workspaceId,
+          enabled: true,
+          createdAt: now,
+          updatedAt: now,
+        };
       }),
     });
     const newest = await seedKey(ownerId);
 
-    const result = await (await service()).resolveApiKeyReferences(ownerId, [newest]);
+    const result = await (await service()).resolveApiKeyReferences(ownerId, [newest], workspaceId);
 
     expect([...result.active]).toEqual([newest]);
   });
@@ -94,9 +126,11 @@ describeDatabase("API key references against the database", { timeout: 120_000 }
   it("recognizes a key created by the API key plugin as owned by its auth user", async () => {
     const ownerId = await seedAuthUser();
     const { auth } = await import("@/core/auth/better-auth");
+    const { bindApiKeyToCompany } = await import("@/core/auth/better-auth");
     const created = await auth.api.createApiKey({ body: { name: "Cursor", userId: ownerId } });
+    expect(await bindApiKeyToCompany(created.id, ownerId, workspaceId)).toBe(true);
 
-    const result = await (await service()).resolveApiKeyReferences(ownerId, [created.id]);
+    const result = await (await service()).resolveApiKeyReferences(ownerId, [created.id], workspaceId);
 
     expect([...result.active]).toEqual([created.id]);
   });
@@ -106,9 +140,31 @@ describeDatabase("API key references against the database", { timeout: 120_000 }
     const otherId = await seedAuthUser();
     const key = await seedKey(ownerId);
 
-    const result = await (await service()).resolveApiKeyReferences(otherId, [key]);
+    const result = await (await service()).resolveApiKeyReferences(otherId, [key], workspaceId);
 
     expect(result.active.size).toBe(0);
     expect([...result.foreign]).toEqual([key]);
+  });
+
+  it("treats the owner's key bound to another workspace as foreign", async () => {
+    const ownerId = await seedAuthUser();
+    const otherWorkspaceId = await seedCompany();
+    const key = await seedKey(ownerId, { companyId: otherWorkspaceId });
+
+    const result = await (await service()).resolveApiKeyReferences(ownerId, [key], workspaceId);
+
+    expect(result.active.size).toBe(0);
+    expect([...result.foreign]).toEqual([key]);
+  });
+
+  it("binds a key to one workspace only once", async () => {
+    const ownerId = await seedAuthUser();
+    const otherWorkspaceId = await seedCompany();
+    const { auth, bindApiKeyToCompany } = await import("@/core/auth/better-auth");
+    const created = await auth.api.createApiKey({ body: { name: "Agent", userId: ownerId } });
+
+    expect(await bindApiKeyToCompany(created.id, ownerId, workspaceId)).toBe(true);
+    expect(await bindApiKeyToCompany(created.id, ownerId, otherWorkspaceId)).toBe(false);
+    expect(await bindApiKeyToCompany(created.id, randomUUID(), otherWorkspaceId)).toBe(false);
   });
 });

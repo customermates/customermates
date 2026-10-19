@@ -10,6 +10,7 @@ import { Action, Resource } from "@/generated/prisma";
 import { getMessagingThreadAction, updateThreadAction, resyncThreadAction, moveEmailThreadAction } from "../actions";
 import { isDraftThreadId, isEmailProvider } from "@/ee/messaging/provider";
 import { MESSAGING_RATE_LIMITS_DOCS_PATH } from "./lazy-media";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { serializedFailureErrorTree } from "@/core/validation/validation.utils";
 
@@ -133,7 +134,8 @@ export class MessagingThreadDetailStore extends BaseStore {
     };
     if (hasUnsavedReply()) return;
     const generation = ++this.refreshGeneration;
-    const detail = await getMessagingThreadAction(thread.id);
+    const result = await getMessagingThreadAction(thread.id);
+    if (notifyIfWorkspaceChanged(result)) return;
     if (
       this.thread?.id !== thread.id ||
       generation !== this.refreshGeneration ||
@@ -143,6 +145,7 @@ export class MessagingThreadDetailStore extends BaseStore {
       hasUnsavedReply()
     )
       return;
+    const detail = result.ok ? result.data : null;
     runInAction(() => {
       const unavailable = !detail || (isEmailProvider(detail.thread.provider) && detail.messages.length === 0);
       this.hydrate(unavailable ? null : detail);
@@ -239,6 +242,7 @@ export class MessagingThreadDetailStore extends BaseStore {
       state: "open",
     });
     if (result.ok) await this.applyState(thread.id, "open");
+    else notifyIfWorkspaceChanged(result);
   };
 
   toggleSharing = async (shared: boolean): Promise<void> => {
@@ -262,6 +266,7 @@ export class MessagingThreadDetailStore extends BaseStore {
           if (this.thread?.id === thread.id) this.thread.sharedToCrm = result.ok ? shared : previous;
         });
         if (!result.ok) {
+          if (notifyIfWorkspaceChanged(result)) return;
           this.toastError(
             result.failure.kind === "authorization"
               ? "Inbox.shareToCrmPermissionDenied"
@@ -289,6 +294,7 @@ export class MessagingThreadDetailStore extends BaseStore {
     await this.rootStore.loadingOverlayStore.withLoading(async () => {
       const result = await resyncThreadAction(thread.id);
       if (!result.ok || !result.data.fetched) {
+        if (notifyIfWorkspaceChanged(result)) return;
         if (result.ok && result.data.rateLimited) this.toastRateLimited(result.data.retryAfter);
         else this.toastError("Inbox.resyncThreadFailed");
 
@@ -317,6 +323,7 @@ export class MessagingThreadDetailStore extends BaseStore {
     try {
       const result = await resyncThreadAction(thread.id);
       if (!result.ok || !result.data.fetched) {
+        if (notifyIfWorkspaceChanged(result)) return;
         if (result.ok && result.data.rateLimited) this.toastRateLimited(result.data.retryAfter);
         return;
       }

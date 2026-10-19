@@ -6,6 +6,7 @@ import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interac
 import type { RoutingLocale } from "@/i18n/locale-registry";
 import type { RecordNavigation } from "@/features/records/record-navigation.schema";
 import type { SidebarLayout } from "@/features/p13n/sidebar-layout.schema";
+import type { WorkspaceSummary } from "@/features/workspace/workspace.schema";
 
 import { createContext, useContext, useEffect, useLayoutEffect, useState } from "react";
 
@@ -30,6 +31,7 @@ export type RootStoreInitialState = {
   user: TenantUser | null;
   subscription: SubscriptionDto | null;
   addressLookupAvailable?: boolean;
+  workspaces?: WorkspaceSummary[];
 };
 
 function createRootStore(agentChatEnabled: boolean, appMode: AppMode, initialState: RootStoreInitialState): RootStore {
@@ -40,6 +42,7 @@ function createRootStore(agentChatEnabled: boolean, appMode: AppMode, initialSta
   rootStore.recordWorkspaceStore.setNavigation(initialState.recordNavigation ?? null);
   rootStore.sidebarLayoutStore.setLayout(initialState.sidebarLayout ?? null);
   rootStore.addressLookupAvailable = initialState.addressLookupAvailable ?? false;
+  rootStore.workspacesStore.setWorkspaces(initialState.workspaces ?? []);
   return rootStore;
 }
 

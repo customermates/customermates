@@ -32,6 +32,7 @@ import SignInPage from "../page";
 
 const invitation = {
   companyId: "company-a",
+  companyName: "Hoffmann Consulting",
   expiresAt: new Date("2099-01-01T00:00:00.000Z"),
   intent: "signed.intent",
   inviterName: "Invite Admin",
@@ -62,6 +63,7 @@ describe("SignInPage onboarding intent", () => {
       callbackURL: "/auth/invitation?intent=signed.intent",
       inviterName: "Invite Admin",
       onboardingIntent: "signed.intent",
+      workspaceName: "Hoffmann Consulting",
     });
   });
 
@@ -124,6 +126,7 @@ describe("SignInPage onboarding intent", () => {
       onboardingIntent: "signed.create",
     });
     expect(form.props.inviterName).toBeUndefined();
+    expect(form.props.workspaceName).toBeUndefined();
   });
 
   it("rejects a create decision when a different identity is already signed in", async () => {

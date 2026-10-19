@@ -28,6 +28,7 @@ const everything: CommandEnvironment = {
   appMode: "cloud",
   canManageSchema: true,
   onListPage: true,
+  otherWorkspaces: true,
   can: () => true,
 };
 
@@ -69,6 +70,8 @@ describe("command registry", () => {
     expect(ids).toEqual(
       expect.arrayContaining([
         "settings.profile",
+        "settings.workspaces",
+        "settings.general",
         "settings.members",
         "settings.billing",
         "settings.webhooks",
@@ -99,5 +102,17 @@ describe("command registry", () => {
     expect(commandAvailable(switchView, reader)).toBe(false);
     expect(commandAvailable(inbox, { ...everything, appMode: "self-hosted" })).toBe(false);
     expect(commandAvailable(configure, everything)).toBe(true);
+  });
+
+  it("offers switching only with another workspace and creating everywhere except the demo", () => {
+    const switchWorkspace = staticCommand("action.switchWorkspace");
+    const createWorkspace = staticCommand("action.createWorkspace");
+    if (!switchWorkspace || !createWorkspace) throw new Error("missing command");
+    expect(switchWorkspace.target).toEqual({ level: "workspaces" });
+    expect(commandAvailable(switchWorkspace, everything)).toBe(true);
+    expect(commandAvailable(switchWorkspace, { ...everything, otherWorkspaces: false })).toBe(false);
+    expect(commandAvailable(createWorkspace, { ...everything, otherWorkspaces: false })).toBe(true);
+    expect(commandAvailable(createWorkspace, { ...everything, appMode: "self-hosted" })).toBe(true);
+    expect(commandAvailable(createWorkspace, { ...everything, appMode: "demo" })).toBe(false);
   });
 });

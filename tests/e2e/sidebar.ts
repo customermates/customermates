@@ -3,21 +3,29 @@ import type { Page } from "@playwright/test";
 import { expect } from "./fixtures";
 import { openItemMenu } from "./item-actions";
 
-export async function openSidebar(page: Page) {
-  await page.waitForFunction(() =>
-    ["sidebar-trigger", "scroll-container"].every((id) => {
-      const element = document.getElementById(id);
-      return element !== null && Object.keys(element).some((key) => key.startsWith("__reactProps"));
-    }),
+const APP_PAGE_READY = ["sidebar-trigger", "scroll-container"];
+
+export async function openSidebar(page: Page, ready: readonly string[] = APP_PAGE_READY) {
+  await page.waitForFunction(
+    (ids) =>
+      ids.every((id) => {
+        const element = document.getElementById(id);
+        return element !== null && Object.keys(element).some((key) => key.startsWith("__reactProps"));
+      }),
+    ready,
   );
   await page.waitForFunction(() => !document.querySelector('[data-mobile="true"][data-state="closed"]'));
   if (!(await page.locator("#nav-workspace-menu").isVisible())) await page.locator("#sidebar-trigger").click();
   await expect(page.locator("#nav-workspace-menu")).toBeVisible();
 }
 
-export async function openMenu(page: Page, trigger: "#nav-workspace-menu" | "#nav-personal-menu") {
+export async function openMenu(
+  page: Page,
+  trigger: "#nav-workspace-menu" | "#nav-personal-menu",
+  ready?: readonly string[],
+) {
   await page.waitForLoadState("networkidle");
-  await openSidebar(page);
+  await openSidebar(page, ready);
   const menu = page.getByRole("menu");
   await expect(async () => {
     if (!(await menu.isVisible())) await page.locator(trigger).click();

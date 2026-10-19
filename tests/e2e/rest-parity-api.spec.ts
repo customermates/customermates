@@ -3,30 +3,21 @@ import type { APIRequestContext } from "@playwright/test";
 import { randomUUID } from "node:crypto";
 
 import { request as playwrightRequest } from "@playwright/test";
-import { z } from "zod";
 
 import { presetId } from "../../features/records/crm-preset";
+import { mintApiKey } from "./api-key";
 import { localE2eEnvironment } from "./local-environment";
 import { expect, test } from "./fixtures";
 import { createOpenApiValidator, type OpenApiDocument } from "../helpers/openapi-validator";
 
 test("serves saved views, widgets, model discovery, Trash reads and roles over an API key as the OpenAPI document declares", async ({
-  context,
+  database,
+  workspace,
   companyId,
 }) => {
   test.setTimeout(240000);
   const { baseUrl } = localE2eEnvironment();
-  const keyResponse = await context.request.post(
-    `${baseUrl}/api/auth/api-key/create`,
-    {
-      headers: { origin: baseUrl },
-      data: { name: "Local REST parity verification", expiresIn: 86400 },
-    },
-  );
-  expect(keyResponse.ok()).toBe(true);
-  const credential = z
-    .object({ key: z.string() })
-    .parse(await keyResponse.json());
+  const credential = await mintApiKey(database, workspace, "Local REST parity verification");
   const api: APIRequestContext = await playwrightRequest.newContext({
     baseURL: baseUrl,
     extraHTTPHeaders: { "x-api-key": credential.key },

@@ -23,7 +23,7 @@ import {
   readMigration,
 } from "@/tests/helpers/legacy-migration-database";
 
-const PHONE_CHANNELS_MIGRATION = "20261014230000_phone_channels";
+const PHONE_CHANNELS_MIGRATION = "20261015095000_phone_channels";
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 const databases: Awaited<ReturnType<typeof createLegacyMigrationDatabase>>[] = [];

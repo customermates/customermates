@@ -23,6 +23,7 @@ import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { defaultEmailSettings } from "@/ee/messaging/email-settings";
 import { composeEmailBodies } from "@/ee/messaging/outbound/email-signature";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 
 import { formatBytes } from "./attachment-classify";
 import { MAX_ATTACHMENTS_BYTES, toAttachmentInput } from "./attachment-input";
@@ -876,7 +877,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
         runInAction(() => {
           if (removed) detail.appendMessage(removed);
         });
-        this.toastError("Inbox.compose.draftDiscardFailed");
+        if (!notifyIfWorkspaceChanged(result)) this.toastError("Inbox.compose.draftDiscardFailed");
       }
     } catch (error) {
       if (generation === this.composeGeneration) {

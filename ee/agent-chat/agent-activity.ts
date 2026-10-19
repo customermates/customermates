@@ -90,6 +90,7 @@ export const AGENT_CONSEQUENCE_ACTIONS = [
   "support.request",
   "team.invite",
   "team.update",
+  "team.remove",
   "role.save",
   "role.delete",
   "webhook.create",
@@ -413,7 +414,7 @@ function describeAgentToolAction(identity: AgentToolIdentity, input: unknown): A
     const action = actionValue(details);
     if (action === "invite_link") return descriptor("team.manage", undefined, multiplexedRisk(toolName, details));
     return descriptor("team.manage", undefined, multiplexedRisk(toolName, details), [], {
-      action: action === "invite" ? "team.invite" : "team.update",
+      action: action === "invite" ? "team.invite" : action === "remove_member" ? "team.remove" : "team.update",
       target: action === "invite" ? safeStringList(details.emails) : "the selected team member",
       count: action === "invite" ? boundedCount(details.emails) : undefined,
       state: safeText(details.status, 80),
@@ -626,6 +627,8 @@ function agentConsequenceDetail(activity: AgentActivityDescriptor, t: AgentTrans
       return t("AgentChat.activity.consequence.roleDelete");
     case "team.update":
       return compact([t("AgentChat.activity.consequence.teamUpdate"), consequence.state]);
+    case "team.remove":
+      return t("AgentChat.activity.consequence.teamRemove");
     case "webhook.create":
       return compact([
         t("AgentChat.activity.consequence.webhookCreate"),

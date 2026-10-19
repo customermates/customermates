@@ -1,6 +1,6 @@
 import type { ZodOpenApiOperationObject } from "zod-openapi";
 
-import { UserDtoSchema } from "../user.schema";
+import { MemberDtoSchema } from "../user.schema";
 
 import { GetQueryParamsApiSchema, createApiGetResultSchema } from "@/core/base/base-get.schema";
 import { CommonApiResponses } from "@/core/api/structured-interactor-handler";
@@ -24,7 +24,7 @@ export const getUsersOperation: ZodOpenApiOperationObject = {
       description: "The users were retrieved successfully.",
       content: {
         "application/json": {
-          schema: createApiGetResultSchema(UserDtoSchema),
+          schema: createApiGetResultSchema(MemberDtoSchema),
         },
       },
     },

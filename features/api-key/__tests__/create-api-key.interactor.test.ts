@@ -38,14 +38,29 @@ const createdApiKey = {
   lastRequest: null,
 };
 
-function makeInteractor() {
+function makeInteractor(canCreateIntegrations = true) {
   const createApiKey = vi.fn().mockResolvedValue({ ok: true, data: createdApiKey });
-  const interactor = new CreateApiKeyInteractor({ createApiKey } as unknown as AuthService);
+  const plans = { canCreateIntegrations: vi.fn().mockResolvedValue(canCreateIntegrations) };
+  const interactor = new CreateApiKeyInteractor({ createApiKey } as unknown as AuthService, plans);
 
-  return { createApiKey, interactor };
+  return { createApiKey, interactor, plans };
 }
 
 beforeEach(() => vi.clearAllMocks());
+
+describe("CreateApiKeyInteractor plan contract", () => {
+  it("refuses a new key while the workspace has no usable plan", async () => {
+    const { createApiKey, interactor, plans } = makeInteractor(false);
+
+    const result = await interactor.invoke({ name: "Synthetic integration", expiresIn: undefined });
+
+    expect(result).toMatchObject({ ok: false });
+    if (!result.ok)
+      expect(result.error.issues[0]).toMatchObject({ params: { error: CustomErrorCode.workspacePlanRequired } });
+    expect(plans.canCreateIntegrations).toHaveBeenCalledWith(mockUser.companyId);
+    expect(createApiKey).not.toHaveBeenCalled();
+  });
+});
 
 describe("CreateApiKeyInteractor expiration contract", () => {
   it.each([undefined, API_KEY_MIN_EXPIRATION_SECONDS, API_KEY_MAX_EXPIRATION_SECONDS])(
@@ -56,7 +71,11 @@ describe("CreateApiKeyInteractor expiration contract", () => {
       const result = await interactor.invoke({ name: "Synthetic integration", expiresIn });
 
       expect(result).toMatchObject({ ok: true });
-      expect(createApiKey).toHaveBeenCalledExactlyOnceWith({ name: "Synthetic integration", expiresIn });
+      expect(createApiKey).toHaveBeenCalledExactlyOnceWith({
+        name: "Synthetic integration",
+        expiresIn,
+        companyId: expect.any(String),
+      });
     },
   );
 
@@ -116,7 +135,7 @@ describe("CreateApiKeyInteractor name contract", () => {
     const result = await interactor.invoke({ name, expiresIn: undefined });
 
     expect(result).toMatchObject({ ok: true });
-    expect(createApiKey).toHaveBeenCalledExactlyOnceWith({ name, expiresIn: undefined });
+    expect(createApiKey).toHaveBeenCalledExactlyOnceWith({ name, expiresIn: undefined, companyId: expect.any(String) });
   });
 
   it("rejects a name past the maximum length before calling Better Auth", async () => {

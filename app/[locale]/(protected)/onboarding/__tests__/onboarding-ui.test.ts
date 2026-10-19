@@ -61,6 +61,7 @@ describe("onboarding workspace UI", () => {
           claudeMethod: null,
           selectClaudeMethod: vi.fn(),
         } as unknown as AiConnectionStore,
+        workspaceName: "Atlas CRM",
       }),
     );
     const createButton = buttonContaining(markup, "OnboardingChoice.create.title");

@@ -13,6 +13,7 @@ type BaseProps = {
   id: string;
   label: string;
   labelClassName?: string;
+  leading?: ReactNode;
   visual?: ReactNode;
 };
 
@@ -29,9 +30,12 @@ type RadioCardProps = BaseProps & {
 
 type Props = CheckboxCardProps | RadioCardProps;
 
+const DESCRIPTION_CLASS = "text-xs font-normal leading-relaxed text-muted-foreground";
+
 export function SelectableCard(props: Props) {
-  const { description, disabled, id, label, labelClassName, selectionMode, visual } = props;
+  const { description, disabled, id, label, labelClassName, leading, selectionMode, visual } = props;
   const controlClassName = "peer absolute left-3 top-3 z-10";
+  const title = <span className="text-sm font-medium text-foreground">{label}</span>;
   const control =
     selectionMode === "single" ? (
       <RadioGroupItem className={controlClassName} disabled={disabled} id={id} value={props.value} />
@@ -62,11 +66,21 @@ export function SelectableCard(props: Props) {
         )}
         htmlFor={id}
       >
-        <span className="text-sm font-medium text-foreground">{label}</span>
+        {leading ? (
+          <span className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2 gap-y-1">
+            {leading}
 
-        {description ? (
-          <span className="text-xs font-normal leading-relaxed text-muted-foreground">{description}</span>
-        ) : null}
+            {title}
+
+            {description ? <span className={cn("col-start-2", DESCRIPTION_CLASS)}>{description}</span> : null}
+          </span>
+        ) : (
+          <>
+            {title}
+
+            {description ? <span className={DESCRIPTION_CLASS}>{description}</span> : null}
+          </>
+        )}
 
         {visual}
       </Label>

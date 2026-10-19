@@ -3,6 +3,9 @@ import http from "node:http";
 import https from "node:https";
 import { syncBuiltinESMExports } from "node:module";
 import { localEmailRequest } from "./local-email-provider.mjs";
+import { localLemonSqueezyRequest } from "./local-lemonsqueezy-provider.mjs";
+import { localOAuthRequest } from "./local-oauth-provider.mjs";
+import { localResendRequest } from "./local-resend-provider.mjs";
 
 const loopback = new Set(["localhost", "127.0.0.1", "::1", "[::1]"]);
 function reject() {
@@ -22,9 +25,12 @@ for (const key of ["BASE_URL", "DATABASE_URL", "DIRECT_URL", "WORKFLOW_LOCAL_BAS
 if (!/^\/crm_e2e(?:_[a-z0-9_]+)?$/.test(new URL(process.env.DATABASE_URL).pathname))
   throw new Error("The browser test transport requires an isolated browser test database");
 const originalFetch = globalThis.fetch;
+const localProviders = [localEmailRequest, localLemonSqueezyRequest, localOAuthRequest, localResendRequest];
 globalThis.fetch = function (input, init) {
-  const localEmail = localEmailRequest(input, init);
-  if (localEmail) return localEmail;
+  for (const provider of localProviders) {
+    const local = provider(input, init);
+    if (local) return local;
+  }
   validateUrl(typeof input === "string" || input instanceof URL ? input : input.url);
   return originalFetch.call(this, input, init);
 };

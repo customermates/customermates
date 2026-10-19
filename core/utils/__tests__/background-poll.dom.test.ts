@@ -1,5 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+const harness = vi.hoisted(() => ({ hasWorkspaceChanged: vi.fn(() => false) }));
+
+vi.mock("@/core/errors/workspace-changed-notice", () => ({ hasWorkspaceChanged: harness.hasWorkspaceChanged }));
+
 import { startBackgroundPoll } from "../background-poll";
 
 let stop: () => void = () => undefined;
@@ -17,6 +21,7 @@ function pageTransition(type: "pagehide" | "pageshow", persisted: boolean) {
 
 beforeEach(() => {
   vi.useFakeTimers();
+  harness.hasWorkspaceChanged.mockReturnValue(false);
 });
 afterEach(() => {
   stop();
@@ -24,6 +29,20 @@ afterEach(() => {
 });
 
 describe("background poll", () => {
+  it("issues no further requests once the tab's workspace changed", async () => {
+    const refresh = vi.fn().mockResolvedValue(undefined);
+    stop = startBackgroundPoll({ refresh, onError: vi.fn(), intervalMs: 10000, immediate: true });
+    await flush();
+    expect(refresh).toHaveBeenCalledTimes(1);
+
+    harness.hasWorkspaceChanged.mockReturnValue(true);
+    await vi.advanceTimersByTimeAsync(30000);
+    window.dispatchEvent(new Event("focus"));
+    await flush();
+
+    expect(refresh).toHaveBeenCalledTimes(1);
+  });
+
   it("refreshes on the interval and stops issuing requests once the page starts unloading", async () => {
     const refresh = vi.fn().mockResolvedValue(undefined);
     stop = startBackgroundPoll({ refresh, onError: vi.fn(), intervalMs: 10000, immediate: true });

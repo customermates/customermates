@@ -16,7 +16,7 @@ import { OnboardingWizardStore, WIZARD_STEPS } from "../onboarding-wizard.store"
 import { AiConnectionStore } from "@/components/ai-connection/ai-connection.store";
 import { readOnboardingWizardProgress } from "@/features/onboarding-wizard/onboarding-wizard-progress.schema";
 
-const rootStore = { stepAiStore: { canFinish: true } } as RootStore;
+const rootStore = { stepAiStore: { canFinish: true }, localeStore: { locale: "de" } } as RootStore;
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -34,7 +34,7 @@ describe("returning-user onboarding progress", () => {
   function persistentStore() {
     const root = {} as RootStore;
     const ai = new AiConnectionStore(root);
-    const store = new OnboardingWizardStore({ stepAiStore: ai } as RootStore);
+    const store = new OnboardingWizardStore({ stepAiStore: ai, localeStore: { locale: "de" } } as RootStore);
     return { store, ai };
   }
 
@@ -266,12 +266,12 @@ describe("OnboardingWizardStore", () => {
     expect(store.isSubmitting).toBe(false);
   });
 
-  it("leaves the wizard with a document load, so the shell re-reads the account state", async () => {
+  it("leaves the wizard with a document load in the person's language, so the shell re-reads the account state", async () => {
     const store = new OnboardingWizardStore(rootStore);
 
     await store.complete();
 
-    expect(assign).toHaveBeenCalledExactlyOnceWith("/dashboard");
+    expect(assign).toHaveBeenCalledExactlyOnceWith("/de/dashboard");
     expect(actions.completeOnboardingWizardAction.mock.invocationCallOrder[0]).toBeLessThan(
       assign.mock.invocationCallOrder[0],
     );

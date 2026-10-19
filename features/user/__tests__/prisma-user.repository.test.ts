@@ -182,6 +182,7 @@ describe("PrismaUserRepo.findActiveLegalNoticeRecipientsUnscoped", () => {
         displayLanguage: "en",
         formattingLocale: "de",
         role: { isSystemRole: true },
+        company: { name: "Acme" },
       },
     ]);
 
@@ -190,6 +191,7 @@ describe("PrismaUserRepo.findActiveLegalNoticeRecipientsUnscoped", () => {
     ).resolves.toEqual([
       expect.objectContaining({
         id: "user-1",
+        companyName: "Acme",
         createdAt,
         formattingLocale: "de",
         isSystemAdministrator: true,

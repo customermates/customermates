@@ -34,6 +34,7 @@ import { POST as createPages } from "../create/route";
 import { POST as updatePage } from "../update/route";
 import { POST as movePage } from "../move/route";
 import { POST as deletePage } from "../delete/route";
+import { bindFixtureCredentials } from "@/tests/helpers/bind-fixture-credentials";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -121,6 +122,7 @@ describeDatabase("Knowledge Base REST routes", () => {
       'INSERT INTO "WikiPage" ("id", "companyId", "title", "markdown", "updatedAt") VALUES ($1, $2, \'Readable REST fixture\', \'rest-reader-discovery-phrase\', CURRENT_TIMESTAMP), ($3, $4, \'Foreign confidential page\', \'rest-foreign-tenant-phrase\', CURRENT_TIMESTAMP)',
       [readablePageId, companyId, foreignPageId, foreignCompanyId],
     );
+    await bindFixtureCredentials(client, [companyId, foreignCompanyId]);
   });
 
   afterAll(async () => {

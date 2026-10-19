@@ -295,9 +295,9 @@ describeDatabase("registration against a real database", () => {
       data: { redirectTo: "/onboarding/wizard" },
     });
 
-    const user = await runWithoutTenant(() => prisma.user.findUniqueOrThrow({ where: { email: registrationEmail } }));
+    const user = await runWithoutTenant(() => prisma.user.findFirstOrThrow({ where: { email: registrationEmail } }));
     companyIds.push(user.companyId);
-    const tenantUser = await new PrismaUserRepo(new PermissionService()).findCurrentUserUnscoped(registrationEmail);
+    const tenantUser = await new PrismaUserRepo(new PermissionService()).findAnyMembershipUnscoped(registrationEmail);
     if (!tenantUser) throw new Error("The newly registered workspace owner is missing.");
     await runWithTenant(tenantUser, async () => {
       const records = createTestRecordRepo();
@@ -452,7 +452,7 @@ describeDatabase("registration against a real database", () => {
     expect(result).toEqual({ ok: true, data: { redirectTo: "/auth/pending" } });
 
     const invitedUser = await runWithoutTenant(() =>
-      prisma.user.findUniqueOrThrow({
+      prisma.user.findFirstOrThrow({
         where: { email: invitedEmail },
         select: { agreeToTerms: true, companyId: true, status: true },
       }),
@@ -522,7 +522,7 @@ describeDatabase("registration against a real database", () => {
     expect(result).toEqual({ ok: true, data: { redirectTo: "/auth/pending" } });
 
     const joined = await runWithoutTenant(() =>
-      prisma.user.findUniqueOrThrow({
+      prisma.user.findFirstOrThrow({
         where: { email: invitedEmail },
         select: { companyId: true, status: true },
       }),
@@ -595,7 +595,7 @@ describeDatabase("registration against a real database", () => {
     expect(result).toEqual({ ok: true, data: { redirectTo: "/auth/pending" } });
 
     const joined = await runWithoutTenant(() =>
-      prisma.user.findUniqueOrThrow({ where: { email: invitedEmail }, select: { companyId: true } }),
+      prisma.user.findFirstOrThrow({ where: { email: invitedEmail }, select: { companyId: true } }),
     );
     expect(joined.companyId).toBe(inviter.companyId);
     expect(
@@ -641,7 +641,7 @@ describeDatabase("registration against a real database", () => {
         { target: { type: "invitation", companyId: deletedCompany.id } },
       ),
     ).resolves.toEqual({ redirect: "/auth/error?type=invalidInviteLink" });
-    expect(await runWithoutTenant(() => prisma.user.findUnique({ where: { email: registrationEmail } }))).toBeNull();
+    expect(await runWithoutTenant(() => prisma.user.findFirst({ where: { email: registrationEmail } }))).toBeNull();
     expect(
       await runWithoutTenant(() =>
         prisma.authUser.findUniqueOrThrow({ where: { id: authUserId }, select: { companyId: true } }),
@@ -683,7 +683,7 @@ describeDatabase("registration against a real database", () => {
     );
 
     expect(result).toEqual({ redirect: "/onboarding" });
-    expect(await runWithoutTenant(() => prisma.user.findUnique({ where: { email: registrationEmail } }))).toBeNull();
+    expect(await runWithoutTenant(() => prisma.user.findFirst({ where: { email: registrationEmail } }))).toBeNull();
   });
 
   it("creates nothing when a cached session references a deleted AuthUser", async () => {
@@ -726,7 +726,7 @@ describeDatabase("registration against a real database", () => {
     );
 
     expect(result).toEqual({ redirect: "/auth/signup" });
-    expect(await runWithoutTenant(() => prisma.user.findUnique({ where: { email: registrationEmail } }))).toBeNull();
+    expect(await runWithoutTenant(() => prisma.user.findFirst({ where: { email: registrationEmail } }))).toBeNull();
   });
 
   it("prefers the current invitation over an older live identity binding", async () => {
@@ -793,7 +793,7 @@ describeDatabase("registration against a real database", () => {
     expect(result).toEqual({ ok: true, data: { redirectTo: "/auth/pending" } });
     expect(
       await runWithoutTenant(() =>
-        prisma.user.findUniqueOrThrow({ where: { email: invitedEmail }, select: { companyId: true, status: true } }),
+        prisma.user.findFirstOrThrow({ where: { email: invitedEmail }, select: { companyId: true, status: true } }),
       ),
     ).toEqual({ companyId: currentWorkspaceAdmin.companyId, status: "pendingAuthorization" });
     expect(
@@ -890,7 +890,7 @@ describeDatabase("registration against a real database", () => {
           where: { users: { some: { email: invitedEmail } } },
         }),
       ).toBe(1);
-      const user = await prisma.user.findUniqueOrThrow({ where: { email: invitedEmail }, select: { companyId: true } });
+      const user = await prisma.user.findFirstOrThrow({ where: { email: invitedEmail }, select: { companyId: true } });
       companyIds.push(user.companyId);
       expect(
         await prisma.authUser.findUniqueOrThrow({ where: { id: authUserId }, select: { companyId: true } }),
@@ -1014,7 +1014,7 @@ describeDatabase("registration against a real database", () => {
         await prisma.authUser.findUniqueOrThrow({ where: { id: authUserId }, select: { companyId: true } }),
       ).toEqual({ companyId: invitedWorkspaceAdmin.companyId });
       expect(
-        await prisma.user.findUniqueOrThrow({
+        await prisma.user.findFirstOrThrow({
           where: { email: invitedEmail },
           select: { companyId: true, status: true },
         }),
@@ -1175,7 +1175,7 @@ describeDatabase("registration against a real database", () => {
       ),
     ).rejects.toThrow("forced registration rollback");
 
-    expect(await runWithoutTenant(() => prisma.user.findUnique({ where: { email: rollbackEmail } }))).toBeNull();
+    expect(await runWithoutTenant(() => prisma.user.findFirst({ where: { email: rollbackEmail } }))).toBeNull();
     expect(
       await runWithoutTenant(() =>
         prisma.authUser.findUniqueOrThrow({ where: { id: authUserId }, select: { companyId: true } }),
@@ -1194,5 +1194,77 @@ describeDatabase("registration against a real database", () => {
         }),
       ),
     ).toBe(0);
+  });
+
+  it("names the first onboarding workspace and grants the trial only to the first workspace a login creates", async () => {
+    const ownerEmail = `named-workspace-${Date.now()}@example.com`;
+    const authUserId = `auth-named-${Date.now()}`;
+    await runWithoutTenant(() =>
+      prisma.authUser.create({ data: { id: authUserId, name: "Named Workspace", email: ownerEmail, companyId: null } }),
+    );
+    authUserIds.push(authUserId);
+    const interactor = new RegisterUserInteractor(
+      { sendNewUserNotificationEmail: vi.fn().mockResolvedValue(undefined) } as never,
+      new PrismaUserRepo(new PermissionService()),
+      newEventService(),
+      unregisteredRouteGuardService(authUserId, ownerEmail) as never,
+      new PrismaCompanyRepo(),
+      new InitializeRecordModelService(createTestRecordRepo()),
+      createTestWorkspaceRegistration(),
+    );
+    const profile = {
+      email: ownerEmail,
+      firstName: "Named",
+      lastName: "Owner",
+      country: "de" as const,
+      agreeToTerms: true,
+      avatarUrl: null,
+    };
+    const workspaceOf = (companyId: string) =>
+      runWithoutTenant(() =>
+        prisma.company.findUniqueOrThrow({
+          where: { id: companyId },
+          select: {
+            name: true,
+            createdByAuthUserId: true,
+            subscription: { select: { status: true, trialEndDate: true } },
+          },
+        }),
+      );
+
+    await expect(
+      interactor.invoke({ ...profile, workspaceName: "  Bergmann Steuern  " }, { target: { type: "createCompany" } }),
+    ).resolves.toEqual({ ok: true, data: { redirectTo: "/onboarding/wizard" } });
+    const first = await runWithoutTenant(() => prisma.user.findFirstOrThrow({ where: { email: ownerEmail } }));
+    companyIds.push(first.companyId);
+    const firstWorkspace = await workspaceOf(first.companyId);
+    expect(firstWorkspace).toMatchObject({
+      name: "Bergmann Steuern",
+      createdByAuthUserId: authUserId,
+      subscription: { status: "trial" },
+    });
+    expect(firstWorkspace.subscription?.trialEndDate).not.toBeNull();
+
+    await runWithoutTenant(() =>
+      prisma.user.update({ where: { id: first.id }, data: { status: "inactive", leftAt: new Date() } }),
+    );
+    await runWithoutTenant(() => prisma.authUser.update({ where: { id: authUserId }, data: { companyId: null } }));
+
+    await expect(
+      interactor.invoke({ ...profile, workspaceName: "" }, { target: { type: "createCompany" } }),
+    ).resolves.toEqual({
+      ok: true,
+      data: { redirectTo: "/onboarding/wizard" },
+    });
+    const second = await runWithoutTenant(() =>
+      prisma.user.findFirstOrThrow({ where: { email: ownerEmail, leftAt: null } }),
+    );
+    companyIds.push(second.companyId);
+    expect(second.companyId).not.toBe(first.companyId);
+    expect(await workspaceOf(second.companyId)).toEqual({
+      name: null,
+      createdByAuthUserId: authUserId,
+      subscription: { status: "expired", trialEndDate: null },
+    });
   });
 });

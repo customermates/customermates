@@ -364,15 +364,22 @@ export async function resolveWorkspaceLabels(
   const labels = new Map<string, string>();
   if (companyIds.length === 0) return labels;
 
-  const rows = await prisma.$queryRaw<Array<{ companyId: string; domain: string | null }>>`
-    SELECT DISTINCT ON ("companyId") "companyId", split_part("email", '@', 2) AS domain
-    FROM "User"
-    WHERE "companyId" = ANY(${companyIds}::text[])
-    GROUP BY "companyId", domain
-    ORDER BY "companyId" ASC, COUNT(*) DESC, domain ASC
-  `;
+  const [rows, named] = await Promise.all([
+    prisma.$queryRaw<Array<{ companyId: string; domain: string | null }>>`
+      SELECT DISTINCT ON ("companyId") "companyId", split_part("email", '@', 2) AS domain
+      FROM "User"
+      WHERE "companyId" = ANY(${companyIds}::text[])
+      GROUP BY "companyId", domain
+      ORDER BY "companyId" ASC, COUNT(*) DESC, domain ASC
+    `,
+    prisma.company.findMany({
+      where: { id: { in: companyIds }, name: { not: null } },
+      select: { id: true, name: true },
+    }),
+  ]);
 
   for (const row of rows) if (row.domain) labels.set(row.companyId, row.domain);
+  for (const company of named) if (company.name) labels.set(company.id, company.name);
 
   return labels;
 }

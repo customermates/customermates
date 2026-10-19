@@ -6,7 +6,7 @@ import type { ChipColor } from "@/constants/chip-colors";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import { Action, Resource, SubscriptionStatus, SubscriptionPlan } from "@/generated/prisma";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -14,9 +14,11 @@ import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { FormOutputField } from "@/components/forms/form-output-field";
 import { AppChip } from "@/components/chip/app-chip";
 import { Alert } from "@/components/shared/alert";
-import { runUserAction } from "@/core/errors/report-application-error";
+import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
+import { startBackgroundPoll } from "@/core/utils/background-poll";
+import { CHECKOUT_POLL_INTERVAL_MS } from "@/ee/subscription/checkout-state";
 
-import { PlanPicker } from "./plan-picker";
+import { PlanSelection } from "./plan-selection";
 
 import { storageSizeLabel } from "@/features/record-files/storage-size";
 
@@ -47,6 +49,8 @@ export const SubscriptionPanel = observer(({ initialSubscription, storage }: Pro
   const hasActiveSubscription = subscription?.hasActiveSubscription ?? false;
   const canManageCompany = userStore.can(Resource.company, Action.update);
   const hasBillingPortal = Boolean(subscription?.hasBillingPortal);
+  const checkout = subscription?.checkout ?? "none";
+  const awaitingPayment = checkout === "pending" && !hasActiveSubscription && canManageCompany;
   const planHelp = !hasActiveSubscription
     ? canManageCompany
       ? t("Subscription.fieldHelp.planPicker")
@@ -67,6 +71,15 @@ export const SubscriptionPanel = observer(({ initialSubscription, storage }: Pro
     : !canManageCompany
       ? t("Subscription.fieldHelp.trialEndsReadOnly")
       : t("Subscription.fieldHelp.trialEndsManage", { billing: t("Subscription.manageWithLemonSqueezy") });
+
+  useEffect(() => {
+    if (!awaitingPayment) return;
+    return startBackgroundPoll({
+      refresh: () => subscriptionStore.reloadSubscription(),
+      onError: reportApplicationError,
+      intervalMs: CHECKOUT_POLL_INTERVAL_MS,
+    });
+  }, [awaitingPayment, subscriptionStore]);
 
   return (
     <section className="flex w-full flex-col gap-4">
@@ -111,8 +124,10 @@ export const SubscriptionPanel = observer(({ initialSubscription, storage }: Pro
           </div>
 
           {!hasActiveSubscription && canManageCompany && (
-            <PlanPicker
+            <PlanSelection
+              checkout={checkout}
               isLoading={loadingOverlayStore.isLoading}
+              onAbandon={() => runUserAction(() => subscriptionStore.handleAbandon())}
               onSelect={(plan) => runUserAction(() => subscriptionStore.handleSubscribe(plan))}
             />
           )}

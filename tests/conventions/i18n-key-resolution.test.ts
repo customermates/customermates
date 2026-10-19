@@ -333,7 +333,6 @@ const ENTITY_TIMELINE_TYPE_KEYS = [
   "EntityTimeline.types.record",
 ] as const;
 const ERROR_CARD_DYNAMIC_KEYS = [
-  "ErrorCard.inactiveUser",
   "ErrorCard.invalidInviteLink",
   "ErrorCard.invalidOnboardingIntent",
   "ErrorCard.inviteLinkExpired",

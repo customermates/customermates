@@ -5,6 +5,7 @@ import type { TenantUser } from "@/features/user/user.schema";
 import type { GetLegalStatusInteractor, LegalUpdateStatus } from "@/features/legal/get-legal-status.interactor";
 import type { AccountState } from "./account-state";
 import type { RouteGuardCompanyRepo } from "./route-guard-company.repo";
+import type { ActiveWorkspaceService } from "@/features/workspace/active-workspace.service";
 
 import { Action, Status } from "@/generated/prisma";
 
@@ -15,6 +16,7 @@ import { accountStateRedirect } from "./account-state";
 import { mustVerifyEmail } from "./email-verification-grace";
 import { isSubscriptionExpired } from "@/ee/subscription/entitlements";
 import { env } from "@/env";
+import { runWithTenant } from "@/core/decorators/tenant-context";
 
 const READ_ACTIONS: readonly Action[] = [Action.readOwn, Action.readAll];
 
@@ -80,6 +82,7 @@ export class RouteGuardService {
     private userRepo: FindUserRepo,
     private companyRepo: RouteGuardCompanyRepo,
     private getLegalStatusInteractor: GetLegalStatusInteractor,
+    private workspaces: ActiveWorkspaceService,
   ) {}
 
   async resolveAccountState(): Promise<AccountStateResolution> {
@@ -107,10 +110,15 @@ export class RouteGuardService {
       };
     }
 
-    const user = await this.userRepo.findCurrentUserUnscoped(session.user.email);
+    const user = await this.workspaces.resolveMembership(session);
     const authUserCompanyId = authUserState.companyId;
     let companyId = user?.companyId ?? null;
-    if (!user && authUserCompanyId && (await this.companyRepo.existsUnscoped(authUserCompanyId)))
+    if (
+      !user &&
+      authUserCompanyId &&
+      (await this.companyRepo.existsUnscoped(authUserCompanyId)) &&
+      !(await this.userRepo.hasLeftMembershipUnscoped(session.user.email, authUserCompanyId))
+    )
       companyId = authUserCompanyId;
     const emailVerified = authUserState.emailVerified;
     const sessionUser: AccountSessionUser = {
@@ -138,9 +146,11 @@ export class RouteGuardService {
       default:
         return unsupportedAccountStatus(user.status);
     }
-    if (user.role?.isSystemRole && user.onboardingWizardCompletedAt == null) return { state: "onboarding", ...base };
+    const commercial = await this.resolveCommercialState(user);
+    if (user.role?.isSystemRole && user.onboardingWizardCompletedAt == null && commercial.state !== "subscription")
+      return { state: "onboarding", ...base };
 
-    return { ...base, ...(await this.resolveCommercialState(user)) };
+    return { ...base, ...commercial };
   }
 
   async resolveMcpConsentState(resolution: AccountStateResolution): Promise<AccountState> {
@@ -148,6 +158,17 @@ export class RouteGuardService {
 
     const { state } = await this.resolveCommercialState(resolution.user);
     return state === "allowed" ? "onboarding" : state;
+  }
+
+  async resolveMembershipForConsent(companyId: string): Promise<TenantUser | null> {
+    const session = await this.authService.getInteractiveSession();
+    if (!session) return null;
+
+    const membership = await this.userRepo.findMembershipUnscoped(session.user.email, companyId);
+    if (!membership || membership.status !== Status.active) return null;
+
+    const { state } = await runWithTenant(membership, () => this.resolveCommercialState(membership));
+    return state === "allowed" ? membership : null;
   }
 
   private async resolveCommercialState(user: TenantUser): Promise<{

@@ -63,6 +63,7 @@ import { type WidgetLayoutGeometry, widgetDefaultSize, widgetLayoutGeometry } fr
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { reportApplicationError } from "@/core/errors/report-application-error";
+import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { browserTimeZone } from "@/core/utils/time-zone";
 import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
@@ -270,7 +271,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
         if (request === this.recordModelRequest) this.recordModel = model;
       });
     } catch (error) {
-      if (request !== this.recordModelRequest) return;
+      if (notifyIfWorkspaceChanged(error) || request !== this.recordModelRequest) return;
       reportApplicationError(error);
       runInAction(() => {
         this.recordModel = null;
@@ -297,6 +298,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       const result = await this.runPreview(() => previewRecordWidgetAction(parsed.data));
       if (!result || !isCurrent()) return;
       if (!result.ok) {
+        if (notifyIfWorkspaceChanged(result)) return;
         runInAction(() => {
           this.recordPreviewFailed = true;
         });
@@ -311,7 +313,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       });
       if (this.hasUnsavedChanges) this.onChange("expectedRevision", result.data.result.schemaRevision);
     } catch (error) {
-      if (!isCurrent()) return;
+      if (notifyIfWorkspaceChanged(error) || !isCurrent()) return;
       reportApplicationError(error);
       runInAction(() => {
         this.recordPreviewFailed = true;
@@ -404,6 +406,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     }
     try {
       const result = await resolveSearchReferencesAction({ refs: toJS(refs) });
+      if (notifyIfWorkspaceChanged(result)) return;
       runInAction(() => {
         if (request === this.scopeRecordsRequest && result.ok) this.scopeRecordHits = result.data.results;
       });
@@ -516,6 +519,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     const session = this.sessionGeneration;
     const generation = ++this.companyWidgetsGeneration;
     const result = await getCompanyWidgetsAction();
+    if (notifyIfWorkspaceChanged(result)) return;
     if (
       result.ok &&
       generation === this.companyWidgetsGeneration &&

@@ -4,7 +4,7 @@ heading: "Connect AI clients to your CRM with MCP"
 description: Customermates exposes a native MCP endpoint at /api/v1/mcp so Claude, ChatGPT, Cursor, and other agent clients can read and write your CRM directly.
 ---
 
-Customermates exposes one MCP endpoint at `<BASE_URL>/api/v1/mcp`, where `<BASE_URL>` is the address you open Customermates at. A connected client discovers all [[derived.mcp.tools.total]] CRM tools automatically. Two ways to connect:
+Customermates exposes one MCP endpoint at `<BASE_URL>/api/v1/mcp`, where `<BASE_URL>` is the address you open Customermates at, and every workspace also has its own URL, `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>`, with the same tools locked to that workspace. A connected client discovers all [[derived.mcp.tools.total]] CRM tools automatically. Two ways to connect:
 
 - **Custom connector (OAuth):** for Claude (web, desktop, mobile) and ChatGPT. Paste the URL, sign in, approve; no key to manage. See [Connect with a custom connector](/docs/connect-custom-connector).
 - **API key:** for CLI and editor clients (Claude Code, Codex, Cursor, Gemini CLI) and raw HTTP. Send the 64-character key in the `x-api-key` header or a config file.
@@ -26,9 +26,11 @@ x-api-key: <your-64-character-key>
 
 The endpoint speaks the Model Context Protocol (streamable HTTP variant). `tools/list` returns every tool with its JSON Schema; `tools/call` invokes a tool by name. Every request must send `Accept: application/json, text/event-stream`, otherwise the endpoint returns `406 Not Acceptable`. The client guides set this up; raw HTTP callers such as curl or scripts add the header themselves.
 
-An API key is 64 letters (a-z, A-Z) and carries the permissions of the user who created it; there is no per-key scoping. Custom-connector clients (Claude, ChatGPT) use OAuth instead and obtain and refresh a bearer token for you, see [Connect with a custom connector](/docs/connect-custom-connector).
+An API key is 64 letters (a-z, A-Z) and carries the permissions of the user who created it; there is no per-key scoping. Custom-connector clients (Claude, ChatGPT) use OAuth instead and obtain and refresh a bearer token for you, see [Connect with a custom connector](/docs/connect-custom-connector). Both act in exactly one workspace: a key in the workspace it was created in, an OAuth connection in the workspace of its URL or the one chosen on the consent screen ([which workspace a connection uses](/docs/app-workspaces#which-workspace-do-api-keys-and-connections-use)).
 
-A request without valid credentials gets HTTP `401` with a `WWW-Authenticate` header that points OAuth clients at `/.well-known/oauth-protected-resource`, so the client signs in again: no `x-api-key` header and no bearer token, a wrong, truncated, expired or deleted key, or a missing, expired or revoked token. Connecting through MCP also needs **Read access** **All** on the **API & Webhooks** row of the user's role, the same permission as the API keys page; the built-in **Admin** role has it. A valid key or OAuth token of a user whose role lacks it gets HTTP `403` with `error: insufficient_permissions` before any tool runs, and the OAuth consent screen refuses such a user. The in-app assistant does not need it.
+A workspace's URL accepts only credentials of that workspace. An OAuth token of another workspace gets HTTP `401` with `error="invalid_token"` in the `WWW-Authenticate` header, whose `resource_metadata` points at `/.well-known/oauth-protected-resource/api/v1/mcp/w/<WORKSPACE_ID>`, so the client authorizes again for this workspace. The token request may name the URL in `resource`; a `resource` of another workspace than the approved one gets `400` with `error: invalid_target`. An API key of another workspace gets `403` with `error: workspace_mismatch`. Every other check stays the same as at `<BASE_URL>/api/v1/mcp`.
+
+A request without valid credentials gets HTTP `401` with a `WWW-Authenticate` header that points OAuth clients at `/.well-known/oauth-protected-resource`, so the client signs in again: no `x-api-key` header and no bearer token, a wrong, truncated, expired or deleted key, or a missing, expired or revoked token. Connecting through MCP also needs **Read access** **All** on the **API & Webhooks** row of the user's role, the same permission as the API keys page; the built-in **Admin** role has it. A valid key or OAuth token of a user whose role lacks it gets HTTP `403` with `error: insufficient_permissions` before any tool runs, and the OAuth consent screen refuses such a user. A key or token of a Cloud workspace that is still waiting for its first plan gets `403` with `error: plan_required`. The in-app assistant does not need it.
 
 The endpoint and API keys are available on every plan and on self-hosted instances. Only the messaging, calendar and social tools need a plan with messaging (Pro or higher, cloud only); see [Messaging](/docs/mcp#messaging).
 
@@ -165,7 +167,7 @@ Customermates exposes [[derived.mcp.tools.total]] MCP tools, all enabled by defa
 {/* mcp-catalog:flags */}
 **Read-only:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `lookup_address`, `check_address`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `export_crm_records`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
 
-**Can delete data:** `mutate_crm_record`, `manage_trash`, `import_crm_records`, `manage_data_views`, `manage_wiki_pages`, `discard_message_draft`, `manage_connected_accounts`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_roles`
+**Can delete data:** `mutate_crm_record`, `manage_trash`, `import_crm_records`, `manage_data_views`, `manage_wiki_pages`, `discard_message_draft`, `manage_connected_accounts`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_team`, `manage_roles`
 {/* /mcp-catalog */}
 
 Full JSON Schema for every tool is available live at `POST /api/v1/mcp` with `method: "tools/list"`.
@@ -381,7 +383,7 @@ A token works for 24 hours and only in the workspace that looked it up; otherwis
 {/* mcp-catalog:workspace */}
 #### `get_workspace_context`
 
-Read the current user, company, role catalog with permissions, accessible connected messaging accounts, and the Knowledge Base's Operating Guide, its procedure index with when-to-use triggers, and a permission-filtered list of knowledge pages (pass `wikiPage` for more; omitted without Knowledge Base Read) in one call. The natural first call of a session. Discover record-type labels separately with discover_record_types and fetch the relevant configuration with get_record_model.
+Read the current user, the company (the workspace, with its name), role catalog with permissions, accessible connected messaging accounts, and the Knowledge Base's Operating Guide, its procedure index with when-to-use triggers, and a permission-filtered list of knowledge pages (pass `wikiPage` for more; omitted without Knowledge Base Read) in one call. The natural first call of a session; the connection is bound to exactly one workspace. Discover record-type labels separately with discover_record_types and fetch the relevant configuration with get_record_model.
 
 **Read-only.** Optional: `wikiPage`.
 
@@ -676,9 +678,9 @@ Optional: `firstName`, `lastName`, `country`, `avatarUrl`, `theme`, `displayLang
 
 #### `manage_team`
 
-Invite members by email (action invite, up to 20, sends real invitation emails), return the invitation link (invite_link), or change a member's role and status (update_member). For update_member, identify the member by userId or email; if you provide both, they must match. invite and invite_link need Create on Users & Roles; update_member needs Edit, like REST.
+Invite members by email (action invite, up to 20, sends real invitation emails), return the invitation link (invite_link), change a member's role and status (update_member), or remove a member from the workspace (remove_member). For update_member and remove_member, identify the member by userId or email; if you provide both, they must match. remove_member ends the member's access, revokes their API keys and MCP connections for this workspace, disconnects the channels they connected here and declines a pending request; it sends the removed member a real email (none for a declined request), and their records stay. invite and invite_link need Create on Users & Roles; update_member and remove_member need Edit, like REST.
 
-Required: `action`. Optional: `emails`, `userId`, `email`, `roleId`, `status`.
+**Can delete data.** Required: `action`. Optional: `emails`, `userId`, `email`, `roleId`, `status`.
 
 #### `manage_roles`
 
@@ -687,7 +689,7 @@ Read, create or edit roles with system permissions and access to any configured 
 **Can delete data.** Required: `action`. Optional: `roleId`, `typeIds`, `role`, `deletion`.
 {/* /mcp-catalog */}
 
-No tool reads the subscription, plan, seats or billing, or changes the plan, and none creates or deletes API keys; `get_workspace_context` returns no plan or trial data either. Roles are managed with `manage_roles` or under [Roles](app:settings/roles). Billed seats follow the number of **Active** members, so a status change made with `manage_team` changes the seat count just as in the app ([how seats are counted](/docs/app-company#how-are-seats-counted-and-billed)). Manage the subscription under [Billing](app:settings/billing) (cloud only) and keys under [API keys](app:settings/api-keys).
+No tool reads the subscription, plan, seats or billing, or changes the plan, and none creates or deletes API keys; `get_workspace_context` returns no plan or trial data either. Roles are managed with `manage_roles` or under [Roles](app:settings/roles). Billed seats follow the number of **Active** members, so a status change or a removal made with `manage_team` changes the seat count just as in the app ([how seats are counted](/docs/app-company#how-are-seats-counted-and-billed)). Manage the subscription under [Billing](app:settings/billing) (cloud only) and keys under [API keys](app:settings/api-keys).
 
 ### Support
 
@@ -733,7 +735,7 @@ Only a `validation` refusal's text starts with `Validation error:`; the other ki
 `kind` is one of `validation`, `authentication`, `authorization`, `not_found`, `conflict`, `rate_limit` or `unavailable`. Branch on it instead of matching message text:
 
 - **validation**: the arguments were wrong. Read `issues[].path`, fix that field and call again; compare the request with `get_record_model` for the type and the live tool schema.
-- **authorization**: the caller's role does not permit it. Retrying never helps; say what was refused and which permission it needs. Roles are workspace-defined, so read `get_workspace_context.roles` rather than assuming a fixed set. A key or connection whose owner was set to **Inactive** also lands here, with "Your user account is inactive. Contact a workspace administrator."
+- **authorization**: the caller's role does not permit it. Retrying never helps; say what was refused and which permission it needs. Roles are workspace-defined, so read `get_workspace_context.roles` rather than assuming a fixed set. A key or connection whose owner was set to **Inactive** also lands here, with "Your user account is inactive. Contact a workspace administrator.", and so does a key of a Cloud workspace that is still waiting for its first plan, with `customCode` `workspacePlanRequired` over REST.
 - **not_found**: the id does not exist or belongs to another workspace; every call is tenant-scoped, so a foreign id reads as missing, not forbidden. A recipient, profile or thread the messaging provider cannot find or show also returns `not_found`, with `customCode` `unipileResourceNotFound`; your own record ids are fine in that case.
 - **conflict**: the state changed or a resource is already claimed. For `recordSchemaChanged` or `recordVersionChanged`, read current state and preview again. `recordIdempotencyConflict` means a retry key was reused with a different payload. `channelAlreadyLinked` means an identity key belongs to another record.
 - **rate_limit** and **unavailable**: transient or capacity-bound. Back off, and report `unavailable` as a provider problem, not a user mistake. A messaging channel at its provider limit returns `rate_limit` with `customCode` `unipileRateLimit`, and the message says when to try again ([messaging rate limits](/docs/messaging-rate-limits)). A provider outage or timeout returns `unavailable`; after a timeout the action may still have completed, so check before retrying. An unexpected server error while the tool runs also returns `unavailable`, with the text `Error: The operation could not be completed because of an unexpected server error.`
@@ -765,14 +767,14 @@ Send your 64-character API key in the `x-api-key` header, or connect through OAu
 Claude on web, mobile and desktop, ChatGPT, Claude Code, Codex, Cursor and the Gemini CLI have documented connection paths under [Connect a client](#connect-a-client). Another client may work if it supports MCP over streamable HTTP and the required authentication; verify its compatibility and instruction handling before use.
 </FaqItem>
 <FaqItem question="Which plan do I need for MCP?">
-None in particular. The MCP endpoint and API keys work on every plan, during the trial and on self-hosted instances. The plan changes what some tools allow: messaging, calendar and social tools need a plan with messaging (Pro or higher, cloud) and refuse with a plan message on Starter or self-hosted; connecting a messaging account stops at the plan's account limit per user; `manage_routines` refuses a new routine at the plan's routine limit; and activity widgets leave out messages and calendar events without messaging. See [when a call is refused](/docs/mcp#when-a-call-is-refused). When a trial ends or a payment fails, the web app pauses first, while API keys and MCP connections keep working until the members are set **Inactive**; see [what happens when the trial ends](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails).
+None in particular. The MCP endpoint and API keys work on every plan, during the trial and on self-hosted instances. The plan changes what some tools allow: messaging, calendar and social tools need a plan with messaging (Pro or higher, cloud) and refuse with a plan message on Starter or self-hosted; connecting a messaging account stops at the plan's account limit per user; `manage_routines` refuses a new routine at the plan's routine limit; and activity widgets leave out messages and calendar events without messaging. See [when a call is refused](/docs/mcp#when-a-call-is-refused). When a trial ends or a payment fails, the web app pauses first, while API keys and MCP connections keep working until the members are set **Inactive**; see [what happens when the trial ends](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails). A Cloud workspace that is still waiting for its first plan refuses its keys and connections with `403` and `error: plan_required` until an admin chooses one.
 </FaqItem>
 <FaqItem question="Can I reduce the number of tools a client sees?">
 Yes. Append `?toolsets=` with a comma-separated list of group keys (`records`, `workspace`, `views`, `wiki`, `messaging`, `social`, `docs`, `record-model`, `widgets`, `routines`, `webhooks`, `admin`, `support`) to the endpoint URL and only those tools are advertised. The connector tools `search` and `fetch` stay on.
 </FaqItem>
 <FaqItem question="How do I recognize dangerous tools?">
 
-Read the action and its preview. The catalog marks tools that can delete data, while sending tools such as `send_email`, `send_chat_message` and `manage_team` can have external effects without that flag. Client confirmation and backend authorization are separate. Configuration previews and read-only tools do not change records.
+Read the action and its preview. The catalog marks tools that can delete data, while sending tools such as `send_email` and `send_chat_message` can have external effects without that flag. Client confirmation and backend authorization are separate. Configuration previews and read-only tools do not change records.
 
 </FaqItem>
 <FaqItem question="Do tools return machine-readable results?">

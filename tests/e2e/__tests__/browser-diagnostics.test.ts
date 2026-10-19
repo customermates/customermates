@@ -35,6 +35,14 @@ function fakeBrowser() {
       contextEvents.emit("requestfailed", {
         url: () => url,
         failure: () => ({ errorText: "Load request cancelled" }),
+        resourceType: () => "script",
+        frame: () => ({ page: () => page }),
+      }),
+    abortedLoad: (url: string, errorText = "Load request cancelled", resourceType = "fetch") =>
+      contextEvents.emit("requestfailed", {
+        url: () => url,
+        failure: () => ({ errorText }),
+        resourceType: () => resourceType,
         frame: () => ({ page: () => page }),
       }),
     loaded: () => pageEvents.emit("domcontentloaded"),
@@ -120,6 +128,31 @@ describe("browser diagnostics", () => {
     expect(diagnostics.unexpected).toHaveLength(2);
     browser.loaded();
     expect(diagnostics.unexpected.map(({ text }) => text)).toEqual([missing]);
+  });
+
+  it("forgets a framework report of a fetch or chunk the browser cancelled only once the next page loaded", () => {
+    for (const [report, errorText, resourceType] of [
+      ["TypeError: Load failed", "Load request cancelled", "fetch"],
+      ["JSHandle@object", "NS_BINDING_ABORTED", "script"],
+    ]) {
+      const browser = fakeBrowser();
+      const diagnostics = new BrowserDiagnostics().watch(browser.context);
+      const view = diagnostics.view(browser.page);
+      browser.console(report, `${BASE}/_next/static/chunks/093_a8dahrcqr.js`);
+      browser.console(report, `${BASE}/en/dashboard`);
+      browser.loaded();
+      expect(diagnostics.unexpected).toHaveLength(2);
+      browser.console(report, `${BASE}/_next/static/chunks/093_a8dahrcqr.js`);
+      browser.abortedLoad(`${BASE}/en/dashboard?_rsc=1a2b`, errorText, resourceType);
+      browser.abortedLoad("https://example.test/elsewhere", errorText, resourceType);
+      expect(diagnostics.unexpected).toHaveLength(3);
+      browser.loaded();
+      expect(diagnostics.unexpected.map(({ source }) => source)).toEqual([
+        `${BASE}/_next/static/chunks/093_a8dahrcqr.js`,
+        `${BASE}/en/dashboard`,
+      ]);
+      expect(view).toEqual([report, report]);
+    }
   });
 
   it("fails a passing test on unexpected diagnostics and only attaches them to a failed, expected-to-fail or skipped one", async () => {

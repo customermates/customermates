@@ -6,8 +6,14 @@ import { SETTINGS_SECTIONS, settingsSectionOf, visibleSubroutes } from "../setti
 
 describe("settings sections", () => {
   it("groups account and workspace settings in their documented order", () => {
-    expect(SETTINGS_SECTIONS.account.map(({ slug }) => slug)).toEqual(["profile", "channels", "api-keys"]);
+    expect(SETTINGS_SECTIONS.account.map(({ slug }) => slug)).toEqual([
+      "profile",
+      "workspaces",
+      "channels",
+      "api-keys",
+    ]);
     expect(SETTINGS_SECTIONS.workspace.map(({ slug }) => slug)).toEqual([
+      "general",
       "members",
       "roles",
       "billing",
@@ -16,13 +22,19 @@ describe("settings sections", () => {
       "webhook-deliveries",
     ]);
     expect(settingsSectionOf("billing")).toBe("workspace");
+    expect(settingsSectionOf("general")).toBe("workspace");
+    expect(settingsSectionOf("workspaces")).toBe("account");
     expect(settingsSectionOf("unknown")).toBeNull();
   });
 
   it("keeps permissions and cloud-only pages exactly as before", () => {
     const onlyUsers = (resource: Resource) => resource === Resource.users;
-    expect(visibleSubroutes("account", "self-hosted", onlyUsers).map(({ slug }) => slug)).toEqual(["profile"]);
+    expect(visibleSubroutes("account", "self-hosted", onlyUsers).map(({ slug }) => slug)).toEqual([
+      "profile",
+      "workspaces",
+    ]);
     expect(visibleSubroutes("workspace", "self-hosted", () => true).map(({ slug }) => slug)).toEqual([
+      "general",
       "members",
       "roles",
       "activity",
@@ -31,6 +43,7 @@ describe("settings sections", () => {
     ]);
     expect(visibleSubroutes("account", "cloud", () => true).map(({ slug }) => slug)).toEqual([
       "profile",
+      "workspaces",
       "channels",
       "api-keys",
     ]);

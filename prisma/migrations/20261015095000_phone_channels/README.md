@@ -150,7 +150,7 @@ workspace. The database then stays as it was, but Prisma records the migration a
 timeout preferably while fewer people work:
 
 ```bash
-npx prisma migrate resolve --rolled-back 20261014230000_phone_channels
+npx prisma migrate resolve --rolled-back 20261015095000_phone_channels
 ```
 
 ## After deploying

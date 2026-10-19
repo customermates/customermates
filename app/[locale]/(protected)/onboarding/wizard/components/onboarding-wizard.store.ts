@@ -8,6 +8,7 @@ import { completeOnboardingWizardAction, saveOnboardingWizardProgressAction } fr
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { readOnboardingWizardProgress } from "@/features/onboarding-wizard/onboarding-wizard-progress.schema";
 import { reportApplicationError } from "@/core/errors/report-application-error";
+import { buildLocalePath } from "@/i18n/locale-registry";
 
 export const WIZARD_STEPS = ["profile", "wiki", "invite", "ai"] as const;
 type WizardStep = (typeof WIZARD_STEPS)[number];
@@ -174,7 +175,7 @@ export class OnboardingWizardStore {
   };
 
   private leaveWizard(redirectTo: string) {
-    globalThis.location.assign(redirectTo);
+    globalThis.location.assign(buildLocalePath(this.rootStore.localeStore.locale, redirectTo));
   }
 
   setIsSubmitting = (isSubmitting: boolean) => {

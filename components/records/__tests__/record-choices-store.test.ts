@@ -8,10 +8,26 @@ vi.mock("@/app/[locale]/(protected)/records/actions", () => ({
 }));
 vi.mock("@/core/errors/report-application-error", () => ({ reportApplicationError: vi.fn() }));
 
+const workspace = vi.hoisted(() => ({ notify: vi.fn() }));
+
+vi.mock("@/core/errors/workspace-changed-notice", async () => {
+  const { isWorkspaceChangedError, isWorkspaceChangedFailure } = await import("@/core/errors/workspace-changed");
+  return {
+    notifyIfWorkspaceChanged: (value: unknown) => {
+      const changed = isWorkspaceChangedFailure(value) || isWorkspaceChangedError(value);
+      if (changed) workspace.notify();
+      return changed;
+    },
+  };
+});
+
 const { RecordChoicesStore, recordChoicesKey } = await import("../record-choices.store");
 
 describe("RecordChoicesStore", () => {
-  beforeEach(() => getRecordChoicesAction.mockReset().mockResolvedValue({ ok: true, data: { records: [] } }));
+  beforeEach(() => {
+    workspace.notify.mockReset();
+    getRecordChoicesAction.mockReset().mockResolvedValue({ ok: true, data: { records: [] } });
+  });
 
   it("sends a plain object to the server action when the linked record ref is observable", async () => {
     const ref = observable({ typeId: "type-1", recordId: "record-1" });
@@ -28,5 +44,33 @@ describe("RecordChoicesStore", () => {
     const sent = getRecordChoicesAction.mock.calls[0][0];
     expect(isObservable(sent.linkedTo.ref)).toBe(false);
     expect(sent.linkedTo.ref).toEqual({ typeId: "type-1", recordId: "record-1" });
+  });
+
+  it("keeps loading instead of failing when the workspace changed", async () => {
+    getRecordChoicesAction.mockResolvedValue({
+      ok: false,
+      code: "workspaceChanged",
+      error: { errors: [], digest: "CUSTOMERMATES_WORKSPACE_CHANGED" },
+    });
+    const input = { typeId: "type-2", page: 1, pageSize: 100 };
+    const key = recordChoicesKey(input, 0);
+    const store = new RecordChoicesStore();
+
+    await store.load(key, input);
+
+    expect(workspace.notify).toHaveBeenCalledOnce();
+    expect(store.read(key)).toEqual({ data: undefined, failed: false, loading: true });
+  });
+
+  it("still marks other failures as failed", async () => {
+    getRecordChoicesAction.mockResolvedValue({ ok: false, error: { errors: ["Unavailable"] } });
+    const input = { typeId: "type-2", page: 1, pageSize: 100 };
+    const key = recordChoicesKey(input, 0);
+    const store = new RecordChoicesStore();
+
+    await store.load(key, input);
+
+    expect(workspace.notify).not.toHaveBeenCalled();
+    expect(store.read(key)).toEqual({ data: null, failed: true, loading: false });
   });
 });

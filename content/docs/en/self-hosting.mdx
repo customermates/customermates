@@ -22,7 +22,7 @@ Records move between cloud and self-hosted as Excel workbooks, one list at a tim
 
 ## Is self-hosting free, and do I need a license? [#is-self-hosting-free-and-do-i-need-a-license]
 
-A self-hosted workspace has no subscription and no trial: it starts active, counts no seats and bills nothing. You pay only for your own infrastructure and providers.
+A self-hosted instance holds any number of workspaces, and one login can belong to several of them ([Workspaces](/docs/app-workspaces#how-do-workspaces-work-when-self-hosting)). No workspace has a subscription or a trial: each starts active, counts no seats and bills nothing. You pay only for your own infrastructure and providers.
 
 Customermates is open core. Code outside `ee/`, and material in `ee/` that is served to the browser, is licensed under AGPL-3.0-only. The server-side code in `ee/` is under the Customermates Commercial License, which allows running the official image with `APP_MODE=self-hosted`, including in production, as a Community Build, as long as the cloud-only features stay off. The exact terms are in `LICENSE` and `ee/LICENSE.md`. Buying a cloud plan does not unlock anything in a self-hosted installation.
 
@@ -126,7 +126,7 @@ Then open [Members](app:settings/members), invite teammates with [Add](app:setti
 
 ## Who can sign up on my instance? [#who-can-sign-up-on-my-instance]
 
-Anyone who can reach your `BASE_URL` can register; registration cannot be switched off. A new user who chooses **Create a new workspace** gets a separate workspace with its own **Admin**, isolated from yours but stored in your database, and the app offers no way to delete a workspace. A "New User Registration" email goes to `RESEND_OPERATOR_EMAIL` when someone saves the wizard's profile step, and for a Google or Microsoft sign-in also when someone signs in before saving it. Someone who registers with email and password but never saves that step sends none, and the notification only arrives if Resend accepts it, so it is not a complete record of sign-ups.
+Anyone who can reach your `BASE_URL` can register; registration cannot be switched off. A new user who chooses **Create a new workspace** gets a separate workspace with its own **Admin**, isolated from yours but stored in your database, and the app offers no way to delete a workspace. Every signed-in user can also add workspaces at any time with **Create workspace** in the workspace menu. A "New User Registration" email goes to `RESEND_OPERATOR_EMAIL` when someone saves the wizard's profile step, and for a Google or Microsoft sign-in also when someone signs in before saving it. Someone who registers with email and password but never saves that step sends none, and the notification only arrives if Resend accepts it, so it is not a complete record of sign-ups.
 
 If the instance should serve one team only, limit who can reach it, for example with a VPN, an IP allowlist or authentication at the reverse proxy; MCP and REST clients then need the same access.
 

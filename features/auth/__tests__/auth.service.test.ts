@@ -6,6 +6,8 @@ const mocks = vi.hoisted(() => ({
   locale: "en",
   send: vi.fn(),
   createApiKey: vi.fn(),
+  bindApiKeyToCompany: vi.fn().mockResolvedValue(true),
+  deleteApiKey: vi.fn(),
   signInEmail: vi.fn(),
   signInSocial: vi.fn(),
   signUpEmail: vi.fn(),
@@ -27,6 +29,7 @@ vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve((key: string) => `${mocks.locale}:${key}`),
 }));
 vi.mock("@/core/auth/better-auth", () => ({
+  bindApiKeyToCompany: mocks.bindApiKeyToCompany,
   auth: {
     api: {
       signInEmail: mocks.signInEmail,
@@ -34,6 +37,7 @@ vi.mock("@/core/auth/better-auth", () => ({
       signUpEmail: mocks.signUpEmail,
       signOut: mocks.signOut,
       createApiKey: mocks.createApiKey,
+      deleteApiKey: mocks.deleteApiKey,
     },
   },
 }));
@@ -197,13 +201,35 @@ describe("AuthService", () => {
   });
 
   it("forwards an absent expiration without inventing one", async () => {
-    const result = await service.createApiKey({ name: "Synthetic integration", expiresIn: undefined });
+    const result = await service.createApiKey({
+      name: "Synthetic integration",
+      expiresIn: undefined,
+      companyId: "company-1",
+    });
 
     expect(result).toEqual({ ok: true, data: { id: "key-id", key: "one-time-secret" } });
     expect(mocks.createApiKey).toHaveBeenCalledWith({
       headers: expect.any(Headers),
       body: { name: "Synthetic integration", expiresIn: undefined },
     });
+  });
+
+  it("binds a new key to the workspace it was created in", async () => {
+    mocks.createApiKey.mockResolvedValueOnce({ id: "key-id", key: "one-time-secret", referenceId: "auth-user" });
+
+    await service.createApiKey({ name: "Synthetic integration", companyId: "company-1" });
+
+    expect(mocks.bindApiKeyToCompany).toHaveBeenCalledWith("key-id", "auth-user", "company-1");
+  });
+
+  it("removes a new key that could not be bound to its workspace", async () => {
+    mocks.createApiKey.mockResolvedValueOnce({ id: "key-id", key: "one-time-secret", referenceId: "auth-user" });
+    mocks.bindApiKeyToCompany.mockResolvedValueOnce(false);
+
+    await expect(service.createApiKey({ name: "Synthetic integration", companyId: "company-1" })).rejects.toThrow(
+      "API key could not be bound to its workspace",
+    );
+    expect(mocks.deleteApiKey).toHaveBeenCalledWith({ body: { keyId: "key-id" }, headers: expect.any(Headers) });
   });
 
   it.each([
@@ -213,7 +239,9 @@ describe("AuthService", () => {
   ])("maps Better Auth API-key boundaries to %s", async (providerError, error) => {
     mocks.createApiKey.mockRejectedValueOnce(APIError.from("BAD_REQUEST", providerError));
 
-    await expect(service.createApiKey({ name: "Synthetic integration", expiresIn: 24 * 60 * 60 })).resolves.toEqual({
+    await expect(
+      service.createApiKey({ name: "Synthetic integration", expiresIn: 24 * 60 * 60, companyId: "company-1" }),
+    ).resolves.toEqual({
       ok: false,
       error,
     });
@@ -225,7 +253,7 @@ describe("AuthService", () => {
   ])("rethrows an unrelated API-key creation failure", async (error) => {
     mocks.createApiKey.mockRejectedValueOnce(error);
 
-    await expect(service.createApiKey({ name: "Synthetic integration" })).rejects.toBe(error);
+    await expect(service.createApiKey({ name: "Synthetic integration", companyId: "company-1" })).rejects.toBe(error);
   });
 
   it.each([BASE_ERROR_CODES.PASSWORD_TOO_SHORT, BASE_ERROR_CODES.PASSWORD_TOO_LONG])(

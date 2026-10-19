@@ -49,26 +49,25 @@ export type PaletteRecordContext = {
 export function staticEntries(t: PaletteTranslator, environment: CommandEnvironment): PaletteEntry[] {
   return STATIC_COMMANDS.filter((entry) => commandAvailable(entry, environment)).map((entry) => {
     const parent = entry.parentId ? staticCommand(entry.parentId) : undefined;
+    const label = t(entry.labelKey);
     return {
       key: `cmd:${entry.id}`,
       kind: entry.kind,
-      label: t(entry.labelKey),
+      label,
       keywords: commandSynonyms(t, entry.id),
       icon: entry.icon,
       subtitle: parent ? t(parent.labelKey) : undefined,
       shortcut: entry.shortcut,
-      run:
-        "action" in entry.target
-          ? { kind: "action", action: entry.target.action }
-          : {
-              kind: "href",
-              href:
-                "control" in entry.target
-                  ? focusHref({ kind: "control", id: entry.target.control })
-                  : entry.target.href,
-            },
+      run: staticRun(entry.target, label),
     };
   });
+}
+
+function staticRun(target: (typeof STATIC_COMMANDS)[number]["target"], label: string): PaletteRun {
+  if ("action" in target) return { kind: "action", action: target.action };
+  if ("level" in target) return { kind: "level", level: { kind: target.level, label } };
+  if ("control" in target) return { kind: "href", href: focusHref({ kind: "control", id: target.control }) };
+  return { kind: "href", href: target.href };
 }
 
 export function workspaceEntries(

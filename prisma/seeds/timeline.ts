@@ -51,6 +51,16 @@ export const SYNTHETIC_SEED_TIMELINE = {
     createdAt: moment("2025-01-02T08:05:00.000Z"),
     updatedAt: moment("2025-01-02T08:05:00.000Z"),
   },
+  secondWorkspace: {
+    company: {
+      createdAt: moment("2026-05-18T08:00:00.000Z"),
+      updatedAt: moment("2026-05-18T08:00:00.000Z"),
+    },
+    owner: {
+      createdAt: moment("2026-05-18T08:00:00.000Z"),
+      updatedAt: moment("2026-05-18T08:30:00.000Z"),
+    },
+  },
   customRole: (index: number) => ({
     createdAt: timestamp("2025-01-02T09:30:00.000Z", index),
     updatedAt: timestamp("2025-01-02T09:30:00.000Z", index),

@@ -14,6 +14,7 @@ import type { XlsxFileProblem, XlsxWorkbook } from "@/features/data-transfer/imp
 
 import { action, computed, makeObservable, observable, runInAction } from "mobx";
 
+import { hasWorkspaceChanged, notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import {
   autoMapXlsxColumns,
   duplicateXlsxTargets,
@@ -280,7 +281,7 @@ export class XlsxImportWizardStore {
       runInAction(() => (this.loading = true));
       try {
         const lookups = await this.loadLookups();
-        if (generation !== this.generation) return;
+        if (generation !== this.generation || hasWorkspaceChanged()) return;
         runInAction(() => {
           this.lookups = lookups;
           this.step = "preview";
@@ -334,7 +335,8 @@ export class XlsxImportWizardStore {
         if (page >= result.totalPages) break;
       }
       return members;
-    } catch {
+    } catch (error) {
+      notifyIfWorkspaceChanged(error);
       return null;
     }
   }
@@ -396,7 +398,7 @@ export class XlsxImportWizardStore {
       const existing = this.mode === "update" ? await this.loadRecords(this.typeId) : null;
       if (generation !== this.generation) return;
       if (this.mode === "update" && !existing) {
-        runInAction(() => (this.failure = "lookup"));
+        if (!hasWorkspaceChanged()) runInAction(() => (this.failure = "lookup"));
         return;
       }
       const now = new Date().toISOString();

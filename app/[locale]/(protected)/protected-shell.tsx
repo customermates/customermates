@@ -26,6 +26,7 @@ import { useProtectedEnhancementsAllowed } from "@/app/components/navigation/pro
 import { GlobalKeyboardShortcuts } from "@/app/components/keyboard-shortcuts/global-keyboard-shortcuts";
 import { KeyboardShortcutsDialog } from "@/app/components/keyboard-shortcuts/keyboard-shortcuts-dialog";
 import { ViewPicker } from "@/components/data-view/views/view-picker";
+import { CreateWorkspaceModal } from "@/app/components/workspaces/create-workspace-modal";
 
 const ConnectedAccountModal = dynamic(
   () => import("./settings/(account)/components/connected-account-modal").then((mod) => mod.ConnectedAccountModal),
@@ -67,6 +68,8 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
       <UnexpectedErrorToaster />
 
       <TranslationSync />
+
+      <CreateWorkspaceModal />
 
       {protectedEnhancementsAllowed ? (
         <>

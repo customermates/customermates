@@ -12,6 +12,7 @@ export class NavigationGuardController {
   private pendingRouteRefresh: (() => void) | null = null;
   private pendingRouteRefreshDisposer: IReactionDisposer | null = null;
   private bypass = false;
+  private readonly leavingDocument = observable.box(false);
 
   constructor() {
     makeObservable(this, {
@@ -25,6 +26,7 @@ export class NavigationGuardController {
       confirm: action,
       cancel: action,
       requestRouteRefreshWhenSafe: action,
+      navigateDocument: action,
     });
   }
 
@@ -39,6 +41,7 @@ export class NavigationGuardController {
   };
 
   get isGuarding(): boolean {
+    if (this.leavingDocument.get()) return false;
     for (const store of this.stores.keys()) if (store.withUnsavedChangesGuard && store.hasUnsavedChanges) return true;
     return false;
   }
@@ -87,6 +90,12 @@ export class NavigationGuardController {
 
   cancel = (): void => {
     this.pendingNavigation = null;
+  };
+
+  navigateDocument = (href: string): void => {
+    this.leavingDocument.set(true);
+    this.pendingNavigation = null;
+    window.location.assign(href);
   };
 
   requestRouteRefreshWhenSafe = (refresh: () => void): void => {

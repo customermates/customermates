@@ -116,4 +116,30 @@ describe("ConfirmDialog", () => {
     });
     expect(confirmButton()?.disabled).toBe(false);
   });
+
+  it("blocks the page without a way to dismiss it when there is no cancel action", () => {
+    const onConfirm = vi.fn();
+    render({ onCancel: undefined, onConfirm, confirmLabel: "Reload" });
+    expect(document.getElementById("confirm-cancel")).toBeNull();
+    const dialog = document.querySelector<HTMLElement>("[data-slot='confirm-dialog']");
+    act(() => {
+      dialog?.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    });
+    expect(document.querySelector("[data-slot='confirm-dialog']")).not.toBeNull();
+    act(() => confirmButton()?.click());
+    expect(onConfirm).toHaveBeenCalledOnce();
+  });
+
+  it("moves focus into the dialog onto its action when there is no cancel action", () => {
+    const outside = document.createElement("input");
+    document.body.append(outside);
+    outside.focus();
+    render({ onCancel: undefined, onConfirm: vi.fn(), confirmLabel: "Reload" });
+    expect(document.activeElement).toBe(confirmButton());
+  });
+
+  it("keeps the first focus on cancel when the dialog can be cancelled", () => {
+    render({ onConfirm: vi.fn(), confirmLabel: "Delete" });
+    expect(document.activeElement).toBe(document.getElementById("confirm-cancel"));
+  });
 });
