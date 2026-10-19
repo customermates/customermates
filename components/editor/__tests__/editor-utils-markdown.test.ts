@@ -41,6 +41,26 @@ describe("editor markdown round-trip", () => {
     ]);
   });
 
+  it("round-trips a fenced code block as a code block node and keeps its language", () => {
+    const md =
+      'Run this:\n\n```ts\nconst greeting = "hi";\n\nconsole.log(`${greeting} **there**`);\n```\n\nThen continue.';
+    const parsed = parseMarkdownToJSON(md) as {
+      content?: Array<{ attrs?: { language?: string | null }; content?: Array<{ text?: string }>; type?: string }>;
+    };
+    const codeBlock = parsed.content?.find((node) => node.type === "codeBlock");
+
+    expect(codeBlock?.attrs?.language).toBe("ts");
+    expect(codeBlock?.content?.[0]?.text).toBe('const greeting = "hi";\n\nconsole.log(`${greeting} **there**`);');
+    expect(roundTrip(md)).toBe(md);
+    expect(roundTrip(roundTrip(md))).toBe(md);
+  });
+
+  it("round-trips a fenced code block without a language", () => {
+    const md = "```\nplain text\n```";
+
+    expect(roundTrip(md)).toBe(md);
+  });
+
   it("flattens rich (block) cell content into a single GFM row without throwing", () => {
     const doc = {
       type: "doc",

@@ -19,6 +19,7 @@ vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn()
 
 import { Editor } from "@/components/editor/editor";
 import { parseMarkdownToJSON } from "@/components/editor/editor.utils";
+import { WIKI_HEADING_ID_PREFIX } from "../wiki-page-outline";
 import { WikiPageStore } from "../wiki-page.store";
 
 const page = {
@@ -36,6 +37,7 @@ const containers: HTMLElement[] = [];
 const LiveWikiEditor = observer(({ store }: { store: WikiPageStore }) =>
   createElement(Editor, {
     data: store.editorDocument,
+    headingIdPrefix: WIKI_HEADING_ID_PREFIX,
     readOnly: !store.canManage || store.isLoading,
     onChange: store.onEditorChange,
   }),
@@ -103,6 +105,7 @@ describe("Wiki live Notes document", () => {
     const { container } = await mount(`### Positioning\n\n[Read the source](${href})`);
 
     expect(container.querySelector("h3")?.textContent).toBe("Positioning");
+    expect(container.querySelector("h3")?.id).toBe("wiki-heading-0");
     expect(container.querySelector<HTMLAnchorElement>("a")?.getAttribute("href")).toBe(href);
   });
 
@@ -185,5 +188,36 @@ describe("Wiki live Notes document", () => {
     expect(editor.getText()).toBe("Reloaded change");
     expect(store.editorDocument).toEqual(parseMarkdownToJSON("Reloaded change"));
     expect(store.hasUnsavedChanges).toBe(false);
+  });
+
+  it("loads a fenced block as a code block and saves edits back as the same fenced block", async () => {
+    const { store, editor, container } = await mount("Steps:\n\n```bash\nyarn install\n```");
+
+    expect(container.querySelector("pre code")?.textContent).toBe("yarn install");
+    expect(editor.getJSON().content?.[1]).toMatchObject({ type: "codeBlock", attrs: { language: "bash" } });
+
+    act(() => {
+      editor.commands.setTextSelection(editor.state.doc.content.size - 1);
+      editor.view.dispatch(editor.state.tr.insertText("\nyarn dev"));
+    });
+    expect(store.form.markdown).toBe("Steps:\n\n```bash\nyarn install\nyarn dev\n```");
+    expect(store.hasUnsavedChanges).toBe(true);
+  });
+
+  it("turns a typed fence into a code block with its language", async () => {
+    const { store, editor } = await mount();
+    act(() => {
+      editor.view.dispatch(editor.state.tr.insertText("```sql"));
+    });
+    act(() => {
+      const { from, to } = editor.state.selection;
+      editor.view.someProp("handleTextInput", (handle) => handle(editor.view, from, to, " ", () => editor.state.tr));
+    });
+    act(() => {
+      editor.view.dispatch(editor.state.tr.insertText("select 1;"));
+    });
+
+    expect(editor.getJSON().content?.[0]).toMatchObject({ type: "codeBlock", attrs: { language: "sql" } });
+    expect(store.form.markdown).toBe("```sql\nselect 1;\n```");
   });
 });
