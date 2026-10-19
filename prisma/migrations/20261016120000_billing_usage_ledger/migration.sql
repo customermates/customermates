@@ -29,7 +29,6 @@ CREATE TABLE "BillingUsageWorkspace" (
     "deletedAt" TIMESTAMP(3),
     "seatsRecordedFrom" TIMESTAMP(3),
     "channelsRecordedFrom" TIMESTAMP(3),
-    "workspaceLabel" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "BillingUsageWorkspace_pkey" PRIMARY KEY ("companyId")
