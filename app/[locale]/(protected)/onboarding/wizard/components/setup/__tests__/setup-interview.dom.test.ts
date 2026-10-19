@@ -38,6 +38,7 @@ import { setupView } from "./setup-view-fixture";
 
 let container: HTMLDivElement;
 let root: Root;
+const scrollIntoView = Object.getOwnPropertyDescriptor(Element.prototype, "scrollIntoView");
 const wizard = { isSubmitting: false, completeSetupStep: vi.fn(() => Promise.resolve()) };
 
 function renderDataScreen(existingData: string) {
@@ -59,6 +60,7 @@ function field(id: string) {
 
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+  Element.prototype.scrollIntoView = vi.fn();
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
@@ -67,6 +69,8 @@ beforeEach(() => {
 afterEach(() => {
   act(() => root.unmount());
   container.remove();
+  if (scrollIntoView) Object.defineProperty(Element.prototype, "scrollIntoView", scrollIntoView);
+  else Reflect.deleteProperty(Element.prototype, "scrollIntoView");
 });
 
 function renderWebsite(view: ReturnType<typeof setupView>) {
@@ -146,7 +150,7 @@ describe("SetupInterview", () => {
     expect(container.querySelector('input[aria-label="Common.inputs.websiteUrl"]')).toBeNull();
   });
 
-  it("keeps Next enabled and marks the missing answers when it is pressed too early", () => {
+  it("keeps Next enabled, marks the missing answers and focuses the first when it is pressed too early", async () => {
     renderWebsite(setupView());
     const next = [...container.querySelectorAll("button")].find((candidate) =>
       candidate.textContent?.includes("OnboardingWizard.next"),
@@ -159,6 +163,8 @@ describe("SetupInterview", () => {
     expect(toast).toHaveBeenCalledWith({ errors: ["Common.errors.mustNotBeBlank"] });
     expect(container.querySelector('[data-invalid="true"]')).not.toBeNull();
     expect(container.textContent).toContain("Common.errors.mustNotBeBlank");
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    expect(document.activeElement?.closest('[data-invalid="true"]')).not.toBeNull();
   });
 
   it("starts an empty workspace only after the owner confirms what they skip", () => {
