@@ -29,6 +29,7 @@ import { ActivityTimelineSkeleton } from "@/features/messaging/activities/activi
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { RecordActivityFilters, useActivitySourceChoices } from "@/components/records/record-activity-filters";
+import { actionData } from "@/core/utils/action-data";
 
 const PREVIEW_DELAY_MS = 600;
 
@@ -155,7 +156,7 @@ export const RecordActivityWidgetEditor = observer(
         {multi("activityQuery.kinds", t("Common.filters.fields.timelineKind"), sources)}
 
         <FormAutocomplete<{ id: string; pluralLabel: string }>
-          getItems={discoverWidgetRecordTypesAction}
+          getItems={(params) => actionData(discoverWidgetRecordTypesAction(params))}
           id="activity-scope-types"
           items={typeNames}
           label={t("RecordActivityWidgets.types")}

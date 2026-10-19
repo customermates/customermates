@@ -21,6 +21,7 @@ import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice
 import { getActiveUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import { useRecordChoices } from "@/components/records/use-record-choices";
 import { foldText } from "./command-palette-search";
+import { actionData } from "@/core/utils/action-data";
 
 type Props = {
   level: PaletteLevel;
@@ -41,7 +42,7 @@ function useMembers(query: string, enabled: boolean) {
   useEffect(() => {
     if (key === null) return;
     let active = true;
-    void getActiveUsersAction({ searchTerm: key || undefined })
+    void actionData(getActiveUsersAction({ searchTerm: key || undefined }))
       .then((result) => {
         if (active) setState({ key, members: result.items ?? [] });
       })

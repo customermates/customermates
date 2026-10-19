@@ -135,7 +135,6 @@ export class SubscriptionService {
   async syncSubscription(
     workspace: SyncedWorkspace,
     subscription: LemonSqueezySubscription,
-    options: { whileDeleting?: true } = {},
   ): Promise<{ companyId: string; changedPlan: SubscriptionPlan | null } | null> {
     const attributes = subscription.data.attributes;
     const status = this.mapLemonSqueezyStatusToSubscriptionStatus(attributes.status);
@@ -162,7 +161,6 @@ export class SubscriptionService {
       trialEndDate: trialEndsAt,
       currentPeriodEnd: renewsAt || endsAt,
       checkoutStartedAt: settlesCheckout ? null : undefined,
-      ...options,
     });
     if (!written) return null;
 

@@ -100,7 +100,7 @@ beforeEach(() => {
     },
   });
   vi.useFakeTimers();
-  mocks.getRecordModelAction.mockResolvedValue(model);
+  mocks.getRecordModelAction.mockResolvedValue({ ok: true, data: model });
   mocks.previewRecordWidgetAction.mockResolvedValue(readyPreview());
   mocks.getCompanyWidgetsAction.mockResolvedValue({ ok: true, data: { widgets: [] } });
 });
@@ -192,7 +192,9 @@ describe("record widget preview", () => {
 
   it("automatically previews the refreshed schema after a preview reports a newer revision", async () => {
     const revision = model.revision + 1;
-    mocks.getRecordModelAction.mockResolvedValueOnce(model).mockResolvedValue({ ...model, revision });
+    mocks.getRecordModelAction
+      .mockResolvedValueOnce({ ok: true, data: model })
+      .mockResolvedValue({ ok: true, data: { ...model, revision } });
     mocks.previewRecordWidgetAction.mockResolvedValue(readyPreview(revision));
     await mount(widgetStore(), "preview");
     await wait(600);

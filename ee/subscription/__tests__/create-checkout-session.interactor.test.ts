@@ -279,6 +279,7 @@ describe("CreateCheckoutSessionInteractor", () => {
     expect(startedAt.getTime()).toBeGreaterThanOrEqual(before);
     expect(startedAt.getTime()).toBeLessThanOrEqual(Date.now());
     expect(startedAt.getTime() - pendingSince.getTime()).toBe(15 * 60 * 1000);
+    expect(repo.claimCheckoutStart.mock.calls[0][0]).toMatchObject({ email: expect.stringContaining("@") });
     expect(repo.claimCheckoutStart).toHaveBeenCalledBefore(subscriptionService.createCheckoutOrThrow);
     expect(repo.releaseCheckoutStart).not.toHaveBeenCalled();
   });

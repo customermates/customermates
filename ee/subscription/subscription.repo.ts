@@ -12,6 +12,5 @@ export abstract class SubscriptionRepo {
     trialEndDate?: Date;
     currentPeriodEnd?: Date;
     checkoutStartedAt?: null;
-    whileDeleting?: true;
   }): Promise<boolean>;
 }

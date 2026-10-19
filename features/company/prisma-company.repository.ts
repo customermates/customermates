@@ -123,14 +123,14 @@ export class PrismaCompanyRepo
 
   @BypassTenantGuard
   async writeSubscriptionUnscoped(data: RepoArgs<SubscriptionRepo, "writeSubscriptionUnscoped">) {
-    const { companyId, expectedLemonSqueezyId, whileDeleting, ...fields } = data;
+    const { companyId, expectedLemonSqueezyId, ...fields } = data;
 
     return await this.withCompanyTransaction(companyId, async () => {
       const { count } = await this.prisma.subscription.updateMany({
         where: {
           companyId,
           lemonSqueezyId: expectedLemonSqueezyId,
-          ...(whileDeleting ? {} : { company: this.notDeletingWhere() }),
+          company: this.notDeletingWhere(),
         },
         data: fields,
       });
@@ -193,7 +193,7 @@ export class PrismaCompanyRepo
   }
 
   async claimCheckoutStart(args: RepoArgs<CreateCheckoutCompanyRepo, "claimCheckoutStart">) {
-    const { startedAt, pendingSince, lemonSqueezyId } = args;
+    const { startedAt, pendingSince, lemonSqueezyId, email } = args;
     const { companyId } = this;
 
     return await this.withCompanyTransaction(companyId, async () => {
@@ -206,7 +206,7 @@ export class PrismaCompanyRepo
           lemonSqueezyId,
           OR: [{ checkoutStartedAt: null }, { checkoutStartedAt: { lte: pendingSince } }],
         },
-        data: { checkoutStartedAt: startedAt },
+        data: { checkoutStartedAt: startedAt, checkoutEmail: email },
       });
 
       return count === 1 ? ("claimed" as const) : ("pending" as const);
@@ -307,10 +307,18 @@ export class PrismaCompanyRepo
     const company = await this.prisma.company.findUnique({
       where: { id: companyId },
       select: {
+        name: true,
         createdByAuthUserId: true,
         deletingAt: true,
         subscription: {
-          select: { status: true, plan: true, lemonSqueezyId: true, currentPeriodEnd: true, checkoutStartedAt: true },
+          select: {
+            status: true,
+            plan: true,
+            lemonSqueezyId: true,
+            currentPeriodEnd: true,
+            checkoutStartedAt: true,
+            checkoutEmail: true,
+          },
         },
         users: {
           where: { role: { isSystemRole: true } },
@@ -324,6 +332,7 @@ export class PrismaCompanyRepo
     if (!company) return null;
 
     return {
+      name: company.name,
       createdByAuthUserId: company.createdByAuthUserId,
       deletingAt: company.deletingAt,
       earliestAdminEmail: company.users[0]?.email ?? null,

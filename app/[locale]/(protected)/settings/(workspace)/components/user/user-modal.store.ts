@@ -18,6 +18,7 @@ import {
 } from "../../actions";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
+import { actionData, actionDataOrNull } from "@/core/utils/action-data";
 
 type RemovalCandidate = { id: string; leftAt: Date | null };
 
@@ -125,8 +126,8 @@ export class UserModalStore extends BaseModalStore<AdminUpdateUserDetailsData> {
 
     try {
       const [{ user }, roles, removal] = await Promise.all([
-        getUserByIdAction({ id }),
-        getRolesAction(),
+        actionDataOrNull(getUserByIdAction({ id })).then((data) => data ?? { user: null }),
+        actionData(getRolesAction()),
         this.offersRemovalFor({ id, leftAt: null }) ? getMemberRemovalAction({ userId: id }) : null,
       ]);
 

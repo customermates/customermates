@@ -97,7 +97,10 @@ describe("WidgetsStore refresh compatibility", () => {
     const store = new WidgetsStore(root);
     store.setItems({ items: [widget(FIRST_ID, 0, 0)] });
     refreshWidgetsAction.mockResolvedValueOnce({
-      items: [widget(SECOND_ID, 6, 4)],
+      ok: true,
+      data: {
+        items: [widget(SECOND_ID, 6, 4)],
+      },
     });
 
     await store.refresh();
@@ -154,7 +157,7 @@ describe("WidgetsStore refresh compatibility", () => {
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
     const initial = widget(FIRST_ID, 0, 0);
-    refreshWidgetsAction.mockResolvedValueOnce({ items: [initial] });
+    refreshWidgetsAction.mockResolvedValueOnce({ ok: true, data: { items: [initial] } });
     await store.refresh();
 
     const error = new Error("layout write failed");
@@ -183,7 +186,7 @@ describe("WidgetsStore refresh compatibility", () => {
       loadingOverlayStore: { withLoading: (run: () => Promise<unknown>) => run() },
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
-    refreshWidgetsAction.mockResolvedValueOnce({ items: [widget(FIRST_ID, 0, 0)] });
+    refreshWidgetsAction.mockResolvedValueOnce({ ok: true, data: { items: [widget(FIRST_ID, 0, 0)] } });
     await store.refresh();
 
     updateWidgetLayoutsAction.mockResolvedValueOnce({
@@ -192,7 +195,7 @@ describe("WidgetsStore refresh compatibility", () => {
       error: { errors: ["The dashboard changed in the meantime."] },
     });
     const elsewhere = { ...widget(FIRST_ID, 6, 0), version: 2 };
-    refreshWidgetsAction.mockResolvedValueOnce({ items: [elsewhere] });
+    refreshWidgetsAction.mockResolvedValueOnce({ ok: true, data: { items: [elsewhere] } });
 
     store.onLayoutChange([], { ...store.layouts, lg: [{ h: 2, i: FIRST_ID, w: 3, x: 1, y: 0 }] });
 
@@ -215,7 +218,7 @@ describe("WidgetsStore refresh compatibility", () => {
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
     const initial = widget(FIRST_ID, 0, 0);
-    refreshWidgetsAction.mockResolvedValueOnce({ items: [initial] });
+    refreshWidgetsAction.mockResolvedValueOnce({ ok: true, data: { items: [initial] } });
     await store.refresh();
 
     updateWidgetLayoutsAction.mockResolvedValueOnce({
@@ -244,7 +247,10 @@ describe("WidgetsStore refresh compatibility", () => {
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
     refreshWidgetsAction.mockResolvedValueOnce({
-      items: [widget(FIRST_ID, 0, 0)],
+      ok: true,
+      data: {
+        items: [widget(FIRST_ID, 0, 0)],
+      },
     });
     await store.refresh();
     const first = Promise.withResolvers<unknown>();
@@ -275,8 +281,11 @@ describe("WidgetsStore refresh compatibility", () => {
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
     refreshWidgetsAction.mockResolvedValueOnce({
-      items: [widget(FIRST_ID, 0, 0)],
-      activeViewKey: "__all__",
+      ok: true,
+      data: {
+        items: [widget(FIRST_ID, 0, 0)],
+        activeViewKey: "__all__",
+      },
     });
     await store.refresh();
     const first = Promise.withResolvers<unknown>();
@@ -291,8 +300,11 @@ describe("WidgetsStore refresh compatibility", () => {
     const queued = move(2);
     store.onLayoutChange([], queued);
     refreshWidgetsAction.mockResolvedValueOnce({
-      items: [widget(SECOND_ID, 0, 0)],
-      activeViewKey: "00000000-0000-4000-8000-0000000000aa",
+      ok: true,
+      data: {
+        items: [widget(SECOND_ID, 0, 0)],
+        activeViewKey: "00000000-0000-4000-8000-0000000000aa",
+      },
     });
     await store.refresh();
     first.resolve(layoutResult(updateWidgetLayoutsAction.mock.calls[0][0].layouts));
@@ -310,7 +322,10 @@ describe("WidgetsStore refresh compatibility", () => {
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
     refreshWidgetsAction.mockResolvedValueOnce({
-      items: [widget(FIRST_ID, 0, 0)],
+      ok: true,
+      data: {
+        items: [widget(FIRST_ID, 0, 0)],
+      },
     });
     await store.refresh();
     const first = Promise.withResolvers<unknown>();
@@ -360,7 +375,10 @@ describe("WidgetsStore refresh compatibility", () => {
       } as unknown as RootStore;
       const store = new WidgetsStore(root);
       refreshWidgetsAction.mockResolvedValueOnce({
-        items: [widget(FIRST_ID, 0, 0)],
+        ok: true,
+        data: {
+          items: [widget(FIRST_ID, 0, 0)],
+        },
       });
       await store.refresh();
       const pending = Promise.withResolvers<unknown>();
@@ -405,7 +423,10 @@ describe("WidgetsStore refresh compatibility", () => {
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
     refreshWidgetsAction.mockResolvedValueOnce({
-      items: [widget(FIRST_ID, 0, 0), widget(SECOND_ID, 6, 4)],
+      ok: true,
+      data: {
+        items: [widget(FIRST_ID, 0, 0), widget(SECOND_ID, 6, 4)],
+      },
     });
     await store.refresh();
     const first = Promise.withResolvers<unknown>();
@@ -443,7 +464,10 @@ describe("WidgetsStore refresh compatibility", () => {
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
     refreshWidgetsAction.mockResolvedValueOnce({
-      items: [widget(FIRST_ID, 0, 0), widget(SECOND_ID, 6, 4)],
+      ok: true,
+      data: {
+        items: [widget(FIRST_ID, 0, 0), widget(SECOND_ID, 6, 4)],
+      },
     });
     await store.refresh();
     updateWidgetLayoutsAction.mockImplementationOnce(({ layouts }: UpdateWidgetLayoutsData) =>
@@ -472,10 +496,13 @@ describe("WidgetsStore refresh compatibility", () => {
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
     refreshWidgetsAction.mockResolvedValueOnce({
-      items: [widget(FIRST_ID, 0, 0)],
+      ok: true,
+      data: {
+        items: [widget(FIRST_ID, 0, 0)],
+      },
     });
     await store.refresh();
-    const read = Promise.withResolvers<{ items: WidgetDto[] }>();
+    const read = Promise.withResolvers<{ ok: true; data: { items: WidgetDto[] } }>();
     refreshWidgetsAction.mockReturnValueOnce(read.promise);
     const refreshing = store.refresh();
     updateWidgetLayoutsAction.mockImplementationOnce(({ layouts }: UpdateWidgetLayoutsData) =>
@@ -486,7 +513,7 @@ describe("WidgetsStore refresh compatibility", () => {
       lg: [{ h: 2, i: FIRST_ID, w: 3, x: 2, y: 0 }],
     });
     await new Promise((resolve) => setTimeout(resolve, 0));
-    read.resolve({ items: [widget(FIRST_ID, 0, 0)] });
+    read.resolve({ ok: true, data: { items: [widget(FIRST_ID, 0, 0)] } });
     await refreshing;
     expect(store.layouts.lg?.find((item) => item.i === FIRST_ID)?.x).toBe(2);
     store.setItems({ items: [widget(FIRST_ID, 0, 0)] });
@@ -505,7 +532,10 @@ describe("WidgetsStore refresh compatibility", () => {
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
     refreshWidgetsAction.mockResolvedValueOnce({
-      items: [widget(FIRST_ID, 0, 0)],
+      ok: true,
+      data: {
+        items: [widget(FIRST_ID, 0, 0)],
+      },
     });
     await store.refresh();
     updateWidgetLayoutsAction.mockImplementationOnce(({ layouts }: UpdateWidgetLayoutsData) =>
@@ -574,11 +604,14 @@ describe("WidgetsStore widgets of a view", () => {
   it("reads the widgets of another view and leaves the shown dashboard unchanged", async () => {
     const widgets = store();
     refreshWidgetsAction.mockResolvedValueOnce({
-      items: [
-        { ...widget(SECOND_ID, 0, 0), viewId: VIEW_ID, name: "Berlin starter" },
-        { ...widget(FIRST_ID, 3, 0), viewId: VIEW_ID, name: "Berlin via API" },
-      ],
-      activeViewKey: VIEW_ID,
+      ok: true,
+      data: {
+        items: [
+          { ...widget(SECOND_ID, 0, 0), viewId: VIEW_ID, name: "Berlin starter" },
+          { ...widget(FIRST_ID, 3, 0), viewId: VIEW_ID, name: "Berlin via API" },
+        ],
+        activeViewKey: VIEW_ID,
+      },
     });
 
     expect(await widgets.widgetNamesOfView(VIEW_ID)).toEqual(["Berlin starter", "Berlin via API"]);
@@ -590,8 +623,11 @@ describe("WidgetsStore widgets of a view", () => {
   it("names no widgets when the view can no longer be read", async () => {
     const widgets = store();
     refreshWidgetsAction.mockResolvedValueOnce({
-      items: [{ ...widget(SECOND_ID, 0, 0), viewId: OTHER_VIEW_ID, name: "Other view widget" }],
-      activeViewKey: OTHER_VIEW_ID,
+      ok: true,
+      data: {
+        items: [{ ...widget(SECOND_ID, 0, 0), viewId: OTHER_VIEW_ID, name: "Other view widget" }],
+        activeViewKey: OTHER_VIEW_ID,
+      },
     });
 
     expect(await widgets.widgetNamesOfView(VIEW_ID)).toEqual([]);

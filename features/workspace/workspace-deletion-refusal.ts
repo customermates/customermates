@@ -30,9 +30,11 @@ export type WorkspaceDeletionBilling = {
   lemonSqueezyId: string | null;
   currentPeriodEnd: Date | null;
   checkoutStartedAt: Date | null;
+  checkoutEmail: string | null;
 };
 
 export type WorkspaceDeletionSubject = {
+  name: string | null;
   createdByAuthUserId: string | null;
   deletingAt: Date | null;
   earliestAdminEmail: string | null;

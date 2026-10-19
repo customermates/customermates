@@ -7,6 +7,7 @@ export abstract class CreateCheckoutCompanyRepo {
     startedAt: Date;
     pendingSince: Date;
     lemonSqueezyId: string | null;
+    email: string;
   }): Promise<"claimed" | "pending" | "deleting">;
 
   abstract releaseCheckoutStart(args: { startedAt: Date; previous: Date | null }): Promise<void>;

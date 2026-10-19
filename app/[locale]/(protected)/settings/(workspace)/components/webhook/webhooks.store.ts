@@ -8,6 +8,7 @@ import { Resource } from "@/generated/prisma";
 import { getWebhooksAction } from "../../actions";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
+import { actionData } from "@/core/utils/action-data";
 
 export class WebhooksStore extends BaseDataViewStore<WebhookDto> {
   constructor(rootStore: RootStore) {
@@ -26,6 +27,6 @@ export class WebhooksStore extends BaseDataViewStore<WebhookDto> {
   }
 
   protected async refreshAction(params?: GetQueryParams) {
-    return getWebhooksAction(params);
+    return actionData(getWebhooksAction(params));
   }
 }

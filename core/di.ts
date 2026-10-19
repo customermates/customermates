@@ -1105,7 +1105,7 @@ export const getDeleteWorkspaceInteractor = () =>
   );
 
 export const getUnrecordedSubscriptionCheck = () =>
-  new UnrecordedSubscriptionCheck(getSubscriptionService(), getCompanyRepo(), getDeleteAccountsForPlanInteractor());
+  new UnrecordedSubscriptionCheck(getSubscriptionService(), getCompanyRepo(), getEmailService());
 
 export const getGetWorkspaceDeletionInteractor = () =>
   new GetWorkspaceDeletionInteractor(getAuthService(), getCompanyRepo());

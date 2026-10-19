@@ -3,6 +3,7 @@ import type { XlsxWizardPorts } from "./xlsx-import-wizard.store";
 import { getUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { getRecordChoicesAction, importRecordsAction, queryRecordsAction } from "../../actions";
+import { actionData } from "@/core/utils/action-data";
 
 const FATAL_CODES = new Set([
   "recordSchemaChanged",
@@ -36,7 +37,7 @@ export function xlsxImportPorts(fallbackMessage: string): XlsxWizardPorts {
       return { ok: false };
     },
     listMembers: async (page, pageSize) => {
-      const result = await getUsersAction({ pagination: { page, pageSize } });
+      const result = await actionData(getUsersAction({ pagination: { page, pageSize } }));
       return {
         members: result.items.map((user) => ({
           id: user.id,

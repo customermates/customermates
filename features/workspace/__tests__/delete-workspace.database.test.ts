@@ -35,6 +35,7 @@ describeDatabase("deleting a workspace on PostgreSQL", { timeout: 240_000 }, () 
   const companies: string[] = [];
   const logins: string[] = [];
   let previousAppMode: string;
+  let previousVariants: Record<"starter" | "pro" | "business", string | undefined>;
   let secret = "";
 
   beforeAll(async () => {
@@ -42,6 +43,16 @@ describeDatabase("deleting a workspace on PostgreSQL", { timeout: 240_000 }, () 
     const { env } = await import("@/env");
     previousAppMode = env.APP_MODE;
     (env as { APP_MODE: string }).APP_MODE = "cloud";
+    previousVariants = {
+      starter: env.LEMONSQUEEZY_VARIANT_ID_STARTER,
+      pro: env.LEMONSQUEEZY_VARIANT_ID_PRO,
+      business: env.LEMONSQUEEZY_VARIANT_ID_BUSINESS,
+    };
+    Object.assign(env, {
+      LEMONSQUEEZY_VARIANT_ID_STARTER: "930001",
+      LEMONSQUEEZY_VARIANT_ID_PRO: "930002",
+      LEMONSQUEEZY_VARIANT_ID_BUSINESS: "930003",
+    });
     const { auth } = await import("@/core/auth/better-auth");
     secret = (await auth.$context).secret;
   });
@@ -53,6 +64,11 @@ describeDatabase("deleting a workspace on PostgreSQL", { timeout: 240_000 }, () 
   afterAll(async () => {
     const { env } = await import("@/env");
     (env as { APP_MODE: string }).APP_MODE = previousAppMode;
+    Object.assign(env, {
+      LEMONSQUEEZY_VARIANT_ID_STARTER: previousVariants.starter,
+      LEMONSQUEEZY_VARIANT_ID_PRO: previousVariants.pro,
+      LEMONSQUEEZY_VARIANT_ID_BUSINESS: previousVariants.business,
+    });
     await client.query('DELETE FROM "AuthUser" WHERE "id" = ANY($1)', [logins]);
     await client.query('DELETE FROM "Company" WHERE "id" = ANY($1)', [companies]);
     await client.end();
@@ -584,14 +600,13 @@ describeDatabase("deleting a workspace on PostgreSQL", { timeout: 240_000 }, () 
     const { createMockUser } = await import("@/tests/helpers/mock-user");
     const repo = new PrismaCompanyRepo();
     const lemonSqueezyId = `ls-marked-${randomUUID()}`;
-    const write = (whileDeleting?: true) =>
+    const write = () =>
       repo.writeSubscriptionUnscoped({
         companyId: doomed.companyId,
         expectedLemonSqueezyId: null,
         lemonSqueezyId,
         status: "active",
         plan: "pro",
-        ...(whileDeleting ? { whileDeleting } : {}),
       });
     const user = createMockUser({
       id: doomed.users.get(creator.id),
@@ -600,17 +615,21 @@ describeDatabase("deleting a workspace on PostgreSQL", { timeout: 240_000 }, () 
     });
     const claim = () =>
       runWithTenant(user, () =>
-        repo.claimCheckoutStart({ startedAt: new Date(), pendingSince: new Date(0), lemonSqueezyId: null }),
+        repo.claimCheckoutStart({
+          startedAt: new Date(),
+          pendingSince: new Date(0),
+          lemonSqueezyId: null,
+          email: creator.email,
+        }),
       );
 
     expect(await write()).toBe(false);
     expect(await claim()).toBe("deleting");
-    expect(await write(true)).toBe(true);
 
     await client.query('UPDATE "Company" SET "deletingAt" = NOW() - interval \'1 hour\' WHERE "id" = $1', [
       doomed.companyId,
     ]);
-    expect(await claim()).toBe("pending");
+    expect(await claim()).toBe("claimed");
   });
 
   it("lets a webhook that arrives after the delete find no subscription to update", async () => {
@@ -653,44 +672,93 @@ describeDatabase("deleting a workspace on PostgreSQL", { timeout: 240_000 }, () 
     return result.rows[0];
   }
 
-  it("records a paid subscription whose webhook never arrived and keeps the workspace", async () => {
+  const PRO_VARIANT = "930002";
+
+  function providerSubscription(id: string, minutesAgo: number, email: string, variant = PRO_VARIANT) {
+    return {
+      data: {
+        id,
+        attributes: {
+          status: "active" as const,
+          created_at: new Date(Date.now() - minutesAgo * 60_000).toISOString(),
+          renews_at: new Date(Date.now() + 30 * 86_400_000).toISOString(),
+          variant_id: Number(variant),
+          user_email: email,
+        },
+      },
+    };
+  }
+
+  function providerId() {
+    return String(900_000_000 + Math.floor(Math.random() * 1_000_000));
+  }
+
+  it("refuses a delete while an unrecorded subscription paid after the checkout exists, and attaches it nowhere", async () => {
     const creator = await createLogin("unrecorded");
-    const doomed = await createWorkspace({
-      name: "Unrecorded",
-      createdBy: creator,
-      admins: [creator],
-    });
+    const doomed = await createWorkspace({ name: "Unrecorded", createdBy: creator, admins: [creator] });
     await open(creator, doomed.companyId);
     await startCheckout(doomed.companyId, 45);
-    const providerId = String(900_000_000 + Math.floor(Math.random() * 1_000_000));
+    const payer = `payer-${randomUUID()}@example.invalid`;
+    await client.query('UPDATE "Subscription" SET "checkoutEmail" = $2 WHERE "companyId" = $1', [
+      doomed.companyId,
+      payer,
+    ]);
+    const unrecorded = providerId();
     const { SubscriptionService } = await import("@/ee/subscription/subscription.service");
     const listed = vi
       .spyOn(SubscriptionService.prototype, "listStoreSubscriptionsByEmailOrThrowUnscoped")
-      .mockResolvedValue([
-        {
-          data: {
-            id: providerId,
-            attributes: {
-              status: "active",
-              created_at: new Date(Date.now() - 40 * 60_000).toISOString(),
-              renews_at: new Date(Date.now() + 30 * 86_400_000).toISOString(),
-              user_email: creator.email,
-            },
-          },
-        },
-      ]);
+      .mockImplementation((email) =>
+        Promise.resolve(email === payer ? [providerSubscription(unrecorded, 40, payer)] : []),
+      );
+    const { EmailService } = await import("@/features/email/email.service");
+    const sent = vi.spyOn(EmailService.prototype, "send").mockResolvedValue(true);
     const { CustomErrorCode } = await import("@/core/validation/validation.types");
 
     expect(await codes(await remove(creator, doomed.companyId))).toEqual([
       CustomErrorCode.workspaceDeleteBillingActive,
     ]);
+    expect(listed).toHaveBeenCalledWith(payer);
     expect(listed).toHaveBeenCalledWith(creator.email.toLowerCase());
     expect(await exists(doomed.companyId)).toBe(true);
-    expect(await billing(doomed.companyId)).toEqual({
-      status: "active",
-      lemonSqueezyId: providerId,
+    expect(await billing(doomed.companyId)).toEqual({ status: "expired", lemonSqueezyId: null });
+    const recorded = await client.query('SELECT 1 FROM "Subscription" WHERE "lemonSqueezyId" = $1', [unrecorded]);
+    expect(recorded.rowCount).toBe(0);
+    expect(sent).toHaveBeenCalledOnce();
+    expect(sent.mock.calls[0]?.[0].react.props).toMatchObject({
+      reason: "deletionBlocked",
+      subscriptionId: unrecorded,
+      workspaceId: doomed.companyId,
     });
-    expect(await refusal(creator)).toBe("billingActive");
+    expect(await deletingAt(doomed.companyId)).toBeNull();
+  });
+
+  it("deletes a workspace when the login's other subscriptions are recorded or older than its checkout, and changes none of them", async () => {
+    const creator = await createLogin("payer");
+    const paid = await createWorkspace({ name: "Paid", createdBy: creator, admins: [creator] });
+    const recordedId = providerId();
+    await client.query(
+      'UPDATE "Subscription" SET "status" = \'active\', "lemonSqueezyId" = $2 WHERE "companyId" = $1',
+      [paid.companyId, recordedId],
+    );
+    const doomed = await createWorkspace({ name: "Second", createdBy: creator, admins: [creator] });
+    await open(creator, doomed.companyId);
+    await startCheckout(doomed.companyId, 45);
+    const older = providerId();
+    const { SubscriptionService } = await import("@/ee/subscription/subscription.service");
+    vi.spyOn(SubscriptionService.prototype, "listStoreSubscriptionsByEmailOrThrowUnscoped").mockResolvedValue([
+      providerSubscription(recordedId, 30, creator.email),
+      providerSubscription(older, 90, creator.email),
+      providerSubscription(providerId(), 20, creator.email, "999999"),
+    ]);
+    const { EmailService } = await import("@/features/email/email.service");
+    const sent = vi.spyOn(EmailService.prototype, "send").mockResolvedValue(true);
+
+    expect((await remove(creator, doomed.companyId)).ok).toBe(true);
+    expect(await exists(doomed.companyId)).toBe(false);
+    expect(await billing(paid.companyId)).toEqual({ status: "active", lemonSqueezyId: recordedId });
+    const attached = await client.query('SELECT 1 FROM "Subscription" WHERE "lemonSqueezyId" = $1', [older]);
+    expect(attached.rowCount).toBe(0);
+    expect(sent).not.toHaveBeenCalled();
   });
 
   it("deletes nothing when Lemon Squeezy cannot confirm that a started checkout went unpaid", async () => {

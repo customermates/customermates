@@ -64,6 +64,7 @@ export class CreateCheckoutSessionInteractor extends UserAccessor {
       startedAt,
       pendingSince: checkoutPendingSince(startedAt),
       lemonSqueezyId: subscription.lemonSqueezyId,
+      email: this.user.email,
     });
     if (claimed === "deleting") return failConflict(CustomErrorCode.workspaceChanged);
     if (claimed === "pending") return CHECKOUT_PENDING;

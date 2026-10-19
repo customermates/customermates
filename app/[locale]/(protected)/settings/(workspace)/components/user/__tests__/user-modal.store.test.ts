@@ -53,8 +53,8 @@ const makeRootStore = ({
   }) as unknown as RootStore;
 
 const loadUserInto = async (store: UserModalStore, id: string) => {
-  actions.getUserByIdAction.mockResolvedValue({ user: userRecord(id) });
-  actions.getRolesAction.mockResolvedValue([]);
+  actions.getUserByIdAction.mockResolvedValue({ ok: true, data: { user: userRecord(id) } });
+  actions.getRolesAction.mockResolvedValue({ ok: true, data: [] });
   await store.loadById(id);
 };
 
@@ -123,7 +123,7 @@ describe("UserModalStore own-profile read-only contract", () => {
     const store = new UserModalStore(makeRootStore({ signedInUserId: SIGNED_IN_USER_ID, canManage: true }));
 
     await loadUserInto(store, SIGNED_IN_USER_ID);
-    actions.getUserByIdAction.mockResolvedValue({ user: null });
+    actions.getUserByIdAction.mockResolvedValue({ ok: true, data: { user: null } });
     await store.loadById(OTHER_USER_ID);
 
     expect(store.loadedUserId).toBeNull();
@@ -133,8 +133,8 @@ describe("UserModalStore own-profile read-only contract", () => {
   it("remembers that the loaded member left the workspace until another record loads", async () => {
     const store = new UserModalStore(makeRootStore({ signedInUserId: SIGNED_IN_USER_ID, canManage: true }));
     const leftAt = new Date("2026-10-01T00:00:00.000Z");
-    actions.getUserByIdAction.mockResolvedValue({ user: { ...userRecord(OTHER_USER_ID), leftAt } });
-    actions.getRolesAction.mockResolvedValue([]);
+    actions.getUserByIdAction.mockResolvedValue({ ok: true, data: { user: { ...userRecord(OTHER_USER_ID), leftAt } } });
+    actions.getRolesAction.mockResolvedValue({ ok: true, data: [] });
 
     await store.loadById(OTHER_USER_ID);
     expect(store.loadedLeftAt).toEqual(leftAt);
@@ -178,8 +178,11 @@ describe("UserModalStore own-profile read-only contract", () => {
 
 describe("UserModalStore removal from the workspace", () => {
   const loadOther = async (store: UserModalStore, user: Record<string, unknown> = {}) => {
-    actions.getUserByIdAction.mockResolvedValue({ user: { ...userRecord(OTHER_USER_ID), leftAt: null, ...user } });
-    actions.getRolesAction.mockResolvedValue([]);
+    actions.getUserByIdAction.mockResolvedValue({
+      ok: true,
+      data: { user: { ...userRecord(OTHER_USER_ID), leftAt: null, ...user } },
+    });
+    actions.getRolesAction.mockResolvedValue({ ok: true, data: [] });
     await store.loadById(OTHER_USER_ID);
   };
 
@@ -264,9 +267,12 @@ describe("UserModalStore removal from the workspace", () => {
     async function loadPending(roles: { items: unknown[]; pagination?: { total: number } }) {
       const store = new UserModalStore(makeRootStore({ signedInUserId: SIGNED_IN_USER_ID, canManage: true }));
       actions.getUserByIdAction.mockResolvedValue({
-        user: { ...userRecord(OTHER_USER_ID), roleId: null, status: Status.pendingAuthorization },
+        ok: true,
+        data: {
+          user: { ...userRecord(OTHER_USER_ID), roleId: null, status: Status.pendingAuthorization },
+        },
       });
-      actions.getRolesAction.mockResolvedValue(roles);
+      actions.getRolesAction.mockResolvedValue({ ok: true, data: roles });
       actions.getMemberRemovalAction.mockResolvedValue({ ok: true, data: { refusal: null } });
       await store.loadById(OTHER_USER_ID);
       return store;
@@ -286,8 +292,11 @@ describe("UserModalStore removal from the workspace", () => {
 
     it("keeps the role an approved member already has", async () => {
       const store = new UserModalStore(makeRootStore({ signedInUserId: SIGNED_IN_USER_ID, canManage: true }));
-      actions.getUserByIdAction.mockResolvedValue({ user: { ...userRecord(OTHER_USER_ID), roleId: SALES_ROLE.id } });
-      actions.getRolesAction.mockResolvedValue({ items: [ADMIN_ROLE], pagination: { total: 1 } });
+      actions.getUserByIdAction.mockResolvedValue({
+        ok: true,
+        data: { user: { ...userRecord(OTHER_USER_ID), roleId: SALES_ROLE.id } },
+      });
+      actions.getRolesAction.mockResolvedValue({ ok: true, data: { items: [ADMIN_ROLE], pagination: { total: 1 } } });
       actions.getMemberRemovalAction.mockResolvedValue({ ok: true, data: { refusal: null } });
 
       await store.loadById(OTHER_USER_ID);

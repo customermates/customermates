@@ -57,6 +57,9 @@ import { AgentViewContext, type AgentViewChange } from "./agent-view-context";
 import { AgentContextRegistry } from "./agent-context-registry";
 import { DataViewProposalSchema } from "@/core/data-view/data-view-proposal.schema";
 import { rememberViewProposal } from "@/core/data-view/view-query-drafts";
+import { actionData, actionDataOrNull } from "@/core/utils/action-data";
+
+type AgentConversationSnapshot = Extract<Awaited<ReturnType<typeof getAgentConversationAction>>, { ok: true }>["data"];
 
 export type AgentChatItem =
   | {
@@ -820,7 +823,7 @@ export class AgentChatStore extends BaseStore {
     const loadVersion = this.conversationLoadVersion;
 
     try {
-      const data = await withDeadline(getAgentConversationAction(id), AGENT_CONVERSATION_LOAD_TIMEOUT_MS);
+      const data = await withDeadline(actionData(getAgentConversationAction(id)), AGENT_CONVERSATION_LOAD_TIMEOUT_MS);
       if (!data) throw new Error("Conversation could not be loaded.");
       if (loadVersion !== this.conversationLoadVersion || this.conversationLoadPendingId !== id) return;
       const activeMessage = data.activeTurn
@@ -902,7 +905,7 @@ export class AgentChatStore extends BaseStore {
     });
 
     try {
-      const data = await getAgentConversationAction(conversationId, before);
+      const data = await actionDataOrNull(getAgentConversationAction(conversationId, before));
       if (!data || loadVersion !== this.conversationLoadVersion || this.conversationId !== conversationId) return;
       runInAction(() => {
         const existing = this.items;
@@ -1305,7 +1308,7 @@ export class AgentChatStore extends BaseStore {
       this.historyLoadMorePending = null;
     });
     try {
-      const result = await listAgentConversationsAction({ kind: "both" });
+      const result = await actionData(listAgentConversationsAction({ kind: "both" }));
       const active = result?.active;
       const archived = result?.archived;
       if (!active || !archived) throw new Error("Conversation history could not be refreshed.");
@@ -1343,10 +1346,12 @@ export class AgentChatStore extends BaseStore {
     });
 
     try {
-      const result = await listAgentConversationsAction({
-        kind,
-        cursor,
-      });
+      const result = await actionDataOrNull(
+        listAgentConversationsAction({
+          kind,
+          cursor,
+        }),
+      );
       const page = kind === "active" ? result?.active : result?.archived;
       if (!page || refreshVersion !== this.historyRefreshVersion) return;
       runInAction(() => {
@@ -1955,7 +1960,7 @@ export class AgentChatStore extends BaseStore {
     let reconnectAttempt = 0;
     let reconnectImmediately = initialBody === null;
     let reconnectFailureReported = false;
-    let reconnectSnapshotRequest: ReturnType<typeof getAgentConversationAction> | null = null;
+    let reconnectSnapshotRequest: Promise<AgentConversationSnapshot> | null = null;
     let reconnectSnapshotFailures = 0;
     let reconnectSnapshotRetryAt = 0;
     const reportReconnectFailure = (error: unknown) => {
@@ -2012,9 +2017,9 @@ export class AgentChatStore extends BaseStore {
         reconnectSnapshotFailures < AGENT_RECONNECT_SNAPSHOT_FAILURE_LIMIT &&
         Date.now() >= reconnectSnapshotRetryAt
       ) {
-        let snapshot: Awaited<ReturnType<typeof getAgentConversationAction>> | null = null;
+        let snapshot: AgentConversationSnapshot | null = null;
         try {
-          reconnectSnapshotRequest ??= getAgentConversationAction(conversationId);
+          reconnectSnapshotRequest ??= actionData(getAgentConversationAction(conversationId));
           const loadedSnapshot = await withDeadline(reconnectSnapshotRequest, AGENT_CONVERSATION_LOAD_TIMEOUT_MS);
           reconnectSnapshotRequest = null;
           if (!loadedSnapshot) throw new Error("The assistant conversation could not be recovered.");
@@ -2233,7 +2238,7 @@ export class AgentChatStore extends BaseStore {
         return;
 
       const snapshot = await withDeadline(
-        getAgentConversationAction(conversationId),
+        actionDataOrNull(getAgentConversationAction(conversationId)),
         AGENT_TERMINAL_RECONCILE_TIMEOUT_MS,
       ).catch((error: unknown) => {
         notifyIfWorkspaceChanged(error);

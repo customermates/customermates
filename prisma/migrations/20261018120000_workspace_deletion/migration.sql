@@ -7,6 +7,9 @@ ALTER TABLE "AuthUser" ADD COLUMN     "trialConsumedAt" TIMESTAMP(3);
 -- AlterTable
 ALTER TABLE "Company" ADD COLUMN     "deletingAt" TIMESTAMP(3);
 
+-- AlterTable
+ALTER TABLE "Subscription" ADD COLUMN     "checkoutEmail" TEXT;
+
 -- Backfill: the trial belongs to the first workspace a login creates. Record that on the
 -- login itself so deleting the workspace cannot hand out a second trial. A login created a
 -- workspace when it is the recorded creator, or the earliest system-role member of a

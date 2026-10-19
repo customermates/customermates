@@ -47,7 +47,7 @@ type Admitted = { ok: true; data: WorkspaceDeletionSubject };
 type ConnectedAccounts = Pick<DeleteAccountsForPlanConnectedAccountRepo, "listActiveAccountsForCompanyUnscoped">;
 type ChannelRemoval = Pick<DeleteAccountForBillingService, "deleteForBillingOrThrow">;
 type InboundEvents = { deleteCompanyInboundEventsUnscoped(companyId: string): Promise<void> };
-type ProviderBilling = Pick<UnrecordedSubscriptionCheck, "recordUnscoped">;
+type ProviderBilling = Pick<UnrecordedSubscriptionCheck, "findUnscoped">;
 
 @TenantInteractor()
 export class DeleteWorkspaceInteractor extends AuthenticatedInteractor<DeleteWorkspaceData, DeleteWorkspaceResult> {
@@ -119,7 +119,7 @@ export class DeleteWorkspaceInteractor extends AuthenticatedInteractor<DeleteWor
     markedAt: Date,
   ): Validated<DeleteWorkspaceResult & { memberCount: number; workflowRunCount: number }> {
     const { companyId } = this;
-    const unrecorded = await this.recordProviderSubscription(subject);
+    const unrecorded = await this.refuseUnrecordedSubscription(subject);
     if (unrecorded) return unrecorded;
 
     try {
@@ -190,16 +190,21 @@ export class DeleteWorkspaceInteractor extends AuthenticatedInteractor<DeleteWor
     return { ok: true as const, data: subject };
   }
 
-  private async recordProviderSubscription(subject: WorkspaceDeletionSubject): Promise<InteractorFailure | null> {
+  private async refuseUnrecordedSubscription(subject: WorkspaceDeletionSubject): Promise<InteractorFailure | null> {
     const billing = subject.subscription;
     if (env.APP_MODE !== "cloud" || !billing?.checkoutStartedAt || billing.lemonSqueezyId) return null;
 
     const members = await this.memberships.listCompanyMembersUnscoped(this.companyId);
-    const outcome = await this.providerBilling.recordUnscoped(
-      { companyId: this.companyId, plan: billing.plan },
+    const outcome = await this.providerBilling.findUnscoped(
+      {
+        companyId: this.companyId,
+        name: subject.name,
+        checkoutStartedAt: billing.checkoutStartedAt,
+        checkoutEmail: billing.checkoutEmail,
+      },
       members.map((member) => member.email),
     );
-    if (outcome === "recorded") return fail(CustomErrorCode.workspaceDeleteBillingActive);
+    if (outcome === "found") return fail(CustomErrorCode.workspaceDeleteBillingActive);
     if (outcome === "unverified") return failUnavailable(CustomErrorCode.workspaceDeleteBillingUnverified);
     return null;
   }

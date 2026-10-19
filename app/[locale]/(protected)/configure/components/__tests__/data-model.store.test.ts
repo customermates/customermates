@@ -24,16 +24,16 @@ describe("data model refresh", () => {
     expect(store.isRefreshing).toBe(false);
   });
   it("ignores a stale refresh after newer authoritative props", async () => {
-    let resolve!: (model: RecordModel) => void;
+    let resolve!: (result: { ok: true; data: RecordModel }) => void;
     actions.getRecordModelAction.mockReturnValueOnce(
-      new Promise<RecordModel>((done) => {
+      new Promise<{ ok: true; data: RecordModel }>((done) => {
         resolve = done;
       }),
     );
     const store = new DataModelStore(model(2));
     const request = store.refresh();
     store.hydrate(model(4));
-    resolve(model(3));
+    resolve({ ok: true, data: model(3) });
     await request;
     expect(store.model.revision).toBe(4);
   });
@@ -45,7 +45,7 @@ describe("data model refresh", () => {
           reject = fail;
         }),
       )
-      .mockResolvedValueOnce(model(5));
+      .mockResolvedValueOnce({ ok: true, data: model(5) });
     const store = new DataModelStore(model(2));
     const oldRequest = store.refresh();
     await store.refresh();

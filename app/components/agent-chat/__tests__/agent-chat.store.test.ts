@@ -380,9 +380,12 @@ describe("AgentChatStore", () => {
       data: { cancelling: true },
     });
     actionsMock.getAgentConversationAction.mockResolvedValue({
-      activeTurn: false,
-      messages: [],
-      nextCursor: null,
+      ok: true,
+      data: {
+        activeTurn: false,
+        messages: [],
+        nextCursor: null,
+      },
     });
     actionsMock.respondToApprovalAction.mockResolvedValue({
       ok: true,
@@ -393,8 +396,11 @@ describe("AgentChatStore", () => {
       data: { resolved: true, resumed: true },
     });
     actionsMock.listAgentConversationsAction.mockResolvedValue({
-      active: { conversations: [], nextCursor: null },
-      archived: { conversations: [], nextCursor: null },
+      ok: true,
+      data: {
+        active: { conversations: [], nextCursor: null },
+        archived: { conversations: [], nextCursor: null },
+      },
     });
     actionsMock.markAgentConversationReadAction.mockResolvedValue({
       ok: true,
@@ -1353,27 +1359,33 @@ describe("AgentChatStore", () => {
     const first = store.selectConversation(firstId);
     const second = store.selectConversation(secondId);
     resolveSecond({
-      id: secondId,
-      title: "Second",
-      messages: [
-        {
-          id: "m2",
-          role: "assistant",
-          parts: [{ type: "text", text: "Second chat" }],
-        },
-      ],
+      ok: true,
+      data: {
+        id: secondId,
+        title: "Second",
+        messages: [
+          {
+            id: "m2",
+            role: "assistant",
+            parts: [{ type: "text", text: "Second chat" }],
+          },
+        ],
+      },
     });
     await second;
     resolveFirst({
-      id: firstId,
-      title: "First",
-      messages: [
-        {
-          id: "m1",
-          role: "assistant",
-          parts: [{ type: "text", text: "Stale first chat" }],
-        },
-      ],
+      ok: true,
+      data: {
+        id: firstId,
+        title: "First",
+        messages: [
+          {
+            id: "m1",
+            role: "assistant",
+            parts: [{ type: "text", text: "Stale first chat" }],
+          },
+        ],
+      },
     });
     await first;
 
@@ -1385,20 +1397,23 @@ describe("AgentChatStore", () => {
     const conversationId = "00000000-0000-4000-8000-0000000000a1";
     const prompt = "Read the deal that changed and reply with a one sentence summary.";
     actionsMock.getAgentConversationAction.mockResolvedValue({
-      id: conversationId,
-      title: "Routine run",
-      messages: [
-        {
-          id: "m1",
-          role: "user",
-          parts: [
-            {
-              type: "text",
-              text: `<routine_trigger event="record.updated" entityId="abc" />\n${prompt}`,
-            },
-          ],
-        },
-      ],
+      ok: true,
+      data: {
+        id: conversationId,
+        title: "Routine run",
+        messages: [
+          {
+            id: "m1",
+            role: "user",
+            parts: [
+              {
+                type: "text",
+                text: `<routine_trigger event="record.updated" entityId="abc" />\n${prompt}`,
+              },
+            ],
+          },
+        ],
+      },
     });
     const store = new AgentChatStore(root() as never);
 
@@ -1411,20 +1426,23 @@ describe("AgentChatStore", () => {
     const conversationId = "00000000-0000-4000-8000-000000000092";
     const selectedRecord = recordContext(92, "Ada Lovelace");
     actionsMock.getAgentConversationAction.mockResolvedValue({
-      id: conversationId,
-      activeTurn: false,
-      messages: [
-        {
-          id: "00000000-0000-4000-8000-000000000093",
-          role: "user",
-          parts: [
-            { type: "context", context: CONTACTS_VIEW_CONTEXT },
-            { type: "text", text: "Show this contact in the current view" },
-            { type: "context", context: selectedRecord },
-          ],
-        },
-      ],
-      nextCursor: null,
+      ok: true,
+      data: {
+        id: conversationId,
+        activeTurn: false,
+        messages: [
+          {
+            id: "00000000-0000-4000-8000-000000000093",
+            role: "user",
+            parts: [
+              { type: "context", context: CONTACTS_VIEW_CONTEXT },
+              { type: "text", text: "Show this contact in the current view" },
+              { type: "context", context: selectedRecord },
+            ],
+          },
+        ],
+        nextCursor: null,
+      },
     });
     const store = new AgentChatStore(root() as never);
 
@@ -1483,7 +1501,7 @@ describe("AgentChatStore", () => {
     expect(store.conversationLoadError).toBe(true);
     expect(store.conversationId).toBeNull();
 
-    resolveLoad({ activeTurn: false, messages: [], nextCursor: null });
+    resolveLoad({ ok: true, data: { activeTurn: false, messages: [], nextCursor: null } });
     await Promise.resolve();
     expect(store.conversationId).toBeNull();
     vi.useRealTimers();
@@ -1493,28 +1511,34 @@ describe("AgentChatStore", () => {
     const conversationId = "00000000-0000-4000-8000-0000000000b2";
     actionsMock.getAgentConversationAction
       .mockResolvedValueOnce({
-        id: conversationId,
-        activeTurn: false,
-        messages: [
-          {
-            id: "old-answer",
-            role: "assistant",
-            parts: [{ type: "text", text: "Old answer" }],
-          },
-        ],
-        nextCursor: null,
+        ok: true,
+        data: {
+          id: conversationId,
+          activeTurn: false,
+          messages: [
+            {
+              id: "old-answer",
+              role: "assistant",
+              parts: [{ type: "text", text: "Old answer" }],
+            },
+          ],
+          nextCursor: null,
+        },
       })
       .mockResolvedValueOnce({
-        id: conversationId,
-        activeTurn: false,
-        messages: [
-          {
-            id: "new-answer",
-            role: "assistant",
-            parts: [{ type: "text", text: "New answer" }],
-          },
-        ],
-        nextCursor: null,
+        ok: true,
+        data: {
+          id: conversationId,
+          activeTurn: false,
+          messages: [
+            {
+              id: "new-answer",
+              role: "assistant",
+              parts: [{ type: "text", text: "New answer" }],
+            },
+          ],
+          nextCursor: null,
+        },
       });
     const store = new AgentChatStore(root() as never);
 
@@ -1590,22 +1614,25 @@ describe("AgentChatStore", () => {
     let resolveReattach!: (response: Response) => void;
     actionsMock.getAgentConversationAction
       .mockResolvedValueOnce({
-        id: conversationId,
-        activeTurn: true,
-        messages: [
-          {
-            id: "running-user",
-            role: "user",
-            parts: [{ type: "text", text: "Still running" }],
-            turn: {
-              clientRequestId: "running-request",
-              status: "running",
-              assistantMessageId: null,
-              terminalCode: null,
+        ok: true,
+        data: {
+          id: conversationId,
+          activeTurn: true,
+          messages: [
+            {
+              id: "running-user",
+              role: "user",
+              parts: [{ type: "text", text: "Still running" }],
+              turn: {
+                clientRequestId: "running-request",
+                status: "running",
+                assistantMessageId: null,
+                terminalCode: null,
+              },
             },
-          },
-        ],
-        nextCursor: null,
+          ],
+          nextCursor: null,
+        },
       })
       .mockImplementationOnce(() => new Promise(() => undefined));
     const fetchMock = vi
@@ -1685,21 +1712,24 @@ describe("AgentChatStore", () => {
     };
     actionsMock.getAgentConversationAction
       .mockResolvedValueOnce({
-        activeTurn: true,
-        messages: [
-          {
-            id: "cursor-user-db-id",
-            role: "user",
-            parts: [{ type: "text", text: "Run one UI command" }],
-            turn: {
-              clientRequestId: "cursor-client-request-id",
-              status: "running",
-              assistantMessageId: null,
-              terminalCode: null,
+        ok: true,
+        data: {
+          activeTurn: true,
+          messages: [
+            {
+              id: "cursor-user-db-id",
+              role: "user",
+              parts: [{ type: "text", text: "Run one UI command" }],
+              turn: {
+                clientRequestId: "cursor-client-request-id",
+                status: "running",
+                assistantMessageId: null,
+                terminalCode: null,
+              },
             },
-          },
-        ],
-        nextCursor: null,
+          ],
+          nextCursor: null,
+        },
       })
       .mockImplementationOnce(() => new Promise(() => undefined));
     const encoder = new TextEncoder();
@@ -1801,19 +1831,22 @@ describe("AgentChatStore", () => {
       nextCursor: null,
     };
     actionsMock.getAgentConversationAction
-      .mockResolvedValueOnce(activeConversation)
-      .mockResolvedValueOnce(activeConversation)
+      .mockResolvedValueOnce({ ok: true, data: activeConversation })
+      .mockResolvedValueOnce({ ok: true, data: activeConversation })
       .mockResolvedValueOnce({
-        activeTurn: false,
-        messages: [
-          ...activeConversation.messages,
-          {
-            id: assistantMessageId,
-            role: "assistant",
-            parts: [{ type: "text", text: "Partial before reload, complete after reload." }],
-          },
-        ],
-        nextCursor: null,
+        ok: true,
+        data: {
+          activeTurn: false,
+          messages: [
+            ...activeConversation.messages,
+            {
+              id: assistantMessageId,
+              role: "assistant",
+              parts: [{ type: "text", text: "Partial before reload, complete after reload." }],
+            },
+          ],
+          nextCursor: null,
+        },
       });
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
@@ -1905,8 +1938,8 @@ describe("AgentChatStore", () => {
       risk: "write",
     };
     actionsMock.getAgentConversationAction
-      .mockResolvedValueOnce(activeConversation)
-      .mockResolvedValueOnce(activeConversation);
+      .mockResolvedValueOnce({ ok: true, data: activeConversation })
+      .mockResolvedValueOnce({ ok: true, data: activeConversation });
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
       .mockImplementationOnce((_input, init) =>
@@ -1990,21 +2023,24 @@ describe("AgentChatStore", () => {
     );
     actionsMock.getAgentConversationAction
       .mockResolvedValueOnce({
-        activeTurn: true,
-        messages: [
-          {
-            id: "running-stop-reload-user",
-            role: "user",
-            parts: [{ type: "text", text: "Keep working" }],
-            turn: {
-              clientRequestId: "running-stop-reload-request",
-              status: "running",
-              assistantMessageId: null,
-              terminalCode: null,
+        ok: true,
+        data: {
+          activeTurn: true,
+          messages: [
+            {
+              id: "running-stop-reload-user",
+              role: "user",
+              parts: [{ type: "text", text: "Keep working" }],
+              turn: {
+                clientRequestId: "running-stop-reload-request",
+                status: "running",
+                assistantMessageId: null,
+                terminalCode: null,
+              },
             },
-          },
-        ],
-        nextCursor: null,
+          ],
+          nextCursor: null,
+        },
       })
       .mockImplementationOnce(() => new Promise(() => undefined));
     let resolveReattach!: (response: Response) => void;
@@ -2079,43 +2115,49 @@ describe("AgentChatStore", () => {
     );
     actionsMock.getAgentConversationAction
       .mockResolvedValueOnce({
-        activeTurn: true,
-        messages: [
-          {
-            id: "reverse-stop-running-user",
-            role: "user",
-            parts: [{ type: "text", text: "Finish the original turn" }],
-            turn: {
-              clientRequestId: "reverse-stop-client-request",
-              status: "running",
-              assistantMessageId: null,
-              terminalCode: null,
+        ok: true,
+        data: {
+          activeTurn: true,
+          messages: [
+            {
+              id: "reverse-stop-running-user",
+              role: "user",
+              parts: [{ type: "text", text: "Finish the original turn" }],
+              turn: {
+                clientRequestId: "reverse-stop-client-request",
+                status: "running",
+                assistantMessageId: null,
+                terminalCode: null,
+              },
             },
-          },
-        ],
-        nextCursor: null,
+          ],
+          nextCursor: null,
+        },
       })
       .mockResolvedValueOnce({
-        activeTurn: false,
-        messages: [
-          {
-            id: "reverse-stop-user-db-id",
-            role: "user",
-            parts: [{ type: "text", text: "Finish the original turn" }],
-            turn: {
-              clientRequestId: "reverse-stop-client-request",
-              status: "completed",
-              assistantMessageId: "reverse-stop-answer",
-              terminalCode: "completed",
+        ok: true,
+        data: {
+          activeTurn: false,
+          messages: [
+            {
+              id: "reverse-stop-user-db-id",
+              role: "user",
+              parts: [{ type: "text", text: "Finish the original turn" }],
+              turn: {
+                clientRequestId: "reverse-stop-client-request",
+                status: "completed",
+                assistantMessageId: "reverse-stop-answer",
+                terminalCode: "completed",
+              },
             },
-          },
-          {
-            id: "reverse-stop-answer",
-            role: "assistant",
-            parts: [{ type: "text", text: "The original turn completed." }],
-          },
-        ],
-        nextCursor: null,
+            {
+              id: "reverse-stop-answer",
+              role: "assistant",
+              parts: [{ type: "text", text: "The original turn completed." }],
+            },
+          ],
+          nextCursor: null,
+        },
       });
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
@@ -2164,21 +2206,24 @@ describe("AgentChatStore", () => {
       else actionsMock.cancelAgentTurnAction.mockRejectedValue(new Error("cancel unavailable"));
       actionsMock.getAgentConversationAction
         .mockResolvedValueOnce({
-          activeTurn: true,
-          messages: [
-            {
-              id: `running-${cancellationOutcome}-reload-user`,
-              role: "user",
-              parts: [{ type: "text", text: "Keep working" }],
-              turn: {
-                clientRequestId: `running-${cancellationOutcome}-reload-request`,
-                status: "running",
-                assistantMessageId: null,
-                terminalCode: null,
+          ok: true,
+          data: {
+            activeTurn: true,
+            messages: [
+              {
+                id: `running-${cancellationOutcome}-reload-user`,
+                role: "user",
+                parts: [{ type: "text", text: "Keep working" }],
+                turn: {
+                  clientRequestId: `running-${cancellationOutcome}-reload-request`,
+                  status: "running",
+                  assistantMessageId: null,
+                  terminalCode: null,
+                },
               },
-            },
-          ],
-          nextCursor: null,
+            ],
+            nextCursor: null,
+          },
         })
         .mockImplementationOnce(() => new Promise(() => undefined));
       const fetchMock = vi
@@ -2253,8 +2298,8 @@ describe("AgentChatStore", () => {
       nextCursor: null,
     };
     actionsMock.getAgentConversationAction
-      .mockResolvedValueOnce(runningConversation)
-      .mockResolvedValueOnce(runningConversation);
+      .mockResolvedValueOnce({ ok: true, data: runningConversation })
+      .mockResolvedValueOnce({ ok: true, data: runningConversation });
     const terminalStream = (messageId: string, text: string) =>
       new Response(
         [
@@ -2314,15 +2359,18 @@ describe("AgentChatStore", () => {
   it("keeps the active embedded transcript selected until its run finishes", async () => {
     const nextId = "00000000-0000-4000-8000-000000000002";
     actionsMock.getAgentConversationAction.mockResolvedValue({
-      id: nextId,
-      title: "Next run",
-      messages: [
-        {
-          id: "next-message",
-          role: "assistant",
-          parts: [{ type: "text", text: "Next transcript" }],
-        },
-      ],
+      ok: true,
+      data: {
+        id: nextId,
+        title: "Next run",
+        messages: [
+          {
+            id: "next-message",
+            role: "assistant",
+            parts: [{ type: "text", text: "Next transcript" }],
+          },
+        ],
+      },
     });
     const store = new AgentChatStore(root() as never);
     store.conversationId = "00000000-0000-4000-8000-000000000001";
@@ -2568,9 +2616,12 @@ describe("AgentChatStore", () => {
       data: { activeConversationId: conversationId, conversations: [summary] },
     });
     actionsMock.getAgentConversationAction.mockResolvedValue({
-      id: conversationId,
-      title: summary.title,
-      messages: [],
+      ok: true,
+      data: {
+        id: conversationId,
+        title: summary.title,
+        messages: [],
+      },
     });
     const store = new AgentChatStore(root() as never);
     store.conversationId = conversationId;
@@ -2597,7 +2648,10 @@ describe("AgentChatStore", () => {
       preview: "Summarize my deals",
       updatedAt: new Date("2026-08-06T08:00:00.000Z"),
     };
-    actionsMock.listAgentConversationsAction.mockResolvedValueOnce(null);
+    actionsMock.listAgentConversationsAction.mockResolvedValueOnce({
+      ok: false,
+      failure: { kind: "not_found", issues: [{ code: "custom", path: [], message: "unavailable" }] },
+    });
     const store = new AgentChatStore(root() as never);
     store.conversations = [summary];
 
@@ -2628,33 +2682,39 @@ describe("AgentChatStore", () => {
     const newer = store.refreshConversations();
 
     resolveNewer({
-      active: {
-        conversations: [
-          {
-            id: "00000000-0000-4000-8000-000000000002",
-            title: "Newer",
-            preview: "",
-            updatedAt: "2026-08-06T10:00:00.000Z",
-          },
-        ],
-        nextCursor: null,
+      ok: true,
+      data: {
+        active: {
+          conversations: [
+            {
+              id: "00000000-0000-4000-8000-000000000002",
+              title: "Newer",
+              preview: "",
+              updatedAt: "2026-08-06T10:00:00.000Z",
+            },
+          ],
+          nextCursor: null,
+        },
+        archived: { conversations: [], nextCursor: null },
       },
-      archived: { conversations: [], nextCursor: null },
     });
     await newer;
     resolveOlder({
-      active: {
-        conversations: [
-          {
-            id: "00000000-0000-4000-8000-000000000001",
-            title: "Older",
-            preview: "",
-            updatedAt: "2026-08-06T09:00:00.000Z",
-          },
-        ],
-        nextCursor: null,
+      ok: true,
+      data: {
+        active: {
+          conversations: [
+            {
+              id: "00000000-0000-4000-8000-000000000001",
+              title: "Older",
+              preview: "",
+              updatedAt: "2026-08-06T09:00:00.000Z",
+            },
+          ],
+          nextCursor: null,
+        },
+        archived: { conversations: [], nextCursor: null },
       },
-      archived: { conversations: [], nextCursor: null },
     });
     await older;
 
@@ -2725,18 +2785,21 @@ describe("AgentChatStore", () => {
 
   it("appends stable cursor pages for the current history search", async () => {
     actionsMock.listAgentConversationsAction.mockResolvedValueOnce({
-      active: {
-        conversations: [
-          {
-            id: "00000000-0000-4000-8000-000000000002",
-            title: "Second page",
-            preview: "",
-            updatedAt: "2026-08-05T10:00:00.000Z",
-          },
-        ],
-        nextCursor: null,
+      ok: true,
+      data: {
+        active: {
+          conversations: [
+            {
+              id: "00000000-0000-4000-8000-000000000002",
+              title: "Second page",
+              preview: "",
+              updatedAt: "2026-08-05T10:00:00.000Z",
+            },
+          ],
+          nextCursor: null,
+        },
+        archived: null,
       },
-      archived: null,
     });
     const store = new AgentChatStore(root() as never);
     store.conversationNextCursor = "active-next";
@@ -2767,11 +2830,14 @@ describe("AgentChatStore", () => {
       updatedAt: new Date("2026-08-06T10:00:00.000Z"),
     };
     actionsMock.listAgentConversationsAction.mockResolvedValueOnce({
-      active: {
-        conversations: [{ ...conversation, updatedAt: "2026-08-06T10:00:00.000Z" }],
-        nextCursor: null,
+      ok: true,
+      data: {
+        active: {
+          conversations: [{ ...conversation, updatedAt: "2026-08-06T10:00:00.000Z" }],
+          nextCursor: null,
+        },
+        archived: null,
       },
-      archived: null,
     });
     const store = new AgentChatStore(root() as never);
     store.conversations = [conversation];
@@ -2793,18 +2859,21 @@ describe("AgentChatStore", () => {
           }),
       )
       .mockResolvedValueOnce({
-        active: {
-          conversations: [
-            {
-              id: "00000000-0000-4000-8000-000000000003",
-              title: "Fresh result",
-              preview: "",
-              updatedAt: "2026-08-06T10:00:00.000Z",
-            },
-          ],
-          nextCursor: null,
+        ok: true,
+        data: {
+          active: {
+            conversations: [
+              {
+                id: "00000000-0000-4000-8000-000000000003",
+                title: "Fresh result",
+                preview: "",
+                updatedAt: "2026-08-06T10:00:00.000Z",
+              },
+            ],
+            nextCursor: null,
+          },
+          archived: { conversations: [], nextCursor: null },
         },
-        archived: { conversations: [], nextCursor: null },
       });
     const store = new AgentChatStore(root() as never);
     store.conversationNextCursor = "old-next";
@@ -2815,18 +2884,21 @@ describe("AgentChatStore", () => {
 
     expect(store.historyLoadMorePending).toBeNull();
     resolveStale({
-      active: {
-        conversations: [
-          {
-            id: "00000000-0000-4000-8000-000000000002",
-            title: "Stale result",
-            preview: "",
-            updatedAt: "2026-08-05T10:00:00.000Z",
-          },
-        ],
-        nextCursor: null,
+      ok: true,
+      data: {
+        active: {
+          conversations: [
+            {
+              id: "00000000-0000-4000-8000-000000000002",
+              title: "Stale result",
+              preview: "",
+              updatedAt: "2026-08-05T10:00:00.000Z",
+            },
+          ],
+          nextCursor: null,
+        },
+        archived: null,
       },
-      archived: null,
     });
     await stale;
 
@@ -2838,28 +2910,34 @@ describe("AgentChatStore", () => {
     const conversationId = "00000000-0000-4000-8000-000000000001";
     actionsMock.getAgentConversationAction
       .mockResolvedValueOnce({
-        id: conversationId,
-        title: "Long chat",
-        messages: [
-          {
-            id: "message-new",
-            role: "assistant",
-            parts: [{ type: "text", text: "Newer message" }],
-          },
-        ],
-        nextCursor: "50",
+        ok: true,
+        data: {
+          id: conversationId,
+          title: "Long chat",
+          messages: [
+            {
+              id: "message-new",
+              role: "assistant",
+              parts: [{ type: "text", text: "Newer message" }],
+            },
+          ],
+          nextCursor: "50",
+        },
       })
       .mockResolvedValueOnce({
-        id: conversationId,
-        title: "Long chat",
-        messages: [
-          {
-            id: "message-old",
-            role: "user",
-            parts: [{ type: "text", text: "Older message" }],
-          },
-        ],
-        nextCursor: null,
+        ok: true,
+        data: {
+          id: conversationId,
+          title: "Long chat",
+          messages: [
+            {
+              id: "message-old",
+              role: "user",
+              parts: [{ type: "text", text: "Older message" }],
+            },
+          ],
+          nextCursor: null,
+        },
       });
     const store = new AgentChatStore(root() as never);
 
@@ -2881,23 +2959,29 @@ describe("AgentChatStore", () => {
     };
     actionsMock.getAgentConversationAction
       .mockResolvedValueOnce({
-        id: conversationId,
-        title: "Long chat",
-        messages: [newest],
-        nextCursor: "50",
+        ok: true,
+        data: {
+          id: conversationId,
+          title: "Long chat",
+          messages: [newest],
+          nextCursor: "50",
+        },
       })
       .mockResolvedValueOnce({
-        id: conversationId,
-        title: "Long chat",
-        messages: [
-          {
-            id: "message-old",
-            role: "user",
-            parts: [{ type: "text", text: "Older message" }],
-          },
-          newest,
-        ],
-        nextCursor: null,
+        ok: true,
+        data: {
+          id: conversationId,
+          title: "Long chat",
+          messages: [
+            {
+              id: "message-old",
+              role: "user",
+              parts: [{ type: "text", text: "Older message" }],
+            },
+            newest,
+          ],
+          nextCursor: null,
+        },
       });
     const store = new AgentChatStore(root() as never);
 
@@ -2910,7 +2994,10 @@ describe("AgentChatStore", () => {
   it("opens the reload dialog instead of a toast when older messages fail in a changed workspace", async () => {
     const conversationId = "00000000-0000-4000-8000-000000000001";
     actionsMock.getAgentConversationAction
-      .mockResolvedValueOnce({ id: conversationId, title: "Long chat", messages: [], nextCursor: "50" })
+      .mockResolvedValueOnce({
+        ok: true,
+        data: { id: conversationId, title: "Long chat", messages: [], nextCursor: "50" },
+      })
       .mockRejectedValueOnce(WORKSPACE_CHANGED_ERROR);
     const store = new AgentChatStore(root() as never);
 
@@ -2969,16 +3056,19 @@ describe("AgentChatStore", () => {
     let resolveOlder!: (value: unknown) => void;
     actionsMock.getAgentConversationAction
       .mockResolvedValueOnce({
-        id: firstId,
-        title: "First",
-        messages: [
-          {
-            id: "new-first",
-            role: "assistant",
-            parts: [{ type: "text", text: "First chat" }],
-          },
-        ],
-        nextCursor: "50",
+        ok: true,
+        data: {
+          id: firstId,
+          title: "First",
+          messages: [
+            {
+              id: "new-first",
+              role: "assistant",
+              parts: [{ type: "text", text: "First chat" }],
+            },
+          ],
+          nextCursor: "50",
+        },
       })
       .mockImplementationOnce(
         () =>
@@ -2987,16 +3077,19 @@ describe("AgentChatStore", () => {
           }),
       )
       .mockResolvedValueOnce({
-        id: secondId,
-        title: "Second",
-        messages: [
-          {
-            id: "new-second",
-            role: "assistant",
-            parts: [{ type: "text", text: "Second chat" }],
-          },
-        ],
-        nextCursor: null,
+        ok: true,
+        data: {
+          id: secondId,
+          title: "Second",
+          messages: [
+            {
+              id: "new-second",
+              role: "assistant",
+              parts: [{ type: "text", text: "Second chat" }],
+            },
+          ],
+          nextCursor: null,
+        },
       });
     const store = new AgentChatStore(root() as never);
     await store.selectConversation(firstId);
@@ -3007,16 +3100,19 @@ describe("AgentChatStore", () => {
 
     expect(store.olderMessagesPending).toBe(false);
     resolveOlder({
-      id: firstId,
-      title: "First",
-      messages: [
-        {
-          id: "old-first",
-          role: "user",
-          parts: [{ type: "text", text: "Old first" }],
-        },
-      ],
-      nextCursor: null,
+      ok: true,
+      data: {
+        id: firstId,
+        title: "First",
+        messages: [
+          {
+            id: "old-first",
+            role: "user",
+            parts: [{ type: "text", text: "Old first" }],
+          },
+        ],
+        nextCursor: null,
+      },
     });
     await stale;
 
@@ -3075,8 +3171,11 @@ describe("AgentChatStore", () => {
     await vi.waitFor(() => expect(store.historyRefreshPending).toBe(true));
     await store.deleteArchivedConversation(conversationId);
     resolveRefresh({
-      active: { conversations: [], nextCursor: null },
-      archived: { conversations: [archived], nextCursor: null },
+      ok: true,
+      data: {
+        active: { conversations: [], nextCursor: null },
+        archived: { conversations: [archived], nextCursor: null },
+      },
     });
     await staleRefresh;
 
@@ -4410,9 +4509,12 @@ describe("AgentChatStore", () => {
   it("reconnects an active durable stream from the next confirmed sequence", async () => {
     const conversationId = "00000000-0000-4000-8000-000000000051";
     actionsMock.getAgentConversationAction.mockResolvedValueOnce({
-      activeTurn: true,
-      messages: [],
-      nextCursor: null,
+      ok: true,
+      data: {
+        activeTurn: true,
+        messages: [],
+        nextCursor: null,
+      },
     });
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
@@ -4450,15 +4552,18 @@ describe("AgentChatStore", () => {
   it("hydrates the canonical answer when the terminal event arrives without message content", async () => {
     const conversationId = "00000000-0000-4000-8000-000000000054";
     actionsMock.getAgentConversationAction.mockResolvedValue({
-      activeTurn: false,
-      messages: [
-        {
-          id: "assistant-canonical",
-          role: "assistant",
-          parts: [{ type: "text", text: "The complete saved answer." }],
-        },
-      ],
-      nextCursor: null,
+      ok: true,
+      data: {
+        activeTurn: false,
+        messages: [
+          {
+            id: "assistant-canonical",
+            role: "assistant",
+            parts: [{ type: "text", text: "The complete saved answer." }],
+          },
+        ],
+        nextCursor: null,
+      },
     });
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(
@@ -4501,15 +4606,18 @@ describe("AgentChatStore", () => {
       actionsMock.getAgentConversationAction.mockRejectedValueOnce(new Error("temporary history outage"));
     else actionsMock.getAgentConversationAction.mockImplementationOnce(() => new Promise(() => undefined));
     actionsMock.getAgentConversationAction.mockResolvedValueOnce({
-      activeTurn: false,
-      messages: [
-        {
-          id: "saved-terminal-answer",
-          role: "assistant",
-          parts: [{ type: "text", text: "The saved answer survived the history outage." }],
-        },
-      ],
-      nextCursor: null,
+      ok: true,
+      data: {
+        activeTurn: false,
+        messages: [
+          {
+            id: "saved-terminal-answer",
+            role: "assistant",
+            parts: [{ type: "text", text: "The saved answer survived the history outage." }],
+          },
+        ],
+        nextCursor: null,
+      },
     });
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
@@ -4548,21 +4656,24 @@ describe("AgentChatStore", () => {
     const assistantMessageId = "00000000-0000-4000-8000-000000000060";
     actionsMock.getAgentConversationAction
       .mockResolvedValueOnce({
-        activeTurn: true,
-        messages: [
-          {
-            id: persistedUserId,
-            role: "user",
-            parts: [{ type: "text", text: "Recover the persisted turn" }],
-            turn: {
-              clientRequestId,
-              status: "running",
-              assistantMessageId: null,
-              terminalCode: null,
+        ok: true,
+        data: {
+          activeTurn: true,
+          messages: [
+            {
+              id: persistedUserId,
+              role: "user",
+              parts: [{ type: "text", text: "Recover the persisted turn" }],
+              turn: {
+                clientRequestId,
+                status: "running",
+                assistantMessageId: null,
+                terminalCode: null,
+              },
             },
-          },
-        ],
-        nextCursor: null,
+          ],
+          nextCursor: null,
+        },
       })
       .mockImplementationOnce(() => new Promise(() => undefined))
       .mockImplementationOnce(() => new Promise(() => undefined));
@@ -4802,19 +4913,22 @@ describe("AgentChatStore", () => {
       risk: "sensitive",
     };
     actionsMock.getAgentConversationAction.mockResolvedValue({
-      activeTurn: false,
-      messages: [
-        {
-          id: "assistant-authoritative-parts",
-          role: "assistant",
-          parts: [
-            { type: "activity", id: "write-authoritative", status: "done", activity: canonicalActivity },
-            { type: "approval", id: "approval-authoritative", status: "approved", activity: canonicalApproval },
-            { type: "text", text: "The complete authoritative answer." },
-          ],
-        },
-      ],
-      nextCursor: null,
+      ok: true,
+      data: {
+        activeTurn: false,
+        messages: [
+          {
+            id: "assistant-authoritative-parts",
+            role: "assistant",
+            parts: [
+              { type: "activity", id: "write-authoritative", status: "done", activity: canonicalActivity },
+              { type: "approval", id: "approval-authoritative", status: "approved", activity: canonicalApproval },
+              { type: "text", text: "The complete authoritative answer." },
+            ],
+          },
+        ],
+        nextCursor: null,
+      },
     });
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(
@@ -4914,20 +5028,26 @@ describe("AgentChatStore", () => {
     });
     actionsMock.getAgentConversationAction
       .mockResolvedValueOnce({
-        activeTurn: true,
-        messages: [],
-        nextCursor: null,
+        ok: true,
+        data: {
+          activeTurn: true,
+          messages: [],
+          nextCursor: null,
+        },
       })
       .mockResolvedValueOnce({
-        activeTurn: false,
-        messages: [
-          {
-            id: "assistant-after-inactivity",
-            role: "assistant",
-            parts: [{ type: "text", text: "Recovered without stopping the run." }],
-          },
-        ],
-        nextCursor: null,
+        ok: true,
+        data: {
+          activeTurn: false,
+          messages: [
+            {
+              id: "assistant-after-inactivity",
+              role: "assistant",
+              parts: [{ type: "text", text: "Recovered without stopping the run." }],
+            },
+          ],
+          nextCursor: null,
+        },
       });
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
@@ -4979,26 +5099,29 @@ describe("AgentChatStore", () => {
     actionsMock.getAgentConversationAction
       .mockRejectedValueOnce(new Error("temporary snapshot outage"))
       .mockResolvedValueOnce({
-        activeTurn: false,
-        messages: [
-          {
-            id: "snapshot-retry-user-db-id",
-            role: "user",
-            parts: [{ type: "text", text: "Recover after the snapshot outage" }],
-            turn: {
-              clientRequestId,
-              status: "completed",
-              assistantMessageId,
-              terminalCode: "completed",
+        ok: true,
+        data: {
+          activeTurn: false,
+          messages: [
+            {
+              id: "snapshot-retry-user-db-id",
+              role: "user",
+              parts: [{ type: "text", text: "Recover after the snapshot outage" }],
+              turn: {
+                clientRequestId,
+                status: "completed",
+                assistantMessageId,
+                terminalCode: "completed",
+              },
             },
-          },
-          {
-            id: assistantMessageId,
-            role: "assistant",
-            parts: [{ type: "text", text: "The later snapshot recovered the answer." }],
-          },
-        ],
-        nextCursor: null,
+            {
+              id: assistantMessageId,
+              role: "assistant",
+              parts: [{ type: "text", text: "The later snapshot recovered the answer." }],
+            },
+          ],
+          nextCursor: null,
+        },
       });
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
@@ -5101,7 +5224,15 @@ describe("AgentChatStore", () => {
     vi.useFakeTimers();
     const conversationId = "00000000-0000-4000-8000-0000000000c3";
     const clientRequestId = "00000000-0000-4000-8000-0000000000c4";
-    actionsMock.getAgentConversationAction.mockResolvedValueOnce(null).mockResolvedValueOnce(null);
+    actionsMock.getAgentConversationAction
+      .mockResolvedValueOnce({
+        ok: false,
+        failure: { kind: "not_found", issues: [{ code: "custom", path: [], message: "unavailable" }] },
+      })
+      .mockResolvedValueOnce({
+        ok: false,
+        failure: { kind: "not_found", issues: [{ code: "custom", path: [], message: "unavailable" }] },
+      });
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
       .mockResolvedValueOnce(
@@ -5166,7 +5297,10 @@ describe("AgentChatStore", () => {
   it("stops rejoining a stream that answers with a changed workspace and reports nothing", async () => {
     vi.useFakeTimers();
     const conversationId = "00000000-0000-4000-8000-0000000000c6";
-    actionsMock.getAgentConversationAction.mockResolvedValueOnce({ activeTurn: true, messages: [], nextCursor: null });
+    actionsMock.getAgentConversationAction.mockResolvedValueOnce({
+      ok: true,
+      data: { activeTurn: true, messages: [], nextCursor: null },
+    });
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
       .mockResolvedValueOnce(
@@ -5234,7 +5368,7 @@ describe("AgentChatStore", () => {
     const conversationId = "00000000-0000-4000-8000-000000000057";
     actionsMock.getAgentConversationAction
       .mockImplementationOnce(() => new Promise(() => undefined))
-      .mockResolvedValueOnce({ activeTurn: true, messages: [], nextCursor: null });
+      .mockResolvedValueOnce({ ok: true, data: { activeTurn: true, messages: [], nextCursor: null } });
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
       .mockResolvedValueOnce(
@@ -5289,8 +5423,8 @@ describe("AgentChatStore", () => {
     vi.useFakeTimers();
     const conversationId = "00000000-0000-4000-8000-000000000058";
     actionsMock.getAgentConversationAction
-      .mockResolvedValueOnce({ activeTurn: true, messages: [], nextCursor: null })
-      .mockResolvedValueOnce({ activeTurn: true, messages: [], nextCursor: null });
+      .mockResolvedValueOnce({ ok: true, data: { activeTurn: true, messages: [], nextCursor: null } })
+      .mockResolvedValueOnce({ ok: true, data: { activeTurn: true, messages: [], nextCursor: null } });
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
       .mockResolvedValueOnce(
@@ -5344,9 +5478,12 @@ describe("AgentChatStore", () => {
     vi.useFakeTimers();
     const conversationId = "00000000-0000-4000-8000-000000000053";
     actionsMock.getAgentConversationAction.mockResolvedValue({
-      activeTurn: true,
-      messages: [],
-      nextCursor: null,
+      ok: true,
+      data: {
+        activeTurn: true,
+        messages: [],
+        nextCursor: null,
+      },
     });
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
@@ -5386,9 +5523,12 @@ describe("AgentChatStore", () => {
       risk: "write",
     };
     actionsMock.getAgentConversationAction.mockResolvedValueOnce({
-      activeTurn: true,
-      messages: [],
-      nextCursor: null,
+      ok: true,
+      data: {
+        activeTurn: true,
+        messages: [],
+        nextCursor: null,
+      },
     });
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
@@ -5861,10 +6001,13 @@ describe("AgentChatStore", () => {
       },
     };
     actionsMock.getAgentConversationAction.mockResolvedValue({
-      id: conversationId,
-      activeTurn: false,
-      messages: [userMessage],
-      nextCursor: null,
+      ok: true,
+      data: {
+        id: conversationId,
+        activeTurn: false,
+        messages: [userMessage],
+        nextCursor: null,
+      },
     });
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response("", {
@@ -5908,27 +6051,30 @@ describe("AgentChatStore", () => {
       const conversationId = "00000000-0000-4000-8000-000000000113";
       const clientRequestId = "00000000-0000-4000-8000-000000000114";
       actionsMock.getAgentConversationAction.mockResolvedValue({
-        id: conversationId,
-        activeTurn: false,
-        messages: [
-          {
-            id: "persisted-user-completed",
-            role: "user",
-            parts: [{ type: "text", text: "Check my deals" }],
-            turn: {
-              clientRequestId,
-              status: "completed",
-              assistantMessageId: "saved-assistant",
-              terminalCode,
+        ok: true,
+        data: {
+          id: conversationId,
+          activeTurn: false,
+          messages: [
+            {
+              id: "persisted-user-completed",
+              role: "user",
+              parts: [{ type: "text", text: "Check my deals" }],
+              turn: {
+                clientRequestId,
+                status: "completed",
+                assistantMessageId: "saved-assistant",
+                terminalCode,
+              },
             },
-          },
-          {
-            id: "saved-assistant",
-            role: "assistant",
-            parts: [{ type: "text", text: "The saved result." }],
-          },
-        ],
-        nextCursor: null,
+            {
+              id: "saved-assistant",
+              role: "assistant",
+              parts: [{ type: "text", text: "The saved result." }],
+            },
+          ],
+          nextCursor: null,
+        },
       });
       const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
         new Response('data: {"seq":1,"type":"delta","text":"Incomplete streamed result"}\n\n', {
@@ -5964,31 +6110,34 @@ describe("AgentChatStore", () => {
       const conversationId = "00000000-0000-4000-8000-000000000115";
       const clientRequestId = "00000000-0000-4000-8000-000000000116";
       actionsMock.getAgentConversationAction.mockResolvedValue({
-        id: conversationId,
-        activeTurn: false,
-        messages: [
-          {
-            id: "persisted-user-unconfirmed",
-            role: "user",
-            parts: [{ type: "text", text: "Check my deals" }],
-            turn: {
-              clientRequestId: scenario === "different-request" ? "another-request" : clientRequestId,
-              status: "completed",
-              assistantMessageId: "saved-assistant",
-              terminalCode: "completed",
+        ok: true,
+        data: {
+          id: conversationId,
+          activeTurn: false,
+          messages: [
+            {
+              id: "persisted-user-unconfirmed",
+              role: "user",
+              parts: [{ type: "text", text: "Check my deals" }],
+              turn: {
+                clientRequestId: scenario === "different-request" ? "another-request" : clientRequestId,
+                status: "completed",
+                assistantMessageId: "saved-assistant",
+                terminalCode: "completed",
+              },
             },
-          },
-          ...(scenario === "different-request"
-            ? [
-                {
-                  id: "saved-assistant",
-                  role: "assistant",
-                  parts: [{ type: "text", text: "Another request's answer" }],
-                },
-              ]
-            : []),
-        ],
-        nextCursor: null,
+            ...(scenario === "different-request"
+              ? [
+                  {
+                    id: "saved-assistant",
+                    role: "assistant",
+                    parts: [{ type: "text", text: "Another request's answer" }],
+                  },
+                ]
+              : []),
+          ],
+          nextCursor: null,
+        },
       });
       const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
         new Response("", {
@@ -6012,7 +6161,10 @@ describe("AgentChatStore", () => {
 
   it("does not apply a late recovery snapshot after navigation to a new conversation", async () => {
     const conversationId = "00000000-0000-4000-8000-000000000117";
-    let resolveSnapshot!: (snapshot: { activeTurn: boolean; messages: never[]; nextCursor: null }) => void;
+    let resolveSnapshot!: (snapshot: {
+      ok: true;
+      data: { activeTurn: boolean; messages: never[]; nextCursor: null };
+    }) => void;
     actionsMock.getAgentConversationAction.mockImplementationOnce(
       () =>
         new Promise((resolve) => {
@@ -6032,7 +6184,7 @@ describe("AgentChatStore", () => {
     await vi.waitFor(() => expect(actionsMock.getAgentConversationAction).toHaveBeenCalled());
 
     (store as unknown as { beginNewConversation: () => void }).beginNewConversation();
-    resolveSnapshot({ activeTurn: false, messages: [], nextCursor: null });
+    resolveSnapshot({ ok: true, data: { activeTurn: false, messages: [], nextCursor: null } });
     await sending;
 
     expect(store.conversationId).toBeNull();
@@ -6047,23 +6199,26 @@ describe("AgentChatStore", () => {
     const conversationId = "00000000-0000-4000-8000-000000000120";
     const clientRequestId = "00000000-0000-4000-8000-000000000121";
     actionsMock.getAgentConversationAction.mockResolvedValue({
-      id: conversationId,
-      activeTurn: false,
-      nextCursor: null,
-      messages: [
-        {
-          id: "another-user",
-          role: "user",
-          parts: [{ type: "text", text: "Another question" }],
-          turn: {
-            clientRequestId: "another-request",
-            status: "completed",
-            assistantMessageId: "another-assistant",
-            terminalCode: "completed",
+      ok: true,
+      data: {
+        id: conversationId,
+        activeTurn: false,
+        nextCursor: null,
+        messages: [
+          {
+            id: "another-user",
+            role: "user",
+            parts: [{ type: "text", text: "Another question" }],
+            turn: {
+              clientRequestId: "another-request",
+              status: "completed",
+              assistantMessageId: "another-assistant",
+              terminalCode: "completed",
+            },
           },
-        },
-        { id: "another-assistant", role: "assistant", parts: [{ type: "text", text: "Another answer" }] },
-      ],
+          { id: "another-assistant", role: "assistant", parts: [{ type: "text", text: "Another answer" }] },
+        ],
+      },
     });
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
@@ -6094,23 +6249,26 @@ describe("AgentChatStore", () => {
   it("does not replay a completed history result when a reattached stream has no known request identity", async () => {
     const conversationId = "00000000-0000-4000-8000-000000000122";
     actionsMock.getAgentConversationAction.mockResolvedValue({
-      id: conversationId,
-      activeTurn: false,
-      nextCursor: null,
-      messages: [
-        {
-          id: "unknown-user",
-          role: "user",
-          parts: [{ type: "text", text: "Unknown question" }],
-          turn: {
-            clientRequestId: "unknown-request",
-            status: "completed",
-            assistantMessageId: "unknown-assistant",
-            terminalCode: "completed",
+      ok: true,
+      data: {
+        id: conversationId,
+        activeTurn: false,
+        nextCursor: null,
+        messages: [
+          {
+            id: "unknown-user",
+            role: "user",
+            parts: [{ type: "text", text: "Unknown question" }],
+            turn: {
+              clientRequestId: "unknown-request",
+              status: "completed",
+              assistantMessageId: "unknown-assistant",
+              terminalCode: "completed",
+            },
           },
-        },
-        { id: "unknown-assistant", role: "assistant", parts: [{ type: "text", text: "Unconfirmed answer" }] },
-      ],
+          { id: "unknown-assistant", role: "assistant", parts: [{ type: "text", text: "Unconfirmed answer" }] },
+        ],
+      },
     });
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response("", {
@@ -6170,21 +6328,27 @@ describe("AgentChatStore", () => {
     };
     actionsMock.getAgentConversationAction
       .mockResolvedValueOnce({
-        id: conversationId,
-        activeTurn: true,
-        messages: [userMessage],
-        nextCursor: null,
+        ok: true,
+        data: {
+          id: conversationId,
+          activeTurn: true,
+          messages: [userMessage],
+          nextCursor: null,
+        },
       })
       .mockResolvedValue({
-        id: conversationId,
-        activeTurn: false,
-        messages: [
-          {
-            ...userMessage,
-            turn: { ...userMessage.turn, status: "uncertain" },
-          },
-        ],
-        nextCursor: null,
+        ok: true,
+        data: {
+          id: conversationId,
+          activeTurn: false,
+          messages: [
+            {
+              ...userMessage,
+              turn: { ...userMessage.turn, status: "uncertain" },
+            },
+          ],
+          nextCursor: null,
+        },
       });
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response("", {
@@ -6209,34 +6373,40 @@ describe("AgentChatStore", () => {
     const conversationId = "00000000-0000-4000-8000-000000000119";
     actionsMock.getAgentConversationAction
       .mockResolvedValueOnce({
-        id: conversationId,
-        activeTurn: false,
-        nextCursor: "50",
-        messages: [
-          {
-            id: "newer-user",
-            role: "user",
-            parts: [{ type: "text", text: "A later question" }],
-          },
-        ],
+        ok: true,
+        data: {
+          id: conversationId,
+          activeTurn: false,
+          nextCursor: "50",
+          messages: [
+            {
+              id: "newer-user",
+              role: "user",
+              parts: [{ type: "text", text: "A later question" }],
+            },
+          ],
+        },
       })
       .mockResolvedValue({
-        id: conversationId,
-        activeTurn: false,
-        nextCursor: "40",
-        messages: [
-          {
-            id: "older-user",
-            role: "user",
-            parts: [{ type: "text", text: "An older question" }],
-            turn: {
-              clientRequestId: "older-request",
-              status: "uncertain",
-              assistantMessageId: null,
-              terminalCode: null,
+        ok: true,
+        data: {
+          id: conversationId,
+          activeTurn: false,
+          nextCursor: "40",
+          messages: [
+            {
+              id: "older-user",
+              role: "user",
+              parts: [{ type: "text", text: "An older question" }],
+              turn: {
+                clientRequestId: "older-request",
+                status: "uncertain",
+                assistantMessageId: null,
+                terminalCode: null,
+              },
             },
-          },
-        ],
+          ],
+        },
       });
     const fetchMock = vi.spyOn(globalThis, "fetch");
     const store = new AgentChatStore(root() as never);
@@ -6557,26 +6727,29 @@ describe("AgentChatStore", () => {
       data: { ...CONFIG, conversationId },
     });
     actionsMock.getAgentConversationAction.mockResolvedValueOnce({
-      id: conversationId,
-      title: "Contacts",
-      messages: [
-        {
-          id: "message-1",
-          role: "assistant",
-          createdAt: "2026-08-05T12:00:00.000Z",
-          parts: [
-            {
-              type: "tool_use",
-              id: "tool-1",
-              name: "query_crm_records",
-              input: { typeId: "contact-type" },
-              status: "done",
-              resultPreview: "Found 12 contacts.",
-            },
-            { type: "text", text: "You have 12 contacts." },
-          ],
-        },
-      ],
+      ok: true,
+      data: {
+        id: conversationId,
+        title: "Contacts",
+        messages: [
+          {
+            id: "message-1",
+            role: "assistant",
+            createdAt: "2026-08-05T12:00:00.000Z",
+            parts: [
+              {
+                type: "tool_use",
+                id: "tool-1",
+                name: "query_crm_records",
+                input: { typeId: "contact-type" },
+                status: "done",
+                resultPreview: "Found 12 contacts.",
+              },
+              { type: "text", text: "You have 12 contacts." },
+            ],
+          },
+        ],
+      },
     });
     const store = new AgentChatStore(root() as never);
 

@@ -656,6 +656,7 @@ model Subscription {
   company                       Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
   lemonSqueezyId                String?            @unique
   lemonSqueezyVariantId         String?
+  checkoutEmail                 String?
   status                        SubscriptionStatus @default(trial)
   plan                          SubscriptionPlan   @default(pro)
   quantity                      Int?

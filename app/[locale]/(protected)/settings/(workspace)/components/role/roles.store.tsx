@@ -7,6 +7,7 @@ import { getRolesAction } from "../../actions";
 
 import { type RoleDto } from "@/features/role/get-roles.interactor";
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
+import { actionData } from "@/core/utils/action-data";
 
 export class RolesStore extends BaseDataViewStore<RoleDto> {
   constructor(rootStore: RootStore) {
@@ -18,6 +19,6 @@ export class RolesStore extends BaseDataViewStore<RoleDto> {
   }
 
   protected async refreshAction(params?: GetQueryParams) {
-    return await getRolesAction(params);
+    return await actionData(getRolesAction(params));
   }
 }

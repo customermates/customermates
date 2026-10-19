@@ -21,12 +21,14 @@ function billing(overrides: Partial<WorkspaceDeletionBilling> = {}): WorkspaceDe
     lemonSqueezyId: null,
     currentPeriodEnd: null,
     checkoutStartedAt: null,
+    checkoutEmail: null,
     ...overrides,
   };
 }
 
 function subject(overrides: Partial<WorkspaceDeletionSubject> = {}): WorkspaceDeletionSubject {
   return {
+    name: "Atlas",
     createdByAuthUserId: creator.id,
     deletingAt: null,
     earliestAdminEmail: creator.email,
