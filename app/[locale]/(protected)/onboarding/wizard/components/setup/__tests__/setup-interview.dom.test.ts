@@ -38,7 +38,7 @@ import { setupView } from "./setup-view-fixture";
 
 let container: HTMLDivElement;
 let root: Root;
-const wizard = { isSubmitting: false, startEmpty: vi.fn(() => Promise.resolve()) };
+const wizard = { isSubmitting: false, completeSetupStep: vi.fn(() => Promise.resolve()) };
 
 function renderDataScreen(existingData: string) {
   const store = new WorkspaceSetupStore({ localeStore: { locale: "en" } } as never);
@@ -170,12 +170,12 @@ describe("SetupInterview", () => {
 
     act(() => skip?.click());
     expect(document.body.textContent).toContain("WorkspaceSetup.empty.description");
-    expect(wizard.startEmpty).not.toHaveBeenCalled();
+    expect(wizard.completeSetupStep).not.toHaveBeenCalled();
     const confirm = [...document.body.querySelectorAll("button")].find((candidate) =>
       candidate.textContent?.includes("WorkspaceSetup.empty.confirm"),
     );
     act(() => confirm?.click());
-    expect(wizard.startEmpty).toHaveBeenCalledOnce();
+    expect(wizard.completeSetupStep).toHaveBeenCalledOnce();
   });
 
   it("offers to fill in the answers from a website on every part when none is given", () => {

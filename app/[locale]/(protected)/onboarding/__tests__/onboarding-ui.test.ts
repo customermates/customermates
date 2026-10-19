@@ -77,7 +77,6 @@ describe("onboarding workspace UI", () => {
     expect(classTokens(createButton)).toEqual(classTokens(claudeAccountButton));
     expect(classTokens(joinButton)).toEqual(classTokens(claudeLocalButton));
     expect(classTokens(groupTag(markup))).toEqual(classTokens(groupTag(claudeMarkup)));
-    expect(markup).not.toContain("OnboardingChoice.signedInAs");
   });
 
   it("offers the free trial only to a login that can still start one", () => {

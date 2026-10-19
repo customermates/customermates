@@ -100,15 +100,16 @@ test("starting with an empty workspace skips the guided setup after a confirmati
   await page.screenshot({ path: testInfo.outputPath("setup-empty-confirm.png") });
   await confirm.getByRole("button", { name: englishMessages.WorkspaceSetup.empty.confirm, exact: true }).click();
 
-  await expect(page).toHaveURL(/\/en\/dashboard$/);
-  await expect(page.getByRole("button", { name: "Create list" }).first()).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 1, name: englishMessages.OnboardingWizard.steps.invite.title, exact: true }),
+  ).toBeVisible();
   const lists = await database.query('SELECT 1 FROM "RecordTypeDefinition" WHERE "companyId"=$1', [companyId]);
   expect(lists.rowCount).toBe(0);
   const { rows } = await database.query<{ wizard: Date | null; setup: Date | null }>(
     'SELECT "onboardingWizardCompletedAt" AS wizard,"onboardingWikiStepCompletedAt" AS setup FROM "User" WHERE "companyId"=$1',
     [companyId],
   );
-  expect(rows).toEqual([{ wizard: expect.any(Date), setup: expect.any(Date) }]);
-  await page.screenshot({ path: testInfo.outputPath("setup-empty-dashboard.png"), fullPage: true });
+  expect(rows).toEqual([{ wizard: null, setup: expect.any(Date) }]);
+  await page.screenshot({ path: testInfo.outputPath("setup-empty-invite.png"), fullPage: true });
   expect(errors).toEqual([]);
 });

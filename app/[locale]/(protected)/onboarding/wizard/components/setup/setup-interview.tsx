@@ -308,7 +308,7 @@ export const SetupInterview = observer(function SetupInterview() {
         open={confirmingEmpty}
         title={t("WorkspaceSetup.empty.title")}
         onCancel={() => setConfirmingEmpty(false)}
-        onConfirm={wizard.startEmpty}
+        onConfirm={wizard.completeSetupStep}
       />
     </section>
   );

@@ -3,7 +3,6 @@ import type { RootStore } from "@/core/stores/root.store";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const actions = vi.hoisted(() => ({
-  completeOnboardingSetupStepAction: vi.fn(),
   completeOnboardingWizardAction: vi.fn(),
   saveOnboardingWizardProgressAction: vi.fn(),
 }));
@@ -25,7 +24,6 @@ beforeEach(() => {
     ok: true,
     data: { redirectTo: "/dashboard" },
   });
-  actions.completeOnboardingSetupStepAction.mockResolvedValue({ ok: true, data: { completed: true } });
   vi.stubGlobal("location", { assign });
   actions.saveOnboardingWizardProgressAction.mockImplementation(({ progress }) =>
     Promise.resolve({ ok: true, data: progress }),
@@ -302,32 +300,5 @@ describe("OnboardingWizardStore", () => {
 
     expect(assign).not.toHaveBeenCalled();
     expect(store.isSubmitting).toBe(false);
-  });
-
-  it("starts an empty workspace by closing the setup step and the wizard, then leaves for the app", async () => {
-    const store = new OnboardingWizardStore(rootStore);
-
-    await store.startEmpty();
-
-    expect(actions.completeOnboardingSetupStepAction).toHaveBeenCalledOnce();
-    expect(actions.completeOnboardingWizardAction).toHaveBeenCalledOnce();
-    expect(actions.completeOnboardingSetupStepAction.mock.invocationCallOrder[0]).toBeLessThan(
-      actions.completeOnboardingWizardAction.mock.invocationCallOrder[0],
-    );
-    expect(assign).toHaveBeenCalledExactlyOnceWith("/de/dashboard");
-    expect(store.isSubmitting).toBe(false);
-  });
-
-  it("stays in the wizard when the setup step cannot be closed", async () => {
-    actions.completeOnboardingSetupStepAction.mockResolvedValue({
-      ok: false,
-      failure: { kind: "validation", issues: [] },
-    });
-    const store = new OnboardingWizardStore(rootStore);
-
-    await store.startEmpty();
-
-    expect(actions.completeOnboardingWizardAction).not.toHaveBeenCalled();
-    expect(assign).not.toHaveBeenCalled();
   });
 });
