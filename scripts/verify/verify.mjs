@@ -94,11 +94,12 @@ const allTargets = full ? ["cloud-chromium", "cloud-firefox", "self-hosted-chrom
 const offloaded = offloadTargets ? offloadTargets.split(",").filter((target) => allTargets.includes(target)) : [];
 const localTargets = allTargets.filter((target) => !offloaded.includes(target));
 
-function playwrightStage(name, targets, extra = []) {
+function playwrightStage(name, targets, key, extra = []) {
   return stage(
     name,
     "node",
-    ["scripts/verify/e2e.mjs", "--targets", targets.join(","), "--run-id", `${runId}-${name.replace(/[^a-z0-9]+/gi, "-")}`, "--shards", options.shards || "4", ...extra],
+    // Short run ids: Playwright's evidence directory name (run id plus target and shard) must stay within 100 characters.
+    ["scripts/verify/e2e.mjs", "--targets", targets.join(","), "--run-id", `${runId}-${key}`, "--shards", options.shards || "4", ...extra],
     { echo: true },
   );
 }
@@ -110,11 +111,11 @@ const e2eLanes = () => {
   if (!options.e2e) return [];
   const lanes = [];
   if (localTargets.length) {
-    const local = playwrightStage(`playwright ${localTargets.join(" + ")}`, localTargets);
+    const local = playwrightStage(`playwright ${localTargets.join(" + ")}`, localTargets, "e2e");
     if (full) localBrowsersDone = local;
     lanes.push(local);
   }
-  if (offloaded.length) lanes.push(playwrightStage(`playwright ${offloaded.join(" + ")} (ws-test)`, offloaded, ["--offload", offloaded.join(",")]));
+  if (offloaded.length) lanes.push(playwrightStage(`playwright ${offloaded.join(" + ")} (ws-test)`, offloaded, "e2e-vm", ["--offload", offloaded.join(",")]));
   return lanes;
 };
 

@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, chore/faster-test-pipeline] # TEMP: drop the second branch before merging into #222
+    branches: [main]
 
 permissions:
   contents: read

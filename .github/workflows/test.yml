@@ -1,7 +1,7 @@
 name: Tests
 on:
   push:
-    branches: [main, chore/faster-test-pipeline] # TEMP: drop the second branch before merging into #222
+    branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:

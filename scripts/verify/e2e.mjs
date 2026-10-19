@@ -48,6 +48,8 @@ if (options.prebuilt && !process.env.CI && existsSync(resolve(REPO_ROOT, ".env")
 
 const startedAt = Date.now();
 const runId = options.runId || `e2e-${new Date().toISOString().replace(/[^0-9]/g, "").slice(0, 14)}`;
+if (!/^[a-zA-Z0-9_-]+$/.test(runId) || `${runId}-remote-self-hosted-chromium-99`.length > 100)
+  throw new Error("--run-id must be letters, digits, - and _, short enough for Playwright's 100-character evidence directory names.");
 const directory = resolve(REPO_ROOT, ".runs/verify", runId);
 // Database names carry the run, so several runs of this worktree (or of agents sharing its cluster) never collide.
 const runKey = createHash("sha256").update(runId).digest("hex").slice(0, 8);
