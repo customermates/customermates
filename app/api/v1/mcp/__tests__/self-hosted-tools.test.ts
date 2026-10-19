@@ -23,6 +23,7 @@ vi.mock("@/core/di", () => ({
     resolveMcpCredentialWorkspace: () => Promise.resolve({ companyId: WORKSPACE_ID, credential: "apiKey" }),
   }),
   getAuthorizeMcpConnectionInteractor: () => ({ invoke: () => Promise.resolve({ ok: true, data: true }) }),
+  getOperatorAccessService: () => ({ isReadEligible: () => Promise.resolve(false) }),
 }));
 
 const WORKSPACE_ID = "0b7c8e9a-1d2e-4f30-8a4b-5c6d7e8f9a0b";
