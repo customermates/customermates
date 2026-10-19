@@ -263,10 +263,8 @@ export interface RecordRepo {
   setAssignments(ref: RecordRef, userIds: string[]): Promise<void>;
   getMembersCompanyWide(userIds: string[]): Promise<RecordMember[]>;
   setValue(ref: RecordRef, fieldId: string, result: CalculatedValue, revision: number): Promise<void>;
-  /** `setValue` for many values in a few statements; a later entry for the same record and field wins. */
   setValues(values: StoredValueWrite[]): Promise<void>;
   setValueDependencies(ref: RecordRef, fieldId: string, sources: RecordRef[]): Promise<void>;
-  /** `setValueDependencies` for many values in a few statements; a later entry for the same value wins. */
   setValueDependenciesMany(dependencies: StoredDependencyWrite[]): Promise<void>;
   getValueDependencies(ref: RecordRef, fieldId: string): Promise<RecordRef[]>;
   getValueDependenciesManyCompanyWide(
@@ -338,7 +336,6 @@ export interface RecordRepo {
     beforeDeletion?: boolean,
     publish?: boolean,
   ): Promise<void>;
-  /** `appendEvent` for each event, in order. */
   appendEvents(events: RecordEventAppend[]): Promise<void>;
   createOperation(request: {
     id: string;

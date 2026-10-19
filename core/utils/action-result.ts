@@ -35,7 +35,6 @@ export async function settleActionResult<T>(result: ActionInput<T>): Promise<Awa
   return settleOutcome<Awaited<Validated<T>> | Redirect>(result);
 }
 
-/** The outcome, or the failure an expected error stands for; a held unverified login is sent to verify its email. */
 export async function settleOutcome<R>(result: R | Promise<R>): Promise<R | InteractorFailure | Redirect> {
   try {
     return await result;

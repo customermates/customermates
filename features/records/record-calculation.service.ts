@@ -34,7 +34,6 @@ type StoredRow = Awaited<ReturnType<RecordRepo["getRecordCompanyWide"]>>;
 export type CalculationLinkChange = { relationId: string; source: RecordRef; target: RecordRef };
 export type CalculationSeeds = { links?: CalculationLinkChange[]; unchanged?: ReadonlySet<string> };
 
-/** The writes one calculated value needs; `changed` when its value or its dependencies differ from the stored ones. */
 type StorePlan = {
   ref: RecordRef;
   fieldId: string;
@@ -44,11 +43,6 @@ type StorePlan = {
   changed: boolean;
 };
 
-/**
- * How a run reads, writes and orders its work. Batched, the records of one field are evaluated together, so their
- * reads are made together, and their writes are buffered and made in a few statements before the next field. One
- * record at a time, every record is evaluated and written before the next one is read, as before batching.
- */
 type Run = {
   records: CalculationRecordRepo;
   each<T, R>(items: T[], compute: (item: T) => Promise<R>, apply: (result: R, item: T) => Promise<void>): Promise<void>;
@@ -104,10 +98,6 @@ function storedResult(definition: RecordField, evaluated: CalculatedValue): Calc
 }
 
 export class RecordCalculationService {
-  /**
-   * Batched runs are the product behaviour. The equivalence tests switch it off to compute the same changes one record
-   * at a time, each record read and written on its own, and compare the stored results.
-   */
   static batching = true;
 
   constructor(private records: CalculationRecordRepo) {}
@@ -319,7 +309,6 @@ export class RecordCalculationService {
     return this.trace(this.run().records, model, ref, expression, limit);
   }
 
-  /** The records a value calculated by `expression` for `ref` reads, through relations and calculated fields. */
   private async trace(
     records: CalculationRecordRepo,
     model: RecordModel,
@@ -357,7 +346,6 @@ export class RecordCalculationService {
     return [...dependencies.values()];
   }
 
-  /** Compares a calculated value and its provenance with the stored ones and decides what to write. */
   private async plan(
     records: CalculationRecordRepo,
     model: RecordModel,
@@ -396,7 +384,6 @@ export class RecordCalculationService {
     await this.calculateFields(model, [ref], fieldId, limit);
   }
 
-  /** Recalculates one calculated field of `refs` from what is stored, as a full recalculation of that field does. */
   async calculateFields(model: RecordModel, refs: RecordRef[], fieldId: string, limit: number): Promise<void> {
     const run = this.run();
     await run.each(

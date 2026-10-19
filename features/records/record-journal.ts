@@ -92,7 +92,6 @@ async function snapshot(
 
 const SNAPSHOT_CHUNK = 500;
 
-/** `snapshot` of many records with one read of their rows and one of their value dependencies per chunk. */
 async function snapshots(
   records: RecordRepo,
   refs: RecordRef[],
@@ -312,7 +311,6 @@ export class RecordJournal {
     return entry;
   }
 
-  /** `capture` of many records, in their order, reading the snapshots of the new ones together. */
   private async captureMany(refs: RecordRef[]): Promise<void> {
     const pending = [...new Map(refs.map((ref) => [recordKey(ref), ref])).values()].filter(
       (ref) => !this.entries.has(recordKey(ref)),
@@ -421,7 +419,6 @@ export class RecordJournal {
     return { count: rows.length, afterKey: rows.at(-1)?.key };
   }
 
-  /** The events of the entries, in order, from their current snapshots read together, written together. */
   private async emitAll(
     entries: RecordJournalEntry[],
     model: RecordModel,

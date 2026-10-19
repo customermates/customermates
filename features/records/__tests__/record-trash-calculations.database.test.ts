@@ -398,7 +398,6 @@ async function fixture() {
                 continue;
               writes.clear();
               dependencies.clear();
-              // Recalculates the field of every record from what is stored, as a full recalculation does.
               await calculations.calculateFields(model, refs, definition.id, 5000);
               for (const ref of refs) {
                 const key = `${recordKey(ref)}:${definition.id}`;
@@ -570,10 +569,6 @@ async function seedDeals(f: Fixture, account: RecordRef, count: number, itemsPer
   return deals;
 }
 
-/**
- * Planner statistics for rows a test inserted in bulk. Autovacuum analyzes them only a minute or more later; until then
- * PostgreSQL takes the new workspace for empty and reads a record's values and dependencies by scanning all of them.
- */
 async function analyze() {
   await runWithoutTenant(() =>
     prisma.$executeRawUnsafe('ANALYZE "CrmRecord", "RecordValue", "RecordValueDependency", "RecordLink"'),
@@ -1573,10 +1568,6 @@ describeDatabase("record trash calculations", () => {
   }, 180_000);
 });
 
-/**
- * `deals` deals of `account` with `itemsPerDeal` live-priced line items each, every tenth on the second service, with
- * fixed record ids so that two workspaces seeded alike can be compared record by record.
- */
 async function seedPipeline(
   f: Fixture,
   account: RecordRef,
@@ -1657,10 +1648,6 @@ async function seedPipeline(
 
 const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g;
 
-/**
- * Every stored value, value dependency, record version and record event of the workspace, with the ids that differ
- * between two workspaces (types, fields, options, relations, created records, users, operations) replaced by names.
- */
 async function calculationSnapshot(f: Fixture) {
   const companyId = f.seed.company.id;
   const model = await runWithTenant(f.admin, () => runInTransaction(() => f.repo.getModel()));
@@ -1700,8 +1687,6 @@ async function calculationSnapshot(f: Fixture) {
   const named = (text: string) =>
     text.replace(UUID, (id) => (id.startsWith("00000000-") ? id : (names.get(id) ?? "unnamed")));
   const definitions = new Map(model.fields.map((field) => [field.id, field]));
-  // Ids are renamed before ordering: arrays the product orders by id (sources, links, history values) are compared as
-  // sets, because ids, and with them that order, differ between two workspaces.
   const canonical = (entry: unknown): unknown => {
     if (typeof entry === "string") return named(entry);
     if (Array.isArray(entry)) {
@@ -1747,10 +1732,6 @@ async function calculationSnapshot(f: Fixture) {
 
 type CalculationSnapshot = Awaited<ReturnType<typeof calculationSnapshot>>;
 
-/**
- * Runs `scenario` twice, each time in a new workspace: one record at a time (the reference, as before batching) and
- * batched. Both must store the same values, dependencies, versions and events after every step; the steps are timed.
- */
 async function compareWithReference(
   scenario: (f: Fixture, step: (label: string, task: () => Promise<unknown>) => Promise<void>) => Promise<void>,
 ) {
@@ -1775,7 +1756,6 @@ async function compareWithReference(
     return snapshots;
   };
   try {
-    // CRM_CALCULATION_BATCHED_ONLY times the batched run alone, to profile it.
     if (process.env.CRM_CALCULATION_BATCHED_ONLY) return (await run(true)).at(-1)?.[1];
     const reference = await run(false);
     const batched = await run(true);
@@ -1794,7 +1774,6 @@ async function compareWithReference(
   }
 }
 
-/** Applies a mutation and, when it was moved to the background, runs its operation to the end. */
 async function settle(f: Fixture, mutation: RecordMutation) {
   const result = await f.mutation(mutation);
   if (!result.ok) throw new Error(JSON.stringify(result));

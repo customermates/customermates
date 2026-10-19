@@ -61,9 +61,7 @@ function progress(operation: { processed: number; total: number }, units: number
   return { processed, total: Math.max(operation.total, processed) };
 }
 const BATCH_SIZE = 50;
-/** Records of one field recalculated per step: their reads and writes are batched, so a step stays a few seconds. */
 const CALCULATION_PAGE_SIZE = 500;
-/** Journal entries turned into events per step; their snapshots are read together. */
 const EVENT_PAGE_SIZE = 250;
 const RESTORE_PAGE_SIZE = 200;
 

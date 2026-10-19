@@ -2244,7 +2244,6 @@ export class PrismaRecordRepo
     return rows;
   }
 
-  /** The stage rows of `kind` whose key starts with the key of one of `refs` ("typeId:recordId:..."). */
   async getStageRowsByRecords(operationId: string, kind: string, refs: RecordRef[]) {
     const unique = uniqueRefs(refs);
     const rows: Array<{ key: string; payload: Prisma.JsonValue }> = [];

@@ -3943,7 +3943,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         }
         if (scenario === "resume") {
           const cursor = (await state())?.cursor;
-          // The journal stages its entries together, in one write per step.
           const original = f.repo.stageRows.bind(f.repo);
           let interrupted = false;
           const injection = vi.spyOn(f.repo, "stageRows").mockImplementation(async (...args) => {

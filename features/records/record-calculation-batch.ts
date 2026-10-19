@@ -1,13 +1,10 @@
 import type { CalculatedValue, RecordRef } from "./record-model.schema";
+import { CalculationLoader } from "./record-calculation-loader";
 import type { RecordRepo, StoredDependencyWrite, StoredValueWrite, TrashReadOptions } from "./record.repo";
 
 type StoredRow = Awaited<ReturnType<RecordRepo["getRecordCompanyWide"]>>;
 type Direction = "outgoing" | "incoming";
 
-/**
- * What a calculation reads and writes. The bulk methods are optional: a repository without them (the seed's buffered
- * repository, for instance) is read and written one record at a time.
- */
 export type CalculationRecordRepo = Pick<
   RecordRepo,
   "getRecordCompanyWide" | "getValueDependencies" | "linkedRecordsCompanyWide" | "setValue" | "setValueDependencies"
@@ -23,62 +20,22 @@ export type CalculationRecordRepo = Pick<
     >
   >;
 
-const CHUNK = 500;
 const key = (ref: RecordRef) => `${ref.typeId}:${ref.recordId}`;
 
-type Waiting<T> = { ref: RecordRef; resolve: (value: T) => void; reject: (error: unknown) => void };
-
-/** Collects the records asked for until the next turn of the event loop and loads them in chunks of `CHUNK`. */
-class Loader<T> {
-  private waiting = new Map<string, Waiting<T>[]>();
-
-  constructor(private readonly load: (refs: RecordRef[]) => Promise<T[]>) {}
-
-  get size() {
-    return this.waiting.size;
-  }
-
-  enqueue(ref: RecordRef): Promise<T> {
-    return new Promise<T>((resolve, reject) => {
-      this.waiting.set(key(ref), [...(this.waiting.get(key(ref)) ?? []), { ref, resolve, reject }]);
-    });
-  }
-
-  async run(): Promise<void> {
-    const batch = [...this.waiting.values()];
-    this.waiting.clear();
-    for (let offset = 0; offset < batch.length; offset += CHUNK) {
-      const chunk = batch.slice(offset, offset + CHUNK);
-      try {
-        const loaded = await this.load(chunk.map((waiters) => waiters[0].ref));
-        chunk.forEach((waiters, index) => waiters.forEach((waiter) => waiter.resolve(loaded[index])));
-      } catch (error) {
-        for (const waiters of chunk) for (const waiter of waiters) waiter.reject(error);
-      }
-    }
-  }
-}
-
-/**
- * One calculation run's view of the records. Reads that are asked for together, as the concurrent evaluation of many
- * records does, become one query per chunk of records; every read is cached for the run. Calculated values and their
- * dependencies are buffered and written in a few statements by `flush`, which the run calls once per field, after
- * which they are read back as written. A row read of a record with buffered values flushes first.
- */
 export class CalculationBatch implements CalculationRecordRepo {
   private rows = new Map<string, Promise<StoredRow>>();
   private dependencies = new Map<string, Promise<RecordRef[]>>();
   private links = new Map<string, Promise<RecordRef[]>>();
-  private rowLoader: Loader<StoredRow>;
-  private dependencyLoaders = new Map<string, Loader<RecordRef[]>>();
-  private linkLoaders = new Map<string, Loader<RecordRef[]>>();
+  private rowLoader: CalculationLoader<StoredRow>;
+  private dependencyLoaders = new Map<string, CalculationLoader<RecordRef[]>>();
+  private linkLoaders = new Map<string, CalculationLoader<RecordRef[]>>();
   private scheduled = false;
   private values = new Map<string, StoredValueWrite>();
   private sources = new Map<string, StoredDependencyWrite>();
   private written = new Set<string>();
 
   constructor(private readonly records: CalculationRecordRepo) {
-    this.rowLoader = new Loader(async (refs) => {
+    this.rowLoader = new CalculationLoader(async (refs) => {
       if (refs.length === 1 || !records.getRecordsCompanyWide)
         return Promise.all(refs.map((ref) => records.getRecordCompanyWide(ref)));
       const found = new Map(
@@ -99,7 +56,7 @@ export class CalculationBatch implements CalculationRecordRepo {
       let loader = this.dependencyLoaders.get(fieldId);
       if (!loader) {
         const records = this.records;
-        loader = new Loader(async (refs) => {
+        loader = new CalculationLoader(async (refs) => {
           if (refs.length === 1 || !records.getValueDependenciesManyCompanyWide)
             return Promise.all(refs.map((owner) => records.getValueDependencies(owner, fieldId)));
           const found = new Map(
@@ -122,7 +79,7 @@ export class CalculationBatch implements CalculationRecordRepo {
       let loader = this.linkLoaders.get(group);
       if (!loader) {
         const records = this.records;
-        loader = new Loader(async (refs) => {
+        loader = new CalculationLoader(async (refs) => {
           if (refs.length === 1 || !records.linkedRecordsManyCompanyWide) {
             return Promise.all(
               refs.map((owner) => records.linkedRecordsCompanyWide(owner, relationId, direction, take)),
@@ -159,7 +116,6 @@ export class CalculationBatch implements CalculationRecordRepo {
     return Promise.resolve();
   }
 
-  /** Writes the buffered values, then their dependencies (a dependency belongs to its stored value). */
   async flush(): Promise<void> {
     const values = [...this.values.values()];
     const sources = [...this.sources.values()];
@@ -192,7 +148,7 @@ export class CalculationBatch implements CalculationRecordRepo {
     return loading;
   }
 
-  private queue<T>(loader: Loader<T>, ref: RecordRef): Promise<T> {
+  private queue<T>(loader: CalculationLoader<T>, ref: RecordRef): Promise<T> {
     const loading = loader.enqueue(ref);
     if (!this.scheduled) {
       this.scheduled = true;

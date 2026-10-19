@@ -197,11 +197,6 @@ export class RecordTrashService {
     return droppedLinks;
   }
 
-  /**
-   * The trashed links of a restore page that come back, in link order, and how many are dropped: a link to a record
-   * that is not live is left in Trash, and one that would give a record a second link of a single-valued relation is
-   * dropped. Liveness and the links already taken are read once for the page, then updated as links come back.
-   */
   private async restorableLinks(
     records: RecordRepo,
     model: RecordModel,
@@ -266,7 +261,6 @@ export class RecordTrashService {
     return { restored: result, dropped: dropped.length };
   }
 
-  /** `restorableLinks` one link at a time, each check read from the database: the reference of the equivalence tests. */
   private async restorableLinksOneByOne(
     records: RecordRepo,
     model: RecordModel,
