@@ -6,7 +6,7 @@ import { afterAll, describe, expect, it } from "vitest";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createLegacyMigrationDatabase, deployMigrations } from "@/tests/helpers/legacy-migration-database";
 
-const MIGRATION = "20261016120000_rename_audit_log_permission";
+const MIGRATION = "20261019140000_draft_sends_activity_log_and_money_rounding";
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 const databases: Awaited<ReturnType<typeof createLegacyMigrationDatabase>>[] = [];

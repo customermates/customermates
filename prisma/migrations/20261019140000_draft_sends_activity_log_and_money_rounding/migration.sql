@@ -1,5 +1,90 @@
 -- =============================================================================================
--- Calculated money values of upgraded workspaces, stored as the record engine rounds them.
+-- Draft sends, the activity log permission and rounded money calculations of upgraded workspaces.
+--
+-- One migration for the three changes of this release, after main's 20261019010000_workspace_deletion_guard. None of
+-- them reads or writes what the workspace deletion migrations changed. PostgreSQL runs the file as one implicit
+-- transaction, so a failure rolls all three back; README.md describes the locks and the recovery.
+-- =============================================================================================
+
+-- ---------------------------------------------------------------------------------------------
+-- 1. Draft sends: one claim per email draft, so each draft revision is sent once.
+-- ---------------------------------------------------------------------------------------------
+
+-- CreateEnum
+CREATE TYPE "MessagingDraftSendState" AS ENUM ('sending', 'sent', 'unknown');
+
+-- CreateTable
+CREATE TABLE "MessagingDraftSend" (
+    "id" TEXT NOT NULL,
+    "companyId" TEXT NOT NULL,
+    "connectedAccountId" TEXT NOT NULL,
+    "draftMessageId" TEXT NOT NULL,
+    "draftRevision" TIMESTAMP(3) NOT NULL,
+    "state" "MessagingDraftSendState" NOT NULL DEFAULT 'sending',
+    "unipileMessageId" TEXT,
+    "providerMessageId" TEXT,
+    "sentMessageId" TEXT,
+    "sentThreadId" TEXT,
+    "contentHash" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "claimedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "matchHashes" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
+
+    CONSTRAINT "MessagingDraftSend_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MessagingDraftSend_companyId_draftMessageId_key" ON "MessagingDraftSend"("companyId", "draftMessageId");
+
+-- CreateIndex: claims of an account by age, for reconciling unknown sends.
+CREATE INDEX "MessagingDraftSend_connectedAccountId_claimedAt_idx" ON "MessagingDraftSend"("connectedAccountId", "claimedAt");
+
+-- CreateIndex: the daily prune reads send records by their last change.
+CREATE INDEX "MessagingDraftSend_updatedAt_idx" ON "MessagingDraftSend"("updatedAt");
+
+-- AddForeignKey
+ALTER TABLE "MessagingDraftSend" ADD CONSTRAINT "MessagingDraftSend_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MessagingDraftSend" ADD CONSTRAINT "MessagingDraftSend_connectedAccountId_fkey" FOREIGN KEY ("connectedAccountId") REFERENCES "ConnectedAccount"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- ---------------------------------------------------------------------------------------------
+-- 2. The audit log permission is renamed to activity log.
+-- ---------------------------------------------------------------------------------------------
+
+-- The permission gates Settings > Activity, the audit and configuration sources of record activities and the activity
+-- widget, so it is named after the activity log. Renaming the label keeps every RolePermission row and its grant.
+ALTER TYPE "Resource" RENAME VALUE 'auditLog' TO 'activityLog';
+
+-- Role snapshots keep the resource name as JSON text: the role in role.created and role.deleted events, the role and
+-- its changed permissions in role.updated events, and the saved role in role save receipts, which a retried save
+-- returns again. Only permission objects carry a "resource" member in these documents.
+CREATE FUNCTION "renameAuditLogResource"(value jsonb) RETURNS jsonb
+LANGUAGE sql IMMUTABLE AS $$
+  SELECT CASE jsonb_typeof(value)
+    WHEN 'object' THEN coalesce((
+      SELECT jsonb_object_agg(entry.key, CASE WHEN entry.key = 'resource' AND entry.value = '"auditLog"'::jsonb
+        THEN '"activityLog"'::jsonb ELSE "renameAuditLogResource"(entry.value) END)
+      FROM jsonb_each(value) AS entry), '{}'::jsonb)
+    WHEN 'array' THEN coalesce((
+      SELECT jsonb_agg("renameAuditLogResource"(item.value) ORDER BY item.ordinality)
+      FROM jsonb_array_elements(value) WITH ORDINALITY AS item(value, ordinality)), '[]'::jsonb)
+    ELSE value END
+$$;
+
+UPDATE "EventLog" SET payload = "renameAuditLogResource"(payload)
+WHERE "subjectKind" = 'role' AND kind IN ('role.created', 'role.updated', 'role.deleted')
+  AND jsonb_path_exists(payload, '$.** ? (@.resource == "auditLog")');
+
+UPDATE "RecordMutationReceipt" SET result = "renameAuditLogResource"(result)
+WHERE jsonb_typeof(result) = 'object' AND result ? 'role' AND result ? 'schemaRevision'
+  AND jsonb_path_exists(result, '$.role.permissions[*] ? (@.resource == "auditLog")');
+
+DROP FUNCTION "renameAuditLogResource"(jsonb);
+
+-- ---------------------------------------------------------------------------------------------
+-- 3. Calculated money values of upgraded workspaces, stored as the record engine rounds them.
 --
 -- 20261010000000_dynamic_record_model materialised the unit prices and amounts of line items and the values and
 -- weighted values of deals with exact decimals, for example a weighted value of 2481.996 for 40 % of 6204.99. The
@@ -21,7 +106,10 @@
 --
 -- No record events are written, so no routine run or webhook delivery is emitted, as in the upgrade itself.
 -- README.md describes the locks and how to recover from a failed run.
--- =============================================================================================
+--
+-- The settings below are transaction-local and set only here, after parts 1 and 2, so those wait for their locks as
+-- they did in their own migrations, and the advisory locks of this part are held only for the rest of the transaction.
+-- ---------------------------------------------------------------------------------------------
 
 SET LOCAL TIME ZONE 'UTC';
 SET LOCAL lock_timeout = '5s';

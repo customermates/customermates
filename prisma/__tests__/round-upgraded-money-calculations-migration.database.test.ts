@@ -33,7 +33,7 @@ const { runInTransaction } = await import("@/core/decorators/transaction-runner"
 const { RecordCalculationService } = await import("@/features/records/record-calculation.service");
 const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 
-const MIGRATION = "20261015100000_round_upgraded_money_calculations";
+const MIGRATION = "20261019140000_draft_sends_activity_log_and_money_rounding";
 const MONEY_FIELDS = [
   ["lineItem", "lineItem.effectivePrice"],
   ["lineItem", "lineItem.amount"],

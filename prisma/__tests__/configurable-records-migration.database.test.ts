@@ -415,7 +415,7 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
       currency: null,
     });
     // Binary legacy prices keep their exact decimals; calculated money is rounded to the cent like the engine
-    // (20261015100000): 3 x 42.18 + 10 x 0.30 instead of 42.175 x 3 + 0.30000000000000004 x 10.
+    // (20261019140000): 3 x 42.18 + 10 x 0.30 instead of 42.175 x 3 + 0.30000000000000004 x 10.
     expect(await decimal(client, f, "service", f.services.binary, "service.amount")).toEqual({
       state: "value",
       value: "0.30000000000000004",
@@ -896,7 +896,7 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     await client.query('UPDATE "Service" SET amount = 200.01 WHERE id = $1', [f.services.b]);
     await applyConfigurableRecordsMigration(client);
     // (2 x 1000 + 3 x 200.01) x 33.333333333333336 / 100 is exactly 866.6766666666667360008 (rounded division
-    // would give ...736); 20261015100000 stores it rounded to the cent, as the engine does.
+    // would give ...736); 20261019140000 stores it rounded to the cent, as the engine does.
     expect(await decimal(client, f, "deal", f.deals.weighted, "deal.totalValue")).toEqual({
       state: "value",
       value: "2600.03",
