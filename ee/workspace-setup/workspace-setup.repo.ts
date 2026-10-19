@@ -27,8 +27,6 @@ export abstract class WorkspaceSetupRepo {
   abstract readSpreadsheet(id: string): Promise<{ fileName: string; bytes: Uint8Array } | null>;
   abstract crawlState(crawlId: string): Promise<SetupCrawlState | null>;
   abstract stopCrawl(crawlId: string): Promise<void>;
-  abstract workspaceDeleting(): Promise<boolean>;
-  abstract markWatched(id: string, at: Date): Promise<void>;
   abstract crawlSources(crawlId: string): Promise<SetupCrawlSource[]>;
   abstract setCrawlLocale(crawlId: string, locale: string): Promise<void>;
   abstract reopenCrawlSynthesis(crawlId: string): Promise<boolean>;

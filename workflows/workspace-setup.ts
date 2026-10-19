@@ -1,18 +1,11 @@
 import type { WorkflowTenant } from "./workflow-tenant";
 import type { WorkspaceSetupPhase } from "@/ee/workspace-setup/workspace-setup.schema";
 import type { SetupPlanPart } from "@/ee/workspace-setup/workspace-setup-planner";
-import type { SetupNoticeStage } from "@/ee/workspace-setup/workspace-setup-notifier";
 
 import { getWorkflowMetadata, sleep } from "workflow";
 
-import {
-  getWorkspaceSetupBuildService,
-  getWorkspaceSetupInterviewService,
-  getWorkspaceSetupNotifier,
-  getWorkspaceSetupRepo,
-} from "@/core/di";
+import { getWorkspaceSetupBuildService, getWorkspaceSetupInterviewService } from "@/core/di";
 import { SETUP_PLAN_ATTEMPTS, SETUP_PLAN_PART_ATTEMPTS } from "@/ee/workspace-setup/workspace-setup-attempts";
-import { notifyWorkspaceSetupOnce } from "@/ee/workspace-setup/workspace-setup-notice-marker";
 
 import { asBackgroundOwner } from "./background-owner";
 import { GONE, present } from "./owner-gone";
@@ -124,18 +117,7 @@ async function abandonWorkspaceSetupPlanStep(
   );
 }
 
-async function notifyWorkspaceSetupStep(
-  payload: WorkspaceSetupWorkflowPayload,
-  stage: SetupNoticeStage,
-): Promise<void> {
-  "use step";
-  await asBackgroundOwner(payload.userId, () =>
-    notifyWorkspaceSetupOnce(getWorkspaceSetupRepo(), getWorkspaceSetupNotifier(), payload.setupId, stage),
-  );
-}
-
 followUpWorkspaceSetupStep.maxRetries = 1;
-notifyWorkspaceSetupStep.maxRetries = 2;
 claimWorkspaceSetupPlanStep.maxRetries = 1;
 planWorkspaceSetupPartStep.maxRetries = 1;
 finishWorkspaceSetupPlanStep.maxRetries = 1;
@@ -143,18 +125,6 @@ buildWorkspaceSetupPhaseStep.maxRetries = 1;
 
 async function warn(name: string, warnings: string[], tenant?: WorkflowTenant) {
   for (const warning of warnings) await reportWarning(name, warning, tenant);
-}
-
-async function notify(name: string, payload: WorkspaceSetupWorkflowPayload, stage: SetupNoticeStage) {
-  try {
-    await notifyWorkspaceSetupStep(payload, stage);
-  } catch (error) {
-    await warn(
-      name,
-      [`Workspace setup notice failed: ${error instanceof Error ? error.name : typeof error}.`],
-      payload.tenant,
-    );
-  }
 }
 
 export async function prepareWorkspaceSetup(payload: WorkspaceSetupWorkflowPayload): Promise<void> {
@@ -210,15 +180,12 @@ export async function planWorkspaceSetup(payload: WorkspaceSetupWorkflowPayload)
     await warn("plan-workspace-setup", followUps.warnings, payload.tenant);
     if (followUps.result !== "none") return;
     for (let attempt = 1; attempt <= SETUP_PLAN_ATTEMPTS; attempt += 1) {
-      const result = await draftPlan(payload, attempt === SETUP_PLAN_ATTEMPTS, claimed);
-      if (result === "planned" || result === "failed") await notify("plan-workspace-setup", payload, "plan");
-      if (result !== "retry") return;
+      if ((await draftPlan(payload, attempt === SETUP_PLAN_ATTEMPTS, claimed)) !== "retry") return;
       await sleep(PLAN_RETRY_WAIT);
     }
   } catch (error) {
     try {
       await abandonWorkspaceSetupPlanStep(payload, claimed.revision);
-      await notify("plan-workspace-setup", payload, "plan");
     } finally {
       await reportFailure("plan-workspace-setup", toWorkflowFailure(error), payload.tenant);
     }
@@ -263,7 +230,6 @@ export async function buildWorkspaceSetup(payload: WorkspaceSetupWorkflowPayload
     if (!phases.includes(GONE)) {
       for (let round = 0; !(await finishWorkspaceSetupStep(payload)) && round < FINISH_WAIT_ROUNDS; round += 1)
         await sleep(WAIT);
-      await notify("build-workspace-setup", payload, "build");
     }
     const settled = await knowledgeBase;
     if ("error" in settled) throw settled.error;
@@ -271,7 +237,6 @@ export async function buildWorkspaceSetup(payload: WorkspaceSetupWorkflowPayload
   } catch (error) {
     try {
       await abandonWorkspaceSetupStep(payload, workflowRunId);
-      await notify("build-workspace-setup", payload, "build");
     } finally {
       await reportFailure("build-workspace-setup", toWorkflowFailure(error), payload.tenant);
     }

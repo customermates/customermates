@@ -624,35 +624,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["AgentChat.suggestions.readOnly.${*}.prompt", AGENT_READ_ONLY_SUGGESTION_KEYS.map((key) => `${key}.prompt`)],
 ]);
 
-const WORKSPACE_SETUP_NOTICES = ["planReady", "planFailed", "workspaceReady", "workspaceFailed"] as const;
-const workspaceSetupNoticeKeys = (field: string) =>
-  WORKSPACE_SETUP_NOTICES.map((notice) => `WorkspaceSetupNotice.${notice}.${field}`);
-
 const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
-  [
-    "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.subject",
-    workspaceSetupNoticeKeys("subject"),
-  ],
-  [
-    "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.subjectNamed",
-    workspaceSetupNoticeKeys("subjectNamed"),
-  ],
-  [
-    "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.title",
-    workspaceSetupNoticeKeys("title"),
-  ],
-  [
-    "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.body",
-    workspaceSetupNoticeKeys("body"),
-  ],
-  [
-    "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.bodyNamed",
-    workspaceSetupNoticeKeys("bodyNamed"),
-  ],
-  [
-    "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.cta",
-    workspaceSetupNoticeKeys("cta"),
-  ],
   [
     "app/[locale]/(protected)/settings/(workspace)/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.description",
     FEEDBACK_DESCRIPTION_KEYS,
@@ -678,12 +650,6 @@ const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
 const ENFORCED = true;
 
 export const DYNAMIC_KEY_SITES = [
-  "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.subject",
-  "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.subjectNamed",
-  "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.title",
-  "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.body",
-  "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.bodyNamed",
-  "ee/workspace-setup/workspace-setup-notifier.ts :: t :: ${notice}.cta",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Trash.kinds.${kind}",
   "app/[locale]/(protected)/trash/components/use-trash-columns.tsx :: t :: Trash.kinds.${trashKindLabelKey(item)}",
   "app/[locale]/(protected)/configure/components/calculation-flow-editor.tsx :: t :: RecordModel.cardinality.${cardinality}",

@@ -2109,7 +2109,6 @@ import { WorkspaceSetupModelService } from "@/ee/workspace-setup/workspace-setup
 import { WORKSPACE_SETUP_BUDGETS, type WorkspaceSetupBudgetKind } from "@/ee/workspace-setup/workspace-setup-spend";
 import { WorkspaceSetupInterviewService } from "@/ee/workspace-setup/workspace-setup-interview.service";
 import { WorkspaceSetupPlanner } from "@/ee/workspace-setup/workspace-setup-planner";
-import { WorkspaceSetupNotifier } from "@/ee/workspace-setup/workspace-setup-notifier";
 import { WorkspaceSetupBuildService } from "@/ee/workspace-setup/workspace-setup-build.service";
 import { WorkspaceSetupCrawlStarter } from "@/ee/workspace-setup/workspace-setup-crawl-starter";
 import { WorkspaceSetupKnowledgeBrief } from "@/ee/workspace-setup/workspace-setup-knowledge-brief";
@@ -2144,7 +2143,6 @@ export const getWorkspaceSetupInterviewService = () => {
     ),
   );
 };
-export const getWorkspaceSetupNotifier = () => new WorkspaceSetupNotifier(getEmailService(), getCompanyRepo());
 export const getWorkspaceSetupBuildService = () =>
   new WorkspaceSetupBuildService(
     getWorkspaceSetupRepo(),

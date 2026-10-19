@@ -3,7 +3,7 @@ import type { AgentUsageService } from "@/ee/agent-chat/agent-usage.service";
 import type { RecordRepo } from "@/features/records/record.repo";
 import type { WorkspaceSetupRepo } from "./workspace-setup.repo";
 import type { WorkspaceSetupStatusView } from "./workspace-setup-status";
-import type { WorkspaceSetupRecord, WorkspaceSetupStatus } from "./workspace-setup.schema";
+import type { WorkspaceSetupStatus } from "./workspace-setup.schema";
 
 import { Resource } from "@/generated/prisma";
 
@@ -16,14 +16,6 @@ import { WORKSPACE_SETUP_BUDGETS } from "./workspace-setup-spend";
 import { workspaceSetupView } from "./workspace-setup-status";
 
 const BUILD_STATUSES: ReadonlySet<WorkspaceSetupStatus> = new Set(["building", "completed", "failed"]);
-const WATCHED_STATUSES: ReadonlySet<WorkspaceSetupStatus> = new Set(["planning", "building"]);
-const SETUP_WATCH_INTERVAL_MS = 5_000;
-
-function watchDue(setup: WorkspaceSetupRecord, now: Date) {
-  if (!WATCHED_STATUSES.has(setup.status)) return false;
-  const watchedAt = setup.interview.watchedAt;
-  return !watchedAt || new Date(watchedAt).getTime() <= now.getTime() - SETUP_WATCH_INTERVAL_MS;
-}
 
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.dataModel, manage: "update" })
@@ -39,8 +31,7 @@ export class GetWorkspaceSetupStatusInteractor extends AuthenticatedInteractor<v
   async invoke(): Validated<WorkspaceSetupStatusView> {
     const unavailable = workspaceSetupUnavailability();
     if (unavailable) return { ok: true, data: { available: false, reason: unavailable, setup: null } };
-    const found = await this.repo.findCurrent();
-    const setup = found ? await this.watch(found) : null;
+    const setup = await this.repo.findCurrent();
     if (!setup) {
       const model = await this.records.getModel();
       return model.types.some((type) => !type.archived && !type.embedded)
@@ -56,12 +47,5 @@ export class GetWorkspaceSetupStatusInteractor extends AuthenticatedInteractor<v
       ok: true,
       data: { available: true, setup: workspaceSetupView(setup, crawl, spend, budget.capMicrocents) },
     };
-  }
-
-  private async watch(setup: WorkspaceSetupRecord): Promise<WorkspaceSetupRecord> {
-    const now = new Date();
-    if (!watchDue(setup, now)) return setup;
-    await this.repo.markWatched(setup.id, now);
-    return { ...setup, interview: { ...setup.interview, watchedAt: now.toISOString() } };
   }
 }
