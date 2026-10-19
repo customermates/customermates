@@ -30,6 +30,10 @@ export abstract class WorkspaceMembershipRepo {
   abstract listWorkspaceMembershipsUnscoped(email: string): Promise<WorkspaceMembershipRow[]>;
   abstract findMembershipProfileUnscoped(email: string): Promise<MembershipProfile | null>;
   abstract hasCreatedWorkspaceUnscoped(authUserId: string): Promise<boolean>;
+  abstract hasConsumedTrialUnscoped(authUserId: string): Promise<boolean>;
+  abstract markTrialConsumedUnscoped(authUserId: string): Promise<void>;
+  abstract listCompanyMembersUnscoped(companyId: string): Promise<{ id: string; email: string }[]>;
+  abstract detachAuthIdentitiesFromCompanyUnscoped(companyId: string): Promise<number>;
   abstract countCreatedWorkspacesUnscoped(authUserId: string): Promise<number>;
   abstract findLoginIdUnscoped(email: string): Promise<string | null>;
   abstract findAuthUserCompanyIdUnscoped(userId: string): Promise<string | null | undefined>;

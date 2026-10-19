@@ -88,6 +88,7 @@ export async function POST(request: NextRequest) {
     subscriptionCreatedAt: parseCreatedAt(payload.data.attributes?.created_at),
     claim,
   });
+  if (outcome === "deferred") return NextResponse.json({ deferred: true }, { status: 503 });
   if (outcome === "refused") return NextResponse.json({ refused: true });
   if (outcome === "ignored") return NextResponse.json({ ignored: true });
 

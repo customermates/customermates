@@ -43,11 +43,13 @@ export const WorkspaceTabGuard = observer(() => {
       description={t("Workspaces.otherTab.description", { current: currentName })}
       open={notice !== null}
       title={
-        notice?.name?.trim()
-          ? t("Workspaces.otherTab.titleNamed", { name: notice.name.trim() })
-          : notice?.companyId
-            ? t("Workspaces.otherTab.title")
-            : t("Workspaces.otherTab.titleChanged")
+        notice?.deleted
+          ? t("Workspaces.otherTab.titleDeleted")
+          : notice?.name?.trim()
+            ? t("Workspaces.otherTab.titleNamed", { name: notice.name.trim() })
+            : notice?.companyId
+              ? t("Workspaces.otherTab.title")
+              : t("Workspaces.otherTab.titleChanged")
       }
       onConfirm={() => workspacesStore.followOtherTab()}
     />

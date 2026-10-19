@@ -7,7 +7,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const harness = vi.hoisted(() => ({ items: [] as WorkspaceSummary[], canCreate: true }));
 
-vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string, values?: Record<string, string>) =>
+    values ? `${key}:${Object.values(values).join(",")}` : key,
+}));
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({ workspacesStore: { items: harness.items, canCreate: harness.canCreate } }),
 }));
@@ -31,6 +34,7 @@ function workspace(
     activeMemberCount: 1,
     subscription: null,
     joinedAt: new Date("2026-01-01T00:00:00.000Z"),
+    createdAt: new Date("2026-01-01T00:00:00.000Z"),
     ...overrides,
   };
 }
@@ -96,6 +100,20 @@ describe("WorkspaceSwitcherItems", () => {
     expect(item("company-b")?.getAttribute("aria-current")).toBeNull();
     expect(item("company-c")?.textContent).toContain("Common.userStatuses.pendingAuthorization");
     expect(document.getElementById("workspace-menu-create")?.textContent).toContain("Workspaces.create");
+  });
+
+  it("tells several unnamed workspaces apart by the day they were created", () => {
+    harness.items = [
+      workspace("company-a", null, { isCurrent: true, createdAt: new Date("2026-03-04T10:00:00.000Z") }),
+      workspace("company-b", "   ", { createdAt: new Date("2026-05-06T10:00:00.000Z") }),
+      workspace("company-c", "Taxes"),
+    ];
+    render();
+
+    expect(item("company-a")?.textContent).toContain("Workspaces.unnamedCreated:Workspaces.fallbackName,2026-03-04");
+    expect(item("company-b")?.textContent).toContain("Workspaces.unnamedCreated:Workspaces.fallbackName,2026-05-06");
+    expect(item("company-c")?.textContent).toContain("Taxes");
+    expect(item("company-c")?.textContent).not.toContain("Workspaces.unnamedCreated");
   });
 
   it("switches to another workspace from the keyboard and ignores the current one", () => {

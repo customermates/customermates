@@ -578,6 +578,28 @@ export class PrismaUserRepo
   }
 
   @BypassTenantGuard
+  async hasConsumedTrialUnscoped(authUserId: string) {
+    const login = await this.prisma.authUser.findUnique({
+      where: { id: authUserId },
+      select: { trialConsumedAt: true },
+    });
+    return Boolean(login?.trialConsumedAt);
+  }
+
+  @BypassTenantGuard
+  async listCompanyMembersUnscoped(companyId: string) {
+    return this.prisma.user.findMany({ where: { companyId }, select: { id: true, email: true } });
+  }
+
+  @BypassTenantGuard
+  async markTrialConsumedUnscoped(authUserId: string) {
+    await this.prisma.authUser.updateMany({
+      where: { id: authUserId, trialConsumedAt: null },
+      data: { trialConsumedAt: new Date() },
+    });
+  }
+
+  @BypassTenantGuard
   async countCreatedWorkspacesUnscoped(authUserId: string) {
     const created = await this.prisma.company.count({ where: { createdByAuthUserId: authUserId } });
     const login = await this.prisma.authUser.findUnique({ where: { id: authUserId }, select: { email: true } });

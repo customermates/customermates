@@ -13,6 +13,7 @@ import type { RecordDetailLayoutResult } from "@/features/records/record-detail-
 import { RecordDetailLayoutStore, type RecordDetailLayoutNotifications } from "./record-detail-layout.store";
 import { toast } from "sonner";
 import { handOffSheet } from "@/components/ui/overlay-contract";
+import { actionData } from "@/core/utils/action-data";
 
 type RecordDraftHandoff = {
   presentation: RecordEditorContext;
@@ -96,7 +97,7 @@ export class RecordWorkspaceStore {
     const scope = this.actorScope;
     const request = ++this.navigationRequest;
     try {
-      const navigation = await getRecordNavigationAction();
+      const navigation = await actionData(getRecordNavigationAction());
       if (scope !== this.actorScope || request !== this.navigationRequest) return;
       runInAction(() => {
         this.setNavigation(navigation);

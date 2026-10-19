@@ -22,6 +22,7 @@ import { recordColumnPresentation, recordDefaults } from "@/features/records/rec
 import { getRecordPresentationAction, mutateRecordAction, resetRecordViewAction } from "../../actions";
 import { movedToTrashOr, movingToTrash } from "@/features/trash/moved-to-trash";
 import { focusHref } from "@/components/focus/focus-href";
+import { actionData } from "@/core/utils/action-data";
 import type { CalendarDate } from "@/features/record-calendar/calendar-date";
 import type { CalendarRange, CalendarViewMode, CalendarWindow } from "@/core/data-view/calendar-view-config.schema";
 import { calendarViewMode } from "@/core/data-view/calendar-view-config.schema";
@@ -601,7 +602,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   }
   protected async refreshAction(params?: GetQueryParams) {
     const bulkRefreshGeneration = this.bulkRefreshGeneration;
-    const presentation = await getRecordPresentationAction(this.presentation.typeId, params);
+    const presentation = await actionData(getRecordPresentationAction(this.presentation.typeId, params));
     this.loaded.set(presentation.result, { presentation, bulkRefreshGeneration });
     return presentation.result;
   }

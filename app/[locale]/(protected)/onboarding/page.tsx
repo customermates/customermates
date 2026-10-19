@@ -5,6 +5,7 @@ import { OnboardingChoiceCard } from "./onboarding-choice-card";
 
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
+import { getGetTrialEligibilityInteractor } from "@/core/di";
 import { NOINDEX_METADATA } from "@/core/seo/noindex-metadata";
 import { requireAccountState } from "@/features/auth/next/require";
 import {
@@ -41,10 +42,11 @@ export default async function OnboardingPage({ searchParams }: Props) {
   if (activeIntent)
     redirect(buildLocalePath(locale, pathWithOnboardingIntent("/onboarding/wizard", activeIntent.intent)));
   if (sessionUser.companyId) redirect(buildLocalePath(locale, "/onboarding/wizard"));
+  const trial = await getGetTrialEligibilityInteractor().invoke();
 
   return (
     <CenteredCardPage className="animate-page-result-in motion-reduce:animate-none">
-      <OnboardingChoiceCard email={sessionUser.email} trialDays={CLOUD_TRIAL.days} />
+      <OnboardingChoiceCard email={sessionUser.email} trialDays={trial.data.eligible ? CLOUD_TRIAL.days : null} />
     </CenteredCardPage>
   );
 }

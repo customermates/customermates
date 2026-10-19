@@ -3,6 +3,7 @@ export const ACCOUNT_REMOVAL_REASONS = [
   "trialExpired",
   "subscriptionLapsed",
   "ownerInactive",
+  "workspaceDeleted",
 ] as const;
 
 export type AccountRemovalReason = (typeof ACCOUNT_REMOVAL_REASONS)[number];

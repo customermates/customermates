@@ -3,6 +3,7 @@ import {
   getSubscription,
   lemonSqueezySetup,
   listSubscriptionItems,
+  listSubscriptions,
   updateSubscriptionItem,
 } from "@lemonsqueezy/lemonsqueezy.js";
 import { SubscriptionStatus } from "@/generated/prisma";
@@ -17,7 +18,32 @@ import { CLOUD_TRIAL, type CommercialOffer } from "@/core/commercial/plan-catalo
 
 import { offerToVariant, variantToOffer } from "./lemon-squeezy-bindings";
 
-export type LemonSqueezySubscription = Awaited<ReturnType<SubscriptionService["getSubscriptionOrThrowUnscoped"]>>;
+const ProviderSubscriptionSchema = z.looseObject({
+  id: z.string().min(1),
+  attributes: z.looseObject({
+    status: z.enum(["on_trial", "active", "paused", "past_due", "unpaid", "cancelled", "expired"]),
+    created_at: z.string().nullish(),
+    renews_at: z.string().nullish(),
+    ends_at: z.string().nullish(),
+    trial_ends_at: z.string().nullish(),
+    variant_id: z.number().nullish(),
+    first_subscription_item: z.looseObject({ quantity: z.number().nullish() }).nullish(),
+    user_email: z.string().nullish(),
+    urls: z
+      .looseObject({ customer_portal: z.string().nullish(), update_payment_method: z.string().nullish() })
+      .nullish(),
+  }),
+});
+
+const ProviderSubscriptionPageSchema = z.looseObject({
+  data: z.array(ProviderSubscriptionSchema),
+  meta: z.looseObject({ page: z.looseObject({ lastPage: z.number().int().positive() }).nullish() }).nullish(),
+});
+
+const SUBSCRIPTION_PAGE_SIZE = 100;
+const MAX_SUBSCRIPTION_PAGES = 10;
+
+export type LemonSqueezySubscription = { data: z.infer<typeof ProviderSubscriptionSchema> };
 
 export type SyncedWorkspace = { companyId: string; plan: SubscriptionPlan; lemonSqueezyId: string | null };
 
@@ -81,26 +107,29 @@ export class SubscriptionService {
 
     if (result.error) throw new Error(result.error.message || "Failed to get subscription");
 
-    return z
-      .looseObject({
-        data: z.looseObject({
-          id: z.string().min(1),
-          attributes: z.looseObject({
-            status: z.enum(["on_trial", "active", "paused", "past_due", "unpaid", "cancelled", "expired"]),
-            created_at: z.string().nullish(),
-            renews_at: z.string().nullish(),
-            ends_at: z.string().nullish(),
-            trial_ends_at: z.string().nullish(),
-            variant_id: z.number().nullish(),
-            first_subscription_item: z.looseObject({ quantity: z.number().nullish() }).nullish(),
-            user_email: z.string().nullish(),
-            urls: z
-              .looseObject({ customer_portal: z.string().nullish(), update_payment_method: z.string().nullish() })
-              .nullish(),
-          }),
-        }),
-      })
-      .parse(result.data);
+    return z.looseObject({ data: ProviderSubscriptionSchema }).parse(result.data);
+  }
+
+  async listStoreSubscriptionsByEmailOrThrowUnscoped(email: string): Promise<LemonSqueezySubscription[]> {
+    this.ensureConfigured();
+
+    const storeId = env.LEMONSQUEEZY_STORE_ID;
+    if (!storeId) throw new Error("LEMONSQUEEZY_STORE_ID is not configured");
+
+    const subscriptions: LemonSqueezySubscription[] = [];
+    for (let page = 1; page <= MAX_SUBSCRIPTION_PAGES; page++) {
+      const result = await listSubscriptions({
+        filter: { storeId, userEmail: email },
+        page: { number: page, size: SUBSCRIPTION_PAGE_SIZE },
+      });
+      if (result.error) throw new Error(result.error.message || "Failed to list subscriptions");
+
+      const listed = ProviderSubscriptionPageSchema.parse(result.data);
+      subscriptions.push(...listed.data.map((data) => ({ data })));
+      if (page >= (listed.meta?.page?.lastPage ?? page)) return subscriptions;
+    }
+
+    throw new Error("Too many subscriptions to verify for one email address");
   }
 
   async syncSubscription(

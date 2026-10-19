@@ -6,6 +6,7 @@ const mockLemonSqueezySetup = vi.fn();
 const mockCreateCheckout = vi.fn();
 const mockGetSubscription = vi.fn();
 const mockListSubscriptionItems = vi.fn();
+const mockListSubscriptions = vi.fn();
 const mockUpdateSubscriptionItem = vi.fn();
 
 vi.mock("@lemonsqueezy/lemonsqueezy.js", () => ({
@@ -13,6 +14,7 @@ vi.mock("@lemonsqueezy/lemonsqueezy.js", () => ({
   createCheckout: (...args: unknown[]) => mockCreateCheckout(...args),
   getSubscription: (...args: unknown[]) => mockGetSubscription(...args),
   listSubscriptionItems: (...args: unknown[]) => mockListSubscriptionItems(...args),
+  listSubscriptions: (...args: unknown[]) => mockListSubscriptions(...args),
   updateSubscriptionItem: (...args: unknown[]) => mockUpdateSubscriptionItem(...args),
 }));
 
@@ -362,5 +364,51 @@ describe("SubscriptionService.updateSubscriptionQuantityOrThrow", () => {
     expect(mockUpdateSubscriptionItem).toHaveBeenCalledWith("item-1", {
       quantity: 5,
     });
+  });
+});
+
+describe("listing a store's subscriptions by email", () => {
+  function page(ids: string[], lastPage: number) {
+    return {
+      error: null,
+      data: {
+        meta: { page: { lastPage } },
+        data: ids.map((id) => ({
+          id,
+          attributes: { status: "active", user_email: "owner@example.invalid" },
+        })),
+      },
+    };
+  }
+
+  it("reads every page of the configured store for that email", async () => {
+    mockListSubscriptions.mockResolvedValueOnce(page(["sub-1"], 2)).mockResolvedValueOnce(page(["sub-2"], 2));
+
+    const listed = await new SubscriptionService(makeRepo() as never).listStoreSubscriptionsByEmailOrThrowUnscoped(
+      "owner@example.invalid",
+    );
+
+    expect(listed.map((subscription) => subscription.data.id)).toEqual(["sub-1", "sub-2"]);
+    expect(mockListSubscriptions).toHaveBeenNthCalledWith(1, {
+      filter: { storeId: "store-1", userEmail: "owner@example.invalid" },
+      page: { number: 1, size: 100 },
+    });
+    expect(mockListSubscriptions).toHaveBeenNthCalledWith(2, {
+      filter: { storeId: "store-1", userEmail: "owner@example.invalid" },
+      page: { number: 2, size: 100 },
+    });
+  });
+
+  it("throws when Lemon Squeezy answers with an error", async () => {
+    mockListSubscriptions.mockResolvedValue({
+      error: { message: "Service unavailable" },
+      data: null,
+    });
+
+    await expect(
+      new SubscriptionService(makeRepo() as never).listStoreSubscriptionsByEmailOrThrowUnscoped(
+        "owner@example.invalid",
+      ),
+    ).rejects.toThrow("Service unavailable");
   });
 });

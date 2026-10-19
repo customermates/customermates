@@ -16,6 +16,7 @@ import { RecordCell } from "./record-cell";
 import { getActiveUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import { useEntityDetailPersonalization } from "@/components/entity-detail/entity-detail-personalization";
 import type { EntityDetailPreviewItem } from "@/components/entity-detail/entity-detail-personalization";
+import { actionData } from "@/core/utils/action-data";
 
 export const RecordDetailOverview = observer(function RecordDetailOverview({
   store,
@@ -51,7 +52,7 @@ export const RecordDetailOverview = observer(function RecordDetailOverview({
           >
             <FormAutocompleteAvatar
               ariaLabel={label}
-              getItems={getActiveUsersAction}
+              getItems={(params) => actionData(getActiveUsersAction(params))}
               id="assignedUserIds"
               inputId={assignedInputId}
               items={

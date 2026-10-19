@@ -17,16 +17,27 @@ import type { RegisterUserCompanyRepo } from "@/features/user/register/register-
 import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/admin-update-user-subscription.repo";
 import type { GetCompanyRepo } from "./get-company.repo";
 import type { RenameWorkspaceRepo } from "@/features/workspace/rename-workspace.repo";
+import type { WorkspaceDeletionRepo } from "@/features/workspace/workspace-deletion.repo";
 import type { GetOrCreateInviteTokenRepo } from "./get-or-create-invite-token.repo";
 
-import { ConversionEventType, SubscriptionStatus, type Prisma, type Subscription } from "@/generated/prisma";
+import { ConversionEventType, Status, SubscriptionStatus, type Prisma, type Subscription } from "@/generated/prisma";
 
 import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
+import { workspaceDeletionMarkerCutoff } from "@/features/workspace/workspace-deletion-marker";
 import { env } from "@/env";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
+
+const WORKFLOW_RUN_CHILD_TABLES = [
+  "workflow_event_slots",
+  "workflow_events",
+  "workflow_hooks",
+  "workflow_steps",
+  "workflow_stream_chunks",
+  "workflow_waits",
+] as const;
 
 export class PrismaCompanyRepo
   extends TenantRepository
@@ -48,7 +59,8 @@ export class PrismaCompanyRepo
     WorkspacePlanRepo,
     CreateAuthLinkSubscriptionRepo,
     UpsertRoutineSubscriptionRepo,
-    RegisterUserCompanyRepo
+    RegisterUserCompanyRepo,
+    WorkspaceDeletionRepo
 {
   async findCompanyOrThrow() {
     const { companyId } = this.user;
@@ -115,7 +127,11 @@ export class PrismaCompanyRepo
 
     return await this.withCompanyTransaction(companyId, async () => {
       const { count } = await this.prisma.subscription.updateMany({
-        where: { companyId, lemonSqueezyId: expectedLemonSqueezyId },
+        where: {
+          companyId,
+          lemonSqueezyId: expectedLemonSqueezyId,
+          company: this.notDeletingWhere(),
+        },
         data: fields,
       });
       if (count === 0) return false;
@@ -159,7 +175,7 @@ export class PrismaCompanyRepo
       status: true,
       plan: true,
       lemonSqueezyId: true,
-      company: { select: { name: true } },
+      company: { select: { name: true, deletingAt: true } },
     } satisfies Prisma.SubscriptionSelect;
   }
 
@@ -167,7 +183,7 @@ export class PrismaCompanyRepo
     company,
     ...subscription
   }: Prisma.SubscriptionGetPayload<{ select: PrismaCompanyRepo["workspaceBillingSelect"] }>) {
-    return { ...subscription, name: company.name };
+    return { ...subscription, name: company.name, deletingAt: company.deletingAt };
   }
 
   async getSubscriptionOrThrow() {
@@ -177,17 +193,28 @@ export class PrismaCompanyRepo
   }
 
   async claimCheckoutStart(args: RepoArgs<CreateCheckoutCompanyRepo, "claimCheckoutStart">) {
-    const { startedAt, pendingSince, lemonSqueezyId } = args;
-    const { count } = await this.prisma.subscription.updateMany({
-      where: {
-        companyId: this.companyId,
-        lemonSqueezyId,
-        OR: [{ checkoutStartedAt: null }, { checkoutStartedAt: { lte: pendingSince } }],
-      },
-      data: { checkoutStartedAt: startedAt },
-    });
+    const { startedAt, pendingSince, lemonSqueezyId, email } = args;
+    const { companyId } = this;
 
-    return count === 1;
+    return await this.withCompanyTransaction(companyId, async () => {
+      const deleting = await this.prisma.company.count({ where: { id: companyId, NOT: this.notDeletingWhere() } });
+      if (deleting > 0) return "deleting" as const;
+
+      const { count } = await this.prisma.subscription.updateMany({
+        where: {
+          companyId,
+          lemonSqueezyId,
+          OR: [{ checkoutStartedAt: null }, { checkoutStartedAt: { lte: pendingSince } }],
+        },
+        data: { checkoutStartedAt: startedAt, checkoutEmail: email },
+      });
+
+      return count === 1 ? ("claimed" as const) : ("pending" as const);
+    });
+  }
+
+  private notDeletingWhere(): Prisma.CompanyWhereInput {
+    return { OR: [{ deletingAt: null }, { deletingAt: { lte: workspaceDeletionMarkerCutoff() } }] };
   }
 
   async releaseCheckoutStart(args: RepoArgs<CreateCheckoutCompanyRepo, "releaseCheckoutStart">) {
@@ -291,6 +318,82 @@ export class PrismaCompanyRepo
   @BypassTenantGuard
   async deleteCompanyUnscoped(companyId: string): Promise<void> {
     await this.prisma.company.delete({ where: { id: companyId } });
+  }
+
+  @BypassTenantGuard
+  async findDeletionSubjectUnscoped(companyId: string) {
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+      select: {
+        name: true,
+        createdByAuthUserId: true,
+        deletingAt: true,
+        subscription: {
+          select: {
+            status: true,
+            plan: true,
+            lemonSqueezyId: true,
+            currentPeriodEnd: true,
+            checkoutStartedAt: true,
+            checkoutEmail: true,
+          },
+        },
+        users: {
+          where: { role: { isSystemRole: true } },
+          orderBy: { createdAt: "asc" },
+          take: 1,
+          select: { email: true },
+        },
+        _count: { select: { users: { where: { isPlatformOperator: true, status: Status.active } } } },
+      },
+    });
+    if (!company) return null;
+
+    return {
+      name: company.name,
+      createdByAuthUserId: company.createdByAuthUserId,
+      deletingAt: company.deletingAt,
+      earliestAdminEmail: company.users[0]?.email ?? null,
+      hasActivePlatformOperator: company._count.users > 0,
+      subscription: company.subscription,
+    };
+  }
+
+  @BypassTenantGuard
+  async markDeletingUnscoped(companyId: string, at: Date): Promise<void> {
+    await this.prisma.company.update({ where: { id: companyId }, data: { deletingAt: at } });
+  }
+
+  @BypassTenantGuard
+  async clearDeletingUnscoped(companyId: string, at: Date): Promise<void> {
+    await this.prisma.company.updateMany({ where: { id: companyId, deletingAt: at }, data: { deletingAt: null } });
+  }
+
+  @BypassTenantGuard
+  async deleteWorkflowRunsUnscoped(companyId: string): Promise<number> {
+    const [workflowSchema] = await this.prisma.$queryRaw<Array<{ installed: boolean }>>`
+      SELECT to_regclass('workflow.workflow_runs') IS NOT NULL AS installed
+    `;
+    if (!workflowSchema?.installed) return 0;
+
+    const workflowRuns = await this.prisma.$queryRaw<Array<{ id: string }>>`
+      SELECT "id" FROM "workflow"."workflow_runs"
+      WHERE "input"->>'companyId' = ${companyId}
+         OR "input"->'tenant'->>'companyId' = ${companyId}
+    `;
+    const workflowRunIds = workflowRuns.map((run) => run.id);
+    if (workflowRunIds.length === 0) return 0;
+
+    for (const table of WORKFLOW_RUN_CHILD_TABLES) {
+      await this.prisma.$executeRawUnsafe(
+        `DELETE FROM "workflow"."${table}" WHERE "run_id" = ANY($1::text[])`,
+        workflowRunIds,
+      );
+    }
+    await this.prisma.$executeRaw`
+      DELETE FROM "workflow"."workflow_runs" WHERE "id" = ANY(${workflowRunIds}::text[])
+    `;
+    return workflowRunIds.length;
   }
 
   async createRegisteredCompany(setup: WorkspaceSetup = {}) {

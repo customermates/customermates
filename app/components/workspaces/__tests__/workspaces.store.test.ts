@@ -4,6 +4,8 @@ import type { WorkspaceSummary } from "@/features/workspace/workspace.schema";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const actions = vi.hoisted(() => ({
+  deleteWorkspaceAction: vi.fn(),
+  getWorkspaceTabStateAction: vi.fn(),
   leaveWorkspaceAction: vi.fn(),
   listMyWorkspacesAction: vi.fn(),
   switchWorkspaceAction: vi.fn(),
@@ -12,6 +14,8 @@ const toastZodErrorTree = vi.hoisted(() => vi.fn());
 
 vi.mock("@/app/[locale]/(protected)/settings/(account)/workspaces/actions", () => actions);
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree }));
+
+import { registerWorkspaceChangedHandler } from "@/core/errors/report-application-error";
 
 import { WorkspaceTabChannel } from "../workspace-tab-channel";
 import { WorkspacesStore } from "../workspaces.store";
@@ -27,6 +31,7 @@ function workspace(companyId: string, overrides: Partial<WorkspaceSummary> = {})
     activeMemberCount: 1,
     subscription: null,
     joinedAt: new Date("2026-01-01T00:00:00.000Z"),
+    createdAt: new Date("2026-01-01T00:00:00.000Z"),
     ...overrides,
   };
 }
@@ -46,8 +51,15 @@ function storeFor(appMode: "cloud" | "self-hosted" | "demo" = "cloud") {
 
 const disposers: Array<() => void> = [];
 
+const workspaceChanged = vi.fn();
+
 beforeEach(() => {
   vi.clearAllMocks();
+  actions.getWorkspaceTabStateAction.mockResolvedValue({
+    ok: true,
+    data: { state: "current" },
+  });
+  disposers.push(registerWorkspaceChangedHandler(workspaceChanged));
 });
 
 afterEach(() => {
@@ -158,6 +170,46 @@ describe("WorkspacesStore", () => {
     expect(navigationGuard.navigateDocument).not.toHaveBeenCalled();
   });
 
+  it("deletes the current workspace, tells the other tabs and reloads at the localized root", async () => {
+    const { store, navigationGuard } = storeFor();
+    store.setWorkspaces([workspace("a", { isCurrent: true }), workspace("b")]);
+    const post = vi.spyOn(WorkspaceTabChannel.prototype, "post");
+    actions.deleteWorkspaceAction.mockResolvedValue({ ok: true, data: { companyId: "a", nextCompanyId: "b" } });
+
+    await expect(store.deleteCurrent()).resolves.toBe(true);
+
+    expect(actions.deleteWorkspaceAction).toHaveBeenCalledWith({ companyId: "a" });
+    expect(post).toHaveBeenCalledWith({ companyId: null, name: null, deletedCompanyId: "a" });
+    expect(navigationGuard.navigateDocument).toHaveBeenCalledWith("/de");
+    await expect(store.deleteCurrent()).resolves.toBe(false);
+    expect(actions.deleteWorkspaceAction).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the workspace and shows the reason when deleting is refused", async () => {
+    const { store, navigationGuard } = storeFor();
+    store.setWorkspaces([workspace("a", { isCurrent: true })]);
+    const error = { errors: ["Common.errors.workspaceDeleteBillingActive"] };
+    actions.deleteWorkspaceAction.mockResolvedValue({ ok: false, error, code: "workspaceDeleteBillingActive" });
+
+    await expect(store.deleteCurrent()).resolves.toBe(false);
+
+    expect(toastZodErrorTree).toHaveBeenCalledWith(error);
+    expect(navigationGuard.navigateDocument).not.toHaveBeenCalled();
+  });
+
+  it("asks to reload when another tab already deleted the workspace", async () => {
+    const { store, navigationGuard } = storeFor();
+    store.setWorkspaces([workspace("a", { isCurrent: true })]);
+    const error = { errors: ["Common.errors.workspaceChanged"] };
+    actions.deleteWorkspaceAction.mockResolvedValue({ ok: false, error, code: "workspaceChanged" });
+
+    await expect(store.deleteCurrent()).resolves.toBe(false);
+
+    expect(store.foreignNotice).toEqual({ companyId: null, name: null });
+    expect(toastZodErrorTree).not.toHaveBeenCalled();
+    expect(navigationGuard.navigateDocument).not.toHaveBeenCalled();
+  });
+
   it("blocks only the tabs that still show a different workspace", async () => {
     const switching = storeFor().store;
     const stale = storeFor().store;
@@ -172,6 +224,105 @@ describe("WorkspacesStore", () => {
     await vi.waitFor(() => expect(stale.foreignNotice).toEqual({ companyId: "b", name: "Workspace b" }));
     expect(switching.foreignNotice).toBeNull();
     expect(alreadyThere.foreignNotice).toBeNull();
+  });
+
+  it("tells the other tabs of the deleted workspace that it was deleted, without a switch notice", async () => {
+    const deleting = storeFor().store;
+    const sameWorkspace = storeFor().store;
+    const elsewhere = storeFor().store;
+    deleting.setWorkspaces([workspace("a", { isCurrent: true }), workspace("b")]);
+    sameWorkspace.setWorkspaces([workspace("a", { isCurrent: true }), workspace("b")]);
+    elsewhere.setWorkspaces([workspace("a"), workspace("b", { isCurrent: true })]);
+    disposers.push(sameWorkspace.connectTabs(), elsewhere.connectTabs());
+    actions.deleteWorkspaceAction.mockResolvedValue({
+      ok: true,
+      data: { companyId: "a", nextCompanyId: null },
+    });
+
+    await deleting.deleteCurrent();
+
+    await vi.waitFor(() =>
+      expect(sameWorkspace.foreignNotice).toEqual({
+        companyId: null,
+        name: null,
+        deleted: true,
+      }),
+    );
+    expect(workspaceChanged).toHaveBeenCalled();
+    await vi.waitFor(() => expect(elsewhere.foreignNotice).toEqual({ companyId: null, name: null }));
+  });
+
+  it("explains the deletion when another tab announces the next workspace after this one was deleted", async () => {
+    const stale = storeFor().store;
+    stale.setWorkspaces([workspace("a", { isCurrent: true }), workspace("b")]);
+    disposers.push(stale.connectTabs());
+    actions.getWorkspaceTabStateAction.mockResolvedValue({
+      ok: true,
+      data: { state: "deleted" },
+    });
+
+    new WorkspaceTabChannel().post({ companyId: "b", name: "Workspace b" });
+
+    await vi.waitFor(() =>
+      expect(stale.foreignNotice).toEqual({
+        companyId: null,
+        name: null,
+        deleted: true,
+      }),
+    );
+    expect(actions.getWorkspaceTabStateAction).toHaveBeenCalledWith({
+      companyId: "a",
+    });
+  });
+
+  it("lets a tab that comes back refresh only while its workspace is still the session's", async () => {
+    const { store } = storeFor();
+    store.setWorkspaces([workspace("a", { isCurrent: true })]);
+
+    await expect(store.verifyCurrent()).resolves.toBe(true);
+    expect(store.foreignNotice).toBeNull();
+    expect(workspaceChanged).not.toHaveBeenCalled();
+  });
+
+  it("blocks a tab that comes back to a deleted workspace instead of showing the next one", async () => {
+    const { store } = storeFor();
+    store.setWorkspaces([workspace("a", { isCurrent: true })]);
+    actions.getWorkspaceTabStateAction.mockResolvedValue({
+      ok: true,
+      data: { state: "deleted" },
+    });
+
+    await expect(store.verifyCurrent()).resolves.toBe(false);
+
+    expect(store.foreignNotice).toEqual({
+      companyId: null,
+      name: null,
+      deleted: true,
+    });
+    expect(workspaceChanged).toHaveBeenCalledOnce();
+    store.showWorkspaceChanged();
+    expect(store.foreignNotice).toEqual({
+      companyId: null,
+      name: null,
+      deleted: true,
+    });
+  });
+
+  it("blocks a tab that comes back after its session moved to another workspace", async () => {
+    const { store } = storeFor();
+    store.setWorkspaces([workspace("a", { isCurrent: true })]);
+    actions.getWorkspaceTabStateAction.mockResolvedValue({
+      ok: false,
+      failure: {
+        kind: "conflict",
+        issues: [{ code: "custom", path: [], message: "", customCode: "workspaceChanged" }],
+      },
+    });
+    workspaceChanged.mockImplementation(() => store.showWorkspaceChanged());
+
+    await expect(store.verifyCurrent()).resolves.toBe(false);
+
+    expect(store.foreignNotice).toEqual({ companyId: null, name: null });
   });
 
   it("refreshes the list, for example with a membership approved in the meantime", async () => {

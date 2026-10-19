@@ -24,6 +24,7 @@ import { localLemonSqueezyStoreId, localLemonSqueezyVariants } from "./local-lem
 import { secondUser } from "./second-user";
 import { addBrowserWorkspace } from "./workspace";
 import { mcpWorkspaceName } from "./workspace-credentials";
+import { uniqueWorkspaceName } from "./workspace-names";
 import { choosePlan, createApiKeyInSettings, createWorkspaceFromSettings, finishOnboarding } from "./workspace-setup";
 import {
   addAdministrator,
@@ -151,6 +152,8 @@ test("paying Business for an extra workspace activates only it in the real event
   workspace,
 }, testInfo) => {
   test.setTimeout(300_000);
+  const steuernName = uniqueWorkspaceName("Steuern 2026");
+  const archivName = uniqueWorkspaceName("Archiv");
   const errors = collectPageErrors(page);
   const { baseUrl } = localE2eEnvironment();
   await database.query(
@@ -161,8 +164,8 @@ test("paying Business for an extra workspace activates only it in the real event
   const firstKey = await mintApiKey(database, workspace, "Browser bookkeeping");
   const checkoutPages = await stubCheckoutPage(page);
 
-  await createWorkspaceFromSettings(page, "Steuern 2026");
-  const steuern = await workspaceNamed(database, "Steuern 2026");
+  await createWorkspaceFromSettings(page, steuernName);
+  const steuern = await workspaceNamed(database, steuernName);
   expect(await subscriptionOf(database, steuern.companyId)).toEqual({
     status: "expired",
     plan: "pro",
@@ -194,8 +197,8 @@ test("paying Business for an extra workspace activates only it in the real event
     custom: signedCustomData(steuern.companyId),
     variantQuantities: [{ variant_id: Number(localLemonSqueezyVariants.business), quantity: 1 }],
     enabledVariants: [Number(localLemonSqueezyVariants.business)],
-    productName: "Steuern 2026",
-    redirectUrl: `${baseUrl}/settings/billing`,
+    productName: steuernName,
+    redirectUrl: `${baseUrl}/en/settings/billing`,
     skipTrial: true,
   });
   expect(checkoutsFor(workspace.companyId)).toEqual([]);
@@ -207,7 +210,7 @@ test("paying Business for an extra workspace activates only it in the real event
   await page.goto(checkout.redirectUrl as string);
   await expect(page).toHaveURL(/\/en\/subscription-expired$/);
   await expect(
-    page.getByRole("heading", { level: 1, name: "Choose a plan for Steuern 2026", exact: true }),
+    page.getByRole("heading", { level: 1, name: `Choose a plan for ${steuernName}`, exact: true }),
   ).toBeVisible();
   await expect(page.locator("#settings-billing-payment-pending")).toBeVisible();
   await expect(page.locator("#settings-billing-plan-picker")).toHaveCount(0);
@@ -280,7 +283,7 @@ test("paying Business for an extra workspace activates only it in the real event
   await expect(page).toHaveURL(/\/en\/onboarding\/wizard$/);
   await page.screenshot({ path: testInfo.outputPath("ws-billing-onboarding.png"), fullPage: true });
   await finishOnboarding(page);
-  await expectCurrentWorkspace(page, "Steuern 2026");
+  await expectCurrentWorkspace(page, steuernName);
   await page.screenshot({ path: testInfo.outputPath("ws-billing-dashboard.png"), fullPage: true });
   await page.goto("/en/subscription-expired");
   await expect(page).toHaveURL(/\/en\/settings\/billing$/);
@@ -291,14 +294,14 @@ test("paying Business for an extra workspace activates only it in the real event
   await expect(page.locator("#settings-billing-plan-picker")).toHaveCount(0);
   await page.screenshot({ path: testInfo.outputPath("ws-billing-business.png"), fullPage: true });
 
-  const key = await createApiKeyInSettings(page, "Steuern 2026", "Steuern sync");
+  const key = await createApiKeyInSettings(page, steuernName, "Steuern sync");
   const bound = await database.query<{ companyId: string }>(
     'SELECT "companyId" FROM "Apikey" WHERE "referenceId"=$1 AND name=$2',
     [workspace.authUserId, "Steuern sync"],
   );
   expect(bound.rows).toEqual([{ companyId: steuern.companyId }]);
   expect(await whoAmI(request, key)).toEqual({ status: 200, id: steuern.userId, code: null });
-  expect(await mcpWorkspaceName(key)).toEqual({ id: steuern.companyId, name: "Steuern 2026" });
+  expect(await mcpWorkspaceName(key)).toEqual({ id: steuern.companyId, name: steuernName });
   expect(await whoAmI(request, earlyKey.key)).toEqual({ status: 200, id: steuern.userId, code: null });
   expect(await mcpInitialize(request, earlyKey.key)).toEqual({ status: 200, error: null });
   expect(await whoAmI(request, firstKey.key)).toEqual({ status: 200, id: workspace.userId, code: null });
@@ -326,8 +329,8 @@ test("paying Business for an extra workspace activates only it in the real event
   await expect(page.locator(`li[data-workspace-id="${workspace.companyId}"]`)).toContainText(/Trial/);
   await page.screenshot({ path: testInfo.outputPath("ws-billing-workspaces.png"), fullPage: true });
 
-  await createWorkspaceFromSettings(page, "Archiv");
-  const archiv = await workspaceNamed(database, "Archiv");
+  await createWorkspaceFromSettings(page, archivName);
+  const archiv = await workspaceNamed(database, archivName);
   expect(await subscriptionOf(database, archiv.companyId)).toMatchObject({ status: "expired", trialEndDate: null });
   expect(await subscriptionOf(database, workspace.companyId)).toEqual(firstBefore);
   expect(await subscriptionOf(database, steuern.companyId)).toEqual(activated);

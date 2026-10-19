@@ -28,6 +28,7 @@ export type OperatorWriteOwners = {
     ): Promise<void>;
     setWorkspaceTagsUnscoped(companyId: string, tags: string[]): Promise<void>;
     deleteInviteTokensByCreatorsUnscoped(creatorIds: string[]): Promise<void>;
+    deleteWorkflowRunsUnscoped(companyId: string): Promise<number>;
     deleteCompanyUnscoped(companyId: string): Promise<void>;
   };
   identities: {

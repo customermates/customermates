@@ -78,15 +78,6 @@ function normalizeWorkspaceTags(tags: string[]): string[] {
     .map(([, tag]) => tag);
 }
 
-const WORKFLOW_RUN_CHILD_TABLES = [
-  "workflow_event_slots",
-  "workflow_events",
-  "workflow_hooks",
-  "workflow_steps",
-  "workflow_stream_chunks",
-  "workflow_waits",
-] as const;
-
 type AuditAction = (typeof OPERATOR_AUDIT_ACTION)[keyof typeof OPERATOR_AUDIT_ACTION];
 const MAX_ADJUSTMENT_MICROCENTS = agentCreditsToMicrocents(1_000_000);
 
@@ -1228,32 +1219,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
         await this.owners.users.deleteAuthIdentitiesUnscoped(identityIds);
         await this.owners.inboundEvents.deleteCompanyInboundEventsUnscoped(data.companyId);
 
-        const [workflowSchema] = await this.prisma.$queryRaw<Array<{ installed: boolean }>>`
-          SELECT to_regclass('workflow.workflow_runs') IS NOT NULL AS installed
-        `;
-
-        let workflowRunIds: string[] = [];
-        if (workflowSchema?.installed) {
-          const workflowRuns = await this.prisma.$queryRaw<Array<{ id: string }>>`
-            SELECT "id" FROM "workflow"."workflow_runs"
-            WHERE "input"->>'companyId' = ${data.companyId}
-               OR "input"->'tenant'->>'companyId' = ${data.companyId}
-          `;
-          workflowRunIds = workflowRuns.map((run) => run.id);
-
-          if (workflowRunIds.length > 0) {
-            for (const table of WORKFLOW_RUN_CHILD_TABLES) {
-              await this.prisma.$executeRawUnsafe(
-                `DELETE FROM "workflow"."${table}" WHERE "run_id" = ANY($1::text[])`,
-                workflowRunIds,
-              );
-            }
-            await this.prisma.$executeRaw`
-              DELETE FROM "workflow"."workflow_runs" WHERE "id" = ANY(${workflowRunIds}::text[])
-            `;
-          }
-        }
-
+        const deletedWorkflowRunCount = await this.owners.companies.deleteWorkflowRunsUnscoped(data.companyId);
         await this.owners.companies.deleteCompanyUnscoped(data.companyId);
         const clearedAuthIdentityCompanies = await this.owners.users.detachAuthIdentitiesFromCompanyUnscoped(
           data.companyId,
@@ -1268,7 +1234,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
             deletedMemberCount: memberIds.length,
             deletedAuthIdentityCount: identityIds.length,
             clearedAuthIdentityCompanyCount: clearedAuthIdentityCompanies,
-            deletedWorkflowRunCount: workflowRunIds.length,
+            deletedWorkflowRunCount,
             plan: company.subscription?.plan ?? null,
             subscriptionStatus: company.subscription?.status ?? null,
             billingSubscriptionLeftActive: Boolean(company.subscription?.lemonSqueezyId),

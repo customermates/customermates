@@ -15,6 +15,7 @@ model AuthUser {
   emailVerified     Boolean            @default(false)
   image             String?
   companyId         String?
+  trialConsumedAt   DateTime?
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @default(now()) @updatedAt
   authsessions      AuthSession[]
@@ -38,7 +39,6 @@ model AuthSession {
   userId          String
   authuser        AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade)
   activeCompanyId String?
-  activeCompany   Company? @relation(fields: [activeCompanyId], references: [id], onDelete: SetNull)
 
   @@unique([token])
   @@index([userId])
@@ -218,11 +218,11 @@ model Company {
   id                          String                         @id @default(uuid())
   name                        String?
   createdByAuthUserId         String?
+  deletingAt                  DateTime?
   createdAt                   DateTime                       @default(now())
   updatedAt                   DateTime                       @updatedAt
   tags                        String[]                       @default([])
   users                       User[]
-  activeSessions              AuthSession[]
   apiKeys                     Apikey[]
   oauthAccessTokens           OauthAccessToken[]
   adAttributions              AdAttribution[]
@@ -689,6 +689,7 @@ model Subscription {
   company                           Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
   lemonSqueezyId                    String?            @unique
   lemonSqueezyVariantId             String?
+  checkoutEmail                     String?
   status                            SubscriptionStatus @default(trial)
   plan                              SubscriptionPlan   @default(pro)
   quantity                          Int?

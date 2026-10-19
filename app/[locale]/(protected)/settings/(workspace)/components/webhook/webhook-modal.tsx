@@ -29,6 +29,7 @@ import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confi
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { Action } from "@/generated/prisma";
 import { eventLabel } from "@/features/event/event-label";
+import { actionData } from "@/core/utils/action-data";
 
 const WEBHOOK_EVENT_ITEMS = WebhookEventSchema.options.map((event) => ({ key: event }));
 
@@ -142,7 +143,7 @@ export const WebhookModal = observer(() => {
                 )}
 
                 <FormAutocompleteAvatar
-                  getItems={getActiveUsersAction}
+                  getItems={(params) => actionData(getActiveUsersAction(params))}
                   id="recordOwnerUserId"
                   items={userStore.user ? [userStore.user] : []}
                   label={t("WebhookModal.recordOwner")}

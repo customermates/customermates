@@ -20,6 +20,7 @@ import { toChipColor } from "@/constants/chip-colors";
 import { FormattedTextField } from "@/components/editor/formatted-text-field";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { getActiveUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
+import { actionData } from "@/core/utils/action-data";
 import { RecordAddressInput } from "./record-address-input";
 
 import { RecordFileInput } from "./record-file-input";
@@ -125,7 +126,7 @@ export const RecordInputField = observer(function RecordInputField({
       <FormAutocompleteAvatar
         {...shared}
         ariaLabel={label ?? field.label}
-        getItems={getActiveUsersAction}
+        getItems={(params) => actionData(getActiveUsersAction(params))}
         items={knownMembers(members, root.userStore.user, store?.getValue(id))}
       />
     );

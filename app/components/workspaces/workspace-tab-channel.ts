@@ -6,9 +6,10 @@ const WorkspaceTabMessageSchema = z.object({
   source: z.string(),
   companyId: z.string().nullable(),
   name: z.string().nullable(),
+  deletedCompanyId: z.string().nullish(),
 });
 
-export type WorkspaceTabNotice = { companyId: string | null; name: string | null };
+export type WorkspaceTabNotice = { companyId: string | null; name: string | null; deletedCompanyId?: string };
 
 type Listener = (notice: WorkspaceTabNotice) => void;
 
@@ -23,7 +24,8 @@ export class WorkspaceTabChannel {
     channel.onmessage = (event: MessageEvent<unknown>) => {
       const message = WorkspaceTabMessageSchema.safeParse(event.data);
       if (!message.success || message.data.source === this.source) return;
-      listener({ companyId: message.data.companyId, name: message.data.name });
+      const { companyId, name, deletedCompanyId } = message.data;
+      listener(deletedCompanyId ? { companyId, name, deletedCompanyId } : { companyId, name });
     };
     this.channel = channel;
 
@@ -36,7 +38,12 @@ export class WorkspaceTabChannel {
   post(notice: WorkspaceTabNotice): void {
     if (typeof BroadcastChannel === "undefined") return;
 
-    const message = { source: this.source, companyId: notice.companyId, name: notice.name };
+    const message = {
+      source: this.source,
+      companyId: notice.companyId,
+      name: notice.name,
+      deletedCompanyId: notice.deletedCompanyId ?? null,
+    };
     if (this.channel) {
       this.channel.postMessage(message);
       return;

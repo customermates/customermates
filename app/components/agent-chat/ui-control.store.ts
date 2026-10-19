@@ -23,6 +23,7 @@ import {
   focusOverlayTarget,
   type OverlayFocusTarget,
 } from "@/components/ui/overlay-focus-target";
+import { actionData } from "@/core/utils/action-data";
 
 export type Spotlight = {
   targetId: string;
@@ -197,7 +198,7 @@ export class AgentUiControlStore extends BaseStore {
         return { ok: false, result: "The record is unavailable or cannot be read with your current access." };
       }
     } else if (route.path.startsWith("/records/") || focusTargetOfHref(route.path)?.kind === "list") {
-      const navigation = await getRecordNavigationAction();
+      const navigation = await actionData(getRecordNavigationAction());
       const typeId = /[0-9a-f-]{36}/.exec(route.path)?.[0];
       if (!navigation.types.some((type) => type.id === typeId) || !this.canOpen(route.path.split("?")[0]))
         return { ok: false, result: unavailableRouteMessage(route.path) };

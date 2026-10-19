@@ -18,7 +18,8 @@
     "ownerInactive": "Proprietario disattivato",
     "planDowngrade": "Piano ridotto",
     "subscriptionLapsed": "Abbonamento scaduto",
-    "trialExpired": "Prova terminata"
+    "trialExpired": "Prova terminata",
+    "workspaceDeleted": "Spazio di lavoro eliminato"
   },
   "AccountsRemovedNotice": {
     "body": "Il tuo piano è passato a {plan}, quindi ho rimosso i seguenti account collegati per rientrare nel limite del piano: {accounts}. I tuoi messaggi e i tuoi contatti sono ancora tutti lì. Puoi ricollegare questi account quando vuoi dalla pagina degli account collegati.",
@@ -1287,6 +1288,14 @@
       "wikiWhenToUseRequired": "Una procedura richiede una breve descrizione di quando usarla.",
       "workspaceChanged": "Il tuo spazio di lavoro è cambiato in un'altra scheda o su un altro dispositivo. Ricarica la pagina prima di continuare.",
       "workspaceCreationUnavailable": "Qui non è possibile creare nuovi spazi di lavoro.",
+      "workspaceDeleteAdminRequired": "Solo un amministratore può eliminare questo spazio di lavoro.",
+      "workspaceDeleteBillingActive": "Questo spazio di lavoro ha ancora un abbonamento che può essere addebitato o ripreso. Annullalo e attendi che termini, oppure contatta l'assistenza.",
+      "workspaceDeleteBillingUnverified": "Non è stato possibile verificare la fatturazione di questo spazio di lavoro con Lemon Squeezy, quindi non è stato eliminato nulla. Riprova tra qualche minuto.",
+      "workspaceDeleteChannelsFailed": "Non è stato possibile scollegare gli account collegati dello spazio di lavoro, quindi non è stato eliminato nulla. Riprova tra un momento.",
+      "workspaceDeleteCheckoutPending": "È in corso un pagamento per questo spazio di lavoro. Annullalo o attendi che finisca, poi elimina lo spazio di lavoro.",
+      "workspaceDeleteInvoiced": "Gli spazi di lavoro con un piano fatturato vengono chiusi dall'assistenza. Contatta l'assistenza per eliminare questo spazio di lavoro.",
+      "workspaceDeleteNotCreator": "Solo l'amministratore che ha creato questo spazio di lavoro può eliminarlo.",
+      "workspaceDeletePlatformOperator": "Un operatore della piattaforma è membro di questo spazio di lavoro, quindi non può essere eliminato qui.",
       "workspaceInvitationInvalid": "Questo link di invito non è valido o è scaduto. Chiedi un nuovo link.",
       "workspaceLastAdmin": "Sei l'unico amministratore di questo spazio di lavoro. Rendi amministratore un altro membro attivo prima di uscire.",
       "workspaceLimitReached": "Puoi creare fino a {limit} spazi di lavoro. Contatta l'assistenza se te ne servono di più.",
@@ -4915,6 +4924,18 @@
     "createDescription": "Un nuovo spazio di lavoro parte vuoto, con record, base di conoscenza, membri e connessioni propri.",
     "current": "Attuale",
     "dangerZone": "Zona pericolosa",
+    "delete": "Elimina spazio di lavoro",
+    "deleteBlocked": {
+      "billingActive": "Questo spazio di lavoro ha ancora un abbonamento che può essere addebitato o ripreso. Annullalo e attendi che termini, oppure contatta l'assistenza.",
+      "checkoutPending": "È in corso un pagamento per questo spazio di lavoro. Annullalo o attendi che finisca, poi elimina lo spazio di lavoro.",
+      "invoiced": "Gli spazi di lavoro con un piano fatturato vengono chiusi dall'assistenza. Contatta l'assistenza per eliminare questo spazio di lavoro.",
+      "notAdmin": "Solo un amministratore può eliminare questo spazio di lavoro.",
+      "notCreator": "Solo l'amministratore che ha creato questo spazio di lavoro può eliminarlo.",
+      "platformOperator": "Un operatore della piattaforma è membro di questo spazio di lavoro, quindi non può essere eliminato qui."
+    },
+    "deleteConfirmDescription": "Vengono eliminati definitivamente i suoi record, la base di conoscenza, le routine, i webhook e gli account collegati. Tutti i membri perdono l'accesso e le loro chiavi API e connessioni MCP associate smettono di funzionare. L'operazione non si può annullare.",
+    "deleteConfirmTitle": "Eliminare {name}?",
+    "deleteDescription": "Elimina definitivamente questo spazio di lavoro e tutto il suo contenuto per tutti i membri.",
     "fallbackName": "Spazio di lavoro",
     "firstPlan": {
       "description": "{name} non ha ancora un piano. La prova gratuita vale solo per il tuo primo spazio di lavoro, quindi scegli un piano per iniziare qui.",
@@ -4936,10 +4957,16 @@
       "reload": "Ricarica",
       "title": "Hai cambiato spazio di lavoro in un'altra scheda",
       "titleChanged": "Il tuo spazio di lavoro è cambiato",
+      "titleDeleted": "Questo spazio di lavoro è stato eliminato",
       "titleNamed": "In un'altra scheda hai aperto {name}"
     },
     "renameReadOnly": "Solo i membri che possono gestire lo spazio di lavoro possono cambiarne il nome.",
     "switch": "Passa",
-    "switchTo": "Passa a {name}"
+    "switchTo": "Passa a {name}",
+    "unnamedCreated": "{name} (creato il {date})",
+    "unnamedPrompt": {
+      "description": "Non ha ancora un nome, quindi il menu degli spazi di lavoro mostra solo «Spazio di lavoro». Un nome aiuta ogni membro a distinguere i tuoi spazi di lavoro.",
+      "title": "Dai un nome a questo spazio di lavoro"
+    }
   }
 }

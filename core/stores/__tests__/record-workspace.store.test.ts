@@ -3,6 +3,7 @@ import { observable, runInAction, toJS } from "mobx";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { RootStore } from "../root.store";
 import type { RecordNavigation } from "@/features/records/record-navigation.schema";
+import type { TypedActionResult } from "@/core/utils/action-result";
 import { recordNavigationKey } from "@/features/records/record-navigation.schema";
 import { createCrmPreset } from "@/features/records/crm-preset";
 
@@ -61,8 +62,11 @@ describe("workspace record navigation and drawers", () => {
     f.store.setNavigation({ ...f.navigation });
     expect(f.store.navigationRefreshFailed).toBe(true);
     mocks.getRecordNavigationAction.mockResolvedValueOnce({
-      ...f.navigation,
-      schemaRevision: 2,
+      ok: true,
+      data: {
+        ...f.navigation,
+        schemaRevision: 2,
+      },
     });
     await f.store.refreshNavigation();
     expect(f.store.navigation?.schemaRevision).toBe(2);
@@ -78,8 +82,10 @@ describe("workspace record navigation and drawers", () => {
 
   it("ignores a navigation failure from an older request or actor", async () => {
     const f = fixture();
-    const older = Promise.withResolvers<RecordNavigation>();
-    mocks.getRecordNavigationAction.mockReturnValueOnce(older.promise).mockResolvedValueOnce(f.navigation);
+    const older = Promise.withResolvers<TypedActionResult<RecordNavigation>>();
+    mocks.getRecordNavigationAction
+      .mockReturnValueOnce(older.promise)
+      .mockResolvedValueOnce({ ok: true, data: f.navigation });
     const oldRequest = f.store.refreshNavigation();
     const rejected = expect(oldRequest).rejects.toThrow("Old failure");
     await f.store.refreshNavigation();
@@ -87,7 +93,7 @@ describe("workspace record navigation and drawers", () => {
     await rejected;
     expect(f.store.navigationRefreshFailed).toBe(false);
     expect(f.store.navigation).toEqual(f.navigation);
-    const previousActor = Promise.withResolvers<RecordNavigation>();
+    const previousActor = Promise.withResolvers<TypedActionResult<RecordNavigation>>();
     mocks.getRecordNavigationAction.mockReturnValueOnce(previousActor.promise);
     const pending = f.store.refreshNavigation();
     const actorRejected = expect(pending).rejects.toThrow("Previous actor failure");
@@ -117,31 +123,37 @@ describe("workspace record navigation and drawers", () => {
     f.store.setNavigation({ ...f.navigation, schemaRevision: 3 });
     f.store.setNavigation(f.navigation);
     expect(f.store.navigation?.schemaRevision).toBe(3);
-    const first = Promise.withResolvers<RecordNavigation>();
-    const second = Promise.withResolvers<RecordNavigation>();
+    const first = Promise.withResolvers<TypedActionResult<RecordNavigation>>();
+    const second = Promise.withResolvers<TypedActionResult<RecordNavigation>>();
     mocks.getRecordNavigationAction.mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise);
     const firstLoad = f.store.refreshNavigation();
     const secondLoad = f.store.refreshNavigation();
     second.resolve({
-      ...f.navigation,
-      schemaRevision: 4,
-      canManageSchema: false,
+      ok: true,
+      data: {
+        ...f.navigation,
+        schemaRevision: 4,
+        canManageSchema: false,
+      },
     });
     await secondLoad;
     first.resolve({
-      ...f.navigation,
-      schemaRevision: 4,
-      canManageSchema: true,
+      ok: true,
+      data: {
+        ...f.navigation,
+        schemaRevision: 4,
+        canManageSchema: true,
+      },
     });
     await firstLoad;
     expect(f.store.navigation?.canManageSchema).toBe(false);
-    const third = Promise.withResolvers<RecordNavigation>();
+    const third = Promise.withResolvers<TypedActionResult<RecordNavigation>>();
     mocks.getRecordNavigationAction.mockReturnValueOnce(third.promise);
     const thirdLoad = f.store.refreshNavigation();
     runInAction(() => {
       f.userStore.user = { id: randomUUID(), companyId: f.companyId };
     });
-    third.resolve({ ...f.navigation, schemaRevision: 5 });
+    third.resolve({ ok: true, data: { ...f.navigation, schemaRevision: 5 } });
     await thirdLoad;
     expect(f.store.navigation).toBeNull();
     f.store.setNavigation({ ...f.navigation, companyId: randomUUID() });

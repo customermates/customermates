@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
+import { actionData } from "@/core/utils/action-data";
 import { cn } from "@/core/utils/cn";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { CALENDAR_WIDGET_MAX_DAYS, CalendarWidgetQuerySchema } from "@/features/widget/record-calendar-widget.schema";
@@ -169,7 +170,7 @@ export const RecordCalendarWidgetEditor = observer(
     const dataContent = (
       <div className="space-y-4">
         <FormAutocomplete<{ id: string; pluralLabel: string }>
-          getItems={discoverWidgetRecordTypesAction}
+          getItems={(params) => actionData(discoverWidgetRecordTypesAction(params))}
           id="calendarQuery.source.typeId"
           items={sourceType ? [{ id: sourceType.id, pluralLabel: sourceType.pluralLabel }] : []}
           label={t("RecordWidgets.source")}

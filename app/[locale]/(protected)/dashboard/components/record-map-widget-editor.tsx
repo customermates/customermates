@@ -17,6 +17,7 @@ import { RecordQueryFilters } from "@/components/records/record-query-filters";
 import { Button } from "@/components/ui/button";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { actionData } from "@/core/utils/action-data";
 import { cn } from "@/core/utils/cn";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { MapWidgetQuerySchema } from "@/features/widget/record-map-widget.schema";
@@ -157,7 +158,7 @@ export const RecordMapWidgetEditor = observer(
     const dataContent = (
       <div className="space-y-4">
         <FormAutocomplete<{ id: string; pluralLabel: string }>
-          getItems={discoverWidgetRecordTypesAction}
+          getItems={(params) => actionData(discoverWidgetRecordTypesAction(params))}
           id="mapQuery.source.typeId"
           items={sourceType ? [{ id: sourceType.id, pluralLabel: sourceType.pluralLabel }] : []}
           label={t("RecordWidgets.source")}
