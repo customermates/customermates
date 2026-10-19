@@ -34,11 +34,16 @@ export function workspaceListName(
   const day = creationDay(workspace);
   const sameDay = unnamed
     .filter((candidate) => creationDay(candidate) === day)
-    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime() || a.companyId.localeCompare(b.companyId));
+    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime() || compareIds(a.companyId, b.companyId));
   const position = sameDay.findIndex((candidate) => candidate.companyId === workspace.companyId);
   const label = withCreationDate(day);
 
   return position > 0 ? `${label} ${position + 1}` : label;
+}
+
+function compareIds(a: string, b: string): number {
+  if (a === b) return 0;
+  return a < b ? -1 : 1;
 }
 
 function creationDay(workspace: Pick<ListedWorkspace, "createdAt">): string {
