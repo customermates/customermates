@@ -13,6 +13,11 @@ const COLUMNS = [
   "active_seats_now",
   "connected_channels_now",
   "recording_started_at",
+  "plan",
+  "subscription_status",
+  "billing",
+  "subscription_quantity",
+  "current_period_end",
 ] as const;
 
 function csvCell(raw: string): string {
@@ -41,6 +46,13 @@ export function billingUsageSummaryCsv(usage: OperatorBillingUsageDto): string {
         String(workspace.current.activeSeats),
         String(workspace.current.connectedChannels),
         iso(usage.recordingStartedAt),
+        workspace.subscription?.plan ?? "",
+        workspace.subscription?.status ?? "",
+        workspace.subscription?.billing ?? "",
+        workspace.subscription?.quantity === null || !workspace.subscription
+          ? ""
+          : String(workspace.subscription.quantity),
+        iso(workspace.subscription?.currentPeriodEnd ?? null),
       ]
         .map(csvCell)
         .join(","),

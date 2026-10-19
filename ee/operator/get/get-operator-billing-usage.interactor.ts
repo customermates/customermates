@@ -7,7 +7,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { OperatorReadInteractor } from "@/core/decorators/operator-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { billingUsageWindow, workspaceBillingUsage, workspaceExistsIn } from "../billing-usage";
+import { billingUsageWindow, subscriptionSummary, workspaceBillingUsage, workspaceExistsIn } from "../billing-usage";
 import { operatorCollator } from "../operator-list-filters";
 import { GetOperatorBillingUsageSchema, OperatorBillingUsageDtoSchema } from "../billing-usage.schema";
 
@@ -64,6 +64,7 @@ export class GetOperatorBillingUsageInteractor {
         to: window.to,
         monthComplete: window.to.getTime() <= Date.now(),
         recordingStartedAt: ledger.recordingStartedAt,
+        subscriptions: subscriptionSummary(workspaces),
         workspaces,
       },
     };

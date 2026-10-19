@@ -2,8 +2,12 @@ import type {
   BillingUsageChannelDto,
   BillingUsageCoverageDto,
   BillingUsageSeatDto,
+  OperatorBillingUsageDto,
   WorkspaceBillingUsageDto,
+  WorkspaceSubscriptionDto,
 } from "./billing-usage.schema";
+
+import { SubscriptionStatus } from "@/generated/prisma";
 
 import { BILLING_USAGE_MONTH_PATTERN } from "./billing-usage.schema";
 import { operatorCollator } from "./operator-list-filters";
@@ -32,6 +36,7 @@ export type BillingUsageWorkspaceRow = {
   channelsRecordedFrom: Date | null;
   activeSeats: number;
   connectedChannels: number;
+  subscription: WorkspaceSubscriptionDto | null;
 };
 
 export type BillingUsageWindow = { month: string; from: Date; to: Date };
@@ -235,5 +240,44 @@ export function workspaceBillingUsage(args: {
       activeSeats: deleted ? 0 : workspace.activeSeats,
       connectedChannels: deleted ? 0 : workspace.connectedChannels,
     },
+    subscription: deleted ? null : workspace.subscription,
+  };
+}
+
+export function subscriptionSummary(
+  workspaces: readonly WorkspaceBillingUsageDto[],
+): OperatorBillingUsageDto["subscriptions"] {
+  const groups = new Map<string, OperatorBillingUsageDto["subscriptions"]["groups"][number]>();
+  let count = 0;
+  let paying = 0;
+
+  for (const workspace of workspaces) {
+    const { subscription } = workspace;
+    if (!subscription) continue;
+    count += 1;
+    if (subscription.status === SubscriptionStatus.active) paying += 1;
+    const key = `${subscription.billing}|${subscription.plan}|${subscription.status}`;
+    const group = groups.get(key) ?? {
+      billing: subscription.billing,
+      plan: subscription.plan,
+      status: subscription.status,
+      workspaces: 0,
+      activeSeats: 0,
+    };
+    group.workspaces += 1;
+    group.activeSeats += workspace.current.activeSeats;
+    groups.set(key, group);
+  }
+
+  return {
+    workspaces: count,
+    paying,
+    groups: [...groups.values()].sort(
+      (a, b) =>
+        b.workspaces - a.workspaces ||
+        operatorCollator().compare(a.billing, b.billing) ||
+        operatorCollator().compare(a.plan, b.plan) ||
+        operatorCollator().compare(a.status, b.status),
+    ),
   };
 }

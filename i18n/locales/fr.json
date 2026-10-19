@@ -3145,6 +3145,10 @@
     }
   },
   "OperatorUsage": {
+    "billing": {
+      "lemonSqueezy": "Facturation via Lemon Squeezy",
+      "manual": "Facturation manuelle"
+    },
     "channels": {
       "none": "Aucun canal n'était connecté ce mois-ci.",
       "peak": "{count} le {date}",
@@ -3185,6 +3189,9 @@
     },
     "stillActive": "Toujours actif",
     "stillConnected": "Toujours connecté",
+    "subscriptions": {
+      "summary": "{paying} espaces de travail sur {total} avec un abonnement paient actuellement : {lemonSqueezy} via Lemon Squeezy, {manual} en facturation manuelle. L’offre et l’abonnement indiquent l’état actuel."
+    },
     "title": "Utilisation facturable"
   },
   "OperatorUsers": {

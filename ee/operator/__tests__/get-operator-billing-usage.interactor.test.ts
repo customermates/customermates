@@ -18,6 +18,7 @@ vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
 }));
 
+import { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 import { interactorFailureStatus } from "@/core/validation/validation.utils";
 import { GetOperatorBillingUsageInteractor } from "../get/get-operator-billing-usage.interactor";
 
@@ -36,6 +37,17 @@ function workspace(companyId: string, createdAt: string, deletedAt: string | nul
     channelsRecordedFrom: null,
     activeSeats: 1,
     connectedChannels: 0,
+    subscription: deletedAt
+      ? null
+      : {
+          plan: SubscriptionPlan.enterprise,
+          status: SubscriptionStatus.active,
+          billing: "manual" as const,
+          quantity: null,
+          trialEndDate: null,
+          currentPeriodEnd: null,
+          enterpriseAgentCreditsPerUser: 2000,
+        },
   };
 }
 
@@ -89,6 +101,12 @@ describe("GetOperatorBillingUsageInteractor", () => {
     expect(result.data.workspaces[0]).toMatchObject({ seats: { count: 1 }, current: { activeSeats: 0 } });
     expect(result.data.workspaces[0].seats.users).toBeUndefined();
     expect(result.data.monthComplete).toBe(true);
+    expect(result.data.workspaces[1].subscription).toMatchObject({ plan: "enterprise", billing: "manual" });
+    expect(result.data.subscriptions).toEqual({
+      workspaces: 1,
+      paying: 1,
+      groups: [{ billing: "manual", plan: "enterprise", status: "active", workspaces: 1, activeSeats: 1 }],
+    });
   });
 
   it("returns per-user detail for one workspace, even a deleted one", async () => {

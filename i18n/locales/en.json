@@ -3145,6 +3145,10 @@
     }
   },
   "OperatorUsage": {
+    "billing": {
+      "lemonSqueezy": "Billed through Lemon Squeezy",
+      "manual": "Billed manually"
+    },
     "channels": {
       "none": "No channel was connected in this month.",
       "peak": "{count} at {date}",
@@ -3185,6 +3189,9 @@
     },
     "stillActive": "Still active",
     "stillConnected": "Still connected",
+    "subscriptions": {
+      "summary": "{paying} of {total} workspaces with a subscription pay right now: {lemonSqueezy} through Lemon Squeezy, {manual} billed manually. Plan and subscription show today's state."
+    },
     "title": "Billing usage"
   },
   "OperatorUsers": {

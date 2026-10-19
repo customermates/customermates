@@ -6,9 +6,11 @@ import { useTranslations } from "next-intl";
 import { useMemo, useTransition } from "react";
 import { Download, Receipt } from "lucide-react";
 
+import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/settings/(workspace)/components/subscription/subscription-panel";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
+import { AppChip } from "@/components/chip/app-chip";
 import { IconContainer } from "@/components/shared/icon-container";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -42,6 +44,11 @@ export function OperatorUsagePageView({ months, usage }: Props) {
   const hasIncomplete = usage.workspaces.some(
     (workspace) => !workspace.seats.coverage.complete || !workspace.channels.coverage.complete,
   );
+
+  const payingBy = (billing: "lemonSqueezy" | "manual") =>
+    usage.subscriptions.groups
+      .filter((group) => group.billing === billing && group.status === "active")
+      .reduce((sum, group) => sum + group.workspaces, 0);
 
   const selectMonth = (month: string) =>
     startTransition(() => router.replace(`${pathname}?month=${encodeURIComponent(month)}`));
@@ -84,6 +91,15 @@ export function OperatorUsagePageView({ months, usage }: Props) {
           </p>
         ) : null}
 
+        <p className="text-xs text-muted-foreground">
+          {t("OperatorUsage.subscriptions.summary", {
+            paying: usage.subscriptions.paying,
+            total: usage.subscriptions.workspaces,
+            lemonSqueezy: payingBy("lemonSqueezy"),
+            manual: payingBy("manual"),
+          })}
+        </p>
+
         {usage.workspaces.length === 0 ? (
           <p className="text-xs text-muted-foreground">{t("OperatorUsage.empty")}</p>
         ) : (
@@ -91,6 +107,10 @@ export function OperatorUsagePageView({ months, usage }: Props) {
             <TableHeader>
               <TableRow>
                 <TableHead>{t("Common.table.columns.workspace")}</TableHead>
+
+                <TableHead>{t("Common.table.columns.plan")}</TableHead>
+
+                <TableHead>{t("Common.table.columns.subscription")}</TableHead>
 
                 <TableHead className="text-right">{t("OperatorUsage.columns.seats")}</TableHead>
 
@@ -117,6 +137,32 @@ export function OperatorUsagePageView({ months, usage }: Props) {
                         </span>
                       ) : null}
                     </div>
+                  </TableCell>
+
+                  <TableCell>
+                    {workspace.subscription ? (
+                      <div className="flex flex-col items-start gap-1">
+                        <AppChip size="sm" variant="secondary">
+                          {t(`Subscription.planNames.${workspace.subscription.plan}`)}
+                        </AppChip>
+
+                        <span className="text-xs text-muted-foreground">
+                          {t(`OperatorUsage.billing.${workspace.subscription.billing}`)}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-muted-foreground">{t("OperatorUsers.values.noSubscription")}</span>
+                    )}
+                  </TableCell>
+
+                  <TableCell>
+                    {workspace.subscription ? (
+                      <AppChip size="sm" variant={SUBSCRIPTION_STATUS_COLOR_MAP[workspace.subscription.status]}>
+                        {t(`Subscription.status.${workspace.subscription.status}`)}
+                      </AppChip>
+                    ) : (
+                      <span className="text-muted-foreground">-</span>
+                    )}
                   </TableCell>
 
                   <TableCell className="text-right tabular-nums">

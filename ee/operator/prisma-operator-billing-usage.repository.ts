@@ -1,4 +1,6 @@
 import type { BillingUsageLedger, GetOperatorBillingUsageRepo } from "./get/get-operator-billing-usage.repo";
+import type { WorkspaceSubscriptionDto } from "./billing-usage.schema";
+import type { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
@@ -13,6 +15,20 @@ function deletedWorkspaceLabel(metadata: unknown): string | null {
   const label = (metadata as Record<string, unknown>).workspaceLabel;
 
   return typeof label === "string" && label.length > 0 ? label : null;
+}
+
+function workspaceSubscription(subscription: {
+  plan: SubscriptionPlan;
+  status: SubscriptionStatus;
+  lemonSqueezyId: string | null;
+  quantity: number | null;
+  trialEndDate: Date | null;
+  currentPeriodEnd: Date | null;
+  enterpriseAgentCreditsPerUser: number | null;
+}): WorkspaceSubscriptionDto {
+  const { lemonSqueezyId, ...terms } = subscription;
+
+  return { ...terms, billing: lemonSqueezyId ? "lemonSqueezy" : "manual" };
 }
 
 const INTERVAL_SELECT = {
@@ -53,7 +69,22 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
       }),
       this.prisma.company.findMany({
         where: args.companyId ? { id: args.companyId } : { createdAt: { lt: args.before } },
-        select: { id: true, name: true, createdAt: true },
+        select: {
+          id: true,
+          name: true,
+          createdAt: true,
+          subscription: {
+            select: {
+              plan: true,
+              status: true,
+              lemonSqueezyId: true,
+              quantity: true,
+              trialEndDate: true,
+              currentPeriodEnd: true,
+              enterpriseAgentCreditsPerUser: true,
+            },
+          },
+        },
       }),
       this.prisma.billingUsageInterval.findMany({
         where: {
@@ -153,6 +184,12 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
       membersByCompany.set(member.companyId, list);
     }
     const companyNames = new Map(companies.map((company) => [company.id, company.name]));
+    const subscriptions = new Map(
+      companies.map((company) => [
+        company.id,
+        company.subscription ? workspaceSubscription(company.subscription) : null,
+      ]),
+    );
     const seatCounts = new Map(activeSeats.map((row) => [row.companyId, row._count._all]));
     const channelCounts = new Map(connectedChannels.map((row) => [row.companyId, row._count._all]));
     const deletedLabels = new Map<string, string>();
@@ -181,6 +218,7 @@ export class PrismaOperatorBillingUsageRepo extends TenantRepository implements 
         channelsRecordedFrom: workspace.channelsRecordedFrom,
         activeSeats: seatCounts.get(workspace.companyId) ?? 0,
         connectedChannels: channelCounts.get(workspace.companyId) ?? 0,
+        subscription: workspace.deletedAt === null ? (subscriptions.get(workspace.companyId) ?? null) : null,
       })),
       intervals: [...intervals, ...firstSeats.filter((row) => !intervalIds.has(row.id))],
       recordingStartedAt: recording._min.seatsRecordedFrom,

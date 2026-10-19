@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
+
 export const BILLING_USAGE_MONTH_PATTERN = /^20\d{2}-(0[1-9]|1[0-2])$/;
 
 export const BillingUsageMonthSchema = z.string().regex(BILLING_USAGE_MONTH_PATTERN);
@@ -43,6 +45,20 @@ export const BillingUsageChannelDtoSchema = z.object({
 });
 export type BillingUsageChannelDto = z.infer<typeof BillingUsageChannelDtoSchema>;
 
+export const BILLING_SOURCES = ["lemonSqueezy", "manual"] as const;
+export type BillingSource = (typeof BILLING_SOURCES)[number];
+
+export const WorkspaceSubscriptionDtoSchema = z.object({
+  plan: z.enum(SubscriptionPlan),
+  status: z.enum(SubscriptionStatus),
+  billing: z.enum(BILLING_SOURCES),
+  quantity: z.number().int().nullable(),
+  trialEndDate: z.date().nullable(),
+  currentPeriodEnd: z.date().nullable(),
+  enterpriseAgentCreditsPerUser: z.number().int().nullable(),
+});
+export type WorkspaceSubscriptionDto = z.infer<typeof WorkspaceSubscriptionDtoSchema>;
+
 export const WorkspaceBillingUsageDtoSchema = z.object({
   companyId: z.string(),
   workspaceLabel: z.string(),
@@ -63,6 +79,7 @@ export const WorkspaceBillingUsageDtoSchema = z.object({
     activeSeats: z.number().int().min(0),
     connectedChannels: z.number().int().min(0),
   }),
+  subscription: WorkspaceSubscriptionDtoSchema.nullable(),
 });
 export type WorkspaceBillingUsageDto = z.infer<typeof WorkspaceBillingUsageDtoSchema>;
 
@@ -72,6 +89,19 @@ export const OperatorBillingUsageDtoSchema = z.object({
   to: z.date(),
   monthComplete: z.boolean(),
   recordingStartedAt: z.date().nullable(),
+  subscriptions: z.object({
+    workspaces: z.number().int().min(0),
+    paying: z.number().int().min(0),
+    groups: z.array(
+      z.object({
+        billing: z.enum(BILLING_SOURCES),
+        plan: z.enum(SubscriptionPlan),
+        status: z.enum(SubscriptionStatus),
+        workspaces: z.number().int().min(0),
+        activeSeats: z.number().int().min(0),
+      }),
+    ),
+  }),
   workspaces: z.array(WorkspaceBillingUsageDtoSchema),
 });
 export type OperatorBillingUsageDto = z.infer<typeof OperatorBillingUsageDtoSchema>;

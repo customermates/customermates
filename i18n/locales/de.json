@@ -3145,6 +3145,10 @@
     }
   },
   "OperatorUsage": {
+    "billing": {
+      "lemonSqueezy": "Abrechnung über Lemon Squeezy",
+      "manual": "Manuelle Abrechnung"
+    },
     "channels": {
       "none": "In diesem Monat war kein Kanal verbunden.",
       "peak": "{count} am {date}",
@@ -3185,6 +3189,9 @@
     },
     "stillActive": "Noch aktiv",
     "stillConnected": "Noch verbunden",
+    "subscriptions": {
+      "summary": "{paying} von {total} Workspaces mit Abo zahlen derzeit: {lemonSqueezy} über Lemon Squeezy, {manual} mit manueller Abrechnung. Tarif und Abo zeigen den heutigen Stand."
+    },
     "title": "Abrechnungsrelevante Nutzung"
   },
   "OperatorUsers": {

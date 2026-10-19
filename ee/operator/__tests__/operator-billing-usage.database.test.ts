@@ -106,10 +106,23 @@ describeDatabase("operator billing usage read model", { timeout: 120_000 }, () =
       roleName: "Member",
     });
     expect(usage.current).toEqual({ activeSeats: 0, connectedChannels: 0 });
+    expect(usage.subscription).toBeNull();
   });
 
-  it("reads live workspaces with their current seats and channels", async () => {
+  it("reads live workspaces with their current seats, channels and subscription", async () => {
     const { companyId, userId } = await workspace();
+    await runWithoutTenant(() =>
+      prisma.subscription.create({
+        data: {
+          companyId,
+          status: "active",
+          plan: "business",
+          lemonSqueezyId: `ls-${randomUUID()}`,
+          quantity: 4,
+          currentPeriodEnd: new Date("2026-11-01T00:00:00.000Z"),
+        },
+      }),
+    );
     await runWithoutTenant(() =>
       new PrismaConnectedAccountRepo(
         new PermissionService(),
@@ -133,6 +146,15 @@ describeDatabase("operator billing usage read model", { timeout: 120_000 }, () =
       deletedAt: null,
       activeSeats: 1,
       connectedChannels: 1,
+      subscription: {
+        plan: "business",
+        status: "active",
+        billing: "lemonSqueezy",
+        quantity: 4,
+        trialEndDate: null,
+        currentPeriodEnd: new Date("2026-11-01T00:00:00.000Z"),
+        enterpriseAgentCreditsPerUser: null,
+      },
     });
   });
 });

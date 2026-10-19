@@ -16,6 +16,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { AGENT_ACTIVITY_COPY_KINDS, AGENT_APPROVAL_COPY_KINDS } from "@/ee/agent-chat/agent-activity";
 import { ACCOUNT_REMOVAL_REASONS } from "@/ee/messaging/connect/account-removal-reason";
 import { SignatureTemplate } from "@/ee/messaging/email-settings";
+import { BILLING_SOURCES } from "@/ee/operator/billing-usage.schema";
 import { OPERATOR_AUDIT_ACTION } from "@/ee/operator/operator.schema";
 import { ROUTINE_RUN_REASONS } from "@/ee/routines/routine-run-outcome";
 import { ROUTINE_SCHEDULE_PRESETS } from "@/ee/routines/routine-schedule-preset";
@@ -317,6 +318,7 @@ const SIGNATURE_TEMPLATE_KEYS = Object.values(SignatureTemplate).map(
 );
 const SUBSCRIPTION_PLAN_KEYS = Object.values(SubscriptionPlan).map((plan) => `Subscription.planNames.${plan}`);
 const SUBSCRIPTION_STATUS_KEYS = Object.values(SubscriptionStatus).map((status) => `Subscription.status.${status}`);
+const BILLING_SOURCE_KEYS = BILLING_SOURCES.map((billing) => `OperatorUsage.billing.${billing}`);
 const SELECTABLE_SUBSCRIPTION_PLANS = Object.values(SubscriptionPlan).filter(
   (plan) => plan !== SubscriptionPlan.enterprise,
 );
@@ -602,6 +604,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["Subscription.picker.features.${*}", SUBSCRIPTION_FEATURE_KEYS],
   ["Subscription.planNames.${*}", SUBSCRIPTION_PLAN_KEYS],
   ["Subscription.status.${*}", SUBSCRIPTION_STATUS_KEYS],
+  ["OperatorUsage.billing.${*}", BILLING_SOURCE_KEYS],
   ["WebhookDeliveryModal.deliveryStatus.${*}", WEBHOOK_DELIVERY_STATUS_KEYS],
   ["documents.${*}", LEGAL_DOCUMENT_KEYS],
   ["AgentChat.activity.resource.${*}", AGENT_ACTIVITY_RESOURCE_KEYS],
@@ -708,6 +711,9 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/operator/components/users/use-operator-user-columns.tsx :: t :: Common.userStatuses.${row.original.status}",
   "app/[locale]/(protected)/operator/components/users/use-operator-user-columns.tsx :: t :: Subscription.planNames.${row.original.plan}",
   "app/[locale]/(protected)/operator/components/users/use-operator-user-columns.tsx :: t :: Subscription.status.${row.original.subscriptionStatus}",
+  "app/[locale]/(protected)/operator/components/usage/operator-usage-page-view.tsx :: t :: OperatorUsage.billing.${workspace.subscription.billing}",
+  "app/[locale]/(protected)/operator/components/usage/operator-usage-page-view.tsx :: t :: Subscription.planNames.${workspace.subscription.plan}",
+  "app/[locale]/(protected)/operator/components/usage/operator-usage-page-view.tsx :: t :: Subscription.status.${workspace.subscription.status}",
   "app/[locale]/(protected)/operator/components/usage/operator-workspace-usage-section.tsx :: t :: Common.providers.${channel.provider}",
   "app/[locale]/(protected)/operator/components/workspaces/operator-workspace-modal.tsx :: t :: Subscription.planNames.${workspace.plan}",
   "app/[locale]/(protected)/operator/components/workspaces/use-operator-workspace-columns.tsx :: t :: Subscription.planNames.${row.original.plan}",

@@ -6,10 +6,13 @@ import {
   billingUsageWindow,
   lastFullBillingUsageMonth,
   peakChannels,
+  subscriptionSummary,
   workspaceBillingUsage,
   type BillingUsageIntervalRow,
   type BillingUsageWorkspaceRow,
 } from "../billing-usage";
+import type { WorkspaceSubscriptionDto } from "../billing-usage.schema";
+
 import { billingUsageSummaryCsv } from "../billing-usage-csv";
 
 const SEPTEMBER = billingUsageWindow("2026-09");
@@ -64,6 +67,19 @@ function channel(
   } satisfies BillingUsageIntervalRow;
 }
 
+function subscription(extra: Partial<WorkspaceSubscriptionDto> = {}): WorkspaceSubscriptionDto {
+  return {
+    plan: "pro",
+    status: "active",
+    billing: "lemonSqueezy",
+    quantity: null,
+    trialEndDate: null,
+    currentPeriodEnd: null,
+    enterpriseAgentCreditsPerUser: null,
+    ...extra,
+  };
+}
+
 function workspace(extra: Partial<BillingUsageWorkspaceRow> = {}): BillingUsageWorkspaceRow {
   return {
     companyId: "00000000-0000-4000-8000-000000000010",
@@ -74,6 +90,7 @@ function workspace(extra: Partial<BillingUsageWorkspaceRow> = {}): BillingUsageW
     channelsRecordedFrom: null,
     activeSeats: 3,
     connectedChannels: 2,
+    subscription: null,
     ...extra,
   };
 }
@@ -215,6 +232,7 @@ describe("workspace billing usage", () => {
       seats: { count: 1 },
       channels: { peak: 1 },
       current: { activeSeats: 0, connectedChannels: 0 },
+      subscription: null,
     });
     expect(usage.seats.users).toBeUndefined();
   });
@@ -282,9 +300,13 @@ describe("workspace billing usage", () => {
       to: SEPTEMBER.to,
       monthComplete: true,
       recordingStartedAt: null,
+      subscriptions: { workspaces: 1, paying: 1, groups: [] },
       workspaces: [
         workspaceBillingUsage({
-          workspace: workspace({ workspaceLabel: "=cmd" }),
+          workspace: workspace({
+            workspaceLabel: "=cmd",
+            subscription: subscription({ quantity: 3, currentPeriodEnd: at("2026-10-12T00:00:00.000Z") }),
+          }),
           intervals: [seat("ada", "2026-05-01T00:00:00.000Z"), channel("a", "2026-09-03T00:00:00.000Z")],
           window: SEPTEMBER,
           includeDetails: false,
@@ -293,9 +315,37 @@ describe("workspace billing usage", () => {
     });
 
     expect(csv.split("\n")).toEqual([
-      "month,workspace_id,workspace,workspace_deleted_at,seats,seats_complete,peak_channels,peak_channels_at,channels_complete,active_seats_now,connected_channels_now,recording_started_at",
-      "2026-09,00000000-0000-4000-8000-000000000010,'=cmd,,1,true,1,2026-09-03T00:00:00.000Z,true,3,2,",
+      "month,workspace_id,workspace,workspace_deleted_at,seats,seats_complete,peak_channels,peak_channels_at,channels_complete,active_seats_now,connected_channels_now,recording_started_at,plan,subscription_status,billing,subscription_quantity,current_period_end",
+      "2026-09,00000000-0000-4000-8000-000000000010,'=cmd,,1,true,1,2026-09-03T00:00:00.000Z,true,3,2,,pro,active,lemonSqueezy,3,2026-10-12T00:00:00.000Z",
       "",
     ]);
+  });
+});
+
+describe("subscription summary", () => {
+  it("counts active subscriptions as paying and groups workspaces by billing, plan and status", () => {
+    const usage = (extra: Partial<BillingUsageWorkspaceRow>) =>
+      workspaceBillingUsage({ workspace: workspace(extra), intervals: [], window: SEPTEMBER, includeDetails: false });
+
+    const summary = subscriptionSummary([
+      usage({ companyId: "a", activeSeats: 4, subscription: subscription() }),
+      usage({ companyId: "b", activeSeats: 2, subscription: subscription() }),
+      usage({ companyId: "c", activeSeats: 9, subscription: subscription({ plan: "enterprise", billing: "manual" }) }),
+      usage({ companyId: "d", activeSeats: 1, subscription: subscription({ status: "trial", billing: "manual" }) }),
+      usage({ companyId: "e", activeSeats: 1, subscription: subscription({ status: "pastDue" }) }),
+      usage({ companyId: "f", subscription: null }),
+      usage({ companyId: "g", deletedAt: at("2026-09-10T00:00:00.000Z"), subscription: subscription() }),
+    ]);
+
+    expect(summary).toEqual({
+      workspaces: 5,
+      paying: 3,
+      groups: [
+        { billing: "lemonSqueezy", plan: "pro", status: "active", workspaces: 2, activeSeats: 6 },
+        { billing: "lemonSqueezy", plan: "pro", status: "pastDue", workspaces: 1, activeSeats: 1 },
+        { billing: "manual", plan: "enterprise", status: "active", workspaces: 1, activeSeats: 9 },
+        { billing: "manual", plan: "pro", status: "trial", workspaces: 1, activeSeats: 1 },
+      ],
+    });
   });
 });
