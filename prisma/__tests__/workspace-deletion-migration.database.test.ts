@@ -55,7 +55,7 @@ describeDatabase("workspace deletion migration", { timeout: 180_000 }, () => {
     await withTemporaryDatabase(requiredDatabaseUrl(), async (client) => {
       const names = migrationNames();
       const cutoff = names.indexOf(WORKSPACE_DELETION_MIGRATION);
-      expect(cutoff).toBe(names.length - 1);
+      expect(cutoff).toBeGreaterThan(0);
       await applyMigrations(client, names.slice(0, cutoff));
 
       const logins = {
@@ -115,7 +115,7 @@ describeDatabase("workspace deletion migration", { timeout: 180_000 }, () => {
         [sessionId, randomUUID(), logins.member, new Date("2027-01-01T00:00:00.000Z"), companies.legacy],
       );
 
-      await applyMigrations(client, [WORKSPACE_DELETION_MIGRATION]);
+      await applyMigrations(client, names.slice(cutoff));
 
       const consumed = await client.query<{ id: string; trialConsumedAt: Date | null }>(
         'SELECT "id", "trialConsumedAt" FROM "AuthUser" WHERE "id" = ANY($1)',
