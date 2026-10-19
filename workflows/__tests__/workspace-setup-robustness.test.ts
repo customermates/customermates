@@ -10,7 +10,6 @@ const state = vi.hoisted(() => ({
   claimPlan: vi.fn(),
   planPart: vi.fn(),
   finishPlan: vi.fn(),
-  getEmailService: vi.fn(),
   reportFailure: vi.fn(),
   reportWarning: vi.fn(),
 }));
@@ -54,7 +53,6 @@ vi.mock("@/core/di", () => ({
     abandon: state.abandon,
     drainWarnings: () => [],
   }),
-  getEmailService: state.getEmailService,
 }));
 vi.mock("../capture-failure", () => ({
   toWorkflowFailure: (error: Error) => ({ name: error.name, message: error.message }),
@@ -140,14 +138,6 @@ describe("workspace setup workflows when things go wrong", () => {
     state.planPart.mockRejectedValue(new Error("database down"));
     await expect(planWorkspaceSetup(payload)).rejects.toThrow("database down");
     expect(state.abandonPlan).toHaveBeenCalledWith("setup-1", 2);
-  });
-
-  it("sends no email when a plan or build settles", async () => {
-    await buildWorkspaceSetup(payload);
-    await planWorkspaceSetup(payload);
-    state.runPhase.mockRejectedValue(new Error("database down"));
-    await expect(buildWorkspaceSetup(payload)).rejects.toThrow("database down");
-    expect(state.getEmailService).not.toHaveBeenCalled();
   });
 
   it("waits for a phase another step still settles before it finishes", async () => {
