@@ -17,10 +17,33 @@ function fakeEmitter() {
 function fakeBrowser() {
   const contextEvents = fakeEmitter();
   const pageEvents = fakeEmitter();
-  const mainFrame = { page: () => page };
-  const page = { on: pageEvents.on, context: () => context, mainFrame: () => mainFrame } as unknown as Page;
+  const state = { closed: false, detached: false };
+  const mainFrame = { page: () => page, isDetached: () => state.detached };
+  const page = {
+    on: pageEvents.on,
+    context: () => context,
+    mainFrame: () => mainFrame,
+    isClosed: () => state.closed,
+  } as unknown as Page;
   const context = { on: contextEvents.on, pages: () => [page] } as unknown as BrowserContext;
+  const request = (url: string, isDocument = false) => ({
+    url: () => url,
+    isNavigationRequest: () => isDocument,
+    redirectedFrom: () => null,
+    frame: () => mainFrame,
+    failure: () => ({ errorText: "net::ERR_ABORTED" }),
+    resourceType: () => (isDocument ? "document" : "fetch"),
+  });
+  const respond = (sent: ReturnType<typeof request>, status: number, statusText = "") =>
+    contextEvents.emit("response", {
+      url: sent.url,
+      status: () => status,
+      statusText: () => statusText,
+      frame: () => mainFrame,
+      request: () => sent,
+    });
   return {
+    state,
     context,
     page,
     console: (text: string, source = "") =>
@@ -56,14 +79,20 @@ function fakeBrowser() {
     requested: (url: string) =>
       contextEvents.emit("request", { url: () => url, isNavigationRequest: () => false, frame: () => mainFrame }),
     loaded: () => pageEvents.emit("domcontentloaded"),
-    response: (url: string, status: number, statusText = "", isDocument = false) =>
-      contextEvents.emit("response", {
-        url: () => url,
-        status: () => status,
-        statusText: () => statusText,
-        frame: () => mainFrame,
-        request: () => ({ isNavigationRequest: () => isDocument }),
-      }),
+    response: (url: string, status: number, statusText = "", isDocument = false) => {
+      const sent = request(url, isDocument);
+      respond(sent, status, statusText);
+      contextEvents.emit("requestfinished", sent);
+    },
+    /** A request the page sends, answered with `respond` and completed with `finish` or `fail`. */
+    send: (url: string, isDocument = false) => {
+      const sent = request(url, isDocument);
+      contextEvents.emit("request", sent);
+      return sent;
+    },
+    respond,
+    finish: (sent: ReturnType<typeof request>) => contextEvents.emit("requestfinished", sent),
+    fail: (sent: ReturnType<typeof request>) => contextEvents.emit("requestfailed", sent),
   };
 }
 
@@ -100,6 +129,95 @@ describe("browser diagnostics", () => {
       ["Failed to load resource: the server responded with a status of 422", `${BASE}/api/v1/records/mutate`, false],
       ["Failed to load resource: net::ERR_FAILED", `${BASE}/api/v1/records/query`, undefined],
     ]);
+  });
+
+  it("ignores an HTTP error of a request aborted or of a page that navigated away, closed or lost its frame", () => {
+    const browser = fakeBrowser();
+    const diagnostics = new BrowserDiagnostics().watch(browser.context);
+    const aborted = browser.send(`${BASE}/api/v1/records/aborted`);
+    browser.respond(aborted, 500);
+    expect(diagnostics.unexpected).toEqual([]);
+    browser.fail(aborted);
+    browser.finish(aborted);
+
+    const stale = browser.send(`${BASE}/api/v1/records/stale`);
+    const document = browser.send(`${BASE}/en/records/unknown`, true);
+    browser.respond(stale, 500);
+    browser.respond(document, 404, "Not Found");
+    browser.finish(stale);
+    browser.finish(document);
+
+    const current = browser.send(`${BASE}/api/v1/records/current`);
+    browser.respond(current, 500);
+    browser.finish(current);
+    // Chromium can report a request as finished or failed before its response.
+    const early = browser.send(`${BASE}/api/v1/records/early`);
+    browser.finish(early);
+    browser.respond(early, 500);
+    const earlyAborted = browser.send(`${BASE}/api/v1/records/early-aborted`);
+    browser.fail(earlyAborted);
+    browser.respond(earlyAborted, 500);
+
+    browser.state.detached = true;
+    browser.response(`${BASE}/api/v1/records/detached`, 500);
+    browser.state.detached = false;
+    browser.state.closed = true;
+    browser.response(`${BASE}/api/v1/records/closed`, 500);
+    expect(diagnostics.unexpected.map(({ source }) => source)).toEqual([
+      `${BASE}/en/records/unknown`,
+      `${BASE}/api/v1/records/current`,
+      `${BASE}/api/v1/records/early`,
+    ]);
+  });
+
+  it("counts an HTTP error once the browser logs it, the request finishes or a grace period passes", () => {
+    vi.useFakeTimers();
+    try {
+      const browser = fakeBrowser();
+      const diagnostics = new BrowserDiagnostics().watch(browser.context);
+      // Chromium logs a missing script as the response arrives and then reports the request as failed.
+      const script = browser.send(`${BASE}/_next/static/chunks/missing.js`);
+      browser.respond(script, 404, "Not Found");
+      browser.console(NOT_FOUND, `${BASE}/_next/static/chunks/missing.js`);
+      browser.fail(script);
+      // A fetch whose body the page never reads may neither finish nor fail.
+      const unread = browser.send(`${BASE}/api/v1/records/unread`);
+      browser.respond(unread, 500);
+      expect(diagnostics.unexpected.map(({ source }) => source)).toEqual([`${BASE}/_next/static/chunks/missing.js`]);
+      vi.advanceTimersByTime(2000);
+      browser.finish(unread);
+      expect(diagnostics.unexpected.map(({ source }) => source)).toEqual([
+        `${BASE}/_next/static/chunks/missing.js`,
+        `${BASE}/api/v1/records/unread`,
+      ]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("reports a console copy only for a failure without a response, each failure once in either order", async () => {
+    const browser = fakeBrowser();
+    const diagnostics = new BrowserDiagnostics().watch(browser.context);
+    const view = diagnostics.view(browser.page);
+    const report = (status: string) => `Failed to load resource: the server responded with a status of ${status}`;
+    browser.console(report("503 (Service Unavailable)"), `${BASE}/api/v1/records/no-response`);
+    browser.response(`${BASE}/api/v1/records/after`, 500);
+    browser.console(report("500 (Internal Server Error)"), `${BASE}/api/v1/records/after`);
+    browser.console(report("404 (Not Found)"), `${BASE}/en/records/before`);
+    expect(view).toHaveLength(3);
+    browser.response(`${BASE}/en/records/before`, 404, "Not Found", true);
+    browser.console(report("500 (Internal Server Error)"), `${BASE}/api/v1/records/after`);
+    const pending = browser.send(`${BASE}/api/v1/records/pending`);
+    browser.respond(pending, 502);
+    await expect(diagnostics.verify(fakeTestInfo("failed"))).resolves.toBeUndefined();
+    expect(diagnostics.unexpected.map(({ text, source, document }) => [text, source, document])).toEqual([
+      [report("503 (Service Unavailable)"), `${BASE}/api/v1/records/no-response`, undefined],
+      [report("500"), `${BASE}/api/v1/records/after`, false],
+      [report("404 (Not Found)"), `${BASE}/en/records/before`, true],
+      [report("500 (Internal Server Error)"), `${BASE}/api/v1/records/after`, undefined],
+      [report("502"), `${BASE}/api/v1/records/pending`, false],
+    ]);
+    expect(view).toEqual(diagnostics.unexpected.map(({ text }) => text));
   });
 
   it("drops only failed loads of other origins, which the sign-in sandbox blocks", () => {
