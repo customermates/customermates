@@ -129,6 +129,7 @@ describeDatabase("trashed relationship targets", () => {
       relationships: [{ ...step, operator, recordIds }],
     });
     expect(await matching(relationship("any", [trashedOrganization]))).toEqual([]);
+    expect(await matching(relationship("any", [liveOrganization, trashedOrganization]))).toEqual([linkedDeal]);
     expect(await matching(relationship("any", null))).toEqual([linkedDeal]);
     expect(await matching(relationship("none", null))).toEqual([trashOnlyDeal]);
     expect(await matching(relationship("none", [trashedOrganization]))).toEqual([linkedDeal, trashOnlyDeal].sort());
@@ -193,4 +194,79 @@ describeDatabase("trashed relationship targets", () => {
     expect(grouped.some((row) => row.groupState === "restricted")).toBe(false);
     expect(grouped.find((row) => row.groupRecordId === liveOrganization)?.count).toBe(1);
   });
+
+  it("reads the records linked to chosen targets from those targets before planner statistics count them", async () => {
+    const seed = await runWithoutTenant(async () => {
+      const company = await prisma.company.create({ data: {} });
+      companies.push(company.id);
+      const role = await prisma.userRole.create({
+        data: { companyId: company.id, name: "Administrator", isSystemRole: true },
+      });
+      const user = await prisma.user.create({
+        data: {
+          companyId: company.id,
+          roleId: role.id,
+          firstName: "Admin",
+          lastName: "Test",
+          email: `${randomUUID()}@example.test`,
+          status: "active",
+        },
+      });
+      return { company, role, user };
+    });
+    const companyId = seed.company.id;
+    const admin = createMockUser({ ...seed.user, role: { ...seed.role, permissions: [] } });
+    const repo = createTestRecordRepo();
+    const model = createCrmPreset(companyId);
+    await runWithTenant(admin, () => runInTransaction(() => repo.saveModel(model, admin.id), { timeout: 30000 }));
+    const id = (key: string) => presetId(companyId, key);
+    const service = randomUUID();
+    const linked = Array.from({ length: 600 }, () => randomUUID());
+    const items = [...linked, ...Array.from({ length: 10000 }, () => randomUUID())];
+    await runWithoutTenant(async () => {
+      await prisma.crmRecord.createMany({
+        data: [
+          { companyId, typeId: id("service"), id: service },
+          ...items.map((item) => ({ companyId, typeId: id("lineItem"), id: item })),
+        ],
+      });
+      await prisma.recordLink.createMany({
+        data: linked.map((item) => ({
+          companyId,
+          id: randomUUID(),
+          relationId: id("lineItem.service"),
+          sourceTypeId: id("lineItem"),
+          sourceId: item,
+          targetTypeId: id("service"),
+          targetId: service,
+        })),
+      });
+    });
+    const actor = { id: seed.user.id, status: seed.user.status, role: { ...seed.role, permissions: [] } };
+    const grants = await runWithTenant(admin, () => repo.getGrants());
+    const policy = recordAccessForActor({ actor, grants, model, records: repo, companyId, userId: seed.user.id });
+    const sql = compileRecordQuery(
+      companyId,
+      RecordQuerySchema.parse({
+        typeId: id("lineItem"),
+        pageSize: 25,
+        relationships: [
+          { relationId: id("lineItem.service"), direction: "outgoing", operator: "any", recordIds: [service] },
+        ],
+      }),
+      model,
+      policy.access(model.types.map((type) => type.id)),
+    );
+    const [, ids, , count] = await runWithoutTenant(() =>
+      prisma.$transaction([
+        prisma.$executeRawUnsafe("SET LOCAL statement_timeout = 2000"),
+        prisma.$queryRaw<Array<{ id: string }>>(sql.ids),
+        prisma.$executeRawUnsafe("SET LOCAL statement_timeout = 2000"),
+        prisma.$queryRaw<Array<{ count: number }>>(sql.count),
+      ]),
+    );
+    expect(ids).toHaveLength(25);
+    expect(ids.every((row) => new Set<string>(linked).has(row.id))).toBe(true);
+    expect(count).toEqual([{ count: 600 }]);
+  }, 120_000);
 });
