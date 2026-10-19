@@ -146,8 +146,7 @@ function MultipleChoiceField({ descriptor, value, onChange, disabled }: FieldPro
   );
 }
 
-let orderedRowKey = 0;
-const nextOrderedRowKey = () => `row-${(orderedRowKey += 1)}`;
+const nextOrderedRowKey = () => crypto.randomUUID();
 
 type OrderedItem = Extract<SetupAnswerValue, { format: "orderedList" }>["items"][number];
 
