@@ -1,4 +1,5 @@
 import { unwindFailure } from "@/core/validation/failure-unwind";
+import { parseStoredRecordModel } from "./stored-record-model";
 import { channelClass } from "@/ee/messaging/provider";
 import { RecordRevisionChangeSchema, type RecordRevisionChange } from "./record-revision.schema";
 import { recordAccessForActor } from "./record-access";
@@ -601,7 +602,7 @@ export class PrismaRecordRepo
         },
       },
     });
-    return RecordModelSchema.parse(recordInvariant(revision).snapshot);
+    return parseStoredRecordModel(recordInvariant(revision).snapshot);
   }
 
   async getDetailLayoutsCompanyWide(typeIds: string[], afterId?: string) {

@@ -1,4 +1,5 @@
 import type { PermissionService } from "@/core/base/permission.service";
+import { parseStoredRecordModel } from "@/features/records/stored-record-model";
 import { recordReadPredicate } from "@/features/records/record-query";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { Action, Prisma, Resource } from "@/generated/prisma";
@@ -19,7 +20,6 @@ import { canViewAccountMessages, limitMessageFolderIds, redactMessageBcc } from 
 import type { RecordRef } from "@/features/records/record-model.schema";
 import { WIKI_PAGE_AUDIT_EVENTS } from "@/features/wiki/wiki-audit-events";
 import { RecordRevisionChangeSchema } from "@/features/records/record-revision.schema";
-import { RecordModelSchema } from "@/features/records/record-model.schema";
 
 export class PrismaRecordActivitiesRepo extends TenantRepository implements RecordActivitiesRepo {
   constructor(private readonly permissions: PermissionService) {
@@ -83,7 +83,7 @@ export class PrismaRecordActivitiesRepo extends TenantRepository implements Reco
           select: { revision: true, createdAt: true, actorId: true, change: true, snapshot: true },
         })
       : [];
-    const snapshots = new Map(rows.map((row) => [row.revision, RecordModelSchema.parse(row.snapshot)]));
+    const snapshots = new Map(rows.map((row) => [row.revision, parseStoredRecordModel(row.snapshot)]));
     const parsed = rows.flatMap((row) => {
       if (!requested.includes(row.revision)) return [];
       const result = RecordRevisionChangeSchema.safeParse(row.change);

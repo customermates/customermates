@@ -322,8 +322,8 @@ DROP FUNCTION pg_temp.money_preset_id(text, text);
 -- 'membershipAuthorization', "systemData" {"relatedUserId"}) in the list a 'membershipAuthorization' capability of the
 -- record model named, and that capability made the list undeletable. Members waiting for approval are listed and
 -- approved in Settings > Members, so neither the tasks nor the capability exist any more: the members themselves are
--- untouched, every protected task is removed as the engine removes a record for good, the capability leaves every
--- stored record model and the "protectedKind" column is dropped.
+-- untouched, every protected task is removed as the engine removes a record for good and the capability leaves every
+-- stored record model. The "protectedKind" column stays, unused, for a later migration to drop.
 --
 -- Stored models are edited in place, without a new configuration revision: the capability changes no list, field,
 -- relationship or value, so record values keep their schema revision and clients holding the revision stay valid.
@@ -331,7 +331,8 @@ DROP FUNCTION pg_temp.money_preset_id(text, text);
 -- until their next recalculation. No record events are written, as in parts 1 to 3.
 --
 -- It runs after part 3 under its 5-second lock_timeout. The tables it changes are locked against writes first, so no
--- protected task or model with the capability can be written while it runs.
+-- protected task or model with the capability can be written while it runs. The previous deployment keeps working on
+-- the result: without the capability it creates no task, and its other uses of the capability only iterate over it.
 -- ---------------------------------------------------------------------------------------------
 
 LOCK TABLE "CrmRecord", "RecordSchemaRevision", "RecordOperation", "RecordStageRow" IN SHARE ROW EXCLUSIVE MODE;
@@ -425,5 +426,5 @@ WHERE stale."companyId" = orphan.company_id AND stale.id = orphan.identity_id
 DROP FUNCTION pg_temp.without_membership_operations(jsonb, text[]);
 DROP FUNCTION pg_temp.without_membership_capability(jsonb);
 
--- AlterTable
-ALTER TABLE "CrmRecord" DROP COLUMN "protectedKind";
+-- "protectedKind" stays until a later migration drops it: the deployment still serving while this one builds selects
+-- the column on every record read. The application no longer reads or writes it.

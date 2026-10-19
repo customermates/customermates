@@ -36,15 +36,19 @@ impossible to delete. Pending members are listed and approved in Settings > Memb
 - The capability leaves every stored record model: each revision snapshot, the configuration operations recorded in
   revision changes, and the requests, staged schemas and staged models of record operations. The models are edited in
   place, without a new revision: the capability changes no list, field, relationship or value.
-- The `"protectedKind"` column of `"CrmRecord"` is dropped. `"systemData"` stays; the record scale tools use it.
+- The `"protectedKind"` column of `"CrmRecord"` stays in the database, marked `@ignore` in `schema.prisma`: the
+  application neither reads nor writes it. The deployment that still serves while this one builds selects the column
+  on every record read, so dropping it here would fail those reads for minutes. A later migration drops it, after
+  deleting any protected task that deployment created in the meantime. `"systemData"` stays; the record scale tools
+  use it.
 
 A record whose calculation read a removed task, which needs a user to have linked one, keeps its stored value until
 its next recalculation. Part 4 writes no record events.
 
-Part 4 locks `CrmRecord`, `RecordSchemaRevision`, `RecordOperation` and `RecordStageRow` against writes and finally
-drops the column, which takes an exclusive lock on `CrmRecord`; both wait at most the 5 seconds of part 3's
-`lock_timeout`. The previous deployment still selects the dropped column, so its record reads fail from the moment the
-migration commits until the new deployment serves; deploy when a short interruption is acceptable.
+Part 4 locks `CrmRecord`, `RecordSchemaRevision`, `RecordOperation` and `RecordStageRow` against writes; the locks
+wait at most the 5 seconds of part 3's `lock_timeout`. The previous deployment keeps serving on the result: without
+the capability it creates no task, and its other uses of the capability only iterate over it. A model it writes in
+that window with the capability (only a workspace setup it builds does) is read without it by this release.
 
 ## Recovery
 

@@ -190,7 +190,8 @@ describeDatabase("membership task removal migration", { timeout: 240000 }, () =>
         client,
         `SELECT column_name FROM information_schema.columns WHERE table_name = 'CrmRecord' AND column_name = 'protectedKind'`,
       ),
-    ).toEqual([]);
+    ).toEqual([{ column_name: "protectedKind" }]);
+    expect(await count(client, '"CrmRecord" WHERE "protectedKind" IS NOT NULL')).toBe(0);
 
     const revisions = await rows<{
       revision: number;

@@ -1,5 +1,6 @@
 import { recordInvariant } from "./record-invariant";
 
+import { parseStoredRecordModel } from "./stored-record-model";
 import { randomUUID } from "node:crypto";
 
 import { z } from "zod";
@@ -8,7 +9,7 @@ import type { Prisma, RecordValue } from "@/generated/prisma";
 import type { RecordRepo, StoredRecord } from "./record.repo";
 import type { RecordRef } from "./record-model.schema";
 
-import { RecordModelSchema, RecordRefSchema, CalculatedValueSchema } from "./record-model.schema";
+import { RecordRefSchema, CalculatedValueSchema } from "./record-model.schema";
 import { encodeRecordValue } from "./record-storage";
 import { recordKey } from "./record-calculation.service";
 import { RecordIdentitySchema } from "./record-identity.schema";
@@ -65,7 +66,7 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
     });
   overrides.getModel = async () => {
     const schema = await base.getStageRow(operationId, "schema", "model");
-    return schema ? RecordModelSchema.parse(schema) : base.getModel();
+    return schema ? parseStoredRecordModel(schema) : base.getModel();
   };
   let fieldIdsByType: Promise<Map<string, string[]>> | null = null;
   const fieldKeys = async (refs: RecordRef[]) => {
