@@ -1231,7 +1231,7 @@
       "serviceBusy": "L'area di lavoro è occupata da un'altra modifica, ad esempio un'importazione. Riprova tra un momento.",
       "socialActionRequiresSocialAccount": "Questa azione richiede un account LinkedIn o Instagram collegato, ma questo account è {provider}.",
       "socialPostsRequireSocialAccount": "I post social richiedono un account LinkedIn o Instagram collegato, ma questo account è {provider}.",
-      "storageQuotaExceeded": "Il tuo workspace usa {used} di {limit} di spazio per i file. Rimuovi dei file o passa a un piano superiore per caricarne altri.",
+      "storageQuotaExceeded": "Il tuo spazio di lavoro usa {used} di {limit} di archiviazione per i file. Rimuovi dei file o passa a un piano superiore per caricarne altri.",
       "subjectRequired": "Aggiungi un oggetto.",
       "termsNotAgreed": "Devi accettare i termini e le condizioni.",
       "threadNotFound": "ID conversazione non trovato o non accessibile.",
