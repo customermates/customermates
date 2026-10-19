@@ -32,7 +32,7 @@ function pageFocusTargetId(route: string, focus: string): string | null {
   return target?.id ?? null;
 }
 
-export function appLinkForPlace(place: string, focus: string | null): ParsedAppLink | null {
+function appLinkForPlace(place: string, focus: string | null): ParsedAppLink | null {
   const route = `/${place}`;
   if (!PAGE_ROUTES.has(route)) return null;
   if (focus !== null && !pageFocusTargetId(route, focus)) return null;

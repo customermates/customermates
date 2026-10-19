@@ -15,7 +15,7 @@ export type ApprovalResponder = (
   decision: "approve" | "reject",
 ) => Promise<void>;
 
-export type TurnResult = {
+type TurnResult = {
   observation: TurnObservation;
   timing: SseTiming;
   totalMs: number;

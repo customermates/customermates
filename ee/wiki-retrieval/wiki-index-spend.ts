@@ -9,7 +9,7 @@ import { AGENT_CREDIT_MICROCENTS } from "@/core/commercial/agent-credits";
 
 export const WIKI_REINDEX_CAP_CREDITS = 100;
 
-export type WikiIndexSpend = {
+type WikiIndexSpend = {
   settle: (charge: AgentRetrievalCharge | null, payer?: AgentRetrievalPayer) => Promise<void>;
 };
 

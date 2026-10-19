@@ -169,4 +169,4 @@ function focusCalendarDay(event: Event) {
   content?.querySelector<HTMLElement>('[role="grid"] button[tabindex="0"]')?.focus();
 }
 
-export { Calendar, CalendarDayButton, focusCalendarDay };
+export { Calendar, focusCalendarDay };

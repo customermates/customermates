@@ -33,9 +33,9 @@ export type AgentWorkspaceCreditPool = {
   usable: boolean;
 };
 
-export type AgentRetrievalRefusal = "credits" | "unavailable";
+type AgentRetrievalRefusal = "credits" | "unavailable";
 
-export type AgentRetrievalReservation = {
+type AgentRetrievalReservation = {
   id: string;
   grant: AgentRetrievalGrant;
   reservedMicrocents: number;
@@ -64,7 +64,7 @@ export type AgentRetrievalCharge = {
   costSource: "measured" | "estimated";
 };
 
-export const AgentUsageBlockedReasonSchema = z.enum([
+const AgentUsageBlockedReasonSchema = z.enum([
   "self_hosted",
   "subscription_unavailable",
   "credits_exhausted",
@@ -84,7 +84,7 @@ export const AgentUsageSummarySchema = z.object({
   blockedReason: AgentUsageBlockedReasonSchema.nullable(),
 });
 
-export type AgentUsageSummary = Data<typeof AgentUsageSummarySchema>;
+type AgentUsageSummary = Data<typeof AgentUsageSummarySchema>;
 
 export const AgentUsageViewSchema = z.object({
   hasAllowance: z.boolean(),
@@ -120,7 +120,7 @@ export function toAgentUsageView(summary: AgentUsageSummary): AgentUsageView {
   };
 }
 
-export type AgentTurnCreditReservation = {
+type AgentTurnCreditReservation = {
   reservedMicrocents: number;
   planSnapshot: SubscriptionPlan;
   subscriptionStatusSnapshot: SubscriptionStatus;

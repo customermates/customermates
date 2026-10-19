@@ -474,7 +474,7 @@ describe("managed Wiki retrieval tools", () => {
     expect(description).toContain("get: one Markdown chunk");
     expect(description).toContain("nextOffset");
     expect(description).toContain("/wiki?page=<id>");
-    expect(getAgentAiToolDefinitions(undefined, options)).toEqual(describeAgentAiTools(tools));
+    expect(getAgentAiToolDefinitions(options)).toEqual(describeAgentAiTools(tools));
   });
 
   it("returns a denied read without leaking Markdown through the agent wrapper", async () => {
@@ -501,9 +501,7 @@ describe("managed Wiki retrieval tools", () => {
     });
     const options = { webSearchEnabled: false };
     const tools = getAgentAiTools(dependencies(), options);
-    const definition = getAgentAiToolDefinitions(undefined, options).find(
-      ({ name }) => name === "get_workspace_context",
-    );
+    const definition = getAgentAiToolDefinitions(options).find(({ name }) => name === "get_workspace_context");
 
     const result = await execute(tools.get_workspace_context, {});
 
@@ -529,8 +527,7 @@ describe("website Wiki setup in ordinary chat", () => {
 
     expect(tools.import_website).toBeDefined();
     expect(tools.manage_wiki_pages).toBeDefined();
-    for (const provider of ["azure", "vertex"])
-      expect(getAgentAiToolDefinitions(provider, options)).toEqual(describeAgentAiTools(tools, provider));
+    expect(getAgentAiToolDefinitions(options)).toEqual(describeAgentAiTools(tools));
   });
 
   it.each([

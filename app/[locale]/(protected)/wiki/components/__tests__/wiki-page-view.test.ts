@@ -1578,7 +1578,6 @@ describe("Wiki empty state", () => {
     expect(banner?.textContent).toContain("WikiSetup.status.backgroundBanner");
     expect(container.querySelector('[role="alert"]')).toBeNull();
     expect(container.textContent).not.toContain("WikiSetup.status.readingBody");
-    expect(container.textContent).not.toContain("WikiSetup.crawlProgress.readingCount");
     expect(container.querySelector('[data-testid="wiki-setup-crawl-progress"]')).toBeNull();
     expect(harness.store.resetForm).not.toHaveBeenCalled();
   });
@@ -1620,7 +1619,6 @@ describe("Wiki empty state", () => {
       progress: {
         fetched: 1,
         total: 3,
-        currentUrl: "https://example.com/about",
         pages: [
           { url: "https://example.com/", status: "read" as const },
           { url: "https://example.com/about", status: "reading" as const },
@@ -1634,14 +1632,12 @@ describe("Wiki empty state", () => {
     expect(content).not.toBeNull();
     expect(progress).not.toBeNull();
     expect(container.textContent).toContain("WikiSetup.crawlProgress.readingStep");
-    expect(container.textContent).not.toContain("WikiSetup.crawlProgress.readingCount");
 
     harness.liveSetupState = {
       ...working,
       progress: {
         ...working.progress,
         fetched: 2,
-        currentUrl: "https://example.com/pricing",
         pages: [...working.progress.pages, { url: "https://example.com/pricing", status: "reading" as const }],
       },
     };

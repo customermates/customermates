@@ -22,8 +22,6 @@ export type SectionCorpusSql = {
   stopConfig: string;
 };
 
-export type SectionMatch = { group: string; id: string };
-
 function column(name: string, alias: string) {
   return Prisma.raw(`${alias}."${name.replaceAll('"', "")}"`);
 }

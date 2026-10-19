@@ -13,20 +13,15 @@ import {
   WikiWhenToUseSchema,
 } from "./wiki.schema";
 
-export const WIKI_PAGE_PROPOSAL_ACTIONS = ["create", "update", "delete"] as const;
-export const WikiPageProposalActionSchema = z.enum(WIKI_PAGE_PROPOSAL_ACTIONS);
+export const WikiPageProposalActionSchema = z.enum(["create", "update", "delete"]);
 export type WikiPageProposalAction = Data<typeof WikiPageProposalActionSchema>;
-
-export const WIKI_PAGE_PROPOSAL_STATUSES = ["pending", "approved", "rejected", "superseded"] as const;
-export const WikiPageProposalStatusSchema = z.enum(WIKI_PAGE_PROPOSAL_STATUSES);
-export type WikiPageProposalStatus = Data<typeof WikiPageProposalStatusSchema>;
 
 export const WIKI_PAGE_PROPOSAL_REVIEW_LIMIT = 50;
 
 export const WikiPageProposalDtoSchema = z.object({
   id: z.uuid(),
   action: WikiPageProposalActionSchema,
-  status: WikiPageProposalStatusSchema,
+  status: z.enum(["pending", "approved", "rejected", "superseded"]),
   pageId: z.uuid().nullable(),
   title: z.string().nullable(),
   markdown: z.string().nullable(),

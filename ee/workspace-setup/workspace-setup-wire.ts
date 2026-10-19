@@ -47,7 +47,7 @@ const AnswerFields = {
 export const PrefillWireSchema = z.object({
   answers: z.array(z.object({ part: z.string(), ...AnswerFields })),
 });
-export type PrefillWire = z.infer<typeof PrefillWireSchema>;
+type PrefillWire = z.infer<typeof PrefillWireSchema>;
 
 type WireAnswer = Omit<PrefillWire["answers"][number], "part" | "confidence">;
 
@@ -127,7 +127,7 @@ export const FollowUpWireSchema = z.object({
     }),
   ),
 });
-export type FollowUpWire = z.infer<typeof FollowUpWireSchema>;
+type FollowUpWire = z.infer<typeof FollowUpWireSchema>;
 
 export function followUpQuestions(wire: FollowUpWire): SetupFollowUpQuestion[] {
   const questions: SetupFollowUpQuestion[] = [];

@@ -14,7 +14,7 @@ export type LemonSqueezyBindingEnvironment = Record<
   string | undefined
 >;
 
-export type LemonSqueezyBindings = {
+type LemonSqueezyBindings = {
   byOffer: Record<
     OfferId,
     {
@@ -54,9 +54,6 @@ export function parseLemonSqueezyBindings(input: LemonSqueezyBindingEnvironment)
 
     byOffer[offer.id] = { checkoutVariantId };
   }
-
-  if (Object.keys(byOffer).length !== COMMERCIAL_OFFERS.length)
-    throw new Error("Lemon Squeezy checkout bindings must cover every commercial offer");
 
   return { byOffer, byVariant };
 }

@@ -29,7 +29,7 @@ export async function choosePlan(page: Page, plan: string) {
 }
 
 // The setup step builds the workspace with live AI, so browser tests record it as done and give the workspace the starter lists.
-export async function completeSetupStepInDatabase(page: Page) {
+async function completeSetupStepInDatabase(page: Page) {
   const cookie = (await page.context().cookies()).find((candidate) => candidate.name === "app.session_token");
   if (!cookie) throw new Error("The browser has no session to complete the setup step for");
   const signed = decodeURIComponent(cookie.value);

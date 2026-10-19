@@ -103,7 +103,7 @@ describe("Wiki polling safety", () => {
         ok: true,
         data: {
           ...workingState,
-          progress: { fetched: 2, total: 3, currentUrl: "https://example.com/about" },
+          progress: { fetched: 2, total: 3 },
         },
       });
       await act(() => vi.advanceTimersByTimeAsync(2500));

@@ -3,7 +3,7 @@ import type { SetupCrawlSource } from "./workspace-setup.repo";
 const LEADING_CATEGORIES = ["about", "pricing", "product", "customers", "other"];
 const TRAILING_CATEGORIES = ["help", "blog", "policy"];
 
-export type SetupWebsiteBudget = { characters: number; perSource: number };
+type SetupWebsiteBudget = { characters: number; perSource: number };
 
 export function setupWebsiteSources(sources: SetupCrawlSource[]): SetupCrawlSource[] {
   const queues = LEADING_CATEGORIES.map((category) => sources.filter((source) => source.category === category));

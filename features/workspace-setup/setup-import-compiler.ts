@@ -6,7 +6,7 @@ import { importableSpreadsheetField } from "@/features/data-transfer/spreadsheet
 
 import { setupRoleList } from "./setup-anchors";
 
-export type SetupImportMapping = { typeId: string; columns: Array<{ column: string; fieldId: string | null }> };
+type SetupImportMapping = { typeId: string; columns: Array<{ column: string; fieldId: string | null }> };
 
 export function setupImportList(plan: SetupPlan): string | null {
   return plan.importMapping?.list ?? setupRoleList(plan, "people");

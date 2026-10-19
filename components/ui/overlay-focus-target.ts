@@ -25,7 +25,7 @@ export function captureOverlayFocusTarget(element: Element | null): OverlayFocus
   return candidate ? { elementRef: new WeakRef(candidate), id: candidate.id || null } : null;
 }
 
-export function resolveOverlayFocusTarget(target: OverlayFocusTarget | null) {
+function resolveOverlayFocusTarget(target: OverlayFocusTarget | null) {
   const element = usableOverlayFocusTarget(target?.elementRef.deref() ?? null);
   if (element) return element;
 

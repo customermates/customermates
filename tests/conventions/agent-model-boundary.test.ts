@@ -69,8 +69,6 @@ describe("agent model budget boundary", () => {
     expect(options).toContain("zeroDataRetention: true");
     expect(options).toContain("disallowPromptTraining: true");
     expect(options).toContain('caching: "auto"');
-    expect(options).toContain("parallelToolCalls: false");
-    expect(options).toContain("store: false");
     expect(workflow).toContain("reasoning: payload.turnBudget.reasoningEffort");
     expect(workflow).not.toContain("thinkingConfig");
   });

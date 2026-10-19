@@ -243,7 +243,7 @@ const WikiPageViewContent = observer(function WikiPageView({
     case "setup":
       documentBody = (
         <PageState
-          action={<WikiSetupProgress hideReadCount state={setupState} />}
+          action={<WikiSetupProgress state={setupState} />}
           background={<WikiPageSkeleton documentOnly animated={false} />}
           description={
             setupState.domain

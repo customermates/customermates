@@ -211,7 +211,7 @@ import { ImportSpreadsheetInteractor } from "@/features/data-transfer/spreadshee
 import { CompleteOnboardingWizardInteractor } from "@/features/onboarding-wizard/complete-onboarding-wizard.interactor";
 import { GetOnboardingWizardProgressInteractor } from "@/features/onboarding-wizard/get-onboarding-wizard-progress.interactor";
 import { SaveOnboardingWizardProgressInteractor } from "@/features/onboarding-wizard/save-onboarding-wizard-progress.interactor";
-import { CompleteOnboardingWikiStepInteractor } from "@/features/onboarding-wizard/complete-onboarding-wiki-step.interactor";
+import { CompleteOnboardingSetupStepInteractor } from "@/features/onboarding-wizard/complete-onboarding-setup-step.interactor";
 import { GetUserByIdInteractor } from "@/features/user/get/get-user-by-id.interactor";
 import { GetUserDetailsInteractor } from "@/features/user/get/get-user-details.interactor";
 import { GetUsersInteractor } from "@/features/user/get/get-users.interactor";
@@ -1043,8 +1043,8 @@ export const getUpdateUserDetailsInteractor = () =>
 
 export const getCompleteOnboardingWizardInteractor = () =>
   new CompleteOnboardingWizardInteractor(getUserRepo(), getRouteGuardService());
-export const getCompleteOnboardingWikiStepInteractor = () =>
-  new CompleteOnboardingWikiStepInteractor(getUserRepo(), getRouteGuardService());
+export const getCompleteOnboardingSetupStepInteractor = () =>
+  new CompleteOnboardingSetupStepInteractor(getUserRepo(), getRouteGuardService());
 
 export const getGetOnboardingWizardProgressInteractor = () =>
   new GetOnboardingWizardProgressInteractor(getUserRepo(), getRouteGuardService(), getAuthService());

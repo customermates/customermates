@@ -9,7 +9,7 @@ const END_OF_CENTRAL_DIRECTORY = 0x06054b50;
 const CENTRAL_DIRECTORY_ENTRY = 0x02014b50;
 const ZIP64_MARKER = 0xffffffff;
 
-export type ZipInventory = { entries: string[]; unpackedBytes: number };
+type ZipInventory = { entries: string[]; unpackedBytes: number };
 
 export function isZipArchive(bytes: Uint8Array): boolean {
   return bytes[0] === 0x50 && bytes[1] === 0x4b && bytes[2] === 0x03 && bytes[3] === 0x04;
@@ -61,7 +61,7 @@ function dateCell(value: Date): SpreadsheetCell {
   return iso.replace(/\.000Z$/, "").replace(/Z$/, "");
 }
 
-export function xlsxCellValue(value: ExcelJS.CellValue): { cell: SpreadsheetCell; formulaWithoutValue: boolean } {
+function xlsxCellValue(value: ExcelJS.CellValue): { cell: SpreadsheetCell; formulaWithoutValue: boolean } {
   if (value === null || value === undefined) return { cell: null, formulaWithoutValue: false };
   if (typeof value === "number") return { cell: Number.isFinite(value) ? value : null, formulaWithoutValue: false };
   if (typeof value === "string" || typeof value === "boolean") return { cell: value, formulaWithoutValue: false };

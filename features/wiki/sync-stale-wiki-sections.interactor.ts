@@ -3,9 +3,9 @@ import type { SyncStaleWikiSectionsRepo } from "./sync-stale-wiki-sections.repo"
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { isBusyDatabaseError } from "@/core/errors/prisma-client-error";
 
-export const WIKI_SECTION_CRON_PAGE_BUDGET = 5000;
-export const WIKI_SECTION_CRON_BATCH_PAGES = 200;
-export const WIKI_SECTION_CRON_TIME_BUDGET_MS = 120_000;
+const WIKI_SECTION_CRON_PAGE_BUDGET = 5000;
+const WIKI_SECTION_CRON_BATCH_PAGES = 200;
+const WIKI_SECTION_CRON_TIME_BUDGET_MS = 120_000;
 const VANISHED_ROW_CODES = new Set(["P2003", "P2025"]);
 
 function vanishedRow(error: unknown): boolean {

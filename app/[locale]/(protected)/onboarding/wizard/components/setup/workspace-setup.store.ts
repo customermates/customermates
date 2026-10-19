@@ -43,7 +43,7 @@ import {
   visibleScreenIndexes,
 } from "./setup-interview-state";
 
-export type SetupCommand = "start" | "website" | "save" | "plan" | "followUps" | "build" | "retry" | "upload";
+type SetupCommand = "start" | "website" | "save" | "plan" | "followUps" | "build" | "retry" | "upload";
 
 type SpreadsheetRejection = { fileName: string; failure: SpreadsheetReadFailureCode };
 

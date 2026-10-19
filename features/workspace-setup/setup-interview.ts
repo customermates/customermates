@@ -13,12 +13,12 @@ export const SETUP_QUESTION_FORMATS = [
 ] as const;
 
 export const SETUP_PREFILL_LEVELS = ["yes", "partly", "suggested", "no"] as const;
-export type SetupPrefillLevel = (typeof SETUP_PREFILL_LEVELS)[number];
+type SetupPrefillLevel = (typeof SETUP_PREFILL_LEVELS)[number];
 
 export const SETUP_OPTION_SOURCES = ["countries", "currencies", "locales"] as const;
 export type SetupOptionSource = (typeof SETUP_OPTION_SOURCES)[number];
 
-export const SETUP_MAX_RANKED_PICKS = 3;
+const SETUP_MAX_RANKED_PICKS = 3;
 export const SETUP_MAX_FOLLOW_UP_QUESTIONS = 3;
 export const SETUP_PREFILL_CONFIDENCE = 0.7;
 
@@ -53,7 +53,7 @@ export type SetupQuestion = {
   parts: SetupQuestionPart[];
 };
 
-export type SetupScreenDefinition = { id: SetupScreen; titleKey: string };
+type SetupScreenDefinition = { id: SetupScreen; titleKey: string };
 
 export const SETUP_SCREEN_DEFINITIONS: SetupScreenDefinition[] = [
   { id: "workspace", titleKey: "WorkspaceSetup.screens.workspace" },

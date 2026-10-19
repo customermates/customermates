@@ -9,10 +9,9 @@ export {
   agentModelWorstCasePromptTokens,
   isAgentModelWithinBudgetEnvelope,
 } from "./agent-model";
-export type { AgentModelEntry, AgentReasoningEffort } from "./agent-model";
+export type { AgentModelEntry } from "./agent-model";
 
 export const SHIPPED_AGENT_MODEL_KEY = "balanced";
-export type AgentModelKey = typeof SHIPPED_AGENT_MODEL_KEY;
 
 const HAIKU = {
   modelId: "anthropic/claude-haiku-5.5",
@@ -41,8 +40,8 @@ export const AGENT_MODELS = {
   setupPlanning: { ...SONNET, maxOutputTokens: 16_384, reasoningEffort: "none", timeoutMs: 180_000 },
 } as const satisfies Record<string, AgentModelEntry>;
 
-export type AgentModelPurpose = keyof typeof AGENT_MODELS;
-export type AgentTurnModelPurpose = Extract<AgentModelPurpose, "chat" | "routine">;
+type AgentModelPurpose = keyof typeof AGENT_MODELS;
+type AgentTurnModelPurpose = Extract<AgentModelPurpose, "chat" | "routine">;
 
 for (const [purpose, entry] of Object.entries(AGENT_MODELS)) assertServableEntry(purpose, entry);
 

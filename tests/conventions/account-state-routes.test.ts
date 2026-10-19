@@ -34,7 +34,7 @@ describe("guarded account-state route contract", () => {
     const registerInteractor = source("features/user/register/register-user.interactor.ts");
     const registrationBoundary = source("features/user/register/register-onboarding-profile.interactor.ts");
     const completeInteractor = source("features/onboarding-wizard/complete-onboarding-wizard.interactor.ts");
-    const completeWikiStepInteractor = source("features/onboarding-wizard/complete-onboarding-wiki-step.interactor.ts");
+    const completeWikiStepInteractor = source("features/onboarding-wizard/complete-onboarding-setup-step.interactor.ts");
 
     expect(page).toMatch(/requireAccountState\(\s*\[\s*"unregistered",\s*"onboarding"\s*\](?:\s*,|\s*\))/);
     expect(actions).toMatch(
@@ -48,7 +48,7 @@ describe("guarded account-state route contract", () => {
     expect(actions).toContain("getCompleteOnboardingWizardInteractor().invoke()");
     expect(actions.match(/serializeResult\(/g)).toHaveLength(1);
     expect(actions.match(/serializeTypedResult\(/g)).toHaveLength(3);
-    expect(actions).toContain("getCompleteOnboardingWikiStepInteractor().invoke()");
+    expect(actions).toContain("getCompleteOnboardingSetupStepInteractor().invoke()");
     expect(actions).toContain("getSaveOnboardingWizardProgressInteractor().invoke(data)");
     expect(page).toContain("getGetOnboardingWizardProgressInteractor().invoke()");
     expect(actions).toContain("redirect(buildLocalePath(chosen ?? (await getLocale()), result.data.redirectTo))");

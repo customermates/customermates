@@ -14,7 +14,7 @@ export const AGENT_TRANSCRIPT_FORWARDED_EVENTS = [
   "approval_resolved",
 ] as const;
 
-export const AGENT_CLIENT_PASSTHROUGH_EVENTS = [
+const AGENT_CLIENT_PASSTHROUGH_EVENTS = [
   ...AGENT_TRANSCRIPT_FORWARDED_EVENTS,
   "delta",
   "activity_result",
@@ -24,14 +24,14 @@ export const AGENT_CLIENT_PASSTHROUGH_EVENTS = [
   "turn_done",
 ] as const;
 
-export type AgentClientEvent = {
+type AgentClientEvent = {
   type: string;
   payload: Record<string, unknown>;
 };
 
 const TOOL_ERROR_OUTPUT_TYPES: ReadonlySet<string> = new Set(["error-text", "error-json"]);
 
-export function isAgentToolErrorOutput(output: unknown): boolean {
+function isAgentToolErrorOutput(output: unknown): boolean {
   if (!output || typeof output !== "object" || Array.isArray(output)) return false;
   const type = (output as { type?: unknown }).type;
   return typeof type === "string" && TOOL_ERROR_OUTPUT_TYPES.has(type);

@@ -16,7 +16,6 @@ import { AGENT_ON_DEMAND_TOOLSETS, activeAgentToolNames } from "../agent-toolset
 import { agentWikiSystemPrompt } from "../agent-wiki-context";
 import { agentSystemPromptParts } from "../system-prompt";
 
-const SERVING_PROVIDER = "vertexAnthropic";
 const CONDITIONAL = ["web_search", "import_website"];
 
 function group(definition: { name: string; toolset: string | null }) {
@@ -32,7 +31,6 @@ function cachedPrefix(definitions: readonly { name: string; toolset: string | nu
 describe("agent tool order for prompt caching", () => {
   it("sends the core tools first, then the tools a turn option adds, then each on-demand set in a fixed order", () => {
     const definitions = agentToolDefinitionsForTurn({
-      servingProvider: SERVING_PROVIDER,
       surface: "chat",
       webSearchEnabled: true,
       wikiWebsiteSetup: true,
@@ -40,7 +38,7 @@ describe("agent tool order for prompt caching", () => {
     const groups = definitions.map(group).filter((value, index, all) => index === 0 || all[index - 1] !== value);
 
     expect(groups).toEqual(["core", "conditional", ...AGENT_ON_DEMAND_TOOLSETS]);
-    const registryOrder = getAgentAiToolDefinitions(SERVING_PROVIDER, { surface: "chat", webSearchEnabled: true }).map(
+    const registryOrder = getAgentAiToolDefinitions({ surface: "chat", webSearchEnabled: true }).map(
       ({ name }) => name,
     );
     const core = definitions.filter((definition) => group(definition) === "core").map(({ name }) => name);
@@ -53,7 +51,6 @@ describe("agent tool order for prompt caching", () => {
       const variants = [false, true].flatMap((webSearchEnabled) =>
         [false, true].map((wikiWebsiteSetup) =>
           agentToolDefinitionsForTurn({
-            servingProvider: SERVING_PROVIDER,
             surface,
             webSearchEnabled,
             wikiWebsiteSetup,
@@ -77,7 +74,6 @@ describe("agent tool order for prompt caching", () => {
     "keeps the active %s tools' cached prefix byte-identical as on-demand sets load, up to every set",
     (surface) => {
       const definitions = agentToolDefinitionsForTurn({
-        servingProvider: SERVING_PROVIDER,
         surface,
         webSearchEnabled: true,
       });
@@ -94,7 +90,7 @@ describe("agent tool order for prompt caching", () => {
   );
 
   it("marks the last core tool, which stays active when every on-demand set is loaded", () => {
-    const definitions = agentToolDefinitionsForTurn({ servingProvider: SERVING_PROVIDER, surface: "chat" });
+    const definitions = agentToolDefinitionsForTurn({ surface: "chat" });
     const breakpoint = agentToolsCacheBreakpoint(definitions);
 
     expect(breakpoint).toBe(definitions.filter((definition) => group(definition) === "core").at(-1)?.name);

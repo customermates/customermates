@@ -35,7 +35,7 @@ import {
   splitPersonName,
 } from "./spreadsheet-values";
 
-export const SPREADSHEET_DOCUMENT_TIME = "1970-01-01T00:00:00.000Z";
+const SPREADSHEET_DOCUMENT_TIME = "1970-01-01T00:00:00.000Z";
 const MAX_LIST_VALUES = 100;
 const CONTACT_SEPARATORS = /[\n;,]/;
 const OPTION_SEPARATORS = /[\n;,]/;
@@ -44,7 +44,7 @@ const UNSUPPORTED_VALUE_TYPES = new Set<RecordField["valueType"]>(["member", "da
 
 export type SpreadsheetRelatedRecords = Map<string, Map<string, string[]>>;
 
-export type SpreadsheetConversion = {
+type SpreadsheetConversion = {
   documents: RecordExport[];
   rowCount: number;
   convertedRows: number;
@@ -282,7 +282,7 @@ export function spreadsheetChannelParts(cell: SpreadsheetCell): string[] {
   return cellIsEmpty(cell) ? [] : splitListValues(cellText(cell), CONTACT_SEPARATORS);
 }
 
-export function spreadsheetChannelIdentity(
+function spreadsheetChannelIdentity(
   part: string,
   phoneCountryCode?: string,
 ): Pick<RecordIdentity, "provider" | "value"> | null {
