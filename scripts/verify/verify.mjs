@@ -104,15 +104,11 @@ function playwrightStage(name, targets, key, extra = []) {
   );
 }
 
-// Browsers on this machine first; the database suite then runs on its own here, because load is what makes its long
-// transactions time out. The offloaded targets run on ws-test meanwhile.
-let localBrowsersDone = Promise.resolve();
 const e2eLanes = () => {
   if (!options.e2e) return [];
   const lanes = [];
   if (localTargets.length) {
     const local = playwrightStage(`playwright ${localTargets.join(" + ")}`, localTargets, "e2e");
-    if (full) localBrowsersDone = local;
     lanes.push(local);
   }
   if (offloaded.length) lanes.push(playwrightStage(`playwright ${offloaded.join(" + ")} (ws-test)`, offloaded, "e2e-vm", ["--offload", offloaded.join(",")]));
@@ -128,7 +124,6 @@ const browserLanes = e2eLanes();
 await Promise.all([
   (async () => {
     await staticLane();
-    await localBrowsersDone;
     await vitestLane();
   })(),
   ...browserLanes,

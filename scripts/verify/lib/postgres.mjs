@@ -9,16 +9,9 @@ export const POSTGRES_IMAGES = {
   17: "pgvector/pgvector:0.8.1-pg17-bookworm",
 };
 
-/**
- * Durability is irrelevant for throwaway test databases; turning it off removes most commit I/O, which is what made
- * long interactive transactions in the database suite exceed their timeouts (P2028) on a loaded machine.
- */
 const SERVER_SETTINGS = [
   "max_connections=1500",
   "shared_buffers=1GB",
-  "fsync=off",
-  "synchronous_commit=off",
-  "full_page_writes=off",
   "max_wal_size=4GB",
   "checkpoint_timeout=30min",
 ];
