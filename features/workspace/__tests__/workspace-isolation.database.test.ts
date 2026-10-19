@@ -94,15 +94,14 @@ describeDatabase("one login in several isolated workspaces", { timeout: 120_000 
     );
 
     const { runWithTenant } = await import("@/core/decorators/tenant-context");
-    const { InitializeRecordModelService } = await import("@/features/records/initialize-record-model.service");
-    const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
+    const { initializeStarterRecordModel } = await import("@/tests/helpers/record-repository");
     const { createMockUser } = await import("@/tests/helpers/mock-user");
     for (const [companyId, userId, roleId] of [
       [companies.a, members.a, roles.a],
       [companies.b, members.b, roles.b],
     ]) {
       const owner = createMockUser({ id: userId, companyId, roleId });
-      await runWithTenant(owner, () => new InitializeRecordModelService(createTestRecordRepo()).initialize());
+      await runWithTenant(owner, () => initializeStarterRecordModel());
     }
 
     const sessionId = randomUUID();

@@ -2311,13 +2311,10 @@ test("keeps personal views separate from the list layout, groups and summarises 
   try {
     await reader.page.goto(`/en/records/${type.id}`);
     await assertListLayout(reader.page);
+    await expect(reader.page.locator("#global-data-views-new")).toBeVisible();
     await expect(
       reader.page.locator("#global-data-views [data-view-chip]"),
-    ).toHaveCount(1);
-    await expect(reader.page.locator("#global-data-views-all")).toHaveAttribute(
-      "aria-current",
-      "page",
-    );
+    ).toHaveCount(0);
     await expect(
       reader.page.getByRole("link", { name: personal.name, exact: true }),
     ).toHaveCount(0);
@@ -2392,11 +2389,7 @@ test("keeps personal views separate from the list layout, groups and summarises 
     .poll(() =>
       page.locator("#global-data-views [data-view-chip]").allTextContents(),
     )
-    .toEqual([
-      englishMessages.DataView.views.all,
-      "My renamed table",
-      personal.name,
-    ]);
+    .toEqual(["My renamed table", personal.name]);
   await presentationViewMenuUi(page, englishMessages.DataView.views.moveRight);
   await expect
     .poll(async () =>
@@ -2572,10 +2565,14 @@ test("keeps personal views separate from the list layout, groups and summarises 
   const confirmation = page.getByRole("alertdialog");
   await expect(confirmation).toContainText("My renamed table");
   await confirmation.locator("#confirm-delete").click();
-  await expect(page.locator("#global-data-views-all")).toHaveAttribute(
-    "aria-current",
-    "page",
-  );
+  await expect(
+    page
+      .locator("#global-data-views")
+      .getByRole("link", { name: "My renamed table", exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    page.locator('#global-data-views [data-focus-target^="view:"][aria-current="page"]'),
+  ).toHaveCount(0);
   await expect
     .poll(async () => (await viewRows(workspace.userId)).map((view) => view.id))
     .toEqual([personal.id]);
@@ -2598,10 +2595,8 @@ test("keeps personal views separate from the list layout, groups and summarises 
   await expect(confirmation).toContainText(personal.name);
   await confirmation.locator("#confirm-delete").click();
   await expect.poll(() => viewRows(workspace.userId)).toEqual([]);
-  await expect(page.locator("#global-data-views-all")).toHaveAttribute(
-    "aria-current",
-    "page",
-  );
+  await expect(page.locator("#global-data-views [data-view-chip]")).toHaveCount(0);
+  await expect(page.locator("#global-data-views-new")).toBeVisible();
   await presentationAppearanceUi(page);
   await page
     .getByRole("button", {

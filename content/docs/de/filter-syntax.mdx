@@ -3,7 +3,7 @@ title: "Filtersyntax für CRM-Datensatzabfragen"
 description: "Typisierte Feld- und Beziehungsfilter für das konfigurierbare Datensatzmodell, mit Beispielen für MCP und REST."
 ---
 
-CRM-Listen, gespeicherte Ansichten, Widgets, REST-Abfragen und das MCP-Tool `query_crm_records` nutzen dasselbe Abfragemodell. Ermitteln Sie den Typ mit `discover_record_types` und lesen Sie stabile Feld- und Beziehungs-IDs mit `get_record_model`. Die fünf Starttypen und selbst angelegte Typen haben dieselbe Abfragestruktur. Messaging-Tools besitzen eigene Filter.
+CRM-Listen, gespeicherte Ansichten, Widgets, REST-Abfragen und das MCP-Tool `query_crm_records` nutzen dasselbe Abfragemodell. Ermitteln Sie den Typ mit `discover_record_types` und lesen Sie stabile Feld- und Beziehungs-IDs mit `get_record_model`. Jede Liste hat dieselbe Abfragestruktur, ob die KI-Einrichtung oder eine Person sie angelegt hat. Messaging-Tools besitzen eigene Filter.
 
 ## Wo greifen Filter? [#where-do-filters-apply]
 
@@ -11,7 +11,7 @@ Eine Datensatzabfrage nennt einen `typeId`. `filters` prüfen Felder dieses Typs
 
 ## Wie filtere ich eine Liste in der App? [#how-do-i-filter-a-list-in-the-app]
 
-Öffnen Sie die Liste, zum Beispiel [Deals](app:records/deal), und klicken Sie auf [Filter](app:records/deal?focus=filter). Wählen Sie unter **Filtern nach** ein Feld oder tippen Sie seinen Namen in **Filter hinzufügen…**; verknüpfte Listen wie Organisationen stehen dort ebenfalls. Wählen Sie die Bedingung und dann die Werte, und die Liste aktualisiert sich sofort. Aktive Filter erscheinen oben als Chips; einen entfernen Sie mit seinem ×, alle mit **Leeren**. **Mate fragen** im selben Fenster macht aus einer Beschreibung in eigenen Worten Filter. Selbst angelegte Listen funktionieren genauso, und eine gespeicherte Ansicht zeigt dieselben Datensätze, statt sie zu kopieren.
+Öffnen Sie die Liste, zum Beispiel Ihre Deal-Liste, und klicken Sie in ihrer Toolbar auf **Filter**. Wählen Sie unter **Filtern nach** ein Feld oder tippen Sie seinen Namen in **Filter hinzufügen…**; verknüpfte Listen, etwa eine Organisationsliste, stehen dort ebenfalls. Wählen Sie die Bedingung und dann die Werte, und die Liste aktualisiert sich sofort. Aktive Filter erscheinen oben als Chips; einen entfernen Sie mit seinem ×, alle mit **Leeren**. **Mate fragen** im selben Fenster macht aus einer Beschreibung in eigenen Worten Filter. Jede Liste funktioniert so, und eine gespeicherte Ansicht zeigt dieselben Datensätze, statt sie zu kopieren.
 
 ## Wie sieht eine Filterregel aus, und kann ich Filter mit ODER verknüpfen? [#what-does-a-filter-rule-look-like]
 
@@ -65,7 +65,7 @@ Kontakte ohne Organisation finden Sie mit der Kontakt-Organisations-Beziehung, `
 
 ### Wie filtere ich nach einem eigenen Feld, und welche Operatoren wirken darauf? [#which-operators-work-on-custom-columns]
 
-Verwenden Sie die Feld-ID aus `get_record_model` und niemals die veränderbare Beschriftung. Ein Eingabe-, Formel-, Lookup- oder Rollup-Feld ist filterbar, wenn sein Werttyp den Operator unterstützt und die lesende Person den Wert sehen darf. Auswahlfilter nutzen stabile Options-IDs. Ein Mehrfachauswahl-Feld unterstützt `in` (enthält eine der Optionen), `all` (enthält alle), `notIn` (enthält keine, auch Datensätze ohne Wert), `empty` und `notEmpty`; es lässt sich nicht sortieren. Das gilt für Startfelder und selbst angelegte Typen gleichermaßen.
+Verwenden Sie die Feld-ID aus `get_record_model` und niemals die veränderbare Beschriftung. Ein Eingabe-, Formel-, Lookup- oder Rollup-Feld ist filterbar, wenn sein Werttyp den Operator unterstützt und die lesende Person den Wert sehen darf. Auswahlfilter nutzen stabile Options-IDs. Ein Mehrfachauswahl-Feld unterstützt `in` (enthält eine der Optionen), `all` (enthält alle), `notIn` (enthält keine, auch Datensätze ohne Wert), `empty` und `notEmpty`; es lässt sich nicht sortieren. Das gilt für die Felder jeder Liste.
 
 ## Welche Feldnamen kann ich nutzen? [#which-field-names-can-i-use]
 

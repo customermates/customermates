@@ -5,7 +5,7 @@ import type { RoleDto } from "@/features/role/role.schema";
 import type { WebhookEventPayload } from "@/features/webhook/webhook-event-payload";
 import type { WikiPageDto } from "@/features/wiki/wiki.schema";
 
-import type { CountryCode, MessagingProvider, Status } from "@/generated/prisma";
+import type { MessagingProvider, Status } from "@/generated/prisma";
 
 export enum DomainEvent {
   USER_REGISTERED = "user.registered",
@@ -62,7 +62,6 @@ export type DomainEventMap = {
       email: string;
       firstName: string;
       lastName: string;
-      country: CountryCode;
       status: Status;
       avatarUrl: string | null;
       roleId: string | null;

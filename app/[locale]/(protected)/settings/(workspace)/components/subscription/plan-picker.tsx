@@ -12,6 +12,7 @@ import {
   formatCommercialAmount,
   PLAN_CATALOG,
   PURCHASABLE_PLAN_IDS,
+  RECOMMENDED_PLAN_ID,
   type AvailableBillingCadence,
   type PurchasablePlanId,
 } from "@/core/commercial/plan-catalog";
@@ -36,15 +37,15 @@ export const PlanPicker = observer(function PlanPicker({ isLoading, onSelect }: 
   }
 
   return (
-    <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-3" id="settings-billing-plan-picker">
+    <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2" id="settings-billing-plan-picker">
       {PURCHASABLE_PLAN_IDS.map((plan) => {
-        const featured = plan === "business";
+        const featured = plan === RECOMMENDED_PLAN_ID;
         const planName = t(`Subscription.planNames.${plan}`);
         const offer = PLAN_CATALOG[plan].offers.monthly;
         const selection: SelectableOffer = { plan, cadence: offer.cadence };
         const accountAllowance = PLAN_CATALOG[plan].entitlements.includedAccountsPerUser;
         const routineAllowance = PLAN_CATALOG[plan].entitlements.includedRoutinesPerUser;
-        const credits = PLAN_CATALOG[plan].entitlements.hostedAiCreditsPerActiveUser;
+        const multiplier = PLAN_CATALOG[plan].entitlements.hostedAiUsageMultiplier;
         const features = t.raw(`Subscription.picker.features.${plan}`) as string[];
         const renderedFeatures = [
           ...features,
@@ -54,7 +55,7 @@ export const PlanPicker = observer(function PlanPicker({ isLoading, onSelect }: 
           routineAllowance === "unlimited"
             ? t("Subscription.picker.unlimitedRoutinesPerUser")
             : t("Subscription.picker.routinesPerUser", { routines: routineAllowance }),
-          ...(typeof credits === "number" ? [t("Subscription.picker.hostedAiCredits", { credits })] : []),
+          ...(typeof multiplier === "number" ? [t("Subscription.picker.hostedAiUsage", { multiplier })] : []),
         ];
 
         return (
@@ -69,7 +70,7 @@ export const PlanPicker = observer(function PlanPicker({ isLoading, onSelect }: 
             <span className="flex items-center justify-between gap-2">
               <span className="text-sm font-semibold">{planName}</span>
 
-              {featured && <AppChip variant="info">{t("Subscription.picker.mostPopular")}</AppChip>}
+              {featured && <AppChip variant="info">{t("Subscription.picker.recommended")}</AppChip>}
             </span>
 
             <span className="flex items-baseline gap-1">
@@ -103,7 +104,7 @@ export const PlanPicker = observer(function PlanPicker({ isLoading, onSelect }: 
         );
       })}
 
-      <p className="text-muted-foreground text-xs sm:col-span-3">{t("Subscription.picker.creditNote")}</p>
+      <p className="text-muted-foreground text-xs sm:col-span-2">{t("Subscription.picker.creditNote")}</p>
     </div>
   );
 });

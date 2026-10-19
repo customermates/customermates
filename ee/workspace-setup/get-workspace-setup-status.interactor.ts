@@ -1,0 +1,67 @@
+import type { Validated } from "@/core/validation/validation.utils";
+import type { AgentUsageService } from "@/ee/agent-chat/agent-usage.service";
+import type { RecordRepo } from "@/features/records/record.repo";
+import type { WorkspaceSetupRepo } from "./workspace-setup.repo";
+import type { WorkspaceSetupStatusView } from "./workspace-setup-status";
+import type { WorkspaceSetupRecord, WorkspaceSetupStatus } from "./workspace-setup.schema";
+
+import { Resource } from "@/generated/prisma";
+
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+
+import { workspaceSetupUnavailability } from "./workspace-setup-availability";
+import { WORKSPACE_SETUP_BUDGETS } from "./workspace-setup-spend";
+import { workspaceSetupView } from "./workspace-setup-status";
+
+const BUILD_STATUSES: ReadonlySet<WorkspaceSetupStatus> = new Set(["building", "completed", "failed"]);
+const WATCHED_STATUSES: ReadonlySet<WorkspaceSetupStatus> = new Set(["planning", "building"]);
+const SETUP_WATCH_INTERVAL_MS = 5_000;
+
+function watchDue(setup: WorkspaceSetupRecord, now: Date) {
+  if (!WATCHED_STATUSES.has(setup.status)) return false;
+  const watchedAt = setup.interview.watchedAt;
+  return !watchedAt || new Date(watchedAt).getTime() <= now.getTime() - SETUP_WATCH_INTERVAL_MS;
+}
+
+@AllowInDemoMode
+@TenantInteractor({ resource: Resource.dataModel, manage: "update" })
+export class GetWorkspaceSetupStatusInteractor extends AuthenticatedInteractor<void, WorkspaceSetupStatusView> {
+  constructor(
+    private repo: WorkspaceSetupRepo,
+    private usage: Pick<AgentUsageService, "workspacePlatformSpend">,
+    private records: Pick<RecordRepo, "getModel">,
+  ) {
+    super();
+  }
+
+  async invoke(): Validated<WorkspaceSetupStatusView> {
+    const unavailable = workspaceSetupUnavailability();
+    if (unavailable) return { ok: true, data: { available: false, reason: unavailable, setup: null } };
+    const found = await this.repo.findCurrent();
+    const setup = found ? await this.watch(found) : null;
+    if (!setup) {
+      const model = await this.records.getModel();
+      return model.types.some((type) => !type.archived && !type.embedded)
+        ? { ok: true, data: { available: false, reason: "configured", setup: null } }
+        : { ok: true, data: { available: true, setup: null } };
+    }
+    const budget = WORKSPACE_SETUP_BUDGETS[BUILD_STATUSES.has(setup.status) ? "build" : "plan"];
+    const [crawl, spend] = await Promise.all([
+      setup.crawlId ? this.repo.crawlState(setup.crawlId) : Promise.resolve(null),
+      this.usage.workspacePlatformSpend({ companyId: this.companyId, purpose: budget.purpose }),
+    ]);
+    return {
+      ok: true,
+      data: { available: true, setup: workspaceSetupView(setup, crawl, spend, budget.capMicrocents) },
+    };
+  }
+
+  private async watch(setup: WorkspaceSetupRecord): Promise<WorkspaceSetupRecord> {
+    const now = new Date();
+    if (!watchDue(setup, now)) return setup;
+    await this.repo.markWatched(setup.id, now);
+    return { ...setup, interview: { ...setup.interview, watchedAt: now.toISOString() } };
+  }
+}

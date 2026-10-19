@@ -52,7 +52,6 @@ describe("CreateWorkspaceInteractor", () => {
   };
   let repo: Record<string, ReturnType<typeof vi.fn>>;
   let registration: { createCompanyAndUser: ReturnType<typeof vi.fn> };
-  let recordModel: { initialize: ReturnType<typeof vi.fn> };
   let eventService: { publish: ReturnType<typeof vi.fn> };
 
   function interactor() {
@@ -61,7 +60,6 @@ describe("CreateWorkspaceInteractor", () => {
       { resolveAccountState: vi.fn().mockResolvedValue({ state: "allowed" }) } as never,
       repo as never,
       registration as never,
-      recordModel as never,
       eventService as never,
     );
   }
@@ -92,11 +90,10 @@ describe("CreateWorkspaceInteractor", () => {
       setLastUsedCompanyUnscoped: track("rememberLastUsed", undefined),
     };
     registration = { createCompanyAndUser: track("createCompany", owner) };
-    recordModel = { initialize: track("initializeModel", undefined) };
     eventService = { publish: track("publish", undefined) };
   });
 
-  it("locks the login, decides the trial and creates the workspace with its model and events in one transaction", async () => {
+  it("locks the login, decides the trial and creates the workspace and its events in one transaction", async () => {
     const result = await interactor().invoke({ name: "Taxes", agreeToTerms: true });
 
     expect(result).toEqual({ ok: true, data: { companyId: "company-new", trial: false } });
@@ -109,7 +106,6 @@ describe("CreateWorkspaceInteractor", () => {
       "evaluateTrial",
       "createCompany",
       "rememberLastUsed",
-      "initializeModel",
       "publish",
       "publish",
       "commit",

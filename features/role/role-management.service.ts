@@ -210,7 +210,6 @@ export class RoleManagementService extends UserAccessor {
     if ((await this.records.getState())?.activeOperationId)
       throw unwindFailure(CustomErrorCode.recordWritePaused, "conflict");
     const model = await this.records.getModel();
-    if (!model.revision) throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
     if (model.revision !== expectedRevision) throw unwindFailure(CustomErrorCode.recordSchemaChanged, "conflict");
     return model;
   }

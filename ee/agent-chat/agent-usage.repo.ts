@@ -5,6 +5,8 @@ import type {
   AgentWorkspaceCreditPool,
   AgentRetrievalGrant,
   AgentRetrievalCharge,
+  AgentTurnCreditState,
+  WorkspacePlatformReservation,
 } from "./agent-usage.service";
 
 export abstract class AgentUsageRepo {
@@ -35,18 +37,21 @@ export abstract class AgentUsageRepo {
       createdAt: Date;
     } | null;
   } | null>;
-  abstract reserveUsageEventUnscoped(event: {
-    id: string;
-    companyId: string;
-    userId: string;
-    sessionId: string;
-    reservedMicrocents: number;
-    planSnapshot: SubscriptionPlan;
-    subscriptionStatusSnapshot: SubscriptionStatus;
-    allowanceMicrocentsSnapshot: number;
-    periodStart: Date;
-    periodEnd: Date;
-  }): Promise<boolean>;
+  abstract reserveUsageEventUnscoped(
+    event: {
+      id: string;
+      companyId: string;
+      userId: string;
+      sessionId: string;
+      reservedMicrocents: number;
+      planSnapshot: SubscriptionPlan;
+      subscriptionStatusSnapshot: SubscriptionStatus;
+      allowanceMicrocentsSnapshot: number;
+      periodStart: Date;
+      periodEnd: Date;
+    },
+    creditState?: AgentTurnCreditState,
+  ): Promise<boolean>;
   abstract releaseUsageReservationUnscoped(args: {
     id: string;
     companyId: string;
@@ -72,6 +77,18 @@ export abstract class AgentUsageRepo {
     now: Date;
   }): Promise<void>;
   abstract settleStalePlatformReservationsUnscoped(args: { reservedBefore: Date; now: Date }): Promise<number>;
+  abstract reserveWorkspacePlatformUsageUnscoped(args: {
+    companyId: string;
+    purpose: string;
+    model: string;
+    reservedMicrocents: number;
+    capMicrocents: number;
+    now: Date;
+  }): Promise<WorkspacePlatformReservation>;
+  abstract getWorkspacePlatformSpendUnscoped(args: {
+    companyId: string;
+    purpose: string;
+  }): Promise<{ usedMicrocents: number; heldMicrocents: number }>;
   abstract reserveRetrievalUsageUnscoped(args: {
     grant: AgentRetrievalGrant;
     reservedMicrocents: number;

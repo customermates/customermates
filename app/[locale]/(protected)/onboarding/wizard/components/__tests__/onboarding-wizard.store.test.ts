@@ -78,7 +78,7 @@ describe("returning-user onboarding progress", () => {
     await Promise.resolve();
     expect(store.currentStep).toBe("invite");
     expect(store.isSaving).toBe(true);
-    resolveSave({ ok: false, error: { formErrors: [], properties: {} } });
+    resolveSave({ ok: false, failure: { kind: "validation", issues: [] } });
     await next;
     expect(store.currentStep).toBe("invite");
     expect(store.isSaving).toBe(false);
@@ -121,10 +121,10 @@ describe("returning-user onboarding progress", () => {
     expect(ai.selection.apiKeyIds).toEqual({});
   });
 
-  it("keeps an owner with a pending Wiki step on Wiki even with saved AI progress", async () => {
+  it("keeps an owner with a pending setup on the setup step even with saved AI progress", async () => {
     const { store } = persistentStore();
     store.initialize(1, "owner-a", { ...readOnboardingWizardProgress(null), step: "ai" });
-    expect(store.currentStep).toBe("wiki");
+    expect(store.currentStep).toBe("setup");
     expect(store.isFirstStep).toBe(true);
 
     await store.next();
@@ -213,26 +213,38 @@ describe("returning-user onboarding progress", () => {
 });
 
 describe("OnboardingWizardStore", () => {
-  it("contains Profile, Wiki, Invite, and AI in order", () => {
+  it("contains Profile, the workspace setup, Invite, and AI in order", () => {
     const store = new OnboardingWizardStore(rootStore);
 
-    expect(WIZARD_STEPS).toEqual(["profile", "wiki", "invite", "ai"]);
+    expect(WIZARD_STEPS).toEqual(["profile", "setup", "invite", "ai"]);
     expect(store.totalSteps).toBe(4);
     expect(store.currentStep).toBe("profile");
   });
 
-  it("starts registered owners at Wiki and prevents returning to Profile", async () => {
+  it("goes from Profile to Invite where the setup is unavailable", async () => {
+    const store = new OnboardingWizardStore({
+      stepAiStore: { canFinish: true, reset: vi.fn(), restoreSelection: vi.fn() },
+    } as unknown as RootStore);
+    store.initialize(0, undefined, undefined, false);
+
+    expect(store.steps).toEqual(["profile", "invite", "ai"]);
+    expect(store.totalSteps).toBe(3);
+    await store.next();
+    expect(store.currentStep).toBe("invite");
+  });
+
+  it("starts registered owners at the setup and prevents returning to Profile", async () => {
     const store = new OnboardingWizardStore(rootStore);
 
     store.setInitialStep(1);
-    expect(store.currentStep).toBe("wiki");
+    expect(store.currentStep).toBe("setup");
     expect(store.isFirstStep).toBe(true);
 
     await store.back();
-    expect(store.currentStep).toBe("wiki");
+    expect(store.currentStep).toBe("setup");
   });
 
-  it("advances Wiki through Invite to the terminal AI step", async () => {
+  it("advances the setup through Invite to the terminal AI step", async () => {
     const store = new OnboardingWizardStore(rootStore);
     store.setInitialStep(1);
 
@@ -278,7 +290,10 @@ describe("OnboardingWizardStore", () => {
   });
 
   it("stays put when completion failed", async () => {
-    actions.completeOnboardingWizardAction.mockResolvedValue({ ok: false, error: { issues: [] } });
+    actions.completeOnboardingWizardAction.mockResolvedValue({
+      ok: false,
+      failure: { kind: "validation", issues: [] },
+    });
     const store = new OnboardingWizardStore(rootStore);
 
     await store.complete();

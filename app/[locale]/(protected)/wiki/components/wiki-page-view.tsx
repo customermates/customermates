@@ -8,7 +8,8 @@ import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-s
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useTransition } from "react";
 import { observer } from "mobx-react-lite";
 import { reaction } from "mobx";
-import { BookOpen, ChevronDown, Plus, Sparkles } from "lucide-react";
+import { Action, Resource } from "@/generated/prisma";
+import { BookOpen, ChevronDown, Loader2, Plus, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
@@ -29,7 +30,7 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { useRouter } from "@/i18n/navigation";
 import {
   EMPTY_WIKI_HOMEPAGE_SETUP_STATE,
-  useRefreshWhileWikiSetupWorks,
+  useLiveWikiSetupState,
   useWikiSetupFailureBody,
 } from "@/components/wiki/wiki-homepage-setup";
 import { WikiSetupProgress } from "@/components/wiki/wiki-setup-progress";
@@ -39,6 +40,9 @@ import { useP13nColumnWidths } from "@/components/shared/use-p13n-column-widths"
 import { mergeStoredPanelSizes, readStoredPanelSizes } from "@/components/layout/resizable-panels.utils";
 
 import { WikiPageActions } from "./wiki-page-actions";
+import { WikiProposals } from "./wiki-proposals";
+import { WikiProposalsEntry } from "./wiki-proposals-entry";
+import { WikiProposalsStore } from "./wiki-proposals.store";
 import { WikiPageOutline } from "./wiki-page-outline";
 import { WikiPageSkeleton } from "./wiki-page-skeleton";
 import { WikiLinkPicker } from "./wiki-link-picker";
@@ -48,7 +52,6 @@ import { WIKI_LAYOUT_P13N_ID, WIKI_PANEL_LAYOUT_ID } from "./wiki-personalizatio
 import { useWikiPages } from "./use-wiki-pages";
 import { WikiPageKindSchema, WIKI_PAGE_KINDS, WIKI_WHEN_TO_USE_MAX_LENGTH } from "@/features/wiki/wiki.schema";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
-import { Action } from "@/generated/prisma";
 
 const WIKI_PANEL_IDS = ["pages", "document"] as const;
 
@@ -57,6 +60,7 @@ type Props = {
   initialSetupState?: WikiHomepageSetupState;
   layoutInitial?: Record<string, number>;
   listPage: WikiPageListResult;
+  openProposals?: boolean;
   pinnedPage?: WikiPageSummary | null;
   requestedPageId?: string;
   unavailable?: boolean;
@@ -67,6 +71,7 @@ const WikiPageViewContent = observer(function WikiPageView({
   initialSetupState = EMPTY_WIKI_HOMEPAGE_SETUP_STATE,
   layoutInitial,
   listPage,
+  openProposals = false,
   pinnedPage = null,
   requestedPageId,
   unavailable = false,
@@ -86,6 +91,25 @@ const WikiPageViewContent = observer(function WikiPageView({
   const titleContainer = useRef<HTMLDivElement>(null);
   const documentContainer = useRef<HTMLDivElement>(null);
   const pages = useWikiPages(listPage);
+  const userStore = rootStore.userStore as typeof rootStore.userStore | undefined;
+  const canReviewProposals = typeof userStore?.can === "function" && userStore.can(Resource.wiki, Action.update);
+  const [proposals] = useState(() => new WikiProposalsStore(rootStore, () => router.refresh()));
+  useEffect(() => {
+    if (!canReviewProposals) return;
+    proposals.bind();
+    if (openProposals) proposals.setOpen(true);
+    return () => proposals.dispose();
+  }, [canReviewProposals, openProposals, proposals]);
+  const canApplyProposal = useCallback(
+    (action: "create" | "update" | "delete") =>
+      Boolean(
+        userStore?.can(
+          Resource.wiki,
+          action === "create" ? Action.create : action === "update" ? Action.update : Action.delete,
+        ),
+      ),
+    [userStore],
+  );
   const { columnWidths, commitColumnWidths } = useP13nColumnWidths({
     initial: layoutInitial,
     p13nId: rootStore.appMode === "demo" ? undefined : WIKI_LAYOUT_P13N_ID,
@@ -93,8 +117,10 @@ const WikiPageViewContent = observer(function WikiPageView({
   });
   const initialPanelSizes = readStoredPanelSizes(columnWidths, WIKI_PANEL_LAYOUT_ID, WIKI_PANEL_IDS, false);
   const canManage = store.canManage;
-  const setupActive = initialSetupState.status === "working";
-  const setupDomain = setupActive ? initialSetupState.domain : null;
+  const setupState = useLiveWikiSetupState(initialSetupState);
+  const importRunning = setupState.status === "working";
+  const hasPages =
+    listPage.total > 0 || pinnedPage !== null || initialPage !== null || initialSetupState.pages.length > 0;
 
   useLayoutEffect(() => {
     store.receiveServerPage(initialPage, requestedPageId);
@@ -118,10 +144,10 @@ const WikiPageViewContent = observer(function WikiPageView({
     isNavigating,
     missing,
     hasDocument,
-    setupActive,
+    setupActive: importRunning && !hasPages,
   });
-  useRefreshWhileWikiSetupWorks(initialSetupState);
-  const setupFailedBody = useWikiSetupFailureBody(initialSetupState);
+  const setupFailedBody = useWikiSetupFailureBody(setupState);
+  const setupFailed = store.allows(Action.create) && setupState.status === "failed";
   const tryNavigate = useCallback(
     (navigate: () => void) => rootStore.navigationGuard.tryNavigate(navigate),
     [rootStore],
@@ -157,17 +183,18 @@ const WikiPageViewContent = observer(function WikiPageView({
     () =>
       isNavigating ? null : (
         <WikiPageActions
-          canCreate={!setupActive}
+          canCreate
           canManage={canManage}
           formId={formId}
           hasDocument={hasDocument}
+          proposals={canReviewProposals ? <WikiProposalsEntry store={proposals} /> : undefined}
           store={store}
           onCancelCreate={cancelCreate}
           onCreate={create}
           onReload={reload}
         />
       ),
-    [canManage, cancelCreate, create, formId, hasDocument, isNavigating, reload, setupActive, store],
+    [canManage, canReviewProposals, cancelCreate, create, formId, hasDocument, isNavigating, proposals, reload, store],
   );
   useSetTopBarActions(topBar);
   const kindLabels: Record<WikiPageKind, string> = {
@@ -216,9 +243,13 @@ const WikiPageViewContent = observer(function WikiPageView({
     case "setup":
       documentBody = (
         <PageState
-          action={<WikiSetupProgress state={initialSetupState} />}
+          action={<WikiSetupProgress hideReadCount state={setupState} />}
           background={<WikiPageSkeleton documentOnly animated={false} />}
-          description={setupDomain ? t("WikiSetup.status.workingBodyWiki", { domain: setupDomain }) : undefined}
+          description={
+            setupState.domain
+              ? t("WikiSetup.status.workingBodyWiki", { domain: setupState.domain })
+              : t("WikiSetup.status.workingBodyAnswers")
+          }
           icon={Sparkles}
           state="empty"
           title={t("WikiSetup.status.workingTitle")}
@@ -403,25 +434,27 @@ const WikiPageViewContent = observer(function WikiPageView({
             </ResponsiveOverlay>
           </div>
 
-          {((store.allows(Action.create) && initialSetupState.status === "failed") || (setupActive && hasDocument)) && (
-            <div className="mx-auto w-full max-w-6xl px-6 py-3 md:px-10">
-              {initialSetupState.status === "failed" ? (
-                <Alert color="danger" description={setupFailedBody} />
-              ) : (
-                <div aria-live="polite" className="text-sm text-muted-foreground">
-                  {initialSetupState.progress && initialSetupState.progress.total > 0
-                    ? t("WikiSetup.status.readingBody", {
-                        domain: initialSetupState.domain ?? "",
-                        fetched: initialSetupState.progress.fetched,
-                        total: initialSetupState.progress.total,
-                      })
-                    : t("WikiSetup.status.workingTitle")}
-                </div>
-              )}
+          {importRunning && pageState !== "setup" && (
+            <div className="mx-auto w-full max-w-6xl px-6 pt-3 md:px-10" data-wiki-import-banner="">
+              <Alert
+                aria-live="polite"
+                className="py-2"
+                description={t("WikiSetup.status.backgroundBanner")}
+                icon={<Loader2 className="animate-spin motion-reduce:animate-none" />}
+                role="status"
+              />
+            </div>
+          )}
+
+          {setupFailed && (
+            <div className="mx-auto w-full max-w-6xl px-6 pt-3 md:px-10">
+              <Alert color={hasPages ? "warning" : "danger"} description={setupFailedBody} />
             </div>
           )}
 
           {documentBody}
+
+          {canReviewProposals && <WikiProposals canApply={canApplyProposal} store={proposals} />}
         </section>
       ),
     },

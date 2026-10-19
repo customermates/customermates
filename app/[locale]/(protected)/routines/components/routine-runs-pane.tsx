@@ -35,9 +35,9 @@ function RoutineRunRow({ run, store }: { run: RoutineRunDto; store: RoutineModal
             {run.triggerEvent ? eventLabel(t, run.triggerEvent) : t(`RoutineTriggerKind.${run.triggerKind}`)}
           </span>
 
-          {run.chargedCredits > 0 && (
-            <span className="text-subdued shrink-0 text-xs font-normal">
-              {`${t("RoutineDetail.credits")}: ${intlStore.formatAgentCredits(run.chargedCredits).amount}`}
+          {run.chargedPct !== null && run.chargedPct > 0 && (
+            <span className="text-subdued shrink-0 text-xs font-normal tabular-nums">
+              {t("RoutineDetail.usageShare", { used: intlStore.formatAllowanceShare(run.chargedPct) })}
             </span>
           )}
         </span>
@@ -47,6 +47,12 @@ function RoutineRunRow({ run, store }: { run: RoutineRunDto; store: RoutineModal
         </span>
 
         {detail && <p className="text-subdued mt-0.5 line-clamp-2 text-xs font-normal">{detail}</p>}
+
+        {run.wikiProposalCount > 0 && (
+          <p className="mt-0.5 text-xs font-normal text-primary" data-routine-run-wiki-proposals="">
+            {t("RoutineDetail.wikiProposals", { count: run.wikiProposalCount })}
+          </p>
+        )}
       </span>
 
       <span className="flex shrink-0 flex-col items-end gap-1.5">

@@ -36,8 +36,8 @@ export const ACQUISITION_FACT_SOURCES = {
   "product:core-crm-records": [
     "features/mcp-tools/server-instructions.ts",
     "features/mcp-tools/record-model.mcp-tools.ts",
-    "features/records/crm-preset.ts",
     "features/records/record-model.schema.ts",
+    "features/workspace-setup/setup-plan.schema.ts",
   ],
   "product:custom-fields-and-views": [
     "features/records/record-model.schema.ts",
@@ -45,8 +45,8 @@ export const ACQUISITION_FACT_SOURCES = {
     "components/data-view/data-view-content.tsx",
   ],
   "product:deal-pipelines": [
-    "features/records/crm-preset.ts",
-    "features/mcp-tools/server-instructions.ts",
+    "features/records/record-model.schema.ts",
+    "features/workspace-setup/setup-plan.schema.ts",
     "components/data-view/data-kanban-view.tsx",
   ],
   "product:docker-postgresql-deployment": ["docker-compose.yml"],
@@ -88,7 +88,10 @@ export const ACQUISITION_FACT_SOURCES = {
     "content/docs/en/mcp.mdx",
   ],
   "product:self-hosted-starter-entitlements": ["ee/subscription/entitlements.ts"],
-  "product:services-and-tasks": ["features/records/crm-preset.ts", "features/records/record-model.schema.ts"],
+  "product:services-and-tasks": [
+    "features/records/record-model.schema.ts",
+    "features/workspace-setup/setup-plan.schema.ts",
+  ],
   "product:cloud-plan-catalog": ["core/commercial/plan-catalog.ts", "ee/subscription/entitlements.ts"],
   "product:unified-inbox-channels": ["ee/messaging/provider.ts", "ee/messaging/connect/connect-channels.ts"],
   "product:unified-inbox-entitlements": [
@@ -97,7 +100,7 @@ export const ACQUISITION_FACT_SOURCES = {
     "ee/messaging/connect/create-auth-link.interactor.ts",
     "ee/messaging/persistence/prisma-connected-account.repository.ts",
   ],
-  "product:weighted-deal-values": ["features/records/crm-preset.ts", "features/records/calculation.ts"],
+  "product:weighted-deal-values": ["features/records/record-model.schema.ts", "features/records/calculation.ts"],
 } as const satisfies Record<z.infer<typeof acquisitionFactReferenceSchema>, readonly string[]>;
 
 const acquisitionExcludedClaimSchema = z.enum([

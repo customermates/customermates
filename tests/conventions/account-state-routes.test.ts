@@ -46,11 +46,12 @@ describe("guarded account-state route contract", () => {
     expect(registrationBoundary).toContain('target = { type: "invitation"');
     expect(registrationBoundary).toContain('target = { type: "createCompany" }');
     expect(actions).toContain("getCompleteOnboardingWizardInteractor().invoke()");
-    expect(actions.match(/serializeResult\(/g)).toHaveLength(4);
+    expect(actions.match(/serializeResult\(/g)).toHaveLength(1);
+    expect(actions.match(/serializeTypedResult\(/g)).toHaveLength(3);
     expect(actions).toContain("getCompleteOnboardingWikiStepInteractor().invoke()");
     expect(actions).toContain("getSaveOnboardingWizardProgressInteractor().invoke(data)");
     expect(page).toContain("getGetOnboardingWizardProgressInteractor().invoke()");
-    expect(actions).toContain("redirect(buildLocalePath(await getLocale(), result.data.redirectTo))");
+    expect(actions).toContain("redirect(buildLocalePath(chosen ?? (await getLocale()), result.data.redirectTo))");
     expect(actions).not.toContain('redirect("/")');
     expect(actions).not.toContain("requireAccountState");
     expect(actions).not.toContain("getUserService");

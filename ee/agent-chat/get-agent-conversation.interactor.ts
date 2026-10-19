@@ -8,6 +8,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { type Data, type Validated } from "@/core/validation/validation.utils";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import { env } from "@/env";
+import { AgentConversationOrigin } from "@/generated/prisma";
 
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { clientSafeAgentMessageParts } from "./agent-chat.schema";
@@ -78,6 +79,7 @@ export class GetAgentConversationInteractor extends AuthenticatedInteractor<
           sanitizeText: message.role !== "user",
           wikiBaseUrl: env.BASE_URL,
           allowContext: message.role === "user",
+          surface: conversation.origin === AgentConversationOrigin.routine ? "routine" : "chat",
         }),
         createdAt: message.createdAt,
         turn:

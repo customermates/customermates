@@ -1,4 +1,5 @@
 import type { QueryEmbeddingWait } from "@/core/retrieval/query-embedding-wait";
+import type { QueryVector } from "@/core/retrieval/retrieval-pipeline";
 import type { WikiQueryEmbedder } from "@/features/wiki/wiki-query-embedder";
 import type { WikiEmbeddingService } from "./wiki-embedding.service";
 
@@ -6,13 +7,16 @@ import * as Sentry from "@sentry/node";
 
 import { UserAccessor } from "@/core/base/user-accessor";
 
-import { WIKI_EMBEDDING_MODEL } from "./wiki-embedding-model";
+import { WIKI_EMBEDDING_VERSION } from "./wiki-embedding-model";
 
 const WIKI_QUERY_CACHE_SIZE = 500;
 const queryVectors = new Map<string, number[]>();
 const pendingVectors = new Map<
   string,
-  { vector: Promise<number[] | null>; waits: (QueryEmbeddingWait | undefined)[] }
+  {
+    vector: Promise<number[] | null>;
+    waits: (QueryEmbeddingWait | undefined)[];
+  }
 >();
 
 function cached(key: string): number[] | undefined {
@@ -38,18 +42,24 @@ export class WikiSemanticQueryEmbedder extends UserAccessor implements WikiQuery
     super();
   }
 
-  async embedQuery(query: string, wait?: QueryEmbeddingWait): Promise<{ vector: number[]; model: string } | null> {
-    const grant = await this.embeddings.authorizeQuery({ id: this.userId, companyId: this.companyId });
+  async embedQuery(query: string, wait?: QueryEmbeddingWait): Promise<QueryVector | null> {
+    const grant = await this.embeddings.authorizeQuery({
+      id: this.userId,
+      companyId: this.companyId,
+    });
     if (!grant) return null;
 
     const text = query.normalize("NFC").replace(/\s+/gu, " ").trim();
-    const key = `${this.companyId}\u0000${WIKI_EMBEDDING_MODEL}\u0000${text}`;
+    const key = `${this.companyId}\u0000${WIKI_EMBEDDING_VERSION}\u0000${text}`;
     const known = cached(key);
-    if (known) return { vector: known, model: WIKI_EMBEDDING_MODEL };
+    if (known) return { vector: known, version: WIKI_EMBEDDING_VERSION };
 
     const joined = pendingVectors.get(key);
     if (joined) joined.waits.push(wait);
-    const pending = joined ?? { waits: [wait], vector: Promise.resolve<number[] | null>(null) };
+    const pending = joined ?? {
+      waits: [wait],
+      vector: Promise.resolve<number[] | null>(null),
+    };
     if (!joined) {
       pending.vector = this.embeddings
         .embedTexts(grant, [text], "query", () => claimsAny(pending.waits))
@@ -66,6 +76,6 @@ export class WikiSemanticQueryEmbedder extends UserAccessor implements WikiQuery
       pendingVectors.set(key, pending);
     }
     const vector = await pending.vector;
-    return vector ? { vector, model: WIKI_EMBEDDING_MODEL } : null;
+    return vector ? { vector, version: WIKI_EMBEDDING_VERSION } : null;
   }
 }

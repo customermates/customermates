@@ -206,7 +206,6 @@ export class PrismaUserRepo
       displayLanguage: true,
       formattingLocale: true,
       theme: true,
-      country: true,
       avatarUrl: true,
       agreeToTerms: true,
       lastActiveAt: true,
@@ -242,7 +241,6 @@ export class PrismaUserRepo
       lastName: true,
       roleId: true,
       status: true,
-      country: true,
       avatarUrl: true,
       leftAt: true,
       createdAt: true,
@@ -345,7 +343,6 @@ export class PrismaUserRepo
       data: {
         firstName: args.firstName,
         lastName: args.lastName,
-        country: args.country,
         avatarUrl: args.avatarUrl,
         theme: args.theme,
         displayLanguage: args.displayLanguage,
@@ -360,7 +357,6 @@ export class PrismaUserRepo
       select: {
         firstName: true,
         lastName: true,
-        country: true,
         avatarUrl: true,
         theme: true,
         displayLanguage: true,
@@ -374,18 +370,8 @@ export class PrismaUserRepo
     args: RepoArgs<UpdateUserDetailsRepo, "applyPersonalProfileToOtherMembershipsUnscoped">,
   ) {
     const memberships = await this.prisma.user.findMany({
-      where: {
-        email: args.email,
-        id: { not: args.exceptUserId },
-        leftAt: null,
-      },
-      select: {
-        id: true,
-        companyId: true,
-        firstName: true,
-        lastName: true,
-        country: true,
-      },
+      where: { email: args.email, id: { not: args.exceptUserId }, leftAt: null },
+      select: { id: true, companyId: true, firstName: true, lastName: true },
     });
     if (memberships.length === 0) return [];
 
@@ -463,7 +449,6 @@ export class PrismaUserRepo
         lastName: args.lastName,
         status: args.status,
         avatarUrl: args.avatarUrl,
-        country: args.country,
         roleId: args.roleId,
       },
       where: { id: args.userId, companyId },
@@ -479,7 +464,7 @@ export class PrismaUserRepo
         lastName: args.lastName,
         email: args.email,
         avatarUrl: args.avatarUrl,
-        country: args.country,
+        displayLanguage: args.displayLanguage,
         status: Status.active,
         companyId: args.companyId,
         roleId: args.roleId,
@@ -543,7 +528,7 @@ export class PrismaUserRepo
       firstName: args.firstName,
       lastName: args.lastName,
       avatarUrl: args.avatarUrl,
-      country: args.country,
+      displayLanguage: args.displayLanguage,
       status: Status.pendingAuthorization,
       onboardingWizardCompletedAt: new Date(),
     };
@@ -718,7 +703,6 @@ export class PrismaUserRepo
         firstName: true,
         lastName: true,
         avatarUrl: true,
-        country: true,
         displayLanguage: true,
         formattingLocale: true,
         theme: true,

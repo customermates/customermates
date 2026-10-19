@@ -38,7 +38,6 @@ describe("sidebar user access", () => {
     const projected = toSidebarUser({
       avatarUrl: null,
       companyId: "company-1",
-      country: "de",
       createdAt: new Date(),
       displayLanguage: "en",
       email: "person@example.com",

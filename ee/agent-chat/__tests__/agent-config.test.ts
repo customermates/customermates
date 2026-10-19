@@ -24,8 +24,7 @@ vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 import { GetAgentConfigInteractor } from "../get-agent-config.interactor";
 
 const COUNTS = {
-  contacts: true,
-  deals: true,
+  records: true,
   routines: true,
   wiki: false,
   widgets: false,
@@ -40,21 +39,19 @@ describe("GetAgentConfigInteractor", () => {
     listConversationPage: ReturnType<typeof vi.fn>;
   };
   const recordSignals = {
-    read: vi.fn().mockResolvedValue({
-      contacts: COUNTS.contacts,
-      deals: COUNTS.deals,
-    }),
+    read: vi.fn().mockResolvedValue({ records: COUNTS.records }),
   };
   const usageService = {
     getUsageSummary: vi.fn().mockResolvedValue({
-      creditsUsed: 0,
-      creditsRemaining: 500,
-      creditsLimit: 500,
-      usedPct: 0,
+      creditsUsed: 30,
+      creditsRemaining: 570,
+      creditsLimit: 600,
+      usedPct: 5,
       plan: "pro",
-      periodStart: new Date(),
-      resetAt: new Date(),
+      periodStart: new Date("2026-08-01T00:00:00.000Z"),
+      resetAt: new Date("2026-09-01T00:00:00.000Z"),
       recentTurnCredits: null,
+      usageMultiplier: 3,
       blockedReason: null,
     }),
   };
@@ -80,6 +77,15 @@ describe("GetAgentConfigInteractor", () => {
     expect(result.ok).toBe(true);
     expect(result.data.counts).toEqual(COUNTS);
     expect(recordSignals.read).toHaveBeenCalledTimes(1);
+    expect(result.data.usage).toEqual({
+      hasAllowance: true,
+      usedPct: 5,
+      multiplier: 3,
+      plan: "pro",
+      resetAt: new Date("2026-09-01T00:00:00.000Z"),
+      recentTurnPct: null,
+      blockedReason: null,
+    });
     expect(result.data).not.toHaveProperty("preAuthorizedTools");
     expect(usageService.getUsageSummary).toHaveBeenCalledWith(mockUser.id);
     expect(mockUser.role?.isSystemRole).toBe(false);
@@ -101,7 +107,7 @@ describe("GetAgentConfigInteractor", () => {
     ).invoke();
     await vi.waitFor(() => expect(repo.normalizeExpiredAgentRunLease).toHaveBeenCalledTimes(1));
 
-    expect(repo.normalizeExpiredAgentRunLease).toHaveBeenCalledWith(expect.any(Date), "google/gemini-3.5-flash-lite");
+    expect(repo.normalizeExpiredAgentRunLease).toHaveBeenCalledWith(expect.any(Date), "anthropic/claude-haiku-5.5");
     expect(usageService.getUsageSummary).not.toHaveBeenCalled();
     expect(repo.getSuggestionSignals).not.toHaveBeenCalled();
     expect(recordSignals.read).not.toHaveBeenCalled();

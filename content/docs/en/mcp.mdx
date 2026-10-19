@@ -90,15 +90,22 @@ Each page has a type, chosen under its title:
 
 Every saved page, including imported ones, is available to Mate and connected AI tools immediately; there is no draft or publishing step. Procedure steps apply to the task you asked for, with the normal approvals. An instruction in any page to start a different task, send, delete or change permissions is treated as information.
 
+### Review Mate's proposals [#review-proposals]
+
+A [routine](/docs/app-routines#knowledge-base-proposals) never changes the Knowledge Base on its own. When a run would create, edit, or delete a page, it saves a proposal instead and the page stays as it is. People with Knowledge Base Manage see **Proposals** with the number waiting in the Knowledge Base toolbar. It opens a list showing what each proposal does, which routine made it, and when. Open one to compare the current page with the proposed title, type, and content, then choose **Approve** or **Reject**.
+
+Approving applies the change with your own permissions, exactly as if you had made the edit: approving a delete needs permission to delete pages, and the change appears in the Audit Logs under your name. A proposal is based on the page version Mate read. If someone has changed or deleted the page since, the proposal is marked **Page changed** and cannot be approved; reject it, or ask Mate to propose the change again. When a routine proposes another change to the same page, the newer proposal replaces the older one. Edits you ask Mate for in a chat are saved at once, and connected MCP clients write pages directly, as before.
+
 ### Set up from your homepage
 
-When Mate is enabled in a cloud workspace, the owner can enter a company homepage during onboarding and choose **Build my Knowledge Base** (a bare domain such as `example.com` works), or **Not now** to skip; invited members do not see this step. In an empty Knowledge Base, **Build from my website** opens a Mate chat that asks for the address and starts the same import.
+When Mate is enabled in a cloud workspace, the owner can enter a company homepage during onboarding and choose **Build my Knowledge Base** (a bare domain such as `example.com` works), or **Not now** to skip; invited members do not see this step. In an empty Knowledge Base, **Build from my website** opens a Mate chat that asks for the address and starts the same website import.
 
-The import runs in the background:
+The website import runs in the background:
 
 - It checks the site's `robots.txt` first and stops if automated reading is not allowed or `robots.txt` cannot be reached (server error or timeout). A site without `robots.txt` is read normally.
 - It finds up to 40 pages from the homepage, the sitemaps and `llms.txt`, preferring help and FAQ pages, then product, company and customer pages, terms, refund, SLA and privacy pages, and pricing. It identifies itself as Customermates, pauses between requests and follows the site's crawl delay. Unreadable pages are skipped; if no page can be read, it reports the website as unavailable and starts no AI writing.
-- Progress (stage and pages read) shows inline in the chat, followed by Mate's read-only writing conversation, and survives a reload.
+- Progress (stage and pages read) shows inline in the onboarding chat, followed by Mate's read-only writing conversation, and survives a reload.
+- In the Knowledge Base, existing pages stay readable and editable and **New page** stays available while the website import runs; a banner at the top of every page says Mate is still creating pages in the background, and new pages appear as they are ready. An empty Knowledge Base shows the import progress until the first page exists.
 
 Each import uses one language: the dominant language of existing pages or, for an empty Knowledge Base, your browser language (you can pick another supported one in onboarding). Help, FAQ, pricing and policy pages in that language are imported word for word, keeping headings and question-and-answer pairs and ending with their source address and read date. Mate reads every other source in full, then translates or summarizes it into separate topic pages, without a fixed page count or duplicate language versions. Initial setup also creates an Operating Guide and procedures for recurring requests the website supports, such as refunds or cancellations. Each written page lists its sources and open questions, such as who approves exceptions. Reading the website and detecting its language call no AI provider; Mate's writing and Knowledge Base indexing use your normal hosted AI credits.
 
@@ -114,7 +121,7 @@ Find content with the read-only `search` tool, then `fetch` the returned `wiki:<
 
 - Markdown arrives in bounded chunks with a canonical source URL. Repeat `fetch` with `nextOffset` as `offset` until it is null. An offset belongs to the tool that returned it: continue a `fetch` read with `fetch` and a `manage_wiki_pages` read with `manage_wiki_pages`. If `updatedAt` changes between chunks, restart at offset 0.
 - Each Knowledge Base hit from `search` carries a highlighted `snippet`, the heading path of the matched `section` and an `offset`; pass that `offset` to `fetch` to open the page at the answer, and use offset 0 or the returned `outline` for earlier context. Links between pages are absolute and can go straight back into `fetch`.
-- Search matches the query's words in full text, including inflected forms in English, German, Spanish, French and Italian. With AI credits it also matches by meaning, so a differently worded question or one in another language still finds the page. A query embedding is charged only when a search uses it, to the person whose search started it, even if a colleague's simultaneous identical search consumes it. Knowledge Base indexing is paid from the workspace's combined allowance, public documentation indexing by Customermates, and external clients pay their own model provider separately. Without credits, and on self-hosted instances, search is full text only.
+- Search matches the query's words in full text, including inflected forms in English, German, Spanish, French and Italian. With AI credits it also matches by meaning, so a differently worded question or one in another language still finds the page. A query embedding is charged only when a search uses it, to the person whose search started it, even if a colleague's simultaneous identical search consumes it. Knowledge Base indexing is paid from the workspace's combined allowance, except the one-time rebuild of pages indexed before the current search format, which Customermates pays up to 100 credits per workspace; public documentation indexing is paid by Customermates, and external clients pay their own model provider separately. Without credits, and on self-hosted instances, search is full text only.
 - In both modes a page containing a queried code or identifier, such as `E-4012` or `OPS-1182`, comes first regardless of separators or case. A misspelled word that matches no page is corrected from your Knowledge Base's own words; the results come from the corrected query, which `search` returns in `didYouMean`.
 - `manage_wiki_pages` with `action: "search"` returns the same fields plus `retrieval` (`semantic` or `keyword`), with offsets for its own `get`; `action: "get"` continues the same way. Its `create` and `update` actions need Knowledge Base **Create** or **Edit**. Reads need Knowledge Base read access, and every change lands in the activity log. `action: "move"` places a page before or after another page (`targetId`, `placement`), and `delete` moves it to Trash. The REST API offers the same operations under `/api/v1/wiki/`: `list`, `search`, `read`, `create`, `update`, `move` and `delete`.
 
@@ -162,7 +169,7 @@ Full JSON Schema for every tool is available live at `POST /api/v1/mcp` with `me
 
 ### Records
 
-The [[derived.mcp.tools.groups.records]] record tools serve the five starter lists and every list you create. Discover the type, read its current schema, then query or change its records. Fetch only the schemas the task needs; the catalog does not grow with customer fields.
+The [[derived.mcp.tools.groups.records]] record tools serve every list in the workspace, whoever created it. Discover the type, read its current schema, then query or change its records. Fetch only the schemas the task needs; the catalog does not grow with customer fields.
 
 Every record reference carries both `typeId` and `recordId`. `query_crm_records` pages through one type, `search_crm_records` finds accessible records, and `query_crm_measure` calculates totals across all matches. Never infer a complete total from one page, and inspect ambiguous search results before choosing a write target.
 
@@ -221,7 +228,7 @@ Inspect permitted deletion effects, including cascading records, links and depen
 
 #### `query_crm_measure`
 
-Count or aggregate once per source record at an explicit grain. Specify a source query, aggregation, optional valueFieldId and optional relationship/field grouping. Full attribution to several groups can make grouped totals exceed the distinct overall total. Use line items as the source for service quantities and contributions. Equal amounts on different records both count.
+Count or aggregate once per source record at an explicit grain. Specify a source query, aggregation, optional valueFieldId and optional relationship/field grouping. Full attribution to several groups can make grouped totals exceed the distinct overall total. Use line items as the source for quantities and contributions per catalog item. Equal amounts on different records both count.
 
 **Read-only.** Required: `source`, `aggregation`, `valueFieldId`, `groupBy`. Optional: `groupLimit`.
 
@@ -368,14 +375,14 @@ Required: `typeId`, `action`. Optional: `expectedRevision`, `idempotencyKey`, `l
 
 List, search, read, create, update, reorder (move before or after another page) or delete (move to Trash) Knowledge Base pages, each a knowledge page, a procedure with a when-to-use trigger, or the one Operating Guide. Updates and deletes require the latest updatedAt value; create can atomically require an empty Knowledge Base.
 
-**Can delete data.** Required: `action`. Optional: `id`, `query`, `offset`, `page`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `targetId`, `placement`, `title`, `markdown`, `kind`, `whenToUse`.
+**Can delete data.** Required: `action`. Optional: `id`, `query`, `offset`, `anchor`, `page`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `targetId`, `placement`, `title`, `markdown`, `kind`, `whenToUse`.
 {/* /mcp-catalog */}
 
 ### Messaging
 
 Messaging-backed tools need a plan with messaging: Pro or higher, cloud only; Starter and self-hosted instances refuse them. Without it, `get_activities` still returns audit-log changes when the caller's role has **Read access** **All** on the **Audit Log** row; its message, connected-account and calendar sources need **Read access** on the **Inbox messages** row plus a plan with messaging.
 
-`connect_messaging_account` also needs **Create** on **Inbox messages** and a free account slot: Pro allows [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, Business [[commercial.entitlement.business.includedAccountsPerUser]] and Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]].
+`connect_messaging_account` also needs **Create** on **Inbox messages** and a free account slot: Pro allows [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, Business [[commercial.entitlement.business.includedAccountsPerUser]], Max [[commercial.entitlement.max.includedAccountsPerUser]] and Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]].
 
 {/* mcp-catalog:messaging */}
 #### `get_messaging_threads`
@@ -588,7 +595,7 @@ Preview or apply a typed configuration bundle containing types, fields, relation
 
 A chart measure picks its source type, filters, aggregation, value field and grouping, for example the sum of the Value field on Deals grouped by Stage. Weighted value is just another configured field, not a widget mode.
 
-The source sets the aggregation grain. Deal reporting counts each matching deal once in the overall total; a deal linked to two organizations counts fully in both organization groups, so their sum can exceed the distinct total. Service contributions and quantities use line items as the source. Equal amounts on different records both count. Restricted inputs stay restricted in widget results, and mixed currencies are never silently added.
+The source sets the aggregation grain. Deal reporting counts each matching deal once in the overall total; a deal linked to two organizations counts fully in both organization groups, so their sum can exceed the distinct total. Contributions and quantities per catalog item use line items as the source. Equal amounts on different records both count. Restricted inputs stay restricted in widget results, and mixed currencies are never silently added.
 
 {/* mcp-catalog:widgets */}
 #### `manage_widgets`
@@ -623,9 +630,9 @@ One tool with an `action` switch: list, get, create, update, delete, plus the de
 {/* mcp-catalog:admin */}
 #### `update_my_profile`
 
-Changes your own name, country, avatar, theme, display language and formatting locale.
+Changes your own name, avatar, theme, display language and formatting locale.
 
-Optional: `firstName`, `lastName`, `country`, `avatarUrl`, `theme`, `displayLanguage`, `formattingLocale`.
+Optional: `firstName`, `lastName`, `avatarUrl`, `theme`, `displayLanguage`, `formattingLocale`.
 
 #### `manage_team`
 

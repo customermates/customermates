@@ -1,17 +1,23 @@
 import type { WorkflowTenant } from "./workflow-tenant";
 
-import { getWorkflowMetadata } from "workflow";
+import { getWorkflowMetadata, sleep } from "workflow";
 
 import {
   getFailWikiWebsiteCrawlInteractor,
   getWikiWebsiteCrawlService,
   getWikiWebsiteSynthesisService,
 } from "@/core/di";
-import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
 
+import { asBackgroundOwner, ranForOwner } from "./background-owner";
+import { GONE } from "./owner-gone";
 import { reportFailure, reportWarning, toWorkflowFailure } from "./capture-failure";
 
 const WORKFLOW_NAME = "crawl-wiki-website";
+const BRIEF_WAIT_ROUNDS = 360;
+const BRIEF_FAST_ROUNDS = 40;
+const BRIEF_FAST_WAIT = "15s";
+const BRIEF_WAIT = "1m";
+const TOPIC_LANES = 5;
 
 export type CrawlWikiWebsiteWorkflowPayload = {
   crawlId: string;
@@ -19,52 +25,59 @@ export type CrawlWikiWebsiteWorkflowPayload = {
   tenant?: WorkflowTenant;
 };
 
-async function claimWikiWebsiteStep(payload: CrawlWikiWebsiteWorkflowPayload, workflowRunId: string): Promise<boolean> {
+async function claimWikiWebsiteStep(
+  payload: CrawlWikiWebsiteWorkflowPayload,
+  workflowRunId: string,
+): Promise<boolean | typeof GONE> {
   "use step";
-  return runAsBackgroundTenant(payload.userId, () =>
+  return asBackgroundOwner(payload.userId, () =>
     getWikiWebsiteCrawlService().claimWorkflow(payload.crawlId, workflowRunId),
   );
 }
 
-async function discoverWikiWebsiteStep(payload: CrawlWikiWebsiteWorkflowPayload): Promise<number> {
+async function discoverWikiWebsiteStep(payload: CrawlWikiWebsiteWorkflowPayload): Promise<number | typeof GONE> {
   "use step";
-  return runAsBackgroundTenant(payload.userId, () => getWikiWebsiteCrawlService().discover(payload.crawlId));
+  return asBackgroundOwner(payload.userId, () => getWikiWebsiteCrawlService().discover(payload.crawlId));
 }
 
-async function fetchWikiWebsiteBatchStep(payload: CrawlWikiWebsiteWorkflowPayload, batch: number): Promise<void> {
+async function fetchWikiWebsiteBatchStep(payload: CrawlWikiWebsiteWorkflowPayload, batch: number): Promise<boolean> {
   "use step";
-  await runAsBackgroundTenant(payload.userId, () => getWikiWebsiteCrawlService().fetchBatch(payload.crawlId, batch));
+  return ranForOwner(payload.userId, () => getWikiWebsiteCrawlService().fetchBatch(payload.crawlId, batch));
 }
 
-async function importWikiWebsiteStep(payload: CrawlWikiWebsiteWorkflowPayload): Promise<void> {
+async function importWikiWebsiteStep(payload: CrawlWikiWebsiteWorkflowPayload): Promise<boolean> {
   "use step";
-  await runAsBackgroundTenant(payload.userId, () => getWikiWebsiteCrawlService().importSources(payload.crawlId));
+  return ranForOwner(payload.userId, () => getWikiWebsiteCrawlService().importSources(payload.crawlId));
 }
 
-async function finishWikiWebsiteStep(payload: CrawlWikiWebsiteWorkflowPayload): Promise<void> {
+async function finishWikiWebsiteStep(payload: CrawlWikiWebsiteWorkflowPayload): Promise<boolean> {
   "use step";
-  await runAsBackgroundTenant(payload.userId, () => getWikiWebsiteCrawlService().finish(payload.crawlId));
+  return ranForOwner(payload.userId, () => getWikiWebsiteCrawlService().finish(payload.crawlId));
 }
 
 async function planWikiWebsiteStep(
   payload: CrawlWikiWebsiteWorkflowPayload,
-): Promise<{ topics: number; warnings: string[] }> {
+  giveUp: boolean,
+): Promise<{ topics: number | "wait" | typeof GONE; warnings: string[] }> {
   "use step";
   const service = getWikiWebsiteSynthesisService();
-  const topics = await runAsBackgroundTenant(payload.userId, () => service.plan(payload.crawlId));
+  const topics = await asBackgroundOwner(payload.userId, () => service.plan(payload.crawlId, giveUp));
   return { topics, warnings: service.drainWarnings() };
 }
 
-async function writeWikiTopicStep(payload: CrawlWikiWebsiteWorkflowPayload, index: number): Promise<string[]> {
+async function writeWikiTopicStep(
+  payload: CrawlWikiWebsiteWorkflowPayload,
+  index: number,
+): Promise<{ gone: boolean; warnings: string[] }> {
   "use step";
   const service = getWikiWebsiteSynthesisService();
-  await runAsBackgroundTenant(payload.userId, () => service.writeTopic(payload.crawlId, index));
-  return service.drainWarnings();
+  const written = await asBackgroundOwner(payload.userId, () => service.writeTopic(payload.crawlId, index));
+  return { gone: written === GONE, warnings: service.drainWarnings() };
 }
 
-async function settleWikiWebsiteStep(payload: CrawlWikiWebsiteWorkflowPayload): Promise<void> {
+async function settleWikiWebsiteStep(payload: CrawlWikiWebsiteWorkflowPayload): Promise<boolean> {
   "use step";
-  await runAsBackgroundTenant(payload.userId, () => getWikiWebsiteSynthesisService().settle(payload.crawlId));
+  return ranForOwner(payload.userId, () => getWikiWebsiteSynthesisService().settle(payload.crawlId));
 }
 
 planWikiWebsiteStep.maxRetries = 1;
@@ -83,18 +96,35 @@ export async function crawlWikiWebsite(payload: CrawlWikiWebsiteWorkflowPayload)
   "use workflow";
   const { workflowRunId } = getWorkflowMetadata();
   try {
-    if (!(await claimWikiWebsiteStep(payload, workflowRunId))) return;
+    const claimed = await claimWikiWebsiteStep(payload, workflowRunId);
+    if (claimed !== true) return;
     const batches = await discoverWikiWebsiteStep(payload);
-    if (batches === 0) return;
-    for (let batch = 0; batch < batches; batch += 1) await fetchWikiWebsiteBatchStep(payload, batch);
-    await importWikiWebsiteStep(payload);
-    await finishWikiWebsiteStep(payload);
-    const planned = await planWikiWebsiteStep(payload);
-    for (const warning of planned.warnings) await reportWarning(WORKFLOW_NAME, warning, payload.tenant);
-    for (let index = 0; index < planned.topics; index += 1) {
-      for (const warning of await writeWikiTopicStep(payload, index))
-        await reportWarning(WORKFLOW_NAME, warning, payload.tenant);
+    if (batches === GONE || batches === 0) return;
+    for (let batch = 0; batch < batches; batch += 1) if (!(await fetchWikiWebsiteBatchStep(payload, batch))) return;
+    if (!(await importWikiWebsiteStep(payload))) return;
+    if (!(await finishWikiWebsiteStep(payload))) return;
+    let topics = 0;
+    for (let round = 0; round <= BRIEF_WAIT_ROUNDS; round += 1) {
+      const planned = await planWikiWebsiteStep(payload, round === BRIEF_WAIT_ROUNDS);
+      for (const warning of planned.warnings) await reportWarning(WORKFLOW_NAME, warning, payload.tenant);
+      if (planned.topics === GONE) return;
+      if (planned.topics !== "wait") {
+        topics = planned.topics;
+        break;
+      }
+      await sleep(round < BRIEF_FAST_ROUNDS ? BRIEF_FAST_WAIT : BRIEF_WAIT);
     }
+    let gone = false;
+    await Promise.all(
+      Array.from({ length: Math.min(TOPIC_LANES, topics) }, async (_lane, lane) => {
+        for (let index = lane; index < topics && !gone; index += TOPIC_LANES) {
+          const written = await writeWikiTopicStep(payload, index);
+          for (const warning of written.warnings) await reportWarning(WORKFLOW_NAME, warning, payload.tenant);
+          gone ||= written.gone;
+        }
+      }),
+    );
+    if (gone) return;
     await settleWikiWebsiteStep(payload);
   } catch (err) {
     try {

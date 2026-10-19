@@ -13,6 +13,7 @@ import { processEvents } from "./process-events";
 import { purgeTrash } from "./purge-trash";
 import { reconcileBillingUsage } from "./reconcile-billing-usage";
 import { triggerTestError } from "./trigger-test-error";
+import { buildWorkspaceSetup, planWorkspaceSetup, prepareWorkspaceSetup } from "./workspace-setup";
 
 export const WORKFLOW_REGISTRY = {
   "agent-turn": runAgentTurn,
@@ -30,6 +31,9 @@ export const WORKFLOW_REGISTRY = {
   "purge-trash": purgeTrash,
   "reconcile-billing-usage": reconcileBillingUsage,
   "trigger-test-error": triggerTestError,
+  "prepare-workspace-setup": prepareWorkspaceSetup,
+  "plan-workspace-setup": planWorkspaceSetup,
+  "build-workspace-setup": buildWorkspaceSetup,
 } as const;
 
 export type WorkflowId = keyof typeof WORKFLOW_REGISTRY;

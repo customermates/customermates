@@ -33,12 +33,11 @@ describe("get_docs_page", () => {
     const markdown = pageMarkdown("docs", "en", "app-link-fixture", {
       title: "Fixture",
       description: "",
-      content:
-        "---\ntitle: Fixture\n---\nOpen [Contacts](app:records/contact) or [Roles](app:settings/roles?focus=add).",
+      content: "---\ntitle: Fixture\n---\nOpen [Configure](app:configure) or [Roles](app:settings/roles?focus=add).",
     });
 
     expect(markdown).toBe(
-      "Open [Contacts](http://localhost:4000/open/records/contact) or [Roles](http://localhost:4000/settings/roles?focus=control%3Asettings-roles-add).",
+      "Open [Configure](http://localhost:4000/configure) or [Roles](http://localhost:4000/settings/roles?focus=control%3Asettings-roles-add).",
     );
   });
 

@@ -12,7 +12,7 @@ export abstract class WikiWebsiteCrawlRepo {
   abstract createCrawl(
     data: Pick<
       WikiCrawlRecord,
-      "clientRequestId" | "homepageUrl" | "registrableDomain" | "locale" | "mode" | "extraHosts"
+      "clientRequestId" | "homepageUrl" | "registrableDomain" | "locale" | "mode" | "extraHosts" | "payer"
     >,
   ): Promise<{ status: "created"; crawl: WikiCrawlRecord } | { status: "active" }>;
   abstract findCrawlByClientRequest(clientRequestId: string): Promise<WikiCrawlRecord | null>;

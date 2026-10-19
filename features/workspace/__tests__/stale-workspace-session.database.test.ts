@@ -92,15 +92,14 @@ describeDatabase("a browser session whose workspace was left on another device",
     );
 
     const { runWithTenant } = await import("@/core/decorators/tenant-context");
-    const { InitializeRecordModelService } = await import("@/features/records/initialize-record-model.service");
-    const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
+    const { initializeStarterRecordModel } = await import("@/tests/helpers/record-repository");
     const { createMockUser } = await import("@/tests/helpers/mock-user");
     for (const [companyId, userId, roleId] of [
       [companies.kept, members.kept, roles.kept],
       [companies.left, members.leftAdmin, roles.leftAdmin],
     ]) {
       const owner = createMockUser({ id: userId, companyId, roleId });
-      await runWithTenant(owner, () => new InitializeRecordModelService(createTestRecordRepo()).initialize());
+      await runWithTenant(owner, () => initializeStarterRecordModel());
     }
 
     const { auth } = await import("@/core/auth/better-auth");
@@ -240,11 +239,10 @@ describeDatabase("a browser session whose only workspace ended", { timeout: 120_
     );
 
     const { runWithTenant } = await import("@/core/decorators/tenant-context");
-    const { InitializeRecordModelService } = await import("@/features/records/initialize-record-model.service");
-    const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
+    const { initializeStarterRecordModel } = await import("@/tests/helpers/record-repository");
     const { createMockUser } = await import("@/tests/helpers/mock-user");
     const owner = createMockUser({ id: members.admin, companyId, roleId: roles.admin });
-    await runWithTenant(owner, () => new InitializeRecordModelService(createTestRecordRepo()).initialize());
+    await runWithTenant(owner, () => initializeStarterRecordModel());
 
     const { auth } = await import("@/core/auth/better-auth");
     const secret = (await auth.$context).secret;
@@ -292,7 +290,7 @@ describeDatabase("a browser session whose only workspace ended", { timeout: 120_
     as(sessions.stale, SERVER_ACTION);
 
     const registered = await getRegisterUserInteractor().invoke(
-      { email, firstName: "Only", lastName: "Workspace", country: "de", avatarUrl: null, agreeToTerms: true },
+      { email, firstName: "Only", lastName: "Workspace", avatarUrl: null, agreeToTerms: true },
       { target: { type: "invitation", companyId } },
     );
 

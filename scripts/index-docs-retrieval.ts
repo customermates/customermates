@@ -1,14 +1,14 @@
 import "dotenv/config";
 
-import { getDocsChunkRepo, getDocsSemanticIndexService } from "@/core/di";
+import { getDocsSectionRepo, getDocsSemanticIndexService } from "@/core/di";
 import { docsCorpus } from "@/features/mcp-tools/docs-corpus";
 
 const MAX_STEPS = 100;
 
 async function main() {
   const corpus = docsCorpus();
-  await getDocsChunkRepo().ensureCorpus(corpus);
-  process.stdout.write(`Documentation build ${corpus.buildHash.slice(0, 12)}: ${corpus.chunks.length} chunks stored.\n`);
+  await getDocsSectionRepo().ensureCorpus(corpus);
+  process.stdout.write(`Documentation build ${corpus.buildHash.slice(0, 12)}: ${corpus.parts.length} sections stored.\n`);
   if (process.argv.includes("--full-text-only")) return;
   let indexed = 0;
   for (let step = 0; step < MAX_STEPS; step += 1) {
@@ -16,7 +16,7 @@ async function main() {
     indexed += result.indexed;
     if (!result.remaining) break;
   }
-  process.stdout.write(`Embedded ${indexed} documentation chunks.\n`);
+  process.stdout.write(`Embedded ${indexed} documentation sections.\n`);
 }
 
 main().then(

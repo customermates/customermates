@@ -268,7 +268,7 @@ test("a member removed while a page is open meets the workspace-changed dialog a
     await setActiveWorkspace(database, rita, workspace.companyId);
     const removed = await signInLogin(browser, database, rita, testInfo);
     expectNotFoundDocuments(removed.page);
-    const refused = expectRefusedPageAction(removed.page, organizationList(workspace.companyId));
+    const refused = await expectRefusedPageAction(removed.page, organizationList(workspace.companyId));
     const unreadPolls = recordUnreadCountPolls(removed.page);
     const sentryRequests = recordSentryRequests(removed.page);
     const recordedToasts = await recordToasts(removed.page);

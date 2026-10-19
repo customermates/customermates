@@ -111,8 +111,8 @@ export class MutateRecordInteractor extends AuthenticatedInteractor<MutateRecord
           : failConflict(CustomErrorCode.recordIdempotencyConflict);
       }
       const state = await this.records.getState();
-      if (state?.revision !== input.expectedRevision) return failConflict(CustomErrorCode.recordSchemaChanged);
-      if (state.activeOperationId) return failConflict(CustomErrorCode.recordWritePaused);
+      if ((state?.revision ?? 0) !== input.expectedRevision) return failConflict(CustomErrorCode.recordSchemaChanged);
+      if (state?.activeOperationId) return failConflict(CustomErrorCode.recordWritePaused);
       await this.writer.validateAccess(input.mutation, policy);
       const operationId = randomUUID();
       await this.records.createOperation({

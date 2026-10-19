@@ -18,6 +18,7 @@ function runtimeBindingEnvironment(): LemonSqueezyBindingEnvironment {
     LEMONSQUEEZY_VARIANT_ID_STARTER: env.LEMONSQUEEZY_VARIANT_ID_STARTER,
     LEMONSQUEEZY_VARIANT_ID_PRO: env.LEMONSQUEEZY_VARIANT_ID_PRO,
     LEMONSQUEEZY_VARIANT_ID_BUSINESS: env.LEMONSQUEEZY_VARIANT_ID_BUSINESS,
+    LEMONSQUEEZY_VARIANT_ID_MAX: env.LEMONSQUEEZY_VARIANT_ID_MAX,
     ...Object.fromEntries(
       Object.entries(process.env).filter(
         ([key]) => key.startsWith("LEMONSQUEEZY_VARIANT_ID_") && !supportedKeys.has(key as never),

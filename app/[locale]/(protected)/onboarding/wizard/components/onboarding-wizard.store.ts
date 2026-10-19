@@ -4,14 +4,23 @@ import equal from "fast-deep-equal/es6";
 import type { RootStore } from "@/core/stores/root.store";
 import type { OnboardingWizardProgress } from "@/features/onboarding-wizard/onboarding-wizard-progress.schema";
 
-import { completeOnboardingWizardAction, saveOnboardingWizardProgressAction } from "../actions";
+import {
+  completeOnboardingSetupStepAction,
+  completeOnboardingWizardAction,
+  saveOnboardingWizardProgressAction,
+} from "../actions";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { serializedFailureErrorTree } from "@/core/validation/validation.utils";
 import { readOnboardingWizardProgress } from "@/features/onboarding-wizard/onboarding-wizard-progress.schema";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { buildLocalePath } from "@/i18n/locale-registry";
 
-export const WIZARD_STEPS = ["profile", "wiki", "invite", "ai"] as const;
-type WizardStep = (typeof WIZARD_STEPS)[number];
+export const WIZARD_STEPS = ["profile", "setup", "invite", "ai"] as const;
+export type WizardStep = (typeof WIZARD_STEPS)[number];
+
+export function wizardSteps(setupAvailable: boolean): WizardStep[] {
+  return setupAvailable ? [...WIZARD_STEPS] : WIZARD_STEPS.filter((step) => step !== "setup");
+}
 
 export class OnboardingWizardStore {
   currentStepIndex = 0;
@@ -20,6 +29,7 @@ export class OnboardingWizardStore {
   isInitializing = true;
   pendingSaves = 0;
   inviteTab: OnboardingWizardProgress["inviteTab"] = "link";
+  setupAvailable = true;
   userId: string | undefined;
   savedProgress: OnboardingWizardProgress | null = null;
   private initializationVersion = 0;
@@ -32,8 +42,12 @@ export class OnboardingWizardStore {
     });
   }
 
+  get steps(): WizardStep[] {
+    return wizardSteps(this.setupAvailable);
+  }
+
   get currentStep(): WizardStep {
-    return WIZARD_STEPS[this.currentStepIndex];
+    return this.steps[this.currentStepIndex];
   }
 
   get isFirstStep(): boolean {
@@ -41,7 +55,7 @@ export class OnboardingWizardStore {
   }
 
   get totalSteps(): number {
-    return WIZARD_STEPS.length;
+    return this.steps.length;
   }
 
   get isSaving(): boolean {
@@ -56,9 +70,15 @@ export class OnboardingWizardStore {
     };
   }
 
-  initialize = (resumeStepIndex: number, userId?: string, progress?: OnboardingWizardProgress) => {
+  initialize = (
+    resumeStepIndex: number,
+    userId?: string,
+    progress?: OnboardingWizardProgress,
+    setupAvailable = true,
+  ) => {
     const identityChanged = this.userId !== userId;
-    const resumesSavedStep = WIZARD_STEPS[resumeStepIndex] === "invite";
+    this.setupAvailable = setupAvailable;
+    const resumesSavedStep = this.steps[resumeStepIndex] === "invite";
     this.initializationVersion += 1;
     this.userId = userId;
     this.savedProgress = resumeStepIndex > 0 ? readOnboardingWizardProgress(progress) : null;
@@ -66,7 +86,7 @@ export class OnboardingWizardStore {
     this.applyProgress(this.savedProgress ?? readOnboardingWizardProgress(null));
     this.minStepIndex = resumeStepIndex;
     this.currentStepIndex = resumesSavedStep
-      ? WIZARD_STEPS.indexOf(this.savedProgress?.step ?? "invite")
+      ? this.steps.indexOf(this.savedProgress?.step ?? "invite")
       : resumeStepIndex;
     this.isInitializing = false;
   };
@@ -92,7 +112,7 @@ export class OnboardingWizardStore {
         });
         if (version !== this.initializationVersion) return false;
         if (!result.ok) {
-          toastZodErrorTree(result.error);
+          toastZodErrorTree(serializedFailureErrorTree(result.failure));
           const saved = this.savedProgress;
           if (saved) runInAction(() => this.applyProgress(saved));
           return false;
@@ -136,9 +156,9 @@ export class OnboardingWizardStore {
   };
 
   next = async () => {
-    if (this.isSaving || this.currentStepIndex >= WIZARD_STEPS.length - 1) return;
+    if (this.isSaving || this.currentStepIndex >= this.steps.length - 1) return;
     const version = this.initializationVersion;
-    const step = WIZARD_STEPS[this.currentStepIndex + 1] === "ai" ? "ai" : "invite";
+    const step = this.steps[this.currentStepIndex + 1] === "ai" ? "ai" : "invite";
     if (this.userId && !(await this.persistProgress({ ...this.progress, step }))) return;
     if (version !== this.initializationVersion) return;
     runInAction(() => {
@@ -156,6 +176,25 @@ export class OnboardingWizardStore {
     });
   };
 
+  completeSetupStep = async (): Promise<void> => {
+    if (this.isSubmitting) return;
+    this.setIsSubmitting(true);
+    try {
+      const result = await completeOnboardingSetupStepAction();
+      if (!result.ok) {
+        toastZodErrorTree(serializedFailureErrorTree(result.failure));
+        return;
+      }
+      if (this.currentStep !== "setup") return;
+      await this.next();
+      runInAction(() => {
+        if (this.currentStep !== "setup") this.minStepIndex = this.currentStepIndex;
+      });
+    } finally {
+      this.setIsSubmitting(false);
+    }
+  };
+
   complete = async (): Promise<void> => {
     this.setIsSubmitting(true);
     try {
@@ -164,7 +203,7 @@ export class OnboardingWizardStore {
       if (selectedTool !== null && !canFinish) return;
       const res = await completeOnboardingWizardAction();
       if (!res.ok) {
-        toastZodErrorTree(res.error);
+        toastZodErrorTree(serializedFailureErrorTree(res.failure));
         return;
       }
 

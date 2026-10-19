@@ -34,8 +34,7 @@ const enT = translatorFor("en");
 const deT = translatorFor("de");
 
 const EMPTY_COUNTS = {
-  contacts: false,
-  deals: false,
+  records: false,
   routines: false,
   wiki: false,
   widgets: false,
@@ -45,7 +44,7 @@ const EMPTY_COUNTS = {
 describe("agent experience contract", () => {
   it("selects exactly three deterministic actions from page data state", () => {
     expect(agentPageState("default", EMPTY_COUNTS)).toBe("empty");
-    expect(agentPageState("default", { ...EMPTY_COUNTS, contacts: true })).toBe("data");
+    expect(agentPageState("default", { ...EMPTY_COUNTS, records: true })).toBe("data");
     expect(agentPageActions("dashboard", "empty", enT)).toEqual(agentPageActions("dashboard", "empty", enT));
     expect(agentPageState("routines", EMPTY_COUNTS)).toBe("empty");
     expect(agentPageState("routines", { ...EMPTY_COUNTS, routines: true })).toBe("data");

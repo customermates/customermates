@@ -1,4 +1,3 @@
-import type { CountryCode } from "@/generated/prisma";
 import type { StoredUserProfileData, UpdateUserDetailsData } from "./update-user-details.interactor";
 
 export type OtherMembershipProfile = {
@@ -6,7 +5,6 @@ export type OtherMembershipProfile = {
   companyId: string;
   firstName: string;
   lastName: string;
-  country: CountryCode;
 };
 
 export abstract class UpdateUserDetailsRepo {

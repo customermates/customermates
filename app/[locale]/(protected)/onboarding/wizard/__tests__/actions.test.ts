@@ -20,6 +20,7 @@ vi.mock("@/core/di", () => ({
 }));
 vi.mock("@/core/utils/action-result", () => ({
   serializeResult: async (result: unknown) => await result,
+  serializeTypedResult: async (result: unknown) => await result,
   settleActionResult: async (result: unknown) => await result,
 }));
 vi.mock("@/features/acquisition/next/ad-attribution-cookie", () => ({
@@ -32,7 +33,7 @@ import { completeOnboardingWizardAction, registerProfileAction } from "../action
 const registration = {
   agreeToTerms: true,
   avatarUrl: null,
-  country: "de" as const,
+  displayLanguage: "system" as const,
   email: "owner@example.com",
   firstName: "Owner",
   lastName: "Example",
@@ -87,6 +88,17 @@ describe("onboarding registration action", () => {
 
     expect(mocks.clearRegisteredClick).toHaveBeenCalledOnce();
     expect(mocks.refresh).toHaveBeenCalledOnce();
+  });
+
+  it("continues in the display language chosen on the profile step", async () => {
+    mocks.register.mockResolvedValue({ data: { redirectTo: "/onboarding/wizard" }, ok: true });
+
+    await expect(registerProfileAction({ ...registration, displayLanguage: "de" })).rejects.toThrow(
+      "REDIRECT:/de/onboarding/wizard",
+    );
+    await expect(registerProfileAction({ ...registration, displayLanguage: "en" })).rejects.toThrow(
+      "REDIRECT:/en/onboarding/wizard",
+    );
   });
 });
 

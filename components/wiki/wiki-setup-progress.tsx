@@ -49,13 +49,19 @@ function StatusIcon({ status }: { status: ProgressStatus }) {
   );
 }
 
-export function WikiSetupProgress({ state }: { state: WikiHomepageSetupState }) {
+type Props = {
+  state: WikiHomepageSetupState;
+  hideReadCount?: boolean;
+};
+
+export function WikiSetupProgress({ state, hideReadCount = false }: Props) {
   const t = useTranslations();
   const progress = state.progress;
   const pages = progress?.pages ?? [];
   const discovering = state.crawlPhase === "queued" || state.crawlPhase === "discovering";
   const reading = state.crawlPhase === "fetching";
   const writing = state.crawlPhase === "importing" || state.crawlPhase === "synthesizing";
+  const fromWebsite = state.homepage !== null;
   const topics = progress?.topics ?? [];
   const createdTopics = topics.filter((topic) => topic.status === "created").length;
   const active = state.status === "working";
@@ -105,13 +111,17 @@ export function WikiSetupProgress({ state }: { state: WikiHomepageSetupState }) 
     review: t("WikiSetup.crawlProgress.skipped.review"),
     reviewUnavailable: t("WikiSetup.crawlProgress.skipped.reviewUnavailable"),
     credits: t("WikiSetup.crawlProgress.skipped.credits"),
+    aiUnavailable: t("WikiSetup.crawlProgress.skipped.aiUnavailable"),
     persistence: t("WikiSetup.crawlProgress.skipped.persistence"),
     error: t("WikiSetup.crawlProgress.skipped.error"),
   };
+  const readingLabel = hideReadCount
+    ? t("WikiSetup.crawlProgress.readingStep")
+    : t("WikiSetup.crawlProgress.readingCount", { fetched: progress?.fetched ?? 0, total: progress?.total ?? 0 });
   const summary = discovering
     ? t("WikiSetup.crawlProgress.discovering")
     : reading
-      ? t("WikiSetup.crawlProgress.readingCount", { fetched: progress?.fetched ?? 0, total: progress?.total ?? 0 })
+      ? readingLabel
       : writing
         ? writingSummary
         : t("WikiSetup.crawlProgress.steps");
@@ -156,64 +166,65 @@ export function WikiSetupProgress({ state }: { state: WikiHomepageSetupState }) 
 
       <CollapsibleContent className="mt-3 pl-4">
         <ol className="space-y-3">
-          <li aria-current={discovering ? "step" : undefined} className={activityRowClassName}>
-            <div className="flex items-start gap-2 text-foreground [&>svg]:mt-0.5">
-              <StatusIcon status={discoveryStatus} />
+          {fromWebsite ? (
+            <>
+              <li aria-current={discovering ? "step" : undefined} className={activityRowClassName}>
+                <div className="flex items-start gap-2 text-foreground [&>svg]:mt-0.5">
+                  <StatusIcon status={discoveryStatus} />
 
-              <span className="min-w-0 [overflow-wrap:anywhere]">
-                {t("WikiSetup.crawlProgress.discovering")}
+                  <span className="min-w-0 [overflow-wrap:anywhere]">
+                    {t("WikiSetup.crawlProgress.discovering")}
 
-                {(progress?.total ?? 0) > 0 ? (
-                  <span className="ml-2 text-muted-foreground">
-                    {t("WikiSetup.crawlProgress.found", { count: progress?.total ?? 0 })}
-                  </span>
-                ) : null}
-              </span>
-            </div>
-          </li>
-
-          <li
-            aria-current={reading ? "step" : undefined}
-            aria-label={
-              readingStatus === "failed" ? t("WikiSetup.status.failedTitle") : pageStatusLabels[readingStatus]
-            }
-            className={activityRowClassName}
-          >
-            <div className="flex items-start gap-2 text-foreground [&>svg]:mt-0.5">
-              <StatusIcon status={readingStatus} />
-
-              <span>
-                {t("WikiSetup.crawlProgress.readingCount", {
-                  fetched: progress?.fetched ?? 0,
-                  total: progress?.total ?? 0,
-                })}
-              </span>
-            </div>
-
-            {reading && progress?.currentUrl ? (
-              <p className="pl-[1.375rem] text-foreground [overflow-wrap:anywhere]">{progress.currentUrl}</p>
-            ) : null}
-
-            {pages.length > 0 ? (
-              <ul className="max-h-32 space-y-1.5 overflow-y-auto pl-[1.375rem]">
-                {pages.map((page) => (
-                  <li
-                    key={page.url}
-                    aria-label={
-                      page.status === "reading" && !reading ? page.url : `${pageStatusLabels[page.status]}: ${page.url}`
-                    }
-                    className="flex items-start gap-2 [&>svg]:mt-0.5"
-                  >
-                    {page.status !== "reading" || reading ? (
-                      <StatusIcon status={page.status === "failed" ? "skipped" : page.status} />
+                    {(progress?.total ?? 0) > 0 ? (
+                      <span className="ml-2 text-muted-foreground">
+                        {t("WikiSetup.crawlProgress.found", { count: progress?.total ?? 0 })}
+                      </span>
                     ) : null}
+                  </span>
+                </div>
+              </li>
 
-                    <span className="min-w-0 [overflow-wrap:anywhere]">{page.url}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-          </li>
+              <li
+                aria-current={reading ? "step" : undefined}
+                aria-label={
+                  readingStatus === "failed" ? t("WikiSetup.status.failedTitle") : pageStatusLabels[readingStatus]
+                }
+                className={activityRowClassName}
+              >
+                <div className="flex items-start gap-2 text-foreground [&>svg]:mt-0.5">
+                  <StatusIcon status={readingStatus} />
+
+                  <span>{readingLabel}</span>
+                </div>
+
+                {!hideReadCount && reading && progress?.currentUrl ? (
+                  <p className="pl-[1.375rem] text-foreground [overflow-wrap:anywhere]">{progress.currentUrl}</p>
+                ) : null}
+
+                {pages.length > 0 ? (
+                  <ul className="max-h-32 space-y-1.5 overflow-y-auto pl-[1.375rem]">
+                    {pages.map((page) => (
+                      <li
+                        key={page.url}
+                        aria-label={
+                          page.status === "reading" && !reading
+                            ? page.url
+                            : `${pageStatusLabels[page.status]}: ${page.url}`
+                        }
+                        className="flex items-start gap-2 [&>svg]:mt-0.5"
+                      >
+                        {page.status !== "reading" || reading ? (
+                          <StatusIcon status={page.status === "failed" ? "skipped" : page.status} />
+                        ) : null}
+
+                        <span className="min-w-0 [overflow-wrap:anywhere]">{page.url}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </li>
+            </>
+          ) : null}
 
           <li aria-current={writing ? "step" : undefined} className={activityRowClassName}>
             <div className="flex items-start gap-2 text-foreground [&>svg]:mt-0.5">

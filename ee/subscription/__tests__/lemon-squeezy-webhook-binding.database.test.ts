@@ -227,7 +227,7 @@ describeDatabase("which workspace a Lemon Squeezy subscription binds to, on Post
       [owner.roleId, owner.companyId],
     );
     await client.query(
-      'INSERT INTO "User" ("id","email","firstName","lastName","country","companyId","roleId","status","updatedAt") VALUES ($1,$2,\'Binding\',\'Admin\',\'de\',$3,$4,\'active\',CURRENT_TIMESTAMP)',
+      'INSERT INTO "User" ("id","email","firstName","lastName","companyId","roleId","status","updatedAt") VALUES ($1,$2,\'Binding\',\'Admin\',$3,$4,\'active\',CURRENT_TIMESTAMP)',
       [owner.id, `binding-${owner.id}@example.invalid`, owner.companyId, owner.roleId],
     );
   });
