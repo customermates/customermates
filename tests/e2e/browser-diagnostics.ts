@@ -1,4 +1,4 @@
-import type { BrowserContext, ConsoleMessage, Page, Request, TestInfo } from "@playwright/test";
+import type { BrowserContext, ConsoleMessage, Page, Request, Response, TestInfo } from "@playwright/test";
 
 import {
   chunkLoadErrorChunk,
@@ -9,23 +9,33 @@ import {
   webkitCancelledChunk,
 } from "./browser-noise";
 
-export type BrowserDiagnostic = { kind: "pageerror" | "console"; text: string; source: string; page: Page | null };
+/** `document` marks a failed load of a document a frame navigated to, as opposed to a fetch, script or image. */
+export type BrowserDiagnostic = {
+  kind: "pageerror" | "console";
+  text: string;
+  source: string;
+  page: Page | null;
+  document?: boolean;
+};
 
 /**
  * A diagnostic a test causes on purpose. It matches one kind, a text pattern and, for console messages, the URL of
  * the resource the message is about; `page` narrows it to one page. At most `limit` (default 1) events count as
- * expected, the rest stay unexpected, and `events` lets the test assert that the expected event happened.
+ * expected, the rest stay unexpected, and `events` lets the test assert that the expected event happened. `document`
+ * limits it to failed loads of navigated documents.
  */
 export type ExpectedDiagnosticRule = {
   kind: BrowserDiagnostic["kind"];
   text: RegExp;
   source?: (url: URL) => boolean;
   page?: Page;
+  document?: boolean;
   limit?: number;
 };
 export type ExpectedDiagnostic = { readonly events: readonly BrowserDiagnostic[] };
 
 const LOOPBACK_HOSTS = ["127.0.0.1", "localhost", "[::1]"];
+const HTTP_ERROR_REPORT = /^Failed to load resource: the server responded with a status of \d{3}\b/;
 
 function sourceUrl(source: string) {
   try {
@@ -50,6 +60,7 @@ export function isSandboxedResourceFailure(diagnostic: Pick<BrowserDiagnostic, "
 export function matchesExpectedDiagnostic(rule: ExpectedDiagnosticRule, diagnostic: BrowserDiagnostic) {
   if (rule.kind !== diagnostic.kind || !rule.text.test(diagnostic.text)) return false;
   if (rule.page && rule.page !== diagnostic.page) return false;
+  if (rule.document && !diagnostic.document) return false;
   if (!rule.source) return true;
   const url = sourceUrl(diagnostic.source);
   return url !== null && rule.source(url);
@@ -65,6 +76,41 @@ function requestPage(request: Request) {
   } catch {
     return null;
   }
+}
+
+function isLoopbackHttp(source: string) {
+  const url = sourceUrl(source);
+  return url !== null && ["http:", "https:"].includes(url.protocol) && LOOPBACK_HOSTS.includes(url.hostname);
+}
+
+/**
+ * A load of the app answered with an HTTP error status (4xx or 5xx), built from the response. Chromium and WebKit also
+ * log most of these as "Failed to load resource", but not all (WebKit logs no failed document) and Firefox logs none
+ * of them, so the response is the one source on every browser. The text is Chromium's, which the rules match.
+ */
+export function httpErrorDiagnostic(
+  response: Pick<Response, "status" | "statusText" | "url" | "frame" | "request">,
+): BrowserDiagnostic | null {
+  if (response.status() < 400 || !isLoopbackHttp(response.url())) return null;
+  let page: Page | null = null;
+  try {
+    page = response.frame().page();
+  } catch {
+    page = null;
+  }
+  const statusText = response.statusText();
+  return {
+    kind: "console",
+    text: `Failed to load resource: the server responded with a status of ${response.status()}${statusText ? ` (${statusText})` : ""}`,
+    source: response.url(),
+    page,
+    document: response.request().isNavigationRequest(),
+  };
+}
+
+/** The browser's own console copy of an HTTP error of the app, which `httpErrorDiagnostic` already reported. */
+export function isHttpErrorReport(diagnostic: Pick<BrowserDiagnostic, "kind" | "text" | "source">) {
+  return diagnostic.kind === "console" && HTTP_ERROR_REPORT.test(diagnostic.text) && isLoopbackHttp(diagnostic.source);
 }
 
 const byTest = new WeakMap<TestInfo, BrowserDiagnostics>();
@@ -107,10 +153,20 @@ export class BrowserDiagnostics {
         this.record({ kind: "pageerror", text: message, source: "", page: error.page() });
     });
     context.on("console", (message: ConsoleMessage) => {
-      if (isAppConsoleError(message))
-        this.record({ kind: "console", text: message.text(), source: message.location().url, page: message.page() });
+      if (!isAppConsoleError(message)) return;
+      const diagnostic: BrowserDiagnostic = {
+        kind: "console",
+        text: message.text(),
+        source: message.location().url,
+        page: message.page(),
+      };
+      if (!isHttpErrorReport(diagnostic)) this.record(diagnostic);
     });
     context.on("request", (request: Request) => this.noteRequest(request));
+    context.on("response", (response: Response) => {
+      const diagnostic = httpErrorDiagnostic(response);
+      if (diagnostic) this.record(diagnostic);
+    });
     context.on("requestfailed", (request: Request) => {
       this.noteCancelledChunk(request);
       this.noteAbortedLoad(request);
@@ -263,18 +319,14 @@ export function expectBlockedEmailScripts(page: Page) {
 }
 
 /**
- * The browser reports a document answered with 404 as a failed resource load. Only documents `page` navigated to that
- * answered 404 are expected; any other failed load, an API call or a chunk included, stays unexpected.
+ * A document answered with 404 is a failed load. Only documents `page` navigated to that answered 404 are expected;
+ * any other failed load, an API call or a chunk included, stays unexpected.
  */
 export function expectNotFoundDocuments(page: Page) {
-  const documents = new Set<string>();
-  page.on("response", (response) => {
-    if (response.status() === 404 && response.request().isNavigationRequest()) documents.add(response.url());
-  });
   return BrowserDiagnostics.ofPage(page).expect({
     kind: "console",
     text: /^Failed to load resource: the server responded with a status of 404/,
-    source: (url) => documents.has(url.href),
+    document: true,
     page,
     limit: Number.POSITIVE_INFINITY,
   });

@@ -56,6 +56,14 @@ function fakeBrowser() {
     requested: (url: string) =>
       contextEvents.emit("request", { url: () => url, isNavigationRequest: () => false, frame: () => mainFrame }),
     loaded: () => pageEvents.emit("domcontentloaded"),
+    response: (url: string, status: number, statusText = "", isDocument = false) =>
+      contextEvents.emit("response", {
+        url: () => url,
+        status: () => status,
+        statusText: () => statusText,
+        frame: () => mainFrame,
+        request: () => ({ isNavigationRequest: () => isDocument }),
+      }),
   };
 }
 
@@ -69,6 +77,31 @@ const NOT_FOUND = "Failed to load resource: the server responded with a status o
 const BASE = "http://127.0.0.1:4464";
 
 describe("browser diagnostics", () => {
+  it("reports each load of the app answered with an HTTP error once, from the response, on every browser", () => {
+    const browser = fakeBrowser();
+    const diagnostics = new BrowserDiagnostics().watch(browser.context);
+    browser.response(`${BASE}/api/v1/records/query`, 500, "Internal Server Error");
+    // Chromium and WebKit log their own copy; Firefox logs nothing. Either way the response above is the one report.
+    browser.console(
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      `${BASE}/api/v1/records/query`,
+    );
+    browser.response(`${BASE}/api/v1/records/mutate`, 422);
+    browser.response(`${BASE}/en/dashboard`, 200, "OK");
+    browser.response(`${BASE}/en/settings`, 308, "Permanent Redirect");
+    browser.response("https://flagcdn.com/w40/de.png", 404, "Not Found");
+    browser.console("Failed to load resource: net::ERR_FAILED", `${BASE}/api/v1/records/query`);
+    expect(diagnostics.unexpected.map(({ text, source, document }) => [text, source, document])).toEqual([
+      [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        `${BASE}/api/v1/records/query`,
+        false,
+      ],
+      ["Failed to load resource: the server responded with a status of 422", `${BASE}/api/v1/records/mutate`, false],
+      ["Failed to load resource: net::ERR_FAILED", `${BASE}/api/v1/records/query`, undefined],
+    ]);
+  });
+
   it("drops only failed loads of other origins, which the sign-in sandbox blocks", () => {
     const failed = (source: string, text = "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT") =>
       isSandboxedResourceFailure({ kind: "console", text, source });
@@ -94,17 +127,20 @@ describe("browser diagnostics", () => {
       source: (url) => url.pathname === "/en/records/unknown",
       page: browser.page,
     });
-    browser.console(NOT_FOUND, `${BASE}/en/records/unknown`);
-    browser.console(NOT_FOUND, `${BASE}/api/v1/records/query`);
-    browser.console(NOT_FOUND, `${BASE}/en/records/unknown`);
+    const documents = diagnostics.expect({ kind: "console", text: /status of 404/, document: true, page: browser.page });
+    browser.response(`${BASE}/en/records/unknown`, 404, "Not Found", true);
+    browser.response(`${BASE}/api/v1/records/query`, 404, "Not Found");
+    browser.response(`${BASE}/en/records/unknown`, 404, "Not Found", true);
+    browser.response(`${BASE}/en/records/elsewhere`, 404, "Not Found", true);
     browser.pageError("ChunkLoadError: Failed to load chunk /_next/static/chunks/app.js from module 7");
     browser.console("Failed to load resource: net::ERR_BLOCKED_BY_CLIENT", "https://flagcdn.com/w40/de.png");
     browser.pageError("ResizeObserver loop completed with undelivered notifications.");
 
     expect(notFound.events.map(({ source }) => source)).toEqual([`${BASE}/en/records/unknown`]);
+    expect(documents.events.map(({ source }) => source)).toEqual([`${BASE}/en/records/unknown`]);
     expect(diagnostics.unexpected.map(({ kind, source }) => [kind, source])).toEqual([
       ["console", `${BASE}/api/v1/records/query`],
-      ["console", `${BASE}/en/records/unknown`],
+      ["console", `${BASE}/en/records/elsewhere`],
       ["pageerror", ""],
     ]);
     expect(view).toEqual([
@@ -119,10 +155,7 @@ describe("browser diagnostics", () => {
     const other = fakeBrowser();
     const diagnostics = new BrowserDiagnostics().watch(browser.context).watch(other.context);
     diagnostics.expect({ kind: "console", text: /status of 422/, page: browser.page, limit: Number.POSITIVE_INFINITY });
-    other.console(
-      "Failed to load resource: the server responded with a status of 422 ()",
-      `${BASE}/api/agent/messages`,
-    );
+    other.response(`${BASE}/api/agent/messages`, 422);
     browser.pageError("Failed to load resource: the server responded with a status of 422 ()");
     expect(diagnostics.unexpected.map(({ kind }) => kind)).toEqual(["console", "pageerror"]);
   });
@@ -218,7 +251,7 @@ describe("browser diagnostics", () => {
   it("fails a passing test on unexpected diagnostics and only attaches them to a failed, expected-to-fail or skipped one", async () => {
     const browser = fakeBrowser();
     const diagnostics = new BrowserDiagnostics().watch(browser.context);
-    browser.console(NOT_FOUND, `${BASE}/api/v1/records/query`);
+    browser.response(`${BASE}/api/v1/records/query`, 404, "Not Found");
 
     await expect(diagnostics.verify(fakeTestInfo("passed"))).rejects.toThrow(
       `console: ${NOT_FOUND} (${BASE}/api/v1/records/query)`,

@@ -213,7 +213,6 @@ test.describe("Ask Mate fallback", () => {
     page,
     companyId,
     diagnostics,
-    browserName,
   }) => {
     test.setTimeout(180000);
     const id = (key: string) => presetId(companyId, key);
@@ -299,9 +298,7 @@ test.describe("Ask Mate fallback", () => {
     });
     // The offline e2e server has no hosted AI, so Mate answers the handed-over question with a 422.
     expect(mateResponse.status()).toBe(422);
-    // Chromium and WebKit log a response with an HTTP error status as "Failed to load resource"; Firefox writes no
-    // console message for it, so there is nothing to expect there.
-    await expect.poll(() => offlineMate.events.length).toBe(browserName === "firefox" ? 0 : 1);
+    await expect.poll(() => offlineMate.events.length).toBe(1);
     expect(errors).toEqual([]);
   });
 });
