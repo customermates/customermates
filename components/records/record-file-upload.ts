@@ -1,5 +1,8 @@
 import type { CreateRecordFileUploadResult, RecordFileDto } from "@/features/record-files/record-file.schema";
 
+import { isWorkspaceChangedFailure } from "@/core/errors/workspace-changed";
+import { notifyWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
+
 export type RecordFileRequest<T> = { ok: true; data: T } | { ok: false; message: string | null };
 
 export type RecordFileUploadStart = RecordFileRequest<CreateRecordFileUploadResult>;
@@ -14,6 +17,12 @@ function failureMessage(body: unknown): string | null {
   const issues = (body as { error?: { issues?: Array<{ message?: unknown }> } }).error?.issues;
   const message = issues?.[0]?.message;
   return typeof message === "string" && message.trim() ? message : null;
+}
+
+function workspaceChanged(status: number, body: unknown) {
+  if (status !== 409 || !isWorkspaceChangedFailure(body)) return false;
+  notifyWorkspaceChanged();
+  return true;
 }
 
 function parsed(text: string): unknown {
@@ -31,7 +40,8 @@ async function postRecordFileRequest<T>(url: string, input: unknown): Promise<Re
     body: JSON.stringify(input),
   });
   const body = parsed(await response.text());
-  return response.ok ? { ok: true, data: body as T } : { ok: false, message: failureMessage(body) };
+  if (response.ok) return { ok: true, data: body as T };
+  return { ok: false, message: workspaceChanged(response.status, body) ? null : failureMessage(body) };
 }
 
 export function startRecordFileUpload(input: { typeId: string; fieldId: string; file: File }) {
@@ -68,12 +78,15 @@ export function sendRecordFileBytes(
     request.upload.onprogress = (event) => {
       if (event.lengthComputable) onProgress(event.loaded, event.total);
     };
-    request.onload = () =>
-      resolve(
-        request.status >= 200 && request.status < 300
-          ? { ok: true }
-          : { ok: false, message: failureMessage(parsed(request.responseText)), aborted: false },
-      );
+    request.onload = () => {
+      if (request.status >= 200 && request.status < 300) return resolve({ ok: true });
+      const body = parsed(request.responseText);
+      resolve({
+        ok: false,
+        message: workspaceChanged(request.status, body) ? null : failureMessage(body),
+        aborted: false,
+      });
+    };
     request.onerror = () => resolve({ ok: false, message: null, aborted: false });
     request.onabort = () => resolve({ ok: false, message: null, aborted: true });
     request.send(file);

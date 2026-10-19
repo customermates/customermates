@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+const notice = vi.hoisted(() => ({ notifyWorkspaceChanged: vi.fn() }));
+vi.mock("@/core/errors/workspace-changed-notice", () => notice);
+
+import { CustomErrorCode } from "@/core/validation/validation.types";
+
 import { completeChatFileUpload, startChatFileUpload, startRecordFileUpload } from "../record-file-upload";
 
 const FILE_ID = "64000000-0000-4000-8000-000000000002";
@@ -17,6 +22,7 @@ function sent(fetchMock: ReturnType<typeof respond>) {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  notice.notifyWorkspaceChanged.mockReset();
 });
 
 describe("starting and completing file uploads from the browser", () => {
@@ -57,5 +63,14 @@ describe("starting and completing file uploads from the browser", () => {
     });
     respond(500, "not json");
     expect(await completeChatFileUpload(FILE_ID)).toEqual({ ok: false, message: null });
+    expect(notice.notifyWorkspaceChanged).not.toHaveBeenCalled();
+  });
+
+  it("reports a switched workspace instead of an upload failure", async () => {
+    respond(409, {
+      error: { kind: "conflict", issues: [{ customCode: CustomErrorCode.workspaceChanged, message: "x" }] },
+    });
+    expect(await startChatFileUpload(new File(["x"], "x.txt"))).toEqual({ ok: false, message: null });
+    expect(notice.notifyWorkspaceChanged).toHaveBeenCalledTimes(1);
   });
 });
