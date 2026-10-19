@@ -3,6 +3,8 @@ import type { MapWidgetPoint } from "@/features/widget/record-map-widget.schema"
 
 import { describe, expect, it } from "vitest";
 
+import { MIXED_CLUSTER_COLOR } from "@/components/map/map-palette";
+
 import {
   calendarHeatLevels,
   calendarMonthGrid,
@@ -12,6 +14,7 @@ import {
 } from "../calendar-widget-view";
 import {
   MAP_DEFAULT_COLOR,
+  MAP_MISSING_GROUP,
   MAP_NEUTRAL_COLOR,
   mapLegend,
   mapOptionColor,
@@ -94,15 +97,31 @@ describe("map widget points", () => {
       { id: "a", lat: 52.5, lon: 13.4, group: "smb", color: "var(--chart-default-1)", weight: 2 },
     ]);
     expect(mapViewPoints([point("a", "smb")], undefined)[0]).toMatchObject({ group: null, color: MAP_DEFAULT_COLOR });
+    expect(mapViewPoints([point("b", null), point("c", "gone")], colorField).map(({ group }) => group)).toEqual([
+      MAP_MISSING_GROUP,
+      MAP_MISSING_GROUP,
+    ]);
   });
 
-  it("lists the legend in option order with a final entry for records without a value", () => {
+  it("lists the legend in option order, then records without a value, then mixed clusters", () => {
     const legend = mapLegend([point("a", "mid"), point("b", "smb"), point("c", "mid"), point("d", "gone")], colorField);
-    expect(legend.map(({ id, count }) => [id, count])).toEqual([
-      ["smb", 1],
-      ["mid", 2],
-      [null, 1],
+    expect(legend.map(({ kind, id, count }) => [kind, id, count])).toEqual([
+      ["option", "smb", 1],
+      ["option", "mid", 2],
+      ["missing", null, 1],
+      ["mixed", null, null],
     ]);
+    expect(legend.at(-1)?.color).toBe(MIXED_CLUSTER_COLOR);
     expect(mapLegend([point("a", "smb")], undefined)).toEqual([]);
+  });
+
+  it("adds the mixed entry only when the records have more than one colour", () => {
+    expect(mapLegend([point("a", "smb"), point("b", "smb")], colorField).map(({ kind }) => kind)).toEqual(["option"]);
+    expect(mapLegend([point("a", null)], colorField).map(({ kind }) => kind)).toEqual(["missing"]);
+    expect(mapLegend([point("a", "smb"), point("b", null)], colorField).map(({ kind }) => kind)).toEqual([
+      "option",
+      "missing",
+      "mixed",
+    ]);
   });
 });

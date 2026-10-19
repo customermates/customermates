@@ -3334,6 +3334,7 @@
     "failed": "No se pudo cargar el mapa.",
     "label": "Mapa de {name}",
     "loading": "Cargando el mapa…",
+    "mixed": "Mixto",
     "noAddressField": "{list} todavía no tiene un campo de tipo Dirección. Añade uno en Configurar o elige otra lista.",
     "noPoints": "Todavía no hay registros con ubicación.",
     "openRecord": "Abrir el registro",

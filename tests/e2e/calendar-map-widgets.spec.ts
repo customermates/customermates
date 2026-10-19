@@ -30,6 +30,8 @@ test("the map widget draws its basemap and pins from the app's own origin", asyn
   const markers = card.locator("[data-map-marker]");
   await expect(markers.first()).toBeVisible();
   await expect(card.locator("[data-map-legend]").first()).toBeVisible();
+  // The seeded customers span several segments, so the legend explains the grey of clusters without a majority.
+  await expect(card.locator('[data-map-legend="mixed"]')).toHaveText("Mixed");
   await card.getByRole("button", { name: "Zoom in", exact: true }).click();
   await expect(markers.first()).toBeVisible();
   expect(external).toEqual([]);

@@ -215,9 +215,9 @@ export const RecordMapWidgetCard = observer(function RecordMapWidgetCard({
               <ul aria-label={colorField?.label} className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
                 {legend.map((entry) => (
                   <li
-                    key={entry.id ?? "none"}
+                    key={entry.kind === "option" ? entry.id : entry.kind}
                     className="flex min-w-0 items-center gap-1.5"
-                    data-map-legend={entry.id ?? ""}
+                    data-map-legend={entry.kind === "option" ? entry.id : entry.kind === "mixed" ? "mixed" : ""}
                   >
                     <span
                       aria-hidden
@@ -225,7 +225,9 @@ export const RecordMapWidgetCard = observer(function RecordMapWidgetCard({
                       style={{ backgroundColor: entry.color }}
                     />
 
-                    <span className="truncate">{entry.label ?? t("RecordModel.missing")}</span>
+                    <span className="truncate">
+                      {entry.kind === "mixed" ? t("RecordMapWidgets.mixed") : (entry.label ?? t("RecordModel.missing"))}
+                    </span>
                   </li>
                 ))}
               </ul>

@@ -1,3 +1,6 @@
+export const DEFAULT_CLUSTER_COLOR = "var(--primary)";
+export const MIXED_CLUSTER_COLOR = "color-mix(in srgb, var(--foreground) 50%, var(--card))";
+
 export const MAP_COLOR_TOKENS = {
   land: "var(--card)",
   border: "var(--border)",

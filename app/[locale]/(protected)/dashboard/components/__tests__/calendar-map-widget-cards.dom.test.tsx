@@ -307,12 +307,14 @@ describe("map widget", () => {
     expect(host.querySelector("[data-map-view]")).not.toBeNull();
     expect(spy.mapProps?.points).toEqual([
       expect.objectContaining({ id: "a", group: "smb", color: "var(--success)" }),
-      expect.objectContaining({ id: "b", group: null }),
+      expect.objectContaining({ id: "b", group: "" }),
     ]);
     expect([...host.querySelectorAll("[data-map-legend]")].map((entry) => entry.textContent)).toEqual([
       "SMB",
       "RecordModel.missing",
+      "RecordMapWidgets.mixed",
     ]);
+    expect(host.querySelector('[data-map-legend="mixed"] span')?.getAttribute("style")).toContain("color-mix");
     expect(host.querySelector("[data-map-hint]")?.textContent).toBe("RecordMapWidgets.withoutLocation:3");
     const popover = render((spy.mapProps?.renderPopover as (id: string) => ReactNode)("b"));
     expect(popover.textContent).toContain("Org b");

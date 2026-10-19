@@ -3334,6 +3334,7 @@
     "failed": "La carte n’a pas pu être chargée.",
     "label": "Carte de {name}",
     "loading": "Chargement de la carte…",
+    "mixed": "Mixte",
     "noAddressField": "{list} n’a pas encore de champ de type Adresse. Ajoutez-en un dans Configurer ou choisissez une autre liste.",
     "noPoints": "Aucun enregistrement localisé pour le moment.",
     "openRecord": "Ouvrir l’enregistrement",

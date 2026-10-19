@@ -5,9 +5,11 @@ import type { MapWidgetPoint } from "@/features/widget/record-map-widget.schema"
 import type { MapViewPoint } from "@/components/map/map-types";
 
 import { CHIP_COLORS } from "@/constants/chip-colors";
+import { MIXED_CLUSTER_COLOR } from "@/components/map/map-palette";
 
 export const MAP_DEFAULT_COLOR = "var(--chart-1)";
 export const MAP_NEUTRAL_COLOR = "var(--chart-default-2)";
+export const MAP_MISSING_GROUP = "";
 const CHART_PALETTE_SIZE = 5;
 
 const CHIP_COLOR_TOKENS: Record<ChipColor, string> = {
@@ -36,31 +38,45 @@ export function mapPointWeight(size: CalculatedValue | null): number | null {
   return Number.isFinite(value) ? Math.max(0, value) : null;
 }
 
+function knownOption(field: NonNullable<ColorField>, optionId: string | null) {
+  return optionId !== null && field.options.some((option) => option.id === optionId);
+}
+
 export function mapViewPoints(points: MapWidgetPoint[], colorField: ColorField): MapViewPoint[] {
   return points.map((point) => ({
     id: point.record.recordId,
     lat: point.lat,
     lon: point.lon,
-    group: colorField ? point.color : null,
+    group: colorField ? (knownOption(colorField, point.color) ? point.color : MAP_MISSING_GROUP) : null,
     color: mapOptionColor(colorField, point.color),
     weight: mapPointWeight(point.size),
   }));
 }
 
-export type MapLegendEntry = { id: string | null; label: string | null; color: string; count: number };
+export type MapLegendEntry = {
+  kind: "option" | "missing" | "mixed";
+  id: string | null;
+  label: string | null;
+  color: string;
+  count: number | null;
+};
 
 export function mapLegend(points: MapWidgetPoint[], colorField: ColorField): MapLegendEntry[] {
   if (!colorField) return [];
   const counts = new Map<string | null, number>();
   for (const point of points) {
-    const known = point.color !== null && colorField.options.some((option) => option.id === point.color);
-    const key = known ? point.color : null;
+    const key = knownOption(colorField, point.color) ? point.color : null;
     counts.set(key, (counts.get(key) ?? 0) + 1);
   }
   const entries: MapLegendEntry[] = colorField.options.flatMap((option) => {
     const count = counts.get(option.id);
-    return count ? [{ id: option.id, label: option.label, color: mapOptionColor(colorField, option.id), count }] : [];
+    return count
+      ? [{ kind: "option", id: option.id, label: option.label, color: mapOptionColor(colorField, option.id), count }]
+      : [];
   });
   const missing = counts.get(null);
-  return missing ? [...entries, { id: null, label: null, color: MAP_NEUTRAL_COLOR, count: missing }] : entries;
+  if (missing) entries.push({ kind: "missing", id: null, label: null, color: MAP_NEUTRAL_COLOR, count: missing });
+  if (entries.length > 1)
+    entries.push({ kind: "mixed", id: null, label: null, color: MIXED_CLUSTER_COLOR, count: null });
+  return entries;
 }

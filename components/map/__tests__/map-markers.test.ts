@@ -3,10 +3,10 @@ import type { MapViewPoint } from "../map-types";
 import { describe, expect, it } from "vitest";
 
 import { MAX_ZOOM, project } from "../map-geometry";
+import { DEFAULT_CLUSTER_COLOR, MIXED_CLUSTER_COLOR } from "../map-palette";
 import {
   CLUSTER_DIAMETER_MAX,
   CLUSTER_DIAMETER_MIN,
-  NEUTRAL_CLUSTER_COLOR,
   PIN_RADIUS_DEFAULT,
   PIN_RADIUS_MAX,
   PIN_RADIUS_MIN,
@@ -79,11 +79,27 @@ describe("cluster appearance", () => {
     expect(clusterColor({ 1: 3 }, 4, colors)).toBe("var(--chart-2)");
   });
 
-  it("falls back to the neutral primary colour when the groups are mixed or missing", () => {
+  it("draws mixed groups in the neutral grey and ungrouped points in the primary colour", () => {
     const colors = ["var(--chart-1)", "var(--chart-2)"];
-    expect(clusterColor({ 0: 2, 1: 2 }, 4, colors)).toBe(NEUTRAL_CLUSTER_COLOR);
-    expect(clusterColor({ 0: 1 }, 3, colors)).toBe(NEUTRAL_CLUSTER_COLOR);
-    expect(clusterColor({}, 5, colors)).toBe(NEUTRAL_CLUSTER_COLOR);
+    expect(clusterColor({ 0: 2, 1: 2 }, 4, colors)).toBe(MIXED_CLUSTER_COLOR);
+    expect(clusterColor({ 0: 1 }, 3, colors)).toBe(MIXED_CLUSTER_COLOR);
+    expect(clusterColor({}, 5, colors)).toBe(DEFAULT_CLUSTER_COLOR);
+    expect(MIXED_CLUSTER_COLOR).not.toBe(DEFAULT_CLUSTER_COLOR);
+  });
+
+  it("colours a cluster without a majority grey and one of ungrouped points primary", () => {
+    const mixed = createClusterIndex([
+      point("x1", 48.1, 11.5, "a"),
+      point("x2", 48.1, 11.5, "b"),
+      point("x3", 48.1, 11.5, "b"),
+      point("x4", 48.1, 11.5, "a"),
+    ]);
+    const ungrouped = createClusterIndex([point("u1", 48.1, 11.5), point("u2", 48.1, 11.5)]);
+    const camera = cameraOn(48.1, 11.5, 5);
+    const colorOf = (index: ReturnType<typeof createClusterIndex>) =>
+      clusters(computeMarkers({ clusters: index, camera, size: SIZE, selectedId: null, spread: null }))[0]?.color;
+    expect(colorOf(mixed)).toBe(MIXED_CLUSTER_COLOR);
+    expect(colorOf(ungrouped)).toBe(DEFAULT_CLUSTER_COLOR);
   });
 });
 

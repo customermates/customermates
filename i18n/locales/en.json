@@ -3334,6 +3334,7 @@
     "failed": "The map could not be loaded.",
     "label": "Map of {name}",
     "loading": "Loading map…",
+    "mixed": "Mixed",
     "noAddressField": "{list} does not have an Address field yet. Add one in Configure or choose another list.",
     "noPoints": "No records with a location yet.",
     "openRecord": "Open record",

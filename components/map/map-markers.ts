@@ -16,8 +16,8 @@ import {
   type ScreenPoint,
   type WorldPoint,
 } from "./map-geometry";
+import { DEFAULT_CLUSTER_COLOR, MIXED_CLUSTER_COLOR } from "./map-palette";
 
-export const NEUTRAL_CLUSTER_COLOR = "var(--primary)";
 export const PIN_RADIUS_MIN = 5;
 export const PIN_RADIUS_MAX = 14;
 export const PIN_RADIUS_DEFAULT = 6;
@@ -90,8 +90,9 @@ export function majorityGroup(tally: Readonly<Record<number, number>>, total: nu
 }
 
 export function clusterColor(tally: Readonly<Record<number, number>>, total: number, groupColors: readonly string[]) {
+  if (Object.keys(tally).length === 0) return DEFAULT_CLUSTER_COLOR;
   const group = majorityGroup(tally, total);
-  return group === null ? NEUTRAL_CLUSTER_COLOR : (groupColors[group] ?? NEUTRAL_CLUSTER_COLOR);
+  return group === null ? MIXED_CLUSTER_COLOR : (groupColors[group] ?? MIXED_CLUSTER_COLOR);
 }
 
 function mergeTally(left: Readonly<Record<number, number>>, right: Readonly<Record<number, number>>) {

@@ -3334,6 +3334,7 @@
     "failed": "Die Karte konnte nicht geladen werden.",
     "label": "Karte von {name}",
     "loading": "Karte wird geladen…",
+    "mixed": "Gemischt",
     "noAddressField": "{list} hat noch kein Feld vom Typ Adresse. Lege eines in Konfigurieren an oder wähle eine andere Liste.",
     "noPoints": "Noch keine Datensätze mit Standort.",
     "openRecord": "Datensatz öffnen",
