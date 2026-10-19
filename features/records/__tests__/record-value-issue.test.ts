@@ -39,11 +39,12 @@ function unwound(run: () => unknown) {
 }
 
 describe("record value validation", () => {
-  it.each([
-    ["url", "not a url", CustomErrorCode.invalidUrl],
-  ] as const)("names the specific %s failure", (valueType, value, code) => {
-    expect(recordValueIssue(text(value), field(valueType))).toBe(code);
-  });
+  it.each([["url", "not a url", CustomErrorCode.invalidUrl]] as const)(
+    "names the specific %s failure",
+    (valueType, value, code) => {
+      expect(recordValueIssue(text(value), field(valueType))).toBe(code);
+    },
+  );
 
   it("names number, date, range and option failures", () => {
     expect(recordValueIssue({ kind: "decimal", value: "1e400", currency: null }, field("number"))).toBe(

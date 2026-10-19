@@ -31,21 +31,22 @@ function field(valueType: RecordFieldView["valueType"]): RecordFieldView {
 describe("inline record field validation", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it.each([
-    ["url", "not a url", "Common.errors.invalidUrl"],
-  ] as const)("shows one toast for an invalid %s value and keeps it unsaved", async (valueType, value, message) => {
-    const save = vi.fn();
-    const done = vi.fn();
-    const store = new RecordFieldValueStore(rootStore, field(valueType), undefined, save, done);
-    store.onChange("value", value);
+  it.each([["url", "not a url", "Common.errors.invalidUrl"]] as const)(
+    "shows one toast for an invalid %s value and keeps it unsaved",
+    async (valueType, value, message) => {
+      const save = vi.fn();
+      const done = vi.fn();
+      const store = new RecordFieldValueStore(rootStore, field(valueType), undefined, save, done);
+      store.onChange("value", value);
 
-    await store.apply(false);
+      await store.apply(false);
 
-    expect(toast.error).toHaveBeenCalledExactlyOnceWith(message);
-    expect(store.getError("value")).toEqual([message]);
-    expect(save).not.toHaveBeenCalled();
-    expect(done).not.toHaveBeenCalled();
-  });
+      expect(toast.error).toHaveBeenCalledExactlyOnceWith(message);
+      expect(store.getError("value")).toEqual([message]);
+      expect(save).not.toHaveBeenCalled();
+      expect(done).not.toHaveBeenCalled();
+    },
+  );
 
   it("shows one toast for a value the server rejects", async () => {
     const save = vi.fn().mockResolvedValue({ saved: false, invalid: ["Enter a valid URL."] });

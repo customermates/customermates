@@ -232,9 +232,7 @@ export function compileRecordQuery(
   ];
   let searchSource = Prisma.empty;
   if (query.search) {
-    const searchable = [...fields.values()].filter((field) =>
-      ["text", "url", "address"].includes(field.valueType),
-    );
+    const searchable = [...fields.values()].filter((field) => ["text", "url", "address"].includes(field.valueType));
     const search = `%${query.search.replace(/[\\%_]/g, "\\$&")}%`;
     const matches: Prisma.Sql[] = [];
     const searchRecord = Prisma.sql`search_record`;

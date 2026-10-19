@@ -65,12 +65,7 @@ describe("generic record presentation filters", () => {
       recordFilterableFields(model.fields.filter((field) => field.typeId === id("contact"))).find(
         (field) => field.field === channels,
       )?.operators,
-    ).toEqual([
-      Operator.contains,
-      Operator.startsWith,
-      Operator.isNull,
-      Operator.isNotNull,
-    ]);
+    ).toEqual([Operator.contains, Operator.startsWith, Operator.isNull, Operator.isNotNull]);
   });
   it("reports an invalid filter as recordValueInvalid at the index of that filter", () => {
     const failure = (filters: Filter[]) => {
