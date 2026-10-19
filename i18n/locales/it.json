@@ -4902,7 +4902,7 @@
       "failedBody": "Tutto ciò che è finito resta. Riprova la parte non completata per finire il tuo spazio di lavoro.",
       "failedTitle": "Una parte della configurazione non è stata completata",
       "frameTitle": "Il tuo spazio di lavoro",
-      "keepsRunning": "Continua anche se chiudi la scheda. Ti invieremo un’email quando il tuo spazio di lavoro sarà pronto.",
+      "keepsRunning": "Continua anche se chiudi la scheda.",
       "nameColumn": "Nome",
       "phases": {
         "dashboard": "Dashboard",
@@ -5123,8 +5123,6 @@
       "planningTitle": "Stiamo preparando il tuo piano",
       "progress": {
         "label": "Avanzamento del piano",
-        "leave": "Puoi chiudere questa pagina. Scriveremo a <strong>{email}</strong> appena il tuo piano sarà pronto.",
-        "leaveWithoutEmail": "Puoi chiudere questa pagina. Ti invieremo un’email appena il tuo piano sarà pronto.",
         "minutesLeft": "{minutes, plural, one {Manca circa # minuto} other {Mancano circa # minuti}}",
         "overdue": "Ci vuole un po’ più del solito. Quasi fatto.",
         "steps": {
@@ -5267,42 +5265,6 @@
       "suggestedHint": "Controlla le risposte contrassegnate e cambia ciò che non va.",
       "suggesting": "Suggeriamo le risposte da {website}",
       "title": "Compila le risposte dal tuo sito web"
-    }
-  },
-  "WorkspaceSetupNotice": {
-    "fallback": "Se il pulsante non funziona, copia e incolla questo link nel tuo browser: ",
-    "greeting": "Ciao {firstName},",
-    "planFailed": {
-      "body": "Mate non è riuscito a completare il piano del tuo spazio di lavoro. Le tue risposte sono salvate: apri la configurazione per riprovare o modificarle.",
-      "bodyNamed": "Mate non è riuscito a completare il piano per {workspace}. Le tue risposte sono salvate: apri la configurazione per riprovare o modificarle.",
-      "cta": "Apri la configurazione",
-      "subject": "Il piano del tuo spazio di lavoro richiede un nuovo tentativo",
-      "subjectNamed": "Il tuo piano per {workspace} va riprovato",
-      "title": "Il tuo piano richiede un nuovo tentativo"
-    },
-    "planReady": {
-      "body": "Mate ha preparato liste, pipeline, dashboard e pagine della knowledge base per il tuo spazio di lavoro. Controlla il piano e crea il tuo spazio di lavoro in un solo passaggio.",
-      "bodyNamed": "Mate ha preparato le liste, la pipeline, la dashboard e le pagine della knowledge base per {workspace}. Controlla il piano e crea lo spazio di lavoro in un solo passaggio.",
-      "cta": "Controlla il piano",
-      "subject": "Il piano del tuo spazio di lavoro è pronto",
-      "subjectNamed": "Il tuo piano per {workspace} è pronto",
-      "title": "Il tuo piano è pronto"
-    },
-    "workspaceFailed": {
-      "body": "Mate ha creato gran parte del tuo spazio di lavoro, ma alcune parti non sono state completate. Apri la configurazione per riprovarle.",
-      "bodyNamed": "Mate ha creato gran parte di {workspace}, ma alcune parti non sono state completate. Apri la configurazione per riprovarle.",
-      "cta": "Apri la configurazione",
-      "subject": "La configurazione del tuo spazio di lavoro richiede attenzione",
-      "subjectNamed": "La configurazione di {workspace} richiede un controllo",
-      "title": "Alcune parti richiedono attenzione"
-    },
-    "workspaceReady": {
-      "body": "Mate ha creato il tuo spazio di lavoro. Liste, viste e dashboard ti aspettano, e le pagine della knowledge base arrivano a breve.",
-      "bodyNamed": "Mate ha creato {workspace}. Le tue liste, viste e dashboard ti aspettano, e le pagine della knowledge base arrivano a breve.",
-      "cta": "Apri il tuo spazio di lavoro",
-      "subject": "Il tuo spazio di lavoro è pronto",
-      "subjectNamed": "{workspace} è pronto",
-      "title": "Il tuo spazio di lavoro è pronto"
     }
   }
 }

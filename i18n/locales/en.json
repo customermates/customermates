@@ -4902,7 +4902,7 @@
       "failedBody": "Everything that finished is kept. Retry the part that did not finish to complete your workspace.",
       "failedTitle": "Part of the setup did not finish",
       "frameTitle": "Your workspace",
-      "keepsRunning": "This keeps running if you close the tab. We will email you when your workspace is ready.",
+      "keepsRunning": "This keeps running if you close the tab.",
       "nameColumn": "Name",
       "phases": {
         "dashboard": "Dashboard",
@@ -5123,8 +5123,6 @@
       "planningTitle": "Drafting your plan",
       "progress": {
         "label": "Plan progress",
-        "leave": "You can close this page. We will email <strong>{email}</strong> as soon as your plan is ready.",
-        "leaveWithoutEmail": "You can close this page. We will email you as soon as your plan is ready.",
         "minutesLeft": "{minutes, plural, one {About # minute left} other {About # minutes left}}",
         "overdue": "Taking a little longer than usual. Almost there.",
         "steps": {
@@ -5267,42 +5265,6 @@
       "suggestedHint": "Check the marked answers and change anything that's off.",
       "suggesting": "Suggesting answers from {website}",
       "title": "Fill in answers from your website"
-    }
-  },
-  "WorkspaceSetupNotice": {
-    "fallback": "If the button does not work, copy and paste this link into your browser: ",
-    "greeting": "Hi {firstName},",
-    "planFailed": {
-      "body": "Mate could not finish the plan for your workspace. Your answers are saved: open the setup to try again or adjust them.",
-      "bodyNamed": "Mate could not finish the plan for {workspace}. Your answers are saved: open the setup to try again or adjust them.",
-      "cta": "Open the setup",
-      "subject": "Your workspace plan needs another try",
-      "subjectNamed": "Your plan for {workspace} needs another try",
-      "title": "Your plan needs another try"
-    },
-    "planReady": {
-      "body": "Mate has drafted the lists, pipeline, dashboard and Knowledge Base pages for your workspace. Review the plan and build your workspace in one step.",
-      "bodyNamed": "Mate has drafted the lists, pipeline, dashboard and Knowledge Base pages for {workspace}. Review the plan and build the workspace in one step.",
-      "cta": "Review your plan",
-      "subject": "Your workspace plan is ready",
-      "subjectNamed": "Your plan for {workspace} is ready",
-      "title": "Your plan is ready"
-    },
-    "workspaceFailed": {
-      "body": "Mate built most of your workspace, but some parts could not be finished. Open the setup to try them again.",
-      "bodyNamed": "Mate built most of {workspace}, but some parts could not be finished. Open the setup to try them again.",
-      "cta": "Open the setup",
-      "subject": "Your workspace setup needs a look",
-      "subjectNamed": "The setup of {workspace} needs a look",
-      "title": "Some parts need a look"
-    },
-    "workspaceReady": {
-      "body": "Mate has built your workspace. Your lists, views and dashboard are waiting for you, and the Knowledge Base pages follow shortly.",
-      "bodyNamed": "Mate has built {workspace}. Your lists, views and dashboard are waiting for you, and the Knowledge Base pages follow shortly.",
-      "cta": "Open your workspace",
-      "subject": "Your workspace is ready",
-      "subjectNamed": "{workspace} is ready",
-      "title": "Your workspace is ready"
     }
   }
 }

@@ -4902,7 +4902,7 @@
       "failedBody": "Alles Fertige bleibt erhalten. Versuch den unfertigen Teil erneut, um deinen Workspace fertigzustellen.",
       "failedTitle": "Ein Teil der Einrichtung wurde nicht fertig",
       "frameTitle": "Dein Workspace",
-      "keepsRunning": "Das läuft weiter, auch wenn du den Tab schließt. Wir schreiben dir eine E-Mail, sobald dein Workspace fertig ist.",
+      "keepsRunning": "Das läuft weiter, auch wenn du den Tab schließt.",
       "nameColumn": "Name",
       "phases": {
         "dashboard": "Dashboard",
@@ -5123,8 +5123,6 @@
       "planningTitle": "Wir erstellen deinen Plan",
       "progress": {
         "label": "Fortschritt des Plans",
-        "leave": "Du kannst diese Seite schließen. Wir schreiben an <strong>{email}</strong>, sobald dein Plan fertig ist.",
-        "leaveWithoutEmail": "Du kannst diese Seite schließen. Wir schreiben dir eine E-Mail, sobald dein Plan fertig ist.",
         "minutesLeft": "{minutes, plural, one {Noch etwa # Minute} other {Noch etwa # Minuten}}",
         "overdue": "Dauert etwas länger als sonst. Gleich geschafft.",
         "steps": {
@@ -5267,42 +5265,6 @@
       "suggestedHint": "Prüf die markierten Antworten und ändere, was nicht passt.",
       "suggesting": "Wir schlagen Antworten aus {website} vor",
       "title": "Antworten aus deiner Website vorschlagen lassen"
-    }
-  },
-  "WorkspaceSetupNotice": {
-    "fallback": "Falls der Button nicht funktioniert, kopiere diesen Link und füge ihn in deinen Browser ein: ",
-    "greeting": "Hallo {firstName},",
-    "planFailed": {
-      "body": "Mate konnte den Plan für deinen Workspace nicht fertigstellen. Deine Antworten sind gespeichert: Öffne die Einrichtung, um es erneut zu versuchen oder sie anzupassen.",
-      "bodyNamed": "Mate konnte den Plan für {workspace} nicht fertigstellen. Deine Antworten sind gespeichert: Öffne die Einrichtung, um es erneut zu versuchen oder sie anzupassen.",
-      "cta": "Einrichtung öffnen",
-      "subject": "Der Plan für deinen Workspace braucht einen neuen Versuch",
-      "subjectNamed": "Der Plan für {workspace} braucht einen neuen Versuch",
-      "title": "Dein Plan braucht einen neuen Versuch"
-    },
-    "planReady": {
-      "body": "Mate hat Listen, Pipeline, Dashboard und Wissensdatenbank-Seiten für deinen Workspace entworfen. Prüfe den Plan und richte deinen Workspace in einem Schritt ein.",
-      "bodyNamed": "Mate hat Listen, Pipeline, Dashboard und Wissensdatenbank-Seiten für {workspace} entworfen. Prüfe den Plan und richte den Workspace in einem Schritt ein.",
-      "cta": "Plan prüfen",
-      "subject": "Der Plan für deinen Workspace ist fertig",
-      "subjectNamed": "Der Plan für {workspace} ist fertig",
-      "title": "Dein Plan ist fertig"
-    },
-    "workspaceFailed": {
-      "body": "Mate hat den Großteil deines Workspaces eingerichtet, aber einige Teile konnten nicht abgeschlossen werden. Öffne die Einrichtung, um sie erneut zu versuchen.",
-      "bodyNamed": "Mate hat den Großteil von {workspace} eingerichtet, einige Teile ließen sich aber nicht abschließen. Öffne die Einrichtung, um sie erneut zu versuchen.",
-      "cta": "Einrichtung öffnen",
-      "subject": "Deine Workspace-Einrichtung braucht einen Blick",
-      "subjectNamed": "Die Einrichtung von {workspace} braucht einen Blick",
-      "title": "Einige Teile brauchen einen Blick"
-    },
-    "workspaceReady": {
-      "body": "Mate hat deinen Workspace eingerichtet. Deine Listen, Ansichten und dein Dashboard warten auf dich, die Seiten der Wissensdatenbank folgen in Kürze.",
-      "bodyNamed": "Mate hat {workspace} eingerichtet. Deine Listen, Ansichten und das Dashboard warten auf dich, die Seiten der Wissensdatenbank folgen in Kürze.",
-      "cta": "Workspace öffnen",
-      "subject": "Dein Workspace ist fertig",
-      "subjectNamed": "{workspace} ist fertig",
-      "title": "Dein Workspace ist fertig"
     }
   }
 }

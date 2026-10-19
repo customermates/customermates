@@ -89,7 +89,7 @@ function usePlanClock() {
   return { now, seenAt };
 }
 
-export const SetupPlanPending = observer(function SetupPlanPending({ email }: { email: string | null }) {
+export const SetupPlanPending = observer(function SetupPlanPending() {
   const t = useTranslations();
   const { workspaceSetupStore: store } = useRootStore();
   const { now, seenAt } = usePlanClock();
@@ -185,19 +185,6 @@ export const SetupPlanPending = observer(function SetupPlanPending({ email }: { 
           );
         })}
       </ol>
-
-      <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/40 p-3">
-        <Mail aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-
-        <p className="text-sm text-muted-foreground">
-          {email
-            ? t.rich("WorkspaceSetup.plan.progress.leave", {
-                email,
-                strong: (chunks) => <span className="font-medium text-foreground">{chunks}</span>,
-              })
-            : t("WorkspaceSetup.plan.progress.leaveWithoutEmail")}
-        </p>
-      </div>
     </section>
   );
 });
@@ -255,7 +242,7 @@ export const SetupPlanPreview = observer(function SetupPlanPreview() {
   const t = useTranslations();
   const { workspaceSetupStore: store } = useRootStore();
   const plan = store.setup?.plan.plan;
-  if (!plan) return <SetupPlanPending email={null} />;
+  if (!plan) return <SetupPlanPending />;
   const lists = planLists(plan);
   const boards = planBoards(plan);
   const listName = (key: string) => lists.find((candidate) => candidate.key === key)?.label ?? key;

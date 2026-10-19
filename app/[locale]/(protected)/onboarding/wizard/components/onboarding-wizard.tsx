@@ -125,13 +125,8 @@ const OnboardingWizardContent = observer(
       previousStep.current = currentStep;
     }, [currentStep]);
 
-    if (currentStep === "setup" && setupStage === "build") {
-      return setupReady ? (
-        <StepSetup email={sessionEmail || null} />
-      ) : (
-        <div aria-busy="true" className="min-h-36 w-full" />
-      );
-    }
+    if (currentStep === "setup" && setupStage === "build")
+      return setupReady ? <StepSetup /> : <div aria-busy="true" className="min-h-36 w-full" />;
 
     const renderStep = () => {
       switch (currentStep) {
@@ -151,11 +146,7 @@ const OnboardingWizardContent = observer(
         case "ai":
           return isStepSynchronized ? <StepAi /> : <div aria-busy="true" className="min-h-36" />;
         case "setup":
-          return setupReady ? (
-            <StepSetup email={sessionEmail || null} />
-          ) : (
-            <div aria-busy="true" className="min-h-36" />
-          );
+          return setupReady ? <StepSetup /> : <div aria-busy="true" className="min-h-36" />;
         case "invite":
           return <StepInvite />;
       }

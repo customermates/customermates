@@ -4902,7 +4902,7 @@
       "failedBody": "Tout ce qui est terminé est conservé. Relancez la partie inachevée pour terminer votre espace.",
       "failedTitle": "Une partie de la configuration n’a pas abouti",
       "frameTitle": "Votre espace de travail",
-      "keepsRunning": "Cela continue même si vous fermez l’onglet. Nous vous enverrons un e-mail quand votre espace de travail sera prêt.",
+      "keepsRunning": "Cela continue même si vous fermez l’onglet.",
       "nameColumn": "Nom",
       "phases": {
         "dashboard": "Tableau de bord",
@@ -5123,8 +5123,6 @@
       "planningTitle": "Préparation de votre plan",
       "progress": {
         "label": "Avancement du plan",
-        "leave": "Vous pouvez fermer cette page. Nous écrirons à <strong>{email}</strong> dès que votre plan sera prêt.",
-        "leaveWithoutEmail": "Vous pouvez fermer cette page. Nous vous enverrons un e-mail dès que votre plan sera prêt.",
         "minutesLeft": "{minutes, plural, one {Environ # minute restante} other {Environ # minutes restantes}}",
         "overdue": "Cela prend un peu plus de temps que d’habitude. C’est presque fini.",
         "steps": {
@@ -5267,42 +5265,6 @@
       "suggestedHint": "Vérifiez les réponses marquées et modifiez ce qui ne convient pas.",
       "suggesting": "Suggestion de réponses à partir de {website}",
       "title": "Pré-remplir les réponses à partir de votre site web"
-    }
-  },
-  "WorkspaceSetupNotice": {
-    "fallback": "Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur : ",
-    "greeting": "Bonjour {firstName},",
-    "planFailed": {
-      "body": "Mate n’a pas pu préparer le plan de votre espace de travail. Vos réponses sont enregistrées : ouvrez la configuration pour réessayer ou les modifier.",
-      "bodyNamed": "Mate n’a pas pu préparer le plan de {workspace}. Vos réponses sont enregistrées : ouvrez la configuration pour réessayer ou les modifier.",
-      "cta": "Ouvrir la configuration",
-      "subject": "Le plan de votre espace de travail doit être relancé",
-      "subjectNamed": "Votre plan pour {workspace} doit être relancé",
-      "title": "Votre plan doit être relancé"
-    },
-    "planReady": {
-      "body": "Mate a préparé les listes, le pipeline, le tableau de bord et les pages de la base de connaissances de votre espace de travail. Vérifiez le plan et créez votre espace de travail en une étape.",
-      "bodyNamed": "Mate a préparé les listes, le pipeline, le tableau de bord et les pages de la base de connaissances pour {workspace}. Vérifiez le plan et créez l’espace de travail en une seule étape.",
-      "cta": "Vérifier votre plan",
-      "subject": "Le plan de votre espace de travail est prêt",
-      "subjectNamed": "Votre plan pour {workspace} est prêt",
-      "title": "Votre plan est prêt"
-    },
-    "workspaceFailed": {
-      "body": "Mate a créé la plus grande partie de votre espace de travail, mais certaines parties n’ont pas pu être terminées. Ouvrez la configuration pour les relancer.",
-      "bodyNamed": "Mate a créé la plus grande partie de {workspace}, mais certaines parties n’ont pas pu être terminées. Ouvrez la configuration pour les relancer.",
-      "cta": "Ouvrir la configuration",
-      "subject": "La configuration de votre espace de travail demande votre attention",
-      "subjectNamed": "La configuration de {workspace} demande votre attention",
-      "title": "Certaines parties demandent votre attention"
-    },
-    "workspaceReady": {
-      "body": "Mate a créé votre espace de travail. Vos listes, vues et tableau de bord vous attendent, et les pages de la base de connaissances suivent sous peu.",
-      "bodyNamed": "Mate a créé {workspace}. Vos listes, vues et tableau de bord vous attendent, et les pages de la base de connaissances suivent sous peu.",
-      "cta": "Ouvrir votre espace de travail",
-      "subject": "Votre espace de travail est prêt",
-      "subjectNamed": "{workspace} est prêt",
-      "title": "Votre espace de travail est prêt"
     }
   }
 }

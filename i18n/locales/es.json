@@ -4902,7 +4902,7 @@
       "failedBody": "Todo lo terminado se conserva. Reintenta la parte que no terminó para completar tu espacio.",
       "failedTitle": "Una parte de la configuración no terminó",
       "frameTitle": "Tu espacio de trabajo",
-      "keepsRunning": "Esto sigue en marcha aunque cierres la pestaña. Te enviaremos un correo cuando tu espacio de trabajo esté listo.",
+      "keepsRunning": "Esto sigue en marcha aunque cierres la pestaña.",
       "nameColumn": "Nombre",
       "phases": {
         "dashboard": "Panel",
@@ -5123,8 +5123,6 @@
       "planningTitle": "Preparando tu plan",
       "progress": {
         "label": "Progreso del plan",
-        "leave": "Puedes cerrar esta página. Escribiremos a <strong>{email}</strong> en cuanto tu plan esté listo.",
-        "leaveWithoutEmail": "Puedes cerrar esta página. Te enviaremos un correo en cuanto tu plan esté listo.",
         "minutesLeft": "{minutes, plural, one {Queda aproximadamente # minuto} other {Quedan aproximadamente # minutos}}",
         "overdue": "Está tardando un poco más de lo habitual. Ya casi está.",
         "steps": {
@@ -5267,42 +5265,6 @@
       "suggestedHint": "Revisa las respuestas marcadas y cambia lo que no encaje.",
       "suggesting": "Sugiriendo respuestas a partir de {website}",
       "title": "Rellena las respuestas desde tu sitio web"
-    }
-  },
-  "WorkspaceSetupNotice": {
-    "fallback": "Si el botón no funciona, copia y pega este enlace en tu navegador: ",
-    "greeting": "Hola {firstName}:",
-    "planFailed": {
-      "body": "Mate no pudo terminar el plan de tu espacio de trabajo. Tus respuestas están guardadas: abre la configuración para volver a intentarlo o ajustarlas.",
-      "bodyNamed": "Mate no pudo terminar el plan para {workspace}. Tus respuestas están guardadas: abre la configuración para intentarlo de nuevo o ajustarlas.",
-      "cta": "Abrir la configuración",
-      "subject": "El plan de tu espacio de trabajo necesita otro intento",
-      "subjectNamed": "Tu plan para {workspace} necesita otro intento",
-      "title": "Tu plan necesita otro intento"
-    },
-    "planReady": {
-      "body": "Mate ha preparado las listas, el pipeline, el panel y las páginas de la base de conocimientos de tu espacio de trabajo. Revisa el plan y crea tu espacio de trabajo en un solo paso.",
-      "bodyNamed": "Mate ha preparado las listas, el embudo, el panel y las páginas de la base de conocimiento para {workspace}. Revisa el plan y crea el espacio de trabajo en un solo paso.",
-      "cta": "Revisar tu plan",
-      "subject": "El plan de tu espacio de trabajo está listo",
-      "subjectNamed": "Tu plan para {workspace} está listo",
-      "title": "Tu plan está listo"
-    },
-    "workspaceFailed": {
-      "body": "Mate creó la mayor parte de tu espacio de trabajo, pero algunas partes no se pudieron terminar. Abre la configuración para volver a intentarlas.",
-      "bodyNamed": "Mate ha creado la mayor parte de {workspace}, pero algunas partes no se pudieron terminar. Abre la configuración para volver a intentarlas.",
-      "cta": "Abrir la configuración",
-      "subject": "La configuración de tu espacio de trabajo necesita una revisión",
-      "subjectNamed": "La configuración de {workspace} necesita una revisión",
-      "title": "Algunas partes necesitan una revisión"
-    },
-    "workspaceReady": {
-      "body": "Mate ha creado tu espacio de trabajo. Tus listas, vistas y panel te están esperando, y las páginas de la base de conocimientos llegan en breve.",
-      "bodyNamed": "Mate ha creado {workspace}. Tus listas, vistas y panel te esperan, y las páginas de la base de conocimientos llegan en breve.",
-      "cta": "Abrir tu espacio de trabajo",
-      "subject": "Tu espacio de trabajo está listo",
-      "subjectNamed": "{workspace} está listo",
-      "title": "Tu espacio de trabajo está listo"
     }
   }
 }
