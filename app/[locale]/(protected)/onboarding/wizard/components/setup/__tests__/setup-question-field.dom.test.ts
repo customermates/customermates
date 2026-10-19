@@ -1,3 +1,5 @@
+import type { DragEndEvent } from "@dnd-kit/core";
+import type { ReactNode } from "react";
 import type { Root } from "react-dom/client";
 import type { SetupAnswerValue } from "@/features/workspace-setup/setup-answers.schema";
 import type { SetupQuestionDescriptor } from "../setup-question-descriptor";
@@ -6,6 +8,25 @@ import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+const dndSpy = vi.hoisted(() => ({
+  onDragEnd: undefined as ((event: DragEndEvent) => void) | undefined,
+  items: [] as string[],
+}));
+
+vi.mock("@dnd-kit/core", async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  DndContext: ({ children, onDragEnd }: { children: ReactNode; onDragEnd: (event: DragEndEvent) => void }) => {
+    dndSpy.onDragEnd = onDragEnd;
+    return children;
+  },
+}));
+vi.mock("@dnd-kit/sortable", async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  SortableContext: ({ children, items }: { children: ReactNode; items: string[] }) => {
+    dndSpy.items = items;
+    return children;
+  },
+}));
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, string | number>) =>
     values ? `${key} ${Object.values(values).join(" ")}` : key,
@@ -141,7 +162,7 @@ describe("SetupQuestionField", () => {
     expect(onChange).toHaveBeenLastCalledWith({ format: "multipleChoice", values: ["website"], custom: [] });
   });
 
-  it("edits, reorders and removes ordered list entries with win chances", () => {
+  it("edits, drags to reorder and removes ordered list entries with win chances", () => {
     render(descriptorOf("salesSteps"), {
       format: "orderedList",
       items: [
@@ -151,9 +172,10 @@ describe("SetupQuestionField", () => {
     });
 
     expect(container.querySelectorAll('input[type="number"]')).toHaveLength(2);
-    act(() =>
-      container.querySelectorAll<HTMLButtonElement>('button[aria-label="WorkspaceSetup.interview.moveUp"]')[1].click(),
-    );
+    expect(container.querySelectorAll('button[aria-label^="DataView.dragToReorderNamed"]')).toHaveLength(2);
+    expect(container.querySelector('button[aria-label^="WorkspaceSetup.interview.move"]')).toBeNull();
+    const [lead, offer] = dndSpy.items;
+    act(() => dndSpy.onDragEnd?.({ active: { id: offer }, over: { id: lead } } as DragEndEvent));
     expect(onChange).toHaveBeenLastCalledWith({
       format: "orderedList",
       items: [
@@ -253,6 +275,21 @@ describe("SetupQuestionField", () => {
     render(descriptorOf("anythingMissed"), null);
     expect(container.querySelector("textarea")).not.toBeNull();
     expect(container.querySelector(".text-destructive")).toBeNull();
+  });
+
+  it("marks a missing answer like other form fields: red label, invalid control and the required message", () => {
+    render(descriptorOf("companyName"), { format: "shortText", value: "" }, { invalid: true });
+
+    const group = container.querySelector<HTMLElement>('[aria-labelledby="setup-question-companyName"]');
+    const error = container.querySelector("#setup-question-companyName-error");
+    expect(group?.getAttribute("aria-describedby")).toBe("setup-question-companyName-error");
+    expect(group?.getAttribute("data-invalid")).toBe("true");
+    expect(container.querySelector("#setup-question-companyName")?.className).toContain("text-destructive");
+    expect(container.querySelector("input")?.getAttribute("aria-invalid")).toBe("true");
+    expect(error?.textContent).toBe("Common.errors.mustNotBeBlank");
+
+    render(descriptorOf("companyName"), { format: "shortText", value: "Acme" });
+    expect(container.querySelector("#setup-question-companyName-error")).toBeNull();
   });
 
   it("marks a required question with the form asterisk", () => {
