@@ -11,7 +11,12 @@ const requestContext = vi.hoisted(() => ({ headers: new Headers() }));
 vi.mock("next/headers", () => ({
   headers: () => Promise.resolve(requestContext.headers),
   cookies: () =>
-    Promise.resolve({ get: () => undefined, getAll: () => [], set: () => undefined, delete: () => undefined }),
+    Promise.resolve({
+      get: () => undefined,
+      getAll: () => [],
+      set: () => undefined,
+      delete: () => undefined,
+    }),
 }));
 vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
@@ -22,6 +27,7 @@ vi.mock("next-intl/server", () => ({
 }));
 
 import { GET as me } from "@/app/api/v1/users/me/route";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -52,7 +58,10 @@ describeDatabase("joining another workspace by invitation with an existing login
     asSession();
     const response = await me();
     const body = (await response.json()) as { id?: string };
-    return { status: response.status, userId: response.status === 200 ? (body.id ?? null) : null };
+    return {
+      status: response.status,
+      userId: response.status === 200 ? (body.id ?? null) : null,
+    };
   }
 
   async function membership(companyId: string) {
@@ -78,7 +87,10 @@ describeDatabase("joining another workspace by invitation with an existing login
       'SELECT "companyId" FROM "AuthUser" WHERE "id" = $1',
       [fixture.authUserId],
     );
-    return { activeCompanyId: session.rows[0]?.activeCompanyId, lastUsedCompanyId: authUser.rows[0]?.companyId };
+    return {
+      activeCompanyId: session.rows[0]?.activeCompanyId,
+      lastUsedCompanyId: authUser.rows[0]?.companyId,
+    };
   }
 
   async function pendingConsent() {
@@ -110,14 +122,17 @@ describeDatabase("joining another workspace by invitation with an existing login
     const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
     const { runWithTenant } = await import("@/core/decorators/tenant-context");
     const { getAdminUpdateUserDetailsInteractor } = await import("@/core/di");
-    const admin = await new PrismaUserRepo(new PermissionService()).findMembershipUnscoped(
-      fixture.adminEmail,
-      fixture.companies.invited,
-    );
+    const admin = await new PrismaUserRepo(
+      new PermissionService(),
+      new PrismaBillingUsageRepo(),
+    ).findMembershipUnscoped(fixture.adminEmail, fixture.companies.invited);
     if (!admin) throw new Error("The invited workspace admin is missing.");
 
     return runWithTenant(admin, () =>
-      getAdminUpdateUserDetailsInteractor().invoke({ userId: joinedMemberId, ...change }),
+      getAdminUpdateUserDetailsInteractor().invoke({
+        userId: joinedMemberId,
+        ...change,
+      }),
     );
   }
 
@@ -126,7 +141,11 @@ describeDatabase("joining another workspace by invitation with an existing login
     const email = `join-${randomUUID()}@example.invalid`;
     const adminEmail = `invited-admin-${randomUUID()}@example.invalid`;
     const companies = { own: randomUUID(), invited: randomUUID() };
-    const roles = { own: randomUUID(), invitedAdmin: randomUUID(), invitedMember: randomUUID() };
+    const roles = {
+      own: randomUUID(),
+      invitedAdmin: randomUUID(),
+      invitedMember: randomUUID(),
+    };
     const members = { own: randomUUID(), invitedAdmin: randomUUID() };
     const authUserId = randomUUID();
 
@@ -241,16 +260,31 @@ describeDatabase("joining another workspace by invitation with an existing login
     const { getJoinWorkspaceInteractor, getRouteGuardService } = await import("@/core/di");
     asSession();
 
-    const joined = await getJoinWorkspaceInteractor().invoke({ intent: fixture.intent, agreeToTerms: true });
+    const joined = await getJoinWorkspaceInteractor().invoke({
+      intent: fixture.intent,
+      agreeToTerms: true,
+    });
 
     expect(joined).toEqual({
       ok: true,
-      data: { companyId: fixture.companies.invited, status: "pendingAuthorization", alreadyMember: false },
+      data: {
+        companyId: fixture.companies.invited,
+        status: "pendingAuthorization",
+        alreadyMember: false,
+      },
     });
     const pending = await membership(fixture.companies.invited);
-    expect(pending).toMatchObject({ status: "pendingAuthorization", roleId: null, leftAt: null, firstName: "Ben" });
+    expect(pending).toMatchObject({
+      status: "pendingAuthorization",
+      roleId: null,
+      leftAt: null,
+      firstName: "Ben",
+    });
     joinedMemberId = pending?.id ?? "";
-    expect(await membership(fixture.companies.own)).toMatchObject({ id: fixture.members.own, status: "active" });
+    expect(await membership(fixture.companies.own)).toMatchObject({
+      id: fixture.members.own,
+      status: "active",
+    });
     expect(await login()).toEqual({
       activeCompanyId: fixture.companies.invited,
       lastUsedCompanyId: fixture.companies.invited,
@@ -324,17 +358,36 @@ describeDatabase("joining another workspace by invitation with an existing login
     const { getJoinWorkspaceInteractor, getListMcpConsentWorkspacesInteractor, getSwitchWorkspaceInteractor } =
       await import("@/core/di");
 
-    expect(await approveAsInvitedAdmin({ status: "active", roleId: fixture.roles.invitedMember })).toMatchObject({
+    expect(
+      await approveAsInvitedAdmin({
+        status: "active",
+        roleId: fixture.roles.invitedMember,
+      }),
+    ).toMatchObject({
       ok: true,
     });
     asSession();
-    await getSwitchWorkspaceInteractor().invoke({ companyId: fixture.companies.own });
-    expect(await whoAmI()).toEqual({ status: 200, userId: fixture.members.own });
+    await getSwitchWorkspaceInteractor().invoke({
+      companyId: fixture.companies.own,
+    });
+    expect(await whoAmI()).toEqual({
+      status: 200,
+      userId: fixture.members.own,
+    });
 
     asSession();
-    expect(await getJoinWorkspaceInteractor().invoke({ intent: fixture.intent, agreeToTerms: true })).toEqual({
+    expect(
+      await getJoinWorkspaceInteractor().invoke({
+        intent: fixture.intent,
+        agreeToTerms: true,
+      }),
+    ).toEqual({
       ok: true,
-      data: { companyId: fixture.companies.invited, status: "active", alreadyMember: true },
+      data: {
+        companyId: fixture.companies.invited,
+        status: "active",
+        alreadyMember: true,
+      },
     });
     expect(await whoAmI()).toEqual({ status: 200, userId: joinedMemberId });
 
@@ -352,18 +405,30 @@ describeDatabase("joining another workspace by invitation with an existing login
     const { interactorFailureCodes } = await import("@/core/validation/validation.utils");
     asSession();
 
-    expect(await getLeaveWorkspaceInteractor().invoke({ companyId: fixture.companies.invited })).toEqual({
+    expect(
+      await getLeaveWorkspaceInteractor().invoke({
+        companyId: fixture.companies.invited,
+      }),
+    ).toEqual({
       ok: true,
       data: { companyId: fixture.companies.invited },
     });
-    expect(await membership(fixture.companies.invited)).toMatchObject({ status: "inactive", leftAt: expect.any(Date) });
-    expect(await whoAmI()).toEqual({ status: 200, userId: fixture.members.own });
+    expect(await membership(fixture.companies.invited)).toMatchObject({
+      status: "inactive",
+      leftAt: expect.any(Date),
+    });
+    expect(await whoAmI()).toEqual({
+      status: 200,
+      userId: fixture.members.own,
+    });
 
     const reactivation = await approveAsInvitedAdmin({ status: "active" });
     expect(reactivation.ok).toBe(false);
     if (!reactivation.ok)
       expect(interactorFailureCodes(reactivation.error)).toEqual([CustomErrorCode.workspaceMemberLeft]);
-    expect(await membership(fixture.companies.invited)).toMatchObject({ status: "inactive" });
+    expect(await membership(fixture.companies.invited)).toMatchObject({
+      status: "inactive",
+    });
 
     await client.query(
       'INSERT INTO "OauthAccessToken" ("id","accessToken","refreshToken","accessTokenExpiresAt","refreshTokenExpiresAt","clientId","userId","scopes","companyId","createdAt","updatedAt") VALUES ($1,$2,$3,CURRENT_TIMESTAMP + INTERVAL \'1 hour\',CURRENT_TIMESTAMP + INTERVAL \'1 day\',$4,$5,\'openid offline_access\',$6,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)',
@@ -383,9 +448,18 @@ describeDatabase("joining another workspace by invitation with an existing login
     expect(await lateCredentials()).toBe("2");
 
     asSession();
-    expect(await getJoinWorkspaceInteractor().invoke({ intent: fixture.intent, agreeToTerms: true })).toEqual({
+    expect(
+      await getJoinWorkspaceInteractor().invoke({
+        intent: fixture.intent,
+        agreeToTerms: true,
+      }),
+    ).toEqual({
       ok: true,
-      data: { companyId: fixture.companies.invited, status: "pendingAuthorization", alreadyMember: false },
+      data: {
+        companyId: fixture.companies.invited,
+        status: "pendingAuthorization",
+        alreadyMember: false,
+      },
     });
     expect(await membership(fixture.companies.invited)).toEqual({
       id: joinedMemberId,
@@ -401,27 +475,49 @@ describeDatabase("joining another workspace by invitation with an existing login
     const { getWithdrawWorkspaceRequestInteractor } = await import("@/core/di");
     asSession();
 
-    expect(await getWithdrawWorkspaceRequestInteractor().invoke({ companyId: fixture.companies.own })).toMatchObject({
+    expect(
+      await getWithdrawWorkspaceRequestInteractor().invoke({
+        companyId: fixture.companies.own,
+      }),
+    ).toMatchObject({
       ok: false,
     });
-    expect(await membership(fixture.companies.own)).toMatchObject({ status: "active", leftAt: null });
+    expect(await membership(fixture.companies.own)).toMatchObject({
+      status: "active",
+      leftAt: null,
+    });
 
     asSession();
-    expect(await getWithdrawWorkspaceRequestInteractor().invoke({ companyId: fixture.companies.invited })).toEqual({
+    expect(
+      await getWithdrawWorkspaceRequestInteractor().invoke({
+        companyId: fixture.companies.invited,
+      }),
+    ).toEqual({
       ok: true,
       data: { companyId: fixture.companies.invited },
     });
-    expect(await membership(fixture.companies.invited)).toMatchObject({ status: "inactive", leftAt: expect.any(Date) });
+    expect(await membership(fixture.companies.invited)).toMatchObject({
+      status: "inactive",
+      leftAt: expect.any(Date),
+    });
     expect(await login()).toEqual({
       activeCompanyId: fixture.companies.invited,
       lastUsedCompanyId: fixture.companies.own,
     });
-    expect(await whoAmI()).toEqual({ status: 200, userId: fixture.members.own });
-    expect(await login()).toEqual({ activeCompanyId: fixture.companies.own, lastUsedCompanyId: fixture.companies.own });
+    expect(await whoAmI()).toEqual({
+      status: 200,
+      userId: fixture.members.own,
+    });
+    expect(await login()).toEqual({
+      activeCompanyId: fixture.companies.own,
+      lastUsedCompanyId: fixture.companies.own,
+    });
 
     asSession();
     expect(
-      await getWithdrawWorkspaceRequestInteractor().invoke({ companyId: fixture.companies.invited }),
+      await getWithdrawWorkspaceRequestInteractor().invoke({
+        companyId: fixture.companies.invited,
+      }),
     ).toMatchObject({ ok: false });
   });
 });

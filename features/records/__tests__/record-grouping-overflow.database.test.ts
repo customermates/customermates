@@ -8,6 +8,7 @@ import { MAX_AXIS_GROUPS, NO_VALUE_GROUP_KEY } from "@/core/base/grouping/groupi
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 vi.mock("@/env", () => ({
   env: {
@@ -60,7 +61,10 @@ async function fixture() {
   });
   const admin = createMockUser({ ...seed.user, role: { ...seed.role, permissions: [] } });
   const repo = createTestRecordRepo();
-  const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
+  const policy = new RecordAccessPolicy(
+    new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+    repo,
+  );
   const mutate = new MutateRecordInteractor(
     repo,
     policy,

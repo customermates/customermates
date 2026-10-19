@@ -89,9 +89,9 @@ describeDatabase("operator data view keying on PostgreSQL", () => {
       [companyIdA, companyIdB],
     );
     await client.query(
-      `INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "status", "isPlatformOperator", "updatedAt")
-       VALUES ($1, $2, 'Ada', 'Operator', $3, 'active', true, CURRENT_TIMESTAMP),
-              ($4, $5, 'Bo', 'Operator', $6, 'active', true, CURRENT_TIMESTAMP)`,
+      `INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "status", "updatedAt")
+       VALUES ($1, $2, 'Ada', 'Operator', $3, 'active', CURRENT_TIMESTAMP),
+              ($4, $5, 'Bo', 'Operator', $6, 'active', CURRENT_TIMESTAMP)`,
       [
         operatorIdA,
         `${operatorIdA}@operator.invalid`,

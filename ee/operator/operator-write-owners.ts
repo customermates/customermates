@@ -8,7 +8,7 @@ export type OperatorWriteOwners = {
       status: Status,
       agentCreditActivatedAt?: Date | null,
     ): Promise<void>;
-    setPlatformOperatorCompanyWide(companyId: string, userId: string, isPlatformOperator: boolean): Promise<void>;
+    setPlatformOperatorUnscoped(email: string, isPlatformOperator: boolean): Promise<void>;
     deleteAuthIdentitiesUnscoped(identityIds: string[]): Promise<void>;
     detachAuthIdentitiesFromCompanyUnscoped(companyId: string): Promise<number>;
   };

@@ -76,6 +76,7 @@ export async function seedIdentity(context: SeedContext): Promise<void> {
       email: identity.email,
       emailVerified: true,
       image: identity.avatarPath,
+      isPlatformOperator: false,
       name: identity.name,
     };
 

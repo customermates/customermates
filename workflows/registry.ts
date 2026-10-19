@@ -11,6 +11,7 @@ import { providerAvatarOperation } from "./provider-avatar-operation";
 import { recordOperation } from "./record-operation";
 import { processEvents } from "./process-events";
 import { purgeTrash } from "./purge-trash";
+import { reconcileBillingUsage } from "./reconcile-billing-usage";
 import { triggerTestError } from "./trigger-test-error";
 
 export const WORKFLOW_REGISTRY = {
@@ -27,6 +28,7 @@ export const WORKFLOW_REGISTRY = {
   "provider-avatar-operation": providerAvatarOperation,
   "process-events": processEvents,
   "purge-trash": purgeTrash,
+  "reconcile-billing-usage": reconcileBillingUsage,
   "trigger-test-error": triggerTestError,
 } as const;
 

@@ -7,6 +7,7 @@ import type { TenantUser } from "@/features/user/user.schema";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { interactorFailureStatus } from "@/core/validation/validation.utils";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 const model = vi.hoisted(() => ({ generate: vi.fn() }));
 vi.mock("@/ee/agent-chat/structured-model-call", () => ({
@@ -51,7 +52,10 @@ describeDatabase("Command resolver", { timeout: 240_000 }, () => {
   const id = (key: string) => presetId(companyId, key);
   const actors: Record<"admin" | "reader", TenantUser> = {} as never;
   const repo = createTestRecordRepo();
-  const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
+  const policy = new RecordAccessPolicy(
+    new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+    repo,
+  );
   const views = { listRecordViewNames: vi.fn() };
   const grant = { purpose: "commandResolve" };
   const reservation = { id: "reservation", grant, reservedMicrocents: 1_000, reservedAt: new Date() };

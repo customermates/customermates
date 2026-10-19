@@ -10,6 +10,7 @@ import { afterAll, describe, expect, it, vi } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 vi.mock("@/env", () => ({
   env: {
@@ -107,7 +108,10 @@ async function fixture() {
     systemConfigurations?: InstanceType<typeof RecordConfigurationService>,
   ) => {
     const scoped = createTestRecordRepo(companyId);
-    const scopedPolicy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), scoped);
+    const scopedPolicy = new RecordAccessPolicy(
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+      scoped,
+    );
     const configurations = new RecordConfigurationService(scoped);
     return [
       new ConfigurationTrashHandler(
@@ -144,7 +148,10 @@ async function fixture() {
     ];
   };
   const repo = createTestRecordRepo();
-  const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
+  const policy = new RecordAccessPolicy(
+    new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+    repo,
+  );
   const configurations = new RecordConfigurationService(repo);
   const apply = new ApplyRecordConfigurationInteractor(
     repo,
@@ -163,7 +170,12 @@ async function fixture() {
   );
   const trashRepo = new PrismaTrashRepo();
   const trash = {
-    query: new QueryTrashInteractor(trashRepo, repo, handlers(), new PrismaUserRepo(new PermissionService())),
+    query: new QueryTrashInteractor(
+      trashRepo,
+      repo,
+      handlers(),
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+    ),
     restore: new RestoreTrashInteractor(trashRepo, handlers()),
     preview: new PreviewTrashDeletionInteractor(trashRepo, handlers()),
     remove: new DeleteTrashPermanentlyInteractor(trashRepo, handlers()),
@@ -529,7 +541,10 @@ describeDatabase("configuration trash", () => {
     );
     const change = await f.change([{ operation: "delete", target: { kind: "field", id: fieldId } }]);
     const repo = createTestRecordRepo();
-    const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
+    const policy = new RecordAccessPolicy(
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+      repo,
+    );
     const preview = await f.as(() =>
       new PreviewRecordConfigurationInteractor(repo, policy, new RecordConfigurationService(repo)).invoke(change),
     );
@@ -932,7 +947,10 @@ describeDatabase("configuration trash", () => {
     };
     const handlers = [...f.handlers(companyId), failing];
     const repo = new PrismaTrashRepo(companyId);
-    const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), createTestRecordRepo(companyId));
+    const policy = new RecordAccessPolicy(
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+      createTestRecordRepo(companyId),
+    );
     const empty = new EmptyTrashInteractor(repo, policy, handlers);
     const broken = await orphan("widget");
     const field = await deleteNotes();
@@ -1127,7 +1145,7 @@ describeDatabase("configuration trash", () => {
       const records = createTestRecordRepo(scoped);
       return createTestRecordOperationService(
         records,
-        new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), records),
+        new RecordAccessPolicy(new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()), records),
         new RecordConfigurationService(records),
         noWebhooks,
         scoped,
@@ -1220,7 +1238,10 @@ describeDatabase("configuration trash", () => {
     const [config] = f.handlers(companyId);
     const background = new ConfigurationTrashHandler(
       createTestRecordRepo(companyId),
-      new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), createTestRecordRepo(companyId)),
+      new RecordAccessPolicy(
+        new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+        createTestRecordRepo(companyId),
+      ),
       (config as unknown as { preview: never }).preview,
       { run: () => Promise.resolve({ ok: true, data: { status: "pending", operationId: randomUUID() } }) } as never,
       new PrismaTrashRepo(companyId),

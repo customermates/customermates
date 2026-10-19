@@ -38,7 +38,7 @@ describe("LeaveWorkspaceInteractor", () => {
   let channelRemoval: { deleteForBillingOrThrow: ReturnType<typeof vi.fn> };
   let repo: {
     findMemberCompanyWide: ReturnType<typeof vi.fn>;
-    isPlatformOperatorCompanyWide: ReturnType<typeof vi.fn>;
+    strandsLastPlatformOperatorCompanyWide: ReturnType<typeof vi.fn>;
     leaveCompanyWide: ReturnType<typeof vi.fn>;
   };
   let roleRepo: { hasAnotherActiveSystemRoleUser: ReturnType<typeof vi.fn> };
@@ -81,7 +81,7 @@ describe("LeaveWorkspaceInteractor", () => {
     };
     repo = {
       findMemberCompanyWide: vi.fn(() => Promise.resolve({ ...getTenantUser(), leftAt: null })),
-      isPlatformOperatorCompanyWide: vi.fn().mockResolvedValue(false),
+      strandsLastPlatformOperatorCompanyWide: vi.fn().mockResolvedValue(false),
       leaveCompanyWide: vi.fn(() => {
         order.push("left");
         return Promise.resolve(true);

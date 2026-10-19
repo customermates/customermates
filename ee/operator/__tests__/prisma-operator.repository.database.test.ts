@@ -84,7 +84,6 @@ async function createPlatformAccessUser(
       firstName: "Platform",
       lastName: "Candidate",
       status: args.status ?? "active",
-      isPlatformOperator: args.isPlatformOperator ?? false,
     },
   });
   await tx.authUser.create({
@@ -94,18 +93,19 @@ async function createPlatformAccessUser(
       email,
       name: "Platform Candidate",
       emailVerified: args.emailVerified ?? true,
+      isPlatformOperator: args.isPlatformOperator ?? false,
     },
   });
   return { userId, companyId, email, authUserId };
 }
 
-function operatorActor(userId = `operator-${randomUUID()}`): OperatorActor {
+function operatorActor(userId = `operator-${randomUUID()}`, email = `${randomUUID()}@example.invalid`): OperatorActor {
   actorIds.push(userId);
   return {
     authUserId: `auth-${randomUUID()}`,
     userId,
     companyId: `company-${randomUUID()}`,
-    email: `${randomUUID()}@example.invalid`,
+    email,
   };
 }
 
@@ -229,7 +229,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
     const target = await seedEnterpriseUser(`operator-auth-${randomUUID()}@example.invalid`);
     const sessionId = randomUUID();
     await runWithoutTenant(async () => {
-      await prisma.user.update({ where: { id: target.userId }, data: { isPlatformOperator: true } });
+      await prisma.authUser.update({ where: { id: target.authUserId }, data: { isPlatformOperator: true } });
       await prisma.authSession.create({
         data: {
           id: sessionId,
@@ -264,21 +264,19 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
     await expect(repo.findAuthorizedActorUnscoped(session)).resolves.toBeNull();
 
     await runWithoutTenant(async () => {
-      await prisma.user.update({
-        where: { id: target.userId },
-        data: { status: "active", isPlatformOperator: false },
-      });
+      await prisma.user.update({ where: { id: target.userId }, data: { status: "active" } });
+      await prisma.authUser.update({ where: { id: target.authUserId }, data: { isPlatformOperator: false } });
     });
     await expect(repo.findAuthorizedActorUnscoped(session)).resolves.toBeNull();
 
     await runWithoutTenant(async () => {
-      await prisma.user.update({ where: { id: target.userId }, data: { isPlatformOperator: true } });
+      await prisma.authUser.update({ where: { id: target.authUserId }, data: { isPlatformOperator: true } });
       await prisma.authSession.update({ where: { id: sessionId }, data: { expiresAt: new Date(Date.now() - 1) } });
     });
     await expect(repo.findAuthorizedActorUnscoped(session)).resolves.toBeNull();
 
     await runWithoutTenant(async () => {
-      await prisma.user.update({ where: { id: target.userId }, data: { isPlatformOperator: false } });
+      await prisma.authUser.update({ where: { id: target.authUserId }, data: { isPlatformOperator: false } });
       await prisma.authSession.delete({ where: { id: sessionId } });
     });
   });
@@ -287,7 +285,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
     const target = await seedEnterpriseUser(`case-variant-${randomUUID()}@example.invalid`);
     const sessionId = randomUUID();
     await runWithoutTenant(async () => {
-      await prisma.user.update({ where: { id: target.userId }, data: { isPlatformOperator: true } });
+      await prisma.authUser.update({ where: { id: target.authUserId }, data: { isPlatformOperator: true } });
       await prisma.authSession.create({
         data: {
           id: sessionId,
@@ -631,7 +629,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
             const tx = getTransactionClient<AppPrismaClient>();
             if (!tx) throw new Error("Expected platform-access test transaction.");
             await tx.$executeRaw`LOCK TABLE "User" IN SHARE ROW EXCLUSIVE MODE`;
-            await tx.user.updateMany({ where: { isPlatformOperator: true }, data: { isPlatformOperator: false } });
+            await tx.authUser.updateMany({ where: { isPlatformOperator: true }, data: { isPlatformOperator: false } });
 
             const target = await createPlatformAccessUser(tx, {});
             const elsewhere = await createPlatformAccessUser(tx, { isPlatformOperator: true });
@@ -706,7 +704,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
           const tx = getTransactionClient<AppPrismaClient>();
           if (!tx) throw new Error("Expected platform-access guard test transaction.");
           await tx.$executeRaw`LOCK TABLE "User" IN SHARE ROW EXCLUSIVE MODE`;
-          await tx.user.updateMany({ where: { isPlatformOperator: true }, data: { isPlatformOperator: false } });
+          await tx.authUser.updateMany({ where: { isPlatformOperator: true }, data: { isPlatformOperator: false } });
 
           const repo = createTestOperatorRepo();
           const rejects = async (actor: OperatorActor, userId: string) => {
@@ -728,7 +726,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
           const inactive = await createPlatformAccessUser(tx, { status: "inactive" });
           const unverified = await createPlatformAccessUser(tx, { emailVerified: false });
           observed = {
-            self: await rejects(operatorActor(own.userId), own.userId),
+            self: await rejects(operatorActor(own.userId, own.email), own.userId),
             inactive: await rejects(operatorActor(), inactive.userId),
             unverified: await rejects(operatorActor(), unverified.userId),
           };
@@ -754,7 +752,7 @@ describeDatabase("PrismaOperatorRepo against a real database", { timeout: 120_00
             const tx = getTransactionClient<AppPrismaClient>();
             if (!tx) throw new Error("Expected status-path test transaction.");
             await tx.$executeRaw`LOCK TABLE "User" IN SHARE ROW EXCLUSIVE MODE`;
-            await tx.user.updateMany({ where: { isPlatformOperator: true }, data: { isPlatformOperator: false } });
+            await tx.authUser.updateMany({ where: { isPlatformOperator: true }, data: { isPlatformOperator: false } });
 
             const solo = await createPlatformAccessUser(tx, { isPlatformOperator: true });
             const peer = await createPlatformAccessUser(tx, { isPlatformOperator: true });

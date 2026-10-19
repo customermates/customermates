@@ -7,6 +7,7 @@ import { afterAll, describe, expect, it, vi } from "vitest";
 import { PermissionService } from "@/core/base/permission.service";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
 vi.mock("@/env", () => ({
   env: {
@@ -111,7 +112,7 @@ async function fixture() {
       trashRepo,
       createTestRecordRepo(),
       handlers,
-      new PrismaUserRepo(new PermissionService()),
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
     ),
     restore: new RestoreTrashInteractor(trashRepo, handlers),
     preview: new PreviewTrashDeletionInteractor(trashRepo, handlers),

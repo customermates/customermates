@@ -56,6 +56,12 @@ async function withTemporaryDatabase<T>(databaseUrl: string, fn: (isolatedUrl: s
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 
+async function seedUserLogin(prisma: PrismaClient, userId: string) {
+  const { email } = await prisma.user.findUniqueOrThrow({ where: { id: userId }, select: { email: true } });
+
+  return prisma.authUser.findUniqueOrThrow({ where: { email }, select: { isPlatformOperator: true } });
+}
+
 function requiredDatabaseUrl() {
   if (!databaseUrl) throw new Error("Database tests must be enabled for this test");
   return databaseUrl;
@@ -75,20 +81,20 @@ describeDatabase("hosted AI operator user-table fixtures", { timeout: 120_000 },
         await seedIdentity(context);
         await seedLocalHostedAiOperatorAccess(context);
         await seedHostedAiOperatorUserTableFixtures(context, { includeLocalOperatorAccess: true });
-        await expect(prisma.user.findUniqueOrThrow({ where: { id: context.ids.user } })).resolves.toMatchObject({
-          isPlatformOperator: true,
-        });
-        await expect(prisma.user.count({ where: { id: { in: tableIds }, isPlatformOperator: true } })).resolves.toBe(4);
+        await expect(seedUserLogin(prisma, context.ids.user)).resolves.toMatchObject({ isPlatformOperator: true });
+        await expect(
+          prisma.authUser.count({ where: { id: { in: tableIds }, isPlatformOperator: true } }),
+        ).resolves.toBe(4);
 
         await seedIdentity(context);
         await seedHostedAiOperatorUserTableFixtures(context);
         await seedIdentity(context);
         await seedHostedAiOperatorUserTableFixtures(context);
 
-        await expect(prisma.user.findUniqueOrThrow({ where: { id: context.ids.user } })).resolves.toMatchObject({
-          isPlatformOperator: false,
-        });
-        await expect(prisma.user.count({ where: { id: { in: tableIds }, isPlatformOperator: true } })).resolves.toBe(0);
+        await expect(seedUserLogin(prisma, context.ids.user)).resolves.toMatchObject({ isPlatformOperator: false });
+        await expect(
+          prisma.authUser.count({ where: { id: { in: tableIds }, isPlatformOperator: true } }),
+        ).resolves.toBe(0);
       } finally {
         await prisma.$disconnect();
       }
@@ -112,16 +118,16 @@ describeDatabase("hosted AI operator user-table fixtures", { timeout: 120_000 },
 
       try {
         await seedHostedAiOperatorUserTableFixtures(context);
-        await expect(prisma.user.count({ where: { id: { in: ids }, isPlatformOperator: true } })).resolves.toBe(0);
+        await expect(prisma.authUser.count({ where: { id: { in: ids }, isPlatformOperator: true } })).resolves.toBe(0);
         await seedHostedAiOperatorUserTableFixtures(context, { includeLocalOperatorAccess: true });
 
-        await prisma.user.update({
-          where: { id: providerManaged.id },
-          data: { isPlatformOperator: !providerManaged.isPlatformOperator, status: "inactive" },
-        });
+        await prisma.user.update({ where: { id: providerManaged.id }, data: { status: "inactive" } });
         await prisma.authUser.update({
           where: { id: providerManaged.id },
-          data: { emailVerified: !providerManaged.authEmailVerified },
+          data: {
+            emailVerified: !providerManaged.authEmailVerified,
+            isPlatformOperator: !providerManaged.isPlatformOperator,
+          },
         });
         await prisma.subscription.update({
           where: { companyId: providerManaged.companyId },
@@ -165,12 +171,11 @@ describeDatabase("hosted AI operator user-table fixtures", { timeout: 120_000 },
         expect(new Set(rows.map(({ company }) => company.subscription?.status ?? null))).toEqual(
           new Set(["trial", "active", "cancelled", "expired", "pastDue", "unPaid", null]),
         );
-        expect(rows.filter(({ isPlatformOperator }) => isPlatformOperator)).toHaveLength(4);
+        expect(authUsers.filter(({ isPlatformOperator }) => isPlatformOperator)).toHaveLength(4);
         expect(authUsers.some(({ emailVerified }) => !emailVerified)).toBe(true);
         expect(rows.every(({ email }) => email.endsWith("@example.invalid"))).toBe(true);
         expect(rows.find(({ id }) => id === noSubscription.id)?.company.subscription).toBeNull();
         expect(rows.find(({ id }) => id === providerManaged.id)).toMatchObject({
-          isPlatformOperator: providerManaged.isPlatformOperator,
           status: providerManaged.status,
           company: {
             subscription: {
@@ -179,9 +184,10 @@ describeDatabase("hosted AI operator user-table fixtures", { timeout: 120_000 },
             },
           },
         });
-        expect(authUsers.find(({ id }) => id === providerManaged.id)?.emailVerified).toBe(
-          providerManaged.authEmailVerified,
-        );
+        expect(authUsers.find(({ id }) => id === providerManaged.id)).toMatchObject({
+          emailVerified: providerManaged.authEmailVerified,
+          isPlatformOperator: providerManaged.isPlatformOperator,
+        });
 
         const search = await prisma.user.findMany({
           where: {
@@ -211,8 +217,10 @@ describeDatabase("hosted AI operator user-table fixtures", { timeout: 120_000 },
         await expect(
           prisma.user.count({ where: { id: { in: ids }, company: { subscription: { is: null } } } }),
         ).resolves.toBe(4);
-        await expect(prisma.user.count({ where: { id: { in: ids }, isPlatformOperator: true } })).resolves.toBe(4);
-        await expect(prisma.user.count({ where: { id: { in: ids }, isPlatformOperator: false } })).resolves.toBe(28);
+        await expect(prisma.authUser.count({ where: { id: { in: ids }, isPlatformOperator: true } })).resolves.toBe(4);
+        await expect(prisma.authUser.count({ where: { id: { in: ids }, isPlatformOperator: false } })).resolves.toBe(
+          28,
+        );
 
         const firstPage = await prisma.user.findMany({
           where: { id: { in: ids } },

@@ -26,6 +26,7 @@ import type { Prisma } from "@/generated/prisma";
 import type { CountActiveUsersRepo } from "./count-active-users.repo";
 import type { ResolveUserOptionsRepo } from "./get/resolve-user-options.repo";
 import type { FindUserRepo } from "./find-user.repo";
+import type { BillingUsageRepo } from "@/features/billing-usage/billing-usage.repo";
 import type { WorkspaceMembershipRepo } from "@/features/workspace/workspace-membership.repo";
 import type { LeaveWorkspaceRepo } from "@/features/workspace/leave-workspace.repo";
 import type { JoinWorkspaceRepo } from "@/features/workspace/join-workspace.repo";
@@ -33,7 +34,7 @@ import type { RemoveWorkspaceMemberRepo } from "@/features/workspace/remove-work
 
 import { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
-import { type MemberDto } from "./user.schema";
+import { type MemberDto, type TenantUser } from "./user.schema";
 
 import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { QueryRepository } from "@/core/base/query-repository";
@@ -42,6 +43,8 @@ import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
+import { seatChange } from "@/features/billing-usage/billing-usage-changes";
+import { strandsLastPlatformOperator } from "@/features/user/platform-operator-logins";
 
 function recordActorSelect(companyId: string) {
   return {
@@ -52,7 +55,10 @@ function recordActorSelect(companyId: string) {
         id: true,
         companyId: true,
         isSystemRole: true,
-        permissions: { where: { companyId }, select: { resource: true, action: true } },
+        permissions: {
+          where: { companyId },
+          select: { resource: true, action: true },
+        },
       },
     },
   } as const;
@@ -91,7 +97,10 @@ export class PrismaUserRepo
     JoinWorkspaceRepo,
     RemoveWorkspaceMemberRepo
 {
-  constructor(private readonly permissions: PermissionService) {
+  constructor(
+    private readonly permissions: PermissionService,
+    private readonly billingUsage: BillingUsageRepo,
+  ) {
     super();
   }
 
@@ -101,25 +110,58 @@ export class PrismaUserRepo
     status: Status,
     agentCreditActivatedAt?: Date | null,
   ): Promise<void> {
+    const before = await this.prisma.user.findFirst({
+      where: { id: userId, companyId },
+      select: { status: true },
+    });
     await this.prisma.user.update({
       where: { id: userId, companyId },
-      data: { status, ...(agentCreditActivatedAt === undefined ? {} : { agentCreditActivatedAt }) },
+      data: {
+        status,
+        ...(agentCreditActivatedAt === undefined ? {} : { agentCreditActivatedAt }),
+      },
     });
+    await this.billingUsage.recordSeats(companyId, seatChange(userId, before?.status, status));
   }
 
-  async setPlatformOperatorCompanyWide(companyId: string, userId: string, isPlatformOperator: boolean): Promise<void> {
-    await this.prisma.user.update({ where: { id: userId, companyId }, data: { isPlatformOperator } });
+  @BypassTenantGuard
+  async setPlatformOperatorUnscoped(email: string, isPlatformOperator: boolean): Promise<void> {
+    await this.prisma.authUser.updateMany({
+      where: { email: { in: [email], mode: "insensitive" } },
+      data: { isPlatformOperator },
+    });
   }
 
   @BypassTenantGuard
   async deleteAuthIdentitiesUnscoped(identityIds: string[]): Promise<void> {
-    await this.prisma.authUser.deleteMany({ where: { id: { in: identityIds } } });
+    await this.prisma.authUser.deleteMany({
+      where: { id: { in: identityIds } },
+    });
   }
 
   @BypassTenantGuard
   async detachAuthIdentitiesFromCompanyUnscoped(companyId: string): Promise<number> {
-    const cleared = await this.prisma.authUser.updateMany({ where: { companyId }, data: { companyId: null } });
+    const cleared = await this.prisma.authUser.updateMany({
+      where: { companyId },
+      data: { companyId: null },
+    });
     return cleared.count;
+  }
+
+  @BypassTenantGuard
+  async touchLastActiveUnscoped(
+    member: Pick<TenantUser, "id" | "companyId" | "updatedAt">,
+    staleBefore: Date,
+  ): Promise<void> {
+    await this.prisma.user.updateMany({
+      where: {
+        id: member.id,
+        companyId: member.companyId,
+        updatedAt: member.updatedAt,
+        OR: [{ lastActiveAt: null }, { lastActiveAt: { lt: staleBefore } }],
+      },
+      data: { lastActiveAt: new Date(), updatedAt: member.updatedAt },
+    });
   }
 
   @BypassTenantGuard
@@ -133,7 +175,12 @@ export class PrismaUserRepo
   @BypassTenantGuard
   async withdrawPendingMembershipUnscoped(email: string, companyId: string): Promise<boolean> {
     const { count } = await this.prisma.user.updateMany({
-      where: { email, companyId, leftAt: null, status: Status.pendingAuthorization },
+      where: {
+        email,
+        companyId,
+        leftAt: null,
+        status: Status.pendingAuthorization,
+      },
       data: { status: Status.inactive, leftAt: new Date() },
     });
     return count > 0;
@@ -205,7 +252,11 @@ export class PrismaUserRepo
 
   getSortableFields() {
     return [
-      { field: "name", resolvedFields: ["firstName", "lastName"], collate: true },
+      {
+        field: "name",
+        resolvedFields: ["firstName", "lastName"],
+        collate: true,
+      },
       { field: "createdAt", resolvedFields: ["createdAt"] },
       { field: "updatedAt", resolvedFields: ["updatedAt"] },
     ];
@@ -264,7 +315,10 @@ export class PrismaUserRepo
 
   resolveUserOptions(ids: string[]) {
     return this.prisma.user.findMany({
-      where: { ...userAccessWhere(this.permissions), AND: [{ id: { in: ids } }] },
+      where: {
+        ...userAccessWhere(this.permissions),
+        AND: [{ id: { in: ids } }],
+      },
       select: { id: true, firstName: true, lastName: true, avatarUrl: true },
       orderBy: [{ firstName: "asc" }, { lastName: "asc" }, { id: "asc" }],
       take: 100,
@@ -299,6 +353,7 @@ export class PrismaUserRepo
       },
       where: { id: userId, companyId },
     });
+    await this.billingUsage.recordSeats(companyId, []);
 
     return this.prisma.user.findUniqueOrThrow({
       where: { id: userId, companyId },
@@ -319,13 +374,26 @@ export class PrismaUserRepo
     args: RepoArgs<UpdateUserDetailsRepo, "applyPersonalProfileToOtherMembershipsUnscoped">,
   ) {
     const memberships = await this.prisma.user.findMany({
-      where: { email: args.email, id: { not: args.exceptUserId }, leftAt: null },
-      select: { id: true, companyId: true, firstName: true, lastName: true, country: true },
+      where: {
+        email: args.email,
+        id: { not: args.exceptUserId },
+        leftAt: null,
+      },
+      select: {
+        id: true,
+        companyId: true,
+        firstName: true,
+        lastName: true,
+        country: true,
+      },
     });
     if (memberships.length === 0) return [];
 
     await this.prisma.user.updateMany({
-      where: { id: { in: memberships.map((membership) => membership.id) }, email: args.email },
+      where: {
+        id: { in: memberships.map((membership) => membership.id) },
+        email: args.email,
+      },
       data: args.profile,
     });
 
@@ -384,6 +452,10 @@ export class PrismaUserRepo
   @Transaction
   async adminUpdateDetailsOrThrow(args: RepoArgs<AdminUpdateUserDetailsRepo, "adminUpdateDetailsOrThrow">) {
     const { companyId } = this.user;
+    const before = await this.prisma.user.findFirst({
+      where: { id: args.userId, companyId },
+      select: { status: true },
+    });
 
     await this.prisma.user.update({
       data: {
@@ -396,6 +468,7 @@ export class PrismaUserRepo
       },
       where: { id: args.userId, companyId },
     });
+    await this.billingUsage.recordSeats(companyId, seatChange(args.userId, before?.status, args.status));
   }
 
   async createCompanyOwnerOrThrow(args: RepoArgs<RegisterUserRepo, "createCompanyOwnerOrThrow">) {
@@ -415,6 +488,7 @@ export class PrismaUserRepo
         ...args.preferences,
       },
     });
+    await this.billingUsage.recordSeats(args.companyId, [user.id]);
 
     for (const attribution of args.adAttribution ?? []) {
       await this.prisma.adAttribution.create({
@@ -450,7 +524,9 @@ export class PrismaUserRepo
 
   @BypassTenantGuard
   async expireAdAttributionUnscoped(now: Date) {
-    const result = await this.prisma.adAttribution.deleteMany({ where: { expiresAt: { lte: now } } });
+    const result = await this.prisma.adAttribution.deleteMany({
+      where: { expiresAt: { lte: now } },
+    });
     return result.count;
   }
 
@@ -474,7 +550,12 @@ export class PrismaUserRepo
     const user = existing
       ? await this.prisma.user.update({
           where: { id: existing.id, companyId: args.companyId },
-          data: { ...profile, leftAt: null, roleId: null, agentCreditActivatedAt: null },
+          data: {
+            ...profile,
+            leftAt: null,
+            roleId: null,
+            agentCreditActivatedAt: null,
+          },
         })
       : await this.prisma.user.create({
           data: { ...profile, email: args.email, companyId: args.companyId },
@@ -488,15 +569,13 @@ export class PrismaUserRepo
     return tenantUser;
   }
 
-  async isPlatformOperatorCompanyWide(userId: string) {
-    const { companyId } = this.user;
+  async strandsLastPlatformOperatorCompanyWide(userId: string) {
+    return this.strandsLastPlatformOperatorUnscoped({ id: userId, companyId: this.user.companyId });
+  }
 
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId, companyId },
-      select: { isPlatformOperator: true },
-    });
-
-    return user?.isPlatformOperator ?? false;
+  @BypassTenantGuard
+  private async strandsLastPlatformOperatorUnscoped(ending: { id: string; companyId: string }) {
+    return strandsLastPlatformOperator(this.prisma, ending);
   }
 
   async findUserSummaries(userIds: string[]) {
@@ -557,7 +636,9 @@ export class PrismaUserRepo
           select: {
             name: true,
             createdAt: true,
-            subscription: { select: { status: true, plan: true, trialEndDate: true } },
+            subscription: {
+              select: { status: true, plan: true, trialEndDate: true },
+            },
             _count: { select: { users: { where: { status: Status.active } } } },
           },
         },
@@ -567,7 +648,9 @@ export class PrismaUserRepo
 
   @BypassTenantGuard
   async hasLeftMembershipUnscoped(email: string, companyId: string) {
-    const count = await this.prisma.user.count({ where: { email, companyId, leftAt: { not: null } } });
+    const count = await this.prisma.user.count({
+      where: { email, companyId, leftAt: { not: null } },
+    });
     return count > 0;
   }
 
@@ -600,12 +683,20 @@ export class PrismaUserRepo
 
   @BypassTenantGuard
   async countCreatedWorkspacesUnscoped(authUserId: string) {
-    const created = await this.prisma.company.count({ where: { createdByAuthUserId: authUserId } });
-    const login = await this.prisma.authUser.findUnique({ where: { id: authUserId }, select: { email: true } });
+    const created = await this.prisma.company.count({
+      where: { createdByAuthUserId: authUserId },
+    });
+    const login = await this.prisma.authUser.findUnique({
+      where: { id: authUserId },
+      select: { email: true },
+    });
     if (!login) return created;
 
     const unattributed = await this.prisma.company.findMany({
-      where: { createdByAuthUserId: null, users: { some: { email: login.email, role: { isSystemRole: true } } } },
+      where: {
+        createdByAuthUserId: null,
+        users: { some: { email: login.email, role: { isSystemRole: true } } },
+      },
       select: {
         users: {
           where: { role: { isSystemRole: true } },
@@ -636,21 +727,37 @@ export class PrismaUserRepo
   }
 
   async leaveCompanyWide(userId: string): Promise<boolean> {
-    const { count } = await this.prisma.user.updateMany({
-      where: { id: userId, companyId: this.user.companyId, leftAt: null },
-      data: { status: Status.inactive, leftAt: new Date(), agentCreditActivatedAt: null },
+    const { companyId } = this.user;
+    const before = await this.prisma.user.findFirst({
+      where: { id: userId, companyId, leftAt: null },
+      select: { status: true },
     });
+    const { count } = await this.prisma.user.updateMany({
+      where: { id: userId, companyId, leftAt: null },
+      data: {
+        status: Status.inactive,
+        leftAt: new Date(),
+        agentCreditActivatedAt: null,
+      },
+    });
+    if (count > 0) await this.billingUsage.recordSeats(companyId, seatChange(userId, before?.status, Status.inactive));
     return count > 0;
   }
 
   @BypassTenantGuard
   async setLastUsedCompanyUnscoped(authUserId: string, companyId: string | null) {
-    await this.prisma.authUser.update({ where: { id: authUserId }, data: { companyId } });
+    await this.prisma.authUser.update({
+      where: { id: authUserId },
+      data: { companyId },
+    });
   }
 
   @BypassTenantGuard
   async findLoginIdUnscoped(email: string) {
-    const authUser = await this.prisma.authUser.findUnique({ where: { email }, select: { id: true } });
+    const authUser = await this.prisma.authUser.findUnique({
+      where: { email },
+      select: { id: true },
+    });
     return authUser?.id ?? null;
   }
 
@@ -815,7 +922,10 @@ export class PrismaUserRepo
     if (claimed.count === 0) return false;
 
     const welcomedEarlier = await this.prisma.user.count({
-      where: { email: { equals: email, mode: "insensitive" }, welcomeEmailSentAt: { lt: sentAt } },
+      where: {
+        email: { equals: email, mode: "insensitive" },
+        welcomeEmailSentAt: { lt: sentAt },
+      },
     });
 
     return welcomedEarlier === 0;
@@ -878,10 +988,15 @@ export class PrismaUserRepo
     });
 
     await this.withCompanyTransaction(companyId, async () => {
+      const before = await this.prisma.user.findFirst({
+        where: { id: userId, companyId },
+        select: { status: true },
+      });
       await this.prisma.user.update({
         where: { id: userId, companyId },
         data: { status: Status.inactive, agentCreditActivatedAt: null },
       });
+      await this.billingUsage.recordSeats(companyId, seatChange(userId, before?.status, Status.inactive));
     });
   }
 
@@ -912,7 +1027,12 @@ export class PrismaUserRepo
   @BypassTenantGuard
   async findRecordActorUnscoped(companyId: string, userId: string) {
     return this.prisma.user.findFirst({
-      where: { companyId, id: userId, status: Status.active, role: { companyId } },
+      where: {
+        companyId,
+        id: userId,
+        status: Status.active,
+        role: { companyId },
+      },
       select: recordActorSelect(companyId),
     });
   }
@@ -926,7 +1046,11 @@ export class PrismaUserRepo
 
   async findRecordAssigneesCompanyWide(ids: string[]) {
     const users = await this.prisma.user.findMany({
-      where: { companyId: this.companyId, id: { in: ids }, status: Status.active },
+      where: {
+        companyId: this.companyId,
+        id: { in: ids },
+        status: Status.active,
+      },
       select: { id: true },
     });
     return users.map((user) => user.id);

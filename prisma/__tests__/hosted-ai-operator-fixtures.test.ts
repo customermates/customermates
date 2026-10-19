@@ -36,6 +36,7 @@ function recordingPrisma() {
     userRoleUpsert: upsert(),
     userDelete: vi.fn(() => Promise.resolve({})),
     userFindUnique: vi.fn(() => Promise.resolve(null)),
+    userFindUniqueOrThrow: vi.fn(() => Promise.resolve({ email: "seed-operator@example.invalid" })),
     userUpdate: vi.fn(() => Promise.resolve({})),
     userUpsert: upsert(),
   };
@@ -54,6 +55,7 @@ function recordingPrisma() {
     user: {
       delete: calls.userDelete,
       findUnique: calls.userFindUnique,
+      findUniqueOrThrow: calls.userFindUniqueOrThrow,
       update: calls.userUpdate,
       upsert: calls.userUpsert,
     },
@@ -148,13 +150,13 @@ describe("hosted AI operator synthetic fixtures", () => {
       companyId: SEED_IDS.hostedAiFixtureCompany,
       email: SYNTHETIC_HOSTED_AI_ORDINARY_USER.email,
       emailVerified: true,
+      isPlatformOperator: false,
       id: SEED_IDS.hostedAiOrdinaryUser,
     });
     expect(calls.userUpsert.mock.calls[0]?.[0].create).toMatchObject({
       companyId: SEED_IDS.hostedAiFixtureCompany,
       email: SYNTHETIC_HOSTED_AI_ORDINARY_USER.email,
       id: SEED_IDS.hostedAiOrdinaryUser,
-      isPlatformOperator: false,
       roleId: SEED_IDS.hostedAiFixtureRole,
       status: "active",
     });
@@ -179,11 +181,16 @@ describe("hosted AI operator synthetic fixtures", () => {
     await seedLocalHostedAiOperatorAccess(context(prisma));
     await seedLocalHostedAiOperatorAccess(context(prisma));
 
-    expect(calls.userUpdate).toHaveBeenCalledTimes(2);
-    expect(calls.userUpdate).toHaveBeenLastCalledWith({
+    expect(calls.userFindUniqueOrThrow).toHaveBeenLastCalledWith({
       where: { id: SEED_IDS.user },
+      select: { email: true },
+    });
+    expect(calls.authUserUpdate).toHaveBeenCalledTimes(2);
+    expect(calls.authUserUpdate).toHaveBeenLastCalledWith({
+      where: { email: "seed-operator@example.invalid" },
       data: { isPlatformOperator: true },
     });
+    expect(calls.userUpdate).not.toHaveBeenCalled();
   });
 
   it("forces every operator-table flag off unless local access is explicit", async () => {
@@ -191,9 +198,9 @@ describe("hosted AI operator synthetic fixtures", () => {
 
     await seedHostedAiOperatorUserTableFixtures(context(prisma));
 
-    const users = calls.userUpsert.mock.calls.map(([input]) => input.create);
-    expect(users).toHaveLength(32);
-    expect(users.every(({ isPlatformOperator }) => isPlatformOperator === false)).toBe(true);
+    const logins = calls.authUserUpsert.mock.calls.map(([input]) => input.create);
+    expect(logins).toHaveLength(32);
+    expect(logins.every(({ isPlatformOperator }) => isPlatformOperator === false)).toBe(true);
   });
 
   it("converges the three ledger states when run twice in the same period", async () => {
@@ -249,9 +256,13 @@ describe("hosted AI operator synthetic fixtures", () => {
         email: definition.email,
         firstName: definition.firstName,
         id: definition.id,
-        isPlatformOperator: definition.isPlatformOperator,
         lastName: definition.lastName,
         status: definition.status,
+      });
+      expect(calls.authUserUpsert.mock.calls[index]?.[0].create).toMatchObject({
+        email: definition.email,
+        id: definition.id,
+        isPlatformOperator: definition.isPlatformOperator,
       });
     }
   });

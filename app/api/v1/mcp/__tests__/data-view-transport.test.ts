@@ -13,6 +13,7 @@ vi.mock("@/core/di", () => ({
   getManageDataViewsInteractor: () => ({ invoke: interactors.manage }),
   getAuthService: () => ({ isMcpApiKeyValid: () => Promise.resolve(true) }),
   getAuthorizeMcpConnectionInteractor: () => ({ invoke: () => Promise.resolve({ ok: true, data: true }) }),
+  getOperatorAccessService: () => ({ isReadEligible: () => Promise.resolve(false) }),
 }));
 
 import { POST } from "../route";

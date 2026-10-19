@@ -14,7 +14,10 @@ const COMPANY_ID = "00000000-0000-4000-8000-000000000001";
 const admin = createMockUser({ id: "admin-1", companyId: COMPANY_ID, status: Status.active });
 
 describe("GetWorkspaceLeaveInteractor", () => {
-  let repo: { isPlatformOperatorCompanyWide: ReturnType<typeof vi.fn>; leaveCompanyWide: ReturnType<typeof vi.fn> };
+  let repo: {
+    strandsLastPlatformOperatorCompanyWide: ReturnType<typeof vi.fn>;
+    leaveCompanyWide: ReturnType<typeof vi.fn>;
+  };
   let roleRepo: { hasAnotherActiveSystemRoleUser: ReturnType<typeof vi.fn> };
 
   function leave(user = admin) {
@@ -22,7 +25,7 @@ describe("GetWorkspaceLeaveInteractor", () => {
   }
 
   beforeEach(() => {
-    repo = { isPlatformOperatorCompanyWide: vi.fn().mockResolvedValue(false), leaveCompanyWide: vi.fn() };
+    repo = { strandsLastPlatformOperatorCompanyWide: vi.fn().mockResolvedValue(false), leaveCompanyWide: vi.fn() };
     roleRepo = { hasAnotherActiveSystemRoleUser: vi.fn().mockResolvedValue(true) };
   });
 
@@ -38,8 +41,8 @@ describe("GetWorkspaceLeaveInteractor", () => {
     expect(repo.leaveCompanyWide).not.toHaveBeenCalled();
   });
 
-  it("names a platform operator, who leaves through the operator console", async () => {
-    repo.isPlatformOperatorCompanyWide.mockResolvedValue(true);
+  it("names the last platform operator's only active membership, which cannot be left", async () => {
+    repo.strandsLastPlatformOperatorCompanyWide.mockResolvedValue(true);
 
     expect(await leave()).toMatchObject({ ok: true, data: { refusal: "platformOperator" } });
   });

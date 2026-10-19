@@ -126,6 +126,9 @@ import { RecordTrashHandler } from "@/features/records/record-trash.handler";
 import { ConfigurationTrashHandler } from "@/features/records/configuration-trash.handler";
 import { PurgeExpiredTrashInteractor } from "@/features/trash/purge-expired-trash.interactor";
 import { PurgeCompanyTrashInteractor } from "@/features/trash/purge-company-trash.interactor";
+import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
+import { ReconcileBillingUsageInteractor } from "@/features/billing-usage/reconcile-billing-usage.interactor";
+import { ReconcileWorkspaceBillingUsageInteractor } from "@/features/billing-usage/reconcile-workspace-billing-usage.interactor";
 import { ConfigurationSystemPurge } from "@/features/records/configuration-system-purge";
 import { ViewTrashBlockers } from "@/features/data-view/view-trash-blockers";
 import { WidgetTrashBlockers } from "@/features/widget/widget-trash-blockers";
@@ -422,6 +425,7 @@ import { DeleteOperatorWorkspaceInteractor } from "@/ee/operator/delete-operator
 import { GetAdConversionExportInteractor } from "@/ee/operator/get/get-ad-conversion-export.interactor";
 import { GetHostedAiOperatorOverviewInteractor } from "@/ee/operator/get/get-hosted-ai-operator-overview.interactor";
 import { GetOperatorAuditLogsInteractor } from "@/ee/operator/get/get-operator-audit-logs.interactor";
+import { GetOperatorBillingUsageInteractor } from "@/ee/operator/get/get-operator-billing-usage.interactor";
 import { GetOperatorConsoleVisibilityInteractor } from "@/ee/operator/get/get-operator-console-visibility.interactor";
 import { GetOperatorRiskSummaryInteractor } from "@/ee/operator/get/get-operator-risk-summary.interactor";
 import { GetOperatorUserDetailInteractor } from "@/ee/operator/get/get-operator-user-detail.interactor";
@@ -434,6 +438,7 @@ import { OperatorAccessService } from "@/ee/operator/operator-access.service";
 import { PrismaAdConversionExportRepo } from "@/ee/operator/prisma-ad-conversion-export.repository";
 import { PrismaOperatorAccessRepo } from "@/ee/operator/prisma-operator-access.repository";
 import { PrismaOperatorAuditRepo } from "@/ee/operator/prisma-operator-audit.repository";
+import { PrismaOperatorBillingUsageRepo } from "@/ee/operator/prisma-operator-billing-usage.repository";
 import { PrismaOperatorRiskSummaryRepo } from "@/ee/operator/prisma-operator-risk-summary.repository";
 import { PrismaOperatorUsersRepo } from "@/ee/operator/prisma-operator-users.repository";
 import { PrismaOperatorWorkspacesRepo } from "@/ee/operator/prisma-operator-workspaces.repository";
@@ -705,6 +710,11 @@ const entityTrashHandlers = (companyId?: string) => {
 export const getPurgeExpiredTrashInteractor = () =>
   new PurgeExpiredTrashInteractor(getTrashRepo(), getBackgroundTaskService());
 export const getPurgeCompanyTrashInteractor = () => new PurgeCompanyTrashInteractor(getTrashRepo, getTrashKindHandlers);
+export const getBillingUsageRepo = () => new PrismaBillingUsageRepo();
+export const getReconcileBillingUsageInteractor = () =>
+  new ReconcileBillingUsageInteractor(getBillingUsageRepo(), getBackgroundTaskService());
+export const getReconcileWorkspaceBillingUsageInteractor = () =>
+  new ReconcileWorkspaceBillingUsageInteractor(getBillingUsageRepo());
 export const getQueryTrashInteractor = () =>
   new QueryTrashInteractor(getTrashRepo(), getRecordRepo(), getTrashKindHandlers(), getUserRepo());
 export const getRestoreTrashInteractor = () => new RestoreTrashInteractor(getTrashRepo(), getTrashKindHandlers());
@@ -758,9 +768,9 @@ export const getCancelRecordOperationInteractor = () =>
 export const getResumeRecordOperationInteractor = () =>
   new ResumeRecordOperationInteractor(getRecordRepo(), getRecordAccessPolicy(), getBackgroundTaskService());
 export const getPermissionService = () => new PermissionService();
-export const getUserRepo = () => new PrismaUserRepo(getPermissionService());
-export const getCompanyRepo = () => new PrismaCompanyRepo();
-export const getRoleRepo = () => new PrismaRoleRepo();
+export const getUserRepo = () => new PrismaUserRepo(getPermissionService(), getBillingUsageRepo());
+export const getCompanyRepo = () => new PrismaCompanyRepo(getBillingUsageRepo());
+export const getRoleRepo = () => new PrismaRoleRepo(getBillingUsageRepo());
 export const getP13nRepo = () => new PrismaP13nRepo();
 export const createPrismaDataViewRepo = (companyId?: string) =>
   new PrismaDataViewRepo({ widgets: getWidgetRepo(), personalizations: getP13nRepo() }, companyId);
@@ -837,7 +847,7 @@ export const getMessagingRepo = () =>
     getConnectedAccountRepo(),
   );
 export const getConnectedAccountRepo = () =>
-  new PrismaConnectedAccountRepo(getPermissionService(), getUnipileWebhookRepo());
+  new PrismaConnectedAccountRepo(getPermissionService(), getUnipileWebhookRepo(), getBillingUsageRepo());
 export const getUnipileWebhookRepo = () => new PrismaUnipileWebhookRepo();
 export const getCalendarRepo = () => new PrismaCalendarRepo();
 export const getCalendarEventsRepo = () => new PrismaCalendarEventsRepo();
@@ -1976,6 +1986,11 @@ export const getAdConversionExportRepo = () => new PrismaAdConversionExportRepo(
 
 export const getGetAdConversionExportInteractor = () =>
   new GetAdConversionExportInteractor(getAdConversionExportRepo());
+
+export const getOperatorBillingUsageRepo = () => new PrismaOperatorBillingUsageRepo();
+
+export const getGetOperatorBillingUsageInteractor = () =>
+  new GetOperatorBillingUsageInteractor(getOperatorBillingUsageRepo());
 
 export const getUpdateOperatorUserPlatformAccessInteractor = () =>
   new UpdateOperatorUserPlatformAccessInteractor(getOperatorRepo());

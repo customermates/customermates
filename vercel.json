@@ -6,6 +6,10 @@
       "schedule": "0 9 * * *"
     },
     {
+      "path": "/api/cron/billing-usage",
+      "schedule": "30 3 * * *"
+    },
+    {
       "path": "/api/cron/reprocess-webhook-events",
       "schedule": "*/5 * * * *"
     },

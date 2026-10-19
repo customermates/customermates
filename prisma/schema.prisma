@@ -9,20 +9,22 @@ datasource db {
 }
 
 model AuthUser {
-  id                String             @id
-  name              String
-  email             String
-  emailVerified     Boolean            @default(false)
-  image             String?
-  companyId         String?
-  trialConsumedAt   DateTime?
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @default(now()) @updatedAt
-  authsessions      AuthSession[]
-  authaccounts      AuthAccount[]
-  oauthapplications OauthApplication[]
-  oauthaccesstokens OauthAccessToken[]
-  oauthconsents     OauthConsent[]
+  id                 String             @id
+  name               String
+  email              String
+  emailVerified      Boolean            @default(false)
+  image              String?
+  companyId          String?
+  trialConsumedAt    DateTime?
+  /// Platform operator access belongs to the login, not to one of its workspace memberships.
+  isPlatformOperator Boolean            @default(false)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @default(now()) @updatedAt
+  authsessions       AuthSession[]
+  authaccounts       AuthAccount[]
+  oauthapplications  OauthApplication[]
+  oauthaccesstokens  OauthAccessToken[]
+  oauthconsents      OauthConsent[]
 
   @@unique([email])
   @@index([email])
@@ -187,7 +189,6 @@ model User {
   onboardingWizardProgress        Json?
   onboardingWikiStepCompletedAt   DateTime?
   agentCreditActivatedAt          DateTime?
-  isPlatformOperator              Boolean                   @default(false)
   leftAt                          DateTime?
   createdAt                       DateTime                  @default(now())
   updatedAt                       DateTime                  @updatedAt
@@ -702,6 +703,47 @@ model OperatorAuditEvent {
 
   @@index([action, createdAt])
   @@index([targetCompanyId, createdAt])
+}
+
+// Billing usage ledger, kept by features/billing-usage/billing-usage-ledger.ts on every
+// user, channel and workspace change. No foreign key: the history outlives a deleted workspace.
+model BillingUsageInterval {
+  id         String           @id @default(uuid())
+  companyId  String
+  kind       BillingUsageKind
+  subjectId  String
+  startedAt  DateTime
+  endedAt    DateTime?
+  startExact Boolean          @default(true)
+  endExact   Boolean          @default(true)
+  firstName  String?
+  lastName   String?
+  email      String?
+  roleName   String?
+  provider   String?
+  identifier String?
+  createdAt  DateTime         @default(now())
+
+  @@index([companyId, kind, startedAt])
+  @@index([kind, startedAt])
+  @@index([kind, endedAt])
+}
+
+// One row per workspace ever created. recordedFrom is null when the ledger has
+// recorded the workspace since its creation; otherwise changes before it are unknown.
+model BillingUsageWorkspace {
+  companyId            String    @id
+  workspaceCreatedAt   DateTime
+  deletedAt            DateTime?
+  seatsRecordedFrom    DateTime?
+  channelsRecordedFrom DateTime?
+  workspaceLabel       String?
+  createdAt            DateTime  @default(now())
+}
+
+enum BillingUsageKind {
+  seat
+  channel
 }
 
 enum Resource {
